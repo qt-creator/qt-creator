@@ -6763,20 +6763,25 @@ namespace {
 class MoveFuncDefToDeclOp : public CppQuickFixOperation
 {
 public:
+    enum Type { Push, Pull };
     MoveFuncDefToDeclOp(const CppQuickFixInterface &interface,
                         const FilePath &fromFilePath, const FilePath &toFilePath,
-                        FunctionDefinitionAST *funcDef, const QString &declText,
+                        FunctionDefinitionAST *funcAst, Function *func, const QString &declText,
                         const ChangeSet::Range &fromRange,
-                        const ChangeSet::Range &toRange)
+                        const ChangeSet::Range &toRange,
+                        Type type)
         : CppQuickFixOperation(interface, 0)
         , m_fromFilePath(fromFilePath)
         , m_toFilePath(toFilePath)
-        , m_funcAST(funcDef)
+        , m_funcAST(funcAst)
+        , m_func(func)
         , m_declarationText(declText)
         , m_fromRange(fromRange)
         , m_toRange(toRange)
     {
-        if (m_toFilePath == m_fromFilePath) {
+        if (type == Type::Pull) {
+            setDescription(Tr::tr("Move Definition Here"));
+        } else if (m_toFilePath == m_fromFilePath) {
             setDescription(Tr::tr("Move Definition to Class"));
         } else {
             const FilePath resolved = m_toFilePath.relativePathFrom(m_fromFilePath.parentDir());
@@ -6784,11 +6789,16 @@ public:
         }
     }
 
+private:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr fromFile = refactoring.file(m_fromFilePath);
         CppRefactoringFilePtr toFile = refactoring.file(m_toFilePath);
+
+        ensureFuncDefAstAndRange(*fromFile);
+        if (!m_funcAST)
+            return;
 
         const QString wholeFunctionText = m_declarationText
                 + fromFile->textOf(fromFile->endOf(m_funcAST->declarator),
@@ -6811,18 +6821,44 @@ public:
         }
     }
 
-private:
+    void ensureFuncDefAstAndRange(CppRefactoringFile &defFile)
+    {
+        if (m_funcAST) {
+            QTC_CHECK(m_fromRange.end > m_fromRange.start);
+            return;
+        }
+        QTC_ASSERT(m_func, return);
+        const QList<AST *> astPath = ASTPath(defFile.cppDocument())(m_func->line(),
+                                                                    m_func->column());
+        if (astPath.isEmpty())
+            return;
+        for (auto it = std::rbegin(astPath); it != std::rend(astPath); ++it) {
+            m_funcAST = (*it)->asFunctionDefinition();
+            if (!m_funcAST)
+                continue;
+            AST *astForRange = m_funcAST;
+            const auto prev = std::next(it);
+            if (prev != std::rend(astPath)) {
+                if (const auto templAst = (*prev)->asTemplateDeclaration())
+                    astForRange = templAst;
+            }
+            m_fromRange = defFile.range(astForRange);
+            return;
+        }
+    }
+
     const FilePath m_fromFilePath;
     const FilePath m_toFilePath;
     FunctionDefinitionAST *m_funcAST;
+    Function *m_func;
     const QString m_declarationText;
-    const ChangeSet::Range m_fromRange;
+    ChangeSet::Range m_fromRange;
     const ChangeSet::Range m_toRange;
 };
 
 } // anonymous namespace
 
-void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
+void MoveFuncDefToDeclPush::match(const CppQuickFixInterface &interface, QuickFixOperations &result)
 {
     const QList<AST *> &path = interface.path();
     AST *completeDefAST = nullptr;
@@ -6937,9 +6973,52 @@ void MoveFuncDefToDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
         result << new MoveFuncDefToDeclOp(interface,
                                           interface.filePath(),
                                           declFilePath,
-                                          funcAST, declText,
-                                          defRange, declRange);
+                                          funcAST, func, declText,
+                                          defRange, declRange, MoveFuncDefToDeclOp::Push);
 }
+
+void MoveFuncDefToDeclPull::match(const CppQuickFixInterface &interface,
+                                  QuickFixOperations &result)
+{
+    const QList<AST *> &path = interface.path();
+    for (auto it = std::rbegin(path); it != std::rend(path); ++it) {
+        SimpleDeclarationAST * const simpleDecl = (*it)->asSimpleDeclaration();
+        if (!simpleDecl)
+            continue;
+        const auto prev = std::next(it);
+        if (prev != std::rend(path) && (*prev)->asStatement())
+            return;
+        if (!simpleDecl->symbols || !simpleDecl->symbols->value || simpleDecl->symbols->next)
+            return;
+        Declaration * const decl = simpleDecl->symbols->value->asDeclaration();
+        if (!decl)
+            return;
+        Function * const funcDecl = decl->type()->asFunctionType();
+        if (!funcDecl)
+            return;
+        if (funcDecl->isSignal() || funcDecl->isPureVirtual() || funcDecl->isFriend())
+            return;
+
+        // Is there a definition?
+        SymbolFinder symbolFinder;
+        Function * const funcDef = symbolFinder.findMatchingDefinition(decl, interface.snapshot(),
+                                                                       true);
+        if (!funcDef)
+            return;
+
+        QString declText = interface.currentFile()->textOf(simpleDecl);
+        declText.chop(1); // semicolon
+        declText.prepend(inlinePrefix(interface.filePath(), [funcDecl] {
+            return !funcDecl->enclosingScope()->asClass();
+        }));
+        result << new MoveFuncDefToDeclOp(interface, funcDef->filePath(), decl->filePath(), nullptr,
+                                          funcDef, declText, {},
+                                          interface.currentFile()->range(simpleDecl),
+                                          MoveFuncDefToDeclOp::Pull);
+        return;
+    }
+}
+
 
 namespace {
 
@@ -9744,7 +9823,8 @@ void createCppQuickFixes()
 
     new MoveFuncDefOutside;
     new MoveAllFuncDefOutside;
-    new MoveFuncDefToDecl;
+    new MoveFuncDefToDeclPush;
+    new MoveFuncDefToDeclPull;
 
     new AssignToLocalVariable;
 

@@ -520,9 +520,18 @@ public:
 };
 
 /*!
- Moves the definition of a function to its declaration.
+ Moves the definition of a function to its declaration, with the cursor on the definition.
  */
-class MoveFuncDefToDecl: public CppQuickFixFactory
+class MoveFuncDefToDeclPush : public CppQuickFixFactory
+{
+public:
+    void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
+};
+
+/*!
+ Moves the definition of a function to its declaration, with the cursor on the declaration.
+ */
+class MoveFuncDefToDeclPull : public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;

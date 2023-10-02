@@ -7256,7 +7256,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
 
     originalHeader =
         "class Foo {\n"
-        "    inline int number() const;\n"
+        "    inline int @number() const;\n"
         "};\n";
     expectedHeader =
         "class Foo {\n"
@@ -7274,7 +7274,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
 
     originalSource =
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  inline int @number() const;\n"
         "};\n"
         "\n"
         "int Foo::num@ber() const\n"
@@ -7295,7 +7295,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
     originalHeader =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  inline int @number() const;\n"
         "};\n"
         "}\n";
     expectedHeader =
@@ -7322,7 +7322,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
     originalHeader =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  inline int numbe@r() const;\n"
         "};\n"
         "}\n";
     expectedHeader =
@@ -7353,7 +7353,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
     originalSource =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int number() const;\n"
+        "  inline int @number() const;\n"
         "};\n"
         "\n"
         "int Foo::numb@er() const\n"
@@ -7373,7 +7373,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
     QTest::newRow("member function, one file, namespace")
             << QByteArrayList() << QByteArrayList{originalSource, expectedSource};
 
-    originalHeader = "int number() const;\n";
+    originalHeader = "int nu@mber() const;\n";
     expectedHeader =
         "inline int number() const\n"
         "{\n"
@@ -7393,7 +7393,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
 
     originalHeader =
         "namespace MyNamespace {\n"
-        "int number() const;\n"
+        "int n@umber() const;\n"
         "}\n";
     expectedHeader =
         "namespace MyNamespace {\n"
@@ -7418,7 +7418,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
     originalHeader =
         "class Foo {\n"
         "public:\n"
-        "    Foo();\n"
+        "    Fo@o();\n"
         "private:\n"
         "    int a;\n"
         "    float b;\n"
@@ -7443,7 +7443,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
     originalSource =
         "struct Foo\n"
         "{\n"
-        "    void foo();\n"
+        "    void f@oo();\n"
         "} bar;\n"
         "void Foo::fo@o()\n"
         "{\n"
@@ -7465,7 +7465,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
         "    virtual int foo() = 0;\n"
         "};\n"
         "struct Derived : Base {\n"
-        "    int foo() override;\n"
+        "    int @foo() override;\n"
         "};\n"
         "\n"
         "int Derived::fo@o()\n"
@@ -7487,7 +7487,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
 
     originalSource =
         "template<class T>\n"
-        "class Foo { void func(); };\n"
+        "class Foo { void @func(); };\n"
         "\n"
         "template<class T>\n"
         "void Foo<T>::fu@nc() {}\n";
@@ -7501,7 +7501,7 @@ void QuickfixTest::testMoveFuncDefToDecl_data()
         "class Foo\n"
         "{\n"
         "    template<class T>\n"
-        "    void func();\n"
+        "    void @func();\n"
         "};\n"
         "\n"
         "template<class T>\n"
@@ -7524,15 +7524,32 @@ void QuickfixTest::testMoveFuncDefToDecl()
     QVERIFY(headers.isEmpty() || headers.size() == 2);
     QVERIFY(sources.size() == 2);
 
+    QByteArray &declDoc = !headers.empty() ? headers.first() : sources.first();
+    const int declCursorPos = declDoc.indexOf('@');
+    QVERIFY(declCursorPos != -1);
+    const int defCursorPos = sources.first().lastIndexOf('@');
+    QVERIFY(defCursorPos != -1);
+    QVERIFY(declCursorPos != defCursorPos);
+
+    declDoc.remove(declCursorPos, 1);
     QList<TestDocumentPtr> testDocuments;
     if (!headers.isEmpty())
         testDocuments << CppTestDocument::create("file.h", headers.first(), headers.last());
     testDocuments << CppTestDocument::create("file.cpp", sources.first(), sources.last());
 
-    MoveFuncDefToDecl factory;
-    QuickFixOperationTest(testDocuments, &factory);
-}
+    MoveFuncDefToDeclPush pushFactory;
+    QuickFixOperationTest(testDocuments, &pushFactory);
 
+    declDoc.insert(declCursorPos, '@');
+    sources.first().remove(defCursorPos, 1);
+    testDocuments.clear();
+    if (!headers.isEmpty())
+        testDocuments << CppTestDocument::create("file.h", headers.first(), headers.last());
+    testDocuments << CppTestDocument::create("file.cpp", sources.first(), sources.last());
+
+    MoveFuncDefToDeclPull pullFactory;
+    QuickFixOperationTest(testDocuments, &pullFactory);
+}
 
 void QuickfixTest::testMoveFuncDefToDeclMacroUses()
 {
@@ -7560,7 +7577,7 @@ void QuickfixTest::testMoveFuncDefToDeclMacroUses()
         "    }\n"
         "};\n\n\n\n";
 
-    MoveFuncDefToDecl factory;
+    MoveFuncDefToDeclPush factory;
     QuickFixOperationTest(singleDocument(original, expected), &factory,
                           ProjectExplorer::HeaderPaths(), 0, "QTCREATORBUG-12314");
 }
