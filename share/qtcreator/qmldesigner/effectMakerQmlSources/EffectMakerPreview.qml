@@ -17,6 +17,8 @@ Column {
     required property Item mainRoot
     property var effectMakerModel: EffectMakerBackend.effectMakerModel
     property alias source: source
+    // The delay in ms to wait until updating the effect
+    readonly property int updateDelay: 200
 
     Rectangle { // toolbar
         width: parent.width
@@ -160,7 +162,7 @@ Column {
 
             try {
                 const newObject = Qt.createQmlObject(
-                    effectMakerModel.qmlComponentString, //TODO
+                    effectMakerModel.qmlComponentString,
                     componentParent,
                     ""
                 );
@@ -178,11 +180,19 @@ Column {
             }
         }
 
+        Connections {
+            target: effectMakerModel
+            function onShadersBaked() {
+                console.log("Shaders Baked!")
+                //updateTimer.restart(); // Disable for now
+            }
+        }
+
         Timer {
             id: updateTimer
-            interval: effectMakerModel.effectUpdateDelay(); //TODO
+            interval: updateDelay;
             onTriggered: {
-                effectMakerModel.updateQmlComponent(); //TODO
+                effectMakerModel.updateQmlComponent();
                 createNewComponent();
             }
         }

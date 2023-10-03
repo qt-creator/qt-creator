@@ -36,6 +36,8 @@ class EffectMakerModel : public QAbstractListModel
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
+    Q_PROPERTY(QString qmlComponentString READ qmlComponentString)
+
 
 public:
     EffectMakerModel(QObject *parent = nullptr);
@@ -60,6 +62,11 @@ public:
     void setFragmentShader(const QString &newFragmentShader);
     QString vertexShader() const;
     void setVertexShader(const QString &newVertexShader);
+
+    const QString &qmlComponentString() const;
+    void setQmlComponentString(const QString &string);
+
+    Q_INVOKABLE void updateQmlComponent();
 
 signals:
     void isEmptyChanged();
@@ -117,6 +124,8 @@ private:
     void updateCustomUniforms();
     void bakeShaders();
 
+    QString getQmlComponentString(bool localFiles);
+
     QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
@@ -139,6 +148,7 @@ private:
     QString m_exportedEffectPropertiesString;
     // Used in preview QML, at ShaderEffect component of the file
     QString m_previewEffectPropertiesString;
+    QString m_qmlComponentString;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

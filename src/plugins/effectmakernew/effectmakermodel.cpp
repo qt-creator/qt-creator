@@ -104,6 +104,8 @@ void EffectMakerModel::addNode(const QString &nodeQenPath)
     endInsertRows();
 
     setIsEmpty(false);
+
+    bakeShaders();
 }
 
 void EffectMakerModel::moveNode(int fromIdx, int toIdx)
@@ -115,6 +117,8 @@ void EffectMakerModel::moveNode(int fromIdx, int toIdx)
     beginMoveRows({}, fromIdx, fromIdx, {}, toIdxAdjusted);
     m_nodes.move(fromIdx, toIdx);
     endMoveRows();
+
+    bakeShaders();
 }
 
 void EffectMakerModel::removeNode(int idx)
@@ -127,6 +131,8 @@ void EffectMakerModel::removeNode(int idx)
 
     if (m_nodes.isEmpty())
         setIsEmpty(true);
+    else
+        bakeShaders();
 }
 
 void EffectMakerModel::updateBakedShaderVersions()
@@ -168,6 +174,11 @@ void EffectMakerModel::setVertexShader(const QString &newVertexShader)
         return;
 
     m_vertexShader = newVertexShader;
+}
+
+const QString &EffectMakerModel::qmlComponentString() const
+{
+    return m_qmlComponentString;
 }
 
 const QList<Uniform *> EffectMakerModel::allUniforms()
@@ -601,7 +612,7 @@ QString EffectMakerModel::generateVertexShader(bool includeUniforms)
     const bool removeTags = includeUniforms;
 
     s += getDefineProperties();
-    s += getConstVariables();
+    // s += getConstVariables(); // Not sure yet, will check on this later
 
     // When the node is complete, add shader code in correct nodes order
     // split to root and main parts
@@ -661,7 +672,7 @@ QString EffectMakerModel::generateFragmentShader(bool includeUniforms)
     const bool removeTags = includeUniforms;
 
     s += getDefineProperties();
-    s += getConstVariables();
+    // s += getConstVariables(); // Not sure yet, will check on this later
 
     // When the node is complete, add shader code in correct nodes order
     // split to root and main parts
@@ -787,14 +798,14 @@ void EffectMakerModel::bakeShaders()
 
     // First update the features based on shader content
     // This will make sure that next calls to "generate" will produce correct uniforms.
-    m_shaderFeatures.update(generateVertexShader(false), generateFragmentShader(false), m_previewEffectPropertiesString);
+    m_shaderFeatures.update(generateVertexShader(false), generateFragmentShader(false),
+                            m_previewEffectPropertiesString);
 
     updateCustomUniforms();
 
     setVertexShader(generateVertexShader());
     QString vs = m_vertexShader;
     m_baker.setSourceString(vs.toUtf8(), QShader::VertexStage);
-
     QShader vertShader = m_baker.bake();
     if (!vertShader.isValid()) {
         qWarning() << "Shader baking failed:" << qPrintable(m_baker.errorMessage());
@@ -838,6 +849,21 @@ void EffectMakerModel::setShadersUpToDate(bool UpToDate)
         return;
     m_shadersUpToDate = UpToDate;
     emit shadersUpToDateChanged();
+}
+
+QString EffectMakerModel::getQmlComponentString(bool localFiles)
+{
+    Q_UNUSED(localFiles)
+
+    // TODO
+    return QString();
+}
+
+void EffectMakerModel::updateQmlComponent()
+{
+    // Clear possible QML runtime errors
+    resetEffectError(ErrorQMLRuntime);
+    m_qmlComponentString = getQmlComponentString(false);
 }
 
 } // namespace EffectMaker
