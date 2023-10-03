@@ -28,6 +28,10 @@ public:
 
     bool enabled(ShaderFeatures::Feature feature) const;
 
+    int gridMeshWidth() const;
+
+    int gridMeshHeight() const;
+
 private:
     void checkLine(const QString &line, ShaderFeatures::Features &features);
     ShaderFeatures::Features m_enabledFeatures;

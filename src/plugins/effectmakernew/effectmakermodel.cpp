@@ -851,12 +851,78 @@ void EffectMakerModel::setShadersUpToDate(bool UpToDate)
     emit shadersUpToDateChanged();
 }
 
-QString EffectMakerModel::getQmlComponentString(bool localFiles)
+QString EffectMakerModel::getQmlImagesString(bool localFiles)
 {
     Q_UNUSED(localFiles)
 
     // TODO
     return QString();
+}
+
+QString EffectMakerModel::getQmlComponentString(bool localFiles)
+{
+    auto addProperty = [localFiles](const QString &name, const QString &var,
+                                    const QString &type, bool blurHelper = false)
+    {
+        if (localFiles) {
+            const QString parent = blurHelper ? QString("blurHelper.") : QString("rootItem.");
+            return QString("readonly property alias %1: %2%3\n").arg(name, parent, var);
+        } else {
+            const QString parent = blurHelper ? "blurHelper." : QString();
+            return QString("readonly property %1 %2: %3%4\n").arg(type, name, parent, var);
+        }
+    };
+
+    QString customImagesString = getQmlImagesString(localFiles);
+    QString vertexShaderFilename = "file:///" + m_fragmentShaderFile.fileName();
+    QString fragmentShaderFilename = "file:///" + m_vertexShaderFile.fileName();
+    QString s;
+    QString l1 = localFiles ? QStringLiteral("    ") : QStringLiteral("");
+    QString l2 = localFiles ? QStringLiteral("        ") : QStringLiteral("    ");
+    QString l3 = localFiles ? QStringLiteral("            ") : QStringLiteral("        ");
+
+    if (!localFiles)
+        s += "import QtQuick\n";
+    s += l1 + "ShaderEffect {\n";
+    if (m_shaderFeatures.enabled(ShaderFeatures::Source))
+        s += l2 + addProperty("iSource", "source", "Item");
+    if (m_shaderFeatures.enabled(ShaderFeatures::Time))
+        s += l2 + addProperty("iTime", "animatedTime", "real");
+    if (m_shaderFeatures.enabled(ShaderFeatures::Frame))
+        s += l2 + addProperty("iFrame", "animatedFrame", "int");
+    if (m_shaderFeatures.enabled(ShaderFeatures::Resolution)) {
+        // Note: Pixel ratio is currently always 1.0
+        s += l2 + "readonly property vector3d iResolution: Qt.vector3d(width, height, 1.0)\n";
+    }
+    if (m_shaderFeatures.enabled(ShaderFeatures::Mouse)) { // Do we need interactive effects?
+        s += l2 + "readonly property vector4d iMouse: Qt.vector4d(rootItem._effectMouseX, rootItem._effectMouseY,\n";
+        s += l2 + "                                               rootItem._effectMouseZ, rootItem._effectMouseW)\n";
+    }
+    if (m_shaderFeatures.enabled(ShaderFeatures::BlurSources)) {
+        s += l2 + addProperty("iSourceBlur1", "blurSrc1", "Item", true);
+        s += l2 + addProperty("iSourceBlur2", "blurSrc2", "Item", true);
+        s += l2 + addProperty("iSourceBlur3", "blurSrc3", "Item", true);
+        s += l2 + addProperty("iSourceBlur4", "blurSrc4", "Item", true);
+        s += l2 + addProperty("iSourceBlur5", "blurSrc5", "Item", true);
+    }
+    // When used in preview component, we need property with value
+    // and when in exported component, property with binding to root value.
+    s += localFiles ? m_exportedEffectPropertiesString : m_previewEffectPropertiesString;
+    if (!customImagesString.isEmpty())
+        s += '\n' + customImagesString;
+
+    s += '\n';
+    s += l2 + "vertexShader: '" + vertexShaderFilename + "'\n";
+    s += l2 + "fragmentShader: '" + fragmentShaderFilename + "'\n";
+    s += l2 + "anchors.fill: parent\n";
+    if (m_shaderFeatures.enabled(ShaderFeatures::GridMesh)) {
+        QString gridSize = QString("%1, %2").arg(m_shaderFeatures.gridMeshWidth()).arg(m_shaderFeatures.gridMeshHeight());
+        s += l2 + "mesh: GridMesh {\n";
+        s += l3 + QString("resolution: Qt.size(%1)\n").arg(gridSize);
+        s += l2 + "}\n";
+    }
+    s += l1 + "}\n";
+    return s;
 }
 
 void EffectMakerModel::updateQmlComponent()

@@ -77,5 +77,15 @@ void ShaderFeatures::checkLine(const QString &line, Features &features)
         features.setFlag(BlurSources, true);
 }
 
+int ShaderFeatures::gridMeshHeight() const
+{
+    return m_gridMeshHeight;
+}
+
+int ShaderFeatures::gridMeshWidth() const
+{
+    return m_gridMeshWidth;
+}
+
 } // namespace EffectMaker
 

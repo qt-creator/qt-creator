@@ -124,6 +124,7 @@ private:
     void updateCustomUniforms();
     void bakeShaders();
 
+    QString getQmlImagesString(bool localFiles);
     QString getQmlComponentString(bool localFiles);
 
     QList<CompositionNode *> m_nodes;
