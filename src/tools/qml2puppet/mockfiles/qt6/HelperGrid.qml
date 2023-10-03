@@ -14,7 +14,18 @@ Node {
     property double distance: 500
 
     readonly property int maxGridStep: 32 * _generalHelper.minGridStep
-    readonly property int gridArea: _generalHelper.minGridStep * 512
+
+    readonly property int gridArea: {
+        let newArea = _generalHelper.minGridStep * 512
+
+        // Let's limit the grid size to something sensible
+        while (newArea > 30000)
+            newArea -= gridStep
+
+        return newArea
+    }
+
+    readonly property double gridOpacity: 0.99
 
     // Step of the main lines of the grid, between those is always one subdiv line
     property int gridStep: 100
@@ -71,7 +82,7 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
-        opacity: 0.99
+        opacity: grid.gridOpacity
     }
 
     Model { // Subdivision lines
@@ -91,7 +102,7 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
-        opacity: 0.99
+        opacity: grid.gridOpacity
     }
 
     Model { // Z Axis
@@ -110,7 +121,7 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
-        opacity: 0.99
+        opacity: grid.gridOpacity
     }
     Model { // X Axis
         readonly property bool _edit3dLocked: true // Make this non-pickable
@@ -129,6 +140,6 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
-        opacity: 0.99
+        opacity: grid.gridOpacity
     }
 }
