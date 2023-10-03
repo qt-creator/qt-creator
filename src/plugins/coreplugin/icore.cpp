@@ -1007,9 +1007,8 @@ QString ICore::systemInformation()
     QString result = PluginManager::systemInformation() + '\n';
     result += versionString() + '\n';
     result += buildCompatibilityString() + '\n';
-#ifdef IDE_REVISION
-    result += QString("From revision %1\n").arg(QString::fromLatin1(Constants::IDE_REVISION_STR).left(10));
-#endif
+    if (!Utils::appInfo().revision.isEmpty())
+        result += QString("From revision %1\n").arg(Utils::appInfo().revision.left(10));
 #ifdef QTC_SHOW_BUILD_DATE
      result += QString("Built on %1 %2\n").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
 #endif
