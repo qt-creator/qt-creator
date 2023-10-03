@@ -307,12 +307,25 @@ QStringList extraClangToolsAppendOptions()
     return options;
 }
 
+static QVersionNumber fixupVersion(const VersionAndSuffix &versionAndSuffix)
+{
+    // llvm.org only does document releases for the first released version
+    QVersionNumber version = QVersionNumber(versionAndSuffix.first.majorVersion(), 0, 0);
+
+    if (version == QVersionNumber(0))
+        version = QVersionNumber(12);
+
+    // Version 17.0.0 was never released due to a git issue
+    if (version == QVersionNumber(17))
+        version = QVersionNumber(17, 0, 1);
+
+    return version;
+}
+
 QString clangTidyDocUrl(const QString &check)
 {
     VersionAndSuffix version = ClangToolsSettings::clangTidyVersion();
-    version.first = QVersionNumber(version.first.majorVersion(), 0, 0);
-    if (version.first == QVersionNumber(0))
-        version.first = QVersionNumber(12);
+    version.first = fixupVersion(version);
     static const char versionedUrlPrefix[]
             = "https://releases.llvm.org/%1/tools/clang/tools/extra/docs/";
     static const char unversionedUrlPrefix[] = "https://clang.llvm.org/extra/";
