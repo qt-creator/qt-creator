@@ -28,7 +28,6 @@ class SqliteDatabaseMock;
 class SqliteReadStatementMockBase
 {
 public:
-    SqliteReadStatementMockBase() = default;
     SqliteReadStatementMockBase(Utils::SmallStringView sqlStatement, SqliteDatabaseMock &databaseMock);
 
     MOCK_METHOD(std::vector<Utils::SmallString>, valuesReturnStringVector, (std::size_t), ());
