@@ -167,7 +167,8 @@ CMakeManager::CMakeManager()
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
         updateCmakeActions(ProjectTree::currentNode());
 
-        auto cmakeBuildSystem = static_cast<CMakeBuildSystem*>(ProjectManager::startupBuildSystem());
+        auto cmakeBuildSystem = qobject_cast<CMakeBuildSystem *>(
+            ProjectManager::startupBuildSystem());
         if (cmakeBuildSystem) {
             const BuildDirParameters parameters(cmakeBuildSystem);
             const auto tool = parameters.cmakeTool();
