@@ -719,7 +719,7 @@ PropertyName NodeMetaInfoPrivate::defaultPropertyName() const
     return PropertyName("data");
 }
 
-inline static TypeName stringIdentifier(const TypeName &type, int maj, int min)
+static TypeName stringIdentifier(const TypeName &type, int maj, int min)
 {
     return type + QByteArray::number(maj) + '_' + QByteArray::number(min);
 }
@@ -729,13 +729,30 @@ std::shared_ptr<NodeMetaInfoPrivate> NodeMetaInfoPrivate::create(Model *model,
                                                                  int major,
                                                                  int minor)
 {
+    auto stringfiedType = stringIdentifier(type, major, minor);
     auto &cache = model->d->nodeMetaInfoCache();
-    if (auto found = cache.find(stringIdentifier(type, major, minor)); found != cache.end())
+    if (auto found = cache.find(stringfiedType); found != cache.end())
         return *found;
 
     auto newData = std::make_shared<NodeMetaInfoPrivate>(model, type, major, minor);
-    if (newData->isValid())
-        cache.insert(stringIdentifier(type, major, minor), newData);
+
+    if (!newData->isValid())
+        return newData;
+
+    auto stringfiedQualifiedType = stringIdentifier(newData->qualfiedTypeName(),
+                                                    newData->majorVersion(),
+                                                    newData->minorVersion());
+
+    if (auto found = cache.find(stringfiedQualifiedType); found != cache.end()) {
+        cache.insert(stringfiedType, *found);
+        return *found;
+    }
+
+    if (stringfiedQualifiedType != stringfiedType)
+        cache.insert(stringfiedQualifiedType, newData);
+
+    cache.insert(stringfiedType, newData);
+
     return newData;
 }
 
