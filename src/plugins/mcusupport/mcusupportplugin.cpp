@@ -40,7 +40,6 @@
 
 #include <utils/filepath.h>
 #include <utils/infobar.h>
-#include <utils/qtcsettings.h>
 
 #include <QAction>
 #include <QDateTime>
@@ -113,12 +112,6 @@ McuSupportPlugin::~McuSupportPlugin()
 {
     delete dd;
     dd = nullptr;
-}
-
-static bool isQtDesignStudio()
-{
-    QtcSettings *settings = Core::ICore::settings();
-    return settings->value("QML/Designer/StandAloneMode", false).toBool();
 }
 
 void McuSupportPlugin::initialize()
