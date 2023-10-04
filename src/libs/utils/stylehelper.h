@@ -107,6 +107,9 @@ QTCREATOR_UTILS_EXPORT void setPanelWidgetSingleRow(QWidget *widget, bool value 
 
 QTCREATOR_UTILS_EXPORT bool isQDSTheme();
 
+QTCREATOR_UTILS_EXPORT
+    Qt::HighDpiScaleFactorRoundingPolicy defaultHighDpiScaleFactorRoundingPolicy();
+
 class IconFontHelper
 {
 public:

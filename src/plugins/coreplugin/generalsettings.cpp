@@ -148,7 +148,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
 
         const Policy userPolicy =
             ICore::settings()->value(settingsKeyDpiPolicy,
-                                     int(HostOsInfo::defaultHighDpiScaleFactorRoundingPolicy()))
+                                     int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()))
                                       .value<Policy>();
         m_policyComboBox->setCurrentIndex(m_policyComboBox->findData(int(userPolicy)));
 
@@ -343,7 +343,7 @@ void GeneralSettingsWidget::setDpiPolicy(Qt::HighDpiScaleFactorRoundingPolicy po
         dialog.exec();
     }
     settings->setValueWithDefault(settingsKeyDpiPolicy, int(policy),
-                                  int(HostOsInfo::defaultHighDpiScaleFactorRoundingPolicy()));
+                                  int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()));
 }
 
 void GeneralSettings::applyToolbarStyleFromSettings()

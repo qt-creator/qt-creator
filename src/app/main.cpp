@@ -19,6 +19,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcsettings.h>
 #include <utils/singleton.h>
+#include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/terminalcommand.h>
 
@@ -286,7 +287,7 @@ static void setHighDpiEnvironmentVariable()
     std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
 
     using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
-    const Policy defaultPolicy = Utils::HostOsInfo::defaultHighDpiScaleFactorRoundingPolicy();
+    const Policy defaultPolicy = Utils::StyleHelper::defaultHighDpiScaleFactorRoundingPolicy();
     const Policy userPolicy = settings->value("Core/HighDpiScaleFactorRoundingPolicy",
                                               int(defaultPolicy)).value<Policy>();
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(userPolicy);
