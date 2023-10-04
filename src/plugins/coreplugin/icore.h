@@ -68,6 +68,7 @@ public:
                                        Utils::Id settingsId = {},
                                        QWidget *parent = nullptr);
 
+    static bool isQtDesignStudio();
     static Utils::QtcSettings *settings(QSettings::Scope scope = QSettings::UserScope);
     static SettingsDatabase *settingsDatabase();
     static QPrinter *printer();

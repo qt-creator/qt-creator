@@ -268,7 +268,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         return false;
     d = new QmlDesignerPluginPrivate;
     d->timer.start();
-    if (QmlProjectManager::QmlProject::isQtDesignStudio())
+    if (Core::ICore::isQtDesignStudio())
         GenerateResource::generateMenuEntry(this);
 
     const QString fontPath
@@ -293,7 +293,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         Core::AsynchronousMessageBox::warning(composedTitle, description.toString());
     });
 
-    if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
+    if (Core::ICore::isQtDesignStudio()) {
         d->toolBar = ToolBar::create();
         d->statusBar = ToolBar::createStatusBar();
     }
@@ -328,7 +328,7 @@ void QmlDesignerPlugin::extensionsInitialized()
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
 {
-    if (QmlProjectManager::QmlProject::isQtDesignStudio())
+    if (Core::ICore::isQtDesignStudio())
         emitUsageStatistics("qdsShutdownCount");
 
     return SynchronousShutdown;
@@ -631,7 +631,7 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
     d->viewManager.registerFormEditorTool(std::make_unique<PathTool>(d->externalDependencies));
     d->viewManager.registerFormEditorTool(std::make_unique<TransitionTool>());
 
-    if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
+    if (Core::ICore::isQtDesignStudio()) {
         d->mainWidget.initialize();
 
         emitUsageStatistics("StandaloneMode");

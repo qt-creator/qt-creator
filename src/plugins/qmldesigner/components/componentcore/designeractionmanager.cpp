@@ -1908,9 +1908,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &addMouseAreaFillCheck,
                           &singleSelection));
 
-    const bool standaloneMode = QmlProjectManager::QmlProject::isQtDesignStudio();
-
-    if (!standaloneMode) {
+    if (!Core::ICore::isQtDesignStudio()) {
         addDesignerAction(new ModelNodeContextMenuAction(goToImplementationCommandId,
                                                          goToImplementationDisplayName,
                                                          {},

@@ -114,13 +114,6 @@ McuSupportPlugin::~McuSupportPlugin()
     dd = nullptr;
 }
 
-static bool isQtDesignStudio()
-{
-    QSettings *settings = Core::ICore::settings();
-    const QString qdsStandaloneEntry = "QML/Designer/StandAloneMode";
-    return settings->value(qdsStandaloneEntry, false).toBool();
-}
-
 void McuSupportPlugin::initialize()
 {
     setObjectName("McuSupportPlugin");
@@ -133,7 +126,7 @@ void McuSupportPlugin::initialize()
     // Temporary fix for CodeModel/Checker race condition
     // Remove after https://bugreports.qt.io/browse/QTCREATORBUG-29269 is closed
 
-    if (!isQtDesignStudio()) {
+    if (!Core::ICore::isQtDesignStudio()) {
         connect(
             QmlJS::ModelManagerInterface::instance(),
             &QmlJS::ModelManagerInterface::documentUpdated,

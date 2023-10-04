@@ -245,7 +245,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 
 void QmlProjectRunConfiguration::createQtVersionAspect()
 {
-    if (!QmlProject::isQtDesignStudio())
+    if (!Core::ICore::isQtDesignStudio())
         return;
 
     m_qtversionAspect = addAspect<SelectionAspect>();

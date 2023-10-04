@@ -17,7 +17,6 @@ class QMLPROJECTMANAGER_EXPORT QmlProject : public ProjectExplorer::Project
 public:
     explicit QmlProject(const Utils::FilePath &filename);
 
-    static bool isQtDesignStudio();
     static bool isQtDesignStudioStartedFromQtC();
     bool isEditModePreferred() const override;
 
