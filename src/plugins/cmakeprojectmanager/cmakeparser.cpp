@@ -62,7 +62,7 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
     QRegularExpressionMatch match;
     QString trimmedLine = rightTrimmed(line);
     switch (m_expectTripleLineErrorData) {
-    case NONE:
+    case NONE: {
         if (trimmedLine.isEmpty() && !m_lastTask.isNull()) {
             if (m_skippedFirstEmptyLine) {
                 flush();
@@ -71,8 +71,10 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
             m_skippedFirstEmptyLine = true;
             return Status::InProgress;
         }
-        if (m_skippedFirstEmptyLine)
-            m_skippedFirstEmptyLine = false;
+        QScopeGuard cleanup([this] {
+            if (m_skippedFirstEmptyLine)
+                m_skippedFirstEmptyLine = false;
+        });
 
         match = m_commonError.match(trimmedLine);
         if (match.hasMatch()) {
@@ -112,10 +114,10 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
             return {Status::InProgress, linkSpecs};
         }
         else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull()) {
-            if (!m_lastTask.summary.isEmpty())
-                m_lastTask.summary.append(' ');
-            m_lastTask.summary.append(trimmedLine.trimmed());
-            ++m_lines;
+            if (m_skippedFirstEmptyLine)
+                m_lastTask.details.append(QString());
+            m_lastTask.details.append(trimmedLine.mid(2));
+
             return Status::InProgress;
         } else if (trimmedLine.endsWith(QLatin1String("in cmake code at"))) {
             m_expectTripleLineErrorData = LINE_LOCATION;
@@ -133,6 +135,7 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
             return Status::InProgress;
         }
         return Status::NotHandled;
+    }
     case LINE_LOCATION:
         {
             match = m_locationLine.match(trimmedLine);
@@ -169,6 +172,11 @@ void CMakeParser::flush()
 {
     if (m_lastTask.isNull())
         return;
+
+    if (m_lastTask.summary.isEmpty())
+        m_lastTask.summary = m_lastTask.details.takeFirst();
+    m_lines += m_lastTask.details.count();
+
     Task t = m_lastTask;
     m_lastTask.clear();
     scheduleTask(t, m_lines, 1);
@@ -223,12 +231,17 @@ void Internal::CMakeProjectPlugin::testCMakeParser_data()
             << QString() << QString()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
-                                   "Cannot find source file: unknownFile.qml Tried extensions "
-                                   ".c .C .c++ .cc .cpp .cxx .m .M .mm .h .hh .h++ .hm .hpp .hxx .in .txx",
+                                   "Cannot find source file:\n\n"
+                                   "  unknownFile.qml\n\n"
+                                   "Tried extensions .c .C .c++ .cc .cpp .cxx .m .M .mm .h .hh .h++ .hm .hpp\n"
+                                   ".hxx .in .txx",
                                     FilePath::fromUserInput("src/1/app/CMakeLists.txt"), 70)
                 << BuildSystemTask(Task::Error,
-                                   "Cannot find source file: CMakeLists.txt2 Tried extensions "
-                                   ".c .C .c++ .cc .cpp .cxx .m .M .mm .h .hh .h++ .hm .hpp .hxx .in .txx",
+                                   "Cannot find source file:\n\n"
+                                   "  CMakeLists.txt2\n\n"
+                                   "Tried extensions "
+                                   ".c .C .c++ .cc .cpp .cxx .m .M .mm .h .hh .h++ .hm .hpp\n"
+                                   ".hxx .in .txx",
                                    FilePath::fromUserInput("src/1/app/CMakeLists.txt"), -1))
             << QString();
 
@@ -299,7 +312,9 @@ void Internal::CMakeProjectPlugin::testCMakeParser_data()
             << QString() << QString()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
-                                   "Parse error.  Expected \"(\", got newline with text \" \".",
+                                   "Parse error.  Expected \"(\", got newline with text \"\n"
+                                   "\n"
+                                   "\".",
                                    FilePath::fromUserInput("CMakeLists.txt"), 4))
             << QString();
 
