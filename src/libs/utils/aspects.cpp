@@ -1229,14 +1229,19 @@ void StringAspect::addToLayout(LayoutItem &parent)
                 &QTextEdit::setPlaceholderText);
 
         connect(textEditDisplay, &QTextEdit::textChanged, this, [this, textEditDisplay]() {
-            d->undoable.set(undoStack(), textEditDisplay->toPlainText());
-            handleGuiChanged();
+            if (textEditDisplay->toPlainText() != d->undoable.get()) {
+                d->undoable.set(undoStack(), textEditDisplay->toPlainText());
+                handleGuiChanged();
+            }
         });
 
         connect(&d->undoable.m_signal,
                 &UndoSignaller::changed,
                 textEditDisplay,
-                [this, textEditDisplay] { textEditDisplay->setText(d->undoable.get()); });
+                [this, textEditDisplay] {
+                    if (textEditDisplay->toPlainText() != d->undoable.get())
+                        textEditDisplay->setText(d->undoable.get());
+                });
         break;
     }
     case LabelDisplay: {
