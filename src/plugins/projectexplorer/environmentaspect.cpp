@@ -6,6 +6,8 @@
 #include "buildconfiguration.h"
 #include "environmentaspectwidget.h"
 #include "kit.h"
+#include "projectexplorer.h"
+#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "target.h"
 
@@ -28,6 +30,13 @@ EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
     setId("EnvironmentAspect");
     setConfigWidgetCreator([this] { return new EnvironmentAspectWidget(this); });
     addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);
+    if (qobject_cast<RunConfiguration *>(container)) {
+        addModifier([](Environment &env) {
+            env.modify(ProjectExplorerPlugin::projectExplorerSettings().appEnvChanges);
+        });
+        connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::settingsChanged,
+                this, &EnvironmentAspect::environmentChanged);
+    }
 }
 
 void EnvironmentAspect::setDeviceSelector(Target *target, DeviceSelector selector)
