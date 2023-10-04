@@ -48,7 +48,6 @@ public:
 
     static void removeMode(IMode *mode);
 
-public slots:
     static void setModeStyle(Style layout);
     static void cycleModeStyle();
 
