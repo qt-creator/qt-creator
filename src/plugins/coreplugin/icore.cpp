@@ -1237,14 +1237,17 @@ void MainWindowPrivate::init()
 
     // Add small Toolbuttons for toggling the navigation widgets
     StatusBarManager::addStatusBarWidget(m_toggleLeftSideBarButton, StatusBarManager::First);
-    int childsCount = q->statusBar()->findChildren<QWidget *>(QString(), Qt::FindDirectChildrenOnly).count();
-    q->statusBar()->insertPermanentWidget(childsCount - 1, m_toggleRightSideBarButton); // before QSizeGrip
+    int childsCount = m_modeStack->statusBar()
+                          ->findChildren<QWidget *>(QString(), Qt::FindDirectChildrenOnly)
+                          .count();
+    m_modeStack->statusBar()->insertPermanentWidget(childsCount - 1,
+                                                    m_toggleRightSideBarButton); // before QSizeGrip
 
-//    setUnifiedTitleAndToolBarOnMac(true);
+    //    setUnifiedTitleAndToolBarOnMac(true);
     //if (HostOsInfo::isAnyUnixHost())
-        //signal(SIGINT, handleSigInt);
+    //signal(SIGINT, handleSigInt);
 
-    q->statusBar()->setProperty("p_styled", true);
+    m_modeStack->statusBar()->setProperty("p_styled", true);
 
     /*auto dropSupport = new DropSupport(this, [](QDropEvent *event, DropSupport *) {
         return event->source() == nullptr; // only accept drops from the "outside" (e.g. file manager)
