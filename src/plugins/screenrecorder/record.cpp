@@ -203,7 +203,7 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
 
     auto stopButton = new QToolButton;
     stopButton->setIcon(Icon({{":/utils/images/stop_small.png",
-                               Theme::IconsBaseColor}}).icon());
+                               Theme::IconsStopToolBarColor}}).icon());
     stopButton->setEnabled(false);
 
     auto progressLabel = new TimeLabel(m_clipInfo);
