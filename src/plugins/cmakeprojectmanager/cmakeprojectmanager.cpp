@@ -149,7 +149,8 @@ CMakeManager::CMakeManager()
                                                   Constants::RUN_CMAKE_PROFILER,
                                                   globalContext);
     command->setDescription(m_cmakeProfilerAction->text());
-    manalyzer->addAction(command, Debugger::Constants::G_ANALYZER_TOOLS);
+    if (manalyzer)
+        manalyzer->addAction(command, Debugger::Constants::G_ANALYZER_TOOLS);
     connect(m_cmakeProfilerAction, &QAction::triggered, this, [this] {
         runCMakeWithProfiling(ProjectManager::startupBuildSystem());
     });
