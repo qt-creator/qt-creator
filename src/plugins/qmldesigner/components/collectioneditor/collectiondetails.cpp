@@ -53,7 +53,7 @@ void CollectionDetails::resetDetails(const QStringList &headers,
     markSaved();
 }
 
-void CollectionDetails::insertHeader(const QString &header, int place, const QVariant &defaultValue)
+void CollectionDetails::insertColumn(const QString &header, int colIdx, const QVariant &defaultValue)
 {
     if (!isValid())
         return;
@@ -61,8 +61,8 @@ void CollectionDetails::insertHeader(const QString &header, int place, const QVa
     if (d->headers.contains(header))
         return;
 
-    if (d->isValidColumnId(place))
-        d->headers.insert(place, header);
+    if (d->isValidColumnId(colIdx))
+        d->headers.insert(colIdx, header);
     else
         d->headers.append(header);
 
@@ -73,20 +73,31 @@ void CollectionDetails::insertHeader(const QString &header, int place, const QVa
     markChanged();
 }
 
-void CollectionDetails::removeHeader(int place)
+bool CollectionDetails::removeColumns(int colIdx, int count)
 {
+    if (count < 1)
+        return false;
+
     if (!isValid())
-        return;
+        return false;
 
-    if (!d->isValidColumnId(place))
-        return;
+    if (!d->isValidColumnId(colIdx))
+        return false;
 
-    const QString header = d->headers.takeAt(place);
+    int maxPossibleCount = d->headers.count() - colIdx;
+    count = std::min(maxPossibleCount, count);
 
-    for (QJsonObject &element : d->elements)
-        element.remove(header);
+    const QStringList removedHeaders = d->headers.mid(colIdx, count);
+    d->headers.remove(colIdx, count);
+
+    for (const QString &header : std::as_const(removedHeaders)) {
+        for (QJsonObject &element : d->elements)
+            element.remove(header);
+    }
 
     markChanged();
+
+    return true;
 }
 
 void CollectionDetails::insertElementAt(std::optional<QJsonObject> object, int row)

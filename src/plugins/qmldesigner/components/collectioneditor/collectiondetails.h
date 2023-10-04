@@ -44,8 +44,8 @@ public:
     void resetDetails(const QStringList &headers,
                       const QList<QJsonObject> &elements,
                       CollectionEditor::SourceFormat format);
-    void insertHeader(const QString &header, int place = -1, const QVariant &defaultValue = {});
-    void removeHeader(int place);
+    void insertColumn(const QString &header, int colIdx = -1, const QVariant &defaultValue = {});
+    bool removeColumns(int colIdx, int count = 1);
 
     void insertElementAt(std::optional<QJsonObject> object, int row = -1);
 

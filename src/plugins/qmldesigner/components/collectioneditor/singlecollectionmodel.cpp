@@ -75,6 +75,19 @@ bool SingleCollectionModel::setHeaderData(int section,
     return headerChanged;
 }
 
+bool SingleCollectionModel::removeColumns(int column, int count, const QModelIndex &parent)
+{
+    if (column < 0 || column >= columnCount(parent) || count < 1)
+        return false;
+
+    count = std::min(count, columnCount(parent) - column);
+    beginRemoveColumns(parent, column, column + count);
+    bool columnsRemoved = m_currentCollection.removeColumns(column, count);
+    endRemoveColumns();
+
+    return columnsRemoved;
+}
+
 Qt::ItemFlags SingleCollectionModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())

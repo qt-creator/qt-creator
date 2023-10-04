@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import HelperWidgets 2.0 as HelperWidgets
 import StudioTheme 1.0 as StudioTheme
 import StudioControls 1.0 as StudioControls
 
@@ -121,6 +122,11 @@ Rectangle {
                     text: qsTr("Edit")
                     onTriggered: editProperyDialog.editProperty(headerMenu.clickedHeader)
                 }
+
+                StudioControls.MenuItem {
+                    text: qsTr("Delete")
+                    onTriggered: deleteColumnDialog.popUp(headerMenu.clickedHeader)
+                }
             }
         }
     }
@@ -167,5 +173,55 @@ Rectangle {
     EditPropertyDialog {
         id: editProperyDialog
         model: root.model
+    }
+
+    StudioControls.Dialog {
+        id: deleteColumnDialog
+
+        property int clickedIndex: -1
+
+        title: qsTr("Delete Column")
+        width: 400
+
+        onAccepted: {
+            root.model.removeColumn(clickedIndex)
+        }
+
+        function popUp(index)
+        {
+            deleteColumnDialog.clickedIndex = index
+            deleteColumnDialog.open()
+        }
+
+        contentItem: Column {
+            spacing: 2
+
+            Text {
+                text: qsTr("Are you sure that you want to delete column \"%1\"?").arg(
+                           root.model.headerData(
+                               deleteColumnDialog.clickedIndex, Qt.Horizontal))
+                color: StudioTheme.Values.themeTextColor
+            }
+
+            Item { // spacer
+                width: 1
+                height: 20
+            }
+
+            Row {
+                anchors.right: parent.right
+                spacing: 10
+
+                HelperWidgets.Button {
+                    text: qsTr("Delete")
+                    onClicked: deleteColumnDialog.accept()
+                }
+
+                HelperWidgets.Button {
+                    text: qsTr("Cancel")
+                    onClicked: deleteColumnDialog.reject()
+                }
+            }
+        }
     }
 }
