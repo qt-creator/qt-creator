@@ -48,6 +48,7 @@ public:
     /* */
 
 using TypeName = QByteArray;
+using TypeNameView = QByteArrayView;
 using PropertyTypeList = QList<PropertyName>;
 using IdName = QByteArray;
 class Model;

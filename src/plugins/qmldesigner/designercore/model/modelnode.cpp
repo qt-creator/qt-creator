@@ -7,6 +7,7 @@
 #include "bindingproperty.h"
 #include "internalnode_p.h"
 #include "model_p.h"
+#include "modelutils.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 #include "nodeproperty.h"
@@ -19,11 +20,14 @@
 #include <rewriterview.h>
 
 #include <utils/algorithm.h>
+#include <utils/array.h>
 
 #include <QHash>
 #include <QRegularExpression>
 #include <QSet>
 #include <QTextStream>
+
+#include <algorithm>
 
 namespace QmlDesigner {
 using namespace QmlDesigner::Internal;
@@ -84,44 +88,42 @@ QString ModelNode::validId()
     return id();
 }
 
-static bool idIsQmlKeyWord(const QString &id)
+namespace {
+bool isQmlKeyWord(QStringView id)
 {
-    static const QSet<QString> keywords = {"as",         "break",    "case",    "catch",
-                                           "continue",   "debugger", "default", "delete",
-                                           "do",         "else",     "finally", "for",
-                                           "function",   "if",       "import",  "in",
-                                           "instanceof", "new",      "print",   "return",
-                                           "switch",     "this",     "throw",   "try",
-                                           "typeof",     "var",      "void",    "while",
-                                           "with"};
+    static constexpr auto keywords = Utils::to_array<std::u16string_view>(
+        {u"as",       u"break",  u"case",   u"catch", u"continue",   u"debugger",
+         u"default",  u"delete", u"do",     u"else",  u"finally",    u"for",
+         u"function", u"if",     u"import", u"in",    u"instanceof", u"new",
+         u"print",    u"return", u"switch", u"this",  u"throw",      u"try",
+         u"typeof",   u"var",    u"void",   u"while", u"with"});
 
-    return keywords.contains(id);
+    return std::binary_search(keywords.begin(), keywords.end(), ModelUtils::toStdStringView(id));
 }
 
-static bool isIdToAvoid(const QString &id)
+bool isIdToAvoid(QStringView id)
 {
-    static const QSet<QString> ids = {"top",       "bottom",     "left",    "right",
-                                      "width",     "height",     "x",       "y",
-                                      "opacity",   "parent",     "item",    "flow",
-                                      "color",     "margin",     "padding", "border",
-                                      "font",      "text",       "source",  "state",
-                                      "visible",   "focus",      "data",    "clip",
-                                      "layer",     "scale",      "enabled", "anchors",
-                                      "texture",   "shaderInfo", "sprite",  "spriteSequence",
-                                      "baseState", "rect"};
+    static constexpr auto token = Utils::to_array<std::u16string_view>(
+        {u"anchors", u"baseState",      u"border", u"bottom", u"clip",       u"color",
+         u"data",    u"enabled",        u"flow",   u"focus",  u"font",       u"height",
+         u"item",    u"layer",          u"left",   u"margin", u"opacity",    u"padding",
+         u"parent",  u"rect",           u"right",  u"scale",  u"shaderInfo", u"source",
+         u"sprite",  u"spriteSequence", u"state",  u"text",   u"texture",    u"top",
+         u"visible", u"width",          u"x",      u"y"});
 
-    return ids.contains(id);
+    return std::binary_search(token.begin(), token.end(), ModelUtils::toStdStringView(id));
 }
 
-static bool idContainsWrongLetter(const QString &id)
+bool idContainsWrongLetter(const QString &id)
 {
     static QRegularExpression idExpr(QStringLiteral("^[a-z_][a-zA-Z0-9_]*$"));
     return !id.contains(idExpr);
 }
 
+} // namespace
 bool ModelNode::isValidId(const QString &id)
 {
-    return id.isEmpty() || (!idContainsWrongLetter(id) && !idIsQmlKeyWord(id) && !isIdToAvoid(id));
+    return id.isEmpty() || (!idContainsWrongLetter(id) && !isQmlKeyWord(id) && !isIdToAvoid(id));
 }
 
 QString ModelNode::getIdValidityErrorMessage(const QString &id)
@@ -138,7 +140,7 @@ QString ModelNode::getIdValidityErrorMessage(const QString &id)
     if (id.contains(' '))
         return QObject::tr("ID cannot include whitespace (%1).").arg(id);
 
-    if (idIsQmlKeyWord(id))
+    if (isQmlKeyWord(id))
         return QObject::tr("%1 is a reserved QML keyword.").arg(id);
 
     if (isIdToAvoid(id))
