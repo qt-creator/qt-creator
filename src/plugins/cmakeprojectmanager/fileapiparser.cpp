@@ -3,6 +3,7 @@
 
 #include "fileapiparser.h"
 
+#include "cmakeprocess.h"
 #include "cmakeprojectmanagertr.h"
 
 #include <coreplugin/messagemanager.h>
@@ -42,9 +43,10 @@ FilePath FileApiParser::cmakeReplyDirectory(const FilePath &buildDirectory)
 
 static void reportFileApiSetupFailure()
 {
-    Core::MessageManager::writeFlashing(Tr::tr("Failed to set up CMake file API support. %1 cannot "
-                                               "extract project information.")
-                                            .arg(QGuiApplication::applicationDisplayName()));
+    Core::MessageManager::writeFlashing(
+        addCMakePrefix(Tr::tr("Failed to set up CMake file API support. %1 cannot "
+                              "extract project information.")
+                           .arg(QGuiApplication::applicationDisplayName())));
 }
 
 static std::pair<int, int> cmakeVersion(const QJsonObject &obj)

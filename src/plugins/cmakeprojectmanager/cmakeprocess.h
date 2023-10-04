@@ -43,4 +43,7 @@ private:
     QElapsedTimer m_elapsed;
 };
 
+QString addCMakePrefix(const QString &str);
+QStringList addCMakePrefix(const QStringList &list);
+
 } // CMakeProjectManager::Internal

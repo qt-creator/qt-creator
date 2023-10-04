@@ -8,6 +8,7 @@
 #include "cmakebuildstep.h"
 #include "cmakebuildtarget.h"
 #include "cmakekitaspect.h"
+#include "cmakeprocess.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
@@ -1934,7 +1935,8 @@ void CMakeBuildSystem::runGenerator(Id id)
 {
     QTC_ASSERT(cmakeBuildConfiguration(), return);
     const auto showError = [](const QString &detail) {
-        Core::MessageManager::writeDisrupting(Tr::tr("cmake generator failed: %1.").arg(detail));
+        Core::MessageManager::writeDisrupting(
+            addCMakePrefix(Tr::tr("cmake generator failed: %1.").arg(detail)));
     };
     const CMakeTool * const cmakeTool
             = CMakeKitAspect::cmakeTool(buildConfiguration()->target()->kit());
@@ -1981,16 +1983,18 @@ void CMakeBuildSystem::runGenerator(Id id)
     const auto proc = new Process(this);
     connect(proc, &Process::done, proc, &Process::deleteLater);
     connect(proc, &Process::readyReadStandardOutput, this, [proc] {
-        Core::MessageManager::writeFlashing(QString::fromLocal8Bit(proc->readAllRawStandardOutput()));
+        Core::MessageManager::writeFlashing(
+            addCMakePrefix(QString::fromLocal8Bit(proc->readAllRawStandardOutput()).split('\n')));
     });
     connect(proc, &Process::readyReadStandardError, this, [proc] {
-        Core::MessageManager::writeDisrupting(QString::fromLocal8Bit(proc->readAllRawStandardError()));
+        Core::MessageManager::writeDisrupting(
+            addCMakePrefix(QString::fromLocal8Bit(proc->readAllRawStandardError()).split('\n')));
     });
     proc->setWorkingDirectory(outDir);
     proc->setEnvironment(buildConfiguration()->environment());
     proc->setCommand(cmdLine);
-    Core::MessageManager::writeFlashing(
-        Tr::tr("Running in %1: %2.").arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
+    Core::MessageManager::writeFlashing(addCMakePrefix(
+        Tr::tr("Running in %1: %2.").arg(outDir.toUserOutput(), cmdLine.toUserOutput())));
     proc->start();
 }
 

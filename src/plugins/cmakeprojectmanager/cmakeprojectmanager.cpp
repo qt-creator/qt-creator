@@ -5,6 +5,7 @@
 
 #include "cmakebuildsystem.h"
 #include "cmakekitaspect.h"
+#include "cmakeprocess.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
@@ -411,8 +412,8 @@ void CMakeManager::buildFile(Node *node)
                     bc->buildDirectory());
         targetBase = relativeBuildDir / "CMakeFiles" / (targetNode->displayName() + ".dir");
     } else if (!generator.contains("Makefiles")) {
-        Core::MessageManager::writeFlashing(
-            Tr::tr("Build File is not supported for generator \"%1\"").arg(generator));
+        Core::MessageManager::writeFlashing(addCMakePrefix(
+            Tr::tr("Build File is not supported for generator \"%1\"").arg(generator)));
         return;
     }
 
