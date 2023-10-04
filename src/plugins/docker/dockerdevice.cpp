@@ -888,6 +888,15 @@ expected_str<void> DockerDevicePrivate::startContainer()
 
 bool DockerDevicePrivate::updateContainerAccess()
 {
+    if (QThread::currentThread() != thread()) {
+        bool result = false;
+        QMetaObject::invokeMethod(this,
+                                  &DockerDevicePrivate::updateContainerAccess,
+                                  Qt::BlockingQueuedConnection,
+                                  &result);
+        return result;
+    }
+
     if (m_isShutdown)
         return false;
 
