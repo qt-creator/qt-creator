@@ -232,13 +232,28 @@ DockerDeviceSettings::DockerDeviceSettings()
             &StringSelectionAspect::refill);
 
     clangdExecutable.setValidationFunction(
-        [](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
-            return asyncRun([newValue]() -> expected_str<QString> {
+        [this](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
+            const FilePath rootPath = FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,
+                                                          repoAndTagEncoded(),
+                                                          u"/");
+            return asyncRun([rootPath, newValue]() -> expected_str<QString> {
+                QString changedValue = newValue;
+                FilePath path = FilePath::fromUserInput(newValue);
+                if (!path.needsDevice()) {
+                    const FilePath onDevicePath = rootPath.withNewMappedPath(path);
+                    if (onDevicePath.exists()) {
+                        changedValue = onDevicePath.toUserOutput();
+                        path = onDevicePath;
+                    } else {
+                        return make_unexpected(
+                            Tr::tr("Path \"%1\" does not exist.").arg(onDevicePath.toUserOutput()));
+                    }
+                }
                 QString error;
-                bool result = checkClangdVersion(FilePath::fromUserInput(newValue), &error);
+                bool result = checkClangdVersion(path, &error);
                 if (!result)
                     return make_unexpected(error);
-                return newValue;
+                return changedValue;
             });
         });
 
@@ -320,6 +335,8 @@ public:
     {
         if (deviceSettings->clangdExecutable().isEmpty())
             return std::nullopt;
+        if (!deviceSettings->clangdExecutable().needsDevice())
+            return deviceSettings->rootPath().withNewMappedPath(deviceSettings->clangdExecutable());
         return deviceSettings->clangdExecutable();
     }
 
