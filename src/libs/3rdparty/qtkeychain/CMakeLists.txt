@@ -22,7 +22,6 @@ if (WIN32)
     SOURCES plaintextstore.cpp
     DEPENDS crypt32
   )
-  endif()
 endif()
 
 extend_qtc_library(qtkeychain
