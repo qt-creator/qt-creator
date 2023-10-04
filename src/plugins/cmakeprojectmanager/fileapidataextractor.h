@@ -28,6 +28,8 @@ public:
     bool operator==(const CMakeFileInfo& other) const { return path == other.path; }
     friend size_t qHash(const CMakeFileInfo &info, uint seed = 0) { return qHash(info.path, seed); }
 
+    bool operator<(const CMakeFileInfo &other) const { return path < other.path; }
+
     Utils::FilePath path;
     bool isCMake = false;
     bool isCMakeListsDotTxt = false;
