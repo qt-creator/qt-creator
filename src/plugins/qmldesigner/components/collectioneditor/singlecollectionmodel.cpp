@@ -60,6 +60,21 @@ bool SingleCollectionModel::setData(const QModelIndex &, const QVariant &, int)
     return false;
 }
 
+bool SingleCollectionModel::setHeaderData(int section,
+                                          Qt::Orientation orientation,
+                                          const QVariant &value,
+                                          [[maybe_unused]] int role)
+{
+    if (orientation == Qt::Vertical)
+        return false;
+
+    bool headerChanged = m_currentCollection.setHeader(section, value.toString());
+    if (headerChanged)
+        emit this->headerDataChanged(orientation, section, section);
+
+    return headerChanged;
+}
+
 Qt::ItemFlags SingleCollectionModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
@@ -76,6 +91,11 @@ QVariant SingleCollectionModel::headerData(int section,
         return m_currentCollection.headerAt(section);
 
     return {};
+}
+
+bool SingleCollectionModel::renameColumn(int section, const QString &newValue)
+{
+    return setHeaderData(section, Qt::Horizontal, newValue);
 }
 
 void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QString &collection)

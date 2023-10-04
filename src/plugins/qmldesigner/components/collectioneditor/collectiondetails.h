@@ -49,6 +49,8 @@ public:
 
     void insertElementAt(std::optional<QJsonObject> object, int row = -1);
 
+    bool setHeader(int column, const QString &value);
+
     CollectionReference reference() const;
     CollectionEditor::SourceFormat sourceFormat() const;
     QVariant data(int row, int column) const;

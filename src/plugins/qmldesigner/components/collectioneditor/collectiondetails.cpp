@@ -113,6 +113,27 @@ void CollectionDetails::insertElementAt(std::optional<QJsonObject> object, int r
     markChanged();
 }
 
+bool CollectionDetails::setHeader(int column, const QString &value)
+{
+    if (!d->isValidColumnId(column))
+        return false;
+
+    const QString oldColumnName = headerAt(column);
+    if (oldColumnName == value)
+        return false;
+
+    d->headers.replace(column, value);
+    for (QJsonObject &element : d->elements) {
+        if (element.contains(oldColumnName)) {
+            element.insert(value, element.value(oldColumnName));
+            element.remove(oldColumnName);
+        }
+    }
+
+    markChanged();
+    return true;
+}
+
 CollectionReference CollectionDetails::reference() const
 {
     return d->reference;

@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Controls
 import StudioTheme 1.0 as StudioTheme
+import StudioControls 1.0 as StudioControls
 
 Rectangle {
     id: root
@@ -76,12 +77,21 @@ Rectangle {
                     leftPadding: 5
                     rightPadding: 5
                     text: display
-                    font.pixelSize: headerMetrics.font
+                    font: headerMetrics.font
                     color: StudioTheme.Values.themeIdleGreen
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     anchors.centerIn: parent
                     elide: Text.ElideRight
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton
+                    onClicked: (event) => {
+                        headerMenu.popIndex(index)
+                        event.accepted = true
+                    }
                 }
             }
 
@@ -90,6 +100,27 @@ Rectangle {
 
                 font.pixelSize: StudioTheme.Values.baseFontSize
                 text: "Xq"
+            }
+
+            StudioControls.Menu {
+                id: headerMenu
+
+                property int clickedHeader: -1
+
+                function popIndex(clickedIndex)
+                {
+                    headerMenu.clickedHeader = clickedIndex
+                    headerMenu.popup()
+                }
+
+                onClosed: {
+                    headerMenu.clickedHeader = -1
+                }
+
+                StudioControls.MenuItem {
+                    text: qsTr("Edit")
+                    onTriggered: editProperyDialog.editProperty(headerMenu.clickedHeader)
+                }
             }
         }
     }
@@ -118,7 +149,8 @@ Rectangle {
             Text {
                 id: itemText
 
-                text: display
+                text: display ? display : ""
+
                 width: parent.width
                 leftPadding: 5
                 topPadding: 3
@@ -130,5 +162,10 @@ Rectangle {
                 elide: Text.ElideRight
             }
         }
+    }
+
+    EditPropertyDialog {
+        id: editProperyDialog
+        model: root.model
     }
 }
