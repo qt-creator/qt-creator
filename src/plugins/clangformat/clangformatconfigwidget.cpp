@@ -97,7 +97,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
                                 && !codeStyle->isAdditionalTabDisabled());
 
 
-    static const int expectedMajorVersion = 16;
+    static const int expectedMajorVersion = 17;
     d->clangVersion = new QLabel(Tr::tr("Current clang-format version: ") + LLVM_VERSION_STRING,
                                  this);
     d->clangWarningText
