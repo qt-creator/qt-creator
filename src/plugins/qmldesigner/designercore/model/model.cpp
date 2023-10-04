@@ -134,7 +134,8 @@ ModelPrivate::~ModelPrivate()
 
 void ModelPrivate::detachAllViews()
 {
-    projectStorage->removeRefreshCallback(&m_metaInfoRefreshCallback);
+    if constexpr (useProjectStorage())
+        projectStorage->removeRefreshCallback(&m_metaInfoRefreshCallback);
 
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         detachView(view.data(), true);
