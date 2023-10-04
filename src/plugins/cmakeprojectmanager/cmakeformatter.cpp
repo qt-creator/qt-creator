@@ -17,6 +17,7 @@
 #include <coreplugin/idocument.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 
@@ -92,6 +93,7 @@ public:
 
         ActionContainer *menu = ActionManager::createMenu(Constants::CMAKEFORMATTER_MENU_ID);
         menu->menu()->setTitle(Tr::tr("CMakeFormatter"));
+        menu->menu()->setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon());
         menu->setOnAllDisabledBehavior(ActionContainer::Show);
         ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 

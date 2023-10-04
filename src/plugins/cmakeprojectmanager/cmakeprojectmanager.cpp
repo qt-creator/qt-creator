@@ -27,6 +27,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
@@ -46,14 +47,19 @@ using namespace Utils;
 namespace CMakeProjectManager::Internal {
 
 CMakeManager::CMakeManager()
-    : m_runCMakeAction(new QAction(QIcon(), Tr::tr("Run CMake"), this))
+    : m_runCMakeAction(
+        new QAction(ProjectExplorer::Icons::CMAKE_LOGO.icon(), Tr::tr("Run CMake"), this))
     , m_clearCMakeCacheAction(new QAction(QIcon(), Tr::tr("Clear CMake Configuration"), this))
-    , m_runCMakeActionContextMenu(new QAction(QIcon(), Tr::tr("Run CMake"), this))
+    , m_runCMakeActionContextMenu(
+          new QAction(ProjectExplorer::Icons::CMAKE_LOGO.icon(), Tr::tr("Run CMake"), this))
     , m_rescanProjectAction(new QAction(QIcon(), Tr::tr("Rescan Project"), this))
     , m_reloadCMakePresetsAction(
           new QAction(Utils::Icons::RELOAD.icon(), Tr::tr("Reload CMake Presets"), this))
-    , m_cmakeProfilerAction(new QAction(QIcon(), Tr::tr("CMake Profiler"), this))
-    , m_cmakeDebuggerAction(new QAction(QIcon(), Tr::tr("Start CMake Debugging"), this))
+    , m_cmakeProfilerAction(
+          new QAction(ProjectExplorer::Icons::CMAKE_LOGO.icon(), Tr::tr("CMake Profiler"), this))
+    , m_cmakeDebuggerAction(new QAction(ProjectExplorer::Icons::CMAKE_LOGO.icon(),
+                                        Tr::tr("Start CMake Debugging"),
+                                        this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
