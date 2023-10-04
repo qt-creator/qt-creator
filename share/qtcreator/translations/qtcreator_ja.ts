@@ -7092,7 +7092,7 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>ブックマークの追加</translation>
@@ -12201,7 +12201,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Move Up</source>
         <translation>上に移動</translation>
@@ -30728,7 +30728,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Show Bookmark</source>
         <translation>ブックマークを開く</translation>
@@ -30744,10 +30744,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     <message>
         <source>Rename Bookmark</source>
         <translation>ブックマークの名前変更</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>

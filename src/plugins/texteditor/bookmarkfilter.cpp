@@ -5,14 +5,14 @@
 
 #include "bookmark.h"
 #include "bookmarkmanager.h"
-#include "bookmarkstr.h"
+#include "texteditortr.h"
 
 #include <utils/algorithm.h>
 
 using namespace Core;
 using namespace Utils;
 
-namespace Bookmarks::Internal {
+namespace TextEditor::Internal {
 
 BookmarkFilter::BookmarkFilter(BookmarkManager *manager)
     : m_manager(manager)
@@ -112,4 +112,4 @@ LocatorFilterEntries BookmarkFilter::match(const QString &input) const
     return entries;
 }
 
-} // Bookmarks::Internal
+} // TextEditor::Internal

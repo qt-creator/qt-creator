@@ -8,6 +8,8 @@
 #include "texteditortr.h"
 
 #include <aggregation/aggregate.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
@@ -26,6 +28,7 @@
 
 #include <optional>
 
+using namespace Core;
 using namespace Utils;
 
 namespace TextEditor::Internal {
@@ -39,23 +42,28 @@ const char MARKDOWNVIEWER_SHOW_PREVIEW[] = "Markdown.ShowPreview";
 const bool kTextEditorRightDefault = false;
 const bool kShowEditorDefault = true;
 const bool kShowPreviewDefault = true;
+const char EMPHASIS_ACTION[] = "Markdown.Emphasis";
+const char STRONG_ACTION[] = "Markdown.Strong";
+const char INLINECODE_ACTION[] = "Markdown.InlineCode";
+const char LINK_ACTION[] = "Markdown.Link";
 
-class MarkdownEditor : public Core::IEditor
+class MarkdownEditor : public IEditor
 {
+    Q_OBJECT
 public:
     MarkdownEditor()
         : m_document(new TextDocument(MARKDOWNVIEWER_ID))
     {
         m_document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
 
-        QtcSettings *s = Core::ICore::settings();
+        QtcSettings *s = ICore::settings();
         const bool textEditorRight
             = s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT, kTextEditorRightDefault).toBool();
         const bool showPreview = s->value(MARKDOWNVIEWER_SHOW_PREVIEW, kShowPreviewDefault).toBool();
         const bool showEditor = s->value(MARKDOWNVIEWER_SHOW_EDITOR, kShowEditorDefault).toBool()
                                 || !showPreview; // ensure at least one is visible
 
-        m_splitter = new Core::MiniSplitter;
+        m_splitter = new MiniSplitter;
 
         // preview
         m_previewWidget = new QTextBrowser();
@@ -68,15 +76,15 @@ public:
         m_textEditorWidget->setTextDocument(m_document);
         m_textEditorWidget->setupGenericHighlighter();
         m_textEditorWidget->setMarksVisible(false);
-        auto context = new Core::IContext(this);
+        auto context = new IContext(this);
         context->setWidget(m_textEditorWidget);
-        context->setContext(Core::Context(MARKDOWNVIEWER_TEXT_CONTEXT));
-        Core::ICore::addContextObject(context);
+        context->setContext(Context(MARKDOWNVIEWER_TEXT_CONTEXT));
+        ICore::addContextObject(context);
 
         m_splitter->addWidget(m_textEditorWidget); // sets splitter->focusWidget() on non-Windows
         m_splitter->addWidget(m_previewWidget);
 
-        setContext(Core::Context(MARKDOWNVIEWER_ID));
+        setContext(Context(MARKDOWNVIEWER_ID));
 
         auto widget = new QWidget;
         auto layout = new QVBoxLayout;
@@ -105,57 +113,29 @@ public:
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
 
-        auto button = new QToolButton;
+        auto button = new CommandButton(EMPHASIS_ACTION);
         button->setText("i");
         button->setFont([button]{ auto f = button->font(); f.setItalic(true); return f; }());
-        button->setToolTip(Tr::tr("Emphasis"));
-        connect(button, &QToolButton::clicked, this, [this] {
-            triggerFormatingAction([](QString *selectedText) {
-               *selectedText = QStringLiteral("*%1*").arg(*selectedText);
-            });
-        });
+        connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerEmphasis);
         m_markDownButtons.append(button);
-        button = new QToolButton;
+        button = new CommandButton(STRONG_ACTION);
         button->setText("b");
         button->setFont([button]{ auto f = button->font(); f.setBold(true); return f; }());
-        button->setToolTip(Tr::tr("Strong"));
-        connect(button, &QToolButton::clicked, this, [this] {
-            triggerFormatingAction([](QString *selectedText) {
-                *selectedText = QStringLiteral("**%1**").arg(*selectedText);
-            });
-        });
+        connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerStrong);
         m_markDownButtons.append(button);
-        button = new QToolButton;
+        button = new CommandButton(INLINECODE_ACTION);
         button->setText("`");
-        button->setToolTip(Tr::tr("Inline Code"));
-        connect(button, &QToolButton::clicked, this, [this] {
-            triggerFormatingAction([](QString *selectedText) {
-                *selectedText = QStringLiteral("`%1`").arg(*selectedText);
-            });
-        });
+        connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerInlineCode);
         m_markDownButtons.append(button);
-        button = new QToolButton;
+        button = new CommandButton(LINK_ACTION);
         button->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
-        button->setToolTip(Tr::tr("Hyper Link"));
-        connect(button, &QToolButton::clicked, this, [this] {
-            triggerFormatingAction([](QString *selectedText, int *cursorOffset, int *selectionLength) {
-                *selectedText = QStringLiteral("[%1](https://)").arg(*selectedText);
-                *cursorOffset = -1;
-                *selectionLength = -8;
-            });
-        });
+        connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerLink);
         m_markDownButtons.append(button);
         for (auto button : m_markDownButtons) {
-            button->setEnabled(!m_textEditorWidget->selectedText().isEmpty());
             // do not call setVisible(true) at this point, this destroys the hover effect on macOS
             if (!showEditor)
                 button->setVisible(false);
         }
-        connect(m_textEditorWidget, &QPlainTextEdit::copyAvailable, [this](bool yes) {
-            for (auto button : m_markDownButtons) {
-                button->setEnabled(yes);
-            }
-        });
 
         auto swapViews = new QToolButton;
         swapViews->setText(Tr::tr("Swap Views"));
@@ -208,7 +188,7 @@ public:
                 swapViews->setEnabled(view->isVisible() && otherView->isVisible());
             };
         const auto saveViewSettings = [this] {
-            Utils::QtcSettings *s = Core::ICore::settings();
+            Utils::QtcSettings *s = ICore::settings();
             s->setValueWithDefault(MARKDOWNVIEWER_SHOW_PREVIEW,
                                    m_togglePreviewVisible->isChecked(),
                                    kShowPreviewDefault);
@@ -245,7 +225,7 @@ public:
             const bool textEditorRight = isTextEditorRight();
             setWidgetOrder(!textEditorRight);
             // save settings
-            Utils::QtcSettings *s = Core::ICore::settings();
+            Utils::QtcSettings *s = ICore::settings();
             s->setValueWithDefault(MARKDOWNVIEWER_TEXTEDITOR_RIGHT,
                                    !textEditorRight,
                                    kTextEditorRightDefault);
@@ -263,6 +243,53 @@ public:
 
         connect(m_document->document(), &QTextDocument::contentsChanged, &m_previewTimer, [this] {
             m_previewTimer.start();
+        });
+    }
+
+    void triggerEmphasis()
+    {
+        triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
+            if (selectedText->isEmpty()) {
+                *selectedText = QStringLiteral("**");
+                *cursorOffset = -1;
+            } else {
+                *selectedText = QStringLiteral("*%1*").arg(*selectedText);
+            }
+        });
+    }
+    void triggerStrong()
+    {
+        triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
+            if (selectedText->isEmpty()) {
+                *selectedText = QStringLiteral("****");
+                *cursorOffset = -2;
+            } else {
+                *selectedText = QStringLiteral("**%1**").arg(*selectedText);
+            }
+        });
+    }
+    void triggerInlineCode()
+    {
+        triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
+            if (selectedText->isEmpty()) {
+                *selectedText = QStringLiteral("``");
+                *cursorOffset = -1;
+            } else {
+                *selectedText = QStringLiteral("`%1`").arg(*selectedText);
+            }
+        });
+    }
+    void triggerLink()
+    {
+        triggerFormatingAction([](QString *selectedText, int *cursorOffset, int *selectionLength) {
+            if (selectedText->isEmpty()) {
+                *selectedText = QStringLiteral("[](https://)");
+                *cursorOffset = -11; // ](https://) is 11 chars
+            } else {
+                *selectedText = QStringLiteral("[%1](https://)").arg(*selectedText);
+                *cursorOffset = -1;
+                *selectionLength = -8; // https:// is 8 chars
+            }
         });
     }
 
@@ -287,7 +314,7 @@ public:
 
     QWidget *toolBar() override { return &m_toolbar; }
 
-    Core::IDocument *document() const override { return m_document.data(); }
+    IDocument *document() const override { return m_document.data(); }
     TextEditorWidget *textEditorWidget() const { return m_textEditorWidget; }
     int currentLine() const override { return textEditorWidget()->textCursor().blockNumber() + 1; };
     int currentColumn() const override
@@ -313,7 +340,7 @@ public:
                 m_splitter->widget(0)->setFocus();
             return true;
         }
-        return Core::IEditor::eventFilter(obj, ev);
+        return IEditor::eventFilter(obj, ev);
     }
 
     QByteArray saveState() const override
@@ -362,11 +389,12 @@ public:
     }
 
 private:
-    void triggerFormatingAction(std::function<void(QString *selectedText)> action)
+    void triggerFormatingAction(std::function<void(QString *selectedText, int *cursorOffset)> action)
     {
         auto formattedText = m_textEditorWidget->selectedText();
-        action(&formattedText);
-        format(formattedText);
+        int cursorOffset = 0;
+        action(&formattedText, &cursorOffset);
+        format(formattedText, cursorOffset);
     }
     void triggerFormatingAction(std::function<void(QString *selectedText, int *cursorOffset, int *selectionLength)> action)
     {
@@ -401,7 +429,7 @@ private:
 private:
     QTimer m_previewTimer;
     bool m_performDelayedUpdate = false;
-    Core::MiniSplitter *m_splitter;
+    MiniSplitter *m_splitter;
     QTextBrowser *m_previewWidget;
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
@@ -417,7 +445,7 @@ MarkdownEditorFactory::MarkdownEditorFactory()
     : m_actionHandler(MARKDOWNVIEWER_ID,
                       MARKDOWNVIEWER_TEXT_CONTEXT,
                       TextEditor::TextEditorActionHandler::None,
-                      [](Core::IEditor *editor) {
+                      [](IEditor *editor) {
                           return static_cast<MarkdownEditor *>(editor)->textEditorWidget();
                       })
 {
@@ -425,6 +453,39 @@ MarkdownEditorFactory::MarkdownEditorFactory()
     setDisplayName(::Core::Tr::tr("Markdown Editor"));
     addMimeType(MARKDOWNVIEWER_MIME_TYPE);
     setEditorCreator([] { return new MarkdownEditor; });
+
+    const auto textContext = Context(MARKDOWNVIEWER_TEXT_CONTEXT);
+    Command *cmd = nullptr;
+    cmd = ActionManager::registerAction(&m_emphasisAction, EMPHASIS_ACTION, textContext);
+    cmd->setDescription(Tr::tr("Emphasis"));
+    QObject::connect(&m_emphasisAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->triggerEmphasis();
+    });
+    cmd = ActionManager::registerAction(&m_strongAction, STRONG_ACTION, textContext);
+    cmd->setDescription(Tr::tr("Strong"));
+    QObject::connect(&m_strongAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->triggerStrong();
+    });
+    cmd = ActionManager::registerAction(&m_inlineCodeAction, INLINECODE_ACTION, textContext);
+    cmd->setDescription(Tr::tr("Inline Code"));
+    QObject::connect(&m_inlineCodeAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->triggerInlineCode();
+    });
+    cmd = ActionManager::registerAction(&m_linkAction, LINK_ACTION, textContext);
+    cmd->setDescription(Tr::tr("Hyper Link"));
+    QObject::connect(&m_linkAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->triggerLink();
+    });
 }
 
 } // namespace TextEditor::Internal
+
+#include "markdowneditor.moc"

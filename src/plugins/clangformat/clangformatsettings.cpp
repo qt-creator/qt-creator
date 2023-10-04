@@ -25,7 +25,8 @@ ClangFormatSettings::ClangFormatSettings()
     m_overrideDefaultFile = settings->value(Constants::OVERRIDE_FILE_ID, false).toBool();
     m_formatWhileTyping = settings->value(Constants::FORMAT_WHILE_TYPING_ID, false).toBool();
     m_formatOnSave = settings->value(Constants::FORMAT_CODE_ON_SAVE_ID, false).toBool();
-    m_fileSizeThreshold = settings->value(Constants::FILE_SIZE_THREDSHOLD, 1024).toInt();
+    m_fileSizeThreshold = settings->value(Constants::FILE_SIZE_THREDSHOLD,
+                                          m_fileSizeThreshold).toInt();
 
     // Convert old settings to new ones. New settings were added to QtC 8.0
     bool isOldFormattingOn = settings->value(FORMAT_CODE_INSTEAD_OF_INDENT_ID, false).toBool();

@@ -476,13 +476,14 @@ void DapEngine::updateItem(const QString &iname)
 void DapEngine::reexpandItems(const QSet<QString> &inames)
 {
     QSet<QString> expandedInames = inames;
-    for (auto inames : watchHandler()->watcherNames().keys())
+    const QList<QString> &watcherNames = watchHandler()->watcherNames().keys();
+    for (const QString &inames : watcherNames)
         expandedInames.insert(watchHandler()->watcherName(inames));
 
-    QList<QString> inamesVector = expandedInames.values().toVector();
+    QList<QString> inamesVector = expandedInames.values();
     inamesVector.sort();
 
-    for (const QString &iname : inamesVector) {
+    for (const QString &iname : std::as_const(inamesVector)) {
         if (iname.startsWith("local.") || iname.startsWith("watch."))
             m_variablesHandler->addVariable(iname, -1);
     }

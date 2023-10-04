@@ -8805,7 +8805,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj knjižnu oznaku</translation>
@@ -15383,14 +15383,10 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bookmark</source>
         <translation>Knjižna oznaka</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
@@ -36253,7 +36249,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Prikaži knjižnu oznaku</translation>

@@ -13722,7 +13722,7 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bookmarks</source>
         <translation>Signets</translation>

@@ -717,6 +717,7 @@ public:
     KSyntaxHighlighting::Definition currentDefinition();
     void rememberCurrentSyntaxDefinition();
     void openLinkUnderCursor(bool openInNextSplit);
+    void openTypeUnderCursor(bool openInNextSplit);
     qreal charWidth() const;
 
 public:
@@ -2446,6 +2447,16 @@ void TextEditorWidget::openLinkUnderCursorInNextSplit()
     d->openLinkUnderCursor(!alwaysOpenLinksInNextSplit());
 }
 
+void TextEditorWidget::openTypeUnderCursor()
+{
+    d->openTypeUnderCursor(alwaysOpenLinksInNextSplit());
+}
+
+void TextEditorWidget::openTypeUnderCursorInNextSplit()
+{
+    d->openTypeUnderCursor(!alwaysOpenLinksInNextSplit());
+}
+
 void TextEditorWidget::findUsages()
 {
     emit requestUsages(textCursor());
@@ -3642,11 +3653,26 @@ void TextEditorWidgetPrivate::rememberCurrentSyntaxDefinition()
 
 void TextEditorWidgetPrivate::openLinkUnderCursor(bool openInNextSplit)
 {
-    q->findLinkAt(q->textCursor(),
-               [openInNextSplit, self = QPointer<TextEditorWidget>(q)](const Link &symbolLink) {
-        if (self)
-            self->openLink(symbolLink, openInNextSplit);
-    }, true, openInNextSplit);
+    q->findLinkAt(
+        q->textCursor(),
+        [openInNextSplit, self = QPointer<TextEditorWidget>(q)](const Link &symbolLink) {
+            if (self)
+                self->openLink(symbolLink, openInNextSplit);
+        },
+        true,
+        openInNextSplit);
+}
+
+void TextEditorWidgetPrivate::openTypeUnderCursor(bool openInNextSplit)
+{
+    q->findTypeAt(
+        q->textCursor(),
+        [openInNextSplit, self = QPointer<TextEditorWidget>(q)](const Link &symbolLink) {
+            if (self)
+                self->openLink(symbolLink, openInNextSplit);
+        },
+        true,
+        openInNextSplit);
 }
 
 qreal TextEditorWidgetPrivate::charWidth() const
@@ -6682,6 +6708,14 @@ void TextEditorWidget::findLinkAt(const QTextCursor &cursor,
     emit requestLinkAt(cursor, callback, resolveTarget, inNextSplit);
 }
 
+void TextEditorWidget::findTypeAt(const QTextCursor &cursor,
+                                  const Utils::LinkHandler &callback,
+                                  bool resolveTarget,
+                                  bool inNextSplit)
+{
+    emit requestTypeAt(cursor, callback, resolveTarget, inNextSplit);
+}
+
 bool TextEditorWidget::openLink(const Utils::Link &link, bool inNextSplit)
 {
 #ifdef WITH_TESTS
@@ -8394,20 +8428,30 @@ void TextEditorWidget::setupFallBackEditor(Id id)
 
 void TextEditorWidget::appendStandardContextMenuActions(QMenu *menu)
 {
+    if (optionalActions() & TextEditorActionHandler::FollowSymbolUnderCursor) {
+        const auto action = ActionManager::command(Constants::FOLLOW_SYMBOL_UNDER_CURSOR)->action();
+        if (!menu->actions().contains(action))
+            menu->addAction(action);
+    }
+    if (optionalActions() & TextEditorActionHandler::FollowTypeUnderCursor) {
+        const auto action = ActionManager::command(Constants::FOLLOW_SYMBOL_TO_TYPE)->action();
+        if (!menu->actions().contains(action))
+            menu->addAction(action);
+    }
     if (optionalActions() & TextEditorActionHandler::FindUsage) {
-        const auto findUsage = ActionManager::command(Constants::FIND_USAGES)->action();
-        if (!menu->actions().contains(findUsage))
-            menu->addAction(findUsage);
+        const auto action = ActionManager::command(Constants::FIND_USAGES)->action();
+        if (!menu->actions().contains(action))
+            menu->addAction(action);
     }
     if (optionalActions() & TextEditorActionHandler::RenameSymbol) {
-        const auto renameSymbol = ActionManager::command(Constants::RENAME_SYMBOL)->action();
-        if (!menu->actions().contains(renameSymbol))
-            menu->addAction(renameSymbol);
+        const auto action = ActionManager::command(Constants::RENAME_SYMBOL)->action();
+        if (!menu->actions().contains(action))
+            menu->addAction(action);
     }
     if (optionalActions() & TextEditorActionHandler::CallHierarchy) {
-        const auto callHierarchy = ActionManager::command(Constants::OPEN_CALL_HIERARCHY)->action();
-        if (!menu->actions().contains(callHierarchy))
-            menu->addAction(callHierarchy);
+        const auto action = ActionManager::command(Constants::OPEN_CALL_HIERARCHY)->action();
+        if (!menu->actions().contains(action))
+            menu->addAction(action);
     }
 
     menu->addSeparator();

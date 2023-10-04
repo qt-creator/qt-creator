@@ -152,6 +152,7 @@ public:
                                 | TextEditorActionHandler::UnCommentSelection
                                 | TextEditorActionHandler::UnCollapseAll
                                 | TextEditorActionHandler::FollowSymbolUnderCursor
+                                | TextEditorActionHandler::FollowTypeUnderCursor
                                 | TextEditorActionHandler::RenameSymbol
                                 | TextEditorActionHandler::FindUsage);
     }
@@ -336,31 +337,10 @@ void CppEditorPlugin::addPerSymbolActions()
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
     addSymbolActionToMenus(ActionManager::command(
         TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT));
-
-    QAction * const followSymbolToType = new QAction(Tr::tr("Follow Symbol Under Cursor to Type"),
-                                                    this);
-    cmd = ActionManager::registerAction(followSymbolToType, Constants::FOLLOW_SYMBOL_TO_TYPE,
-                                        context, true);
-    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Shift+F2")));
-    connect(followSymbolToType, &QAction::triggered, this, []{
-        if (CppEditorWidget *editorWidget = currentCppEditorWidget())
-            editorWidget->followSymbolToType(false);
-    });
-    addSymbolActionToMenus(cmd);
-
-    QAction * const followSymbolToTypeInNextSplit =
-        new QAction(Tr::tr("Follow Symbol to Type in Next Split"), this);
-    cmd = ActionManager::registerAction(followSymbolToTypeInNextSplit,
-                                        Constants::FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT,
-                                        context, true);
-    cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
-                                                ? Tr::tr("Meta+E, Ctrl+Shift+F2")
-                                                : Tr::tr("Ctrl+E, Ctrl+Shift+F2")));
-    connect(followSymbolToTypeInNextSplit, &QAction::triggered, this, []{
-        if (CppEditorWidget *editorWidget = currentCppEditorWidget())
-            editorWidget->followSymbolToType(true);
-    });
-    addSymbolActionToMenus(cmd);
+    addSymbolActionToMenus(ActionManager::command(
+        TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE));
+    addSymbolActionToMenus(ActionManager::command(
+        TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT));
 
     QAction * const switchDeclarationDefinition
         = new QAction(Tr::tr("Switch Between Function Declaration/Definition"), this);

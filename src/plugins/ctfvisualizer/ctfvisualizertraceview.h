@@ -3,10 +3,8 @@
 #pragma once
 
 #include <QQuickWidget>
-#include <QWidget>
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 class CtfVisualizerTool;
 
@@ -22,7 +20,5 @@ public:
     void selectByTypeId(int typeId);
 };
 
-
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal
 

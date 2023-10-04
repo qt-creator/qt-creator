@@ -15,6 +15,7 @@ QT_END_NAMESPACE
 
 namespace Core {
 
+class ICore;
 class IMode;
 
 namespace Internal {
@@ -68,6 +69,7 @@ private:
     void currentTabAboutToChange(int index);
     void currentTabChanged(int index);
 
+    friend class ICore;
     friend class IMode;
     friend class Core::Internal::MainWindow;
     friend class Core::Internal::MainWindowPrivate;

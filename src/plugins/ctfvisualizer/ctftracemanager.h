@@ -11,8 +11,7 @@
 
 namespace Timeline { class TimelineModelAggregator; }
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 class CtfStatisticsModel;
 class CtfTimelineModel;
@@ -46,6 +45,8 @@ public:
     void updateStatistics();
     void clearAll();
 
+    QString errorString() const;
+
 signals:
     void detailsRequested(const QString &title);
 
@@ -66,7 +67,7 @@ protected:
     double m_traceEnd = std::numeric_limits<double>::min();
     double m_timeOffset = -1.0;
 
+    QString m_errorString;
 };
 
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal

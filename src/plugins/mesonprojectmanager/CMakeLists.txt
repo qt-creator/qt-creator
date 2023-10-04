@@ -33,7 +33,6 @@ add_qtc_plugin(MesonProjectManager
   mesonprojectparser.cpp
   mesonprojectparser.h
   mesonprojectplugin.cpp
-  mesonprojectplugin.h
   mesonrunconfiguration.cpp
   mesonrunconfiguration.h
   mesontoolkitaspect.cpp

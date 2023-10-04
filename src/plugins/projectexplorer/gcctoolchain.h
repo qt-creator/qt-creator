@@ -146,11 +146,6 @@ protected:
 private:
     void syncAutodetectedWithParentToolchains();
     void updateSupportedAbis() const;
-    static QStringList gccPrepareArguments(const QStringList &flags,
-                                           const Utils::FilePath &sysRoot,
-                                           const QStringList &platformCodeGenFlags,
-                                           Utils::Id languageId,
-                                           OptionsReinterpreter reinterpretOptions);
 
 protected:
     QStringList m_platformCodeGenFlags;
@@ -192,16 +187,14 @@ public:
     Toolchains detectForImport(const ToolChainDescription &tcd) const final;
 
 private:
-    using ToolchainChecker = std::function<bool(const ToolChain *)>;
     static Toolchains autoDetectToolchains(const Utils::FilePaths &compilerPaths,
                                            const Utils::Id language,
                                            const Utils::Id requiredTypeId,
-                                           const ToolchainDetector &detector,
-                                           const ToolChainConstructor &constructor,
-                                           const ToolchainChecker &checker = {});
+                                           const Toolchains &known,
+                                           const GccToolChain::SubType subType);
     static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,
-                                          const ToolChainConstructor &constructor,
-                                          const ToolchainChecker &checker = {});
+                                          const GccToolChain::SubType subType);
+    static Toolchains autoDetectSdkClangToolchain(const Toolchains &known);
 
     const bool m_autoDetecting;
 };

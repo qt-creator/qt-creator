@@ -16,12 +16,14 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/async.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/utilsicons.h>
 
@@ -31,12 +33,15 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
+class PerformInputData;
+
 class CMakeFileCompletionAssist : public AsyncProcessor
 {
 public:
     CMakeFileCompletionAssist();
 
-    IAssistProposal *performAsync() final;
+    IAssistProposal *perform() final;
+    IAssistProposal *performAsync() final { return nullptr; }
 
     const QIcon m_variableIcon;
     const QIcon m_projectVariableIcon;
@@ -47,8 +52,13 @@ public:
     const QIcon m_genexIcon;
     const QIcon m_moduleIcon;
     const QIcon m_targetsIcon;
+    const QIcon m_importedTargetIcon;
 
     TextEditor::SnippetAssistCollector m_snippetCollector;
+
+private:
+    IAssistProposal *doPerform(const PerformInputData &data);
+    PerformInputData generatePerformInputData() const;
 };
 
 CMakeFileCompletionAssist::CMakeFileCompletionAssist()
@@ -61,10 +71,15 @@ CMakeFileCompletionAssist::CMakeFileCompletionAssist()
     , m_genexIcon(CodeModelIcon::iconForType(CodeModelIcon::Class))
     , m_moduleIcon(
           ProjectExplorer::DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_MODULES).icon())
-    , m_targetsIcon(ProjectExplorer::Icons::BUILD.icon())
+    , m_targetsIcon(ProjectExplorer::Icons::BUILD_SMALL.icon())
+    , m_importedTargetIcon(Icon({{":/projectexplorer/images/buildhammerhandle.png",
+                                  Theme::IconsCodeModelKeywordColor},
+                                 {":/projectexplorer/images/buildhammerhead.png",
+                                  Theme::IconsCodeModelKeywordColor}},
+                                Icon::MenuTintedStyle)
+                               .icon())
     , m_snippetCollector(Constants::CMAKE_SNIPPETS_GROUP_ID,
                          FileIconProvider::icon(FilePath::fromString("CMakeLists.txt")))
-
 {}
 
 static bool isInComment(const AssistInterface *interface)
@@ -235,41 +250,62 @@ static QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const QByte
     return {functions, variables};
 }
 
-IAssistProposal *CMakeFileCompletionAssist::performAsync()
+class PerformInputData
 {
+public:
     CMakeKeywords keywords;
     CMakeKeywords projectKeywords;
-    Project *project = nullptr;
+    QStringList buildTargets;
+    QStringList importedTargets;
+    QStringList findPackageVariables;
+};
+
+PerformInputData CMakeFileCompletionAssist::generatePerformInputData() const
+{
+    PerformInputData data;
+
     const FilePath &filePath = interface()->filePath();
     if (!filePath.isEmpty() && filePath.isFile()) {
         if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
-            keywords = tool->keywords();
+            data.keywords = tool->keywords();
     }
 
-    QStringList buildTargets;
-    if (project && project->activeTarget()) {
-        const auto bs = qobject_cast<CMakeBuildSystem *>(project->activeTarget()->buildSystem());
-        if (bs) {
-            for (const auto &target : std::as_const(bs->buildTargets()))
-                if (target.targetType != TargetType::UtilityType)
-                    buildTargets << target.title;
-            projectKeywords = bs->projectKeywords();
-        }
+    if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
+        for (const auto &target : std::as_const(bs->buildTargets()))
+            if (target.targetType != TargetType::UtilityType)
+                data.buildTargets << target.title;
+        data.projectKeywords = bs->projectKeywords();
+        data.importedTargets = bs->projectImportedTargets();
+        data.findPackageVariables = bs->projectFindPackageVariables();
     }
 
+    return data;
+}
+
+IAssistProposal *CMakeFileCompletionAssist::perform()
+{
+    IAssistProposal *result = immediateProposal();
+    interface()->prepareForAsyncUse();
+    m_watcher.setFuture(Utils::asyncRun([this, inputData = generatePerformInputData()] {
+        interface()->recreateTextDocument();
+        return doPerform(inputData);
+    }));
+    return result;
+}
+
+IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &data)
+{
     if (isInComment(interface()))
         return nullptr;
 
     const int startPos = findWordStart(interface(), interface()->position());
-
     const int functionStart = findFunctionStart(interface());
     const int prevFunctionEnd = findFunctionEnd(interface());
 
     QString functionName;
     if (functionStart > prevFunctionEnd) {
-        int functionStartPos = findWordStart(interface(), functionStart);
-        functionName
-            = interface()->textAt(functionStartPos, functionStart - functionStartPos);
+        const int functionStartPos = findWordStart(interface(), functionStart);
+        functionName = interface()->textAt(functionStartPos, functionStart - functionStartPos);
     }
 
     if (interface()->reason() == IdleEditor) {
@@ -289,11 +325,12 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
     const QString varGenexToken = interface()->textAt(startPos - 2, 2);
     if (varGenexToken == "${" || varGenexToken == "$<") {
         if (varGenexToken == "${") {
-            items.append(generateList(keywords.variables, m_variableIcon));
-            items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
+            items.append(generateList(data.keywords.variables, m_variableIcon));
+            items.append(generateList(data.projectKeywords.variables, m_projectVariableIcon));
+            items.append(generateList(data.findPackageVariables, m_projectVariableIcon));
         }
         if (varGenexToken == "$<")
-            items.append(generateList(keywords.generatorExpressions, m_genexIcon));
+            items.append(generateList(data.keywords.generatorExpressions, m_genexIcon));
 
         return new GenericProposal(startPos, items);
     }
@@ -304,52 +341,56 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
     if (functionName == "if" || functionName == "elseif" || functionName == "while"
         || functionName == "set" || functionName == "list"
         || functionName == "cmake_print_variables") {
-        items.append(generateList(keywords.variables, m_variableIcon));
-        items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
+        items.append(generateList(data.keywords.variables, m_variableIcon));
+        items.append(generateList(data.projectKeywords.variables, m_projectVariableIcon));
+        items.append(generateList(data.findPackageVariables, m_projectVariableIcon));
         items.append(generateList(localVariables, m_variableIcon));
     }
 
     if (functionName == "if" || functionName == "elseif" || functionName == "cmake_policy")
-        items.append(generateList(keywords.policies, m_variableIcon));
+        items.append(generateList(data.keywords.policies, m_variableIcon));
 
     if (functionName.contains("path") || functionName.contains("file")
         || functionName.contains("add_executable") || functionName.contains("add_library")
         || functionName == "include" || functionName == "add_subdirectory"
-        || functionName == "install" || functionName == "target_sources" || functionName == "set"
-        || functionName == "list") {
+        || functionName == "install" || functionName == "target_sources"
+        || functionName == "set" || functionName == "list") {
         fileStartPos = addFilePathItems(interface(), items, startPos);
     }
 
     if (functionName == "set_property" || functionName == "cmake_print_properties")
-        items.append(generateList(keywords.properties, m_propertyIcon));
+        items.append(generateList(data.keywords.properties, m_propertyIcon));
 
     if (functionName == "set_directory_properties")
-        items.append(generateList(keywords.directoryProperties, m_propertyIcon));
+        items.append(generateList(data.keywords.directoryProperties, m_propertyIcon));
     if (functionName == "set_source_files_properties")
-        items.append(generateList(keywords.sourceProperties, m_propertyIcon));
+        items.append(generateList(data.keywords.sourceProperties, m_propertyIcon));
     if (functionName == "set_target_properties")
-        items.append(generateList(keywords.targetProperties, m_propertyIcon));
+        items.append(generateList(data.keywords.targetProperties, m_propertyIcon));
     if (functionName == "set_tests_properties")
-        items.append(generateList(keywords.testProperties, m_propertyIcon));
+        items.append(generateList(data.keywords.testProperties, m_propertyIcon));
 
     if (functionName == "include" && !onlyFileItems())
-        items.append(generateList(keywords.includeStandardModules, m_moduleIcon));
+        items.append(generateList(data.keywords.includeStandardModules, m_moduleIcon));
     if (functionName == "find_package")
-        items.append(generateList(keywords.findModules, m_moduleIcon));
+        items.append(generateList(data.keywords.findModules, m_moduleIcon));
 
     if ((functionName.contains("target") || functionName == "install"
          || functionName == "add_dependencies" || functionName == "set_property"
-         || functionName == "export" || functionName == "cmake_print_properties")
-        && !onlyFileItems())
-        items.append(generateList(buildTargets, m_targetsIcon));
+         || functionName == "export" || functionName == "cmake_print_properties"
+         || functionName == "if" || functionName == "elseif")
+        && !onlyFileItems()) {
+        items.append(generateList(data.buildTargets, m_targetsIcon));
+        items.append(generateList(data.importedTargets, m_importedTargetIcon));
+    }
 
-    if (keywords.functionArgs.contains(functionName) && !onlyFileItems()) {
-        QStringList functionSymbols = keywords.functionArgs.value(functionName);
+    if (data.keywords.functionArgs.contains(functionName) && !onlyFileItems()) {
+        const QStringList functionSymbols = data.keywords.functionArgs.value(functionName);
         items.append(generateList(functionSymbols, m_argsIcon));
     } else if (functionName.isEmpty()) {
         // On a new line we just want functions
-        items.append(generateList(keywords.functions, m_functionIcon));
-        items.append(generateList(projectKeywords.functions, m_projectFunctionIcon));
+        items.append(generateList(data.keywords.functions, m_functionIcon));
+        items.append(generateList(data.projectKeywords.functions, m_projectFunctionIcon));
         items.append(generateList(localFunctions, m_functionIcon));
 
         // Snippets would make more sense only for the top level suggestions
@@ -358,12 +399,14 @@ IAssistProposal *CMakeFileCompletionAssist::performAsync()
         // Inside an unknown function we could have variables or properties
         fileStartPos = addFilePathItems(interface(), items, startPos);
         if (!onlyFileItems()) {
-            items.append(generateList(keywords.variables, m_variableIcon));
-            items.append(generateList(projectKeywords.variables, m_projectVariableIcon));
+            items.append(generateList(data.keywords.variables, m_variableIcon));
+            items.append(generateList(data.projectKeywords.variables, m_projectVariableIcon));
             items.append(generateList(localVariables, m_variableIcon));
+            items.append(generateList(data.findPackageVariables, m_projectVariableIcon));
 
-            items.append(generateList(keywords.properties, m_propertyIcon));
-            items.append(generateList(buildTargets, m_targetsIcon));
+            items.append(generateList(data.keywords.properties, m_propertyIcon));
+            items.append(generateList(data.buildTargets, m_targetsIcon));
+            items.append(generateList(data.importedTargets, m_importedTargetIcon));
         }
     }
 

@@ -10,7 +10,6 @@
 #include "fancytabwidget.h"
 #include "icore.h"
 #include "imode.h"
-#include "mainwindow.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -205,7 +204,7 @@ void ModeManagerPrivate::appendMode(IMode *mode)
 {
     const int index = m_modeCommands.count();
 
-    m_mainWindow->addContextObject(mode);
+    ICore::addContextObject(mode);
 
     m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
                            mode->menu() != nullptr);
@@ -246,7 +245,7 @@ void ModeManager::removeMode(IMode *mode)
     d->m_modeCommands.remove(index);
     d->m_modeStack->removeTab(index);
 
-    d->m_mainWindow->removeContextObject(mode);
+    ICore::removeContextObject(mode);
 }
 
 void ModeManagerPrivate::enabledStateChanged(IMode *mode)

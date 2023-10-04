@@ -14,6 +14,8 @@ QT_END_NAMESPACE
 
 namespace Core {
 
+class ICore;
+
 namespace Internal {
 class MainWindow;
 class MainWindowPrivate;
@@ -42,8 +44,10 @@ private:
     ~MessageManager() override;
 
     static void init();
-    friend class Core::Internal::MainWindow;
-    friend class Core::Internal::MainWindowPrivate;
+
+    friend class ICore;
+    friend class Internal::MainWindow;
+    friend class Internal::MainWindowPrivate;
 };
 
 } // namespace Core

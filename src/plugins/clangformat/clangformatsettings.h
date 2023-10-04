@@ -41,7 +41,7 @@ private:
     bool m_overrideDefaultFile = false;
     bool m_formatWhileTyping = false;
     bool m_formatOnSave = false;
-    int m_fileSizeThreshold = 1024;
+    int m_fileSizeThreshold = 200;
 };
 
 } // namespace ClangFormat

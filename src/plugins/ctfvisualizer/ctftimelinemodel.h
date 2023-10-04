@@ -6,17 +6,14 @@
 
 #include <tracing/timelinemodel.h>
 
+#include <QList>
 #include <QMap>
 #include <QSet>
 #include <QStack>
-#include <QVector>
 
-namespace Timeline {
-class TimelineModelAggregator;
-}
+namespace Timeline { class TimelineModelAggregator; }
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 class CtfTraceManager;
 
@@ -73,8 +70,8 @@ protected:
     QString m_processName;
 
     int m_maxStackSize = 0;
-    QVector<int> m_rows;
-    QVector<QMap<int, QPair<QString, QString>>> m_details;
+    QList<int> m_rows;
+    QList<QMap<int, QPair<QString, QString>>> m_details;
     QSet<int> m_handledTypeIds;
     QStack<int> m_openEventIds;
     QSet<QString> m_reusableStrings;
@@ -86,12 +83,11 @@ protected:
         float max = std::numeric_limits<float>::min();
     };
 
-    QVector<std::string> m_counterNames;
-    QVector<CounterData> m_counterData;
-    QVector<float> m_counterValues;
-    QVector<int> m_itemToCounterIdx;
-    QVector<int> m_counterIndexToRow;
+    QList<std::string> m_counterNames;
+    QList<CounterData> m_counterData;
+    QList<float> m_counterValues;
+    QList<int> m_itemToCounterIdx;
+    QList<int> m_counterIndexToRow;
 };
 
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal

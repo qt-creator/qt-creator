@@ -19,16 +19,19 @@ namespace LanguageServerProtocol { class MessageId; }
 namespace LanguageClient {
 
 class Client;
+enum class LinkTarget { SymbolDef, SymbolTypeDef, SymbolImplementation };
 
 class LANGUAGECLIENT_EXPORT SymbolSupport : public QObject
 {
 public:
     explicit SymbolSupport(Client *client);
 
+    bool supportsFindLink(TextEditor::TextDocument *document, LinkTarget target) const;
     LanguageServerProtocol::MessageId findLinkAt(TextEditor::TextDocument *document,
-                    const QTextCursor &cursor,
-                    Utils::LinkHandler callback,
-                    const bool resolveTarget);
+                                                 const QTextCursor &cursor,
+                                                 Utils::LinkHandler callback,
+                                                 const bool resolveTarget,
+                                                 const LinkTarget target);
 
     bool supportsFindUsages(TextEditor::TextDocument *document) const;
     using ResultHandler = std::function<void(const QList<LanguageServerProtocol::Location> &)>;

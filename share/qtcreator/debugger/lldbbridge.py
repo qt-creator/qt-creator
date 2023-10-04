@@ -2157,14 +2157,7 @@ class SummaryDumper(Dumper, LogMixin):
         return  # Don't mess up lldb output
 
     def dump_summary(self, valobj, expanded=False):
-        try:
-            from pygdbmi import gdbmiparser
-        except ImportError:
-            print("Qt summary provider requires the pygdbmi module, "
-                  "please install using 'sudo /usr/bin/easy_install pygdbmi', "
-                  "and then restart Xcode.")
-            lldb.debugger.HandleCommand('type category delete Qt')
-            return None
+        from pygdbmi import gdbmiparser
 
         value = self.fromNativeValue(valobj)
 
@@ -2437,6 +2430,34 @@ class SyntheticChildrenProvider(SummaryProvider):
             self.valobj = self.create_value(dereference_child)
             self.update()
 
+def ensure_gdbmiparser():
+    try:
+        from pygdbmi import gdbmiparser
+        return True
+    except ImportError:
+        try:
+            if not 'QT_LLDB_SUMMARY_PROVIDER_NO_AUTO_INSTALL' in os.environ:
+                print("Required module 'pygdbmi' not installed. Installing automatically...")
+                import subprocess
+                python3 = os.path.join(sys.exec_prefix, 'bin', 'python3')
+                process = subprocess.run([python3, '-m', 'pip',
+                    '--disable-pip-version-check',
+                    'install', '--user', 'pygdbmi' ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT)
+                print(process.stdout.decode('utf-8').strip())
+                process.check_returncode()
+                from importlib import invalidate_caches
+                invalidate_caches()
+                from pygdbmi import gdbmiparser
+                return True
+        except Exception as e:
+            print(e)
+
+    print("Qt summary provider requires the pygdbmi module. Please install\n" \
+          "manually using '/usr/bin/pip3 install pygdbmi', and restart Xcode.")
+    return False
+
 
 def __lldb_init_module(debugger, internal_dict):
     # Module is being imported in an LLDB session
@@ -2445,6 +2466,9 @@ def __lldb_init_module(debugger, internal_dict):
         return
 
     debug("Initializing module with", debugger)
+
+    if not ensure_gdbmiparser():
+        return
 
     if not __name__ == 'qt':
         # Make available under global 'qt' name for consistency,

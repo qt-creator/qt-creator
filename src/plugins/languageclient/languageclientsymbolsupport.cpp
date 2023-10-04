@@ -77,15 +77,14 @@ SymbolSupport::SymbolSupport(Client *client)
 {}
 
 template<typename Request>
-static void sendTextDocumentPositionParamsRequest(Client *client,
-                                                  const Request &request,
-                                                  const DynamicCapabilities &dynamicCapabilities,
-                                                  const ServerCapabilities &serverCapability)
+static MessageId sendTextDocumentPositionParamsRequest(Client *client, const Request &request)
 {
     if (!request.isValid(nullptr))
-        return;
+        return {};
     const DocumentUri uri = request.params().value().textDocument().uri();
     const bool supportedFile = client->isSupportedUri(uri);
+    const DynamicCapabilities dynamicCapabilities = client->dynamicCapabilities();
+    const ServerCapabilities serverCapability = client->capabilities();
     bool sendMessage = dynamicCapabilities.isRegistered(Request::methodName).value_or(false);
     if (sendMessage) {
         const TextDocumentRegistrationOptions option(
@@ -102,14 +101,17 @@ static void sendTextDocumentPositionParamsRequest(Client *client,
         if (sendMessage && std::holds_alternative<bool>(*provider))
             sendMessage = std::get<bool>(*provider);
     }
-    if (sendMessage)
+    if (sendMessage) {
         client->sendMessage(request);
+        return request.id();
+    }
+    return {};
 }
 
-static void handleGotoDefinitionResponse(const GotoDefinitionRequest::Response &response,
-                                         Utils::LinkHandler callback,
-                                         std::optional<Utils::Link> linkUnderCursor,
-                                         const Client *client)
+static void handleGotoResponse(const GotoDefinitionRequest::Response &response,
+                               Utils::LinkHandler callback,
+                               std::optional<Utils::Link> linkUnderCursor,
+                               const Client *client)
 {
     if (std::optional<GotoResult> result = response.result()) {
         if (std::holds_alternative<std::nullptr_t>(*result)) {
@@ -137,14 +139,69 @@ static TextDocumentPositionParams generateDocPosParams(TextEditor::TextDocument 
     return TextDocumentPositionParams(documentId, pos);
 }
 
+template<typename Request>
+static MessageId sendGotoRequest(TextEditor::TextDocument *document,
+                                 const QTextCursor &cursor,
+                                 Utils::LinkHandler callback,
+                                 Client *client,
+                                 std::optional<Utils::Link> linkUnderCursor)
+{
+    Request request(generateDocPosParams(document, cursor, client));
+    request.setResponseCallback([callback, linkUnderCursor, client](
+                                    const GotoDefinitionRequest::Response &response) {
+        handleGotoResponse(response, callback, linkUnderCursor, client);
+    });
+    return sendTextDocumentPositionParamsRequest(client, request);
+    return request.id();
+}
+
+bool SymbolSupport::supportsFindLink(TextEditor::TextDocument *document, LinkTarget target) const
+{
+    const DocumentUri uri = m_client->hostPathToServerUri(document->filePath());
+    const DynamicCapabilities dynamicCapabilities = m_client->dynamicCapabilities();
+    const ServerCapabilities serverCapability = m_client->capabilities();
+    QString methodName;
+    std::optional<std::variant<bool, ServerCapabilities::RegistrationOptions>> provider;
+    switch (target) {
+    case LinkTarget::SymbolDef:
+        methodName = GotoDefinitionRequest::methodName;
+        provider = serverCapability.definitionProvider();
+        break;
+    case LinkTarget::SymbolTypeDef:
+        methodName = GotoTypeDefinitionRequest::methodName;
+        provider = serverCapability.typeDefinitionProvider();
+        break;
+    case LinkTarget::SymbolImplementation:
+        methodName = GotoImplementationRequest::methodName;
+        provider = serverCapability.implementationProvider();
+        break;
+    }
+    if (methodName.isEmpty())
+        return false;
+    bool supported = dynamicCapabilities.isRegistered(methodName).value_or(false);
+    if (supported) {
+        const TextDocumentRegistrationOptions option(dynamicCapabilities.option(methodName));
+        if (option.isValid())
+            supported = option.filterApplies(
+                Utils::FilePath::fromString(QUrl(uri).adjusted(QUrl::PreferLocalFile).toString()));
+        else
+            supported = m_client->isSupportedUri(uri);
+    } else {
+        supported = provider.has_value();
+        if (supported && std::holds_alternative<bool>(*provider))
+            supported = std::get<bool>(*provider);
+    }
+    return supported;
+}
+
 MessageId SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
                                     const QTextCursor &cursor,
                                     Utils::LinkHandler callback,
-                                    const bool resolveTarget)
+                                    const bool resolveTarget,
+                                    const LinkTarget target)
 {
     if (!m_client->reachable())
         return {};
-    GotoDefinitionRequest request(generateDocPosParams(document, cursor, m_client));
     std::optional<Utils::Link> linkUnderCursor;
     if (!resolveTarget) {
         QTextCursor linkCursor = cursor;
@@ -156,16 +213,29 @@ MessageId SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
         link.linkTextEnd = linkCursor.selectionEnd();
         linkUnderCursor = link;
     }
-    request.setResponseCallback([callback, linkUnderCursor, client = m_client](
-                                    const GotoDefinitionRequest::Response &response) {
-        handleGotoDefinitionResponse(response, callback, linkUnderCursor, client);
-    });
 
-    sendTextDocumentPositionParamsRequest(m_client,
-                                          request,
-                                          m_client->dynamicCapabilities(),
-                                          m_client->capabilities());
-    return request.id();
+    const TextDocumentPositionParams params = generateDocPosParams(document, cursor, m_client);
+    switch (target) {
+    case LinkTarget::SymbolDef:
+        return sendGotoRequest<GotoDefinitionRequest>(document,
+                                                      cursor,
+                                                      callback,
+                                                      m_client,
+                                                      linkUnderCursor);
+    case LinkTarget::SymbolTypeDef:
+        return sendGotoRequest<GotoTypeDefinitionRequest>(document,
+                                                          cursor,
+                                                          callback,
+                                                          m_client,
+                                                          linkUnderCursor);
+    case LinkTarget::SymbolImplementation:
+        return sendGotoRequest<GotoImplementationRequest>(document,
+                                                          cursor,
+                                                          callback,
+                                                          m_client,
+                                                          linkUnderCursor);
+    }
+    return {};
 }
 
 bool SymbolSupport::supportsFindUsages(TextEditor::TextDocument *document) const
@@ -317,10 +387,7 @@ std::optional<MessageId> SymbolSupport::findUsages(TextEditor::TextDocument *doc
         handleFindReferencesResponse(response, wordUnderCursor, handler);
     });
 
-    sendTextDocumentPositionParamsRequest(m_client,
-                                          request,
-                                          m_client->dynamicCapabilities(),
-                                          m_client->capabilities());
+    sendTextDocumentPositionParamsRequest(m_client, request);
     return request.id();
 }
 

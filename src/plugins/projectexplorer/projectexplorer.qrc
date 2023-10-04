@@ -70,6 +70,8 @@
         <file>images/fileoverlay_unknown@2x.png</file>
         <file>images/cancelbuild_overlay.png</file>
         <file>images/cancelbuild_overlay@2x.png</file>
+        <file>images/cmakeicon.png</file>
+        <file>images/cmakeicon@2x.png</file>
         <file>images/settingscategory_buildrun.png</file>
         <file>images/settingscategory_buildrun@2x.png</file>
         <file>images/settingscategory_devices.png</file>

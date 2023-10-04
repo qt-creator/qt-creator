@@ -125,6 +125,7 @@ class ProjectTreeView : public NavigationTreeView
 public:
     ProjectTreeView()
     {
+        setObjectName("projectTreeView"); // used by Squish
         setEditTriggers(QAbstractItemView::EditKeyPressed);
         setContextMenuPolicy(Qt::CustomContextMenu);
         setDragEnabled(true);

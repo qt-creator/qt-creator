@@ -15,6 +15,9 @@ class QTCREATOR_UTILS_EXPORT Key
 {
 public:
     Key() = default;
+    Key(const Key &) = default;
+    Key(Key &&) = default;
+
     Key(const QByteArray &key) : data(key) {}
 
     template <int N>
@@ -29,6 +32,9 @@ public:
 
     Key(const Key &base, int number);
     ~Key();
+
+    Key &operator=(const Key &) = default;
+    Key &operator=(Key &&) = default;
 
     const QByteArrayView view() const;
     const QByteArray &toByteArray() const;

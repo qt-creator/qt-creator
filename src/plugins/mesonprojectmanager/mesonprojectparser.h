@@ -88,7 +88,7 @@ private:
     Utils::FilePath m_srcDir;
     QFuture<ParserData *> m_parserFutureResult;
     bool m_configuring = false;
-    IntroDataType m_introType;
+    IntroDataType m_introType = IntroDataType::file;
     MesonInfoParser::Result m_parserResult;
     QStringList m_targetsNames;
     Utils::QtMajorVersion m_qtVersion = Utils::QtMajorVersion::Unknown;

@@ -86,10 +86,12 @@ class IntrospectionData
 {
 public:
     bool m_didAttemptToRun = false;
-    bool m_didRun = true;
+    bool m_haveCapabilitites = true;
+    bool m_haveKeywords = false;
 
     QList<CMakeTool::Generator> m_generators;
     CMakeKeywords m_keywords;
+    QMutex m_keywordsMutex;
     QVector<FileApi> m_fileApis;
     CMakeTool::Version m_version;
 };
@@ -161,7 +163,7 @@ bool CMakeTool::isValid(bool ignoreCache) const
     if (!m_introspection->m_didAttemptToRun)
         readInformation(ignoreCache);
 
-    return m_introspection->m_didRun && !m_introspection->m_fileApis.isEmpty();
+    return m_introspection->m_haveCapabilitites && !m_introspection->m_fileApis.isEmpty();
 }
 
 void CMakeTool::runCMake(Process &cmake, const QStringList &args, int timeoutS) const
@@ -249,7 +251,11 @@ CMakeKeywords CMakeTool::keywords()
     if (!isValid())
         return {};
 
-    if (m_introspection->m_keywords.functions.isEmpty() && m_introspection->m_didRun) {
+    if (!m_introspection->m_haveKeywords && m_introspection->m_haveCapabilitites) {
+        QMutexLocker locker(&m_introspection->m_keywordsMutex);
+        if (m_introspection->m_haveKeywords)
+            return m_introspection->m_keywords;
+
         Process proc;
 
         const FilePath findCMakeRoot = TemporaryDirectory::masterDirectoryFilePath()
@@ -311,6 +317,8 @@ CMakeKeywords CMakeTool::keywords()
         const QStringList moduleFunctions = parseSyntaxHighlightingXml();
         for (const auto &function : moduleFunctions)
             m_introspection->m_keywords.functions[function] = FilePath();
+
+        m_introspection->m_haveKeywords = true;
     }
 
     return m_introspection->m_keywords;
@@ -433,7 +441,7 @@ void CMakeTool::openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl)
 void CMakeTool::readInformation(bool ignoreCache) const
 {
     QTC_ASSERT(m_introspection, return );
-    if (!m_introspection->m_didRun && m_introspection->m_didAttemptToRun)
+    if (!m_introspection->m_haveCapabilitites && m_introspection->m_didAttemptToRun)
         return;
 
     m_introspection->m_didAttemptToRun = true;
@@ -623,7 +631,7 @@ void CMakeTool::fetchFromCapabilities(bool ignoreCache) const
         keyFromString("CMake_" + cmakeExecutable().toUserOutput()));
 
     if (cache && !ignoreCache) {
-        m_introspection->m_didRun = true;
+        m_introspection->m_haveCapabilitites = true;
         parseFromCapabilities(cache->value("CleanedStdOut").toString());
         return;
     }
@@ -632,11 +640,11 @@ void CMakeTool::fetchFromCapabilities(bool ignoreCache) const
     runCMake(cmake, {"-E", "capabilities"});
 
     if (cmake.result() == ProcessResult::FinishedWithSuccess) {
-        m_introspection->m_didRun = true;
+        m_introspection->m_haveCapabilitites = true;
         parseFromCapabilities(cmake.cleanedStdOut());
     } else {
         qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.allOutput() << cmake.error();
-        m_introspection->m_didRun = false;
+        m_introspection->m_haveCapabilitites = false;
     }
 
     Store newData{{"CleanedStdOut", cmake.cleanedStdOut()}};

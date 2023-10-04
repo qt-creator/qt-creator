@@ -35,7 +35,7 @@ public:
     void handleNext();
 
     VariableItem currentItem() const { return m_currentVarItem; }
-    int queueSize() const { return m_queue.size(); }
+    int queueSize() const { return int(m_queue.size()); }
 
 private:
     void startHandling();

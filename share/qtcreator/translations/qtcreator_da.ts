@@ -3454,7 +3454,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Tilføj bogmærke</translation>
@@ -33662,10 +33662,6 @@ Angiver hvordan backspace interagerer med indrykning.
     <message>
         <source>Edit...</source>
         <translation>Rediger...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
     </message>
     <message>
         <source>Export...</source>

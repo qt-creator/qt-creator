@@ -22,7 +22,6 @@ add_subdirectory(silversearcher)
 
 # Level 3: (only depends on Level 2 and below)
 add_subdirectory(axivion)
-add_subdirectory(bookmarks)
 add_subdirectory(cppeditor)
 add_subdirectory(haskell)
 add_subdirectory(help)

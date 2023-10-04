@@ -479,8 +479,24 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
             connect(widget, &TextEditorWidget::requestLinkAt, this,
                     [document = textEditor->textDocument()]
                     (const QTextCursor &cursor, const Utils::LinkHandler &callback, bool resolveTarget) {
-                        if (auto client = clientForDocument(document))
-                            client->findLinkAt(document, cursor, callback, resolveTarget);
+                        if (auto client = clientForDocument(document)) {
+                            client->findLinkAt(document,
+                                               cursor,
+                                               callback,
+                                               resolveTarget,
+                                               LinkTarget::SymbolDef);
+                        }
+                    });
+            connect(widget, &TextEditorWidget::requestTypeAt, this,
+                    [document = textEditor->textDocument()]
+                    (const QTextCursor &cursor, const Utils::LinkHandler &callback, bool resolveTarget) {
+                        if (auto client = clientForDocument(document)) {
+                            client->findLinkAt(document,
+                                               cursor,
+                                               callback,
+                                               resolveTarget,
+                                               LinkTarget::SymbolTypeDef);
+                        }
                     });
             connect(widget, &TextEditorWidget::requestUsages, this,
                     [document = textEditor->textDocument()](const QTextCursor &cursor) {

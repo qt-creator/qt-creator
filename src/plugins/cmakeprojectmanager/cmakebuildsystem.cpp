@@ -1261,28 +1261,182 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
     m_projectKeywords.functions.clear();
     m_projectKeywords.variables.clear();
 
-    for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
-        for (const auto &func : cmakeFile.cmakeListFile.Functions) {
-            if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
-                && func.LowerCaseName() != "option")
+    auto handleFunctionMacroOption = [&](const CMakeFileInfo &cmakeFile,
+                                         const cmListFileFunction &func) {
+        if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
+            && func.LowerCaseName() != "option")
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto arg = func.Arguments()[0];
+
+        Utils::Link link;
+        link.targetFilePath = cmakeFile.path;
+        link.targetLine = arg.Line;
+        link.targetColumn = arg.Column - 1;
+        m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+
+        if (func.LowerCaseName() == "option")
+            m_projectKeywords.variables[QString::fromUtf8(arg.Value)] = FilePath();
+        else
+            m_projectKeywords.functions[QString::fromUtf8(arg.Value)] = FilePath();
+    };
+
+    m_projectImportedTargets.clear();
+    auto handleImportedTargets = [&](const CMakeFileInfo &cmakeFile,
+                                     const cmListFileFunction &func) {
+        if (func.LowerCaseName() != "add_library")
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto arg = func.Arguments()[0];
+        const QString targetName = QString::fromUtf8(arg.Value);
+
+        const bool haveImported = Utils::contains(func.Arguments(), [](const auto &arg) {
+            return arg.Value == "IMPORTED";
+        });
+        if (haveImported && !targetName.contains("${")) {
+            m_projectImportedTargets << targetName;
+
+            // Allow navigation to the imported target
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = arg.Line;
+            link.targetColumn = arg.Column - 1;
+            m_cmakeSymbolsHash.insert(targetName, link);
+        }
+    };
+
+    // Handle project targets, unfortunately the CMake file-api doesn't deliver the
+    // column of the target, just the line. Make sure to find it out
+    QHash<FilePath, int> projectTargetsSourceAndLine;
+    for (const auto &target : std::as_const(buildTargets())) {
+        if (target.targetType == TargetType::UtilityType)
+            continue;
+        if (target.backtrace.isEmpty())
+            continue;
+
+        projectTargetsSourceAndLine.insert(target.backtrace.last().path,
+                                           target.backtrace.last().line);
+    }
+    auto handleProjectTargets = [&](const CMakeFileInfo &cmakeFile, const cmListFileFunction &func) {
+        if (!projectTargetsSourceAndLine.contains(cmakeFile.path)
+            || projectTargetsSourceAndLine.value(cmakeFile.path) != func.Line())
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto arg = func.Arguments()[0];
+
+        Utils::Link link;
+        link.targetFilePath = cmakeFile.path;
+        link.targetLine = arg.Line;
+        link.targetColumn = arg.Column - 1;
+        m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+    };
+
+    // Gather the exported variables for the Find<Package> CMake packages
+    m_projectFindPackageVariables.clear();
+
+    const std::string fphsFunctionName = "find_package_handle_standard_args";
+    CMakeKeywords keywords;
+    if (auto tool = CMakeKitAspect::cmakeTool(target()->kit()))
+        keywords = tool->keywords();
+    QSet<std::string> fphsFunctionArgs;
+    if (keywords.functionArgs.contains(QString::fromStdString(fphsFunctionName))) {
+        const QList<std::string> args
+            = Utils::transform(keywords.functionArgs.value(QString::fromStdString(fphsFunctionName)),
+                               &QString::toStdString);
+        fphsFunctionArgs = Utils::toSet(args);
+    }
+
+    auto handleFindPackageVariables = [&](const CMakeFileInfo &cmakeFile, const cmListFileFunction &func) {
+        if (func.LowerCaseName() != fphsFunctionName)
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto firstArgument = func.Arguments()[0];
+        const auto filteredArguments = Utils::filtered(func.Arguments(), [&](const auto &arg) {
+            return !fphsFunctionArgs.contains(arg.Value) && arg != firstArgument;
+        });
+
+        for (const auto &arg : filteredArguments) {
+            const QString value = QString::fromUtf8(arg.Value);
+            if (value.contains("${") || (value.startsWith('"') && value.endsWith('"'))
+                || (value.startsWith("'") && value.endsWith("'")))
                 continue;
 
-            if (func.Arguments().size() == 0)
-                continue;
-            auto arg = func.Arguments()[0];
+            m_projectFindPackageVariables << value;
 
             Utils::Link link;
             link.targetFilePath = cmakeFile.path;
             link.targetLine = arg.Line;
             link.targetColumn = arg.Column - 1;
-            m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+            m_cmakeSymbolsHash.insert(value, link);
+        }
+    };
 
-            if (func.LowerCaseName() == "option")
-                m_projectKeywords.variables[QString::fromUtf8(arg.Value)] = FilePath();
-            else
-                m_projectKeywords.functions[QString::fromUtf8(arg.Value)] = FilePath();
+    // Prepare a hash with all .cmake files
+    m_dotCMakeFilesHash.clear();
+    auto handleDotCMakeFiles = [&](const CMakeFileInfo &cmakeFile) {
+        if (cmakeFile.path.suffix() == "cmake") {
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = 1;
+            link.targetColumn = 0;
+            m_dotCMakeFilesHash.insert(cmakeFile.path.completeBaseName(), link);
+        }
+    };
+
+    // Gather all Find<Package>.cmake and <Package>Config.cmake / <Package>-config.cmake files
+    m_findPackagesFilesHash.clear();
+    auto handleFindPackageCMakeFiles = [&](const CMakeFileInfo &cmakeFile) {
+        const QString fileName = cmakeFile.path.fileName();
+
+        const QString findPackageName = [fileName]() -> QString {
+            auto findIdx = fileName.indexOf("Find");
+            auto endsWithCMakeIdx = fileName.lastIndexOf(".cmake");
+            if (findIdx == 0 && endsWithCMakeIdx > 0)
+                return fileName.mid(4, endsWithCMakeIdx - 4);
+            return QString();
+        }();
+
+        const QString configPackageName = [fileName]() -> QString {
+            auto configCMakeIdx = fileName.lastIndexOf("Config.cmake");
+            if (configCMakeIdx > 0)
+                return fileName.left(configCMakeIdx);
+            auto dashConfigCMakeIdx = fileName.lastIndexOf("-config.cmake");
+            if (dashConfigCMakeIdx > 0)
+                return fileName.left(dashConfigCMakeIdx);
+            return QString();
+        }();
+
+        if (!findPackageName.isEmpty() || !configPackageName.isEmpty()) {
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = 1;
+            link.targetColumn = 0;
+            m_findPackagesFilesHash.insert(!findPackageName.isEmpty() ? findPackageName
+                                                                      : configPackageName,
+                                           link);
+        }
+    };
+
+    for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
+        for (const auto &func : cmakeFile.cmakeListFile.Functions) {
+            handleFunctionMacroOption(cmakeFile, func);
+            handleImportedTargets(cmakeFile, func);
+            handleProjectTargets(cmakeFile, func);
+            handleFindPackageVariables(cmakeFile, func);
+            handleDotCMakeFiles(cmakeFile);
+            handleFindPackageCMakeFiles(cmakeFile);
         }
     }
+
+    m_projectFindPackageVariables.removeDuplicates();
 }
 
 void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters)

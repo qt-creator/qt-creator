@@ -118,6 +118,8 @@ public:
     QAction *m_unfoldAllAction = nullptr;
     QAction *m_followSymbolAction = nullptr;
     QAction *m_followSymbolInNextSplitAction = nullptr;
+    QAction *m_followToTypeAction = nullptr;
+    QAction *m_followToTypeInNextSplitAction = nullptr;
     QAction *m_findUsageAction = nullptr;
     QAction *m_openCallHierarchyAction = nullptr;
     QAction *m_renameSymbolAction = nullptr;
@@ -224,6 +226,12 @@ void TextEditorActionHandlerPrivate::createActions()
     m_followSymbolInNextSplitAction = registerAction(FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT,
             [] (TextEditorWidget *w) { w->openLinkUnderCursorInNextSplit(); }, true, Tr::tr("Follow Symbol Under Cursor in Next Split"),
             QKeySequence(Utils::HostOsInfo::isMacHost() ? Tr::tr("Meta+E, F2") : Tr::tr("Ctrl+E, F2")));
+    m_followToTypeAction = registerAction(FOLLOW_SYMBOL_TO_TYPE,
+            [] (TextEditorWidget *w) { w->openTypeUnderCursor(); }, true, Tr::tr("Follow Type Under Cursor"),
+            QKeySequence(Tr::tr("Ctrl+Shift+F2")));
+    m_followToTypeInNextSplitAction = registerAction(FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT,
+            [] (TextEditorWidget *w) { w->openTypeUnderCursorInNextSplit(); }, true, Tr::tr("Follow Type Under Cursor in Next Split"),
+            QKeySequence(Utils::HostOsInfo::isMacHost() ? Tr::tr("Meta+E, Shift+F2") : Tr::tr("Ctrl+E, Ctrl+Shift+F2")));
     m_findUsageAction = registerAction(FIND_USAGES,
             [] (TextEditorWidget *w) { w->findUsages(); }, true, Tr::tr("Find References to Symbol Under Cursor"),
             QKeySequence(Tr::tr("Ctrl+Shift+U")));
@@ -492,6 +500,10 @@ void TextEditorActionHandlerPrivate::updateOptionalActions()
         optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
     m_followSymbolInNextSplitAction->setEnabled(
         optionalActions & TextEditorActionHandler::FollowSymbolUnderCursor);
+    m_followToTypeAction->setEnabled(
+        optionalActions & TextEditorActionHandler::FollowTypeUnderCursor);
+    m_followToTypeInNextSplitAction->setEnabled(
+        optionalActions & TextEditorActionHandler::FollowTypeUnderCursor);
     m_findUsageAction->setEnabled(
         optionalActions & TextEditorActionHandler::FindUsage);
     m_jumpToFileAction->setEnabled(

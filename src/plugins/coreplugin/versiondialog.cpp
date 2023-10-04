@@ -38,14 +38,13 @@ VersionDialog::VersionDialog(QWidget *parent)
 
     const Utils::AppInfo appInfo = Utils::appInfo();
     QString ideRev;
-#ifdef IDE_REVISION
-    ideRev = Tr::tr("<br/>From revision %1<br/>")
-                 .arg(appInfo.revisionUrl.isEmpty()
-                          ? appInfo.revision
-                          : QString::fromLatin1("<a href=\"%1\">%2</a>")
-                                .arg(appInfo.revisionUrl, appInfo.revision));
-#endif
-     QString buildDateInfo;
+    if (!appInfo.revision.isEmpty())
+        ideRev = Tr::tr("<br/>From revision %1<br/>")
+                .arg(appInfo.revisionUrl.isEmpty()
+                     ? appInfo.revision
+                     : QString::fromLatin1("<a href=\"%1\">%2</a>")
+                       .arg(appInfo.revisionUrl, appInfo.revision));
+    QString buildDateInfo;
 #ifdef QTC_SHOW_BUILD_DATE
      buildDateInfo = Tr::tr("<br/>Built on %1 %2<br/>").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
 #endif

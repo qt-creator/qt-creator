@@ -2438,7 +2438,9 @@ MiniProjectTargetSelector *ProjectExplorerPlugin::targetSelector()
 
 void ProjectExplorerPluginPrivate::executeRunConfiguration(RunConfiguration *runConfiguration, Id runMode)
 {
-    const Tasks runConfigIssues = runConfiguration->checkForIssues();
+    const Tasks runConfigIssues = runMode == Constants::DAP_CMAKE_DEBUG_RUN_MODE
+                                      ? Tasks()
+                                      : runConfiguration->checkForIssues();
     if (!runConfigIssues.isEmpty()) {
         for (const Task &t : runConfigIssues)
             TaskHub::addTask(t);

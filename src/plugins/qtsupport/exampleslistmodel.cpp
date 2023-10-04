@@ -269,11 +269,13 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
 
 ExamplesViewController::ExamplesViewController(ExampleSetModel *exampleSetModel,
                                                SectionedGridView *view,
+                                               QLineEdit *searchField,
                                                bool isExamples,
                                                QObject *parent)
     : QObject(parent)
     , m_exampleSetModel(exampleSetModel)
     , m_view(view)
+    , m_searchField(searchField)
     , m_isExamples(isExamples)
 {
     if (isExamples) {
@@ -286,6 +288,10 @@ ExamplesViewController::ExamplesViewController(ExampleSetModel *exampleSetModel,
             &Core::HelpManager::Signals::documentationChanged,
             this,
             &ExamplesViewController::updateExamples);
+    connect(m_searchField,
+            &QLineEdit::textChanged,
+            m_view,
+            &SectionedGridView::setSearchStringDelayed);
     view->setPixmapFunction(fetchPixmapAndUpdatePixmapCache);
     updateExamples();
 }
@@ -399,6 +405,8 @@ void ExamplesViewController::updateExamples()
         m_view->addSection(sections.at(i).first,
                            static_container_cast<ListItem *>(sections.at(i).second));
     }
+    if (!m_searchField->text().isEmpty())
+        m_view->setSearchString(m_searchField->text());
 }
 
 void ExamplesViewController::setVisible(bool visible)

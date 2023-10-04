@@ -149,6 +149,13 @@ public:
     void updateExtraCompilers();
     void currentInterpreterChanged();
 
+    struct PySideTools
+    {
+        FilePath pySideProjectPath;
+        FilePath pySideUicPath;
+    };
+    void updateTools(const PySideTools &tools);
+
     FilePath m_pySideUicPath;
 
     PythonInterpreterAspect *q;
@@ -195,7 +202,15 @@ PythonInterpreterAspect::~PythonInterpreterAspect()
 
 void PythonInterpreterAspectPrivate::checkForPySide(const FilePath &python)
 {
-    checkForPySide(python, "PySide6-Essentials");
+    PySideTools tools;
+    const FilePath dir = python.parentDir();
+    tools.pySideProjectPath = dir.pathAppended("pyside6-project").withExecutableSuffix();
+    tools.pySideUicPath = dir.pathAppended("pyside6-uic").withExecutableSuffix();
+
+    if (tools.pySideProjectPath.isExecutableFile() && tools.pySideUicPath.isExecutableFile())
+        updateTools(tools);
+    else
+        checkForPySide(python, "PySide6-Essentials");
 }
 
 void PythonInterpreterAspectPrivate::checkForPySide(const FilePath &python,
@@ -215,24 +230,10 @@ void PythonInterpreterAspectPrivate::handlePySidePackageInfo(const PipPackageInf
                                                              const FilePath &python,
                                                              const QString &requestedPackageName)
 {
-    struct PythonTools
-    {
-        FilePath pySideProjectPath;
-        FilePath pySideUicPath;
-    };
-
-    BuildStepList *buildSteps = nullptr;
-    if (Target *target = rc->target()) {
-        if (auto buildConfiguration = target->activeBuildConfiguration())
-            buildSteps = buildConfiguration->buildSteps();
-    }
-    if (!buildSteps)
-        return;
-
     const auto findPythonTools = [](const FilePaths &files,
                                     const FilePath &location,
-                                    const FilePath &python) -> PythonTools {
-        PythonTools result;
+                                    const FilePath &python) -> PySideTools {
+        PySideTools result;
         const QString pySide6ProjectName
             = OsSpecificAspects::withExecutableSuffix(python.osType(), "pyside6-project");
         const QString pySide6UicName
@@ -253,18 +254,13 @@ void PythonInterpreterAspectPrivate::handlePySidePackageInfo(const PipPackageInf
         return {};
     };
 
-    PythonTools pythonTools = findPythonTools(pySideInfo.files, pySideInfo.location, python);
-    if (!pythonTools.pySideProjectPath.isExecutableFile() && requestedPackageName != "PySide6") {
+    PySideTools tools = findPythonTools(pySideInfo.files, pySideInfo.location, python);
+    if (!tools.pySideProjectPath.isExecutableFile() && requestedPackageName != "PySide6") {
         checkForPySide(python, "PySide6");
         return;
     }
 
-    m_pySideUicPath = pythonTools.pySideUicPath;
-
-    updateExtraCompilers();
-
-    if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
-        pySideBuildStep->updatePySideProjectPath(pythonTools.pySideProjectPath);
+    updateTools(tools);
 }
 
 void PythonInterpreterAspectPrivate::currentInterpreterChanged()
@@ -278,6 +274,22 @@ void PythonInterpreterAspectPrivate::currentInterpreterChanged()
                 || document->mimeType() == Constants::C_PY3_MIMETYPE) {
                 PyLSConfigureAssistant::openDocumentWithPython(python, document);
                 PySideInstaller::checkPySideInstallation(python, document);
+            }
+        }
+    }
+}
+
+void PythonInterpreterAspectPrivate::updateTools(const PySideTools &tools)
+{
+    m_pySideUicPath = tools.pySideUicPath;
+
+    updateExtraCompilers();
+
+    if (Target *target = rc->target()) {
+        if (BuildConfiguration *buildConfiguration = target->activeBuildConfiguration()) {
+            if (BuildStepList *buildSteps = buildConfiguration->buildSteps()) {
+                if (auto buildStep = buildSteps->firstOfType<PySideBuildStep>())
+                    buildStep->updatePySideProjectPath(tools.pySideProjectPath);
             }
         }
     }

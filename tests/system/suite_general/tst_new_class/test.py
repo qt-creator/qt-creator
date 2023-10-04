@@ -35,10 +35,18 @@ def main():
         editor = waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")
         editorText = str(editor.plainText)
         includeGuard = newClassName.upper().replace(".", "_")
-        test.verify("#ifndef " + includeGuard in editorText,
-                    "Include guard check in header file?")
-        test.verify("#define " + includeGuard in editorText,
-                    "Include guard definition in header file?")
+
+        guardCount = 0
+        if "#pragma once" in editorText:
+            guardCount += 1
+            test.passes("Include guard in header file.")
+        if "#ifndef " + includeGuard in editorText:
+            guardCount += 1
+            test.passes("Include guard check in header file.")
+            test.verify("#define " + includeGuard in editorText,
+                        "Include guard definition in header file.")
+        test.compare(guardCount, 1, "Either pragma once or conventional include guard present.")
+
         test.verify("class " + newClassName in editorText,
                     "Class definition in header file?")
         test.verify(" " + newClassName + "();" in editorText,

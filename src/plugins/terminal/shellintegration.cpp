@@ -146,7 +146,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         CommandLine newCmd = {cmd.executable(), {"--init-file", tmpRc.nativePath()}};
 
         if (cmd.arguments() == "-l")
-            newCmd.addArg("-l");
+            env.set("VSCODE_SHELL_LOGIN", "1");
 
         cmd = newCmd;
     } else if (cmd.executable().baseName() == "zsh") {

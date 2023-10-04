@@ -356,7 +356,7 @@ void BaseFileFind::runSearch(SearchResult *search)
     d->m_futureSynchronizer.addFuture(future);
     FutureProgress *progress = ProgressManager::addTask(future,
                                                         Tr::tr("Searching"),
-                                                        Constants::TASK_SEARCH);
+                                                        Core::Constants::TASK_SEARCH);
     connect(search, &SearchResult::countChanged, progress, [progress](int c) {
         progress->setSubtitle(Tr::tr("%n found.", nullptr, c));
     });

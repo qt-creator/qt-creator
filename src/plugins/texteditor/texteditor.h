@@ -154,7 +154,6 @@ private:
     Internal::BaseTextEditorPrivate *d;
 };
 
-
 class TEXTEDITOR_EXPORT TextEditorWidget : public QPlainTextEdit
 {
     Q_OBJECT
@@ -438,6 +437,8 @@ public:
 
     void openLinkUnderCursor();
     void openLinkUnderCursorInNextSplit();
+    void openTypeUnderCursor();
+    void openTypeUnderCursorInNextSplit();
 
     virtual void findUsages();
     virtual void renameSymbolUnderCursor();
@@ -495,6 +496,8 @@ signals:
     void requestBlockUpdate(const QTextBlock &);
 
     void requestLinkAt(const QTextCursor &cursor, const Utils::LinkHandler &callback,
+                       bool resolveTarget, bool inNextSplit);
+    void requestTypeAt(const QTextCursor &cursor, const Utils::LinkHandler &callback,
                        bool resolveTarget, bool inNextSplit);
     void requestUsages(const QTextCursor &cursor);
     void requestRename(const QTextCursor &cursor);
@@ -584,6 +587,11 @@ protected:
        (it isn't until the link is used).
      */
     virtual void findLinkAt(const QTextCursor &,
+                            const Utils::LinkHandler &processLinkCallback,
+                            bool resolveTarget = true,
+                            bool inNextSplit = false);
+
+    virtual void findTypeAt(const QTextCursor &,
                             const Utils::LinkHandler &processLinkCallback,
                             bool resolveTarget = true,
                             bool inNextSplit = false);

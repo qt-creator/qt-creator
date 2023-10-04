@@ -936,6 +936,10 @@ void Client::activateEditor(Core::IEditor *editor)
             optionalActions |= TextEditor::TextEditorActionHandler::FindUsage;
         if (symbolSupport().supportsRename(widget->textDocument()))
             optionalActions |= TextEditor::TextEditorActionHandler::RenameSymbol;
+        if (symbolSupport().supportsFindLink(widget->textDocument(), LinkTarget::SymbolDef))
+            optionalActions |= TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor;
+        if (symbolSupport().supportsFindLink(widget->textDocument(), LinkTarget::SymbolTypeDef))
+            optionalActions |= TextEditor::TextEditorActionHandler::FollowTypeUnderCursor;
         if (CallHierarchyFactory::supportsCallHierarchy(this, textEditor->document()))
             optionalActions |= TextEditor::TextEditorActionHandler::CallHierarchy;
         widget->setOptionalActions(optionalActions);
@@ -1306,7 +1310,8 @@ SymbolSupport &Client::symbolSupport()
 void Client::findLinkAt(TextEditor::TextDocument *document,
                         const QTextCursor &cursor,
                         Utils::LinkHandler callback,
-                        const bool resolveTarget)
+                        const bool resolveTarget,
+                        LinkTarget target)
 {
     if (d->m_runningFindLinkRequest.isValid())
         cancelRequest(d->m_runningFindLinkRequest);
@@ -1317,7 +1322,8 @@ void Client::findLinkAt(TextEditor::TextDocument *document,
             d->m_runningFindLinkRequest = {};
             callback(link);
         },
-        resolveTarget);
+        resolveTarget,
+        target);
 }
 
 void Client::requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,

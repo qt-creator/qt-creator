@@ -88,6 +88,7 @@ class ExamplesViewController : public QObject
 public:
     explicit ExamplesViewController(ExampleSetModel *exampleSetModel,
                                     Core::SectionedGridView *view,
+                                    QLineEdit *searchField,
                                     bool isExamples,
                                     QObject *parent);
 
@@ -98,6 +99,7 @@ public:
 private:
     ExampleSetModel *m_exampleSetModel;
     Core::SectionedGridView *m_view;
+    QLineEdit *m_searchField;
     bool m_isExamples;
     bool m_isVisible = false;
     bool m_needsUpdateExamples = false;

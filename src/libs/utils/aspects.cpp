@@ -1229,14 +1229,19 @@ void StringAspect::addToLayout(LayoutItem &parent)
                 &QTextEdit::setPlaceholderText);
 
         connect(textEditDisplay, &QTextEdit::textChanged, this, [this, textEditDisplay]() {
-            d->undoable.set(undoStack(), textEditDisplay->toPlainText());
-            handleGuiChanged();
+            if (textEditDisplay->toPlainText() != d->undoable.get()) {
+                d->undoable.set(undoStack(), textEditDisplay->toPlainText());
+                handleGuiChanged();
+            }
         });
 
         connect(&d->undoable.m_signal,
                 &UndoSignaller::changed,
                 textEditDisplay,
-                [this, textEditDisplay] { textEditDisplay->setText(d->undoable.get()); });
+                [this, textEditDisplay] {
+                    if (textEditDisplay->toPlainText() != d->undoable.get())
+                        textEditDisplay->setText(d->undoable.get());
+                });
         break;
     }
     case LabelDisplay: {
@@ -1245,7 +1250,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
         labelDisplay->setText(displayedString);
         labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : toolTip());
-        connect(this, &StringAspect::setElideMode, labelDisplay, &ElidingLabel::setElideMode);
+        connect(this, &StringAspect::elideModeChanged, labelDisplay, &ElidingLabel::setElideMode);
         addLabeledItem(parent, labelDisplay);
 
         connect(&d->undoable.m_signal, &UndoSignaller::changed, labelDisplay, [this, labelDisplay] {

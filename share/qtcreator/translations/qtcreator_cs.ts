@@ -44,7 +44,7 @@
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Přidat záložku</translation>
@@ -40282,10 +40282,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <translation>Upravit...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
         <source>Export...</source>
         <translation>Exportovat...</translation>
     </message>
@@ -40390,10 +40386,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     <message>
         <source>Group: </source>
         <translation>Skupina: </translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -44826,7 +44818,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -48370,7 +48362,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Note text:</source>
         <translation>Text poznámky:</translation>

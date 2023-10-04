@@ -893,20 +893,6 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
     CppModelManager::switchDeclDef(cursor, std::move(callback));
 }
 
-void CppEditorWidget::followSymbolToType(bool inNextSplit)
-{
-    if (!CppModelManager::instance())
-        return;
-
-    const CursorInEditor cursor(textCursor(), textDocument()->filePath(), this, textDocument());
-    const auto callback = [self = QPointer(this),
-            split = inNextSplit != alwaysOpenLinksInNextSplit()](const Link &link) {
-        if (self && link.hasValidTarget())
-            self->openLink(link, split);
-    };
-    CppModelManager::followSymbolToType(cursor, callback, inNextSplit);
-}
-
 bool CppEditorWidget::followUrl(const QTextCursor &cursor,
                                    const Utils::LinkHandler &processLinkCallback)
 {
@@ -997,11 +983,22 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
         }
         callback(link);
     };
-    CppModelManager::followSymbol(
-                CursorInEditor{cursor, filePath, this, textDocument()},
-                callbackWrapper,
-                resolveTarget,
-                inNextSplit);
+    CppModelManager::followSymbol(CursorInEditor{cursor, filePath, this, textDocument()},
+                                  callbackWrapper,
+                                  resolveTarget,
+                                  inNextSplit);
+}
+
+void CppEditorWidget::findTypeAt(const QTextCursor &cursor,
+                                 const Utils::LinkHandler &processLinkCallback,
+                                 bool /*resolveTarget*/,
+                                 bool inNextSplit)
+{
+    if (!CppModelManager::instance())
+        return;
+
+    const CursorInEditor cursorInEditor(cursor, textDocument()->filePath(), this, textDocument());
+    CppModelManager::followSymbolToType(cursorInEditor, processLinkCallback, inNextSplit);
 }
 
 unsigned CppEditorWidget::documentRevision() const
@@ -1052,18 +1049,20 @@ void CppEditorWidget::processKeyNormally(QKeyEvent *e)
     TextEditorWidget::keyPressEvent(e);
 }
 
-static void addRefactoringActions(QMenu *menu, std::unique_ptr<AssistInterface> iface)
+void CppEditorWidget::addRefactoringActions(QMenu *menu) const
 {
-    if (!iface || !menu)
+    if (!menu)
         return;
 
-    using Processor = QScopedPointer<IAssistProcessor>;
-    using Proposal = QScopedPointer<IAssistProposal>;
-
-    const Processor processor(
-        CppEditorPlugin::instance()->quickFixProvider()->createProcessor(iface.get()));
-    const Proposal proposal(processor->start(std::move(iface)));
-    if (proposal) {
+    auto iface = createAssistInterface(QuickFix, ExplicitlyInvoked);
+    IAssistProcessor * const processor
+        = textDocument()->quickFixAssistProvider()->createProcessor(iface.get());
+    IAssistProposal* const proposal(processor->start(std::move(iface)));
+    const auto handleProposal = [menu = QPointer(menu), processor](IAssistProposal *proposal) {
+        QScopedPointer<IAssistProposal> proposalHolder(proposal);
+        QScopedPointer<IAssistProcessor> processorHolder(processor);
+        if (!menu || !proposal)
+            return;
         auto model = proposal->model().staticCast<GenericProposalModel>();
         for (int index = 0; index < model->size(); ++index) {
             const auto item = static_cast<AssistProposalItem *>(model->proposalItem(index));
@@ -1071,7 +1070,12 @@ static void addRefactoringActions(QMenu *menu, std::unique_ptr<AssistInterface> 
             const QAction *action = menu->addAction(op->description());
             QObject::connect(action, &QAction::triggered, menu, [op] { op->perform(); });
         }
-    }
+    };
+
+    if (proposal)
+        handleProposal(proposal);
+    else
+        processor->setAsyncCompletionAvailableHandler(handleProposal);
 }
 
 class ProgressIndicatorMenuItem : public QWidgetAction
@@ -1103,7 +1107,7 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
         const CppUseSelectionsUpdater::RunnerInfo runnerInfo = d->m_useSelectionsUpdater.update();
         switch (runnerInfo) {
         case CppUseSelectionsUpdater::RunnerInfo::AlreadyUpToDate:
-            addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+            addRefactoringActions(menu);
             break;
         case CppUseSelectionsUpdater::RunnerInfo::Started: {
             // Update the refactor menu once we get the results.
@@ -1114,7 +1118,7 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
                     menu, [=] (SemanticInfo::LocalUseMap, bool success) {
                 QTC_CHECK(success);
                 menu->removeAction(progressIndicatorMenuItem);
-                addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+                addRefactoringActions(menu);
             });
             break;
         }

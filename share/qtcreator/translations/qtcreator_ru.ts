@@ -4874,7 +4874,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Добавить закладку</translation>
@@ -43004,10 +43004,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Edit...</source>
         <translation>Изменить...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Export...</source>

@@ -4,8 +4,8 @@
 #include "bookmark.h"
 
 #include "bookmarkmanager.h"
-#include "bookmarks_global.h"
-#include "bookmarkstr.h"
+#include "texteditor_global.h"
+#include "texteditortr.h"
 
 #include <utils/utilsicons.h>
 
@@ -13,16 +13,18 @@
 
 using namespace Utils;
 
-namespace Bookmarks::Internal {
+namespace TextEditor::Internal {
+
+const char BOOKMARKS_TEXT_MARK_CATEGORY[] = "Bookmarks.TextMarkCategory";
 
 Bookmark::Bookmark(int lineNumber, BookmarkManager *manager) :
-    TextMark(FilePath(), lineNumber, {Tr::tr("Bookmark"), Constants::BOOKMARKS_TEXT_MARK_CATEGORY}),
+    TextMark(FilePath(), lineNumber, {Tr::tr("Bookmark"), BOOKMARKS_TEXT_MARK_CATEGORY}),
     m_manager(manager)
 {
     setColor(Theme::Bookmarks_TextMarkColor);
     setIcon(Icons::BOOKMARK_TEXTEDITOR.icon());
     setDefaultToolTip(Tr::tr("Bookmark"));
-    setPriority(TextEditor::TextMark::NormalPriority);
+    setPriority(TextMark::NormalPriority);
 }
 
 void Bookmark::removedFromEditor()

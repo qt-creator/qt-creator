@@ -11,9 +11,7 @@
 #include <utils/qtcsettings.h>
 
 #include <QList>
-#include <QObject>
 #include <QRect>
-#include <QSettings>
 
 #include <functional>
 
@@ -34,22 +32,14 @@ class IDocument;
 class IWizardFactory;
 class NewDialog;
 
-namespace Internal {
-class MainWindow;
-class MainWindowPrivate;
-} // Internal
-
 class CORE_EXPORT ICore : public QObject
 {
     Q_OBJECT
 
-    friend class Internal::MainWindow;
-    friend class Internal::MainWindowPrivate;
-
+public:
     ICore();
     ~ICore() override;
 
-public:
     enum class ContextPriority {
         High,
         Low
@@ -91,6 +81,7 @@ public:
     static Utils::InfoBar *infoBar();
 
     static void raiseWindow(QWidget *widget);
+    static void raiseMainWindow();
 
     static IContext *currentContextObject();
     static QWidget *currentContextWidget();
@@ -114,7 +105,6 @@ public:
         StopOnLoadFail = 4,
         SwitchSplitIfAlreadyVisible = 8
     };
-    static void openFiles(const Utils::FilePaths &filePaths, OpenFilesFlags flags = None);
 
     static void addPreCloseListener(const std::function<bool()> &listener);
 
@@ -125,6 +115,10 @@ public:
         ModeChanged,
         MainWindowClosing,
     };
+
+public slots:
+    static void openFileWith();
+    static void exit();
 
 signals:
     void coreAboutToOpen();
@@ -157,62 +151,17 @@ public:
     static void saveSettings(SaveSettingsReason reason);
     static void setNewDialogFactory(const std::function<NewDialog *(QWidget *)> &newFactory);
     static void updateNewItemDialogState();
-};
 
-namespace Internal {
+    static void setOverrideColor(const QColor &color);
 
-class MainWindow : public Utils::AppMainWindow
-{
-    Q_OBJECT
-
-public:
-    MainWindow();
-    ~MainWindow() override;
-
-    void init();
-    void extensionsInitialized();
-    void aboutToShutdown();
-
-    IContext *contextObject(QWidget *widget) const;
-    void addContextObject(IContext *context);
-    void removeContextObject(IContext *context);
+    static void init();
+    static void extensionsInitialized();
+    static void aboutToShutdown();
+    static void saveSettings();
 
     static IDocument *openFiles(const Utils::FilePaths &filePaths,
-                                ICore::OpenFilesFlags flags,
+                                OpenFilesFlags flags = None,
                                 const Utils::FilePath &workingDirectory = {});
-
-    QPrinter *printer() const;
-    IContext *currentContextObject() const;
-    QStatusBar *statusBar() const;
-    Utils::InfoBar *infoBar() const;
-
-    void updateAdditionalContexts(const Context &remove, const Context &add,
-                                  ICore::ContextPriority priority);
-
-    void setOverrideColor(const QColor &color);
-
-    QStringList additionalAboutInformation() const;
-    void clearAboutInformation();
-    void appendAboutInformation(const QString &line);
-
-    void addPreCloseListener(const std::function<bool()> &listener);
-
-    void saveSettings();
-
-    void restart();
-
-    void restartTrimmer();
-
-public slots:
-    static void openFileWith();
-    void exit();
-
-private:
-    void closeEvent(QCloseEvent *event) override;
-    void keyPressEvent(QKeyEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
 };
-
-} // namespace Internal
 
 } // namespace Core

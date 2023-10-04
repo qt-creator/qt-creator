@@ -9,7 +9,6 @@
 #include "icore.h"
 #include "idocument.h"
 #include "iwizardfactory.h"
-#include "mainwindow.h"
 #include "modemanager.h"
 #include "session.h"
 #include "settingsdatabase.h"
@@ -96,7 +95,7 @@ CorePlugin::~CorePlugin()
 
     DesignMode::destroyModeIfRequired();
 
-    delete m_mainWindow;
+    delete m_core;
     SettingsDatabase::destroy();
     setCreatorTheme(nullptr);
 }
@@ -158,12 +157,12 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     CheckableMessageBox::initialize(ICore::settings());
     new ActionManager(this);
     ActionManager::setPresentationModeEnabled(args.presentationMode);
-    m_mainWindow = new MainWindow;
+    m_core = new ICore;
     if (args.overrideColor.isValid())
-        m_mainWindow->setOverrideColor(args.overrideColor);
+        ICore::setOverrideColor(args.overrideColor);
     m_locator = new Locator;
     std::srand(unsigned(QDateTime::currentDateTime().toSecsSinceEpoch()));
-    m_mainWindow->init();
+    ICore::init();
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());
     m_folderNavigationWidgetFactory = new FolderNavigationWidgetFactory;
@@ -291,9 +290,9 @@ void CorePlugin::extensionsInitialized()
     DesignMode::createModeIfRequired();
     Find::extensionsInitialized();
     m_locator->extensionsInitialized();
-    m_mainWindow->extensionsInitialized();
+    ICore::extensionsInitialized();
     if (ExtensionSystem::PluginManager::hasError()) {
-        auto errorOverview = new ExtensionSystem::PluginErrorOverview(m_mainWindow);
+        auto errorOverview = new ExtensionSystem::PluginErrorOverview(ICore::mainWindow());
         errorOverview->setAttribute(Qt::WA_DeleteOnClose);
         errorOverview->setModal(true);
         errorOverview->show();
@@ -320,11 +319,11 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
         return nullptr;
     }
     const FilePaths filePaths = Utils::transform(args, FilePath::fromUserInput);
-    IDocument *res = MainWindow::openFiles(
+    IDocument *res = ICore::openFiles(
                 filePaths,
                 ICore::OpenFilesFlags(ICore::SwitchMode | ICore::CanContainLineAndColumnNumbers | ICore::SwitchSplitIfAlreadyVisible),
                 FilePath::fromString(workingDirectory));
-    m_mainWindow->raiseWindow();
+    ICore::raiseMainWindow();
     return res;
 }
 
@@ -493,6 +492,6 @@ ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
     Find::aboutToShutdown();
     m_locator->aboutToShutdown();
-    m_mainWindow->aboutToShutdown();
+    ICore::aboutToShutdown();
     return SynchronousShutdown;
 }

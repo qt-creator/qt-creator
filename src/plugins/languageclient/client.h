@@ -4,6 +4,7 @@
 #pragma once
 
 #include "languageclient_global.h"
+#include "languageclientsymbolsupport.h"
 #include "languageclientutils.h"
 #include "semantichighlightsupport.h"
 
@@ -45,7 +46,6 @@ class LanguageClientOutlineItem;
 class LanguageClientQuickFixProvider;
 class LanguageFilter;
 class ProgressManager;
-class SymbolSupport;
 
 class LANGUAGECLIENT_EXPORT Client : public QObject
 {
@@ -157,7 +157,8 @@ public:
     void findLinkAt(TextEditor::TextDocument *document,
                     const QTextCursor &cursor,
                     Utils::LinkHandler callback,
-                    const bool resolveTarget);
+                    const bool resolveTarget,
+                    LinkTarget target);
     DocumentSymbolCache *documentSymbolCache();
     HoverHandler *hoverHandler();
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(const Utils::FilePath &filePath,

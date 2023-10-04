@@ -102,7 +102,7 @@
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zaznamek</translation>
@@ -18440,14 +18440,6 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     <message>
         <source>Group: </source>
         <translation>Skupina: </translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
