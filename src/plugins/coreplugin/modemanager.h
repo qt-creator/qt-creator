@@ -21,7 +21,6 @@ class IMode;
 namespace Internal {
 class FancyTabWidget;
 class ICorePrivate;
-class MainWindow;
 }
 
 class CORE_EXPORT ModeManager : public QObject
@@ -60,7 +59,7 @@ signals:
     void currentModeChanged(Utils::Id mode, Utils::Id oldMode = {});
 
 private:
-    explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
+    explicit ModeManager(Internal::FancyTabWidget *modeStack);
     ~ModeManager() override;
 
     static void extensionsInitialized();
@@ -71,7 +70,6 @@ private:
 
     friend class ICore;
     friend class IMode;
-    friend class Internal::MainWindow;
     friend class Internal::ICorePrivate;
 };
 

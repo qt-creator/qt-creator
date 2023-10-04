@@ -1216,7 +1216,7 @@ void ICorePrivate::init()
 
     QApplication::setStyle(new ManhattanStyle(baseName));
 
-    m_modeManager = new ModeManager(m_mainwindow, m_modeStack);
+    m_modeManager = new ModeManager(m_modeStack);
     connect(m_modeStack, &FancyTabWidget::topAreaClicked, this, [](Qt::MouseButton, Qt::KeyboardModifiers modifiers) {
         if (modifiers & Qt::ShiftModifier) {
             QColor color = QColorDialog::getColor(StyleHelper::requestedBaseColor(), ICore::dialogParent());
