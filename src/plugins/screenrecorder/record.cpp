@@ -325,7 +325,7 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
     const QString captureCursorStr = Internal::settings().captureCursor() ? "1" : "0";
     QStringList videoGrabParams;
 
-    switch (Internal::settings().captureType()) {
+    switch (Internal::settings().volatileScreenCaptureType()) {
     case Internal::CaptureType::X11grab: {
         const QScreen *screen = QGuiApplication::screens()[rS.screenId];
         const QPoint screenTopLeft = screen->geometry().topLeft();
