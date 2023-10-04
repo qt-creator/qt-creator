@@ -1245,7 +1245,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
         labelDisplay->setTextInteractionFlags(Qt::TextSelectableByMouse);
         labelDisplay->setText(displayedString);
         labelDisplay->setToolTip(d->m_showToolTipOnLabel ? displayedString : toolTip());
-        connect(this, &StringAspect::setElideMode, labelDisplay, &ElidingLabel::setElideMode);
+        connect(this, &StringAspect::elideModeChanged, labelDisplay, &ElidingLabel::setElideMode);
         addLabeledItem(parent, labelDisplay);
 
         connect(&d->undoable.m_signal, &UndoSignaller::changed, labelDisplay, [this, labelDisplay] {
