@@ -27,6 +27,8 @@ private:
     /* Needed for Python support issue:1386 */
 
     const QLoggingCategory &logCategory() override;
+
+    std::unique_ptr<Utils::Process> m_installProcess;
 };
 
 } // Debugger::Internal

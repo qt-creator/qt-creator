@@ -11,7 +11,6 @@
 #include <debugger/debuggermainwindow.h>
 #include <debugger/debuggertr.h>
 
-#include <utils/async.h>
 #include <utils/infobar.h>
 #include <utils/temporarydirectory.h>
 
@@ -200,16 +199,6 @@ void PyDapEngine::quitDebugger()
     DebuggerEngine::quitDebugger();
 }
 
-void installDebugpyPackage(const FilePath &pythonPath)
-{
-    CommandLine cmd{pythonPath, {"-m", "pip", "install", "debugpy"}};
-    Process process;
-    process.setCommand(cmd);
-    process.setTerminalMode(TerminalMode::Run);
-    process.start();
-    process.waitForFinished();
-}
-
 bool PyDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     return bp.fileName.endsWith(".py");
@@ -269,9 +258,11 @@ void PyDapEngine::setupEngine()
         info.addCustomButton(Tr::tr("Install debugpy"), [this] {
             Core::ICore::infoBar()->removeInfo(installDebugPyInfoBarId);
             Core::ICore::infoBar()->globallySuppressInfo(installDebugPyInfoBarId);
-            QTimer::singleShot(0, this, [interpreter = runParameters().interpreter] {
-                Utils::asyncRun(&installDebugpyPackage, interpreter);
-            });
+            m_installProcess.reset(new Process);
+            m_installProcess->setCommand({runParameters().interpreter,
+                                          {"-m", "pip", "install", "debugpy"}});
+            m_installProcess->setTerminalMode(TerminalMode::Run);
+            m_installProcess->start();
         });
         Core::ICore::infoBar()->addInfo(info);
 
