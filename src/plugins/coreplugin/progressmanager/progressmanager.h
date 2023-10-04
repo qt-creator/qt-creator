@@ -11,8 +11,6 @@
 #include <QFutureInterfaceBase>
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QTimer)
-
 namespace Core {
 class FutureProgress;
 
@@ -56,21 +54,6 @@ private:
     ~ProgressManager() override;
 
     friend class Core::Internal::ProgressManagerPrivate;
-};
-
-class CORE_EXPORT ProgressTimer : public QObject
-{
-public:
-    ProgressTimer(const QFutureInterfaceBase &futureInterface, int expectedSeconds,
-                  QObject *parent = nullptr);
-
-private:
-    void handleTimeout();
-
-    QFutureInterfaceBase m_futureInterface;
-    int m_expectedTime;
-    int m_currentTime = 0;
-    QTimer *m_timer;
 };
 
 } // namespace Core
