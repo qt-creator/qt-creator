@@ -20,6 +20,7 @@
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/temporaryfile.h>
+#include <utils/utilsicons.h>
 
 #include <solutions/spinner/spinner.h>
 
@@ -109,7 +110,9 @@ class ScreenRecorderPlugin final : public ExtensionSystem::IPlugin
 public:
     void initialize() final
     {
-        auto action = new QAction(Tr::tr("Record Screen..."), this);
+        const QIcon menuIcon = Icon({{":/utils/images/filledcircle.png", Theme::IconsStopColor}},
+                                    Icon::MenuTintedStyle).icon();
+        auto action = new QAction(menuIcon, Tr::tr("Record Screen..."), this);
         Command *cmd = ActionManager::registerAction(action, Constants::ACTION_ID,
                                                      Context(Core::Constants::C_GLOBAL));
         connect(action, &QAction::triggered, this, &ScreenRecorderPlugin::showDialogOrSettings);
