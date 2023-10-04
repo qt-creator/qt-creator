@@ -261,6 +261,11 @@ QString DockerDeviceSettings::repoAndTagEncoded() const
     return repoAndTag().replace(':', '.');
 }
 
+FilePath DockerDeviceSettings::rootPath() const
+{
+    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, repoAndTagEncoded(), u"/");
+}
+
 class DockerDevicePrivate : public QObject
 {
 public:
@@ -959,7 +964,7 @@ FilePath DockerDevice::filePath(const QString &pathOnDevice) const
 
 FilePath DockerDevice::rootPath() const
 {
-    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, d->repoAndTagEncoded(), u"/");
+    return d->deviceSettings->rootPath();
 }
 
 bool DockerDevice::handlesFile(const FilePath &filePath) const

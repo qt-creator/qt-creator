@@ -23,6 +23,7 @@ public:
 
     QString repoAndTag() const;
     QString repoAndTagEncoded() const;
+    Utils::FilePath rootPath() const;
 
     Utils::StringAspect imageId{this};
     Utils::StringAspect repo{this};
