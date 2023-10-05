@@ -36,12 +36,10 @@ Item {
         anchors.fill: parent
         spacing: 1
 
-        Item { width: 1; height: 5 } // spacer
-
         Image {
             id: img
 
-            width: root.width - 10
+            width: root.width
             height: img.width
             anchors.horizontalCenter: parent.horizontalCenter
             source: modelData.bundleItemIcon
@@ -74,16 +72,13 @@ Item {
         }
 
         Text {
-            text: modelData.bundleItemName
-
             width: img.width
-            clip: true
-
             anchors.horizontalCenter: parent.horizontalCenter
             horizontalAlignment: TextInput.AlignHCenter
 
+            text: modelData.bundleItemName
+            elide: Text.ElideRight
             font.pixelSize: StudioTheme.Values.myFontSize
-
             color: StudioTheme.Values.themeTextColor
         }
     } // Column

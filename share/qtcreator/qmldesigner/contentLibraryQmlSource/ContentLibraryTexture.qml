@@ -1,16 +1,15 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import QtQuickDesignerTheme 1.0
-import HelperWidgets 2.0
+import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuickDesignerTheme
+import HelperWidgets
+import StudioTheme as StudioTheme
 
-import StudioTheme 1.0 as StudioTheme
-
-import WebFetcher 1.0
 import ContentLibraryBackend
+import WebFetcher
 
 Item {
     id: root
@@ -30,8 +29,7 @@ Item {
 
     signal showContextMenu()
 
-    function statusText()
-    {
+    function statusText() {
         if (root.downloadState === "downloaded")
             return qsTr("Texture was already downloaded.")
         if (root.downloadState === "unavailable")
@@ -42,16 +40,14 @@ Item {
         return qsTr("Click to download the texture.")
     }
 
-    function startDownload(message)
-    {
+    function startDownload(message) {
         if (root.downloadState !== "" && root.downloadState !== "failed")
             return
 
         root._startDownload(textureDownloader, message)
     }
 
-    function updateTexture()
-    {
+    function updateTexture() {
         if (root.downloadState !== "downloaded")
             return
 
@@ -59,8 +55,7 @@ Item {
         root._startDownload(textureDownloader, qsTr("Updating..."))
     }
 
-    function _startDownload(downloader, message)
-    {
+    function _startDownload(downloader, message) {
         progressBar.visible = true
         tooltip.visible = false
         root.progressText = message
@@ -144,8 +139,8 @@ Item {
                    font.pixelSize: 12
                }
            }
-       } // TextureProgressBar
-    } // Rectangle
+       }
+    }
 
     Image {
         id: image
@@ -197,7 +192,7 @@ Item {
             onClicked: {
                 root.startDownload(qsTr("Downloading..."))
             }
-        } // IconButton
+        }
 
         IconButton {
             id: updateButton
@@ -233,7 +228,7 @@ Item {
 
                 scale: updateButton.containsMouse ? 1.2 : 1
             }
-        } // Update IconButton
+        }
 
         Rectangle {
             id: isNewFlag
@@ -282,7 +277,7 @@ Item {
                 visible: false
             }
         }
-    } // Image
+    }
 
     FileDownloader {
         id: textureDownloader

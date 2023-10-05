@@ -118,6 +118,9 @@ QtObject {
     property real sectionHeadHeight: 21 // tab and section
     property real sectionHeadSpacerHeight: 10
 
+    property real sectionPadding: 10
+    property real sectionGridSpacing: 5
+
     property real controlLabelWidth: 15
     property real controlLabelGap: 5
 
