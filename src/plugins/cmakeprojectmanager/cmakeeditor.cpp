@@ -411,7 +411,7 @@ class CMakeHoverHandler : public TextEditor::BaseHoverHandler
 {
     mutable CMakeKeywords m_keywords;
     QString m_helpToolTip;
-    QString m_contextHelp;
+    QVariant m_contextHelp;
 
 public:
     const CMakeKeywords &keywords() const;
@@ -469,12 +469,8 @@ void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget
     if (!helpFile.isEmpty())
         m_helpToolTip = CMakeToolManager::toolTipForRstHelpFile(helpFile);
 
-    if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
-        m_contextHelp = QString("%1/%2/%3")
-                            .arg(tool->documentationUrl(tool->version(),
-                                                        tool->qchFilePath().isEmpty()),
-                                 helpCategory,
-                                 word);
+    m_contextHelp = QVariant::fromValue(
+        HelpItem({QString("%1/%2").arg(helpCategory, word), word}, {}, {}, HelpItem::Unknown));
 
     setPriority(!m_helpToolTip.isEmpty() ? Priority_Tooltip : Priority_None);
 }
