@@ -7,10 +7,10 @@
 
 namespace RemoteLinux::Internal {
 
-class RsyncDeployStepFactory : public ProjectExplorer::BuildStepFactory
+class GenericDeployStepFactory : public ProjectExplorer::BuildStepFactory
 {
 public:
-    RsyncDeployStepFactory();
+    GenericDeployStepFactory();
 };
 
 } // namespace RemoteLinux::Internal

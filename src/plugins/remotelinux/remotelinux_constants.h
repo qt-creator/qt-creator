@@ -15,7 +15,7 @@ const char MakeInstallStepId[] = "RemoteLinux.MakeInstall";
 const char TarPackageCreationStepId[]  = "MaemoTarPackageCreationStep";
 const char TarPackageFilePathId[] = "TarPackageFilePath";
 const char TarPackageDeployStepId[] = "MaemoUploadAndInstallTarPackageStep";
-const char RsyncDeployStepId[] = "RemoteLinux.RsyncDeployStep";
+const char GenericDeployStepId[] = "RemoteLinux.RsyncDeployStep";
 const char CustomCommandDeployStepId[] = "RemoteLinux.GenericRemoteLinuxCustomCommandDeploymentStep";
 const char KillAppStepId[] = "RemoteLinux.KillAppStep";
 

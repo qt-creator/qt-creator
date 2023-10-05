@@ -30,10 +30,10 @@ namespace RemoteLinux::Internal {
 
 // RsyncDeployStep
 
-class RsyncDeployStep : public AbstractRemoteLinuxDeployStep
+class GenericDeployStep : public AbstractRemoteLinuxDeployStep
 {
 public:
-    RsyncDeployStep(BuildStepList *bsl, Id id)
+    GenericDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
         flags.setDisplayStyle(StringAspect::LineEditDisplay);
@@ -75,7 +75,7 @@ private:
     mutable FilesToTransfer m_files;
 };
 
-bool RsyncDeployStep::isDeploymentNecessary() const
+bool GenericDeployStep::isDeploymentNecessary() const
 {
     const QList<DeployableFile> files = target()->deploymentData().allFiles();
     m_files.clear();
@@ -86,7 +86,7 @@ bool RsyncDeployStep::isDeploymentNecessary() const
     return !m_files.empty();
 }
 
-GroupItem RsyncDeployStep::mkdirTask()
+GroupItem GenericDeployStep::mkdirTask()
 {
     using ResultType = expected_str<void>;
 
@@ -147,7 +147,7 @@ static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileT
     return FileTransferMethod::GenericCopy;
 }
 
-GroupItem RsyncDeployStep::transferTask()
+GroupItem GenericDeployStep::transferTask()
 {
     const auto setupHandler = [this](FileTransfer &transfer) {
         FileTransferMethod preferredTransferMethod = FileTransferMethod::Rsync;
@@ -176,7 +176,7 @@ GroupItem RsyncDeployStep::transferTask()
 
         transfer.setRsyncFlags(flags());
         transfer.setFilesToTransfer(m_files);
-        connect(&transfer, &FileTransfer::progress, this, &RsyncDeployStep::handleStdOutData);
+        connect(&transfer, &FileTransfer::progress, this, &GenericDeployStep::handleStdOutData);
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
@@ -192,16 +192,16 @@ GroupItem RsyncDeployStep::transferTask()
     return FileTransferTask(setupHandler, {}, errorHandler);
 }
 
-GroupItem RsyncDeployStep::deployRecipe()
+GroupItem GenericDeployStep::deployRecipe()
 {
     return Group { mkdirTask(), transferTask() };
 }
 
 // Factory
 
-RsyncDeployStepFactory::RsyncDeployStepFactory()
+GenericDeployStepFactory::GenericDeployStepFactory()
 {
-    registerStep<RsyncDeployStep>(Constants::RsyncDeployStepId);
+    registerStep<GenericDeployStep>(Constants::GenericDeployStepId);
     setDisplayName(Tr::tr("Deploy files"));
 }
 

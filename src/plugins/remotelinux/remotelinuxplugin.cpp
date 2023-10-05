@@ -73,7 +73,7 @@ public:
         addInitialStep(Constants::KillAppStepId);
 
         // TODO: Rename RsyncDeployStep to something more generic.
-        addInitialStep(Constants::RsyncDeployStepId);
+        addInitialStep(Constants::GenericDeployStepId);
     }
 };
 
@@ -87,7 +87,7 @@ public:
     TarPackageCreationStepFactory tarPackageCreationStepFactory;
     TarPackageDeployStepFactory tarPackageDeployStepFactory;
     RemoteLinuxDeployStepFactory<GenericDirectUploadStepFactory> genericDirectUploadStepFactory;
-    RemoteLinuxDeployStepFactory<RsyncDeployStepFactory> rsyncDeployStepFactory;
+    RemoteLinuxDeployStepFactory<GenericDeployStepFactory> rsyncDeployStepFactory;
     CustomCommandDeployStepFactory customCommandDeployStepFactory;
     KillAppStepFactory killAppStepFactory;
     RemoteLinuxDeployStepFactory<MakeInstallStepFactory> makeInstallStepFactory;
