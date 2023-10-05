@@ -87,7 +87,7 @@ def checkSymbolCompletion(editor, isClangCodeModel):
                        "internal.o":"internal.one", "freefunc2":"freefunc2(",
                        "using namespace st":"using namespace std", "afun":"afunc()"}
     if isClangCodeModel:
-        missing = ["dummy.bla("]
+        missing = ["dummy.bla(", "freefunc2("]
         expectedSuggestion["internal.o"] = ["one"]
         if platform.system() in ('Microsoft', 'Windows'):
             expectedSuggestion["using namespace st"] = ["std", "stdext"]
@@ -118,6 +118,16 @@ def checkSymbolCompletion(editor, isClangCodeModel):
                 suggestionToClick = " " + suggestionToClick
             doubleClickItem(':popupFrame_Proposal_QListView', suggestionToClick,
                             5, 5, 0, Qt.LeftButton)
+
+        try:
+            multiSuggestionToolTip = findObject(
+                "{leftWidget={text~='[0-9]+ of [0-9]+' type='QLabel'} type='QToolButton'}")
+            if multiSuggestionToolTip is not None:
+                test.log("Closing tooltip containing overloaded function completion.")
+                type(editor, "<Esc>")
+        except LookupError: # no proposal or tool tip for unambiguous stuff - direct completion
+            pass
+
         changedLine = str(lineUnderCursor(editor)).strip()
         if symbol in expectedRes:
             exp = expectedRes[symbol]
