@@ -7,32 +7,16 @@
 #include "editorview.h"
 
 #include <QFrame>
-#include <QIcon>
 #include <QList>
-#include <QTreeWidget>
 
 QT_BEGIN_NAMESPACE
 class QTreeWidgetItem;
 QT_END_NAMESPACE
 
-namespace Core {
-
-class IEditor;
-
-namespace Internal {
-
-class OpenEditorsTreeWidget : public QTreeWidget {
-public:
-    explicit OpenEditorsTreeWidget(QWidget *parent = nullptr) : QTreeWidget(parent) {}
-    ~OpenEditorsTreeWidget() override = default;
-    QSize sizeHint() const override;
-};
-
+namespace Core::Internal {
 
 class OpenEditorsWindow : public QFrame
 {
-    Q_OBJECT
-
 public:
     enum Mode {ListMode, HistoryMode };
 
@@ -47,7 +31,6 @@ public:
     void selectPreviousEditor();
     QSize sizeHint() const override;
 
-public slots:
     void selectAndHide();
 
 private:
@@ -63,10 +46,7 @@ private:
     void ensureCurrentVisible();
     void selectUpDown(bool up);
 
-    bool isSameFile(IEditor *editorA, IEditor *editorB) const;
-
-    OpenEditorsTreeWidget *m_editorList;
+    class OpenEditorsTreeWidget *m_editorList;
 };
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal

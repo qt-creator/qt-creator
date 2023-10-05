@@ -19,11 +19,24 @@
 #include <QHeaderView>
 #include <QVBoxLayout>
 #include <QScrollBar>
+#include <QTreeWidget>
 
 Q_DECLARE_METATYPE(Core::Internal::EditorView*)
 Q_DECLARE_METATYPE(Core::IDocument*)
 
 namespace Core::Internal {
+
+class OpenEditorsTreeWidget : public QTreeWidget
+{
+public:
+    explicit OpenEditorsTreeWidget(QWidget *parent) : QTreeWidget(parent) {}
+
+    QSize sizeHint() const override
+    {
+        return QSize(sizeHintForColumn(0) + verticalScrollBar()->width() + frameWidth() * 2,
+                     viewportSizeHint().height() + frameWidth() * 2);
+    }
+};
 
 enum class Role
 {
@@ -138,12 +151,6 @@ void OpenEditorsWindow::selectPreviousEditor()
     selectUpDown(false);
 }
 
-QSize OpenEditorsTreeWidget::sizeHint() const
-{
-    return QSize(sizeHintForColumn(0) + verticalScrollBar()->width() + frameWidth() * 2,
-                 viewportSizeHint().height() + frameWidth() * 2);
-}
-
 QSize OpenEditorsWindow::sizeHint() const
 {
     return m_editorList->sizeHint() + QSize(frameWidth() * 2, frameWidth() * 2);
@@ -168,7 +175,6 @@ void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, Edi
     addRemainingItems(view, entriesDone);
 }
 
-
 void OpenEditorsWindow::selectEditor(QTreeWidgetItem *item)
 {
     if (!item)
@@ -185,7 +191,6 @@ void OpenEditorsWindow::editorClicked(QTreeWidgetItem *item)
     selectEditor(item);
     setFocus();
 }
-
 
 void OpenEditorsWindow::ensureCurrentVisible()
 {
