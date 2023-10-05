@@ -332,7 +332,7 @@ void FontSettings::setFontZoom(int zoom)
 qreal FontSettings::lineSpacing() const
 {
     QFont currentFont = font();
-    currentFont.setPointSize(m_fontSize * m_fontZoom / 100);
+    currentFont.setPointSize(std::max(m_fontSize * m_fontZoom / 100, 1));
     qreal spacing = QFontMetricsF(currentFont).lineSpacing();
     if (m_lineSpacing != 100)
         spacing *= qreal(m_lineSpacing) / 100;
