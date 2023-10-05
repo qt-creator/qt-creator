@@ -17,6 +17,5 @@ CustomMaterial {
     sourceBlend: CustomMaterial.NoBlend
     destinationBlend: CustomMaterial.NoBlend
     shadingMode: CustomMaterial.Unshaded
-    depthDrawMode: Material.AlwaysDepthDraw
     cullMode: Material.NoCulling
 }

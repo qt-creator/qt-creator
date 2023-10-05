@@ -5,6 +5,8 @@
 
 namespace QmlDesigner::CollectionEditor {
 
+enum class SourceFormat { Unknown, Json, Csv };
+
 inline constexpr char SOURCEFILE_PROPERTY[]             = "sourceFile";
 
 inline constexpr char COLLECTIONMODEL_IMPORT[]          = "QtQuick.Studio.Models";

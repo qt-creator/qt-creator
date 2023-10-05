@@ -3,8 +3,10 @@
 
 #pragma once
 
+#include "collectiondetails.h"
+
 #include <QAbstractTableModel>
-#include <QJsonObject>
+#include <QHash>
 
 namespace QmlDesigner {
 
@@ -17,7 +19,6 @@ class SingleCollectionModel : public QAbstractTableModel
     Q_PROPERTY(QString collectionName MEMBER m_collectionName NOTIFY collectionNameChanged)
 
 public:
-    enum class SourceFormat { Unknown, Json, Csv };
     explicit SingleCollectionModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const override;
@@ -35,15 +36,17 @@ signals:
     void collectionNameChanged(const QString &collectionName);
 
 private:
+    void switchToCollection(const CollectionReference &collection);
+    void closeCollectionIfSaved(const CollectionReference &collection);
+    void closeCurrentCollectionIfSaved();
     void setCollectionName(const QString &newCollectionName);
-    void setCollectionSourceFormat(SourceFormat sourceFormat);
     void loadJsonCollection(const QString &source, const QString &collection);
     void loadCsvCollection(const QString &source, const QString &collectionName);
 
-    QStringList m_headers;
-    QList<QJsonObject> m_elements;
+    QHash<CollectionReference, CollectionDetails> m_openedCollections;
+    CollectionDetails m_currentCollection;
+
     QString m_collectionName;
-    SourceFormat m_sourceFormat = SourceFormat::Unknown;
 };
 
 } // namespace QmlDesigner
