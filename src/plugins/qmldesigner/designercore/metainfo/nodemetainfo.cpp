@@ -1710,10 +1710,12 @@ std::vector<NodeMetaInfo> NodeMetaInfo::selfAndPrototypes() const
             NodeMetaInfos hierarchy = {*this};
             Model *model = m_privateData->model();
             for (const TypeDescription &type : m_privateData->prototypes()) {
-                hierarchy.emplace_back(model,
-                                       type.className.toUtf8(),
-                                       type.majorVersion,
-                                       type.minorVersion);
+                auto &last = hierarchy.emplace_back(model,
+                                                    type.className.toUtf8(),
+                                                    type.majorVersion,
+                                                    type.minorVersion);
+                if (!last.isValid())
+                    hierarchy.pop_back();
             }
 
             return hierarchy;
@@ -1736,11 +1738,14 @@ NodeMetaInfos NodeMetaInfo::prototypes() const
         if (isValid()) {
             NodeMetaInfos hierarchy;
             Model *model = m_privateData->model();
-            for (const TypeDescription &type : m_privateData->prototypes())
-                hierarchy.emplace_back(model,
-                                       type.className.toUtf8(),
-                                       type.majorVersion,
-                                       type.minorVersion);
+            for (const TypeDescription &type : m_privateData->prototypes()) {
+                auto &last = hierarchy.emplace_back(model,
+                                                    type.className.toUtf8(),
+                                                    type.majorVersion,
+                                                    type.minorVersion);
+                if (!last.isValid())
+                    hierarchy.pop_back();
+            }
 
             return hierarchy;
         }
