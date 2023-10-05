@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "documentmodel.h"
 #include "editorview.h"
 
 #include <QFrame>
@@ -11,38 +10,25 @@
 
 namespace Core::Internal {
 
-class OpenEditorsItem;
 class OpenEditorsView;
 
-class OpenEditorsWindow : public QFrame
+class OpenEditorsWindow final : public QFrame
 {
 public:
-    enum Mode {ListMode, HistoryMode };
-
     explicit OpenEditorsWindow(QWidget *parent = nullptr);
 
     void setEditors(const QList<EditLocation> &globalHistory, EditorView *view);
 
-    bool eventFilter(QObject *src, QEvent *e) override;
-    void focusInEvent(QFocusEvent*) override;
-    void setVisible(bool visible) override;
     void selectNextEditor();
     void selectPreviousEditor();
-    QSize sizeHint() const override;
-
     void selectAndHide();
 
-private:
-    void editorClicked(OpenEditorsItem *item);
+    QSize sizeHint() const final;
+    void setVisible(bool visible) final;
 
-    void addHistoryItems(const QList<EditLocation> &history, EditorView *view,
-                         QSet<const DocumentModel::Entry *> &entriesDone);
-    void addRemainingItems(EditorView *view,
-                           QSet<const DocumentModel::Entry *> &entriesDone);
-    void addItem(DocumentModel::Entry *entry, QSet<const DocumentModel::Entry *> &entriesDone,
-                 EditorView *view);
-    void ensureCurrentVisible();
-    void selectUpDown(bool up);
+private:
+    bool eventFilter(QObject *src, QEvent *e) final;
+    void focusInEvent(QFocusEvent *) final;
 
     OpenEditorsView *m_editorView;
 };

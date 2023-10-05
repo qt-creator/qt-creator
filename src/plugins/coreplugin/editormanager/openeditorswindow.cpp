@@ -3,6 +3,7 @@
 
 #include "openeditorswindow.h"
 
+#include "documentmodel.h"
 #include "editormanager.h"
 #include "editormanager_p.h"
 #include "editorview.h"
@@ -21,10 +22,6 @@
 #include <QHeaderView>
 #include <QVBoxLayout>
 #include <QScrollBar>
-#include <QTreeWidget>
-
-Q_DECLARE_METATYPE(Core::Internal::EditorView*)
-Q_DECLARE_METATYPE(Core::IDocument*)
 
 using namespace Utils;
 
@@ -78,6 +75,14 @@ public:
     {
         m_model.setHeader({{}});
         setModel(&m_model);
+
+        header()->hide();
+        setIndentation(0);
+        setSelectionMode(QAbstractItemView::SingleSelection);
+        setTextElideMode(Qt::ElideMiddle);
+        if (Utils::HostOsInfo::isMacHost())
+            setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+        setUniformRowHeights(true);
     }
 
     QSize sizeHint() const override
@@ -107,23 +112,27 @@ public:
         setFocus();
     }
 
+    void addHistoryItems(const QList<EditLocation> &history, EditorView *view,
+                         QSet<const DocumentModel::Entry *> &entriesDone);
+
+    void addRemainingItems(EditorView *view,
+                           QSet<const DocumentModel::Entry *> &entriesDone);
+
+    void addItem(DocumentModel::Entry *entry, QSet<const DocumentModel::Entry *> &entriesDone,
+                 EditorView *view);
+
+    void selectUpDown(bool up);
+
     TreeModel<TreeItem, OpenEditorsItem> m_model;
 };
 
-OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
-    QFrame(parent, Qt::Popup)
+OpenEditorsWindow::OpenEditorsWindow(QWidget *parent)
+    : QFrame(parent, Qt::Popup)
 {
     m_editorView = new OpenEditorsView;
 
     setMinimumSize(300, 200);
-    m_editorView->header()->hide();
-    m_editorView->setIndentation(0);
-    m_editorView->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_editorView->setTextElideMode(Qt::ElideMiddle);
-    if (Utils::HostOsInfo::isMacHost())
-        m_editorView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_editorView->installEventFilter(this);
-    m_editorView->setUniformRowHeights(true);
 
     // We disable the frame on this list view and use a QFrame around it instead.
     // This improves the look with QGTKStyle.
@@ -181,12 +190,12 @@ void OpenEditorsWindow::focusInEvent(QFocusEvent *)
     m_editorView->setFocus();
 }
 
-void OpenEditorsWindow::selectUpDown(bool up)
+void OpenEditorsView::selectUpDown(bool up)
 {
-    int itemCount = m_editorView->m_model.rootItem()->childCount();
+    int itemCount = m_model.rootItem()->childCount();
     if (itemCount < 2)
         return;
-    int index = m_editorView->currentRow();
+    int index = currentRow();
     if (index < 0)
         return;
     TreeItem *editor = nullptr;
@@ -201,19 +210,23 @@ void OpenEditorsWindow::selectUpDown(bool up)
             if (index >= itemCount)
                 index = 0;
         }
-        editor = m_editorView->m_model.rootItem()->childAt(index);
+        editor = m_model.rootItem()->childAt(index);
         count++;
     }
     if (editor) {
-        // m_editorView->setCurrentItem(editor);
-        m_editorView->setCurrentIndex(m_editorView->m_model.index(index, 0));
-        ensureCurrentVisible();
+        setCurrentIndex(m_model.index(index, 0));
+        scrollTo(currentIndex(), QAbstractItemView::PositionAtCenter);
     }
 }
 
 void OpenEditorsWindow::selectPreviousEditor()
 {
-    selectUpDown(false);
+    m_editorView->selectUpDown(false);
+}
+
+void OpenEditorsWindow::selectNextEditor()
+{
+    m_editorView->selectUpDown(true);
 }
 
 QSize OpenEditorsWindow::sizeHint() const
@@ -221,28 +234,18 @@ QSize OpenEditorsWindow::sizeHint() const
     return m_editorView->sizeHint() + QSize(frameWidth() * 2, frameWidth() * 2);
 }
 
-void OpenEditorsWindow::selectNextEditor()
-{
-    selectUpDown(true);
-}
-
 void OpenEditorsWindow::setEditors(const QList<EditLocation> &globalHistory, EditorView *view)
 {
     m_editorView->m_model.clear();
 
     QSet<const DocumentModel::Entry *> entriesDone;
-    addHistoryItems(view->editorHistory(), view, entriesDone);
+    m_editorView->addHistoryItems(view->editorHistory(), view, entriesDone);
 
     // add missing editors from the global history
-    addHistoryItems(globalHistory, view, entriesDone);
+    m_editorView->addHistoryItems(globalHistory, view, entriesDone);
 
     // add purely suspended editors which are not initialised yet
-    addRemainingItems(view, entriesDone);
-}
-
-void OpenEditorsWindow::ensureCurrentVisible()
-{
-    m_editorView->scrollTo(m_editorView->currentIndex(), QAbstractItemView::PositionAtCenter);
+    m_editorView->addRemainingItems(view, entriesDone);
 }
 
 static DocumentModel::Entry *entryForEditLocation(const EditLocation &item)
@@ -252,7 +255,7 @@ static DocumentModel::Entry *entryForEditLocation(const EditLocation &item)
     return DocumentModel::entryForFilePath(item.filePath);
 }
 
-void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, EditorView *view,
+void OpenEditorsView::addHistoryItems(const QList<EditLocation> &history, EditorView *view,
                                         QSet<const DocumentModel::Entry *> &entriesDone)
 {
     for (const EditLocation &hi : history) {
@@ -261,15 +264,15 @@ void OpenEditorsWindow::addHistoryItems(const QList<EditLocation> &history, Edit
     }
 }
 
-void OpenEditorsWindow::addRemainingItems(EditorView *view,
-                                          QSet<const DocumentModel::Entry *> &entriesDone)
+void OpenEditorsView::addRemainingItems(EditorView *view,
+                                        QSet<const DocumentModel::Entry *> &entriesDone)
 {
     const QList<DocumentModel::Entry *> entries = DocumentModel::entries();
     for (DocumentModel::Entry *entry : entries)
         addItem(entry, entriesDone, view);
 }
 
-void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
+void OpenEditorsView::addItem(DocumentModel::Entry *entry,
                                 QSet<const DocumentModel::Entry *> &entriesDone,
                                 EditorView *view)
 {
@@ -279,10 +282,10 @@ void OpenEditorsWindow::addItem(DocumentModel::Entry *entry,
     auto item = new OpenEditorsItem;
     item->entry = entry;
     item->view = view;
-    m_editorView->m_model.rootItem()->appendChild(item);
+    m_model.rootItem()->appendChild(item);
 
-    if (m_editorView->m_model.rootItem()->childCount() == 1)
-        m_editorView->setCurrentIndex(m_editorView->m_model.index(0, 0));
+    if (m_model.rootItem()->childCount() == 1)
+        setCurrentIndex(m_model.index(0, 0));
 }
 
 } // Core::Internal
