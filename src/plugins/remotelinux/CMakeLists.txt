@@ -5,6 +5,7 @@ add_qtc_plugin(RemoteLinux
     abstractremotelinuxdeploystep.cpp abstractremotelinuxdeploystep.h
     customcommanddeploystep.cpp customcommanddeploystep.h
     deploymenttimeinfo.cpp deploymenttimeinfo.h
+    genericdeploystep.cpp genericdeploystep.h
     genericdirectuploadstep.cpp genericdirectuploadstep.h
     genericlinuxdeviceconfigurationwidget.cpp genericlinuxdeviceconfigurationwidget.h
     killappstep.cpp killappstep.h
@@ -23,7 +24,6 @@ add_qtc_plugin(RemoteLinux
     remotelinuxrunconfiguration.cpp remotelinuxrunconfiguration.h
     remotelinuxsignaloperation.cpp remotelinuxsignaloperation.h
     remotelinuxtr.h
-    rsyncdeploystep.cpp rsyncdeploystep.h
     sshdevicewizard.cpp sshdevicewizard.h
     sshkeycreationdialog.cpp sshkeycreationdialog.h
     tarpackagecreationstep.cpp tarpackagecreationstep.h

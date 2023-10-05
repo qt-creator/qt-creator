@@ -4,6 +4,7 @@
 #include "remotelinuxplugin.h"
 
 #include "customcommanddeploystep.h"
+#include "genericdeploystep.h"
 #include "genericdirectuploadstep.h"
 #include "killappstep.h"
 #include "linuxdevice.h"
@@ -13,7 +14,6 @@
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxtr.h"
-#include "rsyncdeploystep.h"
 #include "tarpackagecreationstep.h"
 #include "tarpackagedeploystep.h"
 
