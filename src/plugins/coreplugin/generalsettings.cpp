@@ -335,8 +335,10 @@ void GeneralSettingsWidget::fillToolbarSyleBox() const
 void GeneralSettingsWidget::setDpiPolicy(Qt::HighDpiScaleFactorRoundingPolicy policy)
 {
     QtcSettings *settings = ICore::settings();
-    const Qt::HighDpiScaleFactorRoundingPolicy previousPolicy =
-        settings->value(settingsKeyDpiPolicy).value<Qt::HighDpiScaleFactorRoundingPolicy>();
+    using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
+    const Policy previousPolicy = settings->value(
+                settingsKeyDpiPolicy,
+                int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy())).value<Policy>();
     if (policy != previousPolicy) {
         RestartDialog dialog(ICore::dialogParent(),
                              Tr::tr("The DPI rounding policy change will take effect after "
