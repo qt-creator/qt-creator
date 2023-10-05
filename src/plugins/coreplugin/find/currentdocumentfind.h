@@ -45,8 +45,6 @@ public:
 
     bool eventFilter(QObject *obj, QEvent *event) override;
 
-    QWidget *currentWidget() const;
-
 signals:
     void changed();
     void candidateChanged();
