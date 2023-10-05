@@ -50,6 +50,7 @@ private:
         QString function;
     };
     std::optional<QList<CallStackLine>> m_callStack;
+    CallStackLine m_errorOrWarningLine;
 };
 
 } // CMakeProjectManager

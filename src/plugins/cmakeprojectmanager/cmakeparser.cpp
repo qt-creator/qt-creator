@@ -93,6 +93,11 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
                                            match, 1);
+
+            m_errorOrWarningLine.file = m_lastTask.file;
+            m_errorOrWarningLine.line = m_lastTask.line;
+            m_errorOrWarningLine.function = match.captured(3);
+
             return {Status::InProgress, linkSpecs};
         }
         match = m_nextSubError.match(trimmedLine);
@@ -116,6 +121,11 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
             LinkSpecs linkSpecs;
             addLinkSpecForAbsoluteFilePath(linkSpecs, m_lastTask.file, m_lastTask.line,
                                            match, 1);
+
+            m_errorOrWarningLine.file = m_lastTask.file;
+            m_errorOrWarningLine.line = m_lastTask.line;
+            m_errorOrWarningLine.function = match.captured(4);
+
             return {Status::InProgress, linkSpecs};
         }
         else if (trimmedLine.startsWith(QLatin1String("  ")) && !m_lastTask.isNull() && !m_callStack) {
@@ -202,6 +212,8 @@ void CMakeParser::flush()
         m_lastTask.details << QString();
         m_lastTask.details << tr("Call stack:");
         m_lines += 2;
+
+        m_callStack->push_front(m_errorOrWarningLine);
 
         int offset = m_lastTask.details.join('\n').size();
         Utils::reverseForeach(m_callStack.value(), [&](const auto &line) {
@@ -439,7 +451,9 @@ void Internal::CMakeProjectPlugin::testCMakeParser_data()
                 "  /Qt/6.5.3/mingw_64/lib/cmake/Qt6Core/Qt6CoreMacros.cmake:741 "
                 "(qt6_add_executable)\n"
                 "  /Qt/6.5.3/mingw_64/lib/cmake/Qt6Core/Qt6CoreMacros.cmake:549 "
-                "(_qt_internal_create_executable)",
+                "(_qt_internal_create_executable)\n"
+                "  /Qt/6.5.3/mingw_64/lib/cmake/Qt6Core/Qt6CoreMacros.cmake:588 "
+                "(add_executable)",
                 FilePath::fromUserInput("/Projects/Test-Project/CMakeLists.txt"),
                 13))
         << QString();
