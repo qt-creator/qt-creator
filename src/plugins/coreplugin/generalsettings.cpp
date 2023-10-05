@@ -88,7 +88,7 @@ public:
     void fillCodecBox() const;
     static QByteArray codecForLocale();
     static void setCodecForLocale(const QByteArray&);
-    void fillToolbarSyleBox() const;
+    void fillToolbarStyleBox() const;
     static void setDpiPolicy(Qt::HighDpiScaleFactorRoundingPolicy policy);
 
     QComboBox *m_languageBox;
@@ -163,7 +163,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
 
     fillLanguageBox();
     fillCodecBox();
-    fillToolbarSyleBox();
+    fillToolbarStyleBox();
 
     m_colorButton->setColor(StyleHelper::requestedBaseColor());
     m_resetWarningsButton->setEnabled(canResetWarnings());
@@ -324,7 +324,7 @@ StyleHelper::ToolbarStyle toolbarStylefromSettings()
                                  StyleHelper::defaultToolbarStyle).toInt());
 }
 
-void GeneralSettingsWidget::fillToolbarSyleBox() const
+void GeneralSettingsWidget::fillToolbarStyleBox() const
 {
     m_toolbarStyleBox->addItem(Tr::tr("Compact"), StyleHelper::ToolbarStyleCompact);
     m_toolbarStyleBox->addItem(Tr::tr("Relaxed"), StyleHelper::ToolbarStyleRelaxed);
