@@ -38,7 +38,7 @@ public:
     {
         flags.setDisplayStyle(StringAspect::LineEditDisplay);
         flags.setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
-        flags.setLabelText(Tr::tr("Flags:"));
+        flags.setLabelText(Tr::tr("Flags for rsync:"));
         flags.setValue(FileTransferSetupData::defaultRsyncFlags());
 
         ignoreMissingFiles.setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
@@ -47,9 +47,9 @@ public:
 
         method.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         method.setDisplayName(Tr::tr("Transfer method:"));
-        method.addOption(Tr::tr("rsync"), Tr::tr("Use rsync if available."));
-        method.addOption(Tr::tr("SFTP"), Tr::tr("Use sftp if available."));
-        method.addOption(Tr::tr("Generic Copy"), Tr::tr("Use generic copy, most likely to succeed."));
+        method.addOption(Tr::tr("Use rsync if available. Otherwise use default transfer."));
+        method.addOption(Tr::tr("Use sftp if available. Otherwise use default transfer."));
+        method.addOption(Tr::tr("Use default transfer. This might be slow."));
 
         setInternalInitializer([this]() -> expected_str<void> {
             if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
@@ -202,7 +202,7 @@ GroupItem RsyncDeployStep::deployRecipe()
 RsyncDeployStepFactory::RsyncDeployStepFactory()
 {
     registerStep<RsyncDeployStep>(Constants::RsyncDeployStepId);
-    setDisplayName(Tr::tr("Deploy files via rsync"));
+    setDisplayName(Tr::tr("Deploy files"));
 }
 
 } // RemoteLinux::Internal
