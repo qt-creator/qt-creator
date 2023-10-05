@@ -23,6 +23,8 @@
 #include <utils/processinfo.h>
 #include <utils/processinterface.h>
 #include <utils/stringutils.h>
+#include <utils/stylehelper.h>
+#include <utils/theme/theme.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -184,7 +186,16 @@ void CMakeProcess::handleProcessDone(const Utils::ProcessResultData &resultData)
 
 QString addCMakePrefix(const QString &str)
 {
-    return QString("%1%2").arg(Constants::OUTPUT_PREFIX, str);
+    auto qColorToAnsiCode = [] (const QColor &color) {
+        return QString::fromLatin1("\033[38;2;%1;%2;%3m")
+            .arg(color.red()).arg(color.green()).arg(color.blue());
+    };
+    static const QColor bgColor = creatorTheme()->color(Theme::BackgroundColorNormal);
+    static const QColor fgColor = creatorTheme()->color(Theme::TextColorNormal);
+    static const QColor grey = StyleHelper::mergedColors(fgColor, bgColor, 80);
+    static const QString prefixString = qColorToAnsiCode(grey) + Constants::OUTPUT_PREFIX
+                                        + qColorToAnsiCode(fgColor);
+    return QString("%1%2").arg(prefixString, str);
 }
 
 QStringList addCMakePrefix(const QStringList &list)
