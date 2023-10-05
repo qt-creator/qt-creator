@@ -14,11 +14,16 @@ Window {
     default property alias content: mainContent.children
     property StudioTheme.ControlStyle style: StudioTheme.Values.controlStyle
 
-    width: 320
+    width: 300
     height: column.implicitHeight
     visible: true
     flags: Qt.FramelessWindowHint | Qt.Dialog
-    color: StudioTheme.Values.themePopoutBackground
+
+        Rectangle {
+            anchors.fill: parent
+            color: StudioTheme.Values.themePopoutBackground
+            border.color: "#636363"//StudioTheme.Values.themeTextColor
+        }
 
     function ensureVerticalPosition() {
         if ((window.y + window.height) > (Screen.height - window.style.dialogScreenMargin)) {

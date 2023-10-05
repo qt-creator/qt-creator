@@ -20,13 +20,24 @@ Rectangle {
     border.color: StudioTheme.Values.themeControlOutline
     border.width: StudioTheme.Values.border
 
-    Connections {
-        target: rootView
+    function handlePosIntChanged() {
+        posIntSpin.value = posInt
+    }
 
-        // Spinboxes lose the initial binding if the value changes so we need these connections
-        onPosIntChanged: posIntSpin.realValue = rootView.posInt
-        onRotIntChanged: rotIntSpin.realValue = rootView.rotInt
-        onScaleIntChanged: scaleIntSpin.realValue = rootView.scaleInt
+    function handleRotIntChanged() {
+        rotIntSpin.value = rotInt
+    }
+
+    function handleScaleIntChanged() {
+        scaleIntSpin.value = scaleInt
+    }
+
+    // Connect context object signals to our handler functions
+    // Spinboxes lose the initial binding if the value changes so we need these handlers
+    Component.onCompleted: {
+        onPosIntChanged.connect(handlePosIntChanged);
+        onRotIntChanged.connect(handleRotIntChanged);
+        onScaleIntChanged.connect(handleScaleIntChanged);
     }
 
     ColumnLayout {
@@ -94,7 +105,7 @@ Rectangle {
                 Layout.column: 0
                 Layout.row: 1
                 Layout.minimumWidth: 100
-                checked: rootView.posEnabled
+                checked: posEnabled
                 actionIndicatorVisible: false
 
                 hoverEnabled: true
@@ -102,27 +113,26 @@ Rectangle {
                 ToolTip.text: qsTr("Snap position.")
                 ToolTip.delay: root.toolTipDelay
 
-                onToggled: rootView.posEnabled = checked
+                onToggled: posEnabled = checked
             }
 
-            StudioControls.RealSpinBox {
+            HelperWidgets.DoubleSpinBox {
                 id: posIntSpin
                 Layout.fillWidth: true
                 Layout.column: 1
                 Layout.row: 1
                 Layout.leftMargin: 10
-                realFrom: 1
-                realTo: 10000
-                realValue: rootView.posInt
-                realStepSize: 1
-                actionIndicatorVisible: false
+                minimumValue: 1
+                maximumValue: 10000
+                value: posInt
+                stepSize: 1
+                decimals: 0
 
-                hoverEnabled: true
-                ToolTip.visible: hovered
+                ToolTip.visible: hover
                 ToolTip.text: qsTr("Snap interval for move gizmo.")
                 ToolTip.delay: root.toolTipDelay
 
-                onRealValueChanged: rootView.posInt = realValue
+                onValueChanged: posInt = value
             }
 
             StudioControls.CheckBox {
@@ -130,7 +140,7 @@ Rectangle {
                 Layout.column: 0
                 Layout.row: 2
                 Layout.minimumWidth: 100
-                checked: rootView.rotEnabled
+                checked: rotEnabled
                 actionIndicatorVisible: false
 
                 hoverEnabled: true
@@ -138,27 +148,26 @@ Rectangle {
                 ToolTip.text: qsTr("Snap rotation.")
                 ToolTip.delay: root.toolTipDelay
 
-                onToggled: rootView.rotEnabled = checked
+                onToggled: rotEnabled = checked
             }
 
-            StudioControls.RealSpinBox {
+            HelperWidgets.DoubleSpinBox {
                 id: rotIntSpin
                 Layout.fillWidth: true
                 Layout.column: 1
                 Layout.row: 2
                 Layout.leftMargin: 10
-                realFrom: 1
-                realTo: 90
-                realValue: rootView.rotInt
-                realStepSize: 1
-                actionIndicatorVisible: false
+                minimumValue: 1
+                maximumValue: 90
+                value: rotInt
+                stepSize: 1
+                decimals: 0
 
-                hoverEnabled: true
-                ToolTip.visible: hovered
+                ToolTip.visible: hover
                 ToolTip.text: qsTr("Snap interval in degrees for rotation gizmo.")
                 ToolTip.delay: root.toolTipDelay
 
-                onRealValueChanged: rootView.rotInt = realValue
+                onValueChanged: rotInt = value
             }
 
             StudioControls.CheckBox {
@@ -166,7 +175,7 @@ Rectangle {
                 Layout.column: 0
                 Layout.row: 3
                 Layout.minimumWidth: 100
-                checked: rootView.scaleEnabled
+                checked: scaleEnabled
                 actionIndicatorVisible: false
 
                 hoverEnabled: true
@@ -174,27 +183,26 @@ Rectangle {
                 ToolTip.text: qsTr("Snap scale.")
                 ToolTip.delay: root.toolTipDelay
 
-                onToggled: rootView.scaleEnabled = checked
+                onToggled: scaleEnabled = checked
             }
 
-            StudioControls.RealSpinBox {
+            HelperWidgets.DoubleSpinBox {
                 id: scaleIntSpin
                 Layout.fillWidth: true
                 Layout.column: 1
                 Layout.row: 3
                 Layout.leftMargin: 10
-                realFrom: 1
-                realTo: 100
-                realValue: rootView.scaleInt
-                realStepSize: 1
-                actionIndicatorVisible: false
+                minimumValue: 1
+                maximumValue: 100
+                value: scaleInt
+                stepSize: 1
+                decimals: 0
 
-                hoverEnabled: true
-                ToolTip.visible: hovered
+                ToolTip.visible: hover
                 ToolTip.text: qsTr("Snap interval for scale gizmo in percentage of original scale.")
                 ToolTip.delay: root.toolTipDelay
 
-                onRealValueChanged: rootView.scaleInt = realValue
+                onValueChanged: scaleInt = value
             }
 
             StudioControls.CheckBox {
@@ -204,7 +212,7 @@ Rectangle {
                 Layout.column: 0
                 Layout.row: 4
                 Layout.columnSpan: 3
-                checked: rootView.absolute
+                checked: absolute
                 actionIndicatorVisible: false
 
                 hoverEnabled: true
@@ -212,7 +220,7 @@ Rectangle {
                 ToolTip.text: qsTr("Toggles if the position snaps to absolute values or relative to object position.")
                 ToolTip.delay: root.toolTipDelay
 
-                onToggled: rootView.absolute = checked
+                onToggled: absolute = checked
             }
 
             Text {
@@ -236,7 +244,7 @@ Rectangle {
             text: qsTr("Reset All")
             Layout.bottomMargin: 8
             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-            onClicked: rootView.resetDefaults()
+            onClicked: resetDefaults()
         }
     }
 }

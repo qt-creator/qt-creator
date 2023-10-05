@@ -71,6 +71,9 @@ public:
 
     void selectProperty(const SignalHandlerProperty &property);
 
+    void nodeAboutToBeRemoved(const ModelNode &removedNode);
+    void modelAboutToBeDetached();
+
 signals:
     void currentIndexChanged();
 
@@ -266,6 +269,7 @@ class ConnectionModelBackendDelegate : public QObject
     Q_PROPERTY(bool hasCondition READ hasCondition NOTIFY hasConditionChanged)
     Q_PROPERTY(bool hasElse READ hasElse NOTIFY hasElseChanged)
     Q_PROPERTY(QString source READ source NOTIFY sourceChanged)
+    Q_PROPERTY(QString indentedSource READ indentedSource NOTIFY sourceChanged)
 
     Q_PROPERTY(PropertyTreeModel *propertyTreeModel READ propertyTreeModel CONSTANT)
     Q_PROPERTY(PropertyListProxyModel *propertyListProxyModel READ propertyListProxyModel CONSTANT)
@@ -284,6 +288,8 @@ public:
     Q_INVOKABLE void addElse();
     Q_INVOKABLE void removeElse();
 
+    Q_INVOKABLE void setNewSource(const QString &newSource);
+
     void setCurrentRow(int i);
     void update();
 
@@ -293,6 +299,7 @@ signals:
     void hasConditionChanged();
     void hasElseChanged();
     void sourceChanged();
+    void popupShouldClose();
 
 private:
     int currentRow() const;
@@ -306,6 +313,7 @@ private:
     ConnectionModelStatementDelegate *okStatement();
     ConnectionModelStatementDelegate *koStatement();
     ConditionListModel *conditionListModel();
+    QString indentedSource() const;
     QString source() const;
     void setSource(const QString &source);
 

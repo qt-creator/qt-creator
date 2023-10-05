@@ -21,7 +21,7 @@ Column {
 
     PopupLabel {
         text: qsTr("Type")
-        tooltip: qsTr("The type of the property")
+        tooltip: qsTr("Sets the category of the <b>Local Custom Property</b>.")
     }
     StudioControls.TopLevelComboBox {
         id: type
@@ -38,8 +38,17 @@ Column {
     Row {
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("Name") ; tooltip: qsTr("The name of the property.")}
-        PopupLabel { text: qsTr("Value"); tooltip: qsTr("The value of the property.") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Name")
+            tooltip: qsTr("Sets a name for the <b>Local Custom Property</b>.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Value")
+            tooltip: qsTr("Sets a valid <b>Local Custom Property</b> value.")
+        }
     }
 
     Row {

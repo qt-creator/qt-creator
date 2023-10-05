@@ -760,14 +760,14 @@ QString ConnectionEditorEvaluator::getDisplayStringForType(const QString &statem
     newDoc->parseJavaScript();
 
     if (!newDoc->isParsedCorrectly())
-        return ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
+        return ConnectionEditorStatements::CUSTOM_DISPLAY_NAME;
 
     newDoc->ast()->accept(&evaluator);
 
     const bool valid = evaluator.status() == ConnectionEditorEvaluator::Succeeded;
 
     if (!valid)
-        return ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
+        return ConnectionEditorStatements::CUSTOM_DISPLAY_NAME;
 
     auto result = evaluator.resultNode();
 
@@ -967,11 +967,11 @@ bool ConnectionEditorEvaluator::visit(QmlJS::AST::FieldMemberExpression *fieldEx
 bool ConnectionEditorEvaluator::visit(QmlJS::AST::CallExpression *callExpression)
 {
     if (d->isInIfCondition())
-        d->checkValidityAndReturn(false, "Functions are not allowd in the expressions");
+        return d->checkValidityAndReturn(false, "Functions are not allowd in the expressions");
 
     MatchedStatement *currentStatement = d->currentStatement();
     if (!currentStatement)
-        d->checkValidityAndReturn(false, "Invalid place to call an expression");
+        return d->checkValidityAndReturn(false, "Invalid place to call an expression");
 
     if (ConnectionEditorStatements::isEmptyStatement(*currentStatement)) {
         if (d->parentNodeStatus().childId() == 0) {

@@ -65,6 +65,8 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
+    void setIncludeDotPropertiesOnFirstLevel(bool b);
+
     struct DataCacheItem
     {
         ModelNode modelNode;
@@ -125,6 +127,7 @@ private:
     PropertyTypes m_type = AllTypes;
     QString m_filter;
     mutable QHash<ModelNode, std::vector<PropertyName>> m_sortedAndFilteredPropertyNamesSignalsSlots;
+    bool m_includeDotPropertiesOnFirstLevel = false;
 };
 
 class PropertyListProxyModel : public QAbstractListModel

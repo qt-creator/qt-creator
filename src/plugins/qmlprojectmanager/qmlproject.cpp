@@ -53,7 +53,7 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setNeedsBuildConfigurations(false);
     setBuildSystemCreator([](Target *t) { return new QmlBuildSystem(t); });
 
-    if (QmlProject::isQtDesignStudio()) {
+    if (Core::ICore::isQtDesignStudio()) {
         if (allowOnlySingleProject()) {
             EditorManager::closeAllDocuments();
             ProjectManager::closeAllProjects();
@@ -113,7 +113,7 @@ Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessa
 
     // FIXME: are there any other way?
     // What if it's not a Design Studio project? What should we do then?
-    if (QmlProject::isQtDesignStudio()) {
+    if (Core::ICore::isQtDesignStudio()) {
         int preferedVersion = preferedQtTarget(activeTarget());
 
         setKitWithVersion(preferedVersion, kits);
@@ -207,13 +207,6 @@ Tasks QmlProject::projectIssues(const Kit *k) const
     return result;
 }
 
-bool QmlProject::isQtDesignStudio()
-{
-    QtcSettings *settings = Core::ICore::settings();
-    const Key qdsStandaloneEntry = "QML/Designer/StandAloneMode";
-    return settings->value(qdsStandaloneEntry, false).toBool();
-}
-
 bool QmlProject::isQtDesignStudioStartedFromQtC()
 {
     return qEnvironmentVariableIsSet(Constants::enviromentLaunchedQDS);
@@ -226,7 +219,7 @@ DeploymentKnowledge QmlProject::deploymentKnowledge() const
 
 bool QmlProject::isEditModePreferred() const
 {
-    return !isQtDesignStudio();
+    return !Core::ICore::isQtDesignStudio();
 }
 
 int QmlProject::preferedQtTarget(Target *target)

@@ -31,8 +31,13 @@ public:
     Q_INVOKABLE void showWidget(int x, int y);
     Q_INVOKABLE void hideWidget();
 
+    Q_INVOKABLE void showControls(bool show);
+    Q_INVOKABLE void setMultilne(bool multiline);
+
     QString connectionValue() const;
     void setConnectionValue(const QString &text);
+
+    QString rawConnectionValue() const;
 
     bool hasModelIndex() const;
     void resetModelIndex();

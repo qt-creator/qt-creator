@@ -3,8 +3,8 @@
 
 #include "bindingmodel.h"
 #include "bindingmodelitem.h"
-#include "connectionview.h"
 #include "connectioneditorutils.h"
+#include "connectionview.h"
 #include "modelfwd.h"
 
 #include <bindingproperty.h>
@@ -15,6 +15,8 @@
 #include <variantproperty.h>
 
 #include <utils/qtcassert.h>
+
+#include <QSignalBlocker>
 
 namespace QmlDesigner {
 
@@ -142,11 +144,15 @@ void BindingModel::setCurrentProperty(const AbstractProperty &property)
 
 void BindingModel::updateItem(const BindingProperty &property)
 {
-    if (auto *item = itemForProperty(property))
+    if (auto *item = itemForProperty(property)) {
         item->updateProperty(property);
-    else
-        appendRow(new BindingModelItem(property));
-
+    } else {
+        ModelNode node = property.parentModelNode();
+        if (connectionView()->isSelectedModelNode(node)) {
+            appendRow(new BindingModelItem(property));
+            setCurrentProperty(property);
+        }
+    }
     m_delegate->update(currentProperty(), m_connectionView);
 }
 
@@ -250,15 +256,15 @@ BindingModelBackendDelegate::BindingModelBackendDelegate(BindingModel *parent)
     , m_sourceNodeProperty()
 {
     connect(&m_sourceNode, &StudioQmlComboBoxBackend::activated, this, [this]() {
-        expressionChanged();
+        sourceNodeChanged();
     });
 
     connect(&m_sourceNodeProperty, &StudioQmlComboBoxBackend::activated, this, [this]() {
-        expressionChanged();
+        sourcePropertyNameChanged();
     });
 
     connect(&m_property, &StudioQmlComboBoxBackend::activated, this, [this]() {
-        propertyNameChanged();
+        targetPropertyNameChanged();
     });
 }
 
@@ -267,7 +273,7 @@ void BindingModelBackendDelegate::update(const BindingProperty &property, Abstra
     if (!property.isValid())
         return;
 
-    auto addName = [](QStringList&& list, const QString& name) {
+    auto addName = [](QStringList &&list, const QString &name) {
         if (!list.contains(name))
             list.prepend(name);
         return std::move(list);
@@ -282,7 +288,8 @@ void BindingModelBackendDelegate::update(const BindingProperty &property, Abstra
     m_sourceNode.setModel(sourceNodes);
     m_sourceNode.setCurrentText(sourceNodeName);
 
-    auto sourceproperties = addName(availableSourceProperties(property, view), sourcePropertyName);
+    auto availableProperties = availableSourceProperties(sourceNodeName, property, view);
+    auto sourceproperties = addName(std::move(availableProperties), sourcePropertyName);
     m_sourceNodeProperty.setModel(sourceproperties);
     m_sourceNodeProperty.setCurrentText(sourcePropertyName);
 
@@ -316,14 +323,41 @@ StudioQmlComboBoxBackend *BindingModelBackendDelegate::sourceProperty()
     return &m_sourceNodeProperty;
 }
 
-void BindingModelBackendDelegate::expressionChanged() const
+void BindingModelBackendDelegate::sourceNodeChanged()
 {
-    auto commit = [this]() {
+    BindingModel *model = qobject_cast<BindingModel *>(parent());
+    QTC_ASSERT(model, return);
+
+    ConnectionView *view = model->connectionView();
+    QTC_ASSERT(view, return);
+    QTC_ASSERT(view->isAttached(), return );
+
+    const QString sourceNode = m_sourceNode.currentText();
+    const QString sourceProperty = m_sourceNodeProperty.currentText();
+
+    BindingProperty targetProperty = model->currentProperty();
+    QStringList properties = availableSourceProperties(sourceNode, targetProperty, view);
+
+    if (!properties.contains(sourceProperty)) {
+        QSignalBlocker blocker(this);
+        properties.prepend("---");
+        m_sourceNodeProperty.setModel(properties);
+        m_sourceNodeProperty.setCurrentText({"---"});
+    }
+    sourcePropertyNameChanged();
+}
+
+void BindingModelBackendDelegate::sourcePropertyNameChanged() const
+{
+    const QString sourceProperty = m_sourceNodeProperty.currentText();
+    if (sourceProperty.isEmpty() || sourceProperty == "---")
+        return;
+
+    auto commit = [this, sourceProperty]() {
         BindingModel *model = qobject_cast<BindingModel *>(parent());
         QTC_ASSERT(model, return);
 
         const QString sourceNode = m_sourceNode.currentText();
-        const QString sourceProperty = m_sourceNodeProperty.currentText();
         QString expression;
         if (sourceProperty.isEmpty())
             expression = sourceNode;
@@ -337,7 +371,7 @@ void BindingModelBackendDelegate::expressionChanged() const
     callLater(commit);
 }
 
-void BindingModelBackendDelegate::propertyNameChanged() const
+void BindingModelBackendDelegate::targetPropertyNameChanged() const
 {
     auto commit = [this]() {
         BindingModel *model = qobject_cast<BindingModel *>(parent());

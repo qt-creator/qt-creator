@@ -11,12 +11,14 @@ QT_BEGIN_NAMESPACE
 
 class QVariant;
 class QString;
+class QStringView;
 class QTextCharFormat;
 class QImage;
 class QIcon;
 
 std::ostream &operator<<(std::ostream &out, const QVariant &QVariant);
 std::ostream &operator<<(std::ostream &out, const QString &text);
+std::ostream &operator<<(std::ostream &out, QStringView text);
 std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray);
 std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format);
 std::ostream &operator<<(std::ostream &out, const QImage &image);

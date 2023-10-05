@@ -39,6 +39,7 @@ class TextureEditorContextObject : public QObject
     Q_PROPERTY(bool hasSingleModelSelection READ hasSingleModelSelection WRITE setHasSingleModelSelection
                NOTIFY hasSingleModelSelectionChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary WRITE setHasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
+    Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
 
     Q_PROPERTY(QQmlPropertyMap *backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
@@ -95,6 +96,9 @@ public:
     bool hasMaterialLibrary() const;
     void setHasMaterialLibrary(bool b);
 
+    bool isQt6Project() const;
+    void setIsQt6Project(bool b);
+
     bool hasSingleModelSelection() const;
     void setHasSingleModelSelection(bool b);
 
@@ -133,6 +137,7 @@ signals:
     void hasMaterialLibraryChanged();
     void hasSingleModelSelectionChanged();
     void activeDragSuffixChanged();
+    void isQt6ProjectChanged();
 
 private:
     QUrl m_specificsUrl;
@@ -157,6 +162,7 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialLibrary = false;
     bool m_hasSingleModelSelection = false;
+    bool m_isQt6Project = false;
 
     ModelNode m_selectedTexture;
 

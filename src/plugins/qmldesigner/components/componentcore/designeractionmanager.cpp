@@ -23,10 +23,11 @@
 
 #include <formeditortoolbutton.h>
 
-#include <documentmanager.h>
-#include <qmldesignerplugin.h>
-#include <viewmanager.h>
 #include <actioneditor.h>
+#include <documentmanager.h>
+#include <model/modelutils.h>
+#include <viewmanager.h>
+#include <qmldesignerplugin.h>
 
 #include <listmodeleditor/listmodeleditordialog.h>
 #include <listmodeleditor/listmodeleditormodel.h>
@@ -419,7 +420,7 @@ public:
 
                 parentNode = selectionContext().currentSingleSelectedNode().parentProperty().parentModelNode();
 
-                if (!ModelNode::isThisOrAncestorLocked(parentNode)) {
+                if (!ModelUtils::isThisOrAncestorLocked(parentNode)) {
                     ActionTemplate *selectionAction = new ActionTemplate("SELECTION", {}, &ModelNodeOperations::select);
                     selectionAction->setParent(menu());
                     selectionAction->setText(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Parent")));
@@ -432,11 +433,9 @@ public:
                 }
             }
             for (const ModelNode &node : selectionContext().view()->allModelNodes()) {
-                if (node != selectionContext().currentSingleSelectedNode()
-                        && node != parentNode
-                        && contains(node, selectionContext().scenePosition())
-                        && !node.isRootNode()
-                        && !ModelNode::isThisOrAncestorLocked(node)) {
+                if (node != selectionContext().currentSingleSelectedNode() && node != parentNode
+                    && contains(node, selectionContext().scenePosition()) && !node.isRootNode()
+                    && !ModelUtils::isThisOrAncestorLocked(node)) {
                     selectionContext().setTargetNode(node);
                     QString what = QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Select: %1")).arg(captionForModelNode(node));
                     ActionTemplate *selectionAction = new ActionTemplate("SELECT", what, &ModelNodeOperations::select);
@@ -741,19 +740,7 @@ public:
                         activeSignalHandlerGroup->addMenu(editSlotGroup);
                     }
 
-                    ActionTemplate *openEditorAction = new ActionTemplate(
-                        (propertyName + "OpenEditorId").toLatin1(),
-                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
-                        [=](const SelectionContext &) {
-                            signalHandler.parentModelNode().view()->executeInTransaction(
-                                "ConnectionsModelNodeActionGroup::"
-                                "openConnectionsEditor",
-                                [signalHandler]() {
-                                    ActionEditor::invokeEditor(signalHandler, removeSignal);
-                                });
-                        });
-
-                    activeSignalHandlerGroup->addAction(openEditorAction);
+                    //add an action to open Connection Form from here:
 
                     ActionTemplate *removeSignalHandlerAction = new ActionTemplate(
                         (propertyName + "RemoveSignalHandlerId").toLatin1(),
@@ -822,25 +809,7 @@ public:
                 }
             }
 
-            ActionTemplate *openEditorAction = new ActionTemplate(
-                (signalStr + "OpenEditorId").toLatin1(),
-                QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
-                [=](const SelectionContext &) {
-                    currentNode.view()->executeInTransaction(
-                        "ConnectionsModelNodeActionGroup::"
-                        "openConnectionsEditor",
-                        [=]() {
-                            ModelNode newConnectionNode = createNewConnection(currentNode);
-
-                            SignalHandlerProperty newHandler = newConnectionNode.signalHandlerProperty(
-                                prependSignal(signalStr).toLatin1());
-
-                            newHandler.setSource(
-                                QString("console.log(\"%1.%2\")").arg(currentNode.id(), signalStr));
-                            ActionEditor::invokeEditor(newHandler, removeSignal, true);
-                        });
-                });
-            newSignal->addAction(openEditorAction);
+            //add an action to open Connection Form from here
 
             addConnection->addMenu(newSignal);
         }
@@ -1270,9 +1239,9 @@ bool isPositioner(const SelectionContext &context)
 
 bool layoutOptionVisible(const SelectionContext &context)
 {
-    return selectionCanBeLayoutedAndQtQuickLayoutPossible(context)
-            || singleSelectionAndInQtQuickLayout(context)
-            || isLayout(context);
+    return (selectionCanBeLayoutedAndQtQuickLayoutPossible(context)
+            || singleSelectionAndInQtQuickLayout(context) || isLayout(context))
+           && !DesignerMcuManager::instance().isMCUProject();
 }
 
 bool positionOptionVisible(const SelectionContext &context)
@@ -1840,29 +1809,31 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &isStackedContainerAndIndexCanBeIncreased,
                           &isStackedContainer));
 
-    addDesignerAction(new ModelNodeAction(
-                          layoutRowLayoutCommandId,
-                          layoutRowLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/row.png",
-                                        Utils::Theme::IconsBaseColor}}).icon(),
-                          layoutRowLayoutToolTip,
-                          layoutCategory,
-                          QKeySequence("Ctrl+u"),
-                          2,
-                          &layoutRowLayout,
-                          &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+    addDesignerAction(
+        new ModelNodeAction(layoutRowLayoutCommandId,
+                            layoutRowLayoutDisplayName,
+                            Utils::Icon({{":/qmldesigner/icon/designeractions/images/row.png",
+                                          Utils::Theme::IconsBaseColor}})
+                                .icon(),
+                            layoutRowLayoutToolTip,
+                            layoutCategory,
+                            QKeySequence("Ctrl+u"),
+                            2,
+                            &layoutRowLayout,
+                            &selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU));
 
-    addDesignerAction(new ModelNodeAction(
-                          layoutColumnLayoutCommandId,
-                          layoutColumnLayoutDisplayName,
-                          Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png",
-                                        Utils::Theme::IconsBaseColor}}).icon(),
-                          layoutColumnLayoutToolTip,
-                          layoutCategory,
-                          QKeySequence("Ctrl+l"),
-                          3,
-                          &layoutColumnLayout,
-                          &selectionCanBeLayoutedAndQtQuickLayoutPossible));
+    addDesignerAction(
+        new ModelNodeAction(layoutColumnLayoutCommandId,
+                            layoutColumnLayoutDisplayName,
+                            Utils::Icon({{":/qmldesigner/icon/designeractions/images/column.png",
+                                          Utils::Theme::IconsBaseColor}})
+                                .icon(),
+                            layoutColumnLayoutToolTip,
+                            layoutCategory,
+                            QKeySequence("Ctrl+l"),
+                            3,
+                            &layoutColumnLayout,
+                            &selectionCanBeLayoutedAndQtQuickLayoutPossibleAndNotMCU));
 
     addDesignerAction(new ModelNodeAction(
                           layoutGridLayoutCommandId,
@@ -1937,9 +1908,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &addMouseAreaFillCheck,
                           &singleSelection));
 
-    const bool standaloneMode = QmlProjectManager::QmlProject::isQtDesignStudio();
-
-    if (!standaloneMode) {
+    if (!Core::ICore::isQtDesignStudio()) {
         addDesignerAction(new ModelNodeContextMenuAction(goToImplementationCommandId,
                                                          goToImplementationDisplayName,
                                                          {},

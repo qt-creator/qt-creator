@@ -71,7 +71,7 @@ Controls.Popup {
                     width: stack.width
                     height: 30
                     visible: root.listModel.parentName !== ""
-                    color: backMouseArea.containsMouse ? "#4DBFFF" : "transparent"
+                    color: backMouseArea.containsMouse ? StudioTheme.Values.themeInteraction : "transparent"
 
                     MouseArea {
                         id: backMouseArea
@@ -80,7 +80,7 @@ Controls.Popup {
 
                         onClicked: {
                             stack.pop(Controls.StackView.Immediate)
-                            root.listModel.goUp() //treeModel.pop()
+                            root.listModel.goUp()
                         }
                     }
 
@@ -95,7 +95,8 @@ Controls.Popup {
                                 id: chevronLeft
                                 font.family: StudioTheme.Constants.iconFont.family
                                 font.pixelSize: root.style.baseIconFontSize
-                                color: backMouseArea.containsMouse ? "#111111" : "white" // TODO colors
+                                color: backMouseArea.containsMouse ? StudioTheme.Values.themeTextSelectedTextColor
+                                                                   : StudioTheme.Values.themeTextColor
                                 text: StudioTheme.Constants.back_medium
                                 anchors.centerIn: parent
                             }
@@ -104,7 +105,8 @@ Controls.Popup {
                         Text {
                             anchors.verticalCenter: parent.verticalCenter
                             text: root.listModel.parentName
-                            color: backMouseArea.containsMouse ? "#111111" : "white" // TODO colors
+                            color: backMouseArea.containsMouse ? StudioTheme.Values.themeTextSelectedTextColor
+                                                               : StudioTheme.Values.themeTextColor
                             horizontalAlignment: Text.AlignLeft
                             verticalAlignment: Text.AlignVCenter
                             elide: Text.ElideRight
@@ -133,7 +135,7 @@ Controls.Popup {
                     boundsMovement: Flickable.StopAtBounds
                     boundsBehavior: Flickable.StopAtBounds
 
-                    Controls.ScrollBar.vertical: HelperWidgets.ScrollBar {
+                    Controls.ScrollBar.vertical: StudioControls.TransientScrollBar {
                         id: listScrollBar
                         parent: listView
                         x: listView.width - listScrollBar.width
@@ -193,7 +195,7 @@ Controls.Popup {
                     boundsMovement: Flickable.StopAtBounds
                     boundsBehavior: Flickable.StopAtBounds
 
-                    Controls.ScrollBar.vertical: HelperWidgets.ScrollBar {
+                    Controls.ScrollBar.vertical: StudioControls.TransientScrollBar {
                         id: treeScrollBar
                         parent: treeView
                         x: treeView.width - treeScrollBar.width
@@ -272,12 +274,9 @@ Controls.Popup {
 
                         width: textItem.contentWidth + 2 * StudioTheme.Values.flowPillMargin
                         height: StudioTheme.Values.flowPillHeight
-                        color: "#161616"
+                        color: mouseArea.containsMouse ? StudioTheme.Values.themePillOperatorBackgroundHover
+                                                       : StudioTheme.Values.themePillOperatorBackgroundIdle
                         radius: StudioTheme.Values.flowPillRadius
-                        border {
-                            color: "white"
-                            width: mouseArea.containsMouse ? 1 : 0
-                        }
 
                         HelperWidgets.ToolTipArea {
                             id: mouseArea
@@ -291,7 +290,7 @@ Controls.Popup {
                         Text {
                             id: textItem
                             font.pixelSize: StudioTheme.Values.baseFontSize
-                            color: StudioTheme.Values.themeTextColor
+                            color: StudioTheme.Values.themePillText
                             text: delegate.name
                             anchors.centerIn: parent
                         }

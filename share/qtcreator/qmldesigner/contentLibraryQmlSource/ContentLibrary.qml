@@ -13,6 +13,11 @@ import ContentLibraryBackend
 Item {
     id: root
 
+    property bool adsFocus: false
+    // objectName is used by the dock widget to find this particular ScrollView
+    // and set the ads focus on it.
+    objectName: "__mainSrollView"
+
     // Called also from C++ to close context menu on focus out
     function closeContextMenu()
     {
@@ -96,6 +101,7 @@ Item {
             ContentLibraryMaterialsView {
                 id: materialsView
 
+                adsFocus: root.adsFocus
                 width: root.width
 
                 searchBox: searchBox
@@ -110,6 +116,7 @@ Item {
             ContentLibraryTexturesView {
                 id: texturesView
 
+                adsFocus: root.adsFocus
                 width: root.width
                 model: ContentLibraryBackend.texturesModel
                 sectionCategory: "ContentLib_Tex"
@@ -120,6 +127,7 @@ Item {
             ContentLibraryTexturesView {
                 id: environmentsView
 
+                adsFocus: root.adsFocus
                 width: root.width
                 model: ContentLibraryBackend.environmentsModel
                 sectionCategory: "ContentLib_Env"
@@ -130,6 +138,7 @@ Item {
             ContentLibraryEffectsView {
                 id: effectsView
 
+                adsFocus: root.adsFocus
                 width: root.width
 
                 searchBox: searchBox

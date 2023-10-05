@@ -1029,6 +1029,11 @@ void RewriterView::moveToComponent(const ModelNode &modelNode)
     const QList<ModelNode> nodes = modelNode.allSubModelNodesAndThisNode();
     QSet<QString> directPaths;
 
+    // Always add QtQuick import
+    QString quickImport = model()->qtQuickItemMetaInfo().requiredImportString();
+    if (!quickImport.isEmpty())
+        directPaths.insert(quickImport);
+
     for (const ModelNode &partialNode : nodes) {
         QString importStr = partialNode.metaInfo().requiredImportString();
         if (importStr.size())

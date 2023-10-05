@@ -306,6 +306,7 @@ Rectangle {
                     id: pill
 
                     operatorModel: __operatorModel
+                    maxTextWidth: root.width - 2 * StudioTheme.Values.flowMargin
 
                     onRemove: function() {
                         // If pill has focus due to selection or keyboard navigation

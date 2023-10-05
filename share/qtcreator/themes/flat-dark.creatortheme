@@ -31,7 +31,6 @@ fullWhite=ffffffff
 lightWhite=ffdfdfdf
 offWhite=ffdcdada
 slateGrey=ff8d8d8d
-concreteGrey=ffbbbbbb
 smokeGrey=ff8b8b8b
 shadowGrey=ff636363
 duskGrey=ff606060
@@ -59,10 +58,9 @@ highlightHover=ff74CBFC
 ;DS Theme Palette END
 
 [Colors]
-;DS controls theme
+;DS controls theme START
 
-;NEW FOR QtDS 4
-;4.0
+;NEW FOR QtDS 4.0
 DScontrolBackground_toolbarIdle=midnightGrey
 DScontrolBackground_toolbarHover=midnightGrey
 DScontrolBackground_topToolbarHover=ashGrey
@@ -92,8 +90,8 @@ DSpopoutControlBackground_interaction=highlightBlue
 DSpopoutControlBackground_disabled=offBlack
 DSpopoutPopupBackground=nearBlack
 
-DSpopoutControlBorder_idle=nearBlack
-DSpopoutControlBorder_hover=midnightGrey
+DSpopoutControlBorder_idle=midnightGrey
+DSpopoutControlBorder_hover=raincloudGrey
 DSpopoutControlBorder_interaction=highlightBlue
 DSpopoutControlBorder_disabled=offBlack
 
@@ -107,64 +105,47 @@ DSpopoutButtonBorder_hover=lightWhite
 DSpopoutButtonBorder_interaction=highlightBlue
 DSpopoutButtonBorder_disabled=offBlack
 
+;4.4
+DSconnectionCodeEditor=midnightGrey
+DSpillText=fullWhite
+DSpillTextSelected=fullBlack
+DspillTextEdit=fullWhite
+DSpillDefaultBackgroundIdle=graniteGrey
+DSpillDefaultBackgroundHover=raincloudGrey
+DSpillOperatorBackgroundIdle=ff6b2a7b
+DSpillOperatorBackgroundHover=ff7e478b
+DSpillLiteralBackgroundIdle=ff447953
+DSpillLiteralBackgroundHover=ff61866B
+
 ;END NEW FOR QtDS 4
 
-;REMAPPED
-DSinteraction=highlightBlue
-DScontrolBackground=dawnGrey
-DScontrolOutlineInteraction=highlightBlue
-DScontrolOutline=nearBlack
-DSiconColorInteraction=nearBlack
-DSiconColorSelected=nearBlack
-DSsectionHeadBackground=midnightGrey
-DSstateSeparatorColor=graniteGrey
-DSnavigatorItemBackground=dawnGrey
-DSnavigatorItemBackgroundHover=graniteGrey
-DSnavigatorItemBackgroundSelected=midnightGrey
-DStabActiveBackground=raincloudGrey
-DStabActiveText=offWhite
-DStabActiveIcon=offWhite
-DStabFocusButtonHover=highlightBlue
-DStabFocusButtonPress=highlightBlue
-DStabFocusBackground=highlightBlue
-DSnavigatorText=lightWhite
-DSpopupBackground=offBlack
-DSinteractionHover=highlightHover
-DSnavigatorTextSelected=highlightBlue
-
-;contentious remap
-;background color for main form view, library, navigator, properties, connections
-QmlDesigner_BackgroundColorDarkAlternate=dawnGrey
-
-;TODO
-DSscrollBarTrack=smokeGrey
-DSscrollBarHandle=concreteGrey
-DSscrollBarHandle_idle=slateGrey
-
-DSdockWidgetTitleBar=dawnGrey
-DSdockWidgetSplitter=fullBlack
-
-;LEGACY
 DSwelcomeScreenBackground=ff242424
 DSsubPanelBackground=ff1c1c1c
 DSthumbnailBackground=ff232323
 DSthumbnailLabelBackground=ff2b2a2a
+
 DSgreenLight=ff5cdc68
 DSamberLight=ffffbf00
 DSredLight=ffff0401
 
+DSinteraction=highlightBlue
 DSerrorColor=ffdf3a3a
 DSwarningColor=warning
 DSdisabledColor=ff707070
 
+DSinteractionHover=ff74cbfc
 
+DScontrolBackground=dawnGrey
 DScontrolBackgroundInteraction=ff3d3d3d
 DScontrolBackgroundDisabled=ff2e2f30
 DScontrolBackgroundGlobalHover=ff333333
 DScontrolBackgroundHover=ff333333
 
+DScontrolOutline=nearBlack
+DScontrolOutlineInteraction=highlightBlue
 DScontrolOutlineDisabled=ff707070
 
+DStextColor=ffffffff
 DStextColorDisabled=ff707070
 DStextSelectionColor=ff2aafd3
 DStextSelectedTextColor=ff000000
@@ -172,16 +153,18 @@ DStextSelectedTextColor=ff000000
 DSplaceholderTextColor=ffffffff
 DSplaceholderTextColorInteraction=ffababab
 
-DSiconColor=fullWhite
+DSiconColor=ffffffff
 DSiconColorHover=ffffffff
+DSiconColorInteraction=nearBlack
 DSiconColorDisabled=ffC7C7C7
-DSiconColorSelected=ff2aafd3
+DSiconColorSelected=nearBlack
+
 DSlinkIndicatorColor=ff808080
 DSlinkIndicatorColorHover=ffffffff
 DSlinkIndicatorColorInteraction=ff2aafd3
 DSlinkIndicatorColorDisabled=ff707070
 
-
+DSpopupBackground=offBlack
 DSpopupOverlayColor=99191919
 
 DSsliderActiveTrack=ff7c7b7b
@@ -195,8 +178,15 @@ DSsliderHandleHover=ff606060
 DSsliderHandleFocus=ff0492c9
 DSsliderHandleInteraction=ff2aafd3
 
+DSscrollBarTrack=dawnGrey
+DSscrollBarHandle=offBlack
+DSscrollBarHandle_idle=slateGrey
+
+DSsectionHeadBackground=midnightGrey
+
 DSstateDefaultHighlight=ffffe400
-DSstateBackgroundColor=fffff000
+DSstateSeparatorColor=graniteGrey
+DSstateBackgroundColor=ff383838
 DSstatePreviewOutline=ffaaaaaa
 
 DSstatePanelBackground=ff252525
@@ -219,7 +209,11 @@ DStableHeaderText=ff00ff00
 DSdockContainerBackground=ff242424
 DSdockContainerSplitter=ff323232
 DSdockAreaBackground=ff262728
+
 DSdockWidgetBackground=ff00ff00
+DSdockWidgetSplitter=fullBlack
+DSdockWidgetTitleBar=dawnGrey
+
 DStitleBarText=ffdadada
 DStitleBarIcon=ffffffff
 DStitleBarButtonHover=40ffffff
@@ -234,16 +228,26 @@ DStabInactiveIcon=ffffffff
 DStabInactiveButtonHover=ff1f1f1f
 DStabInactiveButtonPress=ff1f1f1f
 
+DStabActiveBackground=raincloudGrey
+DStabActiveText=offWhite
+DStabActiveIcon=offWhite
 DStabActiveButtonHover=ffdadada
 DStabActiveButtonPress=ffdadada
 
+DStabFocusBackground=highlightBlue
 DStabFocusText=ff111111
 DStabFocusIcon=ff000000
+DStabFocusButtonHover=highlightBlue
+DStabFocusButtonPress=highlightBlue
 
 DSnavigatorBranch=ff7c7b7b
 DSnavigatorBranchIndicator=ff7c7b7b
+DSnavigatorItemBackground=dawnGrey
+DSnavigatorItemBackgroundHover=graniteGrey
+DSnavigatorItemBackgroundSelected=midnightGrey
+DSnavigatorText=lightWhite
 DSnavigatorTextHover=ffffffff
-
+DSnavigatorTextSelected=ff2aafd3
 DSnavigatorIcon=ffffffff
 DSnavigatorIconHover=ffa1a1a1
 DSnavigatorIconSelected=ffffffff
@@ -262,6 +266,8 @@ DSUnimportedModuleColor=ffe33c2e
 
 DSBackgroundColorAlternate=alternateBackground
 DSBackgroundColorNormal=normalBackground
+
+DStoolbarBackground=midnightGrey
 
 ;DS controls theme END
 

@@ -18,16 +18,24 @@ Column {
 
     property var statement
 
-    //implicitWidth: Math.max(16, container.childrenRect.width + container.childrenRect.x)
-    //implicitHeight: Math.max(16, container.childrenRect.height + container.childrenRect.y)
+    property var backend
 
     // Call Function
     Row {
         visible: root.actionType === ConnectionModelStatementDelegate.CallFunction
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("Item") ; tooltip: qsTr("The target item of the function.")}
-        PopupLabel { text: qsTr("Method") ; tooltip: qsTr("The name of the function.")}
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Item")
+            tooltip: qsTr("Sets the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Method")
+            tooltip: qsTr("Sets the item component's method that is affected by the <b>Target</b> component's <b>Signal</b>.")
+        }
     }
 
     Row {
@@ -46,7 +54,7 @@ Column {
             onCurrentTypeIndexChanged: functionId.currentIndex = functionId.currentTypeIndex
         }
 
-            StudioControls.TopLevelComboBox {
+        StudioControls.TopLevelComboBox {
             id: functionName
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
@@ -63,8 +71,16 @@ Column {
         visible: root.actionType === ConnectionModelStatementDelegate.Assign
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("From") ; tooltip: qsTr("The Property to assign from.")}
-        PopupLabel { text: qsTr("To"); tooltip: qsTr("The Property to assign to.") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("From")
+            tooltip: qsTr("Sets the component and its property from which the value is copied when the <b>Target</b> component initiates the <b>Signal</b>.")
+        }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("To")
+            tooltip: qsTr("Sets the component and its property to which the copied value is assigned when the <b>Target</b> component initiates the <b>Signal</b>.")
+        }
     }
 
     Row {
@@ -132,8 +148,17 @@ Column {
         visible: root.actionType === ConnectionModelStatementDelegate.ChangeState
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("State Group"); tooltip: qsTr("The State Group.") }
-        PopupLabel { text: qsTr("State"); tooltip: qsTr("The State .") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("State Group")
+            tooltip: qsTr("Sets a <b>State Group</b> that is accessed when the <b>Target</b> component initiates the <b>Signal</b>.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("State")
+            tooltip: qsTr("Sets a <b>State</b> within the assigned <b>State Group</b> that is accessed when the <b>Target</b> component initiates the <b>Signal</b>.")
+        }
     }
 
     Row {
@@ -169,8 +194,17 @@ Column {
         visible: root.actionType === ConnectionModelStatementDelegate.SetProperty
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("Item"); tooltip: qsTr("The Item.")}
-        PopupLabel { text: qsTr("Property"); tooltip: qsTr("The property of the item.")}
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Item")
+            tooltip: qsTr("Sets the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Property")
+            tooltip: qsTr("Sets the property of the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
+        }
     }
 
     Row {
@@ -203,8 +237,10 @@ Column {
     }
 
     PopupLabel {
+        width: root.columnWidth
         visible: root.actionType === ConnectionModelStatementDelegate.SetProperty
         text: qsTr("Value")
+        tooltip: qsTr("Sets the value of the property of the component that is affected by the action of the <b>Target</b> component's <b>Signal</b>.")
     }
 
     StudioControls.TextField {
@@ -222,9 +258,10 @@ Column {
 
     // Print Message
     PopupLabel {
+        width: root.columnWidth
         visible: root.actionType === ConnectionModelStatementDelegate.PrintMessage
         text: qsTr("Message")
-        tooltip: qsTr("The message that is printed.")
+        tooltip: qsTr("Sets a text that is printed when the <b>Signal</b> of the <b>Target</b> component initiates.")
     }
 
     StudioControls.TextField {
@@ -243,9 +280,7 @@ Column {
     PopupLabel {
         visible: root.actionType === ConnectionModelStatementDelegate.Custom
         text: qsTr("Custom Connections can only be edited with the binding editor")
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.margins: 30
+        width: root.width
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
     }

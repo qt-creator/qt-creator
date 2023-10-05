@@ -104,10 +104,10 @@ void tst_ConnectionEditor::invalidSyntax()
         = "{someItem.complexCall(blah)}"; //valid QML bit not valid for ConnectionEditor
 
     QString result = ConnectionEditorEvaluator::getDisplayStringForType(statement1);
-    QCOMPARE(result, ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME);
+    QCOMPARE(result, ConnectionEditorStatements::CUSTOM_DISPLAY_NAME);
 
     result = ConnectionEditorEvaluator::getDisplayStringForType(statement2);
-    QCOMPARE(result, ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME);
+    QCOMPARE(result, ConnectionEditorStatements::CUSTOM_DISPLAY_NAME);
 
     auto resultHandler = ConnectionEditorEvaluator::parseStatement(statement1);
     auto parsedStatement = ConnectionEditorStatements::okStatement(resultHandler);
@@ -168,14 +168,14 @@ void tst_ConnectionEditor::displayStrings_data()
 
     QTest::newRow("Custom function call assignment")
         << "{someItem.color = item.functionCall()}"
-        << ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
+        << ConnectionEditorStatements::CUSTOM_DISPLAY_NAME;
 
     QTest::newRow("Custom function call with argument")
         << "{someItem.color = item.functionCall(\"test\")}"
-        << ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
+        << ConnectionEditorStatements::CUSTOM_DISPLAY_NAME;
 
     QTest::newRow("Custom function call with argument 2")
-        << "{item.functionCall(\"test\")}" << ConnectionEditorStatements::UNKNOWN_DISPLAY_NAME;
+        << "{item.functionCall(\"test\")}" << ConnectionEditorStatements::CUSTOM_DISPLAY_NAME;
 }
 
 void tst_ConnectionEditor::parseAssignment()

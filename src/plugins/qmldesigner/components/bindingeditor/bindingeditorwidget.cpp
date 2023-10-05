@@ -6,6 +6,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
+#include <plaintexteditmodifier.h>
 #include <qmljseditor/qmljsautocompleter.h>
 #include <qmljseditor/qmljscompletionassist.h>
 #include <qmljseditor/qmljseditor.h>
@@ -18,6 +19,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <utils/fancylineedit.h>
+#include <utils/transientscroll.h>
 
 #include <QAction>
 
@@ -33,6 +35,8 @@ BindingEditorWidget::BindingEditorWidget()
     m_context->setContext(context);
     Core::ICore::addContextObject(m_context);
 
+    Utils::TransientScrollAreaSupport::support(this);
+
     /*
      * We have to register our own active auto completion shortcut, because the original short cut will
      * use the cursor position of the original editor in the editor manager.
@@ -46,7 +50,7 @@ BindingEditorWidget::BindingEditorWidget()
                                        ? tr("Meta+Space")
                                        : tr("Ctrl+Space")));
 
-    connect(m_completionAction, &QAction::triggered, [this]() {
+    connect(m_completionAction, &QAction::triggered, this, [this]() {
         invokeAssist(TextEditor::Completion);
     });
 }
@@ -68,8 +72,17 @@ void BindingEditorWidget::unregisterAutoCompletion()
 bool BindingEditorWidget::event(QEvent *event)
 {
     if (event->type() == QEvent::KeyPress) {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        if ((keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) && !keyEvent->modifiers()) {
+        const QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+        const bool returnPressed = (keyEvent->key() == Qt::Key_Return)
+                                   || (keyEvent->key() == Qt::Key_Enter);
+        const Qt::KeyboardModifiers mods = keyEvent->modifiers();
+        constexpr Qt::KeyboardModifier submitModifier = Qt::ControlModifier;
+        const bool submitModed = mods.testFlag(submitModifier);
+
+        if (!m_isMultiline && (returnPressed && !mods)) {
+            emit returnKeyClicked();
+            return true;
+        } else if (m_isMultiline && (returnPressed && submitModed)) {
             emit returnKeyClicked();
             return true;
         }
@@ -81,8 +94,22 @@ std::unique_ptr<TextEditor::AssistInterface> BindingEditorWidget::createAssistIn
     [[maybe_unused]] TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
 {
     return std::make_unique<QmlJSEditor::QmlJSCompletionAssistInterface>(
-                textCursor(), Utils::FilePath(),
-                assistReason, qmljsdocument->semanticInfo());
+        textCursor(), Utils::FilePath(), assistReason, qmljsdocument->semanticInfo());
+}
+
+void BindingEditorWidget::setEditorTextWithIndentation(const QString &text)
+{
+    auto *doc = document();
+    doc->setPlainText(text);
+
+    //we don't need to indent an empty text
+    //but is also needed for safer text.length()-1 below
+    if (text.isEmpty())
+        return;
+
+    auto modifier = std::make_unique<IndentingTextEditModifier>(
+        doc, QTextCursor{doc});
+    modifier->indent(0, text.length()-1);
 }
 
 BindingDocument::BindingDocument()

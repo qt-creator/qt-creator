@@ -49,7 +49,8 @@ enum class TypeTraits : int {
     IsEnum = 1 << 8,
     IsFileComponent = 1 << 9,
     IsProjectComponent = 1 << 10,
-    IsInProjectModule = 1 << 11
+    IsInProjectModule = 1 << 11,
+    UsesCustomParser = 1 << 12
 };
 
 constexpr TypeTraits operator|(TypeTraits first, TypeTraits second)

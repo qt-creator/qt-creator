@@ -60,6 +60,32 @@
 
     For more information, see \l{Setting Bindings}.
 
+    \section1 Adding a Custom Property to a Component from the Connections View
+
+    You can add a custom property to a component from the \uicontrol {Connections} view.
+    Follow the process:
+
+    \list 1
+        \li Select the component you want to add a Custom property to in the
+            \uicontrol {2D} view or in the \uicontrol {Navigator} view.
+        \li Select \uicontrol {Properties} from the \uicontrol {Connections} view.
+
+            \image add-updated-local-custom-property.webp
+
+        \li Select the \inlineimage icons/plus.png
+             (\uicontrol Add) button to add a Custom property.
+        \li From the pop-up \uicontrol {Custom property editor}, select the \uicontrol {Type}
+            of the property you want to include.
+
+            \image add-updated-local-custom-property-editor.webp
+
+        \li Next, set the \uicontrol{Name} of the property.
+        \li Set a value to the Custom property in the \uicontrol {Value} field.
+    \endlist
+
+    \note Select the \inlineimage icons/minus.png
+          (\uicontrol Remove) to delete a Custom Property.
+
     \section1 Supported Property Types
 
     The following table describes the supported property types:

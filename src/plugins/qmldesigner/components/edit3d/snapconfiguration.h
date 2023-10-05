@@ -5,11 +5,11 @@
 #include <auxiliarydata.h>
 
 #include <QObject>
+#include <QPoint>
 #include <QPointer>
 
 QT_BEGIN_NAMESPACE
 class QQuickView;
-class QPoint;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -47,6 +47,10 @@ public:
     ~SnapConfiguration();
 
     Q_INVOKABLE void resetDefaults();
+    Q_INVOKABLE void hideCursor();
+    Q_INVOKABLE void restoreCursor();
+    Q_INVOKABLE void holdCursorInPlace();
+    Q_INVOKABLE int devicePixelRatio();
 
     void cancel();
     void apply();
@@ -86,7 +90,7 @@ protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
-    void cleanup();
+    void asyncClose();
 
     QPointer<QQuickView> m_configDialog;
     QPointer<Edit3DView> m_view;
@@ -98,6 +102,7 @@ private:
     double m_rotationInterval = 0.;
     double m_scaleInterval = 0.;
     bool m_changes = false;
+    QPoint m_lastPos;
 };
 
 } // namespace QmlDesigner

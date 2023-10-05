@@ -52,7 +52,7 @@ const char EDIT3D_EDIT_SHOW_GRID[] = "QmlDesigner.Editor3D.ToggleGrid";
 const char EDIT3D_EDIT_SELECT_BACKGROUND_COLOR[] = "QmlDesigner.Editor3D.SelectBackgroundColor";
 const char EDIT3D_EDIT_SELECT_GRID_COLOR[] = "QmlDesigner.Editor3D.SelectGridColor";
 const char EDIT3D_EDIT_RESET_BACKGROUND_COLOR[] = "QmlDesigner.Editor3D.ResetBackgroundColor";
-const char EDIT3D_EDIT_SYNC_BACKGROUND_COLOR[] = "QmlDesigner.Editor3D.SyncBackgroundColor";
+const char EDIT3D_EDIT_SYNC_ENV_BACKGROUND[] = "QmlDesigner.Editor3D.SyncEnvBackground";
 const char EDIT3D_EDIT_SHOW_SELECTION_BOX[] = "QmlDesigner.Editor3D.ToggleSelectionBox";
 const char EDIT3D_EDIT_SHOW_ICON_GIZMO[] = "QmlDesigner.Editor3D.ToggleIconGizmo";
 const char EDIT3D_EDIT_SHOW_CAMERA_FRUSTUM[] = "QmlDesigner.Editor3D.ToggleCameraFrustum";
@@ -78,7 +78,6 @@ const char QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY[] = "import_options";
 const char QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY[] = "source_scene";
 const char DEFAULT_ASSET_IMPORT_FOLDER[] = "/asset_imports";
 const char MATERIAL_LIB_ID[] = "__materialLibrary__";
-const char COLLECTION_LIB_ID[] = "__collectionLibrary__";
 
 const char MIME_TYPE_ITEM_LIBRARY_INFO[] = "application/vnd.qtdesignstudio.itemlibraryinfo";
 const char MIME_TYPE_ASSETS[]            = "application/vnd.qtdesignstudio.assets";

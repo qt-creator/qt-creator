@@ -90,7 +90,6 @@ private:
     void reloadQmlSource();
 
     void updateSearch();
-    void handlePriorityImportsChanged();
     void setIsDragging(bool val);
 
     static QString getDependencyImport(const Import &import);

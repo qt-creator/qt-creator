@@ -11,7 +11,8 @@
 
 #include <utils/environment.h>
 
-#include <QPoint>
+#include <QCursor>
+#include <QGuiApplication>
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickView>
@@ -46,7 +47,8 @@ SnapConfiguration::SnapConfiguration(Edit3DView *view)
 
 SnapConfiguration::~SnapConfiguration()
 {
-    cleanup();
+    delete m_configDialog;
+    restoreCursor();
 }
 
 void SnapConfiguration::apply()
@@ -66,10 +68,10 @@ void SnapConfiguration::apply()
                                m_rotationInterval);
         Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL,
                                m_scaleInterval);
-        m_view->syncSnapAuxPropsToSettings();
+        if (!m_view.isNull())
+            m_view->syncSnapAuxPropsToSettings();
     }
-
-    cancel();
+    deleteLater();
 }
 
 void SnapConfiguration::resetDefaults()
@@ -81,6 +83,45 @@ void SnapConfiguration::resetDefaults()
     setPosInt(defaultPosInt);
     setRotInt(defaultRotInt);
     setScaleInt(defaultScaleInt);
+}
+
+void SnapConfiguration::hideCursor()
+{
+    if (QGuiApplication::overrideCursor())
+        return;
+
+    QGuiApplication::setOverrideCursor(QCursor(Qt::BlankCursor));
+
+    if (QWindow *w = QGuiApplication::focusWindow())
+        m_lastPos = QCursor::pos(w->screen());
+}
+
+void SnapConfiguration::restoreCursor()
+{
+    if (!QGuiApplication::overrideCursor())
+        return;
+
+    QGuiApplication::restoreOverrideCursor();
+
+    if (QWindow *w = QGuiApplication::focusWindow())
+        QCursor::setPos(w->screen(), m_lastPos);
+}
+
+void SnapConfiguration::holdCursorInPlace()
+{
+    if (!QGuiApplication::overrideCursor())
+        return;
+
+    if (QWindow *w = QGuiApplication::focusWindow())
+        QCursor::setPos(w->screen(), m_lastPos);
+}
+
+int SnapConfiguration::devicePixelRatio()
+{
+    if (QWindow *w = QGuiApplication::focusWindow())
+        return w->devicePixelRatio();
+
+    return 1;
 }
 
 void SnapConfiguration::showConfigDialog(const QPoint &pos)
@@ -116,9 +157,7 @@ void SnapConfiguration::showConfigDialog(const QPoint &pos)
         m_configDialog->setModality(Qt::NonModal);
         m_configDialog->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
 
-        m_configDialog->rootContext()->setContextProperties({
-            {"rootView", QVariant::fromValue(this)}
-        });
+        m_configDialog->rootContext()->setContextObject(this);
         m_configDialog->setSource(QUrl::fromLocalFile(path));
         m_configDialog->installEventFilter(this);
 
@@ -194,9 +233,12 @@ void SnapConfiguration::setScaleInt(double value)
     }
 }
 
-void SnapConfiguration::cleanup()
+void SnapConfiguration::asyncClose()
 {
-    delete m_configDialog;
+    QTimer::singleShot(0, this, [this]() {
+        if (!m_configDialog.isNull() && m_configDialog->isVisible())
+            m_configDialog->close();
+    });
 }
 
 void SnapConfiguration::cancel()
@@ -209,15 +251,13 @@ void SnapConfiguration::cancel()
 
 bool SnapConfiguration::eventFilter(QObject *obj, QEvent *event)
 {
-    // Closing dialog always applies the changes
-
     if (obj == m_configDialog) {
         if (event->type() == QEvent::FocusOut) {
-            apply();
+            asyncClose();
         } else if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Escape)
-                apply();
+                asyncClose();
         } else if (event->type() == QEvent::Close) {
             apply();
         }

@@ -96,6 +96,9 @@ public:
 
     void updateComboBoxes(int idx, ComboBox type);
 
+    void showControls(bool show);
+    void setMultiline(bool multiline);
+
 private:
     void setupUIComponents();
 

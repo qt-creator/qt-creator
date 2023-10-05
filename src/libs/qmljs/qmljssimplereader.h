@@ -34,6 +34,7 @@ public:
         SourceLocation valueLocation;
 
         bool isValid() const { return !value.isNull() && value.isValid(); }
+        explicit operator bool() const { return isValid(); }
         bool isDefaultValue() const
         {
             return !value.isNull() && !nameLocation.isValid() && !valueLocation.isValid();
@@ -53,7 +54,7 @@ public:
     WeakPtr parent() const;
     QString name() const;
     SourceLocation nameLocation() const;
-    const List children() const;
+    const List &children() const;
 
 protected:
     SimpleReaderNode();

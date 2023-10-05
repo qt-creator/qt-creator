@@ -120,7 +120,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString cameraFrustumKey   = QStringLiteral("showCameraFrustum");
     const QString particleEmitterKey = QStringLiteral("showParticleEmitter");
     const QString particlesPlayKey   = QStringLiteral("particlePlay");
-    const QString syncBgColorKey     = QStringLiteral("syncBackgroundColor");
+    const QString syncEnvBgKey       = QStringLiteral("syncEnvBackground");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -195,9 +195,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     bool syncValue = false;
     bool syncEnabled = false;
     bool desiredSyncValue = false;
-    if (sceneState.contains(syncBgColorKey))
-        desiredSyncValue = sceneState[syncBgColorKey].toBool();
+    if (sceneState.contains(syncEnvBgKey))
+        desiredSyncValue = sceneState[syncEnvBgKey].toBool();
     ModelNode checkNode = active3DSceneNode();
+    const bool activeSceneValid = checkNode.isValid();
+
     while (checkNode.isValid()) {
         if (checkNode.metaInfo().isQtQuick3DView3D()) {
             syncValue = desiredSyncValue;
@@ -210,15 +212,15 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
             break;
     }
 
-    if (syncValue != desiredSyncValue) {
+    if (activeSceneValid && syncValue != desiredSyncValue) {
         // Update actual toolstate as well if we overrode it.
         QTimer::singleShot(0, this, [this, syncValue]() {
-            emitView3DAction(View3DActionType::SyncBackgroundColor, syncValue);
+            emitView3DAction(View3DActionType::SyncEnvBackground, syncValue);
         });
     }
 
-    m_syncBackgroundColorAction->action()->setChecked(syncValue);
-    m_syncBackgroundColorAction->action()->setEnabled(syncEnabled);
+    m_syncEnvBackgroundAction->action()->setChecked(syncValue);
+    m_syncEnvBackgroundAction->action()->setEnabled(syncEnabled);
 
     // Selection context change updates visible and enabled states
     SelectionContext selectionContext(this);
@@ -449,23 +451,23 @@ QSize Edit3DView::canvasSize() const
     return {};
 }
 
-void Edit3DView::createSelectBackgroundColorAction(QAction *syncBackgroundColorAction)
+void Edit3DView::createSelectBackgroundColorAction(QAction *syncEnvBackgroundAction)
 {
     QString description = QCoreApplication::translate("SelectBackgroundColorAction",
                                                       "Select Background Color");
     QString tooltip = QCoreApplication::translate("SelectBackgroundColorAction",
                                                   "Select a color for the background of the 3D view.");
 
-    auto operation = [this, syncBackgroundColorAction](const SelectionContext &) {
+    auto operation = [this, syncEnvBackgroundAction](const SelectionContext &) {
         BackgroundColorSelection::showBackgroundColorSelectionWidget(
             edit3DWidget(),
             DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
             this,
             edit3dBgColorProperty,
-            [this, syncBackgroundColorAction]() {
-                if (syncBackgroundColorAction->isChecked()) {
-                    emitView3DAction(View3DActionType::SyncBackgroundColor, false);
-                    syncBackgroundColorAction->setChecked(false);
+            [this, syncEnvBackgroundAction]() {
+                if (syncEnvBackgroundAction->isChecked()) {
+                    emitView3DAction(View3DActionType::SyncEnvBackground, false);
+                    syncEnvBackgroundAction->setChecked(false);
                 }
             });
     };
@@ -510,14 +512,14 @@ void Edit3DView::createGridColorSelectionAction()
         tooltip);
 }
 
-void Edit3DView::createResetColorAction(QAction *syncBackgroundColorAction)
+void Edit3DView::createResetColorAction(QAction *syncEnvBackgroundAction)
 {
     QString description = QCoreApplication::translate("ResetEdit3DColorsAction", "Reset Colors");
     QString tooltip = QCoreApplication::translate("ResetEdit3DColorsAction",
                                                   "Reset the background color and the color of the "
                                                   "grid lines of the 3D view to the default values.");
 
-    auto operation = [this, syncBackgroundColorAction](const SelectionContext &) {
+    auto operation = [this, syncEnvBackgroundAction](const SelectionContext &) {
         QList<QColor> bgColors = {QRgb(0x222222), QRgb(0x999999)};
         Edit3DViewConfig::setColors(this, edit3dBgColorProperty, bgColors);
         Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR, bgColors);
@@ -526,9 +528,9 @@ void Edit3DView::createResetColorAction(QAction *syncBackgroundColorAction)
         Edit3DViewConfig::setColors(this, edit3dGridColorProperty, {gridColor});
         Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, {gridColor});
 
-        if (syncBackgroundColorAction->isChecked()) {
-            emitView3DAction(View3DActionType::SyncBackgroundColor, false);
-            syncBackgroundColorAction->setChecked(false);
+        if (syncEnvBackgroundAction->isChecked()) {
+            emitView3DAction(View3DActionType::SyncEnvBackground, false);
+            syncEnvBackgroundAction->setChecked(false);
         }
     };
 
@@ -545,17 +547,17 @@ void Edit3DView::createResetColorAction(QAction *syncBackgroundColorAction)
         tooltip);
 }
 
-void Edit3DView::createSyncBackgroundColorAction()
+void Edit3DView::createSyncEnvBackgroundAction()
 {
-    QString description = QCoreApplication::translate("SyncEdit3DColorAction",
-                                                      "Use Scene Environment Color");
-    QString tooltip = QCoreApplication::translate("SyncEdit3DColorAction",
+    QString description = QCoreApplication::translate("SyncEnvBackgroundAction",
+                                                      "Use Scene Environment");
+    QString tooltip = QCoreApplication::translate("SyncEnvBackgroundAction",
                                                   "Sets the 3D view to use the Scene Environment "
-                                                  "color as background color.");
+                                                  "color or skybox as background color.");
 
-    m_syncBackgroundColorAction = std::make_unique<Edit3DAction>(
-        QmlDesigner::Constants::EDIT3D_EDIT_SYNC_BACKGROUND_COLOR,
-        View3DActionType::SyncBackgroundColor,
+    m_syncEnvBackgroundAction = std::make_unique<Edit3DAction>(
+        QmlDesigner::Constants::EDIT3D_EDIT_SYNC_ENV_BACKGROUND,
+        View3DActionType::SyncEnvBackground,
         description,
         QKeySequence(),
         true,
@@ -589,9 +591,17 @@ QPoint Edit3DView::resolveToolbarPopupPos(Edit3DAction *action) const
     const QList<QObject *> &objects = action->action()->associatedObjects();
     for (QObject *obj : objects) {
         if (auto button = qobject_cast<QToolButton *>(obj)) {
-            // Add small negative modifier to Y coordinate, so highlighted toolbar buttons don't
-            // peek from under the popup
-            pos = button->mapToGlobal(QPoint(0, -2));
+            if (auto toolBar = qobject_cast<QWidget *>(button->parent())) {
+                // If the button has not yet been shown (i.e. it starts under extension menu),
+                // the button x value will be zero.
+                if (button->x() >= toolBar->width() - button->width() || button->x() == 0) {
+                    pos = toolBar->mapToGlobal(QPoint(toolBar->width() - button->width(), 4));
+                } else {
+                    // Add small negative modifier to Y coordinate, so highlighted toolbar buttons don't
+                    // peek from under the popup
+                    pos = button->mapToGlobal(QPoint(0, -2));
+                }
+            }
             break;
         }
     }
@@ -958,8 +968,15 @@ void Edit3DView::createEdit3DActions()
         snapToggleTrigger);
 
     SelectionContextOperation snapConfigTrigger = [this](const SelectionContext &) {
-        if (!m_snapConfiguration)
+        if (!m_snapConfiguration) {
             m_snapConfiguration = new SnapConfiguration(this);
+            connect(m_snapConfiguration.data(), &SnapConfiguration::posIntChanged,
+                    this, [this]() {
+                // Notify every change of position interval as that causes visible changes in grid
+                rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty,
+                                                 m_snapConfiguration->posInt());
+            });
+        }
         m_snapConfiguration->showConfigDialog(resolveToolbarPopupPos(m_snapConfigAction.get()));
     };
 
@@ -1011,14 +1028,14 @@ void Edit3DView::createEdit3DActions()
     m_visibilityToggleActions << m_showCameraFrustumAction.get();
     m_visibilityToggleActions << m_showParticleEmitterAction.get();
 
-    createSyncBackgroundColorAction();
-    createSelectBackgroundColorAction(m_syncBackgroundColorAction->action());
+    createSyncEnvBackgroundAction();
+    createSelectBackgroundColorAction(m_syncEnvBackgroundAction->action());
     createGridColorSelectionAction();
-    createResetColorAction(m_syncBackgroundColorAction->action());
+    createResetColorAction(m_syncEnvBackgroundAction->action());
 
     m_backgroundColorActions << m_selectBackgroundColorAction.get();
     m_backgroundColorActions << m_selectGridColorAction.get();
-    m_backgroundColorActions << m_syncBackgroundColorAction.get();
+    m_backgroundColorActions << m_syncEnvBackgroundAction.get();
     m_backgroundColorActions << m_resetColorAction.get();
 }
 

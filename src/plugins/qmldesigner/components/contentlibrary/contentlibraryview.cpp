@@ -11,6 +11,7 @@
 #include "contentlibrarytexture.h"
 #include "contentlibrarytexturesmodel.h"
 #include "contentlibrarywidget.h"
+#include "externaldependenciesinterface.h"
 #include "nodelistproperty.h"
 #include "qmldesignerconstants.h"
 #include "qmlobjectnode.h"
@@ -223,6 +224,7 @@ void ContentLibraryView::modelAttached(Model *model)
     const bool hasLibrary = materialLibraryNode().isValid();
     m_widget->setHasMaterialLibrary(hasLibrary);
     m_widget->setHasQuick3DImport(m_hasQuick3DImport);
+    m_widget->setIsQt6Project(externalDependencies().isQt6Project());
 
     m_sceneId = model->active3DSceneId();
 

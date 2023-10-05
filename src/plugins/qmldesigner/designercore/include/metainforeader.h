@@ -65,7 +65,6 @@ private:
     ParserSate readExtraFileElement(const QString &name);
 
     void readTypeProperty(const QString &name, const QVariant &value);
-    void readImportsProperty(const QString &name, const QVariant &value);
     void readItemLibraryEntryProperty(const QString &name, const QVariant &value);
     void readPropertyProperty(const QString &name, const QVariant &value);
     void readQmlSourceProperty(const QString &name, const QVariant &value);

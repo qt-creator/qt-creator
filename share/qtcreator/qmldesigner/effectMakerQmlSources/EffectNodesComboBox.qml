@@ -30,27 +30,27 @@ StudioControls.ComboBox {
             var a = mainRoot.mapToGlobal(0, 0)
             var b = root.mapToItem(mainRoot, 0, 0)
 
-            effectNodesWindow.x = a.x + b.x + root.width - effectNodesWindow.width
-            effectNodesWindow.y = a.y + b.y + root.height - 1
+            window.x = a.x + b.x + root.width - window.width
+            window.y = a.y + b.y + root.height - 1
 
-            effectNodesWindow.show()
-            effectNodesWindow.requestActivate()
+            window.show()
+            window.requestActivate()
         }
 
         function onAboutToHide() {
-            effectNodesWindow.hide()
+            window.hide()
         }
     }
 
     Window {
-        id: effectNodesWindow
+        id: window
 
         width: row.width + 2 // 2: scrollView left and right 1px margins
         height: Math.min(800, Math.min(row.height + 2, Screen.height - y - 40)) // 40: some bottom margin to cover OS bottom toolbar
-        flags:  Qt.Popup | Qt.FramelessWindowHint
+        flags: Qt.Dialog | Qt.FramelessWindowHint
 
-        onActiveChanged: {
-            if (!active && !root.hover)
+        onActiveFocusItemChanged: {
+            if (!window.activeFocusItem && !root.indicator.hover && root.popup.opened)
                 root.popup.close()
         }
 
@@ -74,7 +74,7 @@ StudioControls.ComboBox {
                         var a = mainRoot.mapToGlobal(0, 0)
                         var b = root.mapToItem(mainRoot, 0, 0)
 
-                        effectNodesWindow.x = a.x + b.x + root.width - row.width
+                        window.x = a.x + b.x + root.width - row.width
                     }
 
                     padding: 10

@@ -15,7 +15,10 @@
 #include <QUrl>
 #include <QVariant>
 #include <QVector3D>
+#include <QtQuick3D/private/qquick3dcubemaptexture_p.h>
 #include <QtQuick3D/private/qquick3dpickresult_p.h>
+#include <QtQuick3D/private/qquick3dsceneenvironment_p.h>
+#include <QtQuick3D/private/qquick3dtexture_p.h>
 
 QT_BEGIN_NAMESPACE
 class QQuick3DCamera;
@@ -33,6 +36,7 @@ class GeneralHelper : public QObject
     Q_OBJECT
     Q_PROPERTY(bool isMacOS READ isMacOS CONSTANT)
     Q_PROPERTY(QVariant bgColor READ bgColor NOTIFY bgColorChanged FINAL)
+    Q_PROPERTY(double minGridStep READ minGridStep NOTIFY minGridStepChanged FINAL)
 
 public:
     GeneralHelper();
@@ -91,9 +95,13 @@ public:
     Q_INVOKABLE void scaleMultiSelection(bool commit);
     Q_INVOKABLE void rotateMultiSelection(bool commit);
 
-    void setSceneEnvironmentColor(const QString &sceneId, const QColor &color);
+    void setSceneEnvironmentData(const QString &sceneId, QQuick3DSceneEnvironment *env);
+    Q_INVOKABLE QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes sceneEnvironmentBgMode(
+        const QString &sceneId) const;
     Q_INVOKABLE QColor sceneEnvironmentColor(const QString &sceneId) const;
-    void clearSceneEnvironmentColors();
+    Q_INVOKABLE QQuick3DTexture *sceneEnvironmentLightProbe(const QString &sceneId) const;
+    Q_INVOKABLE QQuick3DCubeMapTexture *sceneEnvironmentSkyBoxCubeMap(const QString &sceneId) const;
+    void clearSceneEnvironmentData();
 
     bool isMacOS() const;
 
@@ -114,9 +122,15 @@ public:
     void setSnapPosition(bool enable) { m_snapPosition = enable; }
     void setSnapRotation(bool enable) { m_snapRotation = enable; }
     void setSnapScale(bool enable) { m_snapScale = enable; }
-    void setSnapPositionInterval(double interval) { m_snapPositionInterval = interval; }
+    void setSnapPositionInterval(double interval);
     void setSnapRotationInterval(double interval) { m_snapRotationInterval = interval; }
     void setSnapScaleInterval(double interval) { m_snapScaleInterval = interval / 100.; }
+
+    Q_INVOKABLE QString snapPositionDragTooltip(const QVector3D &pos) const;
+    Q_INVOKABLE QString snapRotationDragTooltip(double angle) const;
+    Q_INVOKABLE QString snapScaleDragTooltip(const QVector3D &scale) const;
+
+    double minGridStep() const;
 
     void setBgColor(const QVariant &colors);
     QVariant bgColor() const { return m_bgColor; }
@@ -128,18 +142,31 @@ signals:
     void lockedStateChanged(QQuick3DNode *node);
     void rotationBlocksChanged();
     void bgColorChanged();
+    void minGridStepChanged();
+    void updateDragTooltip();
+    void sceneEnvDataChanged();
+
 private:
     void handlePendingToolStateUpdate();
     QVector3D pivotScenePosition(QQuick3DNode *node) const;
     bool getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVector3D &minBounds,
                    QVector3D &maxBounds);
+    QString formatVectorDragTooltip(const QVector3D &vec, const QString &suffix) const;
+    QString formatSnapStr(bool snapEnabled, double increment, const QString &suffix) const;
 
     QTimer m_overlayUpdateTimer;
     QTimer m_toolStateUpdateTimer;
     QHash<QString, QVariantMap> m_toolStates;
     QHash<QString, QVariantMap> m_toolStatesPending;
-    QHash<QString, QColor> m_sceneEnvironmentColor;
     QSet<QQuick3DNode *> m_rotationBlockedNodes;
+
+    struct SceneEnvData {
+        QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes backgroundMode;
+        QColor clearColor;
+        QPointer<QQuick3DTexture> lightProbe;
+        QPointer<QQuick3DCubeMapTexture> skyBoxCubeMap;
+    };
+    QHash<QString, SceneEnvData> m_sceneEnvironmentData;
 
     struct MultiSelData {
         QVector3D startScenePos;

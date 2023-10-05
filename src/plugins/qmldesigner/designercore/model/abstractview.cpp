@@ -8,12 +8,13 @@
 #include "internalnode_p.h"
 #include "model.h"
 #include "model_p.h"
+#include "modelutils.h"
 #include "nodeinstanceview.h"
 #include "nodelistproperty.h"
 #include "nodemetainfo.h"
+#include "qmldesignerconstants.h"
 #include "qmlstate.h"
 #include "qmltimeline.h"
-#include "qmldesignerconstants.h"
 #include "rewritertransaction.h"
 #include "variantproperty.h"
 
@@ -162,6 +163,8 @@ void AbstractView::modelAboutToBeDetached(Model *)
 {
     removeModel();
 }
+
+void AbstractView::refreshMetaInfos(const TypeIds &) {}
 
 /*!
     \enum QmlDesigner::AbstractView::PropertyChangeFlag
@@ -412,7 +415,7 @@ void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeLis
     QList<ModelNode> unlockedNodes;
 
     for (const auto &modelNode : selectedNodeList) {
-        if (!ModelNode::isThisOrAncestorLocked(modelNode))
+        if (!ModelUtils::isThisOrAncestorLocked(modelNode))
             unlockedNodes.push_back(modelNode);
     }
 
@@ -421,7 +424,7 @@ void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeLis
 
 void AbstractView::setSelectedModelNode(const ModelNode &modelNode)
 {
-    if (ModelNode::isThisOrAncestorLocked(modelNode)) {
+    if (ModelUtils::isThisOrAncestorLocked(modelNode)) {
         clearSelectedModelNodes();
         return;
     }

@@ -2,6 +2,7 @@ add_qtc_library(TestMocks OBJECT
   EXCLUDE_FROM_INSTALL
   PROPERTIES SKIP_AUTOGEN ON
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
+  INCLUDES ../../../../src/plugins/qmldesigner/components/componentcore
   DEPENDS
     Qt::Core Qt::Widgets Googletest Sqlite TestDesignerCore
   SOURCES
@@ -20,6 +21,7 @@ add_qtc_library(TestMocks OBJECT
     mocktimer.h
     mocktimestampprovider.h
     modelresourcemanagementmock.h
+    propertycomponentgeneratormock.h
     projectstoragemock.cpp
     projectstoragemock.h
     projectstoragepathwatchermock.h

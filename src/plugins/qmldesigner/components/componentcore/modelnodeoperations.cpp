@@ -521,13 +521,8 @@ void layoutFlowPositioner(const SelectionContext &selectionContext)
 void layoutRowLayout(const SelectionContext &selectionContext)
 {
     try {
-        if (DesignerMcuManager::instance().isMCUProject()) {
-            layoutHelperFunction(selectionContext, "QtQuick.Row", compareByX);
-        }
-        else {
-            LayoutInGridLayout::ensureLayoutImport(selectionContext);
-            layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
-        }
+        LayoutInGridLayout::ensureLayoutImport(selectionContext);
+        layoutHelperFunction(selectionContext, "QtQuick.Layouts.RowLayout", compareByX);
     } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }
@@ -536,13 +531,8 @@ void layoutRowLayout(const SelectionContext &selectionContext)
 void layoutColumnLayout(const SelectionContext &selectionContext)
 {
     try {
-        if (DesignerMcuManager::instance().isMCUProject()) {
-            layoutHelperFunction(selectionContext, "QtQuick.Column", compareByX);
-        }
-        else {
-            LayoutInGridLayout::ensureLayoutImport(selectionContext);
-            layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
-        }
+        LayoutInGridLayout::ensureLayoutImport(selectionContext);
+        layoutHelperFunction(selectionContext, "QtQuick.Layouts.ColumnLayout", compareByY);
     } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }
@@ -553,13 +543,8 @@ void layoutGridLayout(const SelectionContext &selectionContext)
     try {
         Q_ASSERT(!DesignerMcuManager::instance().isMCUProject()); //remove this line when grids are finally supported
 
-        if (DesignerMcuManager::instance().isMCUProject()) {
-            //qt for mcu doesn't support any grids yet
-        }
-        else {
-            LayoutInGridLayout::ensureLayoutImport(selectionContext);
-            LayoutInGridLayout::layout(selectionContext);
-        }
+        LayoutInGridLayout::ensureLayoutImport(selectionContext);
+        LayoutInGridLayout::layout(selectionContext);
     } catch (RewritingException &e) { //better safe than sorry
         e.showException();
     }

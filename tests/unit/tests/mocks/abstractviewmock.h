@@ -56,4 +56,5 @@ public:
                  AbstractView::PropertyChangeFlags propertyChange),
                 (override));
     MOCK_METHOD(void, nodeAboutToBeRemoved, (const QmlDesigner::ModelNode &removedNode), (override));
+    MOCK_METHOD(void, refreshMetaInfos, (const QmlDesigner::TypeIds &), (override));
 };

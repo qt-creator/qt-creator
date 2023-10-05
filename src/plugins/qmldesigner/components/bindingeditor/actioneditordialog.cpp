@@ -376,6 +376,47 @@ void ActionEditorDialog::updateComboBoxes([[maybe_unused]] int index, ComboBox t
     }
 }
 
+void ActionEditorDialog::showControls(bool show)
+{
+    if (m_comboBoxType)
+        m_comboBoxType->setVisible(show);
+
+    if (m_actionPlaceholder)
+        m_actionPlaceholder->setVisible(show);
+    if (m_assignmentPlaceholder)
+        m_assignmentPlaceholder->setVisible(show);
+
+    if (m_actionTargetItem)
+        m_actionTargetItem->setVisible(show);
+    if (m_actionMethod)
+        m_actionMethod->setVisible(show);
+
+    if (m_assignmentTargetItem)
+        m_assignmentTargetItem->setVisible(show);
+    if (m_assignmentTargetProperty)
+        m_assignmentTargetProperty->setVisible(show);
+    if (m_assignmentSourceItem)
+        m_assignmentSourceItem->setVisible(show);
+    if (m_assignmentSourceProperty)
+        m_assignmentSourceProperty->setVisible(show);
+
+    if (m_stackedLayout)
+        m_stackedLayout->setEnabled(show);
+    if (m_actionLayout)
+        m_actionLayout->setEnabled(show);
+    if (m_assignmentLayout)
+        m_assignmentLayout->setEnabled(show);
+
+    if (m_comboBoxLayout)
+        m_comboBoxLayout->setEnabled(show);
+}
+
+void ActionEditorDialog::setMultiline(bool multiline)
+{
+    if (m_editorWidget)
+        m_editorWidget->m_isMultiline = multiline;
+}
+
 void ActionEditorDialog::setupUIComponents()
 {
     m_comboBoxType = new QComboBox(this);

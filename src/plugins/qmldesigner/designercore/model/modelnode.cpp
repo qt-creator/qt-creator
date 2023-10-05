@@ -745,7 +745,7 @@ bool ModelNode::isRootNode() const
     if (!isValid())
         return false;
 
-    return view()->rootModelNode() == *this;
+    return m_model->d->rootNode() == m_internalNode;
 }
 
 /*! \brief returns the list of all property names
@@ -1143,7 +1143,7 @@ void ModelNode::removeAnnotation()
 Annotation ModelNode::globalAnnotation() const
 {
     Annotation result;
-    ModelNode root = view()->rootModelNode();
+    ModelNode root = m_model->rootModelNode();
 
     auto data = root.auxiliaryData(globalAnnotationProperty);
 
@@ -1155,24 +1155,24 @@ Annotation ModelNode::globalAnnotation() const
 
 bool ModelNode::hasGlobalAnnotation() const
 {
-    return view()->rootModelNode().hasAuxiliaryData(globalAnnotationProperty);
+    return m_model->rootModelNode().hasAuxiliaryData(globalAnnotationProperty);
 }
 
 void ModelNode::setGlobalAnnotation(const Annotation &annotation)
 {
-    view()->rootModelNode().setAuxiliaryData(globalAnnotationProperty,
-                                             QVariant::fromValue(annotation.toQString()));
+    m_model->rootModelNode().setAuxiliaryData(globalAnnotationProperty,
+                                              QVariant::fromValue(annotation.toQString()));
 }
 
 void ModelNode::removeGlobalAnnotation()
 {
-    view()->rootModelNode().removeAuxiliaryData(globalAnnotationProperty);
+    m_model->rootModelNode().removeAuxiliaryData(globalAnnotationProperty);
 }
 
 GlobalAnnotationStatus ModelNode::globalStatus() const
 {
     GlobalAnnotationStatus result;
-    ModelNode root = view()->rootModelNode();
+    ModelNode root = m_model->rootModelNode();
 
     auto data = root.auxiliaryData(globalAnnotationStatus);
 
@@ -1184,19 +1184,19 @@ GlobalAnnotationStatus ModelNode::globalStatus() const
 
 bool ModelNode::hasGlobalStatus() const
 {
-    return view()->rootModelNode().hasAuxiliaryData(globalAnnotationStatus);
+    return m_model->rootModelNode().hasAuxiliaryData(globalAnnotationStatus);
 }
 
 void ModelNode::setGlobalStatus(const GlobalAnnotationStatus &status)
 {
-    view()->rootModelNode().setAuxiliaryData(globalAnnotationStatus,
-                                             QVariant::fromValue(status.toQString()));
+    m_model->rootModelNode().setAuxiliaryData(globalAnnotationStatus,
+                                              QVariant::fromValue(status.toQString()));
 }
 
 void ModelNode::removeGlobalStatus()
 {
     if (hasGlobalStatus()) {
-        view()->rootModelNode().removeAuxiliaryData(globalAnnotationStatus);
+        m_model->rootModelNode().removeAuxiliaryData(globalAnnotationStatus);
     }
 }
 
@@ -1228,108 +1228,6 @@ void ModelNode::setLocked(bool value)
     } else {
         removeAuxiliaryData(lockedProperty);
     }
-}
-
-bool ModelNode::isThisOrAncestorLocked(const ModelNode &node)
-{
-    if (!node.isValid())
-        return false;
-
-    if (node.locked())
-        return true;
-
-    if (node.isRootNode() || !node.hasParentProperty())
-        return false;
-
-    return isThisOrAncestorLocked(node.parentProperty().parentModelNode());
-}
-
-/*!
- * \brief The lowest common ancestor node for node1 and node2. If one of the nodes (Node A) is
- * the ancestor of the other node, the return value is Node A and not the parent of Node A.
- * \param node1 First node
- * \param node2 Second node
- * \param depthOfLCA Depth of the return value
- * \param depthOfNode1 Depth of node1. Use this parameter for optimization
- * \param depthOfNode2 Depth of node2. Use this parameter for optimization
- */
-static ModelNode lowestCommonAncestor(const ModelNode &node1,
-                                      const ModelNode &node2,
-                                      int &depthOfLCA,
-                                      const int &depthOfNode1 = -1,
-                                      const int &depthOfNode2 = -1)
-{
-    Q_ASSERT(node1.isValid() && node2.isValid());
-
-    auto depthOfNode = [](const ModelNode &node) -> int {
-        int depth = 0;
-        ModelNode parentNode = node;
-        while (!parentNode.isRootNode()) {
-            depth++;
-            parentNode = parentNode.parentProperty().parentModelNode();
-        }
-        return depth;
-    };
-
-    if (node1 == node2) {
-        depthOfLCA = (depthOfNode1 < 0) ? ((depthOfNode2 < 0) ? depthOfNode(node1) : depthOfNode2)
-                                        : depthOfNode1;
-        return node1;
-    }
-
-    if (node1.isRootNode()) {
-        depthOfLCA = 0;
-        return node1;
-    }
-
-    if (node2.isRootNode()) {
-        depthOfLCA = 0;
-        return node2;
-    }
-
-    ModelNode nodeLower = node1;
-    ModelNode nodeHigher = node2;
-    int depthLower = (depthOfNode1 < 0) ? depthOfNode(nodeLower) : depthOfNode1;
-    int depthHigher = (depthOfNode2 < 0) ? depthOfNode(nodeHigher) : depthOfNode2;
-
-    if (depthLower > depthHigher) {
-        std::swap(depthLower, depthHigher);
-        std::swap(nodeLower, nodeHigher);
-    }
-
-    int depthDiff = depthHigher - depthLower;
-    while (depthDiff--)
-        nodeHigher = nodeHigher.parentProperty().parentModelNode();
-
-    while (nodeLower != nodeHigher) {
-        nodeLower = nodeLower.parentProperty().parentModelNode();
-        nodeHigher = nodeHigher.parentProperty().parentModelNode();
-        --depthLower;
-    }
-
-    depthOfLCA = depthLower;
-    return nodeLower;
-}
-
-/*!
- * \brief The lowest common node containing all nodes. If one of the nodes (Node A) is
- * the ancestor of the other nodes, the return value is Node A and not the parent of Node A.
- */
-ModelNode ModelNode::lowestCommonAncestor(const QList<ModelNode> &nodes)
-{
-    if (nodes.isEmpty())
-        return {};
-
-    ModelNode accumulatedNode = nodes.first();
-    int accumulatedNodeDepth = -1;
-    for (const ModelNode &node : Utils::span<const ModelNode>(nodes).subspan(1)) {
-        accumulatedNode = QmlDesigner::lowestCommonAncestor(accumulatedNode,
-                                                            node,
-                                                            accumulatedNodeDepth,
-                                                            accumulatedNodeDepth);
-    }
-
-    return accumulatedNode;
 }
 
 void ModelNode::setScriptFunctions(const QStringList &scriptFunctionList)

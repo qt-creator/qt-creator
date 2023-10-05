@@ -266,7 +266,7 @@ void QmlProjectPlugin::initialize()
     Utils::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
                                                          "qmlproject");
 
-    if (QmlProject::isQtDesignStudio()) {
+    if (Core::ICore::isQtDesignStudio()) {
         Core::ActionContainer *menu = Core::ActionManager::actionContainer(
             ProjectExplorer::Constants::M_FILECONTEXT);
         QAction *mainfileAction = new QAction(Tr::tr("Set as Main .qml File"), this);
@@ -355,7 +355,7 @@ void QmlProjectPlugin::initialize()
     }
 
     GenerateCmake::generateMenuEntry(this);
-    if (QmlProject::isQtDesignStudio())
+    if (Core::ICore::isQtDesignStudio())
         GenerateCmake::CmakeProjectConverter::generateMenuEntry(this);
 }
 

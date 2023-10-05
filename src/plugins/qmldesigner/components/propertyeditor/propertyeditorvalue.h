@@ -51,7 +51,7 @@ private:
     PropertyEditorValue *m_editorValue = nullptr;
 };
 
-class PropertyEditorValue : public QObject
+class QMLDESIGNERCORE_EXPORT PropertyEditorValue : public QObject
 {
     Q_OBJECT
 

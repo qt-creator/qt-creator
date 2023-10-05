@@ -65,6 +65,7 @@ QWidget *BackgroundAction::createWidget(QWidget *parent)
             this, &BackgroundAction::emitBackgroundChanged);
 
     comboBox->setProperty(Utils::StyleHelper::C_HIDE_BORDER, true);
+    comboBox->setProperty(Utils::StyleHelper::C_TOOLBAR_ACTIONWIDGET, true);
     comboBox->setToolTip(tr("Set the color of the canvas."));
     m_comboBox = comboBox;
     return comboBox;

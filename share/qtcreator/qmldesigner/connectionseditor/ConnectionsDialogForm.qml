@@ -11,7 +11,7 @@ Column {
     id: root
 
     readonly property real horizontalSpacing: 10
-    readonly property real verticalSpacing: 16
+    readonly property real verticalSpacing: 12
     readonly property real columnWidth: (root.width - root.horizontalSpacing) / 2
 
     property var backend
@@ -27,8 +27,17 @@ Column {
     Row {
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("Signal"); tooltip: qsTr("The name of the signal.") }
-        PopupLabel { text: qsTr("Action"); tooltip: qsTr("The type of the action.") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Signal")
+            tooltip: qsTr("Sets an interaction method that connects to the <b>Target</b> component.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("Action")
+            tooltip: qsTr("Sets an action that is associated with the selected <b>Target</b> component's <b>Signal</b>.")
+        }
     }
 
     Row {
@@ -57,22 +66,48 @@ Column {
             onIndexFromBackendChanged: action.currentIndex = action.indexFromBackend
             onActivated: backend.changeActionType(action.currentValue)
 
-            model: [
-                { value: ConnectionModelStatementDelegate.CallFunction, text: qsTr("Call Function") },
-                { value: ConnectionModelStatementDelegate.Assign, text: qsTr("Assign") },
-                { value: ConnectionModelStatementDelegate.ChangeState, text: qsTr("Change State") },
-                { value: ConnectionModelStatementDelegate.SetProperty, text: qsTr("Set Property") },
-                { value: ConnectionModelStatementDelegate.PrintMessage, text: qsTr("Print Message") },
-                { value: ConnectionModelStatementDelegate.Custom, text: qsTr("Unknown") }
-            ]
+            model: ListModel {
+                ListElement {
+                    value: ConnectionModelStatementDelegate.CallFunction
+                    text: qsTr("Call Function")
+                    enabled: true
+                }
+                ListElement {
+                    value: ConnectionModelStatementDelegate.Assign
+                    text: qsTr("Assign")
+                    enabled: true
+                }
+                ListElement {
+                    value: ConnectionModelStatementDelegate.ChangeState
+                    text: qsTr("Change State")
+                    enabled: true
+                }
+                ListElement {
+                    value: ConnectionModelStatementDelegate.SetProperty
+                    text: qsTr("Set Property")
+                    enabled: true
+                }
+                ListElement {
+                    value: ConnectionModelStatementDelegate.PrintMessage
+                    text: qsTr("Print Message")
+                    enabled: true
+                }
+                ListElement {
+                    value: ConnectionModelStatementDelegate.Custom
+                    text: qsTr("Custom")
+                    enabled: false
+                }
+            }
         }
     }
 
     StatementEditor {
+        width: root.width
         actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
         horizontalSpacing: root.horizontalSpacing
         columnWidth: root.columnWidth
         statement: backend.okStatement
+        backend: root.backend
         spacing: root.verticalSpacing
     }
 
@@ -80,6 +115,7 @@ Column {
         style: StudioTheme.Values.connectionPopupButtonStyle
         width: 160
         buttonIcon: qsTr("Add Condition")
+        tooltip: qsTr("Sets a logical condition for the selected <b>Signal</b>. It works with the properties of the <b>Target</b> component.")
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
@@ -92,6 +128,7 @@ Column {
         style: StudioTheme.Values.connectionPopupButtonStyle
         width: 160
         buttonIcon: qsTr("Remove Condition")
+        tooltip: qsTr("Removes the logical condition for the <b>Target</b> component.")
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
@@ -142,6 +179,7 @@ Column {
         style: StudioTheme.Values.connectionPopupButtonStyle
         width: 160
         buttonIcon: qsTr("Add Else Statement")
+        tooltip: qsTr("Sets an alternate condition for the previously defined logical condition.")
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
@@ -155,6 +193,7 @@ Column {
         style: StudioTheme.Values.connectionPopupButtonStyle
         width: 160
         buttonIcon: qsTr("Remove Else Statement")
+        tooltip: qsTr("Removes the alternate logical condition for the previously defined logical condition.")
         iconSize: StudioTheme.Values.baseFontSize
         iconFont: StudioTheme.Constants.font
         anchors.horizontalCenter: parent.horizontalCenter
@@ -166,13 +205,22 @@ Column {
 
     //Else Statement
     StatementEditor {
+        width: root.width
         actionType: action.currentValue ?? ConnectionModelStatementDelegate.Custom
         horizontalSpacing: root.horizontalSpacing
         columnWidth: root.columnWidth
         statement: backend.koStatement
+        backend: root.backend
         spacing: root.verticalSpacing
         visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
                  && backend.hasCondition && backend.hasElse
+    }
+
+    HelperWidgets.AbstractButton {
+        id: editorButton
+        buttonIcon: StudioTheme.Constants.codeEditor_medium
+        tooltip: qsTr("Write the conditions for the components and the signals manually.")
+        onClicked: expressionDialogLoader.show()
     }
 
     // Editor
@@ -180,28 +228,59 @@ Column {
         id: editor
         width: parent.width
         height: 150
-        color: StudioTheme.Values.themeToolbarBackground
+        color: StudioTheme.Values.themeConnectionCodeEditor
 
         Text {
-            width: parent.width - 8 // twice the editor button margins
-            anchors.centerIn: parent
-            text: backend.source
+            id: code
+            anchors.fill: parent
+            anchors.margins: 4
+            text: backend.indentedSource
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.myFontSize
-            wrapMode: Text.WordWrap
+            wrapMode: Text.Wrap
+            horizontalAlignment: code.lineCount === 1 ? Text.AlignHCenter : Text.AlignLeft
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+
         }
 
-        HelperWidgets.AbstractButton {
-            id: editorButton
+        Loader {
+            id: expressionDialogLoader
+            parent: editor
+            anchors.fill: parent
+            visible: false
+            active: visible
 
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.margins: 4
+            function show() {
+                expressionDialogLoader.visible = true
+            }
 
-            style: StudioTheme.Values.viewBarButtonStyle
-            buttonIcon: StudioTheme.Constants.edit_medium
-            tooltip: qsTr("Add something.")
-            onClicked: console.log("OPEN EDITOR")
+            sourceComponent: Item {
+                id: bindingEditorParent
+
+                Component.onCompleted: {
+                    bindingEditor.showWidget()
+                    bindingEditor.text = backend.source
+                    bindingEditor.showControls(false)
+                    bindingEditor.setMultilne(true)
+                    bindingEditor.updateWindowName()
+                }
+
+                ActionEditor {
+                    id: bindingEditor
+
+                    onRejected: {
+                        hideWidget()
+                        expressionDialogLoader.visible = false
+                    }
+
+                    onAccepted: {
+                        backend.setNewSource(bindingEditor.text)
+                        hideWidget()
+                        expressionDialogLoader.visible = false
+                    }
+                }
+            }
         }
     }
 }

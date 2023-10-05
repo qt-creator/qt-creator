@@ -68,6 +68,8 @@ Utils::UniqueObjectPtr<QToolBar> ToolBar::create()
 
     toolBar->setFloatable(false);
     toolBar->setMovable(false);
+    toolBar->setProperty("_q_custom_style_skipolish", true);
+    toolBar->setContentsMargins(0, 0, 0, 0);
 
     auto quickWidget = std::make_unique<StudioQuickWidget>();
 
