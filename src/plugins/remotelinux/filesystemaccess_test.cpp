@@ -33,7 +33,7 @@ static const char TEST_DIR[] = "/tmp/testdir";
 
 static const FilePath baseFilePath()
 {
-    return FilePath::fromString("ssh://" + SshTest::userAtHost() + QString(TEST_DIR));
+    return FilePath::fromString("ssh://" + SshTest::userAtHostAndPort() + QString(TEST_DIR));
 }
 
 TestLinuxDeviceFactory::TestLinuxDeviceFactory()
@@ -55,7 +55,7 @@ TestLinuxDeviceFactory::TestLinuxDeviceFactory()
 FilePath createFile(const QString &name)
 {
     FilePath testFilePath = baseFilePath() / name;
-    FilePath dummyFilePath = FilePath::fromString("ssh://" + SshTest::userAtHost() + "/dev/null");
+    FilePath dummyFilePath = FilePath::fromString("ssh://" + SshTest::userAtHostAndPort() + "/dev/null");
     dummyFilePath.copyFile(testFilePath);
     return testFilePath;
 }

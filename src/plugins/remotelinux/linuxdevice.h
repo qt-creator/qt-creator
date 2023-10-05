@@ -29,6 +29,7 @@ public:
     bool usableAsBuildDevice() const override;
 
     QString userAtHost() const;
+    QString userAtHostAndPort() const;
 
     Utils::FilePath rootPath() const override;
 

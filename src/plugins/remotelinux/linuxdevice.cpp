@@ -843,13 +843,14 @@ public:
                     << m_displaylessSshParameters.host());
         cmd.addArg("/bin/sh");
 
-        m_shell.reset(new LinuxDeviceShell(cmd, FilePath::fromString(QString("ssh://%1/").arg(parameters.userAtHost()))));
+        m_shell.reset(new LinuxDeviceShell(cmd,
+            FilePath::fromString(QString("ssh://%1/").arg(parameters.userAtHostAndPort()))));
         connect(m_shell.get(), &DeviceShell::done, this, [this] {
             m_shell.release()->deleteLater();
         });
         auto result = m_shell->start();
         if (!result) {
-            qCWarning(linuxDeviceLog) << "Failed to start shell for:" << parameters.userAtHost()
+            qCWarning(linuxDeviceLog) << "Failed to start shell for:" << parameters.userAtHostAndPort()
                                       << ", " << result.error();
         }
         return result.has_value();
@@ -1027,16 +1028,21 @@ QString LinuxDevice::userAtHost() const
     return sshParameters().userAtHost();
 }
 
+QString LinuxDevice::userAtHostAndPort() const
+{
+    return sshParameters().userAtHostAndPort();
+}
+
 FilePath LinuxDevice::rootPath() const
 {
-    return FilePath::fromParts(u"ssh", userAtHost(), u"/");
+    return FilePath::fromParts(u"ssh", userAtHostAndPort(), u"/");
 }
 
 bool LinuxDevice::handlesFile(const FilePath &filePath) const
 {
     if (filePath.scheme() == u"device" && filePath.host() == id().toString())
         return true;
-    if (filePath.scheme() == u"ssh" && filePath.host() == userAtHost())
+    if (filePath.scheme() == u"ssh" && filePath.host() == userAtHostAndPort())
         return true;
     return false;
 }
