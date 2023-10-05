@@ -53,6 +53,17 @@ MATCHER_P5(IsType,
            && type.traits == traits && type.sourceId == sourceId;
 }
 
+MATCHER_P(HasFlag, flag, std::string(negation ? "hasn't " : "has ") + PrintToString(flag))
+{
+    return bool(arg & flag);
+}
+
+template<typename Matcher>
+auto IsTypeTrait(const Matcher &matcher)
+{
+    return Field(&Synchronization::Type::traits, matcher);
+}
+
 MATCHER_P3(IsPropertyDeclaration,
            name,
            typeName,
@@ -738,6 +749,78 @@ TEST_F(QmlTypesParser, alias_enumeration_is_referenced_by_qualified_name)
                                    "colorSpace",
                                    Synchronization::ImportedType{"QObject::NamedColorSpaces"},
                                    QmlDesigner::Storage::PropertyDeclarationTraits::None)))));
+}
+
+TEST_F(QmlTypesParser, access_type_is_reference)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    accessSemantics: "reference"}})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraits::Reference)));
+}
+
+TEST_F(QmlTypesParser, access_type_is_value)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    accessSemantics: "value"}})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraits::Value)));
+}
+
+TEST_F(QmlTypesParser, access_type_is_sequence)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    accessSemantics: "sequence"}})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraits::Sequence)));
+}
+
+TEST_F(QmlTypesParser, access_type_is_none)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    accessSemantics: "none"}})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraits::None)));
+}
+
+TEST_F(QmlTypesParser, uses_custom_parser)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    hasCustomParser: true }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(HasFlag(Storage::TypeTraits::UsesCustomParser))));
+}
+
+TEST_F(QmlTypesParser, uses_no_custom_parser)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    hasCustomParser: false }})"};
+
+    parser.parse(source, imports, types, projectData);
+
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Not(HasFlag(Storage::TypeTraits::UsesCustomParser)))));
 }
 
 } // namespace

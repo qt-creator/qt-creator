@@ -27,7 +27,7 @@ Rectangle {
         Rectangle {
             id: toolbar
             width: parent.width
-            height: StudioTheme.Values.doubleToolbarHeight
+            height: StudioTheme.Values.toolbarHeight
             color: StudioTheme.Values.themeToolbarBackground
 
             Column {
@@ -38,13 +38,14 @@ Rectangle {
                 anchors.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
                 spacing: StudioTheme.Values.toolbarColumnSpacing
 
-                StudioControls.SearchBox {
-                    id: searchBox
-                    width: parent.width
-                    style: StudioTheme.Values.searchControlStyle
+                // Temporarily remove search until functionality is provided by backend
+                //StudioControls.SearchBox {
+                //    id: searchBox
+                //    width: parent.width
+                //    style: StudioTheme.Values.searchControlStyle
 
-                    onSearchChanged: function(searchText) {}
-                }
+                //    onSearchChanged: function(searchText) {}
+                //}
 
                 Row {
                     id: row
@@ -56,7 +57,7 @@ Rectangle {
                         id: connections
                         buttonIcon: StudioTheme.Constants.connections_medium
                         text: qsTr("Connections")
-                        tooltip: qsTr("This is a tooltip.")
+                        tooltip: qsTr("Sets logical connection between the components and the signals.")
                         checked: true
                         autoExclusive: true
                         checkable: true
@@ -66,7 +67,7 @@ Rectangle {
                         id: bindings
                         buttonIcon: StudioTheme.Constants.binding_medium
                         text: qsTr("Bindings")
-                        tooltip: qsTr("This is a tooltip.")
+                        tooltip: qsTr("Sets the relation between the properties of two components to bind them together.")
                         autoExclusive: true
                         checkable: true
                     }
@@ -75,7 +76,7 @@ Rectangle {
                         id: properties
                         buttonIcon: StudioTheme.Constants.properties_medium
                         text: qsTr("Properties")
-                        tooltip: qsTr("This is a tooltip.")
+                        tooltip: qsTr("Sets an additional property for the component.")
                         autoExclusive: true
                         checkable: true
                     }
@@ -91,14 +92,14 @@ Rectangle {
                         id: addButton
                         style: StudioTheme.Values.viewBarButtonStyle
                         buttonIcon: StudioTheme.Constants.add_medium
-                        tooltip: qsTr("Add something.")
+                        tooltip: qsTr("Adds a Connection, Binding, or Custom Property to the components.")
                         onClicked: {
                             if (connections.checked)
-                                ConnectionsEditorEditorBackend.connectionModel.add()
+                                connectionsListView.addConnection()
                             else if (bindings.checked)
-                                ConnectionsEditorEditorBackend.bindingModel.add()
+                                bindingsListView.addBinding()
                             else if (properties.checked)
-                                ConnectionsEditorEditorBackend.dynamicPropertiesModel.add()
+                                propertiesListView.addProperty()
                         }
                     }
                 }
@@ -106,6 +107,7 @@ Rectangle {
         }
 
         ConnectionsListView {
+            id: connectionsListView
             visible: connections.checked
             width: parent.width
             height: parent.height - toolbar.height - column.spacing
@@ -114,6 +116,7 @@ Rectangle {
         }
 
         BindingsListView {
+            id: bindingsListView
             visible: bindings.checked
             width: parent.width
             height: parent.height - toolbar.height - column.spacing
@@ -122,6 +125,7 @@ Rectangle {
         }
 
         PropertiesListView {
+            id: propertiesListView
             visible: properties.checked
             width: parent.width
             height: parent.height - toolbar.height - column.spacing

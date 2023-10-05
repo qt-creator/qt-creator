@@ -84,8 +84,9 @@ Item {
         Text {
             id: threeDots
 
-            text: "..."
-            font.pixelSize: StudioTheme.Values.baseFontSize
+            text: StudioTheme.Constants.more_medium
+            font.family: StudioTheme.Constants.iconFont.family
+            font.pixelSize: StudioTheme.Values.baseIconFontSize
             color: textColor
             anchors.right: boundingRect.right
             anchors.verticalCenter: parent.verticalCenter

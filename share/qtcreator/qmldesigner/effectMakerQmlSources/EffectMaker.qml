@@ -25,7 +25,7 @@ Item {
         }
 
         EffectMakerPreview {
-
+            mainRoot: root
         }
 
         Rectangle {

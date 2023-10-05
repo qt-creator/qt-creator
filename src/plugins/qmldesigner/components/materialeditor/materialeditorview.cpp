@@ -9,6 +9,7 @@
 #include "designdocument.h"
 #include "designmodewidget.h"
 #include "dynamicpropertiesmodel.h"
+#include "externaldependenciesinterface.h"
 #include "itemlibraryinfo.h"
 #include "materialeditorqmlbackend.h"
 #include "materialeditorcontextobject.h"
@@ -598,6 +599,7 @@ void MaterialEditorView::setupQmlBackend()
     currentQmlBackend->contextObject()->setHasMaterialLibrary(materialLibraryNode().isValid());
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     currentQmlBackend->contextObject()->setCurrentType(currentTypeName);
+    currentQmlBackend->contextObject()->setIsQt6Project(externalDependencies().isQt6Project());
 
     m_qmlBackEnd = currentQmlBackend;
 

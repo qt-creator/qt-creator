@@ -11,6 +11,10 @@ endif()
 add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,Clang>:-Wno-error=maybe-uninitialized>")
 add_compile_options("$<$<COMPILE_LANG_AND_ID:CXX,GNU>:-Wno-error=maybe-uninitialized>")
 
+env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
+option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
+add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
+
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
     Qt::Gui Utils Qt::QmlPrivate Core
@@ -64,7 +68,10 @@ add_qtc_library(QmlDesignerCore STATIC
     QmlDesignerUtils
     TextEditor
     Sqlite
-  DEFINES QMLDESIGNERCORE_LIBRARY QMLDESIGNERUTILS_LIBRARY
+  DEFINES
+     QMLDESIGNERCORE_LIBRARY
+     QMLDESIGNERUTILS_LIBRARY
+     $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}
   PUBLIC_INCLUDES
@@ -75,13 +82,6 @@ add_qtc_library(QmlDesignerCore STATIC
     rewritertransaction.cpp
     rewritertransaction.h
 )
-
-
-if(TARGET QmlDesignerCore)
-  env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
-  option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
-  add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
-endif()
 
 extend_qtc_library(QmlDesignerCore
     CONDITION ENABLE_COMPILE_WARNING_AS_ERROR
@@ -238,6 +238,7 @@ extend_qtc_library(QmlDesignerCore
     modelmerger.h
     modelnode.h
     modelnodepositionstorage.h
+    module.h
     nodeabstractproperty.h
     nodeinstance.h
     nodelistproperty.h
@@ -574,6 +575,9 @@ extend_qtc_plugin(QmlDesigner
     modelnodeoperations.cpp modelnodeoperations.h
     formatoperation.cpp formatoperation.h
     navigation2d.cpp navigation2d.h
+    propertyeditorcomponentgenerator.cpp propertyeditorcomponentgenerator.h
+    propertycomponentgenerator.cpp propertycomponentgenerator.h
+    propertycomponentgeneratorinterface.h
     qmldesignericonprovider.cpp qmldesignericonprovider.h
     qmleditormenu.cpp qmleditormenu.h
     selectioncontext.cpp selectioncontext.h
@@ -683,6 +687,7 @@ extend_qtc_plugin(QmlDesigner
     assetimportupdatetreemodel.cpp assetimportupdatetreemodel.h
     assetimportupdatetreeview.cpp assetimportupdatetreeview.h
     itemlibrary.qrc
+    itemlibraryconstants.h
     itemlibraryimageprovider.cpp itemlibraryimageprovider.h
     itemlibraryitem.cpp itemlibraryitem.h
     itemlibrarymodel.cpp itemlibrarymodel.h
@@ -707,24 +712,6 @@ extend_qtc_plugin(QmlDesigner
     assetslibrarywidget.cpp assetslibrarywidget.h
     assetslibrarymodel.cpp assetslibrarymodel.h
     assetslibraryiconprovider.cpp assetslibraryiconprovider.h
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/effectmaker
-  SOURCES
-    effectmakerwidget.cpp effectmakerwidget.h
-    effectmakerview.cpp effectmakerview.h
-    effectmakermodel.cpp effectmakermodel.h
-    effectmakernodesmodel.cpp effectmakernodesmodel.h
-    effectmakeruniformsmodel.cpp effectmakeruniformsmodel.h
-    effectnode.cpp effectnode.h
-    effectnodescategory.cpp effectnodescategory.h
-    compositionnode.cpp compositionnode.h
-    uniform.cpp uniform.h
-    effectutils.cpp effectutils.h
-    effectmakercontextobject.cpp effectmakercontextobject.h
-    shaderfeatures.cpp shaderfeatures.h
-    syntaxhighlighterdata.cpp syntaxhighlighterdata.h
 )
 
 extend_qtc_plugin(QmlDesigner
@@ -805,7 +792,9 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/collectioneditor
   SOURCES
-    collectionmodel.cpp collectionmodel.h
+    collectioneditorconstants.h
+    collectionlistmodel.cpp collectionlistmodel.h
+    collectionsourcemodel.cpp collectionsourcemodel.h
     collectionview.cpp collectionview.h
     collectionwidget.cpp collectionwidget.h
     singlecollectionmodel.cpp singlecollectionmodel.h
@@ -1214,4 +1203,3 @@ extend_qtc_plugin(qtquickplugin
       qtquickplugin.cpp qtquickplugin.h
       qtquickplugin.qrc
 )
-add_subdirectory(studioplugin)

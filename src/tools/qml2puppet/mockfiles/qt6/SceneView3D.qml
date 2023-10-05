@@ -15,6 +15,7 @@ View3D {
     property alias sceneHelpers: sceneHelpers
     property alias perspectiveCamera: scenePerspectiveCamera
     property alias orthoCamera: sceneOrthoCamera
+    property alias sceneEnv: sceneEnv
     property vector3d cameraLookAt
 
     // Measuring the distance from camera to lookAt plus the distance of lookAt from grid plane

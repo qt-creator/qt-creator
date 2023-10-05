@@ -82,14 +82,14 @@ Item {
                     spacing: 2
 
                     HelperWidgets.IconButton {
-                        icon: StudioTheme.Constants.translationImport
+                        icon: StudioTheme.Constants.downloadjson_large
                         tooltip: qsTr("Import Json")
 
                         onClicked: jsonImporter.open()
                     }
 
                     HelperWidgets.IconButton {
-                        icon: StudioTheme.Constants.translationImport
+                        icon: StudioTheme.Constants.downloadcsv_large
                         tooltip: qsTr("Import CSV")
 
                         onClicked: csvImporter.open()
@@ -112,13 +112,13 @@ Item {
                 }
 
                 ListView {
-                    id: collectionListView
+                    id: sourceListView
 
                     width: parent.width
                     height: contentHeight
                     model: root.model
 
-                    delegate: CollectionItem {
+                    delegate: ModelSourceItem {
                         onDeleteItem: root.model.removeRow(index)
                     }
 

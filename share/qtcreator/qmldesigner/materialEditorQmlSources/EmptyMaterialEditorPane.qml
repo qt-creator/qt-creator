@@ -35,7 +35,9 @@ PropertyEditorPane {
 
             Text {
                 text: {
-                    if (!hasQuick3DImport)
+                    if (!isQt6Project)
+                        qsTr("<b>Material Editor</b> is not supported in Qt5 projects.")
+                    else if (!hasQuick3DImport)
                         qsTr("To use <b>Material Editor</b>, first add the QtQuick3D module in the <b>Components</b> view.")
                     else if (!hasMaterialLibrary)
                         qsTr("<b>Material Editor</b> is disabled inside a non-visual component.")

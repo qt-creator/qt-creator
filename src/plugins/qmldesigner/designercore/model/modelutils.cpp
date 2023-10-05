@@ -4,6 +4,7 @@
 #include "modelutils.h"
 
 #include <abstractview.h>
+#include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/sourcepathcache.h>
@@ -160,6 +161,116 @@ QList<ModelNode> allModelNodesWithId(AbstractView *view)
     QTC_ASSERT(view->isAttached(), return {});
     return Utils::filtered(view->allModelNodes(),
                            [&](const ModelNode &node) { return node.hasId(); });
+}
+
+bool isThisOrAncestorLocked(const ModelNode &node)
+{
+    if (!node.isValid())
+        return false;
+
+    if (node.locked())
+        return true;
+
+    if (node.isRootNode() || !node.hasParentProperty())
+        return false;
+
+    return isThisOrAncestorLocked(node.parentProperty().parentModelNode());
+}
+
+/*!
+ * \brief The lowest common ancestor node for node1 and node2. If one of the nodes (Node A) is
+ * the ancestor of the other node, the return value is Node A and not the parent of Node A.
+ * \param node1 First node
+ * \param node2 Second node
+ * \param depthOfLCA Depth of the return value
+ * \param depthOfNode1 Depth of node1. Use this parameter for optimization
+ * \param depthOfNode2 Depth of node2. Use this parameter for optimization
+ */
+namespace {
+ModelNode lowestCommonAncestor(const ModelNode &node1,
+                               const ModelNode &node2,
+                               int &depthOfLCA,
+                               const int &depthOfNode1 = -1,
+                               const int &depthOfNode2 = -1)
+{
+    auto depthOfNode = [](const ModelNode &node) -> int {
+        int depth = 0;
+        ModelNode parentNode = node;
+        while (parentNode && !parentNode.isRootNode()) {
+            depth++;
+            parentNode = parentNode.parentProperty().parentModelNode();
+        }
+
+        return depth;
+    };
+
+    if (node1 == node2) {
+        depthOfLCA = (depthOfNode1 < 0) ? ((depthOfNode2 < 0) ? depthOfNode(node1) : depthOfNode2)
+                                        : depthOfNode1;
+        return node1;
+    }
+
+    if (node1.model() != node2.model()) {
+        depthOfLCA = -1;
+        return {};
+    }
+
+    if (node1.isRootNode()) {
+        depthOfLCA = 0;
+        return node1;
+    }
+
+    if (node2.isRootNode()) {
+        depthOfLCA = 0;
+        return node2;
+    }
+
+    ModelNode nodeLower = node1;
+    ModelNode nodeHigher = node2;
+    int depthLower = (depthOfNode1 < 0) ? depthOfNode(nodeLower) : depthOfNode1;
+    int depthHigher = (depthOfNode2 < 0) ? depthOfNode(nodeHigher) : depthOfNode2;
+
+    if (depthLower > depthHigher) {
+        std::swap(depthLower, depthHigher);
+        std::swap(nodeLower, nodeHigher);
+    }
+
+    int depthDiff = depthHigher - depthLower;
+    while (depthDiff--)
+        nodeHigher = nodeHigher.parentProperty().parentModelNode();
+
+    while (nodeLower != nodeHigher) {
+        nodeLower = nodeLower.parentProperty().parentModelNode();
+        nodeHigher = nodeHigher.parentProperty().parentModelNode();
+        --depthLower;
+    }
+
+    depthOfLCA = depthLower;
+    return nodeLower;
+}
+} // namespace
+
+/*!
+ * \brief The lowest common node containing all nodes. If one of the nodes (Node A) is
+ * the ancestor of the other nodes, the return value is Node A and not the parent of Node A.
+ */
+ModelNode lowestCommonAncestor(Utils::span<const ModelNode> nodes)
+{
+    if (nodes.empty())
+        return {};
+
+    ModelNode accumulatedNode = nodes.front();
+    int accumulatedNodeDepth = -1;
+    for (const ModelNode &node : nodes.subspan(1)) {
+        accumulatedNode = lowestCommonAncestor(accumulatedNode,
+                                               node,
+                                               accumulatedNodeDepth,
+                                               accumulatedNodeDepth);
+        if (!accumulatedNode)
+            return {};
+    }
+
+    return accumulatedNode;
 }
 
 } // namespace QmlDesigner::ModelUtils

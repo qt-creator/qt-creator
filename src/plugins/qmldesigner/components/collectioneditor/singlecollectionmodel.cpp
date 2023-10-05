@@ -3,31 +3,36 @@
 
 #include "singlecollectionmodel.h"
 
-#include "nodemetainfo.h"
+#include "collectioneditorconstants.h"
+#include "modelnode.h"
 #include "variantproperty.h"
 
 #include <utils/qtcassert.h>
 
-namespace {
-inline bool isListElement(const QmlDesigner::ModelNode &node)
-{
-    return node.metaInfo().isQtQuickListElement();
-}
+#include <QFile>
+#include <QJsonArray>
+#include <QJsonParseError>
 
-inline QByteArrayList getHeaders(const QByteArray &headersValue)
+namespace {
+
+QStringList getJsonHeaders(const QJsonArray &collectionArray)
 {
-    QByteArrayList result;
-    const QByteArrayList initialHeaders = headersValue.split(',');
-    for (QByteArray header : initialHeaders) {
-        header = header.trimmed();
-        if (header.size())
-            result.append(header);
+    QSet<QString> result;
+    for (const QJsonValue &value : collectionArray) {
+        if (value.isObject()) {
+            const QJsonObject object = value.toObject();
+            const QStringList headers = object.toVariantMap().keys();
+            for (const QString &header : headers)
+                result.insert(header);
+        }
     }
-    return result;
+
+    return result.values();
 }
 } // namespace
 
 namespace QmlDesigner {
+
 SingleCollectionModel::SingleCollectionModel(QObject *parent)
     : QAbstractTableModel(parent)
 {}
@@ -47,11 +52,11 @@ QVariant SingleCollectionModel::data(const QModelIndex &index, int) const
     if (!index.isValid())
         return {};
 
-    const QByteArray &propertyName = m_headers.at(index.column());
-    const ModelNode &elementNode = m_elements.at(index.row());
+    const QString &propertyName = m_headers.at(index.column());
+    const QJsonObject &elementNode = m_elements.at(index.row());
 
-    if (elementNode.hasVariantProperty(propertyName))
-        return elementNode.variantProperty(propertyName).value();
+    if (elementNode.contains(propertyName))
+        return elementNode.value(propertyName).toVariant();
 
     return {};
 }
@@ -79,32 +84,110 @@ QVariant SingleCollectionModel::headerData(int section,
     return {};
 }
 
-void SingleCollectionModel::setCollection(const ModelNode &collection)
+void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QString &collection)
+{
+    QString fileName = sourceNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toString();
+
+    if (sourceNode.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
+        loadJsonCollection(fileName, collection);
+    else if (sourceNode.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
+        loadCsvCollection(fileName, collection);
+}
+
+void SingleCollectionModel::loadJsonCollection(const QString &source, const QString &collection)
 {
     beginResetModel();
-    m_collectionNode = collection;
-    updateCollectionName();
+    setCollectionName(collection);
+    QFile sourceFile(source);
+    QJsonArray collectionNodes;
+    bool jsonFileIsOk = false;
+    if (sourceFile.open(QFile::ReadOnly)) {
+        QJsonParseError jpe;
+        QJsonDocument document = QJsonDocument::fromJson(sourceFile.readAll(), &jpe);
+        if (jpe.error == QJsonParseError::NoError) {
+            jsonFileIsOk = true;
+            if (document.isObject()) {
+                QJsonObject collectionMap = document.object();
+                if (collectionMap.contains(collection)) {
+                    QJsonValue collectionVal = collectionMap.value(collection);
+                    if (collectionVal.isArray())
+                        collectionNodes = collectionVal.toArray();
+                    else
+                        collectionNodes.append(collectionVal);
+                }
+            }
+        }
+    }
 
-    QTC_ASSERT(collection.isValid() && collection.hasVariantProperty("headers"), {
+    setCollectionSourceFormat(jsonFileIsOk ? SourceFormat::Json : SourceFormat::Unknown);
+
+    if (collectionNodes.isEmpty()) {
         m_headers.clear();
         m_elements.clear();
         endResetModel();
         return;
-    });
+    }
 
-    m_headers = getHeaders(collection.variantProperty("headers").value().toByteArray());
-    m_elements = Utils::filtered(collection.allSubModelNodes(), &isListElement);
+    m_headers = getJsonHeaders(collectionNodes);
+
+    m_elements.clear();
+    for (const QJsonValue &value : std::as_const(collectionNodes)) {
+        if (value.isObject()) {
+            QJsonObject object = value.toObject();
+            m_elements.append(object);
+        }
+    }
+
     endResetModel();
 }
 
-void SingleCollectionModel::updateCollectionName()
+void SingleCollectionModel::loadCsvCollection(const QString &source, const QString &collectionName)
 {
-    QString newCollectionName = m_collectionNode.isValid()
-                                    ? m_collectionNode.variantProperty("objectName").value().toString()
-                                    : "";
+    beginResetModel();
+
+    setCollectionName(collectionName);
+    QFile sourceFile(source);
+    m_headers.clear();
+    m_elements.clear();
+    bool csvFileIsOk = false;
+
+    if (sourceFile.open(QFile::ReadOnly)) {
+        QTextStream stream(&sourceFile);
+
+        if (!stream.atEnd())
+            m_headers = stream.readLine().split(',');
+
+        if (!m_headers.isEmpty()) {
+            while (!stream.atEnd()) {
+                const QStringList recordDataList = stream.readLine().split(',');
+                int column = -1;
+                QJsonObject recordData;
+                for (const QString &cellData : recordDataList) {
+                    if (++column == m_headers.size())
+                        break;
+                    recordData.insert(m_headers.at(column), cellData);
+                }
+                if (recordData.count())
+                    m_elements.append(recordData);
+            }
+            csvFileIsOk = true;
+        }
+    }
+
+    setCollectionSourceFormat(csvFileIsOk ? SourceFormat::Csv : SourceFormat::Unknown);
+    endResetModel();
+}
+
+void SingleCollectionModel::setCollectionName(const QString &newCollectionName)
+{
     if (m_collectionName != newCollectionName) {
         m_collectionName = newCollectionName;
         emit this->collectionNameChanged(m_collectionName);
     }
+}
+
+void SingleCollectionModel::setCollectionSourceFormat(SourceFormat sourceFormat)
+{
+    m_sourceFormat = sourceFormat;
 }
 } // namespace QmlDesigner

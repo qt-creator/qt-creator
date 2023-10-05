@@ -217,24 +217,6 @@ Column {
             }
 
             PropertyLabel {
-                text: qsTr("Smooth")
-                tooltip: qsTr("Toggles if the image should be filtered smoothly when transformed.")
-                blockedByTemplate: !backendValues.smooth.isAvailable
-            }
-
-            SecondColumnLayout {
-                CheckBox {
-                    text: backendValues.smooth.valueToString
-                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                                   + StudioTheme.Values.actionIndicatorWidth
-                    backendValue: backendValues.smooth
-                    enabled: backendValue.isAvailable
-                }
-
-                ExpandingSpacer {}
-            }
-
-            PropertyLabel {
                 text: qsTr("Cache")
                 tooltip: qsTr("Toggles if the image is saved to the cache memory.")
                 blockedByTemplate: !backendValues.cache.isAvailable

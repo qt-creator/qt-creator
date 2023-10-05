@@ -83,18 +83,68 @@ void ActionEditor::hideWidget()
     }
 }
 
+void ActionEditor::showControls(bool show)
+{
+    if (m_dialog)
+        m_dialog->showControls(show);
+}
+
+void QmlDesigner::ActionEditor::setMultilne(bool multiline)
+{
+    if (m_dialog)
+        m_dialog->setMultiline(multiline);
+}
+
 QString ActionEditor::connectionValue() const
 {
     if (!m_dialog)
         return {};
 
-    return m_dialog->editorValue();
+    QString value = m_dialog->editorValue().trimmed();
+
+    //using parsed qml for unenclosed multistring (QDS-10681)
+    const QString testingString = QString("Item { \n"
+                                          " onWidthChanged: %1 \n"
+                                          "}")
+                                      .arg(value);
+
+    QmlJS::Document::MutablePtr firstAttemptDoc = QmlJS::Document::create({},
+                                                                          QmlJS::Dialect::QmlQtQuick2);
+    firstAttemptDoc->setSource(testingString);
+    firstAttemptDoc->parseQml();
+
+    if (!firstAttemptDoc->isParsedCorrectly()) {
+        const QString testingString2 = QString("Item { \n"
+                                               " onWidthChanged: { \n"
+                                               "  %1 \n"
+                                               " } \n"
+                                               "} \n")
+                                           .arg(value);
+
+        QmlJS::Document::MutablePtr secondAttemptDoc = QmlJS::Document::create({},
+                                                                               QmlJS::Dialect::QmlQtQuick2);
+        secondAttemptDoc->setSource(testingString2);
+        secondAttemptDoc->parseQml();
+
+        if (secondAttemptDoc->isParsedCorrectly())
+            return QString("{\n%1\n}").arg(value);
+    }
+
+    return value;
 }
 
 void ActionEditor::setConnectionValue(const QString &text)
 {
     if (m_dialog)
         m_dialog->setEditorValue(text);
+}
+
+QString ActionEditor::rawConnectionValue() const
+{
+    if (!m_dialog)
+        return {};
+
+    return m_dialog->editorValue();
 }
 
 bool ActionEditor::hasModelIndex() const

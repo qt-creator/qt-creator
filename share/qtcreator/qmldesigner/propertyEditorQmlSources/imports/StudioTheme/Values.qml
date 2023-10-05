@@ -99,7 +99,8 @@ QtObject {
     property real inputHorizontalPadding: Math.round(6 * values.scaleFactor)
     property real typeLabelVerticalShift: Math.round(6 * values.scaleFactor)
 
-    property real scrollBarThickness: 10
+    property real scrollBarThickness: 8
+    property real scrollBarThicknessHover: 10
     property real scrollBarActivePadding: 1
     property real scrollBarInactivePadding: 2
 
@@ -221,7 +222,7 @@ QtObject {
     property real colorEditorPopupSpinBoxWidth: 54
 
     // Popup Window
-    property real titleBarHeight: values.height + 10
+    property real titleBarHeight: values.height + 20
     property real popupMargin: 10
 
     // Toolbar
@@ -339,6 +340,7 @@ QtObject {
     // Panels & Panes
     property color themeBackgroundColorNormal: Theme.color(Theme.DSBackgroundColorNormal)
     property color themeBackgroundColorAlternate: Theme.color(Theme.DSBackgroundColorAlternate)
+    property color themeConnectionCodeEditor: Theme.color(Theme.DSconnectionCodeEditor)
 
     // Text colors
     property color themeTextColor: Theme.color(Theme.DStextColor)
@@ -442,8 +444,20 @@ QtObject {
     property color themeDialogOutline: values.themeInteraction
 
     // Expression Builder
-    property color themePillBackground: Theme.color(Theme.DSdockWidgetSplitter)
+    property color themePillDefaultBackgroundIdle: Theme.color(Theme.DSpillDefaultBackgroundIdle)
+    property color themePillDefaultBackgroundHover: Theme.color(Theme.DSpillDefaultBackgroundHover)
+    property color themePillOperatorBackgroundIdle: Theme.color(Theme.DSpillOperatorBackgroundIdle)
+    property color themePillOperatorBackgroundHover: Theme.color(Theme.DSpillOperatorBackgroundHover)
+    property color themePillLiteralBackgroundIdle: Theme.color(Theme.DSpillLiteralBackgroundIdle)
+    property color themePillLiteralBackgroundHover: Theme.color(Theme.DSpillLiteralBackgroundHover)
 
+    property color themePillShadowBackground: values.themeInteraction
+
+    property color themePillOutline: "#ffffffff"
+
+    property color themePillText: Theme.color(Theme.DSpillText)
+    property color themePillTextSelected: Theme.color(Theme.DSpillTextSelected)
+    property color themePillTextEdit: Theme.color(Theme.DspillTextEdit)
 
     // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}
@@ -458,4 +472,5 @@ QtObject {
     property ControlStyle statusbarControlStyle: StatusBarControlStyle {}
     property ControlStyle statesControlStyle: StatesControlStyle {}
     property ControlStyle searchControlStyle: SearchControlStyle {}
+    property ControlStyle viewStyle: ViewStyle {}
 }

@@ -58,6 +58,8 @@ public:
 
     QPalette standardPalette() const override;
 
+    void polish(QWidget *widget) override;
+
 private:
     void drawQmlEditorIcon(PrimitiveElement element,
                            const QStyleOption *option,

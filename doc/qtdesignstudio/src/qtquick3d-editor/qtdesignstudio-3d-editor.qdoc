@@ -239,15 +239,22 @@
 
     \section2 Configuring Snapping
 
-    To edit snapping settings, select \inlineimage icons/snapping-3d-conf.png
-    in the \uicontrol 3D view toolbar.
+    To edit the snapping settings, select \inlineimage icons/snapping-3d-conf.png
+    in the \uicontrol 3D view toolbar to open the configure dialog.
 
     In the configure dialog, you can do the following:
     \list
-      \li Turn on and off snapping separately for the different transformations
+      \li Turn snapping on and off separately for the different transformations
       (move, rotate, scale).
-      \li Set snap intervals.
-      \li Toggle if the position snaps to absolute or relative values.
+      \li Set snap intervals for the transformations.
+      \note Changing the snap interval for the position also changes the grid line intervals.
+      \note All the grid lines might not be visible depending on the zoom level in the 3D view.
+      \li Select \uicontrol {Absolute Position} to snap to absolute values. Clear the checkbox
+       to use relative values.The absolute snapping aligns the object with the grid, while the
+       relative snapping moves the object in fixed intervals without changing its alignment.
+       For example, if you have an object that is slightly off the grid and you want to snap it
+       to the grid, use the absolute snapping. If you want to move the object by a certain
+       distance without affecting its orientation, use the relative snapping.
     \endlist
 
     \section1 Aligning Views and Cameras

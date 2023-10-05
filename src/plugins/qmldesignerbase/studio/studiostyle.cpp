@@ -594,10 +594,7 @@ void StudioStyle::drawComplexControl(
         }
     } break;
     case CC_ComboBox: {
-        if (QWidget *parentWidget = widget->parentWidget()) {
-            QBrush bgColor = parentWidget->palette().brush(parentWidget->backgroundRole());
-            painter->fillRect(option->rect, bgColor);
-        }
+        painter->fillRect(option->rect, standardPalette().brush(QPalette::ColorRole::Base));
         Super::drawComplexControl(control, option, painter, widget);
     } break;
 
@@ -1134,6 +1131,13 @@ int StudioStyle::pixelMetric(
 QPalette StudioStyle::standardPalette() const
 {
     return d->stdPalette;
+}
+
+void StudioStyle::polish(QWidget *widget)
+{
+    if (widget && widget->property("_q_custom_style_skipolish").toBool())
+        return;
+    Super::polish(widget);
 }
 
 void StudioStyle::drawQmlEditorIcon(

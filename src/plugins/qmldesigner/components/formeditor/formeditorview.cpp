@@ -652,9 +652,8 @@ void FormEditorView::auxiliaryDataChanged(const ModelNode &node,
             editorItem->setFrameColor(data.value<QColor>());
     }
 
-    if (key == contextImageProperty) {
+    if (key == contextImageProperty && !Qml3DNode::isValidVisualRoot(rootModelNode()))
         m_formEditorWidget->setBackgoundImage(data.value<QImage>());
-    }
 }
 
 static void updateTransitions(FormEditorScene *scene, const QmlItemNode &qmlItemNode)

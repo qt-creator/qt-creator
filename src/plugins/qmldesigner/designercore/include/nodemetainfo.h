@@ -197,6 +197,7 @@ public:
     bool isVector3D() const;
     bool isVector4D() const;
     bool isView() const;
+    bool usesCustomParser() const;
 
     bool isEnumeration() const;
     QString importDirectoryPath() const;

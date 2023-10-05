@@ -12,10 +12,11 @@
 #include "qproxystyle.h"
 
 #include <metainfo.h>
+#include <model/modelutils.h>
 #include <modelnodecontextmenu.h>
+#include <theme.h>
 #include <qmldesignerconstants.h>
 #include <qmlobjectnode.h>
-#include <theme.h>
 
 #include <coreplugin/messagebox.h>
 #include <utils/qtcassert.h>
@@ -212,7 +213,7 @@ void NameItemDelegate::paint(QPainter *painter,
     }
 
     ModelNode node = getModelNode(modelIndex);
-    if (!ModelNode::isThisOrAncestorLocked(node)) {
+    if (!ModelUtils::isThisOrAncestorLocked(node)) {
         NavigatorWidget *widget = qobject_cast<NavigatorWidget *>(styleOption.widget->parent());
         if (widget && !widget->dragType().isEmpty()) {
             QByteArray dragType = widget->dragType();

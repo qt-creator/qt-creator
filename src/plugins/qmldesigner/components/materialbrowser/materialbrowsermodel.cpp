@@ -187,6 +187,20 @@ void MaterialBrowserModel::setHasMaterialLibrary(bool b)
     emit hasMaterialLibraryChanged();
 }
 
+bool MaterialBrowserModel::isQt6Project() const
+{
+    return m_isQt6Project;
+}
+
+void MaterialBrowserModel::setIsQt6Project(bool b)
+{
+    if (m_isQt6Project == b)
+        return;
+
+    m_isQt6Project = b;
+    emit isQt6ProjectChanged();
+}
+
 QString MaterialBrowserModel::copiedMaterialType() const
 {
     return m_copiedMaterialType;

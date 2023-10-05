@@ -7,6 +7,7 @@ add_qtc_library(TestMatchers OBJECT
   SOURCES
     info_exportedtypenames-matcher.h
     import-matcher.h
+    strippedstring-matcher.h
     unittest-matchers.h
     version-matcher.h
     qvariant-matcher.h

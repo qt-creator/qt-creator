@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "itemlibraryaddimportmodel.h"
+#include "itemlibraryconstants.h"
 
 #include <designermcumanager.h>
 #include <utils/algorithm.h>
@@ -56,6 +57,14 @@ QHash<int, QByteArray> ItemLibraryAddImportModel::roleNames() const
     return m_roleNames;
 }
 
+namespace {
+bool isPriorityImport(QStringView importUrl)
+{
+    return std::find(std::begin(priorityImports), std::end(priorityImports), importUrl)
+           != std::end(priorityImports);
+}
+} // namespace
+
 void ItemLibraryAddImportModel::update(const Imports &possibleImports)
 {
     beginResetModel();
@@ -77,7 +86,7 @@ void ItemLibraryAddImportModel::update(const Imports &possibleImports)
         filteredImports = possibleImports;
     }
 
-    Utils::sort(filteredImports, [this](const Import &firstImport, const Import &secondImport) {
+    Utils::sort(filteredImports, [](const Import &firstImport, const Import &secondImport) {
         if (firstImport.url() == secondImport.url())
             return firstImport.toString() < secondImport.toString();
 
@@ -87,8 +96,8 @@ void ItemLibraryAddImportModel::update(const Imports &possibleImports)
         if (secondImport.url() == "QtQuick")
             return false;
 
-        const bool firstPriority = m_priorityImports.contains(firstImport.url());
-        if (firstPriority != m_priorityImports.contains(secondImport.url()))
+        const bool firstPriority = isPriorityImport(firstImport.url());
+        if (firstPriority != isPriorityImport(secondImport.url()))
             return firstPriority;
 
         if (firstImport.isLibraryImport() && secondImport.isFileImport())
@@ -109,11 +118,11 @@ void ItemLibraryAddImportModel::update(const Imports &possibleImports)
     // create import sections
     bool previousIsPriority = false;
     for (const Import &import : std::as_const(filteredImports)) {
-            bool currentIsPriority = m_priorityImports.contains(import.url());
-            if (previousIsPriority && !currentIsPriority)
-                m_importList.append(Import::empty()); // empty import acts as a separator
-            m_importList.append(import);
-            previousIsPriority = currentIsPriority;
+        bool currentIsPriority = isPriorityImport(import.url());
+        if (previousIsPriority && !currentIsPriority)
+            m_importList.append(Import::empty()); // empty import acts as a separator
+        m_importList.append(import);
+        previousIsPriority = currentIsPriority;
     }
 
     endResetModel();
@@ -149,11 +158,6 @@ void ItemLibraryAddImportModel::setSearchText(const QString &searchText)
 Import ItemLibraryAddImportModel::getImportAt(int index) const
 {
     return m_importList.at(index);
-}
-
-void ItemLibraryAddImportModel::setPriorityImports(const QSet<QString> &priorityImports)
-{
-    m_priorityImports = priorityImports;
 }
 
 } // namespace QmlDesigner

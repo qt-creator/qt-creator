@@ -82,6 +82,9 @@ ModelPrivate::ModelPrivate(Model *model,
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
+
+    if constexpr (useProjectStorage())
+        projectStorage->addRefreshCallback(&m_metaInfoRefreshCallback);
 }
 
 ModelPrivate::ModelPrivate(Model *model,
@@ -103,6 +106,9 @@ ModelPrivate::ModelPrivate(Model *model,
 
     m_currentStateNode = m_rootInternalNode;
     m_currentTimelineNode = m_rootInternalNode;
+
+    if constexpr (useProjectStorage())
+        projectStorage->addRefreshCallback(&m_metaInfoRefreshCallback);
 }
 
 ModelPrivate::ModelPrivate(Model *model,
@@ -123,10 +129,17 @@ ModelPrivate::ModelPrivate(Model *model,
     m_currentTimelineNode = m_rootInternalNode;
 }
 
-ModelPrivate::~ModelPrivate() = default;
+ModelPrivate::~ModelPrivate()
+{
+    if constexpr (useProjectStorage())
+        projectStorage->removeRefreshCallback(&m_metaInfoRefreshCallback);
+};
 
 void ModelPrivate::detachAllViews()
 {
+    if constexpr (useProjectStorage())
+        projectStorage->removeRefreshCallback(&m_metaInfoRefreshCallback);
+
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         detachView(view.data(), true);
 
@@ -379,6 +392,11 @@ void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName
         node->importedTypeNameId = importedTypeNameId(typeName);
         node->typeId = projectStorage->typeId(node->importedTypeNameId);
     }
+}
+
+void ModelPrivate::emitRefreshMetaInfos(const TypeIds &deletedTypeIds)
+{
+    notifyNodeInstanceViewLast([&](AbstractView *view) { view->refreshMetaInfos(deletedTypeIds); });
 }
 
 void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
@@ -2071,6 +2089,16 @@ NodeMetaInfo Model::boolMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::doubleMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QML, DoubleType>();
+    } else {
+        return metaInfo("QML.double");
+    }
+}
+
 template<const auto &moduleName, const auto &typeName>
 NodeMetaInfo Model::createNodeMetaInfo() const
 {
@@ -2422,12 +2450,31 @@ NodeMetaInfo Model::metaInfo(const TypeName &typeName, int majorVersion, int min
     }
 }
 
+NodeMetaInfo Model::metaInfo(Module module, Utils::SmallStringView typeName, Storage::Version version) const
+{
+    if constexpr (useProjectStorage()) {
+        return NodeMetaInfo(d->projectStorage->typeId(module.id(), typeName, version),
+                            d->projectStorage);
+    } else {
+        return {};
+    }
+}
+
 /*!
   \brief Returns list of QML types available within the model.
   */
 MetaInfo Model::metaInfo()
 {
     return d->metaInfo();
+}
+
+Module Model::module(Utils::SmallStringView moduleName)
+{
+    if constexpr (useProjectStorage()) {
+        return Module(d->projectStorage->moduleId(moduleName), d->projectStorage);
+    }
+
+    return {};
 }
 
 /*! \name View related functions

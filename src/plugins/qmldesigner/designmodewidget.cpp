@@ -34,6 +34,8 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/inavigationwidgetfactory.h>
 
+#include <qmlprojectmanager/qmlproject.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -95,7 +97,7 @@ DesignModeWidget::DesignModeWidget()
     , m_crumbleBar(new CrumbleBar(this))
 {
     setAcceptDrops(true);
-    if (Utils::StyleHelper::isQDSTheme())
+    if (Utils::StyleHelper::isQDSTheme() || Core::ICore::isQtDesignStudio())
         qApp->setStyle(QmlDesignerBasePlugin::style());
 }
 

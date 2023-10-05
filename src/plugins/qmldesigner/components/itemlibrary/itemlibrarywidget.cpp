@@ -3,6 +3,7 @@
 
 #include "itemlibrarywidget.h"
 
+#include "itemlibraryconstants.h"
 #include "itemlibraryiconimageprovider.h"
 #include "itemlibraryimport.h"
 
@@ -183,16 +184,11 @@ void ItemLibraryWidget::setItemLibraryInfo(ItemLibraryInfo *itemLibraryInfo)
     if (m_itemLibraryInfo) {
         disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
                    this, &ItemLibraryWidget::delayedUpdateModel);
-        disconnect(m_itemLibraryInfo.data(), &ItemLibraryInfo::priorityImportsChanged,
-                   this, &ItemLibraryWidget::handlePriorityImportsChanged);
     }
     m_itemLibraryInfo = itemLibraryInfo;
     if (itemLibraryInfo) {
         connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::entriesChanged,
                 this, &ItemLibraryWidget::delayedUpdateModel);
-        connect(m_itemLibraryInfo.data(), &ItemLibraryInfo::priorityImportsChanged,
-                this, &ItemLibraryWidget::handlePriorityImportsChanged);
-        m_addModuleModel->setPriorityImports(m_itemLibraryInfo->priorityImports());
     }
     delayedUpdateModel();
 }
@@ -352,14 +348,6 @@ void ItemLibraryWidget::updateSearch()
     m_itemLibraryModel->setSearchText(m_filterText);
     m_itemsWidget->update();
     m_addModuleModel->setSearchText(m_filterText);
-}
-
-void ItemLibraryWidget::handlePriorityImportsChanged()
-{
-    if (!m_itemLibraryInfo.isNull()) {
-        m_addModuleModel->setPriorityImports(m_itemLibraryInfo->priorityImports());
-        m_addModuleModel->update(set_difference(m_model->possibleImports(), m_model->imports()));
-    }
 }
 
 void ItemLibraryWidget::setIsDragging(bool val)

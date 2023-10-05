@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "connectioneditorutils.h"
 
-#include <QtCore/qvariant.h>
 #include <abstractproperty.h>
 #include <abstractview.h>
 #include <bindingproperty.h>
@@ -58,61 +57,66 @@ PropertyName uniquePropertyName(const PropertyName &suggestion, const ModelNode 
     return {};
 }
 
-NodeMetaInfo dynamicTypeMetaInfo(const AbstractProperty& property)
+NodeMetaInfo dynamicTypeNameToNodeMetaInfo(const TypeName &typeName, Model *model)
 {
     // Note: Uses old mechanism to create the NodeMetaInfo and supports
     // only types we care about in the connection editor.
     // TODO: Support all possible AbstractProperty types and move to the
     // AbstractProperty class.
-    if (property.dynamicTypeName() == "bool")
-        return property.model()->boolMetaInfo();
-    else if (property.dynamicTypeName() == "int")
-        return property.model()->metaInfo("QML.int");
-    else if (property.dynamicTypeName() == "real")
-        return property.model()->metaInfo("QML.real");
-    else if (property.dynamicTypeName() == "color")
-        return property.model()->metaInfo("QML.color");
-    else if (property.dynamicTypeName() == "string")
-        return property.model()->metaInfo("QML.string");
-    else if (property.dynamicTypeName() == "url")
-        return property.model()->metaInfo("QML.url");
-    else if (property.dynamicTypeName() == "variant")
-        return property.model()->metaInfo("QML.variant");
+    if (typeName == "bool")
+        return model->boolMetaInfo();
+    else if (typeName == "int")
+        return model->metaInfo("QML.int");
+    else if (typeName == "real")
+        return model->metaInfo("QML.real");
+    else if (typeName == "color")
+        return model->metaInfo("QML.color");
+    else if (typeName == "string")
+        return model->metaInfo("QML.string");
+    else if (typeName == "url")
+        return model->metaInfo("QML.url");
+    else if (typeName == "variant")
+        return model->metaInfo("QML.variant");
     else
-        qWarning() << __FUNCTION__ << " type " << property.dynamicTypeName() << "not found";
-    return { };
+        qWarning() << __FUNCTION__ << " type " << typeName << "not found";
+    return {};
 }
 
-bool metaInfoIsCompatibleUnsafe(const NodeMetaInfo &sourceType, const NodeMetaInfo &targetType)
+NodeMetaInfo dynamicTypeMetaInfo(const AbstractProperty &property)
 {
-    if (sourceType.isVariant())
+    return dynamicTypeNameToNodeMetaInfo(property.dynamicTypeName(), property.model());
+}
+
+bool metaInfoIsCompatibleUnsafe(const NodeMetaInfo &target, const NodeMetaInfo &source)
+{
+    if (target.isVariant())
         return true;
 
-    if (sourceType.isBool() && targetType.isBool())
+    if (target == source)
         return true;
 
-    if (sourceType == targetType)
+    if (target.isBool() && source.isBool())
         return true;
 
-    if (sourceType.isNumber() && targetType.isNumber())
+    if (target.isNumber() && source.isNumber())
         return true;
 
-    if (sourceType.isString() && targetType.isString())
+    if (target.isString() && source.isString())
         return true;
 
-    if (sourceType.isUrl() && targetType.isUrl())
+    if (target.isUrl() && source.isUrl())
         return true;
 
-    if (sourceType.isColor() && targetType.isColor())
+    if (target.isColor() && source.isColor())
         return true;
 
     return false;
 }
 
-bool metaInfoIsCompatible(const NodeMetaInfo &sourceType, const PropertyMetaInfo &metaInfo)
+bool metaInfoIsCompatible(const NodeMetaInfo &targetType, const PropertyMetaInfo &sourceInfo)
 {
-    NodeMetaInfo targetType = metaInfo.propertyType();
-    return metaInfoIsCompatibleUnsafe(sourceType, targetType);
+    NodeMetaInfo sourceType = sourceInfo.propertyType();
+    return metaInfoIsCompatibleUnsafe(targetType, sourceType);
 }
 
 QVariant typeConvertVariant(const QVariant &variant, const QmlDesigner::TypeName &typeName)
@@ -194,7 +198,7 @@ void convertBindingToVariantProperty(const BindingProperty &property, const QVar
     convertPropertyType(property, value);
 }
 
-bool isBindingExpression(const QVariant& value)
+bool isBindingExpression(const QVariant &value)
 {
     if (value.metaType().id() != QMetaType::QString)
         return false;
@@ -250,11 +254,30 @@ QString defaultExpressionForType(const TypeName &type)
     return expression;
 }
 
+std::pair<QString, QString> splitExpression(const QString &expression)
+{
+    // ### Todo from original code (getExpressionStrings):
+    //      We assume no expressions yet
+    const QStringList stringList = expression.split(QLatin1String("."));
+
+    QString sourceNode = stringList.constFirst();
+    QString propertyName;
+    for (int i = 1; i < stringList.size(); ++i) {
+        propertyName += stringList.at(i);
+        if (i != stringList.size() - 1)
+            propertyName += QLatin1String(".");
+    }
+    if (propertyName.isEmpty())
+        std::swap(sourceNode, propertyName);
+
+    return {sourceNode, propertyName};
+}
+
 QStringList singletonsFromView(AbstractView *view)
 {
     RewriterView *rv = view->rewriterView();
     if (!rv)
-        return { };
+        return {};
 
     QStringList out;
     for (const QmlTypeData &data : rv->getQMLTypes()) {
@@ -262,6 +285,29 @@ QStringList singletonsFromView(AbstractView *view)
             out.push_back(data.typeName);
     }
     return out;
+}
+
+std::vector<PropertyMetaInfo> propertiesFromSingleton(const QString &name, AbstractView *view)
+{
+    Model *model = view->model();
+    QTC_ASSERT(model, return {});
+
+    if (NodeMetaInfo metaInfo = model->metaInfo(name.toUtf8()); metaInfo.isValid())
+        return metaInfo.properties();
+
+    return {};
+}
+
+QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node)
+{
+    auto isDynamic = [](const AbstractProperty &p) { return p.isDynamic(); };
+    auto byName = [](const AbstractProperty &a, const AbstractProperty &b) {
+        return a.name() < b.name();
+    };
+
+    QList<AbstractProperty> dynamicProperties = Utils::filtered(node.properties(), isDynamic);
+    Utils::sort(dynamicProperties, byName);
+    return dynamicProperties;
 }
 
 QStringList availableSources(AbstractView *view)
@@ -295,7 +341,7 @@ QStringList availableTargetProperties(const BindingProperty &bindingProperty)
 
         return writableProperties;
     }
-    return { };
+    return {};
 }
 
 ModelNode getNodeByIdOrParent(AbstractView *view, const QString &id, const ModelNode &targetNode)
@@ -309,19 +355,17 @@ ModelNode getNodeByIdOrParent(AbstractView *view, const QString &id, const Model
     return {};
 }
 
-QStringList availableSourceProperties(const BindingProperty &bindingProperty, AbstractView *view)
+QStringList availableSourceProperties(const QString &id,
+                                      const BindingProperty &targetProperty,
+                                      AbstractView *view)
 {
-    const QString expression = bindingProperty.expression();
-    const QStringList stringlist = expression.split(QLatin1String("."));
+    ModelNode modelNode = getNodeByIdOrParent(view, id, targetProperty.parentModelNode());
 
-    const QString &id = stringlist.constFirst();
-    ModelNode modelNode = getNodeByIdOrParent(view, id, bindingProperty.parentModelNode());
-
-    NodeMetaInfo type;
-    if (bindingProperty.isDynamic()) {
-        type = dynamicTypeMetaInfo(bindingProperty);
-    } else if (auto metaInfo = bindingProperty.parentModelNode().metaInfo(); metaInfo.isValid()) {
-        type = metaInfo.property(bindingProperty.name()).propertyType();
+    NodeMetaInfo targetType;
+    if (targetProperty.isDynamic()) {
+        targetType = dynamicTypeMetaInfo(targetProperty);
+    } else if (auto metaInfo = targetProperty.parentModelNode().metaInfo(); metaInfo.isValid()) {
+        targetType = metaInfo.property(targetProperty.name()).propertyType();
     } else
         qWarning() << __FUNCTION__ << " no meta info for target node";
 
@@ -329,23 +373,19 @@ QStringList availableSourceProperties(const BindingProperty &bindingProperty, Ab
     if (!modelNode.isValid()) {
         QStringList singletons = singletonsFromView(view);
         if (singletons.contains(id)) {
-            Model *model = view->model();
-            QTC_ASSERT(model, return {});
-            if (NodeMetaInfo metaInfo = model->metaInfo(id.toUtf8()); metaInfo.isValid()) {
-                for (const auto &property : metaInfo.properties()) {
-                    if (metaInfoIsCompatible(type, property))
-                        possibleProperties.push_back(QString::fromUtf8(property.name()));
-                }
+            for (const auto &property : propertiesFromSingleton(id, view)) {
+                if (metaInfoIsCompatible(targetType, property))
+                    possibleProperties.push_back(QString::fromUtf8(property.name()));
             }
             return possibleProperties;
         }
-        qWarning() << __FUNCTION__ << " invalid model node";
+        qWarning() << __FUNCTION__ << " invalid model node: " << id;
         return {};
-   }
+    }
 
-    auto isCompatible = [type](const AbstractProperty& other) {
+    auto isCompatible = [targetType](const AbstractProperty &other) {
         auto otherType = dynamicTypeMetaInfo(other);
-        return metaInfoIsCompatibleUnsafe(type, otherType);
+        return metaInfoIsCompatibleUnsafe(targetType, otherType);
     };
 
     for (const VariantProperty &variantProperty : modelNode.variantProperties()) {
@@ -361,7 +401,7 @@ QStringList availableSourceProperties(const BindingProperty &bindingProperty, Ab
     NodeMetaInfo metaInfo = modelNode.metaInfo();
     if (metaInfo.isValid()) {
         for (const auto &property : metaInfo.properties()) {
-            if (metaInfoIsCompatible(type, property) )
+            if (metaInfoIsCompatible(targetType, property))
                 possibleProperties.push_back(QString::fromUtf8(property.name()));
         }
     } else {
@@ -369,37 +409,6 @@ QStringList availableSourceProperties(const BindingProperty &bindingProperty, Ab
     }
 
     return possibleProperties;
-}
-
-QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node)
-{
-    auto isDynamic = [](const AbstractProperty &p) { return p.isDynamic(); };
-    auto byName = [](const AbstractProperty &a, const AbstractProperty &b) {
-        return a.name() < b.name();
-    };
-
-    QList<AbstractProperty> dynamicProperties = Utils::filtered(node.properties(), isDynamic);
-    Utils::sort(dynamicProperties, byName);
-    return dynamicProperties;
-}
-
-std::pair<QString, QString> splitExpression(const QString &expression)
-{
-    // ### Todo from original code (getExpressionStrings):
-    //      We assume no expressions yet
-    const QStringList stringList = expression.split(QLatin1String("."));
-
-    QString sourceNode = stringList.constFirst();
-    QString propertyName;
-    for (int i = 1; i < stringList.size(); ++i) {
-        propertyName += stringList.at(i);
-        if (i != stringList.size() - 1)
-            propertyName += QLatin1String(".");
-    }
-    if (propertyName.isEmpty())
-        std::swap(sourceNode, propertyName);
-
-    return {sourceNode, propertyName};
 }
 
 } // namespace QmlDesigner

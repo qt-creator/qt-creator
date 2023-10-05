@@ -869,4 +869,75 @@ TEST_F(Model, meta_info_of_not_existing_type_is_invalid)
     ASSERT_THAT(meta_info, IsFalse());
 }
 
+TEST_F(Model, module_is_valid)
+{
+    auto module = model.module("QML");
+
+    ASSERT_THAT(module, IsTrue());
+}
+
+TEST_F(Model, module_returns_always_the_same)
+{
+    auto oldModule = model.module("QML");
+
+    auto module = model.module("QML");
+
+    ASSERT_THAT(module, oldModule);
+}
+
+TEST_F(Model, get_meta_info_by_module)
+{
+    auto module = model.module("QML");
+
+    auto metaInfo = model.metaInfo(module, "QtObject");
+
+    ASSERT_THAT(metaInfo, model.qmlQtObjectMetaInfo());
+}
+
+TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_name)
+{
+    auto module = model.module("QML");
+
+    auto metaInfo = model.metaInfo(module, "Object");
+
+    ASSERT_THAT(metaInfo, IsFalse());
+}
+
+TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_module)
+{
+    auto module = model.module("Qml");
+
+    auto metaInfo = model.metaInfo(module, "Object");
+
+    ASSERT_THAT(metaInfo, IsFalse());
+}
+
+TEST_F(Model, add_refresh_callback_to_project_storage)
+{
+    EXPECT_CALL(projectStorageMock, addRefreshCallback(_));
+
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
+}
+
+TEST_F(Model, remove_refresh_callback_from_project_storage)
+{
+    EXPECT_CALL(projectStorageMock, removeRefreshCallback(_)).Times(2); // there is a model in the fixture
+
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
+}
+
+TEST_F(Model, refresh_callback_is_calling_abstract_view)
+{
+    const QmlDesigner::TypeIds typeIds = {QmlDesigner::TypeId::create(3),
+                                          QmlDesigner::TypeId::create(1)};
+    std::function<void(const QmlDesigner::TypeIds &)> *callback = nullptr;
+    ON_CALL(projectStorageMock, addRefreshCallback(_)).WillByDefault([&](auto *c) { callback = c; });
+    QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
+    model.attachView(&viewMock);
+
+    EXPECT_CALL(viewMock, refreshMetaInfos(typeIds));
+
+    (*callback)(typeIds);
+}
+
 } // namespace

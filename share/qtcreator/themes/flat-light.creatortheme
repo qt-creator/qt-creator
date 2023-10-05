@@ -103,6 +103,18 @@ DSpopoutButtonBorder_hover=shadowGrey
 DSpopoutButtonBorder_interaction=highlightBlue
 DSpopoutButtonBorder_disabled=offWhite
 
+;4.4
+DSconnectionCodeEditor=lightWhite
+DSpillText=fullWhite
+DSpillTextSelected=fullBlack
+DspillTextEdit=fullBlack
+DSpillDefaultBackgroundIdle=shadowGrey
+DSpillDefaultBackgroundHover=smokeGrey
+DSpillOperatorBackgroundIdle=ff6b2a7b
+DSpillOperatorBackgroundHover=ff7e478b
+DSpillLiteralBackgroundIdle=ff447953
+DSpillLiteralBackgroundHover=ff61866B
+
 ;END NEW FOR QtDS 4
 
 DSpanelBackground=ffeaeaea

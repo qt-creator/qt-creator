@@ -201,21 +201,22 @@ StudioControls.TextField {
         listView.model = list
     }
 
-    Keys.onSpacePressed: function(event) {
-        if (event.modifiers & Qt.ControlModifier) {
-            var list = autoComplete(textField.text, textField.cursorPosition, true, textField.completeOnlyTypes)
-            textField.prefix = textField.text.substring(0, textField.cursorPosition)
-            if (list.length && list[list.length - 1] === textField.prefix)
-                list.pop()
+    // Currently deactivated as it is causing a crash when calling autoComplete()
+    //Keys.onSpacePressed: function(event) {
+    //    if (event.modifiers & Qt.ControlModifier) {
+    //        var list = autoComplete(textField.text, textField.cursorPosition, true, textField.completeOnlyTypes)
+    //        textField.prefix = textField.text.substring(0, textField.cursorPosition)
+    //        if (list.length && list[list.length - 1] === textField.prefix)
+    //            list.pop()
 
-            listView.model = list
-            textField.dotCompletion = false
+    //        listView.model = list
+    //        textField.dotCompletion = false
 
-            event.accepted = true;
-        } else {
-            event.accepted = false
-        }
-    }
+    //        event.accepted = true
+    //    } else {
+    //        event.accepted = false
+    //    }
+    //}
 
     Keys.onReturnPressed: function(event) {
         event.accepted = false

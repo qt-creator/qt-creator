@@ -272,7 +272,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
         if (childNode->name().contains("files", Qt::CaseInsensitive)) {
             PropsPair propsPair;
             FileProps fileProps;
-            const QString childNodeName = childNode->name().toLower();
+            const QString childNodeName = childNode->name().toLower().remove("qds.");
             const QmlJS::SimpleReaderNode::Property childNodeFilter = childNode->property("filter");
             const QmlJS::SimpleReaderNode::Property childNodeDirectory = childNode->property(
                 "directory");

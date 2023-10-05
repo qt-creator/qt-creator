@@ -7,7 +7,9 @@
 
 #include <documentmessage.h>
 #include <model/modelresourcemanagementinterface.h>
+#include <module.h>
 #include <projectstorage/projectstoragefwd.h>
+#include <projectstorage/projectstorageinfotypes.h>
 #include <projectstorageids.h>
 
 #include <QMimeData>
@@ -125,11 +127,16 @@ public:
 
     const MetaInfo metaInfo() const;
     MetaInfo metaInfo();
+    Module module(Utils::SmallStringView moduleName);
     NodeMetaInfo metaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
+    NodeMetaInfo metaInfo(Module module,
+                          Utils::SmallStringView typeName,
+                          Storage::Version version = Storage::Version{}) const;
     bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     void setMetaInfo(const MetaInfo &metaInfo);
 
     NodeMetaInfo boolMetaInfo() const;
+    NodeMetaInfo doubleMetaInfo() const;
     NodeMetaInfo flowViewFlowActionAreaMetaInfo() const;
     NodeMetaInfo flowViewFlowDecisionMetaInfo() const;
     NodeMetaInfo flowViewFlowItemMetaInfo() const;

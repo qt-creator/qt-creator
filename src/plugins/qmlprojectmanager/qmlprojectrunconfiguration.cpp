@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitaspects.h>
@@ -125,7 +126,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     qmlMainFile.setTarget(target);
     connect(&qmlMainFile, &BaseAspect::changed, this, &RunConfiguration::update);
 
-    if (QmlProject::isQtDesignStudio())
+    if (Core::ICore::isQtDesignStudio())
         setupQtVersionAspect();
     else
         qtversion.setVisible(false);
@@ -210,13 +211,17 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         if (!qmlRuntime.isEmpty())
             return qmlRuntime;
     }
+    auto hasDeployStep = [this]() {
+        return target()->activeDeployConfiguration() &&
+            !target()->activeDeployConfiguration()->stepList()->isEmpty();
+    };
 
     // The Qt version might know, but we need to make sure
     // that the device can reach it.
     if (QtVersion *version = QtKitAspect::qtVersion(kit)) {
         // look for puppet as qmlruntime only in QtStudio Qt versions
         if (version->features().contains("QtStudio") &&
-            version->qtVersion().majorVersion() > 5) {
+            version->qtVersion().majorVersion() > 5 && !hasDeployStep()) {
 
             auto [workingDirectoryPath, puppetPath] = QmlDesigner::QmlPuppetPaths::qmlPuppetPaths(
                         target(), QmlDesigner::QmlDesignerBasePlugin::settings());
@@ -237,6 +242,9 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 
 void QmlProjectRunConfiguration::setupQtVersionAspect()
 {
+    if (!Core::ICore::isQtDesignStudio())
+        return;
+
     qtversion.setSettingsKey("QmlProjectManager.kit");
     qtversion.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
     qtversion.setLabelText(Tr::tr("Qt Version:"));

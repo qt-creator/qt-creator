@@ -224,23 +224,5 @@ Section {
 
             ExpandingSpacer {}
         }
-
-        PropertyLabel {
-            text: qsTr("Smooth")
-            tooltip: qsTr("Uses smooth filtering when the image is scaled or transformed.")
-            blockedByTemplate: !backendValues.smooth.isAvailable
-        }
-
-        SecondColumnLayout {
-            CheckBox {
-                text: backendValues.smooth.valueToString
-                implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                               + StudioTheme.Values.actionIndicatorWidth
-                backendValue: backendValues.smooth
-                enabled: backendValue.isAvailable
-            }
-
-            ExpandingSpacer {}
-        }
     }
 }

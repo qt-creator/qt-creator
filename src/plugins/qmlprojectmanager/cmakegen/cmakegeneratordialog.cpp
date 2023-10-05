@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakegeneratordialog.h"
-#include "cmakegeneratordialogtreemodel.h"
-#include "generatecmakelistsconstants.h"
 #include "../qmlprojectmanagertr.h"
+#include "cmakegeneratordialogtreemodel.h"
 
 #include <utils/utilsicons.h>
 #include <utils/detailswidget.h>
@@ -21,10 +20,10 @@ using namespace Utils;
 namespace QmlProjectManager {
 namespace GenerateCmake {
 
-CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir, const FilePaths &files)
-    : QDialog(),
-      m_rootDir(rootDir),
-      m_files(files)
+CmakeGeneratorDialog::CmakeGeneratorDialog(const FilePath &rootDir,
+                                           const FilePaths &files,
+                                           const FilePaths invalidFiles)
+    : QDialog(), m_rootDir(rootDir), m_files(files), m_invalidFiles(invalidFiles)
 {
     setWindowTitle(Tr::tr("Select Files to Generate"));
 
@@ -106,6 +105,8 @@ FilePaths CmakeGeneratorDialog::getFilePaths()
 
 const QString FILE_CREATE_NOTIFICATION = Tr::tr("File %1 will be created.\n");
 const QString FILE_OVERWRITE_NOTIFICATION = Tr::tr("File %1 will be overwritten.\n");
+const QString FILE_INVALID_NOTIFICATION = Tr::tr(
+    "File %1 contains invalid characters and will be skipped.\n");
 
 void CmakeGeneratorDialog::refreshNotificationText()
 {
@@ -118,6 +119,11 @@ void CmakeGeneratorDialog::refreshNotificationText()
     iformat.setName("cmakegendialog://warningicon");
 
     QList<CheckableFileTreeItem*> nodes = m_model->items();
+
+    for (const auto &file : m_invalidFiles) {
+        cursor.insertImage(iformat);
+        cursor.insertText(QString(FILE_INVALID_NOTIFICATION).arg(file.displayName()));
+    }
 
     for (CheckableFileTreeItem *node : nodes) {
         if (!m_files.contains(node->toFilePath()))

@@ -159,6 +159,20 @@ void TextureEditorContextObject::setHasMaterialLibrary(bool b)
     emit hasMaterialLibraryChanged();
 }
 
+bool TextureEditorContextObject::isQt6Project() const
+{
+    return m_isQt6Project;
+}
+
+void TextureEditorContextObject::setIsQt6Project(bool b)
+{
+    if (m_isQt6Project == b)
+        return;
+
+    m_isQt6Project = b;
+    emit isQt6ProjectChanged();
+}
+
 bool TextureEditorContextObject::hasSingleModelSelection() const
 {
     return m_hasSingleModelSelection;

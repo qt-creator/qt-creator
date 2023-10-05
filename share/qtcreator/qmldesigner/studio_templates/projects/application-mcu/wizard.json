@@ -188,7 +188,7 @@
                 {
                     "isBinary": true,
                     "source": "MCUDefaultStyle/images",
-                    "target": "%{ProjectDirectory}/MCUDefaultStyle/images"
+                    "target": "%{ProjectDirectory}/imports/MCUDefaultStyle/images"
                 }
             ]
         }

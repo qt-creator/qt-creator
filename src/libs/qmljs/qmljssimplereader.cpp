@@ -89,7 +89,10 @@ static Q_LOGGING_CATEGORY(simpleReaderLog, "qtc.qmljs.simpleReader", QtWarningMs
         return newNode;
     }
 
-    const SimpleReaderNode::List SimpleReaderNode::children() const { return m_children; }
+    const SimpleReaderNode::List &SimpleReaderNode::children() const
+    {
+        return m_children;
+    }
 
     void SimpleReaderNode::setProperty(const QString &name,
                                        const SourceLocation &nameLocation,

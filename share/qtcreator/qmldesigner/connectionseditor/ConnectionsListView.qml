@@ -3,8 +3,8 @@
 
 import QtQuick
 import QtQuick.Controls
-import HelperWidgets 2.0 as HelperWidgets
-import StudioControls 1.0 as StudioControls
+import HelperWidgets as HelperWidgets
+import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import ConnectionsEditorEditorBackend
 
@@ -15,6 +15,12 @@ ListView {
 
     property bool adsFocus: false
 
+    // Temporarily remove due to dockwidget focus issue
+    //onAdsFocusChanged: {
+    //    if (!root.adsFocus)
+    //        dialog.close()
+    //}
+
     clip: true
     interactive: true
     highlightMoveDuration: 0
@@ -24,8 +30,9 @@ ListView {
 
     HoverHandler { id: hoverHandler }
 
-    ScrollBar.vertical: HelperWidgets.ScrollBar {
+    ScrollBar.vertical: StudioControls.TransientScrollBar {
         id: verticalScrollBar
+        style: StudioTheme.Values.viewStyle
         parent: root
         x: root.width - verticalScrollBar.width
         y: 0
@@ -63,11 +70,27 @@ ListView {
     property int rowWidth: root.rowSpace / root.numColumns
     property int rowRest: root.rowSpace % root.numColumns
 
+    function addConnection() {
+        ConnectionsEditorEditorBackend.connectionModel.add()
+        if (root.currentItem)
+            dialog.popup(root.currentItem.delegateMouseArea)
+    }
+
+    function resetIndex() {
+        root.model.currentIndex = -1
+        root.currentIndex = -1
+        dialog.backend.currentRow = -1
+    }
+
     data: [
         ConnectionsDialog {
             id: dialog
             visible: false
             backend: root.model.delegate
+
+            onClosing: function(event) {
+                root.resetIndex()
+            }
         }
     ]
 
@@ -80,9 +103,13 @@ ListView {
         required property string target
         required property string action
 
+        property alias delegateMouseArea: mouseArea
+
+        property bool hovered: mouseArea.containsMouse || toolTipArea.containsMouse
+
         width: ListView.view.width
         height: root.style.squareControlSize.height
-        color: mouseArea.containsMouse ?
+        color: itemDelegate.hovered ?
                    itemDelegate.ListView.isCurrentItem ? root.style.interactionHover
                                                        : root.style.background.hover
                                        : "transparent"
@@ -146,9 +173,11 @@ ListView {
                 height: root.style.squareControlSize.height
 
                 color: toolTipArea.containsMouse ?
-                           itemDelegate.ListView.isCurrentItem ? root.style.interactionHover
-                                                               : root.style.background.hover
+                           itemDelegate.ListView.isCurrentItem ? root.style.interactionGlobalHover
+                                                               : root.style.background.globalHover
                                                : "transparent"
+
+                visible: itemDelegate.hovered || itemDelegate.ListView.isCurrentItem
 
                 Text {
                     anchors.fill: parent
@@ -166,9 +195,13 @@ ListView {
 
                 HelperWidgets.ToolTipArea {
                     id: toolTipArea
-                    tooltip: qsTr("This is a test.")
+                    tooltip: qsTr("Removes the connection.")
                     anchors.fill: parent
-                    onClicked: root.model.remove(itemDelegate.index)
+                    onClicked: {
+                        if (itemDelegate.ListView.isCurrentItem)
+                            dialog.close()
+                        root.model.remove(itemDelegate.index)
+                    }
                 }
             }
         }

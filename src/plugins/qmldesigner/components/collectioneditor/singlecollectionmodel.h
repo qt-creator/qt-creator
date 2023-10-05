@@ -1,16 +1,15 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
 
-#include "modelnode.h"
-
 #include <QAbstractTableModel>
-
-QT_BEGIN_NAMESPACE
-class QJsonArray;
-QT_END_NAMESPACE
+#include <QJsonObject>
 
 namespace QmlDesigner {
+
+class ModelNode;
+
 class SingleCollectionModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -18,6 +17,7 @@ class SingleCollectionModel : public QAbstractTableModel
     Q_PROPERTY(QString collectionName MEMBER m_collectionName NOTIFY collectionNameChanged)
 
 public:
+    enum class SourceFormat { Unknown, Json, Csv };
     explicit SingleCollectionModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const override;
@@ -29,18 +29,21 @@ public:
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 
-    void setCollection(const ModelNode &collection);
+    void loadCollection(const ModelNode &sourceNode, const QString &collection);
 
 signals:
     void collectionNameChanged(const QString &collectionName);
 
 private:
-    void updateCollectionName();
+    void setCollectionName(const QString &newCollectionName);
+    void setCollectionSourceFormat(SourceFormat sourceFormat);
+    void loadJsonCollection(const QString &source, const QString &collection);
+    void loadCsvCollection(const QString &source, const QString &collectionName);
 
-    QByteArrayList m_headers;
-    ModelNodes m_elements;
-    ModelNode m_collectionNode;
+    QStringList m_headers;
+    QList<QJsonObject> m_elements;
     QString m_collectionName;
+    SourceFormat m_sourceFormat = SourceFormat::Unknown;
 };
 
 } // namespace QmlDesigner

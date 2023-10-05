@@ -1164,28 +1164,27 @@ TEST_F(ProjectStorageUpdater, update_qml_types_files_is_empty)
 TEST_F(ProjectStorageUpdater, update_qml_types_files)
 {
     EXPECT_CALL(projectStorageMock,
-                synchronize(
-                    AllOf(Field(&SynchronizationPackage::imports,
-                                UnorderedElementsAre(import4, import5)),
-                          Field(&SynchronizationPackage::types,
-                                UnorderedElementsAre(objectType, itemType)),
-                          Field(&SynchronizationPackage::updatedSourceIds,
-                                UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)),
-                          Field(&SynchronizationPackage::fileStatuses,
-                                UnorderedElementsAre(IsFileStatus(qmltypesPathSourceId, 1, 21),
-                                                     IsFileStatus(qmltypes2PathSourceId, 1, 21))),
-                          Field(&SynchronizationPackage::updatedFileStatusSourceIds,
-                                UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)),
-                          Field(&SynchronizationPackage::projectDatas,
-                                UnorderedElementsAre(IsProjectData(qmltypesPathSourceId,
-                                                                   qmltypesPathSourceId,
-                                                                   builtinCppNativeModuleId,
-                                                                   FileType::QmlTypes),
-                                                     IsProjectData(qmltypes2PathSourceId,
-                                                                   qmltypes2PathSourceId,
-                                                                   builtinCppNativeModuleId,
-                                                                   FileType::QmlTypes))),
-                          Field(&SynchronizationPackage::updatedProjectSourceIds, IsEmpty()))));
+                synchronize(AllOf(
+                    Field(&SynchronizationPackage::imports, UnorderedElementsAre(import4, import5)),
+                    Field(&SynchronizationPackage::types, UnorderedElementsAre(objectType, itemType)),
+                    Field(&SynchronizationPackage::updatedSourceIds,
+                          UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)),
+                    Field(&SynchronizationPackage::fileStatuses,
+                          UnorderedElementsAre(IsFileStatus(qmltypesPathSourceId, 1, 21),
+                                               IsFileStatus(qmltypes2PathSourceId, 1, 21))),
+                    Field(&SynchronizationPackage::updatedFileStatusSourceIds,
+                          UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)),
+                    Field(&SynchronizationPackage::projectDatas,
+                          UnorderedElementsAre(IsProjectData(qmltypesPathSourceId,
+                                                             qmltypesPathSourceId,
+                                                             builtinCppNativeModuleId,
+                                                             FileType::QmlTypes),
+                                               IsProjectData(qmltypes2PathSourceId,
+                                                             qmltypes2PathSourceId,
+                                                             builtinCppNativeModuleId,
+                                                             FileType::QmlTypes))),
+                    Field(&SynchronizationPackage::updatedProjectSourceIds,
+                          UnorderedElementsAre(qmltypesPathSourceId, qmltypes2PathSourceId)))));
 
     updater.update({}, {"/path/example.qmltypes", "/path/example2.qmltypes"}, {});
 }
@@ -1209,7 +1208,8 @@ TEST_F(ProjectStorageUpdater, dont_update_qml_types_files_if_unchanged)
                                                                    qmltypesPathSourceId,
                                                                    builtinCppNativeModuleId,
                                                                    FileType::QmlTypes))),
-                          Field(&SynchronizationPackage::updatedProjectSourceIds, IsEmpty()))));
+                          Field(&SynchronizationPackage::updatedProjectSourceIds,
+                                UnorderedElementsAre(qmltypesPathSourceId)))));
 
     updater.update({}, {"/path/example.qmltypes", "/path/example2.qmltypes"}, {});
 }

@@ -37,6 +37,7 @@ constexpr char C_PANEL_WIDGET[] = "panelwidget";
 constexpr char C_PANEL_WIDGET_SINGLE_ROW[] = "panelwidget_singlerow";
 constexpr char C_SHOW_BORDER[] = "showborder";
 constexpr char C_TOP_BORDER[] = "topBorder";
+constexpr char C_TOOLBAR_ACTIONWIDGET[] = "toolbar_actionWidget";
 
 enum ToolbarStyle {
     ToolbarStyleCompact,

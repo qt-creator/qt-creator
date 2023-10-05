@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "projectstorage.h"
 #include "projectstorageexceptions.h"
 #include "projectstorageids.h"
 #include "sourcepath.h"
@@ -15,6 +16,7 @@
 #include <sqlitetransaction.h>
 
 #include <algorithm>
+#include <utility>
 
 namespace QmlDesigner {
 

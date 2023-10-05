@@ -43,7 +43,7 @@ Column {
     InsetSection {}
 
     FontSection {
-        caption: qsTr("Font Inheritance")
+        caption: qsTr("Font")
         expanded: false
     }
 }
