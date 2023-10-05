@@ -57,6 +57,7 @@ OpenEditorsWindow::OpenEditorsWindow(QWidget *parent) :
     if (Utils::HostOsInfo::isMacHost())
         m_editorList->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_editorList->installEventFilter(this);
+    m_editorList->setUniformRowHeights(true);
 
     // We disable the frame on this list view and use a QFrame around it instead.
     // This improves the look with QGTKStyle.
