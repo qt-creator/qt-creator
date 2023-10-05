@@ -474,14 +474,27 @@ void AndroidDeviceManager::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
         return;
 
     qCDebug(androidDeviceLog) << QString("Erasing Android AVD \"%1\" from the system.").arg(name);
-    m_removeAvdFutureWatcher.setFuture(Utils::asyncRun([this, name, device] {
-        QPair<IDevice::ConstPtr, bool> pair;
-        pair.first = device;
-        pair.second = false;
-        if (m_avdManager.removeAvd(name))
-            pair.second = true;
-        return pair;
-    }));
+    m_removeAvdProcess.reset(new Process);
+    const AndroidConfig &config = m_avdManager.config();
+    const CommandLine command(config.avdManagerToolPath(), {"delete", "avd", "-n", name});
+    qCDebug(androidDeviceLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
+    m_removeAvdProcess->setTimeoutS(5);
+    m_removeAvdProcess->setEnvironment(config.toolsEnvironment());
+    m_removeAvdProcess->setCommand(command);
+    connect(m_removeAvdProcess.get(), &Process::done, this, [this, device] {
+        const QString name = device->displayName();
+        if (m_removeAvdProcess->result() == ProcessResult::FinishedWithSuccess) {
+            qCDebug(androidDeviceLog, "Android AVD id \"%s\" removed from the system.",
+                    qPrintable(name));
+            // Remove the device from QtC after it's been removed using avdmanager.
+            DeviceManager::instance()->removeDevice(device->id());
+        } else {
+            AndroidDeviceWidget::criticalDialog(Tr::tr("An error occurred while removing the "
+                                 "Android AVD \"%1\" using avdmanager tool.").arg(name));
+        }
+        m_removeAvdProcess.release()->deleteLater();
+    });
+    m_removeAvdProcess->start();
 }
 
 void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidget *parent)
@@ -542,20 +555,6 @@ void AndroidDeviceManager::setupWifiForDevice(const IDevice::Ptr &device, QWidge
             return;
         }
     });
-}
-
-void AndroidDeviceManager::handleAvdRemoved()
-{
-    const QPair<IDevice::ConstPtr, bool> result = m_removeAvdFutureWatcher.result();
-    const QString name = result.first->displayName();
-    if (result.second) {
-        qCDebug(androidDeviceLog, "Android AVD id \"%s\" removed from the system.", qPrintable(name));
-        // Remove the device from QtC after it's been removed using avdmanager.
-        DeviceManager::instance()->removeDevice(result.first->id());
-    } else {
-        AndroidDeviceWidget::criticalDialog(Tr::tr("An error occurred while removing the "
-                "Android AVD \"%1\" using avdmanager tool.").arg(name));
-    }
 }
 
 QString AndroidDeviceManager::emulatorName(const QString &serialNumber) const
@@ -819,8 +818,6 @@ AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
       m_androidConfig(AndroidConfigurations::currentConfig()),
       m_avdManager(m_androidConfig)
 {
-    connect(&m_removeAvdFutureWatcher, &QFutureWatcherBase::finished,
-            this, &AndroidDeviceManager::handleAvdRemoved);
     QTC_ASSERT(!s_instance, return);
     s_instance = this;
 }
@@ -828,7 +825,6 @@ AndroidDeviceManager::AndroidDeviceManager(QObject *parent)
 AndroidDeviceManager::~AndroidDeviceManager()
 {
     m_avdsFutureWatcher.waitForFinished();
-    m_removeAvdFutureWatcher.waitForFinished();
     QTC_ASSERT(s_instance == this, return);
     s_instance = nullptr;
 }
