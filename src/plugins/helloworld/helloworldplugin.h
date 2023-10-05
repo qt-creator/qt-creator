@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace HelloWorld {
-namespace Internal {
+namespace HelloWorld::Internal {
 
 class HelloMode;
 
@@ -20,8 +19,7 @@ public:
     HelloWorldPlugin();
     ~HelloWorldPlugin() override;
 
-    bool initialize(const QStringList &arguments, QString *errorMessage) override;
-
+    void initialize() override;
     void extensionsInitialized() override;
 
 private:
@@ -30,5 +28,4 @@ private:
     HelloMode *m_helloMode = nullptr;
 };
 
-} // namespace Internal
-} // namespace HelloWorld
+} // namespace HelloWorld::Internal
