@@ -1486,18 +1486,6 @@ QString Process::errorString() const
     return resultData().m_errorString;
 }
 
-// Path utilities
-
-Environment Process::systemEnvironmentForBinary(const FilePath &filePath)
-{
-    if (filePath.needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.systemEnvironmentForBinary, return {});
-        return s_deviceHooks.systemEnvironmentForBinary(filePath);
-    }
-
-    return Environment::systemEnvironment();
-}
-
 qint64 Process::applicationMainThreadId() const
 {
     return d->m_applicationMainThreadId;

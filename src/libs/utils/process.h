@@ -139,9 +139,6 @@ public:
     // These (or some of them) may be potentially moved outside of the class.
     // Some of them could be aggregated in another public utils class.
 
-    // TODO: Unused currently? Should it serve as a compartment for contrary of remoteEnvironment?
-    static Environment systemEnvironmentForBinary(const FilePath &filePath);
-
     static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
                               qint64 *pid = nullptr);
 
@@ -212,7 +209,6 @@ class DeviceProcessHooks
 {
 public:
     std::function<ProcessInterface *(const FilePath &)> processImplHook;
-    std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter : public Tasking::TaskAdapter<Process>
