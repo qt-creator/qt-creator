@@ -631,7 +631,8 @@ private:
 
 static ProcessImpl defaultProcessImpl()
 {
-    if (qtcEnvironmentVariableIsSet("QTC_USE_QPROCESS"))
+    const QString value = qtcEnvironmentVariable("QTC_USE_QPROCESS", "TRUE").toUpper();
+    if (value != "FALSE" && value != "0")
         return ProcessImpl::QProcess;
     return ProcessImpl::ProcessLauncher;
 }
