@@ -232,7 +232,7 @@ expected_str<void> DeviceShell::start()
 
 expected_str<QByteArray> DeviceShell::checkCommand(const QByteArray &command)
 {
-    const QByteArray checkCmd = "(which " + command + " || echo '<missing>')\n";
+    const QByteArray checkCmd = "(type " + command + " || echo '<missing>')\n";
 
     m_shellProcess->writeRaw(checkCmd);
     if (!m_shellProcess->waitForReadyRead()) {
