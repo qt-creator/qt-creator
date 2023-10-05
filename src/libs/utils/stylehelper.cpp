@@ -715,7 +715,7 @@ bool StyleHelper::isQDSTheme()
 Qt::HighDpiScaleFactorRoundingPolicy StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
 {
     return HostOsInfo::isMacHost() ? Qt::HighDpiScaleFactorRoundingPolicy::Unset
-                                   : Qt::HighDpiScaleFactorRoundingPolicy::PassThrough;
+                                   : Qt::HighDpiScaleFactorRoundingPolicy::Round;
 }
 
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters)
