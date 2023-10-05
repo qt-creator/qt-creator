@@ -10,6 +10,7 @@ namespace ScreenRecorder::Internal {
 enum CaptureType {
     X11grab,
     Ddagrab,
+    Gdigrab,
     AVFoundation,
 };
 

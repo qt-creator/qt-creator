@@ -88,6 +88,8 @@ ScreenRecorderSettings::ScreenRecorderSettings()
         break;
     case OsTypeWindows:
         screenCaptureType.addOption({"ddagrab", {}, CaptureType::Ddagrab});
+        screenCaptureType.addOption({"gdigrab", {}, CaptureType::Gdigrab});
+        screenCaptureType.setVisible(true);
         break;
     case OsTypeMac:
         screenCaptureType.addOption({"AVFoundation", {}, CaptureType::AVFoundation});
