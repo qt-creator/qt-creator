@@ -744,8 +744,9 @@ std::shared_ptr<NodeMetaInfoPrivate> NodeMetaInfoPrivate::create(Model *model,
                                                     newData->minorVersion());
 
     if (auto found = cache.find(stringfiedQualifiedType); found != cache.end()) {
-        cache.insert(stringfiedType, *found);
-        return *found;
+        newData = *found;
+        cache.insert(stringfiedType, newData);
+        return newData;
     }
 
     if (stringfiedQualifiedType != stringfiedType)
