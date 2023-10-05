@@ -135,7 +135,8 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     form.addRow({Tr::tr("Toolbar style:"), m_toolbarStyleBox, st});
     form.addRow({Tr::tr("Language:"), m_languageBox, st});
 
-    if (!Utils::HostOsInfo::isMacHost()) {
+    if (StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
+        != Qt::HighDpiScaleFactorRoundingPolicy::Unset) {
         using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
         m_policyComboBox = new QComboBox;
         m_policyComboBox->addItem(Tr::tr("Round up for .5 and above"), int(Policy::Round));
