@@ -9,11 +9,10 @@
 #include <QFrame>
 #include <QList>
 
-QT_BEGIN_NAMESPACE
-class QTreeWidgetItem;
-QT_END_NAMESPACE
-
 namespace Core::Internal {
+
+class OpenEditorsItem;
+class OpenEditorsView;
 
 class OpenEditorsWindow : public QFrame
 {
@@ -34,8 +33,7 @@ public:
     void selectAndHide();
 
 private:
-    void editorClicked(QTreeWidgetItem *item);
-    static void selectEditor(QTreeWidgetItem *item);
+    void editorClicked(OpenEditorsItem *item);
 
     void addHistoryItems(const QList<EditLocation> &history, EditorView *view,
                          QSet<const DocumentModel::Entry *> &entriesDone);
@@ -46,7 +44,7 @@ private:
     void ensureCurrentVisible();
     void selectUpDown(bool up);
 
-    class OpenEditorsTreeWidget *m_editorList;
+    OpenEditorsView *m_editorView;
 };
 
 } // Core::Internal
