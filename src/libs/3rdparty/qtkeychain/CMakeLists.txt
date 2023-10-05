@@ -31,11 +31,11 @@ extend_qtc_library(qtkeychain
 )
 
 if (UNIX AND NOT APPLE)
-    find_package(Qt6 COMPONENTS DBus REQUIRED)
+    find_package(Qt6 COMPONENTS DBus)
 
     option(LIBSECRET_SUPPORT "Build with libsecret support if available" ON)
     if (LIBSECRET_SUPPORT)
-      find_package(PkgConfig REQUIRED)
+      find_package(PkgConfig)
 
       include(FindPkgConfig)
       pkg_check_modules(LIBSECRET libsecret-1)
@@ -53,6 +53,8 @@ if (UNIX AND NOT APPLE)
     ${CMAKE_CURRENT_SOURCE_DIR}/org.kde.KWallet.xml kwallet_interface KWalletInterface)
 
   extend_qtc_library(qtkeychain
+    CONDITION TARGET Qt::DBus
+    FEATURE_INFO "keychain dbus support"
     DEFINES KEYCHAIN_DBUS=1
     DEPENDS Qt::DBus
     SOURCES
