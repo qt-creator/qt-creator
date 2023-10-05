@@ -7,11 +7,9 @@
 #include "editormanager_p.h"
 #include "documentmodel.h"
 #include "documentmodel_p.h"
-#include "../actionmanager/actionmanager.h"
 #include "../editormanager/ieditor.h"
 #include "../editortoolbar.h"
 #include "../findplaceholder.h"
-#include "../icore.h"
 #include "../minisplitter.h"
 
 #include <utils/algorithm.h>
@@ -21,8 +19,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
 #include <utils/utilsicons.h>
-
-#include <QDebug>
 
 #include <QFileInfo>
 #include <QHBoxLayout>
@@ -36,10 +32,11 @@
 #include <QStackedLayout>
 
 using namespace Core;
-using namespace Core::Internal;
 using namespace Utils;
 
-// ================EditorView====================
+namespace Core::Internal {
+
+// EditorView
 
 EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent) :
     QWidget(parent),
@@ -223,6 +220,16 @@ void EditorView::setCloseSplitEnabled(bool enable)
 void EditorView::setCloseSplitIcon(const QIcon &icon)
 {
     m_toolBar->setCloseSplitIcon(icon);
+}
+
+bool EditorView::canGoForward() const
+{
+    return m_currentNavigationHistoryPosition < m_navigationHistory.size() - 1;
+}
+
+bool EditorView::canGoBack() const
+{
+    return m_currentNavigationHistoryPosition > 0;
 }
 
 void EditorView::updateEditorHistory(IEditor *editor, QList<EditLocation> &history)
@@ -997,3 +1004,5 @@ EditLocation EditLocation::load(const QByteArray &data)
     stream >> loc.state;
     return loc;
 }
+
+} // Core::Internal
