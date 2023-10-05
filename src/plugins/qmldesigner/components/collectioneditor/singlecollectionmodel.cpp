@@ -11,6 +11,7 @@
 
 #include <QFile>
 #include <QJsonArray>
+#include <QJsonObject>
 #include <QJsonParseError>
 
 namespace {
@@ -39,26 +40,19 @@ SingleCollectionModel::SingleCollectionModel(QObject *parent)
 
 int SingleCollectionModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
 {
-    return m_elements.count();
+    return m_currentCollection.rows();
 }
 
 int SingleCollectionModel::columnCount([[maybe_unused]] const QModelIndex &parent) const
 {
-    return m_headers.count();
+    return m_currentCollection.columns();
 }
 
 QVariant SingleCollectionModel::data(const QModelIndex &index, int) const
 {
     if (!index.isValid())
         return {};
-
-    const QString &propertyName = m_headers.at(index.column());
-    const QJsonObject &elementNode = m_elements.at(index.row());
-
-    if (elementNode.contains(propertyName))
-        return elementNode.value(propertyName).toVariant();
-
-    return {};
+    return m_currentCollection.data(index.row(), index.column());
 }
 
 bool SingleCollectionModel::setData(const QModelIndex &, const QVariant &, int)
@@ -79,7 +73,7 @@ QVariant SingleCollectionModel::headerData(int section,
                                            [[maybe_unused]] int role) const
 {
     if (orientation == Qt::Horizontal)
-        return m_headers.at(section);
+        return m_currentCollection.headerAt(section);
 
     return {};
 }
@@ -88,16 +82,62 @@ void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QS
 {
     QString fileName = sourceNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toString();
 
-    if (sourceNode.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
-        loadJsonCollection(fileName, collection);
-    else if (sourceNode.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
-        loadCsvCollection(fileName, collection);
+    CollectionReference newReference{sourceNode, collection};
+    bool alreadyOpen = m_openedCollections.contains(newReference);
+
+    if (alreadyOpen) {
+        if (m_currentCollection.reference() != newReference) {
+            beginResetModel();
+            switchToCollection(newReference);
+            endResetModel();
+        }
+    } else {
+        switchToCollection(newReference);
+        if (sourceNode.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
+            loadJsonCollection(fileName, collection);
+        else if (sourceNode.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
+            loadCsvCollection(fileName, collection);
+    }
+}
+
+void SingleCollectionModel::switchToCollection(const CollectionReference &collection)
+{
+    if (m_currentCollection.reference() == collection)
+        return;
+
+    closeCurrentCollectionIfSaved();
+
+    if (!m_openedCollections.contains(collection))
+        m_openedCollections.insert(collection, CollectionDetails(collection));
+
+    m_currentCollection = m_openedCollections.value(collection);
+
+    setCollectionName(collection.name);
+}
+
+void SingleCollectionModel::closeCollectionIfSaved(const CollectionReference &collection)
+{
+    if (!m_openedCollections.contains(collection))
+        return;
+
+    const CollectionDetails &collectionDetails = m_openedCollections.value(collection);
+
+    if (!collectionDetails.isChanged())
+        m_openedCollections.remove(collection);
+
+    m_currentCollection = CollectionDetails{};
+}
+
+void SingleCollectionModel::closeCurrentCollectionIfSaved()
+{
+    if (m_currentCollection.isValid())
+        closeCollectionIfSaved(m_currentCollection.reference());
 }
 
 void SingleCollectionModel::loadJsonCollection(const QString &source, const QString &collection)
 {
-    beginResetModel();
-    setCollectionName(collection);
+    using CollectionEditor::SourceFormat;
+
     QFile sourceFile(source);
     QJsonArray collectionNodes;
     bool jsonFileIsOk = false;
@@ -119,62 +159,64 @@ void SingleCollectionModel::loadJsonCollection(const QString &source, const QStr
         }
     }
 
-    setCollectionSourceFormat(jsonFileIsOk ? SourceFormat::Json : SourceFormat::Unknown);
-
     if (collectionNodes.isEmpty()) {
-        m_headers.clear();
-        m_elements.clear();
+        closeCurrentCollectionIfSaved();
         endResetModel();
         return;
-    }
+    };
 
-    m_headers = getJsonHeaders(collectionNodes);
-
-    m_elements.clear();
+    QList<QJsonObject> elements;
     for (const QJsonValue &value : std::as_const(collectionNodes)) {
         if (value.isObject()) {
             QJsonObject object = value.toObject();
-            m_elements.append(object);
+            elements.append(object);
         }
     }
 
+    SourceFormat sourceFormat = jsonFileIsOk ? SourceFormat::Json : SourceFormat::Unknown;
+
+    beginResetModel();
+    m_currentCollection.resetDetails(getJsonHeaders(collectionNodes), elements, sourceFormat);
     endResetModel();
 }
 
-void SingleCollectionModel::loadCsvCollection(const QString &source, const QString &collectionName)
+void SingleCollectionModel::loadCsvCollection(const QString &source,
+                                              [[maybe_unused]] const QString &collectionName)
 {
-    beginResetModel();
+    using CollectionEditor::SourceFormat;
 
-    setCollectionName(collectionName);
     QFile sourceFile(source);
-    m_headers.clear();
-    m_elements.clear();
+    QStringList headers;
+    QList<QJsonObject> elements;
     bool csvFileIsOk = false;
 
     if (sourceFile.open(QFile::ReadOnly)) {
         QTextStream stream(&sourceFile);
 
         if (!stream.atEnd())
-            m_headers = stream.readLine().split(',');
+            headers = stream.readLine().split(',');
 
-        if (!m_headers.isEmpty()) {
+        if (!headers.isEmpty()) {
             while (!stream.atEnd()) {
                 const QStringList recordDataList = stream.readLine().split(',');
                 int column = -1;
                 QJsonObject recordData;
                 for (const QString &cellData : recordDataList) {
-                    if (++column == m_headers.size())
+                    if (++column == headers.size())
                         break;
-                    recordData.insert(m_headers.at(column), cellData);
+                    recordData.insert(headers.at(column), cellData);
                 }
                 if (recordData.count())
-                    m_elements.append(recordData);
+                    elements.append(recordData);
             }
             csvFileIsOk = true;
         }
     }
 
-    setCollectionSourceFormat(csvFileIsOk ? SourceFormat::Csv : SourceFormat::Unknown);
+    SourceFormat sourceFormat = csvFileIsOk ? SourceFormat::Csv : SourceFormat::Unknown;
+
+    beginResetModel();
+    m_currentCollection.resetDetails(headers, elements, sourceFormat);
     endResetModel();
 }
 
@@ -186,8 +228,4 @@ void SingleCollectionModel::setCollectionName(const QString &newCollectionName)
     }
 }
 
-void SingleCollectionModel::setCollectionSourceFormat(SourceFormat sourceFormat)
-{
-    m_sourceFormat = sourceFormat;
-}
 } // namespace QmlDesigner
