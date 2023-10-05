@@ -228,4 +228,25 @@ void SingleCollectionModel::setCollectionName(const QString &newCollectionName)
     }
 }
 
+bool SingleCollectionModel::saveCollectionAsJson(const QString &collection, const QJsonArray &content, const QString &source)
+{
+    QFile sourceFile(source);
+    if (sourceFile.open(QFile::ReadWrite)) {
+        QJsonParseError jpe;
+        QJsonDocument document = QJsonDocument::fromJson(sourceFile.readAll(), &jpe);
+
+        if (jpe.error == QJsonParseError::NoError) {
+            QJsonObject collectionMap = document.object();
+            collectionMap[collection] = content;
+            document.setObject(collectionMap);
+        }
+
+        sourceFile.resize(0);
+        if (sourceFile.write(document.toJson()))
+            return true;
+    }
+
+    return false;
+}
+
 } // namespace QmlDesigner

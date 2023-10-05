@@ -3,6 +3,7 @@
 
 #include "collectiondetails.h"
 
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QVariant>
 
@@ -194,6 +195,15 @@ CollectionDetails &CollectionDetails::operator=(const CollectionDetails &other)
 void CollectionDetails::markChanged()
 {
     d->isChanged = true;
+}
+
+QJsonArray CollectionDetails::getJsonCollection() const
+{
+    QJsonArray collectionArray;
+    for (const QJsonObject &element : std::as_const(d->elements))
+        collectionArray.push_back(element);
+
+    return collectionArray;
 }
 
 } // namespace QmlDesigner

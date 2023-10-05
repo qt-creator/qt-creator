@@ -63,6 +63,7 @@ public:
     bool markSaved();
 
     void swap(CollectionDetails &other);
+    QJsonArray getJsonCollection() const;
     CollectionDetails &operator=(const CollectionDetails &other);
 
 private:
