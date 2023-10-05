@@ -39,8 +39,17 @@ private:
     QRegularExpression m_nextSubError;
     QRegularExpression m_commonWarning;
     QRegularExpression m_locationLine;
+    QRegularExpression m_sourceLineAndFunction;
     bool m_skippedFirstEmptyLine = false;
     int m_lines = 0;
+
+    struct CallStackLine
+    {
+        Utils::FilePath file;
+        int line = -1;
+        QString function;
+    };
+    std::optional<QList<CallStackLine>> m_callStack;
 };
 
 } // CMakeProjectManager
