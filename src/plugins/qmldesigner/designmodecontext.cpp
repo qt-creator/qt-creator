@@ -6,7 +6,6 @@
 #include "collectionwidget.h"
 #include "designmodewidget.h"
 #include "edit3dwidget.h"
-#include "effectmakerwidget.h"
 #include "formeditorwidget.h"
 #include "materialbrowserwidget.h"
 #include "navigatorwidget.h"
@@ -97,18 +96,6 @@ TextEditorContext::TextEditorContext(QWidget *widget)
 void TextEditorContext::contextHelp(const HelpCallback &callback) const
 {
     qobject_cast<TextEditorWidget *>(m_widget)->contextHelp(callback);
-}
-
-EffectMakerContext::EffectMakerContext(QWidget *widget)
-    : IContext(widget)
-{
-    setWidget(widget);
-    setContext(Core::Context(Constants::C_QMLEFFECTMAKER, Constants::C_QT_QUICK_TOOLS_MENU));
-}
-
-void EffectMakerContext::contextHelp(const HelpCallback &callback) const
-{
-    qobject_cast<EffectMakerWidget *>(m_widget)->contextHelp(callback);
 }
 
 CollectionEditorContext::CollectionEditorContext(QWidget *widget)

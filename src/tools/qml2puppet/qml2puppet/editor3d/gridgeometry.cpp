@@ -80,10 +80,11 @@ void GridGeometry::doUpdateGeometry()
 
     setVertexData(vertexData);
 
-    int lastIndex = (vertexData.size() - 1) / int(sizeof(QVector3D));
-    auto vertexPtr = reinterpret_cast<QVector3D *>(vertexData.data());
-    setBounds(QVector3D(vertexPtr[0][0], vertexPtr[0][1], 0.0),
-            QVector3D(vertexPtr[lastIndex][0], vertexPtr[lastIndex][1], 0.0));
+    // Set bounds based on main grid size instead of actual mesh size to make all parts of the
+    // grid have consistent bounds.
+    const float extent = float(m_lines) * m_step;
+    setBounds(QVector3D(-extent, -extent, 0.0),
+              QVector3D(extent, extent, 0.0));
 }
 
 #if QT_VERSION_MAJOR == 6 && QT_VERSION_MINOR == 4

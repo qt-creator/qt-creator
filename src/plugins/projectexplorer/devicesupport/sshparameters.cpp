@@ -27,6 +27,12 @@ QString SshParameters::userAtHost() const
     if (!m_userName.isEmpty())
         res = m_userName + '@';
     res += m_host;
+    return res;
+}
+
+QString SshParameters::userAtHostAndPort() const
+{
+    QString res = SshParameters::userAtHost();
     if (m_port != 22)
         res += QString(":%1").arg(m_port);
     return res;
@@ -140,6 +146,15 @@ const QString userAtHost()
     if (!userMidFix.isEmpty())
         userMidFix.append('@');
     return userMidFix + getHostFromEnvironment();
+}
+
+const QString userAtHostAndPort()
+{
+    QString res = userAtHost();
+    const int port = getPortFromEnvironment();
+    if (port != 22)
+        res += QString(":%1").arg(port);
+    return res;
 }
 
 SshParameters getParameters()

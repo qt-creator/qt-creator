@@ -53,8 +53,7 @@ def setBreakpointsForCurrentProject(filesAndLines):
     if not filesAndLines or not isinstance(filesAndLines, (list,tuple)):
         test.fatal("This function only takes a non-empty list/tuple holding dicts.")
         return None
-    waitForObject("{type='Utils::NavigationTreeView' unnamed='1' visible='1' "
-                  "window=':Qt Creator_Core::Internal::MainWindow'}")
+    waitForObject(":Qt Creator_Utils::NavigationTreeView")
     breakPointList = []
     for current in filesAndLines:
         for curFile,curLine in current.items():

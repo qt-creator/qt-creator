@@ -15,14 +15,19 @@ View3D {
     property alias sceneHelpers: sceneHelpers
     property alias perspectiveCamera: scenePerspectiveCamera
     property alias orthoCamera: sceneOrthoCamera
+    property alias sceneEnv: sceneEnv
     property vector3d cameraLookAt
 
     // Measuring the distance from camera to lookAt plus the distance of lookAt from grid plane
     // gives a reasonable grid spacing in most cases while keeping spacing constant when
     // orbiting the camera.
     readonly property double cameraDistance: {
-        if (usePerspective)
-            return cameraLookAt.minus(camera.position).length() + Math.abs(cameraLookAt.y)
+        if (usePerspective) {
+            // Round to five decimals to avoid rounding errors causing constant property updates
+            // on the material when simply orbiting.
+            let dist = cameraLookAt.minus(camera.position).length() + Math.abs(cameraLookAt.y)
+            return Number(dist.toPrecision(5));
+        }
 
         // Orthocamera should only care about camera magnification,
         // as grid will be same size regardless of distance, so setting steps based on distance

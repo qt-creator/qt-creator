@@ -25,6 +25,12 @@ Test functions iterate over the "test-set-*" folders and run the tests by using 
 * **purpose**: testing fileselectors
 * **origin**: file selectors example from playground
 
+### test-set-3
+
+* **purpose**: testing `QDS.` prefixes
+* **origin**: copy of test-set-1
+
+
 ## File Filters test data
 
 Test data contains an example project folders that file filters will be initialized and tested.

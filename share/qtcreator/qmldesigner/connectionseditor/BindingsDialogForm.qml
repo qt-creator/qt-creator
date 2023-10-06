@@ -22,8 +22,17 @@ Column {
     Row {
         spacing: root.horizontalSpacing
 
-        PopupLabel { text: qsTr("From") ; tooltip: qsTr("The Property to assign from.")}
-        PopupLabel { text: qsTr("To"); tooltip: qsTr("The Property to assign to.") }
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("From")
+            tooltip: qsTr("Sets the component and its property from which the value is copied.")
+        }
+
+        PopupLabel {
+            width: root.columnWidth
+            text: qsTr("To")
+            tooltip: qsTr("Sets the property of the selected component to which the copied value is assigned.")
+        }
     }
 
     Row {

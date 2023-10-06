@@ -719,7 +719,7 @@ PropertyName NodeMetaInfoPrivate::defaultPropertyName() const
     return PropertyName("data");
 }
 
-inline static TypeName stringIdentifier(const TypeName &type, int maj, int min)
+static TypeName stringIdentifier(const TypeName &type, int maj, int min)
 {
     return type + QByteArray::number(maj) + '_' + QByteArray::number(min);
 }
@@ -729,13 +729,31 @@ std::shared_ptr<NodeMetaInfoPrivate> NodeMetaInfoPrivate::create(Model *model,
                                                                  int major,
                                                                  int minor)
 {
+    auto stringfiedType = stringIdentifier(type, major, minor);
     auto &cache = model->d->nodeMetaInfoCache();
-    if (auto found = cache.find(stringIdentifier(type, major, minor)); found != cache.end())
+    if (auto found = cache.find(stringfiedType); found != cache.end())
         return *found;
 
     auto newData = std::make_shared<NodeMetaInfoPrivate>(model, type, major, minor);
-    if (newData->isValid())
-        cache.insert(stringIdentifier(type, major, minor), newData);
+
+    if (!newData->isValid())
+        return newData;
+
+    auto stringfiedQualifiedType = stringIdentifier(newData->qualfiedTypeName(),
+                                                    newData->majorVersion(),
+                                                    newData->minorVersion());
+
+    if (auto found = cache.find(stringfiedQualifiedType); found != cache.end()) {
+        newData = *found;
+        cache.insert(stringfiedType, newData);
+        return newData;
+    }
+
+    if (stringfiedQualifiedType != stringfiedType)
+        cache.insert(stringfiedQualifiedType, newData);
+
+    cache.insert(stringfiedType, newData);
+
     return newData;
 }
 
@@ -1692,10 +1710,12 @@ std::vector<NodeMetaInfo> NodeMetaInfo::selfAndPrototypes() const
             NodeMetaInfos hierarchy = {*this};
             Model *model = m_privateData->model();
             for (const TypeDescription &type : m_privateData->prototypes()) {
-                hierarchy.emplace_back(model,
-                                       type.className.toUtf8(),
-                                       type.majorVersion,
-                                       type.minorVersion);
+                auto &last = hierarchy.emplace_back(model,
+                                                    type.className.toUtf8(),
+                                                    type.majorVersion,
+                                                    type.minorVersion);
+                if (!last.isValid())
+                    hierarchy.pop_back();
             }
 
             return hierarchy;
@@ -1718,11 +1738,14 @@ NodeMetaInfos NodeMetaInfo::prototypes() const
         if (isValid()) {
             NodeMetaInfos hierarchy;
             Model *model = m_privateData->model();
-            for (const TypeDescription &type : m_privateData->prototypes())
-                hierarchy.emplace_back(model,
-                                       type.className.toUtf8(),
-                                       type.majorVersion,
-                                       type.minorVersion);
+            for (const TypeDescription &type : m_privateData->prototypes()) {
+                auto &last = hierarchy.emplace_back(model,
+                                                    type.className.toUtf8(),
+                                                    type.majorVersion,
+                                                    type.minorVersion);
+                if (!last.isValid())
+                    hierarchy.pop_back();
+            }
 
             return hierarchy;
         }
@@ -2201,6 +2224,23 @@ bool NodeMetaInfo::isView() const
         return isValid()
                && (isSubclassOf("QtQuick.ListView") || isSubclassOf("QtQuick.GridView")
                    || isSubclassOf("QtQuick.PathView"));
+    }
+}
+
+bool NodeMetaInfo::usesCustomParser() const
+{
+    if constexpr (useProjectStorage()) {
+        return isValid() && bool(typeData().traits & Storage::TypeTraits::UsesCustomParser);
+    } else {
+        if (!isValid())
+            return false;
+
+        auto type = typeName();
+        return type == "QtQuick.VisualItemModel" || type == "Qt.VisualItemModel"
+               || type == "QtQuick.VisualDataModel" || type == "Qt.VisualDataModel"
+               || type == "QtQuick.ListModel" || type == "Qt.ListModel"
+               || type == "QtQml.Models.ListModel" || type == "QtQuick.XmlListModel"
+               || type == "Qt.XmlListModel" || type == "QtQml.XmlListModel.XmlListModel";
     }
 }
 
@@ -2790,8 +2830,8 @@ bool NodeMetaInfo::isQmlComponent() const
         auto type = m_privateData->qualfiedTypeName();
 
         return type == "Component" || type == "Qt.Component" || type == "QtQuick.Component"
-               || type == "QtQml.Component" || type == "<cpp>.QQmlComponent"
-               || type == "QQmlComponent";
+               || type == "QtQml.Component" || type == "<cpp>.QQmlComponent" || type == "QQmlComponent"
+               || type == "QML.Component" || type == "QtQml.Base.Component";
     }
 }
 
@@ -2816,7 +2856,7 @@ bool NodeMetaInfo::isColor() const
 
         auto type = m_privateData->qualfiedTypeName();
 
-        return type == "QColor" || type == "color";
+        return type == "QColor" || type == "color" || type == "QtQuick.color";
     }
 }
 

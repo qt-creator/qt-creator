@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "collectionwidget.h"
-#include "collectionmodel.h"
+#include "collectionsourcemodel.h"
 #include "collectionview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QMetaObject>
@@ -36,7 +37,7 @@ namespace QmlDesigner {
 CollectionWidget::CollectionWidget(CollectionView *view)
     : QFrame()
     , m_view(view)
-    , m_model(new CollectionModel)
+    , m_sourceModel(new CollectionSourceModel)
     , m_singleCollectionModel(new SingleCollectionModel)
     , m_quickWidget(new StudioQuickWidget(this))
 {
@@ -65,7 +66,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     auto map = m_quickWidget->registerPropertyMap("CollectionEditorBackend");
     map->setProperties(
         {{"rootView", QVariant::fromValue(this)},
-         {"model", QVariant::fromValue(m_model.data())},
+         {"model", QVariant::fromValue(m_sourceModel.data())},
          {"singleCollectionModel", QVariant::fromValue(m_singleCollectionModel.data())}});
 
     auto hotReloadShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
@@ -82,9 +83,9 @@ void CollectionWidget::contextHelp(const Core::IContext::HelpCallback &callback)
         callback({});
 }
 
-QPointer<CollectionModel> CollectionWidget::collectionModel() const
+QPointer<CollectionSourceModel> CollectionWidget::sourceModel() const
 {
-    return m_model;
+    return m_sourceModel;
 }
 
 QPointer<SingleCollectionModel> CollectionWidget::singleCollectionModel() const
@@ -103,26 +104,23 @@ void CollectionWidget::reloadQmlSource()
 
 bool CollectionWidget::loadJsonFile(const QString &jsonFileAddress)
 {
-    QUrl jsonUrl(jsonFileAddress);
-    QString fileAddress = jsonUrl.isLocalFile() ? jsonUrl.toLocalFile() : jsonUrl.toString();
-    QFile file(fileAddress);
-    if (file.open(QFile::ReadOnly))
-        return m_view->loadJson(file.readAll());
+    if (!isJsonFile(jsonFileAddress))
+        return false;
 
-    warn("Unable to open the file", file.errorString());
-    return false;
+    QUrl jsonUrl(jsonFileAddress);
+    QFileInfo fileInfo(jsonUrl.isLocalFile() ? jsonUrl.toLocalFile() : jsonUrl.toString());
+
+    m_view->addResource(jsonUrl, fileInfo.completeBaseName(), "json");
+
+    return true;
 }
 
 bool CollectionWidget::loadCsvFile(const QString &collectionName, const QString &csvFileAddress)
 {
     QUrl csvUrl(csvFileAddress);
-    QString fileAddress = csvUrl.isLocalFile() ? csvUrl.toLocalFile() : csvUrl.toString();
-    QFile file(fileAddress);
-    if (file.open(QFile::ReadOnly))
-        return m_view->loadCsv(collectionName, file.readAll());
+    m_view->addResource(csvUrl, collectionName, "csv");
 
-    warn("Unable to open the file", file.errorString());
-    return false;
+    return true;
 }
 
 bool CollectionWidget::isJsonFile(const QString &jsonFileAddress) const
@@ -155,10 +153,10 @@ bool CollectionWidget::isCsvFile(const QString &csvFileAddress) const
     return true;
 }
 
-bool CollectionWidget::addCollection(const QString &collectionName) const
+bool CollectionWidget::addCollection([[maybe_unused]] const QString &collectionName) const
 {
-    m_view->addNewCollection(collectionName);
-    return true;
+    // TODO
+    return false;
 }
 
 void CollectionWidget::warn(const QString &title, const QString &body)

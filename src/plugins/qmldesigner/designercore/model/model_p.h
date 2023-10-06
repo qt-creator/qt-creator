@@ -19,6 +19,7 @@
 #include <QVector3D>
 
 #include <algorithm>
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QPlainTextEdit;
@@ -110,6 +111,9 @@ public:
                  std::unique_ptr<ModelResourceManagementInterface> resourceManagement);
 
     ~ModelPrivate() override;
+
+    ModelPrivate(const ModelPrivate &) = delete;
+    ModelPrivate &operator=(const ModelPrivate &) = delete;
 
     QUrl fileUrl() const;
     void setFileUrl(const QUrl &url);
@@ -313,6 +317,7 @@ private:
     EnabledViewRange enabledViews() const;
     ImportedTypeNameId importedTypeNameId(Utils::SmallStringView typeName);
     void setTypeId(InternalNode *node, Utils::SmallStringView typeName);
+    void emitRefreshMetaInfos(const TypeIds &deletedTypeIds);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
@@ -321,6 +326,8 @@ public:
 private:
     Model *m_model = nullptr;
     MetaInfo m_metaInfo;
+    std::function<void(const TypeIds &deletedTypeIds)> m_metaInfoRefreshCallback{
+        [&](const TypeIds &deletedTypeIds) { emitRefreshMetaInfos(deletedTypeIds); }};
     Imports m_imports;
     Imports m_possibleImportList;
     Imports m_usedImportList;

@@ -151,10 +151,15 @@ void DynamicPropertiesModel::updateItem(const AbstractProperty &property)
     if (!property.isDynamic())
         return;
 
-    if (auto *item = itemForProperty(property))
+    if (auto *item = itemForProperty(property)) {
         item->updateProperty(property);
-    else
-        addProperty(property);
+    } else {
+        ModelNode node = property.parentModelNode();
+        if (selectedNodes().contains(node)) {
+            addProperty(property);
+            setCurrentProperty(property);
+        }
+    }
 }
 
 void DynamicPropertiesModel::removeItem(const AbstractProperty &property)

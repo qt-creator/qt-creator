@@ -597,13 +597,91 @@ public:
     MapInsertIterator<Container> operator++(int) { return *this; }
 };
 
-// inserter helper function, returns a std::back_inserter for most containers
-// and is overloaded for QSet<> and other containers without push_back, returning custom inserters
-template<typename C>
-inline std::back_insert_iterator<C>
-inserter(C &container)
+// because Qt container are not implementing the standard interface we need
+// this helper functions for generic code
+template<typename Type>
+void append(QList<Type> *container, QList<Type> &&input)
 {
-    return std::back_inserter(container);
+    container->append(std::move(input));
+}
+
+template<typename Type>
+void append(QList<Type> *container, const QList<Type> &input)
+{
+    container->append(input);
+}
+
+template<typename Container>
+void append(Container *container, Container &&input)
+{
+    container->insert(container->end(),
+                      std::make_move_iterator(input.begin()),
+                      std::make_move_iterator(input.end()));
+}
+
+template<typename Container>
+void append(Container *container, const Container &input)
+{
+    container->insert(container->end(), input.begin(), input.end());
+}
+
+// BackInsertIterator behaves like std::back_insert_iterator except is adds the back insertion for
+// container of the same type
+template<typename Container>
+class BackInsertIterator
+{
+public:
+    using iterator_category = std::output_iterator_tag;
+    using value_type = void;
+    using difference_type = ptrdiff_t;
+    using pointer = void;
+    using reference = void;
+    using container_type = Container;
+
+    explicit constexpr BackInsertIterator(Container &container)
+        : m_container(std::addressof(container))
+    {}
+
+    constexpr BackInsertIterator &operator=(const typename Container::value_type &value)
+    {
+        m_container->push_back(value);
+        return *this;
+    }
+
+    constexpr BackInsertIterator &operator=(typename Container::value_type &&value)
+    {
+        m_container->push_back(std::move(value));
+        return *this;
+    }
+
+    constexpr BackInsertIterator &operator=(const Container &container)
+    {
+        append(m_container, container);
+        return *this;
+    }
+
+    constexpr BackInsertIterator &operator=(Container &&container)
+    {
+        append(m_container, container);
+        return *this;
+    }
+
+    [[nodiscard]] constexpr BackInsertIterator &operator*() { return *this; }
+
+    constexpr BackInsertIterator &operator++() { return *this; }
+
+    constexpr BackInsertIterator operator++(int) { return *this; }
+
+private:
+    Container *m_container;
+};
+
+// inserter helper function, returns a BackInsertIterator for most containers
+// and is overloaded for QSet<> and other containers without push_back, returning custom inserters
+template<typename Container>
+inline BackInsertIterator<Container> inserter(Container &container)
+{
+    return BackInsertIterator(container);
 }
 
 template<typename X>

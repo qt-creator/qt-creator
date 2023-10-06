@@ -6,7 +6,7 @@ import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import StudioControls as SC
+import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
 import BackendApi
@@ -59,7 +59,7 @@ Item {
                 }
             }
 
-            SC.ComboBox { // Style Filter ComboBox
+            StudioControls.ComboBox { // Style Filter ComboBox
                 id: styleComboBox
                 actionIndicatorVisible: false
                 currentIndex: 0
@@ -93,10 +93,17 @@ Item {
                 width: parent.width
 
                 ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
-                ScrollBar.vertical: SC.VerticalScrollBar {
-                    id: styleScrollBar
-                    x: stylesList.width + (DialogValues.stylesPanePadding
-                                           - StudioTheme.Values.scrollBarThickness) * 0.5
+                ScrollBar.vertical: StudioControls.TransientScrollBar {
+                    id: verticalScrollBar
+                    style: StudioTheme.Values.viewStyle
+                    parent: scrollView
+                    x: scrollView.width + (DialogValues.gridMargins - verticalScrollBar.width) * 0.5
+                    y: scrollView.topPadding
+                    height: scrollView.availableHeight
+                    orientation: Qt.Vertical
+
+                    show: (scrollView.hovered || scrollView.focus || verticalScrollBar.inUse)
+                          && verticalScrollBar.isNeeded
                 }
 
                 ListView {

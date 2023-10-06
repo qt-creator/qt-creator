@@ -77,28 +77,28 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     captureMouseClicks.setLabel(Tr::tr("Capture the screen mouse clicks"));
     captureMouseClicks.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
-    captureType.setSettingsKey("CaptureType");
-    captureType.setLabelText(Tr::tr("Capture device/filter:"));
-    captureType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
-    captureType.setVisible(false);
+    screenCaptureType.setSettingsKey("ScreenCaptureType");
+    screenCaptureType.setLabelText(Tr::tr("Capture device/filter:"));
+    screenCaptureType.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    screenCaptureType.setDefaultValue(0);
+    screenCaptureType.setVisible(false);
     switch (HostOsInfo::hostOs()) {
     case OsTypeLinux:
-        captureType.addOption({"x11grab", {}, CaptureType::X11grab});
-        captureType.setDefaultValue(CaptureType::X11grab);
+        screenCaptureType.addOption({"x11grab", {}, CaptureType::X11grab});
         break;
     case OsTypeWindows:
-        captureType.addOption({"ddagrab", {}, CaptureType::Ddagrab});
-        captureType.setDefaultValue(CaptureType::Ddagrab);
+        screenCaptureType.addOption({"ddagrab", {}, CaptureType::Ddagrab});
+        screenCaptureType.addOption({"gdigrab", {}, CaptureType::Gdigrab});
+        screenCaptureType.setVisible(true);
         break;
     case OsTypeMac:
-        captureType.addOption({"AVFoundation", {}, CaptureType::AVFoundation});
-        captureType.setDefaultValue(CaptureType::AVFoundation);
+        screenCaptureType.addOption({"AVFoundation", {}, CaptureType::AVFoundation});
         break;
     default:
         break;
     }
     auto setCaptureMouseClicksVisible = [this] {
-        const bool visible = captureType.volatileValue() == CaptureType::AVFoundation;
+        const bool visible = volatileScreenCaptureType() == CaptureType::AVFoundation;
         captureMouseClicks.setVisible(visible);
     };
 
@@ -185,7 +185,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
                 Column {
                     captureCursor,
                     captureMouseClicks,
-                    Row { captureType, st },
+                    Row { screenCaptureType, st },
                     Row { enableFileSizeLimit, fileSizeLimit, st },
                     Row { enableRtBuffer, rtBufferSize, st },
                 },
@@ -205,7 +205,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     readSettings();
 
     setCaptureMouseClicksVisible();
-    connect(&captureType, &SelectionAspect::volatileValueChanged, this,
+    connect(&screenCaptureType, &SelectionAspect::volatileValueChanged, this,
             setCaptureMouseClicksVisible);
 }
 
@@ -245,6 +245,12 @@ void ScreenRecorderSettings::applyRecordSettings(const RecordSettings &settings)
     recordFrameRate.setValue(settings.frameRate);
     recordFrameRate.apply();
     recordFrameRate.writeToSettingsImmediatly();
+}
+
+CaptureType ScreenRecorderSettings::volatileScreenCaptureType() const
+{
+    const QVariant value = screenCaptureType.itemValueForIndex(screenCaptureType.volatileValue());
+    return value.value<CaptureType>();
 }
 
 class ScreenRecorderSettingsPage : public Core::IOptionsPage

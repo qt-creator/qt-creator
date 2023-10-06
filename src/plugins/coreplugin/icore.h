@@ -63,6 +63,7 @@ public:
                                        Utils::Id settingsId = {},
                                        QWidget *parent = nullptr);
 
+    static bool isQtDesignStudio();
     static Utils::QtcSettings *settings(QSettings::Scope scope = QSettings::UserScope);
     static QPrinter *printer();
     static QString userInterfaceLanguage();

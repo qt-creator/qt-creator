@@ -579,26 +579,30 @@ Rectangle {
                 anchors.topMargin: root.topMargin
                 anchors.leftMargin: root.leftMargin
 
-                ScrollBar.horizontal: HelperWidgets.ScrollBar {
+                ScrollBar.horizontal: StudioControls.TransientScrollBar {
                     id: horizontalBar
+                    style: StudioTheme.Values.viewStyle
                     parent: scrollView
                     x: scrollView.leftPadding
                     y: scrollView.height - height
                     width: scrollView.availableWidth
                     orientation: Qt.Horizontal
+                    visible: root.isLandscape
 
                     show: (scrollView.hovered || scrollView.focus || scrollView.adsFocus)
                           && horizontalBar.isNeeded
                     otherInUse: verticalBar.inUse
                 }
 
-                ScrollBar.vertical: HelperWidgets.ScrollBar {
+                ScrollBar.vertical: StudioControls.TransientScrollBar {
                     id: verticalBar
+                    style: StudioTheme.Values.viewStyle
                     parent: scrollView
                     x: scrollView.mirrored ? 0 : scrollView.width - width
                     y: scrollView.topPadding
                     height: scrollView.availableHeight
                     orientation: Qt.Vertical
+                    visible: !root.isLandscape
 
                     show: (scrollView.hovered || scrollView.focus || scrollView.adsFocus)
                           && verticalBar.isNeeded

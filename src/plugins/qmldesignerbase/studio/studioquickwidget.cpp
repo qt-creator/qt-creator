@@ -3,8 +3,11 @@
 
 #include "studioquickwidget.h"
 
+#include <coreplugin/icore.h>
+
 #include <QQuickItem>
 #include <QVBoxLayout>
+#include <QWindow>
 #include <QtQml/QQmlEngine>
 
 QQmlEngine *s_engine = nullptr;
@@ -46,6 +49,14 @@ void StudioQuickWidget::setResizeMode(QQuickWidget::ResizeMode mode)
 void StudioQuickWidget::setSource(const QUrl &url)
 {
     m_quickWidget->setSource(url);
+
+    if (rootObject()) {
+        const auto windows = rootObject()->findChildren<QWindow *>();
+
+        for (auto window : windows) {
+            window->setTransientParent(Core::ICore::dialogParent()->windowHandle());
+        }
+    }
 }
 
 void StudioQuickWidget::refresh() {}

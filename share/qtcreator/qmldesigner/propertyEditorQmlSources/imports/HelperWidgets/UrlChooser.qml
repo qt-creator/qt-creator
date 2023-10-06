@@ -162,8 +162,6 @@ Row {
 
             id: delegateRoot
             width: comboBox.popup.width - comboBox.popup.leftPadding - comboBox.popup.rightPadding
-                   - (comboBox.popupScrollBar.visible ? comboBox.popupScrollBar.contentItem.implicitWidth + 2
-                                                      : 0) // TODO Magic number
             height: StudioTheme.Values.height - 2 * StudioTheme.Values.border
             padding: 0
             hoverEnabled: true
@@ -176,32 +174,18 @@ Row {
 
             onClicked: comboBox.selectItem(delegateRoot.DelegateModel.itemsIndex)
 
-            indicator: Item {
-                id: itemDelegateIconArea
-                width: delegateRoot.height
-                height: delegateRoot.height
-
-                Label {
-                    id: itemDelegateIcon
-                    text: StudioTheme.Constants.tickIcon
-                    color: delegateRoot.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
-                                                    : StudioTheme.Values.themeTextColor
-                    font.family: StudioTheme.Constants.iconFont.family
-                    font.pixelSize: StudioTheme.Values.spinControlIconSizeMulti
-                    visible: comboBox.currentIndex === delegateRoot.DelegateModel.itemsIndex ? true
-                                                                                             : false
-                    anchors.fill: parent
-                    renderType: Text.NativeRendering
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
-
             contentItem: Text {
-                leftPadding: itemDelegateIconArea.width
+                leftPadding: 8
                 text: name
-                color: delegateRoot.highlighted ? StudioTheme.Values.themeTextSelectedTextColor
-                                                : StudioTheme.Values.themeTextColor
+                color: {
+                    if (!delegateRoot.enabled)
+                        return comboBox.style.text.disabled
+
+                    if (comboBox.currentIndex === delegateRoot.DelegateModel.itemsIndex)
+                        return comboBox.style.text.selectedText
+
+                    return comboBox.style.text.idle
+                }
                 font: comboBox.font
                 elide: Text.ElideRight
                 verticalAlignment: Text.AlignVCenter
@@ -212,8 +196,21 @@ Row {
                 y: 0
                 width: delegateRoot.width
                 height: delegateRoot.height
-                color: delegateRoot.highlighted ? StudioTheme.Values.themeInteraction
-                                                : "transparent"
+                color: {
+                    if (!delegateRoot.enabled)
+                        return "transparent"
+
+                    if (delegateRoot.hovered && comboBox.currentIndex === delegateRoot.DelegateModel.itemsIndex)
+                        return comboBox.style.interactionHover
+
+                    if (comboBox.currentIndex === delegateRoot.DelegateModel.itemsIndex)
+                        return comboBox.style.interaction
+
+                    if (delegateRoot.hovered)
+                        return comboBox.style.background.hover
+
+                    return "transparent"
+                }
             }
 
             ToolTip {

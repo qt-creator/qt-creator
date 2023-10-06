@@ -240,11 +240,6 @@ bool CurrentDocumentFind::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-QWidget *CurrentDocumentFind::currentWidget() const
-{
-    return m_currentWidget.get();
-}
-
 void CurrentDocumentFind::aggregationChanged()
 {
     if (m_currentWidget) {

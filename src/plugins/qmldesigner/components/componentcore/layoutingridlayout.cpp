@@ -196,7 +196,7 @@ void LayoutInGridLayout::doIt()
 static bool hasQtQuickLayoutImport(const SelectionContext &context)
 {
     if (context.view() && context.view()->model()) {
-        Import import = Import::createLibraryImport(QStringLiteral("QtQuick.Layouts"), QStringLiteral("1.0"));
+        Import import = Import::createLibraryImport(QStringLiteral("QtQuick.Layouts"), {});
         return context.view()->model()->hasImport(import, true, true);
     }
 
@@ -206,7 +206,7 @@ static bool hasQtQuickLayoutImport(const SelectionContext &context)
 void LayoutInGridLayout::ensureLayoutImport(const SelectionContext &context)
 {
     if (!hasQtQuickLayoutImport(context)) {
-        Import layoutImport = Import::createLibraryImport("QtQuick.Layouts", "1.0");
+        Import layoutImport = Import::createLibraryImport("QtQuick.Layouts", {});
         context.view()-> model()->changeImports({layoutImport}, {});
     }
 }

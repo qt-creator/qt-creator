@@ -20,6 +20,7 @@
 #include <projectexplorer/projecttree.h>
 
 #include <QLoggingCategory>
+#include <QtConcurrent>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -50,52 +51,65 @@ CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefil
 {
     CMakeFileResult result;
 
-    for (const CMakeFileInfo &info : cmakefiles) {
-        const FilePath sfn = sourceDirectory.resolvePath(info.path);
-        const int oldCount = result.cmakeFiles.count();
-        CMakeFileInfo absolute(info);
-        absolute.path = sfn;
+    if (cmakefiles.empty())
+        return result;
 
-        const auto mimeType = Utils::mimeTypeForFile(info.path);
-        if (mimeType.matchesName(Constants::CMAKE_MIMETYPE)
-            || mimeType.matchesName(Constants::CMAKE_PROJECT_MIMETYPE)) {
-            expected_str<QByteArray> fileContent = sfn.fileContents();
-            std::string errorString;
-            if (fileContent) {
-                fileContent = fileContent->replace("\r\n", "\n");
-                if (!absolute.cmakeListFile.ParseString(fileContent->toStdString(),
-                                                        sfn.fileName().toStdString(),
-                                                        errorString))
-                    qCWarning(cmakeLogger)
-                        << "Failed to parse:" << sfn.path() << QString::fromLatin1(errorString);
-            }
+    // Uniquify fileInfos
+    std::set<CMakeFileInfo> cmakeFileSet{cmakefiles.begin(), cmakefiles.end()};
+
+    // Load and parse cmake files. We use concurrency here to speed up the process of
+    // reading many small files, which can get slow especially on remote devices.
+    QFuture<CMakeFileInfo> mapResult
+        = QtConcurrent::mapped(cmakeFileSet, [sourceDirectory](const auto &info) {
+              const FilePath sfn = sourceDirectory.resolvePath(info.path);
+              CMakeFileInfo absolute(info);
+              absolute.path = sfn;
+
+              const auto mimeType = Utils::mimeTypeForFile(info.path);
+              if (mimeType.matchesName(Constants::CMAKE_MIMETYPE)
+                  || mimeType.matchesName(Constants::CMAKE_PROJECT_MIMETYPE)) {
+                  expected_str<QByteArray> fileContent = sfn.fileContents();
+                  std::string errorString;
+                  if (fileContent) {
+                      fileContent = fileContent->replace("\r\n", "\n");
+                      if (!absolute.cmakeListFile.ParseString(fileContent->toStdString(),
+                                                              sfn.fileName().toStdString(),
+                                                              errorString)) {
+                          qCWarning(cmakeLogger) << "Failed to parse:" << sfn.path()
+                                                 << QString::fromLatin1(errorString);
+                      }
+                  }
+              }
+
+              return absolute;
+          });
+
+    mapResult.waitForFinished();
+
+    for (const auto &info : mapResult.results()) {
+        result.cmakeFiles.insert(info);
+
+        if (info.isCMake && !info.isCMakeListsDotTxt) {
+            // Skip files that cmake considers to be part of the installation -- but include
+            // CMakeLists.txt files. This fixes cmake binaries running from their own
+            // build directory.
+            continue;
         }
 
-        result.cmakeFiles.insert(absolute);
+        auto node = std::make_unique<FileNode>(info.path, FileType::Project);
+        node->setIsGenerated(info.isGenerated
+                             && !info.isCMakeListsDotTxt); // CMakeLists.txt are never
+                                                           // generated, independent
+                                                           // what cmake thinks:-)
 
-        if (oldCount < result.cmakeFiles.count()) {
-            if (info.isCMake && !info.isCMakeListsDotTxt) {
-                // Skip files that cmake considers to be part of the installation -- but include
-                // CMakeLists.txt files. This fixes cmake binaries running from their own
-                // build directory.
-                continue;
-            }
-
-            auto node = std::make_unique<FileNode>(sfn, FileType::Project);
-            node->setIsGenerated(info.isGenerated
-                                 && !info.isCMakeListsDotTxt); // CMakeLists.txt are never
-                                                               // generated, independent
-                                                               // what cmake thinks:-)
-
-            if (info.isCMakeListsDotTxt) {
-                result.cmakeListNodes.emplace_back(std::move(node));
-            } else if (sfn.isChildOf(sourceDirectory)) {
-                result.cmakeNodesSource.emplace_back(std::move(node));
-            } else if (sfn.isChildOf(buildDirectory)) {
-                result.cmakeNodesBuild.emplace_back(std::move(node));
-            } else {
-                result.cmakeNodesOther.emplace_back(std::move(node));
-            }
+        if (info.isCMakeListsDotTxt) {
+            result.cmakeListNodes.emplace_back(std::move(node));
+        } else if (info.path.isChildOf(sourceDirectory)) {
+            result.cmakeNodesSource.emplace_back(std::move(node));
+        } else if (info.path.isChildOf(buildDirectory)) {
+            result.cmakeNodesBuild.emplace_back(std::move(node));
+        } else {
+            result.cmakeNodesOther.emplace_back(std::move(node));
         }
     }
 

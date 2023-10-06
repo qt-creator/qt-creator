@@ -7,8 +7,8 @@ import StudioTheme 1.0 as StudioTheme
 import HelperWidgets 2.0 as HelperWidgets
 
 PopupDialog {
-
-   property alias backend: form.backend
+    id: root
+    property alias backend: form.backend
 
     titleBar: Row {
         spacing: 30 // TODO
@@ -21,7 +21,7 @@ PopupDialog {
             anchors.verticalCenter: parent.verticalCenter
             HelperWidgets.ToolTipArea {
                 anchors.fill: parent
-                tooltip: qsTr("Choose the target for the signal.")
+                tooltip: qsTr("Sets the Component that is connected to a <b>Signal</b>.")
             }
         }
 
@@ -36,10 +36,16 @@ PopupDialog {
             property int currentTypeIndex: backend.signal.id.currentIndex ?? 0
             onCurrentTypeIndexChanged: target.currentIndex = target.currentTypeIndex
         }
-
     }
 
     ConnectionsDialogForm {
-          id: form
+        id: form
+
+        Connections {
+            target: root.backend
+            function onPopupShouldClose() {
+                root.close()
+            }
+        }
     }
 }

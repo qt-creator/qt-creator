@@ -5332,6 +5332,19 @@ TEST_F(ProjectStorage, module_exported_import)
                                 UnorderedElementsAre(IsExportedType(myModuleModuleId, "MyItem"))))));
 }
 
+TEST_F(ProjectStorage, module_exported_import_deletes_indirect_imports_too)
+{
+    auto package{createModuleExportedImportSynchronizationPackage()};
+    storage.synchronize(package);
+    SynchronizationPackage packageWhichDeletesImports;
+    packageWhichDeletesImports.updatedSourceIds = package.updatedSourceIds;
+    storage.synchronize(packageWhichDeletesImports);
+
+    auto imports = storage.fetchDocumentImports();
+
+    ASSERT_THAT(imports, IsEmpty());
+}
+
 TEST_F(ProjectStorage, module_exported_import_with_different_versions)
 {
     auto package{createModuleExportedImportSynchronizationPackage()};
@@ -7190,6 +7203,18 @@ TEST_F(ProjectStorage, synchronize_property_editor_with_non_existing_type_name)
     storage.synchronize(package);
 
     ASSERT_THAT(storage.propertyEditorPathId(fetchTypeId(sourceId4, "Item4D")), IsFalse());
+}
+
+TEST_F(ProjectStorage, call_refresh_callback_after_synchronization)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    MockFunction<void(const QmlDesigner::TypeIds &)> callbackMock;
+    auto callback = callbackMock.AsStdFunction();
+    storage.addRefreshCallback(&callback);
+
+    EXPECT_CALL(callbackMock, Call(_));
+
+    storage.synchronize(package);
 }
 
 } // namespace

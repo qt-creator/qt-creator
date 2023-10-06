@@ -33,11 +33,6 @@
 #define unittest_public private
 #endif
 
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#endif
-
 namespace Utils {
 
 template<uint Size>
@@ -425,10 +420,9 @@ public:
         size_type newSize = oldSize + string.size();
 
         reserve(optimalCapacity(newSize));
-        QT_WARNING_PUSH
-        QT_WARNING_DISABLE_CLANG("-Wunsafe-buffer-usage")
-        std::char_traits<char>::copy(data() + oldSize, string.data(), string.size());
-        QT_WARNING_POP
+        std::char_traits<char>::copy(std::next(data(), static_cast<std::ptrdiff_t>(oldSize)),
+                                     string.data(),
+                                     string.size());
         setSize(newSize);
     }
 
@@ -566,30 +560,20 @@ public:
     static
     BasicSmallString number(int number)
     {
-#ifdef __cpp_lib_to_chars
-        // +1 for the sign, +1 for the extra digit
+        // 2 bytes for the sign and because digits10 returns the floor
         char buffer[std::numeric_limits<int>::digits10 + 2];
         auto result = std::to_chars(buffer, buffer + sizeof(buffer), number, 10);
-        Q_ASSERT(result.ec == std::errc{});
         auto endOfConversionString = result.ptr;
         return BasicSmallString(buffer, endOfConversionString);
-#else
-        return std::to_string(number);
-#endif
     }
 
     static BasicSmallString number(long long int number) noexcept
     {
-#ifdef __cpp_lib_to_chars
-        // +1 for the sign, +1 for the extra digit
+        // 2 bytes for the sign and because digits10 returns the floor
         char buffer[std::numeric_limits<long long int>::digits10 + 2];
         auto result = std::to_chars(buffer, buffer + sizeof(buffer), number, 10);
-        Q_ASSERT(result.ec == std::errc{});
         auto endOfConversionString = result.ptr;
         return BasicSmallString(buffer, endOfConversionString);
-#else
-        return std::to_string(number);
-#endif
     }
 
     static BasicSmallString number(double number) noexcept { return std::to_string(number); }
@@ -927,7 +911,3 @@ SmallString operator+(const char(&first)[Size], SmallStringView second)
 }
 
 } // namespace Utils
-
-#if defined(__GNUC__) && !defined(__clang__)
-#pragma GCC diagnostic pop
-#endif

@@ -32,6 +32,8 @@ public:
     std::unique_ptr<TextEditor::AssistInterface> createAssistInterface(
         TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const override;
 
+    void setEditorTextWithIndentation(const QString &text);
+
 signals:
     void returnKeyClicked();
 
@@ -39,6 +41,7 @@ public:
     QmlJSEditor::QmlJSEditorDocument *qmljsdocument = nullptr;
     Core::IContext *m_context = nullptr;
     QAction *m_completionAction = nullptr;
+    bool m_isMultiline = false;
 };
 
 class BindingDocument : public QmlJSEditor::QmlJSEditorDocument

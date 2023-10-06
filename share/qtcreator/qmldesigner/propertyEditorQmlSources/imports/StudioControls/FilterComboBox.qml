@@ -277,32 +277,12 @@ Item {
 
             onClicked: control.selectItem(delegateRoot.DelegateModel.itemsIndex)
 
-            indicator: Item {
-                id: itemDelegateIconArea
-                width: delegateRoot.height
-                height: delegateRoot.height
-
-                T.Label {
-                    id: itemDelegateIcon
-                    text: StudioTheme.Constants.tickIcon
-                    color: delegateRoot.highlighted ? control.style.text.selectedText
-                                                    : control.style.text.idle
-                    font.family: StudioTheme.Constants.iconFont.family
-                    font.pixelSize: control.style.smallIconFontSize
-                    visible: control.currentIndex === delegateRoot.DelegateModel.itemsIndex ? true
-                                                                                            : false
-                    anchors.fill: parent
-                    renderType: Text.NativeRendering
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                }
-            }
-
             contentItem: Text {
-                leftPadding: itemDelegateIconArea.width
+                leftPadding: 8
                 text: name
-                color: delegateRoot.highlighted ? control.style.text.selectedText
-                                                : control.style.text.idle
+                color: control.currentIndex === delegateRoot.DelegateModel.itemsIndex
+                       ? control.style.text.selectedText
+                       : control.style.text.idle
                 font: textInput.font
                 elide: Text.ElideRight
                 verticalAlignment: Text.AlignVCenter
@@ -313,7 +293,22 @@ Item {
                 y: 0
                 width: delegateRoot.width
                 height: delegateRoot.height
-                color: delegateRoot.highlighted ? control.style.interaction : "transparent"
+                color: {
+                    if (!itemDelegate.enabled)
+                        return "transparent"
+
+                    if (itemDelegate.hovered
+                            && control.currentIndex === delegateRoot.DelegateModel.itemsIndex)
+                        return control.style.interactionHover
+
+                    if (control.currentIndex === delegateRoot.DelegateModel.itemsIndexx)
+                        return control.style.interaction
+
+                    if (itemDelegate.hovered)
+                        return control.style.background.hover
+
+                    return "transparent"
+                }
             }
         }
 
@@ -669,9 +664,9 @@ Item {
 
     T.Popup {
         id: popup
-        x: textInput.x + control.style.borderWidth
+        x: textInput.x
         y: textInput.height
-        width: textInput.width - (control.style.borderWidth * 2)
+        width: textInput.width
         height: Math.min(popup.contentItem.implicitHeight + popup.topPadding + popup.bottomPadding,
                          control.Window.height - popup.topMargin - popup.bottomMargin,
                          control.style.maxComboBoxPopupHeight)
@@ -694,9 +689,18 @@ Item {
                 return null
             }
 
-            ScrollBar.vertical: ScrollBar {
+            HoverHandler { id: hoverHandler }
+
+            ScrollBar.vertical: TransientScrollBar {
                 id: popupScrollBar
-                visible: listView.height < listView.contentHeight
+                parent: listView
+                x: listView.width - verticalScrollBar.width
+                y: 0
+                height: listView.availableHeight
+                orientation: Qt.Vertical
+
+                show: (hoverHandler.hovered || popupScrollBar.inUse)
+                      && popupScrollBar.isNeeded
             }
         }
 

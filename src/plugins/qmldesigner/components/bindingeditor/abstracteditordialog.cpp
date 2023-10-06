@@ -3,18 +3,17 @@
 
 #include "abstracteditordialog.h"
 
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
-
 #include <qmldesigner/qmldesignerplugin.h>
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditordocument.h>
-#include <texteditor/textdocument.h>
 
 #include <QDialogButtonBox>
-#include <QPushButton>
-#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPlainTextEdit>
+#include <QPushButton>
+#include <QVBoxLayout>
 
 namespace QmlDesigner {
 
@@ -71,7 +70,7 @@ QString AbstractEditorDialog::editorValue() const
 void AbstractEditorDialog::setEditorValue(const QString &text)
 {
     if (m_editorWidget)
-        m_editorWidget->document()->setPlainText(text);
+        m_editorWidget->setEditorTextWithIndentation(text);
 }
 
 void AbstractEditorDialog::unregisterAutoCompletion()
@@ -102,8 +101,6 @@ void AbstractEditorDialog::setupJSEditor()
     m_editorWidget->setLineNumbersVisible(false);
     m_editorWidget->setMarksVisible(false);
     m_editorWidget->setCodeFoldingSupported(false);
-    m_editorWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    m_editorWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_editorWidget->setTabChangesFocus(true);
 }
 
@@ -123,7 +120,8 @@ void AbstractEditorDialog::setupUIComponents()
     m_buttonBox->button(QDialogButtonBox::Ok)->setDefault(true);
 
     m_verticalLayout->addLayout(m_comboBoxLayout);
-    m_verticalLayout->addWidget(m_editorWidget);
+    //editor widget has to stretch the most among the other siblings:
+    m_verticalLayout->addWidget(m_editorWidget, 10);
     m_verticalLayout->addWidget(m_buttonBox);
 
     this->resize(660, 240);

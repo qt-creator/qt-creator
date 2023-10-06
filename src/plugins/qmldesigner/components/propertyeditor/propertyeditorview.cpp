@@ -20,6 +20,7 @@
 #include <bindingproperty.h>
 
 #include <nodeabstractproperty.h>
+#include <projectstorage/sourcepathcache.h>
 
 #include <theme.h>
 
@@ -65,6 +66,8 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     , m_timerId(0)
     , m_stackedWidget(new PropertyEditorWidget())
     , m_qmlBackEndForCurrentType(nullptr)
+    , m_propertyComponentGenerator{QmlDesigner::PropertyEditorQmlBackend::propertyEditorResourcesPath(),
+                                   model()}
     , m_locked(false)
     , m_setupCompleted(false)
     , m_singleShotTimer(new QTimer(this))
@@ -373,6 +376,11 @@ void PropertyEditorView::currentTimelineChanged(const ModelNode &)
     m_qmlBackEndForCurrentType->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
 }
 
+void PropertyEditorView::refreshMetaInfos(const TypeIds &deletedTypeIds)
+{
+    m_propertyComponentGenerator.refreshMetaInfos(deletedTypeIds);
+}
+
 void PropertyEditorView::updateSize()
 {
     if (!m_qmlBackEndForCurrentType)
@@ -439,8 +447,8 @@ void PropertyEditorView::resetView()
 
 namespace {
 
-std::tuple<NodeMetaInfo, QUrl> diffType(const NodeMetaInfo &commonAncestor,
-                                        const NodeMetaInfo &specificsClassMetaInfo)
+[[maybe_unused]] std::tuple<NodeMetaInfo, QUrl> diffType(const NodeMetaInfo &commonAncestor,
+                                                         const NodeMetaInfo &specificsClassMetaInfo)
 {
     NodeMetaInfo diffClassMetaInfo;
     QUrl qmlSpecificsFile;
@@ -463,9 +471,9 @@ std::tuple<NodeMetaInfo, QUrl> diffType(const NodeMetaInfo &commonAncestor,
     return {diffClassMetaInfo, qmlSpecificsFile};
 }
 
-QString getSpecificQmlData(const NodeMetaInfo &commonAncestor,
-                           const ModelNode &selectedNode,
-                           const NodeMetaInfo &diffClassMetaInfo)
+[[maybe_unused]] QString getSpecificQmlData(const NodeMetaInfo &commonAncestor,
+                                            const ModelNode &selectedNode,
+                                            const NodeMetaInfo &diffClassMetaInfo)
 {
     if (commonAncestor.isValid() && diffClassMetaInfo != selectedNode.metaInfo())
         return PropertyEditorQmlBackend::templateGeneration(commonAncestor,
@@ -534,33 +542,90 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
     stackedWidget->setCurrentWidget(currentQmlBackend->widget());
     currentQmlBackend->contextObject()->triggerSelectionChanged();
 }
+
+[[maybe_unused]] auto findPaneAndSpecificsPath(const NodeMetaInfos &prototypes,
+                                               const SourcePathCacheInterface &pathCache)
+{
+    Utils::PathString panePath;
+    Utils::PathString specificsPath;
+
+    for (const NodeMetaInfo &prototype : prototypes) {
+        auto sourceId = prototype.propertyEditorPathId();
+        if (sourceId) {
+            auto path = pathCache.sourcePath(sourceId);
+            if (path.endsWith("Pane.qml")) {
+                panePath = path;
+                if (panePath.size() && specificsPath.size())
+                    return std::make_tuple(panePath, specificsPath);
+            } else if (path.endsWith("Specifics.qml")) {
+                specificsPath = path;
+                if (panePath.size() && specificsPath.size())
+                    return std::make_tuple(panePath, specificsPath);
+            }
+        }
+    }
+
+    return std::make_tuple(panePath, specificsPath);
+}
 } // namespace
 
 void PropertyEditorView::setupQmlBackend()
 {
-    const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(m_selectedNode);
+    if constexpr (useProjectStorage()) {
+        auto selfAndPrototypes = m_selectedNode.metaInfo().selfAndPrototypes();
+        auto specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes,
+                                                                         m_selectedNode.isComponent());
+        auto [panePath, specificsPath] = findPaneAndSpecificsPath(selfAndPrototypes,
+                                                                  model()->pathCache());
+        PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
+                                                                    QUrl::fromLocalFile(
+                                                                        QString{panePath}),
+                                                                    m_imageCache,
+                                                                    m_stackedWidget,
+                                                                    this);
 
-    const auto [qmlFileUrl, specificsClassMetaInfo] = PropertyEditorQmlBackend::getQmlUrlForMetaInfo(
-        commonAncestor);
+        setupCurrentQmlBackend(currentQmlBackend,
+                               m_selectedNode,
+                               QUrl::fromLocalFile(QString{specificsPath}),
+                               currentState(),
+                               this,
+                               specificQmlData);
 
-    auto [diffClassMetaInfo, qmlSpecificsFile] = diffType(commonAncestor, specificsClassMetaInfo);
+        setupWidget(currentQmlBackend, this, m_stackedWidget);
 
-    QString specificQmlData = getSpecificQmlData(commonAncestor, m_selectedNode, diffClassMetaInfo);
+        m_qmlBackEndForCurrentType = currentQmlBackend;
 
-    PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
-                                                                qmlFileUrl,
-                                                                m_imageCache,
-                                                                m_stackedWidget,
-                                                                this);
+        setupInsight(rootModelNode(), currentQmlBackend);
+    } else {
+        const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(
+            m_selectedNode);
 
-    setupCurrentQmlBackend(
-        currentQmlBackend, m_selectedNode, qmlSpecificsFile, currentState(), this, specificQmlData);
+        const auto [qmlFileUrl, specificsClassMetaInfo] = PropertyEditorQmlBackend::getQmlUrlForMetaInfo(
+            commonAncestor);
 
-    setupWidget(currentQmlBackend, this, m_stackedWidget);
+        auto [diffClassMetaInfo, qmlSpecificsFile] = diffType(commonAncestor, specificsClassMetaInfo);
 
-    m_qmlBackEndForCurrentType = currentQmlBackend;
+        QString specificQmlData = getSpecificQmlData(commonAncestor, m_selectedNode, diffClassMetaInfo);
 
-    setupInsight(rootModelNode(), currentQmlBackend);
+        PropertyEditorQmlBackend *currentQmlBackend = getQmlBackend(m_qmlBackendHash,
+                                                                    qmlFileUrl,
+                                                                    m_imageCache,
+                                                                    m_stackedWidget,
+                                                                    this);
+
+        setupCurrentQmlBackend(currentQmlBackend,
+                               m_selectedNode,
+                               qmlSpecificsFile,
+                               currentState(),
+                               this,
+                               specificQmlData);
+
+        setupWidget(currentQmlBackend, this, m_stackedWidget);
+
+        m_qmlBackEndForCurrentType = currentQmlBackend;
+
+        setupInsight(rootModelNode(), currentQmlBackend);
+    }
 }
 
 void PropertyEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
@@ -645,6 +710,9 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 void PropertyEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
+
+    if constexpr (useProjectStorage())
+        m_propertyComponentGenerator.setModel(model);
 
     if (debug)
         qDebug() << Q_FUNC_INFO;

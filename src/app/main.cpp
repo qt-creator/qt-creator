@@ -19,6 +19,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/qtcsettings.h>
 #include <utils/singleton.h>
+#include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/terminalcommand.h>
 
@@ -280,16 +281,18 @@ static Utils::QtcSettings *createUserSettings()
 
 static void setHighDpiEnvironmentVariable()
 {
-    if (Utils::HostOsInfo::isMacHost() || qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
+    if (Utils::StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
+            == Qt::HighDpiScaleFactorRoundingPolicy::Unset
+        || qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
         return;
 
     std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
 
-    const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
-    const bool enableHighDpiScaling = settings->value("Core/EnableHighDpiScaling", defaultValue).toBool();
-    const auto policy = enableHighDpiScaling ? Qt::HighDpiScaleFactorRoundingPolicy::PassThrough
-                                             : Qt::HighDpiScaleFactorRoundingPolicy::Floor;
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(policy);
+    using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
+    const Policy defaultPolicy = Utils::StyleHelper::defaultHighDpiScaleFactorRoundingPolicy();
+    const Policy userPolicy = settings->value("Core/HighDpiScaleFactorRoundingPolicy",
+                                              int(defaultPolicy)).value<Policy>();
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(userPolicy);
 }
 
 void setPixmapCacheLimit()
@@ -522,8 +525,6 @@ int main(int argc, char **argv)
     }
 
     qputenv("QSG_RHI_BACKEND", "opengl");
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
-                Qt::HighDpiScaleFactorRoundingPolicy::Round);
 
     if (qEnvironmentVariableIsSet("QTCREATOR_DISABLE_NATIVE_MENUBAR")
             || qgetenv("XDG_CURRENT_DESKTOP").startsWith("Unity")) {

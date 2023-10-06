@@ -17,8 +17,8 @@ namespace Core {
 class ICore;
 
 namespace Internal {
+class ICorePrivate;
 class MainWindow;
-class MainWindowPrivate;
 }
 
 class CORE_EXPORT MessageManager : public QObject
@@ -46,8 +46,8 @@ private:
     static void init();
 
     friend class ICore;
+    friend class Internal::ICorePrivate;
     friend class Internal::MainWindow;
-    friend class Internal::MainWindowPrivate;
 };
 
 } // namespace Core

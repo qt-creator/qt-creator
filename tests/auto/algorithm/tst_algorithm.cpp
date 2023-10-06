@@ -402,6 +402,24 @@ void tst_Algorithm::transform()
         const QHash<int, int> expected({{1, 2}, {2, 3}, {3, 4}, {4, 5}});
         QCOMPARE(trans, expected);
     }
+    {
+        // std::vector -> std::vector appending container
+        const std::vector<int> v({1, 2, 3, 4});
+        const auto trans = Utils::transform<std::vector<int>>(v, [](int i) -> std::vector<int> {
+            return {i, i * 2};
+        });
+        const std::vector<int> expected{1, 2, 2, 4, 3, 6, 4, 8};
+        QCOMPARE(trans, expected);
+    }
+    {
+        // QList -> QList appending container
+        const QList<int> v({1, 2, 3, 4});
+        const auto trans = Utils::transform<QList<int>>(v, [](int i) -> QList<int> {
+            return {i, i * 2};
+        });
+        const QList<int> expected{1, 2, 2, 4, 3, 6, 4, 8};
+        QCOMPARE(trans, expected);
+    }
 }
 
 void tst_Algorithm::sort()

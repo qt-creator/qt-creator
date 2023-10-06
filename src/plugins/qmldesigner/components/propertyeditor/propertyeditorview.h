@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QTimer>
 
+#include <propertyeditorcomponentgenerator.h>
 
 QT_BEGIN_NAMESPACE
 class QEvent;
@@ -81,6 +82,8 @@ public:
 
     void currentTimelineChanged(const ModelNode &node) override;
 
+    void refreshMetaInfos(const TypeIds &deletedTypeIds) override;
+
 protected:
     void timerEvent(QTimerEvent *event) override;
     void setupPane(const TypeName &typeName);
@@ -113,6 +116,8 @@ private: //variables
     QString m_qmlDir;
     QHash<QString, PropertyEditorQmlBackend *> m_qmlBackendHash;
     PropertyEditorQmlBackend *m_qmlBackEndForCurrentType;
+    PropertyComponentGenerator m_propertyComponentGenerator;
+    PropertyEditorComponentGenerator m_propertyEditorComponentGenerator{m_propertyComponentGenerator};
     bool m_locked;
     bool m_setupCompleted;
     QTimer *m_singleShotTimer;

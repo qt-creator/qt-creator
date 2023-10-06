@@ -43,6 +43,7 @@ public:
     QStringList m_dockerMappedPaths;
     QString m_dockerRepo;
     QString m_dockerTag;
+    QString m_clangdExecutable;
     KeyValuePairList m_extra;
 };
 

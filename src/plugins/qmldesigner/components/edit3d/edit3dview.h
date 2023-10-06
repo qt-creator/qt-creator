@@ -101,10 +101,10 @@ private:
     void showMaterialPropertiesView();
     void updateAlignActionStates();
 
-    void createSelectBackgroundColorAction(QAction *syncBackgroundColorAction);
+    void createSelectBackgroundColorAction(QAction *syncEnvBackgroundAction);
     void createGridColorSelectionAction();
-    void createResetColorAction(QAction *syncBackgroundColorAction);
-    void createSyncBackgroundColorAction();
+    void createResetColorAction(QAction *syncEnvBackgroundAction);
+    void createSyncEnvBackgroundAction();
     void createSeekerSliderAction();
 
     QPoint resolveToolbarPopupPos(Edit3DAction *action) const;
@@ -135,7 +135,7 @@ private:
     std::unique_ptr<Edit3DAction> m_particlesPlayAction;
     std::unique_ptr<Edit3DAction> m_particlesRestartAction;
     std::unique_ptr<Edit3DParticleSeekerAction> m_seekerAction;
-    std::unique_ptr<Edit3DAction> m_syncBackgroundColorAction;
+    std::unique_ptr<Edit3DAction> m_syncEnvBackgroundAction;
     std::unique_ptr<Edit3DAction> m_selectBackgroundColorAction;
     std::unique_ptr<Edit3DAction> m_selectGridColorAction;
     std::unique_ptr<Edit3DAction> m_resetColorAction;

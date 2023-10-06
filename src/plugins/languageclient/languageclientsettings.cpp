@@ -609,7 +609,7 @@ QList<BaseSettings *> LanguageClientSettings::fromSettings(QtcSettings *settings
     settingsIn->beginGroup(settingsGroupKey);
     QList<BaseSettings *> result;
 
-    for (auto varList :
+    for (const QVariantList &varList :
          {settingsIn->value(clientsKey).toList(), settingsIn->value(typedClientsKey).toList()}) {
         for (const QVariant &var : varList) {
             const Store map = storeFromVariant(var);

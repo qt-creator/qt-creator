@@ -548,7 +548,7 @@ void StudioWelcomePlugin::extensionsInitialized()
     Core::ModeManager::activateMode(m_welcomeMode->id());
 
     // Enable QDS new project dialog and QDS wizards
-    if (QmlProjectManager::QmlProject::isQtDesignStudio()) {
+    if (Core::ICore::isQtDesignStudio()) {
         ProjectExplorer::JsonWizardFactory::clearWizardPaths();
         ProjectExplorer::JsonWizardFactory::addWizardPath(
             Core::ICore::resourcePath("qmldesigner/studio_templates"));

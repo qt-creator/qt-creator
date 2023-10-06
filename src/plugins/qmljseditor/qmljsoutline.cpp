@@ -144,10 +144,15 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
 
     connect(m_editor, &QmlJSEditorWidget::outlineModelIndexChanged,
             this, &QmlJSOutlineWidget::updateSelectionInTree);
-    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QmlOutlineModel::updated, this, [this] () {
-        m_treeView->expandAll();
-        m_editor->updateOutlineIndexNow();
-    });
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(),
+            &QmlOutlineModel::updated,
+            this,
+            [treeView = QPointer(m_treeView), editor = QPointer(m_editor)]() {
+                if (treeView)
+                    treeView->expandAll();
+                if (editor)
+                    editor->updateOutlineIndexNow();
+            });
 }
 
 QList<QAction*> QmlJSOutlineWidget::filterMenuActions() const

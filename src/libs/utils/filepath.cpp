@@ -1554,11 +1554,6 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 */
 FilePath FilePath::withNewMappedPath(const FilePath &newPath) const
 {
-    const bool sameDevice = newPath.scheme() == scheme() && newPath.host() == host();
-    if (sameDevice)
-        return newPath;
-    // TODO: converting paths between different non local devices is still unsupported
-    QTC_CHECK(!newPath.needsDevice() || !needsDevice());
     FilePath res;
     res.setParts(scheme(), host(), fileAccess()->mapToDevicePath(newPath.path()));
     return res;

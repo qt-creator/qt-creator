@@ -5,6 +5,7 @@
 
 #include "cmakebuildsystem.h"
 #include "cmakekitaspect.h"
+#include "cmakeprocess.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
@@ -27,6 +28,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
@@ -46,14 +48,19 @@ using namespace Utils;
 namespace CMakeProjectManager::Internal {
 
 CMakeManager::CMakeManager()
-    : m_runCMakeAction(new QAction(QIcon(), Tr::tr("Run CMake"), this))
+    : m_runCMakeAction(
+        new QAction(ProjectExplorer::Icons::CMAKE_LOGO.icon(), Tr::tr("Run CMake"), this))
     , m_clearCMakeCacheAction(new QAction(QIcon(), Tr::tr("Clear CMake Configuration"), this))
-    , m_runCMakeActionContextMenu(new QAction(QIcon(), Tr::tr("Run CMake"), this))
+    , m_runCMakeActionContextMenu(
+          new QAction(ProjectExplorer::Icons::CMAKE_LOGO.icon(), Tr::tr("Run CMake"), this))
     , m_rescanProjectAction(new QAction(QIcon(), Tr::tr("Rescan Project"), this))
     , m_reloadCMakePresetsAction(
           new QAction(Utils::Icons::RELOAD.icon(), Tr::tr("Reload CMake Presets"), this))
-    , m_cmakeProfilerAction(new QAction(QIcon(), Tr::tr("CMake Profiler"), this))
-    , m_cmakeDebuggerAction(new QAction(QIcon(), Tr::tr("Start CMake Debugging"), this))
+    , m_cmakeProfilerAction(
+          new QAction(ProjectExplorer::Icons::CMAKE_LOGO.icon(), Tr::tr("CMake Profiler"), this))
+    , m_cmakeDebuggerAction(new QAction(ProjectExplorer::Icons::CMAKE_LOGO.icon(),
+                                        Tr::tr("Start CMake Debugging"),
+                                        this))
 {
     Core::ActionContainer *mbuild =
             Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_BUILDPROJECT);
@@ -143,7 +150,8 @@ CMakeManager::CMakeManager()
                                                   Constants::RUN_CMAKE_PROFILER,
                                                   globalContext);
     command->setDescription(m_cmakeProfilerAction->text());
-    manalyzer->addAction(command, Debugger::Constants::G_ANALYZER_TOOLS);
+    if (manalyzer)
+        manalyzer->addAction(command, Debugger::Constants::G_ANALYZER_TOOLS);
     connect(m_cmakeProfilerAction, &QAction::triggered, this, [this] {
         runCMakeWithProfiling(ProjectManager::startupBuildSystem());
     });
@@ -167,7 +175,8 @@ CMakeManager::CMakeManager()
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
         updateCmakeActions(ProjectTree::currentNode());
 
-        auto cmakeBuildSystem = static_cast<CMakeBuildSystem*>(ProjectManager::startupBuildSystem());
+        auto cmakeBuildSystem = qobject_cast<CMakeBuildSystem *>(
+            ProjectManager::startupBuildSystem());
         if (cmakeBuildSystem) {
             const BuildDirParameters parameters(cmakeBuildSystem);
             const auto tool = parameters.cmakeTool();
@@ -403,8 +412,8 @@ void CMakeManager::buildFile(Node *node)
                     bc->buildDirectory());
         targetBase = relativeBuildDir / "CMakeFiles" / (targetNode->displayName() + ".dir");
     } else if (!generator.contains("Makefiles")) {
-        Core::MessageManager::writeFlashing(
-            Tr::tr("Build File is not supported for generator \"%1\"").arg(generator));
+        Core::MessageManager::writeFlashing(addCMakePrefix(
+            Tr::tr("Build File is not supported for generator \"%1\"").arg(generator)));
         return;
     }
 

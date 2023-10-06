@@ -227,8 +227,10 @@ void ProjectStorageUpdater::updateQmlTypes(const QStringList &qmlTypesPaths,
                                         package,
                                         notUpdatedSourceIds);
 
-        if (state == FileState::Changed)
+        if (state == FileState::Changed) {
             package.projectDatas.push_back(std::move(projectData));
+            package.updatedProjectSourceIds.push_back(sourceId);
+        }
     }
 }
 

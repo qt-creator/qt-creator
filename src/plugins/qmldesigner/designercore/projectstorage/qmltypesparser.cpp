@@ -80,7 +80,7 @@ void addImports(Storage::Imports &imports,
         imports.emplace_back(qmlCppModuleId, Storage::Version{}, sourceId);
 }
 
-Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics)
+Storage::TypeTraits createAccessTypeTraits(QQmlJSScope::AccessSemantics accessSematics)
 {
     switch (accessSematics) {
     case QQmlJSScope::AccessSemantics::Reference:
@@ -94,6 +94,16 @@ Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics
     }
 
     return Storage::TypeTraits::None;
+}
+
+Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics, bool hasCustomParser)
+{
+    auto typeTrait = createAccessTypeTraits(accessSematics);
+
+    if (hasCustomParser)
+        typeTrait = typeTrait | Storage::TypeTraits::UsesCustomParser;
+
+    return typeTrait;
 }
 
 Storage::Version createVersion(QTypeRevision qmlVersion)
@@ -413,7 +423,7 @@ void addType(Storage::Synchronization::Types &types,
         Utils::SmallStringView{typeName},
         Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
         Storage::Synchronization::ImportedType{TypeNameString{component.extensionTypeName()}},
-        createTypeTraits(component.accessSemantics()),
+        createTypeTraits(component.accessSemantics(), component.hasCustomParser()),
         sourceId,
         createExports(exports, typeName, storage, cppModuleId),
         createProperties(component.ownProperties(), enumerationTypes, componentNameWithoutNamespace),

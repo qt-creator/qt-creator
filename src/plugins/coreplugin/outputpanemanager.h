@@ -20,8 +20,8 @@ class ICore;
 
 namespace Internal {
 
+class ICorePrivate;
 class MainWindow;
-class MainWindowPrivate;
 class OutputPaneToggleButton;
 class OutputPaneManageButton;
 
@@ -54,8 +54,8 @@ protected:
 private:
     // the only class that is allowed to create and destroy
     friend class ICore;
+    friend class ICorePrivate;
     friend class MainWindow;
-    friend class MainWindowPrivate;
     friend class OutputPaneManageButton;
 
     explicit OutputPaneManager(QWidget *parent = nullptr);

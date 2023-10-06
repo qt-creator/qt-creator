@@ -1,16 +1,17 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
 
-#include "modelnode.h"
+#include "collectiondetails.h"
 
 #include <QAbstractTableModel>
-
-QT_BEGIN_NAMESPACE
-class QJsonArray;
-QT_END_NAMESPACE
+#include <QHash>
 
 namespace QmlDesigner {
+
+class ModelNode;
+
 class SingleCollectionModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -29,17 +30,22 @@ public:
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 
-    void setCollection(const ModelNode &collection);
+    void loadCollection(const ModelNode &sourceNode, const QString &collection);
 
 signals:
     void collectionNameChanged(const QString &collectionName);
 
 private:
-    void updateCollectionName();
+    void switchToCollection(const CollectionReference &collection);
+    void closeCollectionIfSaved(const CollectionReference &collection);
+    void closeCurrentCollectionIfSaved();
+    void setCollectionName(const QString &newCollectionName);
+    void loadJsonCollection(const QString &source, const QString &collection);
+    void loadCsvCollection(const QString &source, const QString &collectionName);
 
-    QByteArrayList m_headers;
-    ModelNodes m_elements;
-    ModelNode m_collectionNode;
+    QHash<CollectionReference, CollectionDetails> m_openedCollections;
+    CollectionDetails m_currentCollection;
+
     QString m_collectionName;
 };
 

@@ -29,7 +29,7 @@ namespace Core {
 class IDocument;
 class LocatorFilterEntry;
 
-namespace Internal { class MainWindowPrivate; }
+namespace Internal { class ICorePrivate; }
 
 class CORE_EXPORT EditorManagerPlaceHolder final : public QWidget
 {
@@ -188,7 +188,7 @@ private:
     explicit EditorManager(QObject *parent);
     ~EditorManager() override;
 
-    friend class Core::Internal::MainWindowPrivate;
+    friend class Internal::ICorePrivate;
 };
 
 } // namespace Core

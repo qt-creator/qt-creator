@@ -11,6 +11,8 @@ import ItemLibraryBackend
 Column {
     id: root
 
+    property alias adsFocus: listView.adsFocus
+
     spacing: 5
 
     signal back()

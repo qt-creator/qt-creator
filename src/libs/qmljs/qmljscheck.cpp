@@ -1377,7 +1377,11 @@ bool Check::visit(BinaryExpression *ast)
 
     SourceLocation expressionSourceLocation = locationFromRange(ast->firstSourceLocation(),
                                                                 ast->lastSourceLocation());
-    if (expressionAffectsVisualAspects(ast))
+
+    const bool isDirectInConnectionsScope = (!m_typeStack.isEmpty()
+                                             && m_typeStack.last() == "Connections");
+
+    if (expressionAffectsVisualAspects(ast) && !isDirectInConnectionsScope)
         addMessage(WarnImperativeCodeNotEditableInVisualDesigner, expressionSourceLocation);
 
     // check ==, !=

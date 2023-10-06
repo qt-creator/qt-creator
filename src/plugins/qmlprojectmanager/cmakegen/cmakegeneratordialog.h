@@ -22,7 +22,9 @@ class CmakeGeneratorDialog : public QDialog
     Q_OBJECT
 
 public:
-    CmakeGeneratorDialog(const Utils::FilePath &rootDir, const Utils::FilePaths &files);
+    CmakeGeneratorDialog(const Utils::FilePath &rootDir,
+                         const Utils::FilePaths &files,
+                         const Utils::FilePaths invalidFiles);
     Utils::FilePaths getFilePaths();
 
 public slots:
@@ -40,6 +42,7 @@ private:
     QVariant m_warningIcon;
     Utils::FilePath m_rootDir;
     Utils::FilePaths m_files;
+    Utils::FilePaths m_invalidFiles;
 };
 
 } //GenerateCmake

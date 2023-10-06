@@ -68,7 +68,6 @@ struct ModeManagerPrivate
     void activateModeHelper(Id id);
     void extensionsInitializedHelper();
 
-    Internal::MainWindow *m_mainWindow;
     Internal::FancyTabWidget *m_modeStack;
     Internal::FancyActionBar *m_actionBar;
     QMap<QAction*, int> m_actions;
@@ -101,12 +100,10 @@ void ModeManagerPrivate::showMenu(int index, QMouseEvent *event)
     m_modes.at(index)->menu()->popup(event->globalPosition().toPoint());
 }
 
-ModeManager::ModeManager(Internal::MainWindow *mainWindow,
-                         Internal::FancyTabWidget *modeStack)
+ModeManager::ModeManager(Internal::FancyTabWidget *modeStack)
 {
     m_instance = this;
     d = new ModeManagerPrivate();
-    d->m_mainWindow = mainWindow;
     d->m_modeStack = modeStack;
     d->m_oldCurrent = -1;
     d->m_actionBar = new Internal::FancyActionBar(modeStack);

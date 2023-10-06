@@ -15,6 +15,7 @@
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>
 
+#include <model/modelutils.h>
 #include <rewritingexception.h>
 
 #include <theme.h>
@@ -301,7 +302,7 @@ void TimelineSectionItem::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)
 
     if (event->button() == Qt::LeftButton) {
         event->accept();
-        if (!ModelNode::isThisOrAncestorLocked(m_targetNode))
+        if (!ModelUtils::isThisOrAncestorLocked(m_targetNode))
             toggleCollapsed();
     }
 }
@@ -334,7 +335,7 @@ void TimelineSectionItem::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
         if (m_targetNode.isValid())
             m_targetNode.view()->setSelectedModelNode(m_targetNode);
     } else {
-        if (!ModelNode::isThisOrAncestorLocked(m_targetNode))
+        if (!ModelUtils::isThisOrAncestorLocked(m_targetNode))
             toggleCollapsed();
     }
     update();

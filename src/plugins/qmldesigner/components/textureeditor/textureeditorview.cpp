@@ -13,6 +13,7 @@
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <dynamicpropertiesmodel.h>
+#include <externaldependenciesinterface.h>
 #include <metainfo.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
@@ -461,6 +462,7 @@ void TextureEditorView::setupQmlBackend()
     currentQmlBackend->contextObject()->setSpecificQmlData(specificQmlData);
     bool hasValidSelection = QmlObjectNode(m_selectedModel).hasBindingProperty("materials");
     currentQmlBackend->contextObject()->setHasSingleModelSelection(hasValidSelection);
+    currentQmlBackend->contextObject()->setIsQt6Project(externalDependencies().isQt6Project());
 
     m_qmlBackEnd = currentQmlBackend;
 

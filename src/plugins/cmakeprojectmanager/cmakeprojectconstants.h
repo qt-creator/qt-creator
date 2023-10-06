@@ -71,5 +71,8 @@ const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
 // Data
 const char BUILD_FOLDER_ROLE[] = "CMakeProjectManager.data.buildFolder";
 
+// Output
+const char OUTPUT_PREFIX[] = "[cmake] ";
+
 } // namespace Constants
 } // namespace CMakeProjectManager

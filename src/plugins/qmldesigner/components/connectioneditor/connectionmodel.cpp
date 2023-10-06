@@ -8,21 +8,25 @@
 #include <bindingproperty.h>
 #include <connectioneditorevaluator.h>
 #include <exception.h>
+#include <model/modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
+#include <plaintexteditmodifier.h>
 #include <rewritertransaction.h>
 #include <rewriterview.h>
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 
 #include <utils/qtcassert.h>
 
-#include <QStandardItemModel>
 #include <QMessageBox>
+#include <QStandardItemModel>
 #include <QTableView>
+#include <QTextCursor>
+#include <QTextDocument>
 #include <QTimer>
 
 namespace {
@@ -66,7 +70,7 @@ Qt::ItemFlags ConnectionModel::flags(const QModelIndex &modelIndex) const
     const int internalId = data(index(modelIndex.row(), TargetModelNodeRow), UserRoles::InternalIdRole).toInt();
     ModelNode modelNode = m_connectionView->modelNodeForInternalId(internalId);
 
-    if (modelNode.isValid() && ModelNode::isThisOrAncestorLocked(modelNode))
+    if (modelNode.isValid() && ModelUtils::isThisOrAncestorLocked(modelNode))
         return Qt::ItemIsEnabled;
 
     return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
@@ -300,6 +304,46 @@ ModelNode ConnectionModel::getTargetNodeForConnection(const ModelNode &connectio
     return result;
 }
 
+static QString addOnToSignalName(const QString &signal)
+{
+    QString ret = signal;
+    ret[0] = ret.at(0).toUpper();
+    ret.prepend("on");
+    return ret;
+}
+
+static PropertyName getFirstSignalForTarget(const NodeMetaInfo &target)
+{
+    PropertyName ret = "clicked";
+
+    if (!target.isValid())
+        return ret;
+
+    const auto signalNames = target.signalNames();
+    if (signalNames.isEmpty())
+        return ret;
+
+    const PropertyNameList priorityList = {"clicked",
+                                           "toggled",
+                                           "started",
+                                           "stopped",
+                                           "moved",
+                                           "valueChanged",
+                                           "visualPostionChanged",
+                                           "accepted",
+                                           "currentIndexChanged",
+                                           "activeFocusChanged"};
+
+    for (const auto &signal : priorityList) {
+        if (signalNames.contains(signal))
+            return signal;
+    }
+
+    ret = target.signalNames().first();
+
+    return ret;
+}
+
 void ConnectionModel::addConnection()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_CONNECTION_ADDED);
@@ -311,33 +355,46 @@ void ConnectionModel::addConnection()
         NodeMetaInfo nodeMetaInfo = connectionView()->model()->qtQuickConnectionsMetaInfo();
 
         if (nodeMetaInfo.isValid()) {
-            connectionView()->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode](){
-                ModelNode newNode = connectionView()->createModelNode("QtQuick.Connections",
-                                                                      nodeMetaInfo.majorVersion(),
-                                                                      nodeMetaInfo.minorVersion());
-                QString source = "console.log(\"clicked\")";
+            ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
+            const PropertyName signalHandlerName = addOnToSignalName(
+                                                       QString::fromUtf8(getFirstSignalForTarget(
+                                                           selectedNode.metaInfo())))
+                                                       .toUtf8();
 
-                if (connectionView()->selectedModelNodes().size() == 1) {
-                    ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
-                    if (QmlItemNode::isValidQmlItemNode(selectedNode))
-                        selectedNode.nodeAbstractProperty("data").reparentHere(newNode);
-                    else
-                        rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
+            connectionView()
+                ->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode]() {
+                    ModelNode newNode = connectionView()
+                                            ->createModelNode("QtQuick.Connections",
+                                                              nodeMetaInfo.majorVersion(),
+                                                              nodeMetaInfo.minorVersion());
+                    QString source = "console.log(\"clicked\")";
 
-                    if (QmlItemNode(selectedNode).isFlowActionArea() || QmlVisualNode(selectedNode).isFlowTransition())
-                        source = selectedNode.validId() + ".trigger()";
+                    if (connectionView()->selectedModelNodes().size() == 1) {
+                        ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
+                        if (QmlItemNode::isValidQmlItemNode(selectedNode))
+                            selectedNode.nodeAbstractProperty("data").reparentHere(newNode);
+                        else
+                            rootModelNode
+                                .nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName())
+                                .reparentHere(newNode);
 
-                    if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
-                        newNode.bindingProperty("target").setExpression(selectedNode.validId());
-                } else {
-                    rootModelNode.nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName()).reparentHere(newNode);
-                    newNode.bindingProperty("target").setExpression(rootModelNode.validId());
-                }
+                        if (QmlItemNode(selectedNode).isFlowActionArea()
+                            || QmlVisualNode(selectedNode).isFlowTransition())
+                            source = selectedNode.validId() + ".trigger()";
 
-                newNode.signalHandlerProperty("onClicked").setSource(source);
+                        if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
+                            newNode.bindingProperty("target").setExpression(selectedNode.validId());
+                    } else {
+                        rootModelNode
+                            .nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName())
+                            .reparentHere(newNode);
+                        newNode.bindingProperty("target").setExpression(rootModelNode.validId());
+                    }
 
-                selectProperty(newNode.signalHandlerProperty("onClicked"));
-            });
+                    newNode.signalHandlerProperty(signalHandlerName).setSource(source);
+
+                    selectProperty(newNode.signalHandlerProperty(signalHandlerName));
+                });
         }
     }
 }
@@ -363,7 +420,11 @@ void ConnectionModel::abstractPropertyChanged(const AbstractProperty &abstractPr
 void ConnectionModel::deleteConnectionByRow(int currentRow)
 {
     SignalHandlerProperty targetSignal = signalHandlerPropertyForRow(currentRow);
-    QTC_ASSERT(targetSignal.isValid(), return );
+    SignalHandlerProperty selectedSignal = signalHandlerPropertyForRow(currentIndex());
+
+    const bool targetEqualsSelected = targetSignal == selectedSignal;
+
+    QTC_ASSERT(targetSignal.isValid(), return);
     ModelNode node = targetSignal.parentModelNode();
     QTC_ASSERT(node.isValid(), return );
 
@@ -374,6 +435,9 @@ void ConnectionModel::deleteConnectionByRow(int currentRow)
     } else {
         node.destroy();
     }
+
+    if (!targetEqualsSelected)
+        selectProperty(selectedSignal);
 }
 
 void ConnectionModel::removeRowFromTable(const SignalHandlerProperty &property)
@@ -420,6 +484,17 @@ void ConnectionModel::selectProperty(const SignalHandlerProperty &property)
         if (property == otherProperty) {
             setCurrentIndex(i);
             return;
+        }
+    }
+}
+
+void ConnectionModel::nodeAboutToBeRemoved(const ModelNode &removedNode)
+{
+    SignalHandlerProperty selectedSignal = signalHandlerPropertyForRow(currentIndex());
+    if (selectedSignal.isValid()) {
+        ModelNode targetNode = getTargetNodeForConnection(selectedSignal.parentModelNode());
+        if (targetNode == removedNode) {
+            emit m_delegate->popupShouldClose();
         }
     }
 }
@@ -645,7 +720,6 @@ QString generateDefaultStatement(ConnectionModelBackendDelegate::ActionType acti
 
 void ConnectionModelBackendDelegate::changeActionType(ActionType actionType)
 {
-    qDebug() << Q_FUNC_INFO << actionType;
     QTC_ASSERT(actionType != ConnectionModelStatementDelegate::Custom, return );
 
     ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
@@ -664,14 +738,19 @@ void ConnectionModelBackendDelegate::changeActionType(ActionType actionType)
             ConnectionEditorStatements::MatchedStatement &okStatement
                 = ConnectionEditorStatements::okStatement(m_handler);
 
+            ConnectionEditorStatements::MatchedStatement &koStatement
+                = ConnectionEditorStatements::koStatement(m_handler);
+
+            koStatement = ConnectionEditorStatements::EmptyBlock();
+
             //We expect a valid id on the root node
             const QString validId = model->connectionView()->rootModelNode().validId();
             QString statementSource = generateDefaultStatement(actionType, validId);
 
             auto tempHandler = ConnectionEditorEvaluator::parseStatement(statementSource);
-            qDebug() << ConnectionEditorStatements::toString(tempHandler);
+
             auto newOkStatement = ConnectionEditorStatements::okStatement(tempHandler);
-            qDebug() << "newOk" << statementSource;
+
             QTC_ASSERT(!ConnectionEditorStatements::isEmptyStatement(newOkStatement), return );
 
             okStatement = newOkStatement;
@@ -758,6 +837,14 @@ void ConnectionModelBackendDelegate::removeElse()
     setupHandlerAndStatements();
 }
 
+void ConnectionModelBackendDelegate::setNewSource(const QString &newSource)
+{
+    setSource(newSource);
+    commitNewSource(newSource);
+    setupHandlerAndStatements();
+    setupCondition();
+}
+
 int ConnectionModelBackendDelegate::currentRow() const
 {
     return m_currentRow;
@@ -770,14 +857,6 @@ QString removeOnFromSignalName(const QString &signal)
     QString ret = signal;
     ret.remove(0, 2);
     ret[0] = ret.at(0).toLower();
-    return ret;
-}
-
-QString addOnToSignalName(const QString &signal)
-{
-    QString ret = signal;
-    ret[0] = ret.at(0).toUpper();
-    ret.prepend("on");
     return ret;
 }
 
@@ -794,6 +873,9 @@ void ConnectionModelBackendDelegate::setCurrentRow(int i)
 void ConnectionModelBackendDelegate::update()
 {
     if (m_blockReflection)
+        return;
+
+    if (m_currentRow == -1)
         return;
 
     m_propertyTreeModel.resetModel();
@@ -830,9 +912,6 @@ void ConnectionModelBackendDelegate::update()
                            removeOnFromSignalName(QString::fromUtf8(signalHandlerProperty.name())));
 
     setupHandlerAndStatements();
-
-    qDebug() << Q_FUNC_INFO << ConnectionEditorStatements::toString(m_handler)
-             << ConnectionEditorStatements::toJavascript(m_handler);
 
     setupCondition();
 
@@ -895,6 +974,19 @@ ConnectionModelStatementDelegate *ConnectionModelBackendDelegate::koStatement()
 ConditionListModel *ConnectionModelBackendDelegate::conditionListModel()
 {
     return &m_conditionListModel;
+}
+
+QString ConnectionModelBackendDelegate::indentedSource() const
+{
+    if (m_source.isEmpty())
+        return {};
+
+    QTextDocument doc(m_source);
+    QTextCursor cursor(&doc);
+    IndentingTextEditModifier mod(&doc, cursor);
+
+    mod.indent(0, m_source.length() - 1);
+    return mod.text();
 }
 
 QString ConnectionModelBackendDelegate::source() const
@@ -1422,7 +1514,6 @@ void ConnectionModelStatementDelegate::setupCallFunction()
 
 void ConnectionModelStatementDelegate::setupChangeState()
 {
-    qDebug() << Q_FUNC_INFO;
     QTC_ASSERT(std::holds_alternative<ConnectionEditorStatements::StateSet>(m_statement), return );
 
     QTC_ASSERT(m_model->connectionView()->isAttached(), return );
@@ -1475,8 +1566,6 @@ void ConnectionModelStatementDelegate::setupStates()
     QTC_ASSERT(m_model->connectionView()->isAttached(), return );
 
     const auto stateSet = std::get<ConnectionEditorStatements::StateSet>(m_statement);
-
-    qDebug() << Q_FUNC_INFO << stateSet.stateName;
 
     const QString nodeId = m_stateTargets.currentText();
 
@@ -1734,20 +1823,16 @@ void ConditionListModel::command(const QString &string)
     //TODO remove from prodcution code
     QStringList list = string.split("%", Qt::SkipEmptyParts);
 
-    qDebug() << Q_FUNC_INFO << string << list.size();
-
     if (list.size() < 2)
         return;
 
     if (list.size() == 2) {
         if (list.first() == "A") {
-            qDebug() << "Append" << list.last();
             appendToken(list.last());
         } else if (list.first() == "R") {
             bool ok = true;
             int index = list.last().toInt(&ok);
 
-            qDebug() << "Remove" << index;
             if (ok)
                 removeToken(index);
         }
@@ -1760,15 +1845,12 @@ void ConditionListModel::command(const QString &string)
 
             if (ok)
                 updateToken(index, list.last());
-            qDebug() << "Update" << index << list.last();
         } else if (list.first() == "I") {
             bool ok = true;
             int index = list.at(1).toInt(&ok);
 
             if (ok)
                 insertToken(index, list.last());
-
-            qDebug() << "Insert" << index << list.last();
         }
     }
 }
@@ -2025,6 +2107,11 @@ ConnectionEditorStatements::ComparativeStatement ConditionListModel::toStatement
     }
 
     return {};
+}
+
+void QmlDesigner::ConnectionModel::modelAboutToBeDetached()
+{
+    emit m_delegate->popupShouldClose();
 }
 
 } // namespace QmlDesigner

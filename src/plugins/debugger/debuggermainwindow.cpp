@@ -162,6 +162,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
 {
     m_centralWidgetStack = new QStackedWidget;
     m_statusLabel = new Utils::StatusLabel;
+    m_statusLabel->setObjectName("DebuggerStatusLabel"); // used by Squish
     StyleHelper::setPanelWidget(m_statusLabel);
     m_statusLabel->setIndent(2 * QFontMetrics(q->font()).horizontalAdvance(QChar('x')));
     m_editorPlaceHolder = new EditorManagerPlaceHolder;

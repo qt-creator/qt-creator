@@ -203,7 +203,7 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
 
     auto stopButton = new QToolButton;
     stopButton->setIcon(Icon({{":/utils/images/stop_small.png",
-                               Theme::IconsBaseColor}}).icon());
+                               Theme::IconsStopToolBarColor}}).icon());
     stopButton->setEnabled(false);
 
     auto progressLabel = new TimeLabel(m_clipInfo);
@@ -316,6 +316,19 @@ static QString sizeStr(const QSize &size)
     return QString("%1x%2").arg(size.width()).arg(size.height());
 }
 
+static QRect cropRectForContinuousMulitScreen(
+    const Internal::ScreenRecorderSettings::RecordSettings &rS)
+{
+    const QScreen *screen = QGuiApplication::screens()[rS.screenId];
+    const QPoint screenTopLeft = screen->geometry().topLeft();
+    const QPoint cropTopLeft = rS.cropRect.translated(screenTopLeft).topLeft();
+    const QSize cropSize = rS.cropRect.isNull()
+                               ? screen->size() * screen->devicePixelRatio()
+                               : rS.cropRect.size();
+    const QRect cropRect(cropTopLeft, cropSize);
+    return cropRect;
+}
+
 QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
 {
     const Internal::ScreenRecorderSettings::RecordSettings rS =
@@ -325,15 +338,11 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
     const QString captureCursorStr = Internal::settings().captureCursor() ? "1" : "0";
     QStringList videoGrabParams;
 
-    switch (Internal::settings().captureType()) {
+    switch (Internal::settings().volatileScreenCaptureType()) {
     case Internal::CaptureType::X11grab: {
-        const QScreen *screen = QGuiApplication::screens()[rS.screenId];
-        const QPoint screenTopLeft = screen->geometry().topLeft();
-        const QRect cropRect = rS.cropRect.translated(screenTopLeft);
+        const QRect cropRect = cropRectForContinuousMulitScreen(rS);
+        const QString videoSize = sizeStr(cropRect.size());
         const QString x11display = qtcEnvironmentVariable("DISPLAY", ":0.0");
-        const QString videoSize = sizeStr(rS.cropRect.isNull()
-                                              ? screen->size() * screen->devicePixelRatio()
-                                              : rS.cropRect.size());
         videoGrabParams.append({"-f", "x11grab"});
         videoGrabParams.append({"-draw_mouse", captureCursorStr});
         videoGrabParams.append({"-framerate", frameRateStr});
@@ -357,6 +366,18 @@ QStringList RecordWidget::ffmpegParameters(const ClipInfo &clipInfo) const
             "-ss", "00:00.25", // Skip few first frames which are black
             "-filter_complex", filter,
         };
+        break;
+    }
+    case Internal::CaptureType::Gdigrab: {
+        const QRect cropRect = cropRectForContinuousMulitScreen(rS);
+        const QString videoSize = sizeStr(cropRect.size());
+        videoGrabParams.append({"-f", "gdigrab"});
+        videoGrabParams.append({"-draw_mouse", captureCursorStr});
+        videoGrabParams.append({"-framerate", frameRateStr});
+        videoGrabParams.append({"-video_size", videoSize});
+        videoGrabParams.append({"-offset_x", QString::number(cropRect.x())});
+        videoGrabParams.append({"-offset_y", QString::number(cropRect.y())});
+        videoGrabParams.append({"-i", "desktop"});
         break;
     }
     case Internal::CaptureType::AVFoundation: {

@@ -57,6 +57,10 @@ GeneralHelper::GeneralHelper()
     m_toolStateUpdateTimer.setSingleShot(true);
     QObject::connect(&m_toolStateUpdateTimer, &QTimer::timeout,
                      this, &GeneralHelper::handlePendingToolStateUpdate);
+
+    QList<QColor> defaultBg;
+    defaultBg.append(QColor());
+    m_bgColor = QVariant::fromValue(defaultBg);
 }
 
 void GeneralHelper::requestOverlayUpdate()
@@ -540,19 +544,62 @@ void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, 
     }
 }
 
-void GeneralHelper::setSceneEnvironmentColor(const QString &sceneId, const QColor &color)
+void GeneralHelper::setSceneEnvironmentData(const QString &sceneId,
+                                            QQuick3DSceneEnvironment *env)
 {
-    m_sceneEnvironmentColor[sceneId] = color;
+    if (env) {
+        SceneEnvData &data = m_sceneEnvironmentData[sceneId];
+        data.backgroundMode = env->backgroundMode();
+        data.clearColor = env->clearColor();
+
+        if (data.lightProbe)
+            disconnect(data.lightProbe, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
+        data.lightProbe = env->lightProbe();
+        if (env->lightProbe())
+            connect(env->lightProbe(), &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged, Qt::DirectConnection);
+
+        if (data.skyBoxCubeMap)
+            disconnect(data.skyBoxCubeMap, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
+        data.skyBoxCubeMap = env->skyBoxCubeMap();
+        if (env->skyBoxCubeMap())
+            connect(env->skyBoxCubeMap(), &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged, Qt::DirectConnection);
+
+        emit sceneEnvDataChanged();
+    }
+}
+
+QQuick3DSceneEnvironment::QQuick3DEnvironmentBackgroundTypes GeneralHelper::sceneEnvironmentBgMode(
+    const QString &sceneId) const
+{
+    return m_sceneEnvironmentData[sceneId].backgroundMode;
 }
 
 QColor GeneralHelper::sceneEnvironmentColor(const QString &sceneId) const
 {
-    return m_sceneEnvironmentColor[sceneId];
+    return m_sceneEnvironmentData[sceneId].clearColor;
 }
 
-void GeneralHelper::clearSceneEnvironmentColors()
+QQuick3DTexture *GeneralHelper::sceneEnvironmentLightProbe(const QString &sceneId) const
 {
-    m_sceneEnvironmentColor.clear();
+    return m_sceneEnvironmentData[sceneId].lightProbe.data();
+}
+
+QQuick3DCubeMapTexture *GeneralHelper::sceneEnvironmentSkyBoxCubeMap(const QString &sceneId) const
+{
+    return m_sceneEnvironmentData[sceneId].skyBoxCubeMap.data();
+}
+
+void GeneralHelper::clearSceneEnvironmentData()
+{
+    for (const SceneEnvData &data : std::as_const(m_sceneEnvironmentData)) {
+        if (data.lightProbe)
+            disconnect(data.lightProbe, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
+        if (data.skyBoxCubeMap)
+            disconnect(data.skyBoxCubeMap, &QObject::destroyed, this, &GeneralHelper::sceneEnvDataChanged);
+    }
+
+    m_sceneEnvironmentData.clear();
+    emit sceneEnvDataChanged();
 }
 
 void GeneralHelper::initToolStates(const QString &sceneId, const QVariantMap &toolStates)
@@ -918,7 +965,7 @@ double GeneralHelper::adjustRotationForSnap(double newAngle)
 static double adjustScaler(double newScale, double increment)
 {
     double absScale = qAbs(newScale);
-    double comp1 = 1. + double(int((absScale / increment) - (1. / increment))) * increment;
+    double comp1 = 1. + double(int(int(absScale / increment) - (1. / increment))) * increment;
     double comp2 = comp1 + increment;
     double retVal = absScale - comp1 > comp2 - absScale ? comp2 : comp1;
     if (newScale < 0)
@@ -931,7 +978,7 @@ double GeneralHelper::adjustScalerForSnap(double newScale)
     bool snapScale = m_snapScale;
     double increment = m_snapScaleInterval;
 
-    if (qFuzzyIsNull(newScale) || !queryKeyboardForSnapping(snapScale, increment))
+    if (!queryKeyboardForSnapping(snapScale, increment))
         return newScale;
 
     return adjustScaler(newScale, increment);
@@ -952,6 +999,56 @@ QVector3D GeneralHelper::adjustScaleForSnap(const QVector3D &newScale)
     }
 
     return adjScale;
+}
+
+void GeneralHelper::setSnapPositionInterval(double interval)
+{
+    if (m_snapPositionInterval != interval) {
+        m_snapPositionInterval = interval;
+        emit minGridStepChanged();
+    }
+}
+
+QString GeneralHelper::formatVectorDragTooltip(const QVector3D &vec, const QString &suffix) const
+{
+    return QObject::tr("x:%L1 y:%L2 z:%L3%L4")
+        .arg(vec.x(), 0, 'f', 1).arg(vec.y(), 0, 'f', 1)
+        .arg(vec.z(), 0, 'f', 1).arg(suffix);
+}
+
+QString GeneralHelper::formatSnapStr(bool snapEnabled, double increment, const QString &suffix) const
+{
+    double inc = increment;
+    QString snapStr;
+    if (queryKeyboardForSnapping(snapEnabled, inc)) {
+        int precision = 0;
+        // We can have fractional snap if shift is pressed, so adjust precision in those cases
+        if (qRound(inc * 10.) != qRound(inc) * 10)
+            precision = 1;
+        snapStr = QObject::tr(" (Snap: %1%2)").arg(inc, 0, 'f', precision).arg(suffix);
+    }
+    return snapStr;
+}
+
+QString GeneralHelper::snapPositionDragTooltip(const QVector3D &pos) const
+{
+    return formatVectorDragTooltip(pos, formatSnapStr(m_snapPosition, m_snapPositionInterval, {}));
+}
+
+QString GeneralHelper::snapRotationDragTooltip(double angle) const
+{
+    return tr("%L1%L2").arg(angle, 0, 'f', 1).arg(formatSnapStr(m_snapRotation, m_snapRotationInterval, {}));
+}
+
+QString GeneralHelper::snapScaleDragTooltip(const QVector3D &scale) const
+{
+    return formatVectorDragTooltip(scale, formatSnapStr(m_snapScale, m_snapScaleInterval * 100., tr("%")));
+}
+
+double GeneralHelper::minGridStep() const
+{
+    // Minimum grid step is a multiple of snap interval, as the last step is divided to subgrid
+    return 2. * m_snapPositionInterval;
 }
 
 void GeneralHelper::setBgColor(const QVariant &colors)

@@ -10,6 +10,7 @@ namespace ScreenRecorder::Internal {
 enum CaptureType {
     X11grab,
     Ddagrab,
+    Gdigrab,
     AVFoundation,
 };
 
@@ -28,11 +29,12 @@ public:
     static RecordSettings sanitizedRecordSettings(const RecordSettings &settings);
     RecordSettings recordSettings() const;
     void applyRecordSettings(const RecordSettings &settings);
+    CaptureType volatileScreenCaptureType() const;
 
     // Visible in Settings page
     Utils::FilePathAspect ffmpegTool{this};
     Utils::FilePathAspect ffprobeTool{this};
-    Utils::SelectionAspect captureType{this};
+    Utils::SelectionAspect screenCaptureType{this};
     Utils::BoolAspect captureCursor{this};
     Utils::BoolAspect captureMouseClicks{this};
     Utils::BoolAspect enableFileSizeLimit{this};

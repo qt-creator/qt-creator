@@ -13,9 +13,19 @@ Node {
     property bool orthoMode: false
     property double distance: 500
 
-    readonly property int minGridStep: 50
-    readonly property int maxGridStep: 32 * minGridStep
-    readonly property int gridArea: minGridStep * 512
+    readonly property int maxGridStep: 32 * _generalHelper.minGridStep
+
+    readonly property int gridArea: {
+        let newArea = _generalHelper.minGridStep * 512
+
+        // Let's limit the grid size to something sensible
+        while (newArea > 30000)
+            newArea -= gridStep
+
+        return newArea
+    }
+
+    readonly property double gridOpacity: 0.99
 
     // Step of the main lines of the grid, between those is always one subdiv line
     property int gridStep: 100
@@ -32,12 +42,13 @@ Node {
         return Math.atan(step / distance)
     }
 
-    onDistanceChanged: {
+    function calcStep()
+    {
         if (distance === 0)
             return
 
         // Calculate new grid step
-        let newStep = gridStep
+        let newStep = _generalHelper.minGridStep
         let gridRad = calcRad(newStep)
         while (gridRad < minGridRad && newStep < maxGridStep) {
             newStep *= 2
@@ -45,15 +56,12 @@ Node {
                 newStep = maxGridStep
             gridRad = calcRad(newStep)
         }
-        while (gridRad > minGridRad * 2 && newStep > minGridStep) {
-            newStep /= 2
-            if (newStep < minGridStep)
-                newStep = minGridStep
-            gridRad = calcRad(newStep)
-        }
         gridStep = newStep
         subGridMaterial.generalAlpha = Math.min(1, 2 * (1 - (minGridRad / gridRad)))
     }
+
+    onMaxGridStepChanged: calcStep()
+    onDistanceChanged: calcStep()
 
     // Note: Only one instance of HelperGrid is supported, as the geometry names are fixed
 
@@ -74,6 +82,7 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
+        opacity: grid.gridOpacity
     }
 
     Model { // Subdivision lines
@@ -93,6 +102,7 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
+        opacity: grid.gridOpacity
     }
 
     Model { // Z Axis
@@ -111,6 +121,7 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
+        opacity: grid.gridOpacity
     }
     Model { // X Axis
         readonly property bool _edit3dLocked: true // Make this non-pickable
@@ -129,5 +140,6 @@ Node {
                 orthoMode: grid.orthoMode
             }
         ]
+        opacity: grid.gridOpacity
     }
 }

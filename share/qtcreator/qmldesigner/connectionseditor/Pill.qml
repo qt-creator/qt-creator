@@ -4,6 +4,7 @@
 import QtQuick
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import HelperWidgets as HelperWidgets
 
 FocusScope {
     id: root
@@ -33,15 +34,12 @@ FocusScope {
     readonly property int margin: StudioTheme.Values.flowPillMargin
     property var operatorModel
 
-    width: {
-        if (root.isEditable()) {
-            if (root.isInvalid())
-                return textInput.width + 1 + 2 * root.margin
-            else
-                return textInput.width + 1
-        }
-        return textItem.contentWidth + icon.width + root.margin
-    }
+    property bool hovered: rootMouseArea.containsMouse
+    property bool selected: root.focus
+
+    property int maxTextWidth: 600
+
+    width: row.width
     height: StudioTheme.Values.flowPillHeight
 
     onActiveFocusChanged: {
@@ -57,26 +55,59 @@ FocusScope {
             root.remove()
     }
 
-    MouseArea {
+    HelperWidgets.ToolTipArea {
         id: rootMouseArea
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: root.isEditable() ? Qt.IBeamCursor : Qt.ArrowCursor
         onClicked: root.forceActiveFocus()
+        tooltip: {
+            if (textItem.visible) {
+                if (textItem.truncated)
+                    return textItem.text
+                else
+                    return ""
+            }
+
+            if (textMetrics.width > textInput.width)
+                return textInput.text
+
+            return ""
+        }
     }
 
     Rectangle {
         id: pill
         anchors.fill: parent
         color: {
-            if (root.isShadow())
-                return StudioTheme.Values.themeInteraction
-            if (root.isEditable())
+            if (root.isIntermediate())
                 return "transparent"
 
-            return StudioTheme.Values.themePillBackground
+            if (root.isShadow())
+                return StudioTheme.Values.themePillShadowBackground
+
+            if (root.isInvalid() && root.selected)
+                return StudioTheme.Values.themeWarning
+
+            if (root.hovered) {
+                if (root.isOperator())
+                    return StudioTheme.Values.themePillOperatorBackgroundHover
+                if (root.isLiteral())
+                    return StudioTheme.Values.themePillLiteralBackgroundHover
+
+                return StudioTheme.Values.themePillDefaultBackgroundHover
+            }
+
+            if (root.isLiteral())
+                return StudioTheme.Values.themePillLiteralBackgroundIdle
+
+            if (root.isOperator())
+                return StudioTheme.Values.themePillOperatorBackgroundIdle
+
+            return StudioTheme.Values.themePillDefaultBackgroundIdle
         }
-        border.color: root.isInvalid() ? StudioTheme.Values.themeWarning : "white" // TODO colors
+        border.color: root.isInvalid() ? StudioTheme.Values.themeWarning
+                                       : StudioTheme.Values.themePillOutline
         border.width: {
             if (root.isShadow())
                 return 0
@@ -84,7 +115,7 @@ FocusScope {
                  return 1
             if (root.isEditable())
                 return 0
-            if (rootMouseArea.containsMouse || root.focus)
+            if (root.selected)
                 return 1
 
             return 0
@@ -93,31 +124,83 @@ FocusScope {
 
         Row {
             id: row
-            anchors.left: parent.left
-            anchors.leftMargin: root.margin
-            anchors.verticalCenter: parent.verticalCenter
-            visible: root.isOperator() || root.isProperty() || root.isShadow()
+            leftPadding: root.margin
+            rightPadding: icon.visible ? 0 : root.margin
+
+            property int textWidth: Math.min(textMetrics.advanceWidth + 2,
+                                             root.maxTextWidth - row.leftPadding
+                                             - (icon.visible ? icon.width : root.margin))
+
+            TextMetrics {
+                id: textMetrics
+                text: textItem.visible ? textItem.text : textInput.text
+                font: textItem.font
+            }
 
             Text {
                 id: textItem
+                width: row.textWidth
+                height: StudioTheme.Values.flowPillHeight
+                verticalAlignment: Text.AlignVCenter
+                textFormat: Text.PlainText
+                elide: Text.ElideMiddle
                 font.pixelSize: StudioTheme.Values.baseFontSize
-                color: root.isShadow() ? StudioTheme.Values.themeTextSelectedTextColor
-                                       : StudioTheme.Values.themeTextColor
+                color: root.isShadow() ? StudioTheme.Values.themePillTextSelected
+                                       : StudioTheme.Values.themePillText
                 text: root.isOperator() ? root.operatorModel.convertValueToName(root.value)
                                         : root.value
-                anchors.verticalCenter: parent.verticalCenter
+                visible: root.isOperator() || root.isProperty() || root.isShadow()
+            }
+
+            TextInput {
+                id: textInput
+                x: root.isInvalid() ? root.margin : 0
+                width: row.textWidth
+                height: StudioTheme.Values.flowPillHeight
+                topPadding: 1
+                clip: true
+                font.pixelSize: StudioTheme.Values.baseFontSize
+                color: {
+                    if (root.isIntermediate())
+                        return StudioTheme.Values.themePillTextEdit
+                    if (root.isInvalid() && root.selected)
+                        return StudioTheme.Values.themePillTextSelected
+                    return StudioTheme.Values.themePillText
+                }
+
+                selectedTextColor:StudioTheme.Values.themePillTextSelected
+                selectionColor: StudioTheme.Values.themeInteraction
+
+                text: root.value
+                visible: !textItem.visible
+                enabled: root.isEditable()
+
+                onEditingFinished: {
+                    root.update(textInput.text) // emit
+                    root.submit(textInput.cursorPosition) // emit
+                }
+
+                Keys.onReleased: function (event) {
+                    if (event.key === Qt.Key_Backspace) {
+                        if (textInput.text !== "")
+                            return
+
+                        root.remove() // emit
+                    }
+                }
             }
 
             Item {
                 id: icon
-                width: root.isShadow() ? root.margin : StudioTheme.Values.flowPillHeight
+                width: StudioTheme.Values.flowPillHeight
                 height: StudioTheme.Values.flowPillHeight
-                visible: !root.isShadow()
+                visible: !root.isShadow() && !root.isIntermediate()
 
                 Text {
                     font.family: StudioTheme.Constants.iconFont.family
                     font.pixelSize: StudioTheme.Values.smallIconFontSize
-                    color: StudioTheme.Values.themeIconColor
+                    color: root.isInvalid() && root.selected ? StudioTheme.Values.themePillTextSelected
+                                                             : StudioTheme.Values.themePillText
                     text: StudioTheme.Constants.close_small
                     anchors.centerIn: parent
                 }
@@ -126,36 +209,6 @@ FocusScope {
                     id: mouseArea
                     anchors.fill: parent
                     onClicked: root.remove()
-                }
-            }
-        }
-
-        TextInput {
-            id: textInput
-
-            x: root.isInvalid() ? root.margin : 0
-            height: StudioTheme.Values.flowPillHeight
-            topPadding: 1
-            font.pixelSize: StudioTheme.Values.baseFontSize
-            color: (rootMouseArea.containsMouse || textInput.activeFocus) ? StudioTheme.Values.themeIconColor
-                                                                          : StudioTheme.Values.themeTextColor
-            text: root.value
-            visible: root.isEditable()
-            enabled: root.isEditable()
-
-            //validator: RegularExpressionValidator { regularExpression: /^\S+/ }
-
-            onEditingFinished: {
-                root.update(textInput.text) // emit
-                root.submit(textInput.cursorPosition) // emit
-            }
-
-            Keys.onPressed: function (event) {
-                if (event.key === Qt.Key_Backspace) {
-                    if (textInput.text !== "")
-                        return
-
-                    root.remove() // emit
                 }
             }
         }

@@ -5,6 +5,7 @@ import QtQuick
 import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 import AssetsLibraryBackend
 
 TreeView {
@@ -53,8 +54,9 @@ TreeView {
 
     HoverHandler { id: hoverHandler }
 
-    ScrollBar.vertical: HelperWidgets.ScrollBar {
+    ScrollBar.vertical: StudioControls.TransientScrollBar {
         id: verticalScrollBar
+        style: StudioTheme.Values.viewStyle
         parent: root
         x: root.width - verticalScrollBar.width
         y: 0

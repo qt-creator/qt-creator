@@ -39,6 +39,7 @@ class MaterialEditorContextObject : public QObject
     Q_PROPERTY(bool hasQuick3DImport READ hasQuick3DImport WRITE setHasQuick3DImport NOTIFY hasQuick3DImportChanged)
     Q_PROPERTY(bool hasModelSelection READ hasModelSelection WRITE setHasModelSelection NOTIFY hasModelSelectionChanged)
     Q_PROPERTY(bool hasMaterialLibrary READ hasMaterialLibrary WRITE setHasMaterialLibrary NOTIFY hasMaterialLibraryChanged)
+    Q_PROPERTY(bool isQt6Project READ isQt6Project NOTIFY isQt6ProjectChanged)
 
     Q_PROPERTY(QQmlPropertyMap *backendValues READ backendValues WRITE setBackendValues NOTIFY backendValuesChanged)
 
@@ -96,6 +97,9 @@ public:
     bool hasMaterialLibrary() const;
     void setHasMaterialLibrary(bool b);
 
+    bool isQt6Project() const;
+    void setIsQt6Project(bool b);
+
     bool hasModelSelection() const;
     void setHasModelSelection(bool b);
 
@@ -134,6 +138,7 @@ signals:
     void hasQuick3DImportChanged();
     void hasMaterialLibraryChanged();
     void hasModelSelectionChanged();
+    void isQt6ProjectChanged();
 
 private:
     void updatePossibleTypeIndex();
@@ -163,6 +168,7 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_hasMaterialLibrary = false;
     bool m_hasModelSelection = false;
+    bool m_isQt6Project = false;
 
     ModelNode m_selectedMaterial;
 };

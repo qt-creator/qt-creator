@@ -712,6 +712,12 @@ bool StyleHelper::isQDSTheme()
     return creatorTheme() ? creatorTheme()->flag(Theme::QDSTheme) : false;
 }
 
+Qt::HighDpiScaleFactorRoundingPolicy StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
+{
+    return HostOsInfo::isMacHost() ? Qt::HighDpiScaleFactorRoundingPolicy::Unset
+                                   : Qt::HighDpiScaleFactorRoundingPolicy::PassThrough;
+}
+
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters)
 {
     QFontDatabase a;

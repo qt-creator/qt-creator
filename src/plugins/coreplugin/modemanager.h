@@ -19,9 +19,8 @@ class ICore;
 class IMode;
 
 namespace Internal {
-class MainWindow;
-class MainWindowPrivate;
 class FancyTabWidget;
+class ICorePrivate;
 }
 
 class CORE_EXPORT ModeManager : public QObject
@@ -49,7 +48,6 @@ public:
 
     static void removeMode(IMode *mode);
 
-public slots:
     static void setModeStyle(Style layout);
     static void cycleModeStyle();
 
@@ -60,7 +58,7 @@ signals:
     void currentModeChanged(Utils::Id mode, Utils::Id oldMode = {});
 
 private:
-    explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
+    explicit ModeManager(Internal::FancyTabWidget *modeStack);
     ~ModeManager() override;
 
     static void extensionsInitialized();
@@ -71,8 +69,7 @@ private:
 
     friend class ICore;
     friend class IMode;
-    friend class Core::Internal::MainWindow;
-    friend class Core::Internal::MainWindowPrivate;
+    friend class Internal::ICorePrivate;
 };
 
 } // namespace Core

@@ -15,7 +15,7 @@ namespace Core {
 
 class IVersionControl;
 
-namespace Internal { class MainWindowPrivate; }
+namespace Internal { class ICorePrivate; }
 
 /* VcsManager:
  * 1) Provides functionality for finding the IVersionControl * for a given
@@ -87,8 +87,8 @@ private:
     void handleConfigurationChanges(IVersionControl *vc);
     static void addVersionControl(IVersionControl *vc);
 
-    friend class Core::Internal::MainWindowPrivate;
-    friend class Core::IVersionControl;
+    friend class Internal::ICorePrivate;
+    friend class IVersionControl;
 };
 
 } // namespace Core

@@ -10,7 +10,7 @@
 namespace {
 constexpr QLatin1String localTestDataDir{UNITTEST_DIR "/qmlprojectmanager/data"};
 
-class DataSet : public testing::TestWithParam<QString>
+class QmlProjectConverter : public testing::TestWithParam<QString>
 {
 public:
     void setDataSource(const QString &dataSetName)
@@ -64,10 +64,12 @@ private:
 };
 
 INSTANTIATE_TEST_SUITE_P(QmlProjectItem,
-                         DataSet,
-                         ::testing::Values(QString("test-set-1"), QString("test-set-2")));
+                         QmlProjectConverter,
+                         ::testing::Values(QString("test-set-1"),
+                                           QString("test-set-2"),
+                                           QString("test-set-3")));
 
-TEST_P(DataSet, qml_project_to_json)
+TEST_P(QmlProjectConverter, qml_project_to_json)
 {
     // GIVEN
     setDataSource(GetParam());
@@ -82,7 +84,7 @@ TEST_P(DataSet, qml_project_to_json)
     ASSERT_THAT(convertedContent, Eq(targetContent));
 }
 
-TEST_P(DataSet, json_to_qml_project)
+TEST_P(QmlProjectConverter, json_to_qml_project)
 {
     // GIVEN
     setDataSource(GetParam());

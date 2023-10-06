@@ -4,12 +4,14 @@
 import QtQuick
 
 ControlStyle {
-
     radius: Values.smallRadius
 
     baseIconFontSize: Values.baseFont
     controlSize: Qt.size(Values.viewBarComboWidth, Values.viewBarComboHeight)
     smallIconFontSize: Values.baseFont
+
+    scrollBarThickness: 4
+    scrollBarThicknessHover: 6
 
     background: ControlStyle.BackgroundColors {
         idle: Values.themePopoutControlBackground_idle
@@ -35,5 +37,11 @@ ControlStyle {
         hover: Values.themePopoutControlBorder_hover
         interaction: Values.themeInteraction
         disabled: Values.themePopoutControlBorder_disabled
+    }
+
+    scrollBar: ControlStyle.ScrollBarColors {
+        track: Values.themeScrollBarTrack
+        handle: Values.themeScrollBarHandle_idle
+        handleHover: Values.themeScrollBarHandle
     }
 }
