@@ -183,6 +183,14 @@ QString CollectionDetails::headerAt(int column) const
     return d->headers.at(column);
 }
 
+bool CollectionDetails::containsHeader(const QString &header)
+{
+    if (!isValid())
+        return false;
+
+    return d->headers.contains(header);
+}
+
 bool CollectionDetails::isValid() const
 {
     return d->reference.node.isValid() && d->reference.name.size();

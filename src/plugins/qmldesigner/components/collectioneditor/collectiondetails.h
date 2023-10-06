@@ -55,6 +55,7 @@ public:
     CollectionEditor::SourceFormat sourceFormat() const;
     QVariant data(int row, int column) const;
     QString headerAt(int column) const;
+    bool containsHeader(const QString &header);
 
     bool isValid() const;
     bool isChanged() const;

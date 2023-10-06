@@ -41,6 +41,8 @@ public:
                         int role = Qt::DisplayRole) const override;
     int selectedColumn() const;
 
+    Q_INVOKABLE bool isPropertyAvailable(const QString &name);
+    Q_INVOKABLE bool addColumn(int column, const QString &name);
     Q_INVOKABLE bool selectColumn(int section);
     Q_INVOKABLE bool renameColumn(int section, const QString &newValue);
 

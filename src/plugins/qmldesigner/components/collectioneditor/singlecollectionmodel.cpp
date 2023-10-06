@@ -125,6 +125,25 @@ int SingleCollectionModel::selectedColumn() const
     return m_selectedColumn;
 }
 
+bool SingleCollectionModel::isPropertyAvailable(const QString &name)
+{
+    return m_currentCollection.containsHeader(name);
+}
+
+bool SingleCollectionModel::addColumn(int column, const QString &name)
+{
+    if (m_currentCollection.containsHeader(name))
+        return false;
+
+    if (column < 0 || column > columnCount())
+        column = columnCount();
+
+    beginInsertColumns({}, column, column);
+    m_currentCollection.insertColumn(name, column);
+    endInsertColumns();
+    return m_currentCollection.containsHeader(name);
+}
+
 bool SingleCollectionModel::selectColumn(int section)
 {
     if (m_selectedColumn == section)

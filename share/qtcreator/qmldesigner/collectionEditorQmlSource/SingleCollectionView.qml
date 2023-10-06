@@ -23,7 +23,7 @@ Rectangle {
         spacing: 0
         width: parent.width
         leftPadding: 20
-        rightPadding: 0
+        rightPadding: 20
         topPadding: 5
 
         Text {
@@ -49,6 +49,18 @@ Rectangle {
         Item { // spacer
             width: 1
             height: 10
+        }
+
+        CollectionDetailsToolbar {
+            property real availableWidth: parent.width - parent.leftPadding - parent.rightPadding
+
+            model: root.model
+            width: Math.max(availableWidth, implicitWidth)
+        }
+
+        Item { // spacer
+            width: 1
+            height: 5
         }
 
         HorizontalHeaderView {
