@@ -213,7 +213,7 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
                     // Peek at next command. If that is also a wheel with same button/modifiers
                     // state, skip this event and add the angle delta to the next one.
                     auto nextCommand = m_pendingInputEventCommands[i + 1];
-                    if (nextCommand.type() == QEvent::MouseMove
+                    if (nextCommand.type() == QEvent::Wheel
                             && nextCommand.button() == command.button()
                             && nextCommand.buttons() == command.buttons()
                             && nextCommand.modifiers() == command.modifiers()) {
@@ -232,6 +232,12 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
                 QKeyEvent *ke = new QKeyEvent(command.type(), command.key(), command.modifiers(),
                                               QString(), command.autoRepeat(), command.count());
                 QGuiApplication::sendEvent(m_editView3DData.window, ke);
+            } else if (command.type() == QEvent::Enter) {
+                QEnterEvent *ee = new QEnterEvent(command.pos(), {}, {});
+                QGuiApplication::sendEvent(m_editView3DData.window, ee);
+            } else if (command.type() == QEvent::Leave) {
+                QEvent *e = new QEvent(command.type());
+                QGuiApplication::sendEvent(m_editView3DData.window, e);
             } else {
                 if (command.type() == QEvent::MouseMove && i < m_pendingInputEventCommands.size() - 1) {
                     // Peek at next command. If that is also a move with only difference being

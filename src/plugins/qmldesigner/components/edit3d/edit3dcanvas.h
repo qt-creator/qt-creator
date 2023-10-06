@@ -38,6 +38,8 @@ protected:
     void resizeEvent(QResizeEvent *e) override;
     void focusOutEvent(QFocusEvent *focusEvent) override;
     void focusInEvent(QFocusEvent *focusEvent) override;
+    void enterEvent(QEnterEvent *e) override;
+    void leaveEvent(QEvent *e) override;
 
 private:
     void positionBusyInidicator();

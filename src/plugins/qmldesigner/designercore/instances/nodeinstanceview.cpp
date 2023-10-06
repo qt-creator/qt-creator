@@ -1764,7 +1764,7 @@ void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNode
     m_rotBlockTimer.start();
 }
 
-void NodeInstanceView::sendInputEvent(QInputEvent *e) const
+void NodeInstanceView::sendInputEvent(QEvent *e) const
 {
     m_nodeInstanceServer->inputEvent(InputEventCommand(e));
 }

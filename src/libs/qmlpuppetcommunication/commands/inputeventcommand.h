@@ -18,7 +18,7 @@ class InputEventCommand
 
 public:
     InputEventCommand();
-    explicit InputEventCommand(QInputEvent *e);
+    explicit InputEventCommand(QEvent *e);
 
     QEvent::Type type() const { return m_type; }
     QPoint pos() const { return m_pos; }

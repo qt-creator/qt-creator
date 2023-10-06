@@ -431,7 +431,7 @@ void Edit3DView::nodeRemoved(const ModelNode &,
     updateAlignActionStates();
 }
 
-void Edit3DView::sendInputEvent(QInputEvent *e) const
+void Edit3DView::sendInputEvent(QEvent *e) const
 {
     if (nodeInstanceView())
         nodeInstanceView()->sendInputEvent(e);

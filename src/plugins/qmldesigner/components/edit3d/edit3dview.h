@@ -52,7 +52,7 @@ public:
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty,
                      PropertyChangeFlags propertyChange) override;
 
-    void sendInputEvent(QInputEvent *e) const;
+    void sendInputEvent(QEvent *e) const;
     void edit3DViewResized(const QSize &size) const;
 
     QSize canvasSize() const;

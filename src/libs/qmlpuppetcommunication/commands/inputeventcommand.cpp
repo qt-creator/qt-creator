@@ -10,10 +10,16 @@ namespace QmlDesigner {
 
 InputEventCommand::InputEventCommand() = default;
 
-InputEventCommand::InputEventCommand(QInputEvent *e)
-    : m_type(e->type()),
-      m_modifiers(e->modifiers())
+InputEventCommand::InputEventCommand(QEvent *e)
+    : m_type(e->type())
 {
+    // Leave events are not actual input events
+    if (m_type == QEvent::Leave)
+        return;
+
+    auto ie = static_cast<QInputEvent *>(e);
+    m_modifiers = ie->modifiers();
+
     if (m_type == QEvent::Wheel) {
         auto we = static_cast<QWheelEvent *>(e);
 #if QT_VERSION <= QT_VERSION_CHECK(5, 15, 0)
@@ -28,6 +34,11 @@ InputEventCommand::InputEventCommand(QInputEvent *e)
         m_key = ke->key();
         m_count = ke->count();
         m_autoRepeat = ke->isAutoRepeat();
+    } else if (m_type == QEvent::Enter) {
+        auto spe = static_cast<QSinglePointEvent *>(e);
+        m_pos = spe->position().toPoint();
+        m_button = spe->button();
+        m_buttons = spe->buttons();
     } else {
         auto me = static_cast<QMouseEvent *>(e);
         m_pos = me->pos();
