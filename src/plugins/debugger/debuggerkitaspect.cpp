@@ -188,7 +188,7 @@ ProcessRunData DebuggerKitAspect::runnable(const Kit *kit)
         }
         runnable.command.setExecutable(cmd);
         runnable.workingDirectory = item->workingDirectory();
-        runnable.environment = kit->runEnvironment();
+        runnable.environment = cmd.deviceEnvironment();
         runnable.environment.set("LC_NUMERIC", "C");
     }
     return runnable;
