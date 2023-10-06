@@ -74,9 +74,9 @@ public:
     bool ensureReachable(const Utils::FilePath &other) const override;
     Utils::expected_str<Utils::FilePath> localSource(const Utils::FilePath &other) const override;
 
-    Utils::Environment systemEnvironment() const override;
+    Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const override;
 
-    bool updateContainerAccess() const;
+    Utils::expected_str<void> updateContainerAccess() const;
     void setMounts(const QStringList &mounts) const;
 
     bool prepareForBuild(const ProjectExplorer::Target *target) override;

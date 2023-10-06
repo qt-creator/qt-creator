@@ -243,7 +243,8 @@ expected_str<QByteArray> DeviceShell::checkCommand(const QByteArray &command)
     if (out.contains("<missing>")) {
         m_shellScriptState = State::Failed;
         m_missingFeatures.append(QString::fromUtf8(command));
-        return make_unexpected(Tr::tr("Command %1 was not found.").arg(QString::fromUtf8(command)));
+        return make_unexpected(
+            Tr::tr("Command \"%1\" was not found.").arg(QString::fromUtf8(command)));
     }
 
     return out;

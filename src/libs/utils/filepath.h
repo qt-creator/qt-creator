@@ -164,6 +164,7 @@ public:
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
     [[nodiscard]] Environment deviceEnvironment() const;
+    [[nodiscard]] expected_str<Environment> deviceEnvironmentWithError() const;
     [[nodiscard]] FilePaths devicePathEnvironmentVariable() const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
@@ -301,7 +302,7 @@ public:
     std::function<expected_str<DeviceFileAccess *>(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
     std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
-    std::function<Environment(const FilePath &)> environment;
+    std::function<expected_str<Environment>(const FilePath &)> environment;
     std::function<bool(const FilePath &left, const FilePath &right)> isSameDevice;
     std::function<expected_str<FilePath>(const FilePath &)> localSource;
     std::function<void(const FilePath &, const Environment &)> openTerminal;

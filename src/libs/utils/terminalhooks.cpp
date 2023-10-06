@@ -6,27 +6,28 @@
 #include "externalterminalprocessimpl.h"
 #include "filepath.h"
 #include "process.h"
+#include "utilstr.h"
 
 #include <QMutex>
 
 namespace Utils::Terminal {
 
-FilePath defaultShellForDevice(const FilePath &deviceRoot)
+expected_str<FilePath> defaultShellForDevice(const FilePath &deviceRoot)
 {
     if (deviceRoot.osType() == OsTypeWindows)
         return deviceRoot.withNewPath("cmd.exe").searchInPath();
 
-    const Environment env = deviceRoot.deviceEnvironment();
-    if (!env.hasChanges())
-        return {};
+    const expected_str<Environment> env = deviceRoot.deviceEnvironmentWithError();
+    if (!env)
+        return make_unexpected(env.error());
 
-    FilePath shell = FilePath::fromUserInput(env.value_or("SHELL", "/bin/sh"));
+    FilePath shell = FilePath::fromUserInput(env->value_or("SHELL", "/bin/sh"));
 
     if (!shell.isAbsolutePath())
-        shell = env.searchInPath(shell.nativePath());
+        shell = env->searchInPath(shell.nativePath());
 
     if (shell.isEmpty())
-        return shell;
+        return make_unexpected(Tr::tr("Could not find any shell"));
 
     return deviceRoot.withNewMappedPath(shell);
 }

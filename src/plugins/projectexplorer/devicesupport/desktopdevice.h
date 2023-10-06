@@ -31,7 +31,7 @@ public:
     bool usableAsBuildDevice() const override;
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
-    Utils::Environment systemEnvironment() const override;
+    Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const override;
 
     Utils::FilePath rootPath() const override;
     Utils::FilePath filePath(const QString &pathOnDevice) const override;

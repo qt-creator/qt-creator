@@ -226,10 +226,11 @@ bool IDevice::canOpenTerminal() const
     return bool(d->openTerminal);
 }
 
-void IDevice::openTerminal(const Environment &env, const FilePath &workingDir) const
+expected_str<void> IDevice::openTerminal(const Environment &env, const FilePath &workingDir) const
 {
-    QTC_ASSERT(canOpenTerminal(), return);
-    d->openTerminal(env, workingDir);
+    QTC_ASSERT(canOpenTerminal(),
+               return make_unexpected(Tr::tr("Opening a terminal is not supported.")));
+    return d->openTerminal(env, workingDir);
 }
 
 bool IDevice::isEmptyCommandAllowed() const
@@ -302,6 +303,13 @@ FileTransferInterface *IDevice::createFileTransferInterface(
 }
 
 Environment IDevice::systemEnvironment() const
+{
+    expected_str<Environment> env = systemEnvironmentWithError();
+    QTC_ASSERT_EXPECTED(env, return {});
+    return *env;
+}
+
+expected_str<Environment> IDevice::systemEnvironmentWithError() const
 {
     DeviceFileAccess *access = fileAccess();
     QTC_ASSERT(access, return Environment::systemEnvironment());

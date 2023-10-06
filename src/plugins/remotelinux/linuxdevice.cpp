@@ -37,6 +37,7 @@
 
 #include <QDateTime>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QMutex>
 #include <QReadWriteLock>
 #include <QRegularExpression>
@@ -971,7 +972,8 @@ LinuxDevice::LinuxDevice()
         }
     }});
 
-    setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
+    setOpenTerminal([this](const Environment &env,
+                           const FilePath &workingDir) -> expected_str<void> {
         Process proc;
 
         // If we will not set any environment variables, we can leave out the shell executable
@@ -985,10 +987,15 @@ LinuxDevice::LinuxDevice()
         proc.setEnvironment(env);
         proc.setWorkingDirectory(workingDir);
         proc.start();
+
+        return {};
     });
 
     addDeviceAction({Tr::tr("Open Remote Shell"), [](const IDevice::Ptr &device, QWidget *) {
-                         device->openTerminal(Environment(), FilePath());
+                         expected_str<void> result = device->openTerminal(Environment(), FilePath());
+
+                         if (!result)
+                             QMessageBox::warning(nullptr, Tr::tr("Error"), result.error());
                      }});
 }
 

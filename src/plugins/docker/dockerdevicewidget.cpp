@@ -106,7 +106,13 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             this,
             [this, logView, dockerDevice, searchPaths, deviceSettings] {
                 logView->clear();
-                dockerDevice->updateContainerAccess();
+                expected_str<void> startResult = dockerDevice->updateContainerAccess();
+
+                if (!startResult) {
+                    logView->append(Tr::tr("Failed to start container."));
+                    logView->append(startResult.error());
+                    return;
+                }
 
                 const FilePath clangdPath
                     = dockerDevice->filePath("clangd")

@@ -110,7 +110,7 @@ private:
 
     Internal::ShortcutMap m_shortcutMap;
 
-    std::unique_ptr<QFutureWatcher<Utils::FilePath>> m_findShellWatcher;
+    std::unique_ptr<QFutureWatcher<Utils::expected_str<Utils::FilePath>>> m_findShellWatcher;
 };
 
 } // namespace Terminal
