@@ -7,6 +7,7 @@
 #include <QFutureWatcher>
 #include <QPointer>
 #include <QPromise>
+#include <QPointer>
 #include <QSet>
 #include <QTimer>
 
