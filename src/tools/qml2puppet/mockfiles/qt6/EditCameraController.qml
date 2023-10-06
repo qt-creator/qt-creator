@@ -88,6 +88,14 @@ Item {
         storeCameraState(0);
     }
 
+    function jumpToRotation(rotation) {
+        let distance = camera.scenePosition.minus(_lookAtPoint).length()
+        let direction = _generalHelper.dirForRotation(rotation)
+
+        camera.rotation = rotation
+        camera.position = _lookAtPoint.plus(direction.times(distance))
+    }
+
     function alignCameras(targetNodes)
     {
         if (!camera)

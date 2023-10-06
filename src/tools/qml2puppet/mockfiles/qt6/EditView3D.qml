@@ -1135,14 +1135,17 @@ Item {
             }
         }
 
-        AxisHelper {
+        OriginGizmo {
             anchors.right: parent.right
             anchors.top: parent.top
-            width: 100
-            height: width
-            editCameraCtrl: cameraControl
-            selectedNode: viewRoot.selectedNodes.length === 1 ? viewRoot.selectionBoxes[0].model
-                                                              : viewRoot.selectedNode
+            anchors.margins: 10
+            width: 120
+            height: 120
+            targetNode: cameraControl.camera
+
+            onAxisClicked: (axis) => {
+                cameraControl.jumpToRotation(quaternionForAxis(axis));
+            }
         }
 
         Text {
