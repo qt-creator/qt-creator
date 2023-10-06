@@ -121,7 +121,6 @@ private:
     void selectAllFiles(Tree *root);
 
 protected:
-    bool m_allFiles = true;
     QSet<Utils::FilePath> m_outOfBaseDirFiles;
     QSet<Utils::FilePath> m_files;
     Tree *m_root = nullptr;
