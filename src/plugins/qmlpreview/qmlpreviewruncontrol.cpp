@@ -32,7 +32,7 @@ namespace QmlPreview {
 
 static const Key QmlServerUrl = "QmlServerUrl";
 
-class RefreshTranslationWorker final : public ProjectExplorer::RunWorker
+class RefreshTranslationWorker final : public RunWorker
 {
 public:
     explicit RefreshTranslationWorker(ProjectExplorer::RunControl *runControl,
@@ -42,6 +42,7 @@ public:
         setId("RefreshTranslationWorker");
         connect(this, &RunWorker::started, this, &RefreshTranslationWorker::startRefreshTranslationsAsync);
         connect(this, &RunWorker::stopped, &m_futureWatcher, &QFutureWatcher<void>::cancel);
+        connect(&m_futureWatcher, &QFutureWatcherBase::finished, this, &RefreshTranslationWorker::stop);
     }
     ~RefreshTranslationWorker()
     {
@@ -54,7 +55,6 @@ private:
     {
         m_futureWatcher.setFuture(Utils::asyncRun([this] {
             m_runnerSettings.refreshTranslationsFunction();
-            stop();
         }));
     }
     QmlPreviewRunnerSetting m_runnerSettings;
