@@ -1432,9 +1432,9 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
             handleImportedTargets(cmakeFile, func);
             handleProjectTargets(cmakeFile, func);
             handleFindPackageVariables(cmakeFile, func);
-            handleDotCMakeFiles(cmakeFile);
-            handleFindPackageCMakeFiles(cmakeFile);
         }
+        handleDotCMakeFiles(cmakeFile);
+        handleFindPackageCMakeFiles(cmakeFile);
     }
 
     m_projectFindPackageVariables.removeDuplicates();
