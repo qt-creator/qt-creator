@@ -12,8 +12,6 @@
 #include <utils/commandline.h>
 #include <utils/guard.h>
 
-#include <memory>
-
 #include <QDebug>
 
 QT_BEGIN_NAMESPACE
@@ -50,10 +48,10 @@ public:
 
     friend bool operator==(const QMakeStepConfig &a, const QMakeStepConfig &b)
     {
-        return std::tie(a.osType, a.linkQmlDebuggingQQ2)
-                == std::tie(b.osType, b.linkQmlDebuggingQQ2)
-                && std::tie(a.useQtQuickCompiler, a.separateDebugInfo)
-                == std::tie(b.useQtQuickCompiler, b.separateDebugInfo);
+        return a.osType == b.osType
+            && a.linkQmlDebuggingQQ2 == b.linkQmlDebuggingQQ2
+            && a.useQtQuickCompiler == b.useQtQuickCompiler
+            && a.separateDebugInfo == b.separateDebugInfo;
     }
 
     friend bool operator!=(const QMakeStepConfig &a, const QMakeStepConfig &b) { return !(a == b); }
