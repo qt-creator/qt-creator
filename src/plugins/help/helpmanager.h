@@ -59,7 +59,6 @@ public:
         Core::HelpManager::HelpViewerLocation location = Core::HelpManager::HelpModeAlways) override;
 
     static void setupHelpManager();
-    static void registerDocumentationNow(QPromise<bool> &promise, const QStringList &fileNames);
 
 signals:
     void collectionFileChanged();

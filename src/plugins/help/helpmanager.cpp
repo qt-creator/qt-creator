@@ -94,6 +94,39 @@ QString HelpManager::collectionFilePath()
     return ICore::userResourcePath("helpcollection.qhc").toString();
 }
 
+static void registerDocumentationNow(QPromise<bool> &promise, const QString &collectionFilePath,
+                                     const QStringList &files)
+{
+    QMutexLocker locker(&d->m_helpengineMutex);
+
+    promise.setProgressRange(0, files.count());
+    promise.setProgressValue(0);
+
+    QHelpEngineCore helpEngine(collectionFilePath);
+    helpEngine.setReadOnly(false);
+    helpEngine.setupData();
+    bool docsChanged = false;
+    QStringList nameSpaces = helpEngine.registeredDocumentations();
+    for (const QString &file : files) {
+        if (promise.isCanceled())
+            break;
+        promise.setProgressValue(promise.future().progressValue() + 1);
+        const QString &nameSpace = QHelpEngineCore::namespaceName(file);
+        if (nameSpace.isEmpty())
+            continue;
+        if (!nameSpaces.contains(nameSpace)) {
+            if (helpEngine.registerDocumentation(file)) {
+                nameSpaces.append(nameSpace);
+                docsChanged = true;
+            } else {
+                qWarning() << "Error registering namespace '" << nameSpace
+                           << "' from file '" << file << "':" << helpEngine.error();
+            }
+        }
+    }
+    promise.addResult(docsChanged);
+}
+
 void HelpManager::registerDocumentation(const QStringList &files)
 {
     if (d->m_needsSetup) {
@@ -102,7 +135,7 @@ void HelpManager::registerDocumentation(const QStringList &files)
         return;
     }
 
-    QFuture<bool> future = Utils::asyncRun(&HelpManager::registerDocumentationNow, files);
+    QFuture<bool> future = Utils::asyncRun(registerDocumentationNow, collectionFilePath(), files);
     Utils::onResultReady(future, this, [](bool docsChanged){
         if (docsChanged) {
             d->m_helpEngine->setupData();
@@ -123,38 +156,6 @@ void HelpManager::unregisterDocumentation(const QStringList &fileNames)
         });
     };
     unregisterNamespaces(getNamespaces(fileNames));
-}
-
-void HelpManager::registerDocumentationNow(QPromise<bool> &promise, const QStringList &files)
-{
-    QMutexLocker locker(&d->m_helpengineMutex);
-
-    promise.setProgressRange(0, files.count());
-    promise.setProgressValue(0);
-
-    QHelpEngineCore helpEngine(collectionFilePath());
-    helpEngine.setReadOnly(false);
-    helpEngine.setupData();
-    bool docsChanged = false;
-    QStringList nameSpaces = helpEngine.registeredDocumentations();
-    for (const QString &file : files) {
-        if (promise.isCanceled())
-            break;
-        promise.setProgressValue(promise.future().progressValue() + 1);
-        const QString &nameSpace = QHelpEngineCore::namespaceName(file);
-        if (nameSpace.isEmpty())
-            continue;
-        if (!nameSpaces.contains(nameSpace)) {
-            if (helpEngine.registerDocumentation(file)) {
-                nameSpaces.append(nameSpace);
-                docsChanged = true;
-            } else {
-                qWarning() << "Error registering namespace '" << nameSpace
-                    << "' from file '" << file << "':" << helpEngine.error();
-            }
-        }
-    }
-    promise.addResult(docsChanged);
 }
 
 void HelpManager::unregisterNamespaces(const QStringList &nameSpaces)
