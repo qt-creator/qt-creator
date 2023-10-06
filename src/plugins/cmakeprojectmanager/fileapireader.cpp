@@ -11,10 +11,13 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
@@ -168,7 +171,7 @@ void FileApiReader::stop()
 
     if (m_future) {
         m_future->cancel();
-        m_future->waitForFinished();
+        ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(*m_future);
     }
     m_future = {};
     m_isParsing = false;
