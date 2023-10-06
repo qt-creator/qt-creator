@@ -69,6 +69,11 @@ Project {
     }
 
     Files {
+        filter: "*.qad"
+        directory: "asset_imports"
+    }
+
+    Files {
         filter: "*.qml"
         directory: "asset_imports"
     }
