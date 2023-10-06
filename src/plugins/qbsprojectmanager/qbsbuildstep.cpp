@@ -355,7 +355,7 @@ void QbsBuildStep::fromMap(const Store &map)
     BuildStep::fromMap(map);
     if (hasError())
         return;
-    setQbsConfiguration(map.value(QBS_CONFIG).toMap());
+    setQbsConfiguration(mapEntryFromStoreEntry(map.value(QBS_CONFIG)).toMap());
 }
 
 void QbsBuildStep::toMap(Store &map) const
