@@ -158,9 +158,12 @@ void CollectionView::refreshModel()
     if (!model())
         return;
 
-    // Load Json Collections
-    const ModelNodes jsonSourceNodes = rootModelNode().subModelNodesOfType(jsonCollectionMetaInfo());
-    m_widget->sourceModel()->setSources(jsonSourceNodes);
+    // Load Collections
+    const ModelNodes collectionSourceNodes = rootModelNode().subModelNodesOfType(
+                                                 jsonCollectionMetaInfo())
+                                             + rootModelNode().subModelNodesOfType(
+                                                 csvCollectionMetaInfo());
+    m_widget->sourceModel()->setSources(collectionSourceNodes);
 }
 
 NodeMetaInfo CollectionView::jsonCollectionMetaInfo() const
