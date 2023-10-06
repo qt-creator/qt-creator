@@ -18,11 +18,97 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+#include <vector>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
+
+static QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &flagsCache)
+{
+    QStringList flags;
+    const QJsonArray arguments = object["arguments"].toArray();
+    if (arguments.isEmpty()) {
+        flags = splitCommandLine(object["command"].toString(), flagsCache);
+    } else {
+        flags.reserve(arguments.size());
+        for (const QJsonValue &arg : arguments) {
+            auto flagIt = flagsCache.insert(arg.toString());
+            flags.append(*flagIt);
+        }
+    }
+    return flags;
+}
+
+static FilePath jsonObjectFilePath(const QJsonObject &object)
+{
+    const FilePath workingDir = FilePath::fromUserInput(object["directory"].toString());
+    return workingDir.resolvePath(object["file"].toString());
+}
+
+static std::vector<DbEntry> readJsonObjects(const QByteArray &projectFileContents)
+{
+    std::vector<DbEntry> result;
+
+    int objectStart = projectFileContents.indexOf('{');
+    int objectEnd = projectFileContents.indexOf('}', objectStart + 1);
+
+    QSet<QString> flagsCache;
+    while (objectStart >= 0 && objectEnd >= 0) {
+        const QJsonDocument document = QJsonDocument::fromJson(
+            projectFileContents.mid(objectStart, objectEnd - objectStart + 1));
+        if (document.isNull()) {
+            // The end was found incorrectly, search for the next one.
+            objectEnd = projectFileContents.indexOf('}', objectEnd + 1);
+            continue;
+        }
+
+        const QJsonObject object = document.object();
+        const FilePath filePath = jsonObjectFilePath(object);
+        const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
+                                                     filePath.fileName());
+        result.push_back({flags, filePath, FilePath::fromUserInput(object["directory"].toString())});
+
+        objectStart = projectFileContents.indexOf('{', objectEnd + 1);
+        objectEnd = projectFileContents.indexOf('}', objectStart + 1);
+    }
+    return result;
+}
+
+static QStringList readExtraFiles(const QString &filePath)
+{
+    QStringList result;
+
+    QFile file(filePath);
+    if (file.open(QFile::ReadOnly)) {
+        QTextStream stream(&file);
+        while (!stream.atEnd()) {
+            const QString line = stream.readLine().trimmed();
+            if (line.isEmpty() || line.startsWith('#'))
+                continue;
+
+            result.push_back(line);
+        }
+    }
+    return result;
+}
+
+static DbContents parseProject(const QByteArray &projectFileContents,
+                               const FilePath &projectFilePath)
+{
+    DbContents dbContents;
+    dbContents.entries = readJsonObjects(projectFileContents);
+    dbContents.extraFileName = projectFilePath.toString() +
+                               Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX;
+    dbContents.extras = readExtraFiles(dbContents.extraFileName);
+    std::sort(dbContents.entries.begin(), dbContents.entries.end(),
+              [](const DbEntry &lhs, const DbEntry &rhs) {
+                  return std::lexicographical_compare(lhs.flags.begin(), lhs.flags.end(),
+                                                      rhs.flags.begin(), rhs.flags.end());
+              });
+    return dbContents;
+}
 
 CompilationDbParser::CompilationDbParser(const QString &projectName,
                                          const FilePath &projectPath,
@@ -82,7 +168,7 @@ void CompilationDbParser::start()
 
             return isIgnored;
         });
-        m_treeScanner->setTypeFactory([](const Utils::MimeType &mimeType, const Utils::FilePath &fn) {
+        m_treeScanner->setTypeFactory([](const MimeType &mimeType, const FilePath &fn) {
             return TreeScanner::genericFileType(mimeType, fn);
         });
         m_treeScanner->asyncScanForFiles(m_rootPath);
@@ -95,7 +181,7 @@ void CompilationDbParser::start()
     }
 
     // Thread 2: Parse the project file.
-    const QFuture<DbContents> future = Utils::asyncRun(&CompilationDbParser::parseProject, this);
+    const auto future = Utils::asyncRun(parseProject, m_projectFileContents, m_projectFilePath);
     Core::ProgressManager::addTask(future,
                                    Tr::tr("Parse \"%1\" project").arg(m_projectName),
                                    "CompilationDatabase.Parse");
@@ -138,94 +224,4 @@ void CompilationDbParser::finish(ParseResult result)
     deleteLater();
 }
 
-static QStringList jsonObjectFlags(const QJsonObject &object, QSet<QString> &flagsCache)
-{
-    QStringList flags;
-    const QJsonArray arguments = object["arguments"].toArray();
-    if (arguments.isEmpty()) {
-        flags = splitCommandLine(object["command"].toString(), flagsCache);
-    } else {
-        flags.reserve(arguments.size());
-        for (const QJsonValue &arg : arguments) {
-            auto flagIt = flagsCache.insert(arg.toString());
-            flags.append(*flagIt);
-        }
-    }
-
-    return flags;
-}
-
-static FilePath jsonObjectFilePath(const QJsonObject &object)
-{
-    const FilePath workingDir = FilePath::fromUserInput(object["directory"].toString());
-    return workingDir.resolvePath(object["file"].toString());
-}
-
-std::vector<DbEntry> CompilationDbParser::readJsonObjects() const
-{
-    std::vector<DbEntry> result;
-
-    int objectStart = m_projectFileContents.indexOf('{');
-    int objectEnd = m_projectFileContents.indexOf('}', objectStart + 1);
-
-    QSet<QString> flagsCache;
-    while (objectStart >= 0 && objectEnd >= 0) {
-        const QJsonDocument document = QJsonDocument::fromJson(
-                    m_projectFileContents.mid(objectStart, objectEnd - objectStart + 1));
-        if (document.isNull()) {
-            // The end was found incorrectly, search for the next one.
-            objectEnd = m_projectFileContents.indexOf('}', objectEnd + 1);
-            continue;
-        }
-
-        const QJsonObject object = document.object();
-        const Utils::FilePath filePath = jsonObjectFilePath(object);
-        const QStringList flags = filterFromFileName(jsonObjectFlags(object, flagsCache),
-                                                     filePath.fileName());
-        result.push_back({flags, filePath, FilePath::fromUserInput(object["directory"].toString())});
-
-        objectStart = m_projectFileContents.indexOf('{', objectEnd + 1);
-        objectEnd = m_projectFileContents.indexOf('}', objectStart + 1);
-    }
-
-    return result;
-}
-
-static QStringList readExtraFiles(const QString &filePath)
-{
-    QStringList result;
-
-    QFile file(filePath);
-    if (file.open(QFile::ReadOnly)) {
-        QTextStream stream(&file);
-
-        while (!stream.atEnd()) {
-            const QString line = stream.readLine().trimmed();
-
-            if (line.isEmpty() || line.startsWith('#'))
-                continue;
-
-            result.push_back(line);
-        }
-    }
-
-    return result;
-}
-
-DbContents CompilationDbParser::parseProject()
-{
-    DbContents dbContents;
-    dbContents.entries = readJsonObjects();
-    dbContents.extraFileName = m_projectFilePath.toString() +
-            Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX;
-    dbContents.extras = readExtraFiles(dbContents.extraFileName);
-    std::sort(dbContents.entries.begin(), dbContents.entries.end(),
-              [](const DbEntry &lhs, const DbEntry &rhs) {
-        return std::lexicographical_compare(lhs.flags.begin(), lhs.flags.end(),
-                                            rhs.flags.begin(), rhs.flags.end());
-    });
-    return dbContents;
-}
-
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // namespace CompilationDatabaseProjectManager::Internal
