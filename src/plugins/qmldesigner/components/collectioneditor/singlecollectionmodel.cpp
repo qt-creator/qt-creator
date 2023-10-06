@@ -36,7 +36,9 @@ namespace QmlDesigner {
 
 SingleCollectionModel::SingleCollectionModel(QObject *parent)
     : QAbstractTableModel(parent)
-{}
+{
+    connect(this, &SingleCollectionModel::modelReset, this, &SingleCollectionModel::updateEmpty);
+}
 
 QHash<int, QByteArray> SingleCollectionModel::roleNames() const
 {
@@ -116,6 +118,9 @@ QVariant SingleCollectionModel::headerData(int section,
 {
     if (orientation == Qt::Horizontal)
         return m_currentCollection.headerAt(section);
+
+    if (orientation == Qt::Vertical)
+        return section + 1;
 
     return {};
 }
@@ -200,6 +205,15 @@ void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QS
             loadJsonCollection(fileName, collection);
         else if (sourceNode.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
             loadCsvCollection(fileName, collection);
+    }
+}
+
+void SingleCollectionModel::updateEmpty()
+{
+    bool isEmptyNow = rowCount() == 0;
+    if (m_isEmpty != isEmptyNow) {
+        m_isEmpty = isEmptyNow;
+        emit isEmptyChanged(m_isEmpty);
     }
 }
 

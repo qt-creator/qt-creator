@@ -18,6 +18,7 @@ class SingleCollectionModel : public QAbstractTableModel
 
     Q_PROPERTY(QString collectionName MEMBER m_collectionName NOTIFY collectionNameChanged)
     Q_PROPERTY(int selectedColumn READ selectedColumn WRITE selectColumn NOTIFY selectedColumnChanged)
+    Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
 
 public:
     enum DataRoles { SelectedRole = Qt::UserRole + 1 };
@@ -51,6 +52,10 @@ public:
 signals:
     void collectionNameChanged(const QString &collectionName);
     void selectedColumnChanged(int);
+    void isEmptyChanged(bool);
+
+private slots:
+    void updateEmpty();
 
 private:
     void switchToCollection(const CollectionReference &collection);
@@ -63,6 +68,7 @@ private:
 
     QHash<CollectionReference, CollectionDetails> m_openedCollections;
     CollectionDetails m_currentCollection;
+    bool m_isEmpty = true;
     int m_selectedColumn = -1;
 
     QString m_collectionName;
