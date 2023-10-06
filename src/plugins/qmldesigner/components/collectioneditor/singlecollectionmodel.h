@@ -17,12 +17,16 @@ class SingleCollectionModel : public QAbstractTableModel
     Q_OBJECT
 
     Q_PROPERTY(QString collectionName MEMBER m_collectionName NOTIFY collectionNameChanged)
+    Q_PROPERTY(int selectedColumn READ selectedColumn WRITE selectColumn NOTIFY selectedColumnChanged)
 
 public:
+    enum DataRoles { SelectedRole = Qt::UserRole + 1 };
+
     explicit SingleCollectionModel(QObject *parent = nullptr);
 
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
+    QHash<int, QByteArray> roleNames() const override;
+    int rowCount(const QModelIndex &parent = {}) const override;
+    int columnCount(const QModelIndex &parent = {}) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     bool setHeaderData(int section,
@@ -35,13 +39,16 @@ public:
     QVariant headerData(int section,
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
+    int selectedColumn() const;
 
+    Q_INVOKABLE bool selectColumn(int section);
     Q_INVOKABLE bool renameColumn(int section, const QString &newValue);
 
     void loadCollection(const ModelNode &sourceNode, const QString &collection);
 
 signals:
     void collectionNameChanged(const QString &collectionName);
+    void selectedColumnChanged(int);
 
 private:
     void switchToCollection(const CollectionReference &collection);
@@ -54,6 +61,7 @@ private:
 
     QHash<CollectionReference, CollectionDetails> m_openedCollections;
     CollectionDetails m_currentCollection;
+    int m_selectedColumn = -1;
 
     QString m_collectionName;
 };

@@ -38,6 +38,16 @@ SingleCollectionModel::SingleCollectionModel(QObject *parent)
     : QAbstractTableModel(parent)
 {}
 
+QHash<int, QByteArray> SingleCollectionModel::roleNames() const
+{
+    static QHash<int, QByteArray> roles;
+    if (roles.isEmpty()) {
+        roles.insert(QAbstractTableModel::roleNames());
+        roles.insert(SelectedRole, "itemSelected");
+    }
+    return roles;
+}
+
 int SingleCollectionModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
 {
     return m_currentCollection.rows();
@@ -48,10 +58,14 @@ int SingleCollectionModel::columnCount([[maybe_unused]] const QModelIndex &paren
     return m_currentCollection.columns();
 }
 
-QVariant SingleCollectionModel::data(const QModelIndex &index, int) const
+QVariant SingleCollectionModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return {};
+
+    if (role == SelectedRole)
+        return index.column() == m_selectedColumn;
+
     return m_currentCollection.data(index.row(), index.column());
 }
 
@@ -106,6 +120,41 @@ QVariant SingleCollectionModel::headerData(int section,
     return {};
 }
 
+int SingleCollectionModel::selectedColumn() const
+{
+    return m_selectedColumn;
+}
+
+bool SingleCollectionModel::selectColumn(int section)
+{
+    if (m_selectedColumn == section)
+        return false;
+
+    const int columns = columnCount();
+
+    if (m_selectedColumn >= columns)
+        return false;
+
+    const int rows = rowCount();
+    const int previousColumn = m_selectedColumn;
+
+    m_selectedColumn = section;
+    emit this->selectedColumnChanged(m_selectedColumn);
+
+    auto notifySelectedDataChanged = [this, columns, rows](int notifyingColumn) {
+        if (notifyingColumn > -1 && notifyingColumn < columns && rows) {
+            emit dataChanged(index(0, notifyingColumn),
+                             index(rows - 1, notifyingColumn),
+                             {SelectedRole});
+        }
+    };
+
+    notifySelectedDataChanged(previousColumn);
+    notifySelectedDataChanged(m_selectedColumn);
+
+    return true;
+}
+
 bool SingleCollectionModel::renameColumn(int section, const QString &newValue)
 {
     return setHeaderData(section, Qt::Horizontal, newValue);
@@ -120,11 +169,13 @@ void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QS
 
     if (alreadyOpen) {
         if (m_currentCollection.reference() != newReference) {
+            selectColumn(-1);
             beginResetModel();
             switchToCollection(newReference);
             endResetModel();
         }
     } else {
+        selectColumn(-1);
         switchToCollection(newReference);
         if (sourceNode.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
             loadJsonCollection(fileName, collection);

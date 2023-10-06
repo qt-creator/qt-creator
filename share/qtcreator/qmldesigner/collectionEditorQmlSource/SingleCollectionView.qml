@@ -63,9 +63,9 @@ Rectangle {
             clip: true
 
             delegate: Rectangle {
+                id: headerItem
                 implicitWidth: 100
                 implicitHeight: headerText.height
-                color: StudioTheme.Values.themeControlBackground
                 border.width: 2
                 border.color: StudioTheme.Values.themeControlOutline
                 clip: true
@@ -79,7 +79,6 @@ Rectangle {
                     rightPadding: 5
                     text: display
                     font: headerMetrics.font
-                    color: StudioTheme.Values.themeIdleGreen
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     anchors.centerIn: parent
@@ -88,12 +87,46 @@ Rectangle {
 
                 MouseArea {
                     anchors.fill: parent
-                    acceptedButtons: Qt.RightButton
-                    onClicked: (event) => {
-                        headerMenu.popIndex(index)
-                        event.accepted = true
+                    acceptedButtons: Qt.LeftButton | Qt.RightButton
+                    onClicked: (mouse) => {
+                        root.model.selectColumn(index)
+
+                        if (mouse.button === Qt.RightButton)
+                            headerMenu.popIndex(index)
+
+                        mouse.accepted = true
                     }
                 }
+
+                states: [
+                    State {
+                        name: "default"
+                        when: index !== root.model.selectedColumn
+                        PropertyChanges {
+                            target: headerItem
+                            color: StudioTheme.Values.themeControlBackground
+                        }
+
+                        PropertyChanges {
+                            target: headerText
+                            color: StudioTheme.Values.themeIdleGreen
+                        }
+                    },
+                    State {
+                        name: "selected"
+                        when: index === root.model.selectedColumn
+
+                        PropertyChanges {
+                            target: headerItem
+                            color: StudioTheme.Values.themeControlBackgroundInteraction
+                        }
+
+                        PropertyChanges {
+                            target: headerText
+                            color: StudioTheme.Values.themeRunningGreen
+                        }
+                    }
+                ]
             }
 
             TextMetrics {
@@ -146,9 +179,9 @@ Rectangle {
         model: root.model
 
         delegate: Rectangle {
+            id: itemCell
             implicitWidth: 100
             implicitHeight: itemText.height
-            color: StudioTheme.Values.themeControlBackground
             border.width: 1
             border.color: StudioTheme.Values.themeControlOutline
 
@@ -162,11 +195,41 @@ Rectangle {
                 topPadding: 3
                 bottomPadding: 3
                 font.pixelSize: StudioTheme.Values.baseFontSize
-                color: StudioTheme.Values.themeTextColor
                 horizontalAlignment: Text.AlignLeft
                 verticalAlignment: Text.AlignVCenter
                 elide: Text.ElideRight
             }
+
+            states: [
+                State {
+                    name: "default"
+                    when: !itemSelected
+
+                    PropertyChanges {
+                        target: itemCell
+                        color: StudioTheme.Values.themeControlBackground
+                    }
+
+                    PropertyChanges {
+                        target: itemText
+                        color: StudioTheme.Values.themeTextColor
+                    }
+                },
+                State {
+                    name: "selected"
+                    when: itemSelected
+
+                    PropertyChanges {
+                        target: itemCell
+                        color: StudioTheme.Values.themeControlBackgroundInteraction
+                    }
+
+                    PropertyChanges {
+                        target: itemText
+                        color: StudioTheme.Values.themeInteraction
+                    }
+                }
+            ]
         }
     }
 
