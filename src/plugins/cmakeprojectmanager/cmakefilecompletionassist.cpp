@@ -5,6 +5,8 @@
 
 #include "cmakebuildsystem.h"
 #include "cmakebuildtarget.h"
+#include "cmakebuildconfiguration.h"
+#include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
@@ -250,6 +252,71 @@ static QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const QByte
     return {functions, variables};
 }
 
+static QPair<QStringList, QStringList> getFindAndConfigCMakePackages(const CMakeConfig &cmakeCache,
+                                                                     const Environment &environment)
+{
+    auto toFilePath = [](const QByteArray &str) -> FilePath {
+        return FilePath::fromUserInput(QString::fromUtf8(str));
+    };
+
+    auto findPackageName = [](const QString &fileName) -> QString {
+        auto findIdx = fileName.indexOf("Find");
+        auto endsWithCMakeIdx = fileName.lastIndexOf(".cmake");
+        if (findIdx == 0 && endsWithCMakeIdx > 0)
+            return fileName.mid(4, endsWithCMakeIdx - 4);
+        return QString();
+    };
+
+    auto configPackageName = [](const QString &fileName) -> QString {
+        auto configCMakeIdx = fileName.lastIndexOf("Config.cmake");
+        if (configCMakeIdx > 0)
+            return fileName.left(configCMakeIdx);
+        auto dashConfigCMakeIdx = fileName.lastIndexOf("-config.cmake");
+        if (dashConfigCMakeIdx > 0)
+            return fileName.left(dashConfigCMakeIdx);
+        return QString();
+    };
+
+    QStringList modulePackages;
+    QStringList configPackages;
+
+    struct
+    {
+        const QByteArray cmakeVariable;
+        const QString pathPrefix;
+        std::function<QString(const QString &)> function;
+        QStringList &result;
+    } mapping[] = {{"CMAKE_PREFIX_PATH", "lib/cmake", configPackageName, configPackages},
+                   {"CMAKE_MODULE_PATH", QString(), findPackageName, modulePackages}};
+
+    for (const auto &m : mapping) {
+        FilePaths paths = Utils::transform<FilePaths>(cmakeCache.valueOf(m.cmakeVariable).split(';'),
+                                                      toFilePath);
+
+        paths << Utils::transform<FilePaths>(environment.value(QString::fromUtf8(m.cmakeVariable))
+                                                 .split(";"),
+                                             &FilePath::fromUserInput);
+
+        for (const auto &prefix : paths) {
+            // Only search for directories if we have a prefix
+            const FilePaths dirs = !m.pathPrefix.isEmpty()
+                                       ? prefix.pathAppended(m.pathPrefix)
+                                             .dirEntries({{"*"}, QDir::Dirs | QDir::NoDotAndDotDot})
+                                       : FilePaths{prefix};
+            const QStringList cmakeFiles
+                = Utils::transform<QStringList>(dirs, [](const FilePath &path) {
+                      return Utils::transform(path.dirEntries({{"*.cmake"}, QDir::Files},
+                                                              QDir::Name),
+                                              &FilePath::fileName);
+                  });
+            m.result << Utils::transform(cmakeFiles, m.function);
+        }
+        m.result = Utils::filtered(m.result, std::not_fn(&QString::isEmpty));
+    }
+
+    return {modulePackages, configPackages};
+}
+
 class PerformInputData
 {
 public:
@@ -259,6 +326,8 @@ public:
     QStringList buildTargets;
     QStringList importedTargets;
     QStringList findPackageVariables;
+    CMakeConfig cmakeConfiguration;
+    Environment environment = Environment::systemEnvironment();
 };
 
 PerformInputData CMakeFileCompletionAssist::generatePerformInputData() const
@@ -280,6 +349,8 @@ PerformInputData CMakeFileCompletionAssist::generatePerformInputData() const
         data.projectFunctions = projectKeywords.functions;
         data.importedTargets = bs->projectImportedTargets();
         data.findPackageVariables = bs->projectFindPackageVariables();
+        data.cmakeConfiguration = bs->configurationFromCMake();
+        data.environment = bs->cmakeBuildConfiguration()->configureEnvironment();
     }
 
     return data;
@@ -322,6 +393,9 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
 
     auto [localFunctions, localVariables] = getLocalFunctionsAndVariables(
         interface()->textAt(0, prevFunctionEnd + 1).toUtf8());
+
+    auto [findModules, configModules] = getFindAndConfigCMakePackages(data.cmakeConfiguration,
+                                                                      data.environment);
 
     QList<AssistProposalItemInterface *> items;
 
@@ -375,8 +449,11 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
 
     if (functionName == "include" && !onlyFileItems())
         items.append(generateList(data.keywords.includeStandardModules, m_moduleIcon));
-    if (functionName == "find_package")
+    if (functionName == "find_package") {
         items.append(generateList(data.keywords.findModules, m_moduleIcon));
+        items.append(generateList(findModules, m_moduleIcon));
+        items.append(generateList(configModules, m_moduleIcon));
+    }
 
     if ((functionName.contains("target") || functionName == "install"
          || functionName == "add_dependencies" || functionName == "set_property"
