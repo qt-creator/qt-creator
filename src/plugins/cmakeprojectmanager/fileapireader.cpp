@@ -252,7 +252,8 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
 
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.buildDirectory;
-    const QString cmakeBuildType = m_parameters.cmakeBuildType == "Build" ? "" : m_parameters.cmakeBuildType;
+    const QString cmakeBuildType = m_parameters.cmakeBuildType == "Build"
+                                       ? "" : m_parameters.cmakeBuildType;
 
     m_lastReplyTimestamp = replyFilePath.lastModified();
 
@@ -264,10 +265,12 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                                                                         replyFilePath,
                                                                         cmakeBuildType,
                                                                         result->errorMessage);
-                            if (result->errorMessage.isEmpty())
-                                *result = extractData(data, sourceDirectory, buildDirectory);
-                            else
+                            if (result->errorMessage.isEmpty()) {
+                                *result = extractData(QFuture<void>(promise.future()), data,
+                                                      sourceDirectory, buildDirectory);
+                            } else {
                                 qWarning() << result->errorMessage;
+                            }
 
                             promise.addResult(result);
                         });
