@@ -220,7 +220,7 @@ static void index(QPromise<void> &promise, const ParseParams params)
     qCDebug(indexerLog) << "Indexing finished.";
 }
 
-static void parse(QPromise<void> &promise, const ParseParams params)
+static void parse(QPromise<void> &promise, const ParseParams &params)
 {
     const QSet<QString> &files = params.sourceFiles;
     if (files.isEmpty())
