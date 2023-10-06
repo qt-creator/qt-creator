@@ -47,7 +47,7 @@ public:
     ProjectExplorer::BuildSystem *buildSystem() const final;
 
     QbsBuildStep *qbsStep() const;
-    QVariantMap qbsConfiguration() const;
+    Utils::Store qbsConfiguration() const;
 
     BuildType buildType() const override;
 

@@ -6,6 +6,7 @@
 #include "qbssession.h"
 
 #include <utils/environment.h>
+#include <utils/store.h>
 
 #include <QFutureInterface>
 #include <QJsonObject>
@@ -23,7 +24,7 @@ public:
     QbsProjectParser(QbsBuildSystem *buildSystem, QFutureInterface<bool> *fi);
     ~QbsProjectParser() override;
 
-    void parse(const QVariantMap &config,
+    void parse(const Utils::Store &config,
                const Utils::Environment &env,
                const Utils::FilePath &dir,
                const QString &configName);

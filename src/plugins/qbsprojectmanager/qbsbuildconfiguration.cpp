@@ -62,7 +62,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
 
     setInitializer([this, target](const BuildInfo &info) {
         const Kit *kit = target->kit();
-        QVariantMap configData = info.extraInfo.value<QVariantMap>();
+        Store configData = storeFromVariant(info.extraInfo);
         const QString buildVariant = [](BuildConfiguration::BuildType buildType) -> QString {
             switch (buildType) {
             case BuildConfiguration::Release: return Constants::QBS_VARIANT_RELEASE;
@@ -73,7 +73,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
             }
             return Constants::QBS_VARIANT_DEBUG;
         }(info.buildType);
-        configData.insert(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY), buildVariant);
+        configData.insert(Constants::QBS_CONFIG_VARIANT_KEY, buildVariant);
         FilePath buildDir = info.buildDirectory;
         if (buildDir.isEmpty())
             buildDir = defaultBuildDirectory(target->project()->projectFilePath(),
@@ -82,7 +82,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
         setBuildDirectory(buildDir);
 
         // Add the build configuration.
-        QVariantMap bd = configData;
+        Store bd = configData;
         QString configName = bd.take("configName").toString();
         if (configName.isEmpty()) {
             configName = "qtc_" + kit->fileSystemFriendlyName() + '_'
@@ -162,7 +162,7 @@ void QbsBuildConfiguration::fromMap(const Store &map)
     if (configurationName().isEmpty()) { // pre-4.4 backwards compatibility
         const QString profileName = QbsProfileManager::profileNameForKit(target()->kit());
         const QString buildVariant = qbsConfiguration()
-                .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
+                .value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
         configurationName.setValue(profileName + '-' + buildVariant);
     }
 }
@@ -183,9 +183,9 @@ QbsBuildStep *QbsBuildConfiguration::qbsStep() const
     return buildSteps()->firstOfType<QbsBuildStep>();
 }
 
-QVariantMap QbsBuildConfiguration::qbsConfiguration() const
+Store QbsBuildConfiguration::qbsConfiguration() const
 {
-    QVariantMap config;
+    Store config;
     QbsBuildStep *qbsBs = qbsStep();
     if (qbsBs)
         config = qbsBs->qbsConfiguration(QbsBuildStep::ExpandVariables);
@@ -269,7 +269,7 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
 
     const QString profileName = QbsProfileManager::profileNameForKit(target()->kit());
     const QString buildVariant = qbsConfiguration()
-            .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
+            .value(Constants::QBS_CONFIG_VARIANT_KEY).toString();
     commandLine.addArg("config:" + configurationName());
     commandLine.addArg(QString(Constants::QBS_CONFIG_VARIANT_KEY) + ':' + buildVariant);
     const FilePath installRoot = stepData.installRoot;

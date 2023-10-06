@@ -46,8 +46,8 @@ public:
 
     QbsBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
-    QVariantMap qbsConfiguration(VariableHandling variableHandling) const;
-    void setQbsConfiguration(const QVariantMap &config);
+    Utils::Store qbsConfiguration(VariableHandling variableHandling) const;
+    void setQbsConfiguration(const Utils::Store &config);
 
     Utils::FilePath installRoot(VariableHandling variableHandling = ExpandVariables) const;
     QString buildVariant() const;
@@ -82,7 +82,7 @@ private:
     void updateState();
     QStringList configuredArchitectures() const;
 
-    QVariantMap m_qbsConfiguration;
+    Utils::Store m_qbsConfiguration;
 
     // Temporary data:
     QStringList m_changedFiles;

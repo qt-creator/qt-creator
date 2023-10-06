@@ -205,9 +205,9 @@ const QList<BuildInfo> QbsProjectImporter::buildInfoList(void *directoryData) co
             ? BuildConfiguration::Profile : bgData->buildVariant == QbsConstants::QBS_VARIANT_RELEASE
             ? BuildConfiguration::Release : BuildConfiguration::Debug;
     info.buildDirectory = bgData->bgFilePath.parentDir().parentDir();
-    QVariantMap config = bgData->overriddenProperties;
+    Store config = storeFromMap(bgData->overriddenProperties);
     config.insert("configName", info.displayName);
-    info.extraInfo = config;
+    info.extraInfo = variantFromStore(config);
     qCDebug(qbsPmLog) << "creating build info for " << info.displayName << ' ' << bgData->buildVariant;
     return {info};
 }

@@ -577,7 +577,7 @@ void QbsBuildSystem::startParsing()
 {
     QTC_ASSERT(!m_qbsProjectParser, return);
 
-    QVariantMap config = m_buildConfiguration->qbsConfiguration();
+    Store config = m_buildConfiguration->qbsConfiguration();
     if (!config.contains(Constants::QBS_INSTALL_ROOT_KEY)) {
         config.insert(Constants::QBS_INSTALL_ROOT_KEY, m_buildConfiguration->macroExpander()
                       ->expand(QbsSettings::defaultInstallDirTemplate()));

@@ -41,7 +41,7 @@ QbsProjectParser::~QbsProjectParser()
     m_fi = nullptr; // we do not own m_fi, do not delete
 }
 
-void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
+void QbsProjectParser::parse(const Store &config, const Environment &env,
                              const FilePath &dir, const QString &configName)
 {
     QTC_ASSERT(m_session, return);
@@ -50,7 +50,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
     m_environment = env;
     QJsonObject request;
     request.insert("type", "resolve-project");
-    QVariantMap userConfig = config;
+    Store userConfig = config;
     request.insert("top-level-profile",
                    userConfig.take(Constants::QBS_CONFIG_PROFILE_KEY).toString());
     request.insert("configuration-name", configName);
@@ -58,7 +58,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
                    userConfig.take(Constants::QBS_FORCE_PROBES_KEY).toBool());
     if (QbsSettings::useCreatorSettingsDirForQbs())
         request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir());
-    request.insert("overridden-properties", QJsonObject::fromVariantMap(userConfig));
+    request.insert("overridden-properties", QJsonObject::fromVariantMap(mapFromStore(userConfig)));
 
     // People don't like it when files are created as a side effect of opening a project,
     // so do not store the build graph if the build directory does not exist yet.
