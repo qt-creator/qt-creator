@@ -2508,7 +2508,7 @@ void FilePathListAspect::addToLayout(LayoutItem &parent)
     connect(editor, &PathListEditor::changed, this, [this, editor] {
         d->undoable.set(undoStack(), editor->pathList());
     });
-    connect(&d->undoable.m_signal, &UndoSignaller::changed, this, [this, editor] {
+    connect(&d->undoable.m_signal, &UndoSignaller::changed, editor, [this, editor] {
         if (editor->pathList() != d->undoable.get())
             editor->setPathList(d->undoable.get());
 
