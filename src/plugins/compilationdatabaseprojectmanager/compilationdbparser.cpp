@@ -191,7 +191,7 @@ std::vector<DbEntry> CompilationDbParser::readJsonObjects() const
     return result;
 }
 
-QStringList readExtraFiles(const QString &filePath)
+static QStringList readExtraFiles(const QString &filePath)
 {
     QStringList result;
 
@@ -200,8 +200,7 @@ QStringList readExtraFiles(const QString &filePath)
         QTextStream stream(&file);
 
         while (!stream.atEnd()) {
-            QString line = stream.readLine();
-            line = line.trimmed();
+            const QString line = stream.readLine().trimmed();
 
             if (line.isEmpty() || line.startsWith('#'))
                 continue;
