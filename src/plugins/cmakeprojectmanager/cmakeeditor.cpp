@@ -310,7 +310,7 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
 
     if (auto project = ProjectTree::currentProject()) {
         buffer.replace("${CMAKE_SOURCE_DIR}", project->projectDirectory().path());
-        if (auto bs = ProjectTree::currentBuildSystem()) {
+        if (auto bs = ProjectTree::currentBuildSystem(); bs->buildConfiguration()) {
             buffer.replace("${CMAKE_BINARY_DIR}", bs->buildConfiguration()->buildDirectory().path());
 
             // Get the path suffix from current source dir to project source dir and apply it
@@ -327,35 +327,36 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
                                .path());
 
             // Check if the symbols is a user defined function or macro
-            const CMakeBuildSystem *cbs = static_cast<const CMakeBuildSystem *>(bs);
-            // Strip variable coating
-            if (buffer.startsWith("${") && buffer.endsWith("}"))
-                buffer = buffer.mid(2, buffer.size() - 3);
+            if (const auto cbs = qobject_cast<const CMakeBuildSystem *>(bs)) {
+                // Strip variable coating
+                if (buffer.startsWith("${") && buffer.endsWith("}"))
+                    buffer = buffer.mid(2, buffer.size() - 3);
 
-            if (cbs->cmakeSymbolsHash().contains(buffer)) {
-                link = cbs->cmakeSymbolsHash().value(buffer);
-                addTextStartEndToLink(link);
-                return processLinkCallback(link);
-            }
+                if (cbs->cmakeSymbolsHash().contains(buffer)) {
+                    link = cbs->cmakeSymbolsHash().value(buffer);
+                    addTextStartEndToLink(link);
+                    return processLinkCallback(link);
+                }
 
-            // Handle include(CMakeFileWithoutSuffix) and find_package(Package)
-            QString functionName;
-            if (funcStart > funcEnd) {
-                int funcStartPos = findWordStart(funcStart);
-                functionName = textDocument()->textAt(funcStartPos, funcStart - funcStartPos);
+                // Handle include(CMakeFileWithoutSuffix) and find_package(Package)
+                QString functionName;
+                if (funcStart > funcEnd) {
+                    int funcStartPos = findWordStart(funcStart);
+                    functionName = textDocument()->textAt(funcStartPos, funcStart - funcStartPos);
 
-                struct FunctionToHash
-                {
-                    QString functionName;
-                    const QHash<QString, Utils::Link> &hash;
-                } functionToHashes[] = {{"include", cbs->dotCMakeFilesHash()},
-                                        {"find_package", cbs->findPackagesFilesHash()}};
+                    struct FunctionToHash
+                    {
+                        QString functionName;
+                        const QHash<QString, Utils::Link> &hash;
+                    } functionToHashes[] = {{"include", cbs->dotCMakeFilesHash()},
+                                            {"find_package", cbs->findPackagesFilesHash()}};
 
-                for (const auto &pair : functionToHashes) {
-                    if (functionName == pair.functionName && pair.hash.contains(buffer)) {
-                        link = pair.hash.value(buffer);
-                        addTextStartEndToLink(link);
-                        return processLinkCallback(link);
+                    for (const auto &pair : functionToHashes) {
+                        if (functionName == pair.functionName && pair.hash.contains(buffer)) {
+                            link = pair.hash.value(buffer);
+                            addTextStartEndToLink(link);
+                            return processLinkCallback(link);
+                        }
                     }
                 }
             }
