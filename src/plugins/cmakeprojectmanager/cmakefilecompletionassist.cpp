@@ -228,16 +228,20 @@ static int addFilePathItems(const AssistInterface *interface,
     return startPos;
 }
 
-static QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const QByteArray &content)
+static cmListFile parseCMakeListFromBuffer(const QByteArray &content)
 {
     cmListFile cmakeListFile;
     std::string errorString;
     if (!content.isEmpty()) {
         const std::string fileName = "buffer";
         if (!cmakeListFile.ParseString(content.toStdString(), fileName, errorString))
-            return {{}, {}};
+            return {};
     }
+    return cmakeListFile;
+}
 
+static QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const cmListFile &cmakeListFile)
+{
     QStringList variables;
     QStringList functions;
     for (const auto &func : cmakeListFile.Functions) {
@@ -252,8 +256,67 @@ static QPair<QStringList, QStringList> getLocalFunctionsAndVariables(const QByte
     return {functions, variables};
 }
 
-static QPair<QStringList, QStringList> getFindAndConfigCMakePackages(const CMakeConfig &cmakeCache,
-                                                                     const Environment &environment)
+static void updateCMakeConfigurationWithLocalData(CMakeConfig &cmakeCache,
+                                                  const cmListFile &cmakeListFile,
+                                                  const FilePath &currentDir)
+{
+    auto isValidCMakeVariable = [](const std::string &var) {
+        return var == "CMAKE_PREFIX_PATH" || var == "CMAKE_MODULE_PATH";
+    };
+
+    const FilePath projectDir = ProjectTree::currentBuildSystem()->projectDirectory();
+    auto updateDirVariables = [currentDir, projectDir, cmakeCache](QByteArray &value) {
+        value.replace("${CMAKE_CURRENT_SOURCE_DIR}", currentDir.path().toUtf8());
+        value.replace("${CMAKE_CURRENT_LIST_DIR}", currentDir.path().toUtf8());
+        value.replace("${CMAKE_SOURCE_DIR}", projectDir.path().toUtf8());
+        value.replace("${CMAKE_PREFIX_PATH}", cmakeCache.valueOf("CMAKE_PREFIX_PATH"));
+        value.replace("${CMAKE_MODULE_PATH}", cmakeCache.valueOf("CMAKE_MODULE_PATH"));
+    };
+
+    auto insertOrAppendListValue = [&cmakeCache](const QByteArray &key, const QByteArray &value) {
+        auto it = std::find_if(cmakeCache.begin(), cmakeCache.end(), [key](const auto &item) {
+            return item.key == key;
+        });
+        if (it == cmakeCache.end()) {
+            cmakeCache << CMakeConfigItem(key, value);
+        } else {
+            it->value.append(";");
+            it->value.append(value);
+        }
+    };
+
+    for (const auto &func : cmakeListFile.Functions) {
+        const bool isSet = func.LowerCaseName() == "set" && func.Arguments().size() > 1;
+        const bool isList = func.LowerCaseName() == "list" && func.Arguments().size() > 2;
+        if (!isSet && !isList)
+            continue;
+
+        QByteArray key;
+        QByteArray value;
+        if (isSet) {
+            const auto firstArg = func.Arguments()[0];
+            const auto secondArg = func.Arguments()[1];
+            if (!isValidCMakeVariable(firstArg.Value))
+                continue;
+            key = QByteArray::fromStdString(firstArg.Value);
+            value = QByteArray::fromStdString(secondArg.Value);
+        }
+        if (isList) {
+            const auto firstArg = func.Arguments()[0];
+            const auto secondArg = func.Arguments()[1];
+            const auto thirdArg = func.Arguments()[2];
+            if (firstArg.Value != "APPEND" || !isValidCMakeVariable(secondArg.Value))
+                continue;
+            key = QByteArray::fromStdString(secondArg.Value);
+            value = QByteArray::fromStdString(thirdArg.Value);
+        }
+        updateDirVariables(value);
+        insertOrAppendListValue(key, value);
+    }
+}
+
+static QPair<QStringList, QStringList> getFindAndConfigCMakePackages(
+    const CMakeConfig &cmakeCache, const Environment &environment)
 {
     auto toFilePath = [](const QByteArray &str) -> FilePath {
         return FilePath::fromUserInput(QString::fromUtf8(str));
@@ -391,10 +454,15 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
         }
     }
 
-    auto [localFunctions, localVariables] = getLocalFunctionsAndVariables(
+    cmListFile cmakeListFile = parseCMakeListFromBuffer(
         interface()->textAt(0, prevFunctionEnd + 1).toUtf8());
+    auto [localFunctions, localVariables] = getLocalFunctionsAndVariables(cmakeListFile);
 
-    auto [findModules, configModules] = getFindAndConfigCMakePackages(data.cmakeConfiguration,
+    CMakeConfig cmakeConfiguration = data.cmakeConfiguration;
+    const FilePath currentDir = interface()->filePath().absolutePath();
+    updateCMakeConfigurationWithLocalData(cmakeConfiguration, cmakeListFile, currentDir);
+
+    auto [findModules, configModules] = getFindAndConfigCMakePackages(cmakeConfiguration,
                                                                       data.environment);
 
     QList<AssistProposalItemInterface *> items;
