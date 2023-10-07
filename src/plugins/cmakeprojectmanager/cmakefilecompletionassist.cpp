@@ -158,6 +158,11 @@ static int findPathStart(const AssistInterface *interface)
     return ++pos;
 }
 
+struct MarkDownAssitProposalItem : public AssistProposalItem
+{
+    Qt::TextFormat detailFormat() const override { return Qt::MarkdownText; }
+};
+
 template<typename T>
 static QList<AssistProposalItemInterface *> generateList(const T &words, const QIcon &icon)
 {
@@ -172,11 +177,6 @@ static QList<AssistProposalItemInterface *> generateList(const T &words, const Q
 static QList<AssistProposalItemInterface *> generateList(const QMap<QString, FilePath> &words,
                                                          const QIcon &icon)
 {
-    struct MarkDownAssitProposalItem : public AssistProposalItem
-    {
-        Qt::TextFormat detailFormat() const override { return Qt::MarkdownText; }
-    };
-
     QList<AssistProposalItemInterface *> list;
     for (auto it = words.cbegin(); it != words.cend(); ++it) {
         MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
@@ -185,6 +185,55 @@ static QList<AssistProposalItemInterface *> generateList(const QMap<QString, Fil
             item->setDetail(CMakeToolManager::toolTipForRstHelpFile(it.value()));
         item->setIcon(icon);
         list << item;
+    }
+    return list;
+}
+
+static QList<AssistProposalItemInterface *> generateList(
+    const CMakeConfig &cache,
+    const QIcon &icon,
+    const QList<AssistProposalItemInterface *> &existingList)
+{
+    QHash<QString, AssistProposalItemInterface *> hash;
+    for (const auto &item : existingList)
+        hash.insert(item->text(), item);
+
+    auto makeDetail = [](const CMakeConfigItem &item) {
+        QString detail = QString("### %1 (cache)").arg(QString::fromUtf8(item.key));
+
+        if (!item.documentation.isEmpty())
+            detail.append(QString("\n%1\n").arg(QString::fromUtf8(item.documentation)));
+        else
+            detail.append("\n");
+
+        const QString value = item.toString();
+        if (!value.isEmpty())
+            detail.append(QString("\n```\n%1\n```\n").arg(value));
+
+        return detail;
+    };
+
+    QList<AssistProposalItemInterface *> list;
+    for (auto it = cache.cbegin(); it != cache.cend(); ++it) {
+        if (it->isAdvanced || it->isUnset || it->type == CMakeConfig::Type::INTERNAL)
+            continue;
+
+        QString text = QString::fromUtf8(it->key);
+        if (!hash.contains(text)) {
+            MarkDownAssitProposalItem *item = new MarkDownAssitProposalItem();
+            item->setText(text);
+            item->setDetail(makeDetail(*it));
+            item->setIcon(icon);
+            list << item;
+        } else {
+            auto item = static_cast<AssistProposalItem *>(hash.value(text));
+
+            QString detail = item->detail();
+            detail.append("\n");
+            detail.append(makeDetail(*it));
+
+            item->setDetail(detail);
+        }
     }
     return list;
 }
@@ -499,6 +548,7 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
         items.append(generateList(data->projectVariables, m_projectVariableIcon));
         items.append(generateList(data->findPackageVariables, m_projectVariableIcon));
         items.append(generateList(localVariables, m_variableIcon));
+        items.append(generateList(cmakeConfiguration, m_variableIcon, items));
     }
 
     if (functionName == "if" || functionName == "elseif" || functionName == "cmake_policy")
@@ -559,6 +609,7 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
             items.append(generateList(data->keywords.variables, m_variableIcon));
             items.append(generateList(data->projectVariables, m_projectVariableIcon));
             items.append(generateList(localVariables, m_variableIcon));
+            items.append(generateList(cmakeConfiguration, m_variableIcon, items));
             items.append(generateList(data->findPackageVariables, m_projectVariableIcon));
 
             items.append(generateList(data->keywords.properties, m_propertyIcon));

@@ -84,3 +84,8 @@ set_target_properties(completion PROPERTIES
   # here completion for "WIN32|" should popup WIN32_EXECUTABLE
   #WIN32
 )
+
+include(JustACacheVariable)
+# here code completion for "if (JUST|" should complete with if (JUST_A_CACHE_VARIABLE
+# as a tooltip containing the description
+#if (JUST
