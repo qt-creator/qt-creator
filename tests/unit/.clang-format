@@ -110,7 +110,6 @@ SpaceAfterCStyleCast: true
 SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: false
 SpaceBeforeAssignmentOperators: true
-SpaceBeforeParens: ControlStatements
 SpaceInEmptyParentheses: false
 SpaceBeforeCpp11BracedList: false
 SpaceBeforeCtorInitializerColon: true
