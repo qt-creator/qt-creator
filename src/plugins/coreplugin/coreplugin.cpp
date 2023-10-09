@@ -61,15 +61,8 @@ static CorePlugin *m_instance = nullptr;
 const char kWarnCrashReportingSetting[] = "WarnCrashReporting";
 const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
 
-void CorePlugin::setupSystemEnvironment()
-{
-    m_instance->m_startupSystemEnvironment = Environment::systemEnvironment();
-    const EnvironmentItems changes = EnvironmentItem::fromStringList(
-        ICore::settings()->value(kEnvironmentChanges).toStringList());
-    setEnvironmentChanges(changes);
-}
-
 CorePlugin::CorePlugin()
+    : m_startupSystemEnvironment(Environment::systemEnvironment())
 {
     qRegisterMetaType<Id>();
     qRegisterMetaType<Utils::Text::Position>();
@@ -81,7 +74,10 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::KeyList>();
     qRegisterMetaType<Utils::OldStore>();
     m_instance = this;
-    setupSystemEnvironment();
+
+    const EnvironmentItems changes = EnvironmentItem::fromStringList(
+        ICore::settings()->value(kEnvironmentChanges).toStringList());
+    setEnvironmentChanges(changes);
 }
 
 CorePlugin::~CorePlugin()
@@ -327,11 +323,6 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
                 FilePath::fromString(workingDirectory));
     ICore::raiseMainWindow();
     return res;
-}
-
-Environment CorePlugin::startupSystemEnvironment()
-{
-    return m_instance->m_startupSystemEnvironment;
 }
 
 EnvironmentItems CorePlugin::environmentChanges()

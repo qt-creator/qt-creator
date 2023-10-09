@@ -50,7 +50,6 @@ public:
                            const QString &workingDirectory,
                            const QStringList &args) override;
 
-    static Utils::Environment startupSystemEnvironment();
     static Utils::EnvironmentItems environmentChanges();
     static void setEnvironmentChanges(const Utils::EnvironmentItems &changes);
     static QString msgCrashpadInformation();
@@ -71,7 +70,6 @@ private slots:
 
 private:
     static void addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu);
-    static void setupSystemEnvironment();
     void checkSettings();
     void warnAboutCrashReporing();
 
@@ -80,7 +78,7 @@ private:
     Locator *m_locator = nullptr;
     std::unique_ptr<SessionManager> m_sessionManager;
     FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory = nullptr;
-    Utils::Environment m_startupSystemEnvironment;
+    const Utils::Environment m_startupSystemEnvironment;
     Utils::EnvironmentItems m_environmentChanges;
 };
 
