@@ -351,8 +351,8 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
 
     if (std::holds_alternative<TextDocumentEdit>(change)) {
         return applyTextDocumentEdit(client, std::get<TextDocumentEdit>(change));
-    } else if (std::holds_alternative<LanguageServerProtocol::CreateFile>(change)) {
-        const auto createOperation = std::get<LanguageServerProtocol::CreateFile>(change);
+    } else if (std::holds_alternative<CreateFileOperation>(change)) {
+        const auto createOperation = std::get<CreateFileOperation>(change);
         const FilePath filePath = createOperation.uri().toFilePath(client->hostPathMapper());
         if (filePath.exists()) {
             if (const std::optional<CreateFileOptions> options = createOperation.options()) {
@@ -365,8 +365,8 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             }
         }
         return filePath.ensureExistingFile();
-    } else if (std::holds_alternative<RenameFile>(change)) {
-        const RenameFile renameOperation = std::get<RenameFile>(change);
+    } else if (std::holds_alternative<RenameFileOperation>(change)) {
+        const RenameFileOperation renameOperation = std::get<RenameFileOperation>(change);
         const FilePath oldPath = renameOperation.oldUri().toFilePath(client->hostPathMapper());
         if (!oldPath.exists())
             return false;
@@ -384,8 +384,8 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             }
         }
         return oldPath.renameFile(newPath);
-    } else if (std::holds_alternative<LanguageServerProtocol::DeleteFile>(change)) {
-        const auto deleteOperation = std::get<LanguageServerProtocol::DeleteFile>(change);
+    } else if (std::holds_alternative<DeleteFileOperation>(change)) {
+        const auto deleteOperation = std::get<DeleteFileOperation>(change);
         const FilePath filePath = deleteOperation.uri().toFilePath(client->hostPathMapper());
         if (const std::optional<DeleteFileOptions> options = deleteOperation.options()) {
             if (!filePath.exists())

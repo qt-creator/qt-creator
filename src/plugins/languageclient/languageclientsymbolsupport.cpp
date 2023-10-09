@@ -556,18 +556,18 @@ Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
             } else {
                 Utils::SearchResultItem item;
 
-                if (std::holds_alternative<LanguageServerProtocol::CreateFile>(documentChange)) {
-                    auto op = std::get<LanguageServerProtocol::CreateFile>(documentChange);
+                if (std::holds_alternative<CreateFileOperation>(documentChange)) {
+                    auto op = std::get<CreateFileOperation>(documentChange);
                     item.setLineText(op.message(pathMapper));
                     item.setFilePath(op.uri().toFilePath(pathMapper));
                     item.setUserData(QVariant(op));
-                } else if (std::holds_alternative<RenameFile>(documentChange)) {
-                    auto op = std::get<RenameFile>(documentChange);
+                } else if (std::holds_alternative<RenameFileOperation>(documentChange)) {
+                    auto op = std::get<RenameFileOperation>(documentChange);
                     item.setLineText(op.message(pathMapper));
                     item.setFilePath(op.oldUri().toFilePath(pathMapper));
                     item.setUserData(QVariant(op));
-                } else if (std::holds_alternative<LanguageServerProtocol::DeleteFile>(documentChange)) {
-                    auto op = std::get<LanguageServerProtocol::DeleteFile>(documentChange);
+                } else if (std::holds_alternative<DeleteFileOperation>(documentChange)) {
+                    auto op = std::get<DeleteFileOperation>(documentChange);
                     item.setLineText(op.message(pathMapper));
                     item.setFilePath(op.uri().toFilePath(pathMapper));
                     item.setUserData(QVariant(op));
@@ -693,11 +693,11 @@ void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
         const QJsonObject jsonObject = item.userData().toJsonObject();
         if (const TextEdit edit(jsonObject); edit.isValid())
             editsForDocuments[filePath] << edit;
-        else if (const LanguageServerProtocol::CreateFile createFile(jsonObject); createFile.isValid())
+        else if (const CreateFileOperation createFile(jsonObject); createFile.isValid())
             changes << createFile;
-        else if (const RenameFile renameFile(jsonObject); renameFile.isValid())
+        else if (const RenameFileOperation renameFile(jsonObject); renameFile.isValid())
             changes << renameFile;
-        else if (const LanguageServerProtocol::DeleteFile deleteFile(jsonObject); deleteFile.isValid())
+        else if (const DeleteFileOperation deleteFile(jsonObject); deleteFile.isValid())
             changes << deleteFile;
     }
 

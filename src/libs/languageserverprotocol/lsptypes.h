@@ -299,11 +299,11 @@ public:
     void clearIgnoreIfExists() { remove(ignoreIfExistsKey); }
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT CreateFile : public JsonObject
+class LANGUAGESERVERPROTOCOL_EXPORT CreateFileOperation : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    CreateFile();
+    CreateFileOperation();
 
     DocumentUri uri() const { return DocumentUri::fromProtocol(typedValue<QString>(uriKey)); }
     void setUri(const DocumentUri &uri) { insert(uriKey, uri); }
@@ -318,11 +318,11 @@ public:
     bool isValid() const override;
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT RenameFile : public JsonObject
+class LANGUAGESERVERPROTOCOL_EXPORT RenameFileOperation : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    RenameFile();
+    RenameFileOperation();
 
     DocumentUri oldUri() const { return DocumentUri::fromProtocol(typedValue<QString>(oldUriKey)); }
     void setOldUri(const DocumentUri &oldUri) { insert(oldUriKey, oldUri); }
@@ -354,11 +354,11 @@ public:
     void clearIgnoreIfNotExists() { remove(ignoreIfNotExistsKey); }
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT DeleteFile : public JsonObject
+class LANGUAGESERVERPROTOCOL_EXPORT DeleteFileOperation : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    DeleteFile();
+    DeleteFileOperation();
 
     DocumentUri uri() const { return DocumentUri::fromProtocol(typedValue<QString>(uriKey)); }
     void setUri(const DocumentUri &uri) { insert(uriKey, uri); }
@@ -374,7 +374,7 @@ public:
 };
 
 class LANGUAGESERVERPROTOCOL_EXPORT DocumentChange
-    : public std::variant<TextDocumentEdit, CreateFile, RenameFile, DeleteFile>
+    : public std::variant<TextDocumentEdit, CreateFileOperation, RenameFileOperation, DeleteFileOperation>
 {
 public:
     using variant::variant;
