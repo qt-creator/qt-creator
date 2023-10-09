@@ -26,7 +26,7 @@ Flickable {
     // Dispatch the cursor shape to all labels. When dragging the DropArea receiving
     // the drag events is not necessarily related to the MouseArea receiving the mouse
     // events, so we can't use the drag events to determine the cursor shape.
-    property bool dragging: false
+    property bool isDragging: false
 
     Column {
         id: categoryContent
@@ -75,10 +75,10 @@ Flickable {
                         model: modelData
                         notesModel: categories.modelProxy.notes
                         visualIndex: loader.visualIndex
-                        dragging: categories.dragging
+                        isDragging: categories.isDragging
                         reverseSelect: categories.reverseSelect
-                        onDragStarted: categories.dragging = true
-                        onDragStopped: categories.dragging = false
+                        onDragStarted: categories.isDragging = true
+                        onDragStopped: categories.isDragging = false
                         draggerParent: categories
                         contentY: categories.contentY
                         contentHeight: categories.contentHeight
