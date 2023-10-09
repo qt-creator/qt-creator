@@ -1,7 +1,7 @@
 #only if the plugin is requested by qtc_plugin_enabled continue if not stop as early as possible
 
 
-find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate)
+find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate QUIET)
 
 set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")
 if (APPLE)
