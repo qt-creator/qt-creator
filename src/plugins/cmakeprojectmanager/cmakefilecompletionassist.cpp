@@ -254,7 +254,8 @@ class PerformInputData
 {
 public:
     CMakeKeywords keywords;
-    CMakeKeywords projectKeywords;
+    QMap<QString, FilePath> projectVariables;
+    QMap<QString, FilePath> projectFunctions;
     QStringList buildTargets;
     QStringList importedTargets;
     QStringList findPackageVariables;
@@ -274,7 +275,9 @@ PerformInputData CMakeFileCompletionAssist::generatePerformInputData() const
         for (const auto &target : std::as_const(bs->buildTargets()))
             if (target.targetType != TargetType::UtilityType)
                 data.buildTargets << target.title;
-        data.projectKeywords = bs->projectKeywords();
+        const CMakeKeywords &projectKeywords = bs->projectKeywords();
+        data.projectVariables = projectKeywords.variables;
+        data.projectFunctions = projectKeywords.functions;
         data.importedTargets = bs->projectImportedTargets();
         data.findPackageVariables = bs->projectFindPackageVariables();
     }
@@ -326,7 +329,7 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
     if (varGenexToken == "${" || varGenexToken == "$<") {
         if (varGenexToken == "${") {
             items.append(generateList(data.keywords.variables, m_variableIcon));
-            items.append(generateList(data.projectKeywords.variables, m_projectVariableIcon));
+            items.append(generateList(data.projectVariables, m_projectVariableIcon));
             items.append(generateList(data.findPackageVariables, m_projectVariableIcon));
         }
         if (varGenexToken == "$<")
@@ -342,7 +345,7 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
         || functionName == "set" || functionName == "list"
         || functionName == "cmake_print_variables") {
         items.append(generateList(data.keywords.variables, m_variableIcon));
-        items.append(generateList(data.projectKeywords.variables, m_projectVariableIcon));
+        items.append(generateList(data.projectVariables, m_projectVariableIcon));
         items.append(generateList(data.findPackageVariables, m_projectVariableIcon));
         items.append(generateList(localVariables, m_variableIcon));
     }
@@ -390,7 +393,7 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
     } else if (functionName.isEmpty()) {
         // On a new line we just want functions
         items.append(generateList(data.keywords.functions, m_functionIcon));
-        items.append(generateList(data.projectKeywords.functions, m_projectFunctionIcon));
+        items.append(generateList(data.projectFunctions, m_projectFunctionIcon));
         items.append(generateList(localFunctions, m_functionIcon));
 
         // Snippets would make more sense only for the top level suggestions
@@ -400,7 +403,7 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
         fileStartPos = addFilePathItems(interface(), items, startPos);
         if (!onlyFileItems()) {
             items.append(generateList(data.keywords.variables, m_variableIcon));
-            items.append(generateList(data.projectKeywords.variables, m_projectVariableIcon));
+            items.append(generateList(data.projectVariables, m_projectVariableIcon));
             items.append(generateList(localVariables, m_variableIcon));
             items.append(generateList(data.findPackageVariables, m_projectVariableIcon));
 
