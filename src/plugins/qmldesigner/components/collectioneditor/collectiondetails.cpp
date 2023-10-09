@@ -5,6 +5,7 @@
 
 #include <QJsonArray>
 #include <QJsonObject>
+#include <QTextStream>
 #include <QVariant>
 
 namespace QmlDesigner {
@@ -269,4 +270,29 @@ QJsonArray CollectionDetails::getJsonCollection() const
     return collectionArray;
 }
 
+QString CollectionDetails::getCsvCollection() const
+{
+    QString content;
+    if (d->headers.count() <= 0)
+        return "";
+
+    for (const QString &header : std::as_const(d->headers))
+        content += header + ',';
+
+    content.back() = '\n';
+
+    for (const QJsonObject &elementsRow : std::as_const(d->elements)) {
+        for (const QString &header : std::as_const(d->headers)) {
+            const QJsonValue &value = elementsRow.value(header);
+
+            if (value.isDouble())
+                content += QString::number(value.toDouble()) + ',';
+            else
+                content += value.toString() + ',';
+        }
+        content.back() = '\n';
+    }
+
+    return content;
+}
 } // namespace QmlDesigner

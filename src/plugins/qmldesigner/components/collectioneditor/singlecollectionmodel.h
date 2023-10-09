@@ -74,6 +74,7 @@ private:
     void loadJsonCollection(const QString &source, const QString &collection);
     void loadCsvCollection(const QString &source, const QString &collectionName);
     bool saveCollectionAsJson(const QString &collection, const QJsonArray &content, const QString &source);
+    bool saveCollectionAsCsv(const QString &path, const QString &content);
 
     QHash<CollectionReference, CollectionDetails> m_openedCollections;
     CollectionDetails m_currentCollection;

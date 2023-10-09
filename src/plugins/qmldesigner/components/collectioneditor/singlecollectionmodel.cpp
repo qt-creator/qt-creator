@@ -361,7 +361,6 @@ void SingleCollectionModel::loadJsonCollection(const QString &source, const QStr
     }
 
     SourceFormat sourceFormat = jsonFileIsOk ? SourceFormat::Json : SourceFormat::Unknown;
-
     beginResetModel();
     m_currentCollection.resetDetails(getJsonHeaders(collectionNodes), elements, sourceFormat);
     endResetModel();
@@ -401,7 +400,6 @@ void SingleCollectionModel::loadCsvCollection(const QString &source,
     }
 
     SourceFormat sourceFormat = csvFileIsOk ? SourceFormat::Csv : SourceFormat::Unknown;
-
     beginResetModel();
     m_currentCollection.resetDetails(headers, elements, sourceFormat);
     endResetModel();
@@ -432,6 +430,16 @@ bool SingleCollectionModel::saveCollectionAsJson(const QString &collection, cons
         if (sourceFile.write(document.toJson()))
             return true;
     }
+
+    return false;
+}
+
+bool SingleCollectionModel::saveCollectionAsCsv(const QString &path, const QString &content)
+{
+    QFile file(path);
+
+    if (file.open(QFile::WriteOnly) && file.write(content.toUtf8()))
+        return true;
 
     return false;
 }
