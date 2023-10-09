@@ -200,7 +200,7 @@ void CMakeParser::flush()
     if (m_lastTask.isNull())
         return;
 
-    if (m_lastTask.summary.isEmpty())
+    if (m_lastTask.summary.isEmpty() && !m_lastTask.details.isEmpty())
         m_lastTask.summary = m_lastTask.details.takeFirst();
     m_lines += m_lastTask.details.count();
 
