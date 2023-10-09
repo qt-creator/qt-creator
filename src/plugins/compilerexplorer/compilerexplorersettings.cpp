@@ -337,10 +337,4 @@ CompilerExplorerSettings::CompilerExplorerSettings()
 
 CompilerExplorerSettings::~CompilerExplorerSettings() = default;
 
-void CompilerExplorerSettings::addNewSource()
-{
-    auto newSource = std::make_shared<SourceSettings>([this] { return apiConfig(); });
-    m_sources.addItem(newSource);
-}
-
 } // namespace CompilerExplorer

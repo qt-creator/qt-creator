@@ -216,7 +216,10 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
 
     auto addCompilerButton = new QPushButton;
     addCompilerButton->setText(Tr::tr("Add compiler"));
-    connect(addCompilerButton, &QPushButton::clicked, this, &SourceEditorWidget::addCompiler);
+    connect(addCompilerButton,
+            &QPushButton::clicked,
+            &settings->compilers,
+            &AspectList::createAndAddItem);
 
     auto removeSourceButton = new QPushButton;
     removeSourceButton->setIcon(Utils::Icons::EDIT_CLEAR.icon());
@@ -575,12 +578,6 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
         setupHelpWidget();
     });
 
-    connect(sourceEditor, &SourceEditorWidget::addCompiler, this, [sourceSettings]() {
-        auto newCompiler = std::make_shared<CompilerSettings>(sourceSettings->apiConfigFunction());
-        newCompiler->setLanguageId(sourceSettings->languageId());
-        sourceSettings->compilers.addItem(newCompiler);
-    });
-
     connect(sourceEditor, &SourceEditorWidget::gotFocus, this, [this]() {
         m_actionHandler.updateCurrentEditor();
     });
@@ -725,8 +722,8 @@ QWidget *EditorWidget::createHelpWidget() const
     auto w = new HelperWidget;
     connect(w,
             &HelperWidget::addSource,
-            m_document->settings(),
-            &CompilerExplorerSettings::addNewSource);
+            &m_document->settings()->m_sources,
+            &AspectList::createAndAddItem);
     return w;
 }
 
@@ -792,8 +789,8 @@ QWidget *Editor::toolBar()
 
         connect(newSource,
                 &QAction::triggered,
-                m_document->settings(),
-                &CompilerExplorerSettings::addNewSource);
+                &m_document->settings()->m_sources,
+                &AspectList::createAndAddItem);
     }
 
     return m_toolBar.get();

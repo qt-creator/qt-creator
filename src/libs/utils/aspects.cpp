@@ -3127,6 +3127,11 @@ QList<std::shared_ptr<BaseAspect>> AspectList::volatileItems() const
     return d->volatileItems;
 }
 
+std::shared_ptr<BaseAspect> AspectList::createAndAddItem()
+{
+    return addItem(d->createItem());
+}
+
 std::shared_ptr<BaseAspect> AspectList::addItem(const std::shared_ptr<BaseAspect> &item)
 {
     if (undoStack())

@@ -130,7 +130,6 @@ public:
 
 signals:
     void sourceCodeChanged();
-    void addCompiler();
     void remove();
     void gotFocus();
 
