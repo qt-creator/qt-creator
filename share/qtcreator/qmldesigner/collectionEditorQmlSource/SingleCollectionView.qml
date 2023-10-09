@@ -101,71 +101,20 @@ Rectangle {
                 syncView: tableView
                 clip: true
 
-                delegate: Rectangle {
-                    id: headerItem
-                    implicitWidth: 100
-                    implicitHeight: headerText.height
-                    border.width: 2
-                    border.color: StudioTheme.Values.themeControlOutline
-                    clip: true
-
-                    Text {
-                        id: headerText
-
-                        topPadding: headerView.topPadding
-                        bottomPadding: headerView.bottomPadding
-                        leftPadding: 5
-                        rightPadding: 5
-                        text: display
-                        font: headerTextMetrics.font
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        anchors.centerIn: parent
-                        elide: Text.ElideRight
-                    }
+                delegate: HeaderDelegate {
+                    selectedItem: root.model.selectedColumn
 
                     MouseArea {
                         anchors.fill: parent
+                        anchors.margins: 5
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         onClicked: (mouse) => {
                             root.model.selectColumn(index)
 
                             if (mouse.button === Qt.RightButton)
                                 headerMenu.popIndex(index)
-
-                            mouse.accepted = true
                         }
                     }
-
-                    states: [
-                        State {
-                            name: "default"
-                            when: index !== root.model.selectedColumn
-                            PropertyChanges {
-                                target: headerItem
-                                color: StudioTheme.Values.themeControlBackground
-                            }
-
-                            PropertyChanges {
-                                target: headerText
-                                color: StudioTheme.Values.themeIdleGreen
-                            }
-                        },
-                        State {
-                            name: "selected"
-                            when: index === root.model.selectedColumn
-
-                            PropertyChanges {
-                                target: headerItem
-                                color: StudioTheme.Values.themeControlBackgroundInteraction
-                            }
-
-                            PropertyChanges {
-                                target: headerText
-                                color: StudioTheme.Values.themeRunningGreen
-                            }
-                        }
-                    ]
                 }
 
                 StudioControls.Menu {
@@ -203,21 +152,16 @@ Rectangle {
 
                 Layout.fillHeight: true
 
-                delegate: Rectangle {
-                    color: StudioTheme.Values.themeControlBackground
-                    border.color: StudioTheme.Values.themeControlOutline
-                    border.width: 2
-                    implicitWidth: idText.width
+                delegate: HeaderDelegate {
+                    selectedItem: root.model.selectedRow
 
-                    Text {
-                        id: idText
-                        text: display
-                        leftPadding: 5
-                        rightPadding: 5
-                        topPadding: 5
-                        color: StudioTheme.Values.themeTextColor
-                        font: headerTextMetrics.font
+                    MouseArea {
+                        anchors.fill: parent
+                        anchors.margins: 5
+                        acceptedButtons: Qt.LeftButton
+                        onClicked: root.model.selectRow(index)
                     }
+
                 }
             }
 
@@ -292,6 +236,65 @@ Rectangle {
 
         font.pixelSize: StudioTheme.Values.baseFontSize
         text: "Xq"
+    }
+
+    component HeaderDelegate: Rectangle {
+        id: headerItem
+
+        required property int selectedItem
+        property alias horizontalAlignment: headerText.horizontalAlignment
+        property alias verticalAlignment: headerText.verticalAlignment
+
+        implicitWidth: headerText.width
+        implicitHeight: headerText.height
+        border.width: 2
+        border.color: StudioTheme.Values.themeControlOutline
+        clip: true
+
+        Text {
+            id: headerText
+
+            topPadding: headerView.topPadding
+            bottomPadding: headerView.bottomPadding
+            leftPadding: 5
+            rightPadding: 5
+            text: display
+            font: headerTextMetrics.font
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            anchors.centerIn: parent
+            elide: Text.ElideRight
+        }
+
+        states: [
+            State {
+                name: "default"
+                when: index !== selectedItem
+                PropertyChanges {
+                    target: headerItem
+                    color: StudioTheme.Values.themeControlBackground
+                }
+
+                PropertyChanges {
+                    target: headerText
+                    color: StudioTheme.Values.themeIdleGreen
+                }
+            },
+            State {
+                name: "selected"
+                when: index === selectedItem
+
+                PropertyChanges {
+                    target: headerItem
+                    color: StudioTheme.Values.themeControlBackgroundInteraction
+                }
+
+                PropertyChanges {
+                    target: headerText
+                    color: StudioTheme.Values.themeRunningGreen
+                }
+            }
+        ]
     }
 
     EditPropertyDialog {

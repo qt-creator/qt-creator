@@ -18,6 +18,7 @@ class SingleCollectionModel : public QAbstractTableModel
 
     Q_PROPERTY(QString collectionName MEMBER m_collectionName NOTIFY collectionNameChanged)
     Q_PROPERTY(int selectedColumn READ selectedColumn WRITE selectColumn NOTIFY selectedColumnChanged)
+    Q_PROPERTY(int selectedRow READ selectedRow WRITE selectRow NOTIFY selectedRowChanged)
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
 
 public:
@@ -41,17 +42,23 @@ public:
                         Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
     int selectedColumn() const;
+    int selectedRow() const;
 
     Q_INVOKABLE bool isPropertyAvailable(const QString &name);
     Q_INVOKABLE bool addColumn(int column, const QString &name);
     Q_INVOKABLE bool selectColumn(int section);
     Q_INVOKABLE bool renameColumn(int section, const QString &newValue);
 
+    Q_INVOKABLE bool selectRow(int row);
+
+    Q_INVOKABLE void deselectAll();
+
     void loadCollection(const ModelNode &sourceNode, const QString &collection);
 
 signals:
     void collectionNameChanged(const QString &collectionName);
     void selectedColumnChanged(int);
+    void selectedRowChanged(int);
     void isEmptyChanged(bool);
 
 private slots:
@@ -70,6 +77,7 @@ private:
     CollectionDetails m_currentCollection;
     bool m_isEmpty = true;
     int m_selectedColumn = -1;
+    int m_selectedRow = -1;
 
     QString m_collectionName;
 };

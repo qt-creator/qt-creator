@@ -66,7 +66,7 @@ QVariant SingleCollectionModel::data(const QModelIndex &index, int role) const
         return {};
 
     if (role == SelectedRole)
-        return index.column() == m_selectedColumn;
+        return (index.column() == m_selectedColumn || index.row() == m_selectedRow);
 
     return m_currentCollection.data(index.row(), index.column());
 }
@@ -130,6 +130,11 @@ int SingleCollectionModel::selectedColumn() const
     return m_selectedColumn;
 }
 
+int SingleCollectionModel::selectedRow() const
+{
+    return m_selectedRow;
+}
+
 bool SingleCollectionModel::isPropertyAvailable(const QString &name)
 {
     return m_currentCollection.containsHeader(name);
@@ -159,6 +164,8 @@ bool SingleCollectionModel::selectColumn(int section)
     if (m_selectedColumn >= columns)
         return false;
 
+    selectRow(-1);
+
     const int rows = rowCount();
     const int previousColumn = m_selectedColumn;
 
@@ -184,6 +191,41 @@ bool SingleCollectionModel::renameColumn(int section, const QString &newValue)
     return setHeaderData(section, Qt::Horizontal, newValue);
 }
 
+bool SingleCollectionModel::selectRow(int row)
+{
+    if (m_selectedRow == row)
+        return false;
+
+    const int rows = rowCount();
+
+    if (m_selectedRow >= rows)
+        return false;
+
+    selectColumn(-1);
+
+    const int columns = columnCount();
+    const int previousRow = m_selectedRow;
+
+    m_selectedRow = row;
+    emit this->selectedRowChanged(m_selectedRow);
+
+    auto notifySelectedDataChanged = [this, rows, columns](int notifyingRow) {
+        if (notifyingRow > -1 && notifyingRow < rows && columns)
+            emit dataChanged(index(notifyingRow, 0), index(notifyingRow, columns - 1), {SelectedRole});
+    };
+
+    notifySelectedDataChanged(previousRow);
+    notifySelectedDataChanged(m_selectedRow);
+
+    return true;
+}
+
+void SingleCollectionModel::deselectAll()
+{
+    selectColumn(-1);
+    selectRow(-1);
+}
+
 void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QString &collection)
 {
     QString fileName = sourceNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toString();
@@ -193,13 +235,13 @@ void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QS
 
     if (alreadyOpen) {
         if (m_currentCollection.reference() != newReference) {
-            selectColumn(-1);
+            deselectAll();
             beginResetModel();
             switchToCollection(newReference);
             endResetModel();
         }
     } else {
-        selectColumn(-1);
+        deselectAll();
         switchToCollection(newReference);
         if (sourceNode.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
             loadJsonCollection(fileName, collection);
