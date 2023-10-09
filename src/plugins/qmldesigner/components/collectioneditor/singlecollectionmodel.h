@@ -35,6 +35,7 @@ public:
                        Qt::Orientation orientation,
                        const QVariant &value,
                        int role = Qt::EditRole) override;
+    bool insertRows(int row, int count, const QModelIndex &parent = {}) override;
     bool removeColumns(int column, int count, const QModelIndex &parent = QModelIndex()) override;
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;

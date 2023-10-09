@@ -124,6 +124,20 @@ void CollectionDetails::insertElementAt(std::optional<QJsonObject> object, int r
     markChanged();
 }
 
+void CollectionDetails::insertEmptyElements(int row, int count)
+{
+    if (!isValid())
+        return;
+
+    if (count < 1)
+        return;
+
+    row = qBound(0, row, rows() - 1);
+    d->elements.insert(row, count, {});
+
+    markChanged();
+}
+
 bool CollectionDetails::setHeader(int column, const QString &value)
 {
     if (!d->isValidColumnId(column))

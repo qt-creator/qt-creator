@@ -91,6 +91,20 @@ bool SingleCollectionModel::setHeaderData(int section,
     return headerChanged;
 }
 
+bool SingleCollectionModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+    if (count < 1)
+        return false;
+
+    row = qBound(0, row, rowCount());
+    beginInsertRows(parent, row, row + count);
+    m_currentCollection.insertEmptyElements(row, count);
+    endInsertRows();
+
+    updateEmpty();
+    return true;
+}
+
 bool SingleCollectionModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
     if (column < 0 || column >= columnCount(parent) || count < 1)

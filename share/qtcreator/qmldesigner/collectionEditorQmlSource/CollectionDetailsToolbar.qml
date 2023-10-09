@@ -44,6 +44,25 @@ Item {
             enabled: root.model.selectedColumn > -1
             onClicked: addColumnDialog.popUp(root.model.selectedColumn + 1)
         }
+
+        Item { // spacer
+            width: 20
+            height: 1
+        }
+
+        IconButton {
+            icon: StudioTheme.Constants.addrowbelow_medium
+            tooltip: qsTr("Insert record below")
+            enabled: root.model.selectedRow > -1
+            onClicked: root.model.insertRow(root.model.selectedRow + 1)
+        }
+
+        IconButton {
+            icon: StudioTheme.Constants.addrowabove_medium
+            tooltip: qsTr("Insert record above")
+            enabled: root.model.selectedRow > -1
+            onClicked: root.model.insertRow(root.model.selectedRow)
+        }
     }
 
     Row {
