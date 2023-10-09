@@ -40,6 +40,9 @@ Uniform::Uniform(const QJsonObject &propObj)
         // QEN files don't store the current value, so with those use default value
         value = defaultValue;
     }
+    m_customValue = propObj.value("customValue").toString();
+    m_useCustomValue = getBoolValue(propObj.value("useCustomValue"), false);
+
     minValue = propObj.value("minValue").toString();
     maxValue = propObj.value("maxValue").toString();
 

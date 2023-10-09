@@ -20,6 +20,31 @@ Column {
     // The delay in ms to wait until updating the effect
     readonly property int updateDelay: 200
 
+    // Create a dummy parent to host the effect qml object
+    function createNewComponent() {
+        var oldComponent = componentParent.children[0];
+        if (oldComponent)
+            oldComponent.destroy();
+        try {
+            const newObject = Qt.createQmlObject(
+                effectMakerModel.qmlComponentString,
+                componentParent,
+                ""
+            );
+            effectMakerModel.resetEffectError(0);
+        } catch (error) {
+            let errorString = "QML: ERROR: ";
+            let errorLine = -1;
+            if (error.qmlErrors.length > 0) {
+                // Show the first QML error
+                let e = error.qmlErrors[0];
+                errorString += e.lineNumber + ": " + e.message;
+                errorLine = e.lineNumber;
+            }
+            effectMakerModel.setEffectError(errorString, 0, errorLine);
+        }
+    }
+
     Rectangle { // toolbar
         width: parent.width
         height: StudioTheme.Values.toolbarHeight
@@ -152,32 +177,6 @@ Column {
             // slow down code editing & rest of the UI.
             layer.enabled: true
             layer.smooth: true
-        }
-
-        // Create a dummy parent to host the effect qml object
-        function createNewComponent() {
-            var oldComponent = componentParent.children[0];
-            if (oldComponent)
-                oldComponent.destroy();
-
-            try {
-                const newObject = Qt.createQmlObject(
-                    effectMakerModel.qmlComponentString,
-                    componentParent,
-                    ""
-                );
-                effectMakerModel.resetEffectError(0);
-            } catch (error) {
-                let errorString = "QML: ERROR: ";
-                let errorLine = -1;
-                if (error.qmlErrors.length > 0) {
-                    // Show the first QML error
-                    let e = error.qmlErrors[0];
-                    errorString += e.lineNumber + ": " + e.message;
-                    errorLine = e.lineNumber;
-                }
-                effectMakerModel.setEffectError(errorString, 0, errorLine);
-            }
         }
 
         Connections {

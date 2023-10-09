@@ -5,12 +5,18 @@
 
 #include "shaderfeatures.h"
 
+#include <utils/filepath.h>
+
 #include <QMap>
 #include <QRegularExpression>
 #include <QStandardItemModel>
 #include <QTemporaryFile>
 
 #include <QtShaderTools/private/qshaderbaker_p.h>
+
+namespace Utils {
+class Process;
+}
 
 namespace EffectMaker {
 
@@ -60,13 +66,16 @@ public:
 
     QString fragmentShader() const;
     void setFragmentShader(const QString &newFragmentShader);
+
     QString vertexShader() const;
     void setVertexShader(const QString &newVertexShader);
 
     const QString &qmlComponentString() const;
-    void setQmlComponentString(const QString &string);
 
     Q_INVOKABLE void updateQmlComponent();
+
+    Q_INVOKABLE void resetEffectError(int type);
+    Q_INVOKABLE void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
 
 signals:
     void isEmptyChanged();
@@ -102,8 +111,6 @@ private:
     void updateBakedShaderVersions();
     QString detectErrorMessage(const QString &errorMessage);
     EffectError effectError() const;
-    void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
-    void resetEffectError(int type);
 
     QString valueAsString(const Uniform &uniform);
     QString valueAsBinding(const Uniform &uniform);
@@ -121,6 +128,9 @@ private:
     QString getCustomShaderVaryings(bool outState);
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
+
+    Utils::FilePath qsbPath() const;
+
     void updateCustomUniforms();
     void bakeShaders();
 
@@ -140,7 +150,7 @@ private:
     QString m_vertexShader;
     QStringList m_defaultRootVertexShader;
     QStringList m_defaultRootFragmentShader;
-    QShaderBaker m_baker;
+    QShaderBaker m_baker; // TODO: Remove
     QTemporaryFile m_fragmentShaderFile;
     QTemporaryFile m_vertexShaderFile;
     // Used in exported QML, at root of the file

@@ -7,6 +7,8 @@
 #include "effectmakermodel.h"
 #include "effectmakernodesmodel.h"
 #include "effectmakerview.h"
+
+#include "nodeinstanceview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qqmlcontext.h"

@@ -10,6 +10,12 @@
 #include <QByteArrayView>
 #include <QVector2D>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/target.h>
+
+#include <qtsupport/qtkitinformation.h>
+
 #include <utils/qtcassert.h>
 
 namespace EffectMaker {
@@ -758,7 +764,7 @@ void EffectMakerModel::updateCustomUniforms()
         // Custom values are not readonly, others inside the effect can be
         QString readOnly = uniform->useCustomValue() ? QString() : QStringLiteral("readonly ");
         previewEffectPropertiesString += "    " + readOnly + "property " + type + " "
-                                         + propertyName + bindedValueString + '\n';
+                                         + propertyName + valueString + '\n';
         // Define type properties are not added into exports
         if (!isDefine) {
             if (uniform->useCustomValue()) {
@@ -783,7 +789,9 @@ void EffectMakerModel::updateCustomUniforms()
     }
 
     // See if any of the properties changed
-    // TODO
+    m_exportedRootPropertiesString = exportedRootPropertiesString;
+    m_previewEffectPropertiesString = previewEffectPropertiesString;
+    m_exportedEffectPropertiesString = exportedEffectPropertiesString;
 }
 
 void EffectMakerModel::bakeShaders()
@@ -807,6 +815,7 @@ void EffectMakerModel::bakeShaders()
     QString vs = m_vertexShader;
     m_baker.setSourceString(vs.toUtf8(), QShader::VertexStage);
     QShader vertShader = m_baker.bake();
+
     if (!vertShader.isValid()) {
         qWarning() << "Shader baking failed:" << qPrintable(m_baker.errorMessage());
         setEffectError(m_baker.errorMessage().split('\n').first(), ErrorVert);
@@ -821,6 +830,7 @@ void EffectMakerModel::bakeShaders()
     m_baker.setSourceString(fs.toUtf8(), QShader::FragmentStage);
 
     QShader fragShader = m_baker.bake();
+
     if (!fragShader.isValid()) {
         qWarning() << "Shader baking failed:" << qPrintable(m_baker.errorMessage());
         setEffectError(m_baker.errorMessage().split('\n').first(), ErrorFrag);
@@ -908,6 +918,7 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
     // When used in preview component, we need property with value
     // and when in exported component, property with binding to root value.
     s += localFiles ? m_exportedEffectPropertiesString : m_previewEffectPropertiesString;
+
     if (!customImagesString.isEmpty())
         s += '\n' + customImagesString;
 
@@ -923,6 +934,21 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
     }
     s += l1 + "}\n";
     return s;
+}
+
+Utils::FilePath EffectMakerModel::qsbPath() const
+{
+    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
+    if (target) {
+        if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit())) {
+            Utils::FilePath path = qtVer->binPath().pathAppended("qsb").withExecutableSuffix();
+            if (path.exists())
+                return path;
+        }
+    }
+
+    qWarning() << "Shader baking failed, QSB not found.";
+    return {};
 }
 
 void EffectMakerModel::updateQmlComponent()
