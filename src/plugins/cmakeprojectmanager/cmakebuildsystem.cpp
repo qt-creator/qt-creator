@@ -1018,7 +1018,7 @@ void CMakeBuildSystem::updateProjectData()
         const FilePath includeFileBaseDir = buildConfiguration()->buildDirectory();
         QStringList cxxFlags = rpp.flagsForCxx.commandLineFlags;
         QStringList cFlags = rpp.flagsForC.commandLineFlags;
-        addTargetFlagForIos(cxxFlags, cFlags, this, [this] {
+        addTargetFlagForIos(cFlags, cxxFlags, this, [this] {
             return m_configurationFromCMake.stringValueOf("CMAKE_OSX_DEPLOYMENT_TARGET");
         });
         if (kitInfo.cxxToolChain)
