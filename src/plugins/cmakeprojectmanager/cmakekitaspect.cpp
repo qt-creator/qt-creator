@@ -1087,7 +1087,7 @@ QStringList CMakeConfigurationKitAspect::toArgumentsList(const Kit *k)
                                            [](const CMakeConfigItem &i) {
                                                return i.toArgument(nullptr);
                                            });
-    current = Utils::filtered(current, [](const QString &s) { return s != "-D" || s != "-U"; });
+    current = Utils::filtered(current, [](const QString &s) { return s != "-D" && s != "-U"; });
     return current;
 }
 
