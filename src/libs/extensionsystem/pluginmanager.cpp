@@ -940,7 +940,7 @@ PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
 
 void PluginManagerPrivate::startDelayedInitialize()
 {
-    delayedInitializeTimer.reset();
+    delayedInitializeTimer.release()->deleteLater();
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
     {
         NANOTRACE_SCOPE("ExtensionSystem", "DelayedInitialize");
