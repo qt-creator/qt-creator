@@ -91,7 +91,7 @@
                     "trDisplayName": "Source file:",
                     "mandatory": true,
                     "visible": "%{JS: value('TestFrameWork') !== 'QtQuickTest' }",
-                    "data": { "trText": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Cpp.cxxSourceSuffix()}" }
+                    "data": { "text": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Cpp.cxxSourceSuffix()}" }
                 },
                 {
                     "name": "QmlSrcFile",
@@ -99,7 +99,7 @@
                     "trDisplayName": "Source file:",
                     "mandatory": true,
                     "visible": "%{JS: value('TestFrameWork') === 'QtQuickTest' }",
-                    "data": { "trText": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.qml'}" }
+                    "data": { "text": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.qml'}" }
                 },
                 {
                     "name": "Path",

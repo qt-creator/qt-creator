@@ -58,7 +58,7 @@
                     "type": "LineEdit",
                     "enabled": "%{JS: value('BaseCB') === ''}",
                     "mandatory": false,
-                    "data": { "trText": "%{BaseCB}" }
+                    "data": { "text": "%{BaseCB}" }
                 },
 
 
@@ -115,7 +115,7 @@
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Util.fileName(value('Class'), Util.preferredSuffix('text/x-python'))}" }
+                    "data": { "text": "%{JS: Util.fileName(value('Class'), Util.preferredSuffix('text/x-python'))}" }
                 },
                 {
                     "name": "TargetPath",
