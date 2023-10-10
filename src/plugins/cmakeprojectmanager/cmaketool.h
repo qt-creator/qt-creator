@@ -25,6 +25,7 @@ struct CMAKE_EXPORT CMakeKeywords
     QMap<QString, Utils::FilePath> functions;
     QMap<QString, Utils::FilePath> properties;
     QSet<QString> generatorExpressions;
+    QMap<QString, Utils::FilePath> environmentVariables;
     QMap<QString, Utils::FilePath> directoryProperties;
     QMap<QString, Utils::FilePath> sourceProperties;
     QMap<QString, Utils::FilePath> targetProperties;

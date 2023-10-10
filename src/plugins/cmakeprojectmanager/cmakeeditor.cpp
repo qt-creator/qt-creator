@@ -77,6 +77,8 @@ void CMakeEditor::contextHelp(const HelpCallback &callback) const
             return "prop_gbl/";
         if (m_keywords.policies.contains(word))
             return "policy/";
+        if (m_keywords.environmentVariables.contains(word))
+            return "envvar/";
 
         return "unknown/";
     };
@@ -449,15 +451,16 @@ void CMakeHoverHandler::identifyMatch(TextEditor::TextEditorWidget *editorWidget
         const QMap<QString, Utils::FilePath> &map;
         QString helpCategory;
     } keywordsListMaps[] = {{keywords().functions, "command"},
-                       {keywords().variables, "variable"},
-                       {keywords().directoryProperties, "prop_dir"},
-                       {keywords().sourceProperties, "prop_sf"},
-                       {keywords().targetProperties, "prop_tgt"},
-                       {keywords().testProperties, "prop_test"},
-                       {keywords().properties, "prop_gbl"},
-                       {keywords().includeStandardModules, "module"},
-                       {keywords().findModules, "module"},
-                       {keywords().policies, "policy"}};
+                            {keywords().variables, "variable"},
+                            {keywords().directoryProperties, "prop_dir"},
+                            {keywords().sourceProperties, "prop_sf"},
+                            {keywords().targetProperties, "prop_tgt"},
+                            {keywords().testProperties, "prop_test"},
+                            {keywords().properties, "prop_gbl"},
+                            {keywords().includeStandardModules, "module"},
+                            {keywords().findModules, "module"},
+                            {keywords().policies, "policy"},
+                            {keywords().environmentVariables, "envvar"}};
 
     for (const auto &pair : keywordsListMaps) {
         if (pair.map.contains(word)) {

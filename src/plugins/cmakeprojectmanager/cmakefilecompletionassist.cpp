@@ -469,7 +469,8 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
     QList<AssistProposalItemInterface *> items;
 
     const QString varGenexToken = interface()->textAt(startPos - 2, 2);
-    if (varGenexToken == "${" || varGenexToken == "$<") {
+    const QString varEnvironmentToken = interface()->textAt(startPos - 5, 5);
+    if (varGenexToken == "${" || varGenexToken == "$<" || varEnvironmentToken == "$ENV{") {
         if (varGenexToken == "${") {
             items.append(generateList(data->keywords.variables, m_variableIcon));
             items.append(generateList(data->projectVariables, m_projectVariableIcon));
@@ -478,8 +479,15 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr 
         if (varGenexToken == "$<")
             items.append(generateList(data->keywords.generatorExpressions, m_genexIcon));
 
+        if (varEnvironmentToken == "$ENV{")
+            items.append(generateList(data->keywords.environmentVariables, m_variableIcon));
+
         return new GenericProposal(startPos, items);
     }
+
+    const QString ifEnvironmentToken = interface()->textAt(startPos - 4, 4);
+    if ((functionName == "if" || functionName == "elseif") && ifEnvironmentToken == "ENV{")
+        items.append(generateList(data->keywords.environmentVariables, m_variableIcon));
 
     int fileStartPos = startPos;
     const auto onlyFileItems = [&] { return fileStartPos != startPos; };
@@ -569,13 +577,13 @@ IAssistProcessor *CMakeFileCompletionAssistProvider::createProcessor(const Assis
 
 int CMakeFileCompletionAssistProvider::activationCharSequenceLength() const
 {
-    return 2;
+    return 4;
 }
 
 bool CMakeFileCompletionAssistProvider::isActivationCharSequence(const QString &sequence) const
 {
     return sequence.endsWith("${") || sequence.endsWith("$<") || sequence.endsWith("/")
-           || sequence.endsWith("(");
+           || sequence.endsWith("(") || sequence.endsWith("ENV{");
 }
 
 } // namespace CMakeProjectManager::Internal

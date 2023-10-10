@@ -53,6 +53,13 @@ if (SOURCE_FILES)
   cmake_print_variables(SOURCE_FILES)
 endif()
 
+# here code completion for "if (ENV{|" should popup the CMake supported environment variables
+# also deleting { and typing again { should trigger the menu
+#if (ENV{
+
+# hover over CXX should display the help for the CXX environment variable
+# and F1 should open the help page
+message(STATUS $ENV{CXX})
 
 qt_add_executable(completion ${SOURCE_FILES})
 

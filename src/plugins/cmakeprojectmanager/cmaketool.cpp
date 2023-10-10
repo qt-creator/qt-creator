@@ -288,6 +288,8 @@ CMakeKeywords CMakeTool::keywords()
             {"Help/variable", m_introspection->m_keywords.variables},
             // Policies
             {"Help/policy", m_introspection->m_keywords.policies},
+            // Environment Variables
+            {"Help/envvar", m_introspection->m_keywords.environmentVariables},
         };
         for (auto &i : introspections) {
             const FilePaths files = cmakeRoot.pathAppended(i.helpPath)
