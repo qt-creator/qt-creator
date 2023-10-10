@@ -31,8 +31,6 @@ public:
     void registerDocumentation(const QStringList &fileNames) override;
     void unregisterDocumentation(const QStringList &fileNames) override;
 
-    static void unregisterNamespaces(const QStringList &nameSpaces);
-
     static void registerUserDocumentation(const QStringList &filePaths);
     static QSet<QString> userDocumentationPaths();
 
