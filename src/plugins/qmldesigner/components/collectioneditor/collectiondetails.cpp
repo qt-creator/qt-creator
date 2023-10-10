@@ -75,17 +75,11 @@ void CollectionDetails::insertColumn(const QString &header, int colIdx, const QV
 
 bool CollectionDetails::removeColumns(int colIdx, int count)
 {
-    if (count < 1)
+    if (count < 1 || !isValid() || !d->isValidColumnId(colIdx))
         return false;
 
-    if (!isValid())
-        return false;
-
-    if (!d->isValidColumnId(colIdx))
-        return false;
-
-    int maxPossibleCount = d->headers.count() - colIdx;
-    count = std::min(maxPossibleCount, count);
+    int maxCount = d->headers.count() - colIdx;
+    count = std::min(maxCount, count);
 
     const QStringList removedHeaders = d->headers.mid(colIdx, count);
     d->headers.remove(colIdx, count);
@@ -136,6 +130,21 @@ void CollectionDetails::insertEmptyElements(int row, int count)
     d->elements.insert(row, count, {});
 
     markChanged();
+}
+
+bool CollectionDetails::removeElements(int row, int count)
+{
+    if (count < 1 || !isValid() || !d->isValidRowId(row))
+        return false;
+
+    int maxCount = d->elements.count() - row;
+    count = std::min(maxCount, count);
+
+    d->elements.remove(row, count);
+
+    markChanged();
+
+    return true;
 }
 
 bool CollectionDetails::setHeader(int column, const QString &value)

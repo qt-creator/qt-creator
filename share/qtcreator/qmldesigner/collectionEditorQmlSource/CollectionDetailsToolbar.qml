@@ -45,6 +45,13 @@ Item {
             onClicked: addColumnDialog.popUp(root.model.selectedColumn + 1)
         }
 
+        IconButton {
+            icon: StudioTheme.Constants.deletecolumn_medium
+            tooltip: qsTr("Delete selected property")
+            enabled: root.model.selectedColumn > -1
+            onClicked: root.model.removeColumn(root.model.selectedColumn)
+        }
+
         Item { // spacer
             width: 20
             height: 1
@@ -52,16 +59,23 @@ Item {
 
         IconButton {
             icon: StudioTheme.Constants.addrowbelow_medium
-            tooltip: qsTr("Insert record below")
+            tooltip: qsTr("Insert row below")
             enabled: root.model.selectedRow > -1
             onClicked: root.model.insertRow(root.model.selectedRow + 1)
         }
 
         IconButton {
             icon: StudioTheme.Constants.addrowabove_medium
-            tooltip: qsTr("Insert record above")
+            tooltip: qsTr("Insert row above")
             enabled: root.model.selectedRow > -1
             onClicked: root.model.insertRow(root.model.selectedRow)
+        }
+
+        IconButton {
+            icon: StudioTheme.Constants.deleterow_medium
+            tooltip: qsTr("Delete selected row")
+            enabled: root.model.selectedRow > -1
+            onClicked: root.model.removeRow(root.model.selectedRow)
         }
     }
 

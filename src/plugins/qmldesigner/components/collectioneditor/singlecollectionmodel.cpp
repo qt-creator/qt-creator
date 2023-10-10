@@ -38,6 +38,8 @@ SingleCollectionModel::SingleCollectionModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
     connect(this, &SingleCollectionModel::modelReset, this, &SingleCollectionModel::updateEmpty);
+    connect(this, &SingleCollectionModel::rowsInserted, this, &SingleCollectionModel::updateEmpty);
+    connect(this, &SingleCollectionModel::rowsRemoved, this, &SingleCollectionModel::updateEmpty);
 }
 
 QHash<int, QByteArray> SingleCollectionModel::roleNames() const
@@ -101,7 +103,6 @@ bool SingleCollectionModel::insertRows(int row, int count, const QModelIndex &pa
     m_currentCollection.insertEmptyElements(row, count);
     endInsertRows();
 
-    updateEmpty();
     return true;
 }
 
@@ -111,11 +112,24 @@ bool SingleCollectionModel::removeColumns(int column, int count, const QModelInd
         return false;
 
     count = std::min(count, columnCount(parent) - column);
-    beginRemoveColumns(parent, column, column + count);
+    beginRemoveColumns(parent, column, column + count - 1);
     bool columnsRemoved = m_currentCollection.removeColumns(column, count);
     endRemoveColumns();
 
     return columnsRemoved;
+}
+
+bool SingleCollectionModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    if (row < 0 || row >= rowCount(parent) || count < 1)
+        return false;
+
+    count = std::min(count, rowCount(parent) - row);
+    beginRemoveRows(parent, row, row + count - 1);
+    bool rowsRemoved = m_currentCollection.removeElements(row, count);
+    endRemoveRows();
+
+    return rowsRemoved;
 }
 
 Qt::ItemFlags SingleCollectionModel::flags(const QModelIndex &index) const

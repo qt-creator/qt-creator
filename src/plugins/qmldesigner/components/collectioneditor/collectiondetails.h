@@ -49,6 +49,7 @@ public:
 
     void insertElementAt(std::optional<QJsonObject> object, int row = -1);
     void insertEmptyElements(int row = 0, int count = 1);
+    bool removeElements(int row, int count = 1);
 
     bool setHeader(int column, const QString &value);
 
