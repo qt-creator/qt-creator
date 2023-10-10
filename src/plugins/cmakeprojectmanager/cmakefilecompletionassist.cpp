@@ -36,6 +36,7 @@ using namespace Utils;
 namespace CMakeProjectManager::Internal {
 
 class PerformInputData;
+using PerformInputDataPtr = std::shared_ptr<PerformInputData>;
 
 class CMakeFileCompletionAssist : public AsyncProcessor
 {
@@ -59,8 +60,8 @@ public:
     TextEditor::SnippetAssistCollector m_snippetCollector;
 
 private:
-    IAssistProposal *doPerform(const PerformInputData &data);
-    PerformInputData generatePerformInputData() const;
+    IAssistProposal *doPerform(const PerformInputDataPtr &data);
+    PerformInputDataPtr generatePerformInputData() const;
 };
 
 CMakeFileCompletionAssist::CMakeFileCompletionAssist()
@@ -393,27 +394,27 @@ public:
     Environment environment = Environment::systemEnvironment();
 };
 
-PerformInputData CMakeFileCompletionAssist::generatePerformInputData() const
+PerformInputDataPtr CMakeFileCompletionAssist::generatePerformInputData() const
 {
-    PerformInputData data;
+    PerformInputDataPtr data = PerformInputDataPtr(new PerformInputData);
 
     const FilePath &filePath = interface()->filePath();
     if (!filePath.isEmpty() && filePath.isFile()) {
         if (auto tool = CMakeToolManager::defaultProjectOrDefaultCMakeTool())
-            data.keywords = tool->keywords();
+            data->keywords = tool->keywords();
     }
 
     if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
         for (const auto &target : std::as_const(bs->buildTargets()))
             if (target.targetType != TargetType::UtilityType)
-                data.buildTargets << target.title;
+                data->buildTargets << target.title;
         const CMakeKeywords &projectKeywords = bs->projectKeywords();
-        data.projectVariables = projectKeywords.variables;
-        data.projectFunctions = projectKeywords.functions;
-        data.importedTargets = bs->projectImportedTargets();
-        data.findPackageVariables = bs->projectFindPackageVariables();
-        data.cmakeConfiguration = bs->configurationFromCMake();
-        data.environment = bs->cmakeBuildConfiguration()->configureEnvironment();
+        data->projectVariables = projectKeywords.variables;
+        data->projectFunctions = projectKeywords.functions;
+        data->importedTargets = bs->projectImportedTargets();
+        data->findPackageVariables = bs->projectFindPackageVariables();
+        data->cmakeConfiguration = bs->configurationFromCMake();
+        data->environment = bs->cmakeBuildConfiguration()->configureEnvironment();
     }
 
     return data;
@@ -430,7 +431,7 @@ IAssistProposal *CMakeFileCompletionAssist::perform()
     return result;
 }
 
-IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &data)
+IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputDataPtr &data)
 {
     if (isInComment(interface()))
         return nullptr;
@@ -458,24 +459,24 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
         interface()->textAt(0, prevFunctionEnd + 1).toUtf8());
     auto [localFunctions, localVariables] = getLocalFunctionsAndVariables(cmakeListFile);
 
-    CMakeConfig cmakeConfiguration = data.cmakeConfiguration;
+    CMakeConfig cmakeConfiguration = data->cmakeConfiguration;
     const FilePath currentDir = interface()->filePath().absolutePath();
     updateCMakeConfigurationWithLocalData(cmakeConfiguration, cmakeListFile, currentDir);
 
     auto [findModules, configModules] = getFindAndConfigCMakePackages(cmakeConfiguration,
-                                                                      data.environment);
+                                                                      data->environment);
 
     QList<AssistProposalItemInterface *> items;
 
     const QString varGenexToken = interface()->textAt(startPos - 2, 2);
     if (varGenexToken == "${" || varGenexToken == "$<") {
         if (varGenexToken == "${") {
-            items.append(generateList(data.keywords.variables, m_variableIcon));
-            items.append(generateList(data.projectVariables, m_projectVariableIcon));
-            items.append(generateList(data.findPackageVariables, m_projectVariableIcon));
+            items.append(generateList(data->keywords.variables, m_variableIcon));
+            items.append(generateList(data->projectVariables, m_projectVariableIcon));
+            items.append(generateList(data->findPackageVariables, m_projectVariableIcon));
         }
         if (varGenexToken == "$<")
-            items.append(generateList(data.keywords.generatorExpressions, m_genexIcon));
+            items.append(generateList(data->keywords.generatorExpressions, m_genexIcon));
 
         return new GenericProposal(startPos, items);
     }
@@ -486,14 +487,14 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
     if (functionName == "if" || functionName == "elseif" || functionName == "while"
         || functionName == "set" || functionName == "list"
         || functionName == "cmake_print_variables") {
-        items.append(generateList(data.keywords.variables, m_variableIcon));
-        items.append(generateList(data.projectVariables, m_projectVariableIcon));
-        items.append(generateList(data.findPackageVariables, m_projectVariableIcon));
+        items.append(generateList(data->keywords.variables, m_variableIcon));
+        items.append(generateList(data->projectVariables, m_projectVariableIcon));
+        items.append(generateList(data->findPackageVariables, m_projectVariableIcon));
         items.append(generateList(localVariables, m_variableIcon));
     }
 
     if (functionName == "if" || functionName == "elseif" || functionName == "cmake_policy")
-        items.append(generateList(data.keywords.policies, m_variableIcon));
+        items.append(generateList(data->keywords.policies, m_variableIcon));
 
     if (functionName.contains("path") || functionName.contains("file")
         || functionName.contains("add_executable") || functionName.contains("add_library")
@@ -504,21 +505,21 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
     }
 
     if (functionName == "set_property" || functionName == "cmake_print_properties")
-        items.append(generateList(data.keywords.properties, m_propertyIcon));
+        items.append(generateList(data->keywords.properties, m_propertyIcon));
 
     if (functionName == "set_directory_properties")
-        items.append(generateList(data.keywords.directoryProperties, m_propertyIcon));
+        items.append(generateList(data->keywords.directoryProperties, m_propertyIcon));
     if (functionName == "set_source_files_properties")
-        items.append(generateList(data.keywords.sourceProperties, m_propertyIcon));
+        items.append(generateList(data->keywords.sourceProperties, m_propertyIcon));
     if (functionName == "set_target_properties")
-        items.append(generateList(data.keywords.targetProperties, m_propertyIcon));
+        items.append(generateList(data->keywords.targetProperties, m_propertyIcon));
     if (functionName == "set_tests_properties")
-        items.append(generateList(data.keywords.testProperties, m_propertyIcon));
+        items.append(generateList(data->keywords.testProperties, m_propertyIcon));
 
     if (functionName == "include" && !onlyFileItems())
-        items.append(generateList(data.keywords.includeStandardModules, m_moduleIcon));
+        items.append(generateList(data->keywords.includeStandardModules, m_moduleIcon));
     if (functionName == "find_package") {
-        items.append(generateList(data.keywords.findModules, m_moduleIcon));
+        items.append(generateList(data->keywords.findModules, m_moduleIcon));
         items.append(generateList(findModules, m_moduleIcon));
         items.append(generateList(configModules, m_moduleIcon));
     }
@@ -528,17 +529,17 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
          || functionName == "export" || functionName == "cmake_print_properties"
          || functionName == "if" || functionName == "elseif")
         && !onlyFileItems()) {
-        items.append(generateList(data.buildTargets, m_targetsIcon));
-        items.append(generateList(data.importedTargets, m_importedTargetIcon));
+        items.append(generateList(data->buildTargets, m_targetsIcon));
+        items.append(generateList(data->importedTargets, m_importedTargetIcon));
     }
 
-    if (data.keywords.functionArgs.contains(functionName) && !onlyFileItems()) {
-        const QStringList functionSymbols = data.keywords.functionArgs.value(functionName);
+    if (data->keywords.functionArgs.contains(functionName) && !onlyFileItems()) {
+        const QStringList functionSymbols = data->keywords.functionArgs.value(functionName);
         items.append(generateList(functionSymbols, m_argsIcon));
     } else if (functionName.isEmpty()) {
         // On a new line we just want functions
-        items.append(generateList(data.keywords.functions, m_functionIcon));
-        items.append(generateList(data.projectFunctions, m_projectFunctionIcon));
+        items.append(generateList(data->keywords.functions, m_functionIcon));
+        items.append(generateList(data->projectFunctions, m_projectFunctionIcon));
         items.append(generateList(localFunctions, m_functionIcon));
 
         // Snippets would make more sense only for the top level suggestions
@@ -547,14 +548,14 @@ IAssistProposal *CMakeFileCompletionAssist::doPerform(const PerformInputData &da
         // Inside an unknown function we could have variables or properties
         fileStartPos = addFilePathItems(interface(), items, startPos);
         if (!onlyFileItems()) {
-            items.append(generateList(data.keywords.variables, m_variableIcon));
-            items.append(generateList(data.projectVariables, m_projectVariableIcon));
+            items.append(generateList(data->keywords.variables, m_variableIcon));
+            items.append(generateList(data->projectVariables, m_projectVariableIcon));
             items.append(generateList(localVariables, m_variableIcon));
-            items.append(generateList(data.findPackageVariables, m_projectVariableIcon));
+            items.append(generateList(data->findPackageVariables, m_projectVariableIcon));
 
-            items.append(generateList(data.keywords.properties, m_propertyIcon));
-            items.append(generateList(data.buildTargets, m_targetsIcon));
-            items.append(generateList(data.importedTargets, m_importedTargetIcon));
+            items.append(generateList(data->keywords.properties, m_propertyIcon));
+            items.append(generateList(data->buildTargets, m_targetsIcon));
+            items.append(generateList(data->importedTargets, m_importedTargetIcon));
         }
     }
 
