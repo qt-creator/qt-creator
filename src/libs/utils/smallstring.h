@@ -11,6 +11,7 @@
 #include "smallstringmemory.h"
 
 #include <QByteArray>
+#include <QLocale>
 #include <QString>
 #include <QStringEncoder>
 
@@ -562,7 +563,7 @@ public:
     {
         // 2 bytes for the sign and because digits10 returns the floor
         char buffer[std::numeric_limits<int>::digits10 + 2];
-        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number, 10);
+        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
         auto endOfConversionString = result.ptr;
         return BasicSmallString(buffer, endOfConversionString);
     }
@@ -571,12 +572,24 @@ public:
     {
         // 2 bytes for the sign and because digits10 returns the floor
         char buffer[std::numeric_limits<long long int>::digits10 + 2];
-        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number, 10);
+        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
         auto endOfConversionString = result.ptr;
         return BasicSmallString(buffer, endOfConversionString);
     }
 
-    static BasicSmallString number(double number) noexcept { return std::to_string(number); }
+    static BasicSmallString number(double number) noexcept
+    {
+#if defined(__cpp_lib_to_chars) && (__cpp_lib_to_chars >= 201611L)
+        // 2 bytes for the sign and because digits10 returns the floor
+        char buffer[std::numeric_limits<double>::digits10 + 2];
+        auto result = std::to_chars(buffer, buffer + sizeof(buffer), number);
+        auto endOfConversionString = result.ptr;
+        return BasicSmallString(buffer, endOfConversionString);
+#else
+        QLocale locale{QLocale::Language::C};
+        return BasicSmallString{locale.toString(number)};
+#endif
+    }
 
     char &operator[](std::size_t index) noexcept { return *(data() + index); }
 

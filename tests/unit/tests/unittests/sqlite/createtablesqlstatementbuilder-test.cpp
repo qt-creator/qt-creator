@@ -400,7 +400,7 @@ TEST_F(CreateTableSqlStatementBuilder, default_value_float)
 
     builder.addColumn("id", ColumnType::Real, {Sqlite::DefaultValue{1.1}});
 
-    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id REAL DEFAULT 1.100000)");
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id REAL DEFAULT 1.1)");
 }
 
 TEST_F(CreateTableSqlStatementBuilder, default_value_string)
@@ -928,7 +928,7 @@ TEST_F(CreateStrictTableSqlStatementBuilder, default_value_float)
 
     builder.addColumn("id", StrictColumnType::Real, {Sqlite::DefaultValue{1.1}});
 
-    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id REAL DEFAULT 1.100000) STRICT");
+    ASSERT_THAT(builder.sqlStatement(), "CREATE TABLE test(id REAL DEFAULT 1.1) STRICT");
 }
 
 TEST_F(CreateStrictTableSqlStatementBuilder, default_value_string)
