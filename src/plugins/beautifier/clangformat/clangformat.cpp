@@ -82,9 +82,6 @@ public:
         fallbackStyle.addOption("WebKit");
         fallbackStyle.setDefaultValue("Default");
 
-        predefinedStyle.setSettingsKey("predefinedStyle");
-        predefinedStyle.setDefaultValue("LLVM");
-
         customStyle.setSettingsKey("customStyle");
 
         documentationFilePath = Core::ICore::userResourcePath(Constants::SETTINGS_DIRNAME)
@@ -299,6 +296,7 @@ public:
         setOnApply([configurations, customizedStyleButton] {
             settings().usePredefinedStyle.setValue(!customizedStyleButton->isChecked());
             settings().customStyle.setValue(configurations->currentConfiguration());
+            settings().apply();
             settings().save();
         });
 
