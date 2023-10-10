@@ -15,16 +15,20 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QFontComboBox>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QTemporaryFile>
 #include <QXmlStreamReader>
+
+Q_LOGGING_CATEGORY(schemeLog, "qtc.terminal.scheme", QtWarningMsg)
 
 using namespace Utils;
 
@@ -553,6 +557,8 @@ TerminalSettings::TerminalSettings()
 
         auto loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
         auto resetTheme = new QPushButton(Tr::tr("Reset Theme"));
+        auto copyTheme = schemeLog().isDebugEnabled() ? new QPushButton(Tr::tr("Copy Theme"))
+                                                      : nullptr;
 
         connect(loadThemeButton, &QPushButton::clicked, this, [] {
             const FilePath path = FileUtils::getOpenFilePath(
@@ -589,20 +595,31 @@ TerminalSettings::TerminalSettings()
                 color.setVolatileValue(color.defaultValue());
         });
 
-// FIXME: Implement and use a Layouting::DropArea item
+        if (schemeLog().isDebugEnabled()) {
+            connect(copyTheme, &QPushButton::clicked, this, [this] {
+                auto toThemeColor = [](const ColorAspect &color) -> QString {
+                    QColor c = color.value();
+                    QString a = c.alpha() != 255 ? QString("%1").arg(c.alpha(), 2, 16, QChar('0'))
+                                                 : QString();
+                    return QString("%1%2%3%4")
+                        .arg(a)
+                        .arg(c.red(), 2, 16, QChar('0'))
+                        .arg(c.green(), 2, 16, QChar('0'))
+                        .arg(c.blue(), 2, 16, QChar('0'));
+                };
 
-//        DropSupport *dropSupport = new DropSupport;
-//        connect(dropSupport,
-//            &DropSupport::filesDropped,
-//            this,
-//            [this](const QList<DropSupport::FileSpec> &files) {
-//                if (files.size() != 1)
-//                    return;
+                QString theme;
+                QTextStream stream(&theme);
+                stream << "TerminalForeground=" << toThemeColor(foregroundColor) << '\n';
+                stream << "TerminalBackground=" << toThemeColor(backgroundColor) << '\n';
+                stream << "TerminalSelection=" << toThemeColor(selectionColor) << '\n';
+                stream << "TerminalFindMatch=" << toThemeColor(findMatchColor) << '\n';
+                for (int i = 0; i < 16; ++i)
+                    stream << "TerminalAnsi" << i << '=' << toThemeColor(colors[i]) << '\n';
 
-//                const expected_str<void> result = loadColorScheme(files.at(0).filePath);
-//                if (!result)
-//                    QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Error"), result.error());
-//            });
+                setClipboardAndSelection(theme);
+            });
+        }
 
         // clang-format off
         return Column {
@@ -646,7 +663,7 @@ TerminalSettings::TerminalSettings()
                         colors[14], colors[15]
                     },
                     Row {
-                        loadThemeButton, resetTheme, st,
+                        loadThemeButton, resetTheme, copyTheme, st,
                     }
                 },
             },
