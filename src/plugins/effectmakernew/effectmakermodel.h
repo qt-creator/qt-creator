@@ -12,8 +12,6 @@
 #include <QStandardItemModel>
 #include <QTemporaryFile>
 
-#include <QtShaderTools/private/qshaderbaker_p.h>
-
 namespace Utils {
 class Process;
 }
@@ -108,7 +106,6 @@ private:
     const QString getVSUniforms();
     const QString getFSUniforms();
 
-    void updateBakedShaderVersions();
     QString detectErrorMessage(const QString &errorMessage);
     EffectError effectError() const;
 
@@ -150,7 +147,9 @@ private:
     QString m_vertexShader;
     QStringList m_defaultRootVertexShader;
     QStringList m_defaultRootFragmentShader;
-    QShaderBaker m_baker; // TODO: Remove
+    // Temp files to store shaders sources and binary data
+    QTemporaryFile m_fragmentSourceFile;
+    QTemporaryFile m_vertexSourceFile;
     QTemporaryFile m_fragmentShaderFile;
     QTemporaryFile m_vertexShaderFile;
     // Used in exported QML, at root of the file
