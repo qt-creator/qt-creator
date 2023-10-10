@@ -371,16 +371,22 @@ private:
     public:
         int startColumn;
         QString url;
+        qsizetype urlLength;
     };
 
     UrlData m_urlData;
     QRegularExpression m_pattern;
+    QRegularExpression m_jiraPattern;
+    QRegularExpression m_gerritPattern;
 };
 
 UrlTextCursorHandler::UrlTextCursorHandler(VcsBaseEditorWidget *editorWidget)
     : AbstractTextCursorHandler(editorWidget)
 {
     setUrlPattern(QLatin1String("https?\\://[^\\s]+"));
+
+    m_jiraPattern = QRegularExpression("(Fixes|Task-number): ([A-Z]+-[0-9]+)");
+    m_gerritPattern = QRegularExpression("Change-Id: (I[a-f0-9]{40})");
 }
 
 bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
@@ -389,23 +395,37 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
 
     m_urlData.url.clear();
     m_urlData.startColumn = -1;
+    m_urlData.urlLength = 0;
 
     QTextCursor cursorForUrl = cursor;
     cursorForUrl.select(QTextCursor::LineUnderCursor);
     if (cursorForUrl.hasSelection()) {
         const QString line = cursorForUrl.selectedText();
         const int cursorCol = cursor.columnNumber();
-        QRegularExpressionMatchIterator i = m_pattern.globalMatch(line);
-        while (i.hasNext()) {
-            const QRegularExpressionMatch match = i.next();
-            const int urlMatchIndex = match.capturedStart();
-            const QString url = match.captured(0);
-            if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
-                m_urlData.startColumn = urlMatchIndex;
-                m_urlData.url = url;
-                break;
-            }
+
+        struct {
+            QRegularExpression &pattern;
+            int matchNumber;
+            QString urlPrefix;
+        } RegexUrls[] = {
+            {m_pattern, 0, ""},
+            {m_jiraPattern, 2, "https://bugreports.qt.io/browse/"},
+            {m_gerritPattern, 1, "https://codereview.qt-project.org/r/"},
         };
+        for (const auto &r : RegexUrls) {
+            QRegularExpressionMatchIterator i = r.pattern.globalMatch(line);
+            while (i.hasNext()) {
+                const QRegularExpressionMatch match = i.next();
+                const int urlMatchIndex = match.capturedStart(r.matchNumber);
+                const QString url = match.captured(r.matchNumber);
+                if (urlMatchIndex <= cursorCol && cursorCol <= urlMatchIndex + url.length()) {
+                    m_urlData.startColumn = urlMatchIndex;
+                    m_urlData.url = r.urlPrefix + url;
+                    m_urlData.urlLength = url.length();
+                    break;
+                }
+            }
+        }
     }
 
     return m_urlData.startColumn != -1;
@@ -418,7 +438,7 @@ void UrlTextCursorHandler::highlightCurrentContents()
     sel.cursor = currentCursor();
     sel.cursor.setPosition(currentCursor().position()
                            - (currentCursor().columnNumber() - m_urlData.startColumn));
-    sel.cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, m_urlData.url.length());
+    sel.cursor.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor, m_urlData.urlLength);
     sel.format.setFontUnderline(true);
     sel.format.setForeground(linkColor);
     sel.format.setUnderlineColor(linkColor);
