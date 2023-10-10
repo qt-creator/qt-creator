@@ -174,6 +174,72 @@ static expected_str<void> loadItermColors(const FilePath &path)
     return {};
 }
 
+static expected_str<void> loadWindowsTerminalColors(const FilePath &path)
+{
+    const expected_str<QByteArray> readResult = path.fileContents();
+    if (!readResult)
+        return make_unexpected(readResult.error());
+
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(*readResult, &error);
+    if (error.error != QJsonParseError::NoError)
+        return make_unexpected(Tr::tr("JSON parsing error: \"%1\", at offset: %2")
+                                   .arg(error.errorString())
+                                   .arg(error.offset));
+
+    const QJsonObject colors = doc.object();
+
+    // clang-format off
+    const QList<QPair<QStringView, ColorAspect *>> colorKeys = {
+        qMakePair(u"background", &settings().backgroundColor),
+        qMakePair(u"foreground", &settings().foregroundColor),
+        qMakePair(u"selectionBackground", &settings().selectionColor),
+
+        qMakePair(u"black", &settings().colors[0]),
+        qMakePair(u"brightBlack", &settings().colors[8]),
+
+        qMakePair(u"red", &settings().colors[1]),
+        qMakePair(u"brightRed", &settings().colors[9]),
+
+        qMakePair(u"green", &settings().colors[2]),
+        qMakePair(u"brightGreen", &settings().colors[10]),
+
+        qMakePair(u"yellow", &settings().colors[3]),
+        qMakePair(u"brightYellow", &settings().colors[11]),
+
+        qMakePair(u"blue", &settings().colors[4]),
+        qMakePair(u"brightBlue", &settings().colors[12]),
+
+        qMakePair(u"magenta", &settings().colors[5]),
+        qMakePair(u"brightMagenta", &settings().colors[13]),
+
+        qMakePair(u"cyan", &settings().colors[6]),
+        qMakePair(u"brightCyan", &settings().colors[14]),
+
+        qMakePair(u"white", &settings().colors[7]),
+        qMakePair(u"brightWhite", &settings().colors[15])
+    };
+    // clang-format on
+
+    for (const auto &pair : colorKeys) {
+        const auto it = colors.find(pair.first);
+        if (it != colors.end()) {
+            const QString colorString = it->toString();
+            if (colorString.startsWith("#")) {
+                QColor color(colorString.mid(0, 7));
+                if (colorString.size() > 7) {
+                    int alpha = colorString.mid(7).toInt(nullptr, 16);
+                    color.setAlpha(alpha);
+                }
+                if (color.isValid())
+                    pair.second->setVolatileValue(color);
+            }
+        }
+    }
+
+    return {};
+}
+
 static expected_str<void> loadVsCodeColors(const FilePath &path)
 {
     const expected_str<QByteArray> readResult = path.fileContents();
@@ -336,6 +402,12 @@ static expected_str<void> loadXFCE4ColorScheme(const FilePath &path)
     return {};
 }
 
+static expected_str<void> loadVsCodeOrWindows(const FilePath &path)
+{
+    return loadVsCodeColors(path).or_else(
+        [path](const auto &) { return loadWindowsTerminalColors(path); });
+}
+
 static expected_str<void> loadColorScheme(const FilePath &path)
 {
     if (path.endsWith("Xdefaults"))
@@ -343,7 +415,7 @@ static expected_str<void> loadColorScheme(const FilePath &path)
     else if (path.suffix() == "itermcolors")
         return loadItermColors(path);
     else if (path.suffix() == "json")
-        return loadVsCodeColors(path);
+        return loadVsCodeOrWindows(path);
     else if (path.suffix() == "colorscheme")
         return loadKonsoleColorScheme(path);
     else if (path.suffix() == "theme" || path.completeSuffix() == "theme.txt")
@@ -491,6 +563,7 @@ TerminalSettings::TerminalSettings()
                 "Xdefaults (.Xdefaults Xdefaults);;"
                 "iTerm Color Schemes(*.itermcolors);;"
                 "VS Code Color Schemes(*.json);;"
+                "Windows Terminal Schemes(*.json);;"
                 "Konsole Color Schemes(*.colorscheme);;"
                 "XFCE4 Terminal Color Schemes(*.theme *.theme.txt);;"
                 "All files (*)",
