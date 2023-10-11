@@ -216,7 +216,7 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
     m_codeEditor->updateHighlighter();
 
     auto addCompilerButton = new QPushButton;
-    addCompilerButton->setText(Tr::tr("Add compiler"));
+    addCompilerButton->setText(Tr::tr("Add Compiler"));
     connect(addCompilerButton,
             &QPushButton::clicked,
             &settings->compilers,
@@ -224,7 +224,7 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
 
     auto removeSourceButton = new QPushButton;
     removeSourceButton->setIcon(Utils::Icons::EDIT_CLEAR.icon());
-    removeSourceButton->setToolTip(Tr::tr("Remove source"));
+    removeSourceButton->setToolTip(Tr::tr("Remove Source"));
     connect(removeSourceButton, &QPushButton::clicked, this, &SourceEditorWidget::remove);
 
     // clang-format off
@@ -302,7 +302,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
 
     auto removeCompilerBtn = new QPushButton;
     removeCompilerBtn->setIcon(Utils::Icons::EDIT_CLEAR.icon());
-    removeCompilerBtn->setToolTip(Tr::tr("Remove compiler"));
+    removeCompilerBtn->setToolTip(Tr::tr("Remove Compiler"));
     connect(removeCompilerBtn, &QPushButton::clicked, this, &CompilerWidget::remove);
 
     compile(m_sourceSettings->source());
@@ -693,7 +693,7 @@ HelperWidget::HelperWidget()
     setFocusPolicy(Qt::ClickFocus);
     setAttribute(Qt::WA_TransparentForMouseEvents, false);
 
-    auto addSourceButton = new QPushButton(Tr::tr("Add source code"));
+    auto addSourceButton = new QPushButton(Tr::tr("Add Source Code"));
 
     connect(addSourceButton, &QPushButton::clicked, this, &HelperWidget::addSource);
 
@@ -703,7 +703,7 @@ HelperWidget::HelperWidget()
         Row {
             st,
             Column {
-                Tr::tr("No source code added yet. Add one using the button below."),
+                Tr::tr("No source code added yet. Add some using the button below."),
                 Row { st, addSourceButton, st }
             },
             st,
@@ -786,7 +786,7 @@ QWidget *Editor::toolBar()
 
         QAction *newSource = new QAction(m_toolBar.get());
         newSource->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
-        newSource->setToolTip(Tr::tr("Add source"));
+        newSource->setToolTip(Tr::tr("Add Source"));
         m_toolBar->addAction(newSource);
 
         connect(newSource,

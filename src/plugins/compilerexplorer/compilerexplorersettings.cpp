@@ -128,7 +128,7 @@ CompilerSettings::CompilerSettings(const ApiConfigFunction &apiConfigFunction)
 
     compilerOptions.setSettingsKey("Options");
     compilerOptions.setLabelText(Tr::tr("Compiler options:"));
-    compilerOptions.setToolTip(Tr::tr("Arguments passed to the compiler"));
+    compilerOptions.setToolTip(Tr::tr("Arguments passed to the compiler."));
     compilerOptions.setDisplayStyle(Utils::StringAspect::DisplayStyle::LineEditDisplay);
 
     libraries.setSettingsKey("Libraries");
