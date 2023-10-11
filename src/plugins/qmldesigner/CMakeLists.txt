@@ -15,6 +15,11 @@ env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
 option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
 add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
 
+env_with_default("QTC_ENABLE_PROJECT_STORAGE_TRACING" ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING OFF)
+option(ENABLE_PROJECT_STORAGE_TRACING "Enable sqlite tarcing" ${ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING})
+add_feature_info("Sqlite tracing" ${ENABLE_PROJECT_STORAGE_TRACING} "")
+
+
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
     Qt::Gui Utils Qt::QmlPrivate Core
@@ -81,6 +86,13 @@ add_qtc_library(QmlDesignerCore STATIC
   SOURCES
     rewritertransaction.cpp
     rewritertransaction.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION TARGET Nanotrace
+  DEPENDS Nanotrace
+  DEFINES
+    $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
 )
 
 extend_qtc_library(QmlDesignerCore
