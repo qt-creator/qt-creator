@@ -1240,8 +1240,14 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         return;
     }
 
-    int majorVersion = info.majorVersion();
-    int minorVersion = info.minorVersion();
+    int majorVersion = -1;
+    int minorVersion = -1;
+
+    if constexpr (!useProjectStorage()) {
+        typeName = info.typeName();
+        majorVersion = info.majorVersion();
+        minorVersion = info.minorVersion();
+    }
 
     if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && info.isQmlComponent()) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {
