@@ -58,7 +58,7 @@ QString AddDeviceOperation::argumentsHelpText() const
                          "    --dockerRepo <STRING>                      Docker image repo.\n"
                          "    --dockerTag <STRING>                       Docker image tag.\n"
                          "    --dockerMappedPaths <STRING>               Docker mapped paths (semi-colon separated).\n"
-                         "    --dockerClangdExecutable <STRING>          Path to clangd inside the docker "
+                         "    --dockerClangdExecutable <STRING>          Path to clangd inside the docker.\n"
                          "    <KEY> <TYPE:VALUE>                         extra key value pairs\n");
 }
 
