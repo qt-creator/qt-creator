@@ -8,6 +8,8 @@
 #include "api/language.h"
 #include "api/library.h"
 
+#include <coreplugin/messagemanager.h>
+
 #include <QComboBox>
 #include <QFutureWatcher>
 #include <QNetworkAccessManager>
@@ -207,8 +209,9 @@ void CompilerSettings::fillLibraries(const LibrarySelectionAspect::ResultCallbac
                              cachedLibraries(lang) = watcher->result();
                              fillFromCache();
                          } catch (const std::exception &e) {
-                             qCritical() << e.what();
-                             return;
+                             Core::MessageManager::writeDisrupting(
+                                 Tr::tr("Failed to fetch libraries: \"%1\"")
+                                     .arg(QString::fromUtf8(e.what())));
                          }
                      });
     watcher->setFuture(future);
@@ -249,8 +252,9 @@ void SourceSettings::fillLanguageIdModel(const Utils::StringSelectionAspect::Res
                              cachedLanguages() = watcher->result();
                              fillFromCache();
                          } catch (const std::exception &e) {
-                             qCritical() << e.what();
-                             return;
+                             Core::MessageManager::writeDisrupting(
+                                 Tr::tr("Failed to fetch languages: \"%1\"")
+                                     .arg(QString::fromUtf8(e.what())));
                          }
                      });
     watcher->setFuture(future);
@@ -290,8 +294,9 @@ void CompilerSettings::fillCompilerModel(const Utils::StringSelectionAspect::Res
 
                              fillFromCache(itCache);
                          } catch (const std::exception &e) {
-                             qCritical() << e.what();
-                             return;
+                             Core::MessageManager::writeDisrupting(
+                                 Tr::tr("Failed to fetch compilers: \"%1\"")
+                                     .arg(QString::fromUtf8(e.what())));
                          }
                      });
     watcher->setFuture(future);

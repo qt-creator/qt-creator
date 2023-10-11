@@ -13,6 +13,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -464,7 +465,8 @@ void CompilerWidget::doCompile()
                 m_marks.append(mark);
             }
         } catch (const std::exception &e) {
-            qCritical() << "Exception: " << e.what();
+            Core::MessageManager::writeDisrupting(
+                Tr::tr("Failed to compile: \"%1\"").arg(QString::fromUtf8(e.what())));
         }
     });
 
