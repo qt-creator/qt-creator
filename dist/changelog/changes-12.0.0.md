@@ -36,6 +36,8 @@ Every language, compiler and library that is supported at https://godbolt.org
 is also supported in Qt Creator. You can save your Compiler Explorer session as
 a `.qtce` file (JSON-based).
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-explore-compiler-code.html))
+
 ### CMake Debugging and the Debug Adapter Protocol
 
 Set breakpoints in a CMake file and select `DAP` and `CMake Preset` in `Debug`

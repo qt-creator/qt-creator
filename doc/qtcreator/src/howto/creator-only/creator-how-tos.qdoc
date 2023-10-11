@@ -58,6 +58,7 @@
             \li \l {Add libraries to projects}
             \li \l {Add subprojects to projects}
             \li \l {Add wizards}
+            \li \l {Create compiler explorer sessions}
             \li \l {Create C++ classes}
             \li \l {Create files}
             \li \l {Create OpenGL fragment and vertex shaders}
@@ -78,6 +79,10 @@
     \endtable
 
     \section1 Build and Run
+
+    \list
+        \li \l {Explore compiler code}
+    \endlist
 
     \section2 Manage Kits
 
