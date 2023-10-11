@@ -420,12 +420,12 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         IDevice::ConstPtr device = DeviceManager::deviceForPath(filePath);
         if (!device) {
             return make_unexpected(
-                QString("No device found for path \"%1\"").arg(filePath.toUserOutput()));
+                Tr::tr("No device found for path \"%1\"").arg(filePath.toUserOutput()));
         }
         DeviceFileAccess *fileAccess = device->fileAccess();
         if (!fileAccess) {
             return make_unexpected(
-                QString("No file access for device \"%1\"").arg(device->displayName()));
+                Tr::tr("No file access for device \"%1\"").arg(device->displayName()));
         }
         return fileAccess;
     };
