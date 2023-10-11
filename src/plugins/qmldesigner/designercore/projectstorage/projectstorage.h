@@ -2032,14 +2032,14 @@ private:
         for (const auto &parameter : parameters) {
             json.append(comma);
             comma = ",";
-            json.append("{\"n\":\"");
+            json.append(R"({"n":")");
             json.append(parameter.name);
-            json.append("\",\"tn\":\"");
+            json.append(R"(","tn":")");
             json.append(parameter.typeName);
             if (parameter.traits == Storage::PropertyDeclarationTraits::None) {
                 json.append("\"}");
             } else {
-                json.append("\",\"tr\":");
+                json.append(R"(","tr":)");
                 json.append(Utils::SmallString::number(to_underlying(parameter.traits)));
                 json.append("}");
             }
