@@ -259,6 +259,7 @@ public:
 
         /* TextEditor Plugin */
         TextEditor_SearchResult_ScrollBarColor,
+        TextEditor_Selection_ScrollBarColor,
         TextEditor_CurrentLine_ScrollBarColor,
 
         /* Debugger Plugin */

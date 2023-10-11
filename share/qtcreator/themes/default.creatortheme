@@ -424,6 +424,7 @@ VcsBase_FileUnmerged_TextColor=ffee0000
 Bookmarks_TextMarkColor=ffa0a0ff
 
 TextEditor_SearchResult_ScrollBarColor=ff00c000
+TextEditor_Selection_ScrollBarColor=ffcccccc
 TextEditor_CurrentLine_ScrollBarColor=ff404040
 
 ProjectExplorer_TaskError_TextMarkColor=error

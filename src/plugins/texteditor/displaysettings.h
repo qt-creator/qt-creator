@@ -52,6 +52,7 @@ public:
     bool m_displayFileLineEnding = true;
     bool m_scrollBarHighlights = true;
     bool m_animateNavigationWithinFile = false;
+    bool m_highlightSelection = true;
     int m_animateWithinFileTimeMax = 333; // read only setting
     bool m_displayAnnotations = true;
     AnnotationAlignment m_annotationAlignment = AnnotationAlignment::RightSide;

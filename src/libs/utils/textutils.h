@@ -30,6 +30,8 @@ public:
 
     bool isValid() const { return line > 0 && column >= 0; }
 
+    int positionInDocument(QTextDocument *doc) const;
+
     static Position fromFileName(QStringView fileName, int &postfixPos);
     static Position fromPositionInDocument(const QTextDocument *document, int pos);
     static Position fromCursor(const QTextCursor &cursor);
@@ -49,6 +51,8 @@ public:
     bool operator==(const Range &other) const;
 
     bool operator!=(const Range &other) const { return !(operator==(other)); }
+
+    QTextCursor toTextCursor(QTextDocument *doc) const;
 };
 
 // line is 1-based, column is 0-based

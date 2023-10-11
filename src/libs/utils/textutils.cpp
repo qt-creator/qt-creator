@@ -15,6 +15,17 @@ bool Position::operator==(const Position &other) const
     return line == other.line && column == other.column;
 }
 
+int Position::positionInDocument(QTextDocument *doc) const
+{
+    if (!isValid())
+        return -1;
+    QTC_ASSERT(doc, return -1);
+    QTextBlock block = doc->findBlockByNumber(line - 1);
+    if (!block.isValid())
+        return -1;
+    return block.position() + column;
+}
+
 /*!
     Returns the text position of a \a fileName and sets the \a postfixPos if
     it can find a positional postfix.
@@ -105,6 +116,14 @@ int Range::length(const QString &text) const
 bool Range::operator==(const Range &other) const
 {
     return begin == other.begin && end == other.end;
+}
+
+QTextCursor Range::toTextCursor(QTextDocument *doc) const
+{
+    QTextCursor cursor(doc);
+    cursor.setPosition(begin.positionInDocument(doc));
+    cursor.setPosition(end.positionInDocument(doc), QTextCursor::KeepAnchor);
+    return cursor;
 }
 
 bool convertPosition(const QTextDocument *document, int pos, int *line, int *column)

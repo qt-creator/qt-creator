@@ -216,6 +216,7 @@ const char JUMP_TO_FILE_UNDER_CURSOR[] = "TextEditor.JumpToFileUnderCursor";
 const char JUMP_TO_FILE_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.JumpToFileUnderCursorInNextSplit";
 
 const char SCROLL_BAR_SEARCH_RESULT[] = "TextEditor.ScrollBarSearchResult";
+const char SCROLL_BAR_SELECTION[] = "TextEditor.ScrollBarSelection";
 const char SCROLL_BAR_CURRENT_LINE[] = "TextEditor.ScrollBarCurrentLine";
 
 const TEXTEDITOR_EXPORT char *nameForStyle(TextStyle style);

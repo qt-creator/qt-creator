@@ -79,6 +79,13 @@ public:
     IAssistProvider *m_quickFixProvider = nullptr;
     QScopedPointer<Indenter> m_indenter;
     QScopedPointer<Formatter> m_formatter;
+    struct PlainTextCache
+    {
+        int revision = -1;
+        QString plainText;
+    };
+
+    PlainTextCache m_plainTextCache;
 
     int m_autoSaveRevision = -1;
     bool m_silentReload = false;
@@ -305,7 +312,11 @@ QString TextDocument::convertToPlainText(const QString &rawText)
 
 QString TextDocument::plainText() const
 {
-    return convertToPlainText(d->m_document.toRawText());
+    if (d->m_plainTextCache.revision != d->m_document.revision()) {
+        d->m_plainTextCache.plainText = convertToPlainText(d->m_document.toRawText());
+        d->m_plainTextCache.revision = d->m_document.revision();
+    }
+    return d->m_plainTextCache.plainText;
 }
 
 QString TextDocument::textAt(int pos, int length) const

@@ -82,10 +82,13 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
 
     if (m_selections.isEmpty())
         m_firstSelectionOriginalBegin = begin;
-    else if (begin < m_firstSelectionOriginalBegin)
-        qWarning() << "overlay selections not in order";
 
-    m_selections.append(selection);
+    const auto it = std::find_if(m_selections.cbegin(),
+                                 m_selections.cend(),
+                                 [&](const OverlaySelection &selection) {
+                                     return begin > selection.m_cursor_begin.position();
+                                 });
+    m_selections.insert(it, selection);
     update();
 }
 
