@@ -20,13 +20,12 @@
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/multi-language%20tutorial/Loginui2}{here}
     before you start.
 
-    Download the project and open the \e loginui2.qmlproject file in \QDS
-    to get started.
-
     This project consists of a login page with a couple of text elements.
 
     Additionally, you will use a JSON translation file in this tutorial.
     Download it from \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/multi-language}{here}.
+
+    \include run-tutorial-project.qdocinc
 
     \section1 JSON Translation File
 

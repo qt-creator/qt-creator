@@ -30,6 +30,8 @@
 
     All assets you need for this tutorial are included in the Car Demo project.
 
+    \include run-tutorial-project.qdocinc
+
     \section1 Creating States
 
     First, you create the different states. In this tutorial, you create four
