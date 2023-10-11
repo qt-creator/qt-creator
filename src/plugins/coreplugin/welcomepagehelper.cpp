@@ -729,6 +729,7 @@ void SectionedGridView::setSearchString(const QString &searchString)
         // We don't have a grid set for searching yet.
         // Create all items view for filtering.
         m_allItemsView.reset(new GridView);
+        m_allItemsView->setObjectName("AllItemsView"); // used by Squish
         m_allItemsView->setModel(new ListModelFilter(m_allItemsModel.get(), m_allItemsView.get()));
         if (m_itemDelegate)
             m_allItemsView->setItemDelegate(m_itemDelegate);

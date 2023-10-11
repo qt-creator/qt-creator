@@ -44,7 +44,15 @@ def switchToSubMode(subModeLabel):
     return frameAndLabelFound
 
 def findExampleOrTutorial(tableView, regex, verbose=False):
-    children = __childrenOfType__(tableView, 'QModelIndex')
+    filterModel = __childrenOfType__(tableView, 'QSortFilterProxyModel')
+    if len(filterModel) != 1:
+        test.fatal("Something's wrong - could not find filter proxy model.")
+        return None
+    filterModel = filterModel[0]
+    if filterModel.rowCount() == 0:
+        return None
+
+    children = dumpIndices(filterModel)
     for child in children:
         if re.match(regex, str(child.text)):
             if verbose:
