@@ -1,3 +1,7 @@
+env_with_default("QTC_ENABLE_SQLITE_TRACING" ENV_QTC_ENABLE_SQLITE_TRACING OFF)
+option(ENABLE_SQLITE_TRACING "Enable sqlite tarcing" ${ENV_QTC_ENABLE_SQLITE_TRACING})
+add_feature_info("Sqlite tracing" ${ENABLE_SQLITE_TRACING} "")
+
 add_qtc_library(SqliteInternal OBJECT
     PROPERTIES AUTOMOC OFF AUTOUIC OFF QT_COMPILE_OPTIONS_DISABLE_WARNINGS ON
     DEFINES SQLITE_CORE SQLITE_CUSTOM_INCLUDE=config.h $<$<CONFIG:Debug>:SQLITE_DEBUG>
@@ -64,6 +68,13 @@ add_qtc_library(Sqlite
     sqlitetimestamp.h
     sqlitelibraryinitializer.cpp sqlitelibraryinitializer.h
     sqliteids.h
+)
+
+extend_qtc_library(Sqlite
+  CONDITION TARGET Nanotrace
+  DEPENDS Nanotrace
+  DEFINES
+    $<$<BOOL:${ENABLE_SQLITE_TRACING}>:ENABLE_SQLITE_TRACING>
 )
 
 extend_qtc_library(Sqlite

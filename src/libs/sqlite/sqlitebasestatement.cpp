@@ -26,6 +26,25 @@ extern "C" int sqlite3_carray_bind(
 
 namespace Sqlite {
 
+#ifdef ENABLE_SQLITE_TRACING
+namespace {
+NanotraceHR::TraceFile traceFile{"sqlite.json"};
+
+thread_local auto eventQueueData = NanotraceHR::makeEventQueueData<NanotraceHR::StringViewTraceEvent, 10000>(
+    traceFile);
+thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent> eventQueue = eventQueueData;
+
+NanotraceHR::Category<NanotraceHR::StringViewTraceEvent> sqliteLowLevelCategory{"sqlite low level"_t,
+                                                                                eventQueue};
+} // namespace
+
+NanotraceHR::Category<NanotraceHR::StringViewTraceEvent> sqliteHighLevelCategory{"sqlite high level"_t,
+                                                                                 eventQueue};
+
+#else
+static NanotraceHR::DisabledCategory sqliteLowLevelCategory;
+#endif
+
 BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
     : m_database(database)
 {
@@ -80,11 +99,14 @@ void BaseStatement::waitForUnlockNotify() const
 
 void BaseStatement::reset() const noexcept
 {
+    NanotraceHR::Tracer tracer{"reset"_t, sqliteLowLevelCategory};
+
     sqlite3_reset(m_compiledStatement.get());
 }
 
 bool BaseStatement::next() const
 {
+    NanotraceHR::Tracer tracer{"next"_t, sqliteLowLevelCategory};
     int resultCode;
 
     do {
@@ -111,6 +133,8 @@ void BaseStatement::step() const
 
 void BaseStatement::bindNull(int index)
 {
+    NanotraceHR::Tracer tracer{"bind null"_t, sqliteLowLevelCategory};
+
     int resultCode = sqlite3_bind_null(m_compiledStatement.get(), index);
     if (resultCode != SQLITE_OK)
         Sqlite::throwError(resultCode, sqliteDatabaseHandle());
@@ -123,6 +147,8 @@ void BaseStatement::bind(int index, NullValue)
 
 void BaseStatement::bind(int index, int value)
 {
+    NanotraceHR::Tracer tracer{"bind int"_t, sqliteLowLevelCategory};
+
     int resultCode = sqlite3_bind_int(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
         Sqlite::throwError(resultCode, sqliteDatabaseHandle());
@@ -130,6 +156,8 @@ void BaseStatement::bind(int index, int value)
 
 void BaseStatement::bind(int index, long long value)
 {
+    NanotraceHR::Tracer tracer{"bind long long"_t, sqliteLowLevelCategory};
+
     int resultCode = sqlite3_bind_int64(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
         Sqlite::throwError(resultCode, sqliteDatabaseHandle());
@@ -137,6 +165,8 @@ void BaseStatement::bind(int index, long long value)
 
 void BaseStatement::bind(int index, double value)
 {
+    NanotraceHR::Tracer tracer{"bind double"_t, sqliteLowLevelCategory};
+
     int resultCode = sqlite3_bind_double(m_compiledStatement.get(), index, value);
     if (resultCode != SQLITE_OK)
         Sqlite::throwError(resultCode, sqliteDatabaseHandle());
@@ -144,17 +174,17 @@ void BaseStatement::bind(int index, double value)
 
 void BaseStatement::bind(int index, void *pointer)
 {
-    int resultCode = sqlite3_bind_pointer(m_compiledStatement.get(),
-                                          index,
-                                          pointer,
-                                          "carray",
-                                          nullptr);
+    NanotraceHR::Tracer tracer{"bind pointer"_t, sqliteLowLevelCategory};
+
+    int resultCode = sqlite3_bind_pointer(m_compiledStatement.get(), index, pointer, "carray", nullptr);
     if (resultCode != SQLITE_OK)
         Sqlite::throwError(resultCode, sqliteDatabaseHandle());
 }
 
 void BaseStatement::bind(int index, Utils::span<const int> values)
 {
+    NanotraceHR::Tracer tracer{"bind int span"_t, sqliteLowLevelCategory};
+
     int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
                                          index,
                                          const_cast<int *>(values.data()),
@@ -167,6 +197,8 @@ void BaseStatement::bind(int index, Utils::span<const int> values)
 
 void BaseStatement::bind(int index, Utils::span<const long long> values)
 {
+    NanotraceHR::Tracer tracer{"bind long long span"_t, sqliteLowLevelCategory};
+
     int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
                                          index,
                                          const_cast<long long *>(values.data()),
@@ -179,6 +211,8 @@ void BaseStatement::bind(int index, Utils::span<const long long> values)
 
 void BaseStatement::bind(int index, Utils::span<const double> values)
 {
+    NanotraceHR::Tracer tracer{"bind double span"_t, sqliteLowLevelCategory};
+
     int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
                                          index,
                                          const_cast<double *>(values.data()),
@@ -191,6 +225,8 @@ void BaseStatement::bind(int index, Utils::span<const double> values)
 
 void BaseStatement::bind(int index, Utils::span<const char *> values)
 {
+    NanotraceHR::Tracer tracer{"bind const char* span"_t, sqliteLowLevelCategory};
+
     int resultCode = sqlite3_carray_bind(m_compiledStatement.get(),
                                          index,
                                          values.data(),
@@ -203,6 +239,8 @@ void BaseStatement::bind(int index, Utils::span<const char *> values)
 
 void BaseStatement::bind(int index, Utils::SmallStringView text)
 {
+    NanotraceHR::Tracer tracer{"bind string"_t, sqliteLowLevelCategory};
+
     int resultCode = sqlite3_bind_text(m_compiledStatement.get(),
                                        index,
                                        text.data(),
@@ -214,6 +252,8 @@ void BaseStatement::bind(int index, Utils::SmallStringView text)
 
 void BaseStatement::bind(int index, BlobView blobView)
 {
+    NanotraceHR::Tracer tracer{"bind blob"_t, sqliteLowLevelCategory};
+
     int resultCode = SQLITE_OK;
 
     if (blobView.empty()) {
@@ -232,6 +272,8 @@ void BaseStatement::bind(int index, BlobView blobView)
 
 void BaseStatement::bind(int index, const Value &value)
 {
+    NanotraceHR::Tracer tracer{"bind value"_t, sqliteLowLevelCategory};
+
     switch (value.type()) {
     case ValueType::Integer:
         bind(index, value.toInteger());
@@ -253,6 +295,8 @@ void BaseStatement::bind(int index, const Value &value)
 
 void BaseStatement::bind(int index, ValueView value)
 {
+    NanotraceHR::Tracer tracer{"bind value"_t, sqliteLowLevelCategory};
+
     switch (value.type()) {
     case ValueType::Integer:
         bind(index, value.toInteger());
@@ -274,6 +318,8 @@ void BaseStatement::bind(int index, ValueView value)
 
 void BaseStatement::prepare(Utils::SmallStringView sqlStatement)
 {
+    NanotraceHR::Tracer tracer{"prepare"_t, sqliteLowLevelCategory};
+
     if (!m_database.isLocked())
         throw DatabaseIsNotLocked{};
 
@@ -373,6 +419,8 @@ StringType convertToTextForColumn(sqlite3_stmt *sqlStatment, int column)
 
 Type BaseStatement::fetchType(int column) const
 {
+    NanotraceHR::Tracer tracer{"fetch type"_t, sqliteLowLevelCategory};
+
     auto dataType = sqlite3_column_type(m_compiledStatement.get(), column);
 
     switch (dataType) {
@@ -393,6 +441,8 @@ Type BaseStatement::fetchType(int column) const
 
 int BaseStatement::fetchIntValue(int column) const
 {
+    NanotraceHR::Tracer tracer{"fetch int"_t, sqliteLowLevelCategory};
+
     return sqlite3_column_int(m_compiledStatement.get(), column);
 }
 
@@ -415,6 +465,8 @@ long BaseStatement::fetchValue<long>(int column) const
 
 long long BaseStatement::fetchLongLongValue(int column) const
 {
+    NanotraceHR::Tracer tracer{"fetch long long"_t, sqliteLowLevelCategory};
+
     return sqlite3_column_int64(m_compiledStatement.get(), column);
 }
 
@@ -426,11 +478,15 @@ long long BaseStatement::fetchValue<long long>(int column) const
 
 double BaseStatement::fetchDoubleValue(int column) const
 {
+    NanotraceHR::Tracer tracer{"fetch double"_t, sqliteLowLevelCategory};
+
     return sqlite3_column_double(m_compiledStatement.get(), column);
 }
 
 BlobView BaseStatement::fetchBlobValue(int column) const
 {
+    NanotraceHR::Tracer tracer{"fetch blob"_t, sqliteLowLevelCategory};
+
     return convertToBlobForColumn(m_compiledStatement.get(), column);
 }
 
@@ -479,6 +535,8 @@ ValueView BaseStatement::fetchValueView(int column) const
 
 void BaseStatement::Deleter::operator()(sqlite3_stmt *statement)
 {
+    NanotraceHR::Tracer tracer{"finalize"_t, sqliteLowLevelCategory};
+
     sqlite3_finalize(statement);
 }
 

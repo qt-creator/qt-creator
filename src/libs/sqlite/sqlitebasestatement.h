@@ -14,6 +14,7 @@
 
 #include <utils/smallstringvector.h>
 
+#include <nanotrace/nanotracehr.h>
 #include <utils/span.h>
 
 #include <cstdint>
@@ -29,6 +30,8 @@ using std::int64_t;
 
 namespace Sqlite {
 
+using namespace NanotraceHR::Literals;
+
 class Database;
 class DatabaseBackend;
 
@@ -41,6 +44,11 @@ constexpr static std::underlying_type_t<Enumeration> to_underlying(Enumeration e
     return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
 }
 
+#ifdef ENABLE_SQLITE_TRACING
+extern NanotraceHR::Category<NanotraceHR::StringViewTraceEvent> sqliteHighLevelCategory;
+#else
+inline NanotraceHR::DisabledCategory sqliteHighLevelCategory;
+#endif
 class SQLITE_EXPORT BaseStatement
 {
 public:
@@ -152,6 +160,8 @@ public:
 
     void execute()
     {
+        NanotraceHR::Tracer tracer{"execute"_t, sqliteHighLevelCategory};
+
         Resetter resetter{this};
         BaseStatement::next();
     }
@@ -159,6 +169,8 @@ public:
     template<typename... ValueType>
     void bindValues(const ValueType &...values)
     {
+        NanotraceHR::Tracer tracer{"bind"_t, sqliteHighLevelCategory};
+
         static_assert(BindParameterCount == sizeof...(values), "Wrong binding parameter count!");
 
         int index = 0;
@@ -168,6 +180,8 @@ public:
     template<typename... ValueType>
     void write(const ValueType&... values)
     {
+        NanotraceHR::Tracer tracer{"write"_t, sqliteHighLevelCategory};
+
         Resetter resetter{this};
         bindValues(values...);
         BaseStatement::next();
@@ -192,6 +206,8 @@ public:
              typename... QueryTypes>
     auto values(const QueryTypes &...queryValues)
     {
+        NanotraceHR::Tracer tracer{"values"_t, sqliteHighLevelCategory};
+
         Resetter resetter{this};
         Container resultValues;
         resultValues.reserve(std::max(capacity, m_maximumResultCount));
@@ -219,6 +235,8 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto value(const QueryTypes &...queryValues)
     {
+        NanotraceHR::Tracer tracer{"values"_t, sqliteHighLevelCategory};
+
         Resetter resetter{this};
         ResultType resultValue{};
 
@@ -233,6 +251,8 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto optionalValue(const QueryTypes &...queryValues)
     {
+        NanotraceHR::Tracer tracer{"optionalValue"_t, sqliteHighLevelCategory};
+
         Resetter resetter{this};
         std::optional<ResultType> resultValue;
 
@@ -247,6 +267,8 @@ public:
     template<typename Type>
     static auto toValue(Utils::SmallStringView sqlStatement, Database &database)
     {
+        NanotraceHR::Tracer tracer{"toValue"_t, sqliteHighLevelCategory};
+
         StatementImplementation statement(sqlStatement, database);
 
         statement.checkColumnCount(1);
@@ -259,6 +281,8 @@ public:
     template<typename Callable, typename... QueryTypes>
     void readCallback(Callable &&callable, const QueryTypes &...queryValues)
     {
+        NanotraceHR::Tracer tracer{"readCallback"_t, sqliteHighLevelCategory};
+
         Resetter resetter{this};
 
         bindValues(queryValues...);
@@ -274,6 +298,8 @@ public:
     template<typename Container, typename... QueryTypes>
     void readTo(Container &container, const QueryTypes &...queryValues)
     {
+        NanotraceHR::Tracer tracer{"readTo"_t, sqliteHighLevelCategory};
+
         Resetter resetter{this};
 
         bindValues(queryValues...);
@@ -369,6 +395,8 @@ public:
         const_iterator end() const & { return iterator{m_statement, false}; }
 
     private:
+        NanotraceHR::Tracer<decltype(sqliteHighLevelCategory)> tracer{"range"_t,
+                                                                      sqliteHighLevelCategory};
         StatementImplementation &m_statement;
     };
 
