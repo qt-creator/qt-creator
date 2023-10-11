@@ -3,28 +3,60 @@
 
 #include "collectiondetails.h"
 
+#include <utils/span.h>
+
 #include <QJsonArray>
 #include <QJsonObject>
-#include <QTextStream>
+#include <QUrl>
 #include <QVariant>
 
 namespace QmlDesigner {
+
+struct CollectionProperty
+{
+    using DataType = CollectionDetails::DataType;
+
+    QString name;
+    DataType type;
+};
 
 class CollectionDetails::Private
 {
     using SourceFormat = CollectionEditor::SourceFormat;
 
 public:
-    QStringList headers;
+    QList<CollectionProperty> properties;
     QList<QJsonObject> elements;
     SourceFormat sourceFormat = SourceFormat::Unknown;
     CollectionReference reference;
     bool isChanged = false;
 
-    bool isValidColumnId(int column) const { return column > -1 && column < headers.size(); }
+    bool isValidColumnId(int column) const { return column > -1 && column < properties.size(); }
 
     bool isValidRowId(int row) const { return row > -1 && row < elements.size(); }
 };
+
+static CollectionProperty::DataType collectionDataTypeFromJsonValue(const QJsonValue &value)
+{
+    using DataType = CollectionDetails::DataType;
+    using JsonType = QJsonValue::Type;
+
+    switch (value.type()) {
+    case JsonType::Null:
+    case JsonType::Undefined:
+        return DataType::Unknown;
+    case JsonType::Bool:
+        return DataType::Boolean;
+    case JsonType::Double:
+        return DataType::Number;
+    case JsonType::String: {
+        // TODO: Image, Color, Url
+        return DataType::String;
+    } break;
+    default:
+        return DataType::Unknown;
+    }
+}
 
 CollectionDetails::CollectionDetails()
     : d(new Private())
@@ -40,36 +72,44 @@ CollectionDetails::CollectionDetails(const CollectionDetails &other) = default;
 
 CollectionDetails::~CollectionDetails() = default;
 
-void CollectionDetails::resetDetails(const QStringList &headers,
+void CollectionDetails::resetDetails(const QStringList &propertyNames,
                                      const QList<QJsonObject> &elements,
                                      CollectionEditor::SourceFormat format)
 {
     if (!isValid())
         return;
 
-    d->headers = headers;
+    d->properties = Utils::transform(propertyNames, [](const QString &name) -> CollectionProperty {
+        return {name, DataType::Unknown};
+    });
+
     d->elements = elements;
     d->sourceFormat = format;
 
+    resetPropertyTypes();
     markSaved();
 }
 
-void CollectionDetails::insertColumn(const QString &header, int colIdx, const QVariant &defaultValue)
+void CollectionDetails::insertColumn(const QString &propertyName,
+                                     int colIdx,
+                                     const QVariant &defaultValue,
+                                     DataType type)
 {
     if (!isValid())
         return;
 
-    if (d->headers.contains(header))
+    if (containsPropertyName(propertyName))
         return;
 
+    CollectionProperty property = {propertyName, type};
     if (d->isValidColumnId(colIdx))
-        d->headers.insert(colIdx, header);
+        d->properties.insert(colIdx, property);
     else
-        d->headers.append(header);
+        d->properties.append(property);
 
     QJsonValue defaultJsonValue = QJsonValue::fromVariant(defaultValue);
     for (QJsonObject &element : d->elements)
-        element.insert(header, defaultJsonValue);
+        element.insert(propertyName, defaultJsonValue);
 
     markChanged();
 }
@@ -79,15 +119,15 @@ bool CollectionDetails::removeColumns(int colIdx, int count)
     if (count < 1 || !isValid() || !d->isValidColumnId(colIdx))
         return false;
 
-    int maxCount = d->headers.count() - colIdx;
+    int maxCount = d->properties.count() - colIdx;
     count = std::min(maxCount, count);
 
-    const QStringList removedHeaders = d->headers.mid(colIdx, count);
-    d->headers.remove(colIdx, count);
+    const QList<CollectionProperty> removedProperties = d->properties.mid(colIdx, count);
+    d->properties.remove(colIdx, count);
 
-    for (const QString &header : std::as_const(removedHeaders)) {
+    for (const CollectionProperty &property : removedProperties) {
         for (QJsonObject &element : d->elements)
-            element.remove(header);
+            element.remove(property.name);
     }
 
     markChanged();
@@ -111,8 +151,8 @@ void CollectionDetails::insertElementAt(std::optional<QJsonObject> object, int r
         insertJson(object.value());
     } else {
         QJsonObject defaultObject;
-        for (const QString &header : std::as_const(d->headers))
-            defaultObject.insert(header, {});
+        for (const CollectionProperty &property : std::as_const(d->properties))
+            defaultObject.insert(property.name, {});
         insertJson(defaultObject);
     }
 
@@ -141,23 +181,35 @@ bool CollectionDetails::removeElements(int row, int count)
     int maxCount = d->elements.count() - row;
     count = std::min(maxCount, count);
 
+    QSet<QString> removedProperties;
+    Utils::span elementsSpan{std::as_const(d->elements)};
+    for (const QJsonObject &element : elementsSpan.subspan(row, count)) {
+        const QStringList elementPropertyNames = element.keys();
+        for (const QString &removedProperty : elementPropertyNames)
+            removedProperties.insert(removedProperty);
+    }
+
     d->elements.remove(row, count);
+
+    for (const QString &removedProperty : removedProperties)
+        resetPropertyType(removedProperty);
 
     markChanged();
 
     return true;
 }
 
-bool CollectionDetails::setHeader(int column, const QString &value)
+bool CollectionDetails::setPropertyName(int column, const QString &value)
 {
     if (!d->isValidColumnId(column))
         return false;
 
-    const QString oldColumnName = headerAt(column);
+    const CollectionProperty &oldProperty = d->properties.at(column);
+    const QString oldColumnName = oldProperty.name;
     if (oldColumnName == value)
         return false;
 
-    d->headers.replace(column, value);
+    d->properties.replace(column, {value, oldProperty.type});
     for (QJsonObject &element : d->elements) {
         if (element.contains(oldColumnName)) {
             element.insert(value, element.value(oldColumnName));
@@ -190,7 +242,7 @@ QVariant CollectionDetails::data(int row, int column) const
     if (!d->isValidColumnId(column))
         return {};
 
-    const QString &propertyName = d->headers.at(column);
+    const QString &propertyName = d->properties.at(column).name;
     const QJsonObject &elementNode = d->elements.at(row);
 
     if (elementNode.contains(propertyName))
@@ -199,20 +251,30 @@ QVariant CollectionDetails::data(int row, int column) const
     return {};
 }
 
-QString CollectionDetails::headerAt(int column) const
+QString CollectionDetails::propertyAt(int column) const
 {
     if (!d->isValidColumnId(column))
         return {};
 
-    return d->headers.at(column);
+    return d->properties.at(column).name;
 }
 
-bool CollectionDetails::containsHeader(const QString &header)
+CollectionDetails::DataType CollectionDetails::typeAt(int column) const
+{
+    if (!d->isValidColumnId(column))
+        return {};
+
+    return d->properties.at(column).type;
+}
+
+bool CollectionDetails::containsPropertyName(const QString &propertyName)
 {
     if (!isValid())
         return false;
 
-    return d->headers.contains(header);
+    return Utils::anyOf(d->properties, [&propertyName](const CollectionProperty &property) {
+        return property.name == propertyName;
+    });
 }
 
 bool CollectionDetails::isValid() const
@@ -227,7 +289,7 @@ bool CollectionDetails::isChanged() const
 
 int CollectionDetails::columns() const
 {
-    return d->headers.size();
+    return d->properties.size();
 }
 
 int CollectionDetails::rows() const
@@ -259,6 +321,34 @@ CollectionDetails &CollectionDetails::operator=(const CollectionDetails &other)
 void CollectionDetails::markChanged()
 {
     d->isChanged = true;
+}
+
+void CollectionDetails::resetPropertyType(const QString &propertyName)
+{
+    for (CollectionProperty &property : d->properties) {
+        if (property.name == propertyName)
+            resetPropertyType(property);
+    }
+}
+
+void CollectionDetails::resetPropertyType(CollectionProperty &property)
+{
+    const QString &propertyName = property.name;
+    DataType type = DataType::Unknown;
+    for (const QJsonObject &element : std::as_const(d->elements)) {
+        if (element.contains(propertyName)) {
+            type = collectionDataTypeFromJsonValue(element.value(propertyName));
+            if (type != DataType::Unknown)
+                break;
+        }
+    }
+    property.type = type;
+}
+
+void CollectionDetails::resetPropertyTypes()
+{
+    for (CollectionProperty &property : d->properties)
+        resetPropertyType(property);
 }
 
 QJsonArray CollectionDetails::getJsonCollection() const

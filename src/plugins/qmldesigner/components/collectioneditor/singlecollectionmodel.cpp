@@ -86,7 +86,7 @@ bool SingleCollectionModel::setHeaderData(int section,
     if (orientation == Qt::Vertical)
         return false;
 
-    bool headerChanged = m_currentCollection.setHeader(section, value.toString());
+    bool headerChanged = m_currentCollection.setPropertyName(section, value.toString());
     if (headerChanged)
         emit this->headerDataChanged(orientation, section, section);
 
@@ -145,7 +145,7 @@ QVariant SingleCollectionModel::headerData(int section,
                                            [[maybe_unused]] int role) const
 {
     if (orientation == Qt::Horizontal)
-        return m_currentCollection.headerAt(section);
+        return m_currentCollection.propertyAt(section);
 
     if (orientation == Qt::Vertical)
         return section + 1;
@@ -165,12 +165,12 @@ int SingleCollectionModel::selectedRow() const
 
 bool SingleCollectionModel::isPropertyAvailable(const QString &name)
 {
-    return m_currentCollection.containsHeader(name);
+    return m_currentCollection.containsPropertyName(name);
 }
 
 bool SingleCollectionModel::addColumn(int column, const QString &name)
 {
-    if (m_currentCollection.containsHeader(name))
+    if (m_currentCollection.containsPropertyName(name))
         return false;
 
     if (column < 0 || column > columnCount())
@@ -179,7 +179,7 @@ bool SingleCollectionModel::addColumn(int column, const QString &name)
     beginInsertColumns({}, column, column);
     m_currentCollection.insertColumn(name, column);
     endInsertColumns();
-    return m_currentCollection.containsHeader(name);
+    return m_currentCollection.containsPropertyName(name);
 }
 
 bool SingleCollectionModel::selectColumn(int section)
