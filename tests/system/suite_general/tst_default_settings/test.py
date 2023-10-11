@@ -39,6 +39,7 @@ def __checkKits__():
         internalClangExe = os.path.join(llvmForBuild, "bin", "clang")
         if platform.system() in ("Microsoft", "Windows"):
             internalClangExe += ".exe"
+        internalClangExe = os.path.realpath(internalClangExe) # clean symlinks
         if os.path.exists(internalClangExe):
             expectedCompilers.append(internalClangExe)
     foundCompilers = []
