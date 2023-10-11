@@ -1,5 +1,5 @@
 import qbs
-@if "%{TestFrameWork}" == "GTest"
+@if "%{TestFrameWork}" == "GTest" || "%{TestFrameWork}" == "GTest_dyn"
 import qbs.Environment
 import "googlecommon.js" as googleCommon
 @endif
@@ -32,16 +32,16 @@ CppApplication {
     consoleApplication: true
 @endif
 
-@if "%{TestFrameWork}" == "GTest"
+@if "%{TestFrameWork}" == "GTest" || "%{TestFrameWork}" == "GTest_dyn"
     property string googletestDir: {
         if (typeof Environment.getEnv("GOOGLETEST_DIR") === 'undefined') {
-            if ("%{GTestRepository}" === "" && googleCommon.getGTestDir(qbs, undefined) !== "") {
+            if ("%{GTestBaseFolder}" === "" && googleCommon.getGTestDir(qbs, undefined) !== "") {
                 console.warn("Using googletest from system")
             } else {
                 console.warn("Using googletest src dir specified at Qt Creator wizard")
                 console.log("set GOOGLETEST_DIR as environment variable or Qbs property to get rid of this message")
             }
-            return "%{GTestRepository}"
+            return "%{GTestBaseFolder}"
         } else {
             return Environment.getEnv("GOOGLETEST_DIR")
         }
@@ -49,14 +49,19 @@ CppApplication {
 
     cpp.cxxLanguageVersion: "c++14"
     cpp.dynamicLibraries: {
+@if "%{TestFrameWork}" == "GTest"
+        var tmp = [];
+@else
+        var tmp = ["gtest", "gmock"];
+@endif
         if (qbs.hostOS.contains("windows")) {
-            return [];
+            return tmp;
         } else {
-            return [ "pthread" ];
+            return tmp.concat([ "pthread" ]);
         }
     }
-
-
+@endif
+@if "%{TestFrameWork}" == "GTest"
     cpp.includePaths: [].concat(googleCommon.getGTestIncludes(qbs, googletestDir))
                         .concat(googleCommon.getGMockIncludes(qbs, googletestDir))
 
@@ -65,6 +70,15 @@ CppApplication {
         "%{TestCaseFileGTestWithCppSuffix}",
     ].concat(googleCommon.getGTestAll(qbs, googletestDir))
      .concat(googleCommon.getGMockAll(qbs, googletestDir))
+@endif
+@if "%{TestFrameWork}" == "GTest_dyn"
+    cpp.includePaths: [].concat(googleCommon.getChildPath(qbs, googletestDir, "include"));
+    cpp.libraryPaths: googleCommon.getChildPath(qbs, googletestDir, "lib")
+
+    files: [
+        "%{MainCppName}",
+        "%{TestCaseFileGTestWithCppSuffix}",
+    ]
 @endif
 @if "%{TestFrameWork}" == "QtQuickTest"
     Depends { name: "cpp" }

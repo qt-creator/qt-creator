@@ -9,7 +9,7 @@ QUICK_TEST_MAIN_WITH_SETUP(example, Setup)
 QUICK_TEST_MAIN(example)
 @endif
 @endif
-@if "%{TestFrameWork}" == "GTest"
+@if "%{TestFrameWork}" == "GTest" || "%{TestFrameWork}" == "GTest_dyn"
 %{Cpp:LicenseTemplate}\
 
 #include <gtest/gtest.h>

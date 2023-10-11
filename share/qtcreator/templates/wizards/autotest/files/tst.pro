@@ -33,7 +33,7 @@ SOURCES += \\
     setup.cpp
 @endif
 @endif
-@if "%{TestFrameWork}" == "GTest"
+@if "%{TestFrameWork}" == "GTest" || "%{TestFrameWork}" == "GTest_dyn"
 include(gtest_dependency.pri)
 
 TEMPLATE = app
