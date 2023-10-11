@@ -681,8 +681,6 @@ public:
     void documentAboutToBeReloaded();
     void documentReloadFinished(bool success);
     void highlightSearchResultsSlot(const QString &txt, FindFlags findFlags);
-    void searchResultsReady(int beginIndex, int endIndex);
-    void searchFinished();
     void setupScrollBar();
     void highlightSearchResultsInScrollBar();
     void scheduleUpdateHighlightScrollBar();
@@ -872,7 +870,7 @@ public:
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
 
-    QFutureWatcher<SearchResultItems> *m_searchWatcher = nullptr;
+    QFuture<SearchResultItems> m_searchFuture;
     QVector<SearchResult> m_searchResults;
     QTimer m_scrollBarUpdateTimer;
     HighlightScrollBarController *m_highlightScrollBarController = nullptr;
@@ -1139,6 +1137,8 @@ TextEditorWidgetPrivate::~TextEditorWidgetPrivate()
     q->disconnect(this);
     delete m_toolBarWidget;
     delete m_highlightScrollBarController;
+    if (m_searchFuture.isRunning())
+        m_searchFuture.cancel();
 }
 
 static QFrame *createSeparator(const QString &styleSheet)
@@ -6847,27 +6847,6 @@ void TextEditorWidgetPrivate::highlightSearchResultsSlot(const QString &txt, Fin
         m_scrollBarUpdateTimer.start(50);
 }
 
-void TextEditorWidgetPrivate::searchResultsReady(int beginIndex, int endIndex)
-{
-    QVector<SearchResult> results;
-    for (int index = beginIndex; index < endIndex; ++index) {
-        const SearchResultItems resultList = m_searchWatcher->resultAt(index);
-        for (const SearchResultItem &result : resultList) {
-            SearchResult searchResult;
-            if (q->inFindScope(selectRange(q->document(), result.mainRange(), &searchResult)))
-                results << searchResult;
-        }
-    }
-    m_searchResults << results;
-    addSearchResultsToScrollBar(results);
-}
-
-void TextEditorWidgetPrivate::searchFinished()
-{
-    delete m_searchWatcher;
-    m_searchWatcher = nullptr;
-}
-
 void TextEditorWidgetPrivate::adjustScrollBarRanges()
 {
     if (!m_highlightScrollBarController)
@@ -6888,12 +6867,8 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
     m_highlightScrollBarController->removeHighlights(Constants::SCROLL_BAR_SEARCH_RESULT);
     m_searchResults.clear();
 
-    if (m_searchWatcher) {
-        m_searchWatcher->disconnect();
-        m_searchWatcher->cancel();
-        m_searchWatcher->deleteLater();
-        m_searchWatcher = nullptr;
-    }
+    if (m_searchFuture.isRunning())
+        m_searchFuture.cancel();
 
     const QString &txt = m_findText;
     if (txt.isEmpty())
@@ -6901,14 +6876,21 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
 
     adjustScrollBarRanges();
 
-    m_searchWatcher = new QFutureWatcher<SearchResultItems>;
-    connect(m_searchWatcher, &QFutureWatcher<SearchResultItems>::resultsReadyAt,
-            this, &TextEditorWidgetPrivate::searchResultsReady);
-    connect(m_searchWatcher, &QFutureWatcher<SearchResultItems>::finished,
-            this, &TextEditorWidgetPrivate::searchFinished);
-    m_searchWatcher->setPendingResultsLimit(10);
-    m_searchWatcher->setFuture(Utils::asyncRun(Utils::searchInContents, txt, m_findFlags,
-                                               m_document->filePath(), m_document->plainText()));
+    m_searchFuture = Utils::asyncRun(Utils::searchInContents,
+                                     txt,
+                                     m_findFlags,
+                                     m_document->filePath(),
+                                     m_document->plainText());
+    Utils::onResultReady(m_searchFuture, this, [this](const SearchResultItems &resultList) {
+        QList<SearchResult> results;
+        for (const SearchResultItem &result : resultList) {
+            SearchResult searchResult;
+            if (q->inFindScope(selectRange(q->document(), result.mainRange(), &searchResult)))
+                results << searchResult;
+        }
+        m_searchResults << results;
+        addSearchResultsToScrollBar(results);
+    });
 }
 
 void TextEditorWidgetPrivate::scheduleUpdateHighlightScrollBar()
