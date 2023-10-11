@@ -417,12 +417,17 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     deviceHooks.fileAccess = [](const FilePath &filePath) -> expected_str<DeviceFileAccess *> {
         if (!filePath.needsDevice())
             return DesktopDeviceFileAccess::instance();
-        auto device = DeviceManager::deviceForPath(filePath);
+        IDevice::ConstPtr device = DeviceManager::deviceForPath(filePath);
         if (!device) {
             return make_unexpected(
                 QString("No device found for path \"%1\"").arg(filePath.toUserOutput()));
         }
-        return device->fileAccess();
+        DeviceFileAccess *fileAccess = device->fileAccess();
+        if (!fileAccess) {
+            return make_unexpected(
+                QString("No file access for device \"%1\"").arg(device->displayName()));
+        }
+        return fileAccess;
     };
 
     deviceHooks.environment = [](const FilePath &filePath) -> expected_str<Environment> {

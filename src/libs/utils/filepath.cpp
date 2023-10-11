@@ -1179,13 +1179,13 @@ DeviceFileAccess *FilePath::fileAccess() const
     static DeviceFileAccess dummy;
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     QTC_ASSERT_EXPECTED(access, return &dummy);
-    return *access ? *access : &dummy;
+    return *access;
 }
 
 bool FilePath::hasFileAccess() const
 {
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
-    return access && access.value();
+    return access.has_value();
 }
 
 /*!
