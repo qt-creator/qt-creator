@@ -18,7 +18,7 @@ Column {
     property var effectMakerModel: EffectMakerBackend.effectMakerModel
     property alias source: source
     // The delay in ms to wait until updating the effect
-    readonly property int updateDelay: 200
+    readonly property int updateDelay: 100
 
     // Create a dummy parent to host the effect qml object
     function createNewComponent() {
@@ -171,7 +171,7 @@ Column {
             id: componentParent
             width: source.width
             height: source.height
-                anchors.centerIn: parent
+            anchors.centerIn: parent
             scale: 1 //TODO should come from toolbar
             // Cache the layer. This way heavy shaders rendering doesn't
             // slow down code editing & rest of the UI.
@@ -183,16 +183,16 @@ Column {
             target: effectMakerModel
             function onShadersBaked() {
                 console.log("Shaders Baked!")
-                //updateTimer.restart(); // Disable for now
+                updateTimer.restart()
             }
         }
 
         Timer {
             id: updateTimer
-            interval: updateDelay;
+            interval: updateDelay
             onTriggered: {
-                effectMakerModel.updateQmlComponent();
-                createNewComponent();
+                effectMakerModel.updateQmlComponent()
+                createNewComponent()
             }
         }
     }

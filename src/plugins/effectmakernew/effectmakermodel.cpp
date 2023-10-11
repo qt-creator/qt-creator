@@ -7,8 +7,7 @@
 #include "syntaxhighlighterdata.h"
 #include "uniform.h"
 
-#include <QByteArrayView>
-#include <QVector2D>
+#include <qmlprojectmanager/qmlproject.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
@@ -17,6 +16,10 @@
 #include <qtsupport/qtkitinformation.h>
 
 #include <utils/qtcassert.h>
+#include <utils/process.h>
+
+#include <QByteArrayView>
+#include <QVector2D>
 
 namespace EffectMaker {
 
@@ -49,8 +52,14 @@ EffectMakerModel::EffectMakerModel(QObject *parent)
     m_vertexShaderFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.vert.qsb");
     m_fragmentShaderFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.frag.qsb");
     if (!m_vertexSourceFile.open() || !m_fragmentSourceFile.open()
-        || !m_vertexShaderFile.open() || !m_fragmentShaderFile.open())
+        || !m_vertexShaderFile.open() || !m_fragmentShaderFile.open()) {
         qWarning() << "Unable to open temporary files";
+    } else {
+        m_vertexSourceFilename = m_vertexSourceFile.fileName();
+        m_fragmentSourceFilename = m_fragmentSourceFile.fileName();
+        m_vertexShaderFilename = m_vertexShaderFile.fileName();
+        m_fragmentShaderFilename = m_fragmentShaderFile.fileName();
+    }
 }
 
 QHash<int, QByteArray> EffectMakerModel::roleNames() const
@@ -720,6 +729,24 @@ QString EffectMakerModel::generateFragmentShader(bool includeUniforms)
     return s;
 }
 
+void EffectMakerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader)
+{
+    --m_remainingQsbTargets;
+
+    const QString errStr = qsbProcess->errorString();
+    if (!errStr.isEmpty())
+        qWarning() << QString("Failed to generate QSB file for: %1 %2").arg(shader, errStr);
+
+    if (m_remainingQsbTargets <= 0) {
+        Q_EMIT shadersBaked();
+        setShadersUpToDate(true);
+
+        // TODO: Mark shaders as baked, required by export later
+    }
+
+    qsbProcess->deleteLater();
+}
+
 // Generates string of the custom properties (uniforms) into ShaderEffect component
 // Also generates QML images elements for samplers.
 void EffectMakerModel::updateCustomUniforms()
@@ -790,6 +817,14 @@ void EffectMakerModel::updateCustomUniforms()
 
 void EffectMakerModel::bakeShaders()
 {
+    const QString failMessage = "Shader baking failed: ";
+
+    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
+    if (!target) {
+        qWarning() << failMessage << "Target not found";
+        return;
+    }
+
     resetEffectError(ErrorPreprocessor);
     if (m_vertexShader == generateVertexShader() && m_fragmentShader == generateFragmentShader()) {
         setShadersUpToDate(true);
@@ -813,12 +848,34 @@ void EffectMakerModel::bakeShaders()
     QString fs = m_fragmentShader;
     writeToFile(fs.toUtf8(), m_fragmentSourceFile.fileName(), FileType::Text);
 
-    //TODO: Compile shaders using external qsb tools
+    QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit());
+    if (!qtVer) {
+        qWarning() << failMessage << "Qt version not found";
+        return;
+    }
 
-    Q_EMIT shadersBaked();
-    setShadersUpToDate(true);
+    Utils::FilePath qsbPath = qtVer->binPath().pathAppended("qsb").withExecutableSuffix();
+    if (!qsbPath.exists()) {
+        qWarning() << failMessage << "QSB tool not found";
+        return;
+    }
 
-    // TODO: Mark shaders as baked, required by export later
+    m_remainingQsbTargets = 2; // We only have 2 shaders
+    const QStringList srcPaths = {m_vertexSourceFilename, m_fragmentSourceFilename};
+    const QStringList outPaths = {m_vertexShaderFilename, m_fragmentShaderFilename};
+    for (int i = 0; i < 2; ++i) {
+        const auto workDir = Utils::FilePath::fromString(outPaths[i]);
+        QStringList args = {"-s", "--glsl", "\"300 es,120,150,440\"", "--hlsl", "50", "--msl", "12"};
+        args << "-o" << outPaths[i] << srcPaths[i];
+
+        auto qsbProcess = new Utils::Process(this);
+        connect(qsbProcess, &Utils::Process::done, this, [=] {
+            handleQsbProcessExit(qsbProcess, srcPaths[i]);
+        });
+        qsbProcess->setWorkingDirectory(workDir.absolutePath());
+        qsbProcess->setCommand({qsbPath, args});
+        qsbProcess->start();
+    }
 }
 
 bool EffectMakerModel::shadersUpToDate() const
@@ -857,8 +914,6 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
     };
 
     QString customImagesString = getQmlImagesString(localFiles);
-    QString vertexShaderFilename = "file:///" + m_fragmentShaderFile.fileName();
-    QString fragmentShaderFilename = "file:///" + m_vertexShaderFile.fileName();
     QString s;
     QString l1 = localFiles ? QStringLiteral("    ") : QStringLiteral("");
     QString l2 = localFiles ? QStringLiteral("        ") : QStringLiteral("    ");
@@ -896,8 +951,8 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
         s += '\n' + customImagesString;
 
     s += '\n';
-    s += l2 + "vertexShader: '" + vertexShaderFilename + "'\n";
-    s += l2 + "fragmentShader: '" + fragmentShaderFilename + "'\n";
+    s += l2 + "vertexShader: 'file://" + m_vertexShaderFilename + "'\n";
+    s += l2 + "fragmentShader: 'file://" + m_fragmentShaderFilename + "'\n";
     s += l2 + "anchors.fill: parent\n";
     if (m_shaderFeatures.enabled(ShaderFeatures::GridMesh)) {
         QString gridSize = QString("%1, %2").arg(m_shaderFeatures.gridMeshWidth()).arg(m_shaderFeatures.gridMeshHeight());
@@ -907,21 +962,6 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
     }
     s += l1 + "}\n";
     return s;
-}
-
-Utils::FilePath EffectMakerModel::qsbPath() const
-{
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (target) {
-        if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit())) {
-            Utils::FilePath path = qtVer->binPath().pathAppended("qsb").withExecutableSuffix();
-            if (path.exists())
-                return path;
-        }
-    }
-
-    qWarning() << "Shader baking failed, QSB not found.";
-    return {};
 }
 
 void EffectMakerModel::updateQmlComponent()

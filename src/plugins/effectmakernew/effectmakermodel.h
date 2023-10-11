@@ -12,6 +12,10 @@
 #include <QStandardItemModel>
 #include <QTemporaryFile>
 
+namespace ProjectExplorer {
+class Target;
+}
+
 namespace Utils {
 class Process;
 }
@@ -127,8 +131,7 @@ private:
     QString getCustomShaderVaryings(bool outState);
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
-
-    Utils::FilePath qsbPath() const;
+    void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader);
 
     void updateCustomUniforms();
     void bakeShaders();
@@ -142,6 +145,7 @@ private:
     bool m_isEmpty = true;
     // True when shaders haven't changed since last baking
     bool m_shadersUpToDate = true;
+    int m_remainingQsbTargets = 0;
     QMap<int, EffectError> m_effectErrors;
     ShaderFeatures m_shaderFeatures;
     QStringList m_shaderVaryingVariables;
@@ -154,6 +158,10 @@ private:
     QTemporaryFile m_vertexSourceFile;
     QTemporaryFile m_fragmentShaderFile;
     QTemporaryFile m_vertexShaderFile;
+    QString m_fragmentSourceFilename;
+    QString m_vertexSourceFilename;
+    QString m_fragmentShaderFilename;
+    QString m_vertexShaderFilename;
     // Used in exported QML, at root of the file
     QString m_exportedRootPropertiesString;
     // Used in exported QML, at ShaderEffect component of the file
