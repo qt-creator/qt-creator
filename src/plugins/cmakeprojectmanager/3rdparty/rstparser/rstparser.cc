@@ -212,7 +212,7 @@ void rst::Parser::ParseBlock(
   }
 
   // Remove a trailing newline.
-  if (*text.rbegin() == '\n')
+  if (!text.empty() && *text.rbegin() == '\n')
     text.resize(text.size() - 1);
 
   bool literal = type == PARAGRAPH && EndsWith(text, "::");
