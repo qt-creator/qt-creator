@@ -727,7 +727,7 @@ void DebuggerEnginePrivate::setupViews()
     m_breakWindow->setObjectName("Debugger.Dock.Break." + engineId);
     m_breakWindow->setWindowTitle(Tr::tr("&Breakpoints"));
 
-    if (currentPerspective && currentPerspective->id() != Constants::PRESET_PERSPECTIVE_ID)
+    if (currentPerspective && currentPerspective->id() == Constants::DAP_PERSPECTIVE_ID)
         m_perspective->useSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
     else
         m_perspective->useSubPerspectiveSwitcher(EngineManager::engineChooser());
