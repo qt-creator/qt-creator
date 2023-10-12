@@ -19,10 +19,6 @@
 
     \annotatedlist creator-reference-build-systems
 
-    \section1 Output Views
-
-    \annotatedlist creator-reference-output-views
-
     \section1 Preferences
 
     \annotatedlist creator-reference-preferences
@@ -35,7 +31,13 @@
 
     \annotatedlist creator-reference-preferences-text-editor
 
-    \section1 Sidebar Views
+    \section1 Views
+
+    \section2 Output Views
+
+    \annotatedlist creator-reference-output-views
+
+    \section2 Sidebar Views
 
     \annotatedlist creator-reference-sidebar-views
 */
