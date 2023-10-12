@@ -129,7 +129,7 @@ void CopilotClient::openDocument(TextDocument *document)
                 if (!textEditor || textEditor->document() != document)
                     return;
                 TextEditorWidget *widget = textEditor->editorWidget();
-                if (widget->multiTextCursor().hasMultipleCursors())
+                if (widget->isReadOnly() || widget->multiTextCursor().hasMultipleCursors())
                     return;
                 const int cursorPosition = widget->textCursor().position();
                 if (cursorPosition < position || cursorPosition > position + charsAdded)
