@@ -64,6 +64,16 @@ Position Position::fromCursor(const QTextCursor &c)
     return c.isNull() ? Position{} : Position{c.blockNumber() + 1, c.positionInBlock()};
 }
 
+int Position::toPositionInDocument(const QTextDocument *document) const
+{
+    QTC_ASSERT(document, return -1);
+    const QTextBlock block = document->findBlockByNumber(line - 1);
+    if (block.isValid())
+        return block.position() + qMin(column, block.length() - 1);
+
+    return -1;
+}
+
 int Range::length(const QString &text) const
 {
     if (end.line < begin.line)
