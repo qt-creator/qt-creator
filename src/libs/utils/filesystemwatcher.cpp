@@ -428,13 +428,11 @@ QStringList FileSystemWatcher::directories() const
 void FileSystemWatcher::slotFileChanged(const QString &path)
 {
     const auto it = d->m_files.find(path);
-    QStringList toAdd;
     if (it != d->m_files.end() && it.value().trigger(path)) {
         qCDebug(fileSystemWatcherLog)
             << this << "triggers on file" << it.key()
             << it.value().watchMode
             << it.value().modifiedTime.toString(Qt::ISODate);
-        d->fileChanged(path);
 
         QFileInfo fi(path);
         if (!fi.exists()) {
@@ -443,12 +441,10 @@ void FileSystemWatcher::slotFileChanged(const QString &path)
             Q_ASSERT(dirCount > 0);
 
             if (dirCount == 1)
-                toAdd << directory;
+                d->m_staticData->m_watcher->addPath(directory);
         }
+        d->fileChanged(path);
     }
-
-    if (!toAdd.isEmpty())
-        d->m_staticData->m_watcher->addPaths(toAdd);
 }
 
 void FileSystemWatcher::slotDirectoryChanged(const QString &path)
