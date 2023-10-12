@@ -52,6 +52,8 @@ To enable the ScreenRecorder plugin, select
 `Help > About Plugins > Utilities > ScreenRecorder`. Then select
 `Restart Now` to restart Qt Creator and load the plugin.
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-record-screens.html))
+
 General
 -------
 

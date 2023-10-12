@@ -255,6 +255,7 @@
                     \li \l {Inspect internal logs}
                     \li \l {Install plugins}
                     \li \l {Manage data collection}
+                    \li \l {Record screens}
                     \li \l {Run \QC from the command line}
                     \li \l {Set up version control systems}
                     \li \l {Use common VCS functions}
@@ -317,6 +318,7 @@
                             \li \l {Kits}
                             \li \l {Nim}
                             \li \l {Qt Quick Code Style}
+                            \li \l {Screen Recording}
                         \endlist
                     \li Sidebar Views
                         \list
