@@ -121,6 +121,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString particleEmitterKey = QStringLiteral("showParticleEmitter");
     const QString particlesPlayKey   = QStringLiteral("particlePlay");
     const QString syncEnvBgKey       = QStringLiteral("syncEnvBackground");
+    const QString splitViewKey       = QStringLiteral("splitView");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -190,6 +191,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_particlesPlayAction->action()->setChecked(sceneState[particlesPlayKey].toBool());
     else
         m_particlesPlayAction->action()->setChecked(true);
+
+    if (sceneState.contains(splitViewKey))
+        m_splitViewAction->action()->setChecked(sceneState[splitViewKey].toBool());
+    else
+        m_splitViewAction->action()->setChecked(false);
 
     // Syncing background color only makes sense for children of View3D instances
     bool syncValue = false;
@@ -1015,6 +1021,17 @@ void Edit3DView::createEdit3DActions()
         this,
         snapConfigTrigger);
 
+    m_splitViewAction = std::make_unique<Edit3DAction>(
+        QmlDesigner::Constants::EDIT3D_SPLIT_VIEW,
+        View3DActionType::SplitViewToggle,
+        QCoreApplication::translate("SplitViewToggleAction",
+                                    "Toggle Split View On/Off"),
+        QKeySequence(Qt::Key_4),
+        true,
+        false,
+        toolbarIcon(DesignerIcons::ScaleToolIcon), // TODO Placeholder, needs proper icon
+        this);
+
     m_leftActions << m_selectionModeAction.get();
     m_leftActions << nullptr; // Null indicates separator
     m_leftActions << nullptr; // Second null after separator indicates an exclusive group
@@ -1036,6 +1053,7 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << nullptr;
     m_leftActions << m_visibilityTogglesAction.get();
     m_leftActions << m_backgroundColorMenuAction.get();
+    m_leftActions << m_splitViewAction.get();
 
     m_rightActions << m_particleViewModeAction.get();
     m_rightActions << m_particlesPlayAction.get();

@@ -28,6 +28,7 @@ Item {
     property color backgroundGradientColorEnd: "#999999"
     property color gridColor: "#cccccc"
     property bool syncEnvBackground: false
+    property bool splitView: false
 
     enum SelectionMode { Item, Group }
     enum TransformMode { Move, Rotate, Scale }
@@ -65,6 +66,7 @@ Item {
     onShowParticleEmitterChanged: _generalHelper.storeToolState(sceneId, "showParticleEmitter", showParticleEmitter);
     onSelectionModeChanged:       _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
     onTransformModeChanged:       _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
+    onSplitViewChanged:           _generalHelper.storeToolState(sceneId, "splitView", splitView)
 
     onActiveSceneChanged: updateActiveScene()
 
@@ -294,6 +296,11 @@ Item {
             cameraControl.restoreCameraState(toolStates.editCamState);
         else if (resetToDefault)
             cameraControl.restoreDefaultState();
+
+        if ("splitView" in toolStates)
+            splitView = toolStates.splitView;
+        else if (resetToDefault)
+            splitView = false;
     }
 
     function storeCurrentToolStates()
@@ -309,6 +316,7 @@ Item {
         _generalHelper.storeToolState(sceneId, "globalOrientation", globalOrientation)
         _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
         _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
+        _generalHelper.storeToolState(sceneId, "splitView", splitView)
 
         cameraControl.storeCameraState(0);
     }

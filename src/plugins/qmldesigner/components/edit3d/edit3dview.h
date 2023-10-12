@@ -139,6 +139,7 @@ private:
     std::unique_ptr<Edit3DAction> m_selectBackgroundColorAction;
     std::unique_ptr<Edit3DAction> m_selectGridColorAction;
     std::unique_ptr<Edit3DAction> m_resetColorAction;
+    std::unique_ptr<Edit3DAction> m_splitViewAction;
 
     // View3DActionType::Empty actions
     std::unique_ptr<Edit3DAction> m_resetAction;

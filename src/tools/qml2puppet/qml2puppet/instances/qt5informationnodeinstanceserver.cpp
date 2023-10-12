@@ -2497,6 +2497,9 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         return;
     }
 #endif
+    case View3DActionType::SplitViewToggle:
+        updatedToolState.insert("splitView", command.isEnabled());
+        break;
 
     default:
         break;
