@@ -28,6 +28,10 @@
 
     \generatelist creator-how-to-edit
 
+    \section1 Manage Kits
+
+    \generatelist creator-how-to-manage-kits
+
     \section1 Manage Projects
 
     \generatelist creator-how-to-projects

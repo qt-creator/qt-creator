@@ -184,6 +184,8 @@
                 \generatelist creator-how-to-design
             \li Edit Code
                 \generatelist creator-how-to-edit
+            \li Manage Kits
+                \generatelist creator-how-to-manage-kits
             \li Manage Projects
                 \generatelist creator-how-to-projects
             \li Read Qt Documentation
