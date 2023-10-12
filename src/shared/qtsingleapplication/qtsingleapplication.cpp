@@ -182,13 +182,17 @@ public:
     void setFreezeTreshold(std::chrono::milliseconds freezeAbove) { m_threshold = freezeAbove; }
 
     bool notify(QObject *receiver, QEvent *event) override {
+        if (m_inNotify)
+            return QtSingleApplication::notify(receiver, event);
         using namespace std::chrono;
         const auto start = system_clock::now();
         const QPointer<QObject> p(receiver);
         const QString className = QLatin1String(receiver->metaObject()->className());
         const QString name = receiver->objectName();
 
+        m_inNotify = true;
         const bool ret = QtSingleApplication::notify(receiver, event);
+        m_inNotify = false;
 
         const auto end = system_clock::now();
         const auto freeze = duration_cast<milliseconds>(end - start);
@@ -207,6 +211,7 @@ public:
     }
 
 private:
+    bool m_inNotify = false;
     const QString m_align;
     std::chrono::milliseconds m_threshold = std::chrono::milliseconds(100);
 };
