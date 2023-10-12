@@ -523,6 +523,9 @@ QString DapEngine::errorMessage(QProcess::ProcessError error) const
 
 void DapEngine::handleDapDone()
 {
+    if (state() == DebuggerFinished)
+        return;
+
     if (m_dapClient->dataProvider()->result() == ProcessResult::StartFailed) {
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
