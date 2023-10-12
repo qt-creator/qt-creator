@@ -46,12 +46,12 @@ void flushEvents(const Utils::span<TraceEvent> events,
     }
 }
 
-template void flushEvents(const Utils::span<StringViewTraceEvent> events,
-                          std::thread::id threadId,
-                          EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-template void flushEvents(const Utils::span<StringTraceEvent> events,
-                          std::thread::id threadId,
-                          EnabledEventQueue<StringTraceEvent> &eventQueue);
+template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringViewTraceEvent> events,
+                                           std::thread::id threadId,
+                                           EnabledEventQueue<StringViewTraceEvent> &eventQueue);
+template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringTraceEvent> events,
+                                           std::thread::id threadId,
+                                           EnabledEventQueue<StringTraceEvent> &eventQueue);
 
 void openFile(EnabledTraceFile &file)
 {
@@ -95,8 +95,8 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
     eventQueue.eventsIndex = 0;
 }
 
-template void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-template void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
+template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
+template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
 
 namespace {
 EnabledTraceFile globalTraceFile{"global.json"};

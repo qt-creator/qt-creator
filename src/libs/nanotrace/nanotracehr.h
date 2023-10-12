@@ -71,25 +71,25 @@ template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,
                  std::thread::id threadId,
                  EnabledEventQueue<TraceEvent> &eventQueue);
-extern template void flushEvents(const Utils::span<StringViewTraceEvent> events,
-                                 std::thread::id threadId,
-                                 EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-extern template void flushEvents(const Utils::span<StringTraceEvent> events,
-                                 std::thread::id threadId,
-                                 EnabledEventQueue<StringTraceEvent> &eventQueue);
+extern template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringViewTraceEvent> events,
+                                                  std::thread::id threadId,
+                                                  EnabledEventQueue<StringViewTraceEvent> &eventQueue);
+extern template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringTraceEvent> events,
+                                                  std::thread::id threadId,
+                                                  EnabledEventQueue<StringTraceEvent> &eventQueue);
 
 template<typename TraceEvent>
 void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue);
-extern template void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
-extern template void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
+extern template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
+extern template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
 
 template<bool enable>
 class TraceFile;
 
 using EnabledTraceFile = TraceFile<true>;
 
-void openFile(EnabledTraceFile &file);
-void finalizeFile(EnabledTraceFile &file);
+NANOTRACE_EXPORT void openFile(EnabledTraceFile &file);
+NANOTRACE_EXPORT void finalizeFile(EnabledTraceFile &file);
 
 template<bool enable>
 class TraceFile
@@ -216,7 +216,7 @@ EventQueueDataPointer<TraceEvent, eventCount, typename TraceFile::IsActive> make
     }
 }
 
-EnabledEventQueue<StringTraceEvent> &globalEventQueue();
+NANOTRACE_EXPORT EnabledEventQueue<StringTraceEvent> &globalEventQueue();
 
 template<typename TraceEvent>
 TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
