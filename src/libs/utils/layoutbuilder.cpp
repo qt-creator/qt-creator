@@ -14,6 +14,7 @@
 #include <QSpinBox>
 #include <QSplitter>
 #include <QStackedLayout>
+#include <QStackedWidget>
 #include <QStyle>
 #include <QTabWidget>
 #include <QTextEdit>
@@ -396,14 +397,18 @@ void Slice::flush()
         for (const ResultItem &item : std::as_const(pendingItems))
             addItemToFlowLayout(flowLayout, item);
 
-    } else if (auto stackLayout = qobject_cast<QStackedLayout *>(layout)) {
+    } else if (auto stackWidget = qobject_cast<QStackedWidget *>(widget)) {
         for (const ResultItem &item : std::as_const(pendingItems)) {
             if (item.widget)
-                stackLayout->addWidget(item.widget);
-            else
+                stackWidget->addWidget(item.widget);
+            else if (item.layout) {
+                auto w = new QWidget();
+                w->setLayout(item.layout);
+                stackWidget->addWidget(w);
+            } else {
                 QTC_CHECK(false);
+            }
         }
-
     } else {
         QTC_CHECK(false);
     }
@@ -656,13 +661,6 @@ Form::Form(std::initializer_list<LayoutItem> items)
     onExit = layoutExit;
 }
 
-Stack::Stack(std::initializer_list<LayoutItem> items)
-{
-    subItems = items;
-    onAdd = [](LayoutBuilder &builder) { builder.stack.append(new QStackedLayout); };
-    onExit = layoutExit;
-}
-
 LayoutItem br()
 {
     LayoutItem item;
@@ -752,6 +750,21 @@ Group::Group(std::initializer_list<LayoutItem> items)
 {
     this->subItems = items;
     setupWidget<QGroupBox>(this);
+}
+
+Stack::Stack(std::initializer_list<LayoutItem> items)
+{
+    // We use a QStackedWidget instead of a QStackedLayout here because the latter will call
+    // "setVisible()" when a child is added, which can lead to the widget being spawned as a
+    // top-level widget. This can lead to the focus shifting away from the main application.
+    subItems = items;
+    onAdd = [](LayoutBuilder &builder) { builder.stack.append(new QStackedWidget); };
+    onExit = [](LayoutBuilder &builder) {
+        QWidget *widget = builder.stack.last().widget;
+        builder.stack.last().flush();
+        builder.stack.pop_back();
+        builder.stack.last().pendingItems.append(ResultItem(widget));
+    };
 }
 
 PushButton::PushButton(std::initializer_list<LayoutItem> items)

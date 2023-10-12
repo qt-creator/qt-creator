@@ -13,7 +13,7 @@
 #include <QCompleter>
 #include <QFutureWatcher>
 #include <QPushButton>
-#include <QStackedLayout>
+#include <QStackedWidget>
 
 using namespace Utils;
 
@@ -207,7 +207,7 @@ void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
 
     QPushButton *editBtn = new QPushButton(Tr::tr("Edit"));
 
-    QStackedLayout *stack{nullptr};
+    QStackedWidget *stack{nullptr};
 
     // clang-format off
     auto s = Stack {
