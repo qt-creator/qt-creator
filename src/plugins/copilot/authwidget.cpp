@@ -59,8 +59,8 @@ AuthWidget::AuthWidget(QWidget *parent)
     });
 
     connect(&settings(), &CopilotSettings::applied, this, update);
-    connect(settings().nodeJsPath.pathChooser(), &PathChooser::textChanged, this, update);
-    connect(settings().distPath.pathChooser(), &PathChooser::textChanged, this, update);
+    connect(&settings().nodeJsPath, &FilePathAspect::volatileValueChanged, this, update);
+    connect(&settings().distPath, &FilePathAspect::volatileValueChanged, this, update);
 
     update();
 }
