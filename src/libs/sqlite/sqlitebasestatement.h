@@ -241,7 +241,7 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto value(const QueryTypes &...queryValues)
     {
-        NanotraceHR::Tracer tracer{"values"_t, sqliteHighLevelCategory()};
+        NanotraceHR::Tracer tracer{"value"_t, sqliteHighLevelCategory()};
 
         Resetter resetter{this};
         ResultType resultValue{};
