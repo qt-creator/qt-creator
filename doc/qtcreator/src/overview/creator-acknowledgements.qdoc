@@ -889,6 +889,18 @@
 
         \include license-mit.qdocinc
 
+        \li \b QrCodeGenerator
+
+        The QML Designer plugin uses QR Code Generator for Design Viewer integration.
+
+        \list
+            \li \l https://github.com/alex-spataru/Qt-QrCodeGenerator
+        \endlist
+
+        Distributed under the MIT license.
+
+        \include license-mit.qdocinc
+
         \li \b cmake
 
         The CMake project manager uses the CMake lexer code for parsing CMake files.
