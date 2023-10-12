@@ -238,7 +238,7 @@ struct Slice
 {
     Slice() = default;
     Slice(QLayout *l) : layout(l) {}
-    Slice(QWidget *w) : widget(w) {}
+    Slice(QWidget *w, bool isLayouting=false) : widget(w), isLayouting(isLayouting) {}
 
     QLayout *layout = nullptr;
     QWidget *widget = nullptr;
@@ -249,6 +249,7 @@ struct Slice
     int currentGridColumn = 0;
     int currentGridRow = 0;
     bool isFormAlignment = false;
+    bool isLayouting = false;
     Qt::Alignment align = {}; // Can be changed to
 
     // Grid or Form
@@ -397,18 +398,6 @@ void Slice::flush()
         for (const ResultItem &item : std::as_const(pendingItems))
             addItemToFlowLayout(flowLayout, item);
 
-    } else if (auto stackWidget = qobject_cast<QStackedWidget *>(widget)) {
-        for (const ResultItem &item : std::as_const(pendingItems)) {
-            if (item.widget)
-                stackWidget->addWidget(item.widget);
-            else if (item.layout) {
-                auto w = new QWidget();
-                w->setLayout(item.layout);
-                stackWidget->addWidget(w);
-            } else {
-                QTC_CHECK(false);
-            }
-        }
     } else {
         QTC_CHECK(false);
     }
@@ -606,10 +595,30 @@ static void layoutExit(LayoutBuilder &builder)
     QLayout *layout = builder.stack.last().layout;
     builder.stack.pop_back();
 
-    if (QWidget *widget = builder.stack.last().widget)
-        widget->setLayout(layout);
-    else
+    if (builder.stack.last().isLayouting) {
         builder.stack.last().pendingItems.append(ResultItem(layout));
+    } else if (QWidget *widget = builder.stack.last().widget) {
+        widget->setLayout(layout);
+    } else
+        builder.stack.last().pendingItems.append(ResultItem(layout));
+}
+
+template<class T>
+static void layoutingWidgetExit(LayoutBuilder &builder)
+{
+    const Slice slice = builder.stack.last();
+    T *w = qobject_cast<T *>(slice.widget);
+    for (const ResultItem &ri : slice.pendingItems) {
+        if (ri.widget) {
+            w->addWidget(ri.widget);
+        } else if (ri.layout) {
+            auto child = new QWidget;
+            child->setLayout(ri.layout);
+            w->addWidget(child);
+        }
+    }
+    builder.stack.pop_back();
+    builder.stack.last().pendingItems.append(ResultItem(w));
 }
 
 static void widgetExit(LayoutBuilder &builder)
@@ -758,13 +767,10 @@ Stack::Stack(std::initializer_list<LayoutItem> items)
     // "setVisible()" when a child is added, which can lead to the widget being spawned as a
     // top-level widget. This can lead to the focus shifting away from the main application.
     subItems = items;
-    onAdd = [](LayoutBuilder &builder) { builder.stack.append(new QStackedWidget); };
-    onExit = [](LayoutBuilder &builder) {
-        QWidget *widget = builder.stack.last().widget;
-        builder.stack.last().flush();
-        builder.stack.pop_back();
-        builder.stack.last().pendingItems.append(ResultItem(widget));
+    onAdd = [](LayoutBuilder &builder) {
+        builder.stack.append(Slice(new QStackedWidget, true));
     };
+    onExit = layoutingWidgetExit<QStackedWidget>;
 }
 
 PushButton::PushButton(std::initializer_list<LayoutItem> items)
@@ -791,18 +797,9 @@ Splitter::Splitter(std::initializer_list<LayoutItem> items)
     onAdd = [](LayoutBuilder &builder) {
         auto splitter = new QSplitter;
         splitter->setOrientation(Qt::Vertical);
-        builder.stack.append(splitter);
+        builder.stack.append(Slice(splitter, true));
     };
-    onExit = [](LayoutBuilder &builder) {
-        const Slice slice = builder.stack.last();
-        QSplitter *splitter = qobject_cast<QSplitter *>(slice.widget);
-        for (const ResultItem &ri : slice.pendingItems) {
-            if (ri.widget)
-                splitter->addWidget(ri.widget);
-        }
-        builder.stack.pop_back();
-        builder.stack.last().pendingItems.append(ResultItem(splitter));
-    };
+    onExit = layoutingWidgetExit<QSplitter>;
 }
 
 ToolBar::ToolBar(std::initializer_list<LayoutItem> items)
@@ -811,18 +808,9 @@ ToolBar::ToolBar(std::initializer_list<LayoutItem> items)
     onAdd = [](LayoutBuilder &builder) {
         auto toolbar = new QToolBar;
         toolbar->setOrientation(Qt::Horizontal);
-        builder.stack.append(toolbar);
+        builder.stack.append(Slice(toolbar, true));
     };
-    onExit = [](LayoutBuilder &builder) {
-        const Slice slice = builder.stack.last();
-        QToolBar *toolBar = qobject_cast<QToolBar *>(slice.widget);
-        for (const ResultItem &ri : slice.pendingItems) {
-            if (ri.widget)
-                toolBar->addWidget(ri.widget);
-        }
-        builder.stack.pop_back();
-        builder.stack.last().pendingItems.append(ResultItem(toolBar));
-    };
+    onExit = layoutingWidgetExit<QToolBar>;
 }
 
 TabWidget::TabWidget(std::initializer_list<LayoutItem> items)

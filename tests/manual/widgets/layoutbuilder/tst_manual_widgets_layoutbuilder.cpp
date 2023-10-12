@@ -49,5 +49,12 @@ int main(int argc, char *argv[])
         }
     }.emerge()->show();
 
+
+    Splitter {
+        windowTitle("Splitter with sub layouts"),
+        Column {"First Widget"},
+        Row {"Second Widget"},
+    }.emerge()->show();
+
     return app.exec();
 }
