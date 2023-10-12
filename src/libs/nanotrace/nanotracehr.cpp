@@ -28,7 +28,7 @@ void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, st
 template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,
                  std::thread::id threadId,
-                 EventQueue<TraceEvent> &eventQueue)
+                 EnabledEventQueue<TraceEvent> &eventQueue)
 {
     if (events.empty())
         return;
@@ -47,12 +47,12 @@ void flushEvents(const Utils::span<TraceEvent> events,
 
 template void flushEvents(const Utils::span<StringViewTraceEvent> events,
                           std::thread::id threadId,
-                          EventQueue<StringViewTraceEvent> &eventQueue);
+                          EnabledEventQueue<StringViewTraceEvent> &eventQueue);
 template void flushEvents(const Utils::span<StringTraceEvent> events,
                           std::thread::id threadId,
-                          EventQueue<StringTraceEvent> &eventQueue);
+                          EnabledEventQueue<StringTraceEvent> &eventQueue);
 
-void openFile(class TraceFile &file)
+void openFile(EnabledTraceFile &file)
 {
     std::lock_guard lock{file.fileMutex};
 
@@ -60,7 +60,7 @@ void openFile(class TraceFile &file)
         file.out << std::fixed << std::setprecision(3) << R"({"traceEvents": [)";
 }
 
-void finalizeFile(class TraceFile &file)
+void finalizeFile(EnabledTraceFile &file)
 {
     std::lock_guard lock{file.fileMutex};
     auto &out = file.out;
@@ -75,7 +75,7 @@ void finalizeFile(class TraceFile &file)
 }
 
 template<typename TraceEvent>
-void flushInThread(EventQueue<TraceEvent> &eventQueue)
+void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 {
     if (eventQueue.file->processing.valid())
         eventQueue.file->processing.wait();
@@ -94,16 +94,16 @@ void flushInThread(EventQueue<TraceEvent> &eventQueue)
     eventQueue.eventsIndex = 0;
 }
 
-template void flushInThread(EventQueue<StringViewTraceEvent> &eventQueue);
-template void flushInThread(EventQueue<StringTraceEvent> &eventQueue);
+template void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
+template void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
 
 namespace {
-TraceFile globalTraceFile{"global.json"};
+EnabledTraceFile globalTraceFile{"global.json"};
 thread_local auto globalEventQueueData = makeEventQueueData<StringTraceEvent, 1000>(globalTraceFile);
-thread_local EventQueue<StringTraceEvent> s_globalEventQueue = globalEventQueueData;
+thread_local EventQueue s_globalEventQueue = globalEventQueueData.createEventQueue();
 } // namespace
 
-EventQueue<StringTraceEvent> &globalEventQueue()
+EnabledEventQueue<StringTraceEvent> &globalEventQueue()
 {
     return s_globalEventQueue;
 }

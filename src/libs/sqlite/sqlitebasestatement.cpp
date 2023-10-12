@@ -26,24 +26,21 @@ extern "C" int sqlite3_carray_bind(
 
 namespace Sqlite {
 
-#ifdef ENABLE_SQLITE_TRACING
 namespace {
-NanotraceHR::TraceFile traceFile{"sqlite.json"};
+using TraceFile = NanotraceHR::TraceFile<sqliteTracingIsEnabled()>;
+
+TraceFile traceFile{"sqlite.json"};
 
 thread_local auto eventQueueData = NanotraceHR::makeEventQueueData<NanotraceHR::StringViewTraceEvent, 10000>(
     traceFile);
-thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent> eventQueue = eventQueueData;
+thread_local NanotraceHR::EventQueue eventQueue = eventQueueData.createEventQueue();
 
-NanotraceHR::Category<NanotraceHR::StringViewTraceEvent> sqliteLowLevelCategory{"sqlite low level"_t,
-                                                                                eventQueue};
+NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> sqliteLowLevelCategory{"sqlite low level"_t,
+                                                                                 eventQueue};
 } // namespace
 
-NanotraceHR::Category<NanotraceHR::StringViewTraceEvent> sqliteHighLevelCategory{"sqlite high level"_t,
-                                                                                 eventQueue};
-
-#else
-static NanotraceHR::DisabledCategory sqliteLowLevelCategory;
-#endif
+NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> sqliteHighLevelCategory{"sqlite high level"_t,
+                                                                                  eventQueue};
 
 BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
     : m_database(database)

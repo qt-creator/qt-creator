@@ -44,11 +44,17 @@ constexpr static std::underlying_type_t<Enumeration> to_underlying(Enumeration e
     return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
 }
 
+constexpr bool sqliteTracingIsEnabled()
+{
 #ifdef ENABLE_SQLITE_TRACING
-extern NanotraceHR::Category<NanotraceHR::StringViewTraceEvent> sqliteHighLevelCategory;
+    return NanotraceHR::isTracerActive();
 #else
-inline NanotraceHR::DisabledCategory sqliteHighLevelCategory;
+    return false;
 #endif
+}
+
+SQLITE_EXPORT extern NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> sqliteHighLevelCategory;
+
 class SQLITE_EXPORT BaseStatement
 {
 public:

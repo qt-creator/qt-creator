@@ -61,31 +61,51 @@ using StringTraceEvent = TraceEvent<std::string>;
 
 enum class IsEnabled { No, Yes };
 
-template<typename TraceEvent>
+template<typename TraceEvent, typename Enabled>
 class EventQueue;
+
+template<typename TraceEvent>
+using EnabledEventQueue = EventQueue<TraceEvent, std::true_type>;
 
 template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,
                  std::thread::id threadId,
-                 EventQueue<TraceEvent> &eventQueue);
+                 EnabledEventQueue<TraceEvent> &eventQueue);
 extern template void flushEvents(const Utils::span<StringViewTraceEvent> events,
                                  std::thread::id threadId,
-                                 EventQueue<StringViewTraceEvent> &eventQueue);
+                                 EnabledEventQueue<StringViewTraceEvent> &eventQueue);
 extern template void flushEvents(const Utils::span<StringTraceEvent> events,
                                  std::thread::id threadId,
-                                 EventQueue<StringTraceEvent> &eventQueue);
+                                 EnabledEventQueue<StringTraceEvent> &eventQueue);
 
 template<typename TraceEvent>
-void flushInThread(EventQueue<TraceEvent> &eventQueue);
-extern template void flushInThread(EventQueue<StringViewTraceEvent> &eventQueue);
-extern template void flushInThread(EventQueue<StringTraceEvent> &eventQueue);
+void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue);
+extern template void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
+extern template void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
 
-void openFile(class TraceFile &file);
-void finalizeFile(class TraceFile &file);
+template<bool enable>
+class TraceFile;
 
+using EnabledTraceFile = TraceFile<true>;
+
+void openFile(EnabledTraceFile &file);
+void finalizeFile(EnabledTraceFile &file);
+
+template<bool enable>
 class TraceFile
 {
 public:
+    using IsActive = std::false_type;
+
+    TraceFile(std::string_view) {}
+};
+
+template<>
+class TraceFile<true>
+{
+public:
+    using IsActive = std::true_type;
+
     TraceFile([[maybe_unused]] std::string_view filePath)
         : filePath{filePath}
     {
@@ -104,13 +124,18 @@ public:
     std::ofstream out;
 };
 
-template<typename TraceEvent>
+template<typename TraceEvent, typename Enabled>
 class EventQueue
+{};
+
+template<typename TraceEvent>
+class EventQueue<TraceEvent, std::true_type>
 {
     using TraceEventsSpan = Utils::span<TraceEvent>;
 
 public:
     EventQueue() = default;
+
     ~EventQueue()
     {
         if (isEnabled == IsEnabled::Yes)
@@ -122,7 +147,7 @@ public:
     EventQueue &operator=(const EventQueue &) = delete;
     EventQueue &operator=(EventQueue &&) = delete;
 
-    TraceFile *file = nullptr;
+    EnabledTraceFile *file = nullptr;
     TraceEventsSpan eventsOne;
     TraceEventsSpan eventsTwo;
     TraceEventsSpan currentEvents;
@@ -130,25 +155,44 @@ public:
     IsEnabled isEnabled = IsEnabled::No;
 };
 
-template<typename TraceEvent, std::size_t eventCount>
+template<typename TraceEvent, std::size_t eventCount, typename Enabled>
 class EventQueueData
 {
     using TraceEvents = std::array<TraceEvent, eventCount>;
 
 public:
-    EventQueueData(TraceFile &file)
+    using IsActive = Enabled;
+
+    EventQueueData(TraceFile<false> &) {}
+};
+
+template<typename TraceEvent, std::size_t eventCount>
+class EventQueueData<TraceEvent, eventCount, std::true_type>
+{
+    using TraceEvents = std::array<TraceEvent, eventCount>;
+
+public:
+    using IsActive = std::true_type;
+
+    EventQueueData(EnabledTraceFile &file)
         : file{file}
     {}
 
-    TraceFile &file;
+    EnabledTraceFile &file;
     TraceEvents eventsOne;
     TraceEvents eventsTwo;
 };
 
-template<typename TraceEvent, std::size_t eventCount>
+template<typename TraceEvent, std::size_t eventCount, typename Enabled>
 struct EventQueueDataPointer
 {
-    operator EventQueue<TraceEvent>() const
+    EventQueue<TraceEvent, std::false_type> createEventQueue() const { return {}; }
+};
+
+template<typename TraceEvent, std::size_t eventCount>
+struct EventQueueDataPointer<TraceEvent, eventCount, std::true_type>
+{
+    EnabledEventQueue<TraceEvent> createEventQueue() const
     {
         if constexpr (isTracerActive()) {
             return {&data->file, data->eventsOne, data->eventsTwo, data->eventsOne, 0, IsEnabled::Yes};
@@ -157,23 +201,25 @@ struct EventQueueDataPointer
         }
     }
 
-    std::unique_ptr<EventQueueData<TraceEvent, eventCount>> data;
+    std::unique_ptr<EventQueueData<TraceEvent, eventCount, std::true_type>> data;
 };
 
-template<typename TraceEvent, std::size_t eventCount>
-EventQueueDataPointer<TraceEvent, eventCount> makeEventQueueData(TraceFile &file)
+template<typename TraceEvent, std::size_t eventCount, typename TraceFile>
+EventQueueDataPointer<TraceEvent, eventCount, typename TraceFile::IsActive> makeEventQueueData(
+    TraceFile &file)
 {
-    if constexpr (isTracerActive()) {
-        return {std::make_unique<EventQueueData<TraceEvent, eventCount>>(file)};
+    if constexpr (isTracerActive() && std::is_same_v<typename TraceFile::IsActive, std::true_type>) {
+        return {std::make_unique<EventQueueData<TraceEvent, eventCount, typename TraceFile::IsActive>>(
+            file)};
     } else {
         return {};
     }
 }
 
-EventQueue<StringTraceEvent> &globalEventQueue();
+EnabledEventQueue<StringTraceEvent> &globalEventQueue();
 
 template<typename TraceEvent>
-TraceEvent &getTraceEvent(EventQueue<TraceEvent> &eventQueue)
+TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
 {
     if (eventQueue.eventsIndex == eventQueue.currentEvents.size())
         flushInThread(eventQueue);
@@ -195,6 +241,7 @@ private:
 
     std::string_view text;
 };
+
 constexpr TracerLiteral operator""_t(const char *text, size_t size)
 {
     return {std::string_view{text, size}};
@@ -203,43 +250,52 @@ constexpr TracerLiteral operator""_t(const char *text, size_t size)
 
 using namespace Literals;
 
-template<typename TraceEvent>
+template<typename TraceEvent, bool enabled>
 class Category
+{
+public:
+    using IsActive = std::false_type;
+
+    Category(TracerLiteral, EventQueue<TraceEvent, std::true_type> &) {}
+
+    Category(TracerLiteral, EventQueue<TraceEvent, std::false_type> &) {}
+};
+
+template<typename TraceEvent>
+class Category<TraceEvent, true>
 {
 public:
     using IsActive = std::true_type;
     TracerLiteral name;
-    EventQueue<TraceEvent> &eventQueue;
+    EnabledEventQueue<TraceEvent> &eventQueue;
 };
 
-using StringViewCategory = Category<StringViewTraceEvent>;
-using StringCategory = Category<StringTraceEvent>;
+template<bool enabled>
+using StringViewCategory = Category<StringViewTraceEvent, enabled>;
+template<bool enabled>
+using StringCategory = Category<StringTraceEvent, enabled>;
 
 class DisabledCategory
-{};
-
-template<typename TraceEvent>
-Category(TracerLiteral name, EventQueue<TraceEvent> &eventQueue) -> Category<TraceEvent>;
+{
+    using IsActive = std::false_type;
+};
 
 template<typename Category>
 class Tracer
 {
 public:
     constexpr Tracer(TracerLiteral, Category &, TracerLiteral) {}
+
     constexpr Tracer(TracerLiteral, Category &) {}
 
     ~Tracer() {}
 };
 
-template<typename String>
-class BasicTracer
-{};
-
 template<>
-class Tracer<StringViewCategory>
+class Tracer<StringViewCategory<true>>
 {
 public:
-    constexpr Tracer(TracerLiteral name, StringViewCategory &category, TracerLiteral arguments)
+    constexpr Tracer(TracerLiteral name, StringViewCategory<true> &category, TracerLiteral arguments)
         : m_name{name}
         , m_arguments{arguments}
         , m_category{category}
@@ -250,7 +306,7 @@ public:
         }
     }
 
-    constexpr Tracer(TracerLiteral name, StringViewCategory &category)
+    constexpr Tracer(TracerLiteral name, StringViewCategory<true> &category)
         : Tracer{name, category, "{}"_t}
     {
         if constexpr (isTracerActive()) {
@@ -278,14 +334,14 @@ private:
     TimePoint m_start;
     std::string_view m_name;
     std::string_view m_arguments;
-    StringViewCategory &m_category;
+    StringViewCategory<true> &m_category;
 };
 
 template<>
-class Tracer<StringCategory>
+class Tracer<StringCategory<true>>
 {
 public:
-    Tracer(std::string name, StringViewCategory &category, std::string arguments)
+    Tracer(std::string name, StringViewCategory<true> &category, std::string arguments)
         : m_name{std::move(name)}
         , m_arguments{arguments}
         , m_category{category}
@@ -296,7 +352,7 @@ public:
         }
     }
 
-    Tracer(std::string name, StringViewCategory &category)
+    Tracer(std::string name, StringViewCategory<true> &category)
         : Tracer{std::move(name), category, "{}"}
     {
         if constexpr (isTracerActive()) {
@@ -324,7 +380,7 @@ private:
     TimePoint m_start;
     std::string m_name;
     std::string m_arguments;
-    StringViewCategory &m_category;
+    StringViewCategory<true> &m_category;
 };
 
 template<typename Category>

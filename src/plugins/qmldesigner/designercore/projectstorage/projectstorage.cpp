@@ -7,18 +7,16 @@
 
 namespace QmlDesigner {
 
-#ifdef ENABLE_PROJECT_STORAGE_TRACING
 namespace {
-NanotraceHR::TraceFile traceFile{"projectstorage.json"};
+NanotraceHR::TraceFile<projectStorageTracingIsEnabled()> traceFile{"projectstorage.json"};
 
 thread_local auto eventQueueData = NanotraceHR::makeEventQueueData<NanotraceHR::StringViewTraceEvent, 1000>(
     traceFile);
-thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent> eventQueue = eventQueueData;
+thread_local NanotraceHR::EventQueue eventQueue = eventQueueData.createEventQueue();
 } // namespace
 
-NanotraceHR::Category<NanotraceHR::StringViewTraceEvent> projectStorageCategory{"project storage"_t,
-                                                                                eventQueue};
-#endif
+NanotraceHR::StringViewCategory<projectStorageTracingIsEnabled()> projectStorageCategory{"project storage"_t,
+                                                                                         eventQueue};
 } // namespace QmlDesigner
 
 template class QmlDesigner::ProjectStorage<Sqlite::Database>;
