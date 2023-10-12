@@ -363,17 +363,17 @@ QJsonArray CollectionDetails::getJsonCollection() const
 QString CollectionDetails::getCsvCollection() const
 {
     QString content;
-    if (d->headers.count() <= 0)
+    if (d->properties.count() <= 0)
         return "";
 
-    for (const QString &header : std::as_const(d->headers))
-        content += header + ',';
+    for (const CollectionProperty &property : std::as_const(d->properties))
+        content += property.name + ',';
 
     content.back() = '\n';
 
     for (const QJsonObject &elementsRow : std::as_const(d->elements)) {
-        for (const QString &header : std::as_const(d->headers)) {
-            const QJsonValue &value = elementsRow.value(header);
+        for (const CollectionProperty &property : std::as_const(d->properties)) {
+            const QJsonValue &value = elementsRow.value(property.name);
 
             if (value.isDouble())
                 content += QString::number(value.toDouble()) + ',';
@@ -385,4 +385,5 @@ QString CollectionDetails::getCsvCollection() const
 
     return content;
 }
+
 } // namespace QmlDesigner
