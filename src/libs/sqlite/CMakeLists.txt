@@ -73,7 +73,7 @@ add_qtc_library(Sqlite
 extend_qtc_library(Sqlite
   CONDITION TARGET Nanotrace
   DEPENDS Nanotrace
-  DEFINES
+  PUBLIC_DEFINES
     $<$<BOOL:${ENABLE_SQLITE_TRACING}>:ENABLE_SQLITE_TRACING>
 )
 

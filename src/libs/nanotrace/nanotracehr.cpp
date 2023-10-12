@@ -42,6 +42,7 @@ void flushEvents(const Utils::span<TraceEvent> events,
             printEvent(out, event, processId, threadId);
             out << ",\n";
         }
+        out << std::flush;
     }
 }
 

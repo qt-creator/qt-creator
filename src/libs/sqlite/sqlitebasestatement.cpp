@@ -35,12 +35,17 @@ thread_local auto eventQueueData = NanotraceHR::makeEventQueueData<NanotraceHR::
     traceFile);
 thread_local NanotraceHR::EventQueue eventQueue = eventQueueData.createEventQueue();
 
-NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> sqliteLowLevelCategory{"sqlite low level"_t,
-                                                                                 eventQueue};
+thread_local NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> sqliteLowLevelCategory{
+    "sqlite low level"_t, eventQueue};
+
+thread_local NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> sqliteHighLevelCategory_{
+    "sqlite high level"_t, eventQueue};
 } // namespace
 
-NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> sqliteHighLevelCategory{"sqlite high level"_t,
-                                                                                  eventQueue};
+NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> &sqliteHighLevelCategory()
+{
+    return sqliteHighLevelCategory_;
+}
 
 BaseStatement::BaseStatement(Utils::SmallStringView sqlStatement, Database &database)
     : m_database(database)

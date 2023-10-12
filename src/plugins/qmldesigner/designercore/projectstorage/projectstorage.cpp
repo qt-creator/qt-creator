@@ -15,8 +15,8 @@ thread_local auto eventQueueData = NanotraceHR::makeEventQueueData<NanotraceHR::
 thread_local NanotraceHR::EventQueue eventQueue = eventQueueData.createEventQueue();
 } // namespace
 
-NanotraceHR::StringViewCategory<projectStorageTracingIsEnabled()> projectStorageCategory{"project storage"_t,
-                                                                                         eventQueue};
+thread_local NanotraceHR::StringViewCategory<projectStorageTracingIsEnabled()> projectStorageCategory{
+    "project storage"_t, eventQueue};
 } // namespace QmlDesigner
 
 template class QmlDesigner::ProjectStorage<Sqlite::Database>;

@@ -53,7 +53,7 @@ constexpr bool sqliteTracingIsEnabled()
 #endif
 }
 
-SQLITE_EXPORT extern NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> sqliteHighLevelCategory;
+SQLITE_EXPORT NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> &sqliteHighLevelCategory();
 
 class SQLITE_EXPORT BaseStatement
 {
@@ -166,7 +166,7 @@ public:
 
     void execute()
     {
-        NanotraceHR::Tracer tracer{"execute"_t, sqliteHighLevelCategory};
+        NanotraceHR::Tracer tracer{"execute"_t, sqliteHighLevelCategory()};
 
         Resetter resetter{this};
         BaseStatement::next();
@@ -175,7 +175,7 @@ public:
     template<typename... ValueType>
     void bindValues(const ValueType &...values)
     {
-        NanotraceHR::Tracer tracer{"bind"_t, sqliteHighLevelCategory};
+        NanotraceHR::Tracer tracer{"bind"_t, sqliteHighLevelCategory()};
 
         static_assert(BindParameterCount == sizeof...(values), "Wrong binding parameter count!");
 
@@ -186,7 +186,7 @@ public:
     template<typename... ValueType>
     void write(const ValueType&... values)
     {
-        NanotraceHR::Tracer tracer{"write"_t, sqliteHighLevelCategory};
+        NanotraceHR::Tracer tracer{"write"_t, sqliteHighLevelCategory()};
 
         Resetter resetter{this};
         bindValues(values...);
@@ -212,7 +212,7 @@ public:
              typename... QueryTypes>
     auto values(const QueryTypes &...queryValues)
     {
-        NanotraceHR::Tracer tracer{"values"_t, sqliteHighLevelCategory};
+        NanotraceHR::Tracer tracer{"values"_t, sqliteHighLevelCategory()};
 
         Resetter resetter{this};
         Container resultValues;
@@ -241,7 +241,7 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto value(const QueryTypes &...queryValues)
     {
-        NanotraceHR::Tracer tracer{"values"_t, sqliteHighLevelCategory};
+        NanotraceHR::Tracer tracer{"values"_t, sqliteHighLevelCategory()};
 
         Resetter resetter{this};
         ResultType resultValue{};
@@ -257,7 +257,7 @@ public:
     template<typename ResultType, typename... QueryTypes>
     auto optionalValue(const QueryTypes &...queryValues)
     {
-        NanotraceHR::Tracer tracer{"optionalValue"_t, sqliteHighLevelCategory};
+        NanotraceHR::Tracer tracer{"optionalValue"_t, sqliteHighLevelCategory()};
 
         Resetter resetter{this};
         std::optional<ResultType> resultValue;
@@ -273,7 +273,7 @@ public:
     template<typename Type>
     static auto toValue(Utils::SmallStringView sqlStatement, Database &database)
     {
-        NanotraceHR::Tracer tracer{"toValue"_t, sqliteHighLevelCategory};
+        NanotraceHR::Tracer tracer{"toValue"_t, sqliteHighLevelCategory()};
 
         StatementImplementation statement(sqlStatement, database);
 
@@ -287,7 +287,7 @@ public:
     template<typename Callable, typename... QueryTypes>
     void readCallback(Callable &&callable, const QueryTypes &...queryValues)
     {
-        NanotraceHR::Tracer tracer{"readCallback"_t, sqliteHighLevelCategory};
+        NanotraceHR::Tracer tracer{"readCallback"_t, sqliteHighLevelCategory()};
 
         Resetter resetter{this};
 
@@ -304,7 +304,7 @@ public:
     template<typename Container, typename... QueryTypes>
     void readTo(Container &container, const QueryTypes &...queryValues)
     {
-        NanotraceHR::Tracer tracer{"readTo"_t, sqliteHighLevelCategory};
+        NanotraceHR::Tracer tracer{"readTo"_t, sqliteHighLevelCategory()};
 
         Resetter resetter{this};
 
@@ -401,8 +401,8 @@ public:
         const_iterator end() const & { return iterator{m_statement, false}; }
 
     private:
-        NanotraceHR::Tracer<decltype(sqliteHighLevelCategory)> tracer{"range"_t,
-                                                                      sqliteHighLevelCategory};
+        NanotraceHR::Tracer<decltype(sqliteHighLevelCategory())> tracer{"range"_t,
+                                                                        sqliteHighLevelCategory()};
         StatementImplementation &m_statement;
     };
 

@@ -37,7 +37,7 @@ constexpr bool projectStorageTracingIsEnabled()
 #endif
 }
 
-extern NanotraceHR::StringViewCategory<projectStorageTracingIsEnabled()> projectStorageCategory;
+extern thread_local NanotraceHR::StringViewCategory<projectStorageTracingIsEnabled()> projectStorageCategory;
 
 template<typename Database>
 class ProjectStorage final : public ProjectStorageInterface
