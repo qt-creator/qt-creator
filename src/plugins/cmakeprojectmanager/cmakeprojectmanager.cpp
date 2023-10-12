@@ -173,8 +173,6 @@ CMakeManager::CMakeManager()
     });
 
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
-        updateCmakeActions(ProjectTree::currentNode());
-
         auto cmakeBuildSystem = qobject_cast<CMakeBuildSystem *>(
             ProjectManager::startupBuildSystem());
         if (cmakeBuildSystem) {
@@ -183,6 +181,7 @@ CMakeManager::CMakeManager()
             CMakeTool::Version version = tool ? tool->version() : CMakeTool::Version();
             m_canDebugCMake = (version.major == 3 && version.minor >= 27) || version.major > 3;
         }
+        updateCmakeActions(ProjectTree::currentNode());
     });
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this, [this] {
         updateCmakeActions(ProjectTree::currentNode());
