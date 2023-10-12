@@ -1,7 +1,7 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "singlecollectionmodel.h"
+#include "collectiondetailsmodel.h"
 
 #include "collectioneditorconstants.h"
 #include "modelnode.h"
@@ -85,15 +85,15 @@ private:
 
 namespace QmlDesigner {
 
-SingleCollectionModel::SingleCollectionModel(QObject *parent)
+CollectionDetailsModel::CollectionDetailsModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-    connect(this, &SingleCollectionModel::modelReset, this, &SingleCollectionModel::updateEmpty);
-    connect(this, &SingleCollectionModel::rowsInserted, this, &SingleCollectionModel::updateEmpty);
-    connect(this, &SingleCollectionModel::rowsRemoved, this, &SingleCollectionModel::updateEmpty);
+    connect(this, &CollectionDetailsModel::modelReset, this, &CollectionDetailsModel::updateEmpty);
+    connect(this, &CollectionDetailsModel::rowsInserted, this, &CollectionDetailsModel::updateEmpty);
+    connect(this, &CollectionDetailsModel::rowsRemoved, this, &CollectionDetailsModel::updateEmpty);
 }
 
-QHash<int, QByteArray> SingleCollectionModel::roleNames() const
+QHash<int, QByteArray> CollectionDetailsModel::roleNames() const
 {
     static QHash<int, QByteArray> roles;
     if (roles.isEmpty()) {
@@ -104,17 +104,17 @@ QHash<int, QByteArray> SingleCollectionModel::roleNames() const
     return roles;
 }
 
-int SingleCollectionModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
+int CollectionDetailsModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
 {
     return m_currentCollection.rows();
 }
 
-int SingleCollectionModel::columnCount([[maybe_unused]] const QModelIndex &parent) const
+int CollectionDetailsModel::columnCount([[maybe_unused]] const QModelIndex &parent) const
 {
     return m_currentCollection.columns();
 }
 
-QVariant SingleCollectionModel::data(const QModelIndex &index, int role) const
+QVariant CollectionDetailsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return {};
@@ -125,12 +125,12 @@ QVariant SingleCollectionModel::data(const QModelIndex &index, int role) const
     return m_currentCollection.data(index.row(), index.column());
 }
 
-bool SingleCollectionModel::setData(const QModelIndex &, const QVariant &, int)
+bool CollectionDetailsModel::setData(const QModelIndex &, const QVariant &, int)
 {
     return false;
 }
 
-bool SingleCollectionModel::setHeaderData(int section,
+bool CollectionDetailsModel::setHeaderData(int section,
                                           Qt::Orientation orientation,
                                           const QVariant &value,
                                           [[maybe_unused]] int role)
@@ -145,7 +145,7 @@ bool SingleCollectionModel::setHeaderData(int section,
     return headerChanged;
 }
 
-bool SingleCollectionModel::insertRows(int row, int count, const QModelIndex &parent)
+bool CollectionDetailsModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     if (count < 1)
         return false;
@@ -158,7 +158,7 @@ bool SingleCollectionModel::insertRows(int row, int count, const QModelIndex &pa
     return true;
 }
 
-bool SingleCollectionModel::removeColumns(int column, int count, const QModelIndex &parent)
+bool CollectionDetailsModel::removeColumns(int column, int count, const QModelIndex &parent)
 {
     if (column < 0 || column >= columnCount(parent) || count < 1)
         return false;
@@ -171,7 +171,7 @@ bool SingleCollectionModel::removeColumns(int column, int count, const QModelInd
     return columnsRemoved;
 }
 
-bool SingleCollectionModel::removeRows(int row, int count, const QModelIndex &parent)
+bool CollectionDetailsModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     if (row < 0 || row >= rowCount(parent) || count < 1)
         return false;
@@ -184,7 +184,7 @@ bool SingleCollectionModel::removeRows(int row, int count, const QModelIndex &pa
     return rowsRemoved;
 }
 
-Qt::ItemFlags SingleCollectionModel::flags(const QModelIndex &index) const
+Qt::ItemFlags CollectionDetailsModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return {};
@@ -192,7 +192,7 @@ Qt::ItemFlags SingleCollectionModel::flags(const QModelIndex &index) const
     return {Qt::ItemIsSelectable | Qt::ItemIsEnabled};
 }
 
-QVariant SingleCollectionModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant CollectionDetailsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
         if (role == DataTypeRole) {
@@ -212,32 +212,32 @@ QVariant SingleCollectionModel::headerData(int section, Qt::Orientation orientat
     return {};
 }
 
-int SingleCollectionModel::selectedColumn() const
+int CollectionDetailsModel::selectedColumn() const
 {
     return m_selectedColumn;
 }
 
-int SingleCollectionModel::selectedRow() const
+int CollectionDetailsModel::selectedRow() const
 {
     return m_selectedRow;
 }
 
-QString SingleCollectionModel::propertyName(int column) const
+QString CollectionDetailsModel::propertyName(int column) const
 {
     return m_currentCollection.propertyAt(column);
 }
 
-QString SingleCollectionModel::propertyType(int column) const
+QString CollectionDetailsModel::propertyType(int column) const
 {
     return CollectionDataTypeHelper::typeToString(m_currentCollection.typeAt(column));
 }
 
-bool SingleCollectionModel::isPropertyAvailable(const QString &name)
+bool CollectionDetailsModel::isPropertyAvailable(const QString &name)
 {
     return m_currentCollection.containsPropertyName(name);
 }
 
-bool SingleCollectionModel::addColumn(int column, const QString &name)
+bool CollectionDetailsModel::addColumn(int column, const QString &name)
 {
     if (m_currentCollection.containsPropertyName(name))
         return false;
@@ -251,7 +251,7 @@ bool SingleCollectionModel::addColumn(int column, const QString &name)
     return m_currentCollection.containsPropertyName(name);
 }
 
-bool SingleCollectionModel::selectColumn(int section)
+bool CollectionDetailsModel::selectColumn(int section)
 {
     if (m_selectedColumn == section)
         return false;
@@ -283,12 +283,12 @@ bool SingleCollectionModel::selectColumn(int section)
     return true;
 }
 
-bool SingleCollectionModel::renameColumn(int section, const QString &newValue)
+bool CollectionDetailsModel::renameColumn(int section, const QString &newValue)
 {
     return setHeaderData(section, Qt::Horizontal, newValue);
 }
 
-bool SingleCollectionModel::setPropertyType(int column, const QString &newValue, bool force)
+bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue, bool force)
 {
     bool changed = m_currentCollection.forcePropertyType(column,
                                                          CollectionDataTypeHelper::typeFromString(
@@ -307,7 +307,7 @@ bool SingleCollectionModel::setPropertyType(int column, const QString &newValue,
     return changed;
 }
 
-bool SingleCollectionModel::selectRow(int row)
+bool CollectionDetailsModel::selectRow(int row)
 {
     if (m_selectedRow == row)
         return false;
@@ -336,18 +336,18 @@ bool SingleCollectionModel::selectRow(int row)
     return true;
 }
 
-void SingleCollectionModel::deselectAll()
+void CollectionDetailsModel::deselectAll()
 {
     selectColumn(-1);
     selectRow(-1);
 }
 
-QStringList SingleCollectionModel::typesList()
+QStringList CollectionDetailsModel::typesList()
 {
     return CollectionDataTypeHelper::typesStringList();
 }
 
-void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QString &collection)
+void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const QString &collection)
 {
     QString fileName = sourceNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toString();
 
@@ -371,7 +371,7 @@ void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QS
     }
 }
 
-void SingleCollectionModel::updateEmpty()
+void CollectionDetailsModel::updateEmpty()
 {
     bool isEmptyNow = rowCount() == 0;
     if (m_isEmpty != isEmptyNow) {
@@ -380,7 +380,7 @@ void SingleCollectionModel::updateEmpty()
     }
 }
 
-void SingleCollectionModel::switchToCollection(const CollectionReference &collection)
+void CollectionDetailsModel::switchToCollection(const CollectionReference &collection)
 {
     if (m_currentCollection.reference() == collection)
         return;
@@ -395,7 +395,7 @@ void SingleCollectionModel::switchToCollection(const CollectionReference &collec
     setCollectionName(collection.name);
 }
 
-void SingleCollectionModel::closeCollectionIfSaved(const CollectionReference &collection)
+void CollectionDetailsModel::closeCollectionIfSaved(const CollectionReference &collection)
 {
     if (!m_openedCollections.contains(collection))
         return;
@@ -408,13 +408,13 @@ void SingleCollectionModel::closeCollectionIfSaved(const CollectionReference &co
     m_currentCollection = CollectionDetails{};
 }
 
-void SingleCollectionModel::closeCurrentCollectionIfSaved()
+void CollectionDetailsModel::closeCurrentCollectionIfSaved()
 {
     if (m_currentCollection.isValid())
         closeCollectionIfSaved(m_currentCollection.reference());
 }
 
-void SingleCollectionModel::loadJsonCollection(const QString &source, const QString &collection)
+void CollectionDetailsModel::loadJsonCollection(const QString &source, const QString &collection)
 {
     using CollectionEditor::SourceFormat;
 
@@ -459,7 +459,7 @@ void SingleCollectionModel::loadJsonCollection(const QString &source, const QStr
     endResetModel();
 }
 
-void SingleCollectionModel::loadCsvCollection(const QString &source,
+void CollectionDetailsModel::loadCsvCollection(const QString &source,
                                               [[maybe_unused]] const QString &collectionName)
 {
     using CollectionEditor::SourceFormat;
@@ -498,7 +498,7 @@ void SingleCollectionModel::loadCsvCollection(const QString &source,
     endResetModel();
 }
 
-void SingleCollectionModel::setCollectionName(const QString &newCollectionName)
+void CollectionDetailsModel::setCollectionName(const QString &newCollectionName)
 {
     if (m_collectionName != newCollectionName) {
         m_collectionName = newCollectionName;
@@ -506,7 +506,7 @@ void SingleCollectionModel::setCollectionName(const QString &newCollectionName)
     }
 }
 
-bool SingleCollectionModel::saveCollectionAsJson(const QString &collection, const QJsonArray &content, const QString &source)
+bool CollectionDetailsModel::saveCollectionAsJson(const QString &collection, const QJsonArray &content, const QString &source)
 {
     QFile sourceFile(source);
     if (sourceFile.open(QFile::ReadWrite)) {
@@ -527,7 +527,7 @@ bool SingleCollectionModel::saveCollectionAsJson(const QString &collection, cons
     return false;
 }
 
-bool SingleCollectionModel::saveCollectionAsCsv(const QString &path, const QString &content)
+bool CollectionDetailsModel::saveCollectionAsCsv(const QString &path, const QString &content)
 {
     QFile file(path);
 

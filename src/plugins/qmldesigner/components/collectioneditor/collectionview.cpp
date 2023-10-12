@@ -3,6 +3,7 @@
 
 #include "collectionview.h"
 
+#include "collectiondetailsmodel.h"
 #include "collectioneditorconstants.h"
 #include "collectionsourcemodel.h"
 #include "collectionwidget.h"
@@ -10,7 +11,6 @@
 #include "nodeabstractproperty.h"
 #include "nodemetainfo.h"
 #include "qmldesignerplugin.h"
-#include "singlecollectionmodel.h"
 #include "variantproperty.h"
 
 #include <QJsonArray>
@@ -55,7 +55,7 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                 &CollectionSourceModel::collectionSelected,
                 this,
                 [this](const ModelNode &sourceNode, const QString &collection) {
-                    m_widget->singleCollectionModel()->loadCollection(sourceNode, collection);
+                    m_widget->collectionDetailsModel()->loadCollection(sourceNode, collection);
                 });
     }
 

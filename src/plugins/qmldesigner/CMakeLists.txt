@@ -822,12 +822,12 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/collectioneditor
   SOURCES
     collectiondetails.cpp collectiondetails.h
+    collectiondetailsmodel.cpp collectiondetailsmodel.h
     collectioneditorconstants.h
     collectionlistmodel.cpp collectionlistmodel.h
     collectionsourcemodel.cpp collectionsourcemodel.h
     collectionview.cpp collectionview.h
     collectionwidget.cpp collectionwidget.h
-    singlecollectionmodel.cpp singlecollectionmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

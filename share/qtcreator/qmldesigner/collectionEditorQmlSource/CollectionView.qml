@@ -14,7 +14,7 @@ Item {
 
     property var rootView: CollectionEditorBackend.rootView
     property var model: CollectionEditorBackend.model
-    property var singleCollectionModel: CollectionEditorBackend.singleCollectionModel
+    property var collectionDetailsModel: CollectionEditorBackend.collectionDetailsModel
 
     function showWarning(title, message) {
         warningDialog.title = title
@@ -142,8 +142,8 @@ Item {
         }
     }
 
-    SingleCollectionView {
-        model: root.singleCollectionModel
+    CollectionDetailsView {
+        model: root.collectionDetailsModel
         anchors {
             left: collectionsRect.right
             right: parent.right

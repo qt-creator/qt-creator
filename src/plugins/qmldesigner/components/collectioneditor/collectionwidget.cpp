@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "collectionwidget.h"
+
+#include "collectiondetailsmodel.h"
 #include "collectionsourcemodel.h"
 #include "collectionview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
-#include "singlecollectionmodel.h"
 #include "theme.h"
 
 #include <studioquickwidget.h>
@@ -38,7 +39,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     : QFrame()
     , m_view(view)
     , m_sourceModel(new CollectionSourceModel)
-    , m_singleCollectionModel(new SingleCollectionModel)
+    , m_collectionDetailsModel(new CollectionDetailsModel)
     , m_quickWidget(new StudioQuickWidget(this))
 {
     setWindowTitle(tr("Collection View", "Title of collection view widget"));
@@ -67,7 +68,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     map->setProperties(
         {{"rootView", QVariant::fromValue(this)},
          {"model", QVariant::fromValue(m_sourceModel.data())},
-         {"singleCollectionModel", QVariant::fromValue(m_singleCollectionModel.data())}});
+         {"collectionDetailsModel", QVariant::fromValue(m_collectionDetailsModel.data())}});
 
     auto hotReloadShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
     connect(hotReloadShortcut, &QShortcut::activated, this, &CollectionWidget::reloadQmlSource);
@@ -88,9 +89,9 @@ QPointer<CollectionSourceModel> CollectionWidget::sourceModel() const
     return m_sourceModel;
 }
 
-QPointer<SingleCollectionModel> CollectionWidget::singleCollectionModel() const
+QPointer<CollectionDetailsModel> CollectionWidget::collectionDetailsModel() const
 {
-    return m_singleCollectionModel;
+    return m_collectionDetailsModel;
 }
 
 void CollectionWidget::reloadQmlSource()

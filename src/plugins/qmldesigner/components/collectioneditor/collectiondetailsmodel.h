@@ -12,7 +12,7 @@ namespace QmlDesigner {
 
 class ModelNode;
 
-class SingleCollectionModel : public QAbstractTableModel
+class CollectionDetailsModel : public QAbstractTableModel
 {
     Q_OBJECT
 
@@ -24,7 +24,7 @@ class SingleCollectionModel : public QAbstractTableModel
 public:
     enum DataRoles { SelectedRole = Qt::UserRole + 1, DataTypeRole };
 
-    explicit SingleCollectionModel(QObject *parent = nullptr);
+    explicit CollectionDetailsModel(QObject *parent = nullptr);
 
     QHash<int, QByteArray> roleNames() const override;
     int rowCount(const QModelIndex &parent = {}) const override;
