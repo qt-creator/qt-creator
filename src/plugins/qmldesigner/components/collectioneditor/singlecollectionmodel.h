@@ -22,7 +22,7 @@ class SingleCollectionModel : public QAbstractTableModel
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
 
 public:
-    enum DataRoles { SelectedRole = Qt::UserRole + 1 };
+    enum DataRoles { SelectedRole = Qt::UserRole + 1, DataTypeRole };
 
     explicit SingleCollectionModel(QObject *parent = nullptr);
 
@@ -45,15 +45,20 @@ public:
                         int role = Qt::DisplayRole) const override;
     int selectedColumn() const;
     int selectedRow() const;
+    Q_INVOKABLE QString propertyName(int column) const;
+    Q_INVOKABLE QString propertyType(int column) const;
 
     Q_INVOKABLE bool isPropertyAvailable(const QString &name);
     Q_INVOKABLE bool addColumn(int column, const QString &name);
     Q_INVOKABLE bool selectColumn(int section);
     Q_INVOKABLE bool renameColumn(int section, const QString &newValue);
+    Q_INVOKABLE bool setPropertyType(int column, const QString &newValue, bool force = false);
 
     Q_INVOKABLE bool selectRow(int row);
 
     Q_INVOKABLE void deselectAll();
+
+    static Q_INVOKABLE QStringList typesList();
 
     void loadCollection(const ModelNode &sourceNode, const QString &collection);
 

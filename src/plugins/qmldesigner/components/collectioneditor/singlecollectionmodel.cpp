@@ -30,6 +30,57 @@ QStringList getJsonHeaders(const QJsonArray &collectionArray)
 
     return result.values();
 }
+
+class CollectionDataTypeHelper
+{
+public:
+    using DataType = QmlDesigner::CollectionDetails::DataType;
+
+    static QString typeToString(DataType dataType)
+    {
+        static const QHash<DataType, QString> typeStringHash = typeToStringHash();
+        return typeStringHash.value(dataType);
+    }
+
+    static DataType typeFromString(const QString &dataType)
+    {
+        static const QHash<QString, DataType> stringTypeHash = stringToTypeHash();
+        return stringTypeHash.value(dataType);
+    }
+
+    static QStringList typesStringList()
+    {
+        static const QStringList typesList = typeToStringHash().values();
+        return typesList;
+    }
+
+private:
+    CollectionDataTypeHelper() = delete;
+
+    static QHash<DataType, QString> typeToStringHash()
+    {
+        return {
+            {DataType::Unknown, "Unknown"},
+            {DataType::String, "String"},
+            {DataType::Url, "Url"},
+            {DataType::Number, "Number"},
+            {DataType::Boolean, "Boolean"},
+            {DataType::Image, "Image"},
+            {DataType::Color, "Color"},
+        };
+    }
+
+    static QHash<QString, DataType> stringToTypeHash()
+    {
+        QHash<QString, DataType> stringTypeHash;
+        const QHash<DataType, QString> typeStringHash = typeToStringHash();
+        for (const auto &transferItem : typeStringHash.asKeyValueRange())
+            stringTypeHash.insert(transferItem.second, transferItem.first);
+
+        return stringTypeHash;
+    }
+};
+
 } // namespace
 
 namespace QmlDesigner {
@@ -48,6 +99,7 @@ QHash<int, QByteArray> SingleCollectionModel::roleNames() const
     if (roles.isEmpty()) {
         roles.insert(QAbstractTableModel::roleNames());
         roles.insert(SelectedRole, "itemSelected");
+        roles.insert(DataTypeRole, "dataType");
     }
     return roles;
 }
@@ -140,12 +192,19 @@ Qt::ItemFlags SingleCollectionModel::flags(const QModelIndex &index) const
     return {Qt::ItemIsSelectable | Qt::ItemIsEnabled};
 }
 
-QVariant SingleCollectionModel::headerData(int section,
-                                           Qt::Orientation orientation,
-                                           [[maybe_unused]] int role) const
+QVariant SingleCollectionModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (orientation == Qt::Horizontal)
-        return m_currentCollection.propertyAt(section);
+    if (orientation == Qt::Horizontal) {
+        if (role == DataTypeRole) {
+            return CollectionDataTypeHelper::typeToString(m_currentCollection.typeAt(section));
+        } else if (role == Qt::DisplayRole) {
+            return QString("%1 <%2>").arg(m_currentCollection.propertyAt(section),
+                                          CollectionDataTypeHelper::typeToString(
+                                              m_currentCollection.typeAt(section)));
+        } else {
+            return m_currentCollection.propertyAt(section);
+        }
+    }
 
     if (orientation == Qt::Vertical)
         return section + 1;
@@ -161,6 +220,16 @@ int SingleCollectionModel::selectedColumn() const
 int SingleCollectionModel::selectedRow() const
 {
     return m_selectedRow;
+}
+
+QString SingleCollectionModel::propertyName(int column) const
+{
+    return m_currentCollection.propertyAt(column);
+}
+
+QString SingleCollectionModel::propertyType(int column) const
+{
+    return CollectionDataTypeHelper::typeToString(m_currentCollection.typeAt(column));
 }
 
 bool SingleCollectionModel::isPropertyAvailable(const QString &name)
@@ -219,6 +288,25 @@ bool SingleCollectionModel::renameColumn(int section, const QString &newValue)
     return setHeaderData(section, Qt::Horizontal, newValue);
 }
 
+bool SingleCollectionModel::setPropertyType(int column, const QString &newValue, bool force)
+{
+    bool changed = m_currentCollection.forcePropertyType(column,
+                                                         CollectionDataTypeHelper::typeFromString(
+                                                             newValue),
+                                                         force);
+    if (changed) {
+        emit headerDataChanged(Qt::Horizontal, column, column);
+
+        if (force) {
+            emit dataChanged(index(0, column),
+                             index(rowCount() - 1, column),
+                             {Qt::DisplayRole, DataTypeRole});
+        }
+    }
+
+    return changed;
+}
+
 bool SingleCollectionModel::selectRow(int row)
 {
     if (m_selectedRow == row)
@@ -252,6 +340,11 @@ void SingleCollectionModel::deselectAll()
 {
     selectColumn(-1);
     selectRow(-1);
+}
+
+QStringList SingleCollectionModel::typesList()
+{
+    return CollectionDataTypeHelper::typesStringList();
 }
 
 void SingleCollectionModel::loadCollection(const ModelNode &sourceNode, const QString &collection)

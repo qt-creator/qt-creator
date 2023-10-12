@@ -58,6 +58,27 @@ static CollectionProperty::DataType collectionDataTypeFromJsonValue(const QJsonV
     }
 }
 
+static QVariant valueToVariant(const QJsonValue &value, CollectionDetails::DataType type)
+{
+    using DataType = CollectionDetails::DataType;
+    QVariant variantValue = value.toVariant();
+
+    switch (type) {
+    case DataType::String:
+        return variantValue.toString();
+    case DataType::Number:
+        return variantValue.toDouble();
+    case DataType::Boolean:
+        return variantValue.toBool();
+    case DataType::Color:
+        return variantValue.value<QColor>();
+    case DataType::Url:
+        return variantValue.value<QUrl>();
+    default:
+        return variantValue;
+    }
+}
+
 CollectionDetails::CollectionDetails()
     : d(new Private())
 {}
@@ -219,6 +240,34 @@ bool CollectionDetails::setPropertyName(int column, const QString &value)
 
     markChanged();
     return true;
+}
+
+bool CollectionDetails::forcePropertyType(int column, DataType type, bool force)
+{
+    if (!isValid() || !d->isValidColumnId(column))
+        return false;
+
+    bool changed = false;
+    CollectionProperty &property = d->properties[column];
+    if (property.type != type)
+        changed = true;
+
+    property.type = type;
+
+    if (force) {
+        for (QJsonObject &element : d->elements) {
+            if (element.contains(property.name)) {
+                QJsonValue value = element.value(property.name);
+                element.insert(property.name, valueToVariant(value, type).toJsonValue());
+                changed = true;
+            }
+        }
+    }
+
+    if (changed)
+        markChanged();
+
+    return changed;
 }
 
 CollectionReference CollectionDetails::reference() const

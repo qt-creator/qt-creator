@@ -20,10 +20,15 @@ StudioControls.Dialog {
         if (root.__propertyIndex < 0)
             return
 
-        let previousName = root.model.headerData(root.__propertyIndex, Qt.Horizontal)
+        let previousName = root.model.propertyName(root.__propertyIndex)
+        let previousType = root.model.propertyType(root.__propertyIndex)
 
         oldName.text = previousName
         newNameField.text = previousName
+
+        propertyType.initialType = previousType
+
+        forceChangeType.checked = false
 
         root.open()
     }
@@ -31,6 +36,9 @@ StudioControls.Dialog {
     onAccepted: {
         if (newNameField.text !== "" && newNameField.text !== oldName.text)
             root.model.renameColumn(root.__propertyIndex, newNameField.text)
+
+        if (propertyType.changed || forceChangeType.checked)
+            root.model.setPropertyType(root.__propertyIndex, propertyType.currentText, forceChangeType.checked)
     }
 
     contentItem: Column {
@@ -72,6 +80,35 @@ StudioControls.Dialog {
                 onTextChanged: {
                     editButton.enabled = newNameField.text !== ""
                 }
+            }
+
+            Text {
+                text: qsTr("Type")
+                color: StudioTheme.Values.themeTextColor
+            }
+
+            StudioControls.ComboBox {
+                id: propertyType
+
+                property string initialType
+                readonly property bool changed: propertyType.initialType !== propertyType.currentText
+
+                model: root.model.typesList()
+
+                onInitialTypeChanged: {
+                    let propertyIndex = propertyType.find(initialType)
+                    propertyType.currentIndex = propertyIndex
+                }
+            }
+
+            StudioControls.CheckBox {
+                id: forceChangeType
+                actionIndicatorVisible: false
+            }
+
+            Text {
+                text: qsTr("Force update values")
+                color: StudioTheme.Values.themeTextColor
             }
         }
 

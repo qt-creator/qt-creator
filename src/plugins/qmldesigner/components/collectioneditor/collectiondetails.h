@@ -59,6 +59,7 @@ public:
     bool removeElements(int row, int count = 1);
 
     bool setPropertyName(int column, const QString &value);
+    bool forcePropertyType(int column, DataType type, bool force = false);
 
     CollectionReference reference() const;
     CollectionEditor::SourceFormat sourceFormat() const;
