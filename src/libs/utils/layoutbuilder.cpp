@@ -573,9 +573,26 @@ void LayoutItem::attachTo(QWidget *w) const
 
 QWidget *LayoutItem::emerge()
 {
-    auto w = new QWidget;
-    attachTo(w);
-    return w;
+    LayoutBuilder builder;
+
+    builder.stack.append(Slice());
+    addItemHelper(builder, *this);
+
+    if (builder.stack.empty())
+        return nullptr;
+
+    QTC_ASSERT(builder.stack.last().pendingItems.size() == 1, return nullptr);
+    ResultItem ri = builder.stack.last().pendingItems.takeFirst();
+
+    QTC_ASSERT(ri.layout || ri.widget, return nullptr);
+
+    if (ri.layout) {
+        auto w = new QWidget;
+        w->setLayout(ri.layout);
+        return w;
+    }
+
+    return ri.widget;
 }
 
 static void layoutExit(LayoutBuilder &builder)
@@ -855,6 +872,17 @@ LayoutItem title(const QString &title)
             groupBox->setObjectName(title);
         } else if (auto widget = qobject_cast<QWidget *>(target)) {
             widget->setWindowTitle(title);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+LayoutItem windowTitle(const QString &windowTitle)
+{
+    return [windowTitle](QObject *target) {
+        if (auto widget = qobject_cast<QWidget *>(target)) {
+            widget->setWindowTitle(windowTitle);
         } else {
             QTC_CHECK(false);
         }
