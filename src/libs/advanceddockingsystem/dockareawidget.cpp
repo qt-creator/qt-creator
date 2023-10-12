@@ -46,11 +46,11 @@ static bool isAutoHideFeatureEnabled()
 }
 
 /**
- * Internal dock area layout mimics stack layout but only inserts the current
- * widget into the internal QLayout object.
- * \warning Only the current widget has a parent. All other widgets
- * do not have a parent. That means, a widget that is in this layout may
- * return nullptr for its parent() function if it is not the current widget.
+ * Internal dock area layout mimics stack layout but only inserts the current widget into the
+ * internal QLayout object.
+ * \warning Only the current widget has a parent. All other widgets do not have a parent. That
+ * means, a widget that is in this layout may return nullptr for its parent() function if it is
+ * not the current widget.
  */
 class DockAreaLayout
 {
@@ -74,8 +74,7 @@ public:
     int count() const { return m_widgets.count(); }
 
     /**
-     * Inserts the widget at the given index position into the internal widget
-     * list
+     * Inserts the widget at the given index position into the internal widget list
      */
     void insertWidget(int index, QWidget *widget)
     {
@@ -195,8 +194,7 @@ struct DockAreaWidgetPrivate
     DockManager *m_dockManager = nullptr;
     AutoHideDockContainer *m_autoHideDockContainer = nullptr;
     bool m_updateTitleBarButtons = false;
-    DockWidgetAreas m_allowedAreas = AllDockAreas;
-    QSize m_minSizeHint;
+    DockWidgetAreas m_allowedAreas = DefaultAllowedAreas;
     DockAreaWidget::DockAreaFlags m_flags{DockAreaWidget::DefaultFlags};
 
     /**
@@ -252,20 +250,6 @@ struct DockAreaWidgetPrivate
      * Updates the visibility of the close and detach button
      */
     void updateTitleBarButtonVisibility(bool isTopLevel);
-
-    /**
-     * Scans all contained dock widgets for the max. minimum size hint
-     */
-    void updateMinimumSizeHint()
-    {
-        m_minSizeHint = QSize();
-        for (int i = 0; i < m_contentsLayout->count(); ++i) {
-            auto widget = m_contentsLayout->widget(i);
-            m_minSizeHint.setHeight(
-                qMax(m_minSizeHint.height(), widget->minimumSizeHint().height()));
-            m_minSizeHint.setWidth(qMax(m_minSizeHint.width(), widget->minimumSizeHint().width()));
-        }
-    }
 };
 // struct DockAreaWidgetPrivate
 
@@ -391,26 +375,24 @@ void DockAreaWidget::insertDockWidget(int index, DockWidget *dockWidget, bool ac
     dockWidget->setDockArea(this);
     dockWidget->tabWidget()->setDockAreaWidget(this);
     auto tabWidget = dockWidget->tabWidget();
-    // Inserting the tab will change the current index which in turn will
-    // make the tab widget visible in the slot
+    // Inserting the tab will change the current index which in turn will make the tab widget
+    // visible in the slot
     d->tabBar()->blockSignals(true);
     d->tabBar()->insertTab(index, tabWidget);
     d->tabBar()->blockSignals(false);
     tabWidget->setVisible(!dockWidget->isClosed());
     d->m_titleBar->autoHideTitleLabel()->setText(dockWidget->windowTitle());
     dockWidget->setProperty(g_indexProperty, index);
-    d->m_minSizeHint.setHeight(
-        qMax(d->m_minSizeHint.height(), dockWidget->minimumSizeHint().height()));
-    d->m_minSizeHint.setWidth(qMax(d->m_minSizeHint.width(), dockWidget->minimumSizeHint().width()));
     if (activate) {
         setCurrentIndex(index);
-        dockWidget->setClosedState(
-            false); // Set current index can show the widget without changing the close state, added to keep the close state consistent
+        // Set current index can show the widget without changing the close state, added to keep
+        // the close state consistent
+        dockWidget->setClosedState(false);
     }
 
-    // If this dock area is hidden, then we need to make it visible again
-    // by calling dockWidget->toggleViewInternal(true);
-    if (!this->isVisible() && d->m_contentsLayout->count() > 1 && !dockManager()->isRestoringState())
+    // If this dock area is hidden, then we need to make it visible again by calling
+    // dockWidget->toggleViewInternal(true);
+    if (!isVisible() && d->m_contentsLayout->count() > 1 && !dockManager()->isRestoringState())
         dockWidget->toggleViewInternal(true);
 
     d->updateTitleBarButtonStates();
@@ -423,8 +405,7 @@ void DockAreaWidget::removeDockWidget(DockWidget *dockWidget)
     if (!dockWidget)
         return;
 
-    // If this dock area is in a auto hide container, then we can delete
-    // the auto hide container now
+    // If this dock area is in a auto hide container, then we can delete the auto hide container now
     if (isAutoHide()) {
         autoHideDockContainer()->cleanupAndDelete();
         return;
@@ -445,7 +426,7 @@ void DockAreaWidget::removeDockWidget(DockWidget *dockWidget)
     } else if (d->m_contentsLayout->isEmpty() && dockContainerWidget->dockAreaCount() >= 1) {
         qCInfo(adsLog) << "Dock Area empty";
         dockContainerWidget->removeDockArea(this);
-        this->deleteLater();
+        deleteLater();
         if (dockContainerWidget->dockAreaCount() == 0) {
             if (FloatingDockContainer *floatingDockContainer
                 = dockContainerWidget->floatingWidget()) {
@@ -454,15 +435,13 @@ void DockAreaWidget::removeDockWidget(DockWidget *dockWidget)
             }
         }
     } else if (dockWidget == current) {
-        // if contents layout is not empty but there are no more open dock
-        // widgets, then we need to hide the dock area because it does not
-        // contain any visible content
+        // If contents layout is not empty but there are no more open dock widgets, then we need to
+        // hide the dock area because it does not contain any visible content
         hideAreaWithNoVisibleContent();
     }
 
     d->updateTitleBarButtonStates();
     updateTitleBarVisibility();
-    d->updateMinimumSizeHint();
     auto topLevelDockWidget = dockContainerWidget->topLevelDockWidget();
     if (topLevelDockWidget)
         topLevelDockWidget->emitTopLevelChanged(true);
@@ -474,16 +453,16 @@ void DockAreaWidget::removeDockWidget(DockWidget *dockWidget)
 
 void DockAreaWidget::hideAreaWithNoVisibleContent()
 {
-    this->toggleView(false);
+    toggleView(false);
 
     // Hide empty parent splitters
     auto splitter = internal::findParent<DockSplitter *>(this);
     internal::hideEmptyParentSplitters(splitter);
 
-    //Hide empty floating widget
-    DockContainerWidget *container = this->dockContainer();
+    // Hide empty floating widget
+    DockContainerWidget *container = dockContainer();
     if (!container->isFloating()
-        && DockManager::testConfigFlag(DockManager::HideSingleCentralWidgetTitleBar))
+        && !DockManager::testConfigFlag(DockManager::HideSingleCentralWidgetTitleBar))
         return;
 
     updateTitleBarVisibility();
@@ -532,8 +511,9 @@ void DockAreaWidget::internalSetCurrentDockWidget(DockWidget *dockWidget)
         return;
 
     setCurrentIndex(index);
-    dockWidget->setClosedState(
-        false); // Set current index can show the widget without changing the close state, added to keep the close state consistent
+    // Set current index can show the widget without changing the close state, added to keep
+    // the close state consistent
+    dockWidget->setClosedState(false);
 }
 
 void DockAreaWidget::setCurrentIndex(int index)
@@ -601,7 +581,7 @@ QList<DockWidget *> DockAreaWidget::openedDockWidgets() const
     for (int i = 0; i < d->m_contentsLayout->count(); ++i) {
         DockWidget *currentDockWidget = dockWidget(i);
         if (!currentDockWidget->isClosed())
-            dockWidgetList.append(dockWidget(i));
+            dockWidgetList.append(currentDockWidget);
     }
     return dockWidgetList;
 }
@@ -672,8 +652,8 @@ void DockAreaWidget::updateTitleBarVisibility()
     if (isAutoHideFeatureEnabled()) {
         auto tabBar = d->m_titleBar->tabBar();
         tabBar->setVisible(!autoHide); // Never show tab bar when auto hidden
-        d->m_titleBar->autoHideTitleLabel()->setVisible(
-            autoHide);                 // Always show when auto hidden, never otherwise
+        // Always show when auto hidden, never otherwise
+        d->m_titleBar->autoHideTitleLabel()->setVisible(autoHide);
         updateTitleBarButtonVisibility(container->topLevelDockArea() == this);
     }
 }
@@ -786,8 +766,8 @@ bool DockAreaWidget::restoreState(DockingStateReader &stateReader,
         if (dockWidget->autoHideDockContainer())
             dockWidget->autoHideDockContainer()->cleanupAndDelete();
 
-        // We hide the DockArea here to prevent the short display (the flashing)
-        // of the dock areas during application startup
+        // We hide the DockArea here to prevent the short display (the flashing) of the dock
+        // areas during application startup
         dockArea->hide();
         dockArea->addDockWidget(dockWidget);
         dockWidget->setToggleViewActionChecked(!closed);
@@ -919,10 +899,10 @@ QAbstractButton *DockAreaWidget::titleBarButton(eTitleBarButton which) const
 
 void DockAreaWidget::closeArea()
 {
-    // If there is only one single dock widget and this widget has the
-    // DeleteOnClose feature or CustomCloseHandling, then we delete the dock widget now;
-    // in the case of CustomCloseHandling, the CDockWidget class will emit its
-    // closeRequested signal and not actually delete unless the signal is handled in a way that deletes it
+    // If there is only one single dock widget and this widget has the DeleteOnClose feature or
+    // CustomCloseHandling, then we delete the dock widget now; in the case of CustomCloseHandling,
+    // the DockWidget class will emit its closeRequested signal and not actually delete unless
+    // the signal is handled in a way that deletes it
     auto openDockWidgets = openedDockWidgets();
     if (openDockWidgets.count() == 1
         && (openDockWidgets[0]->features().testFlag(DockWidget::DockWidgetDeleteOnClose)
@@ -983,27 +963,23 @@ SideBarLocation DockAreaWidget::calculateSideTabBarArea() const
 
     int distance = qAbs(contentRect.topLeft().y() - dockAreaRect.topLeft().y());
     borderDistance[SideBarLocation::SideBarTop] = (distance < minBorderDistance) ? 0 : distance;
-    if (!borderDistance[SideBarLocation::SideBarTop]) {
+    if (!borderDistance[SideBarLocation::SideBarTop])
         borders |= BorderTop;
-    }
 
     distance = qAbs(contentRect.bottomRight().y() - dockAreaRect.bottomRight().y());
     borderDistance[SideBarLocation::SideBarBottom] = (distance < minBorderDistance) ? 0 : distance;
-    if (!borderDistance[SideBarLocation::SideBarBottom]) {
+    if (!borderDistance[SideBarLocation::SideBarBottom])
         borders |= BorderBottom;
-    }
 
     distance = qAbs(contentRect.topLeft().x() - dockAreaRect.topLeft().x());
     borderDistance[SideBarLocation::SideBarLeft] = (distance < minBorderDistance) ? 0 : distance;
-    if (!borderDistance[SideBarLocation::SideBarLeft]) {
+    if (!borderDistance[SideBarLocation::SideBarLeft])
         borders |= BorderLeft;
-    }
 
     distance = qAbs(contentRect.bottomRight().x() - dockAreaRect.bottomRight().x());
     borderDistance[SideBarLocation::SideBarRight] = (distance < minBorderDistance) ? 0 : distance;
-    if (!borderDistance[SideBarLocation::SideBarRight]) {
+    if (!borderDistance[SideBarLocation::SideBarRight])
         borders |= BorderRight;
-    }
 
     auto sideTab = SideBarLocation::SideBarRight;
     switch (borders) {
@@ -1145,13 +1121,19 @@ bool DockAreaWidget::containsCentralWidget() const
 
 QSize DockAreaWidget::minimumSizeHint() const
 {
-    if (!d->m_minSizeHint.isValid())
-        return Super::minimumSizeHint();
+    QSize s(0, 0);
+
+    if (d->m_contentsLayout) {
+        for (int i = 0; i < d->m_contentsLayout->count(); ++i) {
+            auto widget = d->m_contentsLayout->widget(i);
+            s = s.expandedTo(widget->minimumSizeHint());
+        }
+    }
 
     if (d->m_titleBar->isVisible())
-        return d->m_minSizeHint + QSize(0, d->m_titleBar->minimumSizeHint().height());
-    else
-        return d->m_minSizeHint;
+        s += QSize(0, d->m_titleBar->minimumSizeHint().height());
+
+    return s;
 }
 
 void DockAreaWidget::onDockWidgetFeaturesChanged()

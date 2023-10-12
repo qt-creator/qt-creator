@@ -186,6 +186,10 @@ void DesignModeWidget::setup()
 
     //ADS::DockManager::setAutoHideConfigFlags(ADS::DockManager::DefaultAutoHideConfig);
 
+    auto designerSettings = DesignerSettings(settings);
+    if (designerSettings.value(DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE).toBool())
+        m_minimumSizeHintMode = ADS::DockWidget::MinimumSizeHintFromContentMinimumSize;
+
     m_dockManager = new ADS::DockManager(this);
     m_dockManager->setSettings(settings);
     m_dockManager->setWorkspacePresetsPath(
@@ -306,8 +310,9 @@ void DesignModeWidget::setup()
 
         // Create DockWidget
         ADS::DockWidget *dockWidget = new ADS::DockWidget(uniqueId);
-        dockWidget->setWidget(navigationView.widget);
+        dockWidget->setWidget(navigationView.widget, ADS::DockWidget::ForceNoScrollArea);
         dockWidget->setWindowTitle(title);
+        dockWidget->setMinimumSizeHintMode(m_minimumSizeHintMode);
         m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
 
         // Set unique id as object name
@@ -325,8 +330,9 @@ void DesignModeWidget::setup()
     for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
         // Create DockWidget
         ADS::DockWidget *dockWidget = new ADS::DockWidget(widgetInfo.uniqueId);
-        dockWidget->setWidget(widgetInfo.widget);
+        dockWidget->setWidget(widgetInfo.widget, ADS::DockWidget::ForceNoScrollArea);
         dockWidget->setWindowTitle(widgetInfo.tabName);
+        dockWidget->setMinimumSizeHintMode(m_minimumSizeHintMode);
         m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
 
         // Add to view widgets
@@ -349,8 +355,9 @@ void DesignModeWidget::setup()
         const QString uniqueId = "OutputPane";
         auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN);
         m_outputPaneDockWidget = new ADS::DockWidget(uniqueId);
-        m_outputPaneDockWidget->setWidget(outputPanePlaceholder);
+        m_outputPaneDockWidget->setWidget(outputPanePlaceholder, ADS::DockWidget::ForceNoScrollArea);
         m_outputPaneDockWidget->setWindowTitle(tr("Output"));
+        m_outputPaneDockWidget->setMinimumSizeHintMode(m_minimumSizeHintMode);
         m_dockManager->addDockWidget(ADS::NoDockWidgetArea, m_outputPaneDockWidget);
 
         // Set unique id as object name
@@ -539,6 +546,29 @@ ADS::DockManager *DesignModeWidget::dockManager() const
 GlobalAnnotationEditor &DesignModeWidget::globalAnnotationEditor()
 {
     return m_globalAnnotationEditor;
+}
+
+void DesignModeWidget::setMinimumSizeHintFromContentMinimumSize(bool value)
+{
+    // This is the default mode
+    ADS::DockWidget::eMinimumSizeHintMode newMode = ADS::DockWidget::MinimumSizeHintFromDockWidget;
+
+    if (value)
+        newMode = ADS::DockWidget::MinimumSizeHintFromContentMinimumSize;
+
+    if (newMode == m_minimumSizeHintMode)
+        return;
+
+    m_minimumSizeHintMode = newMode;
+
+    const auto &dockWidgets = m_dockManager->dockWidgetsMap();
+    for (auto dockWidget : dockWidgets)
+        dockWidget->setMinimumSizeHintMode(m_minimumSizeHintMode);
+
+    const auto &dockContainers = m_dockManager->dockContainers();
+    // This still needs to be updated manually to show changes immediately after option was toggled
+    for (auto dockContainer : dockContainers)
+        dockContainer->layout()->update();
 }
 
 void DesignModeWidget::dragEnterEvent(QDragEnterEvent *event)

@@ -39,20 +39,6 @@
 #include <QShortcut>
 #include <QColorDialog>
 
-namespace {
-QSize maxSize(const std::initializer_list<QSize> &sizeList)
-{
-    QSize result;
-    for (const QSize &size : sizeList) {
-        if (size.width() > result.width())
-            result.setWidth(size.width());
-        if (size.height() > result.height())
-            result.setHeight(size.height());
-    }
-    return result;
-}
-}
-
 namespace QmlDesigner {
 
 MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
@@ -612,14 +598,7 @@ void MaterialEditorView::setupQmlBackend()
     initPreviewData();
 
     m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
-    if (m_qmlBackEnd->widget()) {
-        m_stackedWidget->setMinimumSize(maxSize({m_qmlBackEnd->widget()->sizeHint(),
-                                                 m_qmlBackEnd->widget()->initialSize(),
-                                                 m_qmlBackEnd->widget()->minimumSizeHint(),
-                                                 m_qmlBackEnd->widget()->minimumSize()}));
-    } else {
-        m_stackedWidget->setMinimumSize({400, 300});
-    }
+    m_stackedWidget->setMinimumSize({400, 300});
 }
 
 void MaterialEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)

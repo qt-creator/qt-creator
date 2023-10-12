@@ -24,6 +24,8 @@ StudioQuickWidget::StudioQuickWidget(QWidget *parent)
     setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_quickWidget);
+
+    setMinimumSize(QSize(100, 100)); // sensible default
 }
 
 QQmlEngine *StudioQuickWidget::engine() const

@@ -228,8 +228,8 @@ DStableHeaderText=ff00ff00
 
 DSdockContainerBackground=ff242424
 DSdockContainerSplitter=ff323232
-DSdockAreaBackground=ff262728
-DSdockWidgetBackground=ff00ff00
+DSdockAreaBackground=dawnGrey
+DSdockWidgetBackground=dawnGrey
 DStitleBarText=ffdadada
 DStitleBarIcon=ffffffff
 DStitleBarButtonHover=40ffffff

@@ -211,9 +211,8 @@ DStableHeaderText=ff00ff00
 
 DSdockContainerBackground=ff323232
 DSdockContainerSplitter=ff323232
-DSdockAreaBackground=ff262728
-
-DSdockWidgetBackground=ff00ff00
+DSdockAreaBackground=ffeaeaea
+DSdockWidgetBackground=ffeaeaea
 DSdockWidgetSplitter=ff595959
 DSdockWidgetTitleBar=ffeaeaea
 

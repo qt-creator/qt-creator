@@ -98,8 +98,7 @@ public:
 
         Theme::setupTheme(engine());
 
-        setMinimumWidth(195);
-        setMinimumHeight(195);
+        setMinimumSize(QSize(195, 195));
 
         // init the first load of the QML UI elements
         reloadQmlSource();
