@@ -11,6 +11,7 @@ import QtQuick3D.Particles3D
 Node {
     id: root
 
+    property View3D view3d: null
     property Node targetNode: null
     property var selectedNodes: []
     property Node activeParticleSystem: null
@@ -97,7 +98,7 @@ Node {
 
     AutoScaleHelper {
         id: autoScale
-        view3D: overlayView
+        view3D: root.view3d
     }
 
     DefaultMaterial {

@@ -30,6 +30,12 @@ Node {
         function onOverlayUpdateNeeded() { updateScale() }
     }
 
+    Connections {
+        target: view3D
+        function onWidthChanged() { updateScale() }
+        function onHeightChanged() { updateScale() }
+    }
+
     function getScale(baseScale)
     {
         return Qt.vector3d(baseScale.x * relativeScale, baseScale.y * relativeScale,

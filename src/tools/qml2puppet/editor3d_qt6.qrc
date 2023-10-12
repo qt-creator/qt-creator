@@ -26,6 +26,7 @@
         <file>mockfiles/qt6/EditCameraController.qml</file>
         <file>mockfiles/qt6/EditView3D.qml</file>
         <file>mockfiles/qt6/FadeHandle.qml</file>
+        <file>mockfiles/qt6/GridMaterial.qml</file>
         <file>mockfiles/qt6/HelperGrid.qml</file>
         <file>mockfiles/qt6/IconGizmo.qml</file>
         <file>mockfiles/qt6/LightGizmo.qml</file>
@@ -40,6 +41,7 @@
         <file>mockfiles/qt6/NodeNodeView.qml</file>
         <file>mockfiles/qt6/OriginGizmo.qml</file>
         <file>mockfiles/qt6/Overlay2D.qml</file>
+        <file>mockfiles/qt6/OverlayView3D.qml</file>
         <file>mockfiles/qt6/ParticleSystemGizmo.qml</file>
         <file>mockfiles/qt6/ParticleEmitterGizmo.qml</file>
         <file>mockfiles/qt6/PlanarDraggable.qml</file>
@@ -52,7 +54,6 @@
         <file>mockfiles/qt6/SceneView3D.qml</file>
         <file>mockfiles/qt6/SelectionBox.qml</file>
         <file>mockfiles/qt6/SpotLightHandle.qml</file>
-        <file>mockfiles/qt6/GridMaterial.qml</file>
         <file>mockfiles/shaders/gridmaterial.frag</file>
         <file>mockfiles/shaders/gridmaterial.vert</file>
     </qresource>

@@ -428,7 +428,7 @@ void Qt5InformationNodeInstanceServer::getNodeAtPos([[maybe_unused]] const QPoin
     if (!helper)
         return;
 
-    QQmlProperty editViewProp(m_editView3DData.rootItem, "editView", context());
+    QQmlProperty editViewProp(m_editView3DData.rootItem, "activeEditView", context());
     QObject *obj = qvariant_cast<QObject *>(editViewProp.read());
     QQuick3DViewport *editView = qobject_cast<QQuick3DViewport *>(obj);
 
@@ -2220,7 +2220,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     // Ensure the UI has enough selection box items. If it doesn't yet have them, which can be the
     // case when the first selection processed is a multiselection, we wait a bit as
     // using the new boxes immediately leads to visual glitches.
-    int boxCount = m_editView3DData.rootItem->property("selectionBoxes").value<QVariantList>().size();
+    int boxCount = m_editView3DData.rootItem->property("selectionBoxCount").toInt();
     if (boxCount < selectedObjs.size()) {
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "ensureSelectionBoxes",
                                   Q_ARG(QVariant, QVariant::fromValue(selectedObjs.size())));

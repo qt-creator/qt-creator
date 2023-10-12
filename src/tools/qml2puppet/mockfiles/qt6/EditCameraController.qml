@@ -7,9 +7,11 @@ import QtQuick3D 6.0
 Item {
     id: cameraCtrl
 
-    property Camera camera: null
-    property View3D view3d: null
-    property string sceneId
+    property var viewRoot: null
+    property int splitId: -1
+    property Camera camera: view3d ? view3d.camera : null
+    property View3D view3d: viewRoot.editViews[splitId]
+    property string sceneId: viewRoot.sceneId
     property vector3d _lookAtPoint
     property vector3d _pressPoint
     property vector3d _prevPoint
@@ -27,11 +29,15 @@ Item {
     readonly property real _keyPanAmount: 5
     property bool ignoreToolState: false
 
+    z: 10
+    anchors.fill: parent
+
     function restoreCameraState(cameraState)
     {
         if (!camera || ignoreToolState)
             return;
 
+        // TODO: handle camera control state separately for each split
         _lookAtPoint = cameraState[0];
         _zoomFactor = cameraState[1];
         camera.position = cameraState[2];
@@ -45,6 +51,7 @@ Item {
         if (!camera)
             return;
 
+        // TODO: handle camera control state separately for each split
         _lookAtPoint = Qt.vector3d(0, 0, 0);
         _zoomFactor = 1;
         camera.position = _defaultCameraPosition;
@@ -58,6 +65,7 @@ Item {
         if (!camera || ignoreToolState)
             return;
 
+        // TODO: handle camera control state separately for each split
         var cameraState = [];
         cameraState[0] = _lookAtPoint;
         cameraState[1] = _zoomFactor;
@@ -65,7 +73,6 @@ Item {
         cameraState[3] = camera.rotation;
         _generalHelper.storeToolState(sceneId, "editCamState", cameraState, delay);
     }
-
 
     function focusObject(targetNodes, rotation, updateZoom, closeUp)
     {
@@ -88,7 +95,8 @@ Item {
         storeCameraState(0);
     }
 
-    function jumpToRotation(rotation) {
+    function jumpToRotation(rotation)
+    {
         let distance = camera.scenePosition.minus(_lookAtPoint).length()
         let direction = _generalHelper.dirForRotation(rotation)
 
@@ -157,7 +165,7 @@ Item {
         acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
         hoverEnabled: false
         anchors.fill: parent
-        onPositionChanged: (mouse)=> {
+        onPositionChanged: (mouse) => {
             if (cameraCtrl.camera && mouse.modifiers === Qt.AltModifier && cameraCtrl._dragging) {
                 var currentPoint = Qt.vector3d(mouse.x, mouse.y, 0);
                 if (cameraCtrl._button == Qt.LeftButton) {
@@ -175,7 +183,8 @@ Item {
                 }
             }
         }
-        onPressed: (mouse)=> {
+        onPressed: (mouse) => {
+            viewRoot.activeSplit = cameraCtrl.splitId
             if (cameraCtrl.camera && mouse.modifiers === Qt.AltModifier) {
                 cameraCtrl._dragging = true;
                 cameraCtrl._startRotation = cameraCtrl.camera.eulerRotation;
@@ -190,7 +199,8 @@ Item {
             }
         }
 
-        function handleRelease() {
+        function handleRelease()
+        {
             cameraCtrl._dragging = false;
             cameraCtrl.storeCameraState(0);
         }
@@ -198,7 +208,8 @@ Item {
         onReleased: handleRelease()
         onCanceled: handleRelease()
 
-        onWheel: (wheel)=> {
+        onWheel: (wheel) => {
+            viewRoot.activeSplit = cameraCtrl.splitId
             if (cameraCtrl.camera) {
                 // Empirically determined divisor for nice zoom
                 cameraCtrl.zoomRelative(wheel.angleDelta.y / -40);
@@ -207,7 +218,7 @@ Item {
         }
     }
 
-    Keys.onPressed: (event)=> {
+    Keys.onPressed: (event) => {
         var pressPoint = Qt.vector3d(view3d.width / 2, view3d.height / 2, 0);
         var currentPoint;
 
@@ -234,6 +245,19 @@ Item {
                         cameraCtrl.camera.position, _lookAtPoint,
                         pressPoint, currentPoint, _zoomFactor);
             event.accepted = true;
+        }
+    }
+
+    OriginGizmo {
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.margins: 10
+        width: 120
+        height: 120
+        targetNode: cameraCtrl.camera
+
+        onAxisClicked: (axis) => {
+            cameraCtrl.jumpToRotation(quaternionForAxis(axis));
         }
     }
 }
