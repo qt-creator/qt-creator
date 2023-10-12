@@ -940,7 +940,6 @@ PluginSpecPrivate *PluginManagerPrivate::privateSpec(PluginSpec *spec)
 
 void PluginManagerPrivate::startDelayedInitialize()
 {
-    delayedInitializeTimer.reset();
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsDelayedInitializing);
     {
         NANOTRACE_SCOPE("ExtensionSystem", "DelayedInitialize");
@@ -1036,10 +1035,7 @@ void PluginManagerPrivate::readSettings()
 void PluginManagerPrivate::stopAll()
 {
     m_isShuttingDown = true;
-    if (delayedInitializeTimer && delayedInitializeTimer->isActive()) {
-        delayedInitializeTimer->stop();
-        delayedInitializeTimer.reset();
-    }
+    delayedInitializeTimer.stop();
 
     const QVector<PluginSpec *> queue = loadQueue();
     for (PluginSpec *spec : queue)
@@ -1377,14 +1373,13 @@ void PluginManagerPrivate::loadPlugins()
     }
     emit q->pluginsChanged();
 
-    delayedInitializeTimer.reset(new QTimer);
-    delayedInitializeTimer->setInterval(DELAYED_INITIALIZE_INTERVAL);
-    delayedInitializeTimer->setSingleShot(true);
-    connect(delayedInitializeTimer.get(),
+    delayedInitializeTimer.setInterval(DELAYED_INITIALIZE_INTERVAL);
+    delayedInitializeTimer.setSingleShot(true);
+    connect(&delayedInitializeTimer,
             &QTimer::timeout,
             this,
             &PluginManagerPrivate::startDelayedInitialize);
-    delayedInitializeTimer->start();
+    delayedInitializeTimer.start();
 }
 
 /*!

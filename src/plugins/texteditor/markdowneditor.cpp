@@ -46,6 +46,9 @@ const char EMPHASIS_ACTION[] = "Markdown.Emphasis";
 const char STRONG_ACTION[] = "Markdown.Strong";
 const char INLINECODE_ACTION[] = "Markdown.InlineCode";
 const char LINK_ACTION[] = "Markdown.Link";
+const char TOGGLEEDITOR_ACTION[] = "Markdown.ToggleEditor";
+const char TOGGLEPREVIEW_ACTION[] = "Markdown.TogglePreview";
+const char SWAPVIEWS_ACTION[] = "Markdown.SwapViews";
 
 class MarkdownEditor : public IEditor
 {
@@ -101,14 +104,14 @@ public:
         }
         agg->add(m_widget.get());
 
-        m_togglePreviewVisible = new QToolButton;
-        m_togglePreviewVisible->setText(Tr::tr("Show Preview"));
+        m_togglePreviewVisible = new CommandButton(TOGGLEPREVIEW_ACTION);
+        m_togglePreviewVisible->setText(m_togglePreviewVisible->toolTipBase());
         m_togglePreviewVisible->setCheckable(true);
         m_togglePreviewVisible->setChecked(showPreview);
         m_previewWidget->setVisible(showPreview);
 
-        m_toggleEditorVisible = new QToolButton;
-        m_toggleEditorVisible->setText(Tr::tr("Show Editor"));
+        m_toggleEditorVisible = new CommandButton(TOGGLEEDITOR_ACTION);
+        m_toggleEditorVisible->setText(m_toggleEditorVisible->toolTipBase());
         m_toggleEditorVisible->setCheckable(true);
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
@@ -137,9 +140,9 @@ public:
                 button->setVisible(false);
         }
 
-        auto swapViews = new QToolButton;
-        swapViews->setText(Tr::tr("Swap Views"));
-        swapViews->setEnabled(showEditor && showPreview);
+        m_swapViews = new CommandButton(SWAPVIEWS_ACTION);
+        m_swapViews->setText(m_swapViews->toolTipBase());
+        m_swapViews->setEnabled(showEditor && showPreview);
 
         m_toolbarLayout = new QHBoxLayout(&m_toolbar);
         m_toolbarLayout->setSpacing(0);
@@ -149,7 +152,7 @@ public:
         m_toolbarLayout->addStretch();
         m_toolbarLayout->addWidget(m_togglePreviewVisible);
         m_toolbarLayout->addWidget(m_toggleEditorVisible);
-        m_toolbarLayout->addWidget(swapViews);
+        m_toolbarLayout->addWidget(m_swapViews);
 
         setWidgetOrder(textEditorRight);
 
@@ -173,7 +176,7 @@ public:
         };
 
         const auto viewToggled =
-            [swapViews](QWidget *view, bool visible, QWidget *otherView, QToolButton *otherButton) {
+            [this](QWidget *view, bool visible, QWidget *otherView, QToolButton *otherButton) {
                 if (view->isVisible() == visible)
                     return;
                 view->setVisible(visible);
@@ -185,7 +188,7 @@ public:
                     // make sure at least one view is visible
                     otherButton->toggle();
                 }
-                swapViews->setEnabled(view->isVisible() && otherView->isVisible());
+                m_swapViews->setEnabled(view->isVisible() && otherView->isVisible());
             };
         const auto saveViewSettings = [this] {
             Utils::QtcSettings *s = ICore::settings();
@@ -221,7 +224,7 @@ public:
                     saveViewSettings();
                 });
 
-        connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this] {
+        connect(m_swapViews, &QToolButton::clicked, m_textEditorWidget, [this] {
             const bool textEditorRight = isTextEditorRight();
             setWidgetOrder(!textEditorRight);
             // save settings
@@ -292,6 +295,10 @@ public:
             }
         });
     }
+
+    void toggleEditor() { m_toggleEditorVisible->toggle(); }
+    void togglePreview() { m_togglePreviewVisible->toggle(); }
+    void swapViews() { m_swapViews->click(); }
 
     bool isTextEditorRight() const { return m_splitter->widget(0) == m_previewWidget; }
 
@@ -436,8 +443,9 @@ private:
     QWidget m_toolbar;
     QHBoxLayout *m_toolbarLayout;
     QList<QToolButton *> m_markDownButtons;
-    QToolButton *m_toggleEditorVisible;
-    QToolButton *m_togglePreviewVisible;
+    CommandButton *m_toggleEditorVisible;
+    CommandButton *m_togglePreviewVisible;
+    CommandButton *m_swapViews;
     std::optional<QPoint> m_previewRestoreScrollPosition;
 };
 
@@ -455,6 +463,7 @@ MarkdownEditorFactory::MarkdownEditorFactory()
     setEditorCreator([] { return new MarkdownEditor; });
 
     const auto textContext = Context(MARKDOWNVIEWER_TEXT_CONTEXT);
+    const auto context = Context(MARKDOWNVIEWER_ID);
     Command *cmd = nullptr;
     cmd = ActionManager::registerAction(&m_emphasisAction, EMPHASIS_ACTION, textContext);
     cmd->setDescription(Tr::tr("Emphasis"));
@@ -483,6 +492,28 @@ MarkdownEditorFactory::MarkdownEditorFactory()
         auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
         if (editor)
             editor->triggerLink();
+    });
+
+    cmd = ActionManager::registerAction(&m_toggleEditorAction, TOGGLEEDITOR_ACTION, context);
+    cmd->setDescription(Tr::tr("Show Editor"));
+    QObject::connect(&m_toggleEditorAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->toggleEditor();
+    });
+    cmd = ActionManager::registerAction(&m_togglePreviewAction, TOGGLEPREVIEW_ACTION, context);
+    cmd->setDescription(Tr::tr("Show Preview"));
+    QObject::connect(&m_togglePreviewAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->togglePreview();
+    });
+    cmd = ActionManager::registerAction(&m_swapAction, SWAPVIEWS_ACTION, context);
+    cmd->setDescription(Tr::tr("Swap Views"));
+    QObject::connect(&m_swapAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->swapViews();
     });
 }
 

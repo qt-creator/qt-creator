@@ -24,6 +24,7 @@ GeneralSettings &generalSettings()
 
 GeneralSettings::GeneralSettings()
 {
+    setAutoApply(false);
     setSettingsGroups("Beautifier", "General");
 
     autoFormatOnSave.setSettingsKey(Utils::Constants::BEAUTIFIER_AUTO_FORMAT_ON_SAVE);

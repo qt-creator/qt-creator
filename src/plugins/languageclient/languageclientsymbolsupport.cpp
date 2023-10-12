@@ -539,24 +539,50 @@ Utils::SearchResultItems generateReplaceItems(const WorkspaceEdit &edits,
                                               bool limitToProjects,
                                               const DocumentUri::PathMapper &pathMapper)
 {
+    Utils::SearchResultItems items;
     auto convertEdits = [](const QList<TextEdit> &edits) {
         return Utils::transform(edits, [](const TextEdit &edit) {
             return ItemData{SymbolSupport::convertRange(edit.range()), QVariant(edit)};
         });
     };
     QMap<Utils::FilePath, QList<ItemData>> rangesInDocument;
-    auto documentChanges = edits.documentChanges().value_or(QList<TextDocumentEdit>());
+    auto documentChanges = edits.documentChanges().value_or(QList<DocumentChange>());
     if (!documentChanges.isEmpty()) {
-        for (const TextDocumentEdit &documentChange : std::as_const(documentChanges)) {
-            rangesInDocument[documentChange.textDocument().uri().toFilePath(pathMapper)]
-                = convertEdits(documentChange.edits());
+        for (const DocumentChange &documentChange : std::as_const(documentChanges)) {
+            if (std::holds_alternative<TextDocumentEdit>(documentChange)) {
+                const TextDocumentEdit edit = std::get<TextDocumentEdit>(documentChange);
+                rangesInDocument[edit.textDocument().uri().toFilePath(pathMapper)] = convertEdits(
+                    edit.edits());
+            } else {
+                Utils::SearchResultItem item;
+
+                if (std::holds_alternative<CreateFileOperation>(documentChange)) {
+                    auto op = std::get<CreateFileOperation>(documentChange);
+                    item.setLineText(op.message(pathMapper));
+                    item.setFilePath(op.uri().toFilePath(pathMapper));
+                    item.setUserData(QVariant(op));
+                } else if (std::holds_alternative<RenameFileOperation>(documentChange)) {
+                    auto op = std::get<RenameFileOperation>(documentChange);
+                    item.setLineText(op.message(pathMapper));
+                    item.setFilePath(op.oldUri().toFilePath(pathMapper));
+                    item.setUserData(QVariant(op));
+                } else if (std::holds_alternative<DeleteFileOperation>(documentChange)) {
+                    auto op = std::get<DeleteFileOperation>(documentChange);
+                    item.setLineText(op.message(pathMapper));
+                    item.setFilePath(op.uri().toFilePath(pathMapper));
+                    item.setUserData(QVariant(op));
+                }
+
+                items << item;
+            }
         }
     } else {
         auto changes = edits.changes().value_or(WorkspaceEdit::Changes());
         for (auto it = changes.begin(), end = changes.end(); it != end; ++it)
             rangesInDocument[it.key().toFilePath(pathMapper)] = convertEdits(it.value());
     }
-    return generateSearchResultItems(rangesInDocument, search, limitToProjects);
+    items += generateSearchResultItems(rangesInDocument, search, limitToProjects);
+    return items;
 }
 
 Core::SearchResult *SymbolSupport::createSearch(const TextDocumentPositionParams &positionParams,
@@ -659,14 +685,24 @@ void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
 {
     QSet<Utils::FilePath> affectedNonOpenFilePaths;
     QMap<Utils::FilePath, QList<TextEdit>> editsForDocuments;
+    QList<DocumentChange> changes;
     for (const Utils::SearchResultItem &item : checkedItems) {
         const auto filePath = Utils::FilePath::fromUserInput(item.path().value(0));
         if (!m_client->documentForFilePath(filePath))
             affectedNonOpenFilePaths << filePath;
-        TextEdit edit(item.userData().toJsonObject());
-        if (edit.isValid())
+        const QJsonObject jsonObject = item.userData().toJsonObject();
+        if (const TextEdit edit(jsonObject); edit.isValid())
             editsForDocuments[filePath] << edit;
+        else if (const CreateFileOperation createFile(jsonObject); createFile.isValid())
+            changes << createFile;
+        else if (const RenameFileOperation renameFile(jsonObject); renameFile.isValid())
+            changes << renameFile;
+        else if (const DeleteFileOperation deleteFile(jsonObject); deleteFile.isValid())
+            changes << deleteFile;
     }
+
+    for (const DocumentChange &change : changes)
+        applyDocumentChange(m_client, change);
 
     for (auto it = editsForDocuments.begin(), end = editsForDocuments.end(); it != end; ++it)
         applyTextEdits(m_client, it.key(), it.value());

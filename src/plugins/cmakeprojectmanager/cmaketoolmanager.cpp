@@ -426,8 +426,9 @@ void CMakeToolManager::ensureDefaultCMakeToolIsValid()
     } else {
         if (findById(d->m_defaultCMake))
             return;
-        auto cmakeTool = Utils::findOrDefault(
-                    cmakeTools(), [](CMakeTool *tool){ return tool->detectionSource().isEmpty(); });
+        auto cmakeTool = Utils::findOrDefault(cmakeTools(), [](CMakeTool *tool) {
+            return tool->detectionSource().isEmpty() && !tool->cmakeExecutable().needsDevice();
+        });
         if (cmakeTool)
             d->m_defaultCMake = cmakeTool->id();
     }

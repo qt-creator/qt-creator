@@ -13,6 +13,7 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -38,6 +39,7 @@
 #include <QStandardItemModel>
 #include <QTemporaryFile>
 #include <QTimer>
+#include <QToolBar>
 #include <QToolButton>
 #include <QUndoStack>
 
@@ -214,12 +216,15 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
     m_codeEditor->updateHighlighter();
 
     auto addCompilerButton = new QPushButton;
-    addCompilerButton->setText(Tr::tr("Add compiler"));
-    connect(addCompilerButton, &QPushButton::clicked, this, &SourceEditorWidget::addCompiler);
+    addCompilerButton->setText(Tr::tr("Add Compiler"));
+    connect(addCompilerButton,
+            &QPushButton::clicked,
+            &settings->compilers,
+            &AspectList::createAndAddItem);
 
     auto removeSourceButton = new QPushButton;
     removeSourceButton->setIcon(Utils::Icons::EDIT_CLEAR.icon());
-    removeSourceButton->setToolTip(Tr::tr("Remove source"));
+    removeSourceButton->setToolTip(Tr::tr("Remove Source"));
     connect(removeSourceButton, &QPushButton::clicked, this, &SourceEditorWidget::remove);
 
     // clang-format off
@@ -249,7 +254,8 @@ QString SourceEditorWidget::sourceCode()
 }
 
 CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSettings,
-                               const std::shared_ptr<CompilerSettings> &compilerSettings)
+                               const std::shared_ptr<CompilerSettings> &compilerSettings,
+                               QUndoStack *undoStack)
     : m_sourceSettings(sourceSettings)
     , m_compilerSettings(compilerSettings)
 {
@@ -266,7 +272,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
             m_delayTimer,
             qOverload<>(&QTimer::start));
 
-    m_asmEditor = new AsmEditorWidget;
+    m_asmEditor = new AsmEditorWidget(undoStack);
     m_asmDocument = QSharedPointer<TextDocument>(new TextDocument);
     m_asmDocument->setFilePath("asm.asm");
     m_asmEditor->setTextDocument(m_asmDocument);
@@ -296,7 +302,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
 
     auto removeCompilerBtn = new QPushButton;
     removeCompilerBtn->setIcon(Utils::Icons::EDIT_CLEAR.icon());
-    removeCompilerBtn->setToolTip(Tr::tr("Remove compiler"));
+    removeCompilerBtn->setToolTip(Tr::tr("Remove Compiler"));
     connect(removeCompilerBtn, &QPushButton::clicked, this, &CompilerWidget::remove);
 
     compile(m_sourceSettings->source());
@@ -459,7 +465,8 @@ void CompilerWidget::doCompile()
                 m_marks.append(mark);
             }
         } catch (const std::exception &e) {
-            qCritical() << "Exception: " << e.what();
+            Core::MessageManager::writeDisrupting(
+                Tr::tr("Failed to compile: \"%1\"").arg(QString::fromUtf8(e.what())));
         }
     });
 
@@ -498,10 +505,7 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
         actionHandler.updateCurrentEditor();
     });
 
-    m_context = new Core::IContext(this);
-    m_context->setWidget(this);
-    m_context->setContext(Core::Context(Constants::CE_EDITOR_CONTEXT_ID));
-    Core::ICore::addContextObject(m_context);
+    setupHelpWidget();
 }
 
 EditorWidget::~EditorWidget()
@@ -521,7 +525,7 @@ void EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> &sourceSett
                                int idx,
                                QDockWidget *parentDockWidget)
 {
-    auto compiler = new CompilerWidget(sourceSettings, compilerSettings);
+    auto compiler = new CompilerWidget(sourceSettings, compilerSettings, m_undoStack);
     compiler->setWindowTitle("Compiler #" + QString::number(idx));
     compiler->setObjectName("compiler_" + QString::number(idx));
     QDockWidget *dockWidget = addDockForWidget(compiler, parentDockWidget);
@@ -573,14 +577,7 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
         sourceSettings->compilers.clear();
         m_document->settings()->m_sources.removeItem(sourceSettings->shared_from_this());
         m_undoStack->endMacro();
-
         setupHelpWidget();
-    });
-
-    connect(sourceEditor, &SourceEditorWidget::addCompiler, this, [sourceSettings]() {
-        auto newCompiler = std::make_shared<CompilerSettings>(sourceSettings->apiConfigFunction());
-        newCompiler->setLanguageId(sourceSettings->languageId());
-        sourceSettings->compilers.addItem(newCompiler);
     });
 
     connect(sourceEditor, &SourceEditorWidget::gotFocus, this, [this]() {
@@ -615,11 +612,15 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
                                               == compilerSettings;
                                    });
             QTC_ASSERT(it != m_compilerWidgets.end(), return);
+            if (!m_sourceWidgets.isEmpty())
+                m_sourceWidgets.first()->widget()->setFocus(Qt::OtherFocusReason);
             delete *it;
             m_compilerWidgets.erase(it);
         });
 
     m_sourceWidgets.append(dockWidget);
+
+    sourceEditor->setFocus(Qt::OtherFocusReason);
 
     setupHelpWidget();
 }
@@ -636,6 +637,8 @@ void EditorWidget::removeSourceEditor(const std::shared_ptr<SourceSettings> &sou
     QTC_ASSERT(it != m_sourceWidgets.end(), return);
     delete *it;
     m_sourceWidgets.erase(it);
+
+    setupHelpWidget();
 }
 
 void EditorWidget::recreateEditors()
@@ -677,36 +680,53 @@ void EditorWidget::setupHelpWidget()
 {
     if (m_document->settings()->m_sources.size() == 0) {
         setCentralWidget(createHelpWidget());
+        centralWidget()->setFocus(Qt::OtherFocusReason);
     } else {
         delete takeCentralWidget();
     }
 }
 
-QWidget *EditorWidget::createHelpWidget() const
+HelperWidget::HelperWidget()
 {
     using namespace Layouting;
 
-    auto addSourceButton = new QPushButton(Tr::tr("Add source code"));
-    connect(addSourceButton, &QPushButton::clicked, this, [this] {
-        auto newSource = std::make_shared<SourceSettings>(
-            [settings = m_document->settings()] { return settings->apiConfig(); });
-        m_document->settings()->m_sources.addItem(newSource);
-    });
+    setFocusPolicy(Qt::ClickFocus);
+    setAttribute(Qt::WA_TransparentForMouseEvents, false);
+
+    auto addSourceButton = new QPushButton(Tr::tr("Add Source Code"));
+
+    connect(addSourceButton, &QPushButton::clicked, this, &HelperWidget::addSource);
 
     // clang-format off
-    return Column {
+    Column {
         st,
         Row {
             st,
             Column {
-                Tr::tr("No source code added yet. Add one using the button below."),
+                Tr::tr("No source code added yet. Add some using the button below."),
                 Row { st, addSourceButton, st }
             },
             st,
         },
         st,
-    }.emerge();
+    }.attachTo(this);
     // clang-format on
+}
+
+void HelperWidget::mousePressEvent(QMouseEvent *event)
+{
+    setFocus(Qt::MouseFocusReason);
+    event->accept();
+}
+
+QWidget *EditorWidget::createHelpWidget() const
+{
+    auto w = new HelperWidget;
+    connect(w,
+            &HelperWidget::addSource,
+            &m_document->settings()->m_sources,
+            &AspectList::createAndAddItem);
+    return w;
 }
 
 TextEditor::TextEditorWidget *EditorWidget::focusedEditorWidget() const
@@ -728,49 +748,59 @@ TextEditor::TextEditorWidget *EditorWidget::focusedEditorWidget() const
     return nullptr;
 }
 
-class Editor : public Core::IEditor
+Editor::Editor(TextEditorActionHandler &actionHandler)
+    : m_document(new JsonSettingsDocument(&m_undoStack))
 {
-public:
-    Editor(TextEditorActionHandler &actionHandler)
-        : m_document(new JsonSettingsDocument(&m_undoStack))
-    {
-        setWidget(new EditorWidget(m_document, &m_undoStack, actionHandler));
+    setContext(Core::Context(Constants::CE_EDITOR_ID));
+    setWidget(new EditorWidget(m_document, &m_undoStack, actionHandler));
 
-        connect(&m_undoStack, &QUndoStack::canUndoChanged, this, [&actionHandler] {
-            actionHandler.updateActions();
-        });
-        connect(&m_undoStack, &QUndoStack::canRedoChanged, this, [&actionHandler] {
-            actionHandler.updateActions();
-        });
+    connect(&m_undoStack, &QUndoStack::canUndoChanged, this, [&actionHandler] {
+        actionHandler.updateActions();
+    });
+    connect(&m_undoStack, &QUndoStack::canRedoChanged, this, [&actionHandler] {
+        actionHandler.updateActions();
+    });
+}
+
+Editor::~Editor()
+{
+    delete widget();
+}
+
+static bool childHasFocus(QWidget *parent)
+{
+    if (parent->hasFocus())
+        return true;
+
+    for (QWidget *child : parent->findChildren<QWidget *>())
+        if (childHasFocus(child))
+            return true;
+
+    return false;
+}
+
+QWidget *Editor::toolBar()
+{
+    if (!m_toolBar) {
+        m_toolBar = std::make_unique<QToolBar>();
+
+        QAction *newSource = new QAction(m_toolBar.get());
+        newSource->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
+        newSource->setToolTip(Tr::tr("Add Source"));
+        m_toolBar->addAction(newSource);
+
+        connect(newSource,
+                &QAction::triggered,
+                &m_document->settings()->m_sources,
+                &AspectList::createAndAddItem);
     }
 
-    ~Editor()
-    {
-        if (m_document->isModified()) {
-            auto settings = m_document->settings();
-            if (settings->isDirty()) {
-                settings->apply();
-                Utils::Store store;
-                settings->toMap(store);
-                QJsonDocument doc = QJsonDocument::fromVariant(Utils::mapFromStore(store));
-
-                CompilerExplorer::settings().defaultDocument.setValue(
-                    QString::fromUtf8(doc.toJson()));
-            }
-        }
-        delete widget();
-    }
-
-    Core::IDocument *document() const override { return m_document.data(); }
-    QWidget *toolBar() override { return nullptr; }
-
-    QSharedPointer<JsonSettingsDocument> m_document;
-    QUndoStack m_undoStack;
-};
+    return m_toolBar.get();
+}
 
 EditorFactory::EditorFactory()
     : m_actionHandler(Constants::CE_EDITOR_ID,
-                      Constants::CE_EDITOR_CONTEXT_ID,
+                      Constants::CE_EDITOR_ID,
                       TextEditor::TextEditorActionHandler::None,
                       [](Core::IEditor *editor) -> TextEditorWidget * {
                           return static_cast<EditorWidget *>(editor->widget())->focusedEditorWidget();
@@ -798,7 +828,32 @@ EditorFactory::EditorFactory()
         return false;
     });
 
+    m_actionHandler.setUnhandledCallback(
+        [undoStackFromEditor](Utils::Id cmdId, Core::IEditor *editor) {
+            if (cmdId != Core::Constants::UNDO && cmdId != Core::Constants::REDO)
+                return false;
+
+            if (!childHasFocus(editor->widget()))
+                return false;
+
+            QUndoStack *undoStack = undoStackFromEditor(editor);
+
+            if (!undoStack)
+                return false;
+
+            if (cmdId == Core::Constants::UNDO)
+                undoStack->undo();
+            else
+                undoStack->redo();
+
+            return true;
+        });
+
     setEditorCreator([this]() { return new Editor(m_actionHandler); });
 }
+
+AsmEditorWidget::AsmEditorWidget(QUndoStack *stack)
+    : m_undoStack(stack)
+{}
 
 } // namespace CompilerExplorer

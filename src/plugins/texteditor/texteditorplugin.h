@@ -8,8 +8,6 @@
 namespace TextEditor {
 namespace Internal {
 
-class LineNumberFilter;
-
 class TextEditorPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -20,7 +18,6 @@ public:
     ~TextEditorPlugin() final;
 
     static TextEditorPlugin *instance();
-    static LineNumberFilter *lineNumberFilter();
 
     ShutdownFlag aboutToShutdown() override;
 

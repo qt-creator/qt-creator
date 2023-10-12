@@ -375,6 +375,14 @@ static ClientCapabilities generateClientCapabilities()
 {
     ClientCapabilities capabilities;
     WorkspaceClientCapabilities workspaceCapabilities;
+    WorkspaceClientCapabilities::WorkspaceEditCapabilities workspaceEditCapabilities;
+    workspaceEditCapabilities.setDocumentChanges(true);
+    using ResourceOperationKind
+        = WorkspaceClientCapabilities::WorkspaceEditCapabilities::ResourceOperationKind;
+    workspaceEditCapabilities.setResourceOperations({ResourceOperationKind::Create,
+                                                     ResourceOperationKind::Rename,
+                                                     ResourceOperationKind::Delete});
+    workspaceCapabilities.setWorkspaceEdit(workspaceEditCapabilities);
     workspaceCapabilities.setWorkspaceFolders(true);
     workspaceCapabilities.setApplyEdit(true);
     DynamicRegistrationCapabilities allowDynamicRegistration;

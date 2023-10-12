@@ -124,7 +124,7 @@ public:
                    && prj->hasMakeInstallEquivalent();
         });
         addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
-        addInitialStep(RemoteLinux::Constants::RsyncDeployStepId, [](Target *target) {
+        addInitialStep(RemoteLinux::Constants::GenericDeployStepId, [](Target *target) {
             auto device = DeviceKitAspect::device(target->kit());
             auto buildDevice = BuildDeviceKitAspect::device(target->kit());
             if (buildDevice && buildDevice->rootPath().needsDevice())
@@ -165,7 +165,7 @@ public:
     QdbMakeDefaultAppStepFactory m_makeDefaultAppStepFactory;
 
     QdbDeployStepFactory m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};
-    QdbDeployStepFactory m_rsyncDeployStepFactory{RemoteLinux::Constants::RsyncDeployStepId};
+    QdbDeployStepFactory m_rsyncDeployStepFactory{RemoteLinux::Constants::GenericDeployStepId};
     QdbDeployStepFactory m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 
     const QList<Id> supportedRunConfigs {

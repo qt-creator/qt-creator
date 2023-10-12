@@ -192,7 +192,8 @@ public:
     void setupId(Origin origin, Utils::Id id = Utils::Id());
 
     bool canOpenTerminal() const;
-    void openTerminal(const Utils::Environment &env, const Utils::FilePath &workingDir) const;
+    Utils::expected_str<void> openTerminal(const Utils::Environment &env,
+                                           const Utils::FilePath &workingDir) const;
 
     bool isEmptyCommandAllowed() const;
     void setAllowEmptyCommand(bool allow);
@@ -212,7 +213,9 @@ public:
     virtual Utils::ProcessInterface *createProcessInterface() const;
     virtual FileTransferInterface *createFileTransferInterface(
             const FileTransferSetupData &setup) const;
-    virtual Utils::Environment systemEnvironment() const;
+
+    Utils::Environment systemEnvironment() const;
+    virtual Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const;
 
     virtual void aboutToBeRemoved() const {}
 
@@ -230,7 +233,8 @@ protected:
     virtual void fromMap(const Utils::Store &map);
     virtual Utils::Store toMap() const;
 
-    using OpenTerminal = std::function<void(const Utils::Environment &, const Utils::FilePath &)>;
+    using OpenTerminal = std::function<Utils::expected_str<void>(const Utils::Environment &,
+                                                                 const Utils::FilePath &)>;
     void setOpenTerminal(const OpenTerminal &openTerminal);
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);

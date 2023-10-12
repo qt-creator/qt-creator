@@ -4,6 +4,7 @@
 #include "remotelinuxplugin.h"
 
 #include "customcommanddeploystep.h"
+#include "genericdeploystep.h"
 #include "genericdirectuploadstep.h"
 #include "killappstep.h"
 #include "linuxdevice.h"
@@ -13,7 +14,6 @@
 #include "remotelinuxdebugsupport.h"
 #include "remotelinuxrunconfiguration.h"
 #include "remotelinuxtr.h"
-#include "rsyncdeploystep.h"
 #include "tarpackagecreationstep.h"
 #include "tarpackagedeploystep.h"
 
@@ -73,7 +73,7 @@ public:
         addInitialStep(Constants::KillAppStepId);
 
         // TODO: Rename RsyncDeployStep to something more generic.
-        addInitialStep(Constants::RsyncDeployStepId);
+        addInitialStep(Constants::GenericDeployStepId);
     }
 };
 
@@ -87,7 +87,7 @@ public:
     TarPackageCreationStepFactory tarPackageCreationStepFactory;
     TarPackageDeployStepFactory tarPackageDeployStepFactory;
     RemoteLinuxDeployStepFactory<GenericDirectUploadStepFactory> genericDirectUploadStepFactory;
-    RemoteLinuxDeployStepFactory<RsyncDeployStepFactory> rsyncDeployStepFactory;
+    RemoteLinuxDeployStepFactory<GenericDeployStepFactory> rsyncDeployStepFactory;
     CustomCommandDeployStepFactory customCommandDeployStepFactory;
     KillAppStepFactory killAppStepFactory;
     RemoteLinuxDeployStepFactory<MakeInstallStepFactory> makeInstallStepFactory;

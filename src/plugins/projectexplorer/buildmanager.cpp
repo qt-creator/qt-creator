@@ -593,6 +593,8 @@ void BuildManager::startBuildQueue()
         // Delay if any of the involved build systems are currently parsing.
         buildSystems = transform<QSet<BuildSystem *>>(
             d->m_buildQueue, [](const BuildItem &item) { return item.buildStep->buildSystem(); });
+        if (d->m_futureProgress && !d->m_buildQueue.isEmpty())
+            d->m_futureProgress.data()->setTitle(d->m_buildQueue.first().name);
     };
 
     const GroupItem abortPolicy

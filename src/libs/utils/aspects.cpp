@@ -1831,9 +1831,7 @@ QAction *BoolAspect::action()
     act->setChecked(m_internal);
     act->setToolTip(toolTip());
     connect(act, &QAction::triggered, this, [this](bool newValue) {
-        setVolatileValue(newValue);
-        if (isAutoApply())
-            apply();
+        setValue(newValue);
     });
     return act;
 }
@@ -2508,7 +2506,7 @@ void FilePathListAspect::addToLayout(LayoutItem &parent)
     connect(editor, &PathListEditor::changed, this, [this, editor] {
         d->undoable.set(undoStack(), editor->pathList());
     });
-    connect(&d->undoable.m_signal, &UndoSignaller::changed, this, [this, editor] {
+    connect(&d->undoable.m_signal, &UndoSignaller::changed, editor, [this, editor] {
         if (editor->pathList() != d->undoable.get())
             editor->setPathList(d->undoable.get());
 
@@ -3127,6 +3125,11 @@ QList<std::shared_ptr<BaseAspect>> AspectList::items() const
 QList<std::shared_ptr<BaseAspect>> AspectList::volatileItems() const
 {
     return d->volatileItems;
+}
+
+std::shared_ptr<BaseAspect> AspectList::createAndAddItem()
+{
+    return addItem(d->createItem());
 }
 
 std::shared_ptr<BaseAspect> AspectList::addItem(const std::shared_ptr<BaseAspect> &item)

@@ -22,6 +22,9 @@ private:
     QAction m_strongAction;
     QAction m_inlineCodeAction;
     QAction m_linkAction;
+    QAction m_toggleEditorAction;
+    QAction m_togglePreviewAction;
+    QAction m_swapAction;
 };
 
 } // TextEditor::Internal

@@ -11,10 +11,13 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/projectexplorer.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
 
@@ -168,7 +171,7 @@ void FileApiReader::stop()
 
     if (m_future) {
         m_future->cancel();
-        m_future->waitForFinished();
+        ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(*m_future);
     }
     m_future = {};
     m_isParsing = false;
@@ -249,7 +252,8 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
 
     const FilePath sourceDirectory = m_parameters.sourceDirectory;
     const FilePath buildDirectory = m_parameters.buildDirectory;
-    const QString cmakeBuildType = m_parameters.cmakeBuildType == "Build" ? "" : m_parameters.cmakeBuildType;
+    const QString cmakeBuildType = m_parameters.cmakeBuildType == "Build"
+                                       ? "" : m_parameters.cmakeBuildType;
 
     m_lastReplyTimestamp = replyFilePath.lastModified();
 
@@ -261,10 +265,12 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                                                                         replyFilePath,
                                                                         cmakeBuildType,
                                                                         result->errorMessage);
-                            if (result->errorMessage.isEmpty())
-                                *result = extractData(data, sourceDirectory, buildDirectory);
-                            else
+                            if (result->errorMessage.isEmpty()) {
+                                *result = extractData(QFuture<void>(promise.future()), data,
+                                                      sourceDirectory, buildDirectory);
+                            } else {
                                 qWarning() << result->errorMessage;
+                            }
 
                             promise.addResult(result);
                         });

@@ -12,8 +12,6 @@
 #include <utils/commandline.h>
 #include <utils/guard.h>
 
-#include <memory>
-
 #include <QDebug>
 
 QT_BEGIN_NAMESPACE
@@ -42,42 +40,33 @@ public:
 class QMAKEPROJECTMANAGER_EXPORT QMakeStepConfig
 {
 public:
-    // TODO remove, does nothing
-    enum TargetArchConfig { NoArch, X86, X86_64, PowerPC, PowerPC64 };
-
     enum OsType { NoOsType, IphoneSimulator, IphoneOS };
 
-    // TODO remove, does nothing
-    static TargetArchConfig targetArchFor(const ProjectExplorer::Abi &targetAbi,
-                                          const QtSupport::QtVersion *version);
     static OsType osTypeFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::QtVersion *version);
 
     QStringList toArguments() const;
 
     friend bool operator==(const QMakeStepConfig &a, const QMakeStepConfig &b)
     {
-        return std::tie(a.archConfig, a.osType, a.linkQmlDebuggingQQ2)
-                == std::tie(b.archConfig, b.osType, b.linkQmlDebuggingQQ2)
-                && std::tie(a.useQtQuickCompiler, a.separateDebugInfo)
-                == std::tie(b.useQtQuickCompiler, b.separateDebugInfo);
+        return a.osType == b.osType
+            && a.linkQmlDebuggingQQ2 == b.linkQmlDebuggingQQ2
+            && a.useQtQuickCompiler == b.useQtQuickCompiler
+            && a.separateDebugInfo == b.separateDebugInfo;
     }
 
     friend bool operator!=(const QMakeStepConfig &a, const QMakeStepConfig &b) { return !(a == b); }
 
     friend QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
     {
-        dbg << c.archConfig << c.osType
+        dbg << c.osType
             << (c.linkQmlDebuggingQQ2 == Utils::TriState::Enabled)
             << (c.useQtQuickCompiler == Utils::TriState::Enabled)
             << (c.separateDebugInfo == Utils::TriState::Enabled);
         return dbg;
     }
 
-    // Actual data
     QString sysRoot;
     QString targetTriple;
-    // TODO remove, does nothing
-    TargetArchConfig archConfig = NoArch;
     OsType osType = NoOsType;
     Utils::TriState separateDebugInfo;
     Utils::TriState linkQmlDebuggingQQ2;

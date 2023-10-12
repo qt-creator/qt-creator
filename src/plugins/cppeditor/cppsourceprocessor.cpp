@@ -364,9 +364,7 @@ void CppSourceProcessor::mergeEnvironment(Document::Ptr doc)
     if (!doc)
         return;
 
-    const QString fn = doc->filePath().path();
-
-    if (!Utils::insert(m_processed, fn))
+    if (!Utils::insert(m_processed, doc->filePath()))
         return;
 
     const QList<Document::Include> includes = doc->resolvedIncludes();

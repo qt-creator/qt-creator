@@ -12,10 +12,10 @@
 #include <cppeditor/cppeditorconstants.h>
 
 #include <utils/algorithm.h>
+#include <utils/icon.h>
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/icon.h>
 
 #include <projectexplorer/projecttree.h>
 
@@ -45,14 +45,13 @@ public:
     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeListNodes;
 };
 
-CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefiles,
-                                      const FilePath &sourceDirectory,
-                                      const FilePath &buildDirectory)
+static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
+                                             const std::vector<CMakeFileInfo> &cmakefiles,
+                                             const FilePath &sourceDirectory,
+                                             const FilePath &buildDirectory)
 {
-    CMakeFileResult result;
-
     if (cmakefiles.empty())
-        return result;
+        return {};
 
     // Uniquify fileInfos
     std::set<CMakeFileInfo> cmakeFileSet{cmakefiles.begin(), cmakefiles.end()};
@@ -60,7 +59,9 @@ CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefil
     // Load and parse cmake files. We use concurrency here to speed up the process of
     // reading many small files, which can get slow especially on remote devices.
     QFuture<CMakeFileInfo> mapResult
-        = QtConcurrent::mapped(cmakeFileSet, [sourceDirectory](const auto &info) {
+        = QtConcurrent::mapped(cmakeFileSet, [cancelFuture, sourceDirectory](const auto &info) {
+              if (cancelFuture.isCanceled())
+                  return CMakeFileInfo();
               const FilePath sfn = sourceDirectory.resolvePath(info.path);
               CMakeFileInfo absolute(info);
               absolute.path = sfn;
@@ -86,7 +87,15 @@ CMakeFileResult extractCMakeFilesData(const std::vector<CMakeFileInfo> &cmakefil
 
     mapResult.waitForFinished();
 
+    if (cancelFuture.isCanceled())
+        return {};
+
+    CMakeFileResult result;
+
     for (const auto &info : mapResult.results()) {
+        if (cancelFuture.isCanceled())
+            return {};
+
         result.cmakeFiles.insert(info);
 
         if (info.isCMake && !info.isCMakeListsDotTxt) {
@@ -132,22 +141,17 @@ public:
     std::vector<TargetDetails> targetDetails;
 };
 
-PreprocessedData preprocess(FileApiData &data,
-                            const FilePath &sourceDirectory,
-                            const FilePath &buildDirectory,
-                            QString &errorMessage)
+static PreprocessedData preprocess(const QFuture<void> &cancelFuture, FileApiData &data,
+                                   const FilePath &sourceDirectory, const FilePath &buildDirectory)
 {
-    Q_UNUSED(errorMessage)
-
     PreprocessedData result;
 
     result.cache = std::move(data.cache); // Make sure this is available, even when nothing else is
 
     result.codemodel = std::move(data.codemodel);
 
-    CMakeFileResult cmakeFileResult = extractCMakeFilesData(data.cmakeFiles,
-                                                            sourceDirectory,
-                                                            buildDirectory);
+    CMakeFileResult cmakeFileResult = extractCMakeFilesData(cancelFuture, data.cmakeFiles,
+                                                            sourceDirectory, buildDirectory);
 
     result.cmakeFiles = std::move(cmakeFileResult.cmakeFiles);
     result.cmakeNodesSource = std::move(cmakeFileResult.cmakeNodesSource);
@@ -160,10 +164,11 @@ PreprocessedData preprocess(FileApiData &data,
     return result;
 }
 
-QVector<FolderNode::LocationInfo> extractBacktraceInformation(const BacktraceInfo &backtraces,
-                                                              const FilePath &sourceDir,
-                                                              int backtraceIndex,
-                                                              unsigned int locationInfoPriority)
+static QVector<FolderNode::LocationInfo> extractBacktraceInformation(
+    const BacktraceInfo &backtraces,
+    const FilePath &sourceDir,
+    int backtraceIndex,
+    unsigned int locationInfoPriority)
 {
     QVector<FolderNode::LocationInfo> info;
     // Set up a default target path:
@@ -200,135 +205,145 @@ static bool isChildOf(const FilePath &path, const FilePaths &prefixes)
     return false;
 }
 
-QList<CMakeBuildTarget> generateBuildTargets(const PreprocessedData &input,
-                                             const FilePath &sourceDirectory,
-                                             const FilePath &buildDirectory,
-                                             bool haveLibrariesRelativeToBuildDirectory)
+static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
+                                      const FilePath &sourceDirectory,
+                                      const FilePath &buildDirectory,
+                                      bool relativeLibs)
 {
-    const QList<CMakeBuildTarget> result = transform<QList>(input.targetDetails,
-        [&sourceDirectory, &buildDirectory,
-         &haveLibrariesRelativeToBuildDirectory](const TargetDetails &t) {
-            const FilePath currentBuildDir = buildDirectory.resolvePath(t.buildDir);
+    const FilePath currentBuildDir = buildDirectory.resolvePath(t.buildDir);
 
-            CMakeBuildTarget ct;
-            ct.title = t.name;
-            if (!t.artifacts.isEmpty())
-                ct.executable = buildDirectory.resolvePath(t.artifacts.at(0));
-            TargetType type = UtilityType;
-            if (t.type == "EXECUTABLE")
-                type = ExecutableType;
-            else if (t.type == "STATIC_LIBRARY")
-                type = StaticLibraryType;
-            else if (t.type == "OBJECT_LIBRARY")
-                type = ObjectLibraryType;
-            else if (t.type == "MODULE_LIBRARY" || t.type == "SHARED_LIBRARY")
-                type = DynamicLibraryType;
-            else
-                type = UtilityType;
-            ct.targetType = type;
-            ct.workingDirectory = ct.executable.isEmpty()
-                                      ? currentBuildDir.absolutePath()
-                                      : ct.executable.parentDir();
-            ct.sourceDirectory = sourceDirectory.resolvePath(t.sourceDir);
+    CMakeBuildTarget ct;
+    ct.title = t.name;
+    if (!t.artifacts.isEmpty())
+        ct.executable = buildDirectory.resolvePath(t.artifacts.at(0));
+    TargetType type = UtilityType;
+    if (t.type == "EXECUTABLE")
+        type = ExecutableType;
+    else if (t.type == "STATIC_LIBRARY")
+        type = StaticLibraryType;
+    else if (t.type == "OBJECT_LIBRARY")
+        type = ObjectLibraryType;
+    else if (t.type == "MODULE_LIBRARY" || t.type == "SHARED_LIBRARY")
+        type = DynamicLibraryType;
+    else
+        type = UtilityType;
+    ct.targetType = type;
+    ct.workingDirectory = ct.executable.isEmpty()
+                              ? currentBuildDir.absolutePath()
+                              : ct.executable.parentDir();
+    ct.sourceDirectory = sourceDirectory.resolvePath(t.sourceDir);
 
-            ct.backtrace = extractBacktraceInformation(t.backtraceGraph, sourceDirectory, t.backtrace, 0);
+    ct.backtrace = extractBacktraceInformation(t.backtraceGraph, sourceDirectory, t.backtrace, 0);
 
-            for (const DependencyInfo &d : t.dependencies) {
-                ct.dependencyDefinitions.append(
-                    extractBacktraceInformation(t.backtraceGraph, sourceDirectory, d.backtrace, 100));
-            }
-            for (const SourceInfo &si : t.sources) {
-                ct.sourceDefinitions.append(
-                    extractBacktraceInformation(t.backtraceGraph, sourceDirectory, si.backtrace, 200));
-            }
-            for (const CompileInfo &ci : t.compileGroups) {
-                for (const IncludeInfo &ii : ci.includes) {
-                    ct.includeDefinitions.append(
-                        extractBacktraceInformation(t.backtraceGraph, sourceDirectory, ii.backtrace, 300));
+    for (const DependencyInfo &d : t.dependencies) {
+        ct.dependencyDefinitions.append(
+            extractBacktraceInformation(t.backtraceGraph, sourceDirectory, d.backtrace, 100));
+    }
+    for (const SourceInfo &si : t.sources) {
+        ct.sourceDefinitions.append(
+            extractBacktraceInformation(t.backtraceGraph, sourceDirectory, si.backtrace, 200));
+    }
+    for (const CompileInfo &ci : t.compileGroups) {
+        for (const IncludeInfo &ii : ci.includes) {
+            ct.includeDefinitions.append(
+                extractBacktraceInformation(t.backtraceGraph, sourceDirectory, ii.backtrace, 300));
+        }
+        for (const DefineInfo &di : ci.defines) {
+            ct.defineDefinitions.append(
+                extractBacktraceInformation(t.backtraceGraph, sourceDirectory, di.backtrace, 400));
+        }
+    }
+    for (const InstallDestination &id : t.installDestination) {
+        ct.installDefinitions.append(
+            extractBacktraceInformation(t.backtraceGraph, sourceDirectory, id.backtrace, 500));
+    }
+
+    if (ct.targetType == ExecutableType) {
+        Utils::FilePaths librarySeachPaths;
+        // Is this a GUI application?
+        ct.linksToQtGui = Utils::contains(t.link.value().fragments,
+                                          [](const FragmentInfo &f) {
+                                              return f.role == "libraries"
+                                                     && (f.fragment.contains("QtGui")
+                                                         || f.fragment.contains("Qt5Gui")
+                                                         || f.fragment.contains("Qt6Gui"));
+                                          });
+
+        ct.qtcRunnable = t.folderTargetProperty == "qtc_runnable";
+
+        // Extract library directories for executables:
+        for (const FragmentInfo &f : t.link.value().fragments) {
+            if (f.role == "flags") // ignore all flags fragments
+                continue;
+
+            // CMake sometimes mixes several shell-escaped pieces into one fragment. Disentangle that again:
+            const QStringList parts = ProcessArgs::splitArgs(f.fragment, HostOsInfo::hostOs());
+            for (QString part : parts) {
+                // Library search paths that are added with target_link_directories are added as
+                // -LIBPATH:... (Windows/MSVC), or
+                // -L... (Unix/GCC)
+                // with role "libraryPath"
+                if (f.role == "libraryPath") {
+                    if (part.startsWith("-LIBPATH:"))
+                        part = part.mid(9);
+                    else if (part.startsWith("-L"))
+                        part = part.mid(2);
                 }
-                for (const DefineInfo &di : ci.defines) {
-                    ct.defineDefinitions.append(
-                        extractBacktraceInformation(t.backtraceGraph, sourceDirectory, di.backtrace, 400));
-                }
-            }
-            for (const InstallDestination &id : t.installDestination) {
-                ct.installDefinitions.append(
-                    extractBacktraceInformation(t.backtraceGraph, sourceDirectory, id.backtrace, 500));
-            }
 
-            if (ct.targetType == ExecutableType) {
-                Utils::FilePaths librarySeachPaths;
-                // Is this a GUI application?
-                ct.linksToQtGui = Utils::contains(t.link.value().fragments,
-                                                  [](const FragmentInfo &f) {
-                                                      return f.role == "libraries"
-                                                             && (f.fragment.contains("QtGui")
-                                                                 || f.fragment.contains("Qt5Gui")
-                                                                 || f.fragment.contains("Qt6Gui"));
-                                                  });
+                // Some projects abuse linking to libraries to pass random flags to the linker, so ignore
+                // flags mixed into a fragment
+                if (part.startsWith("-"))
+                    continue;
 
-                ct.qtcRunnable = t.folderTargetProperty == "qtc_runnable";
+                const FilePath buildDir = relativeLibs ? buildDirectory : currentBuildDir;
+                FilePath tmp = buildDir.resolvePath(part);
 
-                // Extract library directories for executables:
-                for (const FragmentInfo &f : t.link.value().fragments) {
-                    if (f.role == "flags") // ignore all flags fragments
-                        continue;
+                if (f.role == "libraries")
+                    tmp = tmp.parentDir();
 
-                    // CMake sometimes mixes several shell-escaped pieces into one fragment. Disentangle that again:
-                    const QStringList parts = ProcessArgs::splitArgs(f.fragment, HostOsInfo::hostOs());
-                    for (QString part : parts) {
-                        // Library search paths that are added with target_link_directories are added as
-                        // -LIBPATH:... (Windows/MSVC), or
-                        // -L... (Unix/GCC)
-                        // with role "libraryPath"
-                        if (f.role == "libraryPath") {
-                            if (part.startsWith("-LIBPATH:"))
-                                part = part.mid(9);
-                            else if (part.startsWith("-L"))
-                                part = part.mid(2);
-                        }
-
-                        // Some projects abuse linking to libraries to pass random flags to the linker, so ignore
-                        // flags mixed into a fragment
-                        if (part.startsWith("-"))
-                            continue;
-
-                        const FilePath buildDir = haveLibrariesRelativeToBuildDirectory ? buildDirectory : currentBuildDir;
-                        FilePath tmp = buildDir.resolvePath(part);
-
-                        if (f.role == "libraries")
-                            tmp = tmp.parentDir();
-
-                        if (!tmp.isEmpty() && tmp.isDir()) {
-                            // f.role is libraryPath or frameworkPath
-                            // On *nix, exclude sub-paths from "/lib(64)", "/usr/lib(64)" and
-                            // "/usr/local/lib" since these are usually in the standard search
-                            // paths. There probably are more, but the naming schemes are arbitrary
-                            // so we'd need to ask the linker ("ld --verbose | grep SEARCH_DIR").
-                            if (buildDir.osType() == OsTypeWindows
-                                || !isChildOf(tmp,
-                                              {"/lib",
-                                               "/lib64",
-                                               "/usr/lib",
-                                               "/usr/lib64",
-                                               "/usr/local/lib"})) {
-                                librarySeachPaths.append(tmp);
-                                // Libraries often have their import libs in ../lib and the
-                                // actual dll files in ../bin on windows. Qt is one example of that.
-                                if (tmp.fileName() == "lib" && buildDir.osType() == OsTypeWindows) {
-                                    const FilePath path = tmp.parentDir().pathAppended("bin");
-                                    if (path.isDir())
-                                        librarySeachPaths.append(path);
-                                }
-                            }
+                if (!tmp.isEmpty() && tmp.isDir()) {
+                    // f.role is libraryPath or frameworkPath
+                    // On *nix, exclude sub-paths from "/lib(64)", "/usr/lib(64)" and
+                    // "/usr/local/lib" since these are usually in the standard search
+                    // paths. There probably are more, but the naming schemes are arbitrary
+                    // so we'd need to ask the linker ("ld --verbose | grep SEARCH_DIR").
+                    if (buildDir.osType() == OsTypeWindows
+                        || !isChildOf(tmp,
+                                      {"/lib",
+                                       "/lib64",
+                                       "/usr/lib",
+                                       "/usr/lib64",
+                                       "/usr/local/lib"})) {
+                        librarySeachPaths.append(tmp);
+                        // Libraries often have their import libs in ../lib and the
+                        // actual dll files in ../bin on windows. Qt is one example of that.
+                        if (tmp.fileName() == "lib" && buildDir.osType() == OsTypeWindows) {
+                            const FilePath path = tmp.parentDir().pathAppended("bin");
+                            if (path.isDir())
+                                librarySeachPaths.append(path);
                         }
                     }
                 }
-                ct.libraryDirectories = filteredUnique(librarySeachPaths);
             }
+        }
+        ct.libraryDirectories = filteredUnique(librarySeachPaths);
+    }
+    return ct;
+}
 
-            return ct;
-        });
+static QList<CMakeBuildTarget> generateBuildTargets(const QFuture<void> &cancelFuture,
+                                                    const PreprocessedData &input,
+                                                    const FilePath &sourceDirectory,
+                                                    const FilePath &buildDirectory,
+                                                    bool relativeLibs)
+{
+    QList<CMakeBuildTarget> result;
+    result.reserve(input.targetDetails.size());
+    for (const TargetDetails &t : input.targetDetails) {
+        if (cancelFuture.isCanceled())
+            return {};
+        result.append(toBuildTarget(t, sourceDirectory, buildDirectory, relativeLibs));
+    }
     return result;
 }
 
@@ -341,24 +356,28 @@ static QStringList splitFragments(const QStringList &fragments)
     return result;
 }
 
-bool isPchFile(const FilePath &buildDirectory, const FilePath &path)
+static bool isPchFile(const FilePath &buildDirectory, const FilePath &path)
 {
     return path.isChildOf(buildDirectory) && path.fileName().startsWith("cmake_pch");
 }
 
-bool isUnityFile(const FilePath &buildDirectory, const FilePath &path)
+static bool isUnityFile(const FilePath &buildDirectory, const FilePath &path)
 {
     return path.isChildOf(buildDirectory) && path.parentDir().fileName() == "Unity"
            && path.fileName().startsWith("unity_");
 }
 
-RawProjectParts generateRawProjectParts(const PreprocessedData &input,
-                                        const FilePath &sourceDirectory,
-                                        const FilePath &buildDirectory)
+static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture,
+                                               const PreprocessedData &input,
+                                               const FilePath &sourceDirectory,
+                                               const FilePath &buildDirectory)
 {
     RawProjectParts rpps;
 
     for (const TargetDetails &t : input.targetDetails) {
+        if (cancelFuture.isCanceled())
+            return {};
+
         bool needPostfix = t.compileGroups.size() > 1;
         int count = 1;
         for (const CompileInfo &ci : t.compileGroups) {
@@ -520,7 +539,9 @@ RawProjectParts generateRawProjectParts(const PreprocessedData &input,
     return rpps;
 }
 
-FilePath directorySourceDir(const Configuration &c, const FilePath &sourceDir, int directoryIndex)
+static FilePath directorySourceDir(const Configuration &c,
+                                   const FilePath &sourceDir,
+                                   int directoryIndex)
 {
     const size_t di = static_cast<size_t>(directoryIndex);
     QTC_ASSERT(di < c.directories.size(), return {});
@@ -528,7 +549,9 @@ FilePath directorySourceDir(const Configuration &c, const FilePath &sourceDir, i
     return sourceDir.resolvePath(c.directories[di].sourcePath);
 }
 
-FilePath directoryBuildDir(const Configuration &c, const FilePath &buildDir, int directoryIndex)
+static FilePath directoryBuildDir(const Configuration &c,
+                                  const FilePath &buildDir,
+                                  int directoryIndex)
 {
     const size_t di = static_cast<size_t>(directoryIndex);
     QTC_ASSERT(di < c.directories.size(), return {});
@@ -536,11 +559,15 @@ FilePath directoryBuildDir(const Configuration &c, const FilePath &buildDir, int
     return buildDir.resolvePath(c.directories[di].buildPath);
 }
 
-void addProjects(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
-                 const Configuration &config,
-                 const FilePath &sourceDir)
+static void addProjects(const QFuture<void> &cancelFuture,
+                        const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
+                        const Configuration &config,
+                        const FilePath &sourceDir)
 {
     for (const FileApiDetails::Project &p : config.projects) {
+        if (cancelFuture.isCanceled())
+            return;
+
         if (p.parent == -1)
             continue; // Top-level project has already been covered
         FilePath dir = directorySourceDir(config, sourceDir, p.directories[0]);
@@ -548,9 +575,9 @@ void addProjects(const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
     }
 }
 
-FolderNode *createSourceGroupNode(const QString &sourceGroupName,
-                                  const FilePath &sourceDirectory,
-                                  FolderNode *targetRoot)
+static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
+                                         const FilePath &sourceDirectory,
+                                         FolderNode *targetRoot)
 {
     FolderNode *currentNode = targetRoot;
 
@@ -576,11 +603,11 @@ FolderNode *createSourceGroupNode(const QString &sourceGroupName,
     return currentNode;
 }
 
-void addCompileGroups(ProjectNode *targetRoot,
-                      const Utils::FilePath &topSourceDirectory,
-                      const Utils::FilePath &sourceDirectory,
-                      const Utils::FilePath &buildDirectory,
-                      const TargetDetails &td)
+static void addCompileGroups(ProjectNode *targetRoot,
+                             const Utils::FilePath &topSourceDirectory,
+                             const Utils::FilePath &sourceDirectory,
+                             const Utils::FilePath &buildDirectory,
+                             const TargetDetails &td)
 {
     const bool showSourceFolders = settings().showSourceSubFolders();
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
@@ -683,11 +710,12 @@ static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLe
     addCMakeVFolder(targetRoot, buildDir, 10, Tr::tr("<Generated Files>"), std::move(nodes));
 }
 
-void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
-                const Configuration &config,
-                const std::vector<TargetDetails> &targetDetails,
-                const FilePath &sourceDir,
-                const FilePath &buildDir)
+static void addTargets(const QFuture<void> &cancelFuture,
+                       const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+                       const Configuration &config,
+                       const std::vector<TargetDetails> &targetDetails,
+                       const FilePath &sourceDir,
+                       const FilePath &buildDir)
 {
     QHash<QString, const TargetDetails *> targetDetailsHash;
     for (const TargetDetails &t : targetDetails)
@@ -702,6 +730,9 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
     };
 
     for (const FileApiDetails::Target &t : config.targets) {
+        if (cancelFuture.isCanceled())
+            return;
+
         const TargetDetails &td = getTargetDetails(t.id);
 
         const FilePath dir = directorySourceDir(config, sourceDir, t.directory);
@@ -717,8 +748,10 @@ void addTargets(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cm
     }
 }
 
-std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
-    PreprocessedData &data, const FilePath &sourceDirectory, const FilePath &buildDirectory)
+static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(const QFuture<void> &cancelFuture,
+                                                                 PreprocessedData &data,
+                                                                 const FilePath &sourceDirectory,
+                                                                 const FilePath &buildDirectory)
 {
     std::unique_ptr<CMakeProjectNode> result = std::make_unique<CMakeProjectNode>(sourceDirectory);
 
@@ -733,25 +766,34 @@ std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
                                                                    std::move(data.cmakeListNodes));
     data.cmakeListNodes.clear(); // Remove all the nullptr in the vector...
 
-    addProjects(cmakeListsNodes, data.codemodel, sourceDirectory);
+    addProjects(cancelFuture, cmakeListsNodes, data.codemodel, sourceDirectory);
+    if (cancelFuture.isCanceled())
+        return {};
 
-    addTargets(cmakeListsNodes,
+    addTargets(cancelFuture,
+               cmakeListsNodes,
                data.codemodel,
                data.targetDetails,
                sourceDirectory,
                buildDirectory);
+    if (cancelFuture.isCanceled())
+        return {};
 
     if (!data.cmakeNodesSource.empty() || !data.cmakeNodesBuild.empty()
-        || !data.cmakeNodesOther.empty())
+        || !data.cmakeNodesOther.empty()) {
         addCMakeInputs(result.get(),
                        sourceDirectory,
                        buildDirectory,
                        std::move(data.cmakeNodesSource),
                        std::move(data.cmakeNodesBuild),
                        std::move(data.cmakeNodesOther));
-
+    }
+    if (cancelFuture.isCanceled())
+        return {};
 
     addCMakePresets(result.get(), sourceDirectory);
+    if (cancelFuture.isCanceled())
+        return {};
 
     data.cmakeNodesSource.clear(); // Remove all the nullptr in the vector...
     data.cmakeNodesBuild.clear();  // Remove all the nullptr in the vector...
@@ -760,7 +802,9 @@ std::unique_ptr<CMakeProjectNode> generateRootProjectNode(
     return result;
 }
 
-void setupLocationInfoForTargets(CMakeProjectNode *rootNode, const QList<CMakeBuildTarget> &targets)
+static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
+                                        CMakeProjectNode *rootNode,
+                                        const QList<CMakeBuildTarget> &targets)
 {
     const QSet<QString> titles = Utils::transform<QSet>(targets, &CMakeBuildTarget::title);
     QHash<QString, FolderNode *> buildKeyToNode;
@@ -771,6 +815,9 @@ void setupLocationInfoForTargets(CMakeProjectNode *rootNode, const QList<CMakeBu
             buildKeyToNode.insert(buildKey, folderNode);
     });
     for (const CMakeBuildTarget &t : targets) {
+        if (cancelFuture.isCanceled())
+            return;
+
         FolderNode *folderNode = buildKeyToNode.value(t.title);
         if (folderNode) {
             QSet<std::pair<FilePath, int>> locations;
@@ -811,33 +858,43 @@ using namespace FileApiDetails;
 // extractData:
 // --------------------------------------------------------------------
 
-FileApiQtcData extractData(FileApiData &input,
-                           const FilePath &sourceDirectory,
-                           const FilePath &buildDirectory)
+FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input,
+                           const Utils::FilePath &sourceDir, const Utils::FilePath &buildDir)
 {
     FileApiQtcData result;
 
     // Preprocess our input:
-    PreprocessedData data = preprocess(input, sourceDirectory, buildDirectory, result.errorMessage);
-    result.cache = std::move(data.cache); // Make sure this is available, even when nothing else is
-    if (!result.errorMessage.isEmpty()) {
+    PreprocessedData data = preprocess(cancelFuture, input, sourceDir, buildDir);
+    if (cancelFuture.isCanceled())
         return {};
-    }
+
+    result.cache = std::move(data.cache); // Make sure this is available, even when nothing else is
+    if (!result.errorMessage.isEmpty())
+        return {};
 
     // Ninja generator from CMake version 3.20.5 has libraries relative to build directory
     const bool haveLibrariesRelativeToBuildDirectory =
             input.replyFile.generator.startsWith("Ninja")
          && input.replyFile.cmakeVersion >= QVersionNumber(3, 20, 5);
 
-    result.buildTargets = generateBuildTargets(data, sourceDirectory, buildDirectory, haveLibrariesRelativeToBuildDirectory);
+    result.buildTargets = generateBuildTargets(cancelFuture, data, sourceDir, buildDir,
+                                               haveLibrariesRelativeToBuildDirectory);
+    if (cancelFuture.isCanceled())
+        return {};
     result.cmakeFiles = std::move(data.cmakeFiles);
-    result.projectParts = generateRawProjectParts(data, sourceDirectory, buildDirectory);
+    result.projectParts = generateRawProjectParts(cancelFuture, data, sourceDir, buildDir);
+    if (cancelFuture.isCanceled())
+        return {};
 
-    auto rootProjectNode = generateRootProjectNode(data, sourceDirectory, buildDirectory);
+    auto rootProjectNode = generateRootProjectNode(cancelFuture, data, sourceDir, buildDir);
+    if (cancelFuture.isCanceled())
+        return {};
     ProjectTree::applyTreeManager(rootProjectNode.get(), ProjectTree::AsyncPhase); // QRC nodes
     result.rootProjectNode = std::move(rootProjectNode);
 
-    setupLocationInfoForTargets(result.rootProjectNode.get(), result.buildTargets);
+    setupLocationInfoForTargets(cancelFuture, result.rootProjectNode.get(), result.buildTargets);
+    if (cancelFuture.isCanceled())
+        return {};
 
     result.ctestPath = input.replyFile.ctestExecutable;
     result.isMultiConfig = input.replyFile.isMultiConfig;

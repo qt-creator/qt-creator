@@ -1018,7 +1018,7 @@ void CMakeBuildSystem::updateProjectData()
         const FilePath includeFileBaseDir = buildConfiguration()->buildDirectory();
         QStringList cxxFlags = rpp.flagsForCxx.commandLineFlags;
         QStringList cFlags = rpp.flagsForC.commandLineFlags;
-        addTargetFlagForIos(cxxFlags, cFlags, this, [this] {
+        addTargetFlagForIos(cFlags, cxxFlags, this, [this] {
             return m_configurationFromCMake.stringValueOf("CMAKE_OSX_DEPLOYMENT_TARGET");
         });
         if (kitInfo.cxxToolChain)
@@ -1432,9 +1432,9 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
             handleImportedTargets(cmakeFile, func);
             handleProjectTargets(cmakeFile, func);
             handleFindPackageVariables(cmakeFile, func);
-            handleDotCMakeFiles(cmakeFile);
-            handleFindPackageCMakeFiles(cmakeFile);
         }
+        handleDotCMakeFiles(cmakeFile);
+        handleFindPackageCMakeFiles(cmakeFile);
     }
 
     m_projectFindPackageVariables.removeDuplicates();

@@ -104,6 +104,7 @@
 #include <coreplugin/imode.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/locator/directoryfilter.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
@@ -3646,13 +3647,18 @@ void ProjectExplorerPluginPrivate::openTerminalHere(const EnvironmentGetter &env
         && !buildDevice->ensureReachable(workingDir))
         workingDir.clear();
 
-    const FilePath shell = Terminal::defaultShellForDevice(buildDevice->rootPath());
+    const expected_str<FilePath> shell = Terminal::defaultShellForDevice(buildDevice->rootPath());
 
-    if (!shell.isEmpty() && buildDevice->rootPath().needsDevice()) {
-        Terminal::Hooks::instance().openTerminal({CommandLine{shell, {}}, workingDir, environment});
-    } else {
-        Terminal::Hooks::instance().openTerminal({workingDir, environment});
+    if (!shell) {
+        Core::MessageManager::writeDisrupting(
+            Tr::tr("Failed opening terminal.\n%1").arg(shell.error()));
+        return;
     }
+
+    if (buildDevice->rootPath().needsDevice())
+        Terminal::Hooks::instance().openTerminal({CommandLine{*shell, {}}, workingDir, environment});
+    else
+        Terminal::Hooks::instance().openTerminal({workingDir, environment});
 }
 
 void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
@@ -3681,10 +3687,17 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     if (!device->filePath(workingDir.path()).exists() && !device->ensureReachable(workingDir))
         workingDir.clear();
 
-    const FilePath shell = Terminal::defaultShellForDevice(device->rootPath());
-    if (!shell.isEmpty() && device->rootPath().needsDevice()) {
+    const expected_str<FilePath> shell = Terminal::defaultShellForDevice(device->rootPath());
+
+    if (!shell) {
+        Core::MessageManager::writeDisrupting(
+            Tr::tr("Failed opening terminal.\n%1").arg(shell.error()));
+        return;
+    }
+
+    if (device->rootPath().needsDevice()) {
         Terminal::Hooks::instance().openTerminal(
-            {CommandLine{shell, {}}, workingDir, runnable.environment});
+            {CommandLine{*shell, {}}, workingDir, runnable.environment});
     } else {
         Terminal::Hooks::instance().openTerminal({workingDir, runnable.environment});
     }

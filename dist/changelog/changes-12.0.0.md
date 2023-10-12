@@ -13,13 +13,47 @@ the public Git repository. For example:
 What's new?
 -----------
 
-* Experimental support for Compiler Explorer
-* CMake debugging and the [Debugger Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/)
+* Support for Compiler Explorer
+* CMake debugging and the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/)
 * Screen recording
+
+### Compiler Explorer
+
+Use [Compiler Explorer](https://godbolt.org) in Qt Creator and enter example
+code to explore the capabilities of your compilers and interpreters.
+
+To enable the CompilerExplorer plugin, select
+`Help > About Plugins > Utilities > CompilerExplorer`. Then select
+`Restart Now` to restart Qt Creator and load the plugin.
+
+Select `File > New File` and select one of the new `Compiler Explorer` templates
+to get started.
+
+Alternatively, you can open a new `Compiler Explorer` editor via
+`Tools > Compiler Explorer > Open Compiler Explorer`.
+
+Every language, compiler and library that is supported at https://godbolt.org
+is also supported in Qt Creator. You can save your Compiler Explorer session as
+a `.qtce` file (JSON-based).
+
+### CMake Debugging and the Debug Adapter Protocol
+
+Set breakpoints in a CMake file and select `DAP` and `CMake Preset` in `Debug`
+mode to debug CMake project files.
+
+### Screen Recording
+
+Use `Tools > Record Screen` to record a part of your screen. Requires an
+installation of [FFmpeg](https://ffmpeg.org).
+
+To enable the ScreenRecorder plugin, select
+`Help > About Plugins > Utilities > ScreenRecorder`. Then select
+`Restart Now` to restart Qt Creator and load the plugin.
 
 General
 -------
 
+* Improved the startup performance significantly on various setups
 * Added the option to keep the sorting from the tool used for the file system
   index locator filter
   ([QTCREATORBUG-27789](https://bugreports.qt.io/browse/QTCREATORBUG-27789))
@@ -83,6 +117,11 @@ Editing
 * Fixed duplicate code when renaming
   ([QTCREATORBUG-29389](https://bugreports.qt.io/browse/QTCREATORBUG-29389))
 
+### Language Server Protocol
+
+* Added support for Language servers that request creating, renaming or deleting of files
+  ([QTCREATORBUG-29542](https://bugreports.qt.io/browse/QTCREATORBUG-29542))
+
 ### Copilot
 
 * Added support for proxies
@@ -118,6 +157,8 @@ Projects
   vanishes (even temporarily)
   ([QTCREATORBUG-23163](https://bugreports.qt.io/browse/QTCREATORBUG-23163),
    [QTCREATORBUG-28273](https://bugreports.qt.io/browse/QTCREATORBUG-28273))
+* Fixed issues with recursive symbolic links
+  ([QTCREATORBUG-29663](https://bugreports.qt.io/browse/QTCREATORBUG-29663))
 
 ### CMake
 
@@ -128,6 +169,9 @@ Projects
 * Added support for `CMAKE_SOURCE_DIR` and similar variables for
   `Jump to File Under Cursor`
   ([QTCREATORBUG-29467](https://bugreports.qt.io/browse/QTCREATORBUG-29467))
+* Added code completion for various aspects of CMake (local functions and
+  variables, cache variables, `ENV`, targets, packages, variables added by
+  `find_package`)
 * Added support for `CMAKE_UNITY_BUILD`
   ([QTCREATORBUG-23635](https://bugreports.qt.io/browse/QTCREATORBUG-23635),
    [QTCREATORBUG-26822](https://bugreports.qt.io/browse/QTCREATORBUG-26822),
@@ -161,6 +205,8 @@ Debugging
 ### C++
 
 * Added support for remote Linux debugging with LLDB
+* Fixed warnings about index cache permissions
+  ([QTCREATORBUG-29556](https://bugreports.qt.io/browse/QTCREATORBUG-29556))
 
 Analyzer
 --------
@@ -180,6 +226,7 @@ Terminal
 --------
 
 * Added mouse support
+* Added support for Windows Terminal schemes
 * Fixed `Ctrl+C/V` on Windows
 
 Version Control Systems
@@ -222,6 +269,7 @@ Esa Törmänen
 Friedemann Kleint  
 Henning Gruendl  
 Jaroslaw Kobus  
+Johanna Vanhatapio  
 Johnny Jazeix  
 Jonas Karlsson  
 Jussi Witick  
@@ -236,6 +284,7 @@ Miikka Heikkinen
 Olivier De Cannière  
 Olivier Delaune  
 Orgad Shaneh  
+Pranta Dastider  
 Robert Löhning  
 Sami Shalayel  
 Samuel Ghinet  

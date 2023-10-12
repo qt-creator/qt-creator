@@ -120,11 +120,10 @@ void applyTextEdit(TextDocumentManipulatorInterface &manipulator,
 bool applyWorkspaceEdit(const Client *client, const WorkspaceEdit &edit)
 {
     bool result = true;
-    const QList<TextDocumentEdit> &documentChanges
-        = edit.documentChanges().value_or(QList<TextDocumentEdit>());
+    const auto documentChanges = edit.documentChanges().value_or(QList<DocumentChange>());
     if (!documentChanges.isEmpty()) {
-        for (const TextDocumentEdit &documentChange : documentChanges)
-            result |= applyTextDocumentEdit(client, documentChange);
+        for (const DocumentChange &documentChange : documentChanges)
+            result |= applyDocumentChange(client, documentChange);
     } else {
         const WorkspaceEdit::Changes &changes = edit.changes().value_or(WorkspaceEdit::Changes());
         for (auto it = changes.cbegin(); it != changes.cend(); ++it)
@@ -188,13 +187,13 @@ void updateCodeActionRefactoringMarker(Client *client,
         if (std::optional<WorkspaceEdit> edit = action.edit()) {
             if (diagnostics.isEmpty()) {
                 QList<TextEdit> edits;
-                if (std::optional<QList<TextDocumentEdit>> documentChanges = edit->documentChanges()) {
-                    QList<TextDocumentEdit> changesForUri = Utils::filtered(
-                                *documentChanges, [uri](const TextDocumentEdit &edit) {
-                        return edit.textDocument().uri() == uri;
-                    });
-                    for (const TextDocumentEdit &edit : changesForUri)
-                        edits << edit.edits();
+                if (std::optional<QList<DocumentChange>> documentChanges = edit->documentChanges()) {
+                    for (const DocumentChange &change : *documentChanges) {
+                        if (auto edit = std::get_if<TextDocumentEdit>(&change)) {
+                            if (edit->textDocument().uri() == uri)
+                                edits << edit->edits();
+                        }
+                    }
                 } else if (std::optional<WorkspaceEdit::Changes> localChanges = edit->changes()) {
                     edits = (*localChanges)[uri];
                 }
@@ -343,6 +342,60 @@ const QIcon symbolIcon(int type)
         }
     }
     return icons[kind];
+}
+
+bool applyDocumentChange(const Client *client, const DocumentChange &change)
+{
+    if (!client)
+        return false;
+
+    if (std::holds_alternative<TextDocumentEdit>(change)) {
+        return applyTextDocumentEdit(client, std::get<TextDocumentEdit>(change));
+    } else if (std::holds_alternative<CreateFileOperation>(change)) {
+        const auto createOperation = std::get<CreateFileOperation>(change);
+        const FilePath filePath = createOperation.uri().toFilePath(client->hostPathMapper());
+        if (filePath.exists()) {
+            if (const std::optional<CreateFileOptions> options = createOperation.options()) {
+                if (options->overwrite().value_or(false)) {
+                    if (!filePath.removeFile())
+                        return false;
+                } else if (options->ignoreIfExists().value_or(false)) {
+                    return true;
+                }
+            }
+        }
+        return filePath.ensureExistingFile();
+    } else if (std::holds_alternative<RenameFileOperation>(change)) {
+        const RenameFileOperation renameOperation = std::get<RenameFileOperation>(change);
+        const FilePath oldPath = renameOperation.oldUri().toFilePath(client->hostPathMapper());
+        if (!oldPath.exists())
+            return false;
+        const FilePath newPath = renameOperation.newUri().toFilePath(client->hostPathMapper());
+        if (oldPath == newPath)
+            return true;
+        if (newPath.exists()) {
+            if (const std::optional<CreateFileOptions> options = renameOperation.options()) {
+                if (options->overwrite().value_or(false)) {
+                    if (!newPath.removeFile())
+                        return false;
+                } else if (options->ignoreIfExists().value_or(false)) {
+                    return true;
+                }
+            }
+        }
+        return oldPath.renameFile(newPath);
+    } else if (std::holds_alternative<DeleteFileOperation>(change)) {
+        const auto deleteOperation = std::get<DeleteFileOperation>(change);
+        const FilePath filePath = deleteOperation.uri().toFilePath(client->hostPathMapper());
+        if (const std::optional<DeleteFileOptions> options = deleteOperation.options()) {
+            if (!filePath.exists())
+                return options->ignoreIfNotExists().value_or(false);
+            if (filePath.isDir() && options->recursive().value_or(false))
+                return filePath.removeRecursively();
+        }
+        return filePath.removeFile();
+    }
+    return false;
 }
 
 } // namespace LanguageClient

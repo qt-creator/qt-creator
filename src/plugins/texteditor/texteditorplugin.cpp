@@ -99,7 +99,6 @@ public:
     FilePath m_marginActionFileName;
 
     TextEditorSettings settings;
-    LineNumberFilter lineNumberFilter; // Goto line functionality for quick open
     OutlineFactory outlineFactory;
 
     FindInFiles findInFilesFilter;
@@ -424,11 +423,6 @@ void TextEditorPlugin::extensionsInitialized()
                                        return QString();
                                    return Text::wordUnderCursor(editor->editorWidget()->textCursor());
                                });
-}
-
-LineNumberFilter *TextEditorPlugin::lineNumberFilter()
-{
-    return &m_instance->d->lineNumberFilter;
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag TextEditorPlugin::aboutToShutdown()

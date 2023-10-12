@@ -1940,6 +1940,8 @@ QSet<QString> CppModelManager::symbolsInFiles(const QSet<FilePath> &files) const
 
 void CppModelManager::onCoreAboutToClose()
 {
+    d->m_fallbackProjectPartTimer.disconnect();
+    d->m_fallbackProjectPartTimer.stop();
     ProgressManager::cancelTasks(Constants::TASK_INDEX);
     d->m_enableGC = false;
 }

@@ -50,6 +50,9 @@ public:
     Qt::DropActions supportedDragActions() const final;
     QStringList mimeTypes() const final;
     QMimeData *mimeData(const QModelIndexList &indexes) const final;
+    Qt::DropActions supportedDropActions() const final;
+    bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const final;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) final;
 
     // this QItemSelectionModel is shared by all views
     QItemSelectionModel *selectionModel() const;
@@ -69,6 +72,7 @@ public:
     void prevInDocument();
     void next();
     void prev();
+    void move(Bookmark* mark, int newRow);
     void moveUp();
     void moveDown();
     void edit();

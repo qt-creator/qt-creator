@@ -61,7 +61,7 @@ class AsmEditorWidget : public TextEditor::TextEditorWidget
     Q_OBJECT
 
 public:
-    using TextEditor::TextEditorWidget::TextEditorWidget;
+    AsmEditorWidget(QUndoStack *undoStack);
 
     void focusInEvent(QFocusEvent *event) override
     {
@@ -69,8 +69,14 @@ public:
         emit gotFocus();
     }
 
+    void undo() override { m_undoStack->undo(); }
+    void redo() override { m_undoStack->redo(); }
+
 signals:
     void gotFocus();
+
+private:
+    QUndoStack *m_undoStack;
 };
 
 class JsonSettingsDocument : public Core::IDocument
@@ -124,7 +130,6 @@ public:
 
 signals:
     void sourceCodeChanged();
-    void addCompiler();
     void remove();
     void gotFocus();
 
@@ -138,7 +143,8 @@ class CompilerWidget : public QWidget
     Q_OBJECT
 public:
     CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSettings,
-                   const std::shared_ptr<CompilerSettings> &compilerSettings);
+                   const std::shared_ptr<CompilerSettings> &compilerSettings,
+                   QUndoStack *undoStack);
 
     Core::SearchableTerminal *createTerminal();
 
@@ -170,6 +176,19 @@ private:
     QString m_source;
     QTimer *m_delayTimer{nullptr};
     QList<TextEditor::TextMark *> m_marks;
+};
+
+class HelperWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    HelperWidget();
+
+protected:
+    void mousePressEvent(QMouseEvent *event) override;
+
+signals:
+    void addSource();
 };
 
 class EditorWidget : public Utils::FancyMainWindow
@@ -207,14 +226,26 @@ protected:
     QVariantMap windowStateCallback();
 
 private:
-    Core::IContext *m_context;
-
     QSharedPointer<JsonSettingsDocument> m_document;
     QUndoStack *m_undoStack;
     TextEditor::TextEditorActionHandler &m_actionHandler;
 
     QList<QDockWidget *> m_compilerWidgets;
     QList<QDockWidget *> m_sourceWidgets;
+};
+
+class Editor : public Core::IEditor
+{
+public:
+    Editor(TextEditor::TextEditorActionHandler &actionHandler);
+    ~Editor();
+
+    Core::IDocument *document() const override { return m_document.data(); }
+    QWidget *toolBar() override;
+
+    QSharedPointer<JsonSettingsDocument> m_document;
+    QUndoStack m_undoStack;
+    std::unique_ptr<QToolBar> m_toolBar;
 };
 
 class EditorFactory : public Core::IEditorFactory

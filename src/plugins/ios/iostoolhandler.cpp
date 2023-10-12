@@ -50,8 +50,8 @@ static QString CONSOLE_PATH_TEMPLATE = QDir::homePath() +
 class LogTailFiles : public QObject
 {
     Q_OBJECT
-public:
 
+public:
     void exec(QPromise<void> &promise, std::shared_ptr<QTemporaryFile> stdoutFile,
               std::shared_ptr<QTemporaryFile> stderrFile)
     {
@@ -87,7 +87,7 @@ public:
     }
 
 signals:
-    void logMessage(QString message);
+    void logMessage(const QString &message);
 };
 
 struct ParserState {
@@ -727,7 +727,7 @@ IosSimulatorToolHandlerPrivate::IosSimulatorToolHandlerPrivate(const IosDeviceTy
     : IosToolHandlerPrivate(devType, q)
 {
     QObject::connect(&outputLogger, &LogTailFiles::logMessage,
-                     std::bind(&IosToolHandlerPrivate::appOutput, this, _1));
+                     q, [q](const QString &message) { q->appOutput(q, message); });
 }
 
 void IosSimulatorToolHandlerPrivate::requestTransferApp(const FilePath &appBundlePath,

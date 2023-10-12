@@ -120,8 +120,8 @@ def checkSymbolCompletion(editor, isClangCodeModel):
                             5, 5, 0, Qt.LeftButton)
 
         try:
-            multiSuggestionToolTip = findObject(
-                "{leftWidget={text~='[0-9]+ of [0-9]+' type='QLabel'} type='QToolButton'}")
+            multiSuggestionToolTip = waitForObject(
+                "{leftWidget={text~='[0-9]+ of [0-9]+' type='QLabel'} type='QToolButton'}", 1000)
             if multiSuggestionToolTip is not None:
                 test.log("Closing tooltip containing overloaded function completion.")
                 type(editor, "<Esc>")

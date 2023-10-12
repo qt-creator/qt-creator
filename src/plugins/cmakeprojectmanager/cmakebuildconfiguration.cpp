@@ -171,8 +171,6 @@ CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) 
     m_configFilterModel(new CategorySortFilterModel(this)),
     m_configTextFilterModel(new CategorySortFilterModel(this))
 {
-    QTC_ASSERT(m_buildConfig, return);
-
     m_configureDetailsWidget = new DetailsWidget;
 
     updateConfigureDetailsWidgetsSummary();
@@ -682,7 +680,7 @@ void CMakeBuildSettingsWidget::updateConfigureDetailsWidgetsSummary(
     const CMakeTool *tool = CMakeKitAspect::cmakeTool(m_buildConfig->kit());
     cmd.setExecutable(tool ? tool->cmakeExecutable() : "cmake");
 
-    const FilePath buildDirectory = m_buildConfig ? m_buildConfig->buildDirectory() : ".";
+    const FilePath buildDirectory = m_buildConfig->buildDirectory();
 
     cmd.addArgs({"-S", m_buildConfig->project()->projectDirectory().path()});
     cmd.addArgs({"-B", buildDirectory.path()});

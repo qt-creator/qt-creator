@@ -700,7 +700,7 @@ void FontSettingsPageWidget::refreshColorSchemeList()
     int selected = 0;
 
     for (const FilePath &file : std::as_const(schemeList)) {
-        if (m_value.colorSchemeFileName() == file)
+        if (m_value.colorSchemeFileName().fileName() == file.fileName())
             selected = colorSchemes.size();
         colorSchemes.append(ColorSchemeEntry(file, true));
     }
@@ -710,7 +710,7 @@ void FontSettingsPageWidget::refreshColorSchemeList()
 
     const FilePaths files = customStylesPath().dirEntries(FileFilter({"*.xml"}, QDir::Files));
     for (const FilePath &file : files) {
-        if (m_value.colorSchemeFileName() == file)
+        if (m_value.colorSchemeFileName().fileName() == file.fileName())
             selected = colorSchemes.size();
         colorSchemes.append(ColorSchemeEntry(file, false));
     }

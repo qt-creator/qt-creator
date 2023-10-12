@@ -508,13 +508,16 @@ std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) 
 expected_str<FilePath> FilePath::tmpDir() const
 {
     if (needsDevice()) {
-        const Environment env = deviceEnvironment();
-        if (env.hasKey("TMPDIR"))
-            return withNewPath(env.value("TMPDIR")).cleanPath();
-        if (env.hasKey("TEMP"))
-            return withNewPath(env.value("TEMP")).cleanPath();
-        if (env.hasKey("TMP"))
-            return withNewPath(env.value("TMP")).cleanPath();
+        const expected_str<Environment> env = deviceEnvironmentWithError();
+        if (!env)
+            return make_unexpected(env.error());
+
+        if (env->hasKey("TMPDIR"))
+            return withNewPath(env->value("TMPDIR")).cleanPath();
+        if (env->hasKey("TEMP"))
+            return withNewPath(env->value("TEMP")).cleanPath();
+        if (env->hasKey("TMP"))
+            return withNewPath(env->value("TMP")).cleanPath();
 
         if (osType() != OsTypeWindows)
             return withNewPath("/tmp");
@@ -1176,13 +1179,13 @@ DeviceFileAccess *FilePath::fileAccess() const
     static DeviceFileAccess dummy;
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     QTC_ASSERT_EXPECTED(access, return &dummy);
-    return *access ? *access : &dummy;
+    return *access;
 }
 
 bool FilePath::hasFileAccess() const
 {
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
-    return access && access.value();
+    return access.has_value();
 }
 
 /*!
@@ -1707,6 +1710,13 @@ FilePaths FilePath::searchAllInPath(const FilePaths &additionalDirs,
 }
 
 Environment FilePath::deviceEnvironment() const
+{
+    expected_str<Environment> env = deviceEnvironmentWithError();
+    QTC_ASSERT_EXPECTED(env, return {});
+    return *env;
+}
+
+expected_str<Environment> FilePath::deviceEnvironmentWithError() const
 {
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.environment, return {});

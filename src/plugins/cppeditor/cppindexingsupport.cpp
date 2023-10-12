@@ -106,7 +106,7 @@ private:
     int m_processedDiagnostics = 0;
 };
 
-void classifyFiles(const QSet<QString> &files, QStringList *headers, QStringList *sources)
+static void classifyFiles(const QSet<QString> &files, QStringList *headers, QStringList *sources)
 {
     for (const QString &file : files) {
         if (ProjectFile::isSource(ProjectFile::classify(file)))
@@ -116,7 +116,7 @@ void classifyFiles(const QSet<QString> &files, QStringList *headers, QStringList
     }
 }
 
-void indexFindErrors(QPromise<void> &promise, const ParseParams params)
+static void indexFindErrors(QPromise<void> &promise, const ParseParams params)
 {
     QStringList sources, headers;
     classifyFiles(params.sourceFiles, &headers, &sources);
@@ -158,7 +158,7 @@ void indexFindErrors(QPromise<void> &promise, const ParseParams params)
     qDebug("FindErrorsIndexing: %s", qPrintable(elapsedTime));
 }
 
-void index(QPromise<void> &promise, const ParseParams params)
+static void index(QPromise<void> &promise, const ParseParams params)
 {
     QScopedPointer<Internal::CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
     sourceProcessor->setFileSizeLimitInMb(params.indexerFileSizeLimitInMb);
@@ -220,7 +220,7 @@ void index(QPromise<void> &promise, const ParseParams params)
     qCDebug(indexerLog) << "Indexing finished.";
 }
 
-void parse(QPromise<void> &promise, const ParseParams params)
+static void parse(QPromise<void> &promise, const ParseParams &params)
 {
     const QSet<QString> &files = params.sourceFiles;
     if (files.isEmpty())

@@ -152,7 +152,6 @@ public:
 signals:
     void parsingStarted();
     void parsingFinished(bool success);
-    void deploymentDataChanged();
     void testInformationUpdated();
     void debuggingStarted();
 

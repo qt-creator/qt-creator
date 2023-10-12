@@ -793,16 +793,24 @@
 
     \list
 
-        \li \c trText specifies the default text to display.
+        \li \c trText specifies the translatable default text to display.
 
-        \li \c trDisabledText specifies the text to display in a disabled field.
+        \li \c text specifies the non-translatable default text to display.
+
+        \li \c trDisabledText specifies the translatable text to display in a
+            disabled field.
+
+        \li \c disabledText specifies the non-translatable text to display in
+            a disabled field.
 
         \li \c completion lists existing \c namespaces for the class name line
             edit and existing \c classes for the base class line edit. This
             value replaces the history completer that is usually available for
             such fields.
 
-        \li \c trPlaceholder specifies the placeholder text.
+        \li \c trPlaceholder specifies the translatable placeholder text.
+
+        \li \c placeholder specifies the non-translatable placeholder text.
 
         \li \c validator specifies a QRegularExpression to validate the line
             edit against.
@@ -886,10 +894,15 @@
 
     \list
 
-        \li \c trText specifies the text to display.
+        \li \c trText specifies the translatable text to display.
 
-        \li \c trDisabledText specifies the text to display when the text edit
-            is disabled.
+        \li \c text specifies the non-translatable text to display.
+
+        \li \c trDisabledText specifies the translatable text to display when
+            the text edit is disabled.
+
+        \li \c disabledText specifies the non-translatable text to display when
+            the text edit is disabled.
 
         \li \c richText is set to \c true for rich text, otherwise \c{false}.
 

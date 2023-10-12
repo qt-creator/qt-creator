@@ -23,6 +23,10 @@ if (CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(Arch 64)
 endif()
 
+if (MSVC_CXX_ARCHITECTURE_ID MATCHES "^ARM")
+  set(Arch "arm${Arch}")
+endif()
+
 add_qtc_executable(win${Arch}interrupt
   COMPONENT wininterrupt
   SOURCES wininterrupt.c

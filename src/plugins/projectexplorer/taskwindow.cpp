@@ -661,6 +661,7 @@ TaskView::TaskView()
 {
     setMouseTracking(true);
     setVerticalScrollMode(ScrollPerPixel);
+    setUniformRowHeights(false);
 }
 
 void TaskView::resizeColumns()

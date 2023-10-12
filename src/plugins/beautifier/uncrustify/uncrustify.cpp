@@ -222,6 +222,7 @@ public:
 
         setOnApply([&s, configurations] {
             s.customStyle.setValue(configurations->currentConfiguration());
+            settings().apply();
             s.save();
         });
     }

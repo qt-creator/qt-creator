@@ -146,6 +146,8 @@ def common_cmake_arguments(args):
     # Qt otherwise adds dependencies on libGLX and libOpenGL
     cmake_args += ['-DOpenGL_GL_PREFERENCE=LEGACY']
 
+    cmake_args += args.config_args
+
     return cmake_args
 
 def build_qtcreator(args, paths):
@@ -193,8 +195,6 @@ def build_qtcreator(args, paths):
         cmake_args += ['-DCPACK_PACKAGE_FILE_NAME=qtcreator' + args.zip_infix]
         if common.is_linux_platform():
             cmake_args += ['-DCPACK_INSTALL_PREFIX=/opt/qt-creator']
-
-    cmake_args += args.config_args
 
     common.check_print_call(cmake_args + [paths.src], paths.build)
     build_args = ['cmake', '--build', '.']

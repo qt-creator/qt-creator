@@ -10,8 +10,6 @@
 #include <QTextCursor>
 #include <QTextDocument>
 
-#include <limits>
-
 namespace Utils {
 
 CommentDefinition CommentDefinition::CppStyle = CommentDefinition("//", "/*", "*/");
@@ -42,22 +40,10 @@ bool CommentDefinition::hasMultiLineStyle() const
     return !multiLineStart.isEmpty() && !multiLineEnd.isEmpty();
 }
 
-static bool isComment(const QString &text, int index,
-   const QString &commentType)
+static bool isComment(const QString &text, int index, const QString &commentType)
 {
-    const int length = commentType.length();
-
-    Q_ASSERT(text.length() - index >= length);
-
-    int i = 0;
-    while (i < length) {
-        if (text.at(index + i) != commentType.at(i))
-            return false;
-        ++i;
-    }
-    return true;
+    return QStringView(text).mid(index).startsWith(commentType);
 }
-
 
 QTextCursor unCommentSelection(const QTextCursor &cursorIn,
                                const CommentDefinition &definition,

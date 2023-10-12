@@ -15,13 +15,13 @@
 #include <QScopedPointer>
 #include <QSet>
 #include <QStringList>
+#include <QTimer>
 #include <QWaitCondition>
 
 #include <queue>
 
 QT_BEGIN_NAMESPACE
 class QTime;
-class QTimer;
 class QEventLoop;
 QT_END_NAMESPACE
 
@@ -40,7 +40,6 @@ class PluginSpecPrivate;
 
 class EXTENSIONSYSTEM_TEST_EXPORT PluginManagerPrivate : public QObject
 {
-    Q_OBJECT
 public:
     PluginManagerPrivate(PluginManager *pluginManager);
     ~PluginManagerPrivate() override;
@@ -99,7 +98,7 @@ public:
     QStringList disabledPlugins;
     QStringList forceEnabledPlugins;
     // delayed initialization
-    std::unique_ptr<QTimer> delayedInitializeTimer;
+    QTimer delayedInitializeTimer;
     std::queue<PluginSpec *> delayedInitializeQueue;
     // ansynchronous shutdown
     QSet<PluginSpec *> asynchronousPlugins;  // plugins that have requested async shutdown

@@ -555,6 +555,14 @@ public:
         void setDocumentChanges(bool documentChanges)
         { insert(documentChangesKey, documentChanges); }
         void clearDocumentChanges() { remove(documentChangesKey); }
+
+        enum class ResourceOperationKind { Create, Rename, Delete };
+
+        // The resource operations the client supports. Clients should at least support 'create',
+        // 'rename' and 'delete' files and folders.
+        std::optional<QList<ResourceOperationKind>> resourceOperations() const;
+        void setResourceOperations(const QList<ResourceOperationKind> &resourceOperations);
+        void clearResourceOperations() { remove(resourceOperationsKey); }
     };
 
     // Capabilities specific to `WorkspaceEdit`s

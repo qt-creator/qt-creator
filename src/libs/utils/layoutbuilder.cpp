@@ -221,8 +221,8 @@ LayoutItem::~LayoutItem() = default;
 struct ResultItem
 {
     ResultItem() = default;
-    explicit ResultItem(QLayout *l) : layout(l) {}
-    explicit ResultItem(QWidget *w) : widget(w) {}
+    explicit ResultItem(QLayout *l) : layout(l), empty(!l) {}
+    explicit ResultItem(QWidget *w) : widget(w), empty(!w) {}
 
     QString text;
     QLayout *layout = nullptr;

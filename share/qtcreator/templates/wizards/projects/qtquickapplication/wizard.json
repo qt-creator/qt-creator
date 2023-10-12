@@ -21,6 +21,7 @@
         { "key": "HasFailureSignal", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.3' }"},
         { "key": "UsesAutoResourcePrefix", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' }"},
         { "key": "HasLoadFromModule", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' && value('UsesAutoResourcePrefix') }"},
+        { "key": "FeatureQt", "value": "QtSupport.Wizards.FeatureQt.%{MinimumSupportedQtVersion}"},
         { "key": "QdsWizardPath", "value": "%{IDE:ResourcePath}/qmldesigner/studio_templates/projects" },
         { "key": "NoQdsProjectStyle", "value": "%{JS: !%{QdsProjectStyle} }" },
 
@@ -98,7 +99,7 @@
             "enabled": "%{JS: !value('IsSubproject')}",
             "data": {
                 "projectFilePath": "%{ProjectFile}",
-                "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQmlCMakeApi" ]
+                "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQmlCMakeApi", "%{FeatureQt}" ]
             }
         },
         {

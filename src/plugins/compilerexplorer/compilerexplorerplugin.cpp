@@ -38,7 +38,7 @@ public:
 
         auto action = new QAction(Tr::tr("Open Compiler Explorer"), this);
         connect(action, &QAction::triggered, this, [] {
-            QString name("Compiler Explorer");
+            QString name("Compiler Explorer $");
             Core::EditorManager::openEditorWithContents(Constants::CE_EDITOR_ID,
                                                         &name,
                                                         settings().defaultDocument().toUtf8());

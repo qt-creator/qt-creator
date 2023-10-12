@@ -141,18 +141,6 @@ QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
     return Utils::asyncRun(&createAvdCommand, m_config, info);
 }
 
-bool AndroidAvdManager::removeAvd(const QString &name) const
-{
-    const CommandLine command(m_config.avdManagerToolPath(), {"delete", "avd", "-n", name});
-    qCDebug(avdManagerLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
-    Process proc;
-    proc.setTimeoutS(5);
-    proc.setEnvironment(m_config.toolsEnvironment());
-    proc.setCommand(command);
-    proc.runBlocking();
-    return proc.result() == ProcessResult::FinishedWithSuccess;
-}
-
 static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMode = false)
 {
     if (!avdPath.exists())

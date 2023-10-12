@@ -61,7 +61,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         const QString msg = ::CMakeProjectManager::Tr::tr(
                 "The source directory %1 is not reachable by the CMake executable %2.")
             .arg(parameters.sourceDirectory.displayName()).arg(cmakeExecutable.displayName());
-        BuildSystem::appendBuildSystemOutput(addCMakePrefix({msg, QString()}).join('\n'));
+        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
         emit finished(failedToStartExitCode);
         return;
     }
@@ -70,7 +70,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
         const QString msg = ::CMakeProjectManager::Tr::tr(
                 "The build directory %1 is not reachable by the CMake executable %2.")
             .arg(parameters.buildDirectory.displayName()).arg(cmakeExecutable.displayName());
-        BuildSystem::appendBuildSystemOutput(addCMakePrefix({msg, QString()}).join('\n'));
+        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
         emit finished(failedToStartExitCode);
         return;
     }
@@ -81,7 +81,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
     if (!buildDirectory.exists()) {
         const QString msg = ::CMakeProjectManager::Tr::tr(
                 "The build directory \"%1\" does not exist").arg(buildDirectory.toUserOutput());
-        BuildSystem::appendBuildSystemOutput(addCMakePrefix({msg, QString()}).join('\n'));
+        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
         emit finished(failedToStartExitCode);
         return;
     }
@@ -91,7 +91,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
             const QString msg = ::CMakeProjectManager::Tr::tr(
                   "CMake executable \"%1\" and build directory \"%2\" must be on the same device.")
                     .arg(cmake->cmakeExecutable().toUserOutput(), buildDirectory.toUserOutput());
-            BuildSystem::appendBuildSystemOutput(addCMakePrefix({msg, QString()}).join('\n'));
+            BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
             emit finished(failedToStartExitCode);
             return;
         }
@@ -174,14 +174,14 @@ void CMakeProcess::handleProcessDone(const Utils::ProcessResultData &resultData)
     }
 
     if (!msg.isEmpty()) {
-        BuildSystem::appendBuildSystemOutput(addCMakePrefix({msg, QString()}).join('\n'));
+        BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), msg}).join('\n'));
         TaskHub::addTask(BuildSystemTask(Task::Error, msg));
     }
 
     emit finished(code);
 
     const QString elapsedTime = Utils::formatElapsedTime(m_elapsed.elapsed());
-    BuildSystem::appendBuildSystemOutput(addCMakePrefix({elapsedTime, QString()}).join('\n'));
+    BuildSystem::appendBuildSystemOutput(addCMakePrefix({QString(), elapsedTime}).join('\n'));
 }
 
 QString addCMakePrefix(const QString &str)

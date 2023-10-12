@@ -153,6 +153,65 @@ void KitManager::destroy()
     d = nullptr;
 }
 
+static bool kitMatchesAbiList(const Kit *kit, const Abis &abis)
+{
+    const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
+    for (const ToolChain * const tc : toolchains) {
+        const Abi tcAbi = tc->targetAbi();
+        for (const Abi &abi : abis) {
+            if (tcAbi.os() == abi.os() && tcAbi.architecture() == abi.architecture()
+                && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == abi.osFlavor())) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+static bool isHostKit(const Kit *kit)
+{
+    const Abi hostAbi = Abi::hostAbi();
+    if (HostOsInfo::isMacHost() && hostAbi.architecture() == Abi::ArmArchitecture) {
+        const Abi x86Abi(Abi::X86Architecture,
+                         hostAbi.os(),
+                         hostAbi.osFlavor(),
+                         hostAbi.binaryFormat(),
+                         hostAbi.wordWidth());
+
+        return kitMatchesAbiList(kit, {hostAbi, x86Abi});
+    }
+    return kitMatchesAbiList(kit, {hostAbi});
+};
+
+static Id deviceTypeForKit(const Kit *kit)
+{
+    if (isHostKit(kit))
+        return Constants::DESKTOP_DEVICE_TYPE;
+    const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
+    for (const ToolChain * const tc : toolchains) {
+        const Abi tcAbi = tc->targetAbi();
+        switch (tcAbi.os()) {
+        case Abi::BareMetalOS:
+            return BareMetal::Constants::BareMetalOsType;
+        case Abi::BsdOS:
+        case Abi::DarwinOS:
+        case Abi::UnixOS:
+            return RemoteLinux::Constants::GenericLinuxOsType;
+        case Abi::LinuxOS:
+            if (tcAbi.osFlavor() == Abi::AndroidLinuxFlavor)
+                return Android::Constants::ANDROID_DEVICE_TYPE;
+            return RemoteLinux::Constants::GenericLinuxOsType;
+        case Abi::QnxOS:
+            return Qnx::Constants::QNX_QNX_OS_TYPE;
+        case Abi::VxWorks:
+            return "VxWorks.Device.Type";
+        default:
+            break;
+        }
+    }
+    return Constants::DESKTOP_DEVICE_TYPE;
+};
+
 void KitManager::restoreKits()
 {
     NANOTRACE_SCOPE("ProjectExplorer", "KitManager::restoreKits");
@@ -233,28 +292,11 @@ void KitManager::restoreKits()
         }
     }
 
-    static const auto kitMatchesAbiList = [](const Kit *kit, const Abis &abis) {
-        const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
-        for (const ToolChain * const tc : toolchains) {
-            const Abi tcAbi = tc->targetAbi();
-            for (const Abi &abi : abis) {
-                if (tcAbi.os() == abi.os() && tcAbi.architecture() == abi.architecture()
-                        && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == abi.osFlavor())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-
     const Abis abisOfBinary = d->m_binaryForKit.isEmpty()
             ? Abis() : Abi::abisOfBinary(d->m_binaryForKit);
-    const auto kitMatchesAbiOfBinary = [&abisOfBinary](const Kit *kit) {
-        return kitMatchesAbiList(kit, abisOfBinary);
-    };
     const bool haveKitForBinary = abisOfBinary.isEmpty()
-            || contains(resultList, [&kitMatchesAbiOfBinary](const std::unique_ptr<Kit> &kit) {
-        return kitMatchesAbiOfBinary(kit.get());
+            || contains(resultList, [&abisOfBinary](const std::unique_ptr<Kit> &kit) {
+        return kitMatchesAbiList(kit.get(), abisOfBinary);
     });
     Kit *kitForBinary = nullptr;
 
@@ -302,49 +344,6 @@ void KitManager::restoreKits()
                 bestTc = tc;
         }
 
-        static const auto isHostKit = [](const Kit *kit) {
-            const Abi hostAbi = Abi::hostAbi();
-            if (HostOsInfo::isMacHost() && hostAbi.architecture() == Abi::ArmArchitecture) {
-                const Abi x86Abi(Abi::X86Architecture,
-                                 hostAbi.os(),
-                                 hostAbi.osFlavor(),
-                                 hostAbi.binaryFormat(),
-                                 hostAbi.wordWidth());
-
-                return kitMatchesAbiList(kit, {hostAbi, x86Abi});
-            }
-
-            return kitMatchesAbiList(kit, {hostAbi});
-        };
-
-        static const auto deviceTypeForKit = [](const Kit *kit) {
-            if (isHostKit(kit))
-                return Constants::DESKTOP_DEVICE_TYPE;
-            const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
-            for (const ToolChain * const tc : toolchains) {
-                const Abi tcAbi = tc->targetAbi();
-                switch (tcAbi.os()) {
-                case Abi::BareMetalOS:
-                    return BareMetal::Constants::BareMetalOsType;
-                case Abi::BsdOS:
-                case Abi::DarwinOS:
-                case Abi::UnixOS:
-                    return RemoteLinux::Constants::GenericLinuxOsType;
-                case Abi::LinuxOS:
-                    if (tcAbi.osFlavor() == Abi::AndroidLinuxFlavor)
-                        return Android::Constants::ANDROID_DEVICE_TYPE;
-                    return RemoteLinux::Constants::GenericLinuxOsType;
-                case Abi::QnxOS:
-                    return Qnx::Constants::QNX_QNX_OS_TYPE;
-                case Abi::VxWorks:
-                    return "VxWorks.Device.Type";
-                default:
-                    break;
-                }
-            }
-            return Constants::DESKTOP_DEVICE_TYPE;
-        };
-
         // Create temporary kits for all toolchains found.
         decltype(resultList) tempList;
         for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
@@ -380,7 +379,7 @@ void KitManager::restoreKits()
         });
         if (!abisOfBinary.isEmpty()) {
             for (auto it = tempList.begin(); it != tempList.end(); ++it) {
-                if (kitMatchesAbiOfBinary(it->get())) {
+                if (kitMatchesAbiList(it->get(), abisOfBinary)) {
                     kitForBinary = it->get();
                     resultList.emplace_back(std::move(*it));
                     tempList.erase(it);

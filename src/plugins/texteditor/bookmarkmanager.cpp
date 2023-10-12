@@ -215,9 +215,9 @@ BookmarkView::BookmarkView(BookmarkManager *manager)  :
     setSelectionMode(QAbstractItemView::SingleSelection);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setDragEnabled(true);
-    setDragDropMode(QAbstractItemView::DragOnly);
+    setDragDropMode(QAbstractItemView::DragDrop);
 
-    connect(this, &QAbstractItemView::clicked, this, &BookmarkView::gotoBookmark);
+    connect(this, &QAbstractItemView::doubleClicked, this, &BookmarkView::gotoBookmark);
     connect(this, &QAbstractItemView::activated, this, &BookmarkView::gotoBookmark);
 }
 
@@ -395,7 +395,7 @@ Qt::ItemFlags BookmarkManager::flags(const QModelIndex &index) const
 {
     if (!index.isValid() || index.column() !=0 || index.row() < 0 || index.row() >= m_bookmarksList.count())
         return Qt::NoItemFlags;
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
+    return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
 Qt::DropActions BookmarkManager::supportedDragActions() const
@@ -416,8 +416,60 @@ QMimeData *BookmarkManager::mimeData(const QModelIndexList &indexes) const
             continue;
         Bookmark *bookMark = m_bookmarksList.at(index.row());
         data->addFile(bookMark->filePath(), bookMark->lineNumber());
+        data->addValue(QVariant::fromValue(bookMark));
     }
     return data;
+}
+
+Qt::DropActions BookmarkManager::supportedDropActions() const
+{
+    return Qt::MoveAction;
+}
+
+bool BookmarkManager::canDropMimeData(const QMimeData *data, Qt::DropAction action,
+                                      int row, int column,
+                                      const QModelIndex &parent) const
+{
+    Q_UNUSED(row);
+    Q_UNUSED(column);
+    Q_UNUSED(parent);
+
+    if (!(action & supportedDropActions()))
+        return false;
+
+    const DropMimeData* customData = qobject_cast<const DropMimeData*>(data);
+    if (!customData)
+        return false;
+
+    return true;
+}
+
+bool BookmarkManager::dropMimeData(const QMimeData *data, Qt::DropAction action,
+                                   int row, int column, const QModelIndex &parent)
+{
+    Q_UNUSED(column);
+
+    if (!(action & supportedDropActions()))
+        return false;
+
+    const DropMimeData* customData = qobject_cast<const DropMimeData*>(data);
+    if (!customData)
+        return false;
+
+    row = parent.row();
+    if (row >= m_bookmarksList.size())
+        row = m_bookmarksList.size() - 1;
+    if (row == -1)
+        row = m_bookmarksList.size() - 1;
+
+    const QList<QVariant> values = customData->values();
+    for (const QVariant &value : values) {
+        auto mark = value.value<Bookmark*>();
+        if (mark)
+            move(mark, row);
+    }
+
+    return true;
 }
 
 void BookmarkManager::toggleBookmark(const FilePath &fileName, int lineNumber)
@@ -628,6 +680,25 @@ void BookmarkManager::updateActionStatus()
     emit updateActions(enableToggle, state());
 }
 
+void BookmarkManager::move(Bookmark* mark, int newRow)
+{
+    int currentRow = m_bookmarksList.indexOf(mark);
+    if (newRow <= currentRow)
+        ++currentRow;
+    else
+        ++newRow;
+    m_bookmarksList.insert(newRow, mark);
+    m_bookmarksList.removeAt(currentRow);
+
+    QModelIndex current = selectionModel()->currentIndex();
+    QModelIndex topLeft = current.sibling(std::min(newRow, currentRow), 0);
+    QModelIndex bottomRight = current.sibling(std::max(newRow, currentRow), 2);
+    emit dataChanged(topLeft, bottomRight);
+    selectionModel()->setCurrentIndex(topLeft, QItemSelectionModel::Select | QItemSelectionModel::Clear);
+
+    saveBookmarks();
+}
+
 void BookmarkManager::moveUp()
 {
     QModelIndex current = selectionModel()->currentIndex();
@@ -824,6 +895,7 @@ BookmarkViewFactory::BookmarkViewFactory(BookmarkManager *bm)
 NavigationView BookmarkViewFactory::createWidget()
 {
     auto view = new BookmarkView(m_manager);
+    view->setActivationMode(Utils::DoubleClickActivation); // QUESTION: is this useful ?
     return {view, view->createToolBarWidgets()};
 }
 

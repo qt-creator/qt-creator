@@ -188,6 +188,7 @@
             \li Edit Code
                 \list
                     \li \l {Add code snippets to the auto-complete menu}
+                    \li \l {Document code}
                     \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
                     \li \l {Indent text or code}
                     \li \l {Jump to a function in QML code}
@@ -262,6 +263,7 @@
             \li Use the UI
                 \list
                     \li \l {Assign keyboard shortcuts}
+                    \li \l {Detach views}
                     \li \l {Find a particular preference}
                     \li \l {Find keyboard shortcuts}
                     \li \l {Find menu items on \macos}

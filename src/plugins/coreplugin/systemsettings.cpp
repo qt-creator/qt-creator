@@ -142,6 +142,7 @@ SystemSettings::SystemSettings()
 
 #ifdef ENABLE_CRASHPAD
     enableCrashReporting.setSettingsKey("CrashReportingEnabled");
+    enableCrashReporting.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
     enableCrashReporting.setLabelText(tr("Enable crash reporting"));
     enableCrashReporting.setToolTip(
         Tr::tr("Allow crashes to be automatically reported. Collected reports are "
@@ -165,8 +166,10 @@ public:
         , m_terminalOpenArgs(new QLineEdit)
         , m_terminalExecuteArgs(new QLineEdit)
         , m_environmentChangesLabel(new Utils::ElidingLabel)
-        , m_clearCrashReportsButton(new QPushButton(Tr::tr("Clear Local Crash Reports")))
-        , m_crashReportsSizeText(new QLabel)
+#ifdef ENABLE_CRASHPAD
+        , m_clearCrashReportsButton(new QPushButton(Tr::tr("Clear Local Crash Reports"), this))
+        , m_crashReportsSizeText(new QLabel(this))
+#endif
 
     {
         SystemSettings &s = systemSettings();
@@ -191,54 +194,56 @@ public:
         resetFileBrowserButton->setToolTip(Tr::tr("Reset to default."));
         auto helpExternalFileBrowserButton = new QToolButton;
         helpExternalFileBrowserButton->setText(Tr::tr("?"));
-        auto helpCrashReportingButton = new QToolButton;
+#ifdef ENABLE_CRASHPAD
+        auto helpCrashReportingButton = new QToolButton(this);
         helpCrashReportingButton->setText(Tr::tr("?"));
+#endif
         auto resetTerminalButton = new QPushButton(Tr::tr("Reset"));
         resetTerminalButton->setToolTip(Tr::tr("Reset to default.", "Terminal"));
         auto environmentButton = new QPushButton(Tr::tr("Change..."));
         environmentButton->setSizePolicy(QSizePolicy::Fixed,
                                          environmentButton->sizePolicy().verticalPolicy());
 
-        Grid form;
-        form.addRow(
-            {Tr::tr("Environment:"), Span(2, Row{m_environmentChangesLabel, environmentButton})});
+        Grid grid;
+        grid.addRow({Tr::tr("Environment:"),
+                     Span(3, m_environmentChangesLabel), environmentButton});
         if (HostOsInfo::isAnyUnixHost()) {
-            form.addRow({Tr::tr("Terminal:"),
-                         Span(2,
-                              Row{m_terminalComboBox,
-                                  m_terminalOpenArgs,
-                                  m_terminalExecuteArgs,
-                                  resetTerminalButton})});
+            grid.addRow({Tr::tr("Terminal:"),
+                         m_terminalComboBox,
+                         m_terminalOpenArgs,
+                         m_terminalExecuteArgs,
+                         resetTerminalButton});
         }
         if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
-            form.addRow({Tr::tr("External file browser:"),
-                         Span(2,
-                              Row{m_externalFileBrowserEdit,
-                                  resetFileBrowserButton,
-                                  helpExternalFileBrowserButton})});
+            grid.addRow({Tr::tr("External file browser:"),
+                         Span(3, m_externalFileBrowserEdit),
+                         resetFileBrowserButton,
+                         helpExternalFileBrowserButton});
         }
-        form.addRow({Span(3, s.patchCommand)});
+        grid.addRow({Span(4, s.patchCommand)});
         if (HostOsInfo::isMacHost()) {
-            form.addRow({fileSystemCaseSensitivityLabel,
-                         Span(2, Row{m_fileSystemCaseSensitivityChooser, st})});
+            grid.addRow({fileSystemCaseSensitivityLabel,
+                         m_fileSystemCaseSensitivityChooser});
         }
-        form.addRow({s.reloadSetting, st});
-        form.addRow({s.autoSaveModifiedFiles, Span(2, Row{s.autoSaveInterval, st})});
-        form.addRow({Span(3, s.autoSaveAfterRefactoring)});
-        form.addRow({s.autoSuspendEnabled, Span(2, Row{s.autoSuspendMinDocumentCount, st})});
-        form.addRow({s.warnBeforeOpeningBigFiles, Span(2, Row{s.bigFileSizeLimitInMB, st})});
-        form.addRow({Tr::tr("Maximum number of entries in \"Recent Files\":"),
-                    Span(2, Row{s.maxRecentFiles, st})});
-        form.addRow({s.askBeforeExit});
+        grid.addRow({s.reloadSetting});
+        grid.addRow({s.autoSaveModifiedFiles, Row{s.autoSaveInterval, st}});
+        grid.addRow({s.autoSuspendEnabled, Row{s.autoSuspendMinDocumentCount, st}});
+        grid.addRow({s.autoSaveAfterRefactoring});
+        grid.addRow({s.warnBeforeOpeningBigFiles, Row{s.bigFileSizeLimitInMB, st}});
+        grid.addRow({Tr::tr("Maximum number of entries in \"Recent Files\":"),
+                    Row{s.maxRecentFiles, st}});
+        grid.addRow({s.askBeforeExit});
 #ifdef ENABLE_CRASHPAD
-        form.addRow({Span(3, Row{s.enableCrashReporting, helpCrashReportingButton, st})});
-        form.addRow({Span(3, Row{m_clearCrashReportsButton, m_crashReportsSizeText, st})});
+        grid.addRow({s.enableCrashReporting,
+                     Row{m_clearCrashReportsButton,
+                         m_crashReportsSizeText,
+                         helpCrashReportingButton, st}});
 #endif
 
         Column {
             Group {
                 title(Tr::tr("System")),
-                Column { form, st }
+                Column { grid, st }
             }
         }.attachTo(this);
 
@@ -367,8 +372,10 @@ private:
     QLineEdit *m_terminalOpenArgs;
     QLineEdit *m_terminalExecuteArgs;
     Utils::ElidingLabel *m_environmentChangesLabel;
+#ifdef ENABLE_CRASHPAD
     QPushButton *m_clearCrashReportsButton;
     QLabel *m_crashReportsSizeText;
+#endif
     QPointer<QMessageBox> m_dialog;
     EnvironmentItems m_environmentChanges;
 };

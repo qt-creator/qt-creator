@@ -58,6 +58,9 @@ public:
     void setCanUndoCallback(const Predicate &callback);
     void setCanRedoCallback(const Predicate &callback);
 
+    using UnhandledCallback = std::function<void(Utils::Id commandId, Core::IEditor *editor)>;
+    void setUnhandledCallback(const UnhandledCallback &callback);
+
 private:
     Internal::TextEditorActionHandlerPrivate *d;
 };

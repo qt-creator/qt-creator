@@ -1,7 +1,7 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "rsyncdeploystep.h"
+#include "genericdeploystep.h"
 
 #include "abstractremotelinuxdeploystep.h"
 #include "remotelinux_constants.h"
@@ -30,15 +30,15 @@ namespace RemoteLinux::Internal {
 
 // RsyncDeployStep
 
-class RsyncDeployStep : public AbstractRemoteLinuxDeployStep
+class GenericDeployStep : public AbstractRemoteLinuxDeployStep
 {
 public:
-    RsyncDeployStep(BuildStepList *bsl, Id id)
+    GenericDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
         flags.setDisplayStyle(StringAspect::LineEditDisplay);
         flags.setSettingsKey("RemoteLinux.RsyncDeployStep.Flags");
-        flags.setLabelText(Tr::tr("Flags:"));
+        flags.setLabelText(Tr::tr("Flags for rsync:"));
         flags.setValue(FileTransferSetupData::defaultRsyncFlags());
 
         ignoreMissingFiles.setSettingsKey("RemoteLinux.RsyncDeployStep.IgnoreMissingFiles");
@@ -47,9 +47,9 @@ public:
 
         method.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         method.setDisplayName(Tr::tr("Transfer method:"));
-        method.addOption(Tr::tr("rsync"), Tr::tr("Use rsync if available."));
-        method.addOption(Tr::tr("SFTP"), Tr::tr("Use sftp if available."));
-        method.addOption(Tr::tr("Generic Copy"), Tr::tr("Use generic copy, most likely to succeed."));
+        method.addOption(Tr::tr("Use rsync if available. Otherwise use default transfer."));
+        method.addOption(Tr::tr("Use sftp if available. Otherwise use default transfer."));
+        method.addOption(Tr::tr("Use default transfer. This might be slow."));
 
         setInternalInitializer([this]() -> expected_str<void> {
             if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
@@ -75,7 +75,7 @@ private:
     mutable FilesToTransfer m_files;
 };
 
-bool RsyncDeployStep::isDeploymentNecessary() const
+bool GenericDeployStep::isDeploymentNecessary() const
 {
     const QList<DeployableFile> files = target()->deploymentData().allFiles();
     m_files.clear();
@@ -86,7 +86,7 @@ bool RsyncDeployStep::isDeploymentNecessary() const
     return !m_files.empty();
 }
 
-GroupItem RsyncDeployStep::mkdirTask()
+GroupItem GenericDeployStep::mkdirTask()
 {
     using ResultType = expected_str<void>;
 
@@ -147,7 +147,7 @@ static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileT
     return FileTransferMethod::GenericCopy;
 }
 
-GroupItem RsyncDeployStep::transferTask()
+GroupItem GenericDeployStep::transferTask()
 {
     const auto setupHandler = [this](FileTransfer &transfer) {
         FileTransferMethod preferredTransferMethod = FileTransferMethod::Rsync;
@@ -176,7 +176,7 @@ GroupItem RsyncDeployStep::transferTask()
 
         transfer.setRsyncFlags(flags());
         transfer.setFilesToTransfer(m_files);
-        connect(&transfer, &FileTransfer::progress, this, &RsyncDeployStep::handleStdOutData);
+        connect(&transfer, &FileTransfer::progress, this, &GenericDeployStep::handleStdOutData);
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
@@ -192,17 +192,17 @@ GroupItem RsyncDeployStep::transferTask()
     return FileTransferTask(setupHandler, {}, errorHandler);
 }
 
-GroupItem RsyncDeployStep::deployRecipe()
+GroupItem GenericDeployStep::deployRecipe()
 {
     return Group { mkdirTask(), transferTask() };
 }
 
 // Factory
 
-RsyncDeployStepFactory::RsyncDeployStepFactory()
+GenericDeployStepFactory::GenericDeployStepFactory()
 {
-    registerStep<RsyncDeployStep>(Constants::RsyncDeployStepId);
-    setDisplayName(Tr::tr("Deploy files via rsync"));
+    registerStep<GenericDeployStep>(Constants::GenericDeployStepId);
+    setDisplayName(Tr::tr("Deploy files"));
 }
 
 } // RemoteLinux::Internal

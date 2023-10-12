@@ -7,7 +7,6 @@
 #include "displaysettings.h"
 #include "fontsettings.h"
 #include "linenumberfilter.h"
-#include "texteditorplugin.h"
 #include "texteditortr.h"
 #include "texteditorsettings.h"
 
@@ -62,8 +61,18 @@ public:
                             Utils::Id menueGroup = Utils::Id(),
                             Core::ActionContainer *container = nullptr)
     {
-        return registerActionHelper(id, scriptable, title, keySequence, menueGroup, container,
-            [this, slot](bool) { if (m_currentEditorWidget) slot(m_currentEditorWidget); });
+        return registerActionHelper(id,
+                                    scriptable,
+                                    title,
+                                    keySequence,
+                                    menueGroup,
+                                    container,
+                                    [this, slot, id](bool) {
+                                        if (m_currentEditorWidget)
+                                            slot(m_currentEditorWidget);
+                                        else if (m_unhandledCallback)
+                                            m_unhandledCallback(id, m_currentEditor);
+                                    });
     }
 
     QAction *registerBoolAction(Utils::Id id,
@@ -135,6 +144,8 @@ public:
 
     TextEditorActionHandler::Predicate m_canUndoCallback;
     TextEditorActionHandler::Predicate m_canRedoCallback;
+
+    TextEditorActionHandler::UnhandledCallback m_unhandledCallback;
 };
 
 TextEditorActionHandlerPrivate::TextEditorActionHandlerPrivate
@@ -168,7 +179,7 @@ void TextEditorActionHandlerPrivate::createActions()
     registerAction(SELECTALL,
             [] (TextEditorWidget *w) { w->selectAll(); }, true);
     registerAction(GOTO, [] (TextEditorWidget *) {
-            Core::LocatorManager::showFilter(TextEditorPlugin::lineNumberFilter());
+            Core::LocatorManager::showFilter(lineNumberFilter());
         });
     m_modifyingActions << registerAction(PRINT,
             [] (TextEditorWidget *widget) { widget->print(Core::ICore::printer()); });
@@ -478,17 +489,28 @@ void TextEditorActionHandlerPrivate::updateActions()
         m_textWrappingAction->setChecked(m_currentEditorWidget->displaySettings().m_textWrapping);
     }
 
-    if (m_currentEditorWidget) {
-        updateRedoAction(m_canRedoCallback ? m_canRedoCallback(m_currentEditor)
-                                           : m_currentEditorWidget->document()->isRedoAvailable());
-        updateUndoAction(m_canUndoCallback ? m_canUndoCallback(m_currentEditor)
-                                           : m_currentEditorWidget->document()->isUndoAvailable());
-        updateCopyAction(m_currentEditorWidget->textCursor().hasSelection());
-    } else {
-        updateRedoAction(false);
-        updateUndoAction(false);
-        updateCopyAction(false);
+    bool canRedo = false;
+    bool canUndo = false;
+    bool canCopy = false;
+
+    if (m_currentEditor && m_currentEditor->document()
+        && m_currentEditor->document()->id() == m_editorId) {
+        canRedo = m_canRedoCallback ? m_canRedoCallback(m_currentEditor) : false;
+        canUndo = m_canUndoCallback ? m_canUndoCallback(m_currentEditor) : false;
+
+        if (m_currentEditorWidget) {
+            canRedo = m_canRedoCallback ? canRedo
+                                        : m_currentEditorWidget->document()->isRedoAvailable();
+            canUndo = m_canUndoCallback ? canUndo
+                                        : m_currentEditorWidget->document()->isUndoAvailable();
+            canCopy = m_currentEditorWidget->textCursor().hasSelection();
+        }
     }
+
+    updateRedoAction(canRedo);
+    updateUndoAction(canUndo);
+    updateCopyAction(canCopy);
+
     updateOptionalActions();
 }
 
@@ -553,19 +575,19 @@ void TextEditorActionHandlerPrivate::updateCurrentEditor(Core::IEditor *editor)
     m_currentEditor = editor;
 
     if (editor && editor->document()->id() == m_editorId) {
-        TextEditorWidget *editorWidget = m_findTextWidget(editor);
-        QTC_ASSERT(editorWidget, return); // editor has our id, so shouldn't happen
-        m_currentEditorWidget = editorWidget;
-        connect(editorWidget, &QPlainTextEdit::undoAvailable,
-                this, &TextEditorActionHandlerPrivate::updateUndoAction);
-        connect(editorWidget, &QPlainTextEdit::redoAvailable,
-                this, &TextEditorActionHandlerPrivate::updateRedoAction);
-        connect(editorWidget, &QPlainTextEdit::copyAvailable,
-                this, &TextEditorActionHandlerPrivate::updateCopyAction);
-        connect(editorWidget, &TextEditorWidget::readOnlyChanged,
-                this, &TextEditorActionHandlerPrivate::updateActions);
-        connect(editorWidget, &TextEditorWidget::optionalActionMaskChanged,
-                this, &TextEditorActionHandlerPrivate::updateOptionalActions);
+        m_currentEditorWidget = m_findTextWidget(editor);
+        if (m_currentEditorWidget) {
+            connect(m_currentEditorWidget, &QPlainTextEdit::undoAvailable,
+                    this, &TextEditorActionHandlerPrivate::updateUndoAction);
+            connect(m_currentEditorWidget, &QPlainTextEdit::redoAvailable,
+                    this, &TextEditorActionHandlerPrivate::updateRedoAction);
+            connect(m_currentEditorWidget, &QPlainTextEdit::copyAvailable,
+                    this, &TextEditorActionHandlerPrivate::updateCopyAction);
+            connect(m_currentEditorWidget, &TextEditorWidget::readOnlyChanged,
+                    this, &TextEditorActionHandlerPrivate::updateActions);
+            connect(m_currentEditorWidget, &TextEditorWidget::optionalActionMaskChanged,
+                    this, &TextEditorActionHandlerPrivate::updateOptionalActions);
+        }
     }
     updateActions();
 }
@@ -612,6 +634,11 @@ void TextEditorActionHandler::setCanUndoCallback(const Predicate &callback)
 void TextEditorActionHandler::setCanRedoCallback(const Predicate &callback)
 {
     d->m_canRedoCallback = callback;
+}
+
+void TextEditorActionHandler::setUnhandledCallback(const UnhandledCallback &callback)
+{
+    d->m_unhandledCallback = callback;
 }
 
 } // namespace TextEditor

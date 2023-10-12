@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "lsptypes.h"
+
+#include "languageserverprotocoltr.h"
 #include "lsputils.h"
 
 #include <utils/textutils.h>
@@ -411,6 +413,78 @@ LanguageServerProtocol::MarkupKind::operator QJsonValue() const
         return "plaintext";
     }
     return {};
+}
+
+DocumentChange::DocumentChange(const QJsonValue &value)
+{
+    const QString kind = value["kind"].toString();
+    if (kind == "create")
+        emplace<CreateFileOperation>(value);
+    else if (kind == "rename")
+        emplace<RenameFileOperation>(value);
+    else if (kind == "delete")
+        emplace<DeleteFileOperation>(value);
+    else
+        emplace<TextDocumentEdit>(value);
+}
+
+using DocumentChangeBase = std::variant<TextDocumentEdit, CreateFileOperation, RenameFileOperation, DeleteFileOperation>;
+
+bool DocumentChange::isValid() const
+{
+    return std::visit([](const auto &v) { return v.isValid(); }, DocumentChangeBase(*this));
+}
+
+DocumentChange::operator const QJsonValue () const
+{
+    return std::visit([](const auto &v) { return QJsonValue(v); }, DocumentChangeBase(*this));
+}
+
+CreateFileOperation::CreateFileOperation()
+{
+    insert(kindKey, "create");
+}
+
+QString CreateFileOperation::message(const DocumentUri::PathMapper &mapToHostPath) const
+{
+    return Tr::tr("Create %1").arg(uri().toFilePath(mapToHostPath).toUserOutput());
+}
+
+bool LanguageServerProtocol::CreateFileOperation::isValid() const
+{
+    return contains(uriKey) && value(kindKey) == "create";
+}
+
+RenameFileOperation::RenameFileOperation()
+{
+    insert(kindKey, "rename");
+}
+
+QString RenameFileOperation::message(const DocumentUri::PathMapper &mapToHostPath) const
+{
+    return Tr::tr("Rename %1 to %2")
+        .arg(oldUri().toFilePath(mapToHostPath).toUserOutput(),
+             newUri().toFilePath(mapToHostPath).toUserOutput());
+}
+
+bool RenameFileOperation::isValid() const
+{
+    return contains(oldUriKey) && contains(newUriKey) && value(kindKey) == "rename";
+}
+
+DeleteFileOperation::DeleteFileOperation()
+{
+    insert(kindKey, "delete");
+}
+
+QString DeleteFileOperation::message(const DocumentUri::PathMapper &mapToHostPath) const
+{
+    return Tr::tr("Delete %1").arg(uri().toFilePath(mapToHostPath).toUserOutput());
+}
+
+bool DeleteFileOperation::isValid() const
+{
+    return contains(uriKey) && value(kindKey) == "delete";
 }
 
 } // namespace LanguageServerProtocol

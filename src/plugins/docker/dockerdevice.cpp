@@ -65,6 +65,7 @@
 #include <QHeaderView>
 #include <QHostAddress>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QNetworkInterface>
 #include <QPushButton>
 #include <QRandomGenerator>
@@ -302,7 +303,7 @@ public:
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
-    bool updateContainerAccess();
+    expected_str<void> updateContainerAccess();
     void changeMounts(QStringList newMounts);
     bool ensureReachable(const FilePath &other);
     void shutdown();
@@ -314,7 +315,7 @@ public:
     QString repoAndTagEncoded() const { return deviceSettings->repoAndTagEncoded(); }
     QString dockerImageId() const { return deviceSettings->imageId(); }
 
-    Environment environment();
+    expected_str<Environment> environment();
 
     CommandLine withDockerExecCmd(const CommandLine &cmd,
                                   const std::optional<Environment> &env = std::nullopt,
@@ -329,7 +330,7 @@ public:
     expected_str<QString> createContainer();
     expected_str<void> startContainer();
     void stopCurrentContainer();
-    void fetchSystemEnviroment();
+    expected_str<void> fetchSystemEnviroment();
 
     std::optional<FilePath> clangdExecutable() const
     {
@@ -587,32 +588,43 @@ DockerDevice::DockerDevice(std::unique_ptr<DockerDeviceSettings> deviceSettings)
     setMachineType(IDevice::Hardware);
     setAllowEmptyCommand(true);
 
-    setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
+    setOpenTerminal([this](const Environment &env,
+                           const FilePath &workingDir) -> expected_str<void> {
         Q_UNUSED(env); // TODO: That's the runnable's environment in general. Use it via -e below.
-        if (!updateContainerAccess())
-            return;
 
-        if (d->containerId().isEmpty()) {
-            MessageManager::writeDisrupting(Tr::tr("Error starting remote shell. No container."));
-            return;
-        }
+        expected_str<void> result = d->updateContainerAccess();
+
+        if (!result)
+            return result;
+
+        if (d->containerId().isEmpty())
+            return make_unexpected(Tr::tr("Error starting remote shell. No container."));
+
+        expected_str<FilePath> shell = Terminal::defaultShellForDevice(rootPath());
+        if (!shell)
+            return make_unexpected(shell.error());
 
         Process proc;
         proc.setTerminalMode(TerminalMode::Detached);
         proc.setEnvironment(env);
         proc.setWorkingDirectory(workingDir);
-        proc.setCommand({Terminal::defaultShellForDevice(rootPath()), {}});
+        proc.setCommand({*shell, {}});
         proc.start();
 
-        if (proc.error() != QProcess::UnknownError && MessageManager::instance()) {
-            MessageManager::writeDisrupting(
-                Tr::tr("Error starting remote shell: %1").arg(proc.errorString()));
-        }
+        return {};
     });
 
-    addDeviceAction({Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
-                         device->openTerminal(device->systemEnvironment(), FilePath());
-                     }});
+    addDeviceAction(
+        {Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
+             expected_str<Environment> env = device->systemEnvironmentWithError();
+             if (!env) {
+                 QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), env.error());
+                 return;
+             }
+             expected_str<void> result = device->openTerminal(*env, FilePath());
+             if (!result)
+                 QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), result.error());
+         }});
 }
 
 DockerDevice::~DockerDevice()
@@ -625,7 +637,7 @@ void DockerDevice::shutdown()
     d->shutdown();
 }
 
-bool DockerDevice::updateContainerAccess() const
+expected_str<void> DockerDevice::updateContainerAccess() const
 {
     return d->updateContainerAccess();
 }
@@ -909,10 +921,10 @@ expected_str<void> DockerDevicePrivate::startContainer()
     return m_shell->start();
 }
 
-bool DockerDevicePrivate::updateContainerAccess()
+expected_str<void> DockerDevicePrivate::updateContainerAccess()
 {
     if (QThread::currentThread() != thread()) {
-        bool result = false;
+        expected_str<void> result;
         QMetaObject::invokeMethod(this,
                                   &DockerDevicePrivate::updateContainerAccess,
                                   Qt::BlockingQueuedConnection,
@@ -921,23 +933,23 @@ bool DockerDevicePrivate::updateContainerAccess()
     }
 
     if (m_isShutdown)
-        return false;
+        return make_unexpected(Tr::tr("Device is shutdown"));
 
     if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
-        return false;
+        return make_unexpected(Tr::tr("Docker system is not reachable"));
 
-    if (m_shell)
-        return true;
+    if (m_shell && m_shell->state() == DeviceShell::State::Succeeded)
+        return {};
 
-    auto result = startContainer();
+    expected_str<void> result = startContainer();
     if (result) {
         deviceSettings->containerStatus.setText(Tr::tr("Running"));
-        return true;
+        return result;
     }
 
-    qCWarning(dockerDeviceLog) << "Failed to start container:" << result.error();
-    deviceSettings->containerStatus.setText(result.error());
-    return false;
+    const QString error = QString("Failed to start container: %1").arg(result.error());
+    deviceSettings->containerStatus.setText(result.error().trimmed());
+    return make_unexpected(error);
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const
@@ -1025,7 +1037,7 @@ expected_str<FilePath> DockerDevice::localSource(const FilePath &other) const
     return d->localSource(other);
 }
 
-Environment DockerDevice::systemEnvironment() const
+expected_str<Environment> DockerDevice::systemEnvironmentWithError() const
 {
     return d->environment();
 }
@@ -1036,29 +1048,34 @@ void DockerDevice::aboutToBeRemoved() const
     detector.undoAutoDetect(id().toString());
 }
 
-void DockerDevicePrivate::fetchSystemEnviroment()
+expected_str<void> DockerDevicePrivate::fetchSystemEnviroment()
 {
-    if (!updateContainerAccess())
-        return;
+    expected_str<void> result = updateContainerAccess();
+    if (!result)
+        return result;
+
+    QString stdErr;
 
     if (m_shell && m_shell->state() == DeviceShell::State::Succeeded) {
         const RunResult result = runInShell({"env", {}});
         const QString out = QString::fromUtf8(result.stdOut);
         m_cachedEnviroment = Environment(out.split('\n', Qt::SkipEmptyParts), q->osType());
-        return;
+        stdErr = QString::fromUtf8(result.stdErr);
+    } else {
+        Process proc;
+        proc.setCommand(withDockerExecCmd({"env", {}}));
+        proc.start();
+        proc.waitForFinished();
+        const QString remoteOutput = proc.cleanedStdOut();
+
+        m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
+        stdErr = proc.cleanedStdErr();
     }
 
-    Process proc;
-    proc.setCommand(withDockerExecCmd({"env", {}}));
-    proc.start();
-    proc.waitForFinished();
-    const QString remoteOutput = proc.cleanedStdOut();
+    if (stdErr.isEmpty())
+        return {};
 
-    m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
-
-    const QString remoteError = proc.cleanedStdErr();
-    if (!remoteError.isEmpty())
-        qCWarning(dockerDeviceLog) << "Cannot read container environment:", qPrintable(remoteError);
+    return make_unexpected("Could not read container environment: " + stdErr);
 }
 
 RunResult DockerDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &stdInData)
@@ -1313,10 +1330,13 @@ bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath
     return true;
 }
 
-Environment DockerDevicePrivate::environment()
+expected_str<Environment> DockerDevicePrivate::environment()
 {
-    if (!m_cachedEnviroment)
-        fetchSystemEnviroment();
+    if (!m_cachedEnviroment) {
+        expected_str<void> result = fetchSystemEnviroment();
+        if (!result)
+            return make_unexpected(result.error());
+    }
 
     QTC_ASSERT(m_cachedEnviroment, return {});
     return m_cachedEnviroment.value();

@@ -323,7 +323,6 @@ void BuildSystem::setDeploymentData(const DeploymentData &deploymentData)
 {
     if (d->m_deploymentData != deploymentData) {
         d->m_deploymentData = deploymentData;
-        emit deploymentDataChanged();
         emit target()->deploymentDataChanged();
     }
 }

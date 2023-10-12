@@ -89,7 +89,6 @@ public:
     static QString sessionTitle(const FilePath &filePath);
 
     QString m_sessionName = "default";
-    bool m_isStartupSessionRestored = false;
     bool m_isAutoRestoreLastSession = false;
     bool m_virginSession = true;
     bool m_loadingSession = false;
@@ -403,7 +402,6 @@ static QString determineSessionToRestoreAtStartup()
 void SessionManagerPrivate::restoreStartupSession()
 {
     NANOTRACE_SCOPE("Core", "SessionManagerPrivate::restoreStartupSession");
-    m_isStartupSessionRestored = true;
     QString sessionToRestoreAtStartup = determineSessionToRestoreAtStartup();
     if (!sessionToRestoreAtStartup.isEmpty())
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
@@ -776,11 +774,6 @@ bool SessionManager::saveSession()
     }
 
     return result;
-}
-
-bool SessionManager::isStartupSessionRestored()
-{
-    return d->m_isStartupSessionRestored;
 }
 
 } // namespace Core

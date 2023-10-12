@@ -87,25 +87,28 @@ void TerminalWidget::setupPty()
     if (shellCommand.executable().isRootPath()) {
         writeToTerminal(Tr::tr("Connecting ...\r\n").toUtf8(), true);
         // We still have to find the shell to start ...
-        m_findShellWatcher.reset(new QFutureWatcher<FilePath>());
+        m_findShellWatcher.reset(new QFutureWatcher<expected_str<FilePath>>());
         connect(m_findShellWatcher.get(), &QFutureWatcher<FilePath>::finished, this, [this] {
-            const FilePath result = m_findShellWatcher->result();
-            if (!result.isEmpty()) {
-                m_openParameters.shellCommand->setExecutable(m_findShellWatcher->result());
+            const expected_str<FilePath> result = m_findShellWatcher->result();
+            if (result) {
+                m_openParameters.shellCommand->setExecutable(*result);
                 restart(m_openParameters);
                 return;
             }
 
-            writeToTerminal(
-                ("\r\n\033[31m" + Tr::tr("Could not find shell to start.") + "\r\n").toUtf8(), true);
+            writeToTerminal(("\r\n\033[31m"
+                             + Tr::tr("Failed to start shell: %1").arg(result.error()) + "\r\n")
+                                .toUtf8(),
+                            true);
         });
 
-        m_findShellWatcher->setFuture(Utils::asyncRun([shellCommand] {
-            const FilePath result = Utils::Terminal::defaultShellForDevice(
+        m_findShellWatcher->setFuture(Utils::asyncRun([shellCommand]() -> expected_str<FilePath> {
+            const expected_str<FilePath> result = Utils::Terminal::defaultShellForDevice(
                 shellCommand.executable());
-            if (result.isExecutableFile())
-                return result;
-            return FilePath{};
+            if (result && !result->isExecutableFile())
+                return make_unexpected(
+                    Tr::tr("'%1' is not executable.").arg(result->toUserOutput()));
+            return result;
         }));
 
         return;

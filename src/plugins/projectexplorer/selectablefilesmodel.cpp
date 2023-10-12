@@ -111,13 +111,18 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
     bool allUnchecked = true;
     for (const QFileInfo &fileInfo : fileInfoList) {
         Utils::FilePath fn = Utils::FilePath::fromFileInfo(fileInfo);
-        if (m_futureCount % 100) {
+        if ((m_futureCount % 100) == 0) {
             emit parsingProgress(fn);
             if (promise.isCanceled())
                 return;
         }
         ++m_futureCount;
         if (fileInfo.isDir()) {
+            if (fileInfo.isSymLink()) {
+                const FilePath target = FilePath::fromString(fileInfo.symLinkTarget());
+                if (target == baseDir || baseDir.isChildOf(target))
+                    continue;
+            }
             auto t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();

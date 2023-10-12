@@ -695,11 +695,6 @@ QMakeStepFactory::QMakeStepFactory()
     setFlags(BuildStep::UniqueStep);
 }
 
-QMakeStepConfig::TargetArchConfig QMakeStepConfig::targetArchFor(const Abi &, const QtVersion *)
-{
-    return NoArch;
-}
-
 QMakeStepConfig::OsType QMakeStepConfig::osTypeFor(const Abi &targetAbi, const QtVersion *version)
 {
     OsType os = NoOsType;

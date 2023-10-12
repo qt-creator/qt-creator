@@ -417,18 +417,26 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     deviceHooks.fileAccess = [](const FilePath &filePath) -> expected_str<DeviceFileAccess *> {
         if (!filePath.needsDevice())
             return DesktopDeviceFileAccess::instance();
+        IDevice::ConstPtr device = DeviceManager::deviceForPath(filePath);
+        if (!device) {
+            return make_unexpected(
+                Tr::tr("No device found for path \"%1\"").arg(filePath.toUserOutput()));
+        }
+        DeviceFileAccess *fileAccess = device->fileAccess();
+        if (!fileAccess) {
+            return make_unexpected(
+                Tr::tr("No file access for device \"%1\"").arg(device->displayName()));
+        }
+        return fileAccess;
+    };
+
+    deviceHooks.environment = [](const FilePath &filePath) -> expected_str<Environment> {
         auto device = DeviceManager::deviceForPath(filePath);
         if (!device) {
             return make_unexpected(
-                QString("No device found for path \"%1\"").arg(filePath.toUserOutput()));
+                Tr::tr("No device found for path \"%1\"").arg(filePath.toUserOutput()));
         }
-        return device->fileAccess();
-    };
-
-    deviceHooks.environment = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, qDebug() << filePath.toString(); return Environment{});
-        return device->systemEnvironment();
+        return device->systemEnvironmentWithError();
     };
 
     deviceHooks.deviceDisplayName = [](const FilePath &filePath) {

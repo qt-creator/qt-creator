@@ -8,8 +8,8 @@ def addFileToProject(projectPath, category, fileTemplate, fileName):
     nameLineEdit = waitForObject("{name='nameLineEdit' type='Utils::FileNameValidatingLineEdit' "
                                  "visible='1'}")
     replaceEditorContent(nameLineEdit, fileName)
-    pathLineEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                                 "toolTip?='Full path: *'}")
+    pathChooser = waitForObject("{type='Utils::PathChooser' name='fullPathChooser'}")
+    pathLineEdit = getChildByClass(pathChooser, "Utils::FancyLineEdit")
     if not test.compare(pathLineEdit.text,
                         projectPath, "Verifying whether path is correct."):
         replaceEditorContent(pathLineEdit, projectPath)

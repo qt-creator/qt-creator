@@ -101,12 +101,11 @@ private:
     ~AndroidDeviceManager();
     void HandleDevicesListChange(const QString &serialNumber);
     void HandleAvdsListChange();
-    void handleAvdRemoved();
 
     QString emulatorName(const QString &serialNumber) const;
 
     QFutureWatcher<AndroidDeviceInfoList> m_avdsFutureWatcher;
-    QFutureWatcher<QPair<ProjectExplorer::IDevice::ConstPtr, bool>> m_removeAvdFutureWatcher;
+    std::unique_ptr<Utils::Process> m_removeAvdProcess;
     QFileSystemWatcher m_avdFileSystemWatcher;
     std::unique_ptr<Utils::Process> m_adbDeviceWatcherProcess;
     AndroidConfig &m_androidConfig;
