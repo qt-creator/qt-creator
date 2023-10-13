@@ -30,6 +30,7 @@ using namespace Utils;
 namespace Debugger::Internal {
 
 const bool hideSwitcherUnlessNeeded = false;
+const char INDEX_ID[] = "Debugger/Debugger.SelectedEngineIndex";
 
 #if 0
 SnapshotData::SnapshotData()
@@ -125,13 +126,15 @@ class ModelChooser : public QObject
     Q_OBJECT
 public:
     ModelChooser(QAbstractItemModel *sourceModel,
-                 const QString &enginType,
+                 const QString &engineType,
                  QObject *parent = nullptr)
         : QObject(parent)
         , m_engineChooser(new QComboBox())
-        , m_proxyModel(new EngineTypeFilterProxyModel(enginType))
+        , m_proxyModel(new EngineTypeFilterProxyModel(engineType))
         , m_sourceModel(sourceModel)
-        , m_enginType(enginType)
+        , m_enginType(engineType)
+        , m_key(engineType.isEmpty() ? Utils::Key(INDEX_ID) + "." + engineType.toUtf8()
+                                     : Utils::Key(INDEX_ID))
     {
         m_proxyModel->setSourceModel(sourceModel);
 
@@ -144,6 +147,7 @@ public:
             QModelIndex sourceIndex = m_proxyModel->mapToSource(m_proxyModel->index(index, 0));
             emit activated(sourceIndex.row());
             m_lastActivatedIndex = sourceIndex.row();
+            ICore::settings()->setValue(m_key, m_lastActivatedIndex);
         });
 
         connect(m_proxyModel, &QAbstractItemModel::rowsRemoved, this, [this] {
@@ -160,6 +164,13 @@ public:
     QComboBox *comboBox() const { return m_engineChooser; }
     QAbstractItemModel *model() const { return m_proxyModel; }
     const QString &engineType() const { return m_enginType; }
+
+    void restoreIndex()
+    {
+        m_lastActivatedIndex = ICore::settings()->value(m_key, 0).toInt();
+        if (m_lastActivatedIndex <= m_engineChooser->count())
+            setCurrentIndex(m_lastActivatedIndex);
+    }
 
     void setCurrentIndex(int index)
     {
@@ -193,6 +204,7 @@ private:
     QPointer<EngineTypeFilterProxyModel> m_proxyModel;
     QAbstractItemModel *m_sourceModel;
     QString m_enginType;
+    const Utils::Key m_key;
     int m_lastActivatedIndex = -1;
 };
 
@@ -570,6 +582,8 @@ QString EngineManager::registerDefaultPerspective(const QString &name,
     engineItem->m_perspective.type = type;
     engineItem->m_perspective.id = id;
     d->m_engineModel.rootItem()->appendChild(engineItem);
+    d->m_engineDAPChooser->restoreIndex();
+    d->m_engineChooser->restoreIndex();
     return QString::number(d->m_engineModel.rootItem()->childCount());
 }
 
