@@ -104,6 +104,40 @@ CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const CMakeProj
 
 }
 
+using CharToHexList = QList<QPair<QString, QString>>;
+static const CharToHexList &charToHexList()
+{
+    static const CharToHexList list = {
+        {"<", "{3C}"},
+        {">", "{3E}"},
+        {":", "{3A}"},
+        {"\"", "{22}"},
+        {"\\", "{5C}"},
+        {"/", "{2F}"},
+        {"|", "{7C}"},
+        {"?", "{3F}"},
+        {"*", "{2A}"},
+    };
+
+    return list;
+}
+
+static QString presetNameToFileName(const QString &name)
+{
+    QString fileName = name;
+    for (const auto &p : charToHexList())
+        fileName.replace(p.first, p.second);
+    return fileName;
+}
+
+static QString fileNameToPresetName(const QString &fileName)
+{
+    QString name = fileName;
+    for (const auto &p : charToHexList())
+        name.replace(p.second, p.first);
+    return name;
+}
+
 FilePaths CMakeProjectImporter::importCandidates()
 {
     FilePaths candidates;
@@ -129,7 +163,8 @@ FilePaths CMakeProjectImporter::importCandidates()
                 continue;
         }
 
-        const FilePath configPresetDir = m_presetsTempDir.filePath(configPreset.name);
+        const FilePath configPresetDir = m_presetsTempDir.filePath(
+            presetNameToFileName(configPreset.name));
         configPresetDir.createDir();
         candidates << configPresetDir;
 
@@ -638,7 +673,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
     if (importPath.isChildOf(m_presetsTempDir.path())) {
         auto data = std::make_unique<DirectoryData>();
 
-        const QString presetName = importPath.fileName();
+        const QString presetName = fileNameToPresetName(importPath.fileName());
         PresetsDetails::ConfigurePreset configurePreset
             = Utils::findOrDefault(m_project->presetsData().configurePresets,
                                    [presetName](const PresetsDetails::ConfigurePreset &preset) {
