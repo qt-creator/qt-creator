@@ -87,7 +87,7 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 
     eventQueue.file->processing = std::async(std::launch::async,
                                              flush,
-                                             eventQueue.currentEvents,
+                                             eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
                                              std::this_thread::get_id());
     eventQueue.currentEvents = eventQueue.currentEvents.data() == eventQueue.eventsOne.data()
                                    ? eventQueue.eventsTwo

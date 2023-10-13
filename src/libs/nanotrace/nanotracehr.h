@@ -138,8 +138,10 @@ public:
 
     ~EventQueue()
     {
-        if (isEnabled == IsEnabled::Yes)
-            flushEvents(currentEvents, std::this_thread::get_id(), *this);
+        if (isEnabled == IsEnabled::Yes && eventsIndex > 0) {
+            flushEvents(currentEvents.subspan(0, eventsIndex), std::this_thread::get_id(), *this);
+            eventsIndex = 0;
+        }
     }
 
     EventQueue(const EventQueue &) = delete;
