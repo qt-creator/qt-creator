@@ -401,8 +401,8 @@ public:
         const_iterator end() const & { return iterator{m_statement, false}; }
 
     private:
-        NanotraceHR::Tracer<decltype(sqliteHighLevelCategory())> tracer{"range"_t,
-                                                                        sqliteHighLevelCategory()};
+        NanotraceHR::Tracer<std::decay_t<decltype(sqliteHighLevelCategory())>> tracer{
+            "range"_t, sqliteHighLevelCategory()};
         StatementImplementation &m_statement;
     };
 

@@ -16,8 +16,12 @@ option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
 add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
 
 env_with_default("QTC_ENABLE_PROJECT_STORAGE_TRACING" ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING OFF)
-option(ENABLE_PROJECT_STORAGE_TRACING "Enable sqlite tarcing" ${ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING})
+option(ENABLE_PROJECT_STORAGE_TRACING "Enable sqlite tracing" ${ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING})
 add_feature_info("Sqlite tracing" ${ENABLE_PROJECT_STORAGE_TRACING} "")
+
+env_with_default("QTC_ENABLE_IMAGE_CACHE_TRACING" ENV_QTC_ENABLE_IMAGE_CACHE_TRACING OFF)
+option(ENABLE_IMAGE_CACHE_TRACING "Enable image cache tracing" ${ENV_QTC_ENABLE_IMAGE_CACHE_TRACING})
+add_feature_info("Image cache tracing" ${ENABLE_IMAGE_CACHE_TRACING} "")
 
 
 add_qtc_library(QmlDesignerUtils STATIC
@@ -93,6 +97,7 @@ extend_qtc_library(QmlDesignerCore
   DEPENDS Nanotrace
   DEFINES
     $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
+    $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
 )
 
 extend_qtc_library(QmlDesignerCore

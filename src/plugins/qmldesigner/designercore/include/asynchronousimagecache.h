@@ -6,6 +6,7 @@
 #include "asynchronousimagecacheinterface.h"
 
 #include <imagecache/taskqueue.h>
+#include <nanotrace/nanotracehr.h>
 
 #include <condition_variable>
 #include <deque>
@@ -20,6 +21,19 @@ class TimeStampProviderInterface;
 class ImageCacheStorageInterface;
 class ImageCacheGeneratorInterface;
 class ImageCacheCollectorInterface;
+
+constexpr bool imageCacheTracingIsEnabled()
+{
+#ifdef ENABLE_IMAGE_CACHE_TRACING
+    return NanotraceHR::isTracerActive();
+#else
+    return false;
+#endif
+}
+
+using ImageCacheTraceToken = NanotraceHR::Token<imageCacheTracingIsEnabled()>;
+
+NanotraceHR::StringViewCategory<imageCacheTracingIsEnabled()> &imageCacheCategory();
 
 class AsynchronousImageCache final : public AsynchronousImageCacheInterface
 {
@@ -53,18 +67,21 @@ private:
     struct Entry
     {
         Entry() = default;
+
         Entry(Utils::PathString name,
               Utils::SmallString extraId,
               ImageCache::CaptureImageCallback &&captureCallback,
               ImageCache::AbortCallback &&abortCallback,
               ImageCache::AuxiliaryData &&auxiliaryData,
-              RequestType requestType)
+              RequestType requestType,
+              ImageCacheTraceToken traceToken)
             : name{std::move(name)}
             , extraId{std::move(extraId)}
             , captureCallback{std::move(captureCallback)}
             , abortCallback{std::move(abortCallback)}
             , auxiliaryData{std::move(auxiliaryData)}
             , requestType{requestType}
+            , traceToken{traceToken}
         {}
 
         Utils::PathString name;
@@ -73,6 +90,7 @@ private:
         ImageCache::AbortCallback abortCallback;
         ImageCache::AuxiliaryData auxiliaryData;
         RequestType requestType = RequestType::Image;
+        ImageCacheTraceToken traceToken;
     };
 
     static void request(Utils::SmallStringView name,
@@ -81,6 +99,7 @@ private:
                         ImageCache::CaptureImageCallback captureCallback,
                         ImageCache::AbortCallback abortCallback,
                         ImageCache::AuxiliaryData auxiliaryData,
+                        ImageCacheTraceToken traceToken,
                         ImageCacheStorageInterface &storage,
                         ImageCacheGeneratorInterface &generator,
                         TimeStampProviderInterface &timeStampProvider);
@@ -95,6 +114,7 @@ private:
                     std::move(entry.captureCallback),
                     std::move(entry.abortCallback),
                     std::move(entry.auxiliaryData),
+                    entry.traceToken,
                     storage,
                     generator,
                     timeStampProvider);
@@ -107,7 +127,13 @@ private:
 
     struct Clean
     {
-        void operator()(Entry &entry) { entry.abortCallback(ImageCache::AbortReason::Abort); }
+        void operator()(Entry &entry)
+        {
+            using namespace NanotraceHR::Literals;
+
+            entry.abortCallback(ImageCache::AbortReason::Abort);
+            imageCacheCategory().endAsynchronous(entry.traceToken, "aborted for cleanup"_t);
+        }
     };
 
 private:

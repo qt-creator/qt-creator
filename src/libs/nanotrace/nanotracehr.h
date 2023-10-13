@@ -7,7 +7,10 @@
 
 #include <utils/span.h>
 
+#include <QMetaObject>
+
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <fstream>
 #include <future>
@@ -33,15 +36,34 @@ constexpr bool isTracerActive()
 #endif
 }
 
-template<std::size_t size>
-std::string_view toStringView(Utils::span<const char, size> string)
+namespace Literals {
+struct TracerLiteral
 {
-    return {string.data(), string.size()};
-}
+    friend constexpr TracerLiteral operator""_t(const char *text, size_t size);
 
+    constexpr operator std::string_view() const { return text; }
+
+private:
+    constexpr TracerLiteral(std::string_view text)
+        : text{text}
+    {}
+
+    std::string_view text;
+};
+
+constexpr TracerLiteral operator""_t(const char *text, size_t size)
+{
+    return {std::string_view{text, size}};
+}
+} // namespace Literals
+
+using namespace Literals;
 template<typename String>
 struct TraceEvent
 {
+    using StringType = String;
+    using ArgumentType = std::conditional_t<std::is_same_v<String, std::string_view>, TracerLiteral, String>;
+
     TraceEvent() = default;
     TraceEvent(const TraceEvent &) = delete;
     TraceEvent(TraceEvent &&) = delete;
@@ -52,8 +74,10 @@ struct TraceEvent
     String name;
     String category;
     String arguments;
-    TimePoint start;
+    TimePoint time;
     Duration duration;
+    std::size_t id = 0;
+    char type = ' ';
 };
 
 using StringViewTraceEvent = TraceEvent<std::string_view>;
@@ -126,7 +150,10 @@ public:
 
 template<typename TraceEvent, typename Enabled>
 class EventQueue
-{};
+{
+public:
+    using IsActive = std::false_type;
+};
 
 template<typename TraceEvent>
 class EventQueue<TraceEvent, std::true_type>
@@ -134,15 +161,13 @@ class EventQueue<TraceEvent, std::true_type>
     using TraceEventsSpan = Utils::span<TraceEvent>;
 
 public:
-    EventQueue() = default;
+    using IsActive = std::true_type;
 
-    ~EventQueue()
-    {
-        if (isEnabled == IsEnabled::Yes && eventsIndex > 0) {
-            flushEvents(currentEvents.subspan(0, eventsIndex), std::this_thread::get_id(), *this);
-            eventsIndex = 0;
-        }
-    }
+    EventQueue(EnabledTraceFile *file, TraceEventsSpan eventsOne, TraceEventsSpan eventsTwo);
+
+    ~EventQueue();
+
+    void flush();
 
     EventQueue(const EventQueue &) = delete;
     EventQueue(EventQueue &&) = delete;
@@ -154,14 +179,17 @@ public:
     TraceEventsSpan eventsTwo;
     TraceEventsSpan currentEvents;
     std::size_t eventsIndex = 0;
-    IsEnabled isEnabled = IsEnabled::No;
+    IsEnabled isEnabled = IsEnabled::Yes;
+    QMetaObject::Connection connection;
+    std::mutex mutex;
 };
+
+extern template class NANOTRACE_EXPORT EventQueue<StringViewTraceEvent, std::true_type>;
+extern template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, std::true_type>;
 
 template<typename TraceEvent, std::size_t eventCount, typename Enabled>
 class EventQueueData
 {
-    using TraceEvents = std::array<TraceEvent, eventCount>;
-
 public:
     using IsActive = Enabled;
 
@@ -197,7 +225,7 @@ struct EventQueueDataPointer<TraceEvent, eventCount, std::true_type>
     EnabledEventQueue<TraceEvent> createEventQueue() const
     {
         if constexpr (isTracerActive()) {
-            return {&data->file, data->eventsOne, data->eventsTwo, data->eventsOne, 0, IsEnabled::Yes};
+            return {&data->file, data->eventsOne, data->eventsTwo};
         } else {
             return {};
         }
@@ -229,38 +257,63 @@ TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
     return eventQueue.currentEvents[eventQueue.eventsIndex++];
 }
 
-namespace Literals {
-struct TracerLiteral
+template<bool enabled>
+class Token
 {
-    friend constexpr TracerLiteral operator""_t(const char *text, size_t size);
+public:
+    using IsActive = std::false_type;
 
-    constexpr operator std::string_view() const { return text; }
+    constexpr std::size_t operator*() const { return 0; }
 
-private:
-    constexpr TracerLiteral(std::string_view text)
-        : text{text}
-    {}
+    constexpr explicit operator bool() const { return false; }
 
-    std::string_view text;
+    static constexpr bool isActive() { return false; }
 };
 
-constexpr TracerLiteral operator""_t(const char *text, size_t size)
-{
-    return {std::string_view{text, size}};
-}
-} // namespace Literals
+template<typename TraceEvent, bool enabled>
+class Category;
 
-using namespace Literals;
+template<>
+class Token<true>
+{
+    friend Category<StringViewTraceEvent, true>;
+    friend Category<StringTraceEvent, true>;
+
+    Token(std::size_t id)
+        : m_id{id}
+    {}
+
+public:
+    using IsActive = std::true_type;
+
+    constexpr std::size_t operator*() const { return m_id; }
+
+    constexpr explicit operator bool() const { return m_id; }
+
+    static constexpr bool isActive() { return true; }
+
+private:
+    std::size_t m_id;
+};
 
 template<typename TraceEvent, bool enabled>
 class Category
 {
 public:
     using IsActive = std::false_type;
+    using ArgumentType = typename TraceEvent::ArgumentType;
 
-    Category(TracerLiteral, EventQueue<TraceEvent, std::true_type> &) {}
+    Category(ArgumentType, EventQueue<TraceEvent, std::true_type> &) {}
 
-    Category(TracerLiteral, EventQueue<TraceEvent, std::false_type> &) {}
+    Category(ArgumentType, EventQueue<TraceEvent, std::false_type> &) {}
+
+    Token<false> beginAsynchronous(ArgumentType) { return {}; }
+
+    void tickAsynchronous(Token<false>, ArgumentType) {}
+
+    void endAsynchronous(Token<false>, ArgumentType) {}
+
+    static constexpr bool isActive() { return false; }
 };
 
 template<typename TraceEvent>
@@ -268,8 +321,67 @@ class Category<TraceEvent, true>
 {
 public:
     using IsActive = std::true_type;
-    TracerLiteral name;
-    EnabledEventQueue<TraceEvent> &eventQueue;
+    using ArgumentType = typename TraceEvent::ArgumentType;
+    using StringType = typename TraceEvent::StringType;
+
+    template<typename EventQueue>
+    Category(ArgumentType name, EventQueue &queue)
+        : m_name{std::move(name)}
+        , m_eventQueue{queue}
+    {
+        static_assert(std::is_same_v<typename EventQueue::IsActive, std::true_type>,
+                      "A active category is not possible with an inactive event queue!");
+    }
+
+    Token<true> beginAsynchronous(ArgumentType traceName)
+    {
+        auto id = ++idCounter;
+        auto &traceEvent = getTraceEvent(m_eventQueue);
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = m_name;
+        traceEvent.time = Clock::now();
+        traceEvent.type = 'b';
+        traceEvent.id = id;
+
+        return id;
+    }
+
+    void tickAsynchronous(Token<true> token, ArgumentType traceName)
+    {
+        if (!token)
+            return;
+
+        auto &traceEvent = getTraceEvent(m_eventQueue);
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = m_name;
+        traceEvent.time = Clock::now();
+        traceEvent.type = 'n';
+        traceEvent.id = *token;
+    }
+
+    void endAsynchronous(Token<true> token, ArgumentType traceName)
+    {
+        if (!token)
+            return;
+
+        auto &traceEvent = getTraceEvent(m_eventQueue);
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = m_name;
+        traceEvent.time = Clock::now();
+        traceEvent.type = 'e';
+        traceEvent.id = *token;
+    }
+
+    EnabledEventQueue<TraceEvent> &eventQueue() const { return m_eventQueue; }
+
+    std::string_view name() const { return m_name; }
+
+    static constexpr bool isActive() { return true; }
+
+private:
+    StringType m_name;
+    EnabledEventQueue<TraceEvent> &m_eventQueue;
+    inline static std::atomic<std::size_t> idCounter = 0;
 };
 
 template<bool enabled>
@@ -277,18 +389,15 @@ using StringViewCategory = Category<StringViewTraceEvent, enabled>;
 template<bool enabled>
 using StringCategory = Category<StringTraceEvent, enabled>;
 
-class DisabledCategory
-{
-    using IsActive = std::false_type;
-};
-
 template<typename Category>
 class Tracer
 {
 public:
-    constexpr Tracer(TracerLiteral, Category &, TracerLiteral) {}
+    using ArgumentType = typename Category::ArgumentType;
 
-    constexpr Tracer(TracerLiteral, Category &) {}
+    constexpr Tracer(ArgumentType, Category &, ArgumentType) {}
+
+    constexpr Tracer(ArgumentType, Category &) {}
 
     ~Tracer() {}
 };
@@ -297,22 +406,22 @@ template<>
 class Tracer<StringViewCategory<true>>
 {
 public:
-    constexpr Tracer(TracerLiteral name, StringViewCategory<true> &category, TracerLiteral arguments)
+    Tracer(TracerLiteral name, StringViewCategory<true> &category, TracerLiteral arguments)
         : m_name{name}
         , m_arguments{arguments}
         , m_category{category}
     {
         if constexpr (isTracerActive()) {
-            if (category.eventQueue.isEnabled == IsEnabled::Yes)
+            if (category.eventQueue().isEnabled == IsEnabled::Yes)
                 m_start = Clock::now();
         }
     }
 
-    constexpr Tracer(TracerLiteral name, StringViewCategory<true> &category)
-        : Tracer{name, category, "{}"_t}
+    Tracer(TracerLiteral name, StringViewCategory<true> &category)
+        : Tracer{name, category, ""_t}
     {
         if constexpr (isTracerActive()) {
-            if (category.eventQueue.isEnabled == IsEnabled::Yes)
+            if (category.eventQueue().isEnabled == IsEnabled::Yes)
                 m_start = Clock::now();
         }
     }
@@ -320,14 +429,15 @@ public:
     ~Tracer()
     {
         if constexpr (isTracerActive()) {
-            if (m_category.eventQueue.isEnabled == IsEnabled::Yes) {
+            if (m_category.eventQueue().isEnabled == IsEnabled::Yes) {
                 auto duration = Clock::now() - m_start;
-                auto &traceEvent = getTraceEvent(m_category.eventQueue);
+                auto &traceEvent = getTraceEvent(m_category.eventQueue());
                 traceEvent.name = m_name;
-                traceEvent.category = m_category.name;
+                traceEvent.category = m_category.name();
                 traceEvent.arguments = m_arguments;
-                traceEvent.start = m_start;
+                traceEvent.time = m_start;
                 traceEvent.duration = duration;
+                traceEvent.type = 'X';
             }
         }
     }
@@ -349,16 +459,16 @@ public:
         , m_category{category}
     {
         if constexpr (isTracerActive()) {
-            if (category.eventQueue.isEnabled == IsEnabled::Yes)
+            if (category.eventQueue().isEnabled == IsEnabled::Yes)
                 m_start = Clock::now();
         }
     }
 
     Tracer(std::string name, StringViewCategory<true> &category)
-        : Tracer{std::move(name), category, "{}"}
+        : Tracer{std::move(name), category, ""}
     {
         if constexpr (isTracerActive()) {
-            if (category.eventQueue.isEnabled == IsEnabled::Yes)
+            if (category.eventQueue().isEnabled == IsEnabled::Yes)
                 m_start = Clock::now();
         }
     }
@@ -366,14 +476,15 @@ public:
     ~Tracer()
     {
         if constexpr (isTracerActive()) {
-            if (m_category.eventQueue.isEnabled == IsEnabled::Yes) {
+            if (m_category.eventQueue().isEnabled == IsEnabled::Yes) {
                 auto duration = Clock::now() - m_start;
-                auto &traceEvent = getTraceEvent(m_category.eventQueue);
+                auto &traceEvent = getTraceEvent(m_category.eventQueue());
                 traceEvent.name = std::move(m_name);
-                traceEvent.category = m_category.name;
+                traceEvent.category = m_category.name();
                 traceEvent.arguments = std::move(m_arguments);
-                traceEvent.start = m_start;
+                traceEvent.time = m_start;
                 traceEvent.duration = duration;
+                traceEvent.type = 'X';
             }
         }
     }
@@ -403,7 +514,7 @@ public:
     }
 
     GlobalTracer(std::string name, std::string category)
-        : GlobalTracer{std::move(name), std::move(category), "{}"}
+        : GlobalTracer{std::move(name), std::move(category), ""}
     {}
 
     ~GlobalTracer()
@@ -415,8 +526,9 @@ public:
                 traceEvent.name = std::move(m_name);
                 traceEvent.category = std::move(m_category);
                 traceEvent.arguments = std::move(m_arguments);
-                traceEvent.start = std::move(m_start);
+                traceEvent.time = std::move(m_start);
                 traceEvent.duration = std::move(duration);
+                traceEvent.type = 'X';
             }
         }
     }
