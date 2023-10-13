@@ -69,6 +69,7 @@ add_qtc_library(Utils
     genericconstants.h
     globalfilechangeblocker.cpp globalfilechangeblocker.h
     guard.cpp guard.h
+    guiutils.cpp guiutils.h
     headerviewstretcher.cpp headerviewstretcher.h
     highlightingitemdelegate.cpp highlightingitemdelegate.h
     historycompleter.cpp historycompleter.h
