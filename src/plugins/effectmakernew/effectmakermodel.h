@@ -70,6 +70,8 @@ public:
 
     const QString &qmlComponentString() const;
 
+    void clear();
+
     Q_INVOKABLE void updateQmlComponent();
 
     Q_INVOKABLE void resetEffectError(int type);

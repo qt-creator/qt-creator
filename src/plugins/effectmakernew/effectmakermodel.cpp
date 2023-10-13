@@ -168,6 +168,19 @@ const QString &EffectMakerModel::qmlComponentString() const
     return m_qmlComponentString;
 }
 
+void EffectMakerModel::clear()
+{
+    if (m_nodes.isEmpty())
+        return;
+
+    for (CompositionNode *node : std::as_const(m_nodes))
+        delete node;
+
+    m_nodes.clear();
+
+    setIsEmpty(true);
+}
+
 const QList<Uniform *> EffectMakerModel::allUniforms()
 {
     QList<Uniform *> uniforms = {};

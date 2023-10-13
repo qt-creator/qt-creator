@@ -3,8 +3,9 @@
 
 #include "effectmakerview.h"
 
-#include "effectmakerwidget.h"
+#include "effectmakermodel.h"
 #include "effectmakernodesmodel.h"
+#include "effectmakerwidget.h"
 
 #include "nodeinstanceview.h"
 #include "qmldesignerconstants.h"
@@ -71,6 +72,7 @@ void EffectMakerView::modelAttached(QmlDesigner::Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->effectMakerNodesModel()->loadModel();
+    m_widget->effectMakerModel()->clear();
     m_widget->initView();
 }
 
