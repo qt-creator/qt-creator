@@ -20,6 +20,10 @@
 
     \generatelist creator-how-to-build
 
+    \section1 Debug
+
+    \generatelist creator-how-to-debug
+
     \section1 Design UIs
 
     \generatelist creator-how-to-design

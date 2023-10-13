@@ -180,6 +180,8 @@
         \list
             \li Build and Run
                 \generatelist creator-how-to-build
+            \li Debug
+                \generatelist creator-how-to-debug
             \li Design UIs
                 \generatelist creator-how-to-design
             \li Edit Code

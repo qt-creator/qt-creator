@@ -216,6 +216,6 @@
     Syntax completion and highlighting work once your project successfully
     builds and links against the external library.
 
-    \sa {Open projects}, {CMake Build Configuration}, {Specifying Run Settings},
-     {Deploying to Remote Linux}
+    \sa {Open projects}, {CMake Build Configuration}, {Debug CMake project files},
+    {Specifying Run Settings}, {Deploying to Remote Linux}
 */

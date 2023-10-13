@@ -41,8 +41,11 @@ a `.qtce` file (JSON-based).
 
 ### CMake Debugging and the Debug Adapter Protocol
 
-Set breakpoints in a CMake file and select `DAP` and `CMake Preset` in `Debug`
-mode to debug CMake project files.
+Set breakpoints in a CMake file and select
+`Debug > Start Debugging > Start CMake Debugging` to start debugging.
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-debug-cmake-files.html))
+
 
 ### Screen Recording
 
