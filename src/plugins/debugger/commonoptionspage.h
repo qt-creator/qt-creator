@@ -30,6 +30,8 @@ public:
     void readSettings() override;
     void writeSettings() const override;
 
+    bool isDirty() override;
+
 private:
     bool guiToBuffer() override;
     void bufferToGui() override;
