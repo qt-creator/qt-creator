@@ -56,6 +56,11 @@
     \l{Searching with the Locator}{locator}. Enter the line number and column
     number in the locator, separated by a colon (:).
 
+    The line and column indicator shows more information about the current
+    cursor positions, including the length of the selection for selected text.
+
+    \image qtcreator-editor-line-column.webp {Line and column indicator on the Edit mode toolbar}
+
     \note You can also use the \l{Show and hide sidebars}{sidebars} to
     move around in \QC.
 
