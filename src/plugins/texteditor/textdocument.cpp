@@ -151,12 +151,16 @@ MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cur
                 }
             }
         } else {
-            QString text = startBlock.text();
+            const QString text = startBlock.text();
             int indentPosition = tabSettings.positionAtColumn(text, column, nullptr, true);
-            int spaces = tabSettings.spacesLeftFromPosition(text, indentPosition);
-            int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
-            int targetColumn = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition),
-                                                          doIndent);
+            int spaces = TabSettings::spacesLeftFromPosition(text, indentPosition);
+            if (!doIndent && spaces == 0) {
+                indentPosition = tabSettings.firstNonSpace(text);
+                spaces = TabSettings::spacesLeftFromPosition(text, indentPosition);
+            }
+            const int startColumn = tabSettings.columnAt(text, indentPosition - spaces);
+            const int targetColumn
+                = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition), doIndent);
             cursor.setPosition(startBlock.position() + indentPosition);
             cursor.setPosition(startBlock.position() + indentPosition - spaces,
                                QTextCursor::KeepAnchor);
