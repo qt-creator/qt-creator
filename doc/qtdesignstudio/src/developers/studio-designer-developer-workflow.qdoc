@@ -31,76 +31,58 @@
     \e CMakeLists.txt file as the project file. This enables you to share
     your project as a fully working C++ application with developers.
 
-    If you add or remove QML files in \QDS, you have to regenerate the
-    \e CMakeLists.txt project configuration file by selecting \uicontrol File
-    > \uicontrol {Export Project} > \uicontrol {Generate CMake Build Files}.
-
     If you use Git, you can clone an example project
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/playground/AuroraCluster0}
     {here}.
 
-    The following image shows the example project structure and contents in the
-    \l Projects and \l {File System} views in \QDS and Qt Creator:
+    \section1 Exporting a \QDS Project
 
-    \image studio-project-structure.png "\QDS project in \QDS and Qt Creator views"
-
-    \section1 Converting Project Structure for CMake
-
-    \QDS can generate \e CMakeLists.txt and other related files to use with
-    Qt Creator and to compile into an executable application but only if the
-    project has a certain folder structure. If you have a \QDS QML project that
-    doesn't have the CMake configuration, follow these steps to convert its
-    file structure to the correct format.
+    \QDS uses a different project format than Qt Creator. \QDS does not build the project,
+    it uses a pre-compiled \l{QML runtime} to run the project. To export a \QDS project for the
+    Qt Creator, follow the process:
 
     \list 1
-    \li Create a folder named \e content in the project's folder. This folder contains the
-    application's main module.
-    \li Move all QML files of the project's main module to the \e content folder. If your project
-    has multiple modules, place the other modules in the \e imports or
-    \e asset_imports folder.
-    \li If your project's main module has resource folders such as \e fonts or \e {images}, move
-    them to the \e content folder.
-    \li Create a folder named \e src in the project's folder. This folder contains C++ code for
-    compiling the project.
-    \li If your project doesn't have an \e imports folder for other QML modules, create it
-    now even if you do not have other modules. The CMake file generator expects it.
-    \li In the project's \e .qmlproject file:
-        \list
-        \li Add \e "." in importPaths. For example:
-        \code
-            importPaths: [ "imports", "asset_imports", "." ]
-        \endcode
-        \li Change mainFile to \e "content/App.qml":
-        \code
-            mainFile: "content/App.qml"
-        \endcode
-        \endlist
-    \li In the \e content folder, create a file named \e App.qml and add the following content:
+        \li Open the project you want to export in \QDS.
+        \li Select \uicontrol {File} > \uicontrol {Export Project} > \uicontrol {Generate CMake Build Files}.
+            \image studio-project-export.webp "Export the \QDS project for Qt Creator"
 
-        \qml
-        import QtQuick
-        import QtQuick.Window
-        import YourImportModuleHere
-        Window {
-            width: Constants.width
-            height: Constants.height
-            visible: true
-            title: "YourWindowTitleHere"
-            <YourMainQmlClassHere> {
-            }
-        }
-        \endqml
+        \li Select \uicontrol {Details} to access the \l {Advanced Options}.
+            \image studio-project-export-advanced.webp "Access Advanced Options in the project exporter"
 
-    \li In \e{App.qml}, modify imported modules, window dimensions, window title, and main QML
-    class appropriately.
+            \note The project exporter has default settings selected. This works better if the project
+             is combined with an existing Qt project.
 
-    \note This template assumes that your project has a module named \e YourImportModuleHere in
-    the \a imports folder containing a singleton class named \a Constants.
-    This isn't mandatory.
+        \li Select all the options here. This allows to export the
+            complete project. So, it can be compiled as a stand-alone application.
+            \image studio-project-export-advanced-options.webp "Select all the options in the project exporter"
 
-    \li Generate CMake files and C++ source files that are used to compile the application into
-    an executable file by selecting \uicontrol File > \uicontrol {Export Project} >
-    \uicontrol {Generate CMake Build Files}.
-
+            \note If you copy this export on top of the existing Qt Creator project
+                  it overwrites the existing project. Hence, the default selected options in
+                  the exporter only exports the QML-specific items. You get a list of
+                  warnings at the bottom part of the exporter that denotes exactly which parts
+                  of the project gets overwritten.
     \endlist
+
+    \section1 Using the Exported Project in Qt Creator
+
+    After exporting the project from the \QDS, you have to open it from Qt Creator.
+
+    If you have used any version before \QDS 4.0 to create the project, manually include this code
+    in the \l {CMakeLists.txt} file so the exported project works in Qt Creator.
+
+    \code
+        set(BUILD_QDS_COMPONENTS ON CACHE BOOL "Build design studio components")
+
+        set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+        if (${BUILD_QDS_COMPONENTS})
+            include(${CMAKE_CURRENT_SOURCE_DIR}/qmlcomponents)
+        endif ()
+
+        include(${CMAKE_CURRENT_SOURCE_DIR}/qmlmodules)
+    \endcode
+
+    \note If you have created the project with the \QDS version 4.0 or above, you already have this code in
+          \l {CMakeLists.txt} by default.
+
 */
