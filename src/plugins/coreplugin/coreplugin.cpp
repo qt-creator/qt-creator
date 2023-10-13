@@ -9,18 +9,18 @@
 #include "icore.h"
 #include "idocument.h"
 #include "iwizardfactory.h"
+#include "loggingviewer.h"
 #include "modemanager.h"
 #include "session.h"
 #include "settingsdatabase.h"
 #include "themechooser.h"
 
 #include "actionmanager/actionmanager.h"
+#include "coreconstants.h"
 #include "documentmanager.h"
-#include "editormanager/editormanager.h"
+#include "fileutils.h"
 #include "find/findplugin.h"
 #include "locator/locator.h"
-#include "coreconstants.h"
-#include "fileutils.h"
 
 #include <extensionsystem/pluginerroroverview.h>
 #include <extensionsystem/pluginmanager.h>
@@ -490,6 +490,7 @@ QString CorePlugin::msgCrashpadInformation()
 
 ExtensionSystem::IPlugin::ShutdownFlag CorePlugin::aboutToShutdown()
 {
+    LoggingViewer::hideLoggingView();
     Find::aboutToShutdown();
     m_locator->aboutToShutdown();
     ICore::aboutToShutdown();

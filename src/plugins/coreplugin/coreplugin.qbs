@@ -102,8 +102,6 @@ QtcPlugin {
             "iwizardfactory.h",
             "jsexpander.cpp",
             "jsexpander.h",
-            "loggingmanager.cpp",
-            "loggingmanager.h",
             "loggingviewer.cpp",
             "loggingviewer.h",
             "manhattanstyle.cpp",
