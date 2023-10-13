@@ -58,17 +58,20 @@ General
 -------
 
 * Improved the startup performance significantly on various setups
-* Added the option to keep the sorting from the tool used for the file system
-  index locator filter
+* Added the `Sort results` check box for configuring the `md` locator filter in
+  `Edit > Preferences > Environment > Locator` to keep the sorting from the tool
+  used for the file system index locator filter
   ([QTCREATORBUG-27789](https://bugreports.qt.io/browse/QTCREATORBUG-27789))
-* Added the option to hide the menu bar on platforms without unified menu bar
+* Added the `View > Show Menubar` option to hide the menu bar on platforms
+  without a unified menu bar
   ([QTCREATORBUG-29498](https://bugreports.qt.io/browse/QTCREATORBUG-29498))
 * Fixed an issue with growing session files
 
 Help
 ----
 
-* Added an option for text anti-aliasing
+* Added the `Edit > Preferences > Help > General > Antialias` check box for
+  setting the anti-aliasing of text
   ([QTCREATORBUG-12177](https://bugreports.qt.io/browse/QTCREATORBUG-12177))
 
 Editing
