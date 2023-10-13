@@ -697,6 +697,12 @@ void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdat
                          Schedule semanticTokensSchedule)
 {
     QTC_ASSERT(d->m_clientInterface, return);
+    if (d->m_state == Shutdown || d->m_state == ShutdownRequested) {
+        auto key = message.toJsonObject().contains(methodKey) ? QString(methodKey) : QString(idKey);
+        const QString method = message.toJsonObject()[key].toString();
+        qCDebug(LOGLSPCLIENT) << "Ignoring message " << method << " because client is shutting down";
+        return;
+    }
     QTC_ASSERT(d->m_state == Initialized, return);
     if (sendUpdates == SendDocUpdates::Send)
         d->sendPostponedDocumentUpdates(semanticTokensSchedule);
