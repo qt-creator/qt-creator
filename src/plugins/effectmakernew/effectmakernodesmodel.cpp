@@ -97,6 +97,11 @@ void EffectMakerNodesModel::loadModel()
         m_categories.push_back(category);
     }
 
+    std::sort(m_categories.begin(), m_categories.end(),
+              [](EffectNodesCategory *a, EffectNodesCategory *b) {
+        return a->name() < b->name();
+    });
+
     resetModel();
 }
 
