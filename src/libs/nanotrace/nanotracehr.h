@@ -331,6 +331,7 @@ public:
     {
         static_assert(std::is_same_v<typename EventQueue::IsActive, std::true_type>,
                       "A active category is not possible with an inactive event queue!");
+        idCounter = globalIdCounter += 1ULL << 32;
     }
 
     Token<true> beginAsynchronous(ArgumentType traceName)
@@ -381,7 +382,8 @@ public:
 private:
     StringType m_name;
     EnabledEventQueue<TraceEvent> &m_eventQueue;
-    inline static std::atomic<std::size_t> idCounter = 0;
+    inline static std::atomic<std::size_t> globalIdCounter;
+    std::size_t idCounter;
 };
 
 template<bool enabled>
