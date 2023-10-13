@@ -696,6 +696,20 @@ void Client::openDocument(TextEditor::TextDocument *document)
 void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdates,
                          Schedule semanticTokensSchedule)
 {
+    QScopeGuard guard([responseHandler = message.responseHandler()](){
+        if (responseHandler) {
+            static ResponseError<std::nullptr_t> error;
+            if (!error.isValid()) {
+                error.setCode(-32803); // RequestFailed
+                error.setMessage("The server is currently in an unreachable state.");
+            }
+            QJsonObject response;
+            response[idKey] = responseHandler->id;
+            response[errorKey] = QJsonObject(error);
+            responseHandler->callback(JsonRpcMessage(response));
+        }
+    });
+
     QTC_ASSERT(d->m_clientInterface, return);
     if (d->m_state == Shutdown || d->m_state == ShutdownRequested) {
         auto key = message.toJsonObject().contains(methodKey) ? QString(methodKey) : QString(idKey);
@@ -704,6 +718,8 @@ void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdat
         return;
     }
     QTC_ASSERT(d->m_state == Initialized, return);
+    guard.dismiss();
+
     if (sendUpdates == SendDocUpdates::Send)
         d->sendPostponedDocumentUpdates(semanticTokensSchedule);
     if (std::optional<ResponseHandler> responseHandler = message.responseHandler())
