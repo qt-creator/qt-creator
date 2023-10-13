@@ -21,7 +21,7 @@ namespace TextEditor {
 TypingSettings::TypingSettings():
     m_autoIndent(true),
     m_tabKeyBehavior(TabNeverIndents),
-    m_smartBackspaceBehavior(BackspaceNeverIndents),
+    m_smartBackspaceBehavior(BackspaceUnindents),
     m_preferSingleLineComments(false)
 {
 }
