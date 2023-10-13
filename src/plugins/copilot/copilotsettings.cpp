@@ -43,15 +43,27 @@ CopilotSettings::CopilotSettings()
 
     const FilePath nodeFromPath = FilePath("node").searchInPath();
 
-    const FilePaths searchDirs
-        = {FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/dist/agent.js"),
-           FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
-           FilePath::fromUserInput(
-               "~/.config/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
-           FilePath::fromUserInput(
-               "~/vimfiles/pack/github/start/copilot.vim/copilot/dist/agent.js"),
-           FilePath::fromUserInput(
-               "~/AppData/Local/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js")};
+    // clang-format off
+
+    // From: https://github.com/github/copilot.vim/blob/release/README.md#getting-started
+    const FilePaths searchDirs = {
+        // Vim, Linux/macOS:
+        FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/dist/agent.js"),
+        FilePath::fromUserInput("~/.vim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
+
+        // Neovim, Linux/macOS:
+        FilePath::fromUserInput("~/.config/nvim/pack/github/start/copilot.vim/dist/agent.js"),
+        FilePath::fromUserInput("~/.config/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js"),
+
+        // Vim, Windows (PowerShell command):
+        FilePath::fromUserInput("~/vimfiles/pack/github/start/copilot.vim/dist/agent.js"),
+        FilePath::fromUserInput("~/vimfiles/pack/github/start/copilot.vim/copilot/dist/agent.js"),
+
+        // Neovim, Windows (PowerShell command):
+        FilePath::fromUserInput("~/AppData/Local/nvim/pack/github/start/copilot.vim/dist/agent.js"),
+        FilePath::fromUserInput("~/AppData/Local/nvim/pack/github/start/copilot.vim/copilot/dist/agent.js")
+    };
+    // clang-format on
 
     const FilePath distFromVim = findOrDefault(searchDirs, &FilePath::exists);
 

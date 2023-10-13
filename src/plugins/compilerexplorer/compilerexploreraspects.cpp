@@ -13,7 +13,7 @@
 #include <QCompleter>
 #include <QFutureWatcher>
 #include <QPushButton>
-#include <QStackedLayout>
+#include <QStackedWidget>
 
 using namespace Utils;
 
@@ -207,22 +207,21 @@ void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
 
     QPushButton *editBtn = new QPushButton(Tr::tr("Edit"));
 
-    QStackedLayout *stack{nullptr};
-
     // clang-format off
-    auto s = Stack {
-        bindTo(&stack),
-        noMargin,
-        Row { noMargin, displayLabel, editBtn }.emerge(),
-        Row { noMargin, nameCombo, versionCombo, clearBtn }.emerge()
-    }.emerge();
+    QStackedWidget *stack = static_cast<QStackedWidget*>(
+        Stack {
+            noMargin,
+            Row { noMargin, displayLabel, editBtn },
+            Row { noMargin, nameCombo, versionCombo, clearBtn }
+        }.emerge()
+    );
     // clang-format on
     connect(editBtn, &QPushButton::clicked, stack, [stack] { stack->setCurrentIndex(1); });
     connect(this, &LibrarySelectionAspect::returnToDisplay, stack, [stack] {
         stack->setCurrentIndex(0);
     });
 
-    addLabeledItem(parent, s);
+    addLabeledItem(parent, stack);
 }
 
 } // namespace CompilerExplorer

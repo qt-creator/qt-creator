@@ -290,7 +290,6 @@ FilePath IDevice::searchExecutable(const QString &fileName, const FilePaths &dir
 
 ProcessInterface *IDevice::createProcessInterface() const
 {
-    QTC_CHECK(false);
     return nullptr;
 }
 

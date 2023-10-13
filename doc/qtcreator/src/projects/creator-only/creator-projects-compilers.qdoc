@@ -181,6 +181,9 @@
 
     \title Compilers
 
+    \brief Lists the registered compilers. You can add custom compilers to the
+    list.
+
     To build an application using GCC, \MinGW, Clang, or QCC, specify the path
     to the directory where the compiler is located and select
     the application binary interface (ABI) version from the list of available

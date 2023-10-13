@@ -94,6 +94,19 @@ public:
         layout()->setSizeConstraint(QLayout::SetFixedSize);
     }
 
+    static void showDialog()
+    {
+        static QPointer<QDialog> staticInstance;
+
+        if (staticInstance.isNull()) {
+            staticInstance = new ScreenRecorderDialog(Core::ICore::dialogParent());
+            staticInstance->setAttribute(Qt::WA_DeleteOnClose);
+        }
+        staticInstance->show();
+        staticInstance->raise();
+        staticInstance->activateWindow();
+    }
+
 private:
     RecordWidget *m_recordWidget;
     TemporaryFile m_recordFile;
@@ -132,9 +145,7 @@ private:
             return;
         }
 
-        auto dialog = new ScreenRecorderDialog(Core::ICore::dialogParent());
-        dialog->setAttribute(Qt::WA_DeleteOnClose);
-        dialog->show();
+        ScreenRecorderDialog::showDialog();
     }
 };
 

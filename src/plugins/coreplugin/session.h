@@ -5,12 +5,15 @@
 
 #include "core_global.h"
 
-#include <utils/id.h>
-#include <utils/persistentsettings.h>
-
 #include <QDateTime>
+#include <QObject>
 #include <QString>
 #include <QStringList>
+
+namespace Utils {
+class FilePath;
+class Key;
+} // Utils
 
 namespace Core {
 
@@ -79,9 +82,6 @@ signals:
     void sessionCreated(const QString &name);
     void sessionRenamed(const QString &oldName, const QString &newName);
     void sessionRemoved(const QString &name);
-
-private:
-    static void saveActiveMode(Utils::Id mode);
 };
 
 } // namespace Core

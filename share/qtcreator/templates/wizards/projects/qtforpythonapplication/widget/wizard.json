@@ -38,7 +38,7 @@
                     "data":
                     {
                         "validator": "(?:(?:[a-zA-Z_][a-zA-Z_0-9]*::)*[a-zA-Z_][a-zA-Z_0-9]*|)",
-                        "trText": "%{JS: value('BaseCB') ? value('BaseCB').slice(1) : 'MyClass'}"
+                        "text": "%{JS: value('BaseCB') ? value('BaseCB').slice(1) : 'MyClass'}"
                     }
 
                 },
@@ -56,14 +56,14 @@
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-python'))}" }
+                    "data": { "text": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-python'))}" }
                 },
                 {
                     "name": "ProjectFileName",
                     "type": "LineEdit",
                     "trDisplayName": "Project file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" }
+                    "data": { "text": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" }
                 }
             ]
         },

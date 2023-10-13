@@ -92,14 +92,14 @@
                     "type": "LineEdit",
                     "trDisplayName": "Header file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Cpp.cxxHeaderSuffix())}" }
+                    "data": { "text": "%{JS: Cpp.classToFileName(value('Class'), Cpp.cxxHeaderSuffix())}" }
                 },
                 {
                     "name": "SrcFileName",
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Cpp.cxxSourceSuffix())}" }
+                    "data": { "text": "%{JS: Cpp.classToFileName(value('Class'), Cpp.cxxSourceSuffix())}" }
                 },
                 {
                     "name": "Path",

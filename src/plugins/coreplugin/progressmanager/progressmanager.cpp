@@ -24,7 +24,8 @@
 
 #include <QAction>
 #include <QEvent>
-#include <QHBoxLayout>
+#include <QFuture>
+#include <QFutureInterfaceBase>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPropertyAnimation>
@@ -42,6 +43,38 @@ using namespace Core::Internal;
 using namespace Utils;
 
 namespace Core {
+
+class ProgressTimer : public QObject
+{
+public:
+    ProgressTimer(const QFutureInterfaceBase &futureInterface, int expectedSeconds, QObject *parent)
+        : QObject(parent),
+        m_futureInterface(futureInterface),
+        m_expectedTime(expectedSeconds)
+    {
+        m_futureInterface.setProgressRange(0, 100);
+        m_futureInterface.setProgressValue(0);
+
+        m_timer.setInterval(TimerInterval);
+        connect(&m_timer, &QTimer::timeout, this, &ProgressTimer::handleTimeout);
+        m_timer.start();
+    }
+
+private:
+    void handleTimeout()
+    {
+        ++m_currentTime;
+        const int halfLife = qRound(1000.0 * m_expectedTime / TimerInterval);
+        const int progress = MathUtils::interpolateTangential(m_currentTime, halfLife, 0, 100);
+        m_futureInterface.setProgressValue(progress);
+    }
+
+    QFutureInterfaceBase m_futureInterface;
+    int m_expectedTime;
+    int m_currentTime = 0;
+    QTimer m_timer;
+};
+
 /*!
     \class Core::ProgressManager
     \inheaderfile coreplugin/progressmanager/progressmanager.h
@@ -787,31 +820,6 @@ void ProgressManager::cancelTasks(Id type)
 {
     if (m_instance)
         m_instance->doCancelTasks(type);
-}
-
-
-ProgressTimer::ProgressTimer(const QFutureInterfaceBase &futureInterface,
-                             int expectedSeconds,
-                             QObject *parent)
-    : QObject(parent),
-      m_futureInterface(futureInterface),
-      m_expectedTime(expectedSeconds)
-{
-    m_futureInterface.setProgressRange(0, 100);
-    m_futureInterface.setProgressValue(0);
-
-    m_timer = new QTimer(this);
-    m_timer->setInterval(TimerInterval);
-    connect(m_timer, &QTimer::timeout, this, &ProgressTimer::handleTimeout);
-    m_timer->start();
-}
-
-void ProgressTimer::handleTimeout()
-{
-    ++m_currentTime;
-    const int halfLife = qRound(1000.0 * m_expectedTime / TimerInterval);
-    const int progress = MathUtils::interpolateTangential(m_currentTime, halfLife, 0, 100);
-    m_futureInterface.setProgressValue(progress);
 }
 
 } // Core

@@ -38,7 +38,6 @@ SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel
 void SelectableFilesModel::setInitialMarkedFiles(const Utils::FilePaths &files)
 {
     m_files = Utils::toSet(files);
-    m_allFiles = files.isEmpty();
 }
 
 void SelectableFilesFromDirModel::startParsing(const Utils::FilePath &baseDir)
@@ -136,8 +135,8 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
             auto t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
-            FilterState state = filter(t);
-            t->checked = ((m_allFiles && state == FilterState::CHECKED)
+            const FilterState state = filter(t);
+            t->checked = ((m_files.isEmpty() && state == FilterState::CHECKED)
                           || m_files.contains(fn)) ? Qt::Checked : Qt::Unchecked;
             t->fullPath = fn;
             t->isDir = false;

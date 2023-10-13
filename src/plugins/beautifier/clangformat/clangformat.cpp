@@ -58,8 +58,9 @@ public:
         command.setLabelText(Tr::tr("Clang Format command:"));
 
         usePredefinedStyle.setSettingsKey("usePredefinedStyle");
-        usePredefinedStyle.setLabelText(Tr::tr("Use predefined style:"));
         usePredefinedStyle.setDefaultValue(true);
+        usePredefinedStyle.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+        usePredefinedStyle.setLabelText(Tr::tr("Use predefined style:"));
 
         predefinedStyle.setSettingsKey("predefinedStyle");
         predefinedStyle.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);

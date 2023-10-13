@@ -28,6 +28,7 @@
 #include <utils/mimetypes2/mimetype.h>
 #include <utils/mimeutils.h>
 #include <utils/store.h>
+#include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
 #include <QCompleter>
@@ -201,6 +202,8 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
                                        QUndoStack *undoStack)
     : m_sourceSettings(settings)
 {
+    auto toolBar = new StyledBar;
+
     m_codeEditor = new CodeEditorWidget(m_sourceSettings, undoStack);
 
     connect(m_codeEditor, &CodeEditorWidget::gotFocus, this, &SourceEditorWidget::gotFocus);
@@ -215,28 +218,32 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
     m_codeEditor->setTextDocument(document);
     m_codeEditor->updateHighlighter();
 
-    auto addCompilerButton = new QPushButton;
+    auto addCompilerButton = new QToolButton;
     addCompilerButton->setText(Tr::tr("Add Compiler"));
     connect(addCompilerButton,
-            &QPushButton::clicked,
+            &QToolButton::clicked,
             &settings->compilers,
             &AspectList::createAndAddItem);
 
-    auto removeSourceButton = new QPushButton;
-    removeSourceButton->setIcon(Utils::Icons::EDIT_CLEAR.icon());
+    auto removeSourceButton = new QToolButton;
+    removeSourceButton->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     removeSourceButton->setToolTip(Tr::tr("Remove Source"));
-    connect(removeSourceButton, &QPushButton::clicked, this, &SourceEditorWidget::remove);
+    connect(removeSourceButton, &QToolButton::clicked, this, &SourceEditorWidget::remove);
 
     // clang-format off
     using namespace Layouting;
 
+    Row {
+        settings->languageId,
+        addCompilerButton,
+        removeSourceButton,
+        customMargin({6, 0, 0, 0}), spacing(0),
+    }.attachTo(toolBar);
+
     Column {
-        Row {
-            settings->languageId,
-            addCompilerButton,
-            removeSourceButton,
-        },
+        toolBar,
         m_codeEditor,
+        noMargin(), spacing(0),
     }.attachTo(this);
     // clang-format on
 
@@ -272,6 +279,8 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
             m_delayTimer,
             qOverload<>(&QTimer::start));
 
+    auto toolBar = new StyledBar;
+
     m_asmEditor = new AsmEditorWidget(undoStack);
     m_asmDocument = QSharedPointer<TextDocument>(new TextDocument);
     m_asmDocument->setFilePath("asm.asm");
@@ -281,7 +290,7 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
 
     connect(m_asmEditor, &AsmEditorWidget::gotFocus, this, &CompilerWidget::gotFocus);
 
-    auto advButton = new QPushButton;
+    auto advButton = new QToolButton;
     QSplitter *splitter{nullptr};
 
     auto advDlg = new QAction;
@@ -297,13 +306,13 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
         dlg->setGeometry(rect);
     });
 
-    connect(advButton, &QPushButton::clicked, advDlg, &QAction::trigger);
+    connect(advButton, &QToolButton::clicked, advDlg, &QAction::trigger);
     advButton->setIcon(advDlg->icon());
 
-    auto removeCompilerBtn = new QPushButton;
-    removeCompilerBtn->setIcon(Utils::Icons::EDIT_CLEAR.icon());
+    auto removeCompilerBtn = new QToolButton;
+    removeCompilerBtn->setIcon(Utils::Icons::CLOSE_TOOLBAR.icon());
     removeCompilerBtn->setToolTip(Tr::tr("Remove Compiler"));
-    connect(removeCompilerBtn, &QPushButton::clicked, this, &CompilerWidget::remove);
+    connect(removeCompilerBtn, &QToolButton::clicked, this, &CompilerWidget::remove);
 
     compile(m_sourceSettings->source());
 
@@ -312,17 +321,22 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     });
 
     // clang-format off
+
+    Row {
+        m_compilerSettings->compiler,
+        advButton,
+        removeCompilerBtn,
+        customMargin({6, 0, 0, 0}), spacing(0),
+    }.attachTo(toolBar);
+
     Column {
-        Row {
-            m_compilerSettings->compiler,
-            advButton,
-            removeCompilerBtn,
-        },
+        toolBar,
         Splitter {
             bindTo(&splitter),
             m_asmEditor,
             createTerminal()
-        }
+        },
+        noMargin(), spacing(0),
     }.attachTo(this);
     // clang-format on
 

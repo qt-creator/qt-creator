@@ -103,7 +103,7 @@ CMakeDapEngine::CMakeDapEngine()
     : DapEngine()
 {
     setObjectName("CmakeDapEngine");
-    setDebuggerName("Cmake");
+    setDebuggerName("CMake");
     setDebuggerType("DAP");
 }
 
