@@ -12,13 +12,15 @@ class ImageCacheDispatchCollector final : public ImageCacheCollectorInterface
 {
 public:
     ImageCacheDispatchCollector(CollectorEntries collectors)
-        : m_collectors{std::move(collectors)} {};
+        : m_collectors{std::move(collectors)}
+    {}
 
     void start(Utils::SmallStringView filePath,
                Utils::SmallStringView state,
                const ImageCache::AuxiliaryData &auxiliaryData,
                CaptureCallback captureCallback,
-               AbortCallback abortCallback) override
+               AbortCallback abortCallback,
+               ImageCache::TraceToken traceToken) override
     {
         std::apply(
             [&](const auto &...collectors) {
@@ -27,6 +29,7 @@ public:
                               auxiliaryData,
                               std::move(captureCallback),
                               std::move(abortCallback),
+                              std::move(traceToken),
                               collectors...);
             },
             m_collectors);
@@ -61,6 +64,7 @@ private:
                        const ImageCache::AuxiliaryData &auxiliaryData,
                        CaptureCallback captureCallback,
                        AbortCallback abortCallback,
+                       ImageCache::TraceToken traceToken,
                        const Collector &collector,
                        const Collectors &...collectors)
     {
@@ -69,13 +73,15 @@ private:
                                     state,
                                     auxiliaryData,
                                     std::move(captureCallback),
-                                    std::move(abortCallback));
+                                    std::move(abortCallback),
+                                    std::move(traceToken));
         } else {
             dispatchStart(filePath,
                           state,
                           auxiliaryData,
                           std::move(captureCallback),
                           std::move(abortCallback),
+                          std::move(traceToken),
                           collectors...);
         }
     }
@@ -84,10 +90,11 @@ private:
                        Utils::SmallStringView,
                        const ImageCache::AuxiliaryData &,
                        CaptureCallback,
-                       AbortCallback abortCallback)
+                       AbortCallback abortCallback,
+                       ImageCache::TraceToken traceToken)
     {
         qWarning() << "ImageCacheDispatchCollector: cannot handle file type.";
-        abortCallback(ImageCache::AbortReason::Failed);
+        abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
     }
 
     template<typename Collector, typename... Collectors>

@@ -83,7 +83,7 @@ private:
         Task task = std::move(m_tasks.front());
         m_tasks.pop_front();
 
-        return {task};
+        return {std::move(task)};
     }
 
     void ensureThreadIsRunning()

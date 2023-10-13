@@ -73,8 +73,12 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
                                 Utils::SmallStringView state,
                                 const ImageCache::AuxiliaryData &auxiliaryData,
                                 CaptureCallback captureCallback,
-                                AbortCallback abortCallback)
+                                AbortCallback abortCallback,
+                                ImageCache::TraceToken traceToken)
 {
+    using namespace NanotraceHR::Literals;
+    auto collectorTraceToken = traceToken.begin("generate image in standard collector"_t);
+
     RewriterView rewriterView{m_externalDependencies, RewriterView::Amend};
     NodeInstanceView nodeInstanceView{m_connectionManager, m_externalDependencies};
     nodeInstanceView.setCaptureImageMinimumAndMaximumSize(captureImageMinimumSize,
@@ -101,7 +105,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     if (!rewriterView.errors().isEmpty() || (!rewriterView.rootModelNode().metaInfo().isGraphicalItem()
                                         && !is3DRoot)) {
         if (abortCallback)
-            abortCallback(ImageCache::AbortReason::Failed);
+            abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
         return;
     }
 
@@ -117,21 +121,17 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     if (stateNode.isValid())
         rewriterView.setCurrentStateNode(stateNode);
 
-    auto callback = [=, captureCallback = std::move(captureCallback)](const QImage &image) {
-        if (nullImageHandling == ImageCacheCollectorNullImageHandling::CaptureNullImage
-            || !image.isNull()) {
-            QImage midSizeImage = scaleImage(image, QSize{300, 300});
-            QImage smallImage = scaleImage(midSizeImage, QSize{96, 96});
-            captureCallback(image, midSizeImage, smallImage);
-        }
-    };
+    QImage captureImage;
+
+    auto callback = [&](const QImage &image) { captureImage = image; };
 
     if (!m_target)
         return;
 
     nodeInstanceView.setTarget(m_target.data());
     m_connectionManager.setCallback(std::move(callback));
-    nodeInstanceView.setCrashCallback([=] { abortCallback(ImageCache::AbortReason::Failed); });
+    bool isCrashed = false;
+    nodeInstanceView.setCrashCallback([&] { isCrashed = true; });
     model->setNodeInstanceView(&nodeInstanceView);
 
     bool capturedDataArrived = m_connectionManager.waitForCapturedData();
@@ -142,8 +142,18 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     model->setNodeInstanceView({});
     model->setRewriterView({});
 
+    if (isCrashed)
+        abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
+
     if (!capturedDataArrived && abortCallback)
-        abortCallback(ImageCache::AbortReason::Failed);
+        abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
+
+    if (nullImageHandling == ImageCacheCollectorNullImageHandling::CaptureNullImage
+        || !captureImage.isNull()) {
+        QImage midSizeImage = scaleImage(captureImage, QSize{300, 300});
+        QImage smallImage = scaleImage(midSizeImage, QSize{96, 96});
+        captureCallback(captureImage, midSizeImage, smallImage, std::move(traceToken));
+    }
 }
 
 ImageCacheCollectorInterface::ImageTuple ImageCacheCollector::createImage(

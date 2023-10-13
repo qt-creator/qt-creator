@@ -46,7 +46,10 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
     if (currentModifiedTime < (storageModifiedTime + pause))
         return;
 
-    auto capture = [&](const QImage &image, const QImage &midSizeImage, const QImage &smallImage) {
+    auto capture = [&](const QImage &image,
+                       const QImage &midSizeImage,
+                       const QImage &smallImage,
+                       ImageCache::TraceToken) {
         storage.storeImage(id, currentModifiedTime, image, midSizeImage, smallImage);
     };
 
@@ -54,7 +57,7 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
                     extraId,
                     std::move(auxiliaryData),
                     std::move(capture),
-                    ImageCache::AbortCallback{});
+                    ImageCache::InternalAbortCallback{});
 }
 
 void AsynchronousImageFactory::clean()

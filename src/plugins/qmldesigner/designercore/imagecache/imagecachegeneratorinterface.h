@@ -18,8 +18,9 @@ public:
                                Utils::SmallStringView extraId,
                                Sqlite::TimeStamp timeStamp,
                                ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
-                               ImageCache::AbortCallback &&abortCallback,
-                               ImageCache::AuxiliaryData &&auxiliaryData)
+                               ImageCache::InternalAbortCallback &&abortCallback,
+                               ImageCache::AuxiliaryData &&auxiliaryData,
+                               ImageCache::TraceToken = {})
         = 0;
 
     virtual void clean() = 0;

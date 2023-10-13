@@ -3,10 +3,11 @@
 
 #pragma once
 
+#include <qmldesignercorelib_exports.h>
+
 #include "asynchronousimagecacheinterface.h"
 
 #include <imagecache/taskqueue.h>
-#include <nanotrace/nanotracehr.h>
 
 #include <condition_variable>
 #include <deque>
@@ -21,19 +22,6 @@ class TimeStampProviderInterface;
 class ImageCacheStorageInterface;
 class ImageCacheGeneratorInterface;
 class ImageCacheCollectorInterface;
-
-constexpr bool imageCacheTracingIsEnabled()
-{
-#ifdef ENABLE_IMAGE_CACHE_TRACING
-    return NanotraceHR::isTracerActive();
-#else
-    return false;
-#endif
-}
-
-using ImageCacheTraceToken = NanotraceHR::Token<imageCacheTracingIsEnabled()>;
-
-NanotraceHR::StringViewCategory<imageCacheTracingIsEnabled()> &imageCacheCategory();
 
 class AsynchronousImageCache final : public AsynchronousImageCacheInterface
 {
@@ -74,14 +62,14 @@ private:
               ImageCache::AbortCallback &&abortCallback,
               ImageCache::AuxiliaryData &&auxiliaryData,
               RequestType requestType,
-              ImageCacheTraceToken traceToken)
+              ImageCache::TraceToken traceToken)
             : name{std::move(name)}
             , extraId{std::move(extraId)}
             , captureCallback{std::move(captureCallback)}
             , abortCallback{std::move(abortCallback)}
             , auxiliaryData{std::move(auxiliaryData)}
             , requestType{requestType}
-            , traceToken{traceToken}
+            , traceToken{std::move(traceToken)}
         {}
 
         Utils::PathString name;
@@ -90,7 +78,7 @@ private:
         ImageCache::AbortCallback abortCallback;
         ImageCache::AuxiliaryData auxiliaryData;
         RequestType requestType = RequestType::Image;
-        ImageCacheTraceToken traceToken;
+        ImageCache::TraceToken traceToken;
     };
 
     static void request(Utils::SmallStringView name,
@@ -99,26 +87,14 @@ private:
                         ImageCache::CaptureImageCallback captureCallback,
                         ImageCache::AbortCallback abortCallback,
                         ImageCache::AuxiliaryData auxiliaryData,
-                        ImageCacheTraceToken traceToken,
+                        ImageCache::TraceToken traceToken,
                         ImageCacheStorageInterface &storage,
                         ImageCacheGeneratorInterface &generator,
                         TimeStampProviderInterface &timeStampProvider);
 
     struct Dispatch
     {
-        void operator()(Entry &entry)
-        {
-            request(entry.name,
-                    entry.extraId,
-                    entry.requestType,
-                    std::move(entry.captureCallback),
-                    std::move(entry.abortCallback),
-                    std::move(entry.auxiliaryData),
-                    entry.traceToken,
-                    storage,
-                    generator,
-                    timeStampProvider);
-        }
+        QMLDESIGNERCORE_EXPORT void operator()(Entry &entry);
 
         ImageCacheStorageInterface &storage;
         ImageCacheGeneratorInterface &generator;
@@ -127,13 +103,7 @@ private:
 
     struct Clean
     {
-        void operator()(Entry &entry)
-        {
-            using namespace NanotraceHR::Literals;
-
-            entry.abortCallback(ImageCache::AbortReason::Abort);
-            imageCacheCategory().endAsynchronous(entry.traceToken, "aborted for cleanup"_t);
-        }
+        QMLDESIGNERCORE_EXPORT void operator()(Entry &entry);
     };
 
 private:

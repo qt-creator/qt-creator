@@ -58,6 +58,7 @@ constexpr TracerLiteral operator""_t(const char *text, size_t size)
 } // namespace Literals
 
 using namespace Literals;
+
 template<typename String>
 struct TraceEvent
 {
@@ -142,6 +143,7 @@ public:
     TraceFile &operator=(TraceFile &&) = delete;
 
     ~TraceFile() { finalizeFile(*this); }
+
     std::string filePath;
     std::mutex fileMutex;
     std::future<void> processing;
@@ -257,43 +259,108 @@ TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
     return eventQueue.currentEvents[eventQueue.eventsIndex++];
 }
 
-template<bool enabled>
+template<typename Category, bool enabled>
 class Token
 {
 public:
     using IsActive = std::false_type;
+    using ArgumentType = typename Category::ArgumentType;
 
-    constexpr std::size_t operator*() const { return 0; }
+    Token() {}
+
+    ~Token() {}
+
+    constexpr Token(const Token &) = delete;
+    constexpr Token &operator=(const Token &) = delete;
+
+    constexpr Token(Token &&other) noexcept = default;
+
+    constexpr Token &operator=(Token &&other) noexcept = default;
 
     constexpr explicit operator bool() const { return false; }
 
     static constexpr bool isActive() { return false; }
+
+    Token begin(ArgumentType) { return Token{}; }
+
+    void tick(ArgumentType) {}
+
+    void end() {}
 };
 
 template<typename TraceEvent, bool enabled>
 class Category;
 
-template<>
-class Token<true>
+template<typename Category>
+class Token<Category, true>
 {
-    friend Category<StringViewTraceEvent, true>;
-    friend Category<StringTraceEvent, true>;
-
-    Token(std::size_t id)
-        : m_id{id}
+    Token(std::string_view name, std::size_t id, Category &category)
+        : m_name{name}
+        , m_id{id}
+        , m_category{&category}
     {}
 
 public:
     using IsActive = std::true_type;
+    using StringType = typename Category::StringType;
+    using ArgumentType = typename Category::ArgumentType;
 
-    constexpr std::size_t operator*() const { return m_id; }
+    friend Category;
+
+    Token() = default;
+
+    Token(const Token &) = delete;
+    Token &operator=(const Token &) = delete;
+
+    Token(Token &&other) noexcept
+        : m_name{other.m_name}
+        , m_id{std::exchange(other.m_id, 0)}
+        , m_category{std::exchange(other.m_category, nullptr)}
+    {}
+
+    Token &operator=(Token &&other) noexcept
+    {
+        if (&other != this) {
+            m_name = other.m_name;
+            m_id = std::exchange(other.m_id, 0);
+            m_category = std::exchange(other.m_category, nullptr);
+        }
+
+        return *this;
+    }
+
+    ~Token() { end(); }
 
     constexpr explicit operator bool() const { return m_id; }
 
     static constexpr bool isActive() { return true; }
 
+    Token begin(ArgumentType name)
+    {
+        if (m_id)
+            m_category->beginAsynchronous(m_id, name);
+
+        return Token{m_name, m_id, *m_category};
+    }
+
+    void tick(ArgumentType name)
+    {
+        if (m_id)
+            m_category->tickAsynchronous(m_id, name);
+    }
+
+    void end()
+    {
+        if (m_id)
+            m_category->endAsynchronous(m_id, m_name);
+
+        m_id = 0;
+    }
+
 private:
-    std::size_t m_id;
+    StringType m_name;
+    std::size_t m_id = 0;
+    Category *m_category = nullptr;
 };
 
 template<typename TraceEvent, bool enabled>
@@ -302,16 +369,15 @@ class Category
 public:
     using IsActive = std::false_type;
     using ArgumentType = typename TraceEvent::ArgumentType;
+    using TokenType = Token<Category, false>;
 
     Category(ArgumentType, EventQueue<TraceEvent, std::true_type> &) {}
 
     Category(ArgumentType, EventQueue<TraceEvent, std::false_type> &) {}
 
-    Token<false> beginAsynchronous(ArgumentType) { return {}; }
+    TokenType beginAsynchronous(ArgumentType) { return {}; }
 
-    void tickAsynchronous(Token<false>, ArgumentType) {}
-
-    void endAsynchronous(Token<false>, ArgumentType) {}
+    void tickAsynchronous(ArgumentType) {}
 
     static constexpr bool isActive() { return false; }
 };
@@ -323,6 +389,9 @@ public:
     using IsActive = std::true_type;
     using ArgumentType = typename TraceEvent::ArgumentType;
     using StringType = typename TraceEvent::StringType;
+    using TokenType = Token<Category, true>;
+
+    friend TokenType;
 
     template<typename EventQueue>
     Category(ArgumentType name, EventQueue &queue)
@@ -334,43 +403,13 @@ public:
         idCounter = globalIdCounter += 1ULL << 32;
     }
 
-    Token<true> beginAsynchronous(ArgumentType traceName)
+    TokenType beginAsynchronous(ArgumentType traceName)
     {
-        auto id = ++idCounter;
-        auto &traceEvent = getTraceEvent(m_eventQueue);
-        traceEvent.name = std::move(traceName);
-        traceEvent.category = m_name;
-        traceEvent.time = Clock::now();
-        traceEvent.type = 'b';
-        traceEvent.id = id;
+        std::size_t id = ++idCounter;
 
-        return id;
-    }
+        beginAsynchronous(id, traceName);
 
-    void tickAsynchronous(Token<true> token, ArgumentType traceName)
-    {
-        if (!token)
-            return;
-
-        auto &traceEvent = getTraceEvent(m_eventQueue);
-        traceEvent.name = std::move(traceName);
-        traceEvent.category = m_name;
-        traceEvent.time = Clock::now();
-        traceEvent.type = 'n';
-        traceEvent.id = *token;
-    }
-
-    void endAsynchronous(Token<true> token, ArgumentType traceName)
-    {
-        if (!token)
-            return;
-
-        auto &traceEvent = getTraceEvent(m_eventQueue);
-        traceEvent.name = std::move(traceName);
-        traceEvent.category = m_name;
-        traceEvent.time = Clock::now();
-        traceEvent.type = 'e';
-        traceEvent.id = *token;
+        return {traceName, id, *this};
     }
 
     EnabledEventQueue<TraceEvent> &eventQueue() const { return m_eventQueue; }
@@ -378,6 +417,39 @@ public:
     std::string_view name() const { return m_name; }
 
     static constexpr bool isActive() { return true; }
+
+private:
+    void beginAsynchronous(std::size_t id, StringType traceName)
+    {
+        auto &traceEvent = getTraceEvent(m_eventQueue);
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = m_name;
+        traceEvent.type = 'b';
+        traceEvent.id = id;
+        traceEvent.time = Clock::now();
+    }
+
+    void tickAsynchronous(std::size_t id, StringType traceName)
+    {
+        auto time = Clock::now();
+        auto &traceEvent = getTraceEvent(m_eventQueue);
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = m_name;
+        traceEvent.time = time;
+        traceEvent.type = 'n';
+        traceEvent.id = id;
+    }
+
+    void endAsynchronous(std::size_t id, StringType traceName)
+    {
+        auto time = Clock::now();
+        auto &traceEvent = getTraceEvent(m_eventQueue);
+        traceEvent.name = std::move(traceName);
+        traceEvent.category = m_name;
+        traceEvent.time = time;
+        traceEvent.type = 'e';
+        traceEvent.id = id;
+    }
 
 private:
     StringType m_name;

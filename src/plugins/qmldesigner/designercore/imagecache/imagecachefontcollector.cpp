@@ -94,7 +94,8 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
                                     Utils::SmallStringView,
                                     const ImageCache::AuxiliaryData &auxiliaryDataValue,
                                     CaptureCallback captureCallback,
-                                    AbortCallback abortCallback)
+                                    AbortCallback abortCallback,
+                                    ImageCache::TraceToken traceToken)
 {
     QFont font;
     if (resolveFont(QString(name), font) >= 0) {
@@ -107,12 +108,12 @@ void ImageCacheFontCollector::start(Utils::SmallStringView name,
             QImage image = createFontImage(text, textColor, font, size);
 
             if (!image.isNull()) {
-                captureCallback(std::move(image), {}, {});
+                captureCallback(std::move(image), {}, {}, std::move(traceToken));
                 return;
             }
         }
     }
-    abortCallback(ImageCache::AbortReason::Failed);
+    abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
 }
 
 ImageCacheCollectorInterface::ImageTuple ImageCacheFontCollector::createImage(

@@ -24,14 +24,14 @@ void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, st
 {
     out << R"({"ph":")" << event.type << R"(","name":")" << event.name << R"(","cat":")"
         << event.category << R"(","ts":")"
-        << static_cast<double>(event.time.time_since_epoch().count()) / 1000 << R"(","pid":")"
-        << processId << R"(","tid":")" << threadId << R"(")";
+        << static_cast<double>(event.time.time_since_epoch().count()) / 1000 << R"(","pid":)"
+        << processId << R"(,"tid":)" << threadId;
 
     if (event.type == 'X')
         out << R"(,"dur":)" << static_cast<double>(event.duration.count()) / 1000;
 
     if (event.id != 0)
-        out << R"(,"id":)" << event.id;
+        out << R"(,"id":")" << event.id << R"(")";
 
     if (event.arguments.size())
         out << R"(,"args":)" << event.arguments;
@@ -45,9 +45,9 @@ void writeMetaEvent(TraceFile<true> *file, std::string_view key, std::string_vie
     auto &out = file->out;
 
     if (out.is_open()) {
-        file->out << R"({"name":")" << key << R"(","ph":"M", "pid":")"
-                  << QCoreApplication::applicationPid() << R"(","tid":")"
-                  << std::this_thread::get_id() << R"(","args":{"name":")" << value << R"("}})"
+        file->out << R"({"name":")" << key << R"(","ph":"M", "pid":)"
+                  << QCoreApplication::applicationPid() << R"(,"tid":)"
+                  << std::this_thread::get_id() << R"(,"args":{"name":")" << value << R"("}})"
                   << ",\n";
     }
 }
@@ -194,6 +194,6 @@ void EventQueue<TraceEvent, std::true_type>::flush()
     }
 }
 
-template class NANOTRACE_EXPORT EventQueue<StringViewTraceEvent, std::true_type>;
-template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, std::true_type>;
+template class EventQueue<StringViewTraceEvent, std::true_type>;
+template class EventQueue<StringTraceEvent, std::true_type>;
 } // namespace NanotraceHR

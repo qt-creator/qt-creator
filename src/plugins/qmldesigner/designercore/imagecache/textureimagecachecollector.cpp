@@ -17,7 +17,8 @@ void TextureImageCacheCollector::start(Utils::SmallStringView name,
                                        Utils::SmallStringView,
                                        const ImageCache::AuxiliaryData &,
                                        CaptureCallback captureCallback,
-                                       AbortCallback abortCallback)
+                                       AbortCallback abortCallback,
+                                       ImageCache::TraceToken traceToken)
 {
     Asset asset {QString(name)};
     QImage image;
@@ -31,11 +32,11 @@ void TextureImageCacheCollector::start(Utils::SmallStringView name,
     }
 
     if (image.isNull())
-        abortCallback(ImageCache::AbortReason::Failed);
+        abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
     else
         image = image.scaled(QSize{300, 300}, Qt::KeepAspectRatio);
 
-    captureCallback({}, image, {});
+    captureCallback({}, image, {}, std::move(traceToken));
 }
 
 ImageCacheCollectorInterface::ImageTuple TextureImageCacheCollector::createImage(

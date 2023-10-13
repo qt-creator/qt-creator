@@ -15,14 +15,15 @@ class ImageCacheCollectorInterface
 {
 public:
     using CaptureCallback = ImageCache::CaptureImageWithScaledImagesCallback;
-    using AbortCallback = ImageCache::AbortCallback;
+    using AbortCallback = ImageCache::InternalAbortCallback;
     using ImageTuple = std::tuple<QImage, QImage, QImage>;
 
     virtual void start(Utils::SmallStringView filePath,
                        Utils::SmallStringView extraId,
                        const ImageCache::AuxiliaryData &auxiliaryData,
                        CaptureCallback captureCallback,
-                       AbortCallback abortCallback)
+                       AbortCallback abortCallback,
+                       ImageCache::TraceToken traceToken = {})
         = 0;
 
     virtual ImageTuple createImage(Utils::SmallStringView filePath,
