@@ -194,6 +194,7 @@ public:
     QCheckBox useClangdCheckBox;
     QComboBox indexingComboBox;
     QComboBox headerSourceSwitchComboBox;
+    QComboBox completionRankingModelComboBox;
     QCheckBox autoIncludeHeadersCheckBox;
     QCheckBox sizeThresholdCheckBox;
     QSpinBox threadLimitSpinBox;
@@ -228,6 +229,16 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "in the built-in variant."
         "<p>When \"Try Both\" is selected, clangd will be employed only if the built-in variant "
         "does not find anything.");
+    using RankingModel = ClangdSettings::CompletionRankingModel;
+    const QString completionRankingModelToolTip = Tr::tr(
+        "<p>Which model clangd should use to rank possible completions."
+        "<p>This determines the order of candidates in the combo box when doing code completion."
+        "<p>The \"%1\" model used by default results from (pre-trained) machine learning and "
+        "provides superior results on average."
+        "<p>If you feel that its suggestions stray too much from your expectations for your "
+        "code base, you can try switching to the hand-crafted \"%2\" model.").arg(
+            ClangdSettings::rankingModelToDisplayString(RankingModel::DecisionForest),
+            ClangdSettings::rankingModelToDisplayString(RankingModel::Heuristics));
     const QString workerThreadsToolTip = Tr::tr(
         "Number of worker threads used by clangd. Background indexing also uses this many "
         "worker threads.");
@@ -266,6 +277,16 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
                 d->headerSourceSwitchComboBox.count() - 1);
     }
     d->headerSourceSwitchComboBox.setToolTip(headerSourceSwitchToolTip);
+    for (RankingModel model : {RankingModel::Default, RankingModel::DecisionForest,
+                               RankingModel::Heuristics}) {
+        d->completionRankingModelComboBox.addItem(
+            ClangdSettings::rankingModelToDisplayString(model), int(model));
+        if (model == settings.completionRankingModel())
+            d->completionRankingModelComboBox.setCurrentIndex(
+                d->completionRankingModelComboBox.count() - 1);
+    }
+    d->completionRankingModelComboBox.setToolTip(completionRankingModelToolTip);
+
     d->autoIncludeHeadersCheckBox.setText(Tr::tr("Insert header files on completion"));
     d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
     d->autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
@@ -330,6 +351,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     limitResultsLayout->addWidget(&d->completionResults);
     limitResultsLayout->addStretch(1);
     formLayout->addRow(completionResultsLabel, limitResultsLayout);
+
+    const auto completionRankingModelLayout = new QHBoxLayout;
+    completionRankingModelLayout->addWidget(&d->completionRankingModelComboBox);
+    completionRankingModelLayout->addStretch(1);
+    const auto completionRankingModelLabel = new QLabel(Tr::tr("Completion ranking model:"));
+    completionRankingModelLabel->setToolTip(completionRankingModelToolTip);
+    formLayout->addRow(completionRankingModelLabel, completionRankingModelLayout);
 
     const auto documentUpdateThresholdLayout = new QHBoxLayout;
     documentUpdateThresholdLayout->addWidget(&d->documentUpdateThreshold);
@@ -476,6 +504,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->headerSourceSwitchComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->completionRankingModelComboBox, &QComboBox::currentIndexChanged,
+            this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->autoIncludeHeadersCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->threadLimitSpinBox, &QSpinBox::valueChanged,
@@ -508,6 +538,8 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
         d->indexingComboBox.currentData().toInt());
     data.headerSourceSwitchMode = ClangdSettings::HeaderSourceSwitchMode(
         d->headerSourceSwitchComboBox.currentData().toInt());
+    data.completionRankingModel = ClangdSettings::CompletionRankingModel(
+        d->completionRankingModelComboBox.currentData().toInt());
     data.autoIncludeHeaders = d->autoIncludeHeadersCheckBox.isChecked();
     data.workerThreadLimit = d->threadLimitSpinBox.value();
     data.documentUpdateThreshold = d->documentUpdateThreshold.value();

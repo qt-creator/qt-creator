@@ -217,6 +217,10 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     if (clangdLogServer().isDebugEnabled())
         cmd.addArgs({"--log=verbose", "--pretty", "--hidden-features=1"});
     cmd.addArg("--use-dirty-headers");
+    if (settings.completionRankingModel() != ClangdSettings::CompletionRankingModel::Default) {
+        cmd.addArg("--ranking-model=" + ClangdSettings::rankingModelToCmdLineString(
+                       settings.completionRankingModel()));
+    }
     const auto interface = new StdIOClientInterface;
     interface->setCommandLine(cmd);
     return interface;
