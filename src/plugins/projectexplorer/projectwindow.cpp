@@ -560,10 +560,6 @@ public:
             m_importBuild->setEnabled(project && project->projectImporter());
         });
 
-        m_manageKits = new QPushButton(Tr::tr("Manage Kits..."));
-        connect(m_manageKits, &QPushButton::clicked,
-                this, &ProjectWindowPrivate::handleManageKits);
-
         auto styledBar = new StyledBar; // The black blob on top of the side bar
         styledBar->setObjectName("ProjectModeStyledBar");
 
@@ -585,7 +581,11 @@ public:
 
         QStringList list = Core::ICore::settings()->value("HideOptionCategories").toStringList();
         if (!list.contains("Kits")) {
-            innerLayout->addWidget(m_manageKits);
+            auto manageKits = new QPushButton(Tr::tr("Manage Kits..."));
+            connect(manageKits, &QPushButton::clicked,
+                    this, &ProjectWindowPrivate::handleManageKits);
+
+            innerLayout->addWidget(manageKits);
             innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
         }
 
@@ -812,7 +812,6 @@ public:
     QComboBox *m_projectSelection;
     SelectorTree *m_selectorTree;
     QPushButton *m_importBuild;
-    QPushButton *m_manageKits;
     QAction m_toggleRightSidebarAction;
     QDockWidget *m_outputDock;
     BuildSystemOutputWindow *m_buildSystemOutput;
