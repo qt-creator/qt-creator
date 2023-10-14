@@ -78,7 +78,7 @@ private:
         ImageCache::AbortCallback abortCallback;
         ImageCache::AuxiliaryData auxiliaryData;
         RequestType requestType = RequestType::Image;
-        ImageCache::TraceToken traceToken;
+        NO_UNIQUE_ADDRESS ImageCache::TraceToken traceToken;
     };
 
     static void request(Utils::SmallStringView name,

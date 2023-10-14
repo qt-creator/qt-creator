@@ -7,6 +7,8 @@
 #include "imagecachestorage.h"
 #include "timestampprovider.h"
 
+#include <tracing/qmldesignertracing.h>
+
 #include <QScopeGuard>
 
 #include <thread>
@@ -17,15 +19,8 @@ using namespace NanotraceHR::Literals;
 
 namespace ImageCache {
 namespace {
-using TraceFile = NanotraceHR::TraceFile<ImageCache::tracingIsEnabled()>;
 
-TraceFile traceFile{"qml_designer.json"};
-
-thread_local auto eventQueueData = NanotraceHR::makeEventQueueData<NanotraceHR::StringViewTraceEvent, 10000>(
-    traceFile);
-thread_local NanotraceHR::EventQueue eventQueue = eventQueueData.createEventQueue();
-
-thread_local Category category_{"image cache"_t, eventQueue};
+thread_local Category category_{"image cache"_t, QmlDesigner::Tracing::eventQueue()};
 } // namespace
 
 Category &category()

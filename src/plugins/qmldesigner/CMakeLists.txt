@@ -23,6 +23,11 @@ env_with_default("QTC_ENABLE_IMAGE_CACHE_TRACING" ENV_QTC_ENABLE_IMAGE_CACHE_TRA
 option(ENABLE_IMAGE_CACHE_TRACING "Enable image cache tracing" ${ENV_QTC_ENABLE_IMAGE_CACHE_TRACING})
 add_feature_info("Image cache tracing" ${ENABLE_IMAGE_CACHE_TRACING} "")
 
+env_with_default("QTC_ENABLE_MODEL_TRACING" ENV_QTC_ENABLE_MODEL_TRACING OFF)
+option(ENABLE_MODEL_TRACING "Enable model tracing" ${ENV_QTC_ENABLE_MODEL_TRACING})
+add_feature_info("Model tracing" ${ENABLE_MODEL_TRACING} "")
+
+
 
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
@@ -96,8 +101,10 @@ extend_qtc_library(QmlDesignerCore
   CONDITION TARGET Nanotrace
   DEPENDS Nanotrace
   DEFINES
+    ENABLE_QMLDESIGNER_TRACING
     $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
     $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
+    $<$<BOOL:${ENABLE_MODEL_TRACING}>:ENABLE_MODEL_TRACING>
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -199,6 +206,12 @@ extend_qtc_library(QmlDesignerCore
     timestampprovider.cpp
     timestampprovider.h
     timestampproviderinterface.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/tracing
+  SOURCES
+    qmldesignertracing.cpp qmldesignertracing.h
 )
 
 extend_qtc_library(QmlDesignerCore

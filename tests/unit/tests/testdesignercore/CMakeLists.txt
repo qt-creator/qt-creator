@@ -144,6 +144,7 @@ add_qtc_library(TestDesignerCore OBJECT
     projectstorage/typeannotationreader.h
     projectstorage/qmldocumentparserinterface.h
     projectstorage/qmltypesparserinterface.h
+    tracing/qmldesignertracing.cpp tracing/qmldesignertracing.h
     rewritertransaction.cpp
     rewritertransaction.h
 )

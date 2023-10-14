@@ -5,6 +5,8 @@
 
 #include "qmldesignercorelib_global.h"
 
+#include <tracing/qmldesignertracing.h>
+
 #include <QVariant>
 
 #include <memory>
@@ -13,6 +15,8 @@
 namespace QmlDesigner {
 
 namespace Internal {
+
+using namespace NanotraceHR::Literals;
 
 class InternalBindingProperty;
 class InternalSignalHandlerProperty;
@@ -185,6 +189,8 @@ private:
     TypeName m_dynamicType;
     std::weak_ptr<InternalNode> m_propertyOwner;
     PropertyType m_propertyType = PropertyType::None;
+    NO_UNIQUE_ADDRESS ModelTracing::ObjectTraceToken traceToken = ModelTracing::category().beginObject(
+        "InternalProperty"_t, std::forward_as_tuple("name", m_name));
 };
 
 } // namespace Internal

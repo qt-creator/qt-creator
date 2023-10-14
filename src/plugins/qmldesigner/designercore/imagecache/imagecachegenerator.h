@@ -68,7 +68,7 @@ private:
         std::vector<ImageCache::CaptureImageWithScaledImagesCallback> captureCallbacks;
         std::vector<ImageCache::InternalAbortCallback> abortCallbacks;
         Sqlite::TimeStamp timeStamp;
-        ImageCache::TraceToken traceToken;
+        NO_UNIQUE_ADDRESS ImageCache::TraceToken traceToken;
     };
 
     void startGeneration();

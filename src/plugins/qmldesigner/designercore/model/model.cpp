@@ -46,6 +46,8 @@
 #include <QRegularExpression>
 #include <qcompilerdetection.h>
 
+#include <string>
+
 /*!
 \defgroup CoreModel
 */
@@ -473,9 +475,12 @@ void ModelPrivate::setMetaInfo(const MetaInfo &metaInfo)
 
 void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &id)
 {
+    using namespace NanotraceHR::Literals;
+
     const QString oldId = node->id;
 
     node->id = id;
+    node->traceToken.change("id"_t, std::forward_as_tuple("id", id));
     if (!oldId.isEmpty())
         m_idNodeHash.remove(oldId);
     if (!id.isEmpty())

@@ -23,8 +23,8 @@ template<typename TraceEvent>
 void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, std::thread::id threadId)
 {
     out << R"({"ph":")" << event.type << R"(","name":")" << event.name << R"(","cat":")"
-        << event.category << R"(","ts":")"
-        << static_cast<double>(event.time.time_since_epoch().count()) / 1000 << R"(","pid":)"
+        << event.category << R"(","ts":)"
+        << static_cast<double>(event.time.time_since_epoch().count()) / 1000 << R"(,"pid":)"
         << processId << R"(,"tid":)" << threadId;
 
     if (event.type == 'X')
@@ -94,6 +94,10 @@ template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringViewTraceEven
 template NANOTRACE_EXPORT void flushEvents(const Utils::span<StringTraceEvent> events,
                                            std::thread::id threadId,
                                            EnabledEventQueue<StringTraceEvent> &eventQueue);
+template NANOTRACE_EXPORT void flushEvents(
+    const Utils::span<StringViewWithStringArgumentsTraceEvent> events,
+    std::thread::id threadId,
+    EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
 void openFile(EnabledTraceFile &file)
 {
@@ -143,6 +147,8 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
 
 template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringViewTraceEvent> &eventQueue);
 template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringTraceEvent> &eventQueue);
+template NANOTRACE_EXPORT void flushInThread(
+    EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
 namespace {
 EnabledTraceFile globalTraceFile{"global.json"};
@@ -196,4 +202,6 @@ void EventQueue<TraceEvent, std::true_type>::flush()
 
 template class EventQueue<StringViewTraceEvent, std::true_type>;
 template class EventQueue<StringTraceEvent, std::true_type>;
+template class EventQueue<StringViewWithStringArgumentsTraceEvent, std::true_type>;
+
 } // namespace NanotraceHR

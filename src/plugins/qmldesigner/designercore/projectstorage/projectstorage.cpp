@@ -3,20 +3,15 @@
 
 #include "projectstorage.h"
 
+#include <tracing/qmldesignertracing.h>
+
 #include <sqlitedatabase.h>
 
 namespace QmlDesigner {
 
-namespace {
-NanotraceHR::TraceFile<projectStorageTracingIsEnabled()> traceFile{"projectstorage.json"};
-
-thread_local auto eventQueueData = NanotraceHR::makeEventQueueData<NanotraceHR::StringViewTraceEvent, 1000>(
-    traceFile);
-thread_local NanotraceHR::EventQueue eventQueue = eventQueueData.createEventQueue();
-} // namespace
-
 thread_local NanotraceHR::StringViewCategory<projectStorageTracingIsEnabled()> projectStorageCategory{
-    "project storage"_t, eventQueue};
+    "project storage"_t, Tracing::eventQueue()};
+
 } // namespace QmlDesigner
 
 template class QmlDesigner::ProjectStorage<Sqlite::Database>;

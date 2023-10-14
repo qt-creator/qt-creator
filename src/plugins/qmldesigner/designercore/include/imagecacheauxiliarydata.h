@@ -27,7 +27,7 @@ constexpr bool tracingIsEnabled()
 }
 
 using Category = NanotraceHR::StringViewCategory<tracingIsEnabled()>;
-using TraceToken = Category::TokenType;
+using TraceToken = Category::AsynchronousTokenType;
 Category &category();
 
 class FontCollectorSizeAuxiliaryData
