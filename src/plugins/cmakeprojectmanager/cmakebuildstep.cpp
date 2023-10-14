@@ -261,6 +261,8 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
             env.set("NINJA_STATUS", ninjaProgressString + "%o/sec] ");
         env.modify(m_userEnvironmentChanges);
 
+        env.setFallback("CLICOLOR_FORCE", "1");
+
         if (useStaging())
             env.set("DESTDIR", stagingDir().path());
     });
