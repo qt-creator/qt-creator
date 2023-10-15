@@ -172,11 +172,11 @@ using StringTraceEvent = TraceEvent<std::string, std::string>;
 
 enum class IsEnabled { No, Yes };
 
-template<typename TraceEvent, typename Enabled>
+template<typename TraceEvent, bool isEnabled>
 class EventQueue;
 
 template<typename TraceEvent>
-using EnabledEventQueue = EventQueue<TraceEvent, std::true_type>;
+using EnabledEventQueue = EventQueue<TraceEvent, true>;
 
 template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,
@@ -241,7 +241,7 @@ public:
     std::ofstream out;
 };
 
-template<typename TraceEvent, typename Enabled>
+template<typename TraceEvent, bool isEnabled>
 class EventQueue
 {
 public:
@@ -249,7 +249,7 @@ public:
 };
 
 template<typename TraceEvent>
-class EventQueue<TraceEvent, std::true_type>
+class EventQueue<TraceEvent, true>
 {
     using TraceEventsSpan = Utils::span<TraceEvent>;
 
@@ -277,21 +277,23 @@ public:
     std::mutex mutex;
 };
 
-extern template class NANOTRACE_EXPORT EventQueue<StringViewTraceEvent, std::true_type>;
-extern template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, std::true_type>;
-extern template class NANOTRACE_EXPORT EventQueue<StringViewWithStringArgumentsTraceEvent, std::true_type>;
+extern template class NANOTRACE_EXPORT EventQueue<StringViewTraceEvent, true>;
+extern template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, true>;
+extern template class NANOTRACE_EXPORT EventQueue<StringViewWithStringArgumentsTraceEvent, true>;
 
-template<typename TraceEvent, std::size_t eventCount, typename Enabled>
+template<typename TraceEvent, std::size_t eventCount, bool isEnabled>
 class EventQueueData
 {
 public:
-    using IsActive = Enabled;
+    using IsActive = std::true_type;
 
     EventQueueData(TraceFile<false> &) {}
+
+    EventQueue<TraceEvent, false> createEventQueue() { return {}; }
 };
 
 template<typename TraceEvent, std::size_t eventCount>
-class EventQueueData<TraceEvent, eventCount, std::true_type>
+class EventQueueData<TraceEvent, eventCount, true>
 {
     using TraceEvents = std::array<TraceEvent, eventCount>;
 
@@ -302,45 +304,14 @@ public:
         : file{file}
     {}
 
+    EventQueue<TraceEvent, true> createEventQueue() { return {&file, eventsOne, eventsTwo}; }
+
     EnabledTraceFile &file;
     TraceEvents eventsOne;
     TraceEvents eventsTwo;
 };
 
-template<typename TraceEvent, std::size_t eventCount, typename Enabled>
-struct EventQueueDataPointer
-{
-    EventQueue<TraceEvent, std::false_type> createEventQueue() const { return {}; }
-};
-
-template<typename TraceEvent, std::size_t eventCount>
-struct EventQueueDataPointer<TraceEvent, eventCount, std::true_type>
-{
-    EnabledEventQueue<TraceEvent> createEventQueue() const
-    {
-        if constexpr (isTracerActive()) {
-            return {&data->file, data->eventsOne, data->eventsTwo};
-        } else {
-            return {};
-        }
-    }
-
-    std::unique_ptr<EventQueueData<TraceEvent, eventCount, std::true_type>> data;
-};
-
-template<typename TraceEvent, std::size_t eventCount, typename TraceFile>
-EventQueueDataPointer<TraceEvent, eventCount, typename TraceFile::IsActive> makeEventQueueData(
-    TraceFile &file)
-{
-    if constexpr (isTracerActive() && std::is_same_v<typename TraceFile::IsActive, std::true_type>) {
-        return {std::make_unique<EventQueueData<TraceEvent, eventCount, typename TraceFile::IsActive>>(
-            file)};
-    } else {
-        return {};
-    }
-}
-
-NANOTRACE_EXPORT EnabledEventQueue<StringTraceEvent> &globalEventQueue();
+NANOTRACE_EXPORT EventQueue<StringTraceEvent, isTracerActive()> &globalEventQueue();
 
 template<typename TraceEvent>
 TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
@@ -578,9 +549,9 @@ public:
     using AsynchronousTokenType = AsynchronousToken<Category, false>;
     using ObjectTokenType = ObjectToken<Category, false>;
 
-    Category(ArgumentType, EventQueue<TraceEvent, std::true_type> &) {}
+    Category(ArgumentType, EventQueue<TraceEvent, true> &) {}
 
-    Category(ArgumentType, EventQueue<TraceEvent, std::false_type> &) {}
+    Category(ArgumentType, EventQueue<TraceEvent, false> &) {}
 
     template<typename... Arguments>
     AsynchronousTokenType beginAsynchronous(ArgumentType, Arguments &&...)
@@ -852,6 +823,7 @@ private:
 template<typename Category>
 Tracer(TracerLiteral name, Category &category) -> Tracer<Category>;
 
+#ifdef NANOTRACE_ENABLED
 class GlobalTracer
 {
 public:
@@ -892,5 +864,16 @@ private:
     std::string m_category;
     std::string m_arguments;
 };
+#else
+class GlobalTracer
+{
+public:
+    GlobalTracer(std::string_view, std::string_view, std::string_view) {}
+
+    GlobalTracer(std::string_view, std::string_view) {}
+
+    ~GlobalTracer() {}
+};
+#endif
 
 } // namespace NanotraceHR

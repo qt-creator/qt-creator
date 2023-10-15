@@ -151,20 +151,21 @@ template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
 namespace {
-EnabledTraceFile globalTraceFile{"global.json"};
-thread_local auto globalEventQueueData = makeEventQueueData<StringTraceEvent, 1000>(globalTraceFile);
+TraceFile<isTracerActive()> globalTraceFile{"global.json"};
+thread_local EventQueueData<StringTraceEvent, 1000, isTracerActive()> globalEventQueueData{
+    globalTraceFile};
 thread_local EventQueue s_globalEventQueue = globalEventQueueData.createEventQueue();
 } // namespace
 
-EnabledEventQueue<StringTraceEvent> &globalEventQueue()
+EventQueue<StringTraceEvent, isTracerActive()> &globalEventQueue()
 {
     return s_globalEventQueue;
 }
 
 template<typename TraceEvent>
-EventQueue<TraceEvent, std::true_type>::EventQueue(EnabledTraceFile *file,
-                                                   TraceEventsSpan eventsOne,
-                                                   TraceEventsSpan eventsTwo)
+EventQueue<TraceEvent, true>::EventQueue(EnabledTraceFile *file,
+                                         TraceEventsSpan eventsOne,
+                                         TraceEventsSpan eventsTwo)
     : file{file}
     , eventsOne{eventsOne}
     , eventsTwo{eventsTwo}
@@ -183,7 +184,7 @@ EventQueue<TraceEvent, std::true_type>::EventQueue(EnabledTraceFile *file,
 }
 
 template<typename TraceEvent>
-EventQueue<TraceEvent, std::true_type>::~EventQueue()
+EventQueue<TraceEvent, true>::~EventQueue()
 {
     flush();
     if (connection)
@@ -191,7 +192,7 @@ EventQueue<TraceEvent, std::true_type>::~EventQueue()
 }
 
 template<typename TraceEvent>
-void EventQueue<TraceEvent, std::true_type>::flush()
+void EventQueue<TraceEvent, true>::flush()
 {
     std::lock_guard lock{mutex};
     if (isEnabled == IsEnabled::Yes && eventsIndex > 0) {
@@ -200,8 +201,8 @@ void EventQueue<TraceEvent, std::true_type>::flush()
     }
 }
 
-template class EventQueue<StringViewTraceEvent, std::true_type>;
-template class EventQueue<StringTraceEvent, std::true_type>;
-template class EventQueue<StringViewWithStringArgumentsTraceEvent, std::true_type>;
+template class EventQueue<StringViewTraceEvent, true>;
+template class EventQueue<StringTraceEvent, true>;
+template class EventQueue<StringViewWithStringArgumentsTraceEvent, true>;
 
 } // namespace NanotraceHR

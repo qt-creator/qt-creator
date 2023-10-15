@@ -31,8 +31,8 @@ using TraceFile = NanotraceHR::TraceFile<sqliteTracingIsEnabled()>;
 
 TraceFile traceFile{"sqlite.json"};
 
-thread_local auto eventQueueData = NanotraceHR::makeEventQueueData<NanotraceHR::StringViewTraceEvent, 10000>(
-    traceFile);
+thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewTraceEvent, 10000, sqliteTracingIsEnabled()>
+    eventQueueData(traceFile);
 thread_local NanotraceHR::EventQueue eventQueue = eventQueueData.createEventQueue();
 
 thread_local NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> sqliteLowLevelCategory{

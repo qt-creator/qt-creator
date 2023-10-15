@@ -9,11 +9,6 @@
 
 namespace QmlDesigner {
 namespace Tracing {
-#ifdef ENABLE_QMLDESIGNER_TRACING
-using Enabled = std::true_type;
-#else
-using Enabled = std::false_type;
-#endif
 
 constexpr bool tracingIsEnabled()
 {
@@ -24,7 +19,7 @@ constexpr bool tracingIsEnabled()
 #endif
 }
 
-using EventQueue = NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent, Enabled>;
+using EventQueue = NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent, tracingIsEnabled()>;
 QMLDESIGNERCORE_EXPORT EventQueue &eventQueue();
 
 } // namespace Tracing

@@ -11,12 +11,12 @@ using TraceFile = NanotraceHR::TraceFile<tracingIsEnabled()>;
 
 TraceFile traceFile{"qml_designer.json"};
 
-thread_local auto strinViewEventQueueData = NanotraceHR::makeEventQueueData<NanotraceHR::StringViewTraceEvent,
-                                                                            10000>(traceFile);
+thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewTraceEvent, 10000, tracingIsEnabled()>
+    strinViewEventQueueData(traceFile);
 thread_local NanotraceHR::EventQueue stringViewEventQueue_ = strinViewEventQueueData.createEventQueue();
 
-thread_local auto stringViewWithStringArgumentsEventQueueData = NanotraceHR::
-    makeEventQueueData<NanotraceHR::StringViewWithStringArgumentsTraceEvent, 1000>(traceFile);
+thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewWithStringArgumentsTraceEvent, 1000, tracingIsEnabled()>
+    stringViewWithStringArgumentsEventQueueData(traceFile);
 thread_local NanotraceHR::EventQueue stringViewEventWithStringArgumentsQueue_ = stringViewWithStringArgumentsEventQueueData
                                                                                     .createEventQueue();
 } // namespace
