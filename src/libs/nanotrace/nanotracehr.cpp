@@ -19,6 +19,18 @@ namespace NanotraceHR {
 
 namespace {
 
+bool hasId(char phase)
+{
+    switch (phase) {
+    case 'b':
+    case 'n':
+    case 'e':
+        return true;
+    }
+
+    return false;
+}
+
 template<typename TraceEvent>
 void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, std::thread::id threadId)
 {
@@ -30,7 +42,7 @@ void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, st
     if (event.type == 'X')
         out << R"(,"dur":)" << static_cast<double>(event.duration.count()) / 1000;
 
-    if (event.id != 0)
+    if (hasId(event.type))
         out << R"(,"id":")" << event.id << R"(")";
 
     if (event.arguments.size())
