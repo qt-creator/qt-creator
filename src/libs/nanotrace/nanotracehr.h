@@ -50,6 +50,31 @@ constexpr Tracing tracingStatus()
 #  define NO_UNIQUE_ADDRESS
 #endif
 
+namespace Literals {
+struct TracerLiteral
+{
+    friend constexpr TracerLiteral operator""_t(const char *text, size_t size);
+
+    constexpr operator std::string_view() const { return text; }
+
+    operator std::string() const { return std::string{text}; }
+
+private:
+    constexpr TracerLiteral(std::string_view text)
+        : text{text}
+    {}
+
+    std::string_view text;
+};
+
+constexpr TracerLiteral operator""_t(const char *text, size_t size)
+{
+    return {std::string_view{text, size}};
+}
+} // namespace Literals
+
+using namespace Literals;
+
 namespace Internal {
 inline std::string_view covertToString(std::string_view text)
 {
@@ -99,7 +124,7 @@ String toArguments(Arguments &&...arguments)
     if constexpr (tracingStatus() == Tracing::IsEnabled) {
         String text;
         constexpr auto argumentCount = sizeof...(Arguments);
-        text.reserve(sizeof...(Arguments) * 20);
+        text.reserve(sizeof...(Arguments) * 30);
         text.append("{");
         (toArgument(text, arguments), ...);
         if (argumentCount)
@@ -118,32 +143,29 @@ inline std::string_view toArguments(std::string_view arguments)
     return arguments;
 }
 
-} // namespace Internal
-
-namespace Literals {
-struct TracerLiteral
+template<typename String>
+void appendArguments(String &eventArguments)
 {
-    friend constexpr TracerLiteral operator""_t(const char *text, size_t size);
-
-    constexpr operator std::string_view() const { return text; }
-
-    operator std::string() const { return std::string{text}; }
-
-private:
-    constexpr TracerLiteral(std::string_view text)
-        : text{text}
-    {}
-
-    std::string_view text;
-};
-
-constexpr TracerLiteral operator""_t(const char *text, size_t size)
-{
-    return {std::string_view{text, size}};
+    eventArguments = {};
 }
-} // namespace Literals
 
-using namespace Literals;
+template<typename String>
+void appendArguments(String &eventArguments, TracerLiteral arguments)
+{
+    eventArguments = arguments;
+}
+
+template<typename String, typename... Arguments>
+[[maybe_unused]] void appendArguments(String &eventArguments, Arguments &&...arguments)
+{
+    static_assert(
+        !std::is_same_v<String, std::string_view>,
+        R"(The arguments type of the tracing event queue is a string view. You can only provide trace token arguments as TracerLiteral (""_t).)");
+
+    eventArguments = Internal::toArguments<String>(std::forward<Arguments>(arguments)...);
+}
+
+} // namespace Internal
 
 template<typename String, typename ArgumentsString>
 struct TraceEvent
@@ -635,24 +657,6 @@ public:
     static constexpr bool isActive() { return true; }
 
 private:
-    static void appendArguments(TraceEvent &) {}
-
-    static void appendArguments(TraceEvent &traceEvent, TracerLiteral arguments)
-    {
-        traceEvent.arguments = arguments;
-    }
-
-    template<typename LocalTraceEvent, typename... Arguments>
-    static void appendArguments(LocalTraceEvent &traceEvent, Arguments &&...arguments)
-    {
-        using String = typename LocalTraceEvent::ArgumentsStringType;
-        static_assert(
-            !std::is_same_v<String, std::string_view>,
-            R"(The arguments type of the tracing event queue is a string view. You can only provide trace token arguments as TracerLiteral (""_t).)");
-
-        traceEvent.arguments = Internal::toArguments<String>(std::forward<Arguments>(arguments)...);
-    }
-
     template<typename... Arguments>
     void begin(char type, std::size_t id, StringType traceName, Arguments &&...arguments)
     {
@@ -662,7 +666,7 @@ private:
         traceEvent.category = m_name;
         traceEvent.type = type;
         traceEvent.id = id;
-        appendArguments(traceEvent, std::forward<Arguments>(arguments)...);
+        Internal::appendArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
         traceEvent.time = Clock::now();
     }
 
@@ -678,7 +682,7 @@ private:
         traceEvent.time = time;
         traceEvent.type = type;
         traceEvent.id = id;
-        appendArguments(traceEvent, std::forward<Arguments>(arguments)...);
+        Internal::appendArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
     }
 
     template<typename... Arguments>
@@ -693,7 +697,7 @@ private:
         traceEvent.time = time;
         traceEvent.type = type;
         traceEvent.id = id;
-        appendArguments(traceEvent, std::forward<Arguments>(arguments)...);
+        Internal::appendArguments(traceEvent.arguments, std::forward<Arguments>(arguments)...);
     }
 
 private:
@@ -710,15 +714,15 @@ using StringCategory = Category<StringTraceEvent, isEnabled>;
 template<Tracing isEnabled>
 using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgumentsTraceEvent, isEnabled>;
 
-template<typename Category>
+template<typename Category, typename IsActive>
 class Tracer
 {
 public:
     using ArgumentType = typename Category::ArgumentType;
 
-    constexpr Tracer(ArgumentType, Category &, ArgumentType) {}
-
-    constexpr Tracer(ArgumentType, Category &) {}
+    template<typename... Arguments>
+    Tracer(ArgumentType, Category &, Arguments &&...)
+    {}
 
     Tracer(const Tracer &) = delete;
     Tracer &operator=(const Tracer &) = delete;
@@ -727,33 +731,29 @@ public:
     ~Tracer() {}
 };
 
-template<>
-class Tracer<StringViewCategory<Tracing::IsEnabled>>
+template<typename Category>
+class Tracer<Category, std::true_type>
 {
+    using ArgumentType = typename Category::ArgumentType;
+    using StringType = typename Category::StringType;
+    using ArgumentsStringType = typename Category::ArgumentsStringType;
+
 public:
-    Tracer(TracerLiteral name, StringViewCategory<Tracing::IsEnabled> &category, TracerLiteral arguments)
+    template<typename... Arguments>
+    Tracer(ArgumentType name, Category &category, Arguments &&...arguments)
         : m_name{name}
-        , m_arguments{arguments}
         , m_category{category}
     {
-        if constexpr (tracingStatus() == Tracing::IsEnabled) {
-            if (category.eventQueue().isEnabled == IsEnabled::Yes)
-                m_start = Clock::now();
-        }
-    }
-
-    Tracer(TracerLiteral name, StringViewCategory<Tracing::IsEnabled> &category)
-        : Tracer{name, category, ""_t}
-    {
-        if constexpr (tracingStatus() == Tracing::IsEnabled) {
-            if (category.eventQueue().isEnabled == IsEnabled::Yes)
-                m_start = Clock::now();
+        if (category.eventQueue().isEnabled == IsEnabled::Yes) {
+            Internal::appendArguments<ArgumentsStringType>(m_arguments,
+                                                           std::forward<Arguments>(arguments)...);
+            m_start = Clock::now();
         }
     }
 
     Tracer(const Tracer &) = delete;
     Tracer &operator=(const Tracer &) = delete;
-    Tracer(Tracer &&other) noexcept = default;
+    Tracer(Tracer &&other) noexcept = delete;
     Tracer &operator=(Tracer &&other) noexcept = delete;
     ~Tracer()
     {
@@ -773,93 +773,41 @@ public:
 
 private:
     TimePoint m_start;
-    std::string_view m_name;
-    std::string_view m_arguments;
-    StringViewCategory<Tracing::IsEnabled> &m_category;
+    StringType m_name;
+    StringType m_arguments;
+    Category &m_category;
 };
 
-template<>
-class Tracer<StringCategory<Tracing::IsEnabled>>
-{
-public:
-    Tracer(std::string name, StringViewCategory<Tracing::IsEnabled> &category, std::string arguments)
-        : m_name{std::move(name)}
-        , m_arguments{std::move(arguments)}
-        , m_category{category}
-    {
-        if constexpr (tracingStatus() == Tracing::IsEnabled) {
-            if (category.eventQueue().isEnabled == IsEnabled::Yes)
-                m_start = Clock::now();
-        }
-    }
-
-    Tracer(std::string name, StringViewCategory<Tracing::IsEnabled> &category)
-        : Tracer{std::move(name), category, ""}
-    {
-        if constexpr (tracingStatus() == Tracing::IsEnabled) {
-            if (category.eventQueue().isEnabled == IsEnabled::Yes)
-                m_start = Clock::now();
-        }
-    }
-
-    ~Tracer()
-    {
-        if constexpr (tracingStatus() == Tracing::IsEnabled) {
-            if (m_category.eventQueue().isEnabled == IsEnabled::Yes) {
-                auto duration = Clock::now() - m_start;
-                auto &traceEvent = getTraceEvent(m_category.eventQueue());
-                traceEvent.name = std::move(m_name);
-                traceEvent.category = m_category.name();
-                traceEvent.arguments = std::move(m_arguments);
-                traceEvent.time = m_start;
-                traceEvent.duration = duration;
-                traceEvent.type = 'X';
-            }
-        }
-    }
-
-private:
-    TimePoint m_start;
-    std::string m_name;
-    std::string m_arguments;
-    StringViewCategory<Tracing::IsEnabled> &m_category;
-};
-
-template<typename Category>
-Tracer(TracerLiteral name, Category &category) -> Tracer<Category>;
+template<typename Category, typename... Arguments>
+Tracer(typename Category::ArgumentType name, Category &category, Arguments &&...)
+    -> Tracer<Category, typename Category::IsActive>;
 
 #ifdef NANOTRACE_ENABLED
 class GlobalTracer
 {
 public:
-    GlobalTracer(std::string name, std::string category, std::string arguments)
+    template<typename... Arguments>
+    GlobalTracer(std::string name, std::string category, Arguments &&...arguments)
         : m_name{std::move(name)}
         , m_category{std::move(category)}
-        , m_arguments{std::move(arguments)}
     {
-        if constexpr (tracingStatus() == Tracing::IsEnabled) {
-            if (globalEventQueue().isEnabled == IsEnabled::Yes)
-                m_start = Clock::now();
+        if (globalEventQueue().isEnabled == IsEnabled::Yes) {
+            Internal::appendArguments(m_arguments, std::forward<Arguments>(arguments)...);
+            m_start = Clock::now();
         }
     }
 
-    GlobalTracer(std::string name, std::string category)
-        : GlobalTracer{std::move(name), std::move(category), ""}
-    {}
-
     ~GlobalTracer()
     {
-        if constexpr (tracingStatus() == Tracing::IsEnabled) {
-            if (globalEventQueue().isEnabled == IsEnabled::Yes) {
-                auto duration = Clock::now() - m_start;
-                auto &traceEvent = getTraceEvent(globalEventQueue());
-                traceEvent.name = std::move(m_name);
-                traceEvent.category = std::move(m_category);
-                traceEvent.arguments = std::move(m_arguments);
-                traceEvent.time = std::move(m_start);
-                traceEvent.duration = std::move(duration);
-                traceEvent.type = 'X';
-            }
+        if (globalEventQueue().isEnabled == IsEnabled::Yes) {
+            auto duration = Clock::now() - m_start;
+            auto &traceEvent = getTraceEvent(globalEventQueue());
+            traceEvent.name = std::move(m_name);
+            traceEvent.category = std::move(m_category);
+            traceEvent.arguments = std::move(m_arguments);
+            traceEvent.time = std::move(m_start);
+            traceEvent.duration = std::move(duration);
+            traceEvent.type = 'X';
         }
     }
 
