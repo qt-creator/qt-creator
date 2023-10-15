@@ -7,15 +7,15 @@ namespace QmlDesigner {
 namespace Tracing {
 
 namespace {
-using TraceFile = NanotraceHR::TraceFile<tracingIsEnabled()>;
+using TraceFile = NanotraceHR::TraceFile<tracingStatus()>;
 
 TraceFile traceFile{"qml_designer.json"};
 
-thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewTraceEvent, 10000, tracingIsEnabled()>
+thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewTraceEvent, 10000, tracingStatus()>
     strinViewEventQueueData(traceFile);
 thread_local NanotraceHR::EventQueue stringViewEventQueue_ = strinViewEventQueueData.createEventQueue();
 
-thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewWithStringArgumentsTraceEvent, 1000, tracingIsEnabled()>
+thread_local NanotraceHR::EventQueueData<NanotraceHR::StringViewWithStringArgumentsTraceEvent, 1000, tracingStatus()>
     stringViewWithStringArgumentsEventQueueData(traceFile);
 thread_local NanotraceHR::EventQueue stringViewEventWithStringArgumentsQueue_ = stringViewWithStringArgumentsEventQueueData
                                                                                     .createEventQueue();

@@ -28,16 +28,16 @@ namespace QmlDesigner {
 
 using namespace NanotraceHR::Literals;
 
-constexpr bool projectStorageTracingIsEnabled()
+constexpr NanotraceHR::Tracing projectStorageTracingStatus()
 {
 #ifdef ENABLE_PROJECT_STORAGE_TRACING
-    return NanotraceHR::isTracerActive();
+    return NanotraceHR::tracingStatus();
 #else
-    return false;
+    return NanotraceHR::Tracing::IsDisabled;
 #endif
 }
 
-extern thread_local NanotraceHR::StringViewCategory<projectStorageTracingIsEnabled()> projectStorageCategory;
+extern thread_local NanotraceHR::StringViewCategory<projectStorageTracingStatus()> projectStorageCategory;
 
 template<typename Database>
 class ProjectStorage final : public ProjectStorageInterface

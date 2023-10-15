@@ -17,16 +17,16 @@ namespace QmlDesigner {
 
 namespace ImageCache {
 
-constexpr bool tracingIsEnabled()
+constexpr NanotraceHR::Tracing tracingStatus()
 {
 #ifdef ENABLE_IMAGE_CACHE_TRACING
     return NanotraceHR::isTracerActive();
 #else
-    return false;
+    return NanotraceHR::Tracing::IsDisabled;
 #endif
 }
 
-using Category = NanotraceHR::StringViewCategory<tracingIsEnabled()>;
+using Category = NanotraceHR::StringViewCategory<tracingStatus()>;
 using TraceToken = Category::AsynchronousTokenType;
 Category &category();
 

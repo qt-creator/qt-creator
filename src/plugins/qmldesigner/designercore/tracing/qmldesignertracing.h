@@ -10,31 +10,31 @@
 namespace QmlDesigner {
 namespace Tracing {
 
-constexpr bool tracingIsEnabled()
+constexpr NanotraceHR::Tracing tracingStatus()
 {
 #ifdef ENABLE_QMLDESIGNER_TRACING
-    return NanotraceHR::isTracerActive();
+    return NanotraceHR::tracingStatus();
 #else
-    return false;
+    return NanotraceHR::Tracing::IsDisabled;
 #endif
 }
 
-using EventQueue = NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent, tracingIsEnabled()>;
+using EventQueue = NanotraceHR::EventQueue<NanotraceHR::StringViewTraceEvent, tracingStatus()>;
 QMLDESIGNERCORE_EXPORT EventQueue &eventQueue();
 
 } // namespace Tracing
 
 namespace ModelTracing {
-constexpr bool tracingIsEnabled()
+constexpr NanotraceHR::Tracing tracingStatus()
 {
 #ifdef ENABLE_MODEL_TRACING
-    return NanotraceHR::isTracerActive();
+    return NanotraceHR::tracingStatus();
 #else
-    return false;
+    return NanotraceHR::Tracing::IsDisabled;
 #endif
 }
 
-using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingIsEnabled()>;
+using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingStatus()>;
 using ObjectTraceToken = Category::ObjectTokenType;
 QMLDESIGNERCORE_EXPORT Category &category();
 

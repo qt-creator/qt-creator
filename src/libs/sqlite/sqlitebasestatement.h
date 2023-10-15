@@ -44,16 +44,16 @@ constexpr static std::underlying_type_t<Enumeration> to_underlying(Enumeration e
     return static_cast<std::underlying_type_t<Enumeration>>(enumeration);
 }
 
-constexpr bool sqliteTracingIsEnabled()
+constexpr NanotraceHR::Tracing sqliteTracingStatus()
 {
 #ifdef ENABLE_SQLITE_TRACING
-    return NanotraceHR::isTracerActive();
+    return NanotraceHR::tracingStatus();
 #else
-    return false;
+    return NanotraceHR::Tracing::IsDisabled;
 #endif
 }
 
-SQLITE_EXPORT NanotraceHR::StringViewCategory<sqliteTracingIsEnabled()> &sqliteHighLevelCategory();
+SQLITE_EXPORT NanotraceHR::StringViewCategory<sqliteTracingStatus()> &sqliteHighLevelCategory();
 
 class SQLITE_EXPORT BaseStatement
 {
@@ -401,7 +401,8 @@ public:
         const_iterator end() const & { return iterator{m_statement, false}; }
 
     private:
-        NanotraceHR::Tracer<std::decay_t<decltype(sqliteHighLevelCategory())>> tracer{
+        using TracerCategory = std::decay_t<decltype(sqliteHighLevelCategory())>;
+        NanotraceHR::Tracer<TracerCategory, typename TracerCategory::IsActive> tracer{
             "range"_t, sqliteHighLevelCategory()};
         StatementImplementation &m_statement;
     };

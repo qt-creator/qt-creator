@@ -39,7 +39,7 @@ void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, st
     out << "}";
 }
 
-void writeMetaEvent(TraceFile<true> *file, std::string_view key, std::string_view value)
+void writeMetaEvent(TraceFile<Tracing::IsEnabled> *file, std::string_view key, std::string_view value)
 {
     std::lock_guard lock{file->fileMutex};
     auto &out = file->out;
@@ -151,21 +151,21 @@ template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
 namespace {
-TraceFile<isTracerActive()> globalTraceFile{"global.json"};
-thread_local EventQueueData<StringTraceEvent, 1000, isTracerActive()> globalEventQueueData{
+TraceFile<tracingStatus()> globalTraceFile{"global.json"};
+thread_local EventQueueData<StringTraceEvent, 1000, tracingStatus()> globalEventQueueData{
     globalTraceFile};
 thread_local EventQueue s_globalEventQueue = globalEventQueueData.createEventQueue();
 } // namespace
 
-EventQueue<StringTraceEvent, isTracerActive()> &globalEventQueue()
+EventQueue<StringTraceEvent, tracingStatus()> &globalEventQueue()
 {
     return s_globalEventQueue;
 }
 
 template<typename TraceEvent>
-EventQueue<TraceEvent, true>::EventQueue(EnabledTraceFile *file,
-                                         TraceEventsSpan eventsOne,
-                                         TraceEventsSpan eventsTwo)
+EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile *file,
+                                                       TraceEventsSpan eventsOne,
+                                                       TraceEventsSpan eventsTwo)
     : file{file}
     , eventsOne{eventsOne}
     , eventsTwo{eventsTwo}
@@ -184,7 +184,7 @@ EventQueue<TraceEvent, true>::EventQueue(EnabledTraceFile *file,
 }
 
 template<typename TraceEvent>
-EventQueue<TraceEvent, true>::~EventQueue()
+EventQueue<TraceEvent, Tracing::IsEnabled>::~EventQueue()
 {
     flush();
     if (connection)
@@ -192,7 +192,7 @@ EventQueue<TraceEvent, true>::~EventQueue()
 }
 
 template<typename TraceEvent>
-void EventQueue<TraceEvent, true>::flush()
+void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
 {
     std::lock_guard lock{mutex};
     if (isEnabled == IsEnabled::Yes && eventsIndex > 0) {
@@ -201,8 +201,8 @@ void EventQueue<TraceEvent, true>::flush()
     }
 }
 
-template class EventQueue<StringViewTraceEvent, true>;
-template class EventQueue<StringTraceEvent, true>;
-template class EventQueue<StringViewWithStringArgumentsTraceEvent, true>;
+template class EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
+template class EventQueue<StringTraceEvent, Tracing::IsEnabled>;
+template class EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
 
 } // namespace NanotraceHR

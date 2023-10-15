@@ -31,12 +31,14 @@ static_assert(Clock::is_steady, "clock should be steady");
 static_assert(std::is_same_v<Clock::duration, std::chrono::nanoseconds>,
               "the steady clock should have nano second resolution");
 
-constexpr bool isTracerActive()
+enum class Tracing { IsDisabled, IsEnabled };
+
+constexpr Tracing tracingStatus()
 {
 #ifdef NANOTRACE_ENABLED
-    return true;
+    return Tracing::IsEnabled;
 #else
-    return false;
+    return Tracing::IsDisabled;
 #endif
 }
 
@@ -94,7 +96,7 @@ void toArgument(String &text, Argument &&argument)
 template<typename String, typename... Arguments>
 String toArguments(Arguments &&...arguments)
 {
-    if constexpr (isTracerActive()) {
+    if constexpr (tracingStatus() == Tracing::IsEnabled) {
         String text;
         constexpr auto argumentCount = sizeof...(Arguments);
         text.reserve(sizeof...(Arguments) * 20);
@@ -172,11 +174,11 @@ using StringTraceEvent = TraceEvent<std::string, std::string>;
 
 enum class IsEnabled { No, Yes };
 
-template<typename TraceEvent, bool isEnabled>
+template<typename TraceEvent, Tracing isEnabled>
 class EventQueue;
 
 template<typename TraceEvent>
-using EnabledEventQueue = EventQueue<TraceEvent, true>;
+using EnabledEventQueue = EventQueue<TraceEvent, Tracing::IsEnabled>;
 
 template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,
@@ -199,15 +201,15 @@ extern template NANOTRACE_EXPORT void flushInThread(EnabledEventQueue<StringTrac
 extern template NANOTRACE_EXPORT void flushInThread(
     EnabledEventQueue<StringViewWithStringArgumentsTraceEvent> &eventQueue);
 
-template<bool enable>
+template<Tracing isEnabled>
 class TraceFile;
 
-using EnabledTraceFile = TraceFile<true>;
+using EnabledTraceFile = TraceFile<Tracing::IsEnabled>;
 
 NANOTRACE_EXPORT void openFile(EnabledTraceFile &file);
 NANOTRACE_EXPORT void finalizeFile(EnabledTraceFile &file);
 
-template<bool enable>
+template<Tracing isEnabled>
 class TraceFile
 {
 public:
@@ -217,7 +219,7 @@ public:
 };
 
 template<>
-class TraceFile<true>
+class TraceFile<Tracing::IsEnabled>
 {
 public:
     using IsActive = std::true_type;
@@ -241,7 +243,7 @@ public:
     std::ofstream out;
 };
 
-template<typename TraceEvent, bool isEnabled>
+template<typename TraceEvent, Tracing isEnabled>
 class EventQueue
 {
 public:
@@ -249,7 +251,7 @@ public:
 };
 
 template<typename TraceEvent>
-class EventQueue<TraceEvent, true>
+class EventQueue<TraceEvent, Tracing::IsEnabled>
 {
     using TraceEventsSpan = Utils::span<TraceEvent>;
 
@@ -277,23 +279,23 @@ public:
     std::mutex mutex;
 };
 
-extern template class NANOTRACE_EXPORT EventQueue<StringViewTraceEvent, true>;
-extern template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, true>;
-extern template class NANOTRACE_EXPORT EventQueue<StringViewWithStringArgumentsTraceEvent, true>;
+extern template class NANOTRACE_EXPORT EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, Tracing::IsEnabled>;
+extern template class NANOTRACE_EXPORT EventQueue<StringViewWithStringArgumentsTraceEvent, Tracing::IsEnabled>;
 
-template<typename TraceEvent, std::size_t eventCount, bool isEnabled>
+template<typename TraceEvent, std::size_t eventCount, Tracing isEnabled>
 class EventQueueData
 {
 public:
     using IsActive = std::true_type;
 
-    EventQueueData(TraceFile<false> &) {}
+    EventQueueData(TraceFile<Tracing::IsDisabled> &) {}
 
-    EventQueue<TraceEvent, false> createEventQueue() { return {}; }
+    EventQueue<TraceEvent, Tracing::IsDisabled> createEventQueue() { return {}; }
 };
 
 template<typename TraceEvent, std::size_t eventCount>
-class EventQueueData<TraceEvent, eventCount, true>
+class EventQueueData<TraceEvent, eventCount, Tracing::IsEnabled>
 {
     using TraceEvents = std::array<TraceEvent, eventCount>;
 
@@ -304,14 +306,17 @@ public:
         : file{file}
     {}
 
-    EventQueue<TraceEvent, true> createEventQueue() { return {&file, eventsOne, eventsTwo}; }
+    EventQueue<TraceEvent, Tracing::IsEnabled> createEventQueue()
+    {
+        return {&file, eventsOne, eventsTwo};
+    }
 
     EnabledTraceFile &file;
     TraceEvents eventsOne;
     TraceEvents eventsTwo;
 };
 
-NANOTRACE_EXPORT EventQueue<StringTraceEvent, isTracerActive()> &globalEventQueue();
+NANOTRACE_EXPORT EventQueue<StringTraceEvent, tracingStatus()> &globalEventQueue();
 
 template<typename TraceEvent>
 TraceEvent &getTraceEvent(EnabledEventQueue<TraceEvent> &eventQueue)
@@ -359,7 +364,7 @@ public:
     static constexpr bool isActive() { return false; }
 };
 
-template<typename Category, bool enabled>
+template<typename Category, Tracing isEnabled>
 class ObjectToken : public BasicDisabledToken
 {
 public:
@@ -378,7 +383,7 @@ public:
 };
 
 template<typename Category>
-class ObjectToken<Category, true> : public BasicEnabledToken
+class ObjectToken<Category, Tracing::IsEnabled> : public BasicEnabledToken
 {
     ObjectToken(std::string_view name, std::size_t id, Category &category)
         : m_name{name}
@@ -436,7 +441,7 @@ private:
     Category *m_category = nullptr;
 };
 
-template<typename Category, bool enabled>
+template<typename Category, Tracing isEnabled>
 class AsynchronousToken : public BasicDisabledToken
 {
 public:
@@ -466,11 +471,11 @@ public:
     {}
 };
 
-template<typename TraceEvent, bool enabled>
+template<typename TraceEvent, Tracing isEnabled>
 class Category;
 
 template<typename Category>
-class AsynchronousToken<Category, true> : public BasicEnabledToken
+class AsynchronousToken<Category, Tracing::IsEnabled> : public BasicEnabledToken
 {
     AsynchronousToken(std::string_view name, std::size_t id, Category &category)
         : m_name{name}
@@ -539,19 +544,19 @@ private:
     Category *m_category = nullptr;
 };
 
-template<typename TraceEvent, bool enabled>
+template<typename TraceEvent, Tracing isEnabled>
 class Category
 {
 public:
     using IsActive = std::false_type;
     using ArgumentType = typename TraceEvent::ArgumentType;
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
-    using AsynchronousTokenType = AsynchronousToken<Category, false>;
-    using ObjectTokenType = ObjectToken<Category, false>;
+    using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsDisabled>;
+    using ObjectTokenType = ObjectToken<Category, Tracing::IsDisabled>;
 
-    Category(ArgumentType, EventQueue<TraceEvent, true> &) {}
+    Category(ArgumentType, EventQueue<TraceEvent, Tracing::IsDisabled> &) {}
 
-    Category(ArgumentType, EventQueue<TraceEvent, false> &) {}
+    Category(ArgumentType, EventQueue<TraceEvent, Tracing::IsEnabled> &) {}
 
     template<typename... Arguments>
     AsynchronousTokenType beginAsynchronous(ArgumentType, Arguments &&...)
@@ -569,15 +574,15 @@ public:
 };
 
 template<typename TraceEvent>
-class Category<TraceEvent, true>
+class Category<TraceEvent, Tracing::IsEnabled>
 {
 public:
     using IsActive = std::true_type;
     using ArgumentType = typename TraceEvent::ArgumentType;
     using ArgumentsStringType = typename TraceEvent::ArgumentsStringType;
     using StringType = typename TraceEvent::StringType;
-    using AsynchronousTokenType = AsynchronousToken<Category, true>;
-    using ObjectTokenType = ObjectToken<Category, true>;
+    using AsynchronousTokenType = AsynchronousToken<Category, Tracing::IsEnabled>;
+    using ObjectTokenType = ObjectToken<Category, Tracing::IsEnabled>;
 
     friend AsynchronousTokenType;
     friend ObjectTokenType;
@@ -698,12 +703,12 @@ private:
     std::size_t idCounter;
 };
 
-template<bool enabled>
-using StringViewCategory = Category<StringViewTraceEvent, enabled>;
-template<bool enabled>
-using StringCategory = Category<StringTraceEvent, enabled>;
-template<bool enabled>
-using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgumentsTraceEvent, enabled>;
+template<Tracing isEnabled>
+using StringViewCategory = Category<StringViewTraceEvent, isEnabled>;
+template<Tracing isEnabled>
+using StringCategory = Category<StringTraceEvent, isEnabled>;
+template<Tracing isEnabled>
+using StringViewWithStringArgumentsCategory = Category<StringViewWithStringArgumentsTraceEvent, isEnabled>;
 
 template<typename Category>
 class Tracer
@@ -723,24 +728,24 @@ public:
 };
 
 template<>
-class Tracer<StringViewCategory<true>>
+class Tracer<StringViewCategory<Tracing::IsEnabled>>
 {
 public:
-    Tracer(TracerLiteral name, StringViewCategory<true> &category, TracerLiteral arguments)
+    Tracer(TracerLiteral name, StringViewCategory<Tracing::IsEnabled> &category, TracerLiteral arguments)
         : m_name{name}
         , m_arguments{arguments}
         , m_category{category}
     {
-        if constexpr (isTracerActive()) {
+        if constexpr (tracingStatus() == Tracing::IsEnabled) {
             if (category.eventQueue().isEnabled == IsEnabled::Yes)
                 m_start = Clock::now();
         }
     }
 
-    Tracer(TracerLiteral name, StringViewCategory<true> &category)
+    Tracer(TracerLiteral name, StringViewCategory<Tracing::IsEnabled> &category)
         : Tracer{name, category, ""_t}
     {
-        if constexpr (isTracerActive()) {
+        if constexpr (tracingStatus() == Tracing::IsEnabled) {
             if (category.eventQueue().isEnabled == IsEnabled::Yes)
                 m_start = Clock::now();
         }
@@ -752,7 +757,7 @@ public:
     Tracer &operator=(Tracer &&other) noexcept = delete;
     ~Tracer()
     {
-        if constexpr (isTracerActive()) {
+        if constexpr (tracingStatus() == Tracing::IsEnabled) {
             if (m_category.eventQueue().isEnabled == IsEnabled::Yes) {
                 auto duration = Clock::now() - m_start;
                 auto &traceEvent = getTraceEvent(m_category.eventQueue());
@@ -770,28 +775,28 @@ private:
     TimePoint m_start;
     std::string_view m_name;
     std::string_view m_arguments;
-    StringViewCategory<true> &m_category;
+    StringViewCategory<Tracing::IsEnabled> &m_category;
 };
 
 template<>
-class Tracer<StringCategory<true>>
+class Tracer<StringCategory<Tracing::IsEnabled>>
 {
 public:
-    Tracer(std::string name, StringViewCategory<true> &category, std::string arguments)
+    Tracer(std::string name, StringViewCategory<Tracing::IsEnabled> &category, std::string arguments)
         : m_name{std::move(name)}
         , m_arguments{std::move(arguments)}
         , m_category{category}
     {
-        if constexpr (isTracerActive()) {
+        if constexpr (tracingStatus() == Tracing::IsEnabled) {
             if (category.eventQueue().isEnabled == IsEnabled::Yes)
                 m_start = Clock::now();
         }
     }
 
-    Tracer(std::string name, StringViewCategory<true> &category)
+    Tracer(std::string name, StringViewCategory<Tracing::IsEnabled> &category)
         : Tracer{std::move(name), category, ""}
     {
-        if constexpr (isTracerActive()) {
+        if constexpr (tracingStatus() == Tracing::IsEnabled) {
             if (category.eventQueue().isEnabled == IsEnabled::Yes)
                 m_start = Clock::now();
         }
@@ -799,7 +804,7 @@ public:
 
     ~Tracer()
     {
-        if constexpr (isTracerActive()) {
+        if constexpr (tracingStatus() == Tracing::IsEnabled) {
             if (m_category.eventQueue().isEnabled == IsEnabled::Yes) {
                 auto duration = Clock::now() - m_start;
                 auto &traceEvent = getTraceEvent(m_category.eventQueue());
@@ -817,7 +822,7 @@ private:
     TimePoint m_start;
     std::string m_name;
     std::string m_arguments;
-    StringViewCategory<true> &m_category;
+    StringViewCategory<Tracing::IsEnabled> &m_category;
 };
 
 template<typename Category>
@@ -832,7 +837,7 @@ public:
         , m_category{std::move(category)}
         , m_arguments{std::move(arguments)}
     {
-        if constexpr (isTracerActive()) {
+        if constexpr (tracingStatus() == Tracing::IsEnabled) {
             if (globalEventQueue().isEnabled == IsEnabled::Yes)
                 m_start = Clock::now();
         }
@@ -844,7 +849,7 @@ public:
 
     ~GlobalTracer()
     {
-        if constexpr (isTracerActive()) {
+        if constexpr (tracingStatus() == Tracing::IsEnabled) {
             if (globalEventQueue().isEnabled == IsEnabled::Yes) {
                 auto duration = Clock::now() - m_start;
                 auto &traceEvent = getTraceEvent(globalEventQueue());
