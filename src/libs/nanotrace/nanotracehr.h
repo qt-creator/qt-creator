@@ -421,9 +421,25 @@ public:
 
     ObjectToken() = default;
 
-    ObjectToken(const ObjectToken &other) = delete;
+    ObjectToken(const ObjectToken &other)
+        : m_name{other.m_name}
+        , m_category{other.m_category}
+    {
+        if (other.m_id)
+            m_id = m_category->beginObject(m_name).m_id;
+    }
 
-    ObjectToken &operator=(const ObjectToken &other) = delete;
+    ObjectToken &operator=(const ObjectToken &other)
+    {
+        if (this != &other) {
+            ~ObjectToken();
+            if (other.m_id) {
+                m_category = other.m_category;
+                m_name = other.m_name;
+                m_id = other.m_category->beginObject(other.m_name).m_id;
+            }
+        }
+    }
 
     ObjectToken(ObjectToken &&other) noexcept
         : m_name{std::move(other.m_name)}
