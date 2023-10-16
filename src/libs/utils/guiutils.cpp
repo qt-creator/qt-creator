@@ -14,11 +14,15 @@ class WheelEventFilter : public QObject
 {
 public:
     bool eventFilter(QObject *watched, QEvent *event) override {
-        auto widget = qobject_cast<QWidget *>(watched);
-        return event->type() == QEvent::Wheel
-               && widget
-               && widget->focusPolicy() != Qt::WheelFocus
-               && !widget->hasFocus();
+        if (event->type() == QEvent::Wheel) {
+            QWidget *widget = qobject_cast<QWidget *>(watched);
+            if (widget && widget->focusPolicy() != Qt::WheelFocus && !widget->hasFocus()) {
+                QObject *parent = widget->parentWidget();
+                if (parent)
+                    return parent->event(event);
+            }
+        }
+        return QObject::eventFilter(watched, event);
     }
 };
 
@@ -28,7 +32,8 @@ void QTCREATOR_UTILS_EXPORT attachWheelBlocker(QWidget *widget)
 {
     static Internal::WheelEventFilter instance;
     widget->installEventFilter(&instance);
-    widget->setFocusPolicy(Qt::StrongFocus);
+    if (widget->focusPolicy() == Qt::WheelFocus)
+        widget->setFocusPolicy(Qt::StrongFocus);
 }
 
 } // namespace Utils
