@@ -1994,7 +1994,7 @@ void CMakeBuildSystem::runGenerator(Id id)
     proc->setEnvironment(buildConfiguration()->environment());
     proc->setCommand(cmdLine);
     Core::MessageManager::writeFlashing(addCMakePrefix(
-        Tr::tr("Running in %1: %2.").arg(outDir.toUserOutput(), cmdLine.toUserOutput())));
+        Tr::tr("Running in \"%1\": %2.").arg(outDir.toUserOutput(), cmdLine.toUserOutput())));
     proc->start();
 }
 

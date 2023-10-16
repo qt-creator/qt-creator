@@ -9522,7 +9522,7 @@ Locked components cannot be modified or selected.</source>
         <translation>SDK-Werkzeuge herunterladen</translation>
     </message>
     <message>
-        <source>Could not open %1 for writing: %2.</source>
+        <source>Could not open &quot;%1&quot; for writing: %2.</source>
         <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben geöffnet werden: %2.</translation>
     </message>
     <message>
@@ -10240,11 +10240,11 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
         <translation>Die Version des Android Build-SDK ist nicht definiert. Überprüfen Sie die Android-Einstellungen.</translation>
     </message>
     <message>
-        <source>The Android build folder %1 was not found and could not be created.</source>
+        <source>The Android build folder &quot;%1&quot; was not found and could not be created.</source>
         <translation>Das Build-Verzeichnis &quot;%1&quot; für Android wurde nicht gefunden und konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <source>Cannot copy the target&apos;s lib file %1 to the Android build folder %2.</source>
+        <source>Cannot copy the target&apos;s lib file &quot;%1&quot; to the Android build folder &quot;%2&quot;.</source>
         <translation>Die lib-Datei &quot;%1&quot; des Targets konnte nicht in das Build-Verzeichnis &quot;%2&quot; für Android kopiert werden.</translation>
     </message>
     <message>
@@ -10567,7 +10567,7 @@ Breche ausstehende Operationen ab...
         <translation>Anwendungsdaten kopieren</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
+        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to &quot;%1&quot;</source>
         <translation>&lt;b&gt;Installieren:&lt;/b&gt; Anwendungsdateien nach &quot;%1&quot; kopieren</translation>
     </message>
     <message>
@@ -13260,8 +13260,8 @@ This flag will allow push to proceed.</source>
 Die Einstellung gestattet es, unter diesen Umständen fortzusetzen.</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Zum Beispiel: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Zum Beispiel: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Ignores differences between branches and overwrites
@@ -14676,8 +14676,8 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Keine gültige ausführbare CMake-Datei.</translation>
     </message>
     <message>
-        <source>Running in %1: %2.</source>
-        <translation>Führe in %1 aus: %2.</translation>
+        <source>Running in &quot;%1&quot;: %2.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2.</translation>
     </message>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
@@ -34345,8 +34345,8 @@ Beispiel: *.cpp%1*.h</translation>
         <translation>Nutzerdaten abfragen</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Zum Beispiel: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Zum Beispiel: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Commit Editor</source>

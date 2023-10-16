@@ -60,7 +60,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
     setWidgetExpandedByDefault(false);
     setImmutable(true);
     setSummaryUpdater([this] {
-        return Tr::tr("<b>Make install:</b> Copy App Files to %1")
+        return Tr::tr("<b>Make install:</b> Copy App Files to \"%1\"")
             .arg(QDir::toNativeSeparators(nativeAndroidBuildPath()));
     });
     setUseEnglishOutput();

@@ -65,7 +65,7 @@ static std::optional<QString> saveToDisk(const FilePath &filename, QIODevice *da
 {
     QFile file(filename.toString());
     if (!file.open(QIODevice::WriteOnly)) {
-        return Tr::tr("Could not open %1 for writing: %2.")
+        return Tr::tr("Could not open \"%1\" for writing: %2.")
             .arg(filename.toUserOutput(), file.errorString());
     }
     file.write(data->readAll());

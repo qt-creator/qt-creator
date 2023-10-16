@@ -597,12 +597,12 @@ The minimum API level required by the kit is %1.</source>
         <translation>安卓部署设定文件不存在，未构建 APK。</translation>
     </message>
     <message>
-        <source>The Android build folder %1 was not found and could not be created.</source>
-        <translation>未找到安卓构建文件夹%1，并无法创建。</translation>
+        <source>The Android build folder &quot;%1&quot; was not found and could not be created.</source>
+        <translation>未找到安卓构建文件夹“%1“，并无法创建。</translation>
     </message>
     <message>
-        <source>Cannot copy the target&apos;s lib file %1 to the Android build folder %2.</source>
-        <translation>无法复制目标的库文件%1到安卓构建目录%2。</translation>
+        <source>Cannot copy the target&apos;s lib file &quot;%1&quot; to the Android build folder &quot;%2&quot;.</source>
+        <translation>无法复制目标的库文件“%1“到安卓构建目录“%2“。</translation>
     </message>
     <message>
         <source>Cannot copy file &quot;%1&quot; to Android build libs folder &quot;%2&quot;.</source>
@@ -1211,8 +1211,8 @@ This cannot be undone.</source>
         <translation>服务无效。无法保存 Manifest。请在保存前修正服务定义。</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
-        <translation>&lt;b&gt;Make install:&lt;/b&gt; 拷贝应用到 %1</translation>
+        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to &quot;%1&quot;</source>
+        <translation>&lt;b&gt;Make install:&lt;/b&gt; 拷贝应用到 “%1“</translation>
     </message>
     <message>
         <source>&quot;%1&quot; step has an invalid C++ toolchain.</source>
@@ -1432,8 +1432,8 @@ This cannot be undone.</source>
         <translation>下载 SDK 工具</translation>
     </message>
     <message>
-        <source>Could not open %1 for writing: %2.</source>
-        <translation>无法打开 %1 以写入：%2。</translation>
+        <source>Could not open &quot;%1&quot; for writing: %2.</source>
+        <translation>无法打开 “%1“ 以写入：%2。</translation>
     </message>
     <message>
         <source>Downloading Android SDK Tools from URL %1 has failed: %2.</source>
@@ -4718,7 +4718,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>未提交...</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>例如：“https://[user[:pass]@]host[:port]/[path]”。</translation>
     </message>
     <message>
@@ -24591,7 +24591,7 @@ Error: %5</source>
         <translation type="unfinished">Alt+G,Alt+C</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
