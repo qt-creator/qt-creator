@@ -751,12 +751,8 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <translation>Handlingen kræver indgriben fra brugeren. Brug kommandolinjeværktøjet &quot;sdkmanager&quot;.</translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>Licens-kommando mislykkedes.
-
-</translation>
+        <source>License command failed.</source>
+        <translation>Licens-kommando mislykkedes.</translation>
     </message>
     <message>
         <source>Android SDK Manager</source>
@@ -807,16 +803,12 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <translation>Vil du acceptere Android SDK-licensen?</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Tjekker afventende licenser...
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Tjekker afventende licenser...</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-SDK manager er optaget.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>SDK manager er optaget.</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -1295,12 +1287,8 @@ Installer en SDK af mindst API version %1.</translation>
         <translation>Mislykkedes.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>Færdig
-
-</translation>
+        <source>Done</source>
+        <translation>Færdig</translation>
     </message>
     <message>
         <source>Installing</source>

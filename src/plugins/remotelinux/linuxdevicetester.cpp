@@ -188,12 +188,16 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
         const ProcessResultData resultData = transfer.resultData();
         QString error;
         if (resultData.m_error == QProcess::FailedToStart) {
-            error = Tr::tr("Failed to start \"%1\": %2\n").arg(methodName, resultData.m_errorString);
+            error = Tr::tr("Failed to start \"%1\": %2").arg(methodName, resultData.m_errorString)
+                    + "\n";
         } else if (resultData.m_exitStatus == QProcess::CrashExit) {
-            error = Tr::tr("\"%1\" crashed.\n").arg(methodName);
+            error = Tr::tr("\"%1\" crashed.").arg(methodName) + "\n";
         } else if (resultData.m_exitCode != 0) {
-            error = Tr::tr("\"%1\" failed with exit code %2: %3\n")
-                    .arg(methodName).arg(resultData.m_exitCode).arg(resultData.m_errorString);
+            error = Tr::tr("\"%1\" failed with exit code %2: %3")
+                        .arg(methodName)
+                        .arg(resultData.m_exitCode)
+                        .arg(resultData.m_errorString)
+                    + "\n";
         }
         emit q->errorMessage(error);
         if (method == FileTransferMethod::Rsync)
@@ -209,8 +213,9 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
             const QString sftp = FileTransfer::transferMethodName(FileTransferMethod::Sftp);
             const QString rsync = FileTransfer::transferMethodName(FileTransferMethod::Rsync);
             emit q->progressMessage(Tr::tr("\"%1\" will be used for deployment, because \"%2\" "
-                                           "and \"%3\" are not available.\n")
-                                           .arg(generic, sftp, rsync));
+                                           "and \"%3\" are not available.")
+                                        .arg(generic, sftp, rsync)
+                                    + "\n");
         }
     };
     return FileTransferTestTask(setup, done, error);
@@ -219,16 +224,16 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
 GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 {
     TreeStorage<TransferStorage> storage;
-    return Group {
-        continueOnDone,
-        Tasking::Storage(storage),
-        transferTask(FileTransferMethod::GenericCopy, storage),
-        transferTask(FileTransferMethod::Sftp, storage),
-        transferTask(FileTransferMethod::Rsync, storage),
-        onGroupError([this] { emit q->errorMessage(Tr::tr("Deployment to this device will not "
-                                                          "work out of the box.\n"));
-        })
-    };
+    return Group{continueOnDone,
+                 Tasking::Storage(storage),
+                 transferTask(FileTransferMethod::GenericCopy, storage),
+                 transferTask(FileTransferMethod::Sftp, storage),
+                 transferTask(FileTransferMethod::Rsync, storage),
+                 onGroupError([this] {
+                     emit q->errorMessage(Tr::tr("Deployment to this device will not "
+                                                 "work out of the box.")
+                                          + "\n");
+                 })};
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName) const

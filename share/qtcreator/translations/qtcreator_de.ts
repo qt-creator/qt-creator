@@ -10396,22 +10396,16 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
 </translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Prüfe auf ausstehende Lizenzen...
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Prüfe auf ausstehende Lizenzen...</translation>
     </message>
     <message>
-        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.
-</source>
-        <translation>Die Installation von Android-SDK-Paketen kann fehlschlagen, wenn die entsprechenden Lizenzen nicht akzeptiert werden.
-</translation>
+        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.</source>
+        <translation>Die Installation von Android-SDK-Paketen kann fehlschlagen, wenn die entsprechenden Lizenzen nicht akzeptiert werden.</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-SDK-Manager arbeitet.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>SDK-Manager arbeitet.</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -10503,12 +10497,8 @@ Breche ausstehende Operationen ab...
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>Lizenzkommando fehlgeschlagen.
-
-</translation>
+        <source>License command failed.</source>
+        <translation>Lizenzkommando fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Updating installed packages.</source>
@@ -10519,12 +10509,8 @@ Breche ausstehende Operationen ab...
         <translation>Fehlgeschlagen.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>Fertig
-
-</translation>
+        <source>Done</source>
+        <translation>Fertig</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -27607,10 +27593,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Lade...</translation>
     </message>
     <message>
-        <source>Running &quot;%1&quot;
-</source>
-        <translation>Führe &quot;%1&quot; aus
-</translation>
+        <source>Running &quot;%1&quot;</source>
+        <translation>Führe &quot;%1&quot; aus</translation>
     </message>
     <message>
         <source>Unexpected result: %1</source>
@@ -47127,22 +47111,16 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>Überprüfe, ob &quot;%1&quot; funktioniert...</translation>
     </message>
     <message>
-        <source>Failed to start &quot;%1&quot;: %2
-</source>
-        <translation>&quot;%1&quot; konnte nicht gestartet werden: %2
-</translation>
+        <source>Failed to start &quot;%1&quot;: %2</source>
+        <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; crashed.
-</source>
-        <translation>&quot;%1&quot; ist abgestürzt.
-</translation>
+        <source>&quot;%1&quot; crashed.</source>
+        <translation>&quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; failed with exit code %2: %3
-</source>
-        <translation>&quot;%1&quot; ist mit Rückgabewert %2 fehlgeschlagen: %3
-</translation>
+        <source>&quot;%1&quot; failed with exit code %2: %3</source>
+        <translation>&quot;%1&quot; ist mit Rückgabewert %2 fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is functional.
@@ -47151,10 +47129,8 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
 </translation>
     </message>
     <message>
-        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.
-</source>
-        <translation>&quot;%1&quot; wird für das Deployment benutzt, da &quot;%2&quot; und &quot;%3&quot; nicht verfügbar sind.
-</translation>
+        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.</source>
+        <translation>&quot;%1&quot; wird für das Deployment benutzt, da &quot;%2&quot; und &quot;%3&quot; nicht verfügbar sind.</translation>
     </message>
     <message>
         <source>Checking if required commands are available...</source>
@@ -47177,10 +47153,8 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>%1 nicht gefunden.</translation>
     </message>
     <message>
-        <source>Deployment to this device will not work out of the box.
-</source>
-        <translation>Deployment auf dieses Gerät wird nicht von Anfang an funktionieren.
-</translation>
+        <source>Deployment to this device will not work out of the box.</source>
+        <translation>Deployment auf dieses Gerät wird nicht von Anfang an funktionieren.</translation>
     </message>
     <message>
         <source>Checking if specified ports are available...</source>
@@ -47445,10 +47419,6 @@ Der Kontrollprozess konnte nicht gestartet werden.</translation>
     <message>
         <source>&quot;%1&quot; failed to start: %2</source>
         <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; crashed.</source>
-        <translation>&quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
         <source>&quot;sftp&quot; binary &quot;%1&quot; does not exist.</source>

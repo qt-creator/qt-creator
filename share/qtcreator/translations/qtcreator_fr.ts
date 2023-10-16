@@ -9058,22 +9058,16 @@ Installez-les manuellement après que l&apos;opération en cours soit finie.
         <translation>L&apos;installation du SDK Android ne contient pas certains paquets nécessaires. Souhaitez-vous installer les paquets manquants&#xa0;?</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Vérification des licences en cours…
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Vérification des licences en cours…</translation>
     </message>
     <message>
-        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.
-</source>
-        <translation>L&apos;installation des paquets du SDK Android peut échouer si les licences respectives ne sont pas acceptées.
-</translation>
+        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.</source>
+        <translation>L&apos;installation des paquets du SDK Android peut échouer si les licences respectives ne sont pas acceptées.</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-Le gestionnaire de SDK est occupé.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>Le gestionnaire de SDK est occupé.</translation>
     </message>
     <message numerus="yes">
         <source>%n Android SDK packages shall be updated.</source>
@@ -10672,12 +10666,8 @@ Les fichiers du répertoire source du paquet Android sont copiés dans le réper
         <translation>Échec.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>Fini
-
-</translation>
+        <source>Done</source>
+        <translation>Fini</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -10700,12 +10690,8 @@ Les fichiers du répertoire source du paquet Android sont copiés dans le réper
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>Échec de la commande de licence.
-
-</translation>
+        <source>License command failed.</source>
+        <translation>Échec de la commande de licence.</translation>
     </message>
     <message>
         <source>Revision</source>
@@ -27352,10 +27338,8 @@ La recompilation du projet peut aider.</translation>
         <translation>Chargement …</translation>
     </message>
     <message>
-        <source>Running &quot;%1&quot;
-</source>
-        <translation>Exécution de «&#xa0;%1&#xa0;»
-</translation>
+        <source>Running &quot;%1&quot;</source>
+        <translation>Exécution de «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
         <source>Unexpected result: %1</source>
@@ -46947,34 +46931,20 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
 </translation>
     </message>
     <message>
-        <source>Failed to start &quot;%1&quot;: %2
-</source>
-        <translation>Échec du démarrage de «&#xa0;%1&#xa0;»&#xa0;: %2
-</translation>
+        <source>Failed to start &quot;%1&quot;: %2</source>
+        <translation>Échec du démarrage de «&#xa0;%1&#xa0;»&#xa0;: %2</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; crashed.
-</source>
-        <translation>«&#xa0;%1&#xa0;» a planté.
-</translation>
+        <source>&quot;%1&quot; failed with exit code %2: %3</source>
+        <translation>«&#xa0;%1&#xa0;» a échoué avec le code de sortie %2&#xa0;: %3</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; failed with exit code %2: %3
-</source>
-        <translation>«&#xa0;%1&#xa0;» a échoué avec le code de sortie %2&#xa0;: %3
-</translation>
+        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.</source>
+        <translation>« %1 » sera utilisé pour le déploiement, car « %2 » et «&#xa0;%3&#xa0;» ne sont pas disponibles.</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.
-</source>
-        <translation>« %1 » sera utilisé pour le déploiement, car « %2 » et «&#xa0;%3&#xa0;» ne sont pas disponibles.
-</translation>
-    </message>
-    <message>
-        <source>Deployment to this device will not work out of the box.
-</source>
-        <translation>Le déploiement vers ce périphérique ne fonctionnera pas directement.
-</translation>
+        <source>Deployment to this device will not work out of the box.</source>
+        <translation>Le déploiement vers ce périphérique ne fonctionnera pas directement.</translation>
     </message>
     <message>
         <source>%1...</source>

@@ -1201,7 +1201,7 @@ public:
 
         CommandLine cmd{settings().dockerBinaryPath(),
                         {"images", "--format", "{{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.Size}}"}};
-        m_log->append(Tr::tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
+        m_log->append(Tr::tr("Running \"%1\"").arg(cmd.toUserOutput()) + "\n");
 
         m_process = new Process(this);
         m_process->setCommand(cmd);

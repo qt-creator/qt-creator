@@ -1460,12 +1460,8 @@ This cannot be undone.</source>
         <translation>失败.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>完成
-
-</translation>
+        <source>Done</source>
+        <translation>完成</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -1488,12 +1484,8 @@ This cannot be undone.</source>
         <translation>安卓 SDK 管理器</translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>许可命令失败。
-
-</translation>
+        <source>License command failed.</source>
+        <translation>许可命令失败。</translation>
     </message>
     <message>
         <source>Android SDK Manager</source>
@@ -1580,21 +1572,16 @@ Install them manually after the current operation is done.
         <translation>缺失安卓 SDK 安装所必要的包。你想安装这些缺失包吗？</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>正在检查待处理的许可证...
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>正在检查待处理的许可证...</translation>
     </message>
     <message>
-        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.
-</source>
+        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.</source>
         <translation>如果不接受相应的许可证，安卓 SDK 包安装可能会失败。</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-SDK 管理器繁忙。</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>SDK 管理器繁忙。</translation>
     </message>
     <message numerus="yes">
         <source>%n Android SDK packages shall be updated.</source>
@@ -18093,8 +18080,7 @@ Rebuilding the project might help.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Running &quot;%1&quot;
-</source>
+        <source>Running &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -39240,18 +39226,11 @@ Control process failed to start.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to start &quot;%1&quot;: %2
-</source>
+        <source>Failed to start &quot;%1&quot;: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;%1&quot; crashed.
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; failed with exit code %2: %3
-</source>
+        <source>&quot;%1&quot; failed with exit code %2: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -39265,8 +39244,7 @@ Control process failed to start.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Deployment to this device will not work out of the box.
-</source>
+        <source>Deployment to this device will not work out of the box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

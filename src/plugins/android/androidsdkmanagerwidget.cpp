@@ -290,9 +290,10 @@ void AndroidSdkManagerWidget::installEssentials()
 
 void AndroidSdkManagerWidget::beginLicenseCheck()
 {
-    m_formatter->appendMessage(Tr::tr("Checking pending licenses...\n"), NormalMessageFormat);
+    m_formatter->appendMessage(Tr::tr("Checking pending licenses...") + "\n", NormalMessageFormat);
     m_formatter->appendMessage(Tr::tr("The installation of Android SDK packages may fail if the "
-                                      "respective licenses are not accepted.\n"),
+                                      "respective licenses are not accepted.")
+                                   + "\n",
                                LogMessageFormat);
     addPackageFuture(m_sdkManager->checkPendingLicenses());
 }
@@ -302,7 +303,7 @@ void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
     QTC_ASSERT(m_currentView == PackageListing, return);
 
     if (m_sdkManager->isBusy()) {
-        m_formatter->appendMessage(Tr::tr("\nSDK Manager is busy."), StdErrFormat);
+        m_formatter->appendMessage("\n" + Tr::tr("SDK Manager is busy."), StdErrFormat);
         return;
     }
 
@@ -356,7 +357,7 @@ void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
 void AndroidSdkManagerWidget::onUpdatePackages()
 {
     if (m_sdkManager->isBusy()) {
-        m_formatter->appendMessage(Tr::tr("\nSDK Manager is busy."), StdErrFormat);
+        m_formatter->appendMessage("\n" + Tr::tr("SDK Manager is busy."), StdErrFormat);
         return;
     }
     switchView(Operations);
