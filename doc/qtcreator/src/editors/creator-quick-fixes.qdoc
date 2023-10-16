@@ -829,6 +829,18 @@
             \li Convert connect() to Qt 5 Style
             \li Converts a Qt 4 QObject::connect() to Qt 5 style.
             \li QObject::connect() (Qt 4 style)
+        \row
+            \li Convert Comment to C/C++ Style
+            \li Converts C-style comments into C++-style comments, and vice
+                versa. Tries to preserve \e pretty layout and takes Doxygen and
+                qdoc formatting into consideration, but you might need to clean
+                up the results.
+            \li Code comment
+        \row
+            \li Move Function Documentation to Declaration/Definition
+            \li Moves the documentation comment for a function between its
+                declaration and definition.
+            \li Documentation comment for a function
     \endtable
 
     \section2 Refactoring QML Code
