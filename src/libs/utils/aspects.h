@@ -4,6 +4,7 @@
 #pragma once
 
 #include "filepath.h"
+#include "guiutils.h"
 #include "id.h"
 #include "infolabel.h"
 #include "macroexpander.h"
@@ -15,6 +16,8 @@
 #include <memory>
 #include <optional>
 
+#include <QAbstractSpinBox>
+#include <QComboBox>
 #include <QUndoCommand>
 
 QT_BEGIN_NAMESPACE
@@ -245,6 +248,10 @@ protected:
     Widget *createSubWidget(Args && ...args) {
         auto w = new Widget(args...);
         registerSubWidget(w);
+        if constexpr (std::is_base_of_v<QComboBox, Widget>
+                      || std::is_base_of_v<QAbstractSpinBox, Widget>) {
+            setWheelScrollingWithoutFocusBlocked(w);
+        }
         return w;
     }
 

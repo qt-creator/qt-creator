@@ -15,6 +15,7 @@
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
+#include <utils/guiutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
@@ -41,6 +42,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     Q_ASSERT(m_target);
 
     m_deployConfigurationCombo = new QComboBox(this);
+    Utils::setWheelScrollingWithoutFocusBlocked(m_deployConfigurationCombo);
     m_addDeployToolButton = new QPushButton(Tr::tr("Add"), this);
     m_removeDeployToolButton = new QPushButton(Tr::tr("Remove"), this);
     m_renameDeployButton = new QPushButton(Tr::tr("Rename..."), this);
@@ -50,6 +52,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_runConfigurationCombo = new QComboBox(this);
     m_runConfigurationCombo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     m_runConfigurationCombo->setMinimumContentsLength(15);
+    Utils::setWheelScrollingWithoutFocusBlocked(m_runConfigurationCombo);
 
     m_addRunToolButton = new QPushButton(Tr::tr("Add..."), this);
     m_removeRunToolButton = new QPushButton(Tr::tr("Remove"), this);

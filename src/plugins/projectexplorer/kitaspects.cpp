@@ -19,6 +19,7 @@
 #include <utils/environment.h>
 #include <utils/environmentdialog.h>
 #include <utils/guard.h>
+#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
@@ -215,6 +216,7 @@ public:
             auto cb = new QComboBox;
             cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());
             cb->setToolTip(factory->description());
+            setWheelScrollingWithoutFocusBlocked(cb);
 
             m_languageComboboxMap.insert(l, cb);
             layout->addWidget(cb, row, 1);
@@ -247,6 +249,7 @@ private:
         IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
 
         const GuardLocker locker(m_ignoreChanges);
+        // TODO: Get rid of keys, iterate directly on hash.
         const QList<Id> keys = m_languageComboboxMap.keys();
         for (const Id l : keys) {
             const Toolchains ltcList = ToolchainManager::toolchains(equal(&Toolchain::language, l));

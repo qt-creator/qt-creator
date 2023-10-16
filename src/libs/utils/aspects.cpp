@@ -7,7 +7,6 @@
 #include "checkablemessagebox.h"
 #include "environment.h"
 #include "fancylineedit.h"
-#include "guiutils.h"
 #include "iconbutton.h"
 #include "layoutbuilder.h"
 #include "passworddialog.h"
@@ -23,7 +22,6 @@
 #include <QAction>
 #include <QButtonGroup>
 #include <QCheckBox>
-#include <QComboBox>
 #include <QCompleter>
 #include <QDebug>
 #include <QGroupBox>
@@ -2343,7 +2341,6 @@ void IntegerAspect::addToLayout(Layouting::LayoutItem &parent)
         d->m_spinBox->setRange(int(d->m_minimumValue.value() / d->m_displayScaleFactor),
                                int(d->m_maximumValue.value() / d->m_displayScaleFactor));
     d->m_spinBox->setValue(int(value() / d->m_displayScaleFactor)); // Must happen after setRange()
-    setWheelScrollingWithoutFocusBlocked(d->m_spinBox);
     addLabeledItem(parent, d->m_spinBox);
     connect(d->m_spinBox.data(), &QSpinBox::valueChanged,
             this, &IntegerAspect::handleGuiChanged);
@@ -2443,7 +2440,6 @@ void DoubleAspect::addToLayout(LayoutItem &builder)
     d->m_spinBox->setSpecialValueText(d->m_specialValueText);
     if (d->m_maximumValue && d->m_maximumValue)
         d->m_spinBox->setRange(d->m_minimumValue.value(), d->m_maximumValue.value());
-    setWheelScrollingWithoutFocusBlocked(d->m_spinBox);
     bufferToGui(); // Must happen after setRange()!
     addLabeledItem(builder, d->m_spinBox);
     connect(d->m_spinBox.data(), &QDoubleSpinBox::valueChanged,
@@ -3528,6 +3524,7 @@ void StringSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     comboBox->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
 
     comboBox->setModel(m_model);
+    setWheelScrollingWithoutFocusBlocked(comboBox);
 
     connect(m_selectionModel,
             &QItemSelectionModel::currentChanged,

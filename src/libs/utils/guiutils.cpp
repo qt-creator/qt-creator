@@ -31,6 +31,8 @@ public:
 void QTCREATOR_UTILS_EXPORT setWheelScrollingWithoutFocusBlocked(QWidget *widget)
 {
     static Internal::WheelEventFilter instance;
+    // Installing duplicated event filter for the same objects just brings the event filter
+    // to the front and is otherwise no-op (the second event filter isn't installed).
     widget->installEventFilter(&instance);
     if (widget->focusPolicy() == Qt::WheelFocus)
         widget->setFocusPolicy(Qt::StrongFocus);

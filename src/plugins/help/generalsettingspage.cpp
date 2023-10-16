@@ -18,7 +18,6 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
-#include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
@@ -106,7 +105,6 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     zoomSpinBox->setSingleStep(10);
     zoomSpinBox->setValue(100);
     zoomSpinBox->setSuffix(Tr::tr("%"));
-    setWheelScrollingWithoutFocusBlocked(zoomSpinBox);
     antialiasCheckBox = new QCheckBox(Tr::tr("Antialias"));
 
     auto fontGroupBox = new QGroupBox(Tr::tr("Font"));
