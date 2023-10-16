@@ -307,6 +307,8 @@ QVariant DocumentModelPrivate::data(const QModelIndex &index, int role) const
         return QVariant();
     case Qt::ToolTipRole:
         return entry->filePath().isEmpty() ? entry->displayName() : entry->filePath().toUserOutput();
+    case DocumentModel::FilePathRole:
+        return entry->filePath().toVariant();
     default:
         break;
     }
