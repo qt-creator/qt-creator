@@ -32,6 +32,7 @@
 #include <utils/utilsicons.h>
 
 #include <QCompleter>
+#include <QDesktopServices>
 #include <QDockWidget>
 #include <QNetworkAccessManager>
 #include <QPushButton>
@@ -804,6 +805,22 @@ QWidget *Editor::toolBar()
         newSource->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
         newSource->setToolTip(Tr::tr("Add Source"));
         m_toolBar->addAction(newSource);
+
+        m_toolBar->addSeparator();
+
+        QString link = QString(R"(<a href="%1">%1</a>)")
+                           .arg(m_document->settings()->compilerExplorerUrl.value());
+
+        auto poweredByLabel = new QLabel(Tr::tr("powered by %1").arg(link));
+
+        poweredByLabel->setTextInteractionFlags(Qt::TextInteractionFlag::TextBrowserInteraction);
+        poweredByLabel->setContentsMargins(6, 0, 0, 0);
+
+        connect(poweredByLabel, &QLabel::linkActivated, this, [](const QString &link) {
+            QDesktopServices::openUrl(link);
+        });
+
+        m_toolBar->addWidget(poweredByLabel);
 
         connect(newSource,
                 &QAction::triggered,
