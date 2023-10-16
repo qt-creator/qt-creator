@@ -35,6 +35,8 @@ QtcPlugin {
             "pythonhighlighter.h",
             "pythonindenter.cpp",
             "pythonindenter.h",
+            "pythonkitaspect.cpp",
+            "pythonkitaspect.h",
             "pythonlanguageclient.cpp",
             "pythonlanguageclient.h",
             "pythonplugin.cpp",

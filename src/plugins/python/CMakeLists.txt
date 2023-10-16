@@ -12,6 +12,7 @@ add_qtc_plugin(Python
     pythonformattoken.h
     pythonhighlighter.cpp pythonhighlighter.h
     pythonindenter.cpp pythonindenter.h
+    pythonkitaspect.h pythonkitaspect.cpp
     pythonlanguageclient.cpp pythonlanguageclient.h
     pythonplugin.cpp pythonplugin.h
     pythonproject.cpp pythonproject.h
