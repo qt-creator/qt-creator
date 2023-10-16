@@ -102,16 +102,20 @@ macro(qtc_auto_setup_conan)
           project(conan-setup)
 
           if (${conan_version} VERSION_GREATER_EQUAL 2.0)
-            include(\"${CMAKE_CURRENT_LIST_DIR}/conan_support.cmake\")
+            include(\"${CMAKE_CURRENT_LIST_DIR}/conan_provider.cmake\")
             conan_profile_detect_default()
             detect_host_profile(\"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\")
 
+            set(CONAN_COMMAND \"${conan_program}\")
             conan_install(
               -pr \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\"
               --build=${QT_CREATOR_CONAN_BUILD_POLICY}
               -s build_type=${CMAKE_BUILD_TYPE}
               -g CMakeDeps)
+
+            get_property(CONAN_INSTALL_SUCCESS GLOBAL PROPERTY CONAN_INSTALL_SUCCESS)
             if (CONAN_INSTALL_SUCCESS)
+              get_property(CONAN_GENERATORS_FOLDER GLOBAL PROPERTY CONAN_GENERATORS_FOLDER)
               file(WRITE \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_paths.cmake\" \"
                 list(PREPEND CMAKE_PREFIX_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")
                 list(PREPEND CMAKE_MODULE_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")
