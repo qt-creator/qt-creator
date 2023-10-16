@@ -136,7 +136,7 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
                                                .arg(afterWhitespaceCommentPosition);
     d->commentPosition->setToolTip(commentPositionToolTip);
 
-    auto commentPositionLabel = new QLabel(Tr::tr("Preferred comment position"));
+    auto commentPositionLabel = new QLabel(Tr::tr("Preferred comment position:"));
     commentPositionLabel->setToolTip(commentPositionToolTip);
 
     d->skipTrailingWhitespace = new QCheckBox(Tr::tr("Skip clean whitespace for file types:"));
