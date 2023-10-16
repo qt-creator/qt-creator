@@ -38491,8 +38491,8 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
         <translation>Génère le code d’initialisation et de nettoyage</translation>
     </message>
     <message>
-        <source>Creates a project that you can open in Qt Design Studio.</source>
-        <translation>Génère un projet qui peut être ouvert dans Qt Design Studio.</translation>
+        <source>Creates a project that you can open in Qt Design Studio</source>
+        <translation>Génère un projet qui peut être ouvert dans Qt Design Studio</translation>
     </message>
     <message>
         <source>Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
@@ -38507,8 +38507,8 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
         <translation>Qt 6.5</translation>
     </message>
     <message>
-        <source>The minimum version of Qt you want to build the application for.</source>
-        <translation>La verison minimale de Qt pour laquelle vous voulez construire votre application.</translation>
+        <source>The minimum version of Qt you want to build the application for</source>
+        <translation>La verison minimale de Qt pour laquelle vous voulez construire votre application</translation>
     </message>
     <message>
         <source>Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.

@@ -39864,8 +39864,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>Nimble-Anwendung</translation>
     </message>
     <message>
-        <source>Creates a project that you can open in Qt Design Studio.</source>
-        <translation>Erstellt ein Projekt, das in Qt Design Studio geöffnet werden kann.</translation>
+        <source>Creates a project that you can open in Qt Design Studio</source>
+        <translation>Erstellt ein Projekt, das in Qt Design Studio geöffnet werden kann</translation>
     </message>
     <message>
         <source>Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
@@ -39880,8 +39880,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>Qt 6.5</translation>
     </message>
     <message>
-        <source>The minimum version of Qt you want to build the application for.</source>
-        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen.</translation>
+        <source>The minimum version of Qt you want to build the application for</source>
+        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen</translation>
     </message>
     <message>
         <source>Creates a CMake-based test project for which a code snippet can be entered.</source>
