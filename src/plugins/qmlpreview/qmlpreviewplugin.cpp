@@ -44,6 +44,7 @@
 #include <android/androidconstants.h>
 
 #include <QAction>
+#include <QMessageBox>
 #include <QPointer>
 #include <QTimer>
 
@@ -174,11 +175,6 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
 
     menu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT);
     action = new QAction(Tr::tr("Preview File"), this);
-    action->setEnabled(false);
-    connect(q, &QmlPreviewPlugin::runningPreviewsChanged,
-            action, [action](const QmlPreviewRunControlList &previews) {
-        action->setEnabled(!previews.isEmpty());
-    });
     connect(action, &QAction::triggered, q, &QmlPreviewPlugin::previewCurrentFile);
     menu->addAction(
         Core::ActionManager::registerAction(action, "QmlPreview.PreviewFile",  Core::Context(Constants::C_PROJECT_TREE)),
@@ -335,6 +331,11 @@ void QmlPreviewPlugin::previewCurrentFile()
     if (!currentNode || !currentNode->asFileNode()
             || currentNode->asFileNode()->fileType() != FileType::QML)
         return;
+
+    if (runningPreviews().isEmpty())
+        QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("QML Preview not running"),
+                             Tr::tr("Please start the QML Preview for the project before selecting "
+                                    "a specific file for preview."));
 
     const QString file = currentNode->filePath().toString();
     if (file != d->m_previewedFile)
