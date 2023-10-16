@@ -7,7 +7,9 @@
 #include "coreplugintr.h"
 #include "icore.h"
 
+#include <utils/async.h>
 #include <utils/basetreeview.h>
+#include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/listmodel.h>
@@ -31,7 +33,6 @@
 #include <QSplitter>
 #include <QToolButton>
 #include <QVBoxLayout>
-
 namespace Core::Internal {
 
 static QColor colorForCategory(const QString &category);
@@ -209,6 +210,13 @@ public:
         return false;
     }
 
+    bool isEnabledOriginally(QtMsgType msgType) const
+    {
+        if (m_originalSettings)
+            return (*m_originalSettings)[msgType];
+        return isEnabled(msgType);
+    }
+
     void setEnabled(QtMsgType msgType, bool isEnabled)
     {
         QTC_ASSERT(!m_useOriginal, return);
@@ -308,6 +316,8 @@ public:
     ~LoggingCategoryModel() override;
     enum Column { Color, Name, Debug, Warning, Critical, Fatal, Info };
 
+    enum Role { OriginalStateRole = Qt::UserRole + 1 };
+
     void append(const LoggingCategoryEntry &entry);
     int columnCount(const QModelIndex &) const final { return 7; }
     int rowCount(const QModelIndex & = QModelIndex()) const final { return m_categories.size(); }
@@ -363,12 +373,18 @@ QVariant LoggingCategoryModel::data(const QModelIndex &index, int role) const
 
         static const QColor defaultColor = Utils::creatorTheme()->palette().text().color();
         return defaultColor;
-    } else if (role == Qt::CheckStateRole && index.column() >= Column::Debug
-               && index.column() <= Column::Info) {
-        const LoggingCategoryEntry &entry = m_categories.at(index.row());
-        return entry.isEnabled(static_cast<QtMsgType>(index.column() - Column::Debug))
-                   ? Qt::Checked
-                   : Qt::Unchecked;
+    } else if (index.column() >= Column::Debug && index.column() <= Column::Info) {
+        if (role == Qt::CheckStateRole) {
+            const LoggingCategoryEntry &entry = m_categories.at(index.row());
+            const bool isEnabled = entry.isEnabled(
+                static_cast<QtMsgType>(index.column() - Column::Debug));
+            return isEnabled ? Qt::Checked : Qt::Unchecked;
+        } else if (role == OriginalStateRole) {
+            const LoggingCategoryEntry &entry = m_categories.at(index.row());
+            return entry.isEnabledOriginally(static_cast<QtMsgType>(index.column() - Column::Debug))
+                       ? Qt::Checked
+                       : Qt::Unchecked;
+        }
     }
     return {};
 }
@@ -609,9 +625,8 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
 
     auto qtInternal = new QToolButton;
     qtInternal->setIcon(Core::Icons::QTLOGO.icon());
-    qtInternal->setToolTip(Tr::tr("Toggle Qt Internal Logging"));
-    qtInternal->setCheckable(true);
-    qtInternal->setChecked(false);
+    qtInternal->setToolTip(Tr::tr("Filter Qt Internal Log Categories"));
+    qtInternal->setCheckable(false);
 
     auto autoScroll = new QToolButton;
     autoScroll->setIcon(Utils::Icons::ARROW_DOWN.icon());
@@ -663,26 +678,52 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
     for (int i = LoggingCategoryModel::Column::Color; i < LoggingCategoryModel::Column::Info; i++)
         m_categoryView->resizeColumnToContents(i);
 
+    auto filterEdit = new Utils::FancyLineEdit;
+    filterEdit->setHistoryCompleter("LogFilterCompletionHistory");
+    filterEdit->setFiltering(true);
+    filterEdit->setPlaceholderText(Tr::tr("Filter categories by regular expression"));
+    filterEdit->setText("^(?!qt\\.).+");
+    filterEdit->setValidationFunction(
+        [](const QString &input) {
+            return Utils::asyncRun([input]() -> Utils::expected_str<QString> {
+                QRegularExpression re(input);
+                if (re.isValid())
+                    return input;
+
+                return Utils::make_unexpected(
+                    Tr::tr("Invalid regular expression: %1").arg(re.errorString()));
+            });
+        });
+
     QSplitter *splitter{nullptr};
 
     using namespace Layouting;
     // clang-format off
     Column {
-        Row {
-            spacing(0),
-            save,
-            clean,
-            m_stopLog,
-            qtInternal,
-            autoScroll,
-            m_timestamps,
-            m_messageTypes,
-            st,
-        },
         Splitter {
             bindTo(&splitter),
-            m_logView,
-            m_categoryView,
+            Column {
+                noMargin(),
+                Row {
+                    spacing(0),
+                    save,
+                    clean,
+                    m_stopLog,
+                    autoScroll,
+                    m_timestamps,
+                    m_messageTypes,
+                    st,
+                },
+                m_logView
+            },
+            Column {
+                noMargin(),
+                Row {
+                    qtInternal,
+                    filterEdit,
+                },
+                m_categoryView,
+            }
         }
     }.attachTo(this);
     // clang-format on
@@ -746,13 +787,18 @@ LoggingViewManagerWidget::LoggingViewManagerWidget(QWidget *parent)
 
     m_sortFilterModel->setFilterRegularExpression("^(?!qt\\.).+");
 
-    connect(qtInternal, &QToolButton::toggled, m_sortFilterModel, [this](bool checked) {
-        if (checked) {
-            m_sortFilterModel->setFilterRegularExpression("");
-        } else {
-            m_sortFilterModel->setFilterRegularExpression("^(?!qt\\.).+");
-        }
+    connect(qtInternal, &QToolButton::clicked, filterEdit, [filterEdit] {
+        filterEdit->setText("^(?!qt\\.).+");
     });
+
+    connect(filterEdit,
+            &Utils::FancyLineEdit::textChanged,
+            m_sortFilterModel,
+            [this](const QString &f) {
+                QRegularExpression re(f);
+                if (re.isValid())
+                    m_sortFilterModel->setFilterRegularExpression(f);
+            });
 
     connect(m_timestamps, &QToolButton::toggled, this, [this](bool checked) {
         m_logView->setColumnHidden(0, !checked);
@@ -802,40 +848,70 @@ void LoggingViewManagerWidget::showLogCategoryContextMenu(const QPoint &pos) con
 
     QMenu m;
     auto uncheckAll = new QAction(Tr::tr("Uncheck All"), &m);
+    auto resetAll = new QAction(Tr::tr("Reset All"), &m);
 
-    int column = 0;
+    auto isTypeColumn = [](int column) {
+        return column >= LoggingCategoryModel::Column::Debug
+               && column <= LoggingCategoryModel::Column::Info;
+    };
 
-    if (idx.isValid()) {
-        column = idx.column();
-        if (column >= LoggingCategoryModel::Column::Debug
-            && column <= LoggingCategoryModel::Column::Info) {
-            bool isChecked = idx.data(Qt::CheckStateRole).toBool();
-
-            QString text = isChecked ? Tr::tr("Uncheck All %1") : Tr::tr("Check All %1");
-
-            uncheckAll->setText(text.arg(messageTypeToString(
-                static_cast<QtMsgType>(column - LoggingCategoryModel::Column::Debug))));
-
-            connect(uncheckAll, &QAction::triggered, m_sortFilterModel, [this, idx, isChecked] {
-                for (int i = 0; i < m_sortFilterModel->rowCount(); ++i) {
-                    m_sortFilterModel->setData(m_sortFilterModel->index(i, idx.column()),
-                                               !isChecked,
-                                               Qt::CheckStateRole);
-                }
-            });
-        } else {
-            connect(uncheckAll, &QAction::triggered, m_sortFilterModel, [this] {
-                for (int i = 0; i < m_sortFilterModel->rowCount(); ++i) {
-                    for (int c = LoggingCategoryModel::Column::Debug;
-                         c <= LoggingCategoryModel::Column::Info;
-                         ++c) {
-                        m_sortFilterModel->setData(m_sortFilterModel->index(i, c),
-                                                   false,
-                                                   Qt::CheckStateRole);
-                    }
-                }
-            });
+    auto setChecked = [this](std::initializer_list<LoggingCategoryModel::Column> columns,
+                             Qt::CheckState checked) {
+        for (int row = 0, count = m_sortFilterModel->rowCount(); row < count; ++row) {
+            for (int column : columns) {
+                m_sortFilterModel->setData(m_sortFilterModel->index(row, column),
+                                           checked,
+                                           Qt::CheckStateRole);
+            }
         }
+    };
+    auto resetToOriginal = [this](std::initializer_list<LoggingCategoryModel::Column> columns) {
+        for (int row = 0, count = m_sortFilterModel->rowCount(); row < count; ++row) {
+            for (int column : columns) {
+                const QModelIndex id = m_sortFilterModel->index(row, column);
+                m_sortFilterModel->setData(id,
+                                           id.data(LoggingCategoryModel::OriginalStateRole),
+                                           Qt::CheckStateRole);
+            }
+        }
+    };
+
+    if (idx.isValid() && isTypeColumn(idx.column())) {
+        const LoggingCategoryModel::Column column = static_cast<LoggingCategoryModel::Column>(
+            idx.column());
+        bool isChecked = idx.data(Qt::CheckStateRole).toInt() == Qt::Checked;
+        const QString uncheckText = isChecked ? Tr::tr("Uncheck All %1") : Tr::tr("Check All %1");
+
+        uncheckAll->setText(uncheckText.arg(messageTypeToString(
+            static_cast<QtMsgType>(column - LoggingCategoryModel::Column::Debug))));
+        resetAll->setText(Tr::tr("Reset All %1")
+                              .arg(messageTypeToString(static_cast<QtMsgType>(
+                                  column - LoggingCategoryModel::Column::Debug))));
+
+        Qt::CheckState newState = isChecked ? Qt::Unchecked : Qt::Checked;
+
+        connect(uncheckAll,
+                &QAction::triggered,
+                m_sortFilterModel,
+                [setChecked, column, newState]() { setChecked({column}, newState); });
+
+        connect(resetAll, &QAction::triggered, m_sortFilterModel, [resetToOriginal, column]() {
+            resetToOriginal({column});
+        });
+
+    } else {
+        // No need to add Fatal here, as it is read-only
+        static auto allColumns = {LoggingCategoryModel::Column::Debug,
+                                  LoggingCategoryModel::Column::Warning,
+                                  LoggingCategoryModel::Column::Critical,
+                                  LoggingCategoryModel::Column::Info};
+
+        connect(uncheckAll, &QAction::triggered, m_sortFilterModel, [setChecked]() {
+            setChecked(allColumns, Qt::Unchecked);
+        });
+        connect(resetAll, &QAction::triggered, m_sortFilterModel, [resetToOriginal]() {
+            resetToOriginal(allColumns);
+        });
     }
 
     // minimal load/save - plugins could later provide presets on their own?
@@ -844,6 +920,7 @@ void LoggingViewManagerWidget::showLogCategoryContextMenu(const QPoint &pos) con
     auto loadPreset = new QAction(Tr::tr("Update from Preset..."), &m);
     m.addAction(loadPreset);
     m.addAction(uncheckAll);
+    m.addAction(resetAll);
     connect(savePreset,
             &QAction::triggered,
             m_categoryModel,
