@@ -28420,7 +28420,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>In FakeVim nicht implementiert.</translation>
     </message>
     <message>
-        <source>Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode.</source>
+        <source>Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode.</source>
         <translatorcomment>These are the names of the actual keys on my german Apple keyboard https://support.apple.com/de-de/HT201236</translatorcomment>
         <translation>Benutzen sie Control-Umschalt-Y, Control-Umschalt-Y, um den FakeVim-Modus zu verlassen.</translation>
     </message>

@@ -28049,8 +28049,8 @@ Raison : %3</translation>
         <translation>La marque «&#xa0;%1&#xa0;» n&apos;est pas définie.</translation>
     </message>
     <message>
-        <source>Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode.</source>
-        <translation>Tapez Meta-Maj-Y, Meta-Maj-Y pour quitter le mode FakeVim.</translation>
+        <source>Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode.</source>
+        <translation>Tapez Contrôle-Maj-Y, Contrôle-Maj-Y pour quitter le mode FakeVim.</translation>
     </message>
     <message>
         <source>Type Alt-Y, Alt-Y to quit FakeVim mode.</source>

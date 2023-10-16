@@ -18911,7 +18911,7 @@ will also disable the following plugins:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode.</source>
+        <source>Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
