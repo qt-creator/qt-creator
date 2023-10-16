@@ -474,7 +474,9 @@ void CompilerWidget::doCompile()
                 if (l.opcodes.empty())
                     continue;
 
-                auto mark = new TextMark(m_asmDocument.get(), i, TextMarkCategory{"Bytes", "Bytes"});
+                auto mark = new TextMark(m_asmDocument.get(),
+                                         i,
+                                         TextMarkCategory{Tr::tr("Bytes"), "Bytes"});
                 mark->setLineAnnotation(l.opcodes.join(' '));
                 m_marks.append(mark);
             }
