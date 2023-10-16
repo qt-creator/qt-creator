@@ -537,7 +537,7 @@ void Client::initialize()
     else
         params.setWorkSpaceFolders(workspaces);
     InitializeRequest initRequest(params);
-    initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse){
+    initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse) {
         d->initializeCallback(initResponse);
     });
     if (std::optional<ResponseHandler> responseHandler = initRequest.responseHandler())
@@ -2105,7 +2105,11 @@ void Client::setDocumentChangeUpdateThreshold(int msecs)
 
 void ClientPrivate::initializeCallback(const InitializeRequest::Response &initResponse)
 {
-    QTC_ASSERT(m_state == Client::InitializeRequested, return);
+    if (m_state != Client::InitializeRequested) {
+        qCWarning(LOGLSPCLIENT) << "Dropping initialize response in unexpected state " << m_state;
+        qCDebug(LOGLSPCLIENT) << initResponse.toJsonObject();
+        return;
+    }
     if (std::optional<ResponseError<InitializeError>> error = initResponse.error()) {
         if (std::optional<InitializeError> data = error->data()) {
             if (data->retry()) {
