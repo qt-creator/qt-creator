@@ -12,6 +12,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+  qtc_handle_compiler_cache_support()
 endif()
 
 if (NOT WIN32 OR NOT MSVC)
