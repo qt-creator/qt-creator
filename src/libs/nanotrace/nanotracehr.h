@@ -761,10 +761,16 @@ public:
 
     static constexpr bool isActive() { return true; }
 
+public:
+    IsEnabled isEnabled = IsEnabled::Yes;
+
 private:
     template<typename... Arguments>
     void begin(char type, std::size_t id, StringType traceName, Arguments &&...arguments)
     {
+        if (isEnabled == IsEnabled::No)
+            return;
+
         auto &traceEvent = getTraceEvent(m_eventQueue);
 
         traceEvent.name = std::move(traceName);
@@ -778,6 +784,9 @@ private:
     template<typename... Arguments>
     void tick(char type, std::size_t id, StringType traceName, Arguments &&...arguments)
     {
+        if (isEnabled == IsEnabled::No)
+            return;
+
         auto time = Clock::now();
 
         auto &traceEvent = getTraceEvent(m_eventQueue);
@@ -793,6 +802,9 @@ private:
     template<typename... Arguments>
     void end(char type, std::size_t id, StringType traceName, Arguments &&...arguments)
     {
+        if (isEnabled == IsEnabled::No)
+            return;
+
         auto time = Clock::now();
 
         auto &traceEvent = getTraceEvent(m_eventQueue);
@@ -849,7 +861,7 @@ public:
         : m_name{name}
         , m_category{category}
     {
-        if (category.eventQueue().isEnabled == IsEnabled::Yes) {
+        if (category.isEnabled == IsEnabled::Yes) {
             Internal::appendArguments<ArgumentsStringType>(m_arguments,
                                                            std::forward<Arguments>(arguments)...);
             m_start = Clock::now();
@@ -863,7 +875,7 @@ public:
     ~Tracer()
     {
         if constexpr (tracingStatus() == Tracing::IsEnabled) {
-            if (m_category.eventQueue().isEnabled == IsEnabled::Yes) {
+            if (m_category.isEnabled == IsEnabled::Yes) {
                 auto duration = Clock::now() - m_start;
                 auto &traceEvent = getTraceEvent(m_category.eventQueue());
                 traceEvent.name = m_name;
