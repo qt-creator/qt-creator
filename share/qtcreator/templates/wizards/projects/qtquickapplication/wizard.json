@@ -55,7 +55,7 @@
             [
                 {
                     "name": "QdsProjectStyle",
-                    "trDisplayName": "Creates a project that you can open in Qt Design Studio.",
+                    "trDisplayName": "Creates a project that you can open in Qt Design Studio",
                     "trToolTip": "Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.",
                     "type": "CheckBox",
                     "span": true,
@@ -78,7 +78,7 @@
                 },
                 {
                     "name": "MinimumSupportedQtVersion",
-                    "trDisplayName": "The minimum version of Qt you want to build the application for.",
+                    "trDisplayName": "The minimum version of Qt you want to build the application for",
                     "type": "ComboBox",
                     "data":
                     {
