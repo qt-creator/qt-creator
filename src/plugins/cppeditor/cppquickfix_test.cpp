@@ -6286,6 +6286,44 @@ void QuickfixTest::testAddIncludeForUndefinedIdentifier_data()
             << TestIncludePaths::globalIncludePath()
             << testDocuments << firstRefactoringOperation << "";
     testDocuments.clear();
+
+    original = "class A{};";
+    testDocuments << CppTestDocument::create("a.h", original, original);
+    original = "class B{};";
+    testDocuments << CppTestDocument::create("b.h", original, original);
+    original =
+            "#include \"b.h\"\n"
+            "@A a;\n"
+            "B b;";
+    expected =
+            "#include \"b.h\"\n\n"
+            "#include \"a.h\"\n"
+            "A a;\n"
+            "B b;";
+    testDocuments << CppTestDocument::create("b.cpp", original, expected);
+    QTest::newRow("preserve first header")
+            << TestIncludePaths::globalIncludePath()
+            << testDocuments << firstRefactoringOperation << "";
+    testDocuments.clear();
+
+    original = "class C{};";
+    testDocuments << CppTestDocument::create("c.h", original, original);
+    original = "class B{};";
+    testDocuments << CppTestDocument::create("b.h", original, original);
+    original =
+            "#include \"c.h\"\n"
+            "C c;\n"
+            "@B b;";
+    expected =
+            "#include \"b.h\"\n"
+            "#include \"c.h\"\n"
+            "C c;\n"
+            "B b;";
+    testDocuments << CppTestDocument::create("x.cpp", original, expected);
+    QTest::newRow("do not preserve first header")
+            << TestIncludePaths::globalIncludePath()
+            << testDocuments << firstRefactoringOperation << "";
+    testDocuments.clear();
 }
 
 void QuickfixTest::testAddIncludeForUndefinedIdentifier()

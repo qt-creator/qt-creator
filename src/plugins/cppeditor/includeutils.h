@@ -6,6 +6,8 @@
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/PreprocessorClient.h>
 
+#include <utils/filepath.h>
+
 #include <QList>
 #include <QObject>
 #include <QString>
@@ -59,7 +61,7 @@ public:
     enum MocIncludeMode { RespectMocIncludes, IgnoreMocIncludes };
     enum IncludeStyle { LocalBeforeGlobal, GlobalBeforeLocal, AutoDetect };
 
-    LineForNewIncludeDirective(const QTextDocument *textDocument,
+    LineForNewIncludeDirective(const Utils::FilePath &filePath, const QTextDocument *textDocument,
                                const CPlusPlus::Document::Ptr cppDocument,
                                MocIncludeMode mocIncludeMode = IgnoreMocIncludes,
                                IncludeStyle includeStyle = AutoDetect);
@@ -74,6 +76,7 @@ private:
     QList<IncludeGroup> getGroupsByIncludeType(const QList<IncludeGroup> &groups,
                                                IncludeType includeType);
 
+    const Utils::FilePath m_filePath;
     const QTextDocument *m_textDocument;
     const CPlusPlus::Document::Ptr m_cppDocument;
 

@@ -103,11 +103,13 @@ int lineAfterFirstComment(const QTextDocument *textDocument)
 
 } // anonymous namespace
 
-LineForNewIncludeDirective::LineForNewIncludeDirective(const QTextDocument *textDocument,
+LineForNewIncludeDirective::LineForNewIncludeDirective(const FilePath &filePath,
+                                                       const QTextDocument *textDocument,
                                                        const Document::Ptr cppDocument,
                                                        MocIncludeMode mocIncludeMode,
                                                        IncludeStyle includeStyle)
-    : m_textDocument(textDocument)
+    : m_filePath(filePath)
+    , m_textDocument(textDocument)
     , m_cppDocument(cppDocument)
     , m_includeStyle(includeStyle)
 {
@@ -204,7 +206,31 @@ int LineForNewIncludeDirective::operator()(const QString &newIncludeFileName,
 
     using IncludeGroups = QList<IncludeGroup>;
 
-    const IncludeGroups groupsNewline = IncludeGroup::detectIncludeGroupsByNewLines(m_includes);
+    IncludeGroups groupsNewline = IncludeGroup::detectIncludeGroupsByNewLines(m_includes);
+
+    // If the first group consists only of the header(s) for the including source file,
+    // then it must stay as it is.
+    if (groupsNewline.first().size() <= 2) {
+        bool firstGroupIsSpecial = true;
+        const QString baseName = m_filePath.baseName();
+        const QString privBaseName = baseName + "_p";
+        for (const auto &include : groupsNewline.first().includes()) {
+            const QString inclBaseName = FilePath::fromString(include.unresolvedFileName())
+                                             .baseName();
+            if (inclBaseName != baseName && inclBaseName != privBaseName) {
+                firstGroupIsSpecial = false;
+                break;
+            }
+        }
+        if (firstGroupIsSpecial) {
+            if (groupsNewline.size() == 1) {
+                *newLinesToPrepend = 1;
+                return groupsNewline.first().last().line() + 1;
+            }
+            groupsNewline.removeFirst();
+        }
+    }
+
     const bool includeAtTop
         = (newIncludeType == Client::IncludeLocal && m_includeStyle == LocalBeforeGlobal)
             || (newIncludeType == Client::IncludeGlobal && m_includeStyle == GlobalBeforeLocal);

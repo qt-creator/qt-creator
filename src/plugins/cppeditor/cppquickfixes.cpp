@@ -212,7 +212,7 @@ void insertNewIncludeDirective(const QString &include, CppRefactoringFilePtr fil
 {
     // Find optimal position
     using namespace IncludeUtils;
-    LineForNewIncludeDirective finder(file->document(), cppDocument,
+    LineForNewIncludeDirective finder(file->filePath(), file->document(), cppDocument,
                                       LineForNewIncludeDirective::IgnoreMocIncludes,
                                       LineForNewIncludeDirective::AutoDetect);
     unsigned newLinesToPrepend = 0;
