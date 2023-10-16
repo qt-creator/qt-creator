@@ -17,6 +17,8 @@
 #include <QApplication>
 #include <QMenu>
 
+using namespace Utils;
+
 namespace Core::Internal {
 
 class ProxyModel : public QAbstractProxyModel
@@ -253,8 +255,8 @@ QVariant ProxyModel::data(const QModelIndex &index, int role) const
         const QVariant sourceDecoration = QAbstractProxyModel::data(index, role);
         if (sourceDecoration.isValid())
             return sourceDecoration;
-        const QString fileName = QAbstractProxyModel::data(index, Qt::DisplayRole).toString();
-        return Utils::FileIconProvider::icon(Utils::FilePath::fromString(fileName));
+        const QVariant filePath = QAbstractProxyModel::data(index, DocumentModel::FilePathRole);
+        return FileIconProvider::icon(FilePath::fromVariant(filePath));
     }
 
     return QAbstractProxyModel::data(index, role);
