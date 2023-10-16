@@ -8,14 +8,10 @@
     "trDisplayCategory": "Test Project",
     "icon": "../autotest.png",
     "iconKind": "Themed",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureDesktop" ],
     "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
 
     "options":
     [
-        { "key": "TestFrameWork",
-          "value": "Catch2"
-        },
         { "key": "ProjectFilePath",
           "value": "%{JS: value('BuildSystem') == 'qmake' ? value('ProFileName') : (value('BuildSystem') == 'qbs' ? value('QbsFileName') : value('CMakeFileName')) }"
         },
@@ -64,6 +60,26 @@
             "data":
             [
                 {
+                    "name": "TestFrameWork",
+                    "trDisplayName": "Test framework:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "Catch2 v2 (header only)",
+                                "value": "Catch2"
+                            },
+                            {
+                                "trKey": "Catch2 v3 (shared libraries)",
+                                "value": "Catch2_dyn"
+                            }
+                        ]
+                    }
+                },
+                {
                     "name": "TestCaseName",
                     "trDisplayName": "Test case name:",
                     "mandatory": true,
@@ -81,9 +97,27 @@
                     }
                 },
                 {
+                    "name": "CatchInstallDir",
+                    "trDisplayName": "Catch2 install directory (optional):",
+                    "visible": "%{JS: value('TestFrameWork') === 'Catch2_dyn'}",
+                    "mandatory": false,
+                    "type": "PathChooser",
+                    "data": {
+                        "kind": "existingDirectory"
+                    }
+                },
+                {
+                    "name": "Catch2Main",
+                    "trDisplayName": "Use own main",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'Catch2_dyn'}",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false
+                    }
+                },
+                {
                     "name": "Catch2NeedsQt",
                     "trDisplayName": "Use Qt libraries",
-                    "visible": "%{JS: '%{TestFrameWork}' === 'Catch2'}",
                     "type": "CheckBox",
                     "data": {
                         "checked": false
@@ -126,7 +160,7 @@
             "enabled": "%{IsTopLevelProject}",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "%{JS: (value('Catch2NeedsQt') || value('BuildSystem') === 'qmake') ? 'QtSupport.Wizards.FeatureQt' : 'QtSupport.Wizards.FeatureDesktop' }" ]
+                 "requiredFeatures": [ "%{JS: (value('Catch2NeedsQt') == 'true' || value('BuildSystem') === 'qmake') ? 'QtSupport.Wizards.FeatureQt' : 'DeviceType.Desktop' }" ]
             }
         },
         {
@@ -149,11 +183,23 @@
                     "openAsProject": true
                 },
                 {
+                    "source": "../files/catch-common.pri",
+                    "target": "catch-common.pri",
+                    "openInEditor": false,
+                    "condition": "%{JS: value('BuildSystem') == 'qmake' && '%{TestFrameWork}' == 'Catch2_dyn'}"
+                },
+                {
                     "source": "../files/tst.qbs",
                     "target": "%{ProjectFilePath}",
                     "condition": "%{JS: value('BuildSystem') == 'qbs'}",
                     "openInEditor": false,
                     "openAsProject": true
+                },
+                {
+                    "source": "../files/catchCommon.js",
+                    "target": "catchCommon.js",
+                    "condition": "%{JS: value('BuildSystem') == 'qbs'}",
+                    "openInEditor": false
                 },
                 {
                     "source": "../files/tst.txt",
@@ -164,13 +210,13 @@
                 },
                 {
                     "source": "../files/tst_main.cpp",
+                    "condition": "%{JS: '%{TestFrameWork}' == 'Catch2' || value('Catch2Main') == 'true'}",
                     "target": "%{MainCppName}",
                     "openInEditor": true
                 },
                 {
                     "source": "../files/catch2_tst.cpp",
                     "target": "%{TestCaseFileWithCppSuffix}",
-                    "condition": "%{JS: '%{TestFrameWork}' === 'Catch2'}",
                     "openInEditor": true
                 },
                 {

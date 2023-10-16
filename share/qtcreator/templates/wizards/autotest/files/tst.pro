@@ -95,7 +95,7 @@ SOURCES += \\
     %{MainCppName} \\
     %{TestCaseFileWithCppSuffix}
 @endif
-@if "%{TestFrameWork}" == "Catch2"
+@if "%{TestFrameWork}" == "Catch2" || "%{TestFrameWork}" == "Catch2_dyn"
 TEMPLATE = app
 @if "%{Catch2NeedsQt}" == "true"
 QT += gui
@@ -106,7 +106,8 @@ CONFIG += console
 @endif
 
 CONFIG += c++11
-
+@endif
+@if "%{TestFrameWork}" == "Catch2"
 isEmpty(CATCH_INCLUDE_DIR): CATCH_INCLUDE_DIR=$$(CATCH_INCLUDE_DIR)
 @if "%{CatchIncDir}" != ""
 # set by Qt Creator wizard
@@ -119,6 +120,21 @@ isEmpty(CATCH_INCLUDE_DIR): {
 }
 
 SOURCES += \\
-    main.cpp \\
+    %{MainCppName} \\
     %{TestCaseFileWithCppSuffix}
+@endif
+@if "%{TestFrameWork}" == "Catch2_dyn"
+@if "%{Catch2Main}" == "true"
+SOURCES = %{TestCaseFileWithCppSuffix} \\
+        %{MainCppName}
+
+CATCH2_MAIN=0
+
+@else
+SOURCES = %{TestCaseFileWithCppSuffix}
+
+CATCH2_MAIN=1
+
+@endif
+include(catch-common.pri)
 @endif

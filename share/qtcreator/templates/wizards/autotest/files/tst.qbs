@@ -16,6 +16,12 @@ import qbs.FileInfo
 import qbs.Environment
 import qbs.File
 @endif
+@if "%{TestFrameWork}" == "Catch2_dyn"
+import qbs.Environment
+import qbs.File
+
+import "catchCommon.js" as catchCommon
+@endif
 
 CppApplication {
 @if "%{TestFrameWork}" == "QtTest"
@@ -196,6 +202,41 @@ CppApplication {
         "%{MainCppName}",
         "%{TestCaseFileWithCppSuffix}",
     ]
+@endif
+@if "%{TestFrameWork}" == "Catch2_dyn"
+    property string catch2Dir: {
+        if (typeof Environment.getEnv("CATCH_INSTALL_DIR") === 'undefined') {
+            if ("%{CatchInstallDir}" === "") {
+                console.warn("Using Catch2 from system")
+            } else {
+                console.warn("Using Catch2 install dir specified at Qt Creator wizard")
+                console.log("set CATCH_INSTALL_DIR as environment variable or Qbs property to get rid of this message")
+                return "%{CatchInstallDir}";
+            }
+            return "";
+        } else {
+            return Environment.getEnv("CATCH_INSTALL_DIR");
+        }
+    }
+
+    Properties {
+        condition: catch2Dir !== "" && File.exists(catch2Dir)
+        cpp.includePaths: [].concat(catchCommon.getChildPath(qbs, catch2Dir, "include"));
+        cpp.libraryPaths: catchCommon.getChildPath(qbs, catch2Dir, "lib")
+    }
+@if "%{Catch2Main}" == "false"
+    cpp.dynamicLibraries: base.concat(["Catch2Main", "Catch2"])
+@else
+    cpp.dynamicLibraries: base.concat(["Catch2"])
+@endif
+
+    files: [
+@if "%{Catch2Main}" == "true"
+        "%{MainCppName}",
+@endif
+        "%{TestCaseFileWithCppSuffix}",
+    ]
+
 @endif
 
 }

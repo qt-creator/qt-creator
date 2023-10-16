@@ -185,7 +185,7 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 @endif
 
-add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix} main.cpp)
+add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix} %{MainCppName})
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 
 @if "%{Catch2NeedsQt}" == "true"
@@ -202,4 +202,44 @@ if (CATCH_INCLUDE_DIR STREQUAL "")
 elseif (EXISTS ${CATCH_INCLUDE_DIR})
     include_directories(${CATCH_INCLUDE_DIR})
 endif ()
+@endif
+@if "%{TestFrameWork}" == "Catch2_dyn"
+SET(CMAKE_CXX_STANDARD 11)
+
+if ($ENV{CATCH2_INSTALL_DIR})
+    get_filename_component(_CATCH2_BASE $ENV{CATCH2_INSTALL_DIR} REALPATH)
+elseif (EXISTS "%{CatchInstallDir}") # set by QC
+    get_filename_component(_CATCH2_BASE "%{CatchInstallDir}" REALPATH) # set by QC
+endif()
+
+if (NOT Catch2_DIR)
+    if (_CATCH2_BASE)
+        if (EXISTS "${_CATCH2_BASE}/lib/cmake/Catch2")
+            set(_CATCH2_BASE "${_CATCH2_BASE}/lib/cmake/Catch2")
+        endif()
+        message("Setting Catch2_DIR to ${_CATCH2_BASE}")
+        set(Catch2_DIR ${_CATCH2_BASE})
+    else()
+        message("No Catch2_DIR specified - using system defaults.")
+    endif()
+endif()
+
+find_package(Catch2 3 REQUIRED)
+@if "%{Catch2NeedsQt}" == "true"
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Gui)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
+@endif
+
+@if "%{Catch2Main}" == "false"
+add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix})
+target_link_libraries(%{TestCaseName} PRIVATE Catch2::Catch2WithMain)
+@else
+add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix} %{MainCppName})
+target_link_libraries(%{TestCaseName} PRIVATE Catch2::Catch2)
+@endif
+@if "%{Catch2NeedsQt}" == "true"
+target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
+@endif
+
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 @endif

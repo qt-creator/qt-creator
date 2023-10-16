@@ -55,3 +55,22 @@ int main(int argc, char** argv)
 }
 @endif
 @endif
+@if "%{TestFrameWork}" == "Catch2_dyn" && "%{Catch2Main}" == "true"
+#include <catch2/catch_session.hpp>
+@if "%{Catch2NeedsQt}" == "true"
+#include <QtGui/QGuiApplication>
+@endif
+
+int main( int argc, char* argv[] ) {
+    // your setup ...
+@if "%{Catch2NeedsQt}" == "true"
+    QGuiApplication app(argc, argv);
+@endif
+
+  int result = Catch::Session().run( argc, argv );
+
+  // your clean-up...
+
+  return result;
+}
+@endif
