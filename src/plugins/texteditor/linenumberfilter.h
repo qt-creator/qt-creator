@@ -3,10 +3,17 @@
 
 #pragma once
 
-namespace Core { class ILocatorFilter; }
+#include <coreplugin/locator/ilocatorfilter.h>
 
 namespace TextEditor::Internal {
 
-Core::ILocatorFilter *lineNumberFilter();
+class LineNumberFilter : public Core::ILocatorFilter
+{
+public:
+    LineNumberFilter();
 
-} // TextEditor::Internal
+private:
+    Core::LocatorMatcherTasks matchers() final;
+};
+
+} // namespace TextEditor::Internal

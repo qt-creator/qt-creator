@@ -7,6 +7,7 @@
 #include "displaysettings.h"
 #include "fontsettings.h"
 #include "linenumberfilter.h"
+#include "texteditorplugin.h"
 #include "texteditortr.h"
 #include "texteditorsettings.h"
 
@@ -179,7 +180,7 @@ void TextEditorActionHandlerPrivate::createActions()
     registerAction(SELECTALL,
             [] (TextEditorWidget *w) { w->selectAll(); }, true);
     registerAction(GOTO, [] (TextEditorWidget *) {
-            Core::LocatorManager::showFilter(lineNumberFilter());
+            Core::LocatorManager::showFilter(TextEditorPlugin::lineNumberFilter());
         });
     m_modifyingActions << registerAction(PRINT,
             [] (TextEditorWidget *widget) { widget->print(Core::ICore::printer()); });
