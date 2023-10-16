@@ -1083,8 +1083,8 @@ This cannot be undone.</source>
         <translation>单击以选择...</translation>
     </message>
     <message>
-        <source>Images (*.png *.jpg *.jpeg *.webp *.svg)</source>
-        <translation>图片（*.png *.jpg *.jpeg *.webp *.svg）</translation>
+        <source>Images %1</source>
+        <translation>图片 %1</translation>
     </message>
     <message>
         <source>Include default permissions for Qt modules.</source>
@@ -2986,8 +2986,8 @@ Warning: Plain text misses some information, such as duration.</source>
         <translation>基准测试指标</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;官方不支持单一可执行程序中的多个测试用例，根据具体实现，它可能会被执行，但绝不会被明确选择&lt;/p&gt;</translation>
+        <source>Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.</source>
+        <translation>官方不支持单一可执行程序中的多个测试用例，根据具体实现，它可能会被执行，但绝不会被明确选择</translation>
     </message>
     <message>
         <source>inherited</source>

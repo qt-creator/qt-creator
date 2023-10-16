@@ -10836,8 +10836,8 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation>Klicken zum Auswählen...</translation>
     </message>
     <message>
-        <source>Images (*.png *.jpg *.jpeg *.webp *.svg)</source>
-        <translation>Bilder (*.png *.jpg *.jpeg *.webp *.svg)</translation>
+        <source>Images %1</source>
+        <translation>Bilder %1</translation>
     </message>
     <message>
         <source>%1 has been stopped.</source>
@@ -12301,8 +12301,8 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <translation>Qt Test</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Mehrere Testfälle in der gleichen ausführbaren Datei werden nicht offiziell unterstützt. Abhängig von der Implementation werden sie möglicherweise ausgeführt oder auch nicht, aber sie werden niemals explizit auswählbar sein.&lt;/p&gt;</translation>
+        <source>Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.</source>
+        <translation>Mehrere Testfälle in der gleichen ausführbaren Datei werden nicht offiziell unterstützt. Abhängig von der Implementation werden sie möglicherweise ausgeführt oder auch nicht, aber sie werden niemals explizit auswählbar sein.</translation>
     </message>
     <message>
         <source>inherited</source>
@@ -16965,8 +16965,8 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
         <translation>Anmeldung fehlgeschlagen</translation>
     </message>
     <message>
-        <source>The login request failed: </source>
-        <translation>Die Anmeldung ist fehlgeschlagen: </translation>
+        <source>The login request failed: %1</source>
+        <translation>Die Anmeldung ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Select Previous Copilot Suggestion</source>
@@ -17066,8 +17066,8 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Pfad zu Node.js</translation>
     </message>
     <message>
-        <source>Select path to node.js executable. See https://nodejs.org/en/download/for installation instructions.</source>
-        <translation>Wählen Sie den Pfad zur ausführbaren node.js-Datei. Siehe auch https://nodejs.org/en/download/ für eine Installationsanleitung.</translation>
+        <source>Select path to node.js executable. See %1 for installation instructions.</source>
+        <translation>Wählen Sie den Pfad zur ausführbaren node.js-Datei. Siehe auch %1 für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Path to agent.js:</source>
@@ -17078,8 +17078,8 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Pfad zu agent.js</translation>
     </message>
     <message>
-        <source>Select path to agent.js in Copilot Neovim plugin. See https://github.com/github/copilot.vim#getting-started for installation instructions.</source>
-        <translation>Wählen Sie den Pfad zur agent.js-Datei vom Copilot-Plugin für Neovim. Siehe auch https://github.com/github/copilot.vim#getting-started für eine Installationsanleitung.</translation>
+        <source>Select path to agent.js in Copilot Neovim plugin. See %1 for installation instructions.</source>
+        <translation>Wählen Sie den Pfad zur agent.js-Datei vom Copilot-Plugin für Neovim. Siehe auch %1 für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Auto Complete</source>

@@ -73,9 +73,10 @@ CopilotSettings::CopilotSettings()
     nodeJsPath.setLabelText(Tr::tr("Node.js path:"));
     nodeJsPath.setHistoryCompleter("Copilot.NodePath.History");
     nodeJsPath.setDisplayName(Tr::tr("Node.js Path"));
-    nodeJsPath.setToolTip(
-        Tr::tr("Select path to node.js executable. See https://nodejs.org/en/download/"
-               "for installation instructions."));
+    //: %1 is the URL to nodejs
+    nodeJsPath.setToolTip(Tr::tr("Select path to node.js executable. See %1 "
+                                 "for installation instructions.")
+                              .arg("https://nodejs.org/en/download/"));
 
     distPath.setExpectedKind(PathChooser::File);
     distPath.setDefaultValue(distFromVim.toUserOutput());
@@ -83,9 +84,10 @@ CopilotSettings::CopilotSettings()
     distPath.setLabelText(Tr::tr("Path to agent.js:"));
     distPath.setHistoryCompleter("Copilot.DistPath.History");
     distPath.setDisplayName(Tr::tr("Agent.js path"));
-    distPath.setToolTip(Tr::tr(
-        "Select path to agent.js in Copilot Neovim plugin. See "
-        "https://github.com/github/copilot.vim#getting-started for installation instructions."));
+    //: %1 is the URL to copilot.vim getting started
+    distPath.setToolTip(Tr::tr("Select path to agent.js in Copilot Neovim plugin. See "
+                               "%1 for installation instructions.")
+                            .arg("https://github.com/github/copilot.vim#getting-started"));
 
     autoComplete.setDisplayName(Tr::tr("Auto Request"));
     autoComplete.setSettingsKey("Copilot.Autocomplete");

@@ -47,9 +47,12 @@ QVariant QtTestTreeItem::data(int column, int role) const
     case Qt::ToolTipRole: {
         QString toolTip = TestTreeItem::data(column, role).toString();
         if (m_multiTest && type() == TestCase) {
-            toolTip.append(Tr::tr("<p>Multiple testcases inside a single executable are not officially "
-                                  "supported. Depending on the implementation they might get executed "
-                                  "or not, but never will be explicitly selectable.</p>"));
+            toolTip.append(
+                "<p>"
+                + Tr::tr("Multiple testcases inside a single executable are not officially "
+                         "supported. Depending on the implementation they might get executed "
+                         "or not, but never will be explicitly selectable.")
+                + "</p>");
         } else  if (type() == TestFunction) {
             // avoid confusion (displaying header file, but ending up inside source)
             toolTip = parentItem()->name() + "::" + name();

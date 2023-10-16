@@ -10478,8 +10478,8 @@ Les fichiers du répertoire source du paquet Android sont copiés dans le réper
         <translation>Cliquer pour sélectionner…</translation>
     </message>
     <message>
-        <source>Images (*.png *.jpg *.jpeg *.webp *.svg)</source>
-        <translation>Images (*.png *.jpg *.jpeg *.webp *.svg)</translation>
+        <source>Images %1</source>
+        <translation>Images %1</translation>
     </message>
     <message>
         <source>Deploy to Android Device</source>
@@ -11597,8 +11597,8 @@ Avertissement&#xa0;: l&apos;activation de cette fonctionnalité augmente signifi
         <translation>Métriques du benchmark</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;La présence de plusieurs cas de tests dans un unique exécutable n&apos;est officiellement pas supportée. Suivant l&apos;implémentation, ils peuvent être exécutés ou non mais il ne seront jamais sélectionnables explicitement.&lt;/p&gt;</translation>
+        <source>Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.</source>
+        <translation>La présence de plusieurs cas de tests dans un unique exécutable n&apos;est officiellement pas supportée. Suivant l&apos;implémentation, ils peuvent être exécutés ou non mais il ne seront jamais sélectionnables explicitement.</translation>
     </message>
     <message>
         <source>inherited</source>
@@ -16689,8 +16689,8 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Identification échouée</translation>
     </message>
     <message>
-        <source>The login request failed: </source>
-        <translation>La requête d&apos;identification a échouée&#xa0;: </translation>
+        <source>The login request failed: %1</source>
+        <translation>La requête d&apos;identification a échouée&#xa0;: %1</translation>
     </message>
     <message>
         <source>Copilot</source>
@@ -16773,8 +16773,8 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Chemin Node.js</translation>
     </message>
     <message>
-        <source>Select path to node.js executable. See https://nodejs.org/en/download/for installation instructions.</source>
-        <translation>Sélectionner le chemin menant à l&apos;exécutable node.js. Voir https://nodejs.org/fr/download/ pour les instructions d&apos;installation.</translation>
+        <source>Select path to node.js executable. See %1 for installation instructions.</source>
+        <translation>Sélectionner le chemin menant à l&apos;exécutable node.js. Voir %1 pour les instructions d&apos;installation.</translation>
     </message>
     <message>
         <source>Path to agent.js:</source>
@@ -16785,8 +16785,8 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Chemin Agent.js</translation>
     </message>
     <message>
-        <source>Select path to agent.js in Copilot Neovim plugin. See https://github.com/github/copilot.vim#getting-started for installation instructions.</source>
-        <translation>Sélectionner le chemin vers agent.js dans le plug-in Copilot Neovim Voir https://github.com/github/copilot.vim#getting-started pour les instructions d&apos;installation.</translation>
+        <source>Select path to agent.js in Copilot Neovim plugin. See %1 for installation instructions.</source>
+        <translation>Sélectionner le chemin vers agent.js dans le plug-in Copilot Neovim Voir %1 pour les instructions d&apos;installation.</translation>
     </message>
     <message>
         <source>Auto Complete</source>
