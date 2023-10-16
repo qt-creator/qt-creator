@@ -139,7 +139,8 @@ void AsynchronousImageCache::requestImage(Utils::SmallStringView name,
 {
     auto traceToken = ImageCache::category().beginAsynchronous(
         "request image in asynchornous image cache"_t);
-    m_taskQueue.addTask(std::move(name),
+    m_taskQueue.addTask(traceToken.create(),
+                        std::move(name),
                         std::move(extraId),
                         std::move(captureCallback),
                         std::move(abortCallback),
@@ -156,7 +157,8 @@ void AsynchronousImageCache::requestMidSizeImage(Utils::SmallStringView name,
 {
     auto traceToken = ImageCache::category().beginAsynchronous(
         "request mid size image in asynchornous image cache"_t);
-    m_taskQueue.addTask(std::move(name),
+    m_taskQueue.addTask(traceToken.create(),
+                        std::move(name),
                         std::move(extraId),
                         std::move(captureCallback),
                         std::move(abortCallback),
@@ -173,7 +175,8 @@ void AsynchronousImageCache::requestSmallImage(Utils::SmallStringView name,
 {
     auto traceToken = ImageCache::category().beginAsynchronous(
         "request small size image in asynchornous image cache"_t);
-    m_taskQueue.addTask(std::move(name),
+    m_taskQueue.addTask(traceToken.create(),
+                        std::move(name),
                         std::move(extraId),
                         std::move(captureCallback),
                         std::move(abortCallback),

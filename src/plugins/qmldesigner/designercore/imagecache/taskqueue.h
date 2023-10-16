@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <nanotrace/nanotracehr.h>
+
 #include <condition_variable>
 #include <deque>
 #include <mutex>
@@ -23,17 +25,24 @@ public:
 
     ~TaskQueue() { destroy(); }
 
-    template<typename... Arguments>
-    void addTask(Arguments &&...arguments)
+    template<typename TraceEvent, NanotraceHR::Tracing isEnabled, typename... Arguments>
+    void addTask(NanotraceHR::AsynchronousToken<TraceEvent, isEnabled> traceToken,
+                 Arguments &&...arguments)
     {
         {
             std::unique_lock lock{m_mutex};
 
-            ensureThreadIsRunning();
+            ensureThreadIsRunning(std::move(traceToken));
 
             m_tasks.emplace_back(std::forward<Arguments>(arguments)...);
         }
         m_condition.notify_all();
+    }
+
+    template<typename... Arguments>
+    void addTask(Arguments &&...arguments)
+    {
+        addTask(NanotraceHR::DisabledAsynchronousToken{}, std::forward<Arguments>(arguments)...);
     }
 
     void clean()
@@ -86,8 +95,11 @@ private:
         return {std::move(task)};
     }
 
-    void ensureThreadIsRunning()
+    template<typename TraceTokend>
+    void ensureThreadIsRunning(TraceTokend traceToken)
     {
+        using namespace NanotraceHR::Literals;
+
         if (m_finishing || !m_sleeping)
             return;
 
@@ -96,15 +108,18 @@ private:
 
         m_sleeping = false;
 
-        m_backgroundThread = std::thread{[this] {
-            while (true) {
-                auto [lock, abort] = waitForTasks();
-                if (abort)
-                    return;
-                if (auto task = getTask(std::move(lock)); task)
-                    m_dispatchCallback(*task);
-            }
-        }};
+        auto threadCreateToken = traceToken.begin("thread is created in the task queue"_t);
+        m_backgroundThread = std::thread{[this](auto traceToken) {
+                                             traceToken.tick("thread is ready"_t);
+                                             while (true) {
+                                                 auto [lock, abort] = waitForTasks();
+                                                 if (abort)
+                                                     return;
+                                                 if (auto task = getTask(std::move(lock)); task)
+                                                     m_dispatchCallback(*task);
+                                             }
+                                         },
+                                         std::move(traceToken)};
     }
 
     void clearTasks(Tasks &tasks)

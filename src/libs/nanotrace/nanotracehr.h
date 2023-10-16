@@ -494,8 +494,10 @@ public:
 
     ~AsynchronousToken() {}
 
+    [[nodiscard]] AsynchronousToken create() { return {}; }
+
     template<typename... Arguments>
-    AsynchronousToken begin(ArgumentType, Arguments &&...)
+    [[nodiscard]] AsynchronousToken begin(ArgumentType, Arguments &&...)
     {
         return AsynchronousToken{};
     }
@@ -508,6 +510,8 @@ public:
     void end(Arguments &&...)
     {}
 };
+
+using DisabledAsynchronousToken = AsynchronousToken<StringViewTraceEvent, Tracing::IsDisabled>;
 
 template<typename TraceEvent, Tracing isEnabled>
 class Category;
@@ -551,13 +555,15 @@ public:
 
     ~AsynchronousToken() { end(); }
 
+    [[nodiscard]] AsynchronousToken create() { return {{}, m_id, *m_category}; }
+
     template<typename... Arguments>
-    AsynchronousToken begin(ArgumentType name, Arguments &&...arguments)
+    [[nodiscard]] AsynchronousToken begin(ArgumentType name, Arguments &&...arguments)
     {
         if (m_id)
-            m_category->begin('b', m_id, std::move(name), std::forward<Arguments>(arguments)...);
+            m_category->begin('b', m_id, name, std::forward<Arguments>(arguments)...);
 
-        return AsynchronousToken{m_name, m_id, *m_category};
+        return AsynchronousToken{std::move(name), m_id, *m_category};
     }
 
     template<typename... Arguments>
@@ -570,7 +576,7 @@ public:
     template<typename... Arguments>
     void end(Arguments &&...arguments)
     {
-        if (m_id)
+        if (m_id && m_name.size())
             m_category->end('e', m_id, std::move(m_name), std::forward<Arguments>(arguments)...);
 
         m_id = 0;
@@ -597,13 +603,13 @@ public:
     Category(ArgumentType, EventQueue<TraceEvent, Tracing::IsEnabled> &) {}
 
     template<typename... Arguments>
-    AsynchronousTokenType beginAsynchronous(ArgumentType, Arguments &&...)
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, Arguments &&...)
     {
         return {};
     }
 
     template<typename... Arguments>
-    ObjectTokenType beginObject(ArgumentType, Arguments &&...)
+    [[nodiscard]] ObjectTokenType beginObject(ArgumentType, Arguments &&...)
     {
         return {};
     }
@@ -636,7 +642,8 @@ public:
     }
 
     template<typename... Arguments>
-    AsynchronousTokenType beginAsynchronous(ArgumentType traceName, Arguments &&...arguments)
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType traceName,
+                                                          Arguments &&...arguments)
     {
         std::size_t id = ++idCounter;
 
@@ -645,18 +652,8 @@ public:
         return {traceName, id, *this};
     }
 
-    ObjectTokenType beginObject(ArgumentType traceName)
-    {
-        std::size_t id = ++idCounter;
-
-        if (id)
-            begin('b', id, std::move(traceName));
-
-        return {traceName, id, *this};
-    }
-
     template<typename... Arguments>
-    ObjectTokenType beginObject(ArgumentType traceName, Arguments &&...arguments)
+    [[nodiscard]] ObjectTokenType beginObject(ArgumentType traceName, Arguments &&...arguments)
     {
         std::size_t id = ++idCounter;
 
@@ -737,7 +734,7 @@ public:
     using ArgumentType = typename Category::ArgumentType;
 
     template<typename... Arguments>
-    Tracer(ArgumentType, Category &, Arguments &&...)
+    [[nodiscard]] Tracer(ArgumentType, Category &, Arguments &&...)
     {}
 
     Tracer(const Tracer &) = delete;
@@ -756,7 +753,7 @@ class Tracer<Category, std::true_type>
 
 public:
     template<typename... Arguments>
-    Tracer(ArgumentType name, Category &category, Arguments &&...arguments)
+    [[nodiscard]] Tracer(ArgumentType name, Category &category, Arguments &&...arguments)
         : m_name{name}
         , m_category{category}
     {
@@ -803,7 +800,7 @@ class GlobalTracer
 {
 public:
     template<typename... Arguments>
-    GlobalTracer(std::string name, std::string category, Arguments &&...arguments)
+    [[nodiscard]] GlobalTracer(std::string name, std::string category, Arguments &&...arguments)
         : m_name{std::move(name)}
         , m_category{std::move(category)}
     {
