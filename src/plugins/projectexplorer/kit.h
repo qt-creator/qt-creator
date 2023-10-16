@@ -119,8 +119,11 @@ public:
     void makeReplacementKit();
     bool isReplacementKit() const;
 
+    void setRelevantAspects(const QSet<Utils::Id> &relevant);
+    QSet<Utils::Id> relevantAspects() const;
     void setIrrelevantAspects(const QSet<Utils::Id> &irrelevant);
     QSet<Utils::Id> irrelevantAspects() const;
+    bool isAspectRelevant(const Utils::Id &aspect) const;
 
     QSet<Utils::Id> supportedPlatforms() const;
     QSet<Utils::Id> availableFeatures() const;

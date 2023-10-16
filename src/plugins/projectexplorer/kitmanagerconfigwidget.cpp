@@ -216,11 +216,8 @@ void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::LayoutItem &paren
 
 void KitManagerConfigWidget::updateVisibility()
 {
-    for (KitAspect *aspect : std::as_const(m_kitAspects)) {
-        const KitAspectFactory *factory = aspect->factory();
-        const bool irrelevant = m_modifiedKit->irrelevantAspects().contains(factory->id());
-        aspect->setVisible(!irrelevant);
-    }
+    for (KitAspect *aspect : std::as_const(m_kitAspects))
+        aspect->setVisible(m_modifiedKit->isAspectRelevant(aspect->factory()->id()));
 }
 
 void KitManagerConfigWidget::makeStickySubWidgetsReadOnly()
