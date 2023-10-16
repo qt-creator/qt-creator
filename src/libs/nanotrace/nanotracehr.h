@@ -75,47 +75,139 @@ constexpr TracerLiteral operator""_t(const char *text, size_t size)
 
 using namespace Literals;
 
+struct IsArray
+{};
+
+inline constexpr IsArray isArray;
+
+struct IsDictonary
+{};
+
+inline constexpr IsDictonary isDictonary;
+
 namespace Internal {
-inline std::string_view covertToString(std::string_view text)
+
+template<typename String>
+void convertToString(String &string, std::string_view text)
 {
-    return text;
+    string.append(R"(")");
+    string.append(text);
+    string.append(R"(")");
 }
 
-template<std::size_t size>
-inline std::string_view covertToString(const char (&text)[size])
+template<typename String, std::size_t size>
+void convertToString(String &string, const char (&text)[size])
 {
-    return text;
+    string.append(R"(")");
+    string.append(text);
+    string.append(R"(")");
 }
 
-inline Utils::PathString covertToString(QStringView text)
+template<typename String>
+void convertToString(String &string, QStringView text)
 {
-    return text;
+    string.append(R"(")");
+    string.append(Utils::PathString{text});
+    string.append(R"(")");
 }
 
-inline Utils::PathString covertToString(QByteArrayView text)
+template<typename String>
+void convertToString(String &string, QByteArrayView text)
 {
-    return text;
+    string.append(R"(")");
+    string.append(std::string_view(text.data(), Utils::usize(text)));
+    string.append(R"(")");
 }
 
-inline Utils::SmallString covertToString(long long number)
+template<typename String>
+void convertToString(String &string, int number)
 {
-    return Utils::SmallString::number(number);
+    string.append(Utils::SmallString::number(number));
 }
 
-inline Utils::SmallString covertToString(double number)
+template<typename String>
+void convertToString(String &string, long long number)
 {
-    return Utils::SmallString::number(number);
+    string.append(Utils::SmallString::number(number));
 }
 
-template<typename String, typename Argument>
-void toArgument(String &text, Argument &&argument)
+template<typename String>
+void convertToString(String &string, double number)
+{
+    string.append(Utils::SmallString::number(number));
+}
+
+template<typename String, typename... Arguments>
+void convertToString(String &string, const std::tuple<const IsDictonary &, Arguments...> &dictonary);
+
+template<typename String, typename... Arguments>
+void convertToString(String &string, const std::tuple<const IsArray &, Arguments...> &list);
+
+template<typename String, template<typename...> typename Container, typename... Arguments>
+void convertToString(String &string, const Container<Arguments...> &container);
+
+template<typename String, typename Value>
+void convertArrayEntryToString(String &string, const Value &value)
+{
+    convertToString(string, value);
+    string.append(",");
+}
+
+template<typename String, typename... Entries>
+void convertArrayToString(String &string, const IsArray &, Entries &...entries)
+{
+    string.append(R"([)");
+    (convertArrayEntryToString(string, entries), ...);
+    if (sizeof...(entries))
+        string.pop_back();
+    string.append("]");
+}
+
+template<typename String, typename... Arguments>
+void convertToString(String &string, const std::tuple<const IsArray &, Arguments...> &list)
+{
+    std::apply([&](auto &&...entries) { convertArrayToString(string, entries...); }, list);
+}
+
+template<typename String, typename Key, typename Value>
+void convertDictonaryEntryToString(String &string, const std::tuple<Key, Value> &argument)
 {
     const auto &[key, value] = argument;
-    text.append(R"(")");
-    text.append(covertToString(key));
-    text.append(R"(":")");
-    text.append(covertToString(value));
-    text.append(R"(",)");
+    convertToString(string, key);
+    string.append(":");
+    convertToString(string, value);
+    string.append(",");
+}
+
+template<typename String, typename... Entries>
+void convertDictonaryToString(String &string, const IsDictonary &, Entries &...entries)
+{
+    string.append(R"({)");
+    (convertDictonaryEntryToString(string, entries), ...);
+    if (sizeof...(entries))
+        string.pop_back();
+    string.append("}");
+}
+
+template<typename String, typename... Arguments>
+void convertToString(String &string, const std::tuple<const IsDictonary &, Arguments...> &dictonary)
+{
+    std::apply([&](auto &&...entries) { convertDictonaryToString(string, entries...); }, dictonary);
+}
+
+template<typename String, template<typename...> typename Container, typename... Arguments>
+void convertToString(String &string, const Container<Arguments...> &container)
+{
+    string.append("[");
+    for (const auto &entry : container) {
+        convertToString(string, entry);
+        string.append(",");
+    }
+
+    if (container.size())
+        string.pop_back();
+
+    string.append("]");
 }
 
 template<typename String, typename... Arguments>
@@ -126,7 +218,7 @@ String toArguments(Arguments &&...arguments)
         constexpr auto argumentCount = sizeof...(Arguments);
         text.reserve(sizeof...(Arguments) * 30);
         text.append("{");
-        (toArgument(text, arguments), ...);
+        (convertDictonaryEntryToString(text, arguments), ...);
         if (argumentCount)
             text.pop_back();
 
