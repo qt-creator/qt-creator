@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QCoreApplication>
 #include <QFuture>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -91,7 +92,7 @@ QFuture<Result> request(
 
             QString errorMessage;
             if (reply->error() == QNetworkReply::ContentNotFoundError) {
-                errorMessage = QObject::tr("Not found");
+                errorMessage = QCoreApplication::translate("QtC::CompilerExplorer", "Not found");
             } else
                 errorMessage = reply->errorString();
 

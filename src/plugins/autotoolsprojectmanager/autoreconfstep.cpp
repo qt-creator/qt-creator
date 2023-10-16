@@ -72,7 +72,8 @@ private:
                 m_runAutoreconf = true;
 
             if (!m_runAutoreconf) {
-                emit addOutput(Tr::tr("Configuration unchanged, skipping autoreconf step."),
+                emit addOutput(::AutotoolsProjectManager::Tr::tr(
+                                   "Configuration unchanged, skipping autoreconf step."),
                                OutputFormat::NormalMessage);
                 return SetupResult::StopWithDone;
             }

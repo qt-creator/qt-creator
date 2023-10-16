@@ -444,7 +444,8 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
 {
     const Utils::expected_str<QByteArray> jsonContents = jsonFile.fileContents();
     if (!jsonContents) {
-        errorMessage = Tr::tr("Failed to read file \"%1\".").arg(jsonFile.fileName());
+        errorMessage
+            = ::CMakeProjectManager::Tr::tr("Failed to read file \"%1\".").arg(jsonFile.fileName());
         return false;
     }
 
@@ -460,7 +461,8 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     }
 
     if (!jsonDoc.isObject()) {
-        errorMessage = Tr::tr("Invalid file \"%1\".").arg(jsonFile.fileName());
+        errorMessage
+            = ::CMakeProjectManager::Tr::tr("Invalid file \"%1\".").arg(jsonFile.fileName());
         return false;
     }
 
@@ -469,7 +471,8 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     m_presetsData.fileDir = jsonFile.parentDir();
 
     if (!parseVersion(root.value("version"), m_presetsData.version)) {
-        errorMessage = Tr::tr("Invalid \"version\" in file \"%1\".").arg(jsonFile.fileName());
+        errorMessage = ::CMakeProjectManager::Tr::tr("Invalid \"version\" in file \"%1\".")
+                           .arg(jsonFile.fileName());
         return false;
     }
 
@@ -484,8 +487,9 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     if (!parseConfigurePresets(root.value("configurePresets"),
                                m_presetsData.configurePresets,
                                jsonFile.parentDir())) {
-        errorMessage
-            = Tr::tr("Invalid \"configurePresets\" section in %1 file").arg(jsonFile.fileName());
+        errorMessage = ::CMakeProjectManager::Tr::tr(
+                           "Invalid \"configurePresets\" section in %1 file")
+                           .arg(jsonFile.fileName());
         return false;
     }
 
@@ -493,8 +497,8 @@ bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage
     if (!parseBuildPresets(root.value("buildPresets"),
                            m_presetsData.buildPresets,
                            jsonFile.parentDir())) {
-        errorMessage
-            = Tr::tr("Invalid \"buildPresets\" section in %1 file").arg(jsonFile.fileName());
+        errorMessage = ::CMakeProjectManager::Tr::tr("Invalid \"buildPresets\" section in %1 file")
+                           .arg(jsonFile.fileName());
         return false;
     }
 

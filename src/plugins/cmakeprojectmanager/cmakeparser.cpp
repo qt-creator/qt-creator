@@ -3,6 +3,8 @@
 
 #include "cmakeparser.h"
 
+#include "cmakeprojectmanagertr.h"
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
@@ -210,7 +212,7 @@ void CMakeParser::flush()
 
         LinkSpecs specs;
         m_lastTask.details << QString();
-        m_lastTask.details << tr("Call stack:");
+        m_lastTask.details << Tr::tr("Call stack:");
         m_lines += 2;
 
         m_callStack->push_front(m_errorOrWarningLine);

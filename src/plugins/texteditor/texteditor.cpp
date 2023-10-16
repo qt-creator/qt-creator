@@ -1094,12 +1094,10 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     connect(m_fileLineEnding, &QToolButton::clicked, ActionManager::instance(), [this] {
         QMenu *menu = new QMenu;
-        menu->addAction(tr("Unix Line Endings (LF)"), [this] {
-            q->selectLineEnding(TextFileFormat::LFLineTerminator);
-        });
-        menu->addAction(tr("Windows Line Endings (CRLF)"), [this] {
-            q->selectLineEnding(TextFileFormat::CRLFLineTerminator);
-        });
+        menu->addAction(Tr::tr("Unix Line Endings (LF)"),
+                        [this] { q->selectLineEnding(TextFileFormat::LFLineTerminator); });
+        menu->addAction(Tr::tr("Windows Line Endings (CRLF)"),
+                        [this] { q->selectLineEnding(TextFileFormat::CRLFLineTerminator); });
         menu->popup(QCursor::pos());
     });
 

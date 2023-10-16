@@ -578,7 +578,7 @@ QmlJsEditingSettings QmlJsEditingSettings::get()
 QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
 {
     setId("C.QmlJsEditing");
-    setDisplayName(Tr::tr("QML/JS Editing"));
+    setDisplayName(::QmlJSEditor::Tr::tr("QML/JS Editing"));
     setCategory(Constants::SETTINGS_CATEGORY_QML);
     setWidgetCreator([] { return new QmlJsEditingSettingsPageWidget; });
 }
