@@ -233,6 +233,11 @@ QVariant CollectionDetailsModel::headerData(int section, Qt::Orientation orienta
     return {};
 }
 
+CollectionDetails::DataType CollectionDetailsModel::propertyDataType(int column) const
+{
+    return m_currentCollection.typeAt(column);
+}
+
 int CollectionDetailsModel::selectedColumn() const
 {
     return m_selectedColumn;

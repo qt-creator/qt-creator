@@ -15,6 +15,7 @@ Item {
     property var rootView: CollectionEditorBackend.rootView
     property var model: CollectionEditorBackend.model
     property var collectionDetailsModel: CollectionEditorBackend.collectionDetailsModel
+    property var collectionDetailsSortFilterModel: CollectionEditorBackend.collectionDetailsSortFilterModel
 
     function showWarning(title, message) {
         warningDialog.title = title
@@ -145,6 +146,7 @@ Item {
     CollectionDetailsView {
         model: root.collectionDetailsModel
         backend: root.model
+        sortedModel: root.collectionDetailsSortFilterModel
         anchors {
             left: collectionsRect.right
             right: parent.right

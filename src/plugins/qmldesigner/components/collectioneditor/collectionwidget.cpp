@@ -4,6 +4,7 @@
 #include "collectionwidget.h"
 
 #include "collectiondetailsmodel.h"
+#include "collectiondetailssortfiltermodel.h"
 #include "collectionsourcemodel.h"
 #include "collectionview.h"
 #include "qmldesignerconstants.h"
@@ -40,6 +41,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     , m_view(view)
     , m_sourceModel(new CollectionSourceModel)
     , m_collectionDetailsModel(new CollectionDetailsModel)
+    , m_collectionDetailsSortFilterModel(std::make_unique<CollectionDetailsSortFilterModel>())
     , m_quickWidget(new StudioQuickWidget(this))
 {
     setWindowTitle(tr("Collection View", "Title of collection view widget"));
@@ -49,6 +51,8 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     icontext = new Core::IContext(this);
     icontext->setContext(context);
     icontext->setWidget(this);
+
+    m_collectionDetailsSortFilterModel->setSourceModel(m_collectionDetailsModel);
 
     m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_COLLECTION_EDITOR);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -65,10 +69,13 @@ CollectionWidget::CollectionWidget(CollectionView *view)
 
     qmlRegisterAnonymousType<CollectionWidget>("CollectionEditorBackend", 1);
     auto map = m_quickWidget->registerPropertyMap("CollectionEditorBackend");
-    map->setProperties(
-        {{"rootView", QVariant::fromValue(this)},
-         {"model", QVariant::fromValue(m_sourceModel.data())},
-         {"collectionDetailsModel", QVariant::fromValue(m_collectionDetailsModel.data())}});
+    map->setProperties({
+        {"rootView", QVariant::fromValue(this)},
+        {"model", QVariant::fromValue(m_sourceModel.data())},
+        {"collectionDetailsModel", QVariant::fromValue(m_collectionDetailsModel.data())},
+        {"collectionDetailsSortFilterModel",
+         QVariant::fromValue(m_collectionDetailsSortFilterModel.get())},
+    });
 
     auto hotReloadShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_F4), this);
     connect(hotReloadShortcut, &QShortcut::activated, this, &CollectionWidget::reloadQmlSource);

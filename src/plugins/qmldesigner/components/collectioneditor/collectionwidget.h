@@ -12,6 +12,7 @@ class StudioQuickWidget;
 namespace QmlDesigner {
 
 class CollectionDetailsModel;
+class CollectionDetailsSortFilterModel;
 class CollectionSourceModel;
 class CollectionView;
 
@@ -40,6 +41,7 @@ private:
     QPointer<CollectionView> m_view;
     QPointer<CollectionSourceModel> m_sourceModel;
     QPointer<CollectionDetailsModel> m_collectionDetailsModel;
+    std::unique_ptr<CollectionDetailsSortFilterModel> m_collectionDetailsSortFilterModel;
     QScopedPointer<StudioQuickWidget> m_quickWidget;
 };
 

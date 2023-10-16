@@ -13,6 +13,7 @@ Rectangle {
 
     required property var model
     required property var backend
+    required property var sortedModel
 
     implicitWidth: 600
     implicitHeight: 400
@@ -80,7 +81,7 @@ Rectangle {
 
             Rectangle {
                 clip: true
-                visible: root.model.isEmpty === false
+                visible: !tableView.model.isEmpty
                 color: StudioTheme.Values.themeControlBackground
                 border.color: StudioTheme.Values.themeControlOutline
                 border.width: 2
@@ -112,14 +113,14 @@ Rectangle {
                 clip: true
 
                 delegate: HeaderDelegate {
-                    selectedItem: root.model.selectedColumn
+                    selectedItem: tableView.model.selectedColumn
 
                     MouseArea {
                         anchors.fill: parent
                         anchors.margins: 5
                         acceptedButtons: Qt.LeftButton | Qt.RightButton
                         onClicked: (mouse) => {
-                            root.model.selectColumn(index)
+                            tableView.model.selectColumn(index)
 
                             if (mouse.button === Qt.RightButton)
                                 headerMenu.popIndex(index)
@@ -151,6 +152,16 @@ Rectangle {
                         text: qsTr("Delete")
                         onTriggered: deleteColumnDialog.popUp(headerMenu.clickedHeader)
                     }
+
+                    StudioControls.MenuItem {
+                        text: qsTr("Sort Ascending")
+                        onTriggered: sortedModel.sort(headerMenu.clickedHeader, Qt.AscendingOrder)
+                    }
+
+                    StudioControls.MenuItem {
+                        text: qsTr("Sort Descending")
+                        onTriggered: sortedModel.sort(headerMenu.clickedHeader, Qt.DescendingOrder)
+                    }
                 }
             }
 
@@ -165,22 +176,21 @@ Rectangle {
                 Layout.alignment: Qt.AlignTop + Qt.AlignLeft
 
                 delegate: HeaderDelegate {
-                    selectedItem: root.model.selectedRow
+                    selectedItem: tableView.model.selectedRow
 
                     MouseArea {
                         anchors.fill: parent
                         anchors.margins: 5
                         acceptedButtons: Qt.LeftButton
-                        onClicked: root.model.selectRow(index)
+                        onClicked: tableView.model.selectRow(index)
                     }
-
                 }
             }
 
             TableView {
                 id: tableView
 
-                model: root.model
+                model: root.sortedModel
                 clip: true
 
                 Layout.preferredWidth: tableView.contentWidth
