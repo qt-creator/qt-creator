@@ -13,14 +13,15 @@ the public Git repository. For example:
 What's new?
 -----------
 
-* Support for Compiler Explorer
+* Integrated [Compiler Explorer (https://godbolt.org)](https://godbolt.org)
 * CMake debugging and the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/)
 * Screen recording
 
 ### Compiler Explorer
 
-Use [Compiler Explorer](https://godbolt.org) in Qt Creator and enter example
-code to explore the capabilities of your compilers and interpreters.
+Use [Compiler Explorer (https://godbolt.org)](https://godbolt.org) in Qt Creator
+and enter example code to explore the capabilities of your compilers and
+interpreters.
 
 To enable the CompilerExplorer plugin, select
 `Help > About Plugins > Utilities > CompilerExplorer`. Then select
@@ -32,7 +33,7 @@ to get started.
 Alternatively, you can open a new `Compiler Explorer` editor via
 `Tools > Compiler Explorer > Open Compiler Explorer`.
 
-Every language, compiler and library that is supported at https://godbolt.org
+Every language, compiler, and library that is supported at <https://godbolt.org>
 is also supported in Qt Creator. You can save your Compiler Explorer session as
 a `.qtce` file (JSON-based).
 
