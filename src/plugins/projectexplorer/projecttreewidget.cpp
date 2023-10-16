@@ -72,8 +72,18 @@ public:
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override
     {
-        QStyledItemDelegate::paint(painter, option, index);
+        const bool useUnavailableMarker = index.data(Project::UseUnavailableMarkerRole).toBool();
+        if (useUnavailableMarker) {
+            QStyleOptionViewItem opt = option;
+            opt.palette.setColor(QPalette::Text, creatorTheme()->color(Theme::TextColorDisabled));
+            QStyledItemDelegate::paint(painter, opt, index);
+            static const QPixmap pixmap
+                = QApplication::style()->standardIcon(QStyle::SP_BrowserStop).pixmap(10);
+            painter->drawPixmap(option.rect.topLeft(), pixmap);
+            return;
+        }
 
+        QStyledItemDelegate::paint(painter, option, index);
         if (index.data(Project::isParsingRole).toBool()) {
             QStyleOptionViewItem opt = option;
             initStyleOption(&opt, index);
