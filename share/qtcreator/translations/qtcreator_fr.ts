@@ -20297,9 +20297,9 @@ Double-cliquez pour modifier l’élément.</translation>
         <translation>Contrôle si clangd peut insérer des fichiers d’en-tête dans le cadre de la complétion de symboles.</translation>
     </message>
     <message>
-        <source>Defines the amount of time Qt Creator waits before sending document changes to the server.
+        <source>Defines the amount of time %1 waits before sending document changes to the server.
 If the document changes again while waiting, this timeout resets.</source>
-        <translation>Définit le temps d’attente de Qt Creator avant d’envoyer les modifications du document au serveur.
+        <translation>Définit le temps d’attente de %1 avant d’envoyer les modifications du document au serveur.
 Si le document est à nouveau modifié pendant l’attente, ce délai est réinitialisé.</translation>
     </message>
     <message>
@@ -27322,8 +27322,8 @@ La recompilation du projet peut aider.</translation>
         <translation>Ouvrir un shell dans le conteneur</translation>
     </message>
     <message>
-        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart Qt Creator.</source>
-        <translation>Le démon Docker ne semble pas fonctionner. Vérifiez que le démon est présent et en cours d&apos;exécution et réinitialisez le démon docker dans les paramètres du périphérique docker ou redémarrez Qt Creator.</translation>
+        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart %1.</source>
+        <translation>Le démon Docker ne semble pas fonctionner. Vérifiez que le démon est présent et en cours d&apos;exécution et réinitialisez le démon docker dans les paramètres du périphérique docker ou redémarrez %1.</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
@@ -49353,8 +49353,8 @@ Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;»</translation>
         <translation>Configurer…</translation>
     </message>
     <message>
-        <source>Sends Esc to terminal instead of Qt Creator.</source>
-        <translation>Envoie Échap au terminal au lieu d&apos;à Qt Creator.</translation>
+        <source>Sends Esc to terminal instead of %1.</source>
+        <translation>Envoie Échap au terminal au lieu d&apos;à %1.</translation>
     </message>
     <message>
         <source>Press %1 to send Esc to terminal.</source>

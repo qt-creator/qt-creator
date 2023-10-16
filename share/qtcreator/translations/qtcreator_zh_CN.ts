@@ -11554,7 +11554,7 @@ to version control (%2)
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Defines the amount of time Qt Creator waits before sending document changes to the server.
+        <source>Defines the amount of time %1 waits before sending document changes to the server.
 If the document changes again while waiting, this timeout resets.</source>
         <translation type="unfinished"></translation>
     </message>

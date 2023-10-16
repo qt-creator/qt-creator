@@ -26,6 +26,7 @@
 #include <utils/utilsicons.h>
 
 #include <QFileIconProvider>
+#include <QGuiApplication>
 #include <QMenu>
 #include <QStandardPaths>
 #include <QToolButton>
@@ -81,7 +82,9 @@ TerminalPane::TerminalPane(QObject *parent)
                                             .toString(QKeySequence::NativeText);
         if (settings().sendEscapeToTerminal()) {
             m_escSettingButton->setText(escKey);
-            m_escSettingButton->setToolTip(Tr::tr("Sends Esc to terminal instead of Qt Creator."));
+            //: %1 is the application name (Qt Creator)
+            m_escSettingButton->setToolTip(Tr::tr("Sends Esc to terminal instead of %1.")
+                                               .arg(QGuiApplication::applicationDisplayName()));
         } else {
             m_escSettingButton->setText(shiftEsc);
             m_escSettingButton->setToolTip(
@@ -106,10 +109,14 @@ TerminalPane::TerminalPane(QObject *parent)
         if (settings().lockKeyboard()) {
             m_lockKeyboardButton->setIcon(LOCK_KEYBOARD_ICON.icon());
             m_lockKeyboardButton->setToolTip(
-                Tr::tr("Qt Creator shortcuts are blocked when focus is inside the terminal."));
+                //: %1 is the application name (Qt Creator)
+                Tr::tr("%1 shortcuts are blocked when focus is inside the terminal.")
+                    .arg(QGuiApplication::applicationDisplayName()));
         } else {
             m_lockKeyboardButton->setIcon(UNLOCK_KEYBOARD_ICON.icon());
-            m_lockKeyboardButton->setToolTip(Tr::tr("Qt Creator shortcuts take precedence."));
+            //: %1 is the application name (Qt Creator)
+            m_lockKeyboardButton->setToolTip(Tr::tr("%1 shortcuts take precedence.")
+                                                 .arg(QGuiApplication::applicationDisplayName()));
         }
     };
 

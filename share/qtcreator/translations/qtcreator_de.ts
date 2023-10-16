@@ -21872,9 +21872,9 @@ z.B. name = &quot;m_test_foo_&quot;:
         <translation>Bestimmt, ob Clangd beim Vervollständigen von Symbolen Header-Dateien einfügen darf.</translation>
     </message>
     <message>
-        <source>Defines the amount of time Qt Creator waits before sending document changes to the server.
+        <source>Defines the amount of time %1 waits before sending document changes to the server.
 If the document changes again while waiting, this timeout resets.</source>
-        <translation>Bestimmt die Zeit, die Qt Creator vor dem Senden von Dokumentänderungen an den Server wartet.
+        <translation>Bestimmt die Zeit, die %1 vor dem Senden von Dokumentänderungen an den Server wartet.
 Falls sich das Dokument innerhalb dieser Zeit wieder ändert, wird erneut die volle Zeit gewartet.</translation>
     </message>
     <message>
@@ -27577,8 +27577,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Shell in Container öffnen</translation>
     </message>
     <message>
-        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart Qt Creator.</source>
-        <translation>Der Docker-Daemon scheint nicht zu laufen. Stellen Sie sicher, dass der Daemon ausgeführt wird, und setzen Sie den Docker-Daemon in den Einstellungen des Docker-Geräts zurück oder starten Sie Qt Creator neu.</translation>
+        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart %1.</source>
+        <translation>Der Docker-Daemon scheint nicht zu laufen. Stellen Sie sicher, dass der Daemon ausgeführt wird, und setzen Sie den Docker-Daemon in den Einstellungen des Docker-Geräts zurück oder starten Sie %1 neu.</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
@@ -49685,8 +49685,8 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden</translation>
         <translation>Einstellungen...</translation>
     </message>
     <message>
-        <source>Sends Esc to terminal instead of Qt Creator.</source>
-        <translation>Sendet Escape zum Terminal statt zu Qt Creator.</translation>
+        <source>Sends Esc to terminal instead of %1.</source>
+        <translation>Sendet Escape zum Terminal statt zu %1.</translation>
     </message>
     <message>
         <source>Press %1 to send Esc to terminal.</source>

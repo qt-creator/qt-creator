@@ -913,10 +913,12 @@ expected_str<void> DockerDevicePrivate::startContainer()
         qCWarning(dockerDeviceLog) << "Container shell encountered error:" << resultData.m_error;
 
         DockerApi::recheckDockerDaemon();
+        //: %1 is the application name (Qt Creator)
         MessageManager::writeFlashing(Tr::tr("Docker daemon appears to be not running. "
                                              "Verify daemon is up and running and reset the "
                                              "Docker daemon in Docker device preferences "
-                                             "or restart Qt Creator."));
+                                             "or restart %1.")
+                                          .arg(QGuiApplication::applicationDisplayName()));
     });
 
     QTC_ASSERT(m_shell,

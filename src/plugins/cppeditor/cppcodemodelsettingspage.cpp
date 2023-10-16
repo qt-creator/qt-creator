@@ -24,14 +24,15 @@
 #include <QDesktopServices>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QGuiApplication>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStringListModel>
+#include <QTextBlock>
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QVersionNumber>
-#include <QTextBlock>
 
 #include <limits>
 
@@ -244,10 +245,12 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "worker threads.");
     const QString autoIncludeToolTip = Tr::tr(
         "Controls whether clangd may insert header files as part of symbol completion.");
-    const QString documentUpdateToolTip = Tr::tr(
-        "Defines the amount of time Qt Creator waits before sending document changes to the "
-        "server.\n"
-        "If the document changes again while waiting, this timeout resets.");
+    const QString documentUpdateToolTip
+        //: %1 is the application name (Qt Creator)
+        = Tr::tr("Defines the amount of time %1 waits before sending document changes to the "
+                 "server.\n"
+                 "If the document changes again while waiting, this timeout resets.")
+              .arg(QGuiApplication::applicationDisplayName());
     const QString sizeThresholdToolTip = Tr::tr(
         "Files greater than this will not be opened as documents in clangd.\n"
         "The built-in code model will handle highlighting, completion and so on.");
