@@ -8,7 +8,6 @@
     "trDisplayCategory": "Test Project",
     "icon": "../autotest.png",
     "iconKind": "Themed",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureDesktop" ],
     "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
 
     "options":
@@ -151,7 +150,7 @@
             "enabled": "%{IsTopLevelProject}",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "%{JS: value('BuildSystem') === 'qmake' ? 'QtSupport.Wizards.FeatureQt' : 'QtSupport.Wizards.FeatureDesktop' }" ]
+                 "requiredFeatures": [ "%{JS: value('BuildSystem') === 'qmake' ? 'QtSupport.Wizards.FeatureQt' : 'DeviceType.Desktop' }" ]
             }
         },
         {

@@ -8,7 +8,6 @@
     "trDisplayCategory": "Test Project",
     "icon": "../autotest.png",
     "iconKind": "Themed",
-    "featuresRequired": [ "QtSupport.Wizards.FeatureDesktop" ],
     "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
 
     "options":
@@ -128,7 +127,7 @@
             "enabled": "%{IsTopLevelProject}",
             "data": {
                  "projectFilePath": "%{ProjectFilePath}",
-                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureDesktop" ]
+                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQt", "DeviceType.Desktop" ]
             }
         },
         {
