@@ -1345,13 +1345,13 @@ expected_str<QString> DockManager::exportWorkspace(const QString &targetFilePath
     // Check if the target directory exists
     if (!targetFile.parentDir().exists())
         return make_unexpected(
-            Tr::tr("Directory does not exist\"%1\".").arg(targetFile.parentDir().toUserOutput()));
+            Tr::tr("The directory \"%1\" does not exist.").arg(targetFile.parentDir().toUserOutput()));
 
     // Check if the workspace exists
     const FilePath workspaceFile = userDirectory().pathAppended(sourceFileName);
     if (!workspaceFile.exists())
         return make_unexpected(
-            Tr::tr("Workspace does not exist \"%1\"").arg(workspaceFile.toUserOutput()));
+            Tr::tr("The workspace \"%1\" does not exist ").arg(workspaceFile.toUserOutput()));
 
     // Finally copy the workspace to the target
     const expected_str<void> copyResult = workspaceFile.copyFile(targetFile);

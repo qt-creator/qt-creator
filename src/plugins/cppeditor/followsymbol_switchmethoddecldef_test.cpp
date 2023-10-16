@@ -449,7 +449,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
                 first.text = "<base declaration>";
             expectedImmediate << first;
         }
-        expectedImmediate << OverrideItem(QLatin1String("collecting overrides ..."));
+        expectedImmediate << OverrideItem(QLatin1String("collecting overrides..."));
     }
     QCOMPARE(immediateVirtualSymbolResults, expectedImmediate);
     if (useClangd) {
