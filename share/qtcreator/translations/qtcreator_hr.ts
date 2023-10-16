@@ -18568,8 +18568,8 @@ Do you want to kill it?</source>
         <translation>Nije moguće pokrenuti „%1”: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Došlo je do prekoračenja vremena prilikom pokretanja „%1”</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Došlo je do prekoračenja vremena prilikom pokretanja „%1”.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>

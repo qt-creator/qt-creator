@@ -28623,8 +28623,8 @@ Do you want to check them out now?</source>
         <translation>Nie można uruchomić &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Przekroczono limit czasu oczekiwania na odpowiedź od uruchomionego &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Przekroczono limit czasu oczekiwania na odpowiedź od uruchomionego &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>

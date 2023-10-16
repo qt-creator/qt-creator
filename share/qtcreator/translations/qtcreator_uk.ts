@@ -35645,8 +35645,8 @@ Install an SDK of at least API version %1.</source>
         <translation>Неможливо запустити &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Час очікування вичерпано для &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Час очікування вичерпано для &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>

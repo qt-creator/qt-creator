@@ -495,7 +495,7 @@ QString msgExclusionPatternLabel()
 
 QString msgFilePatternToolTip(InclusionType inclusionType)
 {
-    return Tr::tr("List of comma separated wildcard filters. ")
+    return Tr::tr("List of comma separated wildcard filters.") + " "
         + (inclusionType == InclusionType::Included
             ? Tr::tr("Files with file name or full file path matching any filter are included.")
             : Tr::tr("Files with file name or full file path matching any filter are excluded."));

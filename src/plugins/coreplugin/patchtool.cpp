@@ -97,8 +97,8 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
     if (!patchProcess.readDataFromProcess(&stdOut, &stdErr)) {
         patchProcess.stop();
         patchProcess.waitForFinished();
-        MessageManager::writeFlashing(Tr::tr("A timeout occurred running \"%1\"")
-                                      .arg(patch.toUserOutput()));
+        MessageManager::writeFlashing(
+            Tr::tr("A timeout occurred running \"%1\".").arg(patch.toUserOutput()));
         return false;
 
     }

@@ -88,6 +88,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
 
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
+    // clang-format off
     using namespace Layouting;
     Column {
         Row {
@@ -99,7 +100,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
             Group {
                 title(Tr::tr("Package details")),
                 Form {
-                    Tr::tr("Name："), m_vcpkgName, br,
+                    Tr::tr("Name:"), m_vcpkgName, br,
                     Tr::tr("Version:"), m_vcpkgVersion, br,
                     Tr::tr("License:"), m_vcpkgLicense, br,
                     Tr::tr("Description:"), m_vcpkgDescription, br,
@@ -109,6 +110,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
         },
         Row { m_infoLabel, m_buttonBox },
     }.attachTo(this);
+    // clang-format on
 
     m_allPackages = vcpkgManifests(settings().vcpkgRoot());
 

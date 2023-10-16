@@ -368,8 +368,7 @@ UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *
 
 void UvscServerProviderRunner::start()
 {
-    const QString msg = Tr::tr("Starting %1 ...")
-            .arg(m_process.commandLine().displayName());
+    const QString msg = Tr::tr("Starting %1...").arg(m_process.commandLine().displayName());
     appendMessage(msg, NormalMessageFormat);
 
     m_process.start();

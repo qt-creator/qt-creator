@@ -24897,8 +24897,8 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <translation>&apos;%1&apos; se nepodařilo spustit: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &apos;%1&apos;</source>
-        <translation>Překročení času při spuštění &apos;%1&apos;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Překročení času při spuštění &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&apos;%1&apos; crashed.</source>

@@ -1308,8 +1308,8 @@ This cannot be undone.</source>
         <translation>无法为 %1 创建文件 “%2”</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>运行 “%1” 时超时</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>运行 “%1” 时超时。</translation>
     </message>
     <message>
         <source>Crash while creating file for %1 &quot;%2&quot;</source>
@@ -4114,7 +4114,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>目标驱动器：</translation>
     </message>
     <message>
-        <source>Starting %1 ...</source>
+        <source>Starting %1...</source>
         <translation>启动 %1...</translation>
     </message>
     <message>
@@ -8538,7 +8538,7 @@ Set a valid executable first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18145,7 +18145,7 @@ Rebuilding the project might help.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Host directories to mount into the container</source>
+        <source>Host directories to mount into the container.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -33329,7 +33329,7 @@ The following files or directories are missing:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -41375,7 +41375,7 @@ Destination file &quot;%1&quot; already exists.</source>
     </message>
     <message>
         <source>Could not merge results into single results.xml.
-Failed to open file &quot;%1&quot;</source>
+Failed to open file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

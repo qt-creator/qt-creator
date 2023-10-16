@@ -187,7 +187,7 @@ DockerDeviceSettings::DockerDeviceSettings()
     mounts.setLabelText(Tr::tr("Paths to mount:"));
     mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toString()});
     mounts.setToolTip(Tr::tr("Maps paths in this list one-to-one to the docker container."));
-    mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container"));
+    mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container."));
 
     extraArgs.setSettingsKey(DockerDeviceExtraArgs);
     extraArgs.setLabelText(Tr::tr("Extra arguments:"));

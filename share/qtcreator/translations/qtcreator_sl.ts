@@ -15893,8 +15893,8 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <translation>Ni moč zagnati »%1«: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &apos;%1&apos;</source>
-        <translation>Med poganjanjem »%1« je potekel čas</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Med poganjanjem »%1« je potekel čas.</translation>
     </message>
     <message>
         <source>&apos;%1&apos; crashed.</source>

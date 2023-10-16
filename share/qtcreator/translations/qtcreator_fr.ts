@@ -6336,8 +6336,8 @@ Export des ressources&#xa0;: %2</translation>
         <translation>Impossible de générer le fichier de ressource&#xa0;: %1</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Un dépassement de délai s’est produit lors de l’exécution de «&#xa0;%1&#xa0;»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Un dépassement de délai s’est produit lors de l’exécution de «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -12731,8 +12731,8 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
         <translation>Pilote cible&#xa0;:</translation>
     </message>
     <message>
-        <source>Starting %1 ...</source>
-        <translation>Démarrage de %1 …</translation>
+        <source>Starting %1...</source>
+        <translation>Démarrage de %1…</translation>
     </message>
     <message>
         <source>Version</source>
@@ -16725,7 +16725,7 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Requête de suggestion Copilot à la position actuelle du curseur de l&apos;éditeur.</translation>
     </message>
     <message>
-        <source>Show next Copilot Suggestion</source>
+        <source>Show Next Copilot Suggestion</source>
         <translation>Afficher la suggestion Copilot suivante</translation>
     </message>
     <message>
@@ -16733,7 +16733,7 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Alterner parmi les suggestions Copilot reçues pour afficher la suggestion suivante disponible.</translation>
     </message>
     <message>
-        <source>Show previos Copilot Suggestion</source>
+        <source>Show Previous Copilot Suggestion</source>
         <translation>Afficher la suggestion Copilot précédente</translation>
     </message>
     <message>
@@ -20030,8 +20030,8 @@ Double-cliquez pour modifier l’élément.</translation>
         <translation>Impossible de lancer «&#xa0;%1&#xa0;» : %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Un dépassement de délai s’est produit lors de l’exécution de «&#xa0;%1&#xa0;»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Un dépassement de délai s’est produit lors de l’exécution de «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -27418,8 +27418,8 @@ La recompilation du projet peut aider.</translation>
         <translation>La liste des répertoires sources ne doit pas être vide.</translation>
     </message>
     <message>
-        <source>Host directories to mount into the container</source>
-        <translation>Répertoires hôtes à monter dans le conteneur</translation>
+        <source>Host directories to mount into the container.</source>
+        <translation>Répertoires hôtes à monter dans le conteneur.</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
@@ -49074,9 +49074,9 @@ Le fichier de destination «&#xa0;%1&#xa0;» existe déjà.</translation>
     </message>
     <message>
         <source>Could not merge results into single results.xml.
-Failed to open file &quot;%1&quot;</source>
+Failed to open file &quot;%1&quot;.</source>
         <translation>Impossible de fusionner les résultats dans un unique fichier results.xml.
-Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;»</translation>
+Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
         <source>Error while parsing first test result.</source>
@@ -49473,7 +49473,7 @@ Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;»</translation>
         <translation>Envoyer la touche d&apos;échappement au terminal</translation>
     </message>
     <message>
-        <source>Sends the escape key to the terminal when pressedinstead of closing the terminal.</source>
+        <source>Sends the escape key to the terminal when pressed instead of closing the terminal.</source>
         <translation>Envoi la touche d&apos;échappement au terminal lorsque appuyé au lieu de fermer le terminal.</translation>
     </message>
     <message>
@@ -52695,8 +52695,8 @@ Les données de la trace sont perdues.</translation>
         <translation>Motif d’excl&amp;usion :</translation>
     </message>
     <message>
-        <source>List of comma separated wildcard filters. </source>
-        <translation>Liste de filtres joker séparés par des virgules. </translation>
+        <source>List of comma separated wildcard filters.</source>
+        <translation>Liste de filtres joker séparés par des virgules.</translation>
     </message>
     <message>
         <source>Files with file name or full file path matching any filter are included.</source>
@@ -54704,8 +54704,8 @@ Vérifiez les paramètres pour vous assurer que Valgrind est installé et dispon
         <translation>Éditeur de Manifest Vcpkg</translation>
     </message>
     <message>
-        <source>Name：</source>
-        <translation>Nom：</translation>
+        <source>Name:</source>
+        <translation>Nom&#xa0;:</translation>
     </message>
     <message>
         <source>Version:</source>

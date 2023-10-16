@@ -10560,8 +10560,8 @@ Double-click to edit item.</source>
         <translation>Не удалось запустить «%1»: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Истекло время работы «%1»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Истекло время работы «%1».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -34843,8 +34843,8 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>Не удалось создать файл ресурсов: %1</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Истекло время работы «%1»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Истекло время работы «%1».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>

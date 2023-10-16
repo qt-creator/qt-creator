@@ -482,9 +482,8 @@ TerminalSettings::TerminalSettings()
 
     sendEscapeToTerminal.setSettingsKey("SendEscapeToTerminal");
     sendEscapeToTerminal.setLabelText(Tr::tr("Send escape key to terminal"));
-    sendEscapeToTerminal.setToolTip(
-        Tr::tr("Sends the escape key to the terminal when pressed"
-               "instead of closing the terminal."));
+    sendEscapeToTerminal.setToolTip(Tr::tr("Sends the escape key to the terminal when pressed "
+                                           "instead of closing the terminal."));
     sendEscapeToTerminal.setDefaultValue(false);
 
     lockKeyboard.setSettingsKey("LockKeyboard");

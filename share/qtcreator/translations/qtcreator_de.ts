@@ -6385,8 +6385,8 @@ Exporting assets: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -9410,7 +9410,7 @@ Locked components cannot be modified or selected.</source>
         <translation>Kommandozeilen-Werkzeug für Android-SDK ist installiert.</translation>
     </message>
     <message>
-        <source>Android SDK Command-line Tools run.</source>
+        <source>Android SDK Command-line Tools runs.</source>
         <translation>Kommandozeilen-Werkzeug für Android-SDK startet erfolgreich.</translation>
     </message>
     <message>
@@ -12470,8 +12470,8 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <translation>Zieltreiber:</translation>
     </message>
     <message>
-        <source>Starting %1 ...</source>
-        <translation>Starte %1 ...</translation>
+        <source>Starting %1...</source>
+        <translation>Starte %1...</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -17014,7 +17014,7 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Fordert Vorschläge für die Cursorposition des aktuellen Editors von Copilot an.</translation>
     </message>
     <message>
-        <source>Show next Copilot Suggestion</source>
+        <source>Show Next Copilot Suggestion</source>
         <translation>Nächsten Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
@@ -17022,7 +17022,7 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Iteriert über die Vorschläge von Copilot und zeigt den nächsten verfügbaren Vorschlag.</translation>
     </message>
     <message>
-        <source>Show previos Copilot Suggestion</source>
+        <source>Show Previous Copilot Suggestion</source>
         <translation>Vorangehenden Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
@@ -17991,8 +17991,8 @@ Trotzdem fortfahren?</translation>
         <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -27673,8 +27673,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Die Liste der Quellverzeichnisse sollte nicht leer sein.</translation>
     </message>
     <message>
-        <source>Host directories to mount into the container</source>
-        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen</translation>
+        <source>Host directories to mount into the container.</source>
+        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen.</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
@@ -49406,9 +49406,9 @@ Zieldatei &quot;%1&quot; existiert bereits.</translation>
     </message>
     <message>
         <source>Could not merge results into single results.xml.
-Failed to open file &quot;%1&quot;</source>
+Failed to open file &quot;%1&quot;.</source>
         <translation>Die Ergebnisse konnten nicht in einer einzelnen &apos;results.xml&apos;-Datei zusammengeführt werden.
-Die Datei &quot;%1&quot; konnte nicht geöffnet werden</translation>
+Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Error while parsing first test result.</source>
@@ -49805,7 +49805,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden</translation>
         <translation>Escape-Taste zum Terminal senden</translation>
     </message>
     <message>
-        <source>Sends the escape key to the terminal when pressedinstead of closing the terminal.</source>
+        <source>Sends the escape key to the terminal when pressed instead of closing the terminal.</source>
         <translation>Sendet die Escape-Taste zum Terminal, anstatt das Terminal zu schliessen.</translation>
     </message>
     <message>
@@ -52963,8 +52963,8 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Ausschl&amp;ussmuster:</translation>
     </message>
     <message>
-        <source>List of comma separated wildcard filters. </source>
-        <translation>Kommaseparierte Liste von Platzhalter-Filtern. </translation>
+        <source>List of comma separated wildcard filters.</source>
+        <translation>Kommaseparierte Liste von Platzhalter-Filtern.</translation>
     </message>
     <message>
         <source>Files with file name or full file path matching any filter are included.</source>
@@ -58306,7 +58306,7 @@ Are you sure you want to remove the material?</source>
         <translation>Vcpkg Manifest-Editor</translation>
     </message>
     <message>
-        <source>Name：</source>
+        <source>Name:</source>
         <translation>Name:</translation>
     </message>
     <message>
