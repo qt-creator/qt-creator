@@ -6,6 +6,7 @@
 #include "formeditor.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/systemsettings.h>
 #include <coreplugin/testdatadir.h>
 #include <cppeditor/builtineditordocumentprocessor.h>
 #include <cppeditor/cppmodelmanager.h>
@@ -215,6 +216,21 @@ namespace Internal {
 /// header and source files are correctly updated.
 void FormEditorPlugin::test_gotoslot()
 {
+    class SystemSettingsMgr {
+    public:
+        SystemSettingsMgr()
+            : m_saveAfterRefactor(Core::Internal::systemSettings().autoSaveAfterRefactoring.value())
+        {
+            Core::Internal::systemSettings().autoSaveAfterRefactoring.setValue(false);
+        }
+        ~SystemSettingsMgr()
+        {
+            Core::Internal::systemSettings().autoSaveAfterRefactoring.setValue(m_saveAfterRefactor);
+        }
+    private:
+        const bool m_saveAfterRefactor;
+    } systemSettingsMgr;
+
     QFETCH(QStringList, files);
     (GoToSlotTestCase(Utils::transform(files, FilePath::fromString)));
 }
