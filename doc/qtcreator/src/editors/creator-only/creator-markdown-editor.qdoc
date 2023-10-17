@@ -19,4 +19,10 @@
     To hide and show the views, select \uicontrol {Show Preview} and
     \uicontrol {Show Editor}. To swap the places of the views, select
     \uicontrol {Swap Views}.
+
+    \section1 Formatting Text
+
+    Use the buttons on the editor toolbar to format text as italic (i), bold (b),
+    or inline code (`), and to create links to web sites
+    (\inlineimage icons/linkicon.png).
 */
