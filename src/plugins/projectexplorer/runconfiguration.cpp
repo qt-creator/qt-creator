@@ -140,6 +140,8 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 
 static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
+static QList<RunConfigurationFactory *> g_runConfigurationFactories;
+
 RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
     : ProjectConfiguration(target, id)
 {
@@ -236,10 +238,13 @@ bool RunConfiguration::isCustomized() const
 
 bool RunConfiguration::hasCreator() const
 {
-    return Utils::contains(RunConfigurationFactory::creatorsForTarget(target()),
-                               [this](const RunConfigurationCreationInfo &info) {
-        return info.factory->runConfigurationId() == id() && info.buildKey == buildKey();
-    });
+    for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
+        if (factory->runConfigurationId() == id()) {
+            if (factory->supportsBuildKey(target(), buildKey()))
+                return true;
+        }
+    }
+    return false;
 }
 
 void RunConfiguration::setPristineState()
@@ -453,8 +458,6 @@ QVariantHash RunConfiguration::extraData() const
     ExtensionSystem::IPlugin::initialize() method.
 */
 
-static QList<RunConfigurationFactory *> g_runConfigurationFactories;
-
 /*!
     Constructs a RunConfigurationFactory instance and registers it into a global
     list.
@@ -520,6 +523,14 @@ RunConfigurationFactory::availableCreators(Target *target) const
         rci.buildKey = ti.buildKey;
         return rci;
     });
+}
+
+bool RunConfigurationFactory::supportsBuildKey(Target *target, const QString &key) const
+{
+    if (!canHandle(target))
+        return false;
+    const QList<BuildTargetInfo> buildTargets = target->buildSystem()->applicationTargets();
+    return anyOf(buildTargets, [&key](const BuildTargetInfo &info) { return info.buildKey == key; });
 }
 
 /*!
@@ -672,6 +683,13 @@ FixedRunConfigurationFactory::availableCreators(Target *parent) const
     rci.factory = this;
     rci.displayName = displayName;
     return {rci};
+}
+
+bool FixedRunConfigurationFactory::supportsBuildKey(Target *target, const QString &key) const
+{
+    Q_UNUSED(target)
+    Q_UNUSED(key)
+    return false;
 }
 
 } // namespace ProjectExplorer

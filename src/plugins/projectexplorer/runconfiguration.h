@@ -197,6 +197,7 @@ public:
 
 protected:
     virtual QList<RunConfigurationCreationInfo> availableCreators(Target *target) const;
+    virtual bool supportsBuildKey(Target *target, const QString &key) const;
 
     using RunConfigurationCreator = std::function<RunConfiguration *(Target *)>;
 
@@ -218,6 +219,7 @@ private:
     RunConfiguration *create(Target *target) const;
 
     friend class RunConfigurationCreationInfo;
+    friend class RunConfiguration;
     RunConfigurationCreator m_creator;
     Utils::Id m_runConfigurationId;
     QList<Utils::Id> m_supportedProjectTypes;
@@ -231,9 +233,10 @@ public:
     explicit FixedRunConfigurationFactory(const QString &displayName,
                                           bool addDeviceName = false);
 
-    QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override;
-
 private:
+    QList<RunConfigurationCreationInfo> availableCreators(Target *parent) const override;
+    bool supportsBuildKey(Target *target, const QString &key) const override;
+
     const QString m_fixedBuildTarget;
     const bool m_decorateTargetName;
 };
