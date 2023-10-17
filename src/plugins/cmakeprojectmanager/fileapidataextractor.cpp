@@ -11,13 +11,13 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
+#include <projectexplorer/projecttree.h>
+
 #include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-
-#include <projectexplorer/projecttree.h>
 
 #include <QLoggingCategory>
 #include <QtConcurrent>
@@ -39,10 +39,10 @@ class CMakeFileResult
 public:
     QSet<CMakeFileInfo> cmakeFiles;
 
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesSource;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesBuild;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesOther;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeListNodes;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesSource;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesBuild;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesOther;
+    std::vector<std::unique_ptr<FileNode>> cmakeListNodes;
 };
 
 static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
@@ -132,10 +132,10 @@ public:
 
     QSet<CMakeFileInfo> cmakeFiles;
 
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesSource;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesBuild;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesOther;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeListNodes;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesSource;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesBuild;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesOther;
+    std::vector<std::unique_ptr<FileNode>> cmakeListNodes;
 
     Configuration codemodel;
     std::vector<TargetDetails> targetDetails;
@@ -259,7 +259,7 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
     }
 
     if (ct.targetType == ExecutableType) {
-        Utils::FilePaths librarySeachPaths;
+        FilePaths librarySeachPaths;
         // Is this a GUI application?
         ct.linksToQtGui = Utils::contains(t.link.value().fragments,
                                           [](const FragmentInfo &f) {
@@ -531,8 +531,8 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             rpp.setFlagsForCxx(cxxProjectFlags);
 
             const bool isExecutable = t.type == "EXECUTABLE";
-            rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
-                                                : ProjectExplorer::BuildTargetType::Library);
+            rpp.setBuildTargetType(isExecutable ? BuildTargetType::Executable
+                                                : BuildTargetType::Library);
             rpps.append(rpp);
             ++count;
         }
@@ -562,7 +562,7 @@ static FilePath directoryBuildDir(const Configuration &c,
 }
 
 static void addProjects(const QFuture<void> &cancelFuture,
-                        const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
+                        const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
                         const Configuration &config,
                         const FilePath &sourceDir)
 {
@@ -606,15 +606,15 @@ static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
 }
 
 static void addCompileGroups(ProjectNode *targetRoot,
-                             const Utils::FilePath &topSourceDirectory,
-                             const Utils::FilePath &sourceDirectory,
-                             const Utils::FilePath &buildDirectory,
+                             const FilePath &topSourceDirectory,
+                             const FilePath &sourceDirectory,
+                             const FilePath &buildDirectory,
                              const TargetDetails &td)
 {
     const bool showSourceFolders = settings().showSourceSubFolders();
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
 
-    QSet<Utils::FilePath> alreadyListed;
+    QSet<FilePath> alreadyListed;
 
     // Files already added by other configurations:
     targetRoot->forEachGenericNode(
@@ -661,7 +661,7 @@ static void addCompileGroups(ProjectNode *targetRoot,
             if (baseDirectory.isEmpty()) {
                 baseDirectory = fn->filePath().parentDir();
             } else {
-                baseDirectory = Utils::FileUtils::commonPath(baseDirectory, fn->filePath());
+                baseDirectory = FileUtils::commonPath(baseDirectory, fn->filePath());
             }
         }
 
@@ -684,7 +684,7 @@ static void addCompileGroups(ProjectNode *targetRoot,
                     Tr::tr("<Build Directory>"),
                     std::move(buildFileNodes));
     addCMakeVFolder(targetRoot,
-                    Utils::FilePath(),
+                    FilePath(),
                     10,
                     Tr::tr("<Other Locations>"),
                     std::move(otherFileNodes));
@@ -713,7 +713,7 @@ static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLe
 }
 
 static void addTargets(const QFuture<void> &cancelFuture,
-                       const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+                       const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
                        const Configuration &config,
                        const std::vector<TargetDetails> &targetDetails,
                        const FilePath &sourceDir,
@@ -854,14 +854,12 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
     }
 }
 
-using namespace FileApiDetails;
-
 // --------------------------------------------------------------------
 // extractData:
 // --------------------------------------------------------------------
 
 FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input,
-                           const Utils::FilePath &sourceDir, const Utils::FilePath &buildDir)
+                           const FilePath &sourceDir, const FilePath &buildDir)
 {
     FileApiQtcData result;
 
