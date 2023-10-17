@@ -400,7 +400,8 @@ static QPair<QStringList, QStringList> getFindAndConfigCMakePackages(
         std::function<QString(const QString &)> function;
         QStringList &result;
     } mapping[] = {{"CMAKE_PREFIX_PATH", "lib/cmake", configPackageName, configPackages},
-                   {"CMAKE_MODULE_PATH", QString(), findPackageName, modulePackages}};
+                   {"CMAKE_MODULE_PATH", QString(), findPackageName, modulePackages},
+                   {"CMAKE_MODULE_PATH", QString(), configPackageName, configPackages}};
 
     for (const auto &m : mapping) {
         FilePaths paths = Utils::transform<FilePaths>(cmakeCache.valueOf(m.cmakeVariable).split(';'),
