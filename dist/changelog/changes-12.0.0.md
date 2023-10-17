@@ -66,9 +66,11 @@ General
   `Edit > Preferences > Environment > Locator` to keep the sorting from the tool
   used for the file system index locator filter
   ([QTCREATORBUG-27789](https://bugreports.qt.io/browse/QTCREATORBUG-27789))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-editor-locator.html#locating-files-from-global-file-system-index))
 * Added the `View > Show Menubar` option to hide the menu bar on platforms
   without a unified menu bar
   ([QTCREATORBUG-29498](https://bugreports.qt.io/browse/QTCREATORBUG-29498))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-show-and-hide-main-menu.html))
 * Fixed an issue with growing session files
 
 Help
@@ -77,13 +79,17 @@ Help
 * Added the `Edit > Preferences > Help > General > Antialias` check box for
   setting the anti-aliasing of text
   ([QTCREATORBUG-12177](https://bugreports.qt.io/browse/QTCREATORBUG-12177))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-get-help.html#change-the-font))
 
 Editing
 -------
 
 * Added the count of selected characters to line and column information
+  on the `Edit` mode toolbar
   ([QTCREATORBUG-29381](https://bugreports.qt.io/browse/QTCREATORBUG-29381))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-coding-navigating.html#navigating-between-open-files-and-symbols))
 * Added an indenter, auto-brace and auto-quote for JSON
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-enclose-code-in-characters.html))
 * Fixed that the historical order of open documents was not restored
 * Fixed that suggestions were rendered with the wrong tab size
   ([QTCREATORBUG-29483](https://bugreports.qt.io/browse/QTCREATORBUG-29483))
@@ -93,11 +99,15 @@ Editing
 * Updated to LLVM 17.0.1
 * Added `Tools > C++ > Fold All Comment Blocks` and `Unfold All Comment Blocks`
   ([QTCREATORBUG-2449](https://bugreports.qt.io/browse/QTCREATORBUG-2449))
-* Added a refactoring action for converting comments between C++-style and
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-highlighting.html#folding-blocks))
+* Added the `Convert Comment to C Style` and `Convert Comment to C++ Style`
+  refactoring actions for converting comments between C++-style and
   C-style
   ([QTCREATORBUG-27501](https://bugreports.qt.io/browse/QTCREATORBUG-27501))
-* Added a refactoring action for moving documentation between function
-  declaration and definition
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-editor-quick-fixes.html#refactoring-c-code))
+* Added the `Move Function Documentation to Declaration` and
+  `Move Function Documentation to Definition` refactoring actions for moving
+  documentation between function declaration and definition
   ([QTCREATORBUG-13877](https://bugreports.qt.io/browse/QTCREATORBUG-13877))
 * Extended the application of renaming operations to documentation comments
   ([QTCREATORBUG-12051](https://bugreports.qt.io/browse/QTCREATORBUG-12051),
@@ -130,13 +140,15 @@ Editing
 
 ### Language Server Protocol
 
-* Added support for Language servers that request creating, renaming or deleting of files
+* Added support for Language servers that request creating, renaming, or deleting
+  of files
   ([QTCREATORBUG-29542](https://bugreports.qt.io/browse/QTCREATORBUG-29542))
 
 ### Copilot
 
 * Added support for proxies
   ([QTCREATORBUG-29485](https://bugreports.qt.io/browse/QTCREATORBUG-29485))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-copilot.html))
 
 ### TODO
 
@@ -145,6 +157,7 @@ Editing
 ### Markdown
 
 * Added buttons and configurable shortcuts for text styles
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-markdown-editor.html))
 
 ### Images
 
