@@ -9643,12 +9643,12 @@ Le niveau minimum d&apos;API nécessaire par le kit est %1.</translation>
         <translation>Le fichier des paramètres de déploiement Android est introuvable. Aucune construction d&apos;APK.</translation>
     </message>
     <message>
-        <source>The Android build folder %1 was not found and could not be created.</source>
-        <translation>Le dossier de compilation Android %1 n&apos;a pas été trouvé ou ne peut être créé.</translation>
+        <source>The Android build folder &quot;%1&quot; was not found and could not be created.</source>
+        <translation>Le dossier de compilation Android «&#xa0;%1&#xa0;» n&apos;a pas été trouvé ou ne peut être créé.</translation>
     </message>
     <message>
-        <source>Cannot copy the target&apos;s lib file %1 to the Android build folder %2.</source>
-        <translation>Impossible de copier le fichier cible de la bibliothèque %1 dans le répertoire de compilation Android %2.</translation>
+        <source>Cannot copy the target&apos;s lib file &quot;%1&quot; to the Android build folder &quot;%2&quot;.</source>
+        <translation>Impossible de copier le fichier cible de la bibliothèque «&#xa0;%1&#xa0;» dans le répertoire de compilation Android «&#xa0;%2&#xa0;».</translation>
     </message>
     <message>
         <source>Cannot copy file &quot;%1&quot; to Android build libs folder &quot;%2&quot;.</source>
@@ -9989,8 +9989,8 @@ Cela ne peut être annulé.</translation>
         <translation>Copie des données de l’application</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
-        <translation>&lt;b&gt;Make install&#xa0;:&lt;/b&gt; Copie des fichiers de l&apos;application vers %1</translation>
+        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to &quot;%1&quot;</source>
+        <translation>&lt;b&gt;Make install&#xa0;:&lt;/b&gt; Copie des fichiers de l&apos;application vers «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
         <source>&quot;%1&quot; step has an invalid C++ toolchain.</source>
@@ -10644,8 +10644,8 @@ Les fichiers du répertoire source du paquet Android sont copiés dans le réper
         <translation>Télécharger les outils du SDK</translation>
     </message>
     <message>
-        <source>Could not open %1 for writing: %2.</source>
-        <translation>Impossible d&apos;ouvrir %1 en écriture&#xa0;: %2.</translation>
+        <source>Could not open &quot;%1&quot; for writing: %2.</source>
+        <translation>Impossible d&apos;ouvrir «&#xa0;%1&#xa0;» en écriture&#xa0;: %2.</translation>
     </message>
     <message>
         <source>Downloading Android SDK Tools from URL %1 has failed: %2.</source>
@@ -12999,9 +12999,9 @@ Les commits locaux ne sont pas envoyés vers la branche master jusqu&apos;à ce 
         <translation>Boite de dialogue</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translatorcomment>Should we translate the URL?</translatorcomment>
-        <translation>Par exemple&#xa0;: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <translation>Par exemple&#xa0;: «&#xa0;https://[user[:pass]@]host[:port]/[path]&#xa0;».</translation>
     </message>
     <message>
         <source>Ignores differences between branches and overwrites
@@ -14427,8 +14427,8 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
         <translation>Exécutable CMake invalide.</translation>
     </message>
     <message>
-        <source>Running in %1: %2.</source>
-        <translation>Exécution dans %1&#xa0;: %2.</translation>
+        <source>Running in &quot;%1&quot;: %2.</source>
+        <translation>Exécution dans «&#xa0;%1&#xa0;»&#xa0;: %2.</translation>
     </message>
     <message>
         <source>Failed to open %1 for reading.</source>
@@ -28049,8 +28049,8 @@ Raison : %3</translation>
         <translation>La marque «&#xa0;%1&#xa0;» n&apos;est pas définie.</translation>
     </message>
     <message>
-        <source>Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode.</source>
-        <translation>Tapez Meta-Maj-Y, Meta-Maj-Y pour quitter le mode FakeVim.</translation>
+        <source>Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode.</source>
+        <translation>Tapez Contrôle-Maj-Y, Contrôle-Maj-Y pour quitter le mode FakeVim.</translation>
     </message>
     <message>
         <source>Type Alt-Y, Alt-Y to quit FakeVim mode.</source>
@@ -34096,7 +34096,7 @@ Exemple : *.cpp%1*.h</translation>
         <translation>Spécifier l’URL :</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>Par exemple : «&#xa0;https://[utilisateur[:motdepasse]@]hôte[:port]/[chemin]&#xa0;».</translation>
     </message>
     <message>
@@ -38491,8 +38491,8 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
         <translation>Génère le code d’initialisation et de nettoyage</translation>
     </message>
     <message>
-        <source>Creates a project that you can open in Qt Design Studio.</source>
-        <translation>Génère un projet qui peut être ouvert dans Qt Design Studio.</translation>
+        <source>Creates a project that you can open in Qt Design Studio</source>
+        <translation>Génère un projet qui peut être ouvert dans Qt Design Studio</translation>
     </message>
     <message>
         <source>Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
@@ -38507,8 +38507,8 @@ Pour développer une application complête, créer un projet Qt Quick Applicatio
         <translation>Qt 6.5</translation>
     </message>
     <message>
-        <source>The minimum version of Qt you want to build the application for.</source>
-        <translation>La verison minimale de Qt pour laquelle vous voulez construire votre application.</translation>
+        <source>The minimum version of Qt you want to build the application for</source>
+        <translation>La verison minimale de Qt pour laquelle vous voulez construire votre application</translation>
     </message>
     <message>
         <source>Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.

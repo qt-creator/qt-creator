@@ -1428,8 +1428,8 @@ Lokalne obveze se ne guraju u glavnu granu sve dok se ne izvrši normalna obveza
         <translation>Lokalni datotečni sustav:</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Na primjer: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Na primjer: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Specify URL:</source>
@@ -4824,8 +4824,8 @@ Greška: %5</translation>
         <translation>Lokalni datotečni sustav:</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Na primjer: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Na primjer: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Specify URL:</source>

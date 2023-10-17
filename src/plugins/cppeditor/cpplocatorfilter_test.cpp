@@ -220,25 +220,18 @@ void LocatorFilterTest::testLocatorFilter_data()
         << MatcherType::AllSymbols
         << "my"
         << ResultDataList{
+               ResultData("MyClass", "<anonymous namespace>"),
+               ResultData("MyClass", "<anonymous namespace>::MyClass"),
+               ResultData("MyClass", "MyClass"),
+               ResultData("MyClass", "MyNamespace"),
+               ResultData("MyClass", "MyNamespace::MyClass"),
                ResultData("MyClass", testFileShort),
-               ResultData("MyClass::MyClass", "()"),
-               ResultData("MyClass::functionDefinedOutSideClass", "(char)"),
+               ResultData("MyEnum", "<anonymous namespace>"),
+               ResultData("MyEnum", "MyNamespace"),
                ResultData("MyEnum", testFileShort),
-               ResultData("MyNamespace::MyClass", testFileShort),
-               ResultData("MyNamespace::MyClass::MyClass", "()"),
-               ResultData("MyNamespace::MyClass::functionDefinedOutSideClass",
-                          "(char)"),
-               ResultData("MyNamespace::MyClass::functionDefinedOutSideClassAndNamespace",
-                          "(float)"),
-               ResultData("MyNamespace::MyEnum", testFileShort),
-               ResultData("MyNamespace::myFunction", "(bool, int)"),
                ResultData("myFunction", "(bool, int)"),
-               ResultData("<anonymous namespace>::MyClass", testFileShort),
-               ResultData("<anonymous namespace>::MyClass::MyClass", "()"),
-               ResultData("<anonymous namespace>::MyClass::functionDefinedOutSideClass",
-                          "(char)"),
-               ResultData("<anonymous namespace>::MyEnum", testFileShort),
-               ResultData("<anonymous namespace>::myFunction", "(bool, int)")
+               ResultData("myFunction", "<anonymous namespace>"),
+               ResultData("myFunction", "MyNamespace"),
            };
 
     QTest::newRow("CppClassesFilter-ObjC")

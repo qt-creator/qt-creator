@@ -2953,8 +2953,8 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
         <translation>Lokalt filsystem:</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>F.eks.: &apos;https://[bruger[:kode]@]vært[:port]/[sti]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>F.eks.: &quot;https://[bruger[:kode]@]vært[:port]/[sti]&quot;.</translation>
     </message>
     <message>
         <source>Specify URL:</source>
@@ -19514,8 +19514,8 @@ Fejl: %5</translation>
         <translation>Lokalt filsystem:</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>F.eks.: &apos;https://[bruger[:kode]@]vært[:port]/[sti]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>F.eks.: &quot;https://[bruger[:kode]@]vært[:port]/[sti]&quot;.</translation>
     </message>
     <message>
         <source>Specify URL:</source>

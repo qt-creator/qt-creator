@@ -348,6 +348,10 @@
     is unlikely that the used addresses will stay the same at the next application
     launch. If you really want a data breakpoint to be active again, re-enable
     it manually.
+
+    \if defined(qtcreator)
+    \sa {Debug CMake project files}
+    \endif
 */
 
 /*!

@@ -658,6 +658,11 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             const CMakeTool *cmakeTool = CMakeToolManager::defaultCMakeTool();
             if (cmakeTool)
                 configurePreset.cmakeExecutable = cmakeTool->cmakeExecutable().toString();
+        } else {
+            QString cmakeExecutable = configurePreset.cmakeExecutable.value();
+            CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeExecutable);
+
+            configurePreset.cmakeExecutable = FilePath::fromUserInput(cmakeExecutable).path();
         }
 
         data->cmakeBinary = Utils::FilePath::fromString(configurePreset.cmakeExecutable.value());

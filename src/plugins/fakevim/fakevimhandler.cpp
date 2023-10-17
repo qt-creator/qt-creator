@@ -4538,7 +4538,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.isControl('c')) {
         if (isNoVisualMode()) {
 #if defined(Q_OS_MACOS)
-            showMessage(MessageInfo, Tr::tr("Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode."));
+            showMessage(MessageInfo,
+                        Tr::tr("Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode."));
 #else
             showMessage(MessageInfo, Tr::tr("Type Alt-Y, Alt-Y to quit FakeVim mode."));
 #endif

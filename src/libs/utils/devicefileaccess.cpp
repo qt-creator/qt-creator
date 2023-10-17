@@ -721,7 +721,7 @@ expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &
     qint64 res = file.write(data);
     if (res != data.size())
         return make_unexpected(
-            Tr::tr("Could not write to file \"%1\" (only %2 of %3 bytes written).")
+            Tr::tr("Could not write to file \"%1\" (only %2 of %n byte(s) written).")
                 .arg(filePath.toUserOutput())
                 .arg(res)
                 .arg(data.size()));

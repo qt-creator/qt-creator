@@ -982,8 +982,8 @@ This flag will allow push to proceed.</source>
         <translation>サーバーへプッシュ</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>例: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>例: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Ignores differences between branches and overwrites
@@ -3821,8 +3821,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>認証情報を確認する</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>例: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>例: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
 </context>
 <context>

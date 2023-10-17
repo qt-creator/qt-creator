@@ -155,6 +155,8 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
         // in that case figure out if there's a qt in path
         // and add it to the Qt versions
         findSystemQt();
+        if (m_versions.size())
+            saveQtVersions();
     }
 
     {

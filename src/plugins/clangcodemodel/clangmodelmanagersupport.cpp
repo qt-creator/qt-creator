@@ -768,6 +768,8 @@ void ClangModelManagerSupport::onEditorOpened(IEditor *editor)
 
         Project * project = ProjectManager::projectForFile(document->filePath());
         const ClangdSettings settings(ClangdProjectSettings(project).settings());
+        if (!settings.useClangd())
+            return;
         if (!settings.sizeIsOkay(textDocument->filePath()))
             return;
         if (sessionModeEnabled())

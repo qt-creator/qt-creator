@@ -50,12 +50,14 @@
     family, style, and size in \uicontrol Edit > \uicontrol Preferences >
     \uicontrol Help > \uicontrol General.
 
-    \image qtcreator-help-options.png {General tab in Help preferences}
+    \image qtcreator-preferences-help-general.webp {General tab in Help preferences}
 
     You can set the default zoom level in the \uicontrol Zoom field. When
     viewing help pages, you can use the mouse scroll wheel to zoom them. To
     disable this feature, deselect the \uicontrol {Enable scroll wheel zooming}
     check box.
+
+    To disable antialiasing, deselect the \uicontrol Antialiasing check box.
 
     \section1 Return to the editor
 
@@ -290,7 +292,7 @@
     is detached to an external window, select \uicontrol Edit >
     \uicontrol Preferences > \uicontrol Help > \uicontrol General.
 
-    \image qtcreator-help-options.png {General tab in Help preferences}
+    \image qtcreator-preferences-help-general.webp {General tab in Help preferences}
 
     Set preferences for displaying context-sensitive help
     in the \uicontrol {On context help} field. To detach the help window, select
@@ -318,7 +320,7 @@
     \uicontrol Edit > \uicontrol Preferences > \uicontrol Help > \uicontrol General
     > \uicontrol {On help start} field.
 
-    \image qtcreator-help-options.png {General tab in Help preferences}
+    \image qtcreator-preferences-help-general.webp {General tab in Help preferences}
 
     \list
         \li To display the page and help views that were open when you exited the mode,

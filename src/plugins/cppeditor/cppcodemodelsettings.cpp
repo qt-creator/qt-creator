@@ -47,6 +47,7 @@ static Key clangdPathKey() { return "ClangdPath"; }
 static Key clangdIndexingKey() { return "ClangdIndexing"; }
 static Key clangdIndexingPriorityKey() { return "ClangdIndexingPriority"; }
 static Key clangdHeaderSourceSwitchModeKey() { return "ClangdHeaderSourceSwitchMode"; }
+static Key clangdCompletionRankingModelKey() { return "ClangdCompletionRankingModel"; }
 static Key clangdHeaderInsertionKey() { return "ClangdHeaderInsertion"; }
 static Key clangdThreadLimitKey() { return "ClangdThreadLimit"; }
 static Key clangdDocumentThresholdKey() { return "ClangdDocumentThreshold"; }
@@ -220,6 +221,26 @@ QString ClangdSettings::headerSourceSwitchModeToDisplayString(HeaderSourceSwitch
     case HeaderSourceSwitchMode::Both: return Tr::tr("Try Both");
     }
     return {};
+}
+
+QString ClangdSettings::rankingModelToCmdLineString(CompletionRankingModel model)
+{
+    switch (model) {
+    case CompletionRankingModel::Default: break;
+    case CompletionRankingModel::DecisionForest: return "decision_forest";
+    case CompletionRankingModel::Heuristics: return "heuristics";
+    }
+    QTC_ASSERT(false, return {});
+}
+
+QString ClangdSettings::rankingModelToDisplayString(CompletionRankingModel model)
+{
+    switch (model) {
+    case CompletionRankingModel::Default: return Tr::tr("Default");
+    case CompletionRankingModel::DecisionForest: return Tr::tr("Decision Forest");
+    case CompletionRankingModel::Heuristics: return Tr::tr("Heuristics");
+    }
+    QTC_ASSERT(false, return {});
 }
 
 ClangdSettings &ClangdSettings::instance()
@@ -527,6 +548,7 @@ Store ClangdSettings::Data::toMap() const
     map.insert(clangdIndexingKey(), indexingPriority != IndexingPriority::Off);
     map.insert(clangdIndexingPriorityKey(), int(indexingPriority));
     map.insert(clangdHeaderSourceSwitchModeKey(), int(headerSourceSwitchMode));
+    map.insert(clangdCompletionRankingModelKey(), int(completionRankingModel));
     map.insert(clangdHeaderInsertionKey(), autoIncludeHeaders);
     map.insert(clangdThreadLimitKey(), workerThreadLimit);
     map.insert(clangdDocumentThresholdKey(), documentUpdateThreshold);
@@ -550,6 +572,8 @@ void ClangdSettings::Data::fromMap(const Store &map)
         indexingPriority = IndexingPriority::Off;
     headerSourceSwitchMode = HeaderSourceSwitchMode(map.value(clangdHeaderSourceSwitchModeKey(),
                                                               int(headerSourceSwitchMode)).toInt());
+    completionRankingModel = CompletionRankingModel(map.value(clangdCompletionRankingModelKey(),
+                                                              int(completionRankingModel)).toInt());
     autoIncludeHeaders = map.value(clangdHeaderInsertionKey(), false).toBool();
     workerThreadLimit = map.value(clangdThreadLimitKey(), 0).toInt();
     documentUpdateThreshold = map.value(clangdDocumentThresholdKey(), 500).toInt();

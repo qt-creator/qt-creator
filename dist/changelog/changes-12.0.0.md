@@ -13,14 +13,15 @@ the public Git repository. For example:
 What's new?
 -----------
 
-* Support for Compiler Explorer
+* Integrated [Compiler Explorer (https://godbolt.org)](https://godbolt.org)
 * CMake debugging and the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/)
 * Screen recording
 
 ### Compiler Explorer
 
-Use [Compiler Explorer](https://godbolt.org) in Qt Creator and enter example
-code to explore the capabilities of your compilers and interpreters.
+Use [Compiler Explorer (https://godbolt.org)](https://godbolt.org) in Qt Creator
+and enter example code to explore the capabilities of your compilers and
+interpreters.
 
 To enable the CompilerExplorer plugin, select
 `Help > About Plugins > Utilities > CompilerExplorer`. Then select
@@ -32,7 +33,7 @@ to get started.
 Alternatively, you can open a new `Compiler Explorer` editor via
 `Tools > Compiler Explorer > Open Compiler Explorer`.
 
-Every language, compiler and library that is supported at https://godbolt.org
+Every language, compiler, and library that is supported at <https://godbolt.org>
 is also supported in Qt Creator. You can save your Compiler Explorer session as
 a `.qtce` file (JSON-based).
 
@@ -40,8 +41,11 @@ a `.qtce` file (JSON-based).
 
 ### CMake Debugging and the Debug Adapter Protocol
 
-Set breakpoints in a CMake file and select `DAP` and `CMake Preset` in `Debug`
-mode to debug CMake project files.
+Set breakpoints in a CMake file and select
+`Debug > Start Debugging > Start CMake Debugging` to start debugging.
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-debug-cmake-files.html))
+
 
 ### Screen Recording
 
@@ -58,17 +62,20 @@ General
 -------
 
 * Improved the startup performance significantly on various setups
-* Added the option to keep the sorting from the tool used for the file system
-  index locator filter
+* Added the `Sort results` check box for configuring the `md` locator filter in
+  `Edit > Preferences > Environment > Locator` to keep the sorting from the tool
+  used for the file system index locator filter
   ([QTCREATORBUG-27789](https://bugreports.qt.io/browse/QTCREATORBUG-27789))
-* Added the option to hide the menu bar on platforms without unified menu bar
+* Added the `View > Show Menubar` option to hide the menu bar on platforms
+  without a unified menu bar
   ([QTCREATORBUG-29498](https://bugreports.qt.io/browse/QTCREATORBUG-29498))
 * Fixed an issue with growing session files
 
 Help
 ----
 
-* Added an option for text anti-aliasing
+* Added the `Edit > Preferences > Help > General > Antialias` check box for
+  setting the anti-aliasing of text
   ([QTCREATORBUG-12177](https://bugreports.qt.io/browse/QTCREATORBUG-12177))
 
 Editing

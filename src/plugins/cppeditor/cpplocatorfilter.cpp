@@ -119,10 +119,12 @@ LocatorMatcherTask allSymbolsMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
         LocatorFilterEntry filterEntry;
-        filterEntry.displayName = info->scopedSymbolName();
+        filterEntry.displayName = info->symbolName();
         filterEntry.displayIcon = info->icon();
         filterEntry.linkForEditor = {info->filePath(), info->line(), info->column()};
-        if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
+        if (!info->symbolScope().isEmpty())
+            filterEntry.extraInfo = info->symbolScope();
+        else if (info->type() == IndexItem::Class || info->type() == IndexItem::Enum)
             filterEntry.extraInfo = info->shortNativeFilePath();
         else
             filterEntry.extraInfo = info->symbolType();

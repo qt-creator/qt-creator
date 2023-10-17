@@ -578,8 +578,8 @@ The minimum API level required by the kit is %1.</source>
         <translation>Установка на устройство</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
-        <translation>&lt;b&gt;Make install:&lt;/b&gt; Копирование файлов приложения в %1</translation>
+        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to &quot;%1&quot;</source>
+        <translation>&lt;b&gt;Make install:&lt;/b&gt; Копирование файлов приложения в «%1»</translation>
     </message>
     <message>
         <source>Activity manager start options:</source>
@@ -1378,8 +1378,8 @@ Do you want to uninstall the existing package?</source>
         <translation>Загрузка SDK Tools</translation>
     </message>
     <message>
-        <source>Could not open %1 for writing: %2.</source>
-        <translation>Не удалось открыть %1 для записи: %2.</translation>
+        <source>Could not open &quot;%1&quot; for writing: %2.</source>
+        <translation>Не удалось открыть «%1» для записи: %2.</translation>
     </message>
     <message>
         <source>Downloading Android SDK Tools from URL %1 has failed: %2.</source>
@@ -4428,7 +4428,7 @@ This flag will allow push to proceed.</source>
 Этот флаг позволяет выполнить эту операцию.</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>Например: «https://[имя[:пароль]@]адрес[:порт]/[путь]».</translation>
     </message>
     <message>
@@ -24645,7 +24645,7 @@ Error: %5</translation>
         <translation>Спрашивать имя пользователя и пароль</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>Например: «https://[имя[:пароль]@]адрес[:порт]/[путь]».</translation>
     </message>
 </context>

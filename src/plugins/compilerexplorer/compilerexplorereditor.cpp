@@ -32,6 +32,7 @@
 #include <utils/utilsicons.h>
 
 #include <QCompleter>
+#include <QDesktopServices>
 #include <QDockWidget>
 #include <QNetworkAccessManager>
 #include <QPushButton>
@@ -283,9 +284,9 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
 
     m_asmEditor = new AsmEditorWidget(undoStack);
     m_asmDocument = QSharedPointer<TextDocument>(new TextDocument);
-    m_asmDocument->setFilePath("asm.asm");
     m_asmEditor->setTextDocument(m_asmDocument);
-    m_asmEditor->configureGenericHighlighter(Utils::mimeTypeForName("text/x-asm"));
+    m_asmEditor->configureGenericHighlighter(
+        TextEditor::Highlighter::definitionForName("Intel x86 (NASM)"));
     m_asmEditor->setReadOnly(true);
 
     connect(m_asmEditor, &AsmEditorWidget::gotFocus, this, &CompilerWidget::gotFocus);
@@ -474,7 +475,9 @@ void CompilerWidget::doCompile()
                 if (l.opcodes.empty())
                     continue;
 
-                auto mark = new TextMark(m_asmDocument.get(), i, TextMarkCategory{"Bytes", "Bytes"});
+                auto mark = new TextMark(m_asmDocument.get(),
+                                         i,
+                                         TextMarkCategory{Tr::tr("Bytes"), "Bytes"});
                 mark->setLineAnnotation(l.opcodes.join(' '));
                 m_marks.append(mark);
             }
@@ -802,6 +805,22 @@ QWidget *Editor::toolBar()
         newSource->setIcon(Utils::Icons::PLUS_TOOLBAR.icon());
         newSource->setToolTip(Tr::tr("Add Source"));
         m_toolBar->addAction(newSource);
+
+        m_toolBar->addSeparator();
+
+        QString link = QString(R"(<a href="%1">%1</a>)")
+                           .arg(m_document->settings()->compilerExplorerUrl.value());
+
+        auto poweredByLabel = new QLabel(Tr::tr("powered by %1").arg(link));
+
+        poweredByLabel->setTextInteractionFlags(Qt::TextInteractionFlag::TextBrowserInteraction);
+        poweredByLabel->setContentsMargins(6, 0, 0, 0);
+
+        connect(poweredByLabel, &QLabel::linkActivated, this, [](const QString &link) {
+            QDesktopServices::openUrl(link);
+        });
+
+        m_toolBar->addWidget(poweredByLabel);
 
         connect(newSource,
                 &QAction::triggered,

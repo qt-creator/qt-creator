@@ -315,8 +315,17 @@ void SearchSymbols::processFunction(T *func)
     if (!(symbolsToSearchFor & SymbolSearcher::Functions) || !func->name())
         return;
     QString name = overview.prettyName(func->name());
+    QString scope = _scope;
+    const int scopeSep = name.lastIndexOf("::");
+    if (scopeSep != -1) {
+        if (!scope.isEmpty())
+            scope.append("::");
+        scope.append(name.left(scopeSep));
+        name.remove(0, scopeSep + 2);
+    }
     QString type = overview.prettyType(func->type());
-    addChildItem(name, type, _scope, IndexItem::Function, func);
+
+    addChildItem(name, type, scope, IndexItem::Function, func);
 }
 
 } // namespace CppEditor

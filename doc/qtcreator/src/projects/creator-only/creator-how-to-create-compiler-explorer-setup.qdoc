@@ -60,7 +60,9 @@
     \section1 Set compiler options
 
     Select \inlineimage icons/settings.png
-    to set compiler options.
+    to set options for the selected compiler.
+
+    \image qtcreator-compiler-explorer-options.webp {Compiler Explorer options}
 
     \table
     \header
@@ -69,10 +71,14 @@
     \row
         \li Compiler options
         \li Arguments passed to the compiler. Add options to enable optimization
-            and to change other aspects of the compilation.
+            and to change other aspects of the compilation. For example, the
+            value \c -O3 enables the optimizer with aggressive optimization.
     \row
         \li Libraries
-        \li Add the libraries that your code links against.
+        \li Select \uicontrol Edit to add the libraries that your code links
+            against. Start typing in the field to find a particular library.
+            The selection is saved only after you select the version of the
+            library next to the library name.
     \row
         \li Execute the code
         \li Execute the resulting executable.

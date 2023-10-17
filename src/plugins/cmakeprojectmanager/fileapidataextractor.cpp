@@ -411,7 +411,8 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             RawProjectPart rpp;
             rpp.setProjectFileLocation(t.sourceDir.pathAppended("CMakeLists.txt").toString());
             rpp.setBuildSystemTarget(t.name);
-            const QString postfix = needPostfix ? "_cg" + QString::number(count) : QString();
+            const QString postfix = needPostfix ? QString("_%1_%2").arg(ci.language).arg(count)
+                                                : QString();
             rpp.setDisplayName(t.id + postfix);
             rpp.setMacros(transform<QVector>(ci.defines, &DefineInfo::define));
             rpp.setHeaderPaths(transform<QVector>(ci.includes, &IncludeInfo::path));
@@ -435,6 +436,10 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                     continue;
                 addToSources(si.path);
             }
+
+            // Skip groups with only generated source files e.g. <build-dir>/.rcc/qrc_<target>.cpp
+            if (allOf(ci.sources, [t](const auto &idx) { return t.sources.at(idx).isGenerated; }))
+                continue;
 
             // If we are not in a pch compiler group, add all the headers that are not generated
             const bool hasPchSource = anyOf(sources, [buildDirectory](const QString &path) {

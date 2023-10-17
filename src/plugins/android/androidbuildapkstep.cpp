@@ -697,9 +697,11 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
             FilePath androidLibsDir = androidBuildDir / "libs" / abi;
             if (!androidLibsDir.exists()) {
                 if (!androidLibsDir.ensureWritableDir()) {
-                    reportWarningOrError(Tr::tr("The Android build folder %1 was not found and could "
-                                                "not be created.").arg(androidLibsDir.toUserOutput()),
-                                         Task::Error);
+                    reportWarningOrError(
+                        Tr::tr("The Android build folder \"%1\" was not found and could "
+                               "not be created.")
+                            .arg(androidLibsDir.toUserOutput()),
+                        Task::Error);
                     return false;
                 } else if (version->qtVersion() >= QVersionNumber(6, 0, 0)
                            && version->qtVersion() <= QVersionNumber(6, 1, 1)) {
@@ -713,8 +715,8 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
                         continue;
 
                     if (!from.copyFile(to)) {
-                        reportWarningOrError(Tr::tr("Cannot copy the target's lib file %1 to the "
-                                                    "Android build folder %2.")
+                        reportWarningOrError(Tr::tr("Cannot copy the target's lib file \"%1\" to "
+                                                    "the Android build folder \"%2\".")
                                                  .arg(fileName, androidLibsDir.toUserOutput()),
                                              Task::Error);
                         return false;

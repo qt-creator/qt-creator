@@ -358,6 +358,7 @@ public:
 
     QList<TemporaryMountInfo> m_temporaryMounts;
 
+    QMutex m_shellMutex;
     std::unique_ptr<ContainerShell> m_shell;
 
     QString m_container;
@@ -694,9 +695,11 @@ void DockerDevicePrivate::stopCurrentContainer()
 {
     if (m_container.isEmpty())
         return;
+
     if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return;
 
+    QMutexLocker lk(&m_shellMutex);
     if (m_shell) {
         // We have to disconnect the shell from the device, otherwise it will try to
         // tell us about the container being stopped. Since that signal is emitted in a different
@@ -896,6 +899,7 @@ expected_str<void> DockerDevicePrivate::startContainer()
     if (!createResult)
         return make_unexpected(createResult.error());
 
+    QMutexLocker lk(&m_shellMutex);
     m_shell = std::make_unique<ContainerShell>(m_container, q->rootPath());
 
     connect(m_shell.get(), &DeviceShell::done, this, [this](const ProcessResultData &resultData) {
@@ -923,13 +927,15 @@ expected_str<void> DockerDevicePrivate::startContainer()
 
 expected_str<void> DockerDevicePrivate::updateContainerAccess()
 {
+    {
+        QMutexLocker lk(&m_shellMutex);
+        if (m_shell && m_shell->state() == DeviceShell::State::Succeeded)
+            return {};
+    }
+
     if (QThread::currentThread() != thread()) {
         expected_str<void> result;
-        QMetaObject::invokeMethod(this,
-                                  &DockerDevicePrivate::updateContainerAccess,
-                                  Qt::BlockingQueuedConnection,
-                                  &result);
-        return result;
+        return make_unexpected(Tr::tr("Cannot start docker device from non-main thread"));
     }
 
     if (m_isShutdown)
@@ -937,9 +943,6 @@ expected_str<void> DockerDevicePrivate::updateContainerAccess()
 
     if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
         return make_unexpected(Tr::tr("Docker system is not reachable"));
-
-    if (m_shell && m_shell->state() == DeviceShell::State::Succeeded)
-        return {};
 
     expected_str<void> result = startContainer();
     if (result) {

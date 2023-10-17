@@ -72,4 +72,6 @@
     \uicontrol View > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
     To only show icons on the mode selector, select the \uicontrol {Icons Only}
     style.
+
+    \sa {Show and hide sidebars},{Show and hide the main menu}
 */

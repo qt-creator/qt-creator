@@ -50,6 +50,7 @@ public:
     using CursorProvider = std::function<Utils::MultiTextCursor ()>;
     void setMultiTextCursorProvider(const CursorProvider &provider);
     bool inScope(const QTextCursor &candidate) const;
+    bool inScope(int candidateStart, int candidateEnd) const;
 
     static QRegularExpression regularExpression(const QString &txt, Utils::FindFlags flags);
 

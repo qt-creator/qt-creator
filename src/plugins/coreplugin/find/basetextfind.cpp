@@ -425,9 +425,17 @@ bool BaseTextFind::inScope(const QTextCursor &candidate) const
         return false;
     if (d->m_scope.isNull())
         return true;
-    return Utils::anyOf(d->m_scope, [candidate](const QTextCursor &scope){
-        return candidate.selectionStart() >= scope.selectionStart()
-               && candidate.selectionEnd() <= scope.selectionEnd();
+    return inScope(candidate.selectionStart(), candidate.selectionEnd());
+}
+
+bool BaseTextFind::inScope(int candidateStart, int candidateEnd) const
+{
+    if (d->m_scope.isNull())
+        return true;
+    if (candidateStart > candidateEnd)
+        std::swap(candidateStart, candidateEnd);
+    return Utils::anyOf(d->m_scope, [&](const QTextCursor &scope) {
+        return candidateStart >= scope.selectionStart() && candidateEnd <= scope.selectionEnd();
     });
 }
 

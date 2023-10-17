@@ -9771,7 +9771,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <translation>Pytaj o listy uwierzytelniające</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>Na przykład: &quot;https://[użytkownik[:hasło]@]host[:port]/[ścieżka]&quot;.</translation>
     </message>
 </context>
@@ -13330,7 +13330,7 @@ This flag will allow push to proceed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>Na przykład: &quot;https://[użytkownik[:hasło]@]host[:port]/[ścieżka]&quot;.</translation>
     </message>
     <message>

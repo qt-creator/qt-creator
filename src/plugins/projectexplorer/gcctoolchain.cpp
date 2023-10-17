@@ -1364,7 +1364,7 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     }, {nameFilters, QDir::Files | QDir::Executable });
 
     // Gcc is almost never what you want on macOS, but it is by default found in /usr/bin
-    if (HostOsInfo::isMacHost() && detector.device->type() != Constants::DESKTOP_DEVICE_TYPE) {
+    if (HostOsInfo::isMacHost() && detector.device->type() == Constants::DESKTOP_DEVICE_TYPE) {
          executables.removeOne(FilePath::fromPathPart(u"/usr/bin/gcc"));
          executables.removeOne(FilePath::fromPathPart(u"/usr/bin/g++"));
     }
@@ -1575,6 +1575,9 @@ Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &
         tc->setTargetAbi(abi);
         tc->setOriginalTargetTriple(detectedAbis.originalTargetTriple);
         tc->setDisplayName(tc->defaultDisplayName()); // reset displayname
+        // lower priority of g++/gcc on macOS - usually just a frontend to clang
+        if (detectedSubType == GccToolChain::RealGcc && abi.binaryFormat() == Abi::MachOFormat)
+            tc->setPriority(ToolChain::PriorityLow);
         result.append(tc);
     }
     return result;

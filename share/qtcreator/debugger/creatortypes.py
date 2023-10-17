@@ -81,6 +81,11 @@ def qdump__Utils__Id(d, value):
     d.putPlainChildren(value)
 
 
+def qdump__Utils__Key(d, value):
+    d.putByteArrayValue(value["data"])
+    d.putBetterType(value.type)
+
+
 def qdump__Debugger__Internal__GdbMi(d, value):
     val = d.encodeString(value["m_name"]) + "3a002000" \
         + d.encodeString(value["m_data"])

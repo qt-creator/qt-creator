@@ -4031,10 +4031,7 @@ void TextEditorWidgetPrivate::highlightSearchResults(const QTextBlock &block, co
 
         const int start = blockPosition + idx;
         const int end = start + l;
-        QTextCursor result = cursor;
-        result.setPosition(start);
-        result.setPosition(end, QTextCursor::KeepAnchor);
-        if (!q->inFindScope(result))
+        if (!m_find->inScope(start, end))
             continue;
 
         // check if the result is inside the visibale area for long blocks
@@ -6884,9 +6881,16 @@ void TextEditorWidgetPrivate::highlightSearchResultsInScrollBar()
     Utils::onResultReady(m_searchFuture, this, [this](const SearchResultItems &resultList) {
         QList<SearchResult> results;
         for (const SearchResultItem &result : resultList) {
-            SearchResult searchResult;
-            if (q->inFindScope(selectRange(q->document(), result.mainRange(), &searchResult)))
-                results << searchResult;
+            int start = result.mainRange().begin.toPositionInDocument(m_document->document());
+            if (start < 0)
+                continue;
+            int end = result.mainRange().end.toPositionInDocument(m_document->document());
+            if (end < 0)
+                continue;
+            if (start > end)
+                std::swap(start, end);
+            if (m_find->inScope(start, end))
+                results << SearchResult{start, start - end};
         }
         m_searchResults << results;
         addSearchResultsToScrollBar(results);
@@ -6924,12 +6928,20 @@ void TextEditorWidgetPrivate::addSearchResultsToScrollBar(const QVector<SearchRe
     for (const SearchResult &result : results) {
         const QTextBlock &block = q->document()->findBlock(result.start);
         if (block.isValid() && block.isVisible()) {
-            const int firstLine = block.layout()->lineForTextPosition(result.start - block.position()).lineNumber();
-            const int lastLine = block.layout()->lineForTextPosition(result.start - block.position() + result.length).lineNumber();
-            for (int line = firstLine; line <= lastLine; ++line) {
+            if (q->lineWrapMode() == QPlainTextEdit::WidgetWidth) {
+                const int firstLine = block.layout()->lineForTextPosition(result.start - block.position()).lineNumber();
+                const int lastLine = block.layout()->lineForTextPosition(result.start - block.position() + result.length).lineNumber();
+                for (int line = firstLine; line <= lastLine; ++line) {
+                    m_highlightScrollBarController->addHighlight(
+                        {Constants::SCROLL_BAR_SEARCH_RESULT, block.firstLineNumber() + line,
+                         Theme::TextEditor_SearchResult_ScrollBarColor, Highlight::HighPriority});
+                }
+            } else {
                 m_highlightScrollBarController->addHighlight(
-                    {Constants::SCROLL_BAR_SEARCH_RESULT, block.firstLineNumber() + line,
-                            Theme::TextEditor_SearchResult_ScrollBarColor, Highlight::HighPriority});
+                    {Constants::SCROLL_BAR_SEARCH_RESULT,
+                     block.blockNumber(),
+                     Theme::TextEditor_SearchResult_ScrollBarColor,
+                     Highlight::HighPriority});
             }
         }
     }
@@ -9053,6 +9065,12 @@ void TextEditorWidget::configureGenericHighlighter(const Utils::MimeType &mimeTy
     Highlighter::Definitions definitions = Highlighter::definitionsForMimeType(mimeType.name());
     d->configureGenericHighlighter(definitions.isEmpty() ? Highlighter::Definition()
                                                          : definitions.first());
+    d->removeSyntaxInfoBar();
+}
+
+void TextEditorWidget::configureGenericHighlighter(const Highlighter::Definition &definition)
+{
+    d->configureGenericHighlighter(definition);
     d->removeSyntaxInfoBar();
 }
 

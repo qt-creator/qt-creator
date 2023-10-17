@@ -461,6 +461,12 @@ void SourcePathMapAspect::toMap(Store &) const
     QTC_CHECK(false);
 }
 
+bool SourcePathMapAspect::isDirty()
+{
+    guiToBuffer();
+    return m_internal != m_buffer;
+}
+
 void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
 {
     QTC_CHECK(!d->m_widget);

@@ -87,7 +87,7 @@ CopilotSettings::CopilotSettings()
         "Select path to agent.js in Copilot Neovim plugin. See "
         "https://github.com/github/copilot.vim#getting-started for installation instructions."));
 
-    autoComplete.setDisplayName(Tr::tr("Auto Complete"));
+    autoComplete.setDisplayName(Tr::tr("Auto Request"));
     autoComplete.setSettingsKey("Copilot.Autocomplete");
     autoComplete.setLabelText(Tr::tr("Auto request"));
     autoComplete.setDefaultValue(true);
@@ -97,7 +97,7 @@ CopilotSettings::CopilotSettings()
 
     useProxy.setDisplayName(Tr::tr("Use Proxy"));
     useProxy.setSettingsKey("Copilot.UseProxy");
-    useProxy.setLabelText(Tr::tr("Use Proxy"));
+    useProxy.setLabelText(Tr::tr("Use proxy"));
     useProxy.setDefaultValue(false);
     useProxy.setToolTip(Tr::tr("Use a proxy to connect to the Copilot servers."));
     useProxy.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
@@ -105,14 +105,14 @@ CopilotSettings::CopilotSettings()
     proxyHost.setDisplayName(Tr::tr("Proxy Host"));
     proxyHost.setDisplayStyle(StringAspect::LineEditDisplay);
     proxyHost.setSettingsKey("Copilot.ProxyHost");
-    proxyHost.setLabelText(Tr::tr("Proxy Host"));
+    proxyHost.setLabelText(Tr::tr("Proxy host"));
     proxyHost.setDefaultValue("");
     proxyHost.setToolTip(Tr::tr("The host name of the proxy server."));
     proxyHost.setHistoryCompleter("Copilot.ProxyHost.History");
 
     proxyPort.setDisplayName(Tr::tr("Proxy Port"));
     proxyPort.setSettingsKey("Copilot.ProxyPort");
-    proxyPort.setLabelText(Tr::tr("Proxy Port"));
+    proxyPort.setLabelText(Tr::tr("Proxy port"));
     proxyPort.setDefaultValue(3128);
     proxyPort.setToolTip(Tr::tr("The port of the proxy server."));
     proxyPort.setRange(1, 65535);
@@ -120,29 +120,29 @@ CopilotSettings::CopilotSettings()
     proxyUser.setDisplayName(Tr::tr("Proxy User"));
     proxyUser.setDisplayStyle(StringAspect::LineEditDisplay);
     proxyUser.setSettingsKey("Copilot.ProxyUser");
-    proxyUser.setLabelText(Tr::tr("Proxy User"));
+    proxyUser.setLabelText(Tr::tr("Proxy user"));
     proxyUser.setDefaultValue("");
-    proxyUser.setToolTip(Tr::tr("The user name for the proxy server."));
+    proxyUser.setToolTip(Tr::tr("The user name to access the proxy server."));
     proxyUser.setHistoryCompleter("Copilot.ProxyUser.History");
 
     saveProxyPassword.setDisplayName(Tr::tr("Save Proxy Password"));
     saveProxyPassword.setSettingsKey("Copilot.SaveProxyPassword");
-    saveProxyPassword.setLabelText(Tr::tr("Save Proxy Password"));
+    saveProxyPassword.setLabelText(Tr::tr("Save proxy password"));
     saveProxyPassword.setDefaultValue(false);
     saveProxyPassword.setToolTip(
-        Tr::tr("Save the password for the proxy server (Password is stored insecurely!)."));
+        Tr::tr("Save the password to access the proxy server. The password is stored insecurely."));
     saveProxyPassword.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     proxyPassword.setDisplayName(Tr::tr("Proxy Password"));
     proxyPassword.setDisplayStyle(StringAspect::PasswordLineEditDisplay);
     proxyPassword.setSettingsKey("Copilot.ProxyPassword");
-    proxyPassword.setLabelText(Tr::tr("Proxy Password"));
+    proxyPassword.setLabelText(Tr::tr("Proxy password"));
     proxyPassword.setDefaultValue("");
     proxyPassword.setToolTip(Tr::tr("The password for the proxy server."));
 
     proxyRejectUnauthorized.setDisplayName(Tr::tr("Reject Unauthorized"));
     proxyRejectUnauthorized.setSettingsKey("Copilot.ProxyRejectUnauthorized");
-    proxyRejectUnauthorized.setLabelText(Tr::tr("Reject Unauthorized"));
+    proxyRejectUnauthorized.setLabelText(Tr::tr("Reject unauthorized"));
     proxyRejectUnauthorized.setDefaultValue(true);
     proxyRejectUnauthorized.setToolTip(Tr::tr("Reject unauthorized certificates from the proxy "
                                               "server. This is a security risk."));
