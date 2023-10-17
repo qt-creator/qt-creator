@@ -509,17 +509,17 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                         fragments.erase(foundPos, std::next(foundPos, args.size()));
                 };
 
-                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.toString() + ".gch"});
-                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.toString() + ".pch"});
-                remove({"-Xclang", "-include", "-Xclang", precompiled_header.toString()});
-                remove({"-include", precompiled_header.toString()});
-                remove({"/FI", precompiled_header.toString()});
+                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.path() + ".gch"});
+                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.path() + ".pch"});
+                remove({"-Xclang", "-include", "-Xclang", precompiled_header.path()});
+                remove({"-include", precompiled_header.path()});
+                remove({"/FI", precompiled_header.path()});
 
                 // Make a copy of the CMake PCH header and use it instead
                 FilePath qtc_precompiled_header = precompiled_header.parentDir().pathAppended(qtcPchFile);
                 FileUtils::copyIfDifferent(precompiled_header, qtc_precompiled_header);
 
-                rpp.setPreCompiledHeaders({qtc_precompiled_header.toString()});
+                rpp.setPreCompiledHeaders({qtc_precompiled_header.path()});
             }
 
             RawProjectPartFlags cProjectFlags;
