@@ -497,10 +497,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                                            return si.path.endsWith(ending);
                                        }).path);
             if (!precompiled_header.isEmpty()) {
-                if (precompiled_header.toFileInfo().isRelative()) {
-                    const FilePath parentDir = sourceDirectory.parentDir();
-                    precompiled_header = parentDir.pathAppended(precompiled_header.toString());
-                }
+                precompiled_header = sourceDirectory.resolvePath(precompiled_header);
 
                 // Remove the CMake PCH usage command line options in order to avoid the case
                 // when the build system would produce a .pch/.gch file that would be treated
