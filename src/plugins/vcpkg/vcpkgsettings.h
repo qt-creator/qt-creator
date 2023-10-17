@@ -12,6 +12,8 @@ class VcpkgSettings : public Utils::AspectContainer
 public:
     VcpkgSettings();
 
+    void setVcpkgRootEnvironmentVariable();
+
     Utils::FilePathAspect vcpkgRoot{this};
 };
 

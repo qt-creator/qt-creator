@@ -42,6 +42,8 @@ VcpkgSettings::VcpkgSettings()
     if (defaultPath.isDir())
         vcpkgRoot.setDefaultValue(defaultPath.toUserOutput());
 
+    connect(this, &AspectContainer::applied, this, &VcpkgSettings::setVcpkgRootEnvironmentVariable);
+
     setLayouter([this] {
         using namespace Layouting;
         auto websiteButton = new QToolButton;
@@ -68,6 +70,12 @@ VcpkgSettings::VcpkgSettings()
     });
 
     readSettings();
+}
+
+void VcpkgSettings::setVcpkgRootEnvironmentVariable()
+{
+    // Set VCPKG_ROOT environment variable so that auto-setup.cmake would pick it up
+    Environment::modifySystemEnvironment({{Constants::ENVVAR_VCPKG_ROOT, vcpkgRoot.value()}});
 }
 
 class VcpkgSettingsPage : public Core::IOptionsPage
