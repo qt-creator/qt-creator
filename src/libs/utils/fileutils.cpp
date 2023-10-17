@@ -721,7 +721,7 @@ bool FileUtils::copyRecursively(
 
 bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
 {
-    QTC_ASSERT(srcFilePath.exists(), return false);
+    QTC_ASSERT(srcFilePath.exists(), qDebug() << srcFilePath.toUserOutput(); return false);
     QTC_ASSERT(srcFilePath.isSameDevice(tgtFilePath), return false);
 
     if (tgtFilePath.exists()) {
