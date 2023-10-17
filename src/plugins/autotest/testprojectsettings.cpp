@@ -23,7 +23,7 @@ static const char SK_ACTIVE_FRAMEWORKS[]        = "AutoTest.ActiveFrameworks";
 static const char SK_RUN_AFTER_BUILD[]          = "AutoTest.RunAfterBuild";
 static const char SK_CHECK_STATES[]             = "AutoTest.CheckStates";
 
-static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.frameworkmanager", QtWarningMsg)
+static Q_LOGGING_CATEGORY(LOG, "qtc.autotest.projectsettings", QtWarningMsg)
 
 TestProjectSettings::TestProjectSettings(ProjectExplorer::Project *project)
     : m_project(project)
