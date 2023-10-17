@@ -358,13 +358,13 @@ static QStringList splitFragments(const QStringList &fragments)
 
 static bool isPchFile(const FilePath &buildDirectory, const FilePath &path)
 {
-    return path.isChildOf(buildDirectory) && path.fileName().startsWith("cmake_pch");
+    return path.fileName().startsWith("cmake_pch") && path.isChildOf(buildDirectory);
 }
 
 static bool isUnityFile(const FilePath &buildDirectory, const FilePath &path)
 {
-    return path.isChildOf(buildDirectory) && path.parentDir().fileName() == "Unity"
-           && path.fileName().startsWith("unity_");
+    return path.fileName().startsWith("unity_") && path.isChildOf(buildDirectory)
+           && path.parentDir().fileName() == "Unity";
 }
 
 static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture,
@@ -478,10 +478,9 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             // Set project files except pch / unity files
             rpp.setFiles(Utils::filtered(sources,
                                          [buildDirectory](const QString &path) {
-                                             return !isPchFile(buildDirectory,
-                                                               FilePath::fromString(path))
-                                                    && !isUnityFile(buildDirectory,
-                                                                    FilePath::fromString(path));
+                                             const FilePath filePath = FilePath::fromString(path);
+                                             return !isPchFile(buildDirectory, filePath)
+                                                 && !isUnityFile(buildDirectory, filePath);
                                          }),
                          {},
                          [headerMimeType](const QString &path) {
