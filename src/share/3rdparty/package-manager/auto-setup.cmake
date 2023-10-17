@@ -102,11 +102,11 @@ macro(qtc_auto_setup_conan)
           project(conan-setup)
 
           if (${conan_version} VERSION_GREATER_EQUAL 2.0)
+            set(CONAN_COMMAND \"${conan_program}\")
             include(\"${CMAKE_CURRENT_LIST_DIR}/conan_provider.cmake\")
             conan_profile_detect_default()
             detect_host_profile(\"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\")
 
-            set(CONAN_COMMAND \"${conan_program}\")
             conan_install(
               -pr \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\"
               --build=${QT_CREATOR_CONAN_BUILD_POLICY}
