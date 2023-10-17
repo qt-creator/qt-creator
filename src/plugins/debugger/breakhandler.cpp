@@ -1241,7 +1241,7 @@ static bool isAllowedTransition(BreakpointState from, BreakpointState to)
 
 void BreakpointItem::gotoState(BreakpointState target, BreakpointState assumedCurrent)
 {
-    QTC_ASSERT(m_state == assumedCurrent, qDebug() << m_state);
+    QTC_ASSERT(m_state == assumedCurrent, qDebug() << target << m_state);
     setState(target);
 }
 

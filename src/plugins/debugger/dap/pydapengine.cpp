@@ -204,32 +204,6 @@ bool PyDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
     return bp.fileName.endsWith(".py");
 }
 
-void PyDapEngine::insertBreakpoint(const Breakpoint &bp)
-{
-    DapEngine::insertBreakpoint(bp);
-    notifyBreakpointInsertOk(bp); // Needed for Python support issue:1386
-}
-
-void PyDapEngine::removeBreakpoint(const Breakpoint &bp)
-{
-    DapEngine::removeBreakpoint(bp);
-    notifyBreakpointRemoveOk(bp); // Needed for Python support issue:1386
-}
-
-void PyDapEngine::updateBreakpoint(const Breakpoint &bp)
-{
-    DapEngine::updateBreakpoint(bp);
-
-    /* Needed for Python support issue:1386 */
-    BreakpointParameters parameters = bp->requestedParameters();
-    if (parameters.enabled != bp->isEnabled()) {
-        parameters.pending = false;
-        bp->setParameters(parameters);
-    }
-    notifyBreakpointChangeOk(bp);
-    /* Needed for Python support issue:1386 */
-}
-
 bool PyDapEngine::isLocalAttachEngine() const
 {
     return runParameters().startMode == AttachToLocalProcess;

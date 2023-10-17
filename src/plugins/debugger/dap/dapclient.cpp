@@ -224,6 +224,8 @@ void DapClient::emitSignals(const QJsonDocument &doc)
             type = DapResponseType::Pause;
         } else if (command == "evaluate") {
             type = DapResponseType::Evaluate;
+        } else if (command == "setBreakpoints") {
+            type = DapResponseType::SetBreakpoints;
         }
         emit responseReady(type, ob);
         return;

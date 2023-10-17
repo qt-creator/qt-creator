@@ -142,6 +142,11 @@ void CMakeDapEngine::setupEngine()
     });
 }
 
+bool CMakeDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
+{
+    return bp.fileName.endsWith(".txt") || bp.fileName.endsWith(".cmake");
+}
+
 bool CMakeDapEngine::hasCapability(unsigned cap) const
 {
     return cap & (ReloadModuleCapability
@@ -149,32 +154,6 @@ bool CMakeDapEngine::hasCapability(unsigned cap) const
                   | ShowModuleSymbolsCapability
                   /*| AddWatcherCapability*/ // disable while the #25282 bug is not fixed
                   /*| RunToLineCapability*/); // disable while the #25176 bug is not fixed
-}
-
-void CMakeDapEngine::insertBreakpoint(const Breakpoint &bp)
-{
-    DapEngine::insertBreakpoint(bp);
-    notifyBreakpointInsertOk(bp); // Needed for CMake support issue:25176
-}
-
-void CMakeDapEngine::removeBreakpoint(const Breakpoint &bp)
-{
-    DapEngine::removeBreakpoint(bp);
-    notifyBreakpointRemoveOk(bp); // Needed for CMake support issue:25176
-}
-
-void CMakeDapEngine::updateBreakpoint(const Breakpoint &bp)
-{
-    DapEngine::updateBreakpoint(bp);
-
-    /* Needed for CMake support issue:25176 */
-    BreakpointParameters parameters = bp->requestedParameters();
-    if (parameters.enabled != bp->isEnabled()) {
-        parameters.pending = false;
-        bp->setParameters(parameters);
-    }
-    notifyBreakpointChangeOk(bp);
-    /* Needed for CMake support issue:25176 */
 }
 
 const QLoggingCategory &CMakeDapEngine::logCategory()

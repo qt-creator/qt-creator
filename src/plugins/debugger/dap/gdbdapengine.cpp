@@ -161,6 +161,11 @@ void GdbDapEngine::setupEngine()
     m_dapClient->dataProvider()->start();
 }
 
+bool GdbDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
+{
+    return bp.fileName.endsWith(".cpp") || bp.fileName.endsWith(".h");
+}
+
 const QLoggingCategory &GdbDapEngine::logCategory()
 {
     static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine.gdb",

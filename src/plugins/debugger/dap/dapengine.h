@@ -128,9 +128,9 @@ protected:
     void handleScopesResponse(const QJsonObject &response);
     void handleThreadsResponse(const QJsonObject &response);
     void handleEvaluateResponse(const QJsonObject &response);
+    void handleBreakpointResponse(const QJsonObject &response);
 
     void handleEvent(DapEventType type, const QJsonObject &event);
-    void handleBreakpointEvent(const QJsonObject &event);
     void handleStoppedEvent(const QJsonObject &event);
 
     void updateAll() override;

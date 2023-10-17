@@ -52,6 +52,7 @@ enum class DapResponseType
     StepOver,
     Pause,
     Evaluate,
+    SetBreakpoints,
     Unknown
 };
 
