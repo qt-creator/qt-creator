@@ -17,8 +17,8 @@
     \brief Set preferences for the behavior of the text editor.
 
     To specify indentation settings for text files that do not have C++ or
-    QML code (such as Python code files), select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior.
+    QML code (such as Python code files), select \preferences >
+    \uicontrol {Text Editor} > \uicontrol Behavior.
 
     \image qtcreator-indentation.png {Text Editor Behavior preferences}
 
@@ -64,7 +64,7 @@
 
     When you type text or code, it is indented automatically according to the
     selected text editor or code style preferences. To set typing preferences,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    select \preferences > \uicontrol {Text Editor} >
     \uicontrol Behavior > \uicontrol Typing.
 
     To disable automatic indentation, deselect the

@@ -45,9 +45,8 @@
     you run Git from a Windows command prompt, it looks for the SSH keys in its
     installation directory, and therefore, the authorization fails.
 
-    You can set the \c HOME environment variable from \QC. Select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Version Control} >
-    \uicontrol Git, and then select the
+    You can set the \c HOME environment variable from \QC. Select \preferences >
+    \uicontrol {Version Control} > \uicontrol Git, and then select the
     \uicontrol {Set "HOME" environment variable} check box. \c HOME is
     set to \c %HOMEDRIVE%%HOMEPATH% when the Git executable is run and
     authorization works as it would with \c {git bash}.
@@ -93,9 +92,8 @@
     The log output has the date, the commit message, and a commit
     identifier.
 
-    You can set the maximum number of log entries to show in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol Git >
-    \uicontrol {Log count}.
+    You can set the maximum number of log entries to show in \preferences >
+    \uicontrol {Version Control} > \uicontrol Git > \uicontrol {Log count}.
 
     Click on the commit identifier to view commit details.
 
@@ -144,8 +142,8 @@
     \image qtcreator-git-blame.webp {Git Blame view}
 
     By default, each line is annotated in the editor when you scroll through
-    the file. To disable this feature, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol Git, and
+    the file. To disable this feature, select \preferences >
+    \uicontrol {Version Control} > \uicontrol Git, and
     deselect \uicontrol {Add instant blame annotations to editor}. To view
     annotations for the current line, select \uicontrol Tools > \uicontrol Git >
     \uicontrol {Current File} > \uicontrol {Instant Blame}.
@@ -490,7 +488,7 @@
 
     To pull changes from the remote repository, select \uicontrol Pull. If there
     are locally modified files, you are prompted to stash the changes. Select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Version Control} >
+    \preferences > \uicontrol {Version Control} >
     \uicontrol Git and then select the \uicontrol {Pull with rebase} check box
     to perform a rebase operation while pulling.
 
@@ -579,8 +577,8 @@
     To refresh the list of changes, select \uicontrol Refresh.
 
     The \uicontrol Remote field lists the remotes of the current repository that
-    are detected as Gerrit servers. Select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol {Version Control} > \uicontrol Gerrit to specify a fallback
+    are detected as Gerrit servers. Select \preferences >
+    \uicontrol {Version Control} > \uicontrol Gerrit to specify a fallback
     connection to a Gerrit server over SSH. The Gerrit REST interface and the
     \l{https://curl.haxx.se/}{curl} tool are used for HTTP connections.
 
@@ -596,7 +594,7 @@
 
     \note On \macos, the default Git installation does not have Git Gui. To
     use Git Gui, install it separately. To start Git Gui from \QC, select
-    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol Git, and
+    \preferences > \uicontrol {Version Control} > \uicontrol Git, and
     set the path to the environment that has Git Gui in the
     \uicontrol {Prepend to PATH} field.
 
@@ -604,12 +602,11 @@
     \uicontrol Git > \uicontrol {Git Tools} > \uicontrol Gitk. You can also
     start the tool to view commits in the current document or in the folder that
     has the current document. To specify arguments for running Gitk, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Version Control} >
-    \uicontrol Git.
+    \preferences > \uicontrol {Version Control} > \uicontrol Git.
 
     To use some other application for viewing Git history, such as GitX or
-    QGit viewer, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol {Version Control} > \uicontrol Git and specify the path to the
+    QGit viewer, select \preferences > \uicontrol {Version Control} >
+    \uicontrol Git and specify the path to the
     application executable in the \uicontrol {Command} field. To start the
     application, select \uicontrol Tools > \uicontrol Git
     > \uicontrol {Git Tools} > \uicontrol {Repository Browser}.

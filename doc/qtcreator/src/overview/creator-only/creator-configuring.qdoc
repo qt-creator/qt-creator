@@ -45,22 +45,21 @@
     available in \QC. If it does not, you must add the kits yourself to tell
     \QC where everything is.
 
-    To add kits, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Kits > \uicontrol Add.
+    To add kits, select \preferences > \uicontrol Kits > \uicontrol Add.
 
     For more information, see \l{Add kits}.
 
     Each kit consists of a set of values that define one environment, such as a
-    \l{glossary-device}{device}, compiler, and Qt version. If \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits > \uicontrol {Qt Versions} does not
-    show all the installed Qt versions, select \uicontrol {Link with Qt}.
+    \l{glossary-device}{device}, compiler, and Qt version. If \preferences >
+    \uicontrol Kits > \uicontrol {Qt Versions} does not show all the installed
+    Qt versions, select \uicontrol {Link with Qt}.
 
     If \uicontrol Auto-detected still does not show the Qt version, select
     \uicontrol {Add} to add it manually.
 
     For more information, see \l{Add Qt versions}.
 
-    Also check that \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+    Also check that \preferences > \uicontrol Kits >
     \uicontrol {Compilers} shows your compiler.
 
     For more information, see \l{Add compilers}.
@@ -71,8 +70,8 @@
     over a WLAN. You must also configure a connection between \QC and the
     development PC and specify the device in a kit.
 
-    To add devices, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Devices > \uicontrol Devices > \uicontrol Add.
+    To add devices, select \preferences > \uicontrol Devices >
+    \uicontrol Devices > \uicontrol Add.
 
     For more information, see \l{Connecting Devices}.
 
@@ -81,7 +80,8 @@
     You can use \QC with your favorite keyboard shortcuts.
 
     To view and edit all keyboard shortcuts defined in \QC, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
+    \preferences >
+    \uicontrol Environment >
     \uicontrol Keyboard. For more information, see \l{Keyboard Shortcuts}.
 
     \section1 Changing Color Schemes
@@ -89,9 +89,8 @@
     Themes enable you to customize the appearance of the \QC UI: widgets,
     colors, and icons.
 
-    To switch themes, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Environment, and then select a theme
-    in the \uicontrol Theme field.
+    To switch themes, select \preferences > \uicontrol Environment, and then
+    select a theme in the \uicontrol Theme field.
 
     You can use the \QC text and code editors with your favorite color scheme
     that defines how to highlight code elements and which background color to
@@ -99,7 +98,7 @@
     ones. The color schemes apply to highlighting C++ files, QML files, and
     generic files.
 
-    To change the color scheme, select \uicontrol Edit > \uicontrol Preferences >
+    To change the color scheme, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
 
     For more information, see \l{Defining Color Schemes}.
@@ -109,8 +108,8 @@
     highlighting engine for Kate syntax definitions. \QC comes with most of
     the commonly used syntax files, and you can download additional files.
 
-    To download and use highlight definition files, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
+    To download and use highlight definition files, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
 
     For more information, see \l{Generic Highlighting}.
 
@@ -121,7 +120,7 @@
     the statement currently under your cursor. You can add, modify, and remove
     snippets in the snippet editor.
 
-    To open the snippet editor, select \uicontrol Edit > \uicontrol Preferences >
+    To open the snippet editor, select \preferences >
     \uicontrol {Text Editor} > \uicontrol Snippets.
 
     For more information, see \l{Editing Code Snippets}.
@@ -133,8 +132,8 @@
     \QC.
 
     However, some configuration options are available and you can set them in
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Version Control} >
-    \uicontrol General.
+    \preferences >
+    \uicontrol {Version Control} > \uicontrol General.
 
     For more information about the supported functions, see
     \l{Version Control Systems}.

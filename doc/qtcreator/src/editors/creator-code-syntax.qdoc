@@ -39,7 +39,7 @@
     of the line annotations.
 
     To modify the colors used for underlining errors and warnings, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    \preferences > \uicontrol {Text Editor} >
     \uicontrol {Font & Colors} > \uicontrol Copy, and select new colors for
     \uicontrol Error and \uicontrol Warning.
 
@@ -55,7 +55,7 @@
     \section1 Specifying Line Annotation Positions
 
     To specify the position where the annotations are displayed, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    \preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Line annotations}, and then select
     whether to display the annotations directly next to the code, aligned
     to the right of the code, or in the right margin. Showing annotations
@@ -701,9 +701,9 @@
 
     \section1 Enabling and Disabling Messages
 
-    To enable and disable QML and JavaScript messages, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing}
-    > \uicontrol {Use customized static analyzer}.
+    To enable and disable QML and JavaScript messages, select \preferences >
+    \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
+    \uicontrol {Use customized static analyzer}.
 
     \image qtcreator-preferences-qtquick-qmljs-editing.webp {QML/JS Editing tab in Qt Quick preferences}
 
@@ -739,8 +739,8 @@
 
     \section1 Automatically Formatting QML/JS Files
 
-    To automatically format QML/JS files upon saving, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
+    To automatically format QML/JS files upon saving, select \preferences >
+    \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
     \uicontrol {Enable auto format on file save}.
     To only format files that belong to the current project, select
     \uicontrol {Restrict to files contained in the current project}.
@@ -763,9 +763,8 @@
     This action expands all C++ macros to their actual code and removes code that
     is guarded by a currently inactive \c {#ifdef} statements. If you deselect
     the \uicontrol {Use built-in preprocessor to show pre-processed files} check
-    box in \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
-    \uicontrol {Code Model}, this action also expands all
-    \c {"#include <foo.h>"} statements to their actual contents.
+    box in \preferences > \uicontrol C++ > \uicontrol {Code Model}, this action
+    also expands all \c {"#include <foo.h>"} statements to their actual contents.
 
     \image qtcreator-preferences-code-model.webp {C++ Code Model preferences}
 

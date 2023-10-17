@@ -29,7 +29,7 @@
         \li Create or designate a directory to store local Fossil repositories
             and remote clones. For example: \c ~/fossils/qt.
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
+        \li Select \preferences >
             \uicontrol {Version Control} > \uicontrol Fossil, and set the
             designated directory in the \uicontrol {Default path} field.
 
@@ -71,7 +71,7 @@
 
     \section1 Fossil Preferences
 
-    To set Fossil preferences, select \uicontrol Edit > \uicontrol Preferences >
+    To set Fossil preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol Fossil:
 
     \list

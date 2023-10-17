@@ -70,7 +70,7 @@
     \section1 Specifying Settings for Debug Server Providers
 
     To create connections to bare metal devices using a debug server provider,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices
+    select \preferences > \uicontrol Devices
     > \uicontrol {Bare Metal} > \uicontrol Add > \uicontrol Default.
     The available settings depend on the debug server provider.
 
@@ -251,7 +251,7 @@
 
         \list 1
 
-           \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices
+           \li Select \preferences > \uicontrol Devices
                 > \uicontrol Add > \uicontrol {Bare Metal Device} >
                 \uicontrol {Start Wizard}.
 
@@ -265,7 +265,7 @@
     \section1 Building for and Running on Bare Metal Devices
 
     To add a kit for building applications and running them on bare metal
-    devices, select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits
+    devices, select \preferences > \uicontrol Kits
     > \uicontrol Add. For more information, see \l{Add kits}.
 
     \image qtcreator-baremetal-kit.png "Kit preferences for Bare Metal"

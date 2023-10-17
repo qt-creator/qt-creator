@@ -36,8 +36,7 @@
     \section1 Setting Preferences for Opening Files
 
     To set preferences for opening files and handling open files, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Environment >
-    \uicontrol System:
+    \preferences > \uicontrol Environment > \uicontrol System:
 
     \image qtcreator-options-environment-system.png {System tab in Environment preferences}
 

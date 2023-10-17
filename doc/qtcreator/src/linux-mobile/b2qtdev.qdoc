@@ -34,7 +34,7 @@
     \section1 Adding Boot2Qt Devices
 
     If \QC does not automatically detect a device you connected with USB, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
+    \preferences > \uicontrol Devices >
     \uicontrol Devices > \uicontrol Add > \uicontrol {Boot2Qt Device} to create
     either a network connection or a USB connection to it.
 
@@ -49,7 +49,7 @@
     \l{https://doc.qt.io/Boot2Qt/b2qt-requirements-x11.html#setting-up-usb-access-to-embedded-devices}
     {Boot2Qt: Setting Up USB Access to Embedded Devices}.
 
-    You can edit the settings later in \uicontrol Edit > \uicontrol Preferences >
+    You can edit the settings later in \preferences >
     \uicontrol Devices > \uicontrol Devices.
 
     To reboot the selected device, select \uicontrol {Reboot Device}.
@@ -74,7 +74,7 @@
     need to enter the password upon every connection to the device, or if
     caching is enabled, at every \QC restart. If you frequently run into the
     timeout, consider using key-based authentication. On \macos and Linux, you
-    can also select \uicontrol Preferences > \uicontrol Devices > \uicontrol SSH
+    can also select \preferences > \uicontrol Devices > \uicontrol SSH
     and increase the time (in minutes) to use the same SSH connection in the
     \uicontrol {Connection sharing timeout} field. Windows does not support
     shared connections.
@@ -97,10 +97,9 @@
     \list 1
         \li Check that you can reach the IP address of the device, or use USB to
             connect it.
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
-            \uicontrol {Qt Versions} > \uicontrol Add to add the Qt version
-            for Boot2Qt.
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+        \li Select \preferences > \uicontrol Kits > \uicontrol {Qt Versions} >
+            \uicontrol Add to add the Qt version for Boot2Qt.
+        \li Select \preferences > \uicontrol Kits >
             \uicontrol Compilers > \uicontrol Add to add the compiler for
             building the applications.
         \li Select \uicontrol Tools > \uicontrol {Flash Boot to Qt Device}
@@ -109,16 +108,15 @@
             parameters for connecting to the devices over the network (\QC
             automatically detects devices connected with USB):
             \list 1
-                \li Select \uicontrol Edit > \uicontrol Preferences >
-                    \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
-                    \uicontrol Boot2Qt.
+                \li Select \preferences > \uicontrol Devices >
+                    \uicontrol Devices > \uicontrol Add > \uicontrol Boot2Qt.
                     \image qtcreator-devices-boot2qt.png {Boot2Qt Network Device Setup wizard}
                 \li In the \uicontrol {Device name} field, enter a name for
                     the connection.
                 \li In the \uicontrol {Device address} field, enter the host
                     name or IP address of the device. This value will be
                     available in the \c %{Device:HostAddress} variable.
-                \li Click  > \uicontrol {Finish} to test the connection and
+                \li Click \uicontrol {Finish} to test the connection and
                     add the device.
 
                     You can edit the connection parameters in the
@@ -131,7 +129,7 @@
                     \uicontrol {Boot2Qt Device} in the pull-down menu of the
                     \uicontrol Add button.
             \endlist
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+        \li Select \preferences > \uicontrol Kits >
             \uicontrol Add to add a kit for building applications for the
             device. Select the Qt version, compiler, and device that you
             added above, and choose \uicontrol Boot2Qt as the device type.

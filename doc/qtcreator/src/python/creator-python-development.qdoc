@@ -90,8 +90,7 @@
 
     To see the available interpreters and choose another interpreter, select the
     current interpreter, and then select \uicontrol {Manage Python Interpreters}.
-    Or, select \uicontrol Edit > \uicontrol Preferences > \uicontrol Python >
-    \uicontrol Interpreters.
+    Or, select \preferences > \uicontrol Python > \uicontrol Interpreters.
 
     \image qtcreator-python-interpreters.webp {Python Interpreters in Preferences}
 

@@ -8,9 +8,9 @@
 
     \title Debugger Preferences
 
-    To specify settings for managing debugger processes, select \uicontrol Edit
-     > \uicontrol Preferences > \uicontrol Debugger. In the \uicontrol General tab,
-     you can specify settings that are common to all debuggers.
+    To specify settings for managing debugger processes, select \preferences >
+    \uicontrol Debugger. In the \uicontrol General tab,you can specify settings
+    that are common to all debuggers.
 
     \image qtcreator-debugger-general-options.png "Debugger General preferences"
 
@@ -50,8 +50,8 @@
 
     \section1 Specifying GDB Settings
 
-    To specify settings for managing the GDB process, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Debugger > \uicontrol GDB.
+    To specify settings for managing the GDB process, select \preferences >
+    \uicontrol Debugger > \uicontrol GDB.
 
     \image qtcreator-gdb-options.png "GDB preferences"
 
@@ -136,8 +136,8 @@
 
     \section1 Specifying CDB Settings
 
-    To specify settings for managing the CDB process, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Debugger > \uicontrol CDB.
+    To specify settings for managing the CDB process, select \preferences >
+    \uicontrol Debugger > \uicontrol CDB.
 
     \image qtcreator-cdb-options.png "CDB preferences"
 
@@ -187,8 +187,7 @@
     to the symbol search path of the debugger:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
-            \uicontrol {CDB Paths}.
+        \li Select \preferences > \uicontrol Debugger > \uicontrol {CDB Paths}.
             \image qtcreator-debugger-cdb-paths.png
         \li In the \uicontrol {Symbol Paths} group, select \uicontrol Insert.
         \li Select the directory where you want to store the cached information.

@@ -85,9 +85,8 @@
 
     \QC has some actions that can improve the wizard development process. They
     don't have keyboard shortcuts by default, so you cannot trigger them. To
-    enable them, assign keyboard shortcuts in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Environment > \uicontrol Keyboard >
-    \uicontrol Wizard.
+    enable them, assign keyboard shortcuts in \preferences >
+    \uicontrol Environment > \uicontrol Keyboard > \uicontrol Wizard.
 
     The following actions can help with wizard development:
 

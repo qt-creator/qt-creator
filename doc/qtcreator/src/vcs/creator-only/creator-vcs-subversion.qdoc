@@ -29,9 +29,8 @@
 
     \section1 Subversion Preferences
 
-    To set Subversion preferences, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Version Control} >
-    \uicontrol Subversion:
+    To set Subversion preferences, select \preferences >
+    \uicontrol {Version Control} > \uicontrol Subversion:
 
    \image qtcreator-preferences-vcs-subversion.webp {Subversion preferences}
 

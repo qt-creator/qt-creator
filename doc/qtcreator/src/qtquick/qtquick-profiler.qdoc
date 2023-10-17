@@ -124,7 +124,7 @@
 
     You can specify flushing settings for the QML Profiler either globally for
     all projects or separately for each project. To specify global settings,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol Analyzer.
+    select \preferences > \uicontrol Analyzer.
 
     To specify custom QML Profiler settings for a particular project, select
     \uicontrol Projects > \uicontrol Run and then select \uicontrol Custom in

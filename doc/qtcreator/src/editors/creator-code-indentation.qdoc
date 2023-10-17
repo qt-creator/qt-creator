@@ -43,9 +43,9 @@
     \section1 Automatically fix indentation
 
     To automatically fix indentation according to the indentation settings
-    when you save the file, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol {Text Editor} > \uicontrol Behavior >
-    \uicontrol {Clean whitespace} > \uicontrol {Clean indentation}. Select
+    when you save the file, select \preferences > \uicontrol {Text Editor} >
+    \uicontrol Behavior > \uicontrol {Clean whitespace} >
+    \uicontrol {Clean indentation}. Select
     the \uicontrol {Skip clean whitespace for file types} check box to
     exclude the specified file types.
 
@@ -53,8 +53,8 @@
 
     \section1 Show whitespace in editor
 
-    To visualize whitespace in the editor, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Display >
+    To visualize whitespace in the editor, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol Display >
     \uicontrol {Visualize whitespace}.
 
     To visualize indentation, select \uicontrol {Visualize Indent}. To adjust the

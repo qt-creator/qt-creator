@@ -39,6 +39,7 @@ macro.QOI               = "Qt Online Installer"
 macro.QMT               = "Qt Maintenance Tool"
 macro.qtcversion        = $QTC_VERSION
 macro.param             = "\\e"
+macro.preferences       = "\\uicontrol Edit (or \\uicontrol {\\QC} on \\macos) > \\uicontrol Preferences"
 macro.raisedaster.HTML  = "<sup>*</sup>"
 macro.rarrow.HTML       = "&rarr;"
 macro.reg.HTML          = "<sup>&reg;</sup>"

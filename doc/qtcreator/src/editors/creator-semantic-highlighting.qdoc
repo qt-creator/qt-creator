@@ -24,8 +24,7 @@
     \endlist
 
     To specify the color scheme to use for semantic highlighting, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
-    \uicontrol {Fonts & Color}.
+    \preferences > \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
 
     \QC supports syntax highlighting also for other types of files than C++,
     QML, or JavaScript.
@@ -48,7 +47,7 @@
     If more than one highlight definition is available for the file that you
     open for editing, the editor asks you to select the one to use. To save
     the selection, select \uicontrol {Remember My Choice}. To reset the
-    remembered definitions, select \uicontrol Edit > \uicontrol Preferences >
+    remembered definitions, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} >
     \uicontrol {Reset Remembered Definitions}.
 
@@ -58,10 +57,9 @@
     To view information about the downloaded files, open the \l{View output}
     {General Messages} view.
 
-    To suppress the message for a particular file pattern, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor}
-    > \uicontrol {Generic Highlighter} and add the pattern to the
-    \uicontrol {Ignored file patterns} field.
+    To suppress the message for a particular file pattern, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Generic Highlighter} and add the
+    pattern to the \uicontrol {Ignored file patterns} field.
 
     \image qtcreator-syntax-highlighter.png "Generic Highlighter preferences"
 
@@ -79,15 +77,14 @@
 
     \image qtcreator-blockhighlighting.png
 
-    To enable block highlighting, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Display >
-    \uicontrol {Highlight blocks}.
+    To enable block highlighting, select \preferences > \uicontrol {Text Editor}
+    > \uicontrol Display > \uicontrol {Highlight blocks}.
 
     Use the folding markers to collapse and expand blocks of code within braces.
     Click the folding marker to collapse or expand a block. In the figure above,
     the folding markers are located between the line number and the text pane.
 
-    To show the folding markers, select \uicontrol Edit > \uicontrol Preferences >
+    To show the folding markers, select \preferences >
     \uicontrol {Text Editor} > \uicontrol Display >
     \uicontrol {Display folding markers}. This option is enabled by default.
 
@@ -95,7 +92,7 @@
 
     When the cursor is on a brace, the matching brace is animated by default. To
     turn off the animation and just highlight the block and the braces, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    \preferences > \uicontrol {Text Editor} >
     \uicontrol Display and deselect \uicontrol {Animate matching parentheses}.
 
     You can use keyboard shortcuts to move within and between blocks. To go to
@@ -107,7 +104,7 @@
     To select the current block, press \key Ctrl+U. A second key press extends
     the selection to the parent block. To undo the last selection, press
     \key {Ctrl+Alt+Shift+U}. To enable smart block selection, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    \preferences > \uicontrol {Text Editor} >
     \uicontrol Behavior > \uicontrol {Enable smart selection changing}.
 
     \image qtcreator-options-text-editor-behavior.png "Text Editor Behavior preferences"

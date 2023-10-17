@@ -141,7 +141,7 @@
     \endcode
 
     This example assumes that the CMake executable path is set in
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
+    \preferences > \uicontrol CMake >
     \uicontrol Tools.
 
     \section1 MSVC Example

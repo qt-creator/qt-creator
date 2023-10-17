@@ -46,7 +46,7 @@
 
     \section1 Bazaar Preferences
 
-    To set Bazaar preferences, select \uicontrol Edit > \uicontrol Preferences >
+    To set Bazaar preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol Bazaar:
 
     \image qtcreator-preferences-vcs-bazaar.webp {Bazaar preferences}

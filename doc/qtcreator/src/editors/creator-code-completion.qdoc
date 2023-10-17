@@ -28,8 +28,8 @@
 
     \section1 Specifying Completion Settings
 
-    To specify settings for code completion, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Completion.
+    To specify settings for code completion, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol Completion.
 
     \image qtcreator-preferences-texteditor-completion.webp "Text Editor Completion preferences"
 
@@ -153,7 +153,7 @@
 
     Code snippets specify code constructs. You can add, modify,
     and remove snippets in the snippet editor. To open the editor, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    \preferences > \uicontrol {Text Editor} >
     \uicontrol Snippets.
 
     \if defined(qtcreator)
@@ -296,7 +296,7 @@
     completion.
 
     To use Nimsuggest, you must install it on the development PC. Then select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Nim > \uicontrol Tools,
+    \preferences > \uicontrol Nim > \uicontrol Tools,
     and enter the path to the tool executable in the \uicontrol Path field.
 
     \sa {Document code}

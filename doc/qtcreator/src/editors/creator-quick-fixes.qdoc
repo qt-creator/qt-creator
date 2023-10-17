@@ -83,8 +83,7 @@
 
     You can specify settings for the refactoring actions either globally for
     all projects or separately for each project. To specify global options,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
-    \uicontrol {Quick Fixes}.
+    select \preferences > \uicontrol C++ > \uicontrol {Quick Fixes}.
 
     To specify custom settings for a particular project, select
     \uicontrol Projects > \uicontrol {Project Settings} >
@@ -728,7 +727,7 @@
 
                 By default, \QC uses the \c auto variable type when creating the
                 variable. To label the variable with its actual type, select
-                \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
+                \preferences > \uicontrol C++ >
                 \uicontrol {Quick Fixes}, and then deselect the
                 \uicontrol {Use type "auto" when creating new variables} check
                 box.

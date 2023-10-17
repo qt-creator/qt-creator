@@ -46,8 +46,7 @@
     To set preferences for using Copilot:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Copilot.
+        \li Select \preferences > \uicontrol Copilot.
             \image qtcreator-preferences-copilot.webp {Copilot tab in Preferences}
         \li Select the \uicontrol {Enable Copilot} check box to use Copilot.
         \li Select \uicontrol {Sign In} to sign into your subscription, activate
@@ -95,8 +94,7 @@
     To enable or disable Copilot suggestions globally, select the
     \inlineimage icons/copilot.png
     (\uicontrol {Toggle Copilot}) button. This also sets the value of the
-    \uicontrol {Enable Copilot} check box in \uicontrol Edit >
-    \uicontrol Preferences accordingly.
+    \uicontrol {Enable Copilot} check box in \preferences accordingly.
 
     To enable or disable Copilot suggestions for a particular project,
     select \uicontrol Projects > \uicontrol {Project Settings} >

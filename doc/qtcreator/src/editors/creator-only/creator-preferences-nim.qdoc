@@ -14,7 +14,7 @@
     To specify settings for the Nim editor (experimental):
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Nim.
+        \li Select \preferences > \uicontrol Nim.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
             \image qtcreator-options-code-style-nim.png {Nim Code Style preferences}

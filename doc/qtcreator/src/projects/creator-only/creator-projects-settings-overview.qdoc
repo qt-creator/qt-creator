@@ -70,7 +70,7 @@
 
     \image qtcreator-project-kits.png
 
-    The list displays kits from \uicontrol Edit > \uicontrol Preferences >
+    The list displays kits from \preferences >
     \uicontrol Kits. Warning and error icons indicate that the kit configuration
     is not suitable for the project type. To view the warning and error messages,
     move the mouse pointer over the kit name.

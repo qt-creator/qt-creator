@@ -165,9 +165,9 @@
     not need to navigate to \uicontrol File > \uicontrol {New File} or
     \uicontrol {New Project}.
 
-    Set keyboard shortcuts for wizards in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Environment > \uicontrol Keyboard >
-    \uicontrol Wizard. All wizard actions start with \uicontrol Impl there.
+    Set keyboard shortcuts for wizards in \preferences > \uicontrol Environment >
+    \uicontrol Keyboard > \uicontrol Wizard. All wizard actions start with
+    \uicontrol Impl there.
 
     \sa {Assign keyboard shortcuts}, {Activate kits for a project},
     {Create files}, {Creating Projects}

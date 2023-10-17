@@ -18,8 +18,7 @@
         \li \l{Completing Code}{Code completion}
         \li Sending document formatting requests to the language server to
             automatically format documents using the settings specified in
-            \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor}
-            > \uicontrol Behavior
+            \preferences > \uicontrol {Text Editor} > \uicontrol Behavior
         \li Highlighting the symbol under cursor
         \li \l{View function tooltips}
         \li \l{Semantic Highlighting}{Semantic highlighting}, as defined in
@@ -62,10 +61,8 @@
     server is added by default and you can edit its preferences.
     For other languages, you can add generic stdIO language servers.
 
-    To add language servers, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol {Language Client} > \uicontrol Add (or \uicontrol {Qt Creator} >
-    \uicontrol Preferences > \uicontrol {Language Client} > \uicontrol Add
-    on \macos).
+    To add language servers, select \preferences >
+    \uicontrol {Language Client} > \uicontrol Add.
 
     To enable a language server, select the check box next to the language
     server name and set server preferences.
@@ -77,9 +74,8 @@
     To add a generic language server:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol {Language Client} > \uicontrol Add >
-            \uicontrol {Generic StdIO Language Server}
+        \li Select \preferences > \uicontrol {Language Client} >
+            \uicontrol Add > \uicontrol {Generic StdIO Language Server}
             to add a generic language server.
             \image qtcreator-language-server-generic-stdio.png
         \li In the \uicontrol Name field, enter a name for the language server.
@@ -110,9 +106,9 @@
     To add a Java language server:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol {Language Client} > \uicontrol Add >
-            \uicontrol {Java Language Server} to add a Java language server.
+        \li Select \preferences > \uicontrol {Language Client} >
+            \uicontrol Add > \uicontrol {Java Language Server} to add
+            a Java language server.
             \image qtcreator-language-client-options-java.png "Java language server preferences"
         \li In the \uicontrol Name field, enter a name for the language server.
             Select the \inlineimage icons/replace.png
@@ -130,8 +126,8 @@
     To set preferences for Python language servers:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Python > \uicontrol {Language Server Configuration} to
+        \li Select \preferences> \uicontrol Python >
+            \uicontrol {Language Server Configuration} to
             select the Python language server plugins to use.
             \image qtcreator-python-plugins.png "Python Language Server Configuration"
         \li Select \uicontrol Advanced to configure the plugins.
@@ -149,7 +145,7 @@
 
     Since Qt 6.4, the \c qmlls language server offers code completion and
     issues warnings for QML. To enable QML language server support, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick} >
+    \preferences > \uicontrol {Qt Quick} >
     \uicontrol {QML/JS Editing} > \uicontrol {Use qmlls (EXPERIMENTAL!)}.
     To use the latest version of the language server installed on your
     system, select the \uicontrol {Always use latest qmlls} check box.

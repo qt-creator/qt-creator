@@ -81,18 +81,17 @@
     separately for each project in the \l{Specifying Run Settings}{run settings}
     of the project.
 
-    To specify global settings for Valgrind, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Analyzer. The \uicontrol
-    {Memcheck Memory Analysis Options} group has Memcheck options.
+    To specify global settings for Valgrind, select \preferences >
+    \uicontrol Analyzer. The \uicontrol {Memcheck Memory Analysis Options}
+    group has Memcheck options.
 
     In \uicontrol {Extra Memcheck arguments}, specify additional arguments
     for launching the executable.
 
     Stack traces can get quite large and confusing, and therefore, reading them
     from the bottom up can help. If the stack trace is not big enough or it is
-    too big, select \uicontrol Edit > \uicontrol Preferences > \uicontrol Analyzer
-    and define the length of the stack trace in the
-    \uicontrol {Backtrace frame count} field.
+    too big, select \preferences > \uicontrol Analyzer and define the length of
+    the stack trace in the \uicontrol {Backtrace frame count} field.
 
     \image qtcreator-valgrind-memcheck-options.png "Memory Analysis options"
 
@@ -268,9 +267,9 @@
     separately for each project in the \l{Specifying Run Settings}{run settings}
     of the project.
 
-    To specify global settings for Valgrind, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Analyzer. The \uicontrol
-    {Callgrind Profiling Options} group has Callgrind options.
+    To specify global settings for Valgrind, select \preferences >
+    \uicontrol Analyzer. The \uicontrol {Callgrind Profiling Options}
+    group has Callgrind options.
 
     \image qtcreator-valgrind-callgrind-options.png "Valgrind options"
 

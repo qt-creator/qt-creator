@@ -24,7 +24,7 @@
     . Select the icon to open the toolbar.
 
     To open toolbars immediately when you select a QML type, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick} >
+    \preferences > \uicontrol {Qt Quick} >
     \uicontrol {QML/JS Editing} > \uicontrol {Always show Qt Quick Toolbar}.
 
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}

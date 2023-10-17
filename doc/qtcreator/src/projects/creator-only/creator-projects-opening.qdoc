@@ -71,13 +71,12 @@
     \endlist
 
     The \uicontrol {Configure Project} tab displays a list of kits that you
-    install on the development PC and configure in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits.
+    install on the development PC and configure in \preferences > \uicontrol Kits.
 
     Even if you do not intend to build the project, the C++ and QML code models
     need a Qt version and compiler to offer code completion. To specify them,
-    select the \uicontrol Preferences link, or select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits.
+    select the \uicontrol Preferences link, or select \preferences >
+    \uicontrol Kits.
 
     Qt for Python projects rely on the \l{Using Language Servers}
     {language server client} for code completion, highlighting, and

@@ -72,6 +72,6 @@
     marks or annotations.
 
     To specify the settings above for the automatically run checks,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol Analyzer
+    select \preferences > \uicontrol Analyzer
     > \uicontrol Cppcheck.
 */

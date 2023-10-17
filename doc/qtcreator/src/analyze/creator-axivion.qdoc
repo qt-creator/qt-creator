@@ -59,7 +59,7 @@
     To connect to Axivion:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Axivion.
+        \li Select \preferences > \uicontrol Axivion.
             \image qtcreator-preferences-axivion.webp {General tab in Axivion Preferences}
         \li Select \uicontrol Edit to create a connection to the Axivion
             dashboard server.

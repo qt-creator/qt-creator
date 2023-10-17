@@ -106,8 +106,7 @@
     To set up screen recording:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Help >
-            \uicontrol {Screen Recording}.
+        \li Select \preferences > \uicontrol Help > \uicontrol {Screen Recording}.
             \image qtcreator-preferences-screen-recording.webp {Screen Recording preferences}
         \li In \uicontrol {ffmpeg tool}, set the path to the FFmpeg executable.
         \li In \uicontrol {ffprobe tool}, set the path to the FFprobe executable.

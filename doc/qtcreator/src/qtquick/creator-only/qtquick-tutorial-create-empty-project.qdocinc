@@ -42,10 +42,8 @@
             applications for mobile devices, select kits also for Android and
             iOS.
 
-            \note The list shows kits that you specify in \uicontrol Edit
-            > \uicontrol Preferences > \uicontrol Kits (on Windows and Linux)
-            or in \uicontrol {\QC} > \uicontrol Preferences >
-            \uicontrol Kits (on \macos).
+            \note The list shows kits that you specify in \preferences >
+            \uicontrol Kits.
             For more information, see \l {Add kits} and \l {Kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}

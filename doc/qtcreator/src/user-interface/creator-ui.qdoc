@@ -103,7 +103,7 @@
 
     To toggle the visibility of these menu items:
     \list 1
-      \li Go to \uicontrol Edit > \uicontrol Preferences.
+      \li Go to \preferences.
       \li On the \uicontrol Environment tab, select
       \uicontrol{Qt Design Studio Configuration}.
       \li Clear the checkbox for the items that you want to be visible.

@@ -137,9 +137,8 @@
 
     To view all variables, select the \uicontrol Advanced check box.
 
-    To view all variables by default, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol CMake > \uicontrol General >
-    \uicontrol {Show advanced options by default}.
+    To view all variables by default, select \preferences > \uicontrol CMake >
+    \uicontrol General > \uicontrol {Show advanced options by default}.
 
     \image qtcreator-preferences-cmake-general.webp "General tab in CMake Preferences"
 
@@ -152,8 +151,8 @@
     stored in the CMakeLists.txt.user file, so deleting a build directory
     does not delete the initial configuration.
 
-    To be asked before \QC resets the changes, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol CMake > \uicontrol General >
+    To be asked before \QC resets the changes, select \preferences >
+    \uicontrol CMake > \uicontrol General >
     \uicontrol {Ask before re-configuring with initial parameters}.
 
     \section1 Viewing CMake Output
@@ -230,7 +229,7 @@
     \QC can automatically set up the \l {Setting Up Conan}
     {Conan package manager} for use with CMake.
 
-    Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake
+    Select \preferences > \uicontrol CMake
     \uicontrol General > \uicontrol {Package manager auto setup} to set the
     value of the \c CMAKE_PROJECT_INCLUDE_BEFORE variable to the path to a
     CMake script that installs dependencies from a \c conanfile.txt,

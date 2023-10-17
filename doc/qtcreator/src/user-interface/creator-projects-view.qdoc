@@ -92,12 +92,11 @@
         \li Search from the selected directory.
 
         \li Open a terminal window in the project directory. To specify the
-            terminal to use on Linux and \macos, select \uicontrol Edit >
-            \uicontrol Preferences > \uicontrol Environment > \uicontrol System.
+            terminal to use on Linux and \macos, select \preferences >
+            \uicontrol Environment > \uicontrol System.
             \if defined(qtcreator)
-            To use an \l{Terminal}{internal terminal}, select \uicontrol Edit >
-            \uicontrol Preferences > \uicontrol Terminal >
-            \uicontrol {Use internal terminal}.
+            To use an \l{Terminal}{internal terminal}, select \preferences >
+            \uicontrol Terminal > \uicontrol {Use internal terminal}.
             \endif
         \li Open a terminal window in the project directory that you configured
             for building or running the project.
@@ -106,9 +105,9 @@
         \li Close all files in a project.
         \li Close the selected project or all projects except the selected
             one. By default, this closes all files in the projects. To keep
-            them open, deselect the \uicontrol Edit >
-            \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General
-            > \uicontrol {Close source files along with project} check box.
+            them open, deselect the \preferences > \uicontrol {Build & Run} >
+            \uicontrol General > \uicontrol {Close source files along with project}
+            check box.
     \endlist
 
     For managing files and directories, use the same functions as in

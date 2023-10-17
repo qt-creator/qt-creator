@@ -18,7 +18,7 @@
     The main debugger preferences are associated with the
     \l{Kits}{kit} you build and run your project with. To
     specify the debugger and compiler to use for each kit, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
+    \preferences > \uicontrol Kits.
 
     \image qtcreator-kits.png {Kits preferences}
 
@@ -30,13 +30,13 @@
     installed replacement instead.
 
     To change the debugger in an automatically detected kit, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+    \preferences > \uicontrol Kits >
     \uicontrol Clone to create a copy of the kit, and change the
     parameters in the cloned kit. Make sure to enable the cloned kit
     for your project.
 
     If the debugger you want to use is not automatically detected, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+    \preferences > \uicontrol Kits >
     \uicontrol Debuggers > \uicontrol Add to add it.
 
     \image qtcreator-preferences-kits-debuggers.webp {Debuggers tab in Kits preferences}

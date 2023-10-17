@@ -32,7 +32,7 @@
     To override the default approach and always enable high DPI scaling:
 
         \list 1
-            \li Select \uicontrol Edit > \uicontrol Preferences >
+            \li Select \preferences >
                 \uicontrol Environment > \uicontrol Interface.
                 \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
             \li Select \uicontrol {Enable high DPI scaling}.

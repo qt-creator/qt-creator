@@ -106,8 +106,8 @@
     \section1 Set file naming preferences
 
     The names of the header and source file are based on the class name. To
-    change the default suffix of a file, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {C++} > \uicontrol {File Naming}.
+    change the default suffix of a file, select \preferences > \uicontrol {C++} >
+    \uicontrol {File Naming}.
 
     \image qtcreator-options-cpp-files.png "C++ File Naming preferences"
 
