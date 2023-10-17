@@ -420,21 +420,13 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             QStringList fragments = splitFragments(ci.fragments);
 
             // Get all sources from the compiler group, except generated sources
-            QStringList sources;
-            auto addToSources = [sourceDirectory, &sources](const QString &source) {
-                const FilePath sourcePath = FilePath::fromString(source);
-                if (sourcePath.isAbsolutePath())
-                    sources.push_back(source);
-                else
-                    sources.push_back(
-                        sourceDirectory.pathAppended(source).absoluteFilePath().path());
-            };
+            FilePaths sources;
 
             for (auto idx: ci.sources) {
                 SourceInfo si = t.sources.at(idx);
                 if (si.isGenerated)
                     continue;
-                addToSources(si.path);
+                sources.append(sourceDirectory.resolvePath(si.path));
             }
 
             // Skip groups with only generated source files e.g. <build-dir>/.rcc/qrc_<target>.cpp
@@ -442,12 +434,12 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 continue;
 
             // If we are not in a pch compiler group, add all the headers that are not generated
-            const bool hasPchSource = anyOf(sources, [buildDirectory](const QString &path) {
-                return isPchFile(buildDirectory, FilePath::fromString(path));
+            const bool hasPchSource = anyOf(sources, [buildDirectory](const FilePath &path) {
+                return isPchFile(buildDirectory, path);
             });
 
-            const bool hasUnitySources = allOf(sources, [buildDirectory](const QString &path) {
-                return isUnityFile(buildDirectory, FilePath::fromString(path));
+            const bool hasUnitySources = allOf(sources, [buildDirectory](const FilePath &path) {
+                return isUnityFile(buildDirectory, path);
             });
 
             QString headerMimeType;
@@ -469,19 +461,20 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                         const bool sourceUnityType = hasUnitySources ? mime.inherits(sourceMimeType)
                                                                      : false;
                         if (headerType || sourceUnityType)
-                            addToSources(si.path);
+                            sources.append(sourceDirectory.resolvePath(si.path));
                     }
                 }
             }
-            sources.removeDuplicates();
+            FilePath::removeDuplicates(sources);
 
             // Set project files except pch / unity files
-            rpp.setFiles(Utils::filtered(sources,
-                                         [buildDirectory](const QString &path) {
-                                             const FilePath filePath = FilePath::fromString(path);
+            const FilePaths filtered = Utils::filtered(sources,
+                                         [buildDirectory](const FilePath &filePath) {
                                              return !isPchFile(buildDirectory, filePath)
                                                  && !isUnityFile(buildDirectory, filePath);
-                                         }),
+                                         });
+
+            rpp.setFiles(Utils::transform(filtered, &FilePath::toFSPathString),
                          {},
                          [headerMimeType](const QString &path) {
                              // Similar to ProjectFile::classify but classify headers with language
