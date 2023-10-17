@@ -226,6 +226,14 @@ macro(qtc_auto_setup_vcpkg)
     endif()
 
     set(CMAKE_TOOLCHAIN_FILE "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake" CACHE PATH "" FORCE)
+
+    # Save CMAKE_PREFIX_PATH and CMAKE_MODULE_PATH as cache variables
+    if (CMAKE_VERSION GREATER_EQUAL "3.19")
+      cmake_language(DEFER CALL list REMOVE_DUPLICATES CMAKE_PREFIX_PATH)
+      cmake_language(DEFER CALL list REMOVE_DUPLICATES CMAKE_MODULE_PATH)
+      cmake_language(DEFER CALL set CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" CACHE STRING "" FORCE)
+      cmake_language(DEFER CALL set CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" CACHE STRING "" FORCE)
+    endif()
   endif()
 endmacro()
 qtc_auto_setup_vcpkg()
