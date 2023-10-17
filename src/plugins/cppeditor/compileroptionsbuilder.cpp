@@ -900,6 +900,10 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             continue;
         }
 
+        // GCC option that clang doesn't know.
+        if (option.contains("direct-extern-access"))
+            continue;
+
         // These were already parsed into ProjectPart::includedFiles.
         if (option == includeFileOptionCl || option == includeFileOptionGcc) {
             skipNext = true;
