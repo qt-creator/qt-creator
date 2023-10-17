@@ -57,7 +57,8 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
                     extraId,
                     std::move(auxiliaryData),
                     std::move(capture),
-                    ImageCache::InternalAbortCallback{});
+                    ImageCache::InternalAbortCallback{},
+                    {});
 }
 
 void AsynchronousImageFactory::clean()

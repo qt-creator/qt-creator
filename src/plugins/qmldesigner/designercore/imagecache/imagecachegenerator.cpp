@@ -111,35 +111,43 @@ void ImageCacheGenerator::waitForFinished()
         m_backgroundThread->wait();
 }
 
+std::optional<ImageCacheGenerator::Task> ImageCacheGenerator::getTask()
+{
+    {
+        auto [lock, abort] = waitForEntries();
+
+        if (abort)
+            return {};
+
+        std::optional<Task> task = std::move(m_tasks.front());
+
+        m_tasks.pop_front();
+
+        return task;
+    }
+}
+
 void ImageCacheGenerator::startGeneration()
 {
     while (true) {
-        Task task;
+        auto task = getTask();
 
-        {
-            auto [lock, abort] = waitForEntries();
-
-            if (abort)
-                return;
-
-            task = std::move(m_tasks.front());
-
-            m_tasks.pop_front();
-        }
+        if (!task)
+            return;
 
         m_collector.start(
-            task.filePath,
-            task.extraId,
-            std::move(task.auxiliaryData),
+            task->filePath,
+            task->extraId,
+            std::move(task->auxiliaryData),
             [this,
-             abortCallbacks = task.abortCallbacks,
-             captureCallbacks = std::move(task.captureCallbacks),
-             filePath = task.filePath,
-             extraId = task.extraId,
-             timeStamp = task.timeStamp](const QImage &image,
-                                         const QImage &midSizeImage,
-                                         const QImage &smallImage,
-                                         ImageCache::TraceToken traceToken) {
+             abortCallbacks = task->abortCallbacks,
+             captureCallbacks = std::move(task->captureCallbacks),
+             filePath = task->filePath,
+             extraId = task->extraId,
+             timeStamp = task->timeStamp](const QImage &image,
+                                          const QImage &midSizeImage,
+                                          const QImage &smallImage,
+                                          ImageCache::TraceToken traceToken) {
                 if (image.isNull() && midSizeImage.isNull() && smallImage.isNull())
                     callCallbacks(abortCallbacks,
                                   ImageCache::AbortReason::Failed,
@@ -158,16 +166,16 @@ void ImageCacheGenerator::startGeneration()
                                      smallImage);
             },
             [this,
-             abortCallbacks = task.abortCallbacks,
-             filePath = task.filePath,
-             extraId = task.extraId,
-             timeStamp = task.timeStamp](ImageCache::AbortReason abortReason,
-                                         ImageCache::TraceToken traceToken) {
+             abortCallbacks = task->abortCallbacks,
+             filePath = task->filePath,
+             extraId = task->extraId,
+             timeStamp = task->timeStamp](ImageCache::AbortReason abortReason,
+                                          ImageCache::TraceToken traceToken) {
                 callCallbacks(abortCallbacks, abortReason, std::move(traceToken));
                 if (abortReason != ImageCache::AbortReason::Abort)
                     m_storage.storeImage(createId(filePath, extraId), timeStamp, {}, {}, {});
             },
-            std::move(task.traceToken));
+            std::move(task->traceToken));
 
         std::lock_guard lock{m_mutex};
         if (m_tasks.empty())

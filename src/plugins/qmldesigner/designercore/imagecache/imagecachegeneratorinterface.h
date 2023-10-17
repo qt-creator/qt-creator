@@ -20,7 +20,7 @@ public:
                                ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
                                ImageCache::InternalAbortCallback &&abortCallback,
                                ImageCache::AuxiliaryData &&auxiliaryData,
-                               ImageCache::TraceToken = {})
+                               ImageCache::TraceToken)
         = 0;
 
     virtual void clean() = 0;

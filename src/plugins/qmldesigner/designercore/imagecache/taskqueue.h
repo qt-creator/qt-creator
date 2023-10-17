@@ -26,8 +26,7 @@ public:
     ~TaskQueue() { destroy(); }
 
     template<typename TraceEvent, NanotraceHR::Tracing isEnabled, typename... Arguments>
-    void addTask(NanotraceHR::AsynchronousToken<TraceEvent, isEnabled> traceToken,
-                 Arguments &&...arguments)
+    void addTask(NanotraceHR::Token<TraceEvent, isEnabled> traceToken, Arguments &&...arguments)
     {
         {
             std::unique_lock lock{m_mutex};
@@ -42,7 +41,7 @@ public:
     template<typename... Arguments>
     void addTask(Arguments &&...arguments)
     {
-        addTask(NanotraceHR::DisabledAsynchronousToken{}, std::forward<Arguments>(arguments)...);
+        addTask(NanotraceHR::DisabledToken{}, std::forward<Arguments>(arguments)...);
     }
 
     void clean()
@@ -95,8 +94,8 @@ private:
         return {std::move(task)};
     }
 
-    template<typename TraceTokend>
-    void ensureThreadIsRunning(TraceTokend traceToken)
+    template<typename TraceToken>
+    void ensureThreadIsRunning(TraceToken traceToken)
     {
         using namespace NanotraceHR::Literals;
 
@@ -108,7 +107,7 @@ private:
 
         m_sleeping = false;
 
-        auto threadCreateToken = traceToken.begin("thread is created in the task queue"_t);
+        auto threadCreateToken = traceToken.beginDuration("thread is created in the task queue"_t);
         m_backgroundThread = std::thread{[this](auto traceToken) {
                                              traceToken.tick("thread is ready"_t);
                                              while (true) {

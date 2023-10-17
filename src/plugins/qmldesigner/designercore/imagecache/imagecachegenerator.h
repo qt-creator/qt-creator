@@ -72,6 +72,7 @@ private:
     };
 
     void startGeneration();
+    std::optional<Task> getTask();
     void ensureThreadIsRunning();
     [[nodiscard]] std::tuple<std::unique_lock<std::mutex>, bool> waitForEntries();
     void stopThread();

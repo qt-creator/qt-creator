@@ -32,7 +32,7 @@ namespace ModelTracing {
 namespace {
 using namespace NanotraceHR::Literals;
 
-thread_local Category category_{"model"_t, Tracing::stringViewEventWithStringArgumentsQueue_};
+thread_local Category category_{"model"_t, Tracing::stringViewEventWithStringArgumentsQueue_, category};
 
 } // namespace
 

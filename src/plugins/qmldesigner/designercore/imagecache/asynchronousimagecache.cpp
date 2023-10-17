@@ -20,7 +20,7 @@ using namespace NanotraceHR::Literals;
 namespace ImageCache {
 namespace {
 
-thread_local Category category_{"image cache"_t, QmlDesigner::Tracing::eventQueue()};
+thread_local Category category_{"image cache"_t, QmlDesigner::Tracing::eventQueue(), category};
 } // namespace
 
 Category &category()
@@ -139,7 +139,7 @@ void AsynchronousImageCache::requestImage(Utils::SmallStringView name,
 {
     auto traceToken = ImageCache::category().beginAsynchronous(
         "request image in asynchornous image cache"_t);
-    m_taskQueue.addTask(traceToken.create(),
+    m_taskQueue.addTask(traceToken.createToken(),
                         std::move(name),
                         std::move(extraId),
                         std::move(captureCallback),
@@ -157,7 +157,7 @@ void AsynchronousImageCache::requestMidSizeImage(Utils::SmallStringView name,
 {
     auto traceToken = ImageCache::category().beginAsynchronous(
         "request mid size image in asynchornous image cache"_t);
-    m_taskQueue.addTask(traceToken.create(),
+    m_taskQueue.addTask(traceToken.createToken(),
                         std::move(name),
                         std::move(extraId),
                         std::move(captureCallback),
@@ -175,7 +175,7 @@ void AsynchronousImageCache::requestSmallImage(Utils::SmallStringView name,
 {
     auto traceToken = ImageCache::category().beginAsynchronous(
         "request small size image in asynchornous image cache"_t);
-    m_taskQueue.addTask(traceToken.create(),
+    m_taskQueue.addTask(traceToken.createToken(),
                         std::move(name),
                         std::move(extraId),
                         std::move(captureCallback),

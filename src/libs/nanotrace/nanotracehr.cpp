@@ -31,19 +31,38 @@ bool hasId(char phase)
     return false;
 }
 
+template<typename Id>
+unsigned int getUnsignedIntegerHash(Id id)
+{
+    return static_cast<unsigned int>(id & 0xFFFFFFFF);
+}
+
+unsigned int getUnsignedIntegerHash(std::thread::id id)
+{
+    return static_cast<unsigned int>(std::hash<std::thread::id>{}(id) & 0xFFFFFFFF);
+}
+
 template<typename TraceEvent>
 void printEvent(std::ostream &out, const TraceEvent &event, qint64 processId, std::thread::id threadId)
 {
     out << R"({"ph":")" << event.type << R"(","name":")" << event.name << R"(","cat":")"
         << event.category << R"(","ts":)"
         << static_cast<double>(event.time.time_since_epoch().count()) / 1000 << R"(,"pid":)"
-        << processId << R"(,"tid":)" << threadId;
+        << getUnsignedIntegerHash(processId) << R"(,"tid":)" << getUnsignedIntegerHash(threadId);
 
     if (event.type == 'X')
         out << R"(,"dur":)" << static_cast<double>(event.duration.count()) / 1000;
 
     if (hasId(event.type))
-        out << R"(,"id":")" << event.id << R"(")";
+        out << R"(,"id":)" << event.id;
+
+    if (event.bindId) {
+        out << R"(,"bind_id":)" << event.bindId;
+        if (event.flow & IsFlow::Out)
+            out << R"(,"flow_out":true)";
+        if (event.flow & IsFlow::In)
+            out << R"(,"flow_in":true)";
+    }
 
     if (event.arguments.size())
         out << R"(,"args":)" << event.arguments;
@@ -58,8 +77,9 @@ void writeMetaEvent(TraceFile<Tracing::IsEnabled> *file, std::string_view key, s
 
     if (out.is_open()) {
         file->out << R"({"name":")" << key << R"(","ph":"M", "pid":)"
-                  << QCoreApplication::applicationPid() << R"(,"tid":)"
-                  << std::this_thread::get_id() << R"(,"args":{"name":")" << value << R"("}})"
+                  << getUnsignedIntegerHash(QCoreApplication::applicationPid()) << R"(,"tid":)"
+                  << getUnsignedIntegerHash(std::this_thread::get_id()) << R"(,"args":{"name":")"
+                  << value << R"("}})"
                   << ",\n";
     }
 }
@@ -150,7 +170,7 @@ void flushInThread(EnabledEventQueue<TraceEvent> &eventQueue)
     eventQueue.file->processing = std::async(std::launch::async,
                                              flush,
                                              eventQueue.currentEvents.subspan(0, eventQueue.eventsIndex),
-                                             std::this_thread::get_id());
+                                             eventQueue.threadId);
     eventQueue.currentEvents = eventQueue.currentEvents.data() == eventQueue.eventsOne.data()
                                    ? eventQueue.eventsTwo
                                    : eventQueue.eventsOne;
@@ -182,6 +202,7 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile *file,
     , eventsOne{eventsOne}
     , eventsTwo{eventsTwo}
     , currentEvents{eventsOne}
+    , threadId{std::this_thread::get_id()}
 {
     if (auto thread = QThread::currentThread()) {
         connection = QObject::connect(QCoreApplication::instance(),
@@ -208,7 +229,7 @@ void EventQueue<TraceEvent, Tracing::IsEnabled>::flush()
 {
     std::lock_guard lock{mutex};
     if (isEnabled == IsEnabled::Yes && eventsIndex > 0) {
-        flushEvents(currentEvents.subspan(0, eventsIndex), std::this_thread::get_id(), *this);
+        flushEvents(currentEvents.subspan(0, eventsIndex), threadId, *this);
         eventsIndex = 0;
     }
 }

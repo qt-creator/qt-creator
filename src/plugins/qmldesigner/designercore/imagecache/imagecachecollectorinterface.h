@@ -23,7 +23,7 @@ public:
                        const ImageCache::AuxiliaryData &auxiliaryData,
                        CaptureCallback captureCallback,
                        AbortCallback abortCallback,
-                       ImageCache::TraceToken traceToken = {})
+                       ImageCache::TraceToken traceToken)
         = 0;
 
     virtual ImageTuple createImage(Utils::SmallStringView filePath,
