@@ -189,10 +189,20 @@ void LibrarySelectionAspect::addToLayout(Layouting::LayoutItem &parent)
         QStringList libs;
         for (int i = 0; i < m_model->rowCount(); i++) {
             QModelIndex idx = m_model->index(i, 0);
-            if (idx.data(SelectedVersion).isValid()) {
-                libs.append(QString("%1 %2")
-                                .arg(idx.data().toString())
-                                .arg(idx.data(SelectedVersion).toString()));
+            if (idx.data(LibraryData).isValid() && idx.data(SelectedVersion).isValid()) {
+                auto libData = idx.data(LibraryData).value<Api::Library>();
+                auto id = idx.data(SelectedVersion).toString();
+
+                auto versionIt = std::find_if(libData.versions.begin(),
+                                              libData.versions.end(),
+                                              [id](const Api::Library::Version &v) {
+                                                  return v.id == id;
+                                              });
+                const QString versionName = versionIt == libData.versions.end()
+                                                ? id
+                                                : versionIt->version;
+
+                libs.append(QString("%1 %2").arg(libData.name).arg(versionName));
             }
         }
         if (libs.empty())
