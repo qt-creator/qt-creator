@@ -9068,6 +9068,12 @@ void TextEditorWidget::configureGenericHighlighter(const Utils::MimeType &mimeTy
     d->removeSyntaxInfoBar();
 }
 
+void TextEditorWidget::configureGenericHighlighter(const Highlighter::Definition &definition)
+{
+    d->configureGenericHighlighter(definition);
+    d->removeSyntaxInfoBar();
+}
+
 int TextEditorWidget::blockNumberForVisibleRow(int row) const
 {
     QTextBlock block = blockForVisibleRow(row);
