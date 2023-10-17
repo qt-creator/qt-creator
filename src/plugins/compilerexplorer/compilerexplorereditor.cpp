@@ -285,8 +285,9 @@ CompilerWidget::CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSett
     m_asmEditor = new AsmEditorWidget(undoStack);
     m_asmDocument = QSharedPointer<TextDocument>(new TextDocument);
     m_asmEditor->setTextDocument(m_asmDocument);
-    m_asmEditor->configureGenericHighlighter(
-        TextEditor::Highlighter::definitionForName("Intel x86 (NASM)"));
+    QTC_ASSERT_EXPECTED(m_asmEditor->configureGenericHighlighter("Intel x86 (NASM)"),
+                        m_asmEditor->configureGenericHighlighter(
+                            Utils::mimeTypeForName("text/x-asm")));
     m_asmEditor->setReadOnly(true);
 
     connect(m_asmEditor, &AsmEditorWidget::gotFocus, this, &CompilerWidget::gotFocus);

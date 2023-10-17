@@ -9068,10 +9068,15 @@ void TextEditorWidget::configureGenericHighlighter(const Utils::MimeType &mimeTy
     d->removeSyntaxInfoBar();
 }
 
-void TextEditorWidget::configureGenericHighlighter(const Highlighter::Definition &definition)
+expected_str<void> TextEditorWidget::configureGenericHighlighter(const QString &definitionName)
 {
+    Highlighter::Definition definition = TextEditor::Highlighter::definitionForName(definitionName);
+    if (!definition.isValid())
+        return make_unexpected(Tr::tr("Could not find definition"));
+
     d->configureGenericHighlighter(definition);
     d->removeSyntaxInfoBar();
+    return {};
 }
 
 int TextEditorWidget::blockNumberForVisibleRow(int row) const
