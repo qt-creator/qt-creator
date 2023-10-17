@@ -470,20 +470,17 @@ void FileSystemWatcher::slotDirectoryChanged(const QString &path)
         for (const QString &rejected : d->m_staticData->m_watcher->addPaths(toReadd))
             toReadd.removeOne(rejected);
 
-        QStringList toRemove;
         // If we've successfully added the file, that means it was deleted and replaced.
         for (const QString &reAdded : std::as_const(toReadd)) {
-            d->fileChanged(reAdded);
             const QString directory = QFileInfo(reAdded).path();
             const int dirCount = --d->m_staticData->m_directoryCount[directory];
             Q_ASSERT(dirCount >= 0);
 
             if (!dirCount)
-                toRemove << directory;
-        }
+                d->m_staticData->m_watcher->removePath(directory);
 
-        if (!toRemove.isEmpty())
-            d->m_staticData->m_watcher->removePaths(toRemove);
+            d->fileChanged(reAdded);
+        }
     }
 }
 
