@@ -1268,7 +1268,8 @@ std::unique_ptr<AssistInterface> CppEditorWidget::createAssistInterface(AssistKi
         if (cap)
             return cap->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
 
-        if (isOldStyleSignalOrSlot()) {
+        if (isOldStyleSignalOrSlot()
+            || isInCommentOrString(textCursor(), LanguageFeatures::defaultFeatures())) {
             return CppModelManager::completionAssistProvider()
                 ->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
         }

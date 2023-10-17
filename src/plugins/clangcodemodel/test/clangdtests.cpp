@@ -1500,7 +1500,7 @@ ClangdTestCompletion::ClangdTestCompletion()
     setProjectFileName("completion.pro");
     setSourceFileNames({"completionWithProject.cpp", "constructorCompletion.cpp",
                         "classAndConstructorCompletion.cpp", "dotToArrowCorrection.cpp",
-                        "doxygenKeywordsCompletion.cpp", "functionAddress.cpp",
+                        "functionAddress.cpp",
                         "functionCompletion.cpp", "functionCompletionFiltered2.cpp",
                         "functionCompletionFiltered.cpp", "globalCompletion.cpp",
                         "includeDirectiveCompletion.cpp", "mainwindow.cpp",
@@ -1516,18 +1516,6 @@ void ClangdTestCompletion::initTestCase()
 {
     ClangdTest::initTestCase();
     startCollectingHighlightingInfo();
-}
-
-void ClangdTestCompletion::testCompleteDoxygenKeywords()
-{
-    ProposalModelPtr proposal;
-    getProposal("doxygenKeywordsCompletion.cpp", proposal);
-
-    QVERIFY(proposal);
-    QVERIFY(hasItem(proposal, "brief"));
-    QVERIFY(hasItem(proposal, "param"));
-    QVERIFY(hasItem(proposal, "return"));
-    QVERIFY(!hasSnippet(proposal, "class "));
 }
 
 void ClangdTestCompletion::testCompletePreprocessorKeywords()

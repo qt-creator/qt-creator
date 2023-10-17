@@ -54,6 +54,8 @@ const CPlusPlus::Macro CPPEDITOR_EXPORT *findCanonicalMacro(const QTextCursor &c
 
 bool CPPEDITOR_EXPORT isInCommentOrString(const TextEditor::AssistInterface *interface,
                                           CPlusPlus::LanguageFeatures features);
+bool CPPEDITOR_EXPORT isInCommentOrString(const QTextCursor &cursor,
+                                          CPlusPlus::LanguageFeatures features);
 TextEditor::QuickFixOperations CPPEDITOR_EXPORT
 quickFixOperations(const TextEditor::AssistInterface *interface);
 

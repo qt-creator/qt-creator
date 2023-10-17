@@ -137,7 +137,6 @@ public:
 private slots:
     void initTestCase() override;
 
-    void testCompleteDoxygenKeywords();
     void testCompletePreprocessorKeywords();
     void testCompleteIncludeDirective();
 
