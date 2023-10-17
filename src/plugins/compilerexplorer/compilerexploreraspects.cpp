@@ -81,9 +81,9 @@ QVariant LibrarySelectionAspect::volatileVariantValue() const
 void LibrarySelectionAspect::setVariantValue(const QVariant &value, Announcement howToAnnounce)
 {
     QMap<QString, QString> map;
-    QVariantMap variant = value.toMap();
-    for (const auto &key : variant.keys())
-        map[key] = variant[key].toString();
+    Store store = storeFromVariant(value);
+    for (const auto &key : store.keys())
+        map[stringFromKey(key)] = store[key].toString();
 
     setValue(map, howToAnnounce);
 }
