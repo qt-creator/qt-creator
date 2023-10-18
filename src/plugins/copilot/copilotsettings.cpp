@@ -93,14 +93,12 @@ CopilotSettings::CopilotSettings()
     autoComplete.setDefaultValue(true);
     autoComplete.setToolTip(Tr::tr("Automatically request suggestions for the current text cursor "
                                    "position after changes to the document."));
-    autoComplete.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     useProxy.setDisplayName(Tr::tr("Use Proxy"));
     useProxy.setSettingsKey("Copilot.UseProxy");
     useProxy.setLabelText(Tr::tr("Use proxy"));
     useProxy.setDefaultValue(false);
     useProxy.setToolTip(Tr::tr("Use a proxy to connect to the Copilot servers."));
-    useProxy.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     proxyHost.setDisplayName(Tr::tr("Proxy Host"));
     proxyHost.setDisplayStyle(StringAspect::LineEditDisplay);
@@ -131,7 +129,6 @@ CopilotSettings::CopilotSettings()
     saveProxyPassword.setDefaultValue(false);
     saveProxyPassword.setToolTip(
         Tr::tr("Save the password to access the proxy server. The password is stored insecurely."));
-    saveProxyPassword.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     proxyPassword.setDisplayName(Tr::tr("Proxy Password"));
     proxyPassword.setDisplayStyle(StringAspect::PasswordLineEditDisplay);
@@ -146,10 +143,8 @@ CopilotSettings::CopilotSettings()
     proxyRejectUnauthorized.setDefaultValue(true);
     proxyRejectUnauthorized.setToolTip(Tr::tr("Reject unauthorized certificates from the proxy "
                                               "server. This is a security risk."));
-    proxyRejectUnauthorized.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     initEnableAspect(enableCopilot);
-    enableCopilot.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
     readSettings();
 
