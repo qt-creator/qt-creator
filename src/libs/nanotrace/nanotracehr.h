@@ -978,8 +978,8 @@ public:
     friend TokenType;
     friend Category;
 
-    FlowToken(const FlowToken &) = delete;
-    FlowToken &operator=(const FlowToken &) = delete;
+    FlowToken(const FlowToken &) = default;
+    FlowToken &operator=(const FlowToken &) = default;
     FlowToken(FlowToken &&other) noexcept = default;
     FlowToken &operator=(FlowToken &&other) noexcept = default;
 
@@ -1045,8 +1045,8 @@ public:
     friend TracerType;
     friend Category;
 
-    FlowToken(const FlowToken &) = delete;
-    FlowToken &operator=(const FlowToken &) = delete;
+    FlowToken(const FlowToken &) = default;
+    FlowToken &operator=(const FlowToken &) = default;
     FlowToken(FlowToken &&other) noexcept = default;
     FlowToken &operator=(FlowToken &&other) noexcept = default;
 
