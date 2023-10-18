@@ -25,6 +25,8 @@ public:
     ProjectExplorer::RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
                                                         Utils::FilePaths *notRemoved) override;
 
+    void compress() override { } // do not compress
+
     bool addPrefix(const QString &prefix, const QString &lang);
     bool removePrefix(const QString &prefix, const QString &lang);
 
