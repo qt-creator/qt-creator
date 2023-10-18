@@ -455,7 +455,6 @@ private:
     QCheckBox *m_sortCheckBox;
     QListView *m_categoryList;
     QLabel *m_headerLabel;
-    std::vector<QEventLoop *> m_eventLoops;
     bool m_running = false;
     bool m_applied = false;
     bool m_finished = false;
@@ -757,11 +756,6 @@ void SettingsDialog::done(int val)
 
     ICore::saveSettings(ICore::SettingsDialogDone); // save all settings
 
-    // exit event loops in reverse order of addition
-    for (QEventLoop *eventLoop : m_eventLoops)
-        eventLoop->exit();
-    m_eventLoops.clear();
-
     QDialog::done(val);
 }
 
@@ -773,29 +767,28 @@ bool SettingsDialog::execDialog()
         static const char kPreferenceDialogSize[] = "Core/PreferenceDialogSize";
         const QSize initialSize(kInitialWidth, kInitialHeight);
         resize(ICore::settings()->value(kPreferenceDialogSize, initialSize).toSize());
-        exec();
-        m_running = false;
-        m_instance = nullptr;
-        ICore::settings()->setValueWithDefault(kPreferenceDialogSize,
-                                               size(),
-                                               initialSize);
-        // make sure that the current "single" instance is deleted
-        // we can't delete right away, since we still access the m_applied member
-        deleteLater();
-    } else {
-        // exec dialog is called while the instance is already running
-        // this can happen when a event triggers a code path that wants to
-        // show the settings dialog again
-        // e.g. when starting the debugger (with non-built debugging helpers),
-        // and manually opening the settings dialog, after the debugger hit
-        // a break point it will complain about missing helper, and offer the
-        // option to open the settings dialog.
-        // Keep the UI running by creating another event loop.
-        QEventLoop eventLoop;
-        m_eventLoops.emplace(m_eventLoops.begin(), &eventLoop);
-        eventLoop.exec();
-        QTC_ASSERT(m_eventLoops.empty(), return m_applied;);
+
+        // We call open here as exec is no longer the preferred method of displaying
+        // modal dialogs. The issue that triggered the change here was QTBUG-117814
+        // (on macOS: Caps Lock indicator does not update)
+        open();
+        connect(this, &QDialog::finished, this, [this, initialSize] {
+            m_running = false;
+            m_instance = nullptr;
+            ICore::settings()->setValueWithDefault(kPreferenceDialogSize, size(), initialSize);
+            // make sure that the current "single" instance is deleted
+            // we can't delete right away, since we still access the m_applied member
+            deleteLater();
+        });
     }
+
+    // This function needs to be blocking, so we need to wait for the dialog to finish.
+    // We cannot use QDialog::exec due to the issue described above at "open()".
+    // Since execDialog can be called multiple times, we need to run potentially multiple
+    // loops here, to have every invocation of execDialog() wait for the dialog to finish.
+    while (m_running)
+        QApplication::processEvents(QEventLoop::WaitForMoreEvents);
+
     return m_applied;
 }
 
