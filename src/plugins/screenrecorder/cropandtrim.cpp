@@ -783,8 +783,9 @@ CropAndTrimWidget::CropAndTrimWidget(QWidget *parent)
 
 void CropAndTrimWidget::setClip(const ClipInfo &clip)
 {
+    if (clip.dimensions != m_clipInfo.dimensions)
+        m_cropRect = {QPoint(), clip.dimensions}; // Reset only if clip size changed
     m_clipInfo = clip;
-    m_cropRect = {QPoint(), clip.dimensions};
     m_currentFrame = 0;
     m_trimRange = {m_currentFrame, m_clipInfo.framesCount()};
     updateWidgets();
