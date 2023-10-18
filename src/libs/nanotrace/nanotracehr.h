@@ -259,6 +259,24 @@ template<typename String, typename... Arguments>
 
 } // namespace Internal
 
+template<typename Key, typename Value>
+auto keyValue(Key &&key, Value &&value)
+{
+    return std::forward_as_tuple(std::forward<Key>(key), std::forward<Value>(value));
+}
+
+template<typename... Entries>
+auto dictonary(Entries &&...entries)
+{
+    return std::forward_as_tuple(isDictonary, std::forward<Entries>(entries)...);
+}
+
+template<typename... Entries>
+auto array(Entries &&...entries)
+{
+    return std::forward_as_tuple(isArray, std::forward<Entries>(entries)...);
+}
+
 enum class IsFlow : std::size_t { No = 0, Out = 1 << 0, In = 1 << 1, InOut = In | Out };
 
 inline bool operator&(IsFlow first, IsFlow second)

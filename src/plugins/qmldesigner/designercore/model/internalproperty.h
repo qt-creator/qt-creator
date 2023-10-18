@@ -88,6 +88,10 @@ struct TypeLookup<PropertyType::NodeList, PropertyType::Node>
 template<PropertyType... propertyType>
 using type_lookup_t = typename TypeLookup<propertyType...>::Type;
 
+using NanotraceHR::array;
+using NanotraceHR::dictonary;
+using NanotraceHR::keyValue;
+
 class QMLDESIGNERCORE_EXPORT InternalProperty : public std::enable_shared_from_this<InternalProperty>
 {
 public:
@@ -190,7 +194,7 @@ private:
     std::weak_ptr<InternalNode> m_propertyOwner;
     PropertyType m_propertyType = PropertyType::None;
     NO_UNIQUE_ADDRESS ModelTracing::ObjectTraceToken traceToken = ModelTracing::category().beginObject(
-        "InternalProperty"_t, std::forward_as_tuple("name", m_name));
+        "InternalProperty"_t, keyValue("name", m_name));
 };
 
 } // namespace Internal
