@@ -67,7 +67,7 @@ General
   used for the file system index locator filter
   ([QTCREATORBUG-27789](https://bugreports.qt.io/browse/QTCREATORBUG-27789))
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-editor-locator.html#locating-files-from-global-file-system-index))
-* Added the `View > Show Menubar` option to hide the menu bar on platforms
+* Added the `View > Show Menu Bar` option to hide the menu bar on platforms
   without a unified menu bar
   ([QTCREATORBUG-29498](https://bugreports.qt.io/browse/QTCREATORBUG-29498))
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-show-and-hide-main-menu.html))

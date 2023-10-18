@@ -1858,19 +1858,19 @@ void ICorePrivate::registerDefaultActions()
 
     // Show Menubar Action
     if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
-        m_toggleMenubarAction = new QAction(Tr::tr("Show Menubar"), this);
+        m_toggleMenubarAction = new QAction(Tr::tr("Show Menu Bar"), this);
         m_toggleMenubarAction->setCheckable(true);
         cmd = ActionManager::registerAction(m_toggleMenubarAction, Constants::TOGGLE_MENUBAR);
         cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+M")));
         connect(m_toggleMenubarAction, &QAction::toggled, this, [cmd](bool visible) {
             if (!visible) {
-                CheckableMessageBox::information(
-                    Core::ICore::dialogParent(),
-                    Tr::tr("Hide Menubar"),
-                    Tr::tr(
-                        "This will hide the menu bar completely. You can show it again by typing ")
-                        + cmd->keySequence().toString(QKeySequence::NativeText),
-                    Key("ToogleMenuBarHint"));
+                CheckableMessageBox::information(Core::ICore::dialogParent(),
+                                                 Tr::tr("Hide Menu Bar"),
+                                                 Tr::tr("This will hide the menu bar completely. "
+                                                        "You can show it again by typing %1.")
+                                                     .arg(cmd->keySequence().toString(
+                                                         QKeySequence::NativeText)),
+                                                 Key("ToogleMenuBarHint"));
             }
             globalMenuBar()->setVisible(visible);
         });
