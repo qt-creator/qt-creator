@@ -168,10 +168,10 @@ void LanguageClientManager::clientFinished(Client *client)
     const bool unexpectedFinish = client->state() != Client::Shutdown
                                   && client->state() != Client::ShutdownRequested;
 
+    const QList<TextEditor::TextDocument *> &clientDocs
+        = managerInstance->m_clientForDocument.keys(client);
     if (unexpectedFinish) {
         if (!PluginManager::isShuttingDown()) {
-            const QList<TextEditor::TextDocument *> &clientDocs
-                = managerInstance->m_clientForDocument.keys(client);
             if (client->state() == Client::Initialized && client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->log(
@@ -186,10 +186,14 @@ void LanguageClientManager::clientFinished(Client *client)
             }
             qCDebug(Log) << "client finished unexpectedly: " << client->name() << client;
             client->log(Tr::tr("Unexpectedly finished."));
-            for (TextEditor::TextDocument *document : clientDocs)
-                managerInstance->m_clientForDocument.remove(document);
         }
     }
+
+    if (unexpectedFinish || !QTC_GUARD(clientDocs.isEmpty())) {
+        for (TextEditor::TextDocument *document : clientDocs)
+            openDocumentWithClient(document, nullptr);
+    }
+
     deleteClient(client);
     if (isShutdownFinished())
         emit managerInstance->shutdownFinished();
