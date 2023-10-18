@@ -60,7 +60,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
     , m_projectManifest(preexistingPackages)
 {
     resize(920, 400);
-    setWindowTitle(Tr::tr("Add vcpkg package"));
+    setWindowTitle(Tr::tr("Add vcpkg Package"));
 
     m_packagesFilter = new FancyLineEdit;
     m_packagesFilter->setFiltering(true);
@@ -98,7 +98,7 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexist
                 m_packagesList,
             },
             Group {
-                title(Tr::tr("Package details")),
+                title(Tr::tr("Package Details")),
                 Form {
                     Tr::tr("Name:"), m_vcpkgName, br,
                     Tr::tr("Version:"), m_vcpkgVersion, br,

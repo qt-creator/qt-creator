@@ -45,6 +45,9 @@ public:
     mutable bool tryResolve = true;
 
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
+
+    static QString trIgnoreWhitespaceChanges();
+    static QString trIgnoreLineMoves();
 };
 
 GitSettings &settings();

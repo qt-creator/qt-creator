@@ -210,7 +210,7 @@ void CompilerSettings::fillLibraries(const LibrarySelectionAspect::ResultCallbac
                              fillFromCache();
                          } catch (const std::exception &e) {
                              Core::MessageManager::writeDisrupting(
-                                 Tr::tr("Failed to fetch libraries: \"%1\"")
+                                 Tr::tr("Failed to fetch libraries: \"%1\".")
                                      .arg(QString::fromUtf8(e.what())));
                          }
                      });
@@ -253,7 +253,7 @@ void SourceSettings::fillLanguageIdModel(const Utils::StringSelectionAspect::Res
                              fillFromCache();
                          } catch (const std::exception &e) {
                              Core::MessageManager::writeDisrupting(
-                                 Tr::tr("Failed to fetch languages: \"%1\"")
+                                 Tr::tr("Failed to fetch languages: \"%1\".")
                                      .arg(QString::fromUtf8(e.what())));
                          }
                      });
@@ -295,7 +295,7 @@ void CompilerSettings::fillCompilerModel(const Utils::StringSelectionAspect::Res
                              fillFromCache(itCache);
                          } catch (const std::exception &e) {
                              Core::MessageManager::writeDisrupting(
-                                 Tr::tr("Failed to fetch compilers: \"%1\"")
+                                 Tr::tr("Failed to fetch compilers: \"%1\".")
                                      .arg(QString::fromUtf8(e.what())));
                          }
                      });
@@ -311,7 +311,7 @@ CompilerExplorerSettings::CompilerExplorerSettings()
 
     compilerExplorerUrl.setSettingsKey("CompilerExplorerUrl");
     compilerExplorerUrl.setLabelText(Tr::tr("Compiler Explorer URL:"));
-    compilerExplorerUrl.setToolTip(Tr::tr("URL of the Compiler Explorer instance to use"));
+    compilerExplorerUrl.setToolTip(Tr::tr("URL of the Compiler Explorer instance to use."));
     compilerExplorerUrl.setDefaultValue("https://godbolt.org/");
     compilerExplorerUrl.setDisplayStyle(Utils::StringAspect::DisplayStyle::LineEditDisplay);
     compilerExplorerUrl.setHistoryCompleter("CompilerExplorer.Url.History");

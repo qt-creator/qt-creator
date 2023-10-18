@@ -27,7 +27,7 @@ expected_str<FilePath> defaultShellForDevice(const FilePath &deviceRoot)
         shell = env->searchInPath(shell.nativePath());
 
     if (shell.isEmpty())
-        return make_unexpected(Tr::tr("Could not find any shell"));
+        return make_unexpected(Tr::tr("Could not find any shell."));
 
     return deviceRoot.withNewMappedPath(shell);
 }

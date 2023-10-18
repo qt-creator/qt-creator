@@ -98,7 +98,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
 
 
     static const int expectedMajorVersion = 17;
-    d->clangVersion = new QLabel(Tr::tr("Current clang-format version: ") + LLVM_VERSION_STRING,
+    d->clangVersion = new QLabel(Tr::tr("Current ClangFormat version: %1.").arg(LLVM_VERSION_STRING),
                                  this);
     d->clangWarningText
         = new QLabel(Tr::tr("The widget was generated for ClangFormat %1. "

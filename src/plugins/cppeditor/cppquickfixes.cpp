@@ -9329,8 +9329,8 @@ public:
           m_wasCxxStyle(m_kind == T_CPP_COMMENT || m_kind == T_CPP_DOXY_COMMENT),
           m_isDoxygen(m_kind == T_DOXY_COMMENT || m_kind == T_CPP_DOXY_COMMENT)
     {
-        setDescription(m_wasCxxStyle ? Tr::tr("Convert comment to C style")
-                                    : Tr::tr("Convert comment to C++ style"));
+        setDescription(m_wasCxxStyle ? Tr::tr("Convert Comment to C-Style")
+                                     : Tr::tr("Convert Comment to C++-Style"));
     }
 
 private:
@@ -9552,8 +9552,8 @@ public:
         : CppQuickFixOperation(interface), m_symbol(symbol), m_commentTokens(commentTokens)
     {
         setDescription(direction == Direction::ToDecl
-                           ? Tr::tr("Move function documentation to declaration")
-                           : Tr::tr("Move function documentation to definition"));
+                           ? Tr::tr("Move Function Documentation to Declaration")
+                           : Tr::tr("Move Function Documentation to Definition"));
     }
 
 private:

@@ -484,7 +484,7 @@ void CompilerWidget::doCompile()
             }
         } catch (const std::exception &e) {
             Core::MessageManager::writeDisrupting(
-                Tr::tr("Failed to compile: \"%1\"").arg(QString::fromUtf8(e.what())));
+                Tr::tr("Failed to compile: \"%1\".").arg(QString::fromUtf8(e.what())));
         }
     });
 

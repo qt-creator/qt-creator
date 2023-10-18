@@ -139,12 +139,12 @@ GeneralSettingsWidget::GeneralSettingsWidget()
         != Qt::HighDpiScaleFactorRoundingPolicy::Unset) {
         using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
         m_policyComboBox = new QComboBox;
-        m_policyComboBox->addItem(Tr::tr("Round up for .5 and above"), int(Policy::Round));
-        m_policyComboBox->addItem(Tr::tr("Always round up"), int(Policy::Ceil));
-        m_policyComboBox->addItem(Tr::tr("Always round down"), int(Policy::Floor));
-        m_policyComboBox->addItem(Tr::tr("Round up for .75 and above"),
-                                int(Policy::RoundPreferFloor));
-        m_policyComboBox->addItem(Tr::tr("Don't round"), int(Policy::PassThrough));
+        m_policyComboBox->addItem(Tr::tr("Round Up for .5 and Above"), int(Policy::Round));
+        m_policyComboBox->addItem(Tr::tr("Always Round Up"), int(Policy::Ceil));
+        m_policyComboBox->addItem(Tr::tr("Always Round Down"), int(Policy::Floor));
+        m_policyComboBox->addItem(Tr::tr("Round Up for .75 and Above"),
+                                  int(Policy::RoundPreferFloor));
+        m_policyComboBox->addItem(Tr::tr("Don't Round"), int(Policy::PassThrough));
         m_policyComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
         const Policy userPolicy =
@@ -153,7 +153,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
                                       .value<Policy>();
         m_policyComboBox->setCurrentIndex(m_policyComboBox->findData(int(userPolicy)));
 
-        form.addRow({Tr::tr("DPI Rounding Policy:"), m_policyComboBox, st});
+        form.addRow({Tr::tr("DPI rounding policy:"), m_policyComboBox, st});
     }
 
     form.addRow({empty, generalSettings().showShortcutsInContextMenus});

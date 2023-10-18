@@ -105,8 +105,8 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
     projectSettings.setDiagnosticConfigId(config.id());
 
     // Notify the user about changed project specific settings
-    const QString text = Tr::tr("Changes applied to diagnostic configuration \"%1\"")
-                             .arg(config.displayName());
+    const QString text
+        = Tr::tr("Changes applied to diagnostic configuration \"%1\".").arg(config.displayName());
     FadingIndicator::showText(Core::ICore::mainWindow(),
                               text,
                               FadingIndicator::SmallText);

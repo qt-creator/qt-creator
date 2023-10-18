@@ -99,7 +99,7 @@ public:
     {
         const QIcon vcpkgIcon = Utils::Icon({{":/vcpkg/images/vcpkgicon.png",
                                               Utils::Theme::IconsBaseColor}}).icon();
-        m_searchPkgAction = toolBar()->addAction(vcpkgIcon, Tr::tr("Add vcpkg package..."));
+        m_searchPkgAction = toolBar()->addAction(vcpkgIcon, Tr::tr("Add vcpkg Package..."));
         connect(m_searchPkgAction, &QAction::triggered, this, [this] {
             const Search::VcpkgManifest package =
                 Search::showVcpkgPackageSearchDialog(documentToManifest());
@@ -111,7 +111,7 @@ public:
         });
 
         const QIcon cmakeIcon = ProjectExplorer::Icons::CMAKE_LOGO_TOOLBAR.icon();
-        m_cmakeCodeAction = toolBar()->addAction(cmakeIcon, Tr::tr("CMake code..."));
+        m_cmakeCodeAction = toolBar()->addAction(cmakeIcon, Tr::tr("CMake Code..."));
         connect(m_cmakeCodeAction, &QAction::triggered, this, [this] {
             CMakeCodeDialog dlg(documentToManifest().dependencies);
             dlg.exec();

@@ -463,14 +463,14 @@ private:
 
 static QPointer<SettingsDialog> m_instance = nullptr;
 
-SettingsDialog::SettingsDialog(QWidget *parent) :
-    QDialog(parent),
-    m_pages(sortedOptionsPages()),
-    m_stackedLayout(new QStackedLayout),
-    m_filterLineEdit(new Utils::FancyLineEdit),
-    m_sortCheckBox(new QCheckBox(Tr::tr("Sort Categories"))),
-    m_categoryList(new CategoryListView),
-    m_headerLabel(new QLabel)
+SettingsDialog::SettingsDialog(QWidget *parent)
+    : QDialog(parent)
+    , m_pages(sortedOptionsPages())
+    , m_stackedLayout(new QStackedLayout)
+    , m_filterLineEdit(new Utils::FancyLineEdit)
+    , m_sortCheckBox(new QCheckBox(Tr::tr("Sort categories")))
+    , m_categoryList(new CategoryListView)
+    , m_headerLabel(new QLabel)
 {
     m_filterLineEdit->setFiltering(true);
 
