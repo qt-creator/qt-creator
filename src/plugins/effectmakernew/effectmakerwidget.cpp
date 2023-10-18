@@ -7,8 +7,8 @@
 #include "effectmakermodel.h"
 #include "effectmakernodesmodel.h"
 #include "effectmakerview.h"
+#include "propertyhandler.h"
 
-#include "nodeinstanceview.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qqmlcontext.h"
@@ -64,6 +64,8 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
 
     QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(this, QmlDesigner::Constants::EVENT_EFFECTMAKER_TIME);
+
+    m_quickWidget->rootContext()->setContextProperty("g_propertyData", &g_propertyData);
 
     auto map = m_quickWidget->registerPropertyMap("EffectMakerBackend");
     map->setProperties({{"effectMakerNodesModel", QVariant::fromValue(m_effectMakerNodesModel.data())},

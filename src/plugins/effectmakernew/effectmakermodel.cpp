@@ -781,11 +781,11 @@ void EffectMakerModel::updateCustomUniforms()
             }
         }
         QString valueString = value.isEmpty() ? QString() : QString(": %1").arg(value);
-        QString bindedValueString = bindedValue.isEmpty() ? QString() : QString(": %1").arg(bindedValue);
+        QString boundValueString = bindedValue.isEmpty() ? QString() : QString(": %1").arg(bindedValue);
         // Custom values are not readonly, others inside the effect can be
         QString readOnly = uniform->useCustomValue() ? QString() : QStringLiteral("readonly ");
         previewEffectPropertiesString += "    " + readOnly + "property " + type + " "
-                                         + propertyName + valueString + '\n';
+                                         + propertyName + boundValueString + '\n';
         // Define type properties are not added into exports
         if (!isDefine) {
             if (uniform->useCustomValue()) {
@@ -797,7 +797,7 @@ void EffectMakerModel::updateCustomUniforms()
                 }
                 exportedEffectPropertiesString += QStringLiteral("        ") + readOnly
                                                   + "property " + type + " " + propertyName
-                                                  + bindedValueString + '\n';
+                                                  + boundValueString + '\n';
             } else {
                 // Custom values are not added into root
                 exportedRootPropertiesString += "    property " + type + " " + propertyName
@@ -951,8 +951,8 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
         s += '\n' + customImagesString;
 
     s += '\n';
-    s += l2 + "vertexShader: 'file://" + m_vertexShaderFilename + "'\n";
-    s += l2 + "fragmentShader: 'file://" + m_fragmentShaderFilename + "'\n";
+    s += l2 + "vertexShader: 'file:///" + m_vertexShaderFilename + "'\n";
+    s += l2 + "fragmentShader: 'file:///" + m_fragmentShaderFilename + "'\n";
     s += l2 + "anchors.fill: parent\n";
     if (m_shaderFeatures.enabled(ShaderFeatures::GridMesh)) {
         QString gridSize = QString("%1, %2").arg(m_shaderFeatures.gridMeshWidth()).arg(m_shaderFeatures.gridMeshHeight());

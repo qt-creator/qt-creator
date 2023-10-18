@@ -5,6 +5,7 @@
 
 #include "effectutils.h"
 #include "effectmakeruniformsmodel.h"
+#include "propertyhandler.h"
 #include "uniform.h"
 
 #include <QFile>
@@ -100,8 +101,11 @@ void CompositionNode::parse(const QString &qenPath)
 
     // parse properties
     QJsonArray jsonProps = json.value("properties").toArray();
-    for (const auto /*QJsonValueRef*/ &prop : jsonProps)
-        m_unifomrsModel.addUniform(new Uniform(prop.toObject()));
+    for (const auto /*QJsonValueRef*/ &prop : jsonProps) {
+        const auto uniform = new Uniform(prop.toObject());
+        m_unifomrsModel.addUniform(uniform);
+        g_propertyData.insert(uniform->name(), uniform->value());
+    }
 
     // Seek through code to get tags
     QStringList shaderCodeLines;

@@ -3,6 +3,7 @@
 
 #include "effectmakeruniformsmodel.h"
 
+#include "propertyhandler.h"
 #include "uniform.h"
 
 #include <utils/qtcassert.h>
@@ -48,7 +49,9 @@ bool EffectMakerUniformsModel::setData(const QModelIndex &index, const QVariant 
     if (!index.isValid() || !roleNames().contains(role))
         return false;
 
-    m_uniforms.at(index.row())->setValue(value);
+    auto uniform = m_uniforms.at(index.row());
+    uniform->setValue(value);
+    g_propertyData.insert(uniform->name(), value);
     emit dataChanged(index, index, {role});
 
     return true;

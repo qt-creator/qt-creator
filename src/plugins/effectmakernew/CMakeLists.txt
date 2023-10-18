@@ -22,5 +22,6 @@ add_qtc_plugin(EffectMakerNew
     effectmakercontextobject.cpp effectmakercontextobject.h
     shaderfeatures.cpp shaderfeatures.h
     syntaxhighlighterdata.cpp syntaxhighlighterdata.h
+    propertyhandler.cpp propertyhandler.h
   BUILD_DEFAULT OFF
 )
