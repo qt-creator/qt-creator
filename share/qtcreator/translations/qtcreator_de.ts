@@ -10014,15 +10014,15 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Unarchiving SDK Tools package...</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket mit SDK-Werkzeugen wird entpackt...</translation>
     </message>
     <message>
         <source>Verifying the integrity of the downloaded file has failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Prüfen der Integrität der heruntergeladenen Datei ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Unarchiving error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entpacken.</translation>
     </message>
     <message>
         <source>Download SDK Tools</source>
@@ -10973,7 +10973,7 @@ Breche ausstehende Operationen ab...
     </message>
     <message>
         <source>Failed</source>
-        <translation type="unfinished">Fehlgeschlagen</translation>
+        <translation>Fehlgeschlagen</translation>
     </message>
     <message>
         <source>SDK Manager Arguments</source>
