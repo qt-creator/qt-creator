@@ -21458,19 +21458,19 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Convert Comment to C-Style</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentar in C-Stil umwandeln</translation>
     </message>
     <message>
         <source>Convert Comment to C++-Style</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentar in C++-Stil umwandeln</translation>
     </message>
     <message>
         <source>Move Function Documentation to Declaration</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionsdokumentation zur Deklaration verschieben</translation>
     </message>
     <message>
         <source>Move Function Documentation to Definition</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionsdokumentation zur Definition verschieben</translation>
     </message>
     <message>
         <source>Insert Virtual Functions of Base Classes</source>
@@ -21514,15 +21514,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Fold All Comment Blocks</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Kommentarblöcke einklappen</translation>
     </message>
     <message>
         <source>Unfold All Comment Blocks</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Kommentarblöcke ausklappen</translation>
     </message>
     <message>
         <source>C++ File Naming</source>
-        <translation type="unfinished"></translation>
+        <translation>Namenskonvention für C++-Dateien</translation>
     </message>
     <message>
         <source>The license template.</source>
@@ -22485,9 +22485,9 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message numerus="yes">
         <source>Checked %1 of %n function(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1 von einer Funktion geprüft</numerusform>
+            <numerusform>%1 von %n Funktionen geprüft</numerusform>
         </translation>
     </message>
     <message>
@@ -22536,11 +22536,11 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Decision Forest</source>
-        <translation type="unfinished"></translation>
+        <translation>Decision Forest</translation>
     </message>
     <message>
         <source>Heuristics</source>
-        <translation type="unfinished"></translation>
+        <translation>Heuristik</translation>
     </message>
     <message>
         <source>Interpret ambiguous headers as C headers</source>
@@ -22584,15 +22584,15 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;&lt;p&gt;Low Priority: Same priority as other clangd work.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Resultate, es erhöht aber die CPU-Last beim ersten Öffnen von Projekten. Das Resultat der Indizierung wird im Build-Verzeichnis des Projekts gespeichert. Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer, aber weniger genauer, integrierter Indexer benutzt. Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.&lt;/p&gt;&lt;p&gt;Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.&lt;/p&gt;&lt;p&gt;Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.&lt;/p&gt;&lt;p&gt;Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The C/C++ backend to use for switching between header and source files.&lt;/p&gt;&lt;p&gt;While the clangd implementation has more capabilities than the built-in code model, it tends to find false positives.&lt;/p&gt;&lt;p&gt;When &quot;Try Both&quot; is selected, clangd is used only if the built-in variant does not find anything.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Bestimmt, welches C/C++-Backend zum Wechseln zwischen Header- und Quelldatei benutzt wird.&lt;/p&gt;&lt;p&gt;Die Clangd-Implementation hat mehr Fähigkeiten, aber auch einige Fehler, die nicht in der integrierten Variante vorhanden sind.&lt;/p&gt;&lt;p&gt;Wenn &quot;Beide versuchen&quot; ausgewählt ist, wird Clangd nur benutzt, wenn die integrierte Variant nichts findet.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Which model clangd should use to rank possible completions.&lt;/p&gt;&lt;p&gt;This determines the order of candidates in the combo box when doing code completion.&lt;/p&gt;&lt;p&gt;The &quot;%1&quot; model used by default results from (pre-trained) machine learning and provides superior results on average.&lt;/p&gt;&lt;p&gt;If you feel that its suggestions stray too much from your expectations for your code base, you can try switching to the hand-crafted &quot;%2&quot; model.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Das Modell, das Clangd für die Rangfolge der möglichen Vervollständigungen benutzen soll.&lt;/p&gt;&lt;p&gt;Dies bestimmt die Reihenfolge der Kandidaten im Drop-Down-Menü der Code-Vervollständigung.&lt;/p&gt;&lt;p&gt;Das voreingestellte Modell &quot;%1&quot; wurde durch maschinelles Lernen trainiert und bietet im Schnitt die besten Ergebnisse.&lt;/p&gt;&lt;p&gt;Falls dies für Ihren Code zu sehr von Ihren Erwartungen abweicht, können Sie auf das manuell erstellte Modell &quot;%2&quot; umstellen.&lt;p&gt;</translation>
     </message>
     <message>
         <source>Number of worker threads used by clangd. Background indexing also uses this many worker threads.</source>
@@ -22656,7 +22656,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Completion ranking model:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rangfolge-Modell für die Code-Vervollständigung:</translation>
     </message>
     <message>
         <source>Document update threshold:</source>
@@ -23008,7 +23008,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>collecting overrides...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche überschriebene Methoden...</translation>
     </message>
 </context>
 <context>
