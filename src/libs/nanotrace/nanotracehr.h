@@ -9,7 +9,6 @@
 #include <utils/span.h>
 
 #include <QByteArrayView>
-#include <QMetaObject>
 #include <QStringView>
 
 #include <array>
@@ -392,6 +391,53 @@ public:
     using IsActive = std::false_type;
 };
 
+namespace Internal {
+
+template<typename TraceEvent>
+class EventQueueTracker
+{
+    using Queue = EventQueue<TraceEvent, Tracing::IsEnabled>;
+
+public:
+    EventQueueTracker() = default;
+    EventQueueTracker(const EventQueueTracker &) = delete;
+    EventQueueTracker(EventQueueTracker &&) = delete;
+    EventQueueTracker &operator=(const EventQueueTracker &) = delete;
+    EventQueueTracker &operator=(EventQueueTracker &&) = delete;
+
+    ~EventQueueTracker()
+    {
+        std::lock_guard lock{mutex};
+
+        for (auto queue : queues)
+            queue->flush();
+    }
+
+    void addQueue(Queue *queue)
+    {
+        std::lock_guard lock{mutex};
+        queues.push_back(queue);
+    }
+
+    void removeQueue(Queue *queue)
+    {
+        std::lock_guard lock{mutex};
+        queues.erase(std::remove(queues.begin(), queues.end(), queue), queues.end());
+    }
+
+    static EventQueueTracker &get()
+    {
+        static EventQueueTracker tracker;
+
+        return tracker;
+    }
+
+private:
+    std::mutex mutex;
+    std::vector<Queue *> queues;
+};
+} // namespace Internal
+
 template<typename TraceEvent>
 class EventQueue<TraceEvent, Tracing::IsEnabled>
 {
@@ -417,7 +463,6 @@ public:
     TraceEventsSpan currentEvents;
     std::size_t eventsIndex = 0;
     IsEnabled isEnabled = IsEnabled::Yes;
-    QMetaObject::Connection connection;
     std::mutex mutex;
     std::thread::id threadId;
 };

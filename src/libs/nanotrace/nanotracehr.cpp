@@ -204,11 +204,8 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile *file,
     , currentEvents{eventsOne}
     , threadId{std::this_thread::get_id()}
 {
+    Internal::EventQueueTracker<TraceEvent>::get().addQueue(this);
     if (auto thread = QThread::currentThread()) {
-        connection = QObject::connect(QCoreApplication::instance(),
-                                      &QCoreApplication::aboutToQuit,
-                                      thread,
-                                      [&] { flush(); });
         auto name = getThreadName();
         if (name.size()) {
             writeMetaEvent(file, "thread_name", name);
@@ -219,9 +216,9 @@ EventQueue<TraceEvent, Tracing::IsEnabled>::EventQueue(EnabledTraceFile *file,
 template<typename TraceEvent>
 EventQueue<TraceEvent, Tracing::IsEnabled>::~EventQueue()
 {
+    Internal::EventQueueTracker<TraceEvent>::get().removeQueue(this);
+
     flush();
-    if (connection)
-        QObject::disconnect(connection);
 }
 
 template<typename TraceEvent>
