@@ -15791,7 +15791,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>C++ code issues that Clangd found in the current document.</source>
-        <translation type="unfinished"></translation>
+        <translation>C++-Probleme, die Clangd im aktuellen Dokument gefunden hat.</translation>
     </message>
     <message>
         <source>Generate Compilation Database</source>
@@ -15860,7 +15860,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>collecting overrides...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche überschriebene Methoden...</translation>
     </message>
     <message>
         <source>&lt;base declaration&gt;</source>
@@ -15903,7 +15903,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Changes applied to diagnostic configuration &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Diagnosekonfiguration &quot;%1&quot; wurde angepasst.</translation>
     </message>
     <message>
         <source>Code Model Error</source>
@@ -15939,11 +15939,11 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Current ClangFormat version: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle ClangFormat-Version: %1.</translation>
     </message>
     <message>
         <source>The widget was generated for ClangFormat %1. If you use a different version, the widget may work incorrectly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Benutzeroberfläche wurde für ClangFormat %1 generiert. Sie funktioniert möglicherweise nicht korrekt, wenn Sie eine andere ClangFormat-Version verwenden.</translation>
     </message>
     <message>
         <source>Open Used .clang-format Configuration File</source>
@@ -15952,7 +15952,8 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     <message>
         <source>Files greater than this will not be indented by ClangFormat.
 The built-in code indenter will handle indentation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Größere Dateien werden nicht von ClangFormat eingerückt.
+Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Formatting mode:</source>
@@ -15960,7 +15961,7 @@ The built-in code indenter will handle indentation.</source>
     </message>
     <message>
         <source>Ignore files greater than:</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateien ignorieren, wenn sie größer sind als:</translation>
     </message>
     <message>
         <source>Format while typing</source>
@@ -16035,7 +16036,7 @@ The built-in code indenter will handle indentation.</source>
     </message>
     <message>
         <source>%1 produced stderr output:</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 hat Ausgabe auf stderr generiert:</translation>
     </message>
     <message>
         <source>Command line: %1
@@ -16125,7 +16126,7 @@ Ausgabe:
     </message>
     <message>
         <source>Issues that Clang-Tidy and Clazy found when analyzing code.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die Clang-Tidy und Clazy beim Analysieren von Code gefunden haben.</translation>
     </message>
     <message>
         <source>Analyze File...</source>
