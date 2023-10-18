@@ -14619,11 +14619,11 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>CMake Profiler</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake Profiler</translation>
     </message>
     <message>
         <source>Start CMake Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Debugging starten</translation>
     </message>
     <message>
         <source>Build</source>
@@ -15439,7 +15439,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>&lt;a href=&quot;%1&quot;&gt;CMakeFormat&lt;/a&gt; command:</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;a href=&quot;%1&quot;&gt;CMakeFormat&lt;/a&gt;-Kommando:</translation>
     </message>
     <message>
         <source>Formatter</source>
@@ -15461,7 +15461,7 @@ Stellen Sie sicher, dass der Wert der CMAKE_BUILD_TYPE-Variable derselbe wie der
     </message>
     <message>
         <source>Call stack:</source>
-        <translation type="unfinished"></translation>
+        <translation>Call-Stack:</translation>
     </message>
 </context>
 <context>
@@ -23277,7 +23277,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Error while parsing CTF data: %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten der CTF-Daten: %1.</translation>
     </message>
     <message>
         <source>CTF Visualizer</source>
@@ -29184,7 +29184,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
     </message>
     <message>
         <source>Use system encoding for :source</source>
-        <translation type="unfinished"></translation>
+        <translation>System-Zeichenkodierung für :source benutzen</translation>
     </message>
     <message>
         <source>Scroll offset:</source>
