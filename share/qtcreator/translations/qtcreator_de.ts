@@ -17857,27 +17857,27 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Round Up for .5 and Above</source>
-        <translation type="unfinished"></translation>
+        <translation>Ab 0,5 aufrunden</translation>
     </message>
     <message>
         <source>Always Round Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer aufrunden</translation>
     </message>
     <message>
         <source>Always Round Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer abrunden</translation>
     </message>
     <message>
         <source>Round Up for .75 and Above</source>
-        <translation type="unfinished"></translation>
+        <translation>Ab 0,75 aufrunden</translation>
     </message>
     <message>
         <source>Don&apos;t Round</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht runden</translation>
     </message>
     <message>
         <source>DPI rounding policy:</source>
-        <translation type="unfinished"></translation>
+        <translation>DPI-Rundungsstrategie:</translation>
     </message>
     <message>
         <source>Text codec for tools:</source>
@@ -17897,7 +17897,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>The DPI rounding policy change will take effect after restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Änderung der DPI-Rundungsstrategie wird nach einem Neustart wirksam.</translation>
     </message>
     <message>
         <source>Interface</source>
@@ -18071,19 +18071,19 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Show Menu Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Menüleiste anzeigen</translation>
     </message>
     <message>
         <source>Ctrl+Alt+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+M</translation>
     </message>
     <message>
         <source>Hide Menu Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Menüleiste verbergen</translation>
     </message>
     <message>
         <source>This will hide the menu bar completely. You can show it again by typing %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies verbirgt die Menüleiste. Sie können Sie durch Eingeben von %1 wieder anzeigen.</translation>
     </message>
     <message>
         <source>Version:</source>
@@ -18313,7 +18313,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Reset to Default</source>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen</translation>
+        <translation>Auf Vorgabe zurücksetzen</translation>
     </message>
     <message>
         <source>Error Details</source>
@@ -18394,7 +18394,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Sort categories</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategorien sortieren</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -18735,11 +18735,11 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Remove the following files from the version control system (%1)?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie die folgenden Dateien aus der Versionskontrolle (%1) entfernen?</translation>
     </message>
     <message>
         <source>Note: This might remove the local file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Unter Umständen werden die lokalen Dateien gelöscht.</translation>
     </message>
     <message>
         <source>Add to Version Control</source>
@@ -20549,7 +20549,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Sort results</source>
-        <translation type="unfinished"></translation>
+        <translation>Ergebnisse sortieren</translation>
     </message>
     <message>
         <source>Case sensitive:</source>
@@ -21046,15 +21046,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Entry is missing a logging category name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name der Log-Kategorie fehlt im Eintrag.</translation>
     </message>
     <message>
         <source>Entry is missing data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Eintrag fehlen Daten.</translation>
     </message>
     <message>
         <source>Invalid level: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Stufe: %1</translation>
     </message>
     <message>
         <source>Category</source>
@@ -21062,23 +21062,23 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Debug</source>
-        <translation type="unfinished">Debug</translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Critical</source>
-        <translation type="unfinished"></translation>
+        <translation>Kritisch</translation>
     </message>
     <message>
         <source>Fatal</source>
-        <translation type="unfinished"></translation>
+        <translation>Fatal</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Info</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Type</source>
@@ -21090,15 +21090,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Filter Qt Internal Log Categories</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-interne Log-Kategorien ausschließen</translation>
     </message>
     <message>
         <source>Filter categories by regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategorien mit regulärem Ausdruck filtern</translation>
     </message>
     <message>
         <source>Invalid regular expression: %1</source>
-        <translation type="unfinished">Ungültiger regulärer Ausdruck: %1</translation>
+        <translation>Ungültiger regulärer Ausdruck: %1</translation>
     </message>
     <message>
         <source>Start Logging</source>
@@ -21114,15 +21114,16 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Uncheck All %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle vom Typ %1 abwählen</translation>
     </message>
     <message>
         <source>Check All %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle vom Typ %1 auswählen</translation>
     </message>
     <message>
         <source>Reset All %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1 is &quot;Info&quot;, &quot;Debug&quot;, etc</translatorcomment>
+        <translation>Alle vom Typ %1 zurücksetzen</translation>
     </message>
     <message>
         <source>Save Enabled as Preset...</source>
