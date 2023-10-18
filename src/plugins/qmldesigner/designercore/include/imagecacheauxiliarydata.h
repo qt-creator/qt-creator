@@ -27,8 +27,10 @@ constexpr NanotraceHR::Tracing tracingStatus()
 }
 
 using Category = NanotraceHR::StringViewCategory<tracingStatus()>;
-using TraceToken = Category::AsynchronousTokenType;
-Category &category();
+using TraceToken = Category::FlowTokenType;
+using FlowToken = Category::FlowTokenType;
+using Token = Category::TokenType;
+extern Category &category();
 
 class FontCollectorSizeAuxiliaryData
 {

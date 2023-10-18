@@ -39,17 +39,22 @@ private:
     struct Entry
     {
         Entry() = default;
+
         Entry(Utils::PathString name,
               Utils::SmallString extraId,
-              ImageCache::AuxiliaryData &&auxiliaryData)
+              ImageCache::AuxiliaryData &&auxiliaryData,
+              ImageCache::TraceToken traceToken)
             : name{std::move(name)}
             , extraId{std::move(extraId)}
             , auxiliaryData{std::move(auxiliaryData)}
+            , traceToken{std::move(traceToken)}
+
         {}
 
         Utils::PathString name;
         Utils::SmallString extraId;
         ImageCache::AuxiliaryData auxiliaryData;
+        NO_UNIQUE_ADDRESS ImageCache::TraceToken traceToken;
     };
 
     static void request(Utils::SmallStringView name,
@@ -57,19 +62,12 @@ private:
                         ImageCache::AuxiliaryData auxiliaryData,
                         ImageCacheStorageInterface &storage,
                         TimeStampProviderInterface &timeStampProvider,
-                        ImageCacheCollectorInterface &collector);
+                        ImageCacheCollectorInterface &collector,
+                        ImageCache::TraceToken traceToken);
 
     struct Dispatch
     {
-        void operator()(Entry &entry)
-        {
-            request(entry.name,
-                    entry.extraId,
-                    std::move(entry.auxiliaryData),
-                    storage,
-                    timeStampProvider,
-                    collector);
-        }
+        void operator()(Entry &entry);
 
         ImageCacheStorageInterface &storage;
         TimeStampProviderInterface &timeStampProvider;

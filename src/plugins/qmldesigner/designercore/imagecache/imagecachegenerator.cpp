@@ -95,8 +95,6 @@ void ImageCacheGenerator::clean()
 
     std::lock_guard lock{m_mutex};
     for (Task &task : m_tasks) {
-        task.traceToken.tick("cleaning up in the generator"_t);
-        task.traceToken.end();
         callCallbacks(task.abortCallbacks, ImageCache::AbortReason::Abort, std::move(task.traceToken));
     }
     m_tasks.clear();

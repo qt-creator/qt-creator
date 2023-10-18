@@ -10,6 +10,8 @@
 
 namespace QmlDesigner {
 
+using namespace NanotraceHR::Literals;
+
 AsynchronousImageFactory::AsynchronousImageFactory(ImageCacheStorageInterface &storage,
                                                    TimeStampProviderInterface &timeStampProvider,
                                                    ImageCacheCollectorInterface &collector)
@@ -24,7 +26,13 @@ void AsynchronousImageFactory::generate(Utils::SmallStringView name,
                                         Utils::SmallStringView extraId,
                                         ImageCache::AuxiliaryData auxiliaryData)
 {
-    m_taskQueue.addTask(name, extraId, std::move(auxiliaryData));
+    auto [trace, flowToken] = ImageCache::category().beginDurationWithFlow(
+        "request image in asynchronous image factory"_t);
+    m_taskQueue.addTask(trace.createToken(),
+                        name,
+                        extraId,
+                        std::move(auxiliaryData),
+                        std::move(flowToken));
 }
 
 AsynchronousImageFactory::~AsynchronousImageFactory() {}
@@ -34,8 +42,10 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
                                        ImageCache::AuxiliaryData auxiliaryData,
                                        ImageCacheStorageInterface &storage,
                                        TimeStampProviderInterface &timeStampProvider,
-                                       ImageCacheCollectorInterface &collector)
+                                       ImageCacheCollectorInterface &collector,
+                                       ImageCache::TraceToken traceToken)
 {
+    auto [storageTracer, flowToken] = traceToken.beginDurationWithFlow("starte image generator"_t);
     const auto id = extraId.empty() ? Utils::PathString{name}
                                     : Utils::PathString::join({name, "+", extraId});
 
@@ -58,11 +68,22 @@ void AsynchronousImageFactory::request(Utils::SmallStringView name,
                     std::move(auxiliaryData),
                     std::move(capture),
                     ImageCache::InternalAbortCallback{},
-                    {});
+                    std::move(flowToken));
 }
 
 void AsynchronousImageFactory::clean()
 {
     m_taskQueue.clean();
+}
+
+void AsynchronousImageFactory::Dispatch::operator()(Entry &entry)
+{
+    request(entry.name,
+            entry.extraId,
+            std::move(entry.auxiliaryData),
+            storage,
+            timeStampProvider,
+            collector,
+            std::move(entry.traceToken));
 }
 } // namespace QmlDesigner

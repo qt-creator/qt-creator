@@ -107,18 +107,25 @@ private:
 
         m_sleeping = false;
 
-        auto threadCreateToken = traceToken.beginDuration("thread is created in the task queue"_t);
+        auto [threadCreateToken, flowToken] = traceToken.beginDurationWithFlow(
+            "thread is created in the task queue"_t);
         m_backgroundThread = std::thread{[this](auto traceToken) {
-                                             traceToken.tick("thread is ready"_t);
+                                             auto duration = traceToken.beginDuration(
+                                                 "thread is ready"_t);
                                              while (true) {
                                                  auto [lock, abort] = waitForTasks();
+                                                 duration.end();
                                                  if (abort)
                                                      return;
-                                                 if (auto task = getTask(std::move(lock)); task)
+                                                 auto getTaskToken = duration.beginDuration(
+                                                     "get task from queue"_t);
+                                                 if (auto task = getTask(std::move(lock)); task) {
+                                                     getTaskToken.end();
                                                      m_dispatchCallback(*task);
+                                                 }
                                              }
                                          },
-                                         std::move(traceToken)};
+                                         std::move(flowToken)};
     }
 
     void clearTasks(Tasks &tasks)

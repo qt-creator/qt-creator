@@ -77,7 +77,8 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
                                 ImageCache::TraceToken traceToken)
 {
     using namespace NanotraceHR::Literals;
-    auto collectorTraceToken = traceToken.begin("generate image in standard collector"_t);
+    auto [collectorTraceToken, flowtoken] = traceToken.beginDurationWithFlow(
+        "generate image in standard collector"_t);
 
     RewriterView rewriterView{m_externalDependencies, RewriterView::Amend};
     NodeInstanceView nodeInstanceView{m_connectionManager, m_externalDependencies};
@@ -105,7 +106,7 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     if (!rewriterView.errors().isEmpty() || (!rewriterView.rootModelNode().metaInfo().isGraphicalItem()
                                         && !is3DRoot)) {
         if (abortCallback)
-            abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
+            abortCallback(ImageCache::AbortReason::Failed, std::move(flowtoken));
         return;
     }
 
@@ -143,16 +144,16 @@ void ImageCacheCollector::start(Utils::SmallStringView name,
     model->setRewriterView({});
 
     if (isCrashed)
-        abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
+        abortCallback(ImageCache::AbortReason::Failed, std::move(flowtoken));
 
     if (!capturedDataArrived && abortCallback)
-        abortCallback(ImageCache::AbortReason::Failed, std::move(traceToken));
+        abortCallback(ImageCache::AbortReason::Failed, std::move(flowtoken));
 
     if (nullImageHandling == ImageCacheCollectorNullImageHandling::CaptureNullImage
         || !captureImage.isNull()) {
         QImage midSizeImage = scaleImage(captureImage, QSize{300, 300});
         QImage smallImage = scaleImage(midSizeImage, QSize{96, 96});
-        captureCallback(captureImage, midSizeImage, smallImage, std::move(traceToken));
+        captureCallback(captureImage, midSizeImage, smallImage, std::move(flowtoken));
     }
 }
 
