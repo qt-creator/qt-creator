@@ -105,14 +105,14 @@ CopilotSettings::CopilotSettings()
     proxyHost.setDisplayName(Tr::tr("Proxy Host"));
     proxyHost.setDisplayStyle(StringAspect::LineEditDisplay);
     proxyHost.setSettingsKey("Copilot.ProxyHost");
-    proxyHost.setLabelText(Tr::tr("Proxy host"));
+    proxyHost.setLabelText(Tr::tr("Proxy host:"));
     proxyHost.setDefaultValue("");
     proxyHost.setToolTip(Tr::tr("The host name of the proxy server."));
     proxyHost.setHistoryCompleter("Copilot.ProxyHost.History");
 
     proxyPort.setDisplayName(Tr::tr("Proxy Port"));
     proxyPort.setSettingsKey("Copilot.ProxyPort");
-    proxyPort.setLabelText(Tr::tr("Proxy port"));
+    proxyPort.setLabelText(Tr::tr("Proxy port:"));
     proxyPort.setDefaultValue(3128);
     proxyPort.setToolTip(Tr::tr("The port of the proxy server."));
     proxyPort.setRange(1, 65535);
@@ -120,7 +120,7 @@ CopilotSettings::CopilotSettings()
     proxyUser.setDisplayName(Tr::tr("Proxy User"));
     proxyUser.setDisplayStyle(StringAspect::LineEditDisplay);
     proxyUser.setSettingsKey("Copilot.ProxyUser");
-    proxyUser.setLabelText(Tr::tr("Proxy user"));
+    proxyUser.setLabelText(Tr::tr("Proxy user:"));
     proxyUser.setDefaultValue("");
     proxyUser.setToolTip(Tr::tr("The user name to access the proxy server."));
     proxyUser.setHistoryCompleter("Copilot.ProxyUser.History");
@@ -135,7 +135,7 @@ CopilotSettings::CopilotSettings()
     proxyPassword.setDisplayName(Tr::tr("Proxy Password"));
     proxyPassword.setDisplayStyle(StringAspect::PasswordLineEditDisplay);
     proxyPassword.setSettingsKey("Copilot.ProxyPassword");
-    proxyPassword.setLabelText(Tr::tr("Proxy password"));
+    proxyPassword.setLabelText(Tr::tr("Proxy password:"));
     proxyPassword.setDefaultValue("");
     proxyPassword.setToolTip(Tr::tr("The password for the proxy server."));
 
@@ -144,7 +144,7 @@ CopilotSettings::CopilotSettings()
     proxyRejectUnauthorized.setLabelText(Tr::tr("Reject unauthorized"));
     proxyRejectUnauthorized.setDefaultValue(true);
     proxyRejectUnauthorized.setToolTip(Tr::tr("Reject unauthorized certificates from the proxy "
-                                              "server. This is a security risk."));
+                                              "server. Turning this off is a security risk."));
 
     initEnableAspect(enableCopilot);
 
