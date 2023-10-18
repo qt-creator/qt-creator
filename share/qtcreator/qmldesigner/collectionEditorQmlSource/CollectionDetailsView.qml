@@ -13,10 +13,15 @@ Rectangle {
 
     required property var model
 
+    implicitWidth: 600
+    implicitHeight: 400
+
     color: StudioTheme.Values.themeBackgroundColorAlternate
 
     ColumnLayout {
         id: topRow
+
+        visible: collectionNameText.text !== ""
 
         spacing: 0
         anchors {
@@ -229,6 +234,17 @@ Rectangle {
                 }
             }
         }
+    }
+
+    Text {
+        anchors.fill: parent
+        text: qsTr("Select a collection to continue")
+        visible: !topRow.visible
+        textFormat: Text.RichText
+        color: StudioTheme.Values.themeTextColor
+        font.pixelSize: StudioTheme.Values.mediumFontSize
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WordWrap
     }
 
     TextMetrics {
