@@ -11536,7 +11536,7 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Number of worker threads used when scanning for tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzahl der Threads, die zum Suchen nach Tests benutzt werden.</translation>
     </message>
     <message>
         <source>Omit run configuration warnings</source>
@@ -11584,7 +11584,7 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Scan threads:</source>
-        <translation type="unfinished"></translation>
+        <translation>Such-Threads:</translation>
     </message>
     <message>
         <source>No active test frameworks or tools.</source>
@@ -12568,23 +12568,23 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Run Test Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Test unter Cursor ausführen</translation>
     </message>
     <message>
         <source>&amp;Run Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Test &amp;ausführen</translation>
     </message>
     <message>
         <source>Run Test Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Test ohne Deployment ausführen</translation>
     </message>
     <message>
         <source>&amp;Debug Test</source>
-        <translation type="unfinished"></translation>
+        <translation>Test &amp;debuggen</translation>
     </message>
     <message>
         <source>Debug Test Without Deployment</source>
-        <translation type="unfinished"></translation>
+        <translation>Test ohne Deployment debuggen</translation>
     </message>
     <message>
         <source>&amp;Run Selected Tests Without Deployment</source>
@@ -12620,11 +12620,11 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message>
         <source>Disable Temporarily</source>
-        <translation type="unfinished"></translation>
+        <translation>Temporär deaktivieren</translation>
     </message>
     <message>
         <source>Disable scanning and other actions until explicitly rescanning, re-enabling, or restarting Qt Creator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deaktiviert die Suche nach Tests und andere Aktivitäten, bis die Suche ausdrücklich angefordert oder wieder aktiviert wird oder Qt Creator neu gestartet wird.</translation>
     </message>
     <message>
         <source>Re&amp;scan Tests</source>
@@ -12672,9 +12672,9 @@ Warnung: Reinem Text fehlen manche Informationen, etwa die Dauer.</translation>
     </message>
     <message numerus="yes">
         <source>%n failure(s) detected in %1.</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ein Fehlschlag in %1 gefunden.</numerusform>
+            <numerusform>%n Fehlschläge in %1 gefunden.</numerusform>
         </translation>
     </message>
     <message>
