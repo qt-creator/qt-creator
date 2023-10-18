@@ -43,6 +43,8 @@ public:
 
     void addResource(const QUrl &url, const QString &name, const QString &type);
 
+    static void registerDeclarativeType();
+
 private:
     void refreshModel();
     NodeMetaInfo jsonCollectionMetaInfo() const;

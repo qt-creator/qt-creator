@@ -100,6 +100,7 @@ QHash<int, QByteArray> CollectionDetailsModel::roleNames() const
         roles.insert(QAbstractTableModel::roleNames());
         roles.insert(SelectedRole, "itemSelected");
         roles.insert(DataTypeRole, "dataType");
+        roles.insert(ColumnDataTypeRole, "columnType");
     }
     return roles;
 }
@@ -122,11 +123,31 @@ QVariant CollectionDetailsModel::data(const QModelIndex &index, int role) const
     if (role == SelectedRole)
         return (index.column() == m_selectedColumn || index.row() == m_selectedRow);
 
-    return m_currentCollection.data(index.row(), index.column());
+    if (role == DataTypeRole)
+        return QVariant::fromValue(m_currentCollection.typeAt(index.row(), index.column()));
+
+    if (role == ColumnDataTypeRole)
+        return QVariant::fromValue(m_currentCollection.typeAt(index.column()));
+
+    if (role == Qt::EditRole)
+        return m_currentCollection.data(index.row(), index.column());
+
+    return m_currentCollection.data(index.row(), index.column()).toString();
 }
 
-bool CollectionDetailsModel::setData(const QModelIndex &, const QVariant &, int)
+bool CollectionDetailsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
+    if (!index.isValid())
+        return {};
+
+    if (role == Qt::EditRole) {
+        bool changed = m_currentCollection.setPropertyValue(index.row(), index.column(), value);
+        if (changed) {
+            emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -189,7 +210,7 @@ Qt::ItemFlags CollectionDetailsModel::flags(const QModelIndex &index) const
     if (!index.isValid())
         return {};
 
-    return {Qt::ItemIsSelectable | Qt::ItemIsEnabled};
+    return {Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable};
 }
 
 QVariant CollectionDetailsModel::headerData(int section, Qt::Orientation orientation, int role) const

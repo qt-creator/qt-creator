@@ -37,8 +37,11 @@ struct CollectionProperty;
 
 class CollectionDetails
 {
+    Q_GADGET
+
 public:
     enum class DataType { Unknown, String, Url, Number, Boolean, Image, Color };
+    Q_ENUM(DataType)
 
     explicit CollectionDetails();
     CollectionDetails(const CollectionReference &reference);
@@ -57,6 +60,7 @@ public:
     void insertElementAt(std::optional<QJsonObject> object, int row = -1);
     void insertEmptyElements(int row = 0, int count = 1);
     bool removeElements(int row, int count = 1);
+    bool setPropertyValue(int row, int column, const QVariant &value);
 
     bool setPropertyName(int column, const QString &value);
     bool forcePropertyType(int column, DataType type, bool force = false);
@@ -66,6 +70,7 @@ public:
     QVariant data(int row, int column) const;
     QString propertyAt(int column) const;
     DataType typeAt(int column) const;
+    DataType typeAt(int row, int column) const;
     bool containsPropertyName(const QString &propertyName);
 
     bool isValid() const;
@@ -79,6 +84,8 @@ public:
     void swap(CollectionDetails &other);
     QJsonArray getJsonCollection() const;
     QString getCsvCollection() const;
+
+    static void registerDeclarativeType();
 
     CollectionDetails &operator=(const CollectionDetails &other);
 

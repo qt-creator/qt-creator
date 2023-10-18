@@ -22,7 +22,7 @@ class CollectionDetailsModel : public QAbstractTableModel
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
 
 public:
-    enum DataRoles { SelectedRole = Qt::UserRole + 1, DataTypeRole };
+    enum DataRoles { SelectedRole = Qt::UserRole + 1, DataTypeRole, ColumnDataTypeRole };
 
     explicit CollectionDetailsModel(QObject *parent = nullptr);
 

@@ -153,6 +153,11 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
     });
 }
 
+void CollectionView::registerDeclarativeType()
+{
+    CollectionDetails::registerDeclarativeType();
+}
+
 void CollectionView::refreshModel()
 {
     if (!model())

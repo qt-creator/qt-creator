@@ -4,6 +4,7 @@
 #include "collectiondetails.h"
 
 #include <utils/span.h>
+#include <qqml.h>
 
 #include <QJsonArray>
 #include <QJsonObject>
@@ -220,6 +221,21 @@ bool CollectionDetails::removeElements(int row, int count)
     return true;
 }
 
+bool CollectionDetails::setPropertyValue(int row, int column, const QVariant &value)
+{
+    if (!d->isValidRowId(row) || !d->isValidColumnId(column))
+        return false;
+
+    QJsonObject &element = d->elements[row];
+    QVariant currentValue = data(row, column);
+
+    if (value == currentValue)
+        return false;
+
+    element.insert(d->properties.at(column).name, QJsonValue::fromVariant(value));
+    return true;
+}
+
 bool CollectionDetails::setPropertyName(int column, const QString &value)
 {
     if (!d->isValidColumnId(column))
@@ -316,6 +332,20 @@ CollectionDetails::DataType CollectionDetails::typeAt(int column) const
     return d->properties.at(column).type;
 }
 
+CollectionDetails::DataType CollectionDetails::typeAt(int row, int column) const
+{
+    if (!d->isValidRowId(row) || !d->isValidColumnId(column))
+        return {};
+
+    const QString &propertyName = d->properties.at(column).name;
+    const QJsonObject &element = d->elements.at(row);
+
+    if (element.contains(propertyName))
+        return collectionDataTypeFromJsonValue(element.value(propertyName));
+
+    return {};
+}
+
 bool CollectionDetails::containsPropertyName(const QString &propertyName)
 {
     if (!isValid())
@@ -358,6 +388,13 @@ bool CollectionDetails::markSaved()
 void CollectionDetails::swap(CollectionDetails &other)
 {
     d.swap(other.d);
+}
+
+void CollectionDetails::registerDeclarativeType()
+{
+    typedef CollectionDetails::DataType DataType;
+    qRegisterMetaType<DataType>("DataType");
+    qmlRegisterUncreatableType<CollectionDetails>("CollectionDetails", 1, 0, "DataType", "Enum type");
 }
 
 CollectionDetails &CollectionDetails::operator=(const CollectionDetails &other)

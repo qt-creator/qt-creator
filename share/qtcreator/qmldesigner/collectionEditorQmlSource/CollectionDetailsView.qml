@@ -201,6 +201,13 @@ Rectangle {
                         elide: Text.ElideRight
                     }
 
+                    TableView.editDelegate: CollectionDetailsEditDelegate {
+                        anchors {
+                            top: itemText.top
+                            left: itemText.left
+                        }
+                    }
+
                     states: [
                         State {
                             name: "default"
