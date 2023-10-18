@@ -17568,11 +17568,11 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
     </message>
     <message>
         <source>Proxy username and password required:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Benutzername und -Passwort erforderlich:</translation>
     </message>
     <message>
         <source>Do not ask again. This will disable Copilot for now.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht noch einmal nachfragen. Dies deaktiviert Copilot.</translation>
     </message>
     <message>
         <source>Enables the Copilot integration.</source>
@@ -17606,99 +17606,99 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
     </message>
     <message>
         <source>Auto Request</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch anfordern</translation>
     </message>
     <message>
         <source>Auto request</source>
-        <translation type="unfinished"></translation>
+        <translation>Automatisch anfordern</translation>
     </message>
     <message>
         <source>Use Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy verwenden</translation>
     </message>
     <message>
         <source>Use proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy verwenden</translation>
     </message>
     <message>
         <source>Use a proxy to connect to the Copilot servers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einen Proxy-Server zum Verbinden zu den Copilot-Servern verwenden.</translation>
     </message>
     <message>
         <source>Proxy Host</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Host</translation>
     </message>
     <message>
         <source>Proxy host:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Host:</translation>
     </message>
     <message>
         <source>The host name of the proxy server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Hostname des Proxy-Servers.</translation>
     </message>
     <message>
         <source>Proxy Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Port</translation>
     </message>
     <message>
         <source>Proxy port:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Port:</translation>
     </message>
     <message>
         <source>The port of the proxy server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Port des Proxy-Servers.</translation>
     </message>
     <message>
         <source>Proxy User</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Benutzer</translation>
     </message>
     <message>
         <source>Proxy user:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Benutzer:</translation>
     </message>
     <message>
         <source>The user name to access the proxy server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Benutzername für den Zugriff auf den Proxy-Server.</translation>
     </message>
     <message>
         <source>Save Proxy Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Passwort speichern</translation>
     </message>
     <message>
         <source>Save proxy password</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Passwort speichern</translation>
     </message>
     <message>
         <source>Save the password to access the proxy server. The password is stored insecurely.</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichert das Passwort für den Zugriff auf den Proxy-Server. Das Passwort wird nicht sicher gespeichert.</translation>
     </message>
     <message>
         <source>Proxy Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Passwort</translation>
     </message>
     <message>
         <source>Proxy password:</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy-Passwort:</translation>
     </message>
     <message>
         <source>The password for the proxy server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Passwort für den Proxy-Server.</translation>
     </message>
     <message>
         <source>Reject Unauthorized</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht-authorisierte Zertifikate ablehnen</translation>
     </message>
     <message>
         <source>Reject unauthorized</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht-authorisierte Zertifikate ablehnen</translation>
     </message>
     <message>
         <source>Reject unauthorized certificates from the proxy server. Turning this off is a security risk.</source>
-        <translation type="unfinished"></translation>
+        <translation>Lehnt nicht-authorisierte Zertifikate vom Proxy-Server ab. Dies abzustellen ist ein Sicherheitsrisiko.</translation>
     </message>
     <message>
         <source>Note</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis</translation>
     </message>
     <message>
         <source>Automatically request suggestions for the current text cursor position after changes to the document.</source>
