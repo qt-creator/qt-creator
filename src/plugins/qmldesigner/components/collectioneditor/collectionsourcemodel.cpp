@@ -338,13 +338,15 @@ void CollectionSourceModel::onSelectedCollectionChanged(int collectionIndex)
 {
     CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
     if (collectionIndex > -1 && collectionList) {
-        if (_previousSelectedList && _previousSelectedList != collectionList)
-            _previousSelectedList->selectCollectionIndex(-1);
+        if (m_previousSelectedList && m_previousSelectedList != collectionList)
+            m_previousSelectedList->selectCollectionIndex(-1);
+
+        m_previousSelectedList = collectionList;
 
         emit collectionSelected(collectionList->sourceNode(),
                                 collectionList->collectionNameAt(collectionIndex));
 
-        _previousSelectedList = collectionList;
+        selectSourceIndex(sourceIndex(collectionList->sourceNode()));
     }
 }
 
@@ -365,6 +367,18 @@ void CollectionSourceModel::setSelectedIndex(int idx)
             emit dataChanged(newIndex, newIndex, {SelectedRole});
 
         emit selectedIndexChanged(idx);
+
+        if (idx > -1) {
+            QPointer<CollectionListModel> relatedCollectionList = m_collectionList.at(idx).data();
+            if (relatedCollectionList) {
+                if (relatedCollectionList->selectedIndex() < 0)
+                    relatedCollectionList->selectCollectionIndex(0, true);
+            } else if (m_previousSelectedList) {
+                m_previousSelectedList->selectCollectionIndex(-1);
+                m_previousSelectedList = {};
+                emit this->collectionSelected(sourceNodeAt(idx), {});
+            }
+        }
     }
 }
 

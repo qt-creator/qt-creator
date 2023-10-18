@@ -71,7 +71,7 @@ private:
     ModelNodes m_collectionSources;
     QHash<qint32, int> m_sourceIndexHash; // internalId -> index
     QList<QSharedPointer<CollectionListModel>> m_collectionList;
-    QPointer<CollectionListModel> _previousSelectedList;
+    QPointer<CollectionListModel> m_previousSelectedList;
     int m_selectedIndex = -1;
     bool m_isEmpty = true;
 };
