@@ -212,9 +212,8 @@ void KitManagerConfigWidget::updateVisibility()
 {
     for (KitAspect *aspect : std::as_const(m_kitAspects)) {
         const KitAspectFactory *factory = aspect->factory();
-        const bool visibleInKit = factory->isApplicableToKit(m_modifiedKit.get());
         const bool irrelevant = m_modifiedKit->irrelevantAspects().contains(factory->id());
-        aspect->setVisible(visibleInKit && !irrelevant);
+        aspect->setVisible(!irrelevant);
     }
 }
 

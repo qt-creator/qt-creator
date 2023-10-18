@@ -79,8 +79,6 @@ public:
 
     virtual void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
 
-    virtual bool isApplicableToKit(const Kit *) const { return true; }
-
     virtual void onKitsLoaded() {}
 
 protected:
