@@ -69,7 +69,7 @@
     apply the changes you make to the definition files, select
     \uicontrol {Reload Definitions}.
 
-    \section1 Highlighting and Folding Blocks
+    \section1 Highlighting Blocks
 
     Use block highlighting to visually separate parts of the code that belong
     together. For example, when you place the cursor within the braces, the code
@@ -79,6 +79,8 @@
 
     To enable block highlighting, select \preferences > \uicontrol {Text Editor}
     > \uicontrol Display > \uicontrol {Highlight blocks}.
+
+    \section1 Folding Blocks
 
     Use the folding markers to collapse and expand blocks of code within braces.
     Click the folding marker to collapse or expand a block. In the figure above,
@@ -90,10 +92,21 @@
 
     \image qtcreator-options-text-editor-display.png "Text Editor Display preferences"
 
-    When the cursor is on a brace, the matching brace is animated by default. To
-    turn off the animation and just highlight the block and the braces, select
-    \preferences > \uicontrol {Text Editor} >
-    \uicontrol Display and deselect \uicontrol {Animate matching parentheses}.
+    \section2 Folding All Comment Blocks
+
+    To fold all comment blocks, select \uicontrol Tools > \uicontrol C++ >
+    \uicontrol {Fold All Comment Blocks}. To unfold all comment blocks, select
+    \uicontrol {Unfold All Comment Blocks}.
+
+    \section1 Animating Matching Braces
+
+    When the cursor is on a brace, the matching brace is animated by default.
+
+    To turn off the animation and just highlight the block and the braces, select
+    \preferences > \uicontrol {Text Editor} > \uicontrol Display and deselect
+    \uicontrol {Animate matching parentheses}.
+
+    \section1 Moving Between Blocks
 
     You can use keyboard shortcuts to move within and between blocks. To go to
     block end, press \key {Ctrl+]} and to go to block start, press
@@ -101,11 +114,15 @@
     or beginning of the block, press \key {Ctrl+Shift+]} and
     \key {Ctrl+Shift+[}, respectively.
 
+    \section1 Selecting the Current Block
+
     To select the current block, press \key Ctrl+U. A second key press extends
     the selection to the parent block. To undo the last selection, press
-    \key {Ctrl+Alt+Shift+U}. To enable smart block selection, select
-    \preferences > \uicontrol {Text Editor} >
-    \uicontrol Behavior > \uicontrol {Enable smart selection changing}.
+    \key {Ctrl+Alt+Shift+U}.
+
+    To enable smart block selection, select \preferences
+    > \uicontrol {Text Editor} > \uicontrol Behavior >
+    \uicontrol {Enable smart selection changing}.
 
     \image qtcreator-options-text-editor-behavior.png "Text Editor Behavior preferences"
 */
