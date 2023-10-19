@@ -28,6 +28,7 @@
 #include <texteditor/formattexteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 
+#include <utils/mimeconstants.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/parameteraction.h>
 
@@ -82,7 +83,7 @@ void CMakeProjectPlugin::initialize()
 
     TextEditor::SnippetProvider::registerGroup(Constants::CMAKE_SNIPPETS_GROUP_ID,
                                                Tr::tr("CMake", "SnippetProvider"));
-    ProjectManager::registerProjectType<CMakeProject>(Constants::CMAKE_PROJECT_MIMETYPE);
+    ProjectManager::registerProjectType<CMakeProject>(Utils::Constants::CMAKE_PROJECT_MIMETYPE);
 
     //register actions
     Command *command = ActionManager::registerAction(&d->buildTargetContextAction,

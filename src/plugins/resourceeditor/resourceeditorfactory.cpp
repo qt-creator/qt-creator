@@ -9,10 +9,11 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/coreplugintr.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <utils/fsengine/fileiconprovider.h>
 
-#include <QCoreApplication>
+#include <projectexplorer/projectexplorerconstants.h>
+
+#include <utils/fsengine/fileiconprovider.h>
+#include <utils/mimeconstants.h>
 
 using namespace ResourceEditor::Constants;
 
@@ -21,7 +22,7 @@ namespace ResourceEditor::Internal {
 ResourceEditorFactory::ResourceEditorFactory(ResourceEditorPlugin *plugin)
 {
     setId(RESOURCEEDITOR_ID);
-    setMimeTypes(QStringList(QLatin1String(C_RESOURCE_MIMETYPE)));
+    setMimeTypes(QStringList(Utils::Constants::RESOURCE_MIMETYPE));
     setDisplayName(::Core::Tr::tr(C_RESOURCEEDITOR_DISPLAY_NAME));
 
     Utils::FileIconProvider::registerIconOverlayForSuffix(

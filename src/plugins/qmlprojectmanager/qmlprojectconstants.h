@@ -3,12 +3,8 @@
 
 #pragma once
 
-#include <qmljstools/qmljstoolsconstants.h>
+namespace QmlProjectManager::Constants {
 
-namespace QmlProjectManager {
-namespace Constants {
-
-const char * const QMLPROJECT_MIMETYPE = QmlJSTools::Constants::QMLPROJECT_MIMETYPE;
 const char customFileSelectorsData[] = "CustomFileSelectorsData";
 const char supportedLanguagesData[] = "SupportedLanguagesData";
 const char primaryLanguageData[] = "PrimaryLanguageData";
@@ -25,5 +21,5 @@ const char enviromentLaunchedQDS[] = "QTC_LAUNCHED_QDS";
 const char ALWAYS_OPEN_UI_MODE[] = "J.QtQuick/QmlJSEditor.openUiQmlMode";
 const char QML_RESOURCE_PATH[] = "qmldesigner/propertyEditorQmlSources/imports";
 const char LANDING_PAGE_PATH[] = "qmldesigner/landingpage";
-} // namespace Constants
-} // namespace QmlProjectManager
+
+} // QmlProjectManager::Constants

@@ -5,13 +5,20 @@
 
 #include "builtineditordocumentparser.h"
 #include "cppdoxygen.h"
-#include "cppeditorconstants.h"
 #include "cppmodelmanager.h"
 #include "cpptoolsreuse.h"
-#include "editordocumenthandle.h"
 
 #include <coreplugin/icore.h>
+
+#include <cplusplus/BackwardsScanner.h>
+#include <cplusplus/CppRewriter.h>
+#include <cplusplus/ExpressionUnderCursor.h>
+#include <cplusplus/MatchingText.h>
+#include <cplusplus/Overview.h>
+#include <cplusplus/ResolveExpression.h>
+
 #include <cppeditor/cppeditorconstants.h>
+
 #include <texteditor/codeassist/assistproposalitem.h>
 #include <texteditor/codeassist/genericproposal.h>
 #include <texteditor/codeassist/ifunctionhintproposalmodel.h>
@@ -21,16 +28,10 @@
 #include <texteditor/completionsettings.h>
 
 #include <utils/algorithm.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
-
-#include <cplusplus/BackwardsScanner.h>
-#include <cplusplus/CppRewriter.h>
-#include <cplusplus/ExpressionUnderCursor.h>
-#include <cplusplus/MatchingText.h>
-#include <cplusplus/Overview.h>
-#include <cplusplus/ResolveExpression.h>
 
 #include <QDirIterator>
 #include <QLatin1String>
@@ -1267,8 +1268,8 @@ bool InternalCppCompletionAssistProcessor::objcKeywordsWanted() const
         return false;
 
     const Utils::MimeType mt = Utils::mimeTypeForFile(interface()->filePath());
-    return mt.matchesName(QLatin1String(CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
-            || mt.matchesName(QLatin1String(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+    return mt.matchesName(QLatin1String(Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE))
+            || mt.matchesName(QLatin1String(Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
 }
 
 int InternalCppCompletionAssistProcessor::startCompletionInternal(const Utils::FilePath &filePath,

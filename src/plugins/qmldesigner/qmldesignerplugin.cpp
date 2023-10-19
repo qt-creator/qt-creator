@@ -63,6 +63,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/uniqueobjectptr.h>
 
@@ -119,7 +120,7 @@ QtQuickDesignerFactory::QtQuickDesignerFactory()
 {
     setDisplayName(::Core::Tr::tr("Qt Quick Designer"));
 
-    addMimeType(QmlJSTools::Constants::QMLUI_MIMETYPE);
+    addMimeType(Utils::Constants::QMLUI_MIMETYPE);
     setDocumentCreator([this]() {
         auto document = new QmlJSEditor::QmlJSEditorDocument(id());
         document->setIsDesignModePreferred(
@@ -382,8 +383,8 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext,
                                        qmlDesignerEditor3dContext, qmlDesignerNavigatorContext);
 
-    const QStringList mimeTypes = { QmlJSTools::Constants::QML_MIMETYPE,
-                                    QmlJSTools::Constants::QMLUI_MIMETYPE };
+    const QStringList mimeTypes = { Utils::Constants::QML_MIMETYPE,
+                                    Utils::Constants::QMLUI_MIMETYPE };
 
     Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, context->context());
 

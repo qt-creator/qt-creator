@@ -24,6 +24,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/infobar.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/minimizableinfobars.h>
 #include <utils/qtcassert.h>
@@ -180,8 +181,8 @@ void CppEditorDocument::invalidateFormatterCache()
 void CppEditorDocument::onMimeTypeChanged()
 {
     const QString &mt = mimeType();
-    m_isObjCEnabled = (mt == QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-                       || mt == QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
+    m_isObjCEnabled = (mt == QLatin1String(Utils::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
+                       || mt == QLatin1String(Utils::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
     m_completionAssistProvider = CppModelManager::completionAssistProvider();
 
     initializeTimer();

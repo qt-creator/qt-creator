@@ -15,6 +15,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
+#include <utils/mimeconstants.h>
 #include <utils/reloadpromptutils.h>
 #include <utils/stringutils.h>
 
@@ -33,7 +34,7 @@ ResourceEditorDocument::ResourceEditorDocument(QObject *parent) :
     m_model(new RelativeResourceModel(this))
 {
     setId(ResourceEditor::Constants::RESOURCEEDITOR_ID);
-    setMimeType(QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE));
+    setMimeType(Utils::Constants::RESOURCE_MIMETYPE);
     connect(m_model, &RelativeResourceModel::dirtyChanged,
             this, &ResourceEditorDocument::dirtyChanged);
     connect(m_model, &ResourceModel::contentsChanged,

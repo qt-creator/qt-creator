@@ -16,11 +16,5 @@ const char M_REFACTORING_MENU_INSERTION_POINT[] = "GLSLEditor.RefactorGroup";
 const char C_GLSLEDITOR_ID[] = "GLSLEditor.GLSLEditor";
 const char C_GLSLEDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", "GLSL Editor");
 
-const char GLSL_MIMETYPE[] = "application/x-glsl";
-const char GLSL_MIMETYPE_VERT[] = "text/x-glsl-vert";
-const char GLSL_MIMETYPE_FRAG[] = "text/x-glsl-frag";
-const char GLSL_MIMETYPE_VERT_ES[] = "text/x-glsl-es-vert";
-const char GLSL_MIMETYPE_FRAG_ES[] = "text/x-glsl-es-frag";
-
 } // namespace Constants
 } // namespace GlslEditor

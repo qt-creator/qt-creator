@@ -8,7 +8,6 @@
 #include "qbscleanstep.h"
 #include "qbsinstallstep.h"
 #include "qbsnodes.h"
-#include "qbsprofilemanager.h"
 #include "qbsprofilessettingspage.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
@@ -36,11 +35,8 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtsupportconstants.h>
-#include <qmljstools/qmljstoolsconstants.h>
-
-#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -88,7 +84,7 @@ void QbsProjectManagerPlugin::initialize()
     Utils::FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QT, "qbs");
     Core::HelpManager::registerDocumentation({Core::HelpManager::documentationPath() + "/qbs.qch"});
 
-    ProjectManager::registerProjectType<QbsProject>(QmlJSTools::Constants::QBS_MIMETYPE);
+    ProjectManager::registerProjectType<QbsProject>(Utils::Constants::QBS_MIMETYPE);
 
     //menus
     // Build Menu:

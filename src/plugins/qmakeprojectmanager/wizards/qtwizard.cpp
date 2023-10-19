@@ -23,9 +23,7 @@
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
-
-#include <QCoreApplication>
-#include <QVariant>
+#include <utils/mimeconstants.h>
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
@@ -52,12 +50,12 @@ QString QtWizard::headerSuffix()
 
 QString QtWizard::formSuffix()
 {
-    return preferredSuffix(QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE));
+    return preferredSuffix(QLatin1String(Utils::Constants::FORM_MIMETYPE));
 }
 
 QString QtWizard::profileSuffix()
 {
-    return preferredSuffix(QLatin1String(Constants::PROFILE_MIMETYPE));
+    return preferredSuffix(QLatin1String(Utils::Constants::PROFILE_MIMETYPE));
 }
 
 bool QtWizard::postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l, QString *errorMessage) const

@@ -10,12 +10,16 @@
 #include <languageclient/client.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientutils.h>
+
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtkitaspect.h>
+
 #include <utils/environment.h>
+#include <utils/mimeconstants.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
 #include <utils/variablechooser.h>
@@ -80,7 +84,7 @@ JLSSettings::JLSSettings()
     m_settingsTypeId = Constants::JLS_SETTINGS_ID;
     m_name = "Java Language Server";
     m_startBehavior = RequiresProject;
-    m_languageFilter.mimeTypes = QStringList(Constants::JAVA_MIMETYPE);
+    m_languageFilter.mimeTypes = QStringList(Utils::Constants::JAVA_MIMETYPE);
     const FilePath &javaPath = Environment::systemEnvironment().searchInPath("java");
     if (javaPath.exists())
         m_executable = javaPath;

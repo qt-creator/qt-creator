@@ -25,8 +25,12 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+
 #include <cppeditor/cppeditorconstants.h>
+
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 
 #include <QAction>
@@ -161,11 +165,12 @@ static FilePath otherFile()
     const Utils::MimeType currentMimeType = Utils::mimeTypeForFile(current);
     // Determine potential suffixes of candidate files
     // 'ui' -> 'cpp', 'cpp/h' -> 'ui'.
+    using namespace Utils::Constants;
     QStringList candidateSuffixes;
     if (currentMimeType.matchesName(FORM_MIMETYPE)) {
-        candidateSuffixes += Utils::mimeTypeForName(CppEditor::Constants::CPP_SOURCE_MIMETYPE).suffixes();
-    } else if (currentMimeType.matchesName(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
-               || currentMimeType.matchesName(CppEditor::Constants::CPP_HEADER_MIMETYPE)) {
+        candidateSuffixes += Utils::mimeTypeForName(CPP_SOURCE_MIMETYPE).suffixes();
+    } else if (currentMimeType.matchesName(CPP_SOURCE_MIMETYPE)
+               || currentMimeType.matchesName(CPP_HEADER_MIMETYPE)) {
         candidateSuffixes += Utils::mimeTypeForName(FORM_MIMETYPE).suffixes();
     } else {
         return {};

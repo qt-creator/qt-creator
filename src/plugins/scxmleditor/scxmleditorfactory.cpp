@@ -8,11 +8,11 @@
 
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/mimeconstants.h>
 
 #include <QGuiApplication>
-#include <QFileInfo>
 
 using namespace ScxmlEditor::Constants;
 using namespace ScxmlEditor::Internal;
@@ -21,7 +21,7 @@ ScxmlEditorFactory::ScxmlEditorFactory()
 {
     setId(K_SCXML_EDITOR_ID);
     setDisplayName(::Core::Tr::tr(C_SCXMLEDITOR_DISPLAY_NAME));
-    addMimeType(ProjectExplorer::Constants::SCXML_MIMETYPE);
+    addMimeType(Utils::Constants::SCXML_MIMETYPE);
 
     Utils::FileIconProvider::registerIconOverlayForSuffix(":/projectexplorer/images/fileoverlay_scxml.png", "scxml");
 

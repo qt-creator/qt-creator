@@ -23,8 +23,6 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <cppeditor/cppeditorconstants.h>
-
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
@@ -38,15 +36,13 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
-#include <qmljstools/qmljstoolsconstants.h>
-
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
-#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeconstants.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
@@ -100,8 +96,8 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
         if (type == FileType::Unknown) {
             if (mimeType.isValid()) {
                 const QString mt = mimeType.name();
-                if (mt == CMakeProjectManager::Constants::CMAKE_PROJECT_MIMETYPE
-                    || mt == CMakeProjectManager::Constants::CMAKE_MIMETYPE)
+                if (mt == Utils::Constants::CMAKE_PROJECT_MIMETYPE
+                    || mt == Utils::Constants::CMAKE_MIMETYPE)
                     type = FileType::Project;
             }
         }
@@ -239,17 +235,18 @@ static QString newFilesForFunction(const std::string &cmakeFunction,
         FilePaths qmlFiles;
 
         for (const auto &file : filePaths) {
+            using namespace Utils::Constants;
             const auto mimeType = Utils::mimeTypeForFile(file);
-            if (mimeType.matchesName(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
-                || mimeType.matchesName(CppEditor::Constants::CPP_HEADER_MIMETYPE)
-                || mimeType.matchesName(CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-                || mimeType.matchesName(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)) {
+            if (mimeType.matchesName(CPP_SOURCE_MIMETYPE)
+                || mimeType.matchesName(CPP_HEADER_MIMETYPE)
+                || mimeType.matchesName(OBJECTIVE_C_SOURCE_MIMETYPE)
+                || mimeType.matchesName(OBJECTIVE_CPP_SOURCE_MIMETYPE)) {
                 sourceFiles << file;
-            } else if (mimeType.matchesName(QmlJSTools::Constants::QML_MIMETYPE)
-                       || mimeType.matchesName(QmlJSTools::Constants::QMLUI_MIMETYPE)
-                       || mimeType.matchesName(QmlJSTools::Constants::QMLPROJECT_MIMETYPE)
-                       || mimeType.matchesName(QmlJSTools::Constants::JS_MIMETYPE)
-                       || mimeType.matchesName(QmlJSTools::Constants::JSON_MIMETYPE)) {
+            } else if (mimeType.matchesName(QML_MIMETYPE)
+                       || mimeType.matchesName(QMLUI_MIMETYPE)
+                       || mimeType.matchesName(QMLPROJECT_MIMETYPE)
+                       || mimeType.matchesName(JS_MIMETYPE)
+                       || mimeType.matchesName(JSON_MIMETYPE)) {
                 qmlFiles << file;
             } else {
                 resourceFiles << file;

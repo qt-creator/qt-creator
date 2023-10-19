@@ -38,6 +38,7 @@
 #include <texteditor/texteditorconstants.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
 #include <utils/parameteraction.h>
 #include <utils/utilsicons.h>
 
@@ -124,7 +125,7 @@ void QmakeProjectManagerPlugin::initialize()
     d = new QmakeProjectManagerPluginPrivate;
 
     //create and register objects
-    ProjectManager::registerProjectType<QmakeProject>(QmakeProjectManager::Constants::PROFILE_MIMETYPE);
+    ProjectManager::registerProjectType<QmakeProject>(Utils::Constants::PROFILE_MIMETYPE);
 
     IWizardFactory::registerFactoryCreator([] { return new SubdirsProjectWizard; });
     IWizardFactory::registerFactoryCreator([] { return new CustomWidgetWizard; });

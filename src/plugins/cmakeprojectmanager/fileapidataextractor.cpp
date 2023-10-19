@@ -16,6 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
@@ -68,8 +69,8 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
               absolute.path = sfn;
 
               const auto mimeType = Utils::mimeTypeForFile(info.path);
-              if (mimeType.matchesName(Constants::CMAKE_MIMETYPE)
-                  || mimeType.matchesName(Constants::CMAKE_PROJECT_MIMETYPE)) {
+              if (mimeType.matchesName(Utils::Constants::CMAKE_MIMETYPE)
+                  || mimeType.matchesName(Utils::Constants::CMAKE_PROJECT_MIMETYPE)) {
                   expected_str<QByteArray> fileContent = sfn.fileContents();
                   std::string errorString;
                   if (fileContent) {
@@ -445,9 +446,9 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
 
             const QString headerMimeType = [&]() -> QString {
                 if (ci.language == "C") {
-                    return CppEditor::Constants::C_HEADER_MIMETYPE;
+                    return Utils::Constants::C_HEADER_MIMETYPE;
                 } else if (ci.language == "CXX") {
-                    return CppEditor::Constants::CPP_HEADER_MIMETYPE;
+                    return Utils::Constants::CPP_HEADER_MIMETYPE;
                 }
                 return {};
             }();

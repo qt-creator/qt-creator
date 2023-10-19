@@ -33,7 +33,6 @@
 
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljstools/qmljstoolsconstants.h>
 
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
@@ -42,6 +41,8 @@
 #include <qtsupport/baseqtversion.h>
 
 #include <android/androidconstants.h>
+
+#include <utils/mimeconstants.h>
 
 #include <QAction>
 #include <QMessageBox>
@@ -417,25 +418,26 @@ void QmlPreviewPluginPrivate::checkEditor()
         return;
     QmlJS::Dialect::Enum dialect = QmlJS::Dialect::AnyLanguage;
     Core::IDocument *doc = m_lastEditor->document();
+    using namespace Utils::Constants;
     const QString mimeType = doc->mimeType();
-    if (mimeType == QmlJSTools::Constants::JS_MIMETYPE)
+    if (mimeType == JS_MIMETYPE)
         dialect = QmlJS::Dialect::JavaScript;
-    else if (mimeType == QmlJSTools::Constants::JSON_MIMETYPE)
+    else if (mimeType == JSON_MIMETYPE)
         dialect = QmlJS::Dialect::Json;
-    else if (mimeType == QmlJSTools::Constants::QML_MIMETYPE)
+    else if (mimeType == QML_MIMETYPE)
         dialect = QmlJS::Dialect::Qml;
 //  --- Can we detect those via mime types?
 //  else if (mimeType == ???)
 //      dialect = QmlJS::Dialect::QmlQtQuick1;
 //  else if (mimeType == ???)
 //      dialect = QmlJS::Dialect::QmlQtQuick2;
-    else if (mimeType == QmlJSTools::Constants::QBS_MIMETYPE)
+    else if (mimeType == QBS_MIMETYPE)
         dialect = QmlJS::Dialect::QmlQbs;
-    else if (mimeType == QmlJSTools::Constants::QMLPROJECT_MIMETYPE)
+    else if (mimeType == QMLPROJECT_MIMETYPE)
         dialect = QmlJS::Dialect::QmlProject;
-    else if (mimeType == QmlJSTools::Constants::QMLTYPES_MIMETYPE)
+    else if (mimeType == QMLTYPES_MIMETYPE)
         dialect = QmlJS::Dialect::QmlTypeInfo;
-    else if (mimeType == QmlJSTools::Constants::QMLUI_MIMETYPE)
+    else if (mimeType == QMLUI_MIMETYPE)
         dialect = QmlJS::Dialect::QmlQtQuick2Ui;
     else
         dialect = QmlJS::Dialect::NoLanguage;

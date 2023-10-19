@@ -15,6 +15,7 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
@@ -291,22 +292,21 @@ void Node::setParentFolderNode(FolderNode *parentFolder)
     m_parentFolderNode = parentFolder;
 }
 
-FileType Node::fileTypeForMimeType(const Utils::MimeType &mt)
+FileType Node::fileTypeForMimeType(const MimeType &mt)
 {
+    using namespace Utils::Constants;
     FileType type = FileType::Source;
     if (mt.isValid()) {
         const QString mtName = mt.name();
-        if (mtName == Constants::C_HEADER_MIMETYPE
-                || mtName == Constants::CPP_HEADER_MIMETYPE)
+        if (mtName == C_HEADER_MIMETYPE || mtName == CPP_HEADER_MIMETYPE)
             type = FileType::Header;
-        else if (mtName == Constants::FORM_MIMETYPE)
+        else if (mtName == FORM_MIMETYPE)
             type = FileType::Form;
-        else if (mtName == Constants::RESOURCE_MIMETYPE)
+        else if (mtName == RESOURCE_MIMETYPE)
             type = FileType::Resource;
-        else if (mtName == Constants::SCXML_MIMETYPE)
+        else if (mtName == SCXML_MIMETYPE)
             type = FileType::StateChart;
-        else if (mtName == Constants::QML_MIMETYPE
-                 || mtName == Constants::QMLUI_MIMETYPE)
+        else if (mtName == QML_MIMETYPE || mtName == QMLUI_MIMETYPE)
             type = FileType::QML;
     } else {
         type = FileType::Unknown;

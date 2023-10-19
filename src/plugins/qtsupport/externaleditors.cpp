@@ -13,12 +13,11 @@
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <designer/designerconstants.h>
-
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
@@ -261,7 +260,7 @@ DesignerExternalEditor::DesignerExternalEditor()
 {
     setId("Qt.Designer");
     setDisplayName(::Core::Tr::tr("Qt Designer"));
-    setMimeTypes({ProjectExplorer::Constants::FORM_MIMETYPE});
+    setMimeTypes({Utils::Constants::FORM_MIMETYPE});
 
     setEditorStarter([this](const FilePath &filePath, QString *errorMessage) {
         LaunchData data;
@@ -333,7 +332,7 @@ LinguistEditor::LinguistEditor()
 {
     setId("Qt.Linguist");
     setDisplayName(::Core::Tr::tr("Qt Linguist"));
-    setMimeTypes({ProjectExplorer::Constants::LINGUIST_MIMETYPE});
+    setMimeTypes({Utils::Constants::LINGUIST_MIMETYPE});
     setEditorStarter([](const FilePath &filePath, QString *errorMessage) {
         LaunchData data;
         return getEditorLaunchData(linguistBinary, filePath, &data, errorMessage)

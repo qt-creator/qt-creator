@@ -37,6 +37,7 @@
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/process.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -718,7 +719,7 @@ QmakeBuildConfigurationFactory::QmakeBuildConfigurationFactory()
 {
     registerBuildConfiguration<QmakeBuildConfiguration>(Constants::QMAKE_BC_ID);
     setSupportedProjectType(Constants::QMAKEPROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::PROFILE_MIMETYPE);
+    setSupportedProjectMimeTypeName(Utils::Constants::PROFILE_MIMETYPE);
     setIssueReporter([](Kit *k, const FilePath &projectPath, const FilePath &buildDir) {
         QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(k);
         Tasks issues;

@@ -24,8 +24,7 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
-#include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/cppprojectfile.h>
 #include <cppeditor/generatedcodemodelsupport.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
@@ -44,6 +43,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
+#include <utils/mimeconstants.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -672,20 +672,21 @@ void QbsBuildSystem::updateDocuments()
 
 static QString getMimeType(const QJsonObject &sourceArtifact)
 {
+    using namespace Utils::Constants;
     const auto tags = sourceArtifact.value("file-tags").toArray();
     if (tags.contains("hpp")) {
         if (CppEditor::ProjectFile::isAmbiguousHeader(sourceArtifact.value("file-path").toString()))
-            return QString(CppEditor::Constants::AMBIGUOUS_HEADER_MIMETYPE);
-        return QString(CppEditor::Constants::CPP_HEADER_MIMETYPE);
+            return QString(AMBIGUOUS_HEADER_MIMETYPE);
+        return QString(CPP_HEADER_MIMETYPE);
     }
     if (tags.contains("cpp"))
-        return QString(CppEditor::Constants::CPP_SOURCE_MIMETYPE);
+        return QString(CPP_SOURCE_MIMETYPE);
     if (tags.contains("c"))
-        return QString(CppEditor::Constants::C_SOURCE_MIMETYPE);
+        return QString(C_SOURCE_MIMETYPE);
     if (tags.contains("objc"))
-        return QString(CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE);
+        return QString(OBJECTIVE_C_SOURCE_MIMETYPE);
     if (tags.contains("objcpp"))
-        return QString(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE);
+        return QString(OBJECTIVE_CPP_SOURCE_MIMETYPE);
     return {};
 }
 

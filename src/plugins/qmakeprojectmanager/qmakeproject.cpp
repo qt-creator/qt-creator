@@ -50,6 +50,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/mimeconstants.h>
 #include <utils/process.h>
 
 #include <QDebug>
@@ -89,7 +90,7 @@ public:
         IDocument(nullptr), m_priFile(qmakePriFile)
     {
         setId("Qmake.PriFile");
-        setMimeType(QLatin1String(QmakeProjectManager::Constants::PROFILE_MIMETYPE));
+        setMimeType(Utils::Constants::PROFILE_MIMETYPE);
         setFilePath(filePath);
         Core::DocumentManager::addDocument(this);
     }
@@ -153,7 +154,7 @@ private:
   */
 
 QmakeProject::QmakeProject(const FilePath &fileName) :
-    Project(QmakeProjectManager::Constants::PROFILE_MIMETYPE, fileName)
+    Project(Utils::Constants::PROFILE_MIMETYPE, fileName)
 {
     setId(Constants::QMAKEPROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));

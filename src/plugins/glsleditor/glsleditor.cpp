@@ -37,6 +37,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/changeset.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/uncommentselection.h>
@@ -365,11 +366,11 @@ GlslEditorFactory::GlslEditorFactory()
 {
     setId(Constants::C_GLSLEDITOR_ID);
     setDisplayName(::Core::Tr::tr(Constants::C_GLSLEDITOR_DISPLAY_NAME));
-    addMimeType(Constants::GLSL_MIMETYPE);
-    addMimeType(Constants::GLSL_MIMETYPE_VERT);
-    addMimeType(Constants::GLSL_MIMETYPE_FRAG);
-    addMimeType(Constants::GLSL_MIMETYPE_VERT_ES);
-    addMimeType(Constants::GLSL_MIMETYPE_FRAG_ES);
+    addMimeType(Utils::Constants::GLSL_MIMETYPE);
+    addMimeType(Utils::Constants::GLSL_MIMETYPE_VERT);
+    addMimeType(Utils::Constants::GLSL_MIMETYPE_FRAG);
+    addMimeType(Utils::Constants::GLSL_MIMETYPE_VERT_ES);
+    addMimeType(Utils::Constants::GLSL_MIMETYPE_FRAG_ES);
 
     setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
     setEditorWidgetCreator([]() { return new GlslEditorWidget; });

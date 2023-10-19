@@ -15,15 +15,19 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreplugintr.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
+
 #include <texteditor/basehoverhandler.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
+
+#include <utils/mimeconstants.h>
 #include <utils/textutils.h>
 #include <utils/tooltip/tooltip.h>
 
@@ -411,7 +415,7 @@ static TextDocument *createCMakeDocument()
 {
     auto doc = new TextDocument;
     doc->setId(Constants::CMAKE_EDITOR_ID);
-    doc->setMimeType(QLatin1String(Constants::CMAKE_MIMETYPE));
+    doc->setMimeType(Utils::Constants::CMAKE_MIMETYPE);
     return doc;
 }
 
@@ -505,8 +509,8 @@ CMakeEditorFactory::CMakeEditorFactory()
 {
     setId(Constants::CMAKE_EDITOR_ID);
     setDisplayName(::Core::Tr::tr("CMake Editor"));
-    addMimeType(Constants::CMAKE_MIMETYPE);
-    addMimeType(Constants::CMAKE_PROJECT_MIMETYPE);
+    addMimeType(Utils::Constants::CMAKE_MIMETYPE);
+    addMimeType(Utils::Constants::CMAKE_PROJECT_MIMETYPE);
 
     setEditorCreator([] { return new CMakeEditor; });
     setEditorWidgetCreator([] { return new CMakeEditorWidget; });

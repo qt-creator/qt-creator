@@ -5,7 +5,8 @@
 #include "designerconstants.h"
 #include "resourcehandler.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QApplication>
@@ -27,7 +28,7 @@ namespace Internal {
 FormWindowFile::FormWindowFile(QDesignerFormWindowInterface *form, QObject *parent)
   : m_formWindow(form)
 {
-    setMimeType(Designer::Constants::FORM_MIMETYPE);
+    setMimeType(Utils::Constants::FORM_MIMETYPE);
     setParent(parent);
     setId(Utils::Id(Designer::Constants::K_DESIGNER_XML_EDITOR_ID));
     // Designer needs UTF-8 regardless of settings.

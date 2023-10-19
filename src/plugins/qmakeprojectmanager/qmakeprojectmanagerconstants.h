@@ -14,12 +14,6 @@ const char M_CONTEXT[] = "ProFileEditor.ContextMenu";
 // Kinds
 const char PROFILE_EDITOR_ID[] = "Qt4.proFileEditor";
 const char PROFILE_EDITOR_DISPLAY_NAME[] = QT_TRANSLATE_NOOP("QtC::Core", ".pro File Editor");
-const char PROFILE_MIMETYPE[] = "application/vnd.qt.qmakeprofile";
-const char PROINCLUDEFILE_MIMETYPE [] = "application/vnd.qt.qmakeproincludefile";
-const char PROFEATUREFILE_MIMETYPE [] = "application/vnd.qt.qmakeprofeaturefile";
-const char PROCONFIGURATIONFILE_MIMETYPE [] = "application/vnd.qt.qmakeproconfigurationfile";
-const char PROCACHEFILE_MIMETYPE [] = "application/vnd.qt.qmakeprocachefile";
-const char PROSTASHFILE_MIMETYPE [] = "application/vnd.qt.qmakeprostashfile";
 
 // Actions
 const char RUNQMAKE[] = "Qt4Builder.RunQMake";

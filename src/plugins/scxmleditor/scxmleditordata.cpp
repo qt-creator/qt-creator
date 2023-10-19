@@ -23,6 +23,7 @@
 
 #include <utils/icon.h>
 #include <utils/infobar.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -128,7 +129,7 @@ void ScxmlEditorData::fullInit()
     context->setWidget(m_modeWidget);
     ICore::addContextObject(context);
 
-    DesignMode::registerDesignWidget(m_modeWidget, QStringList(QLatin1String(ProjectExplorer::Constants::SCXML_MIMETYPE)), m_contexts);
+    DesignMode::registerDesignWidget(m_modeWidget, QStringList(Utils::Constants::SCXML_MIMETYPE), m_contexts);
 }
 
 IEditor *ScxmlEditorData::createEditor()

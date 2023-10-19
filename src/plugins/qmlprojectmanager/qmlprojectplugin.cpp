@@ -40,6 +40,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/mimeconstants.h>
 #include <utils/process.h>
 #include <utils/qtcsettings.h>
 
@@ -252,7 +253,7 @@ void QmlProjectPlugin::initialize()
 
         d->landingPageWidget = new QdsLandingPageWidget();
 
-        const QStringList mimeTypes = {QmlJSTools::Constants::QMLUI_MIMETYPE};
+        const QStringList mimeTypes = {Utils::Constants::QMLUI_MIMETYPE};
         auto context = new Internal::DesignModeContext(d->landingPageWidget);
         Core::ICore::addContextObject(context);
 
@@ -262,7 +263,7 @@ void QmlProjectPlugin::initialize()
                 this, &QmlProjectPlugin::editorModeChanged);
     }
 
-    ProjectManager::registerProjectType<QmlProject>(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
+    ProjectManager::registerProjectType<QmlProject>(Utils::Constants::QMLPROJECT_MIMETYPE);
     Utils::FileIconProvider::registerIconOverlayForSuffix(":/qmlproject/images/qmlproject.png",
                                                          "qmlproject");
 

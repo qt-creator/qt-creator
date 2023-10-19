@@ -14,7 +14,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-#include <cppeditor/cppeditorconstants.h>
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/extracompiler.h>
@@ -31,6 +30,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
@@ -501,7 +501,7 @@ bool QmakePriFile::addSubProject(const FilePath &proFile)
         uniqueProFilePaths.append(simplifyProFilePath(proFile));
 
     FilePaths failedFiles;
-    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), uniqueProFilePaths, &failedFiles, AddToProFile);
+    changeFiles(Utils::Constants::PROFILE_MIMETYPE, uniqueProFilePaths, &failedFiles, AddToProFile);
 
     return failedFiles.isEmpty();
 }
@@ -509,12 +509,12 @@ bool QmakePriFile::addSubProject(const FilePath &proFile)
 bool QmakePriFile::removeSubProjects(const FilePath &proFilePath)
 {
     FilePaths failedOriginalFiles;
-    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), {proFilePath}, &failedOriginalFiles, RemoveFromProFile);
+    changeFiles(Utils::Constants::PROFILE_MIMETYPE, {proFilePath}, &failedOriginalFiles, RemoveFromProFile);
 
     FilePaths simplifiedProFiles = Utils::transform(failedOriginalFiles, &simplifyProFilePath);
 
     FilePaths failedSimplifiedFiles;
-    changeFiles(QLatin1String(Constants::PROFILE_MIMETYPE), simplifiedProFiles, &failedSimplifiedFiles, RemoveFromProFile);
+    changeFiles(Utils::Constants::PROFILE_MIMETYPE, simplifiedProFiles, &failedSimplifiedFiles, RemoveFromProFile);
 
     return failedSimplifiedFiles.isEmpty();
 }
@@ -538,7 +538,7 @@ bool QmakePriFile::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
     for (auto it = typeFileMap.constBegin(); it != typeFileMap.constEnd(); ++it) {
         const FilePaths &typeFiles = *it;
         FilePaths qrcFiles; // the list of qrc files referenced from ui files
-        if (it.key() == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE)) {
+        if (it.key() == QLatin1String(Utils::Constants::RESOURCE_MIMETYPE)) {
             for (const FilePath &formFile : typeFiles) {
                 const FilePaths resourceFiles = formResources(formFile);
                 for (const FilePath &resourceFile : resourceFiles)
@@ -563,7 +563,7 @@ bool QmakePriFile::addFiles(const FilePaths &filePaths, FilePaths *notAdded)
         changeFiles(it.key(), uniqueFilePaths, &failedFiles, AddToProFile);
         if (notAdded)
             *notAdded += failedFiles;
-        changeFiles(QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE), uniqueQrcFiles, &failedFiles, AddToProFile);
+        changeFiles(QLatin1String(Utils::Constants::RESOURCE_MIMETYPE), uniqueQrcFiles, &failedFiles, AddToProFile);
         if (notAdded)
             *notAdded += failedFiles;
     }
@@ -998,32 +998,34 @@ QStringList QmakePriFile::varNames(FileType type, QtSupport::ProFileReader *read
 //!
 QString QmakePriFile::varNameForAdding(const QString &mimeType)
 {
-    if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_HEADER_MIMETYPE)
-            || mimeType == QLatin1String(ProjectExplorer::Constants::C_HEADER_MIMETYPE)) {
+    using namespace Utils::Constants;
+
+    if (mimeType == QLatin1String(CPP_HEADER_MIMETYPE)
+            || mimeType == QLatin1String(C_HEADER_MIMETYPE)) {
         return QLatin1String("HEADERS");
     }
 
-    if (mimeType == QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE)
-               || mimeType == QLatin1String(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE)
-               || mimeType == QLatin1String(ProjectExplorer::Constants::C_SOURCE_MIMETYPE)) {
+    if (mimeType == QLatin1String(CPP_SOURCE_MIMETYPE)
+               || mimeType == QLatin1String(OBJECTIVE_CPP_SOURCE_MIMETYPE)
+               || mimeType == QLatin1String(C_SOURCE_MIMETYPE)) {
         return QLatin1String("SOURCES");
     }
 
-    if (mimeType == QLatin1String(ProjectExplorer::Constants::RESOURCE_MIMETYPE))
+    if (mimeType == QLatin1String(RESOURCE_MIMETYPE))
         return QLatin1String("RESOURCES");
 
-    if (mimeType == QLatin1String(ProjectExplorer::Constants::FORM_MIMETYPE))
+    if (mimeType == QLatin1String(FORM_MIMETYPE))
         return QLatin1String("FORMS");
 
-    if (mimeType == QLatin1String(ProjectExplorer::Constants::QML_MIMETYPE)
-            || mimeType == QLatin1String(ProjectExplorer::Constants::QMLUI_MIMETYPE)) {
+    if (mimeType == QLatin1String(QML_MIMETYPE)
+            || mimeType == QLatin1String(QMLUI_MIMETYPE)) {
         return QLatin1String("DISTFILES");
     }
 
-    if (mimeType == QLatin1String(ProjectExplorer::Constants::SCXML_MIMETYPE))
+    if (mimeType == QLatin1String(SCXML_MIMETYPE))
         return QLatin1String("STATECHARTS");
 
-    if (mimeType == QLatin1String(Constants::PROFILE_MIMETYPE))
+    if (mimeType == QLatin1String(PROFILE_MIMETYPE))
         return QLatin1String("SUBDIRS");
 
     return QLatin1String("DISTFILES");

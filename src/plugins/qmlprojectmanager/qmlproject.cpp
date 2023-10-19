@@ -28,6 +28,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/infobar.h>
+#include <utils/mimeconstants.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
@@ -44,7 +45,7 @@ using namespace Utils;
 namespace QmlProjectManager {
 
 QmlProject::QmlProject(const Utils::FilePath &fileName)
-    : Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName)
+    : Project(Utils::Constants::QMLPROJECT_MIMETYPE, fileName)
 {
     setId(QmlProjectManager::Constants::QML_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID));

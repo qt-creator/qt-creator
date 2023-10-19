@@ -8,11 +8,13 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <projectexplorer/project.h>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcsettings.h>
@@ -85,11 +87,11 @@ void CppFileSettings::fromSettings(QtcSettings *s)
 static bool applySuffixes(const QString &sourceSuffix, const QString &headerSuffix)
 {
     Utils::MimeType mt;
-    mt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
+    mt = Utils::mimeTypeForName(QLatin1String(Utils::Constants::CPP_SOURCE_MIMETYPE));
     if (!mt.isValid())
         return false;
     mt.setPreferredSuffix(sourceSuffix);
-    mt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_HEADER_MIMETYPE));
+    mt = Utils::mimeTypeForName(QLatin1String(Utils::Constants::CPP_HEADER_MIMETYPE));
     if (!mt.isValid())
         return false;
     mt.setPreferredSuffix(headerSuffix);
@@ -324,14 +326,14 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
     }.attachTo(this);
 
     // populate suffix combos
-    const MimeType sourceMt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_SOURCE_MIMETYPE));
+    const MimeType sourceMt = Utils::mimeTypeForName(Utils::Constants::CPP_SOURCE_MIMETYPE);
     if (sourceMt.isValid()) {
         const QStringList suffixes = sourceMt.suffixes();
         for (const QString &suffix : suffixes)
             m_sourceSuffixComboBox->addItem(suffix);
     }
 
-    const MimeType headerMt = Utils::mimeTypeForName(QLatin1String(Constants::CPP_HEADER_MIMETYPE));
+    const MimeType headerMt = Utils::mimeTypeForName(Utils::Constants::CPP_HEADER_MIMETYPE);
     if (headerMt.isValid()) {
         const QStringList suffixes = headerMt.suffixes();
         for (const QString &suffix : suffixes)

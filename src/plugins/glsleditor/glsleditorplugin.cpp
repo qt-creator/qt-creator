@@ -21,6 +21,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/mimeconstants.h>
 
 #include <QMenu>
 
@@ -117,11 +118,12 @@ void GlslEditorPlugin::initialize()
 
 void GlslEditorPlugin::extensionsInitialized()
 {
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_VERT);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_FRAG);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_VERT_ES);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", Constants::GLSL_MIMETYPE_FRAG_ES);
+    using namespace Utils::Constants;
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE_VERT);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE_FRAG);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE_VERT_ES);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE_FRAG_ES);
 }
 
 const GlslEditorPlugin::InitFile *GlslEditorPlugin::fragmentShaderInit(int variant)

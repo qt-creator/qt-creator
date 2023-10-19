@@ -23,7 +23,6 @@ const char M_FORMEDITOR_PREVIEW[] = "FormEditor.Menu.Preview";
 
 // Wizard type
 const char FORM_FILE_TYPE[] = "Qt4FormFiles";
-const char FORM_MIMETYPE[] = "application/x-designer";
 
 enum DesignerSubWindows
 {

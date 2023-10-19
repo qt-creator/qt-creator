@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsmodelmanager.h"
-#include "qmljstoolsconstants.h"
 #include "qmljssemanticinfo.h"
 #include "qmljsbundleprovider.h"
 
@@ -28,24 +27,22 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsfindexportedcpptypes.h>
 #include <qmljs/qmljsplugindumper.h>
+
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
+
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
 #include <QLibraryInfo>
 #include <QTextDocument>
 #include <QTextStream>
 #include <QTimer>
 #include <QSet>
-#include <QString>
-#include <qglobal.h>
 
 using namespace Utils;
 using namespace Core;
@@ -117,10 +114,12 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
     projectInfo.qmlDumpEnvironment = Utils::Environment::systemEnvironment();
     Target *activeTarget = nullptr;
     if (project) {
-        const QSet<QString> qmlTypeNames = { Constants::QML_MIMETYPE ,Constants::QBS_MIMETYPE,
-                                             Constants::QMLPROJECT_MIMETYPE,
-                                             Constants::QMLTYPES_MIMETYPE,
-                                             Constants::QMLUI_MIMETYPE };
+        using namespace Utils::Constants;
+        const QSet<QString> qmlTypeNames = { QML_MIMETYPE ,
+                                             QBS_MIMETYPE,
+                                             QMLPROJECT_MIMETYPE,
+                                             QMLTYPES_MIMETYPE,
+                                             QMLUI_MIMETYPE };
         projectInfo.sourceFiles = project->files([&qmlTypeNames](const Node *n) {
             if (!Project::SourceFiles(n))
                 return false;
@@ -224,27 +223,28 @@ QHash<QString,Dialect> ModelManager::initLanguageForSuffix() const
     QHash<QString,Dialect> res = ModelManagerInterface::languageForSuffix();
 
     if (ICore::instance()) {
-        MimeType jsSourceTy = Utils::mimeTypeForName(Constants::JS_MIMETYPE);
+        using namespace Utils::Constants;;
+        MimeType jsSourceTy = Utils::mimeTypeForName(JS_MIMETYPE);
         const QStringList jsSuffixes = jsSourceTy.suffixes();
         for (const QString &suffix : jsSuffixes)
             res[suffix] = Dialect::JavaScript;
-        MimeType qmlSourceTy = Utils::mimeTypeForName(Constants::QML_MIMETYPE);
+        MimeType qmlSourceTy = Utils::mimeTypeForName(QML_MIMETYPE);
         const QStringList qmlSuffixes = qmlSourceTy.suffixes();
         for (const QString &suffix : qmlSuffixes)
             res[suffix] = Dialect::Qml;
-        MimeType qbsSourceTy = Utils::mimeTypeForName(Constants::QBS_MIMETYPE);
+        MimeType qbsSourceTy = Utils::mimeTypeForName(QBS_MIMETYPE);
         const QStringList qbsSuffixes = qbsSourceTy.suffixes();
         for (const QString &suffix : qbsSuffixes)
             res[suffix] = Dialect::QmlQbs;
-        MimeType qmlProjectSourceTy = Utils::mimeTypeForName(Constants::QMLPROJECT_MIMETYPE);
+        MimeType qmlProjectSourceTy = Utils::mimeTypeForName(QMLPROJECT_MIMETYPE);
         const QStringList qmlProjSuffixes = qmlProjectSourceTy.suffixes();
         for (const QString &suffix : qmlProjSuffixes)
             res[suffix] = Dialect::QmlProject;
-        MimeType qmlUiSourceTy = Utils::mimeTypeForName(Constants::QMLUI_MIMETYPE);
+        MimeType qmlUiSourceTy = Utils::mimeTypeForName(QMLUI_MIMETYPE);
         const QStringList qmlUiSuffixes = qmlUiSourceTy.suffixes();
         for (const QString &suffix : qmlUiSuffixes)
             res[suffix] = Dialect::QmlQtQuick2Ui;
-        MimeType jsonSourceTy = Utils::mimeTypeForName(Constants::JSON_MIMETYPE);
+        MimeType jsonSourceTy = Utils::mimeTypeForName(JSON_MIMETYPE);
         const QStringList jsonSuffixes = jsonSourceTy.suffixes();
         for (const QString &suffix : jsonSuffixes)
             res[suffix] = Dialect::Json;

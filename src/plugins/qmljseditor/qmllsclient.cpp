@@ -12,7 +12,8 @@
 #include <texteditor/texteditor.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljstools/qmljstoolsconstants.h>
+
+#include <utils/mimeconstants.h>
 
 #include <QLoggingCategory>
 
@@ -53,10 +54,9 @@ QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
     client->setName(Tr::tr("Qmlls (%1)").arg(qmlls.toUserOutput()));
     client->setActivateDocumentAutomatically(true);
     LanguageFilter filter;
-    using namespace QmlJSTools::Constants;
-    filter.mimeTypes = QStringList()
-                       << QML_MIMETYPE << QMLUI_MIMETYPE << QBS_MIMETYPE << QMLPROJECT_MIMETYPE
-                       << QMLTYPES_MIMETYPE << JS_MIMETYPE << JSON_MIMETYPE;
+    using namespace Utils::Constants;
+    filter.mimeTypes = {QML_MIMETYPE, QMLUI_MIMETYPE, QBS_MIMETYPE, QMLPROJECT_MIMETYPE,
+                        QMLTYPES_MIMETYPE, JS_MIMETYPE, JSON_MIMETYPE};
     client->setSupportedLanguage(filter);
     client->start();
     qmllsClients()[qmlls] = client;

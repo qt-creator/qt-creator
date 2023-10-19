@@ -186,6 +186,7 @@ QtcLibrary {
         "macroexpander.h",
         "mathutils.cpp",
         "mathutils.h",
+        "mimeconstants.h",
         "mimeutils.h",
         "minimizableinfobars.cpp",
         "minimizableinfobars.h",

@@ -5,15 +5,11 @@
 
 #include "cpastertr.h"
 
-#include <utils/networkaccessmanager.h>
-
-#include <cppeditor/cppeditorconstants.h>
-#include <designer/designerconstants.h>
-#include <glsleditor/glsleditorconstants.h>
-#include <qmljstools/qmljstoolsconstants.h>
-#include <resourceeditor/resourceeditorconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+
+#include <utils/networkaccessmanager.h>
+#include <utils/mimeconstants.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -59,32 +55,33 @@ void Protocol::list()
 
 Protocol::ContentType Protocol::contentType(const QString &mt)
 {
-    if (mt == QLatin1String(CppEditor::Constants::C_SOURCE_MIMETYPE)
-        || mt == QLatin1String(CppEditor::Constants::C_HEADER_MIMETYPE)
-        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE)
-        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_VERT)
-        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_FRAG)
-        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_VERT_ES)
-        || mt == QLatin1String(GlslEditor::Constants::GLSL_MIMETYPE_FRAG_ES))
+    using namespace Utils::Constants;
+    if (mt == QLatin1String(C_SOURCE_MIMETYPE)
+        || mt == QLatin1String(C_HEADER_MIMETYPE)
+        || mt == QLatin1String(GLSL_MIMETYPE)
+        || mt == QLatin1String(GLSL_MIMETYPE_VERT)
+        || mt == QLatin1String(GLSL_MIMETYPE_FRAG)
+        || mt == QLatin1String(GLSL_MIMETYPE_VERT_ES)
+        || mt == QLatin1String(GLSL_MIMETYPE_FRAG_ES))
         return C;
-    if (mt == QLatin1String(CppEditor::Constants::CPP_SOURCE_MIMETYPE)
-        || mt == QLatin1String(CppEditor::Constants::CPP_HEADER_MIMETYPE)
-        || mt == QLatin1String(CppEditor::Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
-        || mt == QLatin1String(CppEditor::Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE))
+    if (mt == QLatin1String(CPP_SOURCE_MIMETYPE)
+        || mt == QLatin1String(CPP_HEADER_MIMETYPE)
+        || mt == QLatin1String(OBJECTIVE_C_SOURCE_MIMETYPE)
+        || mt == QLatin1String(OBJECTIVE_CPP_SOURCE_MIMETYPE))
         return Cpp;
-    if (mt == QLatin1String(QmlJSTools::Constants::QML_MIMETYPE)
-        || mt == QLatin1String(QmlJSTools::Constants::QMLUI_MIMETYPE)
-        || mt == QLatin1String(QmlJSTools::Constants::QMLPROJECT_MIMETYPE)
-        || mt == QLatin1String(QmlJSTools::Constants::QBS_MIMETYPE)
-        || mt == QLatin1String(QmlJSTools::Constants::JS_MIMETYPE)
-        || mt == QLatin1String(QmlJSTools::Constants::JSON_MIMETYPE))
+    if (mt == QLatin1String(QML_MIMETYPE)
+        || mt == QLatin1String(QMLUI_MIMETYPE)
+        || mt == QLatin1String(QMLPROJECT_MIMETYPE)
+        || mt == QLatin1String(QBS_MIMETYPE)
+        || mt == QLatin1String(JS_MIMETYPE)
+        || mt == QLatin1String(JSON_MIMETYPE))
         return JavaScript;
     if (mt == QLatin1String("text/x-patch"))
         return Diff;
     if (mt == QLatin1String("text/xml")
         || mt == QLatin1String("application/xml")
-        || mt == QLatin1String(ResourceEditor::Constants::C_RESOURCE_MIMETYPE)
-        || mt == QLatin1String(Designer::Constants::FORM_MIMETYPE))
+        || mt == QLatin1String(RESOURCE_MIMETYPE)
+        || mt == QLatin1String(FORM_MIMETYPE))
         return Xml;
     return Text;
 }

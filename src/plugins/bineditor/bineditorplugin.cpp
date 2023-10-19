@@ -8,11 +8,23 @@
 #include "bineditortr.h"
 #include "bineditorwidget.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/find/ifindsupport.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
+
+#include <extensionsystem/pluginmanager.h>
 
 #include <texteditor/codecchooser.h>
+
+#include <utils/mimeconstants.h>
+#include <utils/reloadpromptutils.h>
+#include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QHBoxLayout>
@@ -22,18 +34,6 @@
 #include <QRegularExpressionValidator>
 #include <QTextCodec>
 #include <QToolBar>
-
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/find/ifindsupport.h>
-#include <coreplugin/idocument.h>
-
-#include <extensionsystem/pluginmanager.h>
-
-#include <utils/reloadpromptutils.h>
-#include <utils/qtcassert.h>
 
 using namespace Utils;
 using namespace Core;
@@ -189,7 +189,7 @@ public:
         IDocument(parent)
     {
         setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
-        setMimeType(QLatin1String(BinEditor::Constants::C_BINEDITOR_MIMETYPE));
+        setMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
         m_widget = parent;
         EditorService *es = m_widget->editorService();
         es->setFetchDataHandler([this](quint64 address) { provideData(address); });
@@ -450,7 +450,7 @@ BinEditorFactory::BinEditorFactory()
 {
     setId(Core::Constants::K_DEFAULT_BINARY_EDITOR_ID);
     setDisplayName(::Core::Tr::tr("Binary Editor"));
-    addMimeType(Constants::C_BINEDITOR_MIMETYPE);
+    addMimeType(Utils::Constants::OCTET_STREAM_MIMETYPE);
 
     setEditorCreator([] {
         auto widget = new BinEditorWidget();

@@ -86,6 +86,7 @@
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringtable.h>
@@ -127,12 +128,12 @@ public:
     {
         setId(Constants::CPPEDITOR_ID);
         setDisplayName(::Core::Tr::tr("C++ Editor"));
-        addMimeType(Constants::C_SOURCE_MIMETYPE);
-        addMimeType(Constants::C_HEADER_MIMETYPE);
-        addMimeType(Constants::CPP_SOURCE_MIMETYPE);
-        addMimeType(Constants::CPP_HEADER_MIMETYPE);
-        addMimeType(Constants::QDOC_MIMETYPE);
-        addMimeType(Constants::MOC_MIMETYPE);
+        addMimeType(Utils::Constants::C_SOURCE_MIMETYPE);
+        addMimeType(Utils::Constants::C_HEADER_MIMETYPE);
+        addMimeType(Utils::Constants::CPP_SOURCE_MIMETYPE);
+        addMimeType(Utils::Constants::CPP_HEADER_MIMETYPE);
+        addMimeType(Utils::Constants::QDOC_MIMETYPE);
+        addMimeType(Utils::Constants::MOC_MIMETYPE);
 
         setDocumentCreator([]() { return new CppEditorDocument; });
         setEditorWidgetCreator([]() { return new CppEditorWidget; });
@@ -259,15 +260,15 @@ void CppEditorPlugin::extensionsInitialized()
     FileIconProvider::registerIconOverlayForMimeType(
         creatorTheme()->imageFile(Theme::IconOverlayCppSource,
                                   ProjectExplorer::Constants::FILEOVERLAY_CPP),
-        Constants::CPP_SOURCE_MIMETYPE);
+        Utils::Constants::CPP_SOURCE_MIMETYPE);
     FileIconProvider::registerIconOverlayForMimeType(
         creatorTheme()->imageFile(Theme::IconOverlayCSource,
                                   ProjectExplorer::Constants::FILEOVERLAY_C),
-        Constants::C_SOURCE_MIMETYPE);
+        Utils::Constants::C_SOURCE_MIMETYPE);
     FileIconProvider::registerIconOverlayForMimeType(
         creatorTheme()->imageFile(Theme::IconOverlayCppHeader,
                                   ProjectExplorer::Constants::FILEOVERLAY_H),
-        Constants::CPP_HEADER_MIMETYPE);
+        Utils::Constants::CPP_HEADER_MIMETYPE);
 }
 
 static void insertIntoMenus(const QList<ActionContainer *> &menus,
@@ -734,25 +735,26 @@ static FilePaths findFilesInProject(const QStringList &names, const Project *pro
 // source belonging to a header and vice versa
 static QStringList matchingCandidateSuffixes(ProjectFile::Kind kind)
 {
+    using namespace Utils::Constants;
     switch (kind) {
     case ProjectFile::AmbiguousHeader:
     case ProjectFile::CHeader:
     case ProjectFile::CXXHeader:
     case ProjectFile::ObjCHeader:
     case ProjectFile::ObjCXXHeader:
-        return mimeTypeForName(Constants::C_SOURCE_MIMETYPE).suffixes()
-                + mimeTypeForName(Constants::CPP_SOURCE_MIMETYPE).suffixes()
-                + mimeTypeForName(Constants::OBJECTIVE_C_SOURCE_MIMETYPE).suffixes()
-                + mimeTypeForName(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE).suffixes()
-                + mimeTypeForName(Constants::CUDA_SOURCE_MIMETYPE).suffixes();
+        return mimeTypeForName(C_SOURCE_MIMETYPE).suffixes()
+             + mimeTypeForName(CPP_SOURCE_MIMETYPE).suffixes()
+             + mimeTypeForName(OBJECTIVE_C_SOURCE_MIMETYPE).suffixes()
+             + mimeTypeForName(OBJECTIVE_CPP_SOURCE_MIMETYPE).suffixes()
+             + mimeTypeForName(CUDA_SOURCE_MIMETYPE).suffixes();
     case ProjectFile::CSource:
     case ProjectFile::ObjCSource:
-        return mimeTypeForName(Constants::C_HEADER_MIMETYPE).suffixes();
+        return mimeTypeForName(C_HEADER_MIMETYPE).suffixes();
     case ProjectFile::CXXSource:
     case ProjectFile::ObjCXXSource:
     case ProjectFile::CudaSource:
     case ProjectFile::OpenCLSource:
-        return mimeTypeForName(Constants::CPP_HEADER_MIMETYPE).suffixes();
+        return mimeTypeForName(CPP_HEADER_MIMETYPE).suffixes();
     default:
         return {};
     }

@@ -27,6 +27,7 @@
 #include <coreplugin/outputpane.h>
 
 #include <utils/infobar.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
@@ -423,7 +424,7 @@ void FormEditorData::fullInit()
     designerContexts.add(Core::Constants::C_EDITORMANAGER);
     ICore::addContextObject(new DesignerContext(designerContexts, m_modeWidget, this));
 
-    DesignMode::registerDesignWidget(m_modeWidget, QStringList(FORM_MIMETYPE), m_contexts);
+    DesignMode::registerDesignWidget(m_modeWidget, QStringList(Utils::Constants::FORM_MIMETYPE), m_contexts);
 
     setupViewActions();
 

@@ -92,6 +92,7 @@ add_qtc_library(Utils
     listutils.h
     macroexpander.cpp macroexpander.h
     mathutils.cpp mathutils.h
+    mimeconstants.h
     mimeutils.h
     minimizableinfobars.cpp
     minimizableinfobars.h

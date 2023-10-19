@@ -55,8 +55,9 @@
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
-#include <utils/delegates.h>
 #include <utils/changeset.h>
+#include <utils/delegates.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/uncommentselection.h>
 
@@ -66,7 +67,6 @@
 
 #include <QComboBox>
 #include <QCoreApplication>
-#include <QFileInfo>
 #include <QHeaderView>
 #include <QMenu>
 #include <QMetaMethod>
@@ -160,10 +160,8 @@ void QmlJSEditorWidget::finalizeInitialization()
 
 void QmlJSEditorWidget::restoreState(const QByteArray &state)
 {
-    QStringList qmlTypes { QmlJSTools::Constants::QML_MIMETYPE,
-                QmlJSTools::Constants::QBS_MIMETYPE,
-                QmlJSTools::Constants::QMLTYPES_MIMETYPE,
-                QmlJSTools::Constants::QMLUI_MIMETYPE };
+    using namespace Utils::Constants;
+    QStringList qmlTypes = {QML_MIMETYPE, QBS_MIMETYPE, QMLTYPES_MIMETYPE, QMLUI_MIMETYPE};
 
     if (QmlJsEditingSettings::get().foldAuxData() && qmlTypes.contains(textDocument()->mimeType())) {
         int version = 0;
@@ -1133,11 +1131,12 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
     setId(_id);
     setDisplayName(::Core::Tr::tr("QMLJS Editor"));
 
-    addMimeType(QmlJSTools::Constants::QML_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QMLPROJECT_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QBS_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::QMLTYPES_MIMETYPE);
-    addMimeType(QmlJSTools::Constants::JS_MIMETYPE);
+    using namespace Utils::Constants;
+    addMimeType(QML_MIMETYPE);
+    addMimeType(QMLPROJECT_MIMETYPE);
+    addMimeType(QBS_MIMETYPE);
+    addMimeType(QMLTYPES_MIMETYPE);
+    addMimeType(JS_MIMETYPE);
 
     setDocumentCreator([this]() { return new QmlJSEditorDocument(id()); });
     setEditorWidgetCreator([]() { return new QmlJSEditorWidget; });

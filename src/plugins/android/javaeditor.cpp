@@ -15,6 +15,7 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/filepath.h>
+#include <utils/mimeconstants.h>
 #include <utils/uncommentselection.h>
 
 namespace Android::Internal {
@@ -23,7 +24,7 @@ static TextEditor::TextDocument *createJavaDocument()
 {
     auto doc = new TextEditor::TextDocument;
     doc->setId(Constants::JAVA_EDITOR_ID);
-    doc->setMimeType(QLatin1String(Constants::JAVA_MIMETYPE));
+    doc->setMimeType(Utils::Constants::JAVA_MIMETYPE);
     doc->setIndenter(new JavaIndenter(doc->document()));
     return doc;
 }
@@ -44,7 +45,7 @@ JavaEditorFactory::JavaEditorFactory()
     };
     setId(Constants::JAVA_EDITOR_ID);
     setDisplayName(::Core::Tr::tr("Java Editor"));
-    addMimeType(Constants::JAVA_MIMETYPE);
+    addMimeType(Utils::Constants::JAVA_MIMETYPE);
 
     setDocumentCreator(createJavaDocument);
     setUseGenericHighlighter(true);

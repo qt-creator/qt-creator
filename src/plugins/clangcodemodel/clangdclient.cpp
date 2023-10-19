@@ -59,6 +59,7 @@
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
+#include <utils/mimeconstants.h>
 #include <utils/itemviews.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
@@ -397,7 +398,7 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
 {
     setName(Tr::tr("clangd"));
     LanguageFilter langFilter;
-    using namespace CppEditor::Constants;
+    using namespace Utils::Constants;
     langFilter.mimeTypes = QStringList{C_HEADER_MIMETYPE, C_SOURCE_MIMETYPE,
             CPP_HEADER_MIMETYPE, CPP_SOURCE_MIMETYPE, OBJECTIVE_CPP_SOURCE_MIMETYPE,
             OBJECTIVE_C_SOURCE_MIMETYPE, CUDA_SOURCE_MIMETYPE};

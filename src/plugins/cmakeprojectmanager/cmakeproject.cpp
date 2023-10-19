@@ -17,7 +17,10 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+
 #include <qtsupport/qtkitaspect.h>
+
+#include <utils/mimeconstants.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -29,7 +32,7 @@ namespace CMakeProjectManager {
   \class CMakeProject
 */
 CMakeProject::CMakeProject(const FilePath &fileName)
-    : Project(Constants::CMAKE_MIMETYPE, fileName)
+    : Project(Utils::Constants::CMAKE_MIMETYPE, fileName)
 {
     setId(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
