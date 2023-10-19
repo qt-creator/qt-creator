@@ -220,7 +220,7 @@ DockerDeviceSettings::DockerDeviceSettings()
                                  });
                                  cb(items);
                              } else {
-                                 QStandardItem *errorItem = new QStandardItem(Tr::tr("Error!"));
+                                 QStandardItem *errorItem = new QStandardItem(Tr::tr("Error"));
                                  errorItem->setToolTip(result.error());
                                  cb({errorItem});
                              }
@@ -247,7 +247,7 @@ DockerDeviceSettings::DockerDeviceSettings()
                         path = onDevicePath;
                     } else {
                         return make_unexpected(
-                            Tr::tr("Path \"%1\" does not exist.").arg(onDevicePath.toUserOutput()));
+                            Tr::tr("The path \"%1\" does not exist.").arg(onDevicePath.toUserOutput()));
                     }
                 }
                 QString error;
@@ -766,32 +766,32 @@ QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
 expected_str<void> isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
 {
     if (mi.path.needsDevice())
-        return make_unexpected(QString("Path \"%1\" is not local").arg(mi.path.toUserOutput()));
+        return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
 
     if (mi.path.isEmpty() && mi.containerPath.isEmpty())
-        return make_unexpected(QString("Both paths are empty"));
+        return make_unexpected(QString("Both paths are empty."));
 
     if (mi.path.isEmpty()) {
-        return make_unexpected(QString("Local path is empty, container path is \"%1\"")
+        return make_unexpected(QString("The local path is empty, the container path is \"%1\".")
                                    .arg(mi.containerPath.toUserOutput()));
     }
 
     if (mi.containerPath.isEmpty()) {
         return make_unexpected(
-            QString("Container path is empty, local path is \"%1\"").arg(mi.path.toUserOutput()));
+            QString("The container path is empty, the local path is \"%1\".").arg(mi.path.toUserOutput()));
     }
 
     if (!mi.path.isAbsolutePath() || !mi.containerPath.isAbsolutePath()) {
-        return make_unexpected(QString("Path \"%1\" or \"%2\" is not absolute")
+        return make_unexpected(QString("The path \"%1\" or \"%2\" is not absolute.")
                                    .arg(mi.path.toUserOutput())
                                    .arg(mi.containerPath.toUserOutput()));
     }
 
     if (mi.containerPath.isRootPath())
-        return make_unexpected(QString("Path \"%1\" is root").arg(mi.containerPath.toUserOutput()));
+        return make_unexpected(QString("The path \"%1\" is root.").arg(mi.containerPath.toUserOutput()));
 
     if (!mi.path.exists())
-        return make_unexpected(QString("Path \"%1\" does not exist").arg(mi.path.toUserOutput()));
+        return make_unexpected(QString("The path \"%1\" does not exist.").arg(mi.path.toUserOutput()));
 
     return {};
 }

@@ -18505,9 +18505,7 @@ Rebuilding the project might help.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.
-
-</source>
+        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -27836,12 +27836,8 @@ Raison : %3</translation>
         <translation>Aide &gt; À propos des greffons</translation>
     </message>
     <message>
-        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.
-
-</source>
-        <translation>Si vous désactivez temporairement %1, les greffons suivants qui en dépendent seront également désactivés : %2.
-
-</translation>
+        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.</source>
+        <translation>Si vous désactivez temporairement %1, les greffons suivants qui en dépendent seront également désactivés : %2.</translation>
     </message>
     <message>
         <source>Disable plugins permanently in %1.</source>

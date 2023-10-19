@@ -28233,12 +28233,8 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>Hilfe &gt; Plugins</translation>
     </message>
     <message>
-        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.
-
-</source>
-        <translation>Wenn Sie %1 vorübergehend deaktivieren, werden die folgenden Plugins, die davon abhängen, auch deaktiviert: %2.
-
-</translation>
+        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.</source>
+        <translation>Wenn Sie %1 vorübergehend deaktivieren, werden die folgenden Plugins, die davon abhängen, auch deaktiviert: %2.</translation>
     </message>
     <message>
         <source>Disable plugins permanently in %1.</source>
