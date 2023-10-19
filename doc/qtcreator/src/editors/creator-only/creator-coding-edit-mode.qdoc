@@ -306,7 +306,7 @@
     split, prepend \key {Ctrl+E} to the shortcut. For example, press
     \key {Ctrl+E,F2} to follow the symbol in the next split. If necessary, the
     view is automatically split. To change the default behavior, select
-    \preferen \uicontrol {Text Editor} > \uicontrol Display >
+    \preferences > \uicontrol {Text Editor} > \uicontrol Display >
     \uicontrol {Always open links in another split}.
     Additional symbols are
     displayed and switching between definition and declaration is done in

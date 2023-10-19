@@ -29,6 +29,6 @@
     To specify different settings for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style}.
 
-    \sa {Find a particular preference}, {Indent text or code},
+    \sa {Find preferences}, {Indent text or code},
     {Specify code style}, {Setting Up Nimble}
 */

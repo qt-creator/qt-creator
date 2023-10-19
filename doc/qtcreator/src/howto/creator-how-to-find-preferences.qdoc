@@ -1,0 +1,33 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-find-preferences.html
+    \if defined(qtcreator)
+    \previouspage creator-how-tos.html
+    \else
+    \previouspage creator-quick-tour.html
+    \endif
+
+    \ingroup creator-how-to-ui
+    \ingroup studio-how-to
+
+    \title Find preferences
+
+    \QC uses standard names and locations on Linux, \macos, and Windows for
+    standard features, such as \e preferences.
+
+    \table
+        \header
+            \li Linux and Windows
+            \li \macos
+        \row
+            \li \uicontrol Edit > \uicontrol Preferences
+            \li \uicontrol {\QC} > \uicontrol Preferences
+    \endtable
+
+    To find a particular preference, use the filter located at the top left of
+    the \uicontrol Preferences dialog.
+
+    \image qtcreator-preferences.webp {Filtering preferences}
+*/

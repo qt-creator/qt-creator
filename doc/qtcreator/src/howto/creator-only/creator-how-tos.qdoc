@@ -96,20 +96,6 @@
 */
 
 /*!
-    \page creator-how-to-find-preferences.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-ui
-
-    \title Find a particular preference
-
-    To find a particular preference in \preferences,
-    use the filter located at the top left of the \uicontrol Preferences dialog.
-
-    \image qtcreator-preferences.webp {Filtering preferences}
-*/
-
-/*!
     \page creator-how-to-run-from-cli.html
     \previouspage creator-how-tos.html
 

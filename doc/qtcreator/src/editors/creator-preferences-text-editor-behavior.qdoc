@@ -89,7 +89,7 @@
     commenting out a selection, select \uicontrol {Prefer single line comments}.
 
     \if defined(qtcreator)
-    \sa {Find a particular preference}, {C++ Code Style}, {Nim}
+    \sa {Find preferences}, {C++ Code Style}, {Nim}
     \endif
 
     \sa {Indent text or code}, {Qt Quick Code Style}

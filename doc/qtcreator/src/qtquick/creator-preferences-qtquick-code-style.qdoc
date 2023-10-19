@@ -40,6 +40,6 @@
     \sa {Indent text or code}
 
     \if defined(qtcreator)
-    \sa {Find a particular preference}, {Specify code style}
+    \sa {Find preferences}, {Specify code style}
     \endif
 */
