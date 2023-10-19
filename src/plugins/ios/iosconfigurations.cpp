@@ -12,6 +12,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -31,6 +33,7 @@
 #include <qtsupport/qtversionfactory.h>
 
 #include <utils/algorithm.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
@@ -405,7 +408,8 @@ void IosConfigurations::updateSimulators()
         dev = IDevice::ConstPtr(new IosSimulator(devId));
         devManager->addDevice(dev);
     }
-    SimulatorControl::updateAvailableSimulators(this);
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(
+        SimulatorControl::updateAvailableSimulators(this));
 }
 
 void IosConfigurations::setDeveloperPath(const FilePath &devPath)
