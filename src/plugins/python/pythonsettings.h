@@ -42,6 +42,8 @@ public:
         const std::function<void(std::optional<Interpreter>)> &callback,
         const QString &nameSuffix = {});
     static QList<Interpreter> detectPythonVenvs(const Utils::FilePath &path);
+    static void addKitsForInterpreter(const Interpreter &interpreter);
+    static void removeKitsForInterpreter(const Interpreter &interpreter);
 
 signals:
     void interpretersChanged(const QList<Interpreter> &interpreters, const QString &defaultId);
@@ -57,6 +59,7 @@ public slots:
     void listDetectedPython(const QString &detectionSource, QString *logMessage);
 
 private:
+    void fixupPythonKits();
     void initFromSettings(Utils::QtcSettings *settings);
     void writeToSettings(Utils::QtcSettings *settings);
 

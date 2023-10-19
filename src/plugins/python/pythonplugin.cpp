@@ -5,6 +5,7 @@
 
 #include "pysidebuildconfiguration.h"
 #include "pythoneditor.h"
+#include "pythonkitaspect.h"
 #include "pythonproject.h"
 #include "pythonrunconfiguration.h"
 #include "pythonsettings.h"
@@ -13,6 +14,7 @@
 
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/taskhub.h>
@@ -59,6 +61,9 @@ PythonPlugin *PythonPlugin::instance()
 void PythonPlugin::initialize()
 {
     d = new PythonPluginPrivate;
+
+    KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
+                                     + QSet<Id>{PythonKitAspect::id()});
 
     ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
     ProjectManager::registerProjectType<PythonProject>(PythonMimeTypeLegacy);
