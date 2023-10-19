@@ -941,7 +941,7 @@ expected_str<void> DockerDevicePrivate::updateContainerAccess()
     }
 
     if (m_isShutdown)
-        return make_unexpected(Tr::tr("Device is shutdown"));
+        return make_unexpected(Tr::tr("Device is shut down"));
 
     if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
         return make_unexpected(Tr::tr("Docker system is not reachable"));
