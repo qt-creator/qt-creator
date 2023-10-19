@@ -99,7 +99,7 @@ GroupItem GenericDeployStep::mkdirTask()
         FilePath::removeDuplicates(remoteDirs);
 
         async.setConcurrentCallData([remoteDirs](QPromise<ResultType> &promise) {
-            for (auto dir : remoteDirs) {
+            for (const FilePath &dir : remoteDirs) {
                 const expected_str<void> result = dir.ensureWritableDir();
                 promise.addResult(result);
                 if (!result)
@@ -117,7 +117,7 @@ GroupItem GenericDeployStep::mkdirTask()
         }
 
         for (int i = 0; i < numResults; ++i) {
-            const auto result = async.future().resultAt(i);
+            const ResultType result = async.future().resultAt(i);
             if (!result.has_value())
                 addErrorMessage(result.error());
         }
