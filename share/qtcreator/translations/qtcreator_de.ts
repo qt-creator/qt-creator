@@ -25765,20 +25765,20 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>DAP</source>
-        <translation type="unfinished"></translation>
+        <translation>DAP</translation>
     </message>
     <message>
         <source>Valgrind</source>
         <extracomment>Category under which Analyzer tasks are listed in Issues view</extracomment>
-        <translation type="unfinished">Valgrind</translation>
+        <translation>Valgrind</translation>
     </message>
     <message>
         <source>Issues that the Valgrind tools found when analyzing the code.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die die Valgrind-Werkzeuge beim Analysieren von Code gefunden haben.</translation>
     </message>
     <message>
         <source>Issues with starting the debugger.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme beim Starten des Debuggers.</translation>
     </message>
     <message>
         <source>Breakpoint Preset</source>
@@ -25862,27 +25862,27 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>CMake Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Voreinstellung</translation>
     </message>
     <message>
         <source>GDB Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>GDB-Voreinstellung</translation>
     </message>
     <message>
         <source>Python Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Python-Voreinstellung</translation>
     </message>
     <message>
         <source>DAP Breakpoint Preset</source>
-        <translation type="unfinished"></translation>
+        <translation>Voreingestellte DAP-Haltepunkte</translation>
     </message>
     <message>
         <source>DAP Debugger Perspectives</source>
-        <translation type="unfinished"></translation>
+        <translation>DAP-Debugger-Perspektiven</translation>
     </message>
     <message>
         <source>Start DAP Debugging</source>
-        <translation type="unfinished"></translation>
+        <translation>DAP-Debuggen starten</translation>
     </message>
     <message>
         <source>Start debugging of startup project</source>
@@ -27880,11 +27880,11 @@ Weiterführende Informationen befinden sich in /etc/sysctl.d/10-ptrace.conf
     </message>
     <message>
         <source>Python debugging support is not available. Install the debugpy package.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterstützung für Python-Debuggen ist nicht verfügbar. Installieren Sie bitte das debugpy-Paket.</translation>
     </message>
     <message>
         <source>Install debugpy</source>
-        <translation type="unfinished"></translation>
+        <translation>debugpy installieren</translation>
     </message>
 </context>
 <context>
