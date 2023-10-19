@@ -67,5 +67,10 @@ QtcPlugin {
         "snippet.h",
     ]
 
+    Properties {
+        condition: qbs.toolchain.contains("mingw")
+        cpp.cxxFlags: "-Wa,-mbig-obj"
+    }
+
     Export { Depends { name: "LanguageServerProtocol" } }
 }
