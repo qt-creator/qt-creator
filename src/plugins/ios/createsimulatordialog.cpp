@@ -60,10 +60,10 @@ CreateSimulatorDialog::CreateSimulatorDialog(QWidget *parent)
         enableOk();
     });
 
-    m_futureSync.addFuture(Utils::onResultReady(SimulatorControl::updateDeviceTypes(this), this,
+    m_futureSync.addFuture(Utils::onResultReady(SimulatorControl::updateDeviceTypes(), this,
                                                 &CreateSimulatorDialog::populateDeviceTypes));
 
-    QFuture<QList<RuntimeInfo>> runtimesfuture = SimulatorControl::updateRuntimes(this);
+    QFuture<QList<RuntimeInfo>> runtimesfuture = SimulatorControl::updateRuntimes();
     Utils::onResultReady(runtimesfuture, this, [this](const QList<RuntimeInfo> &runtimes) {
         m_runtimes = runtimes;
     });

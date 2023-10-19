@@ -190,8 +190,6 @@ static void takeSceenshot(QPromise<SimulatorControl::ResponseData> &promise,
                           const QString &filePath);
 
 static QList<SimulatorInfo> s_availableDevices;
-static QList<DeviceTypeInfo> s_availableDeviceTypes;
-static QList<RuntimeInfo> s_availableRuntimes;
 
 QList<SimulatorInfo> SimulatorControl::availableSimulators()
 {
@@ -234,27 +232,14 @@ static QList<SimulatorInfo> getAvailableSimulators()
     return availableDevices;
 }
 
-QFuture<QList<DeviceTypeInfo>> SimulatorControl::updateDeviceTypes(QObject *context)
+QFuture<QList<DeviceTypeInfo>> SimulatorControl::updateDeviceTypes()
 {
-    QFuture<QList<DeviceTypeInfo>> future = Utils::asyncRun(getAvailableDeviceTypes);
-    Utils::onResultReady(future, context, [](const QList<DeviceTypeInfo> &deviceTypes) {
-        s_availableDeviceTypes = deviceTypes;
-    });
-    return future;
+    return Utils::asyncRun(getAvailableDeviceTypes);
 }
 
-QList<RuntimeInfo> SimulatorControl::availableRuntimes()
+QFuture<QList<RuntimeInfo>> SimulatorControl::updateRuntimes()
 {
-    return s_availableRuntimes;
-}
-
-QFuture<QList<RuntimeInfo>> SimulatorControl::updateRuntimes(QObject *context)
-{
-    QFuture<QList<RuntimeInfo>> future = Utils::asyncRun(getAvailableRuntimes);
-    Utils::onResultReady(future, context, [](const QList<RuntimeInfo> &runtimes) {
-        s_availableRuntimes = runtimes;
-    });
-    return future;
+    return Utils::asyncRun(getAvailableRuntimes);
 }
 
 QFuture<QList<SimulatorInfo>> SimulatorControl::updateAvailableSimulators(QObject *context)
