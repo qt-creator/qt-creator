@@ -189,7 +189,7 @@ void CollectionDetails::insertEmptyElements(int row, int count)
     if (count < 1)
         return;
 
-    row = qBound(0, row, rows() - 1);
+    row = qBound(0, row, rows());
     d->elements.insert(row, count, {});
 
     markChanged();

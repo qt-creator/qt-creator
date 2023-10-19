@@ -16,7 +16,13 @@ Item {
     implicitHeight: 30
     implicitWidth: leftSideToolbar.width + rightSideToolbar.width
 
-    signal addPropertyRight()
+    function addNewColumn() {
+        addColumnDialog.popUp(root.model.columnCount())
+    }
+
+    function addNewRow() {
+        root.model.insertRow(root.model.rowCount())
+    }
 
     Row {
         id: leftSideToolbar

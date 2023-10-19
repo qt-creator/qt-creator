@@ -58,6 +58,7 @@ Rectangle {
         }
 
         CollectionDetailsToolbar {
+            id: toolbar
             model: root.model
             Layout.fillWidth: true
         }
@@ -68,7 +69,7 @@ Rectangle {
         }
 
         GridLayout {
-            columns: 2
+            columns: 3
             rowSpacing: 1
             columnSpacing: 1
 
@@ -84,6 +85,8 @@ Rectangle {
 
                 Layout.preferredWidth: rowIdView.width
                 Layout.preferredHeight: headerView.height
+                Layout.minimumWidth: rowIdView.width
+                Layout.minimumHeight: headerView.height
 
                 Text {
                     anchors.fill: parent
@@ -102,7 +105,7 @@ Rectangle {
                 property real bottomPadding: 5
 
                 Layout.preferredHeight: headerTextMetrics.height + topPadding + bottomPadding
-                Layout.fillWidth: true
+                Layout.columnSpan: 2
                 syncView: tableView
                 clip: true
 
@@ -155,7 +158,9 @@ Rectangle {
                 syncView: tableView
                 clip: true
 
-                Layout.fillHeight: true
+                Layout.preferredHeight: tableView.height
+                Layout.rowSpan: 2
+                Layout.alignment: Qt.AlignTop + Qt.AlignLeft
 
                 delegate: HeaderDelegate {
                     selectedItem: root.model.selectedRow
@@ -176,8 +181,10 @@ Rectangle {
                 model: root.model
                 clip: true
 
-                Layout.fillWidth: true
-                Layout.fillHeight: true
+                Layout.preferredWidth: tableView.contentWidth
+                Layout.preferredHeight: tableView.contentHeight
+                Layout.minimumWidth: 10
+                Layout.minimumHeight: 10
 
                 delegate: Rectangle {
                     id: itemCell
@@ -239,6 +246,41 @@ Rectangle {
                         }
                     ]
                 }
+            }
+
+            HelperWidgets.IconButton {
+                id: addColumnContainer
+
+                iconSize:16
+                Layout.preferredWidth: 24
+                Layout.preferredHeight: tableView.height
+                Layout.minimumHeight: 24
+                Layout.alignment: Qt.AlignLeft + Qt.AlignVCenter
+
+                icon: StudioTheme.Constants.create_medium
+                tooltip: "Add Column"
+
+                onClicked: toolbar.addNewColumn()
+            }
+
+            HelperWidgets.IconButton {
+                id: addRowContainer
+
+                iconSize:16
+                Layout.preferredWidth: tableView.width
+                Layout.preferredHeight: 24
+                Layout.minimumWidth: 24
+                Layout.alignment: Qt.AlignTop + Qt.AlignHCenter
+
+                icon: StudioTheme.Constants.create_medium
+                tooltip: "Add Row"
+
+                onClicked: toolbar.addNewRow()
+            }
+
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
             }
         }
     }
