@@ -632,6 +632,9 @@ void KitOptionsPageWidget::addNewKit()
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
                              | QItemSelectionModel::Rows);
+
+    if (m_currentWidget)
+        m_currentWidget->setFocusToName();
 }
 
 Kit *KitOptionsPageWidget::currentKit() const
@@ -652,6 +655,9 @@ void KitOptionsPageWidget::cloneKit()
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
                              | QItemSelectionModel::Rows);
+
+    if (m_currentWidget)
+        m_currentWidget->setFocusToName();
 }
 
 void KitOptionsPageWidget::removeKit()

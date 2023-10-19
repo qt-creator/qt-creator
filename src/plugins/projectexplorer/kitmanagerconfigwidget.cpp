@@ -141,6 +141,12 @@ QIcon KitManagerConfigWidget::displayIcon() const
     return m_modifiedKit->displayIcon();
 }
 
+void KitManagerConfigWidget::setFocusToName()
+{
+    m_nameEdit->selectAll();
+    m_nameEdit->setFocus();
+}
+
 void KitManagerConfigWidget::apply()
 {
     // TODO: Rework the mechanism so this won't be necessary.
