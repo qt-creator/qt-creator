@@ -20,7 +20,9 @@ using namespace NanotraceHR::Literals;
 namespace ImageCache {
 namespace {
 
-thread_local Category category_{"image cache"_t, QmlDesigner::Tracing::eventQueue(), category};
+thread_local Category category_{"image cache"_t,
+                                QmlDesigner::Tracing::eventQueueWithStringArguments(),
+                                category};
 } // namespace
 
 Category &category()
@@ -56,14 +58,21 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
     const auto id = extraId.empty() ? Utils::PathString{name}
                                     : Utils::PathString::join({name, "+", extraId});
 
+    using NanotraceHR::dictonary;
+    using NanotraceHR::keyValue;
+    using namespace std::literals::string_view_literals;
+
     auto [durationToken, flowToken] = traceToken.beginDurationWithFlow(
-        "AsynchronousImageCache works on the image request"_t);
+        "AsynchronousImageCache works on the image request"_t,
+        keyValue("name", name),
+        keyValue("extra id", extraId));
 
     auto timeStrampToken = durationToken.beginDuration("getting timestamp"_t);
     const auto timeStamp = timeStampProvider.timeStamp(name);
-    timeStrampToken.end();
+    timeStrampToken.end(keyValue("time stamp", timeStamp.value));
 
-    auto storageTraceToken = durationToken.beginDuration("fetching image from storage"_t);
+    auto storageTraceToken = durationToken.beginDuration("fetching image from storage"_t,
+                                                         keyValue("storage id", id));
     auto requestImageFromStorage = [&](RequestType requestType) {
         switch (requestType) {
         case RequestType::Image:
@@ -80,16 +89,42 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
     };
 
     const auto entry = requestImageFromStorage(requestType);
-    storageTraceToken.end();
 
     if (entry) {
         if (entry->isNull()) {
-            traceToken.tick("there was an null image in storage"_t);
+            storageTraceToken.tick("there was an null image in storage"_t);
             abortCallback(ImageCache::AbortReason::Failed);
         } else {
             captureCallback(*entry);
+            storageTraceToken.end(
+                keyValue("storage id", id),
+                keyValue("image",
+                         dictonary(keyValue("width", entry->width()),
+                                   keyValue("height", entry->height()),
+                                   keyValue("bytes", entry->sizeInBytes()),
+                                   keyValue("has alpha channel", entry->hasAlphaChannel()),
+                                   keyValue("is color", !entry->isGrayscale()),
+                                   keyValue("pixel format",
+                                            dictonary(keyValue("bits per pixel",
+                                                               entry->pixelFormat().bitsPerPixel()),
+                                                      keyValue("byte order",
+                                                               [&] {
+                                                                   if (entry->pixelFormat().byteOrder()
+                                                                       == QPixelFormat::BigEndian)
+                                                                       return "big endian"sv;
+                                                                   else
+                                                                       return "little endian"sv;
+                                                               }),
+                                                      keyValue("premultiplied", [&] {
+                                                          if (entry->pixelFormat().premultiplied()
+                                                              == QPixelFormat::Premultiplied)
+                                                              return "premultiplied"sv;
+                                                          else
+                                                              return "alpha premultiplied"sv;
+                                                      }))))));
         }
     } else {
+        storageTraceToken.end();
         auto imageGeneratedCallback =
             [captureCallback = std::move(captureCallback),
              requestType](const QImage &image,
@@ -132,7 +167,7 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
                                 std::move(imageGeneratedCallback),
                                 std::move(imageGenerationAbortedCallback),
                                 std::move(auxiliaryData),
-                                std::move(traceToken));
+                                std::move(flowToken));
     }
 }
 

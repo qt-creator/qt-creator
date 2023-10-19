@@ -26,7 +26,7 @@ constexpr NanotraceHR::Tracing tracingStatus()
 #endif
 }
 
-using Category = NanotraceHR::StringViewCategory<tracingStatus()>;
+using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingStatus()>;
 using TraceToken = Category::FlowTokenType;
 using FlowToken = Category::FlowTokenType;
 using Token = Category::TokenType;

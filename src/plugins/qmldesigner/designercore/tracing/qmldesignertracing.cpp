@@ -26,6 +26,11 @@ EventQueue &eventQueue()
     return stringViewEventQueue_;
 }
 
+EventQueueWithStringArguments &eventQueueWithStringArguments()
+{
+    return stringViewEventWithStringArgumentsQueue_;
+}
+
 } // namespace Tracing
 
 namespace ModelTracing {

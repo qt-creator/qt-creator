@@ -111,11 +111,26 @@ void convertToString(String &string, QStringView text)
 }
 
 template<typename String>
-void convertToString(String &string, QByteArrayView text)
+void convertToString(String &string, const QByteArray &text)
 {
     string.append(R"(")");
     string.append(std::string_view(text.data(), Utils::usize(text)));
     string.append(R"(")");
+}
+
+template<typename String>
+void convertToString(String &string, bool isTrue)
+{
+    if (isTrue)
+        string.append("true");
+    else
+        string.append("false");
+}
+
+template<typename String, typename Callable, typename = std::enable_if_t<std::is_invocable_v<Callable>>>
+void convertToString(String &string, Callable &&callable)
+{
+    convertToString(string, callable());
 }
 
 template<typename String>
@@ -308,9 +323,9 @@ struct TraceEvent
     char type = ' ';
 };
 
-using ArgumentsString = Utils::BasicSmallString<510>;
+using SmallArgumentsString = Utils::BasicSmallString<510>;
 using StringViewTraceEvent = TraceEvent<std::string_view, std::string_view>;
-using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, ArgumentsString>;
+using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, SmallArgumentsString>;
 using StringTraceEvent = TraceEvent<std::string, std::string>;
 
 enum class IsEnabled { No, Yes };
@@ -466,6 +481,13 @@ public:
     std::mutex mutex;
     std::thread::id threadId;
 };
+
+template<Tracing isEnabled>
+using StringViewEventQueue = EventQueue<StringViewTraceEvent, isEnabled>;
+template<Tracing isEnabled>
+using StringViewWithStringArgumentsEventQueue = EventQueue<StringViewWithStringArgumentsTraceEvent, isEnabled>;
+template<Tracing isEnabled>
+using StringEventQueue = EventQueue<StringTraceEvent, isEnabled>;
 
 extern template class NANOTRACE_EXPORT EventQueue<StringViewTraceEvent, Tracing::IsEnabled>;
 extern template class NANOTRACE_EXPORT EventQueue<StringTraceEvent, Tracing::IsEnabled>;
@@ -1404,7 +1426,13 @@ public:
         return {};
     }
 
-    void end() {}
+    template<typename... Arguments>
+    void tick(ArgumentType, Arguments &&...)
+    {}
+
+    template<typename... Arguments>
+    void end(Arguments &&...)
+    {}
 
     ~Tracer() {}
 };
@@ -1480,14 +1508,22 @@ public:
         return {std::move(name), m_category, std::forward<Arguments>(arguments)...};
     }
 
-    void end()
+    template<typename... Arguments>
+    void tick(ArgumentType name, Arguments &&...arguments)
     {
-        sendTrace();
+        m_category().begin('i', 0, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
+    }
+
+    template<typename... Arguments>
+    void end(Arguments &&...arguments)
+    {
+        sendTrace(std::forward<Arguments>(arguments)...);
         m_name = {};
     }
 
 private:
-    void sendTrace()
+    template<typename... Arguments>
+    void sendTrace(Arguments &&...arguments)
     {
         if (m_name.size()) {
             auto category = m_category();
@@ -1496,12 +1532,19 @@ private:
                 auto &traceEvent = getTraceEvent(category.eventQueue());
                 traceEvent.name = m_name;
                 traceEvent.category = category.name();
-                traceEvent.arguments = m_arguments;
                 traceEvent.time = m_start;
                 traceEvent.duration = duration;
                 traceEvent.bindId = m_bindId;
                 traceEvent.flow = flow;
                 traceEvent.type = 'X';
+                if (sizeof...(arguments)) {
+                    m_arguments.clear();
+                    Internal::appendArguments<ArgumentsStringType>(traceEvent.arguments,
+                                                                   std::forward<Arguments>(
+                                                                       arguments)...);
+                } else {
+                    traceEvent.arguments = m_arguments;
+                }
             }
         }
     }
@@ -1509,7 +1552,7 @@ private:
 private:
     TimePoint m_start;
     StringType m_name;
-    StringType m_arguments;
+    ArgumentsStringType m_arguments;
     std::size_t m_bindId;
     IsFlow flow;
     CategoryFunctionPointer m_category;
