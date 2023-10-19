@@ -1117,10 +1117,10 @@ ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project)
 
     auto layout = new QVBoxLayout;
     setLayout(layout);
-    auto group = new QGroupBox(Tr::tr("Language Server Workspace Configuration"));
+    auto group = new QGroupBox(Tr::tr("Workspace Configuration"));
     group->setLayout(new QVBoxLayout);
     group->layout()->addWidget(new QLabel(Tr::tr(
-        "Additional json configuration sent to all running language servers for this project.\n"
+        "Additional JSON configuration sent to all running language servers for this project.\n"
         "See the documentation of the specific language server for valid settings.")));
     group->layout()->addWidget(editor->widget());
     layout->addWidget(group);
