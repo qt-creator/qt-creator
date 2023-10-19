@@ -251,8 +251,11 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
             // boundedTo -> don't scale thumbnails up
             const QSize scaledSize =
                 WelcomePageHelpers::GridItemImageSize.boundedTo(img.size()) * dpr;
-            pixmap = QPixmap::fromImage(
-                img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            const QImage scaled = img.isNull() ? img
+                                               : img.scaled(scaledSize,
+                                                            Qt::KeepAspectRatio,
+                                                            Qt::SmoothTransformation);
+            pixmap = QPixmap::fromImage(scaled);
             pixmap.setDevicePixelRatio(dpr);
         }
     } else {
