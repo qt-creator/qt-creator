@@ -177,9 +177,6 @@ bool NodeHints::doesLayoutChildren() const
 
 bool NodeHints::canBeDroppedInFormEditor() const
 {
-    if (!isValid())
-        return true;
-
     auto flagIs = m_modelNode.metaInfo().canBeDroppedInFormEditor();
 
     if (flagIs != FlagIs::Set)
@@ -190,9 +187,6 @@ bool NodeHints::canBeDroppedInFormEditor() const
 
 bool NodeHints::canBeDroppedInNavigator() const
 {
-    if (!isValid())
-        return true;
-
     auto flagIs = m_modelNode.metaInfo().canBeDroppedInNavigator();
 
     if (flagIs != FlagIs::Set)
@@ -203,9 +197,6 @@ bool NodeHints::canBeDroppedInNavigator() const
 
 bool NodeHints::canBeDroppedInView3D() const
 {
-    if (!isValid())
-        return false;
-
     auto flagIs = m_modelNode.metaInfo().canBeDroppedInView3D();
 
     if (flagIs != FlagIs::Set)
@@ -331,9 +322,6 @@ bool NodeHints::visibleInNavigator() const
 
 bool NodeHints::visibleInLibrary() const
 {
-    if (!isValid())
-        return true;
-
     auto flagIs = m_modelNode.metaInfo().visibleInLibrary();
 
     if (flagIs != FlagIs::Set)
