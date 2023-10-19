@@ -114,7 +114,8 @@ public:
     void onEditorChanged(Core::IEditor *editor);
     void onEditorAboutToClose(Core::IEditor *editor);
     void setDirty();
-    void attachToEditor();
+    void attachToEditorManager();
+    void detachFromEditorManager();
     void checkEditor();
     void checkFile(const QString &fileName);
     void triggerPreview(const QString &changedFile, const QByteArray &contents);
@@ -165,7 +166,12 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     runPreviewAction->setEnabled(ProjectManager::startupProject() != nullptr);
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, runPreviewAction,
             &QAction::setEnabled);
-    connect(runPreviewAction, &QAction::triggered, this, [this] {
+    connect(runPreviewAction, &QAction::triggered, this, [runPreviewAction, this] {
+        runPreviewAction->setEnabled(false);
+        attachToEditorManager();
+        setDirty();
+        onEditorChanged(Core::EditorManager::currentEditor());
+
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
             m_localeIsoCode = multiLanguageAspect->currentLocale();
         bool skipDeploy = false;
@@ -231,8 +237,6 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     connect(q, &QmlPreviewPlugin::checkDocument, parser, &QmlPreviewParser::parse);
     connect(q, &QmlPreviewPlugin::previewedFileChanged, this, &QmlPreviewPluginPrivate::checkFile);
     connect(parser, &QmlPreviewParser::success, this, &QmlPreviewPluginPrivate::triggerPreview);
-
-    attachToEditor();
 }
 
 QmlPreviewPlugin::~QmlPreviewPlugin()
@@ -439,9 +443,14 @@ void QmlPreviewPlugin::removePreview(RunControl *preview)
 {
     d->m_runningPreviews.removeOne(preview);
     emit runningPreviewsChanged(d->m_runningPreviews);
+    if (d->m_runningPreviews.isEmpty()) {
+        if (auto cmd = Core::ActionManager::command("QmlPreview.RunPreview"); cmd && cmd->action())
+            cmd->action()->setEnabled(true);
+        d->detachFromEditorManager();
+    }
 }
 
-void QmlPreviewPluginPrivate::attachToEditor()
+void QmlPreviewPluginPrivate::attachToEditorManager()
 {
     Core::EditorManager *editorManager = Core::EditorManager::instance();
     connect(editorManager, &Core::EditorManager::currentEditorChanged,
@@ -450,10 +459,17 @@ void QmlPreviewPluginPrivate::attachToEditor()
             this, &QmlPreviewPluginPrivate::onEditorAboutToClose);
 }
 
+void QmlPreviewPluginPrivate::detachFromEditorManager()
+{
+    Core::EditorManager *editorManager = Core::EditorManager::instance();
+    disconnect(editorManager, &Core::EditorManager::currentEditorChanged,
+               this, &QmlPreviewPluginPrivate::onEditorChanged);
+    disconnect(editorManager, &Core::EditorManager::editorAboutToClose,
+               this, &QmlPreviewPluginPrivate::onEditorAboutToClose);
+}
+
 void QmlPreviewPluginPrivate::checkEditor()
 {
-    if (m_runningPreviews.isEmpty())
-        return;
     QmlJS::Dialect::Enum dialect = QmlJS::Dialect::AnyLanguage;
     Core::IDocument *doc = m_lastEditor->document();
     using namespace Utils::Constants;
