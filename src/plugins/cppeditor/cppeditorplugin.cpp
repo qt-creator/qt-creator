@@ -68,8 +68,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 #include <coreplugin/vcsmanager.h>
 
-#include <extensionsystem/pluginmanager.h>
-
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -165,7 +163,6 @@ class CppEditorPluginPrivate : public QObject
 public:
     ~CppEditorPluginPrivate()
     {
-        ExtensionSystem::PluginManager::removeObject(&m_cppProjectUpdaterFactory);
         delete m_clangdSettingsPage;
     }
 
@@ -231,7 +228,6 @@ void CppEditorPlugin::initialize()
     d->m_codeModelSettings.fromSettings(ICore::settings());
 
     CppModelManager::registerJsExtension();
-    ExtensionSystem::PluginManager::addObject(&d->m_cppProjectUpdaterFactory);
 
     setupMenus();
     registerVariables();

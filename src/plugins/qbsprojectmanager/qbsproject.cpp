@@ -26,7 +26,6 @@
 #include <coreplugin/vcsmanager.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/cppprojectupdater.h>
 #include <cppeditor/generatedcodemodelsupport.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
@@ -38,6 +37,7 @@
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -151,7 +151,8 @@ static bool supportsNodeAction(ProjectAction action, const Node *node)
 QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
     : BuildSystem(bc->target()),
       m_session(new QbsSession(this)),
-      m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater),
+      m_cppCodeModelUpdater(
+        ProjectUpdaterFactory::createProjectUpdater(ProjectExplorer::Constants::CXX_LANGUAGE_ID)),
       m_buildConfiguration(bc)
 {
     connect(m_session, &QbsSession::newGeneratedFilesForSources, this,

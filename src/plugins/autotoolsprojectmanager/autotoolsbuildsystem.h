@@ -7,7 +7,7 @@
 
 #include <memory>
 
-namespace CppEditor { class CppProjectUpdater; }
+namespace ProjectExplorer { class ProjectUpdater; }
 
 namespace AutotoolsProjectManager::Internal {
 
@@ -42,7 +42,7 @@ private:
     /// Responsible for parsing the makefiles asynchronously in a thread
     std::unique_ptr<MakefileParserThread> m_makefileParserThread;
 
-    CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    ProjectExplorer::ProjectUpdater *m_cppCodeModelUpdater = nullptr;
 };
 
 } // AutotoolsProjectManager::Internal

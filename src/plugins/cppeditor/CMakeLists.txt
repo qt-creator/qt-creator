@@ -69,7 +69,6 @@ add_qtc_plugin(CppEditor
     cppprojectinfogenerator.cpp cppprojectinfogenerator.h
     cppprojectpartchooser.cpp cppprojectpartchooser.h
     cppprojectupdater.cpp cppprojectupdater.h
-    cppprojectupdaterinterface.h
     cppqtstyleindenter.cpp cppqtstyleindenter.h
     cppquickfix.cpp cppquickfix.h
     cppquickfixassistant.cpp cppquickfixassistant.h

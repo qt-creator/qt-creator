@@ -5,7 +5,8 @@
 
 #include "cppeditor_global.h"
 
-#include "cppprojectupdaterinterface.h"
+#include <projectexplorer/projectupdater.h>
+#include <projectexplorer/rawprojectpart.h>
 
 #include <utils/futuresynchronizer.h>
 
@@ -17,19 +18,17 @@ namespace CppEditor {
 namespace Internal {
 
 // registered in extensionsystem's object pool for plugins with weak dependency to CppEditor
-class CppProjectUpdaterFactory : public QObject
+class CppProjectUpdaterFactory final
+    : public ProjectExplorer::ProjectUpdaterFactory
 {
-    Q_OBJECT
 public:
     CppProjectUpdaterFactory();
-
-    // keep the namespace, for the type name in the invokeMethod call
-    Q_INVOKABLE CppEditor::CppProjectUpdaterInterface *create();
 };
 
 } // namespace Internal
 
-class CPPEDITOR_EXPORT CppProjectUpdater final : public QObject, public CppProjectUpdaterInterface
+class CPPEDITOR_EXPORT CppProjectUpdater final
+    : public QObject, public ProjectExplorer::ProjectUpdater
 {
     Q_OBJECT
 
@@ -37,9 +36,8 @@ public:
     CppProjectUpdater();
     ~CppProjectUpdater() override;
 
-    void update(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo) override;
     void update(const ProjectExplorer::ProjectUpdateInfo &projectUpdateInfo,
-                const QList<ProjectExplorer::ExtraCompiler *> &extraCompilers);
+                const QList<ProjectExplorer::ExtraCompiler *> &extraCompilers) override;
     void cancel() override;
 
 private:

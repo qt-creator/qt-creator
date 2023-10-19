@@ -17,7 +17,6 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cppeditor/cppmodelmanager.h>
-#include <cppeditor/cppprojectupdater.h>
 #include <cppeditor/generatedcodemodelsupport.h>
 #include <cppeditor/projectinfo.h>
 
@@ -31,6 +30,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectupdater.h>
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
@@ -202,7 +202,7 @@ DeploymentKnowledge QmakeProject::deploymentKnowledge() const
 QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     : BuildSystem(bc)
     , m_qmakeVfs(new QMakeVfs)
-    , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
+    , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
     setParseDelay(0);
 

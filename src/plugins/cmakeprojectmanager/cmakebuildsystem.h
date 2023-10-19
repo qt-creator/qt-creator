@@ -10,14 +10,14 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 
-#include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
 
-namespace CppEditor { class CppProjectUpdater; }
 namespace ProjectExplorer {
     class ExtraCompiler;
     class FolderNode;
+    class ProjectUpdater;
 }
+
 namespace Utils {
     class Process;
     class Link;
@@ -225,7 +225,7 @@ private:
 
     ParseGuard m_currentGuard;
 
-    CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    ProjectExplorer::ProjectUpdater *m_cppCodeModelUpdater = nullptr;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
     QSet<CMakeFileInfo> m_cmakeFiles;

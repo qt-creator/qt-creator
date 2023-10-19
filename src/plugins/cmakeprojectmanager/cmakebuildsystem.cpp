@@ -24,12 +24,12 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cppprojectupdater.h>
 
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 
@@ -71,7 +71,7 @@ static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarnin
 
 CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
     : BuildSystem(bc)
-    , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
+    , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
     // TreeScanner:
     connect(&m_treeScanner, &TreeScanner::finished,

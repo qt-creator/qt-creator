@@ -14,7 +14,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectupdater.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
@@ -177,6 +177,7 @@ void MachineFileManager::cleanupMachineFiles()
 MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
     : BuildSystem(bc)
     , m_parser(MesonToolKitAspect::mesonToolId(bc->kit()), bc->environment(), project())
+    , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
     qCDebug(mesonBuildSystemLog) << "Init";
     connect(bc->target(), &ProjectExplorer::Target::kitChanged, this, [this] {
@@ -239,8 +240,8 @@ void MesonBuildSystem::parsingCompleted(bool success)
     if (success) {
         setRootProjectNode(m_parser.takeProjectNode());
         if (kit() && buildConfiguration()) {
-            ProjectExplorer::KitInfo kitInfo{kit()};
-            m_cppCodeModelUpdater.update(
+            KitInfo kitInfo{kit()};
+            m_cppCodeModelUpdater->update(
                 {project(),
                  QtSupport::CppKitInfo(kit()),
                  buildConfiguration()->environment(),

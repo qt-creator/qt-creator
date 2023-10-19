@@ -5,9 +5,11 @@
 
 #include "makefileparserthread.h"
 
-#include <cppeditor/cppprojectupdater.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/projectupdater.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtcppkitinfo.h>
 
 #include <utils/filesystemwatcher.h>
@@ -20,7 +22,7 @@ namespace AutotoolsProjectManager::Internal {
 
 AutotoolsBuildSystem::AutotoolsBuildSystem(Target *target)
     : BuildSystem(target)
-    , m_cppCodeModelUpdater(new CppEditor::CppProjectUpdater)
+    , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
     connect(target, &Target::activeBuildConfigurationChanged, this, [this] { requestParse(); });
     connect(target->project(), &Project::projectFileIsDirty, this, [this] { requestParse(); });

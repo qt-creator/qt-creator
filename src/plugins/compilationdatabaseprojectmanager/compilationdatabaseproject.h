@@ -15,12 +15,15 @@
 
 #include <QFutureWatcher>
 
-namespace CppEditor { class CppProjectUpdater; }
-namespace ProjectExplorer { class Kit; }
+namespace ProjectExplorer {
+class Kit;
+class ProjectUpdater;
+} // ProjectExplorer
+
 namespace Utils { class FileSystemWatcher; }
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
+
 class CompilationDbParser;
 
 class CompilationDatabaseProject : public ProjectExplorer::Project
@@ -49,7 +52,7 @@ public:
     void buildTreeAndProjectParts();
 
     QFutureWatcher<void> m_parserWatcher;
-    std::unique_ptr<CppEditor::CppProjectUpdater> m_cppCodeModelUpdater;
+    std::unique_ptr<ProjectExplorer::ProjectUpdater> m_cppCodeModelUpdater;
     MimeBinaryCache m_mimeBinaryCache;
     QByteArray m_projectFileHash;
     CompilationDbParser *m_parser = nullptr;
@@ -68,5 +71,4 @@ public:
     CompilationDatabaseBuildConfigurationFactory();
 };
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // CompilationDatabaseProjectManager::Internal

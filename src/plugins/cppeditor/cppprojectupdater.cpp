@@ -11,6 +11,7 @@
 #include <coreplugin/progressmanager/taskprogress.h>
 
 #include <projectexplorer/extracompiler.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -23,11 +24,6 @@ namespace CppEditor {
 
 CppProjectUpdater::CppProjectUpdater() = default;
 CppProjectUpdater::~CppProjectUpdater() = default;
-
-void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo)
-{
-    update(projectUpdateInfo, {});
-}
 
 void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
                                const QList<ProjectExplorer::ExtraCompiler *> &extraCompilers)
@@ -108,15 +104,13 @@ void CppProjectUpdater::cancel()
 }
 
 namespace Internal {
+
 CppProjectUpdaterFactory::CppProjectUpdaterFactory()
 {
-    setObjectName("CppProjectUpdaterFactory");
+    setLanguage(Constants::CXX_LANGUAGE_ID);
+    setCreator([] { return new CppProjectUpdater; });
 }
 
-CppProjectUpdaterInterface *CppProjectUpdaterFactory::create()
-{
-    return new CppProjectUpdater;
-}
 } // namespace Internal
 
 } // namespace CppEditor

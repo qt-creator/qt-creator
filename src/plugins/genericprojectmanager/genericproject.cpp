@@ -3,8 +3,6 @@
 
 #include "genericproject.h"
 
-#include "genericbuildconfiguration.h"
-#include "genericmakestep.h"
 #include "genericprojectconstants.h"
 #include "genericprojectmanagertr.h"
 
@@ -12,10 +10,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
-
-#include <cppeditor/cppprojectupdaterinterface.h>
-
-#include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/buildinfo.h>
@@ -27,6 +21,8 @@
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projectupdater.h>
+
 #include <projectexplorer/selectablefilesmodel.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -156,7 +152,7 @@ private:
     QStringList m_cxxflags;
     QStringList m_cflags;
 
-    CppEditor::CppProjectUpdaterInterface *m_cppCodeModelUpdater = nullptr;
+    ProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
     FileSystemWatcher m_deployFileWatcher;
 };
@@ -186,16 +182,7 @@ GenericProject::GenericProject(const Utils::FilePath &fileName)
 GenericBuildSystem::GenericBuildSystem(Target *target)
     : BuildSystem(target)
 {
-    QObject *projectUpdaterFactory = ExtensionSystem::PluginManager::getObjectByName(
-        "CppProjectUpdaterFactory");
-    if (projectUpdaterFactory) {
-        const bool successFullyCreatedProjectUpdater
-            = QMetaObject::invokeMethod(projectUpdaterFactory,
-                                        "create",
-                                        Q_RETURN_ARG(CppEditor::CppProjectUpdaterInterface *,
-                                                     m_cppCodeModelUpdater));
-        QTC_CHECK(successFullyCreatedProjectUpdater);
-    }
+    m_cppCodeModelUpdater = ProjectUpdaterFactory::createCppProjectUpdater();
 
     connect(target->project(), &Project::projectFileIsDirty, this, [this](const FilePath &p) {
         if (p.endsWith(".files"))

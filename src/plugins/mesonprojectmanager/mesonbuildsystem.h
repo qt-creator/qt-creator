@@ -6,12 +6,12 @@
 #include "mesonprojectparser.h"
 #include "kitdata.h"
 
-#include <cppeditor/cppprojectupdater.h>
-
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/target.h>
 
 #include <utils/filesystemwatcher.h>
+
+namespace ProjectExplorer { class ProjectUpdater; }
 
 namespace MesonProjectManager::Internal {
 
@@ -62,7 +62,7 @@ private:
 
     ProjectExplorer::BuildSystem::ParseGuard m_parseGuard;
     MesonProjectParser m_parser;
-    CppEditor::CppProjectUpdater m_cppCodeModelUpdater;
+    std::unique_ptr<ProjectExplorer::ProjectUpdater> m_cppCodeModelUpdater;
     QStringList m_pendingConfigArgs;
     Utils::FileSystemWatcher m_IntroWatcher;
     KitData m_kitData;

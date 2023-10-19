@@ -8,8 +8,9 @@
 
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icontext.h>
-#include <cppeditor/cppprojectupdater.h>
+
 #include <cppeditor/projectinfo.h>
+
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
@@ -21,8 +22,10 @@
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchainmanager.h>
+
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
@@ -42,7 +45,6 @@ namespace CompilationDatabaseProjectManager {
 namespace Internal {
 
 namespace {
-
 
 bool isGccCompiler(const QString &compilerName)
 {
@@ -312,7 +314,7 @@ void createTree(std::unique_ptr<ProjectNode> &root,
 
 CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(Target *target)
     : BuildSystem(target)
-    , m_cppCodeModelUpdater(std::make_unique<CppEditor::CppProjectUpdater>())
+    , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
     , m_deployFileWatcher(new FileSystemWatcher(this))
 {
     connect(target->project(), &CompilationDatabaseProject::rootProjectDirectoryChanged,

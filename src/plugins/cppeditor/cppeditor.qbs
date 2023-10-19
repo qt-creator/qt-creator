@@ -150,7 +150,6 @@ QtcPlugin {
         "cppprojectinfogenerator.h",
         "cppprojectupdater.cpp",
         "cppprojectupdater.h",
-        "cppprojectupdaterinterface.h",
         "cppquickfix.cpp",
         "cppquickfix.h",
         "cppquickfixassistant.cpp",

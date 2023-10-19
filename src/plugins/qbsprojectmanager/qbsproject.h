@@ -20,7 +20,7 @@
 
 #include <functional>
 
-namespace CppEditor { class CppProjectUpdater; }
+namespace ProjectExplorer { class ProjectUpdater; }
 
 namespace QbsProjectManager {
 namespace Internal {
@@ -136,7 +136,7 @@ private:
     Utils::Environment m_lastParseEnv;
     std::unique_ptr<QbsRequest> m_parseRequest;
 
-    CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
+    ProjectExplorer::ProjectUpdater *m_cppCodeModelUpdater = nullptr;
 
     QHash<ProjectExplorer::ExtraCompilerFactory *, QStringList> m_sourcesForGeneratedFiles;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
