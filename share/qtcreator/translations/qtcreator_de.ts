@@ -28336,11 +28336,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Docker executable not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Docker nicht gefunden</translation>
     </message>
     <message>
         <source>Failed to retrieve docker networks. Exit code: %1. Error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Netzwerke konnten nicht abgerufen werden. Rückgabewert: %1. Fehler: %2</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a directory or does not exist.</source>
@@ -28356,39 +28356,39 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Run as outside user:</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Benutzer von außerhalb ausführen:</translation>
     </message>
     <message>
         <source>Do not modify entry point:</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstiegspunkt nicht ändern:</translation>
     </message>
     <message>
         <source>Enable flags needed for LLDB:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert Optionen, die für LLDB benötigt werden:</translation>
     </message>
     <message>
         <source>Extra arguments:</source>
-        <translation type="unfinished">Zusätzliche Argumente:</translation>
+        <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
         <source>Extra arguments to pass to docker create.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Argumente für docker create.</translation>
     </message>
     <message>
         <source>Network:</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerk:</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Der Pfad &quot;%1&quot; existiert nicht.</translation>
+        <translation>Der Pfad &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>angehalten</translation>
     </message>
     <message>
         <source>Error starting remote shell. No container.</source>
@@ -28400,15 +28400,15 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Image &quot;%1&quot; is not available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Image &quot;%1&quot; ist nicht verfügbar.</translation>
     </message>
     <message>
         <source>Failed creating Docker container. Exit code: %1, output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Container konnte nicht erstellt werden. Rückgabewert: %1, Ausgabe: %2</translation>
     </message>
     <message>
         <source>Failed creating Docker container. No container ID received.</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Container konnte nicht erstellt werden. Keine Container-ID erhalten.</translation>
     </message>
     <message>
         <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart %1.</source>
@@ -28417,23 +28417,23 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed to create container shell (Out of memory).</source>
-        <translation type="unfinished"></translation>
+        <translation>Container-Shell konnte nicht erstellt werden (nicht genügend Speicherplatz).</translation>
     </message>
     <message>
         <source>Cannot start docker device from non-main thread</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Gerät kann nur vom Haupt-Thread gestartet werden</translation>
     </message>
     <message>
         <source>Device is shut down</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät ist heruntergefahren</translation>
     </message>
     <message>
         <source>Docker system is not reachable</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-System ist nicht erreichbar</translation>
     </message>
     <message>
         <source>Running</source>
-        <translation type="unfinished">Läuft</translation>
+        <translation>Läuft</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
@@ -28505,7 +28505,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Host directories to mount into the container.</source>
-        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen.</translation>
+        <translation>Host-Verzeichnisse, die in den Container eingehängt werden sollen.</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
@@ -28545,7 +28545,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed to start container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Container konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Docker daemon appears to be stopped.</source>
@@ -28569,11 +28569,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Container state:</source>
-        <translation type="unfinished"></translation>
+        <translation>Container-Status:</translation>
     </message>
     <message>
         <source>Command line:</source>
-        <translation type="unfinished">Kommandozeile:</translation>
+        <translation>Kommandozeile:</translation>
     </message>
     <message>
         <source>Daemon state not evaluated.</source>
