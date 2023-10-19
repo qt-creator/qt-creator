@@ -30832,19 +30832,19 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>Finds the commit that introduced the last real code changes to the line.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet den Commit, der die letzten echten Codeänderungen in der Zeile eingebracht hat.</translation>
     </message>
     <message>
         <source>Finds the commit that introduced the line before it was moved.</source>
-        <translation type="unfinished"></translation>
+        <translation>Findet den Commit, der die Zeile eingeführt hat, bevor sie bewegt wurde.</translation>
     </message>
     <message>
         <source>Ignore whitespace changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen der Leerzeichen ignorieren</translation>
     </message>
     <message>
         <source>Ignore line moves</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeilenbewegungen ignorieren</translation>
     </message>
     <message>
         <source>Git</source>
@@ -31978,7 +31978,7 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>&lt;b&gt;Note:&lt;/b&gt; &quot;%1&quot; or &quot;%2&quot; is enabled in the instant blame settings.</source>
         <extracomment>%1 and %2 are the &quot;ignore whitespace changes&quot; and &quot;ignore line moves&quot; options</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Hinweis:&lt;/b&gt; &quot;%1&quot; oder &quot;%2&quot; ist in den Einstellungen für Instant Blame aktiviert.</translation>
     </message>
     <message>
         <source>Diff of &quot;%1&quot;</source>
@@ -32707,7 +32707,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Antialias</source>
-        <translation type="unfinished">Kantenglättung</translation>
+        <translation>Kantenglättung</translation>
     </message>
     <message>
         <source>Use &amp;Blank Page</source>
@@ -33039,7 +33039,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Purge Outdated Documentation</source>
-        <translation type="unfinished"></translation>
+        <translation>Veraltete Dokumentation bereinigen</translation>
     </message>
     <message>
         <source>QtWebEngine</source>
@@ -33178,7 +33178,7 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Resume Paused Animation</source>
-        <translation type="unfinished"></translation>
+        <translation>Angehaltene Animation fortsetzen</translation>
     </message>
     <message>
         <source>Image Viewer</source>
