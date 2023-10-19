@@ -34168,27 +34168,27 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Symbols in Workspace</source>
-        <translation>Symbole im Arbeitsbereich</translation>
+        <translation>Symbole im Workspace</translation>
     </message>
     <message>
         <source>Locates symbols in the language server workspace.</source>
-        <translation>Findet Symbole im Arbeitsbereich des Language Servers.</translation>
+        <translation>Findet Symbole im Workspace des Language Servers.</translation>
     </message>
     <message>
         <source>Classes and Structs in Workspace</source>
-        <translation>Klassen und Strukturen im Arbeitsbereich</translation>
+        <translation>Klassen und Strukturen im Workspace</translation>
     </message>
     <message>
         <source>Locates classes and structs in the language server workspace.</source>
-        <translation>Findet Klassen und Strukturen im Arbeitsbereich des Language Servers.</translation>
+        <translation>Findet Klassen und Strukturen im Workspace des Language Servers.</translation>
     </message>
     <message>
         <source>Functions and Methods in Workspace</source>
-        <translation>Funktionen und Methoden im Arbeitsbereich</translation>
+        <translation>Funktionen und Methoden im Workspace</translation>
     </message>
     <message>
         <source>Locates functions and methods in the language server workspace.</source>
-        <translation>Findet Funktionen und Methoden im Arbeitsbereich des Language Servers.</translation>
+        <translation>Findet Funktionen und Methoden im Workspace des Language Servers.</translation>
     </message>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
@@ -34266,12 +34266,13 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Workspace Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace-Konfiguration</translation>
     </message>
     <message>
         <source>Additional JSON configuration sent to all running language servers for this project.
 See the documentation of the specific language server for valid settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche JSON-Konfiguration, die an alle laufenden Language Server für dieses Projekt gesendet wird.
+Für gültige Einstellungen schauen Sie in die Dokumentation des benutzten Language Servers.</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -34311,7 +34312,7 @@ See the documentation of the specific language server for valid settings.</sourc
     <message>
         <source>failed to initialize</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Initialisierung fehlgeschlagen</translation>
     </message>
     <message>
         <source>initialized</source>
@@ -34381,7 +34382,7 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Language Server</source>
-        <translation type="unfinished">Language Server</translation>
+        <translation>Language Server</translation>
     </message>
     <message>
         <source>Generic StdIO Language Server</source>
@@ -34537,15 +34538,15 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Create %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle %1</translation>
     </message>
     <message>
         <source>Rename %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 in %2 umbenennen</translation>
     </message>
     <message>
         <source>Delete %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 löschen</translation>
     </message>
 </context>
 <context>
@@ -43037,19 +43038,19 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Select PySide Version</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide-Version auswählen</translation>
     </message>
     <message>
         <source>Select which PySide version to install:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu installierende PySide-Version aus:</translation>
     </message>
     <message>
         <source>Latest PySide from the Python Package Index</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte PySide-Version aus dem Python-Paketindex</translation>
     </message>
     <message>
         <source>PySide %1 Wheel (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide %1 Wheel (%2)</translation>
     </message>
     <message>
         <source>%1 installation missing for %2 (%3)</source>
@@ -43181,7 +43182,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Issues parsed from Python runtime output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die in der Laufzeitausgabe von Python gefunden wurden.</translation>
     </message>
 </context>
 <context>
