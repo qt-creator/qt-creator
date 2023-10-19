@@ -1030,8 +1030,8 @@ void LldbEngine::fetchDisassembler(DisassemblerAgent *agent)
 void LldbEngine::fetchFullBacktrace()
 {
     DebuggerCommand cmd("fetchFullBacktrace");
-    cmd.callback = [](const DebuggerResponse &response)  {
-        Internal::openTextEditor("Backtrace $", fromHex(response.data.data()));
+    cmd.callback = [](const DebuggerResponse &response) {
+        Internal::openTextEditor("Backtrace $", fromHex(response.data["fulltrace"].data()));
     };
     runCommand(cmd);
 }

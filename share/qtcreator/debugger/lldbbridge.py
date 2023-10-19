@@ -1836,11 +1836,11 @@ class Dumper(DumperBase):
         self.process.SetSelectedThreadByID(int(args['id']))
         self.reportResult('', args)
 
-    def fetchFullBacktrace(self, _=None):
+    def fetchFullBacktrace(self, args):
         command = 'thread backtrace all'
         result = lldb.SBCommandReturnObject()
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
-        self.reportResult(self.hexencode(result.GetOutput()), {})
+        self.reportResult('fulltrace="%s"' % self.hexencode(result.GetOutput()), args)
 
     def executeDebuggerCommand(self, args):
         self.reportToken(args)
