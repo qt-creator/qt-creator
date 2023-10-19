@@ -6,6 +6,7 @@
 #include <utils/smallstringio.h>
 
 #include <QCoreApplication>
+#include <QImage>
 #include <QThread>
 
 #include <fstream>
@@ -101,6 +102,43 @@ std::string getThreadName()
 }
 
 } // namespace
+
+namespace Internal {
+template<typename String>
+void convertToString(String &string, const QImage &image)
+{
+    using namespace std::string_view_literals;
+    auto dict = dictonary(keyValue("width", image.width()),
+                          keyValue("height", image.height()),
+                          keyValue("bytes", image.sizeInBytes()),
+                          keyValue("has alpha channel", image.hasAlphaChannel()),
+                          keyValue("is color", !image.isGrayscale()),
+                          keyValue("pixel format",
+                                   dictonary(keyValue("bits per pixel",
+                                                      image.pixelFormat().bitsPerPixel()),
+                                             keyValue("byte order",
+                                                      [&] {
+                                                          if (image.pixelFormat().byteOrder()
+                                                              == QPixelFormat::BigEndian)
+                                                              return "big endian"sv;
+                                                          else
+                                                              return "little endian"sv;
+                                                      }),
+                                             keyValue("premultiplied", [&] {
+                                                 if (image.pixelFormat().premultiplied()
+                                                     == QPixelFormat::Premultiplied)
+                                                     return "premultiplied"sv;
+                                                 else
+                                                     return "alpha premultiplied"sv;
+                                             }))));
+
+    Internal::convertToString(string, dict);
+}
+
+template NANOTRACE_EXPORT void convertToString(std::string &string, const QImage &image);
+template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, const QImage &image);
+
+} // namespace Internal
 
 template<typename TraceEvent>
 void flushEvents(const Utils::span<TraceEvent> events,

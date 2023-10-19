@@ -96,32 +96,7 @@ void AsynchronousImageCache::request(Utils::SmallStringView name,
             abortCallback(ImageCache::AbortReason::Failed);
         } else {
             captureCallback(*entry);
-            storageTraceToken.end(
-                keyValue("storage id", id),
-                keyValue("image",
-                         dictonary(keyValue("width", entry->width()),
-                                   keyValue("height", entry->height()),
-                                   keyValue("bytes", entry->sizeInBytes()),
-                                   keyValue("has alpha channel", entry->hasAlphaChannel()),
-                                   keyValue("is color", !entry->isGrayscale()),
-                                   keyValue("pixel format",
-                                            dictonary(keyValue("bits per pixel",
-                                                               entry->pixelFormat().bitsPerPixel()),
-                                                      keyValue("byte order",
-                                                               [&] {
-                                                                   if (entry->pixelFormat().byteOrder()
-                                                                       == QPixelFormat::BigEndian)
-                                                                       return "big endian"sv;
-                                                                   else
-                                                                       return "little endian"sv;
-                                                               }),
-                                                      keyValue("premultiplied", [&] {
-                                                          if (entry->pixelFormat().premultiplied()
-                                                              == QPixelFormat::Premultiplied)
-                                                              return "premultiplied"sv;
-                                                          else
-                                                              return "alpha premultiplied"sv;
-                                                      }))))));
+            storageTraceToken.end(keyValue("storage id", id), keyValue("image", *entry));
         }
     } else {
         storageTraceToken.end();

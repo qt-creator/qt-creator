@@ -49,6 +49,8 @@ constexpr Tracing tracingStatus()
 #  define NO_UNIQUE_ADDRESS
 #endif
 
+using ArgumentsString = Utils::BasicSmallString<510>;
+
 namespace Literals {
 struct TracerLiteral
 {
@@ -93,6 +95,12 @@ void convertToString(String &string, std::string_view text)
     string.append(text);
     string.append(R"(")");
 }
+
+template<typename String>
+void convertToString(String &string, const QImage &image);
+
+extern template NANOTRACE_EXPORT void convertToString(std::string &string, const QImage &image);
+extern template NANOTRACE_EXPORT void convertToString(ArgumentsString &string, const QImage &image);
 
 template<typename String, std::size_t size>
 void convertToString(String &string, const char (&text)[size])
@@ -323,9 +331,8 @@ struct TraceEvent
     char type = ' ';
 };
 
-using SmallArgumentsString = Utils::BasicSmallString<510>;
 using StringViewTraceEvent = TraceEvent<std::string_view, std::string_view>;
-using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, SmallArgumentsString>;
+using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, ArgumentsString>;
 using StringTraceEvent = TraceEvent<std::string, std::string>;
 
 enum class IsEnabled { No, Yes };

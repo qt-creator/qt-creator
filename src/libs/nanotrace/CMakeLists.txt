@@ -6,7 +6,7 @@ add_qtc_library(Nanotrace
     nanotraceglobals.h
     nanotrace.cpp nanotrace.h
     nanotracehr.cpp nanotracehr.h
-  PUBLIC_DEPENDS Qt::Core
+  PUBLIC_DEPENDS Qt::Core Qt::Gui
   PROPERTIES
     CXX_VISIBILITY_PRESET default
     VISIBILITY_INLINES_HIDDEN OFF
