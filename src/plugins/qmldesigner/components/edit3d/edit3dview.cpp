@@ -716,7 +716,7 @@ void Edit3DView::createEdit3DActions()
         QmlDesigner::Constants::EDIT3D_EDIT_CAMERA,
         View3DActionType::CameraToggle,
         QCoreApplication::translate("CameraToggleAction",
-                                    "Toggle Perspective/Orthographic Edit Camera"),
+                                    "Toggle Perspective/Orthographic Camera Mode"),
         QKeySequence(Qt::Key_T),
         true,
         false,
