@@ -12,6 +12,9 @@ import EffectMakerBackend
 Column {
     id: root
 
+    property real animatedTime: 0 //TODO get from animator
+    property int animatedFrame: 0 //TODO get from animator
+
     width: parent.width
 
     required property Item mainRoot

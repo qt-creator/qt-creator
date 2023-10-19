@@ -60,6 +60,20 @@ EffectMakerModel::EffectMakerModel(QObject *parent)
         m_vertexShaderFilename = m_vertexShaderFile.fileName();
         m_fragmentShaderFilename = m_fragmentShaderFile.fileName();
     }
+
+    connect(&m_fileWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this]() {
+        // Update component with images not set.
+        m_loadComponentImages = false;
+        updateQmlComponent();
+        // Then enable component images with a longer delay than
+        // the component updating delay. This way Image elements
+        // will reload the changed image files.
+        const int enableImagesDelay = 200;
+        QTimer::singleShot(enableImagesDelay, this, [this]() {
+            m_loadComponentImages = true;
+            updateQmlComponent();
+        } );
+    });
 }
 
 QHash<int, QByteArray> EffectMakerModel::roleNames() const
@@ -734,6 +748,7 @@ void EffectMakerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QS
     --m_remainingQsbTargets;
 
     const QString errStr = qsbProcess->errorString();
+    auto std = qsbProcess->stdErr();
     if (!errStr.isEmpty())
         qWarning() << QString("Failed to generate QSB file for: %1 %2").arg(shader, errStr);
 
@@ -891,12 +906,47 @@ void EffectMakerModel::setShadersUpToDate(bool UpToDate)
     emit shadersUpToDateChanged();
 }
 
+// Returns name for image mipmap property.
+// e.g. "myImage" -> "myImageMipmap".
+QString EffectMakerModel::mipmapPropertyName(const QString &name) const
+{
+    QString simplifiedName = name.simplified();
+    simplifiedName = simplifiedName.remove(' ');
+    simplifiedName += "Mipmap";
+    return simplifiedName;
+}
+
 QString EffectMakerModel::getQmlImagesString(bool localFiles)
 {
-    Q_UNUSED(localFiles)
-
-    // TODO
-    return QString();
+    QString imagesString;
+    const QList<Uniform *> uniforms = allUniforms();
+    for (Uniform *uniform : uniforms) {
+        if (uniform->type() == Uniform::Type::Sampler) {
+            QString imagePath = uniform->value().toString();
+            if (imagePath.isEmpty())
+                continue;
+            imagesString += "        Image {\n";
+            QString simplifiedName = getImageElementName(*uniform);
+            imagesString += QString("            id: %1\n").arg(simplifiedName);
+            imagesString += "            anchors.fill: parent\n";
+            // File paths are absolute, return as local when requested
+            if (localFiles) {
+                QFileInfo fi(imagePath);
+                imagePath = fi.fileName();
+            }
+            if (m_loadComponentImages)
+                imagesString += QString("            source: \"%1\"\n").arg(imagePath);
+            if (!localFiles) {
+                QString mipmapProperty = mipmapPropertyName(uniform->name());
+                imagesString += QString("            mipmap: g_propertyData.%1\n").arg(mipmapProperty);
+            } else if (uniform->enableMipmap()) {
+                imagesString += "            mipmap: true\n";
+            }
+            imagesString += "            visible: false\n";
+            imagesString += "        }\n";
+        }
+    }
+    return imagesString;
 }
 
 QString EffectMakerModel::getQmlComponentString(bool localFiles)
@@ -969,6 +1019,36 @@ void EffectMakerModel::updateQmlComponent()
     // Clear possible QML runtime errors
     resetEffectError(ErrorQMLRuntime);
     m_qmlComponentString = getQmlComponentString(false);
+}
+
+// Removes "file:" from the URL path.
+// So e.g. "file:///C:/myimages/steel1.jpg" -> "C:/myimages/steel1.jpg"
+QString EffectMakerModel::stripFileFromURL(const QString &urlString) const
+{
+    QUrl url(urlString);
+    QString filePath = (url.scheme() == QStringLiteral("file")) ? url.toLocalFile() : url.toString();
+    return filePath;
+}
+
+void EffectMakerModel::updateImageWatchers()
+{
+    const QList<Uniform *> uniforms = allUniforms();
+    for (Uniform *uniform : uniforms) {
+        if (uniform->type() == Uniform::Type::Sampler) {
+            // Watch all image properties files
+            QString imagePath = stripFileFromURL(uniform->value().toString());
+            if (imagePath.isEmpty())
+                continue;
+            m_fileWatcher.addFile(imagePath, Utils::FileSystemWatcher::WatchAllChanges);
+        }
+    }
+}
+
+void EffectMakerModel::clearImageWatchers()
+{
+    const auto watchedFiles = m_fileWatcher.files();
+    if (!watchedFiles.isEmpty())
+        m_fileWatcher.removeFiles(watchedFiles);
 }
 
 } // namespace EffectMaker

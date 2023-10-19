@@ -102,7 +102,7 @@ void CompositionNode::parse(const QString &qenPath)
     // parse properties
     QJsonArray jsonProps = json.value("properties").toArray();
     for (const auto /*QJsonValueRef*/ &prop : jsonProps) {
-        const auto uniform = new Uniform(prop.toObject());
+        const auto uniform = new Uniform(prop.toObject(), qenPath);
         m_unifomrsModel.addUniform(uniform);
         g_propertyData.insert(uniform->name(), uniform->value());
     }

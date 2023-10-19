@@ -42,7 +42,7 @@ public:
         Define
     };
 
-    Uniform(const QJsonObject &props);
+    Uniform(const QJsonObject &props, const QString &qenPath);
 
     Type type() const;
     QString typeName() const;
@@ -87,6 +87,7 @@ private:
     QVariant getInitializedVariant(bool maxValue);
     QVariant valueStringToVariant(const QString &value);
 
+    QString m_qenPath;
     Type m_type;
     QVariant m_value;
     QVariant m_defaultValue;

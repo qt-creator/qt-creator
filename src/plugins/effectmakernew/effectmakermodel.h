@@ -6,7 +6,9 @@
 #include "shaderfeatures.h"
 
 #include <utils/filepath.h>
+#include <utils/filesystemwatcher.h>
 
+#include <QFileSystemWatcher>
 #include <QMap>
 #include <QRegularExpression>
 #include <QStandardItemModel>
@@ -132,10 +134,14 @@ private:
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
     void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader);
+    QString stripFileFromURL(const QString &urlString) const;
+    void updateImageWatchers();
+    void clearImageWatchers();
 
     void updateCustomUniforms();
     void bakeShaders();
 
+    QString mipmapPropertyName(const QString &name) const;
     QString getQmlImagesString(bool localFiles);
     QString getQmlComponentString(bool localFiles);
 
@@ -169,6 +175,8 @@ private:
     // Used in preview QML, at ShaderEffect component of the file
     QString m_previewEffectPropertiesString;
     QString m_qmlComponentString;
+    bool m_loadComponentImages = true;
+    Utils::FileSystemWatcher m_fileWatcher;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

@@ -32,6 +32,12 @@ Item {
 
         EffectMakerPreview {
             mainRoot: root
+
+            FrameAnimation {
+                id: previewFrameTimer
+                running: true
+                paused: false // TODO: from the toolbar
+            }
         }
 
         Rectangle {

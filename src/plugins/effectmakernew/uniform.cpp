@@ -4,6 +4,7 @@
 #include "uniform.h"
 #include <qmldesignerplugin.h>
 
+#include "propertyhandler.h"
 
 #include <QColor>
 #include <QJsonObject>
@@ -11,7 +12,8 @@
 
 namespace EffectMaker {
 
-Uniform::Uniform(const QJsonObject &propObj)
+Uniform::Uniform(const QJsonObject &propObj, const QString &qenPath) :
+    m_qenPath(qenPath)
 {
     QString value, defaultValue, minValue, maxValue;
 
@@ -31,6 +33,7 @@ Uniform::Uniform(const QJsonObject &propObj)
             m_enableMipmap = getBoolValue(propObj.value("enableMipmap"), false);
         // Update the mipmap property
         QString mipmapProperty = mipmapPropertyName(m_name);
+        g_propertyData[mipmapProperty] = m_enableMipmap;
     }
     if (propObj.contains("value")) {
         value = propObj.value("value").toString();
@@ -164,9 +167,13 @@ bool Uniform::getBoolValue(const QJsonValue &jsonValue, bool defaultValue)
 // Used with sampler types
 QString Uniform::getResourcePath(const QString &value) const
 {
-    Q_UNUSED(value)
-    //TODO
-    return {};
+    QString filePath = value;
+    QDir dir(m_qenPath);
+    dir.cdUp();
+    QString absPath = dir.absoluteFilePath(filePath);
+    absPath = QDir::cleanPath(absPath);
+    absPath = QUrl::fromLocalFile(absPath).toString();
+    return absPath;
 }
 
 // Validation and setting values
@@ -263,10 +270,8 @@ QString Uniform::stringFromType(Uniform::Type type)
         return "vec2";
     else if (type == Type::Vec3)
         return "vec3";
-    else if (type == Type::Vec4)
+    else if (type == Type::Vec4 || type == Type::Color)
         return "vec4";
-    else if (type == Type::Color)
-        return "color";
     else if (type == Type::Sampler)
         return "sampler2D";
     else if (type == Type::Define)
@@ -292,7 +297,7 @@ Uniform::Type Uniform::typeFromString(const QString &typeString)
         return Uniform::Type::Vec4;
     else if (typeString == "color")
         return Uniform::Type::Color;
-    else if (typeString == "sampler2D")
+    else if (typeString == "image")
         return Uniform::Type::Sampler;
     else if (typeString == "define")
         return Uniform::Type::Define;
