@@ -15,13 +15,19 @@ Item {
     property int moveFromIdx: 0
     property int moveToIdx: 0
 
+    SaveDialog {
+        id: saveDialog
+        anchors.centerIn: parent
+        onAccepted: print("TODO: export and save effect files")
+    }
+
     Column {
         id: col
         anchors.fill: parent
         spacing: 1
 
         EffectMakerTopBar {
-
+            onSaveClicked: saveDialog.open()
         }
 
         EffectMakerPreview {
