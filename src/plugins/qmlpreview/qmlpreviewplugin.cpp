@@ -413,6 +413,8 @@ void QmlPreviewPluginPrivate::attachToEditor()
 
 void QmlPreviewPluginPrivate::checkEditor()
 {
+    if (m_runningPreviews.isEmpty())
+        return;
     QmlJS::Dialect::Enum dialect = QmlJS::Dialect::AnyLanguage;
     Core::IDocument *doc = m_lastEditor->document();
     const QString mimeType = doc->mimeType();
