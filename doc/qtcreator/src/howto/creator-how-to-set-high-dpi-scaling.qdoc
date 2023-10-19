@@ -15,27 +15,30 @@
     \title Set high DPI scaling
 
     The operating systems that \QC supports implement high dots-per-inch (DPI)
-    scaling at varying levels. Therefore, \QC handles high DPI scaling
-    differently on different operating systems:
+    scaling at varying levels. Therefore, \QC handles \l{High DPI}{high DPI}
+    scaling differently on different operating systems:
 
     \list
         \li On \macos, \QC forces high DPI scaling, which means that it allows
             Qt to use the system scaling factor as the \QC scaling factor.
-        \li On Windows, if you do not set \l{High DPI}
-            {scaling environment variables}, \QC instructs Qt to detect the
-            scaling factor and use it as the \QC scaling factor.
         \li On Linux, \QC leaves it to the user to enable high DPI scaling
             because the process varies so much on different distributions
             and windowing systems that it cannot be reliably done automatically.
     \endlist
 
-    To override the default approach and always enable high DPI scaling:
+    Setting the scale factor or DPI to the exact physical display DPI may not
+    give good visual results due to the fractional scaling involved.
+    \l {Qt::HighDpiScaleFactorRoundingPolicy}{Rounding} the scale factor to 25%
+    increments can improve the results.
+
+    To set the DPI rounding policy:
 
         \list 1
             \li Select \preferences >
                 \uicontrol Environment > \uicontrol Interface.
                 \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
-            \li Select \uicontrol {Enable high DPI scaling}.
+            \li In \uicontrol {DPI rounding policy}, select an option to round
+                DPI up or down.
             \li Restart \QC to have the change take effect.
     \endlist
 */
