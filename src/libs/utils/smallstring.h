@@ -241,6 +241,8 @@ public:
         setSize(newSize);
     }
 
+    void pop_back() noexcept { setSize(size() - 1); }
+
     void clear() noexcept
     {
         this->~BasicSmallString();

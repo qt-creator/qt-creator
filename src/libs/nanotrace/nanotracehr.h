@@ -215,7 +215,6 @@ String toArguments(Arguments &&...arguments)
     if constexpr (tracingStatus() == Tracing::IsEnabled) {
         String text;
         constexpr auto argumentCount = sizeof...(Arguments);
-        text.reserve(sizeof...(Arguments) * 30);
         text.append("{");
         (convertDictonaryEntryToString(text, arguments), ...);
         if (argumentCount)
@@ -309,8 +308,9 @@ struct TraceEvent
     char type = ' ';
 };
 
+using ArgumentsString = Utils::BasicSmallString<510>;
 using StringViewTraceEvent = TraceEvent<std::string_view, std::string_view>;
-using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, std::string>;
+using StringViewWithStringArgumentsTraceEvent = TraceEvent<std::string_view, ArgumentsString>;
 using StringTraceEvent = TraceEvent<std::string, std::string>;
 
 enum class IsEnabled { No, Yes };

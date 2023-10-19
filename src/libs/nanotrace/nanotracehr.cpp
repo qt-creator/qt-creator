@@ -3,6 +3,8 @@
 
 #include "nanotracehr.h"
 
+#include <utils/smallstringio.h>
+
 #include <QCoreApplication>
 #include <QThread>
 
