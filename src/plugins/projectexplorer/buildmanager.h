@@ -14,6 +14,7 @@ namespace ProjectExplorer {
 class BuildItem;
 class Project;
 class RunConfiguration;
+class RunControl;
 class Task;
 
 enum class BuildForRunConfigStatus { Building, NotBuilding, BuildFailed };
@@ -33,8 +34,8 @@ public:
     static void buildProjectWithoutDependencies(Project *project);
     static void cleanProjectWithoutDependencies(Project *project);
     static void rebuildProjectWithoutDependencies(Project *project);
-    static void buildProjectWithDependencies(
-        Project *project, ConfigSelection configSelection = ConfigSelection::Active);
+    static void buildProjectWithDependencies(Project *project,
+        ConfigSelection configSelection = ConfigSelection::Active, RunControl *starter = nullptr);
     static void cleanProjectWithDependencies(Project *project, ConfigSelection configSelection);
     static void rebuildProjectWithDependencies(Project *project, ConfigSelection configSelection);
     static void buildProjects(const QList<Project *> &projects, ConfigSelection configSelection);
