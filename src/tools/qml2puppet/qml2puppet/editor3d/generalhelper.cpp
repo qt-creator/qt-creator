@@ -1059,7 +1059,7 @@ void GeneralHelper::setBgColor(const QVariant &colors)
     }
 }
 
-QVector3D GeneralHelper::dirForRotation(const QQuaternion &rotation)
+QVector3D GeneralHelper::dirForRotation(const QQuaternion &rotation) const
 {
     QMatrix4x4 m;
     m.rotate(rotation);
@@ -1225,9 +1225,15 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
     return hasModel;
 }
 
-bool GeneralHelper::compareVectors(const QVector3D &v1, const QVector3D &v2)
+bool GeneralHelper::compareVectors(const QVector3D &v1, const QVector3D &v2) const
 {
     return qFuzzyCompare(v1[0], v2[0]) && qFuzzyCompare(v1[1], v2[1]) && qFuzzyCompare(v1[2], v2[2]);
+}
+
+bool GeneralHelper::compareQuaternions(const QQuaternion &q1, const QQuaternion &q2) const
+{
+    return qFuzzyCompare(q1.x(), q2.x()) && qFuzzyCompare(q1.y(), q2.y())
+           && qFuzzyCompare(q1.z(), q2.z()) && qFuzzyCompare(q1.scalar(), q2.scalar());
 }
 
 }

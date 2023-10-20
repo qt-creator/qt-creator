@@ -133,8 +133,9 @@ Item {
                 initialPosition: Qt.vector3d(1, 0, 0)
                 onTapped: {
                     let axis = OriginGizmo.Axis.PositiveX
-                    if (_generalHelper.compareVectors(root.targetNode.sceneRotation,
-                                                      root.quaternionForAxis(OriginGizmo.Axis.PositiveX))) {
+                    if (_generalHelper.compareQuaternions(
+                                root.targetNode.sceneRotation,
+                                root.quaternionForAxis(OriginGizmo.Axis.PositiveX))) {
                         axis = OriginGizmo.Axis.NegativeX
                     }
                     root.axisClicked(axis)
@@ -158,8 +159,9 @@ Item {
                 initialPosition: Qt.vector3d(0, 1, 0)
                 onTapped: {
                     let axis = OriginGizmo.Axis.PositiveY
-                    if (_generalHelper.compareVectors(root.targetNode.sceneRotation,
-                                                      root.quaternionForAxis(OriginGizmo.Axis.PositiveY))) {
+                    if (_generalHelper.compareQuaternions(
+                                root.targetNode.sceneRotation,
+                                root.quaternionForAxis(OriginGizmo.Axis.PositiveY))) {
                         axis = OriginGizmo.Axis.NegativeY
                     }
                     root.axisClicked(axis)
@@ -183,8 +185,9 @@ Item {
                 initialPosition: Qt.vector3d(0, 0, 1)
                 onTapped: {
                     let axis = OriginGizmo.Axis.PositiveZ
-                    if (_generalHelper.compareVectors(root.targetNode.sceneRotation,
-                                                      root.quaternionForAxis(OriginGizmo.Axis.PositiveZ))) {
+                    if (_generalHelper.compareQuaternions(
+                                root.targetNode.sceneRotation,
+                                root.quaternionForAxis(OriginGizmo.Axis.PositiveZ))) {
                         axis = OriginGizmo.Axis.NegativeZ
                     }
                     root.axisClicked(axis)
@@ -210,8 +213,9 @@ Item {
                 initialPosition: Qt.vector3d(-1, 0, 0)
                 onTapped: {
                     let axis = OriginGizmo.Axis.NegativeX
-                    if (_generalHelper.compareVectors(root.targetNode.sceneRotation,
-                                                      root.quaternionForAxis(OriginGizmo.Axis.NegativeX))) {
+                    if (_generalHelper.compareQuaternions(
+                                root.targetNode.sceneRotation,
+                                root.quaternionForAxis(OriginGizmo.Axis.NegativeX))) {
                         axis = OriginGizmo.Axis.PositiveX
                     }
                     root.axisClicked(axis)
@@ -231,8 +235,9 @@ Item {
                 initialPosition: Qt.vector3d(0, -1, 0)
                 onTapped: {
                     let axis = OriginGizmo.Axis.NegativeY
-                    if (_generalHelper.compareVectors(root.targetNode.sceneRotation,
-                                                      root.quaternionForAxis(OriginGizmo.Axis.NegativeY))) {
+                    if (_generalHelper.compareQuaternions(
+                                root.targetNode.sceneRotation,
+                                root.quaternionForAxis(OriginGizmo.Axis.NegativeY))) {
                         axis = OriginGizmo.Axis.PositiveY
                     }
                     root.axisClicked(axis)
@@ -252,8 +257,9 @@ Item {
                 initialPosition: Qt.vector3d(0, 0, -1)
                 onTapped: {
                     let axis = OriginGizmo.Axis.NegativeZ
-                    if (_generalHelper.compareVectors(root.targetNode.sceneRotation,
-                                                      root.quaternionForAxis(OriginGizmo.Axis.NegativeZ))) {
+                    if (_generalHelper.compareQuaternions(
+                                root.targetNode.sceneRotation,
+                                root.quaternionForAxis(OriginGizmo.Axis.NegativeZ))) {
                         axis = OriginGizmo.Axis.PositiveZ
                     }
                     root.axisClicked(axis)
