@@ -490,7 +490,6 @@ void SettingsPageWidget::apply()
     const auto restartNecessaryKeys = {DesignerSettingsKey::PUPPET_DEFAULT_DIRECTORY,
                                        DesignerSettingsKey::PUPPET_TOPLEVEL_BUILD_DIRECTORY,
                                        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
-                                       DesignerSettingsKey::PUPPET_KILL_TIMEOUT,
                                        DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
                                        DesignerSettingsKey::DEBUG_PUPPET,
                                        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
