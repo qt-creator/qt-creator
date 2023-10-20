@@ -656,7 +656,7 @@ void CMakeTool::fetchFromCapabilities(bool ignoreCache) const
     QTC_ASSERT_EXPECTED(result, return);
 }
 
-static int getVersion(const QVariantMap &obj, const QString value)
+static int getVersion(const QVariantMap &obj, const QString &value)
 {
     bool ok;
     int result = obj.value(value).toInt(&ok);
