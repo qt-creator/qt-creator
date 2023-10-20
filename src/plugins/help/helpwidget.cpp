@@ -695,6 +695,8 @@ HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url)
         if (currentViewer() == viewer) {
             m_addBookmarkAction->setEnabled(isBookmarkable(url));
             m_openOnlineDocumentationAction->setEnabled(LocalHelpManager::canOpenOnlineHelp(url));
+            if (m_switchToHelp)
+                m_switchToHelp->setEnabled(url != QUrl("about:blank"));
         }
     });
     connect(viewer, &HelpViewer::forwardAvailable, this, [viewer, this](bool available) {
