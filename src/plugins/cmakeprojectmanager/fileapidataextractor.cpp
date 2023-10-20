@@ -644,29 +644,18 @@ static void addCompileGroups(ProjectNode *targetRoot,
         }
     }
 
-    // Calculate base directory for source groups:
     for (size_t i = 0; i < sourceGroupFileNodes.size(); ++i) {
         std::vector<std::unique_ptr<FileNode>> &current = sourceGroupFileNodes[i];
-        FilePath baseDirectory;
-        // All the sourceGroupFileNodes are below sourceDirectory, so this is safe:
-        for (const std::unique_ptr<FileNode> &fn : current) {
-            if (baseDirectory.isEmpty()) {
-                baseDirectory = fn->filePath().parentDir();
-            } else {
-                baseDirectory = FileUtils::commonPath(baseDirectory, fn->filePath());
-            }
-        }
-
-        FolderNode *insertNode = createSourceGroupNode(td.sourceGroups[i],
-                                                       baseDirectory,
-                                                       targetRoot);
-
+        FolderNode *insertNode = td.sourceGroups[i] == "TREE"
+                                     ? targetRoot
+                                     : createSourceGroupNode(td.sourceGroups[i],
+                                                             sourceDirectory,
+                                                             targetRoot);
         if (showSourceFolders) {
-            insertNode->addNestedNodes(std::move(current), baseDirectory);
+            insertNode->addNestedNodes(std::move(current), sourceDirectory);
         } else {
-            for (auto &fileNodes : current) {
+            for (auto &fileNodes : current)
                 insertNode->addNode(std::move(fileNodes));
-            }
         }
     }
 
