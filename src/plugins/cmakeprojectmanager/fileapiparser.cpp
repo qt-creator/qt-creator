@@ -874,11 +874,11 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
         return result;
     }
 
-    auto it = std::find_if(codeModels.cbegin(), codeModels.cend(),
+    auto it = std::find_if(codeModels.begin(), codeModels.end(),
                            [cmakeBuildType](const Configuration& cfg) {
                                return QString::compare(cfg.name, cmakeBuildType, Qt::CaseInsensitive) == 0;
                            });
-    if (it == codeModels.cend()) {
+    if (it == codeModels.end()) {
         QStringList buildTypes;
         for (const Configuration &cfg: codeModels)
             buildTypes << cfg.name;
