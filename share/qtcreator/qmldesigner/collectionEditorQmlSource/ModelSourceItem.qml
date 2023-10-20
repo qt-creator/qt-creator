@@ -21,6 +21,11 @@ Item {
     signal selectItem(int itemIndex)
     signal deleteItem()
 
+    function toggleExpanded() {
+        if (collectionListView.count > 0)
+            root.expanded = !root.expanded || sourceIsSelected;
+    }
+
     Column {
         id: wholeColumn
 
@@ -48,8 +53,7 @@ Item {
                 }
 
                 onDoubleClicked: (event) => {
-                    if (collectionListView.count > 0)
-                       root.expanded = !root.expanded;
+                    root.toggleExpanded()
                 }
             }
 
@@ -78,6 +82,7 @@ Item {
                     color: textColor
 
                     rotation: root.expanded ? 90 : 0
+                    visible: collectionListView.count > 0
 
                     Behavior on rotation {
                         SpringAnimation { spring: 2; damping: 0.2 }
@@ -87,11 +92,10 @@ Item {
                         anchors.fill: parent
                         acceptedButtons: Qt.RightButton + Qt.LeftButton
                         onClicked: (event) => {
-                            root.expanded = !root.expanded
+                            root.toggleExpanded()
                             event.accepted = true
                         }
                     }
-                    visible: collectionListView.count > 0
                 }
 
                 Text {
@@ -325,6 +329,12 @@ Item {
             PropertyChanges {
                 target: root
                 textColor: StudioTheme.Values.themeIconColorSelected
+                expanded: true
+            }
+
+            PropertyChanges {
+                target: expandButton
+                enabled: false
             }
         }
     ]
