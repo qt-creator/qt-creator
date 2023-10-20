@@ -223,21 +223,21 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "<p>Background Priority: Minimum priority, runs on idle CPUs. May leave 'performance' "
         "cores unused.</p>"
         "<p>Normal Priority: Reduced priority compared to interactive work.</p>"
-        "Low Priority: Same priority as other clangd work.");
+        "<p>Low Priority: Same priority as other clangd work.</p>");
     const QString headerSourceSwitchToolTip = Tr::tr(
-        "<p>Which C/C++ backend to use when switching between header and source file."
-        "<p>The clangd implementation has more capabilities, but also has some bugs not present "
-        "in the built-in variant."
-        "<p>When \"Try Both\" is selected, clangd will be employed only if the built-in variant "
-        "does not find anything.");
+        "<p>The C/C++ backend to use for switching between header and source files.</p>"
+        "<p>While the clangd implementation has more capabilities than the built-in "
+        "code model, it tends to find false positives.</p>"
+        "<p>When \"Try Both\" is selected, clangd is used only if the built-in variant "
+        "does not find anything.</p>");
     using RankingModel = ClangdSettings::CompletionRankingModel;
     const QString completionRankingModelToolTip = Tr::tr(
-        "<p>Which model clangd should use to rank possible completions."
-        "<p>This determines the order of candidates in the combo box when doing code completion."
+        "<p>Which model clangd should use to rank possible completions.</p>"
+        "<p>This determines the order of candidates in the combo box when doing code completion.</p>"
         "<p>The \"%1\" model used by default results from (pre-trained) machine learning and "
-        "provides superior results on average."
+        "provides superior results on average.</p>"
         "<p>If you feel that its suggestions stray too much from your expectations for your "
-        "code base, you can try switching to the hand-crafted \"%2\" model.").arg(
+        "code base, you can try switching to the hand-crafted \"%2\" model.</p>").arg(
             ClangdSettings::rankingModelToDisplayString(RankingModel::DecisionForest),
             ClangdSettings::rankingModelToDisplayString(RankingModel::Heuristics));
     const QString workerThreadsToolTip = Tr::tr(
