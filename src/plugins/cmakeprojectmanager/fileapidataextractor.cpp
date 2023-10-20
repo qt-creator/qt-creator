@@ -10,6 +10,7 @@
 #include "projecttreehelper.h"
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/projectinfo.h>
 
 #include <projectexplorer/projecttree.h>
 
@@ -442,27 +443,41 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 return isUnityFile(buildDirectory, path);
             });
 
-            QString headerMimeType;
-            QString sourceMimeType;
-            if (ci.language == "C") {
-                headerMimeType = CppEditor::Constants::C_HEADER_MIMETYPE;
-                sourceMimeType = CppEditor::Constants::C_SOURCE_MIMETYPE;
-            } else if (ci.language == "CXX") {
-                headerMimeType = CppEditor::Constants::CPP_HEADER_MIMETYPE;
-                sourceMimeType = CppEditor::Constants::CPP_SOURCE_MIMETYPE;
-            }
+            const QString headerMimeType = [&]() -> QString {
+                if (ci.language == "C") {
+                    return CppEditor::Constants::C_HEADER_MIMETYPE;
+                } else if (ci.language == "CXX") {
+                    return CppEditor::Constants::CPP_HEADER_MIMETYPE;
+                }
+                return {};
+            }();
+
+            auto haveFileKindForLanguage = [&](const auto &kind) {
+                if (kind == CppEditor::ProjectFile::AmbiguousHeader)
+                    return true;
+
+                if (ci.language == "C")
+                    return CppEditor::ProjectFile::isC(kind);
+                else if (ci.language == "CXX")
+                    return CppEditor::ProjectFile::isCxx(kind);
+
+                return false;
+            };
+
             if (!hasPchSource) {
                 for (const SourceInfo &si : t.sources) {
                     if (si.isGenerated)
                         continue;
-                    const auto mimeTypes = Utils::mimeTypesForFileName(si.path);
-                    for (const auto &mime : mimeTypes) {
-                        const bool headerType = mime.inherits(headerMimeType);
-                        const bool sourceUnityType = hasUnitySources ? mime.inherits(sourceMimeType)
-                                                                     : false;
-                        if (headerType || sourceUnityType)
-                            sources.append(sourceDirectory.resolvePath(si.path));
-                    }
+
+                    const auto kind = CppEditor::ProjectFile::classify(si.path);
+                    const bool headerType = CppEditor::ProjectFile::isHeader(kind)
+                                            && haveFileKindForLanguage(kind);
+                    const bool sourceUnityType = hasUnitySources
+                                                     ? CppEditor::ProjectFile::isSource(kind)
+                                                           && haveFileKindForLanguage(kind)
+                                                     : false;
+                    if (headerType || sourceUnityType)
+                        sources.append(sourceDirectory.resolvePath(si.path));
                 }
             }
             FilePath::removeDuplicates(sources);
@@ -477,9 +492,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             rpp.setFiles(Utils::transform(filtered, &FilePath::toFSPathString),
                          {},
                          [headerMimeType](const QString &path) {
-                             // Similar to ProjectFile::classify but classify headers with language
-                             // of compile group instead of ambiguous header
-                             if (path.endsWith(".h"))
+                             if (CppEditor::ProjectFile::isAmbiguousHeader(path))
                                  return headerMimeType;
                              return Utils::mimeTypeForFile(path).name();
                          });
@@ -514,13 +527,12 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 rpp.setPreCompiledHeaders({qtc_precompiled_header.path()});
             }
 
-            RawProjectPartFlags cProjectFlags;
-            cProjectFlags.commandLineFlags = fragments;
-            rpp.setFlagsForC(cProjectFlags);
-
-            RawProjectPartFlags cxxProjectFlags;
-            cxxProjectFlags.commandLineFlags = cProjectFlags.commandLineFlags;
-            rpp.setFlagsForCxx(cxxProjectFlags);
+            RawProjectPartFlags projectFlags;
+            projectFlags.commandLineFlags = fragments;
+            if (ci.language == "C")
+                rpp.setFlagsForC(projectFlags);
+            else if (ci.language == "CXX")
+                rpp.setFlagsForCxx(projectFlags);
 
             const bool isExecutable = t.type == "EXECUTABLE";
             rpp.setBuildTargetType(isExecutable ? BuildTargetType::Executable
