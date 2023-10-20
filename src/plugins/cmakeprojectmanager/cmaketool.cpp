@@ -228,7 +228,7 @@ FilePath CMakeTool::cmakeExecutable(const FilePath &path)
         }
     }
 
-    const FilePath resolvedPath = path.canonicalPath();
+    FilePath resolvedPath = path.canonicalPath();
     // Evil hack to make snap-packages of CMake work. See QTCREATORBUG-23376
     if (path.osType() == OsTypeLinux && resolvedPath.fileName() == "snap")
         return path;
