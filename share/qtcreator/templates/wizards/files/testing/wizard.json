@@ -62,6 +62,26 @@
                     }
                 },
                 {
+                    "name": "Catch2Version",
+                    "trDisplayName": "Catch2 version:",
+                    "visible": "%{JS: value('TestFrameWork') == 'Catch2'}",
+                    "type": "ComboBox",
+                    "data": {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "2.x",
+                                "value": "V2"
+                            },
+                            {
+                                "trKey": "3.x",
+                                "value": "V3"
+                            }
+                        ]
+                    }
+                },
+                {
                     "name": "TestSuiteName",
                     "trDisplayName": "Test suite name:",
                     "visible": "%{JS: ['BoostTest', 'GTest'].indexOf(value('TestFrameWork')) >= 0}",

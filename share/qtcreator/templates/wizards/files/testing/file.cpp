@@ -24,8 +24,12 @@ BOOST_AUTO_TEST_CASE( %{TestCaseName} )
 
 BOOST_AUTO_TEST_SUITE_END()
 @endif
-@if  "%{TestFrameWork}" == "Catch2"
+@if "%{TestFrameWork}" == "Catch2"
+@if "%{Catch2Version}" == "V2"
 #include <catch2/catch.hpp>
+@else
+#include <catch2/catch_test_macros.hpp>
+@endif
 
 TEST_CASE("Another test with Catch2", "[fancy]")
 {
