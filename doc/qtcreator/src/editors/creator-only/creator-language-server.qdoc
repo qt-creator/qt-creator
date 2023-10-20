@@ -143,14 +143,21 @@
 
     \section2 QML Language Server
 
-    Since Qt 6.4, the \c qmlls language server offers code completion and
-    issues warnings for QML. To enable QML language server support, select
-    \preferences > \uicontrol {Qt Quick} >
-    \uicontrol {QML/JS Editing} > \uicontrol {Use qmlls (EXPERIMENTAL!)}.
+    Since Qt 6.4, the QML language server offers code completion and
+    issues warnings for QML. To use it, select \preferences >
+    \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
+    \uicontrol {Enable QML Language Server}.
+
+    To use advanced features, such as renaming and finding usages, select the
+    \uicontrol {Use QML Language Server advanced features} check box.
+
     To use the latest version of the language server installed on your
-    system, select the \uicontrol {Always use latest qmlls} check box.
+    system, select the
+    \uicontrol {Use QML Language Server from latest Qt version} check box.
 
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
+
+    \sa {Enabling and Disabling Messages}
 
     \section1 Supported Locator Filters
 

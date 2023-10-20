@@ -712,6 +712,8 @@
     \uicontrol {Disable messages for non Qt Quick UI}. You cannot
     enable messages just for non-Qt Quick UI files.
 
+    \sa {QML Language Server}
+
     \section1 Resetting the Code Model
 
     If you change the build and run kit when you have QML files open in the code
