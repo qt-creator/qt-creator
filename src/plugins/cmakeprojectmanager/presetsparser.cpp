@@ -44,7 +44,7 @@ std::optional<QStringList> parseInclude(const QJsonValue &jsonValue)
         if (jsonValue.isArray()) {
             includes = QStringList();
             const QJsonArray includeArray = jsonValue.toArray();
-            for (const QJsonValue &includeValue : includeArray)
+            for (const auto &includeValue : includeArray)
                 includes.value() << includeValue.toString();
         }
     }
@@ -103,7 +103,7 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
             if (object.value("list").isArray()) {
                 condition->list = QStringList();
                 const QJsonArray listArray = object.value("list").toArray();
-                for (const QJsonValue &listValue : listArray)
+                for (const auto &listValue : listArray)
                     condition->list.value() << listValue.toString();
             }
         }
@@ -127,7 +127,7 @@ std::optional<PresetsDetails::Condition> parseCondition(const QJsonValue &jsonVa
             if (object.value("conditions").isArray()) {
                 condition->conditions = std::vector<PresetsDetails::Condition::ConditionPtr>();
                 const QJsonArray conditionsArray = object.value("conditions").toArray();
-                for (const QJsonValue &conditionsValue : conditionsArray) {
+                for (const auto &conditionsValue : conditionsArray) {
                     condition->conditions.value().emplace_back(
                         std::make_shared<PresetsDetails::Condition>(
                             parseCondition(conditionsValue).value()));
@@ -160,7 +160,7 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
         return false;
 
     const QJsonArray configurePresetsArray = jsonValue.toArray();
-    for (const QJsonValue &presetJson : configurePresetsArray) {
+    for (const auto &presetJson : configurePresetsArray) {
         if (!presetJson.isObject())
             continue;
 
@@ -176,7 +176,7 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
             preset.inherits = QStringList();
             if (inherits.isArray()) {
                 const QJsonArray inheritsArray = inherits.toArray();
-                for (const QJsonValue &inheritsValue : inheritsArray)
+                for (const auto &inheritsValue : inheritsArray)
                     preset.inherits.value() << inheritsValue.toString();
             } else {
                 QString inheritsValue = inherits.toString();
@@ -350,7 +350,7 @@ bool parseBuildPresets(const QJsonValue &jsonValue,
         return false;
 
     const QJsonArray buildPresetsArray = jsonValue.toArray();
-    for (const QJsonValue &presetJson : buildPresetsArray) {
+    for (const auto &presetJson : buildPresetsArray) {
         if (!presetJson.isObject())
             continue;
 
@@ -366,7 +366,7 @@ bool parseBuildPresets(const QJsonValue &jsonValue,
             preset.inherits = QStringList();
             if (inherits.isArray()) {
                 const QJsonArray inheritsArray = inherits.toArray();
-                for (const QJsonValue &inheritsValue : inheritsArray)
+                for (const auto &inheritsValue : inheritsArray)
                     preset.inherits.value() << inheritsValue.toString();
             } else {
                 QString inheritsValue = inherits.toString();
@@ -404,7 +404,7 @@ bool parseBuildPresets(const QJsonValue &jsonValue,
             preset.targets = QStringList();
             if (targets.isArray()) {
                 const QJsonArray targetsArray = targets.toArray();
-                for (const QJsonValue &targetsValue : targetsArray)
+                for (const auto &targetsValue : targetsArray)
                     preset.targets.value() << targetsValue.toString();
             } else {
                 QString targetsValue = targets.toString();
@@ -424,7 +424,7 @@ bool parseBuildPresets(const QJsonValue &jsonValue,
             if (nativeToolOptions.isArray()) {
                 preset.nativeToolOptions = QStringList();
                 const QJsonArray toolOptionsArray = nativeToolOptions.toArray();
-                for (const QJsonValue &toolOptionsValue : toolOptionsArray)
+                for (const auto &toolOptionsValue : toolOptionsArray)
                     preset.nativeToolOptions.value() << toolOptionsValue.toString();
             }
         }

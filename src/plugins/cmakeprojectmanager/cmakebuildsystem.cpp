@@ -1521,7 +1521,7 @@ void CMakeBuildSystem::runCTest()
                 const QJsonArray nodes = btGraph.value("nodes").toArray();
                 const QJsonArray tests = jsonObj.value("tests").toArray();
                 int counter = 0;
-                for (const QJsonValue &testVal : tests) {
+                for (const auto &testVal : tests) {
                     ++counter;
                     const QJsonObject test = testVal.toObject();
                     QTC_ASSERT(!test.isEmpty(), continue);
