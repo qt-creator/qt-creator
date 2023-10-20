@@ -490,7 +490,7 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
 
     const QStringList lines = output.split('\n');
     for (int i = 0; i < lines.count(); ++i) {
-        const QString line = lines.at(i);
+        const QString &line = lines.at(i);
 
         if (line == "::") {
             expectDefinition = true;
