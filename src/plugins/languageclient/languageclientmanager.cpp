@@ -172,7 +172,8 @@ void LanguageClientManager::clientFinished(Client *client)
         = managerInstance->m_clientForDocument.keys(client);
     if (unexpectedFinish) {
         if (!PluginManager::isShuttingDown()) {
-            if (client->state() == Client::Initialized && client->reset()) {
+            const bool shouldRestart = client->state() > Client::FailedToInitialize;
+            if (shouldRestart && client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->log(
                     Tr::tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));

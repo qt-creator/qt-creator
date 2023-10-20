@@ -77,6 +77,7 @@ public:
     enum State {
         Uninitialized,
         InitializeRequested,
+        FailedToInitialize,
         Initialized,
         ShutdownRequested,
         Shutdown,
