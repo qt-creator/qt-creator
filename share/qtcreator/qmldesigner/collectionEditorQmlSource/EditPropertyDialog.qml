@@ -94,6 +94,7 @@ StudioControls.Dialog {
                 readonly property bool changed: propertyType.initialType !== propertyType.currentText
 
                 model: root.model.typesList()
+                actionIndicatorVisible: false
 
                 onInitialTypeChanged: {
                     let propertyIndex = propertyType.find(initialType)

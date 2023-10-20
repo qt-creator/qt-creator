@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Layouts
 import Qt.labs.platform as PlatformWidgets
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
@@ -43,7 +44,7 @@ Item {
         IconButton {
             icon: StudioTheme.Constants.addcolumnleft_medium
             tooltip: qsTr("Add property left %1").arg(leftSideToolbar.topPadding)
-            enabled: root.model.selectedColumn > 0
+            enabled: root.model.selectedColumn > -1
             onClicked: addColumnDialog.popUp(root.model.selectedColumn - 1)
         }
 
@@ -189,12 +190,15 @@ Item {
         function popUp(index)
         {
             addColumnDialog.clickedIndex = index
+            columnName.text = ""
+            addedPropertyType.currentIndex = addedPropertyType.find("String")
+
             addColumnDialog.open()
         }
 
         function addColumnName() {
             if (addColumnDialog.nameIsValid) {
-                root.model.addColumn(addColumnDialog.clickedIndex, columnName.text)
+                root.model.addColumn(addColumnDialog.clickedIndex, columnName.text, addedPropertyType.currentText)
                 addColumnDialog.accept()
             } else {
                 addColumnDialog.reject()
@@ -204,8 +208,10 @@ Item {
         contentItem: Column {
             spacing: 2
 
-            Row {
-                spacing: 10
+            GridLayout {
+                rowSpacing: 10
+                columnSpacing: 10
+                columns: 2
 
                 Text {
                     text: qsTr("Column name:")
@@ -228,12 +234,25 @@ Item {
                                                        && !root.model.isPropertyAvailable(columnName.text))
                     }
                 }
-            }
 
-            Text {
-                text: qsTr("The collection already contains \"%1\"!").arg(columnName.text)
-                visible: columnName.text !== "" && !addColumnDialog.nameIsValid
-                color: "red"
+                Text {
+                    text: qsTr("The collection already contains \"%1\"!").arg(columnName.text)
+                    visible: columnName.text !== "" && !addColumnDialog.nameIsValid
+                    color: StudioTheme.Values.themeRedLight
+                    Layout.columnSpan: 2
+                }
+
+                Text {
+                    text: qsTr("Type:")
+                    color: StudioTheme.Values.themeTextColor
+                }
+
+                StudioControls.ComboBox {
+                    id: addedPropertyType
+
+                    model: root.model.typesList()
+                    actionIndicatorVisible: false
+                }
             }
 
             Item { // spacer

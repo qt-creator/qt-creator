@@ -45,7 +45,7 @@ public:
     static DataType typeFromString(const QString &dataType)
     {
         static const QHash<QString, DataType> stringTypeHash = stringToTypeHash();
-        return stringTypeHash.value(dataType);
+        return stringTypeHash.value(dataType, DataType::Unknown);
     }
 
     static QStringList typesStringList()
@@ -263,7 +263,7 @@ bool CollectionDetailsModel::isPropertyAvailable(const QString &name)
     return m_currentCollection.containsPropertyName(name);
 }
 
-bool CollectionDetailsModel::addColumn(int column, const QString &name)
+bool CollectionDetailsModel::addColumn(int column, const QString &name, const QString &propertyType)
 {
     if (m_currentCollection.containsPropertyName(name))
         return false;
@@ -272,7 +272,10 @@ bool CollectionDetailsModel::addColumn(int column, const QString &name)
         column = columnCount();
 
     beginInsertColumns({}, column, column);
-    m_currentCollection.insertColumn(name, column);
+    m_currentCollection.insertColumn(name,
+                                     column,
+                                     {},
+                                     CollectionDataTypeHelper::typeFromString(propertyType));
     endInsertColumns();
     return m_currentCollection.containsPropertyName(name);
 }

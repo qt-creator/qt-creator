@@ -52,7 +52,7 @@ public:
     Q_INVOKABLE QString propertyType(int column) const;
 
     Q_INVOKABLE bool isPropertyAvailable(const QString &name);
-    Q_INVOKABLE bool addColumn(int column, const QString &name);
+    Q_INVOKABLE bool addColumn(int column, const QString &name, const QString &propertyType = {});
     Q_INVOKABLE bool selectColumn(int section);
     Q_INVOKABLE bool renameColumn(int section, const QString &newValue);
     Q_INVOKABLE bool setPropertyType(int column, const QString &newValue, bool force = false);
