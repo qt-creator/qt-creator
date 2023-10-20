@@ -8038,10 +8038,12 @@ void TextEditorWidget::cut()
 
 void TextEditorWidget::selectAll()
 {
-    QPlainTextEdit::selectAll();
     // Directly update the internal multi text cursor here to prevent calling setTextCursor.
-    // This would indirectly makes sure the cursor is visible which is not desired for select all.
-    const_cast<MultiTextCursor &>(d->m_cursors).setCursors({QPlainTextEdit::textCursor()});
+    // This would indirectly make sure the cursor is visible which is not desired for select all.
+    QTextCursor c = QPlainTextEdit::textCursor();
+    c.select(QTextCursor::Document);
+    const_cast<MultiTextCursor &>(d->m_cursors).setCursors({c});
+    QPlainTextEdit::selectAll();
 }
 
 void TextEditorWidget::copy()
