@@ -503,11 +503,9 @@ class GeneratorInfo
 public:
     GeneratorInfo() = default;
     GeneratorInfo(const QString &generator_,
-                  const QString &extraGenerator_ = QString(),
                   const QString &platform_ = QString(),
                   const QString &toolset_ = QString())
         : generator(generator_)
-        , extraGenerator(extraGenerator_)
         , platform(platform_)
         , toolset(toolset_)
     {}
@@ -747,7 +745,7 @@ Tasks CMakeGeneratorKitAspectFactory::validate(const Kit *k) const
         const GeneratorInfo info = generatorInfo(k);
         QList<CMakeTool::Generator> known = tool->supportedGenerators();
         auto it = std::find_if(known.constBegin(), known.constEnd(), [info](const CMakeTool::Generator &g) {
-            return g.matches(info.generator, info.extraGenerator);
+            return g.matches(info.generator);
         });
         if (it == known.constEnd()) {
             addWarning(Tr::tr("CMake Tool does not support the configured generator."));
@@ -786,7 +784,7 @@ void CMakeGeneratorKitAspectFactory::fix(Kit *k)
     QList<CMakeTool::Generator> known = tool->supportedGenerators();
     auto it = std::find_if(known.constBegin(), known.constEnd(),
                            [info](const CMakeTool::Generator &g) {
-        return g.matches(info.generator, info.extraGenerator);
+        return g.matches(info.generator);
     });
     if (it == known.constEnd()) {
         GeneratorInfo dv;
@@ -794,7 +792,6 @@ void CMakeGeneratorKitAspectFactory::fix(Kit *k)
         setGeneratorInfo(k, dv);
     } else {
         const GeneratorInfo dv(isIos(k) ? QString("Xcode") : info.generator,
-                               info.extraGenerator,
                                it->supportsPlatform ? info.platform : QString(),
                                it->supportsToolset ? info.toolset : QString());
         setGeneratorInfo(k, dv);

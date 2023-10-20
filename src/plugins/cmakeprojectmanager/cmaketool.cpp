@@ -45,9 +45,9 @@ const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 const char CMAKE_INFORMATION_DETECTIONSOURCE[] = "DetectionSource";
 const char CMAKE_INFORMATION_READERTYPE[] = "ReaderType";
 
-bool CMakeTool::Generator::matches(const QString &n, const QString &ex) const
+bool CMakeTool::Generator::matches(const QString &n) const
 {
-    return n == name && (ex.isEmpty() || extraGenerators.contains(ex));
+    return n == name;
 }
 
 namespace Internal {
