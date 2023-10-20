@@ -172,7 +172,9 @@ Projects
 * Project specific settings
     * Added C++ file naming settings
       ([QTCREATORBUG-22033](https://bugreports.qt.io/browse/QTCREATORBUG-22033))
+      ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-set-cpp-file-naming.html))
     * Added documentation comment settings
+      ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-document-code.html))
 * Added an option for the Doxygen command prefix
   ([QTCREATORBUG-8096](https://bugreports.qt.io/browse/QTCREATORBUG-8096))
 * Improved performance of filtering the target setup page

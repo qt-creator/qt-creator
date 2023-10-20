@@ -40,6 +40,7 @@
                 \li \l{Parsing C++ Files with the Clang Code Model}{Clangd}
                 \li \l{Using Clang Tools}{Clang Tools}
                 \li \l{Specify code style}{C++ Code Style}
+                \li \l{Set C++ file naming preferences}{C++ File Naming}
                 \li \l{Using Custom Output Parsers}{Custom Output Parsers}
                 \li \l{Specify dependencies}{Dependencies}
                 \li \l{Document code}{Documentation Comments}
