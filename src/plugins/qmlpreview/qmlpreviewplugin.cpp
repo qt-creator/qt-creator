@@ -333,8 +333,8 @@ void QmlPreviewPlugin::previewCurrentFile()
         return;
 
     if (runningPreviews().isEmpty())
-        QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("QML Preview not running"),
-                             Tr::tr("Please start the QML Preview for the project before selecting "
+        QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("QML Preview Not Running"),
+                             Tr::tr("Start the QML Preview for the project before selecting "
                                     "a specific file for preview."));
 
     const QString file = currentNode->filePath().toString();

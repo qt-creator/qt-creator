@@ -253,7 +253,7 @@ void PyDapEngine::setupEngine()
         Utils::InfoBarEntry
             info(installDebugPyInfoBarId,
                  Tr::tr(
-                     "Python Debugging Support is not available. Please install debugpy package."),
+                     "Python debugging support is not available. Install the debugpy package."),
                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
         info.addCustomButton(Tr::tr("Install debugpy"), [this] {
             Core::ICore::infoBar()->removeInfo(installDebugPyInfoBarId);

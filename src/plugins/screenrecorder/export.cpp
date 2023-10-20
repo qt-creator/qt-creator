@@ -155,7 +155,7 @@ ExportWidget::ExportWidget(QWidget *parent)
                                         [&lastFormat] (const Format &f) {
                                             return f.displayName == lastFormat();
                                         }).fileDialogFilter();
-        FilePath file = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save as"), lastDir(),
+        FilePath file = FileUtils::getSaveFilePath(nullptr, Tr::tr("Save As"), lastDir(),
                                                    fileDialogFilters(), &selectedFilter);
         if (!file.isEmpty()) {
             m_currentFormat = findOr(formats(), defaultFormat,

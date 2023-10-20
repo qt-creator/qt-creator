@@ -487,7 +487,7 @@ MarkdownEditorFactory::MarkdownEditorFactory()
             editor->triggerInlineCode();
     });
     cmd = ActionManager::registerAction(&m_linkAction, LINK_ACTION, textContext);
-    cmd->setDescription(Tr::tr("Hyper Link"));
+    cmd->setDescription(Tr::tr("Hyperlink"));
     QObject::connect(&m_linkAction, &QAction::triggered, EditorManager::instance(), [] {
         auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
         if (editor)

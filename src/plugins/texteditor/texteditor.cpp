@@ -9072,7 +9072,7 @@ expected_str<void> TextEditorWidget::configureGenericHighlighter(const QString &
 {
     Highlighter::Definition definition = TextEditor::Highlighter::definitionForName(definitionName);
     if (!definition.isValid())
-        return make_unexpected(Tr::tr("Could not find definition"));
+        return make_unexpected(Tr::tr("Could not find definition."));
 
     d->configureGenericHighlighter(definition);
     d->removeSyntaxInfoBar();

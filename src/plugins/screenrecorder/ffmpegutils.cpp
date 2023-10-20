@@ -98,7 +98,7 @@ CropSizeWarningIcon::CropSizeWarningIcon(IconVariant backgroundType, QWidget *pa
 {
     setMinimumSize(warningIconSize);
     setToolTip(Tr::tr("Width and height are not both divisible by 2. "
-                      "The Video export for some of the lossy formats will not work."));
+                      "The video export for some of the lossy formats will not work."));
     m_updateTimer = new QTimer(this);
     m_updateTimer->setInterval(350);
     m_updateTimer->setSingleShot(true);

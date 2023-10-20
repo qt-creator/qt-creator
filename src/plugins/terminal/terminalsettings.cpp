@@ -489,7 +489,7 @@ TerminalSettings::TerminalSettings()
     lockKeyboard.setSettingsKey("LockKeyboard");
     lockKeyboard.setLabelText(Tr::tr("Block shortcuts in terminal"));
     lockKeyboard.setToolTip(
-        Tr::tr("Keeps Qt Creator short cuts from interfering with the terminal."));
+        Tr::tr("Keeps Qt Creator shortcuts from interfering with the terminal."));
     lockKeyboard.setDefaultValue(true);
 
     audibleBell.setSettingsKey("AudibleBell");

@@ -108,7 +108,7 @@ RecordOptionsDialog::RecordOptionsDialog(QWidget *parent)
     Column {
         Row { m_screenId, st },
         Group {
-            title(Tr::tr("Recorded screen area")),
+            title(Tr::tr("Recorded screen area:")),
             Column {
                 m_cropScene,
                 Row { st, m_cropRectLabel, m_resetButton },
@@ -210,7 +210,7 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
     progressLabel->setEnabled(false);
     progressLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
-    m_openClipAction = new QAction(Tr::tr("Open Mov/qtrle rgb24 file"), this);
+    m_openClipAction = new QAction(Tr::tr("Open Mov/qtrle rgb24 File"), this);
     addAction(m_openClipAction);
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
@@ -289,7 +289,7 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
             } else if (!clip.isLossless()) {
                 QMessageBox::critical(Core::ICore::dialogParent(),
                                       Tr::tr("Clip Not Supported"),
-                                      Tr::tr("Please chose a clip with the \"qtrle\" codec and "
+                                      Tr::tr("Choose a clip with the \"qtrle\" codec and "
                                              "pixel format \"rgb24\"."));
             } else {
                 m_clipInfo.duration = 0;
