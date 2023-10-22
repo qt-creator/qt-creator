@@ -264,6 +264,7 @@ static CMakeConfig configurationFromPresetProbe(
         const QString prefixPath = cache.stringValueOf("CMAKE_PREFIX_PATH");
         const QString findRootPath = cache.stringValueOf("CMAKE_FIND_ROOT_PATH");
         const QString qtHostPath = cache.stringValueOf("QT_HOST_PATH");
+        const QString sysRoot = cache.stringValueOf("CMAKE_SYSROOT");
 
         if (!cmakeMakeProgram.isEmpty()) {
             args.emplace_back(
@@ -281,6 +282,9 @@ static CMakeConfig configurationFromPresetProbe(
         }
         if (!qtHostPath.isEmpty()) {
             args.emplace_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(qtHostPath));
+        }
+        if (!sysRoot.isEmpty()) {
+            args.emplace_back(QStringLiteral("-DCMAKE_SYSROOT=%1").arg(sysRoot));
         }
     }
 
@@ -745,9 +749,6 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         const CMakeConfig cache = configurePreset.cacheVariables
                                       ? configurePreset.cacheVariables.value()
                                       : CMakeConfig();
-
-        data->sysroot = cache.filePathValueOf("CMAKE_SYSROOT");
-
         CMakeConfig config;
         const bool noCompilers = cache.valueOf("CMAKE_C_COMPILER").isEmpty()
                                  && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty();
@@ -777,6 +778,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                           CMakeConfigItem::STRING,
                                           configurePreset.generator.value().toUtf8());
         }
+
+        data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
 
         const auto [qmake, cmakePrefixPath] = qtInfoFromCMakeCache(config, env);
         if (!qmake.isEmpty())
