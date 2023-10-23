@@ -9,6 +9,7 @@
 
 #include <debugger/debuggermainwindow.h>
 
+#include <utils/mimeutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -22,6 +23,11 @@
 
 using namespace Core;
 using namespace Utils;
+
+namespace {
+const char CMAKE_MIMETYPE[] = "text/x-cmake";
+const char CMAKE_PROJECT_MIMETYPE[] = "text/x-cmake-project";
+} // namespace
 
 namespace Debugger::Internal {
 
@@ -144,7 +150,8 @@ void CMakeDapEngine::setupEngine()
 
 bool CMakeDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
-    return bp.fileName.endsWith(".txt") || bp.fileName.endsWith(".cmake");
+    const auto mimeType = Utils::mimeTypeForFile(bp.fileName);
+    return mimeType.matchesName(CMAKE_MIMETYPE) || mimeType.matchesName(CMAKE_PROJECT_MIMETYPE);
 }
 
 bool CMakeDapEngine::hasCapability(unsigned cap) const
@@ -153,7 +160,7 @@ bool CMakeDapEngine::hasCapability(unsigned cap) const
                   | BreakConditionCapability
                   | ShowModuleSymbolsCapability
                   /*| AddWatcherCapability*/ // disable while the #25282 bug is not fixed
-                  /*| RunToLineCapability*/); // disable while the #25176 bug is not fixed
+                  | RunToLineCapability);
 }
 
 const QLoggingCategory &CMakeDapEngine::logCategory()

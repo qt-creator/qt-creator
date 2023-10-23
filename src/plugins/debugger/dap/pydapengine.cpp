@@ -12,6 +12,7 @@
 #include <debugger/debuggertr.h>
 
 #include <utils/infobar.h>
+#include <utils/mimeutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -25,6 +26,13 @@
 
 using namespace Core;
 using namespace Utils;
+
+namespace {
+const char C_PY_MIMETYPE[] = "text/x-python";
+const char C_PY_GUI_MIMETYPE[] = "text/x-python-gui";
+const char C_PY3_MIMETYPE[] = "text/x-python3";
+const char C_PY_MIME_ICON[] = "text-x-python";
+} // namespace
 
 namespace Debugger::Internal {
 
@@ -199,16 +207,6 @@ void PyDapEngine::quitDebugger()
     DebuggerEngine::quitDebugger();
 }
 
-bool PyDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
-{
-    return bp.fileName.endsWith(".py");
-}
-
-bool PyDapEngine::isLocalAttachEngine() const
-{
-    return runParameters().startMode == AttachToLocalProcess;
-}
-
 void PyDapEngine::setupEngine()
 {
     QTC_ASSERT(state() == EngineSetupRequested, qDebug() << state());
@@ -263,6 +261,18 @@ void PyDapEngine::setupEngine()
 
     connectDataGeneratorSignals();
     m_dapClient->dataProvider()->start();
+}
+
+bool PyDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
+{
+    const auto mimeType = Utils::mimeTypeForFile(bp.fileName);
+    return mimeType.matchesName(C_PY3_MIMETYPE) || mimeType.matchesName(C_PY_GUI_MIMETYPE)
+           || mimeType.matchesName(C_PY_MIMETYPE) || mimeType.matchesName(C_PY_MIME_ICON);
+}
+
+bool PyDapEngine::isLocalAttachEngine() const
+{
+    return runParameters().startMode == AttachToLocalProcess;
 }
 
 const QLoggingCategory &PyDapEngine::logCategory()

@@ -9,6 +9,7 @@
 
 #include <debugger/debuggermainwindow.h>
 
+#include <utils/mimeutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -21,6 +22,13 @@
 
 using namespace Core;
 using namespace Utils;
+
+namespace {
+const char C_HEADER_MIMETYPE[] = "text/x-chdr";
+const char C_SOURCE_MIMETYPE[] = "text/x-csrc";
+const char CPP_SOURCE_MIMETYPE[] = "text/x-c++src";
+const char CPP_HEADER_MIMETYPE[] = "text/x-c++hdr";
+} // namespace
 
 namespace Debugger::Internal {
 
@@ -163,7 +171,10 @@ void GdbDapEngine::setupEngine()
 
 bool GdbDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
-    return bp.fileName.endsWith(".cpp") || bp.fileName.endsWith(".h");
+    const auto mimeType = Utils::mimeTypeForFile(bp.fileName);
+    return mimeType.matchesName(C_HEADER_MIMETYPE) || mimeType.matchesName(C_SOURCE_MIMETYPE)
+           || mimeType.matchesName(CPP_HEADER_MIMETYPE)
+           || mimeType.matchesName(CPP_SOURCE_MIMETYPE);
 }
 
 const QLoggingCategory &GdbDapEngine::logCategory()

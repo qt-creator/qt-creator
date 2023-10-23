@@ -734,6 +734,8 @@ void DapEngine::handleBreakpointResponse(const QJsonObject &response)
                 parameters.pending = false;
                 bp->setParameters(parameters);
                 notifyBreakpointInsertOk(bp);
+                if (parameters.oneShot)
+                    continueInferior();
             }
             if (!bp.isNull())
                 bp->setResponseId(QString::number(map.value(mapKey).value("id").toInt()));
@@ -783,6 +785,8 @@ void DapEngine::handleBreakpointResponse(const QJsonObject &response)
                 bp->setParameters(parameters);
                 bp->setResponseId(QString::number(jsonBreakpoint.value("id").toInt()));
                 notifyBreakpointInsertOk(bp);
+                if (parameters.oneShot)
+                    continueInferior();
                 map.remove(key);
             }
         }
@@ -841,7 +845,7 @@ void DapEngine::handleStoppedEvent(const QJsonObject &event)
             const BreakpointParameters &params = bp->requestedParameters();
             gotoLocation(Location(params.fileName, params.textPosition));
             if (params.oneShot)
-                removeBreakpoint(bp);
+                bp->globalBreakpoint()->deleteBreakpoint();
         }
     }
 
