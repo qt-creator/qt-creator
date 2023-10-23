@@ -38,8 +38,6 @@ private:
     friend class DockContainerWidget;
     friend DockContainerWidgetPrivate;
 
-    void onAutoHideToActionClicked();
-
 protected:
     void setSideBar(AutoHideSideBar *sideTabBar);
     void removeFromSideBar();

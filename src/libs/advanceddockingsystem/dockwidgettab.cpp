@@ -35,7 +35,6 @@
 
 namespace ADS {
 
-static const char *const g_locationProperty = "Location";
 using TabLabelType = ElidingLabel;
 
 /**
@@ -181,8 +180,9 @@ public:
     QAction *createAutoHideToAction(const QString &title, SideBarLocation location, QMenu *menu)
     {
         auto action = menu->addAction(title);
-        action->setProperty("Location", location);
-        QObject::connect(action, &QAction::triggered, q, &DockWidgetTab::onAutoHideToActionClicked);
+        QObject::connect(action, &QAction::triggered, q, [this, location] {
+            m_dockWidget->toggleAutoHide(location);
+        });
         return action;
     }
 
@@ -654,12 +654,6 @@ void DockWidgetTab::detachDockWidget()
 void DockWidgetTab::autoHideDockWidget()
 {
     d->m_dockWidget->setAutoHide(true);
-}
-
-void DockWidgetTab::onAutoHideToActionClicked()
-{
-    int location = sender()->property(g_locationProperty).toInt();
-    d->m_dockWidget->toggleAutoHide((SideBarLocation) location);
 }
 
 bool DockWidgetTab::event(QEvent *event)
