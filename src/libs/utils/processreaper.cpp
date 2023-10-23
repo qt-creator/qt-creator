@@ -167,9 +167,7 @@ private:
     QList<ReaperSetup> takeReaperSetupList()
     {
         QMutexLocker locker(&m_mutex);
-        const QList<ReaperSetup> reaperSetupList = m_reaperSetupList;
-        m_reaperSetupList.clear();
-        return reaperSetupList;
+        return std::exchange(m_reaperSetupList, {});
     }
 
     void flush()
