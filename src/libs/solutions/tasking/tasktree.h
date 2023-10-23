@@ -9,6 +9,8 @@
 #include <QObject>
 #include <QSharedPointer>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 template <class T>
 class QFuture;
@@ -30,7 +32,7 @@ signals:
     void done(bool success);
 
 private:
-    template <typename Task> friend class TaskAdapter;
+    template <typename Task, typename Deleter> friend class TaskAdapter;
     friend class TaskNode;
     TaskInterface() = default;
 #ifdef Q_QDOC
@@ -302,26 +304,28 @@ private:
     };
 };
 
-template <typename Task>
+template <typename Task, typename Deleter = std::default_delete<Task>>
 class TaskAdapter : public TaskInterface
 {
 protected:
-    using Type = Task;
-    TaskAdapter() = default;
-    Task *task() { return &m_task; }
-    const Task *task() const { return &m_task; }
+    TaskAdapter() : m_task(new Task) {}
+    Task *task() { return m_task.get(); }
+    const Task *task() const { return m_task.get(); }
 
 private:
+    using TaskType = Task;
+    using DeleterType = Deleter;
     template <typename Adapter> friend class CustomTask;
-    Task m_task;
+    std::unique_ptr<Task, Deleter> m_task;
 };
 
 template <typename Adapter>
 class CustomTask final : public GroupItem
 {
 public:
-    using Task = typename Adapter::Type;
-    static_assert(std::is_base_of_v<TaskAdapter<Task>, Adapter>,
+    using Task = typename Adapter::TaskType;
+    using Deleter = typename Adapter::DeleterType;
+    static_assert(std::is_base_of_v<TaskAdapter<Task, Deleter>, Adapter>,
                   "The Adapter type for the CustomTask<Adapter> needs to be derived from "
                   "TaskAdapter<Task>.");
     using EndHandler = std::function<void(const Task &)>;
@@ -355,9 +359,9 @@ private:
     template<typename SetupHandler>
     static GroupItem::TaskSetupHandler wrapSetup(SetupHandler &&handler) {
         static constexpr bool isDynamic = std::is_same_v<SetupResult,
-                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::Type &>>;
+                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::TaskType &>>;
         constexpr bool isVoid = std::is_same_v<void,
-                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::Type &>>;
+                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::TaskType &>>;
         static_assert(isDynamic || isVoid,
                 "Task setup handler needs to take (Task &) as an argument and has to return "
                 "void or SetupResult. The passed handler doesn't fulfill these requirements.");
