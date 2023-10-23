@@ -426,7 +426,7 @@ public:
     void uppercaseSelection();
     void lowercaseSelection();
 
-    void sortSelectedLines();
+    void sortLines();
 
     void cleanWhitespace();
 

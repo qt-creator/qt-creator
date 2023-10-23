@@ -15,7 +15,7 @@ def main():
                            "visible='1' window=':Qt Creator_Core::Internal::MainWindow'}", 3000)
     placeCursorToLine(editor, "bbb")
     invokeMenuItem("Edit", "Select All")
-    invokeMenuItem("Edit", "Advanced", "Sort Selected Lines")
+    invokeMenuItem("Edit", "Advanced", "Sort Lines")
     test.verify(waitFor("str(editor.plainText) == sorted", 2000),
                 "Verify that sorted text\n%s\nmatches the expected text\n%s" % (editor.plainText, sorted))
     invokeMenuItem('File', 'Revert "unsorted.txt" to Saved')

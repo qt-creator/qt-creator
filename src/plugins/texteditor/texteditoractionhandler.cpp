@@ -366,8 +366,8 @@ void TextEditorActionHandlerPrivate::createActions()
             [] (TextEditorWidget *w) { w->lowercaseSelection(); }, true, Tr::tr("Lowercase Selection"),
             QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+U") : Tr::tr("Alt+U")),
             G_EDIT_TEXT, advancedEditMenu);
-    m_modifyingActions << registerAction(SORT_SELECTED_LINES,
-            [] (TextEditorWidget *w) { w->sortSelectedLines(); }, false, Tr::tr("&Sort Selected Lines"),
+    m_modifyingActions << registerAction(SORT_LINES,
+        [] (TextEditorWidget *w) { w->sortLines(); }, false, Tr::tr("&Sort Lines"),
             QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+Shift+S") : Tr::tr("Alt+Shift+S")),
             G_EDIT_TEXT, advancedEditMenu);
     registerAction(FOLD,

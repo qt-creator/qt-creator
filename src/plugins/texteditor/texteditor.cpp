@@ -668,8 +668,6 @@ public:
 
     void transformSelection(TransformationMethod method);
 
-    void transformSelectedLines(ListTransformationMethod method);
-
     void slotUpdateExtraAreaWidth(std::optional<int> width = {});
     void slotUpdateRequest(const QRect &r, int dy);
     void slotUpdateBlockNotify(const QTextBlock &);
@@ -2420,9 +2418,72 @@ void TextEditorWidget::lowercaseSelection()
     d->transformSelection([](const QString &str) { return str.toLower(); });
 }
 
-void TextEditorWidget::sortSelectedLines()
+void TextEditorWidget::sortLines()
 {
-    d->transformSelectedLines([](QStringList &list) { list.sort(); });
+    if (d->m_cursors.hasMultipleCursors())
+        return;
+
+    QTextCursor cursor = textCursor();
+    if (!cursor.hasSelection()) {
+        // try to get a sensible scope for the sort
+        const QTextBlock currentBlock = cursor.block();
+        QString text = currentBlock.text();
+        if (text.simplified().isEmpty())
+            return;
+        const TabSettings ts = textDocument()->tabSettings();
+        const int currentIndent = ts.columnAt(text, TabSettings::firstNonSpace(text));
+
+        int anchor = currentBlock.position();
+        for (auto block = currentBlock.previous(); block.isValid(); block = block.previous()) {
+            text = block.text();
+            if (text.simplified().isEmpty()
+                || ts.columnAt(text, TabSettings::firstNonSpace(text)) != currentIndent) {
+                break;
+            }
+            anchor = block.position();
+        }
+
+        int pos = currentBlock.position();
+        for (auto block = currentBlock.next(); block.isValid(); block = block.next()) {
+            text = block.text();
+            if (text.simplified().isEmpty()
+                || ts.columnAt(text, TabSettings::firstNonSpace(text)) != currentIndent) {
+                break;
+            }
+            pos = block.position();
+        }
+        if (anchor == pos)
+            return;
+
+        cursor.setPosition(anchor);
+        cursor.setPosition(pos, QTextCursor::KeepAnchor);
+        cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    }
+
+    const bool downwardDirection = cursor.anchor() < cursor.position();
+    int startPosition = cursor.selectionStart();
+    int endPosition = cursor.selectionEnd();
+
+    cursor.setPosition(startPosition);
+    cursor.movePosition(QTextCursor::StartOfBlock);
+    startPosition = cursor.position();
+
+    cursor.setPosition(endPosition, QTextCursor::KeepAnchor);
+    if (cursor.positionInBlock() == 0)
+        cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
+    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    endPosition = qMax(cursor.position(), endPosition);
+
+    const QString text = cursor.selectedText();
+    QStringList lines = text.split(QChar::ParagraphSeparator);
+    lines.sort();
+    cursor.insertText(lines.join(QChar::ParagraphSeparator));
+
+    // (re)select the changed lines
+    // Note: this assumes the transformation did not change the length
+    cursor.setPosition(downwardDirection ? startPosition : endPosition);
+    cursor.setPosition(downwardDirection ? endPosition : startPosition, QTextCursor::KeepAnchor);
+    setTextCursor(cursor);
 }
 
 void TextEditorWidget::indent()
@@ -9037,41 +9098,6 @@ void TextEditorWidgetPrivate::transformSelection(TransformationMethod method)
     }
     cursor.endEditBlock();
     q->setMultiTextCursor(cursor);
-}
-
-void TextEditorWidgetPrivate::transformSelectedLines(ListTransformationMethod method)
-{
-    if (!method || m_cursors.hasMultipleCursors())
-        return;
-
-    QTextCursor cursor = q->textCursor();
-    if (!cursor.hasSelection())
-        return;
-
-    const bool downwardDirection = cursor.anchor() < cursor.position();
-    int startPosition = cursor.selectionStart();
-    int endPosition = cursor.selectionEnd();
-
-    cursor.setPosition(startPosition);
-    cursor.movePosition(QTextCursor::StartOfBlock);
-    startPosition = cursor.position();
-
-    cursor.setPosition(endPosition, QTextCursor::KeepAnchor);
-    if (cursor.positionInBlock() == 0)
-        cursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
-    cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-    endPosition = qMax(cursor.position(), endPosition);
-
-    const QString text = cursor.selectedText();
-    QStringList lines = text.split(QChar::ParagraphSeparator);
-    method(lines);
-    cursor.insertText(lines.join(QChar::ParagraphSeparator));
-
-    // (re)select the changed lines
-    // Note: this assumes the transformation did not change the length
-    cursor.setPosition(downwardDirection ? startPosition : endPosition);
-    cursor.setPosition(downwardDirection ? endPosition : startPosition, QTextCursor::KeepAnchor);
-    q->setTextCursor(cursor);
 }
 
 void TextEditorWidget::inSnippetMode(bool *active)
