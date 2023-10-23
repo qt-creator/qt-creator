@@ -138,11 +138,6 @@ void AbstractRemoteLinuxDeployStep::addSkipDeploymentMessage()
     addProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
 }
 
-bool AbstractRemoteLinuxDeployStep::isDeploymentNecessary() const
-{
-    return true;
-}
-
 GroupItem AbstractRemoteLinuxDeployStep::runRecipe()
 {
     const auto onSetup = [this] {
@@ -150,10 +145,6 @@ GroupItem AbstractRemoteLinuxDeployStep::runRecipe()
         if (!canDeploy) {
             addErrorMessage(canDeploy.error());
             return SetupResult::StopWithError;
-        }
-        if (!isDeploymentNecessary()) {
-            addProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
-            return SetupResult::StopWithDone;
         }
         return SetupResult::Continue;
     };
