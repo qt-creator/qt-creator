@@ -483,6 +483,13 @@ void DesignModeWidget::aboutToShowWorkspaces()
     QAction *action = menu->addAction(tr("Manage..."));
     connect(action, &QAction::triggered, m_dockManager, &ADS::DockManager::showWorkspaceMananger);
 
+    QAction *lockWorkspace = menu->addAction(tr("Lock Workspaces"));
+    lockWorkspace->setCheckable(true);
+    lockWorkspace->setChecked(m_dockManager->isWorkspaceLocked());
+    connect(lockWorkspace, &QAction::triggered, this, [this](bool checked) {
+        m_dockManager->lockWorkspace(checked);
+    });
+
     QAction *resetWorkspace = menu->addAction(tr("Reset Active"));
     connect(resetWorkspace, &QAction::triggered, this, [this]() {
         if (m_dockManager->resetWorkspacePreset(m_dockManager->activeWorkspace()->fileName()))

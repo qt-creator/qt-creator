@@ -83,6 +83,7 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(QStringList documentModel READ documentModel NOTIFY openDocumentsChanged)
     Q_PROPERTY(int documentIndex READ documentIndex NOTIFY documentIndexChanged)
     Q_PROPERTY(QString currentWorkspace READ currentWorkspace NOTIFY currentWorkspaceChanged)
+    Q_PROPERTY(bool lockWorkspace READ lockWorkspace WRITE setLockWorkspace NOTIFY lockWorkspaceChanged)
     Q_PROPERTY(QStringList styles READ styles CONSTANT)
     Q_PROPERTY(bool isInDesignMode READ isInDesignMode NOTIFY isInDesignModeChanged)
     Q_PROPERTY(bool isInEditMode READ isInEditMode NOTIFY isInEditModeChanged)
@@ -106,6 +107,7 @@ public:
     Q_INVOKABLE void closeCurrentDocument();
     Q_INVOKABLE void shareApplicationOnline();
     Q_INVOKABLE void setCurrentWorkspace(const QString &workspace);
+    Q_INVOKABLE void setLockWorkspace(bool value);
     Q_INVOKABLE void editGlobalAnnoation();
     Q_INVOKABLE void showZoomMenu(int x, int y);
     Q_INVOKABLE void setCurrentStyle(int index);
@@ -120,6 +122,7 @@ public:
     int documentIndex() const;
 
     QString currentWorkspace() const;
+    bool lockWorkspace() const;
 
     QStringList styles() const;
 
@@ -143,6 +146,7 @@ signals:
     void openDocumentsChanged();
     void documentIndexChanged();
     void currentWorkspaceChanged();
+    void lockWorkspaceChanged();
     void isInDesignModeChanged();
     void isInEditModeChanged();
     void isDesignModeEnabledChanged();

@@ -215,7 +215,7 @@ Rectangle {
         ToolbarButton {
             id: enterComponent
             anchors.verticalCenter: parent.verticalCenter
-            anchors.right: workspaces.left
+            anchors.right: lockWorkspace.left
             anchors.rightMargin: 10
             enabled: goIntoComponentBackend.available
             tooltip: goIntoComponentBackend.tooltip
@@ -228,6 +228,21 @@ Rectangle {
                 id: goIntoComponentBackend
                 actionId: "GoIntoComponent"
             }
+        }
+
+        ToolbarButton {
+            id: lockWorkspace
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: workspaces.left
+            anchors.rightMargin: 10
+            tooltip: qsTr("Sets the visible <b>Views</b> to immovable across the Workspaces.")
+            buttonIcon: backend.lockWorkspace ? StudioTheme.Constants.lockOn
+                                              : StudioTheme.Constants.lockOff
+            visible: !root.flyoutEnabled
+            checkable: true
+            checked: backend.lockWorkspace
+
+            onClicked: backend.setLockWorkspace(lockWorkspace.checked)
         }
 
         StudioControls.TopLevelComboBox {
@@ -374,6 +389,19 @@ Rectangle {
                             buttonIcon: StudioTheme.Constants.annotations_large
 
                             onClicked: backend.editGlobalAnnoation()
+                        }
+
+                        ToolbarButton {
+                            id: lockWorkspaceFlyout
+                            style: StudioTheme.Values.statusbarButtonStyle
+                            anchors.verticalCenter: parent.verticalCenter
+                            tooltip: lockWorkspace.tooltip
+                            buttonIcon: backend.lockWorkspace ? StudioTheme.Constants.lockOn
+                                                              : StudioTheme.Constants.lockOff
+                            checkable: true
+                            checked: backend.lockWorkspace
+
+                            onClicked: backend.setLockWorkspace(lockWorkspaceFlyout.checked)
                         }
 
                         ToolbarButton {

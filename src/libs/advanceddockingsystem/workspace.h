@@ -18,6 +18,9 @@ public:
     void setName(const QString &name);
     const QString &name() const;
 
+    void setLocked(bool value);
+    bool isLocked() const;
+
     const Utils::FilePath &filePath() const;
 
     QString fileName() const;
@@ -50,6 +53,7 @@ private:
     QString m_name;
     Utils::FilePath m_filePath;
     bool m_preset = false;
+    bool m_locked = false;
 };
 
 } // namespace ADS

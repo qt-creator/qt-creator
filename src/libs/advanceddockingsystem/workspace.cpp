@@ -41,6 +41,16 @@ const QString &Workspace::name() const
     return m_name;
 }
 
+void Workspace::setLocked(bool value)
+{
+    m_locked = value;
+}
+
+bool Workspace::isLocked() const
+{
+    return m_locked;
+}
+
 const Utils::FilePath &Workspace::filePath() const
 {
     return m_filePath;

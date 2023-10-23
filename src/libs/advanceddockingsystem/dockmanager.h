@@ -32,6 +32,7 @@ namespace Constants {
 const char DEFAULT_WORKSPACE[] = "Basic.wrk"; // Needs to align with a shipped preset
 const char STARTUP_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/StartupWorkspace";
 const char AUTO_RESTORE_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/AutoRestoreLastWorkspace";
+const char LOCK_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/LockWorkspace";
 } // namespace Constants
 
 class DockManagerPrivate;
@@ -662,6 +663,9 @@ public:
     // Workspace management functionality
     void showWorkspaceMananger();
 
+    void lockWorkspace(bool value);
+    bool isWorkspaceLocked() const;
+
     /**
      * \brief Create a workspace.
      *
@@ -734,6 +738,7 @@ signals:
     void workspaceLoaded(QString fileName);
     void workspaceReloaded(QString fileName);
     void aboutToSaveWorkspace();
+    void lockWorkspaceChanged();
 
 private:
     static Utils::expected_str<void> write(const Utils::FilePath &filePath, const QByteArray &data);
@@ -747,6 +752,7 @@ private:
     void prepareWorkspaces();
 
     void saveStartupWorkspace();
+    void saveLockWorkspace();
 }; // class DockManager
 
 } // namespace ADS

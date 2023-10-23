@@ -308,6 +308,13 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
                 this,
                 &ToolBarBackend::currentWorkspaceChanged);
         emit currentWorkspaceChanged();
+
+        connect(dockManager,
+                &ADS::DockManager::lockWorkspaceChanged,
+                this,
+                &ToolBarBackend::lockWorkspaceChanged);
+        emit lockWorkspaceChanged();
+
         return true;
     };
 
@@ -453,6 +460,11 @@ void ToolBarBackend::setCurrentWorkspace(const QString &workspace)
     designModeWidget()->dockManager()->openWorkspace(workspace);
 }
 
+void ToolBarBackend::setLockWorkspace(bool value)
+{
+    designModeWidget()->dockManager()->lockWorkspace(value);
+}
+
 void ToolBarBackend::editGlobalAnnoation()
 {
     launchGlobalAnnotations();
@@ -586,6 +598,14 @@ QString ToolBarBackend::currentWorkspace() const
         return designModeWidget()->dockManager()->activeWorkspace()->fileName();
 
     return {};
+}
+
+bool ToolBarBackend::lockWorkspace() const
+{
+    if (designModeWidget() && designModeWidget()->dockManager())
+        return designModeWidget()->dockManager()->isWorkspaceLocked();
+
+    return false;
 }
 
 QStringList ToolBarBackend::styles() const
