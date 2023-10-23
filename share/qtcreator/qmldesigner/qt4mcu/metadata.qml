@@ -5,7 +5,7 @@
 Metadata {
     id: metadataFile
 
-    defaultVersion: v25
+    defaultVersion: v26
 
     VersionData {
         id: v14

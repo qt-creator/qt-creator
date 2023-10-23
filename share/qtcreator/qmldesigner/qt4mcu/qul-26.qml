@@ -57,7 +57,8 @@ VersionData {
         "QtQuick.Shapes",
         "QtQuick.Timeline",
         "QtQuickUltralite.Extras",
-        "QtQuickUltralite.Layers"
+        "QtQuickUltralite.Layers",
+        "QtQuickUltralite.Profiling"
     ]
 
     bannedImports: [
