@@ -38,7 +38,6 @@ public:
     }
 
 private:
-    bool isDeploymentNecessary() const final { return !m_remoteExecutable.isEmpty(); }
     GroupItem deployRecipe() final;
 
     FilePath m_remoteExecutable;
@@ -47,9 +46,14 @@ private:
 GroupItem KillAppStep::deployRecipe()
 {
     const auto setupHandler = [this](DeviceProcessKiller &killer) {
+        if (m_remoteExecutable.isEmpty()) {
+            addSkipDeploymentMessage();
+            return SetupResult::StopWithDone;
+        }
         killer.setProcessPath(m_remoteExecutable);
         addProgressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")
                                   .arg(m_remoteExecutable.path()));
+        return SetupResult::Continue;
     };
     const auto doneHandler = [this](const DeviceProcessKiller &) {
         addProgressMessage(Tr::tr("Remote application killed."));
