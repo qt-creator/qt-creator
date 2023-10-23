@@ -42,6 +42,9 @@ protected:
     void addErrorMessage(const QString &message);
     void addWarningMessage(const QString &message);
 
+protected:
+    void addSkipDeploymentMessage();
+
 private:
     virtual bool isDeploymentNecessary() const;
     virtual Tasking::GroupItem deployRecipe() = 0;

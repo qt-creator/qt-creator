@@ -63,36 +63,22 @@ public:
     }
 
 private:
-    bool isDeploymentNecessary() const final;
     GroupItem deployRecipe() final;
-    GroupItem mkdirTask();
-    GroupItem transferTask();
+    GroupItem mkdirTask(const TreeStorage<FilesToTransfer> &storage);
+    GroupItem transferTask(const TreeStorage<FilesToTransfer> &storage);
 
     StringAspect flags{this};
     BoolAspect ignoreMissingFiles{this};
     SelectionAspect method{this};
-
-    mutable FilesToTransfer m_files;
 };
 
-bool GenericDeployStep::isDeploymentNecessary() const
-{
-    const QList<DeployableFile> files = target()->deploymentData().allFiles();
-    m_files.clear();
-    for (const DeployableFile &f : files)
-        m_files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
-    if (ignoreMissingFiles())
-        Utils::erase(m_files, [](const FileToTransfer &file) { return !file.m_source.exists(); });
-    return !m_files.empty();
-}
-
-GroupItem GenericDeployStep::mkdirTask()
+GroupItem GenericDeployStep::mkdirTask(const TreeStorage<FilesToTransfer> &storage)
 {
     using ResultType = expected_str<void>;
 
-    const auto onSetup = [this](Async<ResultType> &async) {
+    const auto onSetup = [storage](Async<ResultType> &async) {
         FilePaths remoteDirs;
-        for (const FileToTransfer &file : std::as_const(m_files))
+        for (const FileToTransfer &file : *storage)
             remoteDirs << file.m_target.parentDir();
 
         FilePath::sort(remoteDirs);
@@ -147,9 +133,9 @@ static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileT
     return FileTransferMethod::GenericCopy;
 }
 
-GroupItem GenericDeployStep::transferTask()
+GroupItem GenericDeployStep::transferTask(const TreeStorage<FilesToTransfer> &storage)
 {
-    const auto setupHandler = [this](FileTransfer &transfer) {
+    const auto setupHandler = [this, storage](FileTransfer &transfer) {
         FileTransferMethod preferredTransferMethod = FileTransferMethod::Rsync;
         if (method() == 0)
             preferredTransferMethod = FileTransferMethod::Rsync;
@@ -161,7 +147,7 @@ GroupItem GenericDeployStep::transferTask()
         FileTransferMethod transferMethod = preferredTransferMethod;
 
         if (transferMethod != FileTransferMethod::GenericCopy) {
-            for (const FileToTransfer &fileToTransfer : m_files) {
+            for (const FileToTransfer &fileToTransfer : *storage) {
                 const FileTransferMethod supportedMethod = supportedTransferMethodFor(
                     fileToTransfer);
 
@@ -175,7 +161,7 @@ GroupItem GenericDeployStep::transferTask()
         transfer.setTransferMethod(transferMethod);
 
         transfer.setRsyncFlags(flags());
-        transfer.setFilesToTransfer(m_files);
+        transfer.setFilesToTransfer(*storage);
         connect(&transfer, &FileTransfer::progress, this, &GenericDeployStep::handleStdOutData);
     };
     const auto errorHandler = [this](const FileTransfer &transfer) {
@@ -194,7 +180,28 @@ GroupItem GenericDeployStep::transferTask()
 
 GroupItem GenericDeployStep::deployRecipe()
 {
-    return Group { mkdirTask(), transferTask() };
+    const TreeStorage<FilesToTransfer> storage;
+
+    const auto onSetup = [this, storage] {
+        const QList<DeployableFile> deployableFiles = target()->deploymentData().allFiles();
+        FilesToTransfer &files = *storage;
+        for (const DeployableFile &f : deployableFiles) {
+            if (!ignoreMissingFiles() || f.localFilePath().exists())
+                files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
+        }
+        if (files.isEmpty()) {
+            addSkipDeploymentMessage();
+            return SetupResult::StopWithDone;
+        }
+        return SetupResult::Continue;
+    };
+
+    return Group {
+        Storage(storage),
+        onGroupSetup(onSetup),
+        mkdirTask(storage),
+        transferTask(storage)
+    };
 }
 
 // Factory

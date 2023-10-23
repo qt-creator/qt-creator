@@ -133,6 +133,11 @@ void AbstractRemoteLinuxDeployStep::handleStdErrData(const QString &data)
     emit addOutput(data, OutputFormat::Stderr, DontAppendNewline);
 }
 
+void AbstractRemoteLinuxDeployStep::addSkipDeploymentMessage()
+{
+    addProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
+}
+
 bool AbstractRemoteLinuxDeployStep::isDeploymentNecessary() const
 {
     return true;
