@@ -90,9 +90,9 @@ GroupItem GenericDeployStep::mkdirTask()
 {
     using ResultType = expected_str<void>;
 
-    const auto onSetup = [files = m_files](Async<ResultType> &async) {
+    const auto onSetup = [this](Async<ResultType> &async) {
         FilePaths remoteDirs;
-        for (const FileToTransfer &file : std::as_const(files))
+        for (const FileToTransfer &file : std::as_const(m_files))
             remoteDirs << file.m_target.parentDir();
 
         FilePath::sort(remoteDirs);
