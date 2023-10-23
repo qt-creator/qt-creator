@@ -3,7 +3,9 @@
 
 #include "qbssession.h"
 
+#include "qbslanguageclient.h"
 #include "qbspmlogging.h"
+#include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
 #include "qbssettings.h"
@@ -130,6 +132,7 @@ class QbsSession::Private
 {
 public:
     Process *qbsProcess = nullptr;
+    QbsLanguageClient *languageClient = nullptr;
     PacketReader *packetReader = nullptr;
     QJsonObject currentRequest;
     QJsonObject projectData;
@@ -140,7 +143,7 @@ public:
     State state = State::Inactive;
 };
 
-QbsSession::QbsSession(QObject *parent) : QObject(parent), d(new Private)
+QbsSession::QbsSession(QbsBuildSystem *buildSystem) : QObject(buildSystem), d(new Private)
 {
     initialize();
 }
@@ -449,6 +452,12 @@ void QbsSession::handlePacket(const QJsonObject &packet)
             setError(Error::VersionMismatch);
             return;
         }
+        if (packet.value("api-level").toInt() > 4) {
+            const QString lspSocket = packet.value("lsp-socket").toString();
+            if (!lspSocket.isEmpty())
+                d->languageClient = new QbsLanguageClient(lspSocket,
+                                                          static_cast<QbsBuildSystem *>(parent()));
+        }
         d->state = State::Active;
         sendQueuedRequest();
     } else if (type == "project-resolved") {
@@ -567,6 +576,7 @@ void QbsSession::setInactive()
     if (d->qbsProcess->state() == QProcess::Running)
         sendQuitPacket();
     d->qbsProcess = nullptr;
+    d->languageClient = nullptr; // Owned by LanguageClientManager
 }
 
 FileChangeResult QbsSession::updateFileList(const char *action, const QStringList &files,

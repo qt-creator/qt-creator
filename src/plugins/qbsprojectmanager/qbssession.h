@@ -19,6 +19,7 @@ namespace ProjectExplorer { class Target; }
 
 namespace QbsProjectManager {
 namespace Internal {
+class QbsBuildSystem;
 
 class ErrorInfoItem
 {
@@ -96,7 +97,7 @@ class QbsSession : public QObject
 {
     Q_OBJECT
 public:
-    explicit QbsSession(QObject *parent = nullptr);
+    explicit QbsSession(QbsBuildSystem *buildSystem);
     ~QbsSession() override;
 
     enum class State { Initializing, Active, Inactive };

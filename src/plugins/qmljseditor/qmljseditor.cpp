@@ -1134,7 +1134,6 @@ QmlJSEditorFactory::QmlJSEditorFactory(Utils::Id _id)
     using namespace Utils::Constants;
     addMimeType(QML_MIMETYPE);
     addMimeType(QMLPROJECT_MIMETYPE);
-    addMimeType(QBS_MIMETYPE);
     addMimeType(QMLTYPES_MIMETYPE);
     addMimeType(JS_MIMETYPE);
 

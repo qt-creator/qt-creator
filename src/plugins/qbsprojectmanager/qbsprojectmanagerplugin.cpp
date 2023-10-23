@@ -6,6 +6,7 @@
 #include "qbsbuildconfiguration.h"
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
+#include "qbseditor.h"
 #include "qbsinstallstep.h"
 #include "qbsnodes.h"
 #include "qbsprofilessettingspage.h"
@@ -68,6 +69,7 @@ public:
     QbsInstallStepFactory installStepFactory;
     QbsSettingsPage settingsPage;
     QbsProfilesSettingsPage profilesSetttingsPage;
+    QbsEditorFactory editorFactory;
 };
 
 QbsProjectManagerPlugin::~QbsProjectManagerPlugin()
