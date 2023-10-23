@@ -267,16 +267,9 @@ void DockFocusController::onFocusedDockAreaViewToggled(bool open)
     if (d->m_dockManager->isRestoringState() || !d->m_focusedArea || open)
         return;
 
-    DockAreaWidget *dockArea = qobject_cast<DockAreaWidget *>(sender());
-    if (!dockArea || open)
-        return;
-
-    auto container = dockArea->dockContainer();
-    auto openedDockAreas = container->openedDockAreas();
-    if (openedDockAreas.isEmpty())
-        return;
-
-    d->updateDockWidgetFocus(openedDockAreas[0]->currentDockWidget());
+    const auto openedDockAreas = d->m_focusedArea->dockContainer()->openedDockAreas();
+    if (!openedDockAreas.isEmpty())
+        d->updateDockWidgetFocus(openedDockAreas.first()->currentDockWidget());
 }
 
 void DockFocusController::notifyWidgetOrAreaRelocation(QWidget *droppedWidget)
