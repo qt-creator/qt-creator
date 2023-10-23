@@ -151,10 +151,10 @@ void TerminalWidget::setupPty()
     connect(m_process.get(), &Process::done, this, [this] {
         QString errorMessage;
 
+        const int exitCode = QTC_GUARD(m_process) ? m_process->exitCode() : -1;
         if (m_process) {
-            if (m_process->exitCode() != 0) {
-                errorMessage
-                    = Tr::tr("Terminal process exited with code %1").arg(m_process->exitCode());
+            if (exitCode != 0) {
+                errorMessage = Tr::tr("Terminal process exited with code %1").arg(exitCode);
 
                 if (!m_process->errorString().isEmpty())
                     errorMessage += QString(" (%1)").arg(m_process->errorString());
@@ -181,14 +181,14 @@ void TerminalWidget::setupPty()
 
                 writeToTerminal(msg, true);
             } else {
-                QString exitMsg = Tr::tr("Process exited with code: %1")
-                                      .arg(m_process ? m_process->exitCode() : -1);
+                QString exitMsg = Tr::tr("Process exited with code: %1").arg(exitCode);
                 QByteArray msg = QString("\r\n%1").arg(exitMsg).toUtf8();
                 writeToTerminal(msg, true);
             }
         } else if (!errorMessage.isEmpty()) {
             Core::MessageManager::writeFlashing(errorMessage);
         }
+        emit finised(exitCode);
     });
 
     connect(m_process.get(), &Process::started, this, [this] {
