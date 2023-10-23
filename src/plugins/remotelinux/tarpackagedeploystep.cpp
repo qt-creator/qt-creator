@@ -53,7 +53,6 @@ public:
 
 private:
     QString remoteFilePath() const;
-    bool isDeploymentNecessary() const final;
     GroupItem deployRecipe() final;
     GroupItem uploadTask();
     GroupItem installTask();
@@ -64,11 +63,6 @@ private:
 QString TarPackageDeployStep::remoteFilePath() const
 {
     return QLatin1String("/tmp/") + m_packageFilePath.fileName();
-}
-
-bool TarPackageDeployStep::isDeploymentNecessary() const
-{
-    return hasLocalFileChanged(DeployableFile(m_packageFilePath, {}));
 }
 
 GroupItem TarPackageDeployStep::uploadTask()
@@ -117,7 +111,13 @@ GroupItem TarPackageDeployStep::installTask()
 
 GroupItem TarPackageDeployStep::deployRecipe()
 {
-    return Group { uploadTask(), installTask() };
+    const auto onSetup = [this] {
+        if (hasLocalFileChanged(DeployableFile(m_packageFilePath, {})))
+            return SetupResult::Continue;
+        addSkipDeploymentMessage();
+        return SetupResult::StopWithDone;
+    };
+    return Group { onGroupSetup(onSetup), uploadTask(), installTask() };
 }
 
 
