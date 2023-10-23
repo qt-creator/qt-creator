@@ -12,7 +12,7 @@ Item {
     visible: true
 
     property Node activeScene: null
-    property int  activeSplit: 0
+    property int activeSplit: 0
     property var editViews: [null, null, null, null]
     property var overlayViews: [overlayView0, overlayView1, overlayView2, overlayView3]
     property var cameraControls: [cameraControl0, cameraControl1, cameraControl2, cameraControl3]
@@ -69,6 +69,10 @@ Item {
     onSelectionModeChanged:       _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
     onTransformModeChanged:       _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
     onSplitViewChanged:           _generalHelper.storeToolState(sceneId, "splitView", splitView)
+    onActiveSplitChanged: {
+        _generalHelper.storeToolState(sceneId, "activeSplit", activeSplit);
+        cameraControls[activeSplit].forceActiveFocus();
+    }
 
     onActiveSceneChanged: updateActiveScene()
 
@@ -100,10 +104,7 @@ Item {
             editViews[2].cameraLookAt = Qt.binding(function() {return cameraControl2._lookAtPoint;});
             editViews[3].cameraLookAt = Qt.binding(function() {return cameraControl3._lookAtPoint;});
 
-            activeSplit = 0;
-
             selectionBoxCount = 0;
-            cameraControl0.forceActiveFocus();
             editViewsChanged();
             return true;
         }
@@ -140,6 +141,11 @@ Item {
                         }
                     }
                     showEditLight = !hasSceneLight;
+
+                    // Don't inherit camera angles from the previous scene
+                    for (let i = 0; i < 4; ++i)
+                        cameraControls[i].restoreDefaultState();
+
                     storeCurrentToolStates();
                 }
             } else {
@@ -315,19 +321,24 @@ Item {
             transformMode = EditView3D.TransformMode.Move;
 
         for (var i = 0; i < 4; ++i) {
-            if ("editCamState" in toolStates)
-                cameraControls[i].restoreCameraState(toolStates.editCamState);
+            let propId = "editCamState" + i;
+            if (propId in toolStates)
+                cameraControls[i].restoreCameraState(toolStates[propId]);
             else if (resetToDefault)
                 cameraControls[i].restoreDefaultState();
         }
 
-        if ("splitView" in toolStates) {
+        if ("splitView" in toolStates)
             splitView = toolStates.splitView;
-            activeSplit = 0;
-        } else if (resetToDefault) {
+        else if (resetToDefault)
             splitView = false;
+
+        if (!splitView)
             activeSplit = 0;
-        }
+        else if ("activeSplit" in toolStates)
+            activeSplit = toolStates.activeSplit;
+        else if (resetToDefault)
+            activeSplit = 0;
     }
 
     function storeCurrentToolStates()
@@ -344,6 +355,7 @@ Item {
         _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
         _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
         _generalHelper.storeToolState(sceneId, "splitView", splitView)
+        _generalHelper.storeToolState(sceneId, "activeSplit", activeSplit)
 
         for (var i = 0; i < 4; ++i)
             cameraControls[i].storeCameraState(0);

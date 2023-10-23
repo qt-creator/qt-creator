@@ -37,7 +37,6 @@ Item {
         if (!camera || ignoreToolState)
             return;
 
-        // TODO: handle camera control state separately for each split
         _lookAtPoint = cameraState[0];
         _zoomFactor = cameraState[1];
         camera.position = cameraState[2];
@@ -51,13 +50,21 @@ Item {
         if (!camera)
             return;
 
-        // TODO: handle camera control state separately for each split
         _lookAtPoint = Qt.vector3d(0, 0, 0);
         _zoomFactor = 1;
-        camera.position = _defaultCameraPosition;
-        camera.eulerRotation = _defaultCameraRotation;
-        _generalHelper.zoomCamera(view3d, camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
-                                  _zoomFactor, false);
+
+        if (splitId === 1) {
+            jumpToRotation(originGizmo.quaternionForAxis(OriginGizmo.PositiveZ));
+        } else if (splitId === 2) {
+            jumpToRotation(originGizmo.quaternionForAxis(OriginGizmo.NegativeY));
+        } else if (splitId === 3) {
+            jumpToRotation(originGizmo.quaternionForAxis(OriginGizmo.NegativeX));
+        } else {
+            camera.position = _defaultCameraPosition;
+            camera.eulerRotation = _defaultCameraRotation;
+            _generalHelper.zoomCamera(view3d, camera, 0, _defaultCameraLookAtDistance, _lookAtPoint,
+                                      _zoomFactor, false);
+        }
     }
 
     function storeCameraState(delay)
@@ -65,13 +72,12 @@ Item {
         if (!camera || ignoreToolState)
             return;
 
-        // TODO: handle camera control state separately for each split
         var cameraState = [];
         cameraState[0] = _lookAtPoint;
         cameraState[1] = _zoomFactor;
         cameraState[2] = camera.position;
         cameraState[3] = camera.rotation;
-        _generalHelper.storeToolState(sceneId, "editCamState", cameraState, delay);
+        _generalHelper.storeToolState(sceneId, "editCamState" + splitId, cameraState, delay);
     }
 
     function focusObject(targetNodes, rotation, updateZoom, closeUp)
@@ -249,6 +255,7 @@ Item {
     }
 
     OriginGizmo {
+        id: originGizmo
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.margins: 10
