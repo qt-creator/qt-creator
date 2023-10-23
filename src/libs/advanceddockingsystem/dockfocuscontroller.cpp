@@ -158,22 +158,12 @@ void DockFocusControllerPrivate::updateDockWidgetFocus(DockWidget *dockWidget)
         emit m_dockManager->focusedDockWidgetChanged(old, dockWidget);
     } else {
         m_oldFocusedDockWidget = old;
-        QObject::connect(dockWidget,
-                         &DockWidget::visibilityChanged,
-                         q,
-                         &DockFocusController::onDockWidgetVisibilityChanged);
+        QObject::connect(dockWidget, &DockWidget::visibilityChanged, q,
+                         [this, dockWidget](bool visible) {
+            if (visible)
+                emit m_dockManager->focusedDockWidgetChanged(m_oldFocusedDockWidget, dockWidget);
+        }, Qt::SingleShotConnection);
     }
-}
-
-void DockFocusController::onDockWidgetVisibilityChanged(bool visible)
-{
-    auto dockWidget = qobject_cast<DockWidget *>(sender());
-    QObject::disconnect(dockWidget,
-                        &DockWidget::visibilityChanged,
-                        this,
-                        &DockFocusController::onDockWidgetVisibilityChanged);
-    if (dockWidget && visible)
-        emit d->m_dockManager->focusedDockWidgetChanged(d->m_oldFocusedDockWidget, dockWidget);
 }
 
 DockFocusController::DockFocusController(DockManager *dockManager)
