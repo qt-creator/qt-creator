@@ -295,10 +295,8 @@ GroupItem GenericDirectUploadStep::deployRecipe()
         onGroupSetup(setupHandler),
         statTree(storage, preFilesToStat, preStatEndHandler),
         uploadTask(storage),
-        Group {
-            chmodTree(storage),
-            statTree(storage, postFilesToStat, postStatEndHandler)
-        },
+        chmodTree(storage),
+        statTree(storage, postFilesToStat, postStatEndHandler),
         onGroupDone(doneHandler)
     };
     return root;
