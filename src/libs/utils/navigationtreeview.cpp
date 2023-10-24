@@ -69,6 +69,23 @@ void NavigationTreeView::scrollTo(const QModelIndex &index, QAbstractItemView::S
     hBar->setValue(scrollX);
 }
 
+QModelIndex NavigationTreeView::moveCursor(CursorAction cursorAction,
+                                           Qt::KeyboardModifiers modifiers)
+{
+    if (cursorAction == MoveLeft) {
+        // work around QTBUG-118515
+        // Left key moves to parent instead of collapsing current item, if scroll position
+        // is not left-most
+        QScrollBar *sb = horizontalScrollBar();
+        QModelIndex current = currentIndex();
+        if (sb->value() != sb->minimum() && model()->hasChildren(current) && isExpanded(current)) {
+            collapse(current);
+            return current;
+        }
+    }
+    return TreeView::moveCursor(cursorAction, modifiers);
+}
+
 // This is a workaround to stop Qt from redrawing the project tree every
 // time the user opens or closes a menu when it has focus. Would be nicer to
 // fix it in Qt.
