@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0 as HelperWidgets
 import StudioTheme 1.0 as StudioTheme
@@ -52,19 +53,23 @@ Item {
         message: ""
     }
 
-    Rectangle {
-        id: collectionsRect
+    GridLayout {
+        id: grid
+        readonly property bool isHorizontal: width >= 500
 
-        color: StudioTheme.Values.themeToolbarBackground
-        width: 300
-        height: root.height
+        anchors.fill: parent
+        columns: isHorizontal ? 2 : 1
 
-        Column {
-            width: parent.width
+        ColumnLayout {
+            id: collectionsSideBar
+
+            Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+            Layout.minimumWidth: 300
+            Layout.fillWidth: !grid.isHorizontal
 
             Rectangle {
-                width: parent.width
-                height: StudioTheme.Values.height + 5
+                Layout.fillWidth: true
+                Layout.preferredHeight: StudioTheme.Values.height + 5
                 color: StudioTheme.Values.themeToolbarBackground
 
                 Text {
@@ -100,9 +105,10 @@ Item {
             }
 
             Rectangle { // Collections
-                width: parent.width
+                Layout.fillWidth: true
                 color: StudioTheme.Values.themeBackgroundColorNormal
-                height: 330
+                Layout.minimumHeight: 150
+                Layout.preferredHeight: sourceListView.contentHeight
 
                 MouseArea {
                     anchors.fill: parent
@@ -116,20 +122,19 @@ Item {
                 ListView {
                     id: sourceListView
 
-                    width: parent.width
-                    height: contentHeight
+                    anchors.fill: parent
                     model: root.model
 
                     delegate: ModelSourceItem {
+                        implicitWidth: sourceListView.width
                         onDeleteItem: root.model.removeRow(index)
                     }
-
                 }
             }
 
             Rectangle {
-                width: parent.width
-                height: addCollectionButton.height
+                Layout.fillWidth: true
+                Layout.preferredHeight: addCollectionButton.height
                 color: StudioTheme.Values.themeBackgroundColorNormal
 
                 IconTextButton {
@@ -142,17 +147,13 @@ Item {
                 }
             }
         }
-    }
 
-    CollectionDetailsView {
-        model: root.collectionDetailsModel
-        backend: root.model
-        sortedModel: root.collectionDetailsSortFilterModel
-        anchors {
-            left: collectionsRect.right
-            right: parent.right
-            top: parent.top
-            bottom: parent.bottom
+        CollectionDetailsView {
+            model: root.collectionDetailsModel
+            backend: root.model
+            sortedModel: root.collectionDetailsSortFilterModel
+            Layout.fillHeight: true
+            Layout.fillWidth: true
         }
     }
 }

@@ -15,7 +15,7 @@ Rectangle {
     required property var backend
     required property var sortedModel
 
-    implicitWidth: 600
+    implicitWidth: 300
     implicitHeight: 400
 
     color: StudioTheme.Values.themeBackgroundColorAlternate

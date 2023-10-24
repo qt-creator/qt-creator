@@ -30,6 +30,8 @@ public:
 
     void reloadQmlSource();
 
+    virtual QSize minimumSizeHint() const;
+
     Q_INVOKABLE bool loadJsonFile(const QString &jsonFileAddress);
     Q_INVOKABLE bool loadCsvFile(const QString &collectionName, const QString &csvFileAddress);
     Q_INVOKABLE bool isJsonFile(const QString &jsonFileAddress) const;

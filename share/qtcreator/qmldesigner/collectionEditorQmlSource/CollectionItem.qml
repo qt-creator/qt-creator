@@ -3,7 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
-import Qt.labs.platform as PlatformWidgets
+import QtQuick.Layouts
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
@@ -12,7 +12,7 @@ Item {
     id: root
 
     implicitWidth: 300
-    implicitHeight: innerRect.height + 6
+    implicitHeight: innerRect.height + 3
 
     property color textColor
 
@@ -23,7 +23,7 @@ Item {
         id: boundingRect
 
         anchors.centerIn: root
-        width: root.width - 24
+        width: parent.width
         height: nameHolder.height
         clip: true
 
@@ -47,21 +47,23 @@ Item {
             anchors.fill: parent
         }
 
-        Row {
-            width: parent.width - threeDots.width
-            leftPadding: 20
+        RowLayout {
+            width: parent.width
 
             Text {
                 id: moveTool
 
                 property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
 
-                width: moveTool.style.squareControlSize.width
-                height: nameHolder.height
+                Layout.preferredWidth: moveTool.style.squareControlSize.width
+                Layout.preferredHeight: nameHolder.height
+                Layout.leftMargin: 12
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
                 text: StudioTheme.Constants.dragmarks
                 font.family: StudioTheme.Constants.iconFont.family
                 font.pixelSize: moveTool.style.baseIconFontSize
+                color: root.textColor
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
             }
@@ -69,9 +71,12 @@ Item {
             Text {
                 id: nameHolder
 
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+
                 text: collectionName
                 font.pixelSize: StudioTheme.Values.baseFontSize
-                color: textColor
+                color: root.textColor
                 leftPadding: 5
                 topPadding: 8
                 rightPadding: 8
@@ -79,43 +84,42 @@ Item {
                 elide: Text.ElideMiddle
                 verticalAlignment: Text.AlignVCenter
             }
-        }
 
-        Text {
-            id: threeDots
+            Text {
+                id: threeDots
 
-            text: StudioTheme.Constants.more_medium
-            font.family: StudioTheme.Constants.iconFont.family
-            font.pixelSize: StudioTheme.Values.baseIconFontSize
-            color: textColor
-            anchors.right: boundingRect.right
-            anchors.verticalCenter: parent.verticalCenter
-            rightPadding: 12
-            topPadding: nameHolder.topPadding
-            bottomPadding: nameHolder.bottomPadding
-            verticalAlignment: Text.AlignVCenter
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                text: StudioTheme.Constants.more_medium
+                font.family: StudioTheme.Constants.iconFont.family
+                font.pixelSize: StudioTheme.Values.baseIconFontSize
+                color: root.textColor
+                rightPadding: 12
+                topPadding: nameHolder.topPadding
+                bottomPadding: nameHolder.bottomPadding
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
 
-            MouseArea {
-                anchors.fill: parent
-                acceptedButtons: Qt.RightButton + Qt.LeftButton
-                onClicked: (event) => {
-                    collectionMenu.open()
-                    event.accepted = true
+                MouseArea {
+                    anchors.fill: parent
+                    acceptedButtons: Qt.RightButton | Qt.LeftButton
+                    onClicked: collectionMenu.popup()
                 }
             }
         }
     }
 
-    PlatformWidgets.Menu {
+    StudioControls.Menu {
         id: collectionMenu
 
-        PlatformWidgets.MenuItem {
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        StudioControls.MenuItem {
             text: qsTr("Delete")
             shortcut: StandardKey.Delete
             onTriggered: deleteDialog.open()
         }
 
-        PlatformWidgets.MenuItem {
+        StudioControls.MenuItem {
             text: qsTr("Rename")
             shortcut: StandardKey.Replace
             onTriggered: renameDialog.open()

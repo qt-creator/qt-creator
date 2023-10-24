@@ -129,6 +129,11 @@ void CollectionWidget::reloadQmlSource()
     m_quickWidget->setSource(QUrl::fromLocalFile(collectionViewQmlPath));
 }
 
+QSize CollectionWidget::minimumSizeHint() const
+{
+    return {300, 400};
+}
+
 bool CollectionWidget::loadJsonFile(const QString &jsonFileAddress)
 {
     if (!isJsonFile(jsonFileAddress))

@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
@@ -11,7 +12,7 @@ Item {
     id: root
 
     implicitWidth: 300
-    implicitHeight: wholeColumn.height + 6
+    implicitHeight: wholeColumn.height
 
     property color textColor
     property var collectionModel
@@ -26,15 +27,17 @@ Item {
             root.expanded = !root.expanded || sourceIsSelected;
     }
 
-    Column {
+    ColumnLayout {
         id: wholeColumn
+        width: parent.width
+        spacing: 0
 
         Item {
             id: boundingRect
 
-            anchors.centerIn: root
-            width: root.width - 24
-            height: nameHolder.height
+            Layout.fillWidth: true
+            Layout.preferredHeight: nameHolder.height
+            Layout.leftMargin: 6
             clip: true
 
             MouseArea {
@@ -62,17 +65,17 @@ Item {
                 anchors.fill: parent
             }
 
-            Row {
-                width: parent.width - threeDots.width
-                leftPadding: 20
+            RowLayout {
+                width: parent.width
 
                 Text {
                     id: expandButton
 
                     property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
 
-                    width: expandButton.style.squareControlSize.width
-                    height: nameHolder.height
+                    Layout.preferredWidth: expandButton.style.squareControlSize.width
+                    Layout.preferredHeight: nameHolder.height
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
                     text: StudioTheme.Constants.startNode
                     font.family: StudioTheme.Constants.iconFont.family
@@ -90,16 +93,16 @@ Item {
 
                     MouseArea {
                         anchors.fill: parent
-                        acceptedButtons: Qt.RightButton + Qt.LeftButton
-                        onClicked: (event) => {
-                            root.toggleExpanded()
-                            event.accepted = true
-                        }
+                        acceptedButtons: Qt.RightButton | Qt.LeftButton
+                        onClicked: root.toggleExpanded()
                     }
                 }
 
                 Text {
                     id: nameHolder
+
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
                     text: sourceName
                     font.pixelSize: StudioTheme.Values.baseFontSize
@@ -109,30 +112,29 @@ Item {
                     rightPadding: 8
                     bottomPadding: 8
                     elide: Text.ElideMiddle
+                    horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                 }
-            }
 
-            Text {
-                id: threeDots
+                Text {
+                    id: threeDots
 
-                text: StudioTheme.Constants.more_medium
-                font.family: StudioTheme.Constants.iconFont.family
-                font.pixelSize: StudioTheme.Values.baseIconFontSize
-                color: textColor
-                anchors.right: boundingRect.right
-                anchors.verticalCenter: parent.verticalCenter
-                rightPadding: 12
-                topPadding: nameHolder.topPadding
-                bottomPadding: nameHolder.bottomPadding
-                verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
-                MouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton + Qt.LeftButton
-                    onClicked: (event) => {
-                        collectionMenu.popup()
-                        event.accepted = true
+                    text: StudioTheme.Constants.more_medium
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: StudioTheme.Values.baseIconFontSize
+                    color: textColor
+                    rightPadding: 12
+                    topPadding: nameHolder.topPadding
+                    bottomPadding: nameHolder.bottomPadding
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton | Qt.LeftButton
+                        onClicked: collectionMenu.popup()
                     }
                 }
             }
@@ -141,17 +143,18 @@ Item {
         ListView {
             id: collectionListView
 
-            width: parent.width
-            height: root.expanded ? contentHeight : 0
+            Layout.fillWidth: true
+            Layout.preferredHeight: root.expanded ? contentHeight : 0
+            Layout.leftMargin: 6
             model: collections
             clip: true
 
-            Behavior on height {
+            Behavior on Layout.preferredHeight {
                 NumberAnimation {duration: 500}
             }
 
             delegate: CollectionItem {
-                width: parent.width
+                width: collectionListView.width
                 onDeleteItem: root.model.removeRow(index)
             }
         }
@@ -159,6 +162,8 @@ Item {
 
     StudioControls.Menu {
         id: collectionMenu
+
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         StudioControls.MenuItem {
             text: qsTr("Delete")
