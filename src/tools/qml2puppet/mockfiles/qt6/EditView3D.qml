@@ -68,7 +68,10 @@ Item {
     onShowParticleEmitterChanged: _generalHelper.storeToolState(sceneId, "showParticleEmitter", showParticleEmitter);
     onSelectionModeChanged:       _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
     onTransformModeChanged:       _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
-    onSplitViewChanged:           _generalHelper.storeToolState(sceneId, "splitView", splitView)
+    onSplitViewChanged: {
+        _generalHelper.storeToolState(sceneId, "splitView", splitView);
+        _generalHelper.requestOverlayUpdate();
+    }
     onActiveSplitChanged: {
         _generalHelper.storeToolState(sceneId, "activeSplit", activeSplit);
         cameraControls[activeSplit].forceActiveFocus();
