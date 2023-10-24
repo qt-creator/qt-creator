@@ -12,6 +12,7 @@ Rectangle {
     id: root
 
     required property var model
+    required property var backend
 
     implicitWidth: 600
     implicitHeight: 400
@@ -60,6 +61,7 @@ Rectangle {
         CollectionDetailsToolbar {
             id: toolbar
             model: root.model
+            backend: root.backend
             Layout.fillWidth: true
         }
 

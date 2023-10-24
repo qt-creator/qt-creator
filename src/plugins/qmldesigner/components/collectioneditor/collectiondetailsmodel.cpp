@@ -392,6 +392,22 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
     }
 }
 
+bool CollectionDetailsModel::exportCollection(const QString &path, const QString &collectionName, const QString &exportType)
+{
+    QUrl url(path);
+    QString fileAddress = url.isLocalFile() ? url.toLocalFile() : path;
+
+    if (exportType == "JSON") {
+        QJsonArray content = m_currentCollection.getJsonCollection();
+        return saveCollectionAsJson(fileAddress, content, collectionName);
+    } else if (exportType == "CSV") {
+        QString content = m_currentCollection.getCsvCollection();
+        return saveCollectionAsCsv(fileAddress, content);
+    }
+
+    return false;
+}
+
 void CollectionDetailsModel::updateEmpty()
 {
     bool isEmptyNow = rowCount() == 0;
@@ -527,23 +543,31 @@ void CollectionDetailsModel::setCollectionName(const QString &newCollectionName)
     }
 }
 
-bool CollectionDetailsModel::saveCollectionAsJson(const QString &collection, const QJsonArray &content, const QString &source)
+bool CollectionDetailsModel::saveCollectionAsJson(const QString &path, const QJsonArray &content, const QString &collectionName)
 {
-    QFile sourceFile(source);
-    if (sourceFile.open(QFile::ReadWrite)) {
+    QFile sourceFile(path);
+    QJsonDocument document;
+
+    if (sourceFile.exists() && sourceFile.open(QFile::ReadWrite)) {
         QJsonParseError jpe;
-        QJsonDocument document = QJsonDocument::fromJson(sourceFile.readAll(), &jpe);
+        document = QJsonDocument::fromJson(sourceFile.readAll(), &jpe);
 
         if (jpe.error == QJsonParseError::NoError) {
             QJsonObject collectionMap = document.object();
-            collectionMap[collection] = content;
+            collectionMap[collectionName] = content;
             document.setObject(collectionMap);
         }
 
         sourceFile.resize(0);
-        if (sourceFile.write(document.toJson()))
-            return true;
+
+    } else if (sourceFile.open(QFile::WriteOnly)) {
+        QJsonObject collection;
+        collection[collectionName] = content;
+        document.setObject(collection);
     }
+
+    if (sourceFile.write(document.toJson()))
+        return true;
 
     return false;
 }

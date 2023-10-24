@@ -50,7 +50,7 @@ public:
     void updateNodeSource(const ModelNode &node);
     void updateNodeId(const ModelNode &node);
 
-    QString selectedSourceAddress() const;
+    Q_INVOKABLE QString selectedSourceAddress() const;
 
 signals:
     void selectedIndexChanged(int idx);

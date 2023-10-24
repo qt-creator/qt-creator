@@ -2,15 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import Qt.labs.platform as PlatformWidgets
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import CollectionEditorBackend
 
 Item {
     id: root
 
     property real iconHeight: 20
     required property var model
+    required property var backend
     property int selectedRow: -1
 
     implicitHeight: 30
@@ -95,6 +98,64 @@ Item {
             right: parent.right
             top: parent.top
             bottom: parent.bottom
+        }
+
+        IconButton {
+            icon: StudioTheme.Constants.updateContent_medium
+            tooltip: qsTr("Update existing file with changes")
+            enabled: root.model.collectionName !== ""
+            onClicked:
+            {
+                if (root.backend.selectedSourceAddress().indexOf("json") !== -1)
+                    root.model.exportCollection(root.backend.selectedSourceAddress(), root.model.collectionName, "JSON")
+                else
+                    root.model.exportCollection(root.backend.selectedSourceAddress(), root.model.collectionName, "CSV")
+            }
+        }
+
+        IconButton {
+            icon: StudioTheme.Constants.export_medium
+            tooltip: qsTr("Export collection to a new file")
+            enabled: root.model.collectionName !== ""
+            onClicked: exportMenu.popup()
+        }
+
+        StudioControls.Menu {
+            id: exportMenu
+
+            StudioControls.MenuItem {
+                text: qsTr("Export as JSON")
+                onTriggered:
+                {
+                    fileDialog.defaultSuffix = "json"
+                    fileDialog.open()
+                }
+            }
+
+            StudioControls.MenuItem {
+                text: qsTr("Export as CSV")
+                onTriggered:
+                {
+                    fileDialog.defaultSuffix = "csv"
+                    fileDialog.open()
+                }
+            }
+        }
+    }
+
+    PlatformWidgets.FileDialog {
+        id: fileDialog
+        fileMode: PlatformWidgets.FileDialog.SaveFile
+        onAccepted:
+        {
+            var fileAddress = file.toString()
+
+            if (fileAddress.indexOf("json") !== -1)
+                root.model.exportCollection(fileAddress, root.model.collectionName, "JSON")
+            else if (fileAddress.indexOf("csv") !== -1)
+                root.model.exportCollection(fileAddress, root.model.collectionName, "CSV")
+
+            fileDialog.reject()
         }
     }
 

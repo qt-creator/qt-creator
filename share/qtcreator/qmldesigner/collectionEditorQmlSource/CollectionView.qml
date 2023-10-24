@@ -144,6 +144,7 @@ Item {
 
     CollectionDetailsView {
         model: root.collectionDetailsModel
+        backend: root.model
         anchors {
             left: collectionsRect.right
             right: parent.right

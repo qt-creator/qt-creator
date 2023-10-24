@@ -167,4 +167,5 @@ void CollectionWidget::warn(const QString &title, const QString &body)
                               Q_ARG(QVariant, title),
                               Q_ARG(QVariant, body));
 }
+
 } // namespace QmlDesigner

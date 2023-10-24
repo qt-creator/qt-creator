@@ -53,14 +53,14 @@ public:
     Q_INVOKABLE bool selectColumn(int section);
     Q_INVOKABLE bool renameColumn(int section, const QString &newValue);
     Q_INVOKABLE bool setPropertyType(int column, const QString &newValue, bool force = false);
-
     Q_INVOKABLE bool selectRow(int row);
-
     Q_INVOKABLE void deselectAll();
 
     static Q_INVOKABLE QStringList typesList();
 
     void loadCollection(const ModelNode &sourceNode, const QString &collection);
+
+    Q_INVOKABLE bool exportCollection(const QString &path, const QString &collectionName, const QString &exportType);
 
 signals:
     void collectionNameChanged(const QString &collectionName);
@@ -78,7 +78,7 @@ private:
     void setCollectionName(const QString &newCollectionName);
     void loadJsonCollection(const QString &source, const QString &collection);
     void loadCsvCollection(const QString &source, const QString &collectionName);
-    bool saveCollectionAsJson(const QString &collection, const QJsonArray &content, const QString &source);
+    bool saveCollectionAsJson(const QString &path, const QJsonArray &content, const QString &collectionName);
     bool saveCollectionAsCsv(const QString &path, const QString &content);
 
     QHash<CollectionReference, CollectionDetails> m_openedCollections;
