@@ -469,19 +469,17 @@ void DockManager::initialize()
             if (!workspaceExists(lastWorkspace)) {
                 // This is a fallback mechanism for pre 4.1 settings which stored the workspace name
                 // instead of the file name.
-                QString minusVariant = lastWorkspace;
-                minusVariant.replace(" ", "-");
-                minusVariant.append("." + workspaceFileExtension);
 
-                if (workspaceExists(minusVariant))
-                    workspace = minusVariant;
+                const std::vector<QString> separators = {"-", "_"};
 
-                QString underscoreVariant = lastWorkspace;
-                underscoreVariant.replace(" ", "_");
-                underscoreVariant.append("." + workspaceFileExtension);
+                for (const QString &separator : separators) {
+                    QString workspaceVariant = lastWorkspace;
+                    workspaceVariant.replace(" ", separator);
+                    workspaceVariant.append("." + workspaceFileExtension);
 
-                if (workspaceExists(underscoreVariant))
-                    workspace = underscoreVariant;
+                    if (workspaceExists(workspaceVariant))
+                        workspace = workspaceVariant;
+                }
             } else {
                 workspace = lastWorkspace;
             }
@@ -1140,7 +1138,7 @@ expected_str<QString> DockManager::createWorkspace(const QString &workspaceName)
     uniqueWorkspaceFileName(fileName);
     const FilePath filePath = userDirectory().pathAppended(fileName);
 
-    expected_str<void> result = write(filePath, saveState(workspaceName));
+    expected_str<void> result = write(filePath, saveState(workspaceName)); // TODO utils
     if (!result)
         return make_unexpected(result.error());
 
@@ -1487,9 +1485,6 @@ QByteArray DockManager::loadFile(const FilePath &filePath)
 
 QString DockManager::readDisplayName(const FilePath &filePath)
 {
-    if (!filePath.exists())
-        return {};
-
     auto data = loadFile(filePath);
 
     if (data.isEmpty())
@@ -1593,8 +1588,11 @@ void DockManager::syncWorkspacePresets()
 
             // If *.wrk file and displayName attribute is empty set the displayName. This
             // should fix old workspace files which don't have the displayName attribute.
-            if (userFile.suffix() == workspaceFileExtension && readDisplayName(userFile).isEmpty())
-                writeDisplayName(userFile, readDisplayName(filePath));
+            if (userFile.suffix() == workspaceFileExtension) {
+                const QString name = readDisplayName(userFile);
+                if (name.isEmpty())
+                    writeDisplayName(userFile, name);
+            }
 
             continue;
         }
