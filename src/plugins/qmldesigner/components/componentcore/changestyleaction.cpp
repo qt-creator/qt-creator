@@ -29,9 +29,6 @@ static QString styleConfigFileName(const QString &qmlFileName)
 
 ChangeStyleWidgetAction::ChangeStyleWidgetAction(QObject *parent) : QWidgetAction(parent)
 {
-    // The Default style was renamed to Basic in Qt 6. In Qt 6, "Default"
-    // will result in a platform-specific style being chosen.
-
     items = getAllStyleItems();
 }
 
@@ -48,7 +45,6 @@ const QList<StyleWidgetEntry> ChangeStyleWidgetAction::styleItems() const
 QList<StyleWidgetEntry> ChangeStyleWidgetAction::getAllStyleItems()
 {
     QList<StyleWidgetEntry> items = {{"Basic", "Basic", {}},
-                                     {"Default", "Default", {}},
                                      {"Fusion", "Fusion", {}},
                                      {"Imagine", "Imagine", {}},
                                      {"Material Light", "Material", "Light"},

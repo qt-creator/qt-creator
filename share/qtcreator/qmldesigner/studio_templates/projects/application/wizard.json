@@ -23,16 +23,14 @@
         { "key": "IsQt6Project", "value": "%{JS: value('QtQuickVersion') !== '2.15' }" },
         { "key": "QtQuickVersion", "value": "%{JS: %{TargetQtVersion}.TargetQuickVersion}" },
         { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
-        { "key": "QtQuickControlsStyleInternalQt5", "value": "%{JS: %{ControlsStyle}.QtQuickControlsStyle}" },
-        { "key": "QtQuickControlsStyleInternalQt6", "value": "%{JS: value('QtQuickControlsStyleInternalQt5') === 'Default' ? 'Basic' : value('QtQuickControlsStyleInternalQt5')}" },
-        { "key": "QtQuickControlsStyle", "value": "%{JS: value('IsQt6Project') === 'true' ? value('QtQuickControlsStyleInternalQt6') : value('QtQuickControlsStyleInternalQt5')}" },
+        { "key": "QtQuickControlsStyle", "value": "Basic" },
         { "key": "QtQuickControlsStyleTheme", "value": "%{JS: %{ControlsStyle}.QtQuickControlsStyleTheme}" },
         { "key": "ApplicationImport", "value": "%{JS: value('IsQt6Project') === 'true' ? '%{ImportModuleName}' : '%{ImportModuleName} 1.0'}" },
         { "key": "UseStandardResolution", "value": "%{JS: value('CustomScreenWidth') === '' || value('CustomScreenHeight') === ''}" },
         { "key": "ScreenWidth", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenWidth : value('CustomScreenWidth')}" },
         { "key": "ScreenHeight", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenHeight : value('CustomScreenHeight')}" },
         { "key": "UseVirtualKeyboardDefault", "value": "%{JS: false}" },
-        { "key": "DefaultStyle", "value": "%{JS: value('IsQt6Project') === 'true' ? 'Basic' : 'Default'}" },
+        { "key": "DefaultStyle", "value": "Basic" },
         { "key": "ImportModuleVersion", "value": "%{JS: value('IsQt6Project') === 'true' ? '' : '1.0'}" }
     ],
 
@@ -134,10 +132,10 @@
                         "items":
                             [
                             {
-                                "trKey": "Default",
+                                "trKey": "Basic",
                                 "value":
                                 "({
-                                    'QtQuickControlsStyle': 'Default',
+                                    'QtQuickControlsStyle': 'Basic',
                                     'QtQuickControlsStyleTheme': ''
                                 })"
                             },
