@@ -1026,7 +1026,7 @@ void Edit3DView::createEdit3DActions()
         View3DActionType::SplitViewToggle,
         QCoreApplication::translate("SplitViewToggleAction",
                                     "Toggle Split View On/Off"),
-        QKeySequence(Qt::Key_4),
+        QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Q),
         true,
         false,
         toolbarIcon(DesignerIcons::ScaleToolIcon), // TODO Placeholder, needs proper icon
