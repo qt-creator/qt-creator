@@ -158,12 +158,15 @@ bool AxivionPlugin::handleCertificateIssue()
 
 AxivionPluginPrivate::AxivionPluginPrivate()
 {
+#if QT_CONFIG(ssl)
     connect(&m_networkAccessManager, &QNetworkAccessManager::sslErrors,
             this, &AxivionPluginPrivate::handleSslErrors);
+#endif // ssl
 }
 
 void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 {
+#if QT_CONFIG(ssl)
     const QList<QSslError::SslError> accepted{
         QSslError::CertificateNotYetValid, QSslError::CertificateExpired,
         QSslError::InvalidCaCertificate, QSslError::CertificateUntrusted,
@@ -174,6 +177,10 @@ void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSs
         if (!settings().server.validateCert || AxivionPlugin::handleCertificateIssue())
             reply->ignoreSslErrors(errors);
     }
+#else // ssl
+    Q_UNUSED(reply)
+    Q_UNUSED(errors)
+#endif // ssl
 }
 
 void AxivionPluginPrivate::onStartupProjectChanged()
