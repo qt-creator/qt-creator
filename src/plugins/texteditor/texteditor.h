@@ -6,7 +6,6 @@
 #include "texteditor_global.h"
 
 #include "codeassist/assistenums.h"
-#include "highlighter.h"
 #include "indenter.h"
 #include "refactoroverlay.h"
 #include "snippets/snippetparser.h"
@@ -455,7 +454,7 @@ public:
     void configureGenericHighlighter(const Utils::MimeType &mimeType);
 
     /// Overwrite the current highlighter with a new generic highlighter based on the given definition
-    void configureGenericHighlighter(const Highlighter::Definition &definition);
+    Utils::expected_str<void> configureGenericHighlighter(const QString &definitionName);
 
     Q_INVOKABLE void inSnippetMode(bool *active); // Used by FakeVim.
 

@@ -1521,7 +1521,7 @@ void CMakeBuildSystem::runCTest()
                 const QJsonArray nodes = btGraph.value("nodes").toArray();
                 const QJsonArray tests = jsonObj.value("tests").toArray();
                 int counter = 0;
-                for (const QJsonValue &testVal : tests) {
+                for (const auto &testVal : tests) {
                     ++counter;
                     const QJsonObject test = testVal.toObject();
                     QTC_ASSERT(!test.isEmpty(), continue);
@@ -1532,7 +1532,7 @@ void CMakeBuildSystem::runCTest()
                     if (bt != -1) {
                         QSet<int> seen;
                         std::function<QJsonObject(int)> findAncestor = [&](int index){
-                            const QJsonObject node = nodes.at(index).toObject();
+                            QJsonObject node = nodes.at(index).toObject();
                             const int parent = node.value("parent").toInt(-1);
                             if (parent < 0 || !Utils::insert(seen, parent))
                                 return node;

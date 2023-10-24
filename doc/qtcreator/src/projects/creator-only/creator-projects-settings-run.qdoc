@@ -24,7 +24,7 @@
     \image qtcreator-settings-run.webp {Run Settings}
 
     To prevent \QC from automatically creating run configurations, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run},
+    \preferences > \uicontrol {Build & Run},
     and then deselect the \uicontrol {Create suitable run configurations
     automatically} check box.
 

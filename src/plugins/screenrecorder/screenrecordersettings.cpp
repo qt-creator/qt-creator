@@ -173,7 +173,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
         using namespace Layouting;
         return Column {
             Group {
-                title(Tr::tr("FFmpeg installation")),
+                title(Tr::tr("FFmpeg Installation")),
                 Form {
                     ffmpegTool, br,
                     ffprobeTool, br,
@@ -181,7 +181,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
                 },
             },
             Group {
-                title(Tr::tr("Record settings")),
+                title(Tr::tr("Record Settings")),
                 Column {
                     captureCursor,
                     captureMouseClicks,
@@ -191,7 +191,7 @@ ScreenRecorderSettings::ScreenRecorderSettings()
                 },
             },
             Group {
-                title(Tr::tr("Export settings")),
+                title(Tr::tr("Export Settings")),
                 Column {
                     animatedImagesAsEndlessLoop,
                 },

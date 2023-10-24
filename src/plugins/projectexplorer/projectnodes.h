@@ -248,7 +248,7 @@ public:
                        const Utils::FilePath &overrideBaseDir = Utils::FilePath(),
                        const FolderNodeFactory &factory
                        = [](const Utils::FilePath &fn) { return std::make_unique<FolderNode>(fn); });
-    void compress();
+    virtual void compress();
 
     // takes ownership of newNode.
     // Will delete newNode if oldNode is not a child of this node.

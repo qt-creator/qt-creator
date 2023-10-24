@@ -47,8 +47,8 @@
 
     Click \uicontrol {Restore Global} to revert to the global settings.
 
-    To specify global Valgrind settings, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Analyzer.
+    To specify global Valgrind settings, select \preferences >
+    \uicontrol Analyzer.
 
 //! [settings valgrind]
 */

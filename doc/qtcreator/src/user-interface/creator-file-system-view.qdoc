@@ -32,8 +32,8 @@
     in the menu (1). Select \uicontrol Home to move to the user's home
     directory. Further, you can select a project to move to an open project
     or \uicontrol Projects to move to the directory specified in the
-    \uicontrol {Projects directory} field in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General.
+    \uicontrol {Projects directory} field in \preferences >
+    \uicontrol {Build & Run} > \uicontrol General.
 
     The file that is currently active in the editor determines which folder
     to display in the \uicontrol {File System} view:
@@ -62,12 +62,11 @@
         \li Show the file or directory in the file explorer.
         \li Open a terminal window in the selected directory or in the directory
             that has the file. To specify the terminal to use on Linux and
-            \macos, select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Environment > \uicontrol System.
+            \macos, select \preferences > \uicontrol Environment >
+            \uicontrol System.
             \if defined(qtcreator)
-            To use an \l{Terminal} {internal terminal}, select \uicontrol Edit >
-            \uicontrol Preferences > \uicontrol Terminal >
-            \uicontrol {Use internal terminal}.
+            To use an \l{Terminal} {internal terminal}, select \preferences >
+            \uicontrol Terminal > \uicontrol {Use internal terminal}.
             \endif
         \li Search from the selected directory.
         \li View file properties, such as name, path, MIME type, default editor,

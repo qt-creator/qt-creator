@@ -46,7 +46,7 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
+        \li Select \preferences >
             \uicontrol Environment > \uicontrol {MIME Types}.
 
             \image qtcreator-mime-types.png "MIME Types"

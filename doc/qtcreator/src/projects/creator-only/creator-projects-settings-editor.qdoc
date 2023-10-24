@@ -38,6 +38,6 @@
 
     \sa {Configuring Fonts}, {File Encoding},
     {Moving to Symbol Definition or Declaration}, {Indent text or code},
-    {Highlighting and Folding Blocks}, {Selecting Line Ending Style},
+    {Selecting Line Ending Style}, {Semantic Highlighting},
     {View function tooltips}
 */

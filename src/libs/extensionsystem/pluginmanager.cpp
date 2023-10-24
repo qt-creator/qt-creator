@@ -1540,8 +1540,7 @@ void PluginManagerPrivate::checkForProblematicPlugins()
                                             : Tr::tr("Help > About Plugins");
             const QString otherPluginsText
                 = Tr::tr("If you temporarily disable %1, the following plugins that depend on "
-                         "it are also disabled: %2.\n\n")
-                      .arg(spec->name(), dependentsList);
+                         "it are also disabled: %2.").arg(spec->name(), dependentsList) + "\n\n";
             const QString detailsText = (dependents.isEmpty() ? QString() : otherPluginsText)
                                         + Tr::tr("Disable plugins permanently in %1.").arg(pluginsMenu);
             const QString text = Tr::tr("The last time you started %1, it seems to have closed because "

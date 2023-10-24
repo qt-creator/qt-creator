@@ -12,8 +12,8 @@
     \QC uses the version control system's command-line clients to access your
     repositories. Make sure that the command-line clients are in the \c{PATH}
     environment variable, or specify the path to the command-line client
-    executable in the version control system specific tab in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Version Control}.
+    executable in the version control system specific tab in \preferences >
+    \uicontrol {Version Control}.
 
     \image qtcreator-preferences-vcs-bazaar.webp {Bazaar preferences}
 
@@ -27,7 +27,7 @@
 
     \section1 General VCS preferences
 
-    Select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Version Control}
+    Select \preferences > \uicontrol {Version Control}
     > \uicontrol General to specify settings for submit messages:
 
     \image qtcreator-preferences-vcs-general.webp {General tab in Version Control preferences}

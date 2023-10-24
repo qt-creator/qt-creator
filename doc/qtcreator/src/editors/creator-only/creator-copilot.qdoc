@@ -26,9 +26,9 @@
     \list
         \li An active \l{https://docs.github.com/en/billing/managing-billing-for-github-copilot/about-billing-for-github-copilot}
             {GitHub Copilot subscription}.
-        \li GitHub Copilot Neovim plugin installed, as described in
-            \l{https://docs.github.com/en/copilot/getting-started-with-github-copilot?tool=neovim}
-            {About GitHub Copilot and Neovim}.
+        \li GitHub Copilot Neovim plugin installed (requires Node.js), as described in
+            \l{https://github.com/github/copilot.vim/blob/release/README.md}
+            {Copilot.vim/Readme.md}.
     \endlist
 
     \section1 Enabling the Copilot Plugin
@@ -36,8 +36,9 @@
     To enable the Copilot plugin:
 
     \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol Utilities > \uicontrol Copilot to enable the plugin.
+        \li Select \uicontrol Help (or \uicontrol {\QC} on \macos) >
+            \uicontrol {About Plugins} > \uicontrol Utilities >
+            \uicontrol Copilot to enable the plugin.
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
     \endlist
 
@@ -46,8 +47,7 @@
     To set preferences for using Copilot:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Copilot.
+        \li Select \preferences > \uicontrol Copilot.
             \image qtcreator-preferences-copilot.webp {Copilot tab in Preferences}
         \li Select the \uicontrol {Enable Copilot} check box to use Copilot.
         \li Select \uicontrol {Sign In} to sign into your subscription, activate
@@ -57,17 +57,33 @@
         \li In the \uicontrol {Node.js path} field, enter the full path to the
             Node.js executable.
         \li In the \uicontrol {Path to agent.js} field, enter the path to
-            agent.js in the Copilot Neovim plugin.
-        \li Select the \uicontrol {Request completions automatically} checkbox to
-            receive suggestions for the current text cursor position when you
-            make changes.
+            agent.js in the Copilot Neovim plugin installation folder.
+        \li Select the \uicontrol {Auto request} check box to receive suggestions
+            for the current text cursor position when you make changes.
+        \li Select the \uicontrol {Use proxy} check box to use a proxy server to
+            connect to Copilot servers.
+        \li In the \uicontrol {Proxy host} field, enter the host name of the
+            proxy server.
+        \li In the \uicontrol {Proxy port} field, enter the port number of the
+            proxy server.
+        \li Select the \uicontrol {Reject unauthorized} check box to prevent the
+            security risk presented by accepting unauthorized certificates from
+            the proxy server.
+        \li In the \uicontrol {Proxy user} field, enter the user name to
+            authenticate to the proxy server.
+        \li Select the \uicontrol {Save proxy password} check box to save the
+            password to authenticate to the proxy server.
+            \note The password is saved insecurely.
+        \li In the \uicontrol {Proxy password} field, enter the password to save.
+            To see the password as you type, select the \inlineimage icons/original-size.png
+            button.
     \endlist
 
     \section1 Receiving Suggestions
 
     When you write code in the \l {Working in Edit Mode}{Edit} mode and
-    \uicontrol {Request completions automatically} is enabled, Copilot
-    automatically makes suggestions when you type.
+    \uicontrol {Auto request} is enabled, Copilot automatically makes
+    suggestions when you type.
 
     \image qtcreator-copilot.gif {Receiving suggestions from Copilot in the editor}
 
@@ -95,8 +111,7 @@
     To enable or disable Copilot suggestions globally, select the
     \inlineimage icons/copilot.png
     (\uicontrol {Toggle Copilot}) button. This also sets the value of the
-    \uicontrol {Enable Copilot} check box in \uicontrol Edit >
-    \uicontrol Preferences accordingly.
+    \uicontrol {Enable Copilot} check box in \preferences accordingly.
 
     To enable or disable Copilot suggestions for a particular project,
     select \uicontrol Projects > \uicontrol {Project Settings} >

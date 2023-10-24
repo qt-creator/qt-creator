@@ -438,7 +438,7 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdPromise &promise)
 
     if (result.stdError.isEmpty() && !result.success)
         result.stdError = Tr::tr("Failed.");
-    result.stdOutput = Tr::tr("Done\n\n");
+    result.stdOutput = Tr::tr("Done") + "\n\n";
     promise.addResult(result);
     promise.setProgressValue(100);
 }
@@ -468,8 +468,8 @@ void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &inst
         currentProgress += progressQuota;
         fi.setProgressValue(currentProgress);
         if (result.stdError.isEmpty() && !result.success)
-            result.stdError = Tr::tr("AndroidSdkManager", "Failed");
-        result.stdOutput = Tr::tr("AndroidSdkManager", "Done\n\n");
+            result.stdError = Tr::tr("Failed");
+        result.stdOutput = Tr::tr("Done") + "\n\n";
         fi.addResult(result);
         return fi.isCanceled();
     };
@@ -569,7 +569,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
     m_licenseTextCache.clear();
     result.success = licenseCommand.exitStatus() == QProcess::NormalExit;
     if (!result.success)
-        result.stdError = Tr::tr("License command failed.\n\n");
+        result.stdError = Tr::tr("License command failed.") + "\n\n";
     fi.addResult(result);
     fi.setProgressValue(100);
 }

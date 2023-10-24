@@ -32559,8 +32559,8 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <translation>&quot;%1&quot; を起動できません: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; を実行中にタイムアウトが発生しました</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>&quot;%1&quot; を実行中にタイムアウトが発生しました。</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -46500,8 +46500,8 @@ Stepping into the module or setting breakpoints by file and line is expected to 
 <context>
     <name>QmlDesigner::GenerateResource</name>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; を実行中にタイムアウトが発生しました</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>&quot;%1&quot; を実行中にタイムアウトが発生しました。</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>

@@ -7,7 +7,7 @@
     \section2 Managing Device Processes
 
     You can view processes running on devices and kill them. Select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
+    \preferences > \uicontrol Devices >
     \uicontrol Devices > \uicontrol {Show Running Processes}.
 
     You can filter the processes by name or ID in the

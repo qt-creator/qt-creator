@@ -45,7 +45,7 @@ static FancyLineEdit::AsyncValidationResult validateLibraryPath(const QString &i
 {
     const FilePath filePath = FilePath::fromUserInput(input);
     if (!filePath.exists())
-        return make_unexpected(Tr::tr("File does not exist."));
+        return make_unexpected(::QmakeProjectManager::Tr::tr("File does not exist."));
 
     const QString fileName = filePath.fileName();
 
@@ -61,7 +61,7 @@ static FancyLineEdit::AsyncValidationResult validateLibraryPath(const QString &i
         if (regExp.match(fileName).hasMatch())
             return input;
     }
-    return make_unexpected(Tr::tr("File does not match filter."));
+    return make_unexpected(::QmakeProjectManager::Tr::tr("File does not match filter."));
 }
 
 AddLibraryWizard::AddLibraryWizard(const FilePath &proFile, QWidget *parent)

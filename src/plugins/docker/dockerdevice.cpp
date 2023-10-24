@@ -187,7 +187,7 @@ DockerDeviceSettings::DockerDeviceSettings()
     mounts.setLabelText(Tr::tr("Paths to mount:"));
     mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toString()});
     mounts.setToolTip(Tr::tr("Maps paths in this list one-to-one to the docker container."));
-    mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container"));
+    mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container."));
 
     extraArgs.setSettingsKey(DockerDeviceExtraArgs);
     extraArgs.setLabelText(Tr::tr("Extra arguments:"));
@@ -220,7 +220,7 @@ DockerDeviceSettings::DockerDeviceSettings()
                                  });
                                  cb(items);
                              } else {
-                                 QStandardItem *errorItem = new QStandardItem(Tr::tr("Error!"));
+                                 QStandardItem *errorItem = new QStandardItem(Tr::tr("Error"));
                                  errorItem->setToolTip(result.error());
                                  cb({errorItem});
                              }
@@ -247,7 +247,7 @@ DockerDeviceSettings::DockerDeviceSettings()
                         path = onDevicePath;
                     } else {
                         return make_unexpected(
-                            Tr::tr("Path \"%1\" does not exist.").arg(onDevicePath.toUserOutput()));
+                            Tr::tr("The path \"%1\" does not exist.").arg(onDevicePath.toUserOutput()));
                     }
                 }
                 QString error;
@@ -766,32 +766,32 @@ QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
 expected_str<void> isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
 {
     if (mi.path.needsDevice())
-        return make_unexpected(QString("Path \"%1\" is not local").arg(mi.path.toUserOutput()));
+        return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
 
     if (mi.path.isEmpty() && mi.containerPath.isEmpty())
-        return make_unexpected(QString("Both paths are empty"));
+        return make_unexpected(QString("Both paths are empty."));
 
     if (mi.path.isEmpty()) {
-        return make_unexpected(QString("Local path is empty, container path is \"%1\"")
+        return make_unexpected(QString("The local path is empty, the container path is \"%1\".")
                                    .arg(mi.containerPath.toUserOutput()));
     }
 
     if (mi.containerPath.isEmpty()) {
         return make_unexpected(
-            QString("Container path is empty, local path is \"%1\"").arg(mi.path.toUserOutput()));
+            QString("The container path is empty, the local path is \"%1\".").arg(mi.path.toUserOutput()));
     }
 
     if (!mi.path.isAbsolutePath() || !mi.containerPath.isAbsolutePath()) {
-        return make_unexpected(QString("Path \"%1\" or \"%2\" is not absolute")
+        return make_unexpected(QString("The path \"%1\" or \"%2\" is not absolute.")
                                    .arg(mi.path.toUserOutput())
                                    .arg(mi.containerPath.toUserOutput()));
     }
 
     if (mi.containerPath.isRootPath())
-        return make_unexpected(QString("Path \"%1\" is root").arg(mi.containerPath.toUserOutput()));
+        return make_unexpected(QString("The path \"%1\" is root.").arg(mi.containerPath.toUserOutput()));
 
     if (!mi.path.exists())
-        return make_unexpected(QString("Path \"%1\" does not exist").arg(mi.path.toUserOutput()));
+        return make_unexpected(QString("The path \"%1\" does not exist.").arg(mi.path.toUserOutput()));
 
     return {};
 }
@@ -913,10 +913,12 @@ expected_str<void> DockerDevicePrivate::startContainer()
         qCWarning(dockerDeviceLog) << "Container shell encountered error:" << resultData.m_error;
 
         DockerApi::recheckDockerDaemon();
+        //: %1 is the application name (Qt Creator)
         MessageManager::writeFlashing(Tr::tr("Docker daemon appears to be not running. "
                                              "Verify daemon is up and running and reset the "
                                              "Docker daemon in Docker device preferences "
-                                             "or restart Qt Creator."));
+                                             "or restart %1.")
+                                          .arg(QGuiApplication::applicationDisplayName()));
     });
 
     QTC_ASSERT(m_shell,
@@ -939,7 +941,7 @@ expected_str<void> DockerDevicePrivate::updateContainerAccess()
     }
 
     if (m_isShutdown)
-        return make_unexpected(Tr::tr("Device is shutdown"));
+        return make_unexpected(Tr::tr("Device is shut down"));
 
     if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
         return make_unexpected(Tr::tr("Docker system is not reachable"));
@@ -1201,7 +1203,7 @@ public:
 
         CommandLine cmd{settings().dockerBinaryPath(),
                         {"images", "--format", "{{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.Size}}"}};
-        m_log->append(Tr::tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
+        m_log->append(Tr::tr("Running \"%1\"").arg(cmd.toUserOutput()) + "\n");
 
         m_process = new Process(this);
         m_process->setCommand(cmd);

@@ -13569,8 +13569,8 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <translation>無法啟動 &apos;%1&apos;：%2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &apos;%1&apos;</source>
-        <translation>執行 &apos;%1&apos; 發生逾時</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>執行 &apos;%1&apos; 發生逾時。</translation>
     </message>
     <message>
         <source>&apos;%1&apos; crashed.</source>

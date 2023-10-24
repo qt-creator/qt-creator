@@ -821,7 +821,7 @@ void Project::createTargetFromMap(const Store &map, int index)
     }
 
     Kit *k = KitManager::kit(id);
-    if (!k) {
+    if (!k && !ICore::isQtDesignStudio()) {
         Id deviceTypeId = Id::fromSetting(targetMap.value(Target::deviceTypeKey()));
         if (!deviceTypeId.isValid())
             deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;

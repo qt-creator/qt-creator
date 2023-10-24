@@ -57,8 +57,8 @@
     or press \key F6 and \key Shift+F6.
 
     By default, a new build clears the \uicontrol Issues view. To keep
-    the issues from the previous build rounds, deselect \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General >
+    the issues from the previous build rounds, deselect \preferences >
+    \uicontrol {Build & Run} > \uicontrol General >
     \uicontrol {Clear issues list on new build}.
 
     \sa {View output}
@@ -133,8 +133,8 @@
     To set preferences for displaying application output:
 
     \list
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol {Build & Run} > \uicontrol {Application Output}.
+        \li Select \preferences > \uicontrol {Build & Run} >
+            \uicontrol {Application Output}.
         \li Select the \inlineimage icons/settings.png
             (\uicontrol {Open Settings Page}) button.
     \endlist
@@ -190,8 +190,8 @@
                 \li In the \uicontrol {Compile Output} view,
                     select \inlineimage icons/settings.png
                     (\uicontrol {Open Settings Page}).
-                \li Select \uicontrol Edit > \uicontrol Preferences >
-                    \uicontrol {Build & Run} > \uicontrol {Compile Output}.
+                \li Select \preferences > \uicontrol {Build & Run} >
+                    \uicontrol {Compile Output}.
             \endlist
             \image qtcreator-preferences-compile-output.webp {Compile Output tab in Preferences}
         \li Select the \uicontrol {Open Compile Output when building} check box.

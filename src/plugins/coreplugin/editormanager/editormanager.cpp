@@ -873,6 +873,9 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
 
         IEditorFactory *selectedFactory = nullptr;
         if (!factories.isEmpty()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+            msgbox.setOptions(QMessageBox::Option::DontUseNativeDialog);
+#endif
             auto button = qobject_cast<QPushButton *>(msgbox.button(QMessageBox::Open));
             QTC_ASSERT(button, return nullptr);
             auto menu = new QMenu(button);

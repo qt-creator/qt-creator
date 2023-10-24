@@ -231,8 +231,7 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Environment > \uicontrol Locator >
+        \li Select \preferences > \uicontrol Environment > \uicontrol Locator >
             \uicontrol {Web Search} > \uicontrol Edit.
 
         \li Select \uicontrol Add to add a new entry to the list.
@@ -307,8 +306,7 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Environment > \uicontrol Locator.
+        \li Select \preferences > \uicontrol Environment > \uicontrol Locator.
 
         \li In \uicontrol {Refresh interval}, define new time in minutes.
 

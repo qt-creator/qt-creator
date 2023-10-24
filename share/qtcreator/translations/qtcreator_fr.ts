@@ -6336,8 +6336,8 @@ Export des ressources&#xa0;: %2</translation>
         <translation>Impossible de générer le fichier de ressource&#xa0;: %1</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Un dépassement de délai s’est produit lors de l’exécution de «&#xa0;%1&#xa0;»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Un dépassement de délai s’est produit lors de l’exécution de «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -9058,22 +9058,16 @@ Installez-les manuellement après que l&apos;opération en cours soit finie.
         <translation>L&apos;installation du SDK Android ne contient pas certains paquets nécessaires. Souhaitez-vous installer les paquets manquants&#xa0;?</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Vérification des licences en cours…
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Vérification des licences en cours…</translation>
     </message>
     <message>
-        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.
-</source>
-        <translation>L&apos;installation des paquets du SDK Android peut échouer si les licences respectives ne sont pas acceptées.
-</translation>
+        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.</source>
+        <translation>L&apos;installation des paquets du SDK Android peut échouer si les licences respectives ne sont pas acceptées.</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-Le gestionnaire de SDK est occupé.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>Le gestionnaire de SDK est occupé.</translation>
     </message>
     <message numerus="yes">
         <source>%n Android SDK packages shall be updated.</source>
@@ -10484,8 +10478,8 @@ Les fichiers du répertoire source du paquet Android sont copiés dans le réper
         <translation>Cliquer pour sélectionner…</translation>
     </message>
     <message>
-        <source>Images (*.png *.jpg *.jpeg *.webp *.svg)</source>
-        <translation>Images (*.png *.jpg *.jpeg *.webp *.svg)</translation>
+        <source>Images %1</source>
+        <translation>Images %1</translation>
     </message>
     <message>
         <source>Deploy to Android Device</source>
@@ -10672,12 +10666,8 @@ Les fichiers du répertoire source du paquet Android sont copiés dans le réper
         <translation>Échec.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>Fini
-
-</translation>
+        <source>Done</source>
+        <translation>Fini</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -10700,12 +10690,8 @@ Les fichiers du répertoire source du paquet Android sont copiés dans le réper
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>Échec de la commande de licence.
-
-</translation>
+        <source>License command failed.</source>
+        <translation>Échec de la commande de licence.</translation>
     </message>
     <message>
         <source>Revision</source>
@@ -11611,8 +11597,8 @@ Avertissement&#xa0;: l&apos;activation de cette fonctionnalité augmente signifi
         <translation>Métriques du benchmark</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;La présence de plusieurs cas de tests dans un unique exécutable n&apos;est officiellement pas supportée. Suivant l&apos;implémentation, ils peuvent être exécutés ou non mais il ne seront jamais sélectionnables explicitement.&lt;/p&gt;</translation>
+        <source>Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.</source>
+        <translation>La présence de plusieurs cas de tests dans un unique exécutable n&apos;est officiellement pas supportée. Suivant l&apos;implémentation, ils peuvent être exécutés ou non mais il ne seront jamais sélectionnables explicitement.</translation>
     </message>
     <message>
         <source>inherited</source>
@@ -12745,8 +12731,8 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
         <translation>Pilote cible&#xa0;:</translation>
     </message>
     <message>
-        <source>Starting %1 ...</source>
-        <translation>Démarrage de %1 …</translation>
+        <source>Starting %1...</source>
+        <translation>Démarrage de %1…</translation>
     </message>
     <message>
         <source>Version</source>
@@ -16703,8 +16689,8 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Identification échouée</translation>
     </message>
     <message>
-        <source>The login request failed: </source>
-        <translation>La requête d&apos;identification a échouée&#xa0;: </translation>
+        <source>The login request failed: %1</source>
+        <translation>La requête d&apos;identification a échouée&#xa0;: %1</translation>
     </message>
     <message>
         <source>Copilot</source>
@@ -16739,7 +16725,7 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Requête de suggestion Copilot à la position actuelle du curseur de l&apos;éditeur.</translation>
     </message>
     <message>
-        <source>Show next Copilot Suggestion</source>
+        <source>Show Next Copilot Suggestion</source>
         <translation>Afficher la suggestion Copilot suivante</translation>
     </message>
     <message>
@@ -16747,7 +16733,7 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Alterner parmi les suggestions Copilot reçues pour afficher la suggestion suivante disponible.</translation>
     </message>
     <message>
-        <source>Show previos Copilot Suggestion</source>
+        <source>Show Previous Copilot Suggestion</source>
         <translation>Afficher la suggestion Copilot précédente</translation>
     </message>
     <message>
@@ -16787,8 +16773,8 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Chemin Node.js</translation>
     </message>
     <message>
-        <source>Select path to node.js executable. See https://nodejs.org/en/download/for installation instructions.</source>
-        <translation>Sélectionner le chemin menant à l&apos;exécutable node.js. Voir https://nodejs.org/fr/download/ pour les instructions d&apos;installation.</translation>
+        <source>Select path to node.js executable. See %1 for installation instructions.</source>
+        <translation>Sélectionner le chemin menant à l&apos;exécutable node.js. Voir %1 pour les instructions d&apos;installation.</translation>
     </message>
     <message>
         <source>Path to agent.js:</source>
@@ -16799,8 +16785,8 @@ Le code a été copié dans votre presse-papiers.</translation>
         <translation>Chemin Agent.js</translation>
     </message>
     <message>
-        <source>Select path to agent.js in Copilot Neovim plugin. See https://github.com/github/copilot.vim#getting-started for installation instructions.</source>
-        <translation>Sélectionner le chemin vers agent.js dans le plug-in Copilot Neovim Voir https://github.com/github/copilot.vim#getting-started pour les instructions d&apos;installation.</translation>
+        <source>Select path to agent.js in Copilot Neovim plugin. See %1 for installation instructions.</source>
+        <translation>Sélectionner le chemin vers agent.js dans le plug-in Copilot Neovim Voir %1 pour les instructions d&apos;installation.</translation>
     </message>
     <message>
         <source>Auto Complete</source>
@@ -20044,8 +20030,8 @@ Double-cliquez pour modifier l’élément.</translation>
         <translation>Impossible de lancer «&#xa0;%1&#xa0;» : %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Un dépassement de délai s’est produit lors de l’exécution de «&#xa0;%1&#xa0;»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Un dépassement de délai s’est produit lors de l’exécution de «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -20295,8 +20281,8 @@ Double-cliquez pour modifier l’élément.</translation>
         <translation>C++</translation>
     </message>
     <message>
-        <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;Low Priority: Same priority as other clangd work.</source>
-        <translation>&lt;p&gt;Si l’indexation en arrière-plan est activée, les recherches globales de symboles donneront des résultats plus précis, au prix d’une charge de travail supplémentaire du CPU lors de la première ouverture du projet. Le résultat de l’indexation est conservé dans le répertoire de construction du projet. Si vous désactivez l’indexation en arrière-plan, un indexeur intégré plus rapide, mais moins précis, est utilisé à la place. La priorité des threads pour la construction de l’index d’arrière-plan peut être ajustée depuis clangd 15.&lt;/p&gt;&lt;p&gt;Priorité d’arrière-plan : priorité minimale, s’exécute sur les processeurs inactifs. Peut laisser les cœurs de «&#xa0;performance&#xa0;» inutilisés.&lt;/p&gt;&lt;p&gt;Priorité normale : priorité réduite par rapport au travail interactif.&lt;/p&gt;Priorité basse : même priorité que les autres travaux de clangd.</translation>
+        <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;&lt;p&gt;Low Priority: Same priority as other clangd work.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Si l’indexation en arrière-plan est activée, les recherches globales de symboles donneront des résultats plus précis, au prix d’une charge de travail supplémentaire du CPU lors de la première ouverture du projet. Le résultat de l’indexation est conservé dans le répertoire de construction du projet. Si vous désactivez l’indexation en arrière-plan, un indexeur intégré plus rapide, mais moins précis, est utilisé à la place. La priorité des threads pour la construction de l’index d’arrière-plan peut être ajustée depuis clangd 15.&lt;/p&gt;&lt;p&gt;Priorité d’arrière-plan : priorité minimale, s’exécute sur les processeurs inactifs. Peut laisser les cœurs de «&#xa0;performance&#xa0;» inutilisés.&lt;/p&gt;&lt;p&gt;Priorité normale : priorité réduite par rapport au travail interactif.&lt;/p&gt;&lt;p&gt;Priorité basse : même priorité que les autres travaux de clangd.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Which C/C++ backend to use when switching between header and source file.&lt;p&gt;The clangd implementation has more capabilities, but also has some bugs not present in the built-in variant.&lt;p&gt;When &quot;Try Both&quot; is selected, clangd will be employed only if the built-in variant does not find anything.</source>
@@ -20311,9 +20297,9 @@ Double-cliquez pour modifier l’élément.</translation>
         <translation>Contrôle si clangd peut insérer des fichiers d’en-tête dans le cadre de la complétion de symboles.</translation>
     </message>
     <message>
-        <source>Defines the amount of time Qt Creator waits before sending document changes to the server.
+        <source>Defines the amount of time %1 waits before sending document changes to the server.
 If the document changes again while waiting, this timeout resets.</source>
-        <translation>Définit le temps d’attente de Qt Creator avant d’envoyer les modifications du document au serveur.
+        <translation>Définit le temps d’attente de %1 avant d’envoyer les modifications du document au serveur.
 Si le document est à nouveau modifié pendant l’attente, ce délai est réinitialisé.</translation>
     </message>
     <message>
@@ -27336,8 +27322,8 @@ La recompilation du projet peut aider.</translation>
         <translation>Ouvrir un shell dans le conteneur</translation>
     </message>
     <message>
-        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart Qt Creator.</source>
-        <translation>Le démon Docker ne semble pas fonctionner. Vérifiez que le démon est présent et en cours d&apos;exécution et réinitialisez le démon docker dans les paramètres du périphérique docker ou redémarrez Qt Creator.</translation>
+        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart %1.</source>
+        <translation>Le démon Docker ne semble pas fonctionner. Vérifiez que le démon est présent et en cours d&apos;exécution et réinitialisez le démon docker dans les paramètres du périphérique docker ou redémarrez %1.</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
@@ -27352,10 +27338,8 @@ La recompilation du projet peut aider.</translation>
         <translation>Chargement …</translation>
     </message>
     <message>
-        <source>Running &quot;%1&quot;
-</source>
-        <translation>Exécution de «&#xa0;%1&#xa0;»
-</translation>
+        <source>Running &quot;%1&quot;</source>
+        <translation>Exécution de «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
         <source>Unexpected result: %1</source>
@@ -27434,8 +27418,8 @@ La recompilation du projet peut aider.</translation>
         <translation>La liste des répertoires sources ne doit pas être vide.</translation>
     </message>
     <message>
-        <source>Host directories to mount into the container</source>
-        <translation>Répertoires hôtes à monter dans le conteneur</translation>
+        <source>Host directories to mount into the container.</source>
+        <translation>Répertoires hôtes à monter dans le conteneur.</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
@@ -27852,12 +27836,8 @@ Raison : %3</translation>
         <translation>Aide &gt; À propos des greffons</translation>
     </message>
     <message>
-        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.
-
-</source>
-        <translation>Si vous désactivez temporairement %1, les greffons suivants qui en dépendent seront également désactivés : %2.
-
-</translation>
+        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.</source>
+        <translation>Si vous désactivez temporairement %1, les greffons suivants qui en dépendent seront également désactivés : %2.</translation>
     </message>
     <message>
         <source>Disable plugins permanently in %1.</source>
@@ -46947,34 +46927,20 @@ Le processus de contrôle n&apos;a pas pu démarrer.</translation>
 </translation>
     </message>
     <message>
-        <source>Failed to start &quot;%1&quot;: %2
-</source>
-        <translation>Échec du démarrage de «&#xa0;%1&#xa0;»&#xa0;: %2
-</translation>
+        <source>Failed to start &quot;%1&quot;: %2</source>
+        <translation>Échec du démarrage de «&#xa0;%1&#xa0;»&#xa0;: %2</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; crashed.
-</source>
-        <translation>«&#xa0;%1&#xa0;» a planté.
-</translation>
+        <source>&quot;%1&quot; failed with exit code %2: %3</source>
+        <translation>«&#xa0;%1&#xa0;» a échoué avec le code de sortie %2&#xa0;: %3</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; failed with exit code %2: %3
-</source>
-        <translation>«&#xa0;%1&#xa0;» a échoué avec le code de sortie %2&#xa0;: %3
-</translation>
+        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.</source>
+        <translation>« %1 » sera utilisé pour le déploiement, car « %2 » et «&#xa0;%3&#xa0;» ne sont pas disponibles.</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.
-</source>
-        <translation>« %1 » sera utilisé pour le déploiement, car « %2 » et «&#xa0;%3&#xa0;» ne sont pas disponibles.
-</translation>
-    </message>
-    <message>
-        <source>Deployment to this device will not work out of the box.
-</source>
-        <translation>Le déploiement vers ce périphérique ne fonctionnera pas directement.
-</translation>
+        <source>Deployment to this device will not work out of the box.</source>
+        <translation>Le déploiement vers ce périphérique ne fonctionnera pas directement.</translation>
     </message>
     <message>
         <source>%1...</source>
@@ -49104,9 +49070,9 @@ Le fichier de destination «&#xa0;%1&#xa0;» existe déjà.</translation>
     </message>
     <message>
         <source>Could not merge results into single results.xml.
-Failed to open file &quot;%1&quot;</source>
+Failed to open file &quot;%1&quot;.</source>
         <translation>Impossible de fusionner les résultats dans un unique fichier results.xml.
-Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;»</translation>
+Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
         <source>Error while parsing first test result.</source>
@@ -49383,8 +49349,8 @@ Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;»</translation>
         <translation>Configurer…</translation>
     </message>
     <message>
-        <source>Sends Esc to terminal instead of Qt Creator.</source>
-        <translation>Envoie Échap au terminal au lieu d&apos;à Qt Creator.</translation>
+        <source>Sends Esc to terminal instead of %1.</source>
+        <translation>Envoie Échap au terminal au lieu d&apos;à %1.</translation>
     </message>
     <message>
         <source>Press %1 to send Esc to terminal.</source>
@@ -49503,7 +49469,7 @@ Impossible d&apos;ouvrir le fichier «&#xa0;%1&#xa0;»</translation>
         <translation>Envoyer la touche d&apos;échappement au terminal</translation>
     </message>
     <message>
-        <source>Sends the escape key to the terminal when pressedinstead of closing the terminal.</source>
+        <source>Sends the escape key to the terminal when pressed instead of closing the terminal.</source>
         <translation>Envoi la touche d&apos;échappement au terminal lorsque appuyé au lieu de fermer le terminal.</translation>
     </message>
     <message>
@@ -52725,8 +52691,8 @@ Les données de la trace sont perdues.</translation>
         <translation>Motif d’excl&amp;usion :</translation>
     </message>
     <message>
-        <source>List of comma separated wildcard filters. </source>
-        <translation>Liste de filtres joker séparés par des virgules. </translation>
+        <source>List of comma separated wildcard filters.</source>
+        <translation>Liste de filtres joker séparés par des virgules.</translation>
     </message>
     <message>
         <source>Files with file name or full file path matching any filter are included.</source>
@@ -54734,8 +54700,8 @@ Vérifiez les paramètres pour vous assurer que Valgrind est installé et dispon
         <translation>Éditeur de Manifest Vcpkg</translation>
     </message>
     <message>
-        <source>Name：</source>
-        <translation>Nom：</translation>
+        <source>Name:</source>
+        <translation>Nom&#xa0;:</translation>
     </message>
     <message>
         <source>Version:</source>

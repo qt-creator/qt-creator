@@ -18,7 +18,7 @@
     To specify global indentation settings for the C++ editor:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol {C++}.
+        \li Select \preferences > \uicontrol {C++}.
             \image qtcreator-code-style-clang-format-global.webp {Code Style preferences}
         \li In \uicontrol {Formatting mode}, select:
             \list

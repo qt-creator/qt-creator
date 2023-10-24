@@ -574,6 +574,8 @@ QString Client::stateString() const
     //: language client state
     case InitializeRequested: return Tr::tr("initialize requested");
     //: language client state
+    case FailedToInitialize: return Tr::tr("failed to initialize");
+    //: language client state
     case Initialized: return Tr::tr("initialized");
     //: language client state
     case ShutdownRequested: return Tr::tr("shutdown requested");
@@ -1696,7 +1698,7 @@ bool ClientPrivate::reset()
 void Client::setError(const QString &message)
 {
     log(message);
-    d->m_state = Error;
+    d->m_state = d->m_state < Initialized ? FailedToInitialize : Error;
 }
 
 ProgressManager *Client::progressManager()

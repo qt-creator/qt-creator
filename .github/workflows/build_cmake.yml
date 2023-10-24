@@ -7,7 +7,7 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.5.2
+  QT_VERSION: 6.6.0
   MACOS_DEPLOYMENT_TARGET: 10.15
   CLANG_VERSION: 17.0.1
   ELFUTILS_VERSION: 0.175
@@ -201,7 +201,7 @@ jobs:
           set(url_os "linux_x64")
           set(qt_package_arch_suffix "gcc_64")
           set(qt_dir_prefix "${qt_version}/gcc_64")
-          set(qt_package_suffix "-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64")
+          set(qt_package_suffix "-Linux-RHEL_8_6-GCC-Linux-RHEL_8_6-X86_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
           set(qt_package_arch_suffix "clang_64")

@@ -39,18 +39,19 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <QAction>
+#include <QApplication>
+#include <QCompleter>
 #include <QDir>
 #include <QFileInfo>
+#include <QMessageBox>
 #include <QPointer>
 #include <QProcess>
+#include <QPushButton>
 #include <QSet>
 #include <QStringListModel>
 #include <QStyle>
 #include <QToolBar>
-#include <QAction>
-#include <QApplication>
-#include <QMessageBox>
-#include <QCompleter>
 
 #include <cstring>
 
@@ -472,13 +473,12 @@ bool VcsBaseSubmitEditor::promptSubmit(VcsBasePluginPrivate *plugin)
     mb.setWindowTitle(plugin->commitAbortTitle());
     mb.setIcon(QMessageBox::Warning);
     mb.setText(plugin->commitAbortMessage());
-    mb.setStandardButtons(QMessageBox::Close | QMessageBox::Cancel);
-    // On Windows there is no mnemonic for Close. Set it explicitly.
-    mb.button(QMessageBox::Close)->setText(Tr::tr("&Close"));
-    mb.button(QMessageBox::Cancel)->setText(Tr::tr("&Keep Editing"));
-    mb.setDefaultButton(QMessageBox::Cancel);
+    QPushButton *closeButton = mb.addButton(Tr::tr("&Close"), QMessageBox::AcceptRole);
+    QPushButton *keepButton = mb.addButton(Tr::tr("&Keep Editing"), QMessageBox::RejectRole);
+    mb.setDefaultButton(keepButton);
+    mb.setEscapeButton(keepButton);
     mb.exec();
-    return mb.result() == QMessageBox::Close;
+    return mb.clickedButton() == closeButton;
 }
 
 QString VcsBaseSubmitEditor::promptForNickName()

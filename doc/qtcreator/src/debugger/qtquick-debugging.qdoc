@@ -91,9 +91,8 @@
 
     \section2 Using Default Values
 
-    You can enable or disable QML debugging globally in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Build & Run} >
-    \uicontrol {Default Build Properties}.
+    You can enable or disable QML debugging globally in \preferences >
+    \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
 
     \image qtcreator-build-settings-default.png "Default Build Properties tab in Build & Run Preferences"
 
@@ -120,7 +119,7 @@
     \QC, it will be kept as you want it.
 
     There are some known issues in the interaction between the global setting
-    in \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run} >
+    in \preferences > \uicontrol {Build & Run} >
     \uicontrol {Default Build Properties} and the build configuration.
     For example, for qmake the global setting only affects build configurations
     that are automatically created when enabling a kit. Also, CMake ignores the

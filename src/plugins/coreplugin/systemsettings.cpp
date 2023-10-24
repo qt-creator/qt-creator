@@ -143,7 +143,7 @@ SystemSettings::SystemSettings()
 #ifdef ENABLE_CRASHPAD
     enableCrashReporting.setSettingsKey("CrashReportingEnabled");
     enableCrashReporting.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
-    enableCrashReporting.setLabelText(tr("Enable crash reporting"));
+    enableCrashReporting.setLabelText(Tr::tr("Enable crash reporting"));
     enableCrashReporting.setToolTip(
         Tr::tr("Allow crashes to be automatically reported. Collected reports are "
            "used for the sole purpose of fixing bugs."));

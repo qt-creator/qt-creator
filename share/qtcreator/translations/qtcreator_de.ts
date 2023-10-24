@@ -6385,8 +6385,8 @@ Exporting assets: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -9410,7 +9410,7 @@ Locked components cannot be modified or selected.</source>
         <translation>Kommandozeilen-Werkzeug für Android-SDK ist installiert.</translation>
     </message>
     <message>
-        <source>Android SDK Command-line Tools run.</source>
+        <source>Android SDK Command-line Tools runs.</source>
         <translation>Kommandozeilen-Werkzeug für Android-SDK startet erfolgreich.</translation>
     </message>
     <message>
@@ -10396,22 +10396,16 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
 </translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Prüfe auf ausstehende Lizenzen...
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Prüfe auf ausstehende Lizenzen...</translation>
     </message>
     <message>
-        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.
-</source>
-        <translation>Die Installation von Android-SDK-Paketen kann fehlschlagen, wenn die entsprechenden Lizenzen nicht akzeptiert werden.
-</translation>
+        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.</source>
+        <translation>Die Installation von Android-SDK-Paketen kann fehlschlagen, wenn die entsprechenden Lizenzen nicht akzeptiert werden.</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-SDK-Manager arbeitet.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>SDK-Manager arbeitet.</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -10503,12 +10497,8 @@ Breche ausstehende Operationen ab...
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>Lizenzkommando fehlgeschlagen.
-
-</translation>
+        <source>License command failed.</source>
+        <translation>Lizenzkommando fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Updating installed packages.</source>
@@ -10519,12 +10509,8 @@ Breche ausstehende Operationen ab...
         <translation>Fehlgeschlagen.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>Fertig
-
-</translation>
+        <source>Done</source>
+        <translation>Fertig</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -10850,8 +10836,8 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation>Klicken zum Auswählen...</translation>
     </message>
     <message>
-        <source>Images (*.png *.jpg *.jpeg *.webp *.svg)</source>
-        <translation>Bilder (*.png *.jpg *.jpeg *.webp *.svg)</translation>
+        <source>Images %1</source>
+        <translation>Bilder %1</translation>
     </message>
     <message>
         <source>%1 has been stopped.</source>
@@ -12315,8 +12301,8 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <translation>Qt Test</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Mehrere Testfälle in der gleichen ausführbaren Datei werden nicht offiziell unterstützt. Abhängig von der Implementation werden sie möglicherweise ausgeführt oder auch nicht, aber sie werden niemals explizit auswählbar sein.&lt;/p&gt;</translation>
+        <source>Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.</source>
+        <translation>Mehrere Testfälle in der gleichen ausführbaren Datei werden nicht offiziell unterstützt. Abhängig von der Implementation werden sie möglicherweise ausgeführt oder auch nicht, aber sie werden niemals explizit auswählbar sein.</translation>
     </message>
     <message>
         <source>inherited</source>
@@ -12484,8 +12470,8 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <translation>Zieltreiber:</translation>
     </message>
     <message>
-        <source>Starting %1 ...</source>
-        <translation>Starte %1 ...</translation>
+        <source>Starting %1...</source>
+        <translation>Starte %1...</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -16979,8 +16965,8 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
         <translation>Anmeldung fehlgeschlagen</translation>
     </message>
     <message>
-        <source>The login request failed: </source>
-        <translation>Die Anmeldung ist fehlgeschlagen: </translation>
+        <source>The login request failed: %1</source>
+        <translation>Die Anmeldung ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Select Previous Copilot Suggestion</source>
@@ -17028,7 +17014,7 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Fordert Vorschläge für die Cursorposition des aktuellen Editors von Copilot an.</translation>
     </message>
     <message>
-        <source>Show next Copilot Suggestion</source>
+        <source>Show Next Copilot Suggestion</source>
         <translation>Nächsten Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
@@ -17036,7 +17022,7 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Iteriert über die Vorschläge von Copilot und zeigt den nächsten verfügbaren Vorschlag.</translation>
     </message>
     <message>
-        <source>Show previos Copilot Suggestion</source>
+        <source>Show Previous Copilot Suggestion</source>
         <translation>Vorangehenden Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
@@ -17080,8 +17066,8 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Pfad zu Node.js</translation>
     </message>
     <message>
-        <source>Select path to node.js executable. See https://nodejs.org/en/download/for installation instructions.</source>
-        <translation>Wählen Sie den Pfad zur ausführbaren node.js-Datei. Siehe auch https://nodejs.org/en/download/ für eine Installationsanleitung.</translation>
+        <source>Select path to node.js executable. See %1 for installation instructions.</source>
+        <translation>Wählen Sie den Pfad zur ausführbaren node.js-Datei. Siehe auch %1 für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Path to agent.js:</source>
@@ -17092,8 +17078,8 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Pfad zu agent.js</translation>
     </message>
     <message>
-        <source>Select path to agent.js in Copilot Neovim plugin. See https://github.com/github/copilot.vim#getting-started for installation instructions.</source>
-        <translation>Wählen Sie den Pfad zur agent.js-Datei vom Copilot-Plugin für Neovim. Siehe auch https://github.com/github/copilot.vim#getting-started für eine Installationsanleitung.</translation>
+        <source>Select path to agent.js in Copilot Neovim plugin. See %1 for installation instructions.</source>
+        <translation>Wählen Sie den Pfad zur agent.js-Datei vom Copilot-Plugin für Neovim. Siehe auch %1 für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Auto Complete</source>
@@ -18005,8 +17991,8 @@ Trotzdem fortfahren?</translation>
         <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -21886,9 +21872,9 @@ z.B. name = &quot;m_test_foo_&quot;:
         <translation>Bestimmt, ob Clangd beim Vervollständigen von Symbolen Header-Dateien einfügen darf.</translation>
     </message>
     <message>
-        <source>Defines the amount of time Qt Creator waits before sending document changes to the server.
+        <source>Defines the amount of time %1 waits before sending document changes to the server.
 If the document changes again while waiting, this timeout resets.</source>
-        <translation>Bestimmt die Zeit, die Qt Creator vor dem Senden von Dokumentänderungen an den Server wartet.
+        <translation>Bestimmt die Zeit, die %1 vor dem Senden von Dokumentänderungen an den Server wartet.
 Falls sich das Dokument innerhalb dieser Zeit wieder ändert, wird erneut die volle Zeit gewartet.</translation>
     </message>
     <message>
@@ -27591,8 +27577,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Shell in Container öffnen</translation>
     </message>
     <message>
-        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart Qt Creator.</source>
-        <translation>Der Docker-Daemon scheint nicht zu laufen. Stellen Sie sicher, dass der Daemon ausgeführt wird, und setzen Sie den Docker-Daemon in den Einstellungen des Docker-Geräts zurück oder starten Sie Qt Creator neu.</translation>
+        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart %1.</source>
+        <translation>Der Docker-Daemon scheint nicht zu laufen. Stellen Sie sicher, dass der Daemon ausgeführt wird, und setzen Sie den Docker-Daemon in den Einstellungen des Docker-Geräts zurück oder starten Sie %1 neu.</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
@@ -27607,10 +27593,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Lade...</translation>
     </message>
     <message>
-        <source>Running &quot;%1&quot;
-</source>
-        <translation>Führe &quot;%1&quot; aus
-</translation>
+        <source>Running &quot;%1&quot;</source>
+        <translation>Führe &quot;%1&quot; aus</translation>
     </message>
     <message>
         <source>Unexpected result: %1</source>
@@ -27689,8 +27673,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Die Liste der Quellverzeichnisse sollte nicht leer sein.</translation>
     </message>
     <message>
-        <source>Host directories to mount into the container</source>
-        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen</translation>
+        <source>Host directories to mount into the container.</source>
+        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen.</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
@@ -28249,12 +28233,8 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>Hilfe &gt; Plugins</translation>
     </message>
     <message>
-        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.
-
-</source>
-        <translation>Wenn Sie %1 vorübergehend deaktivieren, werden die folgenden Plugins, die davon abhängen, auch deaktiviert: %2.
-
-</translation>
+        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.</source>
+        <translation>Wenn Sie %1 vorübergehend deaktivieren, werden die folgenden Plugins, die davon abhängen, auch deaktiviert: %2.</translation>
     </message>
     <message>
         <source>Disable plugins permanently in %1.</source>
@@ -47127,22 +47107,16 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>Überprüfe, ob &quot;%1&quot; funktioniert...</translation>
     </message>
     <message>
-        <source>Failed to start &quot;%1&quot;: %2
-</source>
-        <translation>&quot;%1&quot; konnte nicht gestartet werden: %2
-</translation>
+        <source>Failed to start &quot;%1&quot;: %2</source>
+        <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; crashed.
-</source>
-        <translation>&quot;%1&quot; ist abgestürzt.
-</translation>
+        <source>&quot;%1&quot; crashed.</source>
+        <translation>&quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; failed with exit code %2: %3
-</source>
-        <translation>&quot;%1&quot; ist mit Rückgabewert %2 fehlgeschlagen: %3
-</translation>
+        <source>&quot;%1&quot; failed with exit code %2: %3</source>
+        <translation>&quot;%1&quot; ist mit Rückgabewert %2 fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is functional.
@@ -47151,10 +47125,8 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
 </translation>
     </message>
     <message>
-        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.
-</source>
-        <translation>&quot;%1&quot; wird für das Deployment benutzt, da &quot;%2&quot; und &quot;%3&quot; nicht verfügbar sind.
-</translation>
+        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.</source>
+        <translation>&quot;%1&quot; wird für das Deployment benutzt, da &quot;%2&quot; und &quot;%3&quot; nicht verfügbar sind.</translation>
     </message>
     <message>
         <source>Checking if required commands are available...</source>
@@ -47177,10 +47149,8 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>%1 nicht gefunden.</translation>
     </message>
     <message>
-        <source>Deployment to this device will not work out of the box.
-</source>
-        <translation>Deployment auf dieses Gerät wird nicht von Anfang an funktionieren.
-</translation>
+        <source>Deployment to this device will not work out of the box.</source>
+        <translation>Deployment auf dieses Gerät wird nicht von Anfang an funktionieren.</translation>
     </message>
     <message>
         <source>Checking if specified ports are available...</source>
@@ -47445,10 +47415,6 @@ Der Kontrollprozess konnte nicht gestartet werden.</translation>
     <message>
         <source>&quot;%1&quot; failed to start: %2</source>
         <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; crashed.</source>
-        <translation>&quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
         <source>&quot;sftp&quot; binary &quot;%1&quot; does not exist.</source>
@@ -49436,9 +49402,9 @@ Zieldatei &quot;%1&quot; existiert bereits.</translation>
     </message>
     <message>
         <source>Could not merge results into single results.xml.
-Failed to open file &quot;%1&quot;</source>
+Failed to open file &quot;%1&quot;.</source>
         <translation>Die Ergebnisse konnten nicht in einer einzelnen &apos;results.xml&apos;-Datei zusammengeführt werden.
-Die Datei &quot;%1&quot; konnte nicht geöffnet werden</translation>
+Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Error while parsing first test result.</source>
@@ -49715,8 +49681,8 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden</translation>
         <translation>Einstellungen...</translation>
     </message>
     <message>
-        <source>Sends Esc to terminal instead of Qt Creator.</source>
-        <translation>Sendet Escape zum Terminal statt zu Qt Creator.</translation>
+        <source>Sends Esc to terminal instead of %1.</source>
+        <translation>Sendet Escape zum Terminal statt zu %1.</translation>
     </message>
     <message>
         <source>Press %1 to send Esc to terminal.</source>
@@ -49835,7 +49801,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden</translation>
         <translation>Escape-Taste zum Terminal senden</translation>
     </message>
     <message>
-        <source>Sends the escape key to the terminal when pressedinstead of closing the terminal.</source>
+        <source>Sends the escape key to the terminal when pressed instead of closing the terminal.</source>
         <translation>Sendet die Escape-Taste zum Terminal, anstatt das Terminal zu schliessen.</translation>
     </message>
     <message>
@@ -52993,8 +52959,8 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Ausschl&amp;ussmuster:</translation>
     </message>
     <message>
-        <source>List of comma separated wildcard filters. </source>
-        <translation>Kommaseparierte Liste von Platzhalter-Filtern. </translation>
+        <source>List of comma separated wildcard filters.</source>
+        <translation>Kommaseparierte Liste von Platzhalter-Filtern.</translation>
     </message>
     <message>
         <source>Files with file name or full file path matching any filter are included.</source>
@@ -58336,7 +58302,7 @@ Are you sure you want to remove the material?</source>
         <translation>Vcpkg Manifest-Editor</translation>
     </message>
     <message>
-        <source>Name：</source>
+        <source>Name:</source>
         <translation>Name:</translation>
     </message>
     <message>

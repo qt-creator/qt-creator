@@ -237,12 +237,15 @@ void RunSettingsWidget::removeRunConfiguration()
 
 void RunSettingsWidget::removeAllRunConfigurations()
 {
-    QMessageBox msgBox(QMessageBox::Question, Tr::tr("Remove Run Configurations?"),
+    QMessageBox msgBox(QMessageBox::Question,
+                       Tr::tr("Remove Run Configurations?"),
                        Tr::tr("Do you really want to delete all run configurations?"),
-                       QMessageBox::Yes|QMessageBox::No, this);
-    msgBox.setDefaultButton(QMessageBox::No);
-    msgBox.setEscapeButton(QMessageBox::No);
-    if (msgBox.exec() == QMessageBox::No)
+                       QMessageBox::Cancel,
+                       this);
+    msgBox.addButton(Tr::tr("Delete"), QMessageBox::YesRole);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    msgBox.setEscapeButton(QMessageBox::Cancel);
+    if (msgBox.exec() == QMessageBox::Cancel)
         return;
 
     m_target->removeAllRunConfigurations();

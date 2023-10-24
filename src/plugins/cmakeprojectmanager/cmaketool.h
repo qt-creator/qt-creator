@@ -63,7 +63,7 @@ public:
         bool supportsPlatform = true;
         bool supportsToolset = true;
 
-        bool matches(const QString &n, const QString &ex = QString()) const;
+        bool matches(const QString &n) const;
     };
 
     using PathMapper = std::function<Utils::FilePath (const Utils::FilePath &)>;

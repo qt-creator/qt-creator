@@ -15,13 +15,12 @@
     application or the \uicontrol {Open Terminal} button to open a terminal,
     it opens as an output view.
 
-    To open the terminal in a separate window, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Terminal, and deselet the
-    \uicontrol {Use internal terminal} check box.
+    To open the terminal in a separate window, select \preferences >
+    \uicontrol Terminal, and deselet the \uicontrol {Use internal terminal}
+    check box.
 
     On Linux and \macos, you can set the terminal to open by selecting
-    \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Environment > \uicontrol System.
+    \preferences > \uicontrol Environment > \uicontrol System.
 
     \image qtcreator-output-terminal.webp {Terminal pane}
 
@@ -63,9 +62,9 @@
 
     \section1 Terminal Preferences
 
-    To set preferences for the internal terminal, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Terminal, or select the
-    \uicontrol Configure button in the \uicontrol Terminal pane.
+    To set preferences for the internal terminal, select \preferences >
+    \uicontrol Terminal, or select the \uicontrol Configure button in
+    the \uicontrol Terminal pane.
 
     \image qtcreator-preferences-terminal.webp {Terminal tab in Preferences}
 

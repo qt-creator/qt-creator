@@ -52,14 +52,14 @@
             \uicontrol Beautifier to enable the plugin.
 
             \note Since \QC 10.0.0, the ClangFormat plugin is enabled by
-            default. Select \uicontrol Edit > \uicontrol Preferences >
+            default. Select \preferences >
             \uicontrol {C++} > \uicontrol {Formatting mode} > \uicontrol Disable
             to turn off ClangFormat if you enable Beautifier because combining
             them can lead to unexpected results.
 
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
+        \li Select \preferences >
             \uicontrol Beautifier to specify settings for beautifying files.
 
         \li Select the \uicontrol {Enable auto format on file save} check box to
@@ -148,7 +148,7 @@
 
             \endlist
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Beautifier
+        \li Select \preferences > \uicontrol Beautifier
             > \uicontrol {Artistic Style}, \uicontrol ClangFormat, or
             \uicontrol Uncrustify > \uicontrol {Format Current File} to format
             the currently open file.

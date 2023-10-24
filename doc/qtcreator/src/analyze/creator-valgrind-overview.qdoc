@@ -36,8 +36,8 @@
     For more information about analyzing applications for which you do not have
     a project, see \l{Running Valgrind Tools on External Applications}.
 
-    To set preferences for the Valgrind tools, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Analyzer. You can override the general
+    To set preferences for the Valgrind tools, select \preferences >
+    \uicontrol Analyzer. You can override the general
     settings for each project in the \uicontrol {Run Settings} for the project.
 
     The following sections describe how to use the Valgrind tools:

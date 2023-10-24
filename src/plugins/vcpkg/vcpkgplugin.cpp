@@ -5,6 +5,7 @@
 #include "vcpkg_test.h"
 #endif // WITH_TESTS
 #include "vcpkgmanifesteditor.h"
+#include "vcpkgsettings.h"
 
 #include <extensionsystem/iplugin.h>
 
@@ -34,6 +35,8 @@ public:
         addTest<VcpkgSearchTest>();
 #endif
     }
+
+    virtual void extensionsInitialized() final { settings().setVcpkgRootEnvironmentVariable(); }
 
     std::unique_ptr<VcpkgPluginPrivate> d;
 };

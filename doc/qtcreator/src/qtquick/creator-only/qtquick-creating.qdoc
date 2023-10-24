@@ -92,10 +92,8 @@
         \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
             you want to build the application for.
 
-            \note Kits are listed if they have been specified in \uicontrol Edit
-            > \uicontrol Preferences > \uicontrol Kits (on Windows and Linux)
-            or in \uicontrol {\QC} > \uicontrol Preferences >
-            \uicontrol Kits (on \macos).
+            \note Kits are listed if they have been specified in \preferences >
+            \uicontrol Kits.
             For more information, see \l {Add kits} and \l {Kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
@@ -170,10 +168,8 @@
         \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
             you want to build the application for.
 
-            \note Kits are listed if they have been specified in \uicontrol Edit
-            > \uicontrol Preferences > \uicontrol Kits (on Windows and Linux)
-            or in \uicontrol {\QC} > \uicontrol Preferences >
-            \uicontrol Kits (on \macos).
+            \note Kits are listed if they have been specified in \preferences >
+            \uicontrol Kits.
             For more information, see \l {Add kits} and \l {Kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}

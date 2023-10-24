@@ -43,7 +43,7 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
+        \li Select \preferences > \uicontrol Kits.
         \li Select \uicontrol Add to start from an empty kit or \uicontrol Clone
             to clone the selected kit and edit its preferences.
             \image qtcreator-kits.png
@@ -78,7 +78,7 @@
 
     Typically, only a subset of the kit preferences is relevant for a particular
     setup. Therefore, \QC plugins register sets of relevant preferences that you
-    can view and modify in \uicontrol Edit > \uicontrol Preferences >
+    can view and modify in \preferences >
     \uicontrol Kits. For example, if you use CMake to build all your projects,
     you can hide Qbs and qmake preferences by default.
 

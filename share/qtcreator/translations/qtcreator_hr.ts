@@ -874,16 +874,12 @@
         <translation>Želiš li prihvatiti licencu za Android SDK?</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Provjera neriješenih licenca …
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Provjera neriješenih licenca …</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-Upravljač za SDK je zauzet.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>Upravljač za SDK je zauzet.</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -13630,9 +13626,7 @@ Do you want to uninstall the existing package?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
+        <source>License command failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13644,9 +13638,7 @@ Do you want to uninstall the existing package?</source>
         <translation type="unfinished">Neuspjelo.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
+        <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18576,8 +18568,8 @@ Do you want to kill it?</source>
         <translation>Nije moguće pokrenuti „%1”: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Došlo je do prekoračenja vremena prilikom pokretanja „%1”</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Došlo je do prekoračenja vremena prilikom pokretanja „%1”.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>

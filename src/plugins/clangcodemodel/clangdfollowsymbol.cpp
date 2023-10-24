@@ -340,7 +340,7 @@ IAssistProposal *ClangdFollowSymbol::VirtualFunctionAssistProcessor::createPropo
         items << createEntry({}, m_followSymbol->d->defLink);
     if (!final) {
         const auto infoItem = new VirtualFunctionProposalItem({}, false);
-        infoItem->setText(Tr::tr("collecting overrides ..."));
+        infoItem->setText(Tr::tr("collecting overrides..."));
         infoItem->setOrder(-1);
         items << infoItem;
     }

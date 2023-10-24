@@ -127,7 +127,7 @@ void PySideInstaller::installPyside(const FilePath &python,
         install->setPackages({PipPackage(pySide)});
     } else {
         QDialog dialog;
-        dialog.setWindowTitle(Tr::tr("Select PySide version"));
+        dialog.setWindowTitle(Tr::tr("Select PySide Version"));
         dialog.setLayout(new QVBoxLayout());
         dialog.layout()->addWidget(new QLabel(Tr::tr("Select which PySide version to install:")));
         QComboBox *pySideSelector = new QComboBox();
@@ -135,7 +135,7 @@ void PySideInstaller::installPyside(const FilePath &python,
         for (const Utils::FilePath &version : std::as_const(availablePySides)) {
             const FilePath dir = version.parentDir();
             const QString text
-                = Tr::tr("PySide %1 wheel (%2)").arg(dir.fileName(), dir.toUserOutput());
+                = Tr::tr("PySide %1 Wheel (%2)").arg(dir.fileName(), dir.toUserOutput());
             pySideSelector->addItem(text, version.toVariant());
         }
         dialog.layout()->addWidget(pySideSelector);

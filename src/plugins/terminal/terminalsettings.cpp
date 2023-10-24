@@ -482,15 +482,14 @@ TerminalSettings::TerminalSettings()
 
     sendEscapeToTerminal.setSettingsKey("SendEscapeToTerminal");
     sendEscapeToTerminal.setLabelText(Tr::tr("Send escape key to terminal"));
-    sendEscapeToTerminal.setToolTip(
-        Tr::tr("Sends the escape key to the terminal when pressed"
-               "instead of closing the terminal."));
+    sendEscapeToTerminal.setToolTip(Tr::tr("Sends the escape key to the terminal when pressed "
+                                           "instead of closing the terminal."));
     sendEscapeToTerminal.setDefaultValue(false);
 
     lockKeyboard.setSettingsKey("LockKeyboard");
     lockKeyboard.setLabelText(Tr::tr("Block shortcuts in terminal"));
     lockKeyboard.setToolTip(
-        Tr::tr("Keeps Qt Creator short cuts from interfering with the terminal."));
+        Tr::tr("Keeps Qt Creator shortcuts from interfering with the terminal."));
     lockKeyboard.setDefaultValue(true);
 
     audibleBell.setSettingsKey("AudibleBell");

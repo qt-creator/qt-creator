@@ -90,16 +90,16 @@ GroupItem GenericDeployStep::mkdirTask()
 {
     using ResultType = expected_str<void>;
 
-    const auto onSetup = [files = m_files](Async<ResultType> &async) {
+    const auto onSetup = [this](Async<ResultType> &async) {
         FilePaths remoteDirs;
-        for (const FileToTransfer &file : std::as_const(files))
+        for (const FileToTransfer &file : std::as_const(m_files))
             remoteDirs << file.m_target.parentDir();
 
         FilePath::sort(remoteDirs);
         FilePath::removeDuplicates(remoteDirs);
 
         async.setConcurrentCallData([remoteDirs](QPromise<ResultType> &promise) {
-            for (auto dir : remoteDirs) {
+            for (const FilePath &dir : remoteDirs) {
                 const expected_str<void> result = dir.ensureWritableDir();
                 promise.addResult(result);
                 if (!result)
@@ -117,7 +117,7 @@ GroupItem GenericDeployStep::mkdirTask()
         }
 
         for (int i = 0; i < numResults; ++i) {
-            const auto result = async.future().resultAt(i);
+            const ResultType result = async.future().resultAt(i);
             if (!result.has_value())
                 addErrorMessage(result.error());
         }

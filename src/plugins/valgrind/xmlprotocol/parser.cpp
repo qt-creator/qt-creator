@@ -126,11 +126,11 @@ private:
         QMutexLocker locker(&m_mutex);
         while (true) {
             if (m_state == State::Canceled)
-                return make_unexpected(Tr::tr("Parsing canceled"));
+                return make_unexpected(Tr::tr("Parsing canceled."));
             if (!m_inputBuffer.isEmpty())
                 return std::exchange(m_inputBuffer, {});
             if (m_state == State::Finalized)
-                return make_unexpected(Tr::tr("Premature end of XML document"));
+                return make_unexpected(Tr::tr("Premature end of XML document."));
             m_waitCondition.wait(&m_mutex);
         }
         QTC_CHECK(false);
@@ -198,7 +198,7 @@ static qint64 parseInt64(const QString &str, const QString &context)
     bool ok;
     const quint64 v = str.toLongLong(&ok);
     if (!ok)
-        throw ParserException{Tr::tr("Could not parse hex number from \"%1\" (%2)").arg(str, context)};
+        throw ParserException{Tr::tr("Could not parse hex number from \"%1\" (%2).").arg(str, context)};
     return v;
 }
 
@@ -238,7 +238,7 @@ QString ParserThread::blockingReadElementText()
     //affects at least Qt <= 4.7.1. Reported as QTBUG-14661.
 
     if (!m_reader.isStartElement())
-        throw ParserException{Tr::tr("Trying to read element text although current position is not start of element")};
+        throw ParserException{Tr::tr("Trying to read element text although current position is not start of element.")};
 
     QString result;
 

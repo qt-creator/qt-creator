@@ -50,8 +50,8 @@
     \section1 Set preferences for building and running
 
     To change the location of the project directory, and to specify settings
-    for building and running projects, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General.
+    for building and running projects, select \preferences >
+    \uicontrol {Build & Run} > \uicontrol General.
 
     Specify build and run settings for different target platforms, in the
     \uicontrol Projects mode.

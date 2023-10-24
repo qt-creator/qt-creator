@@ -573,7 +573,8 @@ void ProjectManager::removeProjects(const QList<Project *> &remove)
 
 void ProjectManagerPrivate::restoreDependencies()
 {
-     QMap<QString, QVariant> depMap = SessionManager::sessionValue("ProjectDependencies").toMap();
+     QMap<QString, QVariant> depMap = mapEntryFromStoreEntry(SessionManager::sessionValue(
+                                                                 "ProjectDependencies")).toMap();
      auto i = depMap.constBegin();
      while (i != depMap.constEnd()) {
         const QString &key = i.key();

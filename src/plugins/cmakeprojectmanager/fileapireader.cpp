@@ -285,8 +285,8 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                       m_projectParts = std::move(value->projectParts);
                       m_rootProjectNode = std::move(value->rootProjectNode);
                       m_ctestPath = std::move(value->ctestPath);
-                      m_isMultiConfig = std::move(value->isMultiConfig);
-                      m_usesAllCapsTargets = std::move(value->usesAllCapsTargets);
+                      m_isMultiConfig = value->isMultiConfig;
+                      m_usesAllCapsTargets = value->usesAllCapsTargets;
 
                       if (value->errorMessage.isEmpty()) {
                           emit this->dataAvailable(restoredFromBackup);

@@ -104,7 +104,7 @@
     \section1 Specifying Performance Analyzer Settings
 
     To specify global settings for the Performance Analyzer, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Analyzer >
+    \preferences > \uicontrol Analyzer >
     \uicontrol {CPU Usage}. For each run configuration, you can also
     use specialized settings. Select \uicontrol Projects > \uicontrol Run, and
     then select \uicontrol Details next to

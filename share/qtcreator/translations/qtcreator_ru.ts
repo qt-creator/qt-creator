@@ -1398,12 +1398,8 @@ Do you want to uninstall the existing package?</source>
         <translation>Операция требует вмешательства пользователя. Используйте «sdkmanager» в командной строке.</translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>Команда License завершилась с ошибкой.
-
-</translation>
+        <source>License command failed.</source>
+        <translation>Команда License завершилась с ошибкой.</translation>
     </message>
     <message>
         <source>Android SDK Manager</source>
@@ -1446,16 +1442,12 @@ Do you want to uninstall the existing package?</source>
         <translation>Принимаете условия лицензии Android SDK?</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Проверка ожидающих лицензий...
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Проверка ожидающих лицензий...</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-SDK Manager занят.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>SDK Manager занят.</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -2081,12 +2073,8 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation>Ошибка.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>Готово
-
-</translation>
+        <source>Done</source>
+        <translation>Готово</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -10572,8 +10560,8 @@ Double-click to edit item.</source>
         <translation>Не удалось запустить «%1»: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Истекло время работы «%1»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Истекло время работы «%1».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -34855,8 +34843,8 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>Не удалось создать файл ресурсов: %1</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Истекло время работы «%1»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Истекло время работы «%1».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -40173,10 +40161,8 @@ If you do not have a private key yet, you can also create one here.</source>
 </translation>
     </message>
     <message>
-        <source>Deployment to this device will not work out of the box.
-</source>
-        <translation>Развёртывание на это устройство не работает «из коробки».
-</translation>
+        <source>Deployment to this device will not work out of the box.</source>
+        <translation>Развёртывание на это устройство не работает «из коробки».</translation>
     </message>
     <message>
         <source>rsync is functional.

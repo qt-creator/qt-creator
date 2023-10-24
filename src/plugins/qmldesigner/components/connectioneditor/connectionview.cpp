@@ -17,6 +17,7 @@
 #include <viewmanager.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignertr.h>
 
 #include <studioquickwidget.h>
 
@@ -128,8 +129,8 @@ private:
                 errorString += "\n" + error.toString();
 
             Core::AsynchronousMessageBox::warning(
-                tr("Cannot Create QtQuick View"),
-                tr("ConnectionsEditorWidget: %1 cannot be created.%2")
+                Tr::tr("Cannot Create QtQuick View"),
+                Tr::tr("ConnectionsEditorWidget: %1 cannot be created.%2")
                     .arg(qmlSourcesPath(), errorString));
             return;
         }

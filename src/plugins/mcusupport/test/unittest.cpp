@@ -954,34 +954,34 @@ void McuSupportTest::test_legacy_createTargetWithToolchainPackages_data()
 
     QTest::newRow("armgcc_mimxrt1050_evk_freertos_json")
         << armgcc_mimxrt1050_evk_freertos_json << armGccToolchainFilePath
-        << armGccToolchainFileUnexpandedPath << armGccDir << armGccDirectorySetting
+        << armGccToolchainFileUnexpandedPath << armGccDir << keyFromString(armGccDirectorySetting)
         << QStringList{armGccVersion};
     QTest::newRow("armgcc_mimxrt1064_evk_freertos_json")
         << armgcc_mimxrt1064_evk_freertos_json << armGccToolchainFilePath
-        << armGccToolchainFileUnexpandedPath << armGccDir << armGccDirectorySetting
+        << armGccToolchainFileUnexpandedPath << armGccDir << keyFromString(armGccDirectorySetting)
         << QStringList{armGccVersion};
     QTest::newRow("armgcc_mimxrt1170_evk_freertos_json")
         << armgcc_mimxrt1170_evk_freertos_json << armGccToolchainFilePath
-        << armGccToolchainFileUnexpandedPath << armGccDir << armGccDirectorySetting
+        << armGccToolchainFileUnexpandedPath << armGccDir << keyFromString(armGccDirectorySetting)
         << QStringList{armGccVersion};
     QTest::newRow("armgcc_stm32h750b_discovery_baremetal_json")
         << armgcc_stm32h750b_discovery_baremetal_json << armGccToolchainFilePath
-        << armGccToolchainFileUnexpandedPath << armGccDir << armGccDirectorySetting
+        << armGccToolchainFileUnexpandedPath << armGccDir << keyFromString(armGccDirectorySetting)
         << QStringList{armGccVersion};
     QTest::newRow("armgcc_stm32f769i_discovery_freertos_json")
         << armgcc_stm32f769i_discovery_freertos_json << armGccToolchainFilePath
-        << armGccToolchainFileUnexpandedPath << armGccDir << armGccDirectorySetting
+        << armGccToolchainFileUnexpandedPath << armGccDir << keyFromString(armGccDirectorySetting)
         << QStringList{armGccVersion};
     QTest::newRow("iar_stm32f469i_discovery_baremetal_json")
         << iar_stm32f469i_discovery_baremetal_json << iarToolchainFilePath
-        << iarToolchainFileUnexpandedPath << iarDir << iarSetting << iarVersions;
+        << iarToolchainFileUnexpandedPath << iarDir << keyFromString(iarSetting) << iarVersions;
     QTest::newRow("iar_mimxrt1064_evk_freertos_json")
         << iar_mimxrt1064_evk_freertos_json << iarToolchainFilePath
-        << iarToolchainFileUnexpandedPath << iarDir << iarSetting << iarVersions;
+        << iarToolchainFileUnexpandedPath << iarDir << keyFromString(iarSetting) << iarVersions;
     QTest::newRow("ghs_rh850_d1m1a_baremetal_json")
         << ghs_rh850_d1m1a_baremetal_json << greenhillToolchainFilePath
-        << greenhillToolchainFileUnexpandedPath << greenhillCompilerDir << greenhillSetting
-        << greenhillVersions;
+        << greenhillToolchainFileUnexpandedPath << greenhillCompilerDir
+        << keyFromString(greenhillSetting) << greenhillVersions;
 }
 
 void McuSupportTest::test_legacy_createTargetWithToolchainPackages()
@@ -1145,22 +1145,22 @@ void McuSupportTest::test_legacy_createFreeRtosPackage_data()
 
     QTest::newRow("armgcc_mimxrt1050_evk_freertos_json")
         << armgcc_mimxrt1050_evk_freertos_json << QStringList{boardSdkVersion}
-        << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1050)
+        << keyFromString(QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1050))
         << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix
         << FilePath::fromUserInput(freeRtosDetectionPath);
     QTest::newRow("armgcc_mimxrt1064_evk_freertos_json")
         << armgcc_mimxrt1064_evk_freertos_json << QStringList{boardSdkVersion}
-        << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1064)
+        << keyFromString(QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1064))
         << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix
         << FilePath::fromUserInput(freeRtosDetectionPath);
     QTest::newRow("iar_mimxrt1064_evk_freertos_json")
         << iar_mimxrt1064_evk_freertos_json << QStringList{boardSdkVersion}
-        << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1064)
+        << keyFromString(QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(nxp1064))
         << FilePath::fromUserInput(boardSdkDir) / freeRtosNxpPathSuffix
         << FilePath::fromUserInput(freeRtosDetectionPath);
     QTest::newRow("armgcc_stm32f769i_discovery_freertos_json")
         << armgcc_stm32f769i_discovery_freertos_json << QStringList{"1.16.0"}
-        << QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(stm32f7)
+        << keyFromString(QString{Legacy::Constants::SETTINGS_KEY_FREERTOS_PREFIX}.append(stm32f7))
         << FilePath::fromUserInput(boardSdkDir) / freeRtosStmPathSuffix
         << FilePath::fromUserInput(freeRtosDetectionPath);
 }
@@ -1495,7 +1495,7 @@ void McuSupportTest::test_legacy_createThirdPartyPackage_data()
     QTest::addColumn<QString>("json");
     QTest::addColumn<QString>("path");
     QTest::addColumn<QString>("defaultPath");
-    QTest::addColumn<QString>("setting");
+    QTest::addColumn<Key>("setting");
     QTest::addColumn<QString>("cmakeVar");
     QTest::addColumn<QString>("envVar");
     QTest::addColumn<QString>("label");
@@ -1504,42 +1504,42 @@ void McuSupportTest::test_legacy_createThirdPartyPackage_data()
     QTest::newRow("armgcc_mimxrt1050_evk_freertos_json mcuXpresso")
         << PackageCreator{[this]() { return Legacy::createMcuXpressoIdePackage(settingsMockPtr); }}
         << armgcc_mimxrt1050_evk_freertos_json << xpressoIdePath << xpressoIdePath
-        << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
+        << keyFromString(xpressoIdeSetting) << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
         << xpressoIdeDetectionPath;
 
     QTest::newRow("armgcc_mimxrt1064_evk_freertos_json mcuXpresso")
         << PackageCreator{[this]() { return Legacy::createMcuXpressoIdePackage(settingsMockPtr); }}
         << armgcc_mimxrt1064_evk_freertos_json << xpressoIdePath << xpressoIdePath
-        << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
-        << xpressoIdeDetectionPath;
+        << keyFromString(xpressoIdeSetting) << xpressoIdeCmakeVar << xpressoIdeEnvVar
+        << xpressoIdeLabel << xpressoIdeDetectionPath;
 
     QTest::newRow("armgcc_mimxrt1170_evk_freertos_json mcuXpresso")
         << PackageCreator{[this]() { return Legacy::createMcuXpressoIdePackage(settingsMockPtr); }}
         << armgcc_mimxrt1170_evk_freertos_json << xpressoIdePath << xpressoIdePath
-        << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
-        << xpressoIdeDetectionPath;
+        << keyFromString(xpressoIdeSetting) << xpressoIdeCmakeVar << xpressoIdeEnvVar
+        << xpressoIdeLabel << xpressoIdeDetectionPath;
 
     QTest::newRow("armgcc_stm32h750b_discovery_baremetal_json stmCubeProgrammer")
         << PackageCreator{[this]() {
                return Legacy::createStm32CubeProgrammerPackage(settingsMockPtr);
            }}
         << armgcc_stm32h750b_discovery_baremetal_json << stmCubeProgrammerPath
-        << stmCubeProgrammerPath << stmCubeProgrammerSetting << empty << empty
+        << stmCubeProgrammerPath << keyFromString(stmCubeProgrammerSetting) << empty << empty
         << stmCubeProgrammerLabel << stmCubeProgrammerDetectionPath;
     QTest::newRow("armgcc_stm32f769i_discovery_freertos_json stmCubeProgrammer")
         << PackageCreator{[this]() {
                return Legacy::createStm32CubeProgrammerPackage(settingsMockPtr);
            }}
         << armgcc_stm32f769i_discovery_freertos_json << stmCubeProgrammerPath
-        << stmCubeProgrammerPath << stmCubeProgrammerSetting << empty << empty
+        << stmCubeProgrammerPath << keyFromString(stmCubeProgrammerSetting) << empty << empty
         << stmCubeProgrammerLabel << stmCubeProgrammerDetectionPath;
     QTest::newRow("ghs_rh850_d1m1a_baremetal_json renesasProgrammer")
         << PackageCreator{[this]() {
                return Legacy::createRenesasProgrammerPackage(settingsMockPtr);
            }}
-        << ghs_rh850_d1m1a_baremetal_json << empty << empty << renesasProgrammerSetting
-        << renesasProgrammerCmakeVar << renesasProgrammerEnvVar << renesasProgrammerLabel
-        << renesasProgrammerDetectionPath;
+        << ghs_rh850_d1m1a_baremetal_json << empty << empty
+        << keyFromString(renesasProgrammerSetting) << renesasProgrammerCmakeVar
+        << renesasProgrammerEnvVar << renesasProgrammerLabel << renesasProgrammerDetectionPath;
 }
 
 void McuSupportTest::test_legacy_createThirdPartyPackage()
@@ -1592,33 +1592,34 @@ void McuSupportTest::test_createThirdPartyPackage_data()
 
     QTest::newRow("armgcc_mimxrt1050_evk_freertos_json mcuXpresso")
         << armgcc_mimxrt1050_evk_freertos_json << xpressoIdePath << xpressoIdePath
-        << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
-        << xpressoIdeDetectionPath;
+        << keyFromString(xpressoIdeSetting) << xpressoIdeCmakeVar << xpressoIdeEnvVar
+        << xpressoIdeLabel << xpressoIdeDetectionPath;
 
     QTest::newRow("armgcc_mimxrt1064_evk_freertos_json mcuXpresso")
         << armgcc_mimxrt1064_evk_freertos_json << xpressoIdePath << xpressoIdePath
-        << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
-        << xpressoIdeDetectionPath;
+        << keyFromString(xpressoIdeSetting) << xpressoIdeCmakeVar << xpressoIdeEnvVar
+        << xpressoIdeLabel << xpressoIdeDetectionPath;
 
     QTest::newRow("armgcc_mimxrt1170_evk_freertos_json mcuXpresso")
         << armgcc_mimxrt1170_evk_freertos_json << xpressoIdePath << xpressoIdePath
-        << xpressoIdeSetting << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
+        << keyFromString(xpressoIdeSetting) << xpressoIdeCmakeVar << xpressoIdeEnvVar << xpressoIdeLabel
         << xpressoIdeDetectionPath;
 
     QTest::newRow("armgcc_stm32h750b_discovery_baremetal_json stmCubeProgrammer")
         << armgcc_stm32h750b_discovery_baremetal_json << stmCubeProgrammerPath
-        << stmCubeProgrammerPath << stmCubeProgrammerSetting << empty << empty
+        << stmCubeProgrammerPath << keyFromString(stmCubeProgrammerSetting) << empty << empty
         << stmCubeProgrammerLabel << stmCubeProgrammerDetectionPath;
 
     QTest::newRow("armgcc_stm32f769i_discovery_freertos_json stmCubeProgrammer")
         << armgcc_stm32f769i_discovery_freertos_json << stmCubeProgrammerPath
-        << stmCubeProgrammerPath << stmCubeProgrammerSetting << empty << empty
+        << stmCubeProgrammerPath << keyFromString(stmCubeProgrammerSetting) << empty << empty
         << stmCubeProgrammerLabel << stmCubeProgrammerDetectionPath;
 
     QTest::newRow("ghs_rh850_d1m1a_baremetal_json renesasProgrammer")
         << ghs_rh850_d1m1a_baremetal_json << renesasProgrammerDefaultPath << empty
-        << "FlashProgrammerPath" << renesasProgrammerCmakeVar << "RenesasFlashProgrammer_PATH"
-        << renesasProgrammerLabel << renesasProgrammerDetectionPath;
+        << keyFromString("FlashProgrammerPath") << renesasProgrammerCmakeVar
+        << "RenesasFlashProgrammer_PATH" << renesasProgrammerLabel
+        << renesasProgrammerDetectionPath;
 }
 
 void McuSupportTest::test_createThirdPartyPackage()

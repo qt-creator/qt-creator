@@ -70,16 +70,20 @@ static Q_LOGGING_CATEGORY(LOG, "qtc.clangtools.runcontrol", QtWarningMsg)
 
 namespace ClangTools::Internal {
 
-class ProjectBuilderTaskAdapter : public TaskAdapter<QPointer<Target>>
+class ProjectBuilderTaskAdapter : public TaskAdapter<QPointer<RunControl>>
 {
 public:
     void start() final {
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
                 this, &TaskInterface::done);
-        Target *target = *task();
+        RunControl *runControl = *task();
+        QTC_ASSERT(runControl, emit done(false); return);
+        Target *target = runControl->target();
         QTC_ASSERT(target, emit done(false); return);
-        if (!BuildManager::isBuilding(target))
-            BuildManager::buildProjectWithDependencies(target->project());
+        if (!BuildManager::isBuilding(target)) {
+            BuildManager::buildProjectWithDependencies(target->project(), ConfigSelection::Active,
+                                                       runControl);
+        }
     }
 };
 
@@ -678,10 +682,11 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     QList<GroupItem> topTasks { onGroupSetup(onTopSetup) };
 
     if (buildBeforeAnalysis) {
-        const auto onSetup = [target](QPointer<Target> &buildTarget) {
-            buildTarget = target;
+        QPointer<RunControl> runControl(m_runControl);
+        const auto onSetup = [runControl](QPointer<RunControl> &buildRunControl) {
+            buildRunControl = runControl;
         };
-        const auto onError = [this](const QPointer<Target> &) {
+        const auto onError = [this](const QPointer<RunControl> &) {
             const QString message(Tr::tr("Failed to build the project."));
             m_infoBarWidget->setError(InfoBarWidget::Error, message, [this] { showOutputPane(); });
             m_runControl->postMessage(message, ErrorMessageFormat);

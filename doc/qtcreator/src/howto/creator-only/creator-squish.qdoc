@@ -57,7 +57,7 @@
     To specify a Squish Server to run:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Squish.
+        \li Select \preferences > \uicontrol Squish.
             \image qtcreator-squish-preferences.png "Squish general preferences"
         \li In the \uicontrol {Squish path} field, specify the path to the Squish
             installation directory.

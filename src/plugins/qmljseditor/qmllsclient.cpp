@@ -39,6 +39,7 @@ QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
         case Client::State::InitializeRequested:
         case Client::State::Initialized:
             return client;
+        case Client::State::FailedToInitialize:
         case Client::State::ShutdownRequested:
         case Client::State::Shutdown:
         case Client::State::Error:

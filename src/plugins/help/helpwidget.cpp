@@ -229,11 +229,14 @@ HelpWidget::HelpWidget(const Core::Context &context, WidgetStyle style, QWidget 
         m_toggleSideBarAction->setChecked(false);
         cmd = Core::ActionManager::registerAction(m_toggleSideBarAction,
                                                   Core::Constants::TOGGLE_LEFT_SIDEBAR, context);
-        connect(m_toggleSideBarAction, &QAction::toggled, m_toggleSideBarAction, [this](bool checked) {
-            m_toggleSideBarAction->setText(::Core::Tr::tr(
-                                               checked ? Core::Constants::TR_HIDE_LEFT_SIDEBAR
-                                                       : Core::Constants::TR_SHOW_LEFT_SIDEBAR));
-        });
+        connect(m_toggleSideBarAction,
+                &QAction::toggled,
+                m_toggleSideBarAction,
+                [this](bool checked) {
+                    m_toggleSideBarAction->setToolTip(
+                        ::Core::Tr::tr(checked ? Core::Constants::TR_HIDE_LEFT_SIDEBAR
+                                               : Core::Constants::TR_SHOW_LEFT_SIDEBAR));
+                });
         addSideBar();
         m_toggleSideBarAction->setChecked(m_sideBar->isVisibleTo(this));
         connect(m_toggleSideBarAction, &QAction::triggered, m_sideBar, &Core::SideBar::setVisible);
@@ -692,6 +695,8 @@ HelpViewer *HelpWidget::insertViewer(int index, const QUrl &url)
         if (currentViewer() == viewer) {
             m_addBookmarkAction->setEnabled(isBookmarkable(url));
             m_openOnlineDocumentationAction->setEnabled(LocalHelpManager::canOpenOnlineHelp(url));
+            if (m_switchToHelp)
+                m_switchToHelp->setEnabled(url != QUrl("about:blank"));
         }
     });
     connect(viewer, &HelpViewer::forwardAvailable, this, [viewer, this](bool available) {

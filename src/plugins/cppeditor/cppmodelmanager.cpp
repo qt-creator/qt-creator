@@ -568,9 +568,10 @@ static void checkNextFunctionForUnused(
             return;
         const int newProgress = findRefsFuture->progressValue() + 1;
         findRefsFuture->setProgressValueAndText(newProgress,
-                                                Tr::tr("Checked %1 of %n function(s)")
-                                                    .arg(newProgress)
-                                                    .arg(findRefsFuture->progressMaximum()));
+                                                Tr::tr("Checked %1 of %n function(s)",
+                                                       nullptr,
+                                                       findRefsFuture->progressMaximum())
+                                                    .arg(newProgress));
         QVariantMap data = search->userData().toMap();
         QVariant &activeLinks = data["active"];
         QVariantList activeLinksList = activeLinks.toList();

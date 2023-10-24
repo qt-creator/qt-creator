@@ -151,7 +151,7 @@ public:
 JsonEditorFactory::JsonEditorFactory()
 {
     setId(JSON_EDITOR_ID);
-    setDisplayName(Tr::tr("Json Editor"));
+    setDisplayName(Tr::tr("JSON Editor"));
     addMimeType(JSON_MIME_TYPE);
 
     setEditorCreator([] { return new BaseTextEditor; });

@@ -10,6 +10,7 @@
 #include "gitconstants.h"
 #include "giteditor.h"
 #include "gitgrep.h"
+#include "gitsettings.h"
 #include "gitsubmiteditor.h"
 #include "gittr.h"
 #include "gitutils.h"
@@ -247,8 +248,14 @@ public:
 
         if (settings().instantBlameIgnoreSpaceChanges()
             || settings().instantBlameIgnoreLineMoves()) {
-            result.append(Tr::tr("<p><b>Note:</b> Ignore whitespace changes or line moves"
-                                 " is enabled in the instant blame settings.</p>"));
+            result.append(
+                "<p>"
+                //: %1 and %2 are the "ignore whitespace changes" and "ignore line moves" options
+                + Tr::tr("<b>Note:</b> \"%1\" or \"%2\""
+                         " is enabled in the instant blame settings.")
+                      .arg(GitSettings::trIgnoreWhitespaceChanges(),
+                           GitSettings::trIgnoreLineMoves())
+                + "</p>");
         }
         return result;
     }

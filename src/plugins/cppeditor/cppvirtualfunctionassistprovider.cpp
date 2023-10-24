@@ -94,7 +94,7 @@ public:
         QTC_ASSERT(m_params.function, return nullptr);
 
         auto *hintItem = new VirtualFunctionProposalItem(Utils::Link());
-        hintItem->setText(Tr::tr("collecting overrides ..."));
+        hintItem->setText(Tr::tr("collecting overrides..."));
         hintItem->setOrder(-1000);
 
         QList<AssistProposalItemInterface *> items;

@@ -1409,7 +1409,13 @@ class Dumper(DumperBase):
                       'file="%s",line="%s",module="%s",language="c"}') %
                      (i, pc, functionName, fileName, line, objfile))
 
-            frame = frame.older()
+            try:
+                # This may fail with something like
+                # gdb.error: DW_FORM_addr_index used without .debug_addr section
+                #[in module /data/dev/qt-6/qtbase/lib/libQt6Widgets.so.6]
+                frame = frame.older()
+            except:
+                break
             i += 1
         self.put(']}')
         self.reportResult(self.takeOutput(), args)

@@ -37,10 +37,12 @@ VcpkgSettings::VcpkgSettings()
     vcpkgRoot.setExpectedKind(PathChooser::ExistingDirectory);
     FilePath defaultPath = Environment::systemEnvironment().searchInPath(Constants::VCPKG_COMMAND)
                                .parentDir();
-    if (defaultPath.isDir())
+    if (!defaultPath.isDir())
         defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
     if (defaultPath.isDir())
         vcpkgRoot.setDefaultValue(defaultPath.toUserOutput());
+
+    connect(this, &AspectContainer::applied, this, &VcpkgSettings::setVcpkgRootEnvironmentVariable);
 
     setLayouter([this] {
         using namespace Layouting;
@@ -68,6 +70,12 @@ VcpkgSettings::VcpkgSettings()
     });
 
     readSettings();
+}
+
+void VcpkgSettings::setVcpkgRootEnvironmentVariable()
+{
+    // Set VCPKG_ROOT environment variable so that auto-setup.cmake would pick it up
+    Environment::modifySystemEnvironment({{Constants::ENVVAR_VCPKG_ROOT, vcpkgRoot.value()}});
 }
 
 class VcpkgSettingsPage : public Core::IOptionsPage

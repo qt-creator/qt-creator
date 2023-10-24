@@ -173,7 +173,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             deviceSettings->tag, br,
             deviceSettings->imageId, br,
             daemonStateLabel, m_daemonReset, m_daemonState, br,
-            Tr::tr("Container State:"), deviceSettings->containerStatus, br,
+            Tr::tr("Container state:"), deviceSettings->containerStatus, br,
             deviceSettings->useLocalUidGid, br,
             deviceSettings->keepEntryPoint, br,
             deviceSettings->enableLldbFlags, br,
@@ -187,7 +187,7 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
             noMargin,
         },br,
-        Tr::tr("Command Line:"), createLineLabel, br,
+        Tr::tr("Command line:"), createLineLabel, br,
     }.attachTo(this);
     // clang-format on
 

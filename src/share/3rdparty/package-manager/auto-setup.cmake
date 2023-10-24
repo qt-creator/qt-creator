@@ -102,11 +102,11 @@ macro(qtc_auto_setup_conan)
           project(conan-setup)
 
           if (${conan_version} VERSION_GREATER_EQUAL 2.0)
+            set(CONAN_COMMAND \"${conan_program}\")
             include(\"${CMAKE_CURRENT_LIST_DIR}/conan_provider.cmake\")
             conan_profile_detect_default()
             detect_host_profile(\"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\")
 
-            set(CONAN_COMMAND \"${conan_program}\")
             conan_install(
               -pr \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_host_profile\"
               --build=${QT_CREATOR_CONAN_BUILD_POLICY}
@@ -119,6 +119,10 @@ macro(qtc_auto_setup_conan)
               file(WRITE \"${CMAKE_BINARY_DIR}/conan-dependencies/conan_paths.cmake\" \"
                 list(PREPEND CMAKE_PREFIX_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")
                 list(PREPEND CMAKE_MODULE_PATH \\\"\${CONAN_GENERATORS_FOLDER}\\\")
+                list(REMOVE_DUPLICATES CMAKE_PREFIX_PATH)
+                list(REMOVE_DUPLICATES CMAKE_MODULE_PATH)
+                set(CMAKE_PREFIX_PATH \\\"\\\${CMAKE_PREFIX_PATH}\\\" CACHE STRING \\\"\\\" FORCE)
+                set(CMAKE_MODULE_PATH \\\"\\\${CMAKE_MODULE_PATH}\\\" CACHE STRING \\\"\\\" FORCE)
               \")
             endif()
           else()
@@ -165,7 +169,7 @@ macro(qtc_auto_setup_vcpkg)
   if (EXISTS "${CMAKE_SOURCE_DIR}/vcpkg.json" AND NOT QT_CREATOR_SKIP_VCPKG_SETUP)
     option(QT_CREATOR_SKIP_VCPKG_SETUP "Skip Qt Creator's vcpkg package manager auto-setup" OFF)
 
-    find_program(vcpkg_program vcpkg)
+    find_program(vcpkg_program vcpkg $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg)
     if (NOT vcpkg_program)
       message(WARNING "Qt Creator: vcpkg executable not found. "
                       "Package manager auto-setup will be skipped. "
@@ -222,6 +226,14 @@ macro(qtc_auto_setup_vcpkg)
     endif()
 
     set(CMAKE_TOOLCHAIN_FILE "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake" CACHE PATH "" FORCE)
+
+    # Save CMAKE_PREFIX_PATH and CMAKE_MODULE_PATH as cache variables
+    if (CMAKE_VERSION GREATER_EQUAL "3.19")
+      cmake_language(DEFER CALL list REMOVE_DUPLICATES CMAKE_PREFIX_PATH)
+      cmake_language(DEFER CALL list REMOVE_DUPLICATES CMAKE_MODULE_PATH)
+      cmake_language(DEFER CALL set CMAKE_PREFIX_PATH "${CMAKE_PREFIX_PATH}" CACHE STRING "" FORCE)
+      cmake_language(DEFER CALL set CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" CACHE STRING "" FORCE)
+    endif()
   endif()
 endmacro()
 qtc_auto_setup_vcpkg()

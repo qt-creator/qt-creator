@@ -1257,7 +1257,7 @@ void Process::start()
         d->m_result = ProcessResult::StartFailed;
         d->m_resultData.m_exitCode = 255;
         d->m_resultData.m_exitStatus = QProcess::CrashExit;
-        d->m_resultData.m_errorString = Tr::tr("Failed to create process interface for \"%1\"")
+        d->m_resultData.m_errorString = Tr::tr("Failed to create process interface for \"%1\".")
                                             .arg(d->m_setup.m_commandLine.toUserOutput());
         d->m_resultData.m_error = QProcess::FailedToStart;
         d->emitGuardedSignal(&Process::done);

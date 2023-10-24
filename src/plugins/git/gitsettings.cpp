@@ -91,14 +91,12 @@ GitSettings::GitSettings()
         Tr::tr("Annotate the current line in the editor with Git \"blame\" output."));
     instantBlameIgnoreSpaceChanges.setSettingsKey("GitInstantIgnoreSpaceChanges");
     instantBlameIgnoreSpaceChanges.setDefaultValue(false);
-    instantBlameIgnoreSpaceChanges.setLabelText(
-        Tr::tr("Ignore whitespace changes"));
+    instantBlameIgnoreSpaceChanges.setLabelText(trIgnoreWhitespaceChanges());
     instantBlameIgnoreSpaceChanges.setToolTip(
         Tr::tr("Finds the commit that introduced the last real code changes to the line."));
     instantBlameIgnoreLineMoves.setSettingsKey("GitInstantIgnoreLineMoves");
     instantBlameIgnoreLineMoves.setDefaultValue(false);
-    instantBlameIgnoreLineMoves.setLabelText(
-        Tr::tr("Ignore line moves"));
+    instantBlameIgnoreLineMoves.setLabelText(trIgnoreLineMoves());
     instantBlameIgnoreLineMoves.setToolTip(
         Tr::tr("Finds the commit that introduced the line before it was moved."));
 
@@ -185,6 +183,16 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
                 .arg(binaryPath().toUserOutput(), path());
     }
     return resolvedBinPath;
+}
+
+QString GitSettings::trIgnoreWhitespaceChanges()
+{
+    return Tr::tr("Ignore whitespace changes");
+}
+
+QString GitSettings::trIgnoreLineMoves()
+{
+    return Tr::tr("Ignore line moves");
 }
 
 // GitSettingsPage

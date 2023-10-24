@@ -24,7 +24,7 @@
 
     \section1 Add kits for QNX Devices
 
-    To view QNX device settings, select \uicontrol Edit > \uicontrol Preferences >
+    To view QNX device settings, select \preferences >
     \uicontrol Devices > \uicontrol QNX. Select the \uicontrol {Generate kits}
     check box to allow \QC to generate kits for QNX development.
 

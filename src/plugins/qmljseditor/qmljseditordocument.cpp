@@ -784,6 +784,7 @@ void QmlJSEditorDocumentPrivate::settingsChanged()
         case LanguageClient::Client::State::Initialized:
             setSourcesWithCapabilities(client->capabilities());
             break;
+        case LanguageClient::Client::State::FailedToInitialize:
         case LanguageClient::Client::State::Error:
             qCWarning(qmllsLog) << "qmlls" << newQmlls << "requested for document" << q->filePath()
                                 << "had errors, skipping setSourcesWithCababilities";

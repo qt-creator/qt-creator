@@ -72,7 +72,7 @@ void CopilotPlugin::initialize()
     ActionManager::registerAction(requestAction, Constants::COPILOT_REQUEST_SUGGESTION);
 
     QAction *nextSuggestionAction = new QAction(this);
-    nextSuggestionAction->setText(Tr::tr("Show next Copilot Suggestion"));
+    nextSuggestionAction->setText(Tr::tr("Show Next Copilot Suggestion"));
     nextSuggestionAction->setToolTip(Tr::tr(
         "Cycles through the received Copilot Suggestions showing the next available Suggestion."));
 
@@ -84,7 +84,7 @@ void CopilotPlugin::initialize()
     ActionManager::registerAction(nextSuggestionAction, Constants::COPILOT_NEXT_SUGGESTION);
 
     QAction *previousSuggestionAction = new QAction(this);
-    previousSuggestionAction->setText(Tr::tr("Show previos Copilot Suggestion"));
+    previousSuggestionAction->setText(Tr::tr("Show Previous Copilot Suggestion"));
     previousSuggestionAction->setToolTip(Tr::tr("Cycles through the received Copilot Suggestions "
                                                 "showing the previous available Suggestion."));
 

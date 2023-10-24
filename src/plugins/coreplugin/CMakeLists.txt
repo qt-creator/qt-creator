@@ -209,8 +209,6 @@ add_qtc_plugin(Core
     locator/spotlightlocatorfilter.h
     locator/urllocatorfilter.cpp
     locator/urllocatorfilter.h
-    loggingmanager.cpp
-    loggingmanager.h
     loggingviewer.cpp
     loggingviewer.h
     manhattanstyle.cpp

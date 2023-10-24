@@ -1098,7 +1098,7 @@ static bool isWindowsARM64(const Kit *k)
            && targetAbi.wordWidth() == 64;
 }
 
-static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString buildType)
+static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString &buildType)
 {
     // Generator:
     CMakeTool *tool = CMakeKitAspect::cmakeTool(k);

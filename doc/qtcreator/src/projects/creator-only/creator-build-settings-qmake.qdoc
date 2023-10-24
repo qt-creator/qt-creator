@@ -19,7 +19,7 @@
     \uicontrol {Build Directory} field.
 
     To make in-source builds the default option for all projects, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run} >
+    \preferences > \uicontrol {Build & Run} >
     \uicontrol {Default Build Properties}, and enter a period (.) in the
     \uicontrol {Default build directory} field.
 
@@ -46,15 +46,13 @@
 
     \section1 Global qmake Settings
 
-    To specify settings for all qmake builds, select \uicontrol Edit
-    > \uicontrol Preferences > \uicontrol {Build & Run} >
-    \uicontrol Qmake.
+    To specify settings for all qmake builds, select \preferences >
+    \uicontrol {Build & Run} > \uicontrol Qmake.
 
     \image qtcreator-preferences-build-run-qmake.png "Qmake tab in Build & Run Preferences"
 
-    To set the default build properties, select \uicontrol Edit
-    > \uicontrol Preferences > \uicontrol {Build & Run} >
-    \uicontrol {Default Build Properties}.
+    To set the default build properties, select \preferences >
+    \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
 
     \image qtcreator-build-settings-default.png "Default Build Properties tab in Build & Run Preferences"
 
@@ -70,9 +68,8 @@
     select \uicontrol Enable in the \uicontrol {Qt Quick Compiler} field. To
     use default settings, select \uicontrol {Leave at Default}.
 
-    You can specify default behavior for compiling QML code in \uicontrol Edit
-    > \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol Qmake >
-    \uicontrol {Use qmlcachegen}.
+    You can specify default behavior for compiling QML code in \preferences >
+    \uicontrol {Build & Run} > \uicontrol Qmake > \uicontrol {Use qmlcachegen}.
 
     \section1 qmake Build Steps
 

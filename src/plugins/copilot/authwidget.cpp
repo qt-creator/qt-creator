@@ -155,8 +155,9 @@ void AuthWidget::signIn()
                                            QMessageBox::critical(this,
                                                                  Tr::tr("Login Failed"),
                                                                  Tr::tr(
-                                                                     "The login request failed: ")
-                                                                     + response.error()->message());
+                                                                     "The login request failed: %1")
+                                                                     .arg(response.error()
+                                                                              ->message()));
                                            setState("Sign in", response.error()->message(), false);
                                            return;
                                        }

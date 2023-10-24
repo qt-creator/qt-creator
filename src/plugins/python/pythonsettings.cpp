@@ -170,6 +170,8 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
             return f;
         }
         case Qt::ToolTipRole:
+            if (interpreter.command.needsDevice())
+                break;
             if (interpreter.command.isEmpty())
                 return Tr::tr("Executable is empty.");
             if (!interpreter.command.exists())
@@ -179,6 +181,8 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
                     .arg(interpreter.command.toUserOutput());
             break;
         case Qt::DecorationRole:
+            if (interpreter.command.needsDevice())
+                break;
             if (column == 0 && !interpreter.command.isExecutableFile())
                 return Utils::Icons::CRITICAL.icon();
             break;

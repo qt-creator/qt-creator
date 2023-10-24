@@ -85,7 +85,7 @@ void TerminalWidget::setupPty()
         CommandLine{settings().shell(), settings().shellArguments(), CommandLine::Raw});
 
     if (shellCommand.executable().isRootPath()) {
-        writeToTerminal(Tr::tr("Connecting ...\r\n").toUtf8(), true);
+        writeToTerminal((Tr::tr("Connecting...") + "\r\n").toUtf8(), true);
         // We still have to find the shell to start ...
         m_findShellWatcher.reset(new QFutureWatcher<expected_str<FilePath>>());
         connect(m_findShellWatcher.get(), &QFutureWatcher<FilePath>::finished, this, [this] {
@@ -107,7 +107,7 @@ void TerminalWidget::setupPty()
                 shellCommand.executable());
             if (result && !result->isExecutableFile())
                 return make_unexpected(
-                    Tr::tr("'%1' is not executable.").arg(result->toUserOutput()));
+                    Tr::tr("\"%1\" is not executable.").arg(result->toUserOutput()));
             return result;
         }));
 

@@ -19,7 +19,7 @@
     \title Configuring the Editor
 
     You can configure the text editor to suit your specific needs by selecting
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol{Text Editor}.
+    \preferences > \uicontrol{Text Editor}.
 
     \image qtcreator-font-colors.png "Text Editor preferences"
 
@@ -57,9 +57,8 @@
         \li Set \l{Indent text or code}{tabs, indentation, the handling of
             whitespace, and mouse operations} in \uicontrol Behavior.
 
-        \li Set various display properties, such as
-            \l{Highlighting and folding blocks}
-            {highlighting and folding blocks} or text
+        \li Set various display properties, such as \l{Highlighting Blocks}
+            {highlighting} or \l{Folding Blocks}{folding} blocks or text
             wrapping in \uicontrol Display.
 
         \li Add, modify, and remove \l{Editing Code Snippets}{code snippets} in

@@ -316,7 +316,7 @@ static QVersionNumber fixupVersion(const VersionAndSuffix &versionAndSuffix)
         version = QVersionNumber(12);
 
     // Version 17.0.0 was never released due to a git issue
-    if (version == QVersionNumber(17))
+    if (version.majorVersion() == 17)
         version = QVersionNumber(17, 0, 1);
 
     return version;

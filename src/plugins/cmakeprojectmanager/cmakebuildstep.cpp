@@ -372,7 +372,7 @@ GroupItem CMakeBuildStep::runRecipe()
     const auto onEnd = [this] {
         updateDeploymentData();
     };
-    const Group root {
+    Group root {
         ignoreReturnValue() ? finishAllAndDone : stopOnError,
         ProjectParserTask(onParserSetup, {}, onParserError),
         defaultProcessTask(),

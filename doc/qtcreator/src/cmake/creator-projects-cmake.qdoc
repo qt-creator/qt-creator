@@ -39,9 +39,8 @@
     \QC automatically runs CMake to refresh project information when you edit
     a \c CMakeLists.txt configuration file in a project. Project information is
     also automatically refreshed when you build the project. To disable this
-    behavior, select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake
-    > \uicontrol General, and then deselect the \uicontrol {Autorun CMake}
-    check box.
+    behavior, select \preferences > \uicontrol CMake > \uicontrol General, and
+    then deselect the \uicontrol {Autorun CMake} check box.
 
     \image qtcreator-projects-view-edit.png {CMake project in Projects view}
 
@@ -54,8 +53,8 @@
 
     The \uicontrol Projects view shows the names of the subfolders where the
     source files are located. To hide the subfolder names and arrange the files
-    only according to their source group, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol CMake > \uicontrol General, and then
+    only according to their source group, select \preferences >
+    \uicontrol CMake > \uicontrol General, and then
     deselect the \uicontrol {Show subfolders inside source group folders} check
     box. The change takes effect after you select \uicontrol Build >
     \uicontrol {Run CMake}.
@@ -89,8 +88,7 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
-            \uicontrol Tools.
+        \li Select \preferences > \uicontrol CMake > \uicontrol Tools.
 
             \image qtcreator-preferences-cmake-tools.webp {Tools tab in CMake Preferences}
 
@@ -118,8 +116,8 @@
     To remove the selected CMake executable from the list, select
     \uicontrol Remove.
 
-    To add the CMake tool to a build and run kit, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits.
+    To add the CMake tool to a build and run kit, select \preferences >
+    \uicontrol Kits.
     The kit also specifies the CMake generator that is used for producing
     project files for \QC and the initial configuration parameters:
 
@@ -169,8 +167,7 @@
     To automatically format CMake files upon file save:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
-            \uicontrol Formatter.
+        \li Select \preferences > \uicontrol CMake > \uicontrol Formatter.
             \image qtcreator-preferences-cmake-formatter.webp {Formatter tab in CMake Preferences}
         \li In \uicontrol {CMakeFormat command}, enter the path to
             \c {cmake-format.exe}.

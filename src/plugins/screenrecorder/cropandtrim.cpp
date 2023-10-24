@@ -299,11 +299,11 @@ CropWidget::CropWidget(QWidget *parent)
     m_warningIcon = new CropSizeWarningIcon(CropSizeWarningIcon::StandardVariant);
 
     auto saveImageButton = new QToolButton;
-    saveImageButton->setToolTip(Tr::tr("Save current, cropped frame as image file..."));
+    saveImageButton->setToolTip(Tr::tr("Save current, cropped frame as image file."));
     saveImageButton->setIcon(Icons::SAVEFILE.icon());
 
     auto copyImageToClipboardAction = new QAction(Tr::tr("Copy current, cropped frame as image "
-                                                         "into the Clipboard"), this);
+                                                         "to the clipboard."), this);
     copyImageToClipboardAction->setIcon(Icons::SNAPSHOT.icon());
     copyImageToClipboardAction->setShortcut(QKeySequence::Copy);
 
@@ -783,8 +783,9 @@ CropAndTrimWidget::CropAndTrimWidget(QWidget *parent)
 
 void CropAndTrimWidget::setClip(const ClipInfo &clip)
 {
+    if (clip.dimensions != m_clipInfo.dimensions)
+        m_cropRect = {QPoint(), clip.dimensions}; // Reset only if clip size changed
     m_clipInfo = clip;
-    m_cropRect = {QPoint(), clip.dimensions};
     m_currentFrame = 0;
     m_trimRange = {m_currentFrame, m_clipInfo.framesCount()};
     updateWidgets();

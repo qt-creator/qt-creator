@@ -103,19 +103,34 @@
 
     You can also create your own project and class wizards.
 
-    \section1 Set file naming preferences
+    \sa {Create files}, {Set C++ file naming preferences}, {Use project wizards},
+    {Custom Wizards}
+*/
 
-    The names of the header and source file are based on the class name. To
-    change the default suffix of a file, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {C++} > \uicontrol {File Naming}.
+/*!
+    \page creator-how-to-set-cpp-file-naming.html
+    \previouspage creator-how-tos.html
 
-    \image qtcreator-options-cpp-files.png "C++ File Naming preferences"
+    \ingroup creator-how-to-projects
+
+    \title Set C++ file naming preferences
+
+    When you use the new file wizard to create a C++ header and source file for a
+    new class in a C++ project, the names of the header and source file are based
+    on the class name. To change the default suffix of a file for a project,
+    select \uicontrol Projects > \uicontrol {Project Settings} >
+    \uicontrol {C++ File Naming}.
+
+    \image qtcreator-projects-settings-cpp-file-naming.webp {C++ File Naming settings for a project}
 
     In the \uicontrol {License template} field, enter
     \l{Using Variables in Wizards}{predefined wizard variables} to specify the
     path and filename of the license to use in the source and header files.
 
-    \sa {Create files}, {Use project wizards}, {Custom Wizards}
+    To globally change the preferences, select \preferences > \uicontrol {C++} >
+    \uicontrol {File Naming}.
+
+    \sa {Create C++ classes}, {Use project wizards}
 */
 
 /*!

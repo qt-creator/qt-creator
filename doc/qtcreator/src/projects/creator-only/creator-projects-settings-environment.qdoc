@@ -19,7 +19,7 @@
     based on your project requirements.
 
     To globally change the system environment from the one in which
-    \QC is started, select \uicontrol Edit > \uicontrol Preferences >
+    \QC is started, select \preferences >
     \uicontrol Environment > \uicontrol System, and then select
     \uicontrol Change in the \uicontrol Environment field.
 

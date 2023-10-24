@@ -34,7 +34,7 @@
 
     \section1 CVS Preferences
 
-    To set CVS preferences, select \uicontrol Edit > \uicontrol Preferences >
+    To set CVS preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol CVS:
 
     \image qtcreator-preferences-vcs-cvs.webp {CVS preferences}

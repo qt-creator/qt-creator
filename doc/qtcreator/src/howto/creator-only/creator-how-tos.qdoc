@@ -96,20 +96,6 @@
 */
 
 /*!
-    \page creator-how-to-find-preferences.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-ui
-
-    \title Find a particular preference
-
-    To find a particular preference in \uicontrol Edit > \uicontrol Preferences,
-    use the filter located at the top left of the \uicontrol Preferences dialog.
-
-    \image qtcreator-preferences.webp {Filtering preferences}
-*/
-
-/*!
     \page creator-how-to-run-from-cli.html
     \previouspage creator-how-tos.html
 
@@ -208,7 +194,7 @@
     create your own locator filters. That way you can locate files in a
     directory structure you have defined.
 
-    To create locator filters, select \uicontrol Edit > \uicontrol Preferences >
+    To create locator filters, select \preferences >
     \uicontrol Environment > \uicontrol Locator > \uicontrol Add.
 
     \image qtcreator-locator-customize.webp "Locator preferences"
@@ -253,9 +239,8 @@
 
     \title Add a license header template for C++ code
 
-    Specify a file that has a license header for C++ in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol C++ > \uicontrol {File Naming} >
-    \uicontrol {License template}.
+    Specify a file that has a license header for C++ in \preferences >
+    \uicontrol C++ > \uicontrol {File Naming} > \uicontrol {License template}.
 
     \image qtcreator-options-cpp-files.png "File Naming preferences"
 
@@ -321,8 +306,7 @@
     \endlist
 
     To specify whether to automatically insert matching characters,
-    select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol {Text Editor} > \uicontrol Completion.
+    select \preferences > \uicontrol {Text Editor} > \uicontrol Completion.
 
     \image qtcreator-preferences-texteditor-completion.webp "Completion preferences"
 
@@ -349,8 +333,8 @@
     \title Add code snippets to the auto-complete menu
 
     Add, modify, and remove snippets in the snippet editor.
-    To open the editor, select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol {Text Editor} > \uicontrol Snippets.
+    To open the editor, select \preferences > \uicontrol {Text Editor} >
+    \uicontrol Snippets.
 
     \image qtcreator-snippet-modifiers.png "Snippets preferences"
 
@@ -398,8 +382,7 @@
     \uicontrol {Recent Files}:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Environment > \uicontrol System.
+        \li Select \preferences > \uicontrol Environment > \uicontrol System.
             \image qtcreator-options-environment-system.png {System preferences}
         \li In \uicontrol {Maximum number of entries in "Recent Files"}, set
             the number of files to show.

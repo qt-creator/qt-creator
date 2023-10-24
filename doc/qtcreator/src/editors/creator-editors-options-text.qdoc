@@ -23,9 +23,8 @@
     \endif
 
     Set the font preferences and apply color schemes for syntax highlighting,
-    diff editor, and code analysis results in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} >
-    \uicontrol {Font & Colors}.
+    diff editor, and code analysis results in \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
 
     \image qtcreator-font-colors.png "Text editor preferences"
 
@@ -35,9 +34,8 @@
     percentage for viewing the text. You can also zoom in or out by pressing
     \key {Ctrl++} or \key {Ctrl+-}, or by pressing \key Ctrl and rolling
     the mouse button up or down. To disable the mouse wheel function, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
-    \uicontrol Behavior and deselect the
-    \uicontrol {Enable scroll wheel zooming} check box.
+    \preferences > \uicontrol {Text Editor} > \uicontrol Behavior and deselect
+    the \uicontrol {Enable scroll wheel zooming} check box.
 
     To improve the readability of text in the editor, adjust the line spacing in
     the \uicontrol {Line spacing} field.
@@ -55,9 +53,8 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol {Text Editor} > \uicontrol {Fonts & Color} >
-            \uicontrol Copy.
+        \li Select \preferences > \uicontrol {Text Editor} >
+            \uicontrol {Fonts & Color} > \uicontrol Copy.
 
         \li Enter a name for the color scheme and click \uicontrol OK.
 
@@ -86,7 +83,7 @@
     \section2 Exporting and Importing Color Schemes
 
     To share color schemes with others, export and import them as XML files.
-    To export a color scheme, select \uicontrol Edit > \uicontrol Preferences >
+    To export a color scheme, select \preferences >
     \uicontrol {Text Editor} > \uicontrol {Fonts & Color} > \uicontrol Export,
     and then select the filename and location for the XML file.
 
@@ -101,8 +98,8 @@
 
     \section2 File Encoding
 
-    To define the default file encoding, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior, and
+    To define the default file encoding, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol Behavior, and
     then select a suitable option in \uicontrol {Default encoding}.
 
     \image qtcreator-options-texteditor-behavior-file-encodings.png "File encoding preferences"

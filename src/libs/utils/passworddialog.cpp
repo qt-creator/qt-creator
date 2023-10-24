@@ -22,7 +22,7 @@ ShowPasswordButton::ShowPasswordButton(QWidget *parent)
 {
     setAttribute(Qt::WA_Hover);
     setCheckable(true);
-    setToolTip(Tr::tr("Show/hide password"));
+    setToolTip(Tr::tr("Show/Hide Password"));
 }
 
 void ShowPasswordButton::paintEvent(QPaintEvent *e)

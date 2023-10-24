@@ -74,7 +74,7 @@
             \QC or the conflicting shortcut in ibus.
 
             To set another \l {Keyboard Shortcuts}{keyboard shortcut}
-            in \QC, select \uicontrol Edit > \uicontrol Preferences >
+            in \QC, select \preferences >
             \uicontrol Environment > \uicontrol Keyboard.
 
             To change the ibus shortcut, enter the following command on the

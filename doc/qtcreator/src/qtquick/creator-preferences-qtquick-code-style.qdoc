@@ -19,8 +19,7 @@
     To specify QML code style globally:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol {Qt Quick}.
+        \li Select \preferences > \uicontrol {Qt Quick}.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
             \image qtcreator-options-code-style-qml.png {QML Code Style preferences}
@@ -41,6 +40,6 @@
     \sa {Indent text or code}
 
     \if defined(qtcreator)
-    \sa {Find a particular preference}, {Specify code style}
+    \sa {Find preferences}, {Specify code style}
     \endif
 */

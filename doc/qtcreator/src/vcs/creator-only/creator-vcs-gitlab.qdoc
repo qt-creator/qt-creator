@@ -31,8 +31,8 @@
     port number, as well as an access token that you create in GitLab for \QC.
     The permission scope of the token must be at least \c read_api or \c api.
 
-    To specify connections to GitLab servers, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol GitLab:
+    To specify connections to GitLab servers, select \preferences >
+    \uicontrol {Version Control} > \uicontrol GitLab:
 
     \image qtcreator-gitlab-preferences.png
 

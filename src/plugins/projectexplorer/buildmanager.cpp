@@ -106,7 +106,8 @@ static const QList<BuildConfiguration *> buildConfigsForSelection(const Target *
 }
 
 static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
-                 ConfigSelection configSelection, const RunConfiguration *forRunConfig = nullptr)
+                 ConfigSelection configSelection, const RunConfiguration *forRunConfig = nullptr,
+                 RunControl *starter = nullptr)
 {
     if (!ProjectExplorerPlugin::saveModifiedFiles())
         return -1;
@@ -117,7 +118,10 @@ static int queue(const QList<Project *> &projects, const QList<Id> &stepIds,
         StopBeforeBuild stopCondition = settings.stopBeforeBuild;
         if (stopCondition == StopBeforeBuild::SameApp && !forRunConfig)
             stopCondition = StopBeforeBuild::SameBuildDir;
-        const auto isStoppableRc = [&projects, stopCondition, configSelection, forRunConfig](RunControl *rc) {
+        const auto isStoppableRc = [&projects, stopCondition, configSelection, forRunConfig,
+                                    starter](RunControl *rc) {
+            if (rc == starter)
+                return false;
             if (!rc->isRunning())
                 return false;
 
@@ -354,10 +358,11 @@ void BuildManager::rebuildProjectWithoutDependencies(Project *project)
           ConfigSelection::Active);
 }
 
-void BuildManager::buildProjectWithDependencies(Project *project, ConfigSelection configSelection)
+void BuildManager::buildProjectWithDependencies(Project *project, ConfigSelection configSelection,
+                                                RunControl *starter)
 {
     queue(ProjectManager::projectOrder(project), {Id(Constants::BUILDSTEPS_BUILD)},
-          configSelection);
+          configSelection, nullptr, starter);
 }
 
 void BuildManager::cleanProjectWithDependencies(Project *project, ConfigSelection configSelection)

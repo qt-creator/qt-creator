@@ -11,13 +11,13 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
+#include <projectexplorer/projecttree.h>
+
 #include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-
-#include <projectexplorer/projecttree.h>
 
 #include <QLoggingCategory>
 #include <QtConcurrent>
@@ -39,10 +39,10 @@ class CMakeFileResult
 public:
     QSet<CMakeFileInfo> cmakeFiles;
 
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesSource;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesBuild;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesOther;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeListNodes;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesSource;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesBuild;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesOther;
+    std::vector<std::unique_ptr<FileNode>> cmakeListNodes;
 };
 
 static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
@@ -132,10 +132,10 @@ public:
 
     QSet<CMakeFileInfo> cmakeFiles;
 
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesSource;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesBuild;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeNodesOther;
-    std::vector<std::unique_ptr<ProjectExplorer::FileNode>> cmakeListNodes;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesSource;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesBuild;
+    std::vector<std::unique_ptr<FileNode>> cmakeNodesOther;
+    std::vector<std::unique_ptr<FileNode>> cmakeListNodes;
 
     Configuration codemodel;
     std::vector<TargetDetails> targetDetails;
@@ -259,7 +259,7 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
     }
 
     if (ct.targetType == ExecutableType) {
-        Utils::FilePaths librarySeachPaths;
+        FilePaths librarySeachPaths;
         // Is this a GUI application?
         ct.linksToQtGui = Utils::contains(t.link.value().fragments,
                                           [](const FragmentInfo &f) {
@@ -358,13 +358,13 @@ static QStringList splitFragments(const QStringList &fragments)
 
 static bool isPchFile(const FilePath &buildDirectory, const FilePath &path)
 {
-    return path.isChildOf(buildDirectory) && path.fileName().startsWith("cmake_pch");
+    return path.fileName().startsWith("cmake_pch") && path.isChildOf(buildDirectory);
 }
 
 static bool isUnityFile(const FilePath &buildDirectory, const FilePath &path)
 {
-    return path.isChildOf(buildDirectory) && path.parentDir().fileName() == "Unity"
-           && path.fileName().startsWith("unity_");
+    return path.fileName().startsWith("unity_") && path.isChildOf(buildDirectory)
+           && path.parentDir().fileName() == "Unity";
 }
 
 static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture,
@@ -420,21 +420,13 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             QStringList fragments = splitFragments(ci.fragments);
 
             // Get all sources from the compiler group, except generated sources
-            QStringList sources;
-            auto addToSources = [sourceDirectory, &sources](const QString &source) {
-                const FilePath sourcePath = FilePath::fromString(source);
-                if (sourcePath.isAbsolutePath())
-                    sources.push_back(source);
-                else
-                    sources.push_back(
-                        sourceDirectory.pathAppended(source).absoluteFilePath().path());
-            };
+            FilePaths sources;
 
             for (auto idx: ci.sources) {
                 SourceInfo si = t.sources.at(idx);
                 if (si.isGenerated)
                     continue;
-                addToSources(si.path);
+                sources.append(sourceDirectory.resolvePath(si.path));
             }
 
             // Skip groups with only generated source files e.g. <build-dir>/.rcc/qrc_<target>.cpp
@@ -442,12 +434,12 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                 continue;
 
             // If we are not in a pch compiler group, add all the headers that are not generated
-            const bool hasPchSource = anyOf(sources, [buildDirectory](const QString &path) {
-                return isPchFile(buildDirectory, FilePath::fromString(path));
+            const bool hasPchSource = anyOf(sources, [buildDirectory](const FilePath &path) {
+                return isPchFile(buildDirectory, path);
             });
 
-            const bool hasUnitySources = allOf(sources, [buildDirectory](const QString &path) {
-                return isUnityFile(buildDirectory, FilePath::fromString(path));
+            const bool hasUnitySources = allOf(sources, [buildDirectory](const FilePath &path) {
+                return isUnityFile(buildDirectory, path);
             });
 
             QString headerMimeType;
@@ -469,20 +461,20 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                         const bool sourceUnityType = hasUnitySources ? mime.inherits(sourceMimeType)
                                                                      : false;
                         if (headerType || sourceUnityType)
-                            addToSources(si.path);
+                            sources.append(sourceDirectory.resolvePath(si.path));
                     }
                 }
             }
-            sources.removeDuplicates();
+            FilePath::removeDuplicates(sources);
 
             // Set project files except pch / unity files
-            rpp.setFiles(Utils::filtered(sources,
-                                         [buildDirectory](const QString &path) {
-                                             return !isPchFile(buildDirectory,
-                                                               FilePath::fromString(path))
-                                                    && !isUnityFile(buildDirectory,
-                                                                    FilePath::fromString(path));
-                                         }),
+            const FilePaths filtered = Utils::filtered(sources,
+                                         [buildDirectory](const FilePath &filePath) {
+                                             return !isPchFile(buildDirectory, filePath)
+                                                 && !isUnityFile(buildDirectory, filePath);
+                                         });
+
+            rpp.setFiles(Utils::transform(filtered, &FilePath::toFSPathString),
                          {},
                          [headerMimeType](const QString &path) {
                              // Similar to ProjectFile::classify but classify headers with language
@@ -497,10 +489,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                                            return si.path.endsWith(ending);
                                        }).path);
             if (!precompiled_header.isEmpty()) {
-                if (precompiled_header.toFileInfo().isRelative()) {
-                    const FilePath parentDir = sourceDirectory.parentDir();
-                    precompiled_header = parentDir.pathAppended(precompiled_header.toString());
-                }
+                precompiled_header = sourceDirectory.resolvePath(precompiled_header);
 
                 // Remove the CMake PCH usage command line options in order to avoid the case
                 // when the build system would produce a .pch/.gch file that would be treated
@@ -512,17 +501,17 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
                         fragments.erase(foundPos, std::next(foundPos, args.size()));
                 };
 
-                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.toString() + ".gch"});
-                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.toString() + ".pch"});
-                remove({"-Xclang", "-include", "-Xclang", precompiled_header.toString()});
-                remove({"-include", precompiled_header.toString()});
-                remove({"/FI", precompiled_header.toString()});
+                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.path() + ".gch"});
+                remove({"-Xclang", "-include-pch", "-Xclang", precompiled_header.path() + ".pch"});
+                remove({"-Xclang", "-include", "-Xclang", precompiled_header.path()});
+                remove({"-include", precompiled_header.path()});
+                remove({"/FI", precompiled_header.path()});
 
                 // Make a copy of the CMake PCH header and use it instead
                 FilePath qtc_precompiled_header = precompiled_header.parentDir().pathAppended(qtcPchFile);
                 FileUtils::copyIfDifferent(precompiled_header, qtc_precompiled_header);
 
-                rpp.setPreCompiledHeaders({qtc_precompiled_header.toString()});
+                rpp.setPreCompiledHeaders({qtc_precompiled_header.path()});
             }
 
             RawProjectPartFlags cProjectFlags;
@@ -534,8 +523,8 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             rpp.setFlagsForCxx(cxxProjectFlags);
 
             const bool isExecutable = t.type == "EXECUTABLE";
-            rpp.setBuildTargetType(isExecutable ? ProjectExplorer::BuildTargetType::Executable
-                                                : ProjectExplorer::BuildTargetType::Library);
+            rpp.setBuildTargetType(isExecutable ? BuildTargetType::Executable
+                                                : BuildTargetType::Library);
             rpps.append(rpp);
             ++count;
         }
@@ -565,7 +554,7 @@ static FilePath directoryBuildDir(const Configuration &c,
 }
 
 static void addProjects(const QFuture<void> &cancelFuture,
-                        const QHash<Utils::FilePath, ProjectNode *> &cmakeListsNodes,
+                        const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
                         const Configuration &config,
                         const FilePath &sourceDir)
 {
@@ -609,15 +598,15 @@ static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
 }
 
 static void addCompileGroups(ProjectNode *targetRoot,
-                             const Utils::FilePath &topSourceDirectory,
-                             const Utils::FilePath &sourceDirectory,
-                             const Utils::FilePath &buildDirectory,
+                             const FilePath &topSourceDirectory,
+                             const FilePath &sourceDirectory,
+                             const FilePath &buildDirectory,
                              const TargetDetails &td)
 {
     const bool showSourceFolders = settings().showSourceSubFolders();
     const bool inSourceBuild = (sourceDirectory == buildDirectory);
 
-    QSet<Utils::FilePath> alreadyListed;
+    QSet<FilePath> alreadyListed;
 
     // Files already added by other configurations:
     targetRoot->forEachGenericNode(
@@ -655,29 +644,18 @@ static void addCompileGroups(ProjectNode *targetRoot,
         }
     }
 
-    // Calculate base directory for source groups:
     for (size_t i = 0; i < sourceGroupFileNodes.size(); ++i) {
         std::vector<std::unique_ptr<FileNode>> &current = sourceGroupFileNodes[i];
-        FilePath baseDirectory;
-        // All the sourceGroupFileNodes are below sourceDirectory, so this is safe:
-        for (const std::unique_ptr<FileNode> &fn : current) {
-            if (baseDirectory.isEmpty()) {
-                baseDirectory = fn->filePath().parentDir();
-            } else {
-                baseDirectory = Utils::FileUtils::commonPath(baseDirectory, fn->filePath());
-            }
-        }
-
-        FolderNode *insertNode = createSourceGroupNode(td.sourceGroups[i],
-                                                       baseDirectory,
-                                                       targetRoot);
-
+        FolderNode *insertNode = td.sourceGroups[i] == "TREE"
+                                     ? targetRoot
+                                     : createSourceGroupNode(td.sourceGroups[i],
+                                                             sourceDirectory,
+                                                             targetRoot);
         if (showSourceFolders) {
-            insertNode->addNestedNodes(std::move(current), baseDirectory);
+            insertNode->addNestedNodes(std::move(current), sourceDirectory);
         } else {
-            for (auto &fileNodes : current) {
+            for (auto &fileNodes : current)
                 insertNode->addNode(std::move(fileNodes));
-            }
         }
     }
 
@@ -687,7 +665,7 @@ static void addCompileGroups(ProjectNode *targetRoot,
                     Tr::tr("<Build Directory>"),
                     std::move(buildFileNodes));
     addCMakeVFolder(targetRoot,
-                    Utils::FilePath(),
+                    FilePath(),
                     10,
                     Tr::tr("<Other Locations>"),
                     std::move(otherFileNodes));
@@ -716,7 +694,7 @@ static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLe
 }
 
 static void addTargets(const QFuture<void> &cancelFuture,
-                       const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
+                       const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
                        const Configuration &config,
                        const std::vector<TargetDetails> &targetDetails,
                        const FilePath &sourceDir,
@@ -857,14 +835,12 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
     }
 }
 
-using namespace FileApiDetails;
-
 // --------------------------------------------------------------------
 // extractData:
 // --------------------------------------------------------------------
 
 FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input,
-                           const Utils::FilePath &sourceDir, const Utils::FilePath &buildDir)
+                           const FilePath &sourceDir, const FilePath &buildDir)
 {
     FileApiQtcData result;
 

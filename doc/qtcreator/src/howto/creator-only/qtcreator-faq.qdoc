@@ -34,7 +34,7 @@
     compiler. What should I do?}
 
     Make sure that the application is in your system PATH when starting \QC.
-    Also select \uicontrol Edit > \uicontrol Preferences to check the settings
+    Also select \preferences to check the settings
     specified for the application. Many plugins specify either the path to the
     tool they need or the environment they run in.
 
@@ -45,7 +45,7 @@
 
     \QC has been localized into several languages. If the system
     language is one of the supported languages, it is automatically selected.
-    To change the language, select \uicontrol Edit > \uicontrol Preferences >
+    To change the language, select \preferences >
     \uicontrol Environment and select a language in the \uicontrol Language
     field. Select \uicontrol {Restart Now} to restart \QC and have the change
     take effect.
@@ -145,7 +145,7 @@
     \uicontrol Help mode.
 
     To view the documentation that is available and to add documentation,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol Help >
+    select \preferences > \uicontrol Help >
     \uicontrol Documentation. For more information, see
     \l{Add external documentation}.
 
@@ -232,9 +232,9 @@
 
     For console applications that require input, select \uicontrol Projects >
     \uicontrol {Run Settings} > \uicontrol {Run in terminal}. To specify the
-    terminal to use, select \uicontrol Edit > \uicontrol Preferences >
+    terminal to use, select \preferences >
     \uicontrol Environment > \uicontrol System. To use an \l{Terminal}
-    {internal terminal}, select \uicontrol Edit > \uicontrol Preferences
+    {internal terminal}, select \preferences
     > \uicontrol Terminal > \uicontrol {Use internal terminal}.
 
     \b {On Windows:} Output is displayed differently for \e{console

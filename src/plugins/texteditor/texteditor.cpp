@@ -1100,12 +1100,10 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
 
     connect(m_fileLineEnding, &QToolButton::clicked, ActionManager::instance(), [this] {
         QMenu *menu = new QMenu;
-        menu->addAction(tr("Unix Line Endings (LF)"), [this] {
-            q->selectLineEnding(TextFileFormat::LFLineTerminator);
-        });
-        menu->addAction(tr("Windows Line Endings (CRLF)"), [this] {
-            q->selectLineEnding(TextFileFormat::CRLFLineTerminator);
-        });
+        menu->addAction(Tr::tr("Unix Line Endings (LF)"),
+                        [this] { q->selectLineEnding(TextFileFormat::LFLineTerminator); });
+        menu->addAction(Tr::tr("Windows Line Endings (CRLF)"),
+                        [this] { q->selectLineEnding(TextFileFormat::CRLFLineTerminator); });
         menu->popup(QCursor::pos());
     });
 
@@ -8247,10 +8245,12 @@ void TextEditorWidget::cut()
 
 void TextEditorWidget::selectAll()
 {
-    QPlainTextEdit::selectAll();
     // Directly update the internal multi text cursor here to prevent calling setTextCursor.
-    // This would indirectly makes sure the cursor is visible which is not desired for select all.
-    const_cast<MultiTextCursor &>(d->m_cursors).setCursors({QPlainTextEdit::textCursor()});
+    // This would indirectly make sure the cursor is visible which is not desired for select all.
+    QTextCursor c = QPlainTextEdit::textCursor();
+    c.select(QTextCursor::Document);
+    const_cast<MultiTextCursor &>(d->m_cursors).setCursors({c});
+    QPlainTextEdit::selectAll();
 }
 
 void TextEditorWidget::copy()
@@ -9240,10 +9240,15 @@ void TextEditorWidget::configureGenericHighlighter(const Utils::MimeType &mimeTy
     d->removeSyntaxInfoBar();
 }
 
-void TextEditorWidget::configureGenericHighlighter(const Highlighter::Definition &definition)
+expected_str<void> TextEditorWidget::configureGenericHighlighter(const QString &definitionName)
 {
+    Highlighter::Definition definition = TextEditor::Highlighter::definitionForName(definitionName);
+    if (!definition.isValid())
+        return make_unexpected(Tr::tr("Could not find definition."));
+
     d->configureGenericHighlighter(definition);
     d->removeSyntaxInfoBar();
+    return {};
 }
 
 int TextEditorWidget::blockNumberForVisibleRow(int row) const

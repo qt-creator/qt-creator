@@ -372,9 +372,9 @@ CMakeConfig CMakeConfig::fromFile(const Utils::FilePath &cacheFile, QString *err
             continue;
 
         QTC_ASSERT(pieces.size() == 3, continue);
-        const QByteArray key = pieces.at(0);
-        const QByteArray type = pieces.at(1);
-        const QByteArray value = pieces.at(2);
+        const QByteArray &key = pieces.at(0);
+        const QByteArray &type = pieces.at(1);
+        const QByteArray &value = pieces.at(2);
 
         if (key.endsWith("-ADVANCED") && value == "1") {
             advancedSet.insert(key.left(key.size() - 9 /* "-ADVANCED" */));

@@ -1,6 +1,6 @@
 add_qtc_plugin(McuSupport
   DEPENDS Qt::Core QmlJS
-  PLUGIN_DEPENDS Core BareMetal ProjectExplorer Debugger CMakeProjectManager QtSupport
+  PLUGIN_DEPENDS Core BareMetal ProjectExplorer Debugger CMakeProjectManager QmlJSTools QtSupport
   SOURCES
     mcukitaspect.cpp mcukitaspect.h
     mcusupport.qrc

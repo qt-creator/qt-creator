@@ -31,15 +31,13 @@
     \section1 Setting vcpkg Preferences
 
     By default, vcpkg is automatically set up for use with CMake. To disable
-    automatic setup, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol CMake > \uicontrol General >
-    \uicontrol {Package manager auto setup}.
+    automatic setup, select \preferences > \uicontrol CMake > \uicontrol General
+    > \uicontrol {Package manager auto setup}.
 
     \image qtcreator-preferences-cmake-general.webp {General tab in CMake Preferences}
 
     To set the \uicontrol Path to the directory where you installed vcpkg, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
-    \uicontrol Vcpkg.
+    \preferences > \uicontrol CMake > \uicontrol Vcpkg.
 
     \image qtcreator-preferences-cmake-vcpkg.webp {Vcpkg tab in CMake Preferences}
 
