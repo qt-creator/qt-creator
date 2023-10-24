@@ -791,6 +791,7 @@ void MaterialEditorView::modelAboutToBeDetached(Model *model)
     m_dynamicPropertiesModel->reset();
     m_qmlBackEnd->materialEditorTransaction()->end();
     m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+    m_selectedMaterial = {};
 }
 
 void MaterialEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
