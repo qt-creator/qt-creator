@@ -428,23 +428,26 @@ void Qt5InformationNodeInstanceServer::getNodeAtPos([[maybe_unused]] const QPoin
     if (!helper)
         return;
 
-    QQmlProperty editViewProp(m_editView3DData.rootItem, "activeEditView", context());
-    QObject *obj = qvariant_cast<QObject *>(editViewProp.read());
-    QQuick3DViewport *editView = qobject_cast<QQuick3DViewport *>(obj);
-
-    // Non-model nodes with icon gizmos are also valid results
+    // Non-model nodes with icon gizmos are also valid results.
     QVariant gizmoVar;
     QMetaObject::invokeMethod(m_editView3DData.rootItem, "gizmoAt", Qt::DirectConnection,
                               Q_RETURN_ARG(QVariant, gizmoVar),
                               Q_ARG(QVariant, pos.x()),
                               Q_ARG(QVariant, pos.y()));
     QObject *gizmoObj = qvariant_cast<QObject *>(gizmoVar);
+
+    // gizmoAt() call above will update the activeEditView
+    QQmlProperty editViewProp(m_editView3DData.rootItem, "activeEditView", context());
+    QObject *obj = qvariant_cast<QObject *>(editViewProp.read());
+    QQuick3DViewport *editView = qobject_cast<QQuick3DViewport *>(obj);
+    QPointF mappedPos = m_editView3DData.rootItem->mapToItem(editView, pos);
+
     qint32 instanceId = -1;
 
     if (gizmoObj && hasInstanceForObject(gizmoObj)) {
         instanceId = instanceForObject(gizmoObj).instanceId();
     } else {
-        QQuick3DModel *hitModel = helper->pickViewAt(editView, pos.x(), pos.y()).objectHit();
+        QQuick3DModel *hitModel = helper->pickViewAt(editView, mappedPos.x(), mappedPos.y()).objectHit();
         QObject *resolvedPick = helper->resolvePick(hitModel);
         if (hasInstanceForObject(resolvedPick))
             instanceId = instanceForObject(resolvedPick).instanceId();
@@ -456,7 +459,7 @@ void Qt5InformationNodeInstanceServer::getNodeAtPos([[maybe_unused]] const QPoin
         Internal::MouseArea3D ma;
         ma.setView3D(editView);
         ma.setEulerRotation({90, 0, 0}); // Default grid plane (XZ plane)
-        QVector3D planePos = ma.getMousePosInPlane(nullptr, pos);
+        QVector3D planePos = ma.getMousePosInPlane(nullptr, mappedPos);
         const float limit = 10000000; // Remove extremes on nearly parallel plane
         if (!qFuzzyCompare(planePos.z(), -1.f) && qAbs(planePos.x()) < limit && qAbs(planePos.y()) < limit)
             pos3d = {planePos.x(), 0, planePos.y()};
