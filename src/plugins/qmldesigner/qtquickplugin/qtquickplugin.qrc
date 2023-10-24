@@ -122,5 +122,6 @@
         <file>images/drop-area-16px.png</file>
         <file>images/drop-area-24px.png</file>
         <file>images/drop-area-24px@2x.png</file>
+        <file>images/animatedsprite-loading.png</file>
     </qresource>
 </RCC>

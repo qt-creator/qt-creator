@@ -157,6 +157,26 @@ MetaInfo {
     }
 
     Type {
+        name: "QtQuick.AnimatedSprite"
+        icon: ":/qtquickplugin/images/animated-image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Animated Sprite"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: ":/qtquickplugin/images/animated-image-icon.png"
+            version: "2.0"
+
+            Property { name: "frameWidth"; type: "int"; value: 64; }
+            Property { name: "frameHeight"; type: "int"; value: 64; }
+            Property { name: "frameCount"; type: "int"; value: 4; }
+            Property { name: "frameDuration"; type: "int"; value: 500; }
+            Property { name: "source"; type: "QUrl"; value:"animatedsprite-loading.png"; }
+            ExtraFile { source: ":/qtquickplugin/images/animatedsprite-loading.png" }
+            toolTip: qsTr("Draws a sprite animation.")
+        }
+    }
+
+    Type {
         name: "QtQuick.BorderImage"
         icon: ":/qtquickplugin/images/border-image-icon16.png"
 
