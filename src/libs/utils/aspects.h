@@ -201,7 +201,7 @@ public:
     void writeToSettingsImmediatly() const;
 
 signals:
-    void changed(); // "internal"
+    void changed();
     void volatileValueChanged();
     void labelLinkActivated(const QString &link);
     void checkedChanged();
