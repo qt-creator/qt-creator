@@ -81,6 +81,8 @@ private slots:
     void testWildcardToRegularExpression();
     void testSplitAtFirst_data();
     void testSplitAtFirst();
+    void testAsciify_data();
+    void testAsciify();
 
 private:
     TestMacroExpander mx;
@@ -436,6 +438,26 @@ void tst_StringUtils::testSplitAtFirst()
 
     QCOMPARE(l, left);
     QCOMPARE(r, right);
+}
+
+void tst_StringUtils::testAsciify_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("Basic Latin") << QString("Basic text") << QString("Basic text");
+    QTest::newRow("Control character") << QString("\x07 text") << QString("u0007 text");
+    QTest::newRow("Miscellaneous Technical") << QString("\u23F0 text") << QString("u23f0 text");
+}
+
+void tst_StringUtils::testAsciify()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, expected);
+
+    const QString asciified = Utils::asciify(input);
+
+    QCOMPARE(asciified, expected);
 }
 
 QTEST_GUILESS_MAIN(tst_StringUtils)

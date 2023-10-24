@@ -32,6 +32,8 @@ QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings);
 QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text);
 // Quotes all ampersands
 QTCREATOR_UTILS_EXPORT QString quoteAmpersands(const QString &text);
+// Convert non-ascii characters into foobar
+QTCREATOR_UTILS_EXPORT QString asciify(const QString &input);
 
 QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out);
 
