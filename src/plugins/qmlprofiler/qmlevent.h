@@ -91,6 +91,8 @@ struct QmlEvent : public Timeline::TraceEvent {
         if (i >= m_dataLength)
             return 0;
         switch (m_dataType) {
+QT_WARNING_PUSH
+QT_WARNING_DISABLE_GCC("-Warray-bounds")    // we're protected by the check above
         case Inline8Bit:
             return m_data.internal8bit[i];
         case Inline16Bit:
@@ -99,6 +101,7 @@ struct QmlEvent : public Timeline::TraceEvent {
             return m_data.internal32bit[i];
         case Inline64Bit:
             return m_data.internal64bit[i];
+QT_WARNING_POP
         case External8Bit:
             return static_cast<const qint8 *>(m_data.external)[i];
         case External16Bit:
