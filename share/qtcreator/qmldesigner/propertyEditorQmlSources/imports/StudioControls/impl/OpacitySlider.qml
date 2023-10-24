@@ -35,7 +35,7 @@ Item {
 
         Image {
             anchors.fill: parent
-            source: "images/checkers.png"
+            source: "qrc:/navigator/icon/checkers.png"
             fillMode: Image.Tile
         }
 
@@ -66,7 +66,7 @@ Item {
 
             Image {
                 anchors.fill: handleInside
-                source: "images/checkers.png"
+                source: "qrc:/navigator/icon/checkers.png"
                 fillMode: Image.Tile
             }
 

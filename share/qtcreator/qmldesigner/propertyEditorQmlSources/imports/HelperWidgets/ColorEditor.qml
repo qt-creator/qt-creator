@@ -1,13 +1,14 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import QtQuick.Shapes 1.15
-import QtQuick.Templates 2.15 as T
-import QtQuickDesignerTheme 1.0
-import StudioTheme 1.0 as StudioTheme
-import StudioControls 1.0 as StudioControls
-import QtQuickDesignerColorPalette 1.0
+
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Shapes
+import QtQuick.Templates as T
+import StudioTheme as StudioTheme
+import StudioControls as StudioControls
+import QtQuickDesignerTheme
+import QtQuickDesignerColorPalette
 
 SecondColumnLayout {
     id: colorEditor
@@ -29,7 +30,7 @@ SecondColumnLayout {
         return colorEditor.backendValue.value
     }
 
-    property alias gradientPropertyName: popupLoader.gradientPropertyName
+    property alias gradientPropertyName: popupDialog.gradientPropertyName
 
     property alias gradientThumbnail: gradientThumbnail
     property alias shapeGradientThumbnail: shapeGradientThumbnail
@@ -66,12 +67,12 @@ SecondColumnLayout {
         target: colorEditor
 
         function onValueChanged() {
-            if (popupLoader.isNotInGradientMode())
+            if (popupDialog.isSolid())
                 colorEditor.syncColor()
         }
 
         function onBackendValueChanged() {
-            if (popupLoader.isNotInGradientMode())
+            if (popupDialog.isSolid())
                 colorEditor.syncColor()
         }
     }
@@ -101,13 +102,13 @@ SecondColumnLayout {
         if (colorEditor.__block)
             return
 
-        if (!popupLoader.isInValidState)
+        if (!popupDialog.isInValidState)
             return
 
-        popupLoader.commitToGradient()
+        popupDialog.commitToGradient()
 
         // Delay setting the color to keep ui responsive
-        if (popupLoader.isNotInGradientMode())
+        if (popupDialog.isSolid())
             colorEditorTimer.restart()
     }
 
@@ -127,17 +128,16 @@ SecondColumnLayout {
             id: gradientThumbnail
             anchors.fill: parent
             anchors.margins: StudioTheme.Values.border
-            visible: !popupLoader.isNotInGradientMode()
+            visible: !popupDialog.isSolid()
                      && !colorEditor.shapeGradients
-                     && popupLoader.hasLinearGradient()
+                     && popupDialog.isLinearGradient()
         }
 
         Shape {
             id: shape
             anchors.fill: parent
             anchors.margins: StudioTheme.Values.border
-            visible: !popupLoader.isNotInGradientMode()
-                     && colorEditor.shapeGradients
+            visible: !popupDialog.isSolid() && colorEditor.shapeGradients
 
             ShapePath {
                 id: shapeGradientThumbnail
@@ -171,78 +171,77 @@ SecondColumnLayout {
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                popupLoader.opened ? popupLoader.close() : popupLoader.open()
+                popupDialog.visibility ? popupDialog.close() : popupDialog.open()
                 forceActiveFocus()
             }
         }
 
-        QtObject {
-            id: popupLoader
+        StudioControls.PopupDialog {
+            id: popupDialog
 
-            property bool isInValidState: popupLoader.active ? popupLoader.dialog.isInValidState : true
-
-            property QtObject dialog: popupLoader.loader.item
-
-            property bool opened: popupLoader.active ? popupLoader.dialog.opened : false
-
+            property bool isInValidState: loader.active ? popupDialog.loaderItem.isInValidState : true
+            property QtObject loaderItem: loader.item
             property string gradientPropertyName
 
+            width: 260
+            maximumHeight: Screen.desktopAvailableHeight * 0.7
+
             function commitToGradient() {
-                if (!popupLoader.active)
+                if (!loader.active)
                     return
 
-                if (colorEditor.supportGradient && popupLoader.dialog.gradientModel.hasGradient) {
+                if (colorEditor.supportGradient && popupDialog.loaderItem.gradientModel.hasGradient) {
                     var hexColor = convertColorToString(colorEditor.color)
                     hexTextField.text = hexColor
-                    popupLoader.dialog.commitGradientColor()
+                    popupDialog.loaderItem.commitGradientColor()
                 }
             }
 
-            function isNotInGradientMode() {
-                 if (!popupLoader.active)
+            function isSolid() {
+                 if (!loader.active)
                      return true
-                 return popupLoader.dialog.isNotInGradientMode()
+
+                 return popupDialog.loaderItem.isSolid()
             }
 
-            function hasLinearGradient(){
-                if (!popupLoader.active)
+            function isLinearGradient(){
+                if (!loader.active)
                     return false
-                return popupLoader.dialog.hasLinearGradient()
+
+                return popupDialog.loaderItem.isLinearGradient()
             }
 
             function ensureLoader() {
-                if (!popupLoader.active)
-                    popupLoader.active = true
+                if (!loader.active)
+                    loader.active = true
             }
 
             function open() {
-                popupLoader.ensureLoader()
-                popupLoader.dialog.open()
-            }
-
-            function close() {
-                popupLoader.ensureLoader()
-                popupLoader.dialog.close()
+                popupDialog.ensureLoader()
+                popupDialog.show(preview)
             }
 
             function determineActiveColorMode() {
-                if (popupLoader.active && popupLoader.dialog)
-                    popupLoader.dialog.determineActiveColorMode()
+                if (loader.active && popupDialog.loaderItem)
+                    popupDialog.loaderItem.determineActiveColorMode()
                 else
                     colorEditor.syncColor()
             }
 
-            property alias active: popupLoader.loader.active
-            property Loader loader: Loader {
-                parent: preview
+            Loader {
+                id: loader
                 active: colorEditor.supportGradient
 
                 sourceComponent: ColorEditorPopup {
-                    id: cePopup
-                    x: cePopup.__defaultX
-                    y: cePopup.__defaultY
+                    shapeGradients: colorEditor.shapeGradients
+                    supportGradient: colorEditor.supportGradient
+                    width: popupDialog.contentWidth
                 }
-                onLoaded: popupLoader.dialog.initEditor()
+
+                onLoaded: {
+                    popupDialog.loaderItem.initEditor()
+                    popupDialog.titleBar = loader.item.titleBarContent
+                }
             }
         }
     }
@@ -255,19 +254,26 @@ SecondColumnLayout {
         id: hexTextField
         implicitWidth: StudioTheme.Values.twoControlColumnWidth
                        + StudioTheme.Values.actionIndicatorWidth
-        width: implicitWidth
-        enabled: popupLoader.isNotInGradientMode()
+        width: hexTextField.implicitWidth
+        enabled: popupDialog.isSolid()
         writeValueManually: true
-        validator: RegExpValidator {
-            regExp: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g
+        validator: RegularExpressionValidator {
+            regularExpression: /#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?/g
         }
         showTranslateCheckBox: false
+        indicatorVisible: true
+        indicator.icon.text: StudioTheme.Constants.copy_small
+        indicator.onClicked: {
+            hexTextField.selectAll()
+            hexTextField.copy()
+            hexTextField.deselect()
+        }
         backendValue: colorEditor.backendValue
 
         onAccepted: colorEditor.color = colorFromString(hexTextField.text)
         onCommitData: {
             colorEditor.color = colorFromString(hexTextField.text)
-            if (popupLoader.isNotInGradientMode()) {
+            if (popupDialog.isSolid()) {
                 if (colorEditor.isVector3D) {
                     backendValue.value = Qt.vector3d(colorEditor.color.r,
                                                      colorEditor.color.g,
@@ -283,9 +289,7 @@ SecondColumnLayout {
         id: spacer
     }
 
-    Component.onCompleted: popupLoader.determineActiveColorMode()
+    Component.onCompleted: popupDialog.determineActiveColorMode()
 
-    onBackendValueChanged: {
-        popupLoader.determineActiveColorMode()
-    }
+    onBackendValueChanged: popupDialog.determineActiveColorMode()
 }

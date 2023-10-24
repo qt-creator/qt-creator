@@ -16,7 +16,6 @@ Column {
 
     property var backend
 
-    y: StudioTheme.Values.popupMargin
     width: parent.width
     spacing: root.verticalSpacing
 
@@ -45,6 +44,7 @@ Column {
 
         StudioControls.TopLevelComboBox {
             id: signal
+
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
 

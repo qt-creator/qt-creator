@@ -1,12 +1,12 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import HelperWidgets 2.0
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
-import QtQuickDesignerColorPalette 1.0
+import QtQuick
+import QtQuick.Layouts
+import HelperWidgets
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
+import QtQuickDesignerColorPalette
 
 Column {
     id: root
@@ -16,7 +16,10 @@ Column {
 
     property alias enableSingletonConnection: singletonConnection.enabled
 
-    spacing: 10
+    property real twoColumnWidth: 50
+    property real fourColumnWidth: 25
+
+    spacing: StudioTheme.Values.colorEditorPopupSpacing
 
     function addColorToPalette(colorStr) {
         ColorPaletteBackend.addRecentColor(colorStr)
@@ -35,7 +38,7 @@ Column {
         Rectangle {
             id: colorRectangle
 
-            width: StudioTheme.Values.colorEditorPopupSpinBoxWidth
+            width: root.fourColumnWidth
             height: StudioTheme.Values.defaultControlHeight
             color: (modelData !== "") ? modelData : "transparent"
             border.color: (modelData !== "") ? StudioTheme.Values.themeControlOutline
@@ -45,7 +48,7 @@ Column {
             Image {
                 visible: modelData !== ""
                 anchors.fill: parent
-                source: "images/checkers.png"
+                source: "qrc:/navigator/icon/checkers.png"
                 fillMode: Image.Tile
                 z: -1
             }
@@ -90,48 +93,36 @@ Column {
 
         function onCurrentColorChanged(color) {
             root.selectedColor = color
-            dialogColorChanged()
+            root.dialogColorChanged()
         }
 
         function onColorDialogRejected() {
             root.selectedColor = root.oldColor
-            dialogColorChanged()
+            root.dialogColorChanged()
         }
     }
 
-    RowLayout {
-        Layout.fillWidth: true
-        spacing: 0
+    StudioControls.ComboBox {
+        id: colorMode
+        implicitWidth: root.width
+        width: colorMode.implicitWidth
+        actionIndicatorVisible: false
+        model: ColorPaletteBackend.palettes
+        currentIndex: colorMode.find(ColorPaletteBackend.currentPalette)
 
-        StudioControls.ComboBox {
-            id: colorMode
+        onActivated: ColorPaletteBackend.currentPalette = colorMode.currentText
 
-            implicitWidth: 3 * StudioTheme.Values.controlGap
-                           + 4 * StudioTheme.Values.colorEditorPopupSpinBoxWidth
-            width: implicitWidth
-            actionIndicatorVisible: false
-            model: ColorPaletteBackend.palettes
-            currentIndex: colorMode.find(ColorPaletteBackend.currentPalette)
-
-            onActivated: ColorPaletteBackend.currentPalette = colorMode.currentText
-
-            Component.onCompleted: colorMode.currentIndex = colorMode.find(ColorPaletteBackend.currentPalette)
-        }
+        Component.onCompleted: colorMode.currentIndex = colorMode.find(ColorPaletteBackend.currentPalette)
     }
 
-    GridView {
+    Grid {
         id: colorPaletteView
-        model: ColorPaletteBackend.currentPaletteColors
-        delegate: colorItemDelegate
-        cellWidth: StudioTheme.Values.colorEditorPopupSpinBoxWidth
-                   + StudioTheme.Values.controlGap
-        cellHeight: StudioTheme.Values.defaultControlHeight
-                    + StudioTheme.Values.controlGap
-        width: 4 * (StudioTheme.Values.colorEditorPopupSpinBoxWidth
-                    + StudioTheme.Values.controlGap)
-        height: 2 * (StudioTheme.Values.defaultControlHeight
-                     + StudioTheme.Values.controlGap)
-        clip: true
-        interactive: false
+        columns: 4
+        spacing: StudioTheme.Values.controlGap
+
+        Repeater {
+            model: ColorPaletteBackend.currentPaletteColors
+            delegate: colorItemDelegate
+        }
     }
 }

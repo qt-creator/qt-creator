@@ -34,5 +34,6 @@ void Tooltip::hideText()
 
 void Tooltip::registerDeclarativeType()
 {
+    qmlRegisterType<Tooltip>("StudioControls", 1, 0, "ToolTipExt");
     qmlRegisterType<Tooltip>("HelperWidgets", 2, 0, "Tooltip");
 }

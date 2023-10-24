@@ -15,12 +15,6 @@ ListView {
 
     property bool adsFocus: false
 
-    // Temporarily remove due to dockwidget focus issue
-    //onAdsFocusChanged: {
-    //    if (!root.adsFocus)
-    //        dialog.close()
-    //}
-
     clip: true
     interactive: true
     highlightMoveDuration: 0
@@ -43,9 +37,7 @@ ListView {
               && verticalScrollBar.isNeeded
     }
 
-    onVisibleChanged: {
-        dialog.hide()
-    }
+    onVisibleChanged: dialog.close()
 
     property int modelCurrentIndex: root.model.currentIndex ?? 0
 
@@ -73,7 +65,7 @@ ListView {
     function addConnection() {
         ConnectionsEditorEditorBackend.connectionModel.add()
         if (root.currentItem)
-            dialog.popup(root.currentItem.delegateMouseArea)
+            dialog.show(root.currentItem.delegateMouseArea)
     }
 
     function resetIndex() {
@@ -124,7 +116,7 @@ ListView {
                 root.model.currentIndex = itemDelegate.index
                 root.currentIndex = itemDelegate.index
                 dialog.backend.currentRow = itemDelegate.index
-                dialog.popup(mouseArea)
+                dialog.show(mouseArea)
             }
         }
 

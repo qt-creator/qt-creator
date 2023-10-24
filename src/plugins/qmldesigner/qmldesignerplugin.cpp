@@ -26,6 +26,8 @@
 #include <designeractionmanager.h>
 #include <eventlist/eventlistpluginview.h>
 #include <formeditor/transitiontool.h>
+#include <studioquickwidget.h>
+#include <windowmanager.h>
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <metainfo.h>
 #endif
@@ -72,12 +74,12 @@
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
+#include <qplugin.h>
 #include <QProcessEnvironment>
 #include <QQuickItem>
 #include <QScreen>
 #include <QTimer>
 #include <QWindow>
-#include <qplugin.h>
 
 #include "nanotrace/nanotrace.h"
 #include <modelnodecontextmenu_helper.h>
@@ -283,6 +285,8 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     //TODO Move registering those types out of the property editor, since they are used also in the states editor
     Quick2PropertyEditorView::registerQmlTypes();
     CollectionView::registerDeclarativeType();
+    StudioQuickWidget::registerDeclarativeType();
+    QmlDesignerBase::WindowManager::registerDeclarativeType();
 
     if (checkEnterpriseLicense())
         Core::IWizardFactory::registerFeatureProvider(new EnterpriseFeatureProvider);

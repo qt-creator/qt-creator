@@ -10,12 +10,11 @@ Column {
     id: root
 
     readonly property real horizontalSpacing: 10
-    readonly property real verticalSpacing: 16
+    readonly property real verticalSpacing: 12
     readonly property real columnWidth: (root.width - root.horizontalSpacing) / 2
 
     property var backend
 
-    y: StudioTheme.Values.popupMargin
     width: parent.width
     spacing: root.verticalSpacing
 
@@ -23,11 +22,11 @@ Column {
         text: qsTr("Type")
         tooltip: qsTr("Sets the category of the <b>Local Custom Property</b>.")
     }
+
     StudioControls.TopLevelComboBox {
         id: type
         style: StudioTheme.Values.connectionPopupControlStyle
         width: root.columnWidth
-        //width: root.width
 
         model: backend.type.model ?? []
         onActivated: backend.type.activateIndex(type.currentIndex)
@@ -53,6 +52,7 @@ Column {
 
     Row {
         spacing: root.horizontalSpacing
+
         StudioControls.TextField {
             id: name
 
@@ -61,10 +61,9 @@ Column {
             translationIndicatorVisible: false
 
             text: backend.name.text ?? ""
-            onEditingFinished: {
-                backend.name.activateText(name.text)
-            }
+            onEditingFinished: backend.name.activateText(name.text)
         }
+
         StudioControls.TextField {
             id: value
 
@@ -74,9 +73,7 @@ Column {
 
 
             text: backend.value.text ?? ""
-            onEditingFinished: {
-                backend.value.activateText(value.text)
-            }
+            onEditingFinished: backend.value.activateText(value.text)
         }
     }
 }

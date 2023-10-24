@@ -192,7 +192,7 @@ Column {
             width: parent.width - 2 * StudioTheme.Values.border
             height: width
 
-            source: "images/checkers.png"
+            source: "qrc:/navigator/icon/checkers.png"
             fillMode: Image.Tile
 
             // Note: We smoothscale the shader from a smaller version to improve performance
@@ -234,7 +234,7 @@ Column {
                 id: pickerCross
 
                 property color strokeStyle: "lightGray"
-                property string loadImageUrl: "images/checkers.png"
+                property string loadImageUrl: "qrc:/navigator/icon/checkers.png"
                 property int radius: 10
 
                 Component.onCompleted: pickerCross.loadImage(pickerCross.loadImageUrl)
