@@ -212,6 +212,7 @@ Projects
 
 * Added auto-detection of PySide from the installer
   ([PYSIDE-2153](https://bugreports.qt.io/browse/PYSIDE-2153))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-python-development.html#set-up-pyside6))
 * Added the option to forward the display for remote Linux
 * Fixed PySide wheels installation on macOS
 
@@ -224,6 +225,7 @@ Projects
 ### Qt Safe Renderer
 
 * Added a wizard for Qt Safe Renderer 2.1 and later
+  ([Documentation](https://doc.qt.io/QtSafeRenderer/qtsr-safety-project.html#using-qt-safe-renderer-project-template-in-qt-creator))
 
 Debugging
 ---------
