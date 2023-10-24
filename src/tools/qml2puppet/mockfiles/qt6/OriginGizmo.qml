@@ -205,8 +205,10 @@ Item {
                 width: ballBackground.subBallWidth
                 offset: ballBackground.subBallOffset
                 labelText: qsTr("-X")
-                labelColor: stylePalette.brightBall
-                labelVisible: hovered
+                labelColor: hovered ? stylePalette.brightBall : stylePalette.dimBall
+                labelVisible: hovered || _generalHelper.compareQuaternions(
+                                  root.targetNode.sceneRotation,
+                                  root.quaternionForAxis(OriginGizmo.Axis.NegativeX))
                 color: Qt.rgba(stylePalette.xAxis.r, stylePalette.xAxis.g, stylePalette.xAxis.b, z + 1 * 0.5)
                 border.color: stylePalette.xAxis
                 border.width: 2
@@ -227,8 +229,10 @@ Item {
                 width: ballBackground.subBallWidth
                 offset: ballBackground.subBallOffset
                 labelText: qsTr("-Y")
-                labelColor: stylePalette.brightBall
-                labelVisible: hovered
+                labelColor: hovered ? stylePalette.brightBall : stylePalette.dimBall
+                labelVisible: hovered || _generalHelper.compareQuaternions(
+                                  root.targetNode.sceneRotation,
+                                  root.quaternionForAxis(OriginGizmo.Axis.NegativeY))
                 color: Qt.rgba(stylePalette.yAxis.r, stylePalette.yAxis.g, stylePalette.yAxis.b, z + 1 * 0.5)
                 border.color: stylePalette.yAxis
                 border.width: 2
@@ -249,8 +253,10 @@ Item {
                 width: ballBackground.subBallWidth
                 offset: ballBackground.subBallOffset
                 labelText: qsTr("-Z")
-                labelColor: stylePalette.brightBall
-                labelVisible: hovered
+                labelColor: hovered ? stylePalette.brightBall : stylePalette.dimBall
+                labelVisible: hovered || _generalHelper.compareQuaternions(
+                                  root.targetNode.sceneRotation,
+                                  root.quaternionForAxis(OriginGizmo.Axis.NegativeZ))
                 color: Qt.rgba(stylePalette.zAxis.r, stylePalette.zAxis.g, stylePalette.zAxis.b, z + 1 * 0.5)
                 border.color: stylePalette.zAxis
                 border.width: 2
