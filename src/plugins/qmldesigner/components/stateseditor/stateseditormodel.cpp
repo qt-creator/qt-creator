@@ -6,6 +6,7 @@
 
 #include <bindingproperty.h>
 #include <modelnode.h>
+#include <modelnodeoperations.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <rewriterview.h>
@@ -244,6 +245,11 @@ void StatesEditorModel::resetDefaultState()
 bool StatesEditorModel::hasDefaultState() const
 {
     return m_statesEditorView->hasDefaultState();
+}
+
+void StatesEditorModel::jumpToCode()
+{
+    ModelNodeOperations::jumpToCode(m_statesEditorView->currentState().modelNode());
 }
 
 void StatesEditorModel::setAnnotation(int internalNodeId)

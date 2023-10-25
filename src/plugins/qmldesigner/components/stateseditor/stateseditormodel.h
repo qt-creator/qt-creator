@@ -50,6 +50,7 @@ public:
     Q_INVOKABLE void setStateAsDefault(int internalNodeId);
     Q_INVOKABLE void resetDefaultState();
     Q_INVOKABLE bool hasDefaultState() const;
+    Q_INVOKABLE void jumpToCode();
     Q_INVOKABLE void setAnnotation(int internalNodeId);
     Q_INVOKABLE void removeAnnotation(int internalNodeId);
     Q_INVOKABLE bool hasAnnotation(int internalNodeId) const;
