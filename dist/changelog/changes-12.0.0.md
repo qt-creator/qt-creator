@@ -214,6 +214,7 @@ Projects
   ([PYSIDE-2153](https://bugreports.qt.io/browse/PYSIDE-2153))
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-python-development.html#set-up-pyside6))
 * Added the option to forward the display for remote Linux
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-run-settings.html#specifying-run-settings-for-linux-based-devices))
 * Fixed PySide wheels installation on macOS
 
 ### vcpkg
