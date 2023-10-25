@@ -4,10 +4,11 @@
 #include "texteditorwidget.h"
 #include "utils/uniqueobjectptr.h"
 
+#include <coreplugin/findplaceholder.h>
+#include <qmlstate.h>
+#include <rewriterview.h>
 #include <texteditorstatusbar.h>
 #include <texteditorview.h>
-#include <coreplugin/findplaceholder.h>
-#include <rewriterview.h>
 
 #include <designeractionmanager.h>
 #include <qmldesignerconstants.h>
@@ -129,7 +130,17 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
         selectedNode = m_textEditorView->selectedModelNodes().constFirst();
 
     if (selectedNode.isValid()) {
-        jumpToModelNode(selectedNode);
+        auto currentState = m_textEditorView->currentState();
+        if (currentState.isBaseState()) {
+            jumpToModelNode(selectedNode);
+        } else {
+            if (currentState.affectsModelNode(selectedNode)) {
+                auto propertyChanges = currentState.propertyChanges(selectedNode);
+                jumpToModelNode(propertyChanges.modelNode());
+            } else {
+                jumpToModelNode(currentState.modelNode());
+            }
+        }
     }
     m_updateSelectionTimer.stop();
 }
