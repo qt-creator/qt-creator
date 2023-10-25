@@ -179,7 +179,6 @@ private:
     //! Debugger accessible (expecting commands)
     bool m_accessible = false;
     StopMode m_stopMode = NoStopRequested;
-    ProjectExplorer::DeviceProcessSignalOperation::Ptr m_signalOperation;
     int m_nextCommandToken = 0;
     QHash<int, DebuggerCommand> m_commandForToken;
     QString m_currentBuiltinResponse;

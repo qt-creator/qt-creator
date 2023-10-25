@@ -484,6 +484,7 @@ void CdbEngine::handleInitialSessionIdle()
     runCommand({QString(".sympath \"") + symbolPaths.join(';') + '"'});
     runCommand({".symopt+0x8000"}); // disable searching public symbol table - improving the symbol lookup speed
     runCommand({"sxn 0x4000001f", NoFlags}); // Do not break on WowX86 exceptions.
+    runCommand({"sxn 0x40010005", NoFlags}); // Do not break on Ctrl+C exceptions. QTCREATORBUG-28279
     runCommand({"sxn ibp", NoFlags}); // Do not break on initial breakpoints.
     runCommand({".asm source_line", NoFlags}); // Source line in assembly
     runCommand({m_extensionCommandPrefix
@@ -771,8 +772,6 @@ void CdbEngine::handleDoInterruptInferior(const QString &errorMessage)
         showMessage(errorMessage, LogError);
         notifyInferiorStopFailed();
     }
-    m_signalOperation->disconnect(this);
-    m_signalOperation.clear();
 }
 
 void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
@@ -792,17 +791,6 @@ void CdbEngine::doInterruptInferior(const InterruptCallback &callback)
         return; // we already requested a stop no need to interrupt twice
     showMessage(QString("Interrupting process %1...").arg(inferiorPid()), LogMisc);
 
-    QTC_ASSERT(!m_signalOperation, notifyInferiorStopFailed(); return);
-    if (m_effectiveStartMode != AttachToRemoteServer && device()) {
-        m_signalOperation = device()->signalOperation();
-        if (m_signalOperation) {
-            connect(m_signalOperation.data(), &DeviceProcessSignalOperation::finished,
-                    this, &CdbEngine::handleDoInterruptInferior);
-            m_signalOperation->setDebuggerCommand(runParameters().debugger.command.executable());
-            m_signalOperation->interruptProcess(inferiorPid());
-            return;
-        }
-    }
     m_process.interrupt();
 }
 
