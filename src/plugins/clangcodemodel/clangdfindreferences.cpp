@@ -456,9 +456,10 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
         item.setContainingFunctionName(getContainingFunction(astPath, range).detail());
 
         if (search->supportsReplace()) {
-            const bool fileInSession = ProjectManager::projectForFile(file);
-            item.setSelectForReplacement(fileInSession);
-            if (fileInSession && file.baseName().compare(replacementData->oldSymbolName,
+            const Node * const node = ProjectTree::nodeForFile(file);
+            item.setSelectForReplacement(!ProjectManager::hasProjects()
+                                         || (node && !node->isGenerated()));
+            if (node && file.baseName().compare(replacementData->oldSymbolName,
                                                          Qt::CaseInsensitive) == 0) {
                 replacementData->fileRenameCandidates << file;
             }
