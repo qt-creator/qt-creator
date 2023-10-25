@@ -26,8 +26,19 @@
             \li \uicontrol {\QC} > \uicontrol Preferences
     \endtable
 
+    \section1 Filter preferences
+
     To find a particular preference, use the filter located at the top left of
     the \uicontrol Preferences dialog.
 
     \image qtcreator-preferences.webp {Filtering preferences}
+
+    \section1 Go to tabs in Preferences
+
+    To go to a tab in the \uicontrol Preferences dialog from anywhere in \QC,
+    use the \c t \l{Searching with the Locator}{locator} filter. For example,
+    to open the \uicontrol Interface tab, enter \c {t preferences interface}
+    in the locator.
+
+    \image qtcreator-locator-filter-t.webp {Using the locator to open a tab in Preferences}
 */
