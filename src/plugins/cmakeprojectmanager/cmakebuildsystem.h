@@ -146,6 +146,11 @@ private:
     void setError(const QString &message);
     void setWarning(const QString &message);
 
+    bool addSrcFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
+                     Utils::FilePaths *);
+    bool addTsFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
+                    Utils::FilePaths *);
+
     // Actually ask for parsing:
     enum ReparseParameters {
         REPARSE_DEFAULT = 0, // Nothing special:-)

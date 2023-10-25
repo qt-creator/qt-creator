@@ -1,0 +1,45 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ ],
+    "id": "Q.Translation",
+    "category": "R.Qt",
+    "trDescription": "Creates a translation file that you can add to a Qt project.",
+    "trDisplayName": "Qt Translation File",
+    "trDisplayCategory": "Qt",
+    "iconText": "ts",
+    "enabled": "%{JS: value('Plugins').indexOf('QtSupport') >= 0}",
+
+    "options": [
+        {
+            "key": "TargetPath", "value": "%{InitialPath}"
+        }
+    ],
+
+    "pages" : [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "QtTranslation",
+            "data": {
+                "singleFile": true
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators" : [
+        {
+            "typeId": "File",
+            "data": [
+                {
+                    "source": "../../projects/translation.ts",
+                    "target": "%{TsFileName}",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}

@@ -219,16 +219,17 @@ bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
     return BuildSystem::supportsAction(context, action, node);
 }
 
+static QString relativeFilePaths(const FilePaths &filePaths, const FilePath &projectDir)
+{
+    return Utils::transform(filePaths, [projectDir](const FilePath &path) {
+        return path.canonicalPath().relativePathFrom(projectDir).cleanPath().toString();
+    }).join(' ');
+};
+
 static QString newFilesForFunction(const std::string &cmakeFunction,
                                    const FilePaths &filePaths,
                                    const FilePath &projDir)
 {
-    auto relativeFilePaths = [projDir](const FilePaths &filePaths) {
-        return Utils::transform(filePaths, [projDir](const FilePath &path) {
-            return path.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
-        });
-    };
-
     if (cmakeFunction == "qt_add_qml_module" || cmakeFunction == "qt6_add_qml_module") {
         FilePaths sourceFiles;
         FilePaths resourceFiles;
@@ -255,16 +256,16 @@ static QString newFilesForFunction(const std::string &cmakeFunction,
 
         QStringList result;
         if (!sourceFiles.isEmpty())
-            result << QString("SOURCES %1").arg(relativeFilePaths(sourceFiles).join(" "));
+            result << QString("SOURCES %1").arg(relativeFilePaths(sourceFiles, projDir));
         if (!resourceFiles.isEmpty())
-            result << QString("RESOURCES %1").arg(relativeFilePaths(resourceFiles).join(" "));
+            result << QString("RESOURCES %1").arg(relativeFilePaths(resourceFiles, projDir));
         if (!qmlFiles.isEmpty())
-            result << QString("QML_FILES %1").arg(relativeFilePaths(qmlFiles).join(" "));
+            result << QString("QML_FILES %1").arg(relativeFilePaths(qmlFiles, projDir));
 
         return result.join("\n");
     }
 
-    return relativeFilePaths(filePaths).join(" ");
+    return relativeFilePaths(filePaths, projDir);
 }
 
 static std::optional<Link> cmakeFileForBuildKey(const QString &buildKey,
@@ -392,10 +393,58 @@ static expected_str<bool> insertSnippetSilently(const FilePath &cmakeFile,
     return true;
 }
 
-bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
+bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
     if (notAdded)
-        *notAdded = filePaths;
+        notAdded->append(filePaths);
+
+    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
+        const std::optional<Link> cmakeFile = cmakeFileForBuildKey(n->buildKey(), buildTargets());
+        if (!cmakeFile.has_value())
+            return false;
+
+        const FilePath targetCMakeFile = cmakeFile->targetFilePath;
+        std::optional<cmListFile> cmakeListFile = getUncachedCMakeListFile(targetCMakeFile);
+        if (!cmakeListFile.has_value())
+            return false;
+
+        auto findTs = [](const auto &func) {
+            if (func.LowerCaseName() != "set")
+                return false;
+            std::vector<cmListFileArgument> args = func.Arguments();
+            return args.size() && args.front().Value == "TS_FILES";
+        };
+        std::optional<cmListFileFunction> function = findFunction(*cmakeListFile, findTs);
+        if (!function.has_value())
+            return false;
+
+        const QString filesToAdd = relativeFilePaths(filePaths, n->filePath().canonicalPath());
+        auto lastArgument = function->Arguments().back();
+        const int lastArgLength = static_cast<int>(lastArgument.Value.size()) - 1;
+        SnippetAndLocation snippetLocation{QString("\n%1").arg(filesToAdd),
+                                           lastArgument.Line, lastArgument.Column + lastArgLength};
+        // Take into consideration the quotes
+        if (lastArgument.Delim == cmListFileArgument::Quoted)
+            snippetLocation.column += 2;
+
+        expected_str<bool> inserted = insertSnippetSilently(targetCMakeFile, snippetLocation);
+        if (!inserted) {
+            qCCritical(cmakeBuildSystemLog) << inserted.error();
+            return false;
+        }
+
+        if (notAdded)
+            notAdded->removeIf([filePaths](const FilePath &p) { return filePaths.contains(p); });
+        return true;
+    }
+    return false;
+}
+
+bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
+{
+    if (notAdded)
+        notAdded->append(filePaths);
+
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
         const QString targetName = n->buildKey();
         const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
@@ -443,10 +492,28 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
         }
 
         if (notAdded)
-            notAdded->clear();
+            notAdded->removeIf([filePaths](const FilePath &p) { return filePaths.contains(p); });
         return true;
     }
 
+    return false;
+}
+
+bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
+{
+    FilePaths tsFiles, srcFiles;
+    std::tie(tsFiles, srcFiles) = Utils::partition(filePaths, [](const FilePath &fp) {
+        return Utils::mimeTypeForFile(fp.toString()).name() == Utils::Constants::LINGUIST_MIMETYPE;
+    });
+    bool success = true;
+    if (!srcFiles.isEmpty())
+        success = addSrcFiles(context, srcFiles, notAdded);
+
+    if (!tsFiles.isEmpty())
+        success = addTsFiles(context, tsFiles, notAdded) || success;
+
+    if (success)
+        return true;
     return BuildSystem::addFiles(context, filePaths, notAdded);
 }
 

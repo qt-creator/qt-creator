@@ -6,6 +6,8 @@
 #include "qtsupporttr.h"
 
 #include <projectexplorer/jsonwizard/jsonwizard.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -36,7 +38,7 @@ class TranslationWizardPage : public WizardPage
     Q_OBJECT
 
 public:
-    TranslationWizardPage(const QString &enabledExpr);
+    TranslationWizardPage(const QString &enabledExpr, bool singleFile);
 
 private:
     void initializePage() override;
@@ -49,6 +51,7 @@ private:
     QComboBox m_languageComboBox;
     QLineEdit m_fileNameLineEdit;
     const QString m_enabledExpr;
+    const bool m_isProjectWizard;
 };
 
 TranslationWizardPageFactory::TranslationWizardPageFactory()
@@ -61,17 +64,22 @@ WizardPage *TranslationWizardPageFactory::create(JsonWizard *wizard, Id typeId,
 {
     Q_UNUSED(wizard)
     Q_UNUSED(typeId)
-    return new TranslationWizardPage(data.toMap().value("enabled").toString());
+    return new TranslationWizardPage(data.toMap().value("enabled").toString(),
+                                     data.toMap().value("singleFile").toBool());
 }
 
-TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr)
+TranslationWizardPage::TranslationWizardPage(const QString &enabledExpr, bool singleFile)
     : m_enabledExpr(enabledExpr)
+    , m_isProjectWizard(!singleFile)
 {
     const auto mainLayout = new QVBoxLayout(this);
     const auto descriptionLabel = new QLabel(
-                Tr::tr("If you plan to provide translations for your project's "
-                       "user interface via the Qt Linguist tool, please select a language here. "
-                       "A corresponding translation (.ts) file will be generated for you."));
+                singleFile ? Tr::tr("Please select a language for which a corresponding "
+                                    "translation (.ts) file will be generated for you.")
+                           : Tr::tr("If you plan to provide translations for your project's "
+                                    "user interface via the Qt Linguist tool, please select a "
+                                    "language here. A corresponding translation (.ts) file will be "
+                                    "generated for you."));
     descriptionLabel->setWordWrap(true);
     mainLayout->addWidget(descriptionLabel);
     const auto formLayout = new QFormLayout;
@@ -116,7 +124,9 @@ void TranslationWizardPage::initializePage()
 
 bool TranslationWizardPage::isComplete() const
 {
-    return m_languageComboBox.currentIndex() == 0 || !tsBaseName().isEmpty();
+    if (m_isProjectWizard)
+        return m_languageComboBox.currentIndex() == 0 || !tsBaseName().isEmpty();
+    return m_languageComboBox.currentIndex() > 0 && !tsBaseName().isEmpty();
 }
 
 bool TranslationWizardPage::validatePage()
@@ -131,7 +141,14 @@ void TranslationWizardPage::updateLineEdit()
 {
     m_fileNameLineEdit.setEnabled(m_languageComboBox.currentIndex() != 0);
     if (m_fileNameLineEdit.isEnabled()) {
-        const QString projectName = static_cast<JsonWizard *>(wizard())->stringValue("ProjectName");
+        auto jsonWizard = static_cast<JsonWizard *>(wizard());
+        QString projectName = jsonWizard->stringValue("ProjectName");
+        if (!m_isProjectWizard && projectName.isEmpty()) {
+            if (auto project = ProjectExplorer::ProjectManager::startupProject())
+                projectName = FileUtils::fileSystemFriendlyName(project->displayName());
+            else
+                projectName = FilePath::fromUserInput(jsonWizard->stringValue("InitialPath")).baseName();
+        }
         m_fileNameLineEdit.setText(projectName + '_' + m_languageComboBox.currentData().toString());
     } else {
         m_fileNameLineEdit.clear();
