@@ -94,7 +94,7 @@
     You can enable or disable QML debugging globally in \preferences >
     \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
 
-    \image qtcreator-build-settings-default.png "Default Build Properties tab in Build & Run Preferences"
+    \image qtcreator-build-settings-default.webp "Default Build Properties tab in Build & Run Preferences"
 
     The value of the \uicontrol {QML debugging} field determines what happens
     when creating new build configurations. The values \uicontrol Enable

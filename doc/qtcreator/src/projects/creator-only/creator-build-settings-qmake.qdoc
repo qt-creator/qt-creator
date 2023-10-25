@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -8,15 +8,22 @@
 
     \title qmake Build Configuration
 
-    \image qtcreator-projectpane.png "qmake build settings"
+    Specify build settings for the selected \l{glossary-buildandrun-kit}
+    {build and run kit} in \uicontrol Projects > \uicontrol {Build & Run}
+    > \uicontrol Build > \uicontrol {Build Settings}.
+
+    \image qtcreator-projectpane.webp {qmake build settings}
 
     By default, \QC builds qmake projects in a separate directory from the
     source directory, as \l{glossary-shadow-build} {shadow builds}. This
-    keeps the files generated for each \l{glossary-buildandrun-kit}
-    {build and run kit} separate. If you only build and run with a single
-    \l{glossary-buildandrun-kit}{kit}, you can deselect the
-    \uicontrol {Shadow build} checkbox. Select the build directory in the
-    \uicontrol {Build Directory} field.
+    keeps the files generated for each kit separate. If you only build and
+    run with a single kit, you can deselect the \uicontrol {Shadow build}
+    checkbox.
+
+    Select the build directory in the \uicontrol {Build Directory} field. You
+    can use the \l{Using Qt Creator Variables}{variables} that are listed when
+    you select the \inlineimage icons/replace.png (\uicontrol {Variables})
+    button.
 
     To make in-source builds the default option for all projects, select
     \preferences > \uicontrol {Build & Run} >
@@ -54,7 +61,14 @@
     To set the default build properties, select \preferences >
     \uicontrol {Build & Run} > \uicontrol {Default Build Properties}.
 
-    \image qtcreator-build-settings-default.png "Default Build Properties tab in Build & Run Preferences"
+    \image qtcreator-build-settings-default.webp {Default Build Properties tab in Build & Run Preferences}
+
+    In the \uicontrol {Default build directory} field, you can use the variables
+    that are listed when you select \inlineimage icons/replace.png, as well as
+    variables that are available for a particular kit. Those you can see when
+    you select the button in the \uicontrol Projects > \uicontrol {Build & Run} >
+    \uicontrol Build > \uicontrol {Build Settings} > \uicontrol {Build Directory}
+    field for a kit.
 
     \section1 Compiling QML
 
