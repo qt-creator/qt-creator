@@ -97,7 +97,9 @@ protected:
 private:
     void closeSubWidget(Internal::NavigationSubWidget *subWidget);
     void updateToggleText();
-    Internal::NavigationSubWidget *insertSubItem(int position, int factoryIndex);
+    Internal::NavigationSubWidget *insertSubItem(int position,
+                                                 int factoryIndex,
+                                                 bool updateActivationsMap = true);
     int factoryIndex(Utils::Id id);
     Utils::Key settingsKey(const Utils::Key &key) const;
 

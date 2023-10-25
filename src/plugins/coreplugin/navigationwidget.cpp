@@ -7,7 +7,6 @@
 #include "coreplugintr.h"
 #include "icontext.h"
 #include "icore.h"
-#include "imode.h"
 #include "inavigationwidgetfactory.h"
 #include "modemanager.h"
 #include "navigationsubwidget.h"
@@ -297,7 +296,9 @@ static QIcon closeIconForSide(Side side, int itemCount)
             : Utils::Icons::CLOSE_SPLIT_RIGHT.icon();
 }
 
-Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position, int factoryIndex)
+Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position,
+                                                               int factoryIndex,
+                                                               bool updateActivationsMap)
 {
     for (int pos = position + 1; pos < d->m_subWidgets.size(); ++pos) {
         Internal::NavigationSubWidget *nsw = d->m_subWidgets.at(pos);
@@ -323,7 +324,8 @@ Internal::NavigationSubWidget *NavigationWidget::insertSubItem(int position, int
 
     d->m_subWidgets.insert(position, nsw);
     d->m_subWidgets.at(0)->setCloseIcon(closeIconForSide(d->m_side, d->m_subWidgets.size()));
-    NavigationWidgetPrivate::updateActivationsMap(nsw->factory()->id(), {d->m_side, position});
+    if (updateActivationsMap)
+        NavigationWidgetPrivate::updateActivationsMap(nsw->factory()->id(), {d->m_side, position});
     return nsw;
 }
 
@@ -400,8 +402,11 @@ void NavigationWidget::saveSettings(QtcSettings *settings)
     const auto keys = NavigationWidgetPrivate::s_activationsMap.keys();
     for (const auto &factoryId : keys) {
         const auto &info = NavigationWidgetPrivate::s_activationsMap[factoryId];
+        const Utils::Key key = settingsKey(activationKey + factoryId.name());
         if (info.side == d->m_side)
-            settings->setValue(settingsKey(activationKey + factoryId.name()), info.position);
+            settings->setValue(key, info.position);
+        else
+            settings->remove(key);
     }
 }
 
@@ -434,7 +439,7 @@ void NavigationWidget::restoreSettings(QtcSettings *settings)
         int index = factoryIndex(Id::fromString(id));
         if (index >= 0) {
             // Only add if the id was actually found!
-            insertSubItem(position, index);
+            insertSubItem(position, index, /*updateActivationsMap=*/false);
             ++position;
         } else {
             restoreSplitterState = false;
@@ -443,7 +448,9 @@ void NavigationWidget::restoreSettings(QtcSettings *settings)
 
     if (d->m_subWidgets.isEmpty())
         // Make sure we have at least the projects widget or outline widget
-        insertSubItem(0, qMax(0, factoryIndex(Id::fromString(defaultFirstView(d->m_side)))));
+        insertSubItem(0,
+                      qMax(0, factoryIndex(Id::fromString(defaultFirstView(d->m_side)))),
+                      /*updateActivationsMap=*/false);
 
     setShown(settings->value(settingsKey("Visible"), defaultVisible(d->m_side)).toBool());
 
