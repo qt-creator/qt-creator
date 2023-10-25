@@ -1356,7 +1356,6 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
             // pull the IEditor over to the new view
             sourceView->removeEditor(editor);
             view->addEditor(editor);
-            view->setCurrentEditor(editor);
             // possibly adapts old state to new layout
             editor->restoreState(state);
             if (!sourceView->currentEditor()) {
@@ -1375,7 +1374,6 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
         }
     }
     view->addEditor(editor);
-    view->setCurrentEditor(editor);
     // possibly adapts old state to new layout
     editor->restoreState(state);
     return editor;
