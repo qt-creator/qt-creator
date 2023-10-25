@@ -9,16 +9,18 @@
 #include <connectioneditorevaluator.h>
 #include <exception.h>
 #include <model/modelutils.h>
+#include <modelnodeoperations.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <plaintexteditmodifier.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 #include <rewritertransaction.h>
 #include <rewriterview.h>
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
+#include <viewmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -916,6 +918,17 @@ void ConnectionModelBackendDelegate::update()
     setupCondition();
 
     QTC_ASSERT(model, return );
+}
+
+void ConnectionModelBackendDelegate::jumpToCode()
+{
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+
+    QTC_ASSERT(model, return );
+    QTC_ASSERT(model->connectionView()->isAttached(), return );
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    ModelNodeOperations::jumpToCode(signalHandlerProperty.parentModelNode());
 }
 
 void ConnectionModelBackendDelegate::handleException()

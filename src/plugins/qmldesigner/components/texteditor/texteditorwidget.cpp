@@ -98,6 +98,20 @@ void TextEditorWidget::updateSelectionByCursorPosition()
     m_blockRoundTrip = false;
 }
 
+void TextEditorWidget::jumpToModelNode(const ModelNode &modelNode)
+{
+    RewriterView *rewriterView = m_textEditorView->model()->rewriterView();
+
+    m_blockCursorSelectionSynchronisation = true;
+    const int nodeOffset = rewriterView->nodeOffset(modelNode);
+    if (nodeOffset > 0) {
+        int line, column;
+        m_textEditor->editorWidget()->convertPosition(nodeOffset, &line, &column);
+        m_textEditor->editorWidget()->gotoLine(line + 1, column);
+    }
+    m_blockCursorSelectionSynchronisation = false;
+}
+
 void TextEditorWidget::jumpTextCursorToSelectedModelNode()
 {
     if (m_blockRoundTrip)
@@ -115,15 +129,7 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
         selectedNode = m_textEditorView->selectedModelNodes().constFirst();
 
     if (selectedNode.isValid()) {
-        RewriterView *rewriterView = m_textEditorView->model()->rewriterView();
-
-        const int nodeOffset = rewriterView->nodeOffset(selectedNode);
-        if (nodeOffset > 0) {
-            int line, column;
-            m_textEditor->editorWidget()->convertPosition(nodeOffset, &line, &column);
-            // line has to be 1 based, column 0 based!
-            m_textEditor->editorWidget()->gotoLine(line, column - 1);
-        }
+        jumpToModelNode(selectedNode);
     }
     m_updateSelectionTimer.stop();
 }

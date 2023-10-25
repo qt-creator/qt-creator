@@ -56,6 +56,7 @@ private:
 namespace ModelNodeOperations {
 
 bool goIntoComponent(const ModelNode &modelNode);
+void jumpToCode(const ModelNode &modelNode);
 
 void select(const SelectionContext &selectionState);
 void deSelect(const SelectionContext &selectionState);
@@ -75,6 +76,7 @@ void setFillHeight(const SelectionContext &selectionState);
 void resetSize(const SelectionContext &selectionState);
 void resetPosition(const SelectionContext &selectionState);
 void goIntoComponentOperation(const SelectionContext &selectionState);
+void jumpToCodeOperation(const SelectionContext &selectionState);
 void setId(const SelectionContext &selectionState);
 void resetZ(const SelectionContext &selectionState);
 void reverse(const SelectionContext &selectionState);

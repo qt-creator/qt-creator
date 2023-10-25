@@ -1722,9 +1722,19 @@ bool validateEffect(const QString &effectPath)
 
 Utils::FilePath getImagesDefaultDirectory()
 {
-    return Utils::FilePath::fromString(
-                getAssetDefaultDirectory(
-        "images", QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString()));
+    return Utils::FilePath::fromString(getAssetDefaultDirectory(
+        "images",
+        QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString()));
+}
+
+void jumpToCode(const ModelNode &modelNode)
+{
+    QmlDesignerPlugin::instance()->viewManager().jumpToCodeInTextEditor(modelNode);
+}
+
+void jumpToCodeOperation(const SelectionContext &selectionState)
+{
+    jumpToCode(selectionState.currentSingleSelectedNode());
 }
 
 } // namespace ModelNodeOperations

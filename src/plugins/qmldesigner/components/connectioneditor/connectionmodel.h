@@ -293,6 +293,8 @@ public:
     void setCurrentRow(int i);
     void update();
 
+    Q_INVOKABLE void jumpToCode();
+
 signals:
     void currentRowChanged();
     void actionTypeChanged();

@@ -31,6 +31,8 @@
 
 #include <utils/algorithm.h>
 
+#include <advanceddockingsystem/dockwidget.h>
+
 #include <QElapsedTimer>
 #include <QLoggingCategory>
 #include <QTabWidget>
@@ -514,6 +516,15 @@ void ViewManager::enableStandardViews()
 {
     d->disableStandardViews = false;
     attachViewsExceptRewriterAndComponetView();
+}
+
+void ViewManager::jumpToCodeInTextEditor(const ModelNode &modelNode)
+{
+    ADS::DockWidget *dockWidget = qobject_cast<ADS::DockWidget *>(
+        d->textEditorView.widgetInfo().widget->parentWidget());
+    if (dockWidget)
+        dockWidget->toggleView(true);
+    d->textEditorView.jumpToModelNode(modelNode);
 }
 
 void ViewManager::addView(std::unique_ptr<AbstractView> &&view)

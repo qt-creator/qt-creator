@@ -1876,15 +1876,23 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::ViewOprionsSection));
     addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::CustomActionsSection));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          goIntoComponentCommandId,
-                          enterComponentDisplayName,
-                          contextIcon(DesignerIcons::EnterComponentIcon),
-                          rootCategory,
-                          QKeySequence(Qt::Key_F2),
-                          Priorities::ComponentActions + 2,
-                          &goIntoComponentOperation,
-                          &selectionIsComponent));
+    addDesignerAction(new ModelNodeContextMenuAction(goIntoComponentCommandId,
+                                                     enterComponentDisplayName,
+                                                     contextIcon(DesignerIcons::EnterComponentIcon),
+                                                     rootCategory,
+                                                     QKeySequence(Qt::Key_F2),
+                                                     Priorities::ComponentActions + 2,
+                                                     &goIntoComponentOperation,
+                                                     &selectionIsComponent));
+
+    addDesignerAction(new ModelNodeContextMenuAction(jumpToCodeCommandId,
+                                                     JumpToCodeDisplayName,
+                                                     contextIcon(DesignerIcons::JumpToCodeIcon),
+                                                     rootCategory,
+                                                     QKeySequence(Qt::Key_F4),
+                                                     Priorities::JumpToCode,
+                                                     &jumpToCodeOperation,
+                                                     &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           editAnnotationsCommandId,

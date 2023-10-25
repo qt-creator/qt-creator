@@ -64,6 +64,7 @@ const char layoutGridLayoutCommandId[] = "LayoutGridLayout";
 const char layoutFillWidthCommandId[] = "LayoutFillWidth";
 const char layoutFillHeightCommandId[] = "LayoutFillHeight";
 const char goIntoComponentCommandId[] = "GoIntoComponent";
+const char jumpToCodeCommandId[] = "JumpToCode";
 const char mergeTemplateCommandId[] = "MergeTemplate";
 const char goToImplementationCommandId[] = "GoToImplementation";
 const char makeComponentCommandId[] = "MakeComponent";
@@ -120,6 +121,7 @@ const char copyFormatDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
 const char applyFormatDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Apply Formatting");
 
 const char enterComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Component");
+const char JumpToCodeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Jump To Code");
 const char mergeTemplateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Merge with Template");
 const char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
 const char makeComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Create Component");
@@ -220,6 +222,7 @@ enum PrioritiesEnum : int {
     EventListCategory,
     /******** Section *****************************/
     AdditionsSection = 4000,
+    JumpToCode,
     EditAnnotations,
     AddMouseArea,
     MergeWithTemplate,

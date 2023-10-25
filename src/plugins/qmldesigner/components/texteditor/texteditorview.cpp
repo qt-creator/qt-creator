@@ -34,11 +34,12 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
 
+#include <qwindow.h>
 #include <QDebug>
 #include <QPair>
+#include <QPointer>
 #include <QString>
 #include <QTimer>
-#include <QPointer>
 
 namespace QmlDesigner {
 
@@ -290,6 +291,14 @@ void TextEditorView::reformatFile()
 
         m_widget->textEditor()->setTextCursor(tc);
     }
+}
+
+void TextEditorView::jumpToModelNode(const ModelNode &modelNode)
+{
+    m_widget->jumpToModelNode(modelNode);
+
+    m_widget->window()->windowHandle()->requestActivate();
+    m_widget->textEditor()->widget()->setFocus();
 }
 
 void TextEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)

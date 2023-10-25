@@ -67,6 +67,7 @@ public:
         EditIcon,
         EditLightIcon,
         EnterComponentIcon,
+        JumpToCodeIcon,
         EventListIcon,
         FitSelectedIcon,
         FitToViewIcon,

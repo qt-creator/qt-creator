@@ -216,11 +216,20 @@ Column {
                  && backend.hasCondition && backend.hasElse
     }
 
-    HelperWidgets.AbstractButton {
-        id: editorButton
-        buttonIcon: StudioTheme.Constants.codeEditor_medium
-        tooltip: qsTr("Write the conditions for the components and the signals manually.")
-        onClicked: expressionDialogLoader.show()
+    Row {
+
+        HelperWidgets.AbstractButton {
+            id: editorButton
+            buttonIcon: StudioTheme.Constants.codeEditor_medium
+            tooltip: qsTr("Write the conditions for the components and the signals manually.")
+            onClicked: expressionDialogLoader.show()
+        }
+        HelperWidgets.AbstractButton {
+            id: jumpToCodeButton
+            buttonIcon: StudioTheme.Constants.jumpToCode_medium
+            tooltip: qsTr("Jump to Code Editor.")
+            onClicked: backend.jumpToCode()
+        }
     }
 
     // Editor

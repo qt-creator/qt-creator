@@ -89,6 +89,7 @@ public:
 
     void disableStandardViews();
     void enableStandardViews();
+    void jumpToCodeInTextEditor(const ModelNode &modelNode);
     QList<AbstractView *> views() const;
 
 private: // functions

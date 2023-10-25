@@ -5,6 +5,8 @@
 #include <texteditor/texteditor.h>
 #include <utils/uniqueobjectptr.h>
 
+#include <modelnode.h>
+
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -43,6 +45,7 @@ public:
     int currentLine() const;
 
     void setBlockCursorSelectionSynchronisation(bool b);
+    void jumpToModelNode(const ModelNode &modelNode);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;
