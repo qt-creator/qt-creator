@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+﻿// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "uniform.h"
@@ -270,8 +270,10 @@ QString Uniform::stringFromType(Uniform::Type type)
         return "vec2";
     else if (type == Type::Vec3)
         return "vec3";
-    else if (type == Type::Vec4 || type == Type::Color)
+    else if (type == Type::Vec4)
         return "vec4";
+    else if (type == Type::Color)
+        return "color";
     else if (type == Type::Sampler)
         return "sampler2D";
     else if (type == Type::Define)

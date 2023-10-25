@@ -774,7 +774,7 @@ void EffectMakerModel::updateCustomUniforms()
     for (Uniform *uniform : uniforms) {
         // TODO: Check if uniform is already added.
         const bool isDefine = uniform->type() == Uniform::Type::Define;
-        QString type = Uniform::typeToProperty(uniform->type());
+        QString propertyType = Uniform::typeToProperty(uniform->type());
         QString value = valueAsString(*uniform);
         QString bindedValue = valueAsBinding(*uniform);
         // When user has set custom uniform value, use it as-is
@@ -799,7 +799,7 @@ void EffectMakerModel::updateCustomUniforms()
         QString boundValueString = bindedValue.isEmpty() ? QString() : QString(": %1").arg(bindedValue);
         // Custom values are not readonly, others inside the effect can be
         QString readOnly = uniform->useCustomValue() ? QString() : QStringLiteral("readonly ");
-        previewEffectPropertiesString += "    " + readOnly + "property " + type + " "
+        previewEffectPropertiesString += "    " + readOnly + "property " + propertyType + " "
                                          + propertyName + boundValueString + '\n';
         // Define type properties are not added into exports
         if (!isDefine) {
@@ -811,11 +811,11 @@ void EffectMakerModel::updateCustomUniforms()
                         exportedEffectPropertiesString += QStringLiteral("        // ") + line + '\n';
                 }
                 exportedEffectPropertiesString += QStringLiteral("        ") + readOnly
-                                                  + "property " + type + " " + propertyName
+                                                  + "property " + propertyType + " " + propertyName
                                                   + boundValueString + '\n';
             } else {
                 // Custom values are not added into root
-                exportedRootPropertiesString += "    property " + type + " " + propertyName
+                exportedRootPropertiesString += "    property " + propertyType + " " + propertyName
                                                 + valueString + '\n';
                 exportedEffectPropertiesString += QStringLiteral("        ")
                                                   + readOnly + "property alias " + propertyName
