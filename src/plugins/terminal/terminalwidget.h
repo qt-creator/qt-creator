@@ -50,7 +50,7 @@ public:
 
 signals:
     void started(qint64 pid);
-    void finised(int exitCode);
+    void finished(int exitCode);
     void cwdChanged(const Utils::FilePath &cwd);
     void commandChanged(const Utils::CommandLine &cmd);
     void titleChanged();

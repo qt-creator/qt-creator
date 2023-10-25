@@ -188,7 +188,7 @@ void TerminalWidget::setupPty()
         } else if (!errorMessage.isEmpty()) {
             Core::MessageManager::writeFlashing(errorMessage);
         }
-        emit finised(exitCode);
+        emit finished(exitCode);
     });
 
     connect(m_process.get(), &Process::started, this, [this] {
