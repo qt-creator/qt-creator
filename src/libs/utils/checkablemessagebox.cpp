@@ -53,15 +53,18 @@ static QMessageBox::StandardButton exec(
     msgBox.setTextFormat(Qt::RichText);
     msgBox.setTextInteractionFlags(Qt::LinksAccessibleByKeyboard | Qt::LinksAccessibleByMouse);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     if (HostOsInfo::isMacHost()) {
         // Message boxes on macOS cannot display links.
         // If the message contains a link, we need to disable native dialogs.
-        if (text.contains("<a ")) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+        if (text.contains("<a "))
             msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
-#endif
-        }
+
+        // Workaround for QTBUG-118241
+        if (!buttonTextOverrides.isEmpty())
+            msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
     }
+#endif
 
     if (decider.shouldAskAgain) {
         if (!decider.shouldAskAgain())
