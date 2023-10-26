@@ -179,7 +179,6 @@ clang::format::FormatStyle calculateQtcStyle()
 #endif
     style.SpacesInSquareBrackets = false;
     addQtcStatementMacros(style);
-    style.Standard = FormatStyle::LS_Cpp11;
     style.TabWidth = 4;
     style.UseTab = FormatStyle::UT_Never;
     style.Standard = FormatStyle::LS_Auto;
