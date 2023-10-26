@@ -768,6 +768,18 @@ Item {
                 border.color: "#aaaaaa"
             }
 
+            Rectangle {
+                // Active split highlight
+                visible: splitView
+                x: viewRects[activeSplit].x
+                y: viewRects[activeSplit].y
+                height: viewRects[activeSplit].height + (activeSplit === 0 || activeSplit === 1 ? 1 : 0)
+                width: viewRects[activeSplit].width + (activeSplit === 0 || activeSplit === 2 ? 1 : 0)
+                border.width: 1
+                border.color: "#fff600"
+                color: "transparent"
+            }
+
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.LeftButton | Qt.RightButton
