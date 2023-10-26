@@ -2260,7 +2260,10 @@ void tst_Dumpers::dumper_data()
 
 
     QTest::newRow("QDateTime")
-            << Data("#include <QDateTime>",
+            << Data("#include <QDateTime>\n"
+                    "#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)\n"
+                    "#include <QTimeZone>\n"
+                    "#endif",
 
                     "QDate d0;\n"
                     "QDate d1;\n"
@@ -2270,9 +2273,12 @@ void tst_Dumpers::dumper_data()
                     "QTime t1(13, 15, 32);\n"
 
                     "QDateTime dt0;\n"
-                    "QDateTime dt1(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);",
+                    "QDateTime dt1(QDate(1980, 1, 1), QTime(13, 15, 32), Qt::UTC);\n"
+                    "#if QT_VERSION >= QT_VERSION_CHECK(5, 2, 0)\n"
+                    "QDateTime dt2(QDate(1980, 1, 1), QTime(13, 15, 32), QTimeZone(60 * 60));\n"
+                    "#endif\n",
 
-                    "&d0, &d1, &t0, &t1, &dt0, &dt1")
+                    "&d0, &d1, &t0, &t1, &dt0, &dt1, &dt2")
 
                + CoreProfile()
 
@@ -2297,6 +2303,7 @@ void tst_Dumpers::dumper_data()
                + Check("dt0", "(invalid)", "@QDateTime")
                + Check("dt1", Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime")
                + Check("dt1", Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
+               + Check("dt1", Value6("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime")
                + Check("dt1.(ISO)",
                     "\"1980-01-01T13:15:32Z\"", "@QString") % NeedsInferiorCall
                + Check("dt1.(Locale)", AnyValue, "@QString") % NeedsInferiorCall
@@ -2306,11 +2313,13 @@ void tst_Dumpers::dumper_data()
                + Check("dt1.toString",
                     Value4("\"Tue Jan 1 13:15:32 1980\""), "@QString") % NeedsInferiorCall
                + Check("dt1.toString",
-                    Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString") % NeedsInferiorCall;
+                    Value5("\"Tue Jan 1 13:15:32 1980 GMT\""), "@QString") % NeedsInferiorCall
                //+ Check("dt1.toUTC",
                //     Value4("Tue Jan 1 13:15:32 1980"), "@QDateTime") % Optional()
                //+ Check("dt1.toUTC",
                //     Value5("Tue Jan 1 13:15:32 1980 GMT"), "@QDateTime") % Optional();
+               + Check("dt2", Value5("Tue Jan 1 13:15:32 1980 UTC+01:00"), "@QDateTime")
+               + Check("dt2", Value6("Tue Jan 1 13:15:32 1980 UTC+01:00"), "@QDateTime");
 
 
     QTest::newRow("QFileInfo")
