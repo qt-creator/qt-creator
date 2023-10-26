@@ -579,7 +579,7 @@ Rectangle {
                 anchors.topMargin: root.topMargin
                 anchors.leftMargin: root.leftMargin
 
-                ScrollBar.horizontal: StudioControls.TransientScrollBar {
+                Basic.ScrollBar.horizontal: StudioControls.TransientScrollBar {
                     id: horizontalBar
                     style: StudioTheme.Values.viewStyle
                     parent: scrollView
@@ -594,7 +594,7 @@ Rectangle {
                     otherInUse: verticalBar.inUse
                 }
 
-                ScrollBar.vertical: StudioControls.TransientScrollBar {
+                Basic.ScrollBar.vertical: StudioControls.TransientScrollBar {
                     id: verticalBar
                     style: StudioTheme.Values.viewStyle
                     parent: scrollView
