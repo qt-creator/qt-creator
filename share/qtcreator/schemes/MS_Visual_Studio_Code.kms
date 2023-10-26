@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE KeyboardMappingScheme>
+<mapping>
+ <shortcut id="TextEditor.CopyLineUp">
+  <key value="Alt+Shift+Up"/>
+ </shortcut>
+ <shortcut id="TextEditor.CopyLineDown">
+  <key value="Alt+Shift+Down"/>
+ </shortcut>
+ <shortcut id="TextEditor.CutLine">
+  <key value="Ctrl+X"/>
+ </shortcut>
+ <shortcut id="QtCreator.GotoPreviousInHistory">
+  <key value="AlwaysCtrl+Tab"/>
+ </shortcut>
+ <shortcut id="QtCreator.GotoNextInHistory">
+  <key value="AlwaysCtrl+Shift+Tab"/>
+ </shortcut>
+ <shortcut id="TextEditor.MoveLineUp">
+  <key value="Alt+Up"/>
+ </shortcut>
+ <shortcut id="TextEditor.MoveLineDown">
+  <key value="Alt+Down"/>
+ </shortcut>
+ <shortcut id="QtCreator.Options">
+  <key value="Ctrl+,"/>
+ </shortcut>
+</mapping>
