@@ -63,7 +63,7 @@ Uniform::Type Uniform::type() const
 // String representation of the type for qml
 QString Uniform::typeName() const
 {
-    return Uniform::stringFromType(m_type);
+    return Uniform::stringFromType(m_type, false);
 }
 
 QVariant Uniform::value() const
@@ -258,7 +258,7 @@ QVariant Uniform::valueStringToVariant(const QString &value)
     return variant;
 }
 
-QString Uniform::stringFromType(Uniform::Type type)
+QString Uniform::stringFromType(Uniform::Type type, bool isShader)
 {
     if (type == Type::Bool)
         return "bool";
@@ -273,7 +273,7 @@ QString Uniform::stringFromType(Uniform::Type type)
     else if (type == Type::Vec4)
         return "vec4";
     else if (type == Type::Color)
-        return "color";
+        return isShader ? QString("vec4") : QString("color");
     else if (type == Type::Sampler)
         return "sampler2D";
     else if (type == Type::Define)

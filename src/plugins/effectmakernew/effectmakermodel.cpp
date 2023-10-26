@@ -230,7 +230,7 @@ const QString EffectMakerModel::getBufUniform()
     for (const auto uniform : uniforms) {
         // TODO: Check if uniform is already added.
         if (uniform->type() != Uniform::Type::Sampler && uniform->type() != Uniform::Type::Define) {
-            QString type = Uniform::stringFromType(uniform->type());
+            QString type = Uniform::stringFromType(uniform->type(), true);
             QString props = "    " + type + " " + uniform->name() + ";\n";
             s += props;
         }
@@ -480,7 +480,7 @@ const QString EffectMakerModel::getConstVariables()
     for (Uniform *uniform : uniforms) {
         // TODO: Check if uniform is already added.
         QString constValue = valueAsVariable(*uniform);
-        QString type = Uniform::stringFromType(uniform->type());
+        QString type = Uniform::stringFromType(uniform->type(), true);
         s += QString("const %1 %2 = %3;\n").arg(type, uniform->name(), constValue);
     }
     if (!s.isEmpty())
