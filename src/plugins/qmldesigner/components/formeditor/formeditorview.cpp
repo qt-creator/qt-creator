@@ -233,6 +233,10 @@ void FormEditorView::nodeCreated(const ModelNode &node)
 
 void FormEditorView::cleanupToolsAndScene()
 {
+    QTC_ASSERT(m_scene, return );
+    QTC_ASSERT(m_formEditorWidget, return );
+    QTC_ASSERT(m_currentTool, return );
+
     m_currentTool->setItems(QList<FormEditorItem *>());
     m_selectionTool->clear();
     m_rotationTool->clear();
