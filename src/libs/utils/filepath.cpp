@@ -628,11 +628,6 @@ expected_str<qint64> FilePath::writeFileContents(const QByteArray &data, qint64 
     return fileAccess()->writeFileContents(*this, data, offset);
 }
 
-FilePathInfo FilePath::filePathInfo() const
-{
-    return fileAccess()->filePathInfo(*this);
-}
-
 FileStreamHandle FilePath::asyncCopy(const FilePath &target, QObject *context,
                                      const CopyContinuation &cont) const
 {
@@ -1186,6 +1181,14 @@ bool FilePath::hasFileAccess() const
 {
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     return access.has_value();
+}
+
+FilePathInfo FilePath::filePathInfo() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return {};
+    return (*access)->filePathInfo(*this);
 }
 
 /*!
