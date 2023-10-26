@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "tasking_global.h"
-
 #include "tasktree.h"
 
 #include <QtConcurrent>
