@@ -14,6 +14,8 @@
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projecttree.h>
 
 #include <utils/algorithm.h>
 #include <utils/mimeutils.h>
@@ -308,10 +310,10 @@ Utils::SearchResultItems generateSearchResultItems(
         item.setFilePath(filePath);
         item.setUseTextEditorFont(true);
         if (renaming && limitToProjects) {
-            const bool fileBelongsToProject = ProjectExplorer::ProjectManager::projectForFile(
-                filePath);
-            item.setSelectForReplacement(fileBelongsToProject);
-            if (fileBelongsToProject
+            const ProjectExplorer::Node * const node
+                = ProjectExplorer::ProjectTree::nodeForFile(filePath);
+            item.setSelectForReplacement(node && !node->isGenerated());
+            if (node
                 && filePath.baseName().compare(oldSymbolName, Qt::CaseInsensitive) == 0) {
                 fileRenameCandidates << filePath;
             }

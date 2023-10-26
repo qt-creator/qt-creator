@@ -7,6 +7,8 @@
 #include "qmlprojectmanager_global.h"
 #include <projectexplorer/project.h>
 
+#include <QPointer>
+
 namespace QmlProjectManager {
 
 class QmlProject;

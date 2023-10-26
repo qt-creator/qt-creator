@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QFileOpenEvent>
 #include <QLockFile>
+#include <QPointer>
 #include <QSharedMemory>
 #include <QWidget>
 

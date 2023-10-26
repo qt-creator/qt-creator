@@ -8,6 +8,7 @@
 #include <utils/stringutils.h>
 
 #include <QAction>
+#include <QPointer>
 
 using namespace Utils;
 

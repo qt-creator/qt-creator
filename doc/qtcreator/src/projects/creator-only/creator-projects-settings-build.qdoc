@@ -35,7 +35,8 @@
 
     \section1 Managing Build Configurations
 
-    Specify build settings in \uicontrol Projects > \uicontrol {Build & Run}
+    Specify build settings for the selected \l{glossary-buildandrun-kit}
+    {build and run kit} in \uicontrol Projects > \uicontrol {Build & Run}
     > \uicontrol Build > \uicontrol {Build Settings}.
 
     \image qtcreator-build-configurations.png "Build Settings"

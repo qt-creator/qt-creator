@@ -268,13 +268,14 @@ QIcon Icon::fromTheme(const QString &name)
         cache.insert(name, !icon.isNull() ? icon : Icons::ZOOMOUT_TOOLBAR.icon());
     } else if (name == "zoom-original") {
         cache.insert(name, !icon.isNull() ? icon : Icons::EYE_OPEN_TOOLBAR.icon());
+    } else if (name == "edit-clear") {
+        cache.insert(name, !icon.isNull() ? icon : Icons::EDIT_CLEAR.icon());
     } else if (name == "edit-clear-locationbar-rtl") {
-        // KDE has custom icons for this. Notice that icon namings are counter intuitive.
-        // If these icons are not available we use the freedesktop standard name before
-        // falling back to a bundled resource.
-        cache.insert(name, !icon.isNull() ? icon : Icons::EDIT_CLEAR.icon());
+        // KDE has custom icons for this. If these icons are not available we use the freedesktop
+        // standard name "edit-clear" before falling back to a bundled resource.
+        cache.insert(name, !icon.isNull() ? icon : fromTheme("edit-clear"));
     } else if (name == "edit-clear-locationbar-ltr") {
-        cache.insert(name, !icon.isNull() ? icon : Icons::EDIT_CLEAR.icon());
+        cache.insert(name, !icon.isNull() ? icon : fromTheme("edit-clear"));
     } else {
         cache.insert(name, icon);
     }

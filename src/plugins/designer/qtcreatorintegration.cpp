@@ -132,7 +132,8 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, Q
     connect(this, &QtCreatorIntegration::propertyChanged,
             this, [this](QDesignerFormWindowInterface *formWindow, const QString &name,
                          const QVariant &) {
-        if (name == "objectName") {
+        qCDebug(log) << "got propertyChanged() signal" << name;
+        if (name.endsWith("Name")) {
             if (const auto extraCompiler = d->extraCompilers.find(formWindow);
                     extraCompiler != d->extraCompilers.end()) {
                 (*extraCompiler)->unblock();

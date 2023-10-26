@@ -428,12 +428,14 @@ void FancyLineEdit::setFiltering(bool on)
     d->m_isFiltering = on;
     if (on) {
         d->m_lastFilterText = text();
-        // KDE has custom icons for this. Notice that icon namings are counter intuitive.
-        // If these icons are not available we use the freedesktop standard name before
-        // falling back to a bundled resource.
-        static const QIcon rtl = Icon::fromTheme("edit-clear-locationbar-rtl");
-        static const QIcon ltr = Icon::fromTheme("edit-clear-locationbar-ltr");
-        setButtonIcon(Right, layoutDirection() == Qt::LeftToRight ? ltr : rtl);
+        // KDE has custom icons for this. The "ltr" and "rtl" suffixes describe the direction
+        // into which the arrows are pointing. They do not describe which writing direction they
+        // are intended to be used for.
+        const QLatin1String pointingWest("edit-clear-locationbar-rtl");
+        const QLatin1String pointingEast("edit-clear-locationbar-ltr");
+        const QIcon icon = Icon::fromTheme(layoutDirection() == Qt::LeftToRight ? pointingWest
+                                                                                : pointingEast);
+        setButtonIcon(Right, icon);
         setButtonVisible(Right, true);
         setPlaceholderText(Tr::tr("Filter"));
         setButtonToolTip(Right, Tr::tr("Clear text"));

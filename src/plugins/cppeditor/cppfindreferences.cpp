@@ -577,8 +577,9 @@ static void displayResults(SearchResult *search,
         item.setStyle(colorStyleForUsageType(result.tags));
         item.setUseTextEditorFont(true);
         if (search->supportsReplace()) {
+            const Node * const node = ProjectTree::nodeForFile(result.path);
             item.setSelectForReplacement(!ProjectManager::hasProjects()
-                                         || ProjectManager::projectForFile(result.path));
+                                         || (node && !node->isGenerated()));
         }
         search->addResult(item);
 
