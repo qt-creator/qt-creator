@@ -17,10 +17,7 @@
     \l{https://nim-lang.org/}{Nim} and uses the Nim compiler to generate
     executables that are supported on Windows, Linux, and \macos.
 
-    To use \QC for Nim development, you need to enable the experimental
-    Nim plugin. Select \uicontrol Help > \uicontrol {About Plugins} >
-    \uicontrol {Other Languages} > \uicontrol Nim. Then select
-    \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \note Enable the Nim plugin to use Nimble and Nim.
 
     In addition, you have to download and install Nim and set up a Nim kit
     in \QC.
@@ -62,4 +59,6 @@
             \image qtcreator-project-nimble.png
         \li Select \uicontrol Next to create the project.
     \endlist
+
+    \sa {Enable and disable plugins}
 */

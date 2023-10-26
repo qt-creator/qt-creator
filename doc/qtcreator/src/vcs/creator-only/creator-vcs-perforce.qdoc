@@ -20,15 +20,7 @@
     Perforce is a fast software configuration management system developed by
     Perforce Software.
 
-    \section1 Enabling the Perforce Plugin
-
-    To enable the Perforce plugin:
-
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-        \uicontrol {Version Control} > \uicontrol Perforce.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
+    \note Enable the Perforce plugin to use it.
 
     \section1 Configuring Perforce
 
@@ -69,6 +61,6 @@
     To view information about change lists and the files in them, select
     \uicontrol Tools > \uicontrol Perforce > \uicontrol Describe.
 
-    \sa {Set up version control systems}, {Use common VCS functions},
-    {Version Control Systems}
+    \sa {Enable and disable plugins}, {Set up version control systems},
+    {Use common VCS functions}, {Version Control Systems}
 */

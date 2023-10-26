@@ -9,6 +9,18 @@
 
     \title Enable and disable plugins
 
+    \QC uses standard names and locations on Linux, \macos, and Windows for
+    standard features, such as \e about dialogs.
+
+    \table
+        \header
+            \li Linux and Windows
+            \li \macos
+        \row
+            \li \uicontrol Help > \uicontrol {About Plugins}
+            \li \uicontrol {\QC} > \uicontrol {About Plugins}
+    \endtable
+
     New \QC plugins are often introduced as \e {experimental plugins} to let you
     try them out before they are fully supported. Experimental plugins are
     disabled by default and you must enable them for them to become visible
@@ -24,7 +36,7 @@
     To enable and disable plugins:
 
     \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins}.
+        \li Go to \uicontrol {About Plugins}.
         \li Start typing in the \uicontrol Filter field to find a plugin.
             \image qtcreator-installed-plugins.webp {Installed Plugins dialog}
         \li Select the \uicontrol Load check box to enable a plugin, or deselect
@@ -34,5 +46,5 @@
             take effect.
     \endlist
 
-    \sa {Install plugins}{How To: Install plugins}
+    \sa {Install plugins}
 */

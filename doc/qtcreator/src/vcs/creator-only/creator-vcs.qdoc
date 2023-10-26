@@ -35,21 +35,15 @@
         \row
             \li \l{ClearCase}
             \li \l{http://www-01.ibm.com/software/awdtools/clearcase/}
-            \li Disabled by default. To enable the plugin, select
-                \uicontrol Help > \uicontrol {About Plugins} >
-                \uicontrol {Version Control} > \uicontrol ClearCase.
-                Then select \uicontrol {Restart Now} to restart \QC
-                and load the plugin.
+            \li Enable the plugin to use it.
         \row
             \li \l{CVS}
             \li \l{http://www.nongnu.org/cvs/}
-            \li
+            \li Enable the plugin to use it.
         \row
             \li \l{Fossil}
             \li \l{https://fossil-scm.org/index.html/doc/trunk/www/index.wiki}
-            \li Disabled by default. To enable the plugin, select
-                \uicontrol Help > \uicontrol {About Plugins} >
-                \uicontrol {Version Control} > \uicontrol Fossil.
+            \li Enable the plugin to use it.
              \row
             \li \l{Git}
             \li \l{http://git-scm.com/}
@@ -59,7 +53,7 @@
         \row
             \li \l{GitLab}
             \li \l{http://gitlab.com/}
-            \li Experimental
+            \li Enable the plugin to use it.
         \row
             \li \l{Mercurial}
             \li \l{http://mercurial.selenic.com/}
@@ -69,16 +63,14 @@
             \li \l{http://www.perforce.com}
             \li Server version 2006.1 and later
 
-                Disabled by default. To enable the plugin, select
-                \uicontrol Help > \uicontrol {About Plugins} >
-                \uicontrol {Version Control} > \uicontrol Perforce.
+                Enable the plugin to use it.
         \row
             \li \l{Subversion}
             \li \l{http://subversion.apache.org/}
             \li Subversion version 1.7.0 and later
     \endtable
 
-    \sa {Create VCS repositories for new projects},
+    \sa {Create VCS repositories for new projects}, {Enable and disable plugins},
     {Set up version control systems}, {Use common VCS functions}
 */
 

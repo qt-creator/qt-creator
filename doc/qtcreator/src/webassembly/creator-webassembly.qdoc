@@ -21,6 +21,8 @@
     You can change the web browser in the project's \l{Specifying Run Settings}
     {run settings}.
 
+    \note Enable the WebAssembly plugin to use it.
+
     To build applications for the web and run them in a web browser, you need to
     install Qt for WebAssembly and the tool chain for compiling to WebAssembly.
 
@@ -55,16 +57,6 @@
             \l {https://doc.qt.io/qt-5/wasm.html#install-emscripten}
             {Install Emscripten}.
         \endlist
-
-    \section2 Enabling the WebAssembly Plugin
-
-    To enable the plugin:
-
-    \list 1
-        \li In \QC, select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Device Support} > \uicontrol {WebAssembly}.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
 
     \section2 Specifying WebAssembly Settings
 
@@ -119,4 +111,6 @@
     You can now build Qt applications in WebAssembly format and run them in
     a web browser as described in \l {Building for Multiple Platforms} and
     \l{Running on Multiple Platforms}.
+
+    \sa {Enable and disable plugins}
 */

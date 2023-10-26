@@ -23,8 +23,7 @@
     \c PATH. You can add paths to other Meson or Ninja executables and use them
     in different build and run \l{glossary-buildandrun-kit}{kits}.
 
-    \note Meson build plugin is disabled by default, see
-    \l{Enable and disable plugins}{How To: Enable and disable plugins}.
+    \note Enable the Meson plugin to use it.
 
     \section1 Adding Meson Tools
 
@@ -86,5 +85,6 @@
         \li Adding files to Meson projects from \QC.
     \endlist
 
-    \sa {Open projects}, {Meson Build Configuration}, {Specifying Run Settings}
+    \sa {Enable and disable plugins}, {Open projects},
+    {Meson Build Configuration}, {Specifying Run Settings}
 */

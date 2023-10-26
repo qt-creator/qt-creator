@@ -18,15 +18,7 @@
     You can use \QC to create and edit vcpkg.json files to specify packages to
     build as part of your project when using CMake as the build system.
 
-    \section1 Enabling the vcpkg Plugin
-
-    To enable the vcpkg plugin:
-
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol Utilities > \uicontrol Vcpkg to enable the plugin.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
+    \note Enable the Vcpkg plugin to use it.
 
     \section1 Setting vcpkg Preferences
 
@@ -86,4 +78,6 @@
     To set the path to the directory where you installed vcpkg, select
     \inlineimage icons/settings.png
     (\uicontrol Configure) on the editor toolbar.
+
+    \sa {Enable and disable plugins}
 */
