@@ -6,6 +6,7 @@ add_qtc_library(Tasking OBJECT
     barrier.cpp barrier.h
     concurrentcall.h
     networkquery.cpp networkquery.h
+    qprocesstask.cpp qprocesstask.h
     tasking_global.h
     tasktree.cpp tasktree.h
   EXPLICIT_MOC
