@@ -13,6 +13,7 @@ Project {
         "shootout/shootout.qbs",
         "spinner/spinner.qbs",
         "subdirfilecontainer/subdirfilecontainer.qbs",
+        "tasking/dataexchange/dataexchange.qbs",
         "tasking/demo/demo.qbs",
         "tasking/imagescaling/imagescaling.qbs",
         "terminal/terminal.qbs",
