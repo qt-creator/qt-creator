@@ -96,6 +96,8 @@ RecordOptionsDialog::RecordOptionsDialog(QWidget *parent)
 
     m_cropScene = new CropScene;
 
+    m_recordFrameRate.setLabelText(Tr::tr("FPS:"));
+
     m_resetButton = new QToolButton;
     m_resetButton->setIcon(Icons::RESET.icon());
 
