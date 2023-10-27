@@ -267,6 +267,9 @@
         "SnappingConfIcon": {
             "iconName": "snapping_conf_medium"
         },
+        "SplitViewIcon": {
+            "iconName": "splitScreen_medium"
+        },
         "ToggleGroupIcon": {
             "Off": {
                 "iconName": "selectOutline_medium"

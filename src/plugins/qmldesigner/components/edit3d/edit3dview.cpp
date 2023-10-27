@@ -1029,7 +1029,7 @@ void Edit3DView::createEdit3DActions()
         QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Q),
         true,
         false,
-        toolbarIcon(DesignerIcons::ScaleToolIcon), // TODO Placeholder, needs proper icon
+        toolbarIcon(DesignerIcons::SplitViewIcon),
         this);
 
     m_leftActions << m_selectionModeAction.get();

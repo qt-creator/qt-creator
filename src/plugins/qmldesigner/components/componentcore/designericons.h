@@ -104,6 +104,7 @@ public:
         SimpleCheckIcon,
         SnappingIcon,
         SnappingConfIcon,
+        SplitViewIcon,
         TimelineIcon,
         ToggleGroupIcon,
         VisibilityIcon
