@@ -264,6 +264,7 @@ Item {
         targetNode: cameraCtrl.camera
 
         onAxisClicked: (axis) => {
+            viewRoot.activeSplit = cameraCtrl.splitId
             cameraCtrl.jumpToRotation(quaternionForAxis(axis));
         }
     }
