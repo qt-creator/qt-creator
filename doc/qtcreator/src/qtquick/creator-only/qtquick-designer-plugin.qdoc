@@ -21,13 +21,5 @@
 
     For more information about using \QMLD, see \l{Qt Design Studio Manual}.
 
-    \section1 Enabling the \QMLD Plugin
-
-    To enable the \QMLD plugin:
-
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Qt Quick} > \uicontrol {QmlDesigner}.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
+    \sa {Enable and disable plugins}
 */

@@ -78,13 +78,14 @@ class QtVersionData
 {
 public:
     // Update version if you add data members!
-    static const int version = 1;
+    static const int version = 2;
 
     bool installed = true;
     bool hasExamples = false;
     bool hasDemos = false;
     bool hasDocumentation = false;
-    bool hasQtAbis = false;
+
+    std::optional<Abis> qtAbis;
 
     DisplayName unexpandedDisplayName;
     QString qtVersionString;
@@ -114,8 +115,6 @@ public:
     Utils::FilePath hostDataPath;
     Utils::FilePath hostPrefixPath;
 
-    Abis qtAbis;
-
     QHash<ProKey, ProString> versionInfo;
     bool versionInfoUpToDate = false;
 
@@ -143,7 +142,6 @@ public:
         result.insert("HasExamples", hasExamples);
         result.insert("HasDemos", hasDemos);
         result.insert("HasDocumentation", hasDocumentation);
-        result.insert("HasQtAbis", hasQtAbis);
         result.insert("VersionInfoUpToDate", versionInfoUpToDate);
 
         unexpandedDisplayName.toMap(result, "UnexpandedDisplayName");
@@ -169,7 +167,8 @@ public:
         result.insert("HostLibexecPath", hostLibexecPath.toSettings());
         result.insert("HostDataPath", hostDataPath.toSettings());
         result.insert("HostPrefixPath", hostPrefixPath.toSettings());
-        result.insert("QtAbis", Utils::transform(qtAbis, &Abi::toString));
+        if (qtAbis)
+            result.insert("QtAbis", Utils::transform(*qtAbis, &Abi::toString));
         result.insert("VersionInfo", QVariant::fromValue(toStore(versionInfo)));
 
         return result;
@@ -184,7 +183,6 @@ public:
         hasExamples = map.value("HasExamples").toBool();
         hasDemos = map.value("HasDemos").toBool();
         hasDocumentation = map.value("HasDocumentation").toBool();
-        hasQtAbis = map.value("HasQtAbis").toBool();
         versionInfoUpToDate = map.value("VersionInfoUpToDate", false).toBool();
         unexpandedDisplayName.fromMap(map, "UnexpandedDisplayName");
         qtVersionString = map.value("QtVersionString").toString();
@@ -208,7 +206,9 @@ public:
         hostLibexecPath = FilePath::fromSettings(map.value("HostLibexecPath"));
         hostDataPath = FilePath::fromSettings(map.value("HostDataPath"));
         hostPrefixPath = FilePath::fromSettings(map.value("HostPrefixPath"));
-        qtAbis = Utils::transform(map.value("QtAbis").toStringList(), &Abi::fromString);
+        auto it = map.find("QtAbis");
+        if (it != map.end())
+            qtAbis = Utils::transform(it.value().toStringList(), &Abi::fromString);
         versionInfo = fromStore(map.value("VersionInfo").value<Store>());
     }
 };
@@ -767,18 +767,22 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath, bool forceRe
     const expected_str<Utils::Store> persistentStore = PersistentCacheStore::byKey(
         Key("QtVersionData" + d->m_qmakeCommand.toString().toUtf8()));
 
-    if (persistentStore && !forceRefreshCache) {
+    if (persistentStore && !forceRefreshCache)
         d->m_data.fromMap(*persistentStore);
-    } else {
+    else
         d->m_data.qtSources = FilePath::fromSettings(map.value(QTVERSIONSOURCEPATH));
 
-        // Handle ABIs provided by the SDKTool:
-        // Note: Creator does not write these settings itself, so it has to come from the SDKTool!
-        d->m_data.qtAbis = Utils::transform<Abis>(map.value(QTVERSION_ABIS).toStringList(),
-                                                  &Abi::fromString);
-        d->m_data.qtAbis = Utils::filtered(d->m_data.qtAbis, &Abi::isValid);
-        d->m_data.hasQtAbis = !d->m_data.qtAbis.isEmpty();
+    Store::const_iterator itQtAbis = map.find(QTVERSION_ABIS);
+    if (itQtAbis != map.end()) {
+        // Only the SDK Tool writes abis to the settings. If we find abis in the settings, we want
+        // to make sure to use them as our automatic detection is not perfect.
+        const QStringList abiList = itQtAbis.value().toStringList();
+        if (!abiList.isEmpty()) {
+            const Abis abis = Utils::transform<Abis>(abiList, &Abi::fromString);
+            d->m_data.qtAbis = Utils::filtered(abis, &Abi::isValid);
+        }
     }
+
     updateDefaultDisplayName();
 
     // Clear the cached qmlscene command, it might not match the restored path anymore.
@@ -798,9 +802,10 @@ Store QtVersion::toMap() const
 
     result.insert(QTVERSIONQMAKEPATH, qmakeFilePath().toSettings());
 
-    if (d->m_data.versionInfoUpToDate)
+    if (d->m_data.versionInfoUpToDate) {
         PersistentCacheStore::write(Key("QtVersionData" + d->m_qmakeCommand.toString().toUtf8()),
                                     d->m_data.toMap());
+    }
 
     return result;
 }
@@ -858,13 +863,22 @@ FilePath QtVersion::qmakeFilePath() const
     return d->m_qmakeCommand;
 }
 
+bool QtVersion::hasQtAbisSet() const
+{
+    return d->m_data.qtAbis.has_value();
+}
+
 Abis QtVersion::qtAbis() const
 {
-    if (!d->m_data.hasQtAbis) {
+    if (!d->m_data.qtAbis)
         d->m_data.qtAbis = detectQtAbis();
-        d->m_data.hasQtAbis = true;
-    }
-    return d->m_data.qtAbis;
+
+    return *d->m_data.qtAbis;
+}
+
+void QtVersion::setQtAbis(const Abis &abis)
+{
+    d->m_data.qtAbis = abis;
 }
 
 Abis QtVersion::detectQtAbis() const
@@ -2354,7 +2368,6 @@ Abis QtVersion::qtAbisFromLibrary(const FilePaths &coreLibraries)
 
 void QtVersion::resetCache() const
 {
-    d->m_data.hasQtAbis = false;
     d->m_mkspecReadUpToDate = false;
 }
 
@@ -2458,6 +2471,14 @@ QtVersion *QtVersion::clone(bool forceRefreshCache) const
             QtVersion *version = factory->create();
             QTC_ASSERT(version, return nullptr);
             version->fromMap(toMap(), {}, forceRefreshCache);
+
+            // Qt Abis are either provided by SDK Tool, or detected from the binaries.
+            // The auto detection is not perfect, and we always want to use the data provided by
+            // SDK Tool if available. Since the Abis are not contained in toMap() as we
+            // don't let the user change them, and we probably forced the cache to refresh, we have
+            // to re-set them here.
+            if (hasQtAbisSet())
+                version->setQtAbis(qtAbis());
             return version;
         }
     }

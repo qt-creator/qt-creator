@@ -75,7 +75,9 @@ public:
     virtual QString description() const = 0;
     virtual QString toHtml(bool verbose) const;
 
+    bool hasQtAbisSet() const;
     ProjectExplorer::Abis qtAbis() const;
+    void setQtAbis(const ProjectExplorer::Abis &abis);
     bool hasAbi(ProjectExplorer::Abi::OS, ProjectExplorer::Abi::OSFlavor flavor = ProjectExplorer::Abi::UnknownFlavor) const;
 
     void applyProperties(QMakeGlobals *qmakeGlobals) const;

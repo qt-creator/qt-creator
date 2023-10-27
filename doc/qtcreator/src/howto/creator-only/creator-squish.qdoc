@@ -42,15 +42,7 @@
     To use the plugin, you must download and install Squish, create a connection
     to the Squish Server, and specify AUTs to run.
 
-    \section1 Enabling the Squish Plugin
-
-    To enable the Squish plugin:
-
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol Utilities > \uicontrol Squish to enable the plugin.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
+    \note Enable the Squish plugin to use it.
 
     \section1 Specifying a Squish Server
 
@@ -328,4 +320,6 @@
     output, \uicontrol {Runner/Server Log} tab.
 
     \image qtcreator-squish-output-runner-server-log.png "Runner and Server Log output"
+
+    \sa {Enable and disable plugins}
 */

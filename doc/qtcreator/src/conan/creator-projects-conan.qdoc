@@ -35,9 +35,7 @@
     your operating system has. For example, on Windows, you can use the
     \c {choco install conan} or \c {pip install conan} command.
 
-    To enable the experimental Conan plugin, select \uicontrol Help >
-    \uicontrol {About Plugins} > \uicontrol Utilities > \uicontrol Conan.
-    Then select \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \note Enable the Conan plugin to use it.
 
     For each project, you must write a
     \l{https://docs.conan.io/en/latest/reference/conanfile.html}{conanfile.py}
@@ -49,4 +47,6 @@
 
     Alternatively, you can automatically set up the Conan package manager for
     use with CMake. For more information, see \l{Using CMake with Conan}.
+
+    \sa {Enable and disable plugins}
 */

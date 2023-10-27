@@ -22,12 +22,11 @@
     \e event, but also on earlier events. With state charts, you
     can easily share this information.
 
-    \QC has a project wizard for adding \l{https://www.w3.org/TR/scxml/}
-    {State Chart XML (SCXML)} files with boilerplate code to projects and an
-    experimental SCXML editor for editing the state charts. You can use the
-    SCXML editor to add \e states and \e transitions to the files. You can then
-    use the classes in the Qt SCXML module to embed the state machines created
-    from the files in Qt applications.
+    With the \QC project wizard you can add \l{https://www.w3.org/TR/scxml/}
+    {State Chart XML (SCXML)} files with boilerplate code to projects. Edit
+    the state charts with the SCXML editor to add \e states and \e transitions
+    to the files. Then, use the classes in the Qt SCXML module to embed the
+    state machines created from the files in Qt applications.
 
     \image qtcreator-scxml-editor.png SXCML Editor
 
@@ -82,11 +81,6 @@
     To create a state chart:
 
     \list 1
-
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol Modeling > \uicontrol ScxmlEditor.
-
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
 
         \li Select \uicontrol File > \uicontrol {New File} >
             \uicontrol {Files and Classes} > \uicontrol Modeling >

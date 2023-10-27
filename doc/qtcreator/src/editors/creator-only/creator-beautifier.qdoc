@@ -32,6 +32,12 @@
     specified in the Beautifier preferences. You can use a predefined style or
     define your own style.
 
+    \note Enable the Beautifier plugin to use it. Since \QC 10.0.0, the
+    ClangFormat plugin is enabled by default. Select \preferences >
+    \uicontrol {C++} > \uicontrol {Formatting mode} > \uicontrol Disable
+    to turn off ClangFormat if you enable Beautifier because combining
+    them can lead to unexpected results.
+
     To use the Beautifier plugin:
 
     \list 1
@@ -47,17 +53,6 @@
             \endlist
 
             You might have to build the tools from sources for some platforms.
-
-        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol {C++} >
-            \uicontrol Beautifier to enable the plugin.
-
-            \note Since \QC 10.0.0, the ClangFormat plugin is enabled by
-            default. Select \preferences >
-            \uicontrol {C++} > \uicontrol {Formatting mode} > \uicontrol Disable
-            to turn off ClangFormat if you enable Beautifier because combining
-            them can lead to unexpected results.
-
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
 
         \li Select \preferences >
             \uicontrol Beautifier to specify settings for beautifying files.
@@ -168,4 +163,6 @@
     select it when no text is selected, the whole file is formatted by default.
     To disable this behavior, deselect the
     \uicontrol {Format entire file if no text was selected} check box.
+
+    \sa {Enable and disable plugins}
 */

@@ -453,7 +453,11 @@
     You can specify shortcuts for executing actions in a way that is familiar to
     \l{https://www.gnu.org/software/emacs/manual/html_node/emacs/index.html}
     {Emacs} editor users. The actions are not bound to any key combinations by
-    default. The following actions are available:
+    default.
+
+    \note Enable the EmacsKeys plugin to use the shortcuts.
+
+    The following actions are available:
 
     \list
         \li Copy
@@ -790,7 +794,11 @@
     \endif
 
     \sa {Assign keyboard shortcuts}, {Find keyboard shortcuts},
-        {Import and export keyboard shortcuts}
+    {Import and export keyboard shortcuts}
+
+    \if defined(qtcreator)
+    \sa {Enable and disable plugins}
+    \endif
 */
 
 /*!

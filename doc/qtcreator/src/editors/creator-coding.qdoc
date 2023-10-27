@@ -107,7 +107,7 @@
             You can use \QC to create applications that embed state machines. A
             project wizard creates \l{https://www.w3.org/TR/scxml/}
             {State Chart XML (SCXML)} files with boilerplate code that you can
-            edit using an experimental SCXML editor. You can use the classes in
+            edit using an SCXML editor. You can use the classes in
             the Qt SCXML module to embed state machines created from the files
             in Qt applications.
 

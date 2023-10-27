@@ -25,6 +25,8 @@
     the files in a compilation database with access to all the editing features
     of the Clang code model.
 
+    \note Enable the Compilation Database Project Manager plugin to use it.
+
     To switch between header and source files, select \uicontrol Tools >
     \uicontrol C++ > \uicontrol {Switch Header/Source}.
 
@@ -32,9 +34,7 @@
     database projects in the \uicontrol Projects mode. For more information,
     see \l{Adding Custom Build Steps} and \l {Specifying Run Settings}.
 
-    To enable the plugin, select \uicontrol Help > \uicontrol {About Plugins} >
-    \uicontrol {Build Systems} > \uicontrol {Compilation Database Project Manager}.
-    Then select \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \sa {Enable and disable plugins}
 
 //! [using compilation databases]
 */

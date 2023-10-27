@@ -15,15 +15,12 @@
     GitLab servers and use \l{Git} to manage your local and remote
     repositories.
 
-    To enable the experimental GitLab plugin, select \uicontrol Help >
-    \uicontrol {About Plugins} > \uicontrol {Version Control} >
-    \uicontrol GitLab. Then select \uicontrol {Restart Now} to
-    restart \QC and load the plugin.
-
     To use GitLab, you must create a connection to the GitLab server and clone
     the projects you want to work on. You can also link previously cloned
     projects to GitLab in the project settings. This enables you to receive
     event notifications in the \l {View output}{Version Control} pane.
+
+    \note Enable the GitLab plugin to use it.
 
     \section1 Connecting to GitLab Servers
 
@@ -125,6 +122,6 @@
     To stop the reception of event notifications, select
     \uicontrol {Unlink from GitLab}.
 
-    \sa {Set up version control systems}, {Use common VCS functions},
-    {Version Control Systems}, {Git}
+    \sa {Enable and disable plugins}, {Set up version control systems},
+    {Use common VCS functions}, {Version Control Systems}, {Git}
 */

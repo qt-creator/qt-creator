@@ -46,7 +46,6 @@ private:
     QList<TodoItemsScanner *> m_scanners;
 
     ProjectExplorer::Project *m_startupProject;
-    Core::IEditor* m_currentEditor;
 
     bool m_shouldUpdateList;
 
@@ -63,7 +62,7 @@ private:
     void itemsFetched(const QString &fileName, const QList<TodoItem> &items);
     void startupProjectChanged(ProjectExplorer::Project *project);
     void projectsFilesChanged();
-    void currentEditorChanged(Core::IEditor *editor);
+    void currentEditorChanged();
     void updateListTimeoutElapsed();
 };
 

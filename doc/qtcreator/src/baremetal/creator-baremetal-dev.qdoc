@@ -54,18 +54,7 @@
     ST-Link and J-Link debug server providers can be used together with
     the \l {uVision IDE}.
 
-    \section1 Enabling the Bare Metal Device Plugin
-
-    To enable the Bare Metal Device plugin:
-
-    \list 1
-
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Device Support} > \uicontrol {Bare Metal}.
-
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-
-    \endlist
+    \note Enable the Bare Metal plugin to use it.
 
     \section1 Specifying Settings for Debug Server Providers
 
@@ -273,4 +262,6 @@
     You can build applications for and run them on bare metal devices
     in the same way as for and on the desktop. For more information, see
     \l{Building for Multiple Platforms} and \l{Running on Multiple Platforms}.
+
+    \sa {Enable and disable plugins}
 */

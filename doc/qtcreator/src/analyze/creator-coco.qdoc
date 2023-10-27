@@ -42,15 +42,7 @@
 
     To use the plugin, you must download and install Coco.
 
-    \section1 Enabling the Coco Plugin
-
-    To enable the Coco plugin:
-
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol Utilities > \uicontrol Coco to enable the plugin.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
+    \note Enable the Coco plugin to use it.
 
     \section1 Configuring Coco
 
@@ -93,5 +85,5 @@
         \li Implicit Manual Coverage Validation
     \endlist
 
-    For more information, see \l{Specifying Text Editor Settings}.
+    \sa {Enable and disable plugins}, {Specifying Text Editor Settings}
 */

@@ -78,8 +78,10 @@ SymbolSupport::SymbolSupport(Client *client)
     : m_client(client)
 {}
 
-template<typename Request>
-static MessageId sendTextDocumentPositionParamsRequest(Client *client, const Request &request)
+template<typename Request, typename R>
+static MessageId sendTextDocumentPositionParamsRequest(Client *client,
+                                                       const Request &request,
+                                                       R ServerCapabilities::*member)
 {
     if (!request.isValid(nullptr))
         return {};
@@ -97,8 +99,7 @@ static MessageId sendTextDocumentPositionParamsRequest(Client *client, const Req
         else
             sendMessage = supportedFile;
     } else {
-        const std::optional<std::variant<bool, WorkDoneProgressOptions>> &provider
-            = serverCapability.referencesProvider();
+        const auto provider = std::mem_fn(member)(serverCapability);
         sendMessage = provider.has_value();
         if (sendMessage && std::holds_alternative<bool>(*provider))
             sendMessage = std::get<bool>(*provider);
@@ -110,7 +111,8 @@ static MessageId sendTextDocumentPositionParamsRequest(Client *client, const Req
     return {};
 }
 
-static void handleGotoResponse(const GotoDefinitionRequest::Response &response,
+template<typename Request>
+static void handleGotoResponse(const typename Request::Response &response,
                                Utils::LinkHandler callback,
                                std::optional<Utils::Link> linkUnderCursor,
                                const Client *client)
@@ -141,19 +143,20 @@ static TextDocumentPositionParams generateDocPosParams(TextEditor::TextDocument 
     return TextDocumentPositionParams(documentId, pos);
 }
 
-template<typename Request>
+template<typename Request, typename R>
 static MessageId sendGotoRequest(TextEditor::TextDocument *document,
                                  const QTextCursor &cursor,
                                  Utils::LinkHandler callback,
                                  Client *client,
-                                 std::optional<Utils::Link> linkUnderCursor)
+                                 std::optional<Utils::Link> linkUnderCursor,
+                                 R ServerCapabilities::*member)
 {
     Request request(generateDocPosParams(document, cursor, client));
     request.setResponseCallback([callback, linkUnderCursor, client](
-                                    const GotoDefinitionRequest::Response &response) {
-        handleGotoResponse(response, callback, linkUnderCursor, client);
+                                    const typename Request::Response &response) {
+        handleGotoResponse<Request>(response, callback, linkUnderCursor, client);
     });
-    return sendTextDocumentPositionParamsRequest(client, request);
+    return sendTextDocumentPositionParamsRequest(client, request, member);
     return request.id();
 }
 
@@ -223,19 +226,22 @@ MessageId SymbolSupport::findLinkAt(TextEditor::TextDocument *document,
                                                       cursor,
                                                       callback,
                                                       m_client,
-                                                      linkUnderCursor);
+                                                      linkUnderCursor,
+                                                      &ServerCapabilities::definitionProvider);
     case LinkTarget::SymbolTypeDef:
         return sendGotoRequest<GotoTypeDefinitionRequest>(document,
                                                           cursor,
                                                           callback,
                                                           m_client,
-                                                          linkUnderCursor);
+                                                          linkUnderCursor,
+                                                          &ServerCapabilities::typeDefinitionProvider);
     case LinkTarget::SymbolImplementation:
         return sendGotoRequest<GotoImplementationRequest>(document,
                                                           cursor,
                                                           callback,
                                                           m_client,
-                                                          linkUnderCursor);
+                                                          linkUnderCursor,
+                                                          &ServerCapabilities::implementationProvider);
     }
     return {};
 }
@@ -389,7 +395,7 @@ std::optional<MessageId> SymbolSupport::findUsages(TextEditor::TextDocument *doc
         handleFindReferencesResponse(response, wordUnderCursor, handler);
     });
 
-    sendTextDocumentPositionParamsRequest(m_client, request);
+    sendTextDocumentPositionParamsRequest(m_client, request, &ServerCapabilities::referencesProvider);
     return request.id();
 }
 

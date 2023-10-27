@@ -219,7 +219,9 @@
     \section1 Enabling Silver Searcher
 
     You can use Silver Searcher as a search engine in \QC if you install
-    Silver Searcher on the development PC and enable the experimental plugin.
+    Silver Searcher on the development PC.
+
+    \note Enable the SilverSearcher plugin to use it.
 
     To use Silver Searcher:
 
@@ -232,12 +234,6 @@
             You might have to build Silver Searcher from sources for some
             platforms.
 
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Utilities} > \uicontrol {SilverSearcher} to enable the
-            plugin.
-
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-
         \li When searching, select \uicontrol {Silver Searcher} in the
             \uicontrol {Search engine} field.
 
@@ -248,5 +244,7 @@
             and add the entry \c{PATH=/path/to/bin:${PATH}}.
 
     \endlist
+
+    \sa {Enable and disable plugins}
     \endif
 */

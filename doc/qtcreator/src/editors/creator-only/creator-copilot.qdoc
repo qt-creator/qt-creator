@@ -31,17 +31,6 @@
             {Copilot.vim/Readme.md}.
     \endlist
 
-    \section1 Enabling the Copilot Plugin
-
-    To enable the Copilot plugin:
-
-    \list 1
-        \li Select \uicontrol Help (or \uicontrol {\QC} on \macos) >
-            \uicontrol {About Plugins} > \uicontrol Utilities >
-            \uicontrol Copilot to enable the plugin.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
-
     \section1 Setting Copilot Preferences
 
     To set preferences for using Copilot:
@@ -117,4 +106,6 @@
     select \uicontrol Projects > \uicontrol {Project Settings} >
     \uicontrol Copilot, and then select or deselect the
     \uicontrol {Enable Copilot} check box.
+
+    \sa {Enable and disable plugins}
 */

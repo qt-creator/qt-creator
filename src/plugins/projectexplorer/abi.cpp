@@ -100,6 +100,7 @@ static void setupPreregisteredOsFlavors() {
                                                      Abi::OS::UnixOS,
                                                      Abi::OS::QnxOS,
                                                      Abi::OS::BareMetalOS});
+    registerOsFlavor(Abi::PokyFlavor, "poky", {Abi::OS::LinuxOS});
     registerOsFlavor(Abi::UnknownFlavor, "unknown", {Abi::OS::BsdOS,
                                                      Abi::OS::LinuxOS,
                                                      Abi::OS::DarwinOS,
@@ -618,6 +619,9 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             width = 32;
         } else if (p.startsWith("asmjs")) {
             arch = AsmJsArchitecture;
+        } else if (p == "poky") {
+            os = LinuxOS;
+            flavor = PokyFlavor;
         } else if (p == "none") {
             os = BareMetalOS;
             flavor = GenericFlavor;

@@ -25,6 +25,8 @@
     The experimental Axivion plugin integrates the Axivion dashboard server into
     \QC.
 
+    \note Enable the Axivion plugin to use it.
+
     To use the plugin, you must set up a project in the Axivion dashboard
     server and link to it from \QC. You can then see style violations in the
     \uicontrol Edit mode and descriptions and issue counts in the
@@ -43,16 +45,6 @@
 
     To view the issue counts, select \inlineimage icons/home.png
     (\uicontrol {Show Dashboard}).
-
-    \section1 Enabling the Axivion Plugin
-
-    To enable the Axivion plugin:
-
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Code Analyzer} > \uicontrol Axivion to enable the plugin.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
 
     \section1 Connecting to Axivion Dashboard Servers
 
@@ -106,4 +98,6 @@
 
     To clear the view, select \inlineimage icons/clean_pane_small.png
     (\uicontrol Clear).
+
+    \sa {Enable and disable plugins}
 */
