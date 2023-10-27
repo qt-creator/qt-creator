@@ -71,7 +71,15 @@ General
   without a unified menu bar
   ([QTCREATORBUG-29498](https://bugreports.qt.io/browse/QTCREATORBUG-29498))
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-show-and-hide-main-menu.html))
+* Changed the `Enable high DPI scaling` setting to a `DPI rounding policy`
+  setting, which fits Qt's settings better
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-set-high-dpi-scaling.html))
 * Fixed an issue with growing session files
+* Fixed that the shortcuts for the navigation views could be stuck to opening a
+  view in the right side bar
+  ([QTCREATORBUG-29770](https://bugreports.qt.io/browse/QTCREATORBUG-29770))
+* Fixed that the shortcut for Locator switched to the main window
+  ([QTCREATORBUG-29741](https://bugreports.qt.io/browse/QTCREATORBUG-29741))
 
 Help
 ----
@@ -90,6 +98,7 @@ Editing
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-coding-navigating.html#navigating-between-open-files-and-symbols))
 * Added an indenter, auto-brace and auto-quote for JSON
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-enclose-code-in-characters.html))
+* Improved the performance of searching in big documents
 * Fixed that the historical order of open documents was not restored
 * Fixed that suggestions were rendered with the wrong tab size
   ([QTCREATORBUG-29483](https://bugreports.qt.io/browse/QTCREATORBUG-29483))
@@ -119,8 +128,17 @@ Editing
 * Fixed that automatically created functions could be added between another
   function and its documentation
   ([QTCREATORBUG-6934](https://bugreports.qt.io/browse/QTCREATORBUG-6934))
-* Fixed that the refactoring actions from Clangd were not available in the
-  context menu
+* Fixed that scope names were considered when searching for `C++ Symbols` with
+  advanced find
+  ([QTCREATORBUG-29133](https://bugreports.qt.io/browse/QTCREATORBUG-29133))
+* Clangd
+    * Added the `Completion ranking model` option for choosing the order of
+      completion results
+      ([QTCREATORBUG-29013](https://bugreports.qt.io/browse/QTCREATORBUG-29013))
+    * Fixed that the refactoring actions from Clangd were not available in the
+      context menu
+    * Fixed that renaming symbols could rename them in generated files
+      ([QTCREATORBUG-29778](https://bugreports.qt.io/browse/QTCREATORBUG-29778))
 * Clang Format
     * Fixed the style settings for Clang Format 16 and later
       ([QTCREATORBUG-29434](https://bugreports.qt.io/browse/QTCREATORBUG-29434))
@@ -144,11 +162,18 @@ Editing
   of files
   ([QTCREATORBUG-29542](https://bugreports.qt.io/browse/QTCREATORBUG-29542))
 
+### Widget Designer
+
+* Fixed that renaming layouts in the property editor switched to edit mode
+  ([QTCREATORBUG-29644](https://bugreports.qt.io/browse/QTCREATORBUG-29644))
+
 ### Copilot
 
 * Added support for proxies
   ([QTCREATORBUG-29485](https://bugreports.qt.io/browse/QTCREATORBUG-29485))
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-copilot.html))
+* Fixed the auto-detection of `agent.js`
+  ([QTCREATORBUG-29750](https://bugreports.qt.io/browse/QTCREATORBUG-29750))
 
 ### TODO
 
@@ -207,6 +232,15 @@ Projects
 * Added help tooltips
   ([QTCREATORBUG-25780](https://bugreports.qt.io/browse/QTCREATORBUG-25780))
 * Extended context help for variables, properties and modules
+* Improved performance when switching sessions
+  ([QTCREATORBUG-27729](https://bugreports.qt.io/browse/QTCREATORBUG-27729))
+* Fixed issues with the subdirectory structure of the project tree
+  ([QTCREATORBUG-23942](https://bugreports.qt.io/browse/QTCREATORBUG-23942),
+   [QTCREATORBUG-29105](https://bugreports.qt.io/browse/QTCREATORBUG-29105))
+* Presets
+    * Fixed that variables were not expanded for `cmakeExecutable`
+      ([QTCREATORBUG-29643](https://bugreports.qt.io/browse/QTCREATORBUG-29643))
+    * Fixed unnecessary restrictions on the preset name
 
 ### Python
 
@@ -216,6 +250,11 @@ Projects
 * Added the option to forward the display for remote Linux
   ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-run-settings.html#specifying-run-settings-for-linux-based-devices))
 * Fixed PySide wheels installation on macOS
+
+### qmake
+
+* Fixed the project tree structure in case of some subfolder structures
+  ([QTCREATORBUG-29733](https://bugreports.qt.io/browse/QTCREATORBUG-29733))
 
 ### vcpkg
 
@@ -244,6 +283,8 @@ Analyzer
 
 * Fixed that error messages were not shown
   ([QTCREATORBUG-29298](https://bugreports.qt.io/browse/QTCREATORBUG-29298))
+* Fixed that `-mno-direct-extern-access` could be passed to `clang-tidy` which
+  does not support it
 
 ### CTF Visualizer
 
@@ -275,6 +316,23 @@ Test Integration
 
 * Added an option for the number of threads used for scanning
   ([QTCREATORBUG-29301](https://bugreports.qt.io/browse/QTCREATORBUG-29301))
+* Improved the wizards for `GTest` and `Catch2`
+
+Platforms
+---------
+
+### Android
+
+* Fixed issues when `LIBRARY_OUTPUT_DIRECTORY` is set in the CMake build files
+  ([QTCREATORBUG-26479](https://bugreports.qt.io/browse/QTCREATORBUG-26479))
+
+### iOS
+
+* Known Issue: iOS 17 devices are not supported
+
+### Docker
+
+* Fixed the check for commands that are built-ins of the shell
 
 Credits for these changes go to:
 --------------------------------
@@ -304,6 +362,7 @@ Jonas Karlsson
 Jussi Witick  
 Knud Dollereder  
 Leena Miettinen  
+Ludovic Le Brun  
 Mahmoud Badri  
 Marco Bubke  
 Marcus Tillmanns  
@@ -317,6 +376,7 @@ Pranta Dastider
 Robert Löhning  
 Sami Shalayel  
 Samuel Ghinet  
+Samuli Piippo  
 Semih Yavuz  
 Tasuku Suzuki  
 Thiago Macieira  
