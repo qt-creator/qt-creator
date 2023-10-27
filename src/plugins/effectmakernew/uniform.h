@@ -69,7 +69,7 @@ public:
 
     bool enableMipmap() const;
 
-    static QString stringFromType(Uniform::Type type, bool isShader);
+    static QString stringFromType(Uniform::Type type, bool isShader = false);
     static Uniform::Type typeFromString(const QString &typeString);
     static QString typeToProperty(Uniform::Type type);
 

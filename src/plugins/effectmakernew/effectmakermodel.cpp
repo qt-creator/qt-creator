@@ -390,12 +390,9 @@ QString EffectMakerModel::valueAsString(const Uniform &uniform)
     } else if (uniform.type() == Uniform::Type::Vec4) {
         QVector4D v4 = uniform.value().value<QVector4D>();
         return QString("Qt.vector4d(%1, %2, %3, %4)").arg(v4.x(), v4.y(), v4.z(), v4.w());
-    } else if (uniform.type() == Uniform::Type::Color) {
-        QColor c = uniform.value().value<QColor>();
-        return QString("Qt.rgba(%1, %2, %3, %4)").arg(c.redF(), c.greenF(), c.blueF(), c.alphaF());
     } else if (uniform.type() == Uniform::Type::Sampler) {
         return getImageElementName(uniform);
-    } else if (uniform.type() == Uniform::Type::Define) {
+    } else if (uniform.type() == Uniform::Type::Define || uniform.type() == Uniform::Type::Color) {
         return uniform.value().toString();
     } else {
         qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
@@ -406,8 +403,11 @@ QString EffectMakerModel::valueAsString(const Uniform &uniform)
 // Get value in QML binding that used for previews
 QString EffectMakerModel::valueAsBinding(const Uniform &uniform)
 {
-    if (uniform.type() == Uniform::Type::Bool || uniform.type() == Uniform::Type::Int
-        || uniform.type() == Uniform::Type::Float || uniform.type() == Uniform::Type::Define) {
+    if (uniform.type() == Uniform::Type::Bool
+        || uniform.type() == Uniform::Type::Int
+        || uniform.type() == Uniform::Type::Float
+        || uniform.type() == Uniform::Type::Color
+        || uniform.type() == Uniform::Type::Define) {
         return "g_propertyData." + uniform.name();
     } else if (uniform.type() == Uniform::Type::Vec2) {
         QString sx = QString("g_propertyData.%1.x").arg(uniform.name());
@@ -424,12 +424,6 @@ QString EffectMakerModel::valueAsBinding(const Uniform &uniform)
         QString sz = QString("g_propertyData.%1.z").arg(uniform.name());
         QString sw = QString("g_propertyData.%1.w").arg(uniform.name());
         return QString("Qt.vector4d(%1, %2, %3, %4)").arg(sx, sy, sz, sw);
-    } else if (uniform.type() == Uniform::Type::Color) {
-        QString sr = QString("g_propertyData.%1.r").arg(uniform.name());
-        QString sg = QString("g_propertyData.%1.g").arg(uniform.name());
-        QString sb = QString("g_propertyData.%1.b").arg(uniform.name());
-        QString sa = QString("g_propertyData.%1.a").arg(uniform.name());
-        return QString("Qt.rgba(%1, %2, %3, %4)").arg(sr, sg, sb, sa);
     } else if (uniform.type() == Uniform::Type::Sampler) {
         return getImageElementName(uniform);
     } else {
@@ -748,9 +742,13 @@ void EffectMakerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QS
     --m_remainingQsbTargets;
 
     const QString errStr = qsbProcess->errorString();
-    auto std = qsbProcess->stdErr();
+    const QByteArray errStd = qsbProcess->readAllRawStandardError();
     if (!errStr.isEmpty())
         qWarning() << QString("Failed to generate QSB file for: %1 %2").arg(shader, errStr);
+
+    if (!errStd.isEmpty())
+        qWarning() << QString("Failed to generate QSB file for: %1 %2")
+                          .arg(shader, QString::fromUtf8(errStd));
 
     if (m_remainingQsbTargets <= 0) {
         Q_EMIT shadersBaked();
@@ -1005,7 +1003,8 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
     s += l2 + "fragmentShader: 'file:///" + m_fragmentShaderFilename + "'\n";
     s += l2 + "anchors.fill: parent\n";
     if (m_shaderFeatures.enabled(ShaderFeatures::GridMesh)) {
-        QString gridSize = QString("%1, %2").arg(m_shaderFeatures.gridMeshWidth()).arg(m_shaderFeatures.gridMeshHeight());
+        QString gridSize = QString("%1, %2").arg(m_shaderFeatures.gridMeshWidth())
+                                            .arg(m_shaderFeatures.gridMeshHeight());
         s += l2 + "mesh: GridMesh {\n";
         s += l3 + QString("resolution: Qt.size(%1)\n").arg(gridSize);
         s += l2 + "}\n";

@@ -63,7 +63,7 @@ Uniform::Type Uniform::type() const
 // String representation of the type for qml
 QString Uniform::typeName() const
 {
-    return Uniform::stringFromType(m_type, false);
+    return Uniform::stringFromType(m_type);
 }
 
 QVariant Uniform::value() const
