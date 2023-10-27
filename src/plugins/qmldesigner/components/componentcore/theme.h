@@ -301,6 +301,7 @@ public:
         sphere_small,
         splitColumns,
         splitRows,
+        splitScreen_medium,
         spotLight_small,
         stackedContainer_small,
         startNode,
