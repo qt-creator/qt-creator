@@ -15,6 +15,7 @@ class CollectionDetailsModel;
 class CollectionDetailsSortFilterModel;
 class CollectionSourceModel;
 class CollectionView;
+class ModelNode;
 
 class CollectionWidget : public QFrame
 {
@@ -33,7 +34,10 @@ public:
     Q_INVOKABLE bool loadCsvFile(const QString &collectionName, const QString &csvFileAddress);
     Q_INVOKABLE bool isJsonFile(const QString &jsonFileAddress) const;
     Q_INVOKABLE bool isCsvFile(const QString &csvFileAddress) const;
-    Q_INVOKABLE bool addCollection(const QString &collectionName) const;
+    Q_INVOKABLE bool addCollection(const QString &collectionName,
+                                   const QString &collectionType,
+                                   const QString &sourceAddress,
+                                   const QVariant &sourceNode);
 
     void warn(const QString &title, const QString &body);
 

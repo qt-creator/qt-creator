@@ -16,7 +16,9 @@
 
 #include <QFile>
 #include <QFileInfo>
+#include <QJsonArray>
 #include <QJsonDocument>
+#include <QJsonObject>
 #include <QJsonParseError>
 #include <QMetaObject>
 #include <QQmlEngine>
@@ -25,6 +27,7 @@
 #include <QVBoxLayout>
 
 namespace {
+
 QString collectionViewResourcesPath()
 {
 #ifdef SHARE_QML_PATH
@@ -33,6 +36,22 @@ QString collectionViewResourcesPath()
 #endif
     return Core::ICore::resourcePath("qmldesigner/collectionEditorQmlSource").toString();
 }
+
+static QString urlToLocalPath(const QUrl &url)
+{
+    QString localPath;
+
+    if (url.isLocalFile())
+        localPath = url.toLocalFile();
+
+    if (url.scheme() == QLatin1String("qrc")) {
+        const QString &path = url.path();
+        localPath = QStringLiteral(":") + path;
+    }
+
+    return localPath;
+}
+
 } // namespace
 
 namespace QmlDesigner {
@@ -161,9 +180,65 @@ bool CollectionWidget::isCsvFile(const QString &csvFileAddress) const
     return true;
 }
 
-bool CollectionWidget::addCollection([[maybe_unused]] const QString &collectionName) const
+bool CollectionWidget::addCollection(const QString &collectionName,
+                                     const QString &collectionType,
+                                     const QString &sourceAddress,
+                                     const QVariant &sourceNode)
 {
-    // TODO
+    const ModelNode node = sourceNode.value<ModelNode>();
+    bool isNewCollection = !node.isValid();
+
+    if (isNewCollection) {
+        QString sourcePath = ::urlToLocalPath(sourceAddress);
+        if (collectionType == "json") {
+            QJsonObject jsonObject;
+            jsonObject.insert(collectionName, QJsonArray());
+
+            QFile sourceFile(sourcePath);
+            if (!sourceFile.open(QFile::WriteOnly)) {
+                warn(tr("File error"),
+                     tr("Can not open the file to write.\n") + sourceFile.errorString());
+                return false;
+            }
+
+            sourceFile.write(QJsonDocument(jsonObject).toJson());
+            sourceFile.close();
+
+            bool loaded = loadJsonFile(sourcePath);
+            if (!loaded)
+                sourceFile.remove();
+
+            return loaded;
+        } else if (collectionType == "csv") {
+            QFile sourceFile(sourcePath);
+            if (!sourceFile.open(QFile::WriteOnly)) {
+                warn(tr("File error"),
+                     tr("Can not open the file to write.\n") + sourceFile.errorString());
+                return false;
+            }
+
+            sourceFile.close();
+
+            bool loaded = loadCsvFile(collectionName, sourcePath);
+            if (!loaded)
+                sourceFile.remove();
+
+            return loaded;
+        } else if (collectionType == "existing") {
+            QFileInfo fileInfo(sourcePath);
+            if (fileInfo.suffix() == "json")
+                return loadJsonFile(sourcePath);
+            else if (fileInfo.suffix() == "csv")
+                return loadCsvFile(collectionName, sourcePath);
+        }
+    } else if (collectionType == "json") {
+        QString errorMsg;
+        bool added = m_sourceModel->addCollectionToSource(node, collectionName, &errorMsg);
+        if (!added)
+            warn(tr("Can not add a collection to the json file"), errorMsg);
+        return added;
+    }
+
     return false;
 }
 

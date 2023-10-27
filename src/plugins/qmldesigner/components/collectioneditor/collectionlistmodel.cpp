@@ -94,6 +94,11 @@ QString CollectionListModel::sourceAddress() const
     return m_sourceNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toString();
 }
 
+bool CollectionListModel::contains(const QString &collectionName) const
+{
+    return stringList().contains(collectionName);
+}
+
 void CollectionListModel::selectCollectionIndex(int idx, bool selectAtLeastOne)
 {
     int collectionCount = stringList().size();
@@ -106,6 +111,13 @@ void CollectionListModel::selectCollectionIndex(int idx, bool selectAtLeastOne)
     }
 
     setSelectedIndex(preferredIndex);
+}
+
+void CollectionListModel::selectCollectionName(const QString &collectionName)
+{
+    int idx = stringList().indexOf(collectionName);
+    if (idx > -1)
+        selectCollectionIndex(idx);
 }
 
 QString CollectionListModel::collectionNameAt(int idx) const

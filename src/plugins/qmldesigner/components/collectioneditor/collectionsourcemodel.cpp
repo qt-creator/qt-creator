@@ -9,8 +9,11 @@
 #include "variantproperty.h"
 
 #include <utils/qtcassert.h>
+#include <qqml.h>
 
 #include <QFile>
+#include <QFileInfo>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -58,11 +61,26 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
     }
     return collectionsList;
 }
+
+QString getSourceCollectionType(const QmlDesigner::ModelNode &node)
+{
+    using namespace QmlDesigner;
+    if (node.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
+        return "json";
+
+    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
+        return "csv";
+
+    return {};
+}
+
 } // namespace
 
 namespace QmlDesigner {
 
-CollectionSourceModel::CollectionSourceModel() {}
+CollectionSourceModel::CollectionSourceModel(QObject *parent)
+    : Super(parent)
+{}
 
 int CollectionSourceModel::rowCount(const QModelIndex &) const
 {
@@ -80,6 +98,10 @@ QVariant CollectionSourceModel::data(const QModelIndex &index, int role) const
         return collectionSource->id();
     case NameRole:
         return collectionSource->variantProperty("objectName").value();
+    case NodeRole:
+        return QVariant::fromValue(*collectionSource);
+    case CollectionTypeRole:
+        return getSourceCollectionType(*collectionSource);
     case SourceRole:
         return collectionSource->variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value();
     case SelectedRole:
@@ -188,6 +210,8 @@ QHash<int, QByteArray> CollectionSourceModel::roleNames() const
         roles.insert(Super::roleNames());
         roles.insert({{IdRole, "sourceId"},
                       {NameRole, "sourceName"},
+                      {NodeRole, "sourceNode"},
+                      {CollectionTypeRole, "sourceCollectionType"},
                       {SelectedRole, "sourceIsSelected"},
                       {SourceRole, "sourceAddress"},
                       {CollectionsRole, "collections"}});
@@ -265,6 +289,83 @@ void CollectionSourceModel::selectSource(const ModelNode &node)
     selectSourceIndex(nodePlace, true);
 }
 
+bool CollectionSourceModel::collectionExists(const ModelNode &node, const QString &collectionName) const
+{
+    int idx = sourceIndex(node);
+    if (idx < 0)
+        return false;
+
+    auto collections = m_collectionList.at(idx);
+    if (collections.isNull())
+        return false;
+
+    return collections->contains(collectionName);
+}
+
+bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
+                                                  const QString &collectionName,
+                                                  QString *errorString)
+{
+    auto returnError = [errorString](const QString &msg) -> bool {
+        if (errorString)
+            *errorString = msg;
+        return false;
+    };
+
+    int idx = sourceIndex(node);
+    if (idx < 0)
+        return returnError(tr("Node is not indexed in the collections model."));
+
+    if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
+        return returnError(tr("Node should be a json collection model."));
+
+    if (collectionExists(node, collectionName))
+        return returnError(tr("Collection does not exist."));
+
+    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
+                                    .value()
+                                    .toString();
+
+    QFileInfo sourceFileInfo(sourceFileAddress);
+    if (!sourceFileInfo.isFile())
+        return returnError(tr("Selected node should have a valid source file address"));
+
+    QFile jsonFile(sourceFileAddress);
+    if (!jsonFile.open(QFile::ReadWrite))
+        return returnError(tr("Can't open the file to read.\n") + jsonFile.errorString());
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError)
+        return returnError(tr("Saved json file is messy.\n") + parseError.errorString());
+
+    if (document.isObject()) {
+        QJsonObject sourceObject = document.object();
+        sourceObject.insert(collectionName, QJsonArray{});
+        document.setObject(sourceObject);
+        if (!jsonFile.resize(0))
+            return returnError(tr("Can't clean the json file."));
+
+        QByteArray jsonData = document.toJson();
+        auto writtenBytes = jsonFile.write(jsonData);
+        jsonFile.close();
+
+        if (writtenBytes != jsonData.size())
+            return returnError(tr("Can't write to the json file."));
+
+        updateCollectionList(index(idx));
+
+        auto collections = m_collectionList.at(idx);
+        if (collections.isNull())
+            return returnError(tr("No collection is available for the json file."));
+
+        collections->selectCollectionName(collectionName);
+        return true;
+    } else {
+        return returnError(tr("Json document type should be an object containing collections."));
+    }
+}
+
 QmlDesigner::ModelNode CollectionSourceModel::sourceNodeAt(int idx)
 {
     QModelIndex data = index(idx);
@@ -307,6 +408,11 @@ void CollectionSourceModel::updateSelectedSource(bool selectAtLeastOne)
     int idx = m_selectedIndex;
     m_selectedIndex = -1;
     selectSourceIndex(idx, selectAtLeastOne);
+}
+
+bool CollectionSourceModel::collectionExists(const QVariant &node, const QString &collectionName) const
+{
+    return collectionExists(node.value<ModelNode>(), collectionName);
 }
 
 void CollectionSourceModel::updateNodeName(const ModelNode &node)
@@ -412,4 +518,21 @@ QModelIndex CollectionSourceModel::indexOfNode(const ModelNode &node) const
 {
     return index(m_sourceIndexHash.value(node.internalId(), -1));
 }
+
+void CollectionJsonSourceFilterModel::registerDeclarativeType()
+{
+    qmlRegisterType<CollectionJsonSourceFilterModel>("CollectionEditor",
+                                                     1,
+                                                     0,
+                                                     "CollectionJsonSourceFilterModel");
+}
+
+bool CollectionJsonSourceFilterModel::filterAcceptsRow(int source_row, const QModelIndex &) const
+{
+    if (!sourceModel())
+        return false;
+    QModelIndex sourceItem = sourceModel()->index(source_row, 0, {});
+    return sourceItem.data(CollectionSourceModel::Roles::CollectionTypeRole).toString() == "json";
+}
+
 } // namespace QmlDesigner

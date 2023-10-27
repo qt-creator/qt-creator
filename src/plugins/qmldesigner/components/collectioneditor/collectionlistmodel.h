@@ -28,13 +28,16 @@ public:
     Q_INVOKABLE int selectedIndex() const;
     Q_INVOKABLE ModelNode sourceNode() const;
     Q_INVOKABLE QString sourceAddress() const;
+    Q_INVOKABLE bool contains(const QString &collectionName) const;
 
     void selectCollectionIndex(int idx, bool selectAtLeastOne = false);
+    void selectCollectionName(const QString &collectionName);
     QString collectionNameAt(int idx) const;
 
 signals:
     void selectedIndexChanged(int idx);
     void isEmptyChanged(bool);
+    void collectionNameChanged(const QString &oldName, const QString &newName);
 
 private:
     void setSelectedIndex(int idx);

@@ -41,6 +41,7 @@ Item {
         id: newCollection
 
         backendValue: root.rootView
+        sourceModel: root.model
         anchors.centerIn: parent
     }
 

@@ -156,6 +156,7 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
 void CollectionView::registerDeclarativeType()
 {
     CollectionDetails::registerDeclarativeType();
+    CollectionJsonSourceFilterModel::registerDeclarativeType();
 }
 
 void CollectionView::refreshModel()

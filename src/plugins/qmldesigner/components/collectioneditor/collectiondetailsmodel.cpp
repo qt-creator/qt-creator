@@ -485,7 +485,6 @@ void CollectionDetailsModel::loadJsonCollection(const QString &source, const QSt
     }
 
     if (collectionNodes.isEmpty()) {
-        closeCurrentCollectionIfSaved();
         endResetModel();
         return;
     };
