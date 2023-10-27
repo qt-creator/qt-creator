@@ -550,12 +550,18 @@ bool ShortcutMap::dispatchEvent(QKeyEvent *e)
             << "\", " << next->id << ", " << static_cast<bool>(enabledShortcuts > 1)
             << ") to object(" << next->owner << ')';
     }
-    QShortcutEvent se(next->keyseq, next->id, enabledShortcuts > 1);
-    QCoreApplication::sendEvent(const_cast<QObject *>(next->owner), &se);
 
-    QAction *action = qobject_cast<QAction *>(next->owner);
-    if (action)
+    if (auto action = qobject_cast<QAction *>(next->owner)) {
+        // We call the action here ourselves instead of relying on sending a ShortCut event,
+        // as the action will try to match the shortcut id to the global shortcutmap.
+        // This triggers an annoying Q_ASSERT when linking against a debug Qt. Calling trigger
+        // directly circumvents this.
+        action->trigger();
         return action->isEnabled();
+    } else {
+        QShortcutEvent se(next->keyseq, next->id, enabledShortcuts > 1);
+        QCoreApplication::sendEvent(const_cast<QObject *>(next->owner), &se);
+    }
 
     return true;
 }
