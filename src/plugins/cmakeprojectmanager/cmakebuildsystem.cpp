@@ -272,6 +272,8 @@ static QString newFilesForFunction(const std::string &cmakeFunction,
 
 bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
+    if (notAdded)
+        *notAdded = filePaths;
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
         const QString targetName = n->buildKey();
         auto target = Utils::findOrDefault(buildTargets(),
@@ -279,10 +281,9 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
                                                return target.title == targetName;
                                            });
 
-        if (target.backtrace.isEmpty()) {
-            *notAdded = filePaths;
+        if (target.backtrace.isEmpty())
             return false;
-        }
+
         const FilePath targetCMakeFile = target.backtrace.last().path;
         const int targetDefinitionLine = target.backtrace.last().line;
 
@@ -297,7 +298,6 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
             if (!cmakeListFile.ParseString(fileContent->toStdString(),
                                            targetCMakeFile.fileName().toStdString(),
                                            errorString)) {
-                *notAdded = filePaths;
                 return false;
             }
         }
@@ -308,10 +308,8 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
                                          return func.Line() == targetDefinitionLine;
                                      });
 
-        if (function == cmakeListFile.Functions.end()) {
-            *notAdded = filePaths;
+        if (function == cmakeListFile.Functions.end())
             return false;
-        }
 
         // Special case: when qt_add_executable and qt_add_qml_module use the same target name
         // then qt_add_qml_module function should be used
@@ -385,16 +383,16 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
             Core::EditorManager::openEditorAt({targetCMakeFile, line, column + extraChars},
                                               Constants::CMAKE_EDITOR_ID,
                                               Core::EditorManager::DoNotMakeVisible));
-        if (!editor) {
-            *notAdded = filePaths;
+        if (!editor)
             return false;
-        }
 
         editor->insert(snippet);
         editor->editorWidget()->autoIndent();
         if (!Core::DocumentManager::saveDocument(editor->document()))
             return false;
 
+        if (notAdded)
+            notAdded->clear();
         return true;
     }
 
