@@ -258,9 +258,9 @@ Item {
         id: originGizmo
         anchors.right: parent.right
         anchors.top: parent.top
-        anchors.margins: 10
-        width: 120
-        height: 120
+        anchors.margins: 4
+        width: 70
+        height: 70
         targetNode: cameraCtrl.camera
 
         onAxisClicked: (axis) => {

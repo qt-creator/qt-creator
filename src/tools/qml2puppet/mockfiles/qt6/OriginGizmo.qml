@@ -36,21 +36,18 @@ Item {
         id: stylePalette
         property color brightBall: "#eeeeee"
         property color dimBall: "#111111"
-        property color xAxis: "#ff0000"
-        property color yAxis: "#00aa00"
-        property color zAxis: "#1515ff"
+        property color xAxis: "#ed324d"
+        property color yAxis: "#489600"
+        property color zAxis: "#0075cc"
         property color background: "#aa303030"
     }
 
     component LineRectangle : Rectangle {
         property vector2d startPoint: Qt.vector2d(0, 0)
         property vector2d endPoint: Qt.vector2d(0, 0)
-        property real lineWidth: 5
         transformOrigin: Item.Left
-        height: lineWidth
+        height: 2
         antialiasing: true
-
-        readonly property vector2d offset: startPoint.plus(endPoint).times(0.5);
 
         width: startPoint.minus(endPoint).length()
         rotation: Math.atan2(endPoint.y - startPoint.y, endPoint.x - startPoint.x) * 180 / Math.PI
@@ -117,8 +114,11 @@ Item {
 
                 Text {
                     id: label
-                    anchors.centerIn: parent
+                    anchors.fill: parent
                     antialiasing: true
+                    font.pixelSize: 8
+                    horizontalAlignment: Qt.AlignHCenter
+                    verticalAlignment: Qt.AlignVCenter
                 }
             }
 
