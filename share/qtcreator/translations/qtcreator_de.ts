@@ -37125,7 +37125,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>The program &quot;%1&quot; does not exist or is not executable.</source>
-        <translation type="unfinished">Das Programm &quot;%1&quot; existiert nicht oder ist nicht ausführbar.</translation>
+        <translation>Das Programm &quot;%1&quot; existiert nicht oder ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Starting: &quot;%1&quot; %2</source>
@@ -37177,7 +37177,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Issues parsed from the compile output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die in der Ausgabe der Kompilierung gefunden wurden.</translation>
     </message>
     <message>
         <source>Build System</source>
@@ -37186,11 +37186,11 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Issues from the build system, such as CMake or qmake.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme des Buildsystems, wie CMake oder qmake.</translation>
     </message>
     <message>
         <source>Issues found when deploying applications to devices.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme beim Deployment von Anwendungen auf Geräte.</translation>
     </message>
     <message>
         <source>Autotests</source>
@@ -37199,7 +37199,7 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Issues found when running tests.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme beim Ausführen von Tests.</translation>
     </message>
     <message>
         <source>Build/Deployment canceled</source>
@@ -37579,7 +37579,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Loading Kits</source>
-        <translation type="unfinished"></translation>
+        <translation>Lade Kits</translation>
     </message>
     <message>
         <source>Manage...</source>
@@ -37666,11 +37666,11 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Remove Run Configurations?</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführungskonfiguration löschen?</translation>
     </message>
     <message>
         <source>Do you really want to delete all run configurations?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie wirklich alle Ausführungskonfigurationen löschen?</translation>
     </message>
     <message>
         <source>New name for run configuration &lt;b&gt;%1&lt;/b&gt;:</source>
@@ -37876,7 +37876,7 @@ Möchten Sie sie ignorieren?</translation>
     </message>
     <message>
         <source>Documentation Comments</source>
-        <translation type="unfinished">Kommentare für Dokumentation</translation>
+        <translation>Dokumentationskommentare</translation>
     </message>
     <message>
         <source>Build All Projects for All Configurations</source>
@@ -38093,11 +38093,11 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Memory handling issues that the address sanitizer found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Speicherbehandlungsprobleme, die der Address Sanitizer gefunden hat.</translation>
     </message>
     <message>
         <source>Issues from a task list file (.tasks).</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme aus einer Aufgabenlisten-Datei.</translation>
     </message>
     <message>
         <source>Parse Build Output...</source>
@@ -38171,7 +38171,8 @@ Bitte versuchen Sie es erneut.</translation>
     <message>
         <source>Failed opening terminal.
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Terminal konnte nicht geöffnet werden.
+%1</translation>
     </message>
     <message>
         <source>Locates files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
@@ -39079,7 +39080,7 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>&amp;Rename</source>
-        <translation type="unfinished">&amp;Umbenennen</translation>
+        <translation>&amp;Umbenennen</translation>
     </message>
     <message>
         <source>Available device types:</source>
@@ -39168,15 +39169,15 @@ Aktivieren Sie dies, wenn Sie 32bit-x86-Binärdateien erstellen wollen, ohne ein
     </message>
     <message>
         <source>The device name cannot be empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Gerätename darf nicht leer sein.</translation>
     </message>
     <message>
         <source>A device with this name already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Gerät dieses Namens existiert bereits.</translation>
     </message>
     <message>
         <source>Opening a terminal is not supported.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Öffnen eines Terminals wird nicht unterstützt.</translation>
     </message>
     <message>
         <source>Device</source>
@@ -40768,95 +40769,95 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Boost.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Assistent erstellt ein einfaches Unit-Test-Projekt mit Boost.</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Boost. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein neues Unit-Test-Projekt mit Boost. Unit-Tests können sicherstellen, dass Quelltext seine Aufgabe erfüllt und keine Regressionen enthält.</translation>
     </message>
     <message>
         <source>Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Test-Projekt</translation>
     </message>
     <message>
         <source>Boost Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Boost-Test-Projekt</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Google Test.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Assistent erstellt ein einfaches Unit-Test-Projekt mit Google Test.</translation>
     </message>
     <message>
         <source>Google Test (header only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Google Test (nur Header)</translation>
     </message>
     <message>
         <source>Google Test (shared libraries)</source>
-        <translation type="unfinished"></translation>
+        <translation>Google Test (dynamisch gebundene Bibliotheken)</translation>
     </message>
     <message>
         <source>Googletest install directory (optional):</source>
-        <translation type="unfinished"></translation>
+        <translation>Googletest-Installationsverzeichnis (optional):</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Google Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein neues Unit-Test-Projekt mit Google Test. Unit-Tests können sicherstellen, dass Quelltext seine Aufgabe erfüllt und keine Regressionen enthält.</translation>
     </message>
     <message>
         <source>Google Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Google Test-Projekt</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Catch2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Assistent erstellt ein einfaches Unit-Test-Projekt mit Catch2.</translation>
     </message>
     <message>
         <source>Catch2 v2 (header only)</source>
-        <translation type="unfinished"></translation>
+        <translation>Catch2 v2 (nur Header)</translation>
     </message>
     <message>
         <source>Catch2 v3 (shared libraries)</source>
-        <translation type="unfinished"></translation>
+        <translation>Catch2 v3 (dynamisch gebundene Bibliotheken)</translation>
     </message>
     <message>
         <source>Catch2 install directory (optional):</source>
-        <translation type="unfinished"></translation>
+        <translation>Catch2-Installationsverzeichnis (optional):</translation>
     </message>
     <message>
         <source>Use own main</source>
-        <translation type="unfinished"></translation>
+        <translation>Eigene main-Funktion verwenden</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Catch2. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein neues Unit-Test-Projekt mit Catch2. Unit-Tests können sicherstellen, dass Quelltext seine Aufgabe erfüllt und keine Regressionen enthält.</translation>
     </message>
     <message>
         <source>Catch2 Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Catch2-Test-Projekt</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Qt Test.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Assistent erstellt ein einfaches Unit-Test-Projekt mit Qt Test.</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Qt Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein neues Unit-Test-Projekt mit Qt Test. Unit-Tests können sicherstellen, dass Quelltext seine Aufgabe erfüllt und keine Regressionen enthält.</translation>
     </message>
     <message>
         <source>Qt Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Test-Projekt</translation>
     </message>
     <message>
         <source>This wizard creates a simple unit test project using Qt Quick Test.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieser Assistent erstellt ein einfaches Unit-Test-Projekt mit Qt Quick Test.</translation>
     </message>
     <message>
         <source>Creates a new unit test project using Qt Quick Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein neues Unit-Test-Projekt mit Qt Quick Test. Unit-Tests können sicherstellen, dass Quelltext seine Aufgabe erfüllt und keine Regressionen enthält.</translation>
     </message>
     <message>
         <source>Qt Quick Test Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Quick Test-Projekt</translation>
     </message>
     <message>
         <source>Creates a CMake-based test project for which a code snippet can be entered.</source>
@@ -41504,7 +41505,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Could not load kits in a reasonable amount of time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits konnten nicht in angemessener Zeit geladen werden.</translation>
     </message>
     <message>
         <source>Select the Root Directory</source>
@@ -42864,11 +42865,11 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>No device found for path &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Gerät für Pfad &quot;%1&quot; gefunden</translation>
     </message>
     <message>
         <source>No file access for device &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Dateizugriff für Gerät &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Profile</source>
@@ -42907,7 +42908,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>nicht verfügbar</translation>
     </message>
 </context>
 <context>
