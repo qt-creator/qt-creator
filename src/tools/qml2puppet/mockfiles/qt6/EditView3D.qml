@@ -776,7 +776,7 @@ Item {
                 height: viewRects[activeSplit].height + (activeSplit === 0 || activeSplit === 1 ? 1 : 0)
                 width: viewRects[activeSplit].width + (activeSplit === 0 || activeSplit === 2 ? 1 : 0)
                 border.width: 1
-                border.color: "#fff600"
+                border.color: "#57B9FC"
                 color: "transparent"
             }
 
