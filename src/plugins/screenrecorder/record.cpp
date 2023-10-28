@@ -120,6 +120,7 @@ RecordOptionsDialog::RecordOptionsDialog(QWidget *parent)
         st,
         buttonBox,
     }.attachTo(this);
+    layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, [this] {
         const QRect cropRect = m_cropScene->fullySelected() ? QRect() : screenCropRect();
