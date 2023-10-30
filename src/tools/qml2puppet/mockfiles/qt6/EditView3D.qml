@@ -336,9 +336,7 @@ Item {
         else if (resetToDefault)
             splitView = false;
 
-        if (!splitView)
-            activeSplit = 0;
-        else if ("activeSplit" in toolStates)
+        if ("activeSplit" in toolStates)
             activeSplit = toolStates.activeSplit;
         else if (resetToDefault)
             activeSplit = 0;
@@ -532,9 +530,10 @@ Item {
 
     function resolveSplitPoint(x, y)
     {
-        if (activeSplit === 0)
+        if (!splitView || activeSplit === 0)
             return Qt.point(x, y);
-        else if (activeSplit === 1)
+
+        if (activeSplit === 1)
             return Qt.point(x - viewContainer.width / 2, y);
         else if (activeSplit === 2)
             return Qt.point(x, y - viewContainer.height / 2);
@@ -556,8 +555,6 @@ Item {
                 else
                     activeSplit = 3;
             }
-        } else {
-            activeSplit = 0;
         }
     }
 
@@ -636,17 +633,17 @@ Item {
 
             Rectangle {
                 id: viewRect0
-                width: splitView ? parent.width / 2 : parent.width
-                height: splitView ? parent.height / 2 : parent.height
+                width: viewRoot.splitView ? parent.width / 2 : parent.width
+                height: viewRoot.splitView ? parent.height / 2 : parent.height
                 x: 0
                 y: 0
+                visible: viewRoot.splitView || viewRoot.activeSplit == 0
                 gradient: bgGradient
                 OverlayView3D {
                     id: overlayView0
                     editView: viewRoot.editViews[0]
                     viewRoot: viewRoot
                     importScene: overlayScene
-
 
                     onChangeObjectProperty: (nodes, props) => {
                         viewRoot.changeObjectProperty(nodes, props);
@@ -664,11 +661,11 @@ Item {
 
             Rectangle {
                 id: viewRect1
-                width: parent.width / 2
-                height: parent.height / 2
-                x: parent.width / 2
+                width: viewRoot.splitView ? parent.width / 2 : parent.width
+                height: viewRoot.splitView ? parent.height / 2 : parent.height
+                x: viewRoot.splitView ? parent.width / 2 : 0
                 y: 0
-                visible: splitView
+                visible: viewRoot.splitView || viewRoot.activeSplit == 1
                 gradient: bgGradient
                 OverlayView3D {
                     id: overlayView1
@@ -692,11 +689,11 @@ Item {
 
             Rectangle {
                 id: viewRect2
-                width: parent.width / 2
-                height: parent.height / 2
+                width: viewRoot.splitView ? parent.width / 2 : parent.width
+                height: viewRoot.splitView ? parent.height / 2 : parent.height
                 x: 0
-                y: parent.height / 2
-                visible: splitView
+                y: viewRoot.splitView ? parent.height / 2 : 0
+                visible: viewRoot.splitView || viewRoot.activeSplit == 2
                 gradient: bgGradient
                 OverlayView3D {
                     id: overlayView2
@@ -720,11 +717,11 @@ Item {
 
             Rectangle {
                 id: viewRect3
-                width: parent.width / 2
-                height: parent.height / 2
-                x: parent.width / 2
-                y: parent.height / 2
-                visible: splitView
+                width: viewRoot.splitView ? parent.width / 2 : parent.width
+                height: viewRoot.splitView ? parent.height / 2 : parent.height
+                x: viewRoot.splitView ? parent.width / 2 : 0
+                y: viewRoot.splitView ? parent.height / 2 : 0
+                visible: viewRoot.splitView || viewRoot.activeSplit == 3
                 gradient: bgGradient
                 OverlayView3D {
                     id: overlayView3
@@ -748,7 +745,7 @@ Item {
 
             Rectangle {
                 // Vertical border between splits
-                visible: splitView
+                visible: viewRoot.splitView
                 x: parent.width / 2
                 y: 0
                 width: 1
@@ -759,7 +756,7 @@ Item {
 
             Rectangle {
                 // Horizontal border between splits
-                visible: splitView
+                visible: viewRoot.splitView
                 x: 0
                 y: parent.height / 2
                 height: 1
@@ -770,11 +767,13 @@ Item {
 
             Rectangle {
                 // Active split highlight
-                visible: splitView
-                x: viewRects[activeSplit].x
-                y: viewRects[activeSplit].y
-                height: viewRects[activeSplit].height + (activeSplit === 0 || activeSplit === 1 ? 1 : 0)
-                width: viewRects[activeSplit].width + (activeSplit === 0 || activeSplit === 2 ? 1 : 0)
+                visible: viewRoot.splitView
+                x: viewRects[viewRoot.activeSplit].x
+                y: viewRects[viewRoot.activeSplit].y
+                height: viewRects[viewRoot.activeSplit].height
+                        + (viewRoot.activeSplit === 0 || viewRoot.activeSplit === 1 ? 1 : 0)
+                width: viewRects[viewRoot.activeSplit].width
+                       + (viewRoot.activeSplit === 0 || viewRoot.activeSplit === 2 ? 1 : 0)
                 border.width: 1
                 border.color: "#57B9FC"
                 color: "transparent"
