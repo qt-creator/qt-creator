@@ -33,7 +33,7 @@ static void deleteLater(QObject *obj)
 using ResponseData = Utils::expected<DataWithOrigin<QByteArray>, Error>;
 
 static constexpr int httpStatusCodeOk = 200;
-static constexpr QLatin1String jsonContentType{ "application/json" };
+static const QLatin1String jsonContentType{ "application/json" };
 
 class ResponseReader final
 {
