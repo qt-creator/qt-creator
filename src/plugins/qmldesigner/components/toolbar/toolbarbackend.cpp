@@ -343,6 +343,7 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this]() {
         emit isInDesignModeChanged();
         emit isInEditModeChanged();
+        emit isInSessionModeChanged();
         emit isDesignModeEnabledChanged();
     });
 
@@ -632,6 +633,14 @@ bool ToolBarBackend::isInEditMode() const
         return false;
 
     return Core::ModeManager::currentModeId() == Core::Constants::MODE_EDIT;
+}
+
+bool ToolBarBackend::isInSessionMode() const
+{
+    if (!Core::ModeManager::instance())
+        return false;
+
+    return Core::ModeManager::currentModeId() == ProjectExplorer::Constants::MODE_SESSION;
 }
 
 bool ToolBarBackend::isDesignModeEnabled() const
