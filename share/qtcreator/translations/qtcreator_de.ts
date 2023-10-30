@@ -56683,15 +56683,15 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     <name>QtC::Vcpkg</name>
     <message>
         <source>Copy paste the required lines into your CMakeLists.txt:</source>
-        <translation type="unfinished"></translation>
+        <translation>Benötigte Zeilen in Ihre CMakeLists.txt-Datei kopieren:</translation>
     </message>
     <message>
         <source>Add vcpkg Package...</source>
-        <translation type="unfinished"></translation>
+        <translation>vcpkg-Paket hinzufügen...</translation>
     </message>
     <message>
         <source>CMake Code...</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Code...</translation>
     </message>
     <message>
         <source>Vcpkg Manifest Editor</source>
@@ -56699,19 +56699,19 @@ Check settings or ensure Valgrind is installed and available in PATH.</source>
     </message>
     <message>
         <source>Add vcpkg Package</source>
-        <translation type="unfinished"></translation>
+        <translation>vcpkg-Paket hinzufügen</translation>
     </message>
     <message>
         <source>This package is already a project dependency.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieses Paket ist schon eine Projektabhängigkeit.</translation>
     </message>
     <message>
         <source>Packages:</source>
-        <translation type="unfinished"></translation>
+        <translation>Pakete:</translation>
     </message>
     <message>
         <source>Package Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Paket-Details</translation>
     </message>
     <message>
         <source>Name:</source>
