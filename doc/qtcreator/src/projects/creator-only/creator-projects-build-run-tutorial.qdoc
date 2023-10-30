@@ -34,7 +34,7 @@
 
         \li In the \uicontrol Welcome mode, select \uicontrol Examples (1).
 
-            \image qtcreator-gs-build-example-open.png "Selecting an example"
+            \image qtcreator-examples-open.webp {Selecting an example}
 
             If you cannot see any examples, check that the list of
             \l{Add Qt versions}{Qt versions} (2) is not empty. If
@@ -52,7 +52,7 @@
             \l{glossary-buildandrun-kit}{kit} for the
             device.
 
-            \image qtcreator-gs-build-example-kit-selector.png "Selecting a kit to build with"
+            \image qtcreator-examples-kit-selector.webp {Selecting a kit to build with}
 
             If you installed \QC as part of a Qt installation, it should have
             automatically detected the installed kit. If you cannot see any kits,
