@@ -573,7 +573,7 @@ void GradientModel::setAnchorBackend(const QVariant &anchorBackend)
     auto anchorBackendObject = anchorBackend.value<QObject*>();
 
     const auto backendCasted =
-            qobject_cast<const QmlDesigner::Internal::QmlAnchorBindingProxy *>(anchorBackendObject);
+            qobject_cast<const QmlDesigner::QmlAnchorBindingProxy *>(anchorBackendObject);
 
     if (backendCasted)
         m_itemNode = backendCasted->getItemNode();

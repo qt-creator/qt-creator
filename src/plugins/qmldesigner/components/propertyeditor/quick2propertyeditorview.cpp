@@ -53,7 +53,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         ItemFilterModel::registerDeclarativeType();
         ListValidator::registerDeclarativeType();
         ColorPaletteBackend::registerDeclarativeType();
-        Internal::QmlAnchorBindingProxy::registerDeclarativeType();
+        QmlAnchorBindingProxy::registerDeclarativeType();
         BindingEditor::registerDeclarativeType();
         ActionEditor::registerDeclarativeType();
         AnnotationEditor::registerDeclarativeType();

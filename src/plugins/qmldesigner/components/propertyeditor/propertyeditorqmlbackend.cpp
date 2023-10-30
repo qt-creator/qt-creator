@@ -400,7 +400,7 @@ void PropertyEditorQmlBackend::setSource(const QUrl &url)
     }
 }
 
-Internal::QmlAnchorBindingProxy &PropertyEditorQmlBackend::backendAnchorBinding()
+QmlAnchorBindingProxy &PropertyEditorQmlBackend::backendAnchorBinding()
 {
     return m_backendAnchorBinding;
 }

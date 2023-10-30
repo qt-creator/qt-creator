@@ -38,7 +38,7 @@ public:
     MaterialEditorContextObject *contextObject() const;
     QQuickWidget *widget() const;
     void setSource(const QUrl &url);
-    Internal::QmlAnchorBindingProxy &backendAnchorBinding();
+    QmlAnchorBindingProxy &backendAnchorBinding();
     void updateMaterialPreview(const QPixmap &pixmap);
     DesignerPropertyMap &backendValuesPropertyMap();
     MaterialEditorTransaction *materialEditorTransaction() const;
@@ -59,7 +59,7 @@ private:
     PropertyName auxNamePostFix(const PropertyName &propertyName);
 
     QQuickWidget *m_view = nullptr;
-    Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
+    QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlModelNodeProxy m_backendModelNode;
     DesignerPropertyMap m_backendValuesPropertyMap;
     QScopedPointer<MaterialEditorTransaction> m_materialEditorTransaction;

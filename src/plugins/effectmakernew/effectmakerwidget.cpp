@@ -134,6 +134,7 @@ void EffectMakerWidget::initView()
     m_quickWidget->rootContext()->setContextObject(ctxObj);
 
     m_backendModelNode.setup(m_effectMakerView->rootModelNode());
+    m_quickWidget->rootContext()->setContextProperty("anchorBackend", &m_backendAnchorBinding);
     m_quickWidget->rootContext()->setContextProperty("modelNodeBackend", &m_backendModelNode);
 
     // init the first load of the QML UI elements

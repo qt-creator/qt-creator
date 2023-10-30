@@ -13,9 +13,7 @@ namespace QmlDesigner {
 
 class NodeInstanceView;
 
-namespace Internal {
-
-class QmlAnchorBindingProxy : public QObject
+class QMLDESIGNERCORE_EXPORT QmlAnchorBindingProxy : public QObject
 {
     Q_OBJECT
 
@@ -222,5 +220,4 @@ private:
     bool m_ignoreQml;
 };
 
-} // namespace Internal
 } // namespace QmlDesigner

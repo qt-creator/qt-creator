@@ -172,7 +172,7 @@ void TextureEditorQmlBackend::setSource(const QUrl &url)
     m_view->setSource(url);
 }
 
-Internal::QmlAnchorBindingProxy &TextureEditorQmlBackend::backendAnchorBinding()
+QmlAnchorBindingProxy &TextureEditorQmlBackend::backendAnchorBinding()
 {
     return m_backendAnchorBinding;
 }
