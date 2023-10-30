@@ -64,6 +64,8 @@ Item {
             }
         }
 
+        Component.onCompleted: HelperWidgets.Controller.mainScrollView = scrollView
+
         HelperWidgets.ScrollView {
             id: scrollView
 
