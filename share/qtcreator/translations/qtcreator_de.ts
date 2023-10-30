@@ -45507,7 +45507,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Issues that the QML code parser found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die beim Auswerten von QML-Code gefunden wurden.</translation>
     </message>
     <message>
         <source>QML Analysis</source>
@@ -45515,7 +45515,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Issues that the QML static analyzer found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die bei der statischen Analyse von QML-Code gefunden wurden.</translation>
     </message>
     <message>
         <source>Move Component into Separate File</source>
@@ -45639,7 +45639,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>QML Language Server</source>
-        <translation type="unfinished"></translation>
+        <translation>QML Language Server</translation>
     </message>
     <message>
         <source>Use customized static analyzer</source>
@@ -45687,15 +45687,15 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Enable QML Language Server (EXPERIMENTAL!)</source>
-        <translation type="unfinished"></translation>
+        <translation>QML Language Server aktivieren (EXPERIMENTELL!)</translation>
     </message>
     <message>
         <source>Use QML Language Server advanced features (renaming, find usages and co.) (EXPERIMENTAL!)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fortgeschrittene Funktionen vom QML Language Server benutzen (umbenennen, Verweise finden und weiteres) (EXPERIMENTELL!)</translation>
     </message>
     <message>
         <source>Use QML Language Server from latest Qt version</source>
-        <translation type="unfinished"></translation>
+        <translation>QML Language Server der neuesten Qt-Version benutzen</translation>
     </message>
     <message>
         <source>Features</source>
@@ -45822,11 +45822,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>QML Preview Not Running</source>
-        <translation type="unfinished"></translation>
+        <translation>QML-Vorschau läuft nicht</translation>
     </message>
     <message>
         <source>Start the QML Preview for the project before selecting a specific file for preview.</source>
-        <translation type="unfinished"></translation>
+        <translation>Starten Sie die QML-Vorschau für das Projekt, bevor Sie eine spezifische Datei für die Vorschau auswählen.</translation>
     </message>
 </context>
 <context>
