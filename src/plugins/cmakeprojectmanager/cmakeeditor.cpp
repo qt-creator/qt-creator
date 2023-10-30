@@ -160,7 +160,7 @@ static bool isValidIdentifierChar(const QChar &chr)
     return chr.isLetterOrNumber() || chr == '_' || chr == '-';
 }
 
-QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const Utils::FilePath &filePath)
+QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const Utils::FilePath &filePath, QString &projectName)
 {
     cmListFile cmakeListFile;
     if (!content.isEmpty()) {
@@ -172,6 +172,11 @@ QHash<QString, Utils::Link> getLocalSymbolsHash(const QByteArray &content, const
 
     QHash<QString, Utils::Link> hash;
     for (const auto &func : cmakeListFile.Functions) {
+        if (func.LowerCaseName() == "project" && func.Arguments().size() > 0) {
+            projectName = QString::fromUtf8(func.Arguments()[0].Value);
+            continue;
+        }
+
         if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
             && func.LowerCaseName() != "set" && func.LowerCaseName() != "option")
             continue;
@@ -310,6 +315,14 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
     const int funcStart = findFunctionStart();
     const int funcEnd = findFunctionEnd();
 
+    // Resolve local variables and functions
+    QString projectName;
+    auto hash = getLocalSymbolsHash(textDocument()->textAt(0, funcEnd + 1).toUtf8(),
+                                    textDocument()->filePath(),
+                                    projectName);
+    if (!projectName.isEmpty())
+        buffer.replace("${PROJECT_NAME}", projectName);
+
     if (auto project = ProjectTree::currentProject()) {
         buffer.replace("${CMAKE_SOURCE_DIR}", project->projectDirectory().path());
         if (auto bs = ProjectTree::currentBuildSystem(); bs->buildConfiguration()) {
@@ -365,10 +378,6 @@ void CMakeEditorWidget::findLinkAt(const QTextCursor &cursor,
         }
     }
     // TODO: Resolve more variables
-
-    // Resolve local variables and functions
-    auto hash = getLocalSymbolsHash(textDocument()->textAt(0, funcEnd + 1).toUtf8(),
-                                    textDocument()->filePath());
 
     // Strip variable coating
     if (buffer.startsWith("${") && buffer.endsWith("}"))

@@ -61,7 +61,7 @@ endif()
 # and F1 should open the help page
 message(STATUS $ENV{CXX})
 
-qt_add_executable(completion ${SOURCE_FILES})
+qt_add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 # here code completino on "target_link_libraries(comp|" should poupup "completion"
 # with a hammer icon, which suggests a project target
@@ -76,7 +76,8 @@ qt_add_executable(completion ${SOURCE_FILES})
 # F2 on "completion" would jump above to qt_add_executable
 target_link_libraries(completion PRIVATE Qt6::Widgets)
 
-set_target_properties(completion PROPERTIES
+# F2 on ${PROJECT_NAME} would jump above to qt_add_executable
+set_target_properties(${PROJECT_NAME} PROPERTIES
   # F1 on WIN32_EXECUTABLE should open the help
   WIN32_EXECUTABLE ON
   MACOSX_BUNDLE ON
