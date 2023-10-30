@@ -299,6 +299,8 @@ Terminal
 * Added support for Windows Terminal schemes
 * Fixed `Ctrl+C/V` on Windows
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-reference-terminal-view.html))
+
 Version Control Systems
 -----------------------
 
