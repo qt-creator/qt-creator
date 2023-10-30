@@ -50970,12 +50970,12 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     <message>
         <source>%1 shortcuts are blocked when focus is inside the terminal.</source>
         <extracomment>%1 is the application name (Qt Creator)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tastenkombinationen von %1 werden blockiert, wenn der Fokus im Terminal ist.</translation>
     </message>
     <message>
         <source>%1 shortcuts take precedence.</source>
         <extracomment>%1 is the application name (Qt Creator)</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Tastenkombinationen von %1 werden bevorzugt.</translation>
     </message>
     <message>
         <source>New Terminal</source>
@@ -51083,11 +51083,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Block shortcuts in terminal</source>
-        <translation type="unfinished"></translation>
+        <translation>Tastenkombinationen im Terminal blockieren</translation>
     </message>
     <message>
         <source>Keeps Qt Creator shortcuts from interfering with the terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verhindert, dass Tastenkombinationen von Qt Creator die Funktion des Terminals stören.</translation>
     </message>
     <message>
         <source>Audible bell</source>
@@ -51099,11 +51099,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Enable mouse tracking</source>
-        <translation type="unfinished"></translation>
+        <translation>Mausverfolgung aktivieren</translation>
     </message>
     <message>
         <source>Enables mouse tracking in the terminal.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert die Verfolgung der Maus im Terminal.</translation>
     </message>
     <message>
         <source>Load Theme...</source>
@@ -51115,7 +51115,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Copy Theme</source>
-        <translation type="unfinished"></translation>
+        <translation>Thema kopieren</translation>
     </message>
     <message>
         <source>Error</source>
@@ -51155,23 +51155,23 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Connecting...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbinde...</translation>
     </message>
     <message>
         <source>Failed to start shell: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Shell konnte nicht gestartet werden: %1</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is not executable.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; ist nicht ausführbar.</translation>
     </message>
     <message>
         <source>Terminal process exited with code %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Terminalprozess wurde mit dem Rückgabewert %1 beendet</translation>
     </message>
     <message>
         <source>Process exited with code: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess wurde mit dem Rückgabewert %1 beendet</translation>
     </message>
     <message>
         <source>Copy</source>
