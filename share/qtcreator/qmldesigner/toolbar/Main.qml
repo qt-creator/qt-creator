@@ -26,26 +26,75 @@ Rectangle {
         anchors.fill: parent
         visible: !backend.isInDesignMode
 
-        ToolbarButton {
-            id: homeOther
-            anchors.verticalCenter: parent.verticalCenter
+        Rectangle {
+            id: returnExtended
+            height: homeOther.height
+            width: backTo.visible ? (homeOther.width + backTo.width + contentRow.spacing + 6) : homeOther.width
+            anchors.verticalCenter: topToolbarOtherMode.verticalCenter
             anchors.left: parent.left
             anchors.leftMargin: 10
-            tooltip: backend.isDesignModeEnabled ? qsTr("Switch to Design Mode.")
-                                                 : qsTr("Switch to Welcome Mode.")
-            buttonIcon: backend.isDesignModeEnabled ? StudioTheme.Constants.designMode_large
-                                                    : StudioTheme.Constants.home_large
-            onClicked: backend.triggerModeChange()
-        }
+            color: StudioTheme.Values.themeToolbarBackground
+            radius: StudioTheme.Values.smallRadius
+            state: "default"
 
-        Text {
-            id: backTo
-            visible: backend.isDesignModeEnabled
-            anchors.verticalCenter: parent.verticalCenter
-            text: qsTr("Return to Design")
-            anchors.left: homeOther.right
-            anchors.leftMargin: 10
-            color: StudioTheme.Values.themeTextColor
+            Row {
+                id: contentRow
+                spacing: 6
+                anchors.fill: parent
+
+                ToolbarButton {
+                    id: homeOther
+                    tooltip: backend.isDesignModeEnabled ? qsTr("Switch to Design Mode.")
+                                                         : qsTr("Switch to Welcome Mode.")
+                    buttonIcon: backend.isDesignModeEnabled ? StudioTheme.Constants.designMode_large
+                                                            : StudioTheme.Constants.home_large
+                    hover: mouseArea.containsMouse
+                    press: mouseArea.pressed
+
+                    onClicked: backend.triggerModeChange()
+
+                }
+
+                Text {
+                    id: backTo
+                    height: homeOther.height
+                    visible: backend.isDesignModeEnabled
+                    horizontalAlignment: Text.AlignLeft
+                    verticalAlignment: Text.AlignVCenter
+                    text: qsTr("Return to Design")
+                    color: StudioTheme.Values.themeTextColor
+                }
+            }
+
+            MouseArea{
+                id: mouseArea
+                anchors.fill: parent
+                hoverEnabled: true
+                onClicked: homeOther.onClicked()
+            }
+
+            states: [
+                State {
+                    name: "default"
+                    when: !mouseArea.containsMouse && !mouseArea.pressed
+                },
+                State {
+                    name: "hover"
+                    when: mouseArea.containsMouse && !mouseArea.pressed
+                    PropertyChanges {
+                        target: returnExtended
+                        color: StudioTheme.Values.themeControlBackground_topToolbarHover
+                    }
+                },
+                State {
+                    name: "pressed"
+                    when: mouseArea.pressed
+                    PropertyChanges {
+                        target: returnExtended
+                        color: StudioTheme.Values.themeInteraction
+                    }
+                }
+            ]
         }
     }
 
