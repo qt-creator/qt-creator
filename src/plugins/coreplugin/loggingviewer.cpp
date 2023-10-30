@@ -1100,6 +1100,8 @@ void setCategoryColor(const QString &category, const QColor &color)
         s_categoryColor.remove(category);
 }
 
+static bool wasLogViewerShown = false;
+
 void LoggingViewer::showLoggingView()
 {
     LoggingViewManagerWidget *staticLogWidget = LoggingViewManagerWidget::instance();
@@ -1108,10 +1110,15 @@ void LoggingViewer::showLoggingView()
     staticLogWidget->show();
     staticLogWidget->raise();
     staticLogWidget->activateWindow();
+
+    wasLogViewerShown = true;
 }
 
 void LoggingViewer::hideLoggingView()
 {
+    if (!wasLogViewerShown)
+        return;
+
     LoggingViewManagerWidget *staticLogWidget = LoggingViewManagerWidget::instance();
     QTC_ASSERT(staticLogWidget, return);
     staticLogWidget->close();
