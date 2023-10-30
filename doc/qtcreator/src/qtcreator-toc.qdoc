@@ -190,6 +190,14 @@
                 \generatelist creator-how-to-manage-kits
             \li Manage Projects
                 \generatelist creator-how-to-projects
+                \list
+                    \li Create Projects
+                        \generatelist creator-how-to-projects-create
+                    \li Create Files
+                        \generatelist creator-how-to-projects-files
+                    \li Configure Projects
+                        \generatelist creator-how-to-projects-configure
+                \endlist
             \li Read Qt Documentation
                 \generatelist creator-how-to-get-help
             \li Use \QC
