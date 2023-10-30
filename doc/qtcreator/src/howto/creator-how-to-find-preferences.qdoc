@@ -26,6 +26,13 @@
             \li \uicontrol {\QC} > \uicontrol Preferences
     \endtable
 
+    \section1 Sort preference categories
+
+    To sort the preference categories in alphabetic order, select the
+    \uicontrol {Sort categories} check box.
+
+    \image qtcreator-preferences-sort.webp {Preference categories in alphabetic order}
+
     \section1 Filter preferences
 
     To find a particular preference, use the filter located at the top left of
