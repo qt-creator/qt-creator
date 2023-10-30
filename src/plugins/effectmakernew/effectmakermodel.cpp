@@ -462,9 +462,11 @@ QString EffectMakerModel::valueAsVariable(const Uniform &uniform)
 // Return name for the image property Image element
 QString EffectMakerModel::getImageElementName(const Uniform &uniform)
 {
-    // TODO
-    Q_UNUSED(uniform)
-    return {};
+    if (uniform.value().toString().isEmpty())
+        return QStringLiteral("null");
+    QString simplifiedName = uniform.name().simplified();
+    simplifiedName = simplifiedName.remove(' ');
+    return QStringLiteral("imageItem") + simplifiedName;
 }
 
 const QString EffectMakerModel::getConstVariables()
