@@ -12,6 +12,11 @@ namespace {
 
 using CollectionDataVariant = std::variant<QString, bool, double, QUrl, QColor>;
 
+inline bool operator<(const QColor &a, const QColor &b)
+{
+    return a.name(QColor::HexArgb) < b.name(QColor::HexArgb);
+}
+
 inline CollectionDataVariant valueToVariant(const QVariant &value,
                                             QmlDesigner::CollectionDetails::DataType type)
 {
@@ -44,12 +49,6 @@ struct LessThanVisitor
     bool operator()(const T &a, const T &b) const
     {
         return a < b;
-    }
-
-    template<>
-    bool operator()(const QColor &a, const QColor &b) const
-    {
-        return a.name(QColor::HexArgb) < b.name(QColor::HexArgb);
     }
 };
 

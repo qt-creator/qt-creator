@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QPointer>
 #include <QSortFilterProxyModel>
 
 namespace QmlDesigner {

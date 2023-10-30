@@ -64,8 +64,8 @@ bool CollectionDetailsSortFilterModel::selectColumn(int column)
 
 CollectionDetailsSortFilterModel::~CollectionDetailsSortFilterModel() = default;
 
-bool CollectionDetailsSortFilterModel::filterAcceptsRow(int sourceRow,
-                                                        const QModelIndex &sourceParent) const
+bool CollectionDetailsSortFilterModel::filterAcceptsRow(
+    [[maybe_unused]] int sourceRow, [[maybe_unused]] const QModelIndex &sourceParent) const
 {
     return true;
 }
