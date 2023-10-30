@@ -51903,35 +51903,35 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>Automatic</source>
-        <translation type="unfinished">Automatisch</translation>
+        <translation>Automatisch</translation>
     </message>
     <message>
         <source>At Line Start</source>
-        <translation type="unfinished"></translation>
+        <translation>Am Zeilenanfang</translation>
     </message>
     <message>
         <source>After Whitespace</source>
-        <translation type="unfinished"></translation>
+        <translation>Nach Leerzeichen</translation>
     </message>
     <message>
         <source>Specifies where single line comments should be positioned.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gibt an, wo einzeilige Kommentare plaziert werden sollen.</translation>
     </message>
     <message>
         <source>%1: The highlight definition for the file determines the position. If no highlight definition is available, the comment is placed after leading whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Die Definition der Syntaxhervorhebung bestimmt die Position. Wenn keine Syntaxhervorhebung verfügbar ist, wird der Kommentar nach Leerzeichen am Zeilenanfang plaziert.</translation>
     </message>
     <message>
         <source>%1: The comment is placed at the start of the line.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Der Kommentar wird an den Anfang der Zeile plaziert.</translation>
     </message>
     <message>
         <source>%1: The comment is placed after leading whitespaces.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1: Der Kommentar wird nach Leerzeichen am Zeilenanfang plaziert.</translation>
     </message>
     <message>
         <source>Preferred comment position:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bevorzugte Position für Kommentare:</translation>
     </message>
     <message>
         <source>Tab key performs auto-indent:</source>
@@ -52445,7 +52445,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Cursors: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfügemarken: %2</translation>
     </message>
     <message>
         <source>Cursor position: %1</source>
@@ -52453,39 +52453,39 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>(Sel: %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Ausw.: %1)</translation>
     </message>
     <message>
         <source>Cursors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfügemarken:</translation>
     </message>
     <message>
         <source>Line:</source>
-        <translation type="unfinished">Zeile:</translation>
+        <translation>Zeile:</translation>
     </message>
     <message>
         <source>Column:</source>
-        <translation type="unfinished"></translation>
+        <translation>Spalte:</translation>
     </message>
     <message>
         <source>Selection length:</source>
-        <translation type="unfinished"></translation>
+        <translation>Länge der Auswahl:</translation>
     </message>
     <message>
         <source>Position in document:</source>
-        <translation type="unfinished"></translation>
+        <translation>Position im Dokument:</translation>
     </message>
     <message>
         <source>Anchor:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anker:</translation>
     </message>
     <message>
         <source>Unix Line Endings (LF)</source>
-        <translation type="unfinished"></translation>
+        <translation>Unix-Zeilenenden (LF)</translation>
     </message>
     <message>
         <source>Windows Line Endings (CRLF)</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows-Zeilenenden (CRLF)</translation>
     </message>
     <message>
         <source>Other annotations</source>
@@ -52501,11 +52501,11 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>LF</source>
-        <translation type="unfinished">LF</translation>
+        <translation>LF</translation>
     </message>
     <message>
         <source>CRLF</source>
-        <translation type="unfinished">CRLF</translation>
+        <translation>CRLF</translation>
     </message>
     <message>
         <source>The text is too large to be displayed (%1 MB).</source>
@@ -52537,7 +52537,7 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Could not find definition.</source>
-        <translation type="unfinished"></translation>
+        <translation>Definition konnte nicht gefunden werden.</translation>
     </message>
     <message>
         <source>Line: %1, Col: %2</source>
@@ -52685,23 +52685,23 @@ Bestimmt das Verhalten bezüglich der Einrückung von Fortsetzungszeilen.
     </message>
     <message>
         <source>Follow Type Under Cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ unter Einfügemarke verfolgen</translation>
     </message>
     <message>
         <source>Ctrl+Shift+F2</source>
-        <translation type="unfinished">Ctrl+Shift+F2</translation>
+        <translation>Ctrl+Shift+F2</translation>
     </message>
     <message>
         <source>Follow Type Under Cursor in Next Split</source>
-        <translation type="unfinished"></translation>
+        <translation>Typ unter Einfügemarke im nächsten geteilten Fenster verfolgen</translation>
     </message>
     <message>
         <source>Meta+E, Shift+F2</source>
-        <translation type="unfinished">Meta+E, Shift+F2</translation>
+        <translation>Meta+E, Shift+F2</translation>
     </message>
     <message>
         <source>Ctrl+E, Ctrl+Shift+F2</source>
-        <translation type="unfinished">Ctrl+E, Ctrl+Shift+F2</translation>
+        <translation>Ctrl+E, Ctrl+Shift+F2</translation>
     </message>
     <message>
         <source>Find References to Symbol Under Cursor</source>
@@ -53229,13 +53229,15 @@ Drücken Sie zusätzlich die Umschalttaste, wird ein Escape-Zeichen an der aktue
     </message>
     <message>
         <source>Doxygen command prefix:</source>
-        <translation type="unfinished"></translation>
+        <translation>Prefix für Doxygen-Kommandos:</translation>
     </message>
     <message>
         <source>Doxygen allows &quot;@&quot; and &quot;\&quot; to start commands.
 By default, &quot;@&quot; is used if the surrounding comment starts with &quot;/**&quot; or &quot;///&quot;, and &quot;\&quot; is used
 if the comment starts with &quot;/*!&quot; or &quot;//!</source>
-        <translation type="unfinished"></translation>
+        <translation>Doxygen erlaubt es, Befehle mit &quot;@&quot; und &quot;\&quot; zu beginnen.
+Die Vorgabe ist, mit &quot;@&quot; zu beginnen, wenn der umgebende Kommentar mit &quot;/**&quot; oder &quot;///&quot; anfängt,
+und &quot;\&quot; zu benutzen, wenn der Kommentar mit &quot;/*!&quot; oder &quot;//!&quot;.</translation>
     </message>
     <message>
         <source>Generate brief description</source>
@@ -53925,7 +53927,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>PLACEHOLDER</source>
-        <translation type="unfinished"></translation>
+        <translation>PLATZHALTER</translation>
     </message>
     <message>
         <source>Implicitly Covered Code</source>
@@ -54021,42 +54023,42 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     <message>
         <source>QuickTest Test Case</source>
         <comment>group:&apos;QML&apos; trigger:&apos;TestCase&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>QuickTest-Testfall</translation>
     </message>
     <message>
         <source>GTest Function</source>
         <comment>group:&apos;C++&apos; trigger:&apos;TEST&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>GTest-Funktion</translation>
     </message>
     <message>
         <source>GTest Fixture</source>
         <comment>group:&apos;C++&apos; trigger:&apos;TEST_F&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>GTest-Fixture</translation>
     </message>
     <message>
         <source>GTest Parameterized</source>
         <comment>group:&apos;C++&apos; trigger:&apos;TEST_P&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>GTest parametrisiert</translation>
     </message>
     <message>
         <source>Test Case</source>
         <comment>group:&apos;C++&apos; trigger:&apos;BOOST_AUTO_TEST_CASE&apos;</comment>
-        <translation type="unfinished">Testfall</translation>
+        <translation>Testfall</translation>
     </message>
     <message>
         <source>Test Suite</source>
         <comment>group:&apos;C++&apos; trigger:&apos;BOOST_AUTO_TEST_SUITE&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Test-Suite</translation>
     </message>
     <message>
         <source>Catch Test Case</source>
         <comment>group:&apos;C++&apos; trigger:&apos;TEST_CASE&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Catch-Testfall</translation>
     </message>
     <message>
         <source>Catch Scenario</source>
         <comment>group:&apos;C++&apos; trigger:&apos;SCENARIO&apos;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Catch-Szenario</translation>
     </message>
     <message>
         <source>with targets</source>
@@ -54142,19 +54144,19 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Emphasis</source>
-        <translation type="unfinished"></translation>
+        <translation>Hervorherbung</translation>
     </message>
     <message>
         <source>Strong</source>
-        <translation type="unfinished"></translation>
+        <translation>Fett</translation>
     </message>
     <message>
         <source>Inline Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline-Quelltext</translation>
     </message>
     <message>
         <source>Hyperlink</source>
-        <translation type="unfinished"></translation>
+        <translation>Hyperlink</translation>
     </message>
     <message>
         <source>Swap Views</source>
@@ -54162,7 +54164,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>JSON Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>JSON-Editor</translation>
     </message>
 </context>
 <context>
