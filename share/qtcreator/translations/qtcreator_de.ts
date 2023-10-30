@@ -54804,7 +54804,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Failed to create process interface for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Prozess-Interface für &quot;%1&quot; konnte nicht erstellt werden.</translation>
     </message>
     <message>
         <source>Process Not Responding</source>
@@ -54960,17 +54960,17 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; exists but is not a writable directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; existiert, ist aber kein schreibbares Verzeichnis.</translation>
     </message>
     <message>
         <source>Cannot copy &quot;%1&quot; to &quot;%2&quot;: %3</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopieren von &quot;%1&quot; nach &quot;%2&quot; ist fehlgeschlagen: %3</translation>
     </message>
     <message numerus="yes">
         <source>Could not write to file &quot;%1&quot; (only %2 of %n byte(s) written).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Die Datei &quot;%1&quot; konnte nicht geschrieben werden (es wurden nur %2 von einem Byte geschrieben).</numerusform>
+            <numerusform>Die Datei &quot;%1&quot; konnte nicht geschrieben werden (es wurden nur %2 von %n Bytes geschrieben).</numerusform>
         </translation>
     </message>
     <message>
@@ -55389,11 +55389,11 @@ Um eine Variable zu deaktivieren, stellen Sie der Zeile &quot;#&quot; voran.</tr
     </message>
     <message>
         <source>No source file set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Quelldatei gesetzt.</translation>
     </message>
     <message>
         <source>No destination directory set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Zielverzeichnis gesetzt.</translation>
     </message>
     <message>
         <source>Command failed.</source>
@@ -55562,48 +55562,49 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>The process failed to start.</source>
-        <translation type="unfinished">Der Prozess konnte nicht gestartet werden.</translation>
+        <translation>Der Prozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Failed to install shell script: %1
 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Shell-Skript konnte nicht installiert werden: %1
+%2</translation>
     </message>
     <message>
         <source>Timeout while trying to check for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitüberschreitung bei der Überprüfung von %1.</translation>
     </message>
     <message>
         <source>Command &quot;%1&quot; was not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Kommando &quot;%1&quot; wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>Script installation was forced to fail.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Skriptinstallation wurde gezwungenermaßen abgebrochen.</translation>
     </message>
     <message>
         <source>Timeout while waiting for shell script installation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeitüberschreitung beim Warten auf die Installation des Shell-Skripts.</translation>
     </message>
     <message>
         <source>Failed to install shell script: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Installation des Shell-Skripts ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Show/Hide Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Passwort anzeigen/verstecken</translation>
     </message>
     <message>
         <source>User:</source>
-        <translation type="unfinished">Nutzer:</translation>
+        <translation>Nutzer:</translation>
     </message>
     <message>
         <source>Password:</source>
-        <translation type="unfinished">Passwort:</translation>
+        <translation>Passwort:</translation>
     </message>
     <message>
         <source>Could not find any shell.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte keine Shell gefunden werden.</translation>
     </message>
 </context>
 <context>
