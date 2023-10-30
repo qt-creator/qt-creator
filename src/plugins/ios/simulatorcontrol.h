@@ -61,6 +61,14 @@ public:
         bool success = false;
         qint64 pID = -1;
         QString commandOutput;
+
+        ResponseData withError(const QString errorMsg)
+        {
+            ResponseData result = *this;
+            result.commandOutput = errorMsg;
+            result.success = false;
+            return result;
+        }
     };
 
 public:
