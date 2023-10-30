@@ -33,6 +33,7 @@ graniteGrey=ff343434
 ashGrey=ff434343
 midnightGrey=ff333333
 dawnGrey=ff2a2a2a
+coalGrey=ff282828
 offBlack=ff202020
 nearBlack=ff1b1b1b
 fullBlack=ff000000
@@ -101,6 +102,9 @@ DSpopoutButtonBorder_disabled=offBlack
 
 ;4.4
 DSconnectionCodeEditor=midnightGrey
+DSconnectionEditorMicroToolbar=coalGrey
+DSconnectionEditorButtonBackground_hover=midnightGrey
+DSconnectionEditorButtonBorder_hover=duskGrey
 DSpillText=fullWhite
 DSpillTextSelected=fullBlack
 DspillTextEdit=fullWhite

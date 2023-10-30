@@ -262,10 +262,12 @@ QtObject {
     property color themeControlBackground_toolbarHover: Theme.color(Theme.DScontrolBackground_toolbarHover)
     property color themeControlBackground_topToolbarHover: Theme.color(Theme.DScontrolBackground_topToolbarHover)
     property color themeToolbarBackground: Theme.color(Theme.DStoolbarBackground)
+    property color themeConnectionEditorButtonBackground_hover: Theme.color(Theme.DSconnectionEditorButtonBackground_hover)
 
     //outlines
     property color controlOutline_toolbarIdle: Theme.color(Theme.DScontrolOutline_topToolbarIdle)
     property color controlOutline_toolbarHover: Theme.color(Theme.DScontrolOutline_topToolbarHover)
+    property color themeConnectionEditorButtonBorder_hover: Theme.color(Theme.DSconnectionEditorButtonBorder_hover)
 
     //icons
     property color themeToolbarIcon_blocked: Theme.color(Theme.DStoolbarIcon_blocked)
@@ -344,6 +346,7 @@ QtObject {
     property color themeBackgroundColorNormal: Theme.color(Theme.DSBackgroundColorNormal)
     property color themeBackgroundColorAlternate: Theme.color(Theme.DSBackgroundColorAlternate)
     property color themeConnectionCodeEditor: Theme.color(Theme.DSconnectionCodeEditor)
+    property color themeConnectionEditorMicroToolbar: Theme.color(Theme.DSconnectionEditorMicroToolbar)
 
     // Text colors
     property color themeTextColor: Theme.color(Theme.DStextColor)
@@ -469,6 +472,7 @@ QtObject {
     property ControlStyle toolbarStyle: ToolbarStyle {}
     property ControlStyle primaryToolbarStyle: PrimaryButtonStyle {}
     property ControlStyle toolbarButtonStyle: TopToolbarButtonStyle {}
+    property ControlStyle microToolbarButtonStyle: MicroToolbarButtonStyle {}
     property ControlStyle viewBarButtonStyle: ViewBarButtonStyle {}
     property ControlStyle viewBarControlStyle: ViewBarControlStyle {}
     property ControlStyle statusbarButtonStyle: StatusBarButtonStyle {}

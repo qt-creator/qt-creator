@@ -355,7 +355,9 @@ public:
         DSpillOperatorBackgroundHover,
         DSpillLiteralBackgroundIdle,
         DSpillLiteralBackgroundHover,
-
+        DSconnectionEditorMicroToolbar,
+        DSconnectionEditorButtonBackground_hover,
+        DSconnectionEditorButtonBorder_hover,
 
         /*Legacy QtDS*/
         DSiconColor,
