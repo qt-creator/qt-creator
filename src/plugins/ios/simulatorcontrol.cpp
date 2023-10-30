@@ -3,6 +3,7 @@
 
 #include "simulatorcontrol.h"
 #include "iosconfigurations.h"
+#include "iostr.h"
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -384,10 +385,10 @@ void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QSt
     SimulatorInfo simInfo = deviceInfo(simUdid);
 
     if (!simInfo.available) {
-        qCDebug(simulatorLog) << "Simulator device is not available." << simUdid;
+        promise.addResult(
+            response.withError(Tr::tr("Simulator device is not available. (%1)").arg(simUdid)));
         return;
     }
-
     // Shutting down state checks are for the case when simulator start is called within a short
     // interval of closing the previous interval of the simulator. We wait untill the shutdown
     // process is complete.
@@ -399,8 +400,14 @@ void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QSt
     }
 
     if (simInfo.isShuttingDown()) {
-        qCDebug(simulatorLog) << "Cannot start Simulator device. "
-                              << "Previous instance taking too long to shutdown." << simInfo;
+        promise.addResult(response.withError(
+            Tr::tr("Cannot start Simulator device. Previous instance taking "
+                   "too long to shut down. (name=%1, udid=%2, available=%3, state=%4, runtime=%5)")
+                .arg(simInfo.name)
+                .arg(simInfo.identifier)
+                .arg(simInfo.available)
+                .arg(simInfo.state)
+                .arg(simInfo.runtimeName)));
         return;
     }
 
@@ -421,11 +428,19 @@ void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QSt
             if (info.isBooted())
                 response.success = true;
         } else {
-            qCDebug(simulatorLog) << "Error starting simulator.";
+            promise.addResult(response.withError(Tr::tr("Error starting simulator.")));
+            return;
         }
     } else {
-       qCDebug(simulatorLog) << "Cannot start Simulator device. Simulator not in shutdown state."
-                             << simInfo;
+        promise.addResult(response.withError(
+            Tr::tr("Cannot start Simulator device. Simulator not in shutdown state.(name=%1, "
+                   "udid=%2, available=%3, state=%4, runtime=%5)")
+                .arg(simInfo.name)
+                .arg(simInfo.identifier)
+                .arg(simInfo.available)
+                .arg(simInfo.state)
+                .arg(simInfo.runtimeName)));
+        return;
     }
 
     if (!promise.isCanceled())

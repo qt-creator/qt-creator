@@ -301,10 +301,13 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
     auto install = new PipInstallTask(python);
 
     connect(install, &PipInstallTask::finished, this, [=](const bool success) {
+        const QList<TextEditor::TextDocument *> additionalDocuments = m_infoBarEntries.take(python);
         if (success) {
-            if (document) {
-                if (PyLSClient *client = clientForPython(python))
+            if (PyLSClient *client = clientForPython(python)) {
+                if (document)
                     LanguageClientManager::openDocumentWithClient(document, client);
+                for (TextEditor::TextDocument *additionalDocument : additionalDocuments)
+                    LanguageClientManager::openDocumentWithClient(additionalDocument, client);
             }
         }
         install->deleteLater();
@@ -371,15 +374,6 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
         m_infoBarEntries[python] << document;
     } else if (state.state == PythonLanguageServerState::AlreadyInstalled) {
         if (auto client = clientForPython(python))
-            LanguageClientManager::openDocumentWithClient(document, client);
-    }
-}
-
-void PyLSConfigureAssistant::updateEditorInfoBars(const FilePath &python, Client *client)
-{
-    for (TextEditor::TextDocument *document : instance()->m_infoBarEntries.take(python)) {
-        instance()->resetEditorInfoBar(document);
-        if (client)
             LanguageClientManager::openDocumentWithClient(document, client);
     }
 }

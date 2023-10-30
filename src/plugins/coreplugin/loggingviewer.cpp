@@ -95,6 +95,12 @@ private:
 
     void onFilter(QLoggingCategory *category)
     {
+        if (QThread::currentThread() != thread()) {
+            QMetaObject::invokeMethod(
+                this, [category, this] { onFilter(category); }, Qt::QueuedConnection);
+            return;
+        }
+
         if (!m_categories.contains(category)) {
             m_categories.append(category);
             emit newLogCategory(category);
@@ -108,7 +114,7 @@ private:
     bool m_started{false};
 };
 
-QLoggingCategory::CategoryFilter LogCategoryRegistry::s_oldFilter;
+QLoggingCategory::CategoryFilter LogCategoryRegistry::s_oldFilter = nullptr;
 
 struct SavedEntry
 {
@@ -1100,6 +1106,8 @@ void setCategoryColor(const QString &category, const QColor &color)
         s_categoryColor.remove(category);
 }
 
+static bool wasLogViewerShown = false;
+
 void LoggingViewer::showLoggingView()
 {
     LoggingViewManagerWidget *staticLogWidget = LoggingViewManagerWidget::instance();
@@ -1108,10 +1116,15 @@ void LoggingViewer::showLoggingView()
     staticLogWidget->show();
     staticLogWidget->raise();
     staticLogWidget->activateWindow();
+
+    wasLogViewerShown = true;
 }
 
 void LoggingViewer::hideLoggingView()
 {
+    if (!wasLogViewerShown)
+        return;
+
     LoggingViewManagerWidget *staticLogWidget = LoggingViewManagerWidget::instance();
     QTC_ASSERT(staticLogWidget, return);
     staticLogWidget->close();

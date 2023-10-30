@@ -746,6 +746,8 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const FilePath &appBundl
             installAppOnSimulator();
         } else {
             errorMsg(Tr::tr("Application install on simulator failed. Simulator not running."));
+            if (!response.commandOutput.isEmpty())
+                errorMsg(response.commandOutput);
             didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
             emit q->finished(q);
         }

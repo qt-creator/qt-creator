@@ -775,22 +775,23 @@ void CMakeBuildStep::updateDeploymentData()
     DeploymentData deploymentData;
     deploymentData.setLocalInstallRoot(rootDir);
 
-    IDeviceConstPtr device = BuildDeviceKitAspect::device(buildSystem()->kit());
+    IDeviceConstPtr runDevice = DeviceKitAspect::device(buildSystem()->kit());
 
     const auto appFileNames = transform<QSet<QString>>(buildSystem()->applicationTargets(),
            [](const BuildTargetInfo &appTarget) { return appTarget.targetFilePath.fileName(); });
 
-    auto handleFile = [&appFileNames, rootDir, &deploymentData, device](const FilePath &filePath) {
-        const DeployableFile::Type type = appFileNames.contains(filePath.fileName())
-            ? DeployableFile::TypeExecutable
-            : DeployableFile::TypeNormal;
+    auto handleFile =
+        [&appFileNames, rootDir, &deploymentData, runDevice](const FilePath &filePath) {
+            const DeployableFile::Type type = appFileNames.contains(filePath.fileName())
+                                                  ? DeployableFile::TypeExecutable
+                                                  : DeployableFile::TypeNormal;
 
-        FilePath targetDirPath = filePath.parentDir().relativePathFrom(rootDir);
+            FilePath targetDirPath = filePath.parentDir().relativePathFrom(rootDir);
 
-        const FilePath targetDir = device->rootPath().pathAppended(targetDirPath.path());
-        deploymentData.addFile(filePath, targetDir.nativePath(), type);
-        return IterationPolicy::Continue;
-    };
+            const FilePath targetDir = runDevice->rootPath().pathAppended(targetDirPath.path());
+            deploymentData.addFile(filePath, targetDir.nativePath(), type);
+            return IterationPolicy::Continue;
+        };
 
     rootDir.iterateDirectory(handleFile,
                              {{}, QDir::Files | QDir::Hidden, QDirIterator::Subdirectories});

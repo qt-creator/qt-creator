@@ -76,7 +76,7 @@ QVariant QtTestTreeItem::data(int column, int role) const
             return m_multiTest;
         }
     case LinkRole:
-        if (type() == GroupNode)
+        if (type() == GroupNode || type() == Root)
             return QVariant();
         if (type() == TestDataFunction || type() == TestDataTag)
             return TestTreeItem::data(column, role);

@@ -737,9 +737,11 @@ QString decodeData(const QString &ba, const QString &encoding)
             if (spec == Qt::OffsetFromUTC) {
                 dateTime = QDateTime(date, time, spec, offset);
             } else if (spec == Qt::TimeZone) {
-                if (!QTimeZone::isTimeZoneIdAvailable(timeZoneId))
+                QTimeZone tz(timeZoneId);
+                if (!tz.isValid())
                     return QLatin1String("<unavailable>");
-                dateTime = QDateTime(date, time, QTimeZone(timeZoneId));
+
+                dateTime = QDateTime(date, time, tz);
             } else {
                 dateTime = QDateTime(date, time, spec);
             }

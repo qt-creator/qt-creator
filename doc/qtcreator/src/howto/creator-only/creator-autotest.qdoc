@@ -406,6 +406,10 @@
     \uicontrol {Active Test Frameworks} list.
     By default, \QC groups tests that are in the same directory.
 
+    By default, \QC uses a quarter of the available logical CPUs when
+    scanning for tests. You can set the amount of worker threads used
+    in \uicontrol {Scan threads}.
+
     \QC omits internal messages and run configuration warnings for
     deduced  configurations by default. To view them, deselect the
     \uicontrol {Omit internal messages} and

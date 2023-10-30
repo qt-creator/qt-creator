@@ -144,9 +144,13 @@
     By default, each line is annotated in the editor when you scroll through
     the file. To disable this feature, select \preferences >
     \uicontrol {Version Control} > \uicontrol Git, and
-    deselect \uicontrol {Add instant blame annotations to editor}. To view
-    annotations for the current line, select \uicontrol Tools > \uicontrol Git >
-    \uicontrol {Current File} > \uicontrol {Instant Blame}.
+    deselect \uicontrol {Instant Blame}. To find the commit that introduced
+    the last real code change, select \uicontrol {Ignore whitespace changes}.
+    To find the commit that introduced a line before it was moved, select
+    \uicontrol {Ignore line moves}.
+
+    To view annotations for the current line, select \uicontrol Tools >
+    \uicontrol Git > \uicontrol {Current File} > \uicontrol {Instant Blame}.
 
     Click the commit identifier to show a detailed description of the change.
 
