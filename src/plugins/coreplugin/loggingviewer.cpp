@@ -95,6 +95,12 @@ private:
 
     void onFilter(QLoggingCategory *category)
     {
+        if (QThread::currentThread() != thread()) {
+            QMetaObject::invokeMethod(
+                this, [category, this] { onFilter(category); }, Qt::QueuedConnection);
+            return;
+        }
+
         if (!m_categories.contains(category)) {
             m_categories.append(category);
             emit newLogCategory(category);
