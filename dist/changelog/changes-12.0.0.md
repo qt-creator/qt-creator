@@ -304,8 +304,10 @@ Version Control Systems
 
 ### Git
 
-* Added option for ignoring whitespace changes and line moves in `Instant Blame`
+* Added the `Ignore whitespace changes` and `Ignore line moves` options to
+  `Preferences >  Version Control > Git > Instant Blame`
   ([QTCREATORBUG-29378](https://bugreports.qt.io/browse/QTCREATORBUG-29378))
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-vcs-git.html))
 
 ### CVS
 
