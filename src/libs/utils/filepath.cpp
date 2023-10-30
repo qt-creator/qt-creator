@@ -453,7 +453,7 @@ QStringView FilePath::host() const
 
 QStringView FilePath::pathView() const
 {
-    return QStringView(m_data).left(m_pathLen);
+    return QStringView(m_data.constData(), m_pathLen);
 }
 
 QString FilePath::path() const
@@ -469,7 +469,17 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
         path = path.mid(3);
 
     m_hash = 0;
-    m_data = path.toString() + scheme.toString() + host.toString();
+
+    // The equivalent of:
+    //   m_data = path.toString() + scheme.toString() + host.toString();
+    // but with less copying.
+    // Note: The QStringBuilder optimization does not currently work in this case.
+    m_data.resize(0);
+    m_data.reserve(m_schemeLen + m_hostLen + m_pathLen);
+    m_data.append(path);
+    m_data.append(scheme);
+    m_data.append(host);
+
     m_schemeLen = scheme.size();
     m_hostLen = host.size();
     m_pathLen = path.size();
@@ -1480,7 +1490,7 @@ FilePath FilePath::relativePathFrom(const FilePath &anchor) const
         absoluteAnchorPath = anchor.absoluteFilePath();
     else
         return {};
-    QString relativeFilePath = calcRelativePath(absPath.path(), absoluteAnchorPath.path());
+    QString relativeFilePath = calcRelativePath(absPath.pathView(), absoluteAnchorPath.pathView());
     if (!filename.isEmpty()) {
         if (relativeFilePath == ".")
             relativeFilePath.clear();
@@ -1505,14 +1515,14 @@ FilePath FilePath::relativePathFrom(const FilePath &anchor) const
 
     \see FilePath::isRelativePath(), FilePath::relativePathFrom(), FilePath::relativeChildPath()
 */
-QString FilePath::calcRelativePath(const QString &absolutePath, const QString &absoluteAnchorPath)
+QString FilePath::calcRelativePath(QStringView absolutePath, QStringView absoluteAnchorPath)
 {
     if (absolutePath.isEmpty() || absoluteAnchorPath.isEmpty())
         return QString();
     // TODO using split() instead of parsing the strings by char index is slow
     // and needs more memory (but the easiest implementation for now)
-    const QStringList splits1 = absolutePath.split('/');
-    const QStringList splits2 = absoluteAnchorPath.split('/');
+    const QList<QStringView> splits1 = absolutePath.split('/');
+    const QList<QStringView> splits2 = absoluteAnchorPath.split('/');
     int i = 0;
     while (i < splits1.count() && i < splits2.count() && splits1.at(i) == splits2.at(i))
         ++i;

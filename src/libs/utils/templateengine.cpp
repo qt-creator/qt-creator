@@ -46,11 +46,11 @@ PreprocessStackEntry::PreprocessStackEntry(PreprocessorSection s, bool p, bool c
 class PreprocessContext {
 public:
     PreprocessContext();
-    bool process(const QString &in, QString *out, QString *errorMessage);
+    bool process(QStringView in, QString *out, QString *errorMessage);
 
 private:
     void reset();
-    PreprocessorSection preprocessorLine(const QString & in, QString *ifExpression) const;
+    PreprocessorSection preprocessorLine(QStringView in, QString *ifExpression) const;
 
     mutable QRegularExpression m_ifPattern;
     mutable QRegularExpression m_elsifPattern;
@@ -81,7 +81,7 @@ void PreprocessContext::reset()
 
 // Determine type of line and return enumeration, cut out
 // expression for '@if/@elsif'.
-PreprocessorSection PreprocessContext::preprocessorLine(const QString &in,
+PreprocessorSection PreprocessContext::preprocessorLine(QStringView in,
                                                         QString *ifExpression) const
 {
     QRegularExpressionMatch match = m_ifPattern.match(in);
@@ -111,7 +111,7 @@ static inline QString msgEmptyStack(int line)
     return QString::fromLatin1("Unmatched '@endif' at line %1.").arg(line);
 }
 
-bool PreprocessContext::process(const QString &in, QString *out, QString *errorMessage)
+bool PreprocessContext::process(QStringView in, QString *out, QString *errorMessage)
 {
     out->clear();
     if (in.isEmpty())
@@ -121,7 +121,7 @@ bool PreprocessContext::process(const QString &in, QString *out, QString *errorM
     reset();
 
     const QChar newLine = QLatin1Char('\n');
-    const QStringList lines = in.split(newLine);
+    const QList<QStringView> lines = in.split(newLine);
     const int lineCount = lines.size();
     bool first = true;
     for (int l = 0; l < lineCount; l++) {
