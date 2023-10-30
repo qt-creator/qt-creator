@@ -6,84 +6,144 @@ import CollectionDetails 1.0 as CollectionDetails
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
+import QtQuick.Templates as T
 
 Item {
     id: root
     required property var columnType
 
     property var __modifier : textEditor
+    property bool __changesAccepted: true
 
-    width: itemColumn.width
-    height: itemColumn.height
-
-    TableView.onCommit: edit = __modifier.editValue
+    TableView.onCommit: {
+        if (root.__changesAccepted)
+            edit = __modifier.editor.editValue
+    }
 
     Component.onCompleted: {
+        __changesAccepted = true
         if (edit && edit !== "")
-            root.__modifier.editValue = edit
+            root.__modifier.editor.editValue = edit
     }
 
     onActiveFocusChanged: {
         if (root.activeFocus)
-            root.__modifier.forceActiveFocus()
+            root.__modifier.editor.forceActiveFocus()
     }
 
     Connections {
         id: modifierFocusConnection
-        target: root.__modifier
+
+        target: root.__modifier.editor
+
         function onActiveFocusChanged() {
             if (!modifierFocusConnection.target.activeFocus)
-                TableView.commit()
+                root.TableView.commit()
         }
     }
 
-    Column {
-        id: itemColumn
+    EditorPopup {
+        id: textEditor
+
+        editor: textField
 
         StudioControls.TextField {
-            id: textEditor
+            id: textField
 
-            property alias editValue: textEditor.text
+            property alias editValue: textField.text
 
             actionIndicator.visible: false
             translationIndicatorVisible: false
-            enabled: visible
-            visible: false
+
+            onRejected: root.__changesAccepted = false
         }
+    }
+
+    EditorPopup {
+        id: numberEditor
+
+        editor: numberField
 
         StudioControls.RealSpinBox {
-            id: numberEditor
+            id: numberField
 
-            property alias editValue: numberEditor.realValue
+            property alias editValue: numberField.realValue
 
             actionIndicator.visible: false
-            enabled: visible
-            visible: false
-
             realFrom: -9e9
             realTo: 9e9
             realStepSize: 1.0
             decimals: 6
         }
+    }
+
+    EditorPopup {
+        id: boolEditor
+
+        editor: boolField
 
         StudioControls.CheckBox {
-            id: boolEditor
+            id: boolField
 
-            property alias editValue: boolEditor.checked
+            property alias editValue: boolField.checked
 
             actionIndicatorVisible: false
-            enabled: visible
-            visible: false
         }
+    }
+
+    EditorPopup {
+        id: colorEditor
+
+        editor: colorPicker
+
+        implicitHeight: colorPicker.height + topPadding + bottomPadding
+        implicitWidth: colorPicker.width + leftPadding + rightPadding
+        padding: 8
 
         HelperWidgets.ColorPicker {
-            id: colorEditor
+            id: colorPicker
 
-            property alias editValue: colorEditor.color
+            property alias editValue: colorPicker.color
 
             width: 100
-            enabled: visible
-            visible: false
+
+            Keys.onEnterPressed: colorPicker.focus = false
+        }
+
+        background: Rectangle {
+            color: StudioTheme.Values.themeControlBackgroundInteraction
+            border.color: StudioTheme.Values.themeInteraction
+            border.width: StudioTheme.Values.border
+        }
+    }
+
+    component EditorPopup: T.Popup {
+        id: editorPopup
+
+        required property Item editor
+
+        implicitHeight: contentHeight
+        implicitWidth: contentWidth
+
+        enabled: visible
+        visible: false
+
+        Connections {
+            target: editorPopup.editor
+
+            function onActiveFocusChanged() {
+                if (!editorPopup.editor.activeFocus)
+                    editorPopup.close()
+            }
+        }
+
+        Connections {
+            target: editorPopup.editor.Keys
+
+            function onEscapePressed() {
+                root.__changesAccepted = false
+                editorPopup.close()
+            }
         }
     }
 
