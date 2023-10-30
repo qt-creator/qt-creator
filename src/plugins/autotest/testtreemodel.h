@@ -114,7 +114,6 @@ public:
 
     explicit TestTreeSortFilterModel(TestTreeModel *sourceModel, QObject *parent = nullptr);
     void setSortMode(ITestTreeItem::SortMode sortMode);
-    void setFilterMode(FilterMode filterMode);
     void toggleFilter(FilterMode filterMode);
     static FilterMode toFilterMode(int f);
 

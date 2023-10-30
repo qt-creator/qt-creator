@@ -78,8 +78,6 @@ private:
     explicit TestResultsPane(QObject *parent = nullptr);
 
     void onItemActivated(const QModelIndex &index);
-    void onRunAllTriggered();
-    void onRunSelectedTriggered();
     void checkAllFilter(bool checked);
     void filterMenuTriggered(QAction *action);
     bool eventFilter(QObject *object, QEvent *event) override;

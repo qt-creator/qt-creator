@@ -900,12 +900,6 @@ void TestTreeSortFilterModel::setSortMode(ITestTreeItem::SortMode sortMode)
     invalidate();
 }
 
-void TestTreeSortFilterModel::setFilterMode(FilterMode filterMode)
-{
-    m_filterMode = filterMode;
-    invalidateFilter();
-}
-
 void TestTreeSortFilterModel::toggleFilter(FilterMode filterMode)
 {
     m_filterMode = toFilterMode(m_filterMode ^ filterMode);
