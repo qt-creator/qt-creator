@@ -43998,11 +43998,11 @@ Die betroffenen Dateien sind:
     </message>
     <message>
         <source>File does not exist.</source>
-        <translation type="unfinished">Datei existiert nicht.</translation>
+        <translation>Datei existiert nicht.</translation>
     </message>
     <message>
         <source>File does not match filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei entspricht nicht dem Filter.</translation>
     </message>
     <message>
         <source>Library Type</source>
@@ -44132,7 +44132,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Could not load kits in a reasonable amount of time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits konnten nicht in angemessener Zeit geladen werden.</translation>
     </message>
     <message>
         <source>The application &quot;%1&quot; could not be found.</source>
@@ -48453,7 +48453,7 @@ Der Kontrollprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Failed: %1</source>
@@ -48587,27 +48587,27 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Flags for rsync:</source>
-        <translation type="unfinished"></translation>
+        <translation>Optionen für rsync:</translation>
     </message>
     <message>
         <source>Transfer method:</source>
-        <translation type="unfinished"></translation>
+        <translation>Übertragungsmethode:</translation>
     </message>
     <message>
         <source>Use rsync if available. Otherwise use default transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze rsync, sofern verfügbar. Sonst Standardmethode verwenden.</translation>
     </message>
     <message>
         <source>Use sftp if available. Otherwise use default transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze SFTP, sofern verfügbar. Sonst Standardmethode verwenden.</translation>
     </message>
     <message>
         <source>Use default transfer. This might be slow.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze Standardmethode. Dies könnte langsam sein.</translation>
     </message>
     <message>
         <source>Unknown error occurred while trying to create remote directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Erstellen von entfernten Verzeichnissen ist ein unbekannter Fehler aufgetreten</translation>
     </message>
     <message>
         <source>rsync failed to start: %1</source>
@@ -48623,7 +48623,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Deploy files</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei-Deployment</translation>
     </message>
     <message>
         <source>Ignore missing files:</source>
@@ -55633,19 +55633,19 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Parsing canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Premature end of XML document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorzeitiges Ende des XML-Dokuments.</translation>
     </message>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht als Hexadezimalzahl ausgewertet werden (%2).</translation>
     </message>
     <message>
         <source>Trying to read element text although current position is not start of element.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde versucht, Elementtext zu lesen, obwohl die aktuelle Position nicht am Beginn eines Elements ist.</translation>
     </message>
     <message>
         <source>Unexpected child element while reading element text</source>
@@ -55669,7 +55669,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Unknown %1 kind &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein &quot;%2&quot; in Enum %1 gefunden</translation>
     </message>
     <message>
         <source>Could not parse error kind, tool not yet set.</source>
@@ -55805,7 +55805,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Valgrind arguments:</source>
-        <translation>Valgrind-Argumente</translation>
+        <translation>Valgrind-Argumente:</translation>
     </message>
     <message>
         <source>Enable cache simulation</source>
