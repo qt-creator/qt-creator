@@ -388,7 +388,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             // CMake users worked around Creator's inability of listing header files by creating
             // custom targets with all the header files. This target breaks the code model, so
             // keep quiet about it:-)
-            if (ci.defines.empty() && ci.includes.empty() && allOf(ci.sources, [t](const int sid) {
+            if (ci.defines.empty() && ci.includes.empty() && allOf(ci.sources, [&t](const int sid) {
                     const SourceInfo &source = t.sources[static_cast<size_t>(sid)];
                     return Node::fileTypeForFileName(FilePath::fromString(source.path))
                            == FileType::Header;
@@ -431,7 +431,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             }
 
             // Skip groups with only generated source files e.g. <build-dir>/.rcc/qrc_<target>.cpp
-            if (allOf(ci.sources, [t](const auto &idx) { return t.sources.at(idx).isGenerated; }))
+            if (allOf(ci.sources, [&t](const auto &idx) { return t.sources.at(idx).isGenerated; }))
                 continue;
 
             // If we are not in a pch compiler group, add all the headers that are not generated
