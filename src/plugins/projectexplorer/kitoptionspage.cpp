@@ -677,7 +677,7 @@ void KitOptionsPageWidget::updateState()
 
     if (Kit *k = currentKit()) {
         canCopy = true;
-        canDelete = !k->isAutoDetected();
+        canDelete = !k->isSdkProvided();
         canMakeDefault = !m_model->isDefaultKit(k);
     }
 

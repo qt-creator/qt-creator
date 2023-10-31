@@ -207,6 +207,7 @@ void Kit::copyFrom(const Kit *k)
 {
     copyKitCommon(this, k);
     d->m_autodetected = k->d->m_autodetected;
+    d->m_sdkProvided = k->d->m_sdkProvided;
     d->m_autoDetectionSource = k->d->m_autoDetectionSource;
     d->m_unexpandedDisplayName = k->d->m_unexpandedDisplayName;
     d->m_fileSystemFriendlyName = k->d->m_fileSystemFriendlyName;
