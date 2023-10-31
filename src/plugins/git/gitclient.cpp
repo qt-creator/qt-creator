@@ -497,23 +497,21 @@ ShowController::ShowController(IDocument *document, const QString &id)
         data->m_follows = {busyMessage};
         data->m_follows.resize(parents.size());
 
-        const auto setupFollow = [this](Process &process, const QString &parent) {
-            setupCommand(process, {"describe", "--tags", "--abbrev=0", parent});
-        };
-        const auto onFollowDone = [data, updateDescription](const Process &process, int index) {
-            data->m_follows[index] = process.cleanedStdOut().trimmed();
-            updateDescription(*data);
-        };
         const auto onFollowsError = [data, updateDescription] {
             data->m_follows.clear();
             updateDescription(*data);
         };
 
-        using namespace std::placeholders;
-        QList<GroupItem> tasks {parallel, continueOnDone, onGroupError(onFollowsError)};
+        QList<GroupItem> tasks { parallel, continueOnDone, onGroupError(onFollowsError) };
         for (int i = 0, total = parents.size(); i < total; ++i) {
-            tasks.append(ProcessTask(std::bind(setupFollow, _1, parents.at(i)),
-                                 std::bind(onFollowDone, _1, i)));
+            const auto setupFollow = [this, parent = parents.at(i)](Process &process) {
+                setupCommand(process, {"describe", "--tags", "--abbrev=0", parent});
+            };
+            const auto onFollowDone = [data, updateDescription, i](const Process &process) {
+                data->m_follows[i] = process.cleanedStdOut().trimmed();
+                updateDescription(*data);
+            };
+            tasks.append(ProcessTask(setupFollow, onFollowDone));
         }
         taskTree.setRecipe(tasks);
     };

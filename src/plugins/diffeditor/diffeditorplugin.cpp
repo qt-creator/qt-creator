@@ -113,24 +113,22 @@ DiffFilesController::DiffFilesController(IDocument *document)
     const auto setupTree = [this, storage](TaskTree &taskTree) {
         QList<std::optional<FileData>> *outputList = storage.activeStorage();
 
-        const auto setupDiff = [this](Async<FileData> &async, const ReloadInput &reloadInput) {
-            async.setConcurrentCallData(
-                DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
-            async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
-        };
-        const auto onDiffDone = [outputList](const Async<FileData> &async, int i) {
-            if (async.isResultAvailable())
-                (*outputList)[i] = async.result();
-        };
-
         const QList<ReloadInput> inputList = reloadInputList();
         outputList->resize(inputList.size());
 
-        using namespace std::placeholders;
-        QList<GroupItem> tasks {parallel, finishAllAndDone};
+        QList<GroupItem> tasks { parallel, finishAllAndDone };
         for (int i = 0; i < inputList.size(); ++i) {
-            tasks.append(AsyncTask<FileData>(std::bind(setupDiff, _1, inputList.at(i)),
-                                         std::bind(onDiffDone, _1, i)));
+            const auto setupDiff = [this, reloadInput = inputList.at(i)](Async<FileData> &async) {
+                async.setConcurrentCallData(
+                    DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
+                async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+            };
+
+            const auto onDiffDone = [outputList, i](const Async<FileData> &async) {
+                if (async.isResultAvailable())
+                    (*outputList)[i] = async.result();
+            };
+            tasks.append(AsyncTask<FileData>(setupDiff, onDiffDone));
         }
         taskTree.setRecipe(tasks);
     };
