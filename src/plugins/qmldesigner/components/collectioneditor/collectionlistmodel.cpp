@@ -20,6 +20,7 @@ bool containsItem(const std::initializer_list<ValueType> &container, const Value
     auto it = std::find(begin, end, value);
     return it != end;
 }
+
 } // namespace
 
 namespace QmlDesigner {
@@ -52,8 +53,17 @@ bool CollectionListModel::setData(const QModelIndex &index, const QVariant &valu
     if (!index.isValid())
         return false;
 
-    if (containsItem<int>({IdRole, Qt::EditRole, Qt::DisplayRole}, role)) {
-        return Super::setData(index, value);
+    if (containsItem<int>({Qt::EditRole, Qt::DisplayRole, NameRole}, role)) {
+        if (contains(value.toString()))
+            return false;
+
+        QString oldName = collectionNameAt(index.row());
+        bool nameChanged = Super::setData(index, value);
+        if (nameChanged) {
+            QString newName = collectionNameAt(index.row());
+            emit this->collectionNameChanged(oldName, newName);
+        }
+        return nameChanged;
     } else if (role == SelectedRole) {
         if (value.toBool() != index.data(SelectedRole).toBool()) {
             setSelectedIndex(value.toBool() ? index.row() : -1);

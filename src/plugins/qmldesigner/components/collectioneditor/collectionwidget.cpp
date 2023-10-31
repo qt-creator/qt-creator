@@ -71,6 +71,8 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     icontext->setContext(context);
     icontext->setWidget(this);
 
+    connect(m_sourceModel, &CollectionSourceModel::warning, this, &CollectionWidget::warn);
+
     m_collectionDetailsSortFilterModel->setSourceModel(m_collectionDetailsModel);
 
     m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_COLLECTION_EDITOR);

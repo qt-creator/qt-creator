@@ -232,11 +232,7 @@ void CollectionSourceModel::setSources(const ModelNodes &sources)
         auto loadedCollection = loadCollection(collectionSource);
         m_collectionList.append(loadedCollection);
 
-        connect(loadedCollection.data(),
-                &CollectionListModel::selectedIndexChanged,
-                this,
-                &CollectionSourceModel::onSelectedCollectionChanged,
-                Qt::UniqueConnection);
+        registerCollection(loadedCollection);
     }
 
     updateEmpty();
@@ -269,11 +265,7 @@ void CollectionSourceModel::addSource(const ModelNode &node)
     auto loadedCollection = loadCollection(node);
     m_collectionList.append(loadedCollection);
 
-    connect(loadedCollection.data(),
-            &CollectionListModel::selectedIndexChanged,
-            this,
-            &CollectionSourceModel::onSelectedCollectionChanged,
-            Qt::UniqueConnection);
+    registerCollection(loadedCollection);
 
     updateEmpty();
     endInsertRows();
@@ -328,30 +320,32 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile())
-        return returnError(tr("Selected node should have a valid source file address"));
+        return returnError(tr("Selected node must have a valid source file address"));
 
     QFile jsonFile(sourceFileAddress);
     if (!jsonFile.open(QFile::ReadWrite))
-        return returnError(tr("Can't open the file to read.\n") + jsonFile.errorString());
+        return returnError(tr("Can't read or write \"%1\".\n%2")
+                               .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
 
     QJsonParseError parseError;
     QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
     if (parseError.error != QJsonParseError::NoError)
-        return returnError(tr("Saved json file is messy.\n") + parseError.errorString());
+        return returnError(tr("\"%1\" is corrupted.\n%2")
+                               .arg(sourceFileInfo.absoluteFilePath(), parseError.errorString()));
 
     if (document.isObject()) {
         QJsonObject sourceObject = document.object();
         sourceObject.insert(collectionName, QJsonArray{});
         document.setObject(sourceObject);
         if (!jsonFile.resize(0))
-            return returnError(tr("Can't clean the json file."));
+            return returnError(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
 
         QByteArray jsonData = document.toJson();
         auto writtenBytes = jsonFile.write(jsonData);
         jsonFile.close();
 
         if (writtenBytes != jsonData.size())
-            return returnError(tr("Can't write to the json file."));
+            return returnError(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
 
         updateCollectionList(index(idx));
 
@@ -456,6 +450,98 @@ void CollectionSourceModel::onSelectedCollectionChanged(int collectionIndex)
     }
 }
 
+void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, const QString &newName)
+{
+    CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
+    QTC_ASSERT(collectionList, return);
+
+    auto emitRenameWarning = [this](const QString &msg) -> void {
+        emit this->warning(tr("Rename Collection"), msg);
+    };
+
+    const ModelNode node = collectionList->sourceNode();
+    const QModelIndex nodeIndex = indexOfNode(node);
+
+    if (!nodeIndex.isValid()) {
+        emitRenameWarning(tr("Invalid node"));
+        return;
+    }
+
+    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME) {
+        if (!setData(nodeIndex, newName, NameRole))
+            emitRenameWarning(tr("Can't rename the node"));
+        return;
+    } else if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME) {
+        emitRenameWarning(tr("Invalid node type"));
+        return;
+    }
+
+    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
+                                    .value()
+                                    .toString();
+
+    QFileInfo sourceFileInfo(sourceFileAddress);
+    if (!sourceFileInfo.isFile()) {
+        emitRenameWarning(tr("Selected node must have a valid source file address"));
+        return;
+    }
+
+    QFile jsonFile(sourceFileAddress);
+    if (!jsonFile.open(QFile::ReadWrite)) {
+        return emitRenameWarning(tr("Can't read or write \"%1\".\n%2")
+                                     .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
+        return;
+    }
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        emitRenameWarning(tr("\"%1\" is corrupted.\n%2")
+                              .arg(sourceFileInfo.absoluteFilePath(), parseError.errorString()));
+        return;
+    }
+
+    if (document.isObject()) {
+        QJsonObject rootObject = document.object();
+
+        bool collectionContainsOldName = rootObject.contains(oldName);
+        bool collectionContainsNewName = rootObject.contains(newName);
+
+        if (!collectionContainsOldName) {
+            emitRenameWarning(
+                tr("Collection doesn't contain the old collection name (%1).").arg(oldName));
+            return;
+        }
+
+        if (collectionContainsNewName) {
+            emitRenameWarning(
+                tr("The collection name \"%1\" already exists in the source file.").arg(newName));
+            return;
+        }
+
+        QJsonValue oldValue = rootObject.value(oldName);
+        rootObject.insert(newName, oldValue);
+        rootObject.remove(oldName);
+
+        document.setObject(rootObject);
+        if (!jsonFile.resize(0)) {
+            emitRenameWarning(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+            return;
+        }
+
+        QByteArray jsonData = document.toJson();
+        auto writtenBytes = jsonFile.write(jsonData);
+        jsonFile.close();
+
+        if (writtenBytes != jsonData.size()) {
+            emitRenameWarning(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+            return;
+        }
+
+        updateCollectionList(nodeIndex);
+    }
+}
+
 void CollectionSourceModel::setSelectedIndex(int idx)
 {
     idx = (idx > -1 && idx < m_collectionSources.count()) ? idx : -1;
@@ -512,6 +598,21 @@ void CollectionSourceModel::updateCollectionList(QModelIndex index)
         m_collectionList.replace(index.row(), newList);
         emit this->dataChanged(index, index, {CollectionsRole});
     }
+}
+
+void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionListModel> &collection)
+{
+    connect(collection.data(),
+            &CollectionListModel::selectedIndexChanged,
+            this,
+            &CollectionSourceModel::onSelectedCollectionChanged,
+            Qt::UniqueConnection);
+
+    connect(collection.data(),
+            &CollectionListModel::collectionNameChanged,
+            this,
+            &CollectionSourceModel::onCollectionNameChanged,
+            Qt::UniqueConnection);
 }
 
 QModelIndex CollectionSourceModel::indexOfNode(const ModelNode &node) const

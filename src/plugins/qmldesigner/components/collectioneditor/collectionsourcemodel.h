@@ -75,14 +75,17 @@ signals:
     void selectedIndexChanged(int idx);
     void collectionSelected(const ModelNode &sourceNode, const QString &collectionName);
     void isEmptyChanged(bool);
+    void warning(const QString &title, const QString &body);
 
 private slots:
     void onSelectedCollectionChanged(int collectionIndex);
+    void onCollectionNameChanged(const QString &oldName, const QString &newName);
 
 private:
     void setSelectedIndex(int idx);
     void updateEmpty();
     void updateCollectionList(QModelIndex index);
+    void registerCollection(const QSharedPointer<CollectionListModel> &collection);
     QModelIndex indexOfNode(const ModelNode &node) const;
 
     using Super = QAbstractListModel;
