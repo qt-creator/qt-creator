@@ -188,30 +188,27 @@ static SimulatorInfo deviceInfo(const QString &simUdid);
 static QString bundleIdentifier(const Utils::FilePath &bundlePath);
 static QString bundleExecutable(const Utils::FilePath &bundlePath);
 
-static void startSimulator(QPromise<SimulatorControl::ResponseData> &promise,
-                           const QString &simUdid);
-static void installApp(QPromise<SimulatorControl::ResponseData> &promise,
+static void startSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid);
+static void installApp(QPromise<SimulatorControl::Response> &promise,
                        const QString &simUdid,
                        const Utils::FilePath &bundlePath);
-static void launchApp(QPromise<SimulatorControl::ResponseData> &promise,
+static void launchApp(QPromise<SimulatorControl::Response> &promise,
                       const QString &simUdid,
                       const QString &bundleIdentifier,
                       bool waitForDebugger,
                       const QStringList &extraArgs,
                       const QString &stdoutPath,
                       const QString &stderrPath);
-static void deleteSimulator(QPromise<SimulatorControl::ResponseData> &promise,
-                            const QString &simUdid);
-static void resetSimulator(QPromise<SimulatorControl::ResponseData> &promise,
-                           const QString &simUdid);
-static void renameSimulator(QPromise<SimulatorControl::ResponseData> &promise,
+static void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid);
+static void resetSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid);
+static void renameSimulator(QPromise<SimulatorControl::Response> &promise,
                             const QString &simUdid,
                             const QString &newName);
-static void createSimulator(QPromise<SimulatorControl::ResponseData> &promise,
+static void createSimulator(QPromise<SimulatorControl::Response> &promise,
                             const QString &name,
                             const DeviceTypeInfo &deviceType,
                             const RuntimeInfo &runtime);
-static void takeSceenshot(QPromise<SimulatorControl::ResponseData> &promise,
+static void takeSceenshot(QPromise<SimulatorControl::Response> &promise,
                           const QString &simUdid,
                           const QString &filePath);
 
@@ -309,23 +306,23 @@ QString SimulatorControl::bundleExecutable(const Utils::FilePath &bundlePath)
     return Internal::bundleExecutable(bundlePath);
 }
 
-QFuture<SimulatorControl::ResponseData> SimulatorControl::startSimulator(const QString &simUdid)
+QFuture<SimulatorControl::Response> SimulatorControl::startSimulator(const QString &simUdid)
 {
     return Utils::asyncRun(Internal::startSimulator, simUdid);
 }
 
-QFuture<SimulatorControl::ResponseData> SimulatorControl::installApp(
-    const QString &simUdid, const Utils::FilePath &bundlePath)
+QFuture<SimulatorControl::Response> SimulatorControl::installApp(const QString &simUdid,
+                                                                 const Utils::FilePath &bundlePath)
 {
     return Utils::asyncRun(Internal::installApp, simUdid, bundlePath);
 }
 
-QFuture<SimulatorControl::ResponseData> SimulatorControl::launchApp(const QString &simUdid,
-                                                                    const QString &bundleIdentifier,
-                                                                    bool waitForDebugger,
-                                                                    const QStringList &extraArgs,
-                                                                    const QString &stdoutPath,
-                                                                    const QString &stderrPath)
+QFuture<SimulatorControl::Response> SimulatorControl::launchApp(const QString &simUdid,
+                                                                const QString &bundleIdentifier,
+                                                                bool waitForDebugger,
+                                                                const QStringList &extraArgs,
+                                                                const QString &stdoutPath,
+                                                                const QString &stderrPath)
 {
     return Utils::asyncRun(Internal::launchApp,
                            simUdid,
@@ -336,32 +333,30 @@ QFuture<SimulatorControl::ResponseData> SimulatorControl::launchApp(const QStrin
                            stderrPath);
 }
 
-QFuture<SimulatorControl::ResponseData> SimulatorControl::deleteSimulator(const QString &simUdid)
+QFuture<SimulatorControl::Response> SimulatorControl::deleteSimulator(const QString &simUdid)
 {
     return Utils::asyncRun(Internal::deleteSimulator, simUdid);
 }
 
-QFuture<SimulatorControl::ResponseData> SimulatorControl::resetSimulator(const QString &simUdid)
+QFuture<SimulatorControl::Response> SimulatorControl::resetSimulator(const QString &simUdid)
 {
     return Utils::asyncRun(Internal::resetSimulator, simUdid);
 }
 
-QFuture<SimulatorControl::ResponseData> SimulatorControl::renameSimulator(const QString &simUdid,
-                                                                          const QString &newName)
+QFuture<SimulatorControl::Response> SimulatorControl::renameSimulator(const QString &simUdid,
+                                                                      const QString &newName)
 {
     return Utils::asyncRun(Internal::renameSimulator, simUdid, newName);
 }
 
-QFuture<SimulatorControl::ResponseData>
-SimulatorControl::createSimulator(const QString &name,
-                                  const DeviceTypeInfo &deviceType,
-                                  const RuntimeInfo &runtime)
+QFuture<SimulatorControl::Response> SimulatorControl::createSimulator(
+    const QString &name, const DeviceTypeInfo &deviceType, const RuntimeInfo &runtime)
 {
     return Utils::asyncRun(Internal::createSimulator, name, deviceType, runtime);
 }
 
-QFuture<SimulatorControl::ResponseData> SimulatorControl::takeSceenshot(const QString &simUdid,
-                                                                        const QString &filePath)
+QFuture<SimulatorControl::Response> SimulatorControl::takeSceenshot(const QString &simUdid,
+                                                                    const QString &filePath)
 {
     return Utils::asyncRun(Internal::takeSceenshot, simUdid, filePath);
 }
@@ -419,14 +414,14 @@ QString bundleExecutable(const Utils::FilePath &bundlePath)
     return executable;
 }
 
-void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QString &simUdid)
+void startSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
     SimulatorInfo simInfo = deviceInfo(simUdid);
 
     if (!simInfo.available) {
         promise.addResult(
-            response.withError(Tr::tr("Simulator device is not available. (%1)").arg(simUdid)));
+            make_unexpected(Tr::tr("Simulator device is not available. (%1)").arg(simUdid)));
         return;
     }
     // Shutting down state checks are for the case when simulator start is called within a short
@@ -436,7 +431,7 @@ void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QSt
     while (simInfo.isShuttingDown() && !simulatorStartDeadline.hasExpired()) {
         // Wait till the simulator shuts down, if doing so.
         if (promise.isCanceled()) {
-            promise.addResult(response.withError(Tr::tr("Simulator start was canceled.")));
+            promise.addResult(make_unexpected(Tr::tr("Simulator start was canceled.")));
             return;
         }
 
@@ -446,14 +441,14 @@ void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QSt
 
     if (simInfo.isShuttingDown()) {
         promise.addResult(
-            response.withError(Tr::tr("Cannot start Simulator device. Previous instance taking "
-                                      "too long to shut down. (%1)")
-                                   .arg(simInfo.toString())));
+            make_unexpected(Tr::tr("Cannot start Simulator device. Previous instance taking "
+                                   "too long to shut down. (%1)")
+                                .arg(simInfo.toString())));
         return;
     }
 
     if (!simInfo.isShutdown()) {
-        promise.addResult(response.withError(
+        promise.addResult(make_unexpected(
             Tr::tr("Cannot start Simulator device. Simulator not in shutdown state. (%1)")
                 .arg(simInfo.toString())));
         return;
@@ -462,7 +457,7 @@ void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QSt
     expected_str<void> result = launchSimulator(simUdid,
                                                 [&promise] { return promise.isCanceled(); });
     if (!result) {
-        promise.addResult(response.withError(result.error()));
+        promise.addResult(make_unexpected(result.error()));
         return;
     }
 
@@ -475,24 +470,29 @@ void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QSt
     do {
         info = deviceInfo(simUdid);
         if (promise.isCanceled()) {
-            promise.addResult(response.withError(Tr::tr("Simulator start was canceled.")));
+            promise.addResult(make_unexpected(Tr::tr("Simulator start was canceled.")));
             return;
         }
     } while (!info.isBooted() && !simulatorStartDeadline.hasExpired());
 
-    if (info.isBooted())
-        response.success = true;
+    if (!info.isBooted()) {
+        promise.addResult(make_unexpected(
+            Tr::tr("Cannot start Simulator device. Simulator not in booted state. (%1)")
+                .arg(info.toString())));
+        return;
+    }
 
-    promise.addResult(response.withSuccess());
+    promise.addResult(response);
 }
 
-void installApp(QPromise<SimulatorControl::ResponseData> &promise,
-                const QString &simUdid, const Utils::FilePath &bundlePath)
+void installApp(QPromise<SimulatorControl::Response> &promise,
+                const QString &simUdid,
+                const Utils::FilePath &bundlePath)
 {
     SimulatorControl::ResponseData response(simUdid);
 
     if (!bundlePath.exists()) {
-        promise.addResult(response.withError(Tr::tr("Bundle path does not exist.")));
+        promise.addResult(make_unexpected(Tr::tr("Bundle path does not exist.")));
         return;
     }
 
@@ -501,12 +501,12 @@ void installApp(QPromise<SimulatorControl::ResponseData> &promise,
                                                  &response.commandOutput,
                                                  [&promise] { return promise.isCanceled(); });
     if (!result)
-        promise.addResult(response.withError(result.error()));
+        promise.addResult(make_unexpected(result.error()));
     else
-        promise.addResult(response.withSuccess());
+        promise.addResult(response);
 }
 
-void launchApp(QPromise<SimulatorControl::ResponseData> &promise,
+void launchApp(QPromise<SimulatorControl::Response> &promise,
                const QString &simUdid,
                const QString &bundleIdentifier,
                bool waitForDebugger,
@@ -517,7 +517,7 @@ void launchApp(QPromise<SimulatorControl::ResponseData> &promise,
     SimulatorControl::ResponseData response(simUdid);
 
     if (bundleIdentifier.isEmpty()) {
-        promise.addResult(response.withError(Tr::tr("Invalid (empty) bundle identifier.")));
+        promise.addResult(make_unexpected(Tr::tr("Invalid (empty) bundle identifier.")));
         return;
     }
 
@@ -545,19 +545,24 @@ void launchApp(QPromise<SimulatorControl::ResponseData> &promise,
                                                  [&promise] { return promise.isCanceled(); });
 
     if (!result) {
-        promise.addResult(response.withError(result.error()));
+        promise.addResult(make_unexpected(result.error()));
         return;
     }
 
     const QString pIdStr = stdOutput.trimmed().split(' ').last().trimmed();
     bool validPid = false;
-    response.pID = pIdStr.toLongLong(&validPid);
-    response.success = validPid;
+    response.inferiorPid = pIdStr.toLongLong(&validPid);
 
-    promise.addResult(response.withSuccess());
+    if (!validPid) {
+        promise.addResult(
+            make_unexpected(Tr::tr("Failed to convert inferior pid. (%1)").arg(pIdStr)));
+        return;
+    }
+
+    promise.addResult(response);
 }
 
-void deleteSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QString &simUdid)
+void deleteSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
     expected_str<void> result = runSimCtlCommand({"delete", simUdid},
@@ -566,12 +571,12 @@ void deleteSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QS
                                                  [&promise] { return promise.isCanceled(); });
 
     if (!result)
-        promise.addResult(response.withError(result.error()));
+        promise.addResult(make_unexpected(result.error()));
     else
-        promise.addResult(response.withSuccess());
+        promise.addResult(response);
 }
 
-void resetSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QString &simUdid)
+void resetSimulator(QPromise<SimulatorControl::Response> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
     expected_str<void> result = runSimCtlCommand({"erase", simUdid},
@@ -580,12 +585,12 @@ void resetSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QSt
                                                  [&promise] { return promise.isCanceled(); });
 
     if (!result)
-        promise.addResult(response.withError(result.error()));
+        promise.addResult(make_unexpected(result.error()));
     else
-        promise.addResult(response.withSuccess());
+        promise.addResult(response);
 }
 
-void renameSimulator(QPromise<SimulatorControl::ResponseData> &promise,
+void renameSimulator(QPromise<SimulatorControl::Response> &promise,
                      const QString &simUdid,
                      const QString &newName)
 {
@@ -595,12 +600,12 @@ void renameSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                                                  &response.commandOutput,
                                                  [&promise] { return promise.isCanceled(); });
     if (!result)
-        promise.addResult(response.withError(result.error()));
+        promise.addResult(make_unexpected(result.error()));
     else
-        promise.addResult(response.withSuccess());
+        promise.addResult(response);
 }
 
-void createSimulator(QPromise<SimulatorControl::ResponseData> &promise,
+void createSimulator(QPromise<SimulatorControl::Response> &promise,
                      const QString &name,
                      const DeviceTypeInfo &deviceType,
                      const RuntimeInfo &runtime)
@@ -618,15 +623,17 @@ void createSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                            &stdOutput,
                            &response.commandOutput,
                            [&promise] { return promise.isCanceled(); });
-    response.simUdid = result ? stdOutput.trimmed() : QString();
+
+    if (result)
+        response.simUdid = stdOutput.trimmed();
 
     if (!result)
-        promise.addResult(response.withError(result.error()));
+        promise.addResult(make_unexpected(result.error()));
     else
-        promise.addResult(response.withSuccess());
+        promise.addResult(response);
 }
 
-void takeSceenshot(QPromise<SimulatorControl::ResponseData> &promise,
+void takeSceenshot(QPromise<SimulatorControl::Response> &promise,
                    const QString &simUdid,
                    const QString &filePath)
 {
@@ -637,9 +644,9 @@ void takeSceenshot(QPromise<SimulatorControl::ResponseData> &promise,
                                                  [&promise] { return promise.isCanceled(); });
 
     if (!result)
-        promise.addResult(response.withError(result.error()));
+        promise.addResult(make_unexpected(result.error()));
     else
-        promise.addResult(response.withSuccess());
+        promise.addResult(response);
 }
 
 QString SimulatorInfo::toString() const

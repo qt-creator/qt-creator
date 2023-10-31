@@ -738,16 +738,16 @@ void IosSimulatorToolHandlerPrivate::requestTransferApp(const FilePath &appBundl
     m_deviceId = deviceIdentifier;
     isTransferringApp(m_bundlePath, m_deviceId, 0, 100, "");
 
-    auto onSimulatorStart = [this](const SimulatorControl::ResponseData &response) {
-        if (!isResponseValid(response))
-            return;
+    auto onSimulatorStart = [this](const SimulatorControl::Response &response) {
+        if (response) {
+            if (!isResponseValid(*response))
+                return;
 
-        if (response.success) {
             installAppOnSimulator();
         } else {
             errorMsg(Tr::tr("Application install on simulator failed. Simulator not running."));
-            if (!response.commandOutput.isEmpty())
-                errorMsg(response.commandOutput);
+            if (!response.error().isEmpty())
+                errorMsg(response.error());
             didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
             emit q->finished(q);
         }
@@ -778,13 +778,15 @@ void IosSimulatorToolHandlerPrivate::requestRunApp(const FilePath &appBundlePath
         return;
     }
 
-    auto onSimulatorStart = [this, extraArgs](const SimulatorControl::ResponseData &response) {
-        if (!isResponseValid(response))
-            return;
-        if (response.success) {
+    auto onSimulatorStart = [this, extraArgs](const SimulatorControl::Response &response) {
+        if (response) {
+            if (!isResponseValid(*response))
+                return;
+
             launchAppOnSimulator(extraArgs);
         } else {
-            errorMsg(Tr::tr("Application launch on simulator failed. Simulator not running."));
+            errorMsg(Tr::tr("Application launch on simulator failed. Simulator not running. %1")
+                         .arg(response.error()));
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
         }
     };
@@ -827,16 +829,14 @@ void IosSimulatorToolHandlerPrivate::stop(int errorCode)
 
 void IosSimulatorToolHandlerPrivate::installAppOnSimulator()
 {
-    auto onResponseAppInstall = [this](const SimulatorControl::ResponseData &response) {
-        if (!isResponseValid(response))
-            return;
-
-        if (response.success) {
+    auto onResponseAppInstall = [this](const SimulatorControl::Response &response) {
+        if (response) {
+            if (!isResponseValid(*response))
+                return;
             isTransferringApp(m_bundlePath, m_deviceId, 100, 100, "");
             didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Success);
         } else {
-            errorMsg(Tr::tr("Application install on simulator failed. %1")
-                     .arg(response.commandOutput));
+            errorMsg(Tr::tr("Application install on simulator failed. %1").arg(response.error()));
             didTransferApp(m_bundlePath, m_deviceId, IosToolHandler::Failure);
         }
         emit q->finished(q);
@@ -884,22 +884,21 @@ void IosSimulatorToolHandlerPrivate::launchAppOnSimulator(const QStringList &ext
             stop(0);
     };
 
-    auto onResponseAppLaunch = [=](const SimulatorControl::ResponseData &response) {
-        if (!isResponseValid(response))
-            return;
-        if (response.success) {
-            m_pid = response.pID;
-            gotInferiorPid(m_bundlePath, m_deviceId, response.pID);
+    auto onResponseAppLaunch = [=](const SimulatorControl::Response &response) {
+        if (response) {
+            if (!isResponseValid(*response))
+                return;
+            m_pid = response->inferiorPid;
+            gotInferiorPid(m_bundlePath, m_deviceId, response->inferiorPid);
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Success);
             // Start monitoring app's life signs.
-            futureSynchronizer.addFuture(Utils::asyncRun(monitorPid, response.pID));
+            futureSynchronizer.addFuture(Utils::asyncRun(monitorPid, response->inferiorPid));
             if (captureConsole)
                 futureSynchronizer.addFuture(Utils::asyncRun(&LogTailFiles::exec, &outputLogger,
                                                              stdoutFile, stderrFile));
         } else {
             m_pid = -1;
-            errorMsg(Tr::tr("Application launch on simulator failed. %1")
-                         .arg(response.commandOutput));
+            errorMsg(Tr::tr("Application launch on simulator failed. %1").arg(response.error()));
             didStartApp(m_bundlePath, m_deviceId, Ios::IosToolHandler::Failure);
             stop(-1);
             emit q->finished(q);

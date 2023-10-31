@@ -30,7 +30,8 @@ public:
 public:
     void addFutures(const QList<QFuture<void> > &futureList);
     void addMessage(const QString &message, Utils::OutputFormat format);
-    void addMessage(const SimulatorInfo &siminfo, const SimulatorControl::ResponseData &response,
+    void addMessage(const SimulatorInfo &siminfo,
+                    const SimulatorControl::Response &response,
                     const QString &context);
 
 private:
