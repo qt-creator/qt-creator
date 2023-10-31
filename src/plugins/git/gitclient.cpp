@@ -1715,13 +1715,13 @@ bool GitClient::synchronousRevParseCmd(const FilePath &workingDirectory, const Q
 }
 
 // Retrieve head revision
-ProcessTask GitClient::topRevision(const FilePath &workingDirectory,
+GroupItem GitClient::topRevision(const FilePath &workingDirectory,
     const std::function<void(const QString &, const QDateTime &)> &callback)
 {
-    const auto setupProcess = [=](Process &process) {
+    const auto setupProcess = [this, workingDirectory](Process &process) {
         setupCommand(process, workingDirectory, {"show", "-s", "--pretty=format:%H:%ct", HEAD});
     };
-    const auto onProcessDone = [=](const Process &process) {
+    const auto onProcessDone = [callback](const Process &process) {
         const QStringList output = process.cleanedStdOut().trimmed().split(':');
         QDateTime dateTime;
         if (output.size() > 1) {

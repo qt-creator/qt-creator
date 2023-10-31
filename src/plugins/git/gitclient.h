@@ -9,10 +9,10 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/iversioncontrol.h>
-#include <vcsbase/vcsbaseclient.h>
 
 #include <utils/fileutils.h>
-#include <utils/process.h>
+
+#include <vcsbase/vcsbaseclient.h>
 
 #include <QObject>
 #include <QString>
@@ -24,6 +24,7 @@ class QMenu;
 QT_END_NAMESPACE
 
 namespace Core { class ICore; }
+namespace Tasking { class GroupItem; }
 
 namespace DiffEditor {
 class ChunkSelection;
@@ -245,7 +246,7 @@ public:
     QString synchronousTopic(const Utils::FilePath &workingDirectory) const;
     bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
-    Utils::ProcessTask topRevision(const Utils::FilePath &workingDirectory,
+    Tasking::GroupItem topRevision(const Utils::FilePath &workingDirectory,
         const std::function<void(const QString &, const QDateTime &)> &callback);
     bool isRemoteCommit(const Utils::FilePath &workingDirectory, const QString &commit);
 

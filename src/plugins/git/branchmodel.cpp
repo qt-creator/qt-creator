@@ -391,7 +391,7 @@ void BranchModel::clear()
         d->rootNode->children.takeLast();
 
     d->currentSha.clear();
-    d->currentDateTime = QDateTime();
+    d->currentDateTime = {};
     d->currentBranch = nullptr;
     d->headNode = nullptr;
     d->obsoleteLocalBranches.clear();
@@ -410,14 +410,13 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         return;
     }
 
-    const ProcessTask topRevisionProc =
-        gitClient().topRevision(workingDirectory,
-                               [=](const QString &ref, const QDateTime &dateTime) {
-                                   d->currentSha = ref;
-                                   d->currentDateTime = dateTime;
-                               });
+    const GroupItem topRevisionProc = gitClient().topRevision(workingDirectory,
+        [this](const QString &ref, const QDateTime &dateTime) {
+            d->currentSha = ref;
+            d->currentDateTime = dateTime;
+        });
 
-    const auto setupForEachRef = [=](Process &process) {
+    const auto setupForEachRef = [this, workingDirectory](Process &process) {
         d->workingDirectory = workingDirectory;
         QStringList args = {"for-each-ref",
                             "--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
@@ -429,7 +428,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         gitClient().setupCommand(process, workingDirectory, args);
     };
 
-    const auto forEachRefDone = [=](const Process &process) {
+    const auto forEachRefDone = [this](const Process &process) {
         const QString output = process.stdOut();
         const QStringList lines = output.split('\n');
         for (const QString &l : lines)
@@ -450,7 +449,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         }
     };
 
-    const auto forEachRefError = [=](const Process &process) {
+    const auto forEachRefError = [workingDirectory, showError](const Process &process) {
         if (showError == ShowError::No)
             return;
         const QString message = Tr::tr("Cannot run \"%1\" in \"%2\": %3")

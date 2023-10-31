@@ -19,6 +19,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/navigationtreeview.h>
+#include <utils/process.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
@@ -546,14 +547,14 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
 
     const TreeStorage<FastForwardStorage> storage;
 
-    const auto setupMergeBase = [=](Process &process) {
-        gitClient().setupCommand(process, m_repository, {"merge-base", "HEAD", branch});
+    const auto setupMergeBase = [repository = m_repository, branch](Process &process) {
+        gitClient().setupCommand(process, repository, {"merge-base", "HEAD", branch});
     };
     const auto onMergeBaseDone = [storage](const Process &process) {
         storage->mergeBase = process.cleanedStdOut().trimmed();
     };
 
-    const ProcessTask topRevisionProc = gitClient().topRevision(
+    const GroupItem topRevisionProc = gitClient().topRevision(
         m_repository,
         [storage](const QString &revision, const QDateTime &) {
             storage->topRevision = revision;
