@@ -215,8 +215,7 @@ protected:
 
     void addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
                      const std::shared_ptr<CompilerSettings> &compilerSettings,
-                     int idx,
-                     QDockWidget *parentDockWidget);
+                     int idx);
 
     void addSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);
     void removeSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);

@@ -502,7 +502,6 @@ EditorWidget::EditorWidget(const QSharedPointer<JsonSettingsDocument> &document,
     , m_actionHandler(actionHandler)
 {
     setContextMenuPolicy(Qt::NoContextMenu);
-    setAutoHideTitleBars(false);
     setDockNestingEnabled(true);
     setDocumentMode(true);
     setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::TabPosition::South);
@@ -541,13 +540,12 @@ void EditorWidget::focusInEvent(QFocusEvent *event)
 
 void EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
                                const std::shared_ptr<CompilerSettings> &compilerSettings,
-                               int idx,
-                               QDockWidget *parentDockWidget)
+                               int idx)
 {
     auto compiler = new CompilerWidget(sourceSettings, compilerSettings, m_undoStack);
     compiler->setWindowTitle("Compiler #" + QString::number(idx));
     compiler->setObjectName("compiler_" + QString::number(idx));
-    QDockWidget *dockWidget = addDockForWidget(compiler, parentDockWidget);
+    QDockWidget *dockWidget = addDockForWidget(compiler);
     dockWidget->setFeatures(QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetMovable);
     addDockWidget(Qt::RightDockWidgetArea, dockWidget);
     m_compilerWidgets.append(dockWidget);
@@ -607,18 +605,15 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
     addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
 
     sourceSettings->compilers.forEachItem<CompilerSettings>(
-        [this, sourceSettings, dockWidget](const std::shared_ptr<CompilerSettings> &compilerSettings,
-                                           int idx) {
-            addCompiler(sourceSettings, compilerSettings, idx + 1, dockWidget);
+        [this, sourceSettings](const std::shared_ptr<CompilerSettings> &compilerSettings, int idx) {
+            addCompiler(sourceSettings, compilerSettings, idx + 1);
         });
 
     sourceSettings->compilers.setItemAddedCallback<CompilerSettings>(
-        [this, sourceSettings, dockWidget](
-            const std::shared_ptr<CompilerSettings> &compilerSettings) {
+        [this, sourceSettings](const std::shared_ptr<CompilerSettings> &compilerSettings) {
             addCompiler(sourceSettings->shared_from_this(),
                         compilerSettings,
-                        sourceSettings->compilers.size(),
-                        dockWidget);
+                        sourceSettings->compilers.size());
         });
 
     sourceSettings->compilers.setItemRemovedCallback<CompilerSettings>(

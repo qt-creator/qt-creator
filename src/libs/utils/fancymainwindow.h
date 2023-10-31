@@ -36,14 +36,9 @@ public:
 
     // Additional context menu actions
     QAction *menuSeparator1() const;
-    QAction *autoHideTitleBarsAction() const;
-    QAction *menuSeparator2() const;
     QAction *resetLayoutAction() const;
     QAction *showCentralWidgetAction() const;
     void addDockActionsToMenu(QMenu *menu);
-
-    bool autoHideTitleBars() const;
-    void setAutoHideTitleBars(bool on);
 
     bool isCentralWidgetShown() const;
     void showCentralWidget(bool on);

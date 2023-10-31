@@ -49,7 +49,6 @@ namespace Utils {
 
 const char LAST_PERSPECTIVE_KEY[]   = "LastPerspective";
 const char MAINWINDOW_KEY[]         = "Debugger.MainWindow";
-const char AUTOHIDE_TITLEBARS_KEY[] = "AutoHideTitleBars";
 const char SHOW_CENTRALWIDGET_KEY[] = "ShowCentralWidget";
 const char STATE_KEY[]              = "State";  // Up to 4.10
 const char STATE_KEY2[]             = "State2"; // From 4.11 on
@@ -286,14 +285,6 @@ DebuggerMainWindow::DebuggerMainWindow()
         "Debugger.Views.Separator1", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
     viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = ActionManager::registerAction(autoHideTitleBarsAction(),
-        "Debugger.Views.AutoHideTitleBars", debugcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
-    cmd = ActionManager::registerAction(menuSeparator2(),
-        "Debugger.Views.Separator2", debugcontext);
-    cmd->setAttribute(Command::CA_Hide);
-    viewsMenu->addAction(cmd, Core::Constants::G_DEFAULT_THREE);
     cmd = ActionManager::registerAction(resetLayoutAction(),
         "Debugger.Views.ResetSimple", debugcontext);
     cmd->setAttribute(Command::CA_Hide);
@@ -458,7 +449,6 @@ void DebuggerMainWindow::restorePersistentSettings()
         d->m_lastTypePerspectiveStates.insert(type, state);
     }
 
-    setAutoHideTitleBars(settings->value(AUTOHIDE_TITLEBARS_KEY, true).toBool());
     showCentralWidget(settings->value(SHOW_CENTRALWIDGET_KEY, true).toBool());
     d->m_persistentChangedDocks = Utils::toSet(settings->value(CHANGED_DOCK_KEY).toStringList());
     settings->endGroup();
@@ -493,7 +483,6 @@ void DebuggerMainWindow::savePersistentSettings() const
     settings->beginGroup(MAINWINDOW_KEY);
     settings->setValue(CHANGED_DOCK_KEY, QStringList(Utils::toList(d->m_persistentChangedDocks)));
     settings->setValue(STATE_KEY2, states);
-    settings->setValue(AUTOHIDE_TITLEBARS_KEY, autoHideTitleBars());
     settings->setValue(SHOW_CENTRALWIDGET_KEY, isCentralWidgetShown());
     settings->endGroup();
 

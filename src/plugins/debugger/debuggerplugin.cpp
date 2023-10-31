@@ -712,16 +712,6 @@ public:
 //            return isDebuggableScript;
 };
 
-static void addLabel(QWidget *widget, const QString &text)
-{
-    auto vbox = qobject_cast<QVBoxLayout *>(widget->layout());
-    QTC_ASSERT(vbox, return);
-    auto label = new QLabel(widget);
-    label->setText(text);
-    label->setContentsMargins(6, 6, 6, 6);
-    vbox->insertWidget(0, label);
-};
-
 void DebuggerPluginPrivate::addFontSizeAdaptation(QWidget *widget)
 {
     QObject::connect(TextEditorSettings::instance(),
@@ -759,7 +749,6 @@ QWidget *DebuggerPluginPrivate::createBreakpointManagerWindow(BaseTreeView *brea
     auto breakpointManagerWindow = addSearch(breakpointManagerView);
     breakpointManagerWindow->setWindowTitle(title);
     breakpointManagerWindow->setObjectName(objectName);
-    addLabel(breakpointManagerWindow, breakpointManagerWindow->windowTitle());
     addFontSizeAdaptation(breakpointManagerWindow);
     return breakpointManagerWindow;
 }
@@ -785,7 +774,6 @@ QWidget *DebuggerPluginPrivate::createEngineManagerWindow(BaseTreeView *engineMa
     auto engineManagerWindow = addSearch(engineManagerView);
     engineManagerWindow->setWindowTitle(title);
     engineManagerWindow->setObjectName(objectName);
-    addLabel(engineManagerWindow, engineManagerWindow->windowTitle());
     addFontSizeAdaptation(engineManagerWindow);
     return engineManagerWindow;
 }

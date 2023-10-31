@@ -338,12 +338,6 @@ void FormEditorData::setupViewActions()
     Command *cmd = addToolAction(m_editorWidget->menuSeparator1(), m_contexts, "FormEditor.SeparatorLock", viewMenu);
     cmd->setAttribute(Command::CA_Hide);
 
-    cmd = addToolAction(m_editorWidget->autoHideTitleBarsAction(), m_contexts, "FormEditor.Locked", viewMenu);
-    cmd->setAttribute(Command::CA_Hide);
-
-    cmd = addToolAction(m_editorWidget->menuSeparator2(), m_contexts, "FormEditor.SeparatorReset", viewMenu);
-    cmd->setAttribute(Command::CA_Hide);
-
     cmd = addToolAction(m_editorWidget->resetLayoutAction(), m_contexts, "FormEditor.ResetToDefaultLayout", viewMenu);
 
     QObject::connect(m_editorWidget, &EditorWidget::resetLayout,
