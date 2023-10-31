@@ -1719,6 +1719,11 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
     } else if (command.type() == PuppetToCreatorCommand::ActiveSceneChanged) {
         const auto sceneState = qvariant_cast<QVariantMap>(command.data());
         emitUpdateActiveScene3D(sceneState);
+    } else if (command.type() == PuppetToCreatorCommand::ActiveSplitChanged) {
+        // Active split change is a special case of active scene change
+        QVariantMap splitState;
+        splitState.insert("activeSplit", command.data());
+        emitUpdateActiveScene3D(splitState);
     } else if (command.type() == PuppetToCreatorCommand::RenderModelNodePreviewImage) {
         ImageContainer container = qvariant_cast<ImageContainer>(command.data());
         QImage image = container.image();

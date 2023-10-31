@@ -281,6 +281,95 @@ void Edit3DWidget::createContextMenu()
     m_toggleGroupAction->setChecked(defaultToggleGroupAction->isChecked());
 
     m_contextMenu->addSeparator();
+
+    auto overridesSubMenu = new QmlEditorMenu(tr("Shader Overrides"), m_contextMenu);
+    overridesSubMenu->setToolTipsVisible(true);
+    m_contextMenu->addMenu(overridesSubMenu);
+
+    m_wireFrameAction = overridesSubMenu->addAction(
+        tr("Wireframe"), this, &Edit3DWidget::onWireframeAction);
+    m_wireFrameAction->setCheckable(true);
+    m_wireFrameAction->setToolTip(tr("Show models as wireframe."));
+
+    overridesSubMenu->addSeparator();
+
+    // The type enum order must match QQuick3DDebugSettings::QQuick3DMaterialOverrides enums
+    enum class MaterialOverrideType {
+        None,
+        BaseColor,
+        Roughness,
+        Metalness,
+        Diffuse,
+        Specular,
+        ShadowOcclusion,
+        Emission,
+        AmbientOcclusion,
+        Normals,
+        Tangents,
+        Binormals,
+        F0
+    };
+
+    auto addOverrideMenuAction = [&](const QString &label, const QString &toolTip,
+                                     MaterialOverrideType type) {
+        QAction *action = overridesSubMenu->addAction(
+            label, this, &Edit3DWidget::onMatOverrideAction);
+        action->setData(int(type));
+        action->setCheckable(true);
+        action->setToolTip(toolTip);
+        m_matOverrideActions.insert(int(type), action);
+    };
+
+    addOverrideMenuAction(tr("No Material Override"),
+                          tr("Rendering occurs as normal."),
+                          MaterialOverrideType::None);
+    addOverrideMenuAction(tr("Base Color"),
+                          tr("The BaseColor or Diffuse color of a material is passed through without any lighting."),
+                          MaterialOverrideType::BaseColor);
+    addOverrideMenuAction(tr("Roughness"),
+                          tr("The Roughness of a material is passed through as an unlit greyscale value."),
+                          MaterialOverrideType::Roughness);
+    addOverrideMenuAction(tr("Metalness"),
+                          tr("The Metalness of a material is passed through as an unlit greyscale value."),
+                          MaterialOverrideType::Metalness);
+    addOverrideMenuAction(tr("Diffuse"),
+                          tr("Only the diffuse contribution of the material after all lighting."),
+                          MaterialOverrideType::Diffuse);
+    addOverrideMenuAction(tr("Specular"),
+                          tr("Only the specular contribution of the material after all lighting."),
+                          MaterialOverrideType::Specular);
+    addOverrideMenuAction(tr("Shadow Occlusion"),
+                          tr("The Occlusion caused by shadows as a greyscale value."),
+                          MaterialOverrideType::ShadowOcclusion);
+    addOverrideMenuAction(tr("Emission"),
+                          tr("Only the emissive contribution of the material."),
+                          MaterialOverrideType::Emission);
+    addOverrideMenuAction(tr("Ambient Occlusion"),
+                          tr("Only the Ambient Occlusion of the material."),
+                          MaterialOverrideType::AmbientOcclusion);
+    addOverrideMenuAction(tr("Normals"),
+                          tr("The interpolated world space Normal value of the material mapped to an RGB color."),
+                          MaterialOverrideType::Normals);
+    addOverrideMenuAction(tr("Tangents"),
+                          tr("The interpolated world space Tangent value of the material mapped to an RGB color.\n"
+                             "This will only be visible if the Tangent value is used."),
+                          MaterialOverrideType::Tangents);
+    addOverrideMenuAction(tr("Binormals"),
+                          tr("The interpolated world space Binormal value of the material mapped to an RGB color.\n"
+                             "This will only be visible if the Binormal value is used."),
+                          MaterialOverrideType::Binormals);
+    addOverrideMenuAction(tr("Fresnel 0"),
+                          tr("This represents the Fresnel Reflectance at 0 Degrees.\n"
+                             "This will only be visible for materials that calculate an F0 value."),
+                          MaterialOverrideType::F0);
+
+    overridesSubMenu->addSeparator();
+
+    QAction *resetAction = overridesSubMenu->addAction(
+        tr("Reset All Overrides"), this, &Edit3DWidget::onResetAllOverridesAction);
+    resetAction->setToolTip(tr("Reset all overrides for all splits."));
+
+    m_contextMenu->addSeparator();
 }
 
 bool Edit3DWidget::isPasteAvailable() const
@@ -422,6 +511,69 @@ void Edit3DWidget::onCreateAction()
     });
 }
 
+void Edit3DWidget::onMatOverrideAction()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action || !m_view || !m_view->model())
+        return;
+
+    QVariantList list;
+    for (int i = 0; i < m_view->splitToolStates().size(); ++i) {
+        Edit3DView::SplitToolState state = m_view->splitToolStates()[i];
+        if (i == m_view->activeSplit()) {
+            state.matOverride = action->data().toInt();
+            m_view->setSplitToolState(i, state);
+            list.append(action->data());
+        } else {
+            list.append(state.matOverride);
+        }
+    }
+
+    view()->emitView3DAction(View3DActionType::MaterialOverride, list);
+}
+
+void Edit3DWidget::onWireframeAction()
+{
+    QAction *action = qobject_cast<QAction *>(sender());
+    if (!action || !m_view || !m_view->model())
+        return;
+
+    QVariantList list;
+    for (int i = 0; i < m_view->splitToolStates().size(); ++i) {
+        Edit3DView::SplitToolState state = m_view->splitToolStates()[i];
+        if (i == m_view->activeSplit()) {
+            state.showWireframe = action->isChecked();
+            m_view->setSplitToolState(i, state);
+            list.append(action->isChecked());
+        } else {
+            list.append(state.showWireframe);
+        }
+    }
+
+    view()->emitView3DAction(View3DActionType::ShowWireframe, list);
+}
+
+void Edit3DWidget::onResetAllOverridesAction()
+{
+    if (!m_view || !m_view->model())
+        return;
+
+    QVariantList wList;
+    QVariantList mList;
+
+    for (int i = 0; i < m_view->splitToolStates().size(); ++i) {
+        Edit3DView::SplitToolState state;
+        state.showWireframe = false;
+        state.matOverride = 0;
+        m_view->setSplitToolState(i, state);
+        wList.append(state.showWireframe);
+        mList.append(state.matOverride);
+    }
+
+    view()->emitView3DAction(View3DActionType::ShowWireframe, wList);
+    view()->emitView3DAction(View3DActionType::MaterialOverride, mList);
+}
+
 void Edit3DWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
     if (m_view)
@@ -501,6 +653,15 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_toggleGroupAction->setEnabled(true);
     m_bakeLightsAction->setVisible(view()->bakeLightsAction()->action()->isVisible());
     m_bakeLightsAction->setEnabled(view()->bakeLightsAction()->action()->isEnabled());
+
+    if (m_view) {
+        int idx = m_view->activeSplit();
+        m_wireFrameAction->setChecked(m_view->splitToolStates()[idx].showWireframe);
+        for (QAction *a : std::as_const(m_matOverrideActions))
+            a->setChecked(false);
+        int type = m_view->splitToolStates()[idx].matOverride;
+        m_matOverrideActions[type]->setChecked(true);
+    }
 
     m_contextMenu->popup(mapToGlobal(pos));
 }

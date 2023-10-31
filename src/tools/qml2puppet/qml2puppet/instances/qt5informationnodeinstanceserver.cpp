@@ -881,6 +881,12 @@ void Qt5InformationNodeInstanceServer::handleActiveSceneChange()
 #endif
 }
 
+void Qt5InformationNodeInstanceServer::handleActiveSplitChange(int index)
+{
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSplitChanged,
+                                                        index});
+}
+
 void Qt5InformationNodeInstanceServer::handleToolStateChanged(const QString &sceneId,
                                                               const QString &tool,
                                                               const QVariant &toolState)
@@ -1860,6 +1866,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
                      this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
     QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveSceneChange()),
                      this, SLOT(handleActiveSceneChange()));
+    QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveSplitChange(int)),
+                     this, SLOT(handleActiveSplitChange(int)));
     QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
     QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
@@ -2502,6 +2510,12 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
 #endif
     case View3DActionType::SplitViewToggle:
         updatedToolState.insert("splitView", command.isEnabled());
+        break;
+    case View3DActionType::ShowWireframe:
+        updatedToolState.insert("showWireframe", command.value().toList());
+        break;
+    case View3DActionType::MaterialOverride:
+        updatedToolState.insert("matOverride", command.value().toList());
         break;
 
     default:

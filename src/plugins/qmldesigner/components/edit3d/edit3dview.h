@@ -32,6 +32,12 @@ class QMLDESIGNERCOMPONENTS_EXPORT Edit3DView : public AbstractView
     Q_OBJECT
 
 public:
+    struct SplitToolState
+    {
+        int matOverride = 0;
+        bool showWireframe = false;
+    };
+
     Edit3DView(ExternalDependenciesInterface &externalDependencies);
 
     WidgetInfo widgetInfo() override;
@@ -77,6 +83,11 @@ public:
     bool isBakingLightsSupported() const;
 
     void syncSnapAuxPropsToSettings();
+
+    const QList<SplitToolState> &splitToolStates() const;
+    void setSplitToolState(int splitIndex, const SplitToolState &state);
+
+    int activeSplit() const;
 
 private slots:
     void onEntriesChanged();
@@ -160,6 +171,9 @@ private:
     QPointer<BakeLights> m_bakeLights;
     bool m_isBakingLightsSupported = false;
     QPointer<SnapConfiguration> m_snapConfiguration;
+    int m_activeSplit = 0;
+
+    QList<SplitToolState> m_splitToolStates;
 
     friend class Edit3DAction;
 };

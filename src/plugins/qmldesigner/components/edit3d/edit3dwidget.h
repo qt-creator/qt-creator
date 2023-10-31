@@ -54,6 +54,9 @@ public:
 
 private slots:
     void onCreateAction();
+    void onMatOverrideAction();
+    void onWireframeAction();
+    void onResetAllOverridesAction();
 
 protected:
     void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
@@ -90,6 +93,8 @@ private:
     QPointer<QAction> m_alignViewAction;
     QPointer<QAction> m_selectParentAction;
     QPointer<QAction> m_toggleGroupAction;
+    QPointer<QAction> m_wireFrameAction;
+    QHash<int, QPointer<QAction>> m_matOverrideActions;
     QPointer<QMenu> m_createSubMenu;
     ModelNode m_contextMenuTarget;
     QVector3D m_contextMenuPos3d;

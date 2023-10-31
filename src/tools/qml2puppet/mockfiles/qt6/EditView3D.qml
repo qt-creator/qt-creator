@@ -1,9 +1,9 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 6.0
-import QtQuick3D 6.0
-import MouseArea3D 1.0
+import QtQuick
+import QtQuick3D
+import MouseArea3D
 
 Item {
     id: viewRoot
@@ -17,6 +17,8 @@ Item {
     property var overlayViews: [overlayView0, overlayView1, overlayView2, overlayView3]
     property var cameraControls: [cameraControl0, cameraControl1, cameraControl2, cameraControl3]
     property var viewRects: [viewRect0, viewRect1, viewRect2, viewRect3]
+    property var materialOverrides: [DebugSettings.None, DebugSettings.None, DebugSettings.None, DebugSettings.None]
+    property var showWireframes: [false, false, false, false]
     property var activeEditView: editViews[activeSplit]
     property var activeOverlayView: overlayViews[activeSplit]
     property string sceneId
@@ -56,6 +58,7 @@ Item {
     signal commitObjectProperty(var objects, var propNames)
     signal changeObjectProperty(var objects, var propNames)
     signal notifyActiveSceneChange()
+    signal notifyActiveSplitChange(int index)
 
     onUsePerspectiveChanged:      _generalHelper.storeToolState(sceneId, "usePerspective", usePerspective)
     onShowEditLightChanged:       _generalHelper.storeToolState(sceneId, "showEditLight", showEditLight)
@@ -68,6 +71,8 @@ Item {
     onShowParticleEmitterChanged: _generalHelper.storeToolState(sceneId, "showParticleEmitter", showParticleEmitter);
     onSelectionModeChanged:       _generalHelper.storeToolState(sceneId, "selectionMode", selectionMode);
     onTransformModeChanged:       _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
+    onMaterialOverridesChanged:   _generalHelper.storeToolState(sceneId, "matOverride", materialOverrides);
+    onShowWireframesChanged:      _generalHelper.storeToolState(sceneId, "showWireframe", showWireframes);
     onSplitViewChanged: {
         _generalHelper.storeToolState(sceneId, "splitView", splitView);
         _generalHelper.requestOverlayUpdate();
@@ -75,6 +80,7 @@ Item {
     onActiveSplitChanged: {
         _generalHelper.storeToolState(sceneId, "activeSplit", activeSplit);
         cameraControls[activeSplit].forceActiveFocus();
+        notifyActiveSplitChange(activeSplit);
     }
 
     onActiveSceneChanged: updateActiveScene()
@@ -96,7 +102,9 @@ Item {
                                                        "gridColor": gridColor,
                                                        "importScene": activeScene,
                                                        "cameraLookAt": cameraControls[i]._lookAtPoint,
-                                                       "z": 1});
+                                                       "z": 1,
+                                                       "sceneEnv.debugSettings.materialOverride": materialOverrides[i],
+                                                       "sceneEnv.debugSettings.wireframeEnabled": showWireframes[i]});
                 editViews[i].usePerspective = Qt.binding(function() {return usePerspective;});
                 editViews[i].showSceneLight = Qt.binding(function() {return showEditLight;});
                 editViews[i].showGrid = Qt.binding(function() {return showGrid;});
@@ -106,6 +114,16 @@ Item {
             editViews[1].cameraLookAt = Qt.binding(function() {return cameraControl1._lookAtPoint;});
             editViews[2].cameraLookAt = Qt.binding(function() {return cameraControl2._lookAtPoint;});
             editViews[3].cameraLookAt = Qt.binding(function() {return cameraControl3._lookAtPoint;});
+
+            editViews[0].sceneEnv.debugSettings.materialOverride = Qt.binding(function() {return materialOverrides[0];});
+            editViews[1].sceneEnv.debugSettings.materialOverride = Qt.binding(function() {return materialOverrides[1];});
+            editViews[2].sceneEnv.debugSettings.materialOverride = Qt.binding(function() {return materialOverrides[2];});
+            editViews[3].sceneEnv.debugSettings.materialOverride = Qt.binding(function() {return materialOverrides[3];});
+
+            editViews[0].sceneEnv.debugSettings.wireframeEnabled = Qt.binding(function() {return showWireframes[0];});
+            editViews[1].sceneEnv.debugSettings.wireframeEnabled = Qt.binding(function() {return showWireframes[1];});
+            editViews[2].sceneEnv.debugSettings.wireframeEnabled = Qt.binding(function() {return showWireframes[2];});
+            editViews[3].sceneEnv.debugSettings.wireframeEnabled = Qt.binding(function() {return showWireframes[3];});
 
             selectionBoxCount = 0;
             editViewsChanged();
@@ -340,6 +358,16 @@ Item {
             activeSplit = toolStates.activeSplit;
         else if (resetToDefault)
             activeSplit = 0;
+
+        if ("showWireframe" in toolStates)
+            showWireframes = toolStates.showWireframe;
+        else if (resetToDefault)
+            showWireframes = [false, false, false, false];
+
+        if ("matOverride" in toolStates)
+            materialOverrides = toolStates.matOverride;
+        else if (resetToDefault)
+            materialOverrides = [DebugSettings.None, DebugSettings.None, DebugSettings.None, DebugSettings.None];
     }
 
     function storeCurrentToolStates()
@@ -357,6 +385,8 @@ Item {
         _generalHelper.storeToolState(sceneId, "transformMode", transformMode);
         _generalHelper.storeToolState(sceneId, "splitView", splitView)
         _generalHelper.storeToolState(sceneId, "activeSplit", activeSplit)
+        _generalHelper.storeToolState(sceneId, "showWireframe", showWireframes)
+        _generalHelper.storeToolState(sceneId, "matOverride", materialOverrides)
 
         for (var i = 0; i < 4; ++i)
             cameraControls[i].storeCameraState(0);

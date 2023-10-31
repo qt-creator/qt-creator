@@ -58,6 +58,9 @@ Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     m_compressionTimer.setInterval(1000);
     m_compressionTimer.setSingleShot(true);
     connect(&m_compressionTimer, &QTimer::timeout, this, &Edit3DView::handleEntriesChanged);
+
+    for (int i = 0; i < 4; ++i)
+        m_splitToolStates.append({0, false});
 }
 
 void Edit3DView::createEdit3DWidget()
@@ -108,6 +111,18 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 {
+    const QString activeSplitKey = QStringLiteral("activeSplit");
+    if (sceneState.contains(activeSplitKey)) {
+        m_activeSplit = sceneState[activeSplitKey].toInt();
+
+        // If the sceneState contained just activeSplit key, then this is simply an active split
+        // change rather than entire active scene change, and we don't need to process further.
+        if (sceneState.size() == 1)
+            return;
+    } else {
+        m_activeSplit = 0;
+    }
+
     const QString sceneKey           = QStringLiteral("sceneInstanceId");
     const QString selectKey          = QStringLiteral("selectionMode");
     const QString transformKey       = QStringLiteral("transformMode");
@@ -122,6 +137,8 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString particlesPlayKey   = QStringLiteral("particlePlay");
     const QString syncEnvBgKey       = QStringLiteral("syncEnvBackground");
     const QString splitViewKey       = QStringLiteral("splitView");
+    const QString matOverrideKey     = QStringLiteral("matOverride");
+    const QString showWireframeKey   = QStringLiteral("showWireframe");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -196,6 +213,24 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_splitViewAction->action()->setChecked(sceneState[splitViewKey].toBool());
     else
         m_splitViewAction->action()->setChecked(false);
+
+    if (sceneState.contains(matOverrideKey)) {
+        const QVariantList overrides = sceneState[matOverrideKey].toList();
+        for (int i = 0; i < 4; ++i)
+            m_splitToolStates[i].matOverride = i < overrides.size() ? overrides[i].toInt() : 0;
+    } else {
+        for (SplitToolState &state : m_splitToolStates)
+            state.matOverride = 0;
+    }
+
+    if (sceneState.contains(showWireframeKey)) {
+        const QVariantList showList = sceneState[showWireframeKey].toList();
+        for (int i = 0; i < 4; ++i)
+            m_splitToolStates[i].showWireframe = i < showList.size() ? showList[i].toBool() : false;
+    } else {
+        for (SplitToolState &state : m_splitToolStates)
+            state.showWireframe = false;
+    }
 
     // Syncing background color only makes sense for children of View3D instances
     bool syncValue = false;
@@ -661,6 +696,24 @@ void Edit3DView::syncSnapAuxPropsToSettings()
                                      Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL));
     rootModelNode().setAuxiliaryData(edit3dSnapScaleIntProperty,
                                      Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL));
+}
+
+const QList<Edit3DView::SplitToolState> &Edit3DView::splitToolStates() const
+{
+    return m_splitToolStates;
+}
+
+void Edit3DView::setSplitToolState(int splitIndex, const SplitToolState &state)
+{
+    if (splitIndex >= m_splitToolStates.size())
+        return;
+
+    m_splitToolStates[splitIndex] = state;
+}
+
+int Edit3DView::activeSplit() const
+{
+    return m_activeSplit;
 }
 
 void Edit3DView::createEdit3DActions()
