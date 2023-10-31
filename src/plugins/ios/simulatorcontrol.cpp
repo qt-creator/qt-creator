@@ -31,7 +31,7 @@ static Q_LOGGING_CATEGORY(simulatorLog, "qtc.ios.simulator", QtWarningMsg)
 
 namespace Ios::Internal {
 
-const int simulatorStartTimeout = 60000;
+const std::chrono::seconds simulatorStartTimeout = std::chrono::seconds(60);
 
 // simctl Json Tags and tokens.
 const char deviceTypeTag[] = "devicetypes";
@@ -47,59 +47,84 @@ const char udidTag[] = "udid";
 const char runtimeVersionTag[] = "version";
 const char buildVersionTag[] = "buildversion";
 
-static bool checkForTimeout(const chrono::high_resolution_clock::time_point &start, int msecs = 10000)
-{
-    bool timedOut = false;
-    auto end = chrono::high_resolution_clock::now();
-    if (chrono::duration_cast<chrono::milliseconds>(end-start).count() > msecs)
-        timedOut = true;
-    return timedOut;
-}
-
-static bool runCommand(const CommandLine &command, QString *stdOutput, QString *allOutput = nullptr)
+static expected_str<void> runCommand(
+    const CommandLine &command,
+    QString *stdOutput,
+    QString *allOutput = nullptr,
+    std::function<bool()> shouldStop = [] { return false; })
 {
     Process p;
-    p.setTimeoutS(-1);
     p.setCommand(command);
-    p.runBlocking();
+    p.start();
+
+    if (!p.waitForStarted())
+        return make_unexpected(Tr::tr("Failed to start process."));
+
+    forever {
+        if (shouldStop() || p.waitForFinished(1000))
+            break;
+    }
+
+    if (p.state() != QProcess::ProcessState::NotRunning) {
+        p.kill();
+        if (shouldStop())
+            return make_unexpected(Tr::tr("Process was canceled."));
+
+        return make_unexpected(Tr::tr("Process was forced to exit."));
+    }
+
     if (stdOutput)
         *stdOutput = p.cleanedStdOut();
     if (allOutput)
         *allOutput = p.allOutput();
-    return p.result() == ProcessResult::FinishedWithSuccess;
+
+    if (p.result() != ProcessResult::FinishedWithSuccess)
+        return make_unexpected(p.errorString());
+
+    return {};
 }
 
-static bool runSimCtlCommand(QStringList args, QString *output, QString *allOutput = nullptr)
+static expected_str<void> runSimCtlCommand(
+    QStringList args,
+    QString *output,
+    QString *allOutput = nullptr,
+    std::function<bool()> shouldStop = [] { return false; })
 {
     args.prepend("simctl");
 
     // Cache xcrun's path, as this function will be called often.
     static FilePath xcrun = FilePath::fromString("xcrun").searchInPath();
-    QTC_ASSERT(!xcrun.isEmpty() && xcrun.isExecutableFile(), xcrun.clear(); return false);
-    return runCommand({xcrun, args}, output, allOutput);
+    if (xcrun.isEmpty())
+        return make_unexpected(Tr::tr("Cannot find xcrun."));
+    else if (!xcrun.isExecutableFile())
+        return make_unexpected(Tr::tr("xcrun is not executable."));
+    return runCommand({xcrun, args}, output, allOutput, shouldStop);
 }
 
-static bool launchSimulator(const QString &simUdid) {
-    QTC_ASSERT(!simUdid.isEmpty(), return false);
+static expected_str<void> launchSimulator(const QString &simUdid, std::function<bool()> shouldStop)
+{
+    QTC_ASSERT(!simUdid.isEmpty(), return make_unexpected(Tr::tr("Invalid Empty UDID.")));
     const FilePath simulatorAppPath = IosConfigurations::developerPath()
             .pathAppended("Applications/Simulator.app/Contents/MacOS/Simulator");
 
     if (IosConfigurations::xcodeVersion() >= QVersionNumber(9)) {
         // For XCode 9 boot the second device instead of launching simulator app twice.
         QString psOutput;
-        if (runCommand({"ps", {"-A", "-o", "comm"}}, &psOutput)) {
-            for (const QString &comm : psOutput.split('\n')) {
-                if (comm == simulatorAppPath.toString())
-                    return runSimCtlCommand({"boot", simUdid}, nullptr);
-            }
-        } else {
-            qCDebug(simulatorLog) << "Cannot start Simulator device."
-                                  << "Error probing Simulator.app instance";
-            return false;
+        expected_str<void> result
+            = runCommand({"ps", {"-A", "-o", "comm"}}, &psOutput, nullptr, shouldStop);
+        if (!result)
+            return result;
+
+        for (const QString &comm : psOutput.split('\n')) {
+            if (comm == simulatorAppPath.toString())
+                return runSimCtlCommand({"boot", simUdid}, nullptr, nullptr, shouldStop);
         }
     }
-
-    return Process::startDetached({simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid}});
+    const bool started = Process::startDetached(
+        {simulatorAppPath, {"--args", "-CurrentDeviceUDID", simUdid}});
+    if (!started)
+        return make_unexpected(Tr::tr("Failed to start simulator app."));
+    return {};
 }
 
 static bool isAvailable(const QJsonObject &object)
@@ -407,72 +432,78 @@ void startSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QSt
     // Shutting down state checks are for the case when simulator start is called within a short
     // interval of closing the previous interval of the simulator. We wait untill the shutdown
     // process is complete.
-    auto start = chrono::high_resolution_clock::now();
-    while (simInfo.isShuttingDown() && !checkForTimeout(start, simulatorStartTimeout)) {
+    QDeadlineTimer simulatorStartDeadline(simulatorStartTimeout);
+    while (simInfo.isShuttingDown() && !simulatorStartDeadline.hasExpired()) {
         // Wait till the simulator shuts down, if doing so.
+        if (promise.isCanceled()) {
+            promise.addResult(response.withError(Tr::tr("Simulator start was canceled.")));
+            return;
+        }
+
         QThread::msleep(100);
         simInfo = deviceInfo(simUdid);
     }
 
     if (simInfo.isShuttingDown()) {
-        promise.addResult(response.withError(
-            Tr::tr("Cannot start Simulator device. Previous instance taking "
-                   "too long to shut down. (name=%1, udid=%2, available=%3, state=%4, runtime=%5)")
-                .arg(simInfo.name)
-                .arg(simInfo.identifier)
-                .arg(simInfo.available)
-                .arg(simInfo.state)
-                .arg(simInfo.runtimeName)));
+        promise.addResult(
+            response.withError(Tr::tr("Cannot start Simulator device. Previous instance taking "
+                                      "too long to shut down. (%1)")
+                                   .arg(simInfo.toString())));
         return;
     }
 
-    if (simInfo.isShutdown()) {
-        if (launchSimulator(simUdid)) {
-            if (promise.isCanceled())
-                return;
-            // At this point the sim device exists, available and was not running.
-            // So the simulator is started and we'll wait for it to reach to a state
-            // where we can interact with it.
-            start = chrono::high_resolution_clock::now();
-            SimulatorInfo info;
-            do {
-                info = deviceInfo(simUdid);
-                if (promise.isCanceled())
-                    return;
-            } while (!info.isBooted() && !checkForTimeout(start, simulatorStartTimeout));
-            if (info.isBooted())
-                response.success = true;
-        } else {
-            promise.addResult(response.withError(Tr::tr("Error starting simulator.")));
+    if (!simInfo.isShutdown()) {
+        promise.addResult(response.withError(
+            Tr::tr("Cannot start Simulator device. Simulator not in shutdown state. (%1)")
+                .arg(simInfo.toString())));
+        return;
+    }
+
+    expected_str<void> result = launchSimulator(simUdid,
+                                                [&promise] { return promise.isCanceled(); });
+    if (!result) {
+        promise.addResult(response.withError(result.error()));
+        return;
+    }
+
+    // At this point the sim device exists, available and was not running.
+    // So the simulator is started and we'll wait for it to reach to a state
+    // where we can interact with it.
+    // We restart the deadline to give it some more time.
+    simulatorStartDeadline = QDeadlineTimer(simulatorStartTimeout);
+    SimulatorInfo info;
+    do {
+        info = deviceInfo(simUdid);
+        if (promise.isCanceled()) {
+            promise.addResult(response.withError(Tr::tr("Simulator start was canceled.")));
             return;
         }
-    } else {
-        promise.addResult(response.withError(
-            Tr::tr("Cannot start Simulator device. Simulator not in shutdown state.(name=%1, "
-                   "udid=%2, available=%3, state=%4, runtime=%5)")
-                .arg(simInfo.name)
-                .arg(simInfo.identifier)
-                .arg(simInfo.available)
-                .arg(simInfo.state)
-                .arg(simInfo.runtimeName)));
-        return;
-    }
+    } while (!info.isBooted() && !simulatorStartDeadline.hasExpired());
 
-    if (!promise.isCanceled())
-        promise.addResult(response);
+    if (info.isBooted())
+        response.success = true;
+
+    promise.addResult(response.withSuccess());
 }
 
 void installApp(QPromise<SimulatorControl::ResponseData> &promise,
                 const QString &simUdid, const Utils::FilePath &bundlePath)
 {
-    QTC_CHECK(bundlePath.exists());
-
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({"install", simUdid, bundlePath.toString()},
-                                        nullptr,
-                                        &response.commandOutput);
-    if (!promise.isCanceled())
-        promise.addResult(response);
+
+    if (!bundlePath.exists()) {
+        promise.addResult(response.withError(Tr::tr("Bundle path does not exist.")));
+        return;
+    }
+
+    expected_str<void> result = runSimCtlCommand({"install", simUdid, bundlePath.toString()},
+                                                 nullptr,
+                                                 &response.commandOutput,
+                                                 [&promise] { return promise.isCanceled(); });
+    if (!result)
+        promise.addResult(response.withError(result.error()));
+    else
+        promise.addResult(response.withSuccess());
 }
 
 void launchApp(QPromise<SimulatorControl::ResponseData> &promise,
@@ -484,53 +515,74 @@ void launchApp(QPromise<SimulatorControl::ResponseData> &promise,
                const QString &stderrPath)
 {
     SimulatorControl::ResponseData response(simUdid);
-    if (!bundleIdentifier.isEmpty() && !promise.isCanceled()) {
-        QStringList args({"launch", simUdid, bundleIdentifier});
 
-        // simctl usage documentation : Note: Log output is often directed to stderr, not stdout.
-        if (!stdoutPath.isEmpty())
-            args.insert(1, QString("--stderr=%1").arg(stdoutPath));
-
-        if (!stderrPath.isEmpty())
-            args.insert(1, QString("--stdout=%1").arg(stderrPath));
-
-        if (waitForDebugger)
-            args.insert(1, "-w");
-
-        for (const QString &extraArgument : extraArgs) {
-            if (!extraArgument.trimmed().isEmpty())
-                args << extraArgument;
-        }
-
-        QString stdOutput;
-        if (runSimCtlCommand(args, &stdOutput, &response.commandOutput)) {
-            const QString pIdStr = stdOutput.trimmed().split(' ').last().trimmed();
-            bool validPid = false;
-            response.pID = pIdStr.toLongLong(&validPid);
-            response.success = validPid;
-        }
+    if (bundleIdentifier.isEmpty()) {
+        promise.addResult(response.withError(Tr::tr("Invalid (empty) bundle identifier.")));
+        return;
     }
 
-    if (!promise.isCanceled())
-        promise.addResult(response);
+    QStringList args({"launch", simUdid, bundleIdentifier});
+
+    // simctl usage documentation : Note: Log output is often directed to stderr, not stdout.
+    if (!stdoutPath.isEmpty())
+        args.insert(1, QString("--stderr=%1").arg(stdoutPath));
+
+    if (!stderrPath.isEmpty())
+        args.insert(1, QString("--stdout=%1").arg(stderrPath));
+
+    if (waitForDebugger)
+        args.insert(1, "-w");
+
+    for (const QString &extraArgument : extraArgs) {
+        if (!extraArgument.trimmed().isEmpty())
+            args << extraArgument;
+    }
+
+    QString stdOutput;
+    expected_str<void> result = runSimCtlCommand(args,
+                                                 &stdOutput,
+                                                 &response.commandOutput,
+                                                 [&promise] { return promise.isCanceled(); });
+
+    if (!result) {
+        promise.addResult(response.withError(result.error()));
+        return;
+    }
+
+    const QString pIdStr = stdOutput.trimmed().split(' ').last().trimmed();
+    bool validPid = false;
+    response.pID = pIdStr.toLongLong(&validPid);
+    response.success = validPid;
+
+    promise.addResult(response.withSuccess());
 }
 
 void deleteSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({"delete", simUdid}, nullptr, &response.commandOutput);
+    expected_str<void> result = runSimCtlCommand({"delete", simUdid},
+                                                 nullptr,
+                                                 &response.commandOutput,
+                                                 [&promise] { return promise.isCanceled(); });
 
-    if (!promise.isCanceled())
-        promise.addResult(response);
+    if (!result)
+        promise.addResult(response.withError(result.error()));
+    else
+        promise.addResult(response.withSuccess());
 }
 
 void resetSimulator(QPromise<SimulatorControl::ResponseData> &promise, const QString &simUdid)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({"erase", simUdid}, nullptr, &response.commandOutput);
+    expected_str<void> result = runSimCtlCommand({"erase", simUdid},
+                                                 nullptr,
+                                                 &response.commandOutput,
+                                                 [&promise] { return promise.isCanceled(); });
 
-    if (!promise.isCanceled())
-        promise.addResult(response);
+    if (!result)
+        promise.addResult(response.withError(result.error()));
+    else
+        promise.addResult(response.withSuccess());
 }
 
 void renameSimulator(QPromise<SimulatorControl::ResponseData> &promise,
@@ -538,11 +590,14 @@ void renameSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                      const QString &newName)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({"rename", simUdid, newName},
-                                        nullptr,
-                                        &response.commandOutput);
-    if (!promise.isCanceled())
-        promise.addResult(response);
+    expected_str<void> result = runSimCtlCommand({"rename", simUdid, newName},
+                                                 nullptr,
+                                                 &response.commandOutput,
+                                                 [&promise] { return promise.isCanceled(); });
+    if (!result)
+        promise.addResult(response.withError(result.error()));
+    else
+        promise.addResult(response.withSuccess());
 }
 
 void createSimulator(QPromise<SimulatorControl::ResponseData> &promise,
@@ -551,17 +606,24 @@ void createSimulator(QPromise<SimulatorControl::ResponseData> &promise,
                      const RuntimeInfo &runtime)
 {
     SimulatorControl::ResponseData response("Invalid");
-    if (!name.isEmpty()) {
-        QString stdOutput;
-        response.success
-            = runSimCtlCommand({"create", name, deviceType.identifier, runtime.identifier},
-                               &stdOutput,
-                               &response.commandOutput);
-        response.simUdid = response.success ? stdOutput.trimmed() : QString();
+
+    if (name.isEmpty()) {
+        promise.addResult(response);
+        return;
     }
 
-    if (!promise.isCanceled())
-        promise.addResult(response);
+    QString stdOutput;
+    expected_str<void> result
+        = runSimCtlCommand({"create", name, deviceType.identifier, runtime.identifier},
+                           &stdOutput,
+                           &response.commandOutput,
+                           [&promise] { return promise.isCanceled(); });
+    response.simUdid = result ? stdOutput.trimmed() : QString();
+
+    if (!result)
+        promise.addResult(response.withError(result.error()));
+    else
+        promise.addResult(response.withSuccess());
 }
 
 void takeSceenshot(QPromise<SimulatorControl::ResponseData> &promise,
@@ -569,19 +631,25 @@ void takeSceenshot(QPromise<SimulatorControl::ResponseData> &promise,
                    const QString &filePath)
 {
     SimulatorControl::ResponseData response(simUdid);
-    response.success = runSimCtlCommand({"io", simUdid, "screenshot", filePath},
-                                        nullptr,
-                                        &response.commandOutput);
-    if (!promise.isCanceled())
-        promise.addResult(response);
+    expected_str<void> result = runSimCtlCommand({"io", simUdid, "screenshot", filePath},
+                                                 nullptr,
+                                                 &response.commandOutput,
+                                                 [&promise] { return promise.isCanceled(); });
+
+    if (!result)
+        promise.addResult(response.withError(result.error()));
+    else
+        promise.addResult(response.withSuccess());
 }
 
-QDebug &operator<<(QDebug &stream, const SimulatorInfo &info)
+QString SimulatorInfo::toString() const
 {
-    stream << "Name: " << info.name << "UDID: " << info.identifier
-           << "Availability: " << info.available << "State: " << info.state
-           << "Runtime: " << info.runtimeName;
-    return stream;
+    return QString("Name: %1 UDID: %2 Availability: %3 State: %4 Runtime: %5")
+        .arg(name)
+        .arg(identifier)
+        .arg(available)
+        .arg(state)
+        .arg(runtimeName);
 }
 
 bool SimulatorInfo::operator==(const SimulatorInfo &other) const

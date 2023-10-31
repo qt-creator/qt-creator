@@ -28,9 +28,9 @@ public:
 
 class SimulatorInfo : public SimulatorEntity
 {
-    friend QDebug &operator<<(QDebug &, const SimulatorInfo &info);
-
 public:
+    QString toString() const;
+
     bool isBooted() const { return state == "Booted"; }
     bool isShuttingDown() const { return state == "Shutting Down"; }
     bool isShutdown() const { return state == "Shutdown"; }
@@ -67,6 +67,13 @@ public:
             ResponseData result = *this;
             result.commandOutput = errorMsg;
             result.success = false;
+            return result;
+        }
+
+        ResponseData withSuccess()
+        {
+            ResponseData result = std::move(*this);
+            result.success = true;
             return result;
         }
     };
