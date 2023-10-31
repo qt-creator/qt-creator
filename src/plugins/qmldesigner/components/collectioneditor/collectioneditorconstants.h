@@ -7,10 +7,10 @@ namespace QmlDesigner::CollectionEditor {
 
 enum class SourceFormat { Unknown, Json, Csv };
 
-inline constexpr char SOURCEFILE_PROPERTY[]             = "sourceFile";
+inline constexpr char SOURCEFILE_PROPERTY[]             = "source";
 
-inline constexpr char COLLECTIONMODEL_IMPORT[]          = "QtQuick.Studio.Models";
-inline constexpr char JSONCOLLECTIONMODEL_TYPENAME[]    = "QtQuick.Studio.Models.JsonSourceModel";
-inline constexpr char CSVCOLLECTIONMODEL_TYPENAME[]     = "QtQuick.Studio.Models.CsvSourceModel";
+inline constexpr char COLLECTIONMODEL_IMPORT[]          = "QtQuick.Studio.Utils";
+inline constexpr char JSONCOLLECTIONMODEL_TYPENAME[]    = "QtQuick.Studio.Utils.JsonListModel";
+inline constexpr char CSVCOLLECTIONMODEL_TYPENAME[]     = "QtQuick.Studio.Utils.CsvTableModel";
 
 } // namespace QmlDesigner::CollectionEditor
