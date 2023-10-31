@@ -85,6 +85,9 @@ public:
 
     static FilePathInfo filePathInfoFromTriple(const QString &infos, int modeBase);
 
+    //! Returns known paths like /opt/homebrew on macOS that might not be in PATH
+    static FilePaths usefulExtraSearchPaths();
+
 #ifdef QT_WIDGETS_LIB
     static void setDialogParentGetter(const std::function<QWidget *()> &getter);
 
