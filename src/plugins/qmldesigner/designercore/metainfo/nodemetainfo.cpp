@@ -1118,9 +1118,15 @@ bool NodeMetaInfoPrivate::cleverCheckType(const TypeName &otherType) const
     return typeName == convertedName.toUtf8();
 }
 
+static TypeName toSimplifiedTypeName(const TypeName &typeName)
+{
+    return typeName.split('.').constLast();
+}
+
 QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyName) const
 {
-    TypeName typeName = propertyType(propertyName);
+    TypeName typeName = toSimplifiedTypeName(propertyType(propertyName));
+
     if (typeName == "string")
         return QVariant::String;
 
@@ -1929,7 +1935,7 @@ TypeName NodeMetaInfo::typeName() const
 TypeName NodeMetaInfo::simplifiedTypeName() const
 {
     if (isValid())
-        return typeName().split('.').constLast();
+        return toSimplifiedTypeName(typeName());
 
     return {};
 }
