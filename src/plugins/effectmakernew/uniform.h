@@ -14,8 +14,6 @@ QT_FORWARD_DECLARE_CLASS(QVector2D)
 
 namespace EffectMaker {
 
-
-
 class Uniform : public QObject
 {
     Q_OBJECT

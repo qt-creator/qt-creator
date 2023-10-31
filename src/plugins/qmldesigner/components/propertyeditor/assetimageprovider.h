@@ -4,12 +4,13 @@
 #pragma once
 
 #include "imagecache/midsizeimagecacheprovider.h"
+#include "qmldesigner_global.h"
 
 #include <QQuickAsyncImageProvider>
 
 namespace QmlDesigner {
 
-class AssetImageProvider : public QQuickAsyncImageProvider
+class QMLDESIGNER_EXPORT AssetImageProvider : public QQuickAsyncImageProvider
 {
 public:
     AssetImageProvider(AsynchronousImageCache &imageCache, const QImage &defaultImage = {})

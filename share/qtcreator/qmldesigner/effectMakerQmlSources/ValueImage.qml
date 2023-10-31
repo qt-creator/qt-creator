@@ -18,7 +18,6 @@ Row {
 
         actionIndicatorVisible: false
 
-        //TODO: Disable until we figure out how to use images from outside qds
-        //onAbsoluteFilePathChanged: uniformValue = absoluteFilePath
+        onAbsoluteFilePathChanged: uniformValue = absoluteFilePath
     }
 }

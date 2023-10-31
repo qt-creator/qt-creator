@@ -50,8 +50,21 @@ bool EffectMakerUniformsModel::setData(const QModelIndex &index, const QVariant 
         return false;
 
     auto uniform = m_uniforms.at(index.row());
-    uniform->setValue(value);
-    g_propertyData.insert(uniform->name(), value);
+
+    if (uniform->type() == Uniform::Type::Sampler) {
+        QString updatedValue = value.toString();
+        int idx = value.toString().indexOf("file:");
+
+        QString path = idx > 0 ? updatedValue.right(updatedValue.size() - idx - 5) : updatedValue;
+        updatedValue = QUrl::fromLocalFile(path).toString();
+
+        uniform->setValue(updatedValue);
+        g_propertyData.insert(uniform->name(), updatedValue);
+    } else {
+        uniform->setValue(value);
+        g_propertyData.insert(uniform->name(), value);
+    }
+
     emit dataChanged(index, index, {role});
 
     return true;

@@ -14,6 +14,8 @@
 #include "qqmlcontext.h"
 #include "theme.h"
 
+#include "qmldesigner/components/propertyeditor/assetimageprovider.h"
+
 #include <coreplugin/icore.h>
 
 #include <studioquickwidget.h>
@@ -136,6 +138,11 @@ void EffectMakerWidget::initView()
     m_backendModelNode.setup(m_effectMakerView->rootModelNode());
     m_quickWidget->rootContext()->setContextProperty("anchorBackend", &m_backendAnchorBinding);
     m_quickWidget->rootContext()->setContextProperty("modelNodeBackend", &m_backendModelNode);
+    m_quickWidget->rootContext()->setContextProperty("activeDragSuffix", "");
+
+    m_quickWidget->engine()->addImageProvider("qmldesigner_thumbnails",
+                                              new QmlDesigner::AssetImageProvider(
+                                                  QmlDesigner::QmlDesignerPlugin::imageCache()));
 
     // init the first load of the QML UI elements
     reloadQmlSource();

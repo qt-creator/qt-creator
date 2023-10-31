@@ -12,8 +12,8 @@
 
 namespace EffectMaker {
 
-Uniform::Uniform(const QJsonObject &propObj, const QString &qenPath) :
-    m_qenPath(qenPath)
+Uniform::Uniform(const QJsonObject &propObj, const QString &qenPath)
+    : m_qenPath(qenPath)
 {
     QString value, defaultValue, minValue, maxValue;
 
@@ -35,9 +35,10 @@ Uniform::Uniform(const QJsonObject &propObj, const QString &qenPath) :
         QString mipmapProperty = mipmapPropertyName(m_name);
         g_propertyData[mipmapProperty] = m_enableMipmap;
     }
+
     if (propObj.contains("value")) {
         value = propObj.value("value").toString();
-        if (m_type == Type::Sampler && !value.isEmpty())
+        if (m_type == Type::Sampler)
             value = getResourcePath(value);
     } else {
         // QEN files don't store the current value, so with those use default value
