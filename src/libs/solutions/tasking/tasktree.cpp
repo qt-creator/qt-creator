@@ -452,53 +452,6 @@ private:
     When the running task finishes, one of \a done or \a error handlers is called,
     depending on whether it finished with success or an error, respectively.
     Both handlers are of std::function<void(const Task &)> type.
-
-    \sa onSetup(), onDone(), onError()
-*/
-
-/*!
-    \fn template <typename Adapter> template <typename SetupHandler> CustomTask<Adapter> &CustomTask<Adapter>::onSetup(SetupHandler &&handler)
-
-    Attaches the setup \a handler to \c this task.
-    The \a handler is invoked when the task is about to be started.
-
-    This function enables defining the task's details with a
-    \l {https://en.wikipedia.org/wiki/Fluent_interface}{fluent interface} style:
-
-    \code
-    const auto onQuerySetup = [](NetworkQuery &task) { ... };
-    const auto onQueryError = [](const NetworkQuery &task) { ... };
-
-    const Group group {
-        NetworkQueryTask(onQuerySetup, {}, onQueryError),
-        NetworkQueryTask().onSetup(onQuerySetup).onError(onQueryError), // fluent interface style
-        NetworkQueryTask(onQuerySetup, {}, onQueryError).withTimeout(500ms)
-    }
-    \endcode
-
-    \sa CustomTask(), onDone(), onError()
-*/
-
-/*!
-    \fn template <typename Adapter> CustomTask<Adapter> &CustomTask<Adapter>::onDone(const EndHandler &handler)
-
-    Attaches the done \a handler to \c this task.
-    The handler is invoked when the task finishes with success.
-
-    This function enables defining the task's details with a fluent interface style.
-
-    \sa CustomTask(), onSetup(), onError()
-*/
-
-/*!
-    \fn template <typename Adapter> CustomTask<Adapter> &CustomTask<Adapter>::onError(const EndHandler &handler)
-
-    Attaches the error \a handler to \c this task.
-    The handler is invoked when the task finishes with an error.
-
-    This function enables defining the task's details with a fluent interface style.
-
-    \sa CustomTask(), onSetup(), onDone()
 */
 
 /*!
@@ -511,8 +464,6 @@ private:
     the returned item finishes immediately with the task's result.
     Otherwise, the \a handler is invoked (if provided), the task is stopped,
     and the returned item finishes with an error.
-
-    \sa onSetup()
 */
 
 /*!
@@ -1000,39 +951,6 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
             break;
         }
     }
-}
-
-void GroupItem::setTaskSetupHandler(const TaskSetupHandler &handler)
-{
-    if (!handler) {
-        qWarning("Setting empty Setup Handler is no-op, skipping...");
-        return;
-    }
-    if (m_taskHandler.m_setupHandler)
-        qWarning("Setup Handler redefinition, overriding...");
-    m_taskHandler.m_setupHandler = handler;
-}
-
-void GroupItem::setTaskDoneHandler(const TaskEndHandler &handler)
-{
-    if (!handler) {
-        qWarning("Setting empty Done Handler is no-op, skipping...");
-        return;
-    }
-    if (m_taskHandler.m_doneHandler)
-        qWarning("Done Handler redefinition, overriding...");
-    m_taskHandler.m_doneHandler = handler;
-}
-
-void GroupItem::setTaskErrorHandler(const TaskEndHandler &handler)
-{
-    if (!handler) {
-        qWarning("Setting empty Error Handler is no-op, skipping...");
-        return;
-    }
-    if (m_taskHandler.m_errorHandler)
-        qWarning("Error Handler redefinition, overriding...");
-    m_taskHandler.m_errorHandler = handler;
 }
 
 GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,

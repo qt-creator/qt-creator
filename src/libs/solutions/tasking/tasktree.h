@@ -189,9 +189,6 @@ protected:
         , m_taskHandler(handler) {}
     void addChildren(const QList<GroupItem> &children);
 
-    void setTaskSetupHandler(const TaskSetupHandler &handler);
-    void setTaskDoneHandler(const TaskEndHandler &handler);
-    void setTaskErrorHandler(const TaskEndHandler &handler);
     static GroupItem groupHandler(const GroupHandler &handler) { return GroupItem({handler}); }
     static GroupItem parallelLimit(int limit) { return GroupItem({{}, limit}); }
     static GroupItem workflowPolicy(WorkflowPolicy policy) { return GroupItem({{}, {}, policy}); }
@@ -335,20 +332,6 @@ public:
     CustomTask(SetupHandler &&setup, const EndHandler &done = {}, const EndHandler &error = {})
         : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
                      wrapEnd(done), wrapEnd(error)}) {}
-
-    template <typename SetupHandler>
-    CustomTask &onSetup(SetupHandler &&handler) {
-        setTaskSetupHandler(wrapSetup(std::forward<SetupHandler>(handler)));
-        return *this;
-    }
-    CustomTask &onDone(const EndHandler &handler) {
-        setTaskDoneHandler(wrapEnd(handler));
-        return *this;
-    }
-    CustomTask &onError(const EndHandler &handler) {
-        setTaskErrorHandler(wrapEnd(handler));
-        return *this;
-    }
 
     GroupItem withTimeout(std::chrono::milliseconds timeout,
                           const GroupEndHandler &handler = {}) const {

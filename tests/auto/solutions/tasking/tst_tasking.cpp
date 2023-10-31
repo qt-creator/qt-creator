@@ -114,8 +114,6 @@ void tst_Tasking::validConstructs()
     const auto doneHandler = [](const TaskObject &) {};
     const auto errorHandler = [](const TaskObject &) {};
 
-    // Not fluent interface
-
     const Group task2 {
         parallel,
         TestTask(setupHandler),
@@ -124,20 +122,6 @@ void tst_Tasking::validConstructs()
         // need to explicitly pass empty handler for done
         TestTask(setupHandler, {}, errorHandler)
     };
-
-    // Fluent interface
-
-    const Group fluent {
-        parallel,
-        TestTask().onSetup(setupHandler),
-        TestTask().onSetup(setupHandler).onDone(doneHandler),
-        TestTask().onSetup(setupHandler).onDone(doneHandler).onError(errorHandler),
-        // possible to skip the empty done
-        TestTask().onSetup(setupHandler).onError(errorHandler),
-        // possible to set handlers in a different order
-        TestTask().onError(errorHandler).onDone(doneHandler).onSetup(setupHandler),
-    };
-
 
     // When turning each of below blocks on, you should see the specific compiler error message.
 
