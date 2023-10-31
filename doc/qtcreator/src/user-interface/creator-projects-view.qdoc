@@ -19,7 +19,7 @@
 
     \if defined(qtcreator)
     The project tree has a list of all projects open in the current
-    \l{Managing Sessions}{session}. For each project, the tree visualizes
+    \l{Manage sessions}{session}. For each project, the tree visualizes
     the build system structure of the project and lists all files that
     are part of the project.
 
