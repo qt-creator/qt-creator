@@ -16,7 +16,7 @@
         \li \l {Build with CMake}{CMake} is a cross-platform system for build
             automation that helps simplify the build process for development
             projects across different platforms. It automates the generation of
-            build configurations. For more information, see \l {Setting Up CMake}.
+            build configurations. For more information, see \l {CMake}.
         \li \l{qmake Manual}{qmake} is an alternative to CMake for automating the
             generation of build configurations. Qt installers install and
             configure qmake. To use one of the other supported build systems,

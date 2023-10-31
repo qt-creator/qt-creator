@@ -316,5 +316,5 @@
     To specify dependencies, use the \uicontrol{Add Library} wizard.
 
     \sa {Creating Projects}, {Use project wizards},
-    {Add libraries to projects}
+    {Add libraries to qmake projects}, {Add libraries to CMake projects}
 */

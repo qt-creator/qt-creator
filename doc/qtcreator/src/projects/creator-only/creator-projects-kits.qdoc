@@ -188,7 +188,7 @@
         \li \uicontrol {CMake Tool}
         \li CMake executable to use for building the project. Select
             \uicontrol Manage to add installed CMake executables to
-            the list. For more information, see \l{Adding CMake Tools}.
+            the list. For more information, see \l{Add CMake Tools}.
     \row
         \li \uicontrol {CMake generator}
         \li Select \uicontrol Change to edit the CMake Generator to use for
@@ -212,6 +212,7 @@
             \uicontrol Manage to add installed Ninja tools to the list.
     \endtable
 
-    \sa {Activate kits for a project}, {Open projects}, {Add compilers},
-    {Add debuggers}, {Add kits}, {Add Qt versions}, {Edit Qbs profiles}
+    \sa {Activate kits for a project}, {Open projects}, {Add CMake Tools},
+    {Add compilers}, {Add debuggers}, {Add kits}, {Add Qt versions},
+    {Edit Qbs profiles}
 */

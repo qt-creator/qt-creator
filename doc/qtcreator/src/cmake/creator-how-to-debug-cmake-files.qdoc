@@ -6,6 +6,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-debug
+    \ingroup creator-how-to-build-with-cmake
 
     \title Debug CMake project files
 
@@ -28,5 +29,5 @@
     \uicontrol Debug mode views.
 
     \sa {Debugging},{Examining Data},{Debug Mode Views},{Setting Breakpoints},
-    {Setting Up CMake}
+    {CMake}
 */

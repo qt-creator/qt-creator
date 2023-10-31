@@ -20,6 +20,14 @@
 
     \generatelist creator-how-to-build
 
+    \section2 Build with CMake
+
+    \generatelist creator-how-to-build-with-cmake
+
+    \section2 Build with qmake
+
+    \generatelist creator-how-to-build-with-qmake
+
     \section1 Debug
 
     \generatelist creator-how-to-debug
@@ -52,7 +60,7 @@
 
     \generatelist creator-how-to-projects-configure
 
-    \section1 Read Qt Documentation
+    \section1 Read Documentation
 
     \generatelist creator-how-to-get-help
 

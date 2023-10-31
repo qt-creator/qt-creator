@@ -180,6 +180,10 @@
         \list
             \li Build and Run
                 \generatelist creator-how-to-build
+            \li Build with CMake
+                \generatelist creator-how-to-build-with-cmake
+            \li Build with qmake
+                \generatelist creator-how-to-build-with-qmake
             \li Debug
                 \generatelist creator-how-to-debug
             \li Design UIs
@@ -198,7 +202,7 @@
                     \li Configure Projects
                         \generatelist creator-how-to-projects-configure
                 \endlist
-            \li Read Qt Documentation
+            \li Read Documentation
                 \generatelist creator-how-to-get-help
             \li Use \QC
                 \generatelist creator-how-to-use
