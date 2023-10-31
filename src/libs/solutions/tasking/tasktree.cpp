@@ -1089,7 +1089,7 @@ public:
     // in order to unwind properly.
     SetupResult start();
     void stop();
-    void invokeEndHandler(bool success);
+    void invokeDoneHandler(bool success);
     bool isRunning() const { return m_task || m_container.isRunning(); }
     bool isTask() const { return bool(m_taskHandler.m_createHandler); }
     int taskCount() const { return isTask() ? 1 : m_container.m_constData.m_taskCount; }
@@ -1451,7 +1451,7 @@ SetupResult TaskNode::start()
     const std::shared_ptr<SetupResult> unwindAction
         = std::make_shared<SetupResult>(SetupResult::Continue);
     QObject::connect(m_task.get(), &TaskInterface::done, taskTree(), [=](bool success) {
-        invokeEndHandler(success);
+        invokeDoneHandler(success);
         QObject::disconnect(m_task.get(), &TaskInterface::done, taskTree(), nullptr);
         m_task.release()->deleteLater();
         QTC_ASSERT(parentContainer() && parentContainer()->isRunning(), return);
@@ -1479,16 +1479,14 @@ void TaskNode::stop()
 
     // TODO: cancelHandler?
     // TODO: call TaskInterface::stop() ?
-    invokeEndHandler(false);
+    invokeDoneHandler(false);
     m_task.reset();
 }
 
-void TaskNode::invokeEndHandler(bool success)
+void TaskNode::invokeDoneHandler(bool success)
 {
-    if (success && m_taskHandler.m_doneHandler)
-        invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get());
-    else if (!success && m_taskHandler.m_errorHandler)
-        invokeHandler(parentContainer(), m_taskHandler.m_errorHandler, *m_task.get());
+    if (m_taskHandler.m_doneHandler)
+        invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get(), success);
     m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
 }
 

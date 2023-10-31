@@ -138,8 +138,8 @@ public:
     using TaskCreateHandler = std::function<TaskInterface *(void)>;
     // Called prior to task start, just after createHandler
     using TaskSetupHandler = std::function<SetupResult(TaskInterface &)>;
-    // Called on task done / error
-    using TaskEndHandler = std::function<void(const TaskInterface &)>;
+    // Called on task done, just before delete later
+    using TaskDoneHandler = std::function<void(const TaskInterface &, bool)>;
     // Called when group entered
     using GroupSetupHandler = std::function<SetupResult()>;
     // Called when group done / error
@@ -148,8 +148,7 @@ public:
     struct TaskHandler {
         TaskCreateHandler m_createHandler;
         TaskSetupHandler m_setupHandler = {};
-        TaskEndHandler m_doneHandler = {};
-        TaskEndHandler m_errorHandler = {};
+        TaskDoneHandler m_doneHandler = {};
     };
 
     struct GroupHandler {
@@ -331,7 +330,7 @@ public:
     template <typename SetupHandler>
     CustomTask(SetupHandler &&setup, const EndHandler &done = {}, const EndHandler &error = {})
         : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
-                     wrapEnd(done), wrapEnd(error)}) {}
+                     wrapEnds(done, error)}) {}
 
     GroupItem withTimeout(std::chrono::milliseconds timeout,
                           const GroupEndHandler &handler = {}) const {
@@ -357,12 +356,14 @@ private:
         };
     };
 
-    static TaskEndHandler wrapEnd(const EndHandler &handler) {
-        if (!handler)
+    static TaskDoneHandler wrapEnds(const EndHandler &doneHandler, const EndHandler &errorHandler) {
+        if (!doneHandler && !errorHandler)
             return {};
-        return [handler](const TaskInterface &taskInterface) {
+        return [doneHandler, errorHandler](const TaskInterface &taskInterface, bool success) {
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
-            handler(*adapter.task());
+            const auto handler = success ? doneHandler : errorHandler;
+            if (handler)
+                handler(*adapter.task());
         };
     };
 };
