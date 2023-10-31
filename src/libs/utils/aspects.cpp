@@ -1794,8 +1794,6 @@ LayoutItem BoolAspect::adoptButton(QAbstractButton *button)
 */
 void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    QTC_ASSERT(m_buffer == m_internal, m_buffer = m_internal);
-
     QCheckBox *checkBox = createSubWidget<QCheckBox>();
     addToLayoutHelper(parent, checkBox);
     bufferToGui();
@@ -1903,7 +1901,6 @@ void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     QTC_CHECK(d->m_buttonGroup == nullptr);
     QTC_CHECK(!d->m_comboBox);
     QTC_ASSERT(d->m_buttons.isEmpty(), d->m_buttons.clear());
-    QTC_ASSERT(m_buffer == m_internal, m_buffer = m_internal);
 
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons:
