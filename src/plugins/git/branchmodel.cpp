@@ -416,7 +416,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
             d->currentDateTime = dateTime;
         });
 
-    const auto setupForEachRef = [this, workingDirectory](Process &process) {
+    const auto onForEachRefSetup = [this, workingDirectory](Process &process) {
         d->workingDirectory = workingDirectory;
         QStringList args = {"for-each-ref",
                             "--format=%(objectname)\t%(refname)\t%(upstream:short)\t"
@@ -428,7 +428,18 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         gitClient().setupCommand(process, workingDirectory, args);
     };
 
-    const auto forEachRefDone = [this](const Process &process) {
+    const auto onForEachRefDone = [this, workingDirectory, showError](const Process &process,
+                                                                    bool success) {
+        if (!success) {
+            if (showError == ShowError::No)
+                return;
+            const QString message = Tr::tr("Cannot run \"%1\" in \"%2\": %3")
+                                        .arg("git for-each-ref")
+                                        .arg(workingDirectory.toUserOutput())
+                                        .arg(process.cleanedStdErr());
+            VcsBase::VcsOutputWindow::appendError(message);
+            return;
+        }
         const QString output = process.stdOut();
         const QStringList lines = output.split('\n');
         for (const QString &l : lines)
@@ -449,16 +460,6 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
         }
     };
 
-    const auto forEachRefError = [workingDirectory, showError](const Process &process) {
-        if (showError == ShowError::No)
-            return;
-        const QString message = Tr::tr("Cannot run \"%1\" in \"%2\": %3")
-                                    .arg("git for-each-ref")
-                                    .arg(workingDirectory.toUserOutput())
-                                    .arg(process.cleanedStdErr());
-        VcsBase::VcsOutputWindow::appendError(message);
-    };
-
     const auto finalize = [this] {
         endResetModel();
         d->refreshTask.release()->deleteLater();
@@ -466,7 +467,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
 
     const Group root {
         topRevisionProc,
-        ProcessTask(setupForEachRef, forEachRefDone, forEachRefError),
+        ProcessTask(onForEachRefSetup, onForEachRefDone),
         onGroupDone(finalize),
         onGroupError(finalize)
     };

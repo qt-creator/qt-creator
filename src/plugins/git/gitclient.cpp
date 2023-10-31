@@ -391,7 +391,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         setDescription(desc);
     };
 
-    const auto setupDescription = [this, id](Process &process) {
+    const auto onDescriptionSetup = [this, id](Process &process) {
         process.setCodec(gitClient().encoding(GitClient::EncodingCommit, workingDirectory()));
         setupCommand(process, {"show", "-s", noColorOption, showFormatC, id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
@@ -418,72 +418,68 @@ ShowController::ShowController(IDocument *document, const QString &id)
         return SetupResult::Continue;
     };
 
-    const auto setupBranches = [this, storage](Process &process) {
+    const auto onBranchesSetup = [this, storage](Process &process) {
         storage->m_branches = busyMessage;
         setupCommand(process, {"branch", noColorOption, "-a", "--contains", storage->m_commit});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
-    const auto onBranchesDone = [storage, updateDescription](const Process &process) {
+    const auto onBranchesDone = [storage, updateDescription](const Process &process, bool success) {
         ReloadStorage *data = storage.activeStorage();
         data->m_branches.clear();
-        const QString remotePrefix = "remotes/";
-        const QString localPrefix = "<Local>";
-        const int prefixLength = remotePrefix.length();
-        QStringList branches;
-        QString previousRemote = localPrefix;
-        bool first = true;
-        const QStringList branchList = process.cleanedStdOut().split('\n');
-        for (const QString &branch : branchList) {
-            const QString b = branch.mid(2).trimmed();
-            if (b.isEmpty())
-                continue;
-            if (b.startsWith(remotePrefix)) {
-                const int nextSlash = b.indexOf('/', prefixLength);
-                if (nextSlash < 0)
+        if (success) {
+            const QString remotePrefix = "remotes/";
+            const QString localPrefix = "<Local>";
+            const int prefixLength = remotePrefix.length();
+            QStringList branches;
+            QString previousRemote = localPrefix;
+            bool first = true;
+            const QStringList branchList = process.cleanedStdOut().split('\n');
+            for (const QString &branch : branchList) {
+                const QString b = branch.mid(2).trimmed();
+                if (b.isEmpty())
                     continue;
-                const QString remote = b.mid(prefixLength, nextSlash - prefixLength);
-                if (remote != previousRemote) {
-                    data->m_branches += branchesDisplay(previousRemote, &branches, &first) + '\n';
-                    branches.clear();
-                    previousRemote = remote;
+                if (b.startsWith(remotePrefix)) {
+                    const int nextSlash = b.indexOf('/', prefixLength);
+                    if (nextSlash < 0)
+                        continue;
+                    const QString remote = b.mid(prefixLength, nextSlash - prefixLength);
+                    if (remote != previousRemote) {
+                        data->m_branches += branchesDisplay(previousRemote, &branches, &first)
+                                            + '\n';
+                        branches.clear();
+                        previousRemote = remote;
+                    }
+                    branches << b.mid(nextSlash + 1);
+                } else {
+                    branches << b;
                 }
-                branches << b.mid(nextSlash + 1);
-            } else {
-                branches << b;
             }
+            if (branches.isEmpty()) {
+                if (previousRemote == localPrefix)
+                    data->m_branches += Tr::tr("<None>");
+            } else {
+                data->m_branches += branchesDisplay(previousRemote, &branches, &first);
+            }
+            data->m_branches = data->m_branches.trimmed();
         }
-        if (branches.isEmpty()) {
-            if (previousRemote == localPrefix)
-                data->m_branches += Tr::tr("<None>");
-        } else {
-            data->m_branches += branchesDisplay(previousRemote, &branches, &first);
-        }
-        data->m_branches = data->m_branches.trimmed();
-        updateDescription(*data);
-    };
-    const auto onBranchesError = [storage, updateDescription](const Process &) {
-        ReloadStorage *data = storage.activeStorage();
-        data->m_branches.clear();
         updateDescription(*data);
     };
 
-    const auto setupPrecedes = [this, storage](Process &process) {
+    const auto onPrecedesSetup = [this, storage](Process &process) {
         storage->m_precedes = busyMessage;
         setupCommand(process, {"describe", "--contains", storage->m_commit});
     };
-    const auto onPrecedesDone = [storage, updateDescription](const Process &process) {
-        ReloadStorage *data = storage.activeStorage();
-        data->m_precedes = process.cleanedStdOut().trimmed();
-        const int tilde = data->m_precedes.indexOf('~');
-        if (tilde != -1)
-            data->m_precedes.truncate(tilde);
-        if (data->m_precedes.endsWith("^0"))
-            data->m_precedes.chop(2);
-        updateDescription(*data);
-    };
-    const auto onPrecedesError = [storage, updateDescription](const Process &) {
+    const auto onPrecedesDone = [storage, updateDescription](const Process &process, bool success) {
         ReloadStorage *data = storage.activeStorage();
         data->m_precedes.clear();
+        if (success) {
+            data->m_precedes = process.cleanedStdOut().trimmed();
+            const int tilde = data->m_precedes.indexOf('~');
+            if (tilde != -1)
+                data->m_precedes.truncate(tilde);
+            if (data->m_precedes.endsWith("^0"))
+                data->m_precedes.chop(2);
+        }
         updateDescription(*data);
     };
 
@@ -516,7 +512,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         taskTree.setRecipe(tasks);
     };
 
-    const auto setupDiff = [this, id](Process &process) {
+    const auto onDiffSetup = [this, id](Process &process) {
         setupCommand(process, addConfigurationArguments(
                                   {"show", "--format=format:", // omit header, already generated
                                    noColorOption, decorateOption, id}));
@@ -533,18 +529,18 @@ ShowController::ShowController(IDocument *document, const QString &id)
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {
             finishAllAndDone,
-            ProcessTask(setupDescription, onDescriptionDone),
+            ProcessTask(onDescriptionSetup, onDescriptionDone),
             Group {
                 parallel,
                 finishAllAndDone,
                 onGroupSetup(desciptionDetailsSetup),
-                ProcessTask(setupBranches, onBranchesDone, onBranchesError),
-                ProcessTask(setupPrecedes, onPrecedesDone, onPrecedesError),
+                ProcessTask(onBranchesSetup, onBranchesDone),
+                ProcessTask(onPrecedesSetup, onPrecedesDone),
                 TaskTreeTask(setupFollows)
             }
         },
         Group {
-            ProcessTask(setupDiff, onDiffDone),
+            ProcessTask(onDiffSetup, onDiffDone),
             postProcessTask(diffInputStorage)
         }
     };

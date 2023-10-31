@@ -165,7 +165,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
 
     const TreeStorage<QString> diffInputStorage;
 
-    const auto setupDescription = [this](Process &process) {
+    const auto onDescriptionSetup = [this](Process &process) {
         if (m_changeNumber == 0)
             return SetupResult::StopWithDone;
         setupCommand(process, {"log", "-r", QString::number(m_changeNumber)});
@@ -175,14 +175,11 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         setDescription(Tr::tr("Waiting for data..."));
         return SetupResult::Continue;
     };
-    const auto onDescriptionDone = [this](const Process &process) {
-        setDescription(process.cleanedStdOut());
-    };
-    const auto onDescriptionError = [this](const Process &) {
-        setDescription({});
+    const auto onDescriptionDone = [this](const Process &process, bool success) {
+        setDescription(success ? process.cleanedStdOut() : QString());
     };
 
-    const auto setupDiff = [this](Process &process) {
+    const auto onDiffSetup = [this](Process &process) {
         QStringList args = QStringList{"diff"} << "--internal-diff";
         if (ignoreWhitespace())
             args << "-x" << "-uw";
@@ -205,10 +202,10 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         parallel,
         Group {
             finishAllAndDone,
-            ProcessTask(setupDescription, onDescriptionDone, onDescriptionError)
+            ProcessTask(onDescriptionSetup, onDescriptionDone)
         },
         Group {
-            ProcessTask(setupDiff, onDiffDone),
+            ProcessTask(onDiffSetup, onDiffDone),
             postProcessTask(diffInputStorage)
         }
     };
