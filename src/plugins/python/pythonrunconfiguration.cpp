@@ -8,6 +8,7 @@
 #include "pysidebuildconfiguration.h"
 #include "pysideuicextracompiler.h"
 #include "pythonconstants.h"
+#include "pythonkitaspect.h"
 #include "pythonlanguageclient.h"
 #include "pythonproject.h"
 #include "pythonsettings.h"
@@ -364,6 +365,9 @@ public:
 
         x11Forwarding.setMacroExpander(macroExpander());
         x11Forwarding.setVisible(HostOsInfo::isAnyUnixHost());
+
+        if (const std::optional<Interpreter> kitPython = PythonKitAspect::python(target->kit()))
+            interpreter.setCurrentInterpreter(*kitPython);
 
         setCommandLineGetter([this] {
             CommandLine cmd{interpreter.currentInterpreter().command};
