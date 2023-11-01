@@ -20,6 +20,7 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <cppeditor/clangdiagnosticconfig.h>
+#include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -82,6 +83,20 @@ void ClangCodeModelPlugin::initialize()
                           Tr::tr("C++ code issues that Clangd found in the current document.")});
     CppEditor::CppModelManager::activateClangCodeModel(std::make_unique<ClangModelManagerSupport>());
     createCompilationDBAction();
+
+    QAction * const updateStaleIndexEntries
+        = new QAction(Tr::tr("Update potentially stale clangd index entries"), this);
+    Command * const cmd = ActionManager::registerAction(updateStaleIndexEntries,
+                                                       "ClangCodeModel.UpdateStaleIndexEntries");
+    connect(updateStaleIndexEntries, &QAction::triggered, this,
+            [] { ClangModelManagerSupport::updateStaleIndexEntries(); });
+    const QList<ActionContainer *> menus;
+    namespace CppConstants = CppEditor::Constants;
+    for (ActionContainer * const menu : {ActionManager::actionContainer(CppConstants::M_TOOLS_CPP),
+                                        ActionManager::actionContainer(CppConstants::M_CONTEXT)}) {
+        QTC_ASSERT(menu, continue);
+        menu->addAction(cmd, CppEditor::Constants::G_GLOBAL);
+    }
 
 #ifdef WITH_TESTS
     addTest<Tests::ActivationSequenceProcessorTest>();

@@ -14,8 +14,6 @@
 #include <QObject>
 #include <QPointer>
 
-#include <memory>
-
 QT_BEGIN_NAMESPACE
 class QMenu;
 class QTimer;
@@ -49,6 +47,8 @@ public:
     static QList<LanguageClient::Client *> clientsForOpenProjects();
     static ClangdClient *clientForProject(const ProjectExplorer::Project *project);
     static ClangdClient *clientForFile(const Utils::FilePath &file);
+
+    static void updateStaleIndexEntries();
 
 private:
     void followSymbol(const CppEditor::CursorInEditor &data,
