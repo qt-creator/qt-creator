@@ -133,6 +133,30 @@ bool validateEffect(const QString &effectPath);
 
 Utils::FilePath getImagesDefaultDirectory();
 
+//Item Library and Assets related drop operations
+ModelNode handleItemLibraryEffectDrop(const QString &effectPath, const ModelNode &targetNode);
+void handleTextureDrop(const QMimeData *mimeData, const ModelNode &targetModelNode);
+void handleMaterialDrop(const QMimeData *mimeData, const ModelNode &targetNode);
+ModelNode handleItemLibraryImageDrop(const QString &imagePath,
+                                     NodeAbstractProperty targetProperty,
+                                     const ModelNode &targetNode,
+                                     bool &outMoveNodesAfter);
+ModelNode handleItemLibraryFontDrop(const QString &fontFamily,
+                                    NodeAbstractProperty targetProperty,
+                                    const ModelNode &targetNode);
+ModelNode handleItemLibraryShaderDrop(const QString &shaderPath,
+                                      bool isFragShader,
+                                      NodeAbstractProperty targetProperty,
+                                      const ModelNode &targetNode,
+                                      bool &outMoveNodesAfter);
+ModelNode handleItemLibrarySoundDrop(const QString &soundPath,
+                                     NodeAbstractProperty targetProperty,
+                                     const ModelNode &targetNode);
+ModelNode handleItemLibraryTexture3dDrop(const QString &tex3DPath,
+                                         NodeAbstractProperty targetProperty,
+                                         const ModelNode &targetNode,
+                                         bool &outMoveNodesAfter);
+
 // ModelNodePreviewImageOperations
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode);
 QVariant previewImageDataForImageNode(const ModelNode &modelNode);
