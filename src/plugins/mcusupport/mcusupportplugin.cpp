@@ -129,10 +129,9 @@ static bool isQtMCUsProject(ProjectExplorer::Project *p)
     if (!target)
         return false;
 
-    if (!target->namedSettings("IS_MCU_QDS_PROJECT").toBool())
-        return false;
+    const bool isMcuProject = target->additionalData("CustomQtForMCUs").toBool();
 
-    return true;
+    return isMcuProject;
 }
 
 void McuSupportPlugin::initialize()

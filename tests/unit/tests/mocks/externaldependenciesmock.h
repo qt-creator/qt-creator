@@ -37,6 +37,7 @@ public:
     MOCK_METHOD(QStringList, modulePaths, (), (const, override));
     MOCK_METHOD(QStringList, projectModulePaths, (), (const, override));
     MOCK_METHOD(bool, isQt6Project, (), (const, override));
+    MOCK_METHOD(bool, isQtForMcusProject, (), (const, override));
     MOCK_METHOD(QString, qtQuickVersion, (), (const, override));
     MOCK_METHOD(Utils::FilePath, resourcePath, (const QString &relativePath), (const, override));
 };

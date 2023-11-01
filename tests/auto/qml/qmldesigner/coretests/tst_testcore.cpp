@@ -163,6 +163,7 @@ public:
     QStringList modulePaths() const override { return {}; }
     QStringList projectModulePaths() const override { return {}; }
     bool isQt6Project() const override { return {}; }
+    bool isQtForMcusProject() const override { return {}; }
     QString qtQuickVersion() const override { return {}; }
     Utils::FilePath resourcePath(const QString &) const override { return {}; }
 
