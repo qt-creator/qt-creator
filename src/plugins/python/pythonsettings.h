@@ -35,12 +35,11 @@ public:
     static void createVirtualEnvironmentInteractive(
         const Utils::FilePath &startDirectory,
         const Interpreter &defaultInterpreter,
-        const std::function<void(std::optional<Interpreter>)> &callback);
+        const std::function<void(const Utils::FilePath &)> &callback);
     static void createVirtualEnvironment(
+        const Utils::FilePath &interpreter,
         const Utils::FilePath &directory,
-        const Interpreter &interpreter,
-        const std::function<void(std::optional<Interpreter>)> &callback,
-        const QString &nameSuffix = {});
+        const std::function<void(const Utils::FilePath &)> &callback = {});
     static QList<Interpreter> detectPythonVenvs(const Utils::FilePath &path);
     static void addKitsForInterpreter(const Interpreter &interpreter);
     static void removeKitsForInterpreter(const Interpreter &interpreter);
@@ -49,6 +48,7 @@ signals:
     void interpretersChanged(const QList<Interpreter> &interpreters, const QString &defaultId);
     void pylsConfigurationChanged(const QString &configuration);
     void pylsEnabledChanged(const bool enabled);
+    void virtualEnvironmentCreated(const Utils::FilePath &venvPython);
 
 public slots:
     void detectPythonOnDevice(const Utils::FilePaths &searchPaths,

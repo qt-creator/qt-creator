@@ -4,10 +4,13 @@
 #include "pythoneditor.h"
 
 #include "pyside.h"
+#include "pythonbuildconfiguration.h"
 #include "pythonconstants.h"
 #include "pythonhighlighter.h"
 #include "pythonindenter.h"
+#include "pythonkitaspect.h"
 #include "pythonlanguageclient.h"
+#include "pythonplugin.h"
 #include "pythonsettings.h"
 #include "pythontr.h"
 #include "pythonutils.h"
@@ -17,12 +20,14 @@
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildinfo.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <texteditor/textdocument.h>
 #include <texteditor/texteditoractionhandler.h>
 
 #include <utils/stylehelper.h>
@@ -73,37 +78,6 @@ static void registerReplAction(QObject *parent)
                                         Constants::PYTHON_OPEN_REPL_IMPORT_TOPLEVEL);
 }
 
-class PythonDocument : public TextDocument
-{
-    Q_OBJECT
-public:
-    PythonDocument() : TextDocument(Constants::C_PYTHONEDITOR_ID)
-    {
-        connect(PythonSettings::instance(),
-                &PythonSettings::pylsEnabledChanged,
-                this,
-                [this](const bool enabled) {
-                    if (!enabled)
-                        return;
-                    const FilePath &python = detectPython(filePath());
-                    if (python.exists())
-                        PyLSConfigureAssistant::openDocumentWithPython(python, this);
-                });
-        connect(this, &PythonDocument::openFinishedSuccessfully,
-                this, &PythonDocument::checkForPyls);
-    }
-
-    void checkForPyls()
-    {
-        const FilePath &python = detectPython(filePath());
-        if (!python.exists())
-            return;
-
-        PyLSConfigureAssistant::openDocumentWithPython(python, this);
-        PySideInstaller::checkPySideInstallation(python, this);
-    }
-};
-
 class PythonEditorWidget : public TextEditorWidget
 {
 public:
@@ -111,12 +85,10 @@ public:
 
 protected:
     void finalizeInitialization() override;
-    void setUserDefinedPython(const Interpreter &interpreter);
     void updateInterpretersSelector();
 
 private:
     QToolButton *m_interpreters = nullptr;
-    QList<QMetaObject::Connection> m_projectConnections;
 };
 
 PythonEditorWidget::PythonEditorWidget(QWidget *parent) : TextEditorWidget(parent)
@@ -142,31 +114,15 @@ void PythonEditorWidget::finalizeInitialization()
 {
     connect(textDocument(), &TextDocument::filePathChanged,
             this, &PythonEditorWidget::updateInterpretersSelector);
-    connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
-            this, &PythonEditorWidget::updateInterpretersSelector);
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,
             this, &PythonEditorWidget::updateInterpretersSelector);
-}
-
-void PythonEditorWidget::setUserDefinedPython(const Interpreter &interpreter)
-{
-    const auto pythonDocument = qobject_cast<PythonDocument *>(textDocument());
-    QTC_ASSERT(pythonDocument, return);
-    FilePath documentPath = pythonDocument->filePath();
-    QTC_ASSERT(!documentPath.isEmpty(), return);
-    if (Project *project = ProjectManager::projectForFile(documentPath)) {
-        if (Target *target = project->activeTarget()) {
-            if (RunConfiguration *rc = target->activeRunConfiguration()) {
-                if (auto interpretersAspect= rc->aspect<InterpreterAspect>()) {
-                    interpretersAspect->setCurrentInterpreter(interpreter);
-                    return;
-                }
-            }
-        }
+    connect(KitManager::instance(), &KitManager::kitsChanged,
+            this, &PythonEditorWidget::updateInterpretersSelector);
+    auto pythonDocument = qobject_cast<PythonDocument *>(textDocument());
+    if (QTC_GUARD(pythonDocument)) {
+        connect(pythonDocument, &PythonDocument::pythonUpdated,
+                this, &PythonEditorWidget::updateInterpretersSelector);
     }
-    definePythonForDocument(textDocument()->filePath(), interpreter.command);
-    updateInterpretersSelector();
-    pythonDocument->checkForPyls();
 }
 
 void PythonEditorWidget::updateInterpretersSelector()
@@ -183,30 +139,6 @@ void PythonEditorWidget::updateInterpretersSelector()
     QMenu *menu = m_interpreters->menu();
     QTC_ASSERT(menu, return);
     menu->clear();
-    for (const QMetaObject::Connection &connection : m_projectConnections)
-        disconnect(connection);
-    m_projectConnections.clear();
-    const FilePath documentPath = textDocument()->filePath();
-    if (Project *project = ProjectManager::projectForFile(documentPath)) {
-        m_projectConnections << connect(project,
-                                        &Project::activeTargetChanged,
-                                        this,
-                                        &PythonEditorWidget::updateInterpretersSelector);
-        if (Target *target = project->activeTarget()) {
-            m_projectConnections << connect(target,
-                                            &Target::activeRunConfigurationChanged,
-                                            this,
-                                            &PythonEditorWidget::updateInterpretersSelector);
-            if (RunConfiguration *rc = target->activeRunConfiguration()) {
-                if (auto interpreterAspect = rc->aspect<InterpreterAspect>()) {
-                    m_projectConnections << connect(interpreterAspect,
-                                                    &InterpreterAspect::changed,
-                                                    this,
-                                                    &PythonEditorWidget::updateInterpretersSelector);
-                }
-            }
-        }
-    }
 
     auto setButtonText = [this](QString text) {
         constexpr int maxTextLength = 25;
@@ -215,50 +147,130 @@ void PythonEditorWidget::updateInterpretersSelector()
         m_interpreters->setText(text);
     };
 
-    const FilePath currentInterpreterPath = detectPython(textDocument()->filePath());
-    const QList<Interpreter> configuredInterpreters = PythonSettings::interpreters();
-    auto interpretersGroup = new QActionGroup(menu);
-    interpretersGroup->setExclusive(true);
-    std::optional<Interpreter> currentInterpreter;
-    for (const Interpreter &interpreter : configuredInterpreters) {
-        QAction *action = interpretersGroup->addAction(interpreter.name);
-        connect(action, &QAction::triggered, this, [this, interpreter]() {
-            setUserDefinedPython(interpreter);
-        });
-        action->setCheckable(true);
-        if (!currentInterpreter && interpreter.command == currentInterpreterPath) {
-            currentInterpreter = interpreter;
-            action->setChecked(true);
-            setButtonText(interpreter.name);
-            m_interpreters->setToolTip(interpreter.command.toUserOutput());
+    const FilePath documentPath = textDocument()->filePath();
+    Project *project = Utils::findOrDefault(ProjectManager::projects(),
+                                            [documentPath](Project *project) {
+                                                return project->mimeType()
+                                                           == Constants::C_PY_PROJECT_MIME_TYPE
+                                                       && project->isKnownFile(documentPath);
+                                            });
+
+    if (project) {
+        auto interpretersGroup = new QActionGroup(menu);
+        interpretersGroup->setExclusive(true);
+        for (Target *target : project->targets()) {
+            QTC_ASSERT(target, continue);
+            for (auto buildConfiguration : target->buildConfigurations()) {
+                QTC_ASSERT(buildConfiguration, continue);
+                const QString name = buildConfiguration->displayName();
+                QAction *action = interpretersGroup->addAction(buildConfiguration->displayName());
+                action->setCheckable(true);
+                if (target == project->activeTarget()
+                    && target->activeBuildConfiguration() == buildConfiguration) {
+                    action->setChecked(true);
+                    setButtonText(name);
+                    if (auto pbc = qobject_cast<PythonBuildConfiguration *>(buildConfiguration))
+                        m_interpreters->setToolTip(pbc->python().toUserOutput());
+                }
+                connect(action,
+                        &QAction::triggered,
+                        project,
+                        [project, target, buildConfiguration]() {
+                            target->setActiveBuildConfiguration(buildConfiguration,
+                                                                SetActive::NoCascade);
+                            if (target != project->activeTarget())
+                                project->setActiveTarget(target, SetActive::NoCascade);
+                        });
+            }
         }
-    }
-    menu->addActions(interpretersGroup->actions());
-    if (!currentInterpreter) {
-        if (currentInterpreterPath.exists())
-            setButtonText(currentInterpreterPath.toUserOutput());
-        else
-            setButtonText(Tr::tr("No Python Selected"));
-    }
-    if (!interpretersGroup->actions().isEmpty()) {
+
+        menu->addActions(interpretersGroup->actions());
+
+        QMenu *addMenu = menu->addMenu("Add new Interpreter");
+        for (auto kit : KitManager::kits()) {
+            if (std::optional<Interpreter> python = PythonKitAspect::python(kit)) {
+                if (auto buildConficurationFactory
+                    = ProjectExplorer::BuildConfigurationFactory::find(kit,
+                                                                       project->projectFilePath())) {
+                    const QString name = kit->displayName();
+                    QMenu *interpreterAddMenu = addMenu->addMenu(name);
+                    const QList<BuildInfo> buildInfos
+                        = buildConficurationFactory->allAvailableSetups(kit,
+                                                                        project->projectFilePath());
+                    for (const BuildInfo &buildInfo : buildInfos) {
+                        QAction *action = interpreterAddMenu->addAction(buildInfo.displayName);
+                        connect(action, &QAction::triggered, project, [project, buildInfo]() {
+                            if (BuildConfiguration *buildConfig = project->setup(buildInfo)) {
+                                buildConfig->target()
+                                    ->setActiveBuildConfiguration(buildConfig, SetActive::NoCascade);
+                                project->setActiveTarget(buildConfig->target(),
+                                                         SetActive::NoCascade);
+                            }
+                        });
+                    }
+                }
+            }
+        }
+
         menu->addSeparator();
-        auto venvAction = menu->addAction(Tr::tr("Create Virtual Environment"));
-        connect(venvAction,
-                &QAction::triggered,
-                this,
-                [self = QPointer<PythonEditorWidget>(this), currentInterpreter]() {
-                    if (!currentInterpreter)
-                        return;
-                    auto callback = [self](const std::optional<Interpreter> &venvInterpreter) {
-                        if (self && venvInterpreter)
-                            self->setUserDefinedPython(*venvInterpreter);
-                    };
-                    PythonSettings::createVirtualEnvironmentInteractive(self->textDocument()
-                                                                            ->filePath()
-                                                                            .parentDir(),
-                                                                        *currentInterpreter,
-                                                                        callback);
-                });
+    } else {
+        auto setUserDefinedPython = [this](const FilePath &interpreter){
+            const auto pythonDocument = qobject_cast<PythonDocument *>(textDocument());
+            QTC_ASSERT(pythonDocument, return);
+            const FilePath documentPath = pythonDocument->filePath();
+            QTC_ASSERT(!documentPath.isEmpty(), return);
+            definePythonForDocument(documentPath, interpreter);
+            updateInterpretersSelector();
+            pythonDocument->updateCurrentPython();
+        };
+        const FilePath currentInterpreterPath = detectPython(documentPath);
+        const QList<Interpreter> configuredInterpreters = PythonSettings::interpreters();
+        auto interpretersGroup = new QActionGroup(menu);
+        interpretersGroup->setExclusive(true);
+        std::optional<Interpreter> currentInterpreter;
+        for (const Interpreter &interpreter : configuredInterpreters) {
+            QAction *action = interpretersGroup->addAction(interpreter.name);
+            connect(action, &QAction::triggered, this, [interpreter, setUserDefinedPython]() {
+                setUserDefinedPython(interpreter.command);
+            });
+            action->setCheckable(true);
+            if (!currentInterpreter && interpreter.command == currentInterpreterPath) {
+                currentInterpreter = interpreter;
+                action->setChecked(true);
+                setButtonText(interpreter.name);
+                m_interpreters->setToolTip(interpreter.command.toUserOutput());
+            }
+        }
+        menu->addActions(interpretersGroup->actions());
+        if (!currentInterpreter) {
+            if (currentInterpreterPath.exists())
+                setButtonText(currentInterpreterPath.toUserOutput());
+            else
+                setButtonText(Tr::tr("No Python Selected"));
+        }
+        if (!interpretersGroup->actions().isEmpty()) {
+            menu->addSeparator();
+            auto venvAction = menu->addAction(Tr::tr("Create Virtual Environment"));
+            connect(venvAction,
+                    &QAction::triggered,
+                    this,
+                    [self = QPointer<PythonEditorWidget>(this),
+                     currentInterpreter,
+                     setUserDefinedPython]() {
+                        if (!currentInterpreter)
+                            return;
+                        auto callback = [self, setUserDefinedPython](
+                                            const std::optional<FilePath> &venvInterpreter) {
+                            if (self && venvInterpreter)
+                                setUserDefinedPython(*venvInterpreter);
+                        };
+                        PythonSettings::createVirtualEnvironmentInteractive(self->textDocument()
+                                                                                ->filePath()
+                                                                                .parentDir(),
+                                                                            *currentInterpreter,
+                                                                            callback);
+                    });
+        }
     }
     auto settingsAction = menu->addAction(Tr::tr("Manage Python Interpreters"));
     connect(settingsAction, &QAction::triggered, this, []() {
@@ -288,6 +300,35 @@ PythonEditorFactory::PythonEditorFactory()
     setCodeFoldingSupported(true);
 }
 
-} // Python::Internal
+PythonDocument::PythonDocument()
+    : TextDocument(Constants::C_PYTHONEDITOR_ID)
+{
+    connect(PythonSettings::instance(),
+            &PythonSettings::pylsEnabledChanged,
+            this,
+            [this](const bool enabled) {
+                if (!enabled)
+                    return;
+                const FilePath &python = detectPython(filePath());
+                if (python.exists())
+                    PyLSConfigureAssistant::openDocumentWithPython(python, this);
+            });
+    connect(this,
+            &PythonDocument::openFinishedSuccessfully,
+            this,
+            &PythonDocument::updateCurrentPython);
+}
 
-#include "pythoneditor.moc"
+void PythonDocument::updateCurrentPython()
+{
+    updatePython(detectPython(filePath()));
+}
+
+void PythonDocument::updatePython(const FilePath &python)
+{
+    PyLSConfigureAssistant::openDocumentWithPython(python, this);
+    PySideInstaller::checkPySideInstallation(python, this);
+    emit pythonUpdated(python);
+}
+
+} // Python::Internal

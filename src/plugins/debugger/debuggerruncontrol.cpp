@@ -908,10 +908,10 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         m_runParameters.nativeMixedEnabled = bool(nativeMixedOverride);
 
 
-    if (auto interpreterAspect = runControl->aspect<InterpreterAspect>()) {
+    if (auto interpreterAspect = runControl->aspect<FilePathAspect>()) {
         if (auto mainScriptAspect = runControl->aspect<MainScriptAspect>()) {
             const FilePath mainScript = mainScriptAspect->filePath;
-            const FilePath interpreter = interpreterAspect->interpreter.command;
+            const FilePath interpreter = interpreterAspect->filePath;
             if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
                 m_runParameters.mainScript = mainScript;
                 m_runParameters.interpreter = interpreter;

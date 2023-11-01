@@ -32,6 +32,9 @@ const char C_PY_MIMETYPE[] = "text/x-python";
 const char C_PY_GUI_MIMETYPE[] = "text/x-python-gui";
 const char C_PY3_MIMETYPE[] = "text/x-python3";
 const char C_PY_MIME_ICON[] = "text-x-python";
+const char C_PY_PROJECT_MIME_TYPE[] = "text/x-python-project";
+const char C_PY_PROJECT_MIME_TYPE_LEGACY[] = "text/x-pyqt-project";
+
 
 } // namespace Constants
 } // namespace Python

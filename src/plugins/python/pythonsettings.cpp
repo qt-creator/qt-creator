@@ -11,6 +11,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
@@ -813,7 +814,7 @@ void PythonSettings::addKitsForInterpreter(const Interpreter &interpreter)
     const Id kitId = Id::fromString(interpreter.id);
     if (Kit *k = KitManager::kit(kitId)) {
         setRelevantAspectsToKit(k);
-    } else {
+    } else if (!isVenvPython(interpreter.command)) {
         KitManager::registerKit(
             [interpreter](Kit *k) {
                 k->setAutoDetected(true);
@@ -821,6 +822,7 @@ void PythonSettings::addKitsForInterpreter(const Interpreter &interpreter)
                 k->setUnexpandedDisplayName(interpreter.name);
                 setRelevantAspectsToKit(k);
                 PythonKitAspect::setPython(k, interpreter.id);
+                k->setSticky(PythonKitAspect::id(), true);
             },
             kitId);
     }
@@ -914,7 +916,7 @@ PythonSettings *PythonSettings::instance()
 void PythonSettings::createVirtualEnvironmentInteractive(
     const FilePath &startDirectory,
     const Interpreter &defaultInterpreter,
-    const std::function<void(std::optional<Interpreter>)> &callback)
+    const std::function<void(const FilePath &)> &callback)
 {
     QDialog dialog;
     dialog.setModal(true);
@@ -954,26 +956,37 @@ void PythonSettings::createVirtualEnvironmentInteractive(
         interpreters->currentData().toString());
 
     auto venvDir = pathChooser->filePath();
-    createVirtualEnvironment(venvDir, interpreter, callback);
+    createVirtualEnvironment(interpreter.command, venvDir, callback);
 }
 
 void PythonSettings::createVirtualEnvironment(
+    const FilePath &python,
     const FilePath &directory,
-    const Interpreter &interpreter,
-    const std::function<void(std::optional<Interpreter>)> &callback,
-    const QString &nameSuffix)
+    const std::function<void(const FilePath &)> &callback)
 {
-    createVenv(interpreter.command, directory, [directory, callback, nameSuffix](bool success) {
-        std::optional<Interpreter> result;
-        if (success) {
+    QTC_ASSERT(python.isExecutableFile(), return);
+    QTC_ASSERT(!directory.exists() || directory.isDir(), return);
+
+    const CommandLine command(python, QStringList{"-m", "venv", directory.toUserOutput()});
+
+    auto process = new Process;
+    auto progress = new Core::ProcessProgress(process);
+    progress->setDisplayName(Tr::tr("Create Python venv"));
+    QObject::connect(process, &Process::done, [directory, process, callback](){
+        if (process->result() == ProcessResult::FinishedWithSuccess) {
             FilePath venvPython = directory.osType() == Utils::OsTypeWindows ? directory / "Scripts"
                                                                              : directory / "bin";
             venvPython = venvPython.pathAppended("python").withExecutableSuffix();
-            if (venvPython.exists())
-                result = PythonSettings::addInterpreter(venvPython, false, nameSuffix);
+            if (venvPython.exists()) {
+                if (callback)
+                    callback(venvPython);
+                emit instance()->virtualEnvironmentCreated(venvPython);
+            }
         }
-        callback(result);
+        process->deleteLater();
     });
+    process->setCommand(command);
+    process->start();
 }
 
 QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)

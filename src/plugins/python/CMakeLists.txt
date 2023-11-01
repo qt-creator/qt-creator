@@ -4,7 +4,7 @@ add_qtc_plugin(Python
   SOURCES
     pipsupport.cpp pipsupport.h
     pyside.cpp pyside.h
-    pysidebuildconfiguration.cpp pysidebuildconfiguration.h
+    pythonbuildconfiguration.cpp pythonbuildconfiguration.h
     pysideuicextracompiler.cpp pysideuicextracompiler.h
     python.qrc
     pythonbuildsystem.cpp pythonbuildsystem.h

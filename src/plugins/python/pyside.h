@@ -6,12 +6,21 @@
 #include <utils/filepath.h>
 
 #include <QCoreApplication>
+#include <QFutureWatcher>
+#include <QPointer>
 #include <QTextDocument>
 
 namespace TextEditor { class TextDocument; }
 namespace ProjectExplorer { class RunConfiguration; }
 
 namespace Python::Internal {
+
+class PySideTools
+{
+public:
+    Utils::FilePath pySideProjectPath;
+    Utils::FilePath pySideUicPath;
+};
 
 class PySideInstaller : public QObject
 {
@@ -41,6 +50,7 @@ private:
     static QString importedPySide(const QString &text);
 
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
+    QHash<TextEditor::TextDocument *, QPointer<QFutureWatcher<bool>>> m_futureWatchers;
 };
 
 } // Python::Internal

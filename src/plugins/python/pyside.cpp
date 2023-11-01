@@ -46,6 +46,10 @@ void PySideInstaller::checkPySideInstallation(const FilePath &python,
                                               TextEditor::TextDocument *document)
 {
     document->infoBar()->removeInfo(installPySideInfoBarId);
+    if (QPointer<QFutureWatcher<bool>> watcher = instance()->m_futureWatchers.value(document))
+        watcher->cancel();
+    if (!python.exists())
+        return;
     const QString pySide = importedPySide(document->plainText());
     if (pySide == "PySide2" || pySide == "PySide6")
         instance()->runPySideChecker(python, pySide, document);
@@ -186,10 +190,8 @@ void PySideInstaller::runPySideChecker(const FilePath &python,
 
     // cancel and delete watcher after a 10 second timeout
     QTimer::singleShot(10000, this, [watcher]() {
-        if (watcher) {
+        if (watcher)
             watcher->cancel();
-            watcher->deleteLater();
-        }
     });
     connect(watcher,
             &CheckPySideWatcher::resultReadyAt,
@@ -197,9 +199,13 @@ void PySideInstaller::runPySideChecker(const FilePath &python,
             [=, document = QPointer<TextEditor::TextDocument>(document)]() {
                 if (watcher->result())
                     handlePySideMissing(python, pySide, document);
-                watcher->deleteLater();
             });
+    connect(watcher, &CheckPySideWatcher::finished, watcher, &CheckPySideWatcher::deleteLater);
+    connect(watcher, &CheckPySideWatcher::finished, this, [this, document]{
+        m_futureWatchers.remove(document);
+    });
     watcher->setFuture(Utils::asyncRun(&missingPySideInstallation, python, pySide));
+    m_futureWatchers[document] = watcher;
 }
 
 } // Python::Internal

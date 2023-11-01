@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
 namespace Python::Internal {
@@ -13,6 +14,19 @@ public:
     PythonEditorFactory();
 private:
     QObject m_guard;
+};
+
+class PythonDocument : public TextEditor::TextDocument
+{
+    Q_OBJECT
+public:
+    PythonDocument();
+
+    void updateCurrentPython();
+    void updatePython(const Utils::FilePath &python);
+
+signals:
+    void pythonUpdated(const Utils::FilePath &python);
 };
 
 } // Python::Internal

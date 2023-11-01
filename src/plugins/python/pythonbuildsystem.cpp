@@ -3,7 +3,9 @@
 
 #include "pythonbuildsystem.h"
 
+#include "pythonbuildconfiguration.h"
 #include "pythonconstants.h"
+#include "pythonkitaspect.h"
 #include "pythonproject.h"
 #include "pythontr.h"
 
@@ -116,11 +118,15 @@ static QStringList readImportPathsJson(const FilePath &projectFile, QString *err
     return importPaths;
 }
 
-PythonBuildSystem::PythonBuildSystem(Target *target)
-    : BuildSystem(target)
+PythonBuildSystem::PythonBuildSystem(PythonBuildConfiguration *buildConfig)
+    : BuildSystem(buildConfig)
 {
-    connect(target->project(), &Project::projectFileIsDirty, this, [this] { triggerParsing(); });
-    triggerParsing();
+    connect(project(),
+            &Project::projectFileIsDirty,
+            this,
+            &PythonBuildSystem::requestDelayedParse);
+    m_buildConfig = buildConfig;
+    requestParse();
 }
 
 bool PythonBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
@@ -159,6 +165,12 @@ void PythonBuildSystem::triggerParsing()
 
     auto newRoot = std::make_unique<PythonProjectNode>(projectDirectory());
 
+    FilePath python;
+    if (m_buildConfig)
+        python = m_buildConfig->python();
+    else if (auto kitPython = PythonKitAspect::python(kit()))
+        python = kitPython->command;
+
     const FilePath projectFile = projectFilePath();
     const QString displayName = projectFile.relativePathFrom(projectDirectory()).toUserOutput();
     newRoot->addNestedNode(
@@ -178,6 +190,7 @@ void PythonBuildSystem::triggerParsing()
             bti.targetFilePath = entry.filePath;
             bti.projectFilePath = projectFile;
             bti.isQtcRunnable = entry.filePath.fileName() == "main.py";
+            bti.additionalData = QVariantMap{{"python", python.toSettings()}};
             appTargets.append(bti);
         }
     }

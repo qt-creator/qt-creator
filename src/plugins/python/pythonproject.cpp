@@ -9,6 +9,7 @@
 #include <coreplugin/icontext.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/target.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -17,15 +18,12 @@ using namespace Utils;
 namespace Python::Internal {
 
 PythonProject::PythonProject(const FilePath &fileName)
-    : Project(Constants::C_PY_MIMETYPE, fileName)
+    : Project(Constants::C_PY_PROJECT_MIME_TYPE, fileName)
 {
     setId(PythonProjectId);
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
-
-    setBuildSystemCreator([](Target *t) { return new PythonBuildSystem(t); });
 }
-
 
 Project::RestoreResult PythonProject::fromMap(const Store &map, QString *errorMessage)
 {

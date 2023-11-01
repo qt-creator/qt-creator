@@ -17,7 +17,8 @@
         { "key": "PyProjectFile", "value": "%{JS: Util.fileName('%{ProjectName}', 'pyproject')}" },
         { "key": "QtQuickVersion", "value": "%{JS: value('QtVersion').QtQuickVersion}" },
         { "key": "QtQuickWindowVersion", "value": "%{JS: value('QtVersion').QtQuickWindowVersion}" },
-        { "key": "PySideVersion", "value": "%{JS: value('QtVersion').PySideVersion}" }
+        { "key": "PySideVersion", "value": "%{JS: value('QtVersion').PySideVersion}" },
+        { "key": "ProjectFilePath", "value": "%{ProjectDirectory}/%{PyProjectFile}" }
     ],
 
     "pages":
@@ -82,6 +83,15 @@
                         }
                     }
                 ]
+            }
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "data": {
+                 "projectFilePath": "%{ProjectFilePath}",
+                 "requiredFeatures": [ "Python.Interpreter" ]
             }
         },
         {

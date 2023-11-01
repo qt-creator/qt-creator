@@ -7,6 +7,8 @@
 
 namespace Python::Internal {
 
+class PythonBuildConfigurationFactory;
+
 class PythonPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT

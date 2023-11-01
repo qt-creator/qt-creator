@@ -13,7 +13,8 @@
     "options":
     [
         { "key": "MainPyFileName", "value": "%{ProjectDirectory}/%{SrcFileName}" },
-        { "key":  "PyProjectFile", "value": "%{ProjectDirectory}/%{ProjectFileName}" }
+        { "key": "PyProjectFile", "value": "%{ProjectFileName}" },
+        { "key": "ProjectFilePath", "value": "%{ProjectDirectory}/%{PyProjectFile}" }
     ],
 
     "pages":
@@ -91,6 +92,15 @@
                         }
                     }
                 ]
+            }
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "data": {
+                 "projectFilePath": "%{ProjectFilePath}",
+                 "requiredFeatures": [ "Python.Interpreter" ]
             }
         },
         {

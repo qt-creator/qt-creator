@@ -3,7 +3,8 @@
 
 #include "pythonplugin.h"
 
-#include "pysidebuildconfiguration.h"
+#include "pythonbuildconfiguration.h"
+#include "pythonconstants.h"
 #include "pythoneditor.h"
 #include "pythonkitaspect.h"
 #include "pythonproject.h"
@@ -36,7 +37,7 @@ public:
     PythonOutputFormatterFactory outputFormatterFactory;
     PythonRunConfigurationFactory runConfigFactory;
     PySideBuildStepFactory buildStepFactory;
-    PySideBuildConfigurationFactory buildConfigFactory;
+    PythonBuildConfigurationFactory buildConfigFactory;
     SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
     PythonSettings settings;
     PythonWizardPageFactory pythonWizardPageFactory;
@@ -65,8 +66,8 @@ void PythonPlugin::initialize()
     KitManager::setIrrelevantAspects(KitManager::irrelevantAspects()
                                      + QSet<Id>{PythonKitAspect::id()});
 
-    ProjectManager::registerProjectType<PythonProject>(PythonMimeType);
-    ProjectManager::registerProjectType<PythonProject>(PythonMimeTypeLegacy);
+    ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE);
+    ProjectManager::registerProjectType<PythonProject>(Constants::C_PY_PROJECT_MIME_TYPE_LEGACY);
 }
 
 void PythonPlugin::extensionsInitialized()

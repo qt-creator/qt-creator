@@ -10,15 +10,12 @@
 namespace Python::Internal {
 
 class PySideUicExtraCompiler;
-class PythonRunConfiguration;
 
 class PythonInterpreterAspect final : public ProjectExplorer::InterpreterAspect
 {
 public:
     PythonInterpreterAspect(Utils::AspectContainer *container, ProjectExplorer::RunConfiguration *rc);
     ~PythonInterpreterAspect() final;
-
-    QList<PySideUicExtraCompiler *> extraCompilers() const;
 
 private:
     friend class PythonRunConfiguration;

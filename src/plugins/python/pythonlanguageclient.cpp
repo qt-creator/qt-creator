@@ -4,6 +4,7 @@
 #include "pythonlanguageclient.h"
 
 #include "pipsupport.h"
+#include "pythonbuildconfiguration.h"
 #include "pysideuicextracompiler.h"
 #include "pythonconstants.h"
 #include "pythonplugin.h"
@@ -22,6 +23,8 @@
 #include <languageserverprotocol/textsynchronization.h>
 #include <languageserverprotocol/workspace.h>
 
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -207,12 +210,13 @@ void PyLSClient::openDocument(TextEditor::TextDocument *document)
         const FilePath documentPath = document->filePath();
         if (PythonProject *project = pythonProjectForFile(documentPath)) {
             if (Target *target = project->activeTarget()) {
-                if (RunConfiguration *rc = target->activeRunConfiguration())
-                    if (auto aspect = rc->aspect<InterpreterAspect>()) {
-                        updateExtraCompilers(project,
-                                             static_cast<PythonInterpreterAspect *>(aspect)
-                                                 ->extraCompilers());
+                if (BuildConfiguration *buildConfig = target->activeBuildConfiguration()) {
+                    if (BuildStepList *buildSteps = buildConfig->buildSteps()) {
+                        BuildStep *buildStep = buildSteps->firstStepWithId(PySideBuildStep::id());
+                        if (auto *pythonBuildStep = qobject_cast<PySideBuildStep *>(buildStep))
+                            updateExtraCompilers(project, pythonBuildStep->extraCompilers());
                     }
+                }
             }
         } else if (isSupportedDocument(document)) {
             const FilePath workspacePath = documentPath.parentDir();
@@ -321,7 +325,7 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                                                     TextEditor::TextDocument *document)
 {
     instance()->resetEditorInfoBar(document);
-    if (!PythonSettings::pylsEnabled())
+    if (!PythonSettings::pylsEnabled() || !python.exists())
         return;
 
     if (auto client = pythonClients().value(python)) {
@@ -347,9 +351,13 @@ void PyLSConfigureAssistant::openDocumentWithPython(const FilePath &python,
                 if (!document || !watcher)
                     return;
                 instance()->handlePyLSState(python, watcher->result(), document);
-                watcher->deleteLater();
             });
+    connect(watcher, &CheckPylsWatcher::finished, watcher, &CheckPylsWatcher::deleteLater);
+    connect(watcher, &CheckPylsWatcher::finished, instance(), [document](){
+        instance()->m_runningChecks.remove(document);
+    });
     watcher->setFuture(Utils::asyncRun(&checkPythonLanguageServer, python));
+    instance()->m_runningChecks[document] = watcher;
 }
 
 void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
@@ -383,6 +391,8 @@ void PyLSConfigureAssistant::resetEditorInfoBar(TextEditor::TextDocument *docume
     for (QList<TextEditor::TextDocument *> &documents : m_infoBarEntries)
         documents.removeAll(document);
     document->infoBar()->removeInfo(installPylsInfoBarId);
+    if (auto watcher = m_runningChecks.value(document))
+        watcher->cancel();
 }
 
 PyLSConfigureAssistant::PyLSConfigureAssistant(QObject *parent)

@@ -20,4 +20,6 @@ void createVenv(const Utils::FilePath &python,
                 const Utils::FilePath &venvPath,
                 const std::function<void(bool)> &callback);
 
+bool isVenvPython(const Utils::FilePath &python);
+
 } // Python::Internal

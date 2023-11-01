@@ -3,6 +3,9 @@
 
 #include "pythonutils.h"
 
+#include "pythonbuildconfiguration.h"
+#include "pythonconstants.h"
+#include "pythonkitaspect.h"
 #include "pythonproject.h"
 #include "pythonsettings.h"
 #include "pythontr.h"
@@ -38,14 +41,12 @@ FilePath detectPython(const FilePath &documentPath)
 
     FilePaths dirs = Environment::systemEnvironment().path();
 
-    if (project) {
-        if (auto target = project->activeTarget()) {
-            if (auto runConfig = target->activeRunConfiguration()) {
-                if (auto interpreter = runConfig->aspect<InterpreterAspect>())
-                    return interpreter->currentInterpreter().command;
-                if (auto environmentAspect = runConfig->aspect<EnvironmentAspect>())
-                    dirs = environmentAspect->environment().path();
-            }
+    if (project && project->mimeType() == Constants::C_PY_PROJECT_MIME_TYPE) {
+        if (const Target *target = project->activeTarget()) {
+            if (auto bc = qobject_cast<PythonBuildConfiguration *>(target->activeBuildConfiguration()))
+                return bc->python();
+            if (const std::optional<Interpreter> python = PythonKitAspect::python(target->kit()))
+                return python->command;
         }
     }
 
@@ -184,6 +185,11 @@ void createVenv(const Utils::FilePath &python,
     });
     process->setCommand(command);
     process->start();
+}
+
+bool isVenvPython(const Utils::FilePath &python)
+{
+    return python.parentDir().parentDir().contains("pyvenv.cfg");
 }
 
 } // Python::Internal

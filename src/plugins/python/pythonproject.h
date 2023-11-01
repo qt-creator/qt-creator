@@ -10,8 +10,6 @@ namespace Utils { class FilePath; }
 
 namespace Python::Internal {
 
-const char PythonMimeType[] = "text/x-python-project";
-const char PythonMimeTypeLegacy[] = "text/x-pyqt-project";
 const char PythonProjectId[] = "PythonProject";
 const char PythonErrorTaskCategory[] = "Task.Category.Python";
 

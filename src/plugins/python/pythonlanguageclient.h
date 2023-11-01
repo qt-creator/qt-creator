@@ -67,6 +67,8 @@ private:
                                      QPointer<TextEditor::TextDocument> document);
 
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
+    QHash<TextEditor::TextDocument *, QPointer<QFutureWatcher<PythonLanguageServerState>>>
+        m_runningChecks;
 };
 
 } // Python::Internal

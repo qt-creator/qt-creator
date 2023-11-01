@@ -119,6 +119,13 @@ public:
     }
 
     KitAspect *createKitAspect(Kit *k) const override { return new PythonKitAspectImpl(k, this); }
+
+    QSet<Id> availableFeatures(const Kit *k) const override
+    {
+        if (k->isAspectRelevant(PythonKitAspect::id()) && PythonKitAspect::python(k))
+            return {PythonKitAspect::id()};
+        return {};
+    }
 };
 
 std::optional<Interpreter> PythonKitAspect::python(const Kit *kit)
