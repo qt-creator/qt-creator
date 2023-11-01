@@ -178,6 +178,8 @@
         \endlist
         \li \l{How To}
         \list
+            \li Analyze
+                \generatelist creator-how-to-analyze
             \li Build and Run
                 \generatelist creator-how-to-build
             \li Build with CMake

@@ -1,0 +1,23 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-profile-cmake-code.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-analyze
+    \ingroup creator-how-to-build-with-cmake
+
+    \title Profile CMake code
+
+    With the profiling support in CMake 3.18, and later, you can find out where
+    CMake is spending time configuring your project.
+
+    To view profiling information in the
+    \uicontrol {Chrome Trace Format Visualizer}, select \uicontrol Analyze >
+    \uicontrol {CMake Profiler}.
+
+    \image qtcreator-cmake-profiler.webp {CMake profiling information in Chrome Trace Format Visualizer}
+
+    \sa {CMake}, {Visualizing Chrome Trace Events}
+*/
