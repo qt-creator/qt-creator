@@ -305,7 +305,7 @@ void ContentLibraryMaterialsModel::loadMaterialBundle(const QDir &matBundleDir)
     for (const QString &s : std::as_const(sharedFiles)) {
         const QString fullSharedFilePath = matBundleDir.filePath(s);
 
-        if (!QFile::exists(fullSharedFilePath))
+        if (!QFileInfo::exists(fullSharedFilePath))
             missingSharedFiles.push_back(s);
     }
 

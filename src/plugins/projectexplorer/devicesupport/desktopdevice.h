@@ -26,16 +26,17 @@ public:
 
     IDeviceWidget *createWidget() override;
     bool canCreateProcessModel() const override;
-    DeviceProcessList *createProcessListModel(QObject *parent) const override;
     DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
     bool usableAsBuildDevice() const override;
 
     bool handlesFile(const Utils::FilePath &filePath) const override;
-    Utils::Environment systemEnvironment() const override;
+    Utils::expected_str<Utils::Environment> systemEnvironmentWithError() const override;
 
     Utils::FilePath rootPath() const override;
     Utils::FilePath filePath(const QString &pathOnDevice) const override;
+
+    void fromMap(const Utils::Store &map) override;
 
 protected:
     DesktopDevice();

@@ -3,25 +3,13 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 #include <utils/treemodel.h>
-
-QT_BEGIN_NAMESPACE
-class QItemSelectionModel;
-class QPushButton;
-class QTreeView;
-QT_END_NAMESPACE
-
-namespace Utils { class DetailsWidget; }
 
 namespace BareMetal::Internal {
 
 class DebugServerProviderNode;
-class DebugServerProvidersSettingsWidget;
 class IDebugServerProvider;
 class IDebugServerProviderConfigWidget;
-class IDebugServerProviderFactory;
 
 // DebugServerProviderModel
 
@@ -55,14 +43,6 @@ private:
 
     QList<IDebugServerProvider *> m_providersToAdd;
     QList<IDebugServerProvider *> m_providersToRemove;
-};
-
-// DebugServerProvidersSettingsPage
-
-class DebugServerProvidersSettingsPage final : public Core::IOptionsPage
-{
-public:
-    DebugServerProvidersSettingsPage();
 };
 
 } // BareMetal::Internal

@@ -55,7 +55,6 @@ private:
 
 class QTCREATOR_UTILS_EXPORT ProgressIndicator : public OverlayWidget
 {
-    Q_OBJECT
 public:
     explicit ProgressIndicator(ProgressIndicatorSize size, QWidget *parent = nullptr);
 

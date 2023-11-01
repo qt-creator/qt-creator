@@ -30,7 +30,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -57,7 +57,8 @@ namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(deployStepLog, "qtc.android.build.androiddeployqtstep", QtWarningMsg)
 
-const QLatin1String UninstallPreviousPackageKey("UninstallPreviousPackage");
+const char UninstallPreviousPackageKey[] = "UninstallPreviousPackage";
+
 const QLatin1String InstallFailedInconsistentCertificatesString("INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES");
 const QLatin1String InstallFailedUpdateIncompatible("INSTALL_FAILED_UPDATE_INCOMPATIBLE");
 const QLatin1String InstallFailedPermissionModelDowngrade("INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE");
@@ -89,13 +90,12 @@ private:
     void runCommand(const CommandLine &command);
 
     bool init() override;
-    void doRun() override;
-    void doCancel() override;
+    Tasking::GroupItem runRecipe() final;
     void gatherFilesToPull();
-    DeployErrorCode runDeploy();
+    DeployErrorCode runDeploy(QPromise<void> &promise);
     void slotAskForUninstall(DeployErrorCode errorCode);
 
-    void runImpl(QPromise<bool> &promise);
+    void runImpl(QPromise<void> &promise);
 
     QWidget *createConfigWidget() override;
 
@@ -132,8 +132,6 @@ private:
     FilePath m_workingDirectory;
     Environment m_environment;
     AndroidDeviceInfo m_deviceInfo;
-
-    // The synchronizer has cancelOnWait set to true by default.
     FutureSynchronizer m_synchronizer;
 };
 
@@ -341,7 +339,7 @@ bool AndroidDeployQtStep::init()
     return true;
 }
 
-AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
+AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy(QPromise<void> &promise)
 {
     CommandLine cmd(m_command);
     if (m_useAndroiddeployqt && m_apkPath.isEmpty()) {
@@ -404,7 +402,7 @@ AndroidDeployQtStep::DeployErrorCode AndroidDeployQtStep::runDeploy()
         if (process.state() == QProcess::NotRunning)
             break;
 
-        if (isCanceled()) {
+        if (promise.isCanceled()) {
             process.kill();
             process.waitForFinished();
         }
@@ -477,16 +475,16 @@ void AndroidDeployQtStep::slotAskForUninstall(DeployErrorCode errorCode)
     m_askForUninstall = button == QMessageBox::Yes;
 }
 
-void AndroidDeployQtStep::runImpl(QPromise<bool> &promise)
+// TODO: This implementation is not thread safe.
+void AndroidDeployQtStep::runImpl(QPromise<void> &promise)
 {
     if (!m_avdName.isEmpty()) {
-        const QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName,
-                                                         QFuture<void>(promise.future()));
+        const QString serialNumber = AndroidAvdManager().waitForAvd(m_avdName, promise.future());
         qCDebug(deployStepLog) << "Deploying to AVD:" << m_avdName << serialNumber;
         if (serialNumber.isEmpty()) {
             reportWarningOrError(Tr::tr("The deployment AVD \"%1\" cannot be started.")
                                  .arg(m_avdName), Task::Error);
-            promise.addResult(false);
+            promise.future().cancel();
             return;
         }
         m_serialNumber = serialNumber;
@@ -494,12 +492,12 @@ void AndroidDeployQtStep::runImpl(QPromise<bool> &promise)
         AndroidManager::setDeviceSerialNumber(target(), serialNumber);
     }
 
-    DeployErrorCode returnValue = runDeploy();
+    DeployErrorCode returnValue = runDeploy(promise);
     if (returnValue > DeployErrorCode::NoError && returnValue < DeployErrorCode::Failure) {
         emit askForUninstall(returnValue);
         if (m_askForUninstall) {
             m_uninstallPreviousPackageRun = true;
-            returnValue = runDeploy();
+            returnValue = runDeploy(promise);
         }
     }
 
@@ -529,7 +527,8 @@ void AndroidDeployQtStep::runImpl(QPromise<bool> &promise)
             reportWarningOrError(error, Task::Error);
         }
     }
-    promise.addResult(returnValue == NoError);
+    if (returnValue != NoError)
+        promise.future().cancel();
 }
 
 void AndroidDeployQtStep::gatherFilesToPull()
@@ -561,22 +560,13 @@ void AndroidDeployQtStep::gatherFilesToPull()
                                          << "to:" << itr.value();
 }
 
-void AndroidDeployQtStep::doRun()
+Tasking::GroupItem AndroidDeployQtStep::runRecipe()
 {
-    auto * const watcher = new QFutureWatcher<bool>(this);
-    connect(watcher, &QFutureWatcher<bool>::finished, this, [this, watcher] {
-        const bool success = !watcher->isCanceled() && watcher->result();
-        emit finished(success);
-        watcher->deleteLater();
-    });
-    auto future = Utils::asyncRun(&AndroidDeployQtStep::runImpl, this);
-    watcher->setFuture(future);
-    m_synchronizer.addFuture(future);
-}
-
-void AndroidDeployQtStep::doCancel()
-{
-    m_synchronizer.cancelAllFutures();
+    const auto onSetup = [this](Async<void> &async) {
+        async.setConcurrentCallData(&AndroidDeployQtStep::runImpl, this);
+        async.setFutureSynchronizer(&m_synchronizer);
+    };
+    return AsyncTask<void>(onSetup);
 }
 
 void AndroidDeployQtStep::runCommand(const CommandLine &command)

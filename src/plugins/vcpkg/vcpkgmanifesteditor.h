@@ -13,4 +13,6 @@ public:
     VcpkgManifestEditorFactory();
 };
 
+QByteArray addDependencyToManifest(const QByteArray &manifest, const QString &package);
+
 } // namespace Vcpkg::Internal

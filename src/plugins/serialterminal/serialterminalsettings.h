@@ -9,9 +9,7 @@
 #include <QString>
 #include <QVector>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils { class QtcSettings; }
 
 namespace SerialTerminal {
 namespace Internal {
@@ -36,8 +34,8 @@ public:
 
     bool clearInputOnSend = false;
 
-    void save(QSettings *settings);
-    void load(QSettings *settings);
+    void save(Utils::QtcSettings *settings);
+    void load(Utils::QtcSettings *settings);
 
     void setBaudRate(qint32 br);
     void setPortName(const QString &name);
@@ -47,8 +45,8 @@ public:
     void setDefaultLineEndingIndex(unsigned int index);
 
 private:
-    void saveLineEndings(QSettings &settings);
-    void loadLineEndings(QSettings &settings);
+    void saveLineEndings(Utils::QtcSettings &settings);
+    void loadLineEndings(Utils::QtcSettings &settings);
 };
 
 } // namespace Internal

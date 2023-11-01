@@ -7,15 +7,13 @@
 #include "qmljstoolssettings.h"
 #include "qmljstoolstr.h"
 
+#include <coreplugin/icore.h>
+
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/codestylepool.h>
 
-#include <utils/settingsutils.h>
 #include <utils/qtcassert.h>
-#include <coreplugin/icore.h>
-
-#include <QSettings>
 
 using namespace TextEditor;
 
@@ -68,8 +66,7 @@ QmlJSToolsSettings::QmlJSToolsSettings()
     pool->loadCustomCodeStyles();
 
     // load global settings (after built-in settings are added to the pool)
-    QSettings *s = Core::ICore::settings();
-    m_globalCodeStyle->fromSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
+    m_globalCodeStyle->fromSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
 
     // mimetypes to be handled
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::QML_MIMETYPE, Constants::QML_JS_SETTINGS_ID);

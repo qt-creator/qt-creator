@@ -11,7 +11,7 @@
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <resourceeditor/resourcenode.h>
 
@@ -195,7 +195,6 @@ static void createTree(QmakeBuildSystem *buildSystem,
                     fileNode->setEnabled(fn.second == FileOrigin::ExactParse);
                     vfolder->addNestedNode(std::move(fileNode));
                 }
-                vfolder->forEachFolderNode([](FolderNode *fn) { fn->compress(); });
             }
             node->addNode(std::move(vfolder));
         }
@@ -265,6 +264,7 @@ std::unique_ptr<QmakeProFileNode> QmakeNodeTreeBuilder::buildTree(QmakeBuildSyst
                                                    buildSystem->rootProFile());
     root->setIcon(iconForProfile(buildSystem->rootProFile()));
     createTree(buildSystem, buildSystem->rootProFile(), root.get(), toExclude);
+    root->compress();
 
     return root;
 }

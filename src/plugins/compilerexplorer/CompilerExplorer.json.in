@@ -1,0 +1,29 @@
+{
+    "Name" : "CompilerExplorer",
+    "Version" : "${IDE_VERSION}",
+    "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "DisabledByDefault" : true,
+    "Vendor" : "The Qt Company Ltd",
+    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "License" : [ "Commercial Usage",
+                  "",
+                  "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
+                  "",
+                  "GNU General Public License Usage",
+                  "",
+                  "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
+    ],
+    "Description" : "Integrates https://godbolt.org into Qt Creator.",
+    "Url" : "http://www.qt.io",
+    ${IDE_PLUGIN_DEPENDENCIES},
+    "Mimetypes" : [
+        "<?xml version='1.0'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='application/compiler-explorer'>",
+        "        <sub-class-of type='application/json'/>",
+        "        <comment>Compiler Explorer file</comment>",
+        "        <glob pattern='*.qtce'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ]
+}

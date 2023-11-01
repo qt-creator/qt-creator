@@ -152,6 +152,10 @@ AppOutputPane::AppOutputPane() :
         Tr::tr("Show the output that generated this issue in Application Output."),
         Tr::tr("A")))
 {
+    setId("ApplicationOutput");
+    setDisplayName(Tr::tr("Application Output"));
+    setPriorityInStatusBar(60);
+
     ExtensionSystem::PluginManager::addObject(m_handler);
 
     setObjectName("AppOutputPane"); // Used in valgrind engine
@@ -299,20 +303,10 @@ QWidget *AppOutputPane::outputWidget(QWidget *)
     return m_tabWidget;
 }
 
-QList<QWidget*> AppOutputPane::toolBarWidgets() const
+QList<QWidget *> AppOutputPane::toolBarWidgets() const
 {
     return QList<QWidget *>{m_reRunButton, m_stopButton, m_attachButton, m_settingsButton,
                 m_formatterWidget} + IOutputPane::toolBarWidgets();
-}
-
-QString AppOutputPane::displayName() const
-{
-    return Tr::tr("Application Output");
-}
-
-int AppOutputPane::priorityInStatusBar() const
-{
-    return 60;
 }
 
 void AppOutputPane::clearContents()
@@ -380,7 +374,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
         QTimer::singleShot(0, this, [this, rc] { runControlFinished(rc); });
         for (const RunControlTab &t : std::as_const(m_runControlTabs)) {
             if (t.runControl == rc) {
-                t.window->flush();
+                if (t.window)
+                    t.window->flush();
                 break;
             }
         }
@@ -407,7 +402,8 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     if (tab != m_runControlTabs.end()) {
         // Reuse this tab
         if (tab->runControl)
-            tab->runControl->initiateFinish();
+            delete tab->runControl;
+
         tab->runControl = rc;
         tab->window->reset();
         rc->setupFormatter(tab->window->outputFormatter());
@@ -540,8 +536,8 @@ void AppOutputPane::storeSettings() const
 
 void AppOutputPane::loadSettings()
 {
-    QSettings * const s = Core::ICore::settings();
-    const auto modeFromSettings = [s](const QString key, AppOutputPaneMode defaultValue) {
+    QtcSettings * const s = Core::ICore::settings();
+    const auto modeFromSettings = [s](const Key key, AppOutputPaneMode defaultValue) {
         return static_cast<AppOutputPaneMode>(s->value(key, int(defaultValue)).toInt());
     };
     m_settings.runOutputMode = modeFromSettings(POP_UP_FOR_RUN_OUTPUT_KEY, kRunOutputModeDefault);
@@ -642,10 +638,18 @@ void AppOutputPane::closeTab(int tabIndex, CloseTabMode closeTabMode)
     m_tabWidget->removeTab(tabIndex);
     delete window;
 
-    if (runControl)
-        runControl->initiateFinish(); // Will self-destruct.
-    Utils::erase(m_runControlTabs, [tab](const RunControlTab &t) {
-        return t.runControl == tab->runControl; });
+    Utils::erase(m_runControlTabs, [runControl](const RunControlTab &t) {
+        return t.runControl == runControl; });
+    if (runControl) {
+        if (runControl->isRunning()) {
+            QMetaObject::invokeMethod(runControl, [runControl] {
+                runControl->setAutoDeleteOnStop(true);
+                runControl->initiateStop();
+            }, Qt::QueuedConnection);
+        } else {
+            delete runControl;
+        }
+    }
     updateCloseActions();
     setFilteringEnabled(m_tabWidget->count() > 0);
 

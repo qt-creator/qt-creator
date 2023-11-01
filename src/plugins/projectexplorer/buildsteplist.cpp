@@ -14,18 +14,17 @@
 
 #include <QDebug>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 const char STEPS_COUNT_KEY[] = "ProjectExplorer.BuildStepList.StepsCount";
 const char STEPS_PREFIX[] = "ProjectExplorer.BuildStepList.Step.";
 
-BuildStepList::BuildStepList(QObject *parent, Utils::Id id)
-    : QObject(parent), m_id(id)
+BuildStepList::BuildStepList(ProjectConfiguration *config, Utils::Id id)
+    : m_projectConfiguration(config), m_id(id)
 {
-    QTC_ASSERT(parent, return);
-    QTC_ASSERT(parent->parent(), return);
-    m_target = qobject_cast<Target *>(parent->parent());
-    QTC_ASSERT(m_target, return);
+    QTC_CHECK(config);
 }
 
 BuildStepList::~BuildStepList()
@@ -39,24 +38,32 @@ void BuildStepList::clear()
     m_steps.clear();
 }
 
-QVariantMap BuildStepList::toMap() const
+Target *BuildStepList::target() const
 {
-    QVariantMap map;
+    return m_projectConfiguration->target();
+}
+
+Store BuildStepList::toMap() const
+{
+    Store map;
 
     {
         // Only written for compatibility reasons within the 4.11 cycle
         const char CONFIGURATION_ID_KEY[] = "ProjectExplorer.ProjectConfiguration.Id";
         const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayName";
         const char DEFAULT_DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DefaultDisplayName";
-        map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
-        map.insert(QLatin1String(DISPLAY_NAME_KEY), displayName());
-        map.insert(QLatin1String(DEFAULT_DISPLAY_NAME_KEY), displayName());
+        map.insert(CONFIGURATION_ID_KEY, m_id.toSetting());
+        map.insert(DISPLAY_NAME_KEY, displayName());
+        map.insert(DEFAULT_DISPLAY_NAME_KEY, displayName());
     }
 
     // Save build steps
-    map.insert(QString::fromLatin1(STEPS_COUNT_KEY), m_steps.count());
-    for (int i = 0; i < m_steps.count(); ++i)
-        map.insert(QString::fromLatin1(STEPS_PREFIX) + QString::number(i), m_steps.at(i)->toMap());
+    map.insert(STEPS_COUNT_KEY, m_steps.count());
+    for (int i = 0; i < m_steps.count(); ++i) {
+        Store data;
+        m_steps.at(i)->toMap(data);
+        map.insert(numberedKey(STEPS_PREFIX, i), variantFromStore(data));
+    }
 
     return map;
 }
@@ -96,15 +103,15 @@ QString BuildStepList::displayName() const
     return {};
 }
 
-bool BuildStepList::fromMap(const QVariantMap &map)
+bool BuildStepList::fromMap(const Store &map)
 {
     clear();
 
     const QList<BuildStepFactory *> factories = BuildStepFactory::allBuildStepFactories();
 
-    int maxSteps = map.value(QString::fromLatin1(STEPS_COUNT_KEY), 0).toInt();
+    int maxSteps = map.value(STEPS_COUNT_KEY, 0).toInt();
     for (int i = 0; i < maxSteps; ++i) {
-        QVariantMap bsData(map.value(QString::fromLatin1(STEPS_PREFIX) + QString::number(i)).toMap());
+        Store bsData = storeFromVariant(map.value(numberedKey(STEPS_PREFIX, i)));
         if (bsData.isEmpty()) {
             qWarning() << "No step data found for" << i << "(continuing).";
             continue;

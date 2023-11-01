@@ -28,13 +28,9 @@ public:
     QString title() const override;
     QString toolTip() const override;
     QWidget *widget() const override;
-    QVariant parameters() const override;
-    void readSettings(QSettings *settings) override;
-    void writeSettings(QSettings *settings) const override;
-    QFuture<Utils::SearchResultItems> executeSearch(
-            const TextEditor::FileFindParameters &parameters, TextEditor::BaseFileFind *) override;
-    Core::IEditor *openEditor(const Utils::SearchResultItem &item,
-                              const TextEditor::FileFindParameters &parameters) override;
+    void readSettings(Utils::QtcSettings *settings) override;
+    void writeSettings(Utils::QtcSettings *settings) const override;
+    TextEditor::SearchExecutor searchExecutor() const override;
 
 private:
     QPointer<Core::IFindSupport> m_currentFindSupport;

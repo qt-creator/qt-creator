@@ -8,7 +8,6 @@
 #include "cpptoolsreuse.h"
 #include "cppworkingcopy.h"
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>
@@ -396,7 +395,7 @@ QString Utils::toString(const ProjectExplorer::Abi &abi)
 QString Utils::partsForFile(const ::Utils::FilePath &filePath)
 {
     const QList<ProjectPart::ConstPtr> parts
-        = CppModelManager::instance()->projectPart(filePath);
+        = CppModelManager::projectPart(filePath);
     QString result;
     for (const ProjectPart::ConstPtr &part : parts)
         result += part->displayName + QLatin1Char(',');

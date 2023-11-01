@@ -8,8 +8,6 @@
 #include "qmldesignerexternaldependencies.h"
 #include "qmldesignerplugin.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/icore.h>
 
 #include <qmljseditor/qmljseditorconstants.h>
@@ -497,10 +495,11 @@ void SettingsPageWidget::apply()
 
     for (const char * const key : restartNecessaryKeys) {
         if (QmlDesignerPlugin::settings().value(key) != settings.value(key)) {
-            QMessageBox::information(Core::ICore::dialogParent(), tr("Restart Required"),
-                tr("The made changes will take effect after a "
-                   "restart of the QML Emulation layer or %1.")
-                .arg(Core::Constants::IDE_DISPLAY_NAME));
+            QMessageBox::information(Core::ICore::dialogParent(),
+                                     tr("Restart Required"),
+                                     tr("The made changes will take effect after a "
+                                        "restart of the QML Emulation layer or %1.")
+                                         .arg(QGuiApplication::applicationDisplayName()));
             break;
         }
     }

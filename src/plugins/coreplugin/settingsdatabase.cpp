@@ -3,6 +3,8 @@
 
 #include "settingsdatabase.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <QDir>
 #include <QMap>
 #include <QString>
@@ -13,13 +15,14 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QDebug>
+#include <QCoreApplication>
 
 /*!
-    \class Core::SettingsDatabase
+    \namespace Core::SettingsDatabase
     \inheaderfile coreplugin/settingsdatabase.h
     \inmodule QtCreator
 
-    \brief The SettingsDatabase class offers an alternative to the
+    \brief The SettingsDatabase namespace offers an alternative to the
     application-wide QSettings that is more
     suitable for storing large amounts of data.
 
@@ -28,19 +31,20 @@
     rewriting the whole file each time one of the settings change.
 
     The SettingsDatabase API mimics that of QSettings.
+
+    \sa settings()
 */
 
 using namespace Core;
-using namespace Core::Internal;
+using namespace ExtensionSystem;
 
 enum { debug_settings = 0 };
 
-namespace Core {
-namespace Internal {
+namespace Core::SettingsDatabase {
 
 using SettingsMap = QMap<QString, QVariant>;
 
-class SettingsDatabasePrivate
+class SettingsDatabaseImpl
 {
 public:
     QString effectiveGroup() const
@@ -65,15 +69,17 @@ public:
     QSqlDatabase m_db;
 };
 
-} // namespace Internal
-} // namespace Core
+static SettingsDatabaseImpl *d;
 
-SettingsDatabase::SettingsDatabase(const QString &path,
-                                   const QString &application,
-                                   QObject *parent)
-    : QObject(parent)
-    , d(new SettingsDatabasePrivate)
+void ensureImpl()
 {
+    if (d)
+        return;
+
+    d = new SettingsDatabaseImpl;
+
+    const QString path = QFileInfo(PluginManager::settings()->fileName()).path();
+    const QString application =  QCoreApplication::applicationName();
     const QLatin1Char slash('/');
 
     // TODO: Don't rely on a path, but determine automatically
@@ -114,16 +120,21 @@ SettingsDatabase::SettingsDatabase(const QString &path,
     }
 }
 
-SettingsDatabase::~SettingsDatabase()
+void destroy()
 {
-    sync();
+    if (!d)
+        return;
+
+    // TODO: Delay writing of dirty keys and save them here
 
     delete d;
+    d = nullptr;
     QSqlDatabase::removeDatabase(QLatin1String("settings"));
 }
 
-void SettingsDatabase::setValue(const QString &key, const QVariant &value)
+void setValue(const QString &key, const QVariant &value)
 {
+    ensureImpl();
     const QString effectiveKey = d->effectiveKey(key);
 
     // Add to cache
@@ -143,8 +154,9 @@ void SettingsDatabase::setValue(const QString &key, const QVariant &value)
         qDebug() << "Stored:" << effectiveKey << "=" << value;
 }
 
-QVariant SettingsDatabase::value(const QString &key, const QVariant &defaultValue) const
+QVariant value(const QString &key, const QVariant &defaultValue)
 {
+    ensureImpl();
     const QString effectiveKey = d->effectiveKey(key);
     QVariant value = defaultValue;
 
@@ -171,8 +183,9 @@ QVariant SettingsDatabase::value(const QString &key, const QVariant &defaultValu
     return value;
 }
 
-bool SettingsDatabase::contains(const QString &key) const
+bool contains(const QString &key)
 {
+    ensureImpl();
     // check exact key
     // this already caches the value
     if (value(key).isValid())
@@ -190,8 +203,9 @@ bool SettingsDatabase::contains(const QString &key) const
     return false;
 }
 
-void SettingsDatabase::remove(const QString &key)
+void remove(const QString &key)
 {
+    ensureImpl();
     const QString effectiveKey = d->effectiveKey(key);
 
     // Remove keys from the cache
@@ -217,23 +231,27 @@ void SettingsDatabase::remove(const QString &key)
     query.exec();
 }
 
-void SettingsDatabase::beginGroup(const QString &prefix)
+void beginGroup(const QString &prefix)
 {
+    ensureImpl();
     d->m_groups.append(prefix);
 }
 
-void SettingsDatabase::endGroup()
+void endGroup()
 {
+    ensureImpl();
     d->m_groups.removeLast();
 }
 
-QString SettingsDatabase::group() const
+QString group()
 {
+    ensureImpl();
     return d->effectiveGroup();
 }
 
-QStringList SettingsDatabase::childKeys() const
+QStringList childKeys()
 {
+    ensureImpl();
     QStringList children;
 
     const QString g = group();
@@ -246,21 +264,20 @@ QStringList SettingsDatabase::childKeys() const
     return children;
 }
 
-void SettingsDatabase::beginTransaction()
+void beginTransaction()
 {
+    ensureImpl();
     if (!d->m_db.isOpen())
         return;
     d->m_db.transaction();
 }
 
-void SettingsDatabase::endTransaction()
+void endTransaction()
 {
+    ensureImpl();
     if (!d->m_db.isOpen())
         return;
     d->m_db.commit();
 }
 
-void SettingsDatabase::sync()
-{
-    // TODO: Delay writing of dirty keys and save them here
-}
+} // Core::SettingsDatabase

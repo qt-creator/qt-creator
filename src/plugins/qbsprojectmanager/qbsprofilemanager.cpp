@@ -17,7 +17,7 @@
 #include <projectexplorer/projectexplorer.h>
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
@@ -89,21 +89,27 @@ QString toJSLiteral(const QVariant &val)
     return QString::fromLatin1("Unconvertible type %1").arg(QLatin1String(val.typeName()));
 }
 
-
-static QbsProfileManager *m_instance = nullptr;
+static PropertyProvider &defaultPropertyProvider()
+{
+    static DefaultPropertyProvider theDefaultPropertyProvider;
+    return theDefaultPropertyProvider;
+}
 
 static QString kitNameKeyInQbsSettings(const ProjectExplorer::Kit *kit)
 {
     return "preferences.qtcreator.kit." + kit->id().toString();
 }
 
-QbsProfileManager::QbsProfileManager() : m_defaultPropertyProvider(new DefaultPropertyProvider)
+QbsProfileManager::QbsProfileManager()
 {
-    m_instance = this;
-
     setObjectName(QLatin1String("QbsProjectManager"));
-    connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded, this,
-            [this] { m_kitsToBeSetupForQbs = ProjectExplorer::KitManager::kits(); } );
+
+    if (ProjectExplorer::KitManager::instance()->isLoaded()) {
+        m_kitsToBeSetupForQbs = ProjectExplorer::KitManager::kits();
+    } else {
+        connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitsLoaded,
+                this, [this] { m_kitsToBeSetupForQbs = ProjectExplorer::KitManager::kits(); } );
+    }
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitAdded, this,
             &QbsProfileManager::addProfileFromKit);
     connect(ProjectExplorer::KitManager::instance(), &ProjectExplorer::KitManager::kitUpdated, this,
@@ -114,15 +120,12 @@ QbsProfileManager::QbsProfileManager() : m_defaultPropertyProvider(new DefaultPr
             this, &QbsProfileManager::updateAllProfiles);
 }
 
-QbsProfileManager::~QbsProfileManager()
-{
-    delete m_defaultPropertyProvider;
-    m_instance = nullptr;
-}
+QbsProfileManager::~QbsProfileManager() = default;
 
 QbsProfileManager *QbsProfileManager::instance()
 {
-    return m_instance;
+    static QbsProfileManager theQbsProfileManager;
+    return &theQbsProfileManager;
 }
 
 QString QbsProfileManager::ensureProfileForKit(const ProjectExplorer::Kit *k)
@@ -137,8 +140,8 @@ void QbsProfileManager::updateProfileIfNecessary(const ProjectExplorer::Kit *kit
 {
     // kit in list <=> profile update is necessary
     // Note that the const_cast is safe, as we do not call any non-const methods on the object.
-    if (m_instance->m_kitsToBeSetupForQbs.removeOne(const_cast<ProjectExplorer::Kit *>(kit)))
-        m_instance->addProfileFromKit(kit);
+    if (instance()->m_kitsToBeSetupForQbs.removeOne(const_cast<ProjectExplorer::Kit *>(kit)))
+        instance()->addProfileFromKit(kit);
 }
 
 void QbsProfileManager::updateAllProfiles()
@@ -154,7 +157,7 @@ void QbsProfileManager::addProfileFromKit(const ProjectExplorer::Kit *k)
     runQbsConfig(QbsConfigOp::Set, kitNameKeyInQbsSettings(k), name);
 
     // set up properties:
-    QVariantMap data = m_defaultPropertyProvider->properties(k, QVariantMap());
+    QVariantMap data = defaultPropertyProvider().properties(k, QVariantMap());
     for (PropertyProvider *provider : std::as_const(g_propertyProviders)) {
         if (provider->canHandle(k))
             data = provider->properties(k, data);
@@ -174,8 +177,8 @@ void QbsProfileManager::addProfileFromKit(const ProjectExplorer::Kit *k)
 
 void QbsProfileManager::handleKitUpdate(ProjectExplorer::Kit *kit)
 {
-    m_kitsToBeSetupForQbs.removeOne(kit);
-    addProfileFromKit(kit);
+    if (!m_kitsToBeSetupForQbs.contains(kit))
+        addProfileFromKit(kit);
 }
 
 void QbsProfileManager::handleKitRemoval(ProjectExplorer::Kit *kit)

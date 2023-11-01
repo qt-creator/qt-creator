@@ -7,7 +7,7 @@
 
 namespace Mercurial::Internal {
 
-class MercurialSettings : public VcsBase::VcsBaseSettings
+class MercurialSettings final : public VcsBase::VcsBaseSettings
 {
 public:
     MercurialSettings();

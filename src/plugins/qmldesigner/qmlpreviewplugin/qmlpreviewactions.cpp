@@ -10,7 +10,7 @@
 
 #include <utils/utilsicons.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -33,7 +33,7 @@ const QByteArray livePreviewId = "LivePreview";
 
 static void handleAction(const SelectionContext &context)
 {
-    if (context.view()->isAttached()) {
+    if (context.isValid()) {
         if (context.toggled()) {
             bool skipDeploy = false;
             if (const Target *startupTarget = ProjectManager::startupTarget()) {

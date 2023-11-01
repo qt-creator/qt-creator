@@ -17,7 +17,6 @@
 #include <QLoggingCategory>
 #include <QReadWriteLock>
 #include <QRegularExpression>
-#include <QSettings>
 #include <QTextCodec>
 
 namespace {
@@ -94,7 +93,7 @@ static bool sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                                      << CommandLine(config.sdkManagerToolPath(), newArgs)
                                         .toUserOutput();
     Process proc;
-    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
+    proc.setEnvironment(config.toolsEnvironment());
     proc.setTimeoutS(timeout);
     proc.setTimeOutMessageBoxEnabled(true);
     proc.setCommand({config.sdkManagerToolPath(), newArgs});
@@ -122,7 +121,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
                                         .toUserOutput();
     int offset = promise.future().progressValue();
     Process proc;
-    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
+    proc.setEnvironment(config.toolsEnvironment());
     bool assertionFound = false;
     proc.setTimeoutS(timeout);
     proc.setStdOutCallback([offset, progressQuota, &proc, &assertionFound, &promise](const QString &out) {
@@ -439,7 +438,7 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdPromise &promise)
 
     if (result.stdError.isEmpty() && !result.success)
         result.stdError = Tr::tr("Failed.");
-    result.stdOutput = Tr::tr("Done\n\n");
+    result.stdOutput = Tr::tr("Done") + "\n\n";
     promise.addResult(result);
     promise.setProgressValue(100);
 }
@@ -469,8 +468,8 @@ void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &inst
         currentProgress += progressQuota;
         fi.setProgressValue(currentProgress);
         if (result.stdError.isEmpty() && !result.success)
-            result.stdError = Tr::tr("AndroidSdkManager", "Failed");
-        result.stdOutput = Tr::tr("AndroidSdkManager", "Done\n\n");
+            result.stdError = Tr::tr("Failed");
+        result.stdOutput = Tr::tr("Done") + "\n\n";
         fi.addResult(result);
         return fi.isCanceled();
     };
@@ -523,7 +522,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
 
     Process licenseCommand;
     licenseCommand.setProcessMode(ProcessMode::Writer);
-    licenseCommand.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
+    licenseCommand.setEnvironment(m_config.toolsEnvironment());
     bool reviewingLicenses = false;
     licenseCommand.setCommand(CommandLine(m_config.sdkManagerToolPath(), {"--licenses", sdkRootArg(m_config)}));
     licenseCommand.setUseCtrlCStub(true);
@@ -570,7 +569,7 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
     m_licenseTextCache.clear();
     result.success = licenseCommand.exitStatus() == QProcess::NormalExit;
     if (!result.success)
-        result.stdError = Tr::tr("License command failed.\n\n");
+        result.stdError = Tr::tr("License command failed.") + "\n\n";
     fi.addResult(result);
     fi.setProgressValue(100);
 }

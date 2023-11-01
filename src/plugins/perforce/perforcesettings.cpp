@@ -30,15 +30,20 @@ static QString defaultCommand()
     return QLatin1String("p4" QTC_HOST_EXE_SUFFIX);
 }
 
+PerforceSettings &settings()
+{
+    static PerforceSettings theSettings;
+    return theSettings;
+}
+
 PerforceSettings::PerforceSettings()
 {
     setSettingsGroup("Perforce");
     setAutoApply(false);
 
-    p4BinaryPath.setDisplayStyle(StringAspect::PathChooserDisplay);
     p4BinaryPath.setSettingsKey("Command");
     p4BinaryPath.setDefaultValue(
-            Environment::systemEnvironment().searchInPath(defaultCommand()).toString());
+        Environment::systemEnvironment().searchInPath(defaultCommand()).toUserOutput());
     p4BinaryPath.setHistoryCompleter("Perforce.Command.History");
     p4BinaryPath.setExpectedKind(PathChooser::Command);
     p4BinaryPath.setDisplayName(Tr::tr("Perforce Command"));
@@ -77,6 +82,71 @@ PerforceSettings::PerforceSettings()
     autoOpen.setSettingsKey("PromptToOpen");
     autoOpen.setDefaultValue(true);
     autoOpen.setLabelText(Tr::tr("Automatically open files when editing"));
+
+    setLayouter([this] {
+        using namespace Layouting;
+
+        auto errorLabel = new InfoLabel({}, InfoLabel::None);
+        errorLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+        errorLabel->setFilled(true);
+        auto testButton = new QPushButton(Tr::tr("Test"));
+        QObject::connect(testButton, &QPushButton::clicked, errorLabel,
+                [this, errorLabel, testButton] {
+            testButton->setEnabled(false);
+            auto checker = new PerforceChecker(errorLabel);
+            checker->setUseOverideCursor(true);
+            QObject::connect(checker, &PerforceChecker::failed, errorLabel,
+                    [errorLabel, testButton, checker](const QString &t) {
+                errorLabel->setType(InfoLabel::Error);
+                errorLabel->setText(t);
+                testButton->setEnabled(true);
+                checker->deleteLater();
+            });
+            QObject::connect(checker, &PerforceChecker::succeeded, errorLabel,
+                    [errorLabel, testButton, checker](const FilePath &repo) {
+                errorLabel->setType(InfoLabel::Ok);
+                errorLabel->setText(Tr::tr("Test succeeded (%1).")
+                                        .arg(repo.toUserOutput()));
+                testButton->setEnabled(true);
+                checker->deleteLater();
+            });
+
+            errorLabel->setType(InfoLabel::Information);
+            errorLabel->setText(Tr::tr("Testing..."));
+
+            const FilePath p4Bin = FilePath::fromUserInput(p4BinaryPath.volatileValue());
+            checker->start(p4Bin, {}, commonP4Arguments_volatile(), 10000);
+        });
+
+        Group config {
+            title(Tr::tr("Configuration")),
+            Row { p4BinaryPath }
+        };
+
+        Group environment {
+            title(Tr::tr("Environment Variables")),
+            customEnv.groupChecker(),
+            Row { p4Port, p4Client, p4User }
+        };
+
+        Group misc {
+            title(Tr::tr("Miscellaneous")),
+            Column {
+                Row { logCount, timeOutS, st },
+                autoOpen
+            }
+        };
+
+        return Column {
+            config,
+            environment,
+            misc,
+            Row { errorLabel, st, testButton },
+            st
+        };
+    });
+
+    readSettings();
 }
 
 // --------------------PerforceSettings
@@ -88,13 +158,13 @@ PerforceSettings::~PerforceSettings()
 QStringList PerforceSettings::commonP4Arguments() const
 {
     QStringList lst;
-    if (customEnv.value()) {
-        if (!p4Client.value().isEmpty())
-            lst << "-c" << p4Client.value();
-        if (!p4Port.value().isEmpty())
-            lst << "-p" << p4Port.value();
-        if (!p4User.value().isEmpty())
-            lst << "-u" << p4User.value();
+    if (customEnv()) {
+        if (!p4Client().isEmpty())
+            lst << "-c" << p4Client();
+        if (!p4Port().isEmpty())
+            lst << "-p" << p4Port();
+        if (!p4User().isEmpty())
+            lst << "-u" << p4User();
     }
     return lst;
 }
@@ -102,14 +172,14 @@ QStringList PerforceSettings::commonP4Arguments() const
 QStringList PerforceSettings::commonP4Arguments_volatile() const
 {
     QStringList lst;
-    if (customEnv.volatileValue().toBool()) {
-        auto p4C = p4Client.volatileValue().toString();
+    if (customEnv.volatileValue()) {
+        const QString p4C = p4Client.volatileValue();
         if (!p4C.isEmpty())
             lst << "-c" << p4C;
-        auto p4P = p4Port.volatileValue().toString();
+        const QString p4P = p4Port.volatileValue();
         if (!p4P.isEmpty())
             lst << "-p" << p4P;
-        auto p4U = p4User.volatileValue().toString();
+        const QString p4U = p4User.volatileValue();
         if (!p4U.isEmpty())
             lst << "-u" << p4U;
     }
@@ -118,7 +188,7 @@ QStringList PerforceSettings::commonP4Arguments_volatile() const
 
 bool PerforceSettings::isValid() const
 {
-    return !m_topLevel.isEmpty() && !p4BinaryPath.value().isEmpty();
+    return !m_topLevel.isEmpty() && !p4BinaryPath().isEmpty();
 }
 
 bool PerforceSettings::defaultEnv() const
@@ -209,77 +279,19 @@ QString PerforceSettings::mapToFileSystem(const QString &perforceFilePath) const
 
 // SettingsPage
 
-PerforceSettingsPage::PerforceSettingsPage(PerforceSettings *settings)
+class PerforceSettingsPage final : public Core::IOptionsPage
 {
-    setId(VcsBase::Constants::VCS_ID_PERFORCE);
-    setDisplayName(Tr::tr("Perforce"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setSettings(settings);
+public:
+    explicit PerforceSettingsPage()
+    {
+        setId(VcsBase::Constants::VCS_ID_PERFORCE);
+        setDisplayName(Tr::tr("Perforce"));
+        setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
 
-    setLayouter([settings] {
-        PerforceSettings &s = *settings;
-        using namespace Layouting;
+    }
+};
 
-        auto errorLabel = new InfoLabel({}, InfoLabel::None);
-        errorLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        errorLabel->setFilled(true);
-        auto testButton = new QPushButton(Tr::tr("Test"));
-        QObject::connect(testButton, &QPushButton::clicked, errorLabel,
-                [settings, errorLabel, testButton] {
-            testButton->setEnabled(false);
-            auto checker = new PerforceChecker(errorLabel);
-            checker->setUseOverideCursor(true);
-            QObject::connect(checker, &PerforceChecker::failed, errorLabel,
-                    [errorLabel, testButton, checker](const QString &t) {
-                errorLabel->setType(InfoLabel::Error);
-                errorLabel->setText(t);
-                testButton->setEnabled(true);
-                checker->deleteLater();
-            });
-            QObject::connect(checker, &PerforceChecker::succeeded, errorLabel,
-                    [errorLabel, testButton, checker](const FilePath &repo) {
-                errorLabel->setType(InfoLabel::Ok);
-                errorLabel->setText(Tr::tr("Test succeeded (%1).")
-                                        .arg(repo.toUserOutput()));
-                testButton->setEnabled(true);
-                checker->deleteLater();
-            });
-
-            errorLabel->setType(InfoLabel::Information);
-            errorLabel->setText(Tr::tr("Testing..."));
-
-            const FilePath p4Bin = FilePath::fromUserInput(
-                        settings->p4BinaryPath.volatileValue().toString());
-            checker->start(p4Bin, {}, settings->commonP4Arguments_volatile(), 10000);
-        });
-
-        Group config {
-            title(Tr::tr("Configuration")),
-            Row { s.p4BinaryPath }
-        };
-
-        Group environment {
-            title(Tr::tr("Environment Variables")),
-            s.customEnv.groupChecker(),
-            Row { s.p4Port, s.p4Client, s.p4User }
-        };
-
-        Group misc {
-            title(Tr::tr("Miscellaneous")),
-            Column {
-                Row { s.logCount, s.timeOutS, st },
-                s.autoOpen
-            }
-        };
-
-        return Column {
-            config,
-            environment,
-            misc,
-            Row { errorLabel, st, testButton },
-            st
-        };
-    });
-}
+const PerforceSettingsPage settingsPage;
 
 } // Perforce::Internal

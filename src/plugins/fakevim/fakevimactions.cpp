@@ -28,38 +28,14 @@ using namespace Utils;
 namespace FakeVim::Internal {
 
 #ifdef FAKEVIM_STANDALONE
-FvBaseAspect::FvBaseAspect()
-{
-}
 
-void FvBaseAspect::setValue(const QVariant &value)
-{
-    m_value = value;
-}
-
-QVariant FvBaseAspect::value() const
-{
-    return m_value;
-}
-
-void FvBaseAspect::setDefaultValue(const QVariant &value)
-{
-    m_defaultValue = value;
-    m_value = value;
-}
-
-QVariant FvBaseAspect::defaultValue() const
-{
-    return m_defaultValue;
-}
-
-void FvBaseAspect::setSettingsKey(const QString &group, const QString &key)
+void FvBaseAspect::setSettingsKey(const Key &group, const Key &key)
 {
     m_settingsGroup = group;
     m_settingsKey = key;
 }
 
-QString FvBaseAspect::settingsKey() const
+Key FvBaseAspect::settingsKey() const
 {
     return m_settingsKey;
 }
@@ -69,29 +45,17 @@ void setAutoApply(bool ) {}
 #endif
 
 
-static FakeVimSettings *s_settings;
-
 FakeVimSettings &settings()
 {
-    return *s_settings;
+    static FakeVimSettings theSettings;
+    return theSettings;
 }
 
 FakeVimSettings::FakeVimSettings()
 {
-    s_settings = this;
-
-#ifndef FAKEVIM_STANDALONE
-    const char SETTINGS_CATEGORY[]              = "D.FakeVim";
-    const char SETTINGS_ID[]                    = "A.FakeVim.General";
-
-    setId(SETTINGS_ID);
-    setDisplayName(Tr::tr("General"));
-    setCategory(SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("FakeVim"));
-    setCategoryIconPath(":/fakevim/images/settingscategory_fakevim.png");
+    setAutoApply(false);
 
     setup(&useFakeVim,     false, "UseFakeVim",     {},    Tr::tr("Use FakeVim"));
-#endif
 
     // Specific FakeVim settings
     setup(&readVimRc,      false, "ReadVimRc",      {},    Tr::tr("Read .vimrc from location:"));
@@ -118,6 +82,7 @@ FakeVimSettings::FakeVimSettings()
     setup(&showCmd,        true,  "ShowCmd",        "sc",  Tr::tr("Show partial command"));
     setup(&relativeNumber, false, "RelativeNumber", "rnu", Tr::tr("Show line numbers relative to cursor"));
     setup(&blinkingCursor, false, "BlinkingCursor", "bc",  Tr::tr("Blinking cursor"));
+    setup(&systemEncoding, false, "SystemEncoding", {},    Tr::tr("Use system encoding for :source"));
     setup(&scrollOff,      0,     "ScrollOff",      "so",  Tr::tr("Scroll offset:"));
     setup(&backspace,      "indent,eol,start",
                                   "Backspace",      "bs",  Tr::tr("Backspace:"));
@@ -158,7 +123,6 @@ FakeVimSettings::FakeVimSettings()
     vimRcPath.setToolTip(Tr::tr("Keep empty to use the default path, i.e. "
                "%USERPROFILE%\\_vimrc on Windows, ~/.vimrc otherwise."));
     vimRcPath.setPlaceHolderText(Tr::tr("Default: %1").arg(vimrcDefault));
-    vimRcPath.setDisplayStyle(FvStringAspect::PathChooserDisplay);
 
     setLayouter([this] {
         using namespace Layouting;
@@ -174,7 +138,8 @@ FakeVimSettings::FakeVimSettings()
                 showCmd,
                 startOfLine,
                 passKeys,
-                blinkingCursor
+                blinkingCursor,
+                HostOsInfo::isWindowsHost() ? LayoutItem(systemEncoding) : empty
             },
             Column {
                 incSearch,
@@ -279,14 +244,14 @@ FakeVimSettings::FakeVimSettings()
 
 FakeVimSettings::~FakeVimSettings() = default;
 
-FvBaseAspect *FakeVimSettings::item(const QString &name)
+FvBaseAspect *FakeVimSettings::item(const Utils::Key &name)
 {
     return m_nameToAspect.value(name, nullptr);
 }
 
 QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
 {
-    FvBaseAspect *aspect = m_nameToAspect.value(name, nullptr);
+    FvBaseAspect *aspect = m_nameToAspect.value(keyFromString(name), nullptr);
     if (!aspect)
         return Tr::tr("Unknown option: %1").arg(name);
     if (aspect == &tabStop || aspect == &shiftWidth) {
@@ -294,18 +259,18 @@ QString FakeVimSettings::trySetValue(const QString &name, const QString &value)
             return Tr::tr("Argument must be positive: %1=%2")
                     .arg(name).arg(value);
     }
-    aspect->setValue(value);
+    aspect->setVariantValue(value);
     return QString();
 }
 
 void FakeVimSettings::setup(FvBaseAspect *aspect,
                             const QVariant &value,
-                            const QString &settingsKey,
-                            const QString &shortName,
+                            const Utils::Key &settingsKey,
+                            const Utils::Key &shortName,
                             const QString &labelText)
 {
     aspect->setSettingsKey("FakeVim", settingsKey);
-    aspect->setDefaultValue(value);
+    aspect->setDefaultVariantValue(value);
 #ifndef FAKEVIM_STANDALONE
     aspect->setLabelText(labelText);
     aspect->setAutoApply(false);
@@ -317,7 +282,7 @@ void FakeVimSettings::setup(FvBaseAspect *aspect,
     Q_UNUSED(labelText)
 #endif
 
-    const QString longName = settingsKey.toLower();
+    const Key longName = settingsKey.toByteArray().toLower();
     if (!longName.isEmpty()) {
         m_nameToAspect[longName] = aspect;
         m_aspectToName[aspect] = longName;
@@ -325,5 +290,28 @@ void FakeVimSettings::setup(FvBaseAspect *aspect,
     if (!shortName.isEmpty())
         m_nameToAspect[shortName] = aspect;
 }
+
+#ifndef FAKEVIM_STANDALONE
+
+class FakeVimSettingsPage final : public Core::IOptionsPage
+{
+public:
+    FakeVimSettingsPage()
+    {
+        const char SETTINGS_CATEGORY[]              = "D.FakeVim";
+        const char SETTINGS_ID[]                    = "A.FakeVim.General";
+
+        setId(SETTINGS_ID);
+        setDisplayName(Tr::tr("General"));
+        setCategory(SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("FakeVim"));
+        setCategoryIconPath(":/fakevim/images/settingscategory_fakevim.png");
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const FakeVimSettingsPage settingsPage;
+
+#endif
 
 } // FakeVim::Internal

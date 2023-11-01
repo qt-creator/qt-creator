@@ -204,7 +204,9 @@
                                 \li \l{Semantic Highlighting}
                                 \li \l{Checking Code Syntax}
                                 \li \l{Completing Code}
-                                \li \l{Indenting Text or Code}
+                                \li \l{Indent text or code}
+                                \li \l{Behavior}
+                                \li \l{Qt Quick Code Style}
                                 \li \l{Using Qt Quick Toolbars}
                                 \li \l{Comparing Files}
                             \endlist
@@ -239,9 +241,9 @@
                 \li Extending Component Functionality
                 \endomit
                 \li \l{UI Files}
-                \li \l{Managing Data Collection}
+                \li \l{Manage Data Collection}
                     \list
-                        \li \l {Collecting Usage Statistics}
+                        \li \l {Collect Usage Statistics}
                         \li \l {Collecting User Feedback}
                         \li \l {Reporting Crashes}
                     \endlist
@@ -252,7 +254,7 @@
                 \li \l{Using Git}
                 \li \l{Converting Qt 5 Projects into Qt 6 Projects}
                 \li \l{Converting UI Projects to Applications}
-                \li \l{Using External Tools}
+                \li \l{Use external tools}
                 \li \l{\QDS on MCUs}
                     \list
                         \li \l {\QMCU Framework}
@@ -266,7 +268,17 @@
             \endlist
         \li \l Help
             \list
-                \li \l{Using the Help Mode}
+                \li \l{Get help}
+                    \list
+                        \li \l {Add bookmarks to help pages}
+                        \li \l {Add external documentation}
+                        \li \l {Detach the help window}
+                        \li \l {Filter documentation}
+                        \li \l {Find information in Qt documentation}
+                        \li \l {Get help}
+                        \li \l {Search from documentation}
+                        \li \l {Select the help start page}
+                    \endlist
                 \li \l{Frequently Asked Questions}
                 \li \l{Supported Platforms}
             \endlist

@@ -48,9 +48,9 @@ class ClangdFindLocalReferences : public QObject
 {
     Q_OBJECT
 public:
-    explicit ClangdFindLocalReferences(ClangdClient *client, TextEditor::TextDocument *document,
-                                       const QTextCursor &cursor,
-                                       const CppEditor::RenameCallback &callback);
+    explicit ClangdFindLocalReferences(
+        ClangdClient *client, CppEditor::CppEditorWidget *editorWidget, const QTextCursor &cursor,
+        const CppEditor::RenameCallback &callback);
     ~ClangdFindLocalReferences();
 
 signals:

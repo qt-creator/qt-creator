@@ -5,7 +5,7 @@
 
 #include "qmljstools_global.h"
 
-#include <QVariantMap>
+#include <utils/store.h>
 
 #include <optional>
 
@@ -20,8 +20,8 @@ public:
 
     int lineLength = 80;
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     bool equals(const QmlJSCodeStyleSettings &rhs) const;
     bool operator==(const QmlJSCodeStyleSettings &s) const { return equals(s); }

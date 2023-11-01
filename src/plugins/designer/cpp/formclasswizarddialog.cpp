@@ -9,6 +9,7 @@
 
 #include <cppeditor/abstracteditorsupport.h>
 #include <designer/formtemplatewizardpage.h>
+#include <projectexplorer/projecttree.h>
 #include <qtsupport/codegenerator.h>
 #include <utils/filepath.h>
 
@@ -68,7 +69,8 @@ FormClassWizardParameters FormClassWizardDialog::parameters() const
     m_classPage->getParameters(&rc);
     // Name the ui class in the Ui namespace after the class specified
     rc.uiTemplate = QtSupport::CodeGenerator::changeUiClassName(m_rawFormTemplate, rc.className);
-    rc.usePragmaOnce = CppEditor::AbstractEditorSupport::usePragmaOnce();
+    rc.usePragmaOnce = CppEditor::AbstractEditorSupport::usePragmaOnce(
+        ProjectExplorer::ProjectTree::currentProject());
     return rc;
 }
 

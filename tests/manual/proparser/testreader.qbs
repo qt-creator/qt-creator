@@ -1,4 +1,4 @@
-QtcManualtest {
+QtcManualTest {
     name: "Manual ProParser test"
     Depends { name: "Qt.core" }
 
@@ -18,9 +18,7 @@ QtcManualtest {
         cpp.dynamicLibraries: "advapi32"
     }
 
-    files: [
-        "main.cpp",
-    ]
+    files: "main.cpp"
 
     Group {
         name: "ProParser files"

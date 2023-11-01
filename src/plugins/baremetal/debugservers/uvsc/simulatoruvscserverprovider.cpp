@@ -63,19 +63,16 @@ SimulatorUvscServerProvider::SimulatorUvscServerProvider()
     setDriverSelection(defaultSimulatorDriverSelection());
 }
 
-QVariantMap SimulatorUvscServerProvider::toMap() const
+void SimulatorUvscServerProvider::toMap(Store &data) const
 {
-    QVariantMap data = UvscServerProvider::toMap();
+    UvscServerProvider::toMap(data);
     data.insert(limitSpeedKeyC, m_limitSpeed);
-    return data;
 }
 
-bool SimulatorUvscServerProvider::fromMap(const QVariantMap &data)
+void SimulatorUvscServerProvider::fromMap(const Store &data)
 {
-    if (!UvscServerProvider::fromMap(data))
-        return false;
+    UvscServerProvider::fromMap(data);
     m_limitSpeed = data.value(limitSpeedKeyC).toBool();
-    return true;
 }
 
 bool SimulatorUvscServerProvider::operator==(const IDebugServerProvider &other) const

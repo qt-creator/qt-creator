@@ -12,13 +12,13 @@
 #include <valgrind/xmlprotocol/error.h>
 #include <valgrind/xmlprotocol/errorlistmodel.h>
 #include <valgrind/xmlprotocol/stackmodel.h>
-#include <valgrind/valgrindrunner.h>
+#include <valgrind/valgrindprocess.h>
 
 class ModelDemo : public QObject
 {
     Q_OBJECT
 public:
-    explicit ModelDemo(Valgrind::ValgrindRunner *r, QObject *parent = 0)
+    explicit ModelDemo(Valgrind::ValgrindProcess *r, QObject *parent = 0)
         : QObject(parent)
         , runner(r)
     {
@@ -27,11 +27,6 @@ public:
     Valgrind::XmlProtocol::StackModel* stackModel;
 
 public Q_SLOTS:
-    void finished() {
-        qDebug() << runner->errorString();
-        qApp->exit(!runner->errorString().isEmpty());
-    }
-
     void selectionChanged(const QItemSelection &sel, const QItemSelection &) {
         if (sel.indexes().isEmpty())
             return;
@@ -41,7 +36,6 @@ public Q_SLOTS:
         stackModel->setError(err);
     }
 
-
 private:
-    Valgrind::ValgrindRunner *runner;
+    Valgrind::ValgrindProcess *runner;
 };

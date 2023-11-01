@@ -3,22 +3,16 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
+#include "../core_global.h"
 
 #include <utils/aspects.h>
-#include <utils/icon.h>
 #include <utils/id.h>
 
-#include <QObject>
 #include <QPointer>
 #include <QStringList>
 #include <QWidget>
 
 #include <functional>
-
-namespace Layouting { class LayoutItem; };
-
-namespace Utils { class AspectContainer; };
 
 namespace Core {
 
@@ -54,7 +48,7 @@ public:
     QString displayName() const { return m_displayName; }
     Utils::Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
-    QIcon categoryIcon() const;
+    Utils::FilePath categoryIconPath() const;
 
     using WidgetCreator = std::function<IOptionsPageWidget *()>;
     void setWidgetCreator(const WidgetCreator &widgetCreator);
@@ -72,26 +66,22 @@ protected:
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
     void setCategory(Utils::Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
-    void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
     void setCategoryIconPath(const Utils::FilePath &categoryIconPath);
-    void setSettings(Utils::AspectContainer *settings);
-    void setLayouter(const std::function<Layouting::LayoutItem()> &layouter);
-
-    // Used in FontSettingsPage. FIXME?
-    QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
+    void setSettingsProvider(const std::function<Utils::AspectContainer *()> &provider);
 
 private:
     Utils::Id m_id;
     Utils::Id m_category;
     QString m_displayName;
     QString m_displayCategory;
-    Utils::Icon m_categoryIcon;
+    Utils::FilePath m_categoryIconPath;
     WidgetCreator m_widgetCreator;
+    QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
 
     mutable bool m_keywordsInitialized = false;
     mutable QStringList m_keywords;
 
-    Utils::AspectContainer *m_settings = nullptr;
+    std::function<Utils::AspectContainer *()> m_settingsProvider;
 };
 
 /*
@@ -104,7 +94,7 @@ private:
 
 class CORE_EXPORT IOptionsPageProvider
 {
-    Q_DISABLE_COPY_MOVE(IOptionsPageProvider);
+    Q_DISABLE_COPY_MOVE(IOptionsPageProvider)
 
 public:
     IOptionsPageProvider();
@@ -114,7 +104,7 @@ public:
 
     Utils::Id category() const { return m_category; }
     QString displayCategory() const { return m_displayCategory; }
-    QIcon categoryIcon() const;
+    Utils::FilePath categoryIconPath() const { return m_categoryIconPath; }
 
     virtual QList<IOptionsPage *> pages() const = 0;
     virtual bool matches(const QRegularExpression &regexp) const = 0;
@@ -122,20 +112,11 @@ public:
 protected:
     void setCategory(Utils::Id category) { m_category = category; }
     void setDisplayCategory(const QString &displayCategory) { m_displayCategory = displayCategory; }
-    void setCategoryIcon(const Utils::Icon &categoryIcon) { m_categoryIcon = categoryIcon; }
+    void setCategoryIconPath(const Utils::FilePath &iconPath) { m_categoryIconPath = iconPath; }
 
     Utils::Id m_category;
     QString m_displayCategory;
-    Utils::Icon m_categoryIcon;
-};
-
-class CORE_EXPORT PagedSettings : public Utils::AspectContainer, public IOptionsPage
-{
-public:
-    PagedSettings();
-
-    using AspectContainer::readSettings; // FIXME: Remove.
-    void readSettings(); // Intentionally hides AspectContainer::readSettings()
+    Utils::FilePath m_categoryIconPath;
 };
 
 } // namespace Core

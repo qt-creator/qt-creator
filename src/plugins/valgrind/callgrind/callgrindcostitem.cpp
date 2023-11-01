@@ -6,9 +6,7 @@
 #include "callgrindparsedata.h"
 #include "callgrindfunctioncall.h"
 
-#include <QString>
 #include <QStringList>
-#include <QVector>
 
 namespace Valgrind::Callgrind {
 
@@ -18,8 +16,8 @@ public:
     Private(ParseData *data);
     ~Private();
 
-    QVector<quint64> m_positions;
-    QVector<quint64> m_events;
+    QList<quint64> m_positions;
+    QList<quint64> m_events;
     const FunctionCall *m_call = nullptr;
 
     const ParseData *m_data = nullptr;
@@ -60,7 +58,7 @@ void CostItem::setPosition(int posIdx, quint64 position)
     d->m_positions[posIdx] = position;
 }
 
-QVector< quint64 > CostItem::positions() const
+QList<quint64> CostItem::positions() const
 {
     return d->m_positions;
 }
@@ -75,7 +73,7 @@ void CostItem::setCost(int event, quint64 cost)
     d->m_events[event] = cost;
 }
 
-QVector< quint64 > CostItem::costs() const
+QList<quint64> CostItem::costs() const
 {
     return d->m_events;
 }

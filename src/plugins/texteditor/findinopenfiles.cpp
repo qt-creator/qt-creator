@@ -6,13 +6,12 @@
 #include "textdocument.h"
 #include "texteditortr.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/documentmodel.h>
 
-#include <utils/filesearch.h>
+#include <utils/qtcsettings.h>
 
-#include <QSettings>
+using namespace Utils;
 
 namespace TextEditor::Internal {
 
@@ -34,35 +33,25 @@ QString FindInOpenFiles::displayName() const
     return Tr::tr("Open Documents");
 }
 
-Utils::FileIterator *FindInOpenFiles::files(const QStringList &nameFilters,
-                                            const QStringList &exclusionFilters,
-                                            const QVariant &additionalParameters) const
+FileContainerProvider FindInOpenFiles::fileContainerProvider() const
 {
-    Q_UNUSED(nameFilters)
-    Q_UNUSED(exclusionFilters)
-    Q_UNUSED(additionalParameters)
-    QMap<Utils::FilePath, QTextCodec *> openEditorEncodings
-        = TextDocument::openedTextDocumentEncodings();
-    Utils::FilePaths fileNames;
-    QList<QTextCodec *> codecs;
-    const QList<Core::DocumentModel::Entry *> entries = Core::DocumentModel::entries();
-    for (Core::DocumentModel::Entry *entry : entries) {
-        const Utils::FilePath fileName = entry->filePath();
-        if (!fileName.isEmpty()) {
-            fileNames.append(fileName);
-            QTextCodec *codec = openEditorEncodings.value(fileName);
-            if (!codec)
-                codec = Core::EditorManager::defaultTextCodec();
-            codecs.append(codec);
+    return [] {
+        const QMap<FilePath, QTextCodec *> encodings = TextDocument::openedTextDocumentEncodings();
+        FilePaths fileNames;
+        QList<QTextCodec *> codecs;
+        const QList<Core::DocumentModel::Entry *> entries = Core::DocumentModel::entries();
+        for (Core::DocumentModel::Entry *entry : entries) {
+            const FilePath fileName = entry->filePath();
+            if (!fileName.isEmpty()) {
+                fileNames.append(fileName);
+                QTextCodec *codec = encodings.value(fileName);
+                if (!codec)
+                    codec = Core::EditorManager::defaultTextCodec();
+                codecs.append(codec);
+            }
         }
-    }
-
-    return new Utils::FileListIterator(fileNames, codecs);
-}
-
-QVariant FindInOpenFiles::additionalParameters() const
-{
-    return QVariant();
+        return FileListContainer(fileNames, codecs);
+    };
 }
 
 QString FindInOpenFiles::label() const
@@ -81,16 +70,16 @@ bool FindInOpenFiles::isEnabled() const
     return Core::DocumentModel::entryCount() > 0;
 }
 
-void FindInOpenFiles::writeSettings(QSettings *settings)
+void FindInOpenFiles::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInOpenFiles"));
+    settings->beginGroup("FindInOpenFiles");
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void FindInOpenFiles::readSettings(QSettings *settings)
+void FindInOpenFiles::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInOpenFiles"));
+    settings->beginGroup("FindInOpenFiles");
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

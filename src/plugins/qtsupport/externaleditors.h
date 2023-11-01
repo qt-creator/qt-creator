@@ -3,24 +3,25 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/iexternaleditor.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+
+#include <QObject>
 
 namespace QtSupport::Internal {
 
-class DesignerExternalEditor : public Core::IExternalEditor
+class DesignerExternalEditor : public Core::IEditorFactory
 {
 public:
     DesignerExternalEditor();
 
-    bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) final;
+private:
+    QObject m_guard;
 };
 
-class LinguistEditor : public Core::IExternalEditor
+class LinguistEditor : public Core::IEditorFactory
 {
 public:
     LinguistEditor();
-
-    bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) final;
 };
 
 } // QtSupport::Internal

@@ -31,7 +31,6 @@
 #include <QRegularExpression>
 #include <QTextStream>
 #include <QTextCodec>
-#include <QWidget>
 
 using namespace Utils;
 
@@ -82,12 +81,8 @@ void FileUtils::showInGraphicalShell(QWidget *parent, const FilePath &pathIn)
         if (browserArgs.isEmpty()) {
             error = Tr::tr("The command for file browser is not set.");
         } else {
-            QProcess browserProc;
-            browserProc.setProgram(browserArgs.takeFirst());
-            browserProc.setArguments(browserArgs);
-            const bool success = browserProc.startDetached();
-            error = QString::fromLocal8Bit(browserProc.readAllStandardError());
-            if (!success && error.isEmpty())
+            const QString executable = browserArgs.takeFirst();
+            if (!Process::startDetached({FilePath::fromString(executable), browserArgs}))
                 error = Tr::tr("Error while starting file browser.");
         }
         if (!error.isEmpty())
@@ -106,7 +101,7 @@ void FileUtils::showInFileSystemView(const FilePath &path)
 
 void FileUtils::openTerminal(const FilePath &path, const Environment &env)
 {
-    Terminal::Hooks::instance().openTerminal({std::nullopt, path, env});
+    Terminal::Hooks::instance().openTerminal({path, env});
 }
 
 QString FileUtils::msgFindInDirectory()

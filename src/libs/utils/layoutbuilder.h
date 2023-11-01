@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QFormLayout>
 #include <QList>
 #include <QString>
 #include <QtGlobal>
@@ -140,6 +141,12 @@ public:
     Tab(const QString &tabName, const LayoutItem &item);
 };
 
+class QTCREATOR_UTILS_EXPORT If : public LayoutItem
+{
+public:
+    If(bool condition, const LayoutItems &item, const LayoutItems &other = {});
+};
+
 class QTCREATOR_UTILS_EXPORT Group : public LayoutItem
 {
 public:
@@ -168,6 +175,12 @@ class QTCREATOR_UTILS_EXPORT Splitter : public LayoutItem
 {
 public:
     Splitter(std::initializer_list<LayoutItem> items);
+};
+
+class QTCREATOR_UTILS_EXPORT ToolBar : public LayoutItem
+{
+public:
+    ToolBar(std::initializer_list<LayoutItem> items);
 };
 
 class QTCREATOR_UTILS_EXPORT TabWidget : public LayoutItem
@@ -215,6 +228,8 @@ QTCREATOR_UTILS_EXPORT LayoutItem resize(int, int);
 QTCREATOR_UTILS_EXPORT LayoutItem columnStretch(int column, int stretch);
 QTCREATOR_UTILS_EXPORT LayoutItem spacing(int);
 QTCREATOR_UTILS_EXPORT LayoutItem windowTitle(const QString &windowTitle);
+QTCREATOR_UTILS_EXPORT LayoutItem fieldGrowthPolicy(QFormLayout::FieldGrowthPolicy policy);
+
 
 // "Getters"
 

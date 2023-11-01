@@ -31,8 +31,8 @@ public:
     void unregisterDebugServerProvider(IDebugServerProvider *provider);
 
 protected:
-    void fromMap(const QVariantMap &map) final;
-    QVariantMap toMap() const final;
+    void fromMap(const Utils::Store &map) final;
+    Utils::Store toMap() const final;
 
 private:
     BareMetalDevice();

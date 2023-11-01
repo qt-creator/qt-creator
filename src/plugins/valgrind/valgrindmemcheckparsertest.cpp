@@ -3,23 +3,19 @@
 
 #include "valgrindmemcheckparsertest.h"
 
+#include "valgrindprocess.h"
+#include "xmlprotocol/error.h"
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/parser.h"
 #include "xmlprotocol/stack.h"
+#include "xmlprotocol/status.h"
 #include "xmlprotocol/suppression.h"
 
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runcontrol.h>
+#include <utils/processinterface.h>
 
-#include <QFile>
 #include <QFileInfo>
-#include <QProcess>
-#include <QString>
-#include <QTest>
 #include <QTcpServer>
-#include <QTcpSocket>
-#include <QSignalSpy>
+#include <QTest>
 
 using namespace Utils;
 using namespace Valgrind::XmlProtocol;
@@ -28,7 +24,7 @@ QT_BEGIN_NAMESPACE
 namespace QTest {
 
 template<>
-inline bool qCompare(int const &t1, MemcheckErrorKind const &t2,
+inline bool qCompare(int const &t1, MemcheckError const &t2,
                      char const *actual, char const *expected, char const *file, int line)
 {
     return qCompare(t1, int(t2), actual, expected, file, line);
@@ -43,16 +39,9 @@ inline bool qCompare(const QString &t1, char const *t2,
 } // namespace QTest
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace Test {
+namespace Valgrind::Test {
 
-static void dumpFrame(const Frame &f)
-{
-    qDebug() << f.instructionPointer() << f.directory() << f.fileName() << f.functionName()
-             << f.line() << f.object();
-}
-
-void dumpError(const Error &e)
+static void dumpError(const Error &e)
 {
     qDebug() << e.kind() << e.leakedBlocks() << e.leakedBytes() << e.what() << e.tid() << e.unique();
     qDebug() << "stacks:" << e.stacks().size();
@@ -60,15 +49,61 @@ void dumpError(const Error &e)
         qDebug() << s.auxWhat() << s.directory() << s.file() << s.line() << s.helgrindThreadId();
         qDebug() << "frames:";
         for (const Frame &f : s.frames()) {
-            dumpFrame(f);
+            qDebug() << f.instructionPointer() << f.directory() << f.fileName() << f.functionName()
+                     << f.line() << f.object();
         }
     }
 }
 
+class Recorder : public QObject
+{
+public:
+    explicit Recorder(Parser *parser)
+    {
+        connect(parser, &Parser::error, this, [this](const Error &err) { errors.append(err); });
+        connect(parser, &Parser::errorCount, this, [this](qint64 unique, qint64 count) {
+            errorcounts.push_back({unique, count});
+        });
+        connect(parser, &Parser::suppressionCount, this, [this](const QString &name, qint64 count) {
+            suppcounts.push_back({name, count});
+        });
+    }
+
+    QList<Error> errors;
+    QList<QPair<qint64, qint64>> errorcounts;
+    QList<QPair<QString, qint64>> suppcounts;
+};
+
+class RunnerDumper : public QObject
+{
+public:
+    explicit RunnerDumper(ValgrindProcess *runner)
+    {
+        connect(runner, &ValgrindProcess::error, this, [](const Error &err) {
+            qDebug() << "error received";
+            dumpError(err);
+        });
+        connect(runner, &ValgrindProcess::internalError, this, [](const QString &err) {
+            qDebug() << "internal error received:" << err;
+        });
+        connect(runner, &ValgrindProcess::status, this, [](const Status &status) {
+            qDebug() << "status received:" << status.state() << status.time();
+        });
+        connect(runner, &ValgrindProcess::logMessageReceived, this, [](const QByteArray &log) {
+            qDebug() << "log message received:" << log;
+        });
+        connect(runner, &ValgrindProcess::processErrorReceived, this, [this](const QString &) {
+            m_errorReceived = true;
+        });
+    }
+
+    bool m_errorReceived = false;
+};
+
 static QString fakeValgrindExecutable()
 {
-    QString valgrindFakePath(VALGRIND_FAKE_PATH);
-    if (Utils::HostOsInfo::isWindowsHost()) {
+    const QString valgrindFakePath(VALGRIND_FAKE_PATH);
+    if (HostOsInfo::isWindowsHost()) {
         QFileInfo fi(QString(valgrindFakePath + "/debug"), "valgrind-fake.exe");
         if (fi.exists())
             return fi.canonicalFilePath();
@@ -94,12 +129,12 @@ static QString extraDataFile(const QString &file)
     // Clone test data from: https://git.qt.io/chstenge/creator-test-data
     static QString prefix = qtcEnvironmentVariable("QTC_TEST_EXTRADATALOCATION");
     if (prefix.isEmpty())
-        return QString();
+        return {};
 
-    QFileInfo fi(QString(prefix + "/valgrind"), file);
+    const QFileInfo fi(QString(prefix + "/valgrind"), file);
     if (fi.exists())
         return fi.canonicalFilePath();
-    return QString();
+    return {};
 }
 
 void ValgrindMemcheckParserTest::initTestCase()
@@ -112,36 +147,30 @@ void ValgrindMemcheckParserTest::initTest(const QString &testfile, const QString
 {
     QVERIFY(!m_server->hasPendingConnections());
 
-    m_process = new QProcess(m_server);
+    m_process.reset(new Process);
     m_process->setProcessChannelMode(QProcess::ForwardedChannels);
     const QString fakeValgrind = fakeValgrindExecutable();
-    QFileInfo fileInfo(fakeValgrind);
+    const QFileInfo fileInfo(fakeValgrind);
     QVERIFY2(fileInfo.isExecutable(), qPrintable(fakeValgrind));
     QVERIFY2(!fileInfo.isDir(), qPrintable(fakeValgrind));
 
-    m_process->start(
-        fakeValgrind,
-        QStringList({QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()), "-i",
-                     testfile}) << otherArgs);
+    const QStringList args = {QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()),
+                              "-i", testfile};
+    m_process->setCommand({FilePath::fromString(fakeValgrind), args + otherArgs});
+    m_process->start();
 
     QVERIFY(m_process->waitForStarted(5000));
     QCOMPARE(m_process->state(), QProcess::Running);
     QVERIFY2(m_process->error() == QProcess::UnknownError, qPrintable(m_process->errorString()));
     QVERIFY(m_server->waitForNewConnection(5000));
-    m_socket = m_server->nextPendingConnection();
+    m_socket.reset(m_server->nextPendingConnection());
     QVERIFY(m_socket);
 }
 
 void ValgrindMemcheckParserTest::cleanup()
 {
-    if (m_socket) {
-        delete m_socket;
-        m_socket = nullptr;
-    }
-    if (m_process) {
-        delete m_process;
-        m_process = nullptr;
-    }
+    m_socket.reset();
+    m_process.reset();
 }
 
 void ValgrindMemcheckParserTest::testHelgrindSample1()
@@ -175,7 +204,7 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
         frame12.setDirectory("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread");
         frame12.setFileName("qmutex.h");
         frame12.setLine(120);
-        stack1.setFrames(QVector<Frame>() << frame11 << frame12);
+        stack1.setFrames({frame11, frame12});
 
         Stack stack2;
         stack2.setAuxWhat("Required order was established by acquisition of lock at 0xA39C270");
@@ -193,7 +222,7 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
         frame22.setDirectory("/home/frank/source/tarballs/qt-4.6.3-build/src/corelib/../../include/QtCore/../../src/corelib/thread");
         frame22.setFileName("qmutex.h");
         frame22.setLine(121);
-        stack2.setFrames(QVector<Frame>() << frame21 << frame22);
+        stack2.setFrames({frame21, frame22});
 
         Stack stack3;
         stack3.setAuxWhat("followed by a later acquisition of lock at 0xA3AC010");
@@ -212,15 +241,16 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
         frame32.setFileName("qmutex.h");
         frame32.setLine(122);
 
-        stack3.setFrames(QVector<Frame>() << frame31 << frame32);
-        error1.setStacks(QVector<Stack>() << stack1 << stack2 << stack3);
+        stack3.setFrames({frame31, frame32});
+        error1.setStacks({stack1, stack2, stack3});
         expectedErrors.append(error1);
     }
 
     Parser parser;
     Recorder rec(&parser);
 
-    parser.parse(m_socket);
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -228,7 +258,7 @@ void ValgrindMemcheckParserTest::testHelgrindSample1()
 
     QVERIFY2(parser.errorString().isEmpty(), qPrintable(parser.errorString()));
     const QList<Error> actualErrors = rec.errors;
-
+    QVERIFY(!actualErrors.isEmpty());
     if (actualErrors.first() != expectedErrors.first()) {
         dumpError(actualErrors.first());
         dumpError(expectedErrors.first());
@@ -279,14 +309,14 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
         f4.setLine(4396);
         Stack s1;
         s1.setAuxWhat("Address 0x11527cb8 is not stack'd, malloc'd or (recently) free'd");
-        s1.setFrames(QVector<Frame>() << f1 << f2 << f3 << f4);
-        error.setStacks( QVector<Stack>() << s1 );
+        s1.setFrames({f1, f2, f3, f4});
+        error.setStacks({s1});
 
         expectedErrors << error;
     }
 
-    const QVector<QPair<qint64,qint64>> expectedErrorCounts{{9, 2}};
-    const QVector<QPair<QString,qint64>> expectedSuppCounts{
+    const QList<QPair<qint64, qint64>> expectedErrorCounts{{9, 2}};
+    const QList<QPair<QString, qint64>> expectedSuppCounts{
         {QString("X on SUSE11 writev uninit padding"), 12},
         {QString("dl-hack3-cond-1"), 2},
         {QString("glibc-2.5.x-on-SUSE-10.2-(PPC)-2a"), 2}};
@@ -294,7 +324,8 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
     Parser parser;
     Recorder rec(&parser);
 
-    parser.parse(m_socket);
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -302,7 +333,7 @@ void ValgrindMemcheckParserTest::testMemcheckSample1()
 
     QVERIFY2(parser.errorString().isEmpty(), qPrintable(parser.errorString()));
     const QList<Error> actualErrors = rec.errors;
-
+    QVERIFY(!actualErrors.isEmpty());
     if (actualErrors.first() != expectedErrors.first()) {
         dumpError(actualErrors.first());
         dumpError(expectedErrors.first());
@@ -327,7 +358,8 @@ void ValgrindMemcheckParserTest::testMemcheckSample2()
     Parser parser;
     Recorder rec(&parser);
 
-    parser.parse(m_socket);
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -338,7 +370,7 @@ void ValgrindMemcheckParserTest::testMemcheckSample2()
     //the first auxwhat should be assigned to the _second_ stack.
     const QList<Error> errors = rec.errors;
     QCOMPARE(errors.size(), 1);
-    const QVector<Stack> stacks = errors.first().stacks();
+    const QList<Stack> stacks = errors.first().stacks();
     QCOMPARE(stacks.size(), 2);
     QCOMPARE(stacks.first().auxWhat(), QString());
     QCOMPARE(stacks.last().auxWhat(), "Address 0x11b66c50 is 0 bytes inside a block of size 16 free'd");
@@ -355,7 +387,8 @@ void ValgrindMemcheckParserTest::testMemcheckSample3()
     Parser parser;
     Recorder rec(&parser);
 
-    parser.parse(m_socket);
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -367,7 +400,7 @@ void ValgrindMemcheckParserTest::testMemcheckSample3()
 
     {
         const Error error = errors.at(0);
-        const QVector<Stack> stacks = error.stacks();
+        const QList<Stack> stacks = error.stacks();
 
         QCOMPARE(error.unique(), 0x1ll);
         QCOMPARE(error.what(), "Conditional jump or move depends on uninitialised value(s)");
@@ -410,7 +443,8 @@ void ValgrindMemcheckParserTest::testMemcheckCharm()
     Parser parser;
     Recorder rec(&parser);
 
-    parser.parse(m_socket);
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
 
     m_process->waitForFinished();
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -426,14 +460,13 @@ void ValgrindMemcheckParserTest::testValgrindCrash()
     initTest(dataFile("memcheck-output-sample1.xml"), QStringList("--crash"));
 
     Parser parser;
-    parser.parse(m_socket);
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
     m_process->waitForFinished();
     QCOMPARE(m_process->state(), QProcess::NotRunning);
     QCOMPARE(m_process->exitStatus(), QProcess::CrashExit);
 
     QVERIFY(!parser.errorString().isEmpty());
-    QCOMPARE(m_socket->error(), QAbstractSocket::RemoteHostClosedError);
-    QCOMPARE(parser.errorString(), m_socket->errorString());
 }
 
 void ValgrindMemcheckParserTest::testValgrindGarbage()
@@ -441,7 +474,8 @@ void ValgrindMemcheckParserTest::testValgrindGarbage()
     initTest(dataFile("memcheck-output-sample1.xml"), QStringList("--garbage"));
 
     Parser parser;
-    parser.parse(m_socket);
+    parser.setSocket(m_socket.release());
+    parser.runBlocking();
     m_process->waitForFinished();
     QCOMPARE(m_process->state(), QProcess::NotRunning);
     QCOMPARE(m_process->exitStatus(), QProcess::NormalExit);
@@ -452,7 +486,7 @@ void ValgrindMemcheckParserTest::testValgrindGarbage()
 
 void ValgrindMemcheckParserTest::testParserStop()
 {
-    ValgrindRunner runner;
+    ValgrindProcess runner;
     runner.setValgrindCommand({FilePath::fromString(fakeValgrindExecutable()),
                                {QString("--xml-socket=127.0.0.1:%1").arg(m_server->serverPort()),
                                 "-i", dataFile("memcheck-output-sample1.xml"), "--wait", "5" }});
@@ -465,22 +499,22 @@ void ValgrindMemcheckParserTest::testParserStop()
 
 void ValgrindMemcheckParserTest::testRealValgrind()
 {
-    const Utils::Environment &sysEnv = Utils::Environment::systemEnvironment();
-    auto fileName = sysEnv.searchInPath("valgrind");
+    const Environment &sysEnv = Environment::systemEnvironment();
+    const auto fileName = sysEnv.searchInPath("valgrind");
     if (fileName.isEmpty())
         QSKIP("This test needs valgrind in PATH");
-    QString executable = QProcessEnvironment::systemEnvironment().value("VALGRIND_TEST_BIN", fakeValgrindExecutable());
+    QString executable = QProcessEnvironment::systemEnvironment().value("VALGRIND_TEST_BIN",
+                                                                        fakeValgrindExecutable());
     qDebug() << "running exe:" << executable << " HINT: set VALGRIND_TEST_BIN to change this";
 
-    ProjectExplorer::Runnable debuggee;
+    ProcessRunData debuggee;
     debuggee.command.setExecutable(FilePath::fromString(executable));
     debuggee.environment = sysEnv;
-    ValgrindRunner runner;
+    ValgrindProcess runner;
     runner.setValgrindCommand({"valgrind", {}});
     runner.setDebuggee(debuggee);
     RunnerDumper dumper(&runner);
-    runner.start();
-    runner.waitForFinished();
+    runner.runBlocking();
 }
 
 void ValgrindMemcheckParserTest::testValgrindStartError_data()
@@ -507,20 +541,18 @@ void ValgrindMemcheckParserTest::testValgrindStartError()
     QFETCH(QString, debuggee);
     QFETCH(QString, debuggeeArgs);
 
-    ProjectExplorer::Runnable debuggeeExecutable;
+    ProcessRunData debuggeeExecutable;
     debuggeeExecutable.command.setExecutable(FilePath::fromString(debuggee));
     debuggeeExecutable.command.setArguments(debuggeeArgs);
-    debuggeeExecutable.environment = Utils::Environment::systemEnvironment();
+    debuggeeExecutable.environment = Environment::systemEnvironment();
 
-    ValgrindRunner runner;
+    ValgrindProcess runner;
     runner.setValgrindCommand({FilePath::fromString(valgrindExe), valgrindArgs});
     runner.setDebuggee(debuggeeExecutable);
     RunnerDumper dumper(&runner);
-    runner.start();
-    runner.waitForFinished();
+    runner.runBlocking();
     QVERIFY(dumper.m_errorReceived);
     // just finish without deadlock and we are fine
 }
 
-} // namespace Test
-} // namespace Valgrind
+} // namespace Valgrind::Test

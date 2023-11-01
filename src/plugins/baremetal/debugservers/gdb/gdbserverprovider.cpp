@@ -120,15 +120,14 @@ bool GdbServerProvider::operator==(const IDebugServerProvider &other) const
             && m_useExtendedRemote == p->m_useExtendedRemote;
 }
 
-QVariantMap GdbServerProvider::toMap() const
+void GdbServerProvider::toMap(Store &data) const
 {
-    QVariantMap data = IDebugServerProvider::toMap();
+    IDebugServerProvider::toMap(data);
     data.insert(startupModeKeyC, m_startupMode);
     data.insert(peripheralDescriptionFileKeyC, m_peripheralDescriptionFile.toSettings());
     data.insert(initCommandsKeyC, m_initCommands);
     data.insert(resetCommandsKeyC, m_resetCommands);
     data.insert(useExtendedRemoteKeyC, m_useExtendedRemote);
-    return data;
 }
 
 bool GdbServerProvider::isValid() const
@@ -136,8 +135,7 @@ bool GdbServerProvider::isValid() const
     return !channelString().isEmpty();
 }
 
-bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
-                                   QString &errorMessage) const
+bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessage) const
 {
     QTC_ASSERT(runTool, return false);
     const RunControl *runControl = runTool->runControl();
@@ -155,7 +153,7 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool,
         return false;
     }
 
-    Runnable inferior;
+    ProcessRunData inferior;
     inferior.command.setExecutable(bin);
     if (const auto argAspect = runControl->aspect<ArgumentsAspect>())
         inferior.command.setArguments(argAspect->arguments);
@@ -181,17 +179,14 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
     return new GdbServerProviderRunner(runControl, command());
 }
 
-bool GdbServerProvider::fromMap(const QVariantMap &data)
+void GdbServerProvider::fromMap(const Store &data)
 {
-    if (!IDebugServerProvider::fromMap(data))
-        return false;
-
+    IDebugServerProvider::fromMap(data);
     m_startupMode = static_cast<StartupMode>(data.value(startupModeKeyC).toInt());
     m_peripheralDescriptionFile = FilePath::fromSettings(data.value(peripheralDescriptionFileKeyC));
     m_initCommands = data.value(initCommandsKeyC).toString();
     m_resetCommands = data.value(resetCommandsKeyC).toString();
     m_useExtendedRemote = data.value(useExtendedRemoteKeyC).toBool();
-    return true;
 }
 
 // GdbServerProviderConfigWidget

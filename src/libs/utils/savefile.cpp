@@ -111,7 +111,7 @@ bool SaveFile::commit()
     if (!result) {
         DWORD replaceErrorCode = GetLastError();
         QString errorStr;
-        if (!QFile::exists(finalFileName)) {
+        if (!QFileInfo::exists(finalFileName)) {
             // Replace failed because finalFileName does not exist, try rename.
             if (!(result = rename(finalFileName)))
                 errorStr = errorString();
@@ -148,7 +148,7 @@ bool SaveFile::commit()
 
     // Back up current file.
     // If it's opened by another application, the lock follows the move.
-    if (QFile::exists(finalFileName)) {
+    if (QFileInfo::exists(finalFileName)) {
         // Kill old backup. Might be useful if creator crashed before removing backup.
         QFile::remove(backupName);
         QFile finalFile(finalFileName);

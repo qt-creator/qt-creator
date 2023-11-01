@@ -3,29 +3,21 @@
 
 #include "callgrindtool.h"
 
+#include "callgrind/callgrindcallmodel.h"
+#include "callgrind/callgrinddatamodel.h"
+#include "callgrind/callgrindfunction.h"
+#include "callgrind/callgrindfunctioncall.h"
+#include "callgrind/callgrindparsedata.h"
+#include "callgrind/callgrindparser.h"
+#include "callgrind/callgrindproxymodel.h"
+#include "callgrind/callgrindstackbrowser.h"
 #include "callgrindcostdelegate.h"
 #include "callgrindcostview.h"
 #include "callgrindengine.h"
 #include "callgrindtextmark.h"
 #include "callgrindvisualisation.h"
+#include "valgrindsettings.h"
 #include "valgrindtr.h"
-
-#include <valgrind/callgrind/callgrindcallmodel.h>
-#include <valgrind/callgrind/callgrindcostitem.h>
-#include <valgrind/callgrind/callgrinddatamodel.h>
-#include <valgrind/callgrind/callgrindfunction.h>
-#include <valgrind/callgrind/callgrindfunctioncall.h>
-#include <valgrind/callgrind/callgrindparsedata.h>
-#include <valgrind/callgrind/callgrindparser.h>
-#include <valgrind/callgrind/callgrindproxymodel.h>
-#include <valgrind/callgrind/callgrindstackbrowser.h>
-#include <valgrind/valgrindsettings.h>
-
-#include <debugger/debuggerconstants.h>
-#include <debugger/analyzer/analyzerconstants.h>
-#include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/analyzerutils.h>
-#include <debugger/analyzer/startremotedialog.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -39,10 +31,10 @@
 
 #include <cppeditor/cppeditorconstants.h>
 
-#include <extensionsystem/pluginmanager.h>
-
-#include <texteditor/texteditor.h>
-#include <texteditor/textdocument.h>
+#include <debugger/debuggerconstants.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/analyzerutils.h>
+#include <debugger/analyzer/startremotedialog.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -51,23 +43,22 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/taskhub.h>
 
-#include <utils/fancymainwindow.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
+
 #include <utils/process.h>
 #include <utils/qtcassert.h>
-#include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
 #include <QActionGroup>
 #include <QComboBox>
 #include <QFile>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QLineEdit>
 #include <QMenu>
 #include <QSortFilterProxyModel>
 #include <QTimer>
-#include <QToolBar>
 #include <QToolButton>
 
 using namespace Debugger;
@@ -187,7 +178,7 @@ public:
 
     QTimer m_updateTimer;
 
-    QVector<CallgrindTextMark *> m_textMarks;
+    QList<CallgrindTextMark *> m_textMarks;
 
     QAction *m_startAction = nullptr;
     QAction *m_stopAction = nullptr;
@@ -290,7 +281,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
         cmd->setAttribute(Command::CA_NonConfigurable);
     }
 
-    QSettings *coreSettings = ICore::settings();
+    QtcSettings *coreSettings = ICore::settings();
 
     //
     // DockWidgets
@@ -342,8 +333,6 @@ CallgrindToolPrivate::CallgrindToolPrivate()
 
     updateCostFormat();
 
-    ValgrindGlobalSettings *settings = ValgrindGlobalSettings::instance();
-
     //
     // Control Widget
     //
@@ -360,8 +349,8 @@ CallgrindToolPrivate::CallgrindToolPrivate()
                                         Theme::IconsBaseColor}});
     action->setIcon(kCachegrindIcon.icon());
     action->setToolTip(Tr::tr("Open results in KCachegrind."));
-    connect(action, &QAction::triggered, this, [this, settings] {
-        Process::startDetached({FilePath::fromString(settings->kcachegrindExecutable.value()), { m_lastFileName }});
+    connect(action, &QAction::triggered, this, [this] {
+        Process::startDetached({globalSettings().kcachegrindExecutable(), { m_lastFileName }});
     });
 
     // dump action
@@ -468,7 +457,7 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     }
 
     // Filtering
-    action = m_filterProjectCosts = settings->filterExternalIssues.action();
+    action = m_filterProjectCosts = globalSettings().filterExternalIssues.action();
     connect(action, &QAction::toggled, this, &CallgrindToolPrivate::handleFilterProjectCosts);
 
     // Filter
@@ -477,10 +466,10 @@ CallgrindToolPrivate::CallgrindToolPrivate()
     connect(m_searchFilter, &QLineEdit::textChanged,
             &m_updateTimer, QOverload<>::of(&QTimer::start));
 
-    setCostFormat(CostDelegate::CostFormat(settings->costFormat.value()));
+    setCostFormat(CostDelegate::CostFormat(globalSettings().costFormat()));
 
-    m_perspective.addToolBarAction(settings->detectCycles.action());
-    m_perspective.addToolBarAction(settings->shortenTemplates.action());
+    m_perspective.addToolBarAction(globalSettings().detectCycles.action());
+    m_perspective.addToolBarAction(globalSettings().shortenTemplates.action());
     m_perspective.addToolBarAction(m_filterProjectCosts);
     m_perspective.addToolBarWidget(m_searchFilter);
 
@@ -625,8 +614,7 @@ void CallgrindToolPrivate::updateCostFormat()
         m_calleesView->setCostFormat(format);
         m_callersView->setCostFormat(format);
     }
-    if (ValgrindGlobalSettings *settings = ValgrindGlobalSettings::instance())
-        settings->costFormat.setValue(format);
+    globalSettings().costFormat.setValue(format);
 }
 
 void CallgrindToolPrivate::handleFilterProjectCosts()
@@ -745,11 +733,11 @@ void CallgrindToolPrivate::setupRunner(CallgrindToolRunner *toolRunner)
     QTC_ASSERT(m_visualization, return);
 
     // apply project settings
-    ValgrindProjectSettings settings;
+    ValgrindSettings settings{false};
     settings.fromMap(runControl->settingsData(ANALYZER_VALGRIND_SETTINGS));
-    m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio.value() / 100.0);
-    m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio.value() / 100.0);
-    m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips.value());
+    m_visualization->setMinimumInclusiveCostRatio(settings.visualizationMinimumInclusiveCostRatio() / 100.0);
+    m_proxyModel.setMinimumInclusiveCostRatio(settings.minimumInclusiveCostRatio() / 100.0);
+    m_dataModel.setVerboseToolTipsEnabled(settings.enableEventToolTips());
 
     m_toolBusy = true;
     updateRunActions();
@@ -770,10 +758,10 @@ void CallgrindToolPrivate::updateRunActions()
         m_startAction->setToolTip(Tr::tr("A Valgrind Callgrind analysis is still in progress."));
         m_stopAction->setEnabled(true);
     } else {
-        QString whyNot = Tr::tr("Start a Valgrind Callgrind analysis.");
-        bool canRun = ProjectExplorerPlugin::canRunStartupProject(CALLGRIND_RUN_MODE, &whyNot);
-        m_startAction->setToolTip(whyNot);
-        m_startAction->setEnabled(canRun);
+        const auto canRun = ProjectExplorerPlugin::canRunStartupProject(CALLGRIND_RUN_MODE);
+        m_startAction->setToolTip(canRun ? Tr::tr("Start a Valgrind Callgrind analysis.")
+                                         : canRun.error());
+        m_startAction->setEnabled(bool(canRun));
         m_stopAction->setEnabled(false);
     }
 }
@@ -908,10 +896,9 @@ void CallgrindToolPrivate::takeParserData(ParseData *data)
     doClear(true);
 
     setParseData(data);
-    const QString kcachegrindExecutable =
-            ValgrindGlobalSettings::instance()->kcachegrindExecutable.value();
-    const bool kcachegrindExists = !Utils::Environment::systemEnvironment().searchInPath(
-                kcachegrindExecutable).isEmpty();
+    const FilePath kcachegrindExecutable = globalSettings().kcachegrindExecutable();
+    const FilePath found = kcachegrindExecutable.searchInPath();
+    const bool kcachegrindExists = found.isExecutableFile();
     m_startKCachegrind->setEnabled(kcachegrindExists && !m_lastFileName.isEmpty());
     createTextMarks();
 }

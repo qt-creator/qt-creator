@@ -387,14 +387,14 @@ Utils::FilePath PluginDumper::buildQmltypesPath(const QString &name) const
                                                      m_modelManager->importPathsNames());
 
     if (paths.isEmpty())
-        return Utils::FilePath();
+        return {};
 
     for (const Utils::FilePath &path : paths) {
         auto qmltypes = path.dirEntries(FileFilter(QStringList{"*.qmltypes"}, QDir::Files));
         if (!qmltypes.isEmpty())
             return qmltypes.first();
     }
-    return Utils::FilePath();
+    return {};
 }
 
 /*!

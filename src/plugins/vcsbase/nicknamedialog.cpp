@@ -215,7 +215,7 @@ QString NickNameDialog::nickName() const
         if (const QStandardItem *item = m_model->itemFromIndex(sourceIndex))
             return NickNameEntry::nickNameOf(item);
     }
-    return QString();
+    return {};
 }
 
 QStandardItemModel *NickNameDialog::createModel(QObject *parent)

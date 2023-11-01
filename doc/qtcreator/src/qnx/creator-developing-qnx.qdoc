@@ -11,7 +11,7 @@
 
     You can connect QNX devices to the development PC to deploy, run and debug
     applications on them from within \QC. The QNX Neutrino RTOS has additional
-    command line tools and services, as described in \l {Qt for QNX}.
+    command-line tools and services, as described in \l {Qt for QNX}.
 
     \note In Qt 6, \QC support for QNX is considered experimental.
 
@@ -22,10 +22,11 @@
     you need to select \uicontrol {QNX Device} in the
     \uicontrol {Device Configuration} wizard.
 
-    \section1 Adding Kits for QNX Devices
+    \section1 Add kits for QNX Devices
 
-    To view QNX device settings, select \uicontrol Edit > \uicontrol Preferences >
+    To view QNX device settings, select \preferences >
     \uicontrol Devices > \uicontrol QNX. Select the \uicontrol {Generate kits}
-    check box to allow \QC to generate kits for QNX development. For more
-    information about how to create the kits manually, see \l {Adding Kits}.
+    check box to allow \QC to generate kits for QNX development.
+
+    \sa {Add kits}
 */

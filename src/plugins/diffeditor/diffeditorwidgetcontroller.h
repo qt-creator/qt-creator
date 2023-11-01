@@ -12,7 +12,9 @@
 #include <QTextCharFormat>
 #include <QTimer>
 
-QT_FORWARD_DECLARE_CLASS(QMenu)
+QT_BEGIN_NAMESPACE
+class QMenu;
+QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
 namespace TextEditor { class FontSettings; }

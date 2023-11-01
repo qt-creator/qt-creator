@@ -1642,8 +1642,6 @@ void CppCodeModelInspectorDialog::onWorkingCopyDocumentSelected(const QModelInde
 
 void CppCodeModelInspectorDialog::refresh()
 {
-    CppModelManager *cmmi = CppModelManager::instance();
-
     const int oldSnapshotIndex = m_snapshotSelector->currentIndex();
     const bool selectEditorRelevant
         = m_selectEditorRelevantEntriesAfterRefreshCheckBox->isChecked();
@@ -1652,7 +1650,7 @@ void CppCodeModelInspectorDialog::refresh()
     m_snapshotInfos->clear();
     m_snapshotSelector->clear();
 
-    const Snapshot globalSnapshot = cmmi->snapshot();
+    const Snapshot globalSnapshot = CppModelManager::snapshot();
     CppCodeModelInspector::Dumper dumper(globalSnapshot);
     m_snapshotModel->setGlobalSnapshot(globalSnapshot);
 
@@ -1666,7 +1664,7 @@ void CppCodeModelInspectorDialog::refresh()
     CppEditorDocumentHandle *cppEditorDocument = nullptr;
     if (editor) {
         const FilePath editorFilePath = editor->document()->filePath();
-        cppEditorDocument = cmmi->cppEditorDocument(editorFilePath);
+        cppEditorDocument = CppModelManager::cppEditorDocument(editorFilePath);
         if (auto documentProcessor = CppModelManager::cppEditorDocumentProcessor(editorFilePath)) {
             const Snapshot editorSnapshot = documentProcessor->snapshot();
             m_snapshotInfos->append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
@@ -1721,7 +1719,7 @@ void CppCodeModelInspectorDialog::refresh()
         ? cppEditorDocument->processor()->parser()->projectPartInfo().projectPart
         : ProjectPart::ConstPtr();
 
-    const QList<ProjectInfo::ConstPtr> projectInfos = cmmi->projectInfos();
+    const QList<ProjectInfo::ConstPtr> projectInfos = CppModelManager::projectInfos();
     dumper.dumpProjectInfos(projectInfos);
     m_projectPartsModel->configure(projectInfos, editorsProjectPart);
     m_projectPartsView->resizeColumns(ProjectPartsModel::ColumnCount);
@@ -1737,7 +1735,7 @@ void CppCodeModelInspectorDialog::refresh()
     }
 
     // Working Copy
-    const WorkingCopy workingCopy = cmmi->workingCopy();
+    const WorkingCopy workingCopy = CppModelManager::workingCopy();
     dumper.dumpWorkingCopy(workingCopy);
     m_workingCopyModel->configure(workingCopy);
     m_workingCopyView->resizeColumns(WorkingCopyModel::ColumnCount);
@@ -1752,8 +1750,8 @@ void CppCodeModelInspectorDialog::refresh()
     }
 
     // Merged entities
-    dumper.dumpMergedEntities(cmmi->headerPaths(),
-                              ProjectExplorer::Macro::toByteArray(cmmi->definedMacros()));
+    dumper.dumpMergedEntities(CppModelManager::headerPaths(),
+                              ProjectExplorer::Macro::toByteArray(CppModelManager::definedMacros()));
 }
 
 enum DocumentTabs {

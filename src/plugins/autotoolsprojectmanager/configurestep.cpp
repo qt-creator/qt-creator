@@ -13,6 +13,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
+#include <utils/process.h>
 
 #include <QDateTime>
 
@@ -37,71 +38,69 @@ namespace AutotoolsProjectManager::Internal {
 class ConfigureStep final : public AbstractProcessStep
 {
 public:
-    ConfigureStep(BuildStepList *bsl, Id id);
+    ConfigureStep(BuildStepList *bsl, Id id)
+        : AbstractProcessStep(bsl, id)
+    {
+        arguments.setDisplayStyle(StringAspect::LineEditDisplay);
+        arguments.setSettingsKey("AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
+        arguments.setLabelText(Tr::tr("Arguments:"));
+        arguments.setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
 
-    void setAdditionalArguments(const QString &list);
+        connect(&arguments, &BaseAspect::changed, this, [this] {
+            m_runConfigure = true;
+        });
+
+        setCommandLineProvider([this] {
+            return getCommandLine(arguments());
+        });
+
+        setSummaryUpdater([this] {
+            ProcessParameters param;
+            setupProcessParameters(&param);
+
+            return param.summaryInWorkdir(displayName());
+        });
+    }
 
 private:
-    void doRun() final;
+    Tasking::GroupItem runRecipe() final;
 
-    CommandLine getCommandLine(const QString &arguments);
+    CommandLine getCommandLine(const QString &arguments)
+    {
+        return {project()->projectDirectory() / "configure", arguments, CommandLine::Raw};
+    }
 
     bool m_runConfigure = false;
+    StringAspect arguments{this};
 };
 
-ConfigureStep::ConfigureStep(BuildStepList *bsl, Id id)
-    : AbstractProcessStep(bsl, id)
+Tasking::GroupItem ConfigureStep::runRecipe()
 {
-    auto arguments = addAspect<StringAspect>();
-    arguments->setDisplayStyle(StringAspect::LineEditDisplay);
-    arguments->setSettingsKey("AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
-    arguments->setLabelText(Tr::tr("Arguments:"));
-    arguments->setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
+    using namespace Tasking;
 
-    connect(arguments, &BaseAspect::changed, this, [this] {
-        m_runConfigure = true;
-    });
+    const auto onSetup = [this] {
+        // Check whether we need to run configure
+        const FilePath configure = project()->projectDirectory() / "configure";
+        const FilePath configStatus = buildDirectory() / "config.status";
 
-    setCommandLineProvider([this, arguments] {
-        return getCommandLine(arguments->value());
-    });
+        if (!configStatus.exists() || configStatus.lastModified() < configure.lastModified())
+            m_runConfigure = true;
 
-    setSummaryUpdater([this] {
-        ProcessParameters param;
-        setupProcessParameters(&param);
+        if (!m_runConfigure) {
+            emit addOutput(Tr::tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
+            return SetupResult::StopWithDone;
+        }
 
-        return param.summaryInWorkdir(displayName());
-    });
-}
+        ProcessParameters *param = processParameters();
+        if (!param->effectiveCommand().exists()) {
+            param->setCommandLine(getCommandLine(param->command().arguments()));
+            setSummaryText(param->summaryInWorkdir(displayName()));
+        }
+        return SetupResult::Continue;
+    };
+    const auto onDone = [this] { m_runConfigure = false; };
 
-CommandLine ConfigureStep::getCommandLine(const QString &arguments)
-{
-    return {project()->projectDirectory() / "configure", arguments, CommandLine::Raw};
-}
-
-void ConfigureStep::doRun()
-{
-    // Check whether we need to run configure
-    const FilePath configure = project()->projectDirectory() / "configure";
-    const FilePath configStatus = buildDirectory() / "config.status";
-
-    if (!configStatus.exists() || configStatus.lastModified() < configure.lastModified())
-        m_runConfigure = true;
-
-    if (!m_runConfigure) {
-        emit addOutput(Tr::tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
-        emit finished(true);
-        return;
-    }
-
-    ProcessParameters *param = processParameters();
-    if (!param->effectiveCommand().exists()) {
-        param->setCommandLine(getCommandLine(param->command().arguments()));
-        setSummaryText(param->summaryInWorkdir(displayName()));
-    }
-
-    m_runConfigure = false;
-    AbstractProcessStep::doRun();
+    return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
 }
 
 // ConfigureStepFactory

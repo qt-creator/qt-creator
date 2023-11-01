@@ -3,20 +3,29 @@
 
 #include "mesonbuildsystem.h"
 
-#include "kithelper.h"
-#include "machinefilemanager.h"
+#include "kitdata.h"
 #include "mesonbuildconfiguration.h"
 #include "mesonprojectmanagertr.h"
 #include "mesontoolkitaspect.h"
 #include "settings.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchain.h>
 
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
-#include <QDir>
+#include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
+
+#include <optional>
+
 #include <QLoggingCategory>
 
 #define LEAVE_IF_BUSY() \
@@ -37,16 +46,174 @@
     };
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
+
 static Q_LOGGING_CATEGORY(mesonBuildSystemLog, "qtc.meson.buildsystem", QtWarningMsg);
 
-MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
-    : ProjectExplorer::BuildSystem{bc}
-    , m_parser{MesonToolKitAspect::mesonToolId(bc->kit()), bc->environment(), project()}
+const char MACHINE_FILE_PREFIX[] = "Meson-MachineFile-";
+const char MACHINE_FILE_EXT[] = ".ini";
+
+static KitData createKitData(const Kit *kit)
 {
-    init();
+    QTC_ASSERT(kit, return {});
+
+    MacroExpander *expander = kit->macroExpander();
+
+    KitData data;
+    data.cCompilerPath = expander->expand(QString("%{Compiler:Executable:C}"));
+    data.cxxCompilerPath = expander->expand(QString("%{Compiler:Executable:Cxx}"));
+    data.cmakePath = expander->expand(QString("%{CMake:Executable:FilePath}"));
+    data.qmakePath = expander->expand(QString("%{Qt:qmakeExecutable}"));
+    data.qtVersionStr = expander->expand(QString("%{Qt:Version}"));
+    data.qtVersion = Utils::QtMajorVersion::None;
+    auto version = Version::fromString(data.qtVersionStr);
+    if (version.isValid) {
+        switch (version.major) {
+        case 4:
+            data.qtVersion = Utils::QtMajorVersion::Qt4;
+            break;
+        case 5:
+            data.qtVersion = Utils::QtMajorVersion::Qt5;
+            break;
+        case 6:
+            data.qtVersion = Utils::QtMajorVersion::Qt6;
+            break;
+        default:
+            data.qtVersion = Utils::QtMajorVersion::Unknown;
+        }
+    }
+    return data;
+}
+
+static FilePath machineFilesDir()
+{
+    return Core::ICore::userResourcePath("Meson-machine-files");
+}
+
+FilePath MachineFileManager::machineFile(const Kit *kit)
+{
+    QTC_ASSERT(kit, return {});
+    auto baseName
+        = QString("%1%2%3").arg(MACHINE_FILE_PREFIX).arg(kit->id().toString()).arg(MACHINE_FILE_EXT);
+    baseName = baseName.remove('{').remove('}');
+    return machineFilesDir().pathAppended(baseName);
+}
+
+MachineFileManager::MachineFileManager()
+{
+    connect(KitManager::instance(), &KitManager::kitAdded,
+            this, &MachineFileManager::addMachineFile);
+    connect(KitManager::instance(), &KitManager::kitUpdated,
+            this, &MachineFileManager::updateMachineFile);
+    connect(KitManager::instance(), &KitManager::kitRemoved,
+            this, &MachineFileManager::removeMachineFile);
+    connect(KitManager::instance(), &KitManager::kitsLoaded,
+            this, &MachineFileManager::cleanupMachineFiles);
+}
+
+void MachineFileManager::addMachineFile(const Kit *kit)
+{
+    FilePath filePath = machineFile(kit);
+    QTC_ASSERT(!filePath.isEmpty(), return );
+    auto kitData = createKitData(kit);
+
+    auto entry = [](const QString &key, const QString &value) {
+        return QString("%1 = '%2'\n").arg(key).arg(value).toUtf8();
+    };
+
+    QByteArray ba = "[binaries]\n";
+    ba += entry("c", kitData.cCompilerPath);
+    ba += entry("cpp", kitData.cxxCompilerPath);
+    ba += entry("qmake", kitData.qmakePath);
+    if (kitData.qtVersion == QtMajorVersion::Qt4)
+        ba += entry("qmake-qt4", kitData.qmakePath);
+    else if (kitData.qtVersion == QtMajorVersion::Qt5)
+        ba += entry("qmake-qt5", kitData.qmakePath);
+    else if (kitData.qtVersion == QtMajorVersion::Qt6)
+        ba += entry("qmake-qt6", kitData.qmakePath);
+    ba += entry("cmake", kitData.cmakePath);
+
+    filePath.writeFileContents(ba);
+}
+
+void MachineFileManager::removeMachineFile(const Kit *kit)
+{
+    FilePath filePath = machineFile(kit);
+    if (filePath.exists())
+        filePath.removeFile();
+}
+
+void MachineFileManager::updateMachineFile(const Kit *kit)
+{
+    addMachineFile(kit);
+}
+
+void MachineFileManager::cleanupMachineFiles()
+{
+    FilePath dir = machineFilesDir();
+    dir.ensureWritableDir();
+
+    const FileFilter filter = {{QString("%1*%2").arg(MACHINE_FILE_PREFIX).arg(MACHINE_FILE_EXT)}};
+    const FilePaths machineFiles = dir.dirEntries(filter);
+
+    FilePaths expected;
+    for (Kit const *kit : KitManager::kits()) {
+        const FilePath fname = machineFile(kit);
+        expected.push_back(fname);
+        if (!machineFiles.contains(fname))
+            addMachineFile(kit);
+    }
+
+    for (const FilePath &file : machineFiles) {
+        if (!expected.contains(file))
+            file.removeFile();
+    }
+}
+
+// MesonBuildSystem
+
+MesonBuildSystem::MesonBuildSystem(MesonBuildConfiguration *bc)
+    : BuildSystem(bc)
+    , m_parser(MesonToolKitAspect::mesonToolId(bc->kit()), bc->environment(), project())
+{
+    qCDebug(mesonBuildSystemLog) << "Init";
+    connect(bc->target(), &ProjectExplorer::Target::kitChanged, this, [this] {
+        updateKit(kit());
+    });
+    connect(bc, &MesonBuildConfiguration::buildDirectoryChanged, this, [this] {
+        updateKit(kit());
+        this->triggerParsing();
+    });
+    connect(bc, &MesonBuildConfiguration::parametersChanged, this, [this] {
+        updateKit(kit());
+        wipe();
+    });
+    connect(bc, &MesonBuildConfiguration::environmentChanged, this, [this] {
+        m_parser.setEnvironment(buildConfiguration()->environment());
+    });
+
+    connect(project(), &ProjectExplorer::Project::projectFileIsDirty, this, [this] {
+        if (buildConfiguration()->isActive())
+            parseProject();
+    });
+    connect(&m_parser, &MesonProjectParser::parsingCompleted, this, &MesonBuildSystem::parsingCompleted);
+
+    connect(&m_IntroWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this] {
+        if (buildConfiguration()->isActive())
+            parseProject();
+    });
+
+    updateKit(kit());
+    // as specified here https://mesonbuild.com/IDE-integration.html#ide-integration
+    // meson-info.json is the last written file, which ensure that all others introspection
+    // files are ready when a modification is detected on this one.
+    m_IntroWatcher.addFile(buildConfiguration()
+                               ->buildDirectory()
+                               .pathAppended(Constants::MESON_INFO_DIR)
+                               .pathAppended(Constants::MESON_INFO),
+                           Utils::FileSystemWatcher::WatchModifiedDate);
 }
 
 MesonBuildSystem::~MesonBuildSystem()
@@ -92,21 +259,17 @@ void MesonBuildSystem::parsingCompleted(bool success)
     emit buildConfiguration()->enabledChanged(); // HACK. Should not be needed.
 }
 
-ProjectExplorer::Kit *MesonBuildSystem::MesonBuildSystem::kit()
-{
-    return buildConfiguration()->kit();
-}
-
 QStringList MesonBuildSystem::configArgs(bool isSetup)
 {
-    const QString &params = mesonBuildConfiguration()->parameters();
+    MesonBuildConfiguration *bc = static_cast<MesonBuildConfiguration *>(buildConfiguration());
+
+    const QString &params = bc->parameters();
     if (!isSetup || params.contains("--cross-file") || params.contains("--native-file"))
-        return m_pendingConfigArgs + mesonBuildConfiguration()->mesonConfigArgs();
-    else {
-        return QStringList{
-                   QString("--native-file=%1").arg(MachineFileManager::machineFile(kit()).toString())}
-               + m_pendingConfigArgs + mesonBuildConfiguration()->mesonConfigArgs();
-    }
+        return m_pendingConfigArgs + bc->mesonConfigArgs();
+
+    return QStringList{
+               QString("--native-file=%1").arg(MachineFileManager::machineFile(kit()).toString())}
+           + m_pendingConfigArgs + bc->mesonConfigArgs();
 }
 
 bool MesonBuildSystem::configure()
@@ -147,51 +310,6 @@ bool MesonBuildSystem::wipe()
     return false;
 }
 
-MesonBuildConfiguration *MesonBuildSystem::mesonBuildConfiguration()
-{
-    return static_cast<MesonBuildConfiguration *>(buildConfiguration());
-}
-
-void MesonBuildSystem::init()
-{
-    qCDebug(mesonBuildSystemLog) << "Init";
-    connect(buildConfiguration()->target(), &ProjectExplorer::Target::kitChanged, this, [this] {
-        updateKit(kit());
-    });
-    connect(mesonBuildConfiguration(), &MesonBuildConfiguration::buildDirectoryChanged, this, [this]() {
-        updateKit(kit());
-        this->triggerParsing();
-    });
-    connect(mesonBuildConfiguration(), &MesonBuildConfiguration::parametersChanged, this, [this]() {
-        updateKit(kit());
-        wipe();
-    });
-    connect(mesonBuildConfiguration(), &MesonBuildConfiguration::environmentChanged, this, [this]() {
-        m_parser.setEnvironment(buildConfiguration()->environment());
-    });
-
-    connect(project(), &ProjectExplorer::Project::projectFileIsDirty, this, [this]() {
-        if (buildConfiguration()->isActive())
-            parseProject();
-    });
-    connect(&m_parser, &MesonProjectParser::parsingCompleted, this, &MesonBuildSystem::parsingCompleted);
-
-    connect(&m_IntroWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this]() {
-        if (buildConfiguration()->isActive())
-            parseProject();
-    });
-
-    updateKit(kit());
-    // as specified here https://mesonbuild.com/IDE-integration.html#ide-integration
-    // meson-info.json is the last written file, which ensure that all others introspection
-    // files are ready when a modification is detected on this one.
-    m_IntroWatcher.addFile(buildConfiguration()
-                               ->buildDirectory()
-                               .pathAppended(Constants::MESON_INFO_DIR)
-                               .pathAppended(Constants::MESON_INFO),
-                           Utils::FileSystemWatcher::WatchModifiedDate);
-}
-
 bool MesonBuildSystem::parseProject()
 {
     QTC_ASSERT(buildConfiguration(), return false);
@@ -209,9 +327,8 @@ bool MesonBuildSystem::parseProject()
 void MesonBuildSystem::updateKit(ProjectExplorer::Kit *kit)
 {
     QTC_ASSERT(kit, return );
-    m_kitData = KitHelper::kitData(kit);
+    m_kitData = createKitData(kit);
     m_parser.setQtVersion(m_kitData.qtVersion);
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

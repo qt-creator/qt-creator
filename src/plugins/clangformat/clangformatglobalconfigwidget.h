@@ -13,6 +13,7 @@ QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QComboBox;
 class QLabel;
+class QSpinBox;
 QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
@@ -37,6 +38,7 @@ private:
     void initIndentationOrFormattingCombobox();
     void initOverrideCheckBox();
     void initUseGlobalSettingsCheckBox();
+    void initFileSizeThresholdSpinBox();
 
     bool projectClangFormatFileExists();
 
@@ -47,6 +49,8 @@ private:
 
     QLabel *m_projectHasClangFormat;
     QLabel *m_formattingModeLabel;
+    QLabel *m_fileSizeThresholdLabel;
+    QSpinBox *m_fileSizeThresholdSpinBox;
     QComboBox *m_indentingOrFormatting;
     QCheckBox *m_formatWhileTyping;
     QCheckBox *m_formatOnSave;

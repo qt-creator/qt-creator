@@ -21,6 +21,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 
 #include <algorithm>
 #include <iostream>
@@ -91,7 +92,7 @@ public:
     Workspace m_workspace;
     bool m_workspaceLocked = false;
 
-    QSettings *m_settings = nullptr;
+    QtcSettings *m_settings = nullptr;
     bool m_modeChangeState = false;
     bool m_workspaceOrderDirty = false;
 
@@ -441,7 +442,7 @@ int DockManager::startDragDistance()
     return static_cast<int>(QApplication::startDragDistance() * 1.5);
 }
 
-void DockManager::setSettings(QSettings *settings)
+void DockManager::setSettings(QtcSettings *settings)
 {
     d->m_settings = settings;
 }
@@ -739,7 +740,7 @@ QList<int> DockManager::splitterSizes(DockAreaWidget *containedArea) const
             return splitter->sizes();
     }
 
-    return QList<int>();
+    return {};
 }
 
 void DockManager::setSplitterSizes(DockAreaWidget *containedArea, const QList<int> &sizes)
@@ -1372,13 +1373,13 @@ expected_str<QString> DockManager::exportWorkspace(const QString &targetFilePath
     // Check if the target directory exists
     if (!targetFile.parentDir().exists())
         return make_unexpected(
-            Tr::tr("Directory does not exist\"%1\".").arg(targetFile.parentDir().toUserOutput()));
+            Tr::tr("The directory \"%1\" does not exist.").arg(targetFile.parentDir().toUserOutput()));
 
     // Check if the workspace exists
     const FilePath workspaceFile = userDirectory().pathAppended(sourceFileName);
     if (!workspaceFile.exists())
         return make_unexpected(
-            Tr::tr("Workspace does not exist \"%1\"").arg(workspaceFile.toUserOutput()));
+            Tr::tr("The workspace \"%1\" does not exist ").arg(workspaceFile.toUserOutput()));
 
     // Finally copy the workspace to the target
     const expected_str<void> copyResult = workspaceFile.copyFile(targetFile);
@@ -1573,7 +1574,7 @@ void DockManager::syncWorkspacePresets()
 
     // Try do create the 'workspaces' directory if it doesn't exist already
     if (!userDirectory().ensureWritableDir()) {
-        qWarning() << QString("Could not make directory '%1')").arg(userDirectory().toString());
+        qWarning() << QString("Could not make directory '%1')").arg(userDirectory().toUserOutput());
         return;
     }
 
@@ -1601,8 +1602,8 @@ void DockManager::syncWorkspacePresets()
             userDirectory().pathAppended(filePath.fileName()));
         if (!copyResult)
             qWarning() << QString("Could not copy '%1' to '%2' due to %3")
-                              .arg(filePath.toString(),
-                                   userDirectory().toString(),
+                              .arg(filePath.toUserOutput(),
+                                   userDirectory().toUserOutput(),
                                    copyResult.error());
     }
 }

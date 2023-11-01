@@ -2,15 +2,17 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-help.html
     \page creator-faq.html
-    \nextpage creator-how-tos.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
 
     \title FAQ
 
-    This section has answers to some frequently asked questions about \QC.
+    \brief Answers to some frequently asked questions about \QC.
+
     You might also find answers to your questions in the
-    \l{Known Issues} and \l{How-to} sections, or the Troubleshooting
+    \l{Known Issues} and \l{How To} sections, or the Troubleshooting
     sections for a special area, such as
     \l{Troubleshooting Debugger}{debugging}.
 
@@ -32,7 +34,7 @@
     compiler. What should I do?}
 
     Make sure that the application is in your system PATH when starting \QC.
-    Also select \uicontrol Edit > \uicontrol Preferences to check the settings
+    Also select \preferences to check the settings
     specified for the application. Many plugins specify either the path to the
     tool they need or the environment they run in.
 
@@ -43,7 +45,7 @@
 
     \QC has been localized into several languages. If the system
     language is one of the supported languages, it is automatically selected.
-    To change the language, select \uicontrol Edit > \uicontrol Preferences >
+    To change the language, select \preferences >
     \uicontrol Environment and select a language in the \uicontrol Language
     field. Select \uicontrol {Restart Now} to restart \QC and have the change
     take effect.
@@ -143,9 +145,9 @@
     \uicontrol Help mode.
 
     To view the documentation that is available and to add documentation,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol Help >
+    select \preferences > \uicontrol Help >
     \uicontrol Documentation. For more information, see
-    \l{Adding External Documentation}.
+    \l{Add external documentation}.
 
     \section1 Debugger Questions
 
@@ -230,9 +232,9 @@
 
     For console applications that require input, select \uicontrol Projects >
     \uicontrol {Run Settings} > \uicontrol {Run in terminal}. To specify the
-    terminal to use, select \uicontrol Edit > \uicontrol Preferences >
+    terminal to use, select \preferences >
     \uicontrol Environment > \uicontrol System. To use an \l{Terminal}
-    {internal terminal}, select \uicontrol Edit > \uicontrol Preferences
+    {internal terminal}, select \preferences
     > \uicontrol Terminal > \uicontrol {Use internal terminal}.
 
     \b {On Windows:} Output is displayed differently for \e{console

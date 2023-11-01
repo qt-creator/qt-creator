@@ -80,7 +80,7 @@
                     "trIncompleteMessage": "The clone fossil already exists in local repositories path.",
                     "data":
                     {
-                        "trText": "%{JS: (%{isCloneRepo} && '%{Repo}' !== '' && '%{FossilName}' !== '') || (%{isLocalRepo} && '%{LocalRepo}' !== '') ? 'true' : '' }"
+                        "text": "%{JS: (%{isCloneRepo} && '%{Repo}' !== '' && '%{FossilName}' !== '') || (%{isLocalRepo} && '%{LocalRepo}' !== '') ? 'true' : '' }"
                     }
                 },
                 {
@@ -100,7 +100,7 @@
                     "mandatory": false,
                     "data":
                     {
-                        "trText": "%{defaultFossilName}"
+                        "text": "%{defaultFossilName}"
                     }
                 },
                 {
@@ -139,7 +139,7 @@
                     "trIncompleteMessage": "The checkout directory already exists in the filesystem.",
                     "data":
                     {
-                        "trText": "%{defaultDir}"
+                        "text": "%{defaultDir}"
                     }
                 },
                 {
@@ -167,7 +167,7 @@
                     "enabled": "%{isCloneRepo}",
                     "data":
                     {
-                        "trText": "%{JS: Fossil.defaultAdminUser()}"
+                        "text": "%{JS: Fossil.defaultAdminUser()}"
                     }
                 },
                 {

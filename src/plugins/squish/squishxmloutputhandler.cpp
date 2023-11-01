@@ -50,7 +50,7 @@ void SquishXmlOutputHandler::mergeResultFiles(const Utils::FilePaths &reportFile
     if (!resultsXML.open(QFile::WriteOnly)) {
         if (error)
             *error = Tr::tr("Could not merge results into single results.xml.\n"
-                            "Failed to open file \"%1\"")
+                            "Failed to open file \"%1\".")
                          .arg(resultsXML.fileName());
         return;
     }

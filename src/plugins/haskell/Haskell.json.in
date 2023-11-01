@@ -1,23 +1,23 @@
 {
-    \"Name\" : \"Haskell\",
-    \"Version\" : \"$$QTCREATOR_VERSION\",
-    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-    \"DisabledByDefault\" : true,
-    \"Vendor\" : \"Eike Ziller\",
-    \"Copyright\" : \"(C) Eike Ziller\",
-    \"License\" : \"MIT\",
-    \"Description\" : \"Haskell support\",
-    \"Url\" : \"https://haskell.org\",
-    $$dependencyList,
+    "Name" : "Haskell",
+    "Version" : "${IDE_VERSION}",
+    "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "DisabledByDefault" : true,
+    "Vendor" : "Eike Ziller",
+    "Copyright" : "(C) Eike Ziller",
+    "License" : "MIT",
+    "Description" : "Haskell support",
+    "Url" : "https://haskell.org",
+    ${IDE_PLUGIN_DEPENDENCIES},
 
-    \"Mimetypes\" : [
-        \"<?xml version=\'1.0\'?>\",
-        \"<mime-info xmlns=\'http://www.freedesktop.org/standards/shared-mime-info\'>\",
-        \"    <mime-type type=\'text/x-haskell-project\'>\",
-        \"        <sub-class-of type=\'text/plain\'/>\",
-        \"        <comment>Haskell Cabal project file</comment>\",
-        \"        <glob pattern=\'*.cabal\'/>\",
-        \"    </mime-type>\",
-        \"</mime-info>\"
+    "Mimetypes" : [
+        "<?xml version='1.0'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='text/x-haskell-project'>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <comment>Haskell Cabal project file</comment>",
+        "        <glob pattern='*.cabal'/>",
+        "    </mime-type>",
+        "</mime-info>"
     ]
 }

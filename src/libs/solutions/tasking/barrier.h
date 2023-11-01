@@ -41,11 +41,7 @@ public:
     void start() final { task()->start(); }
 };
 
-} // namespace Tasking
-
-TASKING_DECLARE_TASK(BarrierTask, Tasking::BarrierTaskAdapter);
-
-namespace Tasking {
+using BarrierTask = CustomTask<BarrierTaskAdapter>;
 
 template <int Limit = 1>
 class SharedBarrier
@@ -70,28 +66,26 @@ using MultiBarrier = TreeStorage<SharedBarrier<Limit>>;
 // alias template deduction only available with C++20.
 using SingleBarrier = MultiBarrier<1>;
 
-class TASKING_EXPORT WaitForBarrierTask : public BarrierTask
+template <int Limit>
+GroupItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
 {
-public:
-    template <int Limit>
-    WaitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
-        : BarrierTask([sharedBarrier](Barrier &barrier) {
-            SharedBarrier<Limit> *activeBarrier = sharedBarrier.activeStorage();
-            if (!activeBarrier) {
-                qWarning("The barrier referenced from WaitForBarrier element "
-                         "is not reachable in the running tree. "
-                         "It is possible that no barrier was added to the tree, "
-                         "or the storage is not reachable from where it is referenced. "
-                         "The WaitForBarrier task finishes with an error. ");
-                return SetupResult::StopWithError;
-            }
-            Barrier *activeSharedBarrier = activeBarrier->barrier();
-            const std::optional<bool> result = activeSharedBarrier->result();
-            if (result.has_value())
-                return result.value() ? SetupResult::StopWithDone : SetupResult::StopWithError;
-            QObject::connect(activeSharedBarrier, &Barrier::done, &barrier, &Barrier::stopWithResult);
-            return SetupResult::Continue;
-        }) {}
-};
+    return BarrierTask([sharedBarrier](Barrier &barrier) {
+        SharedBarrier<Limit> *activeBarrier = sharedBarrier.activeStorage();
+        if (!activeBarrier) {
+            qWarning("The barrier referenced from WaitForBarrier element "
+                     "is not reachable in the running tree. "
+                     "It is possible that no barrier was added to the tree, "
+                     "or the storage is not reachable from where it is referenced. "
+                     "The WaitForBarrier task finishes with an error. ");
+            return SetupResult::StopWithError;
+        }
+        Barrier *activeSharedBarrier = activeBarrier->barrier();
+        const std::optional<bool> result = activeSharedBarrier->result();
+        if (result.has_value())
+            return result.value() ? SetupResult::StopWithDone : SetupResult::StopWithError;
+        QObject::connect(activeSharedBarrier, &Barrier::done, &barrier, &Barrier::stopWithResult);
+        return SetupResult::Continue;
+    });
+}
 
 } // namespace Tasking

@@ -7,8 +7,6 @@
 #include "androidsdkmodel.h"
 #include "androidtr.h"
 
-#include <app/app_version.h>
-
 #include <utils/async.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
@@ -18,6 +16,7 @@
 #include <QAbstractButton>
 #include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QLineEdit>
 #include <QLoggingCategory>
@@ -282,8 +281,8 @@ void AndroidSdkManagerWidget::installEssentials()
                              Tr::tr("Android SDK Changes"),
                              Tr::tr("%1 cannot find the following essential packages: \"%2\".\n"
                                     "Install them manually after the current operation is done.\n")
-                             .arg(Core::Constants::IDE_DISPLAY_NAME)
-                             .arg(m_sdkModel->missingEssentials().join("\", \"")));
+                                 .arg(QGuiApplication::applicationDisplayName(),
+                                      m_sdkModel->missingEssentials().join("\", \"")));
     }
     onApplyButton(Tr::tr("Android SDK installation is missing necessary packages. "
                      "Do you want to install the missing packages?"));
@@ -291,9 +290,10 @@ void AndroidSdkManagerWidget::installEssentials()
 
 void AndroidSdkManagerWidget::beginLicenseCheck()
 {
-    m_formatter->appendMessage(Tr::tr("Checking pending licenses...\n"), NormalMessageFormat);
+    m_formatter->appendMessage(Tr::tr("Checking pending licenses...") + "\n", NormalMessageFormat);
     m_formatter->appendMessage(Tr::tr("The installation of Android SDK packages may fail if the "
-                                      "respective licenses are not accepted.\n"),
+                                      "respective licenses are not accepted.")
+                                   + "\n",
                                LogMessageFormat);
     addPackageFuture(m_sdkManager->checkPendingLicenses());
 }
@@ -303,7 +303,7 @@ void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
     QTC_ASSERT(m_currentView == PackageListing, return);
 
     if (m_sdkManager->isBusy()) {
-        m_formatter->appendMessage(Tr::tr("\nSDK Manager is busy."), StdErrFormat);
+        m_formatter->appendMessage("\n" + Tr::tr("SDK Manager is busy."), StdErrFormat);
         return;
     }
 
@@ -357,7 +357,7 @@ void AndroidSdkManagerWidget::onApplyButton(const QString &extraMessage)
 void AndroidSdkManagerWidget::onUpdatePackages()
 {
     if (m_sdkManager->isBusy()) {
-        m_formatter->appendMessage(Tr::tr("\nSDK Manager is busy."), StdErrFormat);
+        m_formatter->appendMessage("\n" + Tr::tr("SDK Manager is busy."), StdErrFormat);
         return;
     }
     switchView(Operations);

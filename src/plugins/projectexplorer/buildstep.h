@@ -3,30 +3,25 @@
 
 #pragma once
 
-#include "projectconfiguration.h"
+#include "projectexplorer_export.h"
 
 #include "buildconfiguration.h"
-#include "projectexplorer_export.h"
+#include "projectconfiguration.h"
 
 #include <utils/qtcassert.h>
 
-#include <QWidget>
-
-#include <atomic>
 #include <functional>
-#include <memory>
 #include <optional>
 
 namespace Utils {
-class Environment;
-class FilePath;
 class MacroExpander;
 class OutputFormatter;
 } // Utils
 
+namespace Tasking { class GroupItem; }
+
 namespace ProjectExplorer {
 
-class BuildConfiguration;
 class BuildStepFactory;
 class BuildStepList;
 class BuildSystem;
@@ -43,13 +38,10 @@ protected:
     explicit BuildStep(BuildStepList *bsl, Utils::Id id);
 
 public:
-    ~BuildStep() override;
     virtual bool init() = 0;
-    void run();
-    void cancel();
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     bool enabled() const;
     void setEnabled(bool b);
@@ -57,17 +49,10 @@ public:
     BuildStepList *stepList() const;
 
     BuildConfiguration *buildConfiguration() const;
-    DeployConfiguration *deployConfiguration() const;
-    ProjectConfiguration *projectConfiguration() const;
 
     BuildSystem *buildSystem() const;
-    Utils::Environment buildEnvironment() const;
-    Utils::FilePath buildDirectory() const;
     BuildConfiguration::BuildType buildType() const;
     Utils::MacroExpander *macroExpander() const;
-    QString fallbackWorkingDirectory() const;
-
-    virtual void setupOutputFormatter(Utils::OutputFormatter *formatter);
 
     enum class OutputFormat {
         Stdout, Stderr, // These are for forwarded output from external tools
@@ -83,23 +68,12 @@ public:
     };
 
     bool widgetExpandedByDefault() const;
-    void setWidgetExpandedByDefault(bool widgetExpandedByDefault);
-
     bool hasUserExpansionState() const { return m_wasExpanded.has_value(); }
     bool wasUserExpanded() const { return m_wasExpanded.value_or(false); }
     void setUserExpanded(bool expanded) { m_wasExpanded = expanded; }
-
     bool isImmutable() const { return m_immutable; }
-    void setImmutable(bool immutable) { m_immutable = immutable; }
-
     virtual QVariant data(Utils::Id id) const;
-    void setSummaryUpdater(const std::function<QString ()> &summaryUpdater);
-
-    void addMacroExpander();
-
     QString summaryText() const;
-    void setSummaryText(const QString &summaryText);
-
     QWidget *doCreateConfigWidget();
 
 signals:
@@ -109,29 +83,37 @@ signals:
     /// Do note that for linking compile output with tasks, you should first emit the output
     /// and then emit the task. \p linkedOutput lines will be linked. And the last \p skipLines will
     /// be skipped.
-    void addTask(const ProjectExplorer::Task &task, int linkedOutputLines = 0, int skipLines = 0);
+    void addTask(const Task &task, int linkedOutputLines = 0, int skipLines = 0);
 
     /// Adds \p string to the compile output view, formatted in \p format
-    void addOutput(const QString &string, ProjectExplorer::BuildStep::OutputFormat format,
-        ProjectExplorer::BuildStep::OutputNewlineSetting newlineSetting = DoAppendNewline);
+    void addOutput(const QString &string, OutputFormat format,
+                   OutputNewlineSetting newlineSetting = DoAppendNewline);
 
     void enabledChanged();
 
     void progress(int percentage, const QString &message);
-    void finished(bool result);
 
 protected:
-    virtual QWidget *createConfigWidget();
+    void setWidgetExpandedByDefault(bool widgetExpandedByDefault);
+    void setImmutable(bool immutable) { m_immutable = immutable; }
+    void setSummaryUpdater(const std::function<QString()> &summaryUpdater);
+    void addMacroExpander() { m_addMacroExpander = true; }
+    void setSummaryText(const QString &summaryText);
 
-    bool isCanceled() const;
+    DeployConfiguration *deployConfiguration() const;
+    Utils::Environment buildEnvironment() const;
+    Utils::FilePath buildDirectory() const;
+    QString fallbackWorkingDirectory() const;
+
+    virtual QWidget *createConfigWidget();
+    virtual void setupOutputFormatter(Utils::OutputFormatter *formatter);
 
 private:
-    using ProjectConfiguration::parent;
+    friend class BuildManager;
+    virtual Tasking::GroupItem runRecipe() = 0;
+    ProjectConfiguration *projectConfiguration() const;
 
-    virtual void doRun() = 0;
-    virtual void doCancel();
-
-    std::atomic_bool m_cancelFlag;
+    BuildStepList * const m_stepList;
     bool m_enabled = true;
     bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;
@@ -155,7 +137,7 @@ public:
     BuildStep::Flags stepFlags() const;
     Utils::Id stepId() const;
     BuildStep *create(BuildStepList *parent);
-    BuildStep *restore(BuildStepList *parent, const QVariantMap &map);
+    BuildStep *restore(BuildStepList *parent, const Utils::Store &map);
 
     bool canHandle(BuildStepList *bsl) const;
 

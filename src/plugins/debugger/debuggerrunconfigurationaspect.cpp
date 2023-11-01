@@ -14,7 +14,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
@@ -154,7 +154,7 @@ bool DebuggerRunConfigurationAspect::useCppDebugger() const
 
 static bool projectHasQmlDefines(ProjectExplorer::Project *project)
 {
-    auto projectInfo = CppEditor::CppModelManager::instance()->projectInfo(project);
+    auto projectInfo = CppEditor::CppModelManager::projectInfo(project);
     if (!projectInfo) // we may have e.g. a Python project
         return false;
     return Utils::anyOf(projectInfo->projectParts(),
@@ -211,7 +211,7 @@ int DebuggerRunConfigurationAspect::portsUsedByDebugger() const
     return ports;
 }
 
-void DebuggerRunConfigurationAspect::toMap(QVariantMap &map) const
+void DebuggerRunConfigurationAspect::toMap(Store &map) const
 {
     m_cppAspect->toMap(map);
     m_qmlAspect->toMap(map);
@@ -223,7 +223,7 @@ void DebuggerRunConfigurationAspect::toMap(QVariantMap &map) const
     map.insert("RunConfiguration.UseQmlDebuggerAuto", m_qmlAspect->value() == TriState::Default);
 }
 
-void DebuggerRunConfigurationAspect::fromMap(const QVariantMap &map)
+void DebuggerRunConfigurationAspect::fromMap(const Store &map)
 {
     m_cppAspect->fromMap(map);
     m_qmlAspect->fromMap(map);

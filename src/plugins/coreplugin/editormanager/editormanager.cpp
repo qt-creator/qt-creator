@@ -9,6 +9,8 @@
 #include "editorview.h"
 #include "editorwindow.h"
 #include "ieditor.h"
+#include "ieditorfactory.h"
+#include "ieditorfactory_p.h"
 #include "openeditorsview.h"
 #include "openeditorswindow.h"
 #include "../actionmanager/actioncontainer.h"
@@ -20,9 +22,6 @@
 #include "../dialogs/readonlyfilesdialog.h"
 #include "../diffservice.h"
 #include "../documentmanager.h"
-#include "../editormanager/ieditorfactory.h"
-#include "../editormanager/ieditorfactory_p.h"
-#include "../editormanager/iexternaleditor.h"
 #include "../fileutils.h"
 #include "../findplaceholder.h"
 #include "../icore.h"
@@ -33,9 +32,8 @@
 #include "../outputpanemanager.h"
 #include "../rightpane.h"
 #include "../settingsdatabase.h"
+#include "../systemsettings.h"
 #include "../vcsmanager.h"
-
-#include <app/app_version.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -76,11 +74,13 @@
 #include <QTextCodec>
 #include <QTimer>
 #include <QVBoxLayout>
-#include <algorithm>
 
 #if defined(WITH_TESTS)
 #include <QTest>
 #endif
+
+#include <algorithm>
+#include <memory>
 
 enum { debugEditorManager=0 };
 
@@ -90,15 +90,6 @@ static const char kCurrentDocumentYPos[] = "CurrentDocument:YPos";
 static const char kMakeWritableWarning[] = "Core.EditorManager.MakeWritable";
 
 static const char documentStatesKey[] = "EditorManager/DocumentStates";
-static const char reloadBehaviorKey[] = "EditorManager/ReloadBehavior";
-static const char autoSaveEnabledKey[] = "EditorManager/AutoSaveEnabled";
-static const char autoSaveIntervalKey[] = "EditorManager/AutoSaveInterval";
-static const char autoSaveAfterRefactoringKey[] = "EditorManager/AutoSaveAfterRefactoring";
-static const char autoSuspendEnabledKey[] = "EditorManager/AutoSuspendEnabled";
-static const char autoSuspendMinDocumentCountKey[] = "EditorManager/AutoSuspendMinDocuments";
-static const char warnBeforeOpeningBigTextFilesKey[] = "EditorManager/WarnBeforeOpeningBigTextFiles";
-static const char bigTextFileSizeLimitKey[] = "EditorManager/BigTextFileSizeLimitInMB";
-static const char maxRecentFilesKey[] = "EditorManager/MaxRecentFiles";
 static const char fileSystemCaseSensitivityKey[] = "Core/FileSystemCaseSensitivity";
 static const char preferredEditorFactoriesKey[] = "EditorManager/PreferredEditorFactories";
 
@@ -440,7 +431,7 @@ void EditorManagerPrivate::init()
     ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
 
     // Revert to saved
-    m_revertToSavedAction->setIcon(QIcon::fromTheme("document-revert"));
+    m_revertToSavedAction->setIcon(Icon::fromTheme("document-revert"));
     Command *cmd = ActionManager::registerAction(m_revertToSavedAction,
                                        Constants::REVERTTOSAVED, editManagerContext);
     cmd->setAttribute(Command::CA_UpdateText);
@@ -732,7 +723,7 @@ EditorArea *EditorManagerPrivate::mainEditorArea()
 
 bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
 {
-    if (!d->m_settings.warnBeforeOpeningBigFilesEnabled)
+    if (!systemSettings().warnBeforeOpeningBigFiles())
         return false;
 
     if (!filePath.exists())
@@ -745,7 +736,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
 
     const qint64 fileSize = filePath.fileSize();
     const double fileSizeInMB = fileSize / 1000.0 / 1000.0;
-    if (fileSizeInMB > d->m_settings.bigFileSizeLimitInMB
+    if (fileSizeInMB > systemSettings().bigFileSizeLimitInMB()
         && fileSize < EditorManager::maxTextFileSize()) {
         const QString title = ::Core::Tr::tr("Continue Opening Huge Text File?");
         const QString text = ::Core::Tr::tr(
@@ -761,7 +752,7 @@ bool EditorManagerPrivate::skipOpeningBigTextFile(const FilePath &filePath)
 
         QMessageBox::StandardButton clickedButton
             = CheckableMessageBox::question(ICore::dialogParent(), title, text, decider);
-        setWarnBeforeOpeningBigFilesEnabled(askAgain);
+        systemSettings().warnBeforeOpeningBigFiles.setValue(askAgain);
         return clickedButton != QMessageBox::Yes;
     }
 
@@ -806,12 +797,10 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
         realFp = filePath;
     }
 
-    EditorTypeList factories = EditorType::preferredEditorTypes(filePath);
-    if (!(flags & EditorManager::AllowExternalEditor)) {
-        factories = Utils::filtered(factories, [](EditorType *type) {
-            return type->asEditorFactory() != nullptr;
-        });
-    }
+    EditorFactories factories = IEditorFactory::preferredEditorTypes(filePath);
+    if (!(flags & EditorManager::AllowExternalEditor))
+        factories = Utils::filtered(factories, &IEditorFactory::isInternalEditor);
+
     if (factories.isEmpty()) {
         Utils::MimeType mimeType = Utils::mimeTypeForFile(filePath);
         QMessageBox msgbox(QMessageBox::Critical, ::Core::Tr::tr("File Error"),
@@ -822,9 +811,9 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
         return nullptr;
     }
     if (editorId.isValid()) {
-        EditorType *factory = EditorType::editorTypeForId(editorId);
+        IEditorFactory *factory = IEditorFactory::editorFactoryForId(editorId);
         if (factory) {
-            QTC_CHECK(factory->asEditorFactory() || (flags & EditorManager::AllowExternalEditor));
+            QTC_CHECK(factory->isInternalEditor() || (flags & EditorManager::AllowExternalEditor));
             factories.removeOne(factory);
             factories.push_front(factory);
         }
@@ -833,12 +822,12 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
     IEditor *editor = nullptr;
     auto overrideCursor = Utils::OverrideCursor(QCursor(Qt::WaitCursor));
 
-    EditorType *factory = factories.takeFirst();
+    IEditorFactory *factory = factories.takeFirst();
     while (factory) {
         QString errorString;
 
-        if (factory->asEditorFactory()) {
-            editor = createEditor(factory->asEditorFactory(), filePath);
+        if (factory->isInternalEditor()) {
+            editor = createEditor(factory, filePath);
             if (!editor) {
                 factory = factories.isEmpty() ? nullptr : factories.takeFirst();
                 continue;
@@ -866,10 +855,10 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
             // can happen e.g. when trying to open an completely empty .qrc file
             QTC_CHECK(openResult == IDocument::OpenResult::CannotHandle);
         } else {
-            QTC_ASSERT(factory->asExternalEditor(),
+            QTC_ASSERT(factory->isExternalEditor(),
                        factory = factories.isEmpty() ? nullptr : factories.takeFirst();
                        continue);
-            if (factory->asExternalEditor()->startEditor(filePath, &errorString))
+            if (factory->startEditor(filePath, &errorString))
                 break;
         }
 
@@ -882,12 +871,15 @@ IEditor *EditorManagerPrivate::openEditor(EditorView *view, const FilePath &file
                            QMessageBox::Open | QMessageBox::Cancel,
                            ICore::dialogParent());
 
-        EditorType *selectedFactory = nullptr;
+        IEditorFactory *selectedFactory = nullptr;
         if (!factories.isEmpty()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+            msgbox.setOptions(QMessageBox::Option::DontUseNativeDialog);
+#endif
             auto button = qobject_cast<QPushButton *>(msgbox.button(QMessageBox::Open));
             QTC_ASSERT(button, return nullptr);
             auto menu = new QMenu(button);
-            for (EditorType *factory : std::as_const(factories)) {
+            for (IEditorFactory *factory : std::as_const(factories)) {
                 QAction *action = menu->addAction(factory->displayName());
                 connect(action, &QAction::triggered, &msgbox, [&selectedFactory, factory, &msgbox] {
                     selectedFactory = factory;
@@ -1157,7 +1149,7 @@ Id EditorManagerPrivate::getOpenWithEditorId(const Utils::FilePath &fileName, bo
     QList<Id> allEditorIds;
     QStringList allEditorDisplayNames;
     // Built-in
-    const EditorTypeList editors = EditorType::preferredEditorTypes(fileName);
+    const EditorFactories editors = IEditorFactory::preferredEditorTypes(fileName);
     const int size = editors.size();
     allEditorDisplayNames.reserve(size);
     for (int i = 0; i < size; i++) {
@@ -1175,39 +1167,36 @@ Id EditorManagerPrivate::getOpenWithEditorId(const Utils::FilePath &fileName, bo
         return Id();
     const Id selectedId = allEditorIds.at(dialog.editor());
     if (isExternalEditor) {
-        EditorType *type = EditorType::editorTypeForId(selectedId);
-        *isExternalEditor = type && type->asExternalEditor() != nullptr;
+        IEditorFactory *type = IEditorFactory::editorFactoryForId(selectedId);
+        *isExternalEditor = type && type->isExternalEditor();
     }
     return selectedId;
 }
 
-static QMap<QString, QVariant> toMap(const QHash<Utils::MimeType, EditorType *> &hash)
+static QMap<QString, QVariant> toMap(const QHash<QString, IEditorFactory *> &hash)
 {
     QMap<QString, QVariant> map;
     auto it = hash.begin();
     const auto end = hash.end();
     while (it != end) {
-        map.insert(it.key().name(), it.value()->id().toSetting());
+        map.insert(it.key(), it.value()->id().toSetting());
         ++it;
     }
     return map;
 }
 
-static QHash<Utils::MimeType, EditorType *> fromMap(const QMap<QString, QVariant> &map)
+static QHash<QString, IEditorFactory *> fromMap(const QMap<QString, QVariant> &map)
 {
-    const EditorTypeList factories = EditorType::allEditorTypes();
-    QHash<Utils::MimeType, EditorType *> hash;
+    const EditorFactories factories = IEditorFactory::allEditorFactories();
+    QHash<QString, IEditorFactory *> hash;
     auto it = map.begin();
     const auto end = map.end();
     while (it != end) {
-        const Utils::MimeType mimeType = Utils::mimeTypeForName(it.key());
-        if (mimeType.isValid()) {
-            const Id factoryId = Id::fromSetting(it.value());
-            EditorType *factory = Utils::findOrDefault(factories,
-                                                       Utils::equal(&EditorType::id, factoryId));
-            if (factory)
-                hash.insert(mimeType, factory);
-        }
+        const Id factoryId = Id::fromSetting(it.value());
+        IEditorFactory *factory = Utils::findOrDefault(factories,
+                                                       Utils::equal(&IEditorFactory::id, factoryId));
+        if (factory)
+            hash.insert(it.key(), factory);
         ++it;
     }
     return hash;
@@ -1215,53 +1204,16 @@ static QHash<Utils::MimeType, EditorType *> fromMap(const QMap<QString, QVariant
 
 void EditorManagerPrivate::saveSettings()
 {
-    ICore::settingsDatabase()->setValue(documentStatesKey, d->m_editorStates);
+    SettingsDatabase::setValue(documentStatesKey, d->m_editorStates);
 
-    const Settings def;
     QtcSettings *qsettings = ICore::settings();
-    qsettings->setValueWithDefault(reloadBehaviorKey,
-                                   int(d->m_settings.reloadSetting),
-                                   int(def.reloadSetting));
-    qsettings->setValueWithDefault(autoSaveEnabledKey,
-                                   d->m_settings.autoSaveEnabled,
-                                   def.autoSaveEnabled);
-    qsettings->setValueWithDefault(autoSaveIntervalKey,
-                                   d->m_settings.autoSaveInterval,
-                                   def.autoSaveInterval);
-    qsettings->setValueWithDefault(autoSaveAfterRefactoringKey,
-                                   d->m_settings.autoSaveAfterRefactoring,
-                                   def.autoSaveAfterRefactoring);
-    qsettings->setValueWithDefault(autoSuspendEnabledKey,
-                                   d->m_settings.autoSuspendEnabled,
-                                   def.autoSuspendEnabled);
-    qsettings->setValueWithDefault(autoSuspendMinDocumentCountKey,
-                                   d->m_settings.autoSuspendMinDocumentCount,
-                                   def.autoSuspendMinDocumentCount);
-    qsettings->setValueWithDefault(warnBeforeOpeningBigTextFilesKey,
-                                   d->m_settings.warnBeforeOpeningBigFilesEnabled,
-                                   def.warnBeforeOpeningBigFilesEnabled);
-    qsettings->setValueWithDefault(bigTextFileSizeLimitKey,
-                                   d->m_settings.bigFileSizeLimitInMB,
-                                   def.bigFileSizeLimitInMB);
-    qsettings->setValueWithDefault(maxRecentFilesKey,
-                                   d->m_settings.maxRecentFiles,
-                                   def.maxRecentFiles);
     qsettings->setValueWithDefault(preferredEditorFactoriesKey,
                                    toMap(userPreferredEditorTypes()));
 }
 
 void EditorManagerPrivate::readSettings()
 {
-    Settings def;
-    QSettings *qs = ICore::settings();
-    d->m_settings.warnBeforeOpeningBigFilesEnabled
-        = qs->value(warnBeforeOpeningBigTextFilesKey, def.warnBeforeOpeningBigFilesEnabled).toBool();
-    d->m_settings.bigFileSizeLimitInMB
-        = qs->value(bigTextFileSizeLimitKey, def.bigFileSizeLimitInMB).toInt();
-
-    const int maxRecentFiles = qs->value(maxRecentFilesKey, def.maxRecentFiles).toInt();
-    if (maxRecentFiles > 0)
-        d->m_settings.maxRecentFiles = maxRecentFiles;
+    QtcSettings *qs = ICore::settings();
 
     const Qt::CaseSensitivity defaultSensitivity = OsSpecificAspects::fileNameCaseSensitivity(
         HostOsInfo::hostOs());
@@ -1271,33 +1223,19 @@ void EditorManagerPrivate::readSettings()
     else
         HostOsInfo::setOverrideFileNameCaseSensitivity(sensitivity);
 
-    const QHash<Utils::MimeType, EditorType *> preferredEditorFactories = fromMap(
+    const QHash<QString, IEditorFactory *> preferredEditorFactories = fromMap(
         qs->value(preferredEditorFactoriesKey).toMap());
     setUserPreferredEditorTypes(preferredEditorFactories);
 
-    SettingsDatabase *settings = ICore::settingsDatabase();
-    if (settings->contains(documentStatesKey)) {
-        d->m_editorStates = settings->value(documentStatesKey)
-            .value<QMap<QString, QVariant> >();
+    if (SettingsDatabase::contains(documentStatesKey)) {
+        d->m_editorStates = SettingsDatabase::value(documentStatesKey)
+            .value<QMap<QString, QVariant>>();
     }
-
-    d->m_settings.reloadSetting = IDocument::ReloadSetting(
-        qs->value(reloadBehaviorKey, def.reloadSetting).toInt());
-
-    d->m_settings.autoSaveEnabled = qs->value(autoSaveEnabledKey, def.autoSaveEnabled).toBool();
-    d->m_settings.autoSaveInterval = qs->value(autoSaveIntervalKey, def.autoSaveInterval).toInt();
-    d->m_settings.autoSaveAfterRefactoring = qs->value(autoSaveAfterRefactoringKey,
-                                                       def.autoSaveAfterRefactoring).toBool();
-
-    d->m_settings.autoSuspendEnabled = qs->value(autoSuspendEnabledKey, def.autoSuspendEnabled)
-                                           .toBool();
-    d->m_settings.autoSuspendMinDocumentCount
-        = qs->value(autoSuspendMinDocumentCountKey, def.autoSuspendMinDocumentCount).toInt();
 
     updateAutoSave();
 }
 
-Qt::CaseSensitivity EditorManagerPrivate::readFileSystemSensitivity(QSettings *settings)
+Qt::CaseSensitivity EditorManagerPrivate::readFileSystemSensitivity(QtcSettings *settings)
 {
     const Qt::CaseSensitivity defaultSensitivity = OsSpecificAspects::fileNameCaseSensitivity(
         HostOsInfo::hostOs());
@@ -1325,94 +1263,12 @@ void EditorManagerPrivate::writeFileSystemSensitivity(Utils::QtcSettings *settin
                                       HostOsInfo::hostOs())));
 }
 
-void EditorManagerPrivate::setAutoSaveEnabled(bool enabled)
-{
-    d->m_settings.autoSaveEnabled = enabled;
-    updateAutoSave();
-}
-
-bool EditorManagerPrivate::autoSaveEnabled()
-{
-    return d->m_settings.autoSaveEnabled;
-}
-
-void EditorManagerPrivate::setAutoSaveInterval(int interval)
-{
-    d->m_settings.autoSaveInterval = interval;
-    updateAutoSave();
-}
-
-int EditorManagerPrivate::autoSaveInterval()
-{
-    return d->m_settings.autoSaveInterval;
-}
-
-void EditorManagerPrivate::setAutoSaveAfterRefactoring(bool enabled)
-{
-    d->m_settings.autoSaveAfterRefactoring = enabled;
-}
-
-bool EditorManagerPrivate::autoSaveAfterRefactoring()
-{
-    return d->m_settings.autoSaveAfterRefactoring;
-}
-
-void EditorManagerPrivate::setAutoSuspendEnabled(bool enabled)
-{
-    d->m_settings.autoSuspendEnabled = enabled;
-}
-
-bool EditorManagerPrivate::autoSuspendEnabled()
-{
-    return d->m_settings.autoSuspendEnabled;
-}
-
-void EditorManagerPrivate::setAutoSuspendMinDocumentCount(int count)
-{
-    d->m_settings.autoSuspendMinDocumentCount = count;
-}
-
-int EditorManagerPrivate::autoSuspendMinDocumentCount()
-{
-    return d->m_settings.autoSuspendMinDocumentCount;
-}
-
-bool EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled()
-{
-    return d->m_settings.warnBeforeOpeningBigFilesEnabled;
-}
-
-void EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(bool enabled)
-{
-    d->m_settings.warnBeforeOpeningBigFilesEnabled = enabled;
-}
-
-int EditorManagerPrivate::bigFileSizeLimit()
-{
-    return d->m_settings.bigFileSizeLimitInMB;
-}
-
-void EditorManagerPrivate::setMaxRecentFiles(int count)
-{
-    d->m_settings.maxRecentFiles = count;
-}
-
-int EditorManagerPrivate::maxRecentFiles()
-{
-    return d->m_settings.maxRecentFiles;
-}
-
-void EditorManagerPrivate::setBigFileSizeLimit(int limitInMB)
-{
-    d->m_settings.bigFileSizeLimitInMB = limitInMB;
-}
-
-EditorFactoryList EditorManagerPrivate::findFactories(Id editorId, const FilePath &filePath)
+EditorFactories EditorManagerPrivate::findFactories(Id editorId, const FilePath &filePath)
 {
     if (debugEditorManager)
         qDebug() << Q_FUNC_INFO << editorId.name() << filePath;
 
-    EditorFactoryList factories;
+    EditorFactories factories;
     if (!editorId.isValid()) {
         factories = IEditorFactory::preferredEditorFactories(filePath);
     } else {
@@ -1442,7 +1298,7 @@ IEditor *EditorManagerPrivate::createEditor(IEditorFactory *factory, const FileP
         connect(document, &IDocument::changed, d, [document] {
             d->handleDocumentStateChange(document);
         });
-        emit m_instance->editorCreated(editor, filePath.toString());
+        emit m_instance->editorCreated(editor, filePath);
     }
 
     return editor;
@@ -1531,7 +1387,7 @@ IEditor *EditorManagerPrivate::duplicateEditor(IEditor *editor)
         return nullptr;
 
     IEditor *duplicate = editor->duplicate();
-    emit m_instance->editorCreated(duplicate, duplicate->document()->filePath().toString());
+    emit m_instance->editorCreated(duplicate, duplicate->document()->filePath());
     addEditor(duplicate);
     return duplicate;
 }
@@ -2005,8 +1861,8 @@ void EditorManagerPrivate::addDocumentToRecentFiles(IDocument *document)
 
 void EditorManagerPrivate::updateAutoSave()
 {
-    if (d->m_settings.autoSaveEnabled)
-        d->m_autoSaveTimer->start(d->m_settings.autoSaveInterval * (60 * 1000));
+    if (systemSettings().autoSaveModifiedFiles())
+        d->m_autoSaveTimer->start(systemSettings().autoSaveInterval() * (60 * 1000));
     else
         d->m_autoSaveTimer->stop();
 }
@@ -2057,7 +1913,7 @@ void EditorManagerPrivate::setupSaveActions(IDocument *document, QAction *saveAc
                                             QAction *saveAsAction, QAction *revertToSavedAction)
 {
     const bool hasFile = document && !document->filePath().isEmpty();
-    saveAction->setEnabled(hasFile && document->isModified());
+    saveAction->setEnabled(document && (document->isModified() || !hasFile));
     saveAsAction->setEnabled(document && document->isSaveAsAllowed());
     revertToSavedAction->setEnabled(hasFile);
 
@@ -2159,7 +2015,7 @@ void EditorManagerPrivate::updateWindowTitleForDocument(IDocument *document, QWi
 
     if (!windowTitle.isEmpty())
         windowTitle.append(dashSep);
-    windowTitle.append(Core::Constants::IDE_DISPLAY_NAME);
+    windowTitle.append(QGuiApplication::applicationDisplayName());
     window->window()->setWindowTitle(windowTitle);
     window->window()->setWindowFilePath(filePath.path());
 
@@ -2469,9 +2325,7 @@ bool EditorManagerPrivate::saveDocument(IDocument *document)
 
     document->checkPermissions();
 
-    const QString fileName = document->filePath().toString();
-
-    if (fileName.isEmpty())
+    if (document->filePath().isEmpty())
         return saveDocumentAs(document);
 
     bool success = false;
@@ -2595,20 +2449,21 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
 
 void EditorManagerPrivate::autoSuspendDocuments()
 {
-    if (!d->m_settings.autoSuspendEnabled)
+    if (!systemSettings().autoSuspendEnabled())
         return;
 
     auto visibleDocuments = Utils::transform<QSet>(EditorManager::visibleEditors(),
                                                    &IEditor::document);
     int keptEditorCount = 0;
     QList<IDocument *> documentsToSuspend;
+    const int minDocumentCount = systemSettings().autoSuspendMinDocumentCount();
     for (const EditLocation &editLocation : std::as_const(d->m_globalHistory)) {
         IDocument *document = editLocation.document;
         if (!document || !document->isSuspendAllowed() || document->isModified()
                 || document->isTemporary() || document->filePath().isEmpty()
                 || visibleDocuments.contains(document))
             continue;
-        if (keptEditorCount >= d->m_settings.autoSuspendMinDocumentCount)
+        if (keptEditorCount >= minDocumentCount)
             documentsToSuspend.append(document);
         else
             ++keptEditorCount;
@@ -2950,11 +2805,11 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
 {
     menu->clear();
 
-    const EditorTypeList factories = IEditorFactory::preferredEditorTypes(filePath);
+    const EditorFactories factories = IEditorFactory::preferredEditorTypes(filePath);
     const bool anyMatches = !factories.empty();
     if (anyMatches) {
         // Add all suitable editors
-        for (EditorType *editorType : factories) {
+        for (IEditorFactory *editorType : factories) {
             const Id editorId = editorType->id();
             // Add action to open with this very editor factory
             QString const actionTitle = editorType->displayName();
@@ -2964,8 +2819,8 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
             // crashes happen, because the editor instance is deleted by openEditorWith
             // while the menu is still being processed.
             connect(action, &QAction::triggered, d, [filePath, editorId] {
-                EditorType *type = EditorType::editorTypeForId(editorId);
-                if (type && type->asExternalEditor())
+                    IEditorFactory *type = IEditorFactory::editorFactoryForId(editorId);
+                if (type && type->isExternalEditor())
                     EditorManager::openExternalEditor(filePath, editorId);
                 else
                     EditorManagerPrivate::openEditorWith(filePath, editorId);
@@ -2975,12 +2830,33 @@ void EditorManager::populateOpenWithMenu(QMenu *menu, const FilePath &filePath)
     menu->setEnabled(anyMatches);
 }
 
+void EditorManager::runWithTemporaryEditor(const Utils::FilePath &filePath,
+                                           const std::function<void (IEditor *)> &callback)
+{
+    const MimeType mt = mimeTypeForFile(filePath, MimeMatchMode::MatchDefaultAndRemote);
+    const QList<IEditorFactory *> factories = IEditorFactory::defaultEditorFactories(mt);
+    for (IEditorFactory * const factory : factories) {
+        QTC_ASSERT(factory, continue);
+        if (!factory->isInternalEditor())
+            continue;
+        std::unique_ptr<IEditor> editor(factory->createEditor());
+        if (!editor)
+            continue;
+        editor->document()->setTemporary(true);
+        if (editor->document()->open(nullptr, filePath, filePath) != IDocument::OpenResult::Success)
+            continue;
+        callback(editor.get());
+        break;
+    }
+}
+
 /*!
     Returns reload behavior settings.
 */
 IDocument::ReloadSetting EditorManager::reloadSetting()
 {
-    return d->m_settings.reloadSetting;
+    // FIXME: Used TypedSelectionAspect once we have that.
+    return IDocument::ReloadSetting(systemSettings().reloadSetting.value());
 }
 
 /*!
@@ -2990,7 +2866,7 @@ IDocument::ReloadSetting EditorManager::reloadSetting()
 */
 void EditorManager::setReloadSetting(IDocument::ReloadSetting behavior)
 {
-    d->m_settings.reloadSetting = behavior;
+    systemSettings().reloadSetting.setValue(behavior);
 }
 
 /*!
@@ -3207,7 +3083,7 @@ bool EditorManager::isAutoSaveFile(const QString &filePath)
 
 bool EditorManager::autoSaveAfterRefactoring()
 {
-    return EditorManagerPrivate::autoSaveAfterRefactoring();
+    return systemSettings().autoSaveAfterRefactoring();
 }
 
 /*!
@@ -3221,8 +3097,11 @@ bool EditorManager::autoSaveAfterRefactoring()
 */
 bool EditorManager::openExternalEditor(const FilePath &filePath, Id editorId)
 {
-    IExternalEditor *ee = Utils::findOrDefault(IExternalEditor::allExternalEditors(),
-                                               Utils::equal(&IExternalEditor::id, editorId));
+    IEditorFactory *ee = Utils::findOrDefault(IEditorFactory::allEditorFactories(),
+        [editorId](IEditorFactory *factory) {
+            return factory->isExternalEditor() && factory->id() == editorId;
+        });
+
     if (!ee)
         return false;
     QString errorMessage;
@@ -3346,7 +3225,7 @@ IEditor *EditorManager::openEditorWithContents(Id editorId,
     }
 
     const FilePath filePath = FilePath::fromString(title);
-    EditorFactoryList factories = EditorManagerPrivate::findFactories(editorId, filePath);
+    EditorFactories factories = EditorManagerPrivate::findFactories(editorId, filePath);
     if (factories.isEmpty())
         return nullptr;
 
@@ -3466,7 +3345,7 @@ void EditorManager::setLastEditLocation(const IEditor* editor)
     location.document = document;
     location.filePath = document->filePath();
     location.id = document->id();
-    location.state = QVariant(state);
+    location.state = state;
 
     d->m_globalLastEditLocation = location;
 }
@@ -3694,7 +3573,7 @@ void EditorManager::hideEditorStatusBar(const QString &id)
 */
 QTextCodec *EditorManager::defaultTextCodec()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     const QByteArray codecName =
             settings->value(Constants::SETTINGS_DEFAULTTEXTENCODING).toByteArray();
     if (QTextCodec *candidate = QTextCodec::codecForName(codecName))
@@ -3715,7 +3594,7 @@ QTextCodec *EditorManager::defaultTextCodec()
 */
 TextFileFormat::LineTerminationMode EditorManager::defaultLineEnding()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     const int defaultLineTerminator = settings->value(Constants::SETTINGS_DEFAULT_LINE_TERMINATOR,
             TextFileFormat::LineTerminationMode::NativeLineTerminator).toInt();
 

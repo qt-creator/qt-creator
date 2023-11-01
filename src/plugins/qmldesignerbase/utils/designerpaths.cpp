@@ -30,15 +30,13 @@ Utils::FilePath defaultBundlesPath()
 
 QString examplesPathSetting()
 {
-    return Core::ICore::settings()
-        ->value(exampleDownloadPath.toString(), defaultExamplesPath().toString())
+    return Core::ICore::settings()->value(exampleDownloadPath, defaultExamplesPath().toString())
         .toString();
 }
 
 QString bundlesPathSetting()
 {
-    return Core::ICore::settings()
-        ->value(bundlesDownloadPath.toString(), defaultBundlesPath().toString())
+    return Core::ICore::settings()->value(bundlesDownloadPath, defaultBundlesPath().toString())
         .toString();
 }
 

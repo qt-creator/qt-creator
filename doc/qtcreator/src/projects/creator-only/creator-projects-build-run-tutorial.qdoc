@@ -34,10 +34,10 @@
 
         \li In the \uicontrol Welcome mode, select \uicontrol Examples (1).
 
-            \image qtcreator-gs-build-example-open.png "Selecting an example"
+            \image qtcreator-examples-open.webp {Selecting an example}
 
             If you cannot see any examples, check that the list of
-            \l{Adding Qt Versions}{Qt versions} (2) is not empty. If
+            \l{Add Qt versions}{Qt versions} (2) is not empty. If
             you select a Qt for Android or iOS, you can only see the
             examples that run on Android or iOS.
 
@@ -52,11 +52,11 @@
             \l{glossary-buildandrun-kit}{kit} for the
             device.
 
-            \image qtcreator-gs-build-example-kit-selector.png "Selecting a kit to build with"
+            \image qtcreator-examples-kit-selector.webp {Selecting a kit to build with}
 
             If you installed \QC as part of a Qt installation, it should have
             automatically detected the installed kit. If you cannot see any kits,
-            see \l{Adding Kits}.
+            see \l{Add kits}.
 
         \li Click \inlineimage icons/run_small.png
             (\uicontrol Run) to build and run the application.
@@ -65,7 +65,7 @@
             \l {Compile Output}.
 
             If build errors occur, check that you have a Qt version, a
-            \l{Adding Compilers}{compiler}, and the necessary kits installed. If
+            \l{Add compilers}{compiler}, and the necessary kits installed. If
             you are building for an \l{Connecting Android Devices}{Android device}
             or \l{Connecting iOS Devices}{iOS device}, check that you set up the
             development environment correctly.

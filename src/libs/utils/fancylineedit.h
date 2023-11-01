@@ -6,8 +6,11 @@
 #include "utils_global.h"
 
 #include "completinglineedit.h"
+#include "expected.h"
+#include "storekey.h"
 
 #include <QAbstractButton>
+#include <QFuture>
 
 #include <functional>
 
@@ -20,13 +23,13 @@ namespace Utils {
 
 class FancyLineEditPrivate;
 
-class QTCREATOR_UTILS_EXPORT IconButton: public QAbstractButton
+class QTCREATOR_UTILS_EXPORT FancyIconButton : public QAbstractButton
 {
     Q_OBJECT
     Q_PROPERTY(float iconOpacity READ iconOpacity WRITE setIconOpacity)
     Q_PROPERTY(bool autoHide READ hasAutoHide WRITE setAutoHide)
 public:
-    explicit IconButton(QWidget *parent = nullptr);
+    explicit FancyIconButton(QWidget *parent = nullptr);
     void paintEvent(QPaintEvent *event) override;
     float iconOpacity() { return m_iconOpacity; }
     void setIconOpacity(float value) { m_iconOpacity = value; update(); }
@@ -42,8 +45,8 @@ protected:
     void keyReleaseEvent(QKeyEvent *ke) override;
 
 private:
-    float m_iconOpacity;
-    bool m_autoHide;
+    float m_iconOpacity = 1.0f;
+    bool m_autoHide = false;
     QIcon m_icon;
 };
 
@@ -84,7 +87,7 @@ public:
     // Completion
 
     // Enable a history completer with a history of entries.
-    void setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory = false);
+    void setHistoryCompleter(const Utils::Key &historyKey, bool restoreLastItemFromHistory = false);
     // Sets a completer that is not a history completer.
     void setSpecialCompleter(QCompleter *completer);
 
@@ -98,7 +101,12 @@ public:
     //  Validation
 
     // line edit, (out)errorMessage -> valid?
-    using ValidationFunction = std::function<bool(FancyLineEdit *, QString *)>;
+    using AsyncValidationResult = Utils::expected_str<QString>;
+    using AsyncValidationFuture = QFuture<AsyncValidationResult>;
+    using AsyncValidationFunction = std::function<AsyncValidationFuture(QString)>;
+    using SynchronousValidationFunction = std::function<bool(FancyLineEdit *, QString *)>;
+    using ValidationFunction = std::variant<AsyncValidationFunction, SynchronousValidationFunction>;
+
     enum State { Invalid, DisplayingPlaceholderText, Valid };
 
     State state() const;
@@ -137,6 +145,8 @@ protected:
 
 private:
     void iconClicked(FancyLineEdit::Side);
+
+    void handleValidationResult(AsyncValidationResult result, const QString &oldText);
 
     static bool validateWithValidator(FancyLineEdit *edit, QString *errorMessage);
     // Unimplemented, to force the user to make a decision on

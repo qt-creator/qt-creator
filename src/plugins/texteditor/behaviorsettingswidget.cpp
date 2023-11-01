@@ -38,6 +38,7 @@ struct BehaviorSettingsWidgetPrivate
     QComboBox *smartBackspaceBehavior;
     QCheckBox *autoIndent;
     QCheckBox *preferSingleLineComments;
+    QComboBox *commentPosition;
     QGroupBox *groupBoxStorageSettings;
     QGroupBox *groupBoxTyping;
     QCheckBox *skipTrailingWhitespace;
@@ -95,6 +96,48 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     d->autoIndent = new QCheckBox(Tr::tr("Enable automatic &indentation"));
 
     d->preferSingleLineComments = new QCheckBox(Tr::tr("Prefer single line comments"));
+    d->commentPosition = new QComboBox;
+    const QString automaticText = Tr::tr("Automatic");
+    d->commentPosition->addItem(automaticText);
+    const QString lineStartText = Tr::tr("At Line Start");
+    d->commentPosition->addItem(lineStartText);
+    const QString afterWhitespaceText = Tr::tr("After Whitespace");
+    d->commentPosition->addItem(afterWhitespaceText);
+
+    const QString generalCommentPosition = Tr::tr(
+        "Specifies where single line comments should be positioned.");
+    const QString automaticCommentPosition
+        = Tr::tr(
+              "%1: The highlight definition for the file determines the position. If no highlight "
+              "definition is available, the comment is placed after leading whitespaces.")
+              .arg(automaticText);
+    const QString lineStartCommentPosition
+        = Tr::tr("%1: The comment is placed at the start of the line.").arg(lineStartText);
+    const QString afterWhitespaceCommentPosition
+        = Tr::tr("%1: The comment is placed after leading whitespaces.").arg(afterWhitespaceText);
+
+    const QString commentPositionToolTip = QString("<html><head/><body>\n"
+                                                   "%1\n"
+                                                   "\n"
+                                                   "<ul>\n"
+                                                   "<li>%2\n"
+                                                   "</li>\n"
+                                                   "\n"
+                                                   "<li>%3\n"
+                                                   "</li>\n"
+                                                   "\n"
+                                                   "<li>%4\n"
+                                                   "</li>\n"
+                                                   "</ul></body></html>\n"
+                                                   "")
+                                               .arg(generalCommentPosition)
+                                               .arg(automaticCommentPosition)
+                                               .arg(lineStartCommentPosition)
+                                               .arg(afterWhitespaceCommentPosition);
+    d->commentPosition->setToolTip(commentPositionToolTip);
+
+    auto commentPositionLabel = new QLabel(Tr::tr("Preferred comment position:"));
+    commentPositionLabel->setToolTip(commentPositionToolTip);
 
     d->skipTrailingWhitespace = new QCheckBox(Tr::tr("Skip clean whitespace for file types:"));
     d->skipTrailingWhitespace->setToolTip(Tr::tr("For the file patterns listed, do not trim trailing whitespace."));
@@ -173,7 +216,9 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
             indent(d->smartBackspaceBehavior),
         Tr::tr("Tab key performs auto-indent:"),
             indent(d->tabKeyBehavior),
-        d->preferSingleLineComments
+        d->preferSingleLineComments,
+        commentPositionLabel,
+            indent(d->commentPosition)
     }.attachTo(d->groupBoxTyping);
 
     Column {
@@ -293,6 +338,7 @@ void BehaviorSettingsWidget::setAssignedTypingSettings(const TypingSettings &typ
     d->tabKeyBehavior->setCurrentIndex(typingSettings.m_tabKeyBehavior);
 
     d->preferSingleLineComments->setChecked(typingSettings.m_preferSingleLineComments);
+    d->commentPosition->setCurrentIndex(typingSettings.m_commentPosition);
 }
 
 void BehaviorSettingsWidget::assignedTypingSettings(TypingSettings *typingSettings) const
@@ -304,6 +350,8 @@ void BehaviorSettingsWidget::assignedTypingSettings(TypingSettings *typingSettin
         (TypingSettings::TabKeyBehavior)(d->tabKeyBehavior->currentIndex());
 
     typingSettings->m_preferSingleLineComments = d->preferSingleLineComments->isChecked();
+    typingSettings->m_commentPosition = TypingSettings::CommentPosition(
+        d->commentPosition->currentIndex());
 }
 
 void BehaviorSettingsWidget::setAssignedStorageSettings(const StorageSettings &storageSettings)

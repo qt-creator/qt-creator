@@ -1,0 +1,49 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-add-wizards.html
+    \previouspage creator-project-qmake-libraries.html
+    \nextpage creator-version-control.html
+
+    \ingroup creator-how-to-projects-create
+
+    \title Add wizards
+
+    \QC has wizards for adding classes, files, and projects that you can copy
+    and edit to create your own wizards. Create the wizard directory in the
+    \c {templates/wizards/} directory in your \l{Locating Wizards}
+    {user settings directory}.
+
+    \image qtcreator-cpp-class-wizard.png
+
+    To create a new wizard:
+
+    \list 1
+
+        \li Start \QC with the \c {-customwizard-verbose} argument to receive
+            feedback during wizard development. For more information, see
+            \l {Verbose Output}.
+
+        \li Set keyboard shortcuts for the \uicontrol Inspect and
+            \uicontrol {Factory.Reset} actions, as described in
+            \l {Tips for Wizard Development}.
+
+        \li Copy a directory that contains a wizard and rename it. For example,
+            copy \c {share/qtcreator/templates/wizards/classes/cpp} as
+            \c {$HOME/.config/QtProject/qtcreator/templates/wizards/classes/mycpp}.
+
+        \li Use the \uicontrol {Factory.Reset} action to make the wizard appear
+            in \uicontrol File > \uicontrol {New File} without
+            restarting \QC.
+
+        \li Open the wizard configuration file, \c {wizard.json} for editing, as
+            described in \l {Custom Wizards}.
+
+        \li Change the \c id to something unique. Wizards are sorted by the ID in
+            alphabetic order within a \c category. You can use a leading letter
+            to specify the position of the wizard. For example, \c B.MyClass.
+    \endlist
+
+\sa {Custom Wizards}, {Find settings files}
+*/

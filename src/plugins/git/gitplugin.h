@@ -17,8 +17,6 @@ namespace VcsBase { class VcsBasePluginState; }
 
 namespace Git::Internal {
 
-class GitClient;
-
 class GITSHARED_EXPORT GitPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -33,7 +31,6 @@ public:
     QObject *remoteCommand(const QStringList &options, const QString &workingDirectory,
                            const QStringList &args) final;
 
-    static GitClient *client();
     static Core::IVersionControl *versionControl();
     static const VcsBase::VcsBasePluginState &currentState();
 

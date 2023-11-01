@@ -8,14 +8,11 @@
 #include "coreplugintr.h"
 #include "editormanager/editormanager_p.h"
 #include "dialogs/restartdialog.h"
+#include "dialogs/ioptionspage.h"
 #include "fileutils.h"
 #include "icore.h"
 #include "iversioncontrol.h"
-#include "mainwindow.h"
-#include "patchtool.h"
 #include "vcsmanager.h"
-
-#include <app/app_version.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -28,26 +25,19 @@
 #include <utils/terminalcommand.h>
 #include <utils/unixutils.h>
 
-#include <QCheckBox>
 #include <QComboBox>
-#include <QCoreApplication>
+#include <QGuiApplication>
 #include <QLineEdit>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSettings>
-#include <QSpinBox>
 #include <QToolButton>
 
 using namespace Utils;
 using namespace Layouting;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 #ifdef ENABLE_CRASHPAD
-const char crashReportingEnabledKey[] = "CrashReportingEnabled";
-const char showCrashButtonKey[] = "ShowCrashButton";
-
 // TODO: move to somewhere in Utils
 static QString formatSize(qint64 size)
 {
@@ -64,55 +54,131 @@ static QString formatSize(qint64 size)
 }
 #endif // ENABLE_CRASHPAD
 
+SystemSettings &systemSettings()
+{
+    static SystemSettings theSettings;
+    return theSettings;
+}
+
+SystemSettings::SystemSettings()
+{
+    setAutoApply(false);
+
+    patchCommand.setSettingsKey("General/PatchCommand");
+    patchCommand.setDefaultValue("patch");
+    patchCommand.setExpectedKind(PathChooser::ExistingCommand);
+    patchCommand.setHistoryCompleter("General.PatchCommand.History");
+    patchCommand.setLabelText(Tr::tr("Patch command:"));
+    patchCommand.setToolTip(Tr::tr("Command used for reverting diff chunks."));
+
+    autoSaveModifiedFiles.setSettingsKey("EditorManager/AutoSaveEnabled");
+    autoSaveModifiedFiles.setDefaultValue(true);
+    autoSaveModifiedFiles.setLabelText(Tr::tr("Auto-save modified files"));
+    autoSaveModifiedFiles.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    autoSaveModifiedFiles.setToolTip(
+        Tr::tr("Automatically creates temporary copies of modified files. "
+               "If %1 is restarted after a crash or power failure, it asks whether to "
+               "recover the auto-saved content.")
+            .arg(QGuiApplication::applicationDisplayName()));
+
+    autoSaveInterval.setSettingsKey("EditorManager/AutoSaveInterval");
+    autoSaveInterval.setSuffix(Tr::tr("min"));
+    autoSaveInterval.setRange(1, 1000000);
+    autoSaveInterval.setDefaultValue(5);
+    autoSaveInterval.setEnabler(&autoSaveModifiedFiles);
+    autoSaveInterval.setLabelText(Tr::tr("Interval:"));
+
+    autoSaveAfterRefactoring.setSettingsKey("EditorManager/AutoSaveAfterRefactoring");
+    autoSaveAfterRefactoring.setDefaultValue(true);
+    autoSaveAfterRefactoring.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    autoSaveAfterRefactoring.setLabelText(Tr::tr("Auto-save files after refactoring"));
+    autoSaveAfterRefactoring.setToolTip(
+        Tr::tr("Automatically saves all open files affected by a refactoring operation,\n"
+               "provided they were unmodified before the refactoring."));
+
+    autoSuspendEnabled.setSettingsKey("EditorManager/AutoSuspendEnabled");
+    autoSuspendEnabled.setDefaultValue(true);
+    autoSuspendEnabled.setLabelText(Tr::tr("Auto-suspend unmodified files"));
+    autoSuspendEnabled.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    autoSuspendEnabled.setToolTip(
+        Tr::tr("Automatically free resources of old documents that are not visible and not "
+               "modified. They stay visible in the list of open documents."));
+
+    autoSuspendMinDocumentCount.setSettingsKey("EditorManager/AutoSuspendMinDocuments");
+    autoSuspendMinDocumentCount.setRange(1, 500);
+    autoSuspendMinDocumentCount.setDefaultValue(30);
+    autoSuspendMinDocumentCount.setEnabler(&autoSuspendEnabled);
+    autoSuspendMinDocumentCount.setLabelText(Tr::tr("Files to keep open:"));
+    autoSuspendMinDocumentCount.setToolTip(
+        Tr::tr("Minimum number of open documents that should be kept in memory. Increasing this "
+           "number will lead to greater resource usage when not manually closing documents."));
+
+    warnBeforeOpeningBigFiles.setSettingsKey("EditorManager/WarnBeforeOpeningBigTextFiles");
+    warnBeforeOpeningBigFiles.setDefaultValue(true);
+    warnBeforeOpeningBigFiles.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    warnBeforeOpeningBigFiles.setLabelText(Tr::tr("Warn before opening text files greater than"));
+
+    bigFileSizeLimitInMB.setSettingsKey("EditorManager/BigTextFileSizeLimitInMB");
+    bigFileSizeLimitInMB.setSuffix(Tr::tr("MB"));
+    bigFileSizeLimitInMB.setRange(1, 500);
+    bigFileSizeLimitInMB.setDefaultValue(5);
+    bigFileSizeLimitInMB.setEnabler(&warnBeforeOpeningBigFiles);
+
+    maxRecentFiles.setSettingsKey("EditorManager/MaxRecentFiles");
+    maxRecentFiles.setRange(1, 99);
+    maxRecentFiles.setDefaultValue(8);
+
+    reloadSetting.setSettingsKey("EditorManager/ReloadBehavior");
+    reloadSetting.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
+    reloadSetting.addOption(Tr::tr("Always Ask"));
+    reloadSetting.addOption(Tr::tr("Reload All Unchanged Editors"));
+    reloadSetting.addOption(Tr::tr("Ignore Modifications"));
+    reloadSetting.setDefaultValue(IDocument::AlwaysAsk);
+    reloadSetting.setLabelText(Tr::tr("When files are externally modified:"));
+
+    askBeforeExit.setSettingsKey("AskBeforeExit");
+    askBeforeExit.setLabelText(Tr::tr("Ask for confirmation before exiting"));
+    askBeforeExit.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+
+#ifdef ENABLE_CRASHPAD
+    enableCrashReporting.setSettingsKey("CrashReportingEnabled");
+    enableCrashReporting.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
+    enableCrashReporting.setLabelText(Tr::tr("Enable crash reporting"));
+    enableCrashReporting.setToolTip(
+        Tr::tr("Allow crashes to be automatically reported. Collected reports are "
+           "used for the sole purpose of fixing bugs."));
+
+    showCrashButton.setSettingsKey("ShowCrashButton");
+#endif
+    readSettings();
+    connect(&autoSaveModifiedFiles, &BaseAspect::changed,
+            this, &EditorManagerPrivate::updateAutoSave);
+    connect(&autoSaveInterval, &BaseAspect::changed, this, &EditorManagerPrivate::updateAutoSave);
+}
+
 class SystemSettingsWidget : public IOptionsPageWidget
 {
 public:
     SystemSettingsWidget()
         : m_fileSystemCaseSensitivityChooser(new QComboBox)
-        , m_autoSuspendMinDocumentCount(new QSpinBox)
         , m_externalFileBrowserEdit(new QLineEdit)
-        , m_autoSuspendCheckBox(new QCheckBox(Tr::tr("Auto-suspend unmodified files")))
-        , m_maxRecentFilesSpinBox(new QSpinBox)
-        , m_enableCrashReportingCheckBox(new QCheckBox(Tr::tr("Enable crash reporting")))
-        , m_warnBeforeOpeningBigFiles(
-              new QCheckBox(Tr::tr("Warn before opening text files greater than")))
-        , m_bigFilesLimitSpinBox(new QSpinBox)
         , m_terminalComboBox(new QComboBox)
         , m_terminalOpenArgs(new QLineEdit)
         , m_terminalExecuteArgs(new QLineEdit)
-        , m_patchChooser(new Utils::PathChooser)
         , m_environmentChangesLabel(new Utils::ElidingLabel)
-        , m_askBeforeExitCheckBox(new QCheckBox(Tr::tr("Ask for confirmation before exiting")))
-        , m_reloadBehavior(new QComboBox)
-        , m_autoSaveCheckBox(new QCheckBox(Tr::tr("Auto-save modified files")))
-        , m_clearCrashReportsButton(new QPushButton(Tr::tr("Clear Local Crash Reports")))
-        , m_crashReportsSizeText(new QLabel)
-        , m_autoSaveInterval(new QSpinBox)
-        , m_autoSaveRefactoringCheckBox(new QCheckBox(Tr::tr("Auto-save files after refactoring")))
+#ifdef ENABLE_CRASHPAD
+        , m_clearCrashReportsButton(new QPushButton(Tr::tr("Clear Local Crash Reports"), this))
+        , m_crashReportsSizeText(new QLabel(this))
+#endif
 
     {
-        m_autoSuspendCheckBox->setToolTip(
-            Tr::tr("Automatically free resources of old documents that are not visible and not "
-               "modified. They stay visible in the list of open documents."));
-        m_autoSuspendMinDocumentCount->setMinimum(1);
-        m_autoSuspendMinDocumentCount->setMaximum(500);
-        m_autoSuspendMinDocumentCount->setValue(30);
-        m_enableCrashReportingCheckBox->setToolTip(
-            Tr::tr("Allow crashes to be automatically reported. Collected reports are "
-               "used for the sole purpose of fixing bugs."));
-        m_bigFilesLimitSpinBox->setSuffix(Tr::tr("MB"));
-        m_bigFilesLimitSpinBox->setMinimum(1);
-        m_bigFilesLimitSpinBox->setMaximum(500);
-        m_bigFilesLimitSpinBox->setValue(5);
+        SystemSettings &s = systemSettings();
+
         m_terminalExecuteArgs->setToolTip(
             Tr::tr("Command line arguments used for \"Run in terminal\"."));
         QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(5);
         m_environmentChangesLabel->setSizePolicy(sizePolicy);
-        m_reloadBehavior->addItem(Tr::tr("Always Ask"));
-        m_reloadBehavior->addItem(Tr::tr("Reload All Unchanged Editors"));
-        m_reloadBehavior->addItem(Tr::tr("Ignore Modifications"));
-        m_autoSaveInterval->setSuffix(Tr::tr("min"));
         QSizePolicy termSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
         termSizePolicy.setHorizontalStretch(3);
         m_terminalComboBox->setSizePolicy(termSizePolicy);
@@ -120,77 +186,67 @@ public:
         m_terminalComboBox->setEditable(true);
         m_terminalOpenArgs->setToolTip(
             Tr::tr("Command line arguments used for \"%1\".").arg(FileUtils::msgTerminalHereAction()));
-        m_autoSaveInterval->setMinimum(1);
 
         auto fileSystemCaseSensitivityLabel = new QLabel(Tr::tr("File system case sensitivity:"));
         fileSystemCaseSensitivityLabel->setToolTip(
             Tr::tr("Influences how file names are matched to decide if they are the same."));
-        auto autoSuspendLabel = new QLabel(Tr::tr("Files to keep open:"));
-        autoSuspendLabel->setToolTip(
-            Tr::tr("Minimum number of open documents that should be kept in memory. Increasing this "
-               "number will lead to greater resource usage when not manually closing documents."));
         auto resetFileBrowserButton = new QPushButton(Tr::tr("Reset"));
         resetFileBrowserButton->setToolTip(Tr::tr("Reset to default."));
         auto helpExternalFileBrowserButton = new QToolButton;
         helpExternalFileBrowserButton->setText(Tr::tr("?"));
-        auto helpCrashReportingButton = new QToolButton;
+#ifdef ENABLE_CRASHPAD
+        auto helpCrashReportingButton = new QToolButton(this);
         helpCrashReportingButton->setText(Tr::tr("?"));
+#endif
         auto resetTerminalButton = new QPushButton(Tr::tr("Reset"));
         resetTerminalButton->setToolTip(Tr::tr("Reset to default.", "Terminal"));
-        auto patchCommandLabel = new QLabel(Tr::tr("Patch command:"));
         auto environmentButton = new QPushButton(Tr::tr("Change..."));
         environmentButton->setSizePolicy(QSizePolicy::Fixed,
                                          environmentButton->sizePolicy().verticalPolicy());
 
-        Grid form;
-        form.addRow(
-            {Tr::tr("Environment:"), Span(2, Row{m_environmentChangesLabel, environmentButton})});
+        Grid grid;
+        grid.addRow({Tr::tr("Environment:"),
+                     Span(3, m_environmentChangesLabel), environmentButton});
         if (HostOsInfo::isAnyUnixHost()) {
-            form.addRow({Tr::tr("Terminal:"),
-                         Span(2,
-                              Row{m_terminalComboBox,
-                                  m_terminalOpenArgs,
-                                  m_terminalExecuteArgs,
-                                  resetTerminalButton})});
+            grid.addRow({Tr::tr("Terminal:"),
+                         m_terminalComboBox,
+                         m_terminalOpenArgs,
+                         m_terminalExecuteArgs,
+                         resetTerminalButton});
         }
         if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost()) {
-            form.addRow({Tr::tr("External file browser:"),
-                         Span(2,
-                              Row{m_externalFileBrowserEdit,
-                                  resetFileBrowserButton,
-                                  helpExternalFileBrowserButton})});
+            grid.addRow({Tr::tr("External file browser:"),
+                         Span(3, m_externalFileBrowserEdit),
+                         resetFileBrowserButton,
+                         helpExternalFileBrowserButton});
         }
-        form.addRow({patchCommandLabel, Span(2, m_patchChooser)});
+        grid.addRow({Span(4, s.patchCommand)});
         if (HostOsInfo::isMacHost()) {
-            form.addRow({fileSystemCaseSensitivityLabel,
-                         Span(2, Row{m_fileSystemCaseSensitivityChooser, st})});
+            grid.addRow({fileSystemCaseSensitivityLabel,
+                         m_fileSystemCaseSensitivityChooser});
         }
-        form.addRow(
-            {Tr::tr("When files are externally modified:"), Span(2, Row{m_reloadBehavior, st})});
-        form.addRow(
-            {m_autoSaveCheckBox, Span(2, Row{Tr::tr("Interval:"), m_autoSaveInterval, st})});
-        form.addRow({Span(3, m_autoSaveRefactoringCheckBox)});
-        form.addRow({m_autoSuspendCheckBox,
-                     Span(2, Row{autoSuspendLabel, m_autoSuspendMinDocumentCount, st})});
-        form.addRow({Span(3, Row{m_warnBeforeOpeningBigFiles, m_bigFilesLimitSpinBox, st})});
-        form.addRow({Span(3,
-                         Row{Tr::tr("Maximum number of entries in \"Recent Files\":"),
-                             m_maxRecentFilesSpinBox,
-                             st})});
-        form.addRow({m_askBeforeExitCheckBox});
+        grid.addRow({s.reloadSetting});
+        grid.addRow({s.autoSaveModifiedFiles, Row{s.autoSaveInterval, st}});
+        grid.addRow({s.autoSuspendEnabled, Row{s.autoSuspendMinDocumentCount, st}});
+        grid.addRow({s.autoSaveAfterRefactoring});
+        grid.addRow({s.warnBeforeOpeningBigFiles, Row{s.bigFileSizeLimitInMB, st}});
+        grid.addRow({Tr::tr("Maximum number of entries in \"Recent Files\":"),
+                    Row{s.maxRecentFiles, st}});
+        grid.addRow({s.askBeforeExit});
 #ifdef ENABLE_CRASHPAD
-        form.addRow({Span(3, Row{m_enableCrashReportingCheckBox, helpCrashReportingButton, st})});
-        form.addRow({Span(3, Row{m_clearCrashReportsButton, m_crashReportsSizeText, st})});
+        grid.addRow({s.enableCrashReporting,
+                     Row{m_clearCrashReportsButton,
+                         m_crashReportsSizeText,
+                         helpCrashReportingButton, st}});
 #endif
 
         Column {
             Group {
                 title(Tr::tr("System")),
-                Column { form, st }
+                Column { grid, st }
             }
         }.attachTo(this);
 
-        m_reloadBehavior->setCurrentIndex(EditorManager::reloadSetting());
         if (HostOsInfo::isAnyUnixHost()) {
             const QVector<TerminalCommand> availableTerminals
                 = TerminalCommand::availableTerminalEmulators();
@@ -206,34 +262,8 @@ public:
             m_externalFileBrowserEdit->setText(UnixUtils::fileBrowser(ICore::settings()));
         }
 
-        const QString patchToolTip = Tr::tr("Command used for reverting diff chunks.");
-        patchCommandLabel->setToolTip(patchToolTip);
-        m_patchChooser->setToolTip(patchToolTip);
-        m_patchChooser->setExpectedKind(PathChooser::ExistingCommand);
-        m_patchChooser->setHistoryCompleter(QLatin1String("General.PatchCommand.History"));
-        m_patchChooser->setFilePath(PatchTool::patchCommand());
-        m_autoSaveCheckBox->setChecked(EditorManagerPrivate::autoSaveEnabled());
-        m_autoSaveCheckBox->setToolTip(Tr::tr("Automatically creates temporary copies of "
-                                          "modified files. If %1 is restarted after "
-                                          "a crash or power failure, it asks whether to "
-                                          "recover the auto-saved content.")
-                                           .arg(Constants::IDE_DISPLAY_NAME));
-        m_autoSaveRefactoringCheckBox->setChecked(EditorManager::autoSaveAfterRefactoring());
-        m_autoSaveRefactoringCheckBox->setToolTip(
-            Tr::tr("Automatically saves all open files "
-               "affected by a refactoring operation,\nprovided they were unmodified before the "
-               "refactoring."));
-        m_autoSaveInterval->setValue(EditorManagerPrivate::autoSaveInterval());
-        m_autoSuspendCheckBox->setChecked(EditorManagerPrivate::autoSuspendEnabled());
-        m_autoSuspendMinDocumentCount->setValue(EditorManagerPrivate::autoSuspendMinDocumentCount());
-        m_warnBeforeOpeningBigFiles->setChecked(
-            EditorManagerPrivate::warnBeforeOpeningBigFilesEnabled());
-        m_bigFilesLimitSpinBox->setValue(EditorManagerPrivate::bigFileSizeLimit());
-        m_maxRecentFilesSpinBox->setMinimum(1);
-        m_maxRecentFilesSpinBox->setMaximum(99);
-        m_maxRecentFilesSpinBox->setValue(EditorManagerPrivate::maxRecentFiles());
 #ifdef ENABLE_CRASHPAD
-        if (ICore::settings()->value(showCrashButtonKey).toBool()) {
+        if (s.showCrashButton()) {
             auto crashButton = new QPushButton("CRASH!!!");
             crashButton->show();
             connect(crashButton, &QPushButton::clicked, [] {
@@ -242,12 +272,10 @@ public:
             });
         }
 
-        m_enableCrashReportingCheckBox->setChecked(
-            ICore::settings()->value(crashReportingEnabledKey).toBool());
         connect(helpCrashReportingButton, &QAbstractButton::clicked, this, [this] {
             showHelpDialog(Tr::tr("Crash Reporting"), CorePlugin::msgCrashpadInformation());
         });
-        connect(m_enableCrashReportingCheckBox, &QCheckBox::stateChanged, this, [this] {
+        connect(&s.enableCrashReporting, &BaseAspect::changed, this, [this] {
             const QString restartText = Tr::tr("The change will take effect after restart.");
             Core::RestartDialog restartDialog(Core::ICore::dialogParent(), restartText);
             restartDialog.exec();
@@ -263,10 +291,6 @@ public:
             updateClearCrashWidgets();
         });
 #endif
-
-        m_askBeforeExitCheckBox->setChecked(
-            static_cast<Core::Internal::MainWindow *>(ICore::mainWindow())
-                ->askConfirmationBeforeExit());
 
         if (HostOsInfo::isAnyUnixHost()) {
             connect(resetTerminalButton,
@@ -343,33 +367,25 @@ private:
     void showHelpDialog(const QString &title, const QString &helpText);
 
     QComboBox *m_fileSystemCaseSensitivityChooser;
-    QSpinBox *m_autoSuspendMinDocumentCount;
     QLineEdit *m_externalFileBrowserEdit;
-    QCheckBox *m_autoSuspendCheckBox;
-    QSpinBox *m_maxRecentFilesSpinBox;
-    QCheckBox *m_enableCrashReportingCheckBox;
-    QCheckBox *m_warnBeforeOpeningBigFiles;
-    QSpinBox *m_bigFilesLimitSpinBox;
     QComboBox *m_terminalComboBox;
     QLineEdit *m_terminalOpenArgs;
     QLineEdit *m_terminalExecuteArgs;
-    Utils::PathChooser *m_patchChooser;
     Utils::ElidingLabel *m_environmentChangesLabel;
-    QCheckBox *m_askBeforeExitCheckBox;
-    QComboBox *m_reloadBehavior;
-    QCheckBox *m_autoSaveCheckBox;
+#ifdef ENABLE_CRASHPAD
     QPushButton *m_clearCrashReportsButton;
     QLabel *m_crashReportsSizeText;
-    QSpinBox *m_autoSaveInterval;
-    QCheckBox *m_autoSaveRefactoringCheckBox;
+#endif
     QPointer<QMessageBox> m_dialog;
     EnvironmentItems m_environmentChanges;
 };
 
 void SystemSettingsWidget::apply()
 {
+    systemSettings().apply();
+    systemSettings().writeSettings();
+
     QtcSettings *settings = ICore::settings();
-    EditorManager::setReloadSetting(IDocument::ReloadSetting(m_reloadBehavior->currentIndex()));
     if (HostOsInfo::isAnyUnixHost()) {
         TerminalCommand::setTerminalEmulator({
             FilePath::fromUserInput(m_terminalComboBox->lineEdit()->text()),
@@ -380,23 +396,6 @@ void SystemSettingsWidget::apply()
             UnixUtils::setFileBrowser(settings, m_externalFileBrowserEdit->text());
         }
     }
-    PatchTool::setPatchCommand(m_patchChooser->filePath());
-    EditorManagerPrivate::setAutoSaveEnabled(m_autoSaveCheckBox->isChecked());
-    EditorManagerPrivate::setAutoSaveInterval(m_autoSaveInterval->value());
-    EditorManagerPrivate::setAutoSaveAfterRefactoring(m_autoSaveRefactoringCheckBox->isChecked());
-    EditorManagerPrivate::setAutoSuspendEnabled(m_autoSuspendCheckBox->isChecked());
-    EditorManagerPrivate::setAutoSuspendMinDocumentCount(m_autoSuspendMinDocumentCount->value());
-    EditorManagerPrivate::setWarnBeforeOpeningBigFilesEnabled(
-        m_warnBeforeOpeningBigFiles->isChecked());
-    EditorManagerPrivate::setBigFileSizeLimit(m_bigFilesLimitSpinBox->value());
-    EditorManagerPrivate::setMaxRecentFiles(m_maxRecentFilesSpinBox->value());
-#ifdef ENABLE_CRASHPAD
-    ICore::settings()->setValue(crashReportingEnabledKey,
-                                m_enableCrashReportingCheckBox->isChecked());
-#endif
-
-    static_cast<Core::Internal::MainWindow *>(ICore::mainWindow())
-        ->setAskConfirmationBeforeExit(m_askBeforeExitCheckBox->isChecked());
 
     if (HostOsInfo::isMacHost()) {
         const Qt::CaseSensitivity sensitivity = EditorManagerPrivate::readFileSystemSensitivity(
@@ -438,7 +437,7 @@ void SystemSettingsWidget::updatePath()
 {
     Environment env;
     env.appendToPath(VcsManager::additionalToolsPath());
-    m_patchChooser->setEnvironment(env);
+    systemSettings().patchCommand.setEnvironment(env);
 }
 
 void SystemSettingsWidget::updateEnvironmentChangesLabel()
@@ -488,13 +487,20 @@ void SystemSettingsWidget::showHelpForFileBrowser()
         showHelpDialog(Tr::tr("Variables"), UnixUtils::fileBrowserHelpText());
 }
 
-SystemSettings::SystemSettings()
-{
-    setId(Constants::SETTINGS_ID_SYSTEM);
-    setDisplayName(Tr::tr("System"));
-    setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setWidgetCreator([] { return new SystemSettingsWidget; });
-}
+// SystemSettingsPage
 
-} // namespace Internal
-} // namespace Core
+class SystemSettingsPage final : public IOptionsPage
+{
+public:
+    SystemSettingsPage()
+    {
+        setId(Constants::SETTINGS_ID_SYSTEM);
+        setDisplayName(Tr::tr("System"));
+        setCategory(Constants::SETTINGS_CATEGORY_CORE);
+        setWidgetCreator([] { return new SystemSettingsWidget; });
+    }
+};
+
+const SystemSettingsPage settingsPage;
+
+} // Core::Internal

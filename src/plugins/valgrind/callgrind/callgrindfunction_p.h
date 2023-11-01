@@ -3,16 +3,15 @@
 
 #pragma once
 
-#include "callgrindfunction.h"
-#include "callgrindparsedata.h"
 #include "callgrindcostitem.h"
+#include "callgrindfunction.h"
 #include "callgrindfunctioncall.h"
+#include "callgrindparsedata.h"
 
-#include <QVector>
 #include <QHash>
+#include <QList>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class Function::Private
 {
@@ -20,7 +19,7 @@ public:
     Private(const ParseData *data);
     virtual ~Private();
 
-    static void accumulateCost(QVector<quint64> &base, const QVector<quint64> &add);
+    static void accumulateCost(QList<quint64> &base, const QList<quint64> &add);
     enum CallType {
         Incoming,
         Outgoing
@@ -33,18 +32,17 @@ public:
     qint64 m_objectId = -1;
     qint64 m_nameId = -1;
 
-    QVector<quint64> m_selfCost;
-    QVector<quint64> m_inclusiveCost;
+    QList<quint64> m_selfCost;
+    QList<quint64> m_inclusiveCost;
 
-    QVector<const CostItem *> m_costItems;
+    QList<const CostItem *> m_costItems;
     // used to accumulate, hence values not const
     QHash<const Function *, FunctionCall *> m_outgoingCallMap;
     QHash<const Function *, FunctionCall *> m_incomingCallMap;
     // used in public api, hence const
-    QVector<const FunctionCall *> m_outgoingCalls;
-    QVector<const FunctionCall *> m_incomingCalls;
+    QList<const FunctionCall *> m_outgoingCalls;
+    QList<const FunctionCall *> m_incomingCalls;
     quint64 m_called = 0;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

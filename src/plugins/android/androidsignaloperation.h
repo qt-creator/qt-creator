@@ -13,7 +13,6 @@ namespace Internal {
 
 class AndroidSignalOperation : public ProjectExplorer::DeviceProcessSignalOperation
 {
-    Q_OBJECT
 public:
     ~AndroidSignalOperation() override;
     void killProcess(qint64 pid) override;

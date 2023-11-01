@@ -7,6 +7,8 @@ class PtyQt
 {
 public:
     static IPtyProcess *createPtyProcess(IPtyProcess::PtyType ptyType);
+
+    static bool isUsingConPTY();
 };
 
 #endif // PTYQT_H

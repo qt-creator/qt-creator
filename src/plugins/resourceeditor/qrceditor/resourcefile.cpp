@@ -50,7 +50,7 @@ void File::checkExistence()
 bool File::exists()
 {
     if (!m_checked) {
-        m_exists = QFile::exists(name);
+        m_exists = QFileInfo::exists(name);
         m_checked = true;
     }
 
@@ -363,7 +363,7 @@ bool ResourceFile::renameFile(const QString &fileName, const QString &newFileNam
     }
 
     if (success) {
-        const bool exists = QFile::exists(newFileName);
+        const bool exists = QFileInfo::exists(newFileName);
         for (File *file : std::as_const(entries)) {
             file->name = newFileName;
             file->setExists(exists);
@@ -1230,7 +1230,7 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
     } else {
         const QString fileNameBackup = file(index);
         const QString aliasBackup = alias(index);
-        if (!QFile::exists(fileNameBackup)) {
+        if (!QFileInfo::exists(fileNameBackup)) {
             deleteItem(index);
             return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
         }

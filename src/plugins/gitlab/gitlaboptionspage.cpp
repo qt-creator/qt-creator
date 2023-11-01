@@ -69,19 +69,19 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     , m_mode(m)
 {
     m_host.setLabelText(Tr::tr("Host:"));
-    m_host.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
-                                        : Utils::StringAspect::LineEditDisplay);
-    m_host.setValidationFunction([](Utils::FancyLineEdit *l, QString *) {
+    m_host.setDisplayStyle(m == Display ? StringAspect::LabelDisplay
+                                        : StringAspect::LineEditDisplay);
+    m_host.setValidationFunction([](FancyLineEdit *l, QString *) {
         return hostValid(l->text());
     });
 
     m_description.setLabelText(Tr::tr("Description:"));
-    m_description.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
-                                               : Utils::StringAspect::LineEditDisplay);
+    m_description.setDisplayStyle(m == Display ? StringAspect::LabelDisplay
+                                               : StringAspect::LineEditDisplay);
 
     m_token.setLabelText(Tr::tr("Access token:"));
-    m_token.setDisplayStyle(m == Display ? Utils::StringAspect::LabelDisplay
-                                         : Utils::StringAspect::LineEditDisplay);
+    m_token.setDisplayStyle(m == Display ? StringAspect::LabelDisplay
+                                         : StringAspect::LineEditDisplay);
     m_token.setVisible(m == Edit);
 
     m_port.setLabelText(Tr::tr("Port:"));
@@ -89,7 +89,7 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
     m_port.setValue(GitLabServer::defaultPort);
     m_port.setEnabled(m == Edit);
     m_secure.setLabelText(Tr::tr("HTTPS:"));
-    m_secure.setLabelPlacement(Utils::BoolAspect::LabelPlacement::InExtraLabel);
+    m_secure.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
     m_secure.setDefaultValue(true);
     m_secure.setEnabled(m == Edit);
 
@@ -110,12 +110,12 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
 GitLabServer GitLabServerWidget::gitLabServer() const
 {
     GitLabServer result;
-    result.id = m_mode == Edit ? Utils::Id::fromName(QUuid::createUuid().toByteArray()) : m_id;
-    result.host = m_host.value();
-    result.description = m_description.value();
-    result.token = m_token.value();
-    result.port = m_port.value();
-    result.secure = m_secure.value();
+    result.id = m_mode == Edit ? Id::fromName(QUuid::createUuid().toByteArray()) : m_id;
+    result.host = m_host();
+    result.description = m_description();
+    result.token = m_token();
+    result.port = m_port();
+    result.secure = m_secure();
     return result;
 }
 
@@ -178,7 +178,7 @@ GitLabOptionsWidget::GitLabOptionsWidget(GitLabParameters *params)
         }, Column { m_add, m_edit, m_remove, st },
     }.attachTo(this);
 
-    m_curl.setFilePath(params->curl);
+    m_curl.setValue(params->curl);
 
     for (const auto &gitLabServer : params->gitLabServers) {
         m_defaultGitLabServer->addItem(gitLabServer.displayString(),

@@ -105,7 +105,8 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
     projectSettings.setDiagnosticConfigId(config.id());
 
     // Notify the user about changed project specific settings
-    const QString text = Tr::tr("Changes applied in Projects Mode > Clang Code Model");
+    const QString text
+        = Tr::tr("Changes applied to diagnostic configuration \"%1\".").arg(config.displayName());
     FadingIndicator::showText(Core::ICore::mainWindow(),
                               text,
                               FadingIndicator::SmallText);
@@ -264,7 +265,7 @@ ClangdTextMark::ClangdTextMark(TextEditor::TextDocument *doc,
         // Copy to clipboard action
         QList<QAction *> actions;
         QAction *action = new QAction();
-        action->setIcon(QIcon::fromTheme("edit-copy", Icons::COPY.icon()));
+        action->setIcon(Icon::fromTheme("edit-copy"));
         action->setToolTip(Tr::tr("Copy to Clipboard", "Clang Code Model Marks"));
         QObject::connect(action, &QAction::triggered, [diag] {
             const QString text = ClangDiagnosticWidget::createText({diag},

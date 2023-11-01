@@ -4,7 +4,7 @@ project('mesonsampleproject', 'cpp',default_options : ['cpp_std=c++11'])
 qt5 = import('qt5')
 qt5dep = dependency('qt5', modules : ['Core', 'Widgets'])
 
-translations = qt5.compile_translations(ts_files : 'mesonsampleproject_fr_FR.ts', build_by_default : true)
+#translations = qt5.compile_translations(ts_files : 'mesonsampleproject_fr_FR.ts', build_by_default : true)
 
 generated_files = qt5.preprocess(
                             moc_headers : 'mesonsampleproject.h',

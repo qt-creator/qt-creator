@@ -13,7 +13,7 @@
     "options": [
         { "key": "TargetPath", "value": "%{Path}" },
         { "key": "QmlFileName", "value": "%{JS: Util.fileName(value('QmlSrcFile').startsWith('tst_') ? value('QmlSrcFile') : 'tst_' + value('QmlSrcFile'), '.qml')}" },
-        { "key": "CppFileName", "value": "%{JS: Util.fileName(value('CppSrcFile'), Util.preferredSuffix('text/x-c++src'))}" }
+        { "key": "CppFileName", "value": "%{JS: Util.fileName(value('CppSrcFile'), Cpp.cxxSourceSuffix())}" }
     ],
 
     "pages" :
@@ -62,6 +62,26 @@
                     }
                 },
                 {
+                    "name": "Catch2Version",
+                    "trDisplayName": "Catch2 version:",
+                    "visible": "%{JS: value('TestFrameWork') == 'Catch2'}",
+                    "type": "ComboBox",
+                    "data": {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "2.x",
+                                "value": "V2"
+                            },
+                            {
+                                "trKey": "3.x",
+                                "value": "V3"
+                            }
+                        ]
+                    }
+                },
+                {
                     "name": "TestSuiteName",
                     "trDisplayName": "Test suite name:",
                     "visible": "%{JS: ['BoostTest', 'GTest'].indexOf(value('TestFrameWork')) >= 0}",
@@ -91,7 +111,7 @@
                     "trDisplayName": "Source file:",
                     "mandatory": true,
                     "visible": "%{JS: value('TestFrameWork') !== 'QtQuickTest' }",
-                    "data": { "trText": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Util.preferredSuffix('text/x-c++src')}" }
+                    "data": { "text": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Cpp.cxxSourceSuffix()}" }
                 },
                 {
                     "name": "QmlSrcFile",
@@ -99,7 +119,7 @@
                     "trDisplayName": "Source file:",
                     "mandatory": true,
                     "visible": "%{JS: value('TestFrameWork') === 'QtQuickTest' }",
-                    "data": { "trText": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.qml'}" }
+                    "data": { "text": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.qml'}" }
                 },
                 {
                     "name": "Path",

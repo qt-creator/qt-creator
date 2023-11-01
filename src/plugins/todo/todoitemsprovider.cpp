@@ -69,8 +69,8 @@ void TodoItemsProvider::updateList()
 
     // Show only items of the current file if any
     if (m_settings.scanningScope == ScanningScopeCurrentFile) {
-        if (m_currentEditor)
-            m_itemsList = m_itemsHash.value(m_currentEditor->document()->filePath());
+        if (auto currentEditor = Core::EditorManager::currentEditor())
+            m_itemsList = m_itemsHash.value(currentEditor->document()->filePath());
     // Show only items of the current sub-project
     } else if (m_settings.scanningScope == ScanningScopeSubProject) {
         if (m_startupProject)
@@ -164,9 +164,8 @@ void TodoItemsProvider::projectsFilesChanged()
     updateList();
 }
 
-void TodoItemsProvider::currentEditorChanged(Core::IEditor *editor)
+void TodoItemsProvider::currentEditorChanged()
 {
-    m_currentEditor = editor;
     if (m_settings.scanningScope == ScanningScopeCurrentFile
             || m_settings.scanningScope == ScanningScopeSubProject) {
         updateList();
@@ -192,7 +191,6 @@ void TodoItemsProvider::setupStartupProjectBinding()
 
 void TodoItemsProvider::setupCurrentEditorBinding()
 {
-    m_currentEditor = Core::EditorManager::currentEditor();
     connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
         this, &TodoItemsProvider::currentEditorChanged);
 }

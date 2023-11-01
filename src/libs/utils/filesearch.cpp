@@ -4,23 +4,201 @@
 #include "filesearch.h"
 
 #include "algorithm.h"
-#include "filepath.h"
-#include "mapreduce.h"
+#include "async.h"
 #include "qtcassert.h"
-#include "searchresultitem.h"
 #include "stringutils.h"
 #include "utilstr.h"
 
 #include <QLoggingCategory>
-#include <QMutex>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QTextCodec>
-
-#include <cctype>
 
 Q_LOGGING_CATEGORY(searchLog, "qtc.utils.filesearch", QtWarningMsg)
 
-using namespace Utils;
+namespace Utils {
+
+const int MAX_LINE_SIZE = 400;
+
+static QString clippedText(const QString &text, int maxLength)
+{
+    if (text.length() > maxLength)
+        return text.left(maxLength) + QChar(0x2026); // '...'
+    return text;
+}
+
+QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags)
+{
+    QTextDocument::FindFlags textDocFlags;
+    if (flags & FindBackward)
+        textDocFlags |= QTextDocument::FindBackward;
+    if (flags & FindCaseSensitively)
+        textDocFlags |= QTextDocument::FindCaseSensitively;
+    if (flags & FindWholeWords)
+        textDocFlags |= QTextDocument::FindWholeWords;
+    return textDocFlags;
+}
+
+static SearchResultItems searchWithoutRegExp(const QFuture<void> &future, const QString &searchTerm,
+                                             FindFlags flags, const FilePath &filePath,
+                                             const QString &contents)
+{
+    const bool caseSensitive = (flags & QTextDocument::FindCaseSensitively);
+    const bool wholeWord = (flags & QTextDocument::FindWholeWords);
+    const QString searchTermLower = searchTerm.toLower();
+    const QString searchTermUpper = searchTerm.toUpper();
+    const int termMaxIndex = searchTerm.length() - 1;
+    const QChar *termData = searchTerm.constData();
+    const QChar *termDataLower = searchTermLower.constData();
+    const QChar *termDataUpper = searchTermUpper.constData();
+
+    SearchResultItems results;
+    QString copy = contents;
+    QTextStream stream(&copy);
+    int lineNr = 0;
+
+    while (!stream.atEnd()) {
+        ++lineNr;
+        const QString chunk = stream.readLine();
+        const int chunkLength = chunk.length();
+        const QChar *chunkPtr = chunk.constData();
+        const QChar *chunkEnd = chunkPtr + chunkLength - 1;
+        for (const QChar *regionPtr = chunkPtr; regionPtr + termMaxIndex <= chunkEnd; ++regionPtr) {
+            const QChar *regionEnd = regionPtr + termMaxIndex;
+            if ( /* optimization check for start and end of region */
+                // case sensitive
+                (caseSensitive && *regionPtr == termData[0]
+                 && *regionEnd == termData[termMaxIndex])
+                ||
+                // case insensitive
+                (!caseSensitive && (*regionPtr == termDataLower[0]
+                                    || *regionPtr == termDataUpper[0])
+                 && (*regionEnd == termDataLower[termMaxIndex]
+                     || *regionEnd == termDataUpper[termMaxIndex]))
+                ) {
+                bool equal = true;
+
+                // whole word check
+                const QChar *beforeRegion = regionPtr - 1;
+                const QChar *afterRegion = regionEnd + 1;
+                if (wholeWord
+                    && (((beforeRegion >= chunkPtr)
+                         && (beforeRegion->isLetterOrNumber()
+                             || ((*beforeRegion) == QLatin1Char('_'))))
+                        ||
+                        ((afterRegion <= chunkEnd)
+                         && (afterRegion->isLetterOrNumber()
+                             || ((*afterRegion) == QLatin1Char('_'))))
+                        )) {
+                    equal = false;
+                } else {
+                    // check all chars
+                    int regionIndex = 1;
+                    for (const QChar *regionCursor = regionPtr + 1;
+                         regionCursor < regionEnd;
+                         ++regionCursor, ++regionIndex) {
+                        if (  // case sensitive
+                            (caseSensitive
+                             && *regionCursor != termData[regionIndex])
+                            ||
+                            // case insensitive
+                            (!caseSensitive
+                             && *regionCursor != termDataLower[regionIndex]
+                             && *regionCursor != termDataUpper[regionIndex])
+                            ) {
+                            equal = false;
+                            break;
+                        }
+                    }
+                }
+                if (equal) {
+                    SearchResultItem result;
+                    result.setFilePath(filePath);
+                    result.setMainRange(lineNr, regionPtr - chunkPtr, termMaxIndex + 1);
+                    result.setDisplayText(clippedText(chunk, MAX_LINE_SIZE));
+                    result.setUserData(QStringList());
+                    result.setUseTextEditorFont(true);
+                    results << result;
+                    regionPtr += termMaxIndex; // another +1 done by for-loop
+                }
+            }
+        }
+        if (future.isCanceled())
+            return {};
+    }
+    if (future.isCanceled())
+        return {};
+    return results;
+}
+
+static SearchResultItems searchWithRegExp(const QFuture<void> &future, const QString &searchTerm,
+                                          FindFlags flags, const FilePath &filePath,
+                                          const QString &contents)
+{
+    const QString term = flags & QTextDocument::FindWholeWords
+        ? QString::fromLatin1("\\b%1\\b").arg(searchTerm) : searchTerm;
+    const QRegularExpression::PatternOptions patternOptions = (flags & FindCaseSensitively)
+        ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
+    const QRegularExpression expression = QRegularExpression(term, patternOptions);
+    if (!expression.isValid()) {
+        QFuture<void> nonConstFuture = future;
+        nonConstFuture.cancel();
+        return {};
+    }
+
+    SearchResultItems results;
+    QString copy = contents;
+    QTextStream stream(&copy);
+    int lineNr = 0;
+
+    QRegularExpressionMatch match;
+    while (!stream.atEnd()) {
+        ++lineNr;
+        const QString line = stream.readLine();
+        const QString resultItemText = clippedText(line, MAX_LINE_SIZE);
+        int lengthOfLine = line.size();
+        int pos = 0;
+        while ((match = expression.match(line, pos)).hasMatch()) {
+            pos = match.capturedStart();
+            SearchResultItem result;
+            result.setFilePath(filePath);
+            result.setMainRange(lineNr, pos, match.capturedLength());
+            result.setDisplayText(resultItemText);
+            result.setUserData(match.capturedTexts());
+            result.setUseTextEditorFont(true);
+            results << result;
+            if (match.capturedLength() == 0)
+                break;
+            pos += match.capturedLength();
+            if (pos >= lengthOfLine)
+                break;
+        }
+        if (future.isCanceled())
+            return {};
+    }
+    if (future.isCanceled())
+        return {};
+    return results;
+}
+
+static SearchResultItems searchInContents(const QFuture<void> &future, const QString &searchTerm,
+                                          FindFlags flags, const FilePath &filePath,
+                                          const QString &contents)
+{
+    if (flags & FindRegularExpression)
+        return searchWithRegExp(future, searchTerm, flags, filePath, contents);
+    return searchWithoutRegExp(future, searchTerm, flags, filePath, contents);
+}
+
+void searchInContents(QPromise<SearchResultItems> &promise, const QString &searchTerm,
+                      FindFlags flags, const FilePath &filePath, const QString &contents)
+{
+    const QFuture<void> future(promise.future());
+    const SearchResultItems results = searchInContents(future, searchTerm, flags, filePath,
+                                                       contents);
+    if (!promise.isCanceled())
+        promise.addResult(results);
+}
 
 static inline QString msgCanceled(const QString &searchTerm, int numMatches, int numFilesSearched)
 {
@@ -34,22 +212,8 @@ static inline QString msgFound(const QString &searchTerm, int numMatches, int nu
                   nullptr, numMatches).arg(searchTerm).arg(numFilesSearched);
 }
 
-namespace {
-
-const int MAX_LINE_SIZE = 400;
-
-QString clippedText(const QString &text, int maxLength)
-{
-    if (text.length() > maxLength)
-        return text.left(maxLength) + QChar(0x2026); // '...'
-    return text;
-}
-
-// returns success
-static bool getFileContent(const FilePath &filePath,
-                           QTextCodec *encoding,
-                           QString *tempString,
-                           const QMap<FilePath, QString> &fileToContentsMap)
+static bool getFileContent(const FilePath &filePath, QTextCodec *encoding,
+                           QString *tempString, const QMap<FilePath, QString> &fileToContentsMap)
 {
     if (fileToContentsMap.contains(filePath)) {
         *tempString = fileToContentsMap.value(filePath);
@@ -63,330 +227,133 @@ static bool getFileContent(const FilePath &filePath,
     return true;
 }
 
-class FileSearch
+static void fileSearch(QPromise<SearchResultItems> &promise,
+                       const FileContainerIterator::Item &item, const QString &searchTerm,
+                       FindFlags flags, const QMap<FilePath, QString> &fileToContentsMap)
 {
-public:
-    FileSearch(const QString &searchTerm,
-               QTextDocument::FindFlags flags,
-               const QMap<FilePath, QString> &fileToContentsMap);
-    void operator()(QFutureInterface<SearchResultItems> &futureInterface,
-                    const FileIterator::Item &item) const;
-
-private:
-    QMap<FilePath, QString> fileToContentsMap;
-    QString searchTermLower;
-    QString searchTermUpper;
-    int termMaxIndex;
-    const QChar *termData;
-    const QChar *termDataLower;
-    const QChar *termDataUpper;
-    bool caseSensitive;
-    bool wholeWord;
-};
-
-class FileSearchRegExp
-{
-public:
-    FileSearchRegExp(const QString &searchTerm,
-                     QTextDocument::FindFlags flags,
-                     const QMap<FilePath, QString> &fileToContentsMap);
-    FileSearchRegExp(const FileSearchRegExp &other);
-    void operator()(QFutureInterface<SearchResultItems> &futureInterface,
-                    const FileIterator::Item &item) const;
-
-private:
-    QRegularExpressionMatch doGuardedMatch(const QString &line, int offset) const;
-
-    QMap<FilePath, QString> fileToContentsMap;
-    QRegularExpression expression;
-    mutable QMutex mutex;
-};
-
-FileSearch::FileSearch(const QString &searchTerm,
-                       QTextDocument::FindFlags flags,
-                       const QMap<FilePath, QString> &fileToContentsMap)
-{
-    this->fileToContentsMap = fileToContentsMap;
-    caseSensitive = (flags & QTextDocument::FindCaseSensitively);
-    wholeWord = (flags & QTextDocument::FindWholeWords);
-    searchTermLower = searchTerm.toLower();
-    searchTermUpper = searchTerm.toUpper();
-    termMaxIndex = searchTerm.length() - 1;
-    termData = searchTerm.constData();
-    termDataLower = searchTermLower.constData();
-    termDataUpper = searchTermUpper.constData();
-}
-
-void FileSearch::operator()(QFutureInterface<SearchResultItems> &futureInterface,
-                            const FileIterator::Item &item) const
-{
-    if (futureInterface.isCanceled())
+    if (promise.isCanceled())
         return;
     qCDebug(searchLog) << "Searching in" << item.filePath;
-    futureInterface.setProgressRange(0, 1);
-    futureInterface.setProgressValue(0);
-    SearchResultItems results;
-    QString tempString;
-    if (!getFileContent(item.filePath, item.encoding, &tempString, fileToContentsMap)) {
+    promise.setProgressRange(0, 1);
+    promise.setProgressValue(0);
+    QString contents;
+    if (!getFileContent(item.filePath, item.encoding, &contents, fileToContentsMap)) {
         qCDebug(searchLog) << "- failed to get content for" << item.filePath;
-        futureInterface.cancel(); // failure
+        promise.future().cancel(); // failure
         return;
     }
-    QTextStream stream(&tempString);
-    int lineNr = 0;
 
-    while (!stream.atEnd()) {
-        ++lineNr;
-        const QString chunk = stream.readLine();
-        const int chunkLength = chunk.length();
-        const QChar *chunkPtr = chunk.constData();
-        const QChar *chunkEnd = chunkPtr + chunkLength - 1;
-        for (const QChar *regionPtr = chunkPtr; regionPtr + termMaxIndex <= chunkEnd; ++regionPtr) {
-            const QChar *regionEnd = regionPtr + termMaxIndex;
-            if ( /* optimization check for start and end of region */
-                    // case sensitive
-                    (caseSensitive && *regionPtr == termData[0]
-                     && *regionEnd == termData[termMaxIndex])
-                    ||
-                    // case insensitive
-                    (!caseSensitive && (*regionPtr == termDataLower[0]
-                                        || *regionPtr == termDataUpper[0])
-                     && (*regionEnd == termDataLower[termMaxIndex]
-                         || *regionEnd == termDataUpper[termMaxIndex]))
-                     ) {
-                bool equal = true;
+    const QFuture<void> future(promise.future());
+    const SearchResultItems results = searchInContents(future, searchTerm, flags, item.filePath,
+                                                       contents);
+    if (!promise.isCanceled()) {
+        promise.addResult(results);
+        promise.setProgressValue(1);
+    }
+    qCDebug(searchLog) << "- finished searching in" << item.filePath;
+}
 
-                // whole word check
-                const QChar *beforeRegion = regionPtr - 1;
-                const QChar *afterRegion = regionEnd + 1;
-                if (wholeWord
-                        && (((beforeRegion >= chunkPtr)
-                             && (beforeRegion->isLetterOrNumber()
-                                 || ((*beforeRegion) == QLatin1Char('_'))))
-                            ||
-                            ((afterRegion <= chunkEnd)
-                             && (afterRegion->isLetterOrNumber()
-                                 || ((*afterRegion) == QLatin1Char('_'))))
-                            )) {
-                    equal = false;
-                } else {
-                    // check all chars
-                    int regionIndex = 1;
-                    for (const QChar *regionCursor = regionPtr + 1;
-                         regionCursor < regionEnd;
-                         ++regionCursor, ++regionIndex) {
-                        if (  // case sensitive
-                              (caseSensitive
-                               && *regionCursor != termData[regionIndex])
-                              ||
-                              // case insensitive
-                              (!caseSensitive
-                               && *regionCursor != termDataLower[regionIndex]
-                               && *regionCursor != termDataUpper[regionIndex])
-                              ) {
-                            equal = false;
-                            break;
-                        }
-                    }
-                }
-                if (equal) {
-                    SearchResultItem result;
-                    result.setFilePath(item.filePath);
-                    result.setMainRange(lineNr, regionPtr - chunkPtr, termMaxIndex + 1);
-                    result.setDisplayText(clippedText(chunk, MAX_LINE_SIZE));
-                    result.setUserData(QStringList());
-                    result.setUseTextEditorFont(true);
-                    results << result;
-                    regionPtr += termMaxIndex; // another +1 done by for-loop
-                }
+static void findInFilesImpl(QPromise<SearchResultItems> &promise, const QString &searchTerm,
+                            const FileContainer &container, FindFlags flags,
+                            const QMap<FilePath, QString> &fileToContentsMap)
+{
+    QEventLoop loop;
+    // The states transition exactly in this order:
+    enum State { BelowLimit, AboveLimit, Resumed };
+    State state = BelowLimit;
+    int reportedItemsCount = 0;
+    int searchedFilesCount = 0;
+
+    const int progressMaximum = container.progressMaximum();
+    promise.setProgressRange(0, progressMaximum);
+    promise.setProgressValueAndText(0, msgFound(searchTerm, 0, 0));
+    const int threadsCount = qMax(1, QThread::idealThreadCount() / 2);
+    QSet<QFutureWatcher<SearchResultItems> *> watchers;
+    FutureSynchronizer futureSynchronizer;
+
+    const auto cleanup = qScopeGuard([&] {
+        qDeleteAll(watchers);
+        const QString message = promise.isCanceled()
+                              ? msgCanceled(searchTerm, reportedItemsCount, searchedFilesCount)
+                              : msgFound(searchTerm, reportedItemsCount, searchedFilesCount);
+        promise.setProgressValueAndText(progressMaximum, message);
+    });
+
+    FileContainerIterator it = container.begin();
+    const FileContainerIterator itEnd = container.end();
+    if (it == itEnd)
+        return;
+
+    std::function<void()> scheduleNext;
+    scheduleNext = [&] {
+        if (promise.isCanceled() || (it == itEnd && watchers.isEmpty())) {
+            loop.quit();
+            return;
+        }
+        if (it == itEnd)
+            return;
+
+        if (state == AboveLimit)
+            return;
+
+        if (watchers.size() == threadsCount)
+            return;
+
+        const FileContainerIterator::Item item = *it;
+        const int progress = it.progressValue();
+        ++it;
+        const QFuture<SearchResultItems> future
+            = Utils::asyncRun(fileSearch, item, searchTerm, flags, fileToContentsMap);
+        QFutureWatcher<SearchResultItems> *watcher = new QFutureWatcher<SearchResultItems>;
+        QObject::connect(watcher, &QFutureWatcherBase::finished, &loop,
+                [watcher, progress, &searchTerm, &reportedItemsCount, &searchedFilesCount, &state,
+                 &watchers, &promise, &scheduleNext] {
+            const QFuture<SearchResultItems> future = watcher->future();
+            if (future.resultCount()) {
+                const SearchResultItems items = future.result();
+                reportedItemsCount += items.size();
+                if (state == BelowLimit && reportedItemsCount > 200000)
+                    state = AboveLimit;
+                if (!items.isEmpty())
+                    promise.addResult(items);
             }
-        }
-        if (futureInterface.isPaused())
-            futureInterface.waitForResume();
-        if (futureInterface.isCanceled())
-            break;
-    }
-    if (!futureInterface.isCanceled()) {
-        futureInterface.reportResult(results);
-        futureInterface.setProgressValue(1);
-    }
-    qCDebug(searchLog) << "- finished searching in" << item.filePath;
-}
+            ++searchedFilesCount;
+            promise.setProgressValueAndText(progress, msgFound(searchTerm, reportedItemsCount,
+                                                               searchedFilesCount));
+            watcher->deleteLater();
+            watchers.remove(watcher);
+            scheduleNext();
+        });
+        watcher->setFuture(future);
+        futureSynchronizer.addFuture(future);
+        watchers.insert(watcher);
+        scheduleNext();
+    };
 
-FileSearchRegExp::FileSearchRegExp(const QString &searchTerm,
-                                   QTextDocument::FindFlags flags,
-                                   const QMap<FilePath, QString> &fileToContentsMap)
-{
-    this->fileToContentsMap = fileToContentsMap;
-    QString term = searchTerm;
-    if (flags & QTextDocument::FindWholeWords)
-        term = QString::fromLatin1("\\b%1\\b").arg(term);
-    const QRegularExpression::PatternOptions patternOptions = (flags & QTextDocument::FindCaseSensitively)
-            ? QRegularExpression::NoPatternOption : QRegularExpression::CaseInsensitiveOption;
-    expression = QRegularExpression(term, patternOptions);
-}
+    QFutureWatcher<void> watcher;
+    QObject::connect(&watcher, &QFutureWatcherBase::canceled, &loop, &QEventLoop::quit);
+    QObject::connect(&watcher, &QFutureWatcherBase::resumed, &loop, [&state, &scheduleNext] {
+        state = Resumed;
+        scheduleNext();
+    });
 
-FileSearchRegExp::FileSearchRegExp(const FileSearchRegExp &other)
-    : fileToContentsMap(other.fileToContentsMap),
-      expression(other.expression)
-{
-}
+    watcher.setFuture(QFuture<void>(promise.future()));
 
-QRegularExpressionMatch FileSearchRegExp::doGuardedMatch(const QString &line, int offset) const
-{
-    QMutexLocker lock(&mutex);
-    return expression.match(line, offset);
-}
-
-void FileSearchRegExp::operator()(QFutureInterface<SearchResultItems> &futureInterface,
-                                  const FileIterator::Item &item) const
-{
-    if (!expression.isValid()) {
-        futureInterface.cancel();
+    if (promise.isCanceled())
         return;
-    }
-    if (futureInterface.isCanceled())
-        return;
-    qCDebug(searchLog) << "Searching in" << item.filePath;
-    futureInterface.setProgressRange(0, 1);
-    futureInterface.setProgressValue(0);
-    SearchResultItems results;
-    QString tempString;
-    if (!getFileContent(item.filePath, item.encoding, &tempString, fileToContentsMap)) {
-        qCDebug(searchLog) << "- failed to get content for" << item.filePath;
-        futureInterface.cancel(); // failure
-        return;
-    }
-    QTextStream stream(&tempString);
-    int lineNr = 0;
 
-    QString line;
-    QRegularExpressionMatch match;
-    while (!stream.atEnd()) {
-        ++lineNr;
-        line = stream.readLine();
-        const QString resultItemText = clippedText(line, MAX_LINE_SIZE);
-        int lengthOfLine = line.size();
-        int pos = 0;
-        while ((match = doGuardedMatch(line, pos)).hasMatch()) {
-            pos = match.capturedStart();
-            SearchResultItem result;
-            result.setFilePath(item.filePath);
-            result.setMainRange(lineNr, pos, match.capturedLength());
-            result.setDisplayText(resultItemText);
-            result.setUserData(match.capturedTexts());
-            result.setUseTextEditorFont(true);
-            results << result;
-            if (match.capturedLength() == 0)
-                break;
-            pos += match.capturedLength();
-            if (pos >= lengthOfLine)
-                break;
-        }
-        if (futureInterface.isPaused())
-            futureInterface.waitForResume();
-        if (futureInterface.isCanceled())
-            break;
-    }
-    if (!futureInterface.isCanceled()) {
-        futureInterface.reportResult(results);
-        futureInterface.setProgressValue(1);
-    }
-    qCDebug(searchLog) << "- finished searching in" << item.filePath;
+    QTimer::singleShot(0, &loop, scheduleNext);
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
 }
 
-struct SearchState
+QFuture<SearchResultItems> findInFiles(const QString &searchTerm, const FileContainer &container,
+                                       FindFlags flags,
+                                       const QMap<FilePath, QString> &fileToContentsMap)
 {
-    SearchState(const QString &term, FileIterator *iterator) : searchTerm(term), files(iterator) {}
-    QString searchTerm;
-    FileIterator *files = nullptr;
-    SearchResultItems cachedResults;
-    int numFilesSearched = 0;
-    int numMatches = 0;
-};
-
-SearchState initFileSearch(QFutureInterface<SearchResultItems> &futureInterface,
-                           const QString &searchTerm, FileIterator *files)
-{
-    futureInterface.setProgressRange(0, files->maxProgress());
-    futureInterface.setProgressValueAndText(files->currentProgress(), msgFound(searchTerm, 0, 0));
-    return SearchState(searchTerm, files);
+    return Utils::asyncRun(findInFilesImpl, searchTerm, container, flags, fileToContentsMap);
 }
 
-void collectSearchResults(QFutureInterface<SearchResultItems> &futureInterface,
-                          SearchState &state,
-                          const SearchResultItems &results)
-{
-    state.numMatches += results.size();
-    state.cachedResults << results;
-    state.numFilesSearched += 1;
-    if (futureInterface.isProgressUpdateNeeded()
-            || futureInterface.progressValue() == 0 /*workaround for regression in Qt*/) {
-        if (!state.cachedResults.isEmpty()) {
-            futureInterface.reportResult(state.cachedResults);
-            state.cachedResults.clear();
-        }
-        futureInterface.setProgressRange(0, state.files->maxProgress());
-        futureInterface.setProgressValueAndText(state.files->currentProgress(),
-                                                 msgFound(state.searchTerm,
-                                                          state.numMatches,
-                                                          state.numFilesSearched));
-    }
-}
-
-void cleanUpFileSearch(QFutureInterface<SearchResultItems> &futureInterface,
-                       SearchState &state)
-{
-    if (!state.cachedResults.isEmpty()) {
-        futureInterface.reportResult(state.cachedResults);
-        state.cachedResults.clear();
-    }
-    if (futureInterface.isCanceled()) {
-        futureInterface.setProgressValueAndText(state.files->currentProgress(),
-                                                msgCanceled(state.searchTerm,
-                                                            state.numMatches,
-                                                            state.numFilesSearched));
-    } else {
-        futureInterface.setProgressValueAndText(state.files->currentProgress(),
-                                                msgFound(state.searchTerm,
-                                                         state.numMatches,
-                                                         state.numFilesSearched));
-    }
-    delete state.files;
-}
-
-} // namespace
-
-QFuture<SearchResultItems> Utils::findInFiles(const QString &searchTerm,
-                                              FileIterator *files,
-                                              QTextDocument::FindFlags flags,
-                                              const QMap<FilePath, QString> &fileToContentsMap)
-{
-    return mapReduce(files->begin(), files->end(),
-                     [searchTerm, files](QFutureInterface<SearchResultItems> &futureInterface) {
-                         return initFileSearch(futureInterface, searchTerm, files);
-                     },
-                     FileSearch(searchTerm, flags, fileToContentsMap),
-                     &collectSearchResults,
-                     &cleanUpFileSearch);
-}
-
-QFuture<SearchResultItems> Utils::findInFilesRegExp(
-    const QString &searchTerm,
-    FileIterator *files,
-    QTextDocument::FindFlags flags,
-    const QMap<FilePath, QString> &fileToContentsMap)
-{
-    return mapReduce(files->begin(), files->end(),
-                     [searchTerm, files](QFutureInterface<SearchResultItems> &futureInterface) {
-                         return initFileSearch(futureInterface, searchTerm, files);
-                     },
-                     FileSearchRegExp(searchTerm, flags, fileToContentsMap),
-                     &collectSearchResults,
-                     &cleanUpFileSearch);
-}
-
-QString Utils::expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts)
+QString expandRegExpReplacement(const QString &replaceText, const QStringList &capturedTexts)
 {
     // handles \1 \\ \& \t \n $1 $$ $&
     QString result;
@@ -435,9 +402,7 @@ QString Utils::expandRegExpReplacement(const QString &replaceText, const QString
     return result;
 }
 
-namespace Utils {
-namespace Internal {
-QString matchCaseReplacement(const QString &originalText, const QString &replaceText)
+static QString matchCaseReplacementHelper(const QString &originalText, const QString &replaceText)
 {
     if (originalText.isEmpty() || replaceText.isEmpty())
        return replaceText;
@@ -472,7 +437,6 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
         return replaceText; // mixed
     }
 }
-} // namespace
 
 static QList<QRegularExpression> filtersToRegExps(const QStringList &filters)
 {
@@ -519,7 +483,6 @@ QStringList splitFilterUiText(const QString &text)
     return Utils::filtered(trimmedPortableParts, [](const QString &s) { return !s.isEmpty(); });
 }
 
-
 QString msgFilePatternLabel()
 {
     return Tr::tr("Fi&le pattern:");
@@ -532,7 +495,7 @@ QString msgExclusionPatternLabel()
 
 QString msgFilePatternToolTip(InclusionType inclusionType)
 {
-    return Tr::tr("List of comma separated wildcard filters. ")
+    return Tr::tr("List of comma separated wildcard filters.") + " "
         + (inclusionType == InclusionType::Included
             ? Tr::tr("Files with file name or full file path matching any filter are included.")
             : Tr::tr("Files with file name or full file path matching any filter are excluded."));
@@ -559,96 +522,95 @@ QString matchCaseReplacement(const QString &originalText, const QString &replace
 
     //keep prefix and suffix, and do actual replacement on the 'middle' of the string
     return originalText.left(prefixLen)
-            + Internal::matchCaseReplacement(originalText.mid(prefixLen, originalTextLen - prefixLen - suffixLen),
-                                             replaceText.mid(prefixLen, replaceTextLen - prefixLen - suffixLen))
+            + matchCaseReplacementHelper(originalText.mid(prefixLen, originalTextLen - prefixLen - suffixLen),
+                                         replaceText.mid(prefixLen, replaceTextLen - prefixLen - suffixLen))
             + originalText.right(suffixLen);
-
 }
 
-// #pragma mark -- FileIterator
-
-void FileIterator::advance(FileIterator::const_iterator *it) const
+void FileContainerIterator::operator++()
 {
-    if (it->m_index < 0) // == end
-        return;
-    ++it->m_index;
-    const_cast<FileIterator *>(this)->update(it->m_index);
-    if (it->m_index >= currentFileCount())
-        it->m_index = -1; // == end
+    QTC_ASSERT(m_data.m_container, return);
+    QTC_ASSERT(m_data.m_index >= 0, return);
+    QTC_ASSERT(m_data.m_advancer, return);
+    m_data.m_advancer(&m_data);
 }
 
-FileIterator::const_iterator FileIterator::begin() const
+int FileContainerIterator::progressMaximum() const
 {
-    const_cast<FileIterator *>(this)->update(0);
-    if (currentFileCount() == 0)
-        return end();
-    return FileIterator::const_iterator(this, 0/*index*/);
+    return m_data.m_container ? m_data.m_container->progressMaximum() : 0;
 }
 
-FileIterator::const_iterator FileIterator::end() const
+static QList<FileContainerIterator::Item> toFileListCache(const FilePaths &fileList,
+                                                          const QList<QTextCodec *> &encodings)
 {
-    return FileIterator::const_iterator(this, -1/*end*/);
-}
-
-// #pragma mark -- FileListIterator
-
-QList<FileIterator::Item> constructItems(const FilePaths &fileList,
-                                         const QList<QTextCodec *> &encodings)
-{
-    QList<FileIterator::Item> items;
+    QList<FileContainerIterator::Item> items;
     items.reserve(fileList.size());
     QTextCodec *defaultEncoding = QTextCodec::codecForLocale();
     for (int i = 0; i < fileList.size(); ++i)
-        items.append(FileIterator::Item(fileList.at(i), encodings.value(i, defaultEncoding)));
+        items.append({fileList.at(i), encodings.value(i, defaultEncoding)});
     return items;
 }
 
-FileListIterator::FileListIterator(const FilePaths &fileList, const QList<QTextCodec *> &encodings)
-    : m_items(constructItems(fileList, encodings))
+static FileContainerIterator::Advancer fileListAdvancer(
+    const QList<FileContainerIterator::Item> &items)
 {
+    return [items](FileContainerIterator::Data *iterator) {
+        ++iterator->m_index;
+        if (iterator->m_index >= items.size() || iterator->m_index < 0) {
+            iterator->m_value = {};
+            iterator->m_index = -1;
+            iterator->m_progressValue = items.size();
+            return;
+        }
+        iterator->m_value = items.at(iterator->m_index);
+        iterator->m_progressValue = iterator->m_index;
+    };
 }
 
-void FileListIterator::update(int requestedIndex)
+static FileContainer::AdvancerProvider fileListAdvancerProvider(const FilePaths &fileList,
+    const QList<QTextCodec *> &encodings)
 {
-    if (requestedIndex > m_maxIndex)
-        m_maxIndex = requestedIndex;
+    const auto initialCache = toFileListCache(fileList, encodings);
+    return [=] { return fileListAdvancer(initialCache); };
 }
 
-int FileListIterator::currentFileCount() const
+FileListContainer::FileListContainer(const FilePaths &fileList,
+                                     const QList<QTextCodec *> &encodings)
+    : FileContainer(fileListAdvancerProvider(fileList, encodings), fileList.size()) {}
+
+const int s_progressMaximum = 1000;
+
+struct SubDirCache
 {
-    return m_items.size();
-}
+    SubDirCache(const FilePaths &directories, const QStringList &filters,
+                const QStringList &exclusionFilters, QTextCodec *encoding);
 
-const FileIterator::Item &FileListIterator::itemAt(int index) const
-{
-    return m_items.at(index);
-}
+    std::optional<FileContainerIterator::Item> updateCache(int advanceIntoIndex,
+                                                           const SubDirCache &initialCache);
 
-int FileListIterator::maxProgress() const
-{
-    return m_items.size();
-}
+    std::function<FilePaths(const FilePaths &)> m_filterFiles;
+    QTextCodec *m_encoding = nullptr;
+    QStack<FilePath> m_dirs;
+    QSet<FilePath> m_knownDirs;
+    QStack<qreal> m_progressValues;
+    QStack<bool> m_processedValues;
+    qreal m_progress = 0;
+    QList<FileContainerIterator::Item> m_items;
+    // When forward iterating, we construct some results for the future iterations
+    // and keep them in m_items cache. Later, when we iterated over all from the cache,
+    // we don't want to keep the cache anymore, so we are clearing it.
+    // In order to match the iterator's index with the position inside m_items cache,
+    // we need to remember how many items were removed from the cache and subtract
+    // this value from the iterator's index when a new advance comes.
+    int m_removedItemsCount = 0;
+};
 
-int FileListIterator::currentProgress() const
-{
-    return m_maxIndex + 1;
-}
-
-// #pragma mark -- SubDirFileIterator
-
-namespace {
-    const int MAX_PROGRESS = 1000;
-}
-
-SubDirFileIterator::SubDirFileIterator(const FilePaths &directories,
-                                       const QStringList &filters,
-                                       const QStringList &exclusionFilters,
-                                       QTextCodec *encoding)
+SubDirCache::SubDirCache(const FilePaths &directories, const QStringList &filters,
+                         const QStringList &exclusionFilters, QTextCodec *encoding)
     : m_filterFiles(filterFilesFunction(filters, exclusionFilters))
-    , m_progress(0)
+    , m_encoding(encoding == nullptr ? QTextCodec::codecForLocale() : encoding)
 {
-    m_encoding = (encoding == nullptr ? QTextCodec::codecForLocale() : encoding);
-    qreal maxPer = qreal(MAX_PROGRESS) / directories.count();
+    const qreal maxPer = qreal(s_progressMaximum) / directories.count();
     for (const FilePath &directoryEntry : directories) {
         if (!directoryEntry.isEmpty()) {
             const FilePath canonicalPath = directoryEntry.canonicalPath();
@@ -662,18 +624,22 @@ SubDirFileIterator::SubDirFileIterator(const FilePaths &directories,
     }
 }
 
-SubDirFileIterator::~SubDirFileIterator()
+std::optional<FileContainerIterator::Item> SubDirCache::updateCache(int advanceIntoIndex,
+    const SubDirCache &initialCache)
 {
-    qDeleteAll(m_items);
-}
+    QTC_ASSERT(advanceIntoIndex >= 0, return {});
+    if (advanceIntoIndex < m_removedItemsCount)
+        *this = initialCache; // Regenerate the cache from scratch
+    const int currentIndex = advanceIntoIndex - m_removedItemsCount;
+    if (currentIndex < m_items.size())
+        return m_items.at(currentIndex);
 
-void SubDirFileIterator::update(int index)
-{
-    if (index < m_items.size())
-        return;
-    // collect files from the directories until we have enough for the given index
-    while (!m_dirs.isEmpty() && index >= m_items.size()) {
-        FilePath dir = m_dirs.pop();
+    m_removedItemsCount += m_items.size();
+    m_items.clear();
+    const int newCurrentIndex = advanceIntoIndex - m_removedItemsCount;
+
+    while (!m_dirs.isEmpty() && newCurrentIndex >= m_items.size()) {
+        const FilePath dir = m_dirs.pop();
         const qreal dirProgressMax = m_progressValues.pop();
         const bool processed = m_processedValues.pop();
         if (dir.exists()) {
@@ -681,8 +647,9 @@ void SubDirFileIterator::update(int index)
             using CanonicalDir = FilePath;
             std::vector<std::pair<Dir, CanonicalDir>> subDirs;
             if (!processed) {
-                for (const FilePath &entry :
-                     dir.dirEntries(QDir::Dirs | QDir::Hidden | QDir::NoDotAndDotDot)) {
+                const FilePaths entries = dir.dirEntries(QDir::Dirs | QDir::Hidden
+                                                         | QDir::NoDotAndDotDot);
+                for (const FilePath &entry : entries) {
                     const FilePath canonicalDir = entry.canonicalPath();
                     if (!m_knownDirs.contains(canonicalDir))
                         subDirs.emplace_back(entry, canonicalDir);
@@ -693,11 +660,11 @@ void SubDirFileIterator::update(int index)
                 const FilePaths filePaths = m_filterFiles(allFilePaths);
                 m_items.reserve(m_items.size() + filePaths.size());
                 Utils::reverseForeach(filePaths, [this](const FilePath &file) {
-                    m_items.append(new Item(file, m_encoding));
+                    m_items.append({file, m_encoding});
                 });
                 m_progress += dirProgressMax;
             } else {
-                qreal subProgress = dirProgressMax/(subDirs.size()+1);
+                const qreal subProgress = dirProgressMax / (subDirs.size() + 1);
                 m_dirs.push(dir);
                 m_progressValues.push(subProgress);
                 m_processedValues.push(true);
@@ -713,28 +680,41 @@ void SubDirFileIterator::update(int index)
             m_progress += dirProgressMax;
         }
     }
-    if (index >= m_items.size())
-        m_progress = MAX_PROGRESS;
+    if (newCurrentIndex < m_items.size())
+        return m_items.at(newCurrentIndex);
+
+    m_progress = s_progressMaximum;
+    return {};
 }
 
-int SubDirFileIterator::currentFileCount() const
+static FileContainerIterator::Advancer subDirAdvancer(const SubDirCache &initialCache)
 {
-    return m_items.size();
+    const std::shared_ptr<SubDirCache> sharedCache(new SubDirCache(initialCache));
+    return [=](FileContainerIterator::Data *iterator) {
+        ++iterator->m_index;
+        const std::optional<FileContainerIterator::Item> item
+            = sharedCache->updateCache(iterator->m_index, initialCache);
+        if (!item) {
+            iterator->m_value = {};
+            iterator->m_index = -1;
+            iterator->m_progressValue = s_progressMaximum;
+            return;
+        }
+        iterator->m_value = *item;
+        iterator->m_progressValue = qMin(qRound(sharedCache->m_progress), s_progressMaximum);
+    };
 }
 
-const FileIterator::Item &SubDirFileIterator::itemAt(int index) const
+static FileContainer::AdvancerProvider subDirAdvancerProvider(const FilePaths &directories,
+    const QStringList &filters, const QStringList &exclusionFilters, QTextCodec *encoding)
 {
-    return *m_items.at(index);
+    const SubDirCache initialCache(directories, filters, exclusionFilters, encoding);
+    return [=] { return subDirAdvancer(initialCache); };
 }
 
-int SubDirFileIterator::maxProgress() const
-{
-    return MAX_PROGRESS;
-}
+SubDirFileContainer::SubDirFileContainer(const FilePaths &directories, const QStringList &filters,
+                                         const QStringList &exclusionFilters, QTextCodec *encoding)
+    : FileContainer(subDirAdvancerProvider(directories, filters, exclusionFilters, encoding),
+                    s_progressMaximum) {}
 
-int SubDirFileIterator::currentProgress() const
-{
-    return qMin(qRound(m_progress), MAX_PROGRESS);
-}
-
-}
+} // namespace Utils

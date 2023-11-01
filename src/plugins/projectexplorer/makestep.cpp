@@ -6,7 +6,7 @@
 #include "buildconfiguration.h"
 #include "devicesupport/idevice.h"
 #include "gnumakeparser.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "processparameters.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -47,23 +47,24 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
 
     setCommandLineProvider([this] { return effectiveMakeCommand(Execution); });
 
-    m_makeCommandAspect.setSettingsKey(id.withSuffix(MAKE_COMMAND_SUFFIX).toString());
+    // FIXME: Replace with  id.name() + MAKE_COMMAND_SUFFIX  after the Key/Store transition
+    m_makeCommandAspect.setSettingsKey(id.toKey() + MAKE_COMMAND_SUFFIX);
     m_makeCommandAspect.setExpectedKind(PathChooser::ExistingCommand);
     m_makeCommandAspect.setBaseFileName(PathChooser::homePath());
     m_makeCommandAspect.setHistoryCompleter("PE.MakeCommand.History");
 
-    m_userArgumentsAspect.setSettingsKey(id.withSuffix(MAKE_ARGUMENTS_SUFFIX).toString());
+    m_userArgumentsAspect.setSettingsKey(id.toKey() + MAKE_ARGUMENTS_SUFFIX);
     m_userArgumentsAspect.setLabelText(Tr::tr("Make arguments:"));
     m_userArgumentsAspect.setDisplayStyle(StringAspect::LineEditDisplay);
 
-    m_jobCountAspect.setSettingsKey(id.withSuffix(JOBCOUNT_SUFFIX).toString());
+    m_jobCountAspect.setSettingsKey(id.toKey() + JOBCOUNT_SUFFIX);
     m_jobCountAspect.setLabel(Tr::tr("Parallel jobs:"));
     m_jobCountAspect.setRange(1, 999);
     m_jobCountAspect.setValue(defaultJobCount());
     m_jobCountAspect.setDefaultValue(defaultJobCount());
 
     const QString text = Tr::tr("Override MAKEFLAGS");
-    m_overrideMakeflagsAspect.setSettingsKey(id.withSuffix(OVERRIDE_MAKEFLAGS_SUFFIX).toString());
+    m_overrideMakeflagsAspect.setSettingsKey(id.toKey() + OVERRIDE_MAKEFLAGS_SUFFIX);
     m_overrideMakeflagsAspect.setLabel(text, BoolAspect::LabelPlacement::AtCheckBox);
 
     m_nonOverrideWarning.setText("<html><body><p>" +
@@ -71,11 +72,11 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
          .arg(text) + "</p></body></html>");
     m_nonOverrideWarning.setIconType(InfoLabel::Warning);
 
-    m_disabledForSubdirsAspect.setSettingsKey(id.withSuffix(".disabledForSubdirs").toString());
+    m_disabledForSubdirsAspect.setSettingsKey(id.toKey() + ".disabledForSubdirs");
     m_disabledForSubdirsAspect.setLabel(Tr::tr("Disable in subdirectories:"));
     m_disabledForSubdirsAspect.setToolTip(Tr::tr("Runs this step only for a top-level build."));
 
-    m_buildTargetsAspect.setSettingsKey(id.withSuffix(BUILD_TARGETS_SUFFIX).toString());
+    m_buildTargetsAspect.setSettingsKey(id.toKey() + BUILD_TARGETS_SUFFIX);
     m_buildTargetsAspect.setLabelText(Tr::tr("Targets:"));
 
     const auto updateMakeLabel = [this] {
@@ -252,7 +253,7 @@ Environment MakeStep::makeEnvironment() const
 
 void MakeStep::setMakeCommand(const FilePath &command)
 {
-    m_makeCommandAspect.setFilePath(command);
+    m_makeCommandAspect.setValue(command);
 }
 
 int MakeStep::defaultJobCount()
@@ -303,7 +304,7 @@ CommandLine MakeStep::effectiveMakeCommand(MakeCommandType type) const
         cmd.addArgs(displayArguments());
     cmd.addArgs(userArguments(), CommandLine::Raw);
     cmd.addArgs(jobArguments());
-    cmd.addArgs(m_buildTargetsAspect.value());
+    cmd.addArgs(m_buildTargetsAspect());
 
     return cmd;
 }

@@ -38,8 +38,7 @@ struct Range
 struct ExCommand
 {
     ExCommand() = default;
-    ExCommand(const QString &cmd, const QString &args = QString(),
-        const Range &range = Range());
+    ExCommand(const QString &cmd, const QString &args = {}, const Range &range = {});
 
     bool matches(const QString &min, const QString &full) const;
 

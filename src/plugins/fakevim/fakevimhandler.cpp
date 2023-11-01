@@ -4538,7 +4538,8 @@ bool FakeVimHandler::Private::handleNoSubMode(const Input &input)
     } else if (input.isControl('c')) {
         if (isNoVisualMode()) {
 #if defined(Q_OS_MACOS)
-            showMessage(MessageInfo, Tr::tr("Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode."));
+            showMessage(MessageInfo,
+                        Tr::tr("Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode."));
 #else
             showMessage(MessageInfo, Tr::tr("Type Alt-Y, Alt-Y to quit FakeVim mode."));
 #endif
@@ -6136,24 +6137,24 @@ bool FakeVimHandler::Private::handleExSetCommand(const ExCommand &cmd)
         if (negateOption)
             optionName.remove(0, 2);
 
-        FvBaseAspect *act = s.item(optionName);
+        FvBaseAspect *act = s.item(Utils::keyFromString(optionName));
         if (!act) {
             showMessage(MessageError, Tr::tr("Unknown option:") + ' ' + cmd.args);
-        } else if (act->defaultValue().type() == QVariant::Bool) {
-            bool oldValue = act->value().toBool();
+        } else if (act->defaultVariantValue().type() == QVariant::Bool) {
+            bool oldValue = act->variantValue().toBool();
             if (printOption) {
                 showMessage(MessageInfo, QLatin1String(oldValue ? "" : "no")
-                            + act->settingsKey().toLower());
+                            + act->settingsKey().toByteArray().toLower());
             } else if (toggleOption || negateOption == oldValue) {
-                act->setValue(!oldValue);
+                act->setVariantValue(!oldValue);
             }
         } else if (negateOption && !printOption) {
             showMessage(MessageError, Tr::tr("Invalid argument:") + ' ' + cmd.args);
         } else if (toggleOption) {
             showMessage(MessageError, Tr::tr("Trailing characters:") + ' ' + cmd.args);
         } else {
-            showMessage(MessageInfo, act->settingsKey().toLower() + "="
-                        + act->value().toString());
+            showMessage(MessageInfo, act->settingsKey().toByteArray().toLower() + "="
+                        + act->variantValue().toString());
         }
     }
     updateEditor();
@@ -6625,7 +6626,8 @@ bool FakeVimHandler::Private::handleExSourceCommand(const ExCommand &cmd)
         } else if (!line.isEmpty() && !inFunction) {
             //qDebug() << "EXECUTING: " << line;
             ExCommand cmd;
-            QString commandLine = QString::fromLocal8Bit(line);
+            QString commandLine = s.systemEncoding() ? QString::fromLocal8Bit(line)
+                                                     : QString::fromUtf8(line);
             while (parseExCommand(&commandLine, &cmd)) {
                 if (!handleExCommandHelper(cmd))
                     break;

@@ -5,16 +5,11 @@
 #include "error.h"
 #include "frame.h"
 #include "stack.h"
-#include "modelhelpers.h"
 #include "../valgrindtr.h"
 
 #include <utils/qtcassert.h>
 
-#include <QDir>
-#include <QVector>
-
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class StackModel::Private
 {
@@ -76,7 +71,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
         }
     } else {
         const Stack stack = d->stack(index.parent().row());
-        const QVector<Frame> frames = stack.frames();
+        const QList<Frame> frames = stack.frames();
         const int fidx = index.row();
         if (fidx < 0 || fidx >= frames.size())
             return QVariant();
@@ -106,7 +101,7 @@ QVariant StackModel::data(const QModelIndex &index, int role) const
             break;
         }
         case Qt::ToolTipRole:
-            return toolTipForFrame(frame);
+            return frame.toolTip();
         case ObjectRole:
             return frame.object();
         case FunctionNameRole:
@@ -205,5 +200,4 @@ void StackModel::clear()
     endResetModel();
 }
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

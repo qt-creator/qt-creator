@@ -8,30 +8,28 @@
 #include "ctfvisualizertr.h"
 
 #include <tracing/timelineformattime.h>
-#include <tracing/timelinemodelaggregator.h>
-#include <utils/qtcassert.h>
 
-#include <QDebug>
+#include <utils/qtcassert.h>
 
 #include <string>
 
-
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 using json = nlohmann::json;
 using namespace Constants;
 
 CtfTimelineModel::CtfTimelineModel(Timeline::TimelineModelAggregator *parent,
-                                   CtfTraceManager *traceManager, int tid, int pid)
-    : Timeline::TimelineModel (parent)
+                                   CtfTraceManager *traceManager,
+                                   const QString &tid,
+                                   const QString &pid)
+    : Timeline::TimelineModel(parent)
     , m_traceManager(traceManager)
     , m_threadId(tid)
     , m_processId(pid)
 {
     updateName();
     setCollapsedRowCount(1);
-    setCategoryColor(colorByHue(pid * 25));
+    setCategoryColor(colorByHue(qHash(pid)));
     setHasMixedTypesInExpandedState(true);
 }
 
@@ -44,7 +42,7 @@ QVariantList CtfTimelineModel::labels() const
 {
     QVariantList result;
 
-    QVector<std::string> sortedCounterNames = m_counterNames;
+    QList<std::string> sortedCounterNames = m_counterNames;
     std::sort(sortedCounterNames.begin(), sortedCounterNames.end());
     for (int i = 0; i < sortedCounterNames.size(); ++i) {
         QVariantMap element;
@@ -103,7 +101,7 @@ int CtfTimelineModel::expandedRow(int index) const
     if (counterIdx > 0) {
         return m_counterIndexToRow[counterIdx - 1] + 1;
     }
-    return m_nestingLevels.value(index) + m_counterData.size() + 1;
+    return m_rows.value(index) + m_counterData.size() + 1;
 }
 
 int CtfTimelineModel::collapsedRow(int index) const
@@ -185,8 +183,10 @@ void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QStrin
         m_details[index].insert(6, {reuse(Tr::tr("Unfinished")), reuse(Tr::tr("true"))});
     }
     computeNesting();
+    m_rows = computeRows(&m_maxStackSize);
+    ++m_maxStackSize; // index -> count
 
-    QVector<std::string> sortedCounterNames = m_counterNames;
+    QList<std::string> sortedCounterNames = m_counterNames;
     std::sort(sortedCounterNames.begin(), sortedCounterNames.end());
     m_counterIndexToRow.resize(m_counterNames.size());
     for (int i = 0; i < m_counterIndexToRow.size(); ++i) {
@@ -199,7 +199,7 @@ void CtfTimelineModel::finalize(double traceBegin, double traceEnd, const QStrin
     emit contentChanged();
 }
 
-int CtfTimelineModel::tid() const
+QString CtfTimelineModel::tid() const
 {
     return m_threadId;
 }
@@ -218,21 +218,19 @@ void CtfTimelineModel::updateName()
     if (m_threadName.isEmpty()) {
         setDisplayName(Tr::tr("Thread %1").arg(m_threadId));
     } else {
-        setDisplayName(QString("%1 (%2)").arg(m_threadName).arg(m_threadId));
+        setDisplayName(QString("%1 (%2)").arg(m_threadName, m_threadId));
     }
-    QString process = m_processName.isEmpty() ? QString::number(m_processId) :
-                                                QString("%1 (%2)").arg(m_processName).arg(m_processId);
-    QString thread = m_threadName.isEmpty() ? QString::number(m_threadId) :
-                                                QString("%1 (%2)").arg(m_threadName).arg(m_threadId);
-    setTooltip(QString("Process: %1\nThread: %2").arg(process).arg(thread));
+    QString process = m_processName.isEmpty() ? m_processId
+                                              : QString("%1 (%2)").arg(m_processName, m_processId);
+    QString thread = m_threadName.isEmpty() ? m_threadId
+                                            : QString("%1 (%2)").arg(m_threadName, m_threadId);
+    setTooltip(QString("Process: %1\nThread: %2").arg(process, thread));
 }
 
 qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
                                        const std::string &eventPhase, const std::string &name,
                                        int selectionId)
 {
-    int nestingLevel = m_openEventIds.size();
-    m_maxStackSize = std::max(qsizetype(m_maxStackSize), qsizetype(m_openEventIds.size() + 1));
     int index = 0;
     qint64 duration = -1;
     if (eventPhase == CtfEventTypeBegin) {
@@ -248,29 +246,21 @@ qint64 CtfTimelineModel::newStackEvent(const json &event, qint64 normalizedTime,
         duration = qint64(event[CtfDurationKey]) * 1000;
         index = insert(normalizedTime, duration, selectionId);
         for (int i = m_openEventIds.size() - 1; i >= 0; --i) {
-            if (m_openEventIds[i] >= index) {
+            if (m_openEventIds[i] >= index)
                 ++m_openEventIds[i];
-                // if the event is before an open event, the nesting level decreases:
-                --nestingLevel;
-            }
         }
     } else {
         index = insert(normalizedTime, 0, selectionId);
         for (int i = m_openEventIds.size() - 1; i >= 0; --i) {
-            if (m_openEventIds[i] >= index) {
+            if (m_openEventIds[i] >= index)
                 ++m_openEventIds[i];
-                --nestingLevel;
-            }
         }
     }
     if (index >= m_details.size()) {
         m_details.resize(index + 1);
         m_details[index] = QMap<int, QPair<QString, QString>>();
-        m_nestingLevels.resize(index + 1);
-        m_nestingLevels[index] = nestingLevel;
     } else {
         m_details.insert(index, QMap<int, QPair<QString, QString>>());
-        m_nestingLevels.insert(index, nestingLevel);
     }
     if (m_counterValues.size() > index) {
         // if the event was inserted before any counter, we need
@@ -382,7 +372,5 @@ const QString &CtfTimelineModel::reuse(const QString &value)
     return *it;
 }
 
-
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal
 

@@ -22,8 +22,7 @@ namespace Docker::Internal {
 
 DockerApi *s_instance{nullptr};
 
-DockerApi::DockerApi(DockerSettings *settings)
-    : m_settings(settings)
+DockerApi::DockerApi()
 {
     s_instance = this;
 }
@@ -103,7 +102,79 @@ std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 
 FilePath DockerApi::dockerClient()
 {
-    return m_settings->dockerBinaryPath();
+    return settings().dockerBinaryPath();
+}
+
+QFuture<Utils::expected_str<QList<Network>>> DockerApi::networks()
+{
+    return Utils::asyncRun([this]() -> Utils::expected_str<QList<Network>> {
+        QList<Network> result;
+
+        Process process;
+        FilePath dockerExe = dockerClient();
+        if (dockerExe.isEmpty() || !dockerExe.isExecutableFile())
+            return make_unexpected(Tr::tr("Docker executable not found"));
+
+        process.setCommand(
+            CommandLine(dockerExe, QStringList{"network", "ls", "--format", "{{json .}}"}));
+        process.runBlocking();
+
+        if (process.result() != ProcessResult::FinishedWithSuccess) {
+            return make_unexpected(
+                Tr::tr("Failed to retrieve docker networks. Exit code: %1. Error: %2")
+                    .arg(process.exitCode())
+                    .arg(process.allOutput()));
+        }
+
+        for (const auto &line : process.readAllStandardOutput().split('\n')) {
+            if (line.isEmpty())
+                continue;
+
+            QJsonParseError error;
+            QJsonDocument doc = QJsonDocument::fromJson(line.toUtf8(), &error);
+
+            if (error.error != QJsonParseError::NoError) {
+                qCWarning(dockerApiLog)
+                    << "Failed to parse docker network info:" << error.errorString();
+                continue;
+            }
+
+            Network network;
+            network.id = doc["ID"].toString();
+            network.name = doc["Name"].toString();
+            network.driver = doc["Driver"].toString();
+            network.scope = doc["Scope"].toString();
+            network.internal = doc["Internal"].toString() == "true";
+            network.ipv6 = doc["IPv6"].toString() == "true";
+            network.createdAt = QDateTime::fromString(doc["CreatedAt"].toString(), Qt::ISODate);
+            network.labels = doc["Labels"].toString();
+
+            result.append(network);
+        }
+
+        return result;
+    });
+}
+
+QString Network::toString() const
+{
+    return QString(R"(ID: "%1"
+Name: "%2"
+Driver: "%3"
+Scope: "%4"
+Internal: "%5"
+IPv6: "%6"
+CreatedAt: "%7"
+Labels: "%8"
+    )")
+        .arg(id)
+        .arg(name)
+        .arg(driver)
+        .arg(scope)
+        .arg(internal)
+        .arg(ipv6)
+        .arg(createdAt.toString(Qt::ISODate))
+        .arg(labels);
 }
 
 } // Docker::Internal

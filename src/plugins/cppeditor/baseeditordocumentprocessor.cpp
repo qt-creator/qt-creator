@@ -39,7 +39,7 @@ void BaseEditorDocumentProcessor::run(bool projectsUpdated)
             ? Utils::Language::C
             : Utils::Language::Cxx;
 
-    runImpl({CppModelManager::instance()->workingCopy(),
+    runImpl({CppModelManager::workingCopy(),
              ProjectExplorer::ProjectManager::startupProject(),
              languagePreference,
              projectsUpdated});
@@ -72,7 +72,7 @@ void BaseEditorDocumentProcessor::runParser(QPromise<void> &promise,
     }
 
     parser->update(promise, updateParams);
-    CppModelManager::instance()->finishedRefreshingSourceFiles({parser->filePath().toString()});
+    CppModelManager::finishedRefreshingSourceFiles({parser->filePath().toString()});
 
     promise.setProgressValue(1);
 }

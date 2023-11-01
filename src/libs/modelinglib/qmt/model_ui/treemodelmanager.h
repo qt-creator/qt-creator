@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
+
+#include <QObject>
 
 namespace qmt {
 
@@ -16,8 +17,6 @@ class MSelection;
 
 class QMT_EXPORT TreeModelManager : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit TreeModelManager(QObject *parent = nullptr);
     ~TreeModelManager() override;

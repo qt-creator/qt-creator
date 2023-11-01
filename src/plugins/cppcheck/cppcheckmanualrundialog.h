@@ -20,7 +20,7 @@ namespace Cppcheck::Internal {
 class ManualRunDialog : public QDialog
 {
 public:
-    ManualRunDialog(QWidget *optionsWidget, const ProjectExplorer::Project *project);
+    explicit ManualRunDialog(const ProjectExplorer::Project *project);
 
     Utils::FilePaths filePaths() const;
     QSize sizeHint() const override;

@@ -16,6 +16,9 @@ add_qtc_plugin(TextEditor
     behaviorsettingspage.cpp behaviorsettingspage.h
     behaviorsettingswidget.cpp behaviorsettingswidget.h
     blockrange.h
+    bookmark.cpp bookmark.h
+    bookmarkfilter.cpp bookmarkfilter.h
+    bookmarkmanager.cpp bookmarkmanager.h
     circularclipboard.cpp circularclipboard.h
     circularclipboardassist.cpp circularclipboardassist.h
     codeassist/assistenums.h
@@ -68,6 +71,7 @@ add_qtc_plugin(TextEditor
     icodestylepreferencesfactory.cpp icodestylepreferencesfactory.h
     indenter.h
     ioutlinewidget.h
+    jsoneditor.cpp jsoneditor.h
     linenumberfilter.cpp linenumberfilter.h
     marginsettings.cpp marginsettings.h
     markdowneditor.cpp markdowneditor.h

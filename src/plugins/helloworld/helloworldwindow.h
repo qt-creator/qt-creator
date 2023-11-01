@@ -5,16 +5,13 @@
 
 #include <QWidget>
 
-namespace HelloWorld {
-namespace Internal {
+namespace HelloWorld::Internal {
 
 class HelloWorldWindow : public QWidget
 {
     Q_OBJECT
-
 public:
     explicit HelloWorldWindow(QWidget *parent = nullptr);
 };
 
-} // namespace Internal
-} // namespace HelloWorld
+} // namespace HelloWorld::Internal

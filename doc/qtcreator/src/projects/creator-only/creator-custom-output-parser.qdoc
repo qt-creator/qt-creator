@@ -8,12 +8,11 @@
 
     \title Using Custom Output Parsers
 
-    Custom output parsers scan command line output for error
+    Custom output parsers scan command-line output for error
     and warning patterns that you specify and create entries
     for found patterns in \l Issues.
 
-    To view or add custom output parsers, select
-    \uicontrol Edit > \uicontrol Preferences >
+    To view or add custom output parsers, select \preferences >
     \uicontrol {Build & Run} > \uicontrol {Custom Output Parsers}.
 
     \image qtcreator-custom-parser-list.png
@@ -26,7 +25,7 @@
     You can activate custom output parsers in the
     \uicontrol {Custom Output Parsers} section of
     the \uicontrol Build and \uicontrol Run settings,
-    as well as in the \l{Adding Custom Compilers}
+    as well as in the \l{Add custom compilers}
     {custom compiler settings}.
 
     \section1 Specifying Settings for Custom Output Parsers
@@ -40,9 +39,8 @@
     To create a custom output parser:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol {Build & Run} > \uicontrol {Custom Output Parsers}
-            > \uicontrol Add.
+        \li Select \preferences > \uicontrol {Build & Run} >
+            \uicontrol {Custom Output Parsers} > \uicontrol Add.
         \li In the \uicontrol {Error message capture pattern} field, specify
             a regular expression to define what is an error. The custom
             parser matches the compile output line by line against the

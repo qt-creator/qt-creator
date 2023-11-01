@@ -6,8 +6,6 @@
 
 #include "qdsnewdialog.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/restartdialog.h>
 #include <coreplugin/documentmanager.h>
@@ -20,7 +18,7 @@
 #include "projectexplorer/target.h"
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -30,7 +28,7 @@
 #include <qmlprojectmanager/qmlproject.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <qmldesigner/components/componentcore/theme.h>
 #include <qmldesigner/dynamiclicensecheck.h>
@@ -39,12 +37,15 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
+
+#include <nanotrace/nanotrace.h>
 
 #include <QAbstractListModel>
 #include <QApplication>
@@ -74,8 +75,8 @@ namespace Internal {
 
 static bool useNewWelcomePage()
 {
-    QSettings *settings = Core::ICore::settings();
-    const QString newWelcomePageEntry = "QML/Designer/NewWelcomePage"; //entry from qml settings
+    QtcSettings *settings = Core::ICore::settings();
+    const Key newWelcomePageEntry = "QML/Designer/NewWelcomePage"; //entry from qml settings
 
     return settings->value(newWelcomePageEntry, false).toBool();
 }
@@ -156,7 +157,7 @@ public:
     explicit UsageStatisticPluginModel(QObject *parent = nullptr)
         : QObject(parent)
     {
-        m_versionString = Core::Constants::IDE_VERSION_DISPLAY;
+        m_versionString = Utils::appInfo().displayVersion;
         setupModel();
     }
 
@@ -520,20 +521,19 @@ void StudioWelcomePlugin::initialize()
 
 static bool forceDownLoad()
 {
-    const QString lastQDSVersionEntry = "QML/Designer/ForceWelcomePageDownload";
+    const Key lastQDSVersionEntry = "QML/Designer/ForceWelcomePageDownload";
     return Core::ICore::settings()->value(lastQDSVersionEntry, false).toBool();
 }
 
 static bool showSplashScreen()
 {
-    const QString lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
+    const Key lastQDSVersionEntry = "QML/Designer/lastQDSVersion";
 
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
 
     const QString lastQDSVersion = settings->value(lastQDSVersionEntry).toString();
 
-
-    const QString currentVersion = Core::Constants::IDE_VERSION_DISPLAY;
+    const QString currentVersion = Utils::appInfo().displayVersion;
 
     if (currentVersion != lastQDSVersion) {
         settings->setValue(lastQDSVersionEntry, currentVersion);
@@ -564,6 +564,8 @@ void StudioWelcomePlugin::extensionsInitialized()
 
     if (showSplashScreen()) {
         connect(Core::ICore::instance(), &Core::ICore::coreOpened, this, [this] {
+            NANOTRACE_SCOPE("StudioWelcome",
+                            "StudioWelcomePlugin::extensionsInitialized::coreOpened");
             Core::ModeManager::setModeStyle(Core::ModeManager::Style::Hidden);
             if (Utils::HostOsInfo::isMacHost()) {
                 s_viewWindow = new QQuickView(Core::ICore::mainWindow()->windowHandle());

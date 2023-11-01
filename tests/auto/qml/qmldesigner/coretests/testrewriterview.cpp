@@ -57,8 +57,7 @@ VariantProperty TestModelToTextMerger::findAddedVariantProperty(const VariantPro
                 return property.toVariantProperty();
         }
     }
-
-    return VariantProperty();
+    return {};
 }
 
 TestRewriterView::TestRewriterView(ExternalDependenciesInterface &externalDependencies,

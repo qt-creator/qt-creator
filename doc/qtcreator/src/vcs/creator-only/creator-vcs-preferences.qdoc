@@ -1,0 +1,78 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-set-up-vcs.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Set up version control systems
+
+    \QC uses the version control system's command-line clients to access your
+    repositories. Make sure that the command-line clients are in the \c{PATH}
+    environment variable, or specify the path to the command-line client
+    executable in the version control system specific tab in \preferences >
+    \uicontrol {Version Control}.
+
+    \image qtcreator-preferences-vcs-bazaar.webp {Bazaar preferences}
+
+    The other configuration options depend on the version control system.
+    After you set up the version control system, use the command line to check
+    that everything works (for example, use the status command). If no issues
+    arise, you should be ready to use the system also from \QC.
+
+    For more information on using Git for Windows, see
+    \l {Using Git for Windows}.
+
+    \section1 General VCS preferences
+
+    Select \preferences > \uicontrol {Version Control}
+    > \uicontrol General to specify settings for submit messages:
+
+    \image qtcreator-preferences-vcs-general.webp {General tab in Version Control preferences}
+
+    \list
+        \li \uicontrol{Wrap submit messages at} limits the line length of a
+            submit message to the specified number of characters.
+        \li \uicontrol{Submit message check script} is a script or program that
+            performs checks on the submit message before
+            submitting. The submit message is the script's first
+            parameter. If there is an error, the script should output a
+            message on standard error and return a non-zero exit code.
+        \li \uicontrol{User/alias configuration file} is a text file that lists
+            author names in mailmap format. For each author, you must specify a
+            real name and email address and optionally an alias and a second
+            email address. For example:
+            \code
+            Jon Doe <Jon.Doe@company.com> jdoe <jdoe@somemail.com>
+            Hans Mustermann <Hans.Mustermann@company.com> hm <info@company.com>
+            \endcode
+            After you specify a file in this field, you can select authors
+            as values of the submit message fields in the \uicontrol Nicknames dialog.
+        \li \uicontrol{User fields configuration file} is a simple text file
+            consisting of lines specifying submit message fields that take
+            authors as values, for example:
+            \code
+            Acked-by:
+            Initial-patch-by:
+            Reported-by:
+            Rubber-stamped-by:
+            Signed-off-by:
+            Tested-by:
+            \endcode
+            After you specify a file in this field, you can add authors as
+            values of the submit message fields when submitting changes. If
+            you also specified a \uicontrol{User/alias configuration file}, you can
+            select authors in the \uicontrol Nicknames dialog.
+        \li \uicontrol{SSH prompt command} specifies an ssh-askpass command that you
+            can use (on Linux) to prompt the user for a password when using SSH.
+            For example, \c ssh-askpass or \c x11-ssh-askpass, depending on the
+            ssh-askpass implementation that you use.
+        \li \uicontrol {Reset VCS Cache} resets the version control system
+            configuration to a state known to \QC after you change it
+            from the command line, for example.
+    \endlist
+
+    \sa {Version Control Systems}
+*/

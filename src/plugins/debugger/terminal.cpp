@@ -13,6 +13,7 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/process.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 #include <QDebug>
@@ -149,7 +150,7 @@ void Terminal::onSlaveReaderActivated(int fd)
 }
 
 TerminalRunner::TerminalRunner(RunControl *runControl,
-                               const std::function<Runnable()> &stubRunnable)
+                               const std::function<ProcessRunData()> &stubRunnable)
     : RunWorker(runControl), m_stubRunnable(stubRunnable)
 {
     setId("TerminalRunner");
@@ -171,7 +172,7 @@ void TerminalRunner::start()
 {
     QTC_ASSERT(m_stubRunnable, reportFailure({}); return);
     QTC_ASSERT(!m_stubProc, reportFailure({}); return);
-    Runnable stub = m_stubRunnable();
+    ProcessRunData stub = m_stubRunnable();
 
     bool runAsRoot = false;
     if (auto runAsRootAspect = runControl()->aspect<RunAsRootAspect>())

@@ -27,7 +27,11 @@ add_qtc_plugin(Debugger
     console/consoleitemmodel.cpp console/consoleitemmodel.h
     console/consoleproxymodel.cpp console/consoleproxymodel.h
     console/consoleview.cpp console/consoleview.h
+    dap/cmakedapengine.cpp dap/cmakedapengine.h
+    dap/dapclient.cpp dap/dapclient.h
     dap/dapengine.cpp dap/dapengine.h
+    dap/gdbdapengine.cpp dap/gdbdapengine.h
+    dap/pydapengine.cpp dap/pydapengine.h
     debugger.qrc
     debugger_global.h
     debuggeractions.cpp debuggeractions.h
@@ -39,7 +43,7 @@ add_qtc_plugin(Debugger
     debuggerinternalconstants.h
     debuggeritem.cpp debuggeritem.h
     debuggeritemmanager.cpp debuggeritemmanager.h
-    debuggerkitinformation.cpp debuggerkitinformation.h
+    debuggerkitaspect.cpp debuggerkitaspect.h
     debuggermainwindow.cpp debuggermainwindow.h
     debuggerplugin.cpp debuggerplugin.h
     debuggerprotocol.cpp debuggerprotocol.h
@@ -51,7 +55,7 @@ add_qtc_plugin(Debugger
     disassembleragent.cpp disassembleragent.h
     disassemblerlines.cpp disassemblerlines.h
     gdb/gdbengine.cpp gdb/gdbengine.h
-    gdb/gdboptionspage.cpp
+    gdb/gdbsettings.cpp gdb/gdbsettings.h
     imageviewer.cpp imageviewer.h
     enginemanager.cpp enginemanager.h
     lldb/lldbengine.cpp lldb/lldbengine.h

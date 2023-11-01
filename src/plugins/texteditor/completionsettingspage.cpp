@@ -38,7 +38,7 @@ private:
 
     CaseSensitivity caseSensitivity() const;
     CompletionTrigger completionTrigger() const;
-    void settingsFromUi(CompletionSettings &completion, CommentsSettings &comment) const;
+    void settingsFromUi(CompletionSettings &completion) const;
 
     CompletionSettingsPage *m_owner = nullptr;
 
@@ -58,9 +58,6 @@ private:
     QCheckBox *m_skipAutoComplete;
     QCheckBox *m_removeAutoComplete;
     QCheckBox *m_overwriteClosingChars;
-    QCheckBox *m_enableDoxygenCheckBox;
-    QCheckBox *m_generateBriefCheckBox;
-    QCheckBox *m_leadingAsterisksCheckBox;
 };
 
 CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPage *owner)
@@ -147,19 +144,6 @@ CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPag
     m_overwriteClosingChars = new QCheckBox(Tr::tr("Overwrite closing punctuation"));
     m_overwriteClosingChars->setToolTip(Tr::tr("Automatically overwrite closing parentheses and quotes."));
 
-    m_enableDoxygenCheckBox = new QCheckBox(Tr::tr("Enable Doxygen blocks"));
-    m_enableDoxygenCheckBox->setToolTip(Tr::tr("Automatically creates a Doxygen comment upon pressing "
-                                         "enter after a '/**', '/*!', '//!' or '///'."));
-
-    m_generateBriefCheckBox = new QCheckBox(Tr::tr("Generate brief description"));
-    m_generateBriefCheckBox->setToolTip(Tr::tr("Generates a <i>brief</i> command with an initial "
-                                         "description for the corresponding declaration."));
-
-    m_leadingAsterisksCheckBox = new QCheckBox(Tr::tr("Add leading asterisks"));
-    m_leadingAsterisksCheckBox->setToolTip(
-        Tr::tr("Adds leading asterisks when continuing C/C++ \"/*\", Qt \"/*!\" "
-           "and Java \"/**\" style comments on new lines."));
-
     connect(m_completionTrigger, &QComboBox::currentIndexChanged,
             this, [this, automaticProposalTimeoutLabel] {
         const bool enableTimeoutWidgets = completionTrigger() == AutomaticCompletion;
@@ -211,11 +195,6 @@ CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPag
     m_skipAutoComplete->setChecked(m_owner->m_completionSettings.m_skipAutoCompletedText);
     m_removeAutoComplete->setChecked(m_owner->m_completionSettings.m_autoRemove);
 
-    m_enableDoxygenCheckBox->setChecked(m_owner->m_commentsSettings.m_enableDoxygen);
-    m_generateBriefCheckBox->setChecked(m_owner->m_commentsSettings.m_generateBrief);
-    m_leadingAsterisksCheckBox->setChecked(m_owner->m_commentsSettings.m_leadingAsterisks);
-
-    m_generateBriefCheckBox->setEnabled(m_enableDoxygenCheckBox->isChecked());
     m_skipAutoComplete->setEnabled(m_highlightAutoComplete->isChecked());
     m_removeAutoComplete->setEnabled(m_highlightAutoComplete->isChecked());
 
@@ -254,18 +233,9 @@ CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPag
                 }
             }
         },
-        Group {
-            title(Tr::tr("Documentation Comments")),
-            Column {
-                m_enableDoxygenCheckBox,
-                    indent(m_generateBriefCheckBox),
-                m_leadingAsterisksCheckBox
-            }
-        },
         st
     }.attachTo(this);
 
-    connect(m_enableDoxygenCheckBox, &QCheckBox::toggled, m_generateBriefCheckBox, &QCheckBox::setEnabled);
     connect(m_highlightAutoComplete, &QCheckBox::toggled, m_skipAutoComplete, &QCheckBox::setEnabled);
     connect(m_highlightAutoComplete, &QCheckBox::toggled, m_removeAutoComplete, &QCheckBox::setEnabled);
 }
@@ -273,20 +243,13 @@ CompletionSettingsPageWidget::CompletionSettingsPageWidget(CompletionSettingsPag
 void CompletionSettingsPageWidget::apply()
 {
     CompletionSettings completionSettings;
-    CommentsSettings commentsSettings;
 
-    settingsFromUi(completionSettings, commentsSettings);
+    settingsFromUi(completionSettings);
 
     if (m_owner->m_completionSettings != completionSettings) {
         m_owner->m_completionSettings = completionSettings;
         m_owner->m_completionSettings.toSettings(Core::ICore::settings());
         emit TextEditorSettings::instance()->completionSettingsChanged(completionSettings);
-    }
-
-    if (m_owner->m_commentsSettings != commentsSettings) {
-        m_owner->m_commentsSettings = commentsSettings;
-        m_owner->m_commentsSettings.toSettings(Core::ICore::settings());
-        emit TextEditorSettings::instance()->commentsSettingsChanged(commentsSettings);
     }
 }
 
@@ -314,8 +277,7 @@ CompletionTrigger CompletionSettingsPageWidget::completionTrigger() const
     }
 }
 
-void CompletionSettingsPageWidget::settingsFromUi(CompletionSettings &completion,
-                                                  CommentsSettings &comment) const
+void CompletionSettingsPageWidget::settingsFromUi(CompletionSettings &completion) const
 {
     completion.m_caseSensitivity = caseSensitivity();
     completion.m_completionTrigger = completionTrigger();
@@ -334,10 +296,6 @@ void CompletionSettingsPageWidget::settingsFromUi(CompletionSettings &completion
     completion.m_highlightAutoComplete = m_highlightAutoComplete->isChecked();
     completion.m_skipAutoCompletedText = m_skipAutoComplete->isChecked();
     completion.m_autoRemove = m_removeAutoComplete->isChecked();
-
-    comment.m_enableDoxygen = m_enableDoxygenCheckBox->isChecked();
-    comment.m_generateBrief = m_generateBriefCheckBox->isChecked();
-    comment.m_leadingAsterisks = m_leadingAsterisksCheckBox->isChecked();
 }
 
 const CompletionSettings &CompletionSettingsPage::completionSettings() const
@@ -345,10 +303,6 @@ const CompletionSettings &CompletionSettingsPage::completionSettings() const
     return m_completionSettings;
 }
 
-const CommentsSettings &CompletionSettingsPage::commentsSettings() const
-{
-    return m_commentsSettings;
-}
 
 CompletionSettingsPage::CompletionSettingsPage()
 {
@@ -359,9 +313,8 @@ CompletionSettingsPage::CompletionSettingsPage()
     setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this] { return new CompletionSettingsPageWidget(this); });
 
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     m_completionSettings.fromSettings(s);
-    m_commentsSettings.fromSettings(s);
 }
 
 } // Internal

@@ -5,9 +5,9 @@
 
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/qtcsettings.h>
 
 #include <QReadWriteLock>
-#include <QSettings>
 
 using namespace Utils;
 
@@ -33,23 +33,23 @@ Q_GLOBAL_STATIC(Internal::SshSettings, sshSettings)
 class AccessSettingsGroup
 {
 public:
-    AccessSettingsGroup(QSettings *settings) : m_settings(settings)
+    AccessSettingsGroup(QtcSettings *settings) : m_settings(settings)
     {
         settings->beginGroup("SshSettings");
     }
     ~AccessSettingsGroup() { m_settings->endGroup(); }
 private:
-    QSettings * const m_settings;
+    QtcSettings * const m_settings;
 };
 
-static QString connectionSharingKey() { return QString("UseConnectionSharing"); }
-static QString connectionSharingTimeoutKey() { return QString("ConnectionSharingTimeout"); }
-static QString sshFilePathKey() { return QString("SshFilePath"); }
-static QString sftpFilePathKey() { return QString("SftpFilePath"); }
-static QString askPassFilePathKey() { return QString("AskpassFilePath"); }
-static QString keygenFilePathKey() { return QString("KeygenFilePath"); }
+static Key connectionSharingKey() { return Key("UseConnectionSharing"); }
+static Key connectionSharingTimeoutKey() { return Key("ConnectionSharingTimeout"); }
+static Key sshFilePathKey() { return Key("SshFilePath"); }
+static Key sftpFilePathKey() { return Key("SftpFilePath"); }
+static Key askPassFilePathKey() { return Key("AskpassFilePath"); }
+static Key keygenFilePathKey() { return Key("KeygenFilePath"); }
 
-void SshSettings::loadSettings(QSettings *settings)
+void SshSettings::loadSettings(QtcSettings *settings)
 {
     QWriteLocker locker(&sshSettings->lock);
     AccessSettingsGroup g(settings);
@@ -67,7 +67,7 @@ void SshSettings::loadSettings(QSettings *settings)
                 settings->value(keygenFilePathKey()).toString());
 }
 
-void SshSettings::storeSettings(QSettings *settings)
+void SshSettings::storeSettings(QtcSettings *settings)
 {
     QReadLocker locker(&sshSettings->lock);
     AccessSettingsGroup g(settings);
@@ -114,7 +114,7 @@ static FilePath filePathValue(const FilePath &value, const QStringList &candidat
         if (!filePath.isEmpty())
             return filePath;
     }
-    return FilePath();
+    return {};
 }
 
 // Keep read locker locked while calling this method

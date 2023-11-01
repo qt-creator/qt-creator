@@ -410,6 +410,13 @@ public:
         }
 
         connect(m_ptyProcess->notifier(), &QIODevice::readyRead, this, [this] {
+            if (m_setup.m_ptyData->ptyInputFlagsChangedHandler()
+                && m_inputFlags != m_ptyProcess->inputFlags()) {
+                m_inputFlags = m_ptyProcess->inputFlags();
+                m_setup.m_ptyData->ptyInputFlagsChangedHandler()(
+                    static_cast<Pty::PtyInputFlag>(m_inputFlags.toInt()));
+            }
+
             emit readyRead(m_ptyProcess->readAll(), {});
         });
 
@@ -430,6 +437,7 @@ public:
 
 private:
     std::unique_ptr<IPtyProcess> m_ptyProcess;
+    IPtyProcess::PtyInputFlags m_inputFlags;
 };
 
 class QProcessImpl final : public DefaultImpl
@@ -1183,10 +1191,25 @@ const Environment &Process::controlEnvironment() const
     return d->m_setup.m_controlEnvironment;
 }
 
+void Process::setRunData(const ProcessRunData &data)
+{
+    if (data.workingDirectory.needsDevice() && data.command.executable().needsDevice()) {
+        QTC_CHECK(data.workingDirectory.isSameDevice(data.command.executable()));
+    }
+    d->m_setup.m_commandLine = data.command;
+    d->m_setup.m_workingDirectory = data.workingDirectory;
+    d->m_setup.m_environment = data.environment;
+}
+
+ProcessRunData Process::runData() const
+{
+    return {d->m_setup.m_commandLine, d->m_setup.m_workingDirectory, d->m_setup.m_environment};
+}
+
 void Process::setCommand(const CommandLine &cmdLine)
 {
     if (d->m_setup.m_workingDirectory.needsDevice() && cmdLine.executable().needsDevice()) {
-        QTC_CHECK(d->m_setup.m_workingDirectory.host() == cmdLine.executable().host());
+        QTC_CHECK(d->m_setup.m_workingDirectory.isSameDevice(cmdLine.executable()));
     }
     d->m_setup.m_commandLine = cmdLine;
 }
@@ -1228,7 +1251,19 @@ void Process::start()
     } else {
         processImpl = d->createProcessInterface();
     }
-    QTC_ASSERT(processImpl, return);
+
+    if (!processImpl) {
+        // This happens if a device does not implement the createProcessInterface() function.
+        d->m_result = ProcessResult::StartFailed;
+        d->m_resultData.m_exitCode = 255;
+        d->m_resultData.m_exitStatus = QProcess::CrashExit;
+        d->m_resultData.m_errorString = Tr::tr("Failed to create process interface for \"%1\".")
+                                            .arg(d->m_setup.m_commandLine.toUserOutput());
+        d->m_resultData.m_error = QProcess::FailedToStart;
+        d->emitGuardedSignal(&Process::done);
+        return;
+    }
+
     d->setProcessInterface(processImpl);
     d->m_state = QProcess::Starting;
     d->m_process->m_setup = d->m_setup;
@@ -1461,18 +1496,6 @@ QProcess::ProcessError Process::error() const
 QString Process::errorString() const
 {
     return resultData().m_errorString;
-}
-
-// Path utilities
-
-Environment Process::systemEnvironmentForBinary(const FilePath &filePath)
-{
-    if (filePath.needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.systemEnvironmentForBinary, return {});
-        return s_deviceHooks.systemEnvironmentForBinary(filePath);
-    }
-
-    return Environment::systemEnvironment();
 }
 
 qint64 Process::applicationMainThreadId() const

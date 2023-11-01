@@ -70,8 +70,6 @@ QtcPlugin {
         "pxnodeutilities.cpp",
         "pxnodeutilities.h",
         "resources/modeleditor.qrc",
-        "settingscontroller.cpp",
-        "settingscontroller.h",
         "uicontroller.cpp",
         "uicontroller.h",
     ]

@@ -30,7 +30,7 @@ namespace Internal {
 // Retrieve the comment char format from the text editor.
 static QTextCharFormat commentFormat()
 {
-    const TextEditor::FontSettings settings = TextEditor::TextEditorSettings::instance()->fontSettings();
+    const TextEditor::FontSettings &settings = TextEditor::TextEditorSettings::instance()->fontSettings();
     return settings.toTextCharFormat(TextEditor::C_COMMENT);
 }
 

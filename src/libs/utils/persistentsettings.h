@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include "filepath.h"
+#include "store.h"
 
 #include <QVariant>
 
@@ -19,13 +20,13 @@ class QTCREATOR_UTILS_EXPORT PersistentSettingsReader
 {
 public:
     PersistentSettingsReader();
-    QVariant restoreValue(const QString &variable, const QVariant &defaultValue = QVariant()) const;
-    QVariantMap restoreValues() const;
+    QVariant restoreValue(const Key &variable, const QVariant &defaultValue = {}) const;
+    Store restoreValues() const;
     bool load(const FilePath &fileName);
     FilePath filePath();
 
 private:
-    QMap<QString, QVariant> m_valueMap;
+    QVariantMap m_valueMap;
     FilePath m_filePath;
 };
 
@@ -34,21 +35,21 @@ class QTCREATOR_UTILS_EXPORT PersistentSettingsWriter
 public:
     PersistentSettingsWriter(const FilePath &fileName, const QString &docType);
 
-    bool save(const QVariantMap &data, QString *errorString) const;
+    bool save(const Store &data, QString *errorString) const;
 #ifdef QT_GUI_LIB
-    bool save(const QVariantMap &data, QWidget *parent) const;
+    bool save(const Store &data, QWidget *parent) const;
 #endif
 
     FilePath fileName() const;
 
-    void setContents(const QVariantMap &data);
+    void setContents(const Store &data);
 
 private:
-    bool write(const QVariantMap &data, QString *errorString) const;
+    bool write(const Store &data, QString *errorString) const;
 
     const FilePath m_fileName;
     const QString m_docType;
-    mutable QMap<QString, QVariant> m_savedData;
+    mutable Store m_savedData;
 };
 
 } // namespace Utils

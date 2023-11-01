@@ -51,8 +51,6 @@
 #include <QStandardPaths>
 #include <QXmlStreamWriter>
 
-#include <app/app_version.h>
-
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
 
@@ -374,7 +372,7 @@ void MainWidget::init()
 
     m_toolButtons << stateColorButton << fontColorButton << alignToolButton << adjustToolButton;
 
-    const QSettings *s = Core::ICore::settings();
+    const QtcSettings *s = Core::ICore::settings();
     m_horizontalSplitter->restoreState(s->value(Constants::C_SETTINGS_SPLITTER).toByteArray());
 
     m_actionHandler->action(ActionPaste)->setEnabled(false);
@@ -414,7 +412,7 @@ void MainWidget::exportToImage()
     if (suggestedFileName.isEmpty())
         suggestedFileName = Tr::tr("Untitled");
 
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     const QString documentsLocation = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     const QString lastFolder = s->value(
                 Constants::C_SETTINGS_LASTEXPORTFOLDER, documentsLocation).toString();
@@ -448,7 +446,7 @@ void MainWidget::saveScreenShot()
     if (!view)
         return;
 
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     const QString documentsLocation = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     const FilePath lastFolder = FilePath::fromSettings(
             s->value(Constants::C_SETTINGS_LASTSAVESCREENSHOTFOLDER, documentsLocation));
@@ -469,7 +467,7 @@ void MainWidget::saveScreenShot()
 
 void MainWidget::saveSettings()
 {
-    QSettings *s = Core::ICore::settings();
+    QtcSettings *s = Core::ICore::settings();
     s->setValue(Constants::C_SETTINGS_SPLITTER, m_horizontalSplitter->saveState());
 }
 

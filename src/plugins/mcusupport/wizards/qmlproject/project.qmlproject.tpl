@@ -5,6 +5,7 @@ Project {
     // importPaths: ["imports/CustomModule"] // Alternative API for importing modules.
     // projectRootPath: "." // Optional root path relative to qmlproject file path.
     mainFile: "%{MainQmlFile}" // The application's entrypoint
+    idBasedTranslations: true // Use qsTrId() instead of qsTr()
 
     /* Global configuration */
     MCU.Config {
@@ -88,8 +89,11 @@ Project {
 
     /* Translations */
     TranslationFiles {
-        files: ["translations/%{TsFile}"]
-        MCU.omitSourceLanguage: false
+        files: [
+            "translations/%{TsFileEn}",
+            "translations/%{TsFileNo}"
+        ]
+        MCU.omitSourceLanguage: true
     }
 
     FontFiles {

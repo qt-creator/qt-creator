@@ -6,9 +6,8 @@
 #include "buildconfiguration.h"
 #include "buildpropertiessettings.h"
 #include "devicesupport/idevice.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "projectexplorerconstants.h"
-#include "projectexplorer.h"
 #include "projectexplorertr.h"
 #include "target.h"
 
@@ -36,30 +35,32 @@ public:
     QPointer<InfoLabel> problemLabel;
 };
 
-BuildDirectoryAspect::BuildDirectoryAspect(const BuildConfiguration *bc)
-    : d(new Private(bc->target()))
+BuildDirectoryAspect::BuildDirectoryAspect(AspectContainer *container, const BuildConfiguration *bc)
+    : FilePathAspect(container),
+      d(new Private(bc->target()))
 {
     setSettingsKey("ProjectExplorer.BuildConfiguration.BuildDirectory");
     setLabelText(Tr::tr("Build directory:"));
     setExpectedKind(Utils::PathChooser::Directory);
-    setValidationFunction([this](FancyLineEdit *edit, QString *error) {
-        const FilePath fixedDir = fixupDir(FilePath::fromUserInput(edit->text()));
-        if (!fixedDir.isEmpty())
-            edit->setText(fixedDir.toUserOutput());
 
-        const FilePath newPath = FilePath::fromUserInput(edit->text());
+    setValidationFunction([this](QString text) -> FancyLineEdit::AsyncValidationFuture {
+        const FilePath fixedDir = fixupDir(FilePath::fromUserInput(text));
+        if (!fixedDir.isEmpty())
+            text = fixedDir.toUserOutput();
+
+        const FilePath newPath = FilePath::fromUserInput(text);
         const auto buildDevice = BuildDeviceKitAspect::device(d->target->kit());
 
         if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE
             && !buildDevice->rootPath().ensureReachable(newPath)) {
-            *error = Tr::tr("The build directory is not reachable from the build device.");
-            return false;
+            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(make_unexpected(
+                Tr::tr("The build directory is not reachable from the build device.")))));
         }
-
-        return pathChooser() ? pathChooser()->defaultValidationFunction()(edit, error) : true;
+        return pathChooser()->defaultValidationFunction()(text);
     });
+
     setOpenTerminalHandler([this, bc] {
-        Core::FileUtils::openTerminal(FilePath::fromString(value()), bc->environment());
+        Core::FileUtils::openTerminal(expandedValue(), bc->environment());
     });
 }
 
@@ -71,13 +72,13 @@ BuildDirectoryAspect::~BuildDirectoryAspect()
 void BuildDirectoryAspect::allowInSourceBuilds(const FilePath &sourceDir)
 {
     d->sourceDir = sourceDir;
-    makeCheckable(CheckBoxPlacement::Top, Tr::tr("Shadow build:"), QString());
-    setChecked(d->sourceDir != filePath());
+    makeCheckable(CheckBoxPlacement::Top, Tr::tr("Shadow build:"), Key());
+    setChecked(d->sourceDir != expandedValue());
 }
 
 bool BuildDirectoryAspect::isShadowBuild() const
 {
-    return !d->sourceDir.isEmpty() && d->sourceDir != filePath();
+    return !d->sourceDir.isEmpty() && d->sourceDir != expandedValue();
 }
 
 void BuildDirectoryAspect::setProblem(const QString &description)
@@ -86,29 +87,29 @@ void BuildDirectoryAspect::setProblem(const QString &description)
     updateProblemLabel();
 }
 
-void BuildDirectoryAspect::toMap(QVariantMap &map) const
+void BuildDirectoryAspect::toMap(Store &map) const
 {
-    StringAspect::toMap(map);
+    FilePathAspect::toMap(map);
     if (!d->sourceDir.isEmpty()) {
-        const FilePath shadowDir = isChecked() ? filePath() : d->savedShadowBuildDir;
+        const FilePath shadowDir = isChecked() ? expandedValue() : d->savedShadowBuildDir;
         saveToMap(map, shadowDir.toSettings(), QString(), settingsKey() + ".shadowDir");
     }
 }
 
-void BuildDirectoryAspect::fromMap(const QVariantMap &map)
+void BuildDirectoryAspect::fromMap(const Store &map)
 {
-    StringAspect::fromMap(map);
+    FilePathAspect::fromMap(map);
     if (!d->sourceDir.isEmpty()) {
         d->savedShadowBuildDir = FilePath::fromSettings(map.value(settingsKey() + ".shadowDir"));
         if (d->savedShadowBuildDir.isEmpty())
-            setFilePath(d->sourceDir);
-        setChecked(d->sourceDir != filePath());
+            setValue(d->sourceDir);
+        setChecked(d->sourceDir != expandedValue()); // FIXME: Check.
     }
 }
 
 void BuildDirectoryAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    StringAspect::addToLayout(parent);
+    FilePathAspect::addToLayout(parent);
     d->problemLabel = new InfoLabel({}, InfoLabel::Warning);
     d->problemLabel->setElideMode(Qt::ElideNone);
     parent.addItems({Layouting::br, Layouting::empty, d->problemLabel.data()});
@@ -116,11 +117,11 @@ void BuildDirectoryAspect::addToLayout(Layouting::LayoutItem &parent)
     if (!d->sourceDir.isEmpty()) {
         connect(this, &StringAspect::checkedChanged, this, [this] {
             if (isChecked()) {
-                setFilePath(d->savedShadowBuildDir.isEmpty()
+                setValue(d->savedShadowBuildDir.isEmpty()
                             ? d->sourceDir : d->savedShadowBuildDir);
             } else {
-                d->savedShadowBuildDir = filePath();
-                setFilePath(d->sourceDir);
+                d->savedShadowBuildDir = expandedValue(); // FIXME: Check.
+                setValue(d->sourceDir);
             }
         });
     }
@@ -161,11 +162,12 @@ void BuildDirectoryAspect::updateProblemLabel()
     d->problemLabel->setVisible(!d->problem.isEmpty());
 }
 
-SeparateDebugInfoAspect::SeparateDebugInfoAspect()
+SeparateDebugInfoAspect::SeparateDebugInfoAspect(AspectContainer *container)
+    : TriStateAspect(container)
 {
     setDisplayName(Tr::tr("Separate debug info:"));
     setSettingsKey("SeparateDebugInfo");
-    setValue(ProjectExplorerPlugin::buildPropertiesSettings().separateDebugInfo.value());
+    setValue(buildPropertiesSettings().separateDebugInfo());
 }
 
 } // namespace ProjectExplorer

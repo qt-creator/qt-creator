@@ -7,11 +7,9 @@
 
 #include "itemviews.h"
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
-
 namespace Utils {
+
+class QtcSettings;
 
 namespace Internal { class BaseTreeViewPrivate; }
 
@@ -34,7 +32,7 @@ public:
     BaseTreeView(QWidget *parent = nullptr);
     ~BaseTreeView() override;
 
-    void setSettings(QSettings *settings, const QByteArray &key);
+    void setSettings(Utils::QtcSettings *settings, const QByteArray &key);
 
     void setModel(QAbstractItemModel *model) override;
     void mousePressEvent(QMouseEvent *ev) override;

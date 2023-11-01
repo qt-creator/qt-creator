@@ -60,7 +60,6 @@ public:
 
     void fetchUrl();
 
-    Settings m_settings;
     QAction *m_postEditorAction = nullptr;
     QAction *m_fetchAction = nullptr;
     QAction *m_fetchUrlAction = nullptr;
@@ -124,15 +123,15 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
     // Connect protocols
     if (!m_protocols.isEmpty()) {
         for (Protocol *proto : m_protocols) {
-            m_settings.protocols.addOption(proto->name());
+            settings().protocols.addOption(proto->name());
             connect(proto, &Protocol::pasteDone, this, &CodePasterPluginPrivate::finishPost);
             connect(proto, &Protocol::fetchDone, this, &CodePasterPluginPrivate::finishFetch);
         }
-        m_settings.protocols.setDefaultValue(m_protocols.at(0)->name());
+        settings().protocols.setDefaultValue(m_protocols.at(0)->name());
     }
 
     // Create the settings Page
-    m_settings.readSettings(ICore::settings());
+    settings().readSettings();
 
     connect(&m_urlOpen, &Protocol::fetchDone, this, &CodePasterPluginPrivate::finishFetch);
 
@@ -238,20 +237,20 @@ void CodePasterPluginPrivate::post(QString data, const QString &mimeType)
 {
     fixSpecialCharacters(data);
 
-    const QString username = m_settings.username.value();
+    const QString username = settings().username();
 
     PasteView view(m_protocols, mimeType, ICore::dialogParent());
-    view.setProtocol(m_settings.protocols.stringValue());
+    view.setProtocol(settings().protocols.stringValue());
 
     const FileDataList diffChunks = splitDiffToFiles(data);
     const int dialogResult = diffChunks.isEmpty() ?
-        view.show(username, {}, {}, m_settings.expiryDays(), data) :
-        view.show(username, {}, {}, m_settings.expiryDays(), diffChunks);
+        view.show(username, {}, {}, settings().expiryDays(), data) :
+        view.show(username, {}, {}, settings().expiryDays(), diffChunks);
 
     // Save new protocol in case user changed it.
-    if (dialogResult == QDialog::Accepted && m_settings.protocols.value() != view.protocol()) {
-        m_settings.protocols.setValue(view.protocol());
-        m_settings.writeSettings(ICore::settings());
+    if (dialogResult == QDialog::Accepted && settings().protocols() != view.protocol()) {
+        settings().protocols.setValue(view.protocol());
+        settings().writeSettings();
     }
 }
 
@@ -275,14 +274,14 @@ void CodePasterPluginPrivate::pasteSnippet()
 void CodePasterPluginPrivate::fetch()
 {
     PasteSelectDialog dialog(m_protocols, ICore::dialogParent());
-    dialog.setProtocol(m_settings.protocols.stringValue());
+    dialog.setProtocol(settings().protocols.stringValue());
 
     if (dialog.exec() != QDialog::Accepted)
         return;
     // Save new protocol in case user changed it.
-    if (m_settings.protocols.value() != dialog.protocol()) {
-        m_settings.protocols.setValue(dialog.protocol());
-        m_settings.writeSettings(ICore::settings());
+    if (settings().protocols() != dialog.protocol()) {
+        settings().protocols.setValue(dialog.protocol());
+        settings().writeSettings();
     }
 
     const QString pasteID = dialog.pasteId();
@@ -295,10 +294,10 @@ void CodePasterPluginPrivate::fetch()
 
 void CodePasterPluginPrivate::finishPost(const QString &link)
 {
-    if (m_settings.copyToClipboard.value())
+    if (settings().copyToClipboard())
         Utils::setClipboardAndSelection(link);
 
-    if (m_settings.displayOutput.value())
+    if (settings().displayOutput())
         MessageManager::writeDisrupting(link);
     else
         MessageManager::writeFlashing(link);

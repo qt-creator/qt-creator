@@ -82,9 +82,13 @@ void LauncherInterfacePrivate::doStart()
     connect(m_process, &QProcess::readyReadStandardError,
             this, &LauncherInterfacePrivate::handleProcessStderr);
 #ifdef Q_OS_UNIX
+#  if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    m_process->setUnixProcessParameters(QProcess::UnixProcessFlag::CreateNewSession);
+#  else
     m_process->setChildProcessModifier([] {
         setpgid(0, 0);
     });
+#  endif
 #endif
 
     m_process->start(launcherFilePath(), QStringList(m_server->fullServerName()));

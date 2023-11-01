@@ -10,7 +10,6 @@
 
 #include <QStringList>
 #include <QVariantList>
-#include <QVector>
 
 namespace Utils {
 

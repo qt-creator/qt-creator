@@ -226,6 +226,7 @@ std::ostream &operator<<(std::ostream &out, const ValueView &value)
 }
 
 namespace {
+#if 0
 [[maybe_unused]]
 Utils::SmallStringView operationText(int operation)
 {
@@ -241,7 +242,6 @@ Utils::SmallStringView operationText(int operation)
     return {};
 }
 
-#if 0
 std::ostream &operator<<(std::ostream &out, [[maybe_unused]] sqlite3_changeset_iter *iter)
 {
     out << "(";
@@ -323,6 +323,7 @@ const char *toText(LockingMode lockingMode)
 
 std::ostream &operator<<(std::ostream &out, [[maybe_unused]] const SessionChangeSet &changeset)
 {
+    Q_UNUSED(changeset)
 #if 0
     sqlite3_changeset_iter *iter = nullptr;
     sqlite3changeset_start(&iter, changeset.size(), const_cast<void *>(changeset.data()));

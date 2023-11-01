@@ -27,7 +27,62 @@ const char rootScriptsDirKeyC[] = "RootScriptsDir";
 const char configurationFileKeyC[] = "ConfigurationPath";
 const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
+// OpenOcdGdbServerProviderConfigWidget
+
+class OpenOcdGdbServerProvider;
+
+class OpenOcdGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
+{
+public:
+    explicit OpenOcdGdbServerProviderConfigWidget(OpenOcdGdbServerProvider *provider);
+
+private:
+    void apply() final;
+    void discard() final;
+
+    void startupModeChanged();
+    void setFromProvider();
+
+    HostWidget *m_hostWidget = nullptr;
+    Utils::PathChooser *m_executableFileChooser = nullptr;
+    Utils::PathChooser *m_rootScriptsDirChooser = nullptr;
+    Utils::PathChooser *m_configurationFileChooser = nullptr;
+    QLineEdit *m_additionalArgumentsLineEdit = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
+};
+
 // OpenOcdGdbServerProvider
+
+class OpenOcdGdbServerProvider final : public GdbServerProvider
+{
+public:
+    void toMap(Store &data) const final;
+    void fromMap(const Store &data) final;
+
+    bool operator==(const IDebugServerProvider &other) const final;
+
+    QString channelString() const final;
+    Utils::CommandLine command() const final;
+
+    QSet<StartupMode> supportedStartupModes() const final;
+    bool isValid() const final;
+
+private:
+    explicit OpenOcdGdbServerProvider();
+
+    static QString defaultInitCommands();
+    static QString defaultResetCommands();
+
+    Utils::FilePath m_executableFile = "openocd";
+    Utils::FilePath m_rootScriptsDir;
+    Utils::FilePath m_configurationFile;
+    QString m_additionalArguments;
+
+    friend class OpenOcdGdbServerProviderConfigWidget;
+    friend class OpenOcdGdbServerProviderFactory;
+};
+
 
 OpenOcdGdbServerProvider::OpenOcdGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_OPENOCD_PROVIDER_ID)
@@ -125,26 +180,22 @@ bool OpenOcdGdbServerProvider::isValid() const
     return true;
 }
 
-QVariantMap OpenOcdGdbServerProvider::toMap() const
+void OpenOcdGdbServerProvider::toMap(Store &data) const
 {
-    QVariantMap data = GdbServerProvider::toMap();
+    GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(rootScriptsDirKeyC, m_rootScriptsDir.toSettings());
     data.insert(configurationFileKeyC, m_configurationFile.toSettings());
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
-    return data;
 }
 
-bool OpenOcdGdbServerProvider::fromMap(const QVariantMap &data)
+void OpenOcdGdbServerProvider::fromMap(const Store &data)
 {
-    if (!GdbServerProvider::fromMap(data))
-        return false;
-
+    GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_rootScriptsDir = FilePath::fromSettings(data.value(rootScriptsDirKeyC));
     m_configurationFile = FilePath::fromSettings(data.value(configurationFileKeyC));
     m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
-    return true;
 }
 
 bool OpenOcdGdbServerProvider::operator==(const IDebugServerProvider &other) const

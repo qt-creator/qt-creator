@@ -4,7 +4,7 @@
 #include "qmlproject.h"
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <QTimer>
@@ -39,8 +39,10 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace QmlProjectManager {
+
 QmlProject::QmlProject(const Utils::FilePath &fileName)
     : Project(QString::fromLatin1(Constants::QMLPROJECT_MIMETYPE), fileName)
 {
@@ -86,7 +88,7 @@ void QmlProject::parsingFinished(const Target *target, bool success)
         openFile(fileToOpen);
 }
 
-Project::RestoreResult QmlProject::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessage)
 {
     RestoreResult result = Project::fromMap(map, errorMessage);
     if (result != RestoreResult::Ok)
@@ -231,9 +233,9 @@ int QmlProject::preferedQtTarget(Target *target)
 
 bool QmlProject::allowOnlySingleProject()
 {
-    auto settings = Core::ICore::settings();
-    auto key = "QML/Designer/AllowMultipleProjects";
-    return !settings->value(QString::fromUtf8(key), false).toBool();
+    QtcSettings *settings = Core::ICore::settings();
+    const Key key = "QML/Designer/AllowMultipleProjects";
+    return !settings->value(key, false).toBool();
 }
 
 } // namespace QmlProjectManager

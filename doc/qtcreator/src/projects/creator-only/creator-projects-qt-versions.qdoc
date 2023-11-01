@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,25 +8,28 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-targets.html
     \page creator-project-qmake.html
-    \nextpage creator-tool-chains.html
+    \previouspage creator-how-tos.html
 
-    \title Adding Qt Versions
+    \ingroup creator-how-to-manage-kits
 
-    You can install multiple versions of Qt development PC and use them to build
-    your projects. For example, \l{glossary-device}{device} manufacturers offer
-    special Qt versions for developing applications for their devices.
+    \title Add Qt versions
 
-    \section1 Registering Installed Qt Versions
+    You can install multiple versions of Qt on the development PC and use them to
+    build your projects. For example, \l{glossary-device}{device} manufacturers
+    offer special Qt versions for developing applications for their devices.
 
-    The \uicontrol {Qt Versions} tab lists the installed Qt versions. To view
-    detailed information about each Qt version, select it in the list and select
-    \uicontrol Details in the \uicontrol {Qt version for} section.
+    To view the installed Qt versions, select \preferences > \uicontrol Kits >
+    \uicontrol {Qt Versions}.
 
-    \image qtcreator-qt-versions.png "Qt Versions tab in Kit preferences"
+    \image qtcreator-qt-versions.png {Qt Versions tab in Kit preferences}
+
+    To view detailed information about each Qt version, select it in the list and
+    select \uicontrol Details in the \uicontrol {Qt version for} section.
 
     To remove invalid Qt versions, select \uicontrol {Clean Up}.
+
+    \section1 Register installed Qt versions
 
     You can link to a Qt that \QOI installed to
     automatically detect the installed Qt versions. However, you cannot link
@@ -34,16 +37,14 @@
     manager, such as your Linux distribution, brew on \macos, or Chocolatey on
     Windows, nor a self-built Qt. In those cases, select \uicontrol {Add} in
     the \uicontrol {Qt Versions} tab to add the Qt version manually, as
-    instructed in \l{Setting Up New Qt Versions}.
+    instructed in \l{Set up new Qt versions}.
 
     To link to a Qt installation:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            (or \uicontrol {Qt Creator} > \uicontrol Preferences on
-            \macos) > \uicontrol Kits > \uicontrol {Qt Versions} >
+        \li Select \preferences > \uicontrol Kits > \uicontrol {Qt Versions} >
             \uicontrol {Link with Qt}.
-            \image qtcreator-link-with-qt.png "Choose Qt Installation dialog"
+            \image qtcreator-link-with-qt.png {Choose Qt Installation dialog}
         \li In the \uicontrol {Qt installation path} field, enter the path to
             the directory where you installed Qt.
         \li Select \uicontrol {Link with Qt} to automatically register Qt
@@ -55,21 +56,19 @@
     \uicontrol {Remove Link}.
 
     If the \uicontrol {Qt Versions} tab does not show a Qt version
-    under \uicontrol Auto-detected, set it up manually, as described
-    in the following section.
+    under \uicontrol Auto-detected, set it up manually.
 
     You specify the Qt version to use for each \l{glossary-buildandrun-kit}
-    {kit} for building and running your projects
-    in \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits, as described
-    in \l{Specifying Kit Settings}.
+    {kit} for building and running your projects in \preferences >
+    \uicontrol Kits.
 
-    \section1 Setting Up New Qt Versions
+    \section1 Set up new Qt versions
 
     To add a Qt version:
 
         \list 1
 
-            \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+            \li Select \preferences > \uicontrol Kits >
                 \uicontrol {Qt Versions} > \uicontrol Add.
 
             \li Select the qmake executable for the Qt version to add.
@@ -90,7 +89,7 @@
     To remove a Qt version that you added manually, select it in the
     \uicontrol Manual list and then select \uicontrol Remove.
 
-    \section1 Registering Documentation
+    \section1 Register documentation
 
     By default, \QC registers only the latest available version of the documentation for each
     installed Qt module.
@@ -100,7 +99,7 @@
     To register no Qt documentation at all, choose \uicontrol{None}.
     The default behavior is \uicontrol{Highest Version Only}.
 
-    \section1 Troubleshooting Qt Installations
+    \section1 Troubleshoot Qt installations
 
     If \QC detects problems in the installation of a Qt version, it displays
     warnings and errors beside the name of the Qt version in the list. Select
@@ -115,13 +114,13 @@
     Installer, run \QMT to check for updates or to reinstall
     the Qt version.
 
-    \section1 Minimum Requirements
+    \section1 Minimum requirements
     If your build of Qt is incomplete but you still want to use qmake as build
     system, you need to ensure the following minimum requirements to use that
     setup with \QC.
 
     \list 1
-        \li qmake is an executable that understands the \c -query command line
+        \li qmake is an executable that understands the \c -query command-line
             argument.
         \li The \c bin and \c include directories have to exist. \QC fetches
             these directories by running \c{qmake -query}.
@@ -131,5 +130,6 @@
 
     If your Qt version has no \c libQtCore.so, \QC cannot detect the ABI.
 
+    \sa {Kits}
 */
 

@@ -37,13 +37,14 @@ list(APPEND DEFAULT_DEFINES
 # use CMAKE_CURRENT_FUNCTION_LIST_DIR when we can require CMake 3.17
 set(_THIS_MODULE_BASE_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
+qtc_env_with_default("QTC_WITH_CCACHE_SUPPORT" ENV_WITH_CCACHE_SUPPORT OFF)
 option(BUILD_PLUGINS_BY_DEFAULT "Build plugins by default. This can be used to build all plugins by default, or none." ON)
 option(BUILD_EXECUTABLES_BY_DEFAULT "Build executables by default. This can be used to build all executables by default, or none." ON)
 option(BUILD_LIBRARIES_BY_DEFAULT "Build libraries by default. This can be used to build all libraries by default, or none." ON)
 option(BUILD_TESTS_BY_DEFAULT "Build tests by default. This can be used to build all tests by default, or none." ON)
 option(QTC_SEPARATE_DEBUG_INFO "Extract debug information from binary files." OFF)
 option(WITH_SCCACHE_SUPPORT "Enables support for building with SCCACHE and separate debug info with MSVC, which SCCACHE normally doesn't support." OFF)
-option(WITH_CCACHE_SUPPORT "Enables support for building with CCACHE and separate debug info with MSVC, which CCACHE normally doesn't support." OFF)
+option(WITH_CCACHE_SUPPORT "Enables support for building with CCACHE and separate debug info with MSVC, which CCACHE normally doesn't support." "${ENV_WITH_CCACHE_SUPPORT}")
 option(QTC_STATIC_BUILD "Builds libraries and plugins as static libraries" OFF)
 
 # If we provide a list of plugins, executables, libraries, then the BUILD_<type>_BY_DEFAULT will be set to OFF
@@ -322,7 +323,7 @@ endfunction(add_qtc_library)
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT;SKIP_PCH"
-    "VERSION;COMPAT_VERSION;PLUGIN_JSON_IN;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS"
+    "VERSION;COMPAT_VERSION;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;SYSTEM_INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PROPERTIES"
     ${ARGN}
   )
@@ -420,29 +421,20 @@ function(add_qtc_plugin target_name)
   )
   string(APPEND _arg_DEPENDENCY_STRING "\n    ]")
 
-  set(IDE_PLUGIN_DEPENDENCY_STRING ${_arg_DEPENDENCY_STRING})
+  set(IDE_PLUGIN_DEPENDENCIES ${_arg_DEPENDENCY_STRING})
 
   ### Configure plugin.json file:
   if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}.json.in")
     list(APPEND _arg_SOURCES ${name}.json.in)
     file(READ "${name}.json.in" plugin_json_in)
-    string(REPLACE "\\\"" "\"" plugin_json_in ${plugin_json_in})
-    string(REPLACE "\\'" "'" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$QTCREATOR_VERSION" "\${IDE_VERSION}" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$QTCREATOR_COMPAT_VERSION" "\${IDE_VERSION_COMPAT}" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$QTCREATOR_COPYRIGHT_YEAR" "\${IDE_COPYRIGHT_YEAR}" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$QTC_PLUGIN_REVISION" "\${QTC_PLUGIN_REVISION}" plugin_json_in ${plugin_json_in})
-    string(REPLACE "$$dependencyList" "\${IDE_PLUGIN_DEPENDENCY_STRING}" plugin_json_in ${plugin_json_in})
-    if(_arg_PLUGIN_JSON_IN)
-        #e.g. UPDATEINFO_EXPERIMENTAL_STR=true
-        string(REGEX REPLACE "=.*$" "" json_key ${_arg_PLUGIN_JSON_IN})
-        string(REGEX REPLACE "^.*=" "" json_value ${_arg_PLUGIN_JSON_IN})
-        string(REPLACE "$$${json_key}" "${json_value}" plugin_json_in ${plugin_json_in})
+    if(plugin_json_in MATCHES "\\$\\$dependencyList")
+      message(FATAL_ERROR "Found $$dependencyList in ${name}.json.in. "
+              "This is no longer supported. "
+              "Use \${IDE_PLUGIN_DEPENDENCIES}, \${IDE_VERSION} "
+              "and other CMake variables directly. "
+              "Also remove escaping of quotes.")
     endif()
-    string(CONFIGURE "${plugin_json_in}" plugin_json)
-    file(GENERATE
-      OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${name}.json"
-      CONTENT "${plugin_json}")
+    configure_file(${name}.json.in "${CMAKE_CURRENT_BINARY_DIR}/${name}.json")
   endif()
 
   if (QTC_STATIC_BUILD)
@@ -824,7 +816,7 @@ function(extend_qtc_executable name)
 endfunction()
 
 function(add_qtc_test name)
-  cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK" "TIMEOUT"
+  cmake_parse_arguments(_arg "GTEST;MANUALTEST;EXCLUDE_FROM_PRECHECK;NEEDS_GUI" "TIMEOUT"
       "DEFINES;DEPENDS;INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;SKIP_PCH;CONDITION;PROPERTIES" ${ARGN})
 
   if (${_arg_UNPARSED_ARGUMENTS})
@@ -862,7 +854,7 @@ function(add_qtc_test name)
     endif()
   endforeach()
 
-  set(TEST_DEFINES SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
 
   # relax cast requirements for tests
   get_default_defines(default_defines_copy YES)
@@ -891,8 +883,12 @@ function(add_qtc_test name)
     enable_pch(${name})
   endif()
 
+  if (_arg_NEEDS_GUI)
+    set(EXTRA_ARGUMENTS "-platform" "minimal")
+  endif()
+
   if (NOT _arg_GTEST AND NOT _arg_MANUALTEST)
-    add_test(NAME ${name} COMMAND ${name})
+    add_test(NAME ${name} COMMAND ${name} ${EXTRA_ARGUMENTS})
     if (_arg_EXCLUDE_FROM_PRECHECK)
       set_tests_properties(${name} PROPERTIES LABELS exclude_from_precheck)
     endif()

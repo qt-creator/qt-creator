@@ -92,7 +92,7 @@
     In the \uicontrol {Handle exceptions} list, select \uicontrol Off to use the
     standard exception handler and have the debugger automatically attached if
     the application crashes. This works only if you register \QC is as a
-    post-mortem debugger by selecting \uicontrol Edit > \uicontrol Preferences >
+    post-mortem debugger by selecting \preferences >
     \uicontrol Debugger > \uicontrol General >
     \uicontrol {Use Qt Creator for post-mortem debugging}.
 

@@ -10,10 +10,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QDebug>
-
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 DataProxyModel::DataProxyModel(QObject *parent)
     : QSortFilterProxyModel(parent)
@@ -108,7 +105,7 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
     // check if the function from this index is a child of (called by) the filter function
     if (m_function) {
         bool isValid = false;
-        const QVector<const FunctionCall *> calls = func->incomingCalls();
+        const QList<const FunctionCall *> calls = func->incomingCalls();
         for (const FunctionCall *call : calls) {
             if (call->caller() == m_function) {
                 isValid = true;
@@ -135,5 +132,4 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
     return QSortFilterProxyModel::filterAcceptsRow(source_row, source_parent);
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

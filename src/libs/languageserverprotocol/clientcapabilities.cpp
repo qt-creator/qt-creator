@@ -77,4 +77,46 @@ bool SemanticTokensClientCapabilities::isValid() const
            && contains(formatsKey);
 }
 
+const char resourceOperationCreate[] = "create";
+const char resourceOperationRename[] = "rename";
+const char resourceOperationDelete[] = "delete";
+
+std::optional<QList<WorkspaceClientCapabilities::WorkspaceEditCapabilities::ResourceOperationKind>>
+WorkspaceClientCapabilities::WorkspaceEditCapabilities::resourceOperations() const
+{
+    if (!contains(resourceOperationsKey))
+        return std::nullopt;
+    QList<ResourceOperationKind> result;
+    for (const QJsonValue &value : this->value(resourceOperationsKey).toArray()) {
+        const QString str = value.toString();
+        if (str == resourceOperationCreate)
+            result << ResourceOperationKind::Create;
+        else if (str == resourceOperationRename)
+            result << ResourceOperationKind::Rename;
+        else if (str == resourceOperationDelete)
+            result << ResourceOperationKind::Delete;
+    }
+    return result;
+}
+
+void WorkspaceClientCapabilities::WorkspaceEditCapabilities::setResourceOperations(
+    const QList<ResourceOperationKind> &resourceOperations)
+{
+    QJsonArray array;
+    for (const auto &kind : resourceOperations) {
+        switch (kind) {
+        case ResourceOperationKind::Create:
+            array << resourceOperationCreate;
+            break;
+        case ResourceOperationKind::Rename:
+            array << resourceOperationRename;
+            break;
+        case ResourceOperationKind::Delete:
+            array << resourceOperationDelete;
+            break;
+        }
+    }
+    insert(resourceOperationsKey, array);
+}
+
 } // namespace LanguageServerProtocol

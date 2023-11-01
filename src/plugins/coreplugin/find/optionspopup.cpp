@@ -3,7 +3,7 @@
 
 #include "optionspopup.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
+#include "../actionmanager/actionmanager.h"
 
 #include <utils/qtcassert.h>
 
@@ -17,6 +17,21 @@
 using namespace Utils;
 
 namespace Core {
+
+static QCheckBox *createCheckboxForCommand(QObject *owner, Id id)
+{
+    QAction *action = ActionManager::command(id)->action();
+    QCheckBox *checkbox = new QCheckBox(action->text());
+    checkbox->setToolTip(action->toolTip());
+    checkbox->setChecked(action->isChecked());
+    checkbox->setEnabled(action->isEnabled());
+    checkbox->installEventFilter(owner); // enter key handling
+    QObject::connect(checkbox, &QCheckBox::clicked, action, &QAction::setChecked);
+    QObject::connect(action, &QAction::changed, checkbox, [action, checkbox] {
+        checkbox->setEnabled(action->isEnabled());
+    });
+    return checkbox;
+}
 
 /*!
     \class Core::OptionsPopup
@@ -35,7 +50,7 @@ OptionsPopup::OptionsPopup(QWidget *parent, const QVector<Id> &commands)
 
     bool first = true;
     for (const Id &command : commands) {
-        QCheckBox *checkBox = createCheckboxForCommand(command);
+        QCheckBox *checkBox = createCheckboxForCommand(this, command);
         if (first) {
             checkBox->setFocus();
             first = false;
@@ -71,21 +86,6 @@ bool OptionsPopup::eventFilter(QObject *obj, QEvent *ev)
         }
     }
     return QWidget::eventFilter(obj, ev);
-}
-
-QCheckBox *OptionsPopup::createCheckboxForCommand(Id id)
-{
-    QAction *action = ActionManager::command(id)->action();
-    QCheckBox *checkbox = new QCheckBox(action->text());
-    checkbox->setToolTip(action->toolTip());
-    checkbox->setChecked(action->isChecked());
-    checkbox->setEnabled(action->isEnabled());
-    checkbox->installEventFilter(this); // enter key handling
-    QObject::connect(checkbox, &QCheckBox::clicked, action, &QAction::setChecked);
-    QObject::connect(action, &QAction::changed, checkbox, [action, checkbox] {
-        checkbox->setEnabled(action->isEnabled());
-    });
-    return checkbox;
 }
 
 } // namespace Core

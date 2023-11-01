@@ -76,6 +76,22 @@ static void warnAboutUnsupportedKeys(const QVariantMap &map, const QString &name
     }
 }
 
+static Key fullSettingsKey(const QString &fieldKey)
+{
+    return "Wizards/" + keyFromString(fieldKey);
+}
+
+static QString translatedOrUntranslatedText(QVariantMap &map, const QString &key)
+{
+    if (key.size() >= 1) {
+        const QString trKey = "tr" + key.at(0).toUpper() + key.mid(1); // "text" -> "trText"
+        const QString trValue = JsonWizardFactory::localizedString(consumeValue(map, trKey).toString());
+        if (!trValue.isEmpty())
+            return trValue;
+    }
+
+    return consumeValue(map, key).toString();
+}
 
 // --------------------------------------------------------------------
 // Helper:
@@ -484,9 +500,9 @@ bool LineEditField::parseData(const QVariant &data, QString *errorMessage)
     QVariantMap tmp = data.toMap();
 
     m_isPassword = consumeValue(tmp, "isPassword", false).toBool();
-    m_defaultText = JsonWizardFactory::localizedString(consumeValue(tmp, "trText").toString());
-    m_disabledText = JsonWizardFactory::localizedString(consumeValue(tmp, "trDisabledText").toString());
-    m_placeholderText = JsonWizardFactory::localizedString(consumeValue(tmp, "trPlaceholder").toString());
+    m_defaultText = translatedOrUntranslatedText(tmp, "text");
+    m_disabledText = translatedOrUntranslatedText(tmp, "disabledText");
+    m_placeholderText = translatedOrUntranslatedText(tmp, "placeholder");
     m_historyId = consumeValue(tmp, "historyId").toString();
     m_restoreLastHistoryItem = consumeValue(tmp, "restoreLastHistoryItem", false).toBool();
     QString pattern = consumeValue(tmp, "validator").toString();
@@ -525,7 +541,7 @@ QWidget *LineEditField::createWidget(const QString &displayName, JsonFieldPage *
     w->setFixupExpando(m_fixupExpando);
 
     if (!m_historyId.isEmpty())
-        w->setHistoryCompleter(m_historyId, m_restoreLastHistoryItem);
+        w->setHistoryCompleter(keyFromString(m_historyId), m_restoreLastHistoryItem);
 
     w->setEchoMode(m_isPassword ? QLineEdit::Password : QLineEdit::Normal);
     QObject::connect(w, &FancyLineEdit::textEdited, [this] { setHasUserChanges(); });
@@ -681,8 +697,8 @@ bool TextEditField::parseData(const QVariant &data, QString *errorMessage)
 
     QVariantMap tmp = data.toMap();
 
-    m_defaultText = JsonWizardFactory::localizedString(consumeValue(tmp, "trText").toString());
-    m_disabledText = JsonWizardFactory::localizedString(consumeValue(tmp, "trDisabledText").toString());
+    m_defaultText = translatedOrUntranslatedText(tmp, "text");
+    m_disabledText = translatedOrUntranslatedText(tmp, "disabledText");
     m_acceptRichText = consumeValue(tmp, "richText", true).toBool();
 
     warnAboutUnsupportedKeys(tmp, name(), type());
@@ -800,7 +816,7 @@ QWidget *PathChooserField::createWidget(const QString &displayName, JsonFieldPag
     Q_UNUSED(page)
     auto w = new PathChooser;
     if (!m_historyId.isEmpty())
-        w->setHistoryCompleter(m_historyId);
+        w->setHistoryCompleter(keyFromString(m_historyId));
     QObject::connect(w, &PathChooser::textChanged, [this, w] {
         if (w->filePath() != m_path)
             setHasUserChanges();
@@ -1411,11 +1427,6 @@ JsonFieldPage::Field *JsonFieldPage::createFieldData(const QString &type)
         return field;
     }
     return nullptr;
-}
-
-QString JsonFieldPage::fullSettingsKey(const QString &fieldKey)
-{
-    return "Wizards/" + fieldKey;
 }
 
 } // namespace ProjectExplorer

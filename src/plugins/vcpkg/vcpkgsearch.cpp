@@ -10,6 +10,7 @@
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
 #include <utils/fileutils.h>
+#include <utils/infolabel.h>
 #include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 
@@ -28,16 +29,19 @@ namespace Vcpkg::Internal::Search {
 class VcpkgPackageSearchDialog : public QDialog
 {
 public:
-    explicit VcpkgPackageSearchDialog(QWidget *parent);
+    explicit VcpkgPackageSearchDialog(const VcpkgManifest &preexistingPackages, QWidget *parent);
 
     VcpkgManifest selectedPackage() const;
 
 private:
     void listPackages(const QString &filter);
     void showPackageDetails(const QString &packageName);
+    void updateStatus();
 
     VcpkgManifests m_allPackages;
     VcpkgManifest m_selectedPackage;
+
+    const VcpkgManifest m_projectManifest;
 
     FancyLineEdit *m_packagesFilter;
     ListWidget *m_packagesList;
@@ -46,13 +50,17 @@ private:
     QLabel *m_vcpkgLicense;
     QTextBrowser *m_vcpkgDescription;
     QLabel *m_vcpkgHomepage;
+    InfoLabel *m_infoLabel;
     QDialogButtonBox *m_buttonBox;
 };
 
-VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(QWidget *parent)
+VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(const VcpkgManifest &preexistingPackages,
+                                                   QWidget *parent)
     : QDialog(parent)
+    , m_projectManifest(preexistingPackages)
 {
     resize(920, 400);
+    setWindowTitle(Tr::tr("Add vcpkg Package"));
 
     m_packagesFilter = new FancyLineEdit;
     m_packagesFilter->setFiltering(true);
@@ -74,29 +82,40 @@ VcpkgPackageSearchDialog::VcpkgPackageSearchDialog(QWidget *parent)
     m_vcpkgHomepage->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
     m_vcpkgHomepage->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
-    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Close);
+    m_infoLabel = new InfoLabel(Tr::tr("This package is already a project dependency."),
+                                InfoLabel::Information);
+    m_infoLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
+    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+
+    // clang-format off
     using namespace Layouting;
     Column {
         Row {
             Column {
                 m_packagesFilter,
+                Tr::tr("Packages:"),
                 m_packagesList,
             },
-            Form {
-                Tr::tr("Name："), m_vcpkgName, br,
-                Tr::tr("Version:"), m_vcpkgVersion, br,
-                Tr::tr("License:"), m_vcpkgLicense, br,
-                Tr::tr("Description:"), m_vcpkgDescription, br,
-                Tr::tr("Homepage:"), m_vcpkgHomepage, br,
-            },
+            Group {
+                title(Tr::tr("Package Details")),
+                Form {
+                    Tr::tr("Name:"), m_vcpkgName, br,
+                    Tr::tr("Version:"), m_vcpkgVersion, br,
+                    Tr::tr("License:"), m_vcpkgLicense, br,
+                    Tr::tr("Description:"), m_vcpkgDescription, br,
+                    Tr::tr("Homepage:"), m_vcpkgHomepage, br,
+                },
+            }
         },
-        m_buttonBox,
+        Row { m_infoLabel, m_buttonBox },
     }.attachTo(this);
+    // clang-format on
 
     m_allPackages = vcpkgManifests(settings().vcpkgRoot());
 
     listPackages({});
+    updateStatus();
 
     connect(m_packagesFilter, &FancyLineEdit::filterChanged,
             this, &VcpkgPackageSearchDialog::listPackages);
@@ -146,7 +165,16 @@ void VcpkgPackageSearchDialog::showPackageDetails(const QString &packageName)
                                  .arg(manifest.homepage.toDisplayString()));
 
     m_selectedPackage = manifest;
-    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!manifest.name.isEmpty());
+    updateStatus();
+}
+
+void VcpkgPackageSearchDialog::updateStatus()
+{
+    const QString package = selectedPackage().name;
+    const bool isProjectDependency = m_projectManifest.dependencies.contains(package);
+    m_infoLabel->setVisible(isProjectDependency);
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(!(package.isEmpty()
+                                                            || isProjectDependency));
 }
 
 VcpkgManifest parseVcpkgManifest(const QByteArray &vcpkgManifestJsonData, bool *ok)
@@ -164,6 +192,15 @@ VcpkgManifest parseVcpkgManifest(const QByteArray &vcpkgManifestJsonData, bool *
     }
     if (const QJsonValue license = jsonObject.value("license"); !license.isUndefined())
         result.license = license.toString();
+    if (const QJsonValue deps = jsonObject.value("dependencies"); !deps.isUndefined()) {
+        const QJsonArray dependencies = deps.toArray();
+        for (const QJsonValue &dependency : dependencies) {
+            if (dependency.isString())
+                result.dependencies.append(dependency.toString());
+            else if (const QJsonValue name = dependency.toObject().value("name"); name.isString())
+                result.dependencies.append(name.toString());
+        }
+    }
     if (const QJsonValue description = jsonObject.value("description"); !description.isUndefined()) {
         if (description.isArray()) {
             const QJsonArray descriptionLines = description.toArray();
@@ -205,10 +242,13 @@ VcpkgManifests vcpkgManifests(const FilePath &vcpkgRoot)
     return result;
 }
 
-VcpkgManifest showVcpkgPackageSearchDialog(QWidget *parent)
+VcpkgManifest showVcpkgPackageSearchDialog(const VcpkgManifest &projectManifest, QWidget *parent)
 {
-    VcpkgPackageSearchDialog dlg(parent ? parent : Core::ICore::dialogParent());
-    return (dlg.exec() == QDialog::Accepted) ? dlg.selectedPackage() : VcpkgManifest();
+    QWidget *dlgParent = parent ? parent : Core::ICore::dialogParent();
+    VcpkgPackageSearchDialog dlg(projectManifest, dlgParent);
+    const VcpkgManifest result = (dlg.exec() == QDialog::Accepted) ? dlg.selectedPackage()
+                                                                   : VcpkgManifest();
+    return result;
 }
 
 } // namespace Vcpkg::Internal::Search

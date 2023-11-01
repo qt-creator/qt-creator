@@ -5,18 +5,28 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/treemodel.h>
+
+namespace Utils { class Id; }
 
 namespace ProjectExplorer {
 
-class Kit;
-
-class PROJECTEXPLORER_EXPORT KitOptionsPage : public Core::IOptionsPage
+class PROJECTEXPLORER_EXPORT KitSettingsSortModel : public Utils::SortModel
 {
 public:
-    KitOptionsPage();
+    using SortModel::SortModel;
 
-    static void showKit(Kit *k);
+    void setSortedCategories(const QStringList &categories) { m_sortedCategories = categories; }
+
+private:
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
+
+    QStringList m_sortedCategories;
 };
 
-} // namespace ProjectExplorer
+namespace Internal {
+
+void setSelectectKitId(const Utils::Id &kitId);
+
+} // Internal
+} // ProjectExplorer

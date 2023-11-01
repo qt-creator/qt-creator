@@ -33,6 +33,7 @@ public:
     virtual RunResult runInShell(const CommandLine &cmdLine,
                                  const QByteArray &inputData = {}) const override
     {
+        // Note: Don't convert into Utils::Process. See more comments in this change in gerrit.
         QProcess p;
         p.setProgram(cmdLine.executable().toString());
         p.setArguments(cmdLine.splitArguments());

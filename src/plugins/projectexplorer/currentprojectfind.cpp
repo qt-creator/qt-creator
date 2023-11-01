@@ -9,10 +9,7 @@
 #include "projecttree.h"
 
 #include <utils/qtcassert.h>
-#include <utils/filesearch.h>
-
-#include <QDebug>
-#include <QSettings>
+#include <utils/qtcsettings.h>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -24,7 +21,7 @@ CurrentProjectFind::CurrentProjectFind()
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &CurrentProjectFind::handleProjectChanged);
     connect(ProjectManager::instance(), &ProjectManager::projectDisplayNameChanged,
-            this, [this](ProjectExplorer::Project *p) {
+            this, [this](Project *p) {
         if (p == ProjectTree::currentProject())
             emit displayNameChanged();
     });
@@ -49,25 +46,22 @@ bool CurrentProjectFind::isEnabled() const
     return ProjectTree::currentProject() != nullptr && BaseFileFind::isEnabled();
 }
 
-QVariant CurrentProjectFind::additionalParameters() const
+static FilePath currentProjectFilePath()
 {
     Project *project = ProjectTree::currentProject();
-    if (project)
-        return project->projectFilePath().toVariant();
-    return QVariant();
+    return project ? project->projectFilePath() : FilePath();
 }
 
-FileIterator *CurrentProjectFind::files(const QStringList &nameFilters,
-                                        const QStringList &exclusionFilters,
-                                        const QVariant &additionalParameters) const
+FileContainerProvider CurrentProjectFind::fileContainerProvider() const
 {
-    QTC_ASSERT(additionalParameters.isValid(), return new FileListIterator);
-    const FilePath projectFile = FilePath::fromVariant(additionalParameters);
-    for (Project *project : ProjectManager::projects()) {
-        if (project && projectFile == project->projectFilePath())
-            return filesForProjects(nameFilters, exclusionFilters, {project});
-    }
-    return new FileListIterator;
+    return [nameFilters = fileNameFilters(), exclusionFilters = fileExclusionFilters(),
+            projectFile = currentProjectFilePath()] {
+        for (Project *project : ProjectManager::projects()) {
+            if (project && projectFile == project->projectFilePath())
+                return filesForProjects(nameFilters, exclusionFilters, {project});
+        }
+        return FileContainer();
+    };
 }
 
 QString CurrentProjectFind::label() const
@@ -83,28 +77,31 @@ void CurrentProjectFind::handleProjectChanged()
     emit displayNameChanged();
 }
 
-void CurrentProjectFind::recheckEnabled(Core::SearchResult *search)
+void CurrentProjectFind::setupSearch(Core::SearchResult *search)
 {
-    const FilePath projectFile = FilePath::fromVariant(getAdditionalParameters(search));
-    for (Project *project : ProjectManager::projects()) {
-        if (projectFile == project->projectFilePath()) {
-            search->setSearchAgainEnabled(true);
-            return;
+    const FilePath projectFile = currentProjectFilePath();
+    connect(this, &IFindFilter::enabledChanged, search, [search, projectFile] {
+        const QList<Project *> projects = ProjectManager::projects();
+        for (Project *project : projects) {
+            if (projectFile == project->projectFilePath()) {
+                search->setSearchAgainEnabled(true);
+                return;
+            }
         }
-    }
-    search->setSearchAgainEnabled(false);
+        search->setSearchAgainEnabled(false);
+    });
 }
 
-void CurrentProjectFind::writeSettings(QSettings *settings)
+void CurrentProjectFind::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("CurrentProjectFind"));
+    settings->beginGroup("CurrentProjectFind");
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void CurrentProjectFind::readSettings(QSettings *settings)
+void CurrentProjectFind::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("CurrentProjectFind"));
+    settings->beginGroup("CurrentProjectFind");
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

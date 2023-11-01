@@ -163,29 +163,22 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<TaskTree> taskTree;
 
-    const auto createTask = [](TaskWidget *widget) -> GroupItem {
-        const auto setupTask = [](TaskWidget *widget) {
-            return [widget](milliseconds &taskObject) {
-                taskObject = milliseconds{widget->busyTime() * 1000};
-                widget->setState(State::Running);
-            };
+    const auto createTask = [](TaskWidget *widget) {
+        const milliseconds timeout{widget->busyTime() * 1000};
+        const auto setupTask = [widget, timeout](milliseconds &taskObject) {
+            taskObject = timeout;
+            widget->setState(State::Running);
         };
-        if (widget->isSuccess()) {
-            return TimeoutTask(setupTask(widget),
-                [widget](const milliseconds &) { widget->setState(State::Done); },
-                [widget](const milliseconds &) { widget->setState(State::Error); });
-        }
         const Group root {
-            finishAllAndError,
-            TimeoutTask(setupTask(widget)),
+            widget->isSuccess() ? stopOnError : finishAllAndError,
+            TimeoutTask(setupTask),
             onGroupDone([widget] { widget->setState(State::Done); }),
             onGroupError([widget] { widget->setState(State::Error); })
         };
         return root;
     };
 
-    auto treeRoot = [&] {
-
+    const auto recipe = [&] {
         const Group root {
             rootGroup->executeMode(),
             rootGroup->workflowPolicy(),
@@ -237,21 +230,21 @@ int main(int argc, char *argv[])
 
     // Non-task GUI handling
 
-    auto createTaskTree = [&] {
-        TaskTree *taskTree = new TaskTree(treeRoot());
+    const auto createTaskTree = [&] {
+        TaskTree *taskTree = new TaskTree(recipe());
         progressBar->setMaximum(taskTree->progressMaximum());
         QObject::connect(taskTree, &TaskTree::progressValueChanged,
                          progressBar, &QProgressBar::setValue);
         return taskTree;
     };
 
-    auto stopTaskTree = [&] {
+    const auto stopTaskTree = [&] {
         if (taskTree)
             taskTree->stop();
         // TODO: unlock GUI controls?
     };
 
-    auto resetTaskTree = [&] {
+    const auto resetTaskTree = [&] {
         if (!taskTree)
             return;
 

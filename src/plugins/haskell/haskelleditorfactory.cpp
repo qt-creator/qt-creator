@@ -16,12 +16,12 @@
 
 namespace Haskell::Internal {
 
-static QWidget *createEditorWidget(QObject *guard)
+static QWidget *createEditorWidget()
 {
     auto widget = new TextEditor::TextEditorWidget;
     auto ghciButton = new Core::CommandButton(Constants::A_RUN_GHCI, widget);
     ghciButton->setText(Tr::tr("GHCi"));
-    QObject::connect(ghciButton, &QToolButton::clicked, guard, [widget] {
+    QObject::connect(ghciButton, &QToolButton::clicked, widget, [widget] {
         HaskellManager::openGhci(widget->textDocument()->filePath());
     });
     widget->insertExtraToolBarWidget(TextEditor::TextEditorWidget::Left, ghciButton);
@@ -37,7 +37,7 @@ HaskellEditorFactory::HaskellEditorFactory()
                             | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
     setDocumentCreator([] { return new TextEditor::TextDocument(Constants::C_HASKELLEDITOR_ID); });
     setIndenterCreator([](QTextDocument *doc) { return new TextEditor::TextIndenter(doc); });
-    setEditorWidgetCreator([this] { return createEditorWidget(this); });
+    setEditorWidgetCreator(&createEditorWidget);
     setCommentDefinition(Utils::CommentDefinition("--", "{-", "-}"));
     setParenthesesMatchingEnabled(true);
     setMarksVisible(true);

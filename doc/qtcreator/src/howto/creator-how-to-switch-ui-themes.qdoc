@@ -20,7 +20,7 @@
     To switch themes:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
+        \li Select \preferences >
             \uicontrol Environment > \uicontrol Interface.
             \image qtcreator-preferences-environment-interface.webp {Interface preferences}
         \li In \uicontrol Theme, select a theme.

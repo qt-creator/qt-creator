@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
-#include <coreplugin/featureprovider.h>
+#include "core_global.h"
+#include "featureprovider.h"
 
 #include <QIcon>
 #include <QObject>

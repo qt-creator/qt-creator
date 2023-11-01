@@ -7,7 +7,7 @@
 #include "iosconstants.h"
 #include "iostr.h"
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/target.h>
 
@@ -367,25 +367,36 @@ void IosSigningSettingsWidget::updateWarningText()
     m_warningLabel->setText(warningText);
 }
 
+// IosQmakeBuildConfiguration
 
-// IosBuildConfiguration
+class IosQmakeBuildConfiguration : public QmakeProjectManager::QmakeBuildConfiguration
+{
+public:
+    IosQmakeBuildConfiguration(Target *target, Id id);
 
-IosQmakeBuildConfiguration::IosQmakeBuildConfiguration(Target *target, Utils::Id id)
+private:
+    QList<NamedWidget *> createSubConfigWidgets() override;
+    void fromMap(const Store &map) override;
+
+    void updateQmakeCommand();
+
+    StringAspect m_signingIdentifier{this};
+    BoolAspect m_autoManagedSigning{this};
+};
+
+IosQmakeBuildConfiguration::IosQmakeBuildConfiguration(Target *target, Id id)
     : QmakeBuildConfiguration(target, id)
 {
-    m_signingIdentifier = addAspect<StringAspect>();
-    m_signingIdentifier->setSettingsKey(signingIdentifierKey);
+    m_signingIdentifier.setSettingsKey(signingIdentifierKey);
 
-    m_autoManagedSigning = addAspect<BoolAspect>();
-    m_autoManagedSigning->setDefaultValue(true);
-    m_autoManagedSigning->setValue(true);
-    m_autoManagedSigning->setSettingsKey(autoManagedSigningKey);
+    m_autoManagedSigning.setDefaultValue(true);
+    m_autoManagedSigning.setSettingsKey(autoManagedSigningKey);
 
-    connect(m_signingIdentifier,
+    connect(&m_signingIdentifier,
             &BaseAspect::changed,
             this,
             &IosQmakeBuildConfiguration::updateQmakeCommand);
-    connect(m_autoManagedSigning,
+    connect(&m_autoManagedSigning,
             &BaseAspect::changed,
             this,
             &IosQmakeBuildConfiguration::updateQmakeCommand);
@@ -397,18 +408,17 @@ QList<NamedWidget *> IosQmakeBuildConfiguration::createSubConfigWidgets()
 
     // Ownership of this widget is with BuildSettingsWidget
     auto buildSettingsWidget = new IosSigningSettingsWidget(this,
-                                                            m_autoManagedSigning,
-                                                            m_signingIdentifier);
+                                                            &m_autoManagedSigning,
+                                                            &m_signingIdentifier);
     subConfigWidgets.prepend(buildSettingsWidget);
     return subConfigWidgets;
 }
 
-bool IosQmakeBuildConfiguration::fromMap(const QVariantMap &map)
+void IosQmakeBuildConfiguration::fromMap(const Store &map)
 {
-    if (!QmakeBuildConfiguration::fromMap(map))
-        return false;
-    updateQmakeCommand();
-    return true;
+    QmakeBuildConfiguration::fromMap(map);
+    if (!hasError())
+        updateQmakeCommand();
 }
 
 static QString teamIdForProvisioningProfile(const QString &id)
@@ -440,13 +450,13 @@ void IosQmakeBuildConfiguration::updateQmakeCommand()
         });
 
         // Set force ovveride qmake switch
-        const QString signingIdentifier =  m_signingIdentifier->value();
+        const QString signingIdentifier =  m_signingIdentifier();
         if (signingIdentifier.isEmpty() )
             extraArgs << forceOverrideArg;
 
         Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
         if (devType == Constants::IOS_DEVICE_TYPE && !signingIdentifier.isEmpty()) {
-            if (m_autoManagedSigning->value()) {
+            if (m_autoManagedSigning()) {
                 extraArgs << qmakeIosTeamSettings + signingIdentifier;
             } else {
                 const QString teamId = teamIdForProvisioningProfile(signingIdentifier);
@@ -469,22 +479,35 @@ IosQmakeBuildConfigurationFactory::IosQmakeBuildConfigurationFactory()
     addSupportedTargetDeviceType(Constants::IOS_SIMULATOR_TYPE);
 }
 
+// IosCMakeBuildConfiguration
+
+class IosCMakeBuildConfiguration : public CMakeProjectManager::CMakeBuildConfiguration
+{
+public:
+    IosCMakeBuildConfiguration(Target *target, Id id);
+
+private:
+    QList<NamedWidget *> createSubConfigWidgets() override;
+
+    CMakeProjectManager::CMakeConfig signingFlags() const final;
+
+    StringAspect m_signingIdentifier{this};
+    BoolAspect m_autoManagedSigning{this};
+};
+
 IosCMakeBuildConfiguration::IosCMakeBuildConfiguration(Target *target, Id id)
     : CMakeBuildConfiguration(target, id)
 {
-    m_signingIdentifier = addAspect<StringAspect>();
-    m_signingIdentifier->setSettingsKey(signingIdentifierKey);
+    m_signingIdentifier.setSettingsKey(signingIdentifierKey);
 
-    m_autoManagedSigning = addAspect<BoolAspect>();
-    m_autoManagedSigning->setDefaultValue(true);
-    m_autoManagedSigning->setValue(true);
-    m_autoManagedSigning->setSettingsKey(autoManagedSigningKey);
+    m_autoManagedSigning.setDefaultValue(true);
+    m_autoManagedSigning.setSettingsKey(autoManagedSigningKey);
 
-    connect(m_signingIdentifier,
+    connect(&m_signingIdentifier,
             &BaseAspect::changed,
             this,
             &IosCMakeBuildConfiguration::signingFlagsChanged);
-    connect(m_autoManagedSigning,
+    connect(&m_autoManagedSigning,
             &BaseAspect::changed,
             this,
             &IosCMakeBuildConfiguration::signingFlagsChanged);
@@ -496,25 +519,18 @@ QList<NamedWidget *> IosCMakeBuildConfiguration::createSubConfigWidgets()
 
     // Ownership of this widget is with BuildSettingsWidget
     auto buildSettingsWidget = new IosSigningSettingsWidget(this,
-                                                            m_autoManagedSigning,
-                                                            m_signingIdentifier);
+                                                            &m_autoManagedSigning,
+                                                            &m_signingIdentifier);
     subConfigWidgets.prepend(buildSettingsWidget);
     return subConfigWidgets;
-}
-
-bool IosCMakeBuildConfiguration::fromMap(const QVariantMap &map)
-{
-    if (!CMakeBuildConfiguration::fromMap(map))
-        return false;
-    return true;
 }
 
 CMakeConfig IosCMakeBuildConfiguration::signingFlags() const
 {
     if (DeviceTypeKitAspect::deviceTypeId(kit()) != Constants::IOS_DEVICE_TYPE)
         return {};
-    const QString signingIdentifier = m_signingIdentifier->value();
-    if (m_autoManagedSigning->value()) {
+    const QString signingIdentifier = m_signingIdentifier();
+    if (m_autoManagedSigning()) {
         const DevelopmentTeams teams = IosConfigurations::developmentTeams();
         const QString teamId = signingIdentifier.isEmpty() && !teams.isEmpty()
                                    ? teams.first()->identifier()

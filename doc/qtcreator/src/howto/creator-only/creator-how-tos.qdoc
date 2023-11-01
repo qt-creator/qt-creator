@@ -12,65 +12,65 @@
     \page creator-how-tos.html
     \nextpage creator-reference.html
 
-    \title How-to
+    \title How To
 
     The following topics describe how to use \QC to perform a particular task.
 
-    \section1 Use the UI
+    \section1 Build and Run
 
-    \list
-        \li \l {Assign keyboard shortcuts}
-        \li \l {Find a particular preference}
-        \li \l {Find keyboard shortcuts}
-        \li \l {Find menu items on \macos}
-        \li \l {Import and export keyboard shortcuts}
-        \li \l {Set high DPI scaling}
-        \li \l {Set the number of recent files shown}
-        \li \l {Show and hide sidebars}
-        \li \l {Switch between modes}
-        \li \l {Switch UI themes}
-        \li \l {View output}
-    \endlist
+    \generatelist creator-how-to-build
 
-    \section1 Edit Code
+    \section2 Build with CMake
 
-     \list
-        \li \l {Add code snippets to the auto-complete menu}
-        \li \l {Enclose selected code in curly braces, parentheses, or double quotes}
-        \li \l {Jump to a function in QML code}
-        \li \l {Locate files using the keyboard}
-        \li \l {Move between open files}
-        \li \l {Move to symbols}
-        \li \l {Paste text from clipboard history}
-        \li \l {Perform calculations}
-        \li \l {Search and replace across files using a regular expression}
-        \li \l {Select the enclosing block in C++}
-        \li \l {Sort lines alphabetically}
-        \li \l {Switch to Edit mode}
-        \li \l {Write down notes}
-    \endlist
+    \generatelist creator-how-to-build-with-cmake
+
+    \section2 Build with qmake
+
+    \generatelist creator-how-to-build-with-qmake
+
+    \section1 Debug
+
+    \generatelist creator-how-to-debug
 
     \section1 Design UIs
 
-     \list
-        \li \l {Export SVG images}
-        \li \l {View images}
-    \endlist
+    \generatelist creator-how-to-design
+
+    \section1 Edit Code
+
+    \generatelist creator-how-to-edit
+
+    \section1 Manage Kits
+
+    \generatelist creator-how-to-manage-kits
 
     \section1 Manage Projects
 
-    \list
-        \li \l {Add a license header template for C++ code}
-    \endlist
+    \generatelist creator-how-to-projects
+
+    \section2 Create Projects
+
+    \generatelist creator-how-to-projects-create
+
+    \section2 Create Files
+
+    \generatelist creator-how-to-projects-files
+
+    \section2 Configure Projects
+
+    \generatelist creator-how-to-projects-configure
+
+    \section1 Read Documentation
+
+    \generatelist creator-how-to-get-help
 
     \section1 Use \QC
 
-    \list
-        \li \l {Enable and disable plugins}
-        \li \l {Find settings files}
-        \li \l {Install plugins}
-        \li \l {Run \QC from the command line}
-    \endlist
+    \generatelist creator-how-to-use
+
+    \section1 Use the UI
+
+    \generatelist creator-how-to-ui
 */
 
 /*!
@@ -116,20 +116,6 @@
 */
 
 /*!
-    \page creator-how-to-find-preferences.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-ui
-
-    \title Find a particular preference
-
-    To find a particular preference in \uicontrol Edit > \uicontrol Preferences,
-    use the filter located at the top left of the \uicontrol Preferences dialog.
-
-    \image qtcreator-preferences.webp {Filtering preferences}
-*/
-
-/*!
     \page creator-how-to-run-from-cli.html
     \previouspage creator-how-tos.html
 
@@ -137,14 +123,55 @@
 
     \title Run \QC from the command line
 
-    You can launch \QC from the command line using the name of an
-    existing \l{Managing Sessions}{session} or project file by entering
-    the name as the command argument.
+    You can start \QC and specify some options from the command line. For
+    example, you can open a file to any line and column.
 
-    For example, running \c {qtcreator somesession}, launches \QC and
-    loads the session called \e somesession.
+    To use command-line options, enter the following command in the
+    directory that contains the \QC executable or specify the path to
+    \QC as a part of the command:
 
-    For more information, see \l{Using Command Line Options}.
+    \badcode
+    qtcreator [option] [filename[:line_number[:column_number]]]
+    \endcode
+
+    \note You can use either a colon (:) or a plus sign (+) as a separator
+    between the filename and line number and the line number and the column
+    number. You can also use a space between the separator and the line number.
+
+    \section1 Examples of CLI commands
+
+    On Windows:
+
+    \list
+
+        \li \c {C:\qtcreator\bin>qtcreator -help}
+
+        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100:2}
+
+        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100+2}
+
+    \endlist
+
+    On \macos:
+
+    \list
+
+        \li \c {Qt\ Creator.app/Contents/MacOS/Qt\ Creator -help}
+
+    \endlist
+
+    \section1 Open a project from a directory
+
+    To open a project that is located in a particular directory, you can
+    pass on the directory name as a command-line argument. \QC looks for
+    a \l{Managing Sessions}{session} that matches the directory name and
+    loads it. Or it looks for a project file in the directory and opens it.
+
+    For example, on Windows:
+
+    \c {C:\qtcreator\bin>qtcreator.exe C:\Examples\alarms}
+
+    \sa {Command-Line Options}
 */
 
 /*!
@@ -187,7 +214,7 @@
     create your own locator filters. That way you can locate files in a
     directory structure you have defined.
 
-    To create locator filters, select \uicontrol Edit > \uicontrol Preferences >
+    To create locator filters, select \preferences >
     \uicontrol Environment > \uicontrol Locator > \uicontrol Add.
 
     \image qtcreator-locator-customize.webp "Locator preferences"
@@ -228,13 +255,12 @@
     \page creator-how-to-add-license-header-templates.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-files
 
     \title Add a license header template for C++ code
 
-    Specify a file that has a license header for C++ in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol C++ > \uicontrol {File Naming} >
-    \uicontrol {License template}.
+    Specify a file that has a license header for C++ in \preferences >
+    \uicontrol C++ > \uicontrol {File Naming} > \uicontrol {License template}.
 
     \image qtcreator-options-cpp-files.png "File Naming preferences"
 
@@ -300,10 +326,11 @@
     \endlist
 
     To specify whether to automatically insert matching characters,
-    select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol {Text Editor} > \uicontrol Completion.
+    select \preferences > \uicontrol {Text Editor} > \uicontrol Completion.
 
-    \image qtcreator-options-texteditor-completion.png "Completion preferences"
+    \image qtcreator-preferences-texteditor-completion.webp "Completion preferences"
+
+    \sa {Completing Code}
 */
 
 /*!
@@ -326,8 +353,8 @@
     \title Add code snippets to the auto-complete menu
 
     Add, modify, and remove snippets in the snippet editor.
-    To open the editor, select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol {Text Editor} > \uicontrol Snippets.
+    To open the editor, select \preferences > \uicontrol {Text Editor} >
+    \uicontrol Snippets.
 
     \image qtcreator-snippet-modifiers.png "Snippets preferences"
 
@@ -375,8 +402,7 @@
     \uicontrol {Recent Files}:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Environment > \uicontrol System.
+        \li Select \preferences > \uicontrol Environment > \uicontrol System.
             \image qtcreator-options-environment-system.png {System preferences}
         \li In \uicontrol {Maximum number of entries in "Recent Files"}, set
             the number of files to show.

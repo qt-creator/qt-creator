@@ -441,6 +441,13 @@ QMAKE_EXPORT std::function<void(ProcessData *data)> &theProcessRunner()
     return runner;
 }
 
+QMAKE_EXPORT std::function<std::optional<QString>(const QString &, const QStringList &)>
+    &thePrompter()
+{
+    static std::function<std::optional<QString>(const QString &, const QStringList &)> prompter;
+    return prompter;
+}
+
 void QMakeEvaluator::runProcessHelper(ProcessData *data) const
 {
     const QString root = deviceRoot();
@@ -1161,12 +1168,12 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
             }
         }
         break;
-#ifdef PROEVALUATOR_FULL
+//#ifdef PROEVALUATOR_FULL
     case E_PROMPT: {
         if (args.count() != 1 && args.count() != 2) {
             evalError(fL1S("prompt(question, [decorate=true]) requires one or two arguments."));
-//        } else if (currentFileName() == QLatin1String("-")) {
-//            evalError(fL1S("prompt(question) cannot be used when '-o -' is used"));
+        } else if (currentFileName() == QLatin1String("-")) {
+            evalError(fL1S("prompt(question) cannot be used when '-o -' is used"));
         } else {
             QString msg = m_option->expandEnvVars(args.at(0).toQString(m_tmp1));
             bool decorate = true;
@@ -1179,20 +1186,32 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinExpand(
             } else {
                 fputs(qPrintable(msg), stderr);
             }
-            QFile qfile;
-            if (qfile.open(stdin, QIODevice::ReadOnly)) {
-                QTextStream t(&qfile);
-                const QString &line = t.readLine();
-                if (t.atEnd()) {
+
+            if (thePrompter()) {
+                std::optional<QString> line = thePrompter()(msg, m_logBuffer);
+                m_logBuffer.clear();
+                if (!line) {
                     fputs("\n", stderr);
                     evalError(fL1S("Unexpected EOF."));
                     return ReturnError;
                 }
-                ret = split_value_list(QStringView(line));
-            }
+                ret = split_value_list(QStringView(*line));
+             } else {
+                QFile qfile;
+                if (qfile.open(stdin, QIODevice::ReadOnly)) {
+                    QTextStream t(&qfile);
+                    const QString &line = t.readLine();
+                    if (t.atEnd()) {
+                        fputs("\n", stderr);
+                        evalError(fL1S("Unexpected EOF."));
+                        return ReturnError;
+                    }
+                    ret = split_value_list(QStringView(line));
+                }
+             }
         }
         break; }
-#endif
+//#endif
     case E_REPLACE:
         if (args.count() != 3 ) {
             evalError(fL1S("replace(var, before, after) requires three arguments."));
@@ -1827,6 +1846,9 @@ QMakeEvaluator::VisitReturn QMakeEvaluator::evaluateBuiltinConditional(
         const QString &msg = m_option->expandEnvVars(args.at(0).toQString(m_tmp2));
         if (!m_skipLevel) {
             if (func_t == T_LOG) {
+                m_logBuffer.append(msg);
+                if (m_logBuffer.size() > 15)
+                    m_logBuffer.takeFirst();
 #ifdef PROEVALUATOR_FULL
                 fputs(msg.toLatin1().constData(), stderr);
 #endif

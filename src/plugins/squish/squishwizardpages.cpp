@@ -4,7 +4,6 @@
 #include "squishwizardpages.h"
 
 #include "squishfilehandler.h"
-#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtools.h"
 #include "squishtr.h"
@@ -111,8 +110,7 @@ bool SquishToolkitsPage::handleReject()
 
 void SquishToolkitsPage::delayedInitialize()
 {
-    const auto s = SquishPlugin::squishSettings();
-    const Utils::FilePath server = s->squishPath().pathAppended(
+    const Utils::FilePath server = settings().squishPath().pathAppended(
                 Utils::HostOsInfo::withExecutableSuffix("bin/squishserver"));
     if (server.isExecutableFile())
         fetchServerSettings();

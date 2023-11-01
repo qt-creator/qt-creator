@@ -6,7 +6,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "app_version_header" }
     Depends { name: "Qt.quickwidgets" }
 
     files: [
@@ -18,12 +17,14 @@ QtcPlugin {
     Group {
         prefix: "studio/"
         files: [
+            "studioquickwidget.cpp",
+            "studioquickwidget.h",
             "studiosettingspage.cpp",
             "studiosettingspage.h",
             "studiostyle.cpp",
             "studiostyle.h",
-            "studioquickwidget.cpp",
-            "studioquickwidget.h",
+            "studiostyle_p.cpp",
+            "studiostyle_p.h",
         ]
     }
     Group {

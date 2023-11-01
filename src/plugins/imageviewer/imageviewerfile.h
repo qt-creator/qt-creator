@@ -6,9 +6,10 @@
 
 #include <coreplugin/idocument.h>
 
+#include <QMovie>
+
 QT_BEGIN_NAMESPACE
 class QGraphicsItem;
-class QMovie;
 class QPixmap;
 
 #ifndef QT_NO_SVG
@@ -40,8 +41,7 @@ public:
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
 
-    bool isPaused() const;
-    void setPaused(bool paused);
+    QMovie *movie() const;
 
     QGraphicsItem *createGraphicsItem() const;
     ImageType type() const;
@@ -51,7 +51,7 @@ public:
 signals:
     void openFinished(bool success);
     void imageSizeChanged(const QSize &size);
-    void isPausedChanged(bool paused);
+    void movieStateChanged();
 
 private:
     void cleanUp();
@@ -63,7 +63,6 @@ private:
 #endif
     QMovie *m_movie = nullptr;
     QPixmap *m_pixmap = nullptr;
-    bool m_isPaused = false;
 };
 
 } // ImageViewer::Internal

@@ -44,7 +44,7 @@
 
             \image qtcreator-new-project-build-system-qt-gui.png {Define Build System dialog}
 
-        \li In the \uicontrol {Build system} field, select \l {Setting Up CMake}
+        \li In the \uicontrol {Build system} field, select \l {CMake}
             {CMake} as the build system to use for building the project.
 
         \li Select \uicontrol Next or \uicontrol Continue to open the
@@ -67,7 +67,7 @@
             \image qtcreator-new-qt-gui-application-translationfile.png {Translation File dialog}
 
         \li In the \uicontrol Language field, you can select a language that you
-            plan to \l {Using Qt Linguist}{translate} the application to. This
+            plan to \l {Use Qt Linguist}{translate} the application to. This
             sets up localization support for the application. You can add other
             languages later by editing the project file.
 

@@ -32,7 +32,83 @@ const char jlinkTargetInterfaceKeyC[] = "JLinkTargetInterface";
 const char jlinkTargetInterfaceSpeedKeyC[] = "JLinkTargetInterfaceSpeed";
 const char additionalArgumentsKeyC[] = "AdditionalArguments";
 
+// JLinkGdbServerProviderConfigWidget
+
+class JLinkGdbServerProvider;
+
+class JLinkGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
+{
+public:
+    explicit JLinkGdbServerProviderConfigWidget(JLinkGdbServerProvider *provider);
+
+private:
+    void apply() final;
+    void discard() final;
+
+    void populateHostInterfaces();
+    void populateTargetInterfaces();
+    void populateTargetSpeeds();
+
+    void setHostInterface(const QString &newIface);
+    void setTargetInterface(const QString &newIface);
+    void setTargetSpeed(const QString &newSpeed);
+
+    void updateAllowedControls();
+
+    void setFromProvider();
+
+    HostWidget *m_hostWidget = nullptr;
+    PathChooser *m_executableFileChooser = nullptr;
+
+    QWidget *m_hostInterfaceWidget = nullptr;
+    QComboBox *m_hostInterfaceComboBox = nullptr;
+    QLabel *m_hostInterfaceAddressLabel = nullptr;
+    QLineEdit *m_hostInterfaceAddressLineEdit = nullptr;
+
+    QWidget *m_targetInterfaceWidget = nullptr;
+    QComboBox *m_targetInterfaceComboBox = nullptr;
+    QLabel *m_targetInterfaceSpeedLabel = nullptr;
+    QComboBox *m_targetInterfaceSpeedComboBox = nullptr;
+
+    QLineEdit *m_jlinkDeviceLineEdit = nullptr;
+    QPlainTextEdit *m_additionalArgumentsTextEdit = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
+};
+
 // JLinkGdbServerProvider
+
+class JLinkGdbServerProvider final : public GdbServerProvider
+{
+public:
+    void toMap(Store &data) const final;
+    void fromMap(const Store &data) final;
+
+    bool operator==(const IDebugServerProvider &other) const final;
+
+    QString channelString() const final;
+    CommandLine command() const final;
+
+    QSet<StartupMode> supportedStartupModes() const final;
+    bool isValid() const final;
+
+private:
+    JLinkGdbServerProvider();
+
+    static QString defaultInitCommands();
+    static QString defaultResetCommands();
+
+    FilePath m_executableFile;
+    QString m_jlinkDevice;
+    QString m_jlinkHost = {"USB"};
+    QString m_jlinkHostAddr;
+    QString m_jlinkTargetIface = {"SWD"};
+    QString m_jlinkTargetIfaceSpeed = {"12000"};
+    QString m_additionalArguments;
+
+    friend class JLinkGdbServerProviderConfigWidget;
+    friend class JLinkGdbServerProviderFactory;
+};
 
 JLinkGdbServerProvider::JLinkGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_JLINK_PROVIDER_ID)
@@ -118,9 +194,9 @@ bool JLinkGdbServerProvider::isValid() const
     return true;
 }
 
-QVariantMap JLinkGdbServerProvider::toMap() const
+void JLinkGdbServerProvider::toMap(Store &data) const
 {
-    QVariantMap data = GdbServerProvider::toMap();
+    GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(jlinkDeviceKeyC, m_jlinkDevice);
     data.insert(jlinkHostInterfaceKeyC, m_jlinkHost);
@@ -128,14 +204,11 @@ QVariantMap JLinkGdbServerProvider::toMap() const
     data.insert(jlinkTargetInterfaceKeyC, m_jlinkTargetIface);
     data.insert(jlinkTargetInterfaceSpeedKeyC, m_jlinkTargetIfaceSpeed);
     data.insert(additionalArgumentsKeyC, m_additionalArguments);
-    return data;
 }
 
-bool JLinkGdbServerProvider::fromMap(const QVariantMap &data)
+void JLinkGdbServerProvider::fromMap(const Store &data)
 {
-    if (!GdbServerProvider::fromMap(data))
-        return false;
-
+    GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_jlinkDevice = data.value(jlinkDeviceKeyC).toString();
     m_additionalArguments = data.value(additionalArgumentsKeyC).toString();
@@ -143,7 +216,6 @@ bool JLinkGdbServerProvider::fromMap(const QVariantMap &data)
     m_jlinkHostAddr = data.value(jlinkHostInterfaceIPAddressKeyC).toString();
     m_jlinkTargetIface = data.value(jlinkTargetInterfaceKeyC).toString();
     m_jlinkTargetIfaceSpeed = data.value(jlinkTargetInterfaceSpeedKeyC).toString();
-    return true;
 }
 
 bool JLinkGdbServerProvider::operator==(const IDebugServerProvider &other) const

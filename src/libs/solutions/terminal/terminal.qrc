@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/terminal">
+        <file>images/passwordlock.png</file>
+    </qresource>
+</RCC>

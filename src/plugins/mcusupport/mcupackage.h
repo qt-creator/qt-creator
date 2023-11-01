@@ -12,8 +12,6 @@
 
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QWidget)
-
 namespace ProjectExplorer {
 class ToolChain;
 }
@@ -30,12 +28,11 @@ class McuPackage : public McuAbstractPackage
     Q_OBJECT
 
 public:
-    McuPackage(
-        const SettingsHandler::Ptr &settingsHandler,
+    McuPackage(const SettingsHandler::Ptr &settingsHandler,
         const QString &label,
         const Utils::FilePath &defaultPath,
         const Utils::FilePath &detectionPath,
-        const QString &settingsKey,
+        const Utils::Key &settingsKey,
         const QString &cmakeVarName,
         const QString &envVarName,
         const QStringList &versions = {},
@@ -58,7 +55,7 @@ public:
     Utils::FilePath path() const override;
     Utils::FilePath defaultPath() const override;
     Utils::FilePath detectionPath() const override;
-    QString settingsKey() const final;
+    Utils::Key settingsKey() const final;
 
     void updateStatus() override;
     Status status() const override;
@@ -85,7 +82,7 @@ private:
     const QString m_label;
     Utils::FilePath m_defaultPath;
     const Utils::FilePath m_detectionPath;
-    const QString m_settingsKey;
+    const Utils::Key m_settingsKey;
     QScopedPointer<const McuPackageVersionDetector> m_versionDetector;
 
     Utils::FilePath m_path;
@@ -110,7 +107,7 @@ public:
                         const QString &label,
                         const Utils::FilePath &defaultPath,
                         const Utils::FilePath &detectionPath,
-                        const QString &settingsKey,
+                        const Utils::Key &settingsKey,
                         ToolChainType toolchainType,
                         const QStringList &versions,
                         const QString &cmakeVarName,

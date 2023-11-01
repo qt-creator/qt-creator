@@ -8,19 +8,14 @@
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT QtVersionManager : public QObject
+namespace Internal { class QtSupportPlugin; }
+
+class QTSUPPORT_EXPORT QtVersionManager final : public QObject
 {
     Q_OBJECT
-    // for getUniqueId();
-    friend class QtVersion;
-    friend class QtVersionFactory;
-    friend class Internal::QtOptionsPageWidget;
 
 public:
     static QtVersionManager *instance();
-    QtVersionManager();
-    ~QtVersionManager() override;
-    static void initialized();
 
     static bool isLoaded();
 
@@ -52,13 +47,19 @@ signals:
     void qtVersionsLoaded();
 
 private:
-    enum class DocumentationSetting { HighestOnly, All, None };
+    QtVersionManager() = default;
 
-    static void updateDocumentation(const QtVersions &added,
-                                    const QtVersions &removed,
-                                    const QtVersions &allNew);
-    void updateFromInstaller(bool emitSignal = true);
-    void triggerQtVersionRestore();
+    // for getUniqueId();
+    friend class QtVersion;
+    friend class QtVersionFactory;
+    friend class QtVersionManagerImpl;
+    friend class Internal::QtOptionsPageWidget;
+    friend class Internal::QtSupportPlugin;
+
+    static void initialized();
+    static void shutdown();
+
+    enum class DocumentationSetting { HighestOnly, All, None };
 
     // Used by QtOptionsPage
     static void setNewQtVersions(const QtVersions &newVersions);

@@ -53,7 +53,6 @@ private:
     void slotUpdateFileNames(const QString &t);
     void slotValidChanged();
     void slotActivated();
-    void classNameEdited();
 
     QString fixSuffix(const QString &suffix);
     NewClassWidgetPrivate *d;

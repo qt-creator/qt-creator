@@ -265,7 +265,7 @@ public:
         m_logWindow = new LogWindow(m_engine); // Needed before start()
         m_logWindow->setObjectName("Debugger.Dock.Output");
 
-        connect(&debuggerSettings()->enableReverseDebugging, &BaseAspect::changed, this, [this] {
+        connect(&settings().enableReverseDebugging, &BaseAspect::changed, this, [this] {
             updateState();
             if (m_companionEngine)
                 m_companionEngine->d->updateState();
@@ -406,7 +406,7 @@ public:
         m_watchHandler.cleanup();
         m_engine->showMessage(Tr::tr("Debugger finished."), StatusBar);
         m_engine->setState(DebuggerFinished); // Also destroys views.
-        if (debuggerSettings()->switchModeOnExit.value())
+        if (settings().switchModeOnExit())
             EngineManager::deactivateDebugMode();
     }
 
@@ -440,6 +440,7 @@ public:
     DebuggerEngine *m_engine = nullptr; // Not owned.
     QString m_runId;
     QString m_debuggerName;
+    QString m_debuggerType;
     QPointer<Perspective> m_perspective;
     DebuggerRunParameters m_runParameters;
     IDevice::ConstPtr m_device;
@@ -541,13 +542,15 @@ void DebuggerEnginePrivate::setupViews()
 
     QTC_CHECK(!m_perspective);
 
+    Perspective *currentPerspective = DebuggerMainWindow::instance()->currentPerspective();
+
     const QString perspectiveId = "Debugger.Perspective." + m_runId + '.' + m_debuggerName;
     const QString settingsId = "Debugger.Perspective." + m_debuggerName;
+    const QString parentPerspectiveId = currentPerspective ? currentPerspective->id()
+                                                           : Constants::PRESET_PERSPECTIVE_ID;
 
-    m_perspective = new Perspective(perspectiveId,
-                                    m_engine->displayName(),
-                                    Debugger::Constants::PRESET_PERSPECTIVE_ID,
-                                    settingsId);
+    m_perspective
+        = new Perspective(perspectiveId, m_engine->displayName(), parentPerspectiveId, settingsId);
 
     m_progress.setProgressRange(0, 1000);
     FutureProgress *fp = ProgressManager::addTask(m_progress.future(),
@@ -604,7 +607,7 @@ void DebuggerEnginePrivate::setupViews()
     connect(&m_locationTimer, &QTimer::timeout,
             this, &DebuggerEnginePrivate::resetLocation);
 
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
 
     m_modulesView = new BaseTreeView;
     m_modulesView->setModel(m_modulesHandler.model());
@@ -724,7 +727,10 @@ void DebuggerEnginePrivate::setupViews()
     m_breakWindow->setObjectName("Debugger.Dock.Break." + engineId);
     m_breakWindow->setWindowTitle(Tr::tr("&Breakpoints"));
 
-    m_perspective->useSubPerspectiveSwitcher(EngineManager::engineChooser());
+    if (currentPerspective && currentPerspective->id() == Constants::DAP_PERSPECTIVE_ID)
+        m_perspective->useSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
+    else
+        m_perspective->useSubPerspectiveSwitcher(EngineManager::engineChooser());
 
     m_perspective->addToolBarAction(&m_continueAction);
     m_perspective->addToolBarAction(&m_interruptAction);
@@ -805,10 +811,10 @@ void DebuggerEnginePrivate::setupViews()
     m_perspective->addToolBarWidget(m_threadsHandler.threadSwitcher());
 
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
-            this, [this](const FontSettings &settings) {
-        if (!debuggerSettings()->fontSizeFollowsEditor.value())
+            this, [this](const FontSettings &fs) {
+        if (!Internal::settings().fontSizeFollowsEditor())
             return;
-        const qreal size = settings.fontZoom() * settings.fontSize() / 100.;
+        const qreal size = fs.fontZoom() * fs.fontSize() / 100.;
         QFont font = m_breakWindow->font();
         font.setPointSizeF(size);
         m_breakWindow->setFont(font);
@@ -867,6 +873,16 @@ void DebuggerEngine::setDebuggerName(const QString &name)
 QString DebuggerEngine::debuggerName() const
 {
     return d->m_debuggerName;
+}
+
+void DebuggerEngine::setDebuggerType(const QString &type)
+{
+    d->m_debuggerType = type;
+}
+
+QString DebuggerEngine::debuggerType() const
+{
+    return d->m_debuggerType;
 }
 
 QString DebuggerEngine::stateName(int s)
@@ -1085,7 +1101,7 @@ void DebuggerEngine::gotoLocation(const Location &loc)
                                                 &newEditor);
     QTC_ASSERT(editor, return); // Unreadable file?
 
-    editor->gotoLine(line, 0, !debuggerSettings()->stationaryEditorWhileStepping.value());
+    editor->gotoLine(line, 0, !settings().stationaryEditorWhileStepping());
 
     if (newEditor)
         editor->document()->setProperty(Constants::OPENED_BY_DEBUGGER, true);
@@ -1348,7 +1364,7 @@ void DebuggerEngine::notifyInferiorSpontaneousStop()
         d->m_perspective->select();
     showMessage(Tr::tr("Stopped."), StatusBar);
     setState(InferiorStopOk);
-    if (debuggerSettings()->raiseOnInterrupt.value())
+    if (settings().raiseOnInterrupt())
         ICore::raiseWindow(DebuggerMainWindow::instance());
 }
 
@@ -1408,8 +1424,8 @@ void DebuggerEnginePrivate::setInitialActionStates()
     m_jumpToLineAction.setVisible(false);
     m_stepOverAction.setEnabled(true);
 
-    debuggerSettings()->autoDerefPointers.setEnabled(true);
-    debuggerSettings()->expandStack.setEnabled(false);
+    settings().autoDerefPointers.setEnabled(true);
+    settings().expandStack.setEnabled(false);
 
     if (m_threadLabel)
         m_threadLabel->setEnabled(false);
@@ -1549,9 +1565,9 @@ void DebuggerEnginePrivate::updateState()
 
     const bool actionsEnabled = m_engine->debuggerActionsEnabled();
     const bool canDeref = actionsEnabled && m_engine->hasCapability(AutoDerefPointersCapability);
-    debuggerSettings()->autoDerefPointers.setEnabled(canDeref);
-    debuggerSettings()->autoDerefPointers.setEnabled(true);
-    debuggerSettings()->expandStack.setEnabled(actionsEnabled);
+    settings().autoDerefPointers.setEnabled(canDeref);
+    settings().autoDerefPointers.setEnabled(true);
+    settings().expandStack.setEnabled(actionsEnabled);
 
     const bool notbusy = state == InferiorStopOk
         || state == DebuggerNotReady
@@ -1563,7 +1579,7 @@ void DebuggerEnginePrivate::updateState()
 void DebuggerEnginePrivate::updateReverseActions()
 {
     const bool stopped = m_state == InferiorStopOk;
-    const bool reverseEnabled = debuggerSettings()->enableReverseDebugging.value();
+    const bool reverseEnabled = settings().enableReverseDebugging();
     const bool canReverse = reverseEnabled && m_engine->hasCapability(ReverseSteppingCapability);
     const bool doesRecord = m_recordForReverseOperationAction.isChecked();
 
@@ -1581,8 +1597,8 @@ void DebuggerEnginePrivate::updateReverseActions()
 
 void DebuggerEnginePrivate::cleanupViews()
 {
-    const bool closeSource = debuggerSettings()->closeSourceBuffersOnExit.value();
-    const bool closeMemory = debuggerSettings()->closeMemoryBuffersOnExit.value();
+    const bool closeSource = settings().closeSourceBuffersOnExit();
+    const bool closeMemory = settings().closeMemoryBuffersOnExit();
 
     QList<IDocument *> toClose;
     const QList<IDocument *> documents = DocumentModel::openedDocuments();
@@ -1869,7 +1885,7 @@ QString DebuggerEngine::expand(const QString &string) const
 
 QString DebuggerEngine::nativeStartupCommands() const
 {
-    QStringList lines = debuggerSettings()->gdbStartupCommands.value().split('\n');
+    QStringList lines = settings().gdbStartupCommands().split('\n');
     lines += runParameters().additionalStartupCommands.split('\n');
 
     lines = Utils::filtered(lines, [](const QString line) {
@@ -2385,6 +2401,10 @@ void DebuggerEngine::updateItem(const QString &iname)
     doUpdateLocals(params);
 }
 
+void DebuggerEngine::reexpandItems(const QSet<QString> &)
+{
+}
+
 void DebuggerEngine::updateWatchData(const QString &iname)
 {
     // This is used in cases where re-evaluation is ok for the same iname
@@ -2587,7 +2607,6 @@ bool DebuggerRunParameters::isCppDebugging() const
     return cppEngineType == GdbEngineType
         || cppEngineType == LldbEngineType
         || cppEngineType == CdbEngineType
-        || cppEngineType == DapEngineType
         || cppEngineType == UvscEngineType;
 }
 
@@ -2715,9 +2734,9 @@ Context CppDebuggerEngine::languageContext() const
 
 void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
 {
-    static const QString warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
+    static const Key warnOnInappropriateDebuggerKey = "DebuggerWarnOnInappropriateDebugger";
 
-    const bool warnOnRelease = debuggerSettings()->warnOnReleaseBuilds.value()
+    const bool warnOnRelease = settings().warnOnReleaseBuilds()
                                && rp.toolChainAbi.osFlavor() != Abi::AndroidLinuxFlavor;
     bool warnOnInappropriateDebugger = false;
     QString detailedWarning;
@@ -2818,7 +2837,7 @@ void CppDebuggerEngine::validateRunParameters(DebuggerRunParameters &rp)
         bool hasEmbeddedInfo = elfData.indexOf(".debug_info") >= 0;
         bool hasLink = elfData.indexOf(".gnu_debuglink") >= 0;
         if (hasEmbeddedInfo) {
-            const SourcePathMap sourcePathMap = debuggerSettings()->sourcePathMap.value();
+            const QMap<QString, QString> sourcePathMap = settings().sourcePathMap();
             QList<QPair<QRegularExpression, QString>> globalRegExpSourceMap;
             globalRegExpSourceMap.reserve(sourcePathMap.size());
             for (auto it = sourcePathMap.begin(), end = sourcePathMap.end(); it != end; ++it) {

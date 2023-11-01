@@ -4,7 +4,7 @@
 #include "cmakeprojectimporter.h"
 
 #include "cmakebuildconfiguration.h"
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
@@ -14,12 +14,12 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/buildinfo.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchainmanager.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/process.h>
@@ -52,7 +52,6 @@ struct DirectoryData
     // Kit Stuff
     FilePath cmakeBinary;
     QString generator;
-    QString extraGenerator;
     QString platform;
     QString toolset;
     FilePath sysroot;
@@ -105,6 +104,40 @@ CMakeProjectImporter::CMakeProjectImporter(const FilePath &path, const CMakeProj
 
 }
 
+using CharToHexList = QList<QPair<QString, QString>>;
+static const CharToHexList &charToHexList()
+{
+    static const CharToHexList list = {
+        {"<", "{3C}"},
+        {">", "{3E}"},
+        {":", "{3A}"},
+        {"\"", "{22}"},
+        {"\\", "{5C}"},
+        {"/", "{2F}"},
+        {"|", "{7C}"},
+        {"?", "{3F}"},
+        {"*", "{2A}"},
+    };
+
+    return list;
+}
+
+static QString presetNameToFileName(const QString &name)
+{
+    QString fileName = name;
+    for (const auto &p : charToHexList())
+        fileName.replace(p.first, p.second);
+    return fileName;
+}
+
+static QString fileNameToPresetName(const QString &fileName)
+{
+    QString name = fileName;
+    for (const auto &p : charToHexList())
+        name.replace(p.second, p.first);
+    return name;
+}
+
 FilePaths CMakeProjectImporter::importCandidates()
 {
     FilePaths candidates;
@@ -130,7 +163,8 @@ FilePaths CMakeProjectImporter::importCandidates()
                 continue;
         }
 
-        const FilePath configPresetDir = m_presetsTempDir.filePath(configPreset.name);
+        const FilePath configPresetDir = m_presetsTempDir.filePath(
+            presetNameToFileName(configPreset.name));
         configPresetDir.createDir();
         candidates << configPresetDir;
 
@@ -230,6 +264,7 @@ static CMakeConfig configurationFromPresetProbe(
         const QString prefixPath = cache.stringValueOf("CMAKE_PREFIX_PATH");
         const QString findRootPath = cache.stringValueOf("CMAKE_FIND_ROOT_PATH");
         const QString qtHostPath = cache.stringValueOf("QT_HOST_PATH");
+        const QString sysRoot = cache.stringValueOf("CMAKE_SYSROOT");
 
         if (!cmakeMakeProgram.isEmpty()) {
             args.emplace_back(
@@ -247,6 +282,9 @@ static CMakeConfig configurationFromPresetProbe(
         }
         if (!qtHostPath.isEmpty()) {
             args.emplace_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(qtHostPath));
+        }
+        if (!sysRoot.isEmpty()) {
+            args.emplace_back(QStringLiteral("-DCMAKE_SYSROOT=%1").arg(sysRoot));
         }
     }
 
@@ -639,7 +677,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
     if (importPath.isChildOf(m_presetsTempDir.path())) {
         auto data = std::make_unique<DirectoryData>();
 
-        const QString presetName = importPath.fileName();
+        const QString presetName = fileNameToPresetName(importPath.fileName());
         PresetsDetails::ConfigurePreset configurePreset
             = Utils::findOrDefault(m_project->presetsData().configurePresets,
                                    [presetName](const PresetsDetails::ConfigurePreset &preset) {
@@ -659,6 +697,11 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             const CMakeTool *cmakeTool = CMakeToolManager::defaultCMakeTool();
             if (cmakeTool)
                 configurePreset.cmakeExecutable = cmakeTool->cmakeExecutable().toString();
+        } else {
+            QString cmakeExecutable = configurePreset.cmakeExecutable.value();
+            CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeExecutable);
+
+            configurePreset.cmakeExecutable = FilePath::fromUserInput(cmakeExecutable).path();
         }
 
         data->cmakeBinary = Utils::FilePath::fromString(configurePreset.cmakeExecutable.value());
@@ -706,9 +749,6 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         const CMakeConfig cache = configurePreset.cacheVariables
                                       ? configurePreset.cacheVariables.value()
                                       : CMakeConfig();
-
-        data->sysroot = cache.filePathValueOf("CMAKE_SYSROOT");
-
         CMakeConfig config;
         const bool noCompilers = cache.valueOf("CMAKE_C_COMPILER").isEmpty()
                                  && cache.valueOf("CMAKE_CXX_COMPILER").isEmpty();
@@ -738,6 +778,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                           CMakeConfigItem::STRING,
                                           configurePreset.generator.value().toUtf8());
         }
+
+        data->sysroot = config.filePathValueOf("CMAKE_SYSROOT");
 
         const auto [qmake, cmakePrefixPath] = qtInfoFromCMakeCache(config, env);
         if (!qmake.isEmpty())
@@ -835,7 +877,6 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
 
         data->cmakeBinary = config.filePathValueOf("CMAKE_COMMAND");
         data->generator = config.stringValueOf("CMAKE_GENERATOR");
-        data->extraGenerator = config.stringValueOf("CMAKE_EXTRA_GENERATOR");
         data->platform = config.stringValueOf("CMAKE_GENERATOR_PLATFORM");
         if (data->platform.isEmpty())
             data->platform = extractVisualStudioPlatformFromConfig(config);
@@ -880,7 +921,6 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         return false;
 
     if (CMakeGeneratorKitAspect::generator(k) != data->generator
-            || CMakeGeneratorKitAspect::extraGenerator(k) != data->extraGenerator
             || CMakeGeneratorKitAspect::platform(k) != data->platform
             || CMakeGeneratorKitAspect::toolset(k) != data->toolset)
         return false;
@@ -950,7 +990,6 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         CMakeKitAspect::setCMakeTool(k, cmtd.cmakeTool->id());
 
         CMakeGeneratorKitAspect::setGenerator(k, data->generator);
-        CMakeGeneratorKitAspect::setExtraGenerator(k, data->extraGenerator);
         CMakeGeneratorKitAspect::setPlatform(k, data->platform);
         CMakeGeneratorKitAspect::setToolset(k, data->toolset);
 
@@ -1049,7 +1088,7 @@ void CMakeProjectImporter::persistTemporaryCMake(Kit *k, const QVariantList &vl)
     if (vl.isEmpty())
         return; // No temporary CMake
     QTC_ASSERT(vl.count() == 1, return);
-    const QVariant data = vl.at(0);
+    const QVariant &data = vl.at(0);
     CMakeTool *tmpCmake = CMakeToolManager::findById(Id::fromSetting(data));
     CMakeTool *actualCmake = CMakeKitAspect::cmakeTool(k);
 

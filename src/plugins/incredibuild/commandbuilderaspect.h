@@ -24,8 +24,8 @@ public:
 
 private:
     void addToLayout(Layouting::LayoutItem &parent) final;
-    void fromMap(const QVariantMap &map) final;
-    void toMap(QVariantMap &map) const final;
+    void fromMap(const Utils::Store &map) final;
+    void toMap(Utils::Store &map) const final;
 
     void updateGui();
 

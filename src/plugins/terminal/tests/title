@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo -e "\033[1m ⎆ The terminal title should have changed to 'Test Title'\033[0m"
+echo -e "\033]0;Test Title\007"

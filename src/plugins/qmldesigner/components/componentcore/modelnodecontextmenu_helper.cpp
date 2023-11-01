@@ -86,7 +86,7 @@ bool fileComponentExists(const ModelNode &modelNode)
     if (fileName.contains("qml/QtQuick"))
         return false;
 
-    return QFile::exists(fileName);
+    return QFileInfo::exists(fileName);
 }
 
 bool selectionIsComponent(const SelectionContext &selectionState)

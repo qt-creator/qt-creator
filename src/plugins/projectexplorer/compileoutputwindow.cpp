@@ -11,9 +11,12 @@
 #include "showoutputtaskhandler.h"
 
 #include <coreplugin/outputwindow.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
+
 #include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/fontsettings.h>
 #include <texteditor/behaviorsettings.h>
@@ -37,11 +40,7 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-namespace ProjectExplorer {
-
-class Task;
-
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 const char SETTINGS_KEY[] = "ProjectExplorer/CompileOutput/Zoom";
 const char C_COMPILE_OUTPUT[] = "ProjectExplorer.CompileOutput";
@@ -51,6 +50,10 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     m_cancelBuildButton(new QToolButton),
     m_settingsButton(new QToolButton)
 {
+    setId("CompileOutput");
+    setDisplayName(QCoreApplication::translate("QtC::ProjectExplorer", "Compile Output"));
+    setPriorityInStatusBar(40);
+
     Core::Context context(C_COMPILE_OUTPUT);
     m_outputWindow = new Core::OutputWindow(context, SETTINGS_KEY);
     m_outputWindow->setWindowTitle(displayName());
@@ -102,14 +105,15 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
     setupContext(C_COMPILE_OUTPUT, m_outputWindow);
     updateFromSettings();
 
-    m_outputWindow->setWordWrapEnabled(m_settings.wrapOutput());
-    m_outputWindow->setMaxCharCount(m_settings.maxCharCount());
+    CompileOutputSettings &s = compileOutputSettings();
+    m_outputWindow->setWordWrapEnabled(s.wrapOutput());
+    m_outputWindow->setMaxCharCount(s.maxCharCount());
 
-    connect(&m_settings.wrapOutput, &Utils::BaseAspect::changed, m_outputWindow, [this] {
-        m_outputWindow->setWordWrapEnabled(m_settings.wrapOutput());
+    connect(&s.wrapOutput, &Utils::BaseAspect::changed, m_outputWindow, [this] {
+        m_outputWindow->setWordWrapEnabled(compileOutputSettings().wrapOutput());
     });
-    connect(&m_settings.maxCharCount, &Utils::BaseAspect::changed, m_outputWindow, [this] {
-        m_outputWindow->setMaxCharCount(m_settings.maxCharCount());
+    connect(&s.maxCharCount, &Utils::BaseAspect::changed, m_outputWindow, [this] {
+        m_outputWindow->setMaxCharCount(compileOutputSettings().maxCharCount());
     });
 }
 
@@ -176,11 +180,6 @@ void CompileOutputWindow::clearContents()
     m_outputWindow->clear();
 }
 
-int CompileOutputWindow::priorityInStatusBar() const
-{
-    return 50;
-}
-
 bool CompileOutputWindow::canNext() const
 {
     return false;
@@ -231,20 +230,15 @@ void CompileOutputWindow::updateFilter()
 
 // CompileOutputSettings
 
-static CompileOutputSettings *s_compileOutputSettings;
-
-CompileOutputSettings &CompileOutputSettings::instance()
+CompileOutputSettings &compileOutputSettings()
 {
-    return *s_compileOutputSettings;
+    static CompileOutputSettings theSettings;
+    return theSettings;
 }
 
 CompileOutputSettings::CompileOutputSettings()
 {
-    s_compileOutputSettings = this;
-
-    setId(OPTIONS_PAGE_ID);
-    setDisplayName(Tr::tr("Compile Output"));
-    setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+    setAutoApply(false);
 
     wrapOutput.setSettingsKey("ProjectExplorer/Settings/WrapBuildOutput");
     wrapOutput.setDefaultValue(true);
@@ -274,5 +268,20 @@ CompileOutputSettings::CompileOutputSettings()
     readSettings();
 }
 
-} // Internal
-} // ProjectExplorer
+// CompileOutputSettingsPage
+
+class CompileOutputSettingsPage final : public Core::IOptionsPage
+{
+public:
+    CompileOutputSettingsPage()
+    {
+        setId(OPTIONS_PAGE_ID);
+        setDisplayName(Tr::tr("Compile Output"));
+        setCategory(Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &compileOutputSettings(); });
+    }
+};
+
+const CompileOutputSettingsPage settingsPage;
+
+} // ProjectExplorer::Internal

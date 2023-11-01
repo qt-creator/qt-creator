@@ -60,6 +60,9 @@ public:
     static void enableClientSettings(const QString &settingsId, bool enable = true);
     static QList<Client *> clientsForSetting(const BaseSettings *setting);
     static const BaseSettings *settingForClient(Client *setting);
+    static void updateWorkspaceConfiguration(const ProjectExplorer::Project *project,
+                                             const QJsonValue &json);
+
     static Client *clientForDocument(TextEditor::TextDocument *document);
     static Client *clientForFilePath(const Utils::FilePath &filePath);
     static const QList<Client *> clientsForProject(const ProjectExplorer::Project *project);

@@ -1,26 +1,26 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-vcs-git.html
     \page creator-vcs-gitlab.html
-    \nextpage creator-vcs-mercurial.html
+    \previouspage creator-reference.html
 
-    \title Using GitLab
+    \ingroup creator-reference-vcs
+
+    \title GitLab
+
+    \brief Additional GitLab functions.
 
     GitLab is a DevOps tool developed by GitLab. You can clone projects from
-    GitLab servers and use \l{Using Git}{Git} to manage your local and remote
+    GitLab servers and use \l{Git} to manage your local and remote
     repositories.
-
-    To enable the experimental GitLab plugin, select \uicontrol Help >
-    \uicontrol {About Plugins} > \uicontrol {Version Control} >
-    \uicontrol GitLab. Then select \uicontrol {Restart Now} to
-    restart \QC and load the plugin.
 
     To use GitLab, you must create a connection to the GitLab server and clone
     the projects you want to work on. You can also link previously cloned
     projects to GitLab in the project settings. This enables you to receive
     event notifications in the \l {View output}{Version Control} pane.
+
+    \note Enable the GitLab plugin to use it.
 
     \section1 Connecting to GitLab Servers
 
@@ -28,8 +28,8 @@
     port number, as well as an access token that you create in GitLab for \QC.
     The permission scope of the token must be at least \c read_api or \c api.
 
-    To specify connections to GitLab servers, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol GitLab:
+    To specify connections to GitLab servers, select \preferences >
+    \uicontrol {Version Control} > \uicontrol GitLab:
 
     \image qtcreator-gitlab-preferences.png
 
@@ -92,7 +92,7 @@
     open, select \uicontrol File > \uicontrol {New Project} >
     \uicontrol {Import Project} > \uicontrol {Import Existing Project} to
     import the project as a generic project. For more information, see
-    \l {Using Project Wizards}.
+    \l {Use project wizards}.
 
     \section1 Linking Projects with GitLab
 
@@ -121,4 +121,7 @@
 
     To stop the reception of event notifications, select
     \uicontrol {Unlink from GitLab}.
+
+    \sa {Enable and disable plugins}, {Set up version control systems},
+    {Use common VCS functions}, {Version Control Systems}, {Git}
 */

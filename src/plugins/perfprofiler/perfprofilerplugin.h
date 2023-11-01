@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "perfsettings.h"
-
 #include <extensionsystem/iplugin.h>
 
 namespace PerfProfiler::Internal {
@@ -18,8 +16,6 @@ public:
     ~PerfProfilerPlugin();
 
     void initialize() final;
-
-    static PerfSettings *globalSettings();
 
     class PerfProfilerPluginPrivate *d = nullptr;
 };

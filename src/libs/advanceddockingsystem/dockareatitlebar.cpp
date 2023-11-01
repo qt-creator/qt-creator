@@ -656,7 +656,8 @@ void DockAreaTitleBar::contextMenuEvent(QContextMenuEvent *event)
 
     QMenu menu(this);
     if (!isTopLevelArea) {
-        QAction *detachAction = menu.addAction(isAutoHide ? tr("Detach") : tr("Detach Group"));
+        QAction *detachAction = menu.addAction(isAutoHide ? Tr::tr("Detach")
+                                                          : Tr::tr("Detach Group"));
         detachAction->connect(detachAction,
                               &QAction::triggered,
                               this,
@@ -665,7 +666,8 @@ void DockAreaTitleBar::contextMenuEvent(QContextMenuEvent *event)
             d->m_dockArea->features().testFlag(DockWidget::DockWidgetFloatable));
 
         if (DockManager::testAutoHideConfigFlag(DockManager::AutoHideFeatureEnabled)) {
-            QAction *pinAction = menu.addAction(isAutoHide ? tr("Unpin (Dock)") : tr("Pin Group"));
+            QAction *pinAction = menu.addAction(isAutoHide ? Tr::tr("Unpin (Dock)")
+                                                           : Tr::tr("Pin Group"));
             pinAction->connect(pinAction,
                                &QAction::triggered,
                                this,
@@ -674,17 +676,17 @@ void DockAreaTitleBar::contextMenuEvent(QContextMenuEvent *event)
             auto areaIsPinnable = d->m_dockArea->features().testFlag(DockWidget::DockWidgetPinnable);
             pinAction->setEnabled(areaIsPinnable);
             if (!isAutoHide) {
-                auto tmp = menu.addMenu(tr("Pin Group To..."));
+                auto tmp = menu.addMenu(Tr::tr("Pin Group To..."));
                 tmp->setEnabled(areaIsPinnable);
-                d->createAutoHideToAction(tr("Top"), SideBarTop, tmp);
-                d->createAutoHideToAction(tr("Left"), SideBarLeft, tmp);
-                d->createAutoHideToAction(tr("Right"), SideBarRight, tmp);
-                d->createAutoHideToAction(tr("Bottom"), SideBarBottom, tmp);
+                d->createAutoHideToAction(Tr::tr("Top"), SideBarTop, tmp);
+                d->createAutoHideToAction(Tr::tr("Left"), SideBarLeft, tmp);
+                d->createAutoHideToAction(Tr::tr("Right"), SideBarRight, tmp);
+                d->createAutoHideToAction(Tr::tr("Bottom"), SideBarBottom, tmp);
             }
         }
         menu.addSeparator();
     }
-    QAction *closeAction = menu.addAction(isAutoHide ? tr("Close") : tr("Close Group"));
+    QAction *closeAction = menu.addAction(isAutoHide ? Tr::tr("Close") : Tr::tr("Close Group"));
     closeAction->connect(closeAction,
                          &QAction::triggered,
                          this,
@@ -692,7 +694,7 @@ void DockAreaTitleBar::contextMenuEvent(QContextMenuEvent *event)
     closeAction->setEnabled(d->m_dockArea->features().testFlag(DockWidget::DockWidgetClosable));
 
     if (!isAutoHide && !isTopLevelArea) {
-        QAction *closeOthersAction = menu.addAction(tr("Close Other Groups"));
+        QAction *closeOthersAction = menu.addAction(Tr::tr("Close Other Groups"));
         closeOthersAction->connect(closeOthersAction,
                                    &QAction::triggered,
                                    d->m_dockArea,
@@ -717,22 +719,22 @@ QString DockAreaTitleBar::titleBarButtonToolTip(eTitleBarButton button) const
     switch (button) {
     case TitleBarButtonAutoHide:
         if (d->m_dockArea->isAutoHide())
-            return tr("Unpin (Dock)");
+            return Tr::tr("Unpin (Dock)");
 
         if (DockManager::testAutoHideConfigFlag(DockManager::AutoHideButtonTogglesArea))
-            return tr("Pin Group");
+            return Tr::tr("Pin Group");
         else
-            return tr("Pin Active Tab (Press Ctrl to Pin Group)");
+            return Tr::tr("Pin Active Tab (Press Ctrl to Pin Group)");
         break;
 
     case TitleBarButtonClose:
         if (d->m_dockArea->isAutoHide())
-            return tr("Close");
+            return Tr::tr("Close");
 
         if (DockManager::testConfigFlag(DockManager::DockAreaCloseButtonClosesTab))
-            return tr("Close Active Tab");
+            return Tr::tr("Close Active Tab");
         else
-            return tr("Close Group");
+            return Tr::tr("Close Group");
         break;
 
     default:

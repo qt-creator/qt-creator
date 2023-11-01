@@ -219,7 +219,7 @@ void WebEngineHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
     }
 }
 
-bool WebEngineHelpViewer::findText(const QString &text, Core::FindFlags flags, bool incremental,
+bool WebEngineHelpViewer::findText(const QString &text, Utils::FindFlags flags, bool incremental,
                                    bool fromSearch, bool *wrapped)
 {
     Q_UNUSED(incremental)
@@ -227,9 +227,9 @@ bool WebEngineHelpViewer::findText(const QString &text, Core::FindFlags flags, b
     if (wrapped)
         *wrapped = false; // missing feature in QWebEngine
     QWebEnginePage::FindFlags webEngineFlags;
-    if (flags & Core::FindBackward)
+    if (flags & Utils::FindBackward)
         webEngineFlags |= QWebEnginePage::FindBackward;
-    if (flags & Core::FindCaseSensitively)
+    if (flags & Utils::FindCaseSensitively)
         webEngineFlags |= QWebEnginePage::FindCaseSensitively;
     // QWebEngineView's findText is asynchronous, and the variant taking a callback runs the
     // callback on the main thread, so blocking here becomes ugly too

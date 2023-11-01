@@ -66,6 +66,7 @@ public:
 
     Utils::Environment activeParseEnvironment() const;
 
+    virtual void requestDebugging() {}
     virtual bool addFiles(Node *context,
                           const Utils::FilePaths &filePaths,
                           Utils::FilePaths *notAdded = nullptr);
@@ -151,8 +152,8 @@ public:
 signals:
     void parsingStarted();
     void parsingFinished(bool success);
-    void deploymentDataChanged();
     void testInformationUpdated();
+    void debuggingStarted();
 
 protected:
     // Helper methods to manage parsing state and signalling

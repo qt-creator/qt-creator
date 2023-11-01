@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <QObject>
 #include "qmt/infrastructure/qmt_global.h"
+
+#include <QObject>
 
 namespace qmt {
 
@@ -15,7 +16,6 @@ class Toolbar;
 
 class QMT_EXPORT ConfigController : public QObject
 {
-    Q_OBJECT
     class ConfigControllerPrivate;
 
 public:

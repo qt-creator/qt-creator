@@ -6,6 +6,7 @@
 #include "copilothoverhandler.h"
 #include "requests/checkstatus.h"
 #include "requests/getcompletions.h"
+#include "requests/seteditorinfo.h"
 #include "requests/signinconfirm.h"
 #include "requests/signininitiate.h"
 #include "requests/signout.h"
@@ -50,7 +51,11 @@ public:
 
     bool isEnabled(ProjectExplorer::Project *project);
 
+    void proxyAuthenticationFailed();
+
 private:
+    void requestSetEditorInfo();
+
     QMap<TextEditor::TextEditorWidget *, GetCompletionRequest> m_runningRequests;
     struct ScheduleData
     {
@@ -59,6 +64,7 @@ private:
     };
     QMap<TextEditor::TextEditorWidget *, ScheduleData> m_scheduledRequests;
     CopilotHoverHandler m_hoverHandler;
+    bool m_isAskingForPassword{false};
 };
 
 } // namespace Copilot::Internal

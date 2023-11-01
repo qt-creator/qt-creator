@@ -33,7 +33,7 @@ SrcDestDialog::SrcDestDialog(const VcsBasePluginState &state, Direction dir, QWi
     m_localButton = new QRadioButton(Tr::tr("Local filesystem:"));
 
     auto urlButton = new QRadioButton(Tr::tr("Specify URL:"));
-    urlButton->setToolTip(Tr::tr("For example: 'https://[user[:pass]@]host[:port]/[path]'."));
+    urlButton->setToolTip(Tr::tr("For example: \"https://[user[:pass]@]host[:port]/[path]\"."));
 
     m_localPathChooser = new Utils::PathChooser;
     m_localPathChooser->setEnabled(false);
@@ -41,7 +41,8 @@ SrcDestDialog::SrcDestDialog(const VcsBasePluginState &state, Direction dir, QWi
     m_localPathChooser->setHistoryCompleter("Hg.SourceDir.History");
 
     m_urlLineEdit = new QLineEdit;
-    m_urlLineEdit->setToolTip(Tr::tr("For example: 'https://[user[:pass]@]host[:port]/[path]'.", nullptr));
+    m_urlLineEdit->setToolTip(
+        Tr::tr("For example: \"https://[user[:pass]@]host[:port]/[path]\".", nullptr));
     m_urlLineEdit->setEnabled(false);
 
     QUrl repoUrl = getRepoUrl();

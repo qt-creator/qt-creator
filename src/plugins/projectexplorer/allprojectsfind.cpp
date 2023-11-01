@@ -11,15 +11,12 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
-#include <utils/filesearch.h>
 #include <utils/algorithm.h>
+#include <utils/qtcsettings.h>
 
 #include <QGridLayout>
-#include <QLabel>
-#include <QSettings>
 
 using namespace ProjectExplorer;
 using namespace ProjectExplorer::Internal;
@@ -47,17 +44,16 @@ bool AllProjectsFind::isEnabled() const
     return BaseFileFind::isEnabled() && ProjectManager::hasProjects();
 }
 
-FileIterator *AllProjectsFind::files(const QStringList &nameFilters,
-                                     const QStringList &exclusionFilters,
-                                     const QVariant &additionalParameters) const
+FileContainerProvider AllProjectsFind::fileContainerProvider() const
 {
-    Q_UNUSED(additionalParameters)
-    return filesForProjects(nameFilters, exclusionFilters, ProjectManager::projects());
+    return [nameFilters = fileNameFilters(), exclusionFilters = fileExclusionFilters()] {
+        return filesForProjects(nameFilters, exclusionFilters, ProjectManager::projects());
+    };
 }
 
-FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFilters,
+FileContainer AllProjectsFind::filesForProjects(const QStringList &nameFilters,
                                                 const QStringList &exclusionFilters,
-                                                const QList<Project *> &projects) const
+                                                const QList<Project *> &projects)
 {
     std::function<FilePaths(const FilePaths &)> filterFiles
         = Utils::filterFilesFunction(nameFilters, exclusionFilters);
@@ -77,12 +73,7 @@ FileIterator *AllProjectsFind::filesForProjects(const QStringList &nameFilters,
             encodings.insert(fileName, codec);
         }
     }
-    return new FileListIterator(encodings.keys(), encodings.values());
-}
-
-QVariant AllProjectsFind::additionalParameters() const
-{
-    return QVariant();
+    return FileListContainer(encodings.keys(), encodings.values());
 }
 
 QString AllProjectsFind::label() const
@@ -122,16 +113,16 @@ QWidget *AllProjectsFind::createConfigWidget()
     return m_configWidget;
 }
 
-void AllProjectsFind::writeSettings(QSettings *settings)
+void AllProjectsFind::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("AllProjectsFind"));
+    settings->beginGroup("AllProjectsFind");
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void AllProjectsFind::readSettings(QSettings *settings)
+void AllProjectsFind::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("AllProjectsFind"));
+    settings->beginGroup("AllProjectsFind");
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

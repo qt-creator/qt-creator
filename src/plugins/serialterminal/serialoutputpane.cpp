@@ -33,6 +33,8 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Utils;
+
 namespace SerialTerminal {
 namespace Internal {
 
@@ -118,6 +120,10 @@ SerialOutputPane::SerialOutputPane(Settings &settings) :
     m_closeAllTabsAction(new QAction(Tr::tr("Close All Tabs"), this)),
     m_closeOtherTabsAction(new QAction(Tr::tr("Close Other Tabs"), this))
 {
+    setId("Serial Terminal");
+    setDisplayName(Tr::tr(Constants::OUTPUT_PANE_TITLE));
+    setPriorityInStatusBar(-70);
+
     createToolButtons();
 
     auto layout = new QVBoxLayout;
@@ -170,16 +176,6 @@ QList<QWidget *> SerialOutputPane::toolBarWidgets() const
                 m_portsSelection, m_baudRateSelection,
                 m_connectButton, m_disconnectButton,
                 m_resetButton };
-}
-
-QString SerialOutputPane::displayName() const
-{
-    return Tr::tr(Constants::OUTPUT_PANE_TITLE);
-}
-
-int SerialOutputPane::priorityInStatusBar() const
-{
-    return 30;
 }
 
 void SerialOutputPane::clearContents()
@@ -257,14 +253,12 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
         return;
 
     // Signals to update buttons
-    connect(rc, &SerialControl::started,
-            [this, rc]() {
+    connect(rc, &SerialControl::started, this, [this, rc] {
         if (isCurrent(rc))
             enableButtons(rc, true);
     });
 
-    connect(rc, &SerialControl::finished,
-            [this, rc]() {
+    connect(rc, &SerialControl::finished, this, [this, rc] {
         const int tabIndex = indexOf(rc);
         if (tabIndex != -1)
             m_serialControlTabs[tabIndex].window->flush();
@@ -279,7 +273,7 @@ void SerialOutputPane::createNewOutputWindow(SerialControl *rc)
     static int counter = 0;
     Utils::Id contextId = Utils::Id(Constants::C_SERIAL_OUTPUT).withSuffix(counter++);
     Core::Context context(contextId);
-    auto ow = new Core::OutputWindow(context, QString(), m_tabWidget);
+    auto ow = new Core::OutputWindow(context, Key(), m_tabWidget);
     using TextEditor::TextEditorSettings;
     auto fontSettingsChanged = [ow] {
         ow->setBaseFont(TextEditorSettings::fontSettings().font());

@@ -13,9 +13,9 @@ namespace MesonProjectManager {
 namespace Internal {
 
 ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
-                                         const ProjectExplorer::KitAspect *ki,
+                                         const ProjectExplorer::KitAspectFactory *factory,
                                          ToolType type)
-    : ProjectExplorer::KitAspectWidget(kit, ki)
+    : ProjectExplorer::KitAspect(kit, factory)
     , m_toolsComboBox(createSubWidget<QComboBox>())
     , m_manageButton(createManageButton(Constants::SettingsPage::TOOLS_ID))
     , m_type{type}
@@ -23,7 +23,7 @@ ToolKitAspectWidget::ToolKitAspectWidget(ProjectExplorer::Kit *kit,
     m_toolsComboBox->setSizePolicy(QSizePolicy::Ignored,
                                    m_toolsComboBox->sizePolicy().verticalPolicy());
     m_toolsComboBox->setEnabled(false);
-    m_toolsComboBox->setToolTip(ki->description());
+    m_toolsComboBox->setToolTip(factory->description());
     loadTools();
 
     connect(MesonTools::instance(), &MesonTools::toolAdded,

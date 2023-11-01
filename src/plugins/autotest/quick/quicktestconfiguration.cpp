@@ -3,9 +3,8 @@
 
 #include "quicktestconfiguration.h"
 
-#include "../itestframework.h"
 #include "../qtest/qttestoutputreader.h"
-#include "../qtest/qttestsettings.h"
+#include "../qtest/qttestframework.h"
 #include "../qtest/qttest_utils.h"
 #include "../testsettings.h"
 
@@ -22,8 +21,7 @@ QuickTestConfiguration::QuickTestConfiguration(ITestFramework *framework)
 
 TestOutputReader *QuickTestConfiguration::createOutputReader(Process *app) const
 {
-    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
-    const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
+    const QtTestOutputReader::OutputMode mode = theQtTestFramework().useXMLOutput()
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
     return new QtTestOutputReader(app, buildDirectory(), projectFile(), mode, TestType::QuickTest);
@@ -32,31 +30,29 @@ TestOutputReader *QuickTestConfiguration::createOutputReader(Process *app) const
 QStringList QuickTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (TestSettings::instance()->processArgs()) {
+    if (testSettings().processArgs()) {
         arguments.append(QTestUtils::filterInterfering
                          (runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
                           omitted, true));
     }
 
-    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
-    if (!qtSettings)
-        return arguments;
-    if (qtSettings->useXMLOutput.value())
+    QtTestFramework &qtSettings = theQtTestFramework();
+    if (qtSettings.useXMLOutput())
         arguments << "-xml";
     if (!testCases().isEmpty())
         arguments << testCases();
 
-    const QString &metricsOption = QtTestSettings::metricsTypeToOption(MetricsType(qtSettings->metrics.value()));
+    const QString &metricsOption = QtTestFramework::metricsTypeToOption(MetricsType(qtSettings.metrics()));
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
 
     if (isDebugRunMode()) {
-        if (qtSettings->noCrashHandler.value())
+        if (qtSettings.noCrashHandler())
             arguments << "-nocrashhandler";
     }
 
-    if (qtSettings->limitWarnings.value() && qtSettings->maxWarnings.value() != 2000)
-        arguments << "-maxwarnings" << QString::number(qtSettings->maxWarnings.value());
+    if (qtSettings.limitWarnings() && qtSettings.maxWarnings() != 2000)
+        arguments << "-maxwarnings" << QString::number(qtSettings.maxWarnings());
 
     return arguments;
 }

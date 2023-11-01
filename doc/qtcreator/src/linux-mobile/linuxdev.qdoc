@@ -22,7 +22,7 @@
     {kit}.
 
     You use a wizard to create the connections. You can edit the settings later
-    in \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
+    in \preferences > \uicontrol Devices >
     \uicontrol Devices.
 
     \image qtcreator-preferences-devices-remote-linux.webp "Remote Linux Device in the Devices tab"
@@ -49,11 +49,11 @@
 
         \li Make sure that your device can be reached via an IP address.
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+        \li Select \preferences > \uicontrol Kits >
             \uicontrol {Qt Versions} > \uicontrol Add to add the Qt version
             for embedded Linux.
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+        \li Select \preferences > \uicontrol Kits >
             \uicontrol Compilers > \uicontrol Add to add the compiler for
             building the applications.
 
@@ -62,7 +62,7 @@
 
             \list a
 
-                \li Select \uicontrol Edit > \uicontrol Preferences >
+                \li Select \preferences >
                     \uicontrol Devices > \uicontrol Devices > \uicontrol Add >
                     \uicontrol {Remote Linux Device}
                     > \uicontrol {Start Wizard}.
@@ -111,7 +111,7 @@
            \uicontrol {Add Remote Linux Device} in the pull-down
            menu of the \uicontrol Add button.
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+        \li Select \preferences > \uicontrol Kits >
             \uicontrol Add to add a kit for building for the device. Select the
             Qt version, compiler, and device that you added above, and select
             \uicontrol {Remote Linux Device} in \uicontrol {Run device type}.

@@ -53,8 +53,6 @@ class PyLSConfigureAssistant : public QObject
 public:
     static PyLSConfigureAssistant *instance();
 
-    static void updateEditorInfoBars(const Utils::FilePath &python,
-                                     LanguageClient::Client *client);
     static void openDocumentWithPython(const Utils::FilePath &python,
                                        TextEditor::TextDocument *document);
 

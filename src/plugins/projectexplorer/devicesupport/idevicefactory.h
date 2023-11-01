@@ -4,11 +4,13 @@
 #pragma once
 
 #include "idevicefwd.h"
+
 #include <projectexplorer/projectexplorer_export.h>
+
 #include <utils/id.h>
+#include <utils/store.h>
 
 #include <QIcon>
-#include <QVariantMap>
 
 namespace Utils { class FilePath; }
 
@@ -28,7 +30,7 @@ public:
     IDevicePtr create() const;
     bool quickCreationAllowed() const;
 
-    virtual bool canRestore(const QVariantMap &) const { return true; }
+    virtual bool canRestore(const Utils::Store &) const { return true; }
 
     static IDeviceFactory *find(Utils::Id type);
 

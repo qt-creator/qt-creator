@@ -1,6 +1,6 @@
 QtApplication {
     name: "Manual debugger gui test"
-    Depends { name: "qtc" }
+
     Depends { name: "Qt.widgets" }
 
     files: [

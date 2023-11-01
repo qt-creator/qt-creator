@@ -11,7 +11,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDir>
-#include <QFileInfo>
 #include <QRegularExpression>
 #include <QStringList>
 
@@ -181,8 +180,6 @@ bool IVersionControl::handleLink(const FilePath &workingDirectory, const QString
 } // namespace Core
 
 #if defined(WITH_TESTS)
-
-#include <QFileInfo>
 
 namespace Core {
 

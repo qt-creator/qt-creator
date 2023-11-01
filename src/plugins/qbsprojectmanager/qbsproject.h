@@ -28,6 +28,7 @@ namespace Internal {
 class ErrorInfo;
 class QbsBuildConfiguration;
 class QbsProjectParser;
+class QbsRequest;
 class QbsSession;
 
 class QbsProject : public ProjectExplorer::Project
@@ -88,10 +89,7 @@ public:
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 
     QString profile() const;
-    void parseCurrentBuildConfiguration();
-    void scheduleParsing() { m_parsingScheduled = true; }
-    bool parsingScheduled() const { return m_parsingScheduled; }
-    void cancelParsing();
+    void scheduleParsing();
     void updateAfterBuild();
 
     QbsSession *session() const { return m_session; }
@@ -103,6 +101,10 @@ public:
 
 private:
     friend class QbsProject;
+    friend class QbsRequestObject;
+
+    void startParsing();
+    void cancelParsing();
 
     ProjectExplorer::ExtraCompiler *findExtraCompiler(
             const ExtraCompilerFilter &filter) const override;
@@ -117,9 +119,7 @@ private:
     void updateApplicationTargets();
     void updateDeploymentInfo();
     void updateBuildTargetData();
-    bool checkCancelStatus();
     void updateAfterParse();
-    void delayedUpdateAfterParse();
     void updateProjectNodes(const std::function<void()> &continuation);
     Utils::FilePath installRoot();
 
@@ -134,13 +134,7 @@ private:
     using TreeCreationWatcher = QFutureWatcher<QbsProjectNode *>;
     TreeCreationWatcher *m_treeCreationWatcher = nullptr;
     Utils::Environment m_lastParseEnv;
-    bool m_parsingScheduled = false;
-
-    enum CancelStatus {
-        CancelStatusNone,
-        CancelStatusCancelingForReparse,
-        CancelStatusCancelingAltoghether
-    } m_cancelStatus = CancelStatusNone;
+    std::unique_ptr<QbsRequest> m_parseRequest;
 
     CppEditor::CppProjectUpdater *m_cppCodeModelUpdater = nullptr;
 

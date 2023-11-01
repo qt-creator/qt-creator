@@ -5,36 +5,18 @@
 
 #include "itestframework.h"
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Autotest::TestFrameworkManager {
 
-namespace Autotest {
-namespace Internal {
-class TestSettings;
-}
+void registerTestFramework(ITestFramework *framework);
+void registerTestTool(ITestTool *testTool);
+void synchronizeSettings();
 
-class TestFrameworkManager final
-{
+ITestFramework *frameworkForId(Utils::Id frameworkId);
+ITestTool *testToolForId(Utils::Id testToolId);
+ITestTool *testToolForBuildSystemId(Utils::Id buildSystemId);
+void activateFrameworksAndToolsFromSettings();
+const TestFrameworks registeredFrameworks();
+const TestTools registeredTestTools();
 
-public:
-    TestFrameworkManager();
-    ~TestFrameworkManager();
 
-    bool registerTestFramework(ITestFramework *framework);
-    bool registerTestTool(ITestTool *testTool);
-    void synchronizeSettings(QSettings *s);
-
-    static ITestFramework *frameworkForId(Utils::Id frameworkId);
-    static ITestTool *testToolForId(Utils::Id testToolId);
-    static ITestTool *testToolForBuildSystemId(Utils::Id buildSystemId);
-    static void activateFrameworksAndToolsFromSettings(const Internal::TestSettings *settings);
-    static const TestFrameworks registeredFrameworks();
-    static const TestTools registeredTestTools();
-
-private:
-    TestFrameworks m_registeredFrameworks;
-    TestTools m_registeredTestTools;
-};
-
-} // namespace Autotest
+} // Autotest::TestFrameworkManager

@@ -144,7 +144,7 @@ public:
             if (result.column == column)
                 return result;
         }
-        return Use();
+        return {};
     }
 
     CheckSymbols::Future future;

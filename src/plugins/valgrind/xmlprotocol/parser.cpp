@@ -10,66 +10,136 @@
 #include "suppression.h"
 #include "../valgrindtr.h"
 
+#include <extensionsystem/pluginmanager.h>
+
+#include <utils/async.h>
+#include <utils/expected.h>
+#include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 
 #include <QAbstractSocket>
 #include <QHash>
-#include <QIODevice>
-#include <QPair>
+#include <QMetaEnum>
+#include <QMutex>
+#include <QPromise>
+#include <QWaitCondition>
 #include <QXmlStreamReader>
 
-namespace {
+using namespace Utils;
 
-    class ParserException
-    {
-    public:
-        explicit ParserException(const QString &message)
-            : m_message(message)
-        {}
+namespace Valgrind::XmlProtocol {
 
-        ~ParserException() noexcept = default;
+struct ParserException
+{
+    QString message;
+};
 
-        QString message() const { return m_message; }
+struct XWhat
+{
+    QString text;
+    qint64 leakedblocks = 0;
+    qint64 leakedbytes = 0;
+    qint64 hthreadid = -1;
+};
 
-    private:
-        QString m_message;
+struct XauxWhat
+{
+    void clear() { *this = XauxWhat(); }
+
+    QString text;
+    QString file;
+    QString dir;
+    qint64 line = -1;
+    qint64 hthreadid = -1;
+};
+
+enum class Tool { Unknown, Memcheck, Ptrcheck, Helgrind };
+
+const QHash<QString, Tool> &toolByName()
+{
+    static const QHash<QString, Tool> theHash {
+        {"memcheck", Tool::Memcheck},
+        {"ptrcheck", Tool::Ptrcheck},
+        {"exp-ptrcheck", Tool::Ptrcheck},
+        {"helgrind", Tool::Helgrind}
     };
+    return theHash;
+}
 
-    struct XWhat
-    {
-        QString text;
-        qint64 leakedblocks = 0;
-        qint64 leakedbytes = 0;
-        qint64 hthreadid = -1;
-    };
+struct OutputData
+{
+    std::optional<Status> m_status = {};
+    std::optional<Error> m_error = {};
+    std::optional<QPair<qint64, qint64>> m_errorCount = {};
+    std::optional<QPair<QString, qint64>> m_suppressionCount = {};
+    std::optional<AnnounceThread> m_announceThread = {};
+    std::optional<QString> m_internalError = {};
+};
 
-    struct XauxWhat
-    {
-        void clear() { *this = XauxWhat(); }
-
-        QString text;
-        QString file;
-        QString dir;
-        qint64 line = -1;
-        qint64 hthreadid = -1;
-    };
-
-} // namespace anon
-
-namespace Valgrind {
-namespace XmlProtocol {
-
-class Parser::Private
+class ParserThread
 {
 public:
-    explicit Private(Parser *qq);
+    // Called from the other thread, scheduled from the main thread through the queued
+    // invocation.
+    void run(QPromise<OutputData> &promise) {
+        if (promise.isCanceled())
+            return;
+        m_promise = &promise;
+        start();
+        m_promise = nullptr;
+    }
 
-    void parse(QIODevice *device);
-    QString errorString;
+    // Called from the main thread exclusively
+    void cancel()
+    {
+        QMutexLocker locker(&m_mutex);
+        m_state = State::Canceled;
+        m_waitCondition.wakeOne();
+    }
+    // Called from the main thread exclusively
+    void finalize()
+    {
+        QMutexLocker locker(&m_mutex);
+        if (m_state != State::Awaiting)
+            return;
+        m_state = State::Finalized;
+        m_waitCondition.wakeOne();
+    }
+    // Called from the main thread exclusively
+    void addData(const QByteArray &input)
+    {
+        if (input.isEmpty())
+            return;
+        QMutexLocker locker(&m_mutex);
+        if (m_state != State::Awaiting)
+            return;
+        m_inputBuffer.append(input);
+        m_waitCondition.wakeOne();
+    }
 
 private:
+    // Called from the separate thread, exclusively by run(). Checks if the new data already
+    // came before sleeping with wait condition. If so, it doesn't sleep with wait condition,
+    // but returns the data collected in meantime. Otherwise, it calls wait() on wait condition.
+    expected_str<QByteArray> waitForData()
+    {
+        QMutexLocker locker(&m_mutex);
+        while (true) {
+            if (m_state == State::Canceled)
+                return make_unexpected(Tr::tr("Parsing canceled."));
+            if (!m_inputBuffer.isEmpty())
+                return std::exchange(m_inputBuffer, {});
+            if (m_state == State::Finalized)
+                return make_unexpected(Tr::tr("Premature end of XML document."));
+            m_waitCondition.wait(&m_mutex);
+        }
+        QTC_CHECK(false);
+        return {};
+    }
+
+    void start();
     void parseError();
-    QVector<Frame> parseStack();
+    QList<Frame> parseStack();
     Suppression parseSuppression();
     SuppressionFrame parseSuppressionFrame();
     Frame parseFrame();
@@ -81,77 +151,45 @@ private:
     void checkTool(const QString &tool);
     XWhat parseXWhat();
     XauxWhat parseXauxWhat();
-    MemcheckErrorKind parseMemcheckErrorKind(const QString &kind);
-    HelgrindErrorKind parseHelgrindErrorKind(const QString &kind);
-    PtrcheckErrorKind parsePtrcheckErrorKind(const QString &kind);
     int parseErrorKind(const QString &kind);
 
-    void reportInternalError(const QString &errorString);
     QXmlStreamReader::TokenType blockingReadNext();
     bool notAtEnd() const;
     QString blockingReadElementText();
 
-    Tool tool;
-    QXmlStreamReader reader;
-    QHash<QString, MemcheckErrorKind> errorKindsByName_memcheck;
-    QHash<QString, HelgrindErrorKind> errorKindsByName_helgrind;
-    QHash<QString, PtrcheckErrorKind> errorKindsByName_ptrcheck;
-    QHash<QString, Parser::Tool> toolsByName;
+    void emitStatus(const Status &status) { m_promise->addResult(OutputData{{status}}); }
+    void emitError(const Error &error) { m_promise->addResult(OutputData{{}, {error}}); }
+    void emitErrorCount(qint64 unique, qint64 count) {
+        m_promise->addResult(OutputData{{}, {}, {{unique, count}}});
+    }
+    void emitSuppressionCount(const QString &name, qint64 count) {
+        m_promise->addResult(OutputData{{}, {}, {}, {{name, count}}});
+    }
+    void emitAnnounceThread(const AnnounceThread &announceThread) {
+        m_promise->addResult(OutputData{{}, {}, {}, {}, {announceThread}});
+    }
+    void emitInternalError(const QString &errorString) {
+        m_promise->addResult(OutputData{{}, {}, {}, {}, {}, {errorString}});
+    }
 
-private:
-    Parser *const q;
+    enum class State { Awaiting, Finalized, Canceled };
+
+    Tool m_tool = Tool::Unknown; // Accessed only from the other thread.
+    QXmlStreamReader m_reader; // Accessed only from the other thread.
+
+    QMutex m_mutex;
+    QWaitCondition m_waitCondition;
+    QPromise<OutputData> *m_promise = nullptr;
+    State m_state = State::Awaiting; // Accessed from both threads, needs mutex.
+    QByteArray m_inputBuffer; // Accessed from both threads, needs mutex.
 };
-
-#undef ADD_ENUM
-#define ADD_ENUM(tool,enumV) { errorKindsByName_##tool.insert(#enumV, enumV); }
-
-
-Parser::Private::Private(Parser *qq)
-    : q(qq)
-{
-    tool = Parser::Unknown;
-    toolsByName.insert("memcheck", Parser::Memcheck);
-    toolsByName.insert("ptrcheck", Parser::Ptrcheck);
-    toolsByName.insert("exp-ptrcheck", Parser::Ptrcheck);
-    toolsByName.insert("helgrind", Parser::Helgrind);
-
-    ADD_ENUM(memcheck, ClientCheck)
-    ADD_ENUM(memcheck, InvalidFree)
-    ADD_ENUM(memcheck, InvalidJump)
-    ADD_ENUM(memcheck, InvalidRead)
-    ADD_ENUM(memcheck, InvalidWrite)
-    ADD_ENUM(memcheck, Leak_DefinitelyLost)
-    ADD_ENUM(memcheck, Leak_PossiblyLost)
-    ADD_ENUM(memcheck, Leak_StillReachable)
-    ADD_ENUM(memcheck, Leak_IndirectlyLost)
-    ADD_ENUM(memcheck, MismatchedFree)
-    ADD_ENUM(memcheck, Overlap)
-    ADD_ENUM(memcheck, SyscallParam)
-    ADD_ENUM(memcheck, UninitCondition)
-    ADD_ENUM(memcheck, UninitValue)
-
-    ADD_ENUM(helgrind, Race)
-    ADD_ENUM(helgrind, UnlockUnlocked)
-    ADD_ENUM(helgrind, UnlockForeign)
-    ADD_ENUM(helgrind, UnlockBogus)
-    ADD_ENUM(helgrind, PthAPIerror)
-    ADD_ENUM(helgrind, LockOrder)
-    ADD_ENUM(helgrind, Misc)
-
-    ADD_ENUM(ptrcheck, SorG)
-    ADD_ENUM(ptrcheck, Heap)
-    ADD_ENUM(ptrcheck, Arith)
-    ADD_ENUM(ptrcheck, SysParam)
-}
-
-#undef ADD_ENUM
 
 static quint64 parseHex(const QString &str, const QString &context)
 {
     bool ok;
     const quint64 v = str.toULongLong(&ok, 16);
     if (!ok)
-        throw ParserException(Tr::tr("Could not parse hex number from \"%1\" (%2)").arg(str, context));
+        throw ParserException{Tr::tr("Could not parse hex number from \"%1\" (%2)").arg(str, context)};
     return v;
 }
 
@@ -160,74 +198,56 @@ static qint64 parseInt64(const QString &str, const QString &context)
     bool ok;
     const quint64 v = str.toLongLong(&ok);
     if (!ok)
-        throw ParserException(Tr::tr("Could not parse hex number from \"%1\" (%2)").arg(str, context));
+        throw ParserException{Tr::tr("Could not parse hex number from \"%1\" (%2).").arg(str, context)};
     return v;
 }
 
-QXmlStreamReader::TokenType Parser::Private::blockingReadNext()
+QXmlStreamReader::TokenType ParserThread::blockingReadNext()
 {
     QXmlStreamReader::TokenType token = QXmlStreamReader::Invalid;
-
-    forever {
-        token = reader.readNext();
-
-        if (reader.error() == QXmlStreamReader::PrematureEndOfDocumentError) {
-            if (reader.device()->waitForReadyRead(1000)) {
-                // let's try again
+    while (true) {
+        token = m_reader.readNext();
+        if (m_reader.error() == QXmlStreamReader::PrematureEndOfDocumentError) {
+            const auto data = waitForData();
+            if (data) {
+                m_reader.addData(*data);
                 continue;
             } else {
-                // device error, e.g. remote host closed connection, or timeout
-                // ### we have no way to know if waitForReadyRead() timed out or failed with a real
-                //     error, and sensible heuristics based on QIODevice fail.
-                //     - error strings are translated and in any case not guaranteed to stay the same,
-                //       so we can't use them.
-                //     - errorString().isEmpty() does not work because errorString() is
-                //       "network timeout error" if the waitFor... timed out.
-                //     - isSequential() [for socket] && isOpen() doesn't work because isOpen()
-                //       returns true if the remote host closed the connection.
-                // ...so we fall back to knowing it might be a QAbstractSocket.
-
-                QIODevice *dev = reader.device();
-                auto sock = qobject_cast<const QAbstractSocket *>(dev);
-
-                if (!sock || sock->state() != QAbstractSocket::ConnectedState)
-                    throw ParserException(dev->errorString());
+                throw ParserException{data.error()};
             }
-        } else if (reader.hasError()) {
-            throw ParserException(reader.errorString()); //TODO add line, column?
+        } else if (m_reader.hasError()) {
+            throw ParserException{m_reader.errorString()}; //TODO add line, column?
             break;
         } else {
             // read a valid next token
             break;
         }
     }
-
     return token;
 }
 
-bool Parser::Private::notAtEnd() const
+bool ParserThread::notAtEnd() const
 {
-    return !reader.atEnd()
-           || reader.error() == QXmlStreamReader::PrematureEndOfDocumentError;
+    return !m_reader.atEnd() || m_reader.error() == QXmlStreamReader::PrematureEndOfDocumentError;
 }
 
-QString Parser::Private::blockingReadElementText()
+QString ParserThread::blockingReadElementText()
 {
     //analogous to QXmlStreamReader::readElementText(), but blocking. readElementText() doesn't recover from PrematureEndOfData,
     //but always returns a null string if isStartElement() is false (which is the case if it already parts of the text)
     //affects at least Qt <= 4.7.1. Reported as QTBUG-14661.
 
-    if (!reader.isStartElement())
-        throw ParserException(Tr::tr("trying to read element text although current position is not start of element"));
+    if (!m_reader.isStartElement())
+        throw ParserException{Tr::tr("Trying to read element text although current position is not start of element.")};
 
     QString result;
 
-    forever {
+    while (true) {
         const QXmlStreamReader::TokenType type = blockingReadNext();
         switch (type) {
         case QXmlStreamReader::Characters:
         case QXmlStreamReader::EntityReference:
-            result += reader.text();
+            result += m_reader.text();
             break;
         case QXmlStreamReader::EndElement:
             return result;
@@ -235,44 +255,42 @@ QString Parser::Private::blockingReadElementText()
         case QXmlStreamReader::Comment:
             break;
         case QXmlStreamReader::StartElement:
-            throw ParserException(Tr::tr("Unexpected child element while reading element text"));
+            throw ParserException{Tr::tr("Unexpected child element while reading element text")};
         default:
             //TODO handle
-            throw ParserException(Tr::tr("Unexpected token type %1").arg(type));
+            throw ParserException{Tr::tr("Unexpected token type %1").arg(type)};
             break;
         }
     }
-    return QString();
+    return {};
 }
 
-void Parser::Private::checkProtocolVersion(const QString &versionStr)
+void ParserThread::checkProtocolVersion(const QString &versionStr)
 {
     bool ok;
     const int version = versionStr.toInt(&ok);
     if (!ok)
-        throw ParserException(Tr::tr("Could not parse protocol version from \"%1\"").arg(versionStr));
+        throw ParserException{Tr::tr("Could not parse protocol version from \"%1\"").arg(versionStr)};
     if (version != 4)
-        throw ParserException(Tr::tr("XmlProtocol version %1 not supported (supported version: 4)").arg(version));
+        throw ParserException{Tr::tr("XmlProtocol version %1 not supported (supported version: 4)").arg(version)};
 }
 
-void Parser::Private::checkTool(const QString &reportedStr)
+void ParserThread::checkTool(const QString &reportedStr)
 {
-    const QHash<QString,Parser::Tool>::ConstIterator reported = toolsByName.constFind(reportedStr);
-
-    if (reported == toolsByName.constEnd())
-        throw ParserException(Tr::tr("Valgrind tool \"%1\" not supported").arg(reportedStr));
-
-    tool = reported.value();
+    const auto reported = toolByName().constFind(reportedStr);
+    if (reported == toolByName().constEnd())
+        throw ParserException{Tr::tr("Valgrind tool \"%1\" not supported").arg(reportedStr)};
+    m_tool = reported.value();
 }
 
-XWhat Parser::Private::parseXWhat()
+XWhat ParserThread::parseXWhat()
 {
     XWhat what;
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        const auto name = reader.name();
+        const auto name = m_reader.name();
         if (name == QLatin1String("text"))
             what.text = blockingReadElementText();
         else if (name == QLatin1String("leakedbytes"))
@@ -281,20 +299,20 @@ XWhat Parser::Private::parseXWhat()
             what.leakedblocks = parseInt64(blockingReadElementText(), "error/xwhat[memcheck]/leakedblocks");
         else if (name == QLatin1String("hthreadid"))
             what.hthreadid = parseInt64(blockingReadElementText(), "error/xwhat[memcheck]/hthreadid");
-        else if (reader.isStartElement())
-            reader.skipCurrentElement();
+        else if (m_reader.isStartElement())
+            m_reader.skipCurrentElement();
     }
     return what;
 }
 
-XauxWhat Parser::Private::parseXauxWhat()
+XauxWhat ParserThread::parseXauxWhat()
 {
     XauxWhat what;
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        const auto name = reader.name();
+        const auto name = m_reader.name();
         if (name == QLatin1String("text"))
             what.text = blockingReadElementText();
         else if (name == QLatin1String("file"))
@@ -305,55 +323,37 @@ XauxWhat Parser::Private::parseXauxWhat()
             what.line = parseInt64(blockingReadElementText(), "error/xauxwhat/line");
         else if (name == QLatin1String("hthreadid"))
             what.hthreadid = parseInt64(blockingReadElementText(), "error/xauxwhat/hthreadid");
-        else if (reader.isStartElement())
-            reader.skipCurrentElement();
+        else if (m_reader.isStartElement())
+            m_reader.skipCurrentElement();
     }
     return what;
 }
 
-
-
-MemcheckErrorKind Parser::Private::parseMemcheckErrorKind(const QString &kind)
+template <typename Enum>
+int parseErrorEnum(const QString &kind)
 {
-    const QHash<QString,MemcheckErrorKind>::ConstIterator it = errorKindsByName_memcheck.constFind(kind);
-    if (it != errorKindsByName_memcheck.constEnd())
-        return *it;
-    else
-        throw ParserException(Tr::tr("Unknown memcheck error kind \"%1\"").arg(kind));
+    const QMetaEnum metaEnum = QMetaEnum::fromType<Enum>();
+    const int value = metaEnum.keyToValue(kind.toUtf8());
+    if (value >= 0)
+        return value;
+    throw ParserException{Tr::tr("Unknown %1 kind \"%2\"")
+                              .arg(QString::fromUtf8(metaEnum.enumName()), kind)};
 }
 
-HelgrindErrorKind Parser::Private::parseHelgrindErrorKind(const QString &kind)
+int ParserThread::parseErrorKind(const QString &kind)
 {
-    const QHash<QString,HelgrindErrorKind>::ConstIterator it = errorKindsByName_helgrind.constFind(kind);
-    if (it != errorKindsByName_helgrind.constEnd())
-        return *it;
-    else
-        throw ParserException(Tr::tr("Unknown helgrind error kind \"%1\"").arg(kind));
-}
-
-PtrcheckErrorKind Parser::Private::parsePtrcheckErrorKind(const QString &kind)
-{
-    const QHash<QString,PtrcheckErrorKind>::ConstIterator it = errorKindsByName_ptrcheck.constFind(kind);
-    if (it != errorKindsByName_ptrcheck.constEnd())
-        return *it;
-    else
-        throw ParserException(Tr::tr("Unknown ptrcheck error kind \"%1\"").arg(kind));
-}
-
-int Parser::Private::parseErrorKind(const QString &kind)
-{
-    switch (tool) {
-    case Memcheck:
-        return parseMemcheckErrorKind(kind);
-    case Ptrcheck:
-        return parsePtrcheckErrorKind(kind);
-    case Helgrind:
-        return parseHelgrindErrorKind(kind);
-    case Unknown:
+    switch (m_tool) {
+    case Tool::Memcheck:
+        return parseErrorEnum<MemcheckError>(kind);
+    case Tool::Ptrcheck:
+        return parseErrorEnum<PtrcheckError>(kind);
+    case Tool::Helgrind:
+        return parseErrorEnum<HelgrindError>(kind);
+    case Tool::Unknown:
     default:
         break;
     }
-    throw ParserException(Tr::tr("Could not parse error kind, tool not yet set."));
+    throw ParserException{Tr::tr("Could not parse error kind, tool not yet set.")};
 }
 
 static Status::State parseState(const QString &state)
@@ -362,16 +362,10 @@ static Status::State parseState(const QString &state)
         return Status::Running;
     if (state == "FINISHED")
         return Status::Finished;
-    throw ParserException(Tr::tr("Unknown state \"%1\"").arg(state));
+    throw ParserException{Tr::tr("Unknown state \"%1\"").arg(state)};
 }
 
-void Parser::Private::reportInternalError(const QString &e)
-{
-    errorString = e;
-    emit q->internalError(e);
-}
-
-static Stack makeStack(const XauxWhat &xauxwhat, const QVector<Frame> &frames)
+static Stack makeStack(const XauxWhat &xauxwhat, const QList<Frame> &frames)
 {
     Stack s;
     s.setFrames(frames);
@@ -383,21 +377,20 @@ static Stack makeStack(const XauxWhat &xauxwhat, const QVector<Frame> &frames)
     return s;
 }
 
-void Parser::Private::parseError()
+void ParserThread::parseError()
 {
     Error e;
-    QVector<QVector<Frame> > frames;
+    QList<QList<Frame>> frames;
     XauxWhat currentAux;
-    QVector<XauxWhat> auxs;
-
+    QList<XauxWhat> auxs;
     int lastAuxWhat = -1;
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        if (reader.isStartElement())
+        if (m_reader.isStartElement())
             lastAuxWhat++;
-        const auto name = reader.name();
+        const auto name = m_reader.name();
         if (name == QLatin1String("unique")) {
             e.setUnique(parseHex(blockingReadElementText(), "unique"));
         } else if (name == QLatin1String("tid")) {
@@ -434,8 +427,8 @@ void Parser::Private::parseError()
             lastAuxWhat = 0;
         } else if (name == QLatin1String("stack")) {
             frames.push_back(parseStack());
-        } else if (reader.isStartElement()) {
-            reader.skipCurrentElement();
+        } else if (m_reader.isStartElement()) {
+            m_reader.skipCurrentElement();
         }
     }
 
@@ -449,26 +442,25 @@ void Parser::Private::parseError()
 
     //add empty stacks until sizes match
     while (frames.size() < auxs.size())
-        frames.push_back(QVector<Frame>());
+        frames.push_back({});
 
-    QVector<Stack> stacks;
+    QList<Stack> stacks;
     for (int i = 0; i < auxs.size(); ++i)
         stacks.append(makeStack(auxs[i], frames[i]));
     e.setStacks(stacks);
 
-    emit q->error(e);
+    emitError(e);
 }
 
-Frame Parser::Private::parseFrame()
+Frame ParserThread::parseFrame()
 {
     Frame frame;
-
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        if (reader.isStartElement()) {
-            const auto name = reader.name();
+        if (m_reader.isStartElement()) {
+            const auto name = m_reader.name();
             if (name == QLatin1String("ip"))
                 frame.setInstructionPointer(parseHex(blockingReadElementText(), "error/frame/ip"));
             else if (name == QLatin1String("obj"))
@@ -481,169 +473,160 @@ Frame Parser::Private::parseFrame()
                 frame.setFileName(blockingReadElementText());
             else if (name == QLatin1String("line"))
                 frame.setLine(parseInt64(blockingReadElementText(), "error/frame/line"));
-            else if (reader.isStartElement())
-                reader.skipCurrentElement();
+            else if (m_reader.isStartElement())
+                m_reader.skipCurrentElement();
         }
     }
-
     return frame;
 }
 
-void Parser::Private::parseAnnounceThread()
+void ParserThread::parseAnnounceThread()
 {
     AnnounceThread at;
-
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        if (reader.isStartElement()) {
-            const auto name = reader.name();
+        if (m_reader.isStartElement()) {
+            const auto name = m_reader.name();
             if (name == QLatin1String("hthreadid"))
                 at.setHelgrindThreadId(parseInt64(blockingReadElementText(), "announcethread/hthreadid"));
             else if (name == QLatin1String("stack"))
                 at.setStack(parseStack());
-            else if (reader.isStartElement())
-                reader.skipCurrentElement();
+            else if (m_reader.isStartElement())
+                m_reader.skipCurrentElement();
         }
     }
-
-    emit q->announceThread(at);
+    emitAnnounceThread(at);
 }
 
-void Parser::Private::parseErrorCounts()
+void ParserThread::parseErrorCounts()
 {
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        if (reader.isStartElement()) {
-            if (reader.name() == QLatin1String("pair")) {
+        if (m_reader.isStartElement()) {
+            if (m_reader.name() == QLatin1String("pair")) {
                 qint64 unique = 0;
                 qint64 count = 0;
                 while (notAtEnd()) {
                     blockingReadNext();
-                    if (reader.isEndElement())
+                    if (m_reader.isEndElement())
                         break;
-                    if (reader.isStartElement()) {
-                        const auto name = reader.name();
+                    if (m_reader.isStartElement()) {
+                        const auto name = m_reader.name();
                         if (name == QLatin1String("unique"))
                             unique = parseHex(blockingReadElementText(), "errorcounts/pair/unique");
                         else if (name == QLatin1String("count"))
                             count = parseInt64(blockingReadElementText(), "errorcounts/pair/count");
-                        else if (reader.isStartElement())
-                            reader.skipCurrentElement();
+                        else if (m_reader.isStartElement())
+                            m_reader.skipCurrentElement();
                     }
                 }
-                emit q->errorCount(unique, count);
-            } else if (reader.isStartElement())
-                reader.skipCurrentElement();
+                emitErrorCount(unique, count);
+            } else if (m_reader.isStartElement())
+                m_reader.skipCurrentElement();
         }
     }
 }
 
-
-void Parser::Private::parseSuppressionCounts()
+void ParserThread::parseSuppressionCounts()
 {
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        if (reader.isStartElement()) {
-            if (reader.name() == QLatin1String("pair")) {
+        if (m_reader.isStartElement()) {
+            if (m_reader.name() == QLatin1String("pair")) {
                 QString pairName;
                 qint64 count = 0;
                 while (notAtEnd()) {
                     blockingReadNext();
-                    if (reader.isEndElement())
+                    if (m_reader.isEndElement())
                         break;
-                    if (reader.isStartElement()) {
-                        const auto name = reader.name();
+                    if (m_reader.isStartElement()) {
+                        const auto name = m_reader.name();
                         if (name == QLatin1String("name"))
                             pairName = blockingReadElementText();
                         else if (name == QLatin1String("count"))
                             count = parseInt64(blockingReadElementText(), "suppcounts/pair/count");
-                        else if (reader.isStartElement())
-                            reader.skipCurrentElement();
+                        else if (m_reader.isStartElement())
+                            m_reader.skipCurrentElement();
                     }
                 }
-                emit q->suppressionCount(pairName, count);
-            } else if (reader.isStartElement())
-                reader.skipCurrentElement();
+                emitSuppressionCount(pairName, count);
+            } else if (m_reader.isStartElement())
+                m_reader.skipCurrentElement();
         }
     }
 }
 
-void Parser::Private::parseStatus()
+void ParserThread::parseStatus()
 {
     Status s;
-
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        if (reader.isStartElement()) {
-            const auto name = reader.name();
+        if (m_reader.isStartElement()) {
+            const auto name = m_reader.name();
             if (name == QLatin1String("state"))
                 s.setState(parseState(blockingReadElementText()));
             else if (name == QLatin1String("time"))
                 s.setTime(blockingReadElementText());
-            else if (reader.isStartElement())
-                reader.skipCurrentElement();
+            else if (m_reader.isStartElement())
+                m_reader.skipCurrentElement();
         }
     }
-
-    emit q->status(s);
+    emitStatus(s);
 }
 
-QVector<Frame> Parser::Private::parseStack()
+QList<Frame> ParserThread::parseStack()
 {
-    QVector<Frame> frames;
+    QList<Frame> frames;
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        if (reader.isStartElement()) {
-            if (reader.name() == QLatin1String("frame"))
+        if (m_reader.isStartElement()) {
+            if (m_reader.name() == QLatin1String("frame"))
                 frames.append(parseFrame());
         }
     }
-
     return frames;
 }
 
-SuppressionFrame Parser::Private::parseSuppressionFrame()
+SuppressionFrame ParserThread::parseSuppressionFrame()
 {
     SuppressionFrame frame;
-
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        if (reader.isStartElement()) {
-            const auto name = reader.name();
+        if (m_reader.isStartElement()) {
+            const auto name = m_reader.name();
             if (name == QLatin1String("obj"))
                 frame.setObject(blockingReadElementText());
             else if (name == QLatin1String("fun"))
                 frame.setFunction( blockingReadElementText());
-            else if (reader.isStartElement())
-                reader.skipCurrentElement();
+            else if (m_reader.isStartElement())
+                m_reader.skipCurrentElement();
         }
     }
-
     return frame;
 }
 
-Suppression Parser::Private::parseSuppression()
+Suppression ParserThread::parseSuppression()
 {
     Suppression supp;
     SuppressionFrames frames;
     while (notAtEnd()) {
         blockingReadNext();
-        if (reader.isEndElement())
+        if (m_reader.isEndElement())
             break;
-        if (reader.isStartElement()) {
-            const auto name = reader.name();
+        if (m_reader.isStartElement()) {
+            const auto name = m_reader.name();
             if (name == QLatin1String("sname"))
                 supp.setName(blockingReadElementText());
             else if (name == QLatin1String("skind"))
@@ -656,20 +639,16 @@ Suppression Parser::Private::parseSuppression()
                 frames.push_back(parseSuppressionFrame());
         }
     }
-
     supp.setFrames(frames);
     return supp;
 }
 
-void Parser::Private::parse(QIODevice *device)
+void ParserThread::start()
 {
-    QTC_ASSERT(device, return);
-    reader.setDevice(device);
-
     try {
         while (notAtEnd()) {
             blockingReadNext();
-            const auto name = reader.name();
+            const auto name = m_reader.name();
             if (name == QLatin1String("error"))
                 parseError();
             else if (name == QLatin1String("announcethread"))
@@ -686,33 +665,137 @@ void Parser::Private::parse(QIODevice *device)
                 checkTool(blockingReadElementText());
         }
     } catch (const ParserException &e) {
-        reportInternalError(e.message());
+        emitInternalError(e.message);
     } catch (...) {
-        reportInternalError(Tr::tr("Unexpected exception caught during parsing."));
+        emitInternalError(Tr::tr("Unexpected exception caught during parsing."));
     }
-    emit q->finished();
 }
+
+class ParserPrivate
+{
+public:
+    ParserPrivate(Parser *parser)
+        : q(parser)
+    {}
+
+    ~ParserPrivate()
+    {
+        if (!m_watcher)
+            return;
+        m_thread->cancel();
+        ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_watcher->future());
+    }
+
+    void start()
+    {
+        QTC_ASSERT(!m_watcher, return);
+        QTC_ASSERT(m_socket || !m_data.isEmpty(), return);
+
+        m_errorString = {};
+        m_thread.reset(new ParserThread);
+        m_watcher.reset(new QFutureWatcher<OutputData>);
+        QObject::connect(m_watcher.get(), &QFutureWatcherBase::resultReadyAt, q, [this](int index) {
+            const OutputData data = m_watcher->resultAt(index);
+            if (data.m_status)
+                emit q->status(*data.m_status);
+            if (data.m_error)
+                emit q->error(*data.m_error);
+            if (data.m_errorCount)
+                emit q->errorCount(data.m_errorCount->first, data.m_errorCount->second);
+            if (data.m_suppressionCount)
+                emit q->suppressionCount(data.m_suppressionCount->first, data.m_suppressionCount->second);
+            if (data.m_announceThread)
+                emit q->announceThread(*data.m_announceThread);
+            if (data.m_internalError)
+                m_errorString = data.m_internalError;
+        });
+        QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, q, [this] {
+            emit q->done(!m_errorString, *m_errorString);
+            m_watcher.release()->deleteLater();
+            m_thread.reset();
+            m_socket.reset();
+        });
+        if (m_socket) {
+            QObject::connect(m_socket.get(), &QIODevice::readyRead, q, [this] {
+                if (m_thread)
+                    m_thread->addData(m_socket->readAll());
+            });
+            QObject::connect(m_socket.get(), &QAbstractSocket::disconnected, q, [this] {
+                if (m_thread)
+                    m_thread->finalize();
+            });
+            m_thread->addData(m_socket->readAll());
+        } else {
+            m_thread->addData(m_data);
+            m_thread->finalize();
+        }
+        auto parse = [](QPromise<OutputData> &promise, const std::shared_ptr<ParserThread> &thread) {
+            thread->run(promise);
+        };
+        m_watcher->setFuture(Utils::asyncRun(parse, m_thread));
+    }
+
+    Parser *q = nullptr;
+
+    QByteArray m_data;
+    std::unique_ptr<QAbstractSocket> m_socket;
+    std::unique_ptr<QFutureWatcher<OutputData>> m_watcher;
+    std::shared_ptr<ParserThread> m_thread;
+    std::optional<QString> m_errorString;
+};
 
 Parser::Parser(QObject *parent)
     : QObject(parent)
-    , d(new Private(this))
-{
-}
+    , d(new ParserPrivate(this))
+{}
 
-Parser::~Parser()
-{
-    delete d;
-}
+Parser::~Parser() = default;
 
 QString Parser::errorString() const
 {
-    return d->errorString;
+    return d->m_errorString.value_or(QString());
 }
 
-void Parser::parse(QIODevice *device)
+void Parser::setSocket(QAbstractSocket *socket)
 {
-    d->parse(device);
+    QTC_ASSERT(socket, return);
+    QTC_ASSERT(socket->isOpen(), return);
+    QTC_ASSERT(!isRunning(), return);
+    socket->setParent(nullptr); // Don't delete it together with parent QTcpServer anymore.
+    d->m_socket.reset(socket);
 }
 
-} // namespace XmlParser
-} // namespace Valgrind
+void Parser::setData(const QByteArray &data)
+{
+    QTC_ASSERT(!isRunning(), return);
+    d->m_data = data;
+}
+
+void Parser::start()
+{
+    d->start();
+}
+
+bool Parser::isRunning() const
+{
+    return d->m_watcher.get();
+}
+
+bool Parser::runBlocking()
+{
+    bool ok = false;
+    QEventLoop loop;
+
+    const auto finalize = [&loop, &ok](bool success) {
+        ok = success;
+        // Refer to the QObject::deleteLater() docs.
+        QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
+    };
+
+    connect(this, &Parser::done, &loop, finalize);
+    QTimer::singleShot(0, this, &Parser::start);
+    loop.exec(QEventLoop::ExcludeUserInputEvents);
+    return ok;
+}
+
+} // namespace Valgrind::XmlProtocol

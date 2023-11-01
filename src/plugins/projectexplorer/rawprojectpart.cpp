@@ -6,7 +6,7 @@
 #include "abi.h"
 #include "buildconfiguration.h"
 #include "buildsystem.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "project.h"
 #include "target.h"
 

@@ -64,6 +64,16 @@ Position Position::fromCursor(const QTextCursor &c)
     return c.isNull() ? Position{} : Position{c.blockNumber() + 1, c.positionInBlock()};
 }
 
+int Position::toPositionInDocument(const QTextDocument *document) const
+{
+    QTC_ASSERT(document, return -1);
+    const QTextBlock block = document->findBlockByNumber(line - 1);
+    if (block.isValid())
+        return block.position() + qMin(column, block.length() - 1);
+
+    return -1;
+}
+
 int Range::length(const QString &text) const
 {
     if (end.line < begin.line)
@@ -124,11 +134,10 @@ QString textAt(QTextCursor tc, int pos, int length)
     if (pos < 0)
         pos = 0;
     tc.movePosition(QTextCursor::End);
-    if (pos + length > tc.position())
-        length = tc.position() - pos;
+    const int end = std::min(pos + length, tc.position());
 
     tc.setPosition(pos);
-    tc.setPosition(pos + length, QTextCursor::KeepAnchor);
+    tc.setPosition(end, QTextCursor::KeepAnchor);
 
     // selectedText() returns U+2029 (PARAGRAPH SEPARATOR) instead of newline
     return tc.selectedText().replace(QChar::ParagraphSeparator, QLatin1Char('\n'));
@@ -139,10 +148,10 @@ QTextCursor selectAt(QTextCursor textCursor, int line, int column, uint length)
     if (line < 1)
         line = 1;
 
-    if (column < 1)
-        column = 1;
+    if (column < 0)
+        column = 0;
 
-    const int anchorPosition = positionInText(textCursor.document(), line, column);
+    const int anchorPosition = positionInText(textCursor.document(), line, column + 1);
     textCursor.setPosition(anchorPosition);
     textCursor.setPosition(anchorPosition + int(length), QTextCursor::KeepAnchor);
 
@@ -250,26 +259,6 @@ bool utf8AdvanceCodePoint(const char *&current)
     }
 
     return true;
-}
-
-void applyReplacements(QTextDocument *doc, const Replacements &replacements)
-{
-    if (replacements.empty())
-        return;
-
-    int fullOffsetShift = 0;
-    QTextCursor editCursor(doc);
-    editCursor.beginEditBlock();
-    for (const Text::Replacement &replacement : replacements) {
-        editCursor.setPosition(replacement.offset + fullOffsetShift);
-        editCursor.movePosition(QTextCursor::NextCharacter,
-                                QTextCursor::KeepAnchor,
-                                replacement.length);
-        editCursor.removeSelectedText();
-        editCursor.insertText(replacement.text);
-        fullOffsetShift += replacement.text.length() - replacement.length;
-    }
-    editCursor.endEditBlock();
 }
 
 QDebug &operator<<(QDebug &stream, const Position &pos)

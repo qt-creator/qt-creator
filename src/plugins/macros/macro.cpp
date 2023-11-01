@@ -4,7 +4,6 @@
 #include "macro.h"
 #include "macroevent.h"
 
-#include <app/app_version.h>
 #include <utils/fileutils.h>
 
 #include <QFileInfo>
@@ -35,8 +34,8 @@ public:
     QList<MacroEvent> events;
 };
 
-Macro::MacroPrivate::MacroPrivate() :
-    version(QLatin1String(Core::Constants::IDE_VERSION_LONG))
+Macro::MacroPrivate::MacroPrivate()
+    : version(QCoreApplication::applicationVersion())
 {
 }
 

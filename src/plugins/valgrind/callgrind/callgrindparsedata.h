@@ -3,14 +3,13 @@
 
 #pragma once
 
-#include <QVector>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class Function;
 
@@ -53,7 +52,7 @@ public:
      *
      * @return All functions that where reported in the data file.
      */
-    QVector<const Function *> functions(bool detectCycles = false) const;
+    QList<const Function *> functions(bool detectCycles = false) const;
     /// NOTE: The @c ParseData will take ownership.
     void addFunction(const Function *function);
 
@@ -110,5 +109,4 @@ private:
     Private *d;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

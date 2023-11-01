@@ -113,10 +113,7 @@ TextEditorWidget *RefactoringChanges::openEditor(const FilePath &filePath,
     }
     IEditor *editor = EditorManager::openEditorAt(Link{filePath, line, column}, Id(), flags);
 
-    if (editor)
-        return TextEditorWidget::fromEditor(editor);
-    else
-        return nullptr;
+    return TextEditorWidget::fromEditor(editor);
 }
 
 RefactoringFilePtr RefactoringChanges::file(TextEditorWidget *editor)
@@ -340,12 +337,15 @@ bool RefactoringFile::apply()
                     RefactoringChanges::rangesToSelections(doc, m_reindentRanges);
             m_reindentRanges.clear();
 
-            // apply changes and reindent
+            // apply changes
+            setupFormattingRanges(m_changes.operationList());
             m_changes.apply(&c);
             m_changes.clear();
 
+            // Do indentation and formatting.
             indentOrReindent(indentSelections, Indent);
             indentOrReindent(reindentSelections, Reindent);
+            doFormatting();
 
             c.endEditBlock();
 
@@ -388,6 +388,104 @@ void RefactoringFile::indentOrReindent(const RefactoringSelections &ranges,
             m_data->indentSelection(selection, m_filePath, document);
         else
             m_data->reindentSelection(selection, m_filePath, document);
+    }
+}
+
+void RefactoringFile::setupFormattingRanges(const QList<ChangeSet::EditOp> &replaceList)
+{
+    if (!m_editor || !m_formattingEnabled)
+        return;
+
+    for (const ChangeSet::EditOp &op : replaceList) {
+        QTextCursor cursor = m_editor->textCursor();
+        switch (op.type) {
+        case ChangeSet::EditOp::Unset:
+            break;
+        case ChangeSet::EditOp::Replace:
+        case ChangeSet::EditOp::Insert:
+        case ChangeSet::EditOp::Remove:
+            cursor.setKeepPositionOnInsert(true);
+            cursor.setPosition(op.pos1 + op.length1);
+            cursor.setPosition(op.pos1, QTextCursor::KeepAnchor);
+            m_formattingCursors << cursor;
+            break;
+        case ChangeSet::EditOp::Flip:
+        case ChangeSet::EditOp::Move:
+            cursor.setKeepPositionOnInsert(true);
+            cursor.setPosition(op.pos1 + op.length1);
+            cursor.setPosition(op.pos1, QTextCursor::KeepAnchor);
+            m_formattingCursors << cursor;
+            cursor.setPosition(op.pos2 + op.length2);
+            cursor.setPosition(op.pos2, QTextCursor::KeepAnchor);
+            m_formattingCursors << cursor;
+            break;
+        case ChangeSet::EditOp::Copy:
+            cursor.setKeepPositionOnInsert(true);
+            cursor.setPosition(op.pos2, QTextCursor::KeepAnchor);
+            m_formattingCursors << cursor;
+            break;
+        }
+    }
+}
+
+void RefactoringFile::doFormatting()
+{
+    if (m_formattingCursors.empty() || !m_editor)
+        return;
+
+    RangesInLines formattingRanges;
+
+    QTextCursor cursor = m_editor->textCursor();
+    auto lineForPosition = [&](int pos) {
+        cursor.setPosition(pos);
+        return cursor.blockNumber() + 1;
+    };
+    QList<int> affectedLines;
+    for (const QTextCursor &formattingCursor : std::as_const(m_formattingCursors)) {
+        int startLine = lineForPosition(formattingCursor.selectionStart());
+        int endLine = lineForPosition(formattingCursor.selectionEnd());
+        for (int line = startLine; line <= endLine; ++line) {
+            const auto it = std::lower_bound(affectedLines.begin(), affectedLines.end(), line);
+            if (it == affectedLines.end() || *it > line)
+                affectedLines.insert(it, line);
+        }
+    }
+
+    for (int line : std::as_const(affectedLines)) {
+        if (!formattingRanges.empty() && formattingRanges.back().endLine == line - 1)
+            formattingRanges.back().endLine = line;
+        else
+            formattingRanges.push_back({line, line});
+    }
+
+    static const QString clangFormatLineRemovalBlocker("// QTC_TEMP");
+    for (const RangeInLines &r : std::as_const(formattingRanges)) {
+        QTextBlock b = m_editor->document()->findBlockByNumber(r.startLine - 1);
+        while (true) {
+            QTC_ASSERT(b.isValid(), break);
+            if (b.text().simplified().isEmpty())
+                QTextCursor(b).insertText(clangFormatLineRemovalBlocker);
+            if (b.blockNumber() == r.endLine - 1)
+                break;
+            b = b.next();
+        }
+    }
+
+    // TODO: The proper solution seems to be to call formatOrIndent() here (and not
+    //       use hardcoded indent regions anymore), but that would require intrusive changes
+    //       to the C++ quickfixes and tests, where we rely on the built-in indenter behavior.
+    m_editor->textDocument()->indenter()->format(formattingRanges,
+                                                 Indenter::FormattingMode::Settings);
+
+    for (QTextBlock b = m_editor->document()->findBlockByNumber(
+             formattingRanges.front().startLine - 1); b.isValid(); b = b.next()) {
+        QString blockText = b.text();
+        if (blockText.remove(clangFormatLineRemovalBlocker) == b.text())
+            continue;
+        QTextCursor c(b);
+        c.select(QTextCursor::LineUnderCursor);
+        c.removeSelectedText();
+        c.insertText(blockText);
     }
 }
 

@@ -40,7 +40,7 @@ int CertificatesModel::rowCount(const QModelIndex &parent) const
 QVariant CertificatesModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::ToolTipRole))
-        return QVariant();
+        return {};
     if (role == Qt::DisplayRole)
         return m_certs[index.row()].first;
     return m_certs[index.row()].second;

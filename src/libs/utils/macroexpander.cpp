@@ -88,10 +88,10 @@ public:
 
     QHash<QByteArray, MacroExpander::StringFunction> m_map;
     QHash<QByteArray, MacroExpander::PrefixFunction> m_prefixMap;
-    QVector<MacroExpander::ResolverFunction> m_extraResolvers;
+    QList<MacroExpander::ResolverFunction> m_extraResolvers;
     QMap<QByteArray, QString> m_descriptions;
     QString m_displayName;
-    QVector<MacroExpanderProvider> m_subProviders;
+    QList<MacroExpanderProvider> m_subProviders;
     bool m_accumulating = false;
 
     bool m_aborted = false;

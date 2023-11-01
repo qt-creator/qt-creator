@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/icontext.h>
+#include "../icontext.h"
 
 #include <QMap>
 #include <QHash>
@@ -43,11 +43,14 @@ public:
 
     static void readUserSettings(Utils::Id id, Command *cmd);
 
+    void scheduleContainerUpdate(ActionContainerPrivate *actionContainer);
+    void updateContainer();
     void containerDestroyed(QObject *sender);
 
     IdCmdMap m_idCmdMap;
 
     IdContainerMap m_idContainerMap;
+    QSet<ActionContainerPrivate *> m_scheduledContainerUpdates;
 
     Context m_context;
 

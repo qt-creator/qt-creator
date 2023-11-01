@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include "../dialogs/ioptionspage.h"
 
 namespace Core::Internal {
 

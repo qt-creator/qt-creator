@@ -38,5 +38,23 @@ int main(int argc, char *argv[])
         },
     }.emerge()->show();
 
+    Group {
+        windowTitle("Group without parent layout"),
+        title("This group was emerged without parent layout"),
+        Column {
+            Splitter {
+                new QTextEdit("First Widget"),
+                new QTextEdit("Second Widget"),
+            },
+        }
+    }.emerge()->show();
+
+
+    Splitter {
+        windowTitle("Splitter with sub layouts"),
+        Column {"First Widget"},
+        Row {"Second Widget"},
+    }.emerge()->show();
+
     return app.exec();
 }

@@ -8,6 +8,9 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/store.h>
+
+using namespace Utils;
 
 namespace ClangTools {
 namespace Internal {
@@ -97,10 +100,10 @@ void ClangToolsProjectSettings::removeAllSuppressedDiagnostics()
     emit suppressedDiagnosticsChanged();
 }
 
-static QVariantMap convertToMapFromVersionBefore410(ProjectExplorer::Project *p)
+static Store convertToMapFromVersionBefore410(ProjectExplorer::Project *p)
 {
     // These keys haven't changed.
-    const QStringList keys = {
+    const Key keys[] = {
         SETTINGS_KEY_SELECTED_DIRS,
         SETTINGS_KEY_SELECTED_FILES,
         SETTINGS_KEY_SUPPRESSED_DIAGS,
@@ -108,11 +111,11 @@ static QVariantMap convertToMapFromVersionBefore410(ProjectExplorer::Project *p)
         "ClangTools.BuildBeforeAnalysis",
     };
 
-    QVariantMap map;
-    for (const QString &key : keys)
+    Store map;
+    for (const Key &key : keys)
         map.insert(key, p->namedSettings(key));
 
-    map.insert(SETTINGS_PREFIX + QString(diagnosticConfigIdKey),
+    map.insert(SETTINGS_PREFIX + Key(diagnosticConfigIdKey),
                p->namedSettings("ClangTools.DiagnosticConfig"));
 
     return map;
@@ -121,7 +124,7 @@ static QVariantMap convertToMapFromVersionBefore410(ProjectExplorer::Project *p)
 void ClangToolsProjectSettings::load()
 {
     // Load map
-    QVariantMap map = m_project->namedSettings(SETTINGS_KEY_MAIN).toMap();
+    Store map = storeFromVariant(m_project->namedSettings(SETTINGS_KEY_MAIN));
 
     bool write = false;
     if (map.isEmpty()) {
@@ -145,7 +148,7 @@ void ClangToolsProjectSettings::load()
 
     const QVariantList list = map.value(SETTINGS_KEY_SUPPRESSED_DIAGS).toList();
     for (const QVariant &v : list) {
-        const QVariantMap diag = v.toMap();
+        const Store diag = storeFromVariant(v);
         const QString fp = diag.value(SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH).toString();
         if (fp.isEmpty())
             continue;
@@ -172,7 +175,7 @@ void ClangToolsProjectSettings::load()
 
 void ClangToolsProjectSettings::store()
 {
-    QVariantMap map;
+    Store map;
     map.insert(SETTINGS_KEY_USE_GLOBAL_SETTINGS, m_useGlobalSettings);
 
     const QStringList dirs = Utils::transform<QList>(m_selectedDirs, &Utils::FilePath::toString);
@@ -183,23 +186,23 @@ void ClangToolsProjectSettings::store()
 
     QVariantList list;
     for (const SuppressedDiagnostic &diag : std::as_const(m_suppressedDiagnostics)) {
-        QVariantMap diagMap;
+        Store diagMap;
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_FILEPATH, diag.filePath.toString());
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_MESSAGE, diag.description);
         diagMap.insert(SETTINGS_KEY_SUPPRESSED_DIAGS_UNIQIFIER, diag.uniquifier);
-        list << diagMap;
+        list << variantFromStore(diagMap);
     }
     map.insert(SETTINGS_KEY_SUPPRESSED_DIAGS, list);
 
     m_runSettings.toMap(map, SETTINGS_PREFIX);
 
-    m_project->setNamedSettings(SETTINGS_KEY_MAIN, map);
+    m_project->setNamedSettings(SETTINGS_KEY_MAIN, variantFromStore(map));
 }
 
 ClangToolsProjectSettings::ClangToolsProjectSettingsPtr
     ClangToolsProjectSettings::getSettings(ProjectExplorer::Project *project)
 {
-    const QString key = "ClangToolsProjectSettings";
+    const Key key = "ClangToolsProjectSettings";
     QVariant v = project->extraData(key);
     if (v.isNull()) {
         v = QVariant::fromValue(

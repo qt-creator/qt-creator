@@ -33,11 +33,12 @@ public:
 
     virtual QWidget *outputWidget(QWidget *parent) = 0;
     virtual QList<QWidget *> toolBarWidgets() const;
-    virtual QString displayName() const = 0;
+    Utils::Id id() const;
+    QString displayName() const;
     virtual const QList<OutputWindow *> outputWindows() const { return {}; }
     virtual void ensureWindowVisible(OutputWindow *) { }
 
-    virtual int priorityInStatusBar() const = 0;
+    int priorityInStatusBar() const;
 
     virtual void clearContents() = 0;
     virtual void visibilityChanged(bool visible);
@@ -81,7 +82,11 @@ signals:
     void fontChanged(const QFont &font);
 
 protected:
-    void setupFilterUi(const QString &historyKey);
+    void setId(const Utils::Id &id);
+    void setDisplayName(const QString &name);
+    void setPriorityInStatusBar(int priority);
+
+    void setupFilterUi(const Utils::Key &historyKey);
     QString filterText() const;
     bool filterUsesRegexp() const { return m_filterRegexp; }
     bool filterIsInverted() const { return m_invertFilter; }
@@ -104,6 +109,9 @@ private:
     Utils::Id filterCaseSensitivityActionId() const;
     Utils::Id filterInvertedActionId() const;
 
+    Utils::Id m_id;
+    QString m_displayName;
+    int m_priority = -1;
     Core::CommandButton * const m_zoomInButton;
     Core::CommandButton * const m_zoomOutButton;
     QAction *m_filterActionRegexp = nullptr;

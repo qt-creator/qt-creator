@@ -883,20 +883,20 @@
         <translation>Zarządzanie sesjami</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Nowa sesja</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Nowa sesja...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>Z&amp;mień nazwę</translation>
+        <source>&amp;Rename...</source>
+        <translation>Z&amp;mień nazwę...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>S&amp;klonuj</translation>
+        <source>C&amp;lone...</source>
+        <translation>S&amp;klonuj...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Usuń</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Usuń...</translation>
     </message>
     <message>
         <source>&amp;Open</source>
@@ -1301,9 +1301,6 @@
         <source>Zoom:</source>
         <translation>Powiększenie:</translation>
     </message>
-</context>
-<context>
-    <name>QtC::Bookmarks</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zakładkę</translation>
@@ -1872,7 +1869,7 @@ Przyczyna: %3</translation>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Move Up</source>
         <translation>Przenieś do góry</translation>
@@ -9431,7 +9428,7 @@ Nie zostanie zastosowane do białych znaków w komentarzach i ciągach znakowych
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Pokaż zakładkę</translation>
@@ -9774,7 +9771,7 @@ Możesz odłożyć zmiany lub je porzucić.</translation>
         <translation>Pytaj o listy uwierzytelniające</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>Na przykład: &quot;https://[użytkownik[:hasło]@]host[:port]/[ścieżka]&quot;.</translation>
     </message>
 </context>
@@ -13333,7 +13330,7 @@ This flag will allow push to proceed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>Na przykład: &quot;https://[użytkownik[:hasło]@]host[:port]/[ścieżka]&quot;.</translation>
     </message>
     <message>
@@ -19039,10 +19036,6 @@ Ustala, jak klawisz &quot;Backspace&quot; reaguje na wcięcia.
         <translation>Modyfikuj...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
-    </message>
-    <message>
         <source>Export...</source>
         <translation>Eksportuj...</translation>
     </message>
@@ -20027,7 +20020,7 @@ Wersje Qt można dodać w: Opcje &gt; Budowanie i uruchamianie &gt; Wersje Qt.</
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -23455,7 +23448,7 @@ Więcej informacji w dokumentacji &quot;Checking Code Syntax&quot;.</translation
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Note text:</source>
         <translation>Tekst notatki:</translation>
@@ -28630,8 +28623,8 @@ Do you want to check them out now?</source>
         <translation>Nie można uruchomić &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Przekroczono limit czasu oczekiwania na odpowiedź od uruchomionego &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Przekroczono limit czasu oczekiwania na odpowiedź od uruchomionego &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>

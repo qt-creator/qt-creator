@@ -71,7 +71,7 @@ public:
     bool isBackwardAvailable() const override;
     void addBackHistoryItems(QMenu *backMenu) override;
     void addForwardHistoryItems(QMenu *forwardMenu) override;
-    bool findText(const QString &text, Core::FindFlags flags, bool incremental, bool fromSearch, bool *wrapped) override;
+    bool findText(const QString &text, Utils::FindFlags flags, bool incremental, bool fromSearch, bool *wrapped) override;
 
     WebEngineHelpPage *page() const;
 

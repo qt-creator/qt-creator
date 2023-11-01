@@ -32,11 +32,11 @@ PullOrPushDialog::PullOrPushDialog(Mode mode, QWidget *parent)
     m_localPathChooser->setEnabled(false);
 
     auto urlButton = new QRadioButton(Tr::tr("Specify URL:"));
-    urlButton->setToolTip(Tr::tr("For example: 'https://[user[:pass]@]host[:port]/[path]'."));
+    urlButton->setToolTip(Tr::tr("For example: \"https://[user[:pass]@]host[:port]/[path]\"."));
 
     m_urlLineEdit = new QLineEdit;
     m_urlLineEdit->setEnabled(false);
-    m_urlLineEdit->setToolTip(Tr::tr("For example: 'https://[user[:pass]@]host[:port]/[path]'."));
+    m_urlLineEdit->setToolTip(Tr::tr("For example: \"https://[user[:pass]@]host[:port]/[path]\"."));
 
     m_rememberCheckBox = new QCheckBox(Tr::tr("Remember specified location as default"));
     m_rememberCheckBox->setEnabled(false);
@@ -112,7 +112,7 @@ PullOrPushDialog::~PullOrPushDialog() = default;
 QString PullOrPushDialog::branchLocation() const
 {
     if (m_defaultButton->isChecked())
-        return QString();
+        return {};
     if (m_localButton->isChecked())
         return m_localPathChooser->filePath().toString();
     return m_urlLineEdit->text();

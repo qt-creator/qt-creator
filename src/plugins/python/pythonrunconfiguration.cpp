@@ -23,7 +23,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -119,55 +119,68 @@ private:
 
 ////////////////////////////////////////////////////////////////
 
-class PythonRunConfigurationPrivate
+class PythonInterpreterAspectPrivate : public QObject
 {
 public:
-    PythonRunConfigurationPrivate(PythonRunConfiguration *rc)
-        : q(rc)
-    {}
-    ~PythonRunConfigurationPrivate()
+    PythonInterpreterAspectPrivate(PythonInterpreterAspect *parent, RunConfiguration *rc)
+        : q(parent), rc(rc)
     {
-        qDeleteAll(m_extraCompilers);
+        connect(q, &InterpreterAspect::changed,
+                this, &PythonInterpreterAspectPrivate::currentInterpreterChanged);
+
+        connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
+                [this](const FilePath &python) {
+                    if (python == q->currentInterpreter().command)
+                        checkForPySide(python);
+                }
+        );
+
+        connect(rc->target(), &Target::buildSystemUpdated,
+                this, &PythonInterpreterAspectPrivate::updateExtraCompilers);
     }
 
-    void checkForPySide(const Utils::FilePath &python);
-    void checkForPySide(const Utils::FilePath &python, const QString &pySidePackageName);
+    ~PythonInterpreterAspectPrivate() { qDeleteAll(m_extraCompilers); }
+
+    void checkForPySide(const FilePath &python);
+    void checkForPySide(const FilePath &python, const QString &pySidePackageName);
     void handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
-                                 const Utils::FilePath &python,
+                                 const FilePath &python,
                                  const QString &requestedPackageName);
     void updateExtraCompilers();
-    Utils::FilePath m_pySideUicPath;
+    void currentInterpreterChanged();
 
-    PythonRunConfiguration *q;
+    struct PySideTools
+    {
+        FilePath pySideProjectPath;
+        FilePath pySideUicPath;
+    };
+    void updateTools(const PySideTools &tools);
+
+    FilePath m_pySideUicPath;
+
+    PythonInterpreterAspect *q;
+    RunConfiguration *rc;
     QList<PySideUicExtraCompiler *> m_extraCompilers;
-    QFutureWatcher<PipPackageInfo> m_watcher;
+    QFutureWatcher<PipPackageInfo> *m_watcher = nullptr;
     QMetaObject::Connection m_watcherConnection;
-
 };
 
-PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
-    : RunConfiguration(target, id)
-    , d(new PythonRunConfigurationPrivate(this))
+PythonInterpreterAspect::PythonInterpreterAspect(AspectContainer *container, RunConfiguration *rc)
+    : InterpreterAspect(container), d(new PythonInterpreterAspectPrivate(this, rc))
 {
-    auto interpreterAspect = addAspect<InterpreterAspect>();
-    interpreterAspect->setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
-    interpreterAspect->setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
+    setSettingsKey("PythonEditor.RunConfiguation.Interpreter");
+    setSettingsDialogId(Constants::C_PYTHONOPTIONS_PAGE_ID);
 
-    connect(interpreterAspect, &InterpreterAspect::changed,
-            this, &PythonRunConfiguration::currentInterpreterChanged);
-
-    connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
-            interpreterAspect, &InterpreterAspect::updateInterpreters);
+    updateInterpreters(PythonSettings::interpreters());
 
     const QList<Interpreter> interpreters = PythonSettings::detectPythonVenvs(
-        project()->projectDirectory());
-    interpreterAspect->updateInterpreters(PythonSettings::interpreters());
+        rc->project()->projectDirectory());
     Interpreter defaultInterpreter = interpreters.isEmpty() ? PythonSettings::defaultInterpreter()
                                                             : interpreters.first();
     if (!defaultInterpreter.command.isExecutableFile())
         defaultInterpreter = PythonSettings::interpreters().value(0);
     if (defaultInterpreter.command.isExecutableFile()) {
-        const IDeviceConstPtr device = DeviceKitAspect::device(target->kit());
+        const IDeviceConstPtr device = DeviceKitAspect::device(rc->kit());
         if (device && !device->handlesFile(defaultInterpreter.command)) {
             defaultInterpreter = Utils::findOr(PythonSettings::interpreters(),
                                                defaultInterpreter,
@@ -176,104 +189,53 @@ PythonRunConfiguration::PythonRunConfiguration(Target *target, Id id)
                                                });
         }
     }
-    interpreterAspect->setDefaultInterpreter(defaultInterpreter);
+    setDefaultInterpreter(defaultInterpreter);
 
-    auto bufferedAspect = addAspect<BoolAspect>();
-    bufferedAspect->setSettingsKey("PythonEditor.RunConfiguation.Buffered");
-    bufferedAspect->setLabel(Tr::tr("Buffered output"), BoolAspect::LabelPlacement::AtCheckBox);
-    bufferedAspect->setToolTip(Tr::tr("Enabling improves output performance, "
-                                  "but results in delayed output."));
-
-    auto scriptAspect = addAspect<MainScriptAspect>();
-    scriptAspect->setSettingsKey("PythonEditor.RunConfiguation.Script");
-    scriptAspect->setLabelText(Tr::tr("Script:"));
-    scriptAspect->setDisplayStyle(StringAspect::LabelDisplay);
-
-    auto envAspect = addAspect<EnvironmentAspect>();
-    envAspect->setSupportForBuildEnvironment(target);
-
-    auto argumentsAspect = addAspect<ArgumentsAspect>(macroExpander());
-
-    addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
-    addAspect<TerminalAspect>();
-
-    setCommandLineGetter([bufferedAspect, interpreterAspect, argumentsAspect, scriptAspect] {
-        CommandLine cmd{interpreterAspect->currentInterpreter().command};
-        if (!bufferedAspect->value())
-            cmd.addArg("-u");
-        cmd.addArg(scriptAspect->filePath().fileName());
-        cmd.addArgs(argumentsAspect->arguments(), CommandLine::Raw);
-        return cmd;
-    });
-
-    setUpdater([this, scriptAspect] {
-        const BuildTargetInfo bti = buildTargetInfo();
-        const QString script = bti.targetFilePath.toUserOutput();
-        setDefaultDisplayName(Tr::tr("Run %1").arg(script));
-        scriptAspect->setValue(script);
-        aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
-    });
-
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-    connect(target, &Target::buildSystemUpdated, this, [this]() { d->updateExtraCompilers(); });
-    currentInterpreterChanged();
-
-    setRunnableModifier([](Runnable &r) {
-        r.workingDirectory = r.command.executable().withNewMappedPath(r.workingDirectory); // FIXME: Needed?
-    });
-
-    connect(PySideInstaller::instance(), &PySideInstaller::pySideInstalled, this,
-            [this](const FilePath &python) {
-                if (python == aspect<InterpreterAspect>()->currentInterpreter().command)
-                    d->checkForPySide(python);
-            });
+    connect(PythonSettings::instance(), &PythonSettings::interpretersChanged,
+            this, &InterpreterAspect::updateInterpreters);
 }
 
-PythonRunConfiguration::~PythonRunConfiguration()
+PythonInterpreterAspect::~PythonInterpreterAspect()
 {
     delete d;
 }
 
-void PythonRunConfigurationPrivate::checkForPySide(const FilePath &python)
+void PythonInterpreterAspectPrivate::checkForPySide(const FilePath &python)
 {
-    checkForPySide(python, "PySide6-Essentials");
+    PySideTools tools;
+    const FilePath dir = python.parentDir();
+    tools.pySideProjectPath = dir.pathAppended("pyside6-project").withExecutableSuffix();
+    tools.pySideUicPath = dir.pathAppended("pyside6-uic").withExecutableSuffix();
+
+    if (tools.pySideProjectPath.isExecutableFile() && tools.pySideUicPath.isExecutableFile())
+        updateTools(tools);
+    else
+        checkForPySide(python, "PySide6-Essentials");
 }
 
-void PythonRunConfigurationPrivate::checkForPySide(const FilePath &python,
-                                                   const QString &pySidePackageName)
+void PythonInterpreterAspectPrivate::checkForPySide(const FilePath &python,
+                                                    const QString &pySidePackageName)
 {
     const PipPackage package(pySidePackageName);
     QObject::disconnect(m_watcherConnection);
-    m_watcherConnection = QObject::connect(&m_watcher, &QFutureWatcherBase::finished, q, [=] {
-        handlePySidePackageInfo(m_watcher.result(), python, pySidePackageName);
+    delete m_watcher;
+    m_watcher = new QFutureWatcher<PipPackageInfo>(this);
+    m_watcherConnection = QObject::connect(m_watcher, &QFutureWatcherBase::finished, q, [=] {
+        handlePySidePackageInfo(m_watcher->result(), python, pySidePackageName);
     });
     const auto future = Pip::instance(python)->info(package);
-    m_watcher.setFuture(future);
+    m_watcher->setFuture(future);
     ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
 }
 
-void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
-                                                            const Utils::FilePath &python,
-                                                            const QString &requestedPackageName)
+void PythonInterpreterAspectPrivate::handlePySidePackageInfo(const PipPackageInfo &pySideInfo,
+                                                             const FilePath &python,
+                                                             const QString &requestedPackageName)
 {
-    struct PythonTools
-    {
-        FilePath pySideProjectPath;
-        FilePath pySideUicPath;
-    };
-
-    BuildStepList *buildSteps = nullptr;
-    if (Target *target = q->target()) {
-        if (auto buildConfiguration = target->activeBuildConfiguration())
-            buildSteps = buildConfiguration->buildSteps();
-    }
-    if (!buildSteps)
-        return;
-
     const auto findPythonTools = [](const FilePaths &files,
                                     const FilePath &location,
-                                    const FilePath &python) -> PythonTools {
-        PythonTools result;
+                                    const FilePath &python) -> PySideTools {
+        PySideTools result;
         const QString pySide6ProjectName
             = OsSpecificAspects::withExecutableSuffix(python.osType(), "pyside6-project");
         const QString pySide6UicName
@@ -294,26 +256,21 @@ void PythonRunConfigurationPrivate::handlePySidePackageInfo(const PipPackageInfo
         return {};
     };
 
-    PythonTools pythonTools = findPythonTools(pySideInfo.files, pySideInfo.location, python);
-    if (!pythonTools.pySideProjectPath.isExecutableFile() && requestedPackageName != "PySide6") {
+    PySideTools tools = findPythonTools(pySideInfo.files, pySideInfo.location, python);
+    if (!tools.pySideProjectPath.isExecutableFile() && requestedPackageName != "PySide6") {
         checkForPySide(python, "PySide6");
         return;
     }
 
-    m_pySideUicPath = pythonTools.pySideUicPath;
-
-    updateExtraCompilers();
-
-    if (auto pySideBuildStep = buildSteps->firstOfType<PySideBuildStep>())
-        pySideBuildStep->updatePySideProjectPath(pythonTools.pySideProjectPath);
+    updateTools(tools);
 }
 
-void PythonRunConfiguration::currentInterpreterChanged()
+void PythonInterpreterAspectPrivate::currentInterpreterChanged()
 {
-    const FilePath python = aspect<InterpreterAspect>()->currentInterpreter().command;
-    d->checkForPySide(python);
+    const FilePath python = q->currentInterpreter().command;
+    checkForPySide(python);
 
-    for (FilePath &file : project()->files(Project::AllFiles)) {
+    for (FilePath &file : rc->project()->files(Project::AllFiles)) {
         if (auto document = TextEditor::TextDocument::textDocumentForFilePath(file)) {
             if (document->mimeType() == Constants::C_PY_MIMETYPE
                 || document->mimeType() == Constants::C_PY3_MIMETYPE) {
@@ -324,37 +281,53 @@ void PythonRunConfiguration::currentInterpreterChanged()
     }
 }
 
-QList<PySideUicExtraCompiler *> PythonRunConfiguration::extraCompilers() const
+void PythonInterpreterAspectPrivate::updateTools(const PySideTools &tools)
+{
+    m_pySideUicPath = tools.pySideUicPath;
+
+    updateExtraCompilers();
+
+    if (Target *target = rc->target()) {
+        if (BuildConfiguration *buildConfiguration = target->activeBuildConfiguration()) {
+            if (BuildStepList *buildSteps = buildConfiguration->buildSteps()) {
+                if (auto buildStep = buildSteps->firstOfType<PySideBuildStep>())
+                    buildStep->updatePySideProjectPath(tools.pySideProjectPath);
+            }
+        }
+    }
+}
+
+QList<PySideUicExtraCompiler *> PythonInterpreterAspect::extraCompilers() const
 {
     return d->m_extraCompilers;
 }
 
-void PythonRunConfigurationPrivate::updateExtraCompilers()
+void PythonInterpreterAspectPrivate::updateExtraCompilers()
 {
     QList<PySideUicExtraCompiler *> oldCompilers = m_extraCompilers;
     m_extraCompilers.clear();
 
     if (m_pySideUicPath.isExecutableFile()) {
-        auto uiMatcher = [](const ProjectExplorer::Node *node) {
-            if (const ProjectExplorer::FileNode *fileNode = node->asFileNode())
-                return fileNode->fileType() == ProjectExplorer::FileType::Form;
+        auto uiMatcher = [](const Node *node) {
+            if (const FileNode *fileNode = node->asFileNode())
+                return fileNode->fileType() == FileType::Form;
             return false;
         };
-        const FilePaths uiFiles = q->project()->files(uiMatcher);
+        const FilePaths uiFiles = rc->project()->files(uiMatcher);
         for (const FilePath &uiFile : uiFiles) {
             FilePath generated = uiFile.parentDir();
             generated = generated.pathAppended("/ui_" + uiFile.baseName() + ".py");
             int index = Utils::indexOf(oldCompilers, [&](PySideUicExtraCompiler *oldCompiler) {
                 return oldCompiler->pySideUicPath() == m_pySideUicPath
-                       && oldCompiler->project() == q->project() && oldCompiler->source() == uiFile
+                       && oldCompiler->project() == rc->project() && oldCompiler->source() == uiFile
                        && oldCompiler->targets() == FilePaths{generated};
             });
             if (index < 0) {
                 m_extraCompilers << new PySideUicExtraCompiler(m_pySideUicPath,
-                                                               q->project(),
+                                                               rc->project(),
                                                                uiFile,
                                                                {generated},
-                                                               q);
+                                                               this);
             } else {
                 m_extraCompilers << oldCompilers.takeAt(index);
             }
@@ -362,10 +335,68 @@ void PythonRunConfigurationPrivate::updateExtraCompilers()
     }
     for (LanguageClient::Client *client : LanguageClient::LanguageClientManager::clients()) {
         if (auto pylsClient = qobject_cast<PyLSClient *>(client))
-            pylsClient->updateExtraCompilers(q->project(), m_extraCompilers);
+            pylsClient->updateExtraCompilers(rc->project(), m_extraCompilers);
     }
     qDeleteAll(oldCompilers);
 }
+
+// RunConfiguration
+
+class PythonRunConfiguration : public RunConfiguration
+{
+public:
+    PythonRunConfiguration(Target *target, Id id)
+        : RunConfiguration(target, id)
+    {
+        buffered.setSettingsKey("PythonEditor.RunConfiguation.Buffered");
+        buffered.setLabelText(Tr::tr("Buffered output"));
+        buffered.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
+        buffered.setToolTip(Tr::tr("Enabling improves output performance, "
+                                   "but results in delayed output."));
+
+        mainScript.setSettingsKey("PythonEditor.RunConfiguation.Script");
+        mainScript.setLabelText(Tr::tr("Script:"));
+        mainScript.setReadOnly(true);
+
+        environment.setSupportForBuildEnvironment(target);
+
+        arguments.setMacroExpander(macroExpander());
+
+        workingDir.setMacroExpander(macroExpander());
+
+        x11Forwarding.setMacroExpander(macroExpander());
+        x11Forwarding.setVisible(HostOsInfo::isAnyUnixHost());
+
+        setCommandLineGetter([this] {
+            CommandLine cmd{interpreter.currentInterpreter().command};
+            if (!buffered())
+                cmd.addArg("-u");
+            cmd.addArg(mainScript().fileName());
+            cmd.addArgs(arguments(), CommandLine::Raw);
+            return cmd;
+        });
+
+        setUpdater([this] {
+            const BuildTargetInfo bti = buildTargetInfo();
+            setDefaultDisplayName(Tr::tr("Run %1").arg(bti.targetFilePath.toUserOutput()));
+            mainScript.setValue(bti.targetFilePath);
+            workingDir.setDefaultWorkingDirectory(bti.targetFilePath.parentDir());
+        });
+
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    }
+
+    PythonInterpreterAspect interpreter{this, this};
+    BoolAspect buffered{this};
+    MainScriptAspect mainScript{this};
+    EnvironmentAspect environment{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
+    X11ForwardingAspect x11Forwarding{this};
+};
+
+// Factories
 
 PythonRunConfigurationFactory::PythonRunConfigurationFactory()
 {

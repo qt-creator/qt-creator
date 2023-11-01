@@ -14,30 +14,24 @@ namespace Debugger {
 
 class DebuggerItem;
 
-class DEBUGGER_EXPORT DebuggerItemManager
-{
-    Q_DISABLE_COPY_MOVE(DebuggerItemManager)
+namespace DebuggerItemManager {
 
-public:
-    DebuggerItemManager();
-    ~DebuggerItemManager();
+DEBUGGER_EXPORT void restoreDebuggers();
 
-    void extensionsInitialized();
+DEBUGGER_EXPORT const QList<DebuggerItem> debuggers();
 
-    static const QList<DebuggerItem> debuggers();
+DEBUGGER_EXPORT QVariant registerDebugger(const DebuggerItem &item);
+DEBUGGER_EXPORT void deregisterDebugger(const QVariant &id);
 
-    static QVariant registerDebugger(const DebuggerItem &item);
-    static void deregisterDebugger(const QVariant &id);
+DEBUGGER_EXPORT void autoDetectDebuggersForDevice(const Utils::FilePaths &searchPaths,
+                                         const QString &detectionSource,
+                                         QString *logMessage);
+DEBUGGER_EXPORT void removeDetectedDebuggers(const QString &detectionSource, QString *logMessage);
+DEBUGGER_EXPORT void listDetectedDebuggers(const QString &detectionSource, QString *logMessage);
 
-    static void autoDetectDebuggersForDevice(const Utils::FilePaths &searchPaths,
-                                             const QString &detectionSource,
-                                             QString *logMessage);
-    static void removeDetectedDebuggers(const QString &detectionSource, QString *logMessage);
-    static void listDetectedDebuggers(const QString &detectionSource, QString *logMessage);
+DEBUGGER_EXPORT const DebuggerItem *findByCommand(const Utils::FilePath &command);
+DEBUGGER_EXPORT const DebuggerItem *findById(const QVariant &id);
+DEBUGGER_EXPORT const DebuggerItem *findByEngineType(DebuggerEngineType engineType);
 
-    static const DebuggerItem *findByCommand(const Utils::FilePath &command);
-    static const DebuggerItem *findById(const QVariant &id);
-    static const DebuggerItem *findByEngineType(DebuggerEngineType engineType);
-};
-
-} // namespace Debugger
+} // DebuggerItemManager
+} // Debugger

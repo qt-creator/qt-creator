@@ -1,0 +1,27 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-document-code.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-edit
+
+    \title Document code
+
+    When you write documentation comments in the \uicontrol Edit mode, you can
+    enable Doxygen code blocks and add brief descriptions and leading asterisks
+    automatically. Also, you can select the Doxygen command prefix to use.
+
+    To set preferences for documentation comments for a particular project,
+    select \uicontrol Projects > \uicontrol {Project Settings} >
+    \uicontrol {Documentation Comments}, and deselect the
+    \uicontrol {Use global settings} check box.
+
+    \image qtcreator-preferences-documentation-comments.webp {Documentation Comments settings}
+
+    To set global preferences, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Documentation Comments}.
+
+    \sa {Configuring Projects}
+*/

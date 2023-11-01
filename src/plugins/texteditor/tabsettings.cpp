@@ -2,13 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "tabsettings.h"
-#include "texteditorplugin.h"
-
-#include <utils/settingsutils.h>
 
 #include <QDebug>
-#include <QSettings>
-#include <QString>
 #include <QTextCursor>
 #include <QTextDocument>
 
@@ -16,8 +11,9 @@ static const char spacesForTabsKey[] = "SpacesForTabs";
 static const char autoSpacesForTabsKey[] = "AutoSpacesForTabs";
 static const char tabSizeKey[] = "TabSize";
 static const char indentSizeKey[] = "IndentSize";
-static const char groupPostfix[] = "TabSettings";
 static const char paddingModeKey[] = "PaddingMode";
+
+using namespace Utils;
 
 namespace TextEditor {
 
@@ -30,21 +26,9 @@ TabSettings::TabSettings(TabSettings::TabPolicy tabPolicy,
     , m_indentSize(indentSize)
     , m_continuationAlignBehavior(continuationAlignBehavior)
 {
-
 }
 
-void TabSettings::toSettings(const QString &category, QSettings *s) const
-{
-    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
-}
-
-void TabSettings::fromSettings(const QString &category, QSettings *s)
-{
-    *this = TabSettings(); // Assign defaults
-    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
-}
-
-QVariantMap TabSettings::toMap() const
+Store TabSettings::toMap() const
 {
     return {
         {spacesForTabsKey, m_tabPolicy != TabsOnlyTabPolicy},
@@ -55,7 +39,7 @@ QVariantMap TabSettings::toMap() const
     };
 }
 
-void TabSettings::fromMap(const QVariantMap &map)
+void TabSettings::fromMap(const Store &map)
 {
     const bool spacesForTabs = map.value(spacesForTabsKey, true).toBool();
     const bool autoSpacesForTabs = map.value(autoSpacesForTabsKey, false).toBool();

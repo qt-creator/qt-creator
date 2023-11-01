@@ -8,7 +8,10 @@
 
 #include <projectexplorer/runcontrol.h>
 
-namespace Utils { class Process; }
+namespace Utils {
+class Process;
+class ProcessRunData;
+}
 
 namespace Debugger {
 
@@ -50,7 +53,7 @@ class TerminalRunner : public ProjectExplorer::RunWorker
 {
 public:
     TerminalRunner(ProjectExplorer::RunControl *runControl,
-                   const std::function<ProjectExplorer::Runnable()> &stubRunnable);
+                   const std::function<Utils::ProcessRunData()> &stubRunnable);
 
     qint64 applicationPid() const { return m_applicationPid; }
     qint64 applicationMainThreadId() const { return m_applicationMainThreadId; }
@@ -66,7 +69,7 @@ private:
     void stubDone();
 
     Utils::Process *m_stubProc = nullptr;
-    std::function<ProjectExplorer::Runnable()> m_stubRunnable;
+    std::function<Utils::ProcessRunData()> m_stubRunnable;
     qint64 m_applicationPid = 0;
     qint64 m_applicationMainThreadId = 0;
 };

@@ -5,31 +5,82 @@
 
 #include "texteditor_global.h"
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <coreplugin/dialogs/ioptionspage.h>
+
+namespace ProjectExplorer { class Project; }
 
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT CommentsSettings
 {
 public:
+    enum class CommandPrefix { Auto, At, Backslash };
+    class Data {
+    public:
+        CommandPrefix commandPrefix = CommandPrefix::Auto;
+        bool enableDoxygen = true;
+        bool generateBrief = true;
+        bool leadingAsterisks = true;
+    };
+
+    static Data data() { return instance().m_data; }
+    static void setData(const Data &data);
+
+    static Utils::Key mainSettingsKey();
+    static Utils::Key enableDoxygenSettingsKey();
+    static Utils::Key generateBriefSettingsKey();
+    static Utils::Key leadingAsterisksSettingsKey();
+    static Utils::Key commandPrefixKey();
+
+private:
     CommentsSettings();
+    static CommentsSettings &instance();
+    void save() const;
+    void load();
 
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
+    Data m_data;
+};
+inline bool operator==(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
+{
+    return a.enableDoxygen == b.enableDoxygen
+           && a.commandPrefix == b.commandPrefix
+           && a.generateBrief == b.generateBrief
+           && a.leadingAsterisks == b.leadingAsterisks;
+}
+inline bool operator!=(const CommentsSettings::Data &a, const CommentsSettings::Data &b)
+{
+    return !(a == b);
+}
 
-    bool equals(const CommentsSettings &other) const;
 
-    friend bool operator==(const CommentsSettings &a, const CommentsSettings &b)
-    { return a.equals(b); }
+class TEXTEDITOR_EXPORT CommentsSettingsWidget final : public Core::IOptionsPageWidget
+{
+    Q_OBJECT
+public:
+    CommentsSettingsWidget(const CommentsSettings::Data &settings);
+    ~CommentsSettingsWidget();
 
-    friend bool operator!=(const CommentsSettings &a, const CommentsSettings &b)
-    { return !(a == b); }
+    CommentsSettings::Data settingsData() const;
 
-    bool m_enableDoxygen;
-    bool m_generateBrief;
-    bool m_leadingAsterisks;
+signals:
+    void settingsChanged();
+
+private:
+    void apply() override;
+
+    void initFromSettings(const CommentsSettings::Data &settings);
+
+    class Private;
+    Private * const d;
 };
 
+namespace Internal {
+
+class CommentsSettingsPage : public Core::IOptionsPage
+{
+public:
+    CommentsSettingsPage();
+};
+
+} // namespace Internal
 } // namespace TextEditor

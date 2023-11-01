@@ -13,13 +13,28 @@
 
 #include <utils/filesystemwatcher.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class MesonBuildConfiguration;
+
+class MachineFileManager final : public QObject
+{
+public:
+    MachineFileManager();
+
+    static Utils::FilePath machineFile(const ProjectExplorer::Kit *kit);
+
+private:
+    void addMachineFile(const ProjectExplorer::Kit *kit);
+    void removeMachineFile(const ProjectExplorer::Kit *kit);
+    void updateMachineFile(const ProjectExplorer::Kit *kit);
+    void cleanupMachineFiles();
+};
+
 class MesonBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
+
 public:
     MesonBuildSystem(MesonBuildConfiguration *bc);
     ~MesonBuildSystem() final;
@@ -34,20 +49,17 @@ public:
     bool setup();
     bool wipe();
 
-    MesonBuildConfiguration *mesonBuildConfiguration();
-
     const QStringList &targetList() const { return m_parser.targetsNames(); }
 
     void setMesonConfigArgs(const QStringList &args) { m_pendingConfigArgs = args; }
 
 private:
-    void init();
     bool parseProject();
     void updateKit(ProjectExplorer::Kit *kit);
     bool needsSetup();
     void parsingCompleted(bool success);
-    ProjectExplorer::Kit *kit();
     QStringList configArgs(bool isSetup);
+
     ProjectExplorer::BuildSystem::ParseGuard m_parseGuard;
     MesonProjectParser m_parser;
     CppEditor::CppProjectUpdater m_cppCodeModelUpdater;
@@ -56,5 +68,4 @@ private:
     KitData m_kitData;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

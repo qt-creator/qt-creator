@@ -32,11 +32,13 @@ public:
     const QStringList &androidAbis() const;
     int minimumNDK() const;
 
+    static QString androidDeploymentSettingsFileName(const ProjectExplorer::Target *target);
     static Utils::FilePath androidDeploymentSettings(const ProjectExplorer::Target *target);
 
     struct BuiltWith {
         int apiVersion = -1;
         QVersionNumber ndkVersion;
+        QString androidAbi;
     };
     static BuiltWith parseBuiltWith(const QByteArray &modulesCoreJsonData, bool *ok = nullptr);
     BuiltWith builtWith(bool *ok = nullptr) const;

@@ -8,6 +8,7 @@
 #include "findtoolwindow.h"
 #include "ifindfilter.h"
 #include "searchresultwindow.h"
+#include "textfindconstants.h"
 #include "../actionmanager/actioncontainer.h"
 #include "../actionmanager/actionmanager.h"
 #include "../actionmanager/command.h"
@@ -26,7 +27,6 @@
 #include <QStringListModel>
 #include <QVector>
 #include <QAction>
-#include <QSettings>
 
 /*!
     \namespace Core::Internal::ItemDataRoles
@@ -75,8 +75,8 @@ public:
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
-    void writeSettings(QSettings *settings) const;
-    void readSettings(QSettings *settings);
+    void writeSettings(QtcSettings *settings) const;
+    void readSettings(QtcSettings *settings);
 
     void updateCompletion(const QString &text, FindFlags f);
 
@@ -101,17 +101,17 @@ QVariant CompletionModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-static inline QString completionSettingsArrayPrefix() { return QStringLiteral("FindCompletions"); }
-static inline QString completionSettingsTextKey() { return QStringLiteral("Text"); }
-static inline QString completionSettingsFlagsKey() { return QStringLiteral("Flags"); }
+static Utils::Key completionSettingsArrayPrefix() { return "FindCompletions"; }
+static Utils::Key completionSettingsTextKey() { return "Text"; }
+static Utils::Key completionSettingsFlagsKey() { return "Flags"; }
 
-void CompletionModel::writeSettings(QSettings *settings) const
+void CompletionModel::writeSettings(QtcSettings *settings) const
 {
     if (m_entries.isEmpty()) {
         settings->remove(completionSettingsArrayPrefix());
     } else {
         const int size = m_entries.size();
-        settings->beginWriteArray(completionSettingsArrayPrefix(), size);
+        settings->beginWriteArray(stringFromKey(completionSettingsArrayPrefix()), size);
         for (int i = 0; i < size; ++i) {
             settings->setArrayIndex(i);
             settings->setValue(completionSettingsTextKey(), m_entries.at(i).text);
@@ -121,10 +121,10 @@ void CompletionModel::writeSettings(QSettings *settings) const
     }
 }
 
-void CompletionModel::readSettings(QSettings *settings)
+void CompletionModel::readSettings(QtcSettings *settings)
 {
     beginResetModel();
-    const int size = settings->beginReadArray(completionSettingsArrayPrefix());
+    const int size = settings->beginReadArray(stringFromKey(completionSettingsArrayPrefix()));
     m_entries.clear();
     m_entries.reserve(size);
     for (int i = 0; i < size; ++i) {
@@ -156,7 +156,7 @@ class FindPrivate : public QObject
 public:
     bool isAnyFilterEnabled() const;
     void writeSettings();
-    void setFindFlag(Core::FindFlag flag, bool enabled);
+    void setFindFlag(FindFlag flag, bool enabled);
     static void updateCompletion(const QString &text, QStringList &completions,
                                  QStringListModel *model);
     void setupMenu();
@@ -370,7 +370,7 @@ bool Find::hasFindFlag(FindFlag flag)
 void FindPrivate::writeSettings()
 {
     QtcSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("Find"));
+    settings->beginGroup("Find");
     settings->setValueWithDefault("Backward", bool(m_findFlags & FindBackward), false);
     settings->setValueWithDefault("CaseSensitively", bool(m_findFlags & FindCaseSensitively), false);
     settings->setValueWithDefault("WholeWords", bool(m_findFlags & FindWholeWords), false);
@@ -388,18 +388,18 @@ void FindPrivate::writeSettings()
 
 void FindPrivate::readSettings()
 {
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("Find"));
+    QtcSettings *settings = ICore::settings();
+    settings->beginGroup("Find");
     {
         QSignalBlocker blocker(m_instance);
-        Find::setBackward(settings->value(QLatin1String("Backward"), false).toBool());
-        Find::setCaseSensitive(settings->value(QLatin1String("CaseSensitively"), false).toBool());
-        Find::setWholeWord(settings->value(QLatin1String("WholeWords"), false).toBool());
-        Find::setRegularExpression(settings->value(QLatin1String("RegularExpression"), false).toBool());
-        Find::setPreserveCase(settings->value(QLatin1String("PreserveCase"), false).toBool());
+        Find::setBackward(settings->value("Backward", false).toBool());
+        Find::setCaseSensitive(settings->value("CaseSensitively", false).toBool());
+        Find::setWholeWord(settings->value("WholeWords", false).toBool());
+        Find::setRegularExpression(settings->value("RegularExpression", false).toBool());
+        Find::setPreserveCase(settings->value("PreserveCase", false).toBool());
     }
     m_findCompletionModel.readSettings(settings);
-    m_replaceCompletions = settings->value(QLatin1String("ReplaceStrings")).toStringList();
+    m_replaceCompletions = settings->value("ReplaceStrings").toStringList();
     m_replaceCompletionModel.setStringList(m_replaceCompletions);
     settings->endGroup();
     m_findToolBar->readSettings();
@@ -450,19 +450,6 @@ QAbstractListModel *Find::findCompletionModel()
 QStringListModel *Find::replaceCompletionModel()
 {
     return &(d->m_replaceCompletionModel);
-}
-
-// declared in textfindconstants.h
-QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags)
-{
-    QTextDocument::FindFlags textDocFlags;
-    if (flags & FindBackward)
-        textDocFlags |= QTextDocument::FindBackward;
-    if (flags & FindCaseSensitively)
-        textDocFlags |= QTextDocument::FindCaseSensitively;
-    if (flags & FindWholeWords)
-        textDocFlags |= QTextDocument::FindWholeWords;
-    return textDocFlags;
 }
 
 } // namespace Core

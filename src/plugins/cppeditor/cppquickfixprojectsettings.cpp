@@ -13,6 +13,8 @@
 #include <QSettings>
 #include <QtDebug>
 
+using namespace Utils;
+
 namespace CppEditor {
 namespace Internal {
 
@@ -36,7 +38,7 @@ CppQuickFixProjectsSettings::CppQuickFixProjectsSettings(ProjectExplorer::Projec
             m_useGlobalSettings = true;
         }
     }
-    connect(project, &ProjectExplorer::Project::aboutToSaveSettings, [this] {
+    connect(project, &ProjectExplorer::Project::aboutToSaveSettings, this, [this] {
         auto settings = m_project->namedSettings(QUICK_FIX_SETTINGS_ID).toMap();
         settings.insert(USE_GLOBAL_SETTINGS, m_useGlobalSettings);
         m_project->setNamedSettings(QUICK_FIX_SETTINGS_ID, settings);
@@ -64,7 +66,7 @@ const Utils::FilePath &CppQuickFixProjectsSettings::filePathOfSettingsFile() con
 CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr CppQuickFixProjectsSettings::getSettings(
     ProjectExplorer::Project *project)
 {
-    const QString key = "CppQuickFixProjectsSettings";
+    const Key key = "CppQuickFixProjectsSettings";
     QVariant v = project->extraData(key);
     if (v.isNull()) {
         v = QVariant::fromValue(
@@ -146,7 +148,7 @@ bool CppQuickFixProjectsSettings::saveOwnSettings()
     if (m_settingsFile.isEmpty())
         return false;
 
-    QSettings settings(m_settingsFile.toString(), QSettings::IniFormat);
+    QtcSettings settings(m_settingsFile.toString(), QSettings::IniFormat);
     if (settings.status() == QSettings::NoError) {
         m_ownSettings.saveSettingsTo(&settings);
         settings.sync();
@@ -158,7 +160,7 @@ bool CppQuickFixProjectsSettings::saveOwnSettings()
 
 void CppQuickFixProjectsSettings::loadOwnSettingsFromFile()
 {
-    QSettings settings(m_settingsFile.toString(), QSettings::IniFormat);
+    QtcSettings settings(m_settingsFile.toString(), QSettings::IniFormat);
     if (settings.status() == QSettings::NoError) {
         m_ownSettings.loadSettingsFrom(&settings);
         return;

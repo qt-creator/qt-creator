@@ -7,10 +7,10 @@ instructions:
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
-        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_16.0.2-based
+        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_17.0.1-based
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
-        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.5/6.5.2-released/Qt"
+        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.6/6.6.0-released/Qt"
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquickcontrols2 qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"
@@ -39,7 +39,7 @@ instructions:
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
-            variableValue: "-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64.7z"
+            variableValue: "-Linux-RHEL_8_6-GCC-Linux-RHEL_8_6-X86_64.7z"
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".tar.xz"

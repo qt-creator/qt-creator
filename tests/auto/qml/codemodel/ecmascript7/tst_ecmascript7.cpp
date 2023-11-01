@@ -71,7 +71,7 @@ static QStringList readSkipList(const QDir &dir, const QString &filename)
     QStringList result;
 
     if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
-        return QStringList();
+        return {};
 
     while (!f.atEnd()) {
         const QString s = QString::fromUtf8(f.readLine().trimmed());

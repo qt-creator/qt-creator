@@ -7,13 +7,14 @@
 
 #include <QWidget>
 
-QT_FORWARD_DECLARE_CLASS(QSpinBox)
+QT_BEGIN_NAMESPACE
+class QCheckBox;
+class QComboBox;
+class QLineEdit;
+class QSpinBox;
+QT_END_NAMESPACE
 
 namespace QmlDesigner {
-
-namespace Ui {
-class TimelineAnimationForm;
-}
 
 class TimelineAnimationForm : public QWidget
 {
@@ -21,7 +22,6 @@ class TimelineAnimationForm : public QWidget
 
 public:
     explicit TimelineAnimationForm(QWidget *parent);
-    ~TimelineAnimationForm() override;
     void setup(const ModelNode &animation);
     ModelNode animation() const;
 
@@ -33,7 +33,15 @@ private:
     void connectSpinBox(QSpinBox *spinBox, const PropertyName &propertyName);
     void populateStateComboBox();
 
-    Ui::TimelineAnimationForm *ui;
+    QLineEdit *m_idLineEdit;
+    QCheckBox *m_running;
+    QSpinBox *m_startFrame;
+    QSpinBox *m_endFrame;
+    QSpinBox *m_duration;
+    QCheckBox *m_continuous;
+    QSpinBox *m_loops;
+    QCheckBox *m_pingPong;
+    QComboBox *m_transitionToState;
 
     QmlTimeline m_timeline;
     ModelNode m_animation;

@@ -712,6 +712,12 @@ bool StyleHelper::isQDSTheme()
     return creatorTheme() ? creatorTheme()->flag(Theme::QDSTheme) : false;
 }
 
+Qt::HighDpiScaleFactorRoundingPolicy StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
+{
+    return HostOsInfo::isMacHost() ? Qt::HighDpiScaleFactorRoundingPolicy::Unset
+                                   : Qt::HighDpiScaleFactorRoundingPolicy::Round;
+}
+
 QIcon StyleHelper::getIconFromIconFont(const QString &fontName, const QList<IconFontHelper> &parameters)
 {
     QFontDatabase a;
@@ -847,7 +853,7 @@ QString StyleHelper::dpiSpecificImageFile(const QString &fileName)
     if (qApp->devicePixelRatio() > 1.0) {
         const QString atDprfileName =
                 imageFileWithResolution(fileName, qRound(qApp->devicePixelRatio()));
-        if (QFile::exists(atDprfileName))
+        if (QFileInfo::exists(atDprfileName))
             return atDprfileName;
     }
     return fileName;
@@ -867,7 +873,7 @@ QList<int> StyleHelper::availableImageResolutions(const QString &fileName)
     QList<int> result;
     const int maxResolutions = qApp->devicePixelRatio();
     for (int i = 1; i <= maxResolutions; ++i)
-        if (QFile::exists(imageFileWithResolution(fileName, i)))
+        if (QFileInfo::exists(imageFileWithResolution(fileName, i)))
             result.append(i);
     return result;
 }

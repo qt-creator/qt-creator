@@ -16,6 +16,17 @@
 var File = require("qbs.File")
 var FileInfo = require("qbs.FileInfo")
 
+function getChildPath(qbs, baseFolder, childFolder)
+{
+    if (!baseFolder)
+        return [];
+
+    var childPath = FileInfo.joinPaths(baseFolder, childFolder);
+    if (File.exists(childPath))
+        return [childPath];
+    return [];
+}
+
 function getGTestDir(qbs, str) {
     if (!str) {
         if (qbs.hostOS.contains("linux") && File.exists("/usr/src/gtest"))

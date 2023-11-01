@@ -46,10 +46,10 @@ void RegisterPostMortemAction::registerNow(bool value)
 
 RegisterPostMortemAction::RegisterPostMortemAction()
 {
-    connect(this, &BoolAspect::valueChanged, this, &RegisterPostMortemAction::registerNow);
+    connect(this, &BaseAspect::changed, this, [this] { registerNow(value()); });
 }
 
-void RegisterPostMortemAction::readSettings(const QSettings *)
+void RegisterPostMortemAction::readSettings()
 {
     Q_UNUSED(debuggerRegistryValueNameC) // avoid warning from MinGW
 
@@ -60,7 +60,7 @@ void RegisterPostMortemAction::readSettings(const QSettings *)
         registered = isRegistered(handle, debuggerCall(), &errorMessage);
     if (handle)
         RegCloseKey(handle);
-    setValueQuietly(registered);
+    setValue(registered, BaseAspect::BeQuiet);
 }
 
 } // namespace Internal

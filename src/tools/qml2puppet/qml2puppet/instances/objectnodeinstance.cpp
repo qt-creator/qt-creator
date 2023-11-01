@@ -704,12 +704,12 @@ QString ObjectNodeInstance::instanceType(const PropertyName &name) const
 
 QList<ServerNodeInstance> ObjectNodeInstance::childItems() const
 {
-    return QList<ServerNodeInstance>();
+    return {};
 }
 
 QList<QQuickItem *> ObjectNodeInstance::allItemsRecursive() const
 {
-    return QList<QQuickItem *>();
+    return {};
 }
 
 QList<ServerNodeInstance> ObjectNodeInstance::stateInstances() const
@@ -724,7 +724,7 @@ QList<ServerNodeInstance> ObjectNodeInstance::stateInstances() const
         return instanceList;
     }
 
-    return QList<ServerNodeInstance>();
+    return {};
 }
 
 void ObjectNodeInstance::setNodeSource(const QString & /*source*/)

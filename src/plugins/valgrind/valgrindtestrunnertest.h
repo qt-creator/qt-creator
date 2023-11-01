@@ -8,11 +8,9 @@
 #include <QObject>
 #include <QStringList>
 
-namespace Valgrind {
+namespace Valgrind { class ValgrindProcess; }
 
-class ValgrindRunner;
-
-namespace Test {
+namespace Valgrind::Test {
 
 class ValgrindTestRunnerTest : public QObject
 {
@@ -48,11 +46,10 @@ private slots:
 private:
     QString runTestBinary(const QString &binary, const QStringList &vArgs = QStringList());
 
-    ValgrindRunner *m_runner = nullptr;
+    ValgrindProcess *m_runner = nullptr;
     QList<QByteArray> m_logMessages;
     QList<XmlProtocol::Error> m_errors;
     bool m_expectCrash = false;
 };
 
-} // namespace Test
-} // namespace Valgrind
+} // namespace Valgrind::Test

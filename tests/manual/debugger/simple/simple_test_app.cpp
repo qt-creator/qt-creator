@@ -5657,8 +5657,8 @@ namespace basic {
         quint64 c = std::numeric_limits<quint64>::max() - quint64(1);
         BREAK_HERE;
         // Check a -1143861252567568256 qint64.
-        // Check b -1143861252567568256 quint64.
-        // Check c -2 quint64.
+        // Check b 17302882821141983360 quint64.
+        // Check c 18446744073709551614 quint64.
         // Continue.
         dummyStatement(&a, &b, &c);
     }

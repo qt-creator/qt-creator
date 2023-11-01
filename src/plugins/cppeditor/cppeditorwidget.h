@@ -5,6 +5,7 @@
 
 #include "cppeditor_global.h"
 
+#include <texteditor/blockrange.h>
 #include <texteditor/codeassist/assistenums.h>
 #include <texteditor/texteditor.h>
 
@@ -56,7 +57,6 @@ public:
     void selectAll() override;
 
     void switchDeclarationDefinition(bool inNextSplit);
-    void followSymbolToType(bool inNextSplit);
     void showPreProcessorWidget();
 
     void findUsages() override;
@@ -104,6 +104,11 @@ protected:
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
 
+    void findTypeAt(const QTextCursor &cursor,
+                    const Utils::LinkHandler &processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
+
     void slotCodeStyleSettingsChanged(const QVariant &) override;
 
 private:
@@ -137,6 +142,7 @@ private:
 
     void handleOutlineChanged(const QWidget* newOutline);
     void showRenameWarningIfFileIsGenerated(const Utils::FilePath &filePath);
+    void addRefactoringActions(QMenu *menu) const;
 
 private:
     QScopedPointer<Internal::CppEditorWidgetPrivate> d;

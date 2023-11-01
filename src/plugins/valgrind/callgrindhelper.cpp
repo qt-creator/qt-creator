@@ -10,8 +10,7 @@
 #include <QRandomGenerator>
 #include <QString>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 QColor CallgrindHelper::colorForString(const QString &text)
 {
@@ -21,10 +20,9 @@ QColor CallgrindHelper::colorForString(const QString &text)
         return colorCache.value(text);
 
     // Minimum lightness of 100 to be readable with black text.
-    const QColor color = QColor::fromHsl(
-        ((qreal) QRandomGenerator::global()->generate() / RAND_MAX * 359),
-        ((qreal) QRandomGenerator::global()->generate() / RAND_MAX * 255),
-        ((qreal) QRandomGenerator::global()->generate() / RAND_MAX * 127) + 128);
+    const QColor color = QColor::fromHsl(QRandomGenerator::global()->generate() % 360,
+                                         QRandomGenerator::global()->generate() % 256,
+                                         QRandomGenerator::global()->generate() % 128 + 128);
     colorCache[text] = color;
     return color;
 }
@@ -46,5 +44,4 @@ QString CallgrindHelper::toPercent(float costs, const QLocale &locale)
     return '<' + locale.toString(0.01f) + locale.percent();
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

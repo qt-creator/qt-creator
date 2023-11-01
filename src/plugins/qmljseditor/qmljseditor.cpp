@@ -60,6 +60,10 @@
 #include <utils/qtcassert.h>
 #include <utils/uncommentselection.h>
 
+#include <languageclient/languageclientmanager.h>
+#include <languageclient/locatorfilter.h>
+#include <languageclient/languageclientsymbolsupport.h>
+
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QFileInfo>
@@ -90,6 +94,18 @@ using namespace Utils;
 
 namespace QmlJSEditor {
 
+static LanguageClient::Client *getQmllsClient(const Utils::FilePath &fileName)
+{
+    // the value in disableBuiltinCodemodel is only valid when useQmlls is enabled
+    if (QmlJsEditingSettings::get().qmllsSettings().useQmlls
+        && !QmlJsEditingSettings::get().qmllsSettings().disableBuiltinCodemodel)
+        return nullptr;
+
+    auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName);
+    return client;
+}
+
+
 //
 // QmlJSEditorWidget
 //
@@ -116,7 +132,7 @@ void QmlJSEditorWidget::finalizeInitialization()
             this, &QmlJSEditorWidget::updateOutlineIndexNow);
 
     m_modelManager = ModelManagerInterface::instance();
-    m_contextPane = Internal::QmlJSEditorPlugin::quickToolBar();
+    m_contextPane = QuickToolBar::instance();
 
     m_modelManager->activateScan();
 
@@ -126,7 +142,7 @@ void QmlJSEditorWidget::finalizeInitialization()
     if (m_contextPane) {
         connect(this, &QmlJSEditorWidget::cursorPositionChanged,
                 &m_contextPaneTimer, QOverload<>::of(&QTimer::start));
-        connect(m_contextPane, &IContextPane::closed, this, &QmlJSEditorWidget::showTextMarker);
+        connect(m_contextPane, &QuickToolBar::closed, this, &QmlJSEditorWidget::showTextMarker);
     }
 
     connect(this->document(), &QTextDocument::modificationChanged,
@@ -737,9 +753,18 @@ void QmlJSEditorWidget::inspectElementUnderCursor() const
 
 void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
                                    const Utils::LinkHandler &processLinkCallback,
-                                   bool /*resolveTarget*/,
+                                   bool resolveTarget,
                                    bool /*inNextSplit*/)
 {
+    if (auto client = getQmllsClient(textDocument()->filePath())) {
+        client->findLinkAt(textDocument(),
+                           cursor,
+                           processLinkCallback,
+                           resolveTarget,
+                           LanguageClient::LinkTarget::SymbolDef);
+        return;
+    }
+
     const SemanticInfo semanticInfo = m_qmlJsEditorDocument->semanticInfo();
     if (! semanticInfo.isValid())
         return processLinkCallback(Utils::Link());
@@ -857,12 +882,26 @@ void QmlJSEditorWidget::findLinkAt(const QTextCursor &cursor,
 
 void QmlJSEditorWidget::findUsages()
 {
-    m_findReferences->findUsages(textDocument()->filePath(), textCursor().position());
+    const Utils::FilePath fileName = textDocument()->filePath();
+
+    if (auto client = getQmllsClient(fileName)) {
+        client->symbolSupport().findUsages(textDocument(), textCursor());
+    } else {
+        const int offset = textCursor().position();
+        m_findReferences->findUsages(fileName, offset);
+    }
 }
 
 void QmlJSEditorWidget::renameSymbolUnderCursor()
 {
-    m_findReferences->renameUsages(textDocument()->filePath(), textCursor().position());
+    const Utils::FilePath fileName = textDocument()->filePath();
+
+    if (auto client = getQmllsClient(fileName)) {
+        client->symbolSupport().renameSymbol(textDocument(), textCursor(), QString());
+    } else {
+        const int offset = textCursor().position();
+        m_findReferences->renameUsages(fileName, offset);
+    }
 }
 
 void QmlJSEditorWidget::showContextPane()

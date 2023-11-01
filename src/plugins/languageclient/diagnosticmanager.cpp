@@ -120,7 +120,7 @@ TextEditor::TextMark *DiagnosticManager::createTextMark(TextDocument *doc,
                                                         const Diagnostic &diagnostic,
                                                         bool /*isProjectFile*/) const
 {
-    static const auto icon = QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon());
+    static const QIcon icon = Icon::fromTheme("edit-copy");
     static const QString tooltip = Tr::tr("Copy to Clipboard");
     auto mark = new TextMark(doc, diagnostic, m_client);
     mark->setActionsProvider([text = diagnostic.message()] {

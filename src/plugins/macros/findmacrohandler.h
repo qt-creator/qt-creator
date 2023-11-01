@@ -6,6 +6,7 @@
 #include "imacrohandler.h"
 
 #include <coreplugin/find/textfindconstants.h>
+#include <utils/filesearch.h>
 
 namespace Core { class IEditor; }
 
@@ -24,11 +25,11 @@ public:
     bool canExecuteEvent(const MacroEvent &macroEvent) override;
     bool executeEvent(const MacroEvent &macroEvent) override;
 
-    void findIncremental(const QString &txt, Core::FindFlags findFlags);
-    void findStep(const QString &txt, Core::FindFlags findFlags);
-    void replace(const QString &before, const QString &after, Core::FindFlags findFlags);
-    void replaceStep(const QString &before, const QString &after, Core::FindFlags findFlags);
-    void replaceAll(const QString &before, const QString &after, Core::FindFlags findFlags);
+    void findIncremental(const QString &txt, Utils::FindFlags findFlags);
+    void findStep(const QString &txt, Utils::FindFlags findFlags);
+    void replace(const QString &before, const QString &after, Utils::FindFlags findFlags);
+    void replaceStep(const QString &before, const QString &after, Utils::FindFlags findFlags);
+    void replaceAll(const QString &before, const QString &after, Utils::FindFlags findFlags);
     void resetIncrementalSearch();
 
 private:

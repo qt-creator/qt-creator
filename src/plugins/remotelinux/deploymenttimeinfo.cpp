@@ -6,7 +6,7 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/target.h>
 
 #include <QDateTime>
@@ -103,9 +103,9 @@ bool DeploymentTimeInfo::hasRemoteFileChanged(const DeployableFile &deployableFi
     return !lastDeployed.remote.isValid() || remoteTimestamp != lastDeployed.remote;
 }
 
-QVariantMap DeploymentTimeInfo::exportDeployTimes() const
+Store DeploymentTimeInfo::exportDeployTimes() const
 {
-    QVariantMap map;
+    Store map;
     QVariantList hostList;
     QVariantList fileList;
     QVariantList sysrootList;
@@ -122,33 +122,31 @@ QVariantMap DeploymentTimeInfo::exportDeployTimes() const
         localTimeList << it.value().local;
         remoteTimeList << it.value().remote;
     }
-    map.insert(QLatin1String(LastDeployedHostsKey), hostList);
-    map.insert(QLatin1String(LastDeployedSysrootsKey), sysrootList);
-    map.insert(QLatin1String(LastDeployedFilesKey), fileList);
-    map.insert(QLatin1String(LastDeployedRemotePathsKey), remotePathList);
-    map.insert(QLatin1String(LastDeployedLocalTimesKey), localTimeList);
-    map.insert(QLatin1String(LastDeployedRemoteTimesKey), remoteTimeList);
+    map.insert(LastDeployedHostsKey, hostList);
+    map.insert(LastDeployedSysrootsKey, sysrootList);
+    map.insert(LastDeployedFilesKey, fileList);
+    map.insert(LastDeployedRemotePathsKey, remotePathList);
+    map.insert(LastDeployedLocalTimesKey, localTimeList);
+    map.insert(LastDeployedRemoteTimesKey, remoteTimeList);
     return map;
 }
 
-void DeploymentTimeInfo::importDeployTimes(const QVariantMap &map)
+void DeploymentTimeInfo::importDeployTimes(const Store &map)
 {
-    const QVariantList &hostList = map.value(QLatin1String(LastDeployedHostsKey)).toList();
-    const QVariantList &sysrootList = map.value(QLatin1String(LastDeployedSysrootsKey)).toList();
-    const QVariantList &fileList = map.value(QLatin1String(LastDeployedFilesKey)).toList();
-    const QVariantList &remotePathList
-        = map.value(QLatin1String(LastDeployedRemotePathsKey)).toList();
+    const QVariantList &hostList = map.value(LastDeployedHostsKey).toList();
+    const QVariantList &sysrootList = map.value(LastDeployedSysrootsKey).toList();
+    const QVariantList &fileList = map.value(LastDeployedFilesKey).toList();
+    const QVariantList &remotePathList = map.value(LastDeployedRemotePathsKey).toList();
 
     QVariantList localTimesList;
-    const auto localTimes = map.find(QLatin1String(LastDeployedLocalTimesKey));
+    const auto localTimes = map.find(LastDeployedLocalTimesKey);
     if (localTimes != map.end()) {
         localTimesList = localTimes.value().toList();
     } else {
-        localTimesList = map.value(QLatin1String(LastDeployedTimesKey)).toList();
+        localTimesList = map.value(LastDeployedTimesKey).toList();
     }
 
-    const QVariantList remoteTimesList
-            = map.value(QLatin1String(LastDeployedRemoteTimesKey)).toList();
+    const QVariantList remoteTimesList = map.value(LastDeployedRemoteTimesKey).toList();
 
     const int elemCount = qMin(qMin(qMin(hostList.size(), fileList.size()),
                                     qMin(remotePathList.size(), localTimesList.size())),

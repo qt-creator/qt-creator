@@ -5,23 +5,19 @@
 
 #include <texteditor/texteditor.h>
 
-#include <QAbstractListModel>
-#include <QGroupBox>
-#include <QTabWidget>
 #include <QStackedWidget>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
 class QCheckBox;
 class QDomDocument;
-class QDomElement;
 class QComboBox;
+class QGroupBox;
 class QPushButton;
 class QLabel;
 class QLineEdit;
 class QListView;
-class QSpinBox;
-class QToolButton;
+class QTabWidget;
 class QXmlStreamReader;
 class QXmlStreamWriter;
 QT_END_NAMESPACE
@@ -32,39 +28,13 @@ namespace Android::Internal {
 
 class AndroidManifestEditor;
 class AndroidManifestEditorIconContainerWidget;
-class AndroidManifestEditorWidget;
+class PermissionsModel;
 class SplashScreenContainerWidget;
-
-class PermissionsModel: public QAbstractListModel
-{
-    Q_OBJECT
-public:
-    PermissionsModel(QObject *parent = nullptr);
-    void setPermissions(const QStringList &permissions);
-    const QStringList &permissions();
-    QModelIndex addPermission(const QString &permission);
-    void removePermission(int index);
-    QVariant data(const QModelIndex &index, int role) const override;
-
-protected:
-    int rowCount(const QModelIndex &parent) const override;
-
-private:
-    QStringList m_permissions;
-};
-
-class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
-{
-public:
-    explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
-
-private:
-    Core::IContext *m_context;
-};
 
 class AndroidManifestEditorWidget : public QStackedWidget
 {
     Q_OBJECT
+
 public:
     enum EditorPage {
         General = 0,

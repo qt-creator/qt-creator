@@ -42,7 +42,6 @@
 
 #include <qmlprojectmanager/qmlproject.h>
 
-#include <app/app_version.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -264,7 +263,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         ->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
 
     connect(action, &QAction::triggered, this, [this] {
-        lauchFeedbackPopupInternal(Core::Constants::IDE_DISPLAY_NAME);
+        lauchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
     });
 
     if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))

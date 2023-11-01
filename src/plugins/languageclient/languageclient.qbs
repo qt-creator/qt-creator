@@ -5,10 +5,7 @@ QtcPlugin {
     name: "LanguageClient"
 
     Depends { name: "Qt.core" }
-    Depends {
-        name: "Qt.testlib"
-        condition: qtc.testsEnabled
-    }
+    Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
 
     Depends { name: "Utils" }
     Depends { name: "ProjectExplorer" }
@@ -17,15 +14,13 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
 
-    Depends { name: "app_version_header" }
-
     files: [
         "callhierarchy.cpp",
         "callhierarchy.h",
         "client.cpp",
         "client.h",
-        "clientrequesttask.cpp",
-        "clientrequesttask.h",
+        "clientrequest.cpp",
+        "clientrequest.h",
         "currentdocumentsymbolsrequest.cpp",
         "currentdocumentsymbolsrequest.h",
         "diagnosticmanager.cpp",
@@ -71,6 +66,11 @@ QtcPlugin {
         "snippet.cpp",
         "snippet.h",
     ]
+
+    Properties {
+        condition: qbs.toolchain.contains("mingw")
+        cpp.cxxFlags: "-Wa,-mbig-obj"
+    }
 
     Export { Depends { name: "LanguageServerProtocol" } }
 }

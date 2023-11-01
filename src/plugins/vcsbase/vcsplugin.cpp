@@ -40,7 +40,7 @@ public:
     explicit VcsPluginPrivate(VcsPlugin *plugin)
         : q(plugin)
     {
-        QObject::connect(&m_settings, &AspectContainer::changed,
+        QObject::connect(&commonSettings(), &AspectContainer::changed,
                          [this] { slotSettingsChanged(); });
         slotSettingsChanged();
     }
@@ -57,7 +57,7 @@ public:
     void populateNickNameModel()
     {
         QString errorMessage;
-        if (!NickNameDialog::populateModelFromMailCapFile(m_settings.nickNameMailMap(),
+        if (!NickNameDialog::populateModelFromMailCapFile(commonSettings().nickNameMailMap(),
                                                           m_nickNameModel,
                                                           &errorMessage)) {
             qWarning("%s", qPrintable(errorMessage));
@@ -71,8 +71,10 @@ public:
     }
 
     VcsPlugin *q;
-    CommonVcsSettings m_settings;
     QStandardItemModel *m_nickNameModel = nullptr;
+
+    VcsConfigurationPageFactory m_vcsConfigurationPageFactory;
+    VcsCommandPageFactory m_vcsCommandPageFactory;
 };
 
 static VcsPlugin *m_instance = nullptr;
@@ -101,15 +103,11 @@ void VcsPlugin::initialize()
         return result;
     });
 
-    JsonWizardFactory::registerPageFactory(new Internal::VcsConfigurationPageFactory);
-    JsonWizardFactory::registerPageFactory(new Internal::VcsCommandPageFactory);
-
     JsExpander::registerGlobalObject<VcsJsExtension>("Vcs");
 
     MacroExpander *expander = globalMacroExpander();
     expander->registerVariable(Constants::VAR_VCS_NAME,
-        Tr::tr("Name of the version control system in use by the current project."),
-        []() -> QString {
+        Tr::tr("Name of the version control system in use by the current project."), [] {
             IVersionControl *vc = nullptr;
             if (Project *project = ProjectTree::currentProject())
                 vc = VcsManager::findVersionControlForDirectory(project->projectDirectory());
@@ -117,8 +115,8 @@ void VcsPlugin::initialize()
         });
 
     expander->registerVariable(Constants::VAR_VCS_TOPIC,
-        Tr::tr("The current version control topic (branch or tag) identification of the current project."),
-        []() -> QString {
+        Tr::tr("The current version control topic (branch or tag) identification "
+               "of the current project."), [] {
             IVersionControl *vc = nullptr;
             FilePath topLevel;
             if (Project *project = ProjectTree::currentProject())
@@ -127,8 +125,7 @@ void VcsPlugin::initialize()
         });
 
     expander->registerVariable(Constants::VAR_VCS_TOPLEVELPATH,
-        Tr::tr("The top level path to the repository the current project is in."),
-        []() -> QString {
+        Tr::tr("The top level path to the repository the current project is in."), [] {
             if (Project *project = ProjectTree::currentProject())
                 return VcsManager::findTopLevelForDirectory(project->projectDirectory()).toString();
             return QString();

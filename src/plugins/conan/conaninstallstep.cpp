@@ -11,7 +11,7 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
@@ -62,6 +62,10 @@ public:
 private:
     bool init() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
+
+    FilePathAspect conanFile{this};
+    StringAspect additionalArguments{this};
+    BoolAspect buildMissing{this};
 };
 
 ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
@@ -70,36 +74,32 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     setUseEnglishOutput();
     setDisplayName(Tr::tr("Conan install"));
 
-    auto conanFile = addAspect<FilePathAspect>();
-    conanFile->setSettingsKey("ConanPackageManager.InstallStep.ConanFile");
-    conanFile->setFilePath(conanFilePath(project(),
-                           project()->projectDirectory() / "conanfile.txt"));
-    conanFile->setLabelText(Tr::tr("Conan file:"));
-    conanFile->setToolTip(Tr::tr("Enter location of conanfile.txt or conanfile.py."));
-    conanFile->setExpectedKind(PathChooser::File);
+    conanFile.setSettingsKey("ConanPackageManager.InstallStep.ConanFile");
+    conanFile.setValue(conanFilePath(project(), project()->projectDirectory() / "conanfile.txt"));
+    conanFile.setLabelText(Tr::tr("Conan file:"));
+    conanFile.setToolTip(Tr::tr("Enter location of conanfile.txt or conanfile.py."));
+    conanFile.setExpectedKind(PathChooser::File);
 
-    auto additionalArguments = addAspect<StringAspect>();
-    additionalArguments->setSettingsKey("ConanPackageManager.InstallStep.AdditionalArguments");
-    additionalArguments->setLabelText(Tr::tr("Additional arguments:"));
-    additionalArguments->setDisplayStyle(StringAspect::LineEditDisplay);
+    additionalArguments.setSettingsKey("ConanPackageManager.InstallStep.AdditionalArguments");
+    additionalArguments.setLabelText(Tr::tr("Additional arguments:"));
+    additionalArguments.setDisplayStyle(StringAspect::LineEditDisplay);
 
-    auto buildMissing = addAspect<BoolAspect>();
-    buildMissing->setSettingsKey("ConanPackageManager.InstallStep.BuildMissing");
-    buildMissing->setLabel("Build missing:", BoolAspect::LabelPlacement::InExtraLabel);
-    buildMissing->setDefaultValue(true);
-    buildMissing->setValue(true);
+    buildMissing.setSettingsKey("ConanPackageManager.InstallStep.BuildMissing");
+    buildMissing.setLabel("Build missing:", BoolAspect::LabelPlacement::InExtraLabel);
+    buildMissing.setDefaultValue(true);
+    buildMissing.setValue(true);
 
-    setCommandLineProvider([=] {
+    setCommandLineProvider([this] {
         BuildConfiguration::BuildType bt = buildConfiguration()->buildType();
         const QString buildType = bt == BuildConfiguration::Release ? QString("Release")
                                                                     : QString("Debug");
 
         CommandLine cmd(settings().conanFilePath());
         cmd.addArgs({"install", "-s", "build_type=" + buildType});
-        if (buildMissing->value())
+        if (buildMissing())
             cmd.addArg("--build=missing");
-        cmd.addArg(conanFile->value());
-        cmd.addArgs(additionalArguments->value(), CommandLine::Raw);
+        cmd.addArg(conanFile().path());
+        cmd.addArgs(additionalArguments(), CommandLine::Raw);
         return cmd;
     });
 

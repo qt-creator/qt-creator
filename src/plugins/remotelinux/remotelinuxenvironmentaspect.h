@@ -14,15 +14,15 @@ class REMOTELINUX_EXPORT RemoteLinuxEnvironmentAspect : public ProjectExplorer::
     Q_OBJECT
 
 public:
-    RemoteLinuxEnvironmentAspect(ProjectExplorer::Target *target);
+    explicit RemoteLinuxEnvironmentAspect(Utils::AspectContainer *container = nullptr);
 
     void setRemoteEnvironment(const Utils::Environment &env);
 
     QString userEnvironmentChangesAsString() const;
 
 protected:
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
 private:
     Utils::Environment m_remoteEnvironment;

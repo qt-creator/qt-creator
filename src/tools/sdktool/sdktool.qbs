@@ -1,11 +1,8 @@
-import qbs 1.0
-
 QtcTool {
     name: "sdktool"
 
     Depends { name: "Qt.core" }
     Depends { name: "app_version_header" }
-    Depends { name: "Qt.testlib"; condition: project.withAutotests }
     Depends { name: "sdktoolLib" }
 
     cpp.defines: base.concat([

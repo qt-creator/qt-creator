@@ -45,7 +45,7 @@ ThemeSelector::ThemeSelector(QWidget *parent)
     setCurrentText(appSettings.value(themeNameKey, "Flat Dark").toString());
     setTheme(currentData().toString());
 
-    connect(this, &QComboBox::currentTextChanged, [this]{
+    connect(this, &QComboBox::currentTextChanged, this, [this] {
         setTheme(currentData().toString());
         QSettings appSettings;
         appSettings.setValue(themeNameKey, currentText());

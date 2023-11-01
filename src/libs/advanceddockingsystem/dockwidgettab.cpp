@@ -473,7 +473,7 @@ void DockWidgetTab::contextMenuEvent(QContextMenuEvent *event)
     QMenu menu(this);
 
     if (!isTopLevelArea) {
-        QAction *detachAction = menu.addAction(tr("Detach"));
+        QAction *detachAction = menu.addAction(Tr::tr("Detach"));
         detachAction->connect(detachAction,
                               &QAction::triggered,
                               this,
@@ -481,7 +481,7 @@ void DockWidgetTab::contextMenuEvent(QContextMenuEvent *event)
         detachAction->setEnabled(isDetachable);
 
         if (DockManager::testAutoHideConfigFlag(DockManager::AutoHideFeatureEnabled)) {
-            QAction *pinAction = menu.addAction(tr("Pin"));
+            QAction *pinAction = menu.addAction(Tr::tr("Pin"));
             pinAction->connect(pinAction,
                                &QAction::triggered,
                                this,
@@ -490,23 +490,23 @@ void DockWidgetTab::contextMenuEvent(QContextMenuEvent *event)
             auto isPinnable = d->m_dockWidget->features().testFlag(DockWidget::DockWidgetPinnable);
             pinAction->setEnabled(isPinnable);
 
-            auto subMenu = menu.addMenu(tr("Pin To..."));
+            auto subMenu = menu.addMenu(Tr::tr("Pin To..."));
             subMenu->setEnabled(isPinnable);
-            d->createAutoHideToAction(tr("Top"), SideBarTop, subMenu);
-            d->createAutoHideToAction(tr("Left"), SideBarLeft, subMenu);
-            d->createAutoHideToAction(tr("Right"), SideBarRight, subMenu);
-            d->createAutoHideToAction(tr("Bottom"), SideBarBottom, subMenu);
+            d->createAutoHideToAction(Tr::tr("Top"), SideBarTop, subMenu);
+            d->createAutoHideToAction(Tr::tr("Left"), SideBarLeft, subMenu);
+            d->createAutoHideToAction(Tr::tr("Right"), SideBarRight, subMenu);
+            d->createAutoHideToAction(Tr::tr("Bottom"), SideBarBottom, subMenu);
         }
     }
 
     menu.addSeparator();
 
-    QAction *closeAction = menu.addAction(tr("Close"));
+    QAction *closeAction = menu.addAction(Tr::tr("Close"));
     closeAction->connect(closeAction, &QAction::triggered, this, &DockWidgetTab::closeRequested);
     closeAction->setEnabled(isClosable());
 
     if (d->m_dockArea->openDockWidgetsCount() > 1) {
-        QAction *closeOthersAction = menu.addAction(tr("Close Others"));
+        QAction *closeOthersAction = menu.addAction(Tr::tr("Close Others"));
         closeOthersAction->connect(closeOthersAction,
                                    &QAction::triggered,
                                    this,

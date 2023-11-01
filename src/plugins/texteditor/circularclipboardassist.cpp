@@ -13,10 +13,12 @@
 
 #include <coreplugin/coreconstants.h>
 
-#include <utils/utilsicons.h>
+#include <utils/icon.h>
 
 #include <QApplication>
 #include <QClipboard>
+
+using namespace Utils;
 
 namespace TextEditor {
 namespace Internal {
@@ -65,7 +67,7 @@ class ClipboardAssistProcessor: public IAssistProcessor
 public:
     IAssistProposal *perform() override
     {
-        QIcon icon = QIcon::fromTheme(QLatin1String("edit-paste"), Utils::Icons::PASTE.icon()).pixmap(16);
+        QIcon icon = Icon::fromTheme("edit-paste");
         CircularClipboard * clipboard = CircularClipboard::instance();
         QList<AssistProposalItemInterface *> items;
         items.reserve(clipboard->size());

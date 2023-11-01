@@ -17,9 +17,17 @@ int main(int argc, char *argv[])
         title("Hello World"),
 
         Column {
-            TextEdit {
-                id(textId),
-                text("Hallo")
+            If { false, {
+                    TextEdit {
+                        id(textId),
+                        text("Hallo")
+                    },
+                }, {
+                    TextEdit {
+                        id(textId),
+                        text("Och noe")
+                    },
+                }
             },
 
             Row {

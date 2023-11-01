@@ -8,11 +8,11 @@
 #include "projectmanager.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <utils/algorithm.h>
-#include <utils/filesearch.h>
+#include <utils/qtcsettings.h>
 
-#include <QSettings>
-
+using namespace TextEditor;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -30,14 +30,14 @@ QString FilesInAllProjectsFind::displayName() const
 
 const char kSettingsKey[] = "FilesInAllProjectDirectories";
 
-void FilesInAllProjectsFind::writeSettings(QSettings *settings)
+void FilesInAllProjectsFind::writeSettings(QtcSettings *settings)
 {
     settings->beginGroup(kSettingsKey);
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void FilesInAllProjectsFind::readSettings(QSettings *settings)
+void FilesInAllProjectsFind::readSettings(QtcSettings *settings)
 {
     settings->beginGroup(kSettingsKey);
     readCommonSettings(
@@ -47,18 +47,15 @@ void FilesInAllProjectsFind::readSettings(QSettings *settings)
     settings->endGroup();
 }
 
-Utils::FileIterator *FilesInAllProjectsFind::files(const QStringList &nameFilters,
-                                                   const QStringList &exclusionFilters,
-                                                   const QVariant &additionalParameters) const
+FileContainerProvider FilesInAllProjectsFind::fileContainerProvider() const
 {
-    Q_UNUSED(additionalParameters)
-    const QSet<FilePath> dirs = Utils::transform<QSet>(ProjectManager::projects(), [](Project *p) {
-        return p->projectFilePath().parentDir();
-    });
-    return new SubDirFileIterator(FilePaths(dirs.constBegin(), dirs.constEnd()),
-                                  nameFilters,
-                                  exclusionFilters,
-                                  Core::EditorManager::defaultTextCodec());
+    return [nameFilters = fileNameFilters(), exclusionFilters = fileExclusionFilters()] {
+        const QSet<FilePath> dirs = Utils::transform<QSet>(ProjectManager::projects(), [](Project *p) {
+            return p->projectFilePath().parentDir();
+        });
+        return SubDirFileContainer(FilePaths(dirs.constBegin(), dirs.constEnd()), nameFilters,
+                                   exclusionFilters, Core::EditorManager::defaultTextCodec());
+    };
 }
 
 QString FilesInAllProjectsFind::label() const

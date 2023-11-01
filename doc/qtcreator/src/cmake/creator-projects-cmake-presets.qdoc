@@ -20,7 +20,7 @@
     enforce version checking. It reads and uses all the fields from version 3 if
     present. It does not support test presets.
 
-    You can import the presets the first time you \l {Opening Projects}
+    You can import the presets the first time you \l {Open projects}
     {open a project}, when no \c CMakeLists.txt.user file exists or you have
     disabled all kits in the project.
 
@@ -141,7 +141,7 @@
     \endcode
 
     This example assumes that the CMake executable path is set in
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
+    \preferences > \uicontrol CMake >
     \uicontrol Tools.
 
     \section1 MSVC Example

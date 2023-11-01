@@ -327,11 +327,7 @@ public:
     void start() final { task()->start(); }
 };
 
-} // namespace Core
-
-TASKING_DECLARE_TASK(ResultsCollectorTask, Core::ResultsCollectorTaskAdapter);
-
-namespace Core {
+using ResultsCollectorTask = CustomTask<ResultsCollectorTaskAdapter>;
 
 class LocatorStoragePrivate
 {

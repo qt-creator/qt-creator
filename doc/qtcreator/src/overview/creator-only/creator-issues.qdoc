@@ -74,7 +74,7 @@
             \QC or the conflicting shortcut in ibus.
 
             To set another \l {Keyboard Shortcuts}{keyboard shortcut}
-            in \QC, select \uicontrol Edit > \uicontrol Preferences >
+            in \QC, select \preferences >
             \uicontrol Environment > \uicontrol Keyboard.
 
             To change the ibus shortcut, enter the following command on the
@@ -102,7 +102,7 @@
         \li  If error messages displayed in \l {Compile Output} have
             paths where slashes are missing (for example, C:QtSDK),
             check your PATH variable. For more information, see
-            \l{Troubleshooting MinGW Compilation Errors}.
+            \l{Troubleshoot MinGW compilation errors}.
 
     \endlist
 

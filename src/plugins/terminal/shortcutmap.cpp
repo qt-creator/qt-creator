@@ -9,6 +9,7 @@
 
 #include <algorithm>
 
+#include <QAction>
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QLoggingCategory>
@@ -216,8 +217,6 @@ QKeySequence::SequenceMatch ShortcutMap::state()
 */
 bool ShortcutMap::tryShortcut(QKeyEvent *e)
 {
-    Q_D(ShortcutMap);
-
     if (e->key() == Qt::Key_unknown)
         return false;
 
@@ -234,14 +233,8 @@ bool ShortcutMap::tryShortcut(QKeyEvent *e)
         // but we need to say we did, so that we get the follow-up key-presses.
         return true;
     case QKeySequence::ExactMatch: {
-        // Save number of identical matches before dispatching
-        // to keep ShortcutMap and tryShortcut reentrant.
-        const int identicalMatches = d->identicals.size();
         resetState();
-        dispatchEvent(e);
-        // If there are no identicals we've only found disabled shortcuts, and
-        // shouldn't say that we handled the event.
-        return identicalMatches > 0;
+        return dispatchEvent(e);
     }
     }
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
@@ -510,11 +503,11 @@ QList<const ShortcutEntry *> ShortcutMap::matches() const
 /*! \internal
     Dispatches QShortcutEvents to widgets who grabbed the matched key sequence.
 */
-void ShortcutMap::dispatchEvent(QKeyEvent *e)
+bool ShortcutMap::dispatchEvent(QKeyEvent *e)
 {
     Q_D(ShortcutMap);
     if (!d->identicals.size())
-        return;
+        return false;
 
     const QKeySequence &curKey = d->identicals.at(0)->keyseq;
     if (d->prevSequence != curKey) {
@@ -541,7 +534,7 @@ void ShortcutMap::dispatchEvent(QKeyEvent *e)
     // Don't trigger shortcut if we're autorepeating and the shortcut is
     // grabbed with not accepting autorepeats.
     if (!next || (e->isAutoRepeat() && !next->autorepeat))
-        return;
+        return false;
     // Dispatch next enabled
     if (lcShortcutMap().isDebugEnabled()) {
         if (ambiguousShortcuts.size() > 1) {
@@ -557,8 +550,20 @@ void ShortcutMap::dispatchEvent(QKeyEvent *e)
             << "\", " << next->id << ", " << static_cast<bool>(enabledShortcuts > 1)
             << ") to object(" << next->owner << ')';
     }
-    QShortcutEvent se(next->keyseq, next->id, enabledShortcuts > 1);
-    QCoreApplication::sendEvent(const_cast<QObject *>(next->owner), &se);
+
+    if (auto action = qobject_cast<QAction *>(next->owner)) {
+        // We call the action here ourselves instead of relying on sending a ShortCut event,
+        // as the action will try to match the shortcut id to the global shortcutmap.
+        // This triggers an annoying Q_ASSERT when linking against a debug Qt. Calling trigger
+        // directly circumvents this.
+        action->trigger();
+        return action->isEnabled();
+    } else {
+        QShortcutEvent se(next->keyseq, next->id, enabledShortcuts > 1);
+        QCoreApplication::sendEvent(const_cast<QObject *>(next->owner), &se);
+    }
+
+    return true;
 }
 
 } // namespace Terminal::Internal

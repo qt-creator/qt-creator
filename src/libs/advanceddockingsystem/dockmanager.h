@@ -23,8 +23,9 @@
 
 QT_BEGIN_NAMESPACE
 class QMenu;
-class QSettings;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcSettings; }
 
 namespace ADS {
 
@@ -277,7 +278,7 @@ public:
     /**
      * Set the QtCreator settings.
      */
-    void setSettings(QSettings *settings);
+    void setSettings(Utils::QtcSettings *settings);
 
     /**
      * Set the path to the workspace presets folder.

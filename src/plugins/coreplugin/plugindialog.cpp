@@ -8,8 +8,6 @@
 #include "icore.h"
 #include "plugininstallwizard.h"
 
-#include <app/app_version.h>
-
 #include <extensionsystem/plugindetailsview.h>
 #include <extensionsystem/pluginerrorview.h>
 #include <extensionsystem/pluginmanager.h>

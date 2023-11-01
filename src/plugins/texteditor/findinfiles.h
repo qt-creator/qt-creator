@@ -5,17 +5,17 @@
 
 #include "basefilefind.h"
 
-#include <utils/fileutils.h>
-
 #include <QPointer>
-#include <QStringListModel>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QStackedWidget;
 QT_END_NAMESPACE
 
-namespace Utils { class PathChooser; }
+namespace Utils {
+class PathChooser;
+class QtcSettings;
+} // Utils
 
 namespace TextEditor {
 
@@ -30,32 +30,24 @@ public:
     QString id() const override;
     QString displayName() const override;
     QWidget *createConfigWidget() override;
-    void writeSettings(QSettings *settings) override;
-    void readSettings(QSettings *settings) override;
+    void writeSettings(Utils::QtcSettings *settings) override;
+    void readSettings(Utils::QtcSettings *settings) override;
     bool isValid() const override;
 
     void setDirectory(const Utils::FilePath &directory);
     void setBaseDirectory(const Utils::FilePath &directory);
-    Utils::FilePath directory() const;
     static void findOnFileSystem(const QString &path);
     static FindInFiles *instance();
 
-signals:
-    void pathChanged(const Utils::FilePath &directory);
-
 protected:
-    Utils::FileIterator *files(const QStringList &nameFilters,
-                               const QStringList &exclusionFilters,
-                               const QVariant &additionalParameters) const override;
-    QVariant additionalParameters() const override;
     QString label() const override;
     QString toolTip() const override;
     void syncSearchEngineCombo(int selectedSearchEngineIndex) override;
 
 private:
+    FileContainerProvider fileContainerProvider() const override;
     void setValid(bool valid);
     void searchEnginesSelectionChanged(int index);
-    Utils::FilePath path() const;
 
     QPointer<QWidget> m_configWidget;
     QPointer<Utils::PathChooser> m_directory;

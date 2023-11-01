@@ -95,6 +95,7 @@ private:
     std::unique_ptr<QFutureWatcher<ResultType>> m_watcher;
 };
 
-} // namespace Tasking
+template <typename T>
+using ConcurrentCallTask = CustomTask<ConcurrentCallTaskAdapter<T>>;
 
-TASKING_DECLARE_TEMPLATE_TASK(ConcurrentCallTask, Tasking::ConcurrentCallTaskAdapter);
+} // namespace Tasking

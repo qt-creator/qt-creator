@@ -5,14 +5,12 @@
 
 #include "../projectexplorertr.h"
 
-#include <app/app_version.h>
-
 #include <utils/winutils.h>
 #include <utils/fileutils.h>
 #include <utils/processinfo.h>
 
-#include <QCoreApplication>
 #include <QDir>
+#include <QGuiApplication>
 #include <QProcess>
 
 #ifdef Q_OS_WIN
@@ -165,13 +163,13 @@ GDB 32bit | Api             | Api             | N/A             | Win32         
             executable += si == Win32Interrupt
                     ? QLatin1String("/win32interrupt.exe")
                     : QLatin1String("/win64interrupt.exe");
-            if (!QFile::exists(executable)) {
+            if (!QFileInfo::exists(executable)) {
                 appendMsgCannotInterrupt(pid,
                                          Tr::tr("%1 does not exist. If you built %2 "
-                                            "yourself, check out https://code.qt.io/cgit/"
-                                            "qt-creator/binary-artifacts.git/.")
+                                                "yourself, check out https://code.qt.io/cgit/"
+                                                "qt-creator/binary-artifacts.git/.")
                                              .arg(QDir::toNativeSeparators(executable),
-                                                  QString(Core::Constants::IDE_DISPLAY_NAME)));
+                                                  QGuiApplication::applicationDisplayName()));
             }
             switch (QProcess::execute(executable, QStringList(QString::number(pid)))) {
             case -2:

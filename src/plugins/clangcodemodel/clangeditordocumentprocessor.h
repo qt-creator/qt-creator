@@ -22,7 +22,6 @@ public:
     void setParserConfig(const CppEditor::BaseEditorDocumentParser::Configuration &config) override;
     CppEditor::BaseEditorDocumentParser::Configuration parserConfig();
 
-public:
     static ClangEditorDocumentProcessor *get(const Utils::FilePath &filePath);
 
 signals:
@@ -30,6 +29,8 @@ signals:
                              const CppEditor::BaseEditorDocumentParser::Configuration &config);
 
 private:
+    void forceUpdate(TextEditor::TextDocument *doc) override;
+
     TextEditor::TextDocument &m_document;
 };
 

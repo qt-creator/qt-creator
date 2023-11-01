@@ -40,8 +40,8 @@ public:
 
     using QProcess::setErrorString;
 
-    void setLowPriority() { m_lowPriority = true; }
-    void setUnixTerminalDisabled() { m_unixTerminalDisabled = true; }
+    void setLowPriority();
+    void setUnixTerminalDisabled();
     void setUseCtrlCStub(bool enabled); // release only
 
     static void terminateProcess(QProcess *process);
@@ -49,6 +49,7 @@ public:
     static void interruptPid(qint64 pid);
 
 private:
+    void enableChildProcessModifier();
     void terminateProcess();
 
     bool m_lowPriority = false;

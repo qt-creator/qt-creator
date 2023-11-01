@@ -9,6 +9,7 @@
 #include "clangtoolsutils.h"
 
 #include <debugger/analyzer/detailederrorview.h>
+#include <utils/filesystemwatcher.h>
 #include <utils/fileutils.h>
 #include <utils/treemodel.h>
 
@@ -104,8 +105,8 @@ public:
     QSet<QString> allChecks() const;
 
     void clear();
-    void removeWatchedPath(const QString &path);
-    void addWatchedPath(const QString &path);
+    void removeWatchedPath(const Utils::FilePath &path);
+    void addWatchedPath(const Utils::FilePath &path);
 
 signals:
     void fixitStatusChanged(const QModelIndex &index, FixitStatus oldStatus, FixitStatus newStatus);
@@ -120,7 +121,7 @@ private:
     QHash<Utils::FilePath, FilePathItem *> m_filePathToItem;
     QSet<Diagnostic> m_diagnostics;
     std::map<QVector<ExplainingStep>, QVector<DiagnosticItem *>> stepsToItemsCache;
-    std::unique_ptr<QFileSystemWatcher> m_filesWatcher;
+    std::unique_ptr<Utils::FileSystemWatcher> m_filesWatcher;
 };
 
 class FilterOptions {

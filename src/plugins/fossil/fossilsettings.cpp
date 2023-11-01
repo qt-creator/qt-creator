@@ -6,6 +6,7 @@
 #include "constants.h"
 #include "fossiltr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
@@ -17,21 +18,16 @@ using namespace Utils;
 
 namespace Fossil::Internal {
 
-static FossilSettings *theSettings;
-
 FossilSettings &settings()
 {
-    return *theSettings;
+    static FossilSettings theSettings;
+    return theSettings;
 }
 
 FossilSettings::FossilSettings()
 {
-    theSettings = this;
-
+    setAutoApply(false);
     setSettingsGroup(Constants::FOSSIL);
-    setId(Constants::VCS_ID_FOSSIL);
-    setDisplayName(Tr::tr("Fossil"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setDefaultValue(Constants::FOSSILDEFAULT);
@@ -119,6 +115,24 @@ FossilSettings::FossilSettings()
             st
         };
     });
+
+    readSettings();
 }
+
+// FossilSettingsPage
+
+class FossilSettingsPage final : public Core::IOptionsPage
+{
+public:
+    FossilSettingsPage()
+    {
+        setId(Constants::VCS_ID_FOSSIL);
+        setDisplayName(Tr::tr("Fossil"));
+        setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const FossilSettingsPage settingsPage;
 
 } // Fossil::Internal

@@ -20,6 +20,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
+#include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
@@ -416,7 +417,7 @@ std::unique_ptr<AssistInterface> InternalCompletionAssistProvider::createAssistI
                 BuiltinEditorDocumentParser::get(filePath),
                 languageFeatures,
                 reason,
-                CppModelManager::instance()->workingCopy());
+                CppModelManager::workingCopy());
 }
 
 // -----------------
@@ -1459,9 +1460,8 @@ bool InternalCppCompletionAssistProcessor::globalCompletion(Scope *currentScope)
 
     QSet<ClassOrNamespace *> processed;
     for (; currentBinding; currentBinding = currentBinding->parent()) {
-        if (processed.contains(currentBinding))
+        if (!Utils::insert(processed, currentBinding))
             break;
-        processed.insert(currentBinding);
 
         const QList<ClassOrNamespace*> usings = currentBinding->usings();
         for (ClassOrNamespace* u : usings)
@@ -1598,10 +1598,9 @@ void InternalCppCompletionAssistProcessor::completeNamespace(ClassOrNamespace *b
 
     while (!bindingsToVisit.isEmpty()) {
         ClassOrNamespace *binding = bindingsToVisit.takeFirst();
-        if (!binding || bindingsVisited.contains(binding))
+        if (!binding || !Utils::insert(bindingsVisited, binding))
             continue;
 
-        bindingsVisited.insert(binding);
         bindingsToVisit += binding->usings();
 
         QList<Scope *> scopesToVisit;
@@ -1619,10 +1618,8 @@ void InternalCppCompletionAssistProcessor::completeNamespace(ClassOrNamespace *b
 
         while (!scopesToVisit.isEmpty()) {
             Scope *scope = scopesToVisit.takeFirst();
-            if (!scope || scopesVisited.contains(scope))
+            if (!scope || !Utils::insert(scopesVisited, scope))
                 continue;
-
-            scopesVisited.insert(scope);
 
             for (Scope::iterator it = scope->memberBegin(); it != scope->memberEnd(); ++it) {
                 Symbol *member = *it;
@@ -1640,10 +1637,9 @@ void InternalCppCompletionAssistProcessor::completeClass(ClassOrNamespace *b, bo
 
     while (!bindingsToVisit.isEmpty()) {
         ClassOrNamespace *binding = bindingsToVisit.takeFirst();
-        if (!binding || bindingsVisited.contains(binding))
+        if (!binding || !Utils::insert(bindingsVisited, binding))
             continue;
 
-        bindingsVisited.insert(binding);
         bindingsToVisit += binding->usings();
 
         QList<Scope *> scopesToVisit;
@@ -1663,10 +1659,8 @@ void InternalCppCompletionAssistProcessor::completeClass(ClassOrNamespace *b, bo
 
         while (!scopesToVisit.isEmpty()) {
             Scope *scope = scopesToVisit.takeFirst();
-            if (!scope || scopesVisited.contains(scope))
+            if (!scope || !Utils::insert(scopesVisited, scope))
                 continue;
-
-            scopesVisited.insert(scope);
 
             if (staticLookup)
                 addCompletionItem(scope, InjectedClassNameOrder); // add a completion item for the injected class name.
@@ -1737,9 +1731,7 @@ bool InternalCppCompletionAssistProcessor::completeQtMethod(const QList<LookupIt
         todo.append(b);
         while (!todo.isEmpty()) {
             ClassOrNamespace *binding = todo.takeLast();
-            if (!processed.contains(binding)) {
-                processed.insert(binding);
-
+            if (Utils::insert(processed, binding)) {
                 const QList<Symbol *> symbols = binding->symbols();
                 for (Symbol *s : symbols)
                     if (Class *clazz = s->asClass())
@@ -1862,10 +1854,8 @@ void InternalCppCompletionAssistProcessor::addMacros_helper(const Snapshot &snap
 {
     Document::Ptr doc = snapshot.document(filePath);
 
-    if (!doc || processed->contains(doc->filePath()))
+    if (!doc || !Utils::insert(*processed, doc->filePath()))
         return;
-
-    processed->insert(doc->filePath());
 
     const QList<Document::Include> includes = doc->resolvedIncludes();
     for (const Document::Include &i : includes)
@@ -2086,7 +2076,7 @@ void CppCompletionAssistInterface::getCppSpecifics() const
     m_gotCppSpecifics = true;
 
     if (m_parser) {
-        m_parser->update({CppModelManager::instance()->workingCopy(),
+        m_parser->update({CppModelManager::workingCopy(),
                           nullptr,
                           Utils::Language::Cxx,
                           false});

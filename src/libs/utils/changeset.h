@@ -10,6 +10,7 @@
 
 QT_BEGIN_NAMESPACE
 class QTextCursor;
+class QTextDocument;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -76,6 +77,7 @@ public:
 
     void apply(QString *s);
     void apply(QTextCursor *textCursor);
+    void apply(QTextDocument *document);
 
 private:
     // length-based API.
@@ -100,6 +102,8 @@ private:
     QList<EditOp> m_operationList;
     bool m_error;
 };
+
+using EditOperations = QList<ChangeSet::EditOp>;
 
 inline bool operator<(const ChangeSet::Range &r1, const ChangeSet::Range &r2)
 {

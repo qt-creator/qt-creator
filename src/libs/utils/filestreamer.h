@@ -58,6 +58,6 @@ public:
     void start() override { task()->start(); }
 };
 
-} // namespace Utils
+using FileStreamerTask = Tasking::CustomTask<FileStreamerTaskAdapter>;
 
-TASKING_DECLARE_TASK(FileStreamerTask, Utils::FileStreamerTaskAdapter);
+} // namespace Utils

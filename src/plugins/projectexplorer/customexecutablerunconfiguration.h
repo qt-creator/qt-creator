@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "environmentaspect.h"
+#include "runconfigurationaspects.h"
 #include "runcontrol.h"
 
 namespace ProjectExplorer {
@@ -18,12 +20,17 @@ public:
     QString defaultDisplayName() const;
 
 private:
-    Runnable runnable() const override;
+    Utils::ProcessRunData runnable() const override;
     bool isEnabled() const override;
     Tasks checkForIssues() const override;
 
     void configurationDialogFinished();
-    Utils::FilePath executable() const;
+
+    EnvironmentAspect environment{this};
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
 };
 
 class CustomExecutableRunConfigurationFactory : public FixedRunConfigurationFactory

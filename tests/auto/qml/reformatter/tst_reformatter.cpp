@@ -1,21 +1,19 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <QScopedPointer>
-#include <QLatin1String>
-#include <QGraphicsObject>
-#include <QApplication>
-#include <QSettings>
-#include <QFileInfo>
-
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
 #include <qmljs/parser/qmljsast_p.h>
 #include <qmljs/parser/qmljsengine_p.h>
+
 #include <utils/filepath.h>
 
+#include <QApplication>
+#include <QGraphicsObject>
+#include <QScopedPointer>
 #include <QtTest>
+
 #include <algorithm>
 
 using namespace QmlJS;

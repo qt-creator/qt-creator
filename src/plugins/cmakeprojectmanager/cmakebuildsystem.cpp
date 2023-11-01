@@ -7,7 +7,8 @@
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
 #include "cmakebuildtarget.h"
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
+#include "cmakeprocess.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
@@ -26,7 +27,7 @@
 #include <cppeditor/cppprojectupdater.h>
 
 #include <projectexplorer/extracompiler.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -36,11 +37,11 @@
 #include <texteditor/textdocument.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
-#include <qmljstools/qmljstoolsconstants.h>
-#include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
 
-#include <app/app_version.h>
+#include <qmljstools/qmljstoolsconstants.h>
+
+#include <qtsupport/qtcppkitinfo.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -117,6 +118,7 @@ CMakeBuildSystem::CMakeBuildSystem(CMakeBuildConfiguration *bc)
             &CMakeBuildSystem::handleParsingSucceeded);
     connect(&m_reader, &FileApiReader::errorOccurred, this, &CMakeBuildSystem::handleParsingFailed);
     connect(&m_reader, &FileApiReader::dirty, this, &CMakeBuildSystem::becameDirty);
+    connect(&m_reader, &FileApiReader::debuggingStarted, this, &BuildSystem::debuggingStarted);
 
     wireUpConnections();
 
@@ -192,10 +194,23 @@ void CMakeBuildSystem::triggerParsing()
     // active code model updater when the next one will be triggered.
     m_cppCodeModelUpdater->cancel();
 
+    const CMakeTool *tool = m_parameters.cmakeTool();
+    CMakeTool::Version version = tool ? tool->version() : CMakeTool::Version();
+    const bool isDebuggable = (version.major == 3 && version.minor >= 27) || version.major > 3;
+
     qCDebug(cmakeBuildSystemLog) << "Asking reader to parse";
     m_reader.parse(reparseParameters & REPARSE_FORCE_CMAKE_RUN,
                    reparseParameters & REPARSE_FORCE_INITIAL_CONFIGURATION,
-                   reparseParameters & REPARSE_FORCE_EXTRA_CONFIGURATION);
+                   reparseParameters & REPARSE_FORCE_EXTRA_CONFIGURATION,
+                   (reparseParameters & REPARSE_DEBUG) && isDebuggable,
+                   reparseParameters & REPARSE_PROFILING);
+}
+
+void CMakeBuildSystem::requestDebugging()
+{
+    qCDebug(cmakeBuildSystemLog) << "Requesting parse due to \"Rescan Project\" command";
+    reparse(REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION | REPARSE_URGENT
+            | REPARSE_DEBUG);
 }
 
 bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
@@ -257,6 +272,8 @@ static QString newFilesForFunction(const std::string &cmakeFunction,
 
 bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
+    if (notAdded)
+        *notAdded = filePaths;
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
         const QString targetName = n->buildKey();
         auto target = Utils::findOrDefault(buildTargets(),
@@ -264,10 +281,9 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
                                                return target.title == targetName;
                                            });
 
-        if (target.backtrace.isEmpty()) {
-            *notAdded = filePaths;
+        if (target.backtrace.isEmpty())
             return false;
-        }
+
         const FilePath targetCMakeFile = target.backtrace.last().path;
         const int targetDefinitionLine = target.backtrace.last().line;
 
@@ -282,7 +298,6 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
             if (!cmakeListFile.ParseString(fileContent->toStdString(),
                                            targetCMakeFile.fileName().toStdString(),
                                            errorString)) {
-                *notAdded = filePaths;
                 return false;
             }
         }
@@ -293,10 +308,8 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
                                          return func.Line() == targetDefinitionLine;
                                      });
 
-        if (function == cmakeListFile.Functions.end()) {
-            *notAdded = filePaths;
+        if (function == cmakeListFile.Functions.end())
             return false;
-        }
 
         // Special case: when qt_add_executable and qt_add_qml_module use the same target name
         // then qt_add_qml_module function should be used
@@ -370,16 +383,16 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
             Core::EditorManager::openEditorAt({targetCMakeFile, line, column + extraChars},
                                               Constants::CMAKE_EDITOR_ID,
                                               Core::EditorManager::DoNotMakeVisible));
-        if (!editor) {
-            *notAdded = filePaths;
+        if (!editor)
             return false;
-        }
 
         editor->insert(snippet);
         editor->editorWidget()->autoIndent();
         if (!Core::DocumentManager::saveDocument(editor->document()))
             return false;
 
+        if (notAdded)
+            notAdded->clear();
         return true;
     }
 
@@ -793,6 +806,13 @@ void CMakeBuildSystem::runCMakeWithExtraArguments()
     reparse(REPARSE_FORCE_CMAKE_RUN | REPARSE_FORCE_EXTRA_CONFIGURATION | REPARSE_URGENT);
 }
 
+void CMakeBuildSystem::runCMakeWithProfiling()
+{
+    qCDebug(cmakeBuildSystemLog) << "Requesting parse due \"CMake Profiler\" command";
+    reparse(REPARSE_FORCE_CMAKE_RUN | REPARSE_URGENT | REPARSE_FORCE_EXTRA_CONFIGURATION
+            | REPARSE_PROFILING);
+}
+
 void CMakeBuildSystem::stopCMakeRun()
 {
     qCDebug(cmakeBuildSystemLog) << buildConfiguration()->displayName()
@@ -996,7 +1016,7 @@ void CMakeBuildSystem::updateProjectData()
         const FilePath includeFileBaseDir = buildConfiguration()->buildDirectory();
         QStringList cxxFlags = rpp.flagsForCxx.commandLineFlags;
         QStringList cFlags = rpp.flagsForC.commandLineFlags;
-        addTargetFlagForIos(cxxFlags, cFlags, this, [this] {
+        addTargetFlagForIos(cFlags, cxxFlags, this, [this] {
             return m_configurationFromCMake.stringValueOf("CMAKE_OSX_DEPLOYMENT_TARGET");
         });
         if (kitInfo.cxxToolChain)
@@ -1010,7 +1030,7 @@ void CMakeBuildSystem::updateProjectData()
 
     {
         const bool mergedHeaderPathsAndQmlImportPaths = kit()->value(
-                    QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), false).toBool();
+                    QtSupport::Constants::KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS, false).toBool();
         QStringList extraHeaderPaths;
         QList<QByteArray> moduleMappings;
         for (const RawProjectPart &rpp : std::as_const(rpps)) {
@@ -1128,6 +1148,7 @@ void CMakeBuildSystem::handleParsingSucceeded(bool restoredFromBackup)
         });
         m_buildTargets += m_reader.takeBuildTargets(errorMessage);
         m_cmakeFiles = m_reader.takeCMakeFileInfos(errorMessage);
+        setupCMakeSymbolsHash();
 
         checkAndReportError(errorMessage);
     }
@@ -1210,7 +1231,7 @@ void CMakeBuildSystem::wireUpConnections()
             const CMakeConfig config = CMakeConfig::fromFile(cmakeCacheTxt, &errorMessage);
             if (!config.isEmpty() && errorMessage.isEmpty()) {
                 QString cmakeBuildTypeName = config.stringValueOf("CMAKE_BUILD_TYPE");
-                setCMakeBuildType(cmakeBuildTypeName, true);
+                cmakeBuildConfiguration()->setCMakeBuildType(cmakeBuildTypeName, true);
             }
         }
         reparse(options);
@@ -1218,8 +1239,7 @@ void CMakeBuildSystem::wireUpConnections()
 
     connect(project(), &Project::projectFileIsDirty, this, [this] {
         if (buildConfiguration()->isActive() && !isParsing()) {
-            auto settings = CMakeSpecificSettings::instance();
-            if (settings->autorunCMake.value()) {
+            if (settings().autorunCMake()) {
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
                 reparse(CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
             }
@@ -1231,6 +1251,191 @@ void CMakeBuildSystem::wireUpConnections()
         qCDebug(cmakeBuildSystemLog) << "Initial run:";
         reparse(CMakeBuildSystem::REPARSE_DEFAULT);
     }
+}
+
+void CMakeBuildSystem::setupCMakeSymbolsHash()
+{
+    m_cmakeSymbolsHash.clear();
+
+    m_projectKeywords.functions.clear();
+    m_projectKeywords.variables.clear();
+
+    auto handleFunctionMacroOption = [&](const CMakeFileInfo &cmakeFile,
+                                         const cmListFileFunction &func) {
+        if (func.LowerCaseName() != "function" && func.LowerCaseName() != "macro"
+            && func.LowerCaseName() != "option")
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto arg = func.Arguments()[0];
+
+        Utils::Link link;
+        link.targetFilePath = cmakeFile.path;
+        link.targetLine = arg.Line;
+        link.targetColumn = arg.Column - 1;
+        m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+
+        if (func.LowerCaseName() == "option")
+            m_projectKeywords.variables[QString::fromUtf8(arg.Value)] = FilePath();
+        else
+            m_projectKeywords.functions[QString::fromUtf8(arg.Value)] = FilePath();
+    };
+
+    m_projectImportedTargets.clear();
+    auto handleImportedTargets = [&](const CMakeFileInfo &cmakeFile,
+                                     const cmListFileFunction &func) {
+        if (func.LowerCaseName() != "add_library")
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto arg = func.Arguments()[0];
+        const QString targetName = QString::fromUtf8(arg.Value);
+
+        const bool haveImported = Utils::contains(func.Arguments(), [](const auto &arg) {
+            return arg.Value == "IMPORTED";
+        });
+        if (haveImported && !targetName.contains("${")) {
+            m_projectImportedTargets << targetName;
+
+            // Allow navigation to the imported target
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = arg.Line;
+            link.targetColumn = arg.Column - 1;
+            m_cmakeSymbolsHash.insert(targetName, link);
+        }
+    };
+
+    // Handle project targets, unfortunately the CMake file-api doesn't deliver the
+    // column of the target, just the line. Make sure to find it out
+    QHash<FilePath, QPair<int, QString>> projectTargetsSourceAndLine;
+    for (const auto &target : std::as_const(buildTargets())) {
+        if (target.targetType == TargetType::UtilityType)
+            continue;
+        if (target.backtrace.isEmpty())
+            continue;
+
+        projectTargetsSourceAndLine.insert(target.backtrace.last().path,
+                                           {target.backtrace.last().line, target.title});
+    }
+    auto handleProjectTargets = [&](const CMakeFileInfo &cmakeFile, const cmListFileFunction &func) {
+        const auto it = projectTargetsSourceAndLine.find(cmakeFile.path);
+        if (it == projectTargetsSourceAndLine.end() || it->first != func.Line())
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto arg = func.Arguments()[0];
+
+        Utils::Link link;
+        link.targetFilePath = cmakeFile.path;
+        link.targetLine = arg.Line;
+        link.targetColumn = arg.Column - 1;
+        m_cmakeSymbolsHash.insert(it->second, link);
+    };
+
+    // Gather the exported variables for the Find<Package> CMake packages
+    m_projectFindPackageVariables.clear();
+
+    const std::string fphsFunctionName = "find_package_handle_standard_args";
+    CMakeKeywords keywords;
+    if (auto tool = CMakeKitAspect::cmakeTool(target()->kit()))
+        keywords = tool->keywords();
+    QSet<std::string> fphsFunctionArgs;
+    if (keywords.functionArgs.contains(QString::fromStdString(fphsFunctionName))) {
+        const QList<std::string> args
+            = Utils::transform(keywords.functionArgs.value(QString::fromStdString(fphsFunctionName)),
+                               &QString::toStdString);
+        fphsFunctionArgs = Utils::toSet(args);
+    }
+
+    auto handleFindPackageVariables = [&](const CMakeFileInfo &cmakeFile, const cmListFileFunction &func) {
+        if (func.LowerCaseName() != fphsFunctionName)
+            return;
+
+        if (func.Arguments().size() == 0)
+            return;
+        auto firstArgument = func.Arguments()[0];
+        const auto filteredArguments = Utils::filtered(func.Arguments(), [&](const auto &arg) {
+            return !fphsFunctionArgs.contains(arg.Value) && arg != firstArgument;
+        });
+
+        for (const auto &arg : filteredArguments) {
+            const QString value = QString::fromUtf8(arg.Value);
+            if (value.contains("${") || (value.startsWith('"') && value.endsWith('"'))
+                || (value.startsWith("'") && value.endsWith("'")))
+                continue;
+
+            m_projectFindPackageVariables << value;
+
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = arg.Line;
+            link.targetColumn = arg.Column - 1;
+            m_cmakeSymbolsHash.insert(value, link);
+        }
+    };
+
+    // Prepare a hash with all .cmake files
+    m_dotCMakeFilesHash.clear();
+    auto handleDotCMakeFiles = [&](const CMakeFileInfo &cmakeFile) {
+        if (cmakeFile.path.suffix() == "cmake") {
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = 1;
+            link.targetColumn = 0;
+            m_dotCMakeFilesHash.insert(cmakeFile.path.completeBaseName(), link);
+        }
+    };
+
+    // Gather all Find<Package>.cmake and <Package>Config.cmake / <Package>-config.cmake files
+    m_findPackagesFilesHash.clear();
+    auto handleFindPackageCMakeFiles = [&](const CMakeFileInfo &cmakeFile) {
+        const QString fileName = cmakeFile.path.fileName();
+
+        const QString findPackageName = [fileName]() -> QString {
+            auto findIdx = fileName.indexOf("Find");
+            auto endsWithCMakeIdx = fileName.lastIndexOf(".cmake");
+            if (findIdx == 0 && endsWithCMakeIdx > 0)
+                return fileName.mid(4, endsWithCMakeIdx - 4);
+            return QString();
+        }();
+
+        const QString configPackageName = [fileName]() -> QString {
+            auto configCMakeIdx = fileName.lastIndexOf("Config.cmake");
+            if (configCMakeIdx > 0)
+                return fileName.left(configCMakeIdx);
+            auto dashConfigCMakeIdx = fileName.lastIndexOf("-config.cmake");
+            if (dashConfigCMakeIdx > 0)
+                return fileName.left(dashConfigCMakeIdx);
+            return QString();
+        }();
+
+        if (!findPackageName.isEmpty() || !configPackageName.isEmpty()) {
+            Utils::Link link;
+            link.targetFilePath = cmakeFile.path;
+            link.targetLine = 1;
+            link.targetColumn = 0;
+            m_findPackagesFilesHash.insert(!findPackageName.isEmpty() ? findPackageName
+                                                                      : configPackageName,
+                                           link);
+        }
+    };
+
+    for (const auto &cmakeFile : std::as_const(m_cmakeFiles)) {
+        for (const auto &func : cmakeFile.cmakeListFile.Functions) {
+            handleFunctionMacroOption(cmakeFile, func);
+            handleImportedTargets(cmakeFile, func);
+            handleProjectTargets(cmakeFile, func);
+            handleFindPackageVariables(cmakeFile, func);
+        }
+        handleDotCMakeFiles(cmakeFile);
+        handleFindPackageCMakeFiles(cmakeFile);
+    }
+
+    m_projectFindPackageVariables.removeDuplicates();
 }
 
 void CMakeBuildSystem::ensureBuildDirectory(const BuildDirParameters &parameters)
@@ -1314,7 +1519,7 @@ void CMakeBuildSystem::runCTest()
                 const QJsonArray nodes = btGraph.value("nodes").toArray();
                 const QJsonArray tests = jsonObj.value("tests").toArray();
                 int counter = 0;
-                for (const QJsonValue &testVal : tests) {
+                for (const auto &testVal : tests) {
                     ++counter;
                     const QJsonObject test = testVal.toObject();
                     QTC_ASSERT(!test.isEmpty(), continue);
@@ -1325,11 +1530,10 @@ void CMakeBuildSystem::runCTest()
                     if (bt != -1) {
                         QSet<int> seen;
                         std::function<QJsonObject(int)> findAncestor = [&](int index){
-                            const QJsonObject node = nodes.at(index).toObject();
+                            QJsonObject node = nodes.at(index).toObject();
                             const int parent = node.value("parent").toInt(-1);
-                            if (seen.contains(parent) || parent < 0)
+                            if (parent < 0 || !Utils::insert(seen, parent))
                                 return node;
-                            seen << parent;
                             return findAncestor(parent);
                         };
                         const QJsonObject btRef = findAncestor(bt);
@@ -1570,7 +1774,7 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
 
     const CMakeConfig &cm = configurationFromCMake();
     addImports(cm.stringValueOf("QML_IMPORT_PATH"));
-    addImports(kit()->value(QtSupport::KitQmlImportPath::id()).toString());
+    addImports(kit()->value(QtSupport::Constants::KIT_QML_IMPORT_PATH).toString());
 
     for (const QString &extraHeaderPath : extraHeaderPaths)
         projectInfo.importPaths.maybeInsert(FilePath::fromString(extraHeaderPath),
@@ -1602,7 +1806,8 @@ void CMakeBuildSystem::updateQmlJSCodeModel(const QStringList &extraHeaderPaths,
 void CMakeBuildSystem::updateInitialCMakeExpandableVars()
 {
     const CMakeConfig &cm = configurationFromCMake();
-    const CMakeConfig &initialConfig = initialCMakeConfiguration();
+    const CMakeConfig &initialConfig =
+        cmakeBuildConfiguration()->initialCMakeArguments.cmakeConfiguration();
 
     CMakeConfig config;
 
@@ -1720,11 +1925,6 @@ QList<QPair<Id, QString>> CMakeBuildSystem::generators() const
     for (const CMakeTool::Generator &generator : generators) {
         result << qMakePair(Id::fromSetting(generator.name),
                             Tr::tr("%1 (via cmake)").arg(generator.name));
-        for (const QString &extraGenerator : generator.extraGenerators) {
-            const QString displayName = extraGenerator + " - " + generator.name;
-            result << qMakePair(Id::fromSetting(displayName),
-                                Tr::tr("%1 (via cmake)").arg(displayName));
-        }
     }
     return result;
 }
@@ -1733,7 +1933,8 @@ void CMakeBuildSystem::runGenerator(Id id)
 {
     QTC_ASSERT(cmakeBuildConfiguration(), return);
     const auto showError = [](const QString &detail) {
-        Core::MessageManager::writeDisrupting(Tr::tr("cmake generator failed: %1.").arg(detail));
+        Core::MessageManager::writeDisrupting(
+            addCMakePrefix(Tr::tr("cmake generator failed: %1.").arg(detail)));
     };
     const CMakeTool * const cmakeTool
             = CMakeKitAspect::cmakeTool(buildConfiguration()->target()->kit());
@@ -1763,7 +1964,8 @@ void CMakeBuildSystem::runGenerator(Id id)
     QList<CMakeConfigItem> configItems = Utils::filtered(m_configurationChanges.toList(),
                                                          itemFilter);
     const QList<CMakeConfigItem> initialConfigItems
-            = Utils::filtered(initialCMakeConfiguration().toList(), itemFilter);
+            = Utils::filtered(cmakeBuildConfiguration()->initialCMakeArguments.cmakeConfiguration().toList(),
+                          itemFilter);
     for (const CMakeConfigItem &item : std::as_const(initialConfigItems)) {
         if (!Utils::contains(configItems, [&item](const CMakeConfigItem &existingItem) {
             return existingItem.key == item.key;
@@ -1773,23 +1975,24 @@ void CMakeBuildSystem::runGenerator(Id id)
     }
     for (const CMakeConfigItem &item : std::as_const(configItems))
         cmdLine.addArg(item.toArgument(buildConfiguration()->macroExpander()));
-    if (const auto optionsAspect = buildConfiguration()->aspect<AdditionalCMakeOptionsAspect>();
-            optionsAspect && !optionsAspect->value().isEmpty()) {
-        cmdLine.addArgs(optionsAspect->value(), CommandLine::Raw);
-    }
+
+    cmdLine.addArgs(cmakeBuildConfiguration()->additionalCMakeOptions(), CommandLine::Raw);
+
     const auto proc = new Process(this);
     connect(proc, &Process::done, proc, &Process::deleteLater);
     connect(proc, &Process::readyReadStandardOutput, this, [proc] {
-        Core::MessageManager::writeFlashing(QString::fromLocal8Bit(proc->readAllRawStandardOutput()));
+        Core::MessageManager::writeFlashing(
+            addCMakePrefix(QString::fromLocal8Bit(proc->readAllRawStandardOutput()).split('\n')));
     });
     connect(proc, &Process::readyReadStandardError, this, [proc] {
-        Core::MessageManager::writeDisrupting(QString::fromLocal8Bit(proc->readAllRawStandardError()));
+        Core::MessageManager::writeDisrupting(
+            addCMakePrefix(QString::fromLocal8Bit(proc->readAllRawStandardError()).split('\n')));
     });
     proc->setWorkingDirectory(outDir);
     proc->setEnvironment(buildConfiguration()->environment());
     proc->setCommand(cmdLine);
-    Core::MessageManager::writeFlashing(
-        Tr::tr("Running in %1: %2.").arg(outDir.toUserOutput(), cmdLine.toUserOutput()));
+    Core::MessageManager::writeFlashing(addCMakePrefix(
+        Tr::tr("Running in \"%1\": %2.").arg(outDir.toUserOutput(), cmdLine.toUserOutput())));
     proc->start();
 }
 

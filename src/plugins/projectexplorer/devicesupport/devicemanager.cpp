@@ -115,6 +115,11 @@ DeviceManager *DeviceManager::cloneInstance()
     return DeviceManagerPrivate::clonedInstance;
 }
 
+DeviceManager *DeviceManager::clonedInstance()
+{
+    return DeviceManagerPrivate::clonedInstance;
+}
+
 void DeviceManager::copy(const DeviceManager *source, DeviceManager *target, bool deep)
 {
     if (deep) {
@@ -130,8 +135,8 @@ void DeviceManager::save()
 {
     if (d->clonedInstance == this || !d->writer)
         return;
-    QVariantMap data;
-    data.insert(QLatin1String(DeviceManagerKey), toMap());
+    Store data;
+    data.insert(DeviceManagerKey, variantFromStore(toMap()));
     d->writer->save(data, Core::ICore::dialogParent());
 }
 
@@ -157,11 +162,11 @@ void DeviceManager::load()
     QHash<Id, Id> defaultDevices;
     QList<IDevice::Ptr> sdkDevices;
     if (reader.load(systemSettingsFilePath("devices.xml")))
-        sdkDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
+        sdkDevices = fromMap(storeFromVariant(reader.restoreValues().value(DeviceManagerKey)), &defaultDevices);
     // read devices file from user settings path
     QList<IDevice::Ptr> userDevices;
     if (reader.load(settingsFilePath("devices.xml")))
-        userDevices = fromMap(reader.restoreValues().value(DeviceManagerKey).toMap(), &defaultDevices);
+        userDevices = fromMap(storeFromVariant(reader.restoreValues().value(DeviceManagerKey)), &defaultDevices);
     // Insert devices into the model. Prefer the higher device version when there are multiple
     // devices with the same id.
     for (IDevice::ConstPtr device : std::as_const(userDevices)) {
@@ -189,7 +194,7 @@ void DeviceManager::load()
     emit devicesLoaded();
 }
 
-static const IDeviceFactory *restoreFactory(const QVariantMap &map)
+static const IDeviceFactory *restoreFactory(const Store &map)
 {
     const Id deviceType = IDevice::typeFromMap(map);
     IDeviceFactory *factory = Utils::findOrDefault(IDeviceFactory::allDeviceFactories(),
@@ -204,18 +209,18 @@ static const IDeviceFactory *restoreFactory(const QVariantMap &map)
     return factory;
 }
 
-QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map, QHash<Id, Id> *defaultDevices)
+QList<IDevice::Ptr> DeviceManager::fromMap(const Store &map, QHash<Id, Id> *defaultDevices)
 {
     QList<IDevice::Ptr> devices;
 
     if (defaultDevices) {
-        const QVariantMap defaultDevsMap = map.value(DefaultDevicesKey).toMap();
+        const Store defaultDevsMap = storeFromVariant(map.value(DefaultDevicesKey));
         for (auto it = defaultDevsMap.constBegin(); it != defaultDevsMap.constEnd(); ++it)
-            defaultDevices->insert(Id::fromString(it.key()), Id::fromSetting(it.value()));
+            defaultDevices->insert(Id::fromString(stringFromKey(it.key())), Id::fromSetting(it.value()));
     }
-    const QVariantList deviceList = map.value(QLatin1String(DeviceListKey)).toList();
+    const QVariantList deviceList = map.value(DeviceListKey).toList();
     for (const QVariant &v : deviceList) {
-        const QVariantMap map = v.toMap();
+        const Store map = storeFromVariant(v);
         const IDeviceFactory * const factory = restoreFactory(map);
         if (!factory)
             continue;
@@ -227,18 +232,18 @@ QList<IDevice::Ptr> DeviceManager::fromMap(const QVariantMap &map, QHash<Id, Id>
     return devices;
 }
 
-QVariantMap DeviceManager::toMap() const
+Store DeviceManager::toMap() const
 {
-    QVariantMap map;
-    QVariantMap defaultDeviceMap;
+    Store map;
+    Store defaultDeviceMap;
     for (auto it = d->defaultDevices.constBegin(); it != d->defaultDevices.constEnd(); ++it)
-        defaultDeviceMap.insert(it.key().toString(), it.value().toSetting());
+        defaultDeviceMap.insert(keyFromString(it.key().toString()), it.value().toSetting());
 
-    map.insert(QLatin1String(DefaultDevicesKey), defaultDeviceMap);
+    map.insert(DefaultDevicesKey, variantFromStore(defaultDeviceMap));
     QVariantList deviceList;
     for (const IDevice::Ptr &device : std::as_const(d->devices))
-        deviceList << device->toMap();
-    map.insert(QLatin1String(DeviceListKey), deviceList);
+        deviceList << variantFromStore(device->toMap());
+    map.insert(DeviceListKey, deviceList);
     return map;
 }
 
@@ -253,7 +258,8 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
     }
 
     // TODO: make it thread safe?
-    device->setDisplayName(Utils::makeUniquelyNumbered(device->displayName(), names));
+    device->settings()->displayName.setValue(
+        Utils::makeUniquelyNumbered(device->displayName(), names));
 
     const int pos = d->indexForId(device->id());
 
@@ -411,24 +417,33 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     deviceHooks.fileAccess = [](const FilePath &filePath) -> expected_str<DeviceFileAccess *> {
         if (!filePath.needsDevice())
             return DesktopDeviceFileAccess::instance();
+        IDevice::ConstPtr device = DeviceManager::deviceForPath(filePath);
+        if (!device) {
+            return make_unexpected(
+                Tr::tr("No device found for path \"%1\"").arg(filePath.toUserOutput()));
+        }
+        DeviceFileAccess *fileAccess = device->fileAccess();
+        if (!fileAccess) {
+            return make_unexpected(
+                Tr::tr("No file access for device \"%1\"").arg(device->displayName()));
+        }
+        return fileAccess;
+    };
+
+    deviceHooks.environment = [](const FilePath &filePath) -> expected_str<Environment> {
         auto device = DeviceManager::deviceForPath(filePath);
         if (!device) {
             return make_unexpected(
-                QString("No device found for path \"%1\"").arg(filePath.toUserOutput()));
+                Tr::tr("No device found for path \"%1\"").arg(filePath.toUserOutput()));
         }
-        return device->fileAccess();
-    };
-
-    deviceHooks.environment = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, qDebug() << filePath.toString(); return Environment{});
-        return device->systemEnvironment();
+        return device->systemEnvironmentWithError();
     };
 
     deviceHooks.deviceDisplayName = [](const FilePath &filePath) {
         auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return filePath.toUserOutput());
-        return device->displayName();
+        if (device)
+            return device->displayName();
+        return filePath.host().toString();
     };
 
     deviceHooks.ensureReachable = [](const FilePath &filePath, const FilePath &other) {
@@ -458,29 +473,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->createProcessInterface();
     };
 
-    processHooks.systemEnvironmentForBinary = [](const FilePath &filePath) {
-        auto device = DeviceManager::deviceForPath(filePath);
-        QTC_ASSERT(device, return Environment());
-        return device->systemEnvironment();
-    };
-
     Process::setRemoteProcessHooks(processHooks);
-
-    Terminal::Hooks::instance().getTerminalCommandsForDevicesHook().set(
-        [this]() -> QList<Terminal::NameAndCommandLine> {
-            QList<Terminal::NameAndCommandLine> result;
-            for (const IDevice::ConstPtr device : d->devices) {
-                if (device->type() == Constants::DESKTOP_DEVICE_TYPE)
-                    continue;
-
-                const FilePath shell = Terminal::defaultShellForDevice(device->rootPath());
-
-                if (!shell.isEmpty())
-                    result << Terminal::NameAndCommandLine{device->displayName(),
-                                                           CommandLine{shell, {}}};
-            }
-            return result;
-        });
 }
 
 DeviceManager::~DeviceManager()
@@ -495,6 +488,14 @@ IDevice::ConstPtr DeviceManager::deviceAt(int idx) const
 {
     QTC_ASSERT(idx >= 0 && idx < deviceCount(), return IDevice::ConstPtr());
     return d->devices.at(idx);
+}
+
+void DeviceManager::forEachDevice(const std::function<void(const IDeviceConstPtr &)> &func) const
+{
+    const QList<IDevice::Ptr> devices = d->deviceList();
+
+    for (const IDevice::Ptr &device : devices)
+        func(device);
 }
 
 IDevice::Ptr DeviceManager::mutableDevice(Id id) const
@@ -565,7 +566,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     TestDeviceFactory factory;
 
     TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);
-    dev->setDisplayName(QLatin1String("blubbdiblubbfurz!"));
+    dev->settings()->displayName.setValue(QLatin1String("blubbdiblubbfurz!"));
     QVERIFY(dev->isAutoDetected());
     QCOMPARE(dev->deviceState(), IDevice::DeviceStateUnknown);
     QCOMPARE(dev->type(), TestDevice::testTypeId());
@@ -626,7 +627,7 @@ void ProjectExplorerPlugin::testDeviceManager()
     TestDevice::Ptr dev3 = IDevice::Ptr(new TestDevice);
     QVERIFY(dev->id() != dev3->id());
 
-    dev3->setDisplayName(dev->displayName());
+    dev3->settings()->displayName.setValue(dev->displayName());
     mgr->addDevice(dev3);
     QCOMPARE(mgr->deviceAt(mgr->deviceCount() - 1)->displayName(),
              QString(dev3->displayName() + QLatin1Char('2')));

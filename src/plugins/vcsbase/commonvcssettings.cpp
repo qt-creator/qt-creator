@@ -6,6 +6,8 @@
 #include "vcsbaseconstants.h"
 #include "vcsbasetr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
 
 #include <utils/environment.h>
@@ -28,24 +30,16 @@ static QString sshPasswordPromptDefault()
     return QLatin1String("ssh-askpass");
 }
 
-static CommonVcsSettings *s_instance;
-
 CommonVcsSettings &commonSettings()
 {
-    return *s_instance;
+    static CommonVcsSettings settings;
+    return settings;
 }
 
 CommonVcsSettings::CommonVcsSettings()
 {
-    s_instance = this;
-
+    setAutoApply(false);
     setSettingsGroup("VCS");
-    setId(Constants::VCS_COMMON_SETTINGS_ID);
-    setDisplayName(Tr::tr("General"));
-    setCategory(Constants::VCS_SETTINGS_CATEGORY);
-    // The following act as blueprint for other pages in the same category:
-    setDisplayCategory(Tr::tr("Version Control"));
-    setCategoryIconPath(":/vcsbase/images/settingscategory_vcs.png");
 
     nickNameMailMap.setSettingsKey("NickNameMailMap");
     nickNameMailMap.setExpectedKind(PathChooser::File);
@@ -117,5 +111,24 @@ CommonVcsSettings::CommonVcsSettings()
 
     readSettings();
 }
+
+// CommonVcsSettingsPage
+
+class CommonVcsSettingsPage final : public Core::IOptionsPage
+{
+public:
+    CommonVcsSettingsPage()
+    {
+        setId(Constants::VCS_COMMON_SETTINGS_ID);
+        setDisplayName(Tr::tr("General"));
+        setCategory(Constants::VCS_SETTINGS_CATEGORY);
+        // The following act as blueprint for other pages in the same category:
+        setDisplayCategory(Tr::tr("Version Control"));
+        setCategoryIconPath(":/vcsbase/images/settingscategory_vcs.png");
+        setSettingsProvider([] { return &commonSettings(); });
+    }
+};
+
+const CommonVcsSettingsPage settingsPage;
 
 } // VcsBase::Internal

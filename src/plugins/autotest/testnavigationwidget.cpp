@@ -6,6 +6,7 @@
 #include "autotestconstants.h"
 #include "autotesticons.h"
 #include "autotesttr.h"
+#include "itemdatacache.h"
 #include "testcodeparser.h"
 #include "testframeworkmanager.h"
 #include "testrunner.h"
@@ -25,6 +26,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/link.h>
+#include <utils/navigationtreeview.h>
 #include <utils/progressindicator.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
@@ -35,13 +37,45 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
+using namespace Core;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
-TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
-    QWidget(parent)
+class TestNavigationWidget : public QWidget
+{
+public:
+    TestNavigationWidget();
+
+    void contextMenuEvent(QContextMenuEvent *event) override;
+    QList<QToolButton *> createToolButtons();
+
+    void updateExpandedStateCache();
+
+private:
+    void onItemActivated(const QModelIndex &index);
+    void onSortClicked();
+    void onFilterMenuTriggered(QAction *action);
+    void onParsingStarted();
+    void onParsingFinished();
+    void initializeFilterMenu();
+    void onRunThisTestTriggered(TestRunMode runMode);
+    void reapplyCachedExpandedState();
+
+    TestTreeModel *m_model;
+    TestTreeSortFilterModel *m_sortFilterModel;
+    TestTreeView *m_view;
+    QToolButton *m_sort;
+    QToolButton *m_filterButton;
+    QMenu *m_filterMenu;
+    bool m_sortAlphabetically;
+    Utils::ProgressIndicator *m_progressIndicator;
+    QTimer *m_progressTimer;
+    QFrame *m_missingFrameworksWidget;
+    ItemDataCache<bool> m_expandedStateCache;
+};
+
+TestNavigationWidget::TestNavigationWidget()
 {
     setWindowTitle(Tr::tr("Tests"));
     m_model = TestTreeModel::instance();
@@ -68,7 +102,7 @@ TestNavigationWidget::TestNavigationWidget(QWidget *parent) :
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(m_missingFrameworksWidget);
-    layout->addWidget(Core::ItemViewFind::createSearchableWrapper(m_view));
+    layout->addWidget(ItemViewFind::createSearchableWrapper(m_view));
     setLayout(layout);
 
     connect(m_view, &TestTreeView::activated, this, &TestNavigationWidget::onItemActivated);
@@ -150,14 +184,14 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
         }
     }
 
-    QAction *runAll = Core::ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action();
-    QAction *runSelected = Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action();
-    QAction *runAllNoDeploy = Core::ActionManager::command(Constants::ACTION_RUN_ALL_NODEPLOY_ID)->action();
-    QAction *runSelectedNoDeploy = Core::ActionManager::command(Constants::ACTION_RUN_SELECTED_NODEPLOY_ID)->action();
+    QAction *runAll = ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action();
+    QAction *runSelected = ActionManager::command(Constants::ACTION_RUN_SELECTED_ID)->action();
+    QAction *runAllNoDeploy = ActionManager::command(Constants::ACTION_RUN_ALL_NODEPLOY_ID)->action();
+    QAction *runSelectedNoDeploy = ActionManager::command(Constants::ACTION_RUN_SELECTED_NODEPLOY_ID)->action();
     QAction *selectAll = new QAction(Tr::tr("Select All"), &menu);
     QAction *deselectAll = new QAction(Tr::tr("Deselect All"), &menu);
-    // TODO remove?
-    QAction *rescan = Core::ActionManager::command(Constants::ACTION_SCAN_ID)->action();
+    QAction *rescan = ActionManager::command(Constants::ACTION_SCAN_ID)->action();
+    QAction *disable = ActionManager::command(Constants::ACTION_DISABLE_TMP)->action();
 
     connect(selectAll, &QAction::triggered, m_view, &TestTreeView::selectAll);
     connect(deselectAll, &QAction::triggered, m_view, &TestTreeView::deselectAll);
@@ -182,6 +216,8 @@ void TestNavigationWidget::contextMenuEvent(QContextMenuEvent *event)
     menu.addAction(deselectAll);
     menu.addSeparator();
     menu.addAction(rescan);
+    menu.addSeparator();
+    menu.addAction(disable);
 
     menu.exec(mapToGlobal(event->pos()));
 }
@@ -247,7 +283,7 @@ void TestNavigationWidget::onItemActivated(const QModelIndex &index)
 {
     const Link link = index.data(LinkRole).value<Link>();
     if (link.hasValidTarget())
-        Core::EditorManager::openEditorAt(link);
+        EditorManager::openEditorAt(link);
 }
 
 void TestNavigationWidget::onSortClicked()
@@ -326,6 +362,8 @@ void TestNavigationWidget::reapplyCachedExpandedState()
     }
 }
 
+// TestNavigationWidgetFactory
+
 TestNavigationWidgetFactory::TestNavigationWidgetFactory()
 {
     setDisplayName(Tr::tr("Tests"));
@@ -333,11 +371,10 @@ TestNavigationWidgetFactory::TestNavigationWidgetFactory()
     setPriority(666);
 }
 
-Core::NavigationView TestNavigationWidgetFactory::createWidget()
+NavigationView TestNavigationWidgetFactory::createWidget()
 {
     TestNavigationWidget *treeViewWidget = new TestNavigationWidget;
     return {treeViewWidget, treeViewWidget->createToolButtons()};
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // Autotest::Internal

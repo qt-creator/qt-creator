@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,19 +8,43 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-project-opening.html
     \page creator-project-qmake-libraries.html
-    \nextpage creator-project-wizards.html
+    \previouspage creator-how-tos.html
 
-    \title Adding Libraries to Projects
+    \ingroup creator-how-to-projects-create
+    \ingroup creator-how-to-build-with-qmake
 
+    \title Add libraries to qmake projects
+
+    //! [libraries}
     In addition to Qt libraries, you can add other libraries to your projects.
-    The process depends on the type and location of the
-    library. You can add a system library, your own library, or a 3rd party
-    library. The library can be located either in the build tree of the
-    current project or in another build tree.
+    The process depends on the type and location of the library:
 
-    \image qtcreator-add-library-wizard.png "Add Library wizard"
+    \list
+        \li A system library
+        \li Your own library
+        \li A 3rd party library
+    \endlist
+
+    \QC supports code completion and syntax highlighting for the added
+    libraries once your project successfully builds and links to them.
+    //! [libraries}
+
+    The library can be located either in the build tree of the current project or
+    in another build tree.
+
+    To add libraries to projects that you build with qmake:
+
+    \list 1
+        \li In the \l Projects view, right-click the project name to open the
+            context menu and select \uicontrol {Add Library}.
+            \image qtcreator-add-library-wizard.png {Add Library wizard}
+        \li Specify settings for the library.
+            \image qtcreator-add-library-external.webp {Adding an external library}
+            The settings depend on the library type.
+    \endlist
+
+    \section1 Library location
 
     Because system libraries do not typically change and are often found by
     default, you do not need to specify the path to the library or to its
@@ -32,13 +56,18 @@
     but you need to check it and modify it if necessary. \QC automatically
     adds the include path for an internal library.
 
+    \section1 Target platform
+
     For all libraries, select the target platforms for the application, library,
     or plugin.
 
+    \section1 Linking
+
     Specify whether the library is statically or dynamically linked. For a
-    statically linked internal library, \QC adds dependencies
-    (\l{CMake: target_link_libraries command}{target_link_libraries} when using
-    CMake or \l PRE_TARGETDEPS when using  qmake) in the project file.
+    statically linked internal library, \QC adds dependencies as the value of
+    the \l PRE_TARGETDEPS qmake variable in the project file (.pro).
+
+    \section1 Development platform
 
     Depending on the development platform, \QC might detect some options
     automatically. For example, on \macos, it detects the library type
@@ -59,52 +88,89 @@
     If the library name ends in \e d, deselect the \uicontrol {Remove "d" suffix
     for release version} option.
 
-    \QC supports code completion and syntax highlighting for the added
-    libraries once your project successfully builds and links to them.
-
-    \section1 To Add Libraries
-
-    \list 1
-
-        \li In the \uicontrol Projects view, right-click the project name to open the
-            context menu and select
-            \uicontrol {Add Library}.
-
-        \li Follow the instructions of the wizard.
-
-    \endlist
-
     For more information about the project file settings, see
-    \l{Declaring Other Libraries}.
+    \l{Declaring Other Libraries}{qmake Manual: Declaring Other Libraries}.
 
-    \section1 Example of Adding Internal Libraries
+    \sa {Adding an Internal Library to a qmake Project}{Tutorial: Adding an Internal Library to a qmake Project},
+    {Add subprojects to projects}, {Add libraries to CMake projects},
+    {Use project wizards}, {Creating Projects}
+*/
 
-    To add an internal library to your project:
+/*!
+    \page creator-tutorial-adding-internal-libraries-to-projects.html
+    \previouspage creator-tutorials.html
+    \nextpage creator-project-managing.html
+
+    \ingroup creator-tutorials
+
+    \title Adding an Internal Library to a qmake Project
+
+    \brief How to create your own library and link your application against it
+    when using qmake as the build system.
+
+    You can add a library into a \e subdirs project. Use wizards to create the
+    project and the library and to link the library against the project.
+
+    \note This tutorial only applies when you select qmake as the the build
+    system for the subdirs project.
+
+    \section1 Creating a shared library
+
+    To create a shared library:
 
     \list 1
 
         \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol Library > \uicontrol {C++ Library}.
+            \uicontrol Library > \uicontrol {C++ Library}. If your top level
+            project is a subdirs project or contains one, you may add the library
+            to the project. However, this does not link other libraries from
+            your project against it.
 
         \li Select \uicontrol Choose to open the \uicontrol {Project Location}
             dialog.
 
-            \image qtcreator-add-library-wizard-ex-1.png "Project Location dialog"
+            \image qtcreator-add-library-internal-project-location.webp {Project Location dialog}
 
         \li In the \uicontrol Name field, give a name for the library. For example,
-            \b mylib.
+            \e MyLibrary.
 
-        \li Follow the instructions of the wizard until you get to the
+        \li Select \uicontrol Next (on Windows and Linux) or \uicontrol Continue
+            (on \macos) to open the \uicontrol {Define Build System} dialog.
+
+        \li Select \uicontrol Next or \uicontrol Continue to use CMake as the
+            build system.
+
+            The \uicontrol {Define Project Details} dialog opens.
+
+            \image qtcreator-add-library-internal-project-details.webp {Define Project Details dialog}
+
+        \li Select the library type and enter information about the classes for
+            which you want to generate source code files: class name, Qt module,
+            and source and header file names.
+
+        \li Select \uicontrol Next or \uicontrol Continue until you get to the
             \uicontrol {Project Management} dialog. In the
             \uicontrol {Add as a subproject to project}
-            list, select a project. For example, \b myapp.
+            list, select a subdirs project. For example, \e MyApplication.
+    \endlist
 
-        \li In the \uicontrol Projects view, right-click the project name to open the
-            context menu and select
-            \uicontrol {Add Library} > \uicontrol {Internal Library} >
-            \uicontrol Next.
+    \section1 Linking an application to the library
 
-        \li In the \uicontrol Library field, select \b mylib, and then select
+    To link a project to the shared library:
+
+    \list 1
+
+        \li In the \l Projects view, right-click the project name to open
+            the context menu and select \uicontrol {Add Library} >
+            \uicontrol {Internal Library} > \uicontrol Next.
+
+            The wizard instructs the build system to link an existing application
+            project or a library project against the selected library. Here, you
+            add the library that you created above.
+
+            \image qtcreator-add-library-internal.webp {Adding an internal library}
+
+        \li In the \uicontrol Library field, select \e mylibrary, and then select
             \uicontrol Next.
 
         \li Select \uicontrol Finish to add the library declaration to the
@@ -116,7 +182,7 @@
     CMakeLists.txt file:
 
     \badcode
-    target_link_libraries(myapp PRIVATE mylib)
+    target_link_libraries(myapplication PRIVATE mylibrary)
     \endcode
 
     When using qmake, the following library declaration is added to the .pro
@@ -132,4 +198,8 @@
     else:win32:CONFIG(debug, debug|release): PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/debug/mylib.lib
     else:unix: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
     \endcode
+
+    \sa {Add libraries to qmake projects}, {Add libraries to CMake projects},
+    {Add subprojects to projects}, {Select the build system},
+    {Use project wizards}, {Creating Projects}
 */

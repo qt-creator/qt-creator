@@ -10,7 +10,7 @@
     "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
 
     "options": [
-        { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-c++hdr')}" },
+        { "key": "DefaultSuffix", "value": "%{JS: Cpp.cxxHeaderSuffix()}" },
         { "key": "FileName", "value": "%{JS: Util.fileName(value('TargetPath'), value('DefaultSuffix'))}" }
     ],
 

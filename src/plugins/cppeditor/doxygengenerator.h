@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <texteditor/commentssettings.h>
+
 #include <cplusplus/Overview.h>
 
 QT_FORWARD_DECLARE_CLASS(QTextCursor)
@@ -25,18 +27,15 @@ public:
         CppStyleB   ///< CppStyle comment variant B: //!
     };
 
-    void setStyle(DocumentationStyle style);
-    void setStartComment(bool start);
-    void setGenerateBrief(bool gen);
-    void setAddLeadingAsterisks(bool add);
+    void setStyle(DocumentationStyle style) { m_style = style; }
+    void setSettings(const TextEditor::CommentsSettings::Data &settings) { m_settings = settings; }
 
     QString generate(QTextCursor cursor,
                      const CPlusPlus::Snapshot &snapshot,
                      const Utils::FilePath &documentFilePath);
-    QString generate(QTextCursor cursor, CPlusPlus::DeclarationAST *decl);
 
 private:
-    QChar startMark() const;
+    QString generate(QTextCursor cursor, CPlusPlus::DeclarationAST *decl);
     QChar styleMark() const;
 
     enum Command {
@@ -46,7 +45,6 @@ private:
     };
     static QString commandSpelling(Command command);
 
-    void writeStart(QString *comment) const;
     void writeEnd(QString *comment) const;
     void writeContinuation(QString *comment) const;
     void writeNewLine(QString *comment) const;
@@ -61,12 +59,10 @@ private:
     void assignCommentOffset(QTextCursor cursor);
     QString offsetString() const;
 
-    bool m_addLeadingAsterisks = true;
-    bool m_generateBrief = true;
-    bool m_startComment = true;
-    DocumentationStyle m_style = QtStyle;
+    TextEditor::CommentsSettings::Data m_settings;
     CPlusPlus::Overview m_printer;
     QString m_commentOffset;
+    DocumentationStyle m_style = QtStyle;
 };
 
 } // namespace CppEditor::Internal

@@ -14,7 +14,7 @@ class TEXTEDITOR_EXPORT AsyncProcessor : public TextEditor::IAssistProcessor
 public:
     AsyncProcessor();
 
-    IAssistProposal *perform() final;
+    IAssistProposal *perform() override;
     bool running() override;
     void cancel() override;
 
@@ -23,8 +23,6 @@ public:
 
 protected:
     bool isCanceled() const;
-
-private:
     QFutureWatcher<IAssistProposal *> m_watcher;
 };
 

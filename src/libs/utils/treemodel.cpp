@@ -4,6 +4,7 @@
 #include "treemodel.h"
 
 #include "qtcassert.h"
+#include "stringutils.h"
 
 #include <QStack>
 #include <QSize>
@@ -717,7 +718,7 @@ void TreeItem::sortChildren(const std::function<bool(const TreeItem *, const Tre
 {
     if (m_model) {
         if (const int n = childCount()) {
-            QVector<TreeItem *> tmp = m_children;
+            QList<TreeItem *> tmp = m_children;
             std::sort(tmp.begin(), tmp.end(), cmp);
             if (tmp == m_children) {
                 // Nothing changed.
@@ -1197,6 +1198,14 @@ Qt::ItemFlags StaticTreeItem::flags(int column) const
 {
     Q_UNUSED(column)
     return Qt::ItemIsEnabled;
+}
+
+bool SortModel::lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const
+{
+    if (m_lessThan)
+        return m_lessThan(source_left, source_right);
+    return caseFriendlyCompare(sourceModel()->data(source_left).toString(),
+                               sourceModel()->data(source_right).toString()) < 0;
 }
 
 } // namespace Utils

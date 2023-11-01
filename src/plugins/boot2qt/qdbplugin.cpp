@@ -5,7 +5,6 @@
 
 #include "device-detection/devicedetector.h"
 #include "qdbconstants.h"
-#include "qdbdeployconfigurationfactory.h"
 #include "qdbdevice.h"
 #include "qdbstopapplicationstep.h"
 #include "qdbmakedefaultappstep.h"
@@ -19,9 +18,11 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -60,7 +61,7 @@ static void startFlashingWizard()
 
 static bool isFlashActionDisabled()
 {
-    QSettings * const settings = Core::ICore::settings();
+    QtcSettings * const settings = Core::ICore::settings();
     settings->beginGroup(settingsGroupKey());
     bool disabled = settings->value("flashActionDisabled", false).toBool();
     settings->endGroup();
@@ -107,6 +108,50 @@ public:
     }
 };
 
+class QdbDeployConfigurationFactory final : public DeployConfigurationFactory
+{
+public:
+    QdbDeployConfigurationFactory()
+    {
+        setConfigBaseId(Constants::QdbDeployConfigurationId);
+        addSupportedTargetDeviceType(Constants::QdbLinuxOsType);
+        setDefaultDisplayName(Tr::tr("Deploy to Boot2Qt target"));
+        setUseDeploymentDataView();
+
+        addInitialStep(RemoteLinux::Constants::MakeInstallStepId, [](Target *target) {
+            const Project * const prj = target->project();
+            return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
+                   && prj->hasMakeInstallEquivalent();
+        });
+        addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
+        addInitialStep(RemoteLinux::Constants::GenericDeployStepId, [](Target *target) {
+            auto device = DeviceKitAspect::device(target->kit());
+            auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+            if (buildDevice && buildDevice->rootPath().needsDevice())
+                return false;
+            return !device || (device
+                   && device->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool());
+        });
+        addInitialStep(RemoteLinux::Constants::DirectUploadStepId, [](Target *target) {
+            auto device = DeviceKitAspect::device(target->kit());
+            auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+            if (buildDevice && buildDevice->rootPath().needsDevice())
+                return false;
+            return device && !device->extraData(ProjectExplorer::Constants::SUPPORTS_RSYNC).toBool();
+        });
+        // This step is for:
+        // a) A remote build device, as they do not support real rsync yet.
+        // b) If there is no target device setup yet.
+        addInitialStep(RemoteLinux::Constants::DirectUploadStepId, [](Target *target) {
+            auto device = DeviceKitAspect::device(target->kit());
+            auto buildDevice = BuildDeviceKitAspect::device(target->kit());
+            if (buildDevice && buildDevice->rootPath().needsDevice())
+                return true;
+            return false;
+        });
+    }
+};
+
 class QdbPluginPrivate : public QObject
 {
 public:
@@ -120,7 +165,7 @@ public:
     QdbMakeDefaultAppStepFactory m_makeDefaultAppStepFactory;
 
     QdbDeployStepFactory m_directUploadStepFactory{RemoteLinux::Constants::DirectUploadStepId};
-    QdbDeployStepFactory m_rsyncDeployStepFactory{RemoteLinux::Constants::RsyncDeployStepId};
+    QdbDeployStepFactory m_rsyncDeployStepFactory{RemoteLinux::Constants::GenericDeployStepId};
     QdbDeployStepFactory m_makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 
     const QList<Id> supportedRunConfigs {

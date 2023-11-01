@@ -741,7 +741,7 @@ static Utils::FilePath qmllsForFile(const Utils::FilePath &file,
     QmllsSettings settings = settingsManager->lastSettings();
     bool enabled = settings.useQmlls;
     if (!enabled)
-        return Utils::FilePath();
+        return {};
     if (settings.useLatestQmlls)
         return settingsManager->latestQmlls();
     QmlJS::ModelManagerInterface::ProjectInfo pInfo = modelManager->projectInfoForPath(file);
@@ -784,6 +784,7 @@ void QmlJSEditorDocumentPrivate::settingsChanged()
         case LanguageClient::Client::State::Initialized:
             setSourcesWithCapabilities(client->capabilities());
             break;
+        case LanguageClient::Client::State::FailedToInitialize:
         case LanguageClient::Client::State::Error:
             qCWarning(qmllsLog) << "qmlls" << newQmlls << "requested for document" << q->filePath()
                                 << "had errors, skipping setSourcesWithCababilities";
@@ -856,6 +857,8 @@ Internal::QmlOutlineModel *QmlJSEditorDocument::outlineModel() const
 
 TextEditor::IAssistProvider *QmlJSEditorDocument::quickFixAssistProvider() const
 {
+    if (const auto baseProvider = TextDocument::quickFixAssistProvider())
+        return baseProvider;
     return Internal::QmlJSEditorPlugin::quickFixAssistProvider();
 }
 

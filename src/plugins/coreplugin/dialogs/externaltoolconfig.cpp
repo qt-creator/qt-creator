@@ -192,7 +192,7 @@ bool ExternalToolModel::dropMimeData(const QMimeData *data,
 
 QStringList ExternalToolModel::mimeTypes() const
 {
-    return QStringList("application/qtcreator-externaltool-config");
+    return {"application/qtcreator-externaltool-config"};
 }
 
 QModelIndex ExternalToolModel::index(int row, int column, const QModelIndex &parent) const

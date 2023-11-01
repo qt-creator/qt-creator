@@ -3,8 +3,8 @@
 
 #include "commandmappings.h"
 
-#include <coreplugin/coreplugintr.h>
-#include <coreplugin/dialogs/shortcutsettings.h>
+#include "../coreplugintr.h"
+#include "../dialogs/shortcutsettings.h"
 
 #include <utils/fancylineedit.h>
 #include <utils/headerviewstretcher.h>

@@ -3,13 +3,16 @@
 
 #include "itemviewfind.h"
 
+#include "../findplaceholder.h"
+
 #include <aggregation/aggregate.h>
-#include <coreplugin/findplaceholder.h>
 
 #include <QModelIndex>
 #include <QTextCursor>
 #include <QTreeView>
 #include <QVBoxLayout>
+
+using namespace Utils;
 
 namespace Core {
 
@@ -163,7 +166,7 @@ IFindSupport::Result ItemViewFind::find(const QString &searchTxt,
     QModelIndex currentIndex = d->m_view->currentIndex();
     if (!currentIndex.isValid()) // nothing selected, start from top
         currentIndex = d->m_view->model()->index(0, 0);
-    QTextDocument::FindFlags flags = textDocumentFlagsForFindFlags(findFlags);
+    QTextDocument::FindFlags flags = Utils::textDocumentFlagsForFindFlags(findFlags);
     QModelIndex resultIndex;
     QModelIndex index = currentIndex;
     int currentRow = currentIndex.row();

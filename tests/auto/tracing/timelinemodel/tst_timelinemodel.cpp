@@ -57,6 +57,7 @@ private slots:
     void rowCount();
     void prevNext();
     void parentingOfEqualStarts();
+    void rows();
 
 private:
     TimelineModelAggregator aggregator;
@@ -461,6 +462,18 @@ void tst_TimelineModel::parentingOfEqualStarts()
     QCOMPARE(dummy.selectionId(1), 999);
     QCOMPARE(dummy.firstIndex(10), 0);
     QCOMPARE(dummy.lastIndex(2), 1);
+}
+
+void tst_TimelineModel::rows()
+{
+    DummyModel dummy(&aggregator);
+    dummy.loadData();
+    int maxlevel;
+    const QList<int> levels = dummy.computeRows(&maxlevel);
+    QCOMPARE(levels.at(0), 0);
+    QCOMPARE(levels.at(7), 7);
+    QCOMPARE(levels.at(10), 2);
+    QCOMPARE(maxlevel, 15);
 }
 
 QTEST_GUILESS_MAIN(tst_TimelineModel)

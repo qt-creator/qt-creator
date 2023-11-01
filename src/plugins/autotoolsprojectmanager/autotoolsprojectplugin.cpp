@@ -1,8 +1,6 @@
 // Copyright (C) 2016 Openismus GmbH.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "autotoolsprojectplugin.h"
-
 #include "autogenstep.h"
 #include "autoreconfstep.h"
 #include "autotoolsbuildconfiguration.h"
@@ -18,6 +16,10 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <extensionsystem/iplugin.h>
+
+using namespace ProjectExplorer;
+
 namespace AutotoolsProjectManager::Internal {
 
 /**
@@ -28,7 +30,7 @@ namespace AutotoolsProjectManager::Internal {
  * It is responsible to parse the Makefile.am files and do trigger project
  * updates if a Makefile.am file or a configure.ac file has been changed.
  */
-class AutotoolsProject : public ProjectExplorer::Project
+class AutotoolsProject : public Project
 {
 public:
     explicit AutotoolsProject(const Utils::FilePath &fileName)
@@ -40,33 +42,61 @@ public:
 
         setHasMakeInstallEquivalent(true);
 
-        setBuildSystemCreator([](ProjectExplorer::Target *t) { return new AutotoolsBuildSystem(t); });
+        setBuildSystemCreator([](Target *t) { return new AutotoolsBuildSystem(t); });
     }
 };
 
+/**
+ * @brief Implementation of the ExtensionsSystem::IPlugin interface.
+ *
+ * The plugin creates the following components:
+ *
+ * - AutotoolsManager: Will manage the new autotools project and
+ *   tell QtCreator for which MIME types the autotools project should
+ *   be instantiated.
+ *
+ * - MakeStepFactory: This factory is used to create make steps.
+ *
+ * - AutogenStepFactory: This factory is used to create autogen steps.
+ *
+ * - AutoreconfStepFactory: This factory is used to create autoreconf
+ *   steps.
+ *
+ * - ConfigureStepFactory: This factory is used to create configure steps.
+ *
+ * - MakefileEditorFactory: Provides a specialized editor with automatic
+ *   syntax highlighting for Makefile.am files.
+ *
+ * - AutotoolsTargetFactory: Our current target is desktop.
+ *
+ * - AutotoolsBuildConfigurationFactory: Creates build configurations that
+ *   contain the steps (make, autogen, autoreconf or configure) that will
+ *   be executed in the build process)
+ */
 
 class AutotoolsProjectPluginPrivate
 {
 public:
-    AutotoolsBuildConfigurationFactory buildConfigurationFactory;
-    MakeStepFactory makeStepFaactory;
+    AutotoolsBuildConfigurationFactory buildConfigFactory;
+    MakeStepFactory makeStepFactory;
     AutogenStepFactory autogenStepFactory;
     ConfigureStepFactory configureStepFactory;
     AutoreconfStepFactory autoreconfStepFactory;
 };
 
-AutotoolsProjectPlugin::~AutotoolsProjectPlugin()
+class AutotoolsProjectPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "AutotoolsProjectManager.json")
 
-void AutotoolsProjectPlugin::extensionsInitialized()
-{ }
+    void initialize() final
+    {
+        d = std::make_unique<AutotoolsProjectPluginPrivate>();
+    }
 
-void AutotoolsProjectPlugin::initialize()
-{
-    d = new AutotoolsProjectPluginPrivate;
-    ProjectExplorer::ProjectManager::registerProjectType<AutotoolsProject>(Constants::MAKEFILE_MIMETYPE);
-}
+    std::unique_ptr<AutotoolsProjectPluginPrivate> d;
+};
 
 } // AutotoolsProjectManager::Internal
+
+#include "autotoolsprojectplugin.moc"

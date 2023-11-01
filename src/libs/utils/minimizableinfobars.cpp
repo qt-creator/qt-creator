@@ -33,7 +33,7 @@ void MinimizableInfoBars::setPossibleInfoBarEntries(const QList<Utils::InfoBarEn
     createActions();
 }
 
-void MinimizableInfoBars::setSettingsGroup(const QString &settingsGroup)
+void MinimizableInfoBars::setSettingsGroup(const Key &settingsGroup)
 {
     m_settingsGroup = settingsGroup;
 }
@@ -55,10 +55,10 @@ void MinimizableInfoBars::createActions()
     }
 }
 
-QString MinimizableInfoBars::settingsKey(const Id &id) const
+Key MinimizableInfoBars::settingsKey(const Id &id) const
 {
     QTC_CHECK(!m_settingsGroup.isEmpty());
-    return m_settingsGroup + '/' + SETTINGS_PREFIX + id.toString();
+    return m_settingsGroup + '/' + SETTINGS_PREFIX + id.name();
 }
 
 void MinimizableInfoBars::createShowInfoBarActions(const ActionCreator &actionCreator) const
@@ -127,10 +127,7 @@ bool MinimizableInfoBars::showInInfoBar(const Id &id) const
 
 void MinimizableInfoBars::setShowInInfoBar(const Id &id, bool show)
 {
-    QtcSettings::setValueWithDefault(InfoBar::settings(),
-                                     settingsKey(id),
-                                     show,
-                                     kShowInInfoBarDefault);
+    InfoBar::settings()->setValueWithDefault(settingsKey(id), show, kShowInInfoBarDefault);
 }
 
 } // namespace Utils

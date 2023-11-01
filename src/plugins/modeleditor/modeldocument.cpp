@@ -62,8 +62,7 @@ bool ModelDocument::saveImpl(QString *errorString, const Utils::FilePath &filePa
         return false;
     }
 
-    const Utils::FilePath actualName = filePath.isEmpty() ? this->filePath() : filePath;
-    d->documentController->projectController()->setFileName(actualName.toString());
+    d->documentController->projectController()->setFileName(filePath.toString());
     try {
         d->documentController->projectController()->save();
     } catch (const qmt::Exception &ex) {

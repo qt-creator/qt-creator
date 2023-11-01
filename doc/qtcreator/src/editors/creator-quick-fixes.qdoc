@@ -35,7 +35,8 @@
     virtual functions of base classes, create getter and setter functions,
     and generate constructors. You can specify settings for generating the
     functions either globally for all projects or separately for each project
-    in the \l{Specifying Settings}{build and run} settings of the project.
+    in the \l{Overriding Global Preferences}{build and run} settings of the
+    project.
 
     \section2 Implementing Member Functions
 
@@ -82,8 +83,7 @@
 
     You can specify settings for the refactoring actions either globally for
     all projects or separately for each project. To specify global options,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
-    \uicontrol {Quick Fixes}.
+    select \preferences > \uicontrol C++ > \uicontrol {Quick Fixes}.
 
     To specify custom settings for a particular project, select
     \uicontrol Projects > \uicontrol {Project Settings} >
@@ -727,7 +727,7 @@
 
                 By default, \QC uses the \c auto variable type when creating the
                 variable. To label the variable with its actual type, select
-                \uicontrol Edit > \uicontrol Preferences > \uicontrol C++ >
+                \preferences > \uicontrol C++ >
                 \uicontrol {Quick Fixes}, and then deselect the
                 \uicontrol {Use type "auto" when creating new variables} check
                 box.
@@ -828,6 +828,18 @@
             \li Convert connect() to Qt 5 Style
             \li Converts a Qt 4 QObject::connect() to Qt 5 style.
             \li QObject::connect() (Qt 4 style)
+        \row
+            \li Convert Comment to C/C++ Style
+            \li Converts C-style comments into C++-style comments, and vice
+                versa. Tries to preserve \e pretty layout and takes Doxygen and
+                qdoc formatting into consideration, but you might need to clean
+                up the results.
+            \li Code comment
+        \row
+            \li Move Function Documentation to Declaration/Definition
+            \li Moves the documentation comment for a function between its
+                declaration and definition.
+            \li Documentation comment for a function
     \endtable
 
     \section2 Refactoring QML Code

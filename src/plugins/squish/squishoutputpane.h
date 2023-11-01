@@ -16,29 +16,25 @@ class QTabWidget;
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace Core { class IContext; }
-
 namespace Utils { class TreeView; }
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class TestResult;
 class SquishResultItem;
 class SquishResultModel;
 class SquishResultFilterModel;
 
-class SquishOutputPane : public Core::IOutputPane
+class SquishOutputPane final : public Core::IOutputPane
 {
-    Q_OBJECT
 public:
+    SquishOutputPane();
+
     static SquishOutputPane *instance();
 
     // IOutputPane interface
     QWidget *outputWidget(QWidget *parent) override;
     QList<QWidget *> toolBarWidgets() const override;
-    QString displayName() const override;
-    int priorityInStatusBar() const override;
     void clearContents() override;
     void visibilityChanged(bool visible) override;
     void setFocus() override;
@@ -50,14 +46,12 @@ public:
     void goToNext() override;
     void goToPrev() override;
 
-public slots:
     void addResultItem(SquishResultItem *item);
     void addLogOutput(const QString &output);
     void onTestRunFinished();
     void clearOldResults();
 
 private:
-    SquishOutputPane(QObject *parent = nullptr);
     void createToolButtons();
     void initializeFilterMenu();
     void onItemActivated(const QModelIndex &idx);
@@ -67,7 +61,6 @@ private:
     void updateSummaryLabel();
 
     QTabWidget *m_outputPane;
-    Core::IContext *m_context;
     QWidget *m_outputWidget;
     QFrame *m_summaryWidget;
     QLabel *m_summaryLabel;
@@ -81,5 +74,4 @@ private:
     QMenu *m_filterMenu;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

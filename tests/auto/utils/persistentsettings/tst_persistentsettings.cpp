@@ -19,9 +19,9 @@ private slots:
     void tst_readwrite();
 };
 
-static const QVariantMap generateData()
+static const Store generateData()
 {
-    QVariantMap result;
+    Store result;
     QByteArray barr("I am a byte array.");
     QString str("I am a string.");
     QColor color("#8b00d1");
@@ -44,7 +44,7 @@ void PersistentSettingsTest::tst_readwrite()
     qDebug() << "using" << fi.absoluteFilePath();
     const FilePath filePath = FilePath::fromFileInfo(fi);
     PersistentSettingsWriter writer(filePath, "Narf");
-    const QVariantMap originalData = generateData();
+    const Store originalData = generateData();
     QString error;
     bool success = writer.save(originalData, &error);
     QVERIFY2(success, error.toLocal8Bit());
@@ -54,7 +54,7 @@ void PersistentSettingsTest::tst_readwrite()
     success = reader.load(filePath);
     QVERIFY(success);
 
-    const QVariantMap restored = reader.restoreValues();
+    const Store restored = reader.restoreValues();
     QCOMPARE(restored.size(), originalData.size());
     auto restoredEnd = restored.end();
     for (auto it = originalData.cbegin(), end = originalData.cend(); it != end; ++it) {

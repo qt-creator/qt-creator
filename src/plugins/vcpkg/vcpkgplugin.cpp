@@ -1,13 +1,13 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "vcpkgplugin.h"
-
 #ifdef WITH_TESTS
 #include "vcpkg_test.h"
 #endif // WITH_TESTS
 #include "vcpkgmanifesteditor.h"
 #include "vcpkgsettings.h"
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
@@ -16,23 +16,31 @@ namespace Vcpkg::Internal {
 class VcpkgPluginPrivate
 {
 public:
-    VcpkgManifestEditorFactory manifestEditorFactory;
-    VcpkgSettings settings;
+    VcpkgManifestEditorFactory vcpkgManifestEditorFactory;
 };
 
-VcpkgPlugin::~VcpkgPlugin()
+class VcpkgPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Vcpkg.json")
 
-void VcpkgPlugin::initialize()
-{
-    d = new VcpkgPluginPrivate;
-    ProjectExplorer::JsonWizardFactory::addWizardPath(":/vcpkg/wizards/");
+public:
+    void initialize() final
+    {
+        ProjectExplorer::JsonWizardFactory::addWizardPath(":/vcpkg/wizards/");
+
+        d = std::make_unique<VcpkgPluginPrivate>();
 
 #ifdef WITH_TESTS
-    addTest<VcpkgSearchTest>();
+        addTest<VcpkgSearchTest>();
 #endif
-}
+    }
+
+    virtual void extensionsInitialized() final { settings().setVcpkgRootEnvironmentVariable(); }
+
+    std::unique_ptr<VcpkgPluginPrivate> d;
+};
 
 } // namespace Vcpkg::Internal
+
+#include "vcpkgplugin.moc"

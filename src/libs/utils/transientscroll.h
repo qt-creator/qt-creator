@@ -18,7 +18,6 @@ class ScrollBarPrivate;
 
 class QTCREATOR_UTILS_EXPORT TransientScrollAreaSupport : public QObject
 {
-    Q_OBJECT
 public:
     static void support(QAbstractScrollArea *scrollArea);
     static void supportWidget(QWidget *widget);
@@ -35,7 +34,6 @@ private:
 
 class QTCREATOR_UTILS_EXPORT ScrollBar : public QScrollBar
 {
-    Q_OBJECT
 
     friend class ScrollAreaPrivate;
 

@@ -18,7 +18,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
 #include <projectexplorer/devicesupport/processlist.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorertr.h>
@@ -27,12 +27,14 @@
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionfactory.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/basetreeview.h>
+#include <utils/clangutils.h>
 #include <utils/devicefileaccess.h>
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
@@ -63,10 +65,12 @@
 #include <QHeaderView>
 #include <QHostAddress>
 #include <QLoggingCategory>
+#include <QMessageBox>
 #include <QNetworkInterface>
 #include <QPushButton>
 #include <QRandomGenerator>
 #include <QRegularExpression>
+#include <QStandardItem>
 #include <QTextBrowser>
 #include <QThread>
 #include <QToolButton>
@@ -87,20 +91,29 @@ Q_LOGGING_CATEGORY(dockerDeviceLog, "qtc.docker.device", QtWarningMsg);
 
 namespace Docker::Internal {
 
-class ContainerShell : public Utils::DeviceShell
+const char DockerDeviceDataImageIdKey[] = "DockerDeviceDataImageId";
+const char DockerDeviceDataRepoKey[] = "DockerDeviceDataRepo";
+const char DockerDeviceDataTagKey[] = "DockerDeviceDataTag";
+const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
+const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
+const char DockerDeviceKeepEntryPoint[] = "DockerDeviceKeepEntryPoint";
+const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
+const char DockerDeviceClangDExecutable[] = "DockerDeviceClangDExecutable";
+const char DockerDeviceExtraArgs[] = "DockerDeviceExtraCreateArguments";
+
+class ContainerShell : public DeviceShell
 {
 public:
-    ContainerShell(DockerSettings *settings, const QString &containerId, const FilePath &devicePath)
-        : m_settings(settings)
-        , m_containerId(containerId)
+    ContainerShell(const QString &containerId, const FilePath &devicePath)
+        : m_containerId(containerId)
         , m_devicePath(devicePath)
     {}
 
 private:
     void setupShellProcess(Process *shellProcess) final
     {
-        shellProcess->setCommand({m_settings->dockerBinaryPath(),
-                                  {"container", "start", "-i", "-a", m_containerId}});
+        shellProcess->setCommand(
+            {settings().dockerBinaryPath(), {"container", "start", "-i", "-a", m_containerId}});
     }
 
     CommandLine createFallbackCommand(const CommandLine &cmdLine)
@@ -111,7 +124,6 @@ private:
     }
 
 private:
-    DockerSettings *m_settings;
     QString m_containerId;
     FilePath m_devicePath;
 };
@@ -123,42 +135,187 @@ public:
         : m_dev(dev)
     {}
 
-    RunResult runInShell(const CommandLine &cmdLine,
-                         const QByteArray &stdInData) const override;
+    RunResult runInShell(const CommandLine &cmdLine, const QByteArray &stdInData) const override;
     QString mapToDevicePath(const QString &hostPath) const override;
 
     DockerDevicePrivate *m_dev = nullptr;
 };
 
+void DockerDeviceSettings::fromMap(const Store &map)
+{
+    DeviceSettings::fromMap(map);
+
+    // This is the only place where we can correctly set the default name.
+    // Only here do we know the image id and the repo reliably, no matter
+    // where or how we were created.
+    if (displayName.value() == displayName.defaultValue()) {
+        displayName.setDefaultValue(
+            Tr::tr("Docker Image \"%1\" (%2)").arg(repoAndTag()).arg(imageId.value()));
+    }
+}
+
+DockerDeviceSettings::DockerDeviceSettings()
+{
+    imageId.setSettingsKey(DockerDeviceDataImageIdKey);
+    imageId.setLabelText(Tr::tr("Image ID:"));
+    imageId.setReadOnly(true);
+
+    repo.setSettingsKey(DockerDeviceDataRepoKey);
+    repo.setLabelText(Tr::tr("Repository:"));
+    repo.setReadOnly(true);
+
+    tag.setSettingsKey(DockerDeviceDataTagKey);
+    tag.setLabelText(Tr::tr("Tag:"));
+    tag.setReadOnly(true);
+
+    useLocalUidGid.setSettingsKey(DockerDeviceUseOutsideUser);
+    useLocalUidGid.setLabelText(Tr::tr("Run as outside user:"));
+    useLocalUidGid.setDefaultValue(true);
+    useLocalUidGid.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+
+    keepEntryPoint.setSettingsKey(DockerDeviceKeepEntryPoint);
+    keepEntryPoint.setLabelText(Tr::tr("Do not modify entry point:"));
+    keepEntryPoint.setDefaultValue(false);
+    keepEntryPoint.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+
+    enableLldbFlags.setSettingsKey(DockerDeviceEnableLldbFlags);
+    enableLldbFlags.setLabelText(Tr::tr("Enable flags needed for LLDB:"));
+    enableLldbFlags.setDefaultValue(false);
+    enableLldbFlags.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+
+    mounts.setSettingsKey(DockerDeviceMappedPaths);
+    mounts.setLabelText(Tr::tr("Paths to mount:"));
+    mounts.setDefaultValue({Core::DocumentManager::projectsDirectory().toString()});
+    mounts.setToolTip(Tr::tr("Maps paths in this list one-to-one to the docker container."));
+    mounts.setPlaceHolderText(Tr::tr("Host directories to mount into the container."));
+
+    extraArgs.setSettingsKey(DockerDeviceExtraArgs);
+    extraArgs.setLabelText(Tr::tr("Extra arguments:"));
+    extraArgs.setToolTip(Tr::tr("Extra arguments to pass to docker create."));
+    extraArgs.setDisplayStyle(StringAspect::LineEditDisplay);
+
+    clangdExecutable.setSettingsKey(DockerDeviceClangDExecutable);
+    clangdExecutable.setLabelText(Tr::tr("Clangd Executable:"));
+    clangdExecutable.setAllowPathFromDevice(true);
+
+    network.setSettingsKey("Network");
+    network.setLabelText(Tr::tr("Network:"));
+    network.setDefaultValue("bridge");
+    network.setFillCallback([this](const StringSelectionAspect::ResultCallback &cb) {
+        auto future = DockerApi::instance()->networks();
+
+        auto watcher = new QFutureWatcher<expected_str<QList<Network>>>(this);
+        watcher->setFuture(future);
+        QObject::connect(watcher,
+                         &QFutureWatcher<expected_str<QList<Network>>>::finished,
+                         this,
+                         [watcher, cb]() {
+                             expected_str<QList<Network>> result = watcher->result();
+                             if (result) {
+                                 auto items = transform(*result, [](const Network &network) {
+                                     QStandardItem *item = new QStandardItem(network.name);
+                                     item->setData(network.name);
+                                     item->setToolTip(network.toString());
+                                     return item;
+                                 });
+                                 cb(items);
+                             } else {
+                                 QStandardItem *errorItem = new QStandardItem(Tr::tr("Error"));
+                                 errorItem->setToolTip(result.error());
+                                 cb({errorItem});
+                             }
+                         });
+    });
+
+    connect(DockerApi::instance(),
+            &DockerApi::dockerDaemonAvailableChanged,
+            &network,
+            &StringSelectionAspect::refill);
+
+    clangdExecutable.setValidationFunction(
+        [this](const QString &newValue) -> FancyLineEdit::AsyncValidationFuture {
+            const FilePath rootPath = FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,
+                                                          repoAndTagEncoded(),
+                                                          u"/");
+            return asyncRun([rootPath, newValue]() -> expected_str<QString> {
+                QString changedValue = newValue;
+                FilePath path = FilePath::fromUserInput(newValue);
+                if (!path.needsDevice()) {
+                    const FilePath onDevicePath = rootPath.withNewMappedPath(path);
+                    if (onDevicePath.exists()) {
+                        changedValue = onDevicePath.toUserOutput();
+                        path = onDevicePath;
+                    } else {
+                        return make_unexpected(
+                            Tr::tr("The path \"%1\" does not exist.").arg(onDevicePath.toUserOutput()));
+                    }
+                }
+                QString error;
+                bool result = checkClangdVersion(path, &error);
+                if (!result)
+                    return make_unexpected(error);
+                return changedValue;
+            });
+        });
+
+    containerStatus.setText(Tr::tr("stopped"));
+}
+
+// Used for "docker run"
+QString DockerDeviceSettings::repoAndTag() const
+{
+    if (repo() == "<none>")
+        return imageId();
+
+    if (tag() == "<none>")
+        return repo();
+
+    return repo() + ':' + tag();
+}
+
+QString DockerDeviceSettings::repoAndTagEncoded() const
+{
+    return repoAndTag().replace(':', '.');
+}
+
+FilePath DockerDeviceSettings::rootPath() const
+{
+    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, repoAndTagEncoded(), u"/");
+}
+
 class DockerDevicePrivate : public QObject
 {
 public:
-    DockerDevicePrivate(DockerDevice *parent, DockerSettings *settings, DockerDeviceData data)
+    DockerDevicePrivate(DockerDevice *parent)
         : q(parent)
-        , m_data(std::move(data))
-        , m_settings(settings)
-    {}
+        , deviceSettings(static_cast<DockerDeviceSettings *>(q->settings()))
+    {
+        QObject::connect(deviceSettings, &DockerDeviceSettings::applied, this, [this] {
+            if (!m_container.isEmpty()) {
+                stopCurrentContainer();
+            }
+        });
+    }
 
     ~DockerDevicePrivate() { stopCurrentContainer(); }
 
+    CommandLine createCommandLine();
+
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
-    bool updateContainerAccess();
+    expected_str<void> updateContainerAccess();
     void changeMounts(QStringList newMounts);
     bool ensureReachable(const FilePath &other);
     void shutdown();
     expected_str<FilePath> localSource(const FilePath &other) const;
 
     QString containerId() { return m_container; }
-    DockerDeviceData data() { return m_data; }
-    void setData(const DockerDeviceData &data);
-    DockerSettings *settings() { return m_settings; }
 
-    QString repoAndTag() const { return m_data.repoAndTag(); }
-    QString repoAndTagEncoded() const { return m_data.repoAndTagEncoded(); }
-    QString dockerImageId() const { return m_data.imageId; }
+    QString repoAndTag() const { return deviceSettings->repoAndTag(); }
+    QString repoAndTagEncoded() const { return deviceSettings->repoAndTagEncoded(); }
+    QString dockerImageId() const { return deviceSettings->imageId(); }
 
-    Environment environment();
+    expected_str<Environment> environment();
 
     CommandLine withDockerExecCmd(const CommandLine &cmd,
                                   const std::optional<Environment> &env = std::nullopt,
@@ -170,16 +327,18 @@ public:
     bool prepareForBuild(const Target *target);
     Tasks validateMounts() const;
 
-    bool createContainer();
-    bool startContainer();
+    expected_str<QString> createContainer();
+    expected_str<void> startContainer();
     void stopCurrentContainer();
-    void fetchSystemEnviroment();
+    expected_str<void> fetchSystemEnviroment();
 
     std::optional<FilePath> clangdExecutable() const
     {
-        if (m_data.clangdExecutable.isEmpty())
+        if (deviceSettings->clangdExecutable().isEmpty())
             return std::nullopt;
-        return m_data.clangdExecutable;
+        if (!deviceSettings->clangdExecutable().needsDevice())
+            return deviceSettings->rootPath().withNewMappedPath(deviceSettings->clangdExecutable());
+        return deviceSettings->clangdExecutable();
     }
 
     bool addTemporaryMount(const FilePath &path, const FilePath &containerPath);
@@ -189,8 +348,7 @@ public:
     bool isImageAvailable() const;
 
     DockerDevice *const q;
-    DockerDeviceData m_data;
-    DockerSettings *m_settings;
+    DockerDeviceSettings *deviceSettings;
 
     struct TemporaryMountInfo
     {
@@ -200,6 +358,7 @@ public:
 
     QList<TemporaryMountInfo> m_temporaryMounts;
 
+    QMutex m_shellMutex;
     std::unique_ptr<ContainerShell> m_shell;
 
     QString m_container;
@@ -209,7 +368,7 @@ public:
     DockerDeviceFileAccess m_fileAccess{this};
 };
 
-class DockerProcessImpl : public Utils::ProcessInterface
+class DockerProcessImpl : public ProcessInterface
 {
 public:
     DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePrivate *devicePrivate);
@@ -282,7 +441,7 @@ DockerProcessImpl::DockerProcessImpl(IDevice::ConstPtr device, DockerDevicePriva
         qCDebug(dockerDeviceLog) << "Process exited:" << m_process.commandLine()
                                  << "with code:" << m_process.resultData().m_exitCode;
 
-        Utils::ProcessResultData resultData = m_process.resultData();
+        ProcessResultData resultData = m_process.resultData();
 
         if (m_remotePID == 0 && !m_hasReceivedFirstOutput) {
             resultData.m_error = QProcess::FailedToStart;
@@ -368,6 +527,11 @@ void DockerProcessImpl::sendControlSignal(ControlSignal controlSignal)
     }
 }
 
+CommandLine DockerDevice::createCommandLine() const
+{
+    return d->createCommandLine();
+}
+
 IDeviceWidget *DockerDevice::createWidget()
 {
     return new DockerDeviceWidget(sharedFromThis());
@@ -382,11 +546,10 @@ Tasks DockerDevicePrivate::validateMounts() const
 {
     Tasks result;
 
-    for (const QString &mount : m_data.mounts) {
-        const FilePath path = FilePath::fromUserInput(mount);
-        if (!path.isDir()) {
+    for (const FilePath &mount : deviceSettings->mounts()) {
+        if (!mount.isDir()) {
             const QString message = Tr::tr("Path \"%1\" is not a directory or does not exist.")
-                                        .arg(mount);
+                                        .arg(mount.toUserOutput());
 
             result.append(Task(Task::Error, message, {}, -1, {}));
         }
@@ -414,45 +577,55 @@ QString DockerDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
     return newPath;
 }
 
-DockerDevice::DockerDevice(DockerSettings *settings, const DockerDeviceData &data)
-    : d(new DockerDevicePrivate(this, settings, data))
+DockerDevice::DockerDevice(std::unique_ptr<DockerDeviceSettings> deviceSettings)
+    : ProjectExplorer::IDevice(std::move(deviceSettings))
+    , d(new DockerDevicePrivate(this))
 {
     setFileAccess(&d->m_fileAccess);
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeLinux);
-    setDefaultDisplayName(Tr::tr("Docker Image"));
     setupId(IDevice::ManuallyAdded);
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
-    setDisplayName(Tr::tr("Docker Image \"%1\" (%2)").arg(data.repoAndTag()).arg(data.imageId));
     setAllowEmptyCommand(true);
 
-    setOpenTerminal([this](const Environment &env, const FilePath &workingDir) {
+    setOpenTerminal([this](const Environment &env,
+                           const FilePath &workingDir) -> expected_str<void> {
         Q_UNUSED(env); // TODO: That's the runnable's environment in general. Use it via -e below.
-        if (!updateContainerAccess())
-            return;
 
-        if (d->containerId().isEmpty()) {
-            MessageManager::writeDisrupting(Tr::tr("Error starting remote shell. No container."));
-            return;
-        }
+        expected_str<void> result = d->updateContainerAccess();
+
+        if (!result)
+            return result;
+
+        if (d->containerId().isEmpty())
+            return make_unexpected(Tr::tr("Error starting remote shell. No container."));
+
+        expected_str<FilePath> shell = Terminal::defaultShellForDevice(rootPath());
+        if (!shell)
+            return make_unexpected(shell.error());
 
         Process proc;
         proc.setTerminalMode(TerminalMode::Detached);
         proc.setEnvironment(env);
         proc.setWorkingDirectory(workingDir);
-        proc.setCommand({Terminal::defaultShellForDevice(rootPath()), {}});
+        proc.setCommand({*shell, {}});
         proc.start();
 
-        if (proc.error() != QProcess::UnknownError && MessageManager::instance()) {
-            MessageManager::writeDisrupting(
-                Tr::tr("Error starting remote shell: %1").arg(proc.errorString()));
-        }
+        return {};
     });
 
-    addDeviceAction({Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
-                         device->openTerminal(device->systemEnvironment(), FilePath());
-                     }});
+    addDeviceAction(
+        {Tr::tr("Open Shell in Container"), [](const IDevice::Ptr &device, QWidget *) {
+             expected_str<Environment> env = device->systemEnvironmentWithError();
+             if (!env) {
+                 QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), env.error());
+                 return;
+             }
+             expected_str<void> result = device->openTerminal(*env, FilePath());
+             if (!result)
+                 QMessageBox::warning(ICore::dialogParent(), Tr::tr("Error"), result.error());
+         }});
 }
 
 DockerDevice::~DockerDevice()
@@ -465,22 +638,7 @@ void DockerDevice::shutdown()
     d->shutdown();
 }
 
-const DockerDeviceData DockerDevice::data() const
-{
-    return d->data();
-}
-
-DockerDeviceData DockerDevice::data()
-{
-    return d->data();
-}
-
-void DockerDevice::setData(const DockerDeviceData &data)
-{
-    d->setData(data);
-}
-
-bool DockerDevice::updateContainerAccess() const
+expected_str<void> DockerDevice::updateContainerAccess() const
 {
     return d->updateContainerAccess();
 }
@@ -492,13 +650,10 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
                                                    bool withPty,
                                                    bool withMarker)
 {
-    if (!m_settings)
-        return {};
-
     if (!updateContainerAccess())
         return {};
 
-    CommandLine dockerCmd{m_settings->dockerBinaryPath(), {"exec"}};
+    CommandLine dockerCmd{settings().dockerBinaryPath(), {"exec"}};
 
     if (interactive)
         dockerCmd.addArg("-i");
@@ -538,13 +693,13 @@ CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
 
 void DockerDevicePrivate::stopCurrentContainer()
 {
-    if (!m_settings)
-        return;
     if (m_container.isEmpty())
         return;
+
     if (!DockerApi::isDockerDaemonAvailable(false).value_or(false))
         return;
 
+    QMutexLocker lk(&m_shellMutex);
     if (m_shell) {
         // We have to disconnect the shell from the device, otherwise it will try to
         // tell us about the container being stopped. Since that signal is emitted in a different
@@ -555,7 +710,7 @@ void DockerDevicePrivate::stopCurrentContainer()
     }
 
     Process proc;
-    proc.setCommand({m_settings->dockerBinaryPath(), {"container", "stop", m_container}});
+    proc.setCommand({settings().dockerBinaryPath(), {"container", "stop", m_container}});
 
     m_container.clear();
 
@@ -611,32 +766,32 @@ QStringList toMountArg(const DockerDevicePrivate::TemporaryMountInfo &mi)
 expected_str<void> isValidMountInfo(const DockerDevicePrivate::TemporaryMountInfo &mi)
 {
     if (mi.path.needsDevice())
-        return make_unexpected(QString("Path \"%1\" is not local").arg(mi.path.toUserOutput()));
+        return make_unexpected(QString("The path \"%1\" is not local.").arg(mi.path.toUserOutput()));
 
     if (mi.path.isEmpty() && mi.containerPath.isEmpty())
-        return make_unexpected(QString("Both paths are empty"));
+        return make_unexpected(QString("Both paths are empty."));
 
     if (mi.path.isEmpty()) {
-        return make_unexpected(QString("Local path is empty, container path is \"%1\"")
+        return make_unexpected(QString("The local path is empty, the container path is \"%1\".")
                                    .arg(mi.containerPath.toUserOutput()));
     }
 
     if (mi.containerPath.isEmpty()) {
         return make_unexpected(
-            QString("Container path is empty, local path is \"%1\"").arg(mi.path.toUserOutput()));
+            QString("The container path is empty, the local path is \"%1\".").arg(mi.path.toUserOutput()));
     }
 
     if (!mi.path.isAbsolutePath() || !mi.containerPath.isAbsolutePath()) {
-        return make_unexpected(QString("Path \"%1\" or \"%2\" is not absolute")
+        return make_unexpected(QString("The path \"%1\" or \"%2\" is not absolute.")
                                    .arg(mi.path.toUserOutput())
                                    .arg(mi.containerPath.toUserOutput()));
     }
 
     if (mi.containerPath.isRootPath())
-        return make_unexpected(QString("Path \"%1\" is root").arg(mi.containerPath.toUserOutput()));
+        return make_unexpected(QString("The path \"%1\" is root.").arg(mi.containerPath.toUserOutput()));
 
     if (!mi.path.exists())
-        return make_unexpected(QString("Path \"%1\" does not exist").arg(mi.path.toUserOutput()));
+        return make_unexpected(QString("The path \"%1\" does not exist.").arg(mi.path.toUserOutput()));
 
     return {};
 }
@@ -645,8 +800,8 @@ QStringList DockerDevicePrivate::createMountArgs() const
 {
     QStringList cmds;
     QList<TemporaryMountInfo> mounts = m_temporaryMounts;
-    for (const QString &m : m_data.mounts)
-        mounts.append({FilePath::fromUserInput(m), FilePath::fromUserInput(m)});
+    for (const FilePath &m : deviceSettings->mounts())
+        mounts.append({m, m});
 
     for (const TemporaryMountInfo &mi : mounts) {
         if (isValidMountInfo(mi))
@@ -660,81 +815,92 @@ bool DockerDevicePrivate::isImageAvailable() const
 {
     Process proc;
     proc.setCommand(
-        {m_settings->dockerBinaryPath(),
-         {"image", "list", m_data.repoAndTag(), "--format", "{{.Repository}}:{{.Tag}}"}});
+        {settings().dockerBinaryPath(),
+         {"image", "list", deviceSettings->repoAndTag(), "--format", "{{.Repository}}:{{.Tag}}"}});
     proc.runBlocking();
     if (proc.result() != ProcessResult::FinishedWithSuccess)
         return false;
 
-    if (proc.stdOut().trimmed() == m_data.repoAndTag())
+    if (proc.stdOut().trimmed() == deviceSettings->repoAndTag())
         return true;
 
     return false;
 }
 
-bool DockerDevicePrivate::createContainer()
+CommandLine DockerDevicePrivate::createCommandLine()
 {
-    if (!m_settings)
-        return false;
-
-    if (!isImageAvailable())
-        return false;
-
     const QString display = HostOsInfo::isLinuxHost() ? QString(":0")
                                                       : QString("host.docker.internal:0");
-    CommandLine dockerCreate{m_settings->dockerBinaryPath(),
+    CommandLine dockerCreate{settings().dockerBinaryPath(),
                              {"create",
                               "-i",
                               "--rm",
                               "-e",
                               QString("DISPLAY=%1").arg(display),
                               "-e",
-                              "XAUTHORITY=/.Xauthority",
-                              "--net",
-                              "host"}};
+                              "XAUTHORITY=/.Xauthority"}};
 
 #ifdef Q_OS_UNIX
     // no getuid() and getgid() on Windows.
-    if (m_data.useLocalUidGid)
+    if (deviceSettings->useLocalUidGid())
         dockerCreate.addArgs({"-u", QString("%1:%2").arg(getuid()).arg(getgid())});
 #endif
 
+    if (!deviceSettings->network().isEmpty()) {
+        dockerCreate.addArg("--network");
+        dockerCreate.addArg(deviceSettings->network());
+    }
+
     dockerCreate.addArgs(createMountArgs());
 
-    if (!m_data.keepEntryPoint)
+    if (!deviceSettings->keepEntryPoint())
         dockerCreate.addArgs({"--entrypoint", "/bin/sh"});
 
-    if (m_data.enableLldbFlags)
+    if (deviceSettings->enableLldbFlags())
         dockerCreate.addArgs({"--cap-add=SYS_PTRACE", "--security-opt", "seccomp=unconfined"});
 
-    dockerCreate.addArg(m_data.repoAndTag());
+    dockerCreate.addArgs(deviceSettings->extraArgs(), CommandLine::Raw);
 
-    qCDebug(dockerDeviceLog).noquote() << "RUNNING: " << dockerCreate.toUserOutput();
+    dockerCreate.addArg(deviceSettings->repoAndTag());
+
+    return dockerCreate;
+}
+
+expected_str<QString> DockerDevicePrivate::createContainer()
+{
+    if (!isImageAvailable())
+        return make_unexpected(Tr::tr("Image \"%1\" is not available.").arg(repoAndTag()));
+
+    const CommandLine cmdLine = createCommandLine();
+
+    qCDebug(dockerDeviceLog).noquote() << "RUNNING: " << cmdLine.toUserOutput();
     Process createProcess;
-    createProcess.setCommand(dockerCreate);
+    createProcess.setCommand(cmdLine);
     createProcess.runBlocking();
 
     if (createProcess.result() != ProcessResult::FinishedWithSuccess) {
-        qCWarning(dockerDeviceLog) << "Failed creating docker container:";
-        qCWarning(dockerDeviceLog) << "Exit Code:" << createProcess.exitCode();
-        qCWarning(dockerDeviceLog) << createProcess.allOutput();
-        return false;
+        return make_unexpected(Tr::tr("Failed creating Docker container. Exit code: %1, output: %2")
+                                   .arg(createProcess.exitCode())
+                                   .arg(createProcess.allOutput()));
     }
 
     m_container = createProcess.cleanedStdOut().trimmed();
     if (m_container.isEmpty())
-        return false;
+        return make_unexpected(
+            Tr::tr("Failed creating Docker container. No container ID received."));
 
     qCDebug(dockerDeviceLog) << "ContainerId:" << m_container;
-    return true;
+    return m_container;
 }
 
-bool DockerDevicePrivate::startContainer()
+expected_str<void> DockerDevicePrivate::startContainer()
 {
-    if (!createContainer())
-        return false;
+    auto createResult = createContainer();
+    if (!createResult)
+        return make_unexpected(createResult.error());
 
-    m_shell = std::make_unique<ContainerShell>(m_settings, m_container, q->rootPath());
+    QMutexLocker lk(&m_shellMutex);
+    m_shell = std::make_unique<ContainerShell>(m_container, q->rootPath());
 
     connect(m_shell.get(), &DeviceShell::done, this, [this](const ProcessResultData &resultData) {
         if (m_shell)
@@ -747,33 +913,48 @@ bool DockerDevicePrivate::startContainer()
         qCWarning(dockerDeviceLog) << "Container shell encountered error:" << resultData.m_error;
 
         DockerApi::recheckDockerDaemon();
+        //: %1 is the application name (Qt Creator)
         MessageManager::writeFlashing(Tr::tr("Docker daemon appears to be not running. "
                                              "Verify daemon is up and running and reset the "
                                              "Docker daemon in Docker device preferences "
-                                             "or restart Qt Creator."));
+                                             "or restart %1.")
+                                          .arg(QGuiApplication::applicationDisplayName()));
     });
 
-    QTC_ASSERT(m_shell, return false);
+    QTC_ASSERT(m_shell,
+               return make_unexpected(Tr::tr("Failed to create container shell (Out of memory).")));
 
-    if (m_shell->start())
-        return true;
-
-    qCWarning(dockerDeviceLog) << "Container shell failed to start";
-    return false;
+    return m_shell->start();
 }
 
-bool DockerDevicePrivate::updateContainerAccess()
+expected_str<void> DockerDevicePrivate::updateContainerAccess()
 {
+    {
+        QMutexLocker lk(&m_shellMutex);
+        if (m_shell && m_shell->state() == DeviceShell::State::Succeeded)
+            return {};
+    }
+
+    if (QThread::currentThread() != thread()) {
+        expected_str<void> result;
+        return make_unexpected(Tr::tr("Cannot start docker device from non-main thread"));
+    }
+
     if (m_isShutdown)
-        return false;
+        return make_unexpected(Tr::tr("Device is shut down"));
 
     if (DockerApi::isDockerDaemonAvailable(false).value_or(false) == false)
-        return false;
+        return make_unexpected(Tr::tr("Docker system is not reachable"));
 
-    if (m_shell)
-        return true;
+    expected_str<void> result = startContainer();
+    if (result) {
+        deviceSettings->containerStatus.setText(Tr::tr("Running"));
+        return result;
+    }
 
-    return startContainer();
+    const QString error = QString("Failed to start container: %1").arg(result.error());
+    deviceSettings->containerStatus.setText(result.error().trimmed());
+    return make_unexpected(error);
 }
 
 void DockerDevice::setMounts(const QStringList &mounts) const
@@ -781,58 +962,22 @@ void DockerDevice::setMounts(const QStringList &mounts) const
     d->changeMounts(mounts);
 }
 
-const char DockerDeviceDataImageIdKey[] = "DockerDeviceDataImageId";
-const char DockerDeviceDataRepoKey[] = "DockerDeviceDataRepo";
-const char DockerDeviceDataTagKey[] = "DockerDeviceDataTag";
-const char DockerDeviceDataSizeKey[] = "DockerDeviceDataSize";
-const char DockerDeviceUseOutsideUser[] = "DockerDeviceUseUidGid";
-const char DockerDeviceMappedPaths[] = "DockerDeviceMappedPaths";
-const char DockerDeviceKeepEntryPoint[] = "DockerDeviceKeepEntryPoint";
-const char DockerDeviceEnableLldbFlags[] = "DockerDeviceEnableLldbFlags";
-const char DockerDeviceClangDExecutable[] = "DockerDeviceClangDExecutable";
-
-void DockerDevice::fromMap(const QVariantMap &map)
+void DockerDevice::fromMap(const Store &map)
 {
     ProjectExplorer::IDevice::fromMap(map);
-    DockerDeviceData data;
-
-    data.repo = map.value(DockerDeviceDataRepoKey).toString();
-    data.tag = map.value(DockerDeviceDataTagKey).toString();
-    data.imageId = map.value(DockerDeviceDataImageIdKey).toString();
-    data.size = map.value(DockerDeviceDataSizeKey).toString();
-    data.useLocalUidGid = map.value(DockerDeviceUseOutsideUser, HostOsInfo::isLinuxHost()).toBool();
-    data.mounts = map.value(DockerDeviceMappedPaths).toStringList();
-    data.keepEntryPoint = map.value(DockerDeviceKeepEntryPoint).toBool();
-    data.enableLldbFlags = map.value(DockerDeviceEnableLldbFlags).toBool();
-    data.clangdExecutable = FilePath::fromSettings(map.value(DockerDeviceClangDExecutable));
-    d->setData(data);
+    d->deviceSettings->fromMap(map);
 }
 
-QVariantMap DockerDevice::toMap() const
+Store DockerDevice::toMap() const
 {
-    QVariantMap map = ProjectExplorer::IDevice::toMap();
-    DockerDeviceData data = d->data();
-
-    map.insert(DockerDeviceDataRepoKey, data.repo);
-    map.insert(DockerDeviceDataTagKey, data.tag);
-    map.insert(DockerDeviceDataImageIdKey, data.imageId);
-    map.insert(DockerDeviceDataSizeKey, data.size);
-    map.insert(DockerDeviceUseOutsideUser, data.useLocalUidGid);
-    map.insert(DockerDeviceMappedPaths, data.mounts);
-    map.insert(DockerDeviceKeepEntryPoint, data.keepEntryPoint);
-    map.insert(DockerDeviceEnableLldbFlags, data.enableLldbFlags);
-    map.insert(DockerDeviceClangDExecutable, data.clangdExecutable.toSettings());
+    Store map = ProjectExplorer::IDevice::toMap();
+    d->deviceSettings->toMap(map);
     return map;
 }
 
 ProcessInterface *DockerDevice::createProcessInterface() const
 {
     return new DockerProcessImpl(this->sharedFromThis(), d);
-}
-
-DeviceProcessList *DockerDevice::createProcessListModel(QObject *parent) const
-{
-    return new ProcessList(sharedFromThis(), parent);
 }
 
 DeviceTester *DockerDevice::createDeviceTester() const
@@ -850,19 +995,11 @@ FilePath DockerDevice::filePath(const QString &pathOnDevice) const
     return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,
                                d->repoAndTagEncoded(),
                                pathOnDevice);
-
-// The following would work, but gives no hint on repo and tag
-//   result.setScheme("docker");
-//    result.setHost(d->m_data.imageId);
-
-// The following would work, but gives no hint on repo, tag and imageid
-//    result.setScheme("device");
-//    result.setHost(id().toString());
 }
 
-Utils::FilePath DockerDevice::rootPath() const
+FilePath DockerDevice::rootPath() const
 {
-    return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME, d->repoAndTagEncoded(), u"/");
+    return d->deviceSettings->rootPath();
 }
 
 bool DockerDevice::handlesFile(const FilePath &filePath) const
@@ -900,12 +1037,12 @@ bool DockerDevice::ensureReachable(const FilePath &other) const
     return d->ensureReachable(other.parentDir());
 }
 
-expected_str<FilePath> DockerDevice::localSource(const Utils::FilePath &other) const
+expected_str<FilePath> DockerDevice::localSource(const FilePath &other) const
 {
     return d->localSource(other);
 }
 
-Environment DockerDevice::systemEnvironment() const
+expected_str<Environment> DockerDevice::systemEnvironmentWithError() const
 {
     return d->environment();
 }
@@ -916,29 +1053,34 @@ void DockerDevice::aboutToBeRemoved() const
     detector.undoAutoDetect(id().toString());
 }
 
-void DockerDevicePrivate::fetchSystemEnviroment()
+expected_str<void> DockerDevicePrivate::fetchSystemEnviroment()
 {
-    if (!updateContainerAccess())
-        return;
+    expected_str<void> result = updateContainerAccess();
+    if (!result)
+        return result;
+
+    QString stdErr;
 
     if (m_shell && m_shell->state() == DeviceShell::State::Succeeded) {
         const RunResult result = runInShell({"env", {}});
         const QString out = QString::fromUtf8(result.stdOut);
         m_cachedEnviroment = Environment(out.split('\n', Qt::SkipEmptyParts), q->osType());
-        return;
+        stdErr = QString::fromUtf8(result.stdErr);
+    } else {
+        Process proc;
+        proc.setCommand(withDockerExecCmd({"env", {}}));
+        proc.start();
+        proc.waitForFinished();
+        const QString remoteOutput = proc.cleanedStdOut();
+
+        m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
+        stdErr = proc.cleanedStdErr();
     }
 
-    Process proc;
-    proc.setCommand(withDockerExecCmd({"env", {}}));
-    proc.start();
-    proc.waitForFinished();
-    const QString remoteOutput = proc.cleanedStdOut();
+    if (stdErr.isEmpty())
+        return {};
 
-    m_cachedEnviroment = Environment(remoteOutput.split('\n', Qt::SkipEmptyParts), q->osType());
-
-    const QString remoteError = proc.cleanedStdErr();
-    if (!remoteError.isEmpty())
-        qCWarning(dockerDeviceLog) << "Cannot read container environment:", qPrintable(remoteError);
+    return make_unexpected("Could not read container environment: " + stdErr);
 }
 
 RunResult DockerDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &stdInData)
@@ -951,7 +1093,7 @@ RunResult DockerDevicePrivate::runInShell(const CommandLine &cmd, const QByteArr
 
 // Factory
 
-class DockerImageItem final : public TreeItem, public DockerDeviceData
+class DockerImageItem final : public TreeItem
 {
 public:
     DockerImageItem() {}
@@ -979,14 +1121,18 @@ public:
 
         return QVariant();
     }
+
+    QString repo;
+    QString tag;
+    QString imageId;
+    QString size;
 };
 
 class DockerDeviceSetupWizard final : public QDialog
 {
 public:
-    DockerDeviceSetupWizard(DockerSettings *settings)
+    DockerDeviceSetupWizard()
         : QDialog(ICore::dialogParent())
-        , m_settings(settings)
     {
         setWindowTitle(Tr::tr("Docker Image Selection"));
         resize(800, 600);
@@ -1033,7 +1179,7 @@ public:
 
         const QString fail = QString{"Docker: "}
                              + ::ProjectExplorer::Tr::tr("The process failed to start.");
-        auto errorLabel = new Utils::InfoLabel(fail, Utils::InfoLabel::Error, this);
+        auto errorLabel = new InfoLabel(fail, InfoLabel::Error, this);
         errorLabel->setVisible(false);
 
         m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -1055,9 +1201,9 @@ public:
         connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
         m_buttons->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-        CommandLine cmd{m_settings->dockerBinaryPath(),
+        CommandLine cmd{settings().dockerBinaryPath(),
                         {"images", "--format", "{{.ID}}\\t{{.Repository}}\\t{{.Tag}}\\t{{.Size}}"}};
-        m_log->append(Tr::tr("Running \"%1\"\n").arg(cmd.toUserOutput()));
+        m_log->append(Tr::tr("Running \"%1\"").arg(cmd.toUserOutput()) + "\n");
 
         m_process = new Process(this);
         m_process->setCommand(cmd);
@@ -1081,7 +1227,7 @@ public:
             m_log->append(Tr::tr("Done."));
         });
 
-        connect(m_process, &Utils::Process::readyReadStandardError, this, [this] {
+        connect(m_process, &Process::readyReadStandardError, this, [this] {
             const QString out = Tr::tr("Error: %1").arg(m_process->cleanedStdErr());
             m_log->append(Tr::tr("Error: %1").arg(out));
         });
@@ -1111,7 +1257,12 @@ public:
             m_proxyModel->mapToSource(selectedRows.front()));
         QTC_ASSERT(item, return {});
 
-        auto device = DockerDevice::create(m_settings, *item);
+        auto deviceSettings = std::make_unique<DockerDeviceSettings>();
+        deviceSettings->repo.setValue(item->repo);
+        deviceSettings->tag.setValue(item->tag);
+        deviceSettings->imageId.setValue(item->imageId);
+
+        auto device = DockerDevice::create(std::move(deviceSettings));
 
         return device;
     }
@@ -1122,7 +1273,6 @@ public:
     SortFilterModel *m_proxyModel = nullptr;
     QTextBrowser *m_log = nullptr;
     QDialogButtonBox *m_buttons;
-    DockerSettings *m_settings;
 
     Process *m_process = nullptr;
     QString m_selectedId;
@@ -1130,19 +1280,19 @@ public:
 
 // Factory
 
-DockerDeviceFactory::DockerDeviceFactory(DockerSettings *settings)
+DockerDeviceFactory::DockerDeviceFactory()
     : IDeviceFactory(Constants::DOCKER_DEVICE_TYPE)
 {
     setDisplayName(Tr::tr("Docker Device"));
     setIcon(QIcon());
-    setCreator([settings] {
-        DockerDeviceSetupWizard wizard(settings);
+    setCreator([] {
+        DockerDeviceSetupWizard wizard;
         if (wizard.exec() != QDialog::Accepted)
             return IDevice::Ptr();
         return wizard.device();
     });
-    setConstructionFunction([settings, this] {
-        auto device = DockerDevice::create(settings, {});
+    setConstructionFunction([this] {
+        auto device = DockerDevice::create(std::make_unique<DockerDeviceSettings>());
         QMutexLocker lk(&m_deviceListMutex);
         m_existingDevices.push_back(device);
         return device;
@@ -1168,9 +1318,8 @@ bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath
     if (alreadyAdded)
         return false;
 
-    const bool alreadyManuallyAdded = anyOf(m_data.mounts, [path](const QString &mount) {
-        return mount == path.path();
-    });
+    const bool alreadyManuallyAdded = anyOf(deviceSettings->mounts(),
+                                            [path](const FilePath &mount) { return mount == path; });
 
     if (alreadyManuallyAdded)
         return false;
@@ -1186,10 +1335,13 @@ bool DockerDevicePrivate::addTemporaryMount(const FilePath &path, const FilePath
     return true;
 }
 
-Environment DockerDevicePrivate::environment()
+expected_str<Environment> DockerDevicePrivate::environment()
 {
-    if (!m_cachedEnviroment)
-        fetchSystemEnviroment();
+    if (!m_cachedEnviroment) {
+        expected_str<void> result = fetchSystemEnviroment();
+        if (!result)
+            return make_unexpected(result.error());
+    }
 
     QTC_ASSERT(m_cachedEnviroment, return {});
     return m_cachedEnviroment.value();
@@ -1198,15 +1350,14 @@ Environment DockerDevicePrivate::environment()
 void DockerDevicePrivate::shutdown()
 {
     m_isShutdown = true;
-    m_settings = nullptr;
     stopCurrentContainer();
 }
 
 void DockerDevicePrivate::changeMounts(QStringList newMounts)
 {
     newMounts.removeDuplicates();
-    if (m_data.mounts != newMounts) {
-        m_data.mounts = newMounts;
+    if (deviceSettings->mounts.value() != newMounts) {
+        deviceSettings->mounts.value() = newMounts;
         stopCurrentContainer(); // Force re-start with new mounts.
     }
 }
@@ -1221,8 +1372,8 @@ expected_str<FilePath> DockerDevicePrivate::localSource(const FilePath &other) c
         }
     }
 
-    for (const QString &mount : m_data.mounts) {
-        const FilePath mountPoint = FilePath::fromString(mount);
+    for (const FilePath &mount : deviceSettings->mounts()) {
+        const FilePath mountPoint = mount;
         if (devicePath.isChildOf(mountPoint)) {
             const FilePath relativePath = devicePath.relativeChildPath(mountPoint);
             return mountPoint.pathAppended(relativePath.path());
@@ -1234,12 +1385,14 @@ expected_str<FilePath> DockerDevicePrivate::localSource(const FilePath &other) c
 
 bool DockerDevicePrivate::ensureReachable(const FilePath &other)
 {
-    for (const QString &mount : m_data.mounts) {
-        const FilePath fMount = FilePath::fromString(mount);
-        if (other.isChildOf(fMount))
+    if (other.isSameDevice(q->rootPath()))
+        return true;
+
+    for (const FilePath &mount : deviceSettings->mounts()) {
+        if (other.isChildOf(mount))
             return true;
 
-        if (fMount == other)
+        if (mount == other)
             return true;
     }
 
@@ -1259,18 +1412,6 @@ bool DockerDevicePrivate::ensureReachable(const FilePath &other)
 
     addTemporaryMount(other, other);
     return true;
-}
-
-void DockerDevicePrivate::setData(const DockerDeviceData &data)
-{
-    if (m_data != data) {
-        m_data = data;
-
-        // Force restart if the container is already running
-        if (!m_container.isEmpty()) {
-            stopCurrentContainer();
-        }
-    }
 }
 
 bool DockerDevice::prepareForBuild(const Target *target)

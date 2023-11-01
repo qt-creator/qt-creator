@@ -801,6 +801,7 @@ static void set_dec_mode(VTermState *state, int num, int val)
     break;
 
   case 1004:
+    settermprop_bool(state, VTERM_PROP_FOCUSREPORT, val);
     state->mode.report_focus = val;
     break;
 
@@ -949,6 +950,7 @@ static int on_csi(const char *leader, const long args[], int argcount, const cha
 
     switch(intermed[0]) {
     case ' ':
+    case '!':
     case '"':
     case '$':
     case '\'':
@@ -1311,8 +1313,10 @@ static int on_csi(const char *leader, const long args[], int argcount, const cha
     break;
 
   case LEADER('?', 0x68): // DEC private mode set
-    if(!CSI_ARG_IS_MISSING(args[0]))
-      set_dec_mode(state, CSI_ARG(args[0]), 1);
+    for(int i = 0; i < argcount; i++) {
+      if(!CSI_ARG_IS_MISSING(args[i]))
+        set_dec_mode(state, CSI_ARG(args[i]), 1);
+    }
     break;
 
   case 0x6a: // HPB - ECMA-48 8.3.58
@@ -1333,8 +1337,10 @@ static int on_csi(const char *leader, const long args[], int argcount, const cha
     break;
 
   case LEADER('?', 0x6c): // DEC private mode reset
-    if(!CSI_ARG_IS_MISSING(args[0]))
-      set_dec_mode(state, CSI_ARG(args[0]), 0);
+    for(int i = 0; i < argcount; i++) {
+      if(!CSI_ARG_IS_MISSING(args[i]))
+        set_dec_mode(state, CSI_ARG(args[i]), 0);
+    }
     break;
 
   case 0x6d: // SGR - ECMA-48 8.3.117
@@ -1386,7 +1392,7 @@ static int on_csi(const char *leader, const long args[], int argcount, const cha
     break;
 
 
-  case LEADER('!', 0x70): // DECSTR - DEC soft terminal reset
+  case INTERMED('!', 0x70): // DECSTR - DEC soft terminal reset
     vterm_state_reset(state, 0);
     break;
 
@@ -1652,8 +1658,18 @@ static void osc_selection(VTermState *state, VTermStringFragment frag)
     frag.len--;
   }
 
-  if(!frag.len)
+  if(!frag.len) {
+    /* Clear selection if we're already finished but didn't do anything */
+    if(frag.final && state->selection.callbacks->set) {
+      (*state->selection.callbacks->set)(state->tmp.selection.mask, (VTermStringFragment){
+              .str     = NULL,
+              .len     = 0,
+              .initial = state->tmp.selection.state != SELECTION_SET,
+              .final   = true,
+            }, state->selection.user);
+    }
     return;
+  }
 
   if(state->tmp.selection.state == SELECTION_SELECTED) {
     if(frag.str[0] == '?') {
@@ -1670,6 +1686,9 @@ static void osc_selection(VTermState *state, VTermStringFragment frag)
       (*state->selection.callbacks->query)(state->tmp.selection.mask, state->selection.user);
     return;
   }
+
+  if(state->tmp.selection.state == SELECTION_INVALID)
+    return;
 
   if(state->selection.callbacks->set) {
     size_t bufcur = 0;
@@ -1706,11 +1725,21 @@ static void osc_selection(VTermState *state, VTermStringFragment frag)
         uint8_t b = unbase64one(frag.str[0]);
         if(b == 0xFF) {
           DEBUG_LOG("base64decode bad input %02X\n", (uint8_t)frag.str[0]);
+
+          state->tmp.selection.state = SELECTION_INVALID;
+          if(state->selection.callbacks->set) {
+            (*state->selection.callbacks->set)(state->tmp.selection.mask, (VTermStringFragment){
+                .str     = NULL,
+                .len     = 0,
+                .initial = true,
+                .final   = true,
+                }, state->selection.user);
+          }
+          break;
         }
-        else {
-          x = (x << 6) | b;
-          n++;
-        }
+
+        x = (x << 6) | b;
+        n++;
         frag.str++, frag.len--;
 
         if(n == 4) {
@@ -1730,7 +1759,7 @@ static void osc_selection(VTermState *state, VTermStringFragment frag)
               .str     = state->selection.buffer,
               .len     = bufcur,
               .initial = state->tmp.selection.state == SELECTION_SET_INITIAL,
-              .final   = frag.final,
+              .final   = frag.final && !frag.len,
             }, state->selection.user);
           state->tmp.selection.state = SELECTION_SET;
         }
@@ -1842,7 +1871,7 @@ static void request_status_string(VTermState *state, VTermStringFragment frag)
 
     case ' '|('q'<<8): {
       // Query DECSCUSR
-      int reply = 2;
+      int reply;
       switch(state->mode.cursor_shape) {
         case VTERM_PROP_CURSORSHAPE_BLOCK:     reply = 2; break;
         case VTERM_PROP_CURSORSHAPE_UNDERLINE: reply = 4; break;
@@ -2195,6 +2224,9 @@ int vterm_state_set_termprop(VTermState *state, VTermProp prop, VTermValue *val)
       state->mouse_flags |= MOUSE_WANT_DRAG;
     if(val->number == VTERM_PROP_MOUSE_MOVE)
       state->mouse_flags |= MOUSE_WANT_MOVE;
+    return 1;
+  case VTERM_PROP_FOCUSREPORT:
+    state->mode.report_focus = val->boolean;
     return 1;
 
   case VTERM_N_PROPS:

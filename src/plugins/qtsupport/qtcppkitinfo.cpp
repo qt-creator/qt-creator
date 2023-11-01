@@ -4,7 +4,7 @@
 #include "qtcppkitinfo.h"
 
 #include "baseqtversion.h"
-#include "qtkitinformation.h"
+#include "qtkitaspect.h"
 
 namespace QtSupport {
 

@@ -39,8 +39,6 @@ public:
         m_terminalPane = nullptr;
     }
 
-    void initialize() final { addManaged<TerminalSettings>(); }
-
     void extensionsInitialized() final
     {
         m_terminalPane = new TerminalPane;
@@ -61,8 +59,8 @@ public:
 
         static bool isEnabled = false;
         auto settingsChanged = [enable, disable] {
-            if (isEnabled != TerminalSettings::instance().enableTerminal()) {
-                isEnabled = TerminalSettings::instance().enableTerminal();
+            if (isEnabled != settings().enableTerminal()) {
+                isEnabled = settings().enableTerminal();
                 if (isEnabled)
                     enable();
                 else
@@ -70,7 +68,7 @@ public:
             }
         };
 
-        QObject::connect(&TerminalSettings::instance(),
+        QObject::connect(&settings(),
                          &Utils::AspectContainer::applied,
                          this,
                          settingsChanged);

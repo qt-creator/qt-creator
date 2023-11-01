@@ -7,9 +7,9 @@ on:
       - 'doc/**'
 
 env:
-  QT_VERSION: 6.5.2
+  QT_VERSION: 6.6.0
   MACOS_DEPLOYMENT_TARGET: 10.15
-  CLANG_VERSION: 16.0.2
+  CLANG_VERSION: 17.0.1
   ELFUTILS_VERSION: 0.175
   CMAKE_VERSION: 3.21.1
   NINJA_VERSION: 1.10.2
@@ -201,7 +201,7 @@ jobs:
           set(url_os "linux_x64")
           set(qt_package_arch_suffix "gcc_64")
           set(qt_dir_prefix "${qt_version}/gcc_64")
-          set(qt_package_suffix "-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64")
+          set(qt_package_suffix "-Linux-RHEL_8_6-GCC-Linux-RHEL_8_6-X86_64")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(url_os "mac_x64")
           set(qt_package_arch_suffix "clang_64")
@@ -374,7 +374,7 @@ jobs:
             set(libclang "libclang-release_${clang_version}-based-windows-vs2019_32.7z")
           endif()
         elseif ("${{ runner.os }}" STREQUAL "Linux")
-          set(libclang "libclang-release_${clang_version}-based-linux-Ubuntu20.04-gcc9.3-x86_64.7z")
+          set(libclang "libclang-release_${clang_version}-based-linux-Ubuntu22.04-gcc11.4-x86_64.7z")
         elseif ("${{ runner.os }}" STREQUAL "macOS")
           set(libclang "libclang-release_${clang_version}-based-macos-universal.7z")
         endif()
@@ -663,8 +663,8 @@ jobs:
         if (NOT result EQUAL 0)
           string(REGEX MATCH "[0-9]+% tests.*[0-9.]+ sec.*$" test_results "${output}")
           string(REPLACE "\n" "%0A" test_results "${test_results}")
-          # Do not fail on ctest failure
-          message("::warning::${test_results}")
+          message("::error::${test_results}")
+          message(FATAL_ERROR "Tests failed")
         endif()
 
     - name: Upload

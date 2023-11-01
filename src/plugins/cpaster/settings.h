@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace CodePaster {
 
-class Settings : public Core::PagedSettings
+class Settings final : public Utils::AspectContainer
 {
 public:
     Settings();
@@ -18,5 +18,7 @@ public:
     Utils::BoolAspect copyToClipboard{this};
     Utils::BoolAspect displayOutput{this};
 };
+
+Settings &settings();
 
 } // CodePaster

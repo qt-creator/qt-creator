@@ -53,7 +53,7 @@ void ClangCodeModelPlugin::generateCompilationDB()
     if (!target)
         return;
 
-    const auto projectInfo = CppModelManager::instance()->projectInfo(target->project());
+    const auto projectInfo = CppModelManager::projectInfo(target->project());
     if (!projectInfo)
         return;
     FilePath baseDir = projectInfo->buildRoot();
@@ -77,9 +77,10 @@ ClangCodeModelPlugin::~ClangCodeModelPlugin()
 
 void ClangCodeModelPlugin::initialize()
 {
-    TaskHub::addCategory(Constants::TASK_CATEGORY_DIAGNOSTICS, Tr::tr("Clang Code Model"));
-    CppEditor::CppModelManager::instance()->activateClangCodeModel(
-        std::make_unique<ClangModelManagerSupport>());
+    TaskHub::addCategory({Constants::TASK_CATEGORY_DIAGNOSTICS,
+                          Tr::tr("Clang Code Model"),
+                          Tr::tr("C++ code issues that Clangd found in the current document.")});
+    CppEditor::CppModelManager::activateClangCodeModel(std::make_unique<ClangModelManagerSupport>());
     createCompilationDBAction();
 
 #ifdef WITH_TESTS
@@ -89,6 +90,7 @@ void ClangCodeModelPlugin::initialize()
     addTest<Tests::ClangdTestFindReferences>();
     addTest<Tests::ClangdTestFollowSymbol>();
     addTest<Tests::ClangdTestHighlighting>();
+    addTest<Tests::ClangdTestIndirectChanges>();
     addTest<Tests::ClangdTestLocalReferences>();
     addTest<Tests::ClangdTestTooltips>();
     addTest<Tests::ClangFixItTest>();
@@ -135,8 +137,8 @@ void ClangCodeModelPlugin::createCompilationDBAction()
                                             "No active project.");
             return;
         }
-        const CppEditor::ProjectInfo::ConstPtr projectInfo = CppEditor::CppModelManager::instance()
-                ->projectInfo(project);
+        const CppEditor::ProjectInfo::ConstPtr projectInfo =
+            CppEditor::CppModelManager::projectInfo(project);
         if (!projectInfo || projectInfo->projectParts().isEmpty()) {
             MessageManager::writeDisrupting("Cannot generate compilation database: "
                                             "Project has no C/C++ project parts.");

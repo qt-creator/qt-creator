@@ -8,7 +8,9 @@
 
 #include <QGraphicsView>
 
-QT_FORWARD_DECLARE_CLASS(QImage)
+QT_BEGIN_NAMESPACE
+class QImage;
+QT_END_NAMESPACE
 
 namespace Utils {
 class QtcSettings;

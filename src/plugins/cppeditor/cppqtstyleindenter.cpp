@@ -19,7 +19,7 @@ CppQtStyleIndenter::CppQtStyleIndenter(QTextDocument *doc)
 {
     // Just for safety. setCodeStylePreferences should be called when the editor the
     // indenter belongs to gets initialized.
-    m_cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+    m_cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
 }
 
 CppQtStyleIndenter::~CppQtStyleIndenter() = default;

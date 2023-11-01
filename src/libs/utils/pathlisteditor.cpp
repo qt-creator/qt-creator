@@ -138,7 +138,7 @@ QStringList PathListEditor::pathList() const
 {
     const QString text = d->edit->toPlainText().trimmed();
     if (text.isEmpty())
-        return QStringList();
+        return {};
     // trim each line
     QStringList rc = text.split('\n', Qt::SkipEmptyParts);
     const QStringList::iterator end = rc.end();

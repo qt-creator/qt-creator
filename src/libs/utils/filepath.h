@@ -97,6 +97,7 @@ public:
 
     [[nodiscard]] FilePath pathAppended(const QString &str) const;
     [[nodiscard]] FilePath stringAppended(const QString &str) const;
+    [[nodiscard]] std::optional<FilePath> tailRemoved(const QString &str) const;
     bool startsWith(const QString &s) const;
     bool endsWith(const QString &s) const;
     bool contains(const QString &s) const;
@@ -108,7 +109,7 @@ public:
 
     bool isWritableDir() const;
     bool isWritableFile() const;
-    bool ensureWritableDir() const;
+    expected_str<void> ensureWritableDir() const;
     bool ensureExistingFile() const;
     bool isExecutableFile() const;
     bool isReadableFile() const;
@@ -159,9 +160,11 @@ public:
     [[nodiscard]] FilePath symLinkTarget() const;
     [[nodiscard]] FilePath resolveSymlinks() const;
     [[nodiscard]] FilePath withExecutableSuffix() const;
+    [[nodiscard]] FilePath withSuffix(const QString &suffix) const;
     [[nodiscard]] FilePath relativeChildPath(const FilePath &parent) const;
     [[nodiscard]] FilePath relativePathFrom(const FilePath &anchor) const;
     [[nodiscard]] Environment deviceEnvironment() const;
+    [[nodiscard]] expected_str<Environment> deviceEnvironmentWithError() const;
     [[nodiscard]] FilePaths devicePathEnvironmentVariable() const;
     [[nodiscard]] FilePath withNewPath(const QString &newPath) const;
     [[nodiscard]] FilePath withNewMappedPath(const FilePath &newPath) const;
@@ -299,7 +302,7 @@ public:
     std::function<expected_str<DeviceFileAccess *>(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
     std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
-    std::function<Environment(const FilePath &)> environment;
+    std::function<expected_str<Environment>(const FilePath &)> environment;
     std::function<bool(const FilePath &left, const FilePath &right)> isSameDevice;
     std::function<expected_str<FilePath>(const FilePath &)> localSource;
     std::function<void(const FilePath &, const Environment &)> openTerminal;

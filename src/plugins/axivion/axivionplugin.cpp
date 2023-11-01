@@ -8,8 +8,9 @@
 #include "axivionquery.h"
 #include "axivionresultparser.h"
 #include "axivionsettings.h"
-#include "axivionsettingspage.h"
 #include "axiviontr.h"
+#include "dashboard/dashboardclient.h"
+#include "dashboard/dto.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -27,12 +28,21 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 
+#include <utils/algorithm.h>
+#include <utils/expected.h>
+#include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QFutureWatcher>
 #include <QMessageBox>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 #include <QTimer>
+
+#include <exception>
+#include <memory>
 
 constexpr char AxivionTextMarkId[] = "AxivionTextMark";
 
@@ -41,10 +51,11 @@ namespace Axivion::Internal {
 class AxivionPluginPrivate : public QObject
 {
 public:
-    AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
+    AxivionPluginPrivate();
+    void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
-    void handleProjectInfo(const ProjectInfo &info);
+    void handleProjectInfo(DashboardClient::RawProjectInfo rawInfo);
     void handleOpenedDocs(ProjectExplorer::Project *project);
     void onDocumentOpened(Core::IDocument *doc);
     void onDocumentClosed(Core::IDocument * doc);
@@ -52,15 +63,12 @@ public:
     void handleIssuesForFile(const IssuesList &issues);
     void fetchRuleInfo(const QString &id);
 
-    AxivionSettings m_axivionSettings;
-    AxivionSettingsPage m_axivionSettingsPage{&m_axivionSettings};
+    Utils::NetworkAccessManager m_networkAccessManager;
     AxivionOutputPane m_axivionOutputPane;
-    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> m_axivionProjectSettings;
-    ProjectInfo m_currentProjectInfo;
+    std::shared_ptr<const DashboardClient::ProjectInfo> m_currentProjectInfo;
     bool m_runningQuery = false;
 };
 
-static AxivionPlugin *s_instance = nullptr;
 static AxivionPluginPrivate *dd = nullptr;
 
 class AxivionTextMark : public TextEditor::TextMark
@@ -91,40 +99,21 @@ AxivionTextMark::AxivionTextMark(const Utils::FilePath &filePath, const ShortIss
     });
 }
 
-AxivionPlugin::AxivionPlugin()
-{
-    s_instance = this;
-}
-
 AxivionPlugin::~AxivionPlugin()
 {
-    if (dd && !dd->m_axivionProjectSettings.isEmpty()) {
-        qDeleteAll(dd->m_axivionProjectSettings);
-        dd->m_axivionProjectSettings.clear();
-    }
+    AxivionProjectSettings::destroyProjectSettings();
     delete dd;
     dd = nullptr;
 }
 
-AxivionPlugin *AxivionPlugin::instance()
+void AxivionPlugin::initialize()
 {
-    return s_instance;
-}
-
-bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     dd = new AxivionPluginPrivate;
-    dd->m_axivionSettings.fromSettings(Core::ICore::settings());
 
     auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
     panelFactory->setPriority(250);
     panelFactory->setDisplayName(Tr::tr("Axivion"));
-    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project){
-        return new AxivionProjectSettingsWidget(project);
-    });
+    panelFactory->setCreateWidgetFunction(&AxivionProjectSettings::createSettingsWidget);
     ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
     connect(ProjectExplorer::ProjectManager::instance(),
             &ProjectExplorer::ProjectManager::startupProjectChanged,
@@ -133,39 +122,6 @@ bool AxivionPlugin::initialize(const QStringList &arguments, QString *errorMessa
             dd, &AxivionPluginPrivate::onDocumentOpened);
     connect(Core::EditorManager::instance(), &Core::EditorManager::documentClosed,
             dd, &AxivionPluginPrivate::onDocumentClosed);
-    return true;
-}
-
-AxivionSettings *AxivionPlugin::settings()
-{
-    QTC_ASSERT(dd, return nullptr);
-    return &dd->m_axivionSettings;
-}
-
-AxivionProjectSettings *AxivionPlugin::projectSettings(ProjectExplorer::Project *project)
-{
-    QTC_ASSERT(project, return nullptr);
-    QTC_ASSERT(dd, return nullptr);
-
-    return dd->projectSettings(project);
-}
-
-bool AxivionPlugin::handleCertificateIssue()
-{
-    QTC_ASSERT(dd, return false);
-
-    const QString serverHost = QUrl(dd->m_axivionSettings.server.dashboard).host();
-    if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
-                              Tr::tr("Server certificate for %1 cannot be authenticated.\n"
-                                     "Do you want to disable SSL verification for this server?\n"
-                                     "Note: This can expose you to man-in-the-middle attack.")
-                              .arg(serverHost))
-            != QMessageBox::Yes) {
-        return false;
-    }
-    dd->m_axivionSettings.server.validateCert = false;
-    emit s_instance->settingsChanged();
-    return true;
 }
 
 void AxivionPlugin::fetchProjectInfo(const QString &projectName)
@@ -174,18 +130,57 @@ void AxivionPlugin::fetchProjectInfo(const QString &projectName)
     dd->fetchProjectInfo(projectName);
 }
 
-ProjectInfo AxivionPlugin::projectInfo()
+std::shared_ptr<const DashboardClient::ProjectInfo> AxivionPlugin::projectInfo()
 {
     QTC_ASSERT(dd, return {});
     return dd->m_currentProjectInfo;
 }
 
-AxivionProjectSettings *AxivionPluginPrivate::projectSettings(ProjectExplorer::Project *project)
+// FIXME: extend to give some details?
+// FIXME: move when curl is no more in use?
+bool AxivionPlugin::handleCertificateIssue()
 {
-    auto &settings = m_axivionProjectSettings[project];
-    if (!settings)
-        settings = new AxivionProjectSettings(project);
-    return settings;
+    QTC_ASSERT(dd, return false);
+    const QString serverHost = QUrl(settings().server.dashboard).host();
+    if (QMessageBox::question(Core::ICore::dialogParent(), Tr::tr("Certificate Error"),
+                              Tr::tr("Server certificate for %1 cannot be authenticated.\n"
+                                     "Do you want to disable SSL verification for this server?\n"
+                                     "Note: This can expose you to man-in-the-middle attack.")
+                              .arg(serverHost))
+            != QMessageBox::Yes) {
+        return false;
+    }
+    settings().server.validateCert = false;
+    settings().apply();
+
+    return true;
+}
+
+AxivionPluginPrivate::AxivionPluginPrivate()
+{
+#if QT_CONFIG(ssl)
+    connect(&m_networkAccessManager, &QNetworkAccessManager::sslErrors,
+            this, &AxivionPluginPrivate::handleSslErrors);
+#endif // ssl
+}
+
+void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
+{
+#if QT_CONFIG(ssl)
+    const QList<QSslError::SslError> accepted{
+        QSslError::CertificateNotYetValid, QSslError::CertificateExpired,
+        QSslError::InvalidCaCertificate, QSslError::CertificateUntrusted,
+        QSslError::HostNameMismatch
+    };
+    if (Utils::allOf(errors,
+                     [&accepted](const QSslError &e) { return accepted.contains(e.error()); })) {
+        if (!settings().server.validateCert || AxivionPlugin::handleCertificateIssue())
+            reply->ignoreSslErrors(errors);
+    }
+#else // ssl
+    Q_UNUSED(reply)
+    Q_UNUSED(errors)
+#endif // ssl
 }
 
 void AxivionPluginPrivate::onStartupProjectChanged()
@@ -193,42 +188,44 @@ void AxivionPluginPrivate::onStartupProjectChanged()
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project) {
         clearAllMarks();
-        m_currentProjectInfo = ProjectInfo();
+        m_currentProjectInfo = {};
         m_axivionOutputPane.updateDashboard();
         return;
     }
 
-    const AxivionProjectSettings *projSettings = projectSettings(project);
+    const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(project);
     fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
     if (m_runningQuery) { // re-schedule
-        QTimer::singleShot(3000, [this, projectName]{ fetchProjectInfo(projectName); });
+        QTimer::singleShot(3000, this, [this, projectName] { fetchProjectInfo(projectName); });
         return;
     }
     clearAllMarks();
     if (projectName.isEmpty()) {
-        m_currentProjectInfo = ProjectInfo();
+        m_currentProjectInfo = {};
         m_axivionOutputPane.updateDashboard();
         return;
     }
     m_runningQuery = true;
-
-    AxivionQuery query(AxivionQuery::ProjectInfo, {projectName});
-    AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
-    connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
-        handleProjectInfo(ResultParser::parseProjectInfo(result));
-    });
-    connect(runner, &AxivionQueryRunner::finished, [runner]{ runner->deleteLater(); });
-    runner->start();
+    DashboardClient client { this->m_networkAccessManager };
+    QFuture<DashboardClient::RawProjectInfo> response = client.fetchProjectInfo(projectName);
+    auto responseWatcher = std::make_shared<QFutureWatcher<DashboardClient::RawProjectInfo>>();
+    connect(responseWatcher.get(),
+            &QFutureWatcher<DashboardClient::RawProjectInfo>::finished,
+            this,
+            [this, responseWatcher]() {
+                handleProjectInfo(responseWatcher->result());
+            });
+    responseWatcher->setFuture(response);
 }
 
 void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
 {
     if (m_runningQuery) {
-        QTimer::singleShot(3000, [this, id]{ fetchRuleInfo(id); });
+        QTimer::singleShot(3000, this, [this, id] { fetchRuleInfo(id); });
         return;
     }
 
@@ -265,20 +262,15 @@ void AxivionPluginPrivate::clearAllMarks()
         onDocumentClosed(doc);
 }
 
-void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
+void AxivionPluginPrivate::handleProjectInfo(DashboardClient::RawProjectInfo rawInfo)
 {
     m_runningQuery = false;
-    if (!info.error.isEmpty()) {
-        Core::MessageManager::writeFlashing("Axivion: " + info.error);
+    if (!rawInfo) {
+        Core::MessageManager::writeFlashing(QStringLiteral(u"Axivion: ") + rawInfo.error());
         return;
     }
-
-    m_currentProjectInfo = info;
+    m_currentProjectInfo = std::make_shared<const DashboardClient::ProjectInfo>(std::move(rawInfo.value()));
     m_axivionOutputPane.updateDashboard();
-
-    if (m_currentProjectInfo.name.isEmpty())
-        return;
-
     // handle already opened documents
     if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
             !buildSystem || !buildSystem->isParsing()) {
@@ -292,7 +284,7 @@ void AxivionPluginPrivate::handleProjectInfo(const ProjectInfo &info)
 
 void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
 {
-    if (m_currentProjectInfo.name.isEmpty()) // we do not have a project info (yet)
+    if (!m_currentProjectInfo) // we do not have a project info (yet)
         return;
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
@@ -301,7 +293,7 @@ void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
 
     Utils::FilePath relative = doc->filePath().relativeChildPath(project->projectDirectory());
     // for now only style violations
-    AxivionQuery query(AxivionQuery::IssuesForFileList, {m_currentProjectInfo.name, "SV",
+    AxivionQuery query(AxivionQuery::IssuesForFileList, {m_currentProjectInfo->data.name, "SV",
                                                          relative.path() } );
     AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
     connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){

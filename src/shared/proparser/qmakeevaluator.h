@@ -48,6 +48,10 @@ public:
 QT_BEGIN_NAMESPACE
 
 QMAKE_EXPORT std::function<void(ProcessData *data)> &theProcessRunner();
+
+QMAKE_EXPORT std::function<std::optional<QString>(const QString &, const QStringList &)> &
+    thePrompter();
+
 QMAKE_EXPORT QString removeHostAndScheme(const QString &remotePath);
 
 class QMakeGlobals;
@@ -296,6 +300,7 @@ public:
     QStringList m_qmakepath;
     QStringList m_qmakefeatures;
     QStringList m_mkspecPaths;
+    QStringList m_logBuffer;
     QExplicitlySharedDataPointer<QMakeFeatureRoots> m_featureRoots;
     ProString m_dirSep;
     ProFunctionDefs m_functionDefs;

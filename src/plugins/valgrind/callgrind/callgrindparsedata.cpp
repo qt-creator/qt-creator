@@ -3,20 +3,17 @@
 
 #include "callgrindparsedata.h"
 
-#include "callgrindfunction.h"
 #include "callgrindcycledetection.h"
+#include "callgrindfunction.h"
 #include "callgrindfunctioncycle.h"
 #include "../valgrindtr.h"
 
 #include <utils/qtcassert.h>
 
-#include <QStringList>
-#include <QVector>
 #include <QHash>
-#include <QCoreApplication>
+#include <QStringList>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class ParseData::Private
 {
@@ -32,8 +29,8 @@ public:
     QString m_fileName;
     QStringList m_events;
     QStringList m_positions;
-    QVector<quint64> m_totalCosts;
-    QVector<const Function *> m_functions;
+    QList<quint64> m_totalCosts;
+    QList<const Function *> m_functions;
     QString m_command;
     quint64 m_pid = 0;
     int m_lineNumberPositionIndex = -1;
@@ -43,7 +40,7 @@ public:
     QStringList m_descriptions;
     QString m_creator;
 
-    QHash<qint64, QHash<qint64, QVector<Function *> > > functionLookup;
+    QHash<qint64, QHash<qint64, QList<Function *>>> functionLookup;
 
     using NameLookupTable = QHash<qint64, QString>;
     QString stringForCompression(const NameLookupTable &lookup, qint64 id);
@@ -55,7 +52,7 @@ public:
 
     void cycleDetection();
     void cleanupFunctionCycles();
-    QVector<const Function *> m_cycleCache;
+    QList<const Function *> m_cycleCache;
 
     ParseData *m_q;
 };
@@ -233,7 +230,7 @@ void ParseData::setTotalCost(uint event, quint64 cost)
     d->m_totalCosts[event] = cost;
 }
 
-QVector<const Function *> ParseData::functions(bool detectCycles) const
+QList<const Function *> ParseData::functions(bool detectCycles) const
 {
     if (detectCycles) {
         d->cycleDetection();
@@ -343,5 +340,4 @@ void ParseData::addCompressedFunction(const QString &function, qint64 &id)
     d->addCompressedString(d->m_functionCompression, function, id);
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

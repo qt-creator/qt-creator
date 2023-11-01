@@ -512,7 +512,6 @@ void SyntaxHighlighter::formatSpaces(const QString &text, int start, int count)
 void SyntaxHighlighter::setFormatWithSpaces(const QString &text, int start, int count,
                                             const QTextCharFormat &format)
 {
-    Q_D(const SyntaxHighlighter);
     const QTextCharFormat visualSpaceFormat = whitespacified(format);
 
     const int end = std::min(start + count, int(text.length()));

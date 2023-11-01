@@ -13,6 +13,7 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
 #include "qbsprojectparser.h"
+#include "qbsrequest.h"
 #include "qbssession.h"
 #include "qbssettings.h"
 
@@ -34,7 +35,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -48,7 +49,7 @@
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <QCoreApplication>
 #include <QElapsedTimer>
@@ -56,7 +57,6 @@
 #include <QJsonArray>
 #include <QMessageBox>
 #include <QSet>
-#include <QTimer>
 #include <QVariantMap>
 
 #include <algorithm>
@@ -199,6 +199,7 @@ QbsBuildSystem::QbsBuildSystem(QbsBuildConfiguration *bc)
 
 QbsBuildSystem::~QbsBuildSystem()
 {
+    m_parseRequest.reset();
     delete m_cppCodeModelUpdater;
     delete m_qbsProjectParser;
     if (m_qbsUpdateFutureInterface) {
@@ -424,21 +425,6 @@ QString QbsBuildSystem::profile() const
     return QbsProfileManager::ensureProfileForKit(target()->kit());
 }
 
-bool QbsBuildSystem::checkCancelStatus()
-{
-    const CancelStatus cancelStatus = m_cancelStatus;
-    m_cancelStatus = CancelStatusNone;
-    if (cancelStatus != CancelStatusCancelingForReparse)
-        return false;
-    qCDebug(qbsPmLog) << "Cancel request while parsing, starting re-parse";
-    m_qbsProjectParser->deleteLater();
-    m_qbsProjectParser = nullptr;
-    m_treeCreationWatcher = nullptr;
-    m_guard = {};
-    parseCurrentBuildConfiguration();
-    return true;
-}
-
 void QbsBuildSystem::updateAfterParse()
 {
     qCDebug(qbsPmLog) << "Updating data after parse";
@@ -454,11 +440,6 @@ void QbsBuildSystem::updateAfterParse()
         m_guard = {};
         emitBuildSystemUpdated();
     });
-}
-
-void QbsBuildSystem::delayedUpdateAfterParse()
-{
-    QTimer::singleShot(0, this, &QbsBuildSystem::updateAfterParse);
 }
 
 void QbsBuildSystem::updateProjectNodes(const std::function<void ()> &continuation)
@@ -512,9 +493,6 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
 
     qCDebug(qbsPmLog) << "Parsing done, success:" << success;
 
-    if (checkCancelStatus())
-        return;
-
     generateErrors(m_qbsProjectParser->error());
 
     bool dataChanged = false;
@@ -549,9 +527,9 @@ void QbsBuildSystem::handleQbsParsingDone(bool success)
     if (dataChanged) {
         updateAfterParse();
         return;
-    }
-    else if (envChanged)
+    } else if (envChanged) {
         updateCppCodeModel();
+    }
     if (success)
         m_guard.markAsSuccess();
     m_guard = {};
@@ -570,14 +548,7 @@ void QbsBuildSystem::changeActiveTarget(Target *t)
 
 void QbsBuildSystem::triggerParsing()
 {
-    // Qbs does update the build graph during the build. So we cannot
-    // start to parse while a build is running or we will lose information.
-    if (BuildManager::isBuilding(project())) {
-        scheduleParsing();
-        return;
-    }
-
-    parseCurrentBuildConfiguration();
+    scheduleParsing();
 }
 
 void QbsBuildSystem::delayParsing()
@@ -591,28 +562,19 @@ ExtraCompiler *QbsBuildSystem::findExtraCompiler(const ExtraCompilerFilter &filt
     return Utils::findOrDefault(m_extraCompilers, filter);
 }
 
-void QbsBuildSystem::parseCurrentBuildConfiguration()
+void QbsBuildSystem::scheduleParsing()
 {
-    m_parsingScheduled = false;
-    if (m_cancelStatus == CancelStatusCancelingForReparse)
-        return;
+    m_parseRequest.reset(new QbsRequest);
+    m_parseRequest->setParseData(this);
+    connect(m_parseRequest.get(), &QbsRequest::done, this, [this] {
+        m_parseRequest.release()->deleteLater();
+    });
+    m_parseRequest->start();
+}
 
-    // The CancelStatusCancelingAltoghether type can only be set by a build job, during
-    // which no other parse requests come through to this point (except by the build job itself,
-    // but of course not while canceling is in progress).
-    QTC_ASSERT(m_cancelStatus == CancelStatusNone, return);
-
-    // New parse requests override old ones.
-    // NOTE: We need to wait for the current operation to finish, since otherwise there could
-    //       be a conflict. Consider the case where the old qbs::ProjectSetupJob is writing
-    //       to the build graph file when the cancel request comes in. If we don't wait for
-    //       acknowledgment, it might still be doing that when the new one already reads from the
-    //       same file.
-    if (m_qbsProjectParser) {
-        m_cancelStatus = CancelStatusCancelingForReparse;
-        m_qbsProjectParser->cancel();
-        return;
-    }
+void QbsBuildSystem::startParsing()
+{
+    QTC_ASSERT(!m_qbsProjectParser, return);
 
     QVariantMap config = m_buildConfiguration->qbsConfiguration();
     if (!config.contains(Constants::QBS_INSTALL_ROOT_KEY)) {
@@ -641,7 +603,6 @@ void QbsBuildSystem::parseCurrentBuildConfiguration()
 void QbsBuildSystem::cancelParsing()
 {
     QTC_ASSERT(m_qbsProjectParser, return);
-    m_cancelStatus = CancelStatusCancelingAltoghether;
     m_qbsProjectParser->cancel();
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,11 +8,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-project-qmake-libraries.html
     \page creator-project-wizards.html
-    \nextpage creator-version-control.html
+    \previouspage creator-reference.html
 
-    \title Adding New Custom Wizards
+    \ingroup creator-reference
+
+    \title Custom Wizards
+
+    \brief Wizard types and JSON wizard format.
 
     If you have a team working on a large application or several applications,
     you might want to standardize the way the team members create projects and
@@ -24,9 +27,10 @@
     has sections that specify information about the wizard, variables
     that you can use, wizard pages, and generators for creating files.
 
-    To create a customized wizard, copy a template directory to the shared
-    directory or the local user's settings directory under a new name. Then
-    change the wizard id in the \c {wizard.json} file.
+    To create a customized wizard, copy a template directory to the
+    \c {templates/wizards/} directory in the local user's settings
+    directory under a new name. Then change the wizard id in the
+    \c {wizard.json} file.
 
     You can create a subdirectory for the templates in the settings directory.
     \QC organizes the standard wizards into subdirectories by type, but you can
@@ -57,14 +61,14 @@
 
     \list
 
-        \li Shared directory:
+        \li Predefined wizards in the shared directory:
             \list
                 \li On Windows: \c {share\qtcreator\templates\wizards}
                 \li On Linux: \c {share/qtcreator/templates/wizards}
                 \li On \macos:
                     \c{Qt Creator.app/Contents/Resources/templates/wizards}
             \endlist
-        \li Local user's settings directory:
+        \li Your custom wizards in the local user's settings directory:
             \list
                 \li On Windows:
                     \c {%APPDATA%\QtProject\qtcreator\templates\wizards}
@@ -81,9 +85,8 @@
 
     \QC has some actions that can improve the wizard development process. They
     don't have keyboard shortcuts by default, so you cannot trigger them. To
-    enable them, assign keyboard shortcuts in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Environment > \uicontrol Keyboard >
-    \uicontrol Wizard.
+    enable them, assign keyboard shortcuts in \preferences >
+    \uicontrol Environment > \uicontrol Keyboard > \uicontrol Wizard.
 
     The following actions can help with wizard development:
 
@@ -142,7 +145,7 @@
     /global/genericfilewizard.png" not found.
     \endcode
 
-    See \l{Using Command Line Options} for more information about command line
+    See \l{Command-Line Options} for more information about command-line
     arguments.
 
     \include creator-projects-custom-wizards-json.qdocinc json wizards

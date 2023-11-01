@@ -14,6 +14,11 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace QmlProjectManager {
+
 static bool isMultilanguagePresent()
 {
     const QVector<ExtensionSystem::PluginSpec *> &specs = ExtensionSystem::PluginManager::plugins();
@@ -24,7 +29,7 @@ static bool isMultilanguagePresent()
            != specs.cend();
 }
 
-static Utils::FilePath getMultilanguageDatabaseFilePath(ProjectExplorer::Target *target)
+static FilePath getMultilanguageDatabaseFilePath(ProjectExplorer::Target *target)
 {
     if (target) {
         auto filePath = target->project()->projectDirectory().pathAppended("translations.db");
@@ -48,11 +53,8 @@ static QObject *getPreviewPlugin()
     return nullptr;
 }
 
-
-namespace QmlProjectManager {
-
-QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
-    : m_target(target)
+QmlMultiLanguageAspect::QmlMultiLanguageAspect(AspectContainer *container)
+    : BoolAspect(container)
 {
     setVisible(isMultilanguagePresent());
     setSettingsKey(Constants::USE_MULTILANGUAGE_KEY);
@@ -60,14 +62,13 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
     setToolTip(Tr::tr("Reads translations from MultiLanguage plugin."));
 
     setDefaultValue(!databaseFilePath().isEmpty());
-    QVariantMap getDefaultValues;
+    Store getDefaultValues;
     fromMap(getDefaultValues);
 
     addDataExtractor(this, &QmlMultiLanguageAspect::origin, &Data::origin);
 
     connect(this, &BoolAspect::changed, this, [this] {
-        for (ProjectExplorer::RunControl *runControl :
-                ProjectExplorer::ProjectExplorerPlugin::allRunControls()) {
+        for (RunControl *runControl : ProjectExplorerPlugin::allRunControls()) {
             if (auto aspect = runControl->aspect<QmlMultiLanguageAspect>()) {
                 if (auto origin = aspect->origin; origin == this)
                     runControl->initiateStop();
@@ -78,6 +79,11 @@ QmlMultiLanguageAspect::QmlMultiLanguageAspect(ProjectExplorer::Target *target)
 
 QmlMultiLanguageAspect::~QmlMultiLanguageAspect()
 {
+}
+
+void QmlMultiLanguageAspect::setTarget(Target *target)
+{
+    m_target = target;
 }
 
 void QmlMultiLanguageAspect::setCurrentLocale(const QString &locale)
@@ -101,14 +107,14 @@ Utils::FilePath QmlMultiLanguageAspect::databaseFilePath() const
     return m_databaseFilePath;
 }
 
-void QmlMultiLanguageAspect::toMap(QVariantMap &map) const
+void QmlMultiLanguageAspect::toMap(Store &map) const
 {
     BoolAspect::toMap(map);
     if (!m_currentLocale.isEmpty())
         map.insert(Constants::LAST_USED_LANGUAGE, m_currentLocale);
 }
 
-void QmlMultiLanguageAspect::fromMap(const QVariantMap &map)
+void QmlMultiLanguageAspect::fromMap(const Store &map)
 {
     BoolAspect::fromMap(map);
     setCurrentLocale(map.value(Constants::LAST_USED_LANGUAGE, "en").toString());
@@ -116,19 +122,19 @@ void QmlMultiLanguageAspect::fromMap(const QVariantMap &map)
 
 QmlMultiLanguageAspect *QmlMultiLanguageAspect::current()
 {
-    if (auto project = ProjectExplorer::ProjectManager::startupProject())
+    if (auto project = ProjectManager::startupProject())
         return current(project);
     return {};
 }
 
-QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(ProjectExplorer::Project *project)
+QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(Project *project)
 {
     if (auto target = project->activeTarget())
         return current(target);
     return {};
 }
 
-QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(ProjectExplorer::Target *target)
+QmlMultiLanguageAspect *QmlMultiLanguageAspect::current(Target *target)
 {
     if (!target)
         return {};

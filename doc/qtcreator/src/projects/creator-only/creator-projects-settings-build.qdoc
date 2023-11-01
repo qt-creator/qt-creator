@@ -35,7 +35,8 @@
 
     \section1 Managing Build Configurations
 
-    Specify build settings in \uicontrol Projects > \uicontrol {Build & Run}
+    Specify build settings for the selected \l{glossary-buildandrun-kit}
+    {build and run kit} in \uicontrol Projects > \uicontrol {Build & Run}
     > \uicontrol Build > \uicontrol {Build Settings}.
 
     \image qtcreator-build-configurations.png "Build Settings"
@@ -90,7 +91,7 @@
     \QC executes external processes to accomplish tasks such as building
     and running applications. To execute the processes, \QC uses shell
     commands that are native to the system. It constructs the commands from
-    an executable name and optional command line arguments.
+    an executable name and optional command-line arguments.
 
     The executable name is specified in the executable fields: \uicontrol qmake,
     \uicontrol Make, \uicontrol Command, or \uicontrol Executable. It is either
@@ -116,7 +117,7 @@
 
     \section1 Build Steps
 
-    \image qtcreator-cmake-build-steps.png "CMake build steps"
+    \image qtcreator-cmake-build-steps.webp {CMake build steps}
 
     In \uicontrol{Build Steps}, you can change the settings for the build system
     selected for building the project:

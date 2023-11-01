@@ -17,8 +17,8 @@
 
     \image qtcreator-editortoolbar-symbols.webp {Edit mode toolbar}
 
-    To add more space around the toolbar items, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Environment > \uicontrol Interface, and
+    To add more space around the toolbar items, select \preferences >
+    \uicontrol Environment > \uicontrol Interface, and
     then select \uicontrol Relaxed in the \uicontrol {Toolbar style} field.
 
     \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
@@ -56,6 +56,11 @@
     \l{Searching with the Locator}{locator}. Enter the line number and column
     number in the locator, separated by a colon (:).
 
+    The line and column indicator shows more information about the current
+    cursor positions, including the length of the selection for selected text.
+
+    \image qtcreator-editor-line-column.webp {Line and column indicator on the Edit mode toolbar}
+
     \note You can also use the \l{Show and hide sidebars}{sidebars} to
     move around in \QC.
 
@@ -76,7 +81,7 @@
     \section2 Changing Text Encoding
 
     To show the file encoding of the current file on the editor toolbar (5),
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    select \preferences > \uicontrol {Text Editor} >
     \uicontrol Display > \uicontrol {Display file encoding}.
 
     To change the text encoding, click it on the toolbar and select new
@@ -92,18 +97,18 @@
 
     To switch between Windows line endings (CRLF) and Unix line endings (LF),
     select the ending style on the editor toolbar (6). To hide this field,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor}
+    select \preferences > \uicontrol {Text Editor}
     > \uicontrol Display, and deselect \uicontrol {Display file line ending}.
 
     To set the line endings to use for all projects by default, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
+    \preferences > \uicontrol {Text Editor} >
     \uicontrol Behavior, and then select the ending style in the
     \uicontrol {Default line endings} field.
 
     To set the line endings to use for a project, select \uicontrol Projects >
     \uicontrol {Project Settings} > \uicontrol Editor.
 
-    For more information, see \l {Specifying Editor Settings}.
+    For more information, see \l {Specify editor settings}.
 
     \section2 Managing Language Servers
 
@@ -264,9 +269,8 @@
     splits opened, you can open the link in the next split by holding \key Ctrl
     and \key Alt while clicking the symbol.
 
-    To enable this moving function, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior >
-    \uicontrol {Enable mouse navigation}.
+    To enable this moving function, select \preferences > \uicontrol {Text Editor}
+    > \uicontrol Behavior > \uicontrol {Enable mouse navigation}.
 
     There are several additional ways of moving between symbol definitions and
     declarations. All the functions described below are also available from the
@@ -302,8 +306,8 @@
     split, prepend \key {Ctrl+E} to the shortcut. For example, press
     \key {Ctrl+E,F2} to follow the symbol in the next split. If necessary, the
     view is automatically split. To change the default behavior, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Text Editor} >
-    \uicontrol Display > \uicontrol {Always open links in another split}.
+    \preferences > \uicontrol {Text Editor} > \uicontrol Display >
+    \uicontrol {Always open links in another split}.
     Additional symbols are
     displayed and switching between definition and declaration is done in
     another split. If you change the default behavior, the shortcuts for opening
@@ -338,4 +342,6 @@
     \QC underlines semantic errors in olive in the C++ code editor. To check the
     correct paths for includes that are not resolved or that are resolved to the
     wrong file, select \uicontrol {Project Parts} > \uicontrol {Header Paths}.
+
+    \sa {Detach views}
 */

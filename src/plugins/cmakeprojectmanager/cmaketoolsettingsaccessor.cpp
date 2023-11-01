@@ -9,12 +9,11 @@
 
 #include <coreplugin/icore.h>
 
-#include <app/app_version.h>
-
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 
 #include <QDebug>
+#include <QGuiApplication>
 
 using namespace Utils;
 
@@ -31,7 +30,7 @@ public:
     CMakeToolSettingsUpgraderV0() : VersionUpgrader(0, "4.6") { }
 
     // NOOP
-    QVariantMap upgrade(const QVariantMap &data) final { return data; }
+    Store upgrade(const Store &data) final { return data; }
 };
 
 // --------------------------------------------------------------------
@@ -132,7 +131,7 @@ mergeTools(std::vector<std::unique_ptr<CMakeTool>> &sdkTools,
 CMakeToolSettingsAccessor::CMakeToolSettingsAccessor()
 {
     setDocType("QtCreatorCMakeTools");
-    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+    setApplicationDisplayName(QGuiApplication::applicationDisplayName());
     setBaseFilePath(Core::ICore::userResourcePath(CMAKE_TOOL_FILENAME));
 
     addVersionUpgrader(std::make_unique<CMakeToolSettingsUpgraderV0>());
@@ -171,43 +170,43 @@ void CMakeToolSettingsAccessor::saveCMakeTools(const QList<CMakeTool *> &cmakeTo
                                                const Id &defaultId,
                                                QWidget *parent)
 {
-    QVariantMap data;
-    data.insert(QLatin1String(CMAKE_TOOL_DEFAULT_KEY), defaultId.toSetting());
+    Store data;
+    data.insert(CMAKE_TOOL_DEFAULT_KEY, defaultId.toSetting());
 
     int count = 0;
+    const bool autoRun = settings().autorunCMake();
     for (CMakeTool *item : cmakeTools) {
         Utils::FilePath fi = item->cmakeExecutable();
 
         // Gobal Autorun value will be set for all tools
         // TODO: Remove in Qt Creator 13
-        const auto settings = CMakeSpecificSettings::instance();
-        item->setAutorun(settings->autorunCMake.value());
+        item->setAutorun(autoRun);
 
         if (fi.needsDevice() || fi.isExecutableFile()) { // be graceful for device related stuff
-            QVariantMap tmp = item->toMap();
+            Store tmp = item->toMap();
             if (tmp.isEmpty())
                 continue;
-            data.insert(QString::fromLatin1(CMAKE_TOOL_DATA_KEY) + QString::number(count), tmp);
+            data.insert(numberedKey(CMAKE_TOOL_DATA_KEY, count), variantFromStore(tmp));
             ++count;
         }
     }
-    data.insert(QLatin1String(CMAKE_TOOL_COUNT_KEY), count);
+    data.insert(CMAKE_TOOL_COUNT_KEY, count);
 
     saveSettings(data, parent);
 }
 
 CMakeToolSettingsAccessor::CMakeTools
-CMakeToolSettingsAccessor::cmakeTools(const QVariantMap &data, bool fromSdk) const
+CMakeToolSettingsAccessor::cmakeTools(const Store &data, bool fromSdk) const
 {
     CMakeTools result;
 
-    int count = data.value(QLatin1String(CMAKE_TOOL_COUNT_KEY), 0).toInt();
+    int count = data.value(CMAKE_TOOL_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const QString key = QString::fromLatin1(CMAKE_TOOL_DATA_KEY) + QString::number(i);
+        const Key key = numberedKey(CMAKE_TOOL_DATA_KEY, i);
         if (!data.contains(key))
             continue;
 
-        const QVariantMap dbMap = data.value(key).toMap();
+        const Store dbMap = storeFromVariant(data.value(key));
         auto item = std::make_unique<CMakeTool>(dbMap, fromSdk);
         const FilePath cmakeExecutable = item->cmakeExecutable();
         if (item->isAutoDetected() && !cmakeExecutable.needsDevice() && !cmakeExecutable.isExecutableFile()) {

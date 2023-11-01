@@ -10,6 +10,8 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
 
+#include <qtsupport/qtbuildaspects.h>
+
 namespace CMakeProjectManager {
 class CMakeProject;
 
@@ -18,6 +20,33 @@ namespace Internal {
 class CMakeBuildSystem;
 class CMakeBuildSettingsWidget;
 class CMakeProjectImporter;
+
+class InitialCMakeArgumentsAspect final : public Utils::StringAspect
+{
+public:
+    InitialCMakeArgumentsAspect(Utils::AspectContainer *container);
+
+    const CMakeConfig &cmakeConfiguration() const;
+    const QStringList allValues() const;
+    void setAllValues(const QString &values, QStringList &additionalArguments);
+    void setCMakeConfiguration(const CMakeConfig &config);
+
+    void fromMap(const Utils::Store &map) final;
+    void toMap(Utils::Store &map) const final;
+
+private:
+    CMakeConfig m_cmakeConfiguration;
+};
+
+class ConfigureEnvironmentAspect final: public ProjectExplorer::EnvironmentAspect
+{
+public:
+    ConfigureEnvironmentAspect(Utils::AspectContainer *container,
+                               ProjectExplorer::BuildConfiguration *buildConfig);
+
+    void fromMap(const Utils::Store &map);
+    void toMap(Utils::Store &map) const;
+};
 
 } // namespace Internal
 
@@ -39,22 +68,29 @@ public:
     void buildTarget(const QString &buildTarget);
     ProjectExplorer::BuildSystem *buildSystem() const final;
 
-    void setSourceDirectory(const Utils::FilePath& path);
-    Utils::FilePath sourceDirectory() const;
-
     void addToEnvironment(Utils::Environment &env) const override;
 
     Utils::Environment configureEnvironment() const;
+    Internal::CMakeBuildSystem *cmakeBuildSystem() const;
+
+    QStringList additionalCMakeArguments() const;
+    void setAdditionalCMakeArguments(const QStringList &args);
+
+    void setInitialCMakeArguments(const QStringList &args);
+    void setCMakeBuildType(const QString &cmakeBuildType, bool quiet = false);
+
+    Internal::InitialCMakeArgumentsAspect initialCMakeArguments{this};
+    Utils::StringAspect additionalCMakeOptions{this};
+    Utils::FilePathAspect sourceDirectory{this};
+    Utils::StringAspect buildTypeAspect{this};
+    QtSupport::QmlDebuggingAspect qmlDebugging{this};
+    Internal::ConfigureEnvironmentAspect configureEnv{this, this};
 
 signals:
     void signingFlagsChanged();
     void configureEnvironmentChanged();
 
-protected:
-    bool fromMap(const QVariantMap &map) override;
-
 private:
-    QVariantMap toMap() const override;
     BuildType buildType() const override;
 
     ProjectExplorer::NamedWidget *createConfigWidget() override;
@@ -63,6 +99,7 @@ private:
 
     void setInitialBuildAndCleanSteps(const ProjectExplorer::Target *target);
     void setBuildPresetToBuildSteps(const ProjectExplorer::Target *target);
+    void filterConfigArgumentsFromAdditionalCMakeArguments();
 
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
 
@@ -94,60 +131,4 @@ private:
     friend class Internal::CMakeProjectImporter;
 };
 
-namespace Internal {
-
-class InitialCMakeArgumentsAspect final : public Utils::StringAspect
-{
-    Q_OBJECT
-
-    CMakeConfig m_cmakeConfiguration;
-public:
-    InitialCMakeArgumentsAspect();
-
-    const CMakeConfig &cmakeConfiguration() const;
-    const QStringList allValues() const;
-    void setAllValues(const QString &values, QStringList &additionalArguments);
-    void setCMakeConfiguration(const CMakeConfig &config);
-
-    void fromMap(const QVariantMap &map) final;
-    void toMap(QVariantMap &map) const final;
-};
-
-class AdditionalCMakeOptionsAspect final : public Utils::StringAspect
-{
-    Q_OBJECT
-
-public:
-    AdditionalCMakeOptionsAspect();
-};
-
-class SourceDirectoryAspect final : public Utils::StringAspect
-{
-    Q_OBJECT
-
-public:
-    SourceDirectoryAspect();
-};
-
-class BuildTypeAspect final : public Utils::StringAspect
-{
-    Q_OBJECT
-
-public:
-    BuildTypeAspect();
-    using Utils::StringAspect::update;
-};
-
-class ConfigureEnvironmentAspect final: public ProjectExplorer::EnvironmentAspect
-{
-    Q_OBJECT
-
-public:
-    ConfigureEnvironmentAspect(ProjectExplorer::Target *target);
-
-    void fromMap(const QVariantMap &map);
-    void toMap(QVariantMap &map) const;
-};
-
-} // namespace Internal
 } // namespace CMakeProjectManager

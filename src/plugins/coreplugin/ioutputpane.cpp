@@ -50,22 +50,6 @@ namespace Core {
 */
 
 /*!
-    \fn QString IOutputPane::displayName() const
-
-    Returns the translated display name of the output pane.
-*/
-
-/*!
-    \fn int IOutputPane::priorityInStatusBar() const
-
-    Determines the position of the output pane on the status bar.
-    \list
-        \li 100 to 0 from front to end
-        \li -1 do not show in status bar
-    \endlist
-*/
-
-/*!
     \fn void IOutputPane::clearContents()
 
     Is called on selecting the clear button.

@@ -3,7 +3,7 @@
 
 #include "locatorfilter.h"
 
-#include "clientrequesttask.h"
+#include "clientrequest.h"
 #include "currentdocumentsymbolsrequest.h"
 #include "languageclientmanager.h"
 #include "languageclienttr.h"
@@ -51,7 +51,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
     TreeStorage<LocatorStorage> storage;
     TreeStorage<QList<SymbolInformation>> resultStorage;
 
-    const auto onQuerySetup = [storage, client, maxResultCount](WorkspaceSymbolRequestTask &request) {
+    const auto onQuerySetup = [storage, client, maxResultCount](ClientWorkspaceSymbolRequest &request) {
         request.setClient(client);
         WorkspaceSymbolParams params;
         params.setQuery(storage->input());
@@ -59,7 +59,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
             params.setLimit(maxResultCount);
         request.setParams(params);
     };
-    const auto onQueryDone = [resultStorage](const WorkspaceSymbolRequestTask &request) {
+    const auto onQueryDone = [resultStorage](const ClientWorkspaceSymbolRequest &request) {
         const std::optional<LanguageClientArray<SymbolInformation>> result
             = request.response().result();
         if (result.has_value())
@@ -76,8 +76,8 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
     };
 
     const Group root {
-        Storage(resultStorage),
-        SymbolRequest(onQuerySetup, onQueryDone),
+        Tasking::Storage(resultStorage),
+        ClientWorkspaceSymbolRequestTask(onQuerySetup, onQueryDone),
         AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};
@@ -135,7 +135,7 @@ LocatorMatcherTask currentDocumentMatcher()
     };
 
     const Group root {
-        Storage(resultStorage),
+        Tasking::Storage(resultStorage),
         CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone),
         AsyncTask<void>(onFilterSetup)
     };

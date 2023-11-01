@@ -31,7 +31,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/kit.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -746,7 +746,7 @@ void Edit3DView::createEdit3DActions()
         QmlDesigner::Constants::EDIT3D_EDIT_CAMERA,
         View3DActionType::CameraToggle,
         QCoreApplication::translate("CameraToggleAction",
-                                    "Toggle Perspective/Orthographic Edit Camera"),
+                                    "Toggle Perspective/Orthographic Camera Mode"),
         QKeySequence(Qt::Key_T),
         true,
         false,

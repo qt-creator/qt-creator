@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,71 +8,79 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-project-wizards.html
     \page creator-version-control.html
-    \nextpage creator-vcs-bazaar.html
+    \previouspage creator-reference.html
 
-    \title Using Version Control Systems
+    \ingroup creator-reference
 
-    Version control systems supported by \QC are:
+    \title Version Control Systems
+
+    \brief Version control systems that you can use from \QC.
+
+    The recommended way to set up a project is to use a
+    \e {version control system}. Store and edit only project source files and
+    configuration files. Do not store generated files. To use version control
+    systems from \QC, you need to set them up.
+
+    \QC integrates the following version control systems:
     \table
         \header
             \li  Version Control System
             \li  Address
             \li  Notes
         \row
-            \li \l{Using Bazaar}{Bazaar}
+            \li \l{Bazaar}
             \li \l{http://bazaar.canonical.com/}
             \li
         \row
-            \li \l{Using ClearCase}{ClearCase}
+            \li \l{ClearCase}
             \li \l{http://www-01.ibm.com/software/awdtools/clearcase/}
-            \li Disabled by default. To enable the plugin, select
-                \uicontrol Help > \uicontrol {About Plugins} >
-                \uicontrol {Version Control} > \uicontrol ClearCase.
-                Then select \uicontrol {Restart Now} to restart \QC
-                and load the plugin.
+            \li Enable the plugin to use it.
         \row
-            \li \l{Using CVS}{CVS}
+            \li \l{CVS}
             \li \l{http://www.nongnu.org/cvs/}
-            \li
+            \li Enable the plugin to use it.
         \row
-            \li \l{Using Fossil}{Fossil}
+            \li \l{Fossil}
             \li \l{https://fossil-scm.org/index.html/doc/trunk/www/index.wiki}
-            \li Disabled by default. To enable the plugin, select
-                \uicontrol Help > \uicontrol {About Plugins} >
-                \uicontrol {Version Control} > \uicontrol Fossil.
+            \li Enable the plugin to use it.
              \row
-            \li \l{Using Git}{Git}
+            \li \l{Git}
             \li \l{http://git-scm.com/}
             \li Git version 1.9.0, or later
 
                 Gerrit version 2.6, or later
         \row
-            \li \l{Using GitLab}{GitLab}
+            \li \l{GitLab}
             \li \l{http://gitlab.com/}
-            \li Experimental
+            \li Enable the plugin to use it.
         \row
-            \li \l{Using Mercurial}{Mercurial}
+            \li \l{Mercurial}
             \li \l{http://mercurial.selenic.com/}
             \li
         \row
-            \li \l{Using Perforce}{Perforce}
+            \li \l{Perforce}
             \li \l{http://www.perforce.com}
             \li Server version 2006.1 and later
 
-                Disabled by default. To enable the plugin, select
-                \uicontrol Help > \uicontrol {About Plugins} >
-                \uicontrol {Version Control} > \uicontrol Perforce.
+                Enable the plugin to use it.
         \row
-            \li \l{Using Subversion}{Subversion}
+            \li \l{Subversion}
             \li \l{http://subversion.apache.org/}
             \li Subversion version 1.7.0 and later
     \endtable
 
-    \include creator-vcs-options.qdocinc vcs options
+    \sa {Create VCS repositories for new projects}, {Enable and disable plugins},
+    {Set up version control systems}, {Use common VCS functions}
+*/
 
-    \section1 Creating VCS Repositories for New Projects
+/*!
+    \page creator-how-to-create-vcs-repositories.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-create
+
+    \title Create VCS repositories for new projects
 
     \QC allows you to create repositories for version control systems that
     support local repository creation, such as Git, Mercurial, or Bazaar.
@@ -87,33 +95,33 @@
     and select the version control system that you use. Follow the instructions
     of the wizard to import the project.
 
-    \section1 Using Common Functions
+    \sa {Creating Projects}, {Use project wizards}, {Version Control Systems}
+*/
+
+/*!
+    \page creator-how-to-use-common-vcs-functions.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Use common VCS functions
 
     The \uicontrol{Tools} menu has a submenu for each supported version
     control system. This section describes using the functions that are
-    available for all the supported version control systems. For more
-    information about the additional functions and options available for a
-    particular version control system, see:
+    available for all the supported version control systems. The additional
+    functions and options available for a particular version control system
+    are described in separate topics.
 
-    \list
-        \li \l{Using Bazaar}
-        \li \l{Using ClearCase}
-        \li \l{Using CVS}
-        \li \l{Using Fossil}
-        \li \l{Using Git}
-        \li \l{Using GitLab}
-        \li \l{Using Mercurial}
-        \li \l{Using Perforce}
-        \li \l{Using Subversion}
-    \endlist
+    \sa {Bazaar}, {ClearCase}, {CVS}, {Fossil}, {Git}, {GitLab}, {Mercurial},
+    {Perforce}, {Subversion}
 
-    \uicontrol{Version Control} displays the commands that are
+    The \uicontrol{Version Control} view displays the commands that are
     executed, a timestamp, and the relevant output. Select \uicontrol View >
     \uicontrol Output > \uicontrol {Version Control} to open the view.
 
     \image qtcreator-vcs-pane.png
 
-    \section2 Adding Files
+    \section1 Add files
 
     When you create a new file or a new project, the wizard displays a page
     asking whether the files should be added to a version control system.
@@ -122,7 +130,7 @@
     for example, Perforce and Subversion. Alternatively, you can
     add files later by using the version control tool menus.
 
-    \section2 Viewing Diff Output
+    \section1 View diff output
 
     All version control systems have menu options to \e{diff} the current
     file or project: to compare it with the latest version stored in the
@@ -141,13 +149,13 @@
     unstage chunks or selected lines, as well as send chunks to a code pasting
     service.
 
-    \section2 Viewing Versioning History and Change Details
+    \section1 View versioning history and change details
 
     Display the versioning history of a file by selecting \uicontrol{Log}
     or \uicontrol{Filelog}. Typically, the log output has the date, commit
     message, and a change or revision identifier.
 
-    \section2 Annotating Files
+    \section1 Annotate files
 
     To open annotation views, select \uicontrol {Annotate} or \uicontrol {Blame}.
     They show the lines of the file and the identifier of the change the lines
@@ -163,14 +171,14 @@
     The same context menu is available when right-clicking on a version
     identifier in the file log view of a single file.
 
-    \section2 Committing Changes
+    \section1 Commit changes
 
     Once you have finished making changes, submit them to the version control
     system by choosing \uicontrol{Commit} or \uicontrol{Submit}. \QC displays a
     commit page that has a text editor where you can enter your commit
     message and a checkable list of modified files to include.
 
-    \section2 Reverting Changes
+    \section1 Revert changes
 
     All supported version control systems support reverting your project to
     known states. This functionality is generally called \e reverting.
@@ -180,18 +188,20 @@
     A version control system can replace the \uicontrol Revert menu option with other
     options.
 
-    \section2 Viewing Status
+    \section1 View status
 
     You can select \uicontrol{Status} to view the status of the project or
     repository.
 
-    \section2 Updating the Working Tree
+    \section1 Update the working tree
 
     You can select \uicontrol Update to update your working tree with the latest
     changes from the branch. Some version control systems allow you to choose
     between updating the current project and updating all projects.
 
-    \section2 Deleting Files
+    \section1 Delete files
 
     You can select \uicontrol Delete to delete obsolete files from the repository.
+
+    \sa {Set up version control systems}, {Version Control Systems}
 */

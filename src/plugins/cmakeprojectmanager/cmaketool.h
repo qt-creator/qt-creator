@@ -7,8 +7,9 @@
 
 #include <texteditor/codeassist/keywordscompletionassist.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
+#include <utils/store.h>
 
 #include <optional>
 
@@ -17,6 +18,23 @@ namespace Utils { class Process; }
 namespace CMakeProjectManager {
 
 namespace Internal {  class IntrospectionData;  }
+
+struct CMAKE_EXPORT CMakeKeywords
+{
+    QMap<QString, Utils::FilePath> variables;
+    QMap<QString, Utils::FilePath> functions;
+    QMap<QString, Utils::FilePath> properties;
+    QSet<QString> generatorExpressions;
+    QMap<QString, Utils::FilePath> environmentVariables;
+    QMap<QString, Utils::FilePath> directoryProperties;
+    QMap<QString, Utils::FilePath> sourceProperties;
+    QMap<QString, Utils::FilePath> targetProperties;
+    QMap<QString, Utils::FilePath> testProperties;
+    QMap<QString, Utils::FilePath> includeStandardModules;
+    QMap<QString, Utils::FilePath> findModules;
+    QMap<QString, Utils::FilePath> policies;
+    QMap<QString, QStringList> functionArgs;
+};
 
 class CMAKE_EXPORT CMakeTool
 {
@@ -45,21 +63,21 @@ public:
         bool supportsPlatform = true;
         bool supportsToolset = true;
 
-        bool matches(const QString &n, const QString &ex = QString()) const;
+        bool matches(const QString &n) const;
     };
 
     using PathMapper = std::function<Utils::FilePath (const Utils::FilePath &)>;
 
     explicit CMakeTool(Detection d, const Utils::Id &id);
-    explicit CMakeTool(const QVariantMap &map, bool fromSdk);
+    explicit CMakeTool(const Utils::Store &map, bool fromSdk);
     ~CMakeTool();
 
     static Utils::Id createId();
 
-    bool isValid() const;
+    bool isValid(bool ignoreCache = false) const;
 
     Utils::Id id() const { return m_id; }
-    QVariantMap toMap () const;
+    Utils::Store toMap () const;
 
     void setAutorun(bool autoRun) { m_isAutoRun = autoRun; }
 
@@ -72,8 +90,8 @@ public:
     bool isAutoRun() const;
     bool autoCreateBuildDirectory() const;
     QList<Generator> supportedGenerators() const;
-    TextEditor::Keywords keywords();
-    bool hasFileApi() const;
+    CMakeKeywords keywords();
+    bool hasFileApi(bool ignoreCache = false) const;
     Version version() const;
     QString versionDisplay() const;
 
@@ -95,13 +113,14 @@ public:
     static void openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl);
 
 private:
-    void readInformation() const;
+    void readInformation(bool ignoreCache = false) const;
 
     void runCMake(Utils::Process &proc, const QStringList &args, int timeoutS = 1) const;
     void parseFunctionDetailsOutput(const QString &output);
     QStringList parseVariableOutput(const QString &output);
+    QStringList parseSyntaxHighlightingXml();
 
-    void fetchFromCapabilities() const;
+    void fetchFromCapabilities(bool ignoreCache = false) const;
     void parseFromCapabilities(const QString &input) const;
 
     // Note: New items here need also be handled in CMakeToolItemModel::apply()

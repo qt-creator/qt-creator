@@ -24,7 +24,7 @@
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/selectablefilesmodel.h>
@@ -33,7 +33,7 @@
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
@@ -398,7 +398,7 @@ static QStringList readFlags(const QString &filePath)
 {
     const QStringList lines = readLines(filePath);
     if (lines.isEmpty())
-        return QStringList();
+        return {};
     QStringList flags;
     for (const auto &line : lines)
         flags.append(ProcessArgs::splitArgs(line, HostOsInfo::hostOs()));
@@ -619,7 +619,7 @@ void GenericBuildSystem::removeFiles(const FilePaths &filesToRemove)
     }
 }
 
-Project::RestoreResult GenericProject::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult GenericProject::fromMap(const Store &map, QString *errorMessage)
 {
     const RestoreResult result = Project::fromMap(map, errorMessage);
     if (result != RestoreResult::Ok)
@@ -663,7 +663,7 @@ void GenericProject::configureAsExampleProject(ProjectExplorer::Kit *kit)
                 BuildInfo buildInfo;
                 buildInfo.displayName = Tr::tr("Build %1").arg(i + 1);
                 buildInfo.factory = factory;
-                buildInfo.kitId = kit->id();
+                buildInfo.kitId = k->id();
                 buildInfo.buildDirectory = projectFilePath();
                 infoList << buildInfo;
             }

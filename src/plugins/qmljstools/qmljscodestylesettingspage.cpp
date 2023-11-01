@@ -144,20 +144,18 @@ public:
 
     void apply() final
     {
-        QSettings *s = Core::ICore::settings();
-
         QmlJSCodeStylePreferences *originalPreferences = QmlJSToolsSettings::globalCodeStyle();
         if (originalPreferences->codeStyleSettings() != m_preferences.codeStyleSettings()) {
             originalPreferences->setCodeStyleSettings(m_preferences.codeStyleSettings());
-            originalPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
+            originalPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
         }
         if (originalPreferences->tabSettings() != m_preferences.tabSettings()) {
             originalPreferences->setTabSettings(m_preferences.tabSettings());
-            originalPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
+            originalPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
         }
         if (originalPreferences->currentDelegate() != m_preferences.currentDelegate()) {
             originalPreferences->setCurrentDelegate(m_preferences.currentDelegate());
-            originalPreferences->toSettings(QLatin1String(QmlJSTools::Constants::QML_JS_SETTINGS_ID), s);
+            originalPreferences->toSettings(QmlJSTools::Constants::QML_JS_SETTINGS_ID);
         }
     }
 

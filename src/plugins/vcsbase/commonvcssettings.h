@@ -3,12 +3,11 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-#include <coreplugin/iversioncontrol.h>
+#include <utils/aspects.h>
 
 namespace VcsBase::Internal {
 
-class CommonVcsSettings : public Core::PagedSettings
+class CommonVcsSettings final : public Utils::AspectContainer
 {
 public:
     CommonVcsSettings();

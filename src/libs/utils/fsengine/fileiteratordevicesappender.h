@@ -4,6 +4,7 @@
 #pragma once
 
 #include "../filepath.h"
+#include "../hostosinfo.h"
 
 #include <QtCore/private/qabstractfileengine_p.h>
 
@@ -97,7 +98,7 @@ private:
             // We only need QDir::cleanPath here, as the path is always
             // a fs engine path and will not contain scheme:// etc.
             const QString p = QDir::cleanPath(path());
-            if (p.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
+            if (p.compare(HostOsInfo::root().path(), Qt::CaseInsensitive) == 0)
                 m_status = State::IteratingRoot;
 
             ((*m_baseIterator).*get(QAFEITag()))(p);

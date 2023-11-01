@@ -2,21 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #include "ctfstatisticsmodel.h"
 
-#include "ctfvisualizerconstants.h"
 #include "ctfvisualizertr.h"
+#include "json/json.hpp"
 
 #include <tracing/timelineformattime.h>
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 using json = nlohmann::json;
-using namespace Constants;
 
 CtfStatisticsModel::CtfStatisticsModel(QObject *parent)
     : QAbstractTableModel(parent)
 {
-
 }
 
 void CtfStatisticsModel::beginLoading()
@@ -59,7 +56,7 @@ int CtfStatisticsModel::columnCount(const QModelIndex &parent) const
 QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-        return QVariant();
+        return {};
 
     auto it = m_data.cbegin();
     std::advance(it, index.row());
@@ -79,7 +76,7 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
             return Qt::AlignRight;
         default:
             Q_UNREACHABLE();
-            return QVariant();
+            return {};
         }
     case SortRole:
         switch (index.column()) {
@@ -106,7 +103,7 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         case Column::MaxDuration:
             return m_data.value(title).maxDuration;
         default:
-            return QVariant();
+            return {};
         }
     case Qt::DisplayRole:
         switch (index.column()) {
@@ -158,7 +155,7 @@ QVariant CtfStatisticsModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    return QVariant();
+    return {};
 }
 
 QVariant CtfStatisticsModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -186,5 +183,4 @@ QVariant CtfStatisticsModel::headerData(int section, Qt::Orientation orientation
     }
 }
 
-}  // Internal
-}  // CtfVisualizer
+}  // CtfVisualizer::Internal

@@ -1,6 +1,6 @@
 add_qtc_plugin(Python
   DEPENDS QmlJS
-  PLUGIN_DEPENDS Core LanguageClient ProjectExplorer TextEditor
+  PLUGIN_DEPENDS Core LanguageClient ProjectExplorer TextEditor QtSupport
   SOURCES
     pipsupport.cpp pipsupport.h
     pyside.cpp pyside.h

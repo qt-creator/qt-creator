@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include <QHash>
-#include <QPointer>
-#include <QVector>
-
-#include <coreplugin/core_global.h>
+#include "../core_global.h"
 
 #include <utils/id.h>
 #include <utils/theme/theme.h>
+
+#include <QHash>
+#include <QPointer>
+#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QAbstractScrollArea;

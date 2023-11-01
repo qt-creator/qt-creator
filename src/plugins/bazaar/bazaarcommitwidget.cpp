@@ -159,7 +159,7 @@ QString BazaarCommitWidget::committer() const
     const QString author = m_bazaarCommitPanel->authorLineEdit->text();
     const QString email = m_bazaarCommitPanel->emailLineEdit->text();
     if (author.isEmpty())
-        return QString();
+        return {};
 
     QString user = author;
     if (!email.isEmpty()) {

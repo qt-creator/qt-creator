@@ -10,19 +10,15 @@
 #include <utils/fileutils.h>
 
 #include <QFutureWatcher>
-#include <QList>
 #include <QObject>
 #include <QStringList>
-
-#include <vector>
 
 namespace ProjectExplorer {
 class FileNode;
 class TreeScanner;
 }
 
-namespace CompilationDatabaseProjectManager {
-namespace Internal {
+namespace CompilationDatabaseProjectManager::Internal {
 
 enum class ParseResult { Success, Failure, Cached };
 
@@ -56,8 +52,6 @@ signals:
 private:
     void parserJobFinished();
     void finish(ParseResult result);
-    DbContents parseProject();
-    std::vector<DbEntry> readJsonObjects() const;
 
     const QString m_projectName;
     const Utils::FilePath m_projectFilePath;
@@ -73,5 +67,4 @@ private:
     ProjectExplorer::BuildSystem::ParseGuard m_guard;
 };
 
-} // namespace Internal
-} // namespace CompilationDatabaseProjectManager
+} // namespace CompilationDatabaseProjectManager::Internal

@@ -15,7 +15,7 @@ enum CommitType
 };
 
 // Todo: Add user name and password?
-class GitSettings : public VcsBase::VcsBaseSettings
+class GitSettings final : public VcsBase::VcsBaseSettings
 {
 public:
     GitSettings();
@@ -38,11 +38,16 @@ public:
     Utils::IntegerAspect lastResetIndex{this};
     Utils::BoolAspect refLogShowDate{this};
     Utils::BoolAspect instantBlame{this};
+    Utils::BoolAspect instantBlameIgnoreSpaceChanges{this};
+    Utils::BoolAspect instantBlameIgnoreLineMoves{this};
 
     mutable Utils::FilePath resolvedBinPath;
     mutable bool tryResolve = true;
 
     Utils::FilePath gitExecutable(bool *ok = nullptr, QString *errorMessage = nullptr) const;
+
+    static QString trIgnoreWhitespaceChanges();
+    static QString trIgnoreLineMoves();
 };
 
 GitSettings &settings();

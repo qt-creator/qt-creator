@@ -9,47 +9,44 @@
 #include "cppcodestylepreferencesfactory.h"
 
 #include <coreplugin/icore.h>
-#include <texteditor/commentssettings.h>
+
+#include <extensionsystem/pluginmanager.h>
+
 #include <texteditor/completionsettingspage.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
-#include <utils/settingsutils.h>
-
-#include <QSettings>
 
 static const char idKey[] = "CppGlobal";
 const bool kSortEditorDocumentOutlineDefault = true;
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor {
 namespace Internal {
+
 class CppToolsSettingsPrivate
 {
 public:
-    CommentsSettings m_commentsSettings;
     CppCodeStylePreferences *m_globalCodeStyle = nullptr;
 };
-} // namespace Internal
 
-CppToolsSettings *CppToolsSettings::m_instance = nullptr;
+} // Internal
+
+CppToolsSettings *m_instance = nullptr;
+Internal::CppToolsSettingsPrivate *d = nullptr;
 
 CppToolsSettings::CppToolsSettings()
-    : d(new Internal::CppToolsSettingsPrivate)
 {
     QTC_ASSERT(!m_instance, return);
     m_instance = this;
+    d = new Internal::CppToolsSettingsPrivate;
 
     qRegisterMetaType<CppCodeStyleSettings>("CppEditor::CppCodeStyleSettings");
-
-    d->m_commentsSettings = TextEditorSettings::commentsSettings();
-    connect(TextEditorSettings::instance(), &TextEditorSettings::commentsSettingsChanged,
-            this, &CppToolsSettings::setCommentsSettings);
 
     // code style factory
     ICodeStylePreferencesFactory *factory = new CppCodeStylePreferencesFactory();
@@ -130,9 +127,8 @@ CppToolsSettings::CppToolsSettings()
 
     pool->loadCustomCodeStyles();
 
-    QSettings *s = ICore::settings();
     // load global settings (after built-in settings are added to the pool)
-    d->m_globalCodeStyle->fromSettings(QLatin1String(Constants::CPP_SETTINGS_ID), s);
+    d->m_globalCodeStyle->fromSettings(Constants::CPP_SETTINGS_ID);
 
     // mimetypes to be handled
     TextEditorSettings::registerMimeTypeForLanguageId(Constants::C_SOURCE_MIMETYPE, Constants::CPP_SETTINGS_ID);
@@ -157,29 +153,18 @@ CppToolsSettings *CppToolsSettings::instance()
     return m_instance;
 }
 
-CppCodeStylePreferences *CppToolsSettings::cppCodeStyle() const
+CppCodeStylePreferences *CppToolsSettings::cppCodeStyle()
 {
     return d->m_globalCodeStyle;
 }
 
-const CommentsSettings &CppToolsSettings::commentsSettings() const
+static Key sortEditorDocumentOutlineKey()
 {
-    return d->m_commentsSettings;
+    return Key(Constants::CPPEDITOR_SETTINGSGROUP)
+         + '/' + Constants::CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE;
 }
 
-void CppToolsSettings::setCommentsSettings(const CommentsSettings &commentsSettings)
-{
-    d->m_commentsSettings = commentsSettings;
-}
-
-static QString sortEditorDocumentOutlineKey()
-{
-    return QLatin1String(Constants::CPPEDITOR_SETTINGSGROUP)
-         + QLatin1Char('/')
-         + QLatin1String(Constants::CPPEDITOR_SORT_EDITOR_DOCUMENT_OUTLINE);
-}
-
-bool CppToolsSettings::sortedEditorDocumentOutline() const
+bool CppToolsSettings::sortedEditorDocumentOutline()
 {
     return ICore::settings()
         ->value(sortEditorDocumentOutlineKey(), kSortEditorDocumentOutlineDefault)
@@ -191,7 +176,6 @@ void CppToolsSettings::setSortedEditorDocumentOutline(bool sorted)
     ICore::settings()->setValueWithDefault(sortEditorDocumentOutlineKey(),
                                            sorted,
                                            kSortEditorDocumentOutlineDefault);
-    emit editorDocumentOutlineSortingChanged(sorted);
 }
 
 } // namespace CppEditor

@@ -46,8 +46,8 @@ public:
     QStringList suggestedMkspecList() const override;
     Abis supportedAbis() const override;
 
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &data) override;
+    void toMap(Utils::Store &data) const override;
+    void fromMap(const Utils::Store &data) override;
 
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
     bool hostPrefersToolchain() const override;
@@ -146,8 +146,8 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
     Utils::FilePath compilerCommand() const override; // FIXME: Remove
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &data) override;
+    void toMap(Utils::Store &data) const override;
+    void fromMap(const Utils::Store &data) override;
     std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &env) const override;

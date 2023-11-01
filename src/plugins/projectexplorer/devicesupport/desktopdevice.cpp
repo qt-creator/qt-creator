@@ -6,7 +6,6 @@
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 #include "desktopprocesssignaloperation.h"
-#include "deviceprocesslist.h"
 #include "processlist.h"
 
 #include <coreplugin/fileutils.h>
@@ -45,7 +44,7 @@ DesktopDevice::DesktopDevice()
 
     setupId(IDevice::AutoDetected, DESKTOP_DEVICE_ID);
     setType(DESKTOP_DEVICE_TYPE);
-    setDefaultDisplayName(Tr::tr("Local PC"));
+    settings()->displayName.setDefaultValue(Tr::tr("Local PC"));
     setDisplayType(Tr::tr("Desktop"));
 
     setDeviceState(IDevice::DeviceStateUnknown);
@@ -56,17 +55,21 @@ DesktopDevice::DesktopDevice()
         = QString::fromLatin1("%1-%2").arg(DESKTOP_PORT_START).arg(DESKTOP_PORT_END);
     setFreePorts(Utils::PortList::fromString(portRange));
 
-    setOpenTerminal([](const Environment &env, const FilePath &path) {
+    setOpenTerminal([](const Environment &env, const FilePath &path) -> expected_str<void> {
         const Environment realEnv = env.hasChanges() ? env : Environment::systemEnvironment();
 
-        const FilePath shell = Terminal::defaultShellForDevice(path);
+        const expected_str<FilePath> shell = Terminal::defaultShellForDevice(path);
+        if (!shell)
+            return make_unexpected(shell.error());
 
         Process process;
         process.setTerminalMode(TerminalMode::Detached);
         process.setEnvironment(realEnv);
-        process.setCommand({shell, {}});
+        process.setCommand({*shell, {}});
         process.setWorkingDirectory(path);
         process.start();
+
+        return {};
     });
 }
 
@@ -74,7 +77,7 @@ DesktopDevice::~DesktopDevice() = default;
 
 IDevice::DeviceInfo DesktopDevice::deviceInformation() const
 {
-    return DeviceInfo();
+    return {};
 }
 
 IDeviceWidget *DesktopDevice::createWidget()
@@ -88,11 +91,6 @@ IDeviceWidget *DesktopDevice::createWidget()
 bool DesktopDevice::canCreateProcessModel() const
 {
     return true;
-}
-
-DeviceProcessList *DesktopDevice::createProcessListModel(QObject *parent) const
-{
-    return new ProcessList(sharedFromThis(), parent);
 }
 
 DeviceProcessSignalOperation::Ptr DesktopDevice::signalOperation() const
@@ -123,7 +121,7 @@ FilePath DesktopDevice::filePath(const QString &pathOnDevice) const
     return FilePath::fromParts({}, {}, pathOnDevice);
 }
 
-Environment DesktopDevice::systemEnvironment() const
+expected_str<Environment> DesktopDevice::systemEnvironmentWithError() const
 {
     return Environment::systemEnvironment();
 }
@@ -131,8 +129,18 @@ Environment DesktopDevice::systemEnvironment() const
 FilePath DesktopDevice::rootPath() const
 {
     if (id() == DESKTOP_DEVICE_ID)
-        return FilePath::fromParts({}, {}, QDir::rootPath());
+        return HostOsInfo::root();
     return IDevice::rootPath();
+}
+
+void DesktopDevice::fromMap(const Store &map)
+{
+    IDevice::fromMap(map);
+
+    const FilePath rsync = FilePath::fromString("rsync").searchInPath();
+    const FilePath sftp = FilePath::fromString("sftp").searchInPath();
+    setExtraData(Constants::SUPPORTS_RSYNC, rsync.isExecutableFile());
+    setExtraData(Constants::SUPPORTS_SFTP, sftp.isExecutableFile());
 }
 
 } // namespace ProjectExplorer

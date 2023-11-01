@@ -5,6 +5,7 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <projectexplorer/projectmanager.h>
 #include <utils/textfileformat.h>
 #include <utils/algorithm.h>
 
@@ -28,14 +29,14 @@ void CppParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
     Q_UNUSED(filesToParse)
     Q_UNUSED(fullParse)
-    m_cppSnapshot = CppEditor::CppModelManager::instance()->snapshot();
-    m_workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
+    m_cppSnapshot = CppEditor::CppModelManager::snapshot();
+    m_workingCopy = CppEditor::CppModelManager::workingCopy();
 }
 
 bool CppParser::selectedForBuilding(const FilePath &fileName)
 {
     QList<CppEditor::ProjectPart::ConstPtr> projParts =
-            CppEditor::CppModelManager::instance()->projectPart(fileName);
+            CppEditor::CppModelManager::projectPart(fileName);
 
     return !projParts.isEmpty() && projParts.at(0)->selectedForBuilding;
 }
@@ -62,8 +63,8 @@ bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
                                const QString &cacheString,
                                const std::function<bool(const FilePath &)> &checker)
 {
-    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
-    const QList<CppEditor::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
+    const QList<CppEditor::ProjectPart::ConstPtr> projectParts
+        = CppEditor::CppModelManager::projectPart(filePath);
     if (projectParts.isEmpty())
         return false;
     const QStringList precompiledHeaders = projectParts.first()->precompiledHeaders;
@@ -103,6 +104,31 @@ bool CppParser::precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
                                                [&](const FilePath &include) {
                                                    return headerFileRegex.match(include.path()).hasMatch();
                                                });
+}
+
+std::optional<QSet<FilePath>> CppParser::filesContainingMacro(const QByteArray &macroName)
+{
+    // safety net to avoid adding some option
+    static const bool noPrefilter = qtcEnvironmentVariableIsSet("QTC_AUTOTEST_DISABLE_PREFILTER");
+    if (noPrefilter)
+        return std::nullopt;
+
+    QSet<FilePath> result;
+    CppEditor::ProjectInfo::ConstPtr infos = CppEditor::CppModelManager::projectInfo(
+                ProjectExplorer::ProjectManager::startupProject());
+    if (!infos)
+        return std::nullopt;
+
+    const auto projectParts = infos->projectParts();
+    for (const auto &pp : projectParts) {
+        if (!pp->selectedForBuilding)
+            continue;
+
+        const ProjectExplorer::Macros macros = pp->projectMacros;
+        if (Utils::anyOf(pp->projectMacros, Utils::equal(&ProjectExplorer::Macro::key, macroName)))
+            result.unite(Utils::transform<QSet>(pp->files, &CppEditor::ProjectFile::path));
+    }
+    return std::make_optional(result);
 }
 
 void CppParser::release()

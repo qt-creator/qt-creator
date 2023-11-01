@@ -22,7 +22,7 @@ class IPlugin;
 
 namespace Internal {
 
-class EXTENSIONSYSTEM_EXPORT PluginSpecPrivate : public QObject
+class EXTENSIONSYSTEM_TEST_EXPORT PluginSpecPrivate : public QObject
 {
     Q_OBJECT
 
@@ -83,6 +83,8 @@ public:
     PluginSpec::State state = PluginSpec::Invalid;
     bool hasError = false;
     QString errorString;
+
+    PerformanceData performanceData;
 
     static bool isValidVersion(const QString &version);
     static int versionCompare(const QString &version1, const QString &version2);

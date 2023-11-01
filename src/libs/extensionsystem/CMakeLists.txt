@@ -26,3 +26,8 @@ extend_qtc_library(ExtensionSystem
   DEPENDS Qt::Test
   DEFINES WITH_TESTS
 )
+
+extend_qtc_library(ExtensionSystem
+  CONDITION TARGET Nanotrace
+  PUBLIC_DEPENDS Nanotrace
+)

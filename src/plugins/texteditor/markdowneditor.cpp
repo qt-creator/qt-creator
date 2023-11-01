@@ -8,11 +8,17 @@
 #include "texteditortr.h"
 
 #include <aggregation/aggregate.h>
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/minisplitter.h>
+
+#include <utils/qtcsettings.h>
+#include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
+#include <utils/utilsicons.h>
 
 #include <QHBoxLayout>
 #include <QScrollBar>
@@ -21,6 +27,9 @@
 #include <QToolButton>
 
 #include <optional>
+
+using namespace Core;
+using namespace Utils;
 
 namespace TextEditor::Internal {
 
@@ -33,23 +42,31 @@ const char MARKDOWNVIEWER_SHOW_PREVIEW[] = "Markdown.ShowPreview";
 const bool kTextEditorRightDefault = false;
 const bool kShowEditorDefault = true;
 const bool kShowPreviewDefault = true;
+const char EMPHASIS_ACTION[] = "Markdown.Emphasis";
+const char STRONG_ACTION[] = "Markdown.Strong";
+const char INLINECODE_ACTION[] = "Markdown.InlineCode";
+const char LINK_ACTION[] = "Markdown.Link";
+const char TOGGLEEDITOR_ACTION[] = "Markdown.ToggleEditor";
+const char TOGGLEPREVIEW_ACTION[] = "Markdown.TogglePreview";
+const char SWAPVIEWS_ACTION[] = "Markdown.SwapViews";
 
-class MarkdownEditor : public Core::IEditor
+class MarkdownEditor : public IEditor
 {
+    Q_OBJECT
 public:
     MarkdownEditor()
         : m_document(new TextDocument(MARKDOWNVIEWER_ID))
     {
         m_document->setMimeType(MARKDOWNVIEWER_MIME_TYPE);
 
-        QSettings *s = Core::ICore::settings();
+        QtcSettings *s = ICore::settings();
         const bool textEditorRight
             = s->value(MARKDOWNVIEWER_TEXTEDITOR_RIGHT, kTextEditorRightDefault).toBool();
         const bool showPreview = s->value(MARKDOWNVIEWER_SHOW_PREVIEW, kShowPreviewDefault).toBool();
         const bool showEditor = s->value(MARKDOWNVIEWER_SHOW_EDITOR, kShowEditorDefault).toBool()
                                 || !showPreview; // ensure at least one is visible
 
-        m_splitter = new Core::MiniSplitter;
+        m_splitter = new MiniSplitter;
 
         // preview
         m_previewWidget = new QTextBrowser();
@@ -62,15 +79,15 @@ public:
         m_textEditorWidget->setTextDocument(m_document);
         m_textEditorWidget->setupGenericHighlighter();
         m_textEditorWidget->setMarksVisible(false);
-        auto context = new Core::IContext(this);
+        auto context = new IContext(this);
         context->setWidget(m_textEditorWidget);
-        context->setContext(Core::Context(MARKDOWNVIEWER_TEXT_CONTEXT));
-        Core::ICore::addContextObject(context);
+        context->setContext(Context(MARKDOWNVIEWER_TEXT_CONTEXT));
+        ICore::addContextObject(context);
 
         m_splitter->addWidget(m_textEditorWidget); // sets splitter->focusWidget() on non-Windows
         m_splitter->addWidget(m_previewWidget);
 
-        setContext(Core::Context(MARKDOWNVIEWER_ID));
+        setContext(Context(MARKDOWNVIEWER_ID));
 
         auto widget = new QWidget;
         auto layout = new QVBoxLayout;
@@ -87,29 +104,55 @@ public:
         }
         agg->add(m_widget.get());
 
-        m_togglePreviewVisible = new QToolButton;
-        m_togglePreviewVisible->setText(Tr::tr("Show Preview"));
+        m_togglePreviewVisible = new CommandButton(TOGGLEPREVIEW_ACTION);
+        m_togglePreviewVisible->setText(m_togglePreviewVisible->toolTipBase());
         m_togglePreviewVisible->setCheckable(true);
         m_togglePreviewVisible->setChecked(showPreview);
         m_previewWidget->setVisible(showPreview);
 
-        m_toggleEditorVisible = new QToolButton;
-        m_toggleEditorVisible->setText(Tr::tr("Show Editor"));
+        m_toggleEditorVisible = new CommandButton(TOGGLEEDITOR_ACTION);
+        m_toggleEditorVisible->setText(m_toggleEditorVisible->toolTipBase());
         m_toggleEditorVisible->setCheckable(true);
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
 
-        auto swapViews = new QToolButton;
-        swapViews->setText(Tr::tr("Swap Views"));
-        swapViews->setEnabled(showEditor && showPreview);
+        auto button = new CommandButton(EMPHASIS_ACTION);
+        button->setText("i");
+        button->setFont([button]{ auto f = button->font(); f.setItalic(true); return f; }());
+        connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerEmphasis);
+        m_markDownButtons.append(button);
+        button = new CommandButton(STRONG_ACTION);
+        button->setText("b");
+        button->setFont([button]{ auto f = button->font(); f.setBold(true); return f; }());
+        connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerStrong);
+        m_markDownButtons.append(button);
+        button = new CommandButton(INLINECODE_ACTION);
+        button->setText("`");
+        connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerInlineCode);
+        m_markDownButtons.append(button);
+        button = new CommandButton(LINK_ACTION);
+        button->setIcon(Utils::Icons::LINK_TOOLBAR.icon());
+        connect(button, &QToolButton::clicked, this, &MarkdownEditor::triggerLink);
+        m_markDownButtons.append(button);
+        for (auto button : m_markDownButtons) {
+            // do not call setVisible(true) at this point, this destroys the hover effect on macOS
+            if (!showEditor)
+                button->setVisible(false);
+        }
+
+        m_swapViews = new CommandButton(SWAPVIEWS_ACTION);
+        m_swapViews->setText(m_swapViews->toolTipBase());
+        m_swapViews->setEnabled(showEditor && showPreview);
 
         m_toolbarLayout = new QHBoxLayout(&m_toolbar);
         m_toolbarLayout->setSpacing(0);
         m_toolbarLayout->setContentsMargins(0, 0, 0, 0);
+        for (auto button : m_markDownButtons)
+            m_toolbarLayout->addWidget(button);
         m_toolbarLayout->addStretch();
         m_toolbarLayout->addWidget(m_togglePreviewVisible);
         m_toolbarLayout->addWidget(m_toggleEditorVisible);
-        m_toolbarLayout->addWidget(swapViews);
+        m_toolbarLayout->addWidget(m_swapViews);
 
         setWidgetOrder(textEditorRight);
 
@@ -133,7 +176,7 @@ public:
         };
 
         const auto viewToggled =
-            [swapViews](QWidget *view, bool visible, QWidget *otherView, QToolButton *otherButton) {
+            [this](QWidget *view, bool visible, QWidget *otherView, QToolButton *otherButton) {
                 if (view->isVisible() == visible)
                     return;
                 view->setVisible(visible);
@@ -145,10 +188,10 @@ public:
                     // make sure at least one view is visible
                     otherButton->toggle();
                 }
-                swapViews->setEnabled(view->isVisible() && otherView->isVisible());
+                m_swapViews->setEnabled(view->isVisible() && otherView->isVisible());
             };
         const auto saveViewSettings = [this] {
-            Utils::QtcSettings *s = Core::ICore::settings();
+            Utils::QtcSettings *s = ICore::settings();
             s->setValueWithDefault(MARKDOWNVIEWER_SHOW_PREVIEW,
                                    m_togglePreviewVisible->isChecked(),
                                    kShowPreviewDefault);
@@ -165,6 +208,8 @@ public:
                                 visible,
                                 m_previewWidget,
                                 m_togglePreviewVisible);
+                    for (auto button : m_markDownButtons)
+                        button->setVisible(visible);
                     saveViewSettings();
                 });
         connect(m_togglePreviewVisible,
@@ -179,11 +224,11 @@ public:
                     saveViewSettings();
                 });
 
-        connect(swapViews, &QToolButton::clicked, m_textEditorWidget, [this] {
+        connect(m_swapViews, &QToolButton::clicked, m_textEditorWidget, [this] {
             const bool textEditorRight = isTextEditorRight();
             setWidgetOrder(!textEditorRight);
             // save settings
-            Utils::QtcSettings *s = Core::ICore::settings();
+            Utils::QtcSettings *s = ICore::settings();
             s->setValueWithDefault(MARKDOWNVIEWER_TEXTEDITOR_RIGHT,
                                    !textEditorRight,
                                    kTextEditorRightDefault);
@@ -203,6 +248,57 @@ public:
             m_previewTimer.start();
         });
     }
+
+    void triggerEmphasis()
+    {
+        triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
+            if (selectedText->isEmpty()) {
+                *selectedText = QStringLiteral("**");
+                *cursorOffset = -1;
+            } else {
+                *selectedText = QStringLiteral("*%1*").arg(*selectedText);
+            }
+        });
+    }
+    void triggerStrong()
+    {
+        triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
+            if (selectedText->isEmpty()) {
+                *selectedText = QStringLiteral("****");
+                *cursorOffset = -2;
+            } else {
+                *selectedText = QStringLiteral("**%1**").arg(*selectedText);
+            }
+        });
+    }
+    void triggerInlineCode()
+    {
+        triggerFormatingAction([](QString *selectedText, int *cursorOffset) {
+            if (selectedText->isEmpty()) {
+                *selectedText = QStringLiteral("``");
+                *cursorOffset = -1;
+            } else {
+                *selectedText = QStringLiteral("`%1`").arg(*selectedText);
+            }
+        });
+    }
+    void triggerLink()
+    {
+        triggerFormatingAction([](QString *selectedText, int *cursorOffset, int *selectionLength) {
+            if (selectedText->isEmpty()) {
+                *selectedText = QStringLiteral("[](https://)");
+                *cursorOffset = -11; // ](https://) is 11 chars
+            } else {
+                *selectedText = QStringLiteral("[%1](https://)").arg(*selectedText);
+                *cursorOffset = -1;
+                *selectionLength = -8; // https:// is 8 chars
+            }
+        });
+    }
+
+    void toggleEditor() { m_toggleEditorVisible->toggle(); }
+    void togglePreview() { m_togglePreviewVisible->toggle(); }
+    void swapViews() { m_swapViews->click(); }
 
     bool isTextEditorRight() const { return m_splitter->widget(0) == m_previewWidget; }
 
@@ -225,7 +321,7 @@ public:
 
     QWidget *toolBar() override { return &m_toolbar; }
 
-    Core::IDocument *document() const override { return m_document.data(); }
+    IDocument *document() const override { return m_document.data(); }
     TextEditorWidget *textEditorWidget() const { return m_textEditorWidget; }
     int currentLine() const override { return textEditorWidget()->textCursor().blockNumber() + 1; };
     int currentColumn() const override
@@ -251,7 +347,7 @@ public:
                 m_splitter->widget(0)->setFocus();
             return true;
         }
-        return Core::IEditor::eventFilter(obj, ev);
+        return IEditor::eventFilter(obj, ev);
     }
 
     QByteArray saveState() const override
@@ -300,16 +396,56 @@ public:
     }
 
 private:
+    void triggerFormatingAction(std::function<void(QString *selectedText, int *cursorOffset)> action)
+    {
+        auto formattedText = m_textEditorWidget->selectedText();
+        int cursorOffset = 0;
+        action(&formattedText, &cursorOffset);
+        format(formattedText, cursorOffset);
+    }
+    void triggerFormatingAction(std::function<void(QString *selectedText, int *cursorOffset, int *selectionLength)> action)
+    {
+        auto formattedText = m_textEditorWidget->selectedText();
+        int cursorOffset = 0;
+        int selectionLength = 0;
+        action(&formattedText, &cursorOffset, &selectionLength);
+        format(formattedText, cursorOffset, selectionLength);
+    }
+    void format(const QString &formattedText, int cursorOffset = 0, int selectionLength = 0)
+    {
+        auto cursor = m_textEditorWidget->textCursor();
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd();
+        cursor.setPosition(start, QTextCursor::MoveAnchor);
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+
+        cursor.insertText(formattedText);
+        if (cursorOffset != 0) {
+            auto pos = cursor.position();
+            cursor.setPosition(pos + cursorOffset);
+            m_textEditorWidget->setTextCursor(cursor);
+        }
+
+        if (selectionLength != 0) {
+            cursor.setPosition(cursor.position(), QTextCursor::MoveAnchor);
+            cursor.setPosition(cursor.position() + selectionLength, QTextCursor::KeepAnchor);
+            m_textEditorWidget->setTextCursor(cursor);
+        }
+    }
+
+private:
     QTimer m_previewTimer;
     bool m_performDelayedUpdate = false;
-    Core::MiniSplitter *m_splitter;
+    MiniSplitter *m_splitter;
     QTextBrowser *m_previewWidget;
     TextEditorWidget *m_textEditorWidget;
     TextDocumentPtr m_document;
     QWidget m_toolbar;
     QHBoxLayout *m_toolbarLayout;
-    QToolButton *m_toggleEditorVisible;
-    QToolButton *m_togglePreviewVisible;
+    QList<QToolButton *> m_markDownButtons;
+    CommandButton *m_toggleEditorVisible;
+    CommandButton *m_togglePreviewVisible;
+    CommandButton *m_swapViews;
     std::optional<QPoint> m_previewRestoreScrollPosition;
 };
 
@@ -317,7 +453,7 @@ MarkdownEditorFactory::MarkdownEditorFactory()
     : m_actionHandler(MARKDOWNVIEWER_ID,
                       MARKDOWNVIEWER_TEXT_CONTEXT,
                       TextEditor::TextEditorActionHandler::None,
-                      [](Core::IEditor *editor) {
+                      [](IEditor *editor) {
                           return static_cast<MarkdownEditor *>(editor)->textEditorWidget();
                       })
 {
@@ -325,6 +461,62 @@ MarkdownEditorFactory::MarkdownEditorFactory()
     setDisplayName(::Core::Tr::tr("Markdown Editor"));
     addMimeType(MARKDOWNVIEWER_MIME_TYPE);
     setEditorCreator([] { return new MarkdownEditor; });
+
+    const auto textContext = Context(MARKDOWNVIEWER_TEXT_CONTEXT);
+    const auto context = Context(MARKDOWNVIEWER_ID);
+    Command *cmd = nullptr;
+    cmd = ActionManager::registerAction(&m_emphasisAction, EMPHASIS_ACTION, textContext);
+    cmd->setDescription(Tr::tr("Emphasis"));
+    QObject::connect(&m_emphasisAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->triggerEmphasis();
+    });
+    cmd = ActionManager::registerAction(&m_strongAction, STRONG_ACTION, textContext);
+    cmd->setDescription(Tr::tr("Strong"));
+    QObject::connect(&m_strongAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->triggerStrong();
+    });
+    cmd = ActionManager::registerAction(&m_inlineCodeAction, INLINECODE_ACTION, textContext);
+    cmd->setDescription(Tr::tr("Inline Code"));
+    QObject::connect(&m_inlineCodeAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->triggerInlineCode();
+    });
+    cmd = ActionManager::registerAction(&m_linkAction, LINK_ACTION, textContext);
+    cmd->setDescription(Tr::tr("Hyperlink"));
+    QObject::connect(&m_linkAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->triggerLink();
+    });
+
+    cmd = ActionManager::registerAction(&m_toggleEditorAction, TOGGLEEDITOR_ACTION, context);
+    cmd->setDescription(Tr::tr("Show Editor"));
+    QObject::connect(&m_toggleEditorAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->toggleEditor();
+    });
+    cmd = ActionManager::registerAction(&m_togglePreviewAction, TOGGLEPREVIEW_ACTION, context);
+    cmd->setDescription(Tr::tr("Show Preview"));
+    QObject::connect(&m_togglePreviewAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->togglePreview();
+    });
+    cmd = ActionManager::registerAction(&m_swapAction, SWAPVIEWS_ACTION, context);
+    cmd->setDescription(Tr::tr("Swap Views"));
+    QObject::connect(&m_swapAction, &QAction::triggered, EditorManager::instance(), [] {
+        auto editor = qobject_cast<MarkdownEditor *>(EditorManager::currentEditor());
+        if (editor)
+            editor->swapViews();
+    });
 }
 
 } // namespace TextEditor::Internal
+
+#include "markdowneditor.moc"

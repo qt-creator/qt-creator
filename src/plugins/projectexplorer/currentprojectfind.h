@@ -23,19 +23,16 @@ public:
 
     bool isEnabled() const override;
 
-    void writeSettings(QSettings *settings) override;
-    void readSettings(QSettings *settings) override;
+    void writeSettings(Utils::QtcSettings *settings) override;
+    void readSettings(Utils::QtcSettings *settings) override;
 
 protected:
-    Utils::FileIterator *files(const QStringList &nameFilters,
-                               const QStringList &exclusionFilters,
-                               const QVariant &additionalParameters) const override;
-    QVariant additionalParameters() const override;
     QString label() const override;
 
 private:
+    TextEditor::FileContainerProvider fileContainerProvider() const override;
     void handleProjectChanged();
-    void recheckEnabled(Core::SearchResult *search) override;
+    void setupSearch(Core::SearchResult *search) override;
 };
 
 } // namespace Internal

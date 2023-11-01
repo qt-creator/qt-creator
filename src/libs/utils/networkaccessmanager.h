@@ -11,7 +11,6 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT NetworkAccessManager : public QNetworkAccessManager
 {
-    Q_OBJECT
 public:
     NetworkAccessManager(QObject *parent = nullptr);
 

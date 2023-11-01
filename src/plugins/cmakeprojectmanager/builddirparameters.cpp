@@ -5,10 +5,10 @@
 
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildsystem.h"
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmaketoolmanager.h"
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
@@ -31,7 +31,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
 
     expander = bc->macroExpander();
 
-    const QStringList expandedArguments = Utils::transform(buildSystem->initialCMakeArguments(),
+    const QStringList expandedArguments = Utils::transform(bc->initialCMakeArguments.allValues(),
                                                            [this](const QString &s) {
                                                                return expander->expand(s);
                                                            });
@@ -41,7 +41,7 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
                                                      [this](const QString &s) {
                                                          return expander->expand(s);
                                                      });
-    additionalCMakeArguments = Utils::transform(buildSystem->additionalCMakeArguments(),
+    additionalCMakeArguments = Utils::transform(bc->additionalCMakeArguments(),
                                                 [this](const QString &s) {
                                                     return expander->expand(s);
                                                 });
@@ -66,6 +66,8 @@ BuildDirParameters::BuildDirParameters(CMakeBuildSystem *buildSystem)
         environment.set("ICECC", "no");
 
     environment.set("QTC_RUN", "1");
+    environment.setFallback("CMAKE_COLOR_DIAGNOSTICS", "1");
+    environment.setFallback("CLICOLOR_FORCE", "1");
 
     cmakeToolId = CMakeKitAspect::cmakeToolId(k);
 }

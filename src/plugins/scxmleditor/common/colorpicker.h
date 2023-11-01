@@ -10,9 +10,7 @@ class QHBoxLayout;
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace ScxmlEditor {
-
-namespace Common {
+namespace ScxmlEditor::Common {
 
 class ColorPicker : public QFrame
 {
@@ -37,5 +35,4 @@ private:
     QHBoxLayout *m_lastUsedColorContainer;
 };
 
-} // namespace Common
-} // namespace ScxmlEditor
+} // namespace ScxmlEditor::Common

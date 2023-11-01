@@ -5,8 +5,7 @@
 
 #include "utils_global.h"
 
-#include <QString>
-#include <QVariantMap>
+#include "store.h"
 
 namespace Utils {
 
@@ -22,13 +21,15 @@ public:
     QString value() const;
     QString defaultValue() const { return m_defaultValue; }
     bool usesDefaultValue() const;
+    void forceSerialization() { m_forceSerialization = true; }
 
-    void toMap(QVariantMap &map, const QString &key) const;
-    void fromMap(const QVariantMap &map, const QString &key);
+    void toMap(Store &map, const Key &key) const;
+    void fromMap(const Store &map, const Key &key);
 
 private:
     QString m_value;
     QString m_defaultValue;
+    bool m_forceSerialization = false;
 };
 
 bool QTCREATOR_UTILS_EXPORT operator==(const DisplayName &dn1, const DisplayName &dn2);

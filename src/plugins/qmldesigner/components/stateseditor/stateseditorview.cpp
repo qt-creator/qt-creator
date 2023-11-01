@@ -499,7 +499,7 @@ bool StatesEditorView::hasExtend() const
 QStringList StatesEditorView::extendedStates() const
 {
     if (!model())
-        return QStringList();
+        return {};
 
     QStringList states;
 

@@ -878,7 +878,7 @@ void ModelController::moveRelation(MObject *newOwner, MRelation *relation)
 
 QList<MRelation *> ModelController::findRelationsOfObject(const MObject *object) const
 {
-    QMT_ASSERT(object, return QList<MRelation *>());
+    QMT_ASSERT(object, return {});
     return m_objectRelationsMap.values(object->uid());
 }
 

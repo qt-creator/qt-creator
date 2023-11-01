@@ -7,7 +7,7 @@
 
 #include "indexedcontainerproxyconstiterator.h"
 
-#include <QAbstractItemModel>
+#include <QSortFilterProxyModel>
 
 #include <functional>
 
@@ -49,7 +49,7 @@ public:
     TreeItem *lastChild() const;
     int level() const;
 
-    using const_iterator = QVector<TreeItem *>::const_iterator;
+    using const_iterator = QList<TreeItem *>::const_iterator;
     using value_type = TreeItem *;
     int childCount() const { return m_children.size(); }
     int indexInParent() const;
@@ -81,7 +81,7 @@ private:
 
     TreeItem *m_parent = nullptr; // Not owned.
     BaseTreeModel *m_model = nullptr; // Not owned.
-    QVector<TreeItem *> m_children; // Owned.
+    QList<TreeItem *> m_children; // Owned.
     friend class BaseTreeModel;
 };
 
@@ -342,6 +342,21 @@ public:
     BestItem *itemForIndex(const QModelIndex &idx) const {
         return static_cast<BestItem *>(BaseTreeModel::itemForIndex(idx));
     }
+};
+
+// By default, does natural sorting by display name. Call setLessThan() to customize.
+class QTCREATOR_UTILS_EXPORT SortModel : public QSortFilterProxyModel
+{
+public:
+    using QSortFilterProxyModel::QSortFilterProxyModel;
+    using LessThan = std::function<bool(const QModelIndex &, const QModelIndex &)>;
+    void setLessThan(const LessThan &lessThan) { m_lessThan = lessThan; }
+
+protected:
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override;
+
+private:
+    LessThan m_lessThan;
 };
 
 } // namespace Utils

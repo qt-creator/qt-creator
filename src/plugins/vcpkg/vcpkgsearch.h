@@ -15,6 +15,7 @@ struct VcpkgManifest
     QString name;
     QString version;
     QString license;
+    QStringList dependencies;
     QString shortDescription;
     QStringList description;
     QUrl homepage;
@@ -24,6 +25,7 @@ using VcpkgManifests = QList<VcpkgManifest>;
 
 VcpkgManifest parseVcpkgManifest(const QByteArray &vcpkgManifestJsonData, bool *ok = nullptr);
 VcpkgManifests vcpkgManifests(const Utils::FilePath &vcpkgRoot);
-VcpkgManifest showVcpkgPackageSearchDialog(QWidget *parent = nullptr);
+VcpkgManifest showVcpkgPackageSearchDialog(const VcpkgManifest &projectManifest,
+                                           QWidget *parent = nullptr);
 
 } // namespace Vcpkg::Internal::Search

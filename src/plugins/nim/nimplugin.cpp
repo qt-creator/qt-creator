@@ -14,13 +14,11 @@
 #include "project/nimproject.h"
 #include "project/nimbleproject.h"
 #include "project/nimrunconfiguration.h"
-#include "project/nimtoolchainfactory.h"
+#include "project/nimtoolchain.h"
 #include "project/nimblebuildstep.h"
 #include "project/nimbletaskstep.h"
 #include "settings/nimcodestylepreferencesfactory.h"
 #include "settings/nimcodestylesettingspage.h"
-#include "settings/nimsettings.h"
-#include "suggest/nimsuggestcache.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
@@ -30,6 +28,8 @@
 #include <texteditor/snippets/snippetprovider.h>
 
 #include <utils/fsengine/fileiconprovider.h>
+#include <utils/icon.h>
+#include <utils/theme/theme.h>
 
 using namespace Utils;
 using namespace ProjectExplorer;
@@ -39,15 +39,6 @@ namespace Nim {
 class NimPluginPrivate
 {
 public:
-    NimPluginPrivate()
-    {
-        Suggest::NimSuggestCache::instance().setExecutablePath(settings.nimSuggestPath.value());
-        QObject::connect(&settings.nimSuggestPath, &StringAspect::valueChanged,
-                         &Suggest::NimSuggestCache::instance(),
-                         &Suggest::NimSuggestCache::setExecutablePath);
-    }
-
-    NimSettings settings;
     NimEditorFactory editorFactory;
     NimBuildConfigurationFactory buildConfigFactory;
     NimbleBuildConfigurationFactory nimbleBuildConfigFactory;
@@ -96,7 +87,6 @@ void NimPlugin::extensionsInitialized()
         FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIM_SCRIPT_MIMETYPE);
         FileIconProvider::registerIconOverlayForMimeType(icon, Constants::C_NIMBLE_MIMETYPE);
     }
-    TaskHub::addCategory(Constants::C_NIMPARSE_ID, "Nim");
 }
 
 } // namespace Nim

@@ -33,7 +33,7 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const override;
 
-    QVariantMap toMap() const override;
+    void toMap(Utils::Store &data) const override;
 
     virtual Utils::CommandLine command() const;
 
@@ -55,7 +55,7 @@ protected:
     void setResetCommands(const QString &);
     void setUseExtendedRemote(bool);
 
-    bool fromMap(const QVariantMap &data) override;
+    void fromMap(const Utils::Store &data) override;
 
     StartupMode m_startupMode = StartupOnNetwork;
     Utils::FilePath m_peripheralDescriptionFile;

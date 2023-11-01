@@ -31,9 +31,12 @@ public:
     ~DeviceManager() override;
 
     static DeviceManager *instance();
+    static DeviceManager *clonedInstance();
 
     int deviceCount() const;
     IDevice::ConstPtr deviceAt(int index) const;
+
+    void forEachDevice(const std::function<void(const IDeviceConstPtr &)> &) const;
 
     IDevice::ConstPtr find(Utils::Id id) const;
     IDevice::ConstPtr defaultDevice(Utils::Id deviceType) const;
@@ -63,8 +66,8 @@ private:
     DeviceManager(bool isInstance = true);
 
     void load();
-    QList<IDevice::Ptr> fromMap(const QVariantMap &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
-    QVariantMap toMap() const;
+    QList<IDevice::Ptr> fromMap(const Utils::Store &map, QHash<Utils::Id, Utils::Id> *defaultDevices);
+    Utils::Store toMap() const;
 
     // For SettingsWidget.
     IDevice::Ptr mutableDevice(Utils::Id id) const;

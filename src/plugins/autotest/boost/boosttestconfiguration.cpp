@@ -3,10 +3,9 @@
 
 #include "boosttestconfiguration.h"
 
+#include "boosttestframework.h"
 #include "boosttestoutputreader.h"
-#include "boosttestsettings.h"
 
-#include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
@@ -18,10 +17,10 @@ namespace Internal {
 
 TestOutputReader *BoostTestConfiguration::createOutputReader(Process *app) const
 {
-    auto settings = static_cast<BoostTestSettings *>(framework()->testSettings());
+    BoostTestFramework &settings = theBoostTestFramework();
     return new BoostTestOutputReader(app, buildDirectory(), projectFile(),
-                                     LogLevel(settings->logLevel.value()),
-                                     ReportLevel(settings->reportLevel.value()));
+                                     LogLevel(settings.logLevel()),
+                                     ReportLevel(settings.reportLevel()));
 }
 
 enum class InterferingType { Options, EnvironmentVariables };
@@ -47,7 +46,7 @@ static QStringList interfering(InterferingType type)
             return QString("BOOST_TEST_" + item).toUpper();
         });
     }
-    return QStringList();
+    return {};
 }
 
 static QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
@@ -86,19 +85,19 @@ static QStringList filterInterfering(const QStringList &provided, QStringList *o
 
 QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
-    auto boostSettings = static_cast<BoostTestSettings *>(framework()->testSettings());
+    BoostTestFramework &boostSettings = theBoostTestFramework();
     QStringList arguments;
-    arguments << "-l" << BoostTestSettings::logLevelToOption(LogLevel(boostSettings->logLevel.value()));
-    arguments << "-r" << BoostTestSettings::reportLevelToOption(ReportLevel(boostSettings->reportLevel.value()));
+    arguments << "-l" << BoostTestFramework::logLevelToOption(LogLevel(boostSettings.logLevel()));
+    arguments << "-r" << BoostTestFramework::reportLevelToOption(ReportLevel(boostSettings.reportLevel()));
 
-    if (boostSettings->randomize.value())
-        arguments << QString("--random=").append(QString::number(boostSettings->seed.value()));
+    if (boostSettings.randomize())
+        arguments << QString("--random=").append(QString::number(boostSettings.seed()));
 
-    if (boostSettings->systemErrors.value())
+    if (boostSettings.systemErrors())
         arguments << "-s";
-    if (boostSettings->fpExceptions.value())
+    if (boostSettings.fpExceptions())
         arguments << "--detect_fp_exceptions";
-    if (!boostSettings->memLeaks.value())
+    if (!boostSettings.memLeaks())
         arguments << "--detect_memory_leaks=0";
 
     // TODO improve the test case gathering and arguments building to avoid too long command lines
@@ -110,7 +109,7 @@ QStringList BoostTestConfiguration::argumentsForTestRunner(QStringList *omitted)
             arguments << "-t" << "\"" + test + "\"";
     }
 
-    if (TestSettings::instance()->processArgs()) {
+    if (testSettings().processArgs()) {
         arguments << filterInterfering(runnable().command.arguments().split(
                                            ' ', Qt::SkipEmptyParts), omitted);
     }

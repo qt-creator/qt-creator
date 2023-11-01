@@ -5,7 +5,8 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
+#include <utils/storekey.h>
 
 #include <QAbstractItemModel>
 #include <QDialog>
@@ -120,7 +121,6 @@ private:
     void selectAllFiles(Tree *root);
 
 protected:
-    bool m_allFiles = true;
     QSet<Utils::FilePath> m_outOfBaseDirFiles;
     QSet<Utils::FilePath> m_files;
     Tree *m_root = nullptr;
@@ -178,7 +178,7 @@ public:
     void resetModel(const Utils::FilePath &path, const Utils::FilePaths &files);
     void cancelParsing();
 
-    void enableFilterHistoryCompletion(const QString &keyPrefix);
+    void enableFilterHistoryCompletion(const Utils::Key &keyPrefix);
 
 signals:
     void selectedFilesChanged();

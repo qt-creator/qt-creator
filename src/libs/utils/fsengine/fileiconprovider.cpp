@@ -85,7 +85,31 @@ public:
         m_suffixCache.insert(suffix, iconFilePath);
     }
 
-    void registerIconOverlayForMimeType(const QIcon &icon, const Utils::MimeType &mimeType)
+    void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeName)
+    {
+        // avoid accessing the MIME database right away
+        m_mimeUpdater.append([this, icon, mimeName] {
+            addIconOverlayForMimeType(icon, Utils::mimeTypeForName(mimeName));
+        });
+    }
+
+    void registerIconForMimeType(const QIcon &icon, const QString &mimeName)
+    {
+        // avoid accessing the MIME database right away
+        m_mimeUpdater.append(
+            [this, icon, mimeName] { addIconForMimeType(icon, Utils::mimeTypeForName(mimeName)); });
+    }
+
+    void registerIconOverlayForMimeType(const QString &iconFilePath, const QString &mimeName)
+    {
+        // avoid accessing the MIME database right away
+        m_mimeUpdater.append([this, iconFilePath, mimeName] {
+            addIconOverlayForMimeType(iconFilePath, Utils::mimeTypeForName(mimeName));
+        });
+    }
+
+private:
+    void addIconOverlayForMimeType(const QIcon &icon, const Utils::MimeType &mimeType)
     {
         const QStringList suffixes = mimeType.suffixes();
         for (const QString &suffix : suffixes) {
@@ -99,16 +123,31 @@ public:
         }
     }
 
-    void registerIconOverlayForMimeType(const QString &iconFilePath, const Utils::MimeType &mimeType)
+    void addIconOverlayForMimeType(const QString &iconFilePath, const Utils::MimeType &mimeType)
     {
         const QStringList suffixes =  mimeType.suffixes();
         for (const QString &suffix : suffixes)
             registerIconOverlayForSuffix(iconFilePath, suffix);
     }
 
+    void addIconForMimeType(const QIcon &icon, const Utils::MimeType &mimeType)
+    {
+        const QStringList suffixes = mimeType.suffixes();
+        for (const QString &suffix : suffixes)
+            m_suffixCache.insert(suffix, icon);
+    }
+
+    void ensureMimeOverlays() const
+    {
+        for (const std::function<void()> &f : m_mimeUpdater)
+            f();
+        m_mimeUpdater.clear();
+    }
+
     // Mapping of file suffix to icon.
     mutable QHash<QString, Item> m_suffixCache;
     mutable QHash<QString, Item> m_filenameCache;
+    mutable QList<std::function<void()>> m_mimeUpdater;
 
     // QAbstractFileIconProvider interface
 public:
@@ -165,11 +204,9 @@ static const QIcon &dirIcon()
     return icon;
 }
 
-QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
+QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
 {
-    qCDebug(fileIconProvider) << "FileIconProvider::icon" << fi.absoluteFilePath();
-
-    const FilePath filePath = FilePath::fromString(fi.filePath());
+    qCDebug(fileIconProvider) << "FileIconProvider::icon" << filePath.absoluteFilePath();
 
     if (filePath.isEmpty())
         return unknownFileIcon();
@@ -181,17 +218,19 @@ QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
             return dirIcon();
     }
 
-    bool isDir = fi.isDir();
+    const bool isDir = filePath.isDir();
 
     // Check for cached overlay icons by file suffix.
-    const QString filename = !isDir ? fi.fileName() : QString();
+    const QString filename = !isDir ? filePath.fileName() : QString();
     if (!filename.isEmpty()) {
         const std::optional<QIcon> icon = getIcon(m_filenameCache, filename);
         if (icon)
             return *icon;
     }
 
-    const QString suffix = !isDir ? fi.suffix() : QString();
+    ensureMimeOverlays();
+
+    const QString suffix = !isDir ? filePath.suffix() : QString();
     if (!suffix.isEmpty()) {
         const std::optional<QIcon> icon = getIcon(m_suffixCache, suffix);
         if (icon)
@@ -213,11 +252,11 @@ QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
     return icon;
 }
 
-QIcon FileIconProviderImplementation::icon(const FilePath &filePath) const
+QIcon FileIconProviderImplementation::icon(const QFileInfo &fi) const
 {
-    qCDebug(fileIconProvider) << "FileIconProvider::icon" << filePath.absoluteFilePath();
+    qCDebug(fileIconProvider) << "FileIconProvider::icon" << fi.absoluteFilePath();
 
-    return icon(QFileInfo(filePath.toFSPathString()));
+    return icon(FilePath::fromString(fi.filePath()));
 }
 
 /*!
@@ -278,7 +317,12 @@ void registerIconOverlayForSuffix(const QString &path, const QString &suffix)
   */
 void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
 {
-    instance()->registerIconOverlayForMimeType(icon, Utils::mimeTypeForName(mimeType));
+    instance()->registerIconOverlayForMimeType(icon, mimeType);
+}
+
+void registerIconForMimeType(const QIcon &icon, const QString &mimeType)
+{
+    instance()->registerIconForMimeType(icon, mimeType);
 }
 
 /*!
@@ -287,7 +331,7 @@ void registerIconOverlayForMimeType(const QIcon &icon, const QString &mimeType)
  */
 void registerIconOverlayForMimeType(const QString &path, const QString &mimeType)
 {
-    instance()->registerIconOverlayForMimeType(path, Utils::mimeTypeForName(mimeType));
+    instance()->registerIconOverlayForMimeType(path, mimeType);
 }
 
 void registerIconOverlayForFilename(const QString &path, const QString &filename)

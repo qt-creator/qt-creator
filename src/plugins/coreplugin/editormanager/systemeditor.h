@@ -3,20 +3,14 @@
 
 #pragma once
 
-#include "iexternaleditor.h"
+#include "ieditorfactory.h"
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
-class SystemEditor : public IExternalEditor
+class SystemEditor final : public IEditorFactory
 {
-    Q_OBJECT
-
 public:
-    explicit SystemEditor();
-
-    bool startEditor(const Utils::FilePath &filePath, QString *errorMessage) override;
+    SystemEditor();
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal

@@ -35,7 +35,7 @@
         \li Kit selector
         \li Select the appropriate \l{glossary-buildandrun-kit}{kit} for building
             the project and running it on particular hardware.
-        \li \l{Activating Kits for a Project}
+        \li \l{Activate kits for a project}
     \row
         \li \inlineimage numbers/03.png
         \li Run button
@@ -76,7 +76,7 @@
     For information about new features and bug fixes in each \QC release,
     select \uicontrol Help > \uicontrol {Change Log}.
 
-    \sa {Use the UI}{How-to: Use the UI}, {Reference}
+    \sa {Use the UI}{How To: Use the UI}, {Reference}
 
     \else
 
@@ -103,7 +103,7 @@
 
     To toggle the visibility of these menu items:
     \list 1
-      \li Go to \uicontrol Edit > \uicontrol Preferences.
+      \li Go to \preferences.
       \li On the \uicontrol Environment tab, select
       \uicontrol{Qt Design Studio Configuration}.
       \li Clear the checkbox for the items that you want to be visible.
@@ -118,7 +118,7 @@
     The following topics describe how to customize the UI:
 
     \list
-        \li \l {Find menu items on \macos}
+        \li \l {Find preferences}
         \li \l {Set high DPI scaling}
         \li \l {Switch UI themes}
         \li \l {View output}

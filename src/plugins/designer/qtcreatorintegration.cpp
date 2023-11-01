@@ -12,6 +12,7 @@
 #include <designer/cpp/formclasswizardpage.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppeditorplugin.h>
 #include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cppsemanticinfo.h>
@@ -133,7 +134,8 @@ QtCreatorIntegration::QtCreatorIntegration(QDesignerFormEditorInterface *core, Q
     connect(this, &QtCreatorIntegration::propertyChanged,
             this, [this](QDesignerFormWindowInterface *formWindow, const QString &name,
                          const QVariant &) {
-        if (name == "objectName") {
+        qCDebug(log) << "got propertyChanged() signal" << name;
+        if (name.endsWith("Name")) {
             if (const auto extraCompiler = d->extraCompilers.find(formWindow);
                     extraCompiler != d->extraCompilers.end()) {
                 (*extraCompiler)->unblock();
@@ -498,7 +500,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     const QString uicedName = "ui_" + fi.completeBaseName() + ".h";
 
     // Retrieve code model snapshot restricted to project of ui file or the working copy.
-    Snapshot docTable = CppEditor::CppModelManager::instance()->snapshot();
+    Snapshot docTable = CppEditor::CppModelManager::snapshot();
     Snapshot newDocTable;
     const Project *uiProject = ProjectManager::projectForFile(currentUiFile);
     if (uiProject) {
@@ -510,7 +512,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     } else {
         const FilePath configFileName = CppEditor::CppModelManager::configurationFileName();
         const CppEditor::WorkingCopy::Table elements =
-                CppEditor::CppModelManager::instance()->workingCopy().elements();
+                CppEditor::CppModelManager::workingCopy().elements();
         for (auto it = elements.cbegin(), end = elements.cend(); it != end; ++it) {
             const Utils::FilePath &fileName = it.key();
             if (fileName != configFileName)
@@ -577,7 +579,7 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
     FilePath declFilePath;
     if (!fun) {
         // add function declaration to cl
-        CppEditor::WorkingCopy workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
+        CppEditor::WorkingCopy workingCopy = CppEditor::CppModelManager::workingCopy();
         declFilePath = declDoc->filePath();
         getParsedDocument(declFilePath, workingCopy, docTable);
         addDeclaration(docTable, declFilePath, cl, functionNameWithParameterNames);
@@ -586,8 +588,8 @@ bool QtCreatorIntegration::navigateToSlot(const QString &objectName,
         QList<Utils::FilePath> filePaths;
         for (auto it = docTable.begin(); it != docTable.end(); ++it)
             filePaths << it.key();
-        workingCopy = CppEditor::CppModelManager::instance()->workingCopy();
-        docTable = CppEditor::CppModelManager::instance()->snapshot();
+        workingCopy = CppEditor::CppModelManager::workingCopy();
+        docTable = CppEditor::CppModelManager::snapshot();
         newDocTable = {};
         for (const auto &file : std::as_const(filePaths)) {
             const Document::Ptr doc = docTable.document(file);
@@ -741,7 +743,7 @@ void QtCreatorIntegration::handleSymbolRenameStage2(
     if (usesClangd)
         editorWidget->textDocument()->setFilePath(uiHeader);
     editorWidget->textDocument()->setPlainText(QString::fromUtf8(virtualContent));
-    Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    Snapshot snapshot = CppEditor::CppModelManager::snapshot();
     snapshot.remove(uiHeader);
     snapshot.remove(editor->textDocument()->filePath());
     const Document::Ptr cppDoc = snapshot.preprocessedDocument(virtualContent, uiHeader);
@@ -782,8 +784,8 @@ void QtCreatorIntegration::handleSymbolRenameStage2(
                 qCDebug(log) << "renaming with built-in code model";
                 snapshot.insert(cppDoc);
                 snapshot.updateDependencyTable();
-                CppEditor::CppModelManager::instance()->renameUsages(cppDoc, cursor, snapshot,
-                                                                     newName, callback);
+                CppEditor::CppModelManager::renameUsages(cppDoc, cursor, snapshot,
+                                                         newName, callback);
             }
             return;
         }
@@ -795,6 +797,6 @@ void QtCreatorIntegration::handleSymbolRenameStage2(
 void QtCreatorIntegration::slotSyncSettingsToDesigner()
 {
     // Set promotion-relevant parameters on integration.
-    setHeaderSuffix(Utils::mimeTypeForName(CppEditor::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
+    setHeaderSuffix(CppEditor::preferredCxxHeaderSuffix(ProjectTree::currentProject()));
     setHeaderLowercase(FormClassWizardPage::lowercaseHeaderFiles());
 }

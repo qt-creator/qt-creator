@@ -14,8 +14,9 @@ class ToolsSettingsAccessor final : public Utils::UpgradingSettingsAccessor
 {
 public:
     ToolsSettingsAccessor();
-    void saveMesonTools(const std::vector<MesonTools::Tool_t> &tools, QWidget *parent);
-    std::vector<MesonTools::Tool_t> loadMesonTools(QWidget *parent);
+
+    void saveMesonTools(const std::vector<MesonTools::Tool_t> &tools);
+    std::vector<MesonTools::Tool_t> loadMesonTools();
 };
 
 } // namespace Internal

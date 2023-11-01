@@ -6,7 +6,6 @@
 #include "squishconstants.h"
 #include "squishfilehandler.h"
 #include "squishmessages.h"
-#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtesttreemodel.h"
 #include "squishtesttreeview.h"
@@ -25,10 +24,36 @@
 #include <QMenu>
 #include <QVBoxLayout>
 
-namespace Squish {
-namespace Internal {
+using namespace Utils;
+
+namespace Squish::Internal {
 
 const int defaultSectionSize = 17;
+
+class SquishNavigationWidget : public QWidget
+{
+public:
+    explicit SquishNavigationWidget(QWidget *parent = nullptr);
+    ~SquishNavigationWidget() override;
+    void contextMenuEvent(QContextMenuEvent *event) override;
+    static QList<QToolButton *> createToolButtons();
+
+private:
+    void onItemActivated(const QModelIndex &idx);
+    void onExpanded(const QModelIndex &idx);
+    void onCollapsed(const QModelIndex &idx);
+    void onRowsInserted(const QModelIndex &parent, int, int);
+    void onRowsRemoved(const QModelIndex &parent, int, int);
+    void onRemoveSharedFolderTriggered(int row, const QModelIndex &parent);
+    void onRemoveAllSharedFolderTriggered();
+    void onRecordTestCase(const QString &suiteName, const QString &testCase);
+    void onNewTestCaseTriggered(const QModelIndex &index);
+
+    SquishTestTreeView *m_view;
+    SquishTestTreeModel *m_model; // not owned
+    SquishTestTreeSortModel *m_sortModel;
+};
+
 
 SquishNavigationWidget::SquishNavigationWidget(QWidget *parent)
     : QWidget(parent)
@@ -296,13 +321,13 @@ void SquishNavigationWidget::onRemoveAllSharedFolderTriggered()
 
 void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QString &testCase)
 {
-    QMessageBox::StandardButton pressed = Utils::CheckableMessageBox::question(
+    QMessageBox::StandardButton pressed = CheckableMessageBox::question(
         Core::ICore::dialogParent(),
         Tr::tr("Record Test Case"),
         Tr::tr("Do you want to record over the test case \"%1\"? The existing content will "
                "be overwritten by the recorded script.")
             .arg(testCase),
-        QString("RecordWithoutApproval"));
+        Key("RecordWithoutApproval"));
     if (pressed != QMessageBox::Yes)
         return;
 
@@ -311,10 +336,7 @@ void SquishNavigationWidget::onRecordTestCase(const QString &suiteName, const QS
 
 void SquishNavigationWidget::onNewTestCaseTriggered(const QModelIndex &index)
 {
-    auto settings = SquishPlugin::squishSettings();
-    QTC_ASSERT(settings, return);
-
-    if (!settings->squishPath().pathAppended("scriptmodules").exists()) {
+    if (!settings().squishPath().pathAppended("scriptmodules").exists()) {
         SquishMessages::criticalMessage(Tr::tr("Set up a valid Squish path to be able to create "
                                                "a new test case.\n(Edit > Preferences > Squish)"));
         return;
@@ -350,5 +372,4 @@ Core::NavigationView SquishNavigationWidgetFactory::createWidget()
     return view;
 }
 
-} // namespace Internal
-} // namespace Squish
+} // Squish::Internal

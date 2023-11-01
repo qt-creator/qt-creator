@@ -33,6 +33,9 @@ private:
     template <typename Task> friend class TaskAdapter;
     friend class TaskNode;
     TaskInterface() = default;
+#ifdef Q_QDOC
+protected:
+#endif
     virtual void start() = 0;
 };
 
@@ -41,14 +44,13 @@ class TASKING_EXPORT TreeStorageBase
 public:
     bool isValid() const;
 
-protected:
+private:
     using StorageConstructor = std::function<void *(void)>;
     using StorageDestructor = std::function<void(void *)>;
 
     TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor);
     void *activeStorageVoid() const;
 
-private:
     int createStorage() const;
     void deleteStorage(int id) const;
     void activateStorage(int id) const;
@@ -71,13 +73,15 @@ private:
         int m_storageCounter = 0;
     };
     QSharedPointer<StorageData> m_storageData;
+
+    template <typename StorageStruct> friend class TreeStorage;
     friend ExecutionContextActivator;
     friend TaskContainer;
     friend TaskTreePrivate;
 };
 
 template <typename StorageStruct>
-class TreeStorage : public TreeStorageBase
+class TreeStorage final : public TreeStorageBase
 {
 public:
     TreeStorage() : TreeStorageBase(TreeStorage::ctor(), TreeStorage::dtor()) {}
@@ -190,7 +194,7 @@ protected:
     static GroupItem parallelLimit(int limit) { return GroupItem({{}, limit}); }
     static GroupItem workflowPolicy(WorkflowPolicy policy) { return GroupItem({{}, {}, policy}); }
     static GroupItem withTimeout(const GroupItem &item, std::chrono::milliseconds timeout,
-                                const GroupEndHandler &handler = {});
+                                 const GroupEndHandler &handler = {});
 
 private:
     Type m_type = Type::Group;
@@ -200,7 +204,7 @@ private:
     TaskHandler m_taskHandler;
 };
 
-class TASKING_EXPORT Group : public GroupItem
+class TASKING_EXPORT Group final : public GroupItem
 {
 public:
     Group(const QList<GroupItem> &children) { addChildren(children); }
@@ -267,23 +271,22 @@ TASKING_EXPORT extern const GroupItem stopOnFinished;
 TASKING_EXPORT extern const GroupItem finishAllAndDone;
 TASKING_EXPORT extern const GroupItem finishAllAndError;
 
-class TASKING_EXPORT Storage : public GroupItem
+class TASKING_EXPORT Storage final : public GroupItem
 {
 public:
     Storage(const TreeStorageBase &storage) : GroupItem(storage) { }
 };
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
-class TASKING_EXPORT Sync : public Group
+class TASKING_EXPORT Sync final : public GroupItem
 {
-
 public:
     template<typename Function>
-    Sync(Function &&function) : Group(init(std::forward<Function>(function))) {}
+    Sync(Function &&function) { addChildren({init(std::forward<Function>(function))}); }
 
 private:
     template<typename Function>
-    static QList<GroupItem> init(Function &&function) {
+    static GroupItem init(Function &&function) {
         constexpr bool isInvocable = std::is_invocable_v<std::decay_t<Function>>;
         static_assert(isInvocable,
                       "Sync element: The synchronous function can't take any arguments.");
@@ -292,10 +295,10 @@ private:
         static_assert(isBool || isVoid,
                       "Sync element: The synchronous function has to return void or bool.");
         if constexpr (isBool) {
-            return {onGroupSetup([function] { return function() ? SetupResult::StopWithDone
-                                                                : SetupResult::StopWithError; })};
+            return onGroupSetup([function] { return function() ? SetupResult::StopWithDone
+                                                               : SetupResult::StopWithError; });
         }
-        return {onGroupSetup([function] { function(); return SetupResult::StopWithDone; })};
+        return onGroupSetup([function] { function(); return SetupResult::StopWithDone; });
     };
 };
 
@@ -314,10 +317,13 @@ private:
 };
 
 template <typename Adapter>
-class CustomTask : public GroupItem
+class CustomTask final : public GroupItem
 {
 public:
     using Task = typename Adapter::Type;
+    static_assert(std::is_base_of_v<TaskAdapter<Task>, Adapter>,
+                  "The Adapter type for the CustomTask<Adapter> needs to be derived from "
+                  "TaskAdapter<Task>.");
     using EndHandler = std::function<void(const Task &)>;
     static Adapter *createAdapter() { return new Adapter; }
     CustomTask() : GroupItem({&createAdapter}) {}
@@ -407,11 +413,21 @@ public:
 
     template <typename StorageStruct, typename StorageHandler>
     void onStorageSetup(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
+        constexpr bool isInvokable = std::is_invocable_v<std::decay_t<StorageHandler>,
+                                                         StorageStruct &>;
+        static_assert(isInvokable,
+                      "Storage setup handler needs to take (Storage &) as an argument. "
+                      "The passed handler doesn't fulfill these requirements.");
         setupStorageHandler(storage,
                             wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)), {});
     }
     template <typename StorageStruct, typename StorageHandler>
     void onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
+        constexpr bool isInvokable = std::is_invocable_v<std::decay_t<StorageHandler>,
+                                                         const StorageStruct &>;
+        static_assert(isInvokable,
+                      "Storage done handler needs to take (const Storage &) as an argument. "
+                      "The passed handler doesn't fulfill these requirements.");
         setupStorageHandler(storage,
                             {}, wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)));
     }
@@ -431,7 +447,7 @@ private:
     StorageVoidHandler wrapHandler(StorageHandler &&handler) {
         return [=](void *voidStruct) {
             StorageStruct *storageStruct = static_cast<StorageStruct *>(voidStruct);
-            std::invoke(handler, storageStruct);
+            std::invoke(handler, *storageStruct);
         };
     }
 
@@ -457,16 +473,7 @@ private:
     std::optional<int> m_timerId;
 };
 
+using TaskTreeTask = CustomTask<TaskTreeTaskAdapter>;
+using TimeoutTask = CustomTask<TimeoutTaskAdapter>;
+
 } // namespace Tasking
-
-#define TASKING_DECLARE_TASK(CustomTaskName, TaskAdapterClass)\
-namespace Tasking { using CustomTaskName = CustomTask<TaskAdapterClass>; }
-
-#define TASKING_DECLARE_TEMPLATE_TASK(CustomTaskName, TaskAdapterClass)\
-namespace Tasking {\
-template <typename ...Args>\
-using CustomTaskName = CustomTask<TaskAdapterClass<Args...>>;\
-} // namespace Tasking
-
-TASKING_DECLARE_TASK(TaskTreeTask, TaskTreeTaskAdapter);
-TASKING_DECLARE_TASK(TimeoutTask, TimeoutTaskAdapter);

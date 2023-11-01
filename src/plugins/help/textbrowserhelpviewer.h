@@ -22,8 +22,8 @@ public:
     ~TextBrowserHelpViewer() override;
 
     void setViewerFont(const QFont &font) override;
-
     void setScale(qreal scale) override;
+    void setAntialias(bool on) final;
 
     QString title() const override;
 
@@ -38,7 +38,7 @@ public:
     void addBackHistoryItems(QMenu *backMenu) override;
     void addForwardHistoryItems(QMenu *forwardMenu) override;
 
-    bool findText(const QString &text, Core::FindFlags flags,
+    bool findText(const QString &text, Utils::FindFlags flags,
                   bool incremental, bool fromSearch, bool *wrapped = nullptr) override;
 
     void copy() override;
@@ -48,7 +48,7 @@ public:
     void print(QPrinter *printer) override;
 
 private:
-    void setFontAndScale(const QFont &font, qreal scale);
+    void setFontAndScale(const QFont &font, qreal scale, bool antialias);
 
     TextBrowserHelpWidget *m_textBrowser;
 };

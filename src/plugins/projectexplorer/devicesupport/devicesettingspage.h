@@ -5,8 +5,7 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class DeviceSettingsPage final : public Core::IOptionsPage
 {
@@ -14,5 +13,4 @@ public:
     DeviceSettingsPage();
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

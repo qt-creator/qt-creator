@@ -13,7 +13,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPainter>
-#include <QSettings>
 #include <QToolButton>
 #include <QVBoxLayout>
 
@@ -22,7 +21,7 @@ static const char C_SUPPRESSED_WARNINGS[] = "SuppressedWarnings";
 namespace Utils {
 
 QSet<Id> InfoBar::globallySuppressed;
-QSettings *InfoBar::m_settings = nullptr;
+QtcSettings *InfoBar::m_settings = nullptr;
 
 class InfoBarWidget : public QWidget
 {
@@ -184,17 +183,17 @@ void InfoBar::globallyUnsuppressInfo(Id id)
     writeGloballySuppressedToSettings();
 }
 
-void InfoBar::initialize(QSettings *settings)
+void InfoBar::initialize(QtcSettings *settings)
 {
     m_settings = settings;
 
     if (QTC_GUARD(m_settings)) {
-        const QStringList list = m_settings->value(QLatin1String(C_SUPPRESSED_WARNINGS)).toStringList();
+        const QStringList list = m_settings->value(C_SUPPRESSED_WARNINGS).toStringList();
         globallySuppressed = transform<QSet>(list, Id::fromString);
     }
 }
 
-QSettings *InfoBar::settings()
+QtcSettings *InfoBar::settings()
 {
     return m_settings;
 }
@@ -216,7 +215,7 @@ void InfoBar::writeGloballySuppressedToSettings()
     if (!m_settings)
         return;
     const QStringList list = transform<QList>(globallySuppressed, &Id::toString);
-    QtcSettings::setValueWithDefault(m_settings, C_SUPPRESSED_WARNINGS, list);
+    m_settings->setValueWithDefault(C_SUPPRESSED_WARNINGS, list);
 }
 
 

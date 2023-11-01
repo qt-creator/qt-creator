@@ -36,6 +36,7 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
+#include <QGroupBox>
 #include <QHeaderView>
 #include <QJsonDocument>
 #include <QLabel>
@@ -43,7 +44,6 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QPushButton>
-#include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QStringListModel>
 #include <QToolButton>
@@ -65,6 +65,8 @@ constexpr char clientsKey[] = "clients";
 constexpr char typedClientsKey[] = "typedClients";
 constexpr char outlineSortedKey[] = "outlineSorted";
 constexpr char mimeType[] = "application/language.client.setting";
+
+using namespace Utils;
 
 namespace LanguageClient {
 
@@ -561,9 +563,9 @@ Client *BaseSettings::createClient(BaseClientInterface *interface) const
     return new Client(interface);
 }
 
-QVariantMap BaseSettings::toMap() const
+Store BaseSettings::toMap() const
 {
-    QVariantMap map;
+    Store map;
     map.insert(typeIdKey, m_settingsTypeId.toSetting());
     map.insert(nameKey, m_name);
     map.insert(idKey, m_id);
@@ -576,7 +578,7 @@ QVariantMap BaseSettings::toMap() const
     return map;
 }
 
-void BaseSettings::fromMap(const QVariantMap &map)
+void BaseSettings::fromMap(const Store &map)
 {
     m_name = map[nameKey].toString();
     m_id = map.value(idKey, QUuid::createUuid().toString()).toString();
@@ -602,16 +604,16 @@ void LanguageClientSettings::init()
     LanguageClientManager::applySettings();
 }
 
-QList<BaseSettings *> LanguageClientSettings::fromSettings(QSettings *settingsIn)
+QList<BaseSettings *> LanguageClientSettings::fromSettings(QtcSettings *settingsIn)
 {
     settingsIn->beginGroup(settingsGroupKey);
     QList<BaseSettings *> result;
 
-    for (auto varList :
+    for (const QVariantList &varList :
          {settingsIn->value(clientsKey).toList(), settingsIn->value(typedClientsKey).toList()}) {
         for (const QVariant &var : varList) {
-            const QMap<QString, QVariant> &map = var.toMap();
-            Utils::Id typeId = Utils::Id::fromSetting(map.value(typeIdKey));
+            const Store map = storeFromVariant(var);
+            Id typeId = Id::fromSetting(map.value(typeIdKey));
             if (!typeId.isValid())
                 typeId = Constants::LANGUAGECLIENT_STDIO_SETTINGS_ID;
             if (BaseSettings *settings = generateSettings(typeId)) {
@@ -651,13 +653,13 @@ void LanguageClientSettings::enableSettings(const QString &id, bool enable)
     settingsPage().enableSettings(id, enable);
 }
 
-void LanguageClientSettings::toSettings(QSettings *settings,
+void LanguageClientSettings::toSettings(QtcSettings *settings,
                                         const QList<BaseSettings *> &languageClientSettings)
 {
     settings->beginGroup(settingsGroupKey);
     auto transform = [](const QList<BaseSettings *> &settings) {
         return Utils::transform(settings, [](const BaseSettings *setting) {
-            return QVariant(setting->toMap());
+            return variantFromStore(setting->toMap());
         });
     };
     auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,
@@ -712,15 +714,15 @@ bool StdIOSettings::isValid() const
     return BaseSettings::isValid() && !m_executable.isEmpty();
 }
 
-QVariantMap StdIOSettings::toMap() const
+Store StdIOSettings::toMap() const
 {
-    QVariantMap map = BaseSettings::toMap();
+    Store map = BaseSettings::toMap();
     map.insert(executableKey, m_executable.toSettings());
     map.insert(argumentsKey, m_arguments);
     return map;
 }
 
-void StdIOSettings::fromMap(const QVariantMap &map)
+void StdIOSettings::fromMap(const Store &map)
 {
     BaseSettings::fromMap(map);
     m_executable = Utils::FilePath::fromSettings(map[executableKey]);
@@ -1028,12 +1030,18 @@ TextEditor::BaseTextEditor *jsonEditor()
 {
     using namespace TextEditor;
     using namespace Utils::Text;
-    BaseTextEditor *editor = PlainTextEditorFactory::createPlainTextEditor();
-    TextDocument *document = editor->textDocument();
-    TextEditorWidget *widget = editor->editorWidget();
+    BaseTextEditor *textEditor = nullptr;
+    for (Core::IEditorFactory *factory : Core::IEditorFactory::preferredEditorFactories("foo.json")) {
+        Core::IEditor *editor = factory->createEditor();
+        if (textEditor = qobject_cast<BaseTextEditor *>(editor); textEditor)
+            break;
+        delete editor;
+    }
+    QTC_ASSERT(textEditor, textEditor = PlainTextEditorFactory::createPlainTextEditor());
+    TextDocument *document = textEditor->textDocument();
+    TextEditorWidget *widget = textEditor->editorWidget();
     widget->configureGenericHighlighter(Utils::mimeTypeForName("application/json"));
     widget->setLineNumbersVisible(false);
-    widget->setMarksVisible(false);
     widget->setRevisionsVisible(false);
     widget->setCodeFoldingSupported(false);
     QObject::connect(document, &TextDocument::contentsChanged, widget, [document](){
@@ -1061,7 +1069,66 @@ TextEditor::BaseTextEditor *jsonEditor()
         mark->setIcon(Utils::Icons::CODEMODEL_ERROR.icon());
         document->addMark(mark);
     });
-    return editor;
+    return textEditor;
+}
+
+constexpr const char projectSettingsId[] = "LanguageClient.ProjectSettings";
+
+ProjectSettings::ProjectSettings(ProjectExplorer::Project *project)
+    : m_project(project)
+{
+    m_json = m_project->namedSettings(projectSettingsId).toByteArray();
+}
+
+QJsonValue ProjectSettings::workspaceConfiguration() const
+{
+    const auto doc = QJsonDocument::fromJson(m_json);
+    if (doc.isObject())
+        return doc.object();
+    if (doc.isArray())
+        return doc.array();
+    return {};
+}
+
+QByteArray ProjectSettings::json() const
+{
+    return m_json;
+}
+
+void ProjectSettings::setJson(const QByteArray &json)
+{
+    const QJsonValue oldConfig = workspaceConfiguration();
+    m_json = json;
+    m_project->setNamedSettings(projectSettingsId, m_json);
+    const QJsonValue newConfig = workspaceConfiguration();
+    if (oldConfig != newConfig)
+        LanguageClientManager::updateWorkspaceConfiguration(m_project, newConfig);
+}
+
+ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project)
+    : m_settings(project)
+{
+    setUseGlobalSettingsCheckBoxVisible(false);
+    setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+    setExpanding(true);
+
+    TextEditor::BaseTextEditor *editor = jsonEditor();
+    editor->document()->setContents(m_settings.json());
+
+    auto layout = new QVBoxLayout;
+    setLayout(layout);
+    auto group = new QGroupBox(Tr::tr("Workspace Configuration"));
+    group->setLayout(new QVBoxLayout);
+    group->layout()->addWidget(new QLabel(Tr::tr(
+        "Additional JSON configuration sent to all running language servers for this project.\n"
+        "See the documentation of the specific language server for valid settings.")));
+    group->layout()->addWidget(editor->widget());
+    layout->addWidget(group);
+
+    connect(editor->editorWidget()->textDocument(),
+            &TextEditor::TextDocument::contentsChanged,
+            this,
+            [=]() { m_settings.setJson(editor->document()->contents()); });
 }
 
 } // namespace LanguageClient

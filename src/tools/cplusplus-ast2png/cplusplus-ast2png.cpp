@@ -554,7 +554,7 @@ int main(int argc, char *argv[])
     // Process files
     const QStringList files = args;
     for (const QString &fileName : files) {
-        if (! QFile::exists(fileName)) {
+        if (! QFileInfo::exists(fileName)) {
             std::cerr << "Error: File \"" << qPrintable(fileName) << "\" does not exist."
                       << std::endl;
             exit(EXIT_FAILURE);

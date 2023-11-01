@@ -34,6 +34,7 @@ depends +=    qtwidgets \
               qthelp \
               qtquicktimeline \
               qtlinguist \
+              qtpositioning \
               qtscxml \
               qtsensors \
               qttestlib \

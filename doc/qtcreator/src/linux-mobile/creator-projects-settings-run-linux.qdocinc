@@ -21,10 +21,13 @@
     command in the \uicontrol {Alternate executable on device} field and select the
     \uicontrol {Use this command instead} check box.
 
-    \image qtcreator-run-settings-linux.png "Run settings for Linux-based devices"
+    \image qtcreator-run-settings-remote-linux.webp {Run settings for Linux-based devices}
 
     You can specify arguments to pass to your application in the
     \uicontrol {Command line arguments} field.
+
+    Select the \uicontrol {Forward to local display} check box to show a remotely
+    running X11 client on a local display.
 
 //! [run settings linux]
 */

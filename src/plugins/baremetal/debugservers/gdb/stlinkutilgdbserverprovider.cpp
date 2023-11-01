@@ -29,7 +29,71 @@ const char resetBoardKeyC[] = "ResetBoard";
 const char transportLayerKeyC[] = "TransportLayer";
 const char connectUnderResetKeyC[] = "ConnectUnderReset";
 
+class StLinkUtilGdbServerProvider;
+
+enum TransportLayer { ScsiOverUsb = 1, RawUsb = 2, UnspecifiedTransport };
+
+// StLinkUtilGdbServerProviderConfigWidget
+
+class StLinkUtilGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
+{
+public:
+    explicit StLinkUtilGdbServerProviderConfigWidget(StLinkUtilGdbServerProvider *provider);
+
+private:
+    void apply() final;
+    void discard() final;
+
+    TransportLayer transportLayerFromIndex(int idx) const;
+    TransportLayer transportLayer() const;
+    void setTransportLayer(TransportLayer);
+
+    void populateTransportLayers();
+    void setFromProvider();
+
+    HostWidget *m_hostWidget = nullptr;
+    Utils::PathChooser *m_executableFileChooser = nullptr;
+    QSpinBox *m_verboseLevelSpinBox = nullptr;
+    QCheckBox *m_extendedModeCheckBox = nullptr;
+    QCheckBox *m_resetOnConnectCheckBox = nullptr;
+    QCheckBox *m_resetBoardCheckBox = nullptr;
+    QComboBox *m_transportLayerComboBox = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
+};
+
 // StLinkUtilGdbServerProvider
+
+class StLinkUtilGdbServerProvider final : public GdbServerProvider
+{
+public:
+    void toMap(Store &data) const final;
+    void fromMap(const Store &data) final;
+
+    bool operator==(const IDebugServerProvider &other) const final;
+
+    QString channelString() const final;
+    Utils::CommandLine command() const final;
+
+    QSet<StartupMode> supportedStartupModes() const final;
+    bool isValid() const final;
+
+private:
+    StLinkUtilGdbServerProvider();
+
+    static QString defaultInitCommands();
+    static QString defaultResetCommands();
+
+    Utils::FilePath m_executableFile = "st-util";
+    int m_verboseLevel = 0; // 0..99
+    bool m_extendedMode = false; // Listening for connections after disconnect
+    bool m_resetBoard = true;
+    bool m_connectUnderReset = false; // Makes it possible to connect to the device before code execution
+    TransportLayer m_transport = RawUsb;
+
+    friend class StLinkUtilGdbServerProviderConfigWidget;
+    friend class StLinkUtilGdbServerProviderFactory;
+};
 
 StLinkUtilGdbServerProvider::StLinkUtilGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_STLINK_UTIL_PROVIDER_ID)
@@ -113,23 +177,20 @@ bool StLinkUtilGdbServerProvider::isValid() const
     return true;
 }
 
-QVariantMap StLinkUtilGdbServerProvider::toMap() const
+void StLinkUtilGdbServerProvider::toMap(Store &data) const
 {
-    QVariantMap data = GdbServerProvider::toMap();
+    GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(verboseLevelKeyC, m_verboseLevel);
     data.insert(extendedModeKeyC, m_extendedMode);
     data.insert(resetBoardKeyC, m_resetBoard);
     data.insert(transportLayerKeyC, m_transport);
     data.insert(connectUnderResetKeyC, m_connectUnderReset);
-    return data;
 }
 
-bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
+void StLinkUtilGdbServerProvider::fromMap(const Store &data)
 {
-    if (!GdbServerProvider::fromMap(data))
-        return false;
-
+    GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_verboseLevel = data.value(verboseLevelKeyC).toInt();
     m_extendedMode = data.value(extendedModeKeyC).toBool();
@@ -137,7 +198,6 @@ bool StLinkUtilGdbServerProvider::fromMap(const QVariantMap &data)
     m_transport = static_cast<TransportLayer>(
                 data.value(transportLayerKeyC).toInt());
     m_connectUnderReset = data.value(connectUnderResetKeyC).toBool();
-    return true;
 }
 
 bool StLinkUtilGdbServerProvider::operator==(const IDebugServerProvider &other) const
@@ -261,22 +321,18 @@ void StLinkUtilGdbServerProviderConfigWidget::discard()
     GdbServerProviderConfigWidget::discard();
 }
 
-StLinkUtilGdbServerProvider::TransportLayer
-StLinkUtilGdbServerProviderConfigWidget::transportLayerFromIndex(int idx) const
+TransportLayer StLinkUtilGdbServerProviderConfigWidget::transportLayerFromIndex(int idx) const
 {
-    return static_cast<StLinkUtilGdbServerProvider::TransportLayer>(
-                m_transportLayerComboBox->itemData(idx).toInt());
+    return static_cast<TransportLayer>(m_transportLayerComboBox->itemData(idx).toInt());
 }
 
-StLinkUtilGdbServerProvider::TransportLayer
-StLinkUtilGdbServerProviderConfigWidget::transportLayer() const
+TransportLayer StLinkUtilGdbServerProviderConfigWidget::transportLayer() const
 {
     const int idx = m_transportLayerComboBox->currentIndex();
     return transportLayerFromIndex(idx);
 }
 
-void StLinkUtilGdbServerProviderConfigWidget::setTransportLayer(
-        StLinkUtilGdbServerProvider::TransportLayer tl)
+void StLinkUtilGdbServerProviderConfigWidget::setTransportLayer(TransportLayer tl)
 {
     for (int idx = 0; idx < m_transportLayerComboBox->count(); ++idx) {
         if (tl == transportLayerFromIndex(idx)) {
@@ -290,13 +346,13 @@ void StLinkUtilGdbServerProviderConfigWidget::populateTransportLayers()
 {
     m_transportLayerComboBox->insertItem(
                 m_transportLayerComboBox->count(), Tr::tr("ST-LINK/V1"),
-                StLinkUtilGdbServerProvider::ScsiOverUsb);
+                ScsiOverUsb);
     m_transportLayerComboBox->insertItem(
                 m_transportLayerComboBox->count(), Tr::tr("ST-LINK/V2"),
-                StLinkUtilGdbServerProvider::RawUsb);
+                RawUsb);
     m_transportLayerComboBox->insertItem(
                 m_transportLayerComboBox->count(), Tr::tr("Keep unspecified"),
-                StLinkUtilGdbServerProvider::UnspecifiedTransport);
+                UnspecifiedTransport);
 }
 
 void StLinkUtilGdbServerProviderConfigWidget::setFromProvider()

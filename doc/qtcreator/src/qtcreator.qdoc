@@ -51,7 +51,7 @@
             \li \b {\l{Managing Projects}}
                 \list
                     \li \l{Creating Projects}
-                    \li \l{Using Version Control Systems}
+                    \li \l{Version Control Systems}
                     \li \l{Configuring Projects}
                     \li \l{Managing Sessions}
                 \endlist
@@ -73,8 +73,8 @@
         \row
             \li \inlineimage front-preview.png
             \li \inlineimage front-testing.png
-            \li \inlineimage front-advanced.png
             \li \inlineimage front-help.png
+            \li \inlineimage front-advanced.png
         \row
             \li \b {\l{Building and Running}}
                 \list
@@ -91,22 +91,25 @@
                     \li \l{Running Autotests}
                     \li \l{Using Squish}
                 \endlist
-            \li \b {\l{Advanced Use}}
+            \li \b {\l{How To}}
                 \list
-                    \li \l{Supported Platforms}
-                    \li \l{Build Systems}
-                    \li \l{Using Command Line Options}
-                    \li \l{Keyboard Shortcuts}
-                    \li \l{Using External Tools}
+                    \li \l{Design UIs}
+                    \li \l{Edit Code}
+                    \li \l{Manage Projects}
+                    \li \l{Build and Run}
+                    \li \l{Read Documentation}
+                    \li \l{Use \QC}
+                    \li \l{Use the UI}
                 \endlist
-            \li \b {\l{Getting Help}}
+            \li \b {\l{Reference}}
                 \list
-                    \li \l{Using the Help Mode}
-                    \li \l{FAQ}
-                    \li \l{How-to}
-                    \li \l{Reference}
-                    \li \l{Known Issues}
-                    \li \l{Glossary}
+                    \li \l {Build Systems}
+                    \li \l {Command-Line Options}
+                    \li \l {Custom Wizards}
+                    \li \l {Keyboard Shortcuts}
+                    \li \l {Preferences}
+                    \li \l {Supported Platforms}
+                    \li \l {Reference}{See More...}
                 \endlist
         \row
             \li {4,1} \b {Contact Us}

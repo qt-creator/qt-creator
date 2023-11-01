@@ -6385,8 +6385,8 @@ Exporting assets: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -9410,7 +9410,7 @@ Locked components cannot be modified or selected.</source>
         <translation>Kommandozeilen-Werkzeug für Android-SDK ist installiert.</translation>
     </message>
     <message>
-        <source>Android SDK Command-line Tools run.</source>
+        <source>Android SDK Command-line Tools runs.</source>
         <translation>Kommandozeilen-Werkzeug für Android-SDK startet erfolgreich.</translation>
     </message>
     <message>
@@ -9522,7 +9522,7 @@ Locked components cannot be modified or selected.</source>
         <translation>SDK-Werkzeuge herunterladen</translation>
     </message>
     <message>
-        <source>Could not open %1 for writing: %2.</source>
+        <source>Could not open &quot;%1&quot; for writing: %2.</source>
         <translation>Die Datei &quot;%1&quot; konnte nicht zum Schreiben geöffnet werden: %2.</translation>
     </message>
     <message>
@@ -10240,11 +10240,11 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
         <translation>Die Version des Android Build-SDK ist nicht definiert. Überprüfen Sie die Android-Einstellungen.</translation>
     </message>
     <message>
-        <source>The Android build folder %1 was not found and could not be created.</source>
+        <source>The Android build folder &quot;%1&quot; was not found and could not be created.</source>
         <translation>Das Build-Verzeichnis &quot;%1&quot; für Android wurde nicht gefunden und konnte nicht erstellt werden.</translation>
     </message>
     <message>
-        <source>Cannot copy the target&apos;s lib file %1 to the Android build folder %2.</source>
+        <source>Cannot copy the target&apos;s lib file &quot;%1&quot; to the Android build folder &quot;%2&quot;.</source>
         <translation>Die lib-Datei &quot;%1&quot; des Targets konnte nicht in das Build-Verzeichnis &quot;%2&quot; für Android kopiert werden.</translation>
     </message>
     <message>
@@ -10396,22 +10396,16 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
 </translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Prüfe auf ausstehende Lizenzen...
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Prüfe auf ausstehende Lizenzen...</translation>
     </message>
     <message>
-        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.
-</source>
-        <translation>Die Installation von Android-SDK-Paketen kann fehlschlagen, wenn die entsprechenden Lizenzen nicht akzeptiert werden.
-</translation>
+        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.</source>
+        <translation>Die Installation von Android-SDK-Paketen kann fehlschlagen, wenn die entsprechenden Lizenzen nicht akzeptiert werden.</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-SDK-Manager arbeitet.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>SDK-Manager arbeitet.</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -10503,12 +10497,8 @@ Breche ausstehende Operationen ab...
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>Lizenzkommando fehlgeschlagen.
-
-</translation>
+        <source>License command failed.</source>
+        <translation>Lizenzkommando fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Updating installed packages.</source>
@@ -10519,12 +10509,8 @@ Breche ausstehende Operationen ab...
         <translation>Fehlgeschlagen.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>Fertig
-
-</translation>
+        <source>Done</source>
+        <translation>Fertig</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -10567,7 +10553,7 @@ Breche ausstehende Operationen ab...
         <translation>Anwendungsdaten kopieren</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
+        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to &quot;%1&quot;</source>
         <translation>&lt;b&gt;Installieren:&lt;/b&gt; Anwendungsdateien nach &quot;%1&quot; kopieren</translation>
     </message>
     <message>
@@ -10850,8 +10836,8 @@ Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Verzeichni
         <translation>Klicken zum Auswählen...</translation>
     </message>
     <message>
-        <source>Images (*.png *.jpg *.jpeg *.webp *.svg)</source>
-        <translation>Bilder (*.png *.jpg *.jpeg *.webp *.svg)</translation>
+        <source>Images %1</source>
+        <translation>Bilder %1</translation>
     </message>
     <message>
         <source>%1 has been stopped.</source>
@@ -12315,8 +12301,8 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <translation>Qt Test</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Mehrere Testfälle in der gleichen ausführbaren Datei werden nicht offiziell unterstützt. Abhängig von der Implementation werden sie möglicherweise ausgeführt oder auch nicht, aber sie werden niemals explizit auswählbar sein.&lt;/p&gt;</translation>
+        <source>Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.</source>
+        <translation>Mehrere Testfälle in der gleichen ausführbaren Datei werden nicht offiziell unterstützt. Abhängig von der Implementation werden sie möglicherweise ausgeführt oder auch nicht, aber sie werden niemals explizit auswählbar sein.</translation>
     </message>
     <message>
         <source>inherited</source>
@@ -12484,8 +12470,8 @@ Siehe auch die Einstellungen für Google Test.</translation>
         <translation>Zieltreiber:</translation>
     </message>
     <message>
-        <source>Starting %1 ...</source>
-        <translation>Starte %1 ...</translation>
+        <source>Starting %1...</source>
+        <translation>Starte %1...</translation>
     </message>
     <message>
         <source>Choose the desired startup mode of the GDB server provider.</source>
@@ -13260,8 +13246,8 @@ This flag will allow push to proceed.</source>
 Die Einstellung gestattet es, unter diesen Umständen fortzusetzen.</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Zum Beispiel: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Zum Beispiel: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Ignores differences between branches and overwrites
@@ -13927,7 +13913,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bookmarks</source>
         <translation>Lesezeichen</translation>
@@ -14676,8 +14662,8 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Keine gültige ausführbare CMake-Datei.</translation>
     </message>
     <message>
-        <source>Running in %1: %2.</source>
-        <translation>Führe in %1 aus: %2.</translation>
+        <source>Running in &quot;%1&quot;: %2.</source>
+        <translation>Führe in &quot;%1&quot; aus: %2.</translation>
     </message>
     <message>
         <source>&lt;No CMake Tool available&gt;</source>
@@ -16979,8 +16965,8 @@ Der Code wurde in die Zwischenablage kopiert.</translation>
         <translation>Anmeldung fehlgeschlagen</translation>
     </message>
     <message>
-        <source>The login request failed: </source>
-        <translation>Die Anmeldung ist fehlgeschlagen: </translation>
+        <source>The login request failed: %1</source>
+        <translation>Die Anmeldung ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Select Previous Copilot Suggestion</source>
@@ -17028,7 +17014,7 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Fordert Vorschläge für die Cursorposition des aktuellen Editors von Copilot an.</translation>
     </message>
     <message>
-        <source>Show next Copilot Suggestion</source>
+        <source>Show Next Copilot Suggestion</source>
         <translation>Nächsten Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
@@ -17036,7 +17022,7 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Iteriert über die Vorschläge von Copilot und zeigt den nächsten verfügbaren Vorschlag.</translation>
     </message>
     <message>
-        <source>Show previos Copilot Suggestion</source>
+        <source>Show Previous Copilot Suggestion</source>
         <translation>Vorangehenden Copilot-Vorschlag zeigen</translation>
     </message>
     <message>
@@ -17080,8 +17066,8 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Pfad zu Node.js</translation>
     </message>
     <message>
-        <source>Select path to node.js executable. See https://nodejs.org/en/download/for installation instructions.</source>
-        <translation>Wählen Sie den Pfad zur ausführbaren node.js-Datei. Siehe auch https://nodejs.org/en/download/ für eine Installationsanleitung.</translation>
+        <source>Select path to node.js executable. See %1 for installation instructions.</source>
+        <translation>Wählen Sie den Pfad zur ausführbaren node.js-Datei. Siehe auch %1 für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Path to agent.js:</source>
@@ -17092,8 +17078,8 @@ Ansonsten müssen Sie den Pfad zur Datei %2 aus dem Copilot-Plugin für Neovim a
         <translation>Pfad zu agent.js</translation>
     </message>
     <message>
-        <source>Select path to agent.js in Copilot Neovim plugin. See https://github.com/github/copilot.vim#getting-started for installation instructions.</source>
-        <translation>Wählen Sie den Pfad zur agent.js-Datei vom Copilot-Plugin für Neovim. Siehe auch https://github.com/github/copilot.vim#getting-started für eine Installationsanleitung.</translation>
+        <source>Select path to agent.js in Copilot Neovim plugin. See %1 for installation instructions.</source>
+        <translation>Wählen Sie den Pfad zur agent.js-Datei vom Copilot-Plugin für Neovim. Siehe auch %1 für eine Installationsanleitung.</translation>
     </message>
     <message>
         <source>Auto Complete</source>
@@ -18005,8 +17991,8 @@ Trotzdem fortfahren?</translation>
         <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Zeitüberschreitung bei Ausführung von &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -21886,9 +21872,9 @@ z.B. name = &quot;m_test_foo_&quot;:
         <translation>Bestimmt, ob Clangd beim Vervollständigen von Symbolen Header-Dateien einfügen darf.</translation>
     </message>
     <message>
-        <source>Defines the amount of time Qt Creator waits before sending document changes to the server.
+        <source>Defines the amount of time %1 waits before sending document changes to the server.
 If the document changes again while waiting, this timeout resets.</source>
-        <translation>Bestimmt die Zeit, die Qt Creator vor dem Senden von Dokumentänderungen an den Server wartet.
+        <translation>Bestimmt die Zeit, die %1 vor dem Senden von Dokumentänderungen an den Server wartet.
 Falls sich das Dokument innerhalb dieser Zeit wieder ändert, wird erneut die volle Zeit gewartet.</translation>
     </message>
     <message>
@@ -27591,8 +27577,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Shell in Container öffnen</translation>
     </message>
     <message>
-        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart Qt Creator.</source>
-        <translation>Der Docker-Daemon scheint nicht zu laufen. Stellen Sie sicher, dass der Daemon ausgeführt wird, und setzen Sie den Docker-Daemon in den Einstellungen des Docker-Geräts zurück oder starten Sie Qt Creator neu.</translation>
+        <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart %1.</source>
+        <translation>Der Docker-Daemon scheint nicht zu laufen. Stellen Sie sicher, dass der Daemon ausgeführt wird, und setzen Sie den Docker-Daemon in den Einstellungen des Docker-Geräts zurück oder starten Sie %1 neu.</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
@@ -27607,10 +27593,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Lade...</translation>
     </message>
     <message>
-        <source>Running &quot;%1&quot;
-</source>
-        <translation>Führe &quot;%1&quot; aus
-</translation>
+        <source>Running &quot;%1&quot;</source>
+        <translation>Führe &quot;%1&quot; aus</translation>
     </message>
     <message>
         <source>Unexpected result: %1</source>
@@ -27689,8 +27673,8 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
         <translation>Die Liste der Quellverzeichnisse sollte nicht leer sein.</translation>
     </message>
     <message>
-        <source>Host directories to mount into the container</source>
-        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen</translation>
+        <source>Host directories to mount into the container.</source>
+        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen.</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
@@ -28249,12 +28233,8 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>Hilfe &gt; Plugins</translation>
     </message>
     <message>
-        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.
-
-</source>
-        <translation>Wenn Sie %1 vorübergehend deaktivieren, werden die folgenden Plugins, die davon abhängen, auch deaktiviert: %2.
-
-</translation>
+        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.</source>
+        <translation>Wenn Sie %1 vorübergehend deaktivieren, werden die folgenden Plugins, die davon abhängen, auch deaktiviert: %2.</translation>
     </message>
     <message>
         <source>Disable plugins permanently in %1.</source>
@@ -28420,7 +28400,7 @@ zu deaktivieren, deaktiviert auch die folgenden Plugins:
         <translation>In FakeVim nicht implementiert.</translation>
     </message>
     <message>
-        <source>Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode.</source>
+        <source>Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode.</source>
         <translatorcomment>These are the names of the actual keys on my german Apple keyboard https://support.apple.com/de-de/HT201236</translatorcomment>
         <translation>Benutzen sie Control-Umschalt-Y, Control-Umschalt-Y, um den FakeVim-Modus zu verlassen.</translation>
     </message>
@@ -34345,8 +34325,8 @@ Beispiel: *.cpp%1*.h</translation>
         <translation>Nutzerdaten abfragen</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Zum Beispiel: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Zum Beispiel: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Commit Editor</source>
@@ -36791,20 +36771,20 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
         <translation>Sitzungsverwaltung</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Neu</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Neu...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Umbenennen</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Umbenennen...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Duplizieren</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Duplizieren...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Löschen</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Löschen...</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>
@@ -39864,8 +39844,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>Nimble-Anwendung</translation>
     </message>
     <message>
-        <source>Creates a project that you can open in Qt Design Studio.</source>
-        <translation>Erstellt ein Projekt, das in Qt Design Studio geöffnet werden kann.</translation>
+        <source>Creates a project that you can open in Qt Design Studio</source>
+        <translation>Erstellt ein Projekt, das in Qt Design Studio geöffnet werden kann</translation>
     </message>
     <message>
         <source>Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
@@ -39880,8 +39860,8 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
         <translation>Qt 6.5</translation>
     </message>
     <message>
-        <source>The minimum version of Qt you want to build the application for.</source>
-        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen.</translation>
+        <source>The minimum version of Qt you want to build the application for</source>
+        <translation>Die niedrigste Qt-Version, die Sie zum Bauen der Anwendung benutzen wollen</translation>
     </message>
     <message>
         <source>Creates a CMake-based test project for which a code snippet can be entered.</source>
@@ -47127,22 +47107,16 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>Überprüfe, ob &quot;%1&quot; funktioniert...</translation>
     </message>
     <message>
-        <source>Failed to start &quot;%1&quot;: %2
-</source>
-        <translation>&quot;%1&quot; konnte nicht gestartet werden: %2
-</translation>
+        <source>Failed to start &quot;%1&quot;: %2</source>
+        <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; crashed.
-</source>
-        <translation>&quot;%1&quot; ist abgestürzt.
-</translation>
+        <source>&quot;%1&quot; crashed.</source>
+        <translation>&quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
-        <source>&quot;%1&quot; failed with exit code %2: %3
-</source>
-        <translation>&quot;%1&quot; ist mit Rückgabewert %2 fehlgeschlagen: %3
-</translation>
+        <source>&quot;%1&quot; failed with exit code %2: %3</source>
+        <translation>&quot;%1&quot; ist mit Rückgabewert %2 fehlgeschlagen: %3</translation>
     </message>
     <message>
         <source>&quot;%1&quot; is functional.
@@ -47151,10 +47125,8 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
 </translation>
     </message>
     <message>
-        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.
-</source>
-        <translation>&quot;%1&quot; wird für das Deployment benutzt, da &quot;%2&quot; und &quot;%3&quot; nicht verfügbar sind.
-</translation>
+        <source>&quot;%1&quot; will be used for deployment, because &quot;%2&quot; and &quot;%3&quot; are not available.</source>
+        <translation>&quot;%1&quot; wird für das Deployment benutzt, da &quot;%2&quot; und &quot;%3&quot; nicht verfügbar sind.</translation>
     </message>
     <message>
         <source>Checking if required commands are available...</source>
@@ -47177,10 +47149,8 @@ Zusätzlich wird die Verbindung zum Gerät getestet.</translation>
         <translation>%1 nicht gefunden.</translation>
     </message>
     <message>
-        <source>Deployment to this device will not work out of the box.
-</source>
-        <translation>Deployment auf dieses Gerät wird nicht von Anfang an funktionieren.
-</translation>
+        <source>Deployment to this device will not work out of the box.</source>
+        <translation>Deployment auf dieses Gerät wird nicht von Anfang an funktionieren.</translation>
     </message>
     <message>
         <source>Checking if specified ports are available...</source>
@@ -47445,10 +47415,6 @@ Der Kontrollprozess konnte nicht gestartet werden.</translation>
     <message>
         <source>&quot;%1&quot; failed to start: %2</source>
         <translation>&quot;%1&quot; konnte nicht gestartet werden: %2</translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; crashed.</source>
-        <translation>&quot;%1&quot; ist abgestürzt.</translation>
     </message>
     <message>
         <source>&quot;sftp&quot; binary &quot;%1&quot; does not exist.</source>
@@ -48677,655 +48643,664 @@ Zeile: %4, Spalte: %5
     <name>QtC::Squish</name>
     <message>
         <source>Details</source>
-        <translation type="unfinished">Details</translation>
+        <translation>Details</translation>
     </message>
     <message>
         <source>Adjust references to the removed symbolic name to point to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Referenzen zum entfernten symbolischen Namen ändern auf:</translation>
     </message>
     <message>
         <source>Remove the symbolic name (invalidates names referencing it)</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbolischen Namen entfernen (macht darauf referenzierende Namen ungültig)</translation>
     </message>
     <message>
         <source>Remove the symbolic name and all names referencing it</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbolischen Namen und alle darauf referenzierende Namen entfernen</translation>
     </message>
     <message>
         <source>The Symbolic Name &lt;span style=&apos;white-space: nowrap&apos;&gt;&quot;%1&quot;&lt;/span&gt; you want to remove is used in Multi Property Names. Select the action to apply to references in these Multi Property Names.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der symbolische Name &lt;span style=&apos;white-space: nowrap&apos;&gt;&quot;%1&quot;&lt;/span&gt;, den Sie entfernen wollen, wird in Multi-Property-Namen benutzt. Wählen Sie die Aktion, die Sie auf Referenzen in diesen Multi-Property-Namen anwenden wollen.</translation>
     </message>
     <message>
         <source>Failed to write &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht geschrieben werden</translation>
     </message>
     <message>
         <source>Incomplete Squish settings. Missing Squish installation path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unvollständige Squish-Einstellungen. Das Installationsverzeichnis von Squish fehlt.</translation>
     </message>
     <message>
         <source>objectmaptool not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;objectmaptool&quot; wurde nicht gefunden.</translation>
     </message>
     <message>
         <source>Failure while parsing objects.map content.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten von objects.map.</translation>
     </message>
     <message>
         <source>Squish Object Map Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish Object-Map-Editor</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Neu</translation>
+        <translation>Neu</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Jump to Symbolic Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Gehe zu symbolischem Namen</translation>
     </message>
     <message>
         <source>Symbolic Names</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbolische Namen</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation type="unfinished">Ausschneiden</translation>
+        <translation>Ausschneiden</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>Kopieren</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation type="unfinished">Einfügen</translation>
+        <translation>Einfügen</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>Copy Real Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Tatsächlichen Namen kopieren</translation>
     </message>
     <message>
         <source>Properties:</source>
-        <translation type="unfinished">Eigenschaften:</translation>
+        <translation>Eigenschaften:</translation>
     </message>
     <message>
         <source>The properties of the Multi Property Name associated with the selected Symbolic Name. (use \\ for a literal \ in the value)</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Eigenschaften des Multi-Property-Namens, der mit dem ausgewählten symbolischen Namen assoziiert ist. (Benutzen Sie \\ für ein \-Literal im Wert)</translation>
     </message>
     <message>
         <source>The Hierarchical Name associated with the selected Symbolic Name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der hierarchische Name, der mit dem ausgewählten symbolischen Namen assoziiert ist.</translation>
     </message>
     <message>
         <source>Remove Symbolic Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbolischen Namen entfernen</translation>
     </message>
     <message>
         <source>Do you really want to remove &quot;%1&quot;?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie &quot;%1&quot; wirklich entfernen?</translation>
     </message>
     <message>
         <source>Ambiguous Property Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehrdeutiger Eigenschaftsname</translation>
     </message>
     <message>
         <source>Ambiguous Symbolic Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehrdeutiger symbolischer Name</translation>
     </message>
     <message>
         <source>%1 &quot;%2&quot; already exists. Specify a unique name.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 &quot;%2&quot; existiert bereits. Geben Sie einen eindeutigen Namen an.</translation>
     </message>
     <message>
         <source>Property</source>
-        <translation type="unfinished">Eigenschaft</translation>
+        <translation>Eigenschaft</translation>
     </message>
     <message>
         <source>Symbolic Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbolischer Name</translation>
     </message>
     <message>
         <source>CopyOf</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Prefix for copies of a name</translatorcomment>
+        <translation>KopieVon</translation>
     </message>
     <message>
         <source>Open Squish Test Suites</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish Test-Suites öffnen</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle auswählen</translation>
     </message>
     <message>
         <source>Deselect All</source>
-        <translation type="unfinished">Alles abwählen</translation>
+        <translation>Alle abwählen</translation>
     </message>
     <message>
         <source>Base directory:</source>
-        <translation type="unfinished"></translation>
+        <translation>Basisverzeichnis:</translation>
     </message>
     <message>
         <source>Test suites:</source>
-        <translation type="unfinished"></translation>
+        <translation>Test-Suites:</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>Operator</source>
-        <translation type="unfinished">Operator</translation>
+        <translation>Operator</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Wert</translation>
+        <translation>Wert</translation>
     </message>
     <message>
         <source>Application:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anwendung:</translation>
     </message>
     <message>
         <source>&lt;No Application&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;Keine Anwendung&gt;</translation>
     </message>
     <message>
         <source>Arguments:</source>
-        <translation type="unfinished">Argumente:</translation>
+        <translation>Argumente:</translation>
     </message>
     <message>
         <source>Recording Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufnahme-Einstellungen</translation>
     </message>
     <message>
         <source>Suite Already Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Suite bereits geöffnet</translation>
     </message>
     <message>
         <source>A test suite with the name &quot;%1&quot; is already open.
 Close the opened test suite and replace it with the new one?</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Test-Suite mit dem Namen &quot;%1&quot; ist bereits geöffnet.
+Möchten Sie die Test-Suite schließen und mit der neuen ersetzen?</translation>
     </message>
     <message>
         <source>Confirm Delete</source>
-        <translation type="unfinished">Löschen Bestätigen</translation>
+        <translation>Löschen Bestätigen</translation>
     </message>
     <message>
         <source>Are you sure you want to delete Test Case &quot;%1&quot; from the file system?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie den Testfall &quot;%1&quot; vom Dateisystem löschen?</translation>
     </message>
     <message>
         <source>Deletion of Test Case failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Löschen des Testfalls fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Test Suite Path Not Accessible</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad der Test-Suite nicht lesbar</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; does not exist or is not accessible.
 Refusing to run test case &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; existiert nicht oder ist nicht lesbar.
+Testfall &quot;%2&quot; wird nicht ausgeführt.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; does not exist or is not accessible.
 Refusing to run test cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; existiert nicht oder ist nicht lesbar.
+Testfälle werden nicht ausgeführt.</translation>
     </message>
     <message>
         <source>No Test Cases Defined</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Testfall definiert</translation>
     </message>
     <message>
         <source>Test suite &quot;%1&quot; does not contain any test cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>Test-Suite &quot;%1&quot; enthält keine Testfälle.</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; does not exist or is not accessible.
 Refusing to record test case &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Pfad &quot;%1&quot; existiert nicht oder ist nicht lesbar.
+Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
     </message>
     <message>
         <source>Select Global Script Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Globales Script-Verzeichnis auswählen</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Squish Tools in unexpected state (%1).</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Werkzeuge sind in unerwartetem Zustand (%1).</translation>
     </message>
     <message>
         <source>Failed to open objects.map file at &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die &quot;objects.map&quot;-Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Squish</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish</translation>
     </message>
     <message>
         <source>Run This Test Case</source>
-        <translation type="unfinished"></translation>
+        <translation>Diesen Testfall ausführen</translation>
     </message>
     <message>
         <source>Delete Test Case</source>
-        <translation type="unfinished"></translation>
+        <translation>Testfall löschen</translation>
     </message>
     <message>
         <source>Run This Test Suite</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Test-Suite ausführen</translation>
     </message>
     <message>
         <source>Add New Test Case...</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuen Testfall hinzufügen...</translation>
     </message>
     <message>
         <source>Close Test Suite</source>
-        <translation type="unfinished"></translation>
+        <translation>Test-Suite schließen</translation>
     </message>
     <message>
         <source>Delete Shared File</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinsame Datei löschen</translation>
     </message>
     <message>
         <source>Add Shared File</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinsame Datei hinzufügen</translation>
     </message>
     <message>
         <source>Remove Shared Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinsames Verzeichnis löschen</translation>
     </message>
     <message>
         <source>Open Squish Suites...</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Suites öffnen...</translation>
     </message>
     <message>
         <source>Create New Test Suite...</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Test-Suite erstellen...</translation>
     </message>
     <message>
         <source>Close All Test Suites</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Test-Suites schließen</translation>
     </message>
     <message>
         <source>Close all test suites?</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Test-Suites schließen?</translation>
     </message>
     <message>
         <source>Add Shared Folder...</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinsames Verzeichnis hinzufügen...</translation>
     </message>
     <message>
         <source>Remove All Shared Folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle gemeinsamen Verzeichnisse entfernen</translation>
     </message>
     <message>
         <source>Test Suites</source>
-        <translation type="unfinished"></translation>
+        <translation>Test-Suites</translation>
     </message>
     <message>
         <source>Remove &quot;%1&quot; from the list of shared folders?</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; aus der Liste der gemeinsamen Verzeichnisse entfernen?</translation>
     </message>
     <message>
         <source>Remove all shared folders?</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle gemeinsamen Verzeichnisse entfernen?</translation>
     </message>
     <message>
         <source>Record Test Case</source>
-        <translation type="unfinished"></translation>
+        <translation>Testfall aufnehmen</translation>
     </message>
     <message>
         <source>Do you want to record over the test case &quot;%1&quot;? The existing content will be overwritten by the recorded script.</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie den Testfall &quot;%1&quot; neu aufnehmen? Der existierende Inhalt wird durch die Aufnahme überschrieben.</translation>
     </message>
     <message>
         <source>Set up a valid Squish path to be able to create a new test case.
 (Edit &gt; Preferences &gt; Squish)</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzen Sie einen gültigen Pfad zu Squish, um einen neuen Testfall zu erstellen.
+(Bearbeiten &gt; Einstellungen &gt; Squish)</translation>
     </message>
     <message>
         <source>Test Results</source>
-        <translation type="unfinished">Testergebnisse</translation>
+        <translation>Testergebnisse</translation>
     </message>
     <message>
         <source>Runner/Server Log</source>
-        <translation type="unfinished"></translation>
+        <translation>Runner/Server Log</translation>
     </message>
     <message>
         <source>&lt;b&gt;Test summary:&lt;/b&gt;&amp;nbsp;&amp;nbsp; %1 passes, %2 fails, %3 fatals, %4 errors, %5 warnings.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Zusammenfassung des Tests:&lt;/b&gt;&amp;nbsp;&amp;nbsp; %1 bestanden, %2 durchgefallen, %3 fatal, %4 Fehler, %5 Warnungen.</translation>
     </message>
     <message>
         <source>Expand All</source>
-        <translation type="unfinished">Alle aufklappen</translation>
+        <translation>Alle aufklappen</translation>
     </message>
     <message>
         <source>Collapse All</source>
-        <translation type="unfinished">Alle einklappen</translation>
+        <translation>Alle einklappen</translation>
     </message>
     <message>
         <source>Filter Test Results</source>
-        <translation type="unfinished">Testergebnisse filtern</translation>
+        <translation>Testergebnisse filtern</translation>
     </message>
     <message>
         <source>Pass</source>
-        <translation type="unfinished">Bestanden</translation>
+        <translation>Bestanden</translation>
     </message>
     <message>
         <source>Fail</source>
-        <translation type="unfinished">Durchgefallen</translation>
+        <translation>Durchgefallen</translation>
     </message>
     <message>
         <source>Expected Fail</source>
-        <translation type="unfinished">Erwartetes Scheitern</translation>
+        <translation>Erwartet durchgefallen</translation>
     </message>
     <message>
         <source>Unexpected Pass</source>
-        <translation type="unfinished">Unerwartet bestanden</translation>
+        <translation>Unerwartet bestanden</translation>
     </message>
     <message>
         <source>Warning Messages</source>
-        <translation type="unfinished">Warnungsnachrichten</translation>
+        <translation>Warnungsnachrichten</translation>
     </message>
     <message>
         <source>Log Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Protokollnachrichten</translation>
     </message>
     <message>
         <source>Check All Filters</source>
-        <translation type="unfinished">Alle Filter auswählen</translation>
+        <translation>Alle Filter auswählen</translation>
     </message>
     <message>
         <source>Control Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontrollleiste</translation>
     </message>
     <message>
         <source>Stop Recording</source>
-        <translation type="unfinished">Aufnahme beenden</translation>
+        <translation>Aufnahme beenden</translation>
     </message>
     <message>
         <source>Ends the recording session, saving all commands to the script file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Beendet die Aufnahmesitzung und speichert alle Kommandos in der Script-Datei.</translation>
     </message>
     <message>
         <source>Interrupt</source>
-        <translation type="unfinished">Anhalten</translation>
+        <translation>Anhalten</translation>
     </message>
     <message>
         <source>Step Into</source>
-        <translation type="unfinished">Einzelschritt herein</translation>
+        <translation>Einzelschritt herein</translation>
     </message>
     <message>
         <source>Step Over</source>
-        <translation type="unfinished">Einzelschritt über</translation>
+        <translation>Einzelschritt über</translation>
     </message>
     <message>
         <source>Step Out</source>
-        <translation type="unfinished">Einzelschritt heraus</translation>
+        <translation>Einzelschritt heraus</translation>
     </message>
     <message>
         <source>Inspect</source>
-        <translation type="unfinished"></translation>
+        <translation>Untersuchen</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Typ</translation>
+        <translation>Typ</translation>
     </message>
     <message>
         <source>Squish Locals</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokale Squish-Variablen</translation>
     </message>
     <message>
         <source>Object</source>
-        <translation type="unfinished"></translation>
+        <translation>Objekt</translation>
     </message>
     <message>
         <source>Squish Objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Objekte</translation>
     </message>
     <message>
         <source>Squish Object Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish Objekteigenschaften</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="unfinished">Fortsetzen</translation>
+        <translation>Fortsetzen</translation>
     </message>
     <message>
         <source>&amp;Squish</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Squish</translation>
     </message>
     <message>
         <source>&amp;Server Settings...</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Servereinstellungen...</translation>
     </message>
     <message>
         <source>Result</source>
-        <translation type="unfinished">Ergebnis</translation>
+        <translation>Ergebnis</translation>
     </message>
     <message>
         <source>Message</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachricht</translation>
     </message>
     <message>
         <source>Time</source>
-        <translation type="unfinished">Zeit</translation>
+        <translation>Zeit</translation>
     </message>
     <message>
         <source>Squish path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Pfad:</translation>
     </message>
     <message>
         <source>Path to Squish installation</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad zur Squish-Installation</translation>
     </message>
     <message>
         <source>Path does not contain server executable at its default location.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad enthält am Standardort keine ausführbare Serverdatei.</translation>
     </message>
     <message>
         <source>License path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lizenzpfad:</translation>
     </message>
     <message>
         <source>Local Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaler Server</translation>
     </message>
     <message>
         <source>Server host:</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Host:</translation>
     </message>
     <message>
         <source>Server Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-Port</translation>
     </message>
     <message>
         <source>Verbose log</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführliches Protokoll</translation>
     </message>
     <message>
         <source>Minimize IDE</source>
-        <translation type="unfinished"></translation>
+        <translation>IDE minimieren</translation>
     </message>
     <message>
         <source>Minimize IDE automatically while running or recording test cases.</source>
-        <translation type="unfinished"></translation>
+        <translation>Minimiert die IDE automatisch, während Testfälle ausgeführt oder aufgenommen werden.</translation>
     </message>
     <message>
         <source>General</source>
-        <translation type="unfinished">Allgemein</translation>
+        <translation>Allgemein</translation>
     </message>
     <message>
         <source>Maximum startup time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Anlaufzeit:</translation>
     </message>
     <message>
         <source>Specifies how many seconds Squish should wait for a reply from the AUT directly after starting it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Legt fest, wie viele Sekunden Squish auf eine Antwort von der AUT direkt nach dessen Start wartet.</translation>
     </message>
     <message>
         <source>Maximum response time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Antwortzeit:</translation>
     </message>
     <message>
         <source>Specifies how many seconds Squish should wait for a reply from the hooked up AUT before raising a timeout error.</source>
-        <translation type="unfinished"></translation>
+        <translation>Legt fest, wie viele Sekunden Squish auf eine Antwort von der angeschlossenen AUT wartet, bevor ein Zeitüberschreitungsfehler ausgelöst wird.</translation>
     </message>
     <message>
         <source>Maximum post-mortem wait time:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Post-Mortem-Wartezeit:</translation>
     </message>
     <message>
         <source>Specifies how many seconds Squish should wait after the the first AUT process has exited.</source>
-        <translation type="unfinished"></translation>
+        <translation>Legt fest, wie viele Sekunden Squish wartet, nachdem der erste AUT-Prozess beendet ist.</translation>
     </message>
     <message>
         <source>Animate mouse cursor:</source>
-        <translation type="unfinished"></translation>
+        <translation>Mauszeiger animieren:</translation>
     </message>
     <message>
         <source>Name:</source>
-        <translation type="unfinished">Name:</translation>
+        <translation>Name:</translation>
     </message>
     <message>
         <source>Host:</source>
-        <translation type="unfinished">Host:</translation>
+        <translation>Host:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished">Port:</translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>Add Attachable AUT</source>
-        <translation type="unfinished"></translation>
+        <translation>Anhängbare AUT hinzufügen</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <source>Mapped AUTs</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugeordnete AUTs</translation>
     </message>
     <message>
         <source>AUT Paths</source>
-        <translation type="unfinished"></translation>
+        <translation>AUT-Pfade</translation>
     </message>
     <message>
         <source>Attachable AUTs</source>
-        <translation type="unfinished"></translation>
+        <translation>Anhängbare AUTs</translation>
     </message>
     <message>
         <source>Select Application to test</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu testende Anwendung</translation>
     </message>
     <message>
         <source>Select Application Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie den Pfad zur Anwendung</translation>
     </message>
     <message>
         <source>Squish Server Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Servereinstellungen</translation>
     </message>
     <message>
         <source>Failed to write configuration changes.
 Squish server finished with process error %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Schreiben der Konfigurationsänderungen ist fehlgeschlagen.
+Der Squish-Server wurde mit dem Fehler %1 beendet.</translation>
     </message>
     <message>
         <source>Run Test Suite</source>
-        <translation type="unfinished"></translation>
+        <translation>Test-Suite ausführen</translation>
     </message>
     <message>
         <source>Object Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Object Map</translation>
     </message>
     <message>
         <source>Run Test Case</source>
-        <translation type="unfinished"></translation>
+        <translation>Testfall ausführen</translation>
     </message>
     <message>
         <source>Shared Folders</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemeinsame Verzeichnisse</translation>
     </message>
     <message>
         <source>%1 (none)</source>
-        <translation type="unfinished">%1 (keine)</translation>
+        <translation>%1 (keine)</translation>
     </message>
     <message>
         <source>Could not create test results folder. Canceling test run.</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Verzeichnis für die Testergebnisse konnte nicht erstellt werden. Testausführung wird abgebrochen.</translation>
     </message>
     <message>
         <source>Squish Server Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Serverfehler</translation>
     </message>
     <message>
         <source>&quot;%1&quot; could not be found or is not executable.
 Check the settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht gefunden werden oder ist nicht ausführbar.
+Überprüfen Sie die Einstellungen.</translation>
     </message>
     <message>
         <source>Recording test case</source>
-        <translation type="unfinished"></translation>
+        <translation>Nehme Testfall auf</translation>
     </message>
     <message>
         <source>Could not get Squish license from server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Lizenz konnte nicht vom Server abgerufen werden.</translation>
     </message>
     <message>
         <source>Test run finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Testausführung beendet.</translation>
     </message>
     <message>
         <source>Test record finished.</source>
-        <translation type="unfinished"></translation>
+        <translation>Testaufnahme beendet.</translation>
     </message>
     <message>
         <source>Squish could not find the AUT &quot;%1&quot; to start. Make sure it has been added as a Mapped AUT in the squishserver settings.
 (Tools &gt; Squish &gt; Server Settings...)</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish konnte die zu startende AUT &quot;%1&quot; nicht finden. Stellen Sie sicher, dass sie in den Einstellungen des Squish-Servers als zugeordnete AUT hinzugefügt wurde.
+(Extras &gt; Squish &gt; Servereinstellungen...)</translation>
     </message>
     <message>
         <source>Refusing to run a test case.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführung des Testfalls verweigert.</translation>
     </message>
     <message>
         <source>Refusing to execute server query.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführung einer Serveranfrage verweigert.</translation>
     </message>
     <message>
         <source>Refusing to record a test case.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufnahme eines Testfalls verweigert.</translation>
     </message>
     <message>
         <source>Refusing to write configuration changes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreiben von Konfigurationsänderungen verweigert.</translation>
     </message>
     <message>
         <source>Running test case</source>
-        <translation type="unfinished"></translation>
+        <translation>Führe Testfall aus</translation>
     </message>
     <message>
         <source>User stop initiated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Anhalten durch Benutzer angefordert.</translation>
     </message>
     <message>
         <source>Squish Server Already Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Server läuft bereits</translation>
     </message>
     <message>
         <source>There is still an old Squish server instance running.
@@ -49333,95 +49308,107 @@ This will cause problems later on.
 
 If you continue, the old instance will be terminated.
 Do you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wird bereits eine alte Instanz des Squish-Servers ausgeführt.
+Dies wird später zu Problemen führen.
+
+Wenn Sie den Vorgang fortsetzen, wird die alte Instanz beendet.
+Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <source>Unexpected state or request while starting Squish server. (state: %1, request: %2)</source>
-        <translation type="unfinished"></translation>
+        <translation>Unerwarteter Zustand oder Anfrage beim Starten des Squish-Servers. (Status: %1, Anfrage: %2)</translation>
     </message>
     <message>
         <source>No Squish Server</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Squish-Server</translation>
     </message>
     <message>
         <source>Squish server does not seem to be running.
 (state: %1, request: %2)
 Try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Squish-Server scheint nicht zu laufen.
+(Status: %1, Anfrage: %2)
+Versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>No Squish Server Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Squish-Serverport</translation>
     </message>
     <message>
         <source>Failed to get the server port.
 (state: %1, request: %2)
 Try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Serverport konnte nicht erhalten werden.
+(Status: %1, Anfrage: %2)
+Versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Squish Runner Running</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Runner läuft</translation>
     </message>
     <message>
         <source>Squish runner seems to be running already.
 (state: %1, request: %2)
 Wait until it has finished and try again.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Squish-Runner scheint bereits zu laufen.
+(Status: %1, Anfrage: %2)
+Warten Sie, bis er beendet ist, und versuchen Sie es dann erneut.</translation>
     </message>
     <message>
         <source>Squish Runner Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Runner-Fehler</translation>
     </message>
     <message>
         <source>Squish runner failed to start within given timeframe.</source>
-        <translation type="unfinished"></translation>
+        <translation>Squish-Runner konnte im angegebenen Zeitrahmen nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Create New Squish Test Suite</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Squish Test-Suite erstellen</translation>
     </message>
     <message>
         <source>Available GUI toolkits:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verfügbare GUI-Toolkits:</translation>
     </message>
     <message>
         <source>Invalid Squish settings. Configure Squish installation path inside Preferences... &gt; Squish &gt; General to use this wizard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Squish-Einstellungen. Stellen Sie in Einstellungen... &gt; Squish &gt; Allgemein den Squish-Installationspfad ein, um diesen Assistenten zu benutzen.</translation>
     </message>
     <message>
         <source>Available languages:</source>
-        <translation type="unfinished"></translation>
+        <translation>Verfügbare Sprachen:</translation>
     </message>
     <message>
         <source>&lt;None&gt;</source>
-        <translation type="unfinished">&lt;Kein&gt;</translation>
+        <translation>&lt;Kein&gt;</translation>
     </message>
     <message>
         <source>Key is not an object.</source>
-        <translation type="unfinished">Schlüssel ist kein Objekt.</translation>
+        <translation>Schlüssel ist kein Objekt.</translation>
     </message>
     <message>
         <source>Key &apos;mode&apos; is not set.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüssel &apos;mode&apos; ist nicht gesetzt.</translation>
     </message>
     <message>
         <source>Unsupported mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>Modus nicht unterstützt:</translation>
     </message>
     <message>
         <source>Could not merge results into single results.xml.
 Destination file &quot;%1&quot; already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ergebnisse konnten nicht in einer einzelnen &apos;results.xml&apos;-Datei zusammengeführt werden.
+Zieldatei &quot;%1&quot; existiert bereits.</translation>
     </message>
     <message>
         <source>Could not merge results into single results.xml.
-Failed to open file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+Failed to open file &quot;%1&quot;.</source>
+        <translation>Die Ergebnisse konnten nicht in einer einzelnen &apos;results.xml&apos;-Datei zusammengeführt werden.
+Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Error while parsing first test result.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Auswerten des ersten Testergebnisses.</translation>
     </message>
 </context>
 <context>
@@ -49694,8 +49681,8 @@ Failed to open file &quot;%1&quot;</source>
         <translation>Einstellungen...</translation>
     </message>
     <message>
-        <source>Sends Esc to terminal instead of Qt Creator.</source>
-        <translation>Sendet Escape zum Terminal statt zu Qt Creator.</translation>
+        <source>Sends Esc to terminal instead of %1.</source>
+        <translation>Sendet Escape zum Terminal statt zu %1.</translation>
     </message>
     <message>
         <source>Press %1 to send Esc to terminal.</source>
@@ -49814,7 +49801,7 @@ Failed to open file &quot;%1&quot;</source>
         <translation>Escape-Taste zum Terminal senden</translation>
     </message>
     <message>
-        <source>Sends the escape key to the terminal when pressedinstead of closing the terminal.</source>
+        <source>Sends the escape key to the terminal when pressed instead of closing the terminal.</source>
         <translation>Sendet die Escape-Taste zum Terminal, anstatt das Terminal zu schliessen.</translation>
     </message>
     <message>
@@ -52972,8 +52959,8 @@ Die Trace-Daten sind verloren.</translation>
         <translation>Ausschl&amp;ussmuster:</translation>
     </message>
     <message>
-        <source>List of comma separated wildcard filters. </source>
-        <translation>Kommaseparierte Liste von Platzhalter-Filtern. </translation>
+        <source>List of comma separated wildcard filters.</source>
+        <translation>Kommaseparierte Liste von Platzhalter-Filtern.</translation>
     </message>
     <message>
         <source>Files with file name or full file path matching any filter are included.</source>
@@ -58315,7 +58302,7 @@ Are you sure you want to remove the material?</source>
         <translation>Vcpkg Manifest-Editor</translation>
     </message>
     <message>
-        <source>Name：</source>
+        <source>Name:</source>
         <translation>Name:</translation>
     </message>
     <message>

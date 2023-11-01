@@ -6,24 +6,28 @@
 #include "externalterminalprocessimpl.h"
 #include "filepath.h"
 #include "process.h"
+#include "utilstr.h"
 
 #include <QMutex>
 
 namespace Utils::Terminal {
 
-FilePath defaultShellForDevice(const FilePath &deviceRoot)
+expected_str<FilePath> defaultShellForDevice(const FilePath &deviceRoot)
 {
     if (deviceRoot.osType() == OsTypeWindows)
         return deviceRoot.withNewPath("cmd.exe").searchInPath();
 
-    const Environment env = deviceRoot.deviceEnvironment();
-    FilePath shell = FilePath::fromUserInput(env.value_or("SHELL", "/bin/sh"));
+    const expected_str<Environment> env = deviceRoot.deviceEnvironmentWithError();
+    if (!env)
+        return make_unexpected(env.error());
+
+    FilePath shell = FilePath::fromUserInput(env->value_or("SHELL", "/bin/sh"));
 
     if (!shell.isAbsolutePath())
-        shell = env.searchInPath(shell.nativePath());
+        shell = env->searchInPath(shell.nativePath());
 
     if (shell.isEmpty())
-        return shell;
+        return make_unexpected(Tr::tr("Could not find any shell."));
 
     return deviceRoot.withNewMappedPath(shell);
 }
@@ -32,7 +36,6 @@ class HooksPrivate
 {
 public:
     HooksPrivate()
-        : m_getTerminalCommandsForDevicesHook([] { return QList<NameAndCommandLine>{}; })
     {
         auto openTerminal = [](const OpenTerminalParameters &parameters) {
             DeviceFileHooks::instance().openTerminal(parameters.workingDirectory.value_or(
@@ -79,8 +82,6 @@ public:
         return m_openTerminal;
     }
 
-    Hooks::GetTerminalCommandsForDevicesHook m_getTerminalCommandsForDevicesHook;
-
 private:
     Hooks::OpenTerminal m_openTerminal;
     Hooks::CreateTerminalProcessInterface m_createTerminalProcessInterface;
@@ -109,11 +110,6 @@ void Hooks::openTerminal(const OpenTerminalParameters &parameters) const
 ProcessInterface *Hooks::createTerminalProcessInterface() const
 {
     return d->createTerminalProcessInterface()();
-}
-
-Hooks::GetTerminalCommandsForDevicesHook &Hooks::getTerminalCommandsForDevicesHook()
-{
-    return d->m_getTerminalCommandsForDevicesHook;
 }
 
 void Hooks::addCallbackSet(const QString &name, const CallbackSet &callbackSet)

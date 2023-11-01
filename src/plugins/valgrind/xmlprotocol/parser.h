@@ -3,17 +3,19 @@
 
 #pragma once
 
+#include <solutions/tasking/tasktree.h>
+
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
-class QIODevice;
+class QAbstractSocket;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class AnnounceThread;
 class Error;
+class ParserPrivate;
 class Status;
 
 /**
@@ -24,32 +26,38 @@ class Parser : public QObject
     Q_OBJECT
 
 public:
-    enum Tool {
-        Unknown,
-        Memcheck,
-        Ptrcheck,
-        Helgrind
-    };
-
     explicit Parser(QObject *parent = nullptr);
     ~Parser() override;
 
     QString errorString() const;
-    void parse(QIODevice *stream);
+    // The passed device needs to be open. The parser takes ownership of the passed device.
+    void setSocket(QAbstractSocket *socket);
+    // Alternatively, the data to be parsed may be set manually
+    void setData(const QByteArray &data);
+
+    void start();
+    bool isRunning() const;
+    bool runBlocking();
 
 signals:
-    void status(const Valgrind::XmlProtocol::Status &status);
-    void error(const Valgrind::XmlProtocol::Error &error);
-    void internalError(const QString &errorString);
+    void status(const Status &status);
+    void error(const Error &error);
     void errorCount(qint64 unique, qint64 count);
     void suppressionCount(const QString &name, qint64 count);
-    void announceThread(const Valgrind::XmlProtocol::AnnounceThread &announceThread);
-    void finished();
+    void announceThread(const AnnounceThread &announceThread);
+    void done(bool success, const QString &errorString);
 
 private:
-    class Private;
-    Private *const d;
+    std::unique_ptr<ParserPrivate> d;
 };
 
-} // XmlProtocol
-} // Valgrind
+class ParserTaskAdapter : public Tasking::TaskAdapter<Parser>
+{
+public:
+    ParserTaskAdapter() { connect(task(), &Parser::done, this, &Tasking::TaskInterface::done); }
+    void start() final { task()->start(); }
+};
+
+using ParserTask = Tasking::CustomTask<ParserTaskAdapter>;
+
+} // Valgrind::XmlProtocol

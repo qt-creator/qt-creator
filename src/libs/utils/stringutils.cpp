@@ -5,6 +5,7 @@
 
 #include "filepath.h"
 #include "qtcassert.h"
+#include "stylehelper.h"
 #include "theme/theme.h"
 #include "utilstr.h"
 
@@ -13,11 +14,13 @@
 #include <QClipboard>
 #endif
 
+#include <QCollator>
 #include <QDir>
 #include <QFontMetrics>
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QLocale>
+#include <QPalette>
 #include <QRegularExpression>
 #include <QSet>
 #include <QTextDocument>
@@ -323,10 +326,18 @@ QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line
 
 int caseFriendlyCompare(const QString &a, const QString &b)
 {
-    int result = a.compare(b, Qt::CaseInsensitive);
+    static const auto makeCollator = [](Qt::CaseSensitivity caseSensitivity) {
+        QCollator collator;
+        collator.setNumericMode(true);
+        collator.setCaseSensitivity(caseSensitivity);
+        return collator;
+    };
+    static const QCollator insensitiveCollator = makeCollator(Qt::CaseInsensitive);
+    const int result = insensitiveCollator.compare(a, b);
     if (result != 0)
         return result;
-    return a.compare(b, Qt::CaseSensitive);
+    static const QCollator sensitiveCollator = makeCollator(Qt::CaseSensitive);
+    return sensitiveCollator.compare(a, b);
 }
 
 QString quoteAmpersands(const QString &text)
@@ -573,8 +584,19 @@ QTCREATOR_UTILS_EXPORT int endOfNextWord(const QString &string, int position)
 MarkdownHighlighter::MarkdownHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
     , h2Brush(Qt::NoBrush)
+    , m_codeBgBrush(Qt::NoBrush)
 {
     parent->setIndentWidth(30); // default value is 40
+}
+
+QBrush MarkdownHighlighter::codeBgBrush()
+{
+    if (m_codeBgBrush.style() == Qt::NoBrush) {
+        m_codeBgBrush = StyleHelper::mergedColors(QGuiApplication::palette().color(QPalette::Text),
+                                                  QGuiApplication::palette().color(QPalette::Base),
+                                                  10);
+    }
+    return m_codeBgBrush;
 }
 
 void MarkdownHighlighter::highlightBlock(const QString &text)
@@ -582,7 +604,8 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
     if (text.isEmpty())
         return;
 
-    QTextBlockFormat fmt = currentBlock().blockFormat();
+    const QTextBlock block = currentBlock();
+    QTextBlockFormat fmt = block.blockFormat();
     QTextCursor cur(currentBlock());
     if (fmt.hasProperty(QTextFormat::HeadingLevel)) {
         fmt.setTopMargin(10);
@@ -610,7 +633,8 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
         }
         cur.setBlockFormat(fmt);
     } else if (fmt.hasProperty(QTextFormat::BlockCodeLanguage) && fmt.indent() == 0) {
-        // set identation for code blocks
+        // set identation and background for code blocks
+        fmt.setBackground(codeBgBrush());
         fmt.setIndent(1);
         cur.setBlockFormat(fmt);
     }
@@ -622,6 +646,16 @@ void MarkdownHighlighter::highlightBlock(const QString &text)
         if (listFmt.indent() == 1 && listFmt.style() == QTextListFormat::ListCircle) {
             listFmt.setStyle(QTextListFormat::ListDisc);
             list->setFormat(listFmt);
+        }
+    }
+
+    // background color of code
+    for (auto it = block.begin(); it != block.end(); ++it) {
+        const QTextFragment fragment = it.fragment();
+        QTextCharFormat fmt = fragment.charFormat();
+        if (fmt.fontFixedPitch()) {
+            fmt.setBackground(codeBgBrush());
+            setFormat(fragment.position() - block.position(), fragment.length(), fmt);
         }
     }
 }

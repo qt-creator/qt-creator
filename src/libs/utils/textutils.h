@@ -33,6 +33,8 @@ public:
     static Position fromFileName(QStringView fileName, int &postfixPos);
     static Position fromPositionInDocument(const QTextDocument *document, int pos);
     static Position fromCursor(const QTextCursor &cursor);
+
+    int toPositionInDocument(const QTextDocument *document) const;
 };
 
 class QTCREATOR_UTILS_EXPORT Range
@@ -49,25 +51,6 @@ public:
     bool operator!=(const Range &other) const { return !(operator==(other)); }
 };
 
-struct Replacement
-{
-    Replacement() = default;
-    Replacement(int offset, int length, const QString &text)
-        : offset(offset)
-        , length(length)
-        , text(text)
-    {}
-
-    int offset = -1;
-    int length = -1;
-    QString text;
-
-    bool isValid() const { return offset >= 0 && length >= 0;  }
-};
-using Replacements = std::vector<Replacement>;
-
-QTCREATOR_UTILS_EXPORT void applyReplacements(QTextDocument *doc, const Replacements &replacements);
-
 // line is 1-based, column is 0-based
 QTCREATOR_UTILS_EXPORT bool convertPosition(const QTextDocument *document,
                                             int pos,
@@ -78,6 +61,7 @@ QTCREATOR_UTILS_EXPORT int positionInText(const QTextDocument *textDocument, int
 
 QTCREATOR_UTILS_EXPORT QString textAt(QTextCursor tc, int pos, int length);
 
+// line is 1-based, column is 0-based
 QTCREATOR_UTILS_EXPORT QTextCursor selectAt(QTextCursor textCursor, int line, int column, uint length);
 
 QTCREATOR_UTILS_EXPORT QTextCursor flippedCursor(const QTextCursor &cursor);

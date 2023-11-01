@@ -19,8 +19,6 @@ namespace Internal { class VariableChooserPrivate; }
 
 class QTCREATOR_UTILS_EXPORT VariableChooser : public QWidget
 {
-    Q_OBJECT
-
 public:
     explicit VariableChooser(QWidget *parent = nullptr);
     ~VariableChooser() override;

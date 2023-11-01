@@ -51,7 +51,7 @@
 #include "projectexplorer/target.h"
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -76,6 +76,8 @@
 #include <limits>
 
 #include <bindingeditor/signallist.h>
+
+using namespace Utils;
 
 namespace QmlDesigner {
 
@@ -1694,8 +1696,8 @@ QString getEffectIcon(const QString &effectPath)
 
 bool useLayerEffect()
 {
-    QSettings *settings = Core::ICore::settings();
-    const QString layerEffectEntry = "QML/Designer/UseLayerEffect";
+    QtcSettings *settings = Core::ICore::settings();
+    const Key layerEffectEntry = "QML/Designer/UseLayerEffect";
 
     return settings->value(layerEffectEntry, true).toBool();
 }

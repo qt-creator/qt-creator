@@ -22,7 +22,7 @@ ToolItemSettings::ToolItemSettings(QWidget *parent)
 
     m_mesonPathChooser = new PathChooser;
     m_mesonPathChooser->setExpectedKind(PathChooser::ExistingCommand);
-    m_mesonPathChooser->setHistoryCompleter(QLatin1String("Meson.Command.History"));
+    m_mesonPathChooser->setHistoryCompleter("Meson.Command.History");
 
     using namespace Layouting;
 

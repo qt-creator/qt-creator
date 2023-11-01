@@ -3,18 +3,15 @@
 
 #include "callgrindvisualisation.h"
 
+#include "callgrind/callgrinddatamodel.h"
+#include "callgrind/callgrindfunction.h"
+#include "callgrind/callgrindproxymodel.h"
 #include "callgrindhelper.h"
 #include "valgrindtr.h"
-
-#include <valgrind/callgrind/callgrindabstractmodel.h>
-#include <valgrind/callgrind/callgrinddatamodel.h>
-#include <valgrind/callgrind/callgrindfunction.h>
-#include <valgrind/callgrind/callgrindproxymodel.h>
 
 #include <utils/qtcassert.h>
 
 #include <QAbstractItemModel>
-#include <QDebug>
 #include <QGraphicsRectItem>
 #include <QGraphicsScene>
 #include <QGraphicsSimpleTextItem>
@@ -22,7 +19,6 @@
 #include <QPair>
 #include <QStaticText>
 #include <QStyleOptionGraphicsItem>
-#include <QVector>
 
 #define VISUALISATION_DEBUG 0
 // Margin from hardcoded value in:
@@ -33,8 +29,7 @@ static const int FIT_IN_VIEW_MARGIN = 2;
 
 using namespace Valgrind::Callgrind;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class FunctionGraphicsTextItem : public QAbstractGraphicsShapeItem
 {
@@ -345,7 +340,7 @@ void Visualization::populateScene()
     qreal total = 0;
 
     using Pair = QPair<QModelIndex, qreal>;
-    QVector<Pair> costs;
+    QList<Pair> costs;
     for (int row = 0; row < d->m_model->rowCount(); ++row) {
         const QModelIndex index = d->m_model->index(row, DataModel::InclusiveCostColumn);
 
@@ -419,5 +414,4 @@ void Visualization::resizeEvent(QResizeEvent *event)
     QGraphicsView::resizeEvent(event);
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

@@ -16,7 +16,6 @@ QtcPlugin {
     Depends { name: "CppEditor" }
     Depends { name: "QtSupport" }
     Depends { name: "QmlJSTools" }
-    Depends { name: "app_version_header" }
 
     files: [
         "customqbspropertiesdialog.h",
@@ -32,8 +31,8 @@ QtcPlugin {
         "qbscleanstep.h",
         "qbsinstallstep.cpp",
         "qbsinstallstep.h",
-        "qbskitinformation.cpp",
-        "qbskitinformation.h",
+        "qbskitaspect.cpp",
+        "qbskitaspect.h",
         "qbsnodes.cpp",
         "qbsnodes.h",
         "qbsnodetreebuilder.cpp",
@@ -55,6 +54,8 @@ QtcPlugin {
         "qbsprojectmanagerplugin.h",
         "qbsprojectparser.cpp",
         "qbsprojectparser.h",
+        "qbsrequest.cpp",
+        "qbsrequest.h",
         "qbssession.cpp",
         "qbssession.h",
         "qbssettings.cpp",

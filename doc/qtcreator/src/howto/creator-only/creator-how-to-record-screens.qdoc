@@ -1,0 +1,149 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-record-screens.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Record screens
+
+    With \l{https://ffmpeg.org/download.html}{FFmpeg}, you can record your
+    screens and save the recordings as animated images or videos.
+
+    To record screens:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol {Screen Recording}.
+           \image qtcreator-record-screen.webp {Record Screen dialog}
+        \li Select \inlineimage icons/settings.png
+            to select the screen to record from and to set the recorded
+            screen area.
+        \li Select \inlineimage icons/recordfill.png
+            to start recording.
+        \li Select \inlineimage icons/stop_small.png
+            when you are done recording.
+        \li Select \uicontrol {Crop and Trim} to edit the recording.
+        \li Select \uicontrol Export to save the recording as an animated image
+            or a video.
+    \endlist
+
+    \note Enable the Screen Recorder plugin to use it.
+
+    \section1 Set the screen and area to record
+
+    Set the screen and the area to record in the
+    \uicontrol {Screen Recording Options} dialog.
+
+    \image qtcreator-screen-recording-options.webp {Screen Recording Options dialog}
+
+    To select a screen and area:
+
+    \list 1
+        \li In \uicontrol Display, select the display to record.
+        \li In \uicontrol {Recorded screen area}, drag the guides to set the
+            \uicontrol x and \uicontrol y coordinates of the starting point for
+            the recording area, as well as the width and height of the area.
+        \li Select \uicontrol OK to return to the \uicontrol {Record Screen}
+            dialog.
+    \endlist
+
+    Select \inlineimage icons/reset.png
+    to reset the area.
+
+    \section1 Edit recordings
+
+    You can crop and trim the recording in the \uicontrol {Crop and Trim} dialog.
+
+    \image qtcreator-crop-and-trim.webp {Crop and Trim}
+
+    To crop a recording, in \uicontrol Cropping, drag the guides to set the
+    \uicontrol x and \uicontrol y coordinates of the starting point of
+    the recorded area, as well as the width and height of the area.
+
+    To save a cropped version of the current frame as a file, select
+    \inlineimage icons/savefile.png
+    .
+
+    To copy a cropped version of the current frame to the clipboard, select
+    \inlineimage icons/camera.png
+    .
+
+    To trim a recording:
+
+    \list 1
+        \li Click the slider to show a handle and drag it to the frame where
+            you want the recording to start.
+        \li Click \uicontrol Start to set the first frame.
+        \li Click the slider again and drag the handle to the frame where you
+            want the recording to end.
+        \li Click \uicontrol End to set the last frame.
+    \endlist
+
+    Select \inlineimage icons/reset.png
+    to reset the crop area and trim range.
+
+    \sa {Screen Recording}, {Enable and disable plugins}
+*/
+
+/*!
+    \page creator-preferences-screen-recording.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences
+
+    \title Screen Recording
+
+    \brief Set preferences for recording screens with FFmpeg.
+
+    With \l{https://ffmpeg.org/download.html}{FFmpeg}, you can record your
+    screens and save the recordings as animated images or videos. You have
+    to download and install FFmpeg and FFprobe to use the screen recorder.
+
+    \note Enable the Screen Recorder plugin to use it.
+
+    To set up screen recording:
+
+    \list 1
+        \li Select \preferences > \uicontrol Help > \uicontrol {Screen Recording}.
+            \image qtcreator-preferences-screen-recording.webp {Screen Recording preferences}
+        \li In \uicontrol {ffmpeg tool}, set the path to the FFmpeg executable.
+        \li In \uicontrol {ffprobe tool}, set the path to the FFprobe executable.
+        \li Set preferences for recording screens and saving the recordings.
+    \endlist
+
+    The following table lists the available preferences.
+
+    \table
+        \header
+            \li Setting
+            \li Value
+        \row
+            \li \uicontrol {Capture the mouse cursor}
+            \li Whether to show the mouse cursor in the recording.
+        \row
+            \li \uicontrol {Capture device/filter}
+            \li The grabbing device or filter to use. If the recorder shows
+                error messages, try another grabbing device.
+        \row
+            \li \uicontrol {Size limit for intermediate output file}
+            \li To prevent huge files on your hard disk if you forget to stop
+                recording, for example, recording automatically stops when this
+                limit is reached.
+        \row
+            \li \uicontrol {RAM buffer for real-time frames}
+            \li The maximum size of a RAM buffer for storing real-time frames.
+                Increase the limit if frames are dropped during the recording.
+        \row
+            \li \uicontrol {Export animated images as infinite loop}
+            \li Whether to export animated images as inifite loops. Deselect
+                this check box to only play the animation once.
+        \row
+            \li \uicontrol {Write command line of FFmpeg calls to General Messages}
+            \li Shows the options used to run FFmpeg in the
+                \uicontrol {General Messages} view.
+    \endtable
+
+    \sa {Record screens}, {Enable and disable plugins}, {View output}
+*/

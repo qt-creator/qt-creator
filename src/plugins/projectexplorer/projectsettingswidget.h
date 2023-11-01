@@ -27,6 +27,9 @@ public:
     bool isUseGlobalSettingsLabelVisible() const;
     Utils::Id globalSettingsId() const;
 
+    bool expanding() const;
+    void setExpanding(bool expanding);
+
 protected:
     void setUseGlobalSettingsCheckBoxVisible(bool visible);
     void setUseGlobalSettingsLabelVisible(bool visible);
@@ -41,6 +44,7 @@ private:
     bool m_useGlobalSettingsCheckBoxEnabled = true;
     bool m_useGlobalSettingsCheckBoxVisibleVisible = true;
     bool m_useGlobalSettingsLabelVisibleVisible = true;
+    bool m_expanding = false;
     Utils::Id m_globalSettingsId;
 };
 

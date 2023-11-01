@@ -8,7 +8,7 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-python-development.html
+    \previouspage creator-copilot.html
     \page creator-mime-types.html
     \nextpage creator-modeling.html
 
@@ -46,7 +46,7 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
+        \li Select \preferences >
             \uicontrol Environment > \uicontrol {MIME Types}.
 
             \image qtcreator-mime-types.png "MIME Types"

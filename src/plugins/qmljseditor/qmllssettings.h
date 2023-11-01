@@ -15,10 +15,12 @@ struct QmllsSettings
 {
     bool useQmlls = true;
     bool useLatestQmlls = false;
+    bool disableBuiltinCodemodel = false;
 
     friend bool operator==(const QmllsSettings &s1, const QmllsSettings &s2)
     {
-        return s1.useQmlls == s2.useQmlls && s1.useLatestQmlls == s2.useLatestQmlls;
+        return s1.useQmlls == s2.useQmlls && s1.useLatestQmlls == s2.useLatestQmlls
+               && s1.disableBuiltinCodemodel == s2.disableBuiltinCodemodel;
     }
     friend bool operator!=(const QmllsSettings &s1, const QmllsSettings &s2) { return !(s1 == s2); }
 };

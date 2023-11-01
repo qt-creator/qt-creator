@@ -12,18 +12,17 @@
 #include <QDebug>
 #include <QTime>
 
+#include <QFileDialog>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
-#include <QSyntaxHighlighter>
 #include <QPlainTextEdit>
 #include <QPushButton>
-#include <QFileDialog>
+#include <QSyntaxHighlighter>
 #include <QToolButton>
 
 #include <aggregation/aggregate.h>
-
-#include <app/app_version.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/findplaceholder.h>
@@ -194,10 +193,10 @@ public:
         QMenu *menu = createStandardContextMenu();
         menu->addAction(m_clearContentsAction);
         menu->addAction(m_saveContentsAction); // X11 clipboard is unreliable for long texts
-        menu->addAction(debuggerSettings()->logTimeStamps.action());
+        menu->addAction(settings().logTimeStamps.action());
         menu->addAction(Core::ActionManager::command(Constants::RELOAD_DEBUGGING_HELPERS)->action());
         menu->addSeparator();
-        menu->addAction(debuggerSettings()->settingsDialog.action());
+        menu->addAction(settings().settingsDialog.action());
         menu->exec(ev->globalPos());
         delete menu;
     }
@@ -438,17 +437,19 @@ LogWindow::LogWindow(DebuggerEngine *engine)
 
     setMinimumHeight(60);
 
-    showOutput(LogWarning,
-        Tr::tr("Note: This log contains possibly confidential information about your machine, "
-           "environment variables, in-memory data of the processes you are debugging, and more. "
-           "It is never transferred over the internet by %1, and only stored "
-           "to disk if you manually use the respective option from the context menu, or through "
-           "mechanisms that are not under the control of %1's Debugger plugin, "
-           "for instance in swap files, or other plugins you might use.\n"
-           "You may be asked to share the contents of this log when reporting bugs related "
-           "to debugger operation. In this case, make sure your submission does not "
-           "contain data you do not want to or you are not allowed to share.\n\n")
-               .arg(Core::Constants::IDE_DISPLAY_NAME));
+    showOutput(
+        LogWarning,
+        Tr::tr(
+            "Note: This log contains possibly confidential information about your machine, "
+            "environment variables, in-memory data of the processes you are debugging, and more. "
+            "It is never transferred over the internet by %1, and only stored "
+            "to disk if you manually use the respective option from the context menu, or through "
+            "mechanisms that are not under the control of %1's Debugger plugin, "
+            "for instance in swap files, or other plugins you might use.\n"
+            "You may be asked to share the contents of this log when reporting bugs related "
+            "to debugger operation. In this case, make sure your submission does not "
+            "contain data you do not want to or you are not allowed to share.\n\n")
+            .arg(QGuiApplication::applicationDisplayName()));
 }
 
 LogWindow::~LogWindow()
@@ -493,7 +494,7 @@ void LogWindow::showOutput(int channel, const QString &output)
     QString out;
     out.reserve(output.size() + 1000);
 
-    if (output.at(0) != '~' && debuggerSettings()->logTimeStamps.value()) {
+    if (output.at(0) != '~' && settings().logTimeStamps()) {
         out.append(charForChannel(LogTime));
         out.append(logTimeStamp());
         out.append(nchar);
@@ -561,7 +562,7 @@ void LogWindow::showInput(int channel, const QString &input)
         m_inputText->setTextCursor(cursor);
         return;
     }
-    if (debuggerSettings()->logTimeStamps.value())
+    if (settings().logTimeStamps())
         m_inputText->append(logTimeStamp());
     m_inputText->append(input);
     QTextCursor cursor = m_inputText->textCursor();
@@ -694,7 +695,7 @@ void GlobalLogWindow::doOutput(const QString &output)
 
 void GlobalLogWindow::doInput(const QString &input)
 {
-    if (debuggerSettings()->logTimeStamps.value())
+    if (settings().logTimeStamps())
         m_leftPane->append(LogWindow::logTimeStamp());
     m_leftPane->append(input);
     QTextCursor cursor = m_leftPane->textCursor();

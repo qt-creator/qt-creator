@@ -3,7 +3,9 @@
 
 #include "spinner.h"
 
+#include <QApplication>
 #include <QEvent>
+#include <QIcon>
 #include <QPainter>
 #include <QTimer>
 #include <QWidget>
@@ -81,7 +83,7 @@ private:
     int m_rotationStep = 45;
     int m_rotation = 0;
     QTimer m_timer;
-    QPixmap m_pixmap;
+    mutable QPixmap m_pixmap;
     UpdateCallback m_callback;
 };
 
@@ -96,6 +98,18 @@ static QString imageFileNameForSpinnerSize(SpinnerSize size)
         return ":/icons/spinner_small.png";
     }
     return {};
+}
+
+static QPixmap themedPixmapForSpinnerSize(SpinnerSize size, qreal dpr)
+{
+    QImage mask(qt_findAtNxFile(imageFileNameForSpinnerSize(size), dpr));
+    mask.invertPixels();
+    QImage themedImage(mask.size(), QImage::Format_ARGB32);
+    themedImage.fill(qApp->palette().text().color());
+    themedImage.setAlphaChannel(mask);
+    QPixmap themedPixmap = QPixmap::fromImage(themedImage);
+    themedPixmap.setDevicePixelRatio(mask.devicePixelRatio());
+    return themedPixmap;
 }
 
 SpinnerPainter::SpinnerPainter(SpinnerSize size)
@@ -114,11 +128,14 @@ void SpinnerPainter::setSize(SpinnerSize size)
     m_size = size;
     m_rotationStep = size == SpinnerSize::Small ? 45 : 30;
     m_timer.setInterval(size == SpinnerSize::Small ? 100 : 80);
-    m_pixmap = QPixmap(imageFileNameForSpinnerSize(size));
+    m_pixmap = themedPixmapForSpinnerSize(size, qApp->devicePixelRatio());
 }
 
 void SpinnerPainter::paint(QPainter &painter, const QRect &rect) const
 {
+    const qreal dpr = painter.device()->devicePixelRatioF();
+    if (!qFuzzyCompare(m_pixmap.devicePixelRatio(), dpr))
+        m_pixmap = themedPixmapForSpinnerSize(m_size, dpr);
     painter.save();
     painter.setRenderHint(QPainter::SmoothPixmapTransform);
     QPoint translate(rect.x() + rect.width() / 2, rect.y() + rect.height() / 2);

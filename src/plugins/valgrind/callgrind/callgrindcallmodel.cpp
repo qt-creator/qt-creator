@@ -10,7 +10,7 @@
 
 #include <utils/qtcassert.h>
 
-#include <QVector>
+#include <QList>
 
 namespace Valgrind::Callgrind {
 
@@ -18,7 +18,7 @@ class CallModel::Private
 {
 public:
     const ParseData *m_data = nullptr;
-    QVector<const FunctionCall *> m_calls;
+    QList<const FunctionCall *> m_calls;
     int m_event = 0;
     const Function *m_function = nullptr;
 };
@@ -41,7 +41,7 @@ void CallModel::clear()
     endResetModel();
 }
 
-void CallModel::setCalls(const QVector<const FunctionCall *> &calls, const Function *function)
+void CallModel::setCalls(const QList<const FunctionCall *> &calls, const Function *function)
 {
     beginResetModel();
     d->m_function = function;
@@ -49,7 +49,7 @@ void CallModel::setCalls(const QVector<const FunctionCall *> &calls, const Funct
     endResetModel();
 }
 
-QVector<const FunctionCall *> CallModel::calls() const
+QList<const FunctionCall *> CallModel::calls() const
 {
     return d->m_calls;
 }

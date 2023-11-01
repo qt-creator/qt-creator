@@ -111,9 +111,9 @@ private:
 
     void installEventFilters();
     void invokeClearResults();
-    void setFindFlag(FindFlag flag, bool enabled);
-    bool hasFindFlag(FindFlag flag);
-    FindFlags effectiveFindFlags();
+    void setFindFlag(Utils::FindFlag flag, bool enabled);
+    bool hasFindFlag(Utils::FindFlag flag);
+    Utils::FindFlags effectiveFindFlags();
     static FindToolBarPlaceHolder *findToolBarPlaceHolder();
     bool toolBarHasFocus() const;
     ControlStyle controlStyle(bool replaceIsVisible);
@@ -174,7 +174,7 @@ private:
     QToolButton *m_replaceNextButton;
     QToolButton *m_replaceAllButton;
     QToolButton *m_advancedButton;
-    FindFlags m_findFlags;
+    Utils::FindFlags m_findFlags;
 
     QTimer m_findIncrementalTimer;
     QTimer m_findStepTimer;

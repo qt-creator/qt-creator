@@ -47,26 +47,17 @@ QString FossilJsExtension::displayName() const
 
 QString FossilJsExtension::defaultAdminUser() const
 {
-    if (!isConfigured())
-        return QString();
-
-    return settings().userName.value();
+    return isConfigured() ? settings().userName() : QString();
 }
 
 QString FossilJsExtension::defaultSslIdentityFile() const
 {
-    if (!isConfigured())
-        return QString();
-
-    return settings().sslIdentityFile.value();
+    return isConfigured() ? settings().sslIdentityFile().toFSPathString() : QString();
 }
 
 QString FossilJsExtension::defaultLocalRepoPath() const
 {
-    if (!isConfigured())
-        return QString();
-
-    return settings().defaultRepoPath.value();
+    return isConfigured() ? settings().defaultRepoPath().toFSPathString() : QString();
 }
 
 bool FossilJsExtension::defaultDisableAutosync() const
@@ -74,7 +65,7 @@ bool FossilJsExtension::defaultDisableAutosync() const
     if (!isConfigured())
         return false;
 
-    return settings().disableAutosync.value();
+    return settings().disableAutosync();
 }
 
 } // namespace Internal

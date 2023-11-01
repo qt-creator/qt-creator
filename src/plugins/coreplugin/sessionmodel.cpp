@@ -3,10 +3,9 @@
 
 #include "sessionmodel.h"
 
+#include "actionmanager/actionmanager.h"
 #include "session.h"
 #include "sessiondialog.h"
-
-#include <coreplugin/actionmanager/actionmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>

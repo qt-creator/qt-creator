@@ -12,7 +12,6 @@
 #include <vcsbase/vcsbaseclient.h>
 
 #include <utils/fileutils.h>
-#include <utils/futuresynchronizer.h>
 #include <utils/process.h>
 
 #include <QObject>
@@ -121,7 +120,7 @@ public:
     };
 
     GitClient();
-    static GitClient *instance();
+    ~GitClient();
 
     Utils::FilePath vcsBinary() const override;
     QFuture<unsigned> gitVersion() const;
@@ -246,7 +245,7 @@ public:
     QString synchronousTopic(const Utils::FilePath &workingDirectory) const;
     bool synchronousRevParseCmd(const Utils::FilePath &workingDirectory, const QString &ref,
                                 QString *output, QString *errorMessage = nullptr) const;
-    Tasking::ProcessTask topRevision(const Utils::FilePath &workingDirectory,
+    Utils::ProcessTask topRevision(const Utils::FilePath &workingDirectory,
         const std::function<void(const QString &, const QDateTime &)> &callback);
     bool isRemoteCommit(const Utils::FilePath &workingDirectory, const QString &commit);
 
@@ -331,7 +330,6 @@ public:
     bool isValidRevision(const QString &revision) const;
     void handleMergeConflicts(const Utils::FilePath &workingDir, const QString &commit,
                               const QStringList &files, const QString &abortCommand);
-    void addFuture(const QFuture<void> &future);
 
     static QString msgNoChangedFiles();
     static QString msgNoCommits(bool includeRemote);
@@ -406,9 +404,9 @@ private:
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
     bool m_disableEditor = false;
-    // The synchronizer has cancelOnWait set to true by default.
-    Utils::FutureSynchronizer m_synchronizer; // for commit updates
 };
+
+GITSHARED_EXPORT GitClient &gitClient();
 
 class GitRemote : public Core::IVersionControl::RepoUrl
 {

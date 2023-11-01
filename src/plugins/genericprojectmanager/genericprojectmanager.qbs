@@ -11,7 +11,6 @@ QtcPlugin {
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
-    Depends { name: "app_version_header" }
 
     pluginRecommends: [
         "CppEditor"

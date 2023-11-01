@@ -5,8 +5,7 @@
 
 #include "../testtreeitem.h"
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class QtTestTreeItem : public TestTreeItem
 {
@@ -36,6 +35,7 @@ public:
     TestTreeItem *createParentGroupNode() const override;
     bool isGroupable() const override;
 private:
+    QVariant linkForTreeItem() const;
     TestTreeItem *findChildByFileNameAndType(const Utils::FilePath &file, const QString &name,
                                              Type type) const;
     TestTreeItem *findChildByNameAndInheritanceAndMultiTest(const QString &name, bool inherited,
@@ -53,5 +53,4 @@ public:
 
 typedef QVector<QtTestCodeLocationAndType> QtTestCodeLocationList;
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

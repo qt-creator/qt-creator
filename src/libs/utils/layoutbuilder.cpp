@@ -3,20 +3,22 @@
 
 #include "layoutbuilder.h"
 
+#include <QApplication>
 #include <QDebug>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QPushButton>
-#include <QStackedLayout>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QSplitter>
+#include <QStackedLayout>
+#include <QStackedWidget>
 #include <QStyle>
 #include <QTabWidget>
 #include <QTextEdit>
-#include <QApplication>
+#include <QToolBar>
 
 namespace Layouting {
 
@@ -220,8 +222,8 @@ LayoutItem::~LayoutItem() = default;
 struct ResultItem
 {
     ResultItem() = default;
-    explicit ResultItem(QLayout *l) : layout(l) {}
-    explicit ResultItem(QWidget *w) : widget(w) {}
+    explicit ResultItem(QLayout *l) : layout(l), empty(!l) {}
+    explicit ResultItem(QWidget *w) : widget(w), empty(!w) {}
 
     QString text;
     QLayout *layout = nullptr;
@@ -236,7 +238,7 @@ struct Slice
 {
     Slice() = default;
     Slice(QLayout *l) : layout(l) {}
-    Slice(QWidget *w) : widget(w) {}
+    Slice(QWidget *w, bool isLayouting=false) : widget(w), isLayouting(isLayouting) {}
 
     QLayout *layout = nullptr;
     QWidget *widget = nullptr;
@@ -247,6 +249,7 @@ struct Slice
     int currentGridColumn = 0;
     int currentGridRow = 0;
     bool isFormAlignment = false;
+    bool isLayouting = false;
     Qt::Alignment align = {}; // Can be changed to
 
     // Grid or Form
@@ -394,14 +397,6 @@ void Slice::flush()
 
         for (const ResultItem &item : std::as_const(pendingItems))
             addItemToFlowLayout(flowLayout, item);
-
-    } else if (auto stackLayout = qobject_cast<QStackedLayout *>(layout)) {
-        for (const ResultItem &item : std::as_const(pendingItems)) {
-            if (item.widget)
-                stackLayout->addWidget(item.widget);
-            else
-                QTC_CHECK(false);
-        }
 
     } else {
         QTC_CHECK(false);
@@ -572,9 +567,26 @@ void LayoutItem::attachTo(QWidget *w) const
 
 QWidget *LayoutItem::emerge()
 {
-    auto w = new QWidget;
-    attachTo(w);
-    return w;
+    LayoutBuilder builder;
+
+    builder.stack.append(Slice());
+    addItemHelper(builder, *this);
+
+    if (builder.stack.empty())
+        return nullptr;
+
+    QTC_ASSERT(builder.stack.last().pendingItems.size() == 1, return nullptr);
+    ResultItem ri = builder.stack.last().pendingItems.takeFirst();
+
+    QTC_ASSERT(ri.layout || ri.widget, return nullptr);
+
+    if (ri.layout) {
+        auto w = new QWidget;
+        w->setLayout(ri.layout);
+        return w;
+    }
+
+    return ri.widget;
 }
 
 static void layoutExit(LayoutBuilder &builder)
@@ -583,10 +595,30 @@ static void layoutExit(LayoutBuilder &builder)
     QLayout *layout = builder.stack.last().layout;
     builder.stack.pop_back();
 
-    if (QWidget *widget = builder.stack.last().widget)
-        widget->setLayout(layout);
-    else
+    if (builder.stack.last().isLayouting) {
         builder.stack.last().pendingItems.append(ResultItem(layout));
+    } else if (QWidget *widget = builder.stack.last().widget) {
+        widget->setLayout(layout);
+    } else
+        builder.stack.last().pendingItems.append(ResultItem(layout));
+}
+
+template<class T>
+static void layoutingWidgetExit(LayoutBuilder &builder)
+{
+    const Slice slice = builder.stack.last();
+    T *w = qobject_cast<T *>(slice.widget);
+    for (const ResultItem &ri : slice.pendingItems) {
+        if (ri.widget) {
+            w->addWidget(ri.widget);
+        } else if (ri.layout) {
+            auto child = new QWidget;
+            child->setLayout(ri.layout);
+            w->addWidget(child);
+        }
+    }
+    builder.stack.pop_back();
+    builder.stack.last().pendingItems.append(ResultItem(w));
 }
 
 static void widgetExit(LayoutBuilder &builder)
@@ -635,13 +667,6 @@ Form::Form(std::initializer_list<LayoutItem> items)
 {
     subItems = items;
     onAdd = [](LayoutBuilder &builder) { builder.stack.append(newFormLayout()); };
-    onExit = layoutExit;
-}
-
-Stack::Stack(std::initializer_list<LayoutItem> items)
-{
-    subItems = items;
-    onAdd = [](LayoutBuilder &builder) { builder.stack.append(new QStackedLayout); };
     onExit = layoutExit;
 }
 
@@ -736,6 +761,18 @@ Group::Group(std::initializer_list<LayoutItem> items)
     setupWidget<QGroupBox>(this);
 }
 
+Stack::Stack(std::initializer_list<LayoutItem> items)
+{
+    // We use a QStackedWidget instead of a QStackedLayout here because the latter will call
+    // "setVisible()" when a child is added, which can lead to the widget being spawned as a
+    // top-level widget. This can lead to the focus shifting away from the main application.
+    subItems = items;
+    onAdd = [](LayoutBuilder &builder) {
+        builder.stack.append(Slice(new QStackedWidget, true));
+    };
+    onExit = layoutingWidgetExit<QStackedWidget>;
+}
+
 PushButton::PushButton(std::initializer_list<LayoutItem> items)
 {
     this->subItems = items;
@@ -760,18 +797,20 @@ Splitter::Splitter(std::initializer_list<LayoutItem> items)
     onAdd = [](LayoutBuilder &builder) {
         auto splitter = new QSplitter;
         splitter->setOrientation(Qt::Vertical);
-        builder.stack.append(splitter);
+        builder.stack.append(Slice(splitter, true));
     };
-    onExit = [](LayoutBuilder &builder) {
-        const Slice slice = builder.stack.last();
-        QSplitter *splitter = qobject_cast<QSplitter *>(slice.widget);
-        for (const ResultItem &ri : slice.pendingItems) {
-            if (ri.widget)
-                splitter->addWidget(ri.widget);
-        }
-        builder.stack.pop_back();
-        builder.stack.last().pendingItems.append(ResultItem(splitter));
+    onExit = layoutingWidgetExit<QSplitter>;
+}
+
+ToolBar::ToolBar(std::initializer_list<LayoutItem> items)
+{
+    subItems = items;
+    onAdd = [](LayoutBuilder &builder) {
+        auto toolbar = new QToolBar;
+        toolbar->setOrientation(Qt::Horizontal);
+        builder.stack.append(Slice(toolbar, true));
     };
+    onExit = layoutingWidgetExit<QToolBar>;
 }
 
 TabWidget::TabWidget(std::initializer_list<LayoutItem> items)
@@ -796,6 +835,13 @@ Tab::Tab(const QString &tabName, const LayoutItem &item)
         QTC_ASSERT(tabWidget, return);
         tabWidget->addTab(inner, tabName);
     };
+}
+
+// Special If
+
+If::If(bool condition, const LayoutItems &items, const LayoutItems &other)
+{
+    subItems.append(condition ? items : other);
 }
 
 // Special Application
@@ -827,6 +873,17 @@ LayoutItem title(const QString &title)
             groupBox->setObjectName(title);
         } else if (auto widget = qobject_cast<QWidget *>(target)) {
             widget->setWindowTitle(title);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
+LayoutItem windowTitle(const QString &windowTitle)
+{
+    return [windowTitle](QObject *target) {
+        if (auto widget = qobject_cast<QWidget *>(target)) {
+            widget->setWindowTitle(windowTitle);
         } else {
             QTC_CHECK(false);
         }
@@ -889,6 +946,18 @@ LayoutItem columnStretch(int column, int stretch)
         }
     };
 }
+
+LayoutItem fieldGrowthPolicy(QFormLayout::FieldGrowthPolicy policy)
+{
+    return [policy](QObject *target) {
+        if (auto form = qobject_cast<QFormLayout *>(target)) {
+            form->setFieldGrowthPolicy(policy);
+        } else {
+            QTC_CHECK(false);
+        }
+    };
+}
+
 
 // Id based setters
 

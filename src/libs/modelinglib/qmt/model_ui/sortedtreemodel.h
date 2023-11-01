@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <QSortFilterProxyModel>
 #include "qmt/infrastructure/qmt_global.h"
 
+#include <QSortFilterProxyModel>
 #include <QTimer>
 
 namespace qmt {
@@ -14,8 +14,6 @@ class TreeModel;
 
 class QMT_EXPORT SortedTreeModel : public QSortFilterProxyModel
 {
-    Q_OBJECT
-
 public:
     explicit SortedTreeModel(QObject *parent = nullptr);
     ~SortedTreeModel() override;

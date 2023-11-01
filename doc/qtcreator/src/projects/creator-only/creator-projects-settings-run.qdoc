@@ -24,7 +24,7 @@
     \image qtcreator-settings-run.webp {Run Settings}
 
     To prevent \QC from automatically creating run configurations, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run},
+    \preferences > \uicontrol {Build & Run},
     and then deselect the \uicontrol {Create suitable run configurations
     automatically} check box.
 
@@ -127,7 +127,7 @@
     run configuration for your project. For example, when working on a library,
     you can run a test application that links against the library.
 
-    Specify the executable to run, command line arguments, working directory,
+    Specify the executable to run, command-line arguments, working directory,
     and environment variables to use.
 
     \image qmldesigner-run-custom-exe.png {Run settings for custom executables}

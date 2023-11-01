@@ -16,6 +16,8 @@
 
 #include <QTextDocument>
 
+#include <utility>
+
 using namespace CPlusPlus;
 using namespace Utils;
 
@@ -75,15 +77,20 @@ CppRefactoringFile::CppRefactoringFile(const FilePath &filePath, const QSharedPo
 {
     const Snapshot &snapshot = this->data()->m_snapshot;
     m_cppDocument = snapshot.document(filePath);
+    m_formattingEnabled = true;
 }
 
 CppRefactoringFile::CppRefactoringFile(QTextDocument *document, const FilePath &filePath)
     : RefactoringFile(document, filePath)
-{ }
+{
+    m_formattingEnabled = true;
+}
 
 CppRefactoringFile::CppRefactoringFile(TextEditor::TextEditorWidget *editor)
     : RefactoringFile(editor)
-{ }
+{
+    m_formattingEnabled = true;
+}
 
 Document::Ptr CppRefactoringFile::cppDocument() const
 {
@@ -107,7 +114,7 @@ void CppRefactoringFile::setCppDocument(Document::Ptr document)
 Scope *CppRefactoringFile::scopeAt(unsigned index) const
 {
     int line, column;
-    cppDocument()->translationUnit()->getTokenStartPosition(index, &line, &column);
+    cppDocument()->translationUnit()->getTokenPosition(index, &line, &column);
     return cppDocument()->scopeAt(line, column);
 }
 
@@ -134,6 +141,31 @@ bool CppRefactoringFile::isCursorOn(const AST *ast) const
     int end = endOf(ast);
 
     return cursorBegin >= start && cursorBegin <= end;
+}
+
+QList<Token> CppRefactoringFile::tokensForCursor() const
+{
+    QTextCursor c = cursor();
+    int pos = c.selectionStart();
+    int endPos = c.selectionEnd();
+    if (pos > endPos)
+        std::swap(pos, endPos);
+
+    const std::vector<Token> &allTokens = m_cppDocument->translationUnit()->allTokens();
+    const int firstIndex = tokenIndexForPosition(allTokens, pos, 0);
+    if (firstIndex == -1)
+        return {};
+
+    const int lastIndex = pos == endPos
+                              ? firstIndex
+                              : tokenIndexForPosition(allTokens, endPos, firstIndex);
+    if (lastIndex == -1)
+        return {};
+    QTC_ASSERT(lastIndex >= firstIndex, return {});
+    QList<Token> result;
+    for (int i = firstIndex; i <= lastIndex; ++i)
+        result.push_back(allTokens.at(i));
+    return result;
 }
 
 ChangeSet::Range CppRefactoringFile::range(unsigned tokenIndex) const
@@ -213,10 +245,32 @@ void CppRefactoringFile::fileChanged()
     RefactoringFile::fileChanged();
 }
 
+int CppRefactoringFile::tokenIndexForPosition(const std::vector<CPlusPlus::Token> &tokens,
+                                              int pos, int startIndex) const
+{
+    const TranslationUnit * const tu = m_cppDocument->translationUnit();
+
+    // Binary search
+    for (int l = startIndex, u = int(tokens.size()) - 1; l <= u; ) {
+        const int i = (l + u) / 2;
+        const int tokenPos = tu->getTokenPositionInDocument(tokens.at(i), document());
+        if (pos < tokenPos) {
+            u = i - 1;
+            continue;
+        }
+        const int tokenEndPos = tu->getTokenEndPositionInDocument(tokens.at(i), document());
+        if (pos > tokenEndPos) {
+            l = i + 1;
+            continue;
+        }
+        return i;
+    }
+    return -1;
+}
+
 CppRefactoringChangesData::CppRefactoringChangesData(const Snapshot &snapshot)
     : m_snapshot(snapshot)
-    , m_modelManager(CppModelManager::instance())
-    , m_workingCopy(m_modelManager->workingCopy())
+    , m_workingCopy(CppModelManager::workingCopy())
 {}
 
 void CppRefactoringChangesData::indentSelection(const QTextCursor &selection,
@@ -247,7 +301,7 @@ void CppRefactoringChangesData::reindentSelection(const QTextCursor &selection,
 
 void CppRefactoringChangesData::fileChanged(const FilePath &filePath)
 {
-    m_modelManager->updateSourceFiles({filePath});
+    CppModelManager::updateSourceFiles({filePath});
 }
 
 } // CppEditor

@@ -15,7 +15,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -24,10 +24,10 @@
 
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggeritem.h>
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
@@ -36,6 +36,7 @@
 #include <utils/persistentsettings.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
 #include <utils/stringutils.h>
 
 #include <QApplication>
@@ -89,51 +90,44 @@ const char LinuxOsKey[] = "linux";
 const char WindowsOsKey[] = "windows";
 const char macOsKey[] = "mac";
 
+const char SettingsGroup[] = "AndroidConfigurations";
+const char SDKLocationKey[] = "SDKLocation";
+const char CustomNdkLocationsKey[] = "CustomNdkLocations";
+const char DefaultNdkLocationKey[] = "DefaultNdkLocation";
+const char SdkFullyConfiguredKey[] = "AllEssentialsInstalled";
+const char SDKManagerToolArgsKey[] = "SDKManagerToolArgs";
+const char OpenJDKLocationKey[] = "OpenJDKLocation";
+const char OpenSslPriLocationKey[] = "OpenSSLPriLocation";
+const char AutomaticKitCreationKey[] = "AutomatiKitCreation";
+const char EmulatorArgsKey[] = "EmulatorArgs";
 
-namespace {
-    const QLatin1String SettingsGroup("AndroidConfigurations");
-    const QLatin1String SDKLocationKey("SDKLocation");
-    const QLatin1String CustomNdkLocationsKey("CustomNdkLocations");
-    const QLatin1String DefaultNdkLocationKey("DefaultNdkLocation");
-    const QLatin1String SdkFullyConfiguredKey("AllEssentialsInstalled");
-    const QLatin1String SDKManagerToolArgsKey("SDKManagerToolArgs");
-    const QLatin1String OpenJDKLocationKey("OpenJDKLocation");
-    const QLatin1String OpenSslPriLocationKey("OpenSSLPriLocation");
-    const QLatin1String AutomaticKitCreationKey("AutomatiKitCreation");
-    const QLatin1String EmulatorArgsKey("EmulatorArgs");
+const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
+const QLatin1String X86ToolchainPrefix("x86");
+const QLatin1String AArch64ToolchainPrefix("aarch64-linux-android");
+const QLatin1String X86_64ToolchainPrefix("x86_64");
 
-    const QLatin1String ArmToolchainPrefix("arm-linux-androideabi");
-    const QLatin1String X86ToolchainPrefix("x86");
-    const QLatin1String AArch64ToolchainPrefix("aarch64-linux-android");
-    const QLatin1String X86_64ToolchainPrefix("x86_64");
+const QLatin1String ArmToolsPrefix ("arm-linux-androideabi");
+const QLatin1String X86ToolsPrefix("i686-linux-android");
+const QLatin1String AArch64ToolsPrefix("aarch64-linux-android");
+const QLatin1String X86_64ToolsPrefix("x86_64-linux-android");
 
-    const QLatin1String ArmToolsPrefix("arm-linux-androideabi");
-    const QLatin1String X86ToolsPrefix("i686-linux-android");
-    const QLatin1String AArch64ToolsPrefix("aarch64-linux-android");
-    const QLatin1String X86_64ToolsPrefix("x86_64-linux-android");
+const QLatin1String Unknown("unknown");
+const QLatin1String keytoolName("keytool");
+const Key changeTimeStamp("ChangeTimeStamp");
 
-    const QLatin1String ArmToolsDisplayName("arm");
-    const QLatin1String X86ToolsDisplayName("i686");
-    const QLatin1String AArch64ToolsDisplayName("aarch64");
-    const QLatin1String X86_64ToolsDisplayName("x86_64");
+const char sdkToolsVersionKey[] = "Pkg.Revision";
+const char ndkRevisionKey[] = "Pkg.Revision";
 
-    const QLatin1String Unknown("unknown");
-    const QLatin1String keytoolName("keytool");
-    const QLatin1String changeTimeStamp("ChangeTimeStamp");
-
-    const QLatin1String sdkToolsVersionKey("Pkg.Revision");
-    const QLatin1String ndkRevisionKey("Pkg.Revision");
-
-    static QString sdkSettingsFileName()
-    {
-        return Core::ICore::installerResourcePath("android.xml").toString();
-    }
-
-    static QString ndkPackageMarker()
-    {
-        return QLatin1String(Constants::ndkPackageName) + ";";
-    }
+static QString sdkSettingsFileName()
+{
+    return Core::ICore::installerResourcePath("android.xml").toString();
 }
+
+static QString ndkPackageMarker()
+{
+    return QLatin1String(Constants::ndkPackageName) + ";";
+}
+
 
 //////////////////////////////////
 // AndroidConfig
@@ -176,18 +170,18 @@ QLatin1String AndroidConfig::displayName(const Abi &abi)
     switch (abi.architecture()) {
     case Abi::ArmArchitecture:
         if (abi.wordWidth() == 64)
-            return AArch64ToolsDisplayName;
-        return ArmToolsDisplayName;
+            return QLatin1String(Constants::AArch64ToolsDisplayName);
+        return QLatin1String(Constants::ArmToolsDisplayName);
     case Abi::X86Architecture:
         if (abi.wordWidth() == 64)
-            return X86_64ToolsDisplayName;
-        return X86ToolsDisplayName;
+            return QLatin1String(Constants::X86_64ToolsDisplayName);
+        return QLatin1String(Constants::X86ToolsDisplayName);
     default:
         return Unknown;
     }
 }
 
-void AndroidConfig::load(const QSettings &settings)
+void AndroidConfig::load(const QtcSettings &settings)
 {
     // user settings
     QVariant emulatorArgs = settings.value(EmulatorArgsKey, QString("-netdelay none -netspeed full"));
@@ -227,7 +221,7 @@ void AndroidConfig::load(const QSettings &settings)
     parseDependenciesJson();
 }
 
-void AndroidConfig::save(QSettings &settings) const
+void AndroidConfig::save(QtcSettings &settings) const
 {
     QFileInfo fileInfo(sdkSettingsFileName());
     if (fileInfo.exists())
@@ -452,7 +446,7 @@ FilePath AndroidConfig::emulatorToolPath() const
     if (emulatorFile.exists())
         return emulatorFile;
 
-    return FilePath();
+    return {};
 }
 
 FilePath AndroidConfig::sdkManagerToolPath() const
@@ -468,7 +462,7 @@ FilePath AndroidConfig::sdkManagerToolPath() const
     if (sdkmanagerTmpPath.exists())
         return sdkmanagerTmpPath;
 
-    return FilePath();
+    return {};
 }
 
 FilePath AndroidConfig::avdManagerToolPath() const
@@ -478,7 +472,7 @@ FilePath AndroidConfig::avdManagerToolPath() const
     if (sdkmanagerPath.exists())
         return sdkmanagerPath;
 
-    return FilePath();
+    return {};
 }
 
 void AndroidConfig::setTemporarySdkToolsPath(const Utils::FilePath &path)
@@ -498,7 +492,7 @@ FilePath AndroidConfig::sdkToolsVersionPath() const
     if (tmpSdkPath.exists())
         return tmpSdkPath;
 
-    return FilePath();
+    return {};
 }
 
 FilePath AndroidConfig::toolchainPathFromNdk(const FilePath &ndkLocation, OsType hostOs)
@@ -523,7 +517,7 @@ FilePath AndroidConfig::toolchainPathFromNdk(const FilePath &ndkLocation, OsType
     case OsTypeMac:
         hostPatterns << QLatin1String("darwin*");
         break;
-    default: /* unknown host */ return FilePath();
+    default: /* unknown host */ return {};
     }
 
     QDirIterator iter(toolchainPath.toString(), hostPatterns, QDir::Dirs);
@@ -675,7 +669,7 @@ QString AndroidConfig::getDeviceProperty(const QString &device, const QString &p
     adbProc.setCommand(cmd);
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)
-        return QString();
+        return {};
 
     return adbProc.allOutput();
 }
@@ -692,18 +686,18 @@ QString AndroidConfig::getAvdName(const QString &serialnumber)
 {
     int index = serialnumber.indexOf(QLatin1String("-"));
     if (index == -1)
-        return QString();
+        return {};
     bool ok;
     int port = serialnumber.mid(index + 1).toInt(&ok);
     if (!ok)
-        return QString();
+        return {};
 
     const QByteArray avdName = "avd name\n";
 
     QTcpSocket tcpSocket;
     tcpSocket.connectToHost(QHostAddress(QHostAddress::LocalHost), port);
     if (!tcpSocket.waitForConnected(100)) // Don't wait more than 100ms for a local connection
-        return QString{};
+        return {};
 
     tcpSocket.write(avdName + "exit\n");
     tcpSocket.waitForDisconnected(500);
@@ -1131,9 +1125,7 @@ static bool matchToolChain(const ToolChain *atc, const ToolChain *btc)
     if (atc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID || btc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID)
         return false;
 
-    auto aatc = static_cast<const AndroidToolChain *>(atc);
-    auto abtc = static_cast<const AndroidToolChain *>(btc);
-    return aatc->targetAbi() == abtc->targetAbi();
+    return atc->targetAbi() == btc->targetAbi();
 }
 
 void AndroidConfigurations::registerNewToolChains()
@@ -1352,9 +1344,8 @@ void AndroidConfigurations::updateAutomaticKitList()
 
     // register new kits
     const Toolchains toolchains = ToolChainManager::toolchains([](const ToolChain *tc) {
-        return tc->isAutoDetected()
-            && tc->isValid()
-            && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
+        return tc->isAutoDetected() && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
+               && tc->isValid();
     });
     QList<Kit *> unhandledKits = existingKits;
     for (ToolChain *tc : toolchains) {
@@ -1424,10 +1415,10 @@ void AndroidConfigurations::updateAutomaticKitList()
         KitManager::deregisterKit(k);
 }
 
-Environment AndroidConfigurations::toolsEnvironment(const AndroidConfig &config)
+Environment AndroidConfig::toolsEnvironment() const
 {
     Environment env = Environment::systemEnvironment();
-    FilePath jdkLocation = config.openJDKLocation();
+    FilePath jdkLocation = openJDKLocation();
     if (!jdkLocation.isEmpty()) {
         env.set(Constants::JAVA_HOME_ENV_VAR, jdkLocation.toUserOutput());
         env.prependOrSetPath(jdkLocation.pathAppended("bin"));
@@ -1452,7 +1443,7 @@ AndroidConfigurations *AndroidConfigurations::instance()
 
 void AndroidConfigurations::save()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     m_config.save(*settings);
     settings->endGroup();
@@ -1551,7 +1542,7 @@ FilePath AndroidConfig::getJdkPath()
 
 void AndroidConfigurations::load()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
     m_config.load(*settings);
     settings->endGroup();

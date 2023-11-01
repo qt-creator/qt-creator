@@ -15,6 +15,7 @@
 
 using namespace Macros;
 using namespace Macros::Internal;
+using namespace Utils;
 
 static const char EVENTNAME[] = "Find";
 static const quint8 TYPE = 0;
@@ -59,26 +60,26 @@ bool FindMacroHandler::executeEvent(const MacroEvent &macroEvent)
     switch (macroEvent.value(TYPE).toInt()) {
     case FINDINCREMENTAL:
         currentFind->findIncremental(macroEvent.value(BEFORE).toString(),
-                                  (Core::FindFlags)macroEvent.value(FLAGS).toInt());
+                                     FindFlags(macroEvent.value(FLAGS).toInt()));
         break;
     case FINDSTEP:
         currentFind->findStep(macroEvent.value(BEFORE).toString(),
-                           (Core::FindFlags)macroEvent.value(FLAGS).toInt());
+                              FindFlags(macroEvent.value(FLAGS).toInt()));
         break;
     case REPLACE:
         currentFind->replace(macroEvent.value(BEFORE).toString(),
                              macroEvent.value(AFTER).toString(),
-                             (Core::FindFlags)macroEvent.value(FLAGS).toInt());
+                             FindFlags(macroEvent.value(FLAGS).toInt()));
         break;
     case REPLACESTEP:
         currentFind->replaceStep(macroEvent.value(BEFORE).toString(),
-                              macroEvent.value(AFTER).toString(),
-                              (Core::FindFlags)macroEvent.value(FLAGS).toInt());
+                                 macroEvent.value(AFTER).toString(),
+                                 FindFlags(macroEvent.value(FLAGS).toInt()));
         break;
     case REPLACEALL:
         currentFind->replaceAll(macroEvent.value(BEFORE).toString(),
-                             macroEvent.value(AFTER).toString(),
-                             (Core::FindFlags)macroEvent.value(FLAGS).toInt());
+                                macroEvent.value(AFTER).toString(),
+                                FindFlags(macroEvent.value(FLAGS).toInt()));
         break;
     case RESET:
         currentFind->resetIncrementalSearch();
@@ -87,31 +88,31 @@ bool FindMacroHandler::executeEvent(const MacroEvent &macroEvent)
     return true;
 }
 
-void FindMacroHandler::findIncremental(const QString &txt, Core::FindFlags findFlags)
+void FindMacroHandler::findIncremental(const QString &txt, FindFlags findFlags)
 {
     if (!isRecording())
         return;
     MacroEvent e;
     e.setId(EVENTNAME);
     e.setValue(BEFORE, txt);
-    e.setValue(FLAGS, (int)findFlags);
+    e.setValue(FLAGS, int(findFlags));
     e.setValue(TYPE, FINDINCREMENTAL);
     addMacroEvent(e);
 }
 
-void FindMacroHandler::findStep(const QString &txt, Core::FindFlags findFlags)
+void FindMacroHandler::findStep(const QString &txt, FindFlags findFlags)
 {
     if (!isRecording())
         return;
     MacroEvent e;
     e.setId(EVENTNAME);
     e.setValue(BEFORE, txt);
-    e.setValue(FLAGS, (int)findFlags);
+    e.setValue(FLAGS, int(findFlags));
     e.setValue(TYPE, FINDSTEP);
     addMacroEvent(e);
 }
 
-void FindMacroHandler::replace(const QString &before, const QString &after, Core::FindFlags findFlags)
+void FindMacroHandler::replace(const QString &before, const QString &after, FindFlags findFlags)
 {
     if (!isRecording())
         return;
@@ -119,12 +120,12 @@ void FindMacroHandler::replace(const QString &before, const QString &after, Core
     e.setId(EVENTNAME);
     e.setValue(BEFORE, before);
     e.setValue(AFTER, after);
-    e.setValue(FLAGS, (int)findFlags);
+    e.setValue(FLAGS, int(findFlags));
     e.setValue(TYPE, REPLACE);
     addMacroEvent(e);
 }
 
-void FindMacroHandler::replaceStep(const QString &before, const QString &after, Core::FindFlags findFlags)
+void FindMacroHandler::replaceStep(const QString &before, const QString &after, FindFlags findFlags)
 {
     if (!isRecording())
         return;
@@ -132,12 +133,12 @@ void FindMacroHandler::replaceStep(const QString &before, const QString &after, 
     e.setId(EVENTNAME);
     e.setValue(BEFORE, before);
     e.setValue(AFTER, after);
-    e.setValue(FLAGS, (int)findFlags);
+    e.setValue(FLAGS, int(findFlags));
     e.setValue(TYPE, REPLACESTEP);
     addMacroEvent(e);
 }
 
-void FindMacroHandler::replaceAll(const QString &before, const QString &after, Core::FindFlags findFlags)
+void FindMacroHandler::replaceAll(const QString &before, const QString &after, FindFlags findFlags)
 {
     if (!isRecording())
         return;
@@ -145,7 +146,7 @@ void FindMacroHandler::replaceAll(const QString &before, const QString &after, C
     e.setId(EVENTNAME);
     e.setValue(BEFORE, before);
     e.setValue(AFTER, after);
-    e.setValue(FLAGS, (int)findFlags);
+    e.setValue(FLAGS, int(findFlags));
     e.setValue(TYPE, REPLACEALL);
     addMacroEvent(e);
 }

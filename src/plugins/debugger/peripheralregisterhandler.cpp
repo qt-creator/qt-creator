@@ -771,7 +771,7 @@ bool PeripheralRegisterHandler::contextMenuEvent(const ItemViewEvent &ev)
         menu->addMenu(fmtMenu);
     }
 
-    menu->addAction(debuggerSettings()->settingsDialog.action());
+    menu->addAction(settings().settingsDialog.action());
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
     return true;

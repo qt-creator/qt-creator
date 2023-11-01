@@ -86,6 +86,12 @@ QuickToolBar::~QuickToolBar()
     m_widget = nullptr;
 }
 
+QuickToolBar *QuickToolBar::instance()
+{
+    static QuickToolBar theQuickToolBar;
+    return &theQuickToolBar;
+}
+
 void QuickToolBar::apply(TextEditor::TextEditorWidget *editorWidget, Document::Ptr document, const ScopeChain *scopeChain, Node *node, bool update, bool force)
 {
     if (!QmlJsEditingSettings::get().enableContextPane() && !force && !update) {
@@ -318,8 +324,7 @@ void QuickToolBar::removeProperty(const QString &propertyName)
             Utils::ChangeSet changeSet;
             Rewriter rewriter(m_doc->source(), &changeSet, m_propertyOrder);
             rewriter.removeBindingByName(initializer, propertyName);
-            QTextCursor tc(m_editorWidget->document());
-            changeSet.apply(&tc);
+            changeSet.apply(m_editorWidget->document());
         }
     }
 }
@@ -332,12 +337,10 @@ void QuickToolBar::setEnabled(bool b)
         widget()->hide();
 }
 
-
-QWidget* QuickToolBar::widget()
+QWidget *QuickToolBar::widget()
 {
     return contextWidget();
 }
-
 
 void QuickToolBar::onPropertyChanged(const QString &name, const QVariant &value)
 {
@@ -406,7 +409,7 @@ void QuickToolBar::indentLines(int startLine, int endLine)
     }
 }
 
-ContextPaneWidget* QuickToolBar::contextWidget()
+ContextPaneWidget *QuickToolBar::contextWidget()
 {
     if (m_widget.isNull()) { //lazily recreate widget
         m_widget = new ContextPaneWidget;
@@ -420,7 +423,8 @@ ContextPaneWidget* QuickToolBar::contextWidget()
                 this, &QuickToolBar::onEnabledChanged);
         connect(m_widget.data(), &ContextPaneWidget::pinnedChanged,
                 this, &QuickToolBar::onPinnedChanged);
-        connect(m_widget.data(), &ContextPaneWidget::closed, this, &IContextPane::closed);
+        connect(m_widget.data(), &ContextPaneWidget::closed,
+                this, &QuickToolBar::closed);
     }
     return m_widget.data();
 }

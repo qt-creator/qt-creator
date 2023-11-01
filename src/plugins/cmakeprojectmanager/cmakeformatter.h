@@ -12,12 +12,6 @@ class CMakeFormatter
 {
 public:
     CMakeFormatter();
-    ~CMakeFormatter();
-
-    void applyIfNecessary(Core::IDocument *document) const;
-
-private:
-    class CMakeFormatterPrivate *d = nullptr;
 };
 
 } // CMakeProjectManager::Internal

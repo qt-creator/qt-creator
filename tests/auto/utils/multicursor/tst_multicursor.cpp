@@ -57,7 +57,7 @@ public:
     QTextCursor toTextCursor(QTextDocument *doc)
     {
         if (p.first < 0)
-            return QTextCursor();
+            return {};
         QTextCursor c(doc);
         c.setPosition(p.second);
         c.setPosition(p.first, QTextCursor::KeepAnchor);

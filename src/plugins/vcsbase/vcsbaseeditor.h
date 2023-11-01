@@ -60,6 +60,7 @@ public:
 class VCSBASE_EXPORT VcsBaseEditor : public TextEditor::BaseTextEditor
 {
     Q_OBJECT
+
 public:
     VcsBaseEditor();
 

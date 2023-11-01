@@ -10,7 +10,7 @@
 #include "ieditor.h"
 #include "ieditorfactory.h"
 
-#include <coreplugin/idocument.h>
+#include "../idocument.h"
 
 #include <QList>
 #include <QObject>
@@ -96,25 +96,9 @@ public:
 
     static void saveSettings();
     static void readSettings();
-    static Qt::CaseSensitivity readFileSystemSensitivity(QSettings *settings);
+    static Qt::CaseSensitivity readFileSystemSensitivity(Utils::QtcSettings *settings);
     static void writeFileSystemSensitivity(Utils::QtcSettings *settings,
                                            Qt::CaseSensitivity sensitivity);
-    static void setAutoSaveEnabled(bool enabled);
-    static bool autoSaveEnabled();
-    static void setAutoSaveInterval(int interval);
-    static int autoSaveInterval();
-    static void setAutoSaveAfterRefactoring(bool enabled);
-    static bool autoSaveAfterRefactoring();
-    static void setAutoSuspendEnabled(bool enabled);
-    static bool autoSuspendEnabled();
-    static void setAutoSuspendMinDocumentCount(int count);
-    static int autoSuspendMinDocumentCount();
-    static void setWarnBeforeOpeningBigFilesEnabled(bool enabled);
-    static bool warnBeforeOpeningBigFilesEnabled();
-    static void setBigFileSizeLimit(int limitInMB);
-    static int bigFileSizeLimit();
-    static void setMaxRecentFiles(int count);
-    static int maxRecentFiles();
 
     static EditorWindow *createEditorWindow();
     static void splitNewWindow(Internal::EditorView *view);
@@ -131,6 +115,8 @@ public:
 
     static void setPlaceholderText(const QString &text);
     static QString placeholderText();
+
+    static void updateAutoSave();
 
 public slots:
     static bool saveDocument(Core::IDocument *document);
@@ -181,7 +167,7 @@ private:
     static OpenEditorsWindow *windowPopup();
     static void showPopupOrSelectDocument();
 
-    static EditorFactoryList findFactories(Utils::Id editorId, const Utils::FilePath &filePath);
+    static EditorFactories findFactories(Utils::Id editorId, const Utils::FilePath &filePath);
     static IEditor *createEditor(IEditorFactory *factory, const Utils::FilePath &filePath);
     static void addEditor(IEditor *editor);
     static void removeEditor(IEditor *editor, bool removeSusependedEntry);
@@ -191,7 +177,6 @@ private:
     static EditorArea *findEditorArea(const EditorView *view, int *areaIndex = nullptr);
     static IEditor *pickUnusedEditor(Internal::EditorView **foundView = nullptr);
     static void addDocumentToRecentFiles(IDocument *document);
-    static void updateAutoSave();
     static void updateMakeWritableWarning();
     static void setupSaveActions(IDocument *document, QAction *saveAction,
                                  QAction *saveAsAction, QAction *revertToSavedAction);
@@ -263,23 +248,6 @@ private:
     EditorManager::WindowTitleHandler m_sessionTitleHandler;
     EditorManager::WindowTitleHandler m_titleVcsTopicHandler;
 
-    struct Settings
-    {
-        IDocument::ReloadSetting reloadSetting = IDocument::AlwaysAsk;
-
-        bool autoSaveEnabled = true;
-        int autoSaveInterval = 5;
-
-        bool autoSuspendEnabled = true;
-        int autoSuspendMinDocumentCount = 10;
-
-        bool autoSaveAfterRefactoring = true;
-        bool warnBeforeOpeningBigFilesEnabled = true;
-        int bigFileSizeLimitInMB = 5;
-        int maxRecentFiles = 8;
-    };
-
-    Settings m_settings;
     QString m_placeholderText;
     QList<std::function<bool(IEditor *)>> m_closeEditorListeners;
 };

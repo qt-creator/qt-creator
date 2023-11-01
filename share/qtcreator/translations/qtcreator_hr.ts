@@ -874,16 +874,12 @@
         <translation>Želiš li prihvatiti licencu za Android SDK?</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Provjera neriješenih licenca …
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Provjera neriješenih licenca …</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-Upravljač za SDK je zauzet.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>Upravljač za SDK je zauzet.</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -1428,8 +1424,8 @@ Lokalne obveze se ne guraju u glavnu granu sve dok se ne izvrši normalna obveza
         <translation>Lokalni datotečni sustav:</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Na primjer: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Na primjer: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Specify URL:</source>
@@ -4824,8 +4820,8 @@ Greška: %5</translation>
         <translation>Lokalni datotečni sustav:</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Na primjer: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Na primjer: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Specify URL:</source>
@@ -5564,20 +5560,20 @@ Greška: %5</translation>
         <translation>Upravljač za sesije</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Novi</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Novi...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Preimenuj</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Preimenuj...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>K&amp;loniraj</translation>
+        <source>C&amp;lone...</source>
+        <translation>K&amp;loniraj...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Ukloni</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Ukloni...</translation>
     </message>
     <message>
         <source>&amp;Open</source>
@@ -8805,7 +8801,7 @@ should a repository require SSH-authentication (see documentation on SSH and the
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj knjižnu oznaku</translation>
@@ -13630,9 +13626,7 @@ Do you want to uninstall the existing package?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
+        <source>License command failed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13644,9 +13638,7 @@ Do you want to uninstall the existing package?</source>
         <translation type="unfinished">Neuspjelo.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
+        <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15383,14 +15375,10 @@ Check the test environment.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bookmark</source>
         <translation>Knjižna oznaka</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Ukloni</translation>
     </message>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
@@ -18580,8 +18568,8 @@ Do you want to kill it?</source>
         <translation>Nije moguće pokrenuti „%1”: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Došlo je do prekoračenja vremena prilikom pokretanja „%1”</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Došlo je do prekoračenja vremena prilikom pokretanja „%1”.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -36253,7 +36241,7 @@ What do you want to do?</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Show Bookmark</source>
         <translation>Prikaži knjižnu oznaku</translation>

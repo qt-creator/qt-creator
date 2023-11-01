@@ -39,11 +39,16 @@ class EditorToolBar;
 
 namespace Internal {
 
-struct EditLocation {
+class EditLocation
+{
+public:
+    QByteArray save() const;
+    static EditLocation load(const QByteArray &data);
+
     QPointer<IDocument> document;
     Utils::FilePath filePath;
     Utils::Id id;
-    QVariant state;
+    QByteArray state;
 };
 
 class SplitterOrView;

@@ -10,6 +10,9 @@
 #include "webassemblytr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/aspects.h>
 #include <utils/environment.h>
@@ -18,19 +21,16 @@
 #include <utils/pathchooser.h>
 #include <utils/utilsicons.h>
 
-#include <QGroupBox>
 #include <QTextBrowser>
 #include <QTimer>
 
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
-static WebAssemblySettings *theSettings = nullptr;
-
-WebAssemblySettings *WebAssemblySettings::instance()
+WebAssemblySettings &settings()
 {
+    static WebAssemblySettings theSettings;
     return theSettings;
 }
 
@@ -52,18 +52,12 @@ static QString environmentDisplay(const FilePath &sdkRoot)
 
 WebAssemblySettings::WebAssemblySettings()
 {
-    theSettings = this;
-
     setSettingsGroup("WebAssembly");
+    setAutoApply(false);
 
-    setId(Id(Constants::SETTINGS_ID));
-    setDisplayName(Tr::tr("WebAssembly"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-
-    registerAspect(&emSdk);
     emSdk.setSettingsKey("EmSdk");
     emSdk.setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    emSdk.setDefaultFilePath(FileUtils::homePath());
+    emSdk.setDefaultValue(QDir::homePath());
 
     connect(this, &Utils::AspectContainer::applied, &WebAssemblyToolChain::registerToolChains);
 
@@ -164,5 +158,20 @@ void WebAssemblySettings::updateStatus()
     m_qtVersionDisplay->setVisible(WebAssemblyQtVersion::isUnsupportedQtVersionInstalled());
 }
 
-} // Internal
-} // WebAssembly
+// WebAssemblySettingsPage
+
+class WebAssemblySettingsPage final : public Core::IOptionsPage
+{
+public:
+    WebAssemblySettingsPage()
+    {
+        setId(Id(Constants::SETTINGS_ID));
+        setDisplayName(Tr::tr("WebAssembly"));
+        setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const WebAssemblySettingsPage settingsPage;
+
+} // WebAssembly::Internal

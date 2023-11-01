@@ -6,8 +6,10 @@
 #include "client.h"
 #include "server.h"
 
-namespace Nim {
-namespace Suggest {
+#include <utils/filepath.h>
+
+
+namespace Nim::Suggest {
 
 class NimSuggest : public QObject
 {
@@ -16,11 +18,11 @@ class NimSuggest : public QObject
 public:
     NimSuggest(QObject *parent = nullptr);
 
-    QString projectFile() const;
-    void setProjectFile(const QString &file);
+    Utils::FilePath projectFile() const;
+    void setProjectFile(const Utils::FilePath &file);
 
-    QString executablePath() const;
-    void setExecutablePath(const QString &path);
+    Utils::FilePath executablePath() const;
+    void setExecutablePath(const Utils::FilePath &path);
 
     bool isReady() const;
 
@@ -32,8 +34,8 @@ public:
 
 signals:
     void readyChanged(bool ready);
-    void projectFileChanged(const QString &projectFile);
-    void executablePathChanged(const QString &executablePath);
+    void projectFileChanged(const Utils::FilePath &projectFile);
+    void executablePathChanged(const Utils::FilePath &executablePath);
 
 private:
     void restart();
@@ -61,11 +63,10 @@ private:
     bool m_ready = false;
     bool m_clientReady = false;
     bool m_serverReady = false;
-    QString m_projectFile;
-    QString m_executablePath;
+    Utils::FilePath m_projectFile;
+    Utils::FilePath m_executablePath;
     NimSuggestServer m_server;
     NimSuggestClient m_client;
 };
 
-} // namespace Suggest
-} // namespace Nim
+} // Nim::Suggest

@@ -911,7 +911,7 @@ bool ProjectNode::addSubProject(const FilePath &proFilePath)
 
 QStringList ProjectNode::subProjectFileNamePatterns() const
 {
-    return QStringList();
+    return {};
 }
 
 bool ProjectNode::removeSubProject(const FilePath &proFilePath)

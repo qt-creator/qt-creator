@@ -7,7 +7,7 @@
 
 namespace CodePaster {
 
-class FileShareProtocolSettings : public Core::PagedSettings
+class FileShareProtocolSettings final : public Utils::AspectContainer
 {
 public:
     FileShareProtocolSettings();
@@ -15,5 +15,9 @@ public:
     Utils::FilePathAspect path{this};
     Utils::IntegerAspect displayCount{this};
 };
+
+FileShareProtocolSettings &fileShareSettings();
+
+Core::IOptionsPage &fileShareSettingsPage();
 
 } // CodePaster

@@ -5,8 +5,10 @@
 
 #include "qmakeprojectmanager_global.h"
 
+#include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtbuildaspects.h>
 
 #include <utils/aspects.h>
 
@@ -65,7 +67,7 @@ public:
             QString *arguments, const Utils::FilePath &directory, const QtSupport::QtVersion *version,
             QStringList *outArgs = nullptr);
 
-    QVariantMap toMap() const override;
+    void toMap(Utils::Store &map) const override;
 
     BuildType buildType() const override;
 
@@ -76,16 +78,16 @@ public:
                                          const Utils::FilePath &buildDir);
     bool isBuildDirAtSafeLocation() const;
 
-    Utils::TriState separateDebugInfo() const;
     void forceSeparateDebugInfo(bool sepDebugInfo);
-
-    Utils::TriState qmlDebugging() const;
     void forceQmlDebugging(bool enable);
-
-    Utils::TriState useQtQuickCompiler() const;
     void forceQtQuickCompiler(bool enable);
 
-    bool runSystemFunction() const;
+    ProjectExplorer::SeparateDebugInfoAspect separateDebugInfo{this};
+    QtSupport::QmlDebuggingAspect qmlDebugging{this};
+    QtSupport::QtQuickCompilerAspect useQtQuickCompiler{this};
+    Utils::SelectionAspect runSystemFunctions{this};
+
+    bool runQmakeSystemFunctions() const;
 
 signals:
     /// emitted for setQMakeBuildConfig, not emitted for Qt version changes, even
@@ -97,7 +99,7 @@ signals:
     void useQtQuickCompilerChanged();
 
 protected:
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const Utils::Store &map) override;
     bool regenerateBuildFiles(ProjectExplorer::Node *node = nullptr) override;
 
 private:

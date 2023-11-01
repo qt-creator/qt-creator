@@ -53,7 +53,7 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 
     using namespace Tasking;
 
-    const TreeStorage<QString> diffInputStorage = inputStorage();
+    const TreeStorage<QString> diffInputStorage;
 
     const auto setupDiff = [=](Process &process) {
         setupCommand(process, {addConfigurationArguments(args)});
@@ -64,9 +64,9 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
     };
 
     const Group root {
-        Storage(diffInputStorage),
+        Tasking::Storage(diffInputStorage),
         ProcessTask(setupDiff, onDiffDone),
-        postProcessTask()
+        postProcessTask(diffInputStorage)
     };
     setReloadRecipe(root);
 }

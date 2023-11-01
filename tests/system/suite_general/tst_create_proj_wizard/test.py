@@ -33,8 +33,8 @@ def main():
         # skip non-configurable
         if "Import" in category:
             continue
-        # FIXME
-        if "Qt for Python" in category:
+        # FIXME special or complicated
+        if "Qt for Python" in category or "Test Project" in category:
             continue
         mouseClick(waitForObjectItem(categoriesView, "Projects." + category))
         templatesView = waitForObject("{name='templatesView' type='QListView' visible='1'}")
@@ -45,7 +45,7 @@ def main():
             if template == "Qt Quick 2 Extension Plugin":
                 continue
             # skip non-configurable
-            if template not in ["Qt Quick UI Prototype", "Auto Test Project", "Qt Creator Plugin"]:
+            if template not in ["Qt Quick UI Prototype", "Qt Creator Plugin"]:
                 availableProjectTypes.append({category:template})
     safeClickButton("Cancel")
     for current in availableProjectTypes:

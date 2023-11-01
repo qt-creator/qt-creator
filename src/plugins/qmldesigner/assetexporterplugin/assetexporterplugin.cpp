@@ -38,8 +38,10 @@ namespace QmlDesigner {
 
 AssetExporterPlugin::AssetExporterPlugin()
 {
-    ProjectExplorer::TaskHub::addCategory( Constants::TASK_CATEGORY_ASSET_EXPORT,
-                                           tr("Asset Export"), false);
+    ProjectExplorer::TaskHub::addCategory({Constants::TASK_CATEGORY_ASSET_EXPORT,
+                                           tr("Asset Export"),
+                                           tr("Issues with exporting assets."),
+                                           false});
 
     auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
     auto &viewManager = designerPlugin->viewManager();

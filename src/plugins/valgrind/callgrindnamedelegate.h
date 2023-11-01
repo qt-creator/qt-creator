@@ -5,8 +5,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class NameDelegate : public QStyledItemDelegate
 {
@@ -17,5 +16,4 @@ public:
                const QModelIndex &index) const override;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

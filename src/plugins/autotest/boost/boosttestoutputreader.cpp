@@ -3,7 +3,7 @@
 
 #include "boosttestoutputreader.h"
 
-#include "boosttestsettings.h"
+#include "boosttestframework.h"
 #include "boosttestresult.h"
 
 #include "../autotesttr.h"
@@ -327,7 +327,8 @@ void BoostTestOutputReader::processOutputLine(const QByteArray &outputLine)
         BoostTestResult result(id(), {}, m_projectFile);
         const int failed = match.captured(1).toInt();
         const int fatals = m_summary.value(ResultType::MessageFatal);
-        QString txt = Tr::tr("%1 failures detected in %2.").arg(failed).arg(match.captured(3));
+        QString txt
+            = Tr::tr("%n failure(s) detected in %1.", nullptr, failed).arg(match.captured(3));
         const int passed = qMax(0, m_testCaseCount - failed);
         if (m_testCaseCount != -1)
             txt.append(' ').append(Tr::tr("%1 tests passed.").arg(passed));

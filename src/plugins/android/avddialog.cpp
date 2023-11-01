@@ -166,7 +166,7 @@ ProjectExplorer::IDevice::Ptr AvdDialog::device() const
     using namespace ProjectExplorer;
     dev->setupId(IDevice::AutoDetected, deviceId);
     dev->setMachineType(IDevice::Emulator);
-    dev->setDisplayName(m_createdAvdInfo.name);
+    dev->settings()->displayName.setValue(m_createdAvdInfo.name);
     dev->setDeviceState(IDevice::DeviceConnected);
     dev->setExtraData(Constants::AndroidAvdName, m_createdAvdInfo.name);
     dev->setExtraData(Constants::AndroidCpuAbi, {m_createdAvdInfo.abi});

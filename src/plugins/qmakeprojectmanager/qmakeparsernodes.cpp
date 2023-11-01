@@ -28,7 +28,6 @@
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditorsettings.h>
 
-#include <utils/QtConcurrentTools>
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>
@@ -1918,7 +1917,7 @@ FilePaths QmakeProFile::subDirsPaths(QtSupport::ProFileReader *reader,
         else
             realFile = realDir;
 
-        if (QFile::exists(realFile)) {
+        if (QFileInfo::exists(realFile)) {
             realFile = QDir::cleanPath(realFile);
             subProjectPaths << FilePath::fromString(realFile);
             if (subProjectsNotToDeploy && !subProjectsNotToDeploy->contains(realFile)

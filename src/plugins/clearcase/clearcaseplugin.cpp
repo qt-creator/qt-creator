@@ -828,7 +828,7 @@ QStringList ClearCasePluginPrivate::ccGetActiveVobs() const
         // Snapshot views does not necessarily have all active VOBs loaded, so we'll have to
         // check if the dirs exists as well. Else the command will work, but the output will
         // complain about the element not being loaded.
-        if (QFile::exists(prefix + relativeDir))
+        if (QFileInfo::exists(prefix + relativeDir))
             res.append(relativeDir);
     }
     return res;

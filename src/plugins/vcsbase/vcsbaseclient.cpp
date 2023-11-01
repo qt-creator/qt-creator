@@ -57,14 +57,8 @@ namespace VcsBase {
 VcsBaseClientImpl::VcsBaseClientImpl(VcsBaseSettings *baseSettings)
     : m_baseSettings(baseSettings)
 {
-    m_baseSettings->readSettings();
     connect(ICore::instance(), &ICore::saveSettingsRequested,
             this, &VcsBaseClientImpl::saveSettings);
-}
-
-VcsBaseSettings &VcsBaseClientImpl::settings() const
-{
-    return *m_baseSettings;
 }
 
 FilePath VcsBaseClientImpl::vcsBinary() const
@@ -121,7 +115,7 @@ QStringList VcsBaseClientImpl::splitLines(const QString &s)
     if (output.endsWith(newLine))
         output.truncate(output.size() - 1);
     if (output.isEmpty())
-        return QStringList();
+        return {};
     return output.split(newLine);
 }
 
@@ -246,7 +240,7 @@ VcsBaseEditorWidget *VcsBaseClientImpl::createVcsEditor(Id kind, QString title,
 
 void VcsBaseClientImpl::saveSettings()
 {
-    m_baseSettings->writeSettings(ICore::settings());
+    m_baseSettings->writeSettings();
 }
 
 VcsBaseClient::VcsBaseClient(VcsBaseSettings *baseSettings)
@@ -521,7 +515,7 @@ QString VcsBaseClient::vcsCommandString(VcsCommandTag cmd) const
     case LogCommand: return QLatin1String("log");
     case StatusCommand: return QLatin1String("status");
     }
-    return QString();
+    return {};
 }
 
 ExitCodeInterpreter VcsBaseClient::exitCodeInterpreter(VcsCommandTag cmd) const

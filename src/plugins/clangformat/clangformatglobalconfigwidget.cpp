@@ -16,6 +16,7 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
+#include <QSpinBox>
 #include <QWidget>
 
 #include <sstream>
@@ -31,8 +32,14 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     , m_project(project)
     , m_codeStyle(codeStyle)
 {
+    const QString sizeThresholdToolTip = Tr::tr(
+        "Files greater than this will not be indented by ClangFormat.\n"
+        "The built-in code indenter will handle indentation.");
+
     m_projectHasClangFormat = new QLabel(this);
     m_formattingModeLabel = new QLabel(Tr::tr("Formatting mode:"));
+    m_fileSizeThresholdLabel = new QLabel(Tr::tr("Ignore files greater than:"));
+    m_fileSizeThresholdSpinBox = new QSpinBox(this);
     m_indentingOrFormatting = new QComboBox(this);
     m_formatWhileTyping = new QCheckBox(Tr::tr("Format while typing"));
     m_formatOnSave = new QCheckBox(Tr::tr("Format edited code on file save"));
@@ -50,7 +57,10 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
         title(Tr::tr("ClangFormat settings:")),
         Column {
             m_useGlobalSettings,
-            Row { m_formattingModeLabel, m_indentingOrFormatting, st },
+            Form {
+                 m_formattingModeLabel, m_indentingOrFormatting, st, br,
+                 m_fileSizeThresholdLabel, m_fileSizeThresholdSpinBox, st, br
+            },
             m_formatWhileTyping,
             m_formatOnSave,
             m_projectHasClangFormat,
@@ -67,9 +77,9 @@ ClangFormatGlobalConfigWidget::ClangFormatGlobalConfigWidget(
     initIndentationOrFormattingCombobox();
     initOverrideCheckBox();
     initUseGlobalSettingsCheckBox();
+    initFileSizeThresholdSpinBox();
 
     if (project) {
-        m_formattingModeLabel->hide();
         m_formatOnSave->hide();
         m_formatWhileTyping->hide();
 
@@ -124,6 +134,11 @@ void ClangFormatGlobalConfigWidget::initUseGlobalSettingsCheckBox()
     const auto enableProjectSettings = [this] {
         const bool isDisabled = m_project && m_useGlobalSettings->isChecked();
         m_indentingOrFormatting->setDisabled(isDisabled);
+        m_formattingModeLabel->setDisabled(isDisabled);
+        m_projectHasClangFormat->setDisabled(
+            isDisabled
+            || (m_indentingOrFormatting->currentIndex()
+                == static_cast<int>(ClangFormatSettings::Mode::Disable)));
         m_overrideDefault->setDisabled(isDisabled
                                        || (m_indentingOrFormatting->currentIndex()
                                            == static_cast<int>(ClangFormatSettings::Mode::Disable)));
@@ -137,6 +152,25 @@ void ClangFormatGlobalConfigWidget::initUseGlobalSettingsCheckBox()
                 m_project->setNamedSettings(Constants::USE_GLOBAL_SETTINGS, checked);
                 enableProjectSettings();
             });
+}
+
+void ClangFormatGlobalConfigWidget::initFileSizeThresholdSpinBox()
+{
+    m_fileSizeThresholdSpinBox->setMinimum(1);
+    m_fileSizeThresholdSpinBox->setMaximum(std::numeric_limits<int>::max());
+    m_fileSizeThresholdSpinBox->setSuffix(" KB");
+    m_fileSizeThresholdSpinBox->setValue(ClangFormatSettings::instance().fileSizeThreshold());
+    if (m_project) {
+        m_fileSizeThresholdSpinBox->hide();
+        m_fileSizeThresholdLabel->hide();
+    }
+
+    connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged, this, [this](int index) {
+        m_fileSizeThresholdLabel->setEnabled(
+            index != static_cast<int>(ClangFormatSettings::Mode::Disable));
+        m_fileSizeThresholdSpinBox->setEnabled(
+            index != static_cast<int>(ClangFormatSettings::Mode::Disable));
+    });
 }
 
 bool ClangFormatGlobalConfigWidget::projectClangFormatFileExists()
@@ -170,6 +204,7 @@ void ClangFormatGlobalConfigWidget::initOverrideCheckBox()
     auto setEnableOverrideCheckBox = [this, setTemporarilyReadOnly](int index) {
         bool isDisable = index == static_cast<int>(ClangFormatSettings::Mode::Disable);
         m_overrideDefault->setDisabled(isDisable);
+        m_projectHasClangFormat->setDisabled(isDisable);
         setTemporarilyReadOnly();
     };
 
@@ -215,6 +250,7 @@ void ClangFormatGlobalConfigWidget::apply()
         settings.setMode(
             static_cast<ClangFormatSettings::Mode>(m_indentingOrFormatting->currentIndex()));
         settings.setOverrideDefaultFile(m_overrideDefault->isChecked());
+        settings.setFileSizeThreshold(m_fileSizeThresholdSpinBox->value());
         m_overrideDefaultFile = m_overrideDefault->isChecked();
     }
     settings.write();

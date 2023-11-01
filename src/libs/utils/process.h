@@ -30,6 +30,7 @@ class Environment;
 class DeviceProcessHooks;
 class ProcessInterface;
 class ProcessResultData;
+class ProcessRunData;
 
 class QTCREATOR_UTILS_EXPORT Process final : public QObject
 {
@@ -78,6 +79,21 @@ public:
 
     // ProcessSetupData related
 
+    void setRunData(const ProcessRunData &data);
+    ProcessRunData runData() const;
+
+    void setCommand(const CommandLine &cmdLine);
+    const CommandLine &commandLine() const;
+
+    void setWorkingDirectory(const FilePath &dir);
+    FilePath workingDirectory() const;
+
+    void setEnvironment(const Environment &env);  // Main process
+    const Environment &environment() const;
+
+    void setControlEnvironment(const Environment &env); // Possible helper process (ssh on host etc)
+    const Environment &controlEnvironment() const;
+
     void setProcessImpl(ProcessImpl processImpl);
 
     void setPtyData(const std::optional<Pty::Data> &data);
@@ -90,18 +106,6 @@ public:
     void setProcessMode(ProcessMode processMode);
     ProcessMode processMode() const;
 
-    void setEnvironment(const Environment &env);  // Main process
-    const Environment &environment() const;
-
-    void setControlEnvironment(const Environment &env); // Possible helper process (ssh on host etc)
-    const Environment &controlEnvironment() const;
-
-    void setCommand(const CommandLine &cmdLine);
-    const CommandLine &commandLine() const;
-
-    void setWorkingDirectory(const FilePath &dir);
-    FilePath workingDirectory() const;
-
     void setWriteData(const QByteArray &writeData);
 
     void setUseCtrlCStub(bool enabled); // release only
@@ -111,8 +115,9 @@ public:
     bool isRunAsRoot() const;
     void setAbortOnMetaChars(bool abort);
 
-    QProcess::ProcessChannelMode processChannelMode() const;
     void setProcessChannelMode(QProcess::ProcessChannelMode mode);
+    QProcess::ProcessChannelMode processChannelMode() const;
+
     void setStandardInputFile(const QString &inputFile);
 
     void setExtraData(const QString &key, const QVariant &value);
@@ -133,9 +138,6 @@ public:
     // Other enhancements.
     // These (or some of them) may be potentially moved outside of the class.
     // Some of them could be aggregated in another public utils class.
-
-    // TODO: Unused currently? Should it serve as a compartment for contrary of remoteEnvironment?
-    static Environment systemEnvironmentForBinary(const FilePath &filePath);
 
     static bool startDetached(const CommandLine &cmd, const FilePath &workingDirectory = {},
                               qint64 *pid = nullptr);
@@ -207,7 +209,6 @@ class DeviceProcessHooks
 {
 public:
     std::function<ProcessInterface *(const FilePath &)> processImplHook;
-    std::function<Environment(const FilePath &)> systemEnvironmentForBinary;
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter : public Tasking::TaskAdapter<Process>
@@ -217,8 +218,8 @@ public:
     void start() final;
 };
 
-} // namespace Utils
+using ProcessTask = Tasking::CustomTask<ProcessTaskAdapter>;
 
-TASKING_DECLARE_TASK(ProcessTask, Utils::ProcessTaskAdapter);
+} // namespace Utils
 
 #endif // UTILS_PROCESS_H

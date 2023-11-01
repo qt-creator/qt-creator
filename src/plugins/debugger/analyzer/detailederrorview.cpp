@@ -134,7 +134,7 @@ QList<QAction *> DetailedErrorView::commonActions() const
 
 QList<QAction *> DetailedErrorView::customActions() const
 {
-    return QList<QAction *>();
+    return {};
 }
 
 int DetailedErrorView::currentRow() const

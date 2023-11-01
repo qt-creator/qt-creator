@@ -4,14 +4,12 @@
 #pragma once
 
 #include "ilocatorfilter.h"
+#include "../actionmanager/command.h"
 
-#include <coreplugin/actionmanager/command.h>
 #include <extensionsystem/iplugin.h>
 
 #include <QObject>
 #include <QTimer>
-
-#include <functional>
 
 namespace Tasking { class TaskTree; }
 

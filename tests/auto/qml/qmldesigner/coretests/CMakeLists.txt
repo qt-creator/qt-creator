@@ -1,4 +1,5 @@
 add_qtc_test(tst_qml_testcore
+  NEEDS_GUI
   EXCLUDE_FROM_PRECHECK
   CONDITION TARGET QmlProjectManager
   DEPENDS

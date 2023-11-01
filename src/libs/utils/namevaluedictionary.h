@@ -30,7 +30,7 @@ inline bool operator<(const DictKey &k1, const DictKey &k2)
 inline bool operator>(const DictKey &k1, const DictKey &k2) { return k2 < k1; }
 
 using NameValuePair = std::pair<QString, QString>;
-using NameValuePairs = QVector<NameValuePair>;
+using NameValuePairs = QList<NameValuePair>;
 using NameValueMap = QMap<DictKey, QPair<QString, bool>>;
 
 class QTCREATOR_UTILS_EXPORT NameValueDictionary

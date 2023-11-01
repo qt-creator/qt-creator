@@ -7,7 +7,6 @@ QtcPlugin {
     Depends { name: "Utils" }
 
     Depends { name: "Core" }
-    Depends { name: "app_version_header" }
 
     files: [
         "introductionwidget.cpp",

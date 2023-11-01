@@ -10,7 +10,6 @@
 #include <utils/layoutbuilder.h>
 
 #include <QApplication>
-#include <QBoxLayout>
 #include <QButtonGroup>
 #include <QDebug>
 #include <QDir>
@@ -260,7 +259,7 @@ void ContextPaneWidgetImage::setProperties(QmlJS::PropertyReader *propertyReader
     if (propertyReader->hasProperty(QLatin1String("source"))) {
         QString source = propertyReader->readProperty(QLatin1String("source")).toString();
         m_fileWidget->setFileName(source);
-        if (QFile::exists(m_path + QLatin1Char('/') + source))
+        if (QFileInfo::exists(m_path + QLatin1Char('/') + source))
             setPixmap(m_path + QLatin1Char('/') + source);
         else
             setPixmap(source);
@@ -901,11 +900,6 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
 
     setZoom(1);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    QHBoxLayout *horizontalLayout = new QHBoxLayout();
-    QHBoxLayout *horizontalLayout2 = new QHBoxLayout();
-    layout->setContentsMargins(2, 2, 2, 16);
-    layout->setSpacing(4);
     QToolButton *toolButton = new QToolButton(this);
     QIcon icon(style()->standardIcon(QStyle::SP_DockWidgetCloseButton));
     toolButton->setIcon(icon);
@@ -922,17 +916,14 @@ PreviewDialog::PreviewDialog(QWidget *parent) : DragWidget(parent)
     m_slider->setFixedWidth(80);
     m_zoomLabel->setFixedWidth(50);
 
-    horizontalLayout->addWidget(toolButton);
-    horizontalLayout->addSpacing(6);
-    horizontalLayout->addWidget(m_slider);
-    horizontalLayout->addSpacing(6);
-    horizontalLayout->addWidget(m_zoomLabel);
-    horizontalLayout->addStretch(1);
-
-    layout->addLayout(horizontalLayout);
-    horizontalLayout2->addSpacing(24);
-    horizontalLayout2->addWidget(scrollArea);
-    layout->addLayout(horizontalLayout2);
+    using namespace Layouting;
+    Row {
+        Column { toolButton, st },
+        Column {
+            Row { m_slider, m_zoomLabel, st },
+            scrollArea,
+        }
+    }.attachTo(this);
 
     wheelFilter->setTarget(this);
 

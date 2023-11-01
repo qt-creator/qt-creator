@@ -138,7 +138,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Manual Attenuation")
-            tooltip: qsTr("Set the  manual attenuation factor if distanceModel is set to ManualAttenuation.")
+            tooltip: qsTr("Set the manual attenuation factor if distanceModel is set to ManualAttenuation.")
         }
 
         SecondColumnLayout {

@@ -10,6 +10,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFutureWatcher>
+#include <QPointer>
 
 using namespace Utils;
 

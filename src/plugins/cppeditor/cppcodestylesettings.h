@@ -5,9 +5,7 @@
 
 #include "cppeditor_global.h"
 
-#include <QVariantMap>
-
-#include <optional>
+#include <utils/store.h>
 
 namespace CPlusPlus { class Overview; }
 namespace TextEditor { class TabSettings; }
@@ -62,8 +60,12 @@ public:
     // CppEditor/QuickFixSetting. Remove in 4.16
     bool preferGetterNameWithoutGetPrefix = true;
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+#ifdef WITH_TESTS
+    bool forceFormatting = false;
+#endif
+
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     bool equals(const CppCodeStyleSettings &rhs) const;
     bool operator==(const CppCodeStyleSettings &s) const { return equals(s); }

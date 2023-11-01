@@ -5,7 +5,9 @@
 
 #include <QDialog>
 
-QT_FORWARD_DECLARE_CLASS(QSpinBox)
+QT_BEGIN_NAMESPACE
+class QSpinBox;
+QT_END_NAMESPACE
 
 namespace Utils {
 class FilePath;

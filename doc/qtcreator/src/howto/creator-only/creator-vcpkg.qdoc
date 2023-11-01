@@ -3,40 +3,33 @@
 
 /*!
     \page creator-vcpkg.html
-    \previouspage creator-project-conan.html
-    \nextpage creator-cli.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Managing Packages with vcpkg
 
-    The experimental vcpkg plugin integrates the \l {https://vcpkg.io/en/}{vcpkg}
-    C/C++ package manager into \QC. It's available on all the
+    \brief The experimental vcpkg plugin integrates the vcpkg C/C++ package
+    manager into \QC.
+
+    \l {https://vcpkg.io/en/}{vcpkg} is available on all the
     \l{Supported Platforms}{supported development platforms}.
 
     You can use \QC to create and edit vcpkg.json files to specify packages to
     build as part of your project when using CMake as the build system.
 
-    \section1 Enabling the vcpkg Plugin
-
-    To enable the vcpkg plugin:
-
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol Utilities > \uicontrol Vcpkg to enable the plugin.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
+    \note Enable the Vcpkg plugin to use it.
 
     \section1 Setting vcpkg Preferences
 
     By default, vcpkg is automatically set up for use with CMake. To disable
-    automatic setup, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol CMake > \uicontrol General >
-    \uicontrol {Package manager auto setup}.
+    automatic setup, select \preferences > \uicontrol CMake > \uicontrol General
+    > \uicontrol {Package manager auto setup}.
 
     \image qtcreator-preferences-cmake-general.webp {General tab in CMake Preferences}
 
     To set the \uicontrol Path to the directory where you installed vcpkg, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
-    \uicontrol Vcpkg.
+    \preferences > \uicontrol CMake > \uicontrol Vcpkg.
 
     \image qtcreator-preferences-cmake-vcpkg.webp {Vcpkg tab in CMake Preferences}
 
@@ -85,4 +78,6 @@
     To set the path to the directory where you installed vcpkg, select
     \inlineimage icons/settings.png
     (\uicontrol Configure) on the editor toolbar.
+
+    \sa {Enable and disable plugins}
 */

@@ -22,8 +22,7 @@
     To install plugins:
 
     \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-            \uicontrol {Install Plugins}.
+        \li Go to \uicontrol {About Plugins} > \uicontrol {Install Plugins}.
         \li In the \uicontrol Source dialog, enter the path to the archive
             or library that has the plugin.
             \image qtcreator-install-plugin-source.png
@@ -39,5 +38,5 @@
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
     \endlist
 
-    \sa {Enable and disable plugins}{How-to: Enable and disable plugins}
+    \sa {Enable and disable plugins}
 */

@@ -9,7 +9,6 @@
 #include <utils/environment.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/process.h>
-#include <utils/qtcassert.h>
 
 using namespace DiffEditor;
 using namespace Tasking;
@@ -25,7 +24,6 @@ public:
     VcsBaseDiffEditorController *q;
     Environment m_processEnvironment;
     FilePath m_vcsBinary;
-    const TreeStorage<QString> m_inputStorage;
 };
 
 /////////////////////
@@ -40,20 +38,11 @@ VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
     delete d;
 }
 
-TreeStorage<QString> VcsBaseDiffEditorController::inputStorage() const
+GroupItem VcsBaseDiffEditorController::postProcessTask(const TreeStorage<QString> &inputStorage)
 {
-    return d->m_inputStorage;
-}
-
-GroupItem VcsBaseDiffEditorController::postProcessTask()
-{
-    const auto setupDiffProcessor = [this](Async<QList<FileData>> &async) {
-        const QString *storage = inputStorage().activeStorage();
-        QTC_ASSERT(storage, qWarning("Using postProcessTask() requires putting inputStorage() "
-                                     "into task tree's root group."));
-        const QString inputData = storage ? *storage : QString();
+    const auto setupDiffProcessor = [inputStorage](Async<QList<FileData>> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
-        async.setConcurrentCallData(&DiffUtils::readPatchWithPromise, inputData);
+        async.setConcurrentCallData(&DiffUtils::readPatchWithPromise, *inputStorage);
     };
     const auto onDiffProcessorDone = [this](const Async<QList<FileData>> &async) {
         setDiffFiles(async.isResultAvailable() ? async.result() : QList<FileData>());

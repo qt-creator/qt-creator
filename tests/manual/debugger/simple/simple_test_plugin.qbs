@@ -1,10 +1,11 @@
 import qbs.FileInfo
 
 DynamicLibrary {
+    condition: !qtc.present || qtc.withAutotests
     name: "Manual Test Simple Plugin"
     targetName: "simple_test_plugin"
 
-    Depends { name: "qtc" }
+    Depends { name: "qtc"; required: false }
     Depends { name: "Qt.core" }
 
     files: [ "simple_test_plugin.cpp" ]

@@ -4,8 +4,8 @@
 #include "cppchecktool.h"
 
 #include "cppcheckdiagnostic.h"
-#include "cppcheckoptions.h"
 #include "cppcheckrunner.h"
+#include "cppchecksettings.h"
 #include "cppchecktextmarkmanager.h"
 #include "cppchecktr.h"
 
@@ -26,8 +26,7 @@ using namespace Utils;
 
 namespace Cppcheck::Internal {
 
-CppcheckTool::CppcheckTool(CppcheckOptions &options, CppcheckDiagnosticManager &manager, const Id &progressId) :
-    m_options(options),
+CppcheckTool::CppcheckTool(CppcheckDiagnosticManager &manager, const Id &progressId) :
     m_manager(manager),
     m_progressRegexp("^.* checked (\\d+)% done$"),
     m_messageRegexp("^(.+),(\\d+),(\\w+),(\\w+),(.*)$"),
@@ -43,7 +42,7 @@ CppcheckTool::~CppcheckTool() = default;
 void CppcheckTool::updateOptions()
 {
     m_filters.clear();
-    for (const QString &pattern : m_options.ignoredPatterns().split(',')) {
+    for (const QString &pattern : settings().ignoredPatterns().split(',')) {
         const QString trimmedPattern = pattern.trimmed();
         if (trimmedPattern.isEmpty())
             continue;
@@ -69,45 +68,47 @@ void CppcheckTool::updateArguments()
 
     m_cachedAdditionalArguments.clear();
 
+    CppcheckSettings &s = settings();
+
     QStringList arguments;
-    if (!m_options.customArguments().isEmpty()) {
+    if (!s.customArguments().isEmpty()) {
         Utils::MacroExpander *expander = Utils::globalMacroExpander();
-        const QString expanded = expander->expand(m_options.customArguments());
+        const QString expanded = expander->expand(s.customArguments());
         arguments.push_back(expanded);
     }
 
-    if (m_options.warning())
+    if (s.warning())
         arguments.push_back("--enable=warning");
-    if (m_options.style())
+    if (s.style())
         arguments.push_back("--enable=style");
-    if (m_options.performance())
+    if (s.performance())
         arguments.push_back("--enable=performance");
-    if (m_options.portability())
+    if (s.portability())
         arguments.push_back("--enable=portability");
-    if (m_options.information())
+    if (s.information())
         arguments.push_back("--enable=information");
-    if (m_options.unusedFunction())
+    if (s.unusedFunction())
         arguments.push_back("--enable=unusedFunction");
-    if (m_options.missingInclude())
+    if (s.missingInclude())
         arguments.push_back("--enable=missingInclude");
-    if (m_options.inconclusive())
+    if (s.inconclusive())
         arguments.push_back("--inconclusive");
-    if (m_options.forceDefines())
+    if (s.forceDefines())
         arguments.push_back("--force");
 
-    if (!m_options.unusedFunction() && !m_options.customArguments().contains("-j "))
+    if (!s.unusedFunction() && !s.customArguments().contains("-j "))
         arguments.push_back("-j " + QString::number(QThread::idealThreadCount()));
 
     arguments.push_back("--template=\"{file},{line},{severity},{id},{message}\"");
 
-    m_runner->reconfigure(m_options.binary(), arguments.join(' '));
+    m_runner->reconfigure(s.binary(), arguments.join(' '));
 }
 
 QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part) const
 {
     QStringList result;
 
-    if (m_options.addIncludePaths()) {
+    if (settings().addIncludePaths()) {
         for (const ProjectExplorer::HeaderPath &path : part.headerPaths) {
             const QString projectDir = m_project->projectDirectory().toString();
             if (path.type == ProjectExplorer::HeaderPathType::User
@@ -116,7 +117,7 @@ QStringList CppcheckTool::additionalArguments(const CppEditor::ProjectPart &part
         }
     }
 
-    if (!m_options.guessArguments())
+    if (!settings().guessArguments())
         return result;
 
     using Version = Utils::LanguageVersion;
@@ -180,7 +181,7 @@ void CppcheckTool::check(const Utils::FilePaths &files)
         return;
 
     const CppEditor::ProjectInfo::ConstPtr info
-            = CppEditor::CppModelManager::instance()->projectInfo(m_project);
+            = CppEditor::CppModelManager::projectInfo(m_project);
     if (!info)
         return;
     const QVector<CppEditor::ProjectPart::ConstPtr> parts = info->projectParts();
@@ -221,7 +222,7 @@ void CppcheckTool::stop(const Utils::FilePaths &files)
 
 void CppcheckTool::startParsing()
 {
-    if (m_options.showOutput()) {
+    if (settings().showOutput()) {
         const QString message = Tr::tr("Cppcheck started: \"%1\".").arg(m_runner->currentCommand());
         Core::MessageManager::writeSilently(message);
     }
@@ -240,7 +241,7 @@ void CppcheckTool::parseOutputLine(const QString &line)
     if (line.isEmpty())
         return;
 
-    if (m_options.showOutput())
+    if (settings().showOutput())
         Core::MessageManager::writeSilently(line);
 
     enum Matches { Percentage = 1 };
@@ -271,7 +272,7 @@ void CppcheckTool::parseErrorLine(const QString &line)
     if (line.isEmpty())
         return;
 
-    if (m_options.showOutput())
+    if (settings().showOutput())
         Core::MessageManager::writeSilently(line);
 
     enum Matches { File = 1, Line, Severity, Id, Message };
@@ -296,7 +297,7 @@ void CppcheckTool::parseErrorLine(const QString &line)
 
 void CppcheckTool::finishParsing()
 {
-    if (m_options.showOutput())
+    if (settings().showOutput())
         Core::MessageManager::writeSilently(Tr::tr("Cppcheck finished."));
 
     QTC_ASSERT(m_progress, return);

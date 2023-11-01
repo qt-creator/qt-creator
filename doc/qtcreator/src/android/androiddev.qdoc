@@ -21,7 +21,7 @@
     highlighting, function tooltips, and navigating in code, add a
     \l{Java Language Server}{Java language server}.
 
-    \QC integrates the Android Debug Bridge (\c adb) command line tool for
+    \QC integrates the Android Debug Bridge (\c adb) command-line tool for
     deploying applications to Android devices, running them, and reading their
     logs. The \c adb tool includes a client and server that run on
     the development host and a daemon that runs on the emulator or device.
@@ -55,10 +55,7 @@
     To set up the development environment for Android:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
-            \uicontrol Android on Windows and Linux or \uicontrol {\QC} >
-            \uicontrol Preferences > \uicontrol Devices > \uicontrol Android on
-            \macos.
+        \li Select \preferences > \uicontrol Devices > \uicontrol Android.
             \image qtcreator-options-android-main.png {Android preferences}
         \li In the \uicontrol {JDK location} field, set the path to the JDK.
             \QC checks the JDK installation and reports errors.
@@ -142,10 +139,8 @@
 
     \section2 Managing Android NDK Packages
 
-    To view the installed \l{Android NDK} versions, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Devices > \uicontrol Android on Windows and
-    Linux or \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Devices >
-    \uicontrol Android on \macos.
+    To view the installed \l{Android NDK} versions, select \preferences >
+    \uicontrol Devices > \uicontrol Android.
 
     \image qtcreator-options-android-sdk-tools.png {Android NDK and SDK checks}
 
@@ -162,7 +157,7 @@
     To add custom NDK paths manually to the global list of NDKs, select
     \uicontrol Add. This creates custom tool chains and debuggers associated
     to that NDK. However, you have to manually create a kit that uses the
-    custom NDK. For more information, see \l{Adding Kits}.
+    custom NDK. For more information, see \l{Add kits}.
 
     \section2 Managing Android SDK Packages
 
@@ -172,11 +167,8 @@
     installing, updating, and removing SDK packages. You can still use
     \c sdkmanager for advanced SDK management.
 
-    To view the installed Android SDK packages, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Devices > \uicontrol Android >
-    \uicontrol {SDK Manager} on Windows and Linux or \uicontrol {\QC} >
-    \uicontrol Preferences > \uicontrol Devices > \uicontrol Android >
-    \uicontrol {SDK Manager} on \macos.
+    To view the installed Android SDK packages, select \preferences >
+    \uicontrol Devices > \uicontrol Android > \uicontrol {SDK Manager}.
 
     \image qtcreator-android-sdk-manager.webp {Android SDK Manager}
 
@@ -200,10 +192,8 @@
 
     \section1 Managing Android Virtual Devices (AVD)
 
-    To view the available AVDs, select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol Devices on Windows and Linux or \uicontrol {\QC} >
-    \uicontrol Preferences > \uicontrol Devices > on \macos. You can add more
-    AVDs.
+    To view the available AVDs, select \preferences > \uicontrol Devices.
+    You can add more AVDs.
 
     \image qtcreator-android-avd-manager.png {Android device in Devices}
 
@@ -239,10 +229,8 @@
     To create new virtual devices:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Devices >
-            \uicontrol Add > \uicontrol {Android Device} on Windows and Linux
-            or \uicontrol {\QC} > \uicontrol Preferences > \uicontrol Devices >
-            \uicontrol Add > \uicontrol {Android Device} on \macos to open the
+        \li Select \preferences > \uicontrol Devices >
+            \uicontrol Add > \uicontrol {Android Device} to open the
             \uicontrol {Create New AVD} dialog.
             \image qtcreator-android-create-avd.png {Create New AVD dialog}
         \li Set the name, definition, architecture, target API level, and

@@ -13,8 +13,6 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-#include <app/app_version.h>
-
 using namespace ScxmlEditor::PluginInterface;
 
 ScxmlDocument::ScxmlDocument(const QString &fileName, QObject *parent)
@@ -62,7 +60,7 @@ void ScxmlDocument::clear(bool createRoot)
 
     if (createRoot) {
         pushRootTag(createScxmlTag());
-        rootTag()->setAttribute("qt:editorversion", QLatin1String(Core::Constants::IDE_VERSION_LONG));
+        rootTag()->setAttribute("qt:editorversion", QCoreApplication::applicationVersion());
 
         auto ns = new ScxmlNamespace("qt", "http://www.qt.io/2015/02/scxml-ext");
         ns->setTagVisibility("editorInfo", false);
@@ -207,7 +205,7 @@ bool ScxmlDocument::load(QIODevice *io)
 
                 // Check editorversion
                 m_hasLayouted = rootTag()->hasAttribute("qt:editorversion");
-                rootTag()->setAttribute("qt:editorversion", QLatin1String(Core::Constants::IDE_VERSION_LONG));
+                rootTag()->setAttribute("qt:editorversion", QCoreApplication::applicationVersion());
             }
         }
 
@@ -351,7 +349,7 @@ bool ScxmlDocument::pasteData(const QByteArray &data, const QPointF &minPos, con
 
 void ScxmlDocument::load(const QString &fileName)
 {
-    if (QFile::exists(fileName)) {
+    if (QFileInfo::exists(fileName)) {
         QFile file(fileName);
         if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
             if (load(&file)) {
@@ -363,7 +361,7 @@ void ScxmlDocument::load(const QString &fileName)
     // If loading doesn't work, create root tag here
     if (m_rootTags.isEmpty()) {
         pushRootTag(createScxmlTag());
-        rootTag()->setAttribute("qt:editorversion", QLatin1String(Core::Constants::IDE_VERSION_LONG));
+        rootTag()->setAttribute("qt:editorversion", QCoreApplication::applicationVersion());
     }
 
     auto ns = new ScxmlNamespace("qt", "http://www.qt.io/2015/02/scxml-ext");

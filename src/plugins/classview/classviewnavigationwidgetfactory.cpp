@@ -8,8 +8,9 @@
 
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
+#include <utils/store.h>
 
-#include <QSettings>
+using namespace Utils;
 
 namespace ClassView {
 namespace Internal {
@@ -42,32 +43,30 @@ Core::NavigationView NavigationWidgetFactory::createWidget()
 /*!
    Returns a settings prefix for \a position.
 */
-static QString settingsPrefix(int position)
+static Key settingsPrefix(int position)
 {
-    return QString::fromLatin1("ClassView.Treewidget.%1.FlatMode").arg(position);
+    return numberedKey("ClassView.Treewidget.", position) + ".FlatMode";
 }
 
 //! Flat mode settings
 
-void NavigationWidgetFactory::saveSettings(Utils::QtcSettings *settings,
-                                           int position,
-                                           QWidget *widget)
+void NavigationWidgetFactory::saveSettings(QtcSettings *settings, int position, QWidget *widget)
 {
     auto pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
     // .beginGroup is not used - to prevent simultaneous access
-    QString settingsGroup = settingsPrefix(position);
+    Key settingsGroup = settingsPrefix(position);
     settings->setValue(settingsGroup, pw->flatMode());
 }
 
-void NavigationWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
+void NavigationWidgetFactory::restoreSettings(QtcSettings *settings, int position, QWidget *widget)
 {
     auto pw = qobject_cast<NavigationWidget *>(widget);
     QTC_ASSERT(pw, return);
 
     // .beginGroup is not used - to prevent simultaneous access
-    QString settingsGroup = settingsPrefix(position);
+    Key settingsGroup = settingsPrefix(position);
     pw->setFlatMode(settings->value(settingsGroup, false).toBool());
 }
 

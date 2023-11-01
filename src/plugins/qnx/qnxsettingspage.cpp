@@ -13,7 +13,7 @@
 
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -24,7 +24,7 @@
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
@@ -50,18 +50,18 @@ using namespace Debugger;
 
 namespace Qnx::Internal {
 
-const QLatin1String QNXEnvFileKey("EnvFile");
-const QLatin1String QNXVersionKey("QNXVersion");
+const char QNXEnvFileKey[] = "EnvFile";
+const char QNXVersionKey[] = "QNXVersion";
 // For backward compatibility
-const QLatin1String SdpEnvFileKey("NDKEnvFile");
+const char SdpEnvFileKey[] = "NDKEnvFile";
 
-const QLatin1String QNXConfiguration("QNX_CONFIGURATION");
-const QLatin1String QNXTarget("QNX_TARGET");
-const QLatin1String QNXHost("QNX_HOST");
+const char QNXConfiguration[] = "QNX_CONFIGURATION";
+const char QNXTarget[] = "QNX_TARGET";
+const char QNXHost[] = "QNX_HOST";
 
-const QLatin1String QNXConfigDataKey("QNXConfiguration.");
-const QLatin1String QNXConfigCountKey("QNXConfiguration.Count");
-const QLatin1String QNXConfigsFileVersionKey("Version");
+const char QNXConfigDataKey[] = "QNXConfiguration.";
+const char QNXConfigCountKey[] = "QNXConfiguration.Count";
+const char QNXConfigsFileVersionKey[] = "Version";
 
 static FilePath qnxConfigSettingsFileName()
 {
@@ -74,7 +74,7 @@ public:
     QnxConfiguration() = default;
     explicit QnxConfiguration(const FilePath &envFile) { m_envFile = envFile; }
 
-    void fromMap(const QVariantMap &data)
+    void fromMap(const Store &data)
     {
         QString envFilePath = data.value(QNXEnvFileKey).toString();
         if (envFilePath.isEmpty())
@@ -84,11 +84,11 @@ public:
         m_envFile = FilePath::fromString(envFilePath);
     }
 
-    QVariantMap toMap() const
+    Store toMap() const
     {
-        QVariantMap data;
-        data.insert(QLatin1String(QNXEnvFileKey), m_envFile.toString());
-        data.insert(QLatin1String(QNXVersionKey), m_version.toString());
+        Store data;
+        data.insert(QNXEnvFileKey, m_envFile.toString());
+        data.insert(QNXVersionKey, m_version.toString());
         return data;
     }
 
@@ -238,8 +238,8 @@ Toolchains QnxConfiguration::createToolChains(const QnxTarget &target)
         toolChain->setDisplayName(Tr::tr("QCC for %1 (%2)")
                     .arg(m_configName)
                     .arg(target.shortDescription()));
-        toolChain->setSdpPath(m_envFile.parentDir());
-        toolChain->setCpuDir(target.cpuDir());
+        toolChain->sdpPath.setValue(m_envFile.parentDir());
+        toolChain->cpuDir.setValue(target.cpuDir());
         toolChain->resetToolChain(m_qccCompiler);
         ToolChainManager::registerToolChain(toolChain);
 
@@ -434,19 +434,19 @@ public:
 
     void saveConfigs()
     {
-        QVariantMap data;
-        data.insert(QLatin1String(QNXConfigsFileVersionKey), 1);
+        Store data;
+        data.insert(QNXConfigsFileVersionKey, 1);
         int count = 0;
         for (const QnxConfiguration &config : std::as_const(m_configurations)) {
-            QVariantMap tmp = config.toMap();
+            Store tmp = config.toMap();
             if (tmp.isEmpty())
                 continue;
 
-            data.insert(QNXConfigDataKey + QString::number(count), tmp);
+            data.insert(numberedKey(QNXConfigDataKey, count), variantFromStore(tmp));
             ++count;
         }
 
-        data.insert(QLatin1String(QNXConfigCountKey), count);
+        data.insert(QNXConfigCountKey, count);
         m_writer.save(data, Core::ICore::dialogParent());
     }
 
@@ -456,15 +456,15 @@ public:
         if (!reader.load(qnxConfigSettingsFileName()))
             return;
 
-        QVariantMap data = reader.restoreValues();
+        Store data = reader.restoreValues();
         int count = data.value(QNXConfigCountKey, 0).toInt();
         for (int i = 0; i < count; ++i) {
-            const QString key = QNXConfigDataKey + QString::number(i);
+            const Key key = numberedKey(QNXConfigDataKey, i);
             if (!data.contains(key))
                 continue;
 
             QnxConfiguration config;
-            config.fromMap(data.value(key).toMap());
+            config.fromMap(storeFromVariant(data.value(key)));
             m_configurations[config.m_envFile] = config;
         }
     }

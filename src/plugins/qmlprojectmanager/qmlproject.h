@@ -7,6 +7,8 @@
 #include "qmlprojectmanager_global.h"
 #include <projectexplorer/project.h>
 
+#include <QPointer>
+
 namespace QmlProjectManager {
 
 class QmlProject;
@@ -23,7 +25,7 @@ public:
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
 protected:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) override;
+    RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) override;
 
 private:
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;

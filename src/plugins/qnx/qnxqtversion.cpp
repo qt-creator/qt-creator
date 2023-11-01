@@ -98,7 +98,7 @@ FilePath QnxQtVersion::qnxTarget() const
             return FilePath::fromUserInput(item.value);
     }
 
-    return FilePath();
+    return {};
 }
 
 QString QnxQtVersion::cpuDir() const
@@ -109,16 +109,16 @@ QString QnxQtVersion::cpuDir() const
     return QnxUtils::cpuDirFromAbi(abis.at(0));
 }
 
-QVariantMap QnxQtVersion::toMap() const
+Store QnxQtVersion::toMap() const
 {
-    QVariantMap result = QtVersion::toMap();
+    Store result = QtVersion::toMap();
     result.insert(SDP_PATH_KEY, sdpPath().toSettings());
     return result;
 }
 
-void QnxQtVersion::fromMap(const QVariantMap &map, const Utils::FilePath &)
+void QnxQtVersion::fromMap(const Store &map, const FilePath &, bool forceRefreshCache)
 {
-    QtVersion::fromMap(map);
+    QtVersion::fromMap(map, {}, forceRefreshCache);
     setSdpPath(FilePath::fromSettings(map.value(SDP_PATH_KEY)));
 }
 

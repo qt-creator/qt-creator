@@ -116,6 +116,13 @@ void LanguageClient::LanguageClientManager::addClient(Client *client)
                 for (QList<Client *> &clients : managerInstance->m_clientsForSetting)
                     QTC_CHECK(clients.removeAll(client) == 0);
             });
+
+    ProjectExplorer::Project *project = client->project();
+    if (!project)
+        project = ProjectExplorer::ProjectManager::startupProject();
+    if (project)
+        client->updateConfiguration(ProjectSettings(project).workspaceConfiguration());
+
     emit managerInstance->clientAdded(client);
 }
 
@@ -161,11 +168,12 @@ void LanguageClientManager::clientFinished(Client *client)
     const bool unexpectedFinish = client->state() != Client::Shutdown
                                   && client->state() != Client::ShutdownRequested;
 
+    const QList<TextEditor::TextDocument *> &clientDocs
+        = managerInstance->m_clientForDocument.keys(client);
     if (unexpectedFinish) {
         if (!PluginManager::isShuttingDown()) {
-            const QList<TextEditor::TextDocument *> &clientDocs
-                = managerInstance->m_clientForDocument.keys(client);
-            if (client->reset()) {
+            const bool shouldRestart = client->state() > Client::FailedToInitialize;
+            if (shouldRestart && client->reset()) {
                 qCDebug(Log) << "restart unexpectedly finished client: " << client->name() << client;
                 client->log(
                     Tr::tr("Unexpectedly finished. Restarting in %1 seconds.").arg(restartTimeoutS));
@@ -179,10 +187,14 @@ void LanguageClientManager::clientFinished(Client *client)
             }
             qCDebug(Log) << "client finished unexpectedly: " << client->name() << client;
             client->log(Tr::tr("Unexpectedly finished."));
-            for (TextEditor::TextDocument *document : clientDocs)
-                managerInstance->m_clientForDocument.remove(document);
         }
     }
+
+    if (unexpectedFinish || !QTC_GUARD(clientDocs.isEmpty())) {
+        for (TextEditor::TextDocument *document : clientDocs)
+            openDocumentWithClient(document, nullptr);
+    }
+
     deleteClient(client);
     if (isShutdownFinished())
         emit managerInstance->shutdownFinished();
@@ -390,6 +402,16 @@ const BaseSettings *LanguageClientManager::settingForClient(Client *client)
     return nullptr;
 }
 
+void LanguageClientManager::updateWorkspaceConfiguration(const ProjectExplorer::Project *project,
+                                                         const QJsonValue &json)
+{
+    for (Client *client : managerInstance->m_clients) {
+        ProjectExplorer::Project *clientProject = client->project();
+        if (!clientProject || clientProject == project)
+            client->updateConfiguration(json);
+    }
+}
+
 Client *LanguageClientManager::clientForDocument(TextEditor::TextDocument *document)
 {
     QTC_ASSERT(managerInstance, return nullptr);
@@ -462,8 +484,24 @@ void LanguageClientManager::editorOpened(Core::IEditor *editor)
             connect(widget, &TextEditorWidget::requestLinkAt, this,
                     [document = textEditor->textDocument()]
                     (const QTextCursor &cursor, const Utils::LinkHandler &callback, bool resolveTarget) {
-                        if (auto client = clientForDocument(document))
-                            client->symbolSupport().findLinkAt(document, cursor, callback, resolveTarget);
+                        if (auto client = clientForDocument(document)) {
+                            client->findLinkAt(document,
+                                               cursor,
+                                               callback,
+                                               resolveTarget,
+                                               LinkTarget::SymbolDef);
+                        }
+                    });
+            connect(widget, &TextEditorWidget::requestTypeAt, this,
+                    [document = textEditor->textDocument()]
+                    (const QTextCursor &cursor, const Utils::LinkHandler &callback, bool resolveTarget) {
+                        if (auto client = clientForDocument(document)) {
+                            client->findLinkAt(document,
+                                               cursor,
+                                               callback,
+                                               resolveTarget,
+                                               LinkTarget::SymbolTypeDef);
+                        }
                     });
             connect(widget, &TextEditorWidget::requestUsages, this,
                     [document = textEditor->textDocument()](const QTextCursor &cursor) {
@@ -590,7 +628,7 @@ void LanguageClientManager::trackClientDeletion(Client *client)
 {
     QTC_ASSERT(!m_scheduledForDeletion.contains(client->id()), return);
     m_scheduledForDeletion.insert(client->id());
-    connect(client, &QObject::destroyed, [this, id = client->id()](){
+    connect(client, &QObject::destroyed, this, [this, id = client->id()] {
         m_scheduledForDeletion.remove(id);
         if (isShutdownFinished())
             emit shutdownFinished();

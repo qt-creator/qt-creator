@@ -33,7 +33,7 @@
 
     \QC creates the necessary boilerplate files. Some of the files are
     specific to a particular target platform. You can use wizard templates
-    also to \l{Creating Files}{add files} to the projects.
+    also to \l{Create files}{add files} to the projects.
 
     \section1 Qt Quick Applications
 
@@ -67,7 +67,7 @@
             \QDS, select \uicontrol {Create a project that you can open in \QDS}.
 
         \li In the \uicontrol {Build system} field, select the build system to
-            use for building and running the project: \l {Setting Up CMake}
+            use for building and running the project: \l {CMake}
             {CMake} or \l {Setting Up Qbs}{Qbs}.
 
         \li Select \uicontrol Next to open the
@@ -92,11 +92,9 @@
         \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
             you want to build the application for.
 
-            \note Kits are listed if they have been specified in \uicontrol Edit
-            > \uicontrol Preferences > \uicontrol Kits (on Windows and Linux)
-            or in \uicontrol {\QC} > \uicontrol Preferences >
-            \uicontrol Kits (on \macos).
-            For more information, see \l {Adding Kits}.
+            \note Kits are listed if they have been specified in \preferences >
+            \uicontrol Kits.
+            For more information, see \l {Add kits} and \l {Kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.
@@ -110,7 +108,7 @@
     \QC creates a QML file, \e Main.qml, that you can modify in the
     \uicontrol Edit mode.
 
-    \include creator-python-project.qdocinc python qml project wizards
+    \sa {Creating a Qt for Python Application with Qt Quick}
 
     \section1 Qt Quick UI Projects
 
@@ -170,11 +168,9 @@
         \li Select \l{glossary-buildandrun-kit}{kits} for the platforms that
             you want to build the application for.
 
-            \note Kits are listed if they have been specified in \uicontrol Edit
-            > \uicontrol Preferences > \uicontrol Kits (on Windows and Linux)
-            or in \uicontrol {\QC} > \uicontrol Preferences >
-            \uicontrol Kits (on \macos).
-            For more information, see \l {Adding Kits}.
+            \note Kits are listed if they have been specified in \preferences >
+            \uicontrol Kits.
+            For more information, see \l {Add kits} and \l {Kits}.
 
         \li Select \uicontrol Next to open the \uicontrol {Project Management}
             dialog.

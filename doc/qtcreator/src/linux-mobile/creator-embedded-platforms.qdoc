@@ -3,10 +3,13 @@
 
 /*!
     \page creator-embedded-platforms.html
-    \previouspage creator-desktop-platforms.html
-    \nextpage creator-mobile-platforms.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
 
     \title Embedded Platforms
+
+    \brief Embedded platforms that you can develop applications for.
 
     You can develop applications for the following embedded platforms:
 
@@ -95,7 +98,7 @@
 
     \section1 QNX
 
-    The QNX Neutrino RTOS has more command line tools
+    The QNX Neutrino RTOS has more command-line tools
     and services, as described in \l {Qt for QNX}.
 
     \note In Qt 6, \QC support for QNX is considered experimental.
@@ -110,4 +113,6 @@
         \li \l{Running on QNX Devices}
         \li \l{Qt for QNX}
     \endlist
+
+    \sa {Supported Platforms}
 */

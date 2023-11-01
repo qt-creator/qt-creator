@@ -10,7 +10,7 @@
 
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/target.h>
 
 #include <utils/algorithm.h>
@@ -32,24 +32,26 @@ const int ENVIRONMENTASPECT_VERSION = 1; // Version was introduced in 4.3 with t
 class RemoteLinuxEnvironmentAspectWidget : public EnvironmentAspectWidget
 {
 public:
-    RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect, Target *target)
+    RemoteLinuxEnvironmentAspectWidget(RemoteLinuxEnvironmentAspect *aspect)
         : EnvironmentAspectWidget(aspect)
     {
         auto fetchButton = new QPushButton(Tr::tr("Fetch Device Environment"));
         addWidget(fetchButton);
 
-        connect(target, &Target::kitChanged, aspect, [aspect] { aspect->setRemoteEnvironment({}); });
+        connect(aspect->target(), &Target::kitChanged, aspect, [aspect] {
+            aspect->setRemoteEnvironment({});
+        });
 
-        connect(fetchButton, &QPushButton::clicked, this, [aspect, target] {
-            if (IDevice::ConstPtr device = DeviceKitAspect::device(target->kit())) {
+        connect(fetchButton, &QPushButton::clicked, this, [aspect] {
+            if (IDevice::ConstPtr device = DeviceKitAspect::device(aspect->target()->kit())) {
                 DeviceFileAccess *access = device->fileAccess();
                 QTC_ASSERT(access, return);
                 aspect->setRemoteEnvironment(access->deviceEnvironment());
             }
         });
 
-        envWidget()->setOpenTerminalFunc([target](const Environment &env) {
-            IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
+        envWidget()->setOpenTerminalFunc([aspect](const Environment &env) {
+            IDevice::ConstPtr device = DeviceKitAspect::device(aspect->target()->kit());
             if (!device) {
                 QMessageBox::critical(Core::ICore::dialogParent(),
                                       Tr::tr("Cannot Open Terminal"),
@@ -70,14 +72,13 @@ static bool displayAlreadySet(const Utils::EnvironmentItems &changes)
     });
 }
 
-RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(Target *target)
+RemoteLinuxEnvironmentAspect::RemoteLinuxEnvironmentAspect(AspectContainer *container)
+    : EnvironmentAspect(container)
 {
     addSupportedBaseEnvironment(Tr::tr("Clean Environment"), {});
     addPreferredBaseEnvironment(Tr::tr("System Environment"), [this] { return m_remoteEnvironment; });
 
-    setConfigWidgetCreator([this, target] {
-        return new RemoteLinuxEnvironmentAspectWidget(this, target);
-    });
+    setConfigWidgetCreator([this] { return new RemoteLinuxEnvironmentAspectWidget(this); });
 }
 
 void RemoteLinuxEnvironmentAspect::setRemoteEnvironment(const Utils::Environment &env)
@@ -98,11 +99,11 @@ QString RemoteLinuxEnvironmentAspect::userEnvironmentChangesAsString() const
     return env.mid(0, env.size() - 1);
 }
 
-void RemoteLinuxEnvironmentAspect::fromMap(const QVariantMap &map)
+void RemoteLinuxEnvironmentAspect::fromMap(const Store &map)
 {
     ProjectExplorer::EnvironmentAspect::fromMap(map);
 
-    const auto version = map.value(QLatin1String(VERSION_KEY), 0).toInt();
+    const auto version = map.value(VERSION_KEY, 0).toInt();
     if (version == 0) {
         // In Qt Creator versions prior to 4.3 RemoteLinux included DISPLAY=:0.0 in the base
         // environment, if DISPLAY was not set. In order to keep existing projects expecting
@@ -116,10 +117,10 @@ void RemoteLinuxEnvironmentAspect::fromMap(const QVariantMap &map)
     }
 }
 
-void RemoteLinuxEnvironmentAspect::toMap(QVariantMap &map) const
+void RemoteLinuxEnvironmentAspect::toMap(Store &map) const
 {
     ProjectExplorer::EnvironmentAspect::toMap(map);
-    map.insert(QLatin1String(VERSION_KEY), ENVIRONMENTASPECT_VERSION);
+    map.insert(VERSION_KEY, ENVIRONMENTASPECT_VERSION);
 }
 
 } // namespace RemoteLinux

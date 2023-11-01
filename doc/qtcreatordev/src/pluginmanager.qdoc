@@ -16,7 +16,7 @@
 
     The plugin manager handles all the details regarding finding plugins, reading their
     description files, resolving plugin dependencies, loading and initializing all plugins
-    in the right order, and passing on command line arguments.
+    in the right order, and passing on command-line arguments.
 
     In addition, the plugin manager manages an \e{object pool}, where objects can be registered
     and retrieved depending on different criteria.

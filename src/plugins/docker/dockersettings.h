@@ -3,16 +3,18 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace Docker::Internal {
 
-class DockerSettings final : public Core::PagedSettings
+class DockerSettings final : public Utils::AspectContainer
 {
 public:
     DockerSettings();
 
     Utils::FilePathAspect dockerBinaryPath{this};
 };
+
+DockerSettings &settings();
 
 } // Docker::Internal

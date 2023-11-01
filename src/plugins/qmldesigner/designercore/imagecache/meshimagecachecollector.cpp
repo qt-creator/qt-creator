@@ -6,7 +6,7 @@
 
 #include <projectexplorer/target.h>
 #include <utils/smallstring.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <QTemporaryFile>
 

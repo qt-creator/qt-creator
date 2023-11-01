@@ -172,6 +172,12 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
         static std::array<char, maxRead> buffer;
 
         int len = ::read(m_shellProcess.m_handleMaster, buffer.data(), buffer.size());
+
+        struct termios termAttributes;
+        tcgetattr(m_shellProcess.m_handleMaster, &termAttributes);
+        const bool isPasswordEntry = !(termAttributes.c_lflag & ECHO) && (termAttributes.c_lflag & ICANON);
+        m_inputFlags.setFlag(PtyInputFlag::InputModeHidden, isPasswordEntry);
+
         if (len > 0) {
             m_shellReadBuffer.append(buffer.data(), len);
             m_shellProcess.emitReadyRead();
@@ -185,14 +191,12 @@ bool UnixPtyProcess::startProcess(const QString &shellPath,
     });
 
     QStringList varNames;
-    foreach (QString line, environment) {
+    for (const QString &line : std::as_const(environment))
         varNames.append(line.split("=").first());
-    }
 
     QProcessEnvironment envFormat;
-    foreach (QString line, environment) {
+    for (const QString &line : std::as_const(environment))
         envFormat.insert(line.split("=").first(), line.split("=").last());
-    }
 
     m_shellProcess.setWorkingDirectory(workingDir);
     m_shellProcess.setProcessEnvironment(envFormat);

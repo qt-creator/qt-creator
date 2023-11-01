@@ -11,7 +11,7 @@ add_qtc_plugin(QbsProjectManager
     qbsbuildstep.cpp qbsbuildstep.h
     qbscleanstep.cpp qbscleanstep.h
     qbsinstallstep.cpp qbsinstallstep.h
-    qbskitinformation.cpp qbskitinformation.h
+    qbskitaspect.cpp qbskitaspect.h
     qbsnodes.cpp qbsnodes.h
     qbsnodetreebuilder.cpp qbsnodetreebuilder.h
     qbspmlogging.cpp qbspmlogging.h
@@ -25,6 +25,7 @@ add_qtc_plugin(QbsProjectManager
     qbsprojectmanagerconstants.h
     qbsprojectmanagerplugin.cpp qbsprojectmanagerplugin.h
     qbsprojectparser.cpp qbsprojectparser.h
+    qbsrequest.cpp qbsrequest.h
     qbssession.cpp qbssession.h
     qbssettings.cpp qbssettings.h
 )

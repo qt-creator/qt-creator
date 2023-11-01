@@ -105,6 +105,35 @@ int TranslationUnit::commentCount() const
 const Token &TranslationUnit::commentAt(int index) const
 { return _comments->at(index); }
 
+std::vector<Token> TranslationUnit::allTokens() const
+{
+    std::vector<Token> all;
+    int tokIndex = 0;
+    int commentIndex = 0;
+    while (true) {
+        if (tokIndex == tokenCount()) {
+            for (int i = commentIndex; i < commentCount(); ++i)
+                all.push_back(commentAt(i));
+            break;
+        }
+        if (commentIndex == commentCount()) {
+            for (int i = tokIndex; i < tokenCount(); ++i)
+                all.push_back(tokenAt(i));
+            break;
+        }
+        const Token &tok = tokenAt(tokIndex);
+        const Token &comment = commentAt(commentIndex);
+        if (tok.utf16charsBegin() < comment.utf16charsBegin()) {
+            all.push_back(tok);
+            ++tokIndex;
+        } else {
+            all.push_back(comment);
+            ++commentIndex;
+        }
+    }
+    return all;
+}
+
 const Identifier *TranslationUnit::identifier(int index) const
 { return tokenAt(index).identifier; }
 
@@ -379,35 +408,57 @@ int TranslationUnit::findColumnNumber(int utf16CharOffset, int lineNumber) const
     return utf16CharOffset - _lineOffsets[lineNumber];
 }
 
-void TranslationUnit::getTokenPosition(int index,
-                                       int *line,
-                                       int *column,
-                                       const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).utf16charsBegin(), line, column, fileName); }
-
 int TranslationUnit::getTokenPositionInDocument(int index, const QTextDocument *doc) const
 {
-    int line, column;
-    getTokenPosition(index, &line, &column);
-    return Utils::Text::positionInText(doc, line, column);
+    return getTokenPositionInDocument(_tokens->at(index), doc);
 }
 
 int TranslationUnit::getTokenEndPositionInDocument(int index, const QTextDocument *doc) const
 {
-    int line, column;
-    getTokenEndPosition(index, &line, &column);
-    return Utils::Text::positionInText(doc, line, column);
+    return getTokenEndPositionInDocument(_tokens->at(index), doc);
 }
 
-void TranslationUnit::getTokenStartPosition(int index, int *line,
-                                            int *column,
-                                            const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).utf16charsBegin(), line, column, fileName); }
+void TranslationUnit::getTokenPosition(int index, int *line,
+                                       int *column,
+                                       const StringLiteral **fileName) const
+{
+    return getTokenPosition(_tokens->at(index), line, column, fileName);
+}
 
 void TranslationUnit::getTokenEndPosition(int index, int *line,
                                           int *column,
                                           const StringLiteral **fileName) const
-{ return getPosition(tokenAt(index).utf16charsEnd(), line, column, fileName); }
+{
+    return getTokenEndPosition(_tokens->at(index), line, column, fileName);
+}
+
+void TranslationUnit::getTokenPosition(const Token &token, int *line, int *column,
+                                       const StringLiteral **fileName) const
+{
+    return getPosition(token.utf16charsBegin(), line, column, fileName);
+}
+
+void TranslationUnit::getTokenEndPosition(const Token &token, int *line,
+                                          int *column, const StringLiteral **fileName) const
+{
+    return getPosition(token.utf16charsEnd(), line, column, fileName);
+}
+
+int TranslationUnit::getTokenPositionInDocument(const Token token,
+                                                const QTextDocument *doc) const
+{
+    int line, column;
+    getTokenPosition(token, &line, &column);
+    return Utils::Text::positionInText(doc, line, column);
+}
+
+int TranslationUnit::getTokenEndPositionInDocument(const Token &token,
+                                                   const QTextDocument *doc) const
+{
+    int line, column;
+    getTokenEndPosition(token, &line, &column);
+    return Utils::Text::positionInText(doc, line, column);
+}
 
 void TranslationUnit::getPosition(int utf16charOffset,
                                   int *line,

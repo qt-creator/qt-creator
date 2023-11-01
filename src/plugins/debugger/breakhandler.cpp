@@ -1101,10 +1101,10 @@ QVariant BreakpointItem::data(int column, int role) const
             break;
     }
 
-    if (role == Qt::ToolTipRole && debuggerSettings()->useToolTipsInBreakpointsView.value())
+    if (role == Qt::ToolTipRole && settings().useToolTipsInBreakpointsView())
         return toolTip();
 
-    return QVariant();
+    return {};
 }
 
 void BreakpointItem::addToCommand(DebuggerCommand *cmd, BreakpointPathUsage defaultPathUsage) const
@@ -1689,8 +1689,8 @@ bool BreakHandler::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
 
-    menu->addAction(debuggerSettings()->useToolTipsInBreakpointsView.action());
-    menu->addAction(debuggerSettings()->settingsDialog.action());
+    menu->addAction(settings().useToolTipsInBreakpointsView.action());
+    menu->addAction(settings().settingsDialog.action());
 
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
@@ -2219,10 +2219,10 @@ QVariant GlobalBreakpointItem::data(int column, int role) const
             break;
     }
 
-    if (role == Qt::ToolTipRole && debuggerSettings()->useToolTipsInBreakpointsView.value())
+    if (role == Qt::ToolTipRole && settings().useToolTipsInBreakpointsView())
         return toolTip();
 
-    return QVariant();
+    return {};
 }
 
 QIcon GlobalBreakpointItem::icon() const
@@ -2495,7 +2495,7 @@ void BreakpointManager::setOrRemoveBreakpoint(const ContextData &location, const
         BreakpointParameters data;
         if (location.type == LocationByFile) {
             data.type = BreakpointByFileAndLine;
-            if (debuggerSettings()->breakpointsFullPathByDefault.value())
+            if (settings().breakpointsFullPathByDefault())
                 data.pathUsage = BreakpointUseFullPath;
             data.tracepoint = !tracePointMessage.isEmpty();
             data.message = tracePointMessage;
@@ -2686,8 +2686,8 @@ bool BreakpointManager::contextMenuEvent(const ItemViewEvent &ev)
 
     menu->addSeparator();
 
-    menu->addAction(debuggerSettings()->useToolTipsInBreakpointsView.action());
-    menu->addAction(debuggerSettings()->settingsDialog.action());
+    menu->addAction(settings().useToolTipsInBreakpointsView.action());
+    menu->addAction(settings().settingsDialog.action());
 
     connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
     menu->popup(ev.globalPos());
@@ -2709,7 +2709,7 @@ void BreakpointManager::executeDeleteAllBreakpointsDialog()
                                         Tr::tr("Remove All Breakpoints"),
                                         Tr::tr("Are you sure you want to remove all breakpoints "
                                                "from all files in the current session?"),
-                                        QString("RemoveAllBreakpoints"));
+                                        Key("RemoveAllBreakpoints"));
     if (pressed != QMessageBox::Yes)
         return;
 

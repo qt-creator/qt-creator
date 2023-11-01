@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <utils/id.h>
+#include "dialogs/ioptionspage.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/id.h>
 
 #include <QWidget>
 

@@ -48,7 +48,7 @@ public:
 
     bool operator==(const IDebugServerProvider &other) const override;
 
-    QVariantMap toMap() const override;
+    void toMap(Utils::Store &map) const override;
 
     bool aboutToRun(Debugger::DebuggerRunTool *runTool, QString &errorMessage) const final;
     ProjectExplorer::RunWorker *targetRunner(ProjectExplorer::RunControl *runControl) const final;
@@ -69,7 +69,7 @@ protected:
     Utils::FilePath buildProjectFilePath(Debugger::DebuggerRunTool *runTool) const;
     Utils::FilePath buildOptionsFilePath(Debugger::DebuggerRunTool *runTool) const;
 
-    bool fromMap(const QVariantMap &data) override;
+    void fromMap(const Utils::Store &data) override;
 
     // uVision specific stuff.
     virtual Utils::FilePath projectFilePath(Debugger::DebuggerRunTool *runTool,
@@ -121,7 +121,7 @@ class UvscServerProviderRunner final : public ProjectExplorer::RunWorker
 {
 public:
     explicit UvscServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                      const ProjectExplorer::Runnable &runnable);
+                                      const Utils::ProcessRunData &runnable);
 
 private:
     void start() final;

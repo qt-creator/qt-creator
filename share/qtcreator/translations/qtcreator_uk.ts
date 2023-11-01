@@ -764,8 +764,8 @@ This flag will allow push to proceed.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Наприклад: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Наприклад: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Ignores differences between branches and overwrites
@@ -795,7 +795,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Додати закладку</translation>
@@ -851,10 +851,6 @@ Local pulls are not applied to the master branch.</source>
     <message>
         <source>Rename Bookmark</source>
         <translation>Перейменувати закладку</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="vanished">Додати</translation>
     </message>
     <message>
         <source>Move Up</source>
@@ -10794,8 +10790,8 @@ Ids must begin with a lowercase letter.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>Наприклад: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>Наприклад: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
 </context>
 <context>
@@ -13203,20 +13199,20 @@ to project &quot;%2&quot;.</source>
         <translation>Менеджер сесій</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Нова</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Нова...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>Перей&amp;менувати</translation>
+        <source>&amp;Rename...</source>
+        <translation>Перей&amp;менувати...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Клонувати</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Клонувати...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>Ви&amp;далити</translation>
+        <source>&amp;Delete...</source>
+        <translation>Ви&amp;далити...</translation>
     </message>
     <message>
         <source>&amp;Open</source>
@@ -21653,10 +21649,6 @@ Specifies how backspace interacts with indentation.
         <translation>Редагувати...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Видалити</translation>
-    </message>
-    <message>
         <source>Export...</source>
         <translation>Експортувати...</translation>
     </message>
@@ -25113,7 +25105,7 @@ To add the Qt versions, select Options &gt; Build &amp; Run &gt; Qt Versions.</s
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -28986,7 +28978,7 @@ cannot be found in the path.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Note text:</source>
         <translation>Текст примітки:</translation>
@@ -35653,8 +35645,8 @@ Install an SDK of at least API version %1.</source>
         <translation>Неможливо запустити &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Час очікування вичерпано для &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Час очікування вичерпано для &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>

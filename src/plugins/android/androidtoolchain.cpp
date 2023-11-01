@@ -9,6 +9,7 @@
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/environment.h>
 
@@ -47,7 +48,7 @@ static ToolChain *findToolChain(FilePath &compilerPath, Id lang, const QString &
 }
 
 AndroidToolChain::AndroidToolChain()
-    : ClangToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID)
+    : GccToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID, Clang)
 {
     setTypeDisplayName(Tr::tr("Android Clang"));
 }
@@ -80,7 +81,7 @@ bool AndroidToolChain::isValid() const
     const bool isChildofSdk = compilerCommand().isChildOf(
         AndroidConfigurations::currentConfig().sdkLocation());
 
-    return ClangToolChain::isValid() && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
+    return GccToolChain::isValid() && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
            && targetAbi().isValid() && (isChildofNdk || isChildofSdk)
            && !originalTargetTriple().isEmpty();
 }
@@ -93,7 +94,8 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     if (javaHome.exists()) {
         env.set(Constants::JAVA_HOME_ENV_VAR, javaHome.toUserOutput());
         const FilePath javaBin = javaHome.pathAppended("bin");
-        const FilePath currentJavaFilePath = env.searchInPath("java");
+        const FilePath currentJavaFilePath
+            = env.searchInPath("java", {}, {}, FilePath::WithExeSuffix);
         if (!currentJavaFilePath.isChildOf(javaBin))
             env.prependOrSetPath(javaBin);
     }
@@ -101,11 +103,13 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
     env.set(QLatin1String("ANDROID_SDK_ROOT"), config.sdkLocation().toUserOutput());
 }
 
-bool AndroidToolChain::fromMap(const QVariantMap &data)
+void AndroidToolChain::fromMap(const Store &data)
 {
-    if (!ClangToolChain::fromMap(data))
-        return false;
-    return isValid();
+    GccToolChain::fromMap(data);
+    if (hasError())
+        return;
+    if (!isValid())
+        reportError();
 }
 
 QStringList AndroidToolChain::suggestedMkspecList() const

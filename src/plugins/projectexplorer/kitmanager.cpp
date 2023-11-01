@@ -7,12 +7,13 @@
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitfeatureprovider.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/progressmanager/progressmanager.h>
 
 #include <android/androidconstants.h>
 #include <baremetal/baremetalconstants.h>
@@ -26,11 +27,12 @@
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QAction>
 #include <QHash>
 #include <QLabel>
 #include <QPushButton>
-#include <QSettings>
 #include <QStyle>
 
 using namespace Core;
@@ -66,6 +68,51 @@ static FilePath settingsFileName()
 // KitManagerPrivate:
 // --------------------------------------------------------------------------
 
+class KitAspectFactories
+{
+public:
+    void onKitsLoaded() const
+    {
+        for (KitAspectFactory *factory : m_aspectList)
+            factory->onKitsLoaded();
+    }
+
+    void addKitAspect(KitAspectFactory *factory)
+    {
+        QTC_ASSERT(!m_aspectList.contains(factory), return);
+        m_aspectList.append(factory);
+        m_aspectListIsSorted = false;
+    }
+
+    void removeKitAspect(KitAspectFactory *factory)
+    {
+        int removed = m_aspectList.removeAll(factory);
+        QTC_CHECK(removed == 1);
+    }
+
+    const QList<KitAspectFactory *> kitAspectFactories()
+    {
+        if (!m_aspectListIsSorted) {
+            Utils::sort(m_aspectList, [](const KitAspectFactory *a, const KitAspectFactory *b) {
+                return a->priority() > b->priority();
+            });
+            m_aspectListIsSorted = true;
+        }
+        return m_aspectList;
+    }
+
+    // Sorted by priority, in descending order...
+    QList<KitAspectFactory *> m_aspectList;
+    // ... if this here is set:
+    bool m_aspectListIsSorted = true;
+};
+
+static KitAspectFactories &kitAspectFactoriesStorage()
+{
+    static KitAspectFactories theKitAspectFactories;
+    return theKitAspectFactories;
+}
+
 class KitManagerPrivate
 {
 public:
@@ -74,40 +121,6 @@ public:
     std::vector<std::unique_ptr<Kit>> m_kitList;
     std::unique_ptr<PersistentSettingsWriter> m_writer;
     QSet<Id> m_irrelevantAspects;
-
-    void addKitAspect(KitAspect *ki)
-    {
-        QTC_ASSERT(!m_aspectList.contains(ki), return);
-        m_aspectList.append(ki);
-        m_aspectListIsSorted = false;
-    }
-
-    void removeKitAspect(KitAspect *ki)
-    {
-        int removed = m_aspectList.removeAll(ki);
-        QTC_CHECK(removed == 1);
-    }
-
-    const QList<KitAspect *> kitAspects()
-    {
-        if (!m_aspectListIsSorted) {
-            Utils::sort(m_aspectList, [](const KitAspect *a, const KitAspect *b) {
-                return a->priority() > b->priority();
-            });
-            m_aspectListIsSorted = true;
-        }
-        return m_aspectList;
-    }
-
-    void setBinaryForKit(const FilePath &fp) { m_binaryForKit = fp; }
-    FilePath binaryForKit() const { return m_binaryForKit; }
-
-private:
-    // Sorted by priority, in descending order...
-    QList<KitAspect *> m_aspectList;
-    // ... if this here is set:
-    bool m_aspectListIsSorted = true;
-
     FilePath m_binaryForKit;
 };
 
@@ -118,22 +131,16 @@ private:
 // --------------------------------------------------------------------------
 
 static Internal::KitManagerPrivate *d = nullptr;
-static KitManager *m_instance = nullptr;
 
 KitManager *KitManager::instance()
 {
-    if (!m_instance)
-        m_instance = new KitManager;
-    return m_instance;
+    static KitManager theManager;
+    return &theManager;
 }
 
 KitManager::KitManager()
 {
     d = new KitManagerPrivate;
-    QTC_CHECK(!m_instance);
-    m_instance = this;
-
-    connect(ICore::instance(), &ICore::saveSettingsRequested, this, &KitManager::saveKits);
 
     connect(this, &KitManager::kitAdded, this, &KitManager::kitsChanged);
     connect(this, &KitManager::kitRemoved, this, &KitManager::kitsChanged);
@@ -144,13 +151,73 @@ void KitManager::destroy()
 {
     delete d;
     d = nullptr;
-    delete m_instance;
-    m_instance = nullptr;
 }
+
+static bool kitMatchesAbiList(const Kit *kit, const Abis &abis)
+{
+    const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
+    for (const ToolChain * const tc : toolchains) {
+        const Abi tcAbi = tc->targetAbi();
+        for (const Abi &abi : abis) {
+            if (tcAbi.os() == abi.os() && tcAbi.architecture() == abi.architecture()
+                && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == abi.osFlavor())) {
+                return true;
+            }
+        }
+    }
+    return false;
+};
+
+static bool isHostKit(const Kit *kit)
+{
+    const Abi hostAbi = Abi::hostAbi();
+    if (HostOsInfo::isMacHost() && hostAbi.architecture() == Abi::ArmArchitecture) {
+        const Abi x86Abi(Abi::X86Architecture,
+                         hostAbi.os(),
+                         hostAbi.osFlavor(),
+                         hostAbi.binaryFormat(),
+                         hostAbi.wordWidth());
+
+        return kitMatchesAbiList(kit, {hostAbi, x86Abi});
+    }
+    return kitMatchesAbiList(kit, {hostAbi});
+};
+
+static Id deviceTypeForKit(const Kit *kit)
+{
+    if (isHostKit(kit))
+        return Constants::DESKTOP_DEVICE_TYPE;
+    const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
+    for (const ToolChain * const tc : toolchains) {
+        const Abi tcAbi = tc->targetAbi();
+        switch (tcAbi.os()) {
+        case Abi::BareMetalOS:
+            return BareMetal::Constants::BareMetalOsType;
+        case Abi::BsdOS:
+        case Abi::DarwinOS:
+        case Abi::UnixOS:
+            return RemoteLinux::Constants::GenericLinuxOsType;
+        case Abi::LinuxOS:
+            if (tcAbi.osFlavor() == Abi::AndroidLinuxFlavor)
+                return Android::Constants::ANDROID_DEVICE_TYPE;
+            return RemoteLinux::Constants::GenericLinuxOsType;
+        case Abi::QnxOS:
+            return Qnx::Constants::QNX_QNX_OS_TYPE;
+        case Abi::VxWorks:
+            return "VxWorks.Device.Type";
+        default:
+            break;
+        }
+    }
+    return Constants::DESKTOP_DEVICE_TYPE;
+};
 
 void KitManager::restoreKits()
 {
+    NANOTRACE_SCOPE("ProjectExplorer", "KitManager::restoreKits");
     QTC_ASSERT(!d->m_initialized, return );
+
+    connect(ICore::instance(), &ICore::saveSettingsRequested, &KitManager::saveKits);
 
     std::vector<std::unique_ptr<Kit>> resultList;
 
@@ -196,11 +263,12 @@ void KitManager::restoreKits()
                 Kit *ptr = i->get();
 
                 // Overwrite settings that the SDK sets to those values:
-                for (const KitAspect *aspect : KitManager::kitAspects()) {
+                for (const KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+                    const Id id = factory->id();
                     // Copy sticky settings over:
-                    ptr->setSticky(aspect->id(), toStore->isSticky(aspect->id()));
-                    if (ptr->isSticky(aspect->id()))
-                        ptr->setValue(aspect->id(), toStore->value(aspect->id()));
+                    ptr->setSticky(id, toStore->isSticky(id));
+                    if (ptr->isSticky(id))
+                        ptr->setValue(id, toStore->value(id));
                 }
                 toStore = std::move(*i);
                 kitsToCheck.erase(i);
@@ -224,28 +292,11 @@ void KitManager::restoreKits()
         }
     }
 
-    static const auto kitMatchesAbiList = [](const Kit *kit, const Abis &abis) {
-        const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
-        for (const ToolChain * const tc : toolchains) {
-            const Abi tcAbi = tc->targetAbi();
-            for (const Abi &abi : abis) {
-                if (tcAbi.os() == abi.os() && tcAbi.architecture() == abi.architecture()
-                        && (tcAbi.os() != Abi::LinuxOS || tcAbi.osFlavor() == abi.osFlavor())) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-
-    const Abis abisOfBinary = d->binaryForKit().isEmpty()
-            ? Abis() : Abi::abisOfBinary(d->binaryForKit());
-    const auto kitMatchesAbiOfBinary = [&abisOfBinary](const Kit *kit) {
-        return kitMatchesAbiList(kit, abisOfBinary);
-    };
+    const Abis abisOfBinary = d->m_binaryForKit.isEmpty()
+            ? Abis() : Abi::abisOfBinary(d->m_binaryForKit);
     const bool haveKitForBinary = abisOfBinary.isEmpty()
-            || contains(resultList, [&kitMatchesAbiOfBinary](const std::unique_ptr<Kit> &kit) {
-        return kitMatchesAbiOfBinary(kit.get());
+            || contains(resultList, [&abisOfBinary](const std::unique_ptr<Kit> &kit) {
+        return kitMatchesAbiList(kit.get(), abisOfBinary);
     });
     Kit *kitForBinary = nullptr;
 
@@ -293,49 +344,6 @@ void KitManager::restoreKits()
                 bestTc = tc;
         }
 
-        static const auto isHostKit = [](const Kit *kit) {
-            const Abi hostAbi = Abi::hostAbi();
-            if (HostOsInfo::isMacHost() && hostAbi.architecture() == Abi::ArmArchitecture) {
-                const Abi x86Abi(Abi::X86Architecture,
-                                 hostAbi.os(),
-                                 hostAbi.osFlavor(),
-                                 hostAbi.binaryFormat(),
-                                 hostAbi.wordWidth());
-
-                return kitMatchesAbiList(kit, {hostAbi, x86Abi});
-            }
-
-            return kitMatchesAbiList(kit, {hostAbi});
-        };
-
-        static const auto deviceTypeForKit = [](const Kit *kit) {
-            if (isHostKit(kit))
-                return Constants::DESKTOP_DEVICE_TYPE;
-            const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
-            for (const ToolChain * const tc : toolchains) {
-                const Abi tcAbi = tc->targetAbi();
-                switch (tcAbi.os()) {
-                case Abi::BareMetalOS:
-                    return BareMetal::Constants::BareMetalOsType;
-                case Abi::BsdOS:
-                case Abi::DarwinOS:
-                case Abi::UnixOS:
-                    return RemoteLinux::Constants::GenericLinuxOsType;
-                case Abi::LinuxOS:
-                    if (tcAbi.osFlavor() == Abi::AndroidLinuxFlavor)
-                        return Android::Constants::ANDROID_DEVICE_TYPE;
-                    return RemoteLinux::Constants::GenericLinuxOsType;
-                case Abi::QnxOS:
-                    return Qnx::Constants::QNX_QNX_OS_TYPE;
-                case Abi::VxWorks:
-                    return "VxWorks.Device.Type";
-                default:
-                    break;
-                }
-            }
-            return Constants::DESKTOP_DEVICE_TYPE;
-        };
-
         // Create temporary kits for all toolchains found.
         decltype(resultList) tempList;
         for (auto it = uniqueToolchains.cbegin(); it != uniqueToolchains.cend(); ++it) {
@@ -371,7 +379,7 @@ void KitManager::restoreKits()
         });
         if (!abisOfBinary.isEmpty()) {
             for (auto it = tempList.begin(); it != tempList.end(); ++it) {
-                if (kitMatchesAbiOfBinary(it->get())) {
+                if (kitMatchesAbiList(it->get(), abisOfBinary)) {
                     kitForBinary = it->get();
                     resultList.emplace_back(std::move(*it));
                     tempList.erase(it);
@@ -412,12 +420,15 @@ void KitManager::restoreKits()
     if (!k)
         k = Utils::findOrDefault(resultList, &Kit::isValid);
     std::swap(resultList, d->m_kitList);
+    d->m_initialized = true;
     setDefaultKit(k);
 
     d->m_writer = std::make_unique<PersistentSettingsWriter>(settingsFileName(), "QtCreatorProfiles");
-    d->m_initialized = true;
-    emit m_instance->kitsLoaded();
-    emit m_instance->kitsChanged();
+
+    kitAspectFactoriesStorage().onKitsLoaded();
+
+    emit instance()->kitsLoaded();
+    emit instance()->kitsChanged();
 }
 
 KitManager::~KitManager()
@@ -430,20 +441,20 @@ void KitManager::saveKits()
     if (!d->m_writer) // ignore save requests while we are not initialized.
         return;
 
-    QVariantMap data;
-    data.insert(QLatin1String(KIT_FILE_VERSION_KEY), 1);
+    Store data;
+    data.insert(KIT_FILE_VERSION_KEY, 1);
 
     int count = 0;
     const QList<Kit *> kits = KitManager::kits();
     for (Kit *k : kits) {
-        QVariantMap tmp = k->toMap();
+        Store tmp = k->toMap();
         if (tmp.isEmpty())
             continue;
-        data.insert(QString::fromLatin1(KIT_DATA_KEY) + QString::number(count), tmp);
+        data.insert(numberedKey(KIT_DATA_KEY, count), variantFromStore(tmp));
         ++count;
     }
-    data.insert(QLatin1String(KIT_COUNT_KEY), count);
-    data.insert(QLatin1String(KIT_DEFAULT_KEY),
+    data.insert(KIT_COUNT_KEY, count);
+    data.insert(KIT_DEFAULT_KEY,
                 d->m_defaultKit ? QString::fromLatin1(d->m_defaultKit->id().name()) : QString());
     data.insert(KIT_IRRELEVANT_ASPECTS_KEY,
                 transform<QVariantList>(d->m_irrelevantAspects, &Id::toSetting));
@@ -455,52 +466,59 @@ bool KitManager::isLoaded()
     return d->m_initialized;
 }
 
-void KitManager::registerKitAspect(KitAspect *ki)
+bool KitManager::waitForLoaded(const int timeout)
 {
-    instance();
-    QTC_ASSERT(d, return);
-    d->addKitAspect(ki);
-
-    // Adding this aspect to possibly already existing kits is currently not
-    // needed here as kits are only created after all aspects are created
-    // in *Plugin::initialize().
-    // Make sure we notice when this assumption breaks:
-    QTC_CHECK(d->m_kitList.empty());
+    if (isLoaded())
+        return true;
+    showLoadingProgress();
+    QElapsedTimer timer;
+    timer.start();
+    while (!isLoaded() && !timer.hasExpired(timeout))
+        QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    return KitManager::isLoaded();
 }
 
-void KitManager::deregisterKitAspect(KitAspect *ki)
+void KitManager::showLoadingProgress()
 {
-    // Happens regularly for the aspects from the ProjectExplorerPlugin as these
-    // are destroyed after the manual call to KitManager::destroy() there, but as
-    // this here is just for sanity reasons that the KitManager does not access
-    // a destroyed aspect, a destroyed KitManager is not a problem.
-    if (d)
-        d->removeKitAspect(ki);
+    if (isLoaded())
+        return;
+    static QFutureInterface<void> futureInterface;
+    if (futureInterface.isRunning())
+        return;
+    futureInterface.reportStarted();
+    Core::ProgressManager::addTimedTask(futureInterface.future(),
+                                        Tr::tr("Loading Kits"),
+                                        "LoadingKitsProgress",
+                                        5);
+    connect(instance(), &KitManager::kitsLoaded, []() { futureInterface.reportFinished(); });
 }
 
 void KitManager::setBinaryForKit(const FilePath &binary)
 {
     QTC_ASSERT(d, return);
-    d->setBinaryForKit(binary);
+    d->m_binaryForKit = binary;
 }
 
-QList<Kit *> KitManager::sortKits(const QList<Kit *> &kits)
+const QList<Kit *> KitManager::sortedKits()
 {
+    QTC_ASSERT(KitManager::isLoaded(), return {});
     // This method was added to delay the sorting of kits as long as possible.
     // Since the displayName can contain variables it can be costly (e.g. involve
     // calling executables to find version information, etc.) to call that
     // method!
     // Avoid lots of potentially expensive calls to Kit::displayName():
-    QList<QPair<QString, Kit *>> sortList = Utils::transform(kits, [](Kit *k) {
-        return qMakePair(k->displayName(), k);
+    std::vector<QPair<QString, Kit *>> sortList =
+        Utils::transform(d->m_kitList, [](const std::unique_ptr<Kit> &k) {
+        return qMakePair(k->displayName(), k.get());
     });
     Utils::sort(sortList,
                 [](const QPair<QString, Kit *> &a, const QPair<QString, Kit *> &b) -> bool {
-                    if (a.first == b.first)
-                        return a.second < b.second;
-                    return a.first < b.first;
+                    const int nameResult = Utils::caseFriendlyCompare(a.first, b.first);
+                    if (nameResult != 0)
+                        return nameResult < 0;
+                    return a.second < b.second;
                 });
-    return Utils::transform(sortList, &QPair<QString, Kit *>::second);
+    return Utils::transform<QList>(sortList, &QPair<QString, Kit *>::second);
 }
 
 static KitList restoreKitsHelper(const FilePath &fileName)
@@ -516,22 +534,22 @@ static KitList restoreKitsHelper(const FilePath &fileName)
                  qPrintable(fileName.toUserOutput()));
         return result;
     }
-    QVariantMap data = reader.restoreValues();
+    Store data = reader.restoreValues();
 
     // Check version:
-    int version = data.value(QLatin1String(KIT_FILE_VERSION_KEY), 0).toInt();
+    int version = data.value(KIT_FILE_VERSION_KEY, 0).toInt();
     if (version < 1) {
         qWarning("Warning: Kit file version %d not supported, cannot restore kits!", version);
         return result;
     }
 
-    const int count = data.value(QLatin1String(KIT_COUNT_KEY), 0).toInt();
+    const int count = data.value(KIT_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const QString key = QString::fromLatin1(KIT_DATA_KEY) + QString::number(i);
+        const Key key = numberedKey(KIT_DATA_KEY, i);
         if (!data.contains(key))
             break;
 
-        const QVariantMap stMap = data.value(key).toMap();
+        const Store stMap = storeFromVariant(data.value(key));
 
         auto k = std::make_unique<Kit>(stMap);
         if (k->id().isValid()) {
@@ -542,7 +560,7 @@ static KitList restoreKitsHelper(const FilePath &fileName)
                      i);
         }
     }
-    const Id id = Id::fromSetting(data.value(QLatin1String(KIT_DEFAULT_KEY)));
+    const Id id = Id::fromSetting(data.value(KIT_DEFAULT_KEY));
     if (!id.isValid())
         return result;
 
@@ -557,6 +575,7 @@ static KitList restoreKitsHelper(const FilePath &fileName)
 
 const QList<Kit *> KitManager::kits()
 {
+    QTC_ASSERT(KitManager::isLoaded(), return {});
     return Utils::toRawPointer<QList>(d->m_kitList);
 }
 
@@ -565,6 +584,7 @@ Kit *KitManager::kit(Id id)
     if (!id.isValid())
         return nullptr;
 
+    QTC_ASSERT(KitManager::isLoaded(), return {});
     return Utils::findOrDefault(d->m_kitList, Utils::equal(&Kit::id, id));
 }
 
@@ -575,12 +595,13 @@ Kit *KitManager::kit(const Kit::Predicate &predicate)
 
 Kit *KitManager::defaultKit()
 {
+    QTC_ASSERT(KitManager::isLoaded(), return {});
     return d->m_defaultKit;
 }
 
-const QList<KitAspect *> KitManager::kitAspects()
+const QList<KitAspectFactory *> KitManager::kitAspectFactories()
 {
-    return d->kitAspects();
+    return kitAspectFactoriesStorage().kitAspectFactories();
 }
 
 const QSet<Id> KitManager::irrelevantAspects()
@@ -599,14 +620,14 @@ void KitManager::notifyAboutUpdate(Kit *k)
         return;
 
     if (Utils::contains(d->m_kitList, k))
-        emit m_instance->kitUpdated(k);
+        emit instance()->kitUpdated(k);
     else
-        emit m_instance->unmanagedKitUpdated(k);
+        emit instance()->unmanagedKitUpdated(k);
 }
 
 Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id id)
 {
-    QTC_ASSERT(isLoaded(), return nullptr);
+    QTC_ASSERT(isLoaded(), return {});
 
     auto k = std::make_unique<Kit>(id);
     QTC_ASSERT(k->id().isValid(), return nullptr);
@@ -623,12 +644,14 @@ Kit *KitManager::registerKit(const std::function<void (Kit *)> &init, Utils::Id 
     if (!d->m_defaultKit || (!d->m_defaultKit->isValid() && kptr->isValid()))
         setDefaultKit(kptr);
 
-    emit m_instance->kitAdded(kptr);
+    emit instance()->kitAdded(kptr);
     return kptr;
 }
 
 void KitManager::deregisterKit(Kit *k)
 {
+    QTC_ASSERT(KitManager::isLoaded(), return);
+
     if (!k || !Utils::contains(d->m_kitList, k))
         return;
     auto taken = Utils::take(d->m_kitList, k);
@@ -636,29 +659,31 @@ void KitManager::deregisterKit(Kit *k)
         Kit *newDefault = Utils::findOrDefault(kits(), [](Kit *k) { return k->isValid(); });
         setDefaultKit(newDefault);
     }
-    emit m_instance->kitRemoved(k);
+    emit instance()->kitRemoved(k);
 }
 
 void KitManager::setDefaultKit(Kit *k)
 {
+    QTC_ASSERT(KitManager::isLoaded(), return);
+
     if (defaultKit() == k)
         return;
     if (k && !Utils::contains(d->m_kitList, k))
         return;
     d->m_defaultKit = k;
-    emit m_instance->defaultkitChanged();
+    emit instance()->defaultkitChanged();
 }
 
 void KitManager::completeKit(Kit *k)
 {
     QTC_ASSERT(k, return);
     KitGuard g(k);
-    for (KitAspect *ki : d->kitAspects()) {
-        ki->upgrade(k);
-        if (!k->hasValue(ki->id()))
-            ki->setup(k);
+    for (KitAspectFactory *factory : kitAspectFactories()) {
+        factory->upgrade(k);
+        if (!k->hasValue(factory->id()))
+            factory->setup(k);
         else
-            ki->fix(k);
+            factory->fix(k);
     }
 }
 
@@ -666,73 +691,73 @@ void KitManager::completeKit(Kit *k)
 // KitAspect:
 // --------------------------------------------------------------------
 
-KitAspect::KitAspect()
+KitAspectFactory::KitAspectFactory()
 {
-    KitManager::registerKitAspect(this);
+    kitAspectFactoriesStorage().addKitAspect(this);
 }
 
-KitAspect::~KitAspect()
+KitAspectFactory::~KitAspectFactory()
 {
-    KitManager::deregisterKitAspect(this);
+    kitAspectFactoriesStorage().removeKitAspect(this);
 }
 
-int KitAspect::weight(const Kit *k) const
+int KitAspectFactory::weight(const Kit *k) const
 {
     return k->value(id()).isValid() ? 1 : 0;
 }
 
-void KitAspect::addToBuildEnvironment(const Kit *k, Environment &env) const
+void KitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k)
     Q_UNUSED(env)
 }
 
-void KitAspect::addToRunEnvironment(const Kit *k, Environment &env) const
+void KitAspectFactory::addToRunEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k)
     Q_UNUSED(env)
 }
 
-QList<OutputLineParser *> KitAspect::createOutputParsers(const Kit *k) const
+QList<OutputLineParser *> KitAspectFactory::createOutputParsers(const Kit *k) const
 {
     Q_UNUSED(k)
     return {};
 }
 
-QString KitAspect::displayNamePostfix(const Kit *k) const
+QString KitAspectFactory::displayNamePostfix(const Kit *k) const
 {
     Q_UNUSED(k)
-    return QString();
+    return {};
 }
 
-QSet<Id> KitAspect::supportedPlatforms(const Kit *k) const
+QSet<Id> KitAspectFactory::supportedPlatforms(const Kit *k) const
 {
     Q_UNUSED(k)
-    return QSet<Id>();
+    return {};
 }
 
-QSet<Id> KitAspect::availableFeatures(const Kit *k) const
+QSet<Id> KitAspectFactory::availableFeatures(const Kit *k) const
 {
     Q_UNUSED(k)
-    return QSet<Id>();
+    return {};
 }
 
-void KitAspect::addToMacroExpander(Kit *k, MacroExpander *expander) const
+void KitAspectFactory::addToMacroExpander(Kit *k, MacroExpander *expander) const
 {
     Q_UNUSED(k)
     Q_UNUSED(expander)
 }
 
-void KitAspect::notifyAboutUpdate(Kit *k)
+void KitAspectFactory::notifyAboutUpdate(Kit *k)
 {
     if (k)
         k->kitUpdated();
 }
 
-KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki)
-    : m_kit(kit), m_kitInformation(ki)
+KitAspect::KitAspect(Kit *kit, const KitAspectFactory *factory)
+    : m_kit(kit), m_factory(factory)
 {
-    const Id id = ki->id();
+    const Id id = factory->id();
     m_mutableAction = new QAction(Tr::tr("Mark as Mutable"));
     m_mutableAction->setCheckable(true);
     m_mutableAction->setChecked(m_kit->isMutable(id));
@@ -742,33 +767,32 @@ KitAspectWidget::KitAspectWidget(Kit *kit, const KitAspect *ki)
     });
 }
 
-KitAspectWidget::~KitAspectWidget()
+KitAspect::~KitAspect()
 {
     delete m_mutableAction;
 }
 
-void KitAspectWidget::addToLayoutWithLabel(Layouting::LayoutItem &parentItem, QWidget *parent)
+void KitAspect::addToLayout(Layouting::LayoutItem &parentItem)
 {
-    QTC_ASSERT(parent, return);
-    auto label = createSubWidget<QLabel>(m_kitInformation->displayName() + ':');
-    label->setToolTip(m_kitInformation->description());
+    auto label = createSubWidget<QLabel>(m_factory->displayName() + ':');
+    label->setToolTip(m_factory->description());
     connect(label, &QLabel::linkActivated, this, [this](const QString &link) {
         emit labelLinkActivated(link);
     });
 
     parentItem.addItem(label);
-    addToLayout(parentItem);
+    addToLayoutImpl(parentItem);
     parentItem.addItem(Layouting::br);
 }
 
-void KitAspectWidget::addMutableAction(QWidget *child)
+void KitAspect::addMutableAction(QWidget *child)
 {
     QTC_ASSERT(child, return);
     child->addAction(m_mutableAction);
     child->setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
-QWidget *KitAspectWidget::createManageButton(Id pageId)
+QWidget *KitAspect::createManageButton(Id pageId)
 {
     auto button = createSubWidget<QPushButton>(msgManage());
     connect(button, &QPushButton::clicked, this, [pageId] {
@@ -777,7 +801,7 @@ QWidget *KitAspectWidget::createManageButton(Id pageId)
     return button;
 }
 
-QString KitAspectWidget::msgManage()
+QString KitAspect::msgManage()
 {
     return Tr::tr("Manage...");
 }
@@ -816,7 +840,7 @@ QString KitFeatureProvider::displayNameForPlatform(Id id) const
         QTC_CHECK(!dn.isEmpty());
         return dn;
     }
-    return QString();
+    return {};
 }
 
 } // namespace ProjectExplorer

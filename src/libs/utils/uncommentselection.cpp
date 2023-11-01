@@ -40,22 +40,10 @@ bool CommentDefinition::hasMultiLineStyle() const
     return !multiLineStart.isEmpty() && !multiLineEnd.isEmpty();
 }
 
-static bool isComment(const QString &text, int index,
-   const QString &commentType)
+static bool isComment(const QString &text, int index, const QString &commentType)
 {
-    const int length = commentType.length();
-
-    Q_ASSERT(text.length() - index >= length);
-
-    int i = 0;
-    while (i < length) {
-        if (text.at(index + i) != commentType.at(i))
-            return false;
-        ++i;
-    }
-    return true;
+    return QStringView(text).mid(index).startsWith(commentType);
 }
-
 
 QTextCursor unCommentSelection(const QTextCursor &cursorIn,
                                const CommentDefinition &definition,
@@ -176,12 +164,34 @@ QTextCursor unCommentSelection(const QTextCursor &cursorIn,
         }
 
         const int singleLineLength = definition.singleLine.length();
+        int minTab = INT_MAX;
+        if (definition.isAfterWhitespace && !doSingleLineStyleUncomment) {
+            for (QTextBlock block = startBlock; block != endBlock && minTab != 0; block = block.next()) {
+                QTextCursor c(block);
+                if (doc->characterAt(block.position()).isSpace()) {
+                    c.movePosition(QTextCursor::NextWord);
+                    if (c.block() != block) // ignore empty lines
+                        continue;
+                }
+                const int pos = c.positionInBlock();
+                if (pos < minTab)
+                    minTab = pos;
+            }
+        }
         for (QTextBlock block = startBlock; block != endBlock; block = block.next()) {
             if (doSingleLineStyleUncomment) {
                 QString text = block.text();
                 int i = 0;
                 while (i <= text.size() - singleLineLength) {
-                    if (isComment(text, i, definition.singleLine)) {
+                    if (definition.isAfterWhitespace
+                        && isComment(text, i, definition.singleLine + ' ')) {
+                        cursor.setPosition(block.position() + i);
+                        cursor.movePosition(QTextCursor::NextCharacter,
+                                            QTextCursor::KeepAnchor,
+                                            singleLineLength + 1);
+                        cursor.removeSelectedText();
+                        break;
+                    } else if (isComment(text, i, definition.singleLine)) {
                         cursor.setPosition(block.position() + i);
                         cursor.movePosition(QTextCursor::NextCharacter,
                                             QTextCursor::KeepAnchor,
@@ -197,11 +207,13 @@ QTextCursor unCommentSelection(const QTextCursor &cursorIn,
                 const QString text = block.text();
                 for (QChar c : text) {
                     if (!c.isSpace()) {
-                        if (definition.isAfterWhiteSpaces)
-                            cursor.setPosition(block.position() + text.indexOf(c));
-                        else
+                        if (definition.isAfterWhitespace) {
+                            cursor.setPosition(block.position() + minTab);
+                            cursor.insertText(definition.singleLine + ' ');
+                        } else {
                             cursor.setPosition(block.position());
-                        cursor.insertText(definition.singleLine);
+                            cursor.insertText(definition.singleLine);
+                        }
                         break;
                     }
                 }

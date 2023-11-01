@@ -1,0 +1,33 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-debug-cmake-files.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-debug
+    \ingroup creator-how-to-build-with-cmake
+
+    \title Debug CMake project files
+
+    With the \QC implementation of the
+    \l {https://microsoft.github.io/debug-adapter-protocol/}
+    {Debug Adapter Protocol (DAP)}, you can debug CMake project files.
+
+    \note You need CMake 3.27 or later for DAP.
+
+    To debug CMake project files:
+
+    \list 1
+        \li In the \uicontrol Edit mode, set breakpoints in a CMake file.
+        \li Select \uicontrol Debug > \uicontrol {Start Debugging} >
+            \uicontrol {Start CMake Debugging}.
+            \image qtcreator-debugger-cmake.webp {DAP CMake Preset view in the Debug mode}
+    \endlist
+
+    When the application stops at a breakpoint, you can examine data in the
+    \uicontrol Debug mode views.
+
+    \sa {Debugging},{Examining Data},{Debug Mode Views},{Setting Breakpoints},
+    {CMake}
+*/

@@ -21,12 +21,19 @@ const char PRINT_ON_RUN_KEY[] = "PE.EnvironmentAspect.PrintOnRun";
 // EnvironmentAspect:
 // --------------------------------------------------------------------
 
-EnvironmentAspect::EnvironmentAspect()
+EnvironmentAspect::EnvironmentAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Environment"));
     setId("EnvironmentAspect");
     setConfigWidgetCreator([this] { return new EnvironmentAspectWidget(this); });
     addDataExtractor(this, &EnvironmentAspect::environment, &Data::environment);
+}
+
+void EnvironmentAspect::setDeviceSelector(Target *target, DeviceSelector selector)
+{
+    m_target = target;
+    m_selector = selector;
 }
 
 int EnvironmentAspect::baseEnvironmentBase() const
@@ -126,17 +133,17 @@ void EnvironmentAspect::setSupportForBuildEnvironment(Target *target)
             this, &EnvironmentAspect::environmentChanged);
 }
 
-void EnvironmentAspect::fromMap(const QVariantMap &map)
+void EnvironmentAspect::fromMap(const Store &map)
 {
-    m_base = map.value(QLatin1String(BASE_KEY), -1).toInt();
-    m_userChanges = Utils::EnvironmentItem::fromStringList(map.value(QLatin1String(CHANGES_KEY)).toStringList());
+    m_base = map.value(BASE_KEY, -1).toInt();
+    m_userChanges = EnvironmentItem::fromStringList(map.value(CHANGES_KEY).toStringList());
     m_printOnRun = map.value(PRINT_ON_RUN_KEY).toBool();
 }
 
-void EnvironmentAspect::toMap(QVariantMap &data) const
+void EnvironmentAspect::toMap(Store &data) const
 {
-    data.insert(QLatin1String(BASE_KEY), m_base);
-    data.insert(QLatin1String(CHANGES_KEY), Utils::EnvironmentItem::toStringList(m_userChanges));
+    data.insert(BASE_KEY, m_base);
+    data.insert(CHANGES_KEY, EnvironmentItem::toStringList(m_userChanges));
     data.insert(PRINT_ON_RUN_KEY, m_printOnRun);
 }
 

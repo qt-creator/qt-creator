@@ -3,48 +3,60 @@
 
 #include "cppmodelmanagerbase.h"
 
-namespace CPlusPlus {
+#include <utils/filepath.h>
+#include <utils/qtcassert.h>
 
-static CppModelManagerBase *g_instance = nullptr;
+using namespace Utils;
 
-CppModelManagerBase::CppModelManagerBase(QObject *parent)
-    : QObject(parent)
+namespace CPlusPlus::CppModelManagerBase {
+
+static bool (*setExtraDiagnosticsCallback)
+    (const FilePath &, const QString &, const QList<Document::DiagnosticMessage> &) = nullptr;
+
+static CPlusPlus::Snapshot (*snapshotCallback)() = nullptr;
+
+
+bool trySetExtraDiagnostics(const FilePath &filePath, const QString &kind,
+                            const QList<Document::DiagnosticMessage> &diagnostics)
 {
-    Q_ASSERT(!g_instance);
-    g_instance = this;
+    if (!setExtraDiagnosticsCallback)
+        return false;
+    return setExtraDiagnosticsCallback(filePath, kind, diagnostics);
 }
 
-CppModelManagerBase::~CppModelManagerBase()
+bool setExtraDiagnostics(const FilePath &filePath, const QString &kind,
+                         const QList<Document::DiagnosticMessage> &diagnostics)
 {
-    Q_ASSERT(g_instance == this);
-    g_instance = nullptr;
+    QTC_ASSERT(setExtraDiagnosticsCallback, return false);
+    return setExtraDiagnosticsCallback(filePath, kind, diagnostics);
 }
 
-CppModelManagerBase *CppModelManagerBase::instance()
+Snapshot snapshot()
 {
-    return g_instance;
+    QTC_ASSERT(snapshotCallback, return {});
+    return snapshotCallback();
 }
 
-bool CppModelManagerBase::trySetExtraDiagnostics(const QString &fileName, const QString &kind,
-                                                 const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics)
+bool hasSnapshots()
 {
-    if (CppModelManagerBase *mm = instance())
-        return mm->setExtraDiagnostics(fileName, kind, diagnostics);
-    return false;
+    return snapshotCallback;
 }
 
-bool CppModelManagerBase::setExtraDiagnostics(const QString &fileName, const QString &kind,
-                                              const QList<CPlusPlus::Document::DiagnosticMessage> &diagnostics)
+// Installation
+
+void registerSetExtraDiagnosticsCallback(
+    bool (*callback)(const FilePath &, const QString &, const QList<Document::DiagnosticMessage> &))
 {
-    Q_UNUSED(fileName)
-    Q_UNUSED(kind)
-    Q_UNUSED(diagnostics)
-    return false;
+    QTC_ASSERT(callback, return);
+    QTC_CHECK(!setExtraDiagnosticsCallback); // bark when used twice
+    setExtraDiagnosticsCallback = callback;
 }
 
-CPlusPlus::Snapshot CppModelManagerBase::snapshot() const
+void registerSnapshotCallback(Snapshot (*callback)())
 {
-    return CPlusPlus::Snapshot();
+    QTC_ASSERT(callback, return);
+    QTC_CHECK(!snapshotCallback); // bark when used twice
+    snapshotCallback = callback;
 }
 
-} // namespace CPlusPlus
+} // CPlusPlus::CppModelManagerBase

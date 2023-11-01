@@ -19,6 +19,15 @@ def triggerCompletion(editorWidget):
     else:
         type(editorWidget, "<Ctrl+Space>")
 
+
+def proposalItemFrom(baseText, useClang, isFunction):
+    if not useClang:
+        return baseText
+    if isFunction:
+        return ' ' + baseText + '(*'
+    return ' ' + baseText
+
+
 # entry of test
 def main():
     for useClang in [False, True]:
@@ -48,8 +57,9 @@ def main():
             functionName = "realpath"
             if platform.system() in ('Windows', 'Microsoft'):
                 functionName = "realloc"
-            waitForObjectItem(":popupFrame_Proposal_QListView", functionName)
-            doubleClickItem(":popupFrame_Proposal_QListView", functionName, 5, 5, 0, Qt.LeftButton)
+            proposalItem = proposalItemFrom(functionName, useClang, True)
+            waitForObjectItem(":popupFrame_Proposal_QListView", proposalItem)
+            doubleClickItem(":popupFrame_Proposal_QListView", proposalItem, 5, 5, 0, Qt.LeftButton)
             test.compare(str(lineUnderCursor(editorWidget)).strip(), functionName + "()",
                          "Step 3: Verifying if: The list of suggestions is opened. It is "
                          "possible to select one of the suggestions.")
@@ -58,11 +68,11 @@ def main():
             type(editorWidget, "unsig")
             try:
                 proposalListView = waitForObject(":popupFrame_Proposal_QListView")
-                waitForObjectItem(proposalListView, "unsigned")
+                waitForObjectItem(proposalListView, proposalItemFrom("unsigned", useClang, False))
                 model = proposalListView.model()
                 if test.verify(model.rowCount() >= 1,
                                'At least one proposal for "unsi"?'):
-                    test.compare(dumpItems(model)[0], 'unsigned',
+                    test.compare(dumpItems(model)[0].strip(), 'unsigned',
                                  '"unsigned" is the first proposal for "unsi"?')
                 type(proposalListView, "<Tab>")
                 test.compare(str(lineUnderCursor(editorWidget)).strip(), "unsigned",
@@ -90,8 +100,8 @@ def main():
             try:
                 proposal = "return"
                 if useClang:
-                    # clang adds a whitespace because the function needs to return a value
-                    proposal += " ;"
+                    # clang adds more because the function needs to return a value
+                    proposal = " return expression;"
                 waitForObjectItem(":popupFrame_Proposal_QListView", proposal)
             except:
                 test.fail("Could not find proposal popup.")

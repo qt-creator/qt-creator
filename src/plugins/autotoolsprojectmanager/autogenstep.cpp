@@ -14,6 +14,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>
+#include <utils/process.h>
 
 #include <QDateTime>
 
@@ -39,7 +40,7 @@ public:
     AutogenStep(BuildStepList *bsl, Id id);
 
 private:
-    void doRun() final;
+    Tasking::GroupItem runRecipe() final;
 
     bool m_runAutogen = false;
     StringAspect m_arguments{this};
@@ -69,29 +70,33 @@ AutogenStep::AutogenStep(BuildStepList *bsl, Id id) : AbstractProcessStep(bsl, i
     });
 }
 
-void AutogenStep::doRun()
+Tasking::GroupItem AutogenStep::runRecipe()
 {
-    // Check whether we need to run autogen.sh
-    const FilePath projectDir = project()->projectDirectory();
-    const FilePath configure = projectDir / "configure";
-    const FilePath configureAc = projectDir / "configure.ac";
-    const FilePath makefileAm = projectDir / "Makefile.am";
+    using namespace Tasking;
 
-    if (!configure.exists()
-        || configure.lastModified() < configureAc.lastModified()
-        || configure.lastModified() < makefileAm.lastModified()) {
-        m_runAutogen = true;
-    }
+    const auto onSetup = [this] {
+        // Check whether we need to run autogen.sh
+        const FilePath projectDir = project()->projectDirectory();
+        const FilePath configure = projectDir / "configure";
+        const FilePath configureAc = projectDir / "configure.ac";
+        const FilePath makefileAm = projectDir / "Makefile.am";
 
-    if (!m_runAutogen) {
-        emit addOutput(Tr::tr("Configuration unchanged, skipping autogen step."),
-                       OutputFormat::NormalMessage);
-        emit finished(true);
-        return;
-    }
+        if (!configure.exists()
+            || configure.lastModified() < configureAc.lastModified()
+            || configure.lastModified() < makefileAm.lastModified()) {
+            m_runAutogen = true;
+        }
 
-    m_runAutogen = false;
-    AbstractProcessStep::doRun();
+        if (!m_runAutogen) {
+            emit addOutput(Tr::tr("Configuration unchanged, skipping autogen step."),
+                           OutputFormat::NormalMessage);
+            return SetupResult::StopWithDone;
+        }
+        return SetupResult::Continue;
+    };
+    const auto onDone = [this] { m_runAutogen = false; };
+
+    return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
 }
 
 // AutogenStepFactory

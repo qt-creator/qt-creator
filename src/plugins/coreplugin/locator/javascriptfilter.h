@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/locator/ilocatorfilter.h>
+#include "ilocatorfilter.h"
 
 class JavaScriptEngine;
 

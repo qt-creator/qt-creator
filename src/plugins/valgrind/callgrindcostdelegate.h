@@ -5,8 +5,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class CostDelegate : public QStyledItemDelegate
 {
@@ -37,7 +36,6 @@ private:
     Private *d;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal
 
 Q_DECLARE_METATYPE(Valgrind::Internal::CostDelegate::CostFormat)

@@ -13,8 +13,7 @@
 #include <QQmlContext>
 #include <QQmlEngine>
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 CtfVisualizerTraceView::CtfVisualizerTraceView(QWidget *parent, CtfVisualizerTool *tool)
     : QQuickWidget(parent)
@@ -36,8 +35,8 @@ CtfVisualizerTraceView::CtfVisualizerTraceView(QWidget *parent, CtfVisualizerToo
     setSource(QUrl(QLatin1String("qrc:/qt/qml/QtCreator/Tracing/MainView.qml")));
 
     // Avoid ugly warnings when reading from null properties in QML.
-    connect(tool->modelAggregator(), &QObject::destroyed, this, [this]{ setSource(QUrl()); });
-    connect(tool->zoomControl(), &QObject::destroyed, this, [this]{ setSource(QUrl()); });
+    connect(tool->modelAggregator(), &QObject::destroyed, this, [this] { setSource({}); });
+    connect(tool->zoomControl(), &QObject::destroyed, this, [this] { setSource({}); });
 }
 
 CtfVisualizerTraceView::~CtfVisualizerTraceView() = default;
@@ -48,7 +47,5 @@ void CtfVisualizerTraceView::selectByTypeId(int typeId)
                               Q_ARG(QVariant,QVariant::fromValue<int>(typeId)));
 }
 
-
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal
 

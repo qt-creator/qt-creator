@@ -21,9 +21,6 @@ public:
     void setValue(const QString &key, const QVariant &value) override;
     QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const override;
     void remove(const QString &key) override;
-
-private:
-    QString addPrefix(const QString &name) const;
 };
 
 } // namespace Internal

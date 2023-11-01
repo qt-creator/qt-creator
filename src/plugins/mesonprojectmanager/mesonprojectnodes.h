@@ -5,11 +5,7 @@
 
 #include <projectexplorer/projectnodes.h>
 
-#include <utils/fileutils.h>
-#include <utils/fsengine/fileiconprovider.h>
-
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class MesonProjectNode : public ProjectExplorer::ProjectNode
 {
@@ -21,6 +17,7 @@ class MesonTargetNode : public ProjectExplorer::ProjectNode
 {
 public:
     MesonTargetNode(const Utils::FilePath &directory, const QString &name);
+
     void build() override;
     QString tooltip() const final;
     QString buildKey() const final;
@@ -33,6 +30,7 @@ class MesonFileNode : public ProjectExplorer::ProjectNode
 {
 public:
     MesonFileNode(const Utils::FilePath &file);
+
     bool showInSimpleTree() const final { return false; }
     std::optional<Utils::FilePath> visibleAfterAddFileAction() const override
     {
@@ -40,5 +38,4 @@ public:
     }
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager:Internal

@@ -38,7 +38,11 @@ public:
     void setParameters(const BuildDirParameters &p);
 
     void resetData();
-    void parse(bool forceCMakeRun, bool forceInitialConfiguration, bool forceExtraConfiguration);
+    void parse(bool forceCMakeRun,
+               bool forceInitialConfiguration,
+               bool forceExtraConfiguration,
+               bool debugging,
+               bool profiling);
     void stop();
     void stopCMakeRun();
 
@@ -64,6 +68,7 @@ signals:
     void dataAvailable(bool restoredFromBackup) const;
     void dirty() const;
     void errorOccurred(const QString &message) const;
+    void debuggingStarted() const;
 
 private:
     void startState();

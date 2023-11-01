@@ -66,13 +66,13 @@ QList<ModelNode> NodeListProperty::toModelNodeList() const
     if (internalNodeListProperty())
         return internalNodesToModelNodes(m_internalNodeListProperty->nodeList(), model(), view());
 
-    return QList<ModelNode>();
+    return {};
 }
 
 QList<QmlObjectNode> NodeListProperty::toQmlObjectNodeList() const
 {
     if (model()->nodeInstanceView())
-        return QList<QmlObjectNode>();
+        return {};
 
     QList<QmlObjectNode> qmlObjectNodeList;
 

@@ -104,9 +104,8 @@ bool BoostTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     if (doc.isNull() || !includesBoostTest(doc, m_cppSnapshot) || !hasBoostTestMacros(doc))
         return false;
 
-    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     const QList<CppEditor::ProjectPart::ConstPtr> projectParts
-            = modelManager->projectPart(fileName);
+            = CppEditor::CppModelManager::projectPart(fileName);
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
     const CppEditor::ProjectPart::ConstPtr projectPart = projectParts.first();

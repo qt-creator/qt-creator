@@ -3,15 +3,14 @@
 
 #pragma once
 
+#include <QList>
 #include <QSharedDataPointer>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class SuppressionFrame
 {
@@ -40,7 +39,7 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-using SuppressionFrames = QVector<SuppressionFrame>;
+using SuppressionFrames = QList<SuppressionFrame>;
 
 class Suppression
 {
@@ -77,5 +76,4 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

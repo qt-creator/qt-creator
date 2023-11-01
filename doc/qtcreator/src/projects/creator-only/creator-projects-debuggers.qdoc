@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,11 +8,12 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-tool-chains.html
     \page creator-debuggers.html
-    \nextpage creator-build-settings.html
+    \previouspage creator-how-tos.html
 
-    \title Adding Debuggers
+    \ingroup creator-how-to-manage-kits
+
+    \title Add debuggers
 
     The \QC debugger plugin acts as an interface between the \QC core and
     external native debuggers such as the GNU Symbolic Debugger (GDB),
@@ -21,21 +22,16 @@
 
     The debugger plugin automatically selects a suitable native debugger for
     each \l{glossary-buildandrun-kit}{kit} from the ones found on your system.
-    To override this choice, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Kits.
-
-    For more information about setting up the debugger, see
-    \l {Setting Up Debugger}. If you encounter problems, see
-    \l {Troubleshooting Debugger}.
+    To override this choice, select \preferences > \uicontrol Kits.
 
     To add debuggers:
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+        \li Select \preferences > \uicontrol Kits >
             \uicontrol Debuggers > \uicontrol Add.
 
-            \image qtcreator-preferences-kits-debuggers.webp "Debuggers tab in Kits preferences"
+            \image qtcreator-preferences-kits-debuggers.webp {Debuggers tab in Kits preferences}
 
         \li In the \uicontrol Name field, give a descriptive name for the debugger.
 
@@ -73,7 +69,11 @@
 
     \endlist
 
+    \section1 Remove debuggers
+
     To remove the selected manually added debugger, select \uicontrol Remove.
     The debugger disappears from the list when you select \uicontrol Apply.
     Until then, you can cancel the deletion by clicking \uicontrol Restore.
+
+    \sa {Debugging}, {Setting Up Debugger}, {Troubleshooting Debugger}
 */

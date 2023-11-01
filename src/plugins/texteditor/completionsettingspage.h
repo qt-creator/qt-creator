@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "commentssettings.h"
 #include "completionsettings.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -17,12 +16,10 @@ public:
     CompletionSettingsPage();
 
     const CompletionSettings &completionSettings() const;
-    const CommentsSettings &commentsSettings() const;
 
 private:
     friend class CompletionSettingsPageWidget;
 
-    CommentsSettings m_commentsSettings;
     CompletionSettings m_completionSettings;
 };
 

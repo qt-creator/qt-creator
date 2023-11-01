@@ -38,7 +38,7 @@ public:
     ExampleSetModel();
 
     int selectedExampleSet() const { return m_selectedExampleSetIndex; }
-    void selectExampleSet(int index);
+    bool selectExampleSet(int index);
     QStringList exampleSources(QString *examplesInstallPath,
                                QString *demosInstallPath,
                                QVersionNumber *qtVersion);
@@ -85,19 +85,24 @@ private:
 
 class ExamplesViewController : public QObject
 {
-    Q_OBJECT
 public:
     explicit ExamplesViewController(ExampleSetModel *exampleSetModel,
                                     Core::SectionedGridView *view,
+                                    QLineEdit *searchField,
                                     bool isExamples,
                                     QObject *parent);
 
     void updateExamples();
+    void setVisible(bool isVisible);
+    bool isVisible() const;
 
 private:
     ExampleSetModel *m_exampleSetModel;
     Core::SectionedGridView *m_view;
+    QLineEdit *m_searchField;
     bool m_isExamples;
+    bool m_isVisible = false;
+    bool m_needsUpdateExamples = false;
 };
 
 } // namespace Internal

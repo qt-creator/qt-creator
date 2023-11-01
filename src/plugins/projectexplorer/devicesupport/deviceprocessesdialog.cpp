@@ -3,10 +3,10 @@
 
 #include "deviceprocessesdialog.h"
 
-#include "deviceprocesslist.h"
 #include "idevice.h"
+#include "processlist.h"
+#include "../kitaspects.h"
 #include "../kitchooser.h"
-#include "../kitinformation.h"
 #include "../projectexplorertr.h"
 
 #include <utils/fancylineedit.h>
@@ -84,7 +84,7 @@ public:
     ProcessInfo selectedProcess() const;
 
     QDialog *q;
-    std::unique_ptr<DeviceProcessList> processList;
+    std::unique_ptr<ProcessList> processList;
     ProcessListFilterModel proxyModel;
     QLabel *kitLabel;
     KitChooser *kitChooser;
@@ -111,7 +111,7 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     processFilterLineEdit = new FancyLineEdit(q);
     processFilterLineEdit->setPlaceholderText(Tr::tr("Filter"));
     processFilterLineEdit->setFocus(Qt::TabFocusReason);
-    processFilterLineEdit->setHistoryCompleter(QLatin1String("DeviceProcessDialogFilter"),
+    processFilterLineEdit->setHistoryCompleter("DeviceProcessDialogFilter",
         true /*restoreLastItemFromHistory*/);
     processFilterLineEdit->setFiltering(true);
 
@@ -121,7 +121,6 @@ DeviceProcessesDialogPrivate::DeviceProcessesDialogPrivate(KitChooser *chooser, 
     procView->setModel(&proxyModel);
     procView->setSelectionBehavior(QAbstractItemView::SelectRows);
     procView->setSelectionMode(QAbstractItemView::SingleSelection);
-    procView->setUniformRowHeights(true);
     procView->setRootIsDecorated(false);
     procView->setAlternatingRowColors(true);
     procView->setSortingEnabled(true);
@@ -187,15 +186,16 @@ void DeviceProcessesDialogPrivate::setDevice(const IDevice::ConstPtr &device)
     if (!device)
         return;
 
-    processList.reset(device->createProcessListModel());
+    processList.reset(new ProcessList(device->sharedFromThis(), this));
+
     QTC_ASSERT(processList, return);
     proxyModel.setSourceModel(processList->model());
 
-    connect(processList.get(), &DeviceProcessList::error,
+    connect(processList.get(), &ProcessList::error,
             this, &DeviceProcessesDialogPrivate::handleRemoteError);
-    connect(processList.get(), &DeviceProcessList::processListUpdated,
+    connect(processList.get(), &ProcessList::processListUpdated,
             this, &DeviceProcessesDialogPrivate::handleProcessListUpdated);
-    connect(processList.get(), &DeviceProcessList::processKilled,
+    connect(processList.get(), &ProcessList::processKilled,
             this, &DeviceProcessesDialogPrivate::handleProcessKilled, Qt::QueuedConnection);
 
     updateButtons();
@@ -258,7 +258,7 @@ ProcessInfo DeviceProcessesDialogPrivate::selectedProcess() const
 {
     const QModelIndexList indexes = procView->selectionModel()->selectedIndexes();
     if (indexes.empty() || !processList)
-        return ProcessInfo();
+        return {};
     return processList->at(proxyModel.mapToSource(indexes.first()).row());
 }
 

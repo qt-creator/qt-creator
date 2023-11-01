@@ -199,13 +199,13 @@ static inline QIcon wizardIcon(const QString &configFileFullPath,
     if (fi.isFile() && fi.isAbsolute())
         return QIcon(fi.absoluteFilePath());
     if (!fi.isRelative())
-        return QIcon();
+        return {};
     // Expand by config path
     const QFileInfo absFi(QFileInfo(configFileFullPath).absolutePath() +
                           QLatin1Char('/') + xmlIconFileName);
     if (absFi.isFile())
         return QIcon(absFi.absoluteFilePath());
-    return QIcon();
+    return {};
 }
 
 // Forward a reader over element text
@@ -929,13 +929,13 @@ QString CustomWizardContext::processFile(const FieldReplacementMap &fm, QString 
     if (!errorMessage.isEmpty()) {
         qWarning("Error processing custom widget file: %s\nFile:\n%s",
                  qPrintable(errorMessage), qPrintable(in));
-        return QString();
+        return {};
     }
 
     if (!Utils::TemplateEngine::preprocessText(in, &out, &errorMessage)) {
         qWarning("Error preprocessing custom widget file: %s\nFile:\n%s",
                  qPrintable(errorMessage), qPrintable(in));
-        return QString();
+        return {};
     }
     return out;
 }

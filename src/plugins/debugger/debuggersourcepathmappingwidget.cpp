@@ -3,7 +3,7 @@
 
 #include "debuggersourcepathmappingwidget.h"
 
-#include "debuggeractions.h"
+#include "commonoptionspage.h"
 #include "debuggerengine.h"
 #include "debuggertr.h"
 
@@ -22,7 +22,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QSettings>
 #include <QStandardItemModel>
 #include <QTreeView>
 
@@ -442,8 +441,8 @@ public:
 };
 
 
-SourcePathMapAspect::SourcePathMapAspect()
-    : d(new SourcePathMapAspectPrivate)
+SourcePathMapAspect::SourcePathMapAspect(AspectContainer *container)
+    : TypedAspect(container), d(new SourcePathMapAspectPrivate)
 {
 }
 
@@ -452,14 +451,20 @@ SourcePathMapAspect::~SourcePathMapAspect()
     delete d;
 }
 
-void SourcePathMapAspect::fromMap(const QVariantMap &)
+void SourcePathMapAspect::fromMap(const Store &)
 {
     QTC_CHECK(false); // This is only used via read/writeSettings
 }
 
-void SourcePathMapAspect::toMap(QVariantMap &) const
+void SourcePathMapAspect::toMap(Store &) const
 {
     QTC_CHECK(false);
+}
+
+bool SourcePathMapAspect::isDirty()
+{
+    guiToBuffer();
+    return m_internal != m_buffer;
 }
 
 void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
@@ -470,36 +475,32 @@ void SourcePathMapAspect::addToLayout(Layouting::LayoutItem &parent)
     parent.addItem(d->m_widget.data());
 }
 
-QVariant SourcePathMapAspect::volatileValue() const
+bool SourcePathMapAspect::guiToBuffer()
 {
-    QTC_CHECK(!isAutoApply());
-    QTC_ASSERT(d->m_widget, return {});
-    return QVariant::fromValue(d->m_widget->sourcePathMap());
+    const SourcePathMap old = m_buffer;
+    if (d->m_widget)
+        m_buffer = d->m_widget->sourcePathMap();
+    return m_buffer != old;
 }
 
-void SourcePathMapAspect::setVolatileValue(const QVariant &val)
+void SourcePathMapAspect::bufferToGui()
 {
-    QTC_CHECK(!isAutoApply());
     if (d->m_widget)
-        d->m_widget->setSourcePathMap(val.value<SourcePathMap>());
+        d->m_widget->setSourcePathMap(m_buffer);
 }
 
 const char sourcePathMappingArrayNameC[] = "SourcePathMappings";
 const char sourcePathMappingSourceKeyC[] = "Source";
 const char sourcePathMappingTargetKeyC[] = "Target";
 
-SourcePathMap SourcePathMapAspect::value() const
-{
-    return BaseAspect::value().value<SourcePathMap>();
-}
-
-void SourcePathMapAspect::writeSettings(QSettings *s) const
+void SourcePathMapAspect::writeSettings() const
 {
     const SourcePathMap sourcePathMap = value();
+    QtcSettings *s = qtcSettings();
     s->beginWriteArray(sourcePathMappingArrayNameC);
     if (!sourcePathMap.isEmpty()) {
-        const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
-        const QString sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
+        const Key sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
+        const Key sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
         int i = 0;
         for (auto it = sourcePathMap.constBegin(), cend = sourcePathMap.constEnd();
              it != cend;
@@ -512,14 +513,13 @@ void SourcePathMapAspect::writeSettings(QSettings *s) const
     s->endArray();
 }
 
-void SourcePathMapAspect::readSettings(const QSettings *settings)
+void SourcePathMapAspect::readSettings()
 {
-    // Eeks. But legitimate, this operates on ICore::settings();
-    QSettings *s = const_cast<QSettings *>(settings);
+    QtcSettings *s = qtcSettings();
     SourcePathMap sourcePathMap;
     if (const int count = s->beginReadArray(sourcePathMappingArrayNameC)) {
-        const QString sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
-        const QString sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
+        const Key sourcePathMappingSourceKey(sourcePathMappingSourceKeyC);
+        const Key sourcePathMappingTargetKey(sourcePathMappingTargetKeyC);
         for (int i = 0; i < count; ++i) {
              s->setArrayIndex(i);
              const QString key = s->value(sourcePathMappingSourceKey).toString();
@@ -528,7 +528,7 @@ void SourcePathMapAspect::readSettings(const QSettings *settings)
         }
     }
     s->endArray();
-    setValue(QVariant::fromValue(sourcePathMap));
+    setValue(sourcePathMap);
 }
 
 } // Debugger::Internal

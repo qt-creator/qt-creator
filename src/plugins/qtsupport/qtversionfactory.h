@@ -5,7 +5,7 @@
 
 #include "qtsupport_global.h"
 
-#include <QVariantMap>
+#include <utils/store.h>
 
 namespace Utils { class FilePath; }
 
@@ -22,7 +22,7 @@ public:
     static const QList<QtVersionFactory *> allQtVersionFactories();
 
     bool canRestore(const QString &type);
-    QtVersion *restore(const QString &type, const QVariantMap &data, const Utils::FilePath &workingDirectory);
+    QtVersion *restore(const QString &type, const Utils::Store &data, const Utils::FilePath &workingDirectory);
 
     /// factories with higher priority are asked first to identify
     /// a qtversion, the priority of the desktop factory is 0 and

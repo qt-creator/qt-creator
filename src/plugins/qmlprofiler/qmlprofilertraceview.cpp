@@ -298,10 +298,10 @@ bool TraceViewFindSupport::supportsReplace() const
     return false;
 }
 
-Core::FindFlags TraceViewFindSupport::supportedFindFlags() const
+Utils::FindFlags TraceViewFindSupport::supportedFindFlags() const
 {
-    return Core::FindBackward | Core::FindCaseSensitively | Core::FindRegularExpression
-            | Core::FindWholeWords;
+    return Utils::FindBackward | Utils::FindCaseSensitively | Utils::FindRegularExpression
+            | Utils::FindWholeWords;
 }
 
 void TraceViewFindSupport::resetIncrementalSearch()
@@ -325,7 +325,7 @@ QString TraceViewFindSupport::completedFindString() const
 }
 
 Core::IFindSupport::Result TraceViewFindSupport::findIncremental(const QString &txt,
-                                                                 Core::FindFlags findFlags)
+                                                                 Utils::FindFlags findFlags)
 {
     if (m_incrementalStartPos < 0)
         m_incrementalStartPos = qMax(m_currentPosition, 0);
@@ -339,9 +339,9 @@ Core::IFindSupport::Result TraceViewFindSupport::findIncremental(const QString &
 }
 
 Core::IFindSupport::Result TraceViewFindSupport::findStep(const QString &txt,
-                                                          Core::FindFlags findFlags)
+                                                          Utils::FindFlags findFlags)
 {
-    int start = (findFlags & Core::FindBackward) ? m_currentPosition : m_currentPosition + 1;
+    int start = (findFlags & Utils::FindBackward) ? m_currentPosition : m_currentPosition + 1;
     bool wrapped;
     bool found = find(txt, findFlags, start, &wrapped);
     if (wrapped)
@@ -355,14 +355,14 @@ Core::IFindSupport::Result TraceViewFindSupport::findStep(const QString &txt,
 
 // "start" is the model index that is searched first in a forward search, i.e. as if the
 // "cursor" were between start-1 and start
-bool TraceViewFindSupport::find(const QString &txt, Core::FindFlags findFlags, int start,
+bool TraceViewFindSupport::find(const QString &txt, Utils::FindFlags findFlags, int start,
                                 bool *wrapped)
 {
     if (wrapped)
         *wrapped = false;
     if (!findOne(txt, findFlags, start)) {
         int secondStart;
-        if (findFlags & Core::FindBackward)
+        if (findFlags & Utils::FindBackward)
             secondStart = m_modelManager->notesModel()->count();
         else
             secondStart = 0;
@@ -376,19 +376,19 @@ bool TraceViewFindSupport::find(const QString &txt, Core::FindFlags findFlags, i
 
 // "start" is the model index that is searched first in a forward search, i.e. as if the
 // "cursor" were between start-1 and start
-bool TraceViewFindSupport::findOne(const QString &txt, Core::FindFlags findFlags, int start)
+bool TraceViewFindSupport::findOne(const QString &txt, Utils::FindFlags findFlags, int start)
 {
-    bool caseSensitiveSearch = (findFlags & Core::FindCaseSensitively);
-    bool regexSearch = (findFlags & Core::FindRegularExpression);
+    bool caseSensitiveSearch = (findFlags & Utils::FindCaseSensitively);
+    bool regexSearch = (findFlags & Utils::FindRegularExpression);
     QRegularExpression regexp(regexSearch ? txt : QRegularExpression::escape(txt),
                               caseSensitiveSearch ? QRegularExpression::NoPatternOption
                                                   : QRegularExpression::CaseInsensitiveOption);
     QTextDocument::FindFlags flags;
     if (caseSensitiveSearch)
         flags |= QTextDocument::FindCaseSensitively;
-    if (findFlags & Core::FindWholeWords)
+    if (findFlags & Utils::FindWholeWords)
         flags |= QTextDocument::FindWholeWords;
-    bool forwardSearch = !(findFlags & Core::FindBackward);
+    bool forwardSearch = !(findFlags & Utils::FindBackward);
     int increment = forwardSearch ? +1 : -1;
     int current = forwardSearch ? start : start - 1;
     Timeline::TimelineNotesModel *model = m_modelManager->notesModel();

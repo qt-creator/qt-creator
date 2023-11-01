@@ -7,15 +7,13 @@
 
 #include <model.h>
 
-#include <app/app_version.h>
-
 #include <projectexplorer/kit.h>
 #include <projectexplorer/target.h>
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #include <qmlprojectmanager/qmlproject.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversions.h>
 
 #include <QLibraryInfo>

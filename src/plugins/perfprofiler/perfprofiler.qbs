@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "QtSupport" }
     Depends { name: "Tracing" }
     Depends { name: "Utils" }
-    Depends { name: "app_version_header" }
 
     Depends {
         name: "Qt"
@@ -19,16 +18,12 @@ QtcPlugin {
     files: [
         "perfconfigeventsmodel.cpp",
         "perfconfigeventsmodel.h",
-        "perfconfigwidget.cpp",
-        "perfconfigwidget.h",
         "perfdatareader.cpp",
         "perfdatareader.h",
         "perfevent.h",
         "perfeventtype.h",
         "perfloaddialog.cpp",
         "perfloaddialog.h",
-        "perfoptionspage.cpp",
-        "perfoptionspage.h",
         "perfprofiler_global.h", "perfprofilertr.h",
         "perfprofilerconstants.h",
         "perfprofilerplugin.cpp",

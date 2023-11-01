@@ -3,11 +3,11 @@
 
 #pragma once
 
+#include <utils/store.h>
+
 #include <QObject>
 
-namespace Utils {
-class FilePath;
-} // namespace Utils
+namespace Utils { class FilePath; }
 
 namespace McuSupport::Internal {
 
@@ -39,7 +39,7 @@ public:
     virtual void setPath(const Utils::FilePath &) = 0;
     virtual Utils::FilePath defaultPath() const = 0;
     virtual Utils::FilePath detectionPath() const = 0;
-    virtual QString settingsKey() const = 0;
+    virtual Utils::Key settingsKey() const = 0;
 
     virtual void updateStatus() = 0;
     virtual Status status() const = 0;
@@ -56,6 +56,6 @@ signals:
     void changed();
     void statusChanged();
     void reset();
+};
 
-}; // class McuAbstractPackage
 } // namespace McuSupport::Internal

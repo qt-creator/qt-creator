@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "timelineform.h"
-#include "ui_timelineform.h"
 
 #include <abstractview.h>
 #include <bindingproperty.h>
@@ -15,22 +14,80 @@
 #include <coreplugin/messagebox.h>
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+
+#include <QLabel>
+#include <QLineEdit>
+#include <QRadioButton>
+#include <QSpinBox>
 
 namespace QmlDesigner {
 
 TimelineForm::TimelineForm(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::TimelineForm)
 {
-    ui->setupUi(this);
+    constexpr int minimumLabelWidth = 160;
+    constexpr int spinBoxWidth = 80;
 
-    connect(ui->expressionBindingLineEdit, &QLineEdit::editingFinished, [this]() {
+    auto mainL = new QLabel(tr("Timeline Settings"));
+    QFont f = mainL->font();
+    f.setBold(true);
+    mainL->setFont(f);
+
+    auto idL = new QLabel(tr("Timeline ID:"));
+    idL->setToolTip(tr("Name for the timeline."));
+    m_idLineEdit = new QLineEdit;
+
+    auto startFrameL = new QLabel(tr("Start frame:"));
+    startFrameL->setToolTip(tr("First frame of the timeline. Negative numbers are allowed."));
+    m_startFrame = new QSpinBox;
+    m_startFrame->setFixedWidth(spinBoxWidth);
+    m_startFrame->setRange(-100000, 100000);
+
+    auto endFrameL = new QLabel(tr("End frame:"));
+    endFrameL->setToolTip(tr("Last frame of the timeline."));
+    m_endFrame = new QSpinBox;
+    m_endFrame->setFixedWidth(spinBoxWidth);
+    m_endFrame->setRange(-100000, 100000);
+
+    m_expressionBinding = new QRadioButton(tr("Expression binding"));
+    m_expressionBinding->setToolTip(tr("To create an expression binding animation, delete all animations from this timeline."));
+    m_expressionBinding->setEnabled(false);
+
+    m_animation = new QRadioButton(tr("Animation"));
+    m_animation->setEnabled(false);
+    m_animation->setChecked(true);
+
+    QSizePolicy sp(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+    auto expressionBindingL = new QLabel(tr("Expression binding:"));
+    expressionBindingL->setToolTip(tr("Sets the expression to bind the current keyframe to."));
+    expressionBindingL->setMinimumWidth(minimumLabelWidth);
+    m_expressionBindingLineEdit = new QLineEdit;
+    m_expressionBindingLineEdit->setMinimumWidth(240);
+    sp.setHorizontalStretch(2);
+    m_expressionBindingLineEdit->setSizePolicy(sp);
+
+    auto str = new QWidget;
+    sp.setHorizontalStretch(1);
+    str->setSizePolicy(sp);
+
+    using namespace Layouting;
+    Grid {
+        Span(2, mainL), br,
+        idL, m_idLineEdit, br,
+        empty(), Row { startFrameL, m_startFrame, st(), endFrameL, m_endFrame }, str, br,
+        empty(), Row { m_expressionBinding, m_animation, st() }, br,
+        expressionBindingL, m_expressionBindingLineEdit, br,
+    }.attachTo(this);
+
+    connect(m_expressionBindingLineEdit, &QLineEdit::editingFinished, [this]() {
         QTC_ASSERT(m_timeline.isValid(), return );
 
-        const QString bindingText = ui->expressionBindingLineEdit->text();
+        const QString bindingText = m_expressionBindingLineEdit->text();
         if (bindingText.isEmpty()) {
-            ui->animation->setChecked(true);
+            m_animation->setChecked(true);
             try {
                 m_timeline.modelNode().removeProperty("currentFrame");
             } catch (const Exception &e) {
@@ -39,7 +96,7 @@ TimelineForm::TimelineForm(QWidget *parent)
             return;
         }
 
-        ui->expressionBinding->setChecked(true);
+        m_expressionBinding->setChecked(true);
 
         try {
             m_timeline.modelNode()
@@ -50,12 +107,12 @@ TimelineForm::TimelineForm(QWidget *parent)
         }
     });
 
-    connect(ui->idLineEdit, &QLineEdit::editingFinished, [this]() {
+    connect(m_idLineEdit, &QLineEdit::editingFinished, [this]() {
         QTC_ASSERT(m_timeline.isValid(), return );
 
         static QString lastString;
 
-        const QString newId = ui->idLineEdit->text();
+        const QString newId = m_idLineEdit->text();
 
         if (newId == lastString)
             return;
@@ -81,37 +138,32 @@ TimelineForm::TimelineForm(QWidget *parent)
 
         if (error) {
             lastString.clear();
-            ui->idLineEdit->setText(m_timeline.modelNode().id());
+            m_idLineEdit->setText(m_timeline.modelNode().id());
         }
     });
 
-    connectSpinBox(ui->startFrame, "startFrame");
-    connectSpinBox(ui->endFrame, "endFrame");
-}
-
-TimelineForm::~TimelineForm()
-{
-    delete ui;
+    connectSpinBox(m_startFrame, "startFrame");
+    connectSpinBox(m_endFrame, "endFrame");
 }
 
 void TimelineForm::setTimeline(const QmlTimeline &timeline)
 {
     m_timeline = timeline;
 
-    ui->expressionBindingLineEdit->clear();
+    m_expressionBindingLineEdit->clear();
 
     if (m_timeline.isValid()) {
-        ui->idLineEdit->setText(m_timeline.modelNode().displayName());
-        ui->startFrame->setValue(
+        m_idLineEdit->setText(m_timeline.modelNode().displayName());
+        m_startFrame->setValue(
             m_timeline.modelNode().variantProperty("startFrame").value().toInt());
-        ui->endFrame->setValue(m_timeline.modelNode().variantProperty("endFrame").value().toInt());
+        m_endFrame->setValue(m_timeline.modelNode().variantProperty("endFrame").value().toInt());
 
         if (m_timeline.modelNode().hasBindingProperty("currentFrame")) {
-            ui->expressionBindingLineEdit->setText(
+            m_expressionBindingLineEdit->setText(
                 m_timeline.modelNode().bindingProperty("currentFrame").expression());
-            ui->expressionBinding->setChecked(true);
+            m_expressionBinding->setChecked(true);
         } else {
-            ui->expressionBinding->setChecked(false);
+            m_expressionBinding->setChecked(false);
         }
     }
 }
@@ -123,9 +175,9 @@ QmlTimeline TimelineForm::timeline() const
 
 void TimelineForm::setHasAnimation(bool b)
 {
-    ui->expressionBinding->setChecked(!b);
-    ui->animation->setChecked(b);
-    ui->expressionBindingLineEdit->setDisabled(b);
+    m_expressionBinding->setChecked(!b);
+    m_animation->setChecked(b);
+    m_expressionBindingLineEdit->setDisabled(b);
 }
 
 void TimelineForm::setProperty(const PropertyName &propertyName, const QVariant &value)

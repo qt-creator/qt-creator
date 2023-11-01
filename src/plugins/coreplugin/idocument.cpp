@@ -326,6 +326,7 @@ IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePat
 
 /*!
     Saves the contents of the document to the \a filePath on disk.
+    If \a filePath is empty filePath() is used.
 
     If \a autoSave is \c true, the saving is done for an auto-save, so the
     document should avoid cleanups or other operations that it does for
@@ -340,13 +341,15 @@ IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePat
     \sa shouldAutoSave()
     \sa aboutToSave()
     \sa saved()
+    \sa filePath()
 */
 bool IDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
 {
-    emit aboutToSave(filePath.isEmpty() ? this->filePath() : filePath, autoSave);
-    const bool success = saveImpl(errorString, filePath, autoSave);
+    const Utils::FilePath savePath = filePath.isEmpty() ? this->filePath() : filePath;
+    emit aboutToSave(savePath, autoSave);
+    const bool success = saveImpl(errorString, savePath, autoSave);
     if (success)
-        emit saved(filePath.isEmpty() ? this->filePath() : filePath, autoSave);
+        emit saved(savePath, autoSave);
     return success;
 }
 
@@ -399,6 +402,13 @@ bool IDocument::setContents(const QByteArray &contents)
 {
     Q_UNUSED(contents)
     return false;
+}
+
+/*!
+    Formats the contents of the document, if the implementation supports such functionality.
+*/
+void IDocument::formatContents()
+{
 }
 
 /*!

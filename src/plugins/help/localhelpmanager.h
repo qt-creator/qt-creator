@@ -61,6 +61,9 @@ public:
     static int fontZoom();
     static int setFontZoom(int percentage);
 
+    static bool antialias();
+    static void setAntialias(bool on);
+
     static StartOption startOption();
     static void setStartOption(StartOption option);
 
@@ -104,6 +107,7 @@ public:
 signals:
     void fallbackFontChanged(const QFont &font);
     void fontZoomChanged(int percentage);
+    void antialiasChanged(bool on);
     void returnOnCloseChanged();
     void scrollWheelZoomingEnabledChanged(bool enabled);
     void contextHelpOptionChanged(Core::HelpManager::HelpViewerLocation option);

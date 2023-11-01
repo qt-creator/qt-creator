@@ -6,28 +6,22 @@
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/layoutbuilder.h>
 
 namespace MesonProjectManager::Internal {
 
-static Settings *s_instance;
-
-Settings &settings()
+MesonSettings &settings()
 {
-    return *s_instance;
+    static MesonSettings theSettings;
+    return theSettings;
 }
 
-Settings::Settings()
+MesonSettings::MesonSettings()
 {
-    s_instance = this;
-
+    setAutoApply(false);
     setSettingsGroup("MesonProjectManager");
-
-    setId("A.MesonProjectManager.SettingsPage.General");
-    setDisplayName(Tr::tr("General"));
-    setDisplayCategory("Meson");
-    setCategory(Constants::SettingsPage::CATEGORY);
-    setCategoryIconPath(Constants::Icons::MESON_BW);
 
     autorunMeson.setSettingsKey("meson.autorun");
     autorunMeson.setLabelText(Tr::tr("Autorun Meson"));
@@ -48,5 +42,21 @@ Settings::Settings()
 
     readSettings();
 }
+
+class MesonSettingsPage final : public Core::IOptionsPage
+{
+public:
+    MesonSettingsPage()
+    {
+        setId("A.MesonProjectManager.SettingsPage.General");
+        setDisplayName(Tr::tr("General"));
+        setDisplayCategory("Meson");
+        setCategory(Constants::SettingsPage::CATEGORY);
+        setCategoryIconPath(Constants::Icons::MESON_BW);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const MesonSettingsPage settingsPage;
 
 } // MesonProjectManager::Internal

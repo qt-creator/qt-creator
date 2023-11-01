@@ -34,7 +34,80 @@ const char targetDisableStackC[] = "TargetDisableStack";
 const char gdbShutDownAfterDisconnectC[] = "GdbShutDownAfterDisconnect";
 const char gdbNotUseCacheC[] = "GdbNotUseCache";
 
+enum InterfaceType { SWD, JTAG };
+
+// EBlinkGdbServerProviderWidget
+
+class EBlinkGdbServerProvider;
+
+class EBlinkGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
+{
+public:
+    explicit EBlinkGdbServerProviderConfigWidget(EBlinkGdbServerProvider *provider);
+
+private:
+    void apply() final;
+    void discard() final;
+
+    InterfaceType interfaceTypeToWidget(int idx) const;
+    InterfaceType interfaceTypeFromWidget() const;
+
+    void populateInterfaceTypes();
+    void setFromProvider();
+
+    HostWidget *m_gdbHostWidget = nullptr;
+    PathChooser *m_executableFileChooser = nullptr;
+    QSpinBox *m_verboseLevelSpinBox = nullptr;
+    QCheckBox *m_resetOnConnectCheckBox = nullptr;
+    QCheckBox *m_notUseCacheCheckBox = nullptr;
+    QCheckBox *m_shutDownAfterDisconnectCheckBox = nullptr;
+    QComboBox *m_interfaceTypeComboBox = nullptr;
+    //QLineEdit *m_deviceScriptLineEdit = nullptr;
+    PathChooser *m_scriptFileChooser = nullptr;
+    QSpinBox  *m_interfaceSpeedSpinBox = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
+};
+
 // EBlinkGdbServerProvider
+
+class EBlinkGdbServerProvider final : public GdbServerProvider
+{
+public:
+    void toMap(Store &data) const final;
+    void fromMap(const Store &data) final;
+
+    bool operator==(const IDebugServerProvider &other) const final;
+
+    QString channelString() const final;
+    Utils::CommandLine command() const final;
+
+    QSet<StartupMode> supportedStartupModes() const final;
+    bool isValid() const final;
+
+private:
+    EBlinkGdbServerProvider();
+
+    static QString defaultInitCommands();
+    static QString defaultResetCommands();
+
+    Utils::FilePath m_executableFile = "eblink"; // server execute filename
+    int  m_verboseLevel = 0;                // verbose <0..7>  Specify generally verbose logging
+    InterfaceType m_interfaceType = SWD;    // -I stlink ;swd(default) jtag
+    Utils::FilePath m_deviceScript = "stm32-auto.script";  // -D <script> ;Select the device script <>.script
+    bool m_interfaceResetOnConnect = true;  // (inversed)-I stlink,dr ;Disable reset at connection (hotplug)
+    int  m_interfaceSpeed = 4000;           // -I stlink,speed=4000
+    QString m_interfaceExplicidDevice;      // device=<usb_bus>:<usb_addr> ; Set device explicit
+    QString m_targetName = {"cortex-m"};    // -T cortex-m(default)
+    bool m_targetDisableStack = false;      // -T cortex-m,nu ;Disable stack unwind at exception
+    bool m_gdbShutDownAfterDisconnect = true;// -G S ; Shutdown after disconnect
+    bool m_gdbNotUseCache = false;           // -G nc ; Don't use EBlink flash cache
+
+    QString scriptFileWoExt() const;
+
+    friend class EBlinkGdbServerProviderConfigWidget;
+    friend class EBlinkGdbServerProviderFactory;
+};
 
 EBlinkGdbServerProvider::EBlinkGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_EBLINK_PROVIDER_ID)
@@ -142,9 +215,9 @@ bool EBlinkGdbServerProvider::isValid() const
     }
 }
 
-QVariantMap EBlinkGdbServerProvider::toMap() const
+void EBlinkGdbServerProvider::toMap(Store &data) const
 {
-    QVariantMap data = GdbServerProvider::toMap();
+    GdbServerProvider::toMap(data);
     data.insert(executableFileKeyC, m_executableFile.toSettings());
     data.insert(verboseLevelKeyC, m_verboseLevel);
     data.insert(interfaceTypeC, m_interfaceType);
@@ -156,20 +229,15 @@ QVariantMap EBlinkGdbServerProvider::toMap() const
     data.insert(targetDisableStackC, m_targetDisableStack);
     data.insert(gdbShutDownAfterDisconnectC, m_gdbShutDownAfterDisconnect);
     data.insert(gdbNotUseCacheC, m_gdbNotUseCache);
-
-    return data;
 }
 
-bool EBlinkGdbServerProvider::fromMap(const QVariantMap &data)
+void EBlinkGdbServerProvider::fromMap(const Store &data)
 {
-    if (!GdbServerProvider::fromMap(data))
-        return false;
-
+    GdbServerProvider::fromMap(data);
     m_executableFile = FilePath::fromSettings(data.value(executableFileKeyC));
     m_verboseLevel = data.value(verboseLevelKeyC).toInt();
     m_interfaceResetOnConnect = data.value(interfaceResetOnConnectC).toBool();
-    m_interfaceType = static_cast<InterfaceType>(
-                data.value(interfaceTypeC).toInt());
+    m_interfaceType = static_cast<InterfaceType>(data.value(interfaceTypeC).toInt());
     m_deviceScript = FilePath::fromSettings(data.value(deviceScriptC));
     m_interfaceResetOnConnect = data.value(interfaceResetOnConnectC).toBool();
     m_interfaceSpeed = data.value(interfaceSpeedC).toInt();
@@ -178,8 +246,6 @@ bool EBlinkGdbServerProvider::fromMap(const QVariantMap &data)
     m_targetDisableStack = data.value(targetDisableStackC).toBool();
     m_gdbShutDownAfterDisconnect = data.value(gdbShutDownAfterDisconnectC).toBool();
     m_gdbNotUseCache = data.value(gdbNotUseCacheC).toBool();
-
-    return true;
 }
 
 bool EBlinkGdbServerProvider::operator==(const IDebugServerProvider &other) const
@@ -211,6 +277,7 @@ EBlinkGdbServerProviderFactory::EBlinkGdbServerProviderFactory()
 }
 
 // EBlinkGdbServerProviderConfigWidget
+
 
 EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
         EBlinkGdbServerProvider *p)
@@ -298,26 +365,21 @@ EBlinkGdbServerProviderConfigWidget::EBlinkGdbServerProviderConfigWidget(
             this, &GdbServerProviderConfigWidget::dirty);
 }
 
-EBlinkGdbServerProvider::InterfaceType
-EBlinkGdbServerProviderConfigWidget::interfaceTypeToWidget(int idx) const
+InterfaceType EBlinkGdbServerProviderConfigWidget::interfaceTypeToWidget(int idx) const
 {
     m_interfaceTypeComboBox->setCurrentIndex(idx);
     return interfaceTypeFromWidget();
 }
 
-EBlinkGdbServerProvider::InterfaceType
-EBlinkGdbServerProviderConfigWidget::interfaceTypeFromWidget() const
+InterfaceType EBlinkGdbServerProviderConfigWidget::interfaceTypeFromWidget() const
 {
-    return static_cast<EBlinkGdbServerProvider::InterfaceType>(
-                             m_interfaceTypeComboBox->currentIndex());
+    return static_cast<InterfaceType>(m_interfaceTypeComboBox->currentIndex());
 }
 
 void EBlinkGdbServerProviderConfigWidget::populateInterfaceTypes()
 {
-    m_interfaceTypeComboBox->insertItem(EBlinkGdbServerProvider::SWD, Tr::tr("SWD"),
-                EBlinkGdbServerProvider::SWD);
-    m_interfaceTypeComboBox->insertItem(EBlinkGdbServerProvider::JTAG, Tr::tr("JTAG"),
-                EBlinkGdbServerProvider::JTAG);
+    m_interfaceTypeComboBox->insertItem(SWD, Tr::tr("SWD"), SWD);
+    m_interfaceTypeComboBox->insertItem(JTAG, Tr::tr("JTAG"), JTAG);
 }
 
 void EBlinkGdbServerProviderConfigWidget::setFromProvider()

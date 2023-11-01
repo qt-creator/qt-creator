@@ -10,7 +10,7 @@
 #include <QDropEvent>
 #include <QTimer>
 
-#ifdef Q_OS_OSX
+#ifdef Q_OS_MACOS
 // for file drops from Finder, working around QTBUG-40449
 #include "fileutils_mac.h"
 #endif
@@ -63,7 +63,7 @@ DropSupport::DropSupport(QWidget *parentWidget, const DropFilterFunction &filter
 
 QStringList DropSupport::mimeTypesForFilePaths()
 {
-    return QStringList("text/uri-list");
+    return {"text/uri-list"};
 }
 
 bool DropSupport::isFileDrop(QDropEvent *event)
@@ -181,7 +181,7 @@ void DropMimeData::addFile(const FilePath &filePath, int line, int column)
 {
     // standard mime data
     QList<QUrl> currentUrls = urls();
-    currentUrls.append(QUrl::fromLocalFile(filePath.toString()));
+    currentUrls.append(filePath.toUrl());
     setUrls(currentUrls);
     // special mime data
     m_files.append(DropSupport::FileSpec(filePath, line, column));

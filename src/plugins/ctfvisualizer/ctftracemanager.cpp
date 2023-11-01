@@ -8,65 +8,15 @@
 #include "ctfvisualizertr.h"
 
 #include <coreplugin/icore.h>
+
 #include <tracing/timelinemodelaggregator.h>
 
-#include <QByteArray>
-#include <QDebug>
-#include <QFile>
-#include <QList>
 #include <QMessageBox>
 
-#include <fstream>
-
-
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 using json = nlohmann::json;
-
 using namespace Constants;
-
-
-class CtfJsonParserCallback
-{
-
-public:
-
-    explicit CtfJsonParserCallback(CtfTraceManager *traceManager)
-        : m_traceManager(traceManager)
-    {}
-
-    bool callback(int depth, nlohmann::json::parse_event_t event, nlohmann::json &parsed)
-    {
-        if ((event == json::parse_event_t::array_start && depth == 0)
-                || (event == json::parse_event_t::key && depth == 1 && parsed == json(CtfTraceEventsKey))) {
-            m_isInTraceArray = true;
-            m_traceArrayDepth = depth;
-            return true;
-        }
-        if (m_isInTraceArray && event == json::parse_event_t::array_end && depth == m_traceArrayDepth) {
-            m_isInTraceArray = false;
-            return false;
-        }
-        if (m_isInTraceArray && event == json::parse_event_t::object_end && depth == m_traceArrayDepth + 1) {
-            m_traceManager->addEvent(parsed);
-            return false;
-        }
-        if (m_isInTraceArray || (event == json::parse_event_t::object_start && depth == 0)) {
-            // keep outer object and values in trace objects:
-            return true;
-        }
-        // discard any objects outside of trace array:
-        // TODO: parse other data, e.g. stack frames
-        return false;
-    }
-
-protected:
-    CtfTraceManager *m_traceManager;
-
-    bool m_isInTraceArray = false;
-    int m_traceArrayDepth = 0;
-};
 
 CtfTraceManager::CtfTraceManager(QObject *parent,
                                  Timeline::TimelineModelAggregator *modelAggregator,
@@ -75,7 +25,6 @@ CtfTraceManager::CtfTraceManager(QObject *parent,
     , m_modelAggregator(modelAggregator)
     , m_statisticsModel(statisticsModel)
 {
-
 }
 
 qint64 CtfTraceManager::traceDuration() const
@@ -95,60 +44,57 @@ qint64 CtfTraceManager::traceEnd() const
 
 void CtfTraceManager::addEvent(const json &event)
 {
-    const double timestamp = event.value(CtfTracingClockTimestampKey, -1.0);
-    if (timestamp < 0) {
-        // events without or with negative timestamp will be ignored
-        return;
-    }
-    if (m_timeOffset < 0) {
-        // the timestamp of the first event is used as the global offset
-        m_timeOffset = timestamp;
-    }
-
-    const int processId = event.value(CtfProcessIdKey, 0);
-    const int threadId = event.contains(CtfThreadIdKey) ? int(event[CtfThreadIdKey]) : processId;
-    if (!m_threadModels.contains(threadId)) {
-        addModelForThread(threadId, processId);
-    }
-    if (event.value(CtfEventPhaseKey, "") == CtfEventTypeMetadata) {
-        const std::string name = event[CtfEventNameKey];
-        if (name == "thread_name") {
-            m_threadNames[threadId] = QString::fromStdString(event["args"]["name"]);
-        } else if (name == "process_name") {
-            m_processNames[processId] = QString::fromStdString(event["args"]["name"]);
+    try {
+        const double timestamp = event.value(CtfTracingClockTimestampKey, -1.0);
+        if (timestamp < 0) {
+            // events without or with negative timestamp will be ignored
+            return;
         }
-    }
+        if (m_timeOffset < 0) {
+            // the timestamp of the first event is used as the global offset
+            m_timeOffset = timestamp;
+        }
 
-    const QPair<bool, qint64> result = m_threadModels[threadId]->addEvent(event, m_timeOffset);
-    const bool visibleOnTimeline = result.first;
-    if (visibleOnTimeline) {
-        m_traceBegin = std::min(m_traceBegin, timestamp);
-        m_traceEnd = std::max(m_traceEnd, timestamp);
-    } else if (m_timeOffset == timestamp) {
-        // this timestamp was used as the time offset but it is not a visible element
-        // -> reset the time offset again:
-        m_timeOffset = -1.0;
-    }
-}
+        static const auto getStringValue =
+            [](const json &event, const char *key, const QString &def) {
+                if (!event.contains(key))
+                    return def;
+                const json val = event[key];
+                if (val.is_string())
+                    return QString::fromStdString(val);
+                if (val.is_number()) {
+                    return QString::number(int(val));
+                }
+                return def;
+            };
+        const QString processId = getStringValue(event, CtfProcessIdKey, "0");
+        const QString threadId = getStringValue(event, CtfThreadIdKey, processId);
+        if (!m_threadModels.contains(threadId)) {
+            addModelForThread(threadId, processId);
+        }
+        if (event.value(CtfEventPhaseKey, "") == CtfEventTypeMetadata) {
+            const std::string name = event[CtfEventNameKey];
+            if (name == "thread_name") {
+                m_threadNames[threadId] = QString::fromStdString(event["args"]["name"]);
+            } else if (name == "process_name") {
+                m_processNames[processId] = QString::fromStdString(event["args"]["name"]);
+            }
+        }
 
-void CtfTraceManager::load(const QString &filename)
-{
-    clearAll();
-
-    std::ifstream file(filename.toStdString());
-    if (!file.is_open()) {
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             Tr::tr("CTF Visualizer"),
-                             Tr::tr("Cannot read the CTF file."));
-        return;
+        const QPair<bool, qint64> result = m_threadModels[threadId]->addEvent(event, m_timeOffset);
+        const bool visibleOnTimeline = result.first;
+        if (visibleOnTimeline) {
+            m_traceBegin = std::min(m_traceBegin, timestamp);
+            m_traceEnd = std::max(m_traceEnd, timestamp);
+        } else if (m_timeOffset == timestamp) {
+            // this timestamp was used as the time offset but it is not a visible element
+            // -> reset the time offset again:
+            m_timeOffset = -1.0;
+        }
+    } catch (...) {
+        m_errorString = Tr::tr("Error while parsing CTF data: %1.")
+                            .arg("<pre>" + QString::fromStdString(event.dump()) + "</pre>");
     }
-    CtfJsonParserCallback ctfParser(this);
-    json::parser_callback_t callback = [&ctfParser](int depth, json::parse_event_t event, json &parsed) {
-        return ctfParser.callback(depth, event, parsed);
-    };
-    json unusedValues = json::parse(file, callback, /*allow_exceptions*/ false);
-    file.close();
-    updateStatistics();
 }
 
 void CtfTraceManager::finalize()
@@ -202,14 +148,16 @@ int CtfTraceManager::getSelectionId(const std::string &name)
 QList<CtfTimelineModel *> CtfTraceManager::getSortedThreads() const
 {
     QList<CtfTimelineModel *> models = m_threadModels.values();
-    std::sort(models.begin(), models.end(), [](const CtfTimelineModel *a, const CtfTimelineModel *b) -> bool {
-        return (a->m_processId != b->m_processId) ? (a->m_processId < b->m_processId)
-                                                  : (std::abs(a->m_threadId) < std::abs(b->m_threadId));
-    });
+    std::sort(models.begin(),
+              models.end(),
+              [](const CtfTimelineModel *a, const CtfTimelineModel *b) {
+                  return (a->m_processId != b->m_processId) ? (a->m_processId < b->m_processId)
+                                                            : (a->m_threadId < b->m_threadId);
+              });
     return models;
 }
 
-void CtfTraceManager::setThreadRestriction(int tid, bool restrictToThisThread)
+void CtfTraceManager::setThreadRestriction(const QString &tid, bool restrictToThisThread)
 {
     if (m_threadRestrictions.value(tid) == restrictToThisThread)
         return;
@@ -218,12 +166,12 @@ void CtfTraceManager::setThreadRestriction(int tid, bool restrictToThisThread)
     addModelsToAggregator();
 }
 
-bool CtfTraceManager::isRestrictedTo(int tid) const
+bool CtfTraceManager::isRestrictedTo(const QString &tid) const
 {
     return m_threadRestrictions.value(tid);
 }
 
-void CtfTraceManager::addModelForThread(int threadId, int processId)
+void CtfTraceManager::addModelForThread(const QString &threadId, const QString &processId)
 {
     CtfTimelineModel *model = new CtfTimelineModel(m_modelAggregator, this, threadId, processId);
     m_threadModels.insert(threadId, model);
@@ -272,6 +220,7 @@ void CtfTraceManager::updateStatistics()
 
 void CtfTraceManager::clearAll()
 {
+    m_errorString.clear();
     m_modelAggregator->clear();
     for (CtfTimelineModel *model: std::as_const(m_threadModels)) {
         model->deleteLater();
@@ -282,6 +231,9 @@ void CtfTraceManager::clearAll()
     m_timeOffset = -1;
 }
 
+QString CtfTraceManager::errorString() const
+{
+    return m_errorString;
+}
 
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal

@@ -8,11 +8,17 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-projects-autotools.html
     \page creator-project-generic.html
-    \nextpage creator-project-nimble.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Setting Up a Generic Project
+
+    \brief \QC supports generic projects, so you can import existing projects
+    that do not use qmake or CMake. This enables you to use \QC as a
+    code editor and to fully control the steps and commands used to
+    build the project.
 
     Generic project support allows you to use \QC as a code editor. You
     can change the way your project is built by modifying the \c make command
@@ -121,7 +127,7 @@
 
     \section1 Forwarding Flags to Clang Code Model
 
-    The \c {.cxxflags} and \c {.cflags} files have command line flags for the
+    The \c {.cxxflags} and \c {.cflags} files have command-line flags for the
     Clang code model on a single line.
 
     For example, specify the \c {-std=c++11} to set the language version

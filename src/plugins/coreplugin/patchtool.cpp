@@ -1,10 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "patchtool.h"
+
 #include "coreplugintr.h"
 #include "icore.h"
 #include "messagemanager.h"
-#include "patchtool.h"
+#include "systemsettings.h"
 
 #include <utils/environment.h>
 #include <utils/process.h>
@@ -12,39 +14,24 @@
 #include <QMessageBox>
 
 using namespace Utils;
+using namespace Core::Internal;
 
 namespace Core {
 
-const char settingsGroupC[] = "General";
-const char patchCommandKeyC[] = "PatchCommand";
-const char patchCommandDefaultC[] = "patch";
-
 FilePath PatchTool::patchCommand()
 {
-    QSettings *s = ICore::settings();
+    FilePath command = systemSettings().patchCommand();
 
-    s->beginGroup(settingsGroupC);
-    FilePath command = FilePath::fromSettings(s->value(patchCommandKeyC, patchCommandDefaultC));
-    s->endGroup();
-
-    if (HostOsInfo::isWindowsHost() && command.path() == patchCommandDefaultC) {
+    if (HostOsInfo::isWindowsHost() && systemSettings().patchCommand.isDefaultValue()) {
         const QSettings settings(R"(HKEY_LOCAL_MACHINE\SOFTWARE\GitForWindows)",
                                  QSettings::NativeFormat);
         const FilePath gitInstall = FilePath::fromUserInput(settings.value("InstallPath").toString());
         if (gitInstall.exists())
             command = command.searchInPath({gitInstall.pathAppended("usr/bin")},
-                                           Utils::FilePath::PrependToPath);
+                                           FilePath::PrependToPath);
     }
 
     return command;
-}
-
-void PatchTool::setPatchCommand(const FilePath &newCommand)
-{
-    Utils::QtcSettings *s = ICore::settings();
-    s->beginGroup(settingsGroupC);
-    s->setValueWithDefault(patchCommandKeyC, newCommand.toSettings(), QVariant(QString(patchCommandDefaultC)));
-    s->endGroup();
 }
 
 bool PatchTool::confirmPatching(QWidget *parent, PatchAction patchAction, bool isModified)
@@ -110,8 +97,8 @@ static bool runPatchHelper(const QByteArray &input, const FilePath &workingDirec
     if (!patchProcess.readDataFromProcess(&stdOut, &stdErr)) {
         patchProcess.stop();
         patchProcess.waitForFinished();
-        MessageManager::writeFlashing(Tr::tr("A timeout occurred running \"%1\"")
-                                      .arg(patch.toUserOutput()));
+        MessageManager::writeFlashing(
+            Tr::tr("A timeout occurred running \"%1\".").arg(patch.toUserOutput()));
         return false;
 
     }

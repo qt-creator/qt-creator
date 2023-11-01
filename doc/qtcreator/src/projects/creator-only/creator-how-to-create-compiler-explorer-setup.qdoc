@@ -1,0 +1,101 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-create-compiler-explorer-sessions.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-files
+
+    \title Create compiler explorer sessions
+
+    To create a compiler explorer session for a C++ or Python project:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New File} >
+            \uicontrol {Compiler Explorer} > \uicontrol C++ or \uicontrol Python
+            > \uicontrol Choose.
+        \li Follow the instructions of the wizard to create an example
+            compiler explorer session as a JSON-based \c .qtce file and to open
+            it.
+    \endlist
+
+    \note Enable the Compiler Explorer plugin to use it.
+
+    \sa {Create files}, {Enable and disable plugins}, {Explore compiler code}
+*/
+
+/*!
+    \page creator-how-to-explore-compiler-code.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build
+
+    \title Explore compiler code
+
+    With the \l{https://godbolt.org/}{Compiler Explorer}, you can enter code to
+    explore the capabilities of your compilers and interpreters. \QC supports
+    all languages, compilers, and libraries that Compiler Explorer supports. You
+    can save your compiler explorer session as a JSON-based \c .qtce file.
+
+    \image qtcreator-compiler-explorer.webp {Python code in the compiler explorer}
+
+    \note Enable the Compiler Explorer plugin to use it.
+
+    To check how a compiler sees C++ or Python code:
+
+    \list 1
+        \li Select \uicontrol Tools > \uicontrol {Compiler Explorer} >
+            \uicontrol {Open Compiler Explorer}.
+        \li In the \uicontrol Language field, select the language to compile.
+        \li In the \uicontrol Compiler field, select a compiler to see the
+            assembly code.
+        \li Enter code to see the resulting assembly code.
+    \endlist
+
+    You can also see the application status and output.
+
+    To explore several compilers, select \uicontrol {Add Compiler}.
+
+    \section1 Set compiler options
+
+    Select \inlineimage icons/settings.png
+    to set options for the selected compiler.
+
+    \image qtcreator-compiler-explorer-options.webp {Compiler Explorer options}
+
+    \table
+    \header
+        \li Setting
+        \li Value
+    \row
+        \li Compiler options
+        \li Arguments passed to the compiler. Add options to enable optimization
+            and to change other aspects of the compilation. For example, the
+            value \c -O3 enables the optimizer with aggressive optimization.
+    \row
+        \li Libraries
+        \li Select \uicontrol Edit to add the libraries that your code links
+            against. Start typing in the field to find a particular library.
+            The selection is saved only after you select the version of the
+            library next to the library name.
+    \row
+        \li Execute the code
+        \li Execute the resulting executable.
+    \row
+        \li Compile to binary object
+        \li Convert the source code to a binary executable.
+    \row
+        \li Intel asm syntax
+        \li Use the Intel ASM syntax for writing the assembly code.
+    \row
+        \li Demangle identifiers
+        \li Extract and demangle identifiers from mangled symbols.
+            \e {Name mangling} adds descriptive data to a function's identifier
+            at link time. The data indicates which namespace and object a
+            function belongs to and which arguments it handles in which order.
+    \endtable
+
+    \sa {Create compiler explorer sessions}, {Enable and disable plugins},
+    {Add compilers}, {Add custom compilers}
+*/

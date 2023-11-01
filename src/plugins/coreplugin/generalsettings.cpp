@@ -1,13 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "dialogs/restartdialog.h"
+#include "dialogs/ioptionspage.h"
 #include "generalsettings.h"
 #include "coreconstants.h"
 #include "coreplugintr.h"
 #include "icore.h"
 #include "themechooser.h"
-
-#include <coreplugin/dialogs/restartdialog.h>
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -35,18 +35,45 @@
 using namespace Utils;
 using namespace Layouting;
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
-const char settingsKeyDPI[] = "Core/EnableHighDpiScaling";
-const char settingsKeyShortcutsInContextMenu[] = "General/ShowShortcutsInContextMenu";
+const char settingsKeyDpiPolicy[] = "Core/HighDpiScaleFactorRoundingPolicy";
 const char settingsKeyCodecForLocale[] = "General/OverrideCodecForLocale";
 const char settingsKeyToolbarStyle[] = "General/ToolbarStyle";
+
+static bool defaultShowShortcutsInContextMenu()
+{
+    return QGuiApplication::styleHints()->showShortcutsInContextMenus();
+}
+
+GeneralSettings &generalSettings()
+{
+    static GeneralSettings theSettings;
+    return theSettings;
+}
+
+GeneralSettings::GeneralSettings()
+{
+    setAutoApply(false);
+
+    showShortcutsInContextMenus.setSettingsKey("General/ShowShortcutsInContextMenu");
+    showShortcutsInContextMenus.setDefaultValue(defaultShowShortcutsInContextMenu());
+    showShortcutsInContextMenus.setLabelText(
+        Tr::tr("Show keyboard shortcuts in context menus (default: %1)")
+            .arg(defaultShowShortcutsInContextMenu() ? Tr::tr("on") : Tr::tr("off")));
+
+    connect(&showShortcutsInContextMenus, &BaseAspect::changed, this, [this] {
+        QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus,
+                                       !showShortcutsInContextMenus());
+    });
+
+    readSettings();
+}
 
 class GeneralSettingsWidget final : public IOptionsPageWidget
 {
 public:
-    explicit GeneralSettingsWidget(GeneralSettings *q);
+    GeneralSettingsWidget();
 
     void apply() final;
 
@@ -61,23 +88,21 @@ public:
     void fillCodecBox() const;
     static QByteArray codecForLocale();
     static void setCodecForLocale(const QByteArray&);
-    void fillToolbarSyleBox() const;
+    void fillToolbarStyleBox() const;
+    static void setDpiPolicy(Qt::HighDpiScaleFactorRoundingPolicy policy);
 
-    GeneralSettings *q;
     QComboBox *m_languageBox;
     QComboBox *m_codecBox;
-    QCheckBox *m_showShortcutsInContextMenus;
     QtColorButton *m_colorButton;
     ThemeChooser *m_themeChooser;
     QPushButton *m_resetWarningsButton;
     QComboBox *m_toolbarStyleBox;
+    QComboBox *m_policyComboBox = nullptr;
 };
 
-GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
-    : q(q)
-    , m_languageBox(new QComboBox)
+GeneralSettingsWidget::GeneralSettingsWidget()
+    : m_languageBox(new QComboBox)
     , m_codecBox(new QComboBox)
-    , m_showShortcutsInContextMenus(new QCheckBox)
     , m_colorButton(new QtColorButton)
     , m_themeChooser(new ThemeChooser)
     , m_resetWarningsButton(new QPushButton)
@@ -110,35 +135,38 @@ GeneralSettingsWidget::GeneralSettingsWidget(GeneralSettings *q)
     form.addRow({Tr::tr("Toolbar style:"), m_toolbarStyleBox, st});
     form.addRow({Tr::tr("Language:"), m_languageBox, st});
 
-    if (!Utils::HostOsInfo::isMacHost()) {
-        auto dpiCheckbox = new QCheckBox(Tr::tr("Enable high DPI scaling"));
-        form.addRow({empty, dpiCheckbox});
-        const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
-        dpiCheckbox->setChecked(ICore::settings()->value(settingsKeyDPI, defaultValue).toBool());
-        connect(dpiCheckbox, &QCheckBox::toggled, this, [defaultValue](bool checked) {
-            ICore::settings()->setValueWithDefault(settingsKeyDPI, checked, defaultValue);
-            QMessageBox::information(ICore::dialogParent(),
-                                     Tr::tr("Restart Required"),
-                                     Tr::tr("The high DPI settings will take effect after restart."));
-        });
+    if (StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
+        != Qt::HighDpiScaleFactorRoundingPolicy::Unset) {
+        using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
+        m_policyComboBox = new QComboBox;
+        m_policyComboBox->addItem(Tr::tr("Round Up for .5 and Above"), int(Policy::Round));
+        m_policyComboBox->addItem(Tr::tr("Always Round Up"), int(Policy::Ceil));
+        m_policyComboBox->addItem(Tr::tr("Always Round Down"), int(Policy::Floor));
+        m_policyComboBox->addItem(Tr::tr("Round Up for .75 and Above"),
+                                  int(Policy::RoundPreferFloor));
+        m_policyComboBox->addItem(Tr::tr("Don't Round"), int(Policy::PassThrough));
+        m_policyComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+
+        const Policy userPolicy =
+            ICore::settings()->value(settingsKeyDpiPolicy,
+                                     int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()))
+                                      .value<Policy>();
+        m_policyComboBox->setCurrentIndex(m_policyComboBox->findData(int(userPolicy)));
+
+        form.addRow({Tr::tr("DPI rounding policy:"), m_policyComboBox, st});
     }
 
-    form.addRow({empty, m_showShortcutsInContextMenus});
+    form.addRow({empty, generalSettings().showShortcutsInContextMenus});
     form.addRow({Row{m_resetWarningsButton, st}});
     form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
 
     fillLanguageBox();
     fillCodecBox();
-    fillToolbarSyleBox();
+    fillToolbarStyleBox();
 
     m_colorButton->setColor(StyleHelper::requestedBaseColor());
     m_resetWarningsButton->setEnabled(canResetWarnings());
-
-    m_showShortcutsInContextMenus->setText(
-        Tr::tr("Show keyboard shortcuts in context menus (default: %1)")
-            .arg(q->m_defaultShowShortcutsInContextMenu ? Tr::tr("on") : Tr::tr("off")));
-    m_showShortcutsInContextMenus->setChecked(GeneralSettings::showShortcutsInContextMenu());
 
     connect(resetColorButton,
             &QAbstractButton::clicked,
@@ -155,7 +183,7 @@ static bool hasQmFilesForLocale(const QString &locale, const QString &creatorTrP
     static const QString qtTrPath = QLibraryInfo::path(QLibraryInfo::TranslationsPath);
 
     const QString trFile = QLatin1String("/qt_") + locale + QLatin1String(".qm");
-    return QFile::exists(qtTrPath + trFile) || QFile::exists(creatorTrPath + trFile);
+    return QFileInfo::exists(qtTrPath + trFile) || QFileInfo::exists(creatorTrPath + trFile);
 }
 
 void GeneralSettingsWidget::fillLanguageBox() const
@@ -191,11 +219,18 @@ void GeneralSettingsWidget::fillLanguageBox() const
 
 void GeneralSettingsWidget::apply()
 {
+    generalSettings().apply();
+    generalSettings().writeSettings();
+
     int currentIndex = m_languageBox->currentIndex();
     setLanguage(m_languageBox->itemData(currentIndex, Qt::UserRole).toString());
+    if (m_policyComboBox) {
+        const Qt::HighDpiScaleFactorRoundingPolicy selectedPolicy =
+            m_policyComboBox->currentData().value<Qt::HighDpiScaleFactorRoundingPolicy>();
+        setDpiPolicy(selectedPolicy);
+    }
     currentIndex = m_codecBox->currentIndex();
     setCodecForLocale(m_codecBox->itemText(currentIndex).toLocal8Bit());
-    q->setShowShortcutsInContextMenu(m_showShortcutsInContextMenus->isChecked());
     // Apply the new base color if accepted
     StyleHelper::setBaseColor(m_colorButton->color());
     m_themeChooser->apply();
@@ -208,14 +243,6 @@ void GeneralSettingsWidget::apply()
         for (QWidget *widget : QApplication::allWidgets())
             applicationStyle->polish(widget);
     }
-}
-
-bool GeneralSettings::showShortcutsInContextMenu()
-{
-    return ICore::settings()
-        ->value(settingsKeyShortcutsInContextMenu,
-                QGuiApplication::styleHints()->showShortcutsInContextMenus())
-        .toBool();
 }
 
 void GeneralSettingsWidget::resetInterfaceColor()
@@ -243,20 +270,20 @@ void GeneralSettingsWidget::resetLanguage()
 
 QString GeneralSettingsWidget::language()
 {
-    QSettings *settings = ICore::settings();
-    return settings->value(QLatin1String("General/OverrideLanguage")).toString();
+    QtcSettings *settings = ICore::settings();
+    return settings->value("General/OverrideLanguage").toString();
 }
 
 void GeneralSettingsWidget::setLanguage(const QString &locale)
 {
     QtcSettings *settings = ICore::settings();
-    if (settings->value(QLatin1String("General/OverrideLanguage")).toString() != locale) {
+    if (settings->value("General/OverrideLanguage").toString() != locale) {
         RestartDialog dialog(ICore::dialogParent(),
                              Tr::tr("The language change will take effect after restart."));
         dialog.exec();
     }
 
-    settings->setValueWithDefault(QLatin1String("General/OverrideLanguage"), locale, {});
+    settings->setValueWithDefault("General/OverrideLanguage", locale, {});
 }
 
 void GeneralSettingsWidget::fillCodecBox() const
@@ -273,7 +300,7 @@ void GeneralSettingsWidget::fillCodecBox() const
 
 QByteArray GeneralSettingsWidget::codecForLocale()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     QByteArray codec = settings->value(settingsKeyCodecForLocale).toByteArray();
     if (codec.isEmpty())
         codec = QTextCodec::codecForLocale()->name();
@@ -297,7 +324,7 @@ StyleHelper::ToolbarStyle toolbarStylefromSettings()
                                  StyleHelper::defaultToolbarStyle).toInt());
 }
 
-void GeneralSettingsWidget::fillToolbarSyleBox() const
+void GeneralSettingsWidget::fillToolbarStyleBox() const
 {
     m_toolbarStyleBox->addItem(Tr::tr("Compact"), StyleHelper::ToolbarStyleCompact);
     m_toolbarStyleBox->addItem(Tr::tr("Relaxed"), StyleHelper::ToolbarStyleRelaxed);
@@ -305,12 +332,21 @@ void GeneralSettingsWidget::fillToolbarSyleBox() const
     m_toolbarStyleBox->setCurrentIndex(curId);
 }
 
-void GeneralSettings::setShowShortcutsInContextMenu(bool show)
+void GeneralSettingsWidget::setDpiPolicy(Qt::HighDpiScaleFactorRoundingPolicy policy)
 {
-    ICore::settings()->setValueWithDefault(settingsKeyShortcutsInContextMenu,
-                                           show,
-                                           m_defaultShowShortcutsInContextMenu);
-    QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus, !show);
+    QtcSettings *settings = ICore::settings();
+    using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
+    const Policy previousPolicy = settings->value(
+                settingsKeyDpiPolicy,
+                int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy())).value<Policy>();
+    if (policy != previousPolicy) {
+        RestartDialog dialog(ICore::dialogParent(),
+                             Tr::tr("The DPI rounding policy change will take effect after "
+                                    "restart."));
+        dialog.exec();
+    }
+    settings->setValueWithDefault(settingsKeyDpiPolicy, int(policy),
+                                  int(StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()));
 }
 
 void GeneralSettings::applyToolbarStyleFromSettings()
@@ -318,18 +354,22 @@ void GeneralSettings::applyToolbarStyleFromSettings()
     StyleHelper::setToolbarStyle(toolbarStylefromSettings());
 }
 
-GeneralSettings::GeneralSettings()
+// GeneralSettingsPage
+
+class GeneralSettingsPage final : public IOptionsPage
 {
-    setId(Constants::SETTINGS_ID_INTERFACE);
-    setDisplayName(Tr::tr("Interface"));
-    setCategory(Constants::SETTINGS_CATEGORY_CORE);
-    setDisplayCategory(Tr::tr("Environment"));
-    setCategoryIconPath(":/core/images/settingscategory_core.png");
-    setWidgetCreator([this] { return new GeneralSettingsWidget(this); });
+public:
+    GeneralSettingsPage()
+    {
+        setId(Constants::SETTINGS_ID_INTERFACE);
+        setDisplayName(Tr::tr("Interface"));
+        setCategory(Constants::SETTINGS_CATEGORY_CORE);
+        setDisplayCategory(Tr::tr("Environment"));
+        setCategoryIconPath(":/core/images/settingscategory_core.png");
+        setWidgetCreator([] { return new GeneralSettingsWidget; });
+    }
+};
 
-    m_defaultShowShortcutsInContextMenu = QGuiApplication::styleHints()
-                                              ->showShortcutsInContextMenus();
-}
+const GeneralSettingsPage settingsPage;
 
-} // namespace Internal
-} // namespace Core
+} // Core::Internal

@@ -1,16 +1,10 @@
-@if '%{Cpp:PragmaOnce}'
 #pragma once
-@else
-#ifndef %{GUARD}
-#define %{GUARD}
-@endif
 
 #include "%{GlobalHdrFileName}"
 
 #include <extensionsystem/iplugin.h>
 
-namespace %{PluginName} {
-namespace Internal {
+namespace %{PluginName}::Internal {
 
 class %{CN} : public ExtensionSystem::IPlugin
 {
@@ -21,7 +15,7 @@ public:
     %{CN}();
     ~%{CN}() override;
 
-    bool initialize(const QStringList &arguments, QString *errorString) override;
+    void initialize() override;
     void extensionsInitialized() override;
     ShutdownFlag aboutToShutdown() override;
 
@@ -29,9 +23,4 @@ private:
     void triggerAction();
 };
 
-} // namespace Internal
-} // namespace %{PluginName}
-
-@if ! '%{Cpp:PragmaOnce}'
-#endif // %{GUARD}
-@endif
+} // namespace %{PluginName}::Internal

@@ -8,30 +8,11 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/devicesupport/idevicefwd.h>
 
-#include <QObject>
-
 namespace ProjectExplorer { class DeployableFile; }
-namespace Tasking { class Group; }
 
 namespace RemoteLinux {
 
 namespace Internal { class AbstractRemoteLinuxDeployStepPrivate; }
-
-class REMOTELINUX_EXPORT CheckResult
-{
-public:
-    static CheckResult success() { return {true, {}}; }
-    static CheckResult failure(const QString &error = {}) { return {false, error}; }
-
-    operator bool() const { return m_ok; }
-    QString errorMessage() const { return m_error; }
-
-private:
-    CheckResult(bool ok, const QString &error) : m_ok(ok), m_error(error) {}
-
-    bool m_ok = false;
-    QString m_error;
-};
 
 class REMOTELINUX_EXPORT AbstractRemoteLinuxDeployStep : public ProjectExplorer::BuildStep
 {
@@ -39,22 +20,17 @@ public:
     explicit AbstractRemoteLinuxDeployStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
     ~AbstractRemoteLinuxDeployStep() override;
 
+protected:
     ProjectExplorer::IDeviceConstPtr deviceConfiguration() const;
-
-    virtual CheckResult isDeploymentPossible() const;
-
+    virtual Utils::expected_str<void> isDeploymentPossible() const;
     void handleStdOutData(const QString &data);
     void handleStdErrData(const QString &data);
 
-protected:
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
-    bool init() override;
-    void doRun() final;
-    void doCancel() override;
+    void fromMap(const Utils::Store &map) final;
+    void toMap(Utils::Store &map) const final;
+    bool init() final;
 
-    void setInternalInitializer(const std::function<CheckResult()> &init);
-    void setRunPreparer(const std::function<void()> &prep);
+    void setInternalInitializer(const std::function<Utils::expected_str<void>()> &init);
 
     void saveDeploymentTimeStamp(const ProjectExplorer::DeployableFile &deployableFile,
                                  const QDateTime &remoteTimestamp);
@@ -66,11 +42,10 @@ protected:
     void addErrorMessage(const QString &message);
     void addWarningMessage(const QString &message);
 
-    void handleFinished();
-
 private:
     virtual bool isDeploymentNecessary() const;
-    virtual Tasking::Group deployRecipe();
+    virtual Tasking::GroupItem deployRecipe() = 0;
+    Tasking::GroupItem runRecipe() final;
 
     Internal::AbstractRemoteLinuxDeployStepPrivate *d;
 };

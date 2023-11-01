@@ -27,6 +27,20 @@ QtcPlugin {
         sharedSources.prefix
     ])
 
+    pluginjson.replacements: ({"DESIGNER_PLUGIN_ARGUMENTS":
+    "\"Arguments\" : [\n\
+        {\n\
+            \"Name\" : \"-designer-qt-pluginpath\",\n\
+            \"Parameter\" : \"path\",\n\
+            \"Description\" : \"Override the default search path for Qt Designer plugins\"\n\
+        },\n\
+        {\n\
+            \"Name\" : \"-designer-pluginpath\",\n\
+            \"Parameter\" : \"path\",\n\
+            \"Description\" : \"Add a custom search path for Qt Designer plugins\"\n\
+        }\n\
+    ],"})
+
     Group {
         name: "General"
         files: [

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,11 +8,12 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-indenting-code.html
     \page qt-quick-toolbars.html
     \if defined(qtdesignstudio)
+    \previouspage creator-preferences-qtquick-code-style.html
     \nextpage creator-diff-editor.html
     \else
+    \previouspage creator-completing-code.html
     \nextpage creator-editor-codepasting.html
     \endif
 
@@ -23,7 +24,7 @@
     . Select the icon to open the toolbar.
 
     To open toolbars immediately when you select a QML type, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Qt Quick} >
+    \preferences > \uicontrol {Qt Quick} >
     \uicontrol {QML/JS Editing} > \uicontrol {Always show Qt Quick Toolbar}.
 
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}

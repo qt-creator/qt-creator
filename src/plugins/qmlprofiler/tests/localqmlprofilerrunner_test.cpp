@@ -66,10 +66,6 @@ void LocalQmlProfilerRunnerTest::testRunner()
             running = false;
             started = false;
         });
-        connect(runControl, &RunControl::finished, this, [&]{
-            running = false;
-            started = false;
-        });
     };
 
     connectRunner();
@@ -84,7 +80,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QCOMPARE(stopCount, 1);
     QCOMPARE(runCount, 0);
 
-    runControl->initiateFinish();
+    runControl->setAutoDeleteOnStop(true);
+    runControl->initiateStop();
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 
@@ -104,7 +101,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QCOMPARE(stopCount, 2);
     QCOMPARE(runCount, 1);
 
-    runControl->initiateFinish();
+    runControl->setAutoDeleteOnStop(true);
+    runControl->initiateStop();
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 
@@ -123,7 +121,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QCOMPARE(stopCount, 3);
     QCOMPARE(runCount, 2);
 
-    runControl->initiateFinish();
+    runControl->setAutoDeleteOnStop(true);
+    runControl->initiateStop();
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 
@@ -146,7 +145,8 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QCOMPARE(stopCount, 4);
     QCOMPARE(runCount, 3);
 
-    runControl->initiateFinish();
+    runControl->setAutoDeleteOnStop(true);
+    runControl->initiateStop();
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 }
@@ -165,7 +165,7 @@ void LocalQmlProfilerRunnerTest::testFindFreeSocket()
     QUrl serverUrl = Utils::urlFromLocalSocket();
     QString socket = serverUrl.path();
     QVERIFY(!socket.isEmpty());
-    QVERIFY(!QFile::exists(socket));
+    QVERIFY(!QFileInfo::exists(socket));
     QFile file(socket);
     QVERIFY(file.open(QIODevice::WriteOnly));
     file.close();

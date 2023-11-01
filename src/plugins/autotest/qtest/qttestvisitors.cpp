@@ -14,8 +14,7 @@
 using namespace CPlusPlus;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 static QStringList specialFunctions({"initTestCase", "cleanupTestCase", "init", "cleanup"});
 
@@ -49,19 +48,16 @@ bool TestVisitor::visit(Class *symbol)
                 const QString name = o.prettyName(func->name());
                 QtTestCodeLocationAndType locationAndType;
 
-                Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
-                            func, m_snapshot, true);
-                if (functionDefinition && functionDefinition->fileId()) {
-                    locationAndType.m_filePath = FilePath::fromString(
-                                QString::fromUtf8(functionDefinition->fileName()));
-                    locationAndType.m_line = functionDefinition->line();
-                    locationAndType.m_column = functionDefinition->column() - 1;
-                } else { // if we cannot find the definition use declaration as fallback
-                    locationAndType.m_filePath = FilePath::fromString(
-                                QString::fromUtf8(member->fileName()));
-                    locationAndType.m_line = member->line();
-                    locationAndType.m_column = member->column() - 1;
+                if (name.endsWith("_data")) {
+                    // costly.. but we need at least the correct entry for finding data tags
+                    Function *functionDefinition = m_symbolFinder.findMatchingDefinition(
+                                func, m_snapshot, true);
+                    if (functionDefinition && functionDefinition->fileId())
+                        member = functionDefinition;
                 }
+                locationAndType.m_filePath = FilePath::fromUtf8(member->fileName());
+                locationAndType.m_line = member->line();
+                locationAndType.m_column = member->column() - 1;
                 if (specialFunctions.contains(name))
                     locationAndType.m_type = TestTreeItem::TestSpecialFunction;
                 else if (name.endsWith("_data"))
@@ -224,7 +220,7 @@ bool TestDataFunctionVisitor::visit(CallAST *ast)
                             return true;
                         int line = 0;
                         int column = 0;
-                        m_currentDoc->translationUnit()->getTokenStartPosition(
+                        m_currentDoc->translationUnit()->getTokenPosition(
                                     firstToken, &line, &column);
                         QtTestCodeLocationAndType locationAndType;
                         locationAndType.m_name = name;
@@ -287,5 +283,4 @@ bool TestDataFunctionVisitor::newRowCallFound(CallAST *ast, unsigned *firstToken
     return found;
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

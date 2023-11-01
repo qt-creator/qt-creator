@@ -50,7 +50,6 @@ private:
 };
 
 int CustomStorage::s_count = 0;
-static const char s_taskIdProperty[] = "__taskId";
 
 struct TestData {
     TreeStorage<CustomStorage> storage;
@@ -68,6 +67,8 @@ private slots:
     void validConstructs(); // compile test
     void testTree_data();
     void testTree();
+    void storageIO_data();
+    void storageIO();
     void storageOperators();
     void storageDestructor();
 };
@@ -194,7 +195,7 @@ public:
     void start() final { task()->start(); }
 };
 
-TASKING_DECLARE_TASK(TickAndDoneTask, TickAndDoneTaskAdapter);
+using TickAndDoneTask = CustomTask<TickAndDoneTaskAdapter>;
 
 template <typename SharedBarrierType>
 GroupItem createBarrierAdvance(const TreeStorage<CustomStorage> &storage,
@@ -550,8 +551,8 @@ void tst_Tasking::testTree_data()
             };
             taskTree.setRecipe(nestedRoot);
             CustomStorage *activeStorage = storage.activeStorage();
-            auto collectSubLog = [activeStorage](CustomStorage *subTreeStorage){
-                activeStorage->m_log += subTreeStorage->m_log;
+            const auto collectSubLog = [activeStorage](const CustomStorage &subTreeStorage){
+                activeStorage->m_log += subTreeStorage.m_log;
             };
             taskTree.onStorageDone(storage, collectSubLog);
         };
@@ -1846,7 +1847,7 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 1),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(2),
                 createSuccessTask(3)
             }
@@ -1871,7 +1872,7 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 1),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(2),
                 createSuccessTask(3)
             }
@@ -1902,7 +1903,7 @@ void tst_Tasking::testTree_data()
             parallel,
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(2),
                 createSuccessTask(3)
             },
@@ -1928,12 +1929,12 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 1),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(4)
             },
             Group {
                 groupSetup(3),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(5)
             }
         };
@@ -1963,8 +1964,8 @@ void tst_Tasking::testTree_data()
                 Group {
                     parallel,
                     groupSetup(1),
-                    WaitForBarrierTask(barrier),
-                    WaitForBarrierTask(barrier2)
+                    waitForBarrierTask(barrier),
+                    waitForBarrierTask(barrier2)
                 },
                 createSuccessTask(3)
             },
@@ -2006,7 +2007,7 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 2),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(2),
                 createSuccessTask(3)
             }
@@ -2034,7 +2035,7 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 2),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(3),
                 createSuccessTask(4)
             }
@@ -2067,7 +2068,7 @@ void tst_Tasking::testTree_data()
             parallel,
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(3),
                 createSuccessTask(4)
             },
@@ -2097,12 +2098,12 @@ void tst_Tasking::testTree_data()
             createBarrierAdvance(storage, barrier, 2),
             Group {
                 groupSetup(2),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(3)
             },
             Group {
                 groupSetup(3),
-                WaitForBarrierTask(barrier),
+                waitForBarrierTask(barrier),
                 createSuccessTask(4)
             }
         };
@@ -2244,7 +2245,9 @@ void tst_Tasking::testTree()
     TaskTree taskTree({testData.root.withTimeout(1000ms)});
     QCOMPARE(taskTree.taskCount() - 1, testData.taskCount); // -1 for the timeout task above
     Log actualLog;
-    const auto collectLog = [&actualLog](CustomStorage *storage) { actualLog = storage->m_log; };
+    const auto collectLog = [&actualLog](const CustomStorage &storage) {
+        actualLog = storage.m_log;
+    };
     taskTree.onStorageDone(testData.storage, collectLog);
     const OnDone result = taskTree.runBlocking() ? OnDone::Success : OnDone::Failure;
     QCOMPARE(taskTree.isRunning(), false);
@@ -2254,6 +2257,52 @@ void tst_Tasking::testTree()
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
     QCOMPARE(result, testData.onDone);
+}
+
+struct StorageIO
+{
+    int value = 0;
+};
+
+static Group inputOutputRecipe(const TreeStorage<StorageIO> &storage)
+{
+    return Group {
+        Storage(storage),
+        onGroupSetup([storage] { ++storage->value; }),
+        onGroupDone([storage] { storage->value *= 2; })
+    };
+}
+
+void tst_Tasking::storageIO_data()
+{
+    QTest::addColumn<int>("input");
+    QTest::addColumn<int>("output");
+
+    QTest::newRow("-1 -> 0") << -1 << 0;
+    QTest::newRow("0 -> 2") <<  0 << 2;
+    QTest::newRow("1 -> 4") <<  1 << 4;
+    QTest::newRow("2 -> 6") <<  2 << 6;
+}
+
+void tst_Tasking::storageIO()
+{
+    QFETCH(int, input);
+    QFETCH(int, output);
+
+    int actualOutput = 0;
+
+    const TreeStorage<StorageIO> storage;
+    TaskTree taskTree(inputOutputRecipe(storage));
+
+    const auto setInput = [input](StorageIO &storage) { storage.value = input; };
+    const auto getOutput = [&actualOutput](const StorageIO &storage) { actualOutput = storage.value; };
+
+    taskTree.onStorageSetup(storage, setInput);
+    taskTree.onStorageDone(storage, getOutput);
+    taskTree.runBlocking();
+
+    QCOMPARE(taskTree.isRunning(), false);
+    QCOMPARE(actualOutput, output);
 }
 
 void tst_Tasking::storageOperators()
@@ -2274,11 +2323,11 @@ void tst_Tasking::storageOperators()
 void tst_Tasking::storageDestructor()
 {
     bool setupCalled = false;
-    const auto setupHandler = [&setupCalled](CustomStorage *) {
+    const auto setupHandler = [&setupCalled](CustomStorage &) {
         setupCalled = true;
     };
     bool doneCalled = false;
-    const auto doneHandler = [&doneCalled](CustomStorage *) {
+    const auto doneHandler = [&doneCalled](const CustomStorage &) {
         doneCalled = true;
     };
     QCOMPARE(CustomStorage::instanceCount(), 0);

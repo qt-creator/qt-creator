@@ -18,7 +18,7 @@ QString MercurialAnnotationHighlighter::changeNumber(const QString &block) const
     const QRegularExpressionMatch match = changeset.match(block);
     if (match.hasMatch())
         return match.captured(1);
-    return QString();
+    return {};
 }
 
 } // Mercurial::Internal

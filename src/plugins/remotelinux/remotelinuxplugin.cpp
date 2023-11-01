@@ -4,17 +4,16 @@
 #include "remotelinuxplugin.h"
 
 #include "customcommanddeploystep.h"
+#include "genericdeploystep.h"
 #include "genericdirectuploadstep.h"
 #include "killappstep.h"
 #include "linuxdevice.h"
 #include "makeinstallstep.h"
 #include "remotelinux_constants.h"
-#include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxcustomrunconfiguration.h"
 #include "remotelinuxdebugsupport.h"
-#include "remotelinuxdeployconfiguration.h"
 #include "remotelinuxrunconfiguration.h"
-#include "rsyncdeploystep.h"
+#include "remotelinuxtr.h"
 #include "tarpackagecreationstep.h"
 #include "tarpackagedeploystep.h"
 
@@ -22,7 +21,9 @@
 #include "filesystemaccess_test.h"
 #endif
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -45,6 +46,37 @@ public:
     }
 };
 
+class RemoteLinuxDeployConfigurationFactory : public DeployConfigurationFactory
+{
+public:
+    RemoteLinuxDeployConfigurationFactory()
+    {
+        setConfigBaseId(RemoteLinux::Constants::DeployToGenericLinux);
+        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+        setDefaultDisplayName(Tr::tr("Deploy to Remote Linux Host"));
+        setUseDeploymentDataView();
+
+        const auto needsMakeInstall = [](Target *target)
+        {
+            const Project * const prj = target->project();
+            return prj->deploymentKnowledge() == DeploymentKnowledge::Bad
+                   && prj->hasMakeInstallEquivalent();
+        };
+        setPostRestore([needsMakeInstall](DeployConfiguration *dc, const Store &map) {
+            // 4.9 -> 4.10. See QTCREATORBUG-22689.
+            if (map.value("_checkMakeInstall").toBool() && needsMakeInstall(dc->target())) {
+                dc->stepList()->insertStep(0, Constants::MakeInstallStepId);
+            }
+        });
+
+        addInitialStep(Constants::MakeInstallStepId, needsMakeInstall);
+        addInitialStep(Constants::KillAppStepId);
+
+        // TODO: Rename RsyncDeployStep to something more generic.
+        addInitialStep(Constants::GenericDeployStepId);
+    }
+};
+
 class RemoteLinuxPluginPrivate
 {
 public:
@@ -55,7 +87,7 @@ public:
     TarPackageCreationStepFactory tarPackageCreationStepFactory;
     TarPackageDeployStepFactory tarPackageDeployStepFactory;
     RemoteLinuxDeployStepFactory<GenericDirectUploadStepFactory> genericDirectUploadStepFactory;
-    RemoteLinuxDeployStepFactory<RsyncDeployStepFactory> rsyncDeployStepFactory;
+    RemoteLinuxDeployStepFactory<GenericDeployStepFactory> rsyncDeployStepFactory;
     CustomCommandDeployStepFactory customCommandDeployStepFactory;
     KillAppStepFactory killAppStepFactory;
     RemoteLinuxDeployStepFactory<MakeInstallStepFactory> makeInstallStepFactory;

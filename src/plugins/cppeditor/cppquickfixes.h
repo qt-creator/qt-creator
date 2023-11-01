@@ -402,6 +402,7 @@ public:
 
     enum class Mode {
             Off,         // Testing: simulates user canceling the dialog
+            Impl,        // Testing: simulates user choosing cpp file for every function
             Alternating, // Testing: simulates user choosing a different DefPos for every function
             User         // Normal interactive mode
     };
@@ -582,6 +583,22 @@ private:
                TextEditor::QuickFixOperations &result) override;
 
     bool m_test = false;
+};
+
+//! Converts C-style to C++-style comments and vice versa
+class ConvertCommentStyle : public CppQuickFixFactory
+{
+private:
+    void match(const CppQuickFixInterface &interface,
+               TextEditor::QuickFixOperations &result) override;
+};
+
+//! Moves function documentation between declaration and implementation.
+class MoveFunctionComments : public CppQuickFixFactory
+{
+private:
+    void match(const CppQuickFixInterface &interface,
+               TextEditor::QuickFixOperations &result) override;
 };
 
 } // namespace Internal

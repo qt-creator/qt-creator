@@ -9,103 +9,91 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QSettings>
-
 using namespace Utils;
 
-namespace Autotest {
+namespace Autotest::TestFrameworkManager {
 
-static TestFrameworkManager *s_instance = nullptr;
-
-TestFrameworkManager::TestFrameworkManager()
+TestFrameworks &testFrameworks()
 {
-    s_instance = this;
+    static TestFrameworks theFrameworks;
+    return theFrameworks;
 }
 
-TestFrameworkManager::~TestFrameworkManager()
+TestTools &testTools()
 {
-    qDeleteAll(m_registeredFrameworks);
-    qDeleteAll(m_registeredTestTools);
-    s_instance = nullptr;
+    static TestTools theTools;
+    return theTools;
 }
 
-bool TestFrameworkManager::registerTestFramework(ITestFramework *framework)
+void registerTestFramework(ITestFramework *framework)
 {
-    QTC_ASSERT(framework, return false);
-    QTC_ASSERT(!m_registeredFrameworks.contains(framework), return false);
+    QTC_ASSERT(framework, return);
+    QTC_ASSERT(!testFrameworks().contains(framework), return);
     // TODO check for unique priority before registering
-    m_registeredFrameworks.append(framework);
-    Utils::sort(m_registeredFrameworks, &ITestFramework::priority);
-    return true;
+    testFrameworks().append(framework);
+    Utils::sort(testFrameworks(), &ITestFramework::priority);
 }
 
-bool TestFrameworkManager::registerTestTool(ITestTool *testTool)
+void registerTestTool(ITestTool *testTool)
 {
-    QTC_ASSERT(testTool, return false);
-    QTC_ASSERT(!m_registeredTestTools.contains(testTool), return false);
-    m_registeredTestTools.append(testTool);
-    return true;
+    QTC_ASSERT(testTool, return);
+    QTC_ASSERT(!testTools().contains(testTool), return);
+    testTools().append(testTool);
 }
 
-void TestFrameworkManager::activateFrameworksAndToolsFromSettings(
-        const Internal::TestSettings *settings)
+void activateFrameworksAndToolsFromSettings()
 {
-    for (ITestFramework *framework : std::as_const(s_instance->m_registeredFrameworks)) {
-        framework->setActive(settings->frameworks.value(framework->id(), false));
-        framework->setGrouping(settings->frameworksGrouping.value(framework->id(), false));
+    const Internal::TestSettings &settings = Internal::testSettings();
+    for (ITestFramework *framework : std::as_const(testFrameworks())) {
+        framework->setActive(settings.frameworks.value(framework->id(), false));
+        framework->setGrouping(settings.frameworksGrouping.value(framework->id(), false));
     }
-    for (ITestTool *testTool : std::as_const(s_instance->m_registeredTestTools))
-        testTool->setActive(settings->tools.value(testTool->id(), false));
+    for (ITestTool *testTool : std::as_const(testTools()))
+        testTool->setActive(settings.tools.value(testTool->id(), false));
 }
 
-const TestFrameworks TestFrameworkManager::registeredFrameworks()
+const TestFrameworks registeredFrameworks()
 {
-    return s_instance->m_registeredFrameworks;
+    return testFrameworks();
 }
 
-const TestTools TestFrameworkManager::registeredTestTools()
+const TestTools registeredTestTools()
 {
-    return s_instance->m_registeredTestTools;
+    return testTools();
 }
 
-ITestFramework *TestFrameworkManager::frameworkForId(Id frameworkId)
+ITestFramework *frameworkForId(Id frameworkId)
 {
-    return Utils::findOrDefault(s_instance->m_registeredFrameworks,
-            [frameworkId](ITestFramework *framework) {
+    return Utils::findOrDefault(testFrameworks(), [frameworkId](ITestFramework *framework) {
                 return framework->id() == frameworkId;
     });
 }
 
-ITestTool *TestFrameworkManager::testToolForId(Id testToolId)
+ITestTool *testToolForId(Id testToolId)
 {
-    return Utils::findOrDefault(s_instance->m_registeredTestTools,
-            [testToolId](ITestTool *testTool) {
+    return Utils::findOrDefault(testTools(), [testToolId](ITestTool *testTool) {
                 return testTool->id() == testToolId;
     });
 }
 
-ITestTool *TestFrameworkManager::testToolForBuildSystemId(Id buildSystemId)
+ITestTool *testToolForBuildSystemId(Id buildSystemId)
 {
     if (!buildSystemId.isValid())
         return nullptr;
 
-    return Utils::findOrDefault(s_instance->m_registeredTestTools,
-                                [&buildSystemId](ITestTool *testTool) {
+    return Utils::findOrDefault(testTools(), [&buildSystemId](ITestTool *testTool) {
         return testTool->buildSystemId() == buildSystemId;
     });
 }
 
-void TestFrameworkManager::synchronizeSettings(QSettings *s)
+void synchronizeSettings()
 {
-    Internal::TestSettings::instance()->fromSettings(s);
-    for (ITestFramework *framework : std::as_const(m_registeredFrameworks)) {
-        if (ITestSettings *fSettings = framework->testSettings())
-            fSettings->readSettings(s);
-    }
-    for (ITestTool *testTool : std::as_const(m_registeredTestTools)) {
-        if (ITestSettings *tSettings = testTool->testSettings())
-            tSettings->readSettings(s);
-    }
+    Internal::testSettings().fromSettings();
+    for (ITestFramework *framework : std::as_const(testFrameworks()))
+        framework->readSettings();
+
+    for (ITestTool *testTool : std::as_const(testTools()))
+        testTool->readSettings();
 }
 
-} // namespace Autotest
+} // Autotest::TestframeworkManager

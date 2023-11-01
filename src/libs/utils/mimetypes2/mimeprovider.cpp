@@ -505,7 +505,7 @@ bool MimeBinaryProvider::loadMimeTypePrivate(MimeTypePrivate &data)
 
         // shared-mime-info since 1.3 lowercases the xml files
         QString mimeFile = m_directory + QLatin1Char('/') + data.name.toLower() + QLatin1String(".xml");
-        if (!QFile::exists(mimeFile))
+        if (!QFileInfo::exists(mimeFile))
             mimeFile = m_directory + QLatin1Char('/') + data.name + QLatin1String(".xml"); // pre-1.3
 
         QFile qfile(mimeFile);

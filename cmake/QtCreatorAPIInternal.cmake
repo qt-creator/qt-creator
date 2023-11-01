@@ -21,7 +21,7 @@ include(FeatureSummary)
 list(APPEND DEFAULT_DEFINES
   QT_CREATOR
   QT_NO_JAVA_STYLE_ITERATORS
-  QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII
+  QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII QT_NO_FOREACH
   QT_DISABLE_DEPRECATED_BEFORE=0x050900
   QT_USE_QSTRINGBUILDER
 )
@@ -30,9 +30,7 @@ if (WIN32)
   list(APPEND DEFAULT_DEFINES UNICODE _UNICODE _CRT_SECURE_NO_WARNINGS)
 
   if (NOT BUILD_WITH_PCH)
-    # Windows 8 0x0602
     list(APPEND DEFAULT_DEFINES
-      WINVER=0x0602 _WIN32_WINNT=0x0602
       WIN32_LEAN_AND_MEAN)
   endif()
 endif()
@@ -49,7 +47,7 @@ if (APPLE)
 
   set(_IDE_LIBRARY_BASE_PATH "Frameworks")
   set(_IDE_LIBRARY_PATH "${_IDE_OUTPUT_PATH}/${_IDE_LIBRARY_BASE_PATH}")
-  set(_IDE_PLUGIN_PATH "${_IDE_OUTPUT_PATH}/PlugIns")
+  set(_IDE_PLUGIN_PATH "${_IDE_OUTPUT_PATH}/PlugIns/qtcreator")
   set(_IDE_LIBEXEC_PATH "${_IDE_OUTPUT_PATH}/Resources/libexec")
   set(_IDE_DATA_PATH "${_IDE_OUTPUT_PATH}/Resources")
   set(_IDE_DOC_PATH "${_IDE_OUTPUT_PATH}/Resources/doc")
@@ -554,3 +552,12 @@ function(extend_qtc_target target_name)
     set_source_files_properties(${_arg_SOURCES} PROPERTIES ${_arg_SOURCES_PROPERTIES})
   endif()
 endfunction()
+
+function (qtc_env_with_default envName varToSet default)
+  if(DEFINED ENV{${envName}})
+    set(${varToSet} $ENV{${envName}} PARENT_SCOPE)
+  else()
+    set(${varToSet} ${default} PARENT_SCOPE)
+  endif()
+endfunction()
+

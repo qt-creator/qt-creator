@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<snippets>
+    <snippet group="CMake" trigger="print_properties" id="cmake_print_properties" complement="">include(CMakePrintHelpers)
+cmake_print_properties(TARGETS $targets$ PROPERTIES $properties$)</snippet>
+    <snippet group="CMake" trigger="print_variables" id="cmake_print_variables" complement="">include(CMakePrintHelpers)
+cmake_print_variables($variables$)</snippet>
+    <snippet group="CMake" trigger="qt6_console_app" id="cmake_qt6_console_app" complement=""># https://doc.qt.io/qt-6/cmake-get-started.html
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(Qt6 REQUIRED COMPONENTS Core)
+qt_standard_project_setup()
+
+qt_add_executable($executable$
+    main.cpp
+)
+
+target_link_libraries($executable$ PRIVATE Qt6::Core)</snippet>
+    <snippet group="CMake" trigger="qt6_gui_app" id="cmake_qt6_gui_app" complement=""># https://doc.qt.io/qt-6/cmake-get-started.html
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+qt_standard_project_setup()
+
+qt_add_executable($executable$
+    mainwindow.ui
+    mainwindow.cpp
+    main.cpp
+)
+
+target_link_libraries($executable$ PRIVATE Qt6::Widgets)
+
+set_target_properties($executable$ PROPERTIES
+    WIN32_EXECUTABLE ON
+    MACOSX_BUNDLE ON
+)</snippet>
+  <snippet group="CMake" trigger="sample_find_module" id="cmake_sample_find_module" complement=""># https://cmake.org/cmake/help/latest/manual/cmake-developer.7.html#a-sample-find-module
+
+#[=======================================================================[.rst:
+Find$package$
+-------
+
+Finds the $package$ library.
+
+Imported Targets
+^^^^^^^^^^^^^^^^
+
+This module provides the following imported targets, if found:
+
+``$package$::$package$``
+  The $package$ library
+
+Result Variables
+^^^^^^^^^^^^^^^^
+
+This will define the following variables:
+
+``$package$_FOUND``
+  True if the system has the $package$ library.
+``$package$_VERSION``
+  The version of the $package$ library which was found.
+``$package$_INCLUDE_DIRS``
+  Include directories needed to use $package$.
+``$package$_LIBRARIES``
+  Libraries needed to link to $package$.
+
+Cache Variables
+^^^^^^^^^^^^^^^
+
+The following cache variables may also be set:
+
+``$package$_INCLUDE_DIR``
+  The directory containing ``$header$.h``.
+``$package$_LIBRARY``
+  The path to the $library$ library.
+
+#]=======================================================================]
+
+find_package(PkgConfig)
+pkg_check_modules(PC_$package$ QUIET $package$)
+
+find_path($package$_INCLUDE_DIR
+  NAMES $header$.h
+  PATHS \\${PC_$package$_INCLUDE_DIRS}
+  PATH_SUFFIXES $package$
+)
+
+find_library($package$_LIBRARY
+  NAMES $library$
+  PATHS \\${PC_$package$_LIBRARY_DIRS}
+)
+
+set($package$_VERSION \\${PC_$package$_VERSION})
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args($package$
+  FOUND_VAR $package$_FOUND
+  REQUIRED_VARS
+    $package$_LIBRARY
+    $package$_INCLUDE_DIR
+  VERSION_VAR $package$_VERSION
+)
+
+if($package$_FOUND)
+  set($package$_LIBRARIES \\${$package$_LIBRARY})
+  set($package$_INCLUDE_DIRS \\${$package$_INCLUDE_DIR})
+endif()
+
+if($package$_FOUND AND NOT TARGET $package$::$package$)
+  add_library($package$::$package$ UNKNOWN IMPORTED)
+  set_target_properties($package$::$package$ PROPERTIES
+    IMPORTED_LOCATION "\\${$package$_LIBRARY}"
+    INTERFACE_COMPILE_OPTIONS "\\${PC_$package$_CFLAGS_OTHER}"
+    INTERFACE_INCLUDE_DIRECTORIES "\\${$package$_INCLUDE_DIR}"
+  )
+endif()
+
+mark_as_advanced(
+  $package$_INCLUDE_DIR
+  $package$_LIBRARY
+)</snippet>
+</snippets>

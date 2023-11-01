@@ -3,16 +3,14 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace CMakeProjectManager::Internal {
 
-class CMakeSpecificSettings final : public Core::PagedSettings
+class CMakeSpecificSettings final : public Utils::AspectContainer
 {
 public:
     CMakeSpecificSettings();
-
-    static CMakeSpecificSettings *instance();
 
     Utils::BoolAspect autorunCMake{this};
     Utils::FilePathAspect ninjaPath{this};
@@ -22,5 +20,7 @@ public:
     Utils::BoolAspect showSourceSubFolders{this};
     Utils::BoolAspect showAdvancedOptionsByDefault{this};
 };
+
+CMakeSpecificSettings &settings();
 
 } // CMakeProjectManager::Internal

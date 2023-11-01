@@ -9,6 +9,8 @@
 #include <cppeditor/cppworkingcopy.h>
 #include <qmljs/qmljsdocument.h>
 
+#include <optional>
+
 QT_BEGIN_NAMESPACE
 template <class T>
 class QPromise;
@@ -76,6 +78,9 @@ public:
     static bool precompiledHeaderContains(const CPlusPlus::Snapshot &snapshot,
                                           const Utils::FilePath &filePath,
                                           const QRegularExpression &headerFileRegex);
+    // returns all files of the startup project whose ProjectPart has the given \a macroName
+    // set as a project define
+    static std::optional<QSet<Utils::FilePath>> filesContainingMacro(const QByteArray &macroName);
 
 protected:
     CPlusPlus::Snapshot m_cppSnapshot;

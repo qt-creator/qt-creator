@@ -6,27 +6,20 @@
 #include "qmakeprojectmanager_global.h"
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/runconfigurationaspects.h>
 
 #include <utils/aspects.h>
 #include <utils/commandline.h>
 #include <utils/guard.h>
 
-#include <memory>
-
 #include <QDebug>
 
 QT_BEGIN_NAMESPACE
-class QComboBox;
 class QLabel;
-class QLineEdit;
-class QPlainTextEdit;
 class QListWidget;
 QT_END_NAMESPACE
 
-namespace ProjectExplorer {
-class Abi;
-class ArgumentsAspect;
-} // namespace ProjectExplorer
+namespace ProjectExplorer { class Abi; }
 
 namespace QtSupport { class QtVersion; }
 
@@ -47,42 +40,33 @@ public:
 class QMAKEPROJECTMANAGER_EXPORT QMakeStepConfig
 {
 public:
-    // TODO remove, does nothing
-    enum TargetArchConfig { NoArch, X86, X86_64, PowerPC, PowerPC64 };
-
     enum OsType { NoOsType, IphoneSimulator, IphoneOS };
 
-    // TODO remove, does nothing
-    static TargetArchConfig targetArchFor(const ProjectExplorer::Abi &targetAbi,
-                                          const QtSupport::QtVersion *version);
     static OsType osTypeFor(const ProjectExplorer::Abi &targetAbi, const QtSupport::QtVersion *version);
 
     QStringList toArguments() const;
 
     friend bool operator==(const QMakeStepConfig &a, const QMakeStepConfig &b)
     {
-        return std::tie(a.archConfig, a.osType, a.linkQmlDebuggingQQ2)
-                == std::tie(b.archConfig, b.osType, b.linkQmlDebuggingQQ2)
-                && std::tie(a.useQtQuickCompiler, a.separateDebugInfo)
-                == std::tie(b.useQtQuickCompiler, b.separateDebugInfo);
+        return a.osType == b.osType
+            && a.linkQmlDebuggingQQ2 == b.linkQmlDebuggingQQ2
+            && a.useQtQuickCompiler == b.useQtQuickCompiler
+            && a.separateDebugInfo == b.separateDebugInfo;
     }
 
     friend bool operator!=(const QMakeStepConfig &a, const QMakeStepConfig &b) { return !(a == b); }
 
     friend QDebug operator<<(QDebug dbg, const QMakeStepConfig &c)
     {
-        dbg << c.archConfig << c.osType
+        dbg << c.osType
             << (c.linkQmlDebuggingQQ2 == Utils::TriState::Enabled)
             << (c.useQtQuickCompiler == Utils::TriState::Enabled)
             << (c.separateDebugInfo == Utils::TriState::Enabled);
         return dbg;
     }
 
-    // Actual data
     QString sysRoot;
     QString targetTriple;
-    // TODO remove, does nothing
-    TargetArchConfig archConfig = NoArch;
     OsType osType = NoOsType;
     Utils::TriState separateDebugInfo;
     Utils::TriState linkQmlDebuggingQQ2;
@@ -101,7 +85,6 @@ public:
     QmakeBuildSystem *qmakeBuildSystem() const;
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() override;
     QWidget *createConfigWidget() override;
     void setForced(bool b);
 
@@ -116,9 +99,7 @@ public:
     QMakeStepConfig deducedArguments() const;
     // arguments passed to the pro file parser
     QStringList parserArguments();
-    // arguments set by the user
-    QString userArguments() const;
-    void setUserArguments(const QString &arguments);
+
     // Extra arguments for qmake and pro file parser. Not user editable via UI.
     QStringList extraArguments() const;
     void setExtraArguments(const QStringList &args);
@@ -132,12 +113,17 @@ public:
     QString makeArguments(const QString &makefile) const;
     QString effectiveQMakeCall() const;
 
-    QVariantMap toMap() const override;
+    void toMap(Utils::Store &map) const override;
+
+    Utils::SelectionAspect buildType{this};
+    ProjectExplorer::ArgumentsAspect userArguments{this};
+    Utils::StringAspect effectiveCall{this};
 
 protected:
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const Utils::Store &map) override;
 
 private:
+    Tasking::GroupItem runRecipe() final;
     // slots for handling buildconfiguration/step signals
     void qtVersionChanged();
     void qmakeBuildConfigChanged();
@@ -158,7 +144,7 @@ private:
 
     Utils::CommandLine m_qmakeCommand;
     Utils::CommandLine m_makeCommand;
-    ProjectExplorer::ArgumentsAspect *m_userArgs = nullptr;
+
     // Extra arguments for qmake and pro file parser
     QStringList m_extraArgs;
     // Extra arguments for pro file parser only
@@ -176,8 +162,6 @@ private:
     Utils::Guard m_ignoreChanges;
 
     QLabel *abisLabel = nullptr;
-    Utils::SelectionAspect *m_buildType = nullptr;
-    Utils::StringAspect *m_effectiveCall = nullptr;
     QListWidget *abisListWidget = nullptr;
 };
 

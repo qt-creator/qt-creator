@@ -35,7 +35,7 @@ public:
     void discard();
     bool isDirty() const;
     QString validityMessage() const;
-    void addAspectToWorkingCopy(Layouting::LayoutItem &parent, KitAspect *aspect);
+    void addAspectToWorkingCopy(Layouting::LayoutItem &parent, KitAspectFactory *factory);
     void makeStickySubWidgetsReadOnly();
 
     Kit *workingCopy() const;
@@ -66,7 +66,7 @@ private:
     QToolButton *m_iconButton;
     QLineEdit *m_nameEdit;
     QLineEdit *m_fileSystemFriendlyNameLineEdit;
-    QList<KitAspectWidget *> m_widgets;
+    QList<KitAspect *> m_kitAspects;
     Kit *m_kit;
     std::unique_ptr<Kit> m_modifiedKit;
     bool &m_isDefaultKit;

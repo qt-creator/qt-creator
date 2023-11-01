@@ -37,6 +37,7 @@ public:
     quint64 address = 0;
     bool usable = false;
     QString context;  // Opaque value produced and consumed by the native backends.
+    uint debuggerId = 0;
 };
 
 using StackFrames = QList<StackFrame>;

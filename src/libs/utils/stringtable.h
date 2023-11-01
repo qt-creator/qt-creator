@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/utils_global.h>
+#include "utils_global.h"
 
 namespace Utils::StringTable {
 

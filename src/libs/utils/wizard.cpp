@@ -5,6 +5,7 @@
 
 #include "algorithm.h"
 #include "hostosinfo.h"
+#include "icon.h"
 #include "qtcassert.h"
 #include "theme/theme.h"
 #include "utilstr.h"
@@ -110,7 +111,7 @@ LinearProgressWidget::LinearProgressWidget(WizardProgress *progress, QWidget *pa
     m_dotsItemWidget(nullptr),
     m_disableUpdatesCount(0)
 {
-    m_indicatorPixmap = QIcon::fromTheme(QLatin1String("go-next"), QIcon(QLatin1String(":/utils/images/arrow.png"))).pixmap(16);
+    m_indicatorPixmap = Icon::fromTheme("go-next").pixmap(16);
     m_wizardProgress = progress;
     m_mainLayout = new QVBoxLayout(this);
     m_itemWidgetLayout = new QVBoxLayout();
@@ -630,7 +631,7 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
     if (!item)
         item = m_startItem;
     if (!item)
-        return QList<WizardProgressItem *>();
+        return {};
 
     // Optimization. It is workaround for case A->B, B->C, A->C where "from" is A and "to" is C.
     // When we had X->A in addition and "from" was X and "to" was C, this would not work
@@ -666,7 +667,7 @@ QList<WizardProgressItem *> WizardProgressPrivate::singlePathBetween(WizardProgr
     while (itItem != itEnd) {
         path.prepend(itItem.key());
         if (itItem.value().count() != 1)
-            return QList<WizardProgressItem *>();
+            return {};
         it = itItem.value().constBegin().key();
         if (it == item)
             return path;

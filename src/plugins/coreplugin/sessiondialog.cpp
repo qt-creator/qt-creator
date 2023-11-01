@@ -93,7 +93,7 @@ SessionNameInputDialog::SessionNameInputDialog(QWidget *parent)
     }.attachTo(this);
     // clang-format on
 
-    connect(m_newSessionLineEdit, &QLineEdit::textChanged, [this](const QString &text) {
+    connect(m_newSessionLineEdit, &QLineEdit::textChanged, this, [this](const QString &text) {
         m_okButton->setEnabled(!text.isEmpty());
         m_switchToButton->setEnabled(!text.isEmpty());
     });
@@ -136,14 +136,14 @@ SessionDialog::SessionDialog(QWidget *parent) : QDialog(parent)
     sessionView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     sessionView->setActivationMode(Utils::DoubleClickActivation);
 
-    auto createNewButton = new QPushButton(PE::Tr::tr("&New"));
+    auto createNewButton = new QPushButton(PE::Tr::tr("&New..."));
     createNewButton->setObjectName("btCreateNew");
 
     m_openButton = new QPushButton(PE::Tr::tr("&Open"));
     m_openButton->setObjectName("btOpen");
-    m_renameButton = new QPushButton(PE::Tr::tr("&Rename"));
-    m_cloneButton = new QPushButton(PE::Tr::tr("C&lone"));
-    m_deleteButton = new QPushButton(PE::Tr::tr("&Delete"));
+    m_renameButton = new QPushButton(PE::Tr::tr("&Rename..."));
+    m_cloneButton = new QPushButton(PE::Tr::tr("C&lone..."));
+    m_deleteButton = new QPushButton(PE::Tr::tr("&Delete..."));
 
     m_autoLoadCheckBox = new QCheckBox(PE::Tr::tr("Restore last session on startup"));
 

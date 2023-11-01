@@ -14,7 +14,6 @@
 #include <QSharedPointer>
 #include <QDateTime>
 #include <QHash>
-#include <QFileInfo>
 #include <QFuture>
 #include <QAtomicInt>
 

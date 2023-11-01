@@ -4,37 +4,13 @@
 #pragma once
 
 #include <projectexplorer/extracompiler.h>
-#include <utils/fileutils.h>
-#include <utils/temporarydirectory.h>
+
+#include <utils/filepath.h>
 
 namespace QtSupport {
 
-class QScxmlcGenerator : public ProjectExplorer::ProcessExtraCompiler
-{
-    Q_OBJECT
-public:
-    QScxmlcGenerator(const ProjectExplorer::Project *project, const Utils::FilePath &source,
-                     const Utils::FilePaths &targets, QObject *parent = nullptr);
-
-protected:
-    Utils::FilePath command() const override;
-    QStringList arguments() const override;
-    Utils::FilePath workingDirectory() const override;
-
-private:
-    Utils::FilePath tmpFile() const;
-    ProjectExplorer::FileNameToContentsHash handleProcessFinished(Utils::Process *process) override;
-    bool prepareToRun(const QByteArray &sourceContents) override;
-    ProjectExplorer::Tasks parseIssues(const QByteArray &processStderr) override;
-
-    Utils::TemporaryDirectory m_tmpdir;
-    QString m_header;
-    QString m_impl;
-};
-
 class QScxmlcGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
 {
-    Q_OBJECT
 public:
     QScxmlcGeneratorFactory() = default;
 

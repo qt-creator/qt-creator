@@ -5,29 +5,26 @@
 
 #include <cplusplus/CppDocument.h>
 
-#include <QObject>
-#include <QList>
+namespace Utils { class FilePath; }
 
-QT_BEGIN_NAMESPACE
-class QString;
-QT_END_NAMESPACE
+namespace CPlusPlus::CppModelManagerBase {
 
-namespace CPlusPlus {
+CPLUSPLUS_EXPORT bool trySetExtraDiagnostics
+    (const Utils::FilePath &filePath, const QString &, const QList<Document::DiagnosticMessage> &);
 
-class CPLUSPLUS_EXPORT CppModelManagerBase : public QObject
-{
-    Q_OBJECT
-public:
-    CppModelManagerBase(QObject *parent = nullptr);
-    ~CppModelManagerBase();
+CPLUSPLUS_EXPORT bool setSetExtraDiagnostics
+    (const Utils::FilePath &, const QString &, const QList<Document::DiagnosticMessage> &);
 
-    static CppModelManagerBase *instance();
-    static bool trySetExtraDiagnostics(const QString &fileName, const QString &kind,
-                                       const QList<Document::DiagnosticMessage> &diagnostics);
+CPLUSPLUS_EXPORT bool hasSnapshots();
 
-    virtual bool setExtraDiagnostics(const QString &fileName, const QString &kind,
-                                     const QList<Document::DiagnosticMessage> &diagnostics);
-    virtual CPlusPlus::Snapshot snapshot() const;
-};
+CPLUSPLUS_EXPORT CPlusPlus::Snapshot snapshot();
 
-} // namespace CPlusPlus
+
+// These callback are provided by the CppEditor plugin.
+
+CPLUSPLUS_EXPORT void registerSnapshotCallback(CPlusPlus::Snapshot (*)(void));
+
+CPLUSPLUS_EXPORT void registerSetExtraDiagnosticsCallback(
+    bool(*)(const Utils::FilePath &, const QString &, const QList<Document::DiagnosticMessage> &));
+
+} // CPlusPlus::CppModelManagerBase

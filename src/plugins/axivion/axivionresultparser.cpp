@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 
+#include <stdexcept>
 #include <utility>
 
 namespace Axivion::Internal {
@@ -79,124 +80,6 @@ static std::pair<BaseResult, QJsonDocument> prehandleHeaderAndBody(const QByteAr
     return {result, doc};
 }
 
-static User::UserType userTypeForString(const QString &type)
-{
-    if (type == "DASHBOARD_USER")
-        return User::Dashboard;
-    if (type == "VIRTUAL_USER")
-        return User::Virtual;
-    return User::Unknown;
-}
-
-static User userFromJson(const QJsonObject &object)
-{
-    User result;
-    if (object.isEmpty()) {
-        result.error = "Not a user object.";
-        return result;
-    }
-    result.name = object.value("name").toString();
-    result.displayName = object.value("displayName").toString();
-    result.type = userTypeForString(object.value("type").toString());
-    return result;
-}
-
-static QList<User> usersFromJson(const QJsonArray &array)
-{
-    QList<User> result;
-    for (const QJsonValue &value : array) {
-        User user = userFromJson(value.toObject());
-        if (!user.error.isEmpty()) // add this error to result.error?
-            continue;
-        result.append(user);
-    }
-    return result;
-}
-
-static IssueCount issueCountFromJson(const QJsonObject &object)
-{
-    IssueCount result;
-    if (object.isEmpty()) {
-        result.error = "Not an issue count object.";
-        return result;
-    }
-    result.added = object.value("Added").toInt();
-    result.removed = object.value("Removed").toInt();
-    result.total = object.value("Total").toInt();
-    return result;
-}
-
-static QList<IssueCount> issueCountsFromJson(const QJsonObject &object)
-{
-    QList<IssueCount> result;
-
-    const QStringList keys = object.keys();
-    for (const QString &k : keys) {
-        IssueCount issue = issueCountFromJson(object.value(k).toObject());
-        if (!issue.error.isEmpty()) // add this error to result.error?
-            continue;
-        issue.issueKind = k;
-        result.append(issue);
-    }
-    return result;
-}
-
-static ResultVersion versionFromJson(const QJsonObject &object)
-{
-    ResultVersion result;
-    if (object.isEmpty()) {
-        result.error = "Not a version object.";
-        return result;
-    }
-    const QJsonValue issuesValue = object.value("issueCounts");
-    if (!issuesValue.isObject()) {
-        result.error = "Not an object (issueCounts).";
-        return result;
-    }
-    result.issueCounts = issueCountsFromJson(issuesValue.toObject());
-    result.timeStamp = object.value("date").toString();
-    result.name = object.value("name").toString();
-    result.linesOfCode = object.value("linesOfCode").toInt();
-    return result;
-}
-
-static QList<ResultVersion> versionsFromJson(const QJsonArray &array)
-{
-    QList<ResultVersion> result;
-    for (const QJsonValue &value : array) {
-        ResultVersion version = versionFromJson(value.toObject());
-        if (!version.error.isEmpty()) // add this error to result.error?
-            continue;
-        result.append(version);
-    }
-    return result;
-}
-
-static IssueKind issueKindFromJson(const QJsonObject &object)
-{
-    IssueKind result;
-    if (object.isEmpty()) {
-        result.error = "Not an issue kind object.";
-        return result;
-    }
-    result.prefix = object.value("prefix").toString();
-    result.niceSingular = object.value("niceSingularName").toString();
-    result.nicePlural = object.value("nicePluralName").toString();
-    return result;
-}
-
-static QList<IssueKind> issueKindsFromJson(const QJsonArray &array)
-{
-    QList<IssueKind> result;
-    for (const QJsonValue &value : array) {
-        IssueKind kind = issueKindFromJson(value.toObject());
-        if (!kind.error.isEmpty()) // add this error to result.error?
-            continue;
-        result.append(kind);
-    }
-    return result;
-}
-
 namespace ResultParser {
 
 DashboardInfo parseDashboardInfo(const QByteArray &input)
@@ -233,43 +116,6 @@ DashboardInfo parseDashboardInfo(const QByteArray &input)
             continue;
         result.projects.append(project);
     }
-    return result;
-}
-
-ProjectInfo parseProjectInfo(const QByteArray &input)
-{
-    ProjectInfo result;
-
-    auto [header, body] = splitHeaderAndBody(input);
-    auto [error, doc] = prehandleHeaderAndBody(header, body);
-    if (!error.error.isEmpty()) {
-        result.error = error.error;
-        return result;
-    }
-
-    const QJsonObject object = doc.object();
-    result.name = object.value("name").toString();
-
-    const QJsonValue usersValue = object.value("users");
-    if (!usersValue.isArray()) {
-        result.error = "Malformed json response (users).";
-        return result;
-    }
-    result.users = usersFromJson(usersValue.toArray());
-
-    const QJsonValue versionsValue = object.value("versions");
-    if (!versionsValue.isArray()) {
-        result.error = "Malformed json response (versions).";
-        return result;
-    }
-    result.versions = versionsFromJson(versionsValue.toArray());
-
-    const QJsonValue issueKindsValue = object.value("issueKinds");
-    if (!issueKindsValue.isArray()) {
-        result.error = "Malformed json response (issueKinds).";
-        return result;
-    }
-    result.issueKinds = issueKindsFromJson(issueKindsValue.toArray());
     return result;
 }
 

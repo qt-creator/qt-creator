@@ -41,6 +41,7 @@ private:
     void showAddRunConfigDialog();
     void cloneRunConfiguration();
     void removeRunConfiguration();
+    void removeAllRunConfigurations();
     void activeRunConfigurationChanged();
     void renameRunConfiguration();
     void currentDeployConfigurationChanged(int index);
@@ -49,7 +50,7 @@ private:
     void activeDeployConfigurationChanged();
     void renameDeployConfiguration();
 
-    void updateRemoveToolButton();
+    void updateRemoveToolButtons();
 
     QString uniqueDCName(const QString &name);
     QString uniqueRCName(const QString &name);
@@ -82,6 +83,7 @@ private:
     QPushButton *m_removeDeployToolButton;
     QPushButton *m_addRunToolButton;
     QPushButton *m_removeRunToolButton;
+    QPushButton *m_removeAllRunConfigsButton;
     QPushButton *m_renameRunButton;
     QPushButton *m_cloneRunButton;
     QPushButton *m_renameDeployButton;

@@ -225,7 +225,8 @@ QWidget *CustomWizardFieldPage::registerPathChooser(const QString &fieldName,
         pathChooser->setExpectedKind(PathChooser::Command);
     else if (expectedKind == QLatin1String("any"))
         pathChooser->setExpectedKind(PathChooser::Any);
-    pathChooser->setHistoryCompleter(QString::fromLatin1("PE.Custom.") + m_parameters->id.toString() + QLatin1Char('.') + field.name);
+    pathChooser->setHistoryCompleter(keyFromString("PE.Custom." + m_parameters->id.name()
+                                     + '.' + field.name));
 
     registerField(fieldName, pathChooser, "path", SIGNAL(rawPathChanged(QString)));
     // Connect to completeChanged() for derived classes that reimplement isComplete()
@@ -407,7 +408,7 @@ CustomWizardPage::CustomWizardPage(const QSharedPointer<CustomWizardContext> &ct
     CustomWizardFieldPage(ctx, parameters, parent),
     m_pathChooser(new PathChooser)
 {
-    m_pathChooser->setHistoryCompleter(QLatin1String("PE.ProjectDir.History"));
+    m_pathChooser->setHistoryCompleter("PE.ProjectDir.History");
     addRow(Tr::tr("Path:"), m_pathChooser);
     connect(m_pathChooser, &PathChooser::validChanged, this, &QWizardPage::completeChanged);
 }

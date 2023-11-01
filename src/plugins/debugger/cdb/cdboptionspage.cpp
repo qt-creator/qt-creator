@@ -10,8 +10,6 @@
 #include <debugger/debuggertr.h>
 #include <debugger/shared/cdbsymbolpathlisteditor.h>
 
-#include <coreplugin/icore.h>
-
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 
@@ -161,7 +159,7 @@ private:
     void apply() final;
     void finish() final;
 
-    Utils::AspectContainer &m_group = debuggerSettings()->page5;
+    Utils::AspectContainer &m_group = settings().page5;
     CdbBreakEventWidget *m_breakEventWidget;
 };
 
@@ -169,9 +167,9 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
     : m_breakEventWidget(new CdbBreakEventWidget)
 {
     using namespace Layouting;
-    DebuggerSettings &s = *debuggerSettings();
+    DebuggerSettings &s = settings();
 
-    m_breakEventWidget->setBreakEvents(debuggerSettings()->cdbBreakEvents.value());
+    m_breakEventWidget->setBreakEvents(settings().cdbBreakEvents());
 
     Column {
         Row {
@@ -215,13 +213,14 @@ CdbOptionsPageWidget::CdbOptionsPageWidget()
 
 void CdbOptionsPageWidget::apply()
 {
-    m_group.apply(); m_group.writeSettings(Core::ICore::settings());
-    debuggerSettings()->cdbBreakEvents.setValue(m_breakEventWidget->breakEvents());
+    m_group.apply();
+    m_group.writeSettings();
+    settings().cdbBreakEvents.setValue(m_breakEventWidget->breakEvents());
 }
 
 void CdbOptionsPageWidget::finish()
 {
-    m_breakEventWidget->setBreakEvents(debuggerSettings()->cdbBreakEvents.value());
+    m_breakEventWidget->setBreakEvents(settings().cdbBreakEvents());
     m_group.finish();
 }
 
@@ -244,7 +243,7 @@ public:
     void apply() final;
     void finish() final;
 
-    AspectContainer &m_group = debuggerSettings()->page6;
+    AspectContainer &m_group = settings().page6;
 
 private:
     PathListEditor *m_symbolPaths = nullptr;
@@ -267,15 +266,15 @@ CdbPathsPageWidget::CdbPathsPageWidget()
 
 void CdbPathsPageWidget::apply()
 {
-    debuggerSettings()->cdbSymbolPaths.setValue(m_symbolPaths->pathList());
-    debuggerSettings()->cdbSourcePaths.setValue(m_sourcePaths->pathList());
-    m_group.writeSettings(Core::ICore::settings());
+    settings().cdbSymbolPaths.setValue(m_symbolPaths->pathList());
+    settings().cdbSourcePaths.setValue(m_sourcePaths->pathList());
+    m_group.writeSettings();
 }
 
 void CdbPathsPageWidget::finish()
 {
-    m_symbolPaths->setPathList(debuggerSettings()->cdbSymbolPaths.value());
-    m_sourcePaths->setPathList(debuggerSettings()->cdbSourcePaths.value());
+    m_symbolPaths->setPathList(settings().cdbSymbolPaths());
+    m_sourcePaths->setPathList(settings().cdbSourcePaths());
 }
 
 CdbPathsPage::CdbPathsPage()

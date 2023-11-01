@@ -8,15 +8,36 @@
 
     \title Reference
 
-    The following topics describe the different parts of the UI in detail.
+    \annotatedlist creator-reference
 
-    \section1 Sidebar Views
+    \section1 Build Systems
 
-    \annotatedlist creator-reference-sidebar-views
+    Most \QC project wizards enable you to choose the build system to use for
+    building the project: qmake, CMake, Meson, or Qbs. qmake is installed and
+    configured when you install Qt. To use one of the other supported build
+    systems, you need to set it up.
 
-    \section1 Output Views
+    \annotatedlist creator-reference-build-systems
+
+    \section1 Preferences
+
+    \annotatedlist creator-reference-preferences
+
+    \section2 C++
+
+    \annotatedlist creator-reference-preferences-cpp
+
+    \section2 Text Editor
+
+    \annotatedlist creator-reference-preferences-text-editor
+
+    \section1 Views
+
+    \section2 Output Views
 
     \annotatedlist creator-reference-output-views
 
-    \sa {User Interface}, {Show and hide sidebars}, {View output}
+    \section2 Sidebar Views
+
+    \annotatedlist creator-reference-sidebar-views
 */

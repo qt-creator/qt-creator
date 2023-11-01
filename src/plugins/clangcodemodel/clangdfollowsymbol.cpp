@@ -154,7 +154,11 @@ ClangdFollowSymbol::ClangdFollowSymbol(ClangdClient *client, const QTextCursor &
         if (self->d->cursorNode)
             self->d->handleGotoDefinitionResult();
     };
-    client->symbolSupport().findLinkAt(document, cursor, std::move(gotoDefCallback), true);
+    client->symbolSupport().findLinkAt(document,
+                                       cursor,
+                                       std::move(gotoDefCallback),
+                                       true,
+                                       LanguageClient::LinkTarget::SymbolDef);
 
     const auto astHandler = [self = QPointer(this)](const ClangdAstNode &ast, const MessageId &) {
         qCDebug(clangdLog) << "received ast response for cursor";
@@ -336,7 +340,7 @@ IAssistProposal *ClangdFollowSymbol::VirtualFunctionAssistProcessor::createPropo
         items << createEntry({}, m_followSymbol->d->defLink);
     if (!final) {
         const auto infoItem = new VirtualFunctionProposalItem({}, false);
-        infoItem->setText(Tr::tr("collecting overrides ..."));
+        infoItem->setText(Tr::tr("collecting overrides..."));
         infoItem->setOrder(-1);
         items << infoItem;
     }

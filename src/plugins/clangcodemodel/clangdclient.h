@@ -74,7 +74,7 @@ public:
             const Utils::LinkHandler &callback);
     void switchHeaderSource(const Utils::FilePath &filePath, bool inNextSplit);
 
-    void findLocalUsages(TextEditor::TextDocument *document, const QTextCursor &cursor,
+    void findLocalUsages(CppEditor::CppEditorWidget *editorWidget, const QTextCursor &cursor,
                          CppEditor::RenameCallback &&callback);
 
     void gatherHelpItemForTooltip(
@@ -148,6 +148,9 @@ private:
     bool referencesShadowFile(const TextEditor::TextDocument *doc,
                               const Utils::FilePath &candidate) override;
     bool fileBelongsToProject(const Utils::FilePath &filePath) const override;
+    QList<Utils::Text::Range> additionalDocumentHighlights(
+        TextEditor::TextEditorWidget *editorWidget, const QTextCursor &cursor) override;
+
 
     class Private;
     class VirtualFunctionAssistProcessor;

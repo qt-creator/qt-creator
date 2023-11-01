@@ -60,7 +60,7 @@
         \li \uicontrol Help
         \li \key Ctrl+6
         \li Read documentation.
-        \li \l{Using the Help Mode}
+        \li \l{Get help}
     \endtable
 
     Some actions in \QC trigger a mode change. For example,
@@ -72,4 +72,6 @@
     \uicontrol View > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
     To only show icons on the mode selector, select the \uicontrol {Icons Only}
     style.
+
+    \sa {Show and hide sidebars},{Show and hide the main menu}
 */

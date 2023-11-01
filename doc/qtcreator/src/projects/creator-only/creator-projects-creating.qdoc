@@ -10,11 +10,13 @@
 /*!
     \previouspage creator-project-managing.html
     \page creator-project-creating.html
-    \nextpage creator-file-creating.html
+    \nextpage creator-project-qmake-libraries.html
+
+    \ingroup creator-explanation-projects
 
     \title Creating Projects
 
-    Creating a project enables you to:
+    Create projects to:
 
     \list
 
@@ -28,32 +30,55 @@
 
     \endlist
 
+    To set up a project, you first have to decide what kind of an application
+    you want to develop: do you want a user interface based on Qt Quick or
+    Qt widgets. Second, you have to choose the language to implement the
+    application logic: C++, JavaScript, or Python.
+
     When you set up a new project in \QC, a wizard guides you step-by-step
     through the process. The wizard templates prompt you to enter the settings
-    that you need for that particular type of project and create
-    the necessary files for you. You can add your own custom wizards to
-    standardize the way of adding subprojects and classes to a project.
+    that you need for that particular type of project and create the necessary
+    files for you.
 
-    Most \QC project wizards enable you to choose the build system to use for
+    \image qtcreator-project-qt-quick.webp {New Project dialog}
+
+    You can add your own custom wizards to standardize the way of adding
+    subprojects and classes to a project. In the \uicontrol {New Project} and
+    \uicontrol {New File} dialogs you can see an icon (1), a display name (2),
+    and a description (3) of the wizard.
+
+    \image qtcreator-custom-wizard.png {Wizard details in the New Project dialog}
+
+    In most project wizards, you can choose the build system to use for
     building the project: qmake, CMake, or Qbs. If you do not get to choose,
     the project uses qmake as the build system.
+
+    \image qtcreator-new-project-build-system-qt-gui.png {Define Build System dialog}
 
     You can use wizards also to create plain C or C++ projects that use
     qmake, Qbs, or CMake, but do not use the Qt library.
 
     In addition, you can import projects as \e {generic projects} that do not
-    use qmake, Qbs, or CMake. This enables you to use \QC as a code editor and
-    to fully control the steps and commands used to build the project.
+    use qmake, Qbs, or CMake. Use \QC as a code editor and fully control the
+    steps and commands used to build the project.
 
-    You can install tools for \l{glossary-device}{devices} as part of Qt distributions.
+    To test applications on \l{glossary-device}{devices}, you can install
+    toolchains for mobile and embedded development as part of Qt distributions.
     The installers create \l{glossary-buildandrun-kit}{kits} and specify build
     and run settings for the installed device types. However, you might need to
     install and configure some additional software on the devices to be able to
     \l{Connecting Devices}{connect} to them from the development PC.
 
-    \include creator-projects-build-systems.qdocinc build systems
+    \sa {Manage Projects}{How To: Manage Projects}, {Custom Wizards}
+*/
 
-    \section1 Using Project Wizards
+/*!
+    \page creator-how-to-use-project-wizards.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-create
+
+    \title Use project wizards
 
     To create a new project, select \uicontrol File > \uicontrol{New Project} and
     select the type of your project. The contents of the wizard dialogs depend
@@ -75,7 +100,7 @@
     For example, if you choose to create a Qt Quick application, \QC generates a
     QML file that you can modify in the \uicontrol Edit mode.
 
-    \section1 Selecting Project Type
+    \section1 Select project type
 
     The following table lists the types of wizard templates that you can use
     for creating projects. The \uicontrol {New Project} dialog shows detailed
@@ -101,7 +126,7 @@
                  widgets or widget collections,
                 \l{Qt Quick UI Projects}{Qt Quick UI projects},
                 \l {Creating Tests}{auto-test projects},
-                \l{Adding Subprojects to Projects}{subprojects},
+                \l{Add subprojects to projects}{subprojects},
                 empty qmake projects, or qmake projects for testing
                 code snippets.
         \row
@@ -110,7 +135,7 @@
                 {Nim or Nimble} applications (experimental)
         \row
             \li Imported project
-            \li Import projects from a supported \l{Using Version Control Systems}
+            \li Import projects from a supported \l{Version Control Systems}
                 {version control system}, such as Bazaar, CVS, Git, Mercurial, or
                 Subversion.
 
@@ -133,9 +158,28 @@
     For more information about creating Qt Quick projects, see
     \l {Creating Qt Quick Projects}.
 
-    \include creator-python-project.qdocinc python project wizards
+    \section1 Bind keyboard shortcuts to wizards
 
-    \section1 Specifying Project Contents
+    If you use a wizard regularly, you can bind a custom keyboard shortcut to
+    it. Triggering this keyboard shortcut directly opens the wizard, so you do
+    not need to navigate to \uicontrol File > \uicontrol {New File} or
+    \uicontrol {New Project}.
+
+    Set keyboard shortcuts for wizards in \preferences > \uicontrol Environment >
+    \uicontrol Keyboard > \uicontrol Wizard. All wizard actions start with
+    \uicontrol Impl there.
+
+    \sa {Assign keyboard shortcuts}, {Activate kits for a project},
+    {Create files}, {Creating Projects}
+*/
+
+/*!
+    \page creator-how-to-specify-project-contents.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-configure
+
+    \title Specify project contents
 
     A project can have files that should be:
 
@@ -148,8 +192,8 @@
             to \QC
     \endlist
 
-    \QC displays all files that you declare to be part of the project by the
-    project files in the \l Projects view. It sorts the files into categories
+    The \l Projects view shows all files that you declare to be part of the
+    project in the project files. It sorts the files into categories
     by file type (.cpp, .h, .qrc, and so on). To display additional files, edit
     the project file. Alternatively, you can see all the files in a project
     directory in the \l {File System} view.
@@ -158,7 +202,7 @@
     \l{Searching with the Locator}{locator} and \l{Advanced Search}
     {project-wide search}.
 
-    \section2 CMake Projects
+    \section1 CMake Projects
 
     When using CMake, you can specify additional files for a project by either
     adding them as sources or installing them.
@@ -179,7 +223,7 @@
     Alternatively, to install the files, use the \l {CMake: install command}
     {install} command with the \c FILES or \c DIRECTORY property.
 
-    \section2 qmake Projects
+    \section1 qmake Projects
 
     Use the following variables in the .pro file:
 
@@ -199,24 +243,33 @@
 
     \endcode
 
-    \section1 Adding Subprojects to Projects
+    \sa {Creating Projects}, {Use project wizards}, {Projects}
 
-    In addition to Qt libraries, you can link your application to other
-    libraries, such as system libraries or your own libraries. Further, your
-    own libraries might link to other libraries. To be able to compile your
-    project, you must add the libraries to your project. This also enables
-    code completion and syntax highlighting for the libraries.
-    The procedure of adding a library to a project depends on the build
+*/
+
+/*!
+    \page creator-how-to-add-subprojects-to-projects.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-create
+
+    \title Add subprojects to projects
+
+    You can link your application to Qt libraries and other libraries, such as
+    system libraries or your own libraries. Further, your own libraries might
+    link to other libraries. To compile your project and benefit from services
+    such as code completion and syntax highlighting, add the libraries to your
+    project. The process of adding a library to a project depends on the build
     system that you use.
 
-    \section2 CMake Projects
+    \section1 CMake projects
 
-    You can add CMakeLists.txt files to any project by using the
+    To add CMakeLists.txt files to any project, use the
     \l{https://cmake.org/cmake/help/latest/command/add_subdirectory.html}
     {add_subdirectory} command. The files can define complete projects that
     you include into the top-level project or any other CMake commands.
 
-    \section2 qmake Projects
+    \section1 qmake projects
 
     When you create a new project and select qmake as the build system,
     you can add it to another project as a subproject in the
@@ -224,19 +277,26 @@
     must specify that qmake uses the \c subdirs \l{TEMPLATE}{template} to
     build the project.
 
-    To create a root project, select \uicontrol File >
-    \uicontrol {New Project} > \uicontrol {Other Project} >
-    \uicontrol {Subdirs Project} > \uicontrol Choose.
+    To create a root project:
 
-    On the \uicontrol Summary page, select \uicontrol {Finish & Add Subproject} to create
-    the root project and to add another project, such as a C++ library.
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New Project} >
+            \uicontrol {Other Project} > \uicontrol {Subdirs Project} >
+            \uicontrol Choose.
+
+        \li On the \uicontrol Summary page, select
+            \uicontrol {Finish & Add Subproject} to create
+            the root project and to add another project, such as a C++ library.
+    \endlist
 
     The wizard creates a project file (.pro) that defines a \c subdirs template
     and the subproject that you add as a value of the \l{Variables#subdirs}
     {SUBDIRS variable}. It also adds all the necessary files for the subproject.
 
+    \section2 Add subprojects to the root project
+
     To create more subprojects, right-click the project name in the
-    \uicontrol Projects view to open the context menu, and select
+    \l Projects view to open the context menu, and select
     \uicontrol {New Subproject}. Follow the steps in the
      \uicontrol {New Subproject} wizard to create a subproject.
 
@@ -246,31 +306,15 @@
     \uicontrol {Add Existing Projects} in the context menu.
     In the file browser dialog, locate your subproject.
 
+    \section2 Remove subprojects
+
     To remove subprojects, right-click the project name in the \uicontrol Projects
     view, and select \uicontrol {Remove Subproject} in the context menu.
 
-    To specify dependencies, use the \uicontrol{Add Library} wizard. For more
-    information, see \l{Adding Libraries to Projects}.
+    \section2 Specify dependencies
 
-    \section1 Binding Keyboard Shortcuts to Wizards
+    To specify dependencies, use the \uicontrol{Add Library} wizard.
 
-    If you use a wizard regularly, you can bind a custom keyboard shortcut to
-    it. Triggering this keyboard shortcut directly opens the wizard, so you do
-    not need to navigate to \uicontrol File > \uicontrol {New File} or
-    \uicontrol {New Project}.
-
-    Set keyboard shortcuts for wizards in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Environment > \uicontrol Keyboard >
-    \uicontrol Wizard. All wizard actions start with \uicontrol Impl there.
-
-    \section1 Related Topics
-
-    \list
-        \li  \l{Creating Files}
-        \li  \l{Opening Projects}
-        \li  \l{Adding Libraries to Projects}
-        \li  \l{Adding New Custom Wizards}
-        \li  \l{Build Systems}
-    \endlist
-
+    \sa {Creating Projects}, {Use project wizards},
+    {Add libraries to qmake projects}, {Add libraries to CMake projects}
 */

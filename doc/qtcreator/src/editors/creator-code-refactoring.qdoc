@@ -22,7 +22,7 @@
     \l{Applying Refactoring Actions}.
 
     By default, the refactored files are saved automatically. To disable
-    this feature, deselect \uicontrol Edit > \uicontrol Preferences >
+    this feature, deselect \preferences > \uicontrol Environment >
     \uicontrol System > \uicontrol {Auto-save files after refactoring}.
 
     \if defined(qtcreator)

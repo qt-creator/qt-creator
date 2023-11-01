@@ -91,7 +91,7 @@ bool GTestVisitor::visit(CPlusPlus::FunctionDefinitionAST *ast)
     int line = 0;
     int column = 0;
     unsigned token = id->firstToken();
-    m_document->translationUnit()->getTokenStartPosition(token, &line, &column);
+    m_document->translationUnit()->getTokenPosition(token, &line, &column);
 
     GTestCodeLocationAndType locationAndType;
     locationAndType.m_name = testCaseName;

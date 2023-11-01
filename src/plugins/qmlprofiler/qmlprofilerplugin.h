@@ -7,15 +7,10 @@
 
 namespace QmlProfiler::Internal {
 
-class QmlProfilerSettings;
-
 class QmlProfilerPlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
-
-public:
-    static QmlProfilerSettings *globalSettings();
 
 private:
     bool initialize(const QStringList &arguments, QString *errorString) final;

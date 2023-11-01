@@ -22,9 +22,6 @@ public:
     explicit AndroidRunSupport(ProjectExplorer::RunControl *runControl,
                                const QString &intentName = QString());
     ~AndroidRunSupport() override;
-
-    void start() override;
-    void stop() override;
 };
 
 AndroidRunSupport::AndroidRunSupport(RunControl *runControl, const QString &intentName)
@@ -36,16 +33,6 @@ AndroidRunSupport::AndroidRunSupport(RunControl *runControl, const QString &inte
 AndroidRunSupport::~AndroidRunSupport()
 {
     stop();
-}
-
-void AndroidRunSupport::start()
-{
-    AndroidRunner::start();
-}
-
-void AndroidRunSupport::stop()
-{
-    AndroidRunner::stop();
 }
 
 AndroidRunWorkerFactory::AndroidRunWorkerFactory()

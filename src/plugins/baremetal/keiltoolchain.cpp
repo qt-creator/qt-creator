@@ -10,6 +10,7 @@
 #include <projectexplorer/abiwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmacro.h>
+#include <projectexplorer/toolchainconfigwidget.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>
@@ -34,16 +35,6 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace BareMetal::Internal {
-
-// Helpers:
-
-static const char compilerPlatformCodeGenFlagsKeyC[] = "PlatformCodeGenFlags";
-
-static bool compilerExists(const FilePath &compilerPath)
-{
-    const QFileInfo fi = compilerPath.toFileInfo();
-    return fi.exists() && fi.isExecutable() && fi.isFile();
-}
 
 static Abi::Architecture guessArchitecture(const FilePath &compilerPath)
 {
@@ -402,13 +393,70 @@ static void addDefaultCpuArgs(const FilePath &compiler, QStringList &extraArgs)
 
 // KeilToolchain
 
-KeilToolChain::KeilToolChain() :
-    ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
+class KeilToolChain;
+
+class KeilToolChainConfigWidget final : public ToolChainConfigWidget
 {
-    setTypeDisplayName(Tr::tr("KEIL"));
-    setTargetAbiKey("TargetAbi");
-    setCompilerCommandKey("CompilerPath");
-}
+public:
+    explicit KeilToolChainConfigWidget(KeilToolChain *tc);
+
+private:
+    void applyImpl() final;
+    void discardImpl() final { setFromToolChain(); }
+    bool isDirtyImpl() const final;
+    void makeReadOnlyImpl() final;
+
+    void setFromToolChain();
+    void handleCompilerCommandChange();
+    void handlePlatformCodeGenFlagsChange();
+
+    PathChooser *m_compilerCommand = nullptr;
+    AbiWidget *m_abiWidget = nullptr;
+    QLineEdit *m_platformCodeGenFlagsLineEdit = nullptr;
+    Macros m_macros;
+};
+
+// KeilToolChain
+
+class KeilToolChain final : public ToolChain
+{
+public:
+    KeilToolChain() :
+        ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
+    {
+        setTypeDisplayName(Tr::tr("KEIL"));
+        setTargetAbiKey("TargetAbi");
+        setCompilerCommandKey("CompilerPath");
+
+        m_extraCodeModelFlags.setSettingsKey("PlatformCodeGenFlags");
+        connect(&m_extraCodeModelFlags, &BaseAspect::changed,
+                this, &KeilToolChain::toolChainUpdated);
+    }
+
+    MacroInspectionRunner createMacroInspectionRunner() const final;
+
+    LanguageExtensions languageExtensions(const QStringList &cxxflags) const final;
+    WarningFlags warningFlags(const QStringList &cxxflags) const final;
+
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Environment &) const final;
+    void addToEnvironment(Environment &env) const final;
+
+    QList<OutputLineParser *> createOutputParsers() const final { return {new KeilParser}; }
+
+    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
+
+    bool operator==(const ToolChain &other) const final;
+
+    QStringList extraCodeModelFlags() const final;
+
+    FilePath makeCommand(const Environment &) const final { return {}; }
+
+private:
+    StringListAspect m_extraCodeModelFlags{this};
+
+    friend class KeilToolChainFactory;
+    friend class KeilToolChainConfigWidget;
+};
 
 ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() const
 {
@@ -419,7 +467,7 @@ ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() co
     const Id lang = language();
 
     MacrosCache macroCache = predefinedMacrosCache();
-    const QStringList extraArgs = m_extraCodeModelFlags;
+    const QStringList extraArgs = m_extraCodeModelFlags();
 
     return [env, compiler, extraArgs, macroCache, lang](const QStringList &flags) {
         Q_UNUSED(flags)
@@ -467,26 +515,6 @@ void KeilToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-QList<OutputLineParser *> KeilToolChain::createOutputParsers() const
-{
-    return {new KeilParser};
-}
-
-QVariantMap KeilToolChain::toMap() const
-{
-    QVariantMap data = ToolChain::toMap();
-    data.insert(compilerPlatformCodeGenFlagsKeyC, m_extraCodeModelFlags);
-    return data;
-}
-
-bool KeilToolChain::fromMap(const QVariantMap &data)
-{
-    if (!ToolChain::fromMap(data))
-        return false;
-    m_extraCodeModelFlags = data.value(compilerPlatformCodeGenFlagsKeyC).toStringList();
-    return true;
-}
-
 std::unique_ptr<ToolChainConfigWidget> KeilToolChain::createConfigurationWidget()
 {
     return std::make_unique<KeilToolChainConfigWidget>(this);
@@ -500,26 +528,12 @@ bool KeilToolChain::operator ==(const ToolChain &other) const
     const auto customTc = static_cast<const KeilToolChain *>(&other);
     return compilerCommand() == customTc->compilerCommand()
             && targetAbi() == customTc->targetAbi()
-            && m_extraCodeModelFlags == customTc->m_extraCodeModelFlags;
-}
-
-void KeilToolChain::setExtraCodeModelFlags(const QStringList &flags)
-{
-    if (flags == m_extraCodeModelFlags)
-        return;
-    m_extraCodeModelFlags = flags;
-    toolChainUpdated();
+            && m_extraCodeModelFlags() == customTc->m_extraCodeModelFlags();
 }
 
 QStringList KeilToolChain::extraCodeModelFlags() const
 {
-    return m_extraCodeModelFlags;
-}
-
-FilePath KeilToolChain::makeCommand(const Environment &env) const
-{
-    Q_UNUSED(env)
-    return {};
+    return m_extraCodeModelFlags();
 }
 
 // KeilToolchainFactory
@@ -682,7 +696,7 @@ Toolchains KeilToolChainFactory::autoDetectToolchain(const Candidate &candidate,
     tc->setDetection(ToolChain::AutoDetection);
     tc->setLanguage(language);
     tc->setCompilerCommand(candidate.compilerPath);
-    tc->setExtraCodeModelFlags(extraArgs);
+    tc->m_extraCodeModelFlags.setValue(extraArgs);
     tc->setTargetAbi(abi);
     tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.compilerVersion));
 
@@ -727,7 +741,7 @@ void KeilToolChainConfigWidget::applyImpl()
     const auto tc = static_cast<KeilToolChain *>(toolChain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
-    tc->setExtraCodeModelFlags(splitString(m_platformCodeGenFlagsLineEdit->text()));
+    tc->m_extraCodeModelFlags.setValue(splitString(m_platformCodeGenFlagsLineEdit->text()));
     tc->setTargetAbi(m_abiWidget->currentAbi());
     tc->setDisplayName(displayName);
 
@@ -763,14 +777,14 @@ void KeilToolChainConfigWidget::setFromToolChain()
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_abiWidget->setAbis({}, tc->targetAbi());
-    const bool haveCompiler = compilerExists(m_compilerCommand->filePath());
+    const bool haveCompiler = m_compilerCommand->filePath().isExecutableFile();
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
 void KeilToolChainConfigWidget::handleCompilerCommandChange()
 {
     const FilePath compilerPath = m_compilerCommand->filePath();
-    const bool haveCompiler = compilerExists(compilerPath);
+    const bool haveCompiler = compilerPath.isExecutableFile();
     if (haveCompiler) {
         const auto env = Environment::systemEnvironment();
         const QStringList prevExtraArgs = splitString(m_platformCodeGenFlagsLineEdit->text());

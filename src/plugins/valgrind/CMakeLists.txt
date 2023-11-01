@@ -24,25 +24,21 @@ add_qtc_plugin(Valgrind
     callgrindvisualisation.cpp callgrindvisualisation.h
     memcheckerrorview.cpp memcheckerrorview.h
     memchecktool.cpp memchecktool.h
-    suppressiondialog.cpp suppressiondialog.h
     valgrind.qrc
-    valgrindconfigwidget.cpp valgrindconfigwidget.h
     valgrindengine.cpp valgrindengine.h
     valgrindplugin.cpp
-    valgrindrunner.cpp valgrindrunner.h
+    valgrindprocess.cpp valgrindprocess.h
     valgrindsettings.cpp valgrindsettings.h
     valgrindtr.h
     xmlprotocol/announcethread.cpp xmlprotocol/announcethread.h
     xmlprotocol/error.cpp xmlprotocol/error.h
     xmlprotocol/errorlistmodel.cpp xmlprotocol/errorlistmodel.h
     xmlprotocol/frame.cpp xmlprotocol/frame.h
-    xmlprotocol/modelhelpers.cpp xmlprotocol/modelhelpers.h
     xmlprotocol/parser.cpp xmlprotocol/parser.h
     xmlprotocol/stack.cpp xmlprotocol/stack.h
     xmlprotocol/stackmodel.cpp xmlprotocol/stackmodel.h
     xmlprotocol/status.cpp xmlprotocol/status.h
     xmlprotocol/suppression.cpp xmlprotocol/suppression.h
-    xmlprotocol/threadedparser.cpp xmlprotocol/threadedparser.h
 )
 
 extend_qtc_plugin(Valgrind

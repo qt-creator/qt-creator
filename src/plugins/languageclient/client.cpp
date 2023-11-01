@@ -20,8 +20,6 @@
 #include "progressmanager.h"
 #include "semantichighlightsupport.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -54,10 +52,12 @@
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/appinfo.h>
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 
 #include <QDebug>
+#include <QGuiApplication>
 #include <QJsonDocument>
 #include <QLoggingCategory>
 #include <QMessageBox>
@@ -148,8 +148,8 @@ public:
     {
         using namespace ProjectExplorer;
 
-        m_clientInfo.setName(Core::Constants::IDE_DISPLAY_NAME);
-        m_clientInfo.setVersion(Core::Constants::IDE_VERSION_DISPLAY);
+        m_clientInfo.setName(QGuiApplication::applicationDisplayName());
+        m_clientInfo.setVersion(Utils::appInfo().displayVersion);
 
         m_clientProviders.completionAssistProvider = new LanguageClientCompletionAssistProvider(q);
         m_clientProviders.functionHintProvider = new FunctionHintAssistProvider(q);
@@ -328,6 +328,7 @@ public:
     ProjectExplorer::Project *m_project = nullptr;
     QSet<TextEditor::IAssistProcessor *> m_runningAssistProcessors;
     SymbolSupport m_symbolSupport;
+    MessageId m_runningFindLinkRequest;
     ProgressManager m_progressManager;
     bool m_activateDocAutomatically = false;
     SemanticTokenSupport m_tokenSupport;
@@ -374,6 +375,14 @@ static ClientCapabilities generateClientCapabilities()
 {
     ClientCapabilities capabilities;
     WorkspaceClientCapabilities workspaceCapabilities;
+    WorkspaceClientCapabilities::WorkspaceEditCapabilities workspaceEditCapabilities;
+    workspaceEditCapabilities.setDocumentChanges(true);
+    using ResourceOperationKind
+        = WorkspaceClientCapabilities::WorkspaceEditCapabilities::ResourceOperationKind;
+    workspaceEditCapabilities.setResourceOperations({ResourceOperationKind::Create,
+                                                     ResourceOperationKind::Rename,
+                                                     ResourceOperationKind::Delete});
+    workspaceCapabilities.setWorkspaceEdit(workspaceEditCapabilities);
     workspaceCapabilities.setWorkspaceFolders(true);
     workspaceCapabilities.setApplyEdit(true);
     DynamicRegistrationCapabilities allowDynamicRegistration;
@@ -528,7 +537,7 @@ void Client::initialize()
     else
         params.setWorkSpaceFolders(workspaces);
     InitializeRequest initRequest(params);
-    initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse){
+    initRequest.setResponseCallback([this](const InitializeRequest::Response &initResponse) {
         d->initializeCallback(initResponse);
     });
     if (std::optional<ResponseHandler> responseHandler = initRequest.responseHandler())
@@ -564,6 +573,8 @@ QString Client::stateString() const
     case Uninitialized: return Tr::tr("uninitialized");
     //: language client state
     case InitializeRequested: return Tr::tr("initialize requested");
+    //: language client state
+    case FailedToInitialize: return Tr::tr("failed to initialize");
     //: language client state
     case Initialized: return Tr::tr("initialized");
     //: language client state
@@ -687,8 +698,30 @@ void Client::openDocument(TextEditor::TextDocument *document)
 void Client::sendMessage(const JsonRpcMessage &message, SendDocUpdates sendUpdates,
                          Schedule semanticTokensSchedule)
 {
+    QScopeGuard guard([responseHandler = message.responseHandler()](){
+        if (responseHandler) {
+            static ResponseError<std::nullptr_t> error;
+            if (!error.isValid()) {
+                error.setCode(-32803); // RequestFailed
+                error.setMessage("The server is currently in an unreachable state.");
+            }
+            QJsonObject response;
+            response[idKey] = responseHandler->id;
+            response[errorKey] = QJsonObject(error);
+            responseHandler->callback(JsonRpcMessage(response));
+        }
+    });
+
     QTC_ASSERT(d->m_clientInterface, return);
+    if (d->m_state == Shutdown || d->m_state == ShutdownRequested) {
+        auto key = message.toJsonObject().contains(methodKey) ? QString(methodKey) : QString(idKey);
+        const QString method = message.toJsonObject()[key].toString();
+        qCDebug(LOGLSPCLIENT) << "Ignoring message " << method << " because client is shutting down";
+        return;
+    }
     QTC_ASSERT(d->m_state == Initialized, return);
+    guard.dismiss();
+
     if (sendUpdates == SendDocUpdates::Send)
         d->sendPostponedDocumentUpdates(semanticTokensSchedule);
     if (std::optional<ResponseHandler> responseHandler = message.responseHandler())
@@ -847,7 +880,7 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
             q->cancelRequest(m_highlightRequests.take(widget));
     });
     request.setResponseCallback(
-        [widget, this, uri, connection]
+        [widget, this, uri, connection, adjustedCursor]
         (const DocumentHighlightsRequest::Response &response)
         {
             m_highlightRequests.remove(widget);
@@ -872,6 +905,30 @@ void ClientPrivate::requestDocumentHighlightsNow(TextEditor::TextEditorWidget *w
                 selection.cursor.setPosition(start);
                 selection.cursor.setPosition(end, QTextCursor::KeepAnchor);
                 selections << selection;
+            }
+            if (!selections.isEmpty()) {
+                const QList<Text::Range> extraRanges = q->additionalDocumentHighlights(
+                    widget, adjustedCursor);
+                for (const Text::Range &range : extraRanges) {
+                    QTextEdit::ExtraSelection selection{widget->textCursor(), format};
+                    const Text::Position &startPos = range.begin;
+                    const Text::Position &endPos = range.end;
+                    const int start = Text::positionInText(document, startPos.line,
+                                                           startPos.column + 1);
+                    const int end = Text::positionInText(document, endPos.line,
+                                                         endPos.column + 1);
+                    if (start < 0 || end < 0 || start >= end)
+                        continue;
+                    selection.cursor.setPosition(start);
+                    selection.cursor.setPosition(end, QTextCursor::KeepAnchor);
+                    static const auto cmp = [](const QTextEdit::ExtraSelection &s1,
+                                        const QTextEdit::ExtraSelection &s2) {
+                        return s1.cursor.position() < s2.cursor.position();
+                    };
+                    const auto it = std::lower_bound(selections.begin(), selections.end(),
+                                                     selection, cmp);
+                    selections.insert(it, selection);
+                }
             }
             widget->setExtraSelections(id, selections);
         });
@@ -911,6 +968,10 @@ void Client::activateEditor(Core::IEditor *editor)
             optionalActions |= TextEditor::TextEditorActionHandler::FindUsage;
         if (symbolSupport().supportsRename(widget->textDocument()))
             optionalActions |= TextEditor::TextEditorActionHandler::RenameSymbol;
+        if (symbolSupport().supportsFindLink(widget->textDocument(), LinkTarget::SymbolDef))
+            optionalActions |= TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor;
+        if (symbolSupport().supportsFindLink(widget->textDocument(), LinkTarget::SymbolTypeDef))
+            optionalActions |= TextEditor::TextEditorActionHandler::FollowTypeUnderCursor;
         if (CallHierarchyFactory::supportsCallHierarchy(this, textEditor->document()))
             optionalActions |= TextEditor::TextEditorActionHandler::CallHierarchy;
         widget->setOptionalActions(optionalActions);
@@ -1112,6 +1173,8 @@ void Client::documentContentsChanged(TextEditor::TextDocument *document,
 {
     if (!d->m_openedDocument.contains(document) || !reachable())
         return;
+    if (d->m_runningFindLinkRequest.isValid())
+        cancelRequest(d->m_runningFindLinkRequest);
     if (d->m_diagnosticManager)
         d->m_diagnosticManager->disableDiagnostics(document);
     const QString method(DidChangeTextDocumentNotification::methodName);
@@ -1252,6 +1315,8 @@ TextEditor::HighlightingResult createHighlightingResult(const SymbolInformation 
 
 void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 {
+    if (d->m_runningFindLinkRequest.isValid())
+        cancelRequest(d->m_runningFindLinkRequest);
     TextEditor::TextDocument *document = widget->textDocument();
     if (d->m_documentsToUpdate.find(document) != d->m_documentsToUpdate.end())
         return; // we are currently changing this document so postpone the DocumentHighlightsRequest
@@ -1272,6 +1337,25 @@ void Client::cursorPositionChanged(TextEditor::TextEditorWidget *widget)
 SymbolSupport &Client::symbolSupport()
 {
     return d->m_symbolSupport;
+}
+
+void Client::findLinkAt(TextEditor::TextDocument *document,
+                        const QTextCursor &cursor,
+                        Utils::LinkHandler callback,
+                        const bool resolveTarget,
+                        LinkTarget target)
+{
+    if (d->m_runningFindLinkRequest.isValid())
+        cancelRequest(d->m_runningFindLinkRequest);
+    d->m_runningFindLinkRequest = symbolSupport().findLinkAt(
+        document,
+        cursor,
+        [this, callback](const Link &link) {
+            d->m_runningFindLinkRequest = {};
+            callback(link);
+        },
+        resolveTarget,
+        target);
 }
 
 void Client::requestCodeActions(const LanguageServerProtocol::DocumentUri &uri,
@@ -1614,7 +1698,7 @@ bool ClientPrivate::reset()
 void Client::setError(const QString &message)
 {
     log(message);
-    d->m_state = Error;
+    d->m_state = d->m_state < Initialized ? FailedToInitialize : Error;
 }
 
 ProgressManager *Client::progressManager()
@@ -1941,6 +2025,23 @@ void ClientPrivate::handleMethod(const QString &method, const MessageId &id, con
             if (ProgressManager::isProgressEndMessage(*params))
                 emit q->workDone(params->token());
         }
+    } else if (method == ConfigurationRequest::methodName) {
+        ConfigurationRequest::Response response;
+        QJsonArray result;
+        if (QTC_GUARD(id.isValid()))
+            response.setId(id);
+        ConfigurationRequest configurationRequest(message.toJsonObject());
+        if (std::optional<ConfigurationParams> params = configurationRequest.params()) {
+            const QList<ConfigurationParams::ConfigurationItem> items = params->items();
+            for (const ConfigurationParams::ConfigurationItem &item : items) {
+                if (const std::optional<QString> section = item.section())
+                    result.append(m_configuration[*section]);
+                else
+                    result.append({});
+            }
+        }
+        response.setResult(result);
+        sendResponse(response);
     } else if (isRequest) {
         Response<JsonObject, JsonObject> response(id);
         ResponseError<JsonObject> error;
@@ -2006,7 +2107,11 @@ void Client::setDocumentChangeUpdateThreshold(int msecs)
 
 void ClientPrivate::initializeCallback(const InitializeRequest::Response &initResponse)
 {
-    QTC_ASSERT(m_state == Client::InitializeRequested, return);
+    if (m_state != Client::InitializeRequested) {
+        qCWarning(LOGLSPCLIENT) << "Dropping initialize response in unexpected state " << m_state;
+        qCDebug(LOGLSPCLIENT) << initResponse.toJsonObject();
+        return;
+    }
     if (std::optional<ResponseError<InitializeError>> error = initResponse.error()) {
         if (std::optional<InitializeError> data = error->data()) {
             if (data->retry()) {

@@ -8,12 +8,12 @@ Project {
     references: [
         "app/app.qbs",
         "app/app_version_header.qbs",
+        "app/images/logo/logo.qbs",
         "libs/libs.qbs",
         "plugins/plugins.qbs",
         "tools/tools.qbs",
         project.sharedSourcesDir + "/json",
         project.sharedSourcesDir + "/proparser",
-        project.sharedSourcesDir + "/pch_files.qbs",
     ]
 
     property bool qbsSubModuleExists: File.exists(qbsProject.qbsBaseDir + "/qbs.qbs")

@@ -7,11 +7,9 @@
 
 #include <projectexplorer/runconfiguration.h>
 
-#include <QObject>
-
 namespace PerfProfiler {
 
-class PERFPROFILER_EXPORT PerfSettings final : public ProjectExplorer::ISettingsAspect
+class PERFPROFILER_EXPORT PerfSettings final : public Utils::AspectContainer
 {
     Q_OBJECT
 
@@ -26,6 +24,8 @@ public:
 
     void resetToDefault();
 
+    QWidget *createPerfConfigWidget(ProjectExplorer::Target *target);
+
     Utils::IntegerAspect period{this};
     Utils::IntegerAspect stackSize{this};
     Utils::SelectionAspect sampleMode{this};
@@ -33,5 +33,7 @@ public:
     Utils::StringListAspect events{this};
     Utils::StringAspect extraArguments{this};
 };
+
+PerfSettings &globalSettings();
 
 } // namespace PerfProfiler

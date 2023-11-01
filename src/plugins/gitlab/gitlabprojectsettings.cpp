@@ -246,13 +246,13 @@ void GitLabProjectSettingsWidget::updateUi()
     }
 
     const Utils::FilePath projectDirectory = m_projectSettings->project()->projectDirectory();
-    const auto *gitClient = Git::Internal::GitClient::instance();
-    const Utils::FilePath repository = gitClient
-            ? gitClient->findRepositoryForDirectory(projectDirectory) : Utils::FilePath();
+    const Utils::FilePath repository =
+        Git::Internal::gitClient().findRepositoryForDirectory(projectDirectory);
 
     m_hostCB->clear();
     if (!repository.isEmpty()) {
-        const QMap<QString, QString> remotes = gitClient->synchronousRemotesList(repository);
+        const QMap<QString, QString> remotes =
+            Git::Internal::gitClient().synchronousRemotesList(repository);
         for (auto it = remotes.begin(), end = remotes.end(); it != end; ++it) {
             const QString display = it.key() + " (" + it.value() + ')';
             m_hostCB->addItem(display, QVariant::fromValue(it.value()));
@@ -291,9 +291,8 @@ void GitLabProjectSettingsWidget::updateEnabledStates()
     m_checkConnection->setEnabled(isGitRepository && hasGitLabServers);
     if (!isGitRepository) {
         const Utils::FilePath projectDirectory = m_projectSettings->project()->projectDirectory();
-        const auto *gitClient = Git::Internal::GitClient::instance();
-        const Utils::FilePath repository = gitClient
-                ? gitClient->findRepositoryForDirectory(projectDirectory) : Utils::FilePath();
+        const Utils::FilePath repository =
+            Git::Internal::gitClient().findRepositoryForDirectory(projectDirectory);
         if (repository.isEmpty())
             m_infoLabel->setText(Tr::tr("Not a git repository."));
         else

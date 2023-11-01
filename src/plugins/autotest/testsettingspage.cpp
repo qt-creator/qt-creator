@@ -10,7 +10,6 @@
 #include "testsettings.h"
 #include "testtreemodel.h"
 
-#include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/id.h>
 #include <utils/infolabel.h>
@@ -51,6 +50,8 @@ TestSettingsWidget::TestSettingsWidget()
 {
     auto timeoutLabel = new QLabel(Tr::tr("Timeout:"));
     timeoutLabel->setToolTip(Tr::tr("Timeout used when executing each test case."));
+    auto scanThreadLabel = new QLabel(Tr::tr("Scan threads:"));
+    scanThreadLabel->setToolTip("Number of worker threads used when scanning for tests.");
 
     m_frameworkTreeWidget = new QTreeWidget;
     m_frameworkTreeWidget->setRootIsDecorated(false);
@@ -79,10 +80,11 @@ TestSettingsWidget::TestSettingsWidget()
         onClicked([] { AutotestPlugin::clearChoiceCache(); }, this)
     };
 
-    TestSettings &s = *TestSettings::instance();
+    TestSettings &s = Internal::testSettings();
     Group generalGroup {
         title(Tr::tr("General")),
         Column {
+            Row { scanThreadLabel, s.scanThreadLimit, st },
             s.omitInternalMsg,
             s.omitRunConfigWarn,
             s.limitResultOutput,
@@ -121,7 +123,7 @@ TestSettingsWidget::TestSettingsWidget()
     populateFrameworksListWidget(s.frameworks, s.tools);
 
     setOnApply([this] {
-        TestSettings &s = *TestSettings::instance();
+        TestSettings &s = Internal::testSettings();
 
         NonAspectSettings tmp;
         testSettings(tmp);
@@ -134,7 +136,7 @@ TestSettingsWidget::TestSettingsWidget()
 
         testSettings(s);
         testToolsSettings(s);
-        s.toSettings(Core::ICore::settings());
+        s.toSettings();
 
         for (ITestFramework *framework : TestFrameworkManager::registeredFrameworks()) {
             framework->setActive(s.frameworks.value(framework->id(), false));

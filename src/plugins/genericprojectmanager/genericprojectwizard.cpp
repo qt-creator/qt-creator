@@ -12,7 +12,6 @@
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/customwizard/customwizard.h>
 
-#include <app/app_version.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/filewizardpage.h>
@@ -97,9 +96,10 @@ GenericProjectWizard::GenericProjectWizard()
     setIcon(ProjectExplorer::Icons::WIZARD_IMPORT_AS_PROJECT.icon());
     setDisplayName(Tr::tr("Import Existing Project"));
     setId("Z.Makefile");
-    setDescription(Tr::tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. "
-                          "This allows you to use %1 as a code editor.")
-                   .arg(Core::Constants::IDE_DISPLAY_NAME));
+    setDescription(
+        Tr::tr("Imports existing projects that do not use qmake, CMake, Qbs, Meson, or Autotools. "
+               "This allows you to use %1 as a code editor.")
+            .arg(QGuiApplication::applicationDisplayName()));
     setCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY));
     setDisplayCategory(QLatin1String(ProjectExplorer::Constants::IMPORT_WIZARD_CATEGORY_DISPLAY));
     setFlags(Core::IWizardFactory::PlatformIndependent);

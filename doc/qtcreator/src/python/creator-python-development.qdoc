@@ -3,27 +3,27 @@
 
 /*!
     \page creator-python-development.html
-    \previouspage creator-copilot.html
-    \nextpage creator-mime-types.html
+    \previouspage creator-how-tos.html
 
-    \title Developing Qt for Python Applications
+    \ingroup creator-how-to-projects
 
-    \l {https://doc.qt.io/qtforpython/index.html}{Qt for Python} enables you
-    to use Qt 6 API in Python applications. You can use the PySide6 modules
-    to gain access to individual Qt modules, such as \l {Qt Core}, \l {Qt GUI},
-    and \l {Qt Widgets}.
+    \title Develop Qt for Python applications
+
+    With \l {https://doc.qt.io/qtforpython/index.html}{Qt for Python}, you can
+    use Qt 6 API in Python applications. Use the PySide6 modules to gain access
+    to individual Qt modules, such as \l {Qt Core}, \l {Qt GUI}, and
+    \l {Qt Widgets}.
 
     The following sections describe using \QC for developing with Qt for Python:
 
     \list
-        \li \l{Creating Widget-Based Qt for Python Applications}
-            {Creating Qt for Python Applications}
-        \li \l{Setting Up PySide6}
-        \li \l{Selecting the Python Interpreter}
-        \li \l{Creating a Virtual Environment}
-        \li \l{Using Python Interactive Shell}
+        \li \l{Set up PySide6}
+        \li \l{Create Qt for Python applications}
+        \li \l{Select the Python interpreter}
+        \li \l{Create a virtual environment}
+        \li \l{Use Python interactive shell}
         \li \l{Python Language Server}
-        \li \l{Running Python Projects}
+        \li \l{Running Python projects}
         \li \l{Specifying Run Settings for Python Projects}
         \li \l{PDB}
         \li \l{Launching the Debugger}
@@ -33,7 +33,7 @@
     limitations, see \l {https://doc.qt.io/qtforpython/index.html}
     {Qt for Python}.
 
-    \section1 Setting Up PySide6
+    \section1 Set up PySide6
 
     If you have not installed the required version of PySide6, \QC prompts you to
     do so when you open a .py file.
@@ -45,12 +45,38 @@
     and annotations. Select \uicontrol Install to install PySide6 and the
     language server.
 
-    \section1 Selecting the Python Interpreter
+    \section1 Create Qt for Python applications
+
+    You can use wizards to create Qt for Python application projects. The wizards
+    generate a project file, \c {.pyproject}, that lists the files in the Python
+    project. They also generate a \c {.py} file that has some boilerplate code.
+    In addition, the widget-based UI wizard creates a \c {.ui} file that has a
+    \QD form, and the Qt Quick Application wizard creates a \c {.qml} file that
+    imports Qt Quick controls.
+
+    \note Before importing UI classes and after editing them, create the Python
+    code from your UI form. In PySide6, run \c{pyside6-uic form.ui -o ui_form.py}
+    in the \l Terminal view.
+
+    \image qtcreator-new-qt-for-python-app-window-ui-uic.webp {Creating Python code in Terminal}
+
+    The \uicontrol Window wizard adds code to the source file, without the UI
+    file.
+
+    The \uicontrol Empty wizard adds code to the source file, but it
+    does not add any classes, so you need to add and instantiate them yourself.
+
+    The \c{.pyproject} files are JSON-based configuration files that replace
+    the previously used \c {.pyqtc} configuration files. You can still open and
+    use \c {.pyqtc} files, but we recommend that you choose \c{.pyproject} files
+    for new projects.
+
+    \section1 Select the Python interpreter
 
     You select the initial Python interpreter when you use the Qt for Python
     Application wizard templates to create Python projects.
 
-    \image qtcreator-python-wizard-define-python-interpreter.webp {Define Python Interpreter wizard page}
+    \image qtcreator-new-qt-for-python-app-widgets-project-details.webp {Define Project Details dialog}
 
     You can see the current Python interpreter on the \uicontrol Edit mode
     toolbar.
@@ -64,33 +90,35 @@
 
     To see the available interpreters and choose another interpreter, select the
     current interpreter, and then select \uicontrol {Manage Python Interpreters}.
-    Or, select \uicontrol Edit > \uicontrol Preferences > \uicontrol Python >
-    \uicontrol Interpreters.
+    Or, select \preferences > \uicontrol Python > \uicontrol Interpreters.
 
-    \image qtcreator-python-interpreters.png {Python Interpreters in Preferences}
+    \image qtcreator-python-interpreters.webp {Python Interpreters in Preferences}
 
     You can add and remove interpreters and clean up references to interpreters
     that you uninstalled, but that still appear in the list. In addition, you
     can set the interpreter to use by default.
 
-    \section1 Creating a Virtual Environment
+    \section1 Create a virtual environment
 
-    To create a virtual environment (\c venv) when you use the Qt for
-    Python Application wizard templates to create Python projects, select
-    the \uicontrol {Create new virtual environment} check box on the
-    \uicontrol {Define Python Interpreter} wizard page. Specify the
-    directory where to create the environment in
+    To use a clean \l{https://docs.python.org/3/library/venv.html}{Python}
+    virtual environment (\c venv) that is independent of your global Python
+    installation for a Qt for Python project, select the
+    \uicontrol {Create new virtual environment} check box in the project wizard.
+    Set the directory where to create the environment in
     \uicontrol {Path to virtual environment}.
 
-    \section1 Using Python Interactive Shell
+    \section1 Use Python interactive shell
 
-    You can write Python code in the Edit mode. Select \uicontrol REPL on the
-    toolbar to start the \l{https://pythonprogramminglanguage.com/repl/}
-    {Python interactive shell} in the \l Terminal pane.
+    You can write Python code in the \uicontrol Edit mode. Select \uicontrol REPL
+    on the toolbar to start the \l{https://pythonprogramminglanguage.com/repl/}
+    {Python interactive shell} in the \l Terminal view.
 
-    \image qtcreator-terminal-python.webp {Python shell on the taskbar}
+    \image qtcreator-terminal-python.webp {Python shell in the Terminal view}
 
     To start the shell and import the current file as a module, select
     \uicontrol {REPL Import File}. To also import all functions from
     the file, select \uicontrol {REPL Import *}.
+
+    \sa {Creating a Qt for Python Application with Qt Widgets},
+    {Creating a Qt for Python Application with Qt Quick}
 */

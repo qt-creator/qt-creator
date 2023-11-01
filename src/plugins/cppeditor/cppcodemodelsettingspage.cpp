@@ -24,14 +24,15 @@
 #include <QDesktopServices>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QGuiApplication>
 #include <QInputDialog>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStringListModel>
+#include <QTextBlock>
 #include <QTextStream>
 #include <QVBoxLayout>
 #include <QVersionNumber>
-#include <QTextBlock>
 
 #include <limits>
 
@@ -82,7 +83,7 @@ CppCodeModelSettingsWidget::CppCodeModelSettingsWidget(CppCodeModelSettings *s)
     m_ignorePatternTextEdit->setToolTip(m_ignoreFilesCheckBox->toolTip());
     m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
 
-    connect(m_ignoreFilesCheckBox, &QCheckBox::stateChanged, [this] {
+    connect(m_ignoreFilesCheckBox, &QCheckBox::stateChanged, this, [this] {
        m_ignorePatternTextEdit->setEnabled(m_ignoreFilesCheckBox->isChecked());
     });
 
@@ -194,6 +195,7 @@ public:
     QCheckBox useClangdCheckBox;
     QComboBox indexingComboBox;
     QComboBox headerSourceSwitchComboBox;
+    QComboBox completionRankingModelComboBox;
     QCheckBox autoIncludeHeadersCheckBox;
     QCheckBox sizeThresholdCheckBox;
     QSpinBox threadLimitSpinBox;
@@ -221,22 +223,34 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
         "<p>Background Priority: Minimum priority, runs on idle CPUs. May leave 'performance' "
         "cores unused.</p>"
         "<p>Normal Priority: Reduced priority compared to interactive work.</p>"
-        "Low Priority: Same priority as other clangd work.");
+        "<p>Low Priority: Same priority as other clangd work.</p>");
     const QString headerSourceSwitchToolTip = Tr::tr(
-        "<p>Which C/C++ backend to use when switching between header and source file."
-        "<p>The clangd implementation has more capabilities, but also has some bugs not present "
-        "in the built-in variant."
-        "<p>When \"Try Both\" is selected, clangd will be employed only if the built-in variant "
-        "does not find anything.");
+        "<p>The C/C++ backend to use for switching between header and source files.</p>"
+        "<p>While the clangd implementation has more capabilities than the built-in "
+        "code model, it tends to find false positives.</p>"
+        "<p>When \"Try Both\" is selected, clangd is used only if the built-in variant "
+        "does not find anything.</p>");
+    using RankingModel = ClangdSettings::CompletionRankingModel;
+    const QString completionRankingModelToolTip = Tr::tr(
+        "<p>Which model clangd should use to rank possible completions.</p>"
+        "<p>This determines the order of candidates in the combo box when doing code completion.</p>"
+        "<p>The \"%1\" model used by default results from (pre-trained) machine learning and "
+        "provides superior results on average.</p>"
+        "<p>If you feel that its suggestions stray too much from your expectations for your "
+        "code base, you can try switching to the hand-crafted \"%2\" model.</p>").arg(
+            ClangdSettings::rankingModelToDisplayString(RankingModel::DecisionForest),
+            ClangdSettings::rankingModelToDisplayString(RankingModel::Heuristics));
     const QString workerThreadsToolTip = Tr::tr(
         "Number of worker threads used by clangd. Background indexing also uses this many "
         "worker threads.");
     const QString autoIncludeToolTip = Tr::tr(
         "Controls whether clangd may insert header files as part of symbol completion.");
-    const QString documentUpdateToolTip = Tr::tr(
-        "Defines the amount of time Qt Creator waits before sending document changes to the "
-        "server.\n"
-        "If the document changes again while waiting, this timeout resets.");
+    const QString documentUpdateToolTip
+        //: %1 is the application name (Qt Creator)
+        = Tr::tr("Defines the amount of time %1 waits before sending document changes to the "
+                 "server.\n"
+                 "If the document changes again while waiting, this timeout resets.")
+              .arg(QGuiApplication::applicationDisplayName());
     const QString sizeThresholdToolTip = Tr::tr(
         "Files greater than this will not be opened as documents in clangd.\n"
         "The built-in code model will handle highlighting, completion and so on.");
@@ -266,6 +280,16 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
                 d->headerSourceSwitchComboBox.count() - 1);
     }
     d->headerSourceSwitchComboBox.setToolTip(headerSourceSwitchToolTip);
+    for (RankingModel model : {RankingModel::Default, RankingModel::DecisionForest,
+                               RankingModel::Heuristics}) {
+        d->completionRankingModelComboBox.addItem(
+            ClangdSettings::rankingModelToDisplayString(model), int(model));
+        if (model == settings.completionRankingModel())
+            d->completionRankingModelComboBox.setCurrentIndex(
+                d->completionRankingModelComboBox.count() - 1);
+    }
+    d->completionRankingModelComboBox.setToolTip(completionRankingModelToolTip);
+
     d->autoIncludeHeadersCheckBox.setText(Tr::tr("Insert header files on completion"));
     d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
     d->autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
@@ -330,6 +354,13 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     limitResultsLayout->addWidget(&d->completionResults);
     limitResultsLayout->addStretch(1);
     formLayout->addRow(completionResultsLabel, limitResultsLayout);
+
+    const auto completionRankingModelLayout = new QHBoxLayout;
+    completionRankingModelLayout->addWidget(&d->completionRankingModelComboBox);
+    completionRankingModelLayout->addStretch(1);
+    const auto completionRankingModelLabel = new QLabel(Tr::tr("Completion ranking model:"));
+    completionRankingModelLabel->setToolTip(completionRankingModelToolTip);
+    formLayout->addRow(completionRankingModelLabel, completionRankingModelLayout);
 
     const auto documentUpdateThresholdLayout = new QHBoxLayout;
     documentUpdateThresholdLayout->addWidget(&d->documentUpdateThreshold);
@@ -467,6 +498,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
             labelSetter.setWarning(errorMessage);
     };
     connect(&d->clangdChooser, &Utils::PathChooser::textChanged, this, updateWarningLabel);
+    connect(&d->clangdChooser, &Utils::PathChooser::validChanged, this, updateWarningLabel);
     updateWarningLabel();
 
     connect(&d->useClangdCheckBox, &QCheckBox::toggled,
@@ -474,6 +506,8 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     connect(&d->indexingComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->headerSourceSwitchComboBox, &QComboBox::currentIndexChanged,
+            this, &ClangdSettingsWidget::settingsDataChanged);
+    connect(&d->completionRankingModelComboBox, &QComboBox::currentIndexChanged,
             this, &ClangdSettingsWidget::settingsDataChanged);
     connect(&d->autoIncludeHeadersCheckBox, &QCheckBox::toggled,
             this, &ClangdSettingsWidget::settingsDataChanged);
@@ -507,6 +541,8 @@ ClangdSettings::Data ClangdSettingsWidget::settingsData() const
         d->indexingComboBox.currentData().toInt());
     data.headerSourceSwitchMode = ClangdSettings::HeaderSourceSwitchMode(
         d->headerSourceSwitchComboBox.currentData().toInt());
+    data.completionRankingModel = ClangdSettings::CompletionRankingModel(
+        d->completionRankingModelComboBox.currentData().toInt());
     data.autoIncludeHeaders = d->autoIncludeHeadersCheckBox.isChecked();
     data.workerThreadLimit = d->threadLimitSpinBox.value();
     data.documentUpdateThreshold = d->documentUpdateThreshold.value();

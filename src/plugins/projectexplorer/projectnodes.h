@@ -142,7 +142,7 @@ public:
     virtual ContainerNode *asContainerNode() { return nullptr; }
     virtual const ContainerNode *asContainerNode() const { return nullptr; }
 
-    virtual QString buildKey() const { return QString(); }
+    virtual QString buildKey() const { return {}; }
 
     static bool sortByPath(const Node *a, const Node *b);
     void setParentFolderNode(FolderNode *parentFolder);
@@ -248,7 +248,7 @@ public:
                        const Utils::FilePath &overrideBaseDir = Utils::FilePath(),
                        const FolderNodeFactory &factory
                        = [](const Utils::FilePath &fn) { return std::make_unique<FolderNode>(fn); });
-    void compress();
+    virtual void compress();
 
     // takes ownership of newNode.
     // Will delete newNode if oldNode is not a child of this node.

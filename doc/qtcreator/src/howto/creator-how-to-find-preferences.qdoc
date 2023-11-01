@@ -1,0 +1,51 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-find-preferences.html
+    \if defined(qtcreator)
+    \previouspage creator-how-tos.html
+    \else
+    \previouspage creator-quick-tour.html
+    \endif
+
+    \ingroup creator-how-to-ui
+    \ingroup studio-how-to
+
+    \title Find preferences
+
+    \QC uses standard names and locations on Linux, \macos, and Windows for
+    standard features, such as \e preferences.
+
+    \table
+        \header
+            \li Linux and Windows
+            \li \macos
+        \row
+            \li \uicontrol Edit > \uicontrol Preferences
+            \li \uicontrol {\QC} > \uicontrol Preferences
+    \endtable
+
+    \section1 Sort preference categories
+
+    To sort the preference categories in alphabetic order, select the
+    \uicontrol {Sort categories} check box.
+
+    \image qtcreator-preferences-sort.webp {Preference categories in alphabetic order}
+
+    \section1 Filter preferences
+
+    To find a particular preference, use the filter located at the top left of
+    the \uicontrol Preferences dialog.
+
+    \image qtcreator-preferences.webp {Filtering preferences}
+
+    \section1 Go to tabs in Preferences
+
+    To go to a tab in the \uicontrol Preferences dialog from anywhere in \QC,
+    use the \c t \l{Searching with the Locator}{locator} filter. For example,
+    to open the \uicontrol Interface tab, enter \c {t preferences interface}
+    in the locator.
+
+    \image qtcreator-locator-filter-t.webp {Using the locator to open a tab in Preferences}
+*/

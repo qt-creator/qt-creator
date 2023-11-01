@@ -16,7 +16,6 @@
 #include <cplusplus/Overview.h>
 
 #include <utils/qtcassert.h>
-#include <utils/settingsutils.h>
 
 static const char indentBlockBracesKey[] = "IndentBlockBraces";
 static const char indentBlockBodyKey[] = "IndentBlockBody";
@@ -40,13 +39,15 @@ static const char extraPaddingForConditionsIfConfusingAlignKey[] = "ExtraPadding
 static const char alignAssignmentsKey[] = "AlignAssignments";
 static const char shortGetterNameKey[] = "ShortGetterName";
 
+using namespace Utils;
+
 namespace CppEditor {
 
 // ------------------ CppCodeStyleSettingsWidget
 
 CppCodeStyleSettings::CppCodeStyleSettings() = default;
 
-QVariantMap CppCodeStyleSettings::toMap() const
+Store CppCodeStyleSettings::toMap() const
 {
     return {
         {indentBlockBracesKey, indentBlockBraces},
@@ -73,7 +74,7 @@ QVariantMap CppCodeStyleSettings::toMap() const
     };
 }
 
-void CppCodeStyleSettings::fromMap(const QVariantMap &map)
+void CppCodeStyleSettings::fromMap(const Store &map)
 {
     indentBlockBraces = map.value(indentBlockBracesKey, indentBlockBraces).toBool();
     indentBlockBody = map.value(indentBlockBodyKey, indentBlockBody).toBool();
@@ -128,6 +129,9 @@ bool CppCodeStyleSettings::equals(const CppCodeStyleSettings &rhs) const
            && extraPaddingForConditionsIfConfusingAlign == rhs.extraPaddingForConditionsIfConfusingAlign
            && alignAssignments == rhs.alignAssignments
            && preferGetterNameWithoutGetPrefix == rhs.preferGetterNameWithoutGetPrefix
+#ifdef WITH_TESTS
+           && forceFormatting == rhs.forceFormatting
+#endif
            ;
 }
 
@@ -158,7 +162,7 @@ CppCodeStyleSettings CppCodeStyleSettings::currentProjectCodeStyle()
 
 CppCodeStyleSettings CppCodeStyleSettings::currentGlobalCodeStyle()
 {
-    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
     QTC_ASSERT(cppCodeStylePreferences, return CppCodeStyleSettings());
 
     return cppCodeStylePreferences->currentCodeStyleSettings();
@@ -185,8 +189,7 @@ TextEditor::TabSettings CppCodeStyleSettings::currentProjectTabSettings()
 
 TextEditor::TabSettings CppCodeStyleSettings::currentGlobalTabSettings()
 {
-    CppCodeStylePreferences *cppCodeStylePreferences
-            = CppToolsSettings::instance()->cppCodeStyle();
+    CppCodeStylePreferences *cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
     QTC_ASSERT(cppCodeStylePreferences, return TextEditor::TabSettings());
 
     return cppCodeStylePreferences->currentTabSettings();

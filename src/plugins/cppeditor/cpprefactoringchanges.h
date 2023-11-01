@@ -12,6 +12,8 @@
 
 #include <texteditor/refactoringchanges.h>
 
+#include <optional>
+
 namespace CppEditor {
 
 class CppRefactoringChanges;
@@ -44,6 +46,8 @@ public:
 
     void startAndEndOf(unsigned index, int *start, int *end) const;
 
+    QList<CPlusPlus::Token> tokensForCursor() const;
+
     using TextEditor::RefactoringFile::textOf;
     QString textOf(const CPlusPlus::AST *ast) const;
 
@@ -54,6 +58,9 @@ protected:
 
     CppRefactoringChangesData *data() const;
     void fileChanged() override;
+
+    int tokenIndexForPosition(const std::vector<CPlusPlus::Token> &tokens, int pos,
+                              int startIndex) const;
 
     mutable CPlusPlus::Document::Ptr m_cppDocument;
 
@@ -76,7 +83,6 @@ public:
     void fileChanged(const Utils::FilePath &filePath) override;
 
     CPlusPlus::Snapshot m_snapshot;
-    CppModelManager *m_modelManager;
     WorkingCopy m_workingCopy;
 };
 

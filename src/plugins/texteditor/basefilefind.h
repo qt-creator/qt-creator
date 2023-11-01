@@ -18,10 +18,7 @@ class IEditor;
 class SearchResult;
 } // namespace Core
 
-namespace Utils {
-class FileIterator;
-class Process;
-}
+namespace Utils { class Process; }
 
 namespace TextEditor {
 
@@ -30,16 +27,24 @@ class BaseFileFindPrivate;
 class SearchEnginePrivate;
 } // Internal
 
+class FileFindParameters;
+
+using FileContainerProvider = std::function<Utils::FileContainer()>;
+using EditorOpener = std::function<Core::IEditor *(const Utils::SearchResultItem &,
+                                                   const FileFindParameters &)>;
+using SearchExecutor = std::function<QFuture<Utils::SearchResultItems>(const FileFindParameters &)>;
+
 class TEXTEDITOR_EXPORT FileFindParameters
 {
 public:
     QString text;
     QStringList nameFilters;
     QStringList exclusionFilters;
-    QVariant additionalParameters;
-    QVariant searchEngineParameters;
-    int searchEngineIndex;
-    Core::FindFlags flags;
+    Utils::FilePath searchDir;
+    Utils::FindFlags flags;
+    FileContainerProvider fileContainerProvider = {};
+    EditorOpener editorOpener = {};
+    SearchExecutor searchExecutor = {};
 };
 
 using ProcessSetupHandler = std::function<void(Utils::Process &)>;
@@ -64,13 +69,10 @@ public:
     virtual QString title() const = 0;
     virtual QString toolTip() const = 0; // add %1 placeholder where the find flags should be put
     virtual QWidget *widget() const = 0;
-    virtual QVariant parameters() const = 0;
-    virtual void readSettings(QSettings *settings) = 0;
-    virtual void writeSettings(QSettings *settings) const = 0;
-    virtual QFuture<Utils::SearchResultItems> executeSearch(
-            const FileFindParameters &parameters, BaseFileFind *baseFileFind) = 0;
-    virtual Core::IEditor *openEditor(const Utils::SearchResultItem &item,
-                                      const FileFindParameters &parameters) = 0;
+    virtual void readSettings(Utils::QtcSettings *settings) = 0;
+    virtual void writeSettings(Utils::QtcSettings *settings) const = 0;
+    virtual SearchExecutor searchExecutor() const = 0;
+    virtual EditorOpener editorOpener() const { return {}; }
     bool isEnabled() const;
     void setEnabled(bool enabled);
 
@@ -91,27 +93,23 @@ public:
 
     bool isEnabled() const override;
     bool isReplaceSupported() const override { return true; }
-    void findAll(const QString &txt, Core::FindFlags findFlags) override;
-    void replaceAll(const QString &txt, Core::FindFlags findFlags) override;
+    void findAll(const QString &txt, Utils::FindFlags findFlags) override;
+    void replaceAll(const QString &txt, Utils::FindFlags findFlags) override;
     void addSearchEngine(SearchEngine *searchEngine);
 
     /* returns the list of unique files that were passed in items */
     static Utils::FilePaths replaceAll(const QString &txt, const Utils::SearchResultItems &items,
                                        bool preserveCase = false);
-    virtual Utils::FileIterator *files(const QStringList &nameFilters,
-                                       const QStringList &exclusionFilters,
-                                       const QVariant &additionalParameters) const = 0;
 
 protected:
-    virtual QVariant additionalParameters() const = 0;
-    static QVariant getAdditionalParameters(Core::SearchResult *search);
+    void setSearchDir(const Utils::FilePath &dir);
+    Utils::FilePath searchDir() const;
     virtual QString label() const = 0; // see Core::SearchResultWindow::startNewSearch
     virtual QString toolTip() const = 0; // see Core::SearchResultWindow::startNewSearch,
                                          // add %1 placeholder where the find flags should be put
-    QFuture<Utils::SearchResultItems> executeSearch(const FileFindParameters &parameters);
 
-    void writeCommonSettings(QSettings *settings);
-    void readCommonSettings(QSettings *settings, const QString &defaultFilter, const QString &defaultExclusionFilter);
+    void writeCommonSettings(Utils::QtcSettings *settings);
+    void readCommonSettings(Utils::QtcSettings *settings, const QString &defaultFilter, const QString &defaultExclusionFilter);
     QList<QPair<QWidget *, QWidget *>> createPatternWidgets();
     QStringList fileNameFilters() const;
     QStringList fileExclusionFilters() const;
@@ -123,15 +121,17 @@ protected:
 
 signals:
     void currentSearchEngineChanged();
+    void searchDirChanged(const Utils::FilePath &dir);
 
 private:
+    virtual FileContainerProvider fileContainerProvider() const = 0;
     void openEditor(Core::SearchResult *result, const Utils::SearchResultItem &item);
     void doReplace(const QString &txt, const Utils::SearchResultItems &items, bool preserveCase);
     void hideHighlightAll(bool visible);
     void searchAgain(Core::SearchResult *search);
-    virtual void recheckEnabled(Core::SearchResult *search);
+    virtual void setupSearch(Core::SearchResult *search);
 
-    void runNewSearch(const QString &txt, Core::FindFlags findFlags,
+    void runNewSearch(const QString &txt, Utils::FindFlags findFlags,
                       Core::SearchResultWindow::SearchMode searchMode);
     void runSearch(Core::SearchResult *search);
 

@@ -292,7 +292,7 @@ InsertionLocation InsertionPointLocator::methodDeclarationInClass(const Translat
 
     int line = 0, column = 0;
     if (pos == InsertionPointLocator::AccessSpecEnd)
-        tu->getTokenStartPosition(beforeToken, &line, &column);
+        tu->getTokenPosition(beforeToken, &line, &column);
     else
         tu->getTokenEndPosition(beforeToken, &line, &column);
 
@@ -436,7 +436,7 @@ public:
         }
 
         if (lastToken == _bestToken.get()) // No matching namespace found
-            translationUnit()->getTokenStartPosition(lastToken, line, column);
+            translationUnit()->getTokenPosition(lastToken, line, column);
         else // Insert at end of matching namespace
             translationUnit()->getTokenEndPosition(_bestToken.get(), line, column);
     }
@@ -497,7 +497,7 @@ protected:
         if (_result)
             return false;
         int line, column;
-        translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
+        translationUnit()->getTokenPosition(ast->firstToken(), &line, &column);
         if (line > _line || (line == _line && column > _column))
             return false;
         translationUnit()->getTokenEndPosition(ast->lastToken() - 1, &line, &column);
@@ -608,12 +608,12 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
         if (!functionDefinition)
             return noResult;
 
-        targetFile->cppDocument()->translationUnit()->getTokenStartPosition(functionDefinition->firstToken(), &line, &column);
+        targetFile->cppDocument()->translationUnit()->getTokenPosition(functionDefinition->firstToken(), &line, &column);
         const QList<AST *> path = ASTPath(targetFile->cppDocument())(line, column);
         for (auto it = path.rbegin(); it != path.rend(); ++it) {
             if (const auto templateDecl = (*it)->asTemplateDeclaration()) {
                 if (templateDecl->declaration == functionDefinition) {
-                    targetFile->cppDocument()->translationUnit()->getTokenStartPosition(
+                    targetFile->cppDocument()->translationUnit()->getTokenPosition(
                                 templateDecl->firstToken(), &line, &column);
                 }
                 break;
@@ -779,7 +779,7 @@ InsertionLocation insertLocationForMethodDefinition(Symbol *symbol,
     int lastLine;
     if (hasIncludeGuard) {
         const TranslationUnit * const tu = file->cppDocument()->translationUnit();
-        tu->getTokenStartPosition(tu->ast()->lastToken(), &lastLine);
+        tu->getTokenPosition(tu->ast()->lastToken(), &lastLine);
     }
     int i = 0;
     for ( ; i < list.count(); ++i) {

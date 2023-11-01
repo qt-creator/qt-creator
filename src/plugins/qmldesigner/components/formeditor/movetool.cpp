@@ -355,9 +355,8 @@ QList<FormEditorItem*> MoveTool::movingItems(const QList<FormEditorItem*> &selec
 
     if (ancestorItem != nullptr && ancestorItem->qmlItemNode().isRootNode()) {
 //        view()->changeToSelectionTool();
-        return QList<FormEditorItem*>();
+        return {};
     }
-
 
     if (ancestorItem != nullptr && ancestorItem->parentItem() != nullptr)  {
         QList<FormEditorItem*> ancestorItemList;
@@ -367,7 +366,7 @@ QList<FormEditorItem*> MoveTool::movingItems(const QList<FormEditorItem*> &selec
 
     if (!haveSameParent(filteredItemList)) {
 //        view()->changeToSelectionTool();
-        return QList<FormEditorItem*>();
+        return {};
     }
 
     return filteredItemList;

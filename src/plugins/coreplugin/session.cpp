@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "session.h"
-#include "session_p.h"
 
 #include "sessiondialog.h"
 
@@ -18,17 +17,20 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
-#include <texteditor/texteditor.h>
-
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/macroexpander.h>
+#include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
+#include <utils/store.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QAction>
 #include <QActionGroup>
+#include <QFutureInterface>
 #include <QDebug>
 #include <QMenu>
 #include <QMessageBox>
@@ -67,23 +69,64 @@ const char M_SESSION[] = "ProjectExplorer.Menu.Session";
      This could be improved.
 */
 
+class SessionManagerPrivate
+{
+public:
+    void restoreStartupSession();
+
+    void restoreValues(const PersistentSettingsReader &reader);
+    void restoreSessionValues(const PersistentSettingsReader &reader);
+    void restoreEditors();
+
+    void saveSettings();
+    void restoreSettings();
+    bool isAutoRestoreLastSession();
+    void setAutoRestoreLastSession(bool restore);
+
+    void updateSessionMenu();
+
+    static QString windowTitleAddition(const FilePath &filePath);
+    static QString sessionTitle(const FilePath &filePath);
+
+    QString m_sessionName = "default";
+    bool m_isAutoRestoreLastSession = false;
+    bool m_virginSession = true;
+    bool m_loadingSession = false;
+
+    mutable QStringList m_sessions;
+    mutable QHash<QString, QDateTime> m_sessionDateTimes;
+    QHash<QString, QDateTime> m_lastActiveTimes;
+
+    QMap<Utils::Key, QVariant> m_values;
+    QMap<Utils::Key, QVariant> m_sessionValues;
+    QFutureInterface<void> m_future;
+    PersistentSettingsWriter *m_writer = nullptr;
+
+    QMenu *m_sessionMenu;
+    QAction *m_sessionManagerAction;
+};
+
 static SessionManager *m_instance = nullptr;
-SessionManagerPrivate *sb_d = nullptr;
+static SessionManagerPrivate *d = nullptr;
 
 SessionManager::SessionManager()
 {
     m_instance = this;
-    sb_d = new SessionManagerPrivate;
+    d = new SessionManagerPrivate;
 
-    connect(ICore::instance(), &ICore::coreOpened, this, [] { sb_d->restoreStartupSession(); });
+    connect(PluginManager::instance(), &PluginManager::initializationDone, this, [] {
+        d->restoreStartupSession();
+    });
 
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged,
-            this, &SessionManager::saveActiveMode);
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged, [](Id mode) {
+        if (mode != Core::Constants::MODE_WELCOME)
+            setValue("ActiveMode", mode.toString());
+    });
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, [] {
         if (!SessionManager::isLoadingSession())
             SessionManager::saveSession();
-        sb_d->saveSettings();
+        d->saveSettings();
     });
 
     connect(EditorManager::instance(), &EditorManager::editorOpened,
@@ -101,17 +144,17 @@ SessionManager::SessionManager()
     msession->menu()->setTitle(PE::Tr::tr("S&essions"));
     msession->setOnAllDisabledBehavior(ActionContainer::Show);
     mfile->addMenu(msession, Core::Constants::G_FILE_SESSION);
-    sb_d->m_sessionMenu = msession->menu();
-    connect(mfile->menu(), &QMenu::aboutToShow, this, [] { sb_d->updateSessionMenu(); });
+    d->m_sessionMenu = msession->menu();
+    connect(mfile->menu(), &QMenu::aboutToShow, this, [] { d->updateSessionMenu(); });
 
     // session manager action
-    sb_d->m_sessionManagerAction = new QAction(PE::Tr::tr("&Manage..."), this);
-    sb_d->m_sessionMenu->addAction(sb_d->m_sessionManagerAction);
-    sb_d->m_sessionMenu->addSeparator();
-    Command *cmd = ActionManager::registerAction(sb_d->m_sessionManagerAction,
+    d->m_sessionManagerAction = new QAction(PE::Tr::tr("&Manage..."), this);
+    d->m_sessionMenu->addAction(d->m_sessionManagerAction);
+    d->m_sessionMenu->addSeparator();
+    Command *cmd = ActionManager::registerAction(d->m_sessionManagerAction,
                                                  "ProjectExplorer.ManageSessions");
     cmd->setDefaultKeySequence(QKeySequence());
-    connect(sb_d->m_sessionManagerAction,
+    connect(d->m_sessionManagerAction,
             &QAction::triggered,
             SessionManager::instance(),
             &SessionManager::showSessionManager);
@@ -127,15 +170,15 @@ SessionManager::SessionManager()
         return SessionManager::activeSession();
     });
 
-    sb_d->restoreSettings();
+    d->restoreSettings();
 }
 
 SessionManager::~SessionManager()
 {
-    emit m_instance->aboutToUnloadSession(sb_d->m_sessionName);
-    delete sb_d->m_writer;
-    delete sb_d;
-    sb_d = nullptr;
+    emit m_instance->aboutToUnloadSession(d->m_sessionName);
+    delete d->m_writer;
+    delete d;
+    d = nullptr;
 }
 
 SessionManager *SessionManager::instance()
@@ -145,7 +188,7 @@ SessionManager *SessionManager::instance()
 
 bool SessionManager::isDefaultVirgin()
 {
-    return isDefaultSession(sb_d->m_sessionName) && sb_d->m_virginSession;
+    return isDefaultSession(d->m_sessionName) && d->m_virginSession;
 }
 
 bool SessionManager::isDefaultSession(const QString &session)
@@ -153,15 +196,9 @@ bool SessionManager::isDefaultSession(const QString &session)
     return session == QLatin1String(DEFAULT_SESSION);
 }
 
-void SessionManager::saveActiveMode(Id mode)
-{
-    if (mode != Core::Constants::MODE_WELCOME)
-        setValue(QLatin1String("ActiveMode"), mode.toString());
-}
-
 bool SessionManager::isLoadingSession()
 {
-    return sb_d->m_loadingSession;
+    return d->m_loadingSession;
 }
 
 /*!
@@ -169,65 +206,65 @@ bool SessionManager::isLoadingSession()
     within the session file.
 */
 
-void SessionManager::setValue(const QString &name, const QVariant &value)
+void SessionManager::setValue(const Key &name, const QVariant &value)
 {
-    if (sb_d->m_values.value(name) == value)
+    if (d->m_values.value(name) == value)
         return;
-    sb_d->m_values.insert(name, value);
+    d->m_values.insert(name, value);
 }
 
-QVariant SessionManager::value(const QString &name)
+QVariant SessionManager::value(const Key &name)
 {
-    auto it = sb_d->m_values.constFind(name);
-    return (it == sb_d->m_values.constEnd()) ? QVariant() : *it;
+    auto it = d->m_values.constFind(name);
+    return (it == d->m_values.constEnd()) ? QVariant() : *it;
 }
 
-void SessionManager::setSessionValue(const QString &name, const QVariant &value)
+void SessionManager::setSessionValue(const Key &name, const QVariant &value)
 {
-    sb_d->m_sessionValues.insert(name, value);
+    d->m_sessionValues.insert(name, value);
 }
 
-QVariant SessionManager::sessionValue(const QString &name, const QVariant &defaultValue)
+QVariant SessionManager::sessionValue(const Key &name, const QVariant &defaultValue)
 {
-    auto it = sb_d->m_sessionValues.constFind(name);
-    return (it == sb_d->m_sessionValues.constEnd()) ? defaultValue : *it;
+    auto it = d->m_sessionValues.constFind(name);
+    return (it == d->m_sessionValues.constEnd()) ? defaultValue : *it;
 }
 
 QString SessionManager::activeSession()
 {
-    return sb_d->m_sessionName;
+    return d->m_sessionName;
 }
 
 QStringList SessionManager::sessions()
 {
-    if (sb_d->m_sessions.isEmpty()) {
+    if (d->m_sessions.isEmpty()) {
         // We are not initialized yet, so do that now
         const FilePaths sessionFiles =
                 ICore::userResourcePath().dirEntries({{"*qws"}}, QDir::Time | QDir::Reversed);
         const QVariantMap lastActiveTimes = ICore::settings()->value(LAST_ACTIVE_TIMES_KEY).toMap();
         for (const FilePath &file : sessionFiles) {
             const QString &name = file.completeBaseName();
-            sb_d->m_sessionDateTimes.insert(name, file.lastModified());
+            d->m_sessionDateTimes.insert(name, file.lastModified());
             const auto lastActiveTime = lastActiveTimes.find(name);
-            sb_d->m_lastActiveTimes.insert(name, lastActiveTime != lastActiveTimes.end()
+            d->m_lastActiveTimes.insert(name, lastActiveTime != lastActiveTimes.end()
                     ? lastActiveTime->toDateTime()
                     : file.lastModified());
             if (name != QLatin1String(DEFAULT_SESSION))
-                sb_d->m_sessions << name;
+                d->m_sessions << name;
         }
-        sb_d->m_sessions.prepend(QLatin1String(DEFAULT_SESSION));
+        d->m_sessions.prepend(QLatin1String(DEFAULT_SESSION));
     }
-    return sb_d->m_sessions;
+    return d->m_sessions;
 }
 
 QDateTime SessionManager::sessionDateTime(const QString &session)
 {
-    return sb_d->m_sessionDateTimes.value(session);
+    return d->m_sessionDateTimes.value(session);
 }
 
 QDateTime SessionManager::lastActiveTime(const QString &session)
 {
-    return sb_d->m_lastActiveTimes.value(session);
+    return d->m_lastActiveTimes.value(session);
 }
 
 FilePath SessionManager::sessionNameToFileName(const QString &session)
@@ -246,9 +283,9 @@ bool SessionManager::createSession(const QString &session)
 {
     if (sessions().contains(session))
         return false;
-    Q_ASSERT(sb_d->m_sessions.size() > 0);
-    sb_d->m_sessions.insert(1, session);
-    sb_d->m_lastActiveTimes.insert(session, QDateTime::currentDateTime());
+    Q_ASSERT(d->m_sessions.size() > 0);
+    d->m_sessions.insert(1, session);
+    d->m_lastActiveTimes.insert(session, QDateTime::currentDateTime());
     emit instance()->sessionCreated(session);
     return true;
 }
@@ -267,9 +304,9 @@ void SessionManager::showSessionManager()
 {
     saveSession();
     Internal::SessionDialog sessionDialog(ICore::dialogParent());
-    sessionDialog.setAutoLoadSession(sb_d->isAutoRestoreLastSession());
+    sessionDialog.setAutoLoadSession(d->isAutoRestoreLastSession());
     sessionDialog.exec();
-    sb_d->setAutoRestoreLastSession(sessionDialog.autoLoadSession());
+    d->setAutoRestoreLastSession(sessionDialog.autoLoadSession());
 }
 
 /*!
@@ -299,10 +336,10 @@ bool SessionManager::confirmSessionDelete(const QStringList &sessions)
 */
 bool SessionManager::deleteSession(const QString &session)
 {
-    if (!sb_d->m_sessions.contains(session))
+    if (!d->m_sessions.contains(session))
         return false;
-    sb_d->m_sessions.removeOne(session);
-    sb_d->m_lastActiveTimes.remove(session);
+    d->m_sessions.removeOne(session);
+    d->m_lastActiveTimes.remove(session);
     emit instance()->sessionRemoved(session);
     FilePath sessionFile = sessionNameToFileName(session);
     if (sessionFile.exists())
@@ -318,14 +355,14 @@ void SessionManager::deleteSessions(const QStringList &sessions)
 
 bool SessionManager::cloneSession(const QString &original, const QString &clone)
 {
-    if (!sb_d->m_sessions.contains(original))
+    if (!d->m_sessions.contains(original))
         return false;
 
     FilePath sessionFile = sessionNameToFileName(original);
     // If the file does not exist, we can still clone
     if (!sessionFile.exists() || sessionFile.copyFile(sessionNameToFileName(clone))) {
-        sb_d->m_sessions.insert(1, clone);
-        sb_d->m_sessionDateTimes.insert(clone, sessionNameToFileName(clone).lastModified());
+        d->m_sessions.insert(1, clone);
+        d->m_sessionDateTimes.insert(clone, sessionNameToFileName(clone).lastModified());
         emit instance()->sessionCreated(clone);
 
         return true;
@@ -353,14 +390,14 @@ static QString determineSessionToRestoreAtStartup()
         }
     }
     // Handle settings only after command line arguments:
-    if (sb_d->m_isAutoRestoreLastSession)
+    if (d->m_isAutoRestoreLastSession)
         return SessionManager::startupSession();
     return {};
 }
 
 void SessionManagerPrivate::restoreStartupSession()
 {
-    m_isStartupSessionRestored = true;
+    NANOTRACE_SCOPE("Core", "SessionManagerPrivate::restoreStartupSession");
     QString sessionToRestoreAtStartup = determineSessionToRestoreAtStartup();
     if (!sessionToRestoreAtStartup.isEmpty())
         ModeManager::activateMode(Core::Constants::MODE_EDIT);
@@ -406,20 +443,17 @@ void SessionManagerPrivate::restoreStartupSession()
                                                                      : QString(),
                                 true);
 
-    // delay opening projects from the command line even more
-    QTimer::singleShot(0, m_instance, [arguments] {
-        ICore::openFiles(Utils::transform(arguments, &FilePath::fromUserInput),
-                         ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers
-                                               | ICore::SwitchMode));
-        emit m_instance->startupSessionRestored();
-    });
+    ICore::openFiles(Utils::transform(arguments, &FilePath::fromUserInput),
+                     ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers
+                                           | ICore::SwitchMode));
+    emit m_instance->startupSessionRestored();
 }
 
 void SessionManagerPrivate::saveSettings()
 {
     QtcSettings *s = ICore::settings();
     QVariantMap times;
-    for (auto it = sb_d->m_lastActiveTimes.cbegin(); it != sb_d->m_lastActiveTimes.cend(); ++it)
+    for (auto it = d->m_lastActiveTimes.cbegin(); it != d->m_lastActiveTimes.cend(); ++it)
         times.insert(it.key(), it.value());
     s->setValue(LAST_ACTIVE_TIMES_KEY, times);
     if (SessionManager::isDefaultVirgin()) {
@@ -429,13 +463,13 @@ void SessionManagerPrivate::saveSettings()
         s->setValue(LASTSESSION_KEY, SessionManager::activeSession());
     }
     s->setValueWithDefault(AUTO_RESTORE_SESSION_SETTINGS_KEY,
-                           sb_d->m_isAutoRestoreLastSession,
+                           d->m_isAutoRestoreLastSession,
                            kIsAutoRestoreLastSessionDefault);
 }
 
 void SessionManagerPrivate::restoreSettings()
 {
-    sb_d->m_isAutoRestoreLastSession = ICore::settings()
+    d->m_isAutoRestoreLastSession = ICore::settings()
                                            ->value(AUTO_RESTORE_SESSION_SETTINGS_KEY,
                                                    kIsAutoRestoreLastSessionDefault)
                                            .toBool();
@@ -443,12 +477,12 @@ void SessionManagerPrivate::restoreSettings()
 
 bool SessionManagerPrivate::isAutoRestoreLastSession()
 {
-    return sb_d->m_isAutoRestoreLastSession;
+    return d->m_isAutoRestoreLastSession;
 }
 
 void SessionManagerPrivate::setAutoRestoreLastSession(bool restore)
 {
-    sb_d->m_isAutoRestoreLastSession = restore;
+    d->m_isAutoRestoreLastSession = restore;
 }
 
 void SessionManagerPrivate::updateSessionMenu()
@@ -488,20 +522,20 @@ void SessionManagerPrivate::updateSessionMenu()
 
 void SessionManagerPrivate::restoreValues(const PersistentSettingsReader &reader)
 {
-    const QStringList keys = reader.restoreValue(QLatin1String("valueKeys")).toStringList();
-    for (const QString &key : keys) {
-        QVariant value = reader.restoreValue(QLatin1String("value-") + key);
+    const KeyList keys = keysFromStrings(reader.restoreValue("valueKeys").toStringList());
+    for (const Key &key : keys) {
+        QVariant value = reader.restoreValue("value-" + key);
         m_values.insert(key, value);
     }
 }
 
 void SessionManagerPrivate::restoreSessionValues(const PersistentSettingsReader &reader)
 {
-    const QVariantMap values = reader.restoreValues();
+    const Store values = reader.restoreValues();
     // restore toplevel items that are not restored by restoreValues
     const auto end = values.constEnd();
     for (auto it = values.constBegin(); it != end; ++it) {
-        if (it.key() == "valueKeys" || it.key().startsWith("value-"))
+        if (it.key() == "valueKeys" || it.key().view().startsWith("value-"))
             continue;
         m_sessionValues.insert(it.key(), it.value());
     }
@@ -534,18 +568,18 @@ QString SessionManager::startupSession()
 
 void SessionManager::markSessionFileDirty()
 {
-    sb_d->m_virginSession = false;
+    d->m_virginSession = false;
 }
 
 void SessionManager::sessionLoadingProgress()
 {
-    sb_d->m_future.setProgressValue(sb_d->m_future.progressValue() + 1);
+    d->m_future.setProgressValue(d->m_future.progressValue() + 1);
     QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 }
 
 void SessionManager::addSessionLoadingSteps(int steps)
 {
-    sb_d->m_future.setProgressRange(0, sb_d->m_future.progressMaximum() + steps);
+    d->m_future.setProgressRange(0, d->m_future.progressMaximum() + steps);
 }
 
 /*
@@ -577,13 +611,13 @@ bool SessionManager::loadSession(const QString &session, bool initial)
 {
     const bool loadImplicitDefault = session.isEmpty();
     const bool switchFromImplicitToExplicitDefault = session == DEFAULT_SESSION
-                                                     && sb_d->m_sessionName == DEFAULT_SESSION
+                                                     && d->m_sessionName == DEFAULT_SESSION
                                                      && !initial;
 
     // Do nothing if we have that session already loaded,
     // exception if the session is the default virgin session
     // we still want to be able to load the default session
-    if (session == sb_d->m_sessionName && !SessionManager::isDefaultVirgin())
+    if (session == d->m_sessionName && !SessionManager::isDefaultVirgin())
         return true;
 
     if (!loadImplicitDefault && !SessionManager::sessions().contains(session))
@@ -604,7 +638,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
         }
 
         if (loadImplicitDefault) {
-            sb_d->restoreValues(reader);
+            d->restoreValues(reader);
             emit SessionManager::instance()->sessionLoaded(DEFAULT_SESSION);
             return true;
         }
@@ -613,44 +647,44 @@ bool SessionManager::loadSession(const QString &session, bool initial)
         return true;
     }
 
-    sb_d->m_loadingSession = true;
+    d->m_loadingSession = true;
 
     // Allow everyone to set something in the session and before saving
-    emit SessionManager::instance()->aboutToUnloadSession(sb_d->m_sessionName);
+    emit SessionManager::instance()->aboutToUnloadSession(d->m_sessionName);
 
     if (!saveSession()) {
-        sb_d->m_loadingSession = false;
+        d->m_loadingSession = false;
         return false;
     }
 
     // Clean up
     if (!EditorManager::closeAllEditors()) {
-        sb_d->m_loadingSession = false;
+        d->m_loadingSession = false;
         return false;
     }
 
     if (!switchFromImplicitToExplicitDefault)
-        sb_d->m_values.clear();
-    sb_d->m_sessionValues.clear();
+        d->m_values.clear();
+    d->m_sessionValues.clear();
 
-    sb_d->m_sessionName = session;
-    delete sb_d->m_writer;
-    sb_d->m_writer = nullptr;
+    d->m_sessionName = session;
+    delete d->m_writer;
+    d->m_writer = nullptr;
     EditorManager::updateWindowTitles();
 
-    sb_d->m_virginSession = false;
+    d->m_virginSession = false;
 
-    ProgressManager::addTask(sb_d->m_future.future(),
+    ProgressManager::addTask(d->m_future.future(),
                              PE::Tr::tr("Loading Session"),
                              "ProjectExplorer.SessionFile.Load");
 
-    sb_d->m_future.setProgressRange(0, 1 /*initialization*/ + 1 /*editors*/);
-    sb_d->m_future.setProgressValue(0);
+    d->m_future.setProgressRange(0, 1 /*initialization*/ + 1 /*editors*/);
+    d->m_future.setProgressValue(0);
 
     if (fileName.exists()) {
         if (!switchFromImplicitToExplicitDefault)
-            sb_d->restoreValues(reader);
-        sb_d->restoreSessionValues(reader);
+            d->restoreValues(reader);
+        d->restoreSessionValues(reader);
     }
 
     QColor c = QColor(SessionManager::sessionValue("Color").toString());
@@ -659,19 +693,19 @@ bool SessionManager::loadSession(const QString &session, bool initial)
 
     SessionManager::sessionLoadingProgress();
 
-    sb_d->restoreEditors();
+    d->restoreEditors();
 
     // let other code restore the session
     emit SessionManager::instance()->aboutToLoadSession(session);
 
-    sb_d->m_future.reportFinished();
-    sb_d->m_future = QFutureInterface<void>();
+    d->m_future.reportFinished();
+    d->m_future = QFutureInterface<void>();
 
-    sb_d->m_lastActiveTimes.insert(session, QDateTime::currentDateTime());
+    d->m_lastActiveTimes.insert(session, QDateTime::currentDateTime());
 
     emit SessionManager::instance()->sessionLoaded(session);
 
-    sb_d->m_loadingSession = false;
+    d->m_loadingSession = false;
     return true;
 }
 
@@ -679,8 +713,8 @@ bool SessionManager::saveSession()
 {
     emit SessionManager::instance()->aboutToSaveSession();
 
-    const FilePath filePath = SessionManager::sessionNameToFileName(sb_d->m_sessionName);
-    QVariantMap data;
+    const FilePath filePath = SessionManager::sessionNameToFileName(d->m_sessionName);
+    Store data;
 
     // See the explanation at loadSession() for how we handle the implicit default session.
     if (SessionManager::isDefaultVirgin()) {
@@ -706,41 +740,36 @@ bool SessionManager::saveSession()
         }
         setSessionValue("EditorSettings", EditorManager::saveState().toBase64());
 
-        const auto end = sb_d->m_sessionValues.constEnd();
-        for (auto it = sb_d->m_sessionValues.constBegin(); it != end; ++it)
+        const auto end = d->m_sessionValues.constEnd();
+        for (auto it = d->m_sessionValues.constBegin(); it != end; ++it)
             data.insert(it.key(), it.value());
     }
 
-    const auto end = sb_d->m_values.constEnd();
-    QStringList keys;
-    for (auto it = sb_d->m_values.constBegin(); it != end; ++it) {
+    const auto end = d->m_values.constEnd();
+    KeyList keys;
+    for (auto it = d->m_values.constBegin(); it != end; ++it) {
         data.insert("value-" + it.key(), it.value());
         keys << it.key();
     }
-    data.insert("valueKeys", keys);
+    data.insert("valueKeys", stringsFromKeys(keys));
 
-    if (!sb_d->m_writer || sb_d->m_writer->fileName() != filePath) {
-        delete sb_d->m_writer;
-        sb_d->m_writer = new PersistentSettingsWriter(filePath, "QtCreatorSession");
+    if (!d->m_writer || d->m_writer->fileName() != filePath) {
+        delete d->m_writer;
+        d->m_writer = new PersistentSettingsWriter(filePath, "QtCreatorSession");
     }
-    const bool result = sb_d->m_writer->save(data, ICore::dialogParent());
+    const bool result = d->m_writer->save(data, ICore::dialogParent());
     if (result) {
         if (!SessionManager::isDefaultVirgin())
-            sb_d->m_sessionDateTimes.insert(SessionManager::activeSession(),
+            d->m_sessionDateTimes.insert(SessionManager::activeSession(),
                                             QDateTime::currentDateTime());
     } else {
         QMessageBox::warning(ICore::dialogParent(),
                              PE::Tr::tr("Error while saving session"),
                              PE::Tr::tr("Could not save session to file \"%1\"")
-                                 .arg(sb_d->m_writer->fileName().toUserOutput()));
+                                 .arg(d->m_writer->fileName().toUserOutput()));
     }
 
     return result;
-}
-
-bool SessionManager::isStartupSessionRestored()
-{
-    return sb_d->m_isStartupSessionRestored;
 }
 
 } // namespace Core

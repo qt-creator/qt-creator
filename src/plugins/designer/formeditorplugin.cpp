@@ -52,6 +52,7 @@ public:
     FormEditorFactory formEditorFactory;
     SettingsPageProvider settingsPageProvider;
     QtDesignerFormClassCodeGenerator formClassCodeGenerator;
+    FormPageFactory formPageFactory;
 };
 
 FormEditorPlugin::~FormEditorPlugin()
@@ -60,7 +61,27 @@ FormEditorPlugin::~FormEditorPlugin()
     delete d;
 }
 
-void FormEditorPlugin::initialize()
+static void parseArguments(const QStringList &arguments)
+{
+    const auto doWithNext = [arguments](auto it, const std::function<void(QString)> &fun) {
+        ++it;
+        if (it != arguments.cend())
+            fun(*it);
+    };
+    for (auto it = arguments.cbegin(); it != arguments.cend(); ++it) {
+        if (*it == "-designer-qt-pluginpath")
+            doWithNext(it, [](const QString &path) { setQtPluginPath(path); });
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+        // -designer-pluginpath is only supported when building with Qt >= 6.7.0, which added the
+        // required API
+        else if (*it == "-designer-pluginpath")
+            doWithNext(it, [](const QString &path) { addPluginPath(path); });
+#endif
+    }
+}
+
+bool FormEditorPlugin::initialize([[maybe_unused]] const QStringList &arguments,
+                                  [[maybe_unused]] QString *errorString)
 {
     d = new FormEditorPluginPrivate;
 
@@ -79,8 +100,6 @@ void FormEditorPlugin::initialize()
     });
 #endif
 
-    ProjectExplorer::JsonWizardFactory::registerPageFactory(new Internal::FormPageFactory);
-
     // Ensure that loading designer translations is done before FormEditorW is instantiated
     const QString locale = ICore::userInterfaceLanguage();
     if (!locale.isEmpty()) {
@@ -91,6 +110,9 @@ void FormEditorPlugin::initialize()
         if (qtr->load(trFile, qtTrPath) || qtr->load(trFile, creatorTrPath))
             QCoreApplication::installTranslator(qtr);
     }
+
+    parseArguments(arguments);
+    return true;
 }
 
 void FormEditorPlugin::extensionsInitialized()

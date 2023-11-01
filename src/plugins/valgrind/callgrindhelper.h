@@ -10,8 +10,7 @@ class QColor;
 class QString;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 namespace CallgrindHelper
 {
@@ -32,5 +31,4 @@ namespace CallgrindHelper
     QString toPercent(float costs, const QLocale &locale = QLocale());
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

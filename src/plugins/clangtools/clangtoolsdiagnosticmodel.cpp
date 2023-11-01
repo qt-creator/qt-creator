@@ -64,7 +64,7 @@ private:
 
 ClangToolsDiagnosticModel::ClangToolsDiagnosticModel(QObject *parent)
     : ClangToolsDiagnosticModelBase(parent)
-    , m_filesWatcher(std::make_unique<QFileSystemWatcher>())
+    , m_filesWatcher(std::make_unique<Utils::FileSystemWatcher>())
 {
     setRootItem(new Utils::StaticTreeItem(QString()));
     connectFileWatcher();
@@ -104,7 +104,7 @@ void ClangToolsDiagnosticModel::addDiagnostics(const Diagnostics &diagnostics, b
         if (!filePathItem) {
             filePathItem = new FilePathItem(filePath);
             rootItem()->appendChild(filePathItem);
-            addWatchedPath(filePath.toString());
+            addWatchedPath(filePath);
         }
 
         // Add to file path item
@@ -149,14 +149,14 @@ void ClangToolsDiagnosticModel::updateItems(const DiagnosticItem *changedItem)
 void ClangToolsDiagnosticModel::connectFileWatcher()
 {
     connect(m_filesWatcher.get(),
-            &QFileSystemWatcher::fileChanged,
+            &Utils::FileSystemWatcher::fileChanged,
             this,
             &ClangToolsDiagnosticModel::onFileChanged);
 }
 
 void ClangToolsDiagnosticModel::clearAndSetupCache()
 {
-    m_filesWatcher = std::make_unique<QFileSystemWatcher>();
+    m_filesWatcher = std::make_unique<Utils::FileSystemWatcher>();
     connectFileWatcher();
     stepsToItemsCache.clear();
 }
@@ -167,17 +167,17 @@ void ClangToolsDiagnosticModel::onFileChanged(const QString &path)
         if (item->diagnostic().location.filePath == Utils::FilePath::fromString(path))
             item->setFixItStatus(FixitStatus::Invalidated);
     });
-    removeWatchedPath(path);
+    m_filesWatcher->removeFile(path);
 }
 
-void ClangToolsDiagnosticModel::removeWatchedPath(const QString &path)
+void ClangToolsDiagnosticModel::removeWatchedPath(const Utils::FilePath &path)
 {
-    m_filesWatcher->removePath(path);
+    m_filesWatcher->removeFile(path);
 }
 
-void ClangToolsDiagnosticModel::addWatchedPath(const QString &path)
+void ClangToolsDiagnosticModel::addWatchedPath(const Utils::FilePath &path)
 {
-    m_filesWatcher->addPath(path);
+    m_filesWatcher->addFile(path, Utils::FileSystemWatcher::WatchAllChanges);
 }
 
 static QString lineColumnString(const Debugger::DiagnosticLocation &location)

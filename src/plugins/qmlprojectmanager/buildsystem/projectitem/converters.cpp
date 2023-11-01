@@ -44,9 +44,9 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
 
     auto appendArray = [&appendItem](const QString &key, const QStringList &vals) {
         QString finalString;
-        foreach (const QString &value, vals) {
+        for (const QString &value : vals)
             finalString.append("\"").append(value).append("\"").append(",");
-        }
+
         finalString.remove(finalString.length() - 1, 1);
         finalString.prepend("[ ").append(" ]");
         appendItem(key, finalString, false);
@@ -107,9 +107,9 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
 
         // append Environment object
         startObject("Environment");
-        foreach (const QString &key, environmentConfig.keys()) {
+        for (const QString &key : environmentConfig.keys())
             appendItem(key, environmentConfig[key].toString(), true);
-        }
+
         endObject();
 
         // append ShaderTool object
@@ -154,9 +154,9 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 
     auto nodeToJsonObject = [](const QmlJS::SimpleReaderNode::Ptr &node) {
         QJsonObject tObj;
-        foreach (const QString &childPropName, node->propertyNames()) {
+        for (const QString &childPropName : node->propertyNames())
             tObj.insert(childPropName, node->property(childPropName).value.toJsonValue());
-        }
+
         return tObj;
     };
 

@@ -33,6 +33,7 @@ public:
 
 signals:
     void finished(int exitCode);
+    void stdOutReady(const QString &s);
 
 private:
     void handleProcessDone(const Utils::ProcessResultData &resultData);
@@ -41,5 +42,8 @@ private:
     Utils::OutputFormatter m_parser;
     QElapsedTimer m_elapsed;
 };
+
+QString addCMakePrefix(const QString &str);
+QStringList addCMakePrefix(const QStringList &list);
 
 } // CMakeProjectManager::Internal

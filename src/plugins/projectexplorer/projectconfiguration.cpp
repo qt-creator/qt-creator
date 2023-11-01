@@ -3,7 +3,6 @@
 
 #include "projectconfiguration.h"
 
-#include "kitinformation.h"
 #include "target.h"
 
 #include <utils/algorithm.h>
@@ -17,20 +16,13 @@ const char DISPLAY_NAME_KEY[] = "ProjectExplorer.ProjectConfiguration.DisplayNam
 
 // ProjectConfiguration
 
-ProjectConfiguration::ProjectConfiguration(QObject *parent, Utils::Id id)
-    : AspectContainer(parent)
+ProjectConfiguration::ProjectConfiguration(Target *target, Id id)
+    : m_target(target)
     , m_id(id)
 {
-    QTC_CHECK(parent);
+    QTC_CHECK(target);
     QTC_CHECK(id.isValid());
     setObjectName(id.toString());
-
-    for (QObject *obj = this; obj; obj = obj->parent()) {
-        m_target = qobject_cast<Target *>(obj);
-        if (m_target)
-            break;
-    }
-    QTC_CHECK(m_target);
 }
 
 ProjectConfiguration::~ProjectConfiguration() = default;
@@ -45,14 +37,14 @@ Kit *ProjectConfiguration::kit() const
     return m_target->kit();
 }
 
-Utils::Id ProjectConfiguration::id() const
+Id ProjectConfiguration::id() const
 {
     return m_id;
 }
 
-QString ProjectConfiguration::settingsIdKey()
+Key ProjectConfiguration::settingsIdKey()
 {
-    return QString(CONFIGURATION_ID_KEY);
+    return CONFIGURATION_ID_KEY;
 }
 
 void ProjectConfiguration::setDisplayName(const QString &name)
@@ -80,14 +72,12 @@ QString ProjectConfiguration::toolTip() const
     return m_toolTip;
 }
 
-QVariantMap ProjectConfiguration::toMap() const
+void ProjectConfiguration::toMap(Store &map) const
 {
     QTC_CHECK(m_id.isValid());
-    QVariantMap map;
-    map.insert(QLatin1String(CONFIGURATION_ID_KEY), m_id.toSetting());
+    map.insert(CONFIGURATION_ID_KEY, m_id.toSetting());
     m_displayName.toMap(map, DISPLAY_NAME_KEY);
     AspectContainer::toMap(map);
-    return map;
 }
 
 Target *ProjectConfiguration::target() const
@@ -95,21 +85,20 @@ Target *ProjectConfiguration::target() const
     return m_target;
 }
 
-bool ProjectConfiguration::fromMap(const QVariantMap &map)
+void ProjectConfiguration::fromMap(const Store &map)
 {
-    Utils::Id id = Utils::Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
+    Id id = Id::fromSetting(map.value(CONFIGURATION_ID_KEY));
     // Note: This is only "startsWith", not ==, as RunConfigurations currently still
     // mangle in their build keys.
-    QTC_ASSERT(id.toString().startsWith(m_id.toString()), return false);
+    QTC_ASSERT(id.name().startsWith(m_id.name()), reportError(); return);
 
     m_displayName.fromMap(map, DISPLAY_NAME_KEY);
     AspectContainer::fromMap(map);
-    return true;
 }
 
-Id ProjectExplorer::idFromMap(const QVariantMap &map)
+Id ProjectExplorer::idFromMap(const Store &map)
 {
-    return Id::fromSetting(map.value(QLatin1String(CONFIGURATION_ID_KEY)));
+    return Id::fromSetting(map.value(CONFIGURATION_ID_KEY));
 }
 
 QString ProjectConfiguration::expandedDisplayName() const

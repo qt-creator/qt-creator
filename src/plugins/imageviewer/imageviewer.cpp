@@ -234,7 +234,7 @@ void ImageViewer::ctor()
             d->imageView, &ImageView::reset);
     connect(d->file.data(), &ImageViewerFile::reloadFinished,
             d->imageView, &ImageView::createScene);
-    connect(d->file.data(), &ImageViewerFile::isPausedChanged,
+    connect(d->file.data(), &ImageViewerFile::movieStateChanged,
             this, &ImageViewer::updatePauseAction);
     connect(d->imageView, &ImageView::scaleFactorChanged,
             this, &ImageViewer::scaleFactorUpdate);
@@ -349,19 +349,42 @@ void ImageViewer::togglePlay()
 
 void ImageViewer::playToggled()
 {
-    d->file->setPaused(!d->file->isPaused());
+    QMovie *m = d->file->movie();
+    if (!m)
+        return;
+    const QMovie::MovieState state = d->file->movie()->state();
+    switch (state) {
+    case QMovie::NotRunning:
+        m->start();
+        break;
+    case QMovie::Paused:
+        m->setPaused(false);
+        break;
+    case QMovie::Running:
+        m->setPaused(true);
+        break;
+    }
 }
 
 void ImageViewer::updatePauseAction()
 {
-    bool isMovie = d->file->type() == ImageViewerFile::TypeMovie;
-    if (isMovie && !d->file->isPaused()) {
-        d->actionPlayPause->setToolTipBase(Tr::tr("Pause Animation"));
-        d->actionPlayPause->setIcon(Icons::INTERRUPT_SMALL_TOOLBAR.icon());
-    } else {
-        d->actionPlayPause->setToolTipBase(Tr::tr("Play Animation"));
-        d->actionPlayPause->setIcon(Icons::RUN_SMALL_TOOLBAR.icon());
-        d->actionPlayPause->setEnabled(isMovie);
+    const bool isMovie = d->file->type() == ImageViewerFile::TypeMovie;
+    const QMovie::MovieState state = isMovie ? d->file->movie()->state() : QMovie::NotRunning;
+    CommandAction *a = d->actionPlayPause;
+    switch (state) {
+    case QMovie::NotRunning:
+        a->setToolTipBase(Tr::tr("Play Animation"));
+        a->setIcon(Icons::RUN_SMALL_TOOLBAR.icon());
+        a->setEnabled(isMovie);
+        break;
+    case QMovie::Paused:
+        a->setToolTipBase(Tr::tr("Resume Paused Animation"));
+        a->setIcon(Icons::CONTINUE_SMALL_TOOLBAR.icon());
+        break;
+    case QMovie::Running:
+        a->setToolTipBase(Tr::tr("Pause Animation"));
+        a->setIcon(Icons::INTERRUPT_SMALL_TOOLBAR.icon());
+        break;
     }
 }
 

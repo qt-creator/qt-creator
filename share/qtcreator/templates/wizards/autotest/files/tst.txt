@@ -70,50 +70,67 @@ target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::QuickTest)
 
 @endif
 @if  "%{TestFrameWork}" == "GTest"
-
-@if "%{GTestCXX11}" == "true"
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-add_definitions(-DGTEST_LANGUAGE_CXX11)
-@endif
+
+if ($ENV{GOOGLETEST_DIR})
+    get_filename_component(_GTEST_BASE $ENV{GOOGLETEST_DIR} REALPATH)
+elseif (EXISTS "%{GTestBaseFolder}") # set by QC
+    get_filename_component(_GTEST_BASE "%{GTestBaseFolder}" REALPATH) # set by QC
+elseif (UNIX AND EXISTS "/usr/src/gtest")
+    set(_GTEST_BASE "/usr/src/gtest")
+endif()
+
+if (_GTEST_BASE AND NOT EXISTS "${_GTEST_BASE}/googletest/src/gtest-all.cc"
+        OR NOT EXISTS "${_GTEST_BASE}/googlemock/src/gmock-all.cc")
+    message(ERROR "Missing source components (gtest-all.cc and/or gmock-all.cc).")
+endif()
 
 find_package(Threads REQUIRED)
 
-if ($ENV{GOOGLETEST_DIR})
-    set(GOOGLETEST_DIR $ENV{GOOGLETEST_DIR})
-else ()
-    if (NOT "%{GTestRepository}" STREQUAL "")
-        message(WARNING "Using googletest src dir specified at Qt Creator wizard")
-    endif ()
-    set(GOOGLETEST_DIR "%{GTestRepository}")
-endif ()
-if (EXISTS ${GOOGLETEST_DIR})
-    set(GTestSrc ${GOOGLETEST_DIR}/googletest)
-    set(GMockSrc ${GOOGLETEST_DIR}/googlemock)
-elseif (UNIX AND EXISTS /usr/src/gtest)
-    set(GTestSrc /usr/src/gtest)
-    message(WARNING "Using gtest from system")
-    if (EXISTS /usr/src/gmock)
-        set(GMockSrc /usr/src/gmock)
-    endif ()
-else ()
-    message( FATAL_ERROR "No googletest src dir found - set GOOGLETEST_DIR to enable!")
-endif ()
-
-set(GTestFiles ${GTestSrc}/src/gtest-all.cc)
-set(GTestIncludes ${GTestSrc} ${GTestSrc}/include)
-if (NOT ${GMockSrc} STREQUAL "")
-    list(APPEND GTestFiles ${GMockSrc}/src/gmock-all.cc)
-    list(APPEND GTestIncludes ${GMockSrc} ${GMockSrc}/include)
-endif ()
-
-include_directories(${GTestIncludes})
-
+include_directories(
+    ${_GTEST_BASE}/googletest ${_GTEST_BASE}/googletest/include
+    ${_GTEST_BASE}/googlemock ${_GTEST_BASE}/googlemock/include
+)
 add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileGTestWithCppSuffix}
-               ${GTestFiles})
+               ${_GTEST_BASE}/googletest/src/gtest-all.cc
+               ${_GTEST_BASE}/googlemock/src/gmock-all.cc
+           )
+
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 target_link_libraries(%{TestCaseName} PRIVATE Threads::Threads)
+@endif
+@if "%{TestFrameWork}" == "GTest_dyn"
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if ($ENV{GOOGLETEST_DIR})
+    get_filename_component(_GTEST_BASE $ENV{GOOGLETEST_DIR} REALPATH)
+elseif (EXISTS "%{GTestBaseFolder}") # set by QC
+    get_filename_component(_GTEST_BASE "%{GTestBaseFolder}" REALPATH) # set by QC
+endif()
+
+if (NOT GTEST_ROOT)
+    if (_GTEST_BASE)
+        message("Setting GTEST_ROOT to ${_GTEST_BASE}")
+        set(GTEST_ROOT ${_GTEST_BASE})
+    else()
+        message("No GTEST_ROOT specified - using system defaults.")
+    endif()
+endif()
+
+find_package(GTest REQUIRED)
+if (NOT GTest_FOUND)
+    message (FATAL_ERROR "No GTest Found")
+endif()
+
+add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileGTestWithCppSuffix})
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
+
+target_link_libraries(%{TestCaseName} PRIVATE GTest::GTest)
+if (GMock_FOUND)
+    target_link_libraries(%{TestCaseName} INTERFACE GTest::GMock)
+endif()
 @endif
 @if "%{TestFrameWork}" == "BoostTest"
 set(CMAKE_CXX_STANDARD 11)
@@ -153,7 +170,7 @@ find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileGTestWithCppSuffix})
+add_executable(%{TestCaseName} %{MainCppName} %{TestCaseFileWithCppSuffix})
 add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 if (Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
@@ -168,7 +185,8 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Gui)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
 @endif
 
-add_executable(${PROJECT_NAME} %{TestCaseFileWithCppSuffix} main.cpp)
+add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix} %{MainCppName})
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 
 @if "%{Catch2NeedsQt}" == "true"
 target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
@@ -184,4 +202,44 @@ if (CATCH_INCLUDE_DIR STREQUAL "")
 elseif (EXISTS ${CATCH_INCLUDE_DIR})
     include_directories(${CATCH_INCLUDE_DIR})
 endif ()
+@endif
+@if "%{TestFrameWork}" == "Catch2_dyn"
+SET(CMAKE_CXX_STANDARD 11)
+
+if ($ENV{CATCH2_INSTALL_DIR})
+    get_filename_component(_CATCH2_BASE $ENV{CATCH2_INSTALL_DIR} REALPATH)
+elseif (EXISTS "%{CatchInstallDir}") # set by QC
+    get_filename_component(_CATCH2_BASE "%{CatchInstallDir}" REALPATH) # set by QC
+endif()
+
+if (NOT Catch2_DIR)
+    if (_CATCH2_BASE)
+        if (EXISTS "${_CATCH2_BASE}/lib/cmake/Catch2")
+            set(_CATCH2_BASE "${_CATCH2_BASE}/lib/cmake/Catch2")
+        endif()
+        message("Setting Catch2_DIR to ${_CATCH2_BASE}")
+        set(Catch2_DIR ${_CATCH2_BASE})
+    else()
+        message("No Catch2_DIR specified - using system defaults.")
+    endif()
+endif()
+
+find_package(Catch2 3 REQUIRED)
+@if "%{Catch2NeedsQt}" == "true"
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Gui)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Gui)
+@endif
+
+@if "%{Catch2Main}" == "false"
+add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix})
+target_link_libraries(%{TestCaseName} PRIVATE Catch2::Catch2WithMain)
+@else
+add_executable(%{TestCaseName} %{TestCaseFileWithCppSuffix} %{MainCppName})
+target_link_libraries(%{TestCaseName} PRIVATE Catch2::Catch2)
+@endif
+@if "%{Catch2NeedsQt}" == "true"
+target_link_libraries(%{TestCaseName} PRIVATE Qt${QT_VERSION_MAJOR}::Gui)
+@endif
+
+add_test(NAME %{TestCaseName} COMMAND %{TestCaseName})
 @endif

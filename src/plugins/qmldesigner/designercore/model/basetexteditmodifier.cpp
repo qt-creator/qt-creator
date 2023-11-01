@@ -133,5 +133,5 @@ QStringList BaseTextEditModifier::autoComplete(QTextDocument *textDocument, int 
                                                   document->filePath(),
                                                   explicitComplete ? TextEditor::ExplicitlyInvoked : TextEditor::ActivationCharacter,
                                                   document->semanticInfo());
-    return QStringList();
+    return {};
 }

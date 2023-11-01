@@ -578,8 +578,8 @@ The minimum API level required by the kit is %1.</source>
         <translation>Установка на устройство</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
-        <translation>&lt;b&gt;Make install:&lt;/b&gt; Копирование файлов приложения в %1</translation>
+        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to &quot;%1&quot;</source>
+        <translation>&lt;b&gt;Make install:&lt;/b&gt; Копирование файлов приложения в «%1»</translation>
     </message>
     <message>
         <source>Activity manager start options:</source>
@@ -1378,8 +1378,8 @@ Do you want to uninstall the existing package?</source>
         <translation>Загрузка SDK Tools</translation>
     </message>
     <message>
-        <source>Could not open %1 for writing: %2.</source>
-        <translation>Не удалось открыть %1 для записи: %2.</translation>
+        <source>Could not open &quot;%1&quot; for writing: %2.</source>
+        <translation>Не удалось открыть «%1» для записи: %2.</translation>
     </message>
     <message>
         <source>Downloading Android SDK Tools from URL %1 has failed: %2.</source>
@@ -1398,12 +1398,8 @@ Do you want to uninstall the existing package?</source>
         <translation>Операция требует вмешательства пользователя. Используйте «sdkmanager» в командной строке.</translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>Команда License завершилась с ошибкой.
-
-</translation>
+        <source>License command failed.</source>
+        <translation>Команда License завершилась с ошибкой.</translation>
     </message>
     <message>
         <source>Android SDK Manager</source>
@@ -1446,16 +1442,12 @@ Do you want to uninstall the existing package?</source>
         <translation>Принимаете условия лицензии Android SDK?</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Проверка ожидающих лицензий...
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Проверка ожидающих лицензий...</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-SDK Manager занят.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>SDK Manager занят.</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -2081,12 +2073,8 @@ To hide a sticky splash screen, invoke QtAndroid::hideSplashScreen().</source>
         <translation>Ошибка.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>Готово
-
-</translation>
+        <source>Done</source>
+        <translation>Готово</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -4428,7 +4416,7 @@ This flag will allow push to proceed.</source>
 Этот флаг позволяет выполнить эту операцию.</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>Например: «https://[имя[:пароль]@]адрес[:порт]/[путь]».</translation>
     </message>
     <message>
@@ -4874,7 +4862,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Добавить закладку</translation>
@@ -10572,8 +10560,8 @@ Double-click to edit item.</source>
         <translation>Не удалось запустить «%1»: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Истекло время работы «%1»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Истекло время работы «%1».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -24645,7 +24633,7 @@ Error: %5</translation>
         <translation>Спрашивать имя пользователя и пароль</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>Например: «https://[имя[:пароль]@]адрес[:порт]/[путь]».</translation>
     </message>
 </context>
@@ -29135,20 +29123,20 @@ to project &quot;%2&quot;.</source>
         <translation>Управление сессиями</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Новая</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Новая...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Переименовать</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Переименовать...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Копировать</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Копировать...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Удалить</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Удалить...</translation>
     </message>
     <message>
         <source>What is a Session?</source>
@@ -34855,8 +34843,8 @@ Neither the path to the library nor the path to its includes is added to the .pr
         <translation>Не удалось создать файл ресурсов: %1</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Истекло время работы «%1»</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Истекло время работы «%1».</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -40173,10 +40161,8 @@ If you do not have a private key yet, you can also create one here.</source>
 </translation>
     </message>
     <message>
-        <source>Deployment to this device will not work out of the box.
-</source>
-        <translation>Развёртывание на это устройство не работает «из коробки».
-</translation>
+        <source>Deployment to this device will not work out of the box.</source>
+        <translation>Развёртывание на это устройство не работает «из коробки».</translation>
     </message>
     <message>
         <source>rsync is functional.
@@ -43004,10 +42990,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Edit...</source>
         <translation>Изменить...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Удалить</translation>
     </message>
     <message>
         <source>Export...</source>

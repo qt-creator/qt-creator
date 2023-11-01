@@ -3,11 +3,8 @@
 
 #include "callgrindengine.h"
 
-#include "valgrindsettings.h"
-
-#include <valgrind/callgrind/callgrindparser.h>
-#include <valgrind/valgrindrunner.h>
-#include <valgrind/valgrindtr.h>
+#include "callgrind/callgrindparser.h"
+#include "valgrindtr.h"
 
 #include <debugger/analyzer/analyzermanager.h>
 
@@ -17,16 +14,13 @@
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
 
-#include <QDebug>
-
 #define CALLGRIND_CONTROL_DEBUG 0
 
 using namespace ProjectExplorer;
 using namespace Valgrind::Callgrind;
 using namespace Utils;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 const char CALLGRIND_CONTROL_BINARY[] = "callgrind_control";
 
@@ -37,10 +31,10 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
 {
     setId("CallgrindToolRunner");
 
-    connect(&m_runner, &ValgrindRunner::valgrindStarted, this, [this](qint64 pid) {
+    connect(&m_runner, &ValgrindProcess::valgrindStarted, this, [this](qint64 pid) {
         m_pid = pid;
     });
-    connect(&m_runner, &ValgrindRunner::finished, this, [this] {
+    connect(&m_runner, &ValgrindProcess::done, this, [this] {
         triggerParse();
         emit parserDataReady(this);
     });
@@ -274,5 +268,4 @@ void CallgrindToolRunner::cleanupTempFile()
     m_hostOutputFile.clear();
 }
 
-} // Internal
-} // Valgrind
+} // namespace Valgrind::Internal

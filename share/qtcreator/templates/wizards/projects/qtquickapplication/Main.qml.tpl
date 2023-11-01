@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Window
 @if %{UseVirtualKeyboard}
 import QtQuick.VirtualKeyboard
 @endif

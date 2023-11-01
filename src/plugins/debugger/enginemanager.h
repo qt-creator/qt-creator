@@ -10,6 +10,7 @@
 namespace Debugger::Internal {
 
 class DebuggerEngine;
+struct PerspectiveItem;
 
 class EngineManager final : public QObject
 {
@@ -21,17 +22,25 @@ public:
 
     static EngineManager *instance();
     static QAbstractItemModel *model();
+    static QAbstractItemModel *dapModel();
 
     static QString registerEngine(DebuggerEngine *engine);
     static void unregisterEngine(DebuggerEngine *engine);
 
+    static QString registerDefaultPerspective(const QString &name,
+                                              const QString &type,
+                                              const QString &id);
+
     static void activateDebugMode();
     static void deactivateDebugMode();
+    static void activateByIndex(int index);
 
     static QList<QPointer<DebuggerEngine> > engines();
     static QPointer<DebuggerEngine> currentEngine();
 
     static QWidget *engineChooser();
+    static QWidget *dapEngineChooser();
+
     static void updatePerspectives();
 
     static bool shutDown(); // Return true if some engine is being forced to shut down.

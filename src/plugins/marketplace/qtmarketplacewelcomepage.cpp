@@ -74,7 +74,7 @@ public:
 
         connect(m_sectionedProducts, &SectionedProducts::toggleProgressIndicator,
                 progressIndicator, &Utils::ProgressIndicator::setVisible);
-        connect(m_sectionedProducts, &SectionedProducts::errorOccurred,
+        connect(m_sectionedProducts, &SectionedProducts::errorOccurred, this,
                 [this, progressIndicator, searchBox](int, const QString &message) {
             progressIndicator->hide();
             progressIndicator->deleteLater();
@@ -94,8 +94,10 @@ public:
                     this, []() { QDesktopServices::openUrl(QUrl("https://marketplace.qt.io")); });
         });
 
-        connect(m_searcher, &QLineEdit::textChanged,
-                m_sectionedProducts, &SectionedProducts::setSearchString);
+        connect(m_searcher,
+                &QLineEdit::textChanged,
+                m_sectionedProducts,
+                &SectionedProducts::setSearchStringDelayed);
         connect(m_sectionedProducts, &SectionedProducts::tagClicked,
                 this, &QtMarketplacePageWidget::onTagClicked);
     }

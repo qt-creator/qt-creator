@@ -79,7 +79,7 @@ QString QMakeGlobals::cleanSpec(QMakeCmdLineParserState &state, const QString &s
     QString ret = QDir::cleanPath(spec);
     if (ret.contains(QLatin1Char('/'))) {
         QString absRet = IoUtils::resolvePath(device_root, state.pwd, ret);
-        if (QFile::exists(absRet))
+        if (QFileInfo::exists(absRet))
             ret = absRet;
     }
     return ret;

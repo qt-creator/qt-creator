@@ -98,8 +98,7 @@ def testRenameMacroAfterSourceMoving():
 def performMacroRenaming(newMacroName):
     for _ in range(10):
         type(cppEditorStr, "<Left>")
-    invokeContextMenuItem(waitForObject(cppEditorStr), "Refactor",
-                          "Rename Symbol Under Cursor")
+    invokeContextMenuItem(waitForObject(cppEditorStr), "Rename Symbol Under Cursor")
     waitForSearchResults()
     validateSearchResult(2)
     replaceLineEdit = waitForObject("{leftWidget={text='Replace with:' type='QLabel' "

@@ -21,7 +21,7 @@ public:
     int pos = -1;
     int length = -1;
     QString text;
-    QString fileName;
+    Utils::FilePath filePath;
     bool apply = false;
 };
 using ReplacementOperations = QVector<ReplacementOperation *>;
@@ -34,28 +34,25 @@ public:
     FixitsRefactoringFile() = default;
     ~FixitsRefactoringFile() { qDeleteAll(m_documents); }
 
-    int position(const QString &filePath, unsigned line, unsigned column) const;
+    int position(const Utils::FilePath &filePath, unsigned line, unsigned column) const;
 
     void setReplacements(const ReplacementOperations &ops) { m_replacementOperations = ops; }
     bool apply();
 
 private:
-    QTextDocument *document(const QString &filePath) const;
+    QTextDocument *document(const Utils::FilePath &filePath) const;
     void shiftAffectedReplacements(const ReplacementOperation &op, int startIndex);
 
     void format(TextEditor::Indenter &indenter,
                 QTextDocument *doc,
                 const ReplacementOperations &operationsForFile,
                 int firstOperationIndex);
-    void shiftAffectedReplacements(const QString &fileName,
-                                   const Utils::Text::Replacements &replacements,
+    void shiftAffectedReplacements(const Utils::FilePath &filePath,
+                                   const Utils::EditOperations &replacements,
                                    int startIndex);
-    bool hasIntersection(const QString &fileName,
-                         const Utils::Text::Replacements &replacements,
-                         int startIndex) const;
 
     mutable Utils::TextFileFormat m_textFileFormat;
-    mutable QHash<QString, QTextDocument *> m_documents;
+    mutable QHash<Utils::FilePath, QTextDocument *> m_documents;
     ReplacementOperations m_replacementOperations; // Not owned.
 };
 

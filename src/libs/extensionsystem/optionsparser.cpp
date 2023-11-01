@@ -22,6 +22,7 @@ const char *OptionsParser::TEST_OPTION = "-test";
 const char *OptionsParser::NOTEST_OPTION = "-notest";
 const char *OptionsParser::SCENARIO_OPTION = "-scenario";
 const char *OptionsParser::PROFILE_OPTION = "-profile";
+const char *OptionsParser::TRACE_OPTION = "-trace";
 const char *OptionsParser::NO_CRASHCHECK_OPTION = "-no-crashcheck";
 
 OptionsParser::OptionsParser(const QStringList &args,
@@ -59,6 +60,8 @@ bool OptionsParser::parse()
         if (checkForNoLoadOption())
             continue;
         if (checkForProfilingOption())
+            continue;
+        if (checkForTraceOption())
             continue;
         if (checkForNoCrashcheckOption())
             continue;
@@ -239,7 +242,17 @@ bool OptionsParser::checkForProfilingOption()
 {
     if (m_currentArg != QLatin1String(PROFILE_OPTION))
         return false;
-    m_pmPrivate->initProfiling();
+    m_pmPrivate->increaseProfilingVerbosity();
+    return true;
+}
+
+bool OptionsParser::checkForTraceOption()
+{
+    if (m_currentArg != QLatin1String(TRACE_OPTION))
+        return false;
+    if (nextToken(RequiredToken)) {
+        m_pmPrivate->enableTracing(m_currentArg);
+    }
     return true;
 }
 

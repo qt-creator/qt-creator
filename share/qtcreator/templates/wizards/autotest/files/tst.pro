@@ -33,15 +33,11 @@ SOURCES += \\
     setup.cpp
 @endif
 @endif
-@if "%{TestFrameWork}" == "GTest"
+@if "%{TestFrameWork}" == "GTest" || "%{TestFrameWork}" == "GTest_dyn"
 include(gtest_dependency.pri)
 
 TEMPLATE = app
-@if "%{GTestCXX11}" == "true"
-CONFIG += console c++11
-@else
-CONFIG += console
-@endif
+CONFIG += console c++14
 CONFIG -= app_bundle
 CONFIG += thread
 CONFIG -= qt
@@ -99,7 +95,7 @@ SOURCES += \\
     %{MainCppName} \\
     %{TestCaseFileWithCppSuffix}
 @endif
-@if "%{TestFrameWork}" == "Catch2"
+@if "%{TestFrameWork}" == "Catch2" || "%{TestFrameWork}" == "Catch2_dyn"
 TEMPLATE = app
 @if "%{Catch2NeedsQt}" == "true"
 QT += gui
@@ -110,7 +106,8 @@ CONFIG += console
 @endif
 
 CONFIG += c++11
-
+@endif
+@if "%{TestFrameWork}" == "Catch2"
 isEmpty(CATCH_INCLUDE_DIR): CATCH_INCLUDE_DIR=$$(CATCH_INCLUDE_DIR)
 @if "%{CatchIncDir}" != ""
 # set by Qt Creator wizard
@@ -123,6 +120,21 @@ isEmpty(CATCH_INCLUDE_DIR): {
 }
 
 SOURCES += \\
-    main.cpp \\
+    %{MainCppName} \\
     %{TestCaseFileWithCppSuffix}
+@endif
+@if "%{TestFrameWork}" == "Catch2_dyn"
+@if "%{Catch2Main}" == "true"
+SOURCES = %{TestCaseFileWithCppSuffix} \\
+        %{MainCppName}
+
+CATCH2_MAIN=0
+
+@else
+SOURCES = %{TestCaseFileWithCppSuffix}
+
+CATCH2_MAIN=1
+
+@endif
+include(catch-common.pri)
 @endif

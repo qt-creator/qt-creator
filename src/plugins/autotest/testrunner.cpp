@@ -16,7 +16,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -258,7 +258,7 @@ static RunConfiguration *getRunConfiguration(const QString &buildTargetKey)
 
 int TestRunner::precheckTestConfigurations()
 {
-    const bool omitWarnings = TestSettings::instance()->omitRunConfigWarn();
+    const bool omitWarnings = testSettings().omitRunConfigWarn();
     int testCaseCount = 0;
     for (ITestConfiguration *itc : std::as_const(m_selectedTests)) {
         if (itc->testBase()->type() == ITestBase::Tool) {
@@ -402,7 +402,7 @@ void TestRunner::runTestsHelper()
             }
             process.setEnvironment(environment);
 
-            m_cancelTimer.setInterval(TestSettings::instance()->timeout());
+            m_cancelTimer.setInterval(testSettings().timeout());
             m_cancelTimer.start();
 
             qCInfo(runnerLog) << "Command:" << process.commandLine().executable();
@@ -446,7 +446,7 @@ void TestRunner::runTestsHelper()
         };
         const Group group {
             finishAllAndDone,
-            Storage(storage),
+            Tasking::Storage(storage),
             onGroupSetup(onSetup),
             ProcessTask(onProcessSetup, onProcessDone, onProcessDone)
         };
@@ -468,7 +468,7 @@ void TestRunner::runTestsHelper()
         cancelCurrent(UserCanceled);
     });
 
-    if (TestSettings::instance()->popupOnStart())
+    if (testSettings().popupOnStart())
         AutotestPlugin::popupResultsPane();
 
     m_taskTree->start();
@@ -539,7 +539,7 @@ void TestRunner::debugTests()
     runControl->copyDataFromRunConfiguration(config->runConfiguration());
 
     QStringList omitted;
-    Runnable inferior = config->runnable();
+    ProcessRunData inferior = config->runnable();
     inferior.command.setExecutable(commandFilePath);
 
     const QStringList args = config->argumentsForTestRunner(&omitted);
@@ -589,9 +589,8 @@ void TestRunner::debugTests()
                                  runControl, &RunControl::initiateStop);
 
     connect(runControl, &RunControl::stopped, this, &TestRunner::onFinished);
-    m_finishDebugConnect = connect(runControl, &RunControl::finished, this, &TestRunner::onFinished);
     ProjectExplorerPlugin::startRunControl(runControl);
-    if (useOutputProcessor && TestSettings::instance()->popupOnStart())
+    if (useOutputProcessor && testSettings().popupOnStart())
         AutotestPlugin::popupResultsPane();
 }
 
@@ -672,10 +671,10 @@ static RunAfterBuildMode runAfterBuild()
         return RunAfterBuildMode::None;
 
     if (!project->namedSettings(Constants::SK_USE_GLOBAL).isValid())
-        return TestSettings::instance()->runAfterBuildMode();
+        return testSettings().runAfterBuildMode();
 
     TestProjectSettings *projectSettings = AutotestPlugin::projectSettings(project);
-    return projectSettings->useGlobalSettings() ? TestSettings::instance()->runAfterBuildMode()
+    return projectSettings->useGlobalSettings() ? testSettings().runAfterBuildMode()
                                                 : projectSettings->runAfterBuild();
 }
 
@@ -705,7 +704,6 @@ void TestRunner::onFinished()
     if (m_taskTree)
         m_taskTree.release()->deleteLater();
     disconnect(m_stopDebugConnect);
-    disconnect(m_finishDebugConnect);
     disconnect(m_targetConnect);
     qDeleteAll(m_selectedTests);
     m_selectedTests.clear();

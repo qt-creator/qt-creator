@@ -1,12 +1,16 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-advanced.html
+
     \page creator-os-supported-platforms.html
-    \nextpage creator-desktop-platforms.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
 
     \title Supported Platforms
+
+    \brief Summary of development and target platforms.
 
     You can install and run \QC on several operating systems to create
     applications for multiple desktop, embedded, and mobile device platforms,
@@ -69,14 +73,7 @@
     To develop for UWP using Qt 5, use \QC 7.0, or earlier.
 
     \QC automatically runs scheduled checks for updates based on the settings
-    specified in \uicontrol Edit > \uicontrol Preferences \uicontrol Environment >
-    \uicontrol Update.
+    specified in \preferences > \uicontrol Environment > \uicontrol Update.
 
-    For more information on the requirements for each platform, see:
-
-    \list
-        \li \l {Desktop Platforms}
-        \li \l {Embedded Platforms}
-        \li \l {Mobile Platforms}
-    \endlist
+    \sa {Desktop Platforms}, {Embedded Platforms}, {Mobile Platforms}
 */

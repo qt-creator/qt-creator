@@ -21,6 +21,8 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+class FilePath;
+
 class QTCREATOR_UTILS_EXPORT HostOsInfo
 {
 public:
@@ -85,6 +87,8 @@ public:
     static bool canCreateOpenGLContext(QString *errorMessage);
 
     static std::optional<quint64> totalMemoryInstalledInBytes();
+
+    static const FilePath &root();
 
 private:
     static Qt::CaseSensitivity m_overrideFileNameCaseSensitivity;

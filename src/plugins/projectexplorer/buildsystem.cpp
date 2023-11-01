@@ -9,7 +9,6 @@
 #include "projectexplorertr.h"
 #include "projectmanager.h"
 #include "runconfiguration.h"
-#include "runcontrol.h"
 #include "target.h"
 
 #include <coreplugin/messagemanager.h>
@@ -20,6 +19,7 @@
 #include <projectexplorer/makestep.h>
 
 #include <utils/algorithm.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
 #include <QTimer>
@@ -62,8 +62,7 @@ BuildSystem::BuildSystem(Target *target)
     // Timer:
     d->m_delayedParsingTimer.setSingleShot(true);
 
-    connect(&d->m_delayedParsingTimer, &QTimer::timeout, this,
-            [this] {
+    connect(&d->m_delayedParsingTimer, &QTimer::timeout, this, [this] {
         if (ProjectManager::hasProject(project()))
             triggerParsing();
         else
@@ -324,7 +323,6 @@ void BuildSystem::setDeploymentData(const DeploymentData &deploymentData)
 {
     if (d->m_deploymentData != deploymentData) {
         d->m_deploymentData = deploymentData;
-        emit deploymentDataChanged();
         emit target()->deploymentDataChanged();
     }
 }

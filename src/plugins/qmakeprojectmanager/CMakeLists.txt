@@ -20,7 +20,7 @@ add_qtc_plugin(QmakeProjectManager
     profilehoverhandler.cpp profilehoverhandler.h
     qmakebuildconfiguration.cpp qmakebuildconfiguration.h
     qmakebuildinfo.h
-    qmakekitinformation.cpp qmakekitinformation.h
+    qmakekitaspect.cpp qmakekitaspect.h
     qmakemakestep.cpp qmakemakestep.h
     qmakenodes.cpp qmakenodes.h
     qmakenodetreebuilder.cpp qmakenodetreebuilder.h

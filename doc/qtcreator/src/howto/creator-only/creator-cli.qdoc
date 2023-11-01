@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,58 +8,21 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-vcpkg.html
     \page creator-cli.html
-    \nextpage creator-keyboard-shortcuts.html
+    \previouspage creator-reference.html
 
-    \title Using Command Line Options
+    \ingroup creator-reference
 
-    You can start \QC and specify some options from the command line. For
-    example, you can open a file to any line and column.
+    \title Command-Line Options
 
-    To specify command line options, enter the following command in the \QC
-    installation or build directory:
+    \brief Options for starting \QC from the command line.
 
-    \c {qtcreator [option] [filename[:line_number[:column_number]]]}
+    To specify command-line options, enter the following command in the
+    directory that contains the \QC executable or specify the path to
+    \QC as a part of the command:
 
-    \note You can use either a colon (:) or a plus sign (+) as a separator
-    between the filename and line number and the line number and the column
-    number. You can also use a space between the separator and the line number.
-
-    For example, on Windows:
-
-    \list
-
-        \li \c {C:\qtcreator\bin>qtcreator -help}
-
-        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100:2}
-
-        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100+2}
-
-    \endlist
-
-    On \macos:
-
-    \list
-
-        \li \c {Qt\ Creator.app/Contents/MacOS/Qt\ Creator -help}
-
-    \endlist
-
-    To open a project that is located in a particular folder, you can pass on
-    the folder name as a command line argument. \QC looks for a session that
-    matches the folder name and loads it. Or it looks for a project file in the
-    folder and opens it. For example:
-
-    \c {qtcreator .}
-
-    \note To run a self-built \QC from the command line on Windows, make sure
-    that the Qt installation directory is included in the PATH environment
-    variable. You can enter the following command on the command line to add Qt
-    to the path:
-
-    \code
-    set PATH=<Qt_installation_directory>\mingw\bin;c:<Qt_installation_directory>\bin;%PATH%
+    \badcode
+    qtcreator [option] [filename[:line_number[:column_number]]]
     \endcode
 
     The following table summarizes the available options:
@@ -71,7 +34,7 @@
 
         \row
             \li -help
-            \li Display help on command line options.
+            \li Display help on command-line options.
 
         \row
             \li -version
@@ -223,7 +186,7 @@
             \li -customwizard-verbose
             \li ProjectExplorer plugin: display additional information when
                 loading custom wizards. For more information about custom
-                wizards, see \l{Adding New Custom Wizards}
+                wizards, see \l{Custom Wizards}
 
         \row
             \li -ensure-kit-for-binary <path to binary>
@@ -249,7 +212,7 @@
     \section1 Using Custom Styles
 
     \QC is a \l{QApplication}{Qt application}, and therefore, it accepts the
-    command line options that all Qt applications accept. For example, you can
+    command-line options that all Qt applications accept. For example, you can
     use the \c {-style} and \c {-stylesheet} options to apply custom styles and
     \l{Qt Style Sheets}{stylesheets}. The styling is only applied during the
     current session.
@@ -262,4 +225,5 @@
     You can also switch to a dark theme to customize the appearance of widgets,
     colors, and icons without using stylesheets.
 
+    \sa {Run Qt Creator from the command line}
 */

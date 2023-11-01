@@ -53,8 +53,7 @@ QString AxivionQuery::toString() const
 AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *parent)
     : QObject(parent)
 {
-    const AxivionSettings *settings = AxivionPlugin::settings();
-    const AxivionServer server = settings->server;
+    const AxivionServer server = settings().server;
 
     QStringList args = server.curlArguments();
     args << "-i";
@@ -65,7 +64,7 @@ AxivionQueryRunner::AxivionQueryRunner(const AxivionQuery &query, QObject *paren
     url += query.toString();
     args << url;
 
-    m_process.setCommand({settings->curl(), args});
+    m_process.setCommand({settings().curl(), args});
     connect(&m_process, &Process::done, this, [this]{
         if (m_process.result() != ProcessResult::FinishedWithSuccess) {
             const int exitCode = m_process.exitCode();

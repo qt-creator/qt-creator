@@ -8,7 +8,6 @@
 #include "filepath.h"
 #include "hostosinfo.h"
 
-#include <QList>
 #include <QPair>
 #include <QStringList>
 

@@ -12,7 +12,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 
@@ -112,14 +112,39 @@ QString AndroidQtVersion::description() const
 
 const QStringList &AndroidQtVersion::androidAbis() const
 {
-    ensureMkSpecParsed();
+    if (m_androidAbis.isEmpty()) {
+        bool sanityCheckNotUsed;
+        const BuiltWith bw = builtWith(&sanityCheckNotUsed);
+        if (!bw.androidAbi.isEmpty()) {
+            m_androidAbis << bw.androidAbi;
+            m_minNdk = bw.apiVersion;
+        } else {
+            ensureMkSpecParsed();
+        }
+    }
+
     return m_androidAbis;
 }
 
 int AndroidQtVersion::minimumNDK() const
 {
-    ensureMkSpecParsed();
+    if (m_minNdk == -1)
+        ensureMkSpecParsed();
     return m_minNdk;
+}
+
+QString AndroidQtVersion::androidDeploymentSettingsFileName(const Target *target)
+{
+    const BuildSystem *bs = target->buildSystem();
+    if (!bs)
+        return {};
+    const QString buildKey = target->activeBuildKey();
+    const QString displayName = bs->buildTarget(buildKey).displayName;
+    const QString fileName = AndroidManager::isQt5CmakeProject(target)
+                                 ? QLatin1String("android_deployment_settings.json")
+                                 : QString::fromLatin1("android-%1-deployment-settings.json")
+                                       .arg(displayName);
+    return fileName;
 }
 
 Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const Target *target)
@@ -134,15 +159,8 @@ Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const Target *target
     }
 
     // If unavailable, construct the name by ourselves (CMake)
-    const BuildSystem *bs = target->buildSystem();
-    if (!bs)
-        return {};
-    const QString displayName = bs->buildTarget(buildKey).displayName;
-    return AndroidManager::buildDirectory(target).pathAppended(
-                AndroidManager::isQt5CmakeProject(target)
-                ? QLatin1String("android_deployment_settings.json")
-                : QString::fromLatin1("android-%1-deployment-settings.json")
-                  .arg(displayName));
+    const QString fileName = androidDeploymentSettingsFileName(target);
+    return AndroidManager::buildDirectory(target) / fileName;
 }
 
 AndroidQtVersion::BuiltWith AndroidQtVersion::builtWith(bool *ok) const
@@ -170,6 +188,25 @@ static int versionFromPlatformString(const QString &string, bool *ok = nullptr)
     return match.hasMatch() ? match.captured(1).toInt(ok) : -1;
 }
 
+static QString abiFromCompilerTarget(const QString &string)
+{
+    const QStringList components = string.split("-");
+    if (components.isEmpty())
+        return {};
+
+    QString qtAbi;
+    const QString compilerAbi = components.first();
+    if (compilerAbi == Constants::AArch64ToolsDisplayName)
+        qtAbi = ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A;
+    else if (compilerAbi == Constants::ArmV7ToolsDisplayName)
+        qtAbi = ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A;
+    else if (compilerAbi == Constants::X86_64ToolsDisplayName)
+        qtAbi = ProjectExplorer::Constants::ANDROID_ABI_X86_64;
+    else if (compilerAbi == Constants::X86ToolsDisplayName)
+        qtAbi = ProjectExplorer::Constants::ANDROID_ABI_X86;
+    return qtAbi;
+}
+
 AndroidQtVersion::BuiltWith AndroidQtVersion::parseBuiltWith(const QByteArray &modulesCoreJsonData,
                                                              bool *ok)
 {
@@ -188,6 +225,10 @@ AndroidQtVersion::BuiltWith AndroidQtVersion::parseBuiltWith(const QByteArray &m
                 if (const QJsonValue version = ndk["version"]; !version.isUndefined())
                     result.ndkVersion = QVersionNumber::fromString(version.toString());
             }
+        }
+        if (const QJsonValue compilerTarget = builtWith["compiler_target"];
+            !compilerTarget.isUndefined()) {
+            result.androidAbi = abiFromCompilerTarget(compilerTarget.toString());
         }
     }
 

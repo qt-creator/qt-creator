@@ -1216,7 +1216,6 @@ void tst_Process::mergedChannels_data()
                   << false << false << false << true;
     QTest::newRow("ForwardedErrorChannel") << QProcess::ForwardedErrorChannel
                   << true << false << false << false;
-
 }
 
 void tst_Process::mergedChannels()
@@ -1265,6 +1264,7 @@ void tst_Process::destroyBlockingProcess()
     subConfig.setupSubProcess(&process);
     process.start();
     QVERIFY(process.waitForStarted());
+    QVERIFY(process.isRunning());
     QVERIFY(!process.waitForFinished(1000));
 }
 

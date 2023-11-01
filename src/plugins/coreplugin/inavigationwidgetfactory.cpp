@@ -59,7 +59,9 @@
     to the caller.
 */
 
-using namespace Core;
+using namespace Utils;
+
+namespace Core {
 
 static QList<INavigationWidgetFactory *> g_navigationWidgetFactories;
 
@@ -106,7 +108,7 @@ void INavigationWidgetFactory::setPriority(int priority)
 
     \sa id()
 */
-void INavigationWidgetFactory::setId(Utils::Id id)
+void INavigationWidgetFactory::setId(Id id)
 {
     m_id = id;
 }
@@ -135,7 +137,7 @@ QKeySequence INavigationWidgetFactory::activationSequence() const
 
     \sa INavigationWidgetFactory::restoreSettings()
 */
-void INavigationWidgetFactory::saveSettings(Utils::QtcSettings * /* settings */,
+void INavigationWidgetFactory::saveSettings(QtcSettings * /* settings */,
                                             int /* position */,
                                             QWidget * /* widget */)
 {
@@ -147,18 +149,20 @@ void INavigationWidgetFactory::saveSettings(Utils::QtcSettings * /* settings */,
 
     \sa INavigationWidgetFactory::saveSettings()
 */
-void INavigationWidgetFactory::restoreSettings(QSettings * /* settings */, int /* position */, QWidget * /* widget */)
+void INavigationWidgetFactory::restoreSettings(QtcSettings * /* settings */, int /* position */,
+                                               QWidget * /* widget */)
 {
 }
 
 // Registers a new root path in the factory
-void INavigationWidgetFactory::addRootPath(Utils::Id /*id*/, const QString & /*displayName*/, const QIcon & /*icon*/, const Utils::FilePath & /*path*/)
+void INavigationWidgetFactory::addRootPath(Id /*id*/, const QString & /*displayName*/,
+                                           const QIcon & /*icon*/, const FilePath & /*path*/)
 {
-
 }
 
 // Removes a root path from the factory
-void INavigationWidgetFactory::removeRootPath(Utils::Id /*path*/)
+void INavigationWidgetFactory::removeRootPath(Id /*path*/)
 {
-
 }
+
+} // Core

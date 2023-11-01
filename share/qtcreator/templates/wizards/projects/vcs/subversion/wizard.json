@@ -69,7 +69,7 @@
                     "trIncompleteMessage": "\"%{JS: Util.toNativeSeparators('%{TargetPath}')}\" exists in the filesystem.",
                     "data":
                     {
-                        "trText": "%{defaultDir}"
+                        "text": "%{defaultDir}"
                     }
                 },
                 {

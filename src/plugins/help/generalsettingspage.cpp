@@ -18,6 +18,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -31,7 +32,6 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QPushButton>
-#include <QSettings>
 #include <QSpinBox>
 #include <QTextStream>
 #include <QVBoxLayout>
@@ -76,6 +76,7 @@ private:
     QFontComboBox *familyComboBox;
     QComboBox *styleComboBox;
     QComboBox *sizeComboBox;
+    QCheckBox *antialiasCheckBox;
     QLineEdit *homePageLineEdit;
     QComboBox *helpStartComboBox;
     QComboBox *contextHelpComboBox;
@@ -92,49 +93,31 @@ private:
 
 GeneralSettingsPageWidget::GeneralSettingsPageWidget()
 {
+    using namespace Layouting;
+
     // font group box
-    auto fontGroupBox = new QGroupBox(Tr::tr("Font"));
-    auto familyLabel = new QLabel(Tr::tr("Family:"));
-
     familyComboBox = new QFontComboBox;
-    auto styleLabel = new QLabel(Tr::tr("Style:"));
     styleComboBox = new QComboBox;
-    auto sizeLabel = new QLabel(Tr::tr("Size:"));
     sizeComboBox = new QComboBox;
-
-    auto fontLayout = new QHBoxLayout();
-    fontLayout->addWidget(familyComboBox);
-    fontLayout->addSpacing(20);
-    fontLayout->addWidget(styleLabel);
-    fontLayout->addWidget(styleComboBox);
-    fontLayout->addSpacing(20);
-    fontLayout->addWidget(sizeLabel);
-    fontLayout->addWidget(sizeComboBox);
-    fontLayout->addStretch();
-
-    auto noteLabel = new QLabel(Tr::tr(
-        "Note: The above setting takes effect only if the HTML file does not use a style sheet."));
-    noteLabel->setWordWrap(true);
-    auto zoomLabel = new QLabel(Tr::tr("Zoom:"));
-
     zoomSpinBox = new QSpinBox;
     zoomSpinBox->setMinimum(10);
     zoomSpinBox->setMaximum(3000);
     zoomSpinBox->setSingleStep(10);
     zoomSpinBox->setValue(100);
     zoomSpinBox->setSuffix(Tr::tr("%"));
+    antialiasCheckBox = new QCheckBox(Tr::tr("Antialias"));
 
-    auto zoomLayout = new QHBoxLayout();
-    zoomLayout->addWidget(zoomSpinBox);
-    zoomLayout->addStretch();
-
-    auto fontGroupBoxLayout = new QGridLayout;
-    fontGroupBox->setLayout(fontGroupBoxLayout);
-    fontGroupBoxLayout->addWidget(familyLabel, 0, 0);
-    fontGroupBoxLayout->addLayout(fontLayout, 0, 1);
-    fontGroupBoxLayout->addWidget(noteLabel, 1, 0, 1, 2);
-    fontGroupBoxLayout->addWidget(zoomLabel, 2, 0);
-    fontGroupBoxLayout->addLayout(zoomLayout, 2, 1);
+    auto fontGroupBox = new QGroupBox(Tr::tr("Font"));
+    // clang-format off
+    Column {
+        Row { Tr::tr("Family:"), familyComboBox,
+              Tr::tr("Style:"), styleComboBox,
+              Tr::tr("Size:"), sizeComboBox, st },
+        Row { Tr::tr("Note: The above setting takes effect only if the "
+                     "HTML file does not use a style sheet.") },
+        Row { Tr::tr("Zoom:"), zoomSpinBox, antialiasCheckBox, st }
+    }.attachTo(fontGroupBox);
+    // clang-format on
 
     // startup group box
     auto startupGroupBox = new QGroupBox(Tr::tr("Startup"));
@@ -231,6 +214,7 @@ GeneralSettingsPageWidget::GeneralSettingsPageWidget()
     m_font = LocalHelpManager::fallbackFont();
     m_fontZoom = LocalHelpManager::fontZoom();
     zoomSpinBox->setValue(m_fontZoom);
+    antialiasCheckBox->setChecked(LocalHelpManager::antialias());
 
     updateFontSizeSelector();
     updateFontStyleSelector();
@@ -308,6 +292,8 @@ void GeneralSettingsPageWidget::apply()
 
     if (m_fontZoom != LocalHelpManager::fontZoom())
         LocalHelpManager::setFontZoom(m_fontZoom);
+
+    LocalHelpManager::setAntialias(antialiasCheckBox->isChecked());
 
     QString homePage = QUrl::fromUserInput(homePageLineEdit->text()).toString();
     if (homePage.isEmpty())

@@ -225,13 +225,6 @@ public:
     bool supportsPrefixExpansion() const override { return false; }
 
     QList<AssistProposalItemInterface *> items() const { return m_currentItems; }
-
-    bool isComplete(const QString prefix)
-    { return m_completePrefix && prefix.startsWith(*m_completePrefix); }
-    void setCompletePrefix(const QString &completePrefix) { m_completePrefix = completePrefix; }
-
-private:
-    std::optional<QString> m_completePrefix;
 };
 
 bool LanguageClientCompletionModel::isSortable(const QString &) const
@@ -278,13 +271,6 @@ public:
         }
     }
 
-    bool isComplete(const AssistInterface *interface)
-    {
-        const QString prefix = interface->textAt(basePosition(),
-                                                 interface->position() - basePosition());
-        return static_cast<LanguageClientCompletionModel *>(model().data())->isComplete(prefix);
-    }
-
     void setProposal(IAssistProposal *proposal, const QString &prefix)
     {
         if (!proposal) {
@@ -306,7 +292,7 @@ public:
     void updateProposal(std::unique_ptr<AssistInterface> &&interface) override
     {
         deleteCurrentProcessor();
-        if (!m_provider || isComplete(interface.get())) {
+        if (!m_provider) {
             GenericProposalWidget::updateProposal(std::move(interface));
             return;
         }
@@ -513,12 +499,9 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
                                                m_pos - m_basePos);
 
     QList<CompletionItem> items;
-    bool isComplete = true;
     if (std::holds_alternative<CompletionList>(*result)) {
         const auto &list = std::get<CompletionList>(*result);
         items = list.items().value_or(QList<CompletionItem>());
-        if (list.isIncomplete())
-            isComplete = false;
     } else if (std::holds_alternative<QList<CompletionItem>>(*result)) {
         items = std::get<QList<CompletionItem>>(*result);
     }
@@ -531,8 +514,6 @@ void LanguageClientCompletionAssistProcessor::handleCompletionResponse(
     }
     auto model = new LanguageClientCompletionModel();
     model->loadContent(proposalItems);
-    if (isComplete)
-        model->setCompletePrefix(prefix);
     LanguageClientCompletionProposal *proposal = new LanguageClientCompletionProposal(m_provider,
                                                                                       m_basePos,
                                                                                       model);

@@ -10,7 +10,6 @@ add_qtc_plugin(WebAssembly
     webassemblyplugin.cpp webassemblyplugin.h
     webassemblyqtversion.cpp webassemblyqtversion.h
     webassemblyrunconfiguration.cpp webassemblyrunconfiguration.h
-    webassemblyrunconfigurationaspects.cpp webassemblyrunconfigurationaspects.h
     webassemblysettings.cpp webassemblysettings.h
     webassemblytoolchain.cpp webassemblytoolchain.h
     webassemblytr.h

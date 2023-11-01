@@ -9,8 +9,8 @@
 
 namespace QmlDesigner::Paths {
 
-inline constexpr QStringView exampleDownloadPath = u"StudioConfig/ExamplesDownloadPath";
-inline constexpr QStringView bundlesDownloadPath = u"StudioConfig/BundlesDownloadPath";
+constexpr char exampleDownloadPath[] = "StudioConfig/ExamplesDownloadPath";
+constexpr char bundlesDownloadPath[] = "StudioConfig/BundlesDownloadPath";
 
 QMLDESIGNERBASE_EXPORT Utils::FilePath defaultExamplesPath();
 QMLDESIGNERBASE_EXPORT Utils::FilePath defaultBundlesPath();

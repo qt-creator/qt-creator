@@ -27,7 +27,7 @@ namespace Internal {
 QStringList fixGeneratorScript(const QString &configFile, QString binary)
 {
     if (binary.isEmpty())
-        return QStringList();
+        return {};
     // Expand to full path if it is relative and in the wizard
     // directory, else assume it can be found in path.
     QFileInfo binaryInfo(binary);

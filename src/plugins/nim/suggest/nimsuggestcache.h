@@ -3,42 +3,12 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+namespace Utils { class FilePath; }
 
-#include <QObject>
-
-#include <unordered_map>
-
-namespace Core { class IEditor; }
-
-namespace Nim {
-namespace Suggest {
+namespace Nim::Suggest {
 
 class NimSuggest;
 
-class NimSuggestCache : public QObject
-{
-    Q_OBJECT
+NimSuggest *getFromCache(const Utils::FilePath &filePath);
 
-public:
-    static NimSuggestCache &instance();
-
-    NimSuggest *get(const Utils::FilePath &filename);
-
-    QString executablePath() const;
-    void setExecutablePath(const QString &path);
-
-private:
-    NimSuggestCache();
-    ~NimSuggestCache();
-
-    void onEditorOpened(Core::IEditor *editor);
-    void onEditorClosed(Core::IEditor *editor);
-
-    std::unordered_map<Utils::FilePath, std::unique_ptr<Suggest::NimSuggest>> m_nimSuggestInstances;
-
-    QString m_executablePath;
-};
-
-} // namespace Suggest
-} // namespace Nim
+} // Nim::Suggest

@@ -5,7 +5,6 @@
 
 #include <QSharedData>
 #include <QString>
-#include <QVector>
 #include <QTextStream>
 
 #include <algorithm>

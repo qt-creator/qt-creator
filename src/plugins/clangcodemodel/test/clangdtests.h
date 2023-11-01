@@ -188,6 +188,17 @@ private slots:
     void test();
 };
 
+class ClangdTestIndirectChanges : public ClangdTest
+{
+    Q_OBJECT
+
+public:
+    ClangdTestIndirectChanges();
+
+private slots:
+    void test();
+};
+
 } // namespace Tests
 } // namespace Internal
 } // namespace ClangCodeModel

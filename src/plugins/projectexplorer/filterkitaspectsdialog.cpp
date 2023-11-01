@@ -18,26 +18,25 @@
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class FilterTreeItem : public TreeItem
 {
 public:
-    FilterTreeItem(const KitAspect *aspect, bool enabled) : m_aspect(aspect), m_enabled(enabled)
+    FilterTreeItem(const KitAspectFactory *factory, bool enabled) : m_factory(factory), m_enabled(enabled)
     { }
 
     QString displayName() const {
-        if (m_aspect->displayName().indexOf('<') < 0)
-            return m_aspect->displayName();
+        if (m_factory->displayName().indexOf('<') < 0)
+            return m_factory->displayName();
 
         // removing HTML tag because KitAspect::displayName could contain html
         // e.g. "CMake <a href=\"generator\">generator</a>" (CMakeGeneratorKitAspect)
         QTextDocument html;
-        html.setHtml(m_aspect->displayName());
+        html.setHtml(m_factory->displayName());
         return html.toPlainText();
     }
-    Utils::Id id() const { return m_aspect->id(); }
+    Utils::Id id() const { return m_factory->id(); }
     bool enabled() const { return m_enabled; }
 
 private:
@@ -48,12 +47,12 @@ private:
             return displayName();
         if (column == 1 && role == Qt::CheckStateRole)
             return m_enabled ? Qt::Checked : Qt::Unchecked;
-        return QVariant();
+        return {};
     }
 
     bool setData(int column, const QVariant &data, int role) override
     {
-        QTC_ASSERT(column == 1 && !m_aspect->isEssential(), return false);
+        QTC_ASSERT(column == 1 && !m_factory->isEssential(), return false);
         if (role == Qt::CheckStateRole) {
             m_enabled = data.toInt() == Qt::Checked;
             return true;
@@ -65,14 +64,14 @@ private:
     {
         QTC_ASSERT(column < 2, return Qt::ItemFlags());
         Qt::ItemFlags flags = Qt::ItemIsSelectable;
-        if (column == 0 || !m_aspect->isEssential())
+        if (column == 0 || !m_factory->isEssential())
             flags |= Qt::ItemIsEnabled;
-        if (column == 1 && !m_aspect->isEssential())
+        if (column == 1 && !m_factory->isEssential())
             flags |= Qt::ItemIsUserCheckable;
         return flags;
     }
 
-    const KitAspect * const m_aspect;
+    const KitAspectFactory * const m_factory;
     bool m_enabled;
 };
 
@@ -82,13 +81,13 @@ public:
     FilterKitAspectsModel(const Kit *kit, QObject *parent) : TreeModel(parent)
     {
         setHeader({Tr::tr("Setting"), Tr::tr("Visible")});
-        for (const KitAspect * const aspect : KitManager::kitAspects()) {
-            if (kit && !aspect->isApplicableToKit(kit))
+        for (const KitAspectFactory * const factory : KitManager::kitAspectFactories()) {
+            if (kit && !factory->isApplicableToKit(kit))
                 continue;
             const QSet<Utils::Id> irrelevantAspects = kit ? kit->irrelevantAspects()
                                                          : KitManager::irrelevantAspects();
-            auto * const item = new FilterTreeItem(aspect,
-                                                   !irrelevantAspects.contains(aspect->id()));
+            auto * const item = new FilterTreeItem(factory,
+                                                   !irrelevantAspects.contains(factory->id()));
             rootItem()->appendChild(item);
         }
         static const auto cmp = [](const TreeItem *item1, const TreeItem *item2) {
@@ -114,10 +113,7 @@ public:
 class FilterTreeView : public TreeView
 {
 public:
-    FilterTreeView(QWidget *parent) : TreeView(parent)
-    {
-        setUniformRowHeights(true);
-    }
+    FilterTreeView(QWidget *parent) : TreeView(parent) {}
 
 private:
     QSize sizeHint() const override
@@ -148,5 +144,4 @@ QSet<Utils::Id> FilterKitAspectsDialog::irrelevantAspects() const
     return static_cast<FilterKitAspectsModel *>(m_model)->disabledItems();
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

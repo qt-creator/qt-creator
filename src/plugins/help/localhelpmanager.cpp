@@ -21,10 +21,10 @@
 #include "macwebkithelpviewer.h"
 #endif
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
@@ -35,6 +35,7 @@
 #include <QHelpEngine>
 #include <QHelpLink>
 #include <QMutexLocker>
+#include <QVersionNumber>
 
 #include <optional>
 
@@ -51,21 +52,23 @@ QHelpEngine* LocalHelpManager::m_guiEngine = nullptr;
 QMutex LocalHelpManager::m_bkmarkMutex;
 BookmarkManager* LocalHelpManager::m_bookmarkManager = nullptr;
 
-static const char kHelpHomePageKey[] = "Help/HomePage";
-static const char kFontFamilyKey[] = "Help/FallbackFontFamily";
-static const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
-static const char kFontSizeKey[] = "Help/FallbackFontSize";
-static const char kFontZoomKey[] = "Help/FontZoom";
-static const char kStartOptionKey[] = "Help/StartOption";
-static const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
-static const char kReturnOnCloseKey[] = "Help/ReturnOnClose";
-static const char kUseScrollWheelZooming[] = "Help/UseScrollWheelZooming";
-static const char kLastShownPagesKey[] = "Help/LastShownPages";
-static const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
-static const char kViewerBackend[] = "Help/ViewerBackend";
+const char kHelpHomePageKey[] = "Help/HomePage";
+const char kFontFamilyKey[] = "Help/FallbackFontFamily";
+const char kFontStyleNameKey[] = "Help/FallbackFontStyleName";
+const char kFontSizeKey[] = "Help/FallbackFontSize";
+const char kFontZoomKey[] = "Help/FontZoom";
+const char kAntialiasKey[] = "Help/FontAntialias";
+const char kStartOptionKey[] = "Help/StartOption";
+const char kContextHelpOptionKey[] = "Help/ContextHelpOption";
+const char kReturnOnCloseKey[] = "Help/ReturnOnClose";
+const char kUseScrollWheelZooming[] = "Help/UseScrollWheelZooming";
+const char kLastShownPagesKey[] = "Help/LastShownPages";
+const char kLastSelectedTabKey[] = "Help/LastSelectedTab";
+const char kViewerBackend[] = "Help/ViewerBackend";
 
-static const int kDefaultFallbackFontSize = 14;
-static const int kDefaultFontZoom = 100;
+const int kDefaultFallbackFontSize = 14;
+const int kDefaultFontZoom = 100;
+const bool kDefaultAntialias = true;
 const int kDefaultStartOption = LocalHelpManager::ShowLastPages;
 const int kDefaultContextHelpOption = Core::HelpManager::SideBySideIfPossible;
 const bool kDefaultReturnOnClose = false;
@@ -113,9 +116,12 @@ LocalHelpManager *LocalHelpManager::instance()
 
 QString LocalHelpManager::defaultHomePage()
 {
+    const auto version = QVersionNumber::fromString(QCoreApplication::applicationVersion());
     static const QString url = QString::fromLatin1("qthelp://org.qt-project.qtcreator."
-        "%1%2%3/doc/index.html").arg(IDE_VERSION_MAJOR).arg(IDE_VERSION_MINOR)
-        .arg(IDE_VERSION_RELEASE);
+                                                   "%1%2%3/doc/index.html")
+                                   .arg(version.majorVersion())
+                                   .arg(version.minorVersion())
+                                   .arg(version.microVersion());
     return url;
 }
 
@@ -131,7 +137,7 @@ void LocalHelpManager::setHomePage(const QString &page)
 
 QFont LocalHelpManager::fallbackFont()
 {
-    QSettings *settings = Core::ICore::settings();
+    Utils::QtcSettings *settings = Core::ICore::settings();
     const QString family = settings->value(kFontFamilyKey, defaultFallbackFontFamily()).toString();
     const int size = settings->value(kFontSizeKey, kDefaultFallbackFontSize).toInt();
     QFont font(family, size);
@@ -169,6 +175,19 @@ int LocalHelpManager::setFontZoom(int percentage)
     Core::ICore::settings()->setValueWithDefault(kFontZoomKey, newZoom, kDefaultFontZoom);
     emit m_instance->fontZoomChanged(newZoom);
     return newZoom;
+}
+
+bool LocalHelpManager::antialias()
+{
+    return Core::ICore::settings()->value(kAntialiasKey, kDefaultAntialias).toBool();
+}
+
+void LocalHelpManager::setAntialias(bool on)
+{
+    if (on != antialias()) {
+        Core::ICore::settings()->setValueWithDefault(kAntialiasKey, on, kDefaultAntialias);
+        emit m_instance->antialiasChanged(on);
+    }
 }
 
 LocalHelpManager::StartOption LocalHelpManager::startOption()
@@ -496,12 +515,13 @@ bool LocalHelpManager::canOpenOnlineHelp(const QUrl &url)
 
 bool LocalHelpManager::openOnlineHelp(const QUrl &url)
 {
-    static const QString unversionedLocalDomainName = QString("org.qt-project.%1").arg(Core::Constants::IDE_ID);
+    static const QString unversionedLocalDomainName
+        = QString("org.qt-project.%1").arg(Utils::appInfo().id);
 
     if (canOpenOnlineHelp(url)) {
         QString urlPrefix = "http://doc.qt.io/";
         if (url.authority().startsWith(unversionedLocalDomainName)) {
-            urlPrefix.append(Core::Constants::IDE_ID);
+            urlPrefix.append(Utils::appInfo().id);
         } else {
             const auto host = url.host();
             const auto dot = host.lastIndexOf('.');

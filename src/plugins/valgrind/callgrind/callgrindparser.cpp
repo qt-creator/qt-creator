@@ -3,26 +3,24 @@
 
 #include "callgrindparser.h"
 
-#include "callgrindparsedata.h"
-#include "callgrindfunctioncall.h"
 #include "callgrindcostitem.h"
 #include "callgrindfunction.h"
+#include "callgrindfunctioncall.h"
+#include "callgrindparsedata.h"
 
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
-#include <QHash>
-#include <QVector>
-#include <QStringList>
 #include <QDebug>
+#include <QHash>
+#include <QStringList>
 
 // #define DEBUG_PARSER
 
 using namespace Utils;
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 static void skipSpace(const char **current, const char *end)
 {
@@ -162,13 +160,13 @@ public:
         FunctionCall *call = nullptr;
     };
     CallData currentCallData;
-    QVector<quint64> callDestinations;
+    QList<quint64> callDestinations;
 
     // we can only resolve callees after parsing the whole file so save that data here for now
-    QVector<CallData> pendingCallees;
+    QList<CallData> pendingCallees;
 
     // id(s) for the ??? file
-    QVector<quint64> unknownFiles;
+    QList<quint64> unknownFiles;
 
     // functions which call themselves
     QSet<Function *> recursiveFunctions;
@@ -197,7 +195,7 @@ void Parser::Private::parse(const FilePath &filePath)
 
     // build fast lookup of functions by their nameId
     QHash<qint64, QList<const Function *> > functionLookup;
-    const QVector<const Function *> functions = data->functions();
+    const QList<const Function *> functions = data->functions();
     for (const Function *function : functions) {
         functionLookup[function->nameId()].append(function);
     }
@@ -643,5 +641,4 @@ ParseData *Parser::takeData()
     return data;
 }
 
-} //Callgrind
-} //Valgrind
+} // namespace Valgrind::Callgrind

@@ -982,8 +982,8 @@ This flag will allow push to proceed.</source>
         <translation>サーバーへプッシュ</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>例: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>例: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
     <message>
         <source>Ignores differences between branches and overwrites
@@ -3821,8 +3821,8 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>認証情報を確認する</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>例: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>例: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</translation>
     </message>
 </context>
 <context>
@@ -4383,20 +4383,20 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>セッションマネージャ</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>新規作成(&amp;N)</translation>
+        <source>&amp;New...</source>
+        <translation>新規作成(&amp;N)...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>名前を変更(&amp;R)</translation>
+        <source>&amp;Rename...</source>
+        <translation>名前を変更(&amp;R)...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>複製(&amp;L)</translation>
+        <source>C&amp;lone...</source>
+        <translation>複製(&amp;L)...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>削除(&amp;D)</translation>
+        <source>&amp;Delete...</source>
+        <translation>削除(&amp;D)...</translation>
     </message>
     <message>
         <source>Restore last session on startup</source>
@@ -7092,7 +7092,7 @@ SSH 認証が必要とされるリポジトリで使用されます(SSH の SSH_
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>ブックマークの追加</translation>
@@ -12201,7 +12201,7 @@ in the system&apos;s browser for manual download.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Move Up</source>
         <translation>上に移動</translation>
@@ -30728,7 +30728,7 @@ When a problem is detected, the application is interrupted and can be debugged.<
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Show Bookmark</source>
         <translation>ブックマークを開く</translation>
@@ -30744,10 +30744,6 @@ When a problem is detected, the application is interrupted and can be debugged.<
     <message>
         <source>Rename Bookmark</source>
         <translation>ブックマークの名前変更</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>削除</translation>
     </message>
     <message>
         <source>Deleting a folder also removes its content.&lt;br&gt;Do you want to continue?</source>
@@ -32563,8 +32559,8 @@ API バージョンが %1 以上の SDK をインストールしてください�
         <translation>&quot;%1&quot; を起動できません: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; を実行中にタイムアウトが発生しました</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>&quot;%1&quot; を実行中にタイムアウトが発生しました。</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -46504,8 +46500,8 @@ Stepping into the module or setting breakpoints by file and line is expected to 
 <context>
     <name>QmlDesigner::GenerateResource</name>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>&quot;%1&quot; を実行中にタイムアウトが発生しました</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>&quot;%1&quot; を実行中にタイムアウトが発生しました。</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>

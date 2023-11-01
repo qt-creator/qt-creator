@@ -4,18 +4,16 @@ import qbs.FileInfo
 import qbs.Utilities
 
 Module {
-    Depends { name: "cpp"; required: false }
-
-    property string qtcreator_display_version: '11.0.3'
+    property string qtcreator_display_version: '12.0.0-rc1'
     property string ide_version_major: '11'
     property string ide_version_minor: '0'
-    property string ide_version_release: '3'
+    property string ide_version_release: '84'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
     property string ide_compat_version_major: '11'
     property string ide_compat_version_minor: '0'
-    property string ide_compat_version_release: '0'
+    property string ide_compat_version_release: '84'
     property string qtcreator_compat_version: ide_compat_version_major + '.'
             + ide_compat_version_minor + '.' + ide_compat_version_release
 
@@ -26,6 +24,7 @@ Module {
     property string ide_id: 'qtcreator'
     property string ide_cased_id: 'QtCreator'
     property string ide_bundle_identifier: 'org.qt-project.qtcreator'
+    property string ide_user_file_extension: '.user'
 
     property string libDirName: "lib"
     property string ide_app_path: qbs.targetOS.contains("macos") ? "" : "bin"
@@ -40,7 +39,7 @@ Module {
     }
     property string ide_plugin_path: {
         if (qbs.targetOS.contains("macos"))
-            return ide_app_target + ".app/Contents/PlugIns"
+            return ide_app_target + ".app/Contents/PlugIns/qtcreator"
         else if (qbs.targetOS.contains("windows"))
             return libDirName + "/qtcreator/plugins"
         else
@@ -73,12 +72,10 @@ Module {
 
     property bool preferSystemSyntaxHighlighting: true
 
-    property bool make_dev_package: false
+    property bool withPluginTests: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
+    property bool testsEnabled: withPluginTests // TODO: compat, remove
+    property bool withAutotests: project.withAutotests // FIXME: withPluginTests
 
-    // Will be replaced when creating modules from products
-    property string export_data_base: project.ide_source_tree + "/share/qtcreator"
-
-    property bool testsEnabled: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
     property stringList generalDefines: [
         "QT_CREATOR",
         'IDE_LIBRARY_BASENAME="' + libDirName + '"',
@@ -91,18 +88,9 @@ Module {
         'RELATIVE_DOC_PATH="' + FileInfo.relativePath('/' + ide_bin_path, '/' + ide_doc_path) + '"',
         "QT_NO_CAST_TO_ASCII",
         "QT_RESTRICTED_CAST_FROM_ASCII",
+        "QT_NO_FOREACH",
         "QT_DISABLE_DEPRECATED_BEFORE=0x050900",
         "QT_USE_QSTRINGBUILDER",
-    ].concat(testsEnabled ? ["WITH_TESTS"] : [])
+    ].concat(withPluginTests ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
-     .concat((qbs.toolchain.contains("msvc") && Utilities.versionCompare(qbs.version, "1.23.2") < 0)
-        ? ["_ENABLE_EXTENDED_ALIGNED_STORAGE"] : [])
-
-    Properties {
-        condition: cpp.present && qbs.toolchain.contains("msvc") && product.Qt
-                   && Utilities.versionCompare(product.Qt.core.version, "6.3") >= 0
-                   && Utilities.versionCompare(cpp.compilerVersion, "19.10") >= 0
-                   && Utilities.versionCompare(qbs.version, "1.23") < 0
-        cpp.cxxFlags: "/permissive-"
-    }
 }

@@ -37,14 +37,14 @@ namespace ProjectExplorer {
 */
 
 /*!
-    \fn virtual bool canRestore(const QVariantMap &map) const = 0
+    \fn virtual bool canRestore(const Utils::Storage &map) const = 0
 
     Checks whether this factory can restore a device from the serialized state
     specified by \a map.
 */
 
 /*!
-    \fn virtual IDevice::Ptr restore(const QVariantMap &map) const = 0
+    \fn virtual IDevice::Ptr restore(const Utils::Storage &map) const = 0
 
     Loads a device from a serialized state. Only called if \c canRestore()
     returns true for \a map.
@@ -69,7 +69,6 @@ IDevice::Ptr IDeviceFactory::create() const
     IDevice::Ptr device = m_creator();
     if (!device) // e.g. Cancel used on the dialog to create a device
         return {};
-    device->setDefaultDisplayName(displayName());
     return device;
 }
 
@@ -80,7 +79,7 @@ IDevice::Ptr IDeviceFactory::construct() const
 
     IDevice::Ptr device = m_constructor();
     QTC_ASSERT(device, return {});
-    device->setDefaultDisplayName(displayName());
+    device->settings()->displayName.setDefaultValue(displayName());
     return device;
 }
 
@@ -112,7 +111,7 @@ void IDeviceFactory::setCombinedIcon(const FilePath &small, const FilePath &larg
                                  Icon({{large, Theme::IconsBaseColor}})});
 }
 
-void IDeviceFactory::setCreator(const std::function<IDevice::Ptr ()> &creator)
+void IDeviceFactory::setCreator(const std::function<IDevice::Ptr()> &creator)
 {
     QTC_ASSERT(creator, return);
     m_creator = creator;

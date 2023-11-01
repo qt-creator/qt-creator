@@ -18,8 +18,6 @@ class VcsBaseDiffEditorControllerPrivate;
 
 class VCSBASE_EXPORT VcsBaseDiffEditorController : public DiffEditor::DiffEditorController
 {
-    Q_OBJECT
-
 public:
     explicit VcsBaseDiffEditorController(Core::IDocument *document);
     ~VcsBaseDiffEditorController() override;
@@ -28,8 +26,7 @@ public:
     void setVcsBinary(const Utils::FilePath &path);
 
 protected:
-    Tasking::TreeStorage<QString> inputStorage() const;
-    Tasking::GroupItem postProcessTask();
+    Tasking::GroupItem postProcessTask(const Tasking::TreeStorage<QString> &inputStorage);
 
     void setupCommand(Utils::Process &process, const QStringList &args) const;
 

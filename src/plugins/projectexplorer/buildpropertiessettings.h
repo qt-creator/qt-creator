@@ -5,11 +5,11 @@
 
 #include "projectexplorer_export.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace ProjectExplorer {
 
-class PROJECTEXPLORER_EXPORT BuildPropertiesSettings : public Core::PagedSettings
+class PROJECTEXPLORER_EXPORT BuildPropertiesSettings : public Utils::AspectContainer
 {
 public:
     BuildPropertiesSettings();
@@ -24,9 +24,10 @@ public:
     BuildTriStateAspect separateDebugInfo{this};
     BuildTriStateAspect qmlDebugging{this};
     BuildTriStateAspect qtQuickCompiler{this};
-    Utils::BoolAspect showQtSettings;
 
-    QString defaultBuildDirectoryTemplate();
+    static void showQtSettings(); // Called by the Qt support plugin
 };
+
+PROJECTEXPLORER_EXPORT BuildPropertiesSettings &buildPropertiesSettings();
 
 } // namespace ProjectExplorer

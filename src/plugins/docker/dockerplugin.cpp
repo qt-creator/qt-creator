@@ -1,17 +1,15 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "dockerplugin.h"
-
 #include "dockerapi.h"
 #include "dockerconstants.h"
 #include "dockerdevice.h"
-#include "dockersettings.h"
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/fsengine/fsengine.h>
-#include <utils/qtcassert.h>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -19,32 +17,34 @@ using namespace Utils;
 
 namespace Docker::Internal {
 
-class DockerPluginPrivate
+class DockerPlugin final : public ExtensionSystem::IPlugin
 {
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Docker.json")
+
 public:
-    ~DockerPluginPrivate() {
-        m_deviceFactory.shutdownExistingDevices();
+    DockerPlugin()
+    {
+        FSEngine::registerDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
     }
 
-    DockerSettings m_settings;
-    DockerDeviceFactory m_deviceFactory{&m_settings};
-    DockerApi m_dockerApi{&m_settings};
+private:
+    ~DockerPlugin() final
+    {
+        FSEngine::unregisterDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
+        m_deviceFactory->shutdownExistingDevices();
+    }
+
+    void initialize() final
+    {
+        m_deviceFactory = std::make_unique<DockerDeviceFactory>();
+        m_dockerApi = std::make_unique<DockerApi>();
+    }
+
+    std::unique_ptr<DockerDeviceFactory> m_deviceFactory;
+    std::unique_ptr<DockerApi> m_dockerApi;
 };
 
-DockerPlugin::DockerPlugin()
-{
-    FSEngine::registerDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
-}
+} // Docker::Internal
 
-DockerPlugin::~DockerPlugin()
-{
-    FSEngine::unregisterDeviceScheme(Constants::DOCKER_DEVICE_SCHEME);
-    delete d;
-}
-
-void DockerPlugin::initialize()
-{
-    d = new DockerPluginPrivate;
-}
-
-} // Docker::Interanl
+#include "dockerplugin.moc"

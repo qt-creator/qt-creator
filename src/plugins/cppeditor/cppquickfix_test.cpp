@@ -13,6 +13,8 @@
 #include "cppsourceprocessertesthelper.h"
 #include "cpptoolssettings.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 #include <utils/fileutils.h>
 
 #include <QDebug>
@@ -55,12 +57,12 @@ public:
 QList<TestDocumentPtr> singleDocument(const QByteArray &original,
                                                 const QByteArray &expected)
 {
-    return QList<TestDocumentPtr>()
-            << CppTestDocument::create("file.cpp", original, expected);
+    return {CppTestDocument::create("file.cpp", original, expected)};
 }
 
 BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDocuments,
-                                           const ProjectExplorer::HeaderPaths &headerPaths)
+                                           const ProjectExplorer::HeaderPaths &headerPaths,
+                                           const QByteArray &clangFormatSettings)
     : m_testDocuments(testDocuments)
     , m_cppCodeStylePreferences(0)
     , m_restoreHeaderPaths(false)
@@ -85,11 +87,15 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
         document->writeToDisk();
     }
 
+    // Create .clang-format file
+    if (!clangFormatSettings.isEmpty())
+        m_temporaryDirectory->createFile(".clang-format", clangFormatSettings);
+
     // Set appropriate include paths
     if (!headerPaths.isEmpty()) {
         m_restoreHeaderPaths = true;
-        m_headerPathsToRestore = m_modelManager->headerPaths();
-        m_modelManager->setHeaderPaths(headerPaths);
+        m_headerPathsToRestore = CppModelManager::headerPaths();
+        CppModelManager::setHeaderPaths(headerPaths);
     }
 
     // Update Code Model
@@ -122,7 +128,7 @@ BaseQuickFixTestCase::BaseQuickFixTestCase(const QList<TestDocumentPtr> &testDoc
 
     // Enforce the default cpp code style, so we are independent of config file settings.
     // This is needed by e.g. the GenerateGetterSetter quick fix.
-    m_cppCodeStylePreferences = CppToolsSettings::instance()->cppCodeStyle();
+    m_cppCodeStylePreferences = CppToolsSettings::cppCodeStyle();
     QVERIFY(m_cppCodeStylePreferences);
     m_cppCodeStylePreferencesOriginalDelegateId = m_cppCodeStylePreferences->currentDelegateId();
     m_cppCodeStylePreferences->setCurrentDelegate("qt");
@@ -147,7 +153,7 @@ BaseQuickFixTestCase::~BaseQuickFixTestCase()
 
     // Restore include paths
     if (m_restoreHeaderPaths)
-        m_modelManager->setHeaderPaths(m_headerPathsToRestore);
+        CppModelManager::setHeaderPaths(m_headerPathsToRestore);
 
     // Remove created files from file system
     for (const TestDocumentPtr &testDocument : std::as_const(m_testDocuments))
@@ -182,8 +188,9 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
                                              CppQuickFixFactory *factory,
                                              const ProjectExplorer::HeaderPaths &headerPaths,
                                              int operationIndex,
-                                             const QByteArray &expectedFailMessage)
-    : BaseQuickFixTestCase(testDocuments, headerPaths)
+                                             const QByteArray &expectedFailMessage,
+                                             const QByteArray &clangFormatSettings)
+    : BaseQuickFixTestCase(testDocuments, headerPaths, clangFormatSettings)
 {
     QVERIFY(succeededSoFar());
 
@@ -2738,15 +2745,15 @@ void QuickfixTest::testGenerateGetterSetterCustomTemplate()
 
     const _ customTypeDecl = R"--(
 namespace N1 {
-    namespace N2 {
-        struct test{};
-    }
-    template<typename T>
-    struct custom {
-        void assign(const custom<T>&);
-        bool equals(const custom<T>&);
-        T* get();
-    };
+namespace N2 {
+struct test{};
+}
+template<typename T>
+struct custom {
+    void assign(const custom<T>&);
+    bool equals(const custom<T>&);
+    T* get();
+};
 )--";
     // Header File
     original = customTypeDecl + R"--(
@@ -3471,14 +3478,12 @@ void CppCodeStyleSettingsChanger::setSettings(const CppCodeStyleSettings &settin
     QVariant variant;
     variant.setValue(settings);
 
-    CppCodeStylePreferences *preferences = CppToolsSettings::instance()->cppCodeStyle();
-    preferences->currentDelegate()->setValue(variant);
+    CppToolsSettings::cppCodeStyle()->currentDelegate()->setValue(variant);
 }
 
 CppCodeStyleSettings CppCodeStyleSettingsChanger::currentSettings()
 {
-    CppCodeStylePreferences *preferences = CppToolsSettings::instance()->cppCodeStyle();
-    return preferences->currentDelegate()->value().value<CppCodeStyleSettings>();
+    return CppToolsSettings::cppCodeStyle()->currentDelegate()->value().value<CppCodeStyleSettings>();
 }
 
 void QuickfixTest::testGenerateGettersSetters_data()
@@ -5202,77 +5207,77 @@ void QuickfixTest::testInsertDefsFromDecls_data()
     QTest::addColumn<int>("mode");
 
     QByteArray origHeader = R"(
-        namespace N {
-        class @C
-        {
-        public:
-            friend void ignoredFriend();
-            void ignoredImplemented() {};
-            void ignoredImplemented2(); // Below
-            void ignoredImplemented3(); // In cpp file
-            void funcNotSelected();
-            void funcInline();
-            void funcBelow();
-            void funcCppFile();
+namespace N {
+class @C
+{
+public:
+    friend void ignoredFriend();
+    void ignoredImplemented() {};
+    void ignoredImplemented2(); // Below
+    void ignoredImplemented3(); // In cpp file
+    void funcNotSelected();
+    void funcInline();
+    void funcBelow();
+    void funcCppFile();
 
-        signals:
-            void ignoredSignal();
-        };
+signals:
+    void ignoredSignal();
+};
 
-        inline void C::ignoredImplemented2() {}
+inline void C::ignoredImplemented2() {}
 
-        } // namespace N)";
+} // namespace N)";
     QByteArray origSource = R"(
-        #include "file.h"
+#include "file.h"
 
-        namespace N {
+namespace N {
 
-        void C::ignoredImplemented3() {}
+void C::ignoredImplemented3() {}
 
-        } // namespace N)";
+} // namespace N)";
 
     QByteArray expectedHeader = R"(
-        namespace N {
-        class C
-        {
-        public:
-            friend void ignoredFriend();
-            void ignoredImplemented() {};
-            void ignoredImplemented2(); // Below
-            void ignoredImplemented3(); // In cpp file
-            void funcNotSelected();
-            void funcInline()
-            {
+namespace N {
+class C
+{
+public:
+    friend void ignoredFriend();
+    void ignoredImplemented() {};
+    void ignoredImplemented2(); // Below
+    void ignoredImplemented3(); // In cpp file
+    void funcNotSelected();
+    void funcInline()
+    {
 
-            }
-            void funcBelow();
-            void funcCppFile();
+    }
+    void funcBelow();
+    void funcCppFile();
 
-        signals:
-            void ignoredSignal();
-        };
+signals:
+    void ignoredSignal();
+};
 
-        inline void C::ignoredImplemented2() {}
+inline void C::ignoredImplemented2() {}
 
-        inline void C::funcBelow()
-        {
+inline void C::funcBelow()
+{
 
-        }
+}
 
-        } // namespace N)";
+} // namespace N)";
     QByteArray expectedSource = R"(
-        #include "file.h"
+#include "file.h"
 
-        namespace N {
+namespace N {
 
-        void C::ignoredImplemented3() {}
+void C::ignoredImplemented3() {}
 
-        void C::funcCppFile()
-        {
+void C::funcCppFile()
+{
 
-        }
+}
 
-        } // namespace N)";
+} // namespace N)";
     QTest::addRow("normal case")
             << QByteArrayList{origHeader, expectedHeader}
             << QByteArrayList{origSource, expectedSource}
@@ -5334,6 +5339,63 @@ void QuickfixTest::testInsertDefsFromDecls()
     InsertDefsFromDecls factory;
     factory.setMode(static_cast<InsertDefsFromDecls::Mode>(mode));
     QuickFixOperationTest(testDocuments, &factory);
+}
+
+void QuickfixTest::testInsertAndFormatDefsFromDecls()
+{
+    static const auto isClangFormatPresent = [] {
+        using namespace ExtensionSystem;
+        return Utils::contains(PluginManager::plugins(), [](const PluginSpec *plugin) {
+            return plugin->name() == "ClangFormat" && plugin->isEffectivelyEnabled();
+        });
+    };
+    if (!isClangFormatPresent())
+        QSKIP("This test reqires ClangFormat");
+
+    const QByteArray origHeader = R"(
+class @C
+{
+public:
+    void func1 (int const &i);
+    void func2 (double const d);
+};
+)";
+    const QByteArray origSource = R"(
+#include "file.h"
+)";
+
+    const QByteArray expectedSource = R"(
+#include "file.h"
+
+void C::func1 (int const &i)
+{
+
+}
+
+void C::func2 (double const d)
+{
+
+}
+)";
+
+    const QByteArray clangFormatSettings = R"(
+BreakBeforeBraces: Allman
+QualifierAlignment: Right
+SpaceBeforeParens: Always
+)";
+
+    const QList<TestDocumentPtr> testDocuments({
+        CppTestDocument::create("file.h", origHeader, origHeader),
+        CppTestDocument::create("file.cpp", origSource, expectedSource)});
+    InsertDefsFromDecls factory;
+    factory.setMode(InsertDefsFromDecls::Mode::Impl);
+    CppCodeStylePreferences * const prefs = CppToolsSettings::cppCodeStyle();
+    const CppCodeStyleSettings settings = prefs->codeStyleSettings();
+    CppCodeStyleSettings tempSettings = settings;
+    tempSettings.forceFormatting = true;
+    prefs->setCodeStyleSettings(tempSettings);
+    QuickFixOperationTest(testDocuments, &factory, {}, {}, {}, clangFormatSettings);
+    prefs->setCodeStyleSettings(settings);
 }
 
 // Function for one of InsertDeclDef section cases
@@ -6807,15 +6869,15 @@ void QuickfixTest::testMoveFuncDefOutsideMemberFuncOutsideWithNs()
     QByteArray original =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  inline int numbe@r() const\n"
-        "  {\n"
-        "    return 5;\n"
-        "  }\n"
+        "    inline int numbe@r() const\n"
+        "    {\n"
+        "        return 5;\n"
+        "    }\n"
         "};}\n";
     QByteArray expected =
         "namespace MyNs {\n"
         "class Foo {\n"
-        "  int number() const;\n"
+        "    int number() const;\n"
         "};\n"
         "\n"
         "int Foo::number() const\n"
@@ -7781,7 +7843,8 @@ void QuickfixTest::testExtractFunction_data()
     QTest::addColumn<QByteArray>("expected");
 
     QTest::newRow("basic")
-        << _("void f()\n"
+        << _("// Documentation for f\n"
+             "void f()\n"
              "{\n"
              "    @{start}g();@{end}\n"
              "}\n")
@@ -7790,6 +7853,7 @@ void QuickfixTest::testExtractFunction_data()
              "    g();\n"
              "}\n"
              "\n"
+             "// Documentation for f\n"
              "void f()\n"
              "{\n"
              "    extracted();\n"
@@ -8918,6 +8982,354 @@ void QuickfixTest::testGenerateConstructor()
     testDocuments << CppTestDocument::create("file.cpp", original_source, expected_source);
     TestFactory factory;
     QuickFixOperationTest(testDocuments, &factory);
+}
+
+void QuickfixTest::testChangeCommentType_data()
+{
+    QTest::addColumn<QString>("input");
+    QTest::addColumn<QString>("expectedOutput");
+
+    QTest::newRow("C -> C++ / no selection / single line") << R"(
+int var1;
+/* Other comment, unaffected */
+/* Our @comment */
+/* Another unaffected comment */
+int var2;)" << R"(
+int var1;
+/* Other comment, unaffected */
+// Our comment
+/* Another unaffected comment */
+int var2;)";
+
+    QTest::newRow("C -> C++ / no selection / multi-line / preserved header and footer") << R"(
+/****************************************************
+ * some info
+ * more @info
+ ***************************************************/)" << R"(
+/////////////////////////////////////////////////////
+// some info
+// more info
+/////////////////////////////////////////////////////)";
+
+    QTest::newRow("C -> C++ / no selection / multi-line / non-preserved header and footer") << R"(
+/*
+ * some info
+ * more @info
+ */)" << R"(
+// some info
+// more info
+)";
+
+    QTest::newRow("C -> C++ / no selection / qdoc") << R"(
+/*!
+    \qmlproperty string Type::element.name
+    \qmlproperty int Type::element.id
+
+    \brief Holds the @element name and id.
+*/)" << R"(
+//! \qmlproperty string Type::element.name
+//! \qmlproperty @int Type::element.id
+//!
+//! \brief Holds the element name and id.
+)";
+
+    QTest::newRow("C -> C++ / no selection / doxygen") << R"(
+/*! \class Test
+    \brief A test class.
+
+    A more detailed @class description.
+*/)" << R"(
+//! \class Test
+//! \brief A test class.
+//!
+//! A more detailed class description.
+)";
+
+    QTest::newRow("C -> C++ / selection / single line") << R"(
+int var1;
+/* Other comment, unaffected */
+@{start}/* Our comment */@{end}
+/* Another unaffected comment */
+int var2;)" << R"(
+int var1;
+/* Other comment, unaffected */
+// Our comment
+/* Another unaffected comment */
+int var2;)";
+
+    QTest::newRow("C -> C++ / selection / multi-line / preserved header and footer") << R"(
+/****************************************************
+ * @{start}some info
+ * more info@{end}
+ ***************************************************/)" << R"(
+/////////////////////////////////////////////////////
+// some info
+// more info
+/////////////////////////////////////////////////////)";
+
+    QTest::newRow("C -> C++ / selection / multi-line / non-preserved header and footer") << R"(
+/*@{start}
+ * some in@{end}fo
+ * more info
+ */)" << R"(
+// some info
+// more info
+)";
+
+    QTest::newRow("C -> C++ / selection / qdoc") << R"(
+/*!@{start}
+    \qmlproperty string Type::element.name
+    \qmlproperty int Type::element.id
+
+    \brief Holds the element name and id.
+*/@{end})" << R"(
+//! \qmlproperty string Type::element.name
+//! \qmlproperty int Type::element.id
+//!
+//! \brief Holds the element name and id.
+)";
+
+    QTest::newRow("C -> C++ / selection / doxygen") << R"(
+/** Expand envi@{start}ronment variables in a string.
+ *
+ * Environment variables are accepted in the @{end}following forms:
+ * $SOMEVAR, ${SOMEVAR} on Unix and %SOMEVAR% on Windows.
+ * No escapes and quoting are supported.
+ * If a variable is not found, it is not substituted.
+ */)" << R"(
+//! Expand environment variables in a string.
+//!
+//! Environment variables are accepted in the following forms:
+//! $SOMEVAR, ${SOMEVAR} on Unix and %SOMEVAR% on Windows.
+//! No escapes and quoting are supported.
+//! If a variable is not found, it is not substituted.
+)";
+
+    QTest::newRow("C -> C++ / selection / multiple comments") << R"(
+@{start}/* Affected comment */
+/* Another affected comment */
+/* A third affected comment */@{end}
+/* An unaffected comment */)" << R"(
+// Affected comment
+// Another affected comment
+// A third affected comment
+/* An unaffected comment */)";
+
+    QTest::newRow("C++ -> C / no selection / single line") << R"(
+// Other comment, unaffected
+// Our @comment
+// Another unaffected comment)" << R"(
+// Other comment, unaffected
+/* Our comment */
+// Another unaffected comment)";
+
+    QTest::newRow("C++ -> C / selection / single line") << R"(
+// Other comment, unaffected
+@{start}// Our comment@{end}
+// Another unaffected comment)" << R"(
+// Other comment, unaffected
+/* Our comment */
+// Another unaffected comment)";
+
+    QTest::newRow("C++ -> C / selection / multi-line / preserved header and footer") << R"(
+@{start}/////////////////////////////////////////////////////
+// some info
+// more info
+/////////////////////////////////////////////////////@{end})" << R"(
+/****************************************************/
+/* some info                                        */
+/* more info                                        */
+/****************************************************/)";
+
+    QTest::newRow("C++ -> C / selection / qdoc") << R"(
+@{start}//! \qmlproperty string Type::element.name
+//! \qmlproperty int Type::element.id
+//!
+//! \brief Holds the element name and id.@{end}
+)" << R"(
+/*!
+    \qmlproperty string Type::element.name
+    \qmlproperty int Type::element.id
+
+    \brief Holds the element name and id.
+*/
+)";
+
+    QTest::newRow("C++ -> C / selection / doxygen") << R"(
+@{start}//! \class Test
+//! \brief A test class.
+//!
+//! A more detailed class description.@{end}
+)" << R"(
+/*!
+    \class Test
+    \brief A test class.
+
+    A more detailed class description.
+*/
+)";
+}
+
+void QuickfixTest::testChangeCommentType()
+{
+    QFETCH(QString, input);
+    QFETCH(QString, expectedOutput);
+
+    ConvertCommentStyle factory;
+    QuickFixOperationTest(
+        {CppTestDocument::create("file.h", input.toUtf8(), expectedOutput.toUtf8())},
+        &factory);
+}
+
+void QuickfixTest::testMoveComments_data()
+{
+    QTest::addColumn<QByteArrayList>("headers");
+    QTest::addColumn<QByteArrayList>("sources");
+
+    const QByteArrayList headersFuncDecl2Def{R"(
+// Function comment
+void @aFunction();
+)", R"(
+void aFunction();
+)"};
+    const QByteArrayList sourcesFuncDecl2Def{R"(
+#include "file.h"
+
+void aFunction() {}
+)", R"(
+#include "file.h"
+
+// Function comment
+void aFunction() {}
+)"};
+    QTest::newRow("function: from decl to def") << headersFuncDecl2Def << sourcesFuncDecl2Def;
+
+    const QByteArrayList headersFuncDef2Decl{R"(
+void aFunction();
+)", R"(
+/* function */
+/* comment */
+void aFunction();
+)"};
+    const QByteArrayList sourcesFuncDef2Decl{R"(
+#include "file.h"
+
+/* function */
+/* comment */
+void a@Function() {}
+)", R"(
+#include "file.h"
+
+void aFunction() {}
+)"};
+    QTest::newRow("function: from def to decl") << headersFuncDef2Decl << sourcesFuncDef2Decl;
+
+    const QByteArrayList headersFuncNoDef{R"(
+// Function comment
+void @aFunction();
+)", R"(
+// Function comment
+void aFunction();
+)"};
+    QTest::newRow("function: no def") << headersFuncNoDef << QByteArrayList();
+
+    const QByteArrayList headersFuncNoDecl{R"(
+// Function comment
+inline void @aFunction() {}
+)", R"(
+// Function comment
+inline void aFunction() {}
+)"};
+    QTest::newRow("function: no decl") << headersFuncNoDecl << QByteArrayList();
+
+    const QByteArrayList headersFuncTemplateDecl2Def{R"(
+// Function comment
+template<typename T> T @aFunction();
+
+template<typename T> inline T aFunction() { return T(); }
+)", R"(
+template<typename T> T aFunction();
+
+// Function comment
+template<typename T> inline T aFunction() { return T(); }
+)"};
+    QTest::newRow("function template: from decl to def") << headersFuncTemplateDecl2Def
+                                                         << QByteArrayList();
+
+    const QByteArrayList headersFuncTemplateDef2Decl{R"(
+template<typename T> T aFunction();
+
+// Function comment
+template<typename T> inline T @aFunction() { return T(); }
+)", R"(
+// Function comment
+template<typename T> T aFunction();
+
+template<typename T> inline T aFunction() { return T(); }
+)"};
+    QTest::newRow("function template: from def to decl") << headersFuncTemplateDef2Decl
+                                                         << QByteArrayList();
+
+    const QByteArrayList headersMemberDecl2Def{R"(
+class C {
+    // Member function comment
+    void @aMember();
+)", R"(
+class C {
+    void aMember();
+)"};
+    const QByteArrayList sourcesMemberDecl2Def{R"(
+#include "file.h"
+
+void C::aMember() {}
+)", R"(
+#include "file.h"
+
+// Member function comment
+void C::aMember() {}
+)"};
+    QTest::newRow("member function: from decl to def") << headersMemberDecl2Def
+                                                       << sourcesMemberDecl2Def;
+
+    const QByteArrayList headersMemberDef2Decl{R"(
+class C {
+    void aMember();
+)", R"(
+class C {
+    // Member function comment
+    void aMember();
+)"};
+    const QByteArrayList sourcesMemberDef2Decl{R"(
+#include "file.h"
+
+// Member function comment
+void C::aMember() {@}
+)", R"(
+#include "file.h"
+
+void C::aMember() {}
+)"};
+    QTest::newRow("member function: from def to decl") << headersMemberDef2Decl
+                                                       << sourcesMemberDef2Decl;
+}
+
+void QuickfixTest::testMoveComments()
+{
+    QFETCH(QByteArrayList, headers);
+    QFETCH(QByteArrayList, sources);
+
+    QList<TestDocumentPtr> documents;
+    QCOMPARE(headers.size(), 2);
+    documents << CppTestDocument::create("file.h", headers.at(0), headers.at(1));
+    if (!sources.isEmpty()) {
+        QCOMPARE(sources.size(), 2);
+        documents << CppTestDocument::create("file.cpp", sources.at(0), sources.at(1));
+    }
+    MoveFunctionComments factory;
+    QByteArray failMessage;
+    if (QByteArray(QTest::currentDataTag()) == "function template: from def to decl")
+        failMessage = "decl/def switch doesn't work for templates";
+    QuickFixOperationTest(documents, &factory, {}, {}, failMessage);
 }
 
 } // namespace CppEditor::Internal::Tests

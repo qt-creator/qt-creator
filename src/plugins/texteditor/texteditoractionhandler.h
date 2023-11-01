@@ -34,10 +34,11 @@ public:
         UnCommentSelection = 2,
         UnCollapseAll = 4,
         FollowSymbolUnderCursor = 8,
-        JumpToFileUnderCursor = 16,
-        RenameSymbol = 32,
-        FindUsage = 64,
-        CallHierarchy = 128
+        FollowTypeUnderCursor = 16,
+        JumpToFileUnderCursor = 32,
+        RenameSymbol = 64,
+        FindUsage = 128,
+        CallHierarchy = 256
     };
     using TextEditorWidgetResolver = std::function<TextEditorWidget *(Core::IEditor *)>;
 
@@ -48,6 +49,17 @@ public:
 
     uint optionalActions() const;
     ~TextEditorActionHandler();
+
+    void updateCurrentEditor();
+    void updateActions();
+
+    using Predicate = std::function<bool(Core::IEditor *editor)>;
+
+    void setCanUndoCallback(const Predicate &callback);
+    void setCanRedoCallback(const Predicate &callback);
+
+    using UnhandledCallback = std::function<void(Utils::Id commandId, Core::IEditor *editor)>;
+    void setUnhandledCallback(const UnhandledCallback &callback);
 
 private:
     Internal::TextEditorActionHandlerPrivate *d;

@@ -11,7 +11,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <designer/designerconstants.h>
 
@@ -179,6 +179,10 @@ static bool getEditorLaunchData(const CommandForQtVersion &commandForQtVersion,
     // - default kit
     // - any other kit
     // As fallback check PATH
+    if (!KitManager::waitForLoaded()) {
+        *errorMessage = Tr::tr("Could not load kits in a reasonable amount of time.");
+        return false;
+    }
     data->workingDirectory.clear();
     QVector<QtSupport::QtVersion *> qtVersionsToCheck; // deduplicated after being filled
     if (const Project *project = ProjectManager::projectForFile(filePath)) {
@@ -258,63 +262,62 @@ DesignerExternalEditor::DesignerExternalEditor()
     setId("Qt.Designer");
     setDisplayName(::Core::Tr::tr("Qt Designer"));
     setMimeTypes({ProjectExplorer::Constants::FORM_MIMETYPE});
-}
 
-bool DesignerExternalEditor::startEditor(const FilePath &filePath, QString *errorMessage)
-{
-    LaunchData data;
+    setEditorStarter([this](const FilePath &filePath, QString *errorMessage) {
+        LaunchData data;
 
-    // Find the editor binary
-    if (!getEditorLaunchData(designerBinary, filePath, &data, errorMessage))
-        return false;
+        // Find the editor binary
+        if (!getEditorLaunchData(designerBinary, filePath, &data, errorMessage))
+            return false;
 
-    if (HostOsInfo::isMacHost())
-        return startEditorProcess(data, errorMessage);
+        if (HostOsInfo::isMacHost())
+            return startEditorProcess(data, errorMessage);
 
-    /* Qt Designer on the remaining platforms: Uses Designer's own
-        * Tcp-based communication mechanism to ensure all files are opened
-        * in one instance (per version). */
+        /* Qt Designer on the remaining platforms: Uses Designer's own
+            * Tcp-based communication mechanism to ensure all files are opened
+            * in one instance (per version). */
 
-    // Known one?
-    const ProcessCache::iterator it = m_processCache.find(data.binary);
-    if (it != m_processCache.end()) {
-        // Process is known, write to its socket to cause it to open the file
-        if (debug)
-            qDebug() << Q_FUNC_INFO << "\nWriting to socket:" << data.binary << filePath;
-        QTcpSocket *socket = it.value();
-        if (!socket->write(filePath.toString().toUtf8() + '\n')) {
-            *errorMessage = Tr::tr("Qt Designer is not responding (%1).").arg(socket->errorString());
+        // Known one?
+        const ProcessCache::iterator it = m_processCache.find(data.binary);
+        if (it != m_processCache.end()) {
+            // Process is known, write to its socket to cause it to open the file
+            if (debug)
+                qDebug() << Q_FUNC_INFO << "\nWriting to socket:" << data.binary << filePath;
+            QTcpSocket *socket = it.value();
+            if (!socket->write(filePath.toString().toUtf8() + '\n')) {
+                *errorMessage = Tr::tr("Qt Designer is not responding (%1).").arg(socket->errorString());
+                return false;
+            }
+            return true;
+        }
+        // No process yet. Create socket & launch the process
+        QTcpServer server;
+        if (!server.listen(QHostAddress::LocalHost)) {
+            *errorMessage = Tr::tr("Unable to create server socket: %1").arg(server.errorString());
             return false;
         }
-        return true;
-    }
-    // No process yet. Create socket & launch the process
-    QTcpServer server;
-    if (!server.listen(QHostAddress::LocalHost)) {
-        *errorMessage = Tr::tr("Unable to create server socket: %1").arg(server.errorString());
-        return false;
-    }
-    const quint16 port = server.serverPort();
-    if (debug)
-        qDebug() << Q_FUNC_INFO << "\nLaunching server:" << port << data.binary << filePath;
-    // Start first one with file and socket as '-client port file'
-    // Wait for the socket listening
-    data.arguments.push_front(QString::number(port));
-    data.arguments.push_front(QLatin1String("-client"));
+        const quint16 port = server.serverPort();
+        if (debug)
+            qDebug() << Q_FUNC_INFO << "\nLaunching server:" << port << data.binary << filePath;
+        // Start first one with file and socket as '-client port file'
+        // Wait for the socket listening
+        data.arguments.push_front(QString::number(port));
+        data.arguments.push_front(QLatin1String("-client"));
 
-    if (!startEditorProcess(data, errorMessage))
-        return false;
-    // Insert into cache if socket is created, else try again next time
-    if (server.waitForNewConnection(3000)) {
-        QTcpSocket *socket = server.nextPendingConnection();
-        socket->setParent(this);
-        const QString binary = data.binary;
-        m_processCache.insert(binary, socket);
-        auto mapSlot = [binary] { processTerminated(binary); };
-        connect(socket, &QAbstractSocket::disconnected, this, mapSlot);
-        connect(socket, &QAbstractSocket::errorOccurred, this, mapSlot);
-    }
-    return true;
+        if (!startEditorProcess(data, errorMessage))
+            return false;
+        // Insert into cache if socket is created, else try again next time
+        if (server.waitForNewConnection(3000)) {
+            QTcpSocket *socket = server.nextPendingConnection();
+            socket->setParent(&m_guard);
+            const QString binary = data.binary;
+            m_processCache.insert(binary, socket);
+            auto mapSlot = [binary] { processTerminated(binary); };
+            QObject::connect(socket, &QAbstractSocket::disconnected, &m_guard, mapSlot);
+            QObject::connect(socket, &QAbstractSocket::errorOccurred, &m_guard, mapSlot);
+        }
+        return true;
+    });
 }
 
 // Linguist
@@ -331,13 +334,11 @@ LinguistEditor::LinguistEditor()
     setId("Qt.Linguist");
     setDisplayName(::Core::Tr::tr("Qt Linguist"));
     setMimeTypes({ProjectExplorer::Constants::LINGUIST_MIMETYPE});
-}
-
-bool LinguistEditor::startEditor(const Utils::FilePath &filePath, QString *errorMessage)
-{
-    LaunchData data;
-    return getEditorLaunchData(linguistBinary, filePath, &data, errorMessage)
-           && startEditorProcess(data, errorMessage);
+    setEditorStarter([](const FilePath &filePath, QString *errorMessage) {
+        LaunchData data;
+        return getEditorLaunchData(linguistBinary, filePath, &data, errorMessage)
+               && startEditorProcess(data, errorMessage);
+    });
 }
 
 } // QtSupport::Internal

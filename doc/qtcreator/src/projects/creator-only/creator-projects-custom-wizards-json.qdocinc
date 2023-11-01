@@ -5,21 +5,22 @@
 //! [json wizards]
     \section1 Integrating Wizards into Builds
 
-    To integrate the wizard into \QC and to deliver it as part of the \QC build,
-    place the wizard files in the \QC sources. Then select \uicontrol Build >
-    \uicontrol {Run CMake} or \uicontrol {Run qmake}, depending on the build
-    system you use. This ensures that the new files you added for your wizard are
-    actually copied from the \QC source directory into the \QC build directory
+    If you are a \QC developer or build your own \QC version for delivery to
+    others, you can integrate the wizard into \QC. To deliver the wizard as
+    part of the \QC build, place the wizard files in the shared directory in
+    the \QC sources. Then select \uicontrol Build > \uicontrol {Run CMake}.
+    This ensures that the new files you added for your wizard are actually
+    copied from the \QC source directory into the \QC build directory
     as part of the next \QC build.
 
-    If you do not run CMake or qmake, your new wizard will not show up because
+    If you do not run CMake, your new wizard will not show up because
     it does not exist in the build directory you run your newly built \QC from.
-    It never got copied there because CMake or qmake did not inform the
-    build tool, such as make or ninja, about the new files in the source tree.
+    It never got copied there because CMake did not inform the
+    build tool, such as make or Ninja, about the new files in the source tree.
 
-    Basically, CMake and qmake generate a fixed list of files to copy from the
+    Basically, CMake generates a fixed list of files to copy from the
     source directory to the subdirectory of the build directory that is checked
-    for wizards at runtime. Therefore, you need to run CMake or qmake or execute
+    for wizards at runtime. Therefore, you need to run CMake or execute
     the \uicontrol {Factory.Reset} function each time the names or locations of
     the files change.
 
@@ -89,7 +90,7 @@
 
         \li Make a copy of \c {share/qtcreator/templates/wizards/classes/cpp}
             and rename it. For example,
-            \c {share/qtcreator/templates/wizards/classes/mycpp}
+            \c {$HOME/.config/QtProject/qtcreator/templates/wizards/classes/mycpp}.
 
         \li Use the \uicontrol {Factory.Reset} action to make the wizard appear
             in \uicontrol File > \uicontrol {New File} without
@@ -792,16 +793,24 @@
 
     \list
 
-        \li \c trText specifies the default text to display.
+        \li \c trText specifies the translatable default text to display.
 
-        \li \c trDisabledText specifies the text to display in a disabled field.
+        \li \c text specifies the non-translatable default text to display.
+
+        \li \c trDisabledText specifies the translatable text to display in a
+            disabled field.
+
+        \li \c disabledText specifies the non-translatable text to display in
+            a disabled field.
 
         \li \c completion lists existing \c namespaces for the class name line
             edit and existing \c classes for the base class line edit. This
             value replaces the history completer that is usually available for
             such fields.
 
-        \li \c trPlaceholder specifies the placeholder text.
+        \li \c trPlaceholder specifies the translatable placeholder text.
+
+        \li \c placeholder specifies the non-translatable placeholder text.
 
         \li \c validator specifies a QRegularExpression to validate the line
             edit against.
@@ -885,10 +894,15 @@
 
     \list
 
-        \li \c trText specifies the text to display.
+        \li \c trText specifies the translatable text to display.
 
-        \li \c trDisabledText specifies the text to display when the text edit
-            is disabled.
+        \li \c text specifies the non-translatable text to display.
+
+        \li \c trDisabledText specifies the translatable text to display when
+            the text edit is disabled.
+
+        \li \c disabledText specifies the non-translatable text to display when
+            the text edit is disabled.
 
         \li \c richText is set to \c true for rich text, otherwise \c{false}.
 

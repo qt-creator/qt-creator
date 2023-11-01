@@ -39,7 +39,7 @@ void NimTextEditorWidget::findLinkAt(const QTextCursor &c, const Utils::LinkHand
 {
     const Utils::FilePath &path = textDocument()->filePath();
 
-    NimSuggest *suggest = NimSuggestCache::instance().get(path);
+    NimSuggest *suggest = Nim::Suggest::getFromCache(path);
     if (!suggest)
         return processLinkCallback(Utils::Link());
 

@@ -13,32 +13,12 @@
 #include <memory>
 #include <optional>
 
-QT_BEGIN_NAMESPACE
-class QPlainTextEdit;
-QT_END_NAMESPACE
-
 namespace Utils {
 
-namespace Internal {
-class NameValueItemsWidget : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit NameValueItemsWidget(QWidget *parent = nullptr);
-
-    void setEnvironmentItems(const EnvironmentItems &items);
-    EnvironmentItems environmentItems() const;
-
-    void setPlaceholderText(const QString &text);
-
-private:
-    QPlainTextEdit *m_editor;
-};
-} // namespace Internal
+namespace Internal { class NameValueItemsWidget; }
 
 class QTCREATOR_UTILS_EXPORT NameValuesDialog : public QDialog
 {
-    Q_OBJECT
 public:
     void setNameValueItems(const NameValueItems &items);
     NameValueItems nameValueItems() const;
@@ -52,7 +32,6 @@ public:
                                                              Polisher polish = {},
                                                              const QString &windowTitle = {},
                                                              const QString &helpText = {});
-
 protected:
     explicit NameValuesDialog(const QString &windowTitle,
                               const QString &helpText,

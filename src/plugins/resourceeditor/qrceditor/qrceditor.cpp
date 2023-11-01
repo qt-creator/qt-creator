@@ -229,7 +229,7 @@ QString ResolveLocationContext::execCopyFileDialog(QWidget *parent, const QDir &
 // Helper to copy a file with message boxes
 static inline bool copyFile(const QString &file, const QString &copyName, QWidget *parent)
 {
-    if (QFile::exists(copyName)) {
+    if (QFileInfo::exists(copyName)) {
         if (!QFile::remove(copyName)) {
             QMessageBox::critical(parent, Tr::tr("Overwriting Failed"),
                                   Tr::tr("Could not overwrite file %1.")

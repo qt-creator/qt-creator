@@ -4,6 +4,8 @@
 #include "qmakesettings.h"
 #include "qmakeprojectmanagertr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/hostosinfo.h>
@@ -13,17 +15,15 @@ using namespace Utils;
 
 namespace QmakeProjectManager::Internal {
 
-static QmakeSettings *theSettings;
-
-QmakeSettings &settings() { return *theSettings; }
+QmakeSettings &settings()
+{
+    static QmakeSettings theSettings;
+    return theSettings;
+}
 
 QmakeSettings::QmakeSettings()
 {
-    theSettings = this;
-
-    setId("K.QmakeProjectManager.QmakeSettings");
-    setDisplayName(Tr::tr("Qmake"));
-    setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+    setAutoApply(false);
     setSettingsGroup("QmakeProjectManager");
 
     warnAgainstUnalignedBuildDir.setSettingsKey("WarnAgainstUnalignedBuildDir");
@@ -60,5 +60,19 @@ QmakeSettings::QmakeSettings()
 
     readSettings();
 }
+
+class QmakeSettingsPage : public Core::IOptionsPage
+{
+public:
+    QmakeSettingsPage()
+    {
+        setId("K.QmakeProjectManager.QmakeSettings");
+        setDisplayName(Tr::tr("Qmake"));
+        setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+static const QmakeSettingsPage settingsPage;
 
 } // QmakeProjectManager::Internal

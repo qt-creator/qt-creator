@@ -376,7 +376,7 @@ void CompilerOptionsBuilder::addHeaderPathOptions()
 
 void CompilerOptionsBuilder::addIncludeFile(const QString &file)
 {
-    if (QFile::exists(file)) {
+    if (QFileInfo::exists(file)) {
         add({isClStyle() ? QLatin1String(includeFileOptionCl)
                          : QLatin1String(includeFileOptionGcc),
              QDir::toNativeSeparators(file)});
@@ -899,6 +899,10 @@ void CompilerOptionsBuilder::evaluateCompilerFlags()
             // Optimization and run-time flags.
             continue;
         }
+
+        // GCC option that clang doesn't know.
+        if (option.contains("direct-extern-access"))
+            continue;
 
         // These were already parsed into ProjectPart::includedFiles.
         if (option == includeFileOptionCl || option == includeFileOptionGcc) {

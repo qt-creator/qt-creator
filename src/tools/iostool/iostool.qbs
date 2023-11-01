@@ -8,7 +8,6 @@ QtcTool {
     Depends { name: "Qt.widgets" }
     Depends { name: "Qt.xml" }
     Depends { name: "Qt.network" }
-    Depends { name: "app_version_header" }
 
     files: [
         "cfutils.h",

@@ -1156,7 +1156,7 @@ void VcsBaseEditorWidget::jumpToChangeFromDiff(QTextCursor cursor)
         return;
     const QString fileName = findDiffFile(fileNameFromDiffSpecification(block));
 
-    const bool exists = fileName.isEmpty() ? false : QFile::exists(fileName);
+    const bool exists = fileName.isEmpty() ? false : QFileInfo::exists(fileName);
 
     if (!exists)
         return;
@@ -1454,7 +1454,7 @@ void VcsBaseEditorWidget::slotAnnotateRevision(const QString &change)
 
 QStringList VcsBaseEditorWidget::annotationPreviousVersions(const QString &) const
 {
-    return QStringList();
+    return {};
 }
 
 void VcsBaseEditorWidget::slotPaste()
@@ -1554,7 +1554,7 @@ bool VcsBaseEditorWidget::isValidRevision(const QString &revision) const
 QString VcsBaseEditorWidget::revisionSubject(const QTextBlock &inBlock) const
 {
     Q_UNUSED(inBlock)
-    return QString();
+    return {};
 }
 
 bool VcsBaseEditorWidget::hasDiff() const

@@ -8,16 +8,19 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-version-control.html
     \page creator-vcs-bazaar.html
-    \nextpage creator-vcs-clearcase.html
+    \previouspage creator-reference.html
 
-    \title Using Bazaar
+    \ingroup creator-reference-vcs
+
+    \title Bazaar
+
+    \brief Additional Bazaar functions.
 
     Bazaar is a free version control system sponsored by Canonical.
 
     In addition to the standard version control system functions described in
-    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \l {Use common VCS Functions}, you can select \uicontrol Tools >
     \uicontrol Bazaar > \uicontrol Pull to turn a branch into a mirror of
     another branch. To update the mirror of the branch, select \uicontrol Push.
 
@@ -43,13 +46,13 @@
 
     \section1 Bazaar Preferences
 
-    To set Bazaar preferences, select \uicontrol Edit > \uicontrol Preferences >
+    To set Bazaar preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol Bazaar:
 
     \image qtcreator-preferences-vcs-bazaar.webp {Bazaar preferences}
 
     \list
-        \li \uicontrol Command specifies the path to the command line client
+        \li \uicontrol Command specifies the path to the command-line client
             executable.
         \li \uicontrol {Default username} and \uicontrol {Default email}
             specify the username and email address to use by default when
@@ -58,4 +61,7 @@
             have.
         \li \uicontrol Timeout sets a timeout for version control operations.
     \endlist
+
+    \sa {Set up version control systems}, {Use common VCS functions},
+    {Version Control Systems}
 */

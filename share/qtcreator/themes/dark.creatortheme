@@ -175,6 +175,7 @@ DSsliderHandleInteraction=ff2aafd3
 
 DSscrollBarTrack=dawnGrey
 DSscrollBarHandle=offBlack
+DSscrollBarHandle_idle=slateGrey
 
 DSsectionHeadBackground=midnightGrey
 
@@ -264,6 +265,7 @@ DSBackgroundColorNormal=normalBackground
 DStoolbarBackground=midnightGrey
 
 ;DS controls theme END
+
 
 BackgroundColorAlternate=alternateBackground
 BackgroundColorDark=shadowBackground
@@ -475,26 +477,26 @@ QmlDesigner_FormeditorBackgroundColor=qmlDesignerButtonColor
 QmlDesigner_AlternateBackgroundColor=qmlDesignerButtonColor
 QmlDesigner_ScrollBarHandleColor=ff505050
 
-TerminalForeground=ffffffff
+TerminalForeground=ffffff
 TerminalBackground=normalBackground
-TerminalSelection=7fffffff
+TerminalSelection=3fd1d1d1
 TerminalFindMatch=7fffff00
-TerminalAnsi0=000000
-TerminalAnsi1=8b1b10
-TerminalAnsi2=4aa32e
-TerminalAnsi3=9a9a2f
-TerminalAnsi4=0058D1
+TerminalAnsi0=151515
+TerminalAnsi1=ac4142
+TerminalAnsi2=7e8e50
+TerminalAnsi3=e5b567
+TerminalAnsi4=6c99bb
 TerminalAnsi5=a320ac
-TerminalAnsi6=49a3b0
-TerminalAnsi7=bfbfbf
-TerminalAnsi8=666666
-TerminalAnsi9=d22d1f
-TerminalAnsi10=62d63f
-TerminalAnsi11=e5e54b
-TerminalAnsi12=003EFF
-TerminalAnsi13=d22dde
-TerminalAnsi14=69e2e4
-TerminalAnsi15=e5e5e6
+TerminalAnsi6=7dd6cf
+TerminalAnsi7=d0d0d0
+TerminalAnsi8=505050
+TerminalAnsi9=d05e5b
+TerminalAnsi10=a7b773
+TerminalAnsi11=ffd184
+TerminalAnsi12=94c8ea
+TerminalAnsi13=f257fb
+TerminalAnsi14=a1fcf7
+TerminalAnsi15=ffffff
 
 [Flags]
 ComboBoxDrawTextShadow=false

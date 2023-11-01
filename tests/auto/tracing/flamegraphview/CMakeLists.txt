@@ -4,6 +4,7 @@ set(TSTFLAMEGRAPHVIEW_CPP_SOURCES
 )
 
 add_qtc_test(tst_tracing_flamegraphview
+  NEEDS_GUI
   EXCLUDE_FROM_PRECHECK
   DEPENDS Tracing Qt::QuickWidgets Qt::Quick Utils
 )

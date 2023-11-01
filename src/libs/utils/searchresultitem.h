@@ -5,9 +5,9 @@
 
 #include "utils_global.h"
 
-#include <utils/filepath.h>
-#include <utils/hostosinfo.h>
-#include <utils/textutils.h>
+#include "filepath.h"
+#include "hostosinfo.h"
+#include "textutils.h"
 
 #include <QColor>
 #include <QHash>
@@ -95,6 +95,11 @@ private:
 };
 
 using SearchResultItems = QList<SearchResultItem>;
+
+inline size_t qHash(const SearchResultItem &item)
+{
+    return item.mainRange().begin.line << 16 | item.mainRange().begin.column;
+}
 
 } // namespace Utils
 

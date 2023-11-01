@@ -12,21 +12,8 @@ using namespace Utils;
 
 namespace Autotest {
 
-ITestBase::ITestBase(bool activeByDefault, const ITestBase::TestBaseType type)
-    : m_active(activeByDefault)
-    , m_type(type)
+ITestBase::ITestBase()
 {}
-
-Id ITestBase::settingsId() const
-{
-    return Id(Constants::SETTINGSPAGE_PREFIX)
-            .withSuffix(QString("%1.%2").arg(priority()).arg(QLatin1String(name())));
-}
-
-Id ITestBase::id() const
-{
-    return Id(Constants::FRAMEWORK_PREFIX).withSuffix(name());
-}
 
 void ITestBase::resetRootNode()
 {
@@ -38,10 +25,11 @@ void ITestBase::resetRootNode()
     m_rootNode = nullptr;
 }
 
-
-ITestFramework::ITestFramework(bool activeByDefault)
-    : ITestBase(activeByDefault, ITestBase::Framework)
-{}
+ITestFramework::ITestFramework()
+{
+    setType(ITestBase::Framework);
+    setAutoApply(false);
+}
 
 ITestFramework::~ITestFramework()
 {
@@ -68,9 +56,11 @@ QStringList ITestFramework::testNameForSymbolName(const QString &) const
     return {};
 }
 
-ITestTool::ITestTool(bool activeByDefault)
-    : ITestBase(activeByDefault, ITestBase::Tool)
-{}
+ITestTool::ITestTool()
+{
+    setType(ITestBase::Tool);
+    setPriority(255);
+}
 
 ITestTreeItem *ITestTool::rootNode()
 {

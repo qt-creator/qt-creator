@@ -17,7 +17,7 @@ public:
     void updatePySideProjectPath(const Utils::FilePath &pySideProjectPath);
 
 private:
-    void doRun() override;
+    Tasking::GroupItem runRecipe() final;
 
     Utils::FilePathAspect m_pysideProject{this};
 };

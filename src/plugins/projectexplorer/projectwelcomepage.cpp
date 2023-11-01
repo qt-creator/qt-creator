@@ -81,10 +81,10 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
         const Id projectBase = PROJECT_BASE_ID;
         if (Command *cmd = ActionManager::command(projectBase.withSuffix(index.row() + 1)))
             return cmd->keySequence().toString(QKeySequence::NativeText);
-        return QVariant();
+        return {};
     }
     default:
-        return QVariant();
+        return {};
     }
 }
 
@@ -523,14 +523,14 @@ public:
                 QAction *action = new QAction(Tr::tr("Remove Project from Recent Projects"));
                 const auto projectModel = qobject_cast<ProjectModel *>(model);
                 contextMenu.addAction(action);
-                connect(action, &QAction::triggered, [idx, projectModel](){
+                connect(action, &QAction::triggered, this, [idx, projectModel] {
                     const QVariant projectFile = idx.data(ProjectModel::FilePathRole);
                     ProjectExplorerPlugin::removeFromRecentProjects(FilePath::fromVariant(projectFile));
                     projectModel->resetProjects();
                 });
                 contextMenu.addSeparator();
                 action = new QAction(Tr::tr("Clear Recent Project List"));
-                connect(action, &QAction::triggered, [projectModel]() {
+                connect(action, &QAction::triggered, this, [projectModel] {
                     ProjectExplorerPlugin::clearRecentProjects();
                     projectModel->resetProjects();
                 });

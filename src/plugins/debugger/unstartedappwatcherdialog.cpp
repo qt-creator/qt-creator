@@ -4,7 +4,7 @@
 #include "unstartedappwatcherdialog.h"
 
 #include "debuggeritem.h"
-#include "debuggerkitinformation.h"
+#include "debuggerkitaspect.h"
 #include "debuggertr.h"
 
 #include <utils/pathchooser.h>
@@ -12,13 +12,15 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitchooser.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+
+#include <utils/processinterface.h>
 
 #include <QCheckBox>
 #include <QDialogButtonBox>
@@ -82,7 +84,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
 
     if (kit)
         m_kitChooser->setCurrentKitId(kit->id());
-    else if (KitManager::defaultKit())
+    else if (KitManager::waitForLoaded() && KitManager::defaultKit())
         m_kitChooser->setCurrentKitId(KitManager::defaultKit()->id());
 
     auto pathLayout = new QHBoxLayout;
@@ -97,7 +99,7 @@ UnstartedAppWatcherDialog::UnstartedAppWatcherDialog(QWidget *parent)
     pathLayout->addWidget(resetExecutable);
     if (activeTarget) {
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
-            const Runnable runnable = runConfig->runnable();
+            const ProcessRunData runnable = runConfig->runnable();
             if (isLocal(runConfig)) {
                 resetExecutable->setEnabled(true);
                 connect(resetExecutable, &QPushButton::clicked, this, [this, runnable] {
@@ -178,7 +180,7 @@ void UnstartedAppWatcherDialog::selectExecutable()
 
     if (activeTarget) {
         if (RunConfiguration *runConfig = activeTarget->activeRunConfiguration()) {
-            const Runnable runnable = runConfig->runnable();
+            const ProcessRunData runnable = runConfig->runnable();
             if (isLocal(runConfig))
                 path = runnable.command.executable().parentDir();
         }

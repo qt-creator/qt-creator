@@ -4,7 +4,7 @@
 #include "parseissuesdialog.h"
 
 #include "ioutputparser.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "kitchooser.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"

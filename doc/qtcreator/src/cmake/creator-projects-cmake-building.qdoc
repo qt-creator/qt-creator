@@ -137,9 +137,8 @@
 
     To view all variables, select the \uicontrol Advanced check box.
 
-    To view all variables by default, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol CMake > \uicontrol General >
-    \uicontrol {Show advanced options by default}.
+    To view all variables by default, select \preferences > \uicontrol CMake >
+    \uicontrol General > \uicontrol {Show advanced options by default}.
 
     \image qtcreator-preferences-cmake-general.webp "General tab in CMake Preferences"
 
@@ -152,8 +151,8 @@
     stored in the CMakeLists.txt.user file, so deleting a build directory
     does not delete the initial configuration.
 
-    To be asked before \QC resets the changes, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol CMake > \uicontrol General >
+    To be asked before \QC resets the changes, select \preferences >
+    \uicontrol CMake > \uicontrol General >
     \uicontrol {Ask before re-configuring with initial parameters}.
 
     \section1 Viewing CMake Output
@@ -193,10 +192,16 @@
     You can add arguments to pass to CMake and the generator and targets for
     the build command in \uicontrol {Build Steps}.
 
-    \image qtcreator-cmake-build-steps.png {CMake build steps}
+    \image qtcreator-cmake-build-steps.webp {CMake build steps}
 
     \note While the other CMake generators are installed together with Qt,
     you usually need to install Ninja yourself.
+
+    To install the application to a staging directory when cross-compiling,
+    select the \uicontrol {Stage for installation} check box and specify
+    the path to a directory in the \uicontrol {Staging directory} field.
+    The packaging tool constructs the package from the contents of the
+    directory.
 
     \section1 Using Ninja as a CMake Generator
 
@@ -212,7 +217,7 @@
             \image qtcreator-cmake-kit-configuration.png {Kit CMake Configuration dialog}
         \li Select \uicontrol Change next to the \uicontrol {CMake generator}
             field to open the \uicontrol {CMake Generator} dialog.
-            \image qtcreator-cmake-generator.png {CMake Generator dialog}
+            \image qtcreator-cmake-generator.webp {CMake Generator dialog}
         \li In \uicontrol Generator, select \uicontrol Ninja.
         \li Select \uicontrol OK to save your changes and close the dialog.
         \li Select \uicontrol Close to close the
@@ -230,7 +235,7 @@
     \QC can automatically set up the \l {Setting Up Conan}
     {Conan package manager} for use with CMake.
 
-    Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake
+    Select \preferences > \uicontrol CMake
     \uicontrol General > \uicontrol {Package manager auto setup} to set the
     value of the \c CMAKE_PROJECT_INCLUDE_BEFORE variable to the path to a
     CMake script that installs dependencies from a \c conanfile.txt,
@@ -248,7 +253,7 @@
     When building with CMake, you can add arguments to pass to CMake and the
     generator and targets for the clean command in \uicontrol {Clean Steps}.
 
-    \image qtcreator-cmake-clean-steps.png
+    \image qtcreator-cmake-clean-steps.webp {CMake clean steps}
 
     The build errors and warnings are parsed and displayed in \l Issues.
 */

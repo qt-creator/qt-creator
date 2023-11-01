@@ -225,7 +225,7 @@ bool FilePath::isRootPath() const
         return true;
     }
 
-    return *this == FilePath::fromString(QDir::rootPath());
+    return *this == HostOsInfo::root();
 }
 
 QString FilePath::encodedHost() const
@@ -476,37 +476,13 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
 }
 
 /*!
-   Returns a bool indicating whether a file or directory with this FilePath exists.
-*/
-bool FilePath::exists() const
-{
-    return fileAccess()->exists(*this);
-}
-
-/*!
-    Returns a bool indicating whether this is a writable directory.
-*/
-bool FilePath::isWritableDir() const
-{
-    return fileAccess()->isWritableDirectory(*this);
-}
-
-/*!
-    Returns a bool indicating whether this is a writable file.
-*/
-bool FilePath::isWritableFile() const
-{
-    return fileAccess()->isWritableFile(*this);
-}
-
-/*!
     \brief Re-uses or creates a directory in this location.
 
     Returns true if the directory is writable afterwards.
 
     \sa createDir()
 */
-bool FilePath::ensureWritableDir() const
+expected_str<void> FilePath::ensureWritableDir() const
 {
     return fileAccess()->ensureWritableDirectory(*this);
 }
@@ -514,14 +490,6 @@ bool FilePath::ensureWritableDir() const
 bool FilePath::ensureExistingFile() const
 {
     return fileAccess()->ensureExistingFile(*this);
-}
-
-/*!
-    Returns a bool indicating whether this is an executable file.
-*/
-bool FilePath::isExecutableFile() const
-{
-    return fileAccess()->isExecutableFile(*this);
 }
 
 /*!
@@ -540,13 +508,16 @@ std::optional<FilePath> FilePath::refersToExecutableFile(MatchScope matchScope) 
 expected_str<FilePath> FilePath::tmpDir() const
 {
     if (needsDevice()) {
-        const Environment env = deviceEnvironment();
-        if (env.hasKey("TMPDIR"))
-            return withNewPath(env.value("TMPDIR")).cleanPath();
-        if (env.hasKey("TEMP"))
-            return withNewPath(env.value("TEMP")).cleanPath();
-        if (env.hasKey("TMP"))
-            return withNewPath(env.value("TMP")).cleanPath();
+        const expected_str<Environment> env = deviceEnvironmentWithError();
+        if (!env)
+            return make_unexpected(env.error());
+
+        if (env->hasKey("TMPDIR"))
+            return withNewPath(env->value("TMPDIR")).cleanPath();
+        if (env->hasKey("TEMP"))
+            return withNewPath(env->value("TEMP")).cleanPath();
+        if (env->hasKey("TMP"))
+            return withNewPath(env->value("TMP")).cleanPath();
 
         if (osType() != OsTypeWindows)
             return withNewPath("/tmp");
@@ -569,31 +540,6 @@ expected_str<FilePath> FilePath::createTempFile() const
     }
 
     return fileAccess()->createTempFile(*this);
-}
-
-bool FilePath::isReadableFile() const
-{
-    return fileAccess()->isReadableFile(*this);
-}
-
-bool FilePath::isReadableDir() const
-{
-    return fileAccess()->isReadableDirectory(*this);
-}
-
-bool FilePath::isFile() const
-{
-    return fileAccess()->isFile(*this);
-}
-
-bool FilePath::isDir() const
-{
-    return fileAccess()->isDirectory(*this);
-}
-
-bool FilePath::isSymLink() const
-{
-    return fileAccess()->isSymLink(*this);
 }
 
 bool FilePath::hasHardLinks() const
@@ -680,11 +626,6 @@ bool FilePath::ensureReachable(const FilePath &other) const
 expected_str<qint64> FilePath::writeFileContents(const QByteArray &data, qint64 offset) const
 {
     return fileAccess()->writeFileContents(*this, data, offset);
-}
-
-FilePathInfo FilePath::filePathInfo() const
-{
-    return fileAccess()->filePathInfo(*this);
 }
 
 FileStreamHandle FilePath::asyncCopy(const FilePath &target, QObject *context,
@@ -804,6 +745,11 @@ FilePath FilePath::symLinkTarget() const
 FilePath FilePath::withExecutableSuffix() const
 {
     return withNewPath(OsSpecificAspects::withExecutableSuffix(osType(), path()));
+}
+
+FilePath FilePath::withSuffix(const QString &suffix) const
+{
+    return withNewPath(path() + suffix);
 }
 
 static bool startsWithWindowsDriveLetterAndSlash(QStringView path)
@@ -1005,12 +951,12 @@ FilePath FilePath::parentDir() const
 {
     const QString basePath = path();
     if (basePath.isEmpty())
-        return FilePath();
+        return {};
 
     const QString path = basePath + QLatin1String("/..");
     const QString parent = doCleanPath(path);
     if (parent == path)
-        return FilePath();
+        return {};
 
     return withNewPath(parent);
 }
@@ -1043,7 +989,7 @@ const QString &FilePath::specialRootName()
 
 const QString &FilePath::specialRootPath()
 {
-    static const QString rootPath = QDir::rootPath() + u"__qtc_devices__";
+    static const QString rootPath = HostOsInfo::root().path() + u"__qtc_devices__";
     return rootPath;
 }
 
@@ -1055,7 +1001,7 @@ const QString &FilePath::specialDeviceRootName()
 
 const QString &FilePath::specialDeviceRootPath()
 {
-    static const QString deviceRootPath =  QDir::rootPath() + u"__qtc_devices__/device";
+    static const QString deviceRootPath = HostOsInfo::root().path() + u"__qtc_devices__/device";
     return deviceRootPath;
 }
 
@@ -1228,13 +1174,115 @@ DeviceFileAccess *FilePath::fileAccess() const
     static DeviceFileAccess dummy;
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
     QTC_ASSERT_EXPECTED(access, return &dummy);
-    return *access ? *access : &dummy;
+    return *access;
 }
 
 bool FilePath::hasFileAccess() const
 {
     const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
-    return access && access.value();
+    return access.has_value();
+}
+
+FilePathInfo FilePath::filePathInfo() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return {};
+    return (*access)->filePathInfo(*this);
+}
+
+/*!
+   Returns a bool indicating whether a file or directory with this FilePath exists.
+*/
+bool FilePath::exists() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->exists(*this);
+}
+
+/*!
+    Returns a bool indicating whether this is an executable file.
+*/
+bool FilePath::isExecutableFile() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isExecutableFile(*this);
+}
+
+/*!
+    Returns a bool indicating whether this is a writable directory.
+*/
+bool FilePath::isWritableDir() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isWritableDirectory(*this);
+}
+
+/*!
+    Returns a bool indicating whether this is a writable file.
+*/
+bool FilePath::isWritableFile() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isWritableFile(*this);
+}
+
+
+bool FilePath::isReadableFile() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isReadableFile(*this);
+}
+
+bool FilePath::isReadableDir() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isReadableDirectory(*this);
+}
+
+bool FilePath::isFile() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isFile(*this);
+}
+
+bool FilePath::isDir() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isDirectory(*this);
+}
+
+bool FilePath::isSymLink() const
+{
+    const expected_str<DeviceFileAccess *> access = getFileAccess(*this);
+    if (!access)
+        return false;
+
+    return (*access)->isSymLink(*this);
 }
 
 /*!
@@ -1512,11 +1560,6 @@ QString FilePath::calcRelativePath(const QString &absolutePath, const QString &a
 */
 FilePath FilePath::withNewMappedPath(const FilePath &newPath) const
 {
-    const bool sameDevice = newPath.scheme() == scheme() && newPath.host() == host();
-    if (sameDevice)
-        return newPath;
-    // TODO: converting paths between different non local devices is still unsupported
-    QTC_CHECK(!newPath.needsDevice() || !needsDevice());
     FilePath res;
     res.setParts(scheme(), host(), fileAccess()->mapToDevicePath(newPath.path()));
     return res;
@@ -1671,6 +1714,13 @@ FilePaths FilePath::searchAllInPath(const FilePaths &additionalDirs,
 
 Environment FilePath::deviceEnvironment() const
 {
+    expected_str<Environment> env = deviceEnvironmentWithError();
+    QTC_ASSERT_EXPECTED(env, return {});
+    return *env;
+}
+
+expected_str<Environment> FilePath::deviceEnvironmentWithError() const
+{
     if (needsDevice()) {
         QTC_ASSERT(s_deviceHooks.environment, return {});
         return s_deviceHooks.environment(*this);
@@ -1749,6 +1799,13 @@ FilePath FilePath::pathAppended(const QString &path) const
 FilePath FilePath::stringAppended(const QString &str) const
 {
     return FilePath::fromString(toString() + str);
+}
+
+std::optional<FilePath> FilePath::tailRemoved(const QString &str) const
+{
+    if (pathView().endsWith(str))
+        return withNewPath(pathView().chopped(str.size()).toString());
+    return {};
 }
 
 QDateTime FilePath::lastModified() const
@@ -2124,6 +2181,7 @@ FileFilter::FileFilter(const QStringList &nameFilters,
       fileFilters(fileFilters),
       iteratorFlags(flags)
 {
+    QTC_CHECK(this->fileFilters != QDir::Filters());
 }
 
 QStringList FileFilter::asFindArguments(const QString &path) const

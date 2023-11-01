@@ -104,9 +104,21 @@
     or use the handle next to the locator window to increase the window width.
 
     \if defined(qtcreator)
-    If the locator does not find some files, see \l{Specifying Project Contents}
+    If the locator does not find some files, see \l{Specify project contents}
     for how to make them known to the locator.
     \endif
+
+    \section2 Locating Files from Global File System Index
+
+    You can install tools such as Spotlight, Locate, or Everything and use them
+    to locate files from a global file system index. Use the \c md locator
+    filter to locate the files.
+
+    To use the sorting from the selected tool instead of from \QC,
+    deselect the \uicontrol {Sort results} check box in the \c md
+    locator filter configuration.
+
+    \image qtcreator-locator-filter-edit-md.webp {Filter Configuration dialog}
 
     \section2 Locating Lines and Columns
 
@@ -183,6 +195,8 @@
     example, you can change the filter prefix and restrict the search to
     items that match the filter.
 
+    \image qtcreator-locator-filter-edit-ai.webp {Filter Configuration dialog}
+
     To configure a locator filter:
 
     \list 1
@@ -198,8 +212,7 @@
         \li To implicitly include the filter even when not typing a prefix as a
             part of the search string, select \uicontrol {Include by default}.
 
-        \li Set other available preferences. For more information, see
-            \l{Adding Web Search Engines}.
+        \li Set other available preferences.
 
     \endlist
 
@@ -218,8 +231,7 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Environment > \uicontrol Locator >
+        \li Select \preferences > \uicontrol Environment > \uicontrol Locator >
             \uicontrol {Web Search} > \uicontrol Edit.
 
         \li Select \uicontrol Add to add a new entry to the list.
@@ -294,8 +306,7 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol Environment > \uicontrol Locator.
+        \li Select \preferences > \uicontrol Environment > \uicontrol Locator.
 
         \li In \uicontrol {Refresh interval}, define new time in minutes.
 

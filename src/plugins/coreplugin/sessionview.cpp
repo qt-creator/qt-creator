@@ -36,6 +36,7 @@ void RemoveItemFocusDelegate::paint(QPainter* painter, const QStyleOptionViewIte
 SessionView::SessionView(QWidget *parent)
     : Utils::TreeView(parent)
 {
+    setUniformRowHeights(false);
     setItemDelegate(new RemoveItemFocusDelegate(this));
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -54,10 +55,10 @@ SessionView::SessionView(QWidget *parent)
     selectionModel()->select(firstRow, QItemSelectionModel::QItemSelectionModel::
         SelectCurrent);
 
-    connect(this, &Utils::TreeView::activated, [this](const QModelIndex &index){
+    connect(this, &Utils::TreeView::activated, this, [this](const QModelIndex &index){
         emit sessionActivated(m_sessionModel.sessionAt(index.row()));
     });
-    connect(selectionModel(), &QItemSelectionModel::selectionChanged, [this] {
+    connect(selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
         emit sessionsSelected(selectedSessions());
     });
 

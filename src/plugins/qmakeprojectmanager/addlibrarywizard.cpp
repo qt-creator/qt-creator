@@ -40,13 +40,12 @@ static QStringList qt_clean_filter_list(const QString &filter)
     return f.split(QLatin1Char(' '), Qt::SkipEmptyParts);
 }
 
-static bool validateLibraryPath(const FilePath &filePath,
-                                const PathChooser *pathChooser,
-                                QString *errorMessage)
+static FancyLineEdit::AsyncValidationResult validateLibraryPath(const QString &input,
+                                                                const QString &promptDialogFilter)
 {
-    Q_UNUSED(errorMessage)
+    const FilePath filePath = FilePath::fromUserInput(input);
     if (!filePath.exists())
-        return false;
+        return make_unexpected(::QmakeProjectManager::Tr::tr("File does not exist."));
 
     const QString fileName = filePath.fileName();
 
@@ -55,14 +54,14 @@ static bool validateLibraryPath(const FilePath &filePath,
             ? QRegularExpression::CaseInsensitiveOption
             : QRegularExpression::NoPatternOption;
 
-    const QStringList filters = qt_clean_filter_list(pathChooser->promptDialogFilter());
+    const QStringList filters = qt_clean_filter_list(promptDialogFilter);
     for (const QString &filter : filters) {
         QString pattern = QRegularExpression::wildcardToRegularExpression(filter);
         QRegularExpression regExp(pattern, option);
         if (regExp.match(fileName).hasMatch())
-            return true;
-        }
-    return false;
+            return input;
+    }
+    return make_unexpected(::QmakeProjectManager::Tr::tr("File does not match filter."));
 }
 
 AddLibraryWizard::AddLibraryWizard(const FilePath &proFile, QWidget *parent)
@@ -182,10 +181,15 @@ DetailsPage::DetailsPage(AddLibraryWizard *parent)
     PathChooser * const libPathChooser = m_libraryDetailsWidget->libraryPathChooser;
     libPathChooser->setHistoryCompleter("Qmake.LibDir.History");
 
-    const auto pathValidator = [libPathChooser](FancyLineEdit *edit, QString *errorMessage) {
-        return libPathChooser->defaultValidationFunction()(edit, errorMessage)
-                && validateLibraryPath(libPathChooser->filePath(),
-                                       libPathChooser, errorMessage);
+    const auto pathValidator =
+        [libPathChooser](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
+        return libPathChooser->defaultValidationFunction()(text).then(
+            [pDialogFilter = libPathChooser->promptDialogFilter()](
+                const FancyLineEdit::AsyncValidationResult &result) {
+                if (!result)
+                    return result;
+                return validateLibraryPath(result.value(), pDialogFilter);
+            });
     };
     libPathChooser->setValidationFunction(pathValidator);
     setProperty(SHORT_TITLE_PROPERTY, Tr::tr("Details"));

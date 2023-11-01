@@ -8,11 +8,11 @@
 #include "squishtools.h"
 #include "squishtr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <utils/basetreeview.h>
 #include <utils/fileutils.h>
-#include <utils/icon.h>
 #include <utils/layoutbuilder.h>
 #include <utils/progressindicator.h>
 #include <utils/qtcassert.h>
@@ -22,23 +22,21 @@
 #include <QFrame>
 #include <QHeaderView>
 #include <QPushButton>
-#include <QSettings>
 #include <QVBoxLayout>
 #include <QXmlStreamReader>
 
 using namespace Utils;
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
+
+SquishSettings &settings()
+{
+    static SquishSettings theSettings;
+    return theSettings;
+}
 
 SquishSettings::SquishSettings()
 {
-    setId("A.Squish.General");
-    setDisplayName(Tr::tr("General"));
-    setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
-    setDisplayCategory("Squish");
-    setCategoryIcon(Icon({{":/squish/images/settingscategory_squish.png",
-                           Theme::PanelTextColorDark}}, Icon::Tint));
     setSettingsGroup("Squish");
     setAutoApply(false);
 
@@ -46,17 +44,23 @@ SquishSettings::SquishSettings()
     squishPath.setLabelText(Tr::tr("Squish path:"));
     squishPath.setExpectedKind(PathChooser::ExistingDirectory);
     squishPath.setPlaceHolderText(Tr::tr("Path to Squish installation"));
-    squishPath.setValidationFunction([this](FancyLineEdit *edit, QString *error) {
-        QTC_ASSERT(edit, return false);
-        if (!squishPath.pathChooser()->defaultValidationFunction()(edit, error))
-            return false;
-        const FilePath squishServer = FilePath::fromUserInput(edit->text())
-                .pathAppended(HostOsInfo::withExecutableSuffix("bin/squishserver"));
-        const bool valid = squishServer.isExecutableFile();
-        if (!valid && error)
-            *error = Tr::tr("Path does not contain server executable at its default location.");
-        return valid;
-    });
+    squishPath.setValidationFunction(
+        [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
+            return squishPath.pathChooser()->defaultValidationFunction()(text).then(
+                [](const FancyLineEdit::AsyncValidationResult &result)
+                    -> FancyLineEdit::AsyncValidationResult {
+                    if (!result)
+                        return result;
+
+                    const FilePath squishServer
+                        = FilePath::fromUserInput(result.value())
+                              .pathAppended(HostOsInfo::withExecutableSuffix("bin/squishserver"));
+                    if (!squishServer.isExecutableFile())
+                        return make_unexpected(Tr::tr(
+                            "Path does not contain server executable at its default location."));
+                    return result.value();
+                });
+        });
 
     licensePath.setSettingsKey("LicensePath");
     licensePath.setLabelText(Tr::tr("License path:"));
@@ -87,7 +91,8 @@ SquishSettings::SquishSettings()
     minimizeIDE.setToolTip(Tr::tr("Minimize IDE automatically while running or recording test cases."));
     minimizeIDE.setDefaultValue(true);
 
-    connect(&local, &BoolAspect::volatileValueChanged, this, [this](bool checked) {
+    connect(&local, &BoolAspect::volatileValueChanged, this, [this] {
+        const bool checked = local.volatileValue();
         serverHost.setEnabled(!checked);
         serverPort.setEnabled(!checked);
     });
@@ -106,9 +111,9 @@ SquishSettings::SquishSettings()
     readSettings();
 }
 
-Utils::FilePath SquishSettings::scriptsPath(Language language) const
+FilePath SquishSettings::scriptsPath(Language language) const
 {
-    Utils::FilePath scripts = squishPath().pathAppended("scriptmodules");
+    FilePath scripts = squishPath().pathAppended("scriptmodules");
     switch (language) {
     case Language::Python: scripts = scripts.pathAppended("python"); break;
     case Language::Perl: scripts = scripts.pathAppended("perl"); break;
@@ -117,8 +122,26 @@ Utils::FilePath SquishSettings::scriptsPath(Language language) const
     case Language::Tcl: scripts = scripts.pathAppended("tcl"); break;
     }
 
-    return scripts.isReadableDir() ? scripts : Utils::FilePath();
+    return scripts.isReadableDir() ? scripts : FilePath();
 }
+
+class SquishSettingsPage final : public Core::IOptionsPage
+{
+public:
+    SquishSettingsPage()
+    {
+        setId("A.Squish.General");
+        setDisplayName(Tr::tr("General"));
+        setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
+        setDisplayCategory("Squish");
+        setCategoryIconPath(":/squish/images/settingscategory_squish.png");
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const SquishSettingsPage settingsPage;
+
+// SquishServerSettings
 
 SquishServerSettings::SquishServerSettings()
 {
@@ -516,8 +539,8 @@ void SquishServerSettingsWidget::addAttachableAut(TreeItem *categoryItem, Squish
     if (dialog.exec() != QDialog::Accepted)
         return;
 
-    const QString executableStr = dialog.executable.value();
-    const QString hostStr = dialog.host.value();
+    const QString executableStr = dialog.executable();
+    const QString hostStr = dialog.host();
     if (executableStr.isEmpty() || hostStr.isEmpty())
         return;
 
@@ -674,5 +697,4 @@ void SquishServerSettingsDialog::configWriteFailed(QProcess::ProcessError error)
     SquishMessages::criticalMessage(detail);
 }
 
-} // namespace Internal
-} // namespace Squish
+} // Squish::Internal

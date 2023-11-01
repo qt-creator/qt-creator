@@ -35,6 +35,16 @@ PipInstallTask::PipInstallTask(const FilePath &python)
     m_watcher.setFuture(m_future.future());
 }
 
+void PipInstallTask::setRequirements(const Utils::FilePath &requirementFile)
+{
+    m_requirementsFile = requirementFile;
+}
+
+void PipInstallTask::setWorkingDirectory(const Utils::FilePath &workingDirectory)
+{
+    m_process.setWorkingDirectory(workingDirectory);
+}
+
 void PipInstallTask::addPackage(const PipPackage &package)
 {
     m_packages << package;
@@ -47,18 +57,22 @@ void PipInstallTask::setPackages(const QList<PipPackage> &packages)
 
 void PipInstallTask::run()
 {
-    if (m_packages.isEmpty()) {
+    if (m_packages.isEmpty() && m_requirementsFile.isEmpty()) {
         emit finished(false);
         return;
     }
     const QString taskTitle = Tr::tr("Install Python Packages");
     Core::ProgressManager::addTask(m_future.future(), taskTitle, pipInstallTaskId);
     QStringList arguments = {"-m", "pip", "install"};
-    for (const PipPackage &package : m_packages) {
-        QString pipPackage = package.packageName;
-        if (!package.version.isEmpty())
-            pipPackage += "==" + package.version;
-        arguments << pipPackage;
+    if (!m_requirementsFile.isEmpty())
+        arguments << "-r" << m_requirementsFile.toString();
+    else {
+        for (const PipPackage &package : m_packages) {
+            QString pipPackage = package.packageName;
+            if (!package.version.isEmpty())
+                pipPackage += "==" + package.version;
+            arguments << pipPackage;
+        }
     }
 
     // add --user to global pythons, but skip it for venv pythons
@@ -66,9 +80,10 @@ void PipInstallTask::run()
         arguments << "--user";
 
     m_process.setCommand({m_python, arguments});
+    m_process.setTerminalMode(TerminalMode::Run);
     m_process.start();
 
-    Core::MessageManager::writeDisrupting(
+    Core::MessageManager::writeSilently(
         Tr::tr("Running \"%1\" to install %2.")
             .arg(m_process.commandLine().toUserOutput(), packagesDisplayName()));
 
@@ -115,7 +130,9 @@ void PipInstallTask::handleError()
 
 QString PipInstallTask::packagesDisplayName() const
 {
-    return Utils::transform(m_packages, &PipPackage::displayName).join(", ");
+    return m_requirementsFile.isEmpty()
+               ? Utils::transform(m_packages, &PipPackage::displayName).join(", ")
+               : m_requirementsFile.toUserOutput();
 }
 
 void PipPackageInfo::parseField(const QString &field, const QStringList &data)

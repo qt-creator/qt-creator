@@ -3,10 +3,13 @@
 
 /*!
     \page creator-vcs-fossil.html
-    \previouspage creator-vcs-cvs.html
-    \nextpage creator-vcs-git.html
+    \previouspage creator-reference.html
 
-    \title Using Fossil
+    \ingroup creator-reference-vcs
+
+    \title Fossil
+
+    \brief Additional Fossil functions.
 
     Fossil is an open source distributed version control system, designed
     and developed by the creator of SQLite. A stand-alone Fossil executable
@@ -26,7 +29,7 @@
         \li Create or designate a directory to store local Fossil repositories
             and remote clones. For example: \c ~/fossils/qt.
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
+        \li Select \preferences >
             \uicontrol {Version Control} > \uicontrol Fossil, and set the
             designated directory in the \uicontrol {Default path} field.
 
@@ -44,7 +47,7 @@
     \section1 Additional Fossil Functions
 
     In addition to the standard version control system functions described in
-    \l {Using Version Control Systems}, the \uicontrol Fossil submenu has
+    \l {Version Control Systems}, the \uicontrol Fossil submenu has
     the following items:
 
     \table
@@ -68,11 +71,11 @@
 
     \section1 Fossil Preferences
 
-    To set Fossil preferences, select \uicontrol Edit > \uicontrol Preferences >
+    To set Fossil preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol Fossil:
 
     \list
-        \li \uicontrol Command specifies the path to the command line client
+        \li \uicontrol Command specifies the path to the command-line client
             executable.
         \li \uicontrol {Default path} sets the path to the directory to store
             local repositories by default.
@@ -89,4 +92,7 @@
             a commit or update and automatic push after a commit or tag or branch
             creation.
     \endlist
+
+    \sa {Set up version control systems}, {Use common VCS functions},
+    {Version Control Systems}
 */

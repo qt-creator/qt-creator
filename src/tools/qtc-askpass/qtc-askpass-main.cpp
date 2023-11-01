@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    QTimer::singleShot(0, [] {
+    QTimer::singleShot(0, &app, [] {
         QInputDialog dlg;
         const QStringList appArgs = qApp->arguments();
         QString labelText = QCoreApplication::translate("qtc-askpass",
@@ -18,8 +18,10 @@ int main(int argc, char *argv[])
             labelText.append('\n').append(appArgs.at(1));
         dlg.setLabelText(labelText);
         dlg.setTextEchoMode(QLineEdit::Password);
-        if (dlg.exec() == QDialog::Accepted)
+        const bool accepted = dlg.exec() == QDialog::Accepted;
+        if (accepted)
             std::cout << qPrintable(dlg.textValue()) << std::endl;
+        qApp->exit(accepted ? 0 : 1);
     });
     return app.exec();
 }

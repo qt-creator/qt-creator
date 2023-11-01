@@ -370,8 +370,8 @@ bool QuickTestTreeItem::isGroupable() const
 QSet<QString> internalTargets(const FilePath &proFile)
 {
     QSet<QString> result;
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    const auto projectInfo = cppMM->projectInfo(ProjectExplorer::ProjectManager::startupProject());
+    const auto projectInfo =
+        CppEditor::CppModelManager::projectInfo(ProjectExplorer::ProjectManager::startupProject());
     if (!projectInfo)
         return {};
     for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectInfo->projectParts()) {

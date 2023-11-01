@@ -7,7 +7,7 @@
 #include "androidrunnerworker.h"
 #include "androidtr.h"
 
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerrunconfigurationaspect.h>
 
 #include <projectexplorer/buildconfiguration.h>
@@ -18,7 +18,7 @@
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/async.h>
 #include <utils/fileutils.h>
@@ -52,6 +52,8 @@ namespace Internal {
 
 static const QString pidPollingScript = QStringLiteral("while [ -d /proc/%1 ]; do sleep 1; done");
 static const QRegularExpression userIdPattern("u(\\d+)_a");
+
+static const int s_jdbTimeout = 5000;
 
 static int APP_START_TIMEOUT = 45000;
 static bool isTimedOut(const chrono::high_resolution_clock::time_point &start,
@@ -139,18 +141,6 @@ static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
         promise.addResult(PidUserPair(processPID, processUser));
 }
 
-static void deleter(QProcess *p)
-{
-    qCDebug(androidRunWorkerLog) << "Killing process:" << p->objectName();
-    p->terminate();
-    if (!p->waitForFinished(1000)) {
-        p->kill();
-        p->waitForFinished();
-    }
-    // Might get deleted from its own signal handler.
-    p->deleteLater();
-}
-
 static QString gdbServerArch(const QString &androidAbi)
 {
     if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)
@@ -212,14 +202,8 @@ static FilePath debugServer(bool useLldb, const Target *target)
     return {};
 }
 
-
 AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packageName)
     : m_packageName(packageName)
-    , m_adbLogcatProcess(nullptr, deleter)
-    , m_psIsAlive(nullptr, deleter)
-    , m_debugServerProcess(nullptr, deleter)
-    , m_jdbProcess(nullptr, deleter)
-
 {
     auto runControl = runner->runControl();
     m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
@@ -263,34 +247,28 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &packa
     if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release)
         m_extraAppParams = runControl->commandLine().arguments();
 
-    if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_AM_START_ARGS);
+    if (const Store sd = runControl->settingsData(Constants::ANDROID_AM_START_ARGS);
         !sd.values().isEmpty()) {
         QTC_CHECK(sd.first().type() == QVariant::String);
         const QString startArgs = sd.first().toString();
         m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
     }
 
-    if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
+    if (const Store sd = runControl->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
         !sd.values().isEmpty()) {
         QTC_CHECK(sd.first().type() == QVariant::String);
         const QStringList commands = sd.first().toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
-    const auto preStartCmdList = runner->recordedData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
-    for (const QString &shellCmd : preStartCmdList.toStringList())
-        m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
 
-    if (const QVariantMap sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
+    if (const Store sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
         !sd.values().isEmpty()) {
         QTC_CHECK(sd.first().type() == QVariant::String);
         const QStringList commands = sd.first().toString().split('\n', Qt::SkipEmptyParts);
         for (const QString &shellCmd : commands)
             m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
-    const auto postFinishCmdList = runner->recordedData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
-    for (const QString &shellCmd : postFinishCmdList.toStringList())
-        m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
 
     m_debugServerPath = debugServer(m_useLldb, target);
     qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << m_deviceSerialNumber
@@ -412,13 +390,13 @@ void AndroidRunnerWorker::forceStop()
 void AndroidRunnerWorker::logcatReadStandardError()
 {
     if (m_processPID != -1)
-        logcatProcess(m_adbLogcatProcess->readAllStandardError(), m_stderrBuffer, true);
+        logcatProcess(m_adbLogcatProcess->readAllRawStandardError(), m_stderrBuffer, true);
 }
 
 void AndroidRunnerWorker::logcatReadStandardOutput()
 {
     if (m_processPID != -1)
-        logcatProcess(m_adbLogcatProcess->readAllStandardOutput(), m_stdoutBuffer, false);
+        logcatProcess(m_adbLogcatProcess->readAllRawStandardOutput(), m_stdoutBuffer, false);
 }
 
 void AndroidRunnerWorker::logcatProcess(const QByteArray &text, QByteArray &buffer, bool onlyError)
@@ -510,16 +488,16 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
 {
     // Its assumed that the device or avd returned by selector() is online.
     // Start the logcat process before app starts.
-    QTC_ASSERT(!m_adbLogcatProcess, /**/);
+    QTC_CHECK(!m_adbLogcatProcess);
 
     // Ideally AndroidManager::runAdbCommandDetached() should be used, but here
     // we need to connect the readyRead signals from logcat otherwise we might
     // lost some output between the process start and connecting those signals.
-    m_adbLogcatProcess.reset(new QProcess());
+    m_adbLogcatProcess.reset(new Process);
 
-    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardOutput,
+    connect(m_adbLogcatProcess.get(), &Process::readyReadStandardOutput,
             this, &AndroidRunnerWorker::logcatReadStandardOutput);
-    connect(m_adbLogcatProcess.get(), &QProcess::readyReadStandardError,
+    connect(m_adbLogcatProcess.get(), &Process::readyReadStandardError,
             this, &AndroidRunnerWorker::logcatReadStandardError);
 
     // Get target current time to fetch only recent logs
@@ -535,7 +513,8 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
     const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
     qCDebug(androidRunWorkerLog).noquote() << "Running logcat command (async):"
                                            << CommandLine(adb, logcatArgs).toUserOutput();
-    m_adbLogcatProcess->start(adb.toString(), logcatArgs);
+    m_adbLogcatProcess->setCommand({adb, logcatArgs});
+    m_adbLogcatProcess->start();
     if (m_adbLogcatProcess->waitForStarted(500) && m_adbLogcatProcess->state() == QProcess::Running)
         m_adbLogcatProcess->setObjectName("AdbLogcatProcess");
 }
@@ -680,7 +659,7 @@ bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
                        << "platform"
                        // << "--server"  // Can lead to zombie servers
                        << "--listen" << QString("*:%1").arg(m_localDebugServerPort.toString());
-        m_debugServerProcess.reset(AndroidManager::runAdbCommandDetached(lldbServerArgs, &lldbServerErr));
+        m_debugServerProcess.reset(AndroidManager::startAdbProcess(lldbServerArgs, &lldbServerErr));
 
         if (!m_debugServerProcess) {
             qCDebug(androidRunWorkerLog) << "Debugger process failed to start" << lldbServerErr;
@@ -700,7 +679,7 @@ bool AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
         gdbServerErr += adbArgs;
         gdbServerErr << debugServerFile
                      << "--multi" << "+" + gdbServerSocket;
-        m_debugServerProcess.reset(AndroidManager::runAdbCommandDetached(gdbServerErr, &gdbProcessErr));
+        m_debugServerProcess.reset(AndroidManager::startAdbProcess(gdbServerErr, &gdbProcessErr));
 
         if (!m_debugServerProcess) {
             qCDebug(androidRunWorkerLog) << "Debugger process failed to start" << gdbServerErr;
@@ -761,7 +740,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     }
     m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
-    FilePath jdbPath = AndroidConfigurations::currentConfig().openJDKLocation()
+    const FilePath jdbPath = AndroidConfigurations::currentConfig().openJDKLocation()
             .pathAppended("bin/jdb").withExecutableSuffix();
 
     QStringList jdbArgs("-connect");
@@ -769,14 +748,16 @@ void AndroidRunnerWorker::handleJdbWaiting()
                .arg(m_localJdbServerPort.toString());
     qCDebug(androidRunWorkerLog).noquote()
             << "Starting JDB:" << CommandLine(jdbPath, jdbArgs).toUserOutput();
-    std::unique_ptr<QProcess, Deleter> jdbProcess(new QProcess, &deleter);
-    jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
-    jdbProcess->start(jdbPath.toString(), jdbArgs);
-    if (!jdbProcess->waitForStarted()) {
+    m_jdbProcess.reset(new Process);
+    m_jdbProcess->setProcessChannelMode(QProcess::MergedChannels);
+    m_jdbProcess->setCommand({jdbPath, jdbArgs});
+    m_jdbProcess->setReaperTimeout(s_jdbTimeout);
+    m_jdbProcess->start();
+    if (!m_jdbProcess->waitForStarted()) {
         emit remoteProcessFinished(Tr::tr("Failed to start JDB."));
+        m_jdbProcess.reset();
         return;
     }
-    m_jdbProcess = std::move(jdbProcess);
     m_jdbProcess->setObjectName("JdbProcess");
 }
 
@@ -786,7 +767,7 @@ void AndroidRunnerWorker::handleJdbSettled()
     auto waitForCommand = [this] {
         for (int i = 0; i < 120 && m_jdbProcess->state() == QProcess::Running; ++i) {
             m_jdbProcess->waitForReadyRead(500);
-            QByteArray lines = m_jdbProcess->readAll();
+            const QByteArray lines = m_jdbProcess->readAllRawStandardOutput();
             const auto linesList = lines.split('\n');
             for (const auto &line : linesList) {
                 auto msg = line.trimmed();
@@ -798,22 +779,14 @@ void AndroidRunnerWorker::handleJdbSettled()
     };
 
     const QStringList commands{"threads", "cont", "exit"};
-    const int jdbTimeout = 5000;
 
     for (const QString &command : commands) {
-        if (waitForCommand()) {
-            m_jdbProcess->write(QString("%1\n").arg(command).toLatin1());
-            m_jdbProcess->waitForBytesWritten(jdbTimeout);
-        }
+        if (waitForCommand())
+            m_jdbProcess->write(QString("%1\n").arg(command));
     }
 
-    if (!m_jdbProcess->waitForFinished(jdbTimeout)) {
-        m_jdbProcess->terminate();
-        if (!m_jdbProcess->waitForFinished(jdbTimeout)) {
-            qCDebug(androidRunWorkerLog) << "Killing JDB process";
-            m_jdbProcess->kill();
-            m_jdbProcess->waitForFinished();
-        }
+    if (!m_jdbProcess->waitForFinished(s_jdbTimeout)) {
+        m_jdbProcess.reset();
     } else if (m_jdbProcess->exitStatus() == QProcess::NormalExit && m_jdbProcess->exitCode() == 0) {
         qCDebug(androidRunWorkerLog) << "JDB settled";
         return;
@@ -873,12 +846,11 @@ void AndroidRunnerWorker::onProcessIdChanged(PidUserPair pidUser)
         logcatReadStandardOutput();
         QTC_ASSERT(!m_psIsAlive, /**/);
         QStringList isAliveArgs = selector() << "shell" << pidPollingScript.arg(m_processPID);
-        m_psIsAlive.reset(AndroidManager::runAdbCommandDetached(isAliveArgs));
+        m_psIsAlive.reset(AndroidManager::startAdbProcess(isAliveArgs));
         QTC_ASSERT(m_psIsAlive, return);
         m_psIsAlive->setObjectName("IsAliveProcess");
         m_psIsAlive->setProcessChannelMode(QProcess::MergedChannels);
-        connect(m_psIsAlive.get(), &QProcess::finished,
-                this, bind(&AndroidRunnerWorker::onProcessIdChanged, this, PidUserPair(-1, -1)));
+        connect(m_psIsAlive.get(), &Process::done, this, [this] { onProcessIdChanged({-1, -1}); });
     }
 }
 

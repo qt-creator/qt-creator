@@ -10,14 +10,16 @@
 #include <coreplugin/icore.h>
 
 #include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cpptoolsreuse.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projecttree.h>
 #include <projectexplorer/targetsetuppage.h>
 #include <projectexplorer/task.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <utils/algorithm.h>
@@ -27,6 +29,7 @@
 
 using namespace ProjectExplorer;
 using namespace QtSupport;
+using namespace Utils;
 
 namespace QmakeProjectManager {
 namespace Internal {
@@ -39,12 +42,12 @@ QtWizard::QtWizard()
 
 QString QtWizard::sourceSuffix()
 {
-    return preferredSuffix(QLatin1String(ProjectExplorer::Constants::CPP_SOURCE_MIMETYPE));
+    return CppEditor::preferredCxxSourceSuffix(ProjectTree::currentProject());
 }
 
 QString QtWizard::headerSuffix()
 {
-    return preferredSuffix(QLatin1String(ProjectExplorer::Constants::CPP_HEADER_MIMETYPE));
+    return CppEditor::preferredCxxHeaderSuffix(ProjectTree::currentProject());
 }
 
 QString QtWizard::formSuffix()
@@ -86,9 +89,9 @@ QString QtWizard::templateDir()
 
 bool QtWizard::lowerCaseFiles()
 {
-    QString lowerCaseSettingsKey = QLatin1String(CppEditor::Constants::CPPEDITOR_SETTINGSGROUP);
-    lowerCaseSettingsKey += QLatin1Char('/');
-    lowerCaseSettingsKey += QLatin1String(CppEditor::Constants::LOWERCASE_CPPFILES_KEY);
+    QByteArray lowerCaseSettingsKey = CppEditor::Constants::CPPEDITOR_SETTINGSGROUP;
+    lowerCaseSettingsKey += '/';
+    lowerCaseSettingsKey += CppEditor::Constants::LOWERCASE_CPPFILES_KEY;
     const bool lowerCaseDefault = CppEditor::Constants::LOWERCASE_CPPFILES_DEFAULT;
     return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
 }

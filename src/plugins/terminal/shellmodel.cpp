@@ -3,6 +3,9 @@
 
 #include "shellmodel.h"
 
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -16,11 +19,13 @@ using namespace Utils;
 
 struct ShellItemBuilder
 {
-    explicit ShellItemBuilder(const CommandLine &value)
+    explicit ShellItemBuilder(const QFileIconProvider &iconProvider, const CommandLine &value) :
+        iconProvider(iconProvider)
     {
         m_item.openParameters.shellCommand = value;
     }
-    explicit ShellItemBuilder(const FilePath &value)
+    explicit ShellItemBuilder(const QFileIconProvider &iconProvider, const FilePath &value) :
+        iconProvider(iconProvider)
     {
         m_item.openParameters.shellCommand = CommandLine(value);
     }
@@ -31,8 +36,7 @@ struct ShellItemBuilder
     }
     ShellItemBuilder &icon(const FilePath &value)
     {
-        static QFileIconProvider iconProvider;
-        m_item.icon = iconProvider.icon(value.toFileInfo());
+        m_item.openParameters.icon = iconProvider.icon(value.toFileInfo());
         return *this;
     }
 
@@ -41,13 +45,14 @@ struct ShellItemBuilder
     {
         if (m_item.name.isEmpty())
             m_item.name = m_item.openParameters.shellCommand->executable().toUserOutput();
-        if (m_item.icon.isNull())
+        if (m_item.openParameters.icon.isNull())
             icon(m_item.openParameters.shellCommand->executable());
         return m_item;
     }
 
 private:
     ShellModelItem m_item;
+    const QFileIconProvider &iconProvider;
 };
 
 static QSet<FilePath> msysPaths()
@@ -74,31 +79,32 @@ struct ShellModelPrivate
 
 ShellModelPrivate::ShellModelPrivate()
 {
+    QFileIconProvider iconProvider;
     if (Utils::HostOsInfo::isWindowsHost()) {
         const FilePath comspec = FilePath::fromUserInput(qtcEnvironmentVariable("COMSPEC"));
-        localShells << ShellItemBuilder(comspec);
+        localShells << ShellItemBuilder(iconProvider, comspec);
 
         if (comspec.fileName() != "cmd.exe") {
             FilePath cmd = FilePath::fromUserInput(QStandardPaths::findExecutable("cmd.exe"));
-            localShells << ShellItemBuilder(cmd);
+            localShells << ShellItemBuilder(iconProvider, cmd);
         }
 
         const FilePath powershell = FilePath::fromUserInput(
             QStandardPaths::findExecutable("powershell.exe"));
 
         if (powershell.exists())
-            localShells << ShellItemBuilder(powershell);
+            localShells << ShellItemBuilder(iconProvider, powershell);
 
         const FilePath sys_bash =
                 FilePath::fromUserInput(QStandardPaths::findExecutable("bash.exe"));
         if (sys_bash.exists())
-            localShells << ShellItemBuilder({sys_bash, {"--login"}});
+            localShells << ShellItemBuilder(iconProvider, {sys_bash, {"--login"}});
 
         const FilePath git_exe = FilePath::fromUserInput(QStandardPaths::findExecutable("git.exe"));
         if (git_exe.exists()) {
             FilePath git_bash = git_exe.parentDir().parentDir().pathAppended("bin/bash.exe");
             if (git_bash.exists()) {
-                localShells << ShellItemBuilder({git_bash, {"--login"}})
+                localShells << ShellItemBuilder(iconProvider, {git_bash, {"--login"}})
                           .icon(git_bash.parentDir().parentDir().pathAppended("git-bash.exe"));
             }
         }
@@ -111,7 +117,7 @@ ShellModelPrivate::ShellModelPrivate()
                 QDirIterator it(type.path().replace(".ico", "/bin"), QDir::Files);
                 if (!it.hasNext())
                     continue;
-                localShells << ShellItemBuilder(
+                localShells << ShellItemBuilder(iconProvider,
                               {msys2_cmd, msys2_args + QStringList{"-" + type.baseName()}})
                           .icon(type)
                           .name(type.toUserOutput().replace(".ico", ".exe"));
@@ -135,11 +141,10 @@ ShellModelPrivate::ShellModelPrivate()
         });
 
         // ... and filter out non-existing shells.
-        localShells = Utils::transform(
-                    Utils::filtered(shells, [](const FilePath &shell) {return shell.exists(); }),
-                    [](const FilePath &shell) {
-            return ShellItemBuilder(shell).item();
-        });
+        localShells = Utils::transform(Utils::filtered(shells, &FilePath::exists),
+                                       [&iconProvider](const FilePath &shell) {
+                                           return ShellItemBuilder(iconProvider, shell).item();
+                                       });
     }
 }
 
@@ -158,14 +163,15 @@ QList<ShellModelItem> ShellModel::local() const
 
 QList<ShellModelItem> ShellModel::remote() const
 {
-    const auto deviceCmds = Utils::Terminal::Hooks::instance().getTerminalCommandsForDevicesHook()();
+    QList<ShellModelItem> result;
 
-    const QList<ShellModelItem> deviceItems = Utils::transform(
-        deviceCmds, [](const Utils::Terminal::NameAndCommandLine &item) -> ShellModelItem {
-            return ShellModelItem{item.name, {}, {item.commandLine, std::nullopt, std::nullopt}};
+    ProjectExplorer::DeviceManager::instance()->forEachDevice(
+        [&result](const QSharedPointer<const ProjectExplorer::IDevice> &device) {
+            if (device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
+                result << ShellModelItem{device->displayName(), {{device->rootPath(), {}}}};
         });
 
-    return deviceItems;
+    return result;
 }
 
 } // namespace Terminal::Internal

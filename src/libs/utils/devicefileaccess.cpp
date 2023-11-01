@@ -18,10 +18,10 @@
 
 #include <QCoreApplication>
 #include <QOperatingSystemVersion>
+#include <QRandomGenerator>
 #include <QRegularExpression>
 #include <QStorageInfo>
 #include <QTemporaryFile>
-#include <QRandomGenerator>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -113,14 +113,22 @@ bool DeviceFileAccess::hasHardLinks(const FilePath &filePath) const
     return false;
 }
 
-bool DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
+expected_str<void> DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
     if (isWritableDirectory(filePath))
-        return true;
-    if (exists(filePath))
-        return false;
+        return {};
 
-    return createDirectory(filePath);
+    if (exists(filePath)) {
+        return make_unexpected(Tr::tr("Path \"%1\" exists but is not a writable directory.")
+                                   .arg(filePath.toUserOutput()));
+    }
+
+    const bool result = createDirectory(filePath);
+    if (result)
+        return {};
+
+    return make_unexpected(
+        Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
 }
 
 bool DeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
@@ -169,31 +177,24 @@ expected_str<void> DeviceFileAccess::copyFile(const FilePath &filePath, const Fi
 
 expected_str<void> copyRecursively_fallback(const FilePath &src, const FilePath &target)
 {
-    QString error;
+    expected_str<void> result;
     src.iterateDirectory(
-        [&target, &src, &error](const FilePath &path) {
+        [&target, &src, &result](const FilePath &path) {
             const FilePath relative = path.relativePathFrom(src);
             const FilePath targetPath = target.pathAppended(relative.path());
-
-            if (!targetPath.parentDir().ensureWritableDir()) {
-                error = QString("Could not create directory %1")
-                            .arg(targetPath.parentDir().toUserOutput());
+            result = targetPath.parentDir().ensureWritableDir();
+            if (!result)
                 return IterationPolicy::Stop;
-            }
 
-            const expected_str<void> result = path.copyFile(targetPath);
-            if (!result) {
-                error = result.error();
+            result = path.copyFile(targetPath);
+            if (!result)
                 return IterationPolicy::Stop;
-            }
+
             return IterationPolicy::Continue;
         },
         {{"*"}, QDir::NoDotAndDotDot | QDir::Files, QDirIterator::Subdirectories});
 
-    if (error.isEmpty())
-        return {};
-
-    return make_unexpected(error);
+    return result;
 }
 
 expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
@@ -203,12 +204,12 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
         return make_unexpected(
             Tr::tr("Cannot copy from \"%1\", it is not a directory.").arg(src.toUserOutput()));
     }
-
-    if (!target.ensureWritableDir()) {
-        return make_unexpected(
-            Tr::tr("Cannot copy \"%1\" to \"%2\", it is not a writable directory.")
-                .arg(src.toUserOutput())
-                .arg(target.toUserOutput()));
+    const expected_str<void> result = target.ensureWritableDir();
+    if (!result) {
+        return make_unexpected(Tr::tr("Cannot copy \"%1\" to \"%2\": %3")
+                                   .arg(src.toUserOutput())
+                                   .arg(target.toUserOutput())
+                                   .arg(result.error()));
     }
 
 #ifdef UTILS_STATIC_LIBRARY
@@ -389,7 +390,6 @@ expected_str<FilePath> DeviceFileAccess::createTempFile(const FilePath &filePath
         Tr::tr("createTempFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
-
 // DesktopDeviceFileAccess
 
 DesktopDeviceFileAccess::~DesktopDeviceFileAccess() = default;
@@ -516,15 +516,23 @@ bool DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
     return false;
 }
 
-bool DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
+expected_str<void> DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
     const QFileInfo fi(filePath.path());
     if (fi.isDir() && fi.isWritable())
-        return true;
-    if (fi.exists())
-        return false;
+        return {};
 
-    return QDir().mkpath(filePath.path());
+    if (fi.exists()) {
+        return make_unexpected(Tr::tr("Path \"%1\" exists but is not a writable directory.")
+                                   .arg(filePath.toUserOutput()));
+    }
+
+    const bool result = QDir().mkpath(filePath.path());
+    if (result)
+        return {};
+
+    return make_unexpected(
+        Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
 }
 
 bool DesktopDeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
@@ -713,10 +721,11 @@ expected_str<qint64> DesktopDeviceFileAccess::writeFileContents(const FilePath &
     qint64 res = file.write(data);
     if (res != data.size())
         return make_unexpected(
-            Tr::tr("Could not write to file \"%1\" (only %2 of %3 bytes written).")
+            Tr::tr("Could not write to file \"%1\" (only %2 of %n byte(s) written).",
+                   nullptr,
+                   data.size())
                 .arg(filePath.toUserOutput())
-                .arg(res)
-                .arg(data.size()));
+                .arg(res));
     return res;
 }
 
@@ -954,7 +963,9 @@ expected_str<void> UnixDeviceFileAccess::copyFile(const FilePath &filePath,
 
     if (result.exitCode != 0) {
         return make_unexpected(Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
-            .arg(filePath.toUserOutput(), target.toUserOutput(), QString::fromUtf8(result.stdErr)));
+                                   .arg(filePath.toUserOutput(),
+                                        target.toUserOutput(),
+                                        QString::fromUtf8(result.stdErr)));
     }
     return {};
 }
@@ -1089,7 +1100,8 @@ QStringList UnixDeviceFileAccess::statArgs(const FilePath &filePath,
                                            const QString &linuxFormat,
                                            const QString &macFormat) const
 {
-    return (filePath.osType() == OsTypeMac ? QStringList{"-f", macFormat} : QStringList{"-c", linuxFormat})
+    return (filePath.osType() == OsTypeMac ? QStringList{"-f", macFormat}
+                                           : QStringList{"-c", linuxFormat})
            << "-L" << filePath.path();
 }
 
@@ -1182,8 +1194,8 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
     // TODO: Using stat -L will always return the link target, not the link itself.
     // We may wan't to add the information that it is a link at some point.
 
-    const QString statFormat = filePath.osType() == OsTypeMac
-        ? QLatin1String("-f \"%p %m %z\"") : QLatin1String("-c \"%f %Y %s\"");
+    const QString statFormat = filePath.osType() == OsTypeMac ? QLatin1String("-f \"%p %m %z\"")
+                                                              : QLatin1String("-c \"%f %Y %s\"");
 
     if (callBack.index() == 1)
         cmdLine.addArgs(QString(R"(-exec echo -n \"{}\"" " \; -exec stat -L %1 "{}" \;)")
@@ -1211,24 +1223,23 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
 
     const int modeBase = filePath.osType() == OsTypeMac ? 8 : 16;
 
-    const auto toFilePath =
-        [&filePath, &callBack, modeBase](const QString &entry) {
-            if (callBack.index() == 0)
-                return std::get<0>(callBack)(filePath.withNewPath(entry));
+    const auto toFilePath = [&filePath, &callBack, modeBase](const QString &entry) {
+        if (callBack.index() == 0)
+            return std::get<0>(callBack)(filePath.withNewPath(entry));
 
-            const QString fileName = entry.mid(1, entry.lastIndexOf('\"') - 1);
-            const QString infos = entry.mid(fileName.length() + 3);
+        const QString fileName = entry.mid(1, entry.lastIndexOf('\"') - 1);
+        const QString infos = entry.mid(fileName.length() + 3);
 
-            const FilePathInfo fi = FileUtils::filePathInfoFromTriple(infos, modeBase);
-            if (!fi.fileFlags)
-                return IterationPolicy::Continue;
+        const FilePathInfo fi = FileUtils::filePathInfoFromTriple(infos, modeBase);
+        if (!fi.fileFlags)
+            return IterationPolicy::Continue;
 
-            const FilePath fp = filePath.withNewPath(fileName);
-            // Do not return the entry for the directory we are searching in.
-            if (fp.path() == filePath.path())
-                return IterationPolicy::Continue;
-            return std::get<1>(callBack)(fp, fi);
-        };
+        const FilePath fp = filePath.withNewPath(fileName);
+        // Do not return the entry for the directory we are searching in.
+        if (fp.path() == filePath.path())
+            return IterationPolicy::Continue;
+        return std::get<1>(callBack)(fp, fi);
+    };
 
     // Remove the first line, this can be the directory we are searching in.
     // as long as we do not specify "mindepth > 0"
@@ -1247,7 +1258,8 @@ void UnixDeviceFileAccess::findUsingLs(const QString &current,
                                        const FileFilter &filter,
                                        QStringList *found) const
 {
-    const RunResult result = runInShell({"ls", {"-1", "-a", "-p", "--", current}, OsType::OsTypeLinux});
+    const RunResult result = runInShell(
+        {"ls", {"-1", "-a", "-p", "--", current}, OsType::OsTypeLinux});
     const QStringList entries = QString::fromUtf8(result.stdOut).split('\n', Qt::SkipEmptyParts);
     for (QString entry : entries) {
         const QChar last = entry.back();
@@ -1326,4 +1338,4 @@ Environment UnixDeviceFileAccess::deviceEnvironment() const
     return Environment(out.split('\n', Qt::SkipEmptyParts), OsTypeLinux);
 }
 
-} // Utils
+} // namespace Utils

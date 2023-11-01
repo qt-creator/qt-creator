@@ -7,7 +7,6 @@
 
 #include <utils/filepath.h>
 
-#include <QStringList>
 #include <QUrl>
 #include <QDesktopServices>
 
@@ -20,20 +19,19 @@ SystemEditor::SystemEditor()
     setId("CorePlugin.OpenWithSystemEditor");
     setDisplayName(Tr::tr("System Editor"));
     setMimeTypes({"application/octet-stream"});
-}
 
-bool SystemEditor::startEditor(const FilePath &filePath, QString *errorMessage)
-{
-    Q_UNUSED(errorMessage)
-    QUrl url;
-    url.setPath(filePath.toString());
-    url.setScheme(QLatin1String("file"));
-    if (!QDesktopServices::openUrl(url)) {
-        if (errorMessage)
-            *errorMessage = Tr::tr("Could not open URL %1.").arg(url.toString());
-        return false;
-    }
-    return true;
+    setEditorStarter([](const FilePath &filePath, QString *errorMessage) {
+        Q_UNUSED(errorMessage)
+        QUrl url;
+        url.setPath(filePath.toString());
+        url.setScheme(QLatin1String("file"));
+        if (!QDesktopServices::openUrl(url)) {
+            if (errorMessage)
+                *errorMessage = Tr::tr("Could not open URL %1.").arg(url.toString());
+            return false;
+        }
+        return true;
+    });
 }
 
 } // Core::Internal

@@ -48,10 +48,9 @@ ComponentNameDialog::ComponentNameDialog(QWidget *parent) :
 
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &ComponentNameDialog::accept);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &ComponentNameDialog::reject);
-    connect(m_pathEdit, &Utils::PathChooser::rawPathChanged,
-            this, &ComponentNameDialog::validate);
-    connect(m_componentNameEdit, &QLineEdit::textChanged,
-            this, &ComponentNameDialog::validate);
+    connect(m_pathEdit, &Utils::PathChooser::rawPathChanged, this, &ComponentNameDialog::validate);
+    connect(m_pathEdit, &Utils::PathChooser::validChanged, this, &ComponentNameDialog::validate);
+    connect(m_componentNameEdit, &QLineEdit::textChanged, this, &ComponentNameDialog::validate);
 }
 
 bool ComponentNameDialog::go(QString *proposedName,
@@ -76,7 +75,7 @@ bool ComponentNameDialog::go(QString *proposedName,
         *proposedName = QLatin1String("MyComponent");
     d.m_componentNameEdit->setText(*proposedName);
     d.m_pathEdit->setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    d.m_pathEdit->setHistoryCompleter(QLatin1String("QmlJs.Component.History"));
+    d.m_pathEdit->setHistoryCompleter("QmlJs.Component.History");
     d.m_pathEdit->setPath(*proposedPath);
     d.m_label->setText(Tr::tr("Property assignments for %1:").arg(oldFileName));
     d.m_checkBox->setChecked(isUiFile);

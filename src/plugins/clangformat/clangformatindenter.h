@@ -40,7 +40,8 @@ public:
     void autoIndent(const QTextCursor &cursor,
                     const TextEditor::TabSettings &tabSettings,
                     int cursorPositionInEditor = -1) override;
-    Utils::Text::Replacements format(const TextEditor::RangesInLines &rangesInLines) override;
+    Utils::EditOperations format(const TextEditor::RangesInLines &rangesInLines,
+                                 FormattingMode mode) override;
     bool formatOnSave() const override;
     TextEditor::IndentationForBlock indentationForBlocks(const QVector<QTextBlock> &blocks,
                                                          const TextEditor::TabSettings &tabSettings,

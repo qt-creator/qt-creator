@@ -46,7 +46,7 @@ QString PerforceEditorWidget::changeUnderCursor(const QTextCursor &c) const
     // Any number is regarded as change number.
     cursor.select(QTextCursor::WordUnderCursor);
     if (!cursor.hasSelection())
-        return QString();
+        return {};
     const QString change = cursor.selectedText();
     return m_changeNumberPattern.match(change).hasMatch() ? change : QString();
 }
@@ -70,7 +70,7 @@ QStringList PerforceEditorWidget::annotationPreviousVersions(const QString &v) c
     bool ok;
     const int changeList = v.toInt(&ok);
     if (!ok || changeList < 2)
-        return QStringList();
+        return {};
     return QStringList(QString::number(changeList - 1));
 }
 

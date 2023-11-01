@@ -5,15 +5,10 @@
 
 #include "buildstep.h"
 
-#include <QProcess>
-
 namespace Utils {
 class CommandLine;
-enum class ProcessResult;
 class Process;
 }
-
-namespace Tasking { class Group; }
 
 namespace ProjectExplorer {
 class ProcessParameters;
@@ -25,11 +20,14 @@ class PROJECTEXPLORER_EXPORT AbstractProcessStep : public BuildStep
 
 public:
     ProcessParameters *processParameters();
-    bool setupProcessParameters(ProcessParameters *params) const;
 
+protected:
+    AbstractProcessStep(BuildStepList *bsl, Utils::Id id);
+    ~AbstractProcessStep() override;
+
+    bool setupProcessParameters(ProcessParameters *params) const;
     bool ignoreReturnValue() const;
     void setIgnoreReturnValue(bool b);
-
     void setCommandLineProvider(const std::function<Utils::CommandLine()> &provider);
     void setWorkingDirectoryProvider(const std::function<Utils::FilePath()> &provider);
     void setEnvironmentModifier(const std::function<void(Utils::Environment &)> &modifier);
@@ -37,29 +35,17 @@ public:
 
     void emitFaultyConfigurationMessage();
 
-protected:
-    AbstractProcessStep(BuildStepList *bsl, Utils::Id id);
-    ~AbstractProcessStep() override;
-
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() override;
-    void doCancel() override;
     void setLowPriority();
     void setDisplayedParameters(ProcessParameters *params);
-    bool isSuccess(Utils::ProcessResult result) const;
 
-    virtual void finish(Utils::ProcessResult result);
-
-    bool checkWorkingDirectory();
-    void setupProcess(Utils::Process *process);
-    void runTaskTree(const Tasking::Group &recipe);
-    ProcessParameters *displayedParameters() const;
+    Tasking::GroupItem defaultProcessTask();
+    bool setupProcess(Utils::Process &process);
+    void handleProcessDone(const Utils::Process &process);
 
 private:
-    void setupStreams();
-    void processStartupFailed();
-    void handleProcessDone();
+    Tasking::GroupItem runRecipe() override;
 
     class Private;
     Private *d;

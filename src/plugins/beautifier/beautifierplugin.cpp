@@ -19,26 +19,21 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+
 #include <texteditor/formattexteditor.h>
 #include <texteditor/textdocument.h>
-#include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/mimeutils.h>
-#include <utils/process.h>
-#include <utils/qtcassert.h>
-#include <utils/temporarydirectory.h>
-#include <utils/textutils.h>
 
 #include <QMenu>
-#include <QPlainTextEdit>
-#include <QScrollBar>
-#include <QTextBlock>
 
 using namespace TextEditor;
 
@@ -68,17 +63,9 @@ public:
 
     void autoFormatOnSave(Core::IDocument *document);
 
-    GeneralSettings generalSettings;
-
     ArtisticStyle artisticStyleBeautifier;
     ClangFormat clangFormatBeautifier;
     Uncrustify uncrustifyBeautifier;
-
-    BeautifierAbstractTool *m_tools[3] {
-        &artisticStyleBeautifier,
-        &uncrustifyBeautifier,
-        &clangFormatBeautifier
-    };
 };
 
 static BeautifierPluginPrivate *dd = nullptr;
@@ -105,8 +92,8 @@ ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
 
 BeautifierPluginPrivate::BeautifierPluginPrivate()
 {
-    for (BeautifierAbstractTool *tool : m_tools)
-        generalSettings.autoFormatTools.addOption(tool->id());
+    for (BeautifierTool *tool : BeautifierTool::allTools())
+        generalSettings().autoFormatTools.addOption(tool->id());
 
     updateActions();
 
@@ -119,20 +106,20 @@ BeautifierPluginPrivate::BeautifierPluginPrivate()
 
 void BeautifierPluginPrivate::updateActions(Core::IEditor *editor)
 {
-    for (BeautifierAbstractTool *tool : m_tools)
+    for (BeautifierTool *tool : BeautifierTool::allTools())
         tool->updateActions(editor);
 }
 
 void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
 {
-    if (!generalSettings.autoFormatOnSave.value())
+    if (!generalSettings().autoFormatOnSave())
         return;
 
-    if (!isAutoFormatApplicable(document, generalSettings.allowedMimeTypes()))
+    if (!isAutoFormatApplicable(document, generalSettings().allowedMimeTypes()))
         return;
 
     // Check if file is contained in the current project (if wished)
-    if (generalSettings.autoFormatOnlyCurrentProject.value()) {
+    if (generalSettings().autoFormatOnlyCurrentProject()) {
         const ProjectExplorer::Project *pro = ProjectExplorer::ProjectTree::currentProject();
         if (!pro
             || pro->files([document](const ProjectExplorer::Node *n) {
@@ -145,13 +132,14 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
     }
 
     // Find tool to use by id and format file!
-    const QString id = generalSettings.autoFormatTools.stringValue();
-    auto tool = std::find_if(std::begin(m_tools), std::end(m_tools),
-                             [&id](const BeautifierAbstractTool *t){return t->id() == id;});
-    if (tool != std::end(m_tools)) {
+    const QString id = generalSettings().autoFormatTools.stringValue();
+    const QList<BeautifierTool *> &tools = BeautifierTool::allTools();
+    auto tool = std::find_if(std::begin(tools), std::end(tools),
+                             [&id](const BeautifierTool *t){return t->id() == id;});
+    if (tool != std::end(tools)) {
         if (!(*tool)->isApplicable(document))
             return;
-        const TextEditor::Command command = (*tool)->command();
+        const TextEditor::Command command = (*tool)->textCommand();
         if (!command.isValid())
             return;
         const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
@@ -160,52 +148,6 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
         if (auto widget = TextEditorWidget::fromEditor(editors.first()))
             TextEditor::formatEditor(widget, command);
     }
-}
-
-void BeautifierPlugin::showError(const QString &error)
-{
-    Core::MessageManager::writeFlashing(Tr::tr("Error in Beautifier: %1").arg(error.trimmed()));
-}
-
-QString BeautifierPlugin::msgCannotGetConfigurationFile(const QString &command)
-{
-    return Tr::tr("Cannot get configuration file for %1.").arg(command);
-}
-
-QString BeautifierPlugin::msgFormatCurrentFile()
-{
-    //: Menu entry
-    return Tr::tr("Format &Current File");
-}
-
-QString BeautifierPlugin::msgFormatSelectedText()
-{
-    //: Menu entry
-    return Tr::tr("Format &Selected Text");
-}
-
-QString BeautifierPlugin::msgFormatAtCursor()
-{
-    //: Menu entry
-    return Tr::tr("&Format at Cursor");
-}
-
-QString BeautifierPlugin::msgFormatLines()
-{
-    //: Menu entry
-    return Tr::tr("Format &Line(s)");
-}
-
-QString BeautifierPlugin::msgDisableFormattingSelectedText()
-{
-    //: Menu entry
-    return Tr::tr("&Disable Formatting for Selected Text");
-}
-
-QString BeautifierPlugin::msgCommandPromptDialogTitle(const QString &command)
-{
-    //: File dialog title for path chooser when choosing binary
-    return Tr::tr("%1 Command").arg(command);
 }
 
 } // Beautifier::Internal

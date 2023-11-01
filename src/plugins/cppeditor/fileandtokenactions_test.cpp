@@ -110,7 +110,7 @@ static bool waitUntilAProjectIsLoaded(int timeOutInMs = 30000)
     timer.start();
 
     while (timer.elapsed() < timeOutInMs) {
-        if (!CppModelManager::instance()->projectInfos().isEmpty())
+        if (!CppModelManager::projectInfos().isEmpty())
             return true;
 
         QCoreApplication::processEvents();
@@ -132,7 +132,7 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
     // Collect files to process
     FilePaths filesToOpen;
     QList<QPointer<ProjectExplorer::Project> > projects;
-    const QList<ProjectInfo::ConstPtr> projectInfos = m_modelManager->projectInfos();
+    const QList<ProjectInfo::ConstPtr> projectInfos = CppModelManager::projectInfos();
 
    for (const ProjectInfo::ConstPtr &info : projectInfos) {
         qDebug() << "Project" << info->projectFilePath().toUserOutput() << "- files to process:"
@@ -162,8 +162,8 @@ TestActionsTestCase::TestActionsTestCase(const Actions &tokenActions, const Acti
         QVERIFY(openCppEditor(filePath, &editor, &editorWidget));
 
         QCOMPARE(DocumentModel::openedDocuments().size(), 1);
-        QVERIFY(m_modelManager->isCppEditor(editor));
-        QVERIFY(m_modelManager->workingCopy().get(filePath));
+        QVERIFY(CppModelManager::isCppEditor(editor));
+        QVERIFY(CppModelManager::workingCopy().get(filePath));
 
         // Rehighlight
         waitForRehighlightedSemanticDocument(editorWidget);

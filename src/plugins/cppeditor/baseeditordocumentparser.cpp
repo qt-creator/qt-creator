@@ -92,8 +92,7 @@ ProjectPartInfo BaseEditorDocumentParser::projectPartInfo() const
 
 BaseEditorDocumentParser::Ptr BaseEditorDocumentParser::get(const FilePath &filePath)
 {
-    CppModelManager *cmmi = CppModelManager::instance();
-    if (CppEditorDocumentHandle *cppEditorDocument = cmmi->cppEditorDocument(filePath)) {
+    if (CppEditorDocumentHandle *cppEditorDocument = CppModelManager::cppEditorDocument(filePath)) {
         if (BaseEditorDocumentProcessor *processor = cppEditorDocument->processor())
             return processor->parser();
     }
@@ -109,14 +108,14 @@ ProjectPartInfo BaseEditorDocumentParser::determineProjectPart(const QString &fi
 {
     Internal::ProjectPartChooser chooser;
     chooser.setFallbackProjectPart([](){
-        return CppModelManager::instance()->fallbackProjectPart();
+        return CppModelManager::fallbackProjectPart();
     });
     chooser.setProjectPartsForFile([](const QString &filePath) {
-        return CppModelManager::instance()->projectPart(filePath);
+        return CppModelManager::projectPart(filePath);
     });
     chooser.setProjectPartsFromDependenciesForFile([&](const QString &filePath) {
         const auto fileName = Utils::FilePath::fromString(filePath);
-        return CppModelManager::instance()->projectPartFromDependencies(fileName);
+        return CppModelManager::projectPartFromDependencies(fileName);
     });
 
     const ProjectPartInfo chooserResult

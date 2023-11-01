@@ -20,6 +20,10 @@ const char zoomSettingsKey[] = "Core/MessageOutput/Zoom";
 
 MessageOutputWindow::MessageOutputWindow()
 {
+    setId("GeneralMessages");
+    setDisplayName(Tr::tr("General Messages"));
+    setPriorityInStatusBar(-100);
+
     m_widget = new OutputWindow(Context(Constants::C_GENERAL_OUTPUT_PANE), zoomSettingsKey);
     m_widget->setReadOnly(true);
 
@@ -65,19 +69,9 @@ QWidget *MessageOutputWindow::outputWidget(QWidget *parent)
     return m_widget;
 }
 
-QString MessageOutputWindow::displayName() const
-{
-    return Tr::tr("General Messages");
-}
-
 void MessageOutputWindow::append(const QString &text)
 {
     m_widget->appendMessage(text, Utils::GeneralMessageFormat);
-}
-
-int MessageOutputWindow::priorityInStatusBar() const
-{
-    return -1;
 }
 
 bool MessageOutputWindow::canNext() const

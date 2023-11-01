@@ -17,6 +17,7 @@
 #include <QLoggingCategory>
 #include <QMap>
 #include <QPair>
+#include <QPointer>
 #include <QStringList>
 
 #include <memory>

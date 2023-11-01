@@ -4,10 +4,9 @@
 #pragma once
 
 #include <QMetaType>
-#include <QVector>
+#include <QList>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class Function;
 
@@ -37,16 +36,16 @@ public:
      * @see ParseData::positions()
      */
     quint64 destination(int posIdx) const;
-    QVector<quint64> destinations() const;
-    void setDestinations(const QVector<quint64> &destinations);
+    QList<quint64> destinations() const;
+    void setDestinations(const QList<quint64> &destinations);
 
     /**
      * Inclusive cost of the function call.
      * @see ParseData::events()
      */
     quint64 cost(int event) const;
-    QVector<quint64> costs() const;
-    void setCosts(const QVector<quint64> &costs);
+    QList<quint64> costs() const;
+    void setCosts(const QList<quint64> &costs);
 
 private:
     Q_DISABLE_COPY(FunctionCall)
@@ -55,7 +54,6 @@ private:
     Private *d;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind
 
 Q_DECLARE_METATYPE(const Valgrind::Callgrind::FunctionCall *)
