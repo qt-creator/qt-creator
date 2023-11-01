@@ -3,7 +3,14 @@
 
 #include "collectioneditorutils.h"
 
+#include "abstractview.h"
+#include "bindingproperty.h"
+#include "nodemetainfo.h"
+#include "propertymetainfo.h"
+
 #include <variant>
+
+#include <utils/qtcassert.h>
 
 #include <QColor>
 #include <QUrl>
@@ -71,6 +78,37 @@ QString getSourceCollectionType(const ModelNode &node)
         return "csv";
 
     return {};
+}
+
+void assignCollectionSourceToNode(AbstractView *view,
+                                  const ModelNode &modelNode,
+                                  const ModelNode &collectionSourceNode)
+{
+    QTC_ASSERT(modelNode.isValid() && collectionSourceNode.isValid(), return);
+
+    if (collectionSourceNode.id().isEmpty() || !canAcceptCollectionAsModel(modelNode))
+        return;
+
+    BindingProperty modelProperty = modelNode.bindingProperty("model");
+
+    view->executeInTransaction("CollectionEditor::assignCollectionSourceToNode",
+                               [&modelProperty, &collectionSourceNode]() {
+                                   modelProperty.setExpression(collectionSourceNode.id());
+                               });
+}
+
+bool canAcceptCollectionAsModel(const ModelNode &node)
+{
+    const NodeMetaInfo nodeMetaInfo = node.metaInfo();
+    if (!nodeMetaInfo.isValid())
+        return false;
+
+    const PropertyMetaInfo modelProperty = nodeMetaInfo.property("model");
+    if (!modelProperty.isValid())
+        return false;
+
+    return modelProperty.isWritable() && !modelProperty.isPrivate()
+           && modelProperty.propertyType().isVariant();
 }
 
 } // namespace QmlDesigner::CollectionEditor

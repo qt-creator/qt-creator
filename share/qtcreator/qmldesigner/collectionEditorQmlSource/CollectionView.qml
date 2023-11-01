@@ -128,6 +128,8 @@ Item {
                     delegate: ModelSourceItem {
                         implicitWidth: sourceListView.width
                         onDeleteItem: root.model.removeRow(index)
+                        hasSelectedTarget: root.rootView.targetNodeSelected
+                        onAssignToSelected: root.rootView.assignSourceNodeToSelectedItem(sourceNode)
                     }
                 }
             }

@@ -21,6 +21,8 @@ class CollectionWidget : public QFrame
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool targetNodeSelected MEMBER m_targetNodeSelected NOTIFY targetNodeSelectedChanged)
+
 public:
     CollectionWidget(CollectionView *view);
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
@@ -41,7 +43,13 @@ public:
                                    const QString &sourceAddress,
                                    const QVariant &sourceNode);
 
+    Q_INVOKABLE void assignSourceNodeToSelectedItem(const QVariant &sourceNode);
+
     void warn(const QString &title, const QString &body);
+    void setTargetNodeSelected(bool selected);
+
+signals:
+    void targetNodeSelectedChanged(bool);
 
 private:
     QPointer<CollectionView> m_view;
@@ -49,6 +57,7 @@ private:
     QPointer<CollectionDetailsModel> m_collectionDetailsModel;
     std::unique_ptr<CollectionDetailsSortFilterModel> m_collectionDetailsSortFilterModel;
     QScopedPointer<StudioQuickWidget> m_quickWidget;
+    bool m_targetNodeSelected = false;
 };
 
 } // namespace QmlDesigner

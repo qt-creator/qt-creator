@@ -5,6 +5,7 @@
 
 #include "collectiondetailsmodel.h"
 #include "collectiondetailssortfiltermodel.h"
+#include "collectioneditorutils.h"
 #include "collectionsourcemodel.h"
 #include "collectionview.h"
 #include "qmldesignerconstants.h"
@@ -259,12 +260,37 @@ bool CollectionWidget::addCollection(const QString &collectionName,
     return false;
 }
 
+void CollectionWidget::assignSourceNodeToSelectedItem(const QVariant &sourceNode)
+{
+    ModelNode sourceModel = sourceNode.value<ModelNode>();
+    ModelNode targetNode = m_view->singleSelectedModelNode();
+
+    QTC_ASSERT(sourceModel.isValid() && targetNode.isValid(), return);
+
+    if (sourceModel.id().isEmpty()) {
+        warn(tr("Assigning the collection source"),
+             tr("The collection source must have a valid id to be assigned."));
+        return;
+    }
+
+    CollectionEditor::assignCollectionSourceToNode(m_view, targetNode, sourceModel);
+}
+
 void CollectionWidget::warn(const QString &title, const QString &body)
 {
     QMetaObject::invokeMethod(m_quickWidget->rootObject(),
                               "showWarning",
                               Q_ARG(QVariant, title),
                               Q_ARG(QVariant, body));
+}
+
+void CollectionWidget::setTargetNodeSelected(bool selected)
+{
+    if (m_targetNodeSelected == selected)
+        return;
+
+    m_targetNodeSelected = selected;
+    emit targetNodeSelectedChanged(m_targetNodeSelected);
 }
 
 } // namespace QmlDesigner

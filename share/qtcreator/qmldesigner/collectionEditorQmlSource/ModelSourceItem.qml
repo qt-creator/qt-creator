@@ -14,6 +14,8 @@ Item {
     implicitWidth: 300
     implicitHeight: wholeColumn.height
 
+    property bool hasSelectedTarget
+
     property color textColor
     property var collectionModel
 
@@ -21,6 +23,7 @@ Item {
 
     signal selectItem(int itemIndex)
     signal deleteItem()
+    signal assignToSelected()
 
     function toggleExpanded() {
         if (collectionListView.count > 0)
@@ -176,6 +179,12 @@ Item {
             text: qsTr("Rename")
             shortcut: StandardKey.Replace
             onTriggered: renameDialog.open()
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Assign to the selected node")
+            enabled: root.hasSelectedTarget
+            onTriggered: root.assignToSelected()
         }
     }
 

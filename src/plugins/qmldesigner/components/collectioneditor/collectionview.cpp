@@ -5,6 +5,7 @@
 
 #include "collectiondetailsmodel.h"
 #include "collectioneditorconstants.h"
+#include "collectioneditorutils.h"
 #include "collectionsourcemodel.h"
 #include "collectionwidget.h"
 #include "designmodecontext.h"
@@ -120,15 +121,26 @@ void CollectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
 void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                           [[maybe_unused]] const QList<ModelNode> &lastSelectedNodeList)
 {
-    QList<ModelNode> selectedJsonCollections = Utils::filtered(selectedNodeList,
+    QList<ModelNode> selectedCollectionNodes = Utils::filtered(selectedNodeList,
                                                                &isStudioCollectionModel);
 
+    bool singleNonCollectionNodeSelected = selectedNodeList.size() == 1
+                                           && selectedCollectionNodes.isEmpty();
+
+    bool singleSelectedHasModelProperty = false;
+    if (singleNonCollectionNodeSelected) {
+        const ModelNode selectedNode = selectedNodeList.first();
+        singleSelectedHasModelProperty = CollectionEditor::canAcceptCollectionAsModel(selectedNode);
+    }
+
+    m_widget->setTargetNodeSelected(singleSelectedHasModelProperty);
+
     // More than one collections are selected. So ignore them
-    if (selectedJsonCollections.size() > 1)
+    if (selectedCollectionNodes.size() > 1)
         return;
 
-    if (selectedJsonCollections.size() == 1) { // If exactly one collection is selected
-        m_widget->sourceModel()->selectSource(selectedJsonCollections.first());
+    if (selectedCollectionNodes.size() == 1) { // If exactly one collection is selected
+        m_widget->sourceModel()->selectSource(selectedCollectionNodes.first());
         return;
     }
 }
