@@ -139,6 +139,7 @@ private:
     void clearImageWatchers();
 
     void updateCustomUniforms();
+    void createFiles();
     void bakeShaders();
 
     QString mipmapPropertyName(const QString &name) const;

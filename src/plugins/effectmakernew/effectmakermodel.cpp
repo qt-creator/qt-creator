@@ -47,20 +47,6 @@ static bool writeToFile(const QByteArray &buf, const QString &filename, FileType
 EffectMakerModel::EffectMakerModel(QObject *parent)
     : QAbstractListModel{parent}
 {
-    m_vertexSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.vert");
-    m_fragmentSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.frag");
-    m_vertexShaderFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.vert.qsb");
-    m_fragmentShaderFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.frag.qsb");
-    if (!m_vertexSourceFile.open() || !m_fragmentSourceFile.open()
-        || !m_vertexShaderFile.open() || !m_fragmentShaderFile.open()) {
-        qWarning() << "Unable to open temporary files";
-    } else {
-        m_vertexSourceFilename = m_vertexSourceFile.fileName();
-        m_fragmentSourceFilename = m_fragmentSourceFile.fileName();
-        m_vertexShaderFilename = m_vertexShaderFile.fileName();
-        m_fragmentShaderFilename = m_fragmentShaderFile.fileName();
-    }
-
     connect(&m_fileWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this]() {
         // Update component with images not set.
         m_loadComponentImages = false;
@@ -641,19 +627,15 @@ QString EffectMakerModel::generateVertexShader(bool includeUniforms)
     m_shaderVaryingVariables.clear();
     for (const CompositionNode *n : std::as_const(m_nodes)) {
         if (!n->vertexCode().isEmpty() && n->isEnabled()) {
-            if (n->type() == CompositionNode::NodeType::SourceNode) {
-                s_sourceCode = n->vertexCode().split('\n');
-            } else if (n->type() == CompositionNode::NodeType::CustomNode) {
-                const QStringList vertexCode = n->vertexCode().split('\n');
-                int mainIndex = getTagIndex(vertexCode, QStringLiteral("main"));
-                int line = 0;
-                for (const QString &ss : vertexCode) {
-                    if (mainIndex == -1 || line > mainIndex)
-                        s_main += QStringLiteral("    ") + ss + '\n';
-                    else if (line < mainIndex)
-                        s_root += processVertexRootLine(ss);
-                    line++;
-                }
+            const QStringList vertexCode = n->vertexCode().split('\n');
+            int mainIndex = getTagIndex(vertexCode, "main");
+            int line = 0;
+            for (const QString &ss : vertexCode) {
+                if (mainIndex == -1 || line > mainIndex)
+                    s_main += "    " + ss + '\n';
+                else if (line < mainIndex)
+                    s_root += processVertexRootLine(ss);
+                line++;
             }
         }
     }
@@ -700,19 +682,15 @@ QString EffectMakerModel::generateFragmentShader(bool includeUniforms)
     QStringList s_sourceCode;
     for (const CompositionNode *n : std::as_const(m_nodes)) {
         if (!n->fragmentCode().isEmpty() && n->isEnabled()) {
-            if (n->type() == CompositionNode::NodeType::SourceNode) {
-                s_sourceCode = n->fragmentCode().split('\n');
-            } else if (n->type() == CompositionNode::NodeType::CustomNode) {
-                const QStringList fragmentCode = n->fragmentCode().split('\n');
-                int mainIndex = getTagIndex(fragmentCode, QStringLiteral("main"));
-                int line = 0;
-                for (const QString &ss : fragmentCode) {
-                    if (mainIndex == -1 || line > mainIndex)
-                        s_main += QStringLiteral("    ") + ss + '\n';
-                    else if (line < mainIndex)
-                        s_root += processFragmentRootLine(ss);
-                    line++;
-                }
+            const QStringList fragmentCode = n->fragmentCode().split('\n');
+            int mainIndex = getTagIndex(fragmentCode, QStringLiteral("main"));
+            int line = 0;
+            for (const QString &ss : fragmentCode) {
+                if (mainIndex == -1 || line > mainIndex)
+                    s_main += QStringLiteral("    ") + ss + '\n';
+                else if (line < mainIndex)
+                    s_root += processFragmentRootLine(ss);
+                line++;
             }
         }
     }
@@ -830,6 +808,30 @@ void EffectMakerModel::updateCustomUniforms()
     m_exportedEffectPropertiesString = exportedEffectPropertiesString;
 }
 
+void EffectMakerModel::createFiles()
+{
+    if (QFileInfo(m_vertexShaderFilename).exists())
+        QFile(m_vertexShaderFilename).remove();
+    if (QFileInfo(m_fragmentShaderFilename).exists())
+        QFile(m_fragmentShaderFilename).remove();
+
+    auto vertexShaderFile = QTemporaryFile(QDir::tempPath() + "/dsem_XXXXXX.vert.qsb");
+    auto fragmentShaderFile = QTemporaryFile(QDir::tempPath() + "/dsem_XXXXXX.frag.qsb");
+
+    m_vertexSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.vert");
+    m_fragmentSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.frag");
+
+    if (!m_vertexSourceFile.open() || !m_fragmentSourceFile.open()
+        || !vertexShaderFile.open() || !fragmentShaderFile.open()) {
+        qWarning() << "Unable to open temporary files";
+    } else {
+        m_vertexSourceFilename = m_vertexSourceFile.fileName();
+        m_fragmentSourceFilename = m_fragmentSourceFile.fileName();
+        m_vertexShaderFilename = vertexShaderFile.fileName();
+        m_fragmentShaderFilename = fragmentShaderFile.fileName();
+    }
+}
+
 void EffectMakerModel::bakeShaders()
 {
     const QString failMessage = "Shader baking failed: ";
@@ -839,6 +841,8 @@ void EffectMakerModel::bakeShaders()
         qWarning() << failMessage << "Target not found";
         return;
     }
+
+    createFiles();
 
     resetEffectError(ErrorPreprocessor);
     if (m_vertexShader == generateVertexShader() && m_fragmentShader == generateFragmentShader()) {
