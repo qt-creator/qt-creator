@@ -65,6 +65,7 @@ add_qtc_plugin(TextEditor
     formatter.h
     formattexteditor.cpp formattexteditor.h
     highlighter.cpp highlighter.h
+    highlighterhelper.cpp highlighterhelper.h
     highlightersettings.cpp highlightersettings.h
     highlightersettingspage.cpp highlightersettingspage.h
     icodestylepreferences.cpp icodestylepreferences.h

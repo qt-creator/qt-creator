@@ -9,7 +9,7 @@
 #include "findinfiles.h"
 #include "findinopenfiles.h"
 #include "fontsettings.h"
-#include "highlighter.h"
+#include "highlighterhelper.h"
 #include "icodestylepreferences.h"
 #include "jsoneditor.h"
 #include "linenumberfilter.h"
@@ -18,7 +18,6 @@
 #include "plaintexteditorfactory.h"
 #include "snippets/snippetprovider.h"
 #include "tabsettings.h"
-#include "textdocument.h"
 #include "textdocument.h"
 #include "texteditor.h"
 #include "texteditorconstants.h"
@@ -437,7 +436,7 @@ LineNumberFilter *TextEditorPlugin::lineNumberFilter()
 
 ExtensionSystem::IPlugin::ShutdownFlag TextEditorPlugin::aboutToShutdown()
 {
-    Highlighter::handleShutdown();
+    HighlighterHelper::handleShutdown();
     return SynchronousShutdown;
 }
 
