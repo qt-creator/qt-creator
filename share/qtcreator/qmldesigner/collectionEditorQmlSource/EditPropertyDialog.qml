@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Layouts
 import StudioTheme 1.0 as StudioTheme
 import StudioControls 1.0 as StudioControls
 import HelperWidgets 2.0 as HelperWidgets
@@ -119,7 +120,42 @@ StudioControls.Dialog {
 
         Item { // spacer
             width: 1
-            height: 20
+            height: 10
+        }
+
+        Rectangle {
+            id: warningBox
+
+            visible: propertyType.initialType !== propertyType.currentText
+            width: parent.width
+            height: warning.implicitHeight
+            color: "transparent"
+            border.color: StudioTheme.Values.themeWarning
+
+            RowLayout {
+                id: warning
+
+                anchors.fill: parent
+
+                HelperWidgets.IconLabel {
+                    icon: StudioTheme.Constants.warning
+                    Layout.leftMargin: 10
+                }
+
+                Text {
+                    text: qsTr("Conversion from %1 to %2 may lead to irreversible data loss").arg(propertyType.initialType).arg(propertyType.currentText)
+                    color: StudioTheme.Values.themeTextColor
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                    Layout.margins: 8
+                }
+            }
+        }
+
+        Item { // spacer
+            visible: warningBox.visible
+            width: 1
+            height: 10
         }
 
         Row {
