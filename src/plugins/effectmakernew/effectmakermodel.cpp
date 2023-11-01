@@ -104,6 +104,9 @@ void EffectMakerModel::setIsEmpty(bool val)
     if (m_isEmpty != val) {
         m_isEmpty = val;
         emit isEmptyChanged();
+
+        if (m_isEmpty)
+            bakeShaders();
     }
 }
 

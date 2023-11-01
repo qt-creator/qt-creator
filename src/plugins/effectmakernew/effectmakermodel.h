@@ -163,8 +163,6 @@ private:
     // Temp files to store shaders sources and binary data
     QTemporaryFile m_fragmentSourceFile;
     QTemporaryFile m_vertexSourceFile;
-    QTemporaryFile m_fragmentShaderFile;
-    QTemporaryFile m_vertexShaderFile;
     QString m_fragmentSourceFilename;
     QString m_vertexSourceFilename;
     QString m_fragmentShaderFilename;
