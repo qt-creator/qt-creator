@@ -25,15 +25,6 @@
 
     The settings you specify apply globally to all projects.
 
-    To specify editor behavior for an open project, select \uicontrol Projects >
-    \uicontrol Editor.
-
-    \image qtcreator-editor-settings.png "Editor settings"
-
-    \if defined(qtcreator)
-    For more information, see \l{Specify editor settings}.
-    \endif
-
     You can also specify indentation settings separately for C++ and QML files
     either globally or for the open project. For more information, see
     \l{Indent text or code}.
@@ -74,16 +65,7 @@
     \endlist
 
     \if defined(qtcreator)
-    \section1 Related Topics
-
-    \list
-
-        \li \l{Using FakeVim Mode}
-
-            Run the main editor in a manner similar to the Vim editor in the
-            FakeVim mode.
-
-    \endlist
+    \sa {Specify editor settings}, {Using FakeVim Mode}
     \endif
 
 */
