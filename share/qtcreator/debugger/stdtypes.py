@@ -646,7 +646,14 @@ def qdump__std__unique_ptr(d, value):
     if p == 0:
         d.putValue("(null)")
     else:
-        d.putItem(d.createValue(p, value.type[0]))
+        if d.isMsvcTarget():
+            try:
+                d.putItem(value["_Mypair"]["_Myval2"])
+                d.putValue(d.currentValue.value, d.currentValue.encoding)
+            except:
+                d.putItem(d.createValue(p, value.type[0]))
+        else:
+            d.putItem(d.createValue(p, value.type[0]))
         d.putBetterType(value.type)
 
 
