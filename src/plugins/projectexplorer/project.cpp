@@ -10,7 +10,7 @@
 #include "editorconfiguration.h"
 #include "environmentaspect.h"
 #include "kit.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "msvctoolchain.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -24,13 +24,13 @@
 #include "toolchainmanager.h"
 #include "userfileaccessor.h"
 
-#include <coreplugin/idocument.h>
 #include <coreplugin/documentmanager.h>
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>
-#include <coreplugin/editormanager/documentmodel.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -184,7 +184,7 @@ public:
     Target *m_activeTarget = nullptr;
     EditorConfiguration m_editorConfiguration;
     Context m_projectLanguages;
-    QVariantMap m_pluginSettings;
+    Store m_pluginSettings;
     std::unique_ptr<Internal::UserFileAccessor> m_accessor;
     QHash<Id, QPair<QString, std::function<void()>>> m_generators;
 
@@ -194,7 +194,7 @@ public:
     FilePath m_rootProjectDirectory;
     mutable QVector<const Node *> m_sortedNodeList;
 
-    QVariantMap m_extraData;
+    Store m_extraData;
 };
 
 ProjectPrivate::~ProjectPrivate()
@@ -634,15 +634,24 @@ void Project::saveSettings()
     emit aboutToSaveSettings();
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
-    if (!targets().isEmpty())
-        d->m_accessor->saveSettings(toMap(), ICore::dialogParent());
+    if (!targets().isEmpty()) {
+        Store map;
+        toMap(map);
+        d->m_accessor->saveSettings(map, ICore::dialogParent());
+    }
 }
 
 Project::RestoreResult Project::restoreSettings(QString *errorMessage)
 {
+    if (!KitManager::waitForLoaded()) {
+        if (errorMessage)
+            *errorMessage = Tr::tr("Could not load kits in a reasonable amount of time.");
+        return RestoreResult::Error;
+    }
+
     if (!d->m_accessor)
         d->m_accessor = std::make_unique<Internal::UserFileAccessor>(this);
-    QVariantMap map(d->m_accessor->restoreSettings(ICore::dialogParent()));
+    Store map(d->m_accessor->restoreSettings(ICore::dialogParent()));
     RestoreResult result = fromMap(map, errorMessage);
     if (result == RestoreResult::Ok)
         emit settingsLoaded();
@@ -678,7 +687,7 @@ FilePaths Project::files(const NodeMatcher &filter) const
 }
 
 /*!
-    Serializes all data into a QVariantMap.
+    Serializes all data into a Store.
 
     This map is then saved in the .user file of the project.
     Just put all your data into the map.
@@ -688,21 +697,18 @@ FilePaths Project::files(const NodeMatcher &filter) const
     creating new build configurations.
 */
 
-QVariantMap Project::toMap() const
+void Project::toMap(Store &map) const
 {
     const QList<Target *> ts = targets();
 
-    QVariantMap map;
-    map.insert(QLatin1String(ACTIVE_TARGET_KEY), ts.indexOf(d->m_activeTarget));
-    map.insert(QLatin1String(TARGET_COUNT_KEY), ts.size());
+    map.insert(ACTIVE_TARGET_KEY, ts.indexOf(d->m_activeTarget));
+    map.insert(TARGET_COUNT_KEY, ts.size());
     for (int i = 0; i < ts.size(); ++i)
-        map.insert(QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(i), ts.at(i)->toMap());
+        map.insert(numberedKey(TARGET_KEY_PREFIX, i), variantFromStore(ts.at(i)->toMap()));
 
-    map.insert(QLatin1String(EDITOR_SETTINGS_KEY), d->m_editorConfiguration.toMap());
+    map.insert(EDITOR_SETTINGS_KEY, variantFromStore(d->m_editorConfiguration.toMap()));
     if (!d->m_pluginSettings.isEmpty())
-        map.insert(QLatin1String(PLUGIN_SETTINGS_KEY), d->m_pluginSettings);
-
-    return map;
+        map.insert(PLUGIN_SETTINGS_KEY, variantFromStore(d->m_pluginSettings));
 }
 
 /*!
@@ -725,7 +731,7 @@ FilePath Project::projectDirectory() const
 FilePath Project::projectDirectory(const FilePath &top)
 {
     if (top.isEmpty())
-        return FilePath();
+        return {};
     return top.absolutePath();
 }
 
@@ -764,22 +770,22 @@ ContainerNode *Project::containerNode() const
     return d->m_containerNode.get();
 }
 
-Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult Project::fromMap(const Store &map, QString *errorMessage)
 {
     Q_UNUSED(errorMessage)
-    if (map.contains(QLatin1String(EDITOR_SETTINGS_KEY))) {
-        QVariantMap values(map.value(QLatin1String(EDITOR_SETTINGS_KEY)).toMap());
+    if (map.contains(EDITOR_SETTINGS_KEY)) {
+        Store values = storeFromVariant(map.value(EDITOR_SETTINGS_KEY));
         d->m_editorConfiguration.fromMap(values);
     }
 
-    if (map.contains(QLatin1String(PLUGIN_SETTINGS_KEY)))
-        d->m_pluginSettings = map.value(QLatin1String(PLUGIN_SETTINGS_KEY)).toMap();
+    if (map.contains(PLUGIN_SETTINGS_KEY))
+        d->m_pluginSettings = storeFromVariant(map.value(PLUGIN_SETTINGS_KEY));
 
     bool ok;
-    int maxI(map.value(QLatin1String(TARGET_COUNT_KEY), 0).toInt(&ok));
+    int maxI(map.value(TARGET_COUNT_KEY, 0).toInt(&ok));
     if (!ok || maxI < 0)
         maxI = 0;
-    int active(map.value(QLatin1String(ACTIVE_TARGET_KEY), 0).toInt(&ok));
+    int active = map.value(ACTIVE_TARGET_KEY, 0).toInt(&ok);
     if (!ok || active < 0 || active >= maxI)
         active = 0;
 
@@ -799,13 +805,13 @@ Project::RestoreResult Project::fromMap(const QVariantMap &map, QString *errorMe
     return RestoreResult::Ok;
 }
 
-void Project::createTargetFromMap(const QVariantMap &map, int index)
+void Project::createTargetFromMap(const Store &map, int index)
 {
-    const QString key = QString::fromLatin1(TARGET_KEY_PREFIX) + QString::number(index);
+    const Key key = numberedKey(TARGET_KEY_PREFIX, index);
     if (!map.contains(key))
         return;
 
-    const QVariantMap targetMap = map.value(key).toMap();
+    const Store targetMap = storeFromVariant(map.value(key));
 
     Id id = idFromMap(targetMap);
     if (target(id)) {
@@ -815,7 +821,7 @@ void Project::createTargetFromMap(const QVariantMap &map, int index)
     }
 
     Kit *k = KitManager::kit(id);
-    if (!k) {
+    if (!k && !ICore::isQtDesignStudio()) {
         Id deviceTypeId = Id::fromSetting(targetMap.value(Target::deviceTypeKey()));
         if (!deviceTypeId.isValid())
             deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
@@ -978,12 +984,12 @@ Context Project::projectLanguages() const
     return d->m_projectLanguages;
 }
 
-QVariant Project::namedSettings(const QString &name) const
+QVariant Project::namedSettings(const Key &name) const
 {
     return d->m_pluginSettings.value(name);
 }
 
-void Project::setNamedSettings(const QString &name, const QVariant &value)
+void Project::setNamedSettings(const Key &name, const QVariant &value)
 {
     if (value.isNull())
         d->m_pluginSettings.remove(name);
@@ -1075,12 +1081,12 @@ void Project::setCanBuildProducts()
     d->m_canBuildProducts = true;
 }
 
-void Project::setExtraData(const QString &key, const QVariant &data)
+void Project::setExtraData(const Key &key, const QVariant &data)
 {
     d->m_extraData.insert(key, data);
 }
 
-QVariant Project::extraData(const QString &key) const
+QVariant Project::extraData(const Key &key) const
 {
     return d->m_extraData.value(key);
 }
@@ -1232,10 +1238,10 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                              //: %1 is something like "Active project"
                              ::PE::Tr::tr("%1: Variables in the active build environment.")
                                  .arg(descriptor),
-                             [bcGetter](const QString &var) {
+                             [bcGetter](const QString &var) -> QString {
                                  if (BuildConfiguration *const bc = bcGetter())
                                      return bc->environment().expandedValueForKey(var);
-                                 return QString();
+                                 return {};
                              });
 
     expander->registerVariable(fullPrefix + "RunConfig:Name",
@@ -1245,7 +1251,7 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                                [rcGetter]() -> QString {
                                    if (const RunConfiguration *const rc = rcGetter())
                                        return rc->displayName();
-                                   return QString();
+                                   return {};
                                });
     expander->registerFileVariables(fullPrefix + "RunConfig:Executable",
                                     //: %1 is something like "Active project"
@@ -1262,25 +1268,25 @@ void Project::addVariablesToMacroExpander(const QByteArray &prefix,
                          ::PE::Tr::tr(
                              "%1: Variables in the environment of the active run configuration.")
                              .arg(descriptor),
-                         [rcGetter](const QString &var) {
+                         [rcGetter](const QString &var) -> QString {
                              if (const RunConfiguration *const rc = rcGetter()) {
                                  if (const auto envAspect = rc->aspect<EnvironmentAspect>())
                                      return envAspect->environment().expandedValueForKey(var);
                              }
-                             return QString();
+                             return {};
                          });
     expander->registerVariable(fullPrefix + "RunConfig:WorkingDir",
                                //: %1 is something like "Active project"
                                ::PE::Tr::tr(
                                    "%1: Working directory of the active run configuration.")
                                    .arg(descriptor),
-                               [rcGetter] {
+                               [rcGetter]() -> QString {
                                    if (const RunConfiguration *const rc = rcGetter()) {
                                        if (const auto wdAspect
                                            = rc->aspect<WorkingDirectoryAspect>())
                                            return wdAspect->workingDirectory().toString();
                                    }
-                                   return QString();
+                                   return {};
                                });
 }
 
@@ -1494,8 +1500,10 @@ void ProjectExplorerPlugin::testProject_multipleBuildConfigs()
     QVERIFY(tempDir->isValid());
     const FilePath projectDir = FilePath::fromString(tempDir->path() + "/generic-project");
     const auto copyResult = FilePath(":/projectexplorer/testdata/generic-project").copyRecursively(projectDir);
+    if (!copyResult)
+        qDebug() << copyResult.error();
+    QVERIFY(copyResult);
 
-    QVERIFY2(copyResult, qPrintable(copyResult.error()));
     const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files | QDir::Dirs);
     for (const QFileInfo &f : files)
         QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);
@@ -1556,7 +1564,9 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
     if (!projectDir.exists()) {
         const auto result = FilePath(":/projectexplorer/testdata/multi-target-project")
                                 .copyRecursively(projectDir);
-        QVERIFY2(result, qPrintable(result.error()));
+        if (!result)
+            qDebug() << result.error();
+        QVERIFY(result);
         const QFileInfoList files = QDir(projectDir.toString()).entryInfoList(QDir::Files);
         for (const QFileInfo &f : files)
             QFile(f.absoluteFilePath()).setPermissions(f.permissions() | QFile::WriteUser);

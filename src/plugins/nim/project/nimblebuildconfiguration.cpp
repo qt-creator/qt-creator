@@ -37,17 +37,16 @@ BuildConfiguration::BuildType NimbleBuildConfiguration::buildType() const
     return m_buildType;
 }
 
-bool NimbleBuildConfiguration::fromMap(const QVariantMap &map)
+void NimbleBuildConfiguration::fromMap(const Store &map)
 {
     m_buildType = static_cast<BuildType>(map[Constants::C_NIMBLEBUILDCONFIGURATION_BUILDTYPE].toInt());
-    return BuildConfiguration::fromMap(map);
+    BuildConfiguration::fromMap(map);
 }
 
-QVariantMap NimbleBuildConfiguration::toMap() const
+void NimbleBuildConfiguration::toMap(Store &map) const
 {
-    auto map = BuildConfiguration::toMap();
+    BuildConfiguration::toMap(map);
     map[Constants::C_NIMBLEBUILDCONFIGURATION_BUILDTYPE] = buildType();
-    return map;
 }
 
 void NimbleBuildConfiguration::setBuildType(BuildConfiguration::BuildType buildType)

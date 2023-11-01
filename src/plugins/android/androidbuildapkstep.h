@@ -23,8 +23,8 @@ class AndroidBuildApkStep : public ProjectExplorer::AbstractProcessStep
 public:
     AndroidBuildApkStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     // signing
     Utils::FilePath keystorePath() const;
@@ -37,14 +37,9 @@ public:
     bool signPackage() const;
     void setSignPackage(bool b);
 
-    bool buildAAB() const;
-    void setBuildAAB(bool aab);
-
-    bool openPackageLocation() const;
-    void setOpenPackageLocation(bool open);
-
-    bool verboseOutput() const;
-    void setVerboseOutput(bool verbose);
+    Utils::BoolAspect buildAAB{this};
+    Utils::BoolAspect openPackageLocation{this};
+    Utils::BoolAspect verboseOutput{this};
 
     bool addDebugger() const;
     void setAddDebugger(bool debug);
@@ -63,20 +58,16 @@ private:
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
     QWidget *createConfigWidget() override;
-    void finish(Utils::ProcessResult result) override;
     bool verifyKeystorePassword();
     bool verifyCertificatePassword();
 
-    void doRun() override;
+    Tasking::GroupItem runRecipe() final;
     void stdError(const QString &output);
 
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
     void updateBuildToolsVersionInJsonFile();
 
-    bool m_buildAAB = false;
     bool m_signPackage = false;
-    bool m_verbose = false;
-    bool m_openPackageLocation = false;
     bool m_openPackageLocationForRun = false;
     bool m_addDebugger = true;
     QString m_buildTargetSdk;

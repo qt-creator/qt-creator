@@ -8,15 +8,15 @@
 #include "coreicons.h"
 #include "icore.h"
 
-#include <app/app_version.h>
-
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
 #include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QGuiApplication>
 #include <QKeyEvent>
 #include <QLabel>
 #include <QPushButton>
@@ -32,19 +32,19 @@ VersionDialog::VersionDialog(QWidget *parent)
     if (Utils::HostOsInfo::isLinuxHost())
         setWindowIcon(Icons::QTCREATORLOGO_BIG.icon());
 
-    setWindowTitle(Tr::tr("About %1").arg(Core::Constants::IDE_DISPLAY_NAME));
+    setWindowTitle(Tr::tr("About %1").arg(QGuiApplication::applicationDisplayName()));
     auto layout = new QGridLayout(this);
     layout->setSizeConstraint(QLayout::SetFixedSize);
 
+    const Utils::AppInfo appInfo = Utils::appInfo();
     QString ideRev;
-#ifdef IDE_REVISION
-    const QString revUrl = QString::fromLatin1(Constants::IDE_REVISION_URL);
-    const QString rev = QString::fromLatin1(Constants::IDE_REVISION_STR);
-    ideRev = Tr::tr("<br/>From revision %1<br/>")
-            .arg(revUrl.isEmpty() ? rev
-                                  : QString::fromLatin1("<a href=\"%1\">%2</a>").arg(revUrl, rev));
-#endif
-     QString buildDateInfo;
+    if (!appInfo.revision.isEmpty())
+        ideRev = Tr::tr("<br/>From revision %1<br/>")
+                .arg(appInfo.revisionUrl.isEmpty()
+                     ? appInfo.revision
+                     : QString::fromLatin1("<a href=\"%1\">%2</a>")
+                       .arg(appInfo.revisionUrl, appInfo.revision));
+    QString buildDateInfo;
 #ifdef QTC_SHOW_BUILD_DATE
      buildDateInfo = Tr::tr("<br/>Built on %1 %2<br/>").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
 #endif
@@ -56,27 +56,27 @@ VersionDialog::VersionDialog(QWidget *parent)
 
     const QString description
         = Tr::tr("<h3>%1</h3>"
-             "%2<br/>"
-             "%3"
-             "%4"
-             "%5"
-             "<br/>"
-             "Copyright 2008-%6 %7. All rights reserved.<br/>"
-             "<br/>"
-             "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
-             "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
-             "PARTICULAR PURPOSE.<br/>")
+                 "%2<br/>"
+                 "%3"
+                 "%4"
+                 "%5"
+                 "<br/>"
+                 "Copyright 2008-%6 %7. All rights reserved.<br/>"
+                 "<br/>"
+                 "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
+                 "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
+                 "PARTICULAR PURPOSE.<br/>")
               .arg(ICore::versionString(),
                    ICore::buildCompatibilityString(),
                    buildDateInfo,
                    ideRev,
                    additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
-                   QLatin1String(Constants::IDE_YEAR),
-                   QLatin1String(Constants::IDE_AUTHOR))
+                   appInfo.year,
+                   appInfo.author)
           + "<br/>"
           + Tr::tr("The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, "
-               "Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are "
-               "registered trademarks of The Qt Company Ltd.");
+                   "Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are "
+                   "registered trademarks of The Qt Company Ltd.");
 
     QLabel *copyRightLabel = new QLabel(description);
     copyRightLabel->setWordWrap(true);

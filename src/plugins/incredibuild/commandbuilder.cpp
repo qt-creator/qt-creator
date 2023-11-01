@@ -12,21 +12,26 @@ namespace IncrediBuild::Internal {
 const char CUSTOMCOMMANDBUILDER_COMMAND[] = "IncrediBuild.BuildConsole.%1.Command";
 const char CUSTOMCOMMANDBUILDER_ARGS[] = "IncrediBuild.BuildConsole.%1.Arguments";
 
+static Key key(const QString &pattern, const QString &id)
+{
+    return keyFromString(pattern.arg(id));
+}
+
 QString CommandBuilder::displayName() const
 {
     return Tr::tr("Custom Command");
 }
 
-void CommandBuilder::fromMap(const QVariantMap &map)
+void CommandBuilder::fromMap(const Store &map)
 {
-    m_command = FilePath::fromSettings(map.value(QString(CUSTOMCOMMANDBUILDER_COMMAND).arg(id())));
-    m_args = map.value(QString(CUSTOMCOMMANDBUILDER_ARGS).arg(id())).toString();
+    m_command = FilePath::fromSettings(map.value(key(CUSTOMCOMMANDBUILDER_COMMAND, id())));
+    m_args = map.value(key(CUSTOMCOMMANDBUILDER_ARGS, id())).toString();
 }
 
-void CommandBuilder::toMap(QVariantMap *map) const
+void CommandBuilder::toMap(Store *map) const
 {
-    (*map)[QString(CUSTOMCOMMANDBUILDER_COMMAND).arg(id())] = m_command.toSettings();
-    (*map)[QString(CUSTOMCOMMANDBUILDER_ARGS).arg(id())] = QVariant(m_args);
+    map->insert(key(CUSTOMCOMMANDBUILDER_COMMAND, id()), m_command.toSettings());
+    map->insert(key(CUSTOMCOMMANDBUILDER_ARGS, id()), QVariant(m_args));
 }
 
 void CommandBuilder::setCommand(const FilePath &command)

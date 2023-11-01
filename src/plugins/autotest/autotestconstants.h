@@ -8,6 +8,7 @@
 namespace Autotest {
 namespace Constants {
 
+const char ACTION_DISABLE_TMP[]              = "AutoTest.DisableTemp";
 const char ACTION_SCAN_ID[]                  = "AutoTest.ScanAction";
 const char ACTION_RUN_ALL_ID[]               = "AutoTest.RunAll";
 const char ACTION_RUN_ALL_NODEPLOY_ID[]      = "AutoTest.RunAllNoDeploy";

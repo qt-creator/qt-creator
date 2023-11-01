@@ -43,8 +43,6 @@ class AndroidSdkModel;
 
 class OptionsDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
     OptionsDialog(AndroidSdkManager *sdkManager, const QStringList &args,
                   QWidget *parent = nullptr);

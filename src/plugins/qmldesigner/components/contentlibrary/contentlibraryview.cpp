@@ -26,7 +26,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #endif
 
 #include <QVector3D>

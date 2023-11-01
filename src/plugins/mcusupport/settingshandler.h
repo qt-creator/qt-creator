@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
+#include <utils/storekey.h>
+
 #include <QSettings>
 #include <QSharedPointer>
-#include <QString>
 
-namespace Utils {
-class FilePath;
-} //namespace Utils
+namespace Utils { class FilePath; }
 
 namespace McuSupport::Internal {
 
@@ -17,11 +16,11 @@ class SettingsHandler
 public:
     using Ptr = QSharedPointer<SettingsHandler>;
     virtual ~SettingsHandler() = default;
-    virtual Utils::FilePath getPath(const QString &settingsKey,
+    virtual Utils::FilePath getPath(const Utils::Key &settingsKey,
                                     QSettings::Scope scope,
                                     const Utils::FilePath &m_defaultPath) const;
 
-    virtual bool write(const QString &settingsKey,
+    virtual bool write(const Utils::Key &settingsKey,
                        const Utils::FilePath &path,
                        const Utils::FilePath &defaultPath) const;
 
@@ -29,6 +28,6 @@ public:
     void setAutomaticKitCreation(bool isEnabled);
     void setInitialPlatformName(const QString &platform);
     QString initialPlatformName() const;
+};
 
-}; //class SettingsHandler
 } // namespace McuSupport::Internal

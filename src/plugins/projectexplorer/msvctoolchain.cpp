@@ -116,7 +116,7 @@ static QString platformName(MsvcToolChain::Platform t)
 {
     if (const MsvcPlatform *p = platformEntry(t))
         return QLatin1String(p->name);
-    return QString();
+    return {};
 }
 
 static bool hostPrefersPlatform(MsvcToolChain::Platform platform)
@@ -780,7 +780,7 @@ void MsvcToolChain::environmentModifications(QPromise<MsvcToolChain::GenerateEnv
 
 void MsvcToolChain::initEnvModWatcher(const QFuture<GenerateEnvResult> &future)
 {
-    QObject::connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt, [&]() {
+    connect(&m_envModWatcher, &QFutureWatcher<GenerateEnvResult>::resultReadyAt, this, [this] {
         const GenerateEnvResult &result = m_envModWatcher.result();
         if (result.error) {
             QString errorMessage = *result.error;
@@ -978,39 +978,37 @@ Abis MsvcToolChain::supportedAbis() const
     return abis;
 }
 
-QVariantMap MsvcToolChain::toMap() const
+void MsvcToolChain::toMap(Store &data) const
 {
-    QVariantMap data = ToolChain::toMap();
-    data.insert(QLatin1String(varsBatKeyC), m_vcvarsBat);
+    ToolChain::toMap(data);
+    data.insert(varsBatKeyC, m_vcvarsBat);
     if (!m_varsBatArg.isEmpty())
-        data.insert(QLatin1String(varsBatArgKeyC), m_varsBatArg);
-    Utils::EnvironmentItem::sort(&m_environmentModifications);
-    data.insert(QLatin1String(environModsKeyC),
-                Utils::EnvironmentItem::toVariantList(m_environmentModifications));
-    return data;
+        data.insert(varsBatArgKeyC, m_varsBatArg);
+    EnvironmentItem::sort(&m_environmentModifications);
+    data.insert(environModsKeyC, EnvironmentItem::toVariantList(m_environmentModifications));
 }
 
-bool MsvcToolChain::fromMap(const QVariantMap &data)
+void MsvcToolChain::fromMap(const Store &data)
 {
-    if (!ToolChain::fromMap(data)) {
+    ToolChain::fromMap(data);
+    if (hasError()) {
         g_availableMsvcToolchains.removeOne(this);
-        return false;
+        return;
     }
-    m_vcvarsBat = QDir::fromNativeSeparators(data.value(QLatin1String(varsBatKeyC)).toString());
-    m_varsBatArg = data.value(QLatin1String(varsBatArgKeyC)).toString();
+    m_vcvarsBat = QDir::fromNativeSeparators(data.value(varsBatKeyC).toString());
+    m_varsBatArg = data.value(varsBatArgKeyC).toString();
 
-    m_environmentModifications = Utils::EnvironmentItem::itemsFromVariantList(
-        data.value(QLatin1String(environModsKeyC)).toList());
+    m_environmentModifications = EnvironmentItem::itemsFromVariantList(
+        data.value(environModsKeyC).toList());
     rescanForCompiler();
 
     initEnvModWatcher(Utils::asyncRun(envModThreadPool(), &MsvcToolChain::environmentModifications,
                                       m_vcvarsBat, m_varsBatArg));
 
-    const bool valid = !m_vcvarsBat.isEmpty() && targetAbi().isValid();
-    if (!valid)
+    if (m_vcvarsBat.isEmpty() || !targetAbi().isValid()) {
+        reportError();
         g_availableMsvcToolchains.removeOne(this);
-
-    return valid;
+    }
 }
 
 std::unique_ptr<ToolChainConfigWidget> MsvcToolChain::createConfigurationWidget()
@@ -1212,8 +1210,8 @@ void MsvcToolChain::rescanForCompiler()
           env.searchInPath(QLatin1String("cl.exe"), {}, [](const Utils::FilePath &name) {
               QDir dir(QDir::cleanPath(name.toFileInfo().absolutePath() + QStringLiteral("/..")));
               do {
-                  if (QFile::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
-                      || QFile::exists(dir.absolutePath() + "/Auxiliary/Build/vcvarsall.bat"))
+                  if (QFileInfo::exists(dir.absoluteFilePath(QStringLiteral("vcvarsall.bat")))
+                      || QFileInfo::exists(dir.absolutePath() + "/Auxiliary/Build/vcvarsall.bat"))
                       return true;
               } while (dir.cdUp() && !dir.isRoot());
               return false;
@@ -1723,28 +1721,30 @@ QList<OutputLineParser *> ClangClToolChain::createOutputParsers() const
     return {new ClangClParser};
 }
 
-static inline QString llvmDirKey()
+static Key llvmDirKey()
 {
-    return QStringLiteral("ProjectExplorer.ClangClToolChain.LlvmDir");
+    return "ProjectExplorer.ClangClToolChain.LlvmDir";
 }
 
-QVariantMap ClangClToolChain::toMap() const
+void ClangClToolChain::toMap(Store &data) const
 {
-    QVariantMap result = MsvcToolChain::toMap();
-    result.insert(llvmDirKey(), m_clangPath.toString());
-    return result;
+    MsvcToolChain::toMap(data);
+    data.insert(llvmDirKey(), m_clangPath.toString());
 }
 
-bool ClangClToolChain::fromMap(const QVariantMap &data)
+void ClangClToolChain::fromMap(const Store &data)
 {
-    if (!MsvcToolChain::fromMap(data))
-        return false;
+    MsvcToolChain::fromMap(data);
+    if (hasError())
+        return;
+
     const QString clangPath = data.value(llvmDirKey()).toString();
-    if (clangPath.isEmpty())
-        return false;
-    m_clangPath = FilePath::fromString(clangPath);
+    if (clangPath.isEmpty()) {
+        reportError();
+        return;
+    }
 
-    return true;
+    m_clangPath = FilePath::fromString(clangPath);
 }
 
 std::unique_ptr<ToolChainConfigWidget> ClangClToolChain::createConfigurationWidget()
@@ -2057,7 +2057,7 @@ Toolchains ClangClToolChainFactory::autoDetect(const ToolchainDetector &detector
     }
 
     const Utils::Environment systemEnvironment = Utils::Environment::systemEnvironment();
-    const Utils::FilePath clangClPath = systemEnvironment.searchInPath("clang-cl");
+    const Utils::FilePath clangClPath = systemEnvironment.searchInPath("clang-cl.exe");
     if (!clangClPath.isEmpty())
         results.append(detectClangClToolChainInPath(clangClPath, known, ""));
 
@@ -2119,7 +2119,7 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     saver.write("@echo " + marker.toLocal8Bit() + "\r\n");
     if (!saver.finalize()) {
         qWarning("%s: %s", Q_FUNC_INFO, qPrintable(saver.errorString()));
-        return QString();
+        return {};
     }
 
     Utils::Process run;
@@ -2160,13 +2160,13 @@ std::optional<QString> MsvcToolChain::generateEnvironmentSettings(const Utils::E
     const int start = stdOut.indexOf(marker);
     if (start == -1) {
         qWarning("Could not find start marker in stdout output.");
-        return QString();
+        return {};
     }
 
     const int end = stdOut.indexOf(marker, start + 1);
     if (end == -1) {
         qWarning("Could not find end marker in stdout output.");
-        return QString();
+        return {};
     }
 
     const QString output = stdOut.mid(start, end - start);

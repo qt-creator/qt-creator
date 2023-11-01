@@ -5,6 +5,8 @@
 
 #include <cplusplus/FindUsages.h>
 
+#include <utils/algorithm.h>
+
 using namespace CPlusPlus;
 using namespace Utils;
 
@@ -170,10 +172,8 @@ void TypeHierarchyBuilder::buildDerived(const std::optional<QFuture<void>> &futu
                                         QHash<QString, QHash<QString, QString>> &cache)
 {
     Symbol *symbol = typeHierarchy->_symbol;
-    if (_visited.contains(symbol))
+    if (!Utils::insert(_visited, symbol))
         return;
-
-    _visited.insert(symbol);
 
     const QString &symbolName = _overview.prettyName(LookupContext::fullyQualifiedName(symbol));
     DerivedHierarchyVisitor visitor(symbolName, cache);

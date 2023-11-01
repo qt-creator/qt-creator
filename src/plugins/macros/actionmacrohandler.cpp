@@ -13,6 +13,8 @@
 
 #include <texteditor/texteditorconstants.h>
 
+#include <utils/algorithm.h>
+
 #include <QAction>
 #include <QEvent>
 
@@ -55,8 +57,7 @@ bool ActionMacroHandler::executeEvent(const MacroEvent &macroEvent)
 
 void ActionMacroHandler::registerCommand(Id id)
 {
-    if (!m_commandIds.contains(id)) {
-        m_commandIds.insert(id);
+    if (Utils::insert(m_commandIds, id)) {
         const Command *command = ActionManager::command(id);
         if (QAction *action = command->action()) {
             connect(action, &QAction::triggered, this, [this, id, command]() {

@@ -3,7 +3,7 @@
 
 #include "cmakeproject.h"
 
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
 #include "cmakeprojectmanagertr.h"
@@ -12,12 +12,12 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

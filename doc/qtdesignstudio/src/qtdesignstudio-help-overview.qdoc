@@ -4,7 +4,7 @@
 /*!
     \page studio-help.html
     \previouspage studio-connecting-mcus-with-creator.html
-    \nextpage creator-help.html
+    \nextpage creator-how-to-get-help.html
 
     \title Help
 
@@ -17,7 +17,7 @@
 
     \list
 
-        \li \l{Using the Help Mode}
+        \li \l{Get help}
 
             \QDS comes fully integrated with documentation. You can use search
             and index functions to find particular topics in the helps, or

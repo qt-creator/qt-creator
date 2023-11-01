@@ -7,42 +7,24 @@
 
 #include <QObject>
 
-namespace TextEditor { class CommentsSettings; }
+namespace CppEditor {
 
-namespace CppEditor
-{
 class CppCodeStylePreferences;
 
-namespace Internal { class CppToolsSettingsPrivate; }
+// This class is meant to go away.
 
-/**
- * This class provides a central place for cpp tools settings.
- */
 class CPPEDITOR_EXPORT CppToolsSettings : public QObject
 {
-    Q_OBJECT
-
 public:
     CppToolsSettings();
     ~CppToolsSettings() override;
 
     static CppToolsSettings *instance();
 
-    CppCodeStylePreferences *cppCodeStyle() const;
+    static CppCodeStylePreferences *cppCodeStyle();
 
-    const TextEditor::CommentsSettings &commentsSettings() const;
-    void setCommentsSettings(const TextEditor::CommentsSettings &commentsSettings);
-
-    bool sortedEditorDocumentOutline() const;
-    void setSortedEditorDocumentOutline(bool sorted);
-
-signals:
-    void editorDocumentOutlineSortingChanged(bool isSorted);
-
-private:
-    Internal::CppToolsSettingsPrivate *d;
-
-    static CppToolsSettings *m_instance;
+    static bool sortedEditorDocumentOutline();
+    static void setSortedEditorDocumentOutline(bool sorted);
 };
 
 } // namespace CppEditor

@@ -5,25 +5,16 @@
 
 #include <coreplugin/inavigationwidgetfactory.h>
 
-namespace ClassView {
-namespace Internal {
+namespace ClassView::Internal {
 
 class NavigationWidgetFactory : public Core::INavigationWidgetFactory
 {
-    Q_OBJECT
-
 public:
     NavigationWidgetFactory();
 
-    //! \implements Core::INavigationWidgetFactory::createWidget
     Core::NavigationView createWidget() override;
-
-    //! \implements Core::INavigationWidgetFactory::saveSettings
     void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
-
-    //! \implements Core::INavigationWidgetFactory::restoreSettings
-    void restoreSettings(QSettings *settings, int position, QWidget *widget) override;
+    void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget) override;
 };
 
-} // namespace Internal
-} // namespace ClassView
+} // ClassView::Internal

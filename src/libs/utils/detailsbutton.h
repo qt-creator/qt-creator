@@ -15,8 +15,6 @@ QT_END_NAMESPACE
 namespace Utils {
 class QTCREATOR_UTILS_EXPORT FadingPanel : public QWidget
 {
-    Q_OBJECT
-
 public:
     FadingPanel(QWidget *parent = nullptr)
         : QWidget(parent)
@@ -27,7 +25,6 @@ public:
 
 class QTCREATOR_UTILS_EXPORT FadingWidget : public FadingPanel
 {
-    Q_OBJECT
 public:
     FadingWidget(QWidget *parent = nullptr);
     void fadeTo(qreal value) override;

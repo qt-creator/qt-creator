@@ -174,6 +174,9 @@ QVariant CMakeTargetNode::data(Id role) const
     if (role == Ios::Constants::IosCmakeGenerator)
         return value("CMAKE_GENERATOR");
 
+    if (role == ProjectExplorer::Constants::QT_KEYWORDS_ENABLED) // FIXME handle correctly
+        return value(role.toString().toUtf8());
+
     QTC_ASSERT(false, qDebug() << "Unknown role" << role.toString());
     // Better guess than "not present".
     return value(role.toString().toUtf8());

@@ -858,7 +858,7 @@ bool Parenthesis::operator==(const Parenthesis &other) const
 
 void insertSorted(Parentheses &list, const Parenthesis &elem)
 {
-    const auto it = std::lower_bound(list.begin(), list.end(), elem,
+    const auto it = std::lower_bound(list.constBegin(), list.constEnd(), elem,
             [](const auto &p1, const auto &p2) { return p1.pos < p2.pos; });
     list.insert(it, elem);
 }

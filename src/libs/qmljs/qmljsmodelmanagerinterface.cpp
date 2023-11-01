@@ -279,8 +279,9 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
         if (qmlTypesFiles.at(i).baseName() == QLatin1String("builtins")) {
             QFileInfoList list;
             list.append(qmlTypesFiles.at(i));
-            CppQmlTypesLoader::defaultQtObjects =
-                    CppQmlTypesLoader::loadQmlTypes(list, &errors, &warnings);
+            CppQmlTypesLoader::defaultQtObjects() = CppQmlTypesLoader::loadQmlTypes(list,
+                                                                                    &errors,
+                                                                                    &warnings);
             qmlTypesFiles.removeAt(i);
             break;
         }
@@ -290,7 +291,7 @@ void ModelManagerInterface::loadQmlTypeDescriptionsInternal(const QString &resou
     const CppQmlTypesLoader::BuiltinObjects objs =
             CppQmlTypesLoader::loadQmlTypes(qmlTypesFiles, &errors, &warnings);
     for (auto it = objs.cbegin(); it != objs.cend(); ++it)
-        CppQmlTypesLoader::defaultLibraryObjects.insert(it.key(), it.value());
+        CppQmlTypesLoader::defaultLibraryObjects().insert(it.key(), it.value());
 
     for (const QString &error : std::as_const(errors))
         writeMessageInternal(error);
@@ -734,10 +735,9 @@ static void findNewImplicitImports(const Document::Ptr &doc,
     // scan files that could be implicitly imported
     // it's important we also do this for JS files, otherwise the isEmpty check will fail
     if (snapshot.documentsInDirectory(doc->path()).isEmpty()) {
-        if (!scannedPaths->contains(doc->path())) {
+        if (Utils::insert(*scannedPaths, doc->path())) {
             *importedFiles += filesInDirectoryForLanguages(doc->path(),
                                                            doc->language().companionLanguages());
-            scannedPaths->insert(doc->path());
         }
     }
 }
@@ -757,11 +757,10 @@ static void findNewFileImports(const Document::Ptr &doc,
                 *importedFiles += importPath;
         } else if (import.type() == ImportType::Directory) {
             if (snapshot.documentsInDirectory(importPath).isEmpty()) {
-                if (!scannedPaths->contains(importPath)) {
+                if (Utils::insert(*scannedPaths, importPath)) {
                     *importedFiles
                         += filesInDirectoryForLanguages(importPath,
                                                         doc->language().companionLanguages());
-                    scannedPaths->insert(importPath);
                 }
             }
         } else if (import.type() == ImportType::QrcFile) {
@@ -890,10 +889,9 @@ static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
         if (!component.fileName.isEmpty()) {
             const FilePath componentFile = path.pathAppended(component.fileName);
             const FilePath path = componentFile.absolutePath().cleanPath();
-            if (!scannedPaths->contains(path)) {
+            if (Utils::insert(*scannedPaths, path)) {
                 *importedFiles += filesInDirectoryForLanguages(path, Dialect(Dialect::AnyLanguage)
                                                                .companionLanguages());
-                scannedPaths->insert(path);
             }
         }
     }
@@ -904,7 +902,7 @@ static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
 static FilePath modulePath(const ImportInfo &import, const FilePaths &paths)
 {
     if (!import.version().isValid())
-        return FilePath();
+        return {};
 
     const FilePaths modPaths = modulePaths(import.name(), import.version().toString(), paths);
     return modPaths.value(0); // first is best match
@@ -1110,10 +1108,9 @@ void ModelManagerInterface::importScanAsync(QPromise<void> &promise, const Worki
         QMutexLocker l(&modelManager->m_mutex);
         for (const auto &path : paths) {
             Utils::FilePath cPath = path.path().cleanPath();
-            if (!forceRescan && modelManager->m_scannedPaths.contains(cPath))
+            if (!forceRescan && !Utils::insert(modelManager->m_scannedPaths, cPath))
                 continue;
             pathsToScan.append({cPath, 0, path.language()});
-            modelManager->m_scannedPaths.insert(cPath);
         }
     }
     const int maxScanDepth = 5;
@@ -1370,13 +1367,12 @@ void ModelManagerInterface::startCppQmlTypeUpdate()
         return;
     }
 
-    CPlusPlus::CppModelManagerBase *cppModelManager =
-            CPlusPlus::CppModelManagerBase::instance();
-    if (!cppModelManager)
+    if (!CPlusPlus::CppModelManagerBase::hasSnapshots())
         return;
 
     m_cppQmlTypesUpdater = Utils::asyncRun(&ModelManagerInterface::updateCppQmlTypes, this,
-                                           cppModelManager->snapshot(), m_queuedCppDocuments);
+                                           CPlusPlus::CppModelManagerBase::snapshot(),
+                                           m_queuedCppDocuments);
     m_queuedCppDocuments.clear();
 }
 

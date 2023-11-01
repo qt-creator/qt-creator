@@ -625,15 +625,15 @@ void tst_filepath::toString_data()
                                                   << "c:/__qtc_devices__/docker"
                                                   << "c:/__qtc_devices__/docker";
     QTest::newRow("qtc-root-folder") << "docker"
-                                     << "alpine:latest"
+                                     << "alpine.latest"
                                      << "/"
-                                     << "docker://alpine:latest/"
-                                     << "docker://alpine:latest/";
+                                     << "docker://alpine.latest/"
+                                     << "docker://alpine.latest/";
     QTest::newRow("qtc-root-folder-rel") << "docker"
-                                         << "alpine:latest"
+                                         << "alpine.latest"
                                          << ""
-                                         << "docker://alpine:latest"
-                                         << "docker://alpine:latest";
+                                         << "docker://alpine.latest"
+                                         << "docker://alpine.latest";
 }
 
 void tst_filepath::toString()
@@ -692,14 +692,14 @@ void tst_filepath::toFSPathString_data()
                                               << QDir::rootPath() + "__qtc_devices__/docker";
     QTest::newRow("qtc-root-folder")
         << "docker"
-        << "alpine:latest"
-        << "/" << QDir::rootPath() + "__qtc_devices__/docker/alpine:latest/"
-        << "docker://alpine:latest/";
+        << "alpine.latest"
+        << "/" << QDir::rootPath() + "__qtc_devices__/docker/alpine.latest/"
+        << "docker://alpine.latest/";
     QTest::newRow("qtc-root-folder-rel")
         << "docker"
-        << "alpine:latest"
-        << "" << QDir::rootPath() + "__qtc_devices__/docker/alpine:latest"
-        << "docker://alpine:latest";
+        << "alpine.latest"
+        << "" << QDir::rootPath() + "__qtc_devices__/docker/alpine.latest"
+        << "docker://alpine.latest";
 }
 
 void tst_filepath::toFSPathString()

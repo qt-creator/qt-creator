@@ -26,13 +26,13 @@ public:
     NimRunConfiguration(Target *target, Utils::Id id)
         : RunConfiguration(target, id)
     {
-        auto envAspect = addAspect<EnvironmentAspect>();
-        envAspect->setSupportForBuildEnvironment(target);
+        environment.setSupportForBuildEnvironment(target);
 
-        addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
-        addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
-        addAspect<TerminalAspect>();
+        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+
+        arguments.setMacroExpander(macroExpander());
+
+        workingDir.setMacroExpander(macroExpander());
 
         setDisplayName(Tr::tr("Current Build Target"));
         setDefaultDisplayName(Tr::tr("Current Build Target"));
@@ -41,15 +41,21 @@ public:
             auto buildConfiguration = qobject_cast<NimBuildConfiguration *>(target->activeBuildConfiguration());
             QTC_ASSERT(buildConfiguration, return);
             const QFileInfo outFileInfo = buildConfiguration->outFilePath().toFileInfo();
-            aspect<ExecutableAspect>()->setExecutable(FilePath::fromString(outFileInfo.absoluteFilePath()));
+            executable.setExecutable(FilePath::fromString(outFileInfo.absoluteFilePath()));
             const QString workingDirectory = outFileInfo.absoluteDir().absolutePath();
-            aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(FilePath::fromString(workingDirectory));
+            workingDir.setDefaultWorkingDirectory(FilePath::fromString(workingDirectory));
         });
 
         // Connect target signals
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
         update();
     }
+
+    EnvironmentAspect environment{this};
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
 };
 
 // NimRunConfigurationFactory

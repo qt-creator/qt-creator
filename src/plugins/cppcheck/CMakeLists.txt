@@ -8,9 +8,9 @@ add_qtc_plugin(Cppcheck
     cppcheckdiagnosticsmodel.cpp cppcheckdiagnosticsmodel.h
     cppcheckdiagnosticview.cpp cppcheckdiagnosticview.h
     cppcheckmanualrundialog.cpp cppcheckmanualrundialog.h
-    cppcheckoptions.cpp cppcheckoptions.h
     cppcheckplugin.cpp cppcheckplugin.h
     cppcheckrunner.cpp cppcheckrunner.h
+    cppchecksettings.cpp cppchecksettings.h
     cppchecktextmark.cpp cppchecktextmark.h
     cppchecktextmarkmanager.cpp cppchecktextmarkmanager.h
     cppchecktool.cpp cppchecktool.h

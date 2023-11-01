@@ -50,6 +50,6 @@ public:
     void start() final { task()->start(); }
 };
 
-} // namespace Tasking
+using NetworkQueryTask = CustomTask<NetworkQueryTaskAdapter>;
 
-TASKING_DECLARE_TASK(NetworkQueryTask, Tasking::NetworkQueryTaskAdapter);
+} // namespace Tasking

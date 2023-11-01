@@ -8,8 +8,7 @@
 #include <QApplication>
 #include <QPainter>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 NameDelegate::NameDelegate(QObject *parent)
     : QStyledItemDelegate(parent)
@@ -57,5 +56,4 @@ void NameDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     painter->restore();
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

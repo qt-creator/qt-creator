@@ -13,7 +13,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -184,8 +184,6 @@ void PerfProfilerRunner::start()
     connect(runControl(), &RunControl::started, PerfProfilerTool::instance(),
             &PerfProfilerTool::onRunControlStarted);
     connect(runControl(), &RunControl::stopped, PerfProfilerTool::instance(),
-            &PerfProfilerTool::onRunControlFinished);
-    connect(runControl(), &RunControl::finished, PerfProfilerTool::instance(),
             &PerfProfilerTool::onRunControlFinished);
 
     PerfDataReader *reader = m_perfParserWorker->reader();

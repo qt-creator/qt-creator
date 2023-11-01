@@ -125,12 +125,11 @@ bool ResourceEditorDocument::saveImpl(QString *errorString, const FilePath &file
     if (debugResourceEditorW)
         qDebug() << ">ResourceEditorW::saveImpl: " << filePath;
 
-    const FilePath &actualName = filePath.isEmpty() ? this->filePath() : filePath;
-    if (actualName.isEmpty())
+    if (filePath.isEmpty())
         return false;
 
     m_blockDirtyChanged = true;
-    m_model->setFilePath(actualName);
+    m_model->setFilePath(filePath);
     if (!m_model->save()) {
         *errorString = m_model->errorMessage();
         m_model->setFilePath(this->filePath());
@@ -146,7 +145,7 @@ bool ResourceEditorDocument::saveImpl(QString *errorString, const FilePath &file
         return true;
     }
 
-    setFilePath(actualName);
+    setFilePath(filePath);
     m_blockDirtyChanged = false;
 
     emit changed();

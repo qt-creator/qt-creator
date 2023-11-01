@@ -4,10 +4,6 @@
 #pragma once
 
 #include <projectexplorer/gcctoolchain.h>
-#include <projectexplorer/toolchainconfigwidget.h>
-
-namespace ProjectExplorer { class AbiWidget; }
-namespace Utils { class PathChooser; }
 
 namespace Qnx::Internal {
 
@@ -21,22 +17,13 @@ public:
     void addToEnvironment(Utils::Environment &env) const override;
     QStringList suggestedMkspecList() const override;
 
-    QVariantMap toMap() const override;
-    bool fromMap(const QVariantMap &data) override;
-
-    Utils::FilePath sdpPath() const;
-    void setSdpPath(const Utils::FilePath &sdpPath);
-    QString cpuDir() const;
-    void setCpuDir(const QString &cpuDir);
+    Utils::FilePathAspect sdpPath{this};
+    Utils::StringAspect cpuDir{this};
 
     bool operator ==(const ToolChain &) const override;
 
 protected:
     DetectedAbisResult detectSupportedAbis() const override;
-
-private:
-    Utils::FilePath m_sdpPath;
-    QString m_cpuDir;
 };
 
 // --------------------------------------------------------------------------

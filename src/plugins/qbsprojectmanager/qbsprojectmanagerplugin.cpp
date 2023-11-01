@@ -7,13 +7,13 @@
 #include "qbsbuildstep.h"
 #include "qbscleanstep.h"
 #include "qbsinstallstep.h"
-#include "qbskitinformation.h"
 #include "qbsnodes.h"
 #include "qbsprofilemanager.h"
 #include "qbsprofilessettingspage.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
+#include "qbssession.h"
 #include "qbssettings.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -66,14 +66,12 @@ static QbsProject *currentEditorProject()
 class QbsProjectManagerPluginPrivate
 {
 public:
-    QbsProfileManager manager;
     QbsBuildConfigurationFactory buildConfigFactory;
     QbsBuildStepFactory buildStepFactory;
     QbsCleanStepFactory cleanStepFactory;
     QbsInstallStepFactory installStepFactory;
     QbsSettingsPage settingsPage;
     QbsProfilesSettingsPage profilesSetttingsPage;
-    QbsKitAspect qbsKitAspect;
 };
 
 QbsProjectManagerPlugin::~QbsProjectManagerPlugin()
@@ -356,7 +354,7 @@ void QbsProjectManagerPlugin::buildFileContextMenu()
 {
     const Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
-    auto project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
+    auto project = qobject_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
     buildSingleFile(project, node->filePath().toString());
 }
@@ -391,7 +389,7 @@ void QbsProjectManagerPlugin::runStepsForProductContextMenu(const QList<Utils::I
 {
     const Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
-    auto project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
+    auto project = qobject_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
 
     const auto * const productNode = dynamic_cast<const QbsProductNode *>(node);
@@ -454,7 +452,7 @@ void QbsProjectManagerPlugin::runStepsForSubprojectContextMenu(const QList<Utils
 {
     const Node *node = ProjectTree::currentNode();
     QTC_ASSERT(node, return);
-    auto project = dynamic_cast<QbsProject *>(ProjectTree::currentProject());
+    auto project = qobject_cast<QbsProject *>(ProjectTree::currentProject());
     QTC_ASSERT(project, return);
 
     const auto subProject = dynamic_cast<const QbsProjectNode *>(node);
@@ -532,12 +530,12 @@ void QbsProjectManagerPlugin::runStepsForProducts(QbsProject *project,
 
 void QbsProjectManagerPlugin::reparseSelectedProject()
 {
-    reparseProject(dynamic_cast<QbsProject *>(ProjectTree::currentProject()));
+    reparseProject(qobject_cast<QbsProject *>(ProjectTree::currentProject()));
 }
 
 void QbsProjectManagerPlugin::reparseCurrentProject()
 {
-    reparseProject(dynamic_cast<QbsProject *>(ProjectManager::startupProject()));
+    reparseProject(qobject_cast<QbsProject *>(ProjectManager::startupProject()));
 }
 
 void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
@@ -549,16 +547,8 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
     if (!t)
         return;
 
-    QbsBuildSystem *bs = static_cast<QbsBuildSystem *>(t->buildSystem());
-    if (!bs)
-        return;
-
-    // Qbs does update the build graph during the build. So we cannot
-    // start to parse while a build is running or we will lose information.
-    if (BuildManager::isBuilding(project))
+    if (auto bs = qobject_cast<QbsBuildSystem *>(t->buildSystem()))
         bs->scheduleParsing();
-    else
-        bs->parseCurrentBuildConfiguration();
 }
 
 void QbsProjectManagerPlugin::buildNamedProduct(QbsProject *project, const QString &product)

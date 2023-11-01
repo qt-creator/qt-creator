@@ -7,15 +7,16 @@
 #include "qmljseditordocument.h"
 #include "qmljseditorplugin.h"
 #include "qmljseditortr.h"
-#include "qmljshighlighter.h"
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
 #include "qmltaskmanager.h"
 #include "quicktoolbar.h"
 
+#include <qmljs/jsoncheck.h>
 #include <qmljs/qmljsicons.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljsreformatter.h>
+
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qmljstools/qmljstoolssettings.h>
 #include <qmljstools/qmljscodestylepreferences.h>
@@ -26,18 +27,20 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/taskhub.h>
+
 #include <texteditor/command.h>
 #include <texteditor/formattexteditor.h>
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/tabsettings.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
+
 #include <utils/fsengine/fileiconprovider.h>
-#include <utils/json.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
@@ -77,12 +80,11 @@ public:
 
     QPointer<QmlJSEditorDocument> m_currentDocument;
 
-    Utils::JsonSchemaManager m_jsonManager{
+    QmlJS::JsonSchemaManager m_jsonManager{
         {ICore::userResourcePath("json/").toString(),
          ICore::resourcePath("json/").toString()}};
     QmlJSEditorFactory m_qmlJSEditorFactory;
     QmlJSOutlineWidgetFactory m_qmlJSOutlineWidgetFactory;
-    QuickToolBar m_quickToolBar;
     QmlJsEditingSettingsPage m_qmJSEditingSettingsPage;
 };
 
@@ -205,20 +207,19 @@ void QmlJSEditorPlugin::extensionsInitialized()
     FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
                                                      "application/x-qt.ui+qml");
 
-    TaskHub::addCategory(Constants::TASK_CATEGORY_QML, Tr::tr("QML"));
-    TaskHub::addCategory(Constants::TASK_CATEGORY_QML_ANALYSIS, Tr::tr("QML Analysis"), false);
+    TaskHub::addCategory({Constants::TASK_CATEGORY_QML,
+                          Tr::tr("QML"),
+                          Tr::tr("Issues that the QML code parser found.")});
+    TaskHub::addCategory({Constants::TASK_CATEGORY_QML_ANALYSIS,
+                          Tr::tr("QML Analysis"),
+                          Tr::tr("Issues that the QML static analyzer found."),
+                          false});
     QmllsSettingsManager::instance()->setupAutoupdate();
 }
 
-Utils::JsonSchemaManager *QmlJSEditorPlugin::jsonManager()
+QmlJS::JsonSchemaManager *QmlJSEditorPlugin::jsonManager()
 {
     return &m_instance->d->m_jsonManager;
-}
-
-QuickToolBar *QmlJSEditorPlugin::quickToolBar()
-{
-    QTC_ASSERT(m_instance && m_instance->d, return new QuickToolBar());
-    return &m_instance->d->m_quickToolBar;
 }
 
 void QmlJSEditorPluginPrivate::renameUsages()

@@ -18,12 +18,19 @@ namespace Internal { class ProcessPrivate; }
 
 namespace Pty {
 
+enum PtyInputFlag {
+    None = 0x0,
+    InputModeHidden = 0x1,
+};
+
 using ResizeHandler = std::function<void(const QSize &)>;
+using PtyInputFlagsChangeHandler = std::function<void(PtyInputFlag)>;
 
 class QTCREATOR_UTILS_EXPORT SharedData
 {
 public:
     ResizeHandler m_handler;
+    PtyInputFlagsChangeHandler m_inputFlagsChangedHandler;
 };
 
 class QTCREATOR_UTILS_EXPORT Data
@@ -32,6 +39,15 @@ public:
     Data() : m_data(new SharedData) {}
 
     void setResizeHandler(const ResizeHandler &handler) { m_data->m_handler = handler; }
+    void setPtyInputFlagsChangedHandler(const PtyInputFlagsChangeHandler &handler)
+    {
+        m_data->m_inputFlagsChangedHandler = handler;
+    }
+
+    PtyInputFlagsChangeHandler ptyInputFlagsChangedHandler() const
+    {
+        return m_data->m_inputFlagsChangedHandler;
+    }
 
     QSize size() const { return m_size; }
     void resize(const QSize &size);
@@ -42,6 +58,14 @@ private:
 };
 
 } // namespace Pty
+
+class QTCREATOR_UTILS_EXPORT ProcessRunData
+{
+public:
+    Utils::CommandLine command;
+    Utils::FilePath workingDirectory;
+    Utils::Environment environment;
+};
 
 class QTCREATOR_UTILS_EXPORT ProcessSetupData
 {

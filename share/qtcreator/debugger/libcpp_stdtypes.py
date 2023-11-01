@@ -404,7 +404,19 @@ def qdump__std____1__weak_ptr(d, value):
 
 
 def qdump__std____1__unique_ptr(d, value):
-    qdump__std__unique_ptr(d, value)
+    if value.type.size() == d.ptrSize():
+        p = d.extractPointer(value)
+    else:
+        _, p = value.split("pp"); # For custom deleters.
+    if p == 0:
+        d.putValue("(null)")
+    else:
+        try:
+            d.putItem(value["__value_"])
+            d.putValue(d.currentValue.value, d.currentValue.encoding)
+        except:
+            d.putItem(d.createValue(p, value.type[0]))
+    d.putBetterType(value.type)
 
 
 def qform__std____1__unordered_map():

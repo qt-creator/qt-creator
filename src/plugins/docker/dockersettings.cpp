@@ -6,6 +6,8 @@
 #include "dockerconstants.h"
 #include "dockertr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/hostosinfo.h>
@@ -15,12 +17,16 @@ using namespace Utils;
 
 namespace Docker::Internal {
 
+DockerSettings &settings()
+{
+    static DockerSettings theSettings;
+    return theSettings;
+}
+
 DockerSettings::DockerSettings()
 {
+    setAutoApply(false);
     setSettingsGroup(Constants::DOCKER);
-    setId(Docker::Constants::DOCKER_SETTINGS_ID);
-    setDisplayName(Tr::tr("Docker"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
 
     setLayouter([this] {
         using namespace Layouting;
@@ -42,8 +48,8 @@ DockerSettings::DockerSettings()
         additionalPaths.append("/usr/local/bin");
 
     dockerBinaryPath.setExpectedKind(PathChooser::ExistingCommand);
-    dockerBinaryPath.setDefaultFilePath(
-        FilePath::fromString("docker").searchInPath(additionalPaths));
+    dockerBinaryPath.setDefaultValue(
+        FilePath::fromString("docker").searchInPath(additionalPaths).toUserOutput());
     dockerBinaryPath.setDisplayName(Tr::tr("Docker CLI"));
     dockerBinaryPath.setHistoryCompleter("Docker.Command.History");
     dockerBinaryPath.setLabelText(Tr::tr("Command:"));
@@ -51,5 +57,19 @@ DockerSettings::DockerSettings()
 
     readSettings();
 }
+
+class DockerSettingsPage final : public Core::IOptionsPage
+{
+public:
+    DockerSettingsPage()
+    {
+        setId(Docker::Constants::DOCKER_SETTINGS_ID);
+        setDisplayName(Tr::tr("Docker"));
+        setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const DockerSettingsPage settingsPage;
 
 } // Docker::Internal

@@ -307,8 +307,9 @@ bool handleDoxygenContinuation(QTextCursor &cursor,
 static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
                      const CPlusPlus::Snapshot &snapshot)
 {
-    const TextEditor::CommentsSettings &settings = CppToolsSettings::instance()->commentsSettings();
-    if (!settings.m_enableDoxygen && !settings.m_leadingAsterisks)
+    const TextEditor::CommentsSettings::Data &settings
+        = TextEditorSettings::commentsSettings(editorWidget->textDocument()->filePath());
+    if (!settings.enableDoxygen && !settings.leadingAsterisks)
         return false;
 
     if (editorWidget->multiTextCursor().hasMultipleCursors())
@@ -325,7 +326,7 @@ static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
     //      enter. If leading asterisk(s) is set we need to write a comment continuation
     //      with those.
 
-    if (settings.m_enableDoxygen && cursor.positionInBlock() >= 3) {
+    if (settings.enableDoxygen && cursor.positionInBlock() >= 3) {
         const int pos = cursor.position();
         if (isStartOfDoxygenComment(cursor)) {
             QTextDocument *textDocument = editorWidget->document();
@@ -340,9 +341,7 @@ static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
 
             DoxygenGenerator doxygen;
             doxygen.setStyle(style);
-            doxygen.setAddLeadingAsterisks(settings.m_leadingAsterisks);
-            doxygen.setGenerateBrief(settings.m_generateBrief);
-            doxygen.setStartComment(false);
+            doxygen.setSettings(settings);
 
             // Move until we reach any possibly meaningful content.
             while (textDocument->characterAt(cursor.position()).isSpace()
@@ -369,8 +368,8 @@ static bool trySplitComment(TextEditor::TextEditorWidget *editorWidget,
 
     return handleDoxygenContinuation(cursor,
                                      editorWidget,
-                                     settings.m_enableDoxygen,
-                                     settings.m_leadingAsterisks);
+                                     settings.enableDoxygen,
+                                     settings.leadingAsterisks);
 }
 
 } // anonymous namespace
@@ -383,8 +382,6 @@ public:
     bool shouldOfferOutline() const { return !CppModelManager::usesClangd(m_cppEditorDocument); }
 
 public:
-    QPointer<CppModelManager> m_modelManager;
-
     CppEditorDocument *m_cppEditorDocument;
     CppEditorOutline *m_cppEditorOutline = nullptr;
 
@@ -405,8 +402,7 @@ public:
 };
 
 CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
-    : m_modelManager(CppModelManager::instance())
-    , m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
+    : m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
     , m_declDefLinkFinder(new FunctionDeclDefLinkFinder(q))
     , m_localRenaming(q)
     , m_useSelectionsUpdater(q)
@@ -457,7 +453,7 @@ void CppEditorWidget::finalizeInitialization()
 
     connect(document(), &QTextDocument::contentsChange,
             &d->m_localRenaming, &CppLocalRenaming::onContentsChangeOfEditorWidgetDocument);
-    connect(&d->m_localRenaming, &CppLocalRenaming::finished, [this] {
+    connect(&d->m_localRenaming, &CppLocalRenaming::finished, this, [this] {
         cppEditorDocument()->recalculateSemanticInfoDetached();
     });
     connect(&d->m_localRenaming, &CppLocalRenaming::processKeyPressNormally,
@@ -482,8 +478,7 @@ void CppEditorWidget::finalizeInitialization()
 
     // set up the use highlighitng
     connect(this, &CppEditorWidget::cursorPositionChanged, this, [this] {
-        if (!d->m_localRenaming.isActive())
-            d->m_useSelectionsUpdater.scheduleUpdate();
+        d->m_useSelectionsUpdater.scheduleUpdate();
 
         // Notify selection expander about the changed cursor.
         d->m_cppSelectionChanger.onCursorPositionChanged(textCursor());
@@ -611,7 +606,7 @@ void CppEditorWidget::findUsages(QTextCursor cursor)
     // 'this' in cursorInEditor is never used (and must never be used) asynchronously.
     const CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
     QPointer<CppEditorWidget> cppEditorWidget = this;
-    d->m_modelManager->findUsages(cursorInEditor);
+    CppModelManager::findUsages(cursorInEditor);
 }
 
 void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor cursor)
@@ -626,7 +621,7 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
         showRenameWarningIfFileIsGenerated(link.targetFilePath);
         CursorInEditor cursorInEditor{cursor, textDocument()->filePath(), this, textDocument()};
         QPointer<CppEditorWidget> cppEditorWidget = this;
-        d->m_modelManager->globalRename(cursorInEditor, replacement);
+        CppModelManager::globalRename(cursorInEditor, replacement);
     };
     CppModelManager::followSymbol(
                 CursorInEditor{cursor, textDocument()->filePath(), this, textDocument()},
@@ -640,7 +635,7 @@ void CppEditorWidget::renameUsages(const Utils::FilePath &filePath, const QStrin
         cursor = textCursor();
     CursorInEditor cursorInEditor{cursor, filePath, this, textDocument()};
     QPointer<CppEditorWidget> cppEditorWidget = this;
-    d->m_modelManager->globalRename(cursorInEditor, replacement, callback);
+    CppModelManager::globalRename(cursorInEditor, replacement, callback);
 }
 
 bool CppEditorWidget::selectBlockUp()
@@ -695,15 +690,14 @@ bool CppEditorWidget::isWidgetHighlighted(QWidget *widget)
 
 namespace {
 
-QList<ProjectPart::ConstPtr> fetchProjectParts(CppModelManager *modelManager,
-                                               const Utils::FilePath &filePath)
+QList<ProjectPart::ConstPtr> fetchProjectParts(const Utils::FilePath &filePath)
 {
-    QList<ProjectPart::ConstPtr> projectParts = modelManager->projectPart(filePath);
+    QList<ProjectPart::ConstPtr> projectParts = CppModelManager::projectPart(filePath);
 
     if (projectParts.isEmpty())
-        projectParts = modelManager->projectPartFromDependencies(filePath);
+        projectParts = CppModelManager::projectPartFromDependencies(filePath);
     if (projectParts.isEmpty())
-        projectParts.append(modelManager->fallbackProjectPart());
+        projectParts.append(CppModelManager::fallbackProjectPart());
 
     return projectParts;
 }
@@ -728,10 +722,10 @@ const ProjectPart *findProjectPartForCurrentProject(
 
 const ProjectPart *CppEditorWidget::projectPart() const
 {
-    if (!d->m_modelManager)
+    if (!CppModelManager::instance())
         return nullptr;
 
-    auto projectParts = fetchProjectParts(d->m_modelManager, textDocument()->filePath());
+    auto projectParts = fetchProjectParts(textDocument()->filePath());
 
     return findProjectPartForCurrentProject(projectParts,
                                             ProjectExplorer::ProjectTree::currentProject());
@@ -816,7 +810,7 @@ QList<QTextEdit::ExtraSelection> sourceLocationsToExtraSelections(
 
         selection.cursor = selectAt(cppEditorWidget->textCursor(),
                                     sourceLocation.targetLine,
-                                    sourceLocation.targetColumn + 1,
+                                    sourceLocation.targetColumn,
                                     selectionLength);
         selection.format = textCharFormat;
 
@@ -868,11 +862,11 @@ void CppEditorWidget::renameSymbolUnderCursor()
     };
 
     viewport()->setCursor(Qt::BusyCursor);
-    d->m_modelManager->startLocalRenaming(CursorInEditor{textCursor(),
-                                                         textDocument()->filePath(),
-                                                         this, textDocument()},
-                                          projPart,
-                                          std::move(renameSymbols));
+    CppModelManager::startLocalRenaming(CursorInEditor{textCursor(),
+                                                       textDocument()->filePath(),
+                                                       this, textDocument()},
+                                        projPart,
+                                        std::move(renameSymbols));
 }
 
 void CppEditorWidget::updatePreprocessorButtonTooltip()
@@ -887,7 +881,7 @@ void CppEditorWidget::updatePreprocessorButtonTooltip()
 
 void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
 {
-    if (!d->m_modelManager)
+    if (!CppModelManager::instance())
         return;
 
     const CursorInEditor cursor(textCursor(), textDocument()->filePath(), this, textDocument());
@@ -897,20 +891,6 @@ void CppEditorWidget::switchDeclarationDefinition(bool inNextSplit)
             self->openLink(link, split);
     };
     CppModelManager::switchDeclDef(cursor, std::move(callback));
-}
-
-void CppEditorWidget::followSymbolToType(bool inNextSplit)
-{
-    if (!d->m_modelManager)
-        return;
-
-    const CursorInEditor cursor(textCursor(), textDocument()->filePath(), this, textDocument());
-    const auto callback = [self = QPointer(this),
-            split = inNextSplit != alwaysOpenLinksInNextSplit()](const Link &link) {
-        if (self && link.hasValidTarget())
-            self->openLink(link, split);
-    };
-    CppModelManager::followSymbolToType(cursor, callback, inNextSplit);
 }
 
 bool CppEditorWidget::followUrl(const QTextCursor &cursor,
@@ -968,7 +948,7 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
                                  bool resolveTarget,
                                  bool inNextSplit)
 {
-    if (!d->m_modelManager)
+    if (!CppModelManager::instance())
         return processLinkCallback(Utils::Link());
 
     if (followUrl(cursor, processLinkCallback))
@@ -1003,11 +983,22 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
         }
         callback(link);
     };
-    CppModelManager::followSymbol(
-                CursorInEditor{cursor, filePath, this, textDocument()},
-                callbackWrapper,
-                resolveTarget,
-                inNextSplit);
+    CppModelManager::followSymbol(CursorInEditor{cursor, filePath, this, textDocument()},
+                                  callbackWrapper,
+                                  resolveTarget,
+                                  inNextSplit);
+}
+
+void CppEditorWidget::findTypeAt(const QTextCursor &cursor,
+                                 const Utils::LinkHandler &processLinkCallback,
+                                 bool /*resolveTarget*/,
+                                 bool inNextSplit)
+{
+    if (!CppModelManager::instance())
+        return;
+
+    const CursorInEditor cursorInEditor(cursor, textDocument()->filePath(), this, textDocument());
+    CppModelManager::followSymbolToType(cursorInEditor, processLinkCallback, inNextSplit);
 }
 
 unsigned CppEditorWidget::documentRevision() const
@@ -1058,18 +1049,20 @@ void CppEditorWidget::processKeyNormally(QKeyEvent *e)
     TextEditorWidget::keyPressEvent(e);
 }
 
-static void addRefactoringActions(QMenu *menu, std::unique_ptr<AssistInterface> iface)
+void CppEditorWidget::addRefactoringActions(QMenu *menu) const
 {
-    if (!iface || !menu)
+    if (!menu)
         return;
 
-    using Processor = QScopedPointer<IAssistProcessor>;
-    using Proposal = QScopedPointer<IAssistProposal>;
-
-    const Processor processor(
-        CppEditorPlugin::instance()->quickFixProvider()->createProcessor(iface.get()));
-    const Proposal proposal(processor->start(std::move(iface)));
-    if (proposal) {
+    auto iface = createAssistInterface(QuickFix, ExplicitlyInvoked);
+    IAssistProcessor * const processor
+        = textDocument()->quickFixAssistProvider()->createProcessor(iface.get());
+    IAssistProposal* const proposal(processor->start(std::move(iface)));
+    const auto handleProposal = [menu = QPointer(menu), processor](IAssistProposal *proposal) {
+        QScopedPointer<IAssistProposal> proposalHolder(proposal);
+        QScopedPointer<IAssistProcessor> processorHolder(processor);
+        if (!menu || !proposal)
+            return;
         auto model = proposal->model().staticCast<GenericProposalModel>();
         for (int index = 0; index < model->size(); ++index) {
             const auto item = static_cast<AssistProposalItem *>(model->proposalItem(index));
@@ -1077,7 +1070,12 @@ static void addRefactoringActions(QMenu *menu, std::unique_ptr<AssistInterface> 
             const QAction *action = menu->addAction(op->description());
             QObject::connect(action, &QAction::triggered, menu, [op] { op->perform(); });
         }
-    }
+    };
+
+    if (proposal)
+        handleProposal(proposal);
+    else
+        processor->setAsyncCompletionAvailableHandler(handleProposal);
 }
 
 class ProgressIndicatorMenuItem : public QWidgetAction
@@ -1095,18 +1093,21 @@ protected:
 QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
 {
     auto *menu = new QMenu(Tr::tr("&Refactor"), parent);
-    menu->addAction(ActionManager::command(TextEditor::Constants::RENAME_SYMBOL)->action());
+    connect(menu, &QMenu::aboutToShow, this, [this, menu] {
+        menu->disconnect(this);
 
-    // ### enable
-    // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
+        // ### enable
+        // updateSemanticInfo(m_semanticHighlighter->semanticInfo(currentSource()));
 
-    if (isSemanticInfoValidExceptLocalUses()) {
+        if (!isSemanticInfoValidExceptLocalUses())
+            return;
+
         d->m_useSelectionsUpdater.abortSchedule();
 
         const CppUseSelectionsUpdater::RunnerInfo runnerInfo = d->m_useSelectionsUpdater.update();
         switch (runnerInfo) {
         case CppUseSelectionsUpdater::RunnerInfo::AlreadyUpToDate:
-            addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+            addRefactoringActions(menu);
             break;
         case CppUseSelectionsUpdater::RunnerInfo::Started: {
             // Update the refactor menu once we get the results.
@@ -1117,7 +1118,7 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
                     menu, [=] (SemanticInfo::LocalUseMap, bool success) {
                 QTC_CHECK(success);
                 menu->removeAction(progressIndicatorMenuItem);
-                addRefactoringActions(menu, createAssistInterface(QuickFix, ExplicitlyInvoked));
+                addRefactoringActions(menu);
             });
             break;
         }
@@ -1125,7 +1126,7 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
         case CppUseSelectionsUpdater::RunnerInfo::Invalid:
             QTC_CHECK(false && "Unexpected CppUseSelectionsUpdater runner result");
         }
-    }
+    });
 
     return menu;
 }
@@ -1135,10 +1136,11 @@ static void appendCustomContextMenuActionsAndMenus(QMenu *menu, QMenu *refactorM
     bool isRefactoringMenuAdded = false;
     const QMenu *contextMenu = ActionManager::actionContainer(Constants::M_CONTEXT)->menu();
     for (QAction *action : contextMenu->actions()) {
-        menu->addAction(action);
         if (action->objectName() == QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT)) {
             isRefactoringMenuAdded = true;
             menu->addMenu(refactorMenu);
+        } else {
+            menu->addAction(action);
         }
     }
 
@@ -1228,12 +1230,10 @@ void CppEditorWidget::updateSemanticInfo(const SemanticInfo &semanticInfo,
 
     d->m_lastSemanticInfo = semanticInfo;
 
-    if (!d->m_localRenaming.isActive()) {
-        const CppUseSelectionsUpdater::CallType type = updateUseSelectionSynchronously
-            ? CppUseSelectionsUpdater::CallType::Synchronous
-            : CppUseSelectionsUpdater::CallType::Asynchronous;
-        d->m_useSelectionsUpdater.update(type);
-    }
+    const CppUseSelectionsUpdater::CallType type
+        = updateUseSelectionSynchronously ? CppUseSelectionsUpdater::CallType::Synchronous
+                                          : CppUseSelectionsUpdater::CallType::Asynchronous;
+    d->m_useSelectionsUpdater.update(type);
 
     // schedule a check for a decl/def link
     updateFunctionDeclDefLink();
@@ -1269,8 +1269,7 @@ std::unique_ptr<AssistInterface> CppEditorWidget::createAssistInterface(AssistKi
             return cap->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
 
         if (isOldStyleSignalOrSlot()) {
-            return CppModelManager::instance()
-                ->completionAssistProvider()
+            return CppModelManager::completionAssistProvider()
                 ->createAssistInterface(textDocument()->filePath(), this, getFeatures(), reason);
         }
     }
@@ -1331,7 +1330,7 @@ void CppEditorWidget::updateFunctionDeclDefLinkNow()
     if (!isSemanticInfoValidExceptLocalUses())
         return;
 
-    Snapshot snapshot = d->m_modelManager->snapshot();
+    Snapshot snapshot = CppModelManager::snapshot();
     snapshot.insert(semanticDoc);
 
     d->m_declDefLinkFinder->startFindLinkAt(textCursor(), semanticDoc, snapshot);

@@ -16,6 +16,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   set(DESTINATION DESTINATION .)
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+  qtc_handle_compiler_cache_support()
 
   find_package(QT NAMES Qt6 Qt5
     COMPONENTS Core

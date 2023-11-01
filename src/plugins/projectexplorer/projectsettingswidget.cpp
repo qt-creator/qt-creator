@@ -65,4 +65,14 @@ void ProjectSettingsWidget::setGlobalSettingsId(Utils::Id globalId)
     m_globalSettingsId = globalId;
 }
 
+bool ProjectSettingsWidget::expanding() const
+{
+    return m_expanding;
+}
+
+void ProjectSettingsWidget::setExpanding(bool expanding)
+{
+    m_expanding = expanding;
+}
+
 } // ProjectExplorer

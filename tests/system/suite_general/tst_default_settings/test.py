@@ -39,6 +39,7 @@ def __checkKits__():
         internalClangExe = os.path.join(llvmForBuild, "bin", "clang")
         if platform.system() in ("Microsoft", "Windows"):
             internalClangExe += ".exe"
+        internalClangExe = os.path.realpath(internalClangExe) # clean symlinks
         if os.path.exists(internalClangExe):
             expectedCompilers.append(internalClangExe)
     foundCompilers = []
@@ -268,7 +269,9 @@ def __getExpectedDebuggers__():
     for debugger in ["gdb", "lldb"]:
         result.extend(findAllFilesInPATH(debugger + exeSuffix))
     if platform.system() == 'Linux':
-        result.extend(filter(lambda s: not ("lldb-platform" in s or "lldb-gdbserver" in s),
+        explicitlyOmitted = ("lldb-platform", "lldb-gdbserver", "lldb-instr", "lldb-argdumper",
+                             "lldb-server", "lldb-vscode")
+        result.extend(filter(lambda s: not (any(omitted in s for omitted in explicitlyOmitted)),
                              findAllFilesInPATH("lldb-*")))
     if platform.system() == 'Darwin':
         xcodeLLDB = getOutputFromCmdline(["xcrun", "--find", "lldb"]).strip("\n")

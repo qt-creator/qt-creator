@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "android_global.h"
 #include "androiddeviceinfo.h"
 #include "androidsdkmanager.h"
 #include "androidsdkpackage.h"
@@ -12,17 +11,13 @@
 #include <projectexplorer/toolchain.h>
 #include <qtsupport/qtversionmanager.h>
 
+#include <utils/filepath.h>
+
 #include <QStringList>
 #include <QVector>
 #include <QHash>
 #include <QMap>
 #include <QVersionNumber>
-
-#include <utils/filepath.h>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Abi; }
 
@@ -56,11 +51,11 @@ public:
     bool containsVersion(const QVersionNumber &qtVersion) const;
 };
 
-class ANDROID_EXPORT AndroidConfig
+class AndroidConfig
 {
 public:
-    void load(const QSettings &settings);
-    void save(QSettings &settings) const;
+    void load(const Utils::QtcSettings &settings);
+    void save(Utils::QtcSettings &settings) const;
 
     static QStringList apiLevelNamesFor(const SdkPlatformList &platforms);
     static QString apiLevelNameFor(const SdkPlatform *platform);
@@ -150,6 +145,8 @@ public:
     static QStringList getAbis(const QString &device);
     static int getSDKVersion(const QString &device);
 
+    Utils::Environment toolsEnvironment() const;
+
 private:
     static QString getDeviceProperty(const QString &device, const QString &property);
 
@@ -181,7 +178,7 @@ private:
     mutable QHash<QString, QString> m_serialNumberToDeviceName;
 };
 
-class ANDROID_EXPORT AndroidConfigurations : public QObject
+class AndroidConfigurations : public QObject
 {
     Q_OBJECT
 
@@ -197,7 +194,6 @@ public:
     static void removeOldToolChains();
     static void updateAutomaticKitList();
     static bool force32bitEmulator();
-    static Utils::Environment toolsEnvironment(const AndroidConfig &config);
 
 signals:
     void aboutToUpdate();

@@ -11,12 +11,6 @@ using namespace Utils;
 class tst_FileSearch : public QObject
 {
     Q_OBJECT
-public:
-    enum RegExpFlag {
-        NoRegExp,
-        RegExp
-    };
-
 private slots:
     void multipleResults();
     void caseSensitive();
@@ -41,16 +35,12 @@ SearchResultItem searchResult(const FilePath &fileName, const QString &matchingL
 }
 
 void test_helper(const FilePath &filePath, const SearchResultItems &expectedResults,
-                 const QString &term, QTextDocument::FindFlags flags = {},
-                 tst_FileSearch::RegExpFlag regexp = tst_FileSearch::NoRegExp)
+                 const QString &term, Utils::FindFlags flags = {})
 {
-    FileIterator *it = new FileListIterator({filePath}, {QTextCodec::codecForLocale()});
+    const FileListContainer container({filePath}, {QTextCodec::codecForLocale()});
     QFutureWatcher<SearchResultItems> watcher;
     QSignalSpy ready(&watcher, &QFutureWatcherBase::resultsReadyAt);
-    if (regexp == tst_FileSearch::NoRegExp)
-        watcher.setFuture(Utils::findInFiles(term, it, flags));
-    else
-        watcher.setFuture(Utils::findInFilesRegExp(term, it, flags));
+    watcher.setFuture(Utils::findInFiles(term, container, flags, {}));
     watcher.future().waitForFinished();
     QTest::qWait(100); // process events
     QCOMPARE(ready.count(), 1);
@@ -84,7 +74,7 @@ void tst_FileSearch::multipleResults()
     expectedResults << searchResult(m_filePath,
                                     "aaaaaaaa this line has 2 results for four a in a row",
                                     5, 4, 4, {"aaaa"});
-    test_helper(m_filePath, expectedResults, "aaaa", {}, RegExp);
+    test_helper(m_filePath, expectedResults, "aaaa", FindRegularExpression);
 }
 
 void tst_FileSearch::caseSensitive()
@@ -92,7 +82,7 @@ void tst_FileSearch::caseSensitive()
     SearchResultItems expectedResults;
     expectedResults << searchResult(m_filePath, "search CaseSensitively for casesensitive",
                                     3, 7, 13);
-    test_helper(m_filePath, expectedResults, "CaseSensitive", QTextDocument::FindCaseSensitively);
+    test_helper(m_filePath, expectedResults, "CaseSensitive", FindCaseSensitively);
 }
 
 void tst_FileSearch::caseInSensitive()

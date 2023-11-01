@@ -15,7 +15,6 @@
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QScrollBar>
-#include <QSettings>
 #include <QSpinBox>
 
 #include <utils/utilsicons.h>

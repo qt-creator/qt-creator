@@ -1507,4 +1507,13 @@ void addToHash(QHash<Key, T> *result, const QHash<Key, T> &additionalContents)
     result->insert(additionalContents);
 }
 
+// Workaround for missing information from QSet::insert()
+// Return type could be a pair like for std::set, but we never use the iterator anyway.
+template<typename T, typename U> [[nodiscard]] bool insert(QSet<T> &s, const U &v)
+{
+    const int oldSize = s.size();
+    s.insert(v);
+    return s.size() > oldSize;
+}
+
 } // namespace Utils

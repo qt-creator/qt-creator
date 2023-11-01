@@ -6,21 +6,18 @@
 #include "utils_global.h"
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QString;
 QT_END_NAMESPACE
 
-namespace Utils {
+namespace Utils { class QtcSettings; }
 
-class QTCREATOR_UTILS_EXPORT UnixUtils
-{
-public:
-    static QString defaultFileBrowser();
-    static QString fileBrowser(const QSettings *settings);
-    static void setFileBrowser(QSettings *settings, const QString &term);
-    static QString fileBrowserHelpText();
-    static QString substituteFileBrowserParameters(const QString &command,
-                                                   const QString &file);
-};
+namespace Utils::UnixUtils {
 
-}
+QTCREATOR_UTILS_EXPORT QString defaultFileBrowser();
+QTCREATOR_UTILS_EXPORT QString fileBrowser(const QtcSettings *settings);
+QTCREATOR_UTILS_EXPORT void setFileBrowser(QtcSettings *settings, const QString &term);
+QTCREATOR_UTILS_EXPORT QString fileBrowserHelpText();
+QTCREATOR_UTILS_EXPORT QString substituteFileBrowserParameters(const QString &command,
+                                                               const QString &file);
+
+} // Utils::UnixUtils

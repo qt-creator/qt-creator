@@ -19,10 +19,13 @@
 #include <functional>
 #include <memory>
 
+namespace Tasking { class Group; }
+
 namespace Utils {
 class Icon;
 class MacroExpander;
 class OutputLineParser;
+class ProcessRunData;
 } // Utils
 
 namespace ProjectExplorer {
@@ -35,18 +38,6 @@ class RunControlPrivate;
 class RunWorkerPrivate;
 class SimpleTargetRunnerPrivate;
 } // Internal
-
-
-class PROJECTEXPLORER_EXPORT Runnable
-{
-public:
-    Runnable() = default;
-
-    Utils::CommandLine command;
-    Utils::FilePath workingDirectory;
-    Utils::Environment environment;
-    QVariantHash extraData;
-};
 
 class PROJECTEXPLORER_EXPORT RunWorker : public QObject
 {
@@ -63,12 +54,11 @@ public:
 
     void setId(const QString &id);
 
-    void recordData(const QString &channel, const QVariant &data);
-    QVariant recordedData(const QString &channel) const;
+    void recordData(const Utils::Key &channel, const QVariant &data);
+    QVariant recordedData(const Utils::Key &channel) const;
 
     // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
-    void appendMessageChunk(const QString &msg, Utils::OutputFormat format);
     IDeviceConstPtr device() const;
 
     // States
@@ -82,7 +72,6 @@ public:
 
     void reportFailure(const QString &msg = QString());
     void setSupportsReRunning(bool reRunningSupported);
-    bool supportsReRunning() const;
 
     static QString userMessageForProcessError(QProcess::ProcessError,
                                               const Utils::FilePath &programName);
@@ -156,15 +145,20 @@ public:
     void copyDataFromRunConfiguration(RunConfiguration *runConfig);
     void copyDataFromRunControl(RunControl *runControl);
 
+    void setAutoDeleteOnStop(bool autoDelete);
+
+    void setRunRecipe(const Tasking::Group &group);
+
     void initiateStart();
     void initiateReStart();
     void initiateStop();
     void forceStop();
-    void initiateFinish();
 
     bool promptToStop(bool *optionalPrompt = nullptr) const;
     void setPromptToStop(const std::function<bool(bool *)> &promptToStop);
 
+    // Note: Works only in the task tree mode
+    void setSupportsReRunning(bool reRunningSupported);
     bool supportsReRunning() const;
 
     QString displayName() const;
@@ -172,7 +166,6 @@ public:
 
     bool isRunning() const;
     bool isStarting() const;
-    bool isStopping() const;
     bool isStopped() const;
 
     void setIcon(const Utils::Icon &icon);
@@ -198,7 +191,7 @@ public:
     Utils::FilePath buildDirectory() const;
     Utils::Environment buildEnvironment() const;
 
-    QVariantMap settingsData(Utils::Id id) const;
+    Utils::Store settingsData(Utils::Id id) const;
 
     Utils::FilePath targetFilePath() const;
     Utils::FilePath projectFilePath() const;
@@ -207,7 +200,7 @@ public:
     Utils::Id runMode() const;
     bool isPrintEnvironmentEnabled() const;
 
-    const Runnable &runnable() const;
+    const Utils::ProcessRunData &runnable() const;
 
     const Utils::CommandLine &commandLine() const;
     void setCommandLine(const Utils::CommandLine &command);
@@ -232,14 +225,14 @@ public:
 
     bool createMainWorker();
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
+    void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
 
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     void aboutToStart();
     void started();
     void stopped();
-    void finished();
-    void applicationProcessHandleChanged(QPrivateSignal); // Use setApplicationProcessHandle
+    void applicationProcessHandleChanged(QPrivateSignal);
 
 private:
     void setDevice(const IDeviceConstPtr &device);
@@ -279,8 +272,8 @@ private:
     void start() final;
     void stop() final;
 
-    const Runnable &runnable() const = delete;
-    void setRunnable(const Runnable &) = delete;
+    const Utils::ProcessRunData &runnable() const = delete;
+    void setRunnable(const Utils::ProcessRunData &) = delete;
 
     const std::unique_ptr<Internal::SimpleTargetRunnerPrivate> d;
 };

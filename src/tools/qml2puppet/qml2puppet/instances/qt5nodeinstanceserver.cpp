@@ -185,7 +185,7 @@ const QList<QQuickItem*> Qt5NodeInstanceServer::allItems() const
     if (rootNodeInstance().isValid())
         return rootNodeInstance().allItemsRecursive();
 
-    return QList<QQuickItem*>();
+    return {};
 }
 
 bool Qt5NodeInstanceServer::rootIsRenderable3DObject() const

@@ -6,7 +6,7 @@
     \section1 Running Python Projects
 
     You can execute Qt for Python applications directly from \QC. If you
-    used the \l{Using Project Wizards}{new project wizard}
+    used the \l{Use project wizards}{new project wizard}
     to create the application project, the \c main.py file is automatically
     executed when you select the \uicontrol Run button.
 
@@ -34,7 +34,7 @@
         \li In the \uicontrol Script field, you can see the path to the
             main file of the project that will be run.
         \li In the \uicontrol {Command line arguments} field, specify
-            command line arguments to be passed to the executable.
+            command-line arguments to be passed to the executable.
     \endlist
 
     If you want to run some other Python file than \c main.py, create a custom

@@ -318,6 +318,12 @@ void ChangeSet::apply(QTextCursor *textCursor)
     m_cursor = nullptr;
 }
 
+void ChangeSet::apply(QTextDocument *document)
+{
+    QTextCursor c(document);
+    apply(&c);
+}
+
 QString ChangeSet::textAt(int pos, int length)
 {
     if (m_string) {
@@ -334,10 +340,8 @@ void ChangeSet::apply_helper()
 {
     // convert all ops to replace
     QList<EditOp> replaceList;
-    {
-        while (!m_operationList.isEmpty())
-            convertToReplace(m_operationList.takeFirst(), &replaceList);
-    }
+    while (!m_operationList.isEmpty())
+        convertToReplace(m_operationList.takeFirst(), &replaceList);
 
     // execute replaces
     if (m_cursor)

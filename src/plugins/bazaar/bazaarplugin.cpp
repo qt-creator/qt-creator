@@ -215,7 +215,6 @@ public:
     void createRepositoryActions(const Core::Context &context);
 
     // Variables
-    BazaarSettings m_setting;
     BazaarClient m_client;
 
     VcsSubmitEditorFactory m_submitEditorFactory {

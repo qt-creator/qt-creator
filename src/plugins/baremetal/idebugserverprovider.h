@@ -4,12 +4,14 @@
 #pragma once
 
 #include <debugger/debuggerconstants.h>
-#include <projectexplorer/abi.h>
-#include <utils/fileutils.h>
 
-#include <QObject>
+#include <projectexplorer/abi.h>
+
+#include <utils/filepath.h>
+#include <utils/store.h>
+
 #include <QSet>
-#include <QVariantMap>
+#include <QUrl>
 #include <QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -65,8 +67,8 @@ public:
     void setConfigurationWidgetCreator
         (const std::function<IDebugServerProviderConfigWidget *()> &configurationWidgetCreator);
 
-    virtual QVariantMap toMap() const;
-    virtual bool fromMap(const QVariantMap &data);
+    virtual void toMap(Utils::Store &data) const;
+    virtual void fromMap(const Utils::Store &data);
 
     virtual bool aboutToRun(Debugger::DebuggerRunTool *runTool,
                             QString &errorMessage) const = 0;
@@ -108,12 +110,12 @@ public:
     QString displayName() const;
 
     IDebugServerProvider *create() const;
-    IDebugServerProvider *restore(const QVariantMap &data) const;
+    IDebugServerProvider *restore(const Utils::Store &data) const;
 
-    bool canRestore(const QVariantMap &data) const;
+    bool canRestore(const Utils::Store &data) const;
 
-    static QString idFromMap(const QVariantMap &data);
-    static void idToMap(QVariantMap &data, const QString &id);
+    static QString idFromMap(const Utils::Store &data);
+    static void idToMap(Utils::Store &data, const QString &id);
 
 protected:
     IDebugServerProviderFactory();

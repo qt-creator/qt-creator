@@ -16,8 +16,8 @@ public:
     bool applyFromSettingsWidget(QWidget *widget) final;
     QWidget *createSettingsWidget(QWidget *parent) const final;
     bool isValid() const final;
-    QVariantMap toMap() const final;
-    void fromMap(const QVariantMap &map) final;
+    Utils::Store toMap() const final;
+    void fromMap(const Utils::Store &map) final;
     LanguageClient::BaseSettings *copy() const final;
     LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
     LanguageClient::BaseClientInterface *createInterface(

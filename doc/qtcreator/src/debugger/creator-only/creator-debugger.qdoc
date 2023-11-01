@@ -116,6 +116,7 @@
             solutions to them.
     \endlist
 
+    \sa {Debug CMake project files}
 */
 
 
@@ -132,19 +133,18 @@
 
     \QC checks whether the compiled application is up-to-date, and rebuilds and
     deploys it if you set the \uicontrol {Build before deploying} field to
-    build the whole project or the application to run and select he
-    \uicontrol {Always deploy before running} check box in
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol {Build & Run} >
-    \uicontrol General. To debug the application without deploying
-    it, select \uicontrol Debug > \uicontrol {Start Debugging} >
-    \uicontrol {Start Debugging Without Deployment}.
+    build the whole project or the application to run and select the
+    \uicontrol {Always deploy before running} check box in \preferences >
+    \uicontrol {Build & Run} > \uicontrol General. To debug the application
+    without deploying it, select \uicontrol Debug > \uicontrol {Start Debugging}
+    > \uicontrol {Start Debugging Without Deployment}.
 
     The debugger then takes over and starts the application with suitable
     parameters.
 
     When using GDB or CDB as debug backend, you can specify additional commands
     to execute before and after the backend and debugged application are started or
-    attached in \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
+    attached in \preferences > \uicontrol Debugger >
     \uicontrol GDB and \uicontrol CDB. For more information, see
     \l{Debugger Preferences}.
 
@@ -156,7 +156,7 @@
     a long time. Typically, in the range of several seconds to minutes if you use
     complex features.
 
-    For \l {Creating Widget-Based Qt for Python Applications}{Python} projects,
+    For \l {Creating a Qt for Python Application with Qt Widgets}{Python} projects,
     start debugging the \c main.py file. If you encounter problems, check the
     active build target in the \l{Building for Multiple Platforms}{kit selector}.
 
@@ -209,7 +209,7 @@
 
     If a console application does not start up properly in the configured
     console and the subsequent attach fails, you can diagnose the issue by
-    using CDB's native console. Select \uicontrol Edit > \uicontrol Preferences >
+    using CDB's native console. Select \preferences >
     \uicontrol Debugger > \uicontrol CDB > \uicontrol {Use CDB console} to
     override the console set in the Windows system environment variables.
     Note that the native console does not prompt on application exit.
@@ -363,7 +363,7 @@
 
     The \QC installation program asks you whether you want to register \QC as a
     post-mortem debugger. To change the setting, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
+    \preferences > \uicontrol Debugger >
     \uicontrol General > \uicontrol {Use \QC for post-mortem debugging}.
 
     You can launch the debugger in the post-mortem mode if an application
@@ -390,7 +390,7 @@
 
     \endlist
 
-    For more information, see \l{Using Command Line Options}.
+    For more information, see \l{Command-Line Options}.
 */
 
 /*!
@@ -486,7 +486,7 @@
 
     By default, a non-responsive GDB process is terminated after 20 seconds.
     To increase the timeout in the \uicontrol {GDB timeout} field, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
+    \preferences > \uicontrol Debugger >
     \uicontrol GDB. For more information about settings that you can specify
     to manage the GDB process, see \l{Specifying GDB Settings}.
 
@@ -497,14 +497,14 @@
     \section1 Using CDB
 
     In remote mode, the local CDB process talks to a CDB process that runs on
-    the remote machine. The process is started with special command line options
+    the remote machine. The process is started with special command-line options
     that switch it into server mode. The remote CDB process must load the \QC
     CDB extension library that is shipped with \QC:
 
     \list 1
 
         \li Install the \e{Debugging Tools for Windows} on the remote machine.
-            The installation folder has the CDB command line executable
+            The installation folder has the CDB command-line executable
             (\c cdb.exe).
 
         \li Copy the \QC CDB extension library and the dependencies from the Qt installation
@@ -559,9 +559,9 @@
 
     \endlist
 
-    To specify settings for managing the CDB process, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Debugger > \uicontrol CDB. For more
-    information, see \l{Specifying CDB Settings}.
+    To specify settings for managing the CDB process, select \preferences >
+    \uicontrol Debugger > \uicontrol CDB. For more information, see
+    \l{Specifying CDB Settings}.
 */
 
 
@@ -705,8 +705,7 @@
     \section1 Customizing Debug Views
 
     To change the appearance and behavior of the debug views, set preferences
-    in \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
-    \uicontrol General.
+    in \preferences > \uicontrol Debugger > \uicontrol General.
 
     \image qtcreator-debugger-general-options.png {General tab in Debugger preferences}
 
@@ -799,8 +798,8 @@
     select \uicontrol {Close Editor Tooltips} in the context menu in the
     \uicontrol Locals or \uicontrol Expressions view.
 
-    To disable tooltips for performance reasons, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Debugger > \uicontrol General >
+    To disable tooltips for performance reasons, select \preferences >
+    \uicontrol Debugger > \uicontrol General >
     \uicontrol {Use tooltips in main editor when debugging}.
 
     \section1 Examining Complex Values in Debug Views
@@ -847,9 +846,8 @@
     classes in a useful way.
 
     To change the number of array elements that are
-    requested when expanding entries, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Debugger} >
-    \uicontrol {Locals & Expressions} > \uicontrol {Default array size}.
+    requested when expanding entries, select \preferences > \uicontrol {Debugger}
+    > \uicontrol {Locals & Expressions} > \uicontrol {Default array size}.
 
     \section1 Stepping Through Code
 
@@ -947,9 +945,8 @@
     value display format. The available options depend on the type of the
     current items, and are provided by the debugging helpers.
 
-    To force a plain C-like display of structures, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
-    \uicontrol {Locals & Expressions}, and then deselect the
+    To force a plain C-like display of structures, select \preferences >
+    \uicontrol Debugger > \uicontrol {Locals & Expressions}, and then deselect the
     \uicontrol {Use Debugging Helpers} check box. This still uses the
     Python scripts, but generates more basic output. To force the plain display
     for a single object or for all objects of a given type, select
@@ -989,9 +986,8 @@
 
     If an instance of a class is derived from QObject, you can find all other
     objects connected to this object's slots with Qt's signals and slots
-    mechanism. Select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol {Debugger} > \uicontrol {Locals & Expressions} >
-    \uicontrol {Use Debugging Helpers}.
+    mechanism. Select \preferences > \uicontrol {Debugger} >
+    \uicontrol {Locals & Expressions} > \uicontrol {Use Debugging Helpers}.
 
     \image qtcreator-debugging-helper-options.webp {Locals & Expressions preferences}
 
@@ -1005,9 +1001,8 @@
     switch off the debugging helpers to make low-level structures visible.
 
     To switch off the debugging helpers, deselect
-    \uicontrol {Use Debugging Helpers} in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Debugger >
-    \uicontrol {Locals & Expressions}.
+    \uicontrol {Use Debugging Helpers} in \preferences >
+    \uicontrol Debugger > \uicontrol {Locals & Expressions}.
 
     \omit
     \section2 Creating Snapshots
@@ -1111,8 +1106,8 @@
 
     When using CDB as debug backend, you can specify that the debugger should
     break when application modules are loaded or unloaded. To enable breaking
-    for the specified modules, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Debugger > \uicontrol CDB.
+    for the specified modules, select \preferences > \uicontrol Debugger >
+    \uicontrol CDB.
 
     \image qtcreator-cdb-options.png {CDB tab in Debugger preferences}
 
@@ -1149,8 +1144,7 @@
     To enable the debugger to step into the code and display the source code
     when using a copy of the source tree at a location different from the one
     at which the libraries were built, you can map source paths to target
-    paths in \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
-    \uicontrol General:
+    paths in \preferences > \uicontrol Debugger > \uicontrol General:
 
     \image qtcreator-debugger-general-options.png {General tab in Debugger preferences}
 
@@ -1263,8 +1257,8 @@
 
     \image qtcreator-debugger-log-view.webp {Debugger Log view}
 
-    If debug output is sent to the system log, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Debugger > \uicontrol General >
+    If debug output is sent to the system log, select \preferences >
+    \uicontrol Debugger > \uicontrol General >
     \uicontrol {Force logging to console} check box.
 
     Right-click the view to select the following actions:
@@ -1314,7 +1308,7 @@
     \image qtcreator-debugger-disassembler-view.webp {Disassembler view}
 
     By default, GDB shows AT&T style disassembly. To switch to the Intel style,
-    select \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
+    select \preferences > \uicontrol Debugger >
     \uicontrol GDB > \uicontrol {Use Intel style disassembly}.
 
     To open the \uicontrol Disassembler view:
@@ -1370,7 +1364,7 @@
     least one of the three supported backends is available.
 
     To use the default GDB pretty printers installed in your system or linked
-    to the libraries your application uses, select \uicontrol Preferences >
+    to the libraries your application uses, select \preferences >
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Load system GDB pretty
     printers}. For more information, see \l{Specifying GDB Settings}.
 
@@ -1380,9 +1374,9 @@
 
     You can have commands executed after built-in debugging helpers have
     been loaded and fully initialized. To load additional debugging helpers or
-    modify existing ones, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Debugger > \uicontrol {Locals & Expressions}, and enter the
-    commands in the \uicontrol {Debugging Helper Customization} field.
+    modify existing ones, select \preferences > \uicontrol Debugger >
+    \uicontrol {Locals & Expressions}, and enter the commands in the
+    \uicontrol {Debugging Helper Customization} field.
 
     \image qtcreator-debugging-helper-options.webp {Locals & Expressions preferences}
 
@@ -1402,9 +1396,8 @@
     \endcode
 
     To display a message box as soon as your application receives a signal
-    during debugging, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Debugger > \uicontrol GDB > \uicontrol {Show a message box
-    when receiving a signal}.
+    during debugging, select \preferences > \uicontrol Debugger > \uicontrol GDB >
+    \uicontrol {Show a message box when receiving a signal}.
 
     \section2 Adding Custom Debugging Helpers
 
@@ -1415,8 +1408,8 @@
     To add debugging helpers for custom types, add debugging helper
     implementations to the startup file of the native debuggers (for example,
     \c{~/.gdbinit} or \c{~/.lldbinit}) or specify them directly in the
-    \uicontrol {Additional Startup Commands} in \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Debugger > \uicontrol GDB.
+    \uicontrol {Additional Startup Commands} in \preferences >
+    \uicontrol Debugger > \uicontrol GDB.
 
     To get started with implementing debugging helpers for your own data types,
     you can put their implementation into the file
@@ -1449,9 +1442,8 @@
             update your \QC installation (when updating your Qt installation,
             for example), copy it to a safe location outside the \QC
             installation in your file system and specify the location in
-            \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
-            \uicontrol {Locals & Expressions} >
-            \uicontrol {Extra Debugging Helper}.
+            \preferences > \uicontrol Debugger > \uicontrol {Locals & Expressions}
+            > \uicontrol {Extra Debugging Helper}.
     \endlist
 
     The custom debugging helpers will be automatically picked up from
@@ -1592,7 +1584,7 @@
     common situations.
 
     When using CDB as debugger backend, you can enable the Python dumper by
-    selecting \uicontrol Edit > \uicontrol Preferences > \uicontrol Debugger >
+    selecting \preferences > \uicontrol Debugger >
     \uicontrol CDB > \uicontrol {Use Python dumper}.
 
     \image qtcreator-cdb-options.png {CDB preferences}
@@ -2041,9 +2033,8 @@
 
     When using GDB as backend, you can automatically save a copy of
     its symbol index in a cache on disk and retrieve it from there
-    when loading the same binary in the future. Select \uicontrol Edit
-    > \uicontrol Preferences > \uicontrol Debugger > \uicontrol GDB >
-    \uicontrol {Use automatic symbol cache}.
+    when loading the same binary in the future. Select \preferences >
+    \uicontrol Debugger > \uicontrol GDB > \uicontrol {Use automatic symbol cache}.
 
     \image qtcreator-gdb-options.png {GDB preferences}
 

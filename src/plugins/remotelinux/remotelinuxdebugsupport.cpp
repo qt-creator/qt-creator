@@ -5,6 +5,7 @@
 
 #include "remotelinux_constants.h"
 
+#include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
@@ -37,7 +38,11 @@ public:
         setStartMode(AttachToRemoteServer);
         setCloseMode(KillAndExitMonitorAtClose);
         setUseExtendedRemote(true);
-        setLldbPlatform("remote-linux");
+
+        if (runControl->device()->osType() == Utils::OsTypeMac)
+            setLldbPlatform("remote-macosx");
+        else
+            setLldbPlatform("remote-linux");
     }
 };
 

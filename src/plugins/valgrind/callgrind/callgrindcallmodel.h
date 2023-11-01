@@ -32,8 +32,8 @@ public:
     virtual void setParseData(const ParseData *data);
     virtual const ParseData *parseData() const;
 
-    void setCalls(const QVector<const FunctionCall *> &calls, const Function *function);
-    QVector<const FunctionCall *> calls() const;
+    void setCalls(const QList<const FunctionCall *> &calls, const Function *function);
+    QList<const FunctionCall *> calls() const;
     const Function *function() const;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

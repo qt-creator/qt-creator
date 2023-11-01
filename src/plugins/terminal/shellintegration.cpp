@@ -3,10 +3,13 @@
 
 #include "shellintegration.h"
 
+#include "terminalsettings.h"
+
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/stringutils.h>
 
+#include <QApplication>
 #include <QLoggingCategory>
 
 Q_LOGGING_CATEGORY(integrationLog, "qtc.terminal.shellintegration", QtWarningMsg)
@@ -74,9 +77,17 @@ bool ShellIntegration::canIntegrate(const Utils::CommandLine &cmdLine)
     return false;
 }
 
-void ShellIntegration::onOsc(int cmd, const VTermStringFragment &fragment)
+void ShellIntegration::onOsc(int cmd, std::string_view str, bool initial, bool final)
 {
-    QString d = QString::fromLocal8Bit(fragment.str, fragment.len);
+    if (initial)
+        m_oscBuffer.clear();
+
+    m_oscBuffer.append(str);
+
+    if (!final)
+        return;
+
+    QString d = QString::fromLocal8Bit(m_oscBuffer);
     const auto [command, data] = Utils::splitAtFirst(d, ';');
 
     if (cmd == 1337) {
@@ -103,6 +114,17 @@ void ShellIntegration::onOsc(int cmd, const VTermStringFragment &fragment)
     }
 }
 
+void ShellIntegration::onBell()
+{
+    if (settings().audibleBell.value())
+        QApplication::beep();
+}
+
+void ShellIntegration::onTitle(const QString &title)
+{
+    emit titleChanged(title);
+}
+
 void ShellIntegration::prepareProcess(Utils::Process &process)
 {
     Environment env = process.environment().hasChanges() ? process.environment()
@@ -124,7 +146,7 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
         CommandLine newCmd = {cmd.executable(), {"--init-file", tmpRc.nativePath()}};
 
         if (cmd.arguments() == "-l")
-            newCmd.addArg("-l");
+            env.set("VSCODE_SHELL_LOGIN", "1");
 
         cmd = newCmd;
     } else if (cmd.executable().baseName() == "zsh") {
@@ -160,6 +182,11 @@ void ShellIntegration::prepareProcess(Utils::Process &process)
 
     process.setCommand(cmd);
     process.setEnvironment(env);
+}
+
+void ShellIntegration::onSetClipboard(const QByteArray &text)
+{
+    setClipboardAndSelection(QString::fromLocal8Bit(text));
 }
 
 } // namespace Terminal

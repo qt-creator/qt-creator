@@ -20,7 +20,6 @@ QtcPlugin {
         "dockerdevicewidget.cpp",
         "dockerdevicewidget.h",
         "dockerplugin.cpp",
-        "dockerplugin.h",
         "dockersettings.cpp",
         "dockersettings.h",
         "kitdetector.cpp",

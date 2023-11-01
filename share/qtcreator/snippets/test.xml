@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<snippets>
+<snippet group="QML" trigger="TestCase" id="quicktest_case" complement="QuickTest Test Case">TestCase {
+    name: "$TestCaseName$"
+
+    function test_$TestFunctionName$() {
+        $$
+    }
+}
+</snippet>
+<snippet group="C++" trigger="TEST" id="gtest_test_function" complement="GTest Function">TEST($TestSuite$, $TestName$)
+{
+    $$
+}
+</snippet>
+<snippet group="C++" trigger="TEST_F" id="gtest_test_function_fixture" complement="GTest Fixture">TEST_F($TestFixtureName$, $TestName$)
+{
+    $$
+}
+</snippet>
+<snippet group="C++" trigger="TEST_P" id="gtest_test_function_parameterized" complement="GTest Parameterized">INSTANTIATE_TEST_SUITE_P($InstantiationName$, $TestFixtureName$, $ParameterGenerator$);
+
+TEST_P($TestFixtureName$, $TestName$)
+{
+    $$
+}
+</snippet>
+<snippet group="C++" trigger="BOOST_AUTO_TEST_CASE" id="boost_test_case" complement="Test Case">BOOST_AUTO_TEST_CASE($TestName$)
+{
+    $$
+}
+</snippet>
+<snippet group="C++" trigger="BOOST_AUTO_TEST_SUITE" id="boost_test_suite" complement="Test Suite">BOOST_AUTO_TEST_SUITE($SuiteName$)
+BOOST_AUTO_TEST_CASE($TestName$)
+{
+    $$
+}
+BOOST_AUTO_TEST_SUITE_END()
+</snippet>
+<snippet group="C++" trigger="TEST_CASE" id="catch_testcase_with_section" complement="Catch Test Case">TEST_CASE("$TestCaseName$") {
+    SECTION("$SectionName$") {
+        $$
+    }
+}
+</snippet>
+<snippet group="C++" trigger="SCENARIO" id="catch_scenario" complement="Catch Scenario">SCENARIO("$ScenarioName$") {
+    GIVEN("$Initial$") {
+        $$
+        WHEN("$Condition$") {
+            $$
+            THEN("$Expectation$") {
+                $$
+            }
+        }
+    }
+}
+</snippet>
+</snippets>

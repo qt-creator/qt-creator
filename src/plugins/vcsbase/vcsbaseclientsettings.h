@@ -5,11 +5,11 @@
 
 #include "vcsbase_global.h"
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace VcsBase {
 
-class VCSBASE_EXPORT VcsBaseSettings : public Core::PagedSettings
+class VCSBASE_EXPORT VcsBaseSettings : public Utils::AspectContainer
 {
 public:
     VcsBaseSettings();

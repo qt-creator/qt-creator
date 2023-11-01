@@ -33,7 +33,6 @@
 #include <QLineEdit>
 #include <QMenu>
 #include <QPainter>
-#include <QSettings>
 #include <QStyledItemDelegate>
 #include <QToolButton>
 #include <QVBoxLayout>
@@ -126,6 +125,7 @@ class ProjectTreeView : public NavigationTreeView
 public:
     ProjectTreeView()
     {
+        setObjectName("projectTreeView"); // used by Squish
         setEditTriggers(QAbstractItemView::EditKeyPressed);
         setContextMenuPolicy(Qt::CustomContextMenu);
         setDragEnabled(true);
@@ -638,7 +638,7 @@ void ProjectTreeWidgetFactory::saveSettings(QtcSettings *settings, int position,
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    const QString baseKey = kBaseKey + QString::number(position);
+    const Key baseKey = numberedKey(kBaseKey, position);
     settings->setValueWithDefault(baseKey + kProjectFilterKey,
                                   ptw->projectFilter(),
                                   kProjectFilterDefault);
@@ -657,11 +657,11 @@ void ProjectTreeWidgetFactory::saveSettings(QtcSettings *settings, int position,
     settings->setValueWithDefault(baseKey + kSyncKey, ptw->autoSynchronization(), kSyncDefault);
 }
 
-void ProjectTreeWidgetFactory::restoreSettings(QSettings *settings, int position, QWidget *widget)
+void ProjectTreeWidgetFactory::restoreSettings(QtcSettings *settings, int position, QWidget *widget)
 {
     auto ptw = qobject_cast<ProjectTreeWidget *>(widget);
     Q_ASSERT(ptw);
-    const QString baseKey = kBaseKey + QString::number(position);
+    const Key baseKey = numberedKey(kBaseKey, position);
     ptw->setProjectFilter(
         settings->value(baseKey + kProjectFilterKey, kProjectFilterDefault).toBool());
     ptw->setGeneratedFilesFilter(

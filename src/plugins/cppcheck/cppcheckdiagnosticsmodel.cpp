@@ -7,6 +7,7 @@
 
 #include <debugger/analyzer/diagnosticlocation.h>
 
+#include <utils/algorithm.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/utilsicons.h>
 
@@ -99,12 +100,10 @@ void DiagnosticsModel::clear()
 
 void DiagnosticsModel::add(const Diagnostic &diagnostic)
 {
-    if (m_diagnostics.contains(diagnostic))
+    if (!Utils::insert(m_diagnostics, diagnostic))
         return;
 
-    const auto hasData = !m_diagnostics.isEmpty();
-    m_diagnostics.insert(diagnostic);
-    if (!hasData)
+    if (m_diagnostics.size() == 1)
         emit hasDataChanged(true);
 
     const QString filePath = diagnostic.fileName.toString();

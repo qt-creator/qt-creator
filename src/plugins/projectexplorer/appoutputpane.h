@@ -46,8 +46,6 @@ public:
 
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget *> toolBarWidgets() const override;
-    QString displayName() const override;
-    int priorityInStatusBar() const override;
     void clearContents() override;
     bool canFocus() const override;
     bool hasFocus() const override;
@@ -71,13 +69,12 @@ public:
     // ApplicationOutput specifics
     void projectRemoved();
 
-    void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
-                       Utils::OutputFormat format);
-
     const AppOutputSettings &settings() const { return m_settings; }
     void setSettings(const AppOutputSettings &settings);
 
 private:
+    void appendMessage(ProjectExplorer::RunControl *rc, const QString &out,
+                       Utils::OutputFormat format);
     void reRunRunControl();
     void stopRunControl();
     void attachToRunControl();

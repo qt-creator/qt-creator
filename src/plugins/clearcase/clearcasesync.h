@@ -5,6 +5,8 @@
 
 #include "clearcaseplugin.h"
 
+#include <utils/storekey.h>
+
 QT_BEGIN_NAMESPACE
 class QDir;
 template <typename T>
@@ -24,8 +26,7 @@ public:
     void invalidateStatus(const QDir &viewRootDir, const QStringList &files);
     void invalidateStatusAllFiles();
     void processCleartoolLsLine(const QDir &viewRootDir, const QString &buffer);
-    void updateTotalFilesCount(const QString &view, ClearCaseSettings settings,
-                               const int processed);
+    void updateTotalFilesCount(const Utils::Key &view, const int processed);
     void updateStatusForNotManagedFiles(const QStringList &files);
 
     void syncDynamicView(QPromise<void> &promise, const ClearCaseSettings &settings);

@@ -31,7 +31,7 @@ public:
 
 using MimeBinaryCache = QHash<QString, bool>;
 
-QStringList filterFromFileName(const QStringList &flags, QString baseName);
+QStringList filterFromFileName(const QStringList &flags, const QString &fileName);
 
 void filteredFlags(const Utils::FilePath &filePath,
                    const Utils::FilePath &workingDir,

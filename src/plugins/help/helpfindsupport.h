@@ -17,17 +17,17 @@ public:
     HelpViewerFindSupport(HelpViewer *viewer);
 
     bool supportsReplace() const override { return false; }
-    Core::FindFlags supportedFindFlags() const override;
+    Utils::FindFlags supportedFindFlags() const override;
     void resetIncrementalSearch() override {}
     void clearHighlights() override {}
     QString currentFindString() const override;
     QString completedFindString() const override { return QString(); }
 
-    Result findIncremental(const QString &txt, Core::FindFlags findFlags) override;
-    Result findStep(const QString &txt, Core::FindFlags findFlags) override;
+    Result findIncremental(const QString &txt, Utils::FindFlags findFlags) override;
+    Result findStep(const QString &txt, Utils::FindFlags findFlags) override;
 
 private:
-    bool find(const QString &ttf, Core::FindFlags findFlags, bool incremental);
+    bool find(const QString &ttf, Utils::FindFlags findFlags, bool incremental);
     HelpViewer *m_viewer;
 };
 

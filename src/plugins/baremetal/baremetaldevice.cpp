@@ -14,6 +14,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace BareMetal::Internal {
 
@@ -62,7 +63,7 @@ void BareMetalDevice::unregisterDebugServerProvider(IDebugServerProvider *provid
         m_debugServerProviderId.clear();
 }
 
-void BareMetalDevice::fromMap(const QVariantMap &map)
+void BareMetalDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
     QString providerId = map.value(debugServerProviderIdKeyC).toString();
@@ -78,9 +79,9 @@ void BareMetalDevice::fromMap(const QVariantMap &map)
     }
 }
 
-QVariantMap BareMetalDevice::toMap() const
+Store BareMetalDevice::toMap() const
 {
-    QVariantMap map = IDevice::toMap();
+    Store map = IDevice::toMap();
     map.insert(debugServerProviderIdKeyC, debugServerProviderId());
     return map;
 }

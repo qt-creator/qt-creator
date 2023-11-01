@@ -500,6 +500,40 @@ void TestTreeModel::sweep()
 #endif
 }
 
+QString TestTreeModel::report(bool full) const
+{
+    QString result;
+    int items = 0;
+    QString tree;
+    for (TestTreeItem *rootNode : frameworkRootNodes()) {
+        int itemsPerRoot = 0;
+        result.append("\n");
+        result += rootNode->name();
+        result.append(" > ");
+
+        if (full) {
+            TestTreeSortFilterModel sortFilterModel(const_cast<TestTreeModel *>(this));
+            sortFilterModel.setDynamicSortFilter(true);
+            sortFilterModel.sort(0);
+            tree = "\n" + sortFilterModel.report();
+            rootNode->forAllChildren([&itemsPerRoot](TreeItem *) {
+                ++itemsPerRoot;
+            });
+
+        } else {
+            rootNode->forAllChildren([&itemsPerRoot](TreeItem *) {
+                ++itemsPerRoot;
+            });
+        }
+        result.append(QString::number(itemsPerRoot));
+        items += itemsPerRoot;
+    }
+    result.append("\nItems: " + QString::number(items));
+    if (full)
+        return tree + '\n' + result;
+    return result;
+}
+
 /**
  * @note after calling this function emit testTreeModelChanged() if it returns true
  */
@@ -577,7 +611,8 @@ void TestTreeModel::insertItemInParent(TestTreeItem *item, TestTreeItem *root, b
         delete item;
     } else {
         // restore former check state if available
-        std::optional<Qt::CheckState> cached = m_checkStateCache->get(item);
+        std::optional<Qt::CheckState> cached = m_checkStateCache ? m_checkStateCache->get(item)
+                                                                 : std::optional<Qt::CheckState>{};
         if (cached.has_value())
             item->setData(0, cached.value(), Qt::CheckStateRole);
         else
@@ -889,6 +924,26 @@ TestTreeSortFilterModel::FilterMode TestTreeSortFilterModel::toFilterMode(int f)
     default:
         return TestTreeSortFilterModel::Basic;
     }
+}
+
+static QString dumpIndex(const QModelIndex &idx, int level = 0)
+{
+    QString result;
+    result.append(QString(level, ' '));
+    result.append(idx.data().toString() + '\n');
+    for (int row = 0, end = idx.model()->rowCount(idx); row < end; ++row)
+        result.append(dumpIndex(idx.model()->index(row, 0, idx), level + 1));
+    return result;
+}
+
+QString TestTreeSortFilterModel::report() const
+{
+    QString result;
+    for (int row = 0, end = rowCount(); row < end; ++row) {
+        auto idx = index(row, 0);
+        result.append(dumpIndex(idx));
+    }
+    return result;
 }
 
 bool TestTreeSortFilterModel::lessThan(const QModelIndex &left, const QModelIndex &right) const

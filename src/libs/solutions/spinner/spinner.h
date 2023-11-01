@@ -13,7 +13,7 @@ namespace SpinnerSolution {
 Q_NAMESPACE_EXPORT(SPINNER_EXPORT)
 
 enum class SpinnerSize { Small, Medium, Large };
-Q_ENUM_NS(SpinnerSize);
+Q_ENUM_NS(SpinnerSize)
 
 // TODO: SpinnerOverlay and SpinnerWidget?
 

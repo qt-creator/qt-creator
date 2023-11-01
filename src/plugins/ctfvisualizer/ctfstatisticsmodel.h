@@ -3,16 +3,10 @@
 
 #pragma once
 
-#include "json/json.hpp"
-
-#include <QHash>
-#include <QStack>
-#include <QVector>
-#include <QPointer>
 #include <QAbstractTableModel>
+#include <QHash>
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 class CtfStatisticsModel : public QAbstractTableModel
 {
@@ -61,5 +55,4 @@ private:
 
 };
 
-}  // Internal
-}  // CtfVisualizer
+}  // CtfVisualizer::Internal

@@ -53,6 +53,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     m_addRunToolButton = new QPushButton(Tr::tr("Add..."), this);
     m_removeRunToolButton = new QPushButton(Tr::tr("Remove"), this);
+    m_removeAllRunConfigsButton = new QPushButton(Tr::tr("Remove All"), this);
     m_renameRunButton = new QPushButton(Tr::tr("Rename..."), this);
     m_cloneRunButton = new QPushButton(Tr::tr("Clone..."), this);
 
@@ -92,9 +93,10 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_gridLayout->addWidget(m_runConfigurationCombo, 4, 1, 1, 1);
     m_gridLayout->addWidget(m_addRunToolButton, 4, 2, 1, 1);
     m_gridLayout->addWidget(m_removeRunToolButton, 4, 3, 1, 1);
-    m_gridLayout->addWidget(m_renameRunButton, 4, 4, 1, 1);
-    m_gridLayout->addWidget(m_cloneRunButton, 4, 5, 1, 1);
-    m_gridLayout->addItem(spacer1, 4, 6, 1, 1);
+    m_gridLayout->addWidget(m_removeAllRunConfigsButton, 4, 4, 1, 1);
+    m_gridLayout->addWidget(m_renameRunButton, 4, 5, 1, 1);
+    m_gridLayout->addWidget(m_cloneRunButton, 4, 6, 1, 1);
+    m_gridLayout->addItem(spacer1, 4, 7, 1, 1);
     m_gridLayout->addWidget(runWidget, 5, 0, 1, -1);
     m_gridLayout->addItem(spacer2, 6, 0, 1, 1);
 
@@ -144,7 +146,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
     m_runConfigurationCombo->setModel(model);
     m_runConfigurationCombo->setCurrentIndex(model->indexFor(rc));
 
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    updateRemoveToolButtons();
     m_renameRunButton->setEnabled(rc);
     m_cloneRunButton->setEnabled(rc);
 
@@ -156,20 +158,22 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
             this, &RunSettingsWidget::currentRunConfigurationChanged);
     connect(m_removeRunToolButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::removeRunConfiguration);
+    connect(m_removeAllRunConfigsButton, &QAbstractButton::clicked,
+            this, &RunSettingsWidget::removeAllRunConfigurations);
     connect(m_renameRunButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::renameRunConfiguration);
     connect(m_cloneRunButton, &QAbstractButton::clicked,
             this, &RunSettingsWidget::cloneRunConfiguration);
 
     connect(m_target, &Target::addedRunConfiguration,
-            this, &RunSettingsWidget::updateRemoveToolButton);
+            this, &RunSettingsWidget::updateRemoveToolButtons);
     connect(m_target, &Target::removedRunConfiguration,
-            this, &RunSettingsWidget::updateRemoveToolButton);
+            this, &RunSettingsWidget::updateRemoveToolButtons);
 
     connect(m_target, &Target::addedDeployConfiguration,
-            this, &RunSettingsWidget::updateRemoveToolButton);
+            this, &RunSettingsWidget::updateRemoveToolButtons);
     connect(m_target, &Target::removedDeployConfiguration,
-            this, &RunSettingsWidget::updateRemoveToolButton);
+            this, &RunSettingsWidget::updateRemoveToolButtons);
 
     connect(m_target, &Target::activeRunConfigurationChanged,
             this, &RunSettingsWidget::activeRunConfigurationChanged);
@@ -188,7 +192,7 @@ void RunSettingsWidget::showAddRunConfigDialog()
     QTC_CHECK(newRC->id() == rci.factory->runConfigurationId());
     m_target->addRunConfiguration(newRC);
     m_target->setActiveRunConfiguration(newRC);
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    updateRemoveToolButtons();
 }
 
 void RunSettingsWidget::cloneRunConfiguration()
@@ -226,9 +230,28 @@ void RunSettingsWidget::removeRunConfiguration()
         return;
 
     m_target->removeRunConfiguration(rc);
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    updateRemoveToolButtons();
     m_renameRunButton->setEnabled(m_target->activeRunConfiguration());
     m_cloneRunButton->setEnabled(m_target->activeRunConfiguration());
+}
+
+void RunSettingsWidget::removeAllRunConfigurations()
+{
+    QMessageBox msgBox(QMessageBox::Question,
+                       Tr::tr("Remove Run Configurations?"),
+                       Tr::tr("Do you really want to delete all run configurations?"),
+                       QMessageBox::Cancel,
+                       this);
+    msgBox.addButton(Tr::tr("Delete"), QMessageBox::YesRole);
+    msgBox.setDefaultButton(QMessageBox::Cancel);
+    msgBox.setEscapeButton(QMessageBox::Cancel);
+    if (msgBox.exec() == QMessageBox::Cancel)
+        return;
+
+    m_target->removeAllRunConfigurations();
+    updateRemoveToolButtons();
+    m_renameRunButton->setEnabled(false);
+    m_cloneRunButton->setEnabled(false);
 }
 
 void RunSettingsWidget::activeRunConfigurationChanged()
@@ -304,7 +327,7 @@ void RunSettingsWidget::aboutToShowDeployMenu()
 
     for (DeployConfigurationFactory *factory : DeployConfigurationFactory::find(m_target)) {
         QAction *action = m_addDeployMenu->addAction(factory->defaultDisplayName());
-        connect(action, &QAction::triggered, [factory, this]() {
+        connect(action, &QAction::triggered, this, [factory, this] {
             DeployConfiguration *newDc = factory->create(m_target);
             if (!newDc)
                 return;
@@ -367,10 +390,12 @@ void RunSettingsWidget::renameDeployConfiguration()
     m_target->activeDeployConfiguration()->setDisplayName(name);
 }
 
-void RunSettingsWidget::updateRemoveToolButton()
+void RunSettingsWidget::updateRemoveToolButtons()
 {
     m_removeDeployToolButton->setEnabled(m_target->deployConfigurations().count() > 1);
-    m_removeRunToolButton->setEnabled(m_target->runConfigurations().size() > 1);
+    const bool hasRunConfigs = !m_target->runConfigurations().isEmpty();
+    m_removeRunToolButton->setEnabled(hasRunConfigs);
+    m_removeAllRunConfigsButton->setEnabled(hasRunConfigs);
 }
 
 void RunSettingsWidget::updateDeployConfiguration(DeployConfiguration *dc)
@@ -474,7 +499,7 @@ void RunSettingsWidget::addRunControlWidgets()
 
 void RunSettingsWidget::addSubWidget(QWidget *widget, QLabel *label)
 {
-    widget->setContentsMargins(0, 2, 0, 0);
+    widget->setContentsMargins({});
 
     QFont f = label->font();
     f.setBold(true);

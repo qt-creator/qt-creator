@@ -219,7 +219,7 @@ QStringList StatesEditorModel::autoComplete(const QString &text, int pos, bool e
     if (model && model->rewriterView())
         return model->rewriterView()->autoComplete(text, pos, explicitComplete);
 
-    return QStringList();
+    return {};
 }
 
 QVariant StatesEditorModel::stateModelNode(int internalNodeId)

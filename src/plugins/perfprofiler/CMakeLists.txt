@@ -10,12 +10,10 @@ endif()
 
 set(PERFPROFILER_CPP_SOURCES
   perfconfigeventsmodel.cpp perfconfigeventsmodel.h
-  perfconfigwidget.cpp perfconfigwidget.h
   perfdatareader.cpp perfdatareader.h
   perfevent.h
   perfeventtype.h
   perfloaddialog.cpp perfloaddialog.h
-  perfoptionspage.cpp perfoptionspage.h
   perfprofiler.qrc
   perfprofilerconstants.h
   perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h
@@ -29,7 +27,7 @@ set(PERFPROFILER_CPP_SOURCES
   perfprofilertracemanager.cpp perfprofilertracemanager.h
   perfprofilertraceview.cpp perfprofilertraceview.h
   perfprofiler_global.h
-    perfprofilertr.h
+  perfprofilertr.h
   perfresourcecounter.cpp perfresourcecounter.h
   perfrunconfigurationaspect.cpp perfrunconfigurationaspect.h
   perfsettings.cpp perfsettings.h

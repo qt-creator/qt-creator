@@ -9,7 +9,7 @@ namespace Autotest {
 namespace GTest {
 namespace Constants {
 
-const char FRAMEWORK_NAME[]              = "GTest";
+const char FRAMEWORK_ID[]                = "AutoTest.Framework.GTest";
 const char FRAMEWORK_SETTINGS_CATEGORY[] = QT_TRANSLATE_NOOP("QtC::Autotest", "Google Test");
 const unsigned FRAMEWORK_PRIORITY        = 10;
 const char DEFAULT_FILTER[]              = "*.*";

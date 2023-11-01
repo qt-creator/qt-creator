@@ -14,22 +14,53 @@
 #include <qbsprojectmanager/qbsprojectmanagerconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
-#include <utils/fileutils.h>
-#include <utils/pathchooser.h>
-#include <utils/qtcassert.h>
-#include <utils/stringutils.h>
-
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class DesktopRunConfiguration : public RunConfiguration
 {
 protected:
     enum Kind { Qmake, Qbs, CMake }; // FIXME: Remove
 
-    DesktopRunConfiguration(Target *target, Id id, Kind kind);
+    DesktopRunConfiguration(Target *target, Id id, Kind kind)
+        : RunConfiguration(target, id), m_kind(kind)
+    {
+        environment.setSupportForBuildEnvironment(target);
+
+        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+
+        arguments.setMacroExpander(macroExpander());
+
+        workingDir.setMacroExpander(macroExpander());
+        workingDir.setEnvironment(&environment);
+
+        connect(&useLibraryPaths, &UseLibraryPathsAspect::changed,
+                &environment, &EnvironmentAspect::environmentChanged);
+
+        if (HostOsInfo::isMacHost()) {
+            connect(&useDyldSuffix, &UseLibraryPathsAspect::changed,
+                    &environment, &EnvironmentAspect::environmentChanged);
+            environment.addModifier([this](Environment &env) {
+                if (useDyldSuffix())
+                    env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
+            });
+        } else {
+            useDyldSuffix.setVisible(false);
+        }
+
+        runAsRoot.setVisible(HostOsInfo::isAnyUnixHost());
+
+        environment.addModifier([this](Environment &env) {
+            BuildTargetInfo bti = buildTargetInfo();
+            if (bti.runEnvModifier)
+                bti.runEnvModifier(env, useLibraryPaths());
+        });
+
+        setUpdater([this] { updateTargetInformation(); });
+
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+    }
 
 private:
     void updateTargetInformation();
@@ -37,47 +68,15 @@ private:
     FilePath executableToRun(const BuildTargetInfo &targetInfo) const;
 
     const Kind m_kind;
+    EnvironmentAspect environment{this};
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
+    UseDyldSuffixAspect useDyldSuffix{this};
+    UseLibraryPathsAspect useLibraryPaths{this};
+    RunAsRootAspect runAsRoot{this};
 };
-
-DesktopRunConfiguration::DesktopRunConfiguration(Target *target, Id id, Kind kind)
-    : RunConfiguration(target, id), m_kind(kind)
-{
-    auto envAspect = addAspect<EnvironmentAspect>();
-    envAspect->setSupportForBuildEnvironment(target);
-
-    addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
-    addAspect<ArgumentsAspect>(macroExpander());
-    addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
-    addAspect<TerminalAspect>();
-
-    auto libAspect = addAspect<UseLibraryPathsAspect>();
-    connect(libAspect, &UseLibraryPathsAspect::changed,
-            envAspect, &EnvironmentAspect::environmentChanged);
-
-    if (HostOsInfo::isMacHost()) {
-        auto dyldAspect = addAspect<UseDyldSuffixAspect>();
-        connect(dyldAspect, &UseLibraryPathsAspect::changed,
-                envAspect, &EnvironmentAspect::environmentChanged);
-        envAspect->addModifier([dyldAspect](Environment &env) {
-            if (dyldAspect->value())
-                env.set(QLatin1String("DYLD_IMAGE_SUFFIX"), QLatin1String("_debug"));
-        });
-    }
-
-    if (HostOsInfo::isAnyUnixHost())
-        addAspect<RunAsRootAspect>();
-
-    envAspect->addModifier([this, libAspect](Environment &env) {
-        BuildTargetInfo bti = buildTargetInfo();
-        if (bti.runEnvModifier)
-            bti.runEnvModifier(env, libAspect->value());
-    });
-
-
-    setUpdater([this] { updateTargetInformation(); });
-
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-}
 
 void DesktopRunConfiguration::updateTargetInformation()
 {
@@ -197,5 +196,4 @@ DesktopQmakeRunConfigurationFactory::DesktopQmakeRunConfigurationFactory()
     addSupportedTargetDeviceType(Docker::Constants::DOCKER_DEVICE_TYPE);
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

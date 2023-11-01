@@ -6,13 +6,14 @@
 #include "projectexplorer_export.h"
 
 #include <utils/id.h>
+#include <utils/store.h>
 
 #include <QObject>
-#include <QVariantMap>
 
 namespace ProjectExplorer {
 
 class BuildStep;
+class ProjectConfiguration;
 class Target;
 
 class PROJECTEXPLORER_EXPORT BuildStepList : public QObject
@@ -20,7 +21,7 @@ class PROJECTEXPLORER_EXPORT BuildStepList : public QObject
     Q_OBJECT
 
 public:
-    explicit BuildStepList(QObject *parent, Utils::Id id);
+    explicit BuildStepList(ProjectConfiguration *config, Utils::Id id);
     ~BuildStepList() override;
 
     void clear();
@@ -56,10 +57,11 @@ public:
     void moveStepUp(int position);
     BuildStep *at(int position) const;
 
-    Target *target() { return m_target; }
+    ProjectConfiguration *projectConfiguration() const { return m_projectConfiguration; }
+    Target *target() const;
 
-    QVariantMap toMap() const;
-    bool fromMap(const QVariantMap &map);
+    Utils::Store toMap() const;
+    bool fromMap(const Utils::Store &map);
 
     Utils::Id id() const { return m_id; }
     QString displayName() const;
@@ -71,7 +73,7 @@ signals:
     void stepMoved(int from, int to);
 
 private:
-    Target *m_target;
+    ProjectConfiguration *m_projectConfiguration;
     Utils::Id m_id;
     QList<BuildStep *> m_steps;
 };

@@ -11,6 +11,7 @@
 #include "testtreemodel.h"
 
 #include <projectexplorer/projectexplorericons.h>
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <QFontMetrics>
@@ -215,10 +216,7 @@ bool TestResultItem::updateDescendantTypes(ResultType t)
     if (t == ResultType::TestStart || t == ResultType::TestEnd) // these are special
         return false;
 
-    if (m_descendantsTypes.contains(t))
-        return false;
-    m_descendantsTypes.insert(t);
-    return true;
+    return Utils::insert(m_descendantsTypes, t);
 }
 
 bool TestResultItem::descendantTypesContainsAnyOf(const QSet<ResultType> &types) const
@@ -286,7 +284,7 @@ void TestResultModel::addTestResult(const TestResult &testResult, bool autoExpan
 
     TestResultItem *newItem = new TestResultItem(testResult);
     TestResultItem *root = nullptr;
-    if (TestSettings::instance()->displayApplication()) {
+    if (testSettings().displayApplication()) {
         const QString application = testResult.id();
         if (!application.isEmpty()) {
             root = rootItem()->findFirstLevelChild([&application](TestResultItem *child) {
@@ -479,8 +477,7 @@ void TestResultFilterModel::enableAllResultTypes(bool enabled)
 
 void TestResultFilterModel::toggleTestResultType(ResultType type)
 {
-    if (m_enabled.contains(type)) {
-        m_enabled.remove(type);
+    if (m_enabled.remove(type)) {
         if (type == ResultType::MessageInternal)
             m_enabled.remove(ResultType::TestEnd);
         if (type == ResultType::MessageDebug)

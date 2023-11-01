@@ -9,16 +9,16 @@
 
 #include <QObject>
 
-namespace CppEditor {
+namespace ProjectExplorer { class Project; }
 
-class CppModelManager;
+namespace CppEditor {
 
 class CPPEDITOR_EXPORT AbstractEditorSupport : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit AbstractEditorSupport(CppModelManager *modelmanager, QObject *parent = nullptr);
+    explicit AbstractEditorSupport(QObject *parent = nullptr);
     ~AbstractEditorSupport() override;
 
     /// \returns the contents, encoded as UTF-8
@@ -30,11 +30,12 @@ public:
     void notifyAboutUpdatedContents() const;
     unsigned revision() const { return m_revision; }
 
-    static QString licenseTemplate(const Utils::FilePath &filePath = {}, const QString &className = {});
-    static bool usePragmaOnce();
+    static QString licenseTemplate(ProjectExplorer::Project *project,
+                                   const Utils::FilePath &filePath = {},
+                                   const QString &className = {});
+    static bool usePragmaOnce(ProjectExplorer::Project *project);
 
 private:
-    CppModelManager *m_modelmanager;
     unsigned m_revision;
 };
 

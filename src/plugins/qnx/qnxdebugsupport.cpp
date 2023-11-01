@@ -10,7 +10,7 @@
 
 #include <coreplugin/icore.h>
 
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 #include <debugger/debuggertr.h>
 
@@ -18,8 +18,8 @@
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitchooser.h>
-#include <projectexplorer/kitinformation.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfigurationaspects.h>
@@ -28,7 +28,7 @@
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>
@@ -195,8 +195,8 @@ public:
         : DebuggerRunTool(runControl)
     {
         setId("QnxAttachDebugSupport");
-
         setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
+        setUseCtrlCStub(true);
 
         if (isCppDebugging()) {
             auto pdebugRunner = new PDebugRunner(runControl, portsGatherer());
@@ -230,7 +230,7 @@ void showAttachToProcessDialog()
     FilePath localExecutable = dlg.localExecutable();
     if (localExecutable.isEmpty()) {
         if (auto aspect = runConfig->aspect<SymbolFileAspect>())
-            localExecutable = aspect->filePath();
+            localExecutable = aspect->expandedValue();
     }
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
@@ -239,7 +239,6 @@ void showAttachToProcessDialog()
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(DetachAtClose);
     debugger->setSymbolFile(localExecutable);
-    debugger->setUseCtrlCStub(true);
     debugger->setAttachPid(pid);
 //    setRunControlName(Tr::tr("Remote: \"%1\" - Process %2").arg(remoteChannel).arg(m_process.pid));
     debugger->setRunControlName(Tr::tr("Remote QNX process %1").arg(pid));

@@ -18,45 +18,50 @@ using namespace Utils;
 
 namespace Nim {
 
-class NimbleBuildStep : public AbstractProcessStep
+class NimbleBuildStep final : public AbstractProcessStep
 {
 public:
-    NimbleBuildStep(BuildStepList *parentList, Id id);
+    NimbleBuildStep(BuildStepList *parentList, Id id)
+        : AbstractProcessStep(parentList, id)
+    {
+        arguments.setMacroExpander(macroExpander());
+        arguments.setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
+        arguments.setResetter([this] { return defaultArguments(); });
+        arguments.setArguments(defaultArguments());
+
+        setCommandLineProvider([this] {
+            return CommandLine(Nim::nimblePathFromKit(kit()), {"build", arguments.arguments()});
+        });
+        setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
+        setEnvironmentModifier([this](Environment &env) {
+            env.appendOrSetPath(Nim::nimPathFromKit(kit()));
+        });
+
+        setSummaryUpdater([this] {
+            ProcessParameters param;
+            setupProcessParameters(&param);
+            return param.summary(displayName());
+        });
+
+        QTC_ASSERT(buildConfiguration(), return);
+        QObject::connect(buildConfiguration(), &BuildConfiguration::buildTypeChanged,
+                         &arguments, &ArgumentsAspect::resetArguments);
+        QObject::connect(&arguments, &BaseAspect::changed,
+                         this, &AbstractProcessStep::updateSummary);
+    }
 
     void setupOutputFormatter(OutputFormatter *formatter) final;
 
 private:
-    QString defaultArguments() const;
+    QString defaultArguments() const
+    {
+        if (buildType() == BuildConfiguration::Debug)
+            return {"--debugger:native"};
+        return {};
+    }
+
+    ArgumentsAspect arguments{this};
 };
-
-NimbleBuildStep::NimbleBuildStep(BuildStepList *parentList, Id id)
-    : AbstractProcessStep(parentList, id)
-{
-    auto arguments = addAspect<ArgumentsAspect>(macroExpander());
-    arguments->setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
-    arguments->setResetter([this] { return defaultArguments(); });
-    arguments->setArguments(defaultArguments());
-
-    setCommandLineProvider([this, arguments] {
-        return CommandLine(Nim::nimblePathFromKit(kit()), {"build", arguments->arguments()});
-    });
-    setWorkingDirectoryProvider([this] { return project()->projectDirectory(); });
-    setEnvironmentModifier([this](Environment &env) {
-        env.appendOrSetPath(Nim::nimPathFromKit(kit()));
-    });
-
-    setSummaryUpdater([this] {
-        ProcessParameters param;
-        setupProcessParameters(&param);
-        return param.summary(displayName());
-    });
-
-    QTC_ASSERT(buildConfiguration(), return);
-    QObject::connect(buildConfiguration(), &BuildConfiguration::buildTypeChanged,
-                     arguments, &ArgumentsAspect::resetArguments);
-    QObject::connect(arguments, &ArgumentsAspect::changed,
-                     this, &AbstractProcessStep::updateSummary);
-}
 
 void NimbleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
@@ -66,12 +71,6 @@ void NimbleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-QString NimbleBuildStep::defaultArguments() const
-{
-    if (buildType() == BuildConfiguration::Debug)
-        return {"--debugger:native"};
-    return {};
-}
 
 NimbleBuildStepFactory::NimbleBuildStepFactory()
 {

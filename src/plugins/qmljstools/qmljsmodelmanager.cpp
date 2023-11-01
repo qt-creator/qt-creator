@@ -28,7 +28,7 @@
 #include <qmljs/qmljsbind.h>
 #include <qmljs/qmljsfindexportedcpptypes.h>
 #include <qmljs/qmljsplugindumper.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <texteditor/textdocument.h>
 
@@ -200,7 +200,7 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         auto v = qtVersion->qtVersion();
         projectInfo.qmllsPath = ModelManagerInterface::qmllsForBinPath(qtVersion->hostBinPath(), v);
         projectInfo.qtVersionString = qtVersion->qtVersionString();
-    } else if (!activeKit || !activeKit->value(QtSupport::SuppliesQtQuickImportPath::id(), false).toBool()) {
+    } else if (!activeKit || !activeKit->value(QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH, false).toBool()) {
         projectInfo.qtQmlPath = FilePath::fromUserInput(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));
         projectInfo.qmllsPath = ModelManagerInterface::qmllsForBinPath(
             FilePath::fromUserInput(QLibraryInfo::path(QLibraryInfo::BinariesPath)), QLibraryInfo::version());
@@ -261,7 +261,7 @@ QHash<QString,Dialect> ModelManager::languageForSuffix() const
 ModelManager::ModelManager()
 {
     qRegisterMetaType<QmlJSTools::SemanticInfo>("QmlJSTools::SemanticInfo");
-    loadDefaultQmlTypeDescriptions();
+    CppQmlTypesLoader::defaultObjectsInitializer = [this] { loadDefaultQmlTypeDescriptions(); };
 }
 
 ModelManager::~ModelManager() = default;

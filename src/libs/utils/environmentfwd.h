@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QVector>
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 class QTreeView;
@@ -12,7 +12,7 @@ QT_END_NAMESPACE
 namespace Utils {
 class NameValueDictionary;
 class NameValueItem;
-using NameValueItems = QVector<NameValueItem>;
+using NameValueItems = QList<NameValueItem>;
 
 class Environment;
 using EnvironmentItem = NameValueItem;

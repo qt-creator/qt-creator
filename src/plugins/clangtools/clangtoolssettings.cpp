@@ -23,8 +23,6 @@ using namespace Utils;
 namespace ClangTools {
 namespace Internal {
 
-const char clangTidyExecutableKey[] = "ClangTidyExecutable";
-const char clazyStandaloneExecutableKey[] = "ClazyStandaloneExecutable";
 
 const char parallelJobsKey[] = "ParallelJobs";
 const char preferConfigFileKey[] = "PreferConfigFile";
@@ -43,7 +41,7 @@ RunSettings::RunSettings()
 {
 }
 
-void RunSettings::fromMap(const QVariantMap &map, const QString &prefix)
+void RunSettings::fromMap(const Store &map, const Key &prefix)
 {
     m_diagnosticConfigId = Id::fromSetting(map.value(prefix + diagnosticConfigIdKey));
     m_parallelJobs = map.value(prefix + parallelJobsKey).toInt();
@@ -52,7 +50,7 @@ void RunSettings::fromMap(const QVariantMap &map, const QString &prefix)
     m_analyzeOpenFiles = map.value(prefix + analyzeOpenFilesKey).toBool();
 }
 
-void RunSettings::toMap(QVariantMap &map, const QString &prefix) const
+void RunSettings::toMap(Store &map, const Key &prefix) const
 {
     map.insert(prefix + diagnosticConfigIdKey, m_diagnosticConfigId.toSetting());
     map.insert(prefix + parallelJobsKey, m_parallelJobs);
@@ -89,23 +87,29 @@ bool RunSettings::hasConfigFileForSourceFile(const Utils::FilePath &sourceFile) 
     return false;
 }
 
-ClangToolsSettings::ClangToolsSettings()
-{
-    readSettings();
-}
-
 ClangToolsSettings *ClangToolsSettings::instance()
 {
     static ClangToolsSettings instance;
     return &instance;
 }
 
-static QVariantMap convertToMapFromVersionBefore410(QSettings *s)
+ClangToolsSettings::ClangToolsSettings()
+{
+    setSettingsGroup(Constants::SETTINGS_ID);
+
+    clangTidyExecutable.setSettingsKey("ClangTidyExecutable");
+
+    clazyStandaloneExecutable.setSettingsKey("ClazyStandaloneExecutable");
+
+    readSettings();
+}
+
+static Store convertToMapFromVersionBefore410(QtcSettings *s)
 {
     const char oldParallelJobsKey[] = "simultaneousProcesses";
     const char oldBuildBeforeAnalysisKey[] = "buildBeforeAnalysis";
 
-    QVariantMap map;
+    Store map;
     map.insert(diagnosticConfigIdKey, s->value(oldDiagnosticConfigIdKey));
     map.insert(parallelJobsKey, s->value(oldParallelJobsKey));
     map.insert(buildBeforeAnalysisKey, s->value(oldBuildBeforeAnalysisKey));
@@ -141,25 +145,25 @@ void ClangToolsSettings::readSettings()
     if (!importedConfigs.isEmpty())
         write = true;
 
-    QSettings *s = Core::ICore::settings();
+    AspectContainer::readSettings();
+
+    QtcSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
-    m_clangTidyExecutable = FilePath::fromSettings(s->value(clangTidyExecutableKey));
-    m_clazyStandaloneExecutable = FilePath::fromSettings(s->value(clazyStandaloneExecutableKey));
     m_diagnosticConfigs.append(diagnosticConfigsFromSettings(s));
 
-    QVariantMap map;
+    Store map;
     if (!s->value(oldDiagnosticConfigIdKey).isNull()) {
         map = convertToMapFromVersionBefore410(s);
         write = true;
     } else {
-        QVariantMap defaults;
+        Store defaults;
         defaults.insert(diagnosticConfigIdKey, defaultDiagnosticId().toSetting());
         defaults.insert(parallelJobsKey, m_runSettings.parallelJobs());
         defaults.insert(preferConfigFileKey, m_runSettings.preferConfigFile());
         defaults.insert(buildBeforeAnalysisKey, m_runSettings.buildBeforeAnalysis());
         defaults.insert(analyzeOpenFilesKey, m_runSettings.analyzeOpenFiles());
         map = defaults;
-        for (QVariantMap::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
+        for (Store::ConstIterator it = defaults.constBegin(); it != defaults.constEnd(); ++it)
             map.insert(it.key(), s->value(it.key(), it.value()));
     }
 
@@ -172,37 +176,37 @@ void ClangToolsSettings::readSettings()
         writeSettings();
 }
 
-void ClangToolsSettings::writeSettings()
+void ClangToolsSettings::writeSettings() const
 {
-    QSettings *s = Core::ICore::settings();
+    AspectContainer::writeSettings();
+
+    QtcSettings *s = Core::ICore::settings();
     s->beginGroup(Constants::SETTINGS_ID);
 
-    s->setValue(clangTidyExecutableKey, m_clangTidyExecutable.toSettings());
-    s->setValue(clazyStandaloneExecutableKey, m_clazyStandaloneExecutable.toSettings());
     diagnosticConfigsToSettings(s, m_diagnosticConfigs);
 
-    QVariantMap map;
+    Store map;
     m_runSettings.toMap(map);
-    for (QVariantMap::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
+    for (Store::ConstIterator it = map.constBegin(); it != map.constEnd(); ++it)
         s->setValue(it.key(), it.value());
 
     s->endGroup();
 
-    emit changed();
+    emit const_cast<ClangToolsSettings *>(this)->changed(); // FIXME: This is the wrong place
 }
 
 FilePath ClangToolsSettings::executable(ClangToolType tool) const
 {
-    return tool == ClangToolType::Tidy ? m_clangTidyExecutable : m_clazyStandaloneExecutable;
+    return tool == ClangToolType::Tidy ? clangTidyExecutable() : clazyStandaloneExecutable();
 }
 
 void ClangToolsSettings::setExecutable(ClangToolType tool, const FilePath &path)
 {
     if (tool == ClangToolType::Tidy) {
-        m_clangTidyExecutable = path;
+        clangTidyExecutable.setValue(path);
         m_clangTidyVersion = {};
     } else {
-        m_clazyStandaloneExecutable = path;
+        clazyStandaloneExecutable.setValue(path);
         m_clazyVersion = {};
     }
 }

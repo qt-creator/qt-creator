@@ -25,6 +25,8 @@
 #include <utils/terminalhooks.h>
 #include <utils/utilsicons.h>
 
+#include <QFileIconProvider>
+#include <QGuiApplication>
 #include <QMenu>
 #include <QStandardPaths>
 #include <QToolButton>
@@ -39,6 +41,10 @@ TerminalPane::TerminalPane(QObject *parent)
     : IOutputPane(parent)
     , m_selfContext("Terminal.Pane")
 {
+    setId("Terminal");
+    setDisplayName(Tr::tr("Terminal"));
+    setPriorityInStatusBar(20);
+
     setupContext(m_selfContext, &m_tabWidget);
     setZoomButtonsEnabled(true);
 
@@ -52,9 +58,6 @@ TerminalPane::TerminalPane(QObject *parent)
     });
 
     initActions();
-
-    m_lockKeyboardButton = new QToolButton();
-    m_lockKeyboardButton->setDefaultAction(&lockKeyboard);
 
     m_newTerminalButton = new QToolButton();
     m_newTerminalButton->setDefaultAction(&newTerminal);
@@ -71,18 +74,21 @@ TerminalPane::TerminalPane(QObject *parent)
     });
 
     const auto updateEscButton = [this] {
-        m_escSettingButton->setChecked(TerminalSettings::instance().sendEscapeToTerminal());
+        m_escSettingButton->setChecked(settings().sendEscapeToTerminal());
         static const QString escKey
             = QKeySequence(Qt::Key_Escape).toString(QKeySequence::NativeText);
         static const QString shiftEsc = QKeySequence(
                                             QKeyCombination(Qt::ShiftModifier, Qt::Key_Escape))
                                             .toString(QKeySequence::NativeText);
-        if (TerminalSettings::instance().sendEscapeToTerminal.value()) {
+        if (settings().sendEscapeToTerminal()) {
             m_escSettingButton->setText(escKey);
-            m_escSettingButton->setToolTip(Tr::tr("Sends Esc to terminal instead of Qt Creator."));
+            //: %1 is the application name (Qt Creator)
+            m_escSettingButton->setToolTip(Tr::tr("Sends Esc to terminal instead of %1.")
+                                               .arg(QGuiApplication::applicationDisplayName()));
         } else {
             m_escSettingButton->setText(shiftEsc);
-            m_escSettingButton->setToolTip(Tr::tr("Press %1 to send Esc to terminal.").arg(shiftEsc));
+            m_escSettingButton->setToolTip(
+                Tr::tr("Press %1 to send Esc to terminal.").arg(shiftEsc));
         }
     };
 
@@ -92,12 +98,39 @@ TerminalPane::TerminalPane(QObject *parent)
     updateEscButton();
 
     connect(m_escSettingButton, &QToolButton::toggled, this, [this, updateEscButton] {
-        TerminalSettings::instance().sendEscapeToTerminal.setValue(m_escSettingButton->isChecked());
-        TerminalSettings::instance().writeSettings(ICore::settings());
+        settings().sendEscapeToTerminal.setValue(m_escSettingButton->isChecked());
         updateEscButton();
     });
 
-    connect(&TerminalSettings::instance(), &TerminalSettings::applied, this, updateEscButton);
+    connect(&settings(), &TerminalSettings::applied, this, updateEscButton);
+
+    const auto updateLockButton = [this] {
+        m_lockKeyboardButton->setChecked(settings().lockKeyboard());
+        if (settings().lockKeyboard()) {
+            m_lockKeyboardButton->setIcon(LOCK_KEYBOARD_ICON.icon());
+            m_lockKeyboardButton->setToolTip(
+                //: %1 is the application name (Qt Creator)
+                Tr::tr("%1 shortcuts are blocked when focus is inside the terminal.")
+                    .arg(QGuiApplication::applicationDisplayName()));
+        } else {
+            m_lockKeyboardButton->setIcon(UNLOCK_KEYBOARD_ICON.icon());
+            //: %1 is the application name (Qt Creator)
+            m_lockKeyboardButton->setToolTip(Tr::tr("%1 shortcuts take precedence.")
+                                                 .arg(QGuiApplication::applicationDisplayName()));
+        }
+    };
+
+    m_lockKeyboardButton = new QToolButton();
+    m_lockKeyboardButton->setCheckable(true);
+
+    updateLockButton();
+
+    connect(m_lockKeyboardButton, &QToolButton::toggled, this, [this, updateLockButton] {
+        settings().lockKeyboard.setValue(m_lockKeyboardButton->isChecked());
+        updateLockButton();
+    });
+
+    connect(&settings(), &TerminalSettings::applied, this, updateLockButton);
 }
 
 TerminalPane::~TerminalPane() {}
@@ -134,7 +167,18 @@ void TerminalPane::openTerminal(const OpenTerminalParameters &parameters)
     terminalWidget->unlockGlobalAction(NEXTTERMINAL);
     terminalWidget->unlockGlobalAction(PREVTERMINAL);
 
-    m_tabWidget.setCurrentIndex(m_tabWidget.addTab(terminalWidget, Tr::tr("Terminal")));
+    QIcon icon;
+    if (HostOsInfo::isWindowsHost()) {
+        icon = parametersCopy.icon;
+        if (icon.isNull()) {
+            QFileIconProvider iconProvider;
+            const FilePath command = parametersCopy.shellCommand
+                                         ? parametersCopy.shellCommand->executable()
+                                         : settings().shell();
+            icon = iconProvider.icon(command.toFileInfo());
+        }
+    }
+    m_tabWidget.setCurrentIndex(m_tabWidget.addTab(terminalWidget, icon, Tr::tr("Terminal")));
     setupTerminalWidget(terminalWidget);
 
     if (!m_isVisible)
@@ -219,23 +263,15 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
     if (!terminal)
         return;
 
-    const auto setTabText = [this, terminal]() {
+    const auto setTabText = [this, terminal] {
         const int index = m_tabWidget.indexOf(terminal);
-        const FilePath cwd = terminal->cwd();
-
-        const QString exe = terminal->currentCommand().isEmpty()
-                                ? terminal->shellName()
-                                : terminal->currentCommand().executable().fileName();
-
-        if (cwd.isEmpty())
-            m_tabWidget.setTabText(index, exe);
-        else
-            m_tabWidget.setTabText(index, exe + " - " + cwd.fileName());
+        m_tabWidget.setTabText(index, terminal->title());
     };
 
     connect(terminal, &TerminalWidget::started, this, setTabText);
     connect(terminal, &TerminalWidget::cwdChanged, this, setTabText);
     connect(terminal, &TerminalWidget::commandChanged, this, setTabText);
+    connect(terminal, &TerminalWidget::titleChanged, this, setTabText);
 
     if (!terminal->shellName().isEmpty())
         setTabText();
@@ -244,23 +280,6 @@ void TerminalPane::setupTerminalWidget(TerminalWidget *terminal)
 void TerminalPane::initActions()
 {
     createShellMenu();
-
-    lockKeyboard.setCheckable(true);
-    lockKeyboard.setChecked(TerminalSettings::instance().lockKeyboard());
-
-    auto updateLockKeyboard = [this](bool locked) {
-        TerminalSettings::instance().lockKeyboard.setValue(locked);
-        if (locked) {
-            lockKeyboard.setIcon(LOCK_KEYBOARD_ICON.icon());
-            lockKeyboard.setToolTip(Tr::tr("Sends keyboard shortcuts to Terminal."));
-        } else {
-            lockKeyboard.setIcon(UNLOCK_KEYBOARD_ICON.icon());
-            lockKeyboard.setToolTip(Tr::tr("Sends keyboard shortcuts to Qt Creator."));
-        }
-    };
-
-    updateLockKeyboard(TerminalSettings::instance().lockKeyboard());
-    connect(&lockKeyboard, &QAction::toggled, this, updateLockKeyboard);
 
     newTerminal.setText(Tr::tr("New Terminal"));
     newTerminal.setIcon(NEW_TERMINAL_ICON.icon());
@@ -314,7 +333,7 @@ void TerminalPane::createShellMenu()
 
         const auto addItems = [this](const QList<Internal::ShellModelItem> &items) {
             for (const Internal::ShellModelItem &item : items) {
-                QAction *action = new QAction(item.icon, item.name, &m_shellMenu);
+                QAction *action = new QAction(item.openParameters.icon, item.name, &m_shellMenu);
 
                 connect(action, &QAction::triggered, action, [item, this]() {
                     openTerminal(item.openParameters);
@@ -338,16 +357,6 @@ QList<QWidget *> TerminalPane::toolBarWidgets() const
     widgets.prepend(m_closeTerminalButton);
 
     return widgets << m_openSettingsButton << m_lockKeyboardButton << m_escSettingButton;
-}
-
-QString TerminalPane::displayName() const
-{
-    return Tr::tr("Terminal");
-}
-
-int TerminalPane::priorityInStatusBar() const
-{
-    return 50;
 }
 
 void TerminalPane::clearContents()

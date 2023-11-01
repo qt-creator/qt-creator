@@ -8,85 +8,143 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-project-other.html
     \page creator-project-cmake.html
-    \nextpage creator-project-qbs.html
+    \previouspage creator-reference.html
 
-    \title Setting Up CMake
+    \ingroup creator-reference-build-systems
 
-    CMake automates the configuration of build systems. It controls the software
-    compilation process by using simple
+    \title CMake
+
+    \brief CMake is an alternative to qmake for automating the generation of
+    build systems.
+
+    \l{https://cmake.org/}{CMake} automates the configuration of build systems.
+    It controls the software compilation process by using simple
     configuration files, called \c {CMakeLists.txt} files. CMake generates
     native build configurations and workspaces that you can use in the compiler
     environment of your choice.
 
     You can use CMake from \QC to build applications for the desktop, as well
-    as mobile and embedded devices. You can also build single files to test
-    your changes.
+    as mobile and embedded devices. Or, build single files to test your changes.
 
-    \QC automatically detects the CMake executable specified in the \c PATH.
-    You can add paths to other CMake executables and use them in different
-    build and run \l{glossary-buildandrun-kit}{kits}.
-
-    CMake documentation is installed in Qt help file format (.qch) when you
-    install CMake. It is automatically registered by \QC, and you can view it
-    in the Help mode.
-
-    \QC automatically runs CMake to refresh project information when you edit
-    a \c CMakeLists.txt configuration file in a project. Project information is
-    also automatically refreshed when you build the project. To disable this
-    behavior, select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake
-    > \uicontrol General, and then deselect the \uicontrol {Autorun CMake}
-    check box.
-
-    \image qtcreator-projects-view-edit.png {CMake project in Projects view}
-
-    If \QC cannot load the CMake project, the \l Projects view shows a
-    \uicontrol {<File System>} project node to avoid scanning the file
-    system and load the project faster. The node shows the same files
-    as the \l {File System} view. Select \uicontrol Build >
-    \uicontrol {Clear CMake Configuration}, and then select \uicontrol Build
-    > \uicontrol {Run CMake} to reconfigure the project.
-
-    The \uicontrol Projects view shows the names of the subfolders where the
-    source files are located. To hide the subfolder names and arrange the files
-    only according to their source group, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol CMake > \uicontrol General, and then
-    deselect the \uicontrol {Show subfolders inside source group folders} check
-    box. The change takes effect after you select \uicontrol Build >
-    \uicontrol {Run CMake}.
-
-    \section1 Adding CMake Tools
+    \section1 Supported CMake Versions
 
     \QC requires CMake's \l{https://cmake.org/cmake/help/latest/manual/cmake-file-api.7.html}
     {file-based API}, and therefore you'll need CMake version 3.14, or later.
 
     For systems with older versions of CMake, only workarounds are available:
+
     \list
-
-        \li For CMake version 3.5 or later it is possible to generate a
-            \l{https://cmake.org/cmake/help/latest/variable/CMAKE_EXPORT_COMPILE_COMMANDS.html}{compilation database}
-            and open that in \QC, as described in \l{Using Compilation Databases}.
-
+        \li For CMake version 3.5 or later, generate a
+            \l{CMake: CMAKE_EXPORT_COMPILE_COMMANDS}{compilation database} and
+            open that in \QC, as described in \l{Using Compilation Databases}.
         \li Create an ad-hoc project file for a qmake build using
-            \c{qmake -project} and \l{Opening Projects}{open} that in \QC.
-            Be aware that this is typically
-            not compilable without further manual changes.
-
+            \c{qmake -project} and \l{Open projects}{open} that in \QC.
+            Typically, you cannot compile such projects without manual changes.
         \li Manually create an ad-hoc project file for a
             \l{Setting Up a Generic Project}{generic project} and
-            open that in \QC. Be aware this is typically
-            not compilable without further manual changes.
-
+            open that in \QC.
+            Typically, you cannot compile such projects without manual changes.
     \endlist
 
+    \sa {Build with CMake}{How To: Build with CMake}, {Open projects},
+    {CMake Build Configuration}, {Debug CMake project files},
+    {Specifying Build Settings}, {Specifying Run Settings},
+    {Deploying to Remote Linux}
+*/
 
-    To view and specify settings for CMake:
+/*!
+    \page creator-how-to-view-cmake-project-contents.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build-with-cmake
+
+    \title View CMake project contents
+
+    The \l Projects view visualizes the build system structure of the project as
+    a tree and lists all files that are part of the project.
+    \QC automatically runs CMake to refresh project information in the
+    view when you edit a \c CMakeLists.txt configuration file
+    in a project. Project information is also automatically refreshed when
+    you build the project.
+
+    \image qtcreator-projects-view-edit.png {CMake project in Projects view}
+
+    To disable this
+    behavior, select \preferences > \uicontrol CMake > \uicontrol General, and
+    then deselect the \uicontrol {Autorun CMake} check box.
+
+    \image qtcreator-preferences-cmake-general.webp {General tab in CMake Preferences}
+
+    \section1 Re-configure CMake projects
+
+    If \QC cannot load the CMake project, the \uicontrol Projects view shows a
+    \uicontrol {<File System>} project node to avoid scanning the file
+    system and load the project faster. The node shows the same files
+    as the \l {File System} view.
+
+    To re-configure the project:
+
+    \list 1
+        \li Select \uicontrol Build > \uicontrol {Clear CMake Configuration}.
+        \li Select \uicontrol Build > \uicontrol {Run CMake}.
+    \endlist
+
+    \section1 Hide subfolder names in Projects view
+
+    The \uicontrol Projects view shows the names of the subfolders where the
+    source files are located. To hide the subfolder names and arrange the files
+    only according to their source group, select \preferences >
+    \uicontrol CMake > \uicontrol General, and then
+    deselect the \uicontrol {Show subfolders inside source group folders} check
+    box. The change takes effect after you select \uicontrol Build >
+    \uicontrol {Run CMake}.
+
+    \sa {CMake}, {Manage files in CMake projects}, {Open projects},
+    {File System}, {Projects}
+*/
+
+/*!
+    \page creator-how-to-read-cmake-documentation.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build-with-cmake
+    \ingroup creator-how-to-get-help
+
+    \title Read CMake documentation
+
+    CMake documentation is installed in Qt help file format (.qch) when you
+    install CMake. It is automatically registered by \QC, and you can view it by:
+
+    \list
+        \li Hovering the mouse over a function, variable, property, policy,
+            environment variable, or CMake find or include module to show
+            tooltips
+        \li Selecting any of the above elements and pressing \key F1 to show
+            its documentation
+        \li Switching to the Help mode
+    \endlist
+
+    \sa {CMake}, {Read Documentation}{How To: Read Documentation}
+*/
+
+/*!
+    \page creator-how-to-add-cmake-tools.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build-with-cmake
+
+    \title Add CMake tools
+
+    \QC automatically detects the CMake executable that you specify in the
+    \c PATH. You can add paths to other CMake executables and use them in
+    different build and run \l{glossary-buildandrun-kit}{kits}.
+
+    To see the CMake installations that \QC automatically detects:
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
-            \uicontrol Tools.
+        \li Select \preferences > \uicontrol CMake > \uicontrol Tools.
 
             \image qtcreator-preferences-cmake-tools.webp {Tools tab in CMake Preferences}
 
@@ -99,31 +157,42 @@
         \li The \uicontrol {Help file} field displays the path to the
             CMake help file (.qch) that comes with CMake.
 
-        \li Select \uicontrol Apply to save your changes.
-
     \endlist
+
+    \section2 Add or remove CMake tools
 
     To add a path to a CMake executable that \QC does not detect automatically,
     and to specify settings for it, select \uicontrol Add. To make changes to
     automatically detected installations, select \uicontrol Clone.
 
+    To remove the selected CMake executable from the list, select
+    \uicontrol Remove.
+
+    \section2 Set the default CMake tool
+
     \QC uses the \e {default CMake} if it does not have enough information
     to choose the CMake to use. To set the selected CMake executable as the
     default, select \uicontrol {Make Default}.
 
-    To remove the selected CMake executable from the list, select
-    \uicontrol Remove.
+    \section2 Add CMake tools to kits
 
-    To add the CMake tool to a build and run kit, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits.
+    To add the CMake tool to a build and run kit, select \preferences >
+    \uicontrol Kits.
     The kit also specifies the CMake generator that is used for producing
     project files for \QC and the initial configuration parameters:
 
     \image qtcreator-kits-cmake.png {Kits preferences}
 
-    For more information, see \l {Adding Kits}.
+    \sa {CMake}, {Add kits}, {Kits}
+*/
 
-    \section1 Editing CMake Configuration Files
+/*!
+    \page creator-how-to-edit-cmake-config-files.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build-with-cmake
+
+    \title Edit CMake configuration files
 
     To open a CMakeLists.txt file for editing, right-click it in the
     \uicontrol Projects view and select \uicontrol {Open With} >
@@ -138,11 +207,22 @@
 
     \list
 
-        \li Pressing \key F2 when the cursor is on a filename to open the file
+        \li Pressing \key F2 when the cursor is on a:
+            \list
+                \li Filename - to open the file
+                \li CMake function, macro, option, target, CMake's Find or
+                    Include module, local variable created by \c set or \c list,
+                    or package - to go to that item
+            \endlist
 
         \li Keyword completion
 
-        \li Code completion
+        \li Code completion for local functions and variables, cache variables,
+            \c ENV, targets, packages, and variables that \c find_package adds
+
+        \li Pre-defined code snippets for setting CMake print properties and
+            variables, as well as creating Qt console and GUI applications and
+            sample Find modules
 
         \li Path completion
 
@@ -154,23 +234,57 @@
 
     Warnings and errors are displayed in \l {Issues}.
 
-    \section1 Formatting CMake Files
+    \sa {CMake}, {Add libraries to CMake projects}, {Complete CMake code},
+    {Completing Code Snippets}, {Format CMake files}
+*/
 
-    You can use the \c {cmake-format} tool to format any text in CMake files that
+/*!
+    \page creator-how-to-complete-cmake-code.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build-with-cmake
+
+    \title Complete CMake code
+
+    \QC uses \l{Generic Highlighting}{generic highlighting} to provide
+    code completion specific arguments for the CMake commands. For
+    example, only source file properties are suggested for the
+    \l {CMake: set_source_files_properties command}, not the test or
+    target properties.
+
+    The following CMake-specific trigger tokens are supported:
+
+    \list
+        \li \c{$} for variables
+        \li \c{$<} for generator expressions
+        \li \c{$ENV} for environment variables
+    \endlist
+
+    \sa {CMake}, {Completing Code}, {Completing Code Snippets},
+    {Edit CMake configuration files}
+*/
+
+/*!
+    \page creator-how-to-format-cmake-files.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build-with-cmake
+
+    \title Format CMake files
+
+    You can use the \l {cmake-format} tool and local \c .cmake-format, \c.py, or
+    \c .json configuration files to format any text in CMake files that
     you do not guard with a pair of fences. You must install the tool and tell
-    \QC where you installed it. For more information about the tool and how to
-    install it, see \l{https://cmake-format.readthedocs.io/en/latest/index.html}
-    {cmake language tools}.
+    \QC where you installed it.
 
     To automatically format CMake files upon file save:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol CMake >
-            \uicontrol Formatter.
+        \li Select \preferences > \uicontrol CMake > \uicontrol Formatter.
             \image qtcreator-preferences-cmake-formatter.webp {Formatter tab in CMake Preferences}
         \li In \uicontrol {CMakeFormat command}, enter the path to
             \c {cmake-format.exe}.
-        \li Select \uicontrol {Enable auto format on file save} to automatically
+        \li Select \uicontrol {Automatic formatting on file save} to automatically
             format CMake files when you save them.
         \li In \uicontrol {Restrict to MIME types}, add the \l{Editing MIME Types}
             {MIME types} of the files to format, separated by semicolons. The
@@ -181,43 +295,86 @@
             current project.
     \endlist
 
-    \section1 Managing Files
+    \sa {CMake},{Complete CMake code}, {Edit CMake configuration files},
+    {Editing MIME Types}
+*/
 
-    When you use project wizard templates to \l{Creating Files}{add files} to
-    a project, \QC automatically adds them to the \c {qt_add_executable()},
-    \c {add_executable()}, or \c {qt_add_library()} function in the
-    CMakeLists.txt file.
+/*!
+    \page creator-how-to-manage-files-in-cmake-projects.html
+    \previouspage creator-how-tos.html
 
-    If you use custom API, \QC uses \c {target_sources()} to add the files.
+    \ingroup creator-how-to-build-with-cmake
 
-    For Qt Quick projects, the files are added to the \c {qt_add_qml_module()}
+    \title Manage files in CMake projects
+
+    When you use project wizard templates to \l{Create files}{add files} to
+    a project, \QC automatically adds them to the \l {qt_add_executable},
+    \l{CMake: add_executable command}{add_executable}, or \l {qt_add_library}
+    function in the CMakeLists.txt file.
+
+    If you use custom API, \QC uses the \l{CMake: target_sources command}
+    {target_sources} function to add the files.
+
+    For Qt Quick projects, the files are added to the \l {qt_add_qml_module}
     function, prefixed with the \c QML_FILES, \c SOURCES, or \c RESOURCES
     function argument.
 
     When you rename or remove files in the \l {Projects} or \l {File System}
     view, \QC renames them in the CMakeLists.txt file or removes them from it.
 
-   \section1 Adding External Libraries to CMake Projects
+    \sa {CMake}, {Add libraries to CMake projects}, {Create files},
+    {Edit CMake configuration files}, {View CMake project contents},
+    {File System}, {Projects}
+*/
+
+/*!
+    \page creator-how-to-add-external-libraries-to-cmake-projects.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-build-with-cmake
+
+    \title Add libraries to CMake projects
+
+    \include creator-projects-libraries.qdoc libraries
+
+    \section1 Add your own libraries
+
+    Use the \l qt_add_library command to create a library and link against it in
+    the CMakeLists.txt file, as instructed in \l{Structuring projects}.
+
+    Specify whether the library is statically or dynamically linked.
+    For a statically linked internal library, add the
+    \l{CMake: target_link_libraries command} to the CMakeLists.txt
+    project file to specify dependencies.
+
+    \section1 Add external libraries
 
     Through external libraries, \QC can support code completion and syntax
-    highlighting as if they were part of the current project or the Qt library.
+    highlighting as if the code were a part of the current project or the
+    Qt library.
 
-    \QC detects the external libraries using the \c {find_package()}
-    macro. Some libraries come with the CMake installation. You can find those
+    \QC detects the external libraries using the \l{CMake: find_package command}
+    command. Some libraries come with the CMake installation. You can find those
     in the \c {Modules} directory of your CMake installation.
-    For more information, see
-    \l{https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html}
-    {cmake-packages(7)}.
+    For more information, see \l{CMake: cmake-packages(7)}.
 
-    Syntax completion and highlighting work once your project successfully
-    builds and links against the external library.
+    \section1 Use local CMake Find packages
 
-    \section1 Related Topics
+    For CMake projects that have external dependencies, use
+    \l{CMake: Find Modules}{Find<package>.cmake} modules that
+    expose imported targets. You can use the pre-defined \c sample_find_module
+    \l{Completing Code Snippets}{code snippet} to add sample commands
+    to a \c .cmake file. You can then change the commands as necessary.
 
-    \list
-        \li \l {Opening Projects}
-        \li \l {CMake Build Configuration}
-        \li \l {Specifying Run Settings}
-        \li \l {Deploying to Remote Linux}
-    \endlist
+    Place Find modules in the \c ${CMAKE_CURRENT_SOURCE_DIR}/cmake directory, and
+    append the directory name to the CMAKE_MODULE_PATH list variable.
+    For example:
+
+    \code
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+    \endcode
+
+    \sa {CMake}, {Edit CMake configuration files}, {Complete CMake code},
+    {Completing Code Snippets}
 */

@@ -442,6 +442,10 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
         ret = QGuiApplication::keyboardModifiers()
               == (HostOsInfo::isMacHost() ? Qt::MetaModifier : Qt::ControlModifier);
         break;
+    case QStyle::SH_Slider_AbsoluteSetButtons:
+        // Make QSlider jump on left mouse click
+        ret = Qt::LeftButton | Qt::MiddleButton | Qt::RightButton;
+        break;
     default:
         break;
     }

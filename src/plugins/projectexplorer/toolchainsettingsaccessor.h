@@ -23,7 +23,7 @@ public:
     void saveToolChains(const QList<ToolChain *> &toolchains, QWidget *parent);
 
 private:
-    QList<ToolChain *> toolChains(const QVariantMap &data) const;
+    QList<ToolChain *> toolChains(const Utils::Store &data) const;
 };
 
 } // namespace Internal

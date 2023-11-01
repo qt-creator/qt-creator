@@ -24,7 +24,7 @@ namespace Utils {
 static QReadWriteLock s_envMutex;
 Q_GLOBAL_STATIC_WITH_ARGS(Environment, staticSystemEnvironment,
                           (QProcessEnvironment::systemEnvironment().toStringList()))
-Q_GLOBAL_STATIC(QVector<EnvironmentProvider>, environmentProviders)
+Q_GLOBAL_STATIC(QList<EnvironmentProvider>, environmentProviders)
 
 Environment::Environment()
     : m_dict(HostOsInfo::hostOs())
@@ -149,6 +149,11 @@ void Environment::prependOrSetPath(const FilePath &value)
     prependOrSet("PATH", value.nativePath(), OsSpecificAspects::pathListSeparator(osType()));
 }
 
+void Environment::prependOrSetPath(const QString &directories)
+{
+    prependOrSet("PATH", directories, OsSpecificAspects::pathListSeparator(osType()));
+}
+
 void Environment::appendOrSet(const QString &key, const QString &value, const QString &sep)
 {
     addItem(Item{std::in_place_index_t<AppendOrSet>(), key, value, sep});
@@ -220,11 +225,12 @@ QString Environment::expandedValueForKey(const QString &key) const
 
 FilePath Environment::searchInPath(const QString &executable,
                                    const FilePaths &additionalDirs,
-                                   const FilePathPredicate &filter) const
+                                   const FilePathPredicate &filter,
+                                   FilePath::MatchScope scope) const
 {
     const FilePath exec = FilePath::fromUserInput(expandVariables(executable));
     const FilePaths dirs = path() + additionalDirs;
-    return exec.searchInDirectories(dirs, filter, FilePath::WithAnySuffix);
+    return exec.searchInDirectories(dirs, filter, scope);
 }
 
 FilePaths Environment::path() const
@@ -352,7 +358,7 @@ void EnvironmentProvider::addProvider(EnvironmentProvider &&provider)
     environmentProviders->append(std::move(provider));
 }
 
-const QVector<EnvironmentProvider> EnvironmentProvider::providers()
+const QList<EnvironmentProvider> EnvironmentProvider::providers()
 {
     return *environmentProviders;
 }

@@ -81,8 +81,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
             }
         }
         GeneratedCodeModelSupport::update(extraCompilers);
-        auto updateFuture = CppModelManager::instance()->updateProjectInfo(storage->projectInfo,
-                                                                           compilerFiles);
+        auto updateFuture = CppModelManager::updateProjectInfo(storage->projectInfo, compilerFiles);
         m_futureSynchronizer.addFuture(updateFuture);
         m_taskTree.release()->deleteLater();
     };
@@ -91,7 +90,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     };
 
     const Group root {
-        Storage(storage),
+        Tasking::Storage(storage),
         Group(tasks),
         onGroupDone(onDone),
         onGroupError(onError)

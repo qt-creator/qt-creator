@@ -4,6 +4,7 @@
 #pragma once
 
 #include "cppeditor_global.h"
+#include "cppeditorconstants.h"
 
 #include <coreplugin/find/searchresultwindow.h>
 #include <cplusplus/FindUsages.h>
@@ -51,6 +52,7 @@ public:
     QString prettySymbolName;
     Utils::FilePaths filesToRename;
     bool categorize = false;
+    bool preferLowerCaseFileNames = Constants::LOWERCASE_CPPFILES_DEFAULT;
 };
 
 class CppFindReferences: public QObject

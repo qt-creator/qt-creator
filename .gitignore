@@ -56,6 +56,7 @@ CMakeLists.txt.user*
 /share/qtcreator/qmldesigner/QtProject/
 /src/app/Info.plist
 /src/plugins/**/*.json
+!/src/plugins/**/wizard.json
 /src/plugins/coreplugin/ide_version.h
 /src/libs/qt-breakpad/bin
 /.cmake/

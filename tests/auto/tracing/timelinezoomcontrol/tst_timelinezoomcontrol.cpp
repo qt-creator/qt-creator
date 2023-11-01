@@ -55,15 +55,14 @@ void tst_TimelineZoomControl::window()
 
     QTimer timer;
     timer.setSingleShot(true);
-    connect(&timer, &QTimer::timeout, [&] {
+    connect(&timer, &QTimer::timeout, this, [&zoomControl] {
         QVERIFY(zoomControl.windowLocked());
         zoomControl.setWindowLocked(false);
     });
 
     int numWindowChanges = 0;
 
-    connect(&zoomControl, &TimelineZoomControl::windowChanged,
-            [&](qint64, qint64) {
+    connect(&zoomControl, &TimelineZoomControl::windowChanged, this, [&](qint64, qint64) {
         verifyWindow(zoomControl);
 
         QVERIFY(!timer.isActive());
@@ -100,7 +99,7 @@ void tst_TimelineZoomControl::window()
     zoomControl.setRange(152000, 152005); // move right
 
     QMetaObject::Connection connection = connect(
-                &zoomControl, &TimelineZoomControl::windowMovingChanged, [&](bool moving) {
+                &zoomControl, &TimelineZoomControl::windowMovingChanged, this, [&](bool moving) {
         if (moving)
             return;
 

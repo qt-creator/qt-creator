@@ -24,8 +24,7 @@ NavigationTreeView::NavigationTreeView(QWidget *parent)
     : TreeView(parent)
 {
     setFrameStyle(QFrame::NoFrame);
-    setIndentation(indentation() * 9/10);
-    setUniformRowHeights(true);
+    setIndentation(indentation() * 7/10);
     setTextElideMode(Qt::ElideNone);
     setAttribute(Qt::WA_MacShowFocusRect, false);
 

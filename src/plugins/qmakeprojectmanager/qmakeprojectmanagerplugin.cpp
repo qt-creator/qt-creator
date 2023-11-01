@@ -7,13 +7,11 @@
 #include "customwidgetwizard/customwidgetwizard.h"
 #include "profileeditor.h"
 #include "qmakebuildconfiguration.h"
-#include "qmakekitinformation.h"
 #include "qmakemakestep.h"
 #include "qmakenodes.h"
 #include "qmakeproject.h"
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
-#include "qmakesettings.h"
 #include "qmakestep.h"
 #include "wizards/subdirsprojectwizard.h"
 
@@ -80,8 +78,6 @@ public:
 
     ProFileEditorFactory profileEditorFactory;
 
-    QmakeSettings settings;
-
     QmakeProject *m_previousStartupProject = nullptr;
     Target *m_previousTarget = nullptr;
 
@@ -98,8 +94,6 @@ public:
     ParameterAction *m_buildFileAction = nullptr;
     QAction *m_addLibraryAction = nullptr;
     QAction *m_addLibraryActionContextMenu = nullptr;
-
-    QmakeKitAspect qmakeKitAspect;
 
     void addLibrary();
     void addLibraryContextMenu();

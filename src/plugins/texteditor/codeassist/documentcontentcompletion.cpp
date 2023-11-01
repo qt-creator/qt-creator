@@ -96,11 +96,10 @@ IAssistProposal *DocumentContentCompletionProcessor::performAsync()
                 continue;
         }
 
-        if (!words.contains(word)) {
+        if (Utils::insert(words, word)) {
             auto item = new AssistProposalItem();
             item->setText(word);
             items.append(item);
-            words.insert(word);
         }
     }
 

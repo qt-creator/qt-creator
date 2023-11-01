@@ -6,8 +6,7 @@
 #include <QMetaType>
 #include <QSharedDataPointer>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class Status
 {
@@ -35,7 +34,6 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol
 
 Q_DECLARE_METATYPE(Valgrind::XmlProtocol::Status)

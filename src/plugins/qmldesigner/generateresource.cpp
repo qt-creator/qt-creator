@@ -19,7 +19,7 @@
 #include <qmlprojectmanager/qmlprojectmanagerconstants.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/fileutils.h>
 #include <utils/process.h>
@@ -190,9 +190,10 @@ static bool runRcc(const CommandLine &command, const FilePath &workingDir,
     QByteArray stdOut;
     QByteArray stdErr;
     if (!rccProcess.readDataFromProcess(&stdOut, &stdErr)) {
-        Core::MessageManager::writeDisrupting(QCoreApplication::translate(
-              "QmlDesigner::GenerateResource", "A timeout occurred running \"%1\"")
-              .arg(rccProcess.commandLine().toUserOutput()));
+        Core::MessageManager::writeDisrupting(
+            QCoreApplication::translate("QmlDesigner::GenerateResource",
+                                        "A timeout occurred running \"%1\".")
+                .arg(rccProcess.commandLine().toUserOutput()));
         return false;
     }
     if (!stdOut.trimmed().isEmpty())

@@ -8,7 +8,7 @@ QtcPlugin {
     Depends { name: "CppEditor" }
     Depends { name: "Debugger" }
     Depends { name: "ProjectExplorer" }
-    Depends { name: "QtSupport"; condition: qtc.testsEnabled }
+    Depends { name: "QtSupport"; condition: qtc.withPluginTests }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
@@ -30,8 +30,6 @@ QtcPlugin {
         "clangselectablefilesdialog.h",
         "clangtool.cpp",
         "clangtool.h",
-        "clangtoolruncontrol.cpp",
-        "clangtoolruncontrol.h",
         "clangtoolrunner.cpp",
         "clangtoolrunner.h",
         "clangtools_global.h", "clangtoolstr.h",

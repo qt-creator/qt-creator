@@ -2,30 +2,30 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcukitmanager.h"
-#include "mculegacyconstants.h"
-#include "mcusupport_global.h"
-#include "mcusupportoptions.h"
 
-#include "mcukitinformation.h"
+#include "mcukitaspect.h"
+#include "mculegacyconstants.h"
 #include "mcupackage.h"
+#include "mcusupport_global.h"
 #include "mcusupportconstants.h"
+#include "mcusupportoptions.h"
 #include "mcusupportplugin.h"
 #include "mcusupportsdk.h"
 #include "mcusupporttr.h"
 #include "mcutarget.h"
 
-#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
 #include <cmakeprojectmanager/cmaketoolmanager.h>
-#include <coreplugin/icore.h>
 
 #include <debugger/debuggeritem.h>
 #include <debugger/debuggeritemmanager.h>
-#include <debugger/debuggerkitinformation.h>
+#include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
+#include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
@@ -115,15 +115,15 @@ public:
         k->makeSticky();
         if (mcuTarget->toolChainPackage()->isDesktopToolchain())
             k->setDeviceTypeForIcon(DEVICE_TYPE);
-        k->setValue(QtSupport::SuppliesQtQuickImportPath::id(), true);
+        k->setValue(QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH, true);
         // FIXME: This is treated as a pathlist in CMakeBuildSystem::updateQmlJSCodeModel
-        k->setValue(QtSupport::KitQmlImportPath::id(), (sdkPath / "include/qul").toString());
-        k->setValue(QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(), true);
+        k->setValue(QtSupport::Constants::KIT_QML_IMPORT_PATH, (sdkPath / "include/qul").toString());
+        k->setValue(QtSupport::Constants::KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS, true);
         QSet<Id> irrelevant = {
             SysRootKitAspect::id(),
-            QtSupport::SuppliesQtQuickImportPath::id(),
-            QtSupport::KitQmlImportPath::id(),
-            QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id(),
+            QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH,
+            QtSupport::Constants::KIT_QML_IMPORT_PATH,
+            QtSupport::Constants::KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS,
         };
         if (!McuSupportOptions::kitsNeedQtVersion())
             irrelevant.insert(QtSupport::QtKitAspect::id());
@@ -413,7 +413,7 @@ static FilePath kitDependencyPath(const Kit *kit, const QString &cmakeVariableNa
         if (configItem.key == keyName)
             return FilePath::fromUserInput(QString::fromUtf8(configItem.value));
     }
-    return FilePath();
+    return {};
 }
 
 // Kit Information
@@ -668,7 +668,7 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
         // Check if the MCU kits are flagged as supplying a QtQuick import path, in order
         // to tell the QMLJS code-model that it won't need to add a fall-back import
         // path.
-        const auto bringsQtQuickImportPath = QtSupport::SuppliesQtQuickImportPath::id();
+        const Id bringsQtQuickImportPath = QtSupport::Constants::FLAGS_SUPPLIES_QTQUICK_IMPORT_PATH;
         auto irrelevantAspects = kit->irrelevantAspects();
         if (!irrelevantAspects.contains(bringsQtQuickImportPath)) {
             irrelevantAspects.insert(bringsQtQuickImportPath);
@@ -679,7 +679,7 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
         }
 
         // Check if the MCU kit supplies its import path.
-        const auto kitQmlImportPath = QtSupport::KitQmlImportPath::id();
+        const Id kitQmlImportPath = QtSupport::Constants::KIT_QML_IMPORT_PATH;
         if (!irrelevantAspects.contains(kitQmlImportPath)) {
             irrelevantAspects.insert(kitQmlImportPath);
             kit->setIrrelevantAspects(irrelevantAspects);
@@ -698,7 +698,7 @@ void fixExistingKits(const SettingsHandler::Ptr &settingsHandler)
         }
 
         // Check if the MCU kit has the flag for merged header/qml-import paths set.
-        const auto mergedPaths = QtSupport::KitHasMergedHeaderPathsWithQmlImportPaths::id();
+        const Id mergedPaths = QtSupport::Constants::KIT_HAS_MERGED_HEADER_PATHS_WITH_QML_IMPORT_PATHS;
         if (!irrelevantAspects.contains(mergedPaths)) {
             irrelevantAspects.insert(mergedPaths);
             kit->setIrrelevantAspects(irrelevantAspects);

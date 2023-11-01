@@ -5,8 +5,7 @@
 
 using namespace Utils;
 
-namespace Nim {
-namespace Suggest {
+namespace Nim::Suggest {
 
 NimSuggestServer::NimSuggestServer(QObject *parent) : QObject(parent)
 {
@@ -15,20 +14,14 @@ NimSuggestServer::NimSuggestServer(QObject *parent) : QObject(parent)
             &NimSuggestServer::onStandardOutputAvailable);
 }
 
-QString NimSuggestServer::executablePath() const
+bool NimSuggestServer::start(const FilePath &executablePath, const FilePath &projectFilePath)
 {
-    return m_executablePath;
-}
-
-bool NimSuggestServer::start(const QString &executablePath,
-                             const QString &projectFilePath)
-{
-    if (!QFile::exists(executablePath)) {
+    if (!executablePath.exists()) {
         qWarning() << "NimSuggest executable path" << executablePath << "does not exist";
         return false;
     }
 
-    if (!QFile::exists(projectFilePath)) {
+    if (!projectFilePath.exists()) {
         qWarning() << "Project file" << projectFilePath << "doesn't exist";
         return false;
     }
@@ -36,7 +29,7 @@ bool NimSuggestServer::start(const QString &executablePath,
     stop();
     m_executablePath = executablePath;
     m_projectFilePath = projectFilePath;
-    m_process.setCommand({FilePath::fromString(executablePath), {"--epc", m_projectFilePath}});
+    m_process.setCommand({executablePath, {"--epc", m_projectFilePath.path()}});
     m_process.start();
     return true;
 }
@@ -50,11 +43,6 @@ void NimSuggestServer::stop()
 quint16 NimSuggestServer::port() const
 {
     return m_port;
-}
-
-QString NimSuggestServer::projectFilePath() const
-{
-    return m_projectFilePath;
 }
 
 void NimSuggestServer::onStandardOutputAvailable()
@@ -81,5 +69,4 @@ void NimSuggestServer::clearState()
     m_port = 0;
 }
 
-} // namespace Suggest
-} // namespace Nim
+} // namespace Nim::Suggest

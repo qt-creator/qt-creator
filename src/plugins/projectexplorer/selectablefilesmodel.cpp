@@ -22,6 +22,8 @@
 #include <QPushButton>
 #include <QTreeView>
 
+using namespace Utils;
+
 namespace ProjectExplorer {
 
 const char HIDE_FILE_FILTER_DEFAULT[] = "Makefile*; *.o; *.lo; *.la; *.obj; *~; *.files;"
@@ -36,7 +38,6 @@ SelectableFilesModel::SelectableFilesModel(QObject *parent) : QAbstractItemModel
 void SelectableFilesModel::setInitialMarkedFiles(const Utils::FilePaths &files)
 {
     m_files = Utils::toSet(files);
-    m_allFiles = files.isEmpty();
 }
 
 void SelectableFilesFromDirModel::startParsing(const Utils::FilePath &baseDir)
@@ -109,13 +110,18 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
     bool allUnchecked = true;
     for (const QFileInfo &fileInfo : fileInfoList) {
         Utils::FilePath fn = Utils::FilePath::fromFileInfo(fileInfo);
-        if (m_futureCount % 100) {
+        if ((m_futureCount % 100) == 0) {
             emit parsingProgress(fn);
             if (promise.isCanceled())
                 return;
         }
         ++m_futureCount;
         if (fileInfo.isDir()) {
+            if (fileInfo.isSymLink()) {
+                const FilePath target = FilePath::fromString(fileInfo.symLinkTarget());
+                if (target == baseDir || baseDir.isChildOf(target))
+                    continue;
+            }
             auto t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
@@ -129,8 +135,8 @@ void SelectableFilesFromDirModel::buildTree(const Utils::FilePath &baseDir, Tree
             auto t = new Tree;
             t->parent = tree;
             t->name = fileInfo.fileName();
-            FilterState state = filter(t);
-            t->checked = ((m_allFiles && state == FilterState::CHECKED)
+            const FilterState state = filter(t);
+            t->checked = ((m_files.isEmpty() && state == FilterState::CHECKED)
                           || m_files.contains(fn)) ? Qt::Checked : Qt::Unchecked;
             t->fullPath = fn;
             t->isDir = false;
@@ -184,12 +190,12 @@ QModelIndex SelectableFilesModel::index(int row, int column, const QModelIndex &
 QModelIndex SelectableFilesModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
-        return QModelIndex();
+        return {};
     if (!child.internalPointer())
-        return QModelIndex();
+        return {};
     auto parent = static_cast<Tree *>(child.internalPointer())->parent;
     if (!parent)
-        return QModelIndex();
+        return {};
     if (!parent->parent) //then the parent is the root
         return createIndex(0, 0, parent);
     // figure out where the parent is
@@ -202,7 +208,7 @@ QModelIndex SelectableFilesModel::parent(const QModelIndex &child) const
 QVariant SelectableFilesModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-        return QVariant();
+        return {};
     auto t = static_cast<Tree *>(index.internalPointer());
     if (role == Qt::DisplayRole)
         return t->name;
@@ -213,7 +219,7 @@ QVariant SelectableFilesModel::data(const QModelIndex &index, int role) const
             t->icon = Utils::FileIconProvider::icon(t->fullPath);
         return t->icon;
     }
-    return QVariant();
+    return {};
 }
 
 bool SelectableFilesModel::setData(const QModelIndex &index, const QVariant &value, int role)
@@ -534,7 +540,7 @@ SelectableFilesWidget::SelectableFilesWidget(QWidget *parent) :
     layout->setContentsMargins(0, 0, 0, 0);
 
     m_baseDirLabel->setText(Tr::tr("Source directory:"));
-    m_baseDirChooser->setHistoryCompleter(QLatin1String("PE.AddToProjectDir.History"));
+    m_baseDirChooser->setHistoryCompleter("PE.AddToProjectDir.History");
     m_startParsingButton->setText(Tr::tr("Start Parsing"));
     layout->addWidget(m_baseDirLabel, static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 0);
     layout->addWidget(m_baseDirChooser->lineEdit(), static_cast<int>(SelectableFilesWidgetRows::BaseDirectory), 1);
@@ -638,7 +644,7 @@ void SelectableFilesWidget::cancelParsing()
         m_model->cancel();
 }
 
-void SelectableFilesWidget::enableFilterHistoryCompletion(const QString &keyPrefix)
+void SelectableFilesWidget::enableFilterHistoryCompletion(const Key &keyPrefix)
 {
     m_selectFilesFilterEdit->setHistoryCompleter(keyPrefix + ".select", true);
     m_hideFilesFilterEdit->setHistoryCompleter(keyPrefix + ".hide", true);

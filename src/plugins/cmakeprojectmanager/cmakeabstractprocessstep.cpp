@@ -3,7 +3,7 @@
 
 #include "cmakeabstractprocessstep.h"
 
-#include "cmakekitinformation.h"
+#include "cmakekitaspect.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
 

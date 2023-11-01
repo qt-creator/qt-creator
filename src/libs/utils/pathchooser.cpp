@@ -3,6 +3,7 @@
 
 #include "pathchooser.h"
 
+#include "async.h"
 #include "commandline.h"
 #include "environment.h"
 #include "fileutils.h"
@@ -15,6 +16,7 @@
 #include "utilstr.h"
 
 #include <QFileDialog>
+#include <QFuture>
 #include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QMenu>
@@ -375,9 +377,10 @@ bool PathChooser::isReadOnly() const
 void PathChooser::setReadOnly(bool b)
 {
     d->m_lineEdit->setReadOnly(b);
+    d->m_lineEdit->setFrame(!b);
     const auto buttons = d->m_buttons;
     for (QAbstractButton *button : buttons)
-        button->setEnabled(!b);
+        button->setVisible(!b);
 }
 
 void PathChooser::slotBrowse(bool remote)
@@ -531,100 +534,73 @@ void PathChooser::setToolTip(const QString &toolTip)
     d->m_lineEdit->setToolTip(toolTip);
 }
 
-FancyLineEdit::ValidationFunction PathChooser::defaultValidationFunction() const
+static FancyLineEdit::AsyncValidationResult validatePath(FilePath filePath,
+                                                         const QString &defaultValue,
+                                                         PathChooser::Kind kind)
 {
-    return std::bind(&PathChooser::validatePath, this, std::placeholders::_1, std::placeholders::_2);
-}
-
-bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
-{
-    QString input = edit->text();
-
-    if (input.isEmpty()) {
-        if (!d->m_defaultValue.isEmpty()) {
-            input = d->m_defaultValue;
-        } else {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The path must not be empty.");
-            return false;
-        }
-    }
-
-    const FilePath filePath = d->expandedPath(FilePath::fromUserInput(input));
     if (filePath.isEmpty()) {
-        if (errorMessage)
-            *errorMessage = Tr::tr("The path \"%1\" expanded to an empty string.").arg(input);
-        return false;
+        if (!defaultValue.isEmpty()) {
+            filePath = FilePath::fromUserInput(defaultValue);
+        } else {
+            return make_unexpected(Tr::tr("The path must not be empty."));
+        }
     }
 
     // Check if existing
-    switch (d->m_acceptingKind) {
+    switch (kind) {
     case PathChooser::ExistingDirectory:
         if (!filePath.exists()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(
+                Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput()));
         }
         if (!filePath.isDir()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(
+                Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::File:
         if (!filePath.exists()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(
+                Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput()));
         }
         if (!filePath.isFile()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(
+                Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::SaveFile:
         if (!filePath.parentDir().exists()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The directory \"%1\" does not exist.").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(
+                Tr::tr("The directory \"%1\" does not exist.").arg(filePath.toUserOutput()));
         }
         if (filePath.exists() && filePath.isDir()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(
+                Tr::tr("The path \"%1\" is not a file.").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::ExistingCommand:
         if (!filePath.exists()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(
+                Tr::tr("The path \"%1\" does not exist.").arg(filePath.toUserOutput()));
         }
         if (!filePath.isExecutableFile()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The path \"%1\" is not an executable file.").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(
+                Tr::tr("The path \"%1\" is not an executable file.").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::Directory:
         if (filePath.exists() && !filePath.isDir()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(
+                Tr::tr("The path \"%1\" is not a directory.").arg(filePath.toUserOutput()));
         }
         if (filePath.osType() == OsTypeWindows && !filePath.startsWithDriveLetter()
             && !filePath.startsWith("\\\\") && !filePath.startsWith("//")) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("Invalid path \"%1\".").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(Tr::tr("Invalid path \"%1\".").arg(filePath.toUserOutput()));
         }
         break;
     case PathChooser::Command:
         if (filePath.exists() && !filePath.isExecutableFile()) {
-            if (errorMessage)
-                *errorMessage = Tr::tr("Cannot execute \"%1\".").arg(filePath.toUserOutput());
-            return false;
+            return make_unexpected(Tr::tr("Cannot execute \"%1\".").arg(filePath.toUserOutput()));
         }
         break;
 
@@ -632,9 +608,32 @@ bool PathChooser::validatePath(FancyLineEdit *edit, QString *errorMessage) const
         ;
     }
 
-    if (errorMessage)
-        *errorMessage = Tr::tr("Full path: \"%1\"").arg(filePath.toUserOutput());
-    return true;
+    return filePath.toUserOutput();
+}
+
+FancyLineEdit::AsyncValidationFunction PathChooser::defaultValidationFunction() const
+{
+    return [this](const QString &text) -> FancyLineEdit::AsyncValidationFuture {
+        if (text.isEmpty()) {
+            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(
+                make_unexpected(Tr::tr("The path must not be empty.")))));
+        }
+
+        const FilePath expanded = d->expandedPath(FilePath::fromUserInput(text));
+
+        if (expanded.isEmpty()) {
+            return QtFuture::makeReadyFuture((Utils::expected_str<QString>(
+                make_unexpected(Tr::tr("The path \"%1\" expanded to an empty string.")
+                                    .arg(expanded.toUserOutput())))));
+        }
+
+        return Utils::asyncRun(
+            [expanded,
+             defVal = d->m_defaultValue,
+             kind = d->m_acceptingKind]() -> FancyLineEdit::AsyncValidationResult {
+                return validatePath(expanded, defVal, kind);
+            });
+    };
 }
 
 void PathChooser::setValidationFunction(const FancyLineEdit::ValidationFunction &fn)
@@ -736,7 +735,7 @@ void PathChooser::installLineEditVersionToolTip(QLineEdit *le, const QStringList
     ef->setArguments(arguments);
 }
 
-void PathChooser::setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory)
+void PathChooser::setHistoryCompleter(const Key &historyKey, bool restoreLastItemFromHistory)
 {
     d->m_lineEdit->setHistoryCompleter(historyKey, restoreLastItemFromHistory);
 }

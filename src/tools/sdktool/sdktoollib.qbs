@@ -1,5 +1,3 @@
-import qbs 1.0
-
 QtcLibrary {
     name: "sdktoolLib"
 
@@ -7,7 +5,7 @@ QtcLibrary {
 
     Depends { name: "Qt.core" }
     Depends { name: "app_version_header" }
-    Depends { name: "Qt.testlib"; condition: project.withAutotests }
+    Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
 
     property string libsDir: path + "/../../libs"
 
@@ -19,7 +17,7 @@ QtcLibrary {
                 ? 'DATA_PATH="."'
                 : qbs.targetOS.contains("windows") ? 'DATA_PATH="../share/qtcreator"'
                                                    : 'DATA_PATH="../../share/qtcreator"');
-        if (project.withAutotests)
+        if (qtc.withPluginTests)
             defines.push("WITH_TESTS");
         return defines;
     }
@@ -27,7 +25,7 @@ QtcLibrary {
         var libs = [];
         if (qbs.targetOS.contains("windows"))
             libs.push("user32", "shell32");
-        if (qbs.toolchainType === "msvc")
+        if (qbs.toolchain.contains("msvc"))
             libs.push("dbghelp");
         return libs;
     }

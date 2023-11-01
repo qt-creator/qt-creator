@@ -14,17 +14,15 @@ function(extend_valgrind_test targetName)
       callgrind/callgrindparser.h callgrind/callgrindparser.cpp
       callgrind/callgrindproxymodel.h callgrind/callgrindproxymodel.cpp
       callgrind/callgrindstackbrowser.h callgrind/callgrindstackbrowser.cpp
-      valgrindrunner.h valgrindrunner.cpp
+      valgrindprocess.h valgrindprocess.cpp
       xmlprotocol/announcethread.h xmlprotocol/announcethread.cpp
       xmlprotocol/error.h xmlprotocol/error.cpp
       xmlprotocol/errorlistmodel.h xmlprotocol/errorlistmodel.cpp
       xmlprotocol/frame.h xmlprotocol/frame.cpp
-      xmlprotocol/modelhelpers.h xmlprotocol/modelhelpers.cpp
       xmlprotocol/parser.h xmlprotocol/parser.cpp
       xmlprotocol/stack.h xmlprotocol/stack.cpp
       xmlprotocol/stackmodel.h xmlprotocol/stackmodel.cpp
       xmlprotocol/status.h xmlprotocol/status.cpp
       xmlprotocol/suppression.h xmlprotocol/suppression.cpp
-      xmlprotocol/threadedparser.h xmlprotocol/threadedparser.cpp
   )
 endfunction()

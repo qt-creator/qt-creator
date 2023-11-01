@@ -1,0 +1,37 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [],
+    "id": "QTCE.CppSource",
+    "category": "U.CompilerExplorer",
+    "trDescription": "Creates an example CompilerExplorer setup for C++.",
+    "trDisplayName": "Compiler Explorer C++ Source",
+    "trDisplayCategory": "Compiler Explorer",
+    "icon": ":/compilerexplorer/logos/ce.ico",
+    "iconKind": "Plain",
+    "options": {
+        "key": "DefaultSuffix",
+        "value": "%{JS: Util.preferredSuffix('application/compiler-explorer')}"
+    },
+    "pages": [
+        {
+            "trDisplayName": "Location",
+            "trShortTitle": "Location",
+            "typeId": "File"
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators": [
+        {
+            "typeId": "File",
+            "data": {
+                "source": "file.qtce",
+                "target": "%{JS: Util.fileName(value('TargetPath'), value('DefaultSuffix'))}",
+                "openInEditor": true
+            }
+        }
+    ]
+}

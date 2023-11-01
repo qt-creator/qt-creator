@@ -25,7 +25,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/kit.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 #include <qtsupport/qtversionmanager.h>
 #include <coreplugin/icore.h>
@@ -346,10 +346,7 @@ void DesignDocument::updateFileName(const Utils::FilePath & /*oldFileName*/, con
 
 Utils::FilePath DesignDocument::fileName() const
 {
-    if (editor())
-        return editor()->document()->filePath();
-
-    return Utils::FilePath();
+    return editor() ? editor()->document()->filePath() : Utils::FilePath();
 }
 
 ProjectExplorer::Target *DesignDocument::currentTarget() const

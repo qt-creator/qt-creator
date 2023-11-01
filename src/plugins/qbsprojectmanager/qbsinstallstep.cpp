@@ -8,12 +8,9 @@
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
+#include "qbsrequest.h"
 #include "qbssession.h"
 
-#include <coreplugin/icore.h>
-#include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/kit.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -25,81 +22,68 @@
 #include <QPlainTextEdit>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
-namespace QbsProjectManager {
-namespace Internal {
-
-// --------------------------------------------------------------------
-// Constants:
-// --------------------------------------------------------------------
-
-const char QBS_REMOVE_FIRST[] = "Qbs.RemoveFirst";
-const char QBS_DRY_RUN[] = "Qbs.DryRun";
-const char QBS_KEEP_GOING[] = "Qbs.DryKeepGoing";
+namespace QbsProjectManager::Internal {
 
 // --------------------------------------------------------------------
 // QbsInstallStep:
 // --------------------------------------------------------------------
 
-QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Utils::Id id)
+QbsInstallStep::QbsInstallStep(BuildStepList *bsl, Id id)
     : BuildStep(bsl, id)
 {
     setDisplayName(Tr::tr("Qbs Install"));
     setSummaryText(Tr::tr("<b>Qbs:</b> %1").arg("install"));
 
     const auto labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
-    m_dryRun = addAspect<BoolAspect>();
-    m_dryRun->setSettingsKey(QBS_DRY_RUN);
-    m_dryRun->setLabel(Tr::tr("Dry run"), labelPlacement);
+    dryRun.setSettingsKey("Qbs.DryRun");
+    dryRun.setLabel(Tr::tr("Dry run"), labelPlacement);
 
-    m_keepGoing = addAspect<BoolAspect>();
-    m_keepGoing->setSettingsKey(QBS_KEEP_GOING);
-    m_keepGoing->setLabel(Tr::tr("Keep going"), labelPlacement);
+    keepGoing.setSettingsKey("Qbs.DryKeepGoing");
+    keepGoing.setLabel(Tr::tr("Keep going"), labelPlacement);
 
-    m_cleanInstallRoot = addAspect<BoolAspect>();
-    m_cleanInstallRoot->setSettingsKey(QBS_REMOVE_FIRST);
-    m_cleanInstallRoot->setLabel(Tr::tr("Remove first"), labelPlacement);
-}
-
-QbsInstallStep::~QbsInstallStep()
-{
-    doCancel();
-    if (m_session)
-        m_session->disconnect(this);
+    cleanInstallRoot.setSettingsKey("Qbs.RemoveFirst");
+    cleanInstallRoot.setLabel(Tr::tr("Remove first"), labelPlacement);
 }
 
 bool QbsInstallStep::init()
 {
-    QTC_ASSERT(!target()->buildSystem()->isParsing() && !m_session, return false);
+    QTC_ASSERT(!target()->buildSystem()->isParsing(), return false);
     return true;
 }
 
-void QbsInstallStep::doRun()
+GroupItem QbsInstallStep::runRecipe()
 {
-    m_session = static_cast<QbsBuildSystem *>(target()->buildSystem())->session();
+    const auto onSetup = [this](QbsRequest &request) {
+        QbsSession *session = static_cast<QbsBuildSystem*>(buildSystem())->session();
+        if (!session) {
+            emit addOutput(Tr::tr("No qbs session exists for this target."),
+                           OutputFormat::ErrorMessage);
+            return SetupResult::StopWithError;
+        }
+        QJsonObject requestData;
+        requestData.insert("type", "install-project");
+        requestData.insert("install-root", installRoot().path());
+        requestData.insert("clean-install-root", cleanInstallRoot());
+        requestData.insert("keep-going", keepGoing());
+        requestData.insert("dry-run", dryRun());
 
-    QJsonObject request;
-    request.insert("type", "install-project");
-    request.insert("install-root", installRoot().path());
-    request.insert("clean-install-root", m_cleanInstallRoot->value());
-    request.insert("keep-going", m_keepGoing->value());
-    request.insert("dry-run", m_dryRun->value());
-    m_session->sendRequest(request);
+        request.setSession(session);
+        request.setRequestData(requestData);
+        connect(&request, &QbsRequest::progressChanged, this, &BuildStep::progress);
+        connect(&request, &QbsRequest::outputAdded, this,
+                [this](const QString &output, OutputFormat format) {
+            emit addOutput(output, format);
+        });
+        connect(&request, &QbsRequest::taskAdded, this, [this](const Task &task) {
+            emit addTask(task, 1);
+        });
+        return SetupResult::Continue;
+    };
 
-    m_maxProgress = 0;
-    connect(m_session, &QbsSession::projectInstalled, this, &QbsInstallStep::installDone);
-    connect(m_session, &QbsSession::taskStarted, this, &QbsInstallStep::handleTaskStarted);
-    connect(m_session, &QbsSession::taskProgress, this, &QbsInstallStep::handleProgress);
-    connect(m_session, &QbsSession::errorOccurred, this, [this] {
-        installDone(ErrorInfo(Tr::tr("Installing canceled: Qbs session failed.")));
-    });
-}
-
-void QbsInstallStep::doCancel()
-{
-    if (m_session)
-        m_session->cancelCurrentJob();
+    return QbsRequestTask(onSetup);
 }
 
 FilePath QbsInstallStep::installRoot() const
@@ -111,51 +95,6 @@ FilePath QbsInstallStep::installRoot() const
 const QbsBuildConfiguration *QbsInstallStep::buildConfig() const
 {
     return static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration());
-}
-
-void QbsInstallStep::installDone(const ErrorInfo &error)
-{
-    m_session->disconnect(this);
-    m_session = nullptr;
-
-    for (const ErrorInfoItem &item : error.items)
-        createTaskAndOutput(Task::Error, item.description, item.filePath, item.line);
-
-    emit finished(!error.hasError());
-}
-
-void QbsInstallStep::handleTaskStarted(const QString &desciption, int max)
-{
-    m_description = desciption;
-    m_maxProgress = max;
-}
-
-void QbsInstallStep::handleProgress(int value)
-{
-    if (m_maxProgress > 0)
-        emit progress(value * 100 / m_maxProgress, m_description);
-}
-
-void QbsInstallStep::createTaskAndOutput(Task::TaskType type, const QString &message,
-                                         const Utils::FilePath &file, int line)
-{
-    emit addOutput(message, OutputFormat::Stdout);
-    emit addTask(CompileTask(type, message, file, line), 1);
-}
-
-QbsBuildStepData QbsInstallStep::stepData() const
-{
-    QbsBuildStepData data;
-    data.command = "install";
-    data.dryRun = m_dryRun->value();
-    data.keepGoing = m_keepGoing->value();
-    data.noBuild = true;
-    data.cleanInstallRoot = m_cleanInstallRoot->value();
-    data.isInstallStep = true;
-    auto bs = static_cast<QbsBuildConfiguration *>(target()->activeBuildConfiguration())->qbsStep();
-    if (bs)
-        data.installRoot = bs->installRoot();
-    return data;
 }
 
 QWidget *QbsInstallStep::createConfigWidget()
@@ -175,29 +114,32 @@ QWidget *QbsInstallStep::createConfigWidget()
     using namespace Layouting;
     Form {
         Tr::tr("Install root:"), installRootValueLabel, br,
-        Tr::tr("Flags:"),  m_dryRun, m_keepGoing, m_cleanInstallRoot, br,
+        Tr::tr("Flags:"), dryRun, keepGoing, cleanInstallRoot, br,
         commandLineKeyLabel, commandLineTextEdit
      }.attachTo(widget);
 
     const auto updateState = [this, commandLineTextEdit, installRootValueLabel] {
         installRootValueLabel->setText(installRoot().toUserOutput());
-        commandLineTextEdit->setPlainText(buildConfig()->equivalentCommandLine(stepData()));
+        QbsBuildStepData data;
+        data.command = "install";
+        data.dryRun = dryRun();
+        data.keepGoing = keepGoing();
+        data.noBuild = true;
+        data.cleanInstallRoot = cleanInstallRoot();
+        data.isInstallStep = true;
+        data.installRoot = installRoot();
+        commandLineTextEdit->setPlainText(buildConfig()->equivalentCommandLine(data));
     };
 
     connect(target(), &Target::parsingFinished, this, updateState);
+    connect(buildConfig(), &QbsBuildConfiguration::qbsConfigurationChanged, this, updateState);
     connect(this, &ProjectConfiguration::displayNameChanged, this, updateState);
 
-    connect(m_dryRun, &BoolAspect::changed, this, updateState);
-    connect(m_keepGoing, &BoolAspect::changed, this, updateState);
-    connect(m_cleanInstallRoot, &BoolAspect::changed, this, updateState);
-
-    const QbsBuildConfiguration * const bc = buildConfig();
-    connect(bc, &QbsBuildConfiguration::qbsConfigurationChanged, this, updateState);
-    if (bc->qbsStep())
-        connect(bc->qbsStep(), &QbsBuildStep::qbsBuildOptionsChanged, this, updateState);
+    connect(&dryRun, &BaseAspect::changed, this, updateState);
+    connect(&keepGoing, &BaseAspect::changed, this, updateState);
+    connect(&cleanInstallRoot, &BaseAspect::changed, this, updateState);
 
     updateState();
-
     return widget;
 }
 
@@ -214,5 +156,4 @@ QbsInstallStepFactory::QbsInstallStepFactory()
     setDisplayName(Tr::tr("Qbs Install"));
 }
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

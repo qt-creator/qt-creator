@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/ioutputpane.h>
+#include "../ioutputpane.h"
 
 #include <utils/searchresultitem.h>
 
@@ -43,7 +43,8 @@ class CORE_EXPORT SearchResult : public QObject
 
 public:
     enum AddMode {
-        AddSorted,
+        AddSortedByContent,
+        AddSortedByPosition,
         AddOrdered
     };
 
@@ -57,6 +58,7 @@ public:
     void setAdditionalReplaceWidget(QWidget *widget);
     void makeNonInteractive(const std::function<void()> &callback);
     bool isInteractive() const { return !m_finishedHandler; }
+    Utils::SearchResultItems allItems() const;
 
 public slots:
     void addResult(const Utils::SearchResultItem &item);
@@ -79,7 +81,6 @@ signals:
     void visibilityChanged(bool visible);
     void countChanged(int count);
     void searchAgainRequested();
-    void requestEnabledCheck();
 
 private:
     SearchResult(Internal::SearchResultWidget *widget);
@@ -113,8 +114,6 @@ public:
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget*> toolBarWidgets() const override;
 
-    QString displayName() const override;
-    int priorityInStatusBar() const override;
     void visibilityChanged(bool visible) override;
     bool hasFocus() const override;
     bool canFocus() const override;

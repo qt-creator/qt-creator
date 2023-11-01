@@ -47,7 +47,8 @@
     located in \c {<Qt_version>\<compiler>\bin} in the Qt installation
     directory. It fetches plugins from the \c {\plugins\designer} subdirectory
     of \c bin. To check which plugins were loaded successfully and which failed,
-    choose \uicontrol Help > \uicontrol {About Plugins}.
+    choose \uicontrol Help > \uicontrol {About Plugins} on Linux and Windows
+    (or \uicontrol {\QC} > \uicontrol {About Plugins} on \macos).
 
     \section1 Matching Build Keys
 

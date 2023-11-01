@@ -5,8 +5,7 @@
 
 #include <QAbstractItemModel>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class Error;
 
@@ -51,5 +50,4 @@ private:
     Private *const d;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

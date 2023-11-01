@@ -64,6 +64,7 @@ public:
 
     static QObject *getObjectByName(const QString &name);
 
+    static void startProfiling();
     // Plugin operations
     static QVector<PluginSpec *> loadQueue();
     static void loadPlugins();
@@ -83,7 +84,7 @@ public:
     // Settings
     static void setSettings(Utils::QtcSettings *settings);
     static Utils::QtcSettings *settings();
-    static void setGlobalSettings(Utils::QtcSettings *settings);
+    static void setInstallSettings(Utils::QtcSettings *settings);
     static Utils::QtcSettings *globalSettings();
     static void writeSettings();
 
@@ -123,8 +124,6 @@ public:
 
     static void setCreatorProcessData(const ProcessData &data);
     static ProcessData creatorProcessData();
-
-    static void profilingReport(const char *what, const PluginSpec *spec = nullptr);
 
     static QString platformName();
 

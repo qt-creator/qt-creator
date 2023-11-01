@@ -21,19 +21,21 @@ def handlePackagingMessageBoxes():
 
 def openExample(examplesLineEdit, input, exampleRegex, exampleName, waitForChildCount=0):
     replaceEditorContent(examplesLineEdit, input)
-    listView = waitForObject("{type='QListView' unnamed='1' visible='1' "
+    listView = waitForObject("{type='QListView' name='AllItemsView' visible='1' "
                               "window=':Qt Creator_Core::Internal::MainWindow'}")
+    filterModel = __childrenOfType__(listView, 'QSortFilterProxyModel')
+    if len(filterModel) != 1:
+        test.fatal("Failed to find filter proxy model.")
+        return None
+
+    filterModel = filterModel[0]
     if waitForChildCount > 0:
-
-        def childCount(view):
-            return len(__childrenOfType__(view, 'QModelIndex'))
-
-        waitFor("childCount(listView) == waitForChildCount", 3000)
+        waitFor("filterModel.rowCount() == waitForChildCount", 3000)
 
     waitFor('findExampleOrTutorial(listView, exampleRegex) is not None', 3000)
     example = findExampleOrTutorial(listView, exampleRegex, True)
     if test.verify(example is not None, "Verifying: Example (%s) is shown." % exampleName):
-        mouseClick(example)
+        mouseClick(waitForObjectItem(listView, str(example.text)))
         handlePackagingMessageBoxes()
         helpWidget = waitForObject(":Help Widget_Help::Internal::HelpWidget")
         test.verify(waitFor('exampleName in str(helpWidget.windowTitle)', 5000),
@@ -74,7 +76,7 @@ def main():
     combo = waitForObject(search % (expect[2][0], expect[2][1]))
     test.log("Using examples from Kit %s." % str(combo.currentText))
     replaceEditorContent(examplesLineEdit, "qwerty")
-    listView = waitForObject(search % (expect[0][0], expect[0][1]))
+    listView = waitForObject("{type='QListView' name='AllItemsView'}")
     waitFor('findExampleOrTutorial(listView, ".*") is None', 3000)
     example = findExampleOrTutorial(listView, ".*", True)
     test.verify(example is None, "Verifying: No example is shown.")

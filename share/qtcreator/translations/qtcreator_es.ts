@@ -85,7 +85,7 @@
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Agregar marcador</translation>
@@ -129,10 +129,6 @@
     <message>
         <source>You are going to delete a Folder which will also&lt;br&gt;remove its content. Are you sure you would like to continue?</source>
         <translation>Se dispone a eliminar un directorio y todo su contenido. ¿Está seguro?</translation>
-    </message>
-    <message>
-        <source>New Folder</source>
-        <translation>Nuevo directorio</translation>
     </message>
     <message>
         <source>Show Bookmark</source>
@@ -9375,10 +9371,6 @@ The following encodings are likely to fit:</source>
     <message>
         <source>Copy...</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Delete</source>
-        <translation type="unfinished">Suprimir</translation>
     </message>
     <message>
         <source>Line in current document</source>

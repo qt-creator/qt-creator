@@ -8,7 +8,7 @@
 #include "quicktest_utils.h"
 #include "../testcodeparser.h"
 #include "../testtreemodel.h"
-#include "../qtest/qttestsettings.h"
+#include "../qtest/qttestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
@@ -28,8 +28,7 @@
 using namespace QmlJS;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 TestTreeItem *QuickTestParseResult::createTestTreeItem() const
 {
@@ -82,9 +81,10 @@ static bool includesQtQuickTest(const CPlusPlus::Document::Ptr &doc,
     return false;
 }
 
-static QString quickTestSrcDir(const CppEditor::CppModelManager *cppMM, const FilePath &fileName)
+static QString quickTestSrcDir(const FilePath &fileName)
 {
-    const QList<CppEditor::ProjectPart::ConstPtr> parts = cppMM->projectPart(fileName);
+    const QList<CppEditor::ProjectPart::ConstPtr> parts =
+        CppEditor::CppModelManager::projectPart(fileName);
     if (parts.size() > 0) {
         const ProjectExplorer::Macros &macros = parts.at(0)->projectMacros;
         auto found = std::find_if(macros.cbegin(), macros.cend(),
@@ -127,7 +127,7 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
         return {};
     document->check();
     CPlusPlus::AST *ast = document->translationUnit()->ast();
-    QuickTestAstVisitor astVisitor(document, m_cppSnapshot);
+    QuickTestAstVisitor astVisitor(document);
     astVisitor.accept(ast);
     if (!astVisitor.testBaseName().isEmpty())
         return astVisitor.testBaseName();
@@ -252,17 +252,20 @@ bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
                                         CPlusPlus::Document::Ptr document,
                                         ITestFramework *framework)
 {
-    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     if (quickTestName(document).isEmpty())
         return false;
 
-    QList<CppEditor::ProjectPart::ConstPtr> ppList = modelManager->projectPart(document->filePath());
+    QList<CppEditor::ProjectPart::ConstPtr> ppList =
+        CppEditor::CppModelManager::projectPart(document->filePath());
     if (ppList.isEmpty()) // happens if shutting down while parsing
         return false;
     const FilePath cppFileName = document->filePath();
     const FilePath proFile = FilePath::fromString(ppList.at(0)->projectFile);
-    m_mainCppFiles.insert(cppFileName, proFile);
-    const FilePath srcDir = FilePath::fromString(quickTestSrcDir(modelManager, cppFileName));
+    {
+        QWriteLocker lock(&m_parseLock);
+        m_mainCppFiles.insert(cppFileName, proFile);
+    }
+    const FilePath srcDir = FilePath::fromString(quickTestSrcDir(cppFileName));
     if (srcDir.isEmpty())
         return false;
 
@@ -340,13 +343,13 @@ QuickTestParser::QuickTestParser(ITestFramework *framework)
 void QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
 {
     m_qmlSnapshot = QmlJSTools::Internal::ModelManager::instance()->snapshot();
+    QWriteLocker lock(&m_parseLock); // should not be necessary
     if (!fullParse) {
         // in a full parse we get the correct entry points by the respective main
         m_proFilesForQmlFiles = QuickTestUtils::proFilesForQmlFiles(framework(), filesToParse);
         // get rid of cached main cpp files that are going to get processed anyhow
         for (const FilePath &file : filesToParse) {
-            if (m_mainCppFiles.contains(file)) {
-                m_mainCppFiles.remove(file);
+            if (m_mainCppFiles.remove(file) == 1) {
                 if (m_mainCppFiles.isEmpty())
                     break;
             }
@@ -355,9 +358,14 @@ void QuickTestParser::init(const QSet<FilePath> &filesToParse, bool fullParse)
         // get rid of all cached main cpp files
         m_mainCppFiles.clear();
     }
+    lock.unlock();
 
-    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
-    m_checkForDerivedTests = qtSettings->quickCheckForDerivedTests.value();
+    m_checkForDerivedTests = theQtTestFramework().quickCheckForDerivedTests();
+
+    if (std::optional<QSet<Utils::FilePath>> prefiltered = filesContainingMacro("QT_QMLTEST_LIB"))
+        m_prefilteredFiles = prefiltered->intersect(filesToParse);
+    else
+        m_prefilteredFiles = filesToParse;
 
     CppParser::init(filesToParse, fullParse);
 }
@@ -366,6 +374,7 @@ void QuickTestParser::release()
 {
     m_qmlSnapshot = Snapshot();
     m_proFilesForQmlFiles.clear();
+    m_prefilteredFiles.clear();
     CppParser::release();
 }
 
@@ -384,6 +393,9 @@ bool QuickTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
                                                 m_checkForDerivedTests);
     }
 
+    if (!m_prefilteredFiles.contains(fileName))
+        return false;
+
    CPlusPlus::Document::Ptr cppdoc = document(fileName);
    if (cppdoc.isNull() || !includesQtQuickTest(cppdoc, m_cppSnapshot))
        return false;
@@ -391,10 +403,10 @@ bool QuickTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
    return handleQtQuickTest(promise, cppdoc, framework());
 }
 
-FilePath QuickTestParser::projectFileForMainCppFile(const FilePath &fileName) const
+FilePath QuickTestParser::projectFileForMainCppFile(const FilePath &fileName)
 {
-    return m_mainCppFiles.contains(fileName) ? m_mainCppFiles.value(fileName) : FilePath();
+    QReadLocker lock(&m_parseLock);
+    return m_mainCppFiles.value(fileName);
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

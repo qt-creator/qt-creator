@@ -68,9 +68,11 @@ signals:
     void capabilitiesUpdated(const QString &clientName);
 
 private:
+    void onInspectorClosed();
+
     QMap<QString, std::list<LspLogMessage>> m_logs;
     QMap<QString, Capabilities> m_capabilities;
-    QPointer<QWidget> m_currentWidget;
+    QWidget *m_currentWidget = nullptr;
     int m_logSize = 100; // default log size if no widget is currently visible
 };
 

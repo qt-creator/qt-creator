@@ -3,7 +3,7 @@
 
 #include "configurationpanel.h"
 
-#include "abstractsettings.h"
+#include "beautifiertool.h"
 #include "beautifiertr.h"
 #include "configurationdialog.h"
 

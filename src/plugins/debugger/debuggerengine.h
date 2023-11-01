@@ -13,11 +13,13 @@
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/devicesupport/idevicefwd.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <texteditor/textmark.h>
 
 #include <utils/filepath.h>
+#include <utils/outputformat.h>
+#include <utils/processhandle.h>
+#include <utils/processinterface.h>
 
 QT_BEGIN_NAMESPACE
 class QDebug;
@@ -99,7 +101,7 @@ public:
     DebuggerStartMode startMode = NoStartMode;
     DebuggerCloseMode closeMode = KillAtClose;
 
-    ProjectExplorer::Runnable inferior;
+    Utils::ProcessRunData inferior;
     QString displayName; // Used in the Snapshots view.
     Utils::ProcessHandle attachPID;
     Utils::FilePaths solibSearchPath;
@@ -144,6 +146,7 @@ public:
     QString additionalStartupCommands;
 
     DebuggerEngineType cppEngineType = NoEngineType;
+    QString version;
 
     bool isQmlDebugging = false;
     bool breakOnMain = false;
@@ -151,7 +154,7 @@ public:
     bool useTerminal = false;
     bool runAsRoot = false;
 
-    ProjectExplorer::Runnable debugger;
+    Utils::ProcessRunData debugger;
     Utils::FilePath overrideStartScript; // Used in attach to core and remote debugging
     QString startMessage; // First status message shown.
     Utils::FilePath debugInfoLocation; // Gdb "set-debug-file-directory".
@@ -287,6 +290,8 @@ public:
 
     virtual bool canHandleToolTip(const DebuggerToolTipContext &) const;
     virtual void expandItem(const QString &iname); // Called when item in tree gets expanded.
+    virtual void reexpandItems(
+        const QSet<QString> &inames); // Called when items in tree need to be reexpanded.
     virtual void updateItem(const QString &iname); // Called for fresh watch items.
     void updateWatchData(const QString &iname); // FIXME: Merge with above.
     virtual void selectWatchData(const QString &iname);
@@ -449,6 +454,7 @@ public:
     void updateLocalsWindow(bool showReturn);
     void raiseWatchersWindow();
     QString debuggerName() const;
+    QString debuggerType() const;
 
     bool isRegistersWindowVisible() const;
     bool isPeripheralRegistersWindowVisible() const;
@@ -491,6 +497,7 @@ public:
 
 protected:
     void setDebuggerName(const QString &name);
+    void setDebuggerType(const QString &type);
     void notifyDebuggerProcessFinished(const Utils::ProcessResultData &resultData,
                                        const QString &backendName);
 

@@ -3,7 +3,6 @@
 
 #include "suiteconf.h"
 
-#include "squishplugin.h"
 #include "squishsettings.h"
 
 #include <coreplugin/documentmanager.h>
@@ -314,7 +313,7 @@ bool SuiteConf::ensureObjectMapExists() const
         return objectMap.parentDir().ensureWritableDir() && objectMap.ensureExistingFile();
     }
 
-    const Utils::FilePath scripts = SquishPlugin::squishSettings()->scriptsPath(language());
+    const Utils::FilePath scripts = settings().scriptsPath(language());
     QTC_ASSERT(scripts.exists(), return false);
 
     const QString extension = scriptExtension();
@@ -324,9 +323,9 @@ bool SuiteConf::ensureObjectMapExists() const
         return true;
 
     const Utils::FilePath objectMap = scripts.pathAppended("objectmap_template" + extension);
-    bool ok = destinationObjectMap.parentDir().ensureWritableDir();
-    QTC_ASSERT(ok, return false);
-    const Utils::expected_str<void> result = objectMap.copyFile(destinationObjectMap);
+    Utils::expected_str<void> result = destinationObjectMap.parentDir().ensureWritableDir();
+    QTC_ASSERT_EXPECTED(result, return false);
+    result = objectMap.copyFile(destinationObjectMap);
     QTC_ASSERT_EXPECTED(result, return false);
     return true;
 }

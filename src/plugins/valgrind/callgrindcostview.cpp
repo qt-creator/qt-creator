@@ -3,22 +3,15 @@
 
 #include "callgrindcostview.h"
 
+#include "callgrind/callgrinddatamodel.h"
+#include "callgrind/callgrindcallmodel.h"
 #include "callgrindnamedelegate.h"
 
-#include <valgrind/callgrind/callgrindabstractmodel.h>
-#include <valgrind/callgrind/callgrinddatamodel.h>
-#include <valgrind/callgrind/callgrindfunction.h>
-#include <valgrind/callgrind/callgrindcallmodel.h>
-
 #include <QAbstractProxyModel>
-#include <QContextMenuEvent>
-#include <QMenu>
-#include <QDebug>
 
 using namespace Valgrind::Callgrind;
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 CostView::CostView(QWidget *parent)
     : Utils::BaseTreeView(parent)
@@ -72,5 +65,4 @@ CostDelegate::CostFormat CostView::costFormat() const
     return m_costDelegate->format();
 }
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

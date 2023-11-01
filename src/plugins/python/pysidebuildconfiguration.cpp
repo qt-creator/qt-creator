@@ -15,6 +15,7 @@
 #include <projectexplorer/target.h>
 
 #include <utils/commandline.h>
+#include <utils/process.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -42,7 +43,7 @@ PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
 
     const FilePath pySideProjectPath = FilePath("pyside6-project").searchInPath();
     if (pySideProjectPath.isExecutableFile())
-        m_pysideProject.setFilePath(pySideProjectPath);
+        m_pysideProject.setValue(pySideProjectPath);
 
     setCommandLineProvider([this] { return CommandLine(m_pysideProject(), {"build"}); });
     setWorkingDirectoryProvider([this] {
@@ -55,17 +56,21 @@ PySideBuildStep::PySideBuildStep(BuildStepList *bsl, Id id)
 
 void PySideBuildStep::updatePySideProjectPath(const FilePath &pySideProjectPath)
 {
-    m_pysideProject.setFilePath(pySideProjectPath);
+    m_pysideProject.setValue(pySideProjectPath);
 }
 
-void PySideBuildStep::doRun()
+Tasking::GroupItem PySideBuildStep::runRecipe()
 {
-    if (processParameters()->effectiveCommand().isExecutableFile())
-        AbstractProcessStep::doRun();
-    else
-        emit finished(true);
-}
+    using namespace Tasking;
 
+    const auto onSetup = [this] {
+        if (!processParameters()->effectiveCommand().isExecutableFile())
+            return SetupResult::StopWithDone;
+        return SetupResult::Continue;
+    };
+
+    return Group { onGroupSetup(onSetup), defaultProcessTask() };
+}
 
 // PySideBuildConfiguration
 

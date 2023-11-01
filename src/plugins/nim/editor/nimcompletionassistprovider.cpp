@@ -40,8 +40,6 @@ bool isActivationChar(QChar c)
 
 class NimCompletionAssistProcessor : public QObject, public TextEditor::IAssistProcessor
 {
-    Q_OBJECT
-
 public:
     TextEditor::IAssistProposal *perform() final
     {
@@ -132,7 +130,7 @@ private:
 
     static Suggest::NimSuggest *nimSuggestInstance(const AssistInterface *interface)
     {
-        return Nim::Suggest::NimSuggestCache::instance().get(interface->filePath());
+        return Suggest::getFromCache(interface->filePath());
     }
 
     static std::shared_ptr<Suggest::NimSuggestClientRequest> sendRequest(const AssistInterface *interface,
@@ -156,7 +154,7 @@ private:
         return result;
     }
 
-    static AssistProposalItemInterface *createProposal(const Nim::Suggest::Line &line)
+    static AssistProposalItemInterface *createProposal(const Suggest::Line &line)
     {
         auto item = new AssistProposalItem();
         item->setIcon(Utils::CodeModelIcon::iconForType(symbolIcon(line.symbol_kind)));
@@ -249,5 +247,3 @@ bool NimCompletionAssistProvider::isActivationCharSequence(const QString &sequen
 }
 
 }
-
-#include "nimcompletionassistprovider.moc"

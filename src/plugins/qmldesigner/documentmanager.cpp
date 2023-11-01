@@ -361,19 +361,19 @@ QStringList DocumentManager::isoIconsQmakeVariableValue(const QString &proPath)
     ProjectExplorer::Node *node = ProjectExplorer::ProjectTree::nodeForFile(Utils::FilePath::fromString(proPath));
     if (!node) {
         qCWarning(documentManagerLog) << "No node for .pro:" << proPath;
-        return QStringList();
+        return {};
     }
 
     ProjectExplorer::Node *parentNode = node->parentFolderNode();
     if (!parentNode) {
         qCWarning(documentManagerLog) << "No parent node for node at" << proPath;
-        return QStringList();
+        return {};
     }
 
     auto proNode = dynamic_cast<QmakeProjectManager::QmakeProFileNode*>(parentNode);
     if (!proNode) {
         qCWarning(documentManagerLog) << "Parent node for node at" << proPath << "could not be converted to a QmakeProFileNode";
-        return QStringList();
+        return {};
     }
 
     return proNode->variableValue(QmakeProjectManager::Variable::IsoIcons);

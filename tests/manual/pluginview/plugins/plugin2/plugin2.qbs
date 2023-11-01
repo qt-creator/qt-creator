@@ -1,6 +1,6 @@
 import qbs.FileInfo
 
-QtcManualtest {
+QtcManualTest {
     name: "Manual test plugin2"
     targetName: "plugin2"
     type: [ "dynamiclibrary" ]

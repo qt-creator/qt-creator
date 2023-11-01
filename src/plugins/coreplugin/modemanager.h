@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
+#include "core_global.h"
 
 #include <utils/id.h>
 
@@ -15,11 +15,12 @@ QT_END_NAMESPACE
 
 namespace Core {
 
+class ICore;
 class IMode;
 
 namespace Internal {
-    class MainWindow;
-    class FancyTabWidget;
+class FancyTabWidget;
+class ICorePrivate;
 }
 
 class CORE_EXPORT ModeManager : public QObject
@@ -47,7 +48,6 @@ public:
 
     static void removeMode(IMode *mode);
 
-public slots:
     static void setModeStyle(Style layout);
     static void cycleModeStyle();
 
@@ -58,7 +58,7 @@ signals:
     void currentModeChanged(Utils::Id mode, Utils::Id oldMode = {});
 
 private:
-    explicit ModeManager(Internal::MainWindow *mainWindow, Internal::FancyTabWidget *modeStack);
+    explicit ModeManager(Internal::FancyTabWidget *modeStack);
     ~ModeManager() override;
 
     static void extensionsInitialized();
@@ -67,8 +67,9 @@ private:
     void currentTabAboutToChange(int index);
     void currentTabChanged(int index);
 
+    friend class ICore;
     friend class IMode;
-    friend class Core::Internal::MainWindow;
+    friend class Internal::ICorePrivate;
 };
 
 } // namespace Core

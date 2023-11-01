@@ -5,13 +5,14 @@
 
 #include "buildaspects.h"
 #include "buildinfo.h"
+#include "buildpropertiessettings.h"
 #include "buildsteplist.h"
 #include "buildstepspage.h"
 #include "buildsystem.h"
 #include "customparser.h"
 #include "environmentwidget.h"
 #include "kit.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "namedwidget.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
@@ -114,7 +115,7 @@ public:
         const auto selectionWidget = new CustomParsersSelectionWidget(this);
         layout->addWidget(selectionWidget);
 
-        connect(selectionWidget, &CustomParsersSelectionWidget::selectionChanged,
+        connect(selectionWidget, &CustomParsersSelectionWidget::selectionChanged, this,
                 [selectionWidget, bc] {
             bc->setCustomParsers(selectionWidget->selectedParsers());
         });
@@ -127,16 +128,18 @@ class BuildConfigurationPrivate
 {
 public:
     BuildConfigurationPrivate(BuildConfiguration *bc)
-        : m_buildSteps(bc, Constants::BUILDSTEPS_BUILD),
-          m_cleanSteps(bc, Constants::BUILDSTEPS_CLEAN)
+        : m_buildSteps(bc, Constants::BUILDSTEPS_BUILD)
+        , m_cleanSteps(bc, Constants::BUILDSTEPS_CLEAN)
+        , m_buildDirectoryAspect(bc, bc)
+        , m_tooltipAspect(bc)
     {}
 
     bool m_clearSystemEnvironment = false;
     EnvironmentItems m_userEnvironmentChanges;
     BuildStepList m_buildSteps;
     BuildStepList m_cleanSteps;
-    BuildDirectoryAspect *m_buildDirectoryAspect = nullptr;
-    StringAspect *m_tooltipAspect = nullptr;
+    BuildDirectoryAspect m_buildDirectoryAspect;
+    StringAspect m_tooltipAspect;
     FilePath m_lastEmittedBuildDirectory;
     mutable Environment m_cachedEnvironment;
     QString m_configWidgetDisplayName;
@@ -155,10 +158,9 @@ public:
 } // Internal
 
 BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
-    : ProjectConfiguration(target, id), d(new Internal::BuildConfigurationPrivate(this))
+    : ProjectConfiguration(target, id)
+    , d(new Internal::BuildConfigurationPrivate(this))
 {
-    QTC_CHECK(target && target == this->target());
-
     MacroExpander *expander = macroExpander();
     expander->setDisplayName(Tr::tr("Build Settings"));
     expander->setAccumulating(true);
@@ -190,24 +192,22 @@ BuildConfiguration::BuildConfiguration(Target *target, Utils::Id id)
     connect(ProjectTree::instance(), &ProjectTree::currentProjectChanged,
             this, &BuildConfiguration::updateCacheAndEmitEnvironmentChanged);
 
-    d->m_buildDirectoryAspect = addAspect<BuildDirectoryAspect>(this);
-    d->m_buildDirectoryAspect->setBaseFileName(target->project()->projectDirectory());
-    d->m_buildDirectoryAspect->setEnvironment(environment());
-    d->m_buildDirectoryAspect->setMacroExpanderProvider([this] { return macroExpander(); });
-    connect(d->m_buildDirectoryAspect, &StringAspect::changed,
+    d->m_buildDirectoryAspect.setBaseFileName(target->project()->projectDirectory());
+    d->m_buildDirectoryAspect.setEnvironment(environment());
+    d->m_buildDirectoryAspect.setMacroExpanderProvider([this] { return macroExpander(); });
+    connect(&d->m_buildDirectoryAspect, &StringAspect::changed,
             this, &BuildConfiguration::emitBuildDirectoryChanged);
     connect(this, &BuildConfiguration::environmentChanged, this, [this] {
-        d->m_buildDirectoryAspect->setEnvironment(environment());
+        d->m_buildDirectoryAspect.setEnvironment(environment());
         emit this->target()->buildEnvironmentChanged(this);
     });
 
-    d->m_tooltipAspect = addAspect<StringAspect>();
-    d->m_tooltipAspect->setLabelText(Tr::tr("Tooltip in target selector:"));
-    d->m_tooltipAspect->setToolTip(Tr::tr("Appears as a tooltip when hovering the build configuration"));
-    d->m_tooltipAspect->setDisplayStyle(StringAspect::LineEditDisplay);
-    d->m_tooltipAspect->setSettingsKey("ProjectExplorer.BuildConfiguration.Tooltip");
-    connect(d->m_tooltipAspect, &StringAspect::changed, this, [this] {
-        setToolTip(d->m_tooltipAspect->value());
+    d->m_tooltipAspect.setLabelText(Tr::tr("Tooltip in target selector:"));
+    d->m_tooltipAspect.setToolTip(Tr::tr("Appears as a tooltip when hovering the build configuration"));
+    d->m_tooltipAspect.setDisplayStyle(StringAspect::LineEditDisplay);
+    d->m_tooltipAspect.setSettingsKey("ProjectExplorer.BuildConfiguration.Tooltip");
+    connect(&d->m_tooltipAspect, &StringAspect::changed, this, [this] {
+        setToolTip(d->m_tooltipAspect());
     });
 
     connect(target, &Target::parsingStarted, this, &BuildConfiguration::enabledChanged);
@@ -228,7 +228,10 @@ BuildConfiguration::~BuildConfiguration()
 FilePath BuildConfiguration::buildDirectory() const
 {
     FilePath path = FilePath::fromUserInput(
-        environment().expandVariables(d->m_buildDirectoryAspect->value().trimmed()));
+        environment().expandVariables(d->m_buildDirectoryAspect.value().trimmed()));
+    // FIXME: If the macro expander is expected to be able to do some
+    // structual changes, the fromUserInput() above might already have
+    // mis-parsed. Should this here be encapsulated in the FilePathAspect?
     path = macroExpander()->expand(path);
     path = path.cleanPath();
 
@@ -239,17 +242,17 @@ FilePath BuildConfiguration::buildDirectory() const
 
 FilePath BuildConfiguration::rawBuildDirectory() const
 {
-    return d->m_buildDirectoryAspect->filePath();
+    return d->m_buildDirectoryAspect();
 }
 
 void BuildConfiguration::setBuildDirectory(const FilePath &dir)
 {
-    if (dir == d->m_buildDirectoryAspect->filePath())
+    if (dir == d->m_buildDirectoryAspect())
         return;
-    d->m_buildDirectoryAspect->setFilePath(dir);
+    d->m_buildDirectoryAspect.setValue(dir);
     const FilePath fixedDir = BuildDirectoryAspect::fixupDir(buildDirectory());
     if (!fixedDir.isEmpty())
-        d->m_buildDirectoryAspect->setFilePath(fixedDir);
+        d->m_buildDirectoryAspect.setValue(fixedDir);
     emitBuildDirectoryChanged();
 }
 
@@ -293,7 +296,7 @@ MacroExpander *BuildConfiguration::macroExpander() const
 
 bool BuildConfiguration::createBuildDirectory()
 {
-    const bool result = buildDirectory().ensureWritableDir();
+    const bool result = buildDirectory().ensureWritableDir().has_value();
     buildDirectoryAspect()->validateInput();
     return result;
 }
@@ -369,44 +372,41 @@ void BuildConfiguration::appendInitialCleanStep(Utils::Id id)
     d->m_initialCleanSteps.append(id);
 }
 
-QVariantMap BuildConfiguration::toMap() const
+void BuildConfiguration::toMap(Store &map) const
 {
-    QVariantMap map = ProjectConfiguration::toMap();
+    ProjectConfiguration::toMap(map);
 
-    map.insert(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY), d->m_clearSystemEnvironment);
-    map.insert(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY),
+    map.insert(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY, d->m_clearSystemEnvironment);
+    map.insert(Constants::USER_ENVIRONMENT_CHANGES_KEY,
                EnvironmentItem::toStringList(d->m_userEnvironmentChanges));
 
-    map.insert(QLatin1String(BUILD_STEP_LIST_COUNT), 2);
-    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(0), d->m_buildSteps.toMap());
-    map.insert(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(1), d->m_cleanSteps.toMap());
+    map.insert(BUILD_STEP_LIST_COUNT, 2);
+    map.insert(numberedKey(BUILD_STEP_LIST_PREFIX, 0), variantFromStore(d->m_buildSteps.toMap()));
+    map.insert(numberedKey(BUILD_STEP_LIST_PREFIX, 1), variantFromStore(d->m_cleanSteps.toMap()));
 
     map.insert(PARSE_STD_OUT_KEY, d->m_parseStdOut);
-    map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers,&Utils::Id::toSetting));
-
-    return map;
+    map.insert(CUSTOM_PARSERS_KEY, transform(d->m_customParsers, &Id::toSetting));
 }
 
-bool BuildConfiguration::fromMap(const QVariantMap &map)
+void BuildConfiguration::fromMap(const Store &map)
 {
-    d->m_clearSystemEnvironment = map.value(QLatin1String(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY))
-                                      .toBool();
+    d->m_clearSystemEnvironment = map.value(Constants::CLEAR_SYSTEM_ENVIRONMENT_KEY).toBool();
     d->m_userEnvironmentChanges = EnvironmentItem::fromStringList(
-        map.value(QLatin1String(Constants::USER_ENVIRONMENT_CHANGES_KEY)).toStringList());
+        map.value(Constants::USER_ENVIRONMENT_CHANGES_KEY).toStringList());
 
     updateCacheAndEmitEnvironmentChanged();
 
     d->m_buildSteps.clear();
     d->m_cleanSteps.clear();
 
-    int maxI = map.value(QLatin1String(BUILD_STEP_LIST_COUNT), 0).toInt();
+    int maxI = map.value(BUILD_STEP_LIST_COUNT, 0).toInt();
     for (int i = 0; i < maxI; ++i) {
-        QVariantMap data = map.value(QLatin1String(BUILD_STEP_LIST_PREFIX) + QString::number(i)).toMap();
+        Store data = storeFromVariant(map.value(numberedKey(BUILD_STEP_LIST_PREFIX, i)));
         if (data.isEmpty()) {
             qWarning() << "No data for build step list" << i << "found!";
             continue;
         }
-        Utils::Id id = idFromMap(data);
+        Id id = idFromMap(data);
         if (id == Constants::BUILDSTEPS_BUILD) {
             if (!d->m_buildSteps.fromMap(data))
                 qWarning() << "Failed to restore build step list";
@@ -419,11 +419,10 @@ bool BuildConfiguration::fromMap(const QVariantMap &map)
     }
 
     d->m_parseStdOut = map.value(PARSE_STD_OUT_KEY).toBool();
-    d->m_customParsers = transform(map.value(CUSTOM_PARSERS_KEY).toList(), &Utils::Id::fromSetting);
+    d->m_customParsers = transform(map.value(CUSTOM_PARSERS_KEY).toList(), &Id::fromSetting);
 
-    const bool res = ProjectConfiguration::fromMap(map);
-    setToolTip(d->m_tooltipAspect->value());
-    return res;
+    ProjectConfiguration::fromMap(map);
+    setToolTip(d->m_tooltipAspect());
 }
 
 void BuildConfiguration::updateCacheAndEmitEnvironmentChanged()
@@ -446,7 +445,7 @@ void BuildConfiguration::emitBuildDirectoryChanged()
 
 ProjectExplorer::BuildDirectoryAspect *BuildConfiguration::buildDirectoryAspect() const
 {
-    return d->m_buildDirectoryAspect;
+    return &d->m_buildDirectoryAspect;
 }
 
 void BuildConfiguration::setConfigWidgetDisplayName(const QString &display)
@@ -454,9 +453,9 @@ void BuildConfiguration::setConfigWidgetDisplayName(const QString &display)
     d->m_configWidgetDisplayName = display;
 }
 
-void BuildConfiguration::setBuildDirectoryHistoryCompleter(const QString &history)
+void BuildConfiguration::setBuildDirectoryHistoryCompleter(const Key &history)
 {
-    d->m_buildDirectoryAspect->setHistoryCompleter(history);
+    d->m_buildDirectoryAspect.setHistoryCompleter(history);
 }
 
 void BuildConfiguration::setConfigWidgetHasFrame(bool configWidgetHasFrame)
@@ -464,9 +463,9 @@ void BuildConfiguration::setConfigWidgetHasFrame(bool configWidgetHasFrame)
     d->m_configWidgetHasFrame = configWidgetHasFrame;
 }
 
-void BuildConfiguration::setBuildDirectorySettingsKey(const QString &key)
+void BuildConfiguration::setBuildDirectorySettingsKey(const Key &key)
 {
-    d->m_buildDirectoryAspect->setSettingsKey(key);
+    d->m_buildDirectoryAspect.setSettingsKey(key);
 }
 
 Environment BuildConfiguration::baseEnvironment() const
@@ -546,9 +545,8 @@ bool BuildConfiguration::isEnabled() const
 
 QString BuildConfiguration::disabledReason() const
 {
-    if (!buildSystem()->hasParsingData())
-        return (Tr::tr("The project was not parsed successfully."));
-    return QString();
+    return buildSystem()->hasParsingData() ? QString()
+                                           : Tr::tr("The project was not parsed successfully.");
 }
 
 bool BuildConfiguration::regenerateBuildFiles(Node *node)
@@ -619,7 +617,7 @@ FilePath BuildConfiguration::buildDirectoryFromTemplate(const FilePath &projectD
                          [buildType] { return buildTypeName(buildType); });
     exp.registerSubProvider([kit] { return kit->macroExpander(); });
 
-    FilePath buildDir = FilePath::fromUserInput(ProjectExplorerPlugin::buildDirectoryTemplate());
+    FilePath buildDir = FilePath::fromUserInput(buildPropertiesSettings().buildDirectoryTemplate());
     qCDebug(bcLog) << "build dir template:" << buildDir.toUserOutput();
     buildDir = exp.expand(buildDir);
     qCDebug(bcLog) << "expanded build:" << buildDir.toUserOutput();
@@ -771,7 +769,7 @@ BuildConfiguration *BuildConfigurationFactory::create(Target *parent, const Buil
     return bc;
 }
 
-BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const Store &map)
 {
     const Utils::Id id = idFromMap(map);
     for (BuildConfigurationFactory *factory : std::as_const(g_buildConfigurationFactories)) {
@@ -782,7 +780,8 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVa
             continue;
         BuildConfiguration *bc = factory->m_creator(parent);
         QTC_ASSERT(bc, return nullptr);
-        if (!bc->fromMap(map)) {
+        bc->fromMap(map);
+        if (bc->hasError()) {
             delete bc;
             bc = nullptr;
         }
@@ -792,9 +791,11 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const QVa
 }
 
 BuildConfiguration *BuildConfigurationFactory::clone(Target *parent,
-                                                      const BuildConfiguration *source)
+                                                     const BuildConfiguration *source)
 {
-    return restore(parent, source->toMap());
+    Store map;
+    source->toMap(map);
+    return restore(parent, map);
 }
 
 } // namespace ProjectExplorer

@@ -92,8 +92,8 @@ public:
     public:
         using JsonObject::JsonObject;
 
-        std::optional<QString> scopeUri() const { return optionalValue<QString>(scopeUriKey); }
-        void setScopeUri(const QString &scopeUri) { insert(scopeUriKey, scopeUri); }
+        std::optional<DocumentUri> scopeUri() const;
+        void setScopeUri(const DocumentUri &scopeUri) { insert(scopeUriKey, scopeUri); }
         void clearScopeUri() { remove(scopeUriKey); }
 
         std::optional<QString> section() const { return optionalValue<QString>(sectionKey); }
@@ -109,8 +109,8 @@ public:
     bool isValid() const override { return contains(itemsKey); }
 };
 
-class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationRequest : public Request<
-        LanguageClientArray<QJsonValue>, std::nullptr_t, ConfigurationParams>
+class LANGUAGESERVERPROTOCOL_EXPORT ConfigurationRequest
+    : public Request<QJsonArray, std::nullptr_t, ConfigurationParams>
 {
 public:
     explicit ConfigurationRequest(const ConfigurationParams &params);
@@ -166,7 +166,7 @@ public:
     QString query() const { return typedValue<QString>(queryKey); }
     void setQuery(const QString &query) { insert(queryKey, query); }
 
-    void setLimit(int limit) { insert(u"limit", limit); } // clangd extension
+    void setLimit(int limit) { insert("limit", limit); } // clangd extension
 
     bool isValid() const override { return contains(queryKey); }
 };

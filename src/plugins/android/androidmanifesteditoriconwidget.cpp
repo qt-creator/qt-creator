@@ -143,9 +143,13 @@ void AndroidManifestEditorIconWidget::setIconFromPath(const FilePath &iconPath)
 
 void AndroidManifestEditorIconWidget::selectIcon()
 {
-    FilePath file = FileUtils::getOpenFilePath(this, m_iconSelectionText,
-                                               FileUtils::homePath(),
-                                               Tr::tr("Images (*.png *.jpg *.jpeg *.webp *.svg)")); // TODO: See SplashContainterWidget
+    FilePath file = FileUtils::getOpenFilePath(
+        this,
+        m_iconSelectionText,
+        FileUtils::homePath(),
+        //: %1 expands to wildcard list for file dialog, do not change order
+        Tr::tr("Images %1")
+            .arg("(*.png *.jpg *.jpeg *.webp *.svg)")); // TODO: See SplashContainterWidget
     if (file.isEmpty())
         return;
     setIconFromPath(file);

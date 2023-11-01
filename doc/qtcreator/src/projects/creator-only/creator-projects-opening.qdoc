@@ -1,5 +1,5 @@
 
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -9,91 +9,100 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-file-creating.html
     \page creator-project-opening.html
-    \nextpage creator-project-qmake-libraries.html
+    \previouspage creator-how-tos.html
 
-    \title Opening Projects
+    \ingroup creator-how-to-projects-configure
+
+    \title Open projects
+
+    To open a project, open the project file for the project:
+    \e {CMakeLists.txt} (CMake), \e {.pro} (qmake), \e {.qbs} (Qbs),
+    \e {meson.build} (Meson), \e {pyproject} (Python), or \e {Makefile.am}
+    (Autotools, experimental).
+
+    You can open a project in the following ways:
+
+    \list
+        \li Select \uicontrol File > \uicontrol {Open File or Project}.
+        \li In the \uicontrol Welcome mode, \uicontrol Projects tab, select
+            \uicontrol {Open Project} (1).
+            \image qtcreator-welcome-open-projects.webp {Ways to open projects in the Welcome mode Projects tab}
+        \li In the \uicontrol Projects tab, select a project in the list of
+            recently opened projects (2).
+        \li In the \l Projects view, right-click to open a context
+            menu and select \uicontrol {Load Project} to open the
+            \uicontrol {Load Project} dialog, where you can select
+            a project file.
+        \li Use the following keyboard shortcuts, depending on the mode you are
+            currently in:
+            \list
+                \li In all modes, press \key Ctrl+O (\key Cmd+O on \macos) to open the
+                    \uicontrol {Open File} dialog, where you can select a project file.
+                \li On Windows and Linux, in all modes except the \uicontrol Help mode,
+                    press \key Ctrl+Shift+O to open the \uicontrol {Load Project} dialog.
+                \li In the \uicontrol Welcome mode, \uicontrol Projects tab, press
+                    \key Ctrl+Shift+number (\key Cmd+Shift+number on \macos), where
+                    the number is the number of a project in the list of recently opened
+                    projects (3).
+            \endlist
+    \endlist
+
+    \section1 Re-configure projects
 
     \QC stores information that it needs to build projects in a .user file. If
     \QC cannot find the file when you open an existing project, it prompts you
-    to enter the information. If you used another \QC instance to create the
-    project, \QC asks whether you want to use the old settings. The settings
-    are specific to the development environment, and you should not copy them from
-    one environment to another. Therefore, we recommend that you select \uicontrol No
-    and enter the information again in the \uicontrol {Configure Project} tab.
+    to enter the information.
 
-    The \uicontrol {Configure Project} tab displays a list of \l{glossary-buildandrun-kit}{kits}
-    for building and running projects, that you install on the development PC and
-    configure in \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
-    Select the kits that you want to build and run the project with.
+    If you used another \QC instance to create the project, \QC asks whether you
+    want to use the old settings. The settings are specific to the development
+    environment, and you should not copy them from one environment to another.
+    Therefore, we recommend that you select \uicontrol No and enter the
+    information again in the \uicontrol {Configure Project} tab.
 
-    \image qtcreator-open-project-kits.png "Configure Project tab"
+    To re-configure projects:
+
+    \list 1
+        \li In the \uicontrol {Configure Project} tab, select
+            \l{glossary-buildandrun-kit}{kits} for building
+            and running your project.
+            \image qtcreator-open-project-kits.png {Configure Project tab}
+        \li Select \uicontrol {Configure Project}.
+    \endlist
+
+    The \uicontrol {Configure Project} tab displays a list of kits that you
+    install on the development PC and configure in \preferences > \uicontrol Kits.
 
     Even if you do not intend to build the project, the C++ and QML code models
     need a Qt version and compiler to offer code completion. To specify them,
-    select the \uicontrol Preferences link, or select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Kits.
+    select the \uicontrol Preferences link, or select \preferences >
+    \uicontrol Kits.
 
     Qt for Python projects rely on the \l{Using Language Servers}
     {language server client} for code completion, highlighting, and
     other useful features.
 
-    If \QC cannot find an existing build for a particular \l{glossary-buildandrun-kit}{kit},
-    it starts out
-    from a clean slate, and creates new debug and release build configurations
-    in the specified directory. \QC suggests a name
-    and location for the directory that you can change.
+    If \QC cannot find an existing build for a particular kit, it starts out
+    from a clean slate and creates new debug and release build configurations
+    in the specified directory. \QC suggests a name and location for the
+    directory that you can change.
+
+    \section1 Import builds
 
     If you have built the project before, \QC can use the existing build
     configuration to make the exact same build available to you. To import a
-    build, specify a directory in the
-    \uicontrol {Import Build From} section and select \uicontrol {Import}.
+    build, specify a directory in the \uicontrol {Import Build From} section
+    of the \uicontrol {Configure Project} tab and select \uicontrol {Import}.
 
     You can edit the build configuration later. For more information, see
     \l{Editing Build Configurations}.
 
-    To open a project:
-
-    \list 1
-
-        \li Select \uicontrol File > \uicontrol {Open File or Project}
-            (\key Ctrl+O or \key Cmd+O on \macos) and select the project file
-            for the project to open: \e {.pro} (qmake), \e {CMakeLists.txt}
-            (CMake), \e {.qbs} (Qbs), \e {meson.build} (Meson), \e {pyproject} (Python), or
-            \e {Makefile.am} (Autotools, experimental).
-
-        \li In the \uicontrol {Configure Project} tab, select kits for building
-            and running your project.
-
-        \li Select \uicontrol {Configure Project}.
-
-    \endlist
-
-    You can use the following keyboard shortcuts to open projects, depending on
-    the mode you are currently in:
-
-    \list
-
-        \li In all modes, press \key Ctrl+O (\key Cmd+O on \macos) to open the
-            \uicontrol {Open File} dialog, where you can select a project file
-            to open a project.
-
-        \li In all modes, except the \uicontrol Help mode, press
-            \key Ctrl+Shift+O (\key Cmd+Shift+O on \macos) to open the
-            \uicontrol {Load Project} dialog, where you can select a project
-            file to open a project.
-
-        \li In the \uicontrol Welcome mode, \uicontrol Projects tab, press
-            \key Ctrl+Shift+number (\key Cmd+Shift+number on \macos), where
-            the number is the number of a project in the list of recently opened
-            projects.
-
-    \endlist
+    \section1 Show progress information
 
     \QC parses all the source files in the project and performs a semantic
     analysis to build up the information that it needs for functions such as
     navigation and finding usages. A progress bar is displayed during parsing.
+
     To show or hide detailed progress information, select
     \uicontrol {Toggle Progress Details} (1).
 
@@ -102,4 +111,6 @@
     You can drag the progress bar to another position. The position is saved for
     later. Select the \inlineimage icons/pin.png
     (\uicontrol Pin) button to pin the progress bar back to the toggle button.
+
+    \sa {Activate kits for a project}, {Add kits}, {Kits},
 */

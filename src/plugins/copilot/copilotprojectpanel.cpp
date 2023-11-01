@@ -32,7 +32,8 @@ ProjectSettingsWidget *createCopilotProjectPanel(Project *project)
     using namespace ProjectExplorer;
 
     auto widget = new CopilotProjectSettingsWidget;
-    auto settings = new CopilotProjectSettings(project, widget);
+    auto settings = new CopilotProjectSettings(project);
+    settings->setParent(widget);
 
     QObject::connect(widget,
                      &ProjectSettingsWidget::useGlobalSettingsChanged,

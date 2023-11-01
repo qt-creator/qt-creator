@@ -10,7 +10,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -214,7 +214,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
             continue;
         }
 
-        const Runnable runnable = runConfig->runnable();
+        const ProcessRunData runnable = runConfig->runnable();
         // not the best approach - but depending on the build system and whether the executables
         // are going to get installed or not we have to soften the condition...
         const FilePath currentExecutable = ensureExeEnding(runnable.command.executable());
@@ -246,7 +246,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
         // we failed to find a valid runconfiguration - but we've got the executable already
         if (auto rc = target->activeRunConfiguration()) {
             if (isLocal(target)) { // FIXME for now only Desktop support
-                const Runnable runnable = rc->runnable();
+                const ProcessRunData runnable = rc->runnable();
                 m_runnable.environment = runnable.environment;
                 m_deducedConfiguration = true;
                 m_deducedFrom = rc->displayName();

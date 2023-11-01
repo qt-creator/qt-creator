@@ -31,8 +31,8 @@ public:
 
     QWidget *createConfigWidget();
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     bool isActive() const;
 
@@ -66,7 +66,7 @@ public:
     DeployConfiguration *create(Target *parent);
 
     static const QList<DeployConfigurationFactory *> find(Target *parent);
-    static DeployConfiguration *restore(Target *parent, const QVariantMap &map);
+    static DeployConfiguration *restore(Target *parent, const Utils::Store &map);
     static DeployConfiguration *clone(Target *parent, const DeployConfiguration *dc);
 
     void addSupportedTargetDeviceType(Utils::Id id);
@@ -81,7 +81,7 @@ public:
     void setConfigWidgetCreator(const DeployConfiguration::WidgetCreator &configWidgetCreator);
     void setUseDeploymentDataView();
 
-    using PostRestore = std::function<void(DeployConfiguration *dc, const QVariantMap &)>;
+    using PostRestore = std::function<void(DeployConfiguration *dc, const Utils::Store &)>;
     void setPostRestore(const PostRestore &postRestore) {  m_postRestore = postRestore; }
     PostRestore postRestore() const { return m_postRestore; }
 
@@ -98,12 +98,6 @@ private:
     QString m_defaultDisplayName;
     DeployConfiguration::WidgetCreator m_configWidgetCreator;
     PostRestore m_postRestore;
-};
-
-class DefaultDeployConfigurationFactory : public DeployConfigurationFactory
-{
-public:
-    DefaultDeployConfigurationFactory();
 };
 
 } // namespace ProjectExplorer

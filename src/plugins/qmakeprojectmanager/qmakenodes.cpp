@@ -11,7 +11,7 @@
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <resourceeditor/resourcenode.h>
 
@@ -167,7 +167,7 @@ bool QmakePriFileNode::removeSubProject(const FilePath &proFilePath)
 
 QStringList QmakePriFileNode::subProjectFileNamePatterns() const
 {
-    return QStringList("*.pro");
+    return {"*.pro"};
 }
 
 bool QmakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)

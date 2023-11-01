@@ -1,7 +1,7 @@
 Project {
     name: "Manual plugin test"
 
-    QtcManualtest {
+    QtcManualTest {
         name: "Manual plugin view test"
 
         Depends { name: "ExtensionSystem" }

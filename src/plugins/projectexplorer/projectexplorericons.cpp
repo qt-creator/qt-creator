@@ -44,16 +44,20 @@ const Icon DEVICE_DISCONNECTED_INDICATOR_OVERLAY({
         {":/projectexplorer/images/devicestatusindicator.png", Theme::IconsStopToolBarColor}});
 const Icon WIZARD_IMPORT_AS_PROJECT({
         {":/projectexplorer/images/importasproject.png", Theme::PanelTextColorDark}}, Icon::Tint);
+const Icon CMAKE_LOGO({
+        {":/projectexplorer/images/cmakeicon.png", Theme::PanelTextColorMid}}, Icon::Tint);
+const Icon CMAKE_LOGO_TOOLBAR({
+        {":/projectexplorer/images/cmakeicon.png", Theme::IconsBaseColor}});
 
 const Icon DEBUG_START_FLAT({
         {":/projectexplorer/images/run_mask.png", Theme::IconsRunToolBarColor},
         {":/projectexplorer/images/debugger_beetle_mask.png", Theme::IconsDebugColor}});
 const Icon DEBUG_START_SMALL({
         {":/utils/images/run_small.png", Theme::IconsRunColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
+        {":/utils/images/debugger_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);
 const Icon DEBUG_START_SMALL_TOOLBAR({
         {":/utils/images/run_small.png", Theme::IconsRunToolBarColor},
-        {":/projectexplorer/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
+        {":/utils/images/debugger_overlay_small.png", Theme::IconsDebugColor}});
 const Icon ANALYZER_START_SMALL({
         {":/utils/images/run_small.png", Theme::IconsRunColor},
         {":/projectexplorer/images/analyzer_overlay_small.png", Theme::PanelTextColorMid}}, Icon::MenuTintedStyle);

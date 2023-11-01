@@ -11,7 +11,6 @@
 #include <utils/qtcassert.h>
 
 #include <QDomDocument>
-#include <QSettings>
 #include <QTextStream>
 #include <QXmlStreamReader>
 
@@ -166,34 +165,28 @@ QString CodeGenerator::uiClassName(const QString &uiXml)
 
 QString CodeGenerator::qtIncludes(const QStringList &qt4, const QStringList &qt5)
 {
-    CodeGenSettings settings;
-    settings.fromSettings(Core::ICore::settings());
-
     QString result;
     QTextStream str(&result);
-    Utils::writeQtIncludeSection(qt4, qt5, settings.addQtVersionCheck, settings.includeQtModule, str);
+    Utils::writeQtIncludeSection(qt4, qt5,
+                                 codeGenSettings().addQtVersionCheck(),
+                                 codeGenSettings().includeQtModule(),
+                                 str);
     return result;
 }
 
 bool CodeGenerator::uiAsPointer()
 {
-    CodeGenSettings settings;
-    settings.fromSettings(Core::ICore::settings());
-    return settings.embedding == CodeGenSettings::PointerAggregatedUiClass;
+    return codeGenSettings().embedding() == CodeGenSettings::PointerAggregatedUiClass;
 }
 
 bool CodeGenerator::uiAsMember()
 {
-    CodeGenSettings settings;
-    settings.fromSettings(Core::ICore::settings());
-    return settings.embedding == CodeGenSettings::AggregatedUiClass;
+    return codeGenSettings().embedding() == CodeGenSettings::AggregatedUiClass;
 }
 
 bool CodeGenerator::uiAsInheritance()
 {
-    CodeGenSettings settings;
-    settings.fromSettings(Core::ICore::settings());
-    return settings.embedding == CodeGenSettings::InheritedUiClass;
+    return codeGenSettings().embedding() == CodeGenSettings::InheritedUiClass;
 }
 
 } // namespace QtSupport

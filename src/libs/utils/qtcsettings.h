@@ -5,59 +5,57 @@
 
 #include "utils_global.h"
 
+#include "store.h"
+
 #include <QSettings>
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT QtcSettings : public QSettings
+class QTCREATOR_UTILS_EXPORT QtcSettings : private QSettings
 {
 public:
     using QSettings::QSettings;
+    using QSettings::group;
+    using QSettings::endGroup;
+    using QSettings::allKeys;
+    using QSettings::fileName;
+    using QSettings::setParent;
+    using QSettings::sync;
+    using QSettings::beginReadArray;
+    using QSettings::beginWriteArray;
+    using QSettings::endArray;
+    using QSettings::setArrayIndex;
+    using QSettings::childGroups;
+    using QSettings::status;
+    using QSettings::clear;
+
+    void beginGroup(const Key &prefix);
+
+    QVariant value(const Key &key) const;
+    QVariant value(const Key &key, const QVariant &def) const;
+    void setValue(const Key &key, const QVariant &value);
+    void remove(const Key &key);
+    bool contains(const Key &key) const;
+
+    KeyList childKeys() const;
 
     template<typename T>
-    void setValueWithDefault(const QString &key, const T &val, const T &defaultValue);
-    template<typename T>
-    void setValueWithDefault(const QString &key, const T &val);
+    void setValueWithDefault(const Key &key, const T &val, const T &defaultValue)
+    {
+        if (val == defaultValue)
+            remove(key);
+        else
+            setValue(key, val);
+    }
 
     template<typename T>
-    static void setValueWithDefault(QSettings *settings,
-                                    const QString &key,
-                                    const T &val,
-                                    const T &defaultValue);
-    template<typename T>
-    static void setValueWithDefault(QSettings *settings, const QString &key, const T &val);
+    void setValueWithDefault(const Key &key, const T &val)
+    {
+        if (val == T())
+            remove(key);
+        else
+            setValue(key, val);
+    }
 };
 
-template<typename T>
-void QtcSettings::setValueWithDefault(const QString &key, const T &val, const T &defaultValue)
-{
-    setValueWithDefault(this, key, val, defaultValue);
-}
-
-template<typename T>
-void QtcSettings::setValueWithDefault(const QString &key, const T &val)
-{
-    setValueWithDefault(this, key, val);
-}
-
-template<typename T>
-void QtcSettings::setValueWithDefault(QSettings *settings,
-                                      const QString &key,
-                                      const T &val,
-                                      const T &defaultValue)
-{
-    if (val == defaultValue)
-        settings->remove(key);
-    else
-        settings->setValue(key, QVariant::fromValue(val));
-}
-
-template<typename T>
-void QtcSettings::setValueWithDefault(QSettings *settings, const QString &key, const T &val)
-{
-    if (val == T())
-        settings->remove(key);
-    else
-        settings->setValue(key, QVariant::fromValue(val));
-}
 } // namespace Utils

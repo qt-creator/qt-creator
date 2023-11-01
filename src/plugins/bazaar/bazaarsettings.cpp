@@ -6,6 +6,7 @@
 #include "bazaartr.h"
 #include "constants.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
 #include <utils/layoutbuilder.h>
@@ -16,21 +17,16 @@ using namespace Utils;
 
 namespace Bazaar::Internal {
 
-static BazaarSettings *theSettings;
-
 BazaarSettings &settings()
 {
-    return *theSettings;
+    static BazaarSettings theSettings;
+    return theSettings;
 }
 
 BazaarSettings::BazaarSettings()
 {
-    theSettings = this;
-
+    setAutoApply(false);
     setSettingsGroup(Constants::BAZAAR);
-    setId(VcsBase::Constants::VCS_ID_BAZAAR);
-    setDisplayName(Tr::tr("Bazaar"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
 
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
     binaryPath.setDefaultValue(Constants::BAZAARDEFAULT);
@@ -90,6 +86,24 @@ BazaarSettings::BazaarSettings()
             st
         };
     });
+
+    readSettings();
 }
+
+// BazaarSettingsPage
+
+class BazaarSettingsPage final : public Core::IOptionsPage
+{
+public:
+    BazaarSettingsPage()
+    {
+        setId(VcsBase::Constants::VCS_ID_BAZAAR);
+        setDisplayName(Tr::tr("Bazaar"));
+        setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const BazaarSettingsPage settingsPage;
 
 } // Bazaar::Internal

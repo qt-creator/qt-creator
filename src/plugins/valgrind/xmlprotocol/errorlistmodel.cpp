@@ -5,20 +5,16 @@
 #include "error.h"
 #include "frame.h"
 #include "stack.h"
-#include "modelhelpers.h"
 #include "../valgrindtr.h"
 
 #include <debugger/analyzer/diagnosticlocation.h>
+
 #include <utils/qtcassert.h>
 
-#include <QCoreApplication>
 #include <QDir>
-#include <QVector>
+#include <QList>
 
-#include <cmath>
-
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class ErrorItem : public Utils::TreeItem
 {
@@ -72,11 +68,11 @@ Frame ErrorListModel::findRelevantFrame(const Error &error) const
 {
     if (m_relevantFrameFinder)
         return m_relevantFrameFinder(error);
-    const QVector<Stack> stacks = error.stacks();
+    const QList<Stack> stacks = error.stacks();
     if (stacks.isEmpty())
         return Frame();
     const Stack &stack = stacks[0];
-    const QVector<Frame> frames = stack.frames();
+    const QList<Frame> frames = stack.frames();
     if (!frames.isEmpty())
         return frames.first();
     return Frame();
@@ -95,7 +91,7 @@ static QString makeFrameName(const Frame &frame, bool withLocation)
     else
         path = frame.object();
 
-    if (QFile::exists(path))
+    if (QFileInfo::exists(path))
         path = QFileInfo(path).canonicalFilePath();
 
     if (frame.line() != -1)
@@ -142,11 +138,11 @@ ErrorItem::ErrorItem(const ErrorListModel *model, const Error &error)
     // just annoy the user.
     // The same goes for the frame level.
     if (m_error.stacks().count() > 1) {
-        const QVector<Stack> stacks = m_error.stacks();
+        const QList<Stack> stacks = m_error.stacks();
         for (const Stack &s : stacks)
             appendChild(new StackItem(s));
     } else if (m_error.stacks().constFirst().frames().count() > 1) {
-        const QVector<Frame> frames = m_error.stacks().constFirst().frames();
+        const QList<Frame> frames = m_error.stacks().constFirst().frames();
         for (const Frame &f : frames)
             appendChild(new FrameItem(f));
     }
@@ -176,12 +172,12 @@ QVariant ErrorItem::data(int column, int role) const
                << m_model->errorLocation(m_error)
                << "\n";
 
-        const QVector<Stack> stacks = m_error.stacks();
+        const QList<Stack> stacks = m_error.stacks();
         for (const Stack &stack : stacks) {
             if (!stack.auxWhat().isEmpty())
                 stream << stack.auxWhat();
             int i = 1;
-            const QVector<Frame> frames = stack.frames();
+            const QList<Frame> frames = stack.frames();
             for (const Frame &frame : frames)
                 stream << "  " << i++ << ": " << makeFrameName(frame, true) << "\n";
         }
@@ -201,7 +197,7 @@ QVariant ErrorItem::data(int column, int role) const
         return Tr::tr("%1 in function %2")
                 .arg(m_error.what(), m_error.stacks().constFirst().frames().constFirst().functionName());
     case Qt::ToolTipRole:
-        return toolTipForFrame(m_model->findRelevantFrame(m_error));
+        return m_model->findRelevantFrame(m_error).toolTip();
     default:
         return QVariant();
     }
@@ -210,7 +206,7 @@ QVariant ErrorItem::data(int column, int role) const
 
 StackItem::StackItem(const Stack &stack) : m_stack(stack)
 {
-    const QVector<Frame> frames = m_stack.frames();
+    const QList<Frame> frames = m_stack.frames();
     for (const Frame &f : frames)
         appendChild(new FrameItem(f));
 }
@@ -228,7 +224,7 @@ QVariant StackItem::data(int column, int role) const
     case Qt::DisplayRole:
         return m_stack.auxWhat().isEmpty() ? errorItem->error().what() : m_stack.auxWhat();
     case Qt::ToolTipRole:
-        return toolTipForFrame(errorItem->modelPrivate()->findRelevantFrame(errorItem->error()));
+        return errorItem->modelPrivate()->findRelevantFrame(errorItem->error()).toolTip();
     default:
         return QVariant();
     }
@@ -263,7 +259,7 @@ QVariant FrameItem::data(int column, int role) const
                 .arg(makeFrameName(m_frame, false));
     }
     case Qt::ToolTipRole:
-        return toolTipForFrame(m_frame);
+        return m_frame.toolTip();
     default:
         return QVariant();
     }
@@ -280,5 +276,4 @@ const ErrorItem *FrameItem::getErrorItem() const
     return nullptr;
 }
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

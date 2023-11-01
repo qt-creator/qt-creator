@@ -84,8 +84,7 @@ static ResultHooks::FindTestItemHook findTestItemHook(const FilePath &projectFil
                                                       const QString &testCaseName)
 {
     return [=](const TestResult &result) -> ITestTreeItem * {
-        const Id id = Id(Constants::FRAMEWORK_PREFIX).withSuffix(GTest::Constants::FRAMEWORK_NAME);
-        ITestFramework *framework = TestFrameworkManager::frameworkForId(id);
+        ITestFramework *framework = TestFrameworkManager::frameworkForId(GTest::Constants::FRAMEWORK_ID);
         QTC_ASSERT(framework, return nullptr);
         const TestTreeItem *rootNode = framework->rootNode();
         if (!rootNode)

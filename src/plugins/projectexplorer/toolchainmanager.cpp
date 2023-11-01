@@ -16,7 +16,7 @@
 #include <utils/qtcassert.h>
 #include <utils/algorithm.h>
 
-#include <QSettings>
+#include <nanotrace/nanotrace.h>
 
 using namespace Utils;
 
@@ -62,7 +62,7 @@ using namespace Internal;
 
 const char DETECT_X64_AS_X32_KEY[] = "ProjectExplorer/Toolchains/DetectX64AsX32";
 
-static QString badToolchainsKey() { return {"BadToolChains"}; }
+static Key badToolchainsKey() { return "BadToolChains"; }
 
 // --------------------------------------------------------------------------
 // ToolChainManager
@@ -82,7 +82,7 @@ ToolChainManager::ToolChainManager(QObject *parent) :
     connect(this, &ToolChainManager::toolChainRemoved, this, &ToolChainManager::toolChainsChanged);
     connect(this, &ToolChainManager::toolChainUpdated, this, &ToolChainManager::toolChainsChanged);
 
-    QSettings * const s = Core::ICore::settings();
+    QtcSettings * const s = Core::ICore::settings();
     d->m_detectionSettings.detectX64AsX32
         = s->value(DETECT_X64_AS_X32_KEY, ToolchainDetectionSettings().detectX64AsX32).toBool();
     d->m_badToolchains = BadToolchains::fromVariant(s->value(badToolchainsKey()));
@@ -102,6 +102,7 @@ ToolChainManager *ToolChainManager::instance()
 
 void ToolChainManager::restoreToolChains()
 {
+    NANOTRACE_SCOPE("ProjectExplorer", "ToolChainManager::restoreToolChains");
     QTC_ASSERT(!d->m_accessor, return);
     d->m_accessor = std::make_unique<Internal::ToolChainSettingsAccessor>();
 
@@ -126,6 +127,7 @@ void ToolChainManager::saveToolChains()
 
 const Toolchains &ToolChainManager::toolchains()
 {
+    QTC_CHECK(d->m_loaded);
     return d->m_toolChains;
 }
 
@@ -137,11 +139,13 @@ Toolchains ToolChainManager::toolchains(const ToolChain::Predicate &predicate)
 
 ToolChain *ToolChainManager::toolChain(const ToolChain::Predicate &predicate)
 {
+    QTC_CHECK(d->m_loaded);
     return Utils::findOrDefault(d->m_toolChains, predicate);
 }
 
 Toolchains ToolChainManager::findToolChains(const Abi &abi)
 {
+    QTC_CHECK(d->m_loaded);
     Toolchains result;
     for (ToolChain *tc : std::as_const(d->m_toolChains)) {
         bool isCompatible = Utils::anyOf(tc->supportedAbis(), [abi](const Abi &supportedAbi) {
@@ -156,6 +160,7 @@ Toolchains ToolChainManager::findToolChains(const Abi &abi)
 
 ToolChain *ToolChainManager::findToolChain(const QByteArray &id)
 {
+    QTC_CHECK(d->m_loaded);
     if (id.isEmpty())
         return nullptr;
 
@@ -211,6 +216,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
 
 void ToolChainManager::deregisterToolChain(ToolChain *tc)
 {
+    QTC_CHECK(d->m_loaded);
     if (!tc || !d->m_toolChains.contains(tc))
         return;
     d->m_toolChains.removeOne(tc);

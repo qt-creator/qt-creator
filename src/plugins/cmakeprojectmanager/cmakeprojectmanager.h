@@ -25,6 +25,7 @@ private:
     void updateCmakeActions(ProjectExplorer::Node *node);
     void clearCMakeCache(ProjectExplorer::BuildSystem *buildSystem);
     void runCMake(ProjectExplorer::BuildSystem *buildSystem);
+    void runCMakeWithProfiling(ProjectExplorer::BuildSystem *buildSystem);
     void rescanProject(ProjectExplorer::BuildSystem *buildSystem);
     void buildFileContextMenu();
     void buildFile(ProjectExplorer::Node *node = nullptr);
@@ -39,6 +40,10 @@ private:
     QAction *m_buildFileContextMenu;
     QAction *m_reloadCMakePresetsAction;
     Utils::ParameterAction *m_buildFileAction;
+    QAction *m_cmakeProfilerAction;
+    QAction *m_cmakeDebuggerAction;
+    QAction *m_cmakeDebuggerSeparator;
+    bool m_canDebugCMake = false;
 };
 
 } // namespace Internal

@@ -84,14 +84,14 @@ QModelIndex AndroidSdkModel::index(int row, int column, const QModelIndex &paren
         return createIndex(row, column); // Top level items (Tools & platform)
     }
 
-    return QModelIndex();
+    return {};
 }
 
 QModelIndex AndroidSdkModel::parent(const QModelIndex &index) const
 {
     void *ip = index.internalPointer();
     if (!ip)
-        return QModelIndex();
+        return {};
 
     auto package = static_cast<const AndroidSdkPackage *>(ip);
     if (package->type() == AndroidSdkPackage::SystemImagePackage) {
@@ -107,7 +107,7 @@ QModelIndex AndroidSdkModel::parent(const QModelIndex &index) const
         return createIndex(0, 0); // Tools
     }
 
-    return QModelIndex();
+    return {};
 }
 
 int AndroidSdkModel::rowCount(const QModelIndex &parent) const
@@ -137,7 +137,7 @@ int AndroidSdkModel::columnCount(const QModelIndex &parent) const
 QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-        return QVariant();
+        return {};
 
     if (!index.parent().isValid()) {
         // Top level tools
@@ -160,7 +160,7 @@ QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
                 return platform->apiLevel();
             }
         }
-        return QVariant();
+        return {};
     }
 
     auto p = static_cast<const AndroidSdkPackage *>(index.internalPointer());
@@ -213,7 +213,7 @@ QVariant AndroidSdkModel::data(const QModelIndex &index, int role) const
     if (role == PackageStateRole)
         return p->state();
 
-    return QVariant();
+    return {};
 }
 
 QHash<int, QByteArray> AndroidSdkModel::roleNames() const

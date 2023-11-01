@@ -81,7 +81,7 @@ QSet<FilePath> ModelManagerTestHelper::updateProjectInfo(
         const ProjectInfo::ConstPtr &projectInfo)
 {
     resetRefreshedSourceFiles();
-    CppModelManager::instance()->updateProjectInfo(projectInfo).waitForFinished();
+    CppModelManager::updateProjectInfo(projectInfo).waitForFinished();
     QCoreApplication::processEvents();
     return waitForRefreshedSourceFiles();
 }

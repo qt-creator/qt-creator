@@ -104,7 +104,7 @@
     \section1 Specifying Performance Analyzer Settings
 
     To specify global settings for the Performance Analyzer, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Analyzer >
+    \preferences > \uicontrol Analyzer >
     \uicontrol {CPU Usage}. For each run configuration, you can also
     use specialized settings. Select \uicontrol Projects > \uicontrol Run, and
     then select \uicontrol Details next to
@@ -219,9 +219,9 @@
     snapshots may fail to capture call chains of highly recursive applications
     or other intense stack usage.
 
-    \section2 Adding Command Line Options For Perf
+    \section2 Adding Command-Line Options for Perf
 
-    You can specify additional command line options to be passed to Perf when
+    You can specify additional command-line options to be passed to Perf when
     recording data in the \uicontrol {Additional arguments} field. You may want
     to specify \c{--no-delay} or \c{--no-buffering} to reduce the processing
     delay. However, those options are not supported by all versions of Perf and

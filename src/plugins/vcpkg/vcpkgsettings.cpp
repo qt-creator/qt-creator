@@ -6,6 +6,9 @@
 #include "vcpkgconstants.h"
 #include "vcpkgtr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
+
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 
 #include <utils/environment.h>
@@ -15,32 +18,36 @@
 #include <QDesktopServices>
 #include <QToolButton>
 
-namespace Vcpkg::Internal {
+using namespace Utils;
 
-static VcpkgSettings *theSettings = nullptr;
+namespace Vcpkg::Internal {
 
 VcpkgSettings &settings()
 {
-    return *theSettings;
+    static VcpkgSettings theSettings;
+    return theSettings;
 }
 
 VcpkgSettings::VcpkgSettings()
 {
-    theSettings = this;
-
     setSettingsGroup("Vcpkg");
-    setId(Constants::TOOLSSETTINGSPAGE_ID);
-    setDisplayName("Vcpkg");
-    setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
+    setAutoApply(false);
 
     vcpkgRoot.setSettingsKey("VcpkgRoot");
-    vcpkgRoot.setExpectedKind(Utils::PathChooser::ExistingDirectory);
-    vcpkgRoot.setDefaultValue(Utils::qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
+    vcpkgRoot.setExpectedKind(PathChooser::ExistingDirectory);
+    FilePath defaultPath = Environment::systemEnvironment().searchInPath(Constants::VCPKG_COMMAND)
+                               .parentDir();
+    if (!defaultPath.isDir())
+        defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(Constants::ENVVAR_VCPKG_ROOT));
+    if (defaultPath.isDir())
+        vcpkgRoot.setDefaultValue(defaultPath.toUserOutput());
+
+    connect(this, &AspectContainer::applied, this, &VcpkgSettings::setVcpkgRootEnvironmentVariable);
 
     setLayouter([this] {
         using namespace Layouting;
         auto websiteButton = new QToolButton;
-        websiteButton->setIcon(Utils::Icons::ONLINE.icon());
+        websiteButton->setIcon(Icons::ONLINE.icon());
         websiteButton->setToolTip(Constants::WEBSITE_URL);
 
         connect(websiteButton, &QAbstractButton::clicked, [] {
@@ -53,7 +60,7 @@ VcpkgSettings::VcpkgSettings()
             Group {
                 title(Tr::tr("Vcpkg installation")),
                 Form {
-                    Utils::PathChooser::label(),
+                    PathChooser::label(),
                     Span { 2, Row { vcpkgRoot, websiteButton } },
                 },
             },
@@ -64,5 +71,25 @@ VcpkgSettings::VcpkgSettings()
 
     readSettings();
 }
+
+void VcpkgSettings::setVcpkgRootEnvironmentVariable()
+{
+    // Set VCPKG_ROOT environment variable so that auto-setup.cmake would pick it up
+    Environment::modifySystemEnvironment({{Constants::ENVVAR_VCPKG_ROOT, vcpkgRoot.value()}});
+}
+
+class VcpkgSettingsPage : public Core::IOptionsPage
+{
+public:
+    VcpkgSettingsPage()
+    {
+        setId(Constants::TOOLSSETTINGSPAGE_ID);
+        setDisplayName("Vcpkg");
+        setCategory(CMakeProjectManager::Constants::Settings::CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+static const VcpkgSettingsPage settingsPage;
 
 } // Vcpkg::Internal

@@ -31,7 +31,8 @@ public:
     void autoIndent(const QTextCursor &cursor,
                     const TextEditor::TabSettings &tabSettings,
                     int cursorPositionInEditor = -1) override;
-    Utils::Text::Replacements format(const TextEditor::RangesInLines &rangesInLines) override;
+    Utils::EditOperations format(const TextEditor::RangesInLines &rangesInLines,
+                                 FormattingMode mode = FormattingMode::Forced) override;
 
     void indentBlock(const QTextBlock &block,
                      const QChar &typedChar,
@@ -46,7 +47,7 @@ public:
 
     std::optional<int> margin() const override;
 
-    clang::format::FormatStyle styleForFile() const;
+    const clang::format::FormatStyle &styleForFile() const;
 
 protected:
     virtual bool formatCodeInsteadOfIndent() const { return false; }
@@ -59,18 +60,30 @@ private:
                       const QTextBlock &endBlock,
                       const QChar &typedChar,
                       int cursorPositionInEditor);
-    Utils::Text::Replacements indentsFor(QTextBlock startBlock,
-                                         const QTextBlock &endBlock,
-                                         const QChar &typedChar,
-                                         int cursorPositionInEditor,
-                                         bool trimTrailingWhitespace = true);
-    Utils::Text::Replacements replacements(QByteArray buffer,
-                                           const QTextBlock &startBlock,
-                                           const QTextBlock &endBlock,
-                                           int cursorPositionInEditor,
-                                           ReplacementsToKeep replacementsToKeep,
-                                           const QChar &typedChar = QChar::Null,
-                                           bool secondTry = false) const;
+    Utils::ChangeSet indentsFor(QTextBlock startBlock,
+                                const QTextBlock &endBlock,
+                                const QChar &typedChar,
+                                int cursorPositionInEditor,
+                                bool trimTrailingWhitespace = true);
+    Utils::ChangeSet replacements(QByteArray buffer,
+                                  const QTextBlock &startBlock,
+                                  const QTextBlock &endBlock,
+                                  int cursorPositionInEditor,
+                                  ReplacementsToKeep replacementsToKeep,
+                                  const QChar &typedChar = QChar::Null,
+                                  bool secondTry = false) const;
+
+    struct CachedStyle {
+        clang::format::FormatStyle style = clang::format::getNoStyle();
+        QDateTime expirationTime;
+        void setCache(clang::format::FormatStyle newStyle, std::chrono::milliseconds timeout)
+        {
+            style = newStyle;
+            expirationTime = QDateTime::currentDateTime().addMSecs(timeout.count());
+        }
+    };
+
+    mutable CachedStyle m_cachedStyle;
 };
 
 } // namespace ClangFormat

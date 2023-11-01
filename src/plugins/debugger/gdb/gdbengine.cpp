@@ -34,7 +34,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/taskhub.h>
 
-#include <app/app_version.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
@@ -45,11 +44,12 @@
 #include <utils/temporaryfile.h>
 
 #include <QDirIterator>
+#include <QGuiApplication>
+#include <QJsonArray>
 #include <QMessageBox>
 #include <QProcess>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QJsonArray>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -136,7 +136,7 @@ GdbEngine::GdbEngine()
     connect(&m_commandTimer, &QTimer::timeout,
             this, &GdbEngine::commandTimeout);
 
-    DebuggerSettings &s = *debuggerSettings();
+    DebuggerSettings &s = settings();
     connect(&s.autoDerefPointers, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
     connect(s.createFullBacktrace.action(), &QAction::triggered,
@@ -417,7 +417,7 @@ void GdbEngine::handleResponse(const QString &buff)
         }
     }
 
-    if (debuggerSettings()->logTimeStamps.value())
+    if (settings().logTimeStamps())
         showMessage(QString("Output handled"));
 }
 
@@ -801,7 +801,7 @@ void GdbEngine::runCommand(const DebuggerCommand &command)
 
 int GdbEngine::commandTimeoutTime() const
 {
-    const int time = debuggerSettings()->gdbWatchdogTimeout();
+    const int time = settings().gdbWatchdogTimeout();
     return 1000 * qMax(20, time);
 }
 
@@ -942,7 +942,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
 
     DebuggerCommand cmd = m_commandForToken.take(token);
     const int flags = m_flagsForToken.take(token);
-    if (debuggerSettings()->logTimeStamps.value()) {
+    if (settings().logTimeStamps()) {
         showMessage(QString("Response time: %1: %2 s")
             .arg(cmd.function)
             .arg(QTime::fromMSecsSinceStartOfDay(cmd.postTime).msecsTo(QTime::currentTime()) / 1000.),
@@ -1016,7 +1016,7 @@ void GdbEngine::updateAll()
 {
     //PENDING_DEBUG("UPDATING ALL\n");
     QTC_CHECK(state() == InferiorUnrunnable || state() == InferiorStopOk);
-    DebuggerCommand cmd(stackCommand(debuggerSettings()->maximalStackDepth()));
+    DebuggerCommand cmd(stackCommand(settings().maximalStackDepth()));
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
     runCommand(cmd);
     stackHandler()->setCurrentIndex(0);
@@ -1124,7 +1124,7 @@ void GdbEngine::handleStopResponse(const GdbMi &data)
 
     // Jump over well-known frames.
     //static int stepCounter = 0;
-    if (debuggerSettings()->skipKnownFrames.value()) {
+    if (settings().skipKnownFrames()) {
         if (reason == "end-stepping-range" || reason == "function-finished") {
             //showMessage(frame.toString());
             QString funcName = frame["function"].data();
@@ -1310,7 +1310,7 @@ void GdbEngine::handleStop1(const GdbMi &data)
 
     if (!m_systemDumpersLoaded) {
         m_systemDumpersLoaded = true;
-        if (m_gdbVersion >= 70400 && debuggerSettings()->loadGdbDumpers.value())
+        if (m_gdbVersion >= 70400 && settings().loadGdbDumpers())
             runCommand({"importPlainDumpers on"});
         else
             runCommand({"importPlainDumpers off"});
@@ -1427,7 +1427,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
                     m_expectTerminalTrap = false;
                 } else {
                     showMessage("HANDLING SIGNAL " + name);
-                    if (debuggerSettings()->useMessageBoxForSignals.value() && !isStopperThread)
+                    if (settings().useMessageBoxForSignals() && !isStopperThread)
                         if (!showStoppedBySignalMessageBox(meaning, name)) {
                             showMessage("SIGNAL RECEIVED WHILE SHOWING SIGNAL MESSAGE");
                             return;
@@ -1501,11 +1501,12 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
             int pythonMajor = m_pythonVersion / 10000;
             int pythonMinor = (m_pythonVersion / 100) % 100;
             QString out = "<p>"
-                + Tr::tr("The selected build of GDB supports Python scripting, "
-                     "but the used version %1.%2 is not sufficient for "
-                     "%3. Supported versions are Python 2.7 and 3.x.")
-                    .arg(pythonMajor).arg(pythonMinor)
-                    .arg(Core::Constants::IDE_DISPLAY_NAME);
+                          + Tr::tr("The selected build of GDB supports Python scripting, "
+                                   "but the used version %1.%2 is not sufficient for "
+                                   "%3. Supported versions are Python 2.7 and 3.x.")
+                                .arg(pythonMajor)
+                                .arg(pythonMinor)
+                                .arg(QGuiApplication::applicationDisplayName());
             showStatusMessage(out);
             AsynchronousMessageBox::critical(Tr::tr("Execution Error"), out);
         }
@@ -1518,7 +1519,7 @@ void GdbEngine::handlePythonSetup(const DebuggerResponse &response)
         if (msg.contains("Python scripting is not supported in this copy of GDB.")) {
             QString out1 = "The selected build of GDB does not support Python scripting.";
             QString out2 = QStringLiteral("It cannot be used in %1.")
-                    .arg(Core::Constants::IDE_DISPLAY_NAME);
+                               .arg(QGuiApplication::applicationDisplayName());
             showStatusMessage(out1 + ' ' + out2);
             AsynchronousMessageBox::critical(Tr::tr("Execution Error"), out1 + "<br>" + out2);
         }
@@ -1587,7 +1588,7 @@ FilePath GdbEngine::cleanupFullName(const QString &fileName)
             return {};
     }
 
-    if (!debuggerSettings()->autoEnrichParameters.value())
+    if (!settings().autoEnrichParameters())
         return cleanFilePath;
 
     if (cleanFilePath.isReadableFile())
@@ -2043,7 +2044,7 @@ void GdbEngine::setTokenBarrier()
     QTC_ASSERT(good, return);
     PENDING_DEBUG("\n--- token barrier ---\n");
     showMessage("--- token barrier ---", LogMiscInput);
-    if (debuggerSettings()->logTimeStamps.value())
+    if (settings().logTimeStamps())
         showMessage(LogWindow::logTimeStamp(), LogMiscInput);
     m_oldestAcceptableToken = currentToken();
     m_stackNeeded = false;
@@ -2165,7 +2166,7 @@ void GdbEngine::handleCatchInsert(const DebuggerResponse &response, const Breakp
 void GdbEngine::handleBkpt(const GdbMi &bkpt, const Breakpoint &bp)
 {
     QTC_ASSERT(bp, return);
-    const bool usePseudoTracepoints = debuggerSettings()->usePseudoTracepoints.value();
+    const bool usePseudoTracepoints = settings().usePseudoTracepoints();
     const QString nr = bkpt["number"].data();
     if (nr.contains('.')) {
         // A sub-breakpoint.
@@ -2580,7 +2581,7 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
         int spec = requested.threadSpec;
         if (requested.isTracepoint()) {
 
-            if (debuggerSettings()->usePseudoTracepoints.value()) {
+            if (settings().usePseudoTracepoints()) {
                 cmd.function = "createTracepoint";
 
                 if (requested.oneShot)
@@ -2616,7 +2617,7 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
                 // for dumping of expressions
                 const bool alwaysVerbose = qtcEnvironmentVariableIsSet(
                     "QTC_DEBUGGER_PYTHON_VERBOSE");
-                const DebuggerSettings &s = *debuggerSettings();
+                const DebuggerSettings &s = settings();
                 cmd.arg("passexceptions", alwaysVerbose);
                 cmd.arg("fancy", s.useDebuggingHelpers());
                 cmd.arg("autoderef", s.autoDerefPointers());
@@ -3117,7 +3118,7 @@ DebuggerCommand GdbEngine::stackCommand(int depth)
 void GdbEngine::reloadStack()
 {
     PENDING_DEBUG("RELOAD STACK");
-    DebuggerCommand cmd = stackCommand(debuggerSettings()->maximalStackDepth.value());
+    DebuggerCommand cmd = stackCommand(settings().maximalStackDepth());
     cmd.callback = [this](const DebuggerResponse &r) { handleStackListFrames(r, false); };
     cmd.flags = Discardable;
     runCommand(cmd);
@@ -3181,8 +3182,8 @@ void GdbEngine::handleThreadInfo(const DebuggerResponse &response)
         ThreadsHandler *handler = threadsHandler();
         handler->setThreads(response.data);
         updateState(); // Adjust Threads combobox.
-        if (debuggerSettings()->showThreadNames.value()) {
-            runCommand({QString("threadnames %1").arg(debuggerSettings()->maximalStackDepth.value()),
+        if (settings().showThreadNames()) {
+            runCommand({QString("threadnames %1").arg(settings().maximalStackDepth()),
                 Discardable, CB(handleThreadNames)});
         }
         reloadStack(); // Will trigger register reload.
@@ -3650,7 +3651,7 @@ public:
 
 void GdbEngine::fetchDisassembler(DisassemblerAgent *agent)
 {
-    if (debuggerSettings()->intelFlavor.value())
+    if (settings().intelFlavor())
         runCommand({"set disassembly-flavor intel"});
     else
         runCommand({"set disassembly-flavor att"});
@@ -3839,7 +3840,7 @@ void GdbEngine::setupEngine()
     }
 
     gdbCommand.addArgs({"-i", "mi"});
-    if (!debuggerSettings()->loadGdbInit.value())
+    if (!settings().loadGdbInit())
         gdbCommand.addArg("-n");
 
     // This is filled in DebuggerKitAspect::runnable
@@ -3885,7 +3886,7 @@ void GdbEngine::handleGdbStarted()
     runCommand({"set breakpoint pending on"});
     runCommand({"set print elements 10000"});
 
-    if (debuggerSettings()->useIndexCache.value())
+    if (settings().useIndexCache())
         runCommand({"set index-cache on"});
 
     // Produces a few messages during symtab loading
@@ -3930,8 +3931,7 @@ void GdbEngine::handleGdbStarted()
 
     // Apply source path mappings from global options.
     //showMessage(_("Assuming Qt is installed at %1").arg(qtInstallPath));
-    const SourcePathMap sourcePathMap =
-            mergePlatformQtPath(rp, debuggerSettings()->sourcePathMap.value());
+    const SourcePathMap sourcePathMap = mergePlatformQtPath(rp, settings().sourcePathMap());
     const SourcePathMap completeSourcePathMap =
             mergeStartParametersSourcePathMap(rp, sourcePathMap);
     for (auto it = completeSourcePathMap.constBegin(), cend = completeSourcePathMap.constEnd();
@@ -3959,7 +3959,7 @@ void GdbEngine::handleGdbStarted()
     //if (!ba.isEmpty())
     //    runCommand("set solib-search-path " + ba);
 
-    if (debuggerSettings()->multiInferior.value() || runParameters().multiProcess) {
+    if (settings().multiInferior() || runParameters().multiProcess) {
         //runCommand("set follow-exec-mode new");
         runCommand({"set detach-on-fork off"});
     }
@@ -4029,14 +4029,14 @@ void GdbEngine::handleGdbStarted()
         runCommand({"python from gdbbridge import *"});
     }
 
-    const FilePath path = debuggerSettings()->extraDumperFile();
+    const FilePath path = settings().extraDumperFile();
     if (!path.isEmpty() && path.isReadableFile()) {
         DebuggerCommand cmd("addDumperModule");
         cmd.arg("path", path.path());
         runCommand(cmd);
     }
 
-    const QString commands = expand(debuggerSettings()->extraDumperCommands.value());
+    const QString commands = expand(settings().extraDumperCommands());
     if (!commands.isEmpty())
         runCommand({commands});
 
@@ -4253,7 +4253,7 @@ bool GdbEngine::usesExecInterrupt() const
 
 bool GdbEngine::usesTargetAsync() const
 {
-    return runParameters().useTargetAsync || debuggerSettings()->targetAsync.value();
+    return runParameters().useTargetAsync || settings().targetAsync();
 }
 
 void GdbEngine::scheduleTestResponse(int testCase, const QString &response)
@@ -4372,10 +4372,10 @@ void GdbEngine::claimInitialBreakpoints()
         showMessage(Tr::tr("Setting breakpoints..."));
         BreakpointManager::claimBreakpointsForEngine(this);
 
-        const DebuggerSettings &s = *debuggerSettings();
-        const bool onAbort = s.breakOnAbort.value();
-        const bool onWarning = s.breakOnWarning.value();
-        const bool onFatal = s.breakOnFatal.value();
+        const DebuggerSettings &s = settings();
+        const bool onAbort = s.breakOnAbort();
+        const bool onWarning = s.breakOnWarning();
+        const bool onFatal = s.breakOnFatal();
         if (onAbort || onWarning || onFatal) {
             DebuggerCommand cmd("createSpecialBreakpoints");
             cmd.arg("breakonabort", onAbort);
@@ -4613,7 +4613,7 @@ void GdbEngine::handleLocalAttach(const DebuggerResponse &response)
     {
         showMessage("INFERIOR ATTACHED");
 
-        QString commands = expand(debuggerSettings()->gdbPostAttachCommands.value());
+        QString commands = expand(settings().gdbPostAttachCommands());
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
 
@@ -4793,7 +4793,7 @@ void GdbEngine::handleExecRun(const DebuggerResponse &response)
     if (response.resultClass == ResultRunning) {
 
         if (isLocalRunEngine()) {
-            QString commands = expand(debuggerSettings()->gdbPostAttachCommands.value());
+            QString commands = expand(settings().gdbPostAttachCommands());
             if (!commands.isEmpty())
                 runCommand({commands, NativeCommand});
         }
@@ -4847,7 +4847,7 @@ void GdbEngine::handleTargetRemote(const DebuggerResponse &response)
         // gdb server will stop the remote application itself.
         showMessage("INFERIOR STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString commands = expand(debuggerSettings()->gdbPostAttachCommands.value());
+        QString commands = expand(settings().gdbPostAttachCommands());
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
         handleInferiorPrepared();
@@ -4863,7 +4863,7 @@ void GdbEngine::handleTargetExtendedRemote(const DebuggerResponse &response)
     if (response.resultClass == ResultDone) {
         showMessage("ATTACHED TO GDB SERVER STARTED");
         showMessage(msgAttachedToStoppedInferior(), StatusBar);
-        QString commands = expand(debuggerSettings()->gdbPostAttachCommands.value());
+        QString commands = expand(settings().gdbPostAttachCommands());
         if (!commands.isEmpty())
             runCommand({commands, NativeCommand});
         if (runParameters().attachPID.isValid()) { // attach to pid if valid
@@ -4993,8 +4993,7 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
         break;
     case ResultError:
         if (response.data["msg"].data() == "ptrace: Operation not permitted.") {
-            showMessage(msgPtraceError(runParameters().startMode));
-            notifyEngineRunFailed();
+            notifyInferiorSetupFailedHelper(msgPtraceError(runParameters().startMode));
             break;
         }
         showMessage(response.data["msg"].data());
@@ -5035,7 +5034,7 @@ static FilePath findExecutableFromName(const QString &fileNameFromCore, const Fi
     return {};
 }
 
-CoreInfo CoreInfo::readExecutableNameFromCore(const Runnable &debugger, const FilePath &coreFile)
+CoreInfo CoreInfo::readExecutableNameFromCore(const ProcessRunData &debugger, const FilePath &coreFile)
 {
     CoreInfo cinfo;
 #if 0
@@ -5113,20 +5112,20 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     watchHandler()->appendWatchersAndTooltipRequests(&cmd);
 
     const bool alwaysVerbose = qtcEnvironmentVariableIsSet("QTC_DEBUGGER_PYTHON_VERBOSE");
-    const DebuggerSettings &s = *debuggerSettings();
+    const DebuggerSettings &s = settings();
     cmd.arg("passexceptions", alwaysVerbose);
-    cmd.arg("fancy", s.useDebuggingHelpers.value());
-    cmd.arg("autoderef", s.autoDerefPointers.value());
-    cmd.arg("dyntype", s.useDynamicType.value());
-    cmd.arg("qobjectnames", s.showQObjectNames.value());
-    cmd.arg("timestamps", s.logTimeStamps.value());
+    cmd.arg("fancy", s.useDebuggingHelpers());
+    cmd.arg("autoderef", s.autoDerefPointers());
+    cmd.arg("dyntype", s.useDynamicType());
+    cmd.arg("qobjectnames", s.showQObjectNames());
+    cmd.arg("timestamps", s.logTimeStamps());
 
     StackFrame frame = stackHandler()->currentFrame();
     cmd.arg("context", frame.context);
     cmd.arg("nativemixed", isNativeMixedActive());
 
-    cmd.arg("stringcutoff", s.maximalStringLength.value());
-    cmd.arg("displaystringlimit", s.displayStringLimit.value());
+    cmd.arg("stringcutoff", s.maximalStringLength());
+    cmd.arg("displaystringlimit", s.displayStringLimit());
 
     cmd.arg("resultvarname", m_resultVarName);
     cmd.arg("partialvar", params.partialVariable);

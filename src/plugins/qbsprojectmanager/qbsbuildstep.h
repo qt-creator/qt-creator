@@ -3,20 +3,35 @@
 
 #pragma once
 
-#include "qbsbuildconfiguration.h"
-
 #include <projectexplorer/buildstep.h>
-#include <projectexplorer/task.h>
 
-namespace QbsProjectManager {
-namespace Internal {
+namespace QbsProjectManager::Internal {
 
-class ErrorInfo;
-class QbsProject;
-class QbsSession;
-
-class ArchitecturesAspect;
+class QbsBuildConfiguration;
 class QbsBuildStepConfigWidget;
+class QbsBuildStepData;
+class QbsBuildSystem;
+
+class ArchitecturesAspect : public Utils::MultiSelectionAspect
+{
+    Q_OBJECT
+
+public:
+    ArchitecturesAspect(Utils::AspectContainer *container = nullptr);
+
+    void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
+    void addToLayout(Layouting::LayoutItem &parent) override;
+    QStringList selectedArchitectures() const;
+    void setSelectedArchitectures(const QStringList& architectures);
+    bool isManagedByTarget() const { return m_isManagedByTarget; }
+
+private:
+    void setVisibleDynamic(bool visible);
+
+    const ProjectExplorer::Kit *m_kit = nullptr;
+    QMap<QString, QString> m_abisToArchMap;
+    bool m_isManagedByTarget = false;
+};
 
 class QbsBuildStep final : public ProjectExplorer::BuildStep
 {
@@ -30,90 +45,49 @@ public:
     };
 
     QbsBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
-    ~QbsBuildStep() override;
 
     QVariantMap qbsConfiguration(VariableHandling variableHandling) const;
     void setQbsConfiguration(const QVariantMap &config);
 
-    bool keepGoing() const { return m_keepGoing->value(); }
-    bool showCommandLines() const { return m_showCommandLines->value(); }
-    bool install() const { return m_install->value(); }
-    bool cleanInstallRoot() const { return m_cleanInstallDir->value(); }
-    bool hasCustomInstallRoot() const;
     Utils::FilePath installRoot(VariableHandling variableHandling = ExpandVariables) const;
-    int maxJobs() const;
     QString buildVariant() const;
 
-    bool forceProbes() const { return m_forceProbes->value(); }
-
-    QbsBuildSystem *qbsBuildSystem() const;
-    QbsBuildStepData stepData() const;
-
-    void dropSession();
+    Utils::SelectionAspect buildVariantHolder{this};
+    ArchitecturesAspect selectedAbis{this};
+    Utils::IntegerAspect maxJobCount{this};
+    Utils::BoolAspect keepGoing{this};
+    Utils::BoolAspect showCommandLines{this};
+    Utils::BoolAspect install{this};
+    Utils::BoolAspect cleanInstallRoot{this};
+    Utils::BoolAspect forceProbes{this};
+    Utils::StringAspect commandLine{this};
 
 signals:
     void qbsConfigurationChanged();
-    void qbsBuildOptionsChanged();
 
 private:
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() override;
-    void doCancel() override;
+    Tasking::GroupItem runRecipe() final;
     QWidget *createConfigWidget() override;
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
-    void buildingDone(const ErrorInfo &error);
-    void reparsingDone(bool success);
-    void handleTaskStarted(const QString &desciption, int max);
-    void handleProgress(int value);
-    void handleCommandDescription(const QString &message);
-    void handleProcessResult(
-            const Utils::FilePath &executable,
-            const QStringList &arguments,
-            const Utils::FilePath &workingDir,
-            const QStringList &stdOut,
-            const QStringList &stdErr,
-            bool success);
-
-    void createTaskAndOutput(ProjectExplorer::Task::TaskType type,
-                             const QString &message, const QString &file, int line);
-
-    void setBuildVariant(const QString &variant);
-    void setConfiguredArchitectures(const QStringList &architectures);
-    QString profile() const;
-
-    void parseProject();
-    void build();
-    void finish();
+    QbsBuildConfiguration *qbsBuildConfiguration() const;
+    QbsBuildSystem *qbsBuildSystem() const;
+    QbsBuildStepData stepData() const;
+    bool hasCustomInstallRoot() const;
+    int maxJobs() const;
 
     void updateState();
     QStringList configuredArchitectures() const;
 
     QVariantMap m_qbsConfiguration;
-    Utils::SelectionAspect *m_buildVariant = nullptr;
-    ArchitecturesAspect *m_selectedAbis = nullptr;
-    Utils::IntegerAspect *m_maxJobCount = nullptr;
-    Utils::BoolAspect *m_keepGoing = nullptr;
-    Utils::BoolAspect *m_showCommandLines = nullptr;
-    Utils::BoolAspect *m_install = nullptr;
-    Utils::BoolAspect *m_cleanInstallDir = nullptr;
-    Utils::BoolAspect *m_forceProbes = nullptr;
-    Utils::StringAspect *m_commandLine = nullptr;
 
     // Temporary data:
     QStringList m_changedFiles;
     QStringList m_activeFileTags;
     QStringList m_products;
-
-    QbsSession *m_session = nullptr;
-
-    QString m_currentTask;
-    int m_maxProgress;
-    bool m_lastWasSuccess;
-    bool m_parsingProject = false;
-    bool m_parsingAfterBuild = false;
 
     friend class QbsBuildStepConfigWidget;
 };
@@ -124,5 +98,4 @@ public:
     QbsBuildStepFactory();
 };
 
-} // namespace Internal
-} // namespace QbsProjectManager
+} // namespace QbsProjectManager::Internal

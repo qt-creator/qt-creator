@@ -13,23 +13,16 @@ add_qtc_plugin(MesonProjectManager
   common.h
   infoparser.h
   kitdata.h
-  kithelper.h
-  machinefilemanager.cpp
-  machinefilemanager.h
   mesonactionsmanager.cpp
   mesonactionsmanager.h
   mesonbuildconfiguration.cpp
   mesonbuildconfiguration.h
-  mesonbuildsettingswidget.cpp
-  mesonbuildsettingswidget.h
   mesonbuildsystem.cpp
   mesonbuildsystem.h
   mesoninfo.h
   mesoninfoparser.h
   mesonoutputparser.cpp
   mesonoutputparser.h
-  mesonprocess.cpp
-  mesonprocess.h
   mesonproject.cpp
   mesonproject.h
   mesonprojectimporter.cpp
@@ -40,7 +33,6 @@ add_qtc_plugin(MesonProjectManager
   mesonprojectparser.cpp
   mesonprojectparser.h
   mesonprojectplugin.cpp
-  mesonprojectplugin.h
   mesonrunconfiguration.cpp
   mesonrunconfiguration.h
   mesontoolkitaspect.cpp
@@ -49,8 +41,6 @@ add_qtc_plugin(MesonProjectManager
   mesontools.h
   mesonwrapper.cpp
   mesonwrapper.h
-  nativefilegenerator.cpp
-  nativefilegenerator.h
   ninjabuildstep.cpp
   ninjabuildstep.h
   ninjaparser.cpp

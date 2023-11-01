@@ -30,20 +30,14 @@ class InfoParser
     MesonInfo m_info;
 
 public:
-    InfoParser(const QString &buildDir)
-    /*: AbstractParser(jsonFile(buildDir))*/
+    InfoParser(const Utils::FilePath &buildDir)
     {
-        auto obj = load<QJsonObject>(jsonFile(buildDir));
+        Utils::FilePath jsonFile = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INFO;
+        auto obj = load<QJsonObject>(jsonFile.toFSPathString());
         if (obj)
             m_info = load_info(*obj);
     }
-    static inline QString jsonFile(const QString &buildDir)
-    {
-        return QString("%1/%2/%3")
-            .arg(buildDir)
-            .arg(Constants::MESON_INFO_DIR)
-            .arg(Constants::MESON_INFO);
-    }
+
     MesonInfo info() { return m_info; }
 };
 

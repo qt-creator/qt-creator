@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../coreplugin.h"
-
+#include "../testdatadir.h"
 #include "locatorfiltertest.h"
 
-#include <coreplugin/testdatadir.h>
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 

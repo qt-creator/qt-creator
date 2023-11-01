@@ -6,14 +6,12 @@
 #include "androidpotentialkit.h"
 #include "androidtr.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>
@@ -22,9 +20,9 @@
 #include <utils/utilsicons.h>
 
 #include <QGridLayout>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QPushButton>
-
 
 namespace Android::Internal {
 
@@ -83,7 +81,7 @@ AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     auto label = new QLabel;
     label->setText(Tr::tr("%1 needs additional settings to enable Android support."
                           " You can configure those settings in the Options dialog.")
-                   .arg(Core::Constants::IDE_DISPLAY_NAME));
+                       .arg(QGuiApplication::applicationDisplayName()));
     label->setWordWrap(true);
     layout->addWidget(label, 0, 0, 1, 2);
 

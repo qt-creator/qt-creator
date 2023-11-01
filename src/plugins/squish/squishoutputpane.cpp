@@ -16,22 +16,24 @@
 #include <QVBoxLayout>
 
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icontext.h>
 
 #include <utils/itemviews.h>
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 static SquishOutputPane *m_instance = nullptr;
 
-SquishOutputPane::SquishOutputPane(QObject *parent)
-    : Core::IOutputPane(parent)
-    , m_context(new Core::IContext(this))
+SquishOutputPane::SquishOutputPane()
 {
+    setId("Squish");
+    setDisplayName(Tr::tr("Squish"));
+    setPriorityInStatusBar(-60);
+
+    m_instance = this;
+
     m_outputPane = new QTabWidget;
     m_outputPane->setDocumentMode(true);
 
@@ -99,8 +101,6 @@ SquishOutputPane::SquishOutputPane(QObject *parent)
 
 SquishOutputPane *SquishOutputPane::instance()
 {
-    if (!m_instance)
-        m_instance = new SquishOutputPane;
     return m_instance;
 }
 
@@ -115,17 +115,7 @@ QWidget *SquishOutputPane::outputWidget(QWidget *parent)
 
 QList<QWidget *> SquishOutputPane::toolBarWidgets() const
 {
-    return QList<QWidget *>() << m_filterButton << m_expandAll << m_collapseAll;
-}
-
-QString SquishOutputPane::displayName() const
-{
-    return Tr::tr("Squish");
-}
-
-int SquishOutputPane::priorityInStatusBar() const
-{
-    return -777;
+    return {m_filterButton, m_expandAll, m_collapseAll};
 }
 
 void SquishOutputPane::clearContents()
@@ -395,5 +385,4 @@ void SquishOutputPane::enableAllFiltersTriggered()
     m_filterModel->enableAllResultTypes();
 }
 
-} // namespace Internal
-} // namespace Squish
+} // namespace Squish::Internal

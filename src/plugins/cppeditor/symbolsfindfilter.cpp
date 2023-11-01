@@ -7,11 +7,12 @@
 #include "cppeditortr.h"
 #include "cppmodelmanager.h"
 
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/searchresultwindow.h>
+#include <coreplugin/find/textfindconstants.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/futureprogress.h>
 #include <coreplugin/progressmanager/progressmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/find/searchresultwindow.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -35,9 +36,8 @@ const char SETTINGS_GROUP[] = "CppSymbols";
 const char SETTINGS_SYMBOLTYPES[] = "SymbolsToSearchFor";
 const char SETTINGS_SEARCHSCOPE[] = "SearchScope";
 
-SymbolsFindFilter::SymbolsFindFilter(CppModelManager *manager)
-    : m_manager(manager),
-      m_enabled(true),
+SymbolsFindFilter::SymbolsFindFilter()
+    : m_enabled(true),
       m_symbolsToSearch(SearchSymbols::AllTypes),
       m_scope(SymbolSearcher::SearchProjectsOnly)
 {
@@ -121,7 +121,7 @@ void SymbolsFindFilter::startSearch(SearchResult *search)
     SymbolSearcher *symbolSearcher = new SymbolSearcher(parameters, projectFileNames);
     connect(watcher, &QFutureWatcherBase::finished,
             symbolSearcher, &QObject::deleteLater);
-    watcher->setFuture(Utils::asyncRun(m_manager->sharedThreadPool(),
+    watcher->setFuture(Utils::asyncRun(CppModelManager::sharedThreadPool(),
                                        &SymbolSearcher::runSearch, symbolSearcher));
     FutureProgress *progress = ProgressManager::addTask(watcher->future(), Tr::tr("Searching for Symbol"),
                                                         Core::Constants::TASK_SEARCH);
@@ -139,7 +139,7 @@ void SymbolsFindFilter::addResults(QFutureWatcher<SearchResultItem> *watcher, in
     SearchResultItems items;
     for (int i = begin; i < end; ++i)
         items << watcher->resultAt(i);
-    search->addResults(items, SearchResult::AddSorted);
+    search->addResults(items, SearchResult::AddSortedByContent);
 }
 
 void SymbolsFindFilter::finish(QFutureWatcher<SearchResultItem> *watcher)
@@ -166,22 +166,21 @@ QWidget *SymbolsFindFilter::createConfigWidget()
     return new SymbolsFindFilterConfigWidget(this);
 }
 
-void SymbolsFindFilter::writeSettings(QSettings *settings)
+void SymbolsFindFilter::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String(SETTINGS_GROUP));
-    settings->setValue(QLatin1String(SETTINGS_SYMBOLTYPES), int(m_symbolsToSearch));
-    settings->setValue(QLatin1String(SETTINGS_SEARCHSCOPE), int(m_scope));
+    settings->beginGroup(SETTINGS_GROUP);
+    settings->setValue(SETTINGS_SYMBOLTYPES, int(m_symbolsToSearch));
+    settings->setValue(SETTINGS_SEARCHSCOPE, int(m_scope));
     settings->endGroup();
 }
 
-void SymbolsFindFilter::readSettings(QSettings *settings)
+void SymbolsFindFilter::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String(SETTINGS_GROUP));
+    settings->beginGroup(SETTINGS_GROUP);
     m_symbolsToSearch = static_cast<SearchSymbols::SymbolTypes>(
-                settings->value(QLatin1String(SETTINGS_SYMBOLTYPES),
-                                int(SearchSymbols::AllTypes)).toInt());
+                settings->value(SETTINGS_SYMBOLTYPES, int(SearchSymbols::AllTypes)).toInt());
     m_scope = static_cast<SearchScope>(
-                settings->value(QLatin1String(SETTINGS_SEARCHSCOPE),
+                settings->value(SETTINGS_SEARCHSCOPE,
                                 int(SymbolSearcher::SearchProjectsOnly)).toInt());
     settings->endGroup();
     emit symbolsToSearchChanged();

@@ -3,7 +3,7 @@
 
 #include "namevaluesdialog.h"
 
-#include "environment.h"
+#include "algorithm.h"
 #include "hostosinfo.h"
 #include "utilstr.h"
 
@@ -15,7 +15,6 @@
 #include <QVBoxLayout>
 
 namespace Utils {
-
 namespace Internal {
 
 static EnvironmentItems cleanUp(const EnvironmentItems &items)
@@ -29,13 +28,25 @@ static EnvironmentItems cleanUp(const EnvironmentItems &items)
         const QString &itemName = item.name;
         QString emptyName = itemName;
         emptyName.remove(QLatin1Char(' '));
-        if (!emptyName.isEmpty() && !uniqueSet.contains(itemName)) {
+        if (!emptyName.isEmpty() && Utils::insert(uniqueSet, itemName))
             uniqueItems.prepend(item);
-            uniqueSet.insert(itemName);
-        }
     }
     return uniqueItems;
 }
+
+class NameValueItemsWidget : public QWidget
+{
+public:
+    explicit NameValueItemsWidget(QWidget *parent = nullptr);
+
+    void setEnvironmentItems(const EnvironmentItems &items);
+    EnvironmentItems environmentItems() const;
+
+    void setPlaceholderText(const QString &text);
+
+private:
+    QPlainTextEdit *m_editor;
+};
 
 NameValueItemsWidget::NameValueItemsWidget(QWidget *parent)
     : QWidget(parent)
@@ -65,6 +76,7 @@ void NameValueItemsWidget::setPlaceholderText(const QString &text)
 {
     m_editor->setPlaceholderText(text);
 }
+
 } // namespace Internal
 
 NameValuesDialog::NameValuesDialog(const QString &windowTitle, const QString &helpText, QWidget *parent)

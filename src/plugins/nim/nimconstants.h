@@ -30,20 +30,17 @@ const char C_NIMBLEBUILDSTEP_ARGUMENTS[] = "Nim.NimbleBuildStep.Arguments";
 
 // NimbleTaskStep
 const char C_NIMBLETASKSTEP_ID[] = "Nim.NimbleTaskStep";
-const QString C_NIMBLETASKSTEP_TASKNAME = QStringLiteral("Nim.NimbleTaskStep.TaskName");
-const QString C_NIMBLETASKSTEP_TASKARGS = QStringLiteral("Nim.NimbleTaskStep.TaskArgs");
+const char C_NIMBLETASKSTEP_TASKNAME[] = "Nim.NimbleTaskStep.TaskName";
+const char C_NIMBLETASKSTEP_TASKARGS[] = "Nim.NimbleTaskStep.TaskArgs";
 
 // NimCompilerBuildStep
 const char C_NIMCOMPILERBUILDSTEP_ID[] = "Nim.NimCompilerBuildStep";
-const QString C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS = QStringLiteral("Nim.NimCompilerBuildStep.UserCompilerOptions");
-const QString C_NIMCOMPILERBUILDSTEP_DEFAULTBUILDOPTIONS = QStringLiteral("Nim.NimCompilerBuildStep.DefaultBuildOptions");
-const QString C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE = QStringLiteral("Nim.NimCompilerBuildStep.TargetNimFile");
+const char C_NIMCOMPILERBUILDSTEP_USERCOMPILEROPTIONS[] = "Nim.NimCompilerBuildStep.UserCompilerOptions";
+const char C_NIMCOMPILERBUILDSTEP_DEFAULTBUILDOPTIONS[] = "Nim.NimCompilerBuildStep.DefaultBuildOptions";
+const char C_NIMCOMPILERBUILDSTEP_TARGETNIMFILE[] = "Nim.NimCompilerBuildStep.TargetNimFile";
 
 // NimCompilerCleanStep
 const char C_NIMCOMPILERCLEANSTEP_ID[] = "Nim.NimCompilerCleanStep";
-
-// Nim task category (Issues pane)
-const char C_NIMPARSE_ID[] = "Nim.NimParse";
 
 const char C_NIMLANGUAGE_ID[] = "Nim";
 const char C_NIMCODESTYLESETTINGSPAGE_ID[] = "Nim.NimCodeStyleSettings";

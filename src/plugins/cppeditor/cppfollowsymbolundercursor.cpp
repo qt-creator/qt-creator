@@ -17,6 +17,7 @@
 #include <cplusplus/SimpleLexer.h>
 #include <cplusplus/TypeOfExpression.h>
 #include <texteditor/textdocumentlayout.h>
+#include <utils/algorithm.h>
 #include <utils/textutils.h>
 #include <utils/qtcassert.h>
 
@@ -181,9 +182,7 @@ Class *VirtualFunctionHelper::staticClassOfFunctionCallExpression_internal() con
 Link findMacroLink_helper(const QByteArray &name, Document::Ptr doc, const Snapshot &snapshot,
                           QSet<QString> *processed)
 {
-    if (doc && !name.startsWith('<') && !processed->contains(doc->filePath().path())) {
-        processed->insert(doc->filePath().path());
-
+    if (doc && !name.startsWith('<') && Utils::insert(*processed, doc->filePath().path())) {
         for (const Macro &macro : doc->definedMacros()) {
             if (macro.name() == name) {
                 Link link;
@@ -210,7 +209,7 @@ Link findMacroLink(const QByteArray &name, const Document::Ptr &doc)
 {
     if (!name.isEmpty()) {
         if (doc) {
-            const Snapshot snapshot = CppModelManager::instance()->snapshot();
+            const Snapshot snapshot = CppModelManager::snapshot();
             QSet<QString> processed;
             return findMacroLink_helper(name, doc, snapshot, &processed);
         }
@@ -343,7 +342,7 @@ Link attemptDeclDef(const QTextCursor &cursor, Snapshot snapshot,
         result = target->toLink();
 
         int startLine, startColumn, endLine, endColumn;
-        document->translationUnit()->getTokenStartPosition(name->firstToken(), &startLine,
+        document->translationUnit()->getTokenPosition(name->firstToken(), &startLine,
                                                            &startColumn);
         document->translationUnit()->getTokenEndPosition(name->lastToken() - 1, &endLine,
                                                          &endColumn);

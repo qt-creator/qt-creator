@@ -14,7 +14,6 @@
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QSettings>
 
 using namespace Core;
 using namespace Utils;
@@ -29,7 +28,7 @@ KitChooser::KitChooser(QWidget *parent) :
 {
     m_chooser = new QComboBox(this);
     m_chooser->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-    m_manageButton = new QPushButton(KitAspectWidget::msgManage(), this);
+    m_manageButton = new QPushButton(KitAspect::msgManage(), this);
 
     auto layout = new QHBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -102,8 +101,7 @@ void KitChooser::populate()
             m_hasStartupKit = true;
         }
     }
-    const QList<Kit *> kits = KitManager::sortKits(KitManager::kits());
-    for (Kit *kit : kits) {
+    for (Kit *kit : KitManager::sortedKits()) {
         if (m_kitPredicate(kit)) {
             m_chooser->addItem(kitText(kit), kit->id().toSetting());
             const int pos = m_chooser->count() - 1;

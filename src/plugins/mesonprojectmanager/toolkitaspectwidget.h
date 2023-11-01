@@ -15,13 +15,13 @@
 namespace MesonProjectManager {
 namespace Internal {
 
-class ToolKitAspectWidget final : public ProjectExplorer::KitAspectWidget
+class ToolKitAspectWidget final : public ProjectExplorer::KitAspect
 {
 public:
     enum class ToolType { Meson, Ninja };
 
     ToolKitAspectWidget(ProjectExplorer::Kit *kit,
-                        const ProjectExplorer::KitAspect *ki,
+                        const ProjectExplorer::KitAspectFactory *factory,
                         ToolType type);
     ~ToolKitAspectWidget();
 
@@ -36,7 +36,7 @@ private:
 
     void makeReadOnly() override { m_toolsComboBox->setEnabled(false); }
 
-    void addToLayout(Layouting::LayoutItem &parent) override
+    void addToLayoutImpl(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_toolsComboBox);
         parent.addItem(m_toolsComboBox);

@@ -3,31 +3,23 @@
 
 #include "valgrindtestrunnertest.h"
 
+#include "valgrindprocess.h"
 #include "xmlprotocol/frame.h"
 #include "xmlprotocol/stack.h"
-#include "xmlprotocol/threadedparser.h"
-#include "valgrindrunner.h"
-
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <utils/algorithm.h>
+#include <utils/processinterface.h>
 
 #include <QDebug>
-#include <QTest>
 #include <QDir>
-#include <QSignalSpy>
+#include <QTest>
 
 #define HEADER_LENGTH 3
 
-using namespace ProjectExplorer;
 using namespace Valgrind::XmlProtocol;
 using namespace Utils;
 
-namespace Valgrind {
-namespace Test {
+namespace Valgrind::Test {
 
 //BEGIN Test Helpers and boilerplate code
 
@@ -56,7 +48,7 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
     if (!binPathFileInfo.isExecutable())
         return QString();
 
-    Runnable debuggee;
+    ProcessRunData debuggee;
     const QString &binPath = binPathFileInfo.canonicalFilePath();
     debuggee.command.setExecutable(Utils::FilePath::fromString(binPath));
     debuggee.environment = Utils::Environment::systemEnvironment();
@@ -67,8 +59,7 @@ QString ValgrindTestRunnerTest::runTestBinary(const QString &binary, const QStri
     m_runner->setLocalServerAddress(QHostAddress::LocalHost);
     m_runner->setValgrindCommand(valgrind);
     m_runner->setDebuggee(debuggee);
-    m_runner->start();
-    m_runner->waitForFinished();
+    m_runner->runBlocking();
     return binPath;
 }
 
@@ -111,16 +102,14 @@ void ValgrindTestRunnerTest::init()
     Q_ASSERT(m_logMessages.isEmpty());
 
     Q_ASSERT(!m_runner);
-    m_runner = new ValgrindRunner;
+    m_runner = new ValgrindProcess;
     m_runner->setProcessChannelMode(QProcess::ForwardedChannels);
-    connect(m_runner, &ValgrindRunner::logMessageReceived,
+    connect(m_runner, &ValgrindProcess::logMessageReceived,
             this, &ValgrindTestRunnerTest::logMessageReceived);
-    connect(m_runner, &ValgrindRunner::processErrorReceived,
+    connect(m_runner, &ValgrindProcess::processErrorReceived,
             this, &ValgrindTestRunnerTest::internalError);
-    connect(m_runner->parser(), &ThreadedParser::internalError,
-            this, &ValgrindTestRunnerTest::internalError);
-    connect(m_runner->parser(), &ThreadedParser::error,
-            this, &ValgrindTestRunnerTest::error);
+    connect(m_runner, &ValgrindProcess::internalError, this, &ValgrindTestRunnerTest::internalError);
+    connect(m_runner, &ValgrindProcess::error, this, &ValgrindTestRunnerTest::error);
 }
 
 //BEGIN: Actual test cases
@@ -760,5 +749,4 @@ void ValgrindTestRunnerTest::testOverlap()
     }
 }
 
-} // namespace Test
-} // namespace Valgrind
+} // namespace Valgrind::Test

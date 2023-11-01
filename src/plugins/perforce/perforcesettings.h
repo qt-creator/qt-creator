@@ -68,7 +68,7 @@ public:
 
     void clearTopLevel();
 
-    Utils::StringAspect p4BinaryPath{this};
+    Utils::FilePathAspect p4BinaryPath{this};
     Utils::StringAspect p4Port{this};
     Utils::StringAspect p4Client{this};
     Utils::StringAspect p4User{this};
@@ -84,10 +84,6 @@ private:
     QDir *m_topLevelDir = nullptr;
 };
 
-class PerforceSettingsPage final : public Core::IOptionsPage
-{
-public:
-    explicit PerforceSettingsPage(PerforceSettings *settings);
-};
+PerforceSettings &settings();
 
 } // Perforce::Internal

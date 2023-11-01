@@ -5,11 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <QVariantMap>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <utils/store.h>
 
 namespace TextEditor {
 
@@ -18,11 +14,11 @@ class TEXTEDITOR_EXPORT MarginSettings
 public:
     MarginSettings();
 
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
+    void toSettings(Utils::QtcSettings *s) const;
+    void fromSettings(Utils::QtcSettings *s);
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     bool equals(const MarginSettings &other) const;
 

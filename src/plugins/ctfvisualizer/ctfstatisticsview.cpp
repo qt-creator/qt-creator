@@ -7,8 +7,7 @@
 #include <QHeaderView>
 #include <QSortFilterProxyModel>
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 CtfStatisticsView::CtfStatisticsView(CtfStatisticsModel *model, QWidget *parent)
     : Utils::TreeView(parent)
@@ -28,11 +27,10 @@ CtfStatisticsView::CtfStatisticsView(CtfStatisticsModel *model, QWidget *parent)
     header()->setStretchLastSection(false);
     header()->setSectionResizeMode(CtfStatisticsModel::Column::Title, QHeaderView::Stretch);
     setRootIsDecorated(false);
-    setUniformRowHeights(true);
     setSortingEnabled(true);
 
-    connect(selectionModel(), &QItemSelectionModel::currentChanged,
-            [this] (const QModelIndex &current, const QModelIndex &previous)
+    connect(selectionModel(), &QItemSelectionModel::currentChanged, this,
+            [this](const QModelIndex &current, const QModelIndex &previous)
     {
         Q_UNUSED(previous);
         QModelIndex index = this->model()->index(current.row(), CtfStatisticsModel::Title);
@@ -57,5 +55,4 @@ void CtfStatisticsView::selectByTitle(const QString &title)
     }
 }
 
-}  // Internal
-}  // CtfVisualizer
+}  // CtfVisualizer::Internal

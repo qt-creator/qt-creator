@@ -38,13 +38,9 @@ using CommandHandler = std::function<void(const CommandResult &)>;
 
 class VCSBASE_EXPORT VcsBaseClientImpl : public QObject
 {
-    Q_OBJECT
-
 public:
     explicit VcsBaseClientImpl(VcsBaseSettings *baseSettings);
     ~VcsBaseClientImpl() override = default;
-
-    VcsBaseSettings &settings() const;
 
     virtual Utils::FilePath vcsBinary() const;
     int vcsTimeoutS() const;

@@ -105,14 +105,14 @@ void QmlPuppet::initQmlRunner()
 
     if (m_argParser.isSet("readcapturedstream") && m_coreApp->arguments().count() > 2) {
         QString fileName = m_argParser.value("readcapturedstream");
-        if (!QFile::exists(fileName)) {
+        if (!QFileInfo::exists(fileName)) {
             qDebug() << "Input stream does not exist:" << fileName;
             exit(-1);
         }
 
         if (m_coreApp->arguments().count() > 3) {
             fileName = m_coreApp->arguments().at(3);
-            if (!QFile::exists(fileName)) {
+            if (!QFileInfo::exists(fileName)) {
                 qDebug() << "Output stream does not exist:" << fileName;
                 exit(-1);
             }

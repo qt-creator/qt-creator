@@ -246,8 +246,7 @@ QVariant MiscSettingsPanelItem::data(int column, int role) const
 
     if (role == ActiveItemRole)  // We are the active one.
         return QVariant::fromValue<TreeItem *>(const_cast<MiscSettingsPanelItem *>(this));
-
-    return QVariant();
+    return {};
 }
 
 Qt::ItemFlags MiscSettingsPanelItem::flags(int column) const
@@ -300,7 +299,7 @@ public:
             if (0 <= m_currentPanelIndex && m_currentPanelIndex < childCount())
                 return childAt(m_currentPanelIndex)->data(column, role);
         }
-        return QVariant();
+        return {};
     }
 
     bool setData(int column, const QVariant &data, int role) override
@@ -363,7 +362,7 @@ public:
             if (m_currentChildIndex == 1)
                 return m_miscItem->data(column, role);
         }
-        return QVariant();
+        return {};
     }
 
     bool setData(int column, const QVariant &dat, int role) override
@@ -742,8 +741,17 @@ public:
 
     void handleManageKits()
     {
-        if (ProjectItem *projectItem = m_projectsModel.rootItem()->childAt(0)) {
-            KitOptionsPage::showKit(KitManager::kit(Id::fromSetting(projectItem->data(0, KitIdRole))));
+        const QModelIndexList selected = m_selectorTree->selectionModel()->selectedIndexes();
+        if (!selected.isEmpty()) {
+            TreeItem *treeItem = m_projectsModel.itemForIndex(selected.front());
+            while (treeItem) {
+                const Id kitId = Id::fromSetting(treeItem->data(0, KitIdRole));
+                if (kitId.isValid()) {
+                    setSelectectKitId(kitId);
+                    break;
+                }
+                treeItem = treeItem->parent();
+            }
         }
         ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID);
     }
@@ -854,7 +862,7 @@ void ProjectWindow::savePersistentSettings() const
 {
     if (!centralWidget())
         return;
-    QSettings * const settings = ICore::settings();
+    QtcSettings * const settings = ICore::settings();
     settings->beginGroup(PROJECT_WINDOW_KEY);
     saveSettings(settings);
     settings->endGroup();
@@ -864,7 +872,7 @@ void ProjectWindow::loadPersistentSettings()
 {
     if (!centralWidget())
         return;
-    QSettings * const settings = ICore::settings();
+    QtcSettings * const settings = ICore::settings();
     settings->beginGroup(PROJECT_WINDOW_KEY);
     restoreSettings(settings);
     settings->endGroup();

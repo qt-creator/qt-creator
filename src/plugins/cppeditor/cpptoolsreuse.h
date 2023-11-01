@@ -12,6 +12,8 @@
 #include <texteditor/quickfix.h>
 #include <texteditor/texteditor.h>
 
+#include <utils/searchresultitem.h>
+
 #include <cplusplus/ASTVisitor.h>
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Token.h>
@@ -23,9 +25,10 @@ class LookupContext;
 } // namespace CPlusPlus
 
 namespace TextEditor { class AssistInterface; }
+namespace Utils { namespace Text { class Range; } }
 
 namespace CppEditor {
-
+class CppEditorWidget;
 class CppRefactoringFile;
 class ProjectInfo;
 class CppCompletionAssistProcessor;
@@ -67,7 +70,17 @@ void CPPEDITOR_EXPORT openEditor(const Utils::FilePath &filePath, bool inNextSpl
 class CppCodeModelSettings;
 CppCodeModelSettings CPPEDITOR_EXPORT *codeModelSettings();
 
-bool CPPEDITOR_EXPORT preferLowerCaseFileNames();
+QString CPPEDITOR_EXPORT preferredCxxHeaderSuffix(ProjectExplorer::Project *project);
+QString CPPEDITOR_EXPORT preferredCxxSourceSuffix(ProjectExplorer::Project *project);
+bool CPPEDITOR_EXPORT preferLowerCaseFileNames(ProjectExplorer::Project *project);
+
+
+QList<Utils::Text::Range> CPPEDITOR_EXPORT symbolOccurrencesInText(
+    const QTextDocument &doc, QStringView text, int offset, const QString &symbolName);
+Utils::SearchResultItems CPPEDITOR_EXPORT
+symbolOccurrencesInDeclarationComments(const Utils::SearchResultItems &symbolOccurrencesInCode);
+QList<Utils::Text::Range> CPPEDITOR_EXPORT symbolOccurrencesInDeclarationComments(
+    CppEditorWidget *editorWidget, const QTextCursor &cursor);
 
 UsePrecompiledHeaders CPPEDITOR_EXPORT getPchUsage();
 

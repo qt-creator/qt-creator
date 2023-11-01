@@ -59,8 +59,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
 
     bool invalidateSnapshot = false, invalidateConfig = false;
 
-    CppModelManager *modelManager = CppModelManager::instance();
-    QByteArray configFile = modelManager->codeModelConfiguration();
+    QByteArray configFile = CppModelManager::codeModelConfiguration();
     ProjectExplorer::HeaderPaths headerPaths;
     FilePaths includedFiles;
     FilePaths precompiledHeaders;
@@ -131,7 +130,7 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
     else
         invalidateSnapshot = true;
 
-    Snapshot globalSnapshot = modelManager->snapshot();
+    Snapshot globalSnapshot = CppModelManager::snapshot();
 
     if (invalidateSnapshot) {
         state.snapshot = Snapshot();
@@ -172,19 +171,19 @@ void BuiltinEditorDocumentParser::updateImpl(const QPromise<void> &promise,
 
         Internal::CppSourceProcessor sourceProcessor(state.snapshot, [&](const Document::Ptr &doc) {
             const bool isInEditor = doc->filePath() == filePath();
-            Document::Ptr otherDoc = modelManager->document(doc->filePath());
+            Document::Ptr otherDoc = CppModelManager::document(doc->filePath());
             unsigned newRev = otherDoc.isNull() ? 1U : otherDoc->revision() + 1;
             if (isInEditor)
                 newRev = qMax(rev + 1, newRev);
             doc->setRevision(newRev);
-            modelManager->emitDocumentUpdated(doc);
+            CppModelManager::emitDocumentUpdated(doc);
             if (releaseSourceAndAST_)
                 doc->releaseSourceAndAST();
         });
         sourceProcessor.setFileSizeLimitInMb(m_fileSizeLimitInMb);
         sourceProcessor.setCancelChecker([&promise] { return promise.isCanceled(); });
 
-        Snapshot globalSnapshot = modelManager->snapshot();
+        Snapshot globalSnapshot = CppModelManager::snapshot();
         globalSnapshot.remove(filePath());
         sourceProcessor.setGlobalSnapshot(globalSnapshot);
         sourceProcessor.setWorkingCopy(workingCopy);

@@ -3,30 +3,30 @@
 
 #pragma once
 
-#include "../beautifierabstracttool.h"
+#include "../beautifiertool.h"
 
-#include "artisticstylesettings.h"
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 namespace Beautifier::Internal {
 
-class ArtisticStyle : public BeautifierAbstractTool
+class ArtisticStyle : public BeautifierTool
 {
 public:
     ArtisticStyle();
 
     QString id() const override;
     void updateActions(Core::IEditor *editor) override;
-    TextEditor::Command command() const override;
+    TextEditor::Command textCommand() const override;
     bool isApplicable(const Core::IDocument *document) const override;
 
 private:
     void formatFile();
-    QString configurationFile() const;
-    TextEditor::Command command(const QString &cfgFile) const;
+    Utils::FilePath configurationFile() const;
+    TextEditor::Command textCommand(const QString &cfgFile) const;
 
     QAction *m_formatFile = nullptr;
-    ArtisticStyleSettings m_settings;
-    ArtisticStyleOptionsPage m_page{&m_settings};
 };
 
 } // Beautifier::Internal

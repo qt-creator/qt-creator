@@ -3,11 +3,10 @@
 
 #include "qttestconfiguration.h"
 
+#include "qttestframework.h"
 #include "qttestoutputreader.h"
-#include "qttestsettings.h"
 #include "qttest_utils.h"
 
-#include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
@@ -29,8 +28,7 @@ static QStringList quoteIfNeeded(const QStringList &testCases, bool debugMode)
 
 TestOutputReader *QtTestConfiguration::createOutputReader(Process *app) const
 {
-    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
-    const QtTestOutputReader::OutputMode mode = qtSettings && qtSettings->useXMLOutput.value()
+    const QtTestOutputReader::OutputMode mode = theQtTestFramework().useXMLOutput()
             ? QtTestOutputReader::XML
             : QtTestOutputReader::PlainText;
     return new QtTestOutputReader(app, buildDirectory(), projectFile(), mode, TestType::QtTest);
@@ -39,34 +37,32 @@ TestOutputReader *QtTestConfiguration::createOutputReader(Process *app) const
 QStringList QtTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (TestSettings::instance()->processArgs()) {
+    if (testSettings().processArgs()) {
         arguments.append(QTestUtils::filterInterfering(
                              runnable().command.arguments().split(' ', Qt::SkipEmptyParts),
                              omitted, false));
     }
-    auto qtSettings = static_cast<QtTestSettings *>(framework()->testSettings());
-    if (!qtSettings)
-        return arguments;
-    if (qtSettings->useXMLOutput.value())
+    QtTestFramework &qtSettings = theQtTestFramework();
+    if (qtSettings.useXMLOutput())
         arguments << "-xml";
     if (!testCases().isEmpty())
         arguments << quoteIfNeeded(testCases(), isDebugRunMode());
 
-    const QString &metricsOption = QtTestSettings::metricsTypeToOption(MetricsType(qtSettings->metrics.value()));
+    const QString metricsOption = QtTestFramework::metricsTypeToOption(MetricsType(qtSettings.metrics()));
     if (!metricsOption.isEmpty())
         arguments << metricsOption;
 
-    if (qtSettings->verboseBench.value())
+    if (qtSettings.verboseBench())
         arguments << "-vb";
 
-    if (qtSettings->logSignalsSlots.value())
+    if (qtSettings.logSignalsSlots())
         arguments << "-vs";
 
-    if (isDebugRunMode() && qtSettings->noCrashHandler.value())
+    if (isDebugRunMode() && qtSettings.noCrashHandler())
         arguments << "-nocrashhandler";
 
-    if (qtSettings->limitWarnings.value() && qtSettings->maxWarnings.value() != 2000)
-        arguments << "-maxwarnings" << QString::number(qtSettings->maxWarnings.value());
+    if (qtSettings.limitWarnings() && qtSettings.maxWarnings() != 2000)
+        arguments << "-maxwarnings" << QString::number(qtSettings.maxWarnings());
 
     return arguments;
 }

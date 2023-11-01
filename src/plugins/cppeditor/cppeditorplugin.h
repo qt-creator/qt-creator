@@ -5,6 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+namespace ProjectExplorer { class Project; }
 namespace Utils { class FilePath; }
 
 namespace CppEditor {
@@ -29,14 +30,10 @@ public:
 
     CppQuickFixAssistProvider *quickFixProvider() const;
 
-    static const QStringList &headerSearchPaths();
-    static const QStringList &sourceSearchPaths();
-    static const QStringList &headerPrefixes();
-    static const QStringList &sourcePrefixes();
     static void clearHeaderSourceCache();
-    static Utils::FilePath licenseTemplatePath();
-    static QString licenseTemplate();
-    static bool usePragmaOnce();
+    static Utils::FilePath licenseTemplatePath(ProjectExplorer::Project *project);
+    static QString licenseTemplate(ProjectExplorer::Project *project);
+    static bool usePragmaOnce(ProjectExplorer::Project *project);
 
     void openDeclarationDefinitionInNextSplit();
     void openTypeHierarchy();
@@ -46,7 +43,10 @@ public:
     void switchDeclarationDefinition();
 
     CppCodeModelSettings *codeModelSettings();
-    static CppFileSettings *fileSettings();
+    static CppFileSettings fileSettings(ProjectExplorer::Project *project);
+#ifdef WITH_TESTS
+    static void setGlobalFileSettings(const CppFileSettings &settings);
+#endif
 
 signals:
     void typeHierarchyRequested();
@@ -55,6 +55,15 @@ signals:
 private:
     void initialize() override;
     void extensionsInitialized() override;
+
+    void setupMenus();
+    void addPerSymbolActions();
+    void addActionsForSelections();
+    void addPerFileActions();
+    void addGlobalActions();
+    void setupProjectPanels();
+    void registerVariables();
+    void registerTests();
 
     CppEditorPluginPrivate *d = nullptr;
 };

@@ -55,9 +55,7 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/devicemanager.cpp devicesupport/devicemanager.h
     devicesupport/devicemanagermodel.cpp devicesupport/devicemanagermodel.h
     devicesupport/deviceprocessesdialog.cpp devicesupport/deviceprocessesdialog.h
-    devicesupport/deviceprocesslist.cpp devicesupport/deviceprocesslist.h
     devicesupport/devicesettingspage.cpp devicesupport/devicesettingspage.h
-    devicesupport/devicesettingswidget.cpp devicesupport/devicesettingswidget.h
     devicesupport/devicetestdialog.cpp devicesupport/devicetestdialog.h
     devicesupport/deviceusedportsgatherer.cpp devicesupport/deviceusedportsgatherer.h
     devicesupport/filetransfer.cpp devicesupport/filetransfer.h
@@ -105,12 +103,11 @@ add_qtc_plugin(ProjectExplorer
     jsonwizard/wizarddebug.h
     jsonwizard/jsonwizardscannergenerator.cpp jsonwizard/jsonwizardscannergenerator.h
     kit.cpp kit.h
+    kitaspects.cpp kitaspects.h
     kitchooser.cpp kitchooser.h
     kitfeatureprovider.h
-    kitinformation.cpp kitinformation.h
     kitmanager.cpp kitmanager.h
     kitmanagerconfigwidget.cpp kitmanagerconfigwidget.h
-    kitmodel.cpp kitmodel.h
     kitoptionspage.cpp kitoptionspage.h
     ldparser.cpp ldparser.h
     lldparser.cpp lldparser.h
@@ -126,6 +123,7 @@ add_qtc_plugin(ProjectExplorer
     processparameters.cpp processparameters.h
     processstep.cpp processstep.h
     project.cpp project.h
+    projectcommentssettings.cpp projectcommentssettings.h
     projectconfiguration.cpp projectconfiguration.h
     projectconfigurationmodel.cpp projectconfigurationmodel.h
     projectexplorer.cpp projectexplorer.h
@@ -181,11 +179,6 @@ add_qtc_plugin(ProjectExplorer
     waitforstopdialog.cpp waitforstopdialog.h
     windebuginterface.cpp windebuginterface.h
     xcodebuildparser.cpp xcodebuildparser.h
-)
-
-extend_qtc_plugin(ProjectExplorer
-  CONDITION PROJECT_USER_FILE_EXTENSION
-  DEFINES "PROJECT_USER_FILE_EXTENSION=${PROJECT_USER_FILE_EXTENSION}"
 )
 
 if (TARGET clangd)

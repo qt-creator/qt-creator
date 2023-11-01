@@ -11,13 +11,11 @@
 #include "projectexplorertr.h"
 
 #include <utils/aspects.h>
-#include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 const char PROCESS_COMMAND_KEY[] = "ProjectExplorer.ProcessStep.Command";
 const char PROCESS_WORKINGDIRECTORY_KEY[] = "ProjectExplorer.ProcessStep.WorkingDirectory";
@@ -26,59 +24,57 @@ const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
 class ProcessStep final : public AbstractProcessStep
 {
 public:
-    ProcessStep(BuildStepList *bsl, Id id);
+    ProcessStep(BuildStepList *bsl, Id id)
+        : AbstractProcessStep(bsl, id)
+    {
+        command.setSettingsKey(PROCESS_COMMAND_KEY);
+        command.setLabelText(Tr::tr("Command:"));
+        command.setExpectedKind(PathChooser::Command);
+        command.setHistoryCompleter("PE.ProcessStepCommand.History");
 
-    void setupOutputFormatter(OutputFormatter *formatter) final;
+        arguments.setSettingsKey(PROCESS_ARGUMENTS_KEY);
+        arguments.setDisplayStyle(StringAspect::LineEditDisplay);
+        arguments.setLabelText(Tr::tr("Arguments:"));
+
+        workingDirectory.setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
+        workingDirectory.setValue(QString(Constants::DEFAULT_WORKING_DIR));
+        workingDirectory.setLabelText(Tr::tr("Working directory:"));
+        workingDirectory.setExpectedKind(PathChooser::Directory);
+
+        setWorkingDirectoryProvider([this] {
+            const FilePath workingDir = workingDirectory();
+            if (workingDir.isEmpty())
+                return FilePath::fromString(fallbackWorkingDirectory());
+            return workingDir;
+        });
+
+        setCommandLineProvider([this] {
+            return CommandLine{command(), arguments(), CommandLine::Raw};
+        });
+
+        setSummaryUpdater([this] {
+            QString display = displayName();
+            if (display.isEmpty())
+                display = Tr::tr("Custom Process Step");
+            ProcessParameters param;
+            setupProcessParameters(&param);
+            return param.summary(display);
+        });
+
+        addMacroExpander();
+    }
+
+private:
+    void setupOutputFormatter(OutputFormatter *formatter) final
+    {
+        formatter->addLineParsers(kit()->createOutputParsers());
+        AbstractProcessStep::setupOutputFormatter(formatter);
+    }
+
+    FilePathAspect command{this};
+    StringAspect arguments{this};
+    FilePathAspect workingDirectory{this};
 };
-
-ProcessStep::ProcessStep(BuildStepList *bsl, Id id)
-    : AbstractProcessStep(bsl, id)
-{
-    auto command = addAspect<FilePathAspect>();
-    command->setSettingsKey(PROCESS_COMMAND_KEY);
-    command->setLabelText(Tr::tr("Command:"));
-    command->setExpectedKind(PathChooser::Command);
-    command->setHistoryCompleter("PE.ProcessStepCommand.History");
-
-    auto arguments = addAspect<StringAspect>();
-    arguments->setSettingsKey(PROCESS_ARGUMENTS_KEY);
-    arguments->setDisplayStyle(StringAspect::LineEditDisplay);
-    arguments->setLabelText(Tr::tr("Arguments:"));
-
-    auto workingDirectory = addAspect<FilePathAspect>();
-    workingDirectory->setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
-    workingDirectory->setValue(Constants::DEFAULT_WORKING_DIR);
-    workingDirectory->setLabelText(Tr::tr("Working directory:"));
-    workingDirectory->setExpectedKind(PathChooser::Directory);
-
-    setWorkingDirectoryProvider([this, workingDirectory] {
-        const FilePath workingDir = workingDirectory->filePath();
-        if (workingDir.isEmpty())
-            return FilePath::fromString(fallbackWorkingDirectory());
-        return workingDir;
-    });
-
-    setCommandLineProvider([command, arguments] {
-        return CommandLine{command->filePath(), arguments->value(), CommandLine::Raw};
-    });
-
-    setSummaryUpdater([this] {
-        QString display = displayName();
-        if (display.isEmpty())
-            display = Tr::tr("Custom Process Step");
-        ProcessParameters param;
-        setupProcessParameters(&param);
-        return param.summary(display);
-    });
-
-    addMacroExpander();
-}
-
-void ProcessStep::setupOutputFormatter(OutputFormatter *formatter)
-{
-    formatter->addLineParsers(kit()->createOutputParsers());
-    AbstractProcessStep::setupOutputFormatter(formatter);
-}
 
 // ProcessStepFactory
 
@@ -89,5 +85,4 @@ ProcessStepFactory::ProcessStepFactory()
     setDisplayName(Tr::tr("Custom Process Step"));
 }
 
-} // Internal
-} // ProjectExplorer
+} // ProjectExplorer::Internal

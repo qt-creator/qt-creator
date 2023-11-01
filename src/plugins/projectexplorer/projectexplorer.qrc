@@ -20,8 +20,6 @@
         <file>images/run@2x.png</file>
         <file>images/run_mask.png</file>
         <file>images/run_mask@2x.png</file>
-        <file>images/debugger_overlay_small.png</file>
-        <file>images/debugger_overlay_small@2x.png</file>
         <file>images/analyzer_overlay_small.png</file>
         <file>images/analyzer_overlay_small@2x.png</file>
         <file>images/devicestatusindicator.png</file>
@@ -34,10 +32,6 @@
         <file>images/build_hammerhead_mask@2x.png</file>
         <file>images/targetpanel_bottom.png</file>
         <file>images/window.png</file>
-        <file>images/continue_1_small.png</file>
-        <file>images/continue_1_small@2x.png</file>
-        <file>images/continue_2_small.png</file>
-        <file>images/continue_2_small@2x.png</file>
         <file>images/buildstepdisable.png</file>
         <file>images/buildstepdisable@2x.png</file>
         <file>images/buildstepmovedown.png</file>
@@ -76,6 +70,8 @@
         <file>images/fileoverlay_unknown@2x.png</file>
         <file>images/cancelbuild_overlay.png</file>
         <file>images/cancelbuild_overlay@2x.png</file>
+        <file>images/cmakeicon.png</file>
+        <file>images/cmakeicon@2x.png</file>
         <file>images/settingscategory_buildrun.png</file>
         <file>images/settingscategory_buildrun@2x.png</file>
         <file>images/settingscategory_devices.png</file>

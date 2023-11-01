@@ -5,12 +5,12 @@ elseif (MINGW)
 endif()
 
 add_qtc_plugin(LanguageClient
-  PUBLIC_DEPENDS LanguageServerProtocol Qt::Core app_version
+  PUBLIC_DEPENDS LanguageServerProtocol Qt::Core
   PLUGIN_DEPENDS ProjectExplorer Core TextEditor
   SOURCES
     callhierarchy.cpp callhierarchy.h
     client.cpp client.h
-    clientrequesttask.cpp clientrequesttask.h
+    clientrequest.cpp clientrequest.h
     currentdocumentsymbolsrequest.cpp currentdocumentsymbolsrequest.h
     diagnosticmanager.cpp diagnosticmanager.h
     documentsymbolcache.cpp documentsymbolcache.h

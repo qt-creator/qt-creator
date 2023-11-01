@@ -10,14 +10,11 @@
 
 #include <utils/filepath.h>
 #include <utils/environment.h>
+#include <utils/store.h>
 
 #include <QDateTime>
-#include <QList>
-#include <QVariant>
 
 namespace Debugger {
-
-class DebuggerItemManager;
 
 namespace Internal {
 class DebuggerConfigWidget;
@@ -33,14 +30,14 @@ class DEBUGGER_EXPORT DebuggerItem
 {
 public:
     DebuggerItem();
-    DebuggerItem(const QVariantMap &data);
+    DebuggerItem(const Utils::Store &data);
 
     void createId();
     bool canClone() const { return true; }
     bool isValid() const;
     QString engineTypeName() const;
 
-    QVariantMap toMap() const;
+    Utils::Store toMap() const;
 
     QVariant id() const { return m_id; }
 
@@ -107,7 +104,6 @@ private:
     friend class Internal::DebuggerConfigWidget;
     friend class Internal::DebuggerItemConfigWidget;
     friend class Internal::DebuggerItemModel;
-    friend class DebuggerItemManager;
 };
 
 } // namespace Debugger

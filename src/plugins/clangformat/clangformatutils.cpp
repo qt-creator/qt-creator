@@ -32,7 +32,7 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-clang::format::FormatStyle qtcStyle()
+clang::format::FormatStyle calculateQtcStyle()
 {
     clang::format::FormatStyle style = getLLVMStyle();
     style.Language = FormatStyle::LK_Cpp;
@@ -179,10 +179,15 @@ clang::format::FormatStyle qtcStyle()
 #endif
     style.SpacesInSquareBrackets = false;
     addQtcStatementMacros(style);
-    style.Standard = FormatStyle::LS_Cpp11;
     style.TabWidth = 4;
     style.UseTab = FormatStyle::UT_Never;
     style.Standard = FormatStyle::LS_Auto;
+    return style;
+}
+
+clang::format::FormatStyle qtcStyle()
+{
+    static clang::format::FormatStyle style = calculateQtcStyle();
     return style;
 }
 
@@ -338,7 +343,7 @@ Utils::FilePath findConfig(const Utils::FilePath &fileName)
 
         parentDirectory = parentDirectory.parentDir();
     }
-    return Utils::FilePath();
+    return {};
 }
 
 Utils::FilePath configForFile(const Utils::FilePath &fileName)

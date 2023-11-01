@@ -40,11 +40,9 @@ public:
 
         TerminalWidget *terminal = m_terminalPane->stoppedTerminalWithId(id);
 
-        const OpenTerminalParameters openParameters{setup.m_commandLine,
-                                                    std::nullopt,
-                                                    std::nullopt,
-                                                    ExitBehavior::Keep,
-                                                    id};
+        OpenTerminalParameters openParameters{setup.m_commandLine};
+        openParameters.m_exitBehavior = ExitBehavior::Keep;
+        openParameters.identifier = id;
 
         if (!terminal) {
             terminal = new TerminalWidget(nullptr, openParameters);

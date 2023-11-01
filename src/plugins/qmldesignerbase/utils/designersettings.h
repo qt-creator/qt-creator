@@ -10,9 +10,7 @@
 #include <QByteArray>
 #include <QMutex>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils { class QtcSettings; }
 
 namespace QmlDesigner {
 
@@ -75,21 +73,21 @@ inline constexpr char CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS[] = "ContentLibra
 class QMLDESIGNERBASE_EXPORT DesignerSettings
 {
 public:
-    DesignerSettings(QSettings *settings);
+    DesignerSettings(Utils::QtcSettings *settings);
 
     void insert(const QByteArray &key, const QVariant &value);
     void insert(const QHash<QByteArray, QVariant> &settingsHash);
     QVariant value(const QByteArray &key, const QVariant &defaultValue = {}) const;
 
 private:
-    void fromSettings(QSettings *);
-    void toSettings(QSettings *) const;
+    void fromSettings(Utils::QtcSettings *);
+    void toSettings(Utils::QtcSettings *) const;
 
-    void restoreValue(QSettings *settings, const QByteArray &key,
+    void restoreValue(Utils::QtcSettings *settings, const QByteArray &key,
         const QVariant &defaultValue = QVariant());
-    void storeValue(QSettings *settings, const QByteArray &key, const QVariant &value) const;
+    void storeValue(Utils::QtcSettings *settings, const QByteArray &key, const QVariant &value) const;
 
-    QSettings *m_settings;
+    Utils::QtcSettings *m_settings;
     QHash<QByteArray, QVariant> m_cache;
     mutable QMutex m_mutex;
 };

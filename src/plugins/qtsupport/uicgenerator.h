@@ -4,26 +4,12 @@
 #pragma once
 
 #include <projectexplorer/extracompiler.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace QtSupport {
 
-class UicGenerator : public ProjectExplorer::ProcessExtraCompiler
-{
-    Q_OBJECT
-public:
-    UicGenerator(const ProjectExplorer::Project *project, const Utils::FilePath &source,
-                 const Utils::FilePaths &targets, QObject *parent = nullptr);
-
-protected:
-    Utils::FilePath command() const override;
-    QStringList arguments() const override;
-    ProjectExplorer::FileNameToContentsHash handleProcessFinished(Utils::Process *process) override;
-};
-
 class UicGeneratorFactory : public ProjectExplorer::ExtraCompilerFactory
 {
-    Q_OBJECT
 public:
     UicGeneratorFactory() = default;
 

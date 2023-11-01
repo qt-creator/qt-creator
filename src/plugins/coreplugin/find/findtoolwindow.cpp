@@ -22,7 +22,6 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
-#include <QSettings>
 #include <QStringListModel>
 
 using namespace Utils;
@@ -360,9 +359,9 @@ void FindToolWindow::writeSettings()
 
 void FindToolWindow::readSettings()
 {
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("Find"));
-    const QString currentFilter = settings->value(QLatin1String("CurrentFilter")).toString();
+    QtcSettings *settings = ICore::settings();
+    settings->beginGroup("Find");
+    const QString currentFilter = settings->value("CurrentFilter").toString();
     for (int i = 0; i < m_filters.size(); ++i) {
         IFindFilter *filter = m_filters.at(i);
         filter->readSettings(settings);

@@ -8,9 +8,9 @@
 #include "../designertr.h"
 
 #include <coreplugin/icore.h>
-
 #include <cppeditor/cppeditorconstants.h>
-
+#include <cppeditor/cpptoolsreuse.h>
+#include <projectexplorer/projecttree.h>
 #include <utils/mimeutils.h>
 #include <utils/wizard.h>
 
@@ -32,9 +32,9 @@ FormClassWizardPage::FormClassWizardPage()
 
     m_newClassWidget = new NewClassWidget(classGroupBox);
     m_newClassWidget->setHeaderExtension(
-            Utils::mimeTypeForName(CppEditor::Constants::CPP_HEADER_MIMETYPE).preferredSuffix());
+            CppEditor::preferredCxxHeaderSuffix(ProjectExplorer::ProjectTree::currentProject()));
     m_newClassWidget->setSourceExtension(
-            Utils::mimeTypeForName(CppEditor::Constants::CPP_SOURCE_MIMETYPE).preferredSuffix());
+            CppEditor::preferredCxxSourceSuffix(ProjectExplorer::ProjectTree::currentProject()));
     m_newClassWidget->setLowerCaseFiles(lowercaseHeaderFiles());
 
     connect(m_newClassWidget, &NewClassWidget::validChanged,
@@ -54,11 +54,7 @@ FormClassWizardPage::~FormClassWizardPage() = default;
 // Retrieve settings of CppEditor plugin.
 bool FormClassWizardPage::lowercaseHeaderFiles()
 {
-    QString lowerCaseSettingsKey = CppEditor::Constants::CPPEDITOR_SETTINGSGROUP;
-    lowerCaseSettingsKey += '/';
-    lowerCaseSettingsKey += CppEditor::Constants::LOWERCASE_CPPFILES_KEY;
-    const bool lowerCaseDefault = CppEditor::Constants::LOWERCASE_CPPFILES_DEFAULT;
-    return Core::ICore::settings()->value(lowerCaseSettingsKey, QVariant(lowerCaseDefault)).toBool();
+    return CppEditor::preferLowerCaseFileNames(ProjectExplorer::ProjectTree::currentProject());
 }
 
 void FormClassWizardPage::setClassName(const QString &suggestedClassName)

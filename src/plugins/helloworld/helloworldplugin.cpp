@@ -16,8 +16,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-namespace HelloWorld {
-namespace Internal {
+namespace HelloWorld::Internal {
 
 /*!  A mode with a push button based on BaseMode.  */
 
@@ -53,17 +52,12 @@ HelloWorldPlugin::~HelloWorldPlugin()
     delete m_helloMode;
 }
 
-/*! Initializes the plugin. Returns true on success.
+/*! Initializes the plugin.
     Plugins want to register objects with the plugin manager here.
 
-    \a errorMessage can be used to pass an error message to the plugin system,
-       if there was any.
 */
-bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *errorMessage)
+void HelloWorldPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorMessage)
-
     // Create a unique context for our own view, that will be used for the
     // menu entry later.
     Core::Context context("HelloWorld.MainView");
@@ -94,8 +88,6 @@ bool HelloWorldPlugin::initialize(const QStringList &arguments, QString *errorMe
 
     // Add a mode with a push button based on BaseMode.
     m_helloMode = new HelloMode;
-
-    return true;
 }
 
 /*! Notification that all extensions that this plugin depends on have been
@@ -121,5 +113,4 @@ void HelloWorldPlugin::sayHelloWorld()
             nullptr, tr("Hello World!"), tr("Hello World! Beautiful day today, isn't it?"));
 }
 
-} // namespace Internal
-} // namespace HelloWorld
+} // namespace HelloWorld::Internal

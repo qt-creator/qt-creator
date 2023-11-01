@@ -48,6 +48,7 @@ public:
 
     void appendOrSetPath(const FilePath &value);
     void prependOrSetPath(const FilePath &value);
+    void prependOrSetPath(const QString &directories); // Could be several ':'/';' separated entries.
 
     void prependOrSetLibrarySearchPath(const FilePath &value);
     void prependOrSetLibrarySearchPaths(const FilePaths &values);
@@ -60,7 +61,8 @@ public:
 
     FilePath searchInPath(const QString &executable,
                           const FilePaths &additionalDirs = FilePaths(),
-                          const FilePathPredicate &func = {}) const;
+                          const FilePathPredicate &func = {},
+                          FilePath::MatchScope = FilePath::WithAnySuffix) const;
 
     FilePaths path() const;
     FilePaths pathListValue(const QString &varName) const;
@@ -134,7 +136,7 @@ public:
     std::function<Environment()> environment;
 
     static void addProvider(EnvironmentProvider &&provider);
-    static const QVector<EnvironmentProvider> providers();
+    static const QList<EnvironmentProvider> providers();
     static std::optional<EnvironmentProvider> provider(const QByteArray &id);
 };
 

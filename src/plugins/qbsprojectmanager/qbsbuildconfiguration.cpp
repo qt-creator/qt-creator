@@ -4,8 +4,6 @@
 #include "qbsbuildconfiguration.h"
 
 #include "qbsbuildstep.h"
-#include "qbscleanstep.h"
-#include "qbsinstallstep.h"
 #include "qbsproject.h"
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
@@ -17,7 +15,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
@@ -25,7 +23,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/process.h>
 #include <utils/qtcassert.h>
@@ -98,7 +96,7 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
                         + '_' + kit->fileSystemFriendlyName().left(8)
                         + '_' + hash.toHex().left(16);
 
-        m_configurationName->setValue(uniqueConfigName);
+        configurationName.setValue(uniqueConfigName);
 
         auto bs = buildSteps()->firstOfType<QbsBuildStep>();
         QTC_ASSERT(bs, return);
@@ -107,23 +105,21 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
         emit qbsConfigurationChanged();
     });
 
-    m_configurationName = addAspect<StringAspect>();
-    m_configurationName->setLabelText(QbsProjectManager::Tr::tr("Configuration name:"));
-    m_configurationName->setSettingsKey("Qbs.configName");
-    m_configurationName->setDisplayStyle(StringAspect::LineEditDisplay);
-    connect(m_configurationName, &StringAspect::changed,
+    configurationName.setSettingsKey("Qbs.configName");
+    configurationName.setLabelText(QbsProjectManager::Tr::tr("Configuration name:"));
+    configurationName.setDisplayStyle(StringAspect::LineEditDisplay);
+    connect(&configurationName, &StringAspect::changed,
             this, &BuildConfiguration::buildDirectoryChanged);
 
-    const auto separateDebugInfoAspect = addAspect<SeparateDebugInfoAspect>();
-    connect(separateDebugInfoAspect, &SeparateDebugInfoAspect::changed,
+    connect(&separateDebugInfoSetting, &BaseAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
-    const auto qmlDebuggingAspect = addAspect<QtSupport::QmlDebuggingAspect>(this);
-    connect(qmlDebuggingAspect, &QtSupport::QmlDebuggingAspect::changed,
+    qmlDebuggingSetting.setBuildConfiguration(this);
+    connect(&qmlDebuggingSetting, &BaseAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
-    const auto qtQuickCompilerAspect = addAspect<QtSupport::QtQuickCompilerAspect>(this);
-    connect(qtQuickCompilerAspect, &QtSupport::QtQuickCompilerAspect::changed,
+    qtQuickCompilerSetting.setBuildConfiguration(this);
+    connect(&qtQuickCompilerSetting, &BaseAspect::changed,
             this, &QbsBuildConfiguration::qbsConfigurationChanged);
 
     connect(this, &BuildConfiguration::environmentChanged,
@@ -142,14 +138,6 @@ QbsBuildConfiguration::QbsBuildConfiguration(Target *target, Utils::Id id)
 
 QbsBuildConfiguration::~QbsBuildConfiguration()
 {
-    for (BuildStep * const bs : buildSteps()->steps()) {
-        if (const auto qbs = qobject_cast<QbsBuildStep *>(bs))
-            qbs->dropSession();
-    }
-    for (BuildStep * const cs : cleanSteps()->steps()) {
-        if (const auto qcs = qobject_cast<QbsCleanStep *>(cs))
-            qcs->dropSession();
-    }
     delete m_buildSystem;
 }
 
@@ -164,19 +152,18 @@ void QbsBuildConfiguration::triggerReparseIfActive()
         m_buildSystem->delayParsing();
 }
 
-bool QbsBuildConfiguration::fromMap(const QVariantMap &map)
+void QbsBuildConfiguration::fromMap(const Store &map)
 {
-    if (!BuildConfiguration::fromMap(map))
-        return false;
+    BuildConfiguration::fromMap(map);
+    if (hasError())
+        return;
 
-    if (m_configurationName->value().isEmpty()) { // pre-4.4 backwards compatibility
+    if (configurationName().isEmpty()) { // pre-4.4 backwards compatibility
         const QString profileName = QbsProfileManager::profileNameForKit(target()->kit());
         const QString buildVariant = qbsConfiguration()
                 .value(QLatin1String(Constants::QBS_CONFIG_VARIANT_KEY)).toString();
-        m_configurationName->setValue(profileName + '-' + buildVariant);
+        configurationName.setValue(profileName + '-' + buildVariant);
     }
-
-    return true;
 }
 
 void QbsBuildConfiguration::restrictNextBuild(const RunConfiguration *rc)
@@ -249,11 +236,6 @@ QStringList QbsBuildConfiguration::products() const
     return m_products;
 }
 
-QString QbsBuildConfiguration::configurationName() const
-{
-    return m_configurationName->value();
-}
-
 QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &stepData) const
 {
     CommandLine commandLine;
@@ -298,21 +280,6 @@ QString QbsBuildConfiguration::equivalentCommandLine(const QbsBuildStepData &ste
     commandLine.addArg("profile:" + profileName);
 
     return commandLine.arguments();
-}
-
-TriState QbsBuildConfiguration::qmlDebuggingSetting() const
-{
-    return aspect<QtSupport::QmlDebuggingAspect>()->value();
-}
-
-TriState QbsBuildConfiguration::qtQuickCompilerSetting() const
-{
-    return aspect<QtSupport::QtQuickCompilerAspect>()->value();
-}
-
-TriState QbsBuildConfiguration::separateDebugInfoSetting() const
-{
-    return aspect<SeparateDebugInfoAspect>()->value();
 }
 
 // ---------------------------------------------------------------------------

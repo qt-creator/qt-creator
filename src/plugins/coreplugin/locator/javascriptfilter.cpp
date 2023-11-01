@@ -349,7 +349,7 @@ public:
     void start() final { task()->start(); }
 };
 
-TASKING_DECLARE_TASK(JavaScriptRequestTask, JavaScriptRequestAdapter);
+using JavaScriptRequestTask = CustomTask<JavaScriptRequestAdapter>;
 
 namespace Core::Internal {
 

@@ -19,7 +19,7 @@ QString BazaarAnnotationHighlighter::changeNumber(const QString &block) const
     const QRegularExpressionMatch match = m_changeset.match(block);
     if (match.hasMatch())
         return match.captured(1);
-    return QString();
+    return {};
 }
 
 } // Bazaar::Internal

@@ -63,6 +63,8 @@ const Icon BOOKMARK_TOOLBAR({
         {":/utils/images/bookmark.png", Theme::IconsBaseColor}});
 const Icon BOOKMARK_TEXTEDITOR({
         {":/utils/images/bookmark.png", Theme::Bookmarks_TextMarkColor}}, Icon::Tint);
+const Icon SNAPSHOT({
+        {":/utils/images/snapshot.png", Theme::PanelTextColorMid}}, Icon::Tint);
 const Icon SNAPSHOT_TOOLBAR({
         {":/utils/images/snapshot.png", Theme::IconsBaseColor}});
 const Icon NEWSEARCH_TOOLBAR({
@@ -225,6 +227,12 @@ const Icon INTERRUPT_SMALL({
         {":/utils/images/interrupt_small.png", Theme::IconsInterruptColor}}, Icon::MenuTintedStyle);
 const Icon INTERRUPT_SMALL_TOOLBAR({
         {":/utils/images/interrupt_small.png", Theme::IconsInterruptToolBarColor}});
+const Icon CONTINUE_SMALL({
+        {":/utils/images/continue_1_small.png", Theme::IconsInterruptColor},
+        {":/utils/images/continue_2_small.png", Theme::IconsRunColor}}, Icon::MenuTintedStyle);
+const Icon CONTINUE_SMALL_TOOLBAR({
+        {":/utils/images/continue_1_small.png", Theme::IconsInterruptToolBarColor},
+        {":/utils/images/continue_2_small.png", Theme::IconsRunToolBarColor}});
 const Icon BOUNDING_RECT({
         {":/utils/images/boundingrect.png", Theme::IconsBaseColor}});
 const Icon EYE_OPEN({
@@ -288,6 +296,7 @@ const Icon MACOS_TOUCHBAR_BOOKMARK(
         ":/utils/images/macos_touchbar_bookmark.png");
 const Icon MACOS_TOUCHBAR_CLEAR(
         ":/utils/images/macos_touchbar_clear.png");
+
 } // namespace Icons
 
 QIcon CodeModelIcon::iconForType(CodeModelIcon::Type type)

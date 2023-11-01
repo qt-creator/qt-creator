@@ -12,9 +12,9 @@
 
 QT_FORWARD_DECLARE_CLASS(QTextStream)
 
-namespace Utils { class JsonObjectValue; }
-
 namespace QmlJS {
+
+class JsonObjectValue;
 
 /* !
  \class QmlJS::QmlBundle
@@ -59,7 +59,7 @@ public:
 private:
     static void printEscaped(QTextStream &s, const QString &str);
     static void writeTrie(QTextStream &stream, const Trie &t, const QString &indent);
-    QStringList maybeReadTrie(Trie &trie, Utils::JsonObjectValue *config, const QString &path,
+    QStringList maybeReadTrie(Trie &trie, JsonObjectValue *config, const QString &path,
                               const QString &propertyName, bool required = false,
                               bool stripVersions = false);
 
@@ -80,4 +80,5 @@ public:
 private:
     QHash<Dialect,QmlBundle> m_bundles;
 };
+
 } // namespace QmlJS

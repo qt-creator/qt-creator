@@ -2,23 +2,18 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "callgrindfunction.h"
-#include "callgrindfunction_p.h"
 
 #include "callgrindcostitem.h"
+#include "callgrindfunction_p.h"
 #include "callgrindfunctioncall.h"
 #include "callgrindparsedata.h"
 #include "../valgrindtr.h"
 
 #include <utils/qtcassert.h>
 
-#include <QString>
-#include <QStringList>
-#include <QDebug>
 #include <QFileInfo>
-#include <QCoreApplication>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 //BEGIN Function::Private
 
@@ -39,7 +34,7 @@ Function::Private::~Private()
     qDeleteAll(m_outgoingCalls);
 }
 
-void Function::Private::accumulateCost(QVector<quint64> &base, const QVector<quint64> &add)
+void Function::Private::accumulateCost(QList<quint64> &base, const QList<quint64> &add)
 {
     if (base.isEmpty()) {
         base = add;
@@ -72,7 +67,7 @@ FunctionCall *Function::Private::accumulateCall(const FunctionCall *call, CallTy
 
         accumulatedCall->setCosts(call->costs());
     } else {
-        QVector<quint64> costs = accumulatedCall->costs();
+        QList<quint64> costs = accumulatedCall->costs();
         accumulateCost(costs, call->costs());
         accumulatedCall->setCosts(costs);
     }
@@ -206,7 +201,7 @@ quint64 Function::selfCost(int event) const
     return d->m_selfCost.at(event);
 }
 
-QVector< quint64 > Function::selfCosts() const
+QList<quint64> Function::selfCosts() const
 {
     return d->m_selfCost;
 }
@@ -216,7 +211,7 @@ quint64 Function::inclusiveCost(int event) const
     return d->m_inclusiveCost.at(event) + d->m_selfCost.at(event);
 }
 
-QVector<const FunctionCall *> Function::outgoingCalls() const
+QList<const FunctionCall *> Function::outgoingCalls() const
 {
     return d->m_outgoingCalls;
 }
@@ -228,7 +223,7 @@ void Function::addOutgoingCall(const FunctionCall *call)
     d->accumulateCall(call, Private::Outgoing);
 }
 
-QVector<const FunctionCall *> Function::incomingCalls() const
+QList<const FunctionCall *> Function::incomingCalls() const
 {
     return d->m_incomingCalls;
 }
@@ -245,7 +240,7 @@ quint64 Function::called() const
     return d->m_called;
 }
 
-QVector<const CostItem *> Function::costItems() const
+QList<const CostItem *> Function::costItems() const
 {
     return d->m_costItems;
 }
@@ -281,7 +276,7 @@ void Function::finalize()
         d->m_inclusiveCost.fill(0);
         for (const FunctionCall *call : std::as_const(d->m_incomingCalls)) {
             if (call->caller() != this) {
-                const QVector<const CostItem *> costItems = call->caller()->costItems();
+                const QList<const CostItem *> costItems = call->caller()->costItems();
                 for (const CostItem *costItem : costItems) {
                     if (costItem->call() && costItem->call()->callee() == this)
                         d->accumulateCost(d->m_inclusiveCost, costItem->costs());
@@ -298,5 +293,4 @@ void Function::finalize()
     }
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

@@ -14,7 +14,7 @@
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/toolchainmanager.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -42,6 +42,12 @@ static const Abi &toolChainAbi()
 
 static void addRegisteredMinGWToEnvironment(Environment &env)
 {
+    if (!ToolChainManager::isLoaded()) {
+        // Avoid querying the ToolChainManager before it is loaded, which is the case during
+        // toolchain restoration. The compiler version can be determined without MinGW in path.
+        return;
+    }
+
     const ToolChain *toolChain = ToolChainManager::toolChain([](const ToolChain *t){
         return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
     });
@@ -51,10 +57,10 @@ static void addRegisteredMinGWToEnvironment(Environment &env)
 
 void WebAssemblyToolChain::addToEnvironment(Environment &env) const
 {
-    const FilePath emSdk = WebAssemblySettings::instance()->emSdk();
+    const FilePath emSdk = settings().emSdk();
     WebAssemblyEmSdk::addToEnvironment(emSdk, env);
     if (env.osType() == OsTypeWindows)
-        addRegisteredMinGWToEnvironment(env);
+        addRegisteredMinGWToEnvironment(env); // qmake based builds require [mingw32-]make.exe
 }
 
 WebAssemblyToolChain::WebAssemblyToolChain() :
@@ -95,7 +101,7 @@ const QVersionNumber &WebAssemblyToolChain::minimumSupportedEmSdkVersion()
 
 static Toolchains doAutoDetect(const ToolchainDetector &detector)
 {
-    const FilePath sdk = WebAssemblySettings::instance()->emSdk();
+    const FilePath sdk = settings().emSdk();
     if (!WebAssemblyEmSdk::isValid(sdk))
         return {};
 

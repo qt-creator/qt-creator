@@ -3,10 +3,13 @@
 
 /*!
     \page creator-mobile-platforms.html
-    \previouspage creator-embedded-platforms.html
-    \nextpage creator-project-other.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference
 
     \title Mobile Platforms
+
+    \brief Mobile platforms that you can develop applications for.
 
     You can develop applications for the following mobile platforms:
 
@@ -60,4 +63,5 @@
         \li \l{Qt for iOS}
     \endlist
 
+    \sa {Supported Platforms}
 */

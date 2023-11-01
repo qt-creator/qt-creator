@@ -36,8 +36,6 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <app/app_version.h>
-
 #include <utils/basetreeview.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/process.h>
@@ -48,6 +46,7 @@
 #include <QDir>
 #include <QDockWidget>
 #include <QFileInfo>
+#include <QGuiApplication>
 #include <QHostAddress>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -386,7 +385,7 @@ void QmlEngine::connectionStartupFailed()
 
     auto infoBox = new QMessageBox(ICore::dialogParent());
     infoBox->setIcon(QMessageBox::Critical);
-    infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
+    infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
     infoBox->setText(Tr::tr("Could not connect to the in-process QML debugger."
                         "\nDo you want to retry?"));
     infoBox->setStandardButtons(QMessageBox::Retry | QMessageBox::Cancel |
@@ -407,7 +406,7 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
     if (companionEngine()) {
         auto infoBox = new QMessageBox(ICore::dialogParent());
         infoBox->setIcon(QMessageBox::Critical);
-        infoBox->setWindowTitle(Core::Constants::IDE_DISPLAY_NAME);
+        infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
         infoBox->setText(error);
         infoBox->setStandardButtons(QMessageBox::Ok | QMessageBox::Help);
         infoBox->setDefaultButton(QMessageBox::Ok);
@@ -846,10 +845,9 @@ bool compareConsoleItems(const ConsoleItem *a, const ConsoleItem *b)
     return a->text() < b->text();
 }
 
-static ConsoleItem *constructLogItemTree(const QVariant &result,
-                                         const QString &key = QString())
+static ConsoleItem *constructLogItemTree(const QVariant &result, const QString &key = {})
 {
-    bool sorted = debuggerSettings()->sortStructMembers.value();
+    const bool sorted = settings().sortStructMembers();
     if (!result.isValid())
         return nullptr;
 
@@ -2235,7 +2233,7 @@ void QmlEnginePrivate::constructChildLogItems(ConsoleItem *item, const QmlV8Obje
     for (const QVariant &property : objectData.properties)
         *(it++) = constructLogItemTree(extractData(property), seenHandles);
 
-    if (debuggerSettings()->sortStructMembers.value())
+    if (settings().sortStructMembers())
         std::sort(children.begin(), children.end(), compareConsoleItems);
 
     for (ConsoleItem *child : std::as_const(children))
@@ -2347,7 +2345,7 @@ void QmlEnginePrivate::insertSubItems(WatchItem *parent, const QVariantList &pro
         parent->appendChild(item.release());
     }
 
-    if (debuggerSettings()->sortStructMembers.value()) {
+    if (settings().sortStructMembers()) {
         parent->sortChildren([](const WatchItem *item1, const WatchItem *item2) {
             return item1->name < item2->name;
         });

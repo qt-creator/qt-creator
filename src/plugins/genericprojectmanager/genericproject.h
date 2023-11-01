@@ -19,7 +19,7 @@ public:
     void removeFilesTriggered(const Utils::FilePaths &filesToRemove);
 
 private:
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
+    RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) final;
     ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;
     void configureAsExampleProject(ProjectExplorer::Kit *kit) override;
 };

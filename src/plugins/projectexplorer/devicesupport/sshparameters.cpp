@@ -27,6 +27,12 @@ QString SshParameters::userAtHost() const
     if (!m_userName.isEmpty())
         res = m_userName + '@';
     res += m_host;
+    return res;
+}
+
+QString SshParameters::userAtHostAndPort() const
+{
+    QString res = SshParameters::userAtHost();
     if (m_port != 22)
         res += QString(":%1").arg(m_port);
     return res;
@@ -77,6 +83,7 @@ bool SshParameters::setupSshEnvironment(Process *process)
     const bool hasDisplay = env.hasKey("DISPLAY") && (env.value("DISPLAY") != QString(":0"));
     if (SshSettings::askpassFilePath().exists()) {
         env.set("SSH_ASKPASS", SshSettings::askpassFilePath().toUserOutput());
+        env.set("SSH_ASKPASS_REQUIRE", "force");
 
         // OpenSSH only uses the askpass program if DISPLAY is set, regardless of the platform.
         if (!env.hasKey("DISPLAY"))
@@ -139,6 +146,15 @@ const QString userAtHost()
     if (!userMidFix.isEmpty())
         userMidFix.append('@');
     return userMidFix + getHostFromEnvironment();
+}
+
+const QString userAtHostAndPort()
+{
+    QString res = userAtHost();
+    const int port = getPortFromEnvironment();
+    if (port != 22)
+        res += QString(":%1").arg(port);
+    return res;
 }
 
 SshParameters getParameters()

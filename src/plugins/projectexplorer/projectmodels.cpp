@@ -12,8 +12,6 @@
 #include "projecttree.h"
 #include "target.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/documentmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iversioncontrol.h>
@@ -35,11 +33,12 @@
 #include <QDialogButtonBox>
 #include <QFileInfo>
 #include <QFont>
+#include <QGuiApplication>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QMimeData>
-#include <QLoggingCategory>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QVBoxLayout>
@@ -191,7 +190,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
 {
     const Node * const node = nodeForIndex(index);
     if (!node)
-        return QVariant();
+        return {};
 
     const FolderNode * const folderNode = node->asFolderNode();
     const ContainerNode * const containerNode = node->asContainerNode();
@@ -248,8 +247,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
     case Project::isParsingRole:
         return project && bs ? bs->isParsing() && !project->needsConfiguration() : false;
     }
-
-    return QVariant();
+    return {};
 }
 
 Qt::ItemFlags FlatModel::flags(const QModelIndex &index) const
@@ -374,20 +372,15 @@ void FlatModel::addOrRebuildProjectModel(Project *project)
 
     container->forAllChildren([this](WrapperNode *node) {
         if (node->m_node) {
-            const QString path = node->m_node->filePath().toString();
-            const QString displayName = node->m_node->displayName();
-            ExpandData ed(path, displayName);
-            if (m_toExpand.contains(ed))
+            if (m_toExpand.contains(expandDataForNode(node->m_node)))
                 emit requestExpansion(node->index());
         } else {
             emit requestExpansion(node->index());
         }
     });
 
-    const QString path = container->m_node->filePath().toString();
-    const QString displayName = container->m_node->displayName();
-    ExpandData ed(path, displayName);
-    if (m_toExpand.contains(ed))
+
+    if (m_toExpand.contains(expandDataForNode(container->m_node)))
         emit requestExpansion(container->index());
 }
 
@@ -426,18 +419,14 @@ void FlatModel::onExpanded(const QModelIndex &idx)
 
 ExpandData FlatModel::expandDataForNode(const Node *node) const
 {
-    QTC_ASSERT(node, return ExpandData());
-    const QString path = node->filePath().toString();
-    const QString displayName = node->displayName();
-    return ExpandData(path, displayName);
+    QTC_ASSERT(node, return {});
+    return {node->filePath().toString(), node->priority()};
 }
 
 void FlatModel::handleProjectAdded(Project *project)
 {
     QTC_ASSERT(project, return);
 
-    auto oldName = project->displayName();
-    project->setProperty("_q_oldProjectName", oldName);
     connect(project, &Project::anyParsingStarted,
             this, [this, project]() {
         if (nodeForProject(project))
@@ -445,28 +434,8 @@ void FlatModel::handleProjectAdded(Project *project)
     });
     connect(project, &Project::anyParsingFinished,
             this, [this, project]() {
-        auto wrapper = nodeForProject(project);
-        if (wrapper) {
-            // In case the project was renamed, change the name in expand data as well
-            // FIXME: Redesign node expansion so that it does not rely on display name of a node
-            auto oldName = project->property("_q_oldProjectName").toString();
-            auto currentName = project->displayName();
-            if (oldName != currentName) {
-                project->setProperty("_q_oldProjectName", currentName);
-                auto node = wrapper->m_node;
-                ExpandData oldData(node->filePath().toString(), oldName);
-                ExpandData newData(oldData.path, currentName);
-                auto it = m_toExpand.find(oldData);
-                if (it != m_toExpand.end()) {
-                    m_toExpand.erase(it);
-                    m_toExpand.insert(newData);
-                    emit requestExpansion(wrapper->index());
-                } else if (m_toExpand.contains(newData)) {
-                    emit requestExpansion(wrapper->index());
-                }
-            }
+        if (nodeForProject(project))
             parsingStateChanged(project);
-        }
         emit ProjectTree::instance()->nodeActionsChanged();
     });
     addOrRebuildProjectModel(project);
@@ -498,7 +467,7 @@ void FlatModel::saveExpandData()
 {
     // TODO if there are multiple ProjectTreeWidgets, the last one saves the data
     QList<QVariant> data = Utils::transform<QList>(m_toExpand, &ExpandData::toSettings);
-    SessionManager::setValue(QLatin1String("ProjectTree.ExpandData"), data);
+    SessionManager::setValue("ProjectTree.ExpandData", data);
 }
 
 void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen)
@@ -521,8 +490,7 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
                     }
                 }
             }
-            if (!isHidden && !seen->contains(subFolderNode)) {
-                seen->insert(subFolderNode);
+            if (!isHidden && Utils::insert(*seen, subFolderNode)) {
                 auto node = new WrapperNode(subFolderNode);
                 parent->appendChild(node);
                 addFolderNode(node, subFolderNode, seen);
@@ -531,10 +499,8 @@ void FlatModel::addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<
                 addFolderNode(parent, subFolderNode, seen);
             }
         } else if (FileNode *fileNode = node->asFileNode()) {
-            if (!seen->contains(fileNode)) {
-                seen->insert(fileNode);
+            if (Utils::insert(*seen, fileNode))
                 parent->appendChild(new WrapperNode(fileNode));
-            }
         }
     }
 
@@ -603,7 +569,7 @@ public:
         setWindowTitle(Tr::tr("Choose Drop Action"));
         const bool offerFileIo = !defaultTargetDir.isEmpty();
         auto * const layout = new QVBoxLayout(this);
-        const QString idename(Core::Constants::IDE_DISPLAY_NAME);
+        const QString idename(QGuiApplication::applicationDisplayName());
         layout->addWidget(new QLabel(Tr::tr("You just dragged some files from one project node to "
                                         "another.\nWhat should %1 do now?").arg(idename), this));
         auto * const copyButton = new QRadioButton(this);

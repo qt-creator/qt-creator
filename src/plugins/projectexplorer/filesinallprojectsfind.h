@@ -16,13 +16,11 @@ public:
     QString id() const override;
     QString displayName() const override;
 
-    void writeSettings(QSettings *settings) override;
-    void readSettings(QSettings *settings) override;
+    void writeSettings(Utils::QtcSettings *settings) override;
+    void readSettings(Utils::QtcSettings *settings) override;
 
 protected:
-    Utils::FileIterator *files(const QStringList &nameFilters,
-                               const QStringList &exclusionFilters,
-                               const QVariant &additionalParameters) const override;
+    TextEditor::FileContainerProvider fileContainerProvider() const override;
     QString label() const override;
 };
 

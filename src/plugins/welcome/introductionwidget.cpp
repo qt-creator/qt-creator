@@ -29,7 +29,7 @@ namespace Internal {
 void IntroductionWidget::askUserAboutIntroduction(QWidget *parent)
 {
     // CheckableMessageBox for compatibility with Qt Creator < 4.11
-    if (!CheckableDecider(QString(kTakeTourSetting)).shouldAskAgain()
+    if (!CheckableDecider(Key(kTakeTourSetting)).shouldAskAgain()
         || !Core::ICore::infoBar()->canInfoBeAdded(kTakeTourSetting))
         return;
 

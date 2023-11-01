@@ -6,12 +6,15 @@
 #include "cmakeprojectmanagertr.h"
 #include "cmaketoolmanager.h"
 
+#include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/persistentcachestore.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
+#include <utils/temporarydirectory.h>
 
 #include <QDir>
 #include <QJsonDocument>
@@ -19,6 +22,7 @@
 #include <QLoggingCategory>
 #include <QRegularExpression>
 #include <QSet>
+#include <QXmlStreamReader>
 #include <QUuid>
 
 #include <memory>
@@ -41,9 +45,9 @@ const char CMAKE_INFORMATION_AUTODETECTED[] = "AutoDetected";
 const char CMAKE_INFORMATION_DETECTIONSOURCE[] = "DetectionSource";
 const char CMAKE_INFORMATION_READERTYPE[] = "ReaderType";
 
-bool CMakeTool::Generator::matches(const QString &n, const QString &ex) const
+bool CMakeTool::Generator::matches(const QString &n) const
 {
-    return n == name && (ex.isEmpty() || extraGenerators.contains(ex));
+    return n == name;
 }
 
 namespace Internal {
@@ -82,13 +86,13 @@ class IntrospectionData
 {
 public:
     bool m_didAttemptToRun = false;
-    bool m_didRun = true;
+    bool m_haveCapabilitites = true;
+    bool m_haveKeywords = false;
 
     QList<CMakeTool::Generator> m_generators;
-    QMap<QString, QStringList> m_functionArgs;
+    CMakeKeywords m_keywords;
+    QMutex m_keywordsMutex;
     QVector<FileApi> m_fileApis;
-    QStringList m_variables;
-    QStringList m_functions;
     CMakeTool::Version m_version;
 };
 
@@ -105,7 +109,7 @@ CMakeTool::CMakeTool(Detection d, const Id &id)
     QTC_ASSERT(m_id.isValid(), m_id = Id::fromString(QUuid::createUuid().toString()));
 }
 
-CMakeTool::CMakeTool(const QVariantMap &map, bool fromSdk) :
+CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
     CMakeTool(fromSdk ? CMakeTool::AutoDetection : CMakeTool::ManualDetection,
               Id::fromSetting(map.value(CMAKE_INFORMATION_ID)))
 {
@@ -151,15 +155,15 @@ FilePath CMakeTool::filePath() const
     return m_executable;
 }
 
-bool CMakeTool::isValid() const
+bool CMakeTool::isValid(bool ignoreCache) const
 {
     if (!m_id.isValid() || !m_introspection)
         return false;
 
     if (!m_introspection->m_didAttemptToRun)
-        readInformation();
+        readInformation(ignoreCache);
 
-    return m_introspection->m_didRun && !m_introspection->m_fileApis.isEmpty();
+    return m_introspection->m_haveCapabilitites && !m_introspection->m_fileApis.isEmpty();
 }
 
 void CMakeTool::runCMake(Process &cmake, const QStringList &args, int timeoutS) const
@@ -175,9 +179,9 @@ void CMakeTool::runCMake(Process &cmake, const QStringList &args, int timeoutS) 
     cmake.runBlocking();
 }
 
-QVariantMap CMakeTool::toMap() const
+Store CMakeTool::toMap() const
 {
-    QVariantMap data;
+    Store data;
     data.insert(CMAKE_INFORMATION_DISPLAYNAME, m_displayName);
     data.insert(CMAKE_INFORMATION_ID, m_id.toSetting());
     data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toString());
@@ -224,7 +228,7 @@ FilePath CMakeTool::cmakeExecutable(const FilePath &path)
         }
     }
 
-    const FilePath resolvedPath = path.canonicalPath();
+    FilePath resolvedPath = path.canonicalPath();
     // Evil hack to make snap-packages of CMake work. See QTCREATORBUG-23376
     if (path.osType() == OsTypeLinux && resolvedPath.fileName() == "snap")
         return path;
@@ -242,41 +246,89 @@ QList<CMakeTool::Generator> CMakeTool::supportedGenerators() const
     return isValid() ? m_introspection->m_generators : QList<CMakeTool::Generator>();
 }
 
-TextEditor::Keywords CMakeTool::keywords()
+CMakeKeywords CMakeTool::keywords()
 {
     if (!isValid())
         return {};
 
-    if (m_introspection->m_functions.isEmpty() && m_introspection->m_didRun) {
+    if (!m_introspection->m_haveKeywords && m_introspection->m_haveCapabilitites) {
+        QMutexLocker locker(&m_introspection->m_keywordsMutex);
+        if (m_introspection->m_haveKeywords)
+            return m_introspection->m_keywords;
+
         Process proc;
-        runCMake(proc, {"--help-command-list"}, 5);
-        if (proc.result() == ProcessResult::FinishedWithSuccess)
-            m_introspection->m_functions = proc.cleanedStdOut().split('\n');
 
-        runCMake(proc, {"--help-commands"}, 5);
-        if (proc.result() == ProcessResult::FinishedWithSuccess)
-            parseFunctionDetailsOutput(proc.cleanedStdOut());
+        const FilePath findCMakeRoot = TemporaryDirectory::masterDirectoryFilePath()
+                                       / "find-root.cmake";
+        findCMakeRoot.writeFileContents("message(${CMAKE_ROOT})");
 
-        runCMake(proc, {"--help-property-list"}, 5);
-        if (proc.result() == ProcessResult::FinishedWithSuccess)
-            m_introspection->m_variables = parseVariableOutput(proc.cleanedStdOut());
-
-        runCMake(proc, {"--help-variable-list"}, 5);
+        FilePath cmakeRoot;
+        runCMake(proc, {"-P", findCMakeRoot.nativePath()}, 5);
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
-            m_introspection->m_variables.append(parseVariableOutput(proc.cleanedStdOut()));
-            m_introspection->m_variables = Utils::filteredUnique(m_introspection->m_variables);
-            Utils::sort(m_introspection->m_variables);
+            QStringList output = filtered(proc.allOutput().split('\n'),
+                                          std::not_fn(&QString::isEmpty));
+            if (output.size() > 0)
+                cmakeRoot = FilePath::fromString(output[0]);
         }
+
+        const struct
+        {
+            const QString helpPath;
+            QMap<QString, FilePath> &targetMap;
+        } introspections[] = {
+            // Functions
+            {"Help/command", m_introspection->m_keywords.functions},
+            // Properties
+            {"Help/prop_dir", m_introspection->m_keywords.directoryProperties},
+            {"Help/prop_sf", m_introspection->m_keywords.sourceProperties},
+            {"Help/prop_test", m_introspection->m_keywords.testProperties},
+            {"Help/prop_tgt", m_introspection->m_keywords.targetProperties},
+            {"Help/prop_gbl", m_introspection->m_keywords.properties},
+            // Variables
+            {"Help/variable", m_introspection->m_keywords.variables},
+            // Policies
+            {"Help/policy", m_introspection->m_keywords.policies},
+            // Environment Variables
+            {"Help/envvar", m_introspection->m_keywords.environmentVariables},
+        };
+        for (auto &i : introspections) {
+            const FilePaths files = cmakeRoot.pathAppended(i.helpPath)
+                                        .dirEntries({{"*.rst"}, QDir::Files}, QDir::Name);
+            for (const auto &filePath : files)
+                i.targetMap[filePath.completeBaseName()] = filePath;
+        }
+
+        for (const auto &map : {m_introspection->m_keywords.directoryProperties,
+                                m_introspection->m_keywords.sourceProperties,
+                                m_introspection->m_keywords.testProperties,
+                                m_introspection->m_keywords.targetProperties}) {
+            m_introspection->m_keywords.properties.insert(map);
+        }
+
+        // Modules
+        const FilePaths files
+            = cmakeRoot.pathAppended("Help/module").dirEntries({{"*.rst"}, QDir::Files}, QDir::Name);
+        for (const FilePath &filePath : files) {
+            const QString fileName = filePath.completeBaseName();
+            if (fileName.startsWith("Find"))
+                m_introspection->m_keywords.findModules[fileName.mid(4)] = filePath;
+            else
+                m_introspection->m_keywords.includeStandardModules[fileName] = filePath;
+        }
+
+        const QStringList moduleFunctions = parseSyntaxHighlightingXml();
+        for (const auto &function : moduleFunctions)
+            m_introspection->m_keywords.functions[function] = FilePath();
+
+        m_introspection->m_haveKeywords = true;
     }
 
-    return TextEditor::Keywords(m_introspection->m_variables,
-                                m_introspection->m_functions,
-                                m_introspection->m_functionArgs);
+    return m_introspection->m_keywords;
 }
 
-bool CMakeTool::hasFileApi() const
+bool CMakeTool::hasFileApi(bool ignoreCache) const
 {
-    return isValid() ? !m_introspection->m_fileApis.isEmpty() : false;
+    return isValid(ignoreCache) ? !m_introspection->m_fileApis.isEmpty() : false;
 }
 
 CMakeTool::Version CMakeTool::version() const
@@ -388,16 +440,17 @@ void CMakeTool::openCMakeHelpUrl(const CMakeTool *tool, const QString &linkUrl)
     Core::HelpManager::showHelpUrl(linkUrl.arg(documentationUrl(version, online)));
 }
 
-void CMakeTool::readInformation() const
+void CMakeTool::readInformation(bool ignoreCache) const
 {
     QTC_ASSERT(m_introspection, return );
-    if (!m_introspection->m_didRun && m_introspection->m_didAttemptToRun)
+    if (!m_introspection->m_haveCapabilitites && m_introspection->m_didAttemptToRun)
         return;
 
     m_introspection->m_didAttemptToRun = true;
 
-    fetchFromCapabilities();
+    fetchFromCapabilities(ignoreCache);
 }
+
 
 static QStringList parseDefinition(const QString &definition)
 {
@@ -432,14 +485,12 @@ static QStringList parseDefinition(const QString &definition)
 
 void CMakeTool::parseFunctionDetailsOutput(const QString &output)
 {
-    const QSet<QString> functionSet = Utils::toSet(m_introspection->m_functions);
-
     bool expectDefinition = false;
     QString currentDefinition;
 
     const QStringList lines = output.split('\n');
     for (int i = 0; i < lines.count(); ++i) {
-        const QString line = lines.at(i);
+        const QString &line = lines.at(i);
 
         if (line == "::") {
             expectDefinition = true;
@@ -452,14 +503,15 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
                 QStringList words = parseDefinition(currentDefinition);
                 if (!words.isEmpty()) {
                     const QString command = words.takeFirst();
-                    if (functionSet.contains(command)) {
+                    if (m_introspection->m_keywords.functions.contains(command)) {
                         const QStringList tmp = Utils::sorted(
-                                    words + m_introspection->m_functionArgs[command]);
-                        m_introspection->m_functionArgs[command] = Utils::filteredUnique(tmp);
+                            words + m_introspection->m_keywords.functionArgs[command]);
+                        m_introspection->m_keywords.functionArgs[command] = Utils::filteredUnique(
+                            tmp);
                     }
                 }
-                if (!words.isEmpty() && functionSet.contains(words.at(0)))
-                    m_introspection->m_functionArgs[words.at(0)];
+                if (!words.isEmpty() && m_introspection->m_keywords.functions.contains(words.at(0)))
+                    m_introspection->m_keywords.functionArgs[words.at(0)];
                 currentDefinition.clear();
             } else {
                 currentDefinition.append(line.trimmed() + ' ');
@@ -470,12 +522,19 @@ void CMakeTool::parseFunctionDetailsOutput(const QString &output)
 
 QStringList CMakeTool::parseVariableOutput(const QString &output)
 {
-    const QStringList variableList = output.split('\n');
+    const QStringList variableList = Utils::filtered(output.split('\n'),
+                                                     std::not_fn(&QString::isEmpty));
     QStringList result;
     for (const QString &v : variableList) {
         if (v.startsWith("CMAKE_COMPILER_IS_GNU<LANG>")) { // This key takes a compiler name :-/
             result << "CMAKE_COMPILER_IS_GNUCC"
                    << "CMAKE_COMPILER_IS_GNUCXX";
+        } else if (v.contains("<CONFIG>") && v.contains("<LANG>")) {
+            const QString tmp = QString(v).replace("<CONFIG>", "%1").replace("<LANG>", "%2");
+            result << tmp.arg("DEBUG").arg("C") << tmp.arg("DEBUG").arg("CXX")
+                   << tmp.arg("RELEASE").arg("C") << tmp.arg("RELEASE").arg("CXX")
+                   << tmp.arg("MINSIZEREL").arg("C") << tmp.arg("MINSIZEREL").arg("CXX")
+                   << tmp.arg("RELWITHDEBINFO").arg("C") << tmp.arg("RELWITHDEBINFO").arg("CXX");
         } else if (v.contains("<CONFIG>")) {
             const QString tmp = QString(v).replace("<CONFIG>", "%1");
             result << tmp.arg("DEBUG") << tmp.arg("RELEASE") << tmp.arg("MINSIZEREL")
@@ -490,21 +549,114 @@ QStringList CMakeTool::parseVariableOutput(const QString &output)
     return result;
 }
 
-void CMakeTool::fetchFromCapabilities() const
+QStringList CMakeTool::parseSyntaxHighlightingXml()
 {
+    QStringList moduleFunctions;
+
+    const FilePath cmakeXml = Core::ICore::resourcePath("generic-highlighter/syntax/cmake.xml");
+    QXmlStreamReader reader(cmakeXml.fileContents().value_or(QByteArray()));
+
+    auto readItemList = [](QXmlStreamReader &reader) -> QStringList {
+        QStringList arguments;
+        while (!reader.atEnd() && reader.readNextStartElement()) {
+            if (reader.name() == u"item")
+                arguments.append(reader.readElementText());
+            else
+                reader.skipCurrentElement();
+        }
+        return arguments;
+    };
+
+    while (!reader.atEnd() && reader.readNextStartElement()) {
+        if (reader.name() != u"highlighting")
+            continue;
+        while (!reader.atEnd() && reader.readNextStartElement()) {
+            if (reader.name() == u"list") {
+                const auto name = reader.attributes().value("name").toString();
+                if (name.endsWith(u"_sargs") || name.endsWith(u"_nargs")) {
+                    const auto functionName = name.left(name.length() - 6);
+                    QStringList arguments = readItemList(reader);
+
+                    if (m_introspection->m_keywords.functionArgs.contains(functionName))
+                        arguments.append(
+                            m_introspection->m_keywords.functionArgs.value(functionName));
+
+                    m_introspection->m_keywords.functionArgs[functionName] = arguments;
+
+                    // Functions that are part of CMake modules like ExternalProject_Add
+                    // which are not reported by cmake --help-list-commands
+                    if (!m_introspection->m_keywords.functions.contains(functionName)) {
+                        moduleFunctions << functionName;
+                    }
+                } else if (name == u"generator-expressions") {
+                    m_introspection->m_keywords.generatorExpressions = toSet(readItemList(reader));
+                } else {
+                    reader.skipCurrentElement();
+                }
+            } else {
+                reader.skipCurrentElement();
+            }
+        }
+    }
+
+    // Some commands have the same arguments as other commands and the `cmake.xml`
+    // but their relationship is weirdly defined in the `cmake.xml` file.
+    using ListStringPair = QList<QPair<QString, QString>>;
+    const ListStringPair functionPairs = {{"if", "elseif"},
+                                          {"while", "elseif"},
+                                          {"find_path", "find_file"},
+                                          {"find_program", "find_library"},
+                                          {"target_link_libraries", "target_compile_definitions"},
+                                          {"target_link_options", "target_compile_definitions"},
+                                          {"target_link_directories", "target_compile_options"},
+                                          {"set_target_properties", "set_directory_properties"},
+                                          {"set_tests_properties", "set_directory_properties"}};
+    for (const auto &pair : std::as_const(functionPairs)) {
+        if (!m_introspection->m_keywords.functionArgs.contains(pair.first))
+            m_introspection->m_keywords.functionArgs[pair.first]
+                = m_introspection->m_keywords.functionArgs.value(pair.second);
+    }
+
+    // Special case for cmake_print_variables, which will print the names and values for variables
+    // and needs to be as a known function
+    const QString cmakePrintVariables("cmake_print_variables");
+    m_introspection->m_keywords.functionArgs[cmakePrintVariables] = {};
+    moduleFunctions << cmakePrintVariables;
+
+    moduleFunctions.removeDuplicates();
+    return moduleFunctions;
+}
+
+void CMakeTool::fetchFromCapabilities(bool ignoreCache) const
+{
+    expected_str<Utils::Store> cache = PersistentCacheStore::byKey(
+        keyFromString("CMake_" + cmakeExecutable().toUserOutput()));
+
+    if (cache && !ignoreCache) {
+        m_introspection->m_haveCapabilitites = true;
+        parseFromCapabilities(cache->value("CleanedStdOut").toString());
+        return;
+    }
+
     Process cmake;
     runCMake(cmake, {"-E", "capabilities"});
 
     if (cmake.result() == ProcessResult::FinishedWithSuccess) {
-        m_introspection->m_didRun = true;
+        m_introspection->m_haveCapabilitites = true;
         parseFromCapabilities(cmake.cleanedStdOut());
     } else {
         qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.allOutput() << cmake.error();
-        m_introspection->m_didRun = false;
+        m_introspection->m_haveCapabilitites = false;
     }
+
+    Store newData{{"CleanedStdOut", cmake.cleanedStdOut()}};
+    const auto result
+        = PersistentCacheStore::write(keyFromString("CMake_" + cmakeExecutable().toUserOutput()),
+                                      newData);
+    QTC_ASSERT_EXPECTED(result, return);
 }
 
-static int getVersion(const QVariantMap &obj, const QString value)
+static int getVersion(const QVariantMap &obj, const QString &value)
 {
     bool ok;
     int result = obj.value(value).toInt(&ok);
@@ -529,26 +681,23 @@ void CMakeTool::parseFromCapabilities(const QString &input) const
                                                        gen.value("toolsetSupport").toBool()));
     }
 
-    {
-        const QVariantMap fileApis = data.value("fileApi").toMap();
-        const QVariantList requests = fileApis.value("requests").toList();
-        for (const QVariant &r : requests) {
-            const QVariantMap object = r.toMap();
-            const QString kind = object.value("kind").toString();
-            const QVariantList versionList = object.value("version").toList();
-            std::pair<int, int> highestVersion{-1, -1};
-            for (const QVariant &v : versionList) {
-                const QVariantMap versionObject = v.toMap();
-                const std::pair<int, int> version{getVersion(versionObject, "major"),
-                                                  getVersion(versionObject, "minor")};
-                if (version.first > highestVersion.first
-                    || (version.first == highestVersion.first
-                        && version.second > highestVersion.second))
-                    highestVersion = version;
-            }
-            if (!kind.isNull() && highestVersion.first != -1 && highestVersion.second != -1)
-                m_introspection->m_fileApis.append({kind, highestVersion});
+    const QVariantMap fileApis = data.value("fileApi").toMap();
+    const QVariantList requests = fileApis.value("requests").toList();
+    for (const QVariant &r : requests) {
+        const QVariantMap object = r.toMap();
+        const QString kind = object.value("kind").toString();
+        const QVariantList versionList = object.value("version").toList();
+        std::pair<int, int> highestVersion{-1, -1};
+        for (const QVariant &v : versionList) {
+            const QVariantMap versionObject = v.toMap();
+            const std::pair<int, int> version{getVersion(versionObject, "major"),
+                                              getVersion(versionObject, "minor")};
+            if (version.first > highestVersion.first
+                || (version.first == highestVersion.first && version.second > highestVersion.second))
+                highestVersion = version;
         }
+        if (!kind.isNull() && highestVersion.first != -1 && highestVersion.second != -1)
+            m_introspection->m_fileApis.append({kind, highestVersion});
     }
 
     const QVariantMap versionInfo = data.value("version").toMap();

@@ -10,6 +10,7 @@
 #include "fsengine.h"
 
 #include "../algorithm.h"
+#include "../hostosinfo.h"
 
 namespace Utils::Internal {
 
@@ -31,6 +32,18 @@ static FilePath removeDoubleSlash(const QString &fileName)
     }
     // We use fromString() here to not normalize / clean the path anymore.
     return FilePath::fromString(result);
+}
+
+static bool isRootPath(const QString &fileName)
+{
+    if (HostOsInfo::isWindowsHost()) {
+        static const QChar lowerDriveLetter = HostOsInfo::root().path().front().toUpper();
+        static const QChar upperDriveLetter = HostOsInfo::root().path().front().toLower();
+        return fileName.size() == 3 && fileName[1] == ':' && fileName[2] == '/'
+               && (fileName[0] == lowerDriveLetter || fileName[0] == upperDriveLetter);
+     }
+
+     return fileName.size() == 1 && fileName[0] == '/';
 }
 
 QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
@@ -71,7 +84,7 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
             return new FSEngineImpl(removeDoubleSlash(fileName));
     }
 
-    if (fixedFileName.compare(QDir::rootPath(), Qt::CaseInsensitive) == 0)
+    if (isRootPath(fixedFileName))
         return new RootInjectFSEngine(fileName);
 
     return nullptr;

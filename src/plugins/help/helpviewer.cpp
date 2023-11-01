@@ -71,6 +71,8 @@ HelpViewer::~HelpViewer()
     restoreOverrideCursor();
 }
 
+void HelpViewer::setAntialias(bool) {}
+
 void HelpViewer::setFontZoom(int percentage)
 {
     setScale(percentage / 100.0);

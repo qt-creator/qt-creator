@@ -80,7 +80,7 @@
 #include <utils/theme/theme.h>
 #include <utils/threadutils.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <QDirIterator>
 #include <QFileSystemWatcher>

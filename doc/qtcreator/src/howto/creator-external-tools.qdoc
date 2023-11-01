@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -13,11 +13,12 @@
     \previouspage quick-converting-ui-projects.html
     \nextpage studio-on-mcus.html
     \else
-    \previouspage creator-keyboard-shortcuts.html
-    \nextpage creator-task-lists.html
+    \previouspage creator-how-tos.html
     \endif
 
-    \title Using External Tools
+    \ingroup creator-how-to-use
+
+    \title Use external tools
 
     You can use external tools directly from \QC. Qt Linguist, QML preview
     tools, and the default text editor for your system are preconfigured
@@ -27,62 +28,10 @@
     To run the tools, select \uicontrol Tools > \uicontrol External, or use the
     \c x filter in the locator.
 
-    \section1 Using Qt Linguist
-
-    When you \l{Creating Projects}{create a new project}, you can automatically
-    generate a translation source file (TS) for one language. You can add other
-    languages later by editing the project file.
-
-    You can use the Qt Linguist release manager tools, lupdate and lrelease,
-    directly from \QC. The lupdate tool is used to synchronize source
-    code and translations. The lrelease tool is used to create run-time
-    translation files for use by the released application.
-
-    \note Running the tools from \QC is supported only when using qmake as the
-    build system. For more information about using the tools with CMake, see
-    \l{https://doc.qt.io/qt-6/cmake-command-reference.html#qt6-linguisttools}
-    {Qt6::LinguistTools}.
-
-    To synchronize TS files from a translator with the
-    application code, select \uicontrol Tools > \uicontrol External >
-    \uicontrol Linguist > \uicontrol {Update Translations (lupdate)}.
-
-    To generate from the TS files Qt message (QM) files that can be used by an
-    application, select \uicontrol Tools > \uicontrol External >
-    \uicontrol Linguist > \uicontrol {Release Translations (lrelease)}.
-
-    By default, the project .pro file is passed to the tools as an argument. To
-    specify other command line arguments for the tools, select \uicontrol Tools >
-    \uicontrol External > \uicontrol Configure.
-
-    To open TS files in Qt Linguist, right-click a TS file in the
-    \uicontrol Projects or \uicontrol {File System} view and select
-    \uicontrol {Open With} > \uicontrol {Qt Linguist} in the context menu.
-    For more information about Qt Linguist, see \l{Qt Linguist Manual}.
-
-    \section1 Running QML Files
-
-    You can test the current QML document while you are developing an application.
-
-    To run the currently active QML file, select \uicontrol Tools >
-    \uicontrol External > \uicontrol {Qt Quick} > \uicontrol {QML Runtime}.
-
-    \section1 Using External Text Editors
-
-    You can open files for editing in the default text editor for your system:
-    Notepad on Windows and vi on Linux and \macos.
-    To open the file you are currently viewing in an external editor, select
-    \uicontrol Tools > \uicontrol External > \uicontrol Text >
-    \uicontrol {Edit with Notepad} or \uicontrol {Edit with vi}, depending on
-    your system.
-
-    \QC looks for the editor path in the PATH environment variable
-    of your operating system.
-
-    \section1 Configuring External Tools
+    \section1 Configure external tools
 
     You can change the configuration of preconfigured tools and configure
-    additional tools in \QC \uicontrol Preferences.
+    additional tools in \QC \preferences.
 
     \image qtcreator-external-tools.png
 
@@ -141,7 +90,7 @@
 
 
             To globally change the system environment from the one in which
-            \QC is started, select \uicontrol Edit > \uicontrol Preferences >
+            \QC is started, select \preferences >
             \uicontrol Environment > \uicontrol System, and then select
             \uicontrol Change in the \uicontrol Environment field.
             \if defined(qtcreator)
@@ -171,4 +120,102 @@
     in Windows. To share a configuration with other users, copy an XML
     configuration file to the folder.
 
+    \sa {Run QML files}, {Use external text editors}, {Use Qt Linguist}
+*/
+
+/*!
+    \page creator-how-to-use-qtlinguist.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-editor-external.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-use
+
+    \title Use Qt Linguist
+
+    When you \l{Creating Projects}{create a new project}, you can automatically
+    generate a translation source file (TS) for one language. You can add other
+    languages later by editing the project file.
+
+    To open TS files in Qt Linguist, right-click a TS file in the
+    \uicontrol Projects or \uicontrol {File System} view and select
+    \uicontrol {Open With} > \uicontrol {Qt Linguist} in the context menu.
+    For more information about Qt Linguist, see \l{Qt Linguist Manual}.
+
+    \section1 Use lupdate and lrelease
+
+    You can use the Qt Linguist release manager tools, lupdate and lrelease,
+    directly from \QC. The lupdate tool synchronizes source
+    code and translations. The lrelease tool creates run-time
+    translation files for use by the released application.
+
+    \note Running the tools from \QC is supported only when using qmake as the
+    build system. For more information about using the tools with CMake, see
+    \l{https://doc.qt.io/qt-6/cmake-command-reference.html#qt6-linguisttools}
+    {Qt6::LinguistTools}.
+
+    By default, the project .pro file is passed to the tools as an argument. To
+    specify other command-line arguments for the tools, select \uicontrol Tools >
+    \uicontrol External > \uicontrol Configure.
+
+    \section2 Synchronize TS files
+
+    To synchronize TS files from a translator with the
+    application code, select \uicontrol Tools > \uicontrol External >
+    \uicontrol Linguist > \uicontrol {Update Translations (lupdate)}.
+
+    \section2 Generate QM files
+
+    To generate from the TS files Qt message (QM) files that can be used by an
+    application, select \uicontrol Tools > \uicontrol External >
+    \uicontrol Linguist > \uicontrol {Release Translations (lrelease)}.
+
+    \sa {Use external tools}
+*/
+
+/*!
+    \page creator-how-to-run-qml-files.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-editor-external.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-design
+
+    \title Run QML files
+
+    You can test the current QML document while you are developing an application.
+
+    To run the currently active QML file, select \uicontrol Tools >
+    \uicontrol External > \uicontrol {Qt Quick} > \uicontrol {QML Runtime}.
+
+    \sa {Use external tools}
+*/
+
+/*!
+    \page creator-how-to-use-external-text-editors.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-editor-external.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-use
+
+    \title Use external text editors
+
+    You can open files for editing in the default text editor for your system:
+    Notepad on Windows and vi on Linux and \macos.
+    To open the file you are currently viewing in an external editor, select
+    \uicontrol Tools > \uicontrol External > \uicontrol Text >
+    \uicontrol {Edit with Notepad} or \uicontrol {Edit with vi}, depending on
+    your system.
+
+    \QC looks for the editor path in the PATH environment variable
+    of your operating system.
+
+    \sa {Use external tools}
 */

@@ -22,9 +22,9 @@ constexpr char driverNameKeyC[] = "DriverName";
 
 // DriverSelection
 
-QVariantMap DriverSelection::toMap() const
+Store DriverSelection::toMap() const
 {
-    QVariantMap map;
+    Store map;
     map.insert(driverIndexKeyC, index);
     map.insert(driverCpuDllIndexKeyC, cpuDllIndex);
     map.insert(driverDllKeyC, dll);
@@ -33,7 +33,7 @@ QVariantMap DriverSelection::toMap() const
     return map;
 }
 
-void DriverSelection::fromMap(const QVariantMap &map)
+void DriverSelection::fromMap(const Store &map)
 {
     index = map.value(driverIndexKeyC).toInt();
     cpuDllIndex = map.value(driverCpuDllIndexKeyC).toInt();

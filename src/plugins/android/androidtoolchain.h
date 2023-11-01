@@ -12,7 +12,7 @@ namespace Internal {
 
 using ToolChainList = QList<ProjectExplorer::ToolChain *>;
 
-class AndroidToolChain : public ProjectExplorer::ClangToolChain
+class AndroidToolChain : public ProjectExplorer::GccToolChain
 {
 public:
     ~AndroidToolChain() override;
@@ -22,7 +22,7 @@ public:
 
     QStringList suggestedMkspecList() const override;
     Utils::FilePath makeCommand(const Utils::Environment &environment) const override;
-    bool fromMap(const QVariantMap &data) override;
+    void fromMap(const Utils::Store &data) override;
 
     void setNdkLocation(const Utils::FilePath &ndkLocation);
     Utils::FilePath ndkLocation() const;

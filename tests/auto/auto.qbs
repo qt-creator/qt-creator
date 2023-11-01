@@ -2,7 +2,6 @@ import qbs
 
 Project {
     name: "QtcAutotests"
-    condition: project.withAutotests
     references: [
         "aggregation/aggregation.qbs",
         "algorithm/algorithm.qbs",
@@ -20,7 +19,6 @@ Project {
         "languageserverprotocol/languageserverprotocol.qbs",
         "profilewriter/profilewriter.qbs",
         "qml/qml.qbs",
-        "runextensions/runextensions.qbs",
         "sdktool/sdktool.qbs",
         "solutions/solutions.qbs",
         "texteditor/texteditor.qbs",

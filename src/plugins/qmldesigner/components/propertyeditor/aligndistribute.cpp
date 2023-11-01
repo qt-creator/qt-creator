@@ -19,6 +19,8 @@
 
 #include <cmath>
 
+using namespace Utils;
+
 namespace QmlDesigner {
 
 AlignDistribute::AlignDistribute(QObject *parent)
@@ -663,7 +665,7 @@ AlignDistribute::Dimension AlignDistribute::getDimension(Target target) const
 
 bool AlignDistribute::executePixelPerfectDialog() const
 {
-    Utils::CheckableDecider decider(QString("WarnAboutPixelPerfectDistribution"));
+    Utils::CheckableDecider decider(Key("WarnAboutPixelPerfectDistribution"));
 
     QMessageBox::StandardButton pressed = Utils::CheckableMessageBox::question(
         Core::ICore::dialogParent(),

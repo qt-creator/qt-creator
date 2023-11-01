@@ -24,7 +24,7 @@ namespace Internal {
 template<typename File_t>
 bool containsFiles(const QString &path, const File_t &file)
 {
-    return QFile::exists(QString("%1/%2").arg(path).arg(file));
+    return QFileInfo::exists(QString("%1/%2").arg(path).arg(file));
 }
 
 template<typename File_t, typename... T>
@@ -78,18 +78,18 @@ public:
 
     Command introspect(const Utils::FilePath &sourceDirectory) const;
 
-    static inline std::optional<Utils::FilePath> find()
+    static std::optional<Utils::FilePath> find()
     {
         return ToolWrapper::findTool({"meson.py", "meson"});
     }
 
-    static inline QString toolName() { return {"Meson"}; };
+    static QString toolName() { return {"Meson"}; }
 };
 
 template<>
-inline QVariantMap toVariantMap<MesonWrapper>(const MesonWrapper &meson)
+inline Utils::Store toVariantMap<MesonWrapper>(const MesonWrapper &meson)
 {
-    QVariantMap data;
+    Utils::Store data;
     data.insert(Constants::ToolsSettings::NAME_KEY, meson.m_name);
     data.insert(Constants::ToolsSettings::EXE_KEY, meson.m_exe.toSettings());
     data.insert(Constants::ToolsSettings::AUTO_DETECTED_KEY, meson.m_autoDetected);
@@ -98,7 +98,7 @@ inline QVariantMap toVariantMap<MesonWrapper>(const MesonWrapper &meson)
     return data;
 }
 template<>
-inline MesonWrapper *fromVariantMap<MesonWrapper *>(const QVariantMap &data)
+inline MesonWrapper *fromVariantMap<MesonWrapper *>(const Utils::Store &data)
 {
     return new MesonWrapper(data[Constants::ToolsSettings::NAME_KEY].toString(),
                             Utils::FilePath::fromSettings(data[Constants::ToolsSettings::EXE_KEY]),

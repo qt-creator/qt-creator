@@ -3,9 +3,7 @@
 <TS version="2.1" language="nb_NO">
 <context>
     <name>%{CorrectedProjectName}</name>
-    <message>
-        <location filename="../%{MainQmlFile}" line="37"/>
-        <source>Hello world!</source>
+    <message id="hello-world">
         <translation>Hallo verden!</translation>
     </message>
 </context>

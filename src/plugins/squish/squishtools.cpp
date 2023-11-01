@@ -6,7 +6,6 @@
 #include "scripthelper.h"
 #include "squishmessages.h"
 #include "squishoutputpane.h"
-#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtr.h"
 #include "squishxmloutputhandler.h"
@@ -21,14 +20,12 @@
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
-#include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 #include <utils/temporaryfile.h>
 #include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QDateTime>
-#include <QDir>
 #include <QFile>
 #include <QFileSystemWatcher>
 #include <QLoggingCategory>
@@ -167,26 +164,21 @@ struct SquishToolsSettings
     // populate members using current settings
     void setup()
     {
-        const SquishSettings *squishSettings = SquishPlugin::squishSettings();
-        QTC_ASSERT(squishSettings, return);
-        squishPath = squishSettings->squishPath();
+        squishPath = settings().squishPath();
 
         if (!squishPath.isEmpty()) {
-            const FilePath squishBin(squishPath.pathAppended("bin"));
-            serverPath = squishBin.pathAppended(
-                        HostOsInfo::withExecutableSuffix("squishserver")).absoluteFilePath();
-            runnerPath = squishBin.pathAppended(
-                        HostOsInfo::withExecutableSuffix("squishrunner")).absoluteFilePath();
-            processComPath = squishBin.pathAppended(
-                        HostOsInfo::withExecutableSuffix("processcomm")).absoluteFilePath();
+            const FilePath squishBin = squishPath.pathAppended("bin").absoluteFilePath();
+            serverPath = squishBin.pathAppended("squishserver").withExecutableSuffix();
+            runnerPath = squishBin.pathAppended("squishrunner").withExecutableSuffix();
+            processComPath = squishBin.pathAppended("processcomm").withExecutableSuffix();
         }
 
-        isLocalServer = squishSettings->local();
-        serverHost = squishSettings->serverHost();
-        serverPort = squishSettings->serverPort();
-        verboseLog = squishSettings->verbose();
-        licenseKeyPath = squishSettings->licensePath();
-        minimizeIDE = squishSettings->minimizeIDE();
+        isLocalServer = settings().local();
+        serverHost = settings().serverHost();
+        serverPort = settings().serverPort();
+        verboseLog = settings().verbose();
+        licenseKeyPath = settings().licensePath();
+        minimizeIDE = settings().minimizeIDE();
     }
 };
 

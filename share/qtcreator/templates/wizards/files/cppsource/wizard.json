@@ -11,7 +11,7 @@
 
     "options": [
         { "key": "FileName", "value": "%{JS: Util.fileName(value('TargetPath'), value('DefaultSuffix'))}" },
-        { "key": "DefaultSuffix", "value": "%{JS: Util.preferredSuffix('text/x-c++src')}" }
+        { "key": "DefaultSuffix", "value": "%{JS: Cpp.cxxSourceSuffix()}" }
     ],
 
     "pages" :

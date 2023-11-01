@@ -54,7 +54,7 @@
                     "type": "TextEdit",
                     "data":
                     {
-                        "trText": "  \"dependencies\": [\n    \"fmt\"\n  ]"
+                        "text": "  \"dependencies\": [\n    \"fmt\"\n  ]"
                     }
                 }
             ]

@@ -3,6 +3,8 @@
 
 #include "itemviews.h"
 
+namespace Utils {
+
 /*!
    \class Utils::TreeView
    \inmodule QtCreator
@@ -12,6 +14,8 @@
     platforms where the default is different. Use with care.
 
     Also adds sane keyboard navigation for mac.
+
+    Note: This uses setUniformRowHeights(true) by default.
  */
 
 /*!
@@ -23,6 +27,8 @@
     platforms where the default is different. Use with care.
 
     Also adds sane keyboard navigation for mac.
+
+    Note: This uses setUniformRowHeights(true) by default.
  */
 
 /*!
@@ -46,3 +52,25 @@
 
     Also adds sane keyboard navigation for mac.
  */
+
+TreeView::TreeView(QWidget *parent)
+    : View<QTreeView>(parent)
+{
+    setUniformRowHeights(true);
+}
+
+TreeWidget::TreeWidget(QWidget *parent)
+    : View<QTreeWidget>(parent)
+{
+    setUniformRowHeights(true);
+}
+
+ListView::ListView(QWidget *parent)
+    : View<QListView>(parent)
+{}
+
+ListWidget::ListWidget(QWidget *parent)
+    : View<QListWidget>(parent)
+{}
+
+} // Utils

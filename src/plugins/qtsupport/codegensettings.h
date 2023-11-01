@@ -5,13 +5,15 @@
 
 #include "qtsupport_global.h"
 
-QT_FORWARD_DECLARE_CLASS(QSettings)
+#include <utils/aspects.h>
 
 namespace QtSupport {
 
-class QTSUPPORT_EXPORT CodeGenSettings
+class QTSUPPORT_EXPORT CodeGenSettings : public Utils::AspectContainer
 {
 public:
+    CodeGenSettings();
+
     // How to embed the Ui::Form class.
     enum UiClassEmbedding
     {
@@ -20,19 +22,12 @@ public:
         InheritedUiClass          // "...private Ui::Form..."
     };
 
-    CodeGenSettings();
-    bool equals(const CodeGenSettings &rhs) const;
-
-    void fromSettings(const QSettings *settings);
-    void toSettings(QSettings *settings) const;
-
-    friend bool operator==(const CodeGenSettings &p1, const CodeGenSettings &p2) { return p1.equals(p2); }
-    friend bool operator!=(const CodeGenSettings &p1, const CodeGenSettings &p2) { return !p1.equals(p2); }
-
-    UiClassEmbedding embedding;
-    bool retranslationSupport; // Add handling for language change events
-    bool includeQtModule; // Include "<QtGui/[Class]>" or just "<[Class]>"
-    bool addQtVersionCheck; // Include #ifdef when using "#include <QtGui/..."
+    Utils::SelectionAspect embedding{this};
+    Utils::BoolAspect retranslationSupport{this}; // Add handling for language change events
+    Utils::BoolAspect includeQtModule{this}; // Include "<QtGui/[Class]>" or just "<[Class]>"
+    Utils::BoolAspect addQtVersionCheck{this}; // Include #ifdef when using "#include <QtGui/..."
 };
+
+QTSUPPORT_EXPORT CodeGenSettings &codeGenSettings();
 
 } // namespace QtSupport

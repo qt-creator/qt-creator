@@ -4,10 +4,10 @@
 #include "qtsingleapplication.h"
 #include "qtlocalpeer.h"
 
-#include <qtlockedfile.h>
-
 #include <QDir>
 #include <QFileOpenEvent>
+#include <QLockFile>
+#include <QPointer>
 #include <QSharedMemory>
 #include <QWidget>
 
@@ -50,11 +50,10 @@ QtSingleApplication::QtSingleApplication(const QString &appId, int &argc, char *
         }
     }
 
-    // QtLockedFile is used to workaround QTBUG-10364
-    QtLockedFile lockfile(instancesLockFilename(appSessionId));
+    // QLockFile is used to workaround QTBUG-10364
+    QLockFile lockfile(instancesLockFilename(appSessionId));
 
-    lockfile.open(QtLockedFile::ReadWrite);
-    lockfile.lock(QtLockedFile::WriteLock);
+    lockfile.lock();
     qint64 *pids = static_cast<qint64 *>(instances->data());
     if (!created) {
         // Find the first instance that it still running
@@ -79,9 +78,8 @@ QtSingleApplication::~QtSingleApplication()
     if (!instances)
         return;
     const qint64 appPid = QCoreApplication::applicationPid();
-    QtLockedFile lockfile(instancesLockFilename(QtLocalPeer::appSessionId(appId)));
-    lockfile.open(QtLockedFile::ReadWrite);
-    lockfile.lock(QtLockedFile::WriteLock);
+    QLockFile lockfile(instancesLockFilename(QtLocalPeer::appSessionId(appId)));
+    lockfile.lock();
     // Rewrite array, removing current pid and previously crashed ones
     qint64 *pids = static_cast<qint64 *>(instances->data());
     qint64 *newpids = pids;

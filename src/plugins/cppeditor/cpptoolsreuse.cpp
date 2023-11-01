@@ -5,10 +5,12 @@
 
 #include "clangdiagnosticconfigsmodel.h"
 #include "cppautocompleter.h"
+#include "cppcanonicalsymbol.h"
 #include "cppcodemodelsettings.h"
 #include "cppcompletionassist.h"
 #include "cppeditorconstants.h"
 #include "cppeditorplugin.h"
+#include "cppeditorwidget.h"
 #include "cppeditortr.h"
 #include "cppfilesettingspage.h"
 #include "cpphighlighter.h"
@@ -28,19 +30,27 @@
 #include <texteditor/textdocument.h>
 
 #include <cplusplus/BackwardsScanner.h>
+#include <cplusplus/declarationcomments.h>
 #include <cplusplus/LookupContext.h>
 #include <cplusplus/Overview.h>
 #include <cplusplus/SimpleLexer.h>
 
 #include <utils/algorithm.h>
-#include <utils/textutils.h>
 #include <utils/qtcassert.h>
+#include <utils/textfileformat.h>
+#include <utils/textutils.h>
 
 #include <QDebug>
+#include <QElapsedTimer>
+#include <QHash>
 #include <QRegularExpression>
 #include <QSet>
+#include <QStringView>
 #include <QTextCursor>
 #include <QTextDocument>
+
+#include <optional>
+#include <vector>
 
 using namespace CPlusPlus;
 using namespace Utils;
@@ -611,9 +621,229 @@ void openEditor(const Utils::FilePath &filePath, bool inNextSplit, Utils::Id edi
                                                               : EditorManager::NoFlags);
 }
 
-bool preferLowerCaseFileNames()
+bool preferLowerCaseFileNames(ProjectExplorer::Project *project)
 {
-    return Internal::CppEditorPlugin::fileSettings()->lowerCaseFiles;
+    return Internal::CppEditorPlugin::fileSettings(project).lowerCaseFiles;
+}
+
+QString preferredCxxHeaderSuffix(ProjectExplorer::Project *project)
+{
+    return Internal::CppEditorPlugin::fileSettings(project).headerSuffix;
+}
+
+QString preferredCxxSourceSuffix(ProjectExplorer::Project *project)
+{
+    return Internal::CppEditorPlugin::fileSettings(project).sourceSuffix;
+}
+
+SearchResultItems symbolOccurrencesInDeclarationComments(
+    const Utils::SearchResultItems &symbolOccurrencesInCode)
+{
+    if (symbolOccurrencesInCode.isEmpty())
+        return {};
+
+    // When using clangd, this function gets called every time the replacement string changes,
+    // so cache the results.
+    static QHash<SearchResultItems, SearchResultItems> resultCache;
+    if (const auto it = resultCache.constFind(symbolOccurrencesInCode);
+        it != resultCache.constEnd())  {
+        return it.value();
+    }
+    if (resultCache.size() > 5)
+        resultCache.clear();
+
+    QElapsedTimer timer;
+    timer.start();
+    Snapshot snapshot = CppModelManager::snapshot();
+    std::vector<std::unique_ptr<QTextDocument>> docPool;
+    using FileData = std::tuple<QTextDocument *, QString, Document::Ptr, QList<Token>>;
+    QHash<FilePath, FileData> dataPerFile;
+    QString symbolName;
+    const auto fileData = [&](const FilePath &filePath) -> FileData & {
+        auto &data = dataPerFile[filePath];
+        auto &[doc, content, cppDoc, allCommentTokens] = data;
+        if (!doc) {
+            if (TextEditor::TextDocument * const textDoc
+                = TextEditor::TextDocument::textDocumentForFilePath(filePath)) {
+                doc = textDoc->document();
+            } else {
+                std::unique_ptr<QTextDocument> newDoc = std::make_unique<QTextDocument>();
+                if (const auto content = TextFileFormat::readFile(
+                        filePath, Core::EditorManager::defaultTextCodec())) {
+                    newDoc->setPlainText(content.value());
+                }
+                doc = newDoc.get();
+                docPool.push_back(std::move(newDoc));
+            }
+            content = doc->toPlainText();
+            cppDoc = snapshot.preprocessedDocument(content.toUtf8(), filePath);
+            cppDoc->check();
+        }
+        return data;
+    };
+    static const auto addToken = [](QList<Token> &tokens, const Token &tok) {
+        if (!Utils::contains(tokens, [&tok](const Token &t) {
+                return t.byteOffset == tok.byteOffset; })) {
+            tokens << tok;
+        }
+    };
+
+    struct ClassInfo {
+        FilePath filePath;
+        int startOffset = -1;
+        int endOffset = -1;
+    };
+    std::optional<ClassInfo> classInfo;
+
+    // Collect comment blocks associated with replace locations.
+    for (const SearchResultItem &item : symbolOccurrencesInCode) {
+        const FilePath filePath = FilePath::fromUserInput(item.path().last());
+        auto &[doc, content, cppDoc, allCommentTokens] = fileData(filePath);
+        const Text::Range &range = item.mainRange();
+        if (symbolName.isEmpty()) {
+            const int symbolStartPos = Utils::Text::positionInText(doc, range.begin.line,
+                                                                   range.begin.column + 1);
+            const int symbolEndPos = Utils::Text::positionInText(doc, range.end.line,
+                                                                 range.end.column + 1);
+            symbolName = content.mid(symbolStartPos, symbolEndPos - symbolStartPos);
+        }
+        const QList<Token> commentTokens = commentsForDeclaration(symbolName, range.begin,
+                                                                  *doc, cppDoc);
+        for (const Token &tok : commentTokens)
+            addToken(allCommentTokens, tok);
+
+        if (!classInfo) {
+            QTextCursor cursor(doc);
+            cursor.setPosition(Text::positionInText(doc, range.begin.line, range.begin.column + 1));
+            Internal::CanonicalSymbol cs(cppDoc, snapshot);
+            Symbol * const canonicalSymbol = cs(cursor);
+            if (canonicalSymbol) {
+                classInfo.emplace();
+                if (Class * const klass = canonicalSymbol->asClass()) {
+                    classInfo->filePath = canonicalSymbol->filePath();
+                    classInfo->startOffset = klass->startOffset();
+                    classInfo->endOffset = klass->endOffset();
+                }
+            }
+        }
+
+        // We hook in between the end of the "regular" search and (possibly non-interactive)
+        // actions on it, so we must run synchronously in the UI thread and therefore be fast.
+        // If we notice we are lagging, just abort, as renaming the comments is not
+        // required for code correctness.
+        if (timer.elapsed() > 1000) {
+            resultCache.insert(symbolOccurrencesInCode, {});
+            return {};
+        }
+    }
+
+    // If the symbol is a class, collect all comment blocks in the class body.
+    if (classInfo && !classInfo->filePath.isEmpty()) {
+        auto &[_1, _2, symbolCppDoc, commentTokens] = fileData(classInfo->filePath);
+        TranslationUnit * const tu = symbolCppDoc->translationUnit();
+        for (int i = 0; i < tu->commentCount(); ++i) {
+            const Token &tok = tu->commentAt(i);
+            if (tok.bytesBegin() < classInfo->startOffset)
+                continue;
+            if (tok.bytesBegin() >= classInfo->endOffset)
+                break;
+            addToken(commentTokens, tok);
+        }
+    }
+
+    // Create new replace items for occurrences of the symbol name in collected comment blocks.
+    SearchResultItems commentItems;
+    for (auto it = dataPerFile.cbegin(); it != dataPerFile.cend(); ++it) {
+        const auto &[doc, content, cppDoc, commentTokens] = it.value();
+        const QStringView docView(content);
+        for (const Token &tok : commentTokens) {
+            const int tokenStartPos = cppDoc->translationUnit()->getTokenPositionInDocument(
+                tok, doc);
+            const int tokenEndPos = cppDoc->translationUnit()->getTokenEndPositionInDocument(
+                tok, doc);
+            const QStringView tokenView = docView.mid(tokenStartPos, tokenEndPos - tokenStartPos);
+            const QList<Text::Range> ranges = symbolOccurrencesInText(
+                *doc, tokenView, tokenStartPos, symbolName);
+            for (const Text::Range &range : ranges) {
+                SearchResultItem item;
+                item.setUseTextEditorFont(true);
+                item.setFilePath(it.key());
+                item.setMainRange(range);
+                item.setLineText(doc->findBlockByNumber(range.begin.line - 1).text());
+                commentItems << item;
+            }
+        }
+    }
+
+    resultCache.insert(symbolOccurrencesInCode, commentItems);
+    return commentItems;
+}
+
+QList<Text::Range> symbolOccurrencesInText(const QTextDocument &doc, QStringView text, int offset,
+                                           const QString &symbolName)
+{
+    QList<Text::Range> ranges;
+    int index = 0;
+    while (true) {
+        index = text.indexOf(symbolName, index);
+        if (index == -1)
+            break;
+
+        // Prevent substring matching.
+        const auto checkAdjacent = [&](int i) {
+            if (i == -1 || i == text.size())
+                return true;
+            const QChar c = text.at(i);
+            if (c.isLetterOrNumber() || c == '_') {
+                index += symbolName.length();
+                return false;
+            }
+            return true;
+        };
+        if (!checkAdjacent(index - 1))
+            continue;
+        if (!checkAdjacent(index + symbolName.length()))
+            continue;
+
+        const Text::Position startPos = Text::Position::fromPositionInDocument(&doc, offset + index);
+        index += symbolName.length();
+        const Text::Position endPos = Text::Position::fromPositionInDocument(&doc, offset + index);
+        ranges << Text::Range{startPos, endPos};
+    }
+    return ranges;
+}
+
+QList<Text::Range> symbolOccurrencesInDeclarationComments(CppEditorWidget *editorWidget,
+                                                          const QTextCursor &cursor)
+{
+    if (!editorWidget)
+        return {};
+    const SemanticInfo &semanticInfo = editorWidget->semanticInfo();
+    const Document::Ptr &cppDoc = semanticInfo.doc;
+    if (!cppDoc)
+        return {};
+    Internal::CanonicalSymbol cs(cppDoc, semanticInfo.snapshot);
+    const Symbol * const symbol = cs(cursor);
+    if (!symbol || !symbol->asArgument())
+        return {};
+    const QTextDocument * const textDoc = editorWidget->textDocument()->document();
+    QTC_ASSERT(textDoc, return {});
+    const QList<Token> comments = commentsForDeclaration(symbol, *textDoc, cppDoc);
+    if (comments.isEmpty())
+        return {};
+    QList<Text::Range> ranges;
+    const QString &content = textDoc->toPlainText();
+    const QStringView docView = QStringView(content);
+    const QString symbolName = Overview().prettyName(symbol->name());
+    for (const Token &tok : comments) {
+        const int tokenStartPos = cppDoc->translationUnit()->getTokenPositionInDocument(
+            tok, textDoc);
+        const int tokenEndPos = cppDoc->translationUnit()->getTokenEndPositionInDocument(
+            tok, textDoc);
+        const QStringView tokenView = docView.mid(tokenStartPos, tokenEndPos - tokenStartPos);
+        ranges << symbolOccurrencesInText(*textDoc, tokenView, tokenStartPos, symbolName);
+    }
+    return ranges;
 }
 
 namespace Internal {

@@ -4,11 +4,12 @@
 #include "catchtestparser.h"
 
 #include "catchcodeparser.h"
-#include "catchframework.h"
+#include "catchtestframework.h"
 #include "catchtreeitem.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/projectpart.h>
+
 #include <utils/qtcassert.h>
 
 #include <QPromise>
@@ -99,7 +100,6 @@ bool CatchTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     if (doc.isNull() || !includesCatchHeader(doc, m_cppSnapshot))
         return false;
 
-    const CppEditor::CppModelManager *modelManager = CppEditor::CppModelManager::instance();
     const QString &filePath = doc->filePath().toString();
     const QByteArray &fileContent = getFileContent(fileName);
 
@@ -115,7 +115,8 @@ bool CatchTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     }
 
 
-    const QList<CppEditor::ProjectPart::ConstPtr> projectParts = modelManager->projectPart(fileName);
+    const QList<CppEditor::ProjectPart::ConstPtr> projectParts
+        = CppEditor::CppModelManager::projectPart(fileName);
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
     FilePath proFile;

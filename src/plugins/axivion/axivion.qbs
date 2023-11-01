@@ -25,8 +25,22 @@ QtcPlugin {
         "axivionresultparser.cpp",
         "axivionsettings.cpp",
         "axivionsettings.h",
-        "axivionsettingspage.cpp",
-        "axivionsettingspage.h",
         "axiviontr.h",
+        "dashboard/dashboardclient.cpp",
+        "dashboard/dashboardclient.h",
     ]
+
+    cpp.includePaths: base.concat(["."]) // needed for the generated stuff below
+
+    Group {
+        name: "Generated DTOs"
+        prefix: "dashboard/"
+
+        files: [
+            "concat.cpp",
+            "concat.h",
+            "dto.cpp",
+            "dto.h",
+        ]
+    }
 }

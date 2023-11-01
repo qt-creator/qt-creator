@@ -655,13 +655,13 @@ QString decodeData(const QString &ba, const QString &encoding)
         }
         case DebuggerEncoding::HexEncodedUtf16: {
             const QByteArray decodedBa = QByteArray::fromHex(ba.toUtf8());
-            result = QString::fromUtf16(reinterpret_cast<const ushort *>
+            result = QString::fromUtf16(reinterpret_cast<const char16_t *>
                 (decodedBa.data()), decodedBa.size() / 2);
             break;
         }
         case DebuggerEncoding::HexEncodedUcs4: {
             const QByteArray decodedBa = QByteArray::fromHex(ba.toUtf8());
-            result = QString::fromUcs4(reinterpret_cast<const uint *>
+            result = QString::fromUcs4(reinterpret_cast<const char32_t *>
                 (decodedBa.data()), decodedBa.size() / 4);
             break;
         }
@@ -706,7 +706,7 @@ QString decodeData(const QString &ba, const QString &encoding)
 
             const QByteArray scopeId = p == -1 ? QByteArray() : QByteArray::fromHex(ba.mid(p + 1).toUtf8());
             if (!scopeId.isEmpty())
-                ip6.setScopeId(QString::fromUtf16(reinterpret_cast<const ushort *>(scopeId.constData()),
+                ip6.setScopeId(QString::fromUtf16(reinterpret_cast<const char16_t *>(scopeId.constData()),
                                                   scopeId.length() / 2));
             return ip6.toString();
         }
@@ -737,9 +737,11 @@ QString decodeData(const QString &ba, const QString &encoding)
             if (spec == Qt::OffsetFromUTC) {
                 dateTime = QDateTime(date, time, spec, offset);
             } else if (spec == Qt::TimeZone) {
-                if (!QTimeZone::isTimeZoneIdAvailable(timeZoneId))
+                QTimeZone tz(timeZoneId);
+                if (!tz.isValid())
                     return QLatin1String("<unavailable>");
-                dateTime = QDateTime(date, time, QTimeZone(timeZoneId));
+
+                dateTime = QDateTime(date, time, tz);
             } else {
                 dateTime = QDateTime(date, time, spec);
             }

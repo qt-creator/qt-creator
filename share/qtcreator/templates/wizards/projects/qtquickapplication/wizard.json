@@ -21,6 +21,7 @@
         { "key": "HasFailureSignal", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.3' }"},
         { "key": "UsesAutoResourcePrefix", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' }"},
         { "key": "HasLoadFromModule", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.4' && value('UsesAutoResourcePrefix') }"},
+        { "key": "FeatureQt", "value": "QtSupport.Wizards.FeatureQt.%{MinimumSupportedQtVersion}"},
         { "key": "QdsWizardPath", "value": "%{IDE:ResourcePath}/qmldesigner/studio_templates/projects" },
         { "key": "NoQdsProjectStyle", "value": "%{JS: !%{QdsProjectStyle} }" },
 
@@ -54,7 +55,7 @@
             [
                 {
                     "name": "QdsProjectStyle",
-                    "trDisplayName": "Creates a project that you can open in Qt Design Studio.",
+                    "trDisplayName": "Creates a project that you can open in Qt Design Studio",
                     "trToolTip": "Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.",
                     "type": "CheckBox",
                     "span": true,
@@ -77,7 +78,7 @@
                 },
                 {
                     "name": "MinimumSupportedQtVersion",
-                    "trDisplayName": "The minimum version of Qt you want to build the application for.",
+                    "trDisplayName": "The minimum version of Qt you want to build the application for",
                     "type": "ComboBox",
                     "data":
                     {
@@ -98,7 +99,7 @@
             "enabled": "%{JS: !value('IsSubproject')}",
             "data": {
                 "projectFilePath": "%{ProjectFile}",
-                "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQmlCMakeApi" ]
+                "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQmlCMakeApi", "%{FeatureQt}" ]
             }
         },
         {

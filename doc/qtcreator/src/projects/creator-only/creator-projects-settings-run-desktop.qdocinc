@@ -6,7 +6,7 @@
 
     \section1 Specifying Run Settings for Desktop Device Types
 
-    You can specify command line arguments to be passed to the executable
+    You can specify command-line arguments to be passed to the executable
     and the working directory to use. The working directory defaults to
     the directory of the build result.
 
@@ -20,10 +20,9 @@
     \image qtcreator-settings-run-desktop.webp {Run Settings}
 
     For console applications, check the \uicontrol{Run in terminal} check box.
-    To specify the terminal to use on Linux and \macos, select \uicontrol Edit
-    > \uicontrol Preferences > \uicontrol Environment > \uicontrol System. To use
-    an \l{Terminal}{internal terminal}, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Terminal >
+    To specify the terminal to use on Linux and \macos, select \preferences >
+    \uicontrol Environment > \uicontrol System. To use an \l{Terminal}
+    {internal terminal}, select \preferences > \uicontrol Terminal >
     \uicontrol {Use internal terminal}.
 
     To run with special environment variables set up, select them in the
@@ -40,8 +39,8 @@
 
     To disable library linking for the current project, deselect the
     \uicontrol {Add build library search path to PATH} check box. To disable
-    library linking for all projects, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Build & Run}, and then deselect the
+    library linking for all projects, select \preferences >
+    \uicontrol {Build & Run}, and then deselect the
     \uicontrol {Add linker library search paths to run environment} check box.
 
     The \uicontrol {Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)} option

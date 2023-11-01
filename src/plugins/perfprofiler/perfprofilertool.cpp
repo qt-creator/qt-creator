@@ -3,9 +3,7 @@
 
 #include "perfprofilertool.h"
 
-#include "perfconfigwidget.h"
 #include "perfloaddialog.h"
-#include "perfprofilerplugin.h"
 #include "perfprofilertr.h"
 #include "perfsettings.h"
 #include "perftracepointdialog.h"
@@ -22,15 +20,15 @@
 #include <debugger/analyzer/analyzermanager.h>
 #include <debugger/debuggericons.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
@@ -215,12 +213,11 @@ void PerfProfilerTool::createViews()
             m_flameGraphView, &PerfProfilerFlameGraphView::selectByTypeId);
 
     // Clear settings if the statistics or flamegraph view isn't there yet.
-    QSettings *settings = Core::ICore::settings();
-    settings->beginGroup(QLatin1String("AnalyzerViewSettings_") +
-                         QLatin1String(Constants::PerfProfilerPerspectiveId));
-    if (!settings->contains(m_statisticsView->objectName())
-            || !settings->contains(m_flameGraphView->objectName())) {
-        settings->remove(QString());
+    QtcSettings *settings = Core::ICore::settings();
+    settings->beginGroup(Key("AnalyzerViewSettings_") + Constants::PerfProfilerPerspectiveId);
+    if (!settings->contains(keyFromString(m_statisticsView->objectName()))
+            || !settings->contains(keyFromString(m_flameGraphView->objectName()))) {
+        settings->remove(Key());
     }
     settings->endGroup();
 
@@ -236,11 +233,8 @@ void PerfProfilerTool::createViews()
                 settings = runConfig->currentSettings<PerfSettings>(Constants::PerfSettingsId);
         }
 
-        PerfConfigWidget *widget = new PerfConfigWidget(
-                    settings ? settings : PerfProfilerPlugin::globalSettings(),
-                    Core::ICore::dialogParent());
-        widget->setTracePointsButtonVisible(true);
-        widget->setTarget(target);
+        QWidget *widget = settings ? settings->createPerfConfigWidget(target)
+                                   : globalSettings().createPerfConfigWidget(target);
         widget->setWindowFlags(Qt::Dialog);
         widget->setAttribute(Qt::WA_DeleteOnClose);
         widget->show();
@@ -449,11 +443,10 @@ void PerfProfilerTool::updateRunActions()
         m_loadPerfData->setEnabled(false);
         m_loadTrace->setEnabled(false);
     } else {
-        QString whyNot = Tr::tr("Start a performance analysis.");
-        bool canRun = ProjectExplorerPlugin::canRunStartupProject(
-                    ProjectExplorer::Constants::PERFPROFILER_RUN_MODE, &whyNot);
-        m_startAction->setToolTip(whyNot);
-        m_startAction->setEnabled(canRun);
+        const auto canRun = ProjectExplorerPlugin::canRunStartupProject(
+            ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+        m_startAction->setToolTip(canRun ? Tr::tr("Start a performance analysis.") : canRun.error());
+        m_startAction->setEnabled(bool(canRun));
         m_loadPerfData->setEnabled(true);
         m_loadTrace->setEnabled(true);
     }

@@ -59,7 +59,7 @@ public:
     void start() final { task()->test(); }
 };
 
-} // namespace ProjectExplorer
+using FileTransferTask = Tasking::CustomTask<FileTransferTaskAdapter>;
+using FileTransferTestTask = Tasking::CustomTask<FileTransferTestTaskAdapter>;
 
-TASKING_DECLARE_TASK(FileTransferTask, ProjectExplorer::FileTransferTaskAdapter);
-TASKING_DECLARE_TASK(FileTransferTestTask, ProjectExplorer::FileTransferTestTaskAdapter);
+} // namespace ProjectExplorer

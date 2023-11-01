@@ -5,7 +5,7 @@
 
 #include "command.h"
 
-#include <coreplugin/icontext.h>
+#include "../icontext.h"
 
 #include <utils/id.h>
 #include <utils/proxyaction.h>

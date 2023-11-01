@@ -12,7 +12,7 @@
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/projectinfo.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>

@@ -37,6 +37,10 @@ namespace Debugger::Internal {
 
 Console::Console()
 {
+    setId("QMLDebuggerConsole");
+    setDisplayName(Tr::tr("QML Debugger Console"));
+    setPriorityInStatusBar(-40);
+
     m_consoleItemModel = new ConsoleItemModel(this);
 
     m_consoleWidget = new QWidget;
@@ -87,8 +91,8 @@ Console::Console()
     m_showDebug.setToolTip(Tr::tr("Show debug, log, and info messages."));
     m_showDebug.setValue(true);
     m_showDebug.action()->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
-    connect(&m_showDebug, &Utils::BoolAspect::valueChanged,
-            proxyModel, &ConsoleProxyModel::setShowLogs);
+    connect(&m_showDebug, &Utils::BoolAspect::changed,
+            proxyModel, [this, proxyModel] { proxyModel->setShowLogs(m_showDebug()); });
     m_showDebugButton->setDefaultAction(m_showDebug.action());
 
     m_showWarningButton = new QToolButton(m_consoleWidget);
@@ -100,7 +104,7 @@ Console::Console()
     m_showWarning.setValue(true);
     m_showWarning.action()->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
     connect(m_showWarning.action(), &QAction::toggled,
-            proxyModel, &ConsoleProxyModel::setShowWarnings);
+            proxyModel, [this, proxyModel] { proxyModel->setShowWarnings(m_showWarning()); });
     m_showWarningButton->setDefaultAction(m_showWarning.action());
 
     m_showErrorButton = new QToolButton(m_consoleWidget);
@@ -112,7 +116,7 @@ Console::Console()
     m_showError.setValue(true);
     m_showError.action()->setIcon(Utils::Icons::CRITICAL_TOOLBAR.icon());
     connect(m_showError.action(), &QAction::toggled,
-            proxyModel, &ConsoleProxyModel::setShowErrors);
+            proxyModel, [this, proxyModel] { proxyModel->setShowErrors(m_showError()); });
     m_showErrorButton->setDefaultAction(m_showError.action());
 
     m_spacer = new QWidget(m_consoleWidget);
@@ -140,16 +144,6 @@ QList<QWidget *> Console::toolBarWidgets() const
 {
      return {m_showDebugButton, m_showWarningButton, m_showErrorButton,
              m_spacer, m_statusLabel};
-}
-
-QString Console::displayName() const
-{
-    return Tr::tr("QML Debugger Console");
-}
-
-int Console::priorityInStatusBar() const
-{
-    return 20;
 }
 
 void Console::clearContents()
@@ -202,10 +196,9 @@ bool Console::canNavigate() const
 
 void Console::readSettings()
 {
-    QSettings *settings = Core::ICore::settings();
-    m_showDebug.readSettings(settings);
-    m_showWarning.readSettings(settings);
-    m_showError.readSettings(settings);
+    m_showDebug.readSettings();
+    m_showWarning.readSettings();
+    m_showError.readSettings();
 }
 
 void Console::setContext(const QString &context)
@@ -215,10 +208,9 @@ void Console::setContext(const QString &context)
 
 void Console::writeSettings() const
 {
-    QSettings *settings = Core::ICore::settings();
-    m_showDebug.writeSettings(settings);
-    m_showWarning.writeSettings(settings);
-    m_showError.writeSettings(settings);
+    m_showDebug.writeSettings();
+    m_showWarning.writeSettings();
+    m_showError.writeSettings();
 }
 
 void Console::setScriptEvaluator(const ScriptEvaluator &evaluator)

@@ -102,6 +102,9 @@ public:
         RtosFlavor,
         GenericFlavor,
 
+        // Yocto
+        PokyFlavor,
+
         UnknownFlavor // keep last in this enum!
     };
 

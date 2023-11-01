@@ -76,4 +76,11 @@ const Utils::Id AndroidAvdPath = "AndroidAvdPath";
 const char cmdlineToolsName[] = "cmdline-tools";
 const char ndkPackageName[] = "ndk";
 
+// For AndroidQtVersion
+const char ArmToolsDisplayName[] = "arm";
+const char ArmV7ToolsDisplayName[] = "armv7";
+const char X86ToolsDisplayName[] = "i686";
+const char AArch64ToolsDisplayName[] = "aarch64";
+const char X86_64ToolsDisplayName[] = "x86_64";
+
 } // Android::Constants

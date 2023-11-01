@@ -12,7 +12,7 @@
     "options":
     [
         { "key": "ProjectFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
-        { "key": "CppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" },
+        { "key": "CppFileName", "value": "%{JS: 'main.' + Cpp.cxxSourceSuffix()}" },
         { "key": "MacOSBundleValue", "value": "%{JS: %{MacOSBundle} ? 'TRUE' : 'FALSE' }" }
     ],
     "pages":
@@ -38,7 +38,7 @@
                     "type": "TextEdit",
                     "data":
                     {
-                        "trText": "int main(int argc, char *argv[])\n{\n    return 0;\n}"
+                        "text": "int main(int argc, char *argv[])\n{\n    return 0;\n}"
                     }
                 },
                 {

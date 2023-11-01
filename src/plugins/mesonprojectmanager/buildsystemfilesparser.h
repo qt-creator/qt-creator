@@ -32,12 +32,10 @@ class BuildSystemFilesParser
     }
 
 public:
-    BuildSystemFilesParser(const QString &buildDir)
+    BuildSystemFilesParser(const Utils::FilePath &buildDir)
     {
-        auto arr = load<QJsonArray>(QString("%1/%2/%3")
-                                        .arg(buildDir)
-                                        .arg(Constants::MESON_INFO_DIR)
-                                        .arg(Constants::MESON_INTRO_BUILDSYSTEM_FILES));
+        Utils::FilePath path = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INTRO_BUILDSYSTEM_FILES;
+        auto arr = load<QJsonArray>(path.toFSPathString());
         appendFiles(arr, m_files);
     }
 

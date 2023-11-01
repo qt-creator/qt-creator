@@ -22,7 +22,6 @@
 #include <QFont>
 #include <QLabel>
 #include <QScrollArea>
-#include <QSettings>
 #include <QStackedWidget>
 #include <QToolButton>
 
@@ -291,13 +290,6 @@ using namespace Core::Internal;
 */
 
 /*!
-    \fn void Core::SearchResult::requestEnabledCheck()
-
-    This signal is emitted when the enabled status of search results is
-    requested.
-*/
-
-/*!
     \fn void Core::SearchResult::searchAgainRequested()
 
     This signal is emitted when the \uicontrol {Search Again} button is
@@ -370,6 +362,9 @@ SearchResultWindow *SearchResultWindow::m_instance = nullptr;
 SearchResultWindow::SearchResultWindow(QWidget *newSearchPanel)
     : d(new SearchResultWindowPrivate(this, newSearchPanel))
 {
+    setId("SearchResults");
+    setDisplayName(Tr::tr("Search Results"));
+    setPriorityInStatusBar(80);
     m_instance = this;
     readSettings();
 }
@@ -642,9 +637,9 @@ QList<QWidget *> SearchResultWindowPrivate::toolBarWidgets()
 */
 void SearchResultWindow::readSettings()
 {
-    QSettings *s = ICore::settings();
-    s->beginGroup(QLatin1String(SETTINGSKEYSECTIONNAME));
-    d->m_expandCollapseAction->setChecked(s->value(QLatin1String(SETTINGSKEYEXPANDRESULTS),
+    Utils::QtcSettings *s = ICore::settings();
+    s->beginGroup(SETTINGSKEYSECTIONNAME);
+    d->m_expandCollapseAction->setChecked(s->value(SETTINGSKEYEXPANDRESULTS,
                                                    SearchResultWindowPrivate::m_initiallyExpand).toBool());
     s->endGroup();
 }
@@ -660,14 +655,6 @@ void SearchResultWindow::writeSettings()
                            d->m_expandCollapseAction->isChecked(),
                            SearchResultWindowPrivate::m_initiallyExpand);
     s->endGroup();
-}
-
-/*!
-    \internal
-*/
-int SearchResultWindow::priorityInStatusBar() const
-{
-    return 80;
 }
 
 /*!
@@ -714,14 +701,6 @@ void SearchResultWindow::goToPrev()
 bool SearchResultWindow::canNavigate() const
 {
     return true;
-}
-
-/*!
-    \internal
-*/
-QString SearchResultWindow::displayName() const
-{
-    return Tr::tr("Search Results");
 }
 
 /*!
@@ -905,6 +884,11 @@ void Core::SearchResult::makeNonInteractive(const std::function<void ()> &callba
     QTC_ASSERT(callback, return);
     m_widget->setEnabled(false);
     m_finishedHandler = callback;
+}
+
+Utils::SearchResultItems SearchResult::allItems() const
+{
+    return m_widget->items(false);
 }
 
 } // namespace Core

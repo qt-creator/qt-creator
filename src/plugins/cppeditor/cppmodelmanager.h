@@ -66,7 +66,7 @@ enum class SignalSlotType {
     None
 };
 
-class CPPEDITOR_EXPORT CppModelManager final : public CPlusPlus::CppModelManagerBase
+class CPPEDITOR_EXPORT CppModelManager final : public QObject
 {
     Q_OBJECT
 
@@ -80,95 +80,95 @@ public:
 
     static CppModelManager *instance();
 
-    void registerJsExtension();
+    static void registerJsExtension();
 
-     // Documented in source file.
-     enum ProgressNotificationMode {
+    // Documented in source file.
+    enum ProgressNotificationMode {
         ForcedProgressNotification,
         ReservedProgressNotification
     };
 
-    QFuture<void> updateSourceFiles(const QSet<Utils::FilePath> &sourceFiles,
-                                    ProgressNotificationMode mode = ReservedProgressNotification);
-    void updateCppEditorDocuments(bool projectsUpdated = false) const;
-    WorkingCopy workingCopy() const;
-    QByteArray codeModelConfiguration() const;
-    CppLocatorData *locatorData() const;
+    static QFuture<void> updateSourceFiles(const QSet<Utils::FilePath> &sourceFiles,
+                                            ProgressNotificationMode mode = ReservedProgressNotification);
+    static void updateCppEditorDocuments(bool projectsUpdated = false);
+    static WorkingCopy workingCopy();
+    static QByteArray codeModelConfiguration();
+    static CppLocatorData *locatorData();
 
-    bool setExtraDiagnostics(const QString &fileName,
-                             const QString &kind,
-                             const QList<Document::DiagnosticMessage> &diagnostics) override;
+    static bool setExtraDiagnostics(const Utils::FilePath &filePath,
+                                    const QString &kind,
+                                    const QList<Document::DiagnosticMessage> &diagnostics);
 
-    const QList<Document::DiagnosticMessage> diagnosticMessages();
+    static const QList<Document::DiagnosticMessage> diagnosticMessages();
 
-    ProjectInfoList projectInfos() const;
-    ProjectInfo::ConstPtr projectInfo(ProjectExplorer::Project *project) const;
-    QFuture<void> updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
-                                    const QSet<Utils::FilePath> &additionalFiles = {});
+    static ProjectInfoList projectInfos();
+    static ProjectInfo::ConstPtr projectInfo(ProjectExplorer::Project *project);
+    static QFuture<void> updateProjectInfo(const ProjectInfo::ConstPtr &newProjectInfo,
+                                           const QSet<Utils::FilePath> &additionalFiles = {});
 
     /// \return The project part with the given project file
-    ProjectPart::ConstPtr projectPartForId(const QString &projectPartId) const;
+    static ProjectPart::ConstPtr projectPartForId(const QString &projectPartId);
     /// \return All project parts that mention the given file name as one of the sources/headers.
-    QList<ProjectPart::ConstPtr> projectPart(const Utils::FilePath &fileName) const;
-    QList<ProjectPart::ConstPtr> projectPart(const QString &fileName) const
+    static QList<ProjectPart::ConstPtr> projectPart(const Utils::FilePath &fileName);
+    static QList<ProjectPart::ConstPtr> projectPart(const QString &fileName)
     { return projectPart(Utils::FilePath::fromString(fileName)); }
     /// This is a fall-back function: find all files that includes the file directly or indirectly,
     /// and return its \c ProjectPart list for use with this file.
-    QList<ProjectPart::ConstPtr> projectPartFromDependencies(const Utils::FilePath &fileName) const;
+    static QList<ProjectPart::ConstPtr> projectPartFromDependencies(const Utils::FilePath &fileName);
     /// \return A synthetic \c ProjectPart which consists of all defines/includes/frameworks from
     ///         all loaded projects.
-    ProjectPart::ConstPtr fallbackProjectPart();
+    static ProjectPart::ConstPtr fallbackProjectPart();
 
-    CPlusPlus::Snapshot snapshot() const override;
-    Document::Ptr document(const Utils::FilePath &filePath) const;
-    bool replaceDocument(Document::Ptr newDoc);
+    static CPlusPlus::Snapshot snapshot();
+    static Document::Ptr document(const Utils::FilePath &filePath);
+    static bool replaceDocument(Document::Ptr newDoc);
 
-    void emitDocumentUpdated(Document::Ptr doc);
-    void emitAbstractEditorSupportContentsUpdated(const QString &filePath,
+    static void emitDocumentUpdated(Document::Ptr doc);
+    static void emitAbstractEditorSupportContentsUpdated(const QString &filePath,
                                                   const QString &sourcePath,
                                                   const QByteArray &contents);
-    void emitAbstractEditorSupportRemoved(const QString &filePath);
+    static void emitAbstractEditorSupportRemoved(const QString &filePath);
 
     static bool isCppEditor(Core::IEditor *editor);
     static bool usesClangd(const TextEditor::TextDocument *document);
-    bool isClangCodeModelActive() const;
+    static bool isClangCodeModelActive();
 
-    QSet<AbstractEditorSupport*> abstractEditorSupports() const;
-    void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
-    void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
+    static QSet<AbstractEditorSupport*> abstractEditorSupports();
+    static void addExtraEditorSupport(AbstractEditorSupport *editorSupport);
+    static void removeExtraEditorSupport(AbstractEditorSupport *editorSupport);
 
-    const QList<CppEditorDocumentHandle *> cppEditorDocuments() const;
-    CppEditorDocumentHandle *cppEditorDocument(const Utils::FilePath &filePath) const;
+    static const QList<CppEditorDocumentHandle *> cppEditorDocuments();
+    static CppEditorDocumentHandle *cppEditorDocument(const Utils::FilePath &filePath);
     static BaseEditorDocumentProcessor *cppEditorDocumentProcessor(const Utils::FilePath &filePath);
-    void registerCppEditorDocument(CppEditorDocumentHandle *cppEditorDocument);
-    void unregisterCppEditorDocument(const QString &filePath);
+    static void registerCppEditorDocument(CppEditorDocumentHandle *cppEditorDocument);
+    static void unregisterCppEditorDocument(const QString &filePath);
 
-    QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    static QList<int> references(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
-    SignalSlotType getSignalSlotType(const Utils::FilePath &filePath,
-                                     const QByteArray &content,
-                                     int position) const;
+    static SignalSlotType getSignalSlotType(const Utils::FilePath &filePath,
+                                            const QByteArray &content,
+                                            int position);
 
-    void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
-                      const QString &replacement = QString(),
-                      const std::function<void()> &callback = {});
-    void renameUsages(const CPlusPlus::Document::Ptr &doc,
-                      const QTextCursor &cursor,
-                      const CPlusPlus::Snapshot &snapshot,
-                      const QString &replacement,
-                      const std::function<void()> &callback);
-    void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
+    static void renameUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context,
+                             const QString &replacement = QString(),
+                             const std::function<void()> &callback = {});
+    static void renameUsages(const CPlusPlus::Document::Ptr &doc,
+                             const QTextCursor &cursor,
+                             const CPlusPlus::Snapshot &snapshot,
+                             const QString &replacement,
+                             const std::function<void()> &callback);
+    static void findUsages(CPlusPlus::Symbol *symbol, const CPlusPlus::LookupContext &context);
 
-    void findMacroUsages(const CPlusPlus::Macro &macro);
-    void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
+    static void findMacroUsages(const CPlusPlus::Macro &macro);
+    static void renameMacroUsages(const CPlusPlus::Macro &macro, const QString &replacement);
 
-    void finishedRefreshingSourceFiles(const QSet<QString> &files);
+    static void finishedRefreshingSourceFiles(const QSet<QString> &files);
 
-    void activateClangCodeModel(std::unique_ptr<ModelManagerSupport> &&modelManagerSupport);
-    CppCompletionAssistProvider *completionAssistProvider() const;
-    BaseEditorDocumentProcessor *createEditorDocumentProcessor(
-                    TextEditor::TextDocument *baseTextDocument) const;
-    TextEditor::BaseHoverHandler *createHoverHandler() const;
+    static void activateClangCodeModel(std::unique_ptr<ModelManagerSupport> &&modelManagerSupport);
+    static CppCompletionAssistProvider *completionAssistProvider();
+    static BaseEditorDocumentProcessor *createEditorDocumentProcessor(
+                    TextEditor::TextDocument *baseTextDocument);
+    static TextEditor::BaseHoverHandler *createHoverHandler();
     static FollowSymbolUnderCursor &builtinFollowSymbol();
 
     enum class Backend { Builtin, Best };
@@ -190,28 +190,29 @@ public:
     static void findUsages(const CursorInEditor &data, Backend backend = Backend::Best);
     static void switchHeaderSource(bool inNextSplit, Backend backend = Backend::Best);
     static void showPreprocessedFile(bool inNextSplit);
+    static void foldComments();
+    static void unfoldComments();
     static void findUnusedFunctions(const Utils::FilePath &folder);
     static void checkForUnusedSymbol(Core::SearchResult *search, const Utils::Link &link,
                                      CPlusPlus::Symbol *symbol,
                                      const CPlusPlus::LookupContext &context,
                                      const Utils::LinkHandler &callback);
+    static CppIndexingSupport *indexingSupport();
 
-    CppIndexingSupport *indexingSupport();
+    static Utils::FilePaths projectFiles();
 
-    Utils::FilePaths projectFiles();
-
-    ProjectExplorer::HeaderPaths headerPaths();
+    static ProjectExplorer::HeaderPaths headerPaths();
 
     // Use this *only* for auto tests
-    void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
+    static void setHeaderPaths(const ProjectExplorer::HeaderPaths &headerPaths);
 
-    ProjectExplorer::Macros definedMacros();
+    static ProjectExplorer::Macros definedMacros();
 
-    void enableGarbageCollector(bool enable);
+    static void enableGarbageCollector(bool enable);
 
-    SymbolFinder *symbolFinder();
+    static SymbolFinder *symbolFinder();
 
-    QThreadPool *sharedThreadPool();
+    static QThreadPool *sharedThreadPool();
 
     static QSet<Utils::FilePath> timeStampModifiedFiles(const QList<Document::Ptr> &documentsToCheck);
 
@@ -219,34 +220,34 @@ public:
     static const Utils::FilePath &configurationFileName();
     static const Utils::FilePath &editorConfigurationFileName();
 
-    void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
-    void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
-    void setIncludesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
-    void setFunctionsFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
-    void setSymbolsFindFilter(std::unique_ptr<Core::IFindFilter> &&filter);
-    void setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    static void setLocatorFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    static void setClassesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    static void setIncludesFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    static void setFunctionsFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
+    static void setSymbolsFindFilter(std::unique_ptr<Core::IFindFilter> &&filter);
+    static void setCurrentDocumentFilter(std::unique_ptr<Core::ILocatorFilter> &&filter);
 
-    Core::ILocatorFilter *locatorFilter() const;
-    Core::ILocatorFilter *classesFilter() const;
-    Core::ILocatorFilter *includesFilter() const;
-    Core::ILocatorFilter *functionsFilter() const;
-    Core::IFindFilter *symbolsFindFilter() const;
-    Core::ILocatorFilter *currentDocumentFilter() const;
+    static Core::ILocatorFilter *locatorFilter();
+    static Core::ILocatorFilter *classesFilter();
+    static Core::ILocatorFilter *includesFilter();
+    static Core::ILocatorFilter *functionsFilter();
+    static Core::IFindFilter *symbolsFindFilter();
+    static Core::ILocatorFilter *currentDocumentFilter();
 
     /*
      * try to find build system target that depends on the given file - if the file is no header
      * try to find the corresponding header and use this instead to find the respective target
      */
-    QSet<QString> dependingInternalTargets(const Utils::FilePath &file) const;
+    static QSet<QString> dependingInternalTargets(const Utils::FilePath &file);
 
-    QSet<QString> internalTargets(const Utils::FilePath &filePath) const;
+    static QSet<QString> internalTargets(const Utils::FilePath &filePath);
 
-    void renameIncludes(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
+    static void renameIncludes(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
 
     // for VcsBaseSubmitEditor
     Q_INVOKABLE QSet<QString> symbolsInFiles(const QSet<Utils::FilePath> &files) const;
 
-    ModelManagerSupport *modelManagerSupport(Backend backend) const;
+    static ModelManagerSupport *modelManagerSupport(Backend backend);
 
 signals:
     /// Project data might be locked while this is emitted.
@@ -268,43 +269,40 @@ signals:
     void abstractEditorSupportRemoved(const QString &filePath);
     void fallbackProjectPartUpdated();
 
-    void diagnosticsChanged(const QString &fileName, const QString &kind);
+    void diagnosticsChanged(const Utils::FilePath &filePath, const QString &kind);
 
 public slots:
-    void updateModifiedSourceFiles();
-    void GC();
+    static void updateModifiedSourceFiles();
+    static void GC();
 
 private:
     // This should be executed in the GUI thread.
     friend class Tests::ModelManagerTestHelper;
-    void onAboutToLoadSession();
-    void onProjectAdded(ProjectExplorer::Project *project);
-    void onAboutToRemoveProject(ProjectExplorer::Project *project);
-    void onActiveProjectChanged(ProjectExplorer::Project *project);
-    void onSourceFilesRefreshed() const;
-    void onCurrentEditorChanged(Core::IEditor *editor);
-    void onCoreAboutToClose();
-    void setupFallbackProjectPart();
+    static void onAboutToLoadSession();
+    static void onProjectAdded(ProjectExplorer::Project *project);
+    static void onAboutToRemoveProject(ProjectExplorer::Project *project);
+    static void onActiveProjectChanged(ProjectExplorer::Project *project);
+    static void onSourceFilesRefreshed();
+    static void onCurrentEditorChanged(Core::IEditor *editor);
+    static void onCoreAboutToClose();
+    static void setupFallbackProjectPart();
 
-    void delayedGC();
-    void recalculateProjectPartMappings();
+    static void delayedGC();
+    static void recalculateProjectPartMappings();
 
-    void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
-    void removeFilesFromSnapshot(const QSet<Utils::FilePath> &removedFiles);
-    void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
+    static void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
+    static void removeFilesFromSnapshot(const QSet<Utils::FilePath> &removedFiles);
+    static void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
 
-    WorkingCopy buildWorkingCopyList();
+    static WorkingCopy buildWorkingCopyList();
 
-    void ensureUpdated();
-    Utils::FilePaths internalProjectFiles() const;
-    ProjectExplorer::HeaderPaths internalHeaderPaths() const;
-    ProjectExplorer::Macros internalDefinedMacros() const;
+    static void ensureUpdated();
+    static Utils::FilePaths internalProjectFiles();
+    static ProjectExplorer::HeaderPaths internalHeaderPaths();
+    static ProjectExplorer::Macros internalDefinedMacros();
 
-    void dumpModelManagerConfiguration(const QString &logFileId);
-    void initCppTools();
-
-private:
-    Internal::CppModelManagerPrivate *d;
+    static void dumpModelManagerConfiguration(const QString &logFileId);
+    static void initCppTools();
 };
 
 } // CppEditor

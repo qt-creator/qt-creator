@@ -27,11 +27,10 @@ class TestSettings : public Utils::AspectContainer, public NonAspectSettings
 public:
     TestSettings();
 
-    static TestSettings *instance();
+    void toSettings() const;
+    void fromSettings();
 
-    void toSettings(QSettings *s) const;
-    void fromSettings(QSettings *s);
-
+    Utils::IntegerAspect scanThreadLimit{this};
     Utils::IntegerAspect timeout{this};
     Utils::BoolAspect omitInternalMsg{this};
     Utils::BoolAspect omitRunConfigWarn{this};
@@ -48,5 +47,7 @@ public:
 
     RunAfterBuildMode runAfterBuildMode() const;
 };
+
+TestSettings &testSettings();
 
 } // Autotest::Internal

@@ -134,12 +134,12 @@ void HighlightingItemDelegate::drawText(QPainter *painter,
     if (index.model()->hasChildren(index))
         text += " (" + QString::number(index.model()->rowCount(index)) + ')';
 
-    QVector<int> searchTermStarts =
-            index.model()->data(index, int(HighlightingItemRole::StartColumn)).value<QVector<int>>();
-    QVector<int> searchTermLengths =
-            index.model()->data(index, int(HighlightingItemRole::Length)).value<QVector<int>>();
+    QList<int> searchTermStarts
+        = index.model()->data(index, int(HighlightingItemRole::StartColumn)).value<QList<int>>();
+    QList<int> searchTermLengths
+        = index.model()->data(index, int(HighlightingItemRole::Length)).value<QList<int>>();
 
-    QVector<QTextLayout::FormatRange> formats;
+    QList<QTextLayout::FormatRange> formats;
 
     const QString extraText
         = index.model()->data(index, int(HighlightingItemRole::DisplayExtra)).toString();
@@ -230,7 +230,7 @@ QSizeF doTextLayout(QTextLayout *textLayout, int lineWidth)
 void HighlightingItemDelegate::drawDisplay(QPainter *painter,
                                            const QStyleOptionViewItem &option,
                                            const QRect &rect, const QString &text,
-                                           const QVector<QTextLayout::FormatRange> &format) const
+                                           const QList<QTextLayout::FormatRange> &format) const
 {
     QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;

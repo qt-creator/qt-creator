@@ -6,11 +6,11 @@
 #include "ifindfilter.h"
 #include "findplugin.h"
 #include "optionspopup.h"
+#include "textfindconstants.h"
 #include "../actionmanager/actioncontainer.h"
 #include "../actionmanager/actionmanager.h"
 #include "../actionmanager/command.h"
 #include "../coreicons.h"
-#include "../coreplugin.h"
 #include "../coreplugintr.h"
 #include "../findplaceholder.h"
 #include "../icontext.h"
@@ -36,7 +36,6 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
-#include <QSettings>
 #include <QSpacerItem>
 #include <QStringListModel>
 #include <QToolButton>
@@ -256,7 +255,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     connect(m_goToCurrentFindAction, &QAction::triggered,
             this, &FindToolBar::setFocusToCurrentFindSupport);
 
-    QIcon icon = QIcon::fromTheme(QLatin1String("edit-find-replace"));
+    QIcon icon = Icon::fromTheme("edit-find-replace");
     m_findInDocumentAction = new QAction(icon, Tr::tr("Find/Replace"), this);
     cmd = ActionManager::registerAction(m_findInDocumentAction, Constants::FIND_IN_DOCUMENT);
     cmd->setDefaultKeySequence(QKeySequence::Find);
@@ -1039,19 +1038,19 @@ void FindToolBar::writeSettings()
 
 void FindToolBar::readSettings()
 {
-    QSettings *settings = ICore::settings();
-    settings->beginGroup(QLatin1String("Find"));
-    settings->beginGroup(QLatin1String("FindToolBar"));
+    QtcSettings *settings = ICore::settings();
+    settings->beginGroup("Find");
+    settings->beginGroup("FindToolBar");
     FindFlags flags;
-    if (settings->value(QLatin1String("Backward"), false).toBool())
+    if (settings->value("Backward", false).toBool())
         flags |= FindBackward;
-    if (settings->value(QLatin1String("CaseSensitively"), false).toBool())
+    if (settings->value("CaseSensitively", false).toBool())
         flags |= FindCaseSensitively;
-    if (settings->value(QLatin1String("WholeWords"), false).toBool())
+    if (settings->value("WholeWords", false).toBool())
         flags |= FindWholeWords;
-    if (settings->value(QLatin1String("RegularExpression"), false).toBool())
+    if (settings->value("RegularExpression", false).toBool())
         flags |= FindRegularExpression;
-    if (settings->value(QLatin1String("PreserveCase"), false).toBool())
+    if (settings->value("PreserveCase", false).toBool())
         flags |= FindPreserveCase;
     settings->endGroup();
     settings->endGroup();

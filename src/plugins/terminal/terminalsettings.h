@@ -3,16 +3,14 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
+#include <utils/aspects.h>
 
 namespace Terminal {
 
-class TerminalSettings : public Core::PagedSettings
+class TerminalSettings : public Utils::AspectContainer
 {
 public:
     TerminalSettings();
-
-    static TerminalSettings &instance();
 
     Utils::BoolAspect enableTerminal{this};
 
@@ -33,6 +31,10 @@ public:
     Utils::BoolAspect sendEscapeToTerminal{this};
     Utils::BoolAspect audibleBell{this};
     Utils::BoolAspect lockKeyboard{this};
+
+    Utils::BoolAspect enableMouseTracking{this};
 };
+
+TerminalSettings &settings();
 
 } // Terminal

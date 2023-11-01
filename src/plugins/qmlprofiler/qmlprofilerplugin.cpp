@@ -6,7 +6,6 @@
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilersettings.h"
 #include "qmlprofilertool.h"
-#include "qmlprofileractions.h"
 
 #ifdef WITH_TESTS
 
@@ -41,7 +40,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
@@ -53,14 +52,10 @@ using namespace ProjectExplorer;
 
 namespace QmlProfiler::Internal {
 
-Q_GLOBAL_STATIC(QmlProfilerSettings, qmlProfilerGlobalSettings)
-
 class QmlProfilerPluginPrivate
 {
 public:
     QmlProfilerTool m_profilerTool;
-    QmlProfilerOptionsPage m_profilerOptionsPage;
-    QmlProfilerActions m_actions;
 
     // The full local profiler.
     LocalQmlProfilerRunWorkerFactory localQmlProfilerRunWorkerFactory;
@@ -102,8 +97,6 @@ bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorS
 void QmlProfilerPlugin::extensionsInitialized()
 {
     d = new QmlProfilerPluginPrivate;
-    d->m_actions.attachToTool(&d->m_profilerTool);
-    d->m_actions.registerActions();
 
     RunConfiguration::registerAspect<QmlProfilerRunConfigurationAspect>();
 }
@@ -117,11 +110,6 @@ ExtensionSystem::IPlugin::ShutdownFlag QmlProfilerPlugin::aboutToShutdown()
     // Disconnect from signals that are not needed during shutdown
     // Hide UI (if you add UI that is not in the main window directly)
     return SynchronousShutdown;
-}
-
-QmlProfilerSettings *QmlProfilerPlugin::globalSettings()
-{
-    return qmlProfilerGlobalSettings();
 }
 
 } // QmlProfiler::Internal

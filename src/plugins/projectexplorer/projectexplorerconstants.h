@@ -178,6 +178,9 @@ const char GENERATOR_ID_PREFIX[] = "PE.Wizard.Generator.";
 const char NO_RUN_MODE[]="RunConfiguration.NoRunMode";
 const char NORMAL_RUN_MODE[]="RunConfiguration.NormalRunMode";
 const char DEBUG_RUN_MODE[]="RunConfiguration.DebugRunMode";
+const char DAP_CMAKE_DEBUG_RUN_MODE[]="RunConfiguration.CmakeDebugRunMode";
+const char DAP_GDB_DEBUG_RUN_MODE[]="RunConfiguration.DapGdbDebugRunMode";
+const char DAP_PY_DEBUG_RUN_MODE[]="RunConfiguration.DapPyDebugRunMode";
 const char QML_PROFILER_RUN_MODE[]="RunConfiguration.QmlProfilerRunMode";
 const char QML_PROFILER_RUNNER[]="RunConfiguration.QmlProfilerRunner";
 const char QML_PREVIEW_RUN_MODE[]="RunConfiguration.QmlPreviewRunMode";
@@ -212,6 +215,10 @@ const char SETTINGS_MENU_HIDE_ANALYZE[] = "Menu/HideAnalyze";
 const char SESSION_TASKFILE_KEY[] = "TaskList.File";
 const char CLEAR_SYSTEM_ENVIRONMENT_KEY[] = "ProjectExplorer.BuildConfiguration.ClearSystemEnvironment";
 const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.UserEnvironmentChanges";
+
+// Called "RemoteLinux." for backwards compatibility
+const char SUPPORTS_RSYNC[] = "RemoteLinux.SupportsRSync";
+const char SUPPORTS_SFTP[] = "RemoteLinux.SupportsSftp";
 
 // UI texts
 PROJECTEXPLORER_EXPORT QString msgAutoDetected();

@@ -73,7 +73,7 @@
             \if defined(qtdesignstudio)
             \l{Adding Files to Projects}.
             \else
-            \l{Creating Files}.
+            \l{Create files}.
             \endif
         \li Rename existing files. If you change the base name of a
             file, \QC displays a list of other files with the same base name
@@ -85,19 +85,18 @@
             {generic projects}.
         \li Add existing files and directories.
         \li Add libraries. For more information, see
-            \l{Adding Libraries to Projects}.
+            \l{Add libraries to qmake projects}.
         \li Add and remove subprojects.
         \li Find unused functions.
         \endif
         \li Search from the selected directory.
 
         \li Open a terminal window in the project directory. To specify the
-            terminal to use on Linux and \macos, select \uicontrol Edit >
-            \uicontrol Preferences > \uicontrol Environment > \uicontrol System.
+            terminal to use on Linux and \macos, select \preferences >
+            \uicontrol Environment > \uicontrol System.
             \if defined(qtcreator)
-            To use an \l{Terminal}{internal terminal}, select \uicontrol Edit >
-            \uicontrol Preferences > \uicontrol Terminal >
-            \uicontrol {Use internal terminal}.
+            To use an \l{Terminal}{internal terminal}, select \preferences >
+            \uicontrol Terminal > \uicontrol {Use internal terminal}.
             \endif
         \li Open a terminal window in the project directory that you configured
             for building or running the project.
@@ -106,9 +105,9 @@
         \li Close all files in a project.
         \li Close the selected project or all projects except the selected
             one. By default, this closes all files in the projects. To keep
-            them open, deselect the \uicontrol Edit >
-            \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General
-            > \uicontrol {Close source files along with project} check box.
+            them open, deselect the \preferences > \uicontrol {Build & Run} >
+            \uicontrol General > \uicontrol {Close source files along with project}
+            check box.
     \endlist
 
     For managing files and directories, use the same functions as in
@@ -146,11 +145,13 @@
     enables you to specify exactly where to place a new file in the build system.
 
     If you cannot see some files, you might have to declare them as part of the
-    project. For more information, see \l{Specifying Project Contents}.
+    project. For more information, see \l{Specify project contents}.
 
     If the project is under version control, you might see information
     from the version control system in brackets after the project name.
     \QC currently implements this for Git (the view displays the branch name
     or a tag) and ClearCase (the view displays the branch name).
+
+    \sa {View CMake project contents}, {File System}
     \endif
 */

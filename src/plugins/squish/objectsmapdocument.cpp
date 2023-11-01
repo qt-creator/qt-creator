@@ -5,7 +5,6 @@
 
 #include "objectsmaptreeitem.h"
 #include "squishconstants.h"
-#include "squishplugin.h"
 #include "squishsettings.h"
 #include "squishtr.h"
 
@@ -42,30 +41,29 @@ Core::IDocument::OpenResult ObjectsMapDocument::open(QString *errorString,
 }
 
 bool ObjectsMapDocument::saveImpl(QString *errorString,
-                                  const Utils::FilePath &fileName,
+                                  const Utils::FilePath &filePath,
                                   bool autoSave)
 {
-    const Utils::FilePath actual = fileName.isEmpty() ? filePath() : fileName;
-    if (actual.isEmpty())
+    if (filePath.isEmpty())
         return false;
 
-    const bool writeOk = writeFile(actual);
+    const bool writeOk = writeFile(filePath);
     if (!writeOk) {
         if (errorString)
-            *errorString = Tr::tr("Failed to write \"%1\"").arg(actual.toUserOutput());
+            *errorString = Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput());
         return false;
     }
 
     if (!autoSave) {
         setModified(false);
-        setFilePath(actual);
+        setFilePath(filePath);
     }
     return true;
 }
 
 Utils::FilePath ObjectsMapDocument::fallbackSaveAsPath() const
 {
-    return Utils::FilePath();
+    return {};
 }
 
 QString ObjectsMapDocument::fallbackSaveAsFileName() const
@@ -197,7 +195,7 @@ Core::IDocument::OpenResult ObjectsMapDocument::openImpl(QString *error,
 
         text = reader.data();
     } else {
-        const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath();
+        const Utils::FilePath base = settings().squishPath();
         if (base.isEmpty()) {
             if (error)
                 error->append(Tr::tr("Incomplete Squish settings. "
@@ -235,7 +233,7 @@ bool ObjectsMapDocument::writeFile(const Utils::FilePath &fileName) const
     }
 
     // otherwise we need the objectmaptool to write the scripted object map again
-    const Utils::FilePath base = SquishPlugin::squishSettings()->squishPath();
+    const Utils::FilePath base = settings().squishPath();
     if (base.isEmpty())
         return false;
     const Utils::FilePath exe = base.pathAppended("lib/exec/objectmaptool").withExecutableSuffix();

@@ -1,12 +1,12 @@
-%{Cpp:LicenseTemplate}\
-@if '%{Cpp:PragmaOnce}'
+%{JS: Cpp.licenseTemplate()}\
+@if '%{JS: Cpp.usePragmaOnce()}' === 'true'
 #pragma once
 @else
 #ifndef %{GUARD}
 #define %{GUARD}
 @endif
 
-%{JS: Cpp.includeStatement('%{Base}', Util.preferredSuffix('text/x-c++hdr'), ['QObject', 'QWidget', 'QMainWindow', 'QQuickItem', 'QSharedData'], '%{TargetPath}')}\
+%{JS: Cpp.includeStatement('%{Base}', Cpp.cxxHeaderSuffix(), ['QObject', 'QWidget', 'QMainWindow', 'QQuickItem', 'QSharedData'], '%{TargetPath}')}\
 %{JS: QtSupport.qtIncludes([ ( '%{IncludeQObject}' )          ? 'QtCore/%{IncludeQObject}'                 : '',
                              ( '%{IncludeQWidget}' )          ? 'QtGui/%{IncludeQWidget}'                  : '',
                              ( '%{IncludeQMainWindow}' )      ? 'QtGui/%{IncludeQMainWindow}'              : '',
@@ -65,6 +65,6 @@ private:
 @endif
 };
 %{JS: Cpp.closeNamespaces('%{Class}')}
-@if ! '%{Cpp:PragmaOnce}'
+@if '%{JS: Cpp.usePragmaOnce()}' === 'false'
 #endif // %{GUARD}
 @endif

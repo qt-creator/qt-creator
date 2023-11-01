@@ -44,7 +44,7 @@
 #include <languageserverprotocol/progresssupport.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectmanager.h>
@@ -99,7 +99,7 @@ class SymbolDetails : public JsonObject
 public:
     using JsonObject::JsonObject;
 
-    static constexpr char16_t usrKey[] = u"usr";
+    static constexpr char usrKey[] = "usr";
 
     // the unqualified name of the symbol
     QString name() const { return typedValue<QString>(nameKey); }
@@ -215,8 +215,12 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     if (!jsonDbDir.isEmpty())
         cmd.addArg("--compile-commands-dir=" + clangdExePath.withNewMappedPath(jsonDbDir).path());
     if (clangdLogServer().isDebugEnabled())
-        cmd.addArgs({"--log=verbose", "--pretty"});
+        cmd.addArgs({"--log=verbose", "--pretty", "--hidden-features=1"});
     cmd.addArg("--use-dirty-headers");
+    if (settings.completionRankingModel() != ClangdSettings::CompletionRankingModel::Default) {
+        cmd.addArg("--ranking-model=" + ClangdSettings::rankingModelToCmdLineString(
+                       settings.completionRankingModel()));
+    }
     const auto interface = new StdIOClientInterface;
     interface->setCommandLine(cmd);
     return interface;
@@ -226,15 +230,15 @@ class DiagnosticsCapabilities : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    void enableCategorySupport() { insert(u"categorySupport", true); }
-    void enableCodeActionsInline() {insert(u"codeActionsInline", true);}
+    void enableCategorySupport() { insert("categorySupport", true); }
+    void enableCodeActionsInline() {insert("codeActionsInline", true);}
 };
 
 class InactiveRegionsCapabilities : public JsonObject
 {
 public:
     using JsonObject::JsonObject;
-    void enableInactiveRegionsSupport() { insert(u"inactiveRegions", true); }
+    void enableInactiveRegionsSupport() { insert("inactiveRegions", true); }
 };
 
 class ClangdTextDocumentClientCapabilities : public TextDocumentClientCapabilities
@@ -243,9 +247,9 @@ public:
     using TextDocumentClientCapabilities::TextDocumentClientCapabilities;
 
     void setPublishDiagnostics(const DiagnosticsCapabilities &caps)
-    { insert(u"publishDiagnostics", caps); }
+    { insert("publishDiagnostics", caps); }
     void setInactiveRegionsCapabilities(const InactiveRegionsCapabilities &caps)
-    { insert(u"inactiveRegionsCapabilities", caps); }
+    { insert("inactiveRegionsCapabilities", caps); }
 };
 
 static qint64 getRevision(const TextDocument *doc)
@@ -402,12 +406,15 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
     setCompletionAssistProvider(new ClangdCompletionAssistProvider(this));
     setQuickFixAssistProvider(new ClangdQuickFixProvider(this));
     symbolSupport().setLimitRenamingToProjects(true);
+    symbolSupport().setRenameResultsEnhancer([](const SearchResultItems &symbolOccurrencesInCode) {
+        return CppEditor::symbolOccurrencesInDeclarationComments(symbolOccurrencesInCode);
+    });
     if (!project) {
         QJsonObject initOptions;
         const Utils::FilePath includeDir
                 = CppEditor::ClangdSettings(d->settings).clangdIncludePath();
         CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
-                    *CppEditor::CppModelManager::instance()->fallbackProjectPart(),
+                    *CppEditor::CppModelManager::fallbackProjectPart(),
                     warningsConfigForProject(nullptr), includeDir, {});
         const CppEditor::UsePrecompiledHeaders usePch = CppEditor::getPchUsage();
         const QJsonArray projectPartOptions = fullProjectPartOptions(
@@ -584,7 +591,8 @@ void ClangdClient::findUsages(const CppEditor::CursorInEditor &cursor,
 
         if (useClangdForRenaming) {
             symbolSupport().renameSymbol(cursor.textDocument(), adjustedCursor, *replacement,
-                                         renameCallback, CppEditor::preferLowerCaseFileNames());
+                                         renameCallback,
+                                         CppEditor::preferLowerCaseFileNames(project()));
             return;
         }
     }
@@ -628,13 +636,14 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
     const int docVersion = documentVersion(uri);
     if (params.version().value_or(docVersion) != docVersion)
         return;
+    QList<CodeAction> allCodeActions;
     for (const Diagnostic &diagnostic : params.diagnostics()) {
         const ClangdDiagnostic clangdDiagnostic(diagnostic);
         auto codeActions = clangdDiagnostic.codeActions();
         if (codeActions && !codeActions->isEmpty()) {
             for (CodeAction &action : *codeActions)
                 action.setDiagnostics({diagnostic});
-            LanguageClient::updateCodeActionRefactoringMarker(this, *codeActions, uri);
+            allCodeActions << *codeActions;
         } else {
             // We know that there's only one kind of diagnostic for which clangd has
             // a quickfix tweak, so let's not be wasteful.
@@ -644,6 +653,8 @@ void ClangdClient::handleDiagnostics(const PublishDiagnosticsParams &params)
                 requestCodeActions(uri, diagnostic);
         }
     }
+    if (!allCodeActions.isEmpty())
+        LanguageClient::updateCodeActionRefactoringMarker(this, allCodeActions, uri);
 }
 
 void ClangdClient::handleDocumentOpened(TextDocument *doc)
@@ -751,10 +762,17 @@ bool ClangdClient::fileBelongsToProject(const Utils::FilePath &filePath) const
     return Client::fileBelongsToProject(filePath);
 }
 
+QList<Text::Range> ClangdClient::additionalDocumentHighlights(
+    TextEditorWidget *editorWidget, const QTextCursor &cursor)
+{
+    return CppEditor::symbolOccurrencesInDeclarationComments(
+        qobject_cast<CppEditor::CppEditorWidget *>(editorWidget), cursor);
+}
+
 RefactoringChangesData *ClangdClient::createRefactoringChangesBackend() const
 {
     return new CppEditor::CppRefactoringChangesData(
-                CppEditor::CppModelManager::instance()->snapshot());
+                CppEditor::CppModelManager::snapshot());
 }
 
 QVersionNumber ClangdClient::versionNumber() const
@@ -874,8 +892,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     // TODO: Should we write the editor defines into the json file? It seems strange
     //       that they should affect the index only while the file is open in the editor.
     const auto projectPart = !config.preferredProjectPartId.isEmpty()
-            ? CppEditor::CppModelManager::instance()->projectPartForId(
-                  config.preferredProjectPartId)
+            ? CppEditor::CppModelManager::projectPartForId(config.preferredProjectPartId)
             : projectPartForFile(filePath);
     if (!projectPart)
         return;
@@ -1000,7 +1017,11 @@ void ClangdClient::followSymbol(TextDocument *document,
 
     const QTextCursor adjustedCursor = d->adjustedCursor(cursor, document);
     if (followTo == FollowTo::SymbolDef && !resolveTarget) {
-        symbolSupport().findLinkAt(document, adjustedCursor, callback, false);
+        symbolSupport().findLinkAt(document,
+                                   adjustedCursor,
+                                   callback,
+                                   false,
+                                   LanguageClient::LinkTarget::SymbolDef);
         return;
     }
 
@@ -1056,9 +1077,11 @@ void ClangdClient::switchHeaderSource(const Utils::FilePath &filePath, bool inNe
     sendMessage(req);
 }
 
-void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cursor,
-        CppEditor::RenameCallback &&callback)
+void ClangdClient::findLocalUsages(CppEditor::CppEditorWidget *editorWidget,
+                                   const QTextCursor &cursor, CppEditor::RenameCallback &&callback)
 {
+    QTC_ASSERT(editorWidget, return);
+    TextDocument * const document = editorWidget->textDocument();
     QTC_ASSERT(documentOpen(document), openDocument(document));
 
     qCDebug(clangdLog) << "local references requested" << document->filePath()
@@ -1076,7 +1099,7 @@ void ClangdClient::findLocalUsages(TextDocument *document, const QTextCursor &cu
         return;
     }
 
-    d->findLocalRefs = new ClangdFindLocalReferences(this, document, cursor, callback);
+    d->findLocalRefs = new ClangdFindLocalReferences(this, editorWidget, cursor, callback);
     connect(d->findLocalRefs, &ClangdFindLocalReferences::done, this, [this] {
         d->findLocalRefs->deleteLater();
         d->findLocalRefs = nullptr;
@@ -1572,7 +1595,7 @@ void ClangdClient::Private::handleSemanticTokens(TextDocument *doc,
 
 std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 {
-    auto actions = optionalArray<LanguageServerProtocol::CodeAction>(u"codeActions");
+    auto actions = optionalArray<LanguageServerProtocol::CodeAction>("codeActions");
     if (!actions)
         return actions;
     static const QStringList badCodeActions{
@@ -1589,7 +1612,7 @@ std::optional<QList<CodeAction> > ClangdDiagnostic::codeActions() const
 
 QString ClangdDiagnostic::category() const
 {
-    return typedValue<QString>(u"category");
+    return typedValue<QString>("category");
 }
 
 MessageId ClangdClient::Private::getAndHandleAst(const TextDocOrFile &doc,

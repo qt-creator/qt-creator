@@ -7,7 +7,7 @@
 #include "testframeworkmanager.h"
 #include "testtreemodel.h"
 
-#include "qtest/qttestsettings.h"
+#include "qtest/qttestframework.h"
 
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolstestcase.h>
@@ -15,10 +15,12 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
+
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/environment.h>
 
@@ -26,8 +28,6 @@
 #include <QProcess>
 #include <QSignalSpy>
 #include <QTest>
-
-#include <qtsupport/qtkitinformation.h>
 
 using namespace Core;
 using namespace ExtensionSystem;
@@ -77,10 +77,7 @@ void AutoTestUnitTests::initTestCase()
     }
 
     // Enable quick check for derived tests
-    static const Id id = Id("AutoTest.Framework.QtTest");
-    static_cast<Autotest::Internal::QtTestSettings *>(
-        TestFrameworkManager::frameworkForId(id)->testSettings())
-        ->quickCheckForDerivedTests.setValue(true);
+    theQtTestFramework().quickCheckForDerivedTests.setValue(true);
 }
 
 void AutoTestUnitTests::cleanupTestCase()

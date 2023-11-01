@@ -1200,6 +1200,27 @@
          y="0"
          x="0" />
     </g>
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/progressindicator_big"
+       id="src/libs/solutions/spinner/icons/spinner_large"
+       transform="translate(97,-29)"
+       style="display:inline" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/progressindicator_medium"
+       id="src/libs/solutions/spinner/icons/spinner_medium"
+       transform="translate(98,-61)"
+       style="display:inline" />
+    <use
+       x="0"
+       y="0"
+       xlink:href="#src/libs/utils/images/progressindicator_small"
+       id="src/libs/solutions/spinner/icons/spinner_small"
+       transform="translate(243,-177)"
+       style="display:inline" />
     <g
        id="src/plugins/coreplugin/find/images/wrapindicator">
       <rect
@@ -3145,15 +3166,18 @@
          height="100%"
          transform="translate(1090,64)"
          style="display:inline;fill:none" />
-      <path
-         id="path4544-1"
-         style="fill:#000000"
-         d="m 1078,478.85 -8.5,16.15 h 17 z m 0.7724,8.61732 0.4208,4.69491 -4.1948,-1.62916 z" />
-      <path
-         id="path6034"
-         style="fill:none;stroke:#ffffff"
-         d="m 1078,478.85469 1.189,13.30208 m -4.1861,-1.62746 L 1086.5,495 m -17,0 9.272,-7.52758"
-         sodipodi:nodetypes="cccccc" />
+      <g
+         id="CMakeLogo">
+        <path
+           id="path4544-1"
+           style="fill:#000000"
+           d="m 1078,478.85 -8.5,16.15 h 17 z m 0.7724,8.61732 0.4208,4.69491 -4.1948,-1.62916 z" />
+        <path
+           id="path6034"
+           style="fill:none;stroke:#ffffff;stroke-width:1.2"
+           d="m 1078,478.85469 1.189,13.30208 m -4.1861,-1.62746 L 1086.5,495 m -17,0 9.272,-7.52758"
+           sodipodi:nodetypes="cccccc" />
+      </g>
     </g>
     <g
        id="src/plugins/terminal/images/settingscategory_terminal">
@@ -3639,6 +3663,83 @@
          id="path5086-3"
          inkscape:connector-curvature="0"
          sodipodi:nodetypes="cczczcc" />
+    </g>
+    <g
+       id="src/plugins/projectexplorer/images/cmakeicon"
+       transform="translate(862,88.5)"
+       style="display:inline">
+      <use
+         style="display:inline"
+         transform="translate(1137,43.5)"
+         height="100%"
+         width="100%"
+         id="use1952-7-6"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#CMakeLogo"
+         id="use2008"
+         style="display:inline"
+         transform="matrix(0.89482687,0,0,0.89482687,164.39232,51.559627)" />
+    </g>
+    <g
+       id="src/plugins/vcpkg/images/vcpkgicon">
+      <use
+         style="display:inline"
+         transform="translate(2016,132)"
+         height="100%"
+         width="100%"
+         id="use1952-7-6-1"
+         xlink:href="#backgroundRect"
+         y="0"
+         x="0" />
+      <g
+         id="g6088">
+        <path
+           style="fill:#4d4d4d"
+           d="m 2003.1348,577.71875 c 1.2848,0.24885 2.6819,-1.48291 2.4355,-3.76367 -0.7916,-0.0764 -1.3258,0.0765 -1.7637,0.36133 -0.6852,0.44589 -1.1449,1.30413 -1.7226,2.23047 0.1588,0.64898 0.5375,1.07247 1.0508,1.17187 z"
+           id="path2102"
+           sodipodi:nodetypes="scscs" />
+        <path
+           style="fill:#000000"
+           d="m 2006.0376,573.24147 c 1.8615,0.51984 1.6429,0.7072 2.8995,1.08292 1.2566,0.37573 2.3556,-0.12796 2.7719,-1.74627 0.3958,-1.53873 -1.3327,-2.57841 -3.4317,-2.56695 -2.0989,0.0114 -4.5685,1.07289 -5.6543,3.36578 -0.3182,0.67202 -0.5017,1.29842 -0.5781,1.85743 0.9246,-1.47431 2.1312,-2.51275 3.9927,-1.99291 z"
+           id="path5378"
+           sodipodi:nodetypes="zzssscz" />
+      </g>
+      <use
+         x="0"
+         y="0"
+         xlink:href="#g6088"
+         id="use6090"
+         transform="rotate(180,2008,576)" />
+    </g>
+    <g
+       id="src/libs/solutions/terminal/images/passwordlock"
+       transform="translate(-5,4)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#transparentBackgroundRect"
+         id="use1"
+         transform="matrix(2.5,0,0,4,586,-1405)" />
+      <path
+         style="opacity:0.75;fill:#ffffff"
+         d="m 582,423 v -5 c 0,-4 -4,-15 -16,-15 -12,-0.0312 -16,11 -16,15 0,4 0,5 0,5 h -4 v 36 h 40 v -36 z"
+         id="path167"
+         sodipodi:nodetypes="czzzcccccc" />
+      <path
+         style="display:inline;fill:#000000;fill-opacity:1;stroke-width:4"
+         inkscape:connector-curvature="0"
+         d="m 566,407 c -6.624,0 -12,5.372 -12,12 v 12 h 4 v -12 c 0,-4.412 3.584,-8 8,-8 4.412,0 8,3.588 8,8 v 12 h 4 v -12 c 0,-6.628 -5.372,-12 -12,-12 z"
+         id="lockbow-1" />
+      <path
+         style="display:inline;fill:#000000;fill-opacity:1"
+         inkscape:connector-curvature="0"
+         d="m 550,427 v 28 h 32 v -28 z m 18,15.388 V 447 h -4 v -4.612 c -1.172,-0.7 -2,-1.92 -2,-3.388 0,-2.212 1.792,-4 4,-4 2.208,0 4,1.788 4,4 0,1.464 -0.828,2.688 -2,3.388 z"
+         id="lockbody-1" />
     </g>
   </g>
   <g
@@ -4525,7 +4626,7 @@
          sodipodi:nodetypes="cc" />
     </g>
     <g
-       id="src/plugins/projectexplorer/images/debugger_overlay_small"
+       id="src/libs/utils/images/debugger_overlay_small"
        transform="translate(16)">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -5262,7 +5363,7 @@
     <g
        style="display:inline"
        transform="translate(144)"
-       id="src/plugins/projectexplorer/images/continue_1_small">
+       id="src/libs/utils/images/continue_1_small">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="265"
@@ -5282,7 +5383,7 @@
     <g
        style="display:inline"
        transform="translate(160)"
-       id="src/plugins/projectexplorer/images/continue_2_small">
+       id="src/libs/utils/images/continue_2_small">
       <rect
          style="fill:#ffffff;fill-opacity:1;stroke:none"
          x="265"

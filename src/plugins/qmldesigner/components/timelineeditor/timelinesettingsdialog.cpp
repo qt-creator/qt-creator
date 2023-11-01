@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "timelinesettingsdialog.h"
-#include "ui_timelinesettingsdialog.h"
 
 #include "timelineanimationform.h"
 #include "timelineform.h"
@@ -19,9 +18,15 @@
 #include <variantproperty.h>
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
+#include <QDialogButtonBox>
+#include <QHeaderView>
 #include <QKeyEvent>
+#include <QSpinBox>
+#include <QTabWidget>
+#include <QTableView>
 #include <QToolBar>
 
 namespace QmlDesigner {
@@ -75,12 +80,12 @@ static void setTabForAnimation(QTabWidget *tabWidget, const ModelNode &animation
 
 TimelineSettingsDialog::TimelineSettingsDialog(QWidget *parent, TimelineView *view)
     : QDialog(parent)
-    , ui(new Ui::TimelineSettingsDialog)
     , m_timelineView(view)
 {
-    m_timelineSettingsModel = new TimelineSettingsModel(this, view);
+    resize(520, 600);
+    setModal(true);
 
-    ui->setupUi(this);
+    m_timelineSettingsModel = new TimelineSettingsModel(this, view);
 
     auto *timelineCornerWidget = new QToolBar;
 
@@ -93,7 +98,7 @@ TimelineSettingsDialog::TimelineSettingsDialog(QWidget *parent, TimelineView *vi
     });
 
     connect(timelineRemoveAction, &QAction::triggered, this, [this]() {
-        QmlTimeline timeline = getTimelineFromTabWidget(ui->timelineTab);
+        QmlTimeline timeline = getTimelineFromTabWidget(m_timelineTab);
         if (timeline.isValid()) {
             timeline.destroy();
             setupTimelines(QmlTimeline());
@@ -103,10 +108,10 @@ TimelineSettingsDialog::TimelineSettingsDialog(QWidget *parent, TimelineView *vi
     timelineCornerWidget->addAction(timelineAddAction);
     timelineCornerWidget->addAction(timelineRemoveAction);
 
-    ui->timelineTab->setCornerWidget(timelineCornerWidget, Qt::TopRightCorner);
+    m_timelineTab = new QTabWidget;
+    m_timelineTab->setCornerWidget(timelineCornerWidget, Qt::TopRightCorner);
 
     auto *animationCornerWidget = new QToolBar;
-
     auto *animationAddAction = new QAction(TimelineIcons::ADD_TIMELINE.icon(), tr("Add Animation"));
     auto *animationRemoveAction = new QAction(TimelineIcons::REMOVE_TIMELINE.icon(),
                                               tr("Remove Animation"));
@@ -119,21 +124,40 @@ TimelineSettingsDialog::TimelineSettingsDialog(QWidget *parent, TimelineView *vi
     });
 
     connect(animationRemoveAction, &QAction::triggered, this, [this]() {
-        ModelNode node = getAnimationFromTabWidget(ui->animationTab);
+        ModelNode node = getAnimationFromTabWidget(m_animationTab);
         if (node.isValid()) {
             node.destroy();
             setupAnimations(m_currentTimeline);
         }
     });
 
-    ui->animationTab->setCornerWidget(animationCornerWidget, Qt::TopRightCorner);
-    ui->buttonBox->clearFocus();
+    m_animationTab = new QTabWidget;
+    m_animationTab->setCornerWidget(animationCornerWidget, Qt::TopRightCorner);
+
+    m_tableView = new QTableView;
+    QSizePolicy sp(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
+    sp.setVerticalStretch(1);
+    m_tableView->setSizePolicy(sp);
+
+    auto buttonBox = new QDialogButtonBox;
+    buttonBox->setStandardButtons(QDialogButtonBox::Close);
+    buttonBox->clearFocus();
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    using namespace Layouting;
+    Column {
+        m_timelineTab,
+        m_animationTab,
+        m_tableView,
+        buttonBox,
+    }.attachTo(this);
 
     setupTimelines(QmlTimeline());
     setupAnimations(m_currentTimeline);
 
-    connect(ui->timelineTab, &QTabWidget::currentChanged, this, [this]() {
-        m_currentTimeline = getTimelineFromTabWidget(ui->timelineTab);
+    connect(m_timelineTab, &QTabWidget::currentChanged, this, [this]() {
+        m_currentTimeline = getTimelineFromTabWidget(m_timelineTab);
         setupAnimations(m_currentTimeline);
     });
     setupTableView();
@@ -142,12 +166,7 @@ TimelineSettingsDialog::TimelineSettingsDialog(QWidget *parent, TimelineView *vi
 void TimelineSettingsDialog::setCurrentTimeline(const QmlTimeline &timeline)
 {
     m_currentTimeline = timeline;
-    setTabForTimeline(ui->timelineTab, m_currentTimeline);
-}
-
-TimelineSettingsDialog::~TimelineSettingsDialog()
-{
-    delete ui;
+    setTabForTimeline(m_timelineTab, m_currentTimeline);
 }
 
 void TimelineSettingsDialog::keyPressEvent(QKeyEvent *event)
@@ -165,17 +184,17 @@ void TimelineSettingsDialog::keyPressEvent(QKeyEvent *event)
 
 void TimelineSettingsDialog::setupTableView()
 {
-    ui->tableView->setModel(m_timelineSettingsModel);
-    m_timelineSettingsModel->setupDelegates(ui->tableView);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tableView->verticalHeader()->hide();
-    ui->tableView->setSelectionMode(QAbstractItemView::NoSelection);
+    m_tableView->setModel(m_timelineSettingsModel);
+    m_timelineSettingsModel->setupDelegates(m_tableView);
+    m_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_tableView->verticalHeader()->hide();
+    m_tableView->setSelectionMode(QAbstractItemView::NoSelection);
     m_timelineSettingsModel->resetModel();
 }
 
 void TimelineSettingsDialog::setupTimelines(const QmlTimeline &timeline)
 {
-    deleteAllTabs(ui->timelineTab);
+    deleteAllTabs(m_timelineTab);
 
     const QList<QmlTimeline> &timelines = m_timelineView->getTimelines();
 
@@ -183,7 +202,7 @@ void TimelineSettingsDialog::setupTimelines(const QmlTimeline &timeline)
         m_currentTimeline = QmlTimeline();
         auto timelineForm = new TimelineForm(this);
         timelineForm->setDisabled(true);
-        ui->timelineTab->addTab(timelineForm, tr("No Timeline"));
+        m_timelineTab->addTab(timelineForm, tr("No Timeline"));
         return;
     }
 
@@ -196,14 +215,14 @@ void TimelineSettingsDialog::setupTimelines(const QmlTimeline &timeline)
         m_currentTimeline = timelines.constFirst();
     }
 
-    setTabForTimeline(ui->timelineTab, m_currentTimeline);
+    setTabForTimeline(m_timelineTab, m_currentTimeline);
     setupAnimations(m_currentTimeline);
     m_timelineSettingsModel->resetModel();
 }
 
 void TimelineSettingsDialog::setupAnimations(const ModelNode &animation)
 {
-    deleteAllTabs(ui->animationTab);
+    deleteAllTabs(m_animationTab);
 
     const QList<ModelNode> animations = m_timelineView->getAnimations(m_currentTimeline);
 
@@ -213,7 +232,7 @@ void TimelineSettingsDialog::setupAnimations(const ModelNode &animation)
     if (animations.isEmpty()) {
         auto animationForm = new TimelineAnimationForm(this);
         animationForm->setDisabled(true);
-        ui->animationTab->addTab(animationForm, tr("No Animation"));
+        m_animationTab->addTab(animationForm, tr("No Animation"));
         if (currentTimelineForm())
             currentTimelineForm()->setHasAnimation(false);
     } else {
@@ -222,14 +241,14 @@ void TimelineSettingsDialog::setupAnimations(const ModelNode &animation)
     }
 
     if (animation.isValid())
-        setTabForAnimation(ui->animationTab, animation);
+        setTabForAnimation(m_animationTab, animation);
     m_timelineSettingsModel->resetModel();
 }
 
 void TimelineSettingsDialog::addTimelineTab(const QmlTimeline &node)
 {
     auto timelineForm = new TimelineForm(this);
-    ui->timelineTab->addTab(timelineForm, node.modelNode().displayName());
+    m_timelineTab->addTab(timelineForm, node.modelNode().displayName());
     timelineForm->setTimeline(node);
     setupAnimations(ModelNode());
 }
@@ -237,13 +256,13 @@ void TimelineSettingsDialog::addTimelineTab(const QmlTimeline &node)
 void TimelineSettingsDialog::addAnimationTab(const ModelNode &node)
 {
     auto timelineAnimationForm = new TimelineAnimationForm(this);
-    ui->animationTab->addTab(timelineAnimationForm, node.displayName());
+    m_animationTab->addTab(timelineAnimationForm, node.displayName());
     timelineAnimationForm->setup(node);
 }
 
 TimelineForm *TimelineSettingsDialog::currentTimelineForm() const
 {
-    return qobject_cast<TimelineForm *>(ui->timelineTab->currentWidget());
+    return qobject_cast<TimelineForm *>(m_timelineTab->currentWidget());
 }
 
 } // namespace QmlDesigner

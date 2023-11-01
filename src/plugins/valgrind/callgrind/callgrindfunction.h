@@ -3,11 +3,10 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
-#include <QVector>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class FunctionCall;
 class CostItem;
@@ -67,7 +66,7 @@ public:
      * @see ParseData::events()
      */
     quint64 selfCost(int event) const;
-    QVector<quint64> selfCosts() const;
+    QList<quint64> selfCosts() const;
 
     /**
      * total accumulated inclusive cost of @p event
@@ -76,7 +75,7 @@ public:
     quint64 inclusiveCost(int event) const;
 
     /// calls from other functions to this function
-    QVector<const FunctionCall *> incomingCalls() const;
+    QList<const FunctionCall *> incomingCalls() const;
     void addIncomingCall(const FunctionCall *call);
     /// @return how often this function was called in total
     quint64 called() const;
@@ -86,7 +85,7 @@ public:
      * a detailed view of the function's source code annotated with
      * cost per line.
      */
-    QVector<const CostItem *> costItems() const;
+    QList<const CostItem *> costItems() const;
 
     /**
      * Add parsed @c CostItem @p item to this function.
@@ -98,7 +97,7 @@ public:
     /**
      * Function calls from this function to others.
      */
-    QVector<const FunctionCall *> outgoingCalls() const;
+    QList<const FunctionCall *> outgoingCalls() const;
     void addOutgoingCall(const FunctionCall *call);
 
     /**
@@ -118,7 +117,6 @@ private:
     Q_DISABLE_COPY(Function)
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind
 
 Q_DECLARE_METATYPE(const Valgrind::Callgrind::Function *)

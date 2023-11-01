@@ -1,24 +1,25 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \page creator-help.html
+    \page creator-how-to-get-help.html
     \if defined(qtdesignstudio)
     \previouspage studio-help.html
     \nextpage studio-faq.html
     \else
-    \previouspage creator-help-overview.html
-    \nextpage creator-faq.html
+    \previouspage creator-how-tos.html
     \endif
 
-    \title Using the Help Mode
+    \ingroup creator-how-to-get-help
+
+    \title Get help
 
     \QC comes fully integrated with Qt documentation and examples using the Qt
     Help plugin.
 
     \list
 
-        \li To view documentation, switch to \uicontrol Help mode.
+        \li To view documentation, switch to the \uicontrol Help mode.
 
         \li To view context sensitive help on a Qt class or function as a
             tooltip, move the mouse cursor over the class or function. If help
@@ -35,27 +36,35 @@
             space, in the fullscreen \uicontrol Help mode.
 
         \li To select and configure how the documentation is displayed in the
-            \uicontrol Help mode, select \uicontrol Edit > \uicontrol Preferences > \uicontrol Help.
+            \uicontrol Help mode, select \preferences > \uicontrol Help.
     \endlist
 
     The following image displays the context sensitive help in the \uicontrol Edit
     mode.
 
-    \image qtcreator-context-sensitive-help.png "Context-sensitive help in Edit mode"
+    \image qtcreator-context-sensitive-help.png {Context-sensitive help in Edit mode}
+
+    \section1 Change the font
 
     If the help HTML file does not use a style sheet, you can change the font
-    family, style, and size in \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Help > \uicontrol General.
+    family, style, and size in \preferences > \uicontrol Help >
+    \uicontrol General.
 
-    \image qtcreator-help-options.png "General tab in Help preferences"
+    \image qtcreator-preferences-help-general.webp {General tab in Help preferences}
 
     You can set the default zoom level in the \uicontrol Zoom field. When
     viewing help pages, you can use the mouse scroll wheel to zoom them. To
     disable this feature, deselect the \uicontrol {Enable scroll wheel zooming}
     check box.
 
+    To disable antialiasing, deselect the \uicontrol Antialiasing check box.
+
+    \section1 Return to the editor
+
     To switch to the editor context when you close the last help page, select
     the \uicontrol {Return to editor on closing the last page} check box.
+
+    \section1 Select help viewer backend
 
     The help viewer backend determines the style sheet that is used to display
     the help files. The default help viewer backend that is based on litehtml
@@ -63,10 +72,10 @@
     viewer backend in the \uicontrol {Viewer backend} field. To take the new
     backend to use, reload the help page.
 
-    \section1 Viewing Function Tooltips
+    \section1 View function tooltips
 
-    To hide function tooltips by default, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior >
+    To hide function tooltips by default, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol Behavior >
     \uicontrol {Show help tooltips using the mouse} >
     \uicontrol {On Shift+Mouseover}. You can still view the tooltips by pressing
     and holding down the \key Shift key.
@@ -74,18 +83,41 @@
     To use a keyboard shortcut for viewing help tooltips, select
     \uicontrol {Show help tooltips using keyboard shortcut (Alt)}.
 
-    \section1 Finding Information in Qt Documentation
+    \sa {Find information in Qt documentation}, {Filter documentation},
+    {Search from documentation}
+
+    \sa {Add external documentation}, {Detach the help window},
+    {Filter documentation}, {Find information in Qt documentation},
+    {Select the help start page}
+*/
+
+/*!
+    \page creator-how-to-find-info-in-documentation.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-how-to-get-help.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-get-help
+
+    \title Find information in Qt documentation
 
     \QC, \QSDK and other Qt deliverables have documentation
     as .qch files. All the documentation is accessible in the \uicontrol Help mode.
 
     By default, \QC registers only the latest available version of the
     documentation for each installed Qt module. To register all installed
-    documentation, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Kits > \uicontrol {Qt Versions} >
-    \uicontrol {Register documentation}.
+    documentation, select \preferences > \uicontrol Kits >
+    \uicontrol {Qt Versions} > \uicontrol {Register documentation}.
 
-    To find information in the documentation, select:
+    \image qtcreator-qt-versions.png {Register documentation field in Qt Versions tab in Kit Preferences}
+
+    \section1 Help mode sidebar views
+
+    \image qtcreator-sidebar-help-mode.webp {Sidebar views in the Help mode}
+
+    To find information in the documentation in the \uicontrol Help mode, select:
 
     \list
 
@@ -105,14 +137,27 @@
 
     \endlist
 
-    \section2 Adding Bookmarks to Help Pages
+    \sa {Add bookmarks to help pages}, {Search from documentation}
+*/
+
+/*!
+    \page creator-how-to-add-bookmarks-to-help-pages.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-how-to-get-help.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-get-help
+
+    \title Add bookmarks to help pages
 
     You can add bookmarks to useful help pages to easily find them later
     in the \uicontrol Bookmarks view. You can either use the page title as the
     bookmark or change it to any text. You can organize the bookmarks in
     folders in the view.
 
-    \image qtcreator-help-add-bookmark-dlg.png "Add Bookmark dialog"
+    \image qtcreator-help-add-bookmark-dlg.png {Add Bookmark dialog}
 
     To add a bookmark to an open help page:
 
@@ -126,13 +171,29 @@
 
     \endlist
 
-    To import and export bookmarks, select \uicontrol Edit > \uicontrol Preferences
-     > \uicontrol Help > \uicontrol General > \uicontrol {Import Bookmarks} or
-     \uicontrol {Export Bookmarks}.
+    \section1 Import and export bookmarks
 
-    \section2 Full-text Search
+    To import and export bookmarks, select \preferences >
+    \uicontrol Help > \uicontrol General > \uicontrol {Import Bookmarks} or
+    \uicontrol {Export Bookmarks}.
 
-    In the \uicontrol Search pane, you can use full-text search for finding a
+    \sa {Find information in Qt documentation}
+*/
+
+/*!
+    \page creator-how-to-search-from-docs.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-how-to-get-help.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-get-help
+
+    \title Search from documentation
+
+    In the \uicontrol Help mode \uicontrol Search pane, you can use full-text
+    search for finding a
     particular word in all the installed documents. Enter the term you are
     looking for, and select the \uicontrol Search button. All documents that
     have the specified term are listed. The list is sorted by document
@@ -140,7 +201,7 @@
     the number of search hits that the documents have. Select a document in
     the list to open it.
 
-    \image qtcreator-help-search.png "Search pane"
+    \image qtcreator-help-search.png {Help mode Search pane}
 
     The following are examples of common search patterns:
 
@@ -173,10 +234,23 @@
     punctuation, such as domain names, use the asterisk as a wild card. For
     example, to find \c {Pastebin.Com}, enter the search term \c {Pastebin*}.
 
-    \section1 Adding External Documentation
+    \sa {Find information in Qt documentation}
+*/
+
+/*!
+    \page creator-how-to-add-external-documentation.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-how-to-get-help.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-get-help
+
+    \title Add external documentation
 
     You can display external documentation in the \uicontrol Help mode.
-    To augment or replace the documentation that ships with \QC and Qt:
+    To add documentation or replace the documentation that ships with \QC and Qt:
 
     \list 1
 
@@ -185,52 +259,105 @@
             For information on how to prepare your documentation and create a
             .qch file, see \l{The Qt Help Framework}.
 
-        \li To add the .qch file to \QC, select \uicontrol Edit > \uicontrol Preferences >
+        \li To add the .qch file to \QC, select \preferences >
             \uicontrol Help > \uicontrol Documentation > \uicontrol Add.
+
+            \image qtcreator-preferences-help-documentation.webp {Documentation tab in Help Preferences}
 
     \endlist
 
-    \section1 Detaching the Help Window
+    \sa {Get help}
+*/
+
+/*!
+    \page creator-how-to-detach-help-window.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-how-to-get-help.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-get-help
+
+    \title Detach the help window
 
     By default, context-sensitive help is opened in a window next to the
     code editor when you press \key F1. If there is not enough vertical
     space, the help opens in the full-screen help mode.
 
-    You can specify that the help always opens in full-screen mode or
-    is detached to an external window. Select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Help > \uicontrol General and specify
-    settings for displaying context-sensitive help
+    \image qtcreator-context-sensitive-help.png {Context-sensitive help in Edit mode}
+
+    To specify that the help always opens in full-screen mode or
+    is detached to an external window, select \preferences > \uicontrol Help >
+    \uicontrol General.
+
+    \image qtcreator-preferences-help-general.webp {General tab in Help preferences}
+
+    Set preferences for displaying context-sensitive help
     in the \uicontrol {On context help} field. To detach the help window, select
     \uicontrol {Always Show in External Window}.
 
     To change this setting in a help view, select the \inlineimage icons/linkicon.png
     toolbar button.
 
-    \section1 Selecting the Start Page
+    \sa {Get help}
+*/
+
+/*!
+    \page creator-how-to-set-help-start-page.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-how-to-get-help.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-get-help
+
+    \title Select the help start page
 
     You can select the page to display when you open the \uicontrol Help mode in the
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Help > \uicontrol General
-    > \uicontrol {On help start} field.
-    To display the page and help views that were open when you exited the mode,
-    select the \uicontrol {Show My Tabs from Last Session} option. However, Web pages
-    are not opened because loading them would slow down opening the \uicontrol Help
-    mode.
+    \preferences > \uicontrol Help > \uicontrol General >
+    \uicontrol {On help start} field.
 
-    To display a particular page, select \uicontrol {Show My Home Page}, and specify
-    the page in the \uicontrol {Home Page} field.
+    \image qtcreator-preferences-help-general.webp {General tab in Help preferences}
 
-    To display a blank page, select the \uicontrol {Show a Blank Page} option. You can
-    also select the \uicontrol {Use Blank Page} button to set a blank page as your
-    home page.
+    \list
+        \li To display the page and help views that were open when you exited the mode,
+            select the \uicontrol {Show My Tabs from Last Session} option. However, Web pages
+            are not opened because loading them would slow down opening the \uicontrol Help
+            mode.
 
-    \section1 Using Documentation Filters
+        \li To display a particular page, select \uicontrol {Show My Home Page}, and specify
+            the page in the \uicontrol {Home Page} field.
+
+        \li To display a blank page, select the \uicontrol {Show a Blank Page} option. You can
+            also select the \uicontrol {Use Blank Page} button to set a blank page as your
+            home page.
+    \endlist
+
+    \sa {Get help}
+*/
+
+/*!
+    \page creator-how-to-filter-documentation.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-how-to-get-help.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-get-help
+
+    \title Filter documentation
 
     You can filter the documents displayed in the \uicontrol Help mode to find
-    relevant information faster. Select a filter from a list of filters (1). The
+    relevant information faster. Select a filter from a list of filters. The
     contents of the \uicontrol Index and \uicontrol Contents
     view in the sidebar change accordingly.
 
-    \image qtcreator-help-filters.png "Filters field on the Help mode toolbar"
+    \image qtcreator-help-filters.png {Filters field on the Help mode toolbar}
+
+    \section1 Add filters
 
     You can define your own filters to display documentation for a set of
     Qt modules and versions.
@@ -239,10 +366,9 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Help >
-            \uicontrol Filters.
+        \li Select \preferences > \uicontrol Help > \uicontrol Filters.
 
-            \image qtcreator-help-filter-attributes.png "Filters tab in Help preferences"
+            \image qtcreator-help-filter-attributes.png {Filters tab in Help preferences}
 
         \li Select \inlineimage icons/plus.png
             to add a new filter in the \uicontrol {Add Filter} dialog.
@@ -264,11 +390,17 @@
 
     \endlist
 
+    \section1 Change filters
+
     To modify the selected filter, add and remove Qt modules and versions, and
     then select \uicontrol Apply.
 
     To rename the selected filter, select \uicontrol Rename.
 
+    \section1 Remove filters
+
     To remove the selected filter select \inlineimage icons/minus.png
     .
+
+    \sa {Get help}
 */

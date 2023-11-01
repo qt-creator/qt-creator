@@ -54,7 +54,7 @@ static CppEditor::ProjectFile::Kind fileKindFromString(QString flag)
     return ProjectFile::Unclassified;
 }
 
-QStringList filterFromFileName(const QStringList &flags, QString fileName)
+QStringList filterFromFileName(const QStringList &flags, const QString &fileName)
 {
     QStringList result;
     result.reserve(flags.size());

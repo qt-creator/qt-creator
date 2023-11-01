@@ -19,6 +19,8 @@ public:
 private slots:
     void testVcpkgJsonParser_data();
     void testVcpkgJsonParser();
+    void testAddDependency_data();
+    void testAddDependency();
 };
 
 } // namespace Vcpkg::Internal

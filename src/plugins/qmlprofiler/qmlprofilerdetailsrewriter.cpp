@@ -4,7 +4,7 @@
 #include "qmlprofilerdetailsrewriter.h"
 
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -98,9 +98,9 @@ Utils::FilePath QmlProfilerDetailsRewriter::getLocalFile(const QString &remoteFi
 {
     const Utils::FilePath localFile = m_projectFinder.findFile(remoteFile).constFirst();
     if (!localFile.exists() || !localFile.isReadableFile())
-        return Utils::FilePath();
+        return {};
     if (!QmlJS::ModelManagerInterface::guessLanguageOfFile(localFile).isQmlLikeOrJsLanguage())
-        return Utils::FilePath();
+        return {};
 
     return localFile.canonicalPath();
 }

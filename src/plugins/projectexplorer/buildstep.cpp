@@ -7,17 +7,15 @@
 #include "buildsteplist.h"
 #include "customparser.h"
 #include "deployconfiguration.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "sanitizerparser.h"
 #include "target.h"
 
-#include <utils/algorithm.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
-#include <utils/qtcassert.h>
 #include <utils/variablechooser.h>
 
 /*!
@@ -38,9 +36,6 @@
 
     \c init() is called in the GUI thread and can be used to query the
     project for any information you need.
-
-    \c run() is run via Utils::runAsync in a separate thread. If you need an
-    event loop, you need to create it yourself.
 */
 
 /*!
@@ -48,26 +43,6 @@
 
     This function is run in the GUI thread. Use it to retrieve any information
     that you need in the run() function.
-*/
-
-/*!
-    \fn void ProjectExplorer::BuildStep::run(QFutureInterface<bool> &fi)
-
-    Reimplement this function. It is called when the target is built.
-    By default, this function is NOT run in the GUI thread, but runs in its
-    own thread. If you need an event loop, you need to create one.
-    This function should block until the task is done
-
-    The absolute minimal implementation is:
-    \code
-    fi.reportResult(true);
-    \endcode
-
-    By returning \c true from runInGuiThread(), this function is called in
-    the GUI thread. Then the function should not block and instead the
-    finished() signal should be emitted.
-
-    \sa runInGuiThread()
 */
 
 /*!
@@ -91,11 +66,6 @@
 */
 
 /*!
-    \fn  void ProjectExplorer::BuildStep::finished()
-    This signal needs to be emitted if the build step runs in the GUI thread.
-*/
-
-/*!
     \fn bool ProjectExplorer::BuildStep::isImmutable()
 
     If this function returns \c true, the user cannot delete this build step for
@@ -111,31 +81,11 @@ namespace ProjectExplorer {
 
 static QList<BuildStepFactory *> g_buildStepFactories;
 
-BuildStep::BuildStep(BuildStepList *bsl, Id id) :
-    ProjectConfiguration(bsl, id)
+BuildStep::BuildStep(BuildStepList *bsl, Id id)
+    : ProjectConfiguration(bsl->target(), id)
+    , m_stepList(bsl)
 {
-    QTC_CHECK(bsl->target() && bsl->target() == this->target());
-    connect(this, &ProjectConfiguration::displayNameChanged,
-            this, &BuildStep::updateSummary);
-//    m_displayName = step->displayName();
-//    m_summaryText = "<b>" + m_displayName + "</b>";
-}
-
-BuildStep::~BuildStep()
-{
-    emit finished(false);
-}
-
-void BuildStep::run()
-{
-    m_cancelFlag = false;
-    doRun();
-}
-
-void BuildStep::cancel()
-{
-    m_cancelFlag = true;
-    doCancel();
+    connect(this, &ProjectConfiguration::displayNameChanged, this, &BuildStep::updateSummary);
 }
 
 QWidget *BuildStep::doCreateConfigWidget()
@@ -176,22 +126,21 @@ QWidget *BuildStep::createConfigWidget()
     return widget;
 }
 
-bool BuildStep::fromMap(const QVariantMap &map)
+void BuildStep::fromMap(const Store &map)
 {
     m_enabled = map.value(buildStepEnabledKey, true).toBool();
-    return ProjectConfiguration::fromMap(map);
+    ProjectConfiguration::fromMap(map);
 }
 
-QVariantMap BuildStep::toMap() const
+void BuildStep::toMap(Store &map) const
 {
-    QVariantMap map = ProjectConfiguration::toMap();
+    ProjectConfiguration::toMap(map);
     map.insert(buildStepEnabledKey, m_enabled);
-    return map;
 }
 
 BuildConfiguration *BuildStep::buildConfiguration() const
 {
-    auto config = qobject_cast<BuildConfiguration *>(parent()->parent());
+    auto config = qobject_cast<BuildConfiguration *>(projectConfiguration());
     if (config)
         return config;
 
@@ -201,7 +150,7 @@ BuildConfiguration *BuildStep::buildConfiguration() const
 
 DeployConfiguration *BuildStep::deployConfiguration() const
 {
-    auto config = qobject_cast<DeployConfiguration *>(parent()->parent());
+    auto config = qobject_cast<DeployConfiguration *>(projectConfiguration());
     if (config)
         return config;
     // See comment in buildConfiguration()
@@ -212,7 +161,7 @@ DeployConfiguration *BuildStep::deployConfiguration() const
 
 ProjectConfiguration *BuildStep::projectConfiguration() const
 {
-    return static_cast<ProjectConfiguration *>(parent()->parent());
+    return stepList()->projectConfiguration();
 }
 
 BuildSystem *BuildStep::buildSystem() const
@@ -224,7 +173,7 @@ BuildSystem *BuildStep::buildSystem() const
 
 Environment BuildStep::buildEnvironment() const
 {
-    if (const auto bc = qobject_cast<BuildConfiguration *>(parent()->parent()))
+    if (const auto bc = qobject_cast<BuildConfiguration *>(projectConfiguration()))
         return bc->environment();
     if (const auto bc = target()->activeBuildConfiguration())
         return bc->environment();
@@ -261,8 +210,8 @@ QString BuildStep::fallbackWorkingDirectory() const
 
 void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    if (qobject_cast<BuildConfiguration *>(parent()->parent())) {
-        for (const Id id : buildConfiguration()->customParsers()) {
+    if (auto bc = qobject_cast<BuildConfiguration *>(projectConfiguration())) {
+        for (const Id id : bc->customParsers()) {
             if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
                 formatter->addLineParser(parser);
         }
@@ -292,22 +241,6 @@ QVariant BuildStep::data(Id id) const
     return {};
 }
 
-bool BuildStep::isCanceled() const
-{
-    return m_cancelFlag;
-}
-
-void BuildStep::doCancel()
-{
-    QTC_ASSERT(false, qWarning() << "Build step" << displayName()
-               << "neeeds to implement the doCancel() function");
-}
-
-void BuildStep::addMacroExpander()
-{
-    m_addMacroExpander = true;
-}
-
 void BuildStep::setEnabled(bool b)
 {
     if (m_enabled == b)
@@ -318,7 +251,7 @@ void BuildStep::setEnabled(bool b)
 
 BuildStepList *BuildStep::stepList() const
 {
-    return qobject_cast<BuildStepList *>(parent());
+    return m_stepList;
 }
 
 bool BuildStep::enabled() const
@@ -346,7 +279,7 @@ bool BuildStepFactory::canHandle(BuildStepList *bsl) const
     if (!m_supportedStepLists.isEmpty() && !m_supportedStepLists.contains(bsl->id()))
         return false;
 
-    auto config = qobject_cast<ProjectConfiguration *>(bsl->parent());
+    ProjectConfiguration *config = bsl->projectConfiguration();
 
     if (!m_supportedDeviceTypes.isEmpty()) {
         Target *target = bsl->target();
@@ -464,12 +397,13 @@ BuildStep *BuildStepFactory::create(BuildStepList *parent)
     return step;
 }
 
-BuildStep *BuildStepFactory::restore(BuildStepList *parent, const QVariantMap &map)
+BuildStep *BuildStepFactory::restore(BuildStepList *parent, const Store &map)
 {
     BuildStep *bs = create(parent);
     if (!bs)
         return nullptr;
-    if (!bs->fromMap(map)) {
+    bs->fromMap(map);
+    if (bs->hasError()) {
         QTC_CHECK(false);
         delete bs;
         return nullptr;

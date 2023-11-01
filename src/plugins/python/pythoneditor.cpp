@@ -268,7 +268,7 @@ void PythonEditorWidget::updateInterpretersSelector()
 
 PythonEditorFactory::PythonEditorFactory()
 {
-    registerReplAction(this);
+    registerReplAction(&m_guard);
 
     setId(Constants::C_PYTHONEDITOR_ID);
     setDisplayName(::Core::Tr::tr(Constants::C_EDITOR_DISPLAY_NAME));

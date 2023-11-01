@@ -26,17 +26,17 @@ namespace Internal {
 class ShowOutputTaskHandler;
 class CompileOutputTextEdit;
 
-class CompileOutputSettings final : public Core::PagedSettings
+class CompileOutputSettings final : public Utils::AspectContainer
 {
 public:
     CompileOutputSettings();
-
-    static CompileOutputSettings &instance();
 
     Utils::BoolAspect popUp{this};
     Utils::BoolAspect wrapOutput{this};
     Utils::IntegerAspect maxCharCount{this};
 };
+
+CompileOutputSettings &compileOutputSettings();
 
 class CompileOutputWindow final : public Core::IOutputPane
 {
@@ -48,9 +48,6 @@ public:
 
     QWidget *outputWidget(QWidget *) override;
     QList<QWidget *> toolBarWidgets() const override;
-    QString displayName() const override {
-        return QCoreApplication::translate("QtC::ProjectExplorer","Compile Output"); }
-    int priorityInStatusBar() const override;
     void clearContents() override;
     bool canFocus() const override;
     bool hasFocus() const override;
@@ -80,7 +77,6 @@ private:
     ShowOutputTaskHandler *m_handler;
     QToolButton *m_cancelBuildButton;
     QToolButton * const m_settingsButton;
-    CompileOutputSettings m_settings;
 };
 
 } // namespace Internal

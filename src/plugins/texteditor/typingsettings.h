@@ -5,10 +5,9 @@
 
 #include "texteditor_global.h"
 
-#include <QVariantMap>
+#include <utils/store.h>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QTextDocument;
 class QTextCursor;
 QT_END_NAMESPACE
@@ -32,15 +31,18 @@ public:
         BackspaceUnindents = 2
     };
 
+    enum CommentPosition {
+        Automatic = 0,
+        StartOfLine = 1,
+        AfterWhitespace = 2,
+    };
+
     TypingSettings();
 
     bool tabShouldIndent(const QTextDocument *document, const QTextCursor &cursor, int *suggestedPosition) const;
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
-
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     bool equals(const TypingSettings &ts) const;
 
@@ -52,6 +54,7 @@ public:
     SmartBackspaceBehavior m_smartBackspaceBehavior;
 
     bool m_preferSingleLineComments;
+    CommentPosition m_commentPosition = Automatic;
 };
 
 } // namespace TextEditor

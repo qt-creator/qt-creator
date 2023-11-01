@@ -774,10 +774,8 @@ QSet<FilePath> Snapshot::allIncludesForDocument(const FilePath &filePath) const
         if (Document::Ptr doc = document(file)) {
             const FilePaths includedFiles = doc->includedFiles(Document::Duplicates::Keep);
             for (const FilePath &inc : includedFiles) {
-                if (!result.contains(inc)) {
-                    result.insert(inc);
+                if (Utils::insert(result, inc))
                     files.push(inc);
-                }
             }
         }
     }

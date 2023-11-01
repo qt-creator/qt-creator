@@ -3,7 +3,6 @@
 
 #include "projectmanager.h"
 
-
 #include "buildconfiguration.h"
 #include "editorconfiguration.h"
 #include "project.h"
@@ -27,10 +26,9 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
+#include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
-#include <utils/qtcassert.h>
 
 #include <QDebug>
 #include <QMessageBox>
@@ -349,7 +347,7 @@ void ProjectManagerPrivate::saveSession()
         depMap.insert(key, values);
         ++i;
     }
-    SessionManager::setSessionValue(QLatin1String("ProjectDependencies"), QVariant(depMap));
+    SessionManager::setSessionValue("ProjectDependencies", QVariant(depMap));
 }
 
 /*!
@@ -406,14 +404,14 @@ QString ProjectManagerPrivate::sessionTitle(const FilePath &filePath)
     } else {
         return sessionName.isEmpty() ? Tr::tr("Untitled") : sessionName;
     }
-    return QString();
+    return {};
 }
 
 QString ProjectManagerPrivate::locationInProject(const FilePath &filePath)
 {
     const Project *project = ProjectManager::projectForFile(filePath);
     if (!project)
-        return QString();
+        return {};
 
     const FilePath parentDir = filePath.parentDir();
     if (parentDir == project->projectDirectory())
@@ -520,12 +518,11 @@ Project *ProjectManager::projectWithProjectFilePath(const FilePath &filePath)
             [&filePath](const Project *p) { return p->projectFilePath() == filePath; });
 }
 
-void ProjectManager::configureEditor(IEditor *editor, const QString &fileName)
+void ProjectManager::configureEditor(IEditor *editor, const FilePath &filePath)
 {
     if (auto textEditor = qobject_cast<TextEditor::BaseTextEditor*>(editor)) {
-        Project *project = projectForFile(Utils::FilePath::fromString(fileName));
         // Global settings are the default.
-        if (project)
+        if (Project *project = projectForFile(filePath))
             project->editorConfiguration()->configureEditor(textEditor);
     }
 }
@@ -576,7 +573,8 @@ void ProjectManager::removeProjects(const QList<Project *> &remove)
 
 void ProjectManagerPrivate::restoreDependencies()
 {
-     QMap<QString, QVariant> depMap = SessionManager::sessionValue("ProjectDependencies").toMap();
+     QMap<QString, QVariant> depMap = mapEntryFromStoreEntry(SessionManager::sessionValue(
+                                                                 "ProjectDependencies")).toMap();
      auto i = depMap.constBegin();
      while (i != depMap.constEnd()) {
         const QString &key = i.key();
@@ -655,7 +653,7 @@ void ProjectManagerPrivate::loadSession()
     d->m_casadeSetActive = false;
 
     // not ideal that this is in ProjectManager
-    Id modeId = Id::fromSetting(SessionManager::value(QLatin1String("ActiveMode")));
+    Id modeId = Id::fromSetting(SessionManager::value("ActiveMode"));
     if (!modeId.isValid())
         modeId = Id(Core::Constants::MODE_EDIT);
 
@@ -706,8 +704,7 @@ FilePaths ProjectManager::projectsForSessionName(const QString &session)
             return {};
         }
     }
-    return transform(reader.restoreValue(QLatin1String("ProjectList")).toStringList(),
-                     &FilePath::fromUserInput);
+    return transform(reader.restoreValue("ProjectList").toStringList(), &FilePath::fromUserInput);
 }
 
 #ifdef WITH_TESTS

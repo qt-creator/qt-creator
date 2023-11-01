@@ -7,6 +7,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
 
@@ -21,13 +22,9 @@ namespace Core {
 class OutputWindow;
 } // Core
 
-namespace Utils {
-class CommandLine;
-class ProcessHandle;
-} // Utils
+namespace Utils { class CommandLine; }
 
 namespace ProjectExplorer {
-class BuildPropertiesSettings;
 class CustomParserSettings;
 class FolderNode;
 class Node;
@@ -109,7 +106,7 @@ public:
     //PluginInterface
     bool initialize(const QStringList &arguments, QString *errorMessage) override;
     void extensionsInitialized() override;
-    void restoreKits();
+    bool delayedInitialize() override;
     ShutdownFlag aboutToShutdown() override;
 
     static void setProjectExplorerSettings(const ProjectExplorerSettings &pes);
@@ -117,9 +114,6 @@ public:
 
     static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
     static const Internal::AppOutputSettings &appOutputSettings();
-
-    static BuildPropertiesSettings &buildPropertiesSettings();
-    static void showQtSettings();
 
     static void setCustomParsers(const QList<CustomParserSettings> &settings);
     static void addCustomParser(const CustomParserSettings &settings);
@@ -138,12 +132,11 @@ public:
     static void renameFilesForSymbol(const QString &oldSymbolName, const QString &newSymbolName,
                                      const Utils::FilePaths &files, bool preferLowerCaseFileNames);
 
-    static bool canRunStartupProject(Utils::Id runMode, QString *whyNot = nullptr);
+    static Utils::expected_str<void> canRunStartupProject(Utils::Id runMode);
     static void runProject(Project *pro, Utils::Id, const bool forceSkipDeploy = false);
     static void runStartupProject(Utils::Id runMode, bool forceSkipDeploy = false);
     static void runRunConfiguration(RunConfiguration *rc, Utils::Id runMode,
                              const bool forceSkipDeploy = false);
-    static QList<QPair<Utils::CommandLine, Utils::ProcessHandle>> runningRunControlProcesses();
     static QList<RunControl *> allRunControls();
 
     static void addExistingFiles(FolderNode *folderNode, const Utils::FilePaths &filePaths);
@@ -157,9 +150,6 @@ public:
 
     static void openNewProjectDialog();
     static void openOpenProjectDialog();
-
-    static QString buildDirectoryTemplate();
-    static QString defaultBuildDirectoryTemplate();
 
     static void updateActions();
 

@@ -10,6 +10,8 @@
 #include "axiviontr.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectsettingswidget.h>
+
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
 
@@ -17,9 +19,42 @@
 #include <QTreeWidget>
 #include <QVBoxLayout>
 
+using namespace ProjectExplorer;
+using namespace Utils;
+
 namespace Axivion::Internal {
 
 const char PSK_PROJECTNAME[] = "Axivion.ProjectName";
+
+// AxivionProjectSettingsHandler
+
+class AxivionProjectSettingsHandler : public QObject
+{
+public:
+    AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project)
+    {
+        auto &settings = m_axivionProjectSettings[project];
+        if (!settings)
+            settings = new AxivionProjectSettings(project);
+        return settings;
+    }
+
+    void destroy()
+    {
+        qDeleteAll(m_axivionProjectSettings);
+        m_axivionProjectSettings.clear();
+    }
+
+    QHash<ProjectExplorer::Project *, AxivionProjectSettings *> m_axivionProjectSettings;
+};
+
+static AxivionProjectSettingsHandler &projectSettingsHandler()
+{
+    static AxivionProjectSettingsHandler theProjectSettingsHandler;
+    return theProjectSettingsHandler;
+}
+
+// AxivionProjectSettings
 
 AxivionProjectSettings::AxivionProjectSettings(ProjectExplorer::Project *project)
     : m_project{project}
@@ -29,6 +64,16 @@ AxivionProjectSettings::AxivionProjectSettings(ProjectExplorer::Project *project
             this, &AxivionProjectSettings::load);
     connect(project, &ProjectExplorer::Project::aboutToSaveSettings,
             this, &AxivionProjectSettings::save);
+}
+
+AxivionProjectSettings *AxivionProjectSettings::projectSettings(ProjectExplorer::Project *project)
+{
+    return projectSettingsHandler().projectSettings(project);
+}
+
+void AxivionProjectSettings::destroyProjectSettings()
+{
+    projectSettingsHandler().destroy();
 }
 
 void AxivionProjectSettings::load()
@@ -41,11 +86,33 @@ void AxivionProjectSettings::save()
     m_project->setNamedSettings(PSK_PROJECTNAME, m_dashboardProjectName);
 }
 
-AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Project *project,
-                                                           QWidget *parent)
-    : ProjectExplorer::ProjectSettingsWidget{parent}
-    , m_projectSettings(AxivionPlugin::projectSettings(project))
-    , m_globalSettings(AxivionPlugin::settings())
+// AxivionProjectSettingsWidget
+
+class AxivionProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+{
+public:
+    explicit AxivionProjectSettingsWidget(ProjectExplorer::Project *project);
+
+private:
+    void fetchProjects();
+    void onDashboardInfoReceived(const DashboardInfo &info);
+    void onSettingsChanged();
+    void linkProject();
+    void unlinkProject();
+    void updateUi();
+    void updateEnabledStates();
+
+    AxivionProjectSettings *m_projectSettings = nullptr;
+    QLabel *m_linkedProject = nullptr;
+    QTreeWidget *m_dashboardProjects = nullptr;
+    QPushButton *m_fetchProjects = nullptr;
+    QPushButton *m_link = nullptr;
+    QPushButton *m_unlink = nullptr;
+    Utils::InfoLabel *m_infoLabel = nullptr;
+};
+
+AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Project *project)
+    : m_projectSettings(projectSettingsHandler().projectSettings(project))
 {
     setUseGlobalSettingsCheckBoxVisible(false);
     setUseGlobalSettingsLabelVisible(true);
@@ -87,7 +154,7 @@ AxivionProjectSettingsWidget::AxivionProjectSettingsWidget(ProjectExplorer::Proj
             this, &AxivionProjectSettingsWidget::linkProject);
     connect(m_unlink, &QPushButton::clicked,
             this, &AxivionProjectSettingsWidget::unlinkProject);
-    connect(AxivionPlugin::instance(), &AxivionPlugin::settingsChanged,
+    connect(&settings(), &AspectContainer::changed,
             this, &AxivionProjectSettingsWidget::onSettingsChanged);
 
     updateUi();
@@ -163,9 +230,9 @@ void AxivionProjectSettingsWidget::updateUi()
 
 void AxivionProjectSettingsWidget::updateEnabledStates()
 {
-    const bool hasDashboardSettings = m_globalSettings->curl().isExecutableFile()
-            && !m_globalSettings->server.dashboard.isEmpty()
-            && !m_globalSettings->server.token.isEmpty();
+    const bool hasDashboardSettings = settings().curl().isExecutableFile()
+            && !settings().server.dashboard.isEmpty()
+            && !settings().server.token.isEmpty();
     const bool linked = !m_projectSettings->dashboardProjectName().isEmpty();
     const bool linkable = m_dashboardProjects->topLevelItemCount()
             && !m_dashboardProjects->selectedItems().isEmpty();
@@ -179,6 +246,11 @@ void AxivionProjectSettingsWidget::updateEnabledStates()
         m_infoLabel->setType(Utils::InfoLabel::NotOk);
         m_infoLabel->setVisible(true);
     }
+}
+
+ProjectSettingsWidget *AxivionProjectSettings::createSettingsWidget(ProjectExplorer::Project *project)
+{
+   return new AxivionProjectSettingsWidget(project);
 }
 
 } // Axivion::Internal

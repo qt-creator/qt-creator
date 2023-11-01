@@ -155,7 +155,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     monFile.setLabelText(Tr::tr("Save IncrediBuild monitor file:"));
     monFile.setExpectedKind(PathChooser::Kind::Any);
     monFile.setBaseFileName(PathChooser::homePath());
-    monFile.setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.MonFile.History"));
+    monFile.setHistoryCompleter("IncrediBuild.BuildConsole.MonFile.History");
     monFile.setToolTip(Tr::tr("Writes a copy of the build progress file (.ib_mon) to the specified "
                               "location. If only a folder name is given, a generated GUID will serve "
                               "as the file name. The full path of the saved Build Monitor will be "
@@ -169,7 +169,7 @@ BuildConsoleBuildStep::BuildConsoleBuildStep(BuildStepList *buildStepList, Id id
     logFile.setLabelText(Tr::tr("Output Log file:"));
     logFile.setExpectedKind(PathChooser::Kind::SaveFile);
     logFile.setBaseFileName(PathChooser::homePath());
-    logFile.setHistoryCompleter(QLatin1String("IncrediBuild.BuildConsole.LogFile.History"));
+    logFile.setHistoryCompleter("IncrediBuild.BuildConsole.LogFile.History");
     logFile.setToolTip(Tr::tr("Writes build output to a file."));
 
     showCmd.setSettingsKey("IncrediBuild.BuildConsole.ShowCmd");

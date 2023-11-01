@@ -4,10 +4,8 @@
 #include "procinterrupt.h"
 #include "debuggerconstants.h"
 
-#include <app/app_version.h>
-
-#include <QCoreApplication>
 #include <QDir>
+#include <QGuiApplication>
 #include <QProcess> // makes kill visible on Windows.
 
 using namespace Debugger::Internal;
@@ -122,13 +120,13 @@ GDB 32bit | Api             | Api             | NA              | Win32         
             const QString executable = breakApi == UseWin32Interrupt
                     ? QCoreApplication::applicationDirPath() + "/win32interrupt.exe"
                     : QCoreApplication::applicationDirPath() + "/win64interrupt.exe";
-            if (!QFile::exists(executable)) {
+            if (!QFileInfo::exists(executable)) {
                 *errorMessage = QString::fromLatin1(
                                     "%1 does not exist. If you have built %2 "
                                     "on your own, checkout "
                                     "https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.")
                                     .arg(QDir::toNativeSeparators(executable),
-                                         QString(Core::Constants::IDE_DISPLAY_NAME));
+                                         QGuiApplication::applicationDisplayName());
                 break;
             }
             switch (QProcess::execute(executable, QStringList(QString::number(pID)))) {

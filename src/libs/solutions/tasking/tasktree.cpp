@@ -6,6 +6,7 @@
 #include <QEventLoop>
 #include <QFutureWatcher>
 #include <QPromise>
+#include <QPointer>
 #include <QSet>
 #include <QTimer>
 
@@ -104,6 +105,19 @@ private:
     Each subclass needs to provide a public default constructor,
     implement the start() method, and emit the done() signal when the task is finished.
     Use task() to access the associated \c Task instance.
+
+    To use your task adapter inside the task tree, create an alias to the
+    Tasking::CustomTask template passing your task adapter as a template parameter:
+    \code
+        // Defines actual worker
+        class Worker {...};
+
+        // Adapts Worker's interface to work with task tree
+        class WorkerTaskAdapter : public TaskAdapter<Worker> {...};
+
+        // Defines WorkerTask as a new task tree element
+        using WorkerTask = CustomTask<WorkerTaskAdapter>;
+    \endcode
 
     For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
 
@@ -333,8 +347,8 @@ private:
 
     The CustomTask class template is used inside TaskTree for describing custom task items.
 
-    Custom task names are aliased with unique names inside the \l Tasking namespace
-    via the TASKING_DECLARE_TASK or TASKING_DECLARE_TEMPLATE_TASK macros.
+    Custom task names are aliased with unique names using the CustomTask template
+    with a given TaskAdapter subclass as a template parameter.
     For example, \c ConcurrentCallTask<T> is an alias to the CustomTask that is defined
     to work with \c ConcurrentCall<T> as an associated task class.
     The following table contains all the built-in tasks and their associated task classes:
@@ -499,26 +513,6 @@ private:
     and the returned item finishes with an error.
 
     \sa onSetup()
-*/
-
-/*!
-    \macro TASKING_DECLARE_TASK(CustomTaskName, TaskAdapterClass)
-    \relates Tasking
-
-    Registers the new custom task type under a \a CustomTaskName name inside the
-    Tasking namespace for the passed \a TaskAdapterClass adapter class.
-
-    For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
-*/
-
-/*!
-    \macro TASKING_DECLARE_TEMPLATE_TASK(CustomTaskName, TaskAdapterClass)
-    \relates Tasking
-
-    Registers the new custom task template type under a \a CustomTaskName name inside the
-    Tasking namespace for the passed \a TaskAdapterClass adapter class template.
-
-    For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
 */
 
 /*!
@@ -2117,8 +2111,8 @@ void TaskNode::invokeEndHandler(bool success)
         TreeStorage<CopyStorage> storage;
         const Group root = ...; // storage placed inside root's group and inside handlers
         TaskTree taskTree(root);
-        auto initStorage = [](CopyStorage *storage){
-            storage->content = "initial content";
+        auto initStorage = [](CopyStorage &storage){
+            storage.content = "initial content";
         };
         taskTree.onStorageSetup(storage, initStorage);
         taskTree.start();
@@ -2137,8 +2131,8 @@ void TaskNode::invokeEndHandler(bool success)
         TreeStorage<CopyStorage> storage;
         const Group root = ...; // storage placed inside root's group and inside handlers
         TaskTree taskTree(root);
-        auto collectStorage = [](CopyStorage *storage){
-            qDebug() << "final content" << storage->content;
+        auto collectStorage = [](const CopyStorage &storage){
+            qDebug() << "final content" << storage.content;
         };
         taskTree.onStorageDone(storage, collectStorage);
         taskTree.start();
@@ -2156,10 +2150,10 @@ void TaskNode::invokeEndHandler(bool success)
     asynchronous task:
 
     \code
-        class TimeoutTaskAdapter : public Tasking::TaskAdapter<QTimer>
+        class TimerTaskAdapter : public TaskAdapter<QTimer>
         {
         public:
-            TimeoutTaskAdapter() {
+            TimerTaskAdapter() {
                 task()->setSingleShot(true);
                 task()->setInterval(1000);
                 connect(task(), &QTimer::timeout, this, [this] { emit done(true); });
@@ -2168,7 +2162,7 @@ void TaskNode::invokeEndHandler(bool success)
             void start() final { task()->start(); }
         };
 
-        TASKING_DECLARE_TASK(TimeoutTask, TimeoutTaskAdapter);
+        using TimerTask = CustomTask<TimerTaskAdapter>;
     \endcode
 
     You must derive the custom adapter from the TaskAdapter class template
@@ -2177,28 +2171,27 @@ void TaskNode::invokeEndHandler(bool success)
     later as an argument to the task's handlers. The instance of this class
     parameter automatically becomes a member of the TaskAdapter template, and is
     accessible through the TaskAdapter::task() method. The constructor
-    of TimeoutTaskAdapter initially configures the QTimer object and connects
-    to the QTimer::timeout signal. When the signal is triggered, TimeoutTaskAdapter
+    of TimerTaskAdapter initially configures the QTimer object and connects
+    to the QTimer::timeout signal. When the signal is triggered, TimerTaskAdapter
     emits the \c done(true) signal to inform the task tree that the task finished
     successfully. If it emits \c done(false), the task finished with an error.
     The TaskAdapter::start() method starts the timer.
 
-    To make QTimer accessible inside TaskTree under the \e TimeoutTask name,
-    register it with TASKING_DECLARE_TASK(TimeoutTask, TimeoutTaskAdapter).
-    TimeoutTask becomes a new task type inside Tasking namespace, using TimeoutTaskAdapter.
+    To make QTimer accessible inside TaskTree under the \e TimerTask name,
+    define TimerTask to be an alias to the Tasking::CustomTask<TimerTaskAdapter>.
+    TimerTask becomes a new task type, using TimerTaskAdapter.
 
     The new task type is now registered, and you can use it in TaskTree:
 
     \code
-        const auto onTimeoutSetup = [](QTimer &task) {
+        const auto onTimerSetup = [](QTimer &task) {
             task.setInterval(2000);
         };
-        const auto onTimeoutDone = [](const QTimer &task) {
-            qDebug() << "timeout triggered";
+        const auto onTimerDone = [](const QTimer &task) {
+            qDebug() << "timer triggered";
         };
-
         const Group root {
-            TimeoutTask(onTimeoutSetup, onTimeoutDone)
+            TimerTask(onTimerSetup, onTimerDone)
         };
     \endcode
 
@@ -2537,7 +2530,7 @@ int TaskTree::progressValue() const
     Installs a storage setup \a handler for the \a storage to pass the initial data
     dynamically to the running task tree.
 
-    The \c StorageHandler takes the pointer to the \c StorageStruct instance:
+    The \c StorageHandler takes a reference to the \c StorageStruct instance:
 
     \code
         static void save(const QString &fileName, const QByteArray &array) { ... }
@@ -2554,8 +2547,8 @@ int TaskTree::progressValue() const
         };
 
         TaskTree taskTree(root);
-        auto initStorage = [](QByteArray *storage){
-            *storage = "initial content";
+        auto initStorage = [](QByteArray &storage){
+            storage = "initial content";
         };
         taskTree.onStorageSetup(storage, initStorage);
         taskTree.start();
@@ -2575,10 +2568,10 @@ int TaskTree::progressValue() const
 /*!
     \fn template <typename StorageStruct, typename StorageHandler> void TaskTree::onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler)
 
-    Installs a storage done \a handler for the \a storage to retrie the final data
+    Installs a storage done \a handler for the \a storage to retrieve the final data
     dynamically from the running task tree.
 
-    The \c StorageHandler takes the pointer to the \c StorageStruct instance:
+    The \c StorageHandler takes a const reference to the \c StorageStruct instance:
 
     \code
         static QByteArray load(const QString &fileName) { ... }
@@ -2598,8 +2591,8 @@ int TaskTree::progressValue() const
         };
 
         TaskTree taskTree(root);
-        auto collectStorage = [](QByteArray *storage){
-            qDebug() << "final content" << *storage;
+        auto collectStorage = [](const QByteArray &storage){
+            qDebug() << "final content" << storage;
         };
         taskTree.onStorageDone(storage, collectStorage);
         taskTree.start();

@@ -1,6 +1,12 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "progressmanager_p.h"
+
+#include "../icore.h"
+
+#include <utils/utilsicons.h>
+
 #include <QGuiApplication>
 #include <QVariant>
 #include <QMainWindow>
@@ -11,11 +17,6 @@
 #include <QWindow>
 #include <QLabel>
 #include <qpa/qplatformnativeinterface.h>
-
-#include <coreplugin/icore.h>
-#include <utils/utilsicons.h>
-
-#include "progressmanager_p.h"
 
 // for windows progress bar
 #ifndef __GNUC__

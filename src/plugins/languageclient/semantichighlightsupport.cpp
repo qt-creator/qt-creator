@@ -10,6 +10,7 @@
 #include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
+#include <utils/algorithm.h>
 #include <utils/mimeutils.h>
 
 #include <QTextDocument>
@@ -165,9 +166,8 @@ void SemanticTokenSupport::updateSemanticTokensImpl(TextDocument *textDocument,
 
 void SemanticTokenSupport::queueDocumentReload(TextEditor::TextDocument *doc)
 {
-    if (m_docReloadQueue.contains(doc))
+    if (!Utils::insert(m_docReloadQueue, doc))
         return;
-    m_docReloadQueue << doc;
     connect(
         m_client,
         &Client::initialized,

@@ -3,13 +3,12 @@
 
 #pragma once
 
+#include <utils/aspects.h>
 #include <utils/mimeutils.h>
-
-#include <coreplugin/dialogs/ioptionspage.h>
 
 namespace Beautifier::Internal {
 
-class GeneralSettings : public Core::PagedSettings
+class GeneralSettings final : public Utils::AspectContainer
 {
 public:
     GeneralSettings();
@@ -21,5 +20,7 @@ public:
     Utils::SelectionAspect autoFormatTools{this};
     Utils::StringAspect autoFormatMime{this};
 };
+
+GeneralSettings &generalSettings();
 
 } // Beautifier::Internal

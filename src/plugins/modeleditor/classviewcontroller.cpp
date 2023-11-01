@@ -21,8 +21,7 @@ QSet<QString> ClassViewController::findClassDeclarations(const FilePath &filePat
 {
     QSet<QString> classNames;
 
-    CppEditor::CppModelManager *cppModelManager = CppEditor::CppModelManager::instance();
-    CPlusPlus::Snapshot snapshot = cppModelManager->snapshot();
+    CPlusPlus::Snapshot snapshot = CppEditor::CppModelManager::snapshot();
 
     // scan original file
     CPlusPlus::Document::Ptr document = snapshot.document(filePath);

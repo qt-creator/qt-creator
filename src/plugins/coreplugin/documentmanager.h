@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/core_global.h>
+#include "core_global.h"
 
 #include <utils/filepath.h>
 #include <utils/id.h>
@@ -20,7 +20,7 @@ class IDocument;
 
 namespace Internal {
 class DocumentManagerPrivate;
-class MainWindow;
+class ICorePrivate;
 }
 
 class CORE_EXPORT DocumentManager : public QObject
@@ -152,8 +152,8 @@ private:
     void updateSaveAll();
     static void registerSaveAllAction();
 
-    friend class Core::Internal::MainWindow;
-    friend class Core::Internal::DocumentManagerPrivate;
+    friend class Internal::DocumentManagerPrivate;
+    friend class Internal::ICorePrivate;
 };
 
 class CORE_EXPORT FileChangeBlocker

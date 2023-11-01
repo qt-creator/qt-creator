@@ -37,6 +37,7 @@ else()
       ${YAML_SOURCE_DIR}/include/yaml-cpp
       ${YAML_SOURCE_DIR}/include/yaml-cpp/anchor.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/binary.h
+      ${YAML_SOURCE_DIR}/include/yaml-cpp/depthguard.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/dll.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/emitfromevents.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/emitter.h
@@ -46,10 +47,10 @@ else()
       ${YAML_SOURCE_DIR}/include/yaml-cpp/eventhandler.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/exceptions.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/mark.h
+      ${YAML_SOURCE_DIR}/include/yaml-cpp/noexcept.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node/convert.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node/detail
-      ${YAML_SOURCE_DIR}/include/yaml-cpp/node/detail/bool_type.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node/detail/impl.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node/detail/iterator.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node/detail/iterator_fwd.h
@@ -65,7 +66,6 @@ else()
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node/parse.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node/ptr.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/node/type.h
-      ${YAML_SOURCE_DIR}/include/yaml-cpp/noncopyable.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/null.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/ostream_wrapper.h
       ${YAML_SOURCE_DIR}/include/yaml-cpp/parser.h
@@ -75,6 +75,7 @@ else()
       ${YAML_SOURCE_DIR}/src/binary.cpp
       ${YAML_SOURCE_DIR}/src/collectionstack.h
       ${YAML_SOURCE_DIR}/src/convert.cpp
+      ${YAML_SOURCE_DIR}/src/depthguard.cpp
       ${YAML_SOURCE_DIR}/src/directives.cpp
       ${YAML_SOURCE_DIR}/src/directives.h
       ${YAML_SOURCE_DIR}/src/emit.cpp

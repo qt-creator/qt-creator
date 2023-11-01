@@ -12,6 +12,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+  qtc_handle_compiler_cache_support()
 endif()
 
 if (NOT WIN32)
@@ -21,6 +22,10 @@ endif()
 set(Arch 32)
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
   set(Arch 64)
+endif()
+
+if (MSVC_CXX_ARCHITECTURE_ID MATCHES "^ARM")
+  set(Arch "arm${Arch}")
 endif()
 
 add_qtc_executable(win${Arch}interrupt

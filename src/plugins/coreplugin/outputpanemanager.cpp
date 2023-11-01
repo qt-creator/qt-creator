@@ -20,10 +20,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
-#include <utils/styledbar.h>
-#include <utils/stylehelper.h>
+#include <utils/layoutbuilder.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
+#include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
@@ -32,14 +33,14 @@
 #include <QComboBox>
 #include <QDebug>
 #include <QFocusEvent>
-#include <QHBoxLayout>
 #include <QLabel>
+#include <QLayout>
 #include <QMenu>
 #include <QPainter>
-#include <QStyle>
 #include <QStackedWidget>
-#include <QToolButton>
+#include <QStyle>
 #include <QTimeLine>
+#include <QToolButton>
 
 using namespace Utils;
 using namespace Core::Internal;
@@ -102,6 +103,63 @@ QList<QWidget *> IOutputPane::toolBarWidgets() const
     return widgets << m_zoomInButton << m_zoomOutButton;
 }
 
+/*!
+    Returns the ID of the output pane.
+*/
+Id IOutputPane::id() const
+{
+    return m_id;
+}
+
+/*!
+    Sets the ID of the output pane to \a id.
+    This is used for persisting the visibility state.
+*/
+void IOutputPane::setId(const Utils::Id &id)
+{
+    m_id = id;
+}
+
+/*!
+    Returns the translated display name of the output pane.
+*/
+QString IOutputPane::displayName() const
+{
+    return m_displayName;
+}
+
+/*!
+    Determines the position of the output pane on the status bar and the
+    default visibility.
+    \sa setPriorityInStatusBar()
+*/
+int IOutputPane::priorityInStatusBar() const
+{
+    return m_priority;
+}
+
+/*!
+    Sets the position of the output pane on the status bar and the default
+    visibility to \a priority.
+    \list
+        \li higher numbers are further to the front
+        \li >= 0 are shown in status bar by default
+        \li < 0 are not shown in status bar by default
+    \endlist
+*/
+void IOutputPane::setPriorityInStatusBar(int priority)
+{
+    m_priority = priority;
+}
+
+/*!
+    Sets the translated display name of the output pane to \a name.
+*/
+void IOutputPane::setDisplayName(const QString &name)
+{
+    m_displayName = name;
+}
+
 void IOutputPane::visibilityChanged(bool /*visible*/)
 {
 }
@@ -116,7 +174,7 @@ void IOutputPane::setWheelZoomEnabled(bool enabled)
     emit wheelZoomEnabledChanged(enabled);
 }
 
-void IOutputPane::setupFilterUi(const QString &historyKey)
+void IOutputPane::setupFilterUi(const Key &historyKey)
 {
     m_filterOutputLineEdit = new FancyLineEdit;
     m_filterActionRegexp = new QAction(this);
@@ -284,10 +342,12 @@ void OutputPaneManager::updateStatusButtons(bool visible)
 void OutputPaneManager::updateMaximizeButton(bool maximized)
 {
     if (maximized) {
-        m_instance->m_minMaxAction->setIcon(m_instance->m_minimizeIcon);
+        static const QIcon icon = Utils::Icons::ARROW_DOWN.icon();
+        m_instance->m_minMaxAction->setIcon(icon);
         m_instance->m_minMaxAction->setText(Tr::tr("Minimize"));
     } else {
-        m_instance->m_minMaxAction->setIcon(m_instance->m_maximizeIcon);
+        static const QIcon icon = Utils::Icons::ARROW_UP.icon();
+        m_instance->m_minMaxAction->setIcon(icon);
         m_instance->m_minMaxAction->setText(Tr::tr("Maximize"));
     }
 }
@@ -306,21 +366,17 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     QWidget(parent),
     m_titleLabel(new QLabel),
     m_manageButton(new OutputPaneManageButton),
-    m_closeButton(new QToolButton),
-    m_minMaxButton(new QToolButton),
     m_outputWidgetPane(new QStackedWidget),
-    m_opToolBarWidgets(new QStackedWidget),
-    m_minimizeIcon(Utils::Icons::ARROW_DOWN.icon()),
-    m_maximizeIcon(Utils::Icons::ARROW_UP.icon())
+    m_opToolBarWidgets(new QStackedWidget)
 {
     setWindowTitle(Tr::tr("Output"));
 
     m_titleLabel->setContentsMargins(5, 0, 5, 0);
 
-    m_clearAction = new QAction(this);
-    m_clearAction->setIcon(Utils::Icons::CLEAN.icon());
-    m_clearAction->setText(Tr::tr("Clear"));
-    connect(m_clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
+    auto clearAction = new QAction(this);
+    clearAction->setIcon(Utils::Icons::CLEAN.icon());
+    clearAction->setText(Tr::tr("Clear"));
+    connect(clearAction, &QAction::triggered, this, &OutputPaneManager::clearPage);
 
     m_nextAction = new QAction(this);
     m_nextAction->setIcon(Utils::Icons::ARROW_DOWN_TOOLBAR.icon());
@@ -333,43 +389,45 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     connect(m_prevAction, &QAction::triggered, this, &OutputPaneManager::slotPrev);
 
     m_minMaxAction = new QAction(this);
-    m_minMaxAction->setIcon(m_maximizeIcon);
-    m_minMaxAction->setText(Tr::tr("Maximize"));
 
-    m_closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
-    connect(m_closeButton, &QAbstractButton::clicked, this, &OutputPaneManager::slotHide);
+    auto closeButton = new QToolButton;
+    closeButton->setIcon(Icons::CLOSE_SPLIT_BOTTOM.icon());
+    connect(closeButton, &QAbstractButton::clicked, this, &OutputPaneManager::slotHide);
 
     connect(ICore::instance(), &ICore::saveSettingsRequested, this, &OutputPaneManager::saveSettings);
 
-    auto mainlayout = new QVBoxLayout;
-    mainlayout->setSpacing(0);
-    mainlayout->setContentsMargins(0, 0, 0, 0);
-    m_toolBar = new StyledBar;
-    auto toolLayout = new QHBoxLayout(m_toolBar);
-    toolLayout->setContentsMargins(0, 0, 0, 0);
-    toolLayout->setSpacing(0);
-    toolLayout->addWidget(m_titleLabel);
-    toolLayout->addWidget(new StyledSeparator);
-    m_clearButton = new QToolButton;
-    toolLayout->addWidget(m_clearButton);
-    m_prevToolButton = new QToolButton;
-    toolLayout->addWidget(m_prevToolButton);
-    m_nextToolButton = new QToolButton;
-    toolLayout->addWidget(m_nextToolButton);
-    toolLayout->addWidget(m_opToolBarWidgets);
-    toolLayout->addWidget(m_minMaxButton);
-    toolLayout->addWidget(m_closeButton);
-    mainlayout->addWidget(m_toolBar);
-    mainlayout->addWidget(m_outputWidgetPane, 10);
-    mainlayout->addWidget(new FindToolBarPlaceHolder(this));
-    setLayout(mainlayout);
+    auto toolBar = new StyledBar;
+    auto clearButton = new QToolButton;
+    auto prevToolButton = new QToolButton;
+    auto nextToolButton = new QToolButton;
+    auto minMaxButton = new QToolButton;
 
     m_buttonsWidget = new QWidget;
     m_buttonsWidget->setObjectName("OutputPaneButtons"); // used for UI introduction
-    m_buttonsWidget->setLayout(new QHBoxLayout);
-    m_buttonsWidget->layout()->setContentsMargins(5,0,0,0);
-    m_buttonsWidget->layout()->setSpacing(
-            creatorTheme()->flag(Theme::FlatToolBars) ? 9 : 4);
+
+    using namespace Layouting;
+    Row {
+        m_titleLabel,
+        new StyledSeparator,
+        clearButton,
+        prevToolButton,
+        nextToolButton,
+        m_opToolBarWidgets,
+        minMaxButton,
+        closeButton,
+        spacing(0), noMargin(),
+    }.attachTo(toolBar);
+
+    Column {
+        toolBar,
+        m_outputWidgetPane,
+        new FindToolBarPlaceHolder(this),
+        spacing(0), noMargin(),
+    }.attachTo(this);
+
+    Row {
+        spacing(creatorTheme()->flag(Theme::FlatToolBars) ? 9 : 4), customMargin({5, 0, 0, 0}),
+    }.attachTo(m_buttonsWidget);
 
     StatusBarManager::addStatusBarWidget(m_buttonsWidget, StatusBarManager::Second);
 
@@ -384,19 +442,19 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
     Command *cmd;
 
-    cmd = ActionManager::registerAction(m_clearAction, Constants::OUTPUTPANE_CLEAR);
-    m_clearButton->setDefaultAction(
-        ProxyAction::proxyActionWithIcon(m_clearAction, Utils::Icons::CLEAN_TOOLBAR.icon()));
+    cmd = ActionManager::registerAction(clearAction, Constants::OUTPUTPANE_CLEAR);
+    clearButton->setDefaultAction(
+        ProxyAction::proxyActionWithIcon(clearAction, Utils::Icons::CLEAN_TOOLBAR.icon()));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_prevAction, "Coreplugin.OutputPane.previtem");
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Shift+F6")));
-    m_prevToolButton->setDefaultAction(
+    prevToolButton->setDefaultAction(
         ProxyAction::proxyActionWithIcon(m_prevAction, Utils::Icons::ARROW_UP_TOOLBAR.icon()));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
 
     cmd = ActionManager::registerAction(m_nextAction, "Coreplugin.OutputPane.nextitem");
-    m_nextToolButton->setDefaultAction(
+    nextToolButton->setDefaultAction(
         ProxyAction::proxyActionWithIcon(m_nextAction, Utils::Icons::ARROW_DOWN_TOOLBAR.icon()));
     cmd->setDefaultKeySequence(QKeySequence(Tr::tr("F6")));
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
@@ -407,7 +465,7 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
     cmd->setAttribute(Command::CA_UpdateIcon);
     mpanes->addAction(cmd, "Coreplugin.OutputPane.ActionsGroup");
     connect(m_minMaxAction, &QAction::triggered, this, &OutputPaneManager::toggleMaximized);
-    m_minMaxButton->setDefaultAction(cmd->action());
+    minMaxButton->setDefaultAction(cmd->action());
 
     mpanes->addSeparator("Coreplugin.OutputPane.ActionsGroup");
 }
@@ -452,22 +510,19 @@ void OutputPaneManager::initialize()
         });
 
         QWidget *toolButtonsContainer = new QWidget(m_instance->m_opToolBarWidgets);
-        auto toolButtonsLayout = new QHBoxLayout;
-        toolButtonsLayout->setContentsMargins(0, 0, 0, 0);
-        toolButtonsLayout->setSpacing(0);
+        using namespace Layouting;
+        Row toolButtonsRow { spacing(0), noMargin() };
         const QList<QWidget *> toolBarWidgets = outPane->toolBarWidgets();
         for (QWidget *toolButton : toolBarWidgets)
-            toolButtonsLayout->addWidget(toolButton);
-        toolButtonsLayout->addStretch(5);
-        toolButtonsContainer->setLayout(toolButtonsLayout);
+            toolButtonsRow.addItem(toolButton);
+        toolButtonsRow.addItem(st);
+        toolButtonsRow.attachTo(toolButtonsContainer);
 
         m_instance->m_opToolBarWidgets->addWidget(toolButtonsContainer);
 
         minTitleWidth = qMax(minTitleWidth, titleFm.horizontalAdvance(outPane->displayName()));
 
-        QString suffix = outPane->displayName().simplified();
-        suffix.remove(QLatin1Char(' '));
-        data.id = baseId.withSuffix(suffix);
+        data.id = baseId.withSuffix(outPane->id().toString());
         data.action = new QAction(outPane->displayName(), m_instance);
         Command *cmd = ActionManager::registerAction(data.action, data.id);
 
@@ -478,6 +533,9 @@ void OutputPaneManager::initialize()
                                                  outPane->displayName(),
                                                  cmd->action());
         data.button = button;
+        connect(button, &OutputPaneToggleButton::contextMenuRequested, m_instance, [] {
+            m_instance->popupMenu();
+        });
 
         connect(outPane, &IOutputPane::flashButton, button, [button] { button->flash(); });
         connect(outPane,
@@ -491,7 +549,7 @@ void OutputPaneManager::initialize()
             m_instance->buttonTriggered(i);
         });
 
-        bool visible = outPane->priorityInStatusBar() != -1;
+        const bool visible = outPane->priorityInStatusBar() >= 0;
         data.button->setVisible(visible);
 
         connect(data.action, &QAction::triggered, m_instance, [i] {
@@ -507,7 +565,7 @@ void OutputPaneManager::initialize()
         m_instance->m_titleLabel->setText(g_outputPanes[currentIdx].pane->displayName());
     m_instance->m_buttonsWidget->layout()->addWidget(m_instance->m_manageButton);
     connect(m_instance->m_manageButton,
-            &QAbstractButton::clicked,
+            &OutputPaneManageButton::menuRequested,
             m_instance,
             &OutputPaneManager::popupMenu);
 
@@ -570,23 +628,23 @@ void OutputPaneManager::buttonTriggered(int idx)
 
 void OutputPaneManager::readSettings()
 {
-    QSettings *settings = ICore::settings();
-    int num = settings->beginReadArray(QLatin1String(outputPaneSettingsKeyC));
+    QtcSettings *settings = ICore::settings();
+    int num = settings->beginReadArray(outputPaneSettingsKeyC);
     for (int i = 0; i < num; ++i) {
         settings->setArrayIndex(i);
-        Id id = Id::fromSetting(settings->value(QLatin1String(outputPaneIdKeyC)));
+        Id id = Id::fromSetting(settings->value(outputPaneIdKeyC));
         const int idx = Utils::indexOf(g_outputPanes, Utils::equal(&OutputPaneData::id, id));
         if (idx < 0) // happens for e.g. disabled plugins (with outputpanes) that were loaded before
             continue;
-        const bool visible = settings->value(QLatin1String(outputPaneVisibleKeyC)).toBool();
+        const bool visible = settings->value(outputPaneVisibleKeyC).toBool();
         g_outputPanes[idx].button->setVisible(visible);
     }
     settings->endArray();
 
     m_outputPaneHeightSetting
-        = settings->value(QLatin1String("OutputPanePlaceHolder/Height"), 0).toInt();
+        = settings->value("OutputPanePlaceHolder/Height", 0).toInt();
     const int currentIdx
-        = settings->value(QLatin1String("OutputPanePlaceHolder/CurrentIndex"), 0).toInt();
+        = settings->value("OutputPanePlaceHolder/CurrentIndex", 0).toInt();
     if (QTC_GUARD(currentIdx >= 0 && currentIdx < g_outputPanes.size()))
         setCurrentIndex(currentIdx);
 }
@@ -716,42 +774,57 @@ void OutputPaneManager::popupMenu()
         QAction *act = menu.addAction(data.pane->displayName());
         act->setCheckable(true);
         act->setChecked(data.button->isPaneVisible());
-        act->setData(idx);
+        connect(act, &QAction::triggered, this, [this, data, idx] {
+            if (data.button->isPaneVisible()) {
+                data.pane->visibilityChanged(false);
+                data.button->setChecked(false);
+                data.button->hide();
+            } else {
+                showPage(idx, IOutputPane::ModeSwitch);
+            }
+        });
         ++idx;
     }
-    QAction *result = menu.exec(QCursor::pos());
-    if (!result)
-        return;
-    idx = result->data().toInt();
-    QTC_ASSERT(idx >= 0 && idx < g_outputPanes.size(), return);
-    OutputPaneData &data = g_outputPanes[idx];
-    if (data.button->isPaneVisible()) {
-        data.pane->visibilityChanged(false);
-        data.button->setChecked(false);
-        data.button->hide();
-    } else {
-        showPage(idx, IOutputPane::ModeSwitch);
-    }
+
+    menu.addSeparator();
+    QAction *reset = menu.addAction(Tr::tr("Reset to Default"));
+    connect(reset, &QAction::triggered, this, [this] {
+        for (int i = 0; i < g_outputPanes.size(); ++i) {
+            OutputPaneData &data = g_outputPanes[i];
+            const bool buttonVisible = data.pane->priorityInStatusBar() >= 0;
+            const bool paneVisible = currentIndex() == i
+                                     && OutputPanePlaceHolder::isCurrentVisible();
+            if (buttonVisible) {
+                data.button->setChecked(paneVisible);
+                data.button->setVisible(true);
+            } else {
+                data.button->setChecked(false);
+                data.button->hide();
+            }
+        }
+    });
+
+    menu.exec(QCursor::pos());
 }
 
 void OutputPaneManager::saveSettings() const
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     const int n = g_outputPanes.size();
-    settings->beginWriteArray(QLatin1String(outputPaneSettingsKeyC), n);
+    settings->beginWriteArray(outputPaneSettingsKeyC, n);
     for (int i = 0; i < n; ++i) {
         const OutputPaneData &data = g_outputPanes.at(i);
         settings->setArrayIndex(i);
-        settings->setValue(QLatin1String(outputPaneIdKeyC), data.id.toSetting());
-        settings->setValue(QLatin1String(outputPaneVisibleKeyC), data.button->isPaneVisible());
+        settings->setValue(outputPaneIdKeyC, data.id.toSetting());
+        settings->setValue(outputPaneVisibleKeyC, data.button->isPaneVisible());
     }
     settings->endArray();
     int heightSetting = m_outputPaneHeightSetting;
     // update if possible
     if (OutputPanePlaceHolder *curr = OutputPanePlaceHolder::getCurrent())
         heightSetting = curr->nonMaximizedSize();
-    settings->setValue(QLatin1String("OutputPanePlaceHolder/Height"), heightSetting);
-    settings->setValue(QLatin1String("OutputPanePlaceHolder/CurrentIndex"), currentIndex());
+    settings->setValue("OutputPanePlaceHolder/Height", heightSetting);
+    settings->setValue("OutputPanePlaceHolder/CurrentIndex", currentIndex());
 }
 
 void OutputPaneManager::clearPage()
@@ -934,6 +1007,10 @@ bool OutputPaneToggleButton::isPaneVisible() const
     return isVisibleTo(parentWidget());
 }
 
+void OutputPaneToggleButton::contextMenuEvent(QContextMenuEvent *)
+{
+    emit contextMenuRequested();
+}
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -946,6 +1023,7 @@ OutputPaneManageButton::OutputPaneManageButton()
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
     setFixedWidth(StyleHelper::toolbarStyle() == Utils::StyleHelper::ToolbarStyleCompact ? 17 : 21);
+    connect(this, &QToolButton::clicked, this, &OutputPaneManageButton::menuRequested);
 }
 
 void OutputPaneManageButton::paintEvent(QPaintEvent*)
@@ -965,6 +1043,11 @@ void OutputPaneManageButton::paintEvent(QPaintEvent*)
     s->drawPrimitive(QStyle::PE_IndicatorArrowUp, &arrowOpt, &p, this);
     arrowOpt.rect.translate(0, 6);
     s->drawPrimitive(QStyle::PE_IndicatorArrowDown, &arrowOpt, &p, this);
+}
+
+void OutputPaneManageButton::contextMenuEvent(QContextMenuEvent *)
+{
+    emit menuRequested();
 }
 
 BadgeLabel::BadgeLabel()

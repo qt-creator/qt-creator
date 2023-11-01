@@ -16,6 +16,7 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/completionsettings.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -261,10 +262,9 @@ private:
 
     void processProperties(const ObjectValue *object)
     {
-        if (! object || _processed.contains(object))
+        if (! object || !Utils::insert(_processed, object))
             return;
 
-        _processed.insert(object);
         processProperties(object->prototype(_scopeChain->context()));
 
         _currentObject = object;

@@ -289,7 +289,7 @@ void DocSettingsPageWidget::addDocumentation()
 
 void DocSettingsPageWidget::apply()
 {
-    HelpManager::unregisterNamespaces(m_filesToUnregister.keys());
+    HelpManager::instance()->unregisterDocumentation(m_filesToUnregister.values());
     QStringList files;
     auto it = m_filesToRegisterUserManaged.constBegin();
     while (it != m_filesToRegisterUserManaged.constEnd()) {

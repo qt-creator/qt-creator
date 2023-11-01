@@ -8,16 +8,19 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-vcs-perforce.html
     \page creator-vcs-subversion.html
-    \nextpage creator-configuring-projects.html
+    \previouspage creator-reference.html
 
-    \title Using Subversion
+    \ingroup creator-reference-vcs
+
+    \title Subversion
+
+    \brief Additional Subversion functions.
 
     Subversion is an open source version control system.
 
     In addition to the standard version control system functions described in
-    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \l {Use common VCS Functions}, you can select \uicontrol Tools >
     \uicontrol Subversion > \uicontrol Describe to display commit log messages
     for a revision.
 
@@ -26,9 +29,8 @@
 
     \section1 Subversion Preferences
 
-    To set Subversion preferences, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Version Control} >
-    \uicontrol Subversion:
+    To set Subversion preferences, select \preferences >
+    \uicontrol {Version Control} > \uicontrol Subversion:
 
    \image qtcreator-preferences-vcs-subversion.webp {Subversion preferences}
 
@@ -44,4 +46,7 @@
         \li \uicontrol {Ignore whitespace changes in annotation} hides whitespace
             changes in annotation views.
     \endlist
+
+    \sa {Set up version control systems}, {Use common VCS functions},
+    {Version Control Systems}
 */

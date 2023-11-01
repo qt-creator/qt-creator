@@ -145,8 +145,6 @@ ITestConfiguration *CatchTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return nullptr);
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    QTC_ASSERT(cppMM, return nullptr);
 
     if (type() != TestCase)
         return nullptr;
@@ -157,7 +155,7 @@ ITestConfiguration *CatchTreeItem::testConfiguration() const
     config->setProjectFile(proFile());
     config->setProject(project);
     config->setTestCases(QStringList(testCasesString()));
-    config->setInternalTargets(cppMM->internalTargets(filePath()));
+    config->setInternalTargets(CppEditor::CppModelManager::internalTargets(filePath()));
     return config;
 }
 
@@ -180,8 +178,6 @@ static void collectTestInfo(const TestTreeItem *item,
                             bool ignoreCheckState)
 {
     QTC_ASSERT(item, return);
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    QTC_ASSERT(cppMM, return);
     const int childCount = item->childCount();
     if (item->type() == TestTreeItem::GroupNode) {
         item->forFirstLevelChildItems([&testCasesForProfile, ignoreCheckState](TestTreeItem *it) {
@@ -198,15 +194,16 @@ static void collectTestInfo(const TestTreeItem *item,
             CatchTreeItem *current = static_cast<CatchTreeItem *>(it);
             testCasesForProfile[projectFile].names.append(current->testCasesString());
         });
-        testCasesForProfile[projectFile].internalTargets.unite(cppMM->internalTargets(item->filePath()));
+        testCasesForProfile[projectFile].internalTargets.unite(
+            CppEditor::CppModelManager::internalTargets(item->filePath()));
     } else if (item->checked() == Qt::PartiallyChecked) {
-        item->forFirstLevelChildItems([&testCasesForProfile, cppMM](TestTreeItem *child) {
+        item->forFirstLevelChildItems([&testCasesForProfile](TestTreeItem *child) {
             QTC_ASSERT(child->type() == TestTreeItem::TestCase, return);
             if (child->checked() == Qt::Checked) {
                 CatchTreeItem *current = static_cast<CatchTreeItem *>(child);
                 testCasesForProfile[child->proFile()].names.append(current->testCasesString());
                 testCasesForProfile[child->proFile()].internalTargets.unite(
-                            cppMM->internalTargets(child->filePath()));
+                            CppEditor::CppModelManager::internalTargets(child->filePath()));
             }
 
         });
@@ -222,13 +219,11 @@ static void collectFailedTestInfo(const CatchTreeItem *item,
     item->forAllChildItems([&testCasesForProfile](TestTreeItem *it) {
         QTC_ASSERT(it, return);
         QTC_ASSERT(it->parentItem(), return);
-        const auto cppMM = CppEditor::CppModelManager::instance();
-        QTC_ASSERT(cppMM, return);
         if (it->type() == TestTreeItem::TestCase && it->data(0, FailedRole).toBool()) {
             CatchTreeItem *current = static_cast<CatchTreeItem *>(it);
             testCasesForProfile[it->proFile()].names.append(current->testCasesString());
             testCasesForProfile[it->proFile()].internalTargets.unite(
-                        cppMM->internalTargets(it->filePath()));
+                        CppEditor::CppModelManager::internalTargets(it->filePath()));
         }
     });
 }
@@ -270,8 +265,6 @@ QList<ITestConfiguration *> CatchTreeItem::getFailedTestConfigurations() const
 QList<ITestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const FilePath &fileName) const
 {
     QList<ITestConfiguration *> result;
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    QTC_ASSERT(cppMM, return result);
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
@@ -296,7 +289,8 @@ QList<ITestConfiguration *> CatchTreeItem::getTestConfigurationsForFile(const Fi
         testConfig->setTestCases(testCases);
         testConfig->setProjectFile(item->proFile());
         testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
-        testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
+        testConfig->setInternalTargets(
+            CppEditor::CppModelManager::internalTargets(item->filePath()));
         result << testConfig;
     }
 

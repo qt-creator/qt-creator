@@ -269,13 +269,6 @@ public:
     { insert(signatureHelpProviderKey, signatureHelpProvider); }
     void clearSignatureHelpProvider() { remove(signatureHelpProviderKey); }
 
-    // The server provides goto definition support.
-    std::optional<bool> definitionProvider() const
-    { return optionalValue<bool>(definitionProviderKey); }
-    void setDefinitionProvider(bool definitionProvider)
-    { insert(definitionProviderKey, definitionProvider); }
-    void clearDefinitionProvider() { remove(definitionProviderKey); }
-
     class LANGUAGESERVERPROTOCOL_EXPORT RegistrationOptions : public JsonObject
     {
     public:
@@ -297,6 +290,11 @@ public:
 
         bool isValid() const override { return contains(documentSelectorKey); }
     };
+
+    // The server provides goto definition support.
+    std::optional<std::variant<bool, RegistrationOptions>> definitionProvider() const;
+    void setDefinitionProvider(const std::variant<bool, RegistrationOptions> &typeDefinitionProvider);
+    void clearDefinitionProvider() { remove(typeDefinitionProviderKey); }
 
     // The server provides Goto Type Definition support.
     std::optional<std::variant<bool, RegistrationOptions>> typeDefinitionProvider() const;

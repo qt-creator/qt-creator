@@ -40,7 +40,7 @@ public:
 private:
     void resetState();
     QKeySequence::SequenceMatch nextState(QKeyEvent *e);
-    void dispatchEvent(QKeyEvent *e);
+    bool dispatchEvent(QKeyEvent *e);
 
     QKeySequence::SequenceMatch find(QKeyEvent *e, int ignoredModifiers = 0);
     QKeySequence::SequenceMatch matches(const QKeySequence &seq1, const QKeySequence &seq2) const;

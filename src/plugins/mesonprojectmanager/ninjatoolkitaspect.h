@@ -8,20 +8,11 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
-class NinjaToolKitAspect final : public ProjectExplorer::KitAspect
+class NinjaToolKitAspect final
 {
 public:
-    NinjaToolKitAspect();
-
-    ProjectExplorer::Tasks validate(const ProjectExplorer::Kit *k) const final;
-    void setup(ProjectExplorer::Kit *k) final;
-    void fix(ProjectExplorer::Kit *k) final;
-    ItemList toUserOutput(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::KitAspectWidget *createConfigWidget(ProjectExplorer::Kit *) const final;
-
     static void setNinjaTool(ProjectExplorer::Kit *kit, Utils::Id id);
     static Utils::Id ninjaToolId(const ProjectExplorer::Kit *kit);
 
@@ -36,5 +27,4 @@ public:
     }
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

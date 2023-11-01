@@ -107,8 +107,7 @@ public:
         Utils::ChangeSet change = formatter.format(ast); // ChangeSet may be empty.
 
         // Apply change
-        QTextCursor changeCursor(qtextDocument);
-        change.apply(&changeCursor);
+        change.apply(qtextDocument);
 
         // Compare
         QCOMPARE(qtextDocument->toPlainText(), expectedSource);

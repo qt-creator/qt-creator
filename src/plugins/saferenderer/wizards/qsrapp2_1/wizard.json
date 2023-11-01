@@ -1,0 +1,116 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
+    "id": "E.QSRApp2_1",
+    "category": "D.QtSafeRendererApplication",
+    "trDescription": "Creates a Qt Safe Renderer 2.1 (and newer) project with a simple UI and project setup.\n\nSupports both qmake and CMake.",
+    "trDisplayName": "Qt Safe Renderer Application 2.1",
+    "trDisplayCategory": "Application (Qt Safe Renderer)",
+    "icon": "../icon.png",
+    "iconKind": "Themed",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
+    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0}",
+
+    "options":
+    [
+        { "key": "ProjectFile", "value": "%{JS: value('BuildSystem') == 'qmake' ? value('ProFile') : value('CMakeFile')}" },
+        { "key": "CMakeProjectName", "value": "%{JS: value('ProjectName').replace(/-/g, '_')}" },
+        { "key": "ProFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
+        { "key": "CMakeFile", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/CMakeLists.txt')}" },
+        { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
+        { "key": "CppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src')}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data": { "trDescription": "This wizard creates a simple Qt Safe Renderer application." }
+        },
+        {
+            "trDisplayName": "Define Build System",
+            "trShortTitle": "Build System",
+            "typeId": "Fields",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data":
+            [
+                {
+                    "name": "BuildSystem",
+                    "trDisplayName": "Build system:",
+                    "type": "ComboBox",
+                    "persistenceKey": "BuildSystemType",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "qmake",
+                                "value": "qmake",
+                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "cmake",
+                                "value": "cmake",
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{JS: !value('IsSubproject')}",
+            "data": { "projectFilePath": "%{ProjectFile}" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "file.pro",
+                    "target": "%{ProFile}",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'qmake'}"
+                },
+                {
+                    "source": "CMakeLists.txt",
+                    "target": "%{CMakeFile}",
+                    "openAsProject": true,
+                    "condition": "%{JS: value('BuildSystem') === 'cmake'}"
+                },
+                {
+                    "source": "main.cpp.tpl",
+                    "target": "%{CppFileName}",
+                    "openInEditor": false
+                },
+                {
+                    "source": "safeasset.qrc.tpl",
+                    "target": "safeasset.qrc"
+                },
+                {
+                    "source": "qml.qrc.tpl",
+                    "target": "qml.qrc"
+                },
+                {
+                    "source": "main.qml.tpl",
+                    "target": "main.qml",
+                    "openInEditor": true
+                }
+            ]
+        }
+    ]
+}

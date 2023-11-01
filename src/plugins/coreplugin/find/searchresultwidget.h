@@ -71,6 +71,7 @@ public:
     bool hasFilter() const;
     void showFilterWidget(QWidget *parent);
     void setReplaceEnabled(bool enabled);
+    Utils::SearchResultItems items(bool checkedOnly) const;
 
 public slots:
     void finishSearch(bool canceled, const QString &reason);
@@ -103,7 +104,6 @@ private:
     void continueAfterSizeWarning();
     void cancelAfterSizeWarning();
 
-    Utils::SearchResultItems checkedItems() const;
     void updateMatchesFoundLabel();
 
     SearchResultTreeView *m_searchResultTreeView = nullptr;

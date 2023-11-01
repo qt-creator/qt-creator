@@ -44,7 +44,7 @@ public:
     bool buildsBuildTarget(const QString &target) const;
     void setBuildsBuildTarget(const QString &target, bool on);
 
-    QVariantMap toMap() const override;
+    void toMap(Utils::Store &map) const override;
 
     QString cleanTarget() const;
     QString allTarget() const ;
@@ -70,6 +70,12 @@ public:
 
     void setConfiguration(const QString &configuration);
 
+    Utils::StringAspect cmakeArguments{this};
+    Utils::StringAspect toolArguments{this};
+    Utils::BoolAspect useiOSAutomaticProvisioningUpdates{this};
+    Utils::BoolAspect useStaging{this};
+    Utils::FilePathAspect stagingDir{this};
+
 signals:
     void buildTargetsChanged();
     void environmentChanged();
@@ -77,38 +83,26 @@ signals:
 private:
     Utils::CommandLine cmakeCommand() const;
 
-    void finish(Utils::ProcessResult result) override;
-    bool fromMap(const QVariantMap &map) override;
+    void fromMap(const Utils::Store &map) override;
 
     bool init() override;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) override;
-    void doRun() override;
+    Tasking::GroupItem runRecipe() final;
     QWidget *createConfigWidget() override;
 
     Utils::FilePath cmakeExecutable() const;
     QString currentInstallPrefix() const;
-    QString currentStagingDir() const;
 
     QString defaultBuildTarget() const;
     bool isCleanStep() const;
-
-    void runImpl();
-    void handleProjectWasParsed(bool success);
 
     void handleBuildTargetsChanges(bool success);
     void recreateBuildTargetsModel();
     void updateBuildTargetsModel();
     void updateDeploymentData();
 
-    QMetaObject::Connection m_runTrigger;
-
     friend class CMakeBuildStepConfigWidget;
     QStringList m_buildTargets; // Convention: Empty string member signifies "Current executable"
-    Utils::StringAspect *m_cmakeArguments = nullptr;
-    Utils::StringAspect *m_toolArguments = nullptr;
-    Utils::BoolAspect *m_useiOSAutomaticProvisioningUpdates = nullptr;
-    Utils::BoolAspect *m_useStaging = nullptr;
-    Utils::FilePathAspect *m_stagingDir = nullptr;
 
     QString m_allTarget = "all";
     QString m_installTarget = "install";

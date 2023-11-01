@@ -4,8 +4,8 @@
 #include "axivionoutputpane.h"
 
 #include "axivionplugin.h"
-#include "axivionresultparser.h"
 #include "axiviontr.h"
+#include "dashboard/dto.h"
 
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -17,6 +17,9 @@
 #include <QStackedWidget>
 #include <QTextBrowser>
 #include <QToolButton>
+
+#include <map>
+#include <memory>
 
 namespace Axivion::Internal {
 
@@ -58,7 +61,7 @@ DashboardWidget::DashboardWidget(QWidget *parent)
     setWidgetResizable(true);
 }
 
-static QPixmap trendIcon(int added, int removed)
+static QPixmap trendIcon(qint64 added, qint64 removed)
 {
     static const QPixmap unchanged = Utils::Icons::NEXT.pixmap();
     static const QPixmap increased = Utils::Icon(
@@ -70,10 +73,20 @@ static QPixmap trendIcon(int added, int removed)
     return added < removed ? decreased : increased;
 }
 
+static qint64 extract_value(const std::map<QString, Dto::Any> &map, const QString &key)
+{
+    const auto search = map.find(key);
+    if (search == map.end())
+        return 0;
+    const Dto::Any &value = search->second;
+    if (!value.isDouble())
+        return 0;
+    return static_cast<qint64>(value.getDouble());
+}
+
 void DashboardWidget::updateUi()
 {
-    const ProjectInfo &info = AxivionPlugin::projectInfo();
-    m_project->setText(info.name);
+    m_project->setText({});
     m_loc->setText({});
     m_timestamp->setText({});
     QLayoutItem *child;
@@ -81,65 +94,87 @@ void DashboardWidget::updateUi()
         delete child->widget();
         delete child;
     }
-
-    if (info.versions.isEmpty())
+    std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo = AxivionPlugin::projectInfo();
+    if (!projectInfo)
+        return;
+    const Dto::ProjectInfoDto &info = projectInfo->data;
+    m_project->setText(info.name);
+    if (info.versions.empty())
         return;
 
-    const ResultVersion &last = info.versions.last();
-    m_loc->setText(QString::number(last.linesOfCode));
-    const QDateTime timeStamp = QDateTime::fromString(last.timeStamp, Qt::ISODate);
-    m_timestamp->setText(timeStamp.isValid() ? timeStamp.toString("yyyy-MM-dd HH::mm::ss")
+    const Dto::AnalysisVersionDto &last = info.versions.back();
+    if (last.linesOfCode.has_value())
+        m_loc->setText(QString::number(last.linesOfCode.value()));
+    const QDateTime timeStamp = QDateTime::fromString(last.date, Qt::ISODate);
+    m_timestamp->setText(timeStamp.isValid() ? timeStamp.toString("yyyy-MM-dd HH:mm:ss t")
                                              : Tr::tr("unknown"));
 
-    const QList<IssueKind> &issueKinds = info.issueKinds;
+    const std::vector<Dto::IssueKindInfoDto> &issueKinds = info.issueKinds;
     auto toolTip = [issueKinds](const QString &prefix){
-        for (const IssueKind &kind : issueKinds) {
+        for (const Dto::IssueKindInfoDto &kind : issueKinds) {
             if (kind.prefix == prefix)
-                return kind.nicePlural;
+                return kind.nicePluralName;
         }
         return prefix;
     };
-    auto addValuesWidgets = [this, &toolTip](const IssueCount &issueCount, int row){
-        const QString currentToolTip = toolTip(issueCount.issueKind);
-        QLabel *label = new QLabel(issueCount.issueKind, this);
+    auto addValuesWidgets = [this, &toolTip](const QString &issueKind, qint64 total, qint64 added, qint64 removed, int row) {
+        const QString currentToolTip = toolTip(issueKind);
+        QLabel *label = new QLabel(issueKind, this);
         label->setToolTip(currentToolTip);
         m_gridLayout->addWidget(label, row, 0);
-        label = new QLabel(QString::number(issueCount.total), this);
+        label = new QLabel(QString::number(total), this);
         label->setToolTip(currentToolTip);
         label->setAlignment(Qt::AlignRight);
         m_gridLayout->addWidget(label, row, 1);
         label = new QLabel(this);
-        label->setPixmap(trendIcon(issueCount.added, issueCount.removed));
+        label->setPixmap(trendIcon(added, removed));
         label->setToolTip(currentToolTip);
         m_gridLayout->addWidget(label, row, 2);
-        label = new QLabel('+' + QString::number(issueCount.added));
+        label = new QLabel('+' + QString::number(added));
         label->setAlignment(Qt::AlignRight);
         label->setToolTip(currentToolTip);
         m_gridLayout->addWidget(label, row, 3);
         label = new QLabel("/");
         label->setToolTip(currentToolTip);
         m_gridLayout->addWidget(label, row, 4);
-        label = new QLabel('-' + QString::number(issueCount.removed));
+        label = new QLabel('-' + QString::number(removed));
         label->setAlignment(Qt::AlignRight);
         label->setToolTip(currentToolTip);
         m_gridLayout->addWidget(label, row, 5);
     };
-    int allTotal = 0, allAdded = 0, allRemoved = 0, row = 0;
-    for (auto issueCount : std::as_const(last.issueCounts)) {
-        allTotal += issueCount.total;
-        allAdded += issueCount.added;
-        allRemoved += issueCount.removed;
-        addValuesWidgets(issueCount, row);
-        ++row;
+    qint64 allTotal = 0;
+    qint64 allAdded = 0;
+    qint64 allRemoved = 0;
+    qint64 row = 0;
+    // This code is overly complex because of a heedlessness in the
+    // Axivion Dashboard API definition. Other Axivion IDE plugins do
+    // not use the issue counts, thus the QtCreator Axivion Plugin
+    // is going to stop using them, too.
+    if (last.issueCounts.isMap()) {
+        for (const Dto::Any::MapEntry &issueCount : last.issueCounts.getMap()) {
+            if (issueCount.second.isMap()) {
+                const Dto::Any::Map &counts = issueCount.second.getMap();
+                qint64 total = extract_value(counts, QStringLiteral(u"Total"));
+                allTotal += total;
+                qint64 added = extract_value(counts, QStringLiteral(u"Added"));
+                allAdded += added;
+                qint64 removed = extract_value(counts, QStringLiteral(u"Removed"));
+                allRemoved += removed;
+                addValuesWidgets(issueCount.first, total, added, removed, row);
+                ++row;
+            }
+        }
     }
-
-    const IssueCount total{{}, Tr::tr("Total:"), allTotal, allAdded, allRemoved};
-    addValuesWidgets(total, row);
+    addValuesWidgets(Tr::tr("Total:"), allTotal, allAdded, allRemoved, row);
 }
 
 AxivionOutputPane::AxivionOutputPane(QObject *parent)
     : Core::IOutputPane(parent)
 {
+    setId("Axivion");
+    setDisplayName(Tr::tr("Axivion"));
+    setPriorityInStatusBar(-50);
+
     m_outputWidget = new QStackedWidget;
     DashboardWidget *dashboardWidget = new DashboardWidget(m_outputWidget);
     m_outputWidget->addWidget(dashboardWidget);
@@ -174,16 +209,6 @@ QList<QWidget *> AxivionOutputPane::toolBarWidgets() const
     });
     buttons.append(showDashboard);
     return buttons;
-}
-
-QString AxivionOutputPane::displayName() const
-{
-    return Tr::tr("Axivion");
-}
-
-int AxivionOutputPane::priorityInStatusBar() const
-{
-    return -1;
 }
 
 void AxivionOutputPane::clearContents()

@@ -27,6 +27,7 @@ ContentWindow::ContentWindow()
 {
     m_contentModel = (&LocalHelpManager::helpEngine())->contentModel();
     m_contentWidget = new Utils::NavigationTreeView;
+    m_contentWidget->setObjectName("helpContentWidget"); // used by Squish
     m_contentWidget->setModel(m_contentModel);
     m_contentWidget->setActivationMode(Utils::SingleClickActivation);
     m_contentWidget->installEventFilter(this);

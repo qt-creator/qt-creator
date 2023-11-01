@@ -25,42 +25,38 @@ public:
     CustomCommandDeployStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto commandLine = addAspect<StringAspect>();
-        commandLine->setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
-        commandLine->setLabelText(Tr::tr("Command line:"));
-        commandLine->setDisplayStyle(StringAspect::LineEditDisplay);
-        commandLine->setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
+        commandLine.setSettingsKey("RemoteLinuxCustomCommandDeploymentStep.CommandLine");
+        commandLine.setLabelText(Tr::tr("Command line:"));
+        commandLine.setDisplayStyle(StringAspect::LineEditDisplay);
+        commandLine.setHistoryCompleter("RemoteLinuxCustomCommandDeploymentStep.History");
 
-        setInternalInitializer([this, commandLine] {
-            m_commandLine = commandLine->value().trimmed();
-            return isDeploymentPossible();
-        });
+        setInternalInitializer([this] { return isDeploymentPossible(); });
 
         addMacroExpander();
     }
 
-    CheckResult isDeploymentPossible() const final;
+    expected_str<void> isDeploymentPossible() const final;
 
 private:
-    Group deployRecipe() final;
+    GroupItem deployRecipe() final;
 
-    QString m_commandLine;
+    StringAspect commandLine{this};
 };
 
-CheckResult CustomCommandDeployStep::isDeploymentPossible() const
+expected_str<void> CustomCommandDeployStep::isDeploymentPossible() const
 {
-    if (m_commandLine.isEmpty())
-        return CheckResult::failure(Tr::tr("No command line given."));
+    if (commandLine().isEmpty())
+        return make_unexpected(Tr::tr("No command line given."));
 
     return AbstractRemoteLinuxDeployStep::isDeploymentPossible();
 }
 
-Group CustomCommandDeployStep::deployRecipe()
+GroupItem CustomCommandDeployStep::deployRecipe()
 {
     const auto setupHandler = [this](Process &process) {
-        addProgressMessage(Tr::tr("Starting remote command \"%1\"...").arg(m_commandLine));
+        addProgressMessage(Tr::tr("Starting remote command \"%1\"...").arg(commandLine()));
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
-                                 {"-c", m_commandLine}});
+                                 {"-c", commandLine()}});
         Process *proc = &process;
         connect(proc, &Process::readyReadStandardOutput, this, [this, proc] {
             handleStdOutData(proc->readAllStandardOutput());
@@ -81,7 +77,7 @@ Group CustomCommandDeployStep::deployRecipe()
                 .arg(process.exitCode()));
         }
     };
-    return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };
+    return ProcessTask(setupHandler, doneHandler, errorHandler);
 }
 
 

@@ -13,7 +13,6 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT OverlayWidget : public QWidget
 {
-    Q_OBJECT
 public:
     using PaintFunction = std::function<void(QWidget *, QPainter &, QPaintEvent *)>;
 

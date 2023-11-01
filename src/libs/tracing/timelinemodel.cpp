@@ -83,6 +83,54 @@ void TimelineModel::computeNesting()
     }
 }
 
+/*!
+    Compute all ranges' nesting level. Sort them into rows by finding the
+    first row that has "an open spot".
+*/
+QList<int> TimelineModel::computeRows(int *maxlevel) const
+{
+    *maxlevel = 0;
+    std::list<int> rows;
+    QList<int> levels;
+    levels.reserve(d->ranges.count());
+    for (int range = 0; range != count(); ++range) {
+        TimelineModelPrivate::Range &current = d->ranges[range];
+        // find first row for inserting
+        int level = 0;
+        auto rowIt = rows.begin();
+        forever {
+            if (rowIt == rows.end()) {
+                // didn't find a row, insert new one
+                rows.push_back(range);
+                break;
+            }
+            TimelineModelPrivate::Range &rowItem = d->ranges[*rowIt];
+            if (rowItem.start + rowItem.duration < current.start) {
+                // We've completely passed the item
+                // Use this row for the range
+                *rowIt = range;
+                break;
+            }
+            ++rowIt;
+            ++level;
+        }
+        levels.append(level);
+        if (level > *maxlevel)
+            *maxlevel = level;
+        // remove other rows that we passed
+        while (rowIt != rows.end()) {
+            TimelineModelPrivate::Range &rowItem = d->ranges[*rowIt];
+            if (rowItem.start + rowItem.duration < current.start) {
+                // We've completely passed the item, remove
+                rowIt = rows.erase(rowIt);
+            } else {
+                ++rowIt;
+            }
+        }
+    }
+    return levels;
+}
+
 int TimelineModel::collapsedRowCount() const
 {
     return d->collapsedRowCount;

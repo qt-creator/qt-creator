@@ -229,8 +229,6 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            Tr::tr("Hit maximum recursion limit when visiting AST."));
     newMsg(ErrTypeIsInstantiatedRecursively, Error,
            Tr::tr("Type cannot be instantiated recursively (%1)."), 1);
-    newMsg(WarnLogicalValueDoesNotDependOnValues, Warning,
-           Tr::tr("Logical value does not depend on actual values."));
     newMsg(ErrToManyComponentChildren, Error,
            Tr::tr("Components are only allowed to have a single child element."));
     newMsg(WarnComponentRequiresChildren, Warning,

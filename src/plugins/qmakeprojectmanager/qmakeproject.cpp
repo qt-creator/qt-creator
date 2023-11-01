@@ -45,7 +45,7 @@
 
 #include <qtsupport/profilereader.h>
 #include <qtsupport/qtcppkitinfo.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
@@ -171,7 +171,7 @@ QmakeProject::~QmakeProject()
     setRootProjectNode(nullptr);
 }
 
-Project::RestoreResult QmakeProject::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult QmakeProject::fromMap(const Store &map, QString *errorMessage)
 {
     RestoreResult result = Project::fromMap(map, errorMessage);
     if (result != RestoreResult::Ok)
@@ -872,7 +872,7 @@ QtSupport::ProFileReader *QmakeBuildSystem::createProFileReader(const QmakeProFi
         });
 
         m_qmakeGlobals->setCommandLineArguments(rootProFileName, qmakeArgs);
-        m_qmakeGlobals->runSystemFunction = bc->runSystemFunction();
+        m_qmakeGlobals->runSystemFunction = bc->runQmakeSystemFunctions();
 
         QtSupport::ProFileCacheManager::instance()->incRefCount();
 

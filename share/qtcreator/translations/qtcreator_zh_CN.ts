@@ -597,12 +597,12 @@ The minimum API level required by the kit is %1.</source>
         <translation>安卓部署设定文件不存在，未构建 APK。</translation>
     </message>
     <message>
-        <source>The Android build folder %1 was not found and could not be created.</source>
-        <translation>未找到安卓构建文件夹%1，并无法创建。</translation>
+        <source>The Android build folder &quot;%1&quot; was not found and could not be created.</source>
+        <translation>未找到安卓构建文件夹“%1“，并无法创建。</translation>
     </message>
     <message>
-        <source>Cannot copy the target&apos;s lib file %1 to the Android build folder %2.</source>
-        <translation>无法复制目标的库文件%1到安卓构建目录%2。</translation>
+        <source>Cannot copy the target&apos;s lib file &quot;%1&quot; to the Android build folder &quot;%2&quot;.</source>
+        <translation>无法复制目标的库文件“%1“到安卓构建目录“%2“。</translation>
     </message>
     <message>
         <source>Cannot copy file &quot;%1&quot; to Android build libs folder &quot;%2&quot;.</source>
@@ -1083,8 +1083,8 @@ This cannot be undone.</source>
         <translation>单击以选择...</translation>
     </message>
     <message>
-        <source>Images (*.png *.jpg *.jpeg *.webp *.svg)</source>
-        <translation>图片（*.png *.jpg *.jpeg *.webp *.svg）</translation>
+        <source>Images %1</source>
+        <translation>图片 %1</translation>
     </message>
     <message>
         <source>Include default permissions for Qt modules.</source>
@@ -1211,8 +1211,8 @@ This cannot be undone.</source>
         <translation>服务无效。无法保存 Manifest。请在保存前修正服务定义。</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to %1</source>
-        <translation>&lt;b&gt;Make install:&lt;/b&gt; 拷贝应用到 %1</translation>
+        <source>&lt;b&gt;Make install:&lt;/b&gt; Copy App Files to &quot;%1&quot;</source>
+        <translation>&lt;b&gt;Make install:&lt;/b&gt; 拷贝应用到 “%1“</translation>
     </message>
     <message>
         <source>&quot;%1&quot; step has an invalid C++ toolchain.</source>
@@ -1308,8 +1308,8 @@ This cannot be undone.</source>
         <translation>无法为 %1 创建文件 “%2”</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>运行 “%1” 时超时</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>运行 “%1” 时超时。</translation>
     </message>
     <message>
         <source>Crash while creating file for %1 &quot;%2&quot;</source>
@@ -1432,8 +1432,8 @@ This cannot be undone.</source>
         <translation>下载 SDK 工具</translation>
     </message>
     <message>
-        <source>Could not open %1 for writing: %2.</source>
-        <translation>无法打开 %1 以写入：%2。</translation>
+        <source>Could not open &quot;%1&quot; for writing: %2.</source>
+        <translation>无法打开 “%1“ 以写入：%2。</translation>
     </message>
     <message>
         <source>Downloading Android SDK Tools from URL %1 has failed: %2.</source>
@@ -1460,12 +1460,8 @@ This cannot be undone.</source>
         <translation>失败.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>完成
-
-</translation>
+        <source>Done</source>
+        <translation>完成</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -1488,12 +1484,8 @@ This cannot be undone.</source>
         <translation>安卓 SDK 管理器</translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>许可命令失败。
-
-</translation>
+        <source>License command failed.</source>
+        <translation>许可命令失败。</translation>
     </message>
     <message>
         <source>Android SDK Manager</source>
@@ -1580,21 +1572,16 @@ Install them manually after the current operation is done.
         <translation>缺失安卓 SDK 安装所必要的包。你想安装这些缺失包吗？</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>正在检查待处理的许可证...
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>正在检查待处理的许可证...</translation>
     </message>
     <message>
-        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.
-</source>
+        <source>The installation of Android SDK packages may fail if the respective licenses are not accepted.</source>
         <translation>如果不接受相应的许可证，安卓 SDK 包安装可能会失败。</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-SDK 管理器繁忙。</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>SDK 管理器繁忙。</translation>
     </message>
     <message numerus="yes">
         <source>%n Android SDK packages shall be updated.</source>
@@ -2999,8 +2986,8 @@ Warning: Plain text misses some information, such as duration.</source>
         <translation>基准测试指标</translation>
     </message>
     <message>
-        <source>&lt;p&gt;Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;官方不支持单一可执行程序中的多个测试用例，根据具体实现，它可能会被执行，但绝不会被明确选择&lt;/p&gt;</translation>
+        <source>Multiple testcases inside a single executable are not officially supported. Depending on the implementation they might get executed or not, but never will be explicitly selectable.</source>
+        <translation>官方不支持单一可执行程序中的多个测试用例，根据具体实现，它可能会被执行，但绝不会被明确选择</translation>
     </message>
     <message>
         <source>inherited</source>
@@ -4127,7 +4114,7 @@ Warning: this is an experimental feature and might lead to failing to execute th
         <translation>目标驱动器：</translation>
     </message>
     <message>
-        <source>Starting %1 ...</source>
+        <source>Starting %1...</source>
         <translation>启动 %1...</translation>
     </message>
     <message>
@@ -4718,7 +4705,7 @@ For example, &quot;Revision: 15&quot; will leave the branch at revision 15.</sou
         <translation>未提交...</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation>例如：“https://[user[:pass]@]host[:port]/[path]”。</translation>
     </message>
     <message>
@@ -5199,7 +5186,7 @@ Local pulls are not applied to the master branch.</source>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Bookmarks</source>
         <translation>书签</translation>
@@ -8551,7 +8538,7 @@ Set a valid executable first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11567,7 +11554,7 @@ to version control (%2)
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Defines the amount of time Qt Creator waits before sending document changes to the server.
+        <source>Defines the amount of time %1 waits before sending document changes to the server.
 If the document changes again while waiting, this timeout resets.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -18093,8 +18080,7 @@ Rebuilding the project might help.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Running &quot;%1&quot;
-</source>
+        <source>Running &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18159,7 +18145,7 @@ Rebuilding the project might help.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Host directories to mount into the container</source>
+        <source>Host directories to mount into the container.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18519,9 +18505,7 @@ Rebuilding the project might help.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.
-
-</source>
+        <source>If you temporarily disable %1, the following plugins that depend on it are also disabled: %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -18911,7 +18895,7 @@ will also disable the following plugins:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Type Meta-Shift-Y, Meta-Shift-Y to quit FakeVim mode.</source>
+        <source>Type Control-Shift-Y, Control-Shift-Y to quit FakeVim mode.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -24591,7 +24575,7 @@ Error: %5</source>
         <translation type="unfinished">Alt+G,Alt+C</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -28204,16 +28188,16 @@ to project &quot;%2&quot;.</source>
         <translation>会话管理器</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>新建(&amp;N)</translation>
+        <source>&amp;New...</source>
+        <translation>新建(&amp;N)...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>克隆(&amp;L)</translation>
+        <source>C&amp;lone...</source>
+        <translation>克隆(&amp;L)...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>删除(&amp;D)</translation>
+        <source>&amp;Delete...</source>
+        <translation>删除(&amp;D)...</translation>
     </message>
     <message>
         <source>&amp;Open</source>
@@ -33343,7 +33327,7 @@ The following files or directories are missing:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -39240,18 +39224,11 @@ Control process failed to start.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Failed to start &quot;%1&quot;: %2
-</source>
+        <source>Failed to start &quot;%1&quot;: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&quot;%1&quot; crashed.
-</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&quot;%1&quot; failed with exit code %2: %3
-</source>
+        <source>&quot;%1&quot; failed with exit code %2: %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -39265,8 +39242,7 @@ Control process failed to start.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Deployment to this device will not work out of the box.
-</source>
+        <source>Deployment to this device will not work out of the box.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -41397,7 +41373,7 @@ Destination file &quot;%1&quot; already exists.</source>
     </message>
     <message>
         <source>Could not merge results into single results.xml.
-Failed to open file &quot;%1&quot;</source>
+Failed to open file &quot;%1&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

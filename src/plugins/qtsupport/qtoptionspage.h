@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include "qtsupport_global.h"
+
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace QtSupport::Internal {
+namespace QtSupport {
+namespace Internal {
 
 class QtOptionsPage final : public Core::IOptionsPage
 {
@@ -14,9 +17,15 @@ public:
 
     QStringList keywords() const final;
 
-    static bool canLinkWithQt();
-    static bool isLinkedWithQt();
-    static void linkWithQt();
 };
 
-} // QtSupport::Internal
+} // QtSupport
+
+namespace LinkWithQtSupport {
+QTSUPPORT_EXPORT bool canLinkWithQt();
+QTSUPPORT_EXPORT bool isLinkedWithQt();
+QTSUPPORT_EXPORT Utils::FilePath linkedQt();
+QTSUPPORT_EXPORT void linkWithQt();
+}
+
+} // Internal

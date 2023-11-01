@@ -7,7 +7,7 @@
 #include "qdbtr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -34,10 +34,10 @@ public:
         setInternalInitializer([this] { return isDeploymentPossible(); });
     }
 
-    Group deployRecipe() final;
+    GroupItem deployRecipe() final;
 };
 
-Group QdbStopApplicationStep::deployRecipe()
+GroupItem QdbStopApplicationStep::deployRecipe()
 {
     const auto setupHandler = [this](Process &process) {
         const auto device = DeviceKitAspect::device(target()->kit());
@@ -71,7 +71,7 @@ Group QdbStopApplicationStep::deployRecipe()
             addErrorMessage(failureMessage);
         }
     };
-    return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };
+    return ProcessTask(setupHandler, doneHandler, errorHandler);
 }
 
 // QdbStopApplicationStepFactory

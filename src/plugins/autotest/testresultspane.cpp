@@ -56,6 +56,7 @@ namespace Internal {
 ResultsTreeView::ResultsTreeView(QWidget *parent)
     : TreeView(parent)
 {
+    setUniformRowHeights(false);
     setAttribute(Qt::WA_MacShowFocusRect, false);
     setFrameStyle(NoFrame);
 }
@@ -73,6 +74,9 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     IOutputPane(parent),
     m_context(new IContext(this))
 {
+    setId("TestResults");
+    setDisplayName(Tr::tr("Test Results"));
+    setPriorityInStatusBar(-30);
     m_outputWidget = new QStackedWidget;
     QWidget *visualOutputWidget = new QWidget;
     m_outputWidget->addWidget(visualOutputWidget);
@@ -273,16 +277,6 @@ QList<QWidget *> TestResultsPane::toolBarWidgets() const
     return result;
 }
 
-QString TestResultsPane::displayName() const
-{
-    return Tr::tr("Test Results");
-}
-
-int TestResultsPane::priorityInStatusBar() const
-{
-    return -666;
-}
-
 void TestResultsPane::clearContents()
 {
     m_filterModel->clearTestResults();
@@ -291,7 +285,7 @@ void TestResultsPane::clearContents()
     setIconBadgeNumber(0);
     navigateStateChanged();
     m_summaryWidget->setVisible(false);
-    m_autoScroll = TestSettings::instance()->autoScroll();
+    m_autoScroll = testSettings().autoScroll();
     connect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
             this, &TestResultsPane::onScrollBarRangeChanged, Qt::UniqueConnection);
     m_textOutput->clear();
@@ -437,7 +431,7 @@ void TestResultsPane::onRunSelectedTriggered()
 
 void TestResultsPane::initializeFilterMenu()
 {
-    const bool omitIntern = TestSettings::instance()->omitInternalMsg();
+    const bool omitIntern = testSettings().omitInternalMsg();
     // FilterModel has all messages enabled by default
     if (omitIntern)
         m_filterModel->toggleTestResultType(ResultType::MessageInternal);
@@ -553,8 +547,7 @@ void TestResultsPane::onTestRunFinished()
     m_model->removeCurrentTestMessage();
     disconnect(m_treeView->verticalScrollBar(), &QScrollBar::rangeChanged,
                this, &TestResultsPane::onScrollBarRangeChanged);
-    if (TestSettings::instance()->popupOnFinish()
-            && (!TestSettings::instance()->popupOnFail() || hasFailedTests(m_model))) {
+    if (testSettings().popupOnFinish() && (!testSettings().popupOnFail() || hasFailedTests(m_model))) {
         popup(IOutputPane::NoModeSwitch);
     }
     createMarks();

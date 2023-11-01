@@ -30,6 +30,7 @@
 #include <QListWidget>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QStandardPaths>
 #include <QTimer>
@@ -280,7 +281,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         { JavaPathExistsAndWritableRow, Tr::tr("JDK path exists and is writable.") },
         { SdkPathExistsAndWritableRow, Tr::tr("Android SDK path exists and is writable.") },
         { SdkToolsInstalledRow, Tr::tr("Android SDK Command-line Tools installed.") },
-        { SdkManagerSuccessfulRow, Tr::tr("Android SDK Command-line Tools run.") },
+        { SdkManagerSuccessfulRow, Tr::tr("Android SDK Command-line Tools runs.") },
         { PlatformToolsInstalledRow, Tr::tr("Android SDK Platform-Tools installed.") },
         { AllEssentialsInstalledRow,
             Tr::tr( "All essential packages installed for all installed Qt versions.") },

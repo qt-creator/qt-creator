@@ -6,6 +6,7 @@
 #include "terminaltr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <utils/dropsupport.h>
 #include <utils/environment.h>
@@ -14,16 +15,20 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
+#include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
 #include <QFontComboBox>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QTemporaryFile>
 #include <QXmlStreamReader>
+
+Q_LOGGING_CATEGORY(schemeLog, "qtc.terminal.scheme", QtWarningMsg)
 
 using namespace Utils;
 
@@ -54,23 +59,23 @@ static QString defaultShell()
     if (HostOsInfo::isWindowsHost())
         return qtcEnvironmentVariable("COMSPEC");
 
-    QString defaultShell = qtcEnvironmentVariable("SHELL");
-    if (FilePath::fromUserInput(defaultShell).isExecutableFile())
-        return defaultShell;
+    FilePath defaultShell = FilePath::fromUserInput(qtcEnvironmentVariable("SHELL"));
+    if (defaultShell.isExecutableFile())
+        return defaultShell.toUserOutput();
 
-    Utils::FilePath shPath = Utils::Environment::systemEnvironment().searchInPath("sh");
-    return shPath.nativePath();
+    return Environment::systemEnvironment().searchInPath("sh").toUserOutput();
 }
 
 void setupColor(TerminalSettings *settings,
                 ColorAspect &color,
                 const QString &label,
-                const QColor &defaultColor)
+                const QColor &defaultColor,
+                const QString &humanReadableName = {})
 {
-    color.setSettingsKey(label);
+    color.setSettingsKey(keyFromString(label));
     color.setDefaultValue(defaultColor);
-    color.setToolTip(Tr::tr("The color used for %1.").arg(label));
-
+    color.setToolTip(Tr::tr("The color used for %1.")
+                         .arg(humanReadableName.isEmpty() ? label : humanReadableName));
     settings->registerAspect(&color);
 }
 
@@ -91,13 +96,13 @@ static expected_str<void> loadXdefaults(const FilePath &path)
             const QString colorName = match.captured(1);
             const QColor color(match.captured(2));
             if (colorName == "foreground") {
-                TerminalSettings::instance().foregroundColor.setVolatileValue(color);
+                settings().foregroundColor.setVolatileValue(color);
             } else if (colorName == "background") {
-                TerminalSettings::instance().backgroundColor.setVolatileValue(color);
+                settings().backgroundColor.setVolatileValue(color);
             } else {
                 const int colorIndex = colorName.mid(5).toInt();
                 if (colorIndex >= 0 && colorIndex < 16)
-                    TerminalSettings::instance().colors[colorIndex].setVolatileValue(color);
+                    settings().colors[colorIndex].setVolatileValue(color);
             }
         }
     }
@@ -153,14 +158,14 @@ static expected_str<void> loadItermColors(const FilePath &path)
                                 const auto c = colorName.mid(5, 2);
                                 const int colorIndex = c.toInt();
                                 if (colorIndex >= 0 && colorIndex < 16)
-                                    TerminalSettings::instance().colors[colorIndex].setVolatileValue(
+                                    settings().colors[colorIndex].setVolatileValue(
                                         color);
                             } else if (colorName == "Foreground Color") {
-                                TerminalSettings::instance().foregroundColor.setVolatileValue(color);
+                                settings().foregroundColor.setVolatileValue(color);
                             } else if (colorName == "Background Color") {
-                                TerminalSettings::instance().backgroundColor.setVolatileValue(color);
+                                settings().backgroundColor.setVolatileValue(color);
                             } else if (colorName == "Selection Color") {
-                                TerminalSettings::instance().selectionColor.setVolatileValue(color);
+                                settings().selectionColor.setVolatileValue(color);
                             }
                         }
                     }
@@ -171,6 +176,72 @@ static expected_str<void> loadItermColors(const FilePath &path)
     }
     if (reader.hasError())
         return make_unexpected(reader.errorString());
+
+    return {};
+}
+
+static expected_str<void> loadWindowsTerminalColors(const FilePath &path)
+{
+    const expected_str<QByteArray> readResult = path.fileContents();
+    if (!readResult)
+        return make_unexpected(readResult.error());
+
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(*readResult, &error);
+    if (error.error != QJsonParseError::NoError)
+        return make_unexpected(Tr::tr("JSON parsing error: \"%1\", at offset: %2")
+                                   .arg(error.errorString())
+                                   .arg(error.offset));
+
+    const QJsonObject colors = doc.object();
+
+    // clang-format off
+    const QList<QPair<QStringView, ColorAspect *>> colorKeys = {
+        qMakePair(u"background", &settings().backgroundColor),
+        qMakePair(u"foreground", &settings().foregroundColor),
+        qMakePair(u"selectionBackground", &settings().selectionColor),
+
+        qMakePair(u"black", &settings().colors[0]),
+        qMakePair(u"brightBlack", &settings().colors[8]),
+
+        qMakePair(u"red", &settings().colors[1]),
+        qMakePair(u"brightRed", &settings().colors[9]),
+
+        qMakePair(u"green", &settings().colors[2]),
+        qMakePair(u"brightGreen", &settings().colors[10]),
+
+        qMakePair(u"yellow", &settings().colors[3]),
+        qMakePair(u"brightYellow", &settings().colors[11]),
+
+        qMakePair(u"blue", &settings().colors[4]),
+        qMakePair(u"brightBlue", &settings().colors[12]),
+
+        qMakePair(u"magenta", &settings().colors[5]),
+        qMakePair(u"brightMagenta", &settings().colors[13]),
+
+        qMakePair(u"cyan", &settings().colors[6]),
+        qMakePair(u"brightCyan", &settings().colors[14]),
+
+        qMakePair(u"white", &settings().colors[7]),
+        qMakePair(u"brightWhite", &settings().colors[15])
+    };
+    // clang-format on
+
+    for (const auto &pair : colorKeys) {
+        const auto it = colors.find(pair.first);
+        if (it != colors.end()) {
+            const QString colorString = it->toString();
+            if (colorString.startsWith("#")) {
+                QColor color(colorString.mid(0, 7));
+                if (colorString.size() > 7) {
+                    int alpha = colorString.mid(7).toInt(nullptr, 16);
+                    color.setAlpha(alpha);
+                }
+                if (color.isValid())
+                    pair.second->setVolatileValue(color);
+            }
+        }
+    }
 
     return {};
 }
@@ -197,33 +268,33 @@ static expected_str<void> loadVsCodeColors(const FilePath &path)
 
     // clang-format off
     const QList<QPair<QStringView, ColorAspect *>> colorKeys = {
-        qMakePair(u"editor.background", &TerminalSettings::instance().backgroundColor),
-        qMakePair(u"terminal.foreground", &TerminalSettings::instance().foregroundColor),
-        qMakePair(u"terminal.selectionBackground", &TerminalSettings::instance().selectionColor),
+        qMakePair(u"editor.background", &settings().backgroundColor),
+        qMakePair(u"terminal.foreground", &settings().foregroundColor),
+        qMakePair(u"terminal.selectionBackground", &settings().selectionColor),
 
-        qMakePair(u"terminal.ansiBlack", &TerminalSettings::instance().colors[0]),
-        qMakePair(u"terminal.ansiBrightBlack", &TerminalSettings::instance().colors[8]),
+        qMakePair(u"terminal.ansiBlack", &settings().colors[0]),
+        qMakePair(u"terminal.ansiBrightBlack", &settings().colors[8]),
 
-        qMakePair(u"terminal.ansiRed", &TerminalSettings::instance().colors[1]),
-        qMakePair(u"terminal.ansiBrightRed", &TerminalSettings::instance().colors[9]),
+        qMakePair(u"terminal.ansiRed", &settings().colors[1]),
+        qMakePair(u"terminal.ansiBrightRed", &settings().colors[9]),
 
-        qMakePair(u"terminal.ansiGreen", &TerminalSettings::instance().colors[2]),
-        qMakePair(u"terminal.ansiBrightGreen", &TerminalSettings::instance().colors[10]),
+        qMakePair(u"terminal.ansiGreen", &settings().colors[2]),
+        qMakePair(u"terminal.ansiBrightGreen", &settings().colors[10]),
 
-        qMakePair(u"terminal.ansiYellow", &TerminalSettings::instance().colors[3]),
-        qMakePair(u"terminal.ansiBrightYellow", &TerminalSettings::instance().colors[11]),
+        qMakePair(u"terminal.ansiYellow", &settings().colors[3]),
+        qMakePair(u"terminal.ansiBrightYellow", &settings().colors[11]),
 
-        qMakePair(u"terminal.ansiBlue", &TerminalSettings::instance().colors[4]),
-        qMakePair(u"terminal.ansiBrightBlue", &TerminalSettings::instance().colors[12]),
+        qMakePair(u"terminal.ansiBlue", &settings().colors[4]),
+        qMakePair(u"terminal.ansiBrightBlue", &settings().colors[12]),
 
-        qMakePair(u"terminal.ansiMagenta", &TerminalSettings::instance().colors[5]),
-        qMakePair(u"terminal.ansiBrightMagenta", &TerminalSettings::instance().colors[13]),
+        qMakePair(u"terminal.ansiMagenta", &settings().colors[5]),
+        qMakePair(u"terminal.ansiBrightMagenta", &settings().colors[13]),
 
-        qMakePair(u"terminal.ansiCyan", &TerminalSettings::instance().colors[6]),
-        qMakePair(u"terminal.ansiBrightCyan", &TerminalSettings::instance().colors[14]),
+        qMakePair(u"terminal.ansiCyan", &settings().colors[6]),
+        qMakePair(u"terminal.ansiBrightCyan", &settings().colors[14]),
 
-        qMakePair(u"terminal.ansiWhite", &TerminalSettings::instance().colors[7]),
-        qMakePair(u"terminal.ansiBrightWhite", &TerminalSettings::instance().colors[15])
+        qMakePair(u"terminal.ansiWhite", &settings().colors[7]),
+        qMakePair(u"terminal.ansiBrightWhite", &settings().colors[15])
     };
     // clang-format on
 
@@ -248,8 +319,6 @@ static expected_str<void> loadVsCodeColors(const FilePath &path)
 
 static expected_str<void> loadKonsoleColorScheme(const FilePath &path)
 {
-    QSettings settings(path.toFSPathString(), QSettings::IniFormat);
-
     auto parseColor = [](const QStringList &parts) -> expected_str<QColor> {
         if (parts.size() != 3 && parts.size() != 4)
             return make_unexpected(Tr::tr("Invalid color format."));
@@ -258,39 +327,41 @@ static expected_str<void> loadKonsoleColorScheme(const FilePath &path)
     };
 
     // clang-format off
-    const QList<QPair<QString, ColorAspect *>> colorKeys = {
-        qMakePair(QLatin1String("Background/Color"), &TerminalSettings::instance().backgroundColor),
-        qMakePair(QLatin1String("Foreground/Color"), &TerminalSettings::instance().foregroundColor),
+    TerminalSettings &s = settings();
+    const QPair<QString, ColorAspect *> colorKeys[] = {
+        { "Background/Color", &s.backgroundColor },
+        { "Foreground/Color", &s.foregroundColor},
 
-        qMakePair(QLatin1String("Color0/Color"), &TerminalSettings::instance().colors[0]),
-        qMakePair(QLatin1String("Color0Intense/Color"), &TerminalSettings::instance().colors[8]),
+        { "Color0/Color", &s.colors[0] },
+        { "Color0Intense/Color", &s.colors[8] },
 
-        qMakePair(QLatin1String("Color1/Color"), &TerminalSettings::instance().colors[1]),
-        qMakePair(QLatin1String("Color1Intense/Color"), &TerminalSettings::instance().colors[9]),
+        { "Color1/Color", &s.colors[1] },
+        { "Color1Intense/Color", &s.colors[9] },
 
-        qMakePair(QLatin1String("Color2/Color"), &TerminalSettings::instance().colors[2]),
-        qMakePair(QLatin1String("Color2Intense/Color"), &TerminalSettings::instance().colors[10]),
+        { "Color2/Color", &s.colors[2] },
+        { "Color2Intense/Color", &s.colors[10] },
 
-        qMakePair(QLatin1String("Color3/Color"), &TerminalSettings::instance().colors[3]),
-        qMakePair(QLatin1String("Color3Intense/Color"), &TerminalSettings::instance().colors[11]),
+        { "Color3/Color", &s.colors[3] },
+        { "Color3Intense/Color", &s.colors[11] },
 
-        qMakePair(QLatin1String("Color4/Color"), &TerminalSettings::instance().colors[4]),
-        qMakePair(QLatin1String("Color4Intense/Color"), &TerminalSettings::instance().colors[12]),
+        { "Color4/Color", &s.colors[4] },
+        { "Color4Intense/Color", &s.colors[12] },
 
-        qMakePair(QLatin1String("Color5/Color"), &TerminalSettings::instance().colors[5]),
-        qMakePair(QLatin1String("Color5Intense/Color"), &TerminalSettings::instance().colors[13]),
+        { "Color5/Color", &s.colors[5] },
+        { "Color5Intense/Color", &s.colors[13] },
 
-        qMakePair(QLatin1String("Color6/Color"), &TerminalSettings::instance().colors[6]),
-        qMakePair(QLatin1String("Color6Intense/Color"), &TerminalSettings::instance().colors[14]),
+        { "Color6/Color", &s.colors[6] },
+        { "Color6Intense/Color", &s.colors[14] },
 
-        qMakePair(QLatin1String("Color7/Color"), &TerminalSettings::instance().colors[7]),
-        qMakePair(QLatin1String("Color7Intense/Color"), &TerminalSettings::instance().colors[15])
+        { "Color7/Color", &s.colors[7] },
+        { "Color7Intense/Color", &s.colors[15] }
     };
     // clang-format on
 
+    QSettings ini(path.toFSPathString(), QSettings::IniFormat);
     for (const auto &colorKey : colorKeys) {
-        if (settings.contains(colorKey.first)) {
-            const auto color = parseColor(settings.value(colorKey.first).toStringList());
+        if (ini.contains(colorKey.first)) {
+            const auto color = parseColor(ini.value(colorKey.first).toStringList());
             if (!color)
                 return make_unexpected(color.error());
 
@@ -314,28 +385,33 @@ static expected_str<void> loadXFCE4ColorScheme(const FilePath &path)
     f.write(*arr);
     f.close();
 
-    QSettings settings(f.fileName(), QSettings::IniFormat);
+    QSettings ini(f.fileName(), QSettings::IniFormat);
+    TerminalSettings &s = settings();
 
     // clang-format off
-    const QList<QPair<QString, ColorAspect *>> colorKeys = {
-        qMakePair(QLatin1String("Scheme/ColorBackground"), &TerminalSettings::instance().backgroundColor),
-        qMakePair(QLatin1String("Scheme/ColorForeground"), &TerminalSettings::instance().foregroundColor),
+    const QPair<QString, ColorAspect *> colorKeys[] = {
+        { "Scheme/ColorBackground", &s.backgroundColor },
+        { "Scheme/ColorForeground", &s.foregroundColor }
     };
     // clang-format on
 
     for (const auto &colorKey : colorKeys) {
-        if (settings.contains(colorKey.first)) {
-            colorKey.second->setVolatileValue(QColor(settings.value(colorKey.first).toString()));
-        }
+        if (ini.contains(colorKey.first))
+            colorKey.second->setVolatileValue(QColor(ini.value(colorKey.first).toString()));
     }
 
-    QStringList colors = settings.value(QLatin1String("Scheme/ColorPalette")).toStringList();
+    QStringList colors = ini.value(QLatin1String("Scheme/ColorPalette")).toStringList();
     int i = 0;
-    for (const auto &color : colors) {
-        TerminalSettings::instance().colors[i++].setVolatileValue(QColor(color));
-    }
+    for (const QString &color : colors)
+        s.colors[i++].setVolatileValue(QColor(color));
 
     return {};
+}
+
+static expected_str<void> loadVsCodeOrWindows(const FilePath &path)
+{
+    return loadVsCodeColors(path).or_else(
+        [path](const auto &) { return loadWindowsTerminalColors(path); });
 }
 
 static expected_str<void> loadColorScheme(const FilePath &path)
@@ -345,7 +421,7 @@ static expected_str<void> loadColorScheme(const FilePath &path)
     else if (path.suffix() == "itermcolors")
         return loadItermColors(path);
     else if (path.suffix() == "json")
-        return loadVsCodeColors(path);
+        return loadVsCodeOrWindows(path);
     else if (path.suffix() == "colorscheme")
         return loadKonsoleColorScheme(path);
     else if (path.suffix() == "theme" || path.completeSuffix() == "theme.txt")
@@ -354,23 +430,16 @@ static expected_str<void> loadColorScheme(const FilePath &path)
     return make_unexpected(Tr::tr("Unknown color scheme format."));
 }
 
-static TerminalSettings *s_instance;
-
-TerminalSettings &TerminalSettings::instance()
+TerminalSettings &settings()
 {
-    return *s_instance;
+    static TerminalSettings theSettings;
+    return theSettings;
 }
 
 TerminalSettings::TerminalSettings()
 {
-    s_instance = this;
-
     setSettingsGroup("Terminal");
-    setId("Terminal.General");
-    setDisplayName("Terminal");
-    setCategory("ZY.Terminal");
-    setDisplayCategory("Terminal");
-    setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
+    setAutoApply(false);
 
     enableTerminal.setSettingsKey("EnableTerminal");
     enableTerminal.setLabelText(Tr::tr("Use internal terminal"));
@@ -413,10 +482,15 @@ TerminalSettings::TerminalSettings()
 
     sendEscapeToTerminal.setSettingsKey("SendEscapeToTerminal");
     sendEscapeToTerminal.setLabelText(Tr::tr("Send escape key to terminal"));
-    sendEscapeToTerminal.setToolTip(
-        Tr::tr("Sends the escape key to the terminal when pressed"
-               "instead of closing the terminal."));
+    sendEscapeToTerminal.setToolTip(Tr::tr("Sends the escape key to the terminal when pressed "
+                                           "instead of closing the terminal."));
     sendEscapeToTerminal.setDefaultValue(false);
+
+    lockKeyboard.setSettingsKey("LockKeyboard");
+    lockKeyboard.setLabelText(Tr::tr("Block shortcuts in terminal"));
+    lockKeyboard.setToolTip(
+        Tr::tr("Keeps Qt Creator shortcuts from interfering with the terminal."));
+    lockKeyboard.setDefaultValue(true);
 
     audibleBell.setSettingsKey("AudibleBell");
     audibleBell.setLabelText(Tr::tr("Audible bell"));
@@ -424,47 +498,42 @@ TerminalSettings::TerminalSettings()
                                   "character is received."));
     audibleBell.setDefaultValue(true);
 
-    setupColor(this,
-               foregroundColor,
-               "Foreground",
-               Utils::creatorTheme()->color(Theme::TerminalForeground));
-    setupColor(this,
-               backgroundColor,
-               "Background",
-               Utils::creatorTheme()->color(Theme::TerminalBackground));
-    setupColor(this,
-               selectionColor,
-               "Selection",
-               Utils::creatorTheme()->color(Theme::TerminalSelection));
+    enableMouseTracking.setSettingsKey("EnableMouseTracking");
+    enableMouseTracking.setLabelText(Tr::tr("Enable mouse tracking"));
+    enableMouseTracking.setToolTip(Tr::tr("Enables mouse tracking in the terminal."));
+    enableMouseTracking.setDefaultValue(true);
 
-    setupColor(this,
-               findMatchColor,
-               "Find matches",
-               Utils::creatorTheme()->color(Theme::TerminalFindMatch));
+    Theme *theme = Utils::creatorTheme();
 
-    setupColor(this, colors[0], "0", Utils::creatorTheme()->color(Theme::TerminalAnsi0));
-    setupColor(this, colors[8], "8", Utils::creatorTheme()->color(Theme::TerminalAnsi8));
+    setupColor(this, foregroundColor, "Foreground", theme->color(Theme::TerminalForeground));
+    setupColor(this, backgroundColor, "Background", theme->color(Theme::TerminalBackground));
+    setupColor(this, selectionColor, "Selection", theme->color(Theme::TerminalSelection));
 
-    setupColor(this, colors[1], "1", Utils::creatorTheme()->color(Theme::TerminalAnsi1));
-    setupColor(this, colors[9], "9", Utils::creatorTheme()->color(Theme::TerminalAnsi9));
+    setupColor(this, findMatchColor, "Find matches", theme->color(Theme::TerminalFindMatch));
 
-    setupColor(this, colors[2], "2", Utils::creatorTheme()->color(Theme::TerminalAnsi2));
-    setupColor(this, colors[10], "10", Utils::creatorTheme()->color(Theme::TerminalAnsi10));
+    setupColor(this, colors[0], "0", theme->color(Theme::TerminalAnsi0), "black");
+    setupColor(this, colors[8], "8", theme->color(Theme::TerminalAnsi8), "bright black");
 
-    setupColor(this, colors[3], "3", Utils::creatorTheme()->color(Theme::TerminalAnsi3));
-    setupColor(this, colors[11], "11", Utils::creatorTheme()->color(Theme::TerminalAnsi11));
+    setupColor(this, colors[1], "1", theme->color(Theme::TerminalAnsi1), "red");
+    setupColor(this, colors[9], "9", theme->color(Theme::TerminalAnsi9), "bright red");
 
-    setupColor(this, colors[4], "4", Utils::creatorTheme()->color(Theme::TerminalAnsi4));
-    setupColor(this, colors[12], "12", Utils::creatorTheme()->color(Theme::TerminalAnsi12));
+    setupColor(this, colors[2], "2", theme->color(Theme::TerminalAnsi2), "green");
+    setupColor(this, colors[10], "10", theme->color(Theme::TerminalAnsi10), "bright green");
 
-    setupColor(this, colors[5], "5", Utils::creatorTheme()->color(Theme::TerminalAnsi5));
-    setupColor(this, colors[13], "13", Utils::creatorTheme()->color(Theme::TerminalAnsi13));
+    setupColor(this, colors[3], "3", theme->color(Theme::TerminalAnsi3), "yellow");
+    setupColor(this, colors[11], "11", theme->color(Theme::TerminalAnsi11), "bright yellow");
 
-    setupColor(this, colors[6], "6", Utils::creatorTheme()->color(Theme::TerminalAnsi6));
-    setupColor(this, colors[14], "14", Utils::creatorTheme()->color(Theme::TerminalAnsi14));
+    setupColor(this, colors[4], "4", theme->color(Theme::TerminalAnsi4), "blue");
+    setupColor(this, colors[12], "12", theme->color(Theme::TerminalAnsi12), "bright blue");
 
-    setupColor(this, colors[7], "7", Utils::creatorTheme()->color(Theme::TerminalAnsi7));
-    setupColor(this, colors[15], "15", Utils::creatorTheme()->color(Theme::TerminalAnsi15));
+    setupColor(this, colors[5], "5", theme->color(Theme::TerminalAnsi5), "magenta");
+    setupColor(this, colors[13], "13", theme->color(Theme::TerminalAnsi13), "bright magenta");
+
+    setupColor(this, colors[6], "6", theme->color(Theme::TerminalAnsi6), "cyan");
+    setupColor(this, colors[14], "14", theme->color(Theme::TerminalAnsi14), "bright cyan");
+
+    setupColor(this, colors[7], "7", theme->color(Theme::TerminalAnsi7), "white");
+    setupColor(this, colors[15], "15", theme->color(Theme::TerminalAnsi15), "bright white");
 
     setLayouter([this] {
         using namespace Layouting;
@@ -474,11 +543,13 @@ TerminalSettings::TerminalSettings()
         fontComboBox->setCurrentFont(font());
 
         connect(fontComboBox, &QFontComboBox::currentFontChanged, this, [this](const QFont &f) {
-            font.setValue(f.family());
+            font.setVolatileValue(f.family());
         });
 
         auto loadThemeButton = new QPushButton(Tr::tr("Load Theme..."));
         auto resetTheme = new QPushButton(Tr::tr("Reset Theme"));
+        auto copyTheme = schemeLog().isDebugEnabled() ? new QPushButton(Tr::tr("Copy Theme"))
+                                                      : nullptr;
 
         connect(loadThemeButton, &QPushButton::clicked, this, [] {
             const FilePath path = FileUtils::getOpenFilePath(
@@ -489,6 +560,7 @@ TerminalSettings::TerminalSettings()
                 "Xdefaults (.Xdefaults Xdefaults);;"
                 "iTerm Color Schemes(*.itermcolors);;"
                 "VS Code Color Schemes(*.json);;"
+                "Windows Terminal Schemes(*.json);;"
                 "Konsole Color Schemes(*.colorscheme);;"
                 "XFCE4 Terminal Color Schemes(*.theme *.theme.txt);;"
                 "All files (*)",
@@ -514,20 +586,31 @@ TerminalSettings::TerminalSettings()
                 color.setVolatileValue(color.defaultValue());
         });
 
-// FIXME: Implement and use a Layouting::DropArea item
+        if (schemeLog().isDebugEnabled()) {
+            connect(copyTheme, &QPushButton::clicked, this, [this] {
+                auto toThemeColor = [](const ColorAspect &color) -> QString {
+                    QColor c = color.value();
+                    QString a = c.alpha() != 255 ? QString("%1").arg(c.alpha(), 2, 16, QChar('0'))
+                                                 : QString();
+                    return QString("%1%2%3%4")
+                        .arg(a)
+                        .arg(c.red(), 2, 16, QChar('0'))
+                        .arg(c.green(), 2, 16, QChar('0'))
+                        .arg(c.blue(), 2, 16, QChar('0'));
+                };
 
-//        DropSupport *dropSupport = new DropSupport;
-//        connect(dropSupport,
-//            &DropSupport::filesDropped,
-//            this,
-//            [this](const QList<DropSupport::FileSpec> &files) {
-//                if (files.size() != 1)
-//                    return;
+                QString theme;
+                QTextStream stream(&theme);
+                stream << "TerminalForeground=" << toThemeColor(foregroundColor) << '\n';
+                stream << "TerminalBackground=" << toThemeColor(backgroundColor) << '\n';
+                stream << "TerminalSelection=" << toThemeColor(selectionColor) << '\n';
+                stream << "TerminalFindMatch=" << toThemeColor(findMatchColor) << '\n';
+                for (int i = 0; i < 16; ++i)
+                    stream << "TerminalAnsi" << i << '=' << toThemeColor(colors[i]) << '\n';
 
-//                const expected_str<void> result = loadColorScheme(files.at(0).filePath);
-//                if (!result)
-//                    QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Error"), result.error());
-//            });
+                setClipboardAndSelection(theme);
+            });
+        }
 
         // clang-format off
         return Column {
@@ -536,8 +619,10 @@ TerminalSettings::TerminalSettings()
                 Column {
                     enableTerminal, st,
                     sendEscapeToTerminal, st,
+                    lockKeyboard, st,
                     audibleBell, st,
                     allowBlinkingCursor, st,
+                    enableMouseTracking, st,
                 },
             },
             Group {
@@ -569,7 +654,7 @@ TerminalSettings::TerminalSettings()
                         colors[14], colors[15]
                     },
                     Row {
-                        loadThemeButton, resetTheme, st,
+                        loadThemeButton, resetTheme, copyTheme, st,
                     }
                 },
             },
@@ -587,5 +672,21 @@ TerminalSettings::TerminalSettings()
 
     readSettings();
 }
+
+class TerminalSettingsPage final : public Core::IOptionsPage
+{
+public:
+    TerminalSettingsPage()
+    {
+        setId("Terminal.General");
+        setDisplayName("Terminal");
+        setCategory("ZY.Terminal");
+        setDisplayCategory("Terminal");
+        setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const TerminalSettingsPage settingsPage;
 
 } // Terminal

@@ -10,6 +10,8 @@
 #include <QLoggingCategory>
 #include <qtsupport/qtversionmanager.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <limits>
 
 using namespace QtSupport;
@@ -24,9 +26,9 @@ Q_LOGGING_CATEGORY(qmllsLog, "qtc.qmlls.settings", QtWarningMsg);
 static FilePath evaluateLatestQmlls()
 {
     // find latest qmlls, i.e. vals
-    if (!QtVersionManager::instance()->isLoaded())
+    if (!QtVersionManager::isLoaded())
         return {};
-    const QtVersions versions = QtVersionManager::instance()->versions();
+    const QtVersions versions = QtVersionManager::versions();
     FilePath latestQmlls;
     QVersionNumber latestVersion;
     FilePath latestQmakeFilePath;
@@ -78,7 +80,7 @@ void QmllsSettingsManager::setupAutoupdate()
                      &QtVersionManager::qtVersionsChanged,
                      this,
                      &QmllsSettingsManager::checkForChanges);
-    if (QtVersionManager::instance()->isLoaded())
+    if (QtVersionManager::isLoaded())
         checkForChanges();
     else
         QObject::connect(QtVersionManager::instance(),
@@ -89,8 +91,9 @@ void QmllsSettingsManager::setupAutoupdate()
 
 void QmllsSettingsManager::checkForChanges()
 {
-    FilePath newLatest = evaluateLatestQmlls();
     QmllsSettings newSettings = QmlJsEditingSettings::get().qmllsSettings();
+    FilePath newLatest = newSettings.useLatestQmlls && newSettings.useQmlls ? evaluateLatestQmlls()
+                                                                            : m_latestQmlls;
     if (m_lastSettings == newSettings && newLatest == m_latestQmlls)
         return;
     qCDebug(qmllsLog) << "qmlls settings changed:" << newSettings.useQmlls

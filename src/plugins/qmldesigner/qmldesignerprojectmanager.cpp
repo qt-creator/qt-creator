@@ -20,7 +20,7 @@
 #include <sqlitedatabase.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <asynchronousexplicitimagecache.h>
 #include <asynchronousimagecache.h>

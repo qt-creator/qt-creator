@@ -3,12 +3,13 @@
 
 #include "storagesettings.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/hostosinfo.h>
-#include <utils/settingsutils.h>
 
 #include <QRegularExpression>
-#include <QSettings>
-#include <QString>
+
+using namespace Utils;
 
 namespace TextEditor {
 
@@ -18,7 +19,6 @@ static const char addFinalNewLineKey[] = "addFinalNewLine";
 static const char cleanIndentationKey[] = "cleanIndentation";
 static const char skipTrailingWhitespaceKey[] = "skipTrailingWhitespace";
 static const char ignoreFileTypesKey[] = "ignoreFileTypes";
-static const char groupPostfix[] = "StorageSettings";
 static const char defaultTrailingWhitespaceBlacklist[] = "*.md, *.MD, Makefile";
 
 StorageSettings::StorageSettings()
@@ -31,18 +31,7 @@ StorageSettings::StorageSettings()
 {
 }
 
-void StorageSettings::toSettings(const QString &category, QSettings *s) const
-{
-    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
-}
-
-void StorageSettings::fromSettings(const QString &category, QSettings *s)
-{
-    *this = StorageSettings();
-    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
-}
-
-QVariantMap StorageSettings::toMap() const
+Store StorageSettings::toMap() const
 {
     return {
         {cleanWhitespaceKey, m_cleanWhitespace},
@@ -54,7 +43,7 @@ QVariantMap StorageSettings::toMap() const
     };
 }
 
-void StorageSettings::fromMap(const QVariantMap &map)
+void StorageSettings::fromMap(const Store &map)
 {
     m_cleanWhitespace = map.value(cleanWhitespaceKey, m_cleanWhitespace).toBool();
     m_inEntireDocument = map.value(inEntireDocumentKey, m_inEntireDocument).toBool();

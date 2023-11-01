@@ -10,6 +10,15 @@
 #include "unixptyprocess.h"
 #endif
 
+bool PtyQt::isUsingConPTY()
+{
+#ifdef Q_OS_WIN
+    if (ConPtyProcess::isAvailable() && qgetenv("QTC_USE_WINPTY").isEmpty())
+        return true;
+#endif
+
+    return false;
+}
 
 IPtyProcess *PtyQt::createPtyProcess(IPtyProcess::PtyType ptyType)
 {
@@ -34,7 +43,7 @@ IPtyProcess *PtyQt::createPtyProcess(IPtyProcess::PtyType ptyType)
     }
 
 #ifdef Q_OS_WIN
-    if (ConPtyProcess().isAvailable() && qgetenv("QTC_USE_WINPTY").isEmpty())
+    if (isUsingConPTY())
         return new ConPtyProcess();
     else
         return new WinPtyProcess();
@@ -43,3 +52,5 @@ IPtyProcess *PtyQt::createPtyProcess(IPtyProcess::PtyType ptyType)
     return new UnixPtyProcess();
 #endif
 }
+
+

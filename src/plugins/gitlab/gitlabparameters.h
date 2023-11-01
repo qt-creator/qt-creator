@@ -7,9 +7,10 @@
 #include <utils/id.h>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QJsonObject;
 QT_END_NAMESPACE
+
+namespace Utils { class QtcSettings; }
 
 namespace GitLab {
 
@@ -49,8 +50,8 @@ public:
     bool equals(const GitLabParameters &other) const;
     bool isValid() const;
 
-    void toSettings(QSettings *s) const;
-    void fromSettings(const QSettings *s);
+    void toSettings(Utils::QtcSettings *s) const;
+    void fromSettings(const Utils::QtcSettings *s);
 
     GitLabServer currentDefaultServer() const;
     GitLabServer serverForId(const Utils::Id &id) const;

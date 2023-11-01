@@ -1,18 +1,20 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-project-qbs.html
     \page creator-projects-autotools.html
-    \nextpage creator-project-generic.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Setting Up an Autotools Project
 
-    The AutotoolsProjectManager is a plugin for autotools support. It is
-    disabled by default. To enable the plugin, select \uicontrol Help >
-    \uicontrol {About Plugins} > \uicontrol {Build Systems} >
-    \uicontrol AutotoolsProjectManager. Then select \uicontrol {Restart Now}
-    to restart \QC and load the plugin.
+    \brief \QC can open projects that use the Autotools build system. You can
+    build and run the projects directly from \QC.
+
+    The AutotoolsProjectManager is a plugin for autotools support.
+
+    \note Enable the Autotools plugin to use it.
 
     To work with your Autotools project in \QC:
 
@@ -43,4 +45,6 @@
 
             \image qtcreator-autotools-buildsettings.png
     \endlist
+
+    \sa {Enable and disable plugins}
 */

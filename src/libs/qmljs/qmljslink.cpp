@@ -196,12 +196,12 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
         m_valueOwner->cppQmlTypes().load(QLatin1String("<builtins>"), m_builtins.metaObjects());
     } else {
         m_valueOwner->cppQmlTypes().load(QLatin1String("<defaults>"),
-                                         CppQmlTypesLoader::defaultQtObjects);
+                                         CppQmlTypesLoader::defaultQtObjects());
     }
 
     // load library objects shipped with Creator
     m_valueOwner->cppQmlTypes().load(QLatin1String("<defaultQt4>"),
-                                     CppQmlTypesLoader::defaultLibraryObjects);
+                                     CppQmlTypesLoader::defaultLibraryObjects());
 
     if (document) {
         // do it on document first, to make sure import errors are shown
@@ -209,9 +209,16 @@ Context::ImportsPerDocument LinkPrivate::linkImports()
 
         // Add custom imports for the opened document
         for (const auto &provider : CustomImportsProvider::allProviders()) {
-            const auto providerImports = provider->imports(m_valueOwner, document.data());
+            const auto providerImports = provider->imports(m_valueOwner,
+                                                           document.data(),
+                                                           &m_snapshot);
             for (const auto &import : providerImports)
                 importCache.insert(ImportCacheKey(import.info), import);
+            provider->loadBuiltins(&importsPerDocument,
+                                   imports,
+                                   document.data(),
+                                   m_valueOwner,
+                                   &m_snapshot);
         }
 
         populateImportedTypes(imports, document);
@@ -656,14 +663,12 @@ void LinkPrivate::loadQmldirComponents(ObjectValue *import,
     QSet<QString> importedTypes;
     const auto components = libraryInfo.components();
     for (const QmlDirParser::Component &component : components) {
-        if (importedTypes.contains(component.typeName))
-            continue;
-
         ComponentVersion componentVersion(component.majorVersion, component.minorVersion);
         if (version < componentVersion)
             continue;
 
-        importedTypes.insert(component.typeName);
+        if (!Utils::insert(importedTypes, component.typeName))
+            continue;
         if (Document::Ptr importedDoc = m_snapshot.document(
                 libraryPath.pathAppended(component.fileName))) {
             if (ObjectValue *v = importedDoc->bind()->rootObjectValue())

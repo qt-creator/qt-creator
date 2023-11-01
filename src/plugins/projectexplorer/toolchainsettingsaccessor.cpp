@@ -10,11 +10,12 @@
 
 #include <coreplugin/icore.h>
 
-#include <app/app_version.h>
-
 #include <utils/algorithm.h>
 
+#include <nanotrace/nanotrace.h>
+
 #include <QElapsedTimer>
+#include <QGuiApplication>
 #include <QLoggingCategory>
 
 using namespace Utils;
@@ -35,7 +36,7 @@ public:
     ToolChainSettingsUpgraderV0() : Utils::VersionUpgrader(0, "4.6") { }
 
     // NOOP
-    QVariantMap upgrade(const QVariantMap &data) final { return data; }
+    Store upgrade(const Store &data) final { return data; }
 };
 
 // --------------------------------------------------------------------
@@ -57,6 +58,9 @@ static Toolchains autoDetectToolChains(const ToolchainDetector &detector)
 {
     Toolchains result;
     for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories()) {
+        NANOTRACE_SCOPE_ARGS("ProjectExplorer",
+                             "ToolChainSettingsAccessor::autoDetectToolChains",
+                             {"factory", f->displayName().toStdString()});
         QElapsedTimer et;
         et.start();
         result.append(f->autoDetect(detector));
@@ -172,7 +176,7 @@ static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
 ToolChainSettingsAccessor::ToolChainSettingsAccessor()
 {
     setDocType("QtCreatorToolChains");
-    setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
+    setApplicationDisplayName(QGuiApplication::applicationDisplayName());
     setBaseFilePath(Core::ICore::userResourcePath(TOOLCHAIN_FILENAME));
 
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());
@@ -180,6 +184,7 @@ ToolChainSettingsAccessor::ToolChainSettingsAccessor()
 
 Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
 {
+    NANOTRACE_SCOPE("ProjectExplorer", "ToolChainSettingsAccessor::restoreToolChains");
     // read all tool chains from SDK
     const Toolchains systemFileTcs = toolChains(
         restoreSettings(Core::ICore::installerResourcePath(TOOLCHAIN_FILENAME), parent));
@@ -215,16 +220,17 @@ Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
 
 void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWidget *parent)
 {
-    QVariantMap data;
+    Store data;
 
     int count = 0;
     for (const ToolChain *tc : toolchains) {
         if (!tc || (!tc->isValid() && tc->isAutoDetected()))
             continue;
-        const QVariantMap tmp = tc->toMap();
+        Store tmp;
+        tc->toMap(tmp);
         if (tmp.isEmpty())
             continue;
-        data.insert(QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(count), tmp);
+        data.insert(numberedKey(TOOLCHAIN_DATA_KEY, count), variantFromStore(tmp));
         ++count;
     }
     data.insert(TOOLCHAIN_COUNT_KEY, count);
@@ -234,18 +240,18 @@ void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWi
     saveSettings(data, parent);
 }
 
-Toolchains ToolChainSettingsAccessor::toolChains(const QVariantMap &data) const
+Toolchains ToolChainSettingsAccessor::toolChains(const Store &data) const
 {
     Toolchains result;
     const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
 
     const int count = data.value(TOOLCHAIN_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
-        const QString key = QString::fromLatin1(TOOLCHAIN_DATA_KEY) + QString::number(i);
+        const Key key = numberedKey(TOOLCHAIN_DATA_KEY, i);
         if (!data.contains(key))
             break;
 
-        const QVariantMap tcMap = data.value(key).toMap();
+        const Store tcMap = storeFromVariant(data.value(key));
 
         bool restored = false;
         const Utils::Id tcType = ToolChainFactory::typeIdFromMap(tcMap);
@@ -306,10 +312,10 @@ public:
     static bool hasToolChains() { return !m_toolChains.isEmpty(); }
 
     bool isValid() const override { return m_valid; }
-    MacroInspectionRunner createMacroInspectionRunner() const override { return MacroInspectionRunner(); }
+    MacroInspectionRunner createMacroInspectionRunner() const override { return {}; }
     LanguageExtensions languageExtensions(const QStringList &cxxflags) const override { Q_UNUSED(cxxflags) return LanguageExtension::None; }
     WarningFlags warningFlags(const QStringList &cflags) const override { Q_UNUSED(cflags) return WarningFlags::NoWarnings; }
-    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &) const override { return BuiltInHeaderPathsRunner(); }
+    BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(const Utils::Environment &) const override { return {}; }
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env) }
     FilePath makeCommand(const Environment &) const override { return "make"; }
     QList<OutputLineParser *> createOutputParsers() const override { return {}; }
@@ -320,18 +326,16 @@ public:
         return static_cast<const TTC *>(&other)->token == token;
     }
 
-    bool fromMap(const QVariantMap &data) final
+    void fromMap(const Store &data) final
     {
         ToolChain::fromMap(data);
         token = data.value(TestTokenKey).toByteArray();
-        return true;
     }
 
-    QVariantMap toMap() const final
+    void toMap(Store &data) const final
     {
-        QVariantMap data = ToolChain::toMap();
+        ToolChain::toMap(data);
         data[TestTokenKey] = token;
-        return data;
     }
 
     QByteArray token;
@@ -340,8 +344,6 @@ private:
     bool m_valid = false;
 
     static QList<TTC *> m_toolChains;
-
-public:
 };
 
 QList<TTC *> TTC::m_toolChains;

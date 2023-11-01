@@ -5,7 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace Utils { class JsonSchemaManager; }
+namespace QmlJS { class JsonSchemaManager; }
 
 namespace QmlJSEditor {
 class QuickToolBar;
@@ -23,8 +23,7 @@ public:
     ~QmlJSEditorPlugin() final;
 
     static QmlJSQuickFixAssistProvider *quickFixAssistProvider();
-    static Utils::JsonSchemaManager *jsonManager();
-    static QuickToolBar *quickToolBar();
+    static QmlJS::JsonSchemaManager *jsonManager();
 
 private:
     void initialize() final;

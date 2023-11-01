@@ -165,6 +165,18 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
     };
     const auto onProcessDone = [=](const Process &process) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
+
+        // Here we handle only the case of process success with stderr output.
+        if (!outputHandler)
+            return;
+        if (process.result() != ProcessResult::FinishedWithSuccess)
+            return;
+        const QString stdErr = process.cleanedStdErr();
+        if (stdErr.isEmpty())
+            return;
+        outputHandler(
+            {true, input.unit.file, {}, {}, input.tool, Tr::tr("%1 produced stderr output:")
+                                                            .arg(storage->name), stdErr});
     };
     const auto onProcessError = [=](const Process &process) {
         if (!outputHandler)
@@ -219,7 +231,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
 
     const Group group {
         finishAllAndDone,
-        Storage(storage),
+        Tasking::Storage(storage),
         onGroupSetup(onSetup),
         Group {
             sequential,

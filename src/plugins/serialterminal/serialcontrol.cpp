@@ -151,7 +151,7 @@ QString SerialControl::baudRateText() const
 void SerialControl::pulseDataTerminalReady()
 {
     m_serialPort.setDataTerminalReady(!m_initialDtrState);
-    QTimer::singleShot(Constants::RESET_DELAY, [&]() {
+    QTimer::singleShot(Constants::RESET_DELAY, this, [this] {
         m_serialPort.setDataTerminalReady(m_initialDtrState);
     });
 }

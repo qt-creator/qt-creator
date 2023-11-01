@@ -5,13 +5,13 @@
 
 #include "abi.h"
 #include "devicesupport/devicemanager.h"
+#include "kitoptionspage.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "toolchain.h"
 #include "toolchainconfigwidget.h"
 #include "toolchainmanager.h"
 
-#include <app/app_version.h>
 #include <coreplugin/icore.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -79,7 +79,7 @@ public:
                 return column == 0 && !toolChain->isValid()
                         ? Utils::Icons::CRITICAL.icon() : QVariant();
         }
-        return QVariant();
+        return {};
     }
 
     ToolChainConfigWidget *widget()
@@ -118,10 +118,14 @@ public:
         const auto layout = new QVBoxLayout(this);
         m_detectX64AsX32CheckBox.setText(Tr::tr("Detect x86_64 GCC compilers "
                                                 "as x86_64 and x86"));
-        m_detectX64AsX32CheckBox.setToolTip(Tr::tr("If checked, %1 will "
-            "set up two instances of each x86_64 compiler:\nOne for the native x86_64 target, and "
-            "one for a plain x86 target.\nEnable this if you plan to create 32-bit x86 binaries "
-            "without using a dedicated cross compiler.").arg(Core::Constants::IDE_DISPLAY_NAME));
+        m_detectX64AsX32CheckBox.setToolTip(
+            Tr::tr("If checked, %1 will "
+                   "set up two instances of each x86_64 compiler:\nOne for the native x86_64 "
+                   "target, and "
+                   "one for a plain x86 target.\nEnable this if you plan to create 32-bit x86 "
+                   "binaries "
+                   "without using a dedicated cross compiler.")
+                .arg(QGuiApplication::applicationDisplayName()));
         m_detectX64AsX32CheckBox.setChecked(settings.detectX64AsX32);
         layout->addWidget(&m_detectX64AsX32CheckBox);
         const auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
@@ -178,7 +182,11 @@ public:
         m_toolChainView->setUniformRowHeights(true);
         m_toolChainView->setSelectionMode(QAbstractItemView::SingleSelection);
         m_toolChainView->setSelectionBehavior(QAbstractItemView::SelectRows);
-        m_toolChainView->setModel(&m_model);
+        m_sortModel.setSourceModel(&m_model);
+        m_sortModel.setSortedCategories({Constants::msgAutoDetected(), Constants::msgManual()});
+        m_toolChainView->setModel(&m_sortModel);
+        m_toolChainView->setSortingEnabled(true);
+        m_toolChainView->sortByColumn(0, Qt::AscendingOrder);
         m_toolChainView->header()->setStretchLastSection(false);
         m_toolChainView->header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
         m_toolChainView->header()->setSectionResizeMode(1, QHeaderView::Stretch);
@@ -207,7 +215,7 @@ public:
             m_addButton->setStyleSheet("text-align:center;");
 
         m_cloneButton = new QPushButton(Tr::tr("Clone"), this);
-        connect(m_cloneButton, &QAbstractButton::clicked, [this] { cloneToolChain(); });
+        connect(m_cloneButton, &QAbstractButton::clicked, this, [this] { cloneToolChain(); });
 
         m_delButton = new QPushButton(Tr::tr("Remove"), this);
 
@@ -277,7 +285,7 @@ public:
         connect(ToolChainManager::instance(), &ToolChainManager::toolChainsChanged,
                 this, &ToolChainOptionsWidget::toolChainSelectionChanged);
 
-        connect(m_delButton, &QAbstractButton::clicked, [this] {
+        connect(m_delButton, &QAbstractButton::clicked, this, [this] {
             if (ToolChainTreeItem *item = currentTreeItem())
                 markForRemoval(item);
         });
@@ -300,7 +308,8 @@ public:
     QAction *createAction(const QString &name, ToolChainFactory *factory, Utils::Id language)
     {
         auto action = new QAction(name, nullptr);
-        connect(action, &QAction::triggered, [this, factory, language] { createToolChain(factory, language); });
+        connect(action, &QAction::triggered, this,
+                [this, factory, language] { createToolChain(factory, language); });
         return action;
     }
 
@@ -310,6 +319,7 @@ public:
 
  private:
     TreeModel<TreeItem, ToolChainTreeItem> m_model;
+    KitSettingsSortModel m_sortModel;
     QList<ToolChainFactory *> m_factories;
     QTreeView *m_toolChainView;
     DetailsWidget *m_container;
@@ -514,7 +524,7 @@ void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory, const Ut
     auto item = insertToolChain(tc, true);
     m_toAddList.append(item);
 
-    m_toolChainView->setCurrentIndex(m_model.indexForItem(item));
+    m_toolChainView->setCurrentIndex(m_sortModel.mapFromSource(m_model.indexForItem(item)));
 }
 
 void ToolChainOptionsWidget::cloneToolChain()
@@ -533,7 +543,7 @@ void ToolChainOptionsWidget::cloneToolChain()
     auto item = insertToolChain(tc, true);
     m_toAddList.append(item);
 
-    m_toolChainView->setCurrentIndex(m_model.indexForItem(item));
+    m_toolChainView->setCurrentIndex(m_sortModel.mapFromSource(m_model.indexForItem(item)));
 }
 
 void ToolChainOptionsWidget::updateState()
@@ -552,8 +562,7 @@ void ToolChainOptionsWidget::updateState()
 
 ToolChainTreeItem *ToolChainOptionsWidget::currentTreeItem()
 {
-    QModelIndex index = m_toolChainView->currentIndex();
-    TreeItem *item = m_model.itemForIndex(index);
+    TreeItem *item = m_model.itemForIndex(m_sortModel.mapToSource(m_toolChainView->currentIndex()));
     return (item && item->level() == 3) ? static_cast<ToolChainTreeItem *>(item) : nullptr;
 }
 

@@ -23,7 +23,6 @@
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QRegularExpressionValidator>
-#include <QSettings>
 
 using namespace Core;
 using namespace TextEditor;
@@ -131,16 +130,12 @@ static SearchResultItems parse(const QFuture<void> &future, const QString &input
     return items;
 }
 
-static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParameters &parameters)
+static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParameters &parameters,
+                       const GitGrepParameters &gitParameters)
 {
-    const FilePath directory = FilePath::fromString(parameters.additionalParameters.toString());
-    const GitGrepParameters gitParameters
-        = parameters.searchEngineParameters.value<GitGrepParameters>();
-    const QString ref = gitParameters.ref.isEmpty() ? QString() : gitParameters.ref + ':';
-
-    const auto setupProcess = [&](Process &process) {
-        const FilePath vcsBinary = GitClient::instance()->vcsBinary();
-        const Environment environment = GitClient::instance()->processEnvironment();
+    const auto setupProcess = [&parameters, gitParameters](Process &process) {
+        const FilePath vcsBinary = gitClient().vcsBinary();
+        const Environment environment = gitClient().processEnvironment();
 
         QStringList arguments = {
             "-c", "color.grep.match=bold red",
@@ -174,12 +169,13 @@ static void runGitGrep(QPromise<SearchResultItems> &promise, const FileFindParam
 
         process.setEnvironment(environment);
         process.setCommand({vcsBinary, arguments});
-        process.setWorkingDirectory(directory);
+        process.setWorkingDirectory(parameters.searchDir);
     };
 
-    const auto outputParser = [&ref, &directory](const QFuture<void> &future, const QString &input,
+    const QString ref = gitParameters.ref.isEmpty() ? QString() : gitParameters.ref + ':';
+    const auto outputParser = [&ref, &parameters](const QFuture<void> &future, const QString &input,
                                                  const std::optional<QRegularExpression> &regExp) {
-        return parse(future, input, regExp, ref, directory);
+        return parse(future, input, regExp, ref, parameters.searchDir);
     };
 
     TextEditor::searchInProcessOutput(promise, parameters, setupProcess, outputParser);
@@ -192,8 +188,7 @@ static bool isGitDirectory(const FilePath &path)
     return gitVc == VcsManager::findVersionControlForDirectory(path);
 }
 
-GitGrep::GitGrep(GitClient *client)
-    : m_client(client)
+GitGrep::GitGrep()
 {
     m_widget = new QWidget;
     auto layout = new QHBoxLayout(m_widget);
@@ -206,7 +201,7 @@ GitGrep::GitGrep(GitClient *client)
     m_treeLineEdit->setValidator(new QRegularExpressionValidator(refExpression, this));
     layout->addWidget(m_treeLineEdit);
     // asynchronously check git version, add "recurse submodules" option if available
-    Utils::onResultReady(client->gitVersion(), this,
+    Utils::onResultReady(gitClient().gitVersion(), this,
                          [this, pLayout = QPointer<QHBoxLayout>(layout)](unsigned version) {
         if (version >= 0x021300 && pLayout) {
             m_recurseSubmodules = new QCheckBox(Tr::tr("Recurse submodules"));
@@ -215,7 +210,7 @@ GitGrep::GitGrep(GitClient *client)
     });
     FindInFiles *findInFiles = FindInFiles::instance();
     QTC_ASSERT(findInFiles, return);
-    connect(findInFiles, &FindInFiles::pathChanged, m_widget, [this](const FilePath &path) {
+    connect(findInFiles, &FindInFiles::searchDirChanged, m_widget, [this](const FilePath &path) {
         setEnabled(isGitDirectory(path));
     });
     connect(this, &SearchEngine::enabledChanged, m_widget, &QWidget::setEnabled);
@@ -245,47 +240,42 @@ QWidget *GitGrep::widget() const
     return m_widget;
 }
 
-QVariant GitGrep::parameters() const
+GitGrepParameters GitGrep::gitParameters() const
 {
-    GitGrepParameters params;
-    params.ref = m_treeLineEdit->text();
-    if (m_recurseSubmodules)
-        params.recurseSubmodules = m_recurseSubmodules->isChecked();
-    return QVariant::fromValue(params);
+    return {m_treeLineEdit->text(), m_recurseSubmodules && m_recurseSubmodules->isChecked()};
 }
 
-void GitGrep::readSettings(QSettings *settings)
+void GitGrep::readSettings(QtcSettings *settings)
 {
     m_treeLineEdit->setText(settings->value(GitGrepRef).toString());
 }
 
-void GitGrep::writeSettings(QSettings *settings) const
+void GitGrep::writeSettings(QtcSettings *settings) const
 {
     settings->setValue(GitGrepRef, m_treeLineEdit->text());
 }
 
-QFuture<SearchResultItems> GitGrep::executeSearch(const FileFindParameters &parameters,
-                                                  BaseFileFind *)
+SearchExecutor GitGrep::searchExecutor() const
 {
-    return Utils::asyncRun(runGitGrep, parameters);
+    return [gitParameters = gitParameters()](const FileFindParameters &parameters) {
+        return Utils::asyncRun(runGitGrep, parameters, gitParameters);
+    };
 }
 
-IEditor *GitGrep::openEditor(const SearchResultItem &item,
-                             const FileFindParameters &parameters)
+EditorOpener GitGrep::editorOpener() const
 {
-    const GitGrepParameters params = parameters.searchEngineParameters.value<GitGrepParameters>();
-    const QStringList &itemPath = item.path();
-    if (params.ref.isEmpty() || itemPath.isEmpty())
-        return nullptr;
-    const FilePath path = FilePath::fromUserInput(itemPath.first());
-    const FilePath topLevel = FilePath::fromString(parameters.additionalParameters.toString());
-    IEditor *editor = m_client->openShowEditor(topLevel, params.ref, path,
-                                               GitClient::ShowEditor::OnlyIfDifferent);
-    if (editor)
-        editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);
-    return editor;
+    return [params = gitParameters()](const SearchResultItem &item,
+                                      const FileFindParameters &parameters) -> IEditor * {
+        const QStringList &itemPath = item.path();
+        if (params.ref.isEmpty() || itemPath.isEmpty())
+            return nullptr;
+        const FilePath path = FilePath::fromUserInput(itemPath.first());
+        IEditor *editor = gitClient().openShowEditor(
+            parameters.searchDir, params.ref, path, GitClient::ShowEditor::OnlyIfDifferent);
+        if (editor)
+            editor->gotoLine(item.mainRange().begin.line, item.mainRange().begin.column);
+        return editor;
+    };
 }
 
 } // Git::Internal
-
-Q_DECLARE_METATYPE(Git::Internal::GitGrepParameters)

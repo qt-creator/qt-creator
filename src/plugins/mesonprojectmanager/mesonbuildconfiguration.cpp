@@ -3,34 +3,73 @@
 
 #include "mesonbuildconfiguration.h"
 
-#include "mesonbuildsettingswidget.h"
+#include "buildoptionsmodel.h"
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
-#include "mesonpluginconstants.h"
+#include "mesonprojectmanagertr.h"
 #include "mesonwrapper.h"
 #include "ninjabuildstep.h"
 
+#include <coreplugin/find/itemviewfind.h>
+
+#include <projectexplorer/buildaspects.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectconfiguration.h>
 #include <projectexplorer/projectexplorer.h>
 
-#include <utils/fileutils.h>
+#include <utils/categorysortfiltermodel.h>
+#include <utils/detailswidget.h>
+#include <utils/headerviewstretcher.h>
+#include <utils/itemviews.h>
+#include <utils/layoutbuilder.h>
 #include <utils/process.h>
+#include <utils/progressindicator.h>
+#include <utils/utilsicons.h>
 
-#include <QDir>
+#include <QLayout>
+#include <QPushButton>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
-MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target, Utils::Id id)
-    : ProjectExplorer::BuildConfiguration{target, id}
+const QHash<QString, MesonBuildType> buildTypesByName = {
+    {"plain", MesonBuildType::plain},
+    {"debug", MesonBuildType::debug},
+    {"debugoptimized", MesonBuildType::debugoptimized},
+    {"release", MesonBuildType::release},
+    {"minsize", MesonBuildType::minsize},
+    {"custom", MesonBuildType::custom}
+ };
+
+static MesonBuildType mesonBuildType(const QString &typeName)
+{
+    return buildTypesByName.value(typeName, MesonBuildType::custom);
+}
+
+static FilePath shadowBuildDirectory(const FilePath &projectFilePath,
+                                     const Kit *k,
+                                     const QString &bcName,
+                                     BuildConfiguration::BuildType buildType)
+{
+    if (projectFilePath.isEmpty())
+        return {};
+
+    const QString projectName = projectFilePath.parentDir().fileName();
+    return MesonBuildConfiguration::buildDirectoryFromTemplate(
+        Project::projectDirectory(projectFilePath), projectFilePath,
+        projectName, k, bcName, buildType, "meson");
+}
+
+MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target, Id id)
+    : BuildConfiguration(target, id)
 {
     appendInitialBuildStep(Constants::MESON_BUILD_STEP_ID);
     appendInitialCleanStep(Constants::MESON_BUILD_STEP_ID);
@@ -50,19 +89,6 @@ MesonBuildConfiguration::MesonBuildConfiguration(ProjectExplorer::Target *target
 MesonBuildConfiguration::~MesonBuildConfiguration()
 {
     delete m_buildSystem;
-}
-
-FilePath MesonBuildConfiguration::shadowBuildDirectory(const FilePath &projectFilePath,
-                                                       const Kit *k,
-                                                       const QString &bcName,
-                                                       BuildConfiguration::BuildType buildType)
-{
-    if (projectFilePath.isEmpty())
-        return {};
-
-    const QString projectName = projectFilePath.parentDir().fileName();
-    return buildDirectoryFromTemplate(Project::projectDirectory(projectFilePath), projectFilePath,
-                                      projectName, k, bcName, buildType, "meson");
 }
 
 ProjectExplorer::BuildSystem *MesonBuildConfiguration::buildSystem() const
@@ -89,6 +115,11 @@ void MesonBuildConfiguration::build(const QString &target)
         mesonBuildStep->setBuildTarget(originalBuildTarget);
 }
 
+static QString mesonBuildTypeName(MesonBuildType type)
+{
+    return buildTypesByName.key(type, "custom");
+}
+
 QStringList MesonBuildConfiguration::mesonConfigArgs()
 {
     return Utils::ProcessArgs::splitArgs(m_parameters, HostOsInfo::hostOs())
@@ -106,32 +137,214 @@ void MesonBuildConfiguration::setParameters(const QString &params)
     emit parametersChanged();
 }
 
-QVariantMap MesonBuildConfiguration::toMap() const
+void MesonBuildConfiguration::toMap(Store &map) const
 {
-    auto data = ProjectExplorer::BuildConfiguration::toMap();
-    data[Constants::BuildConfiguration::BUILD_TYPE_KEY] = mesonBuildTypeName(m_buildType);
-    data[Constants::BuildConfiguration::PARAMETERS_KEY] = m_parameters;
-    return data;
+    ProjectExplorer::BuildConfiguration::toMap(map);
+    map[Constants::BuildConfiguration::BUILD_TYPE_KEY] = mesonBuildTypeName(m_buildType);
+    map[Constants::BuildConfiguration::PARAMETERS_KEY] = m_parameters;
 }
 
-bool MesonBuildConfiguration::fromMap(const QVariantMap &map)
+void MesonBuildConfiguration::fromMap(const Store &map)
 {
-    auto res = ProjectExplorer::BuildConfiguration::fromMap(map);
+    ProjectExplorer::BuildConfiguration::fromMap(map);
     m_buildSystem = new MesonBuildSystem{this};
     m_buildType = mesonBuildType(
         map.value(Constants::BuildConfiguration::BUILD_TYPE_KEY).toString());
     m_parameters = map.value(Constants::BuildConfiguration::PARAMETERS_KEY).toString();
-    return res;
 }
 
-ProjectExplorer::NamedWidget *MesonBuildConfiguration::createConfigWidget()
+class MesonBuildSettingsWidget : public NamedWidget
+{
+public:
+    explicit MesonBuildSettingsWidget(MesonBuildConfiguration *buildCfg)
+        : NamedWidget(Tr::tr("Meson")), m_progressIndicator(ProgressIndicatorSize::Large)
+    {
+        auto configureButton = new QPushButton(Tr::tr("Apply Configuration Changes"));
+        configureButton->setEnabled(false);
+        configureButton->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+
+        auto wipeButton = new QPushButton(Tr::tr("Wipe Project"));
+        wipeButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        wipeButton->setIcon(Utils::Icons::WARNING.icon());
+        wipeButton->setToolTip(Tr::tr("Wipes build directory and reconfigures using previous command "
+                                      "line options.\nUseful if build directory is corrupted or when "
+                                      "rebuilding with a newer version of Meson."));
+
+        auto container = new DetailsWidget;
+
+        auto details = new QWidget;
+
+        container->setState(DetailsWidget::NoSummary);
+        container->setWidget(details);
+
+        auto parametersLineEdit = new QLineEdit;
+
+        auto optionsFilterLineEdit = new FancyLineEdit;
+
+        auto optionsTreeView = new TreeView;
+        optionsTreeView->setMinimumHeight(300);
+        optionsTreeView->setFrameShape(QFrame::NoFrame);
+        optionsTreeView->setSelectionBehavior(QAbstractItemView::SelectItems);
+        optionsTreeView->setSortingEnabled(true);
+
+        using namespace Layouting;
+        Column {
+            noMargin,
+            Form {
+                 Tr::tr("Parameters:"), parametersLineEdit, br,
+                buildCfg->buildDirectoryAspect(), br
+            },
+            optionsFilterLineEdit,
+            optionsTreeView,
+        }.attachTo(details);
+
+        Column {
+               noMargin,
+            container,
+            Row { configureButton, wipeButton, noMargin }
+        }.attachTo(this);
+
+        parametersLineEdit->setText(buildCfg->parameters());
+        optionsFilterLineEdit->setFiltering(true);
+
+        optionsTreeView->sortByColumn(0, Qt::AscendingOrder);
+
+        QFrame *findWrapper
+            = Core::ItemViewFind::createSearchableWrapper(optionsTreeView,
+                                                          Core::ItemViewFind::LightColored);
+        findWrapper->setFrameStyle(QFrame::StyledPanel);
+        m_progressIndicator.attachToWidget(findWrapper);
+        m_progressIndicator.raise();
+        m_progressIndicator.hide();
+        details->layout()->addWidget(findWrapper);
+
+        m_showProgressTimer.setSingleShot(true);
+        m_showProgressTimer.setInterval(50); // don't show progress for < 50ms tasks
+        connect(&m_showProgressTimer, &QTimer::timeout,
+                this, [this] { m_progressIndicator.show(); });
+        connect(&m_optionsModel, &BuidOptionsModel::configurationChanged, this, [configureButton] {
+            configureButton->setEnabled(true);
+        });
+        m_optionsFilter.setSourceModel(&m_optionsModel);
+        m_optionsFilter.setSortRole(Qt::DisplayRole);
+        m_optionsFilter.setFilterKeyColumn(-1);
+
+        optionsTreeView->setModel(&m_optionsFilter);
+        optionsTreeView->setItemDelegate(new BuildOptionDelegate{optionsTreeView});
+
+        MesonBuildSystem *bs = static_cast<MesonBuildSystem *>(buildCfg->buildSystem());
+        connect(buildCfg->target(), &ProjectExplorer::Target::parsingFinished,
+                this, [this, bs, optionsTreeView](bool success) {
+            if (success) {
+                m_optionsModel.setConfiguration(bs->buildOptions());
+            } else {
+                m_optionsModel.clear();
+            }
+            optionsTreeView->expandAll();
+            optionsTreeView->resizeColumnToContents(0);
+            optionsTreeView->setEnabled(true);
+            m_showProgressTimer.stop();
+            m_progressIndicator.hide();
+        });
+
+        connect(bs, &MesonBuildSystem::parsingStarted, this, [this, optionsTreeView] {
+            if (!m_showProgressTimer.isActive()) {
+                optionsTreeView->setEnabled(false);
+                m_showProgressTimer.start();
+            }
+        });
+
+        connect(&m_optionsModel, &BuidOptionsModel::dataChanged, this, [bs, this] {
+            bs->setMesonConfigArgs(this->m_optionsModel.changesAsMesonArgs());
+        });
+
+        connect(&m_optionsFilter, &QAbstractItemModel::modelReset, this, [optionsTreeView] {
+            optionsTreeView->expandAll();
+            optionsTreeView->resizeColumnToContents(0);
+        });
+
+        connect(optionsFilterLineEdit, &QLineEdit::textChanged, &m_optionsFilter, [this](const QString &txt) {
+            m_optionsFilter.setFilterRegularExpression(
+                QRegularExpression(QRegularExpression::escape(txt),
+                                   QRegularExpression::CaseInsensitiveOption));
+        });
+
+        connect(optionsTreeView,
+                &Utils::TreeView::activated,
+                optionsTreeView,
+                [tree = optionsTreeView](const QModelIndex &idx) { tree->edit(idx); });
+
+        connect(configureButton, &QPushButton::clicked,
+                this, [this, bs, configureButton, optionsTreeView] {
+            optionsTreeView->setEnabled(false);
+            configureButton->setEnabled(false);
+            m_showProgressTimer.start();
+            bs->configure();
+        });
+        connect(wipeButton, &QPushButton::clicked,
+                this, [this, bs, configureButton, optionsTreeView] {
+            optionsTreeView->setEnabled(false);
+            configureButton->setEnabled(false);
+            m_showProgressTimer.start();
+            bs->wipe();
+        });
+        connect(parametersLineEdit, &QLineEdit::editingFinished, this, [ buildCfg, parametersLineEdit] {
+            buildCfg->setParameters(parametersLineEdit->text());
+        });
+        bs->triggerParsing();
+    }
+
+private:
+    BuidOptionsModel m_optionsModel;
+    CategorySortFilterModel m_optionsFilter;
+    ProgressIndicator m_progressIndicator;
+    QTimer m_showProgressTimer;
+};
+
+NamedWidget *MesonBuildConfiguration::createConfigWidget()
 {
     return new MesonBuildSettingsWidget{this};
 }
 
-ProjectExplorer::BuildInfo createBuildInfo(MesonBuildType type)
+static BuildConfiguration::BuildType buildType(MesonBuildType type)
 {
-    ProjectExplorer::BuildInfo bInfo;
+    switch (type) {
+    case MesonBuildType::plain:
+        return BuildConfiguration::Unknown;
+    case MesonBuildType::debug:
+        return BuildConfiguration::Debug;
+    case MesonBuildType::debugoptimized:
+        return BuildConfiguration::Profile;
+    case MesonBuildType::release:
+        return BuildConfiguration::Release;
+    case MesonBuildType::minsize:
+        return BuildConfiguration::Release;
+    default:
+        return BuildConfiguration::Unknown;
+    }
+}
+
+static QString mesonBuildTypeDisplayName(MesonBuildType type)
+{
+    switch (type) {
+    case MesonBuildType::plain:
+        return {"Plain"};
+    case MesonBuildType::debug:
+        return {"Debug"};
+    case MesonBuildType::debugoptimized:
+        return {"Debug With Optimizations"};
+    case MesonBuildType::release:
+        return {"Release"};
+    case MesonBuildType::minsize:
+        return {"Minimum Size"};
+    default:
+        return {"Custom"};
+    }
+}
+
+BuildInfo createBuildInfo(MesonBuildType type)
+{
+    BuildInfo bInfo;
     bInfo.typeName = mesonBuildTypeName(type);
     bInfo.displayName = mesonBuildTypeDisplayName(type);
     bInfo.buildType = buildType(type);
@@ -148,7 +361,7 @@ MesonBuildConfigurationFactory::MesonBuildConfigurationFactory()
             QList<ProjectExplorer::BuildInfo> result;
 
             Utils::FilePath path = forSetup
-                                       ? ProjectExplorer::Project::projectDirectory(projectPath)
+                                       ? Project::projectDirectory(projectPath)
                                        : projectPath;
             for (const auto &bType : {MesonBuildType::debug,
                                       MesonBuildType::release,
@@ -156,16 +369,14 @@ MesonBuildConfigurationFactory::MesonBuildConfigurationFactory()
                                       MesonBuildType::minsize}) {
                 auto bInfo = createBuildInfo(bType);
                 if (forSetup)
-                    bInfo.buildDirectory
-                        = MesonBuildConfiguration::shadowBuildDirectory(projectPath,
-                                                                        k,
-                                                                        bInfo.typeName,
-                                                                        bInfo.buildType);
+                    bInfo.buildDirectory = shadowBuildDirectory(projectPath,
+                                                                k,
+                                                                bInfo.typeName,
+                                                                bInfo.buildType);
                 result << bInfo;
             }
             return result;
         });
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

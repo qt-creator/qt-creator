@@ -15,7 +15,7 @@
 #include <qmldebug/qmldebugcommandlinearguments.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/async.h>
 #include <utils/filepath.h>
@@ -30,9 +30,9 @@ using namespace Utils;
 
 namespace QmlPreview {
 
-static const QString QmlServerUrl = "QmlServerUrl";
+static const Key QmlServerUrl = "QmlServerUrl";
 
-class RefreshTranslationWorker final : public ProjectExplorer::RunWorker
+class RefreshTranslationWorker final : public RunWorker
 {
 public:
     explicit RefreshTranslationWorker(ProjectExplorer::RunControl *runControl,
@@ -42,6 +42,7 @@ public:
         setId("RefreshTranslationWorker");
         connect(this, &RunWorker::started, this, &RefreshTranslationWorker::startRefreshTranslationsAsync);
         connect(this, &RunWorker::stopped, &m_futureWatcher, &QFutureWatcher<void>::cancel);
+        connect(&m_futureWatcher, &QFutureWatcherBase::finished, this, &RefreshTranslationWorker::stop);
     }
     ~RefreshTranslationWorker()
     {
@@ -54,7 +55,6 @@ private:
     {
         m_futureWatcher.setFuture(Utils::asyncRun([this] {
             m_runnerSettings.refreshTranslationsFunction();
-            stop();
         }));
     }
     QmlPreviewRunnerSetting m_runnerSettings;

@@ -1,0 +1,187 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-tutorial-python-application-qt-quick.html
+    \previouspage creator-tutorials.html
+    \nextpage creator-project-managing.html
+
+    \ingroup creator-tutorials
+
+    \title Creating a Qt for Python Application with Qt Quick
+
+    \brief How to develop a Qt Quick application with Python.
+
+    First, create a Qt for Python application project. Then, edit the boilerplate
+    code to develop a small application that uses Qt Quick to display the text
+    \e {Hello World} in several languages.
+
+    \image qtcreator-new-qt-for-python-app-qt-quick-empty-project-ready.webp {A small Qt Quick application}
+
+    \section1 Creating an Empty Project
+
+    To create a Qt for Python application that has a main QML file:
+
+    \list 1
+        \li Select \uicontrol File > \uicontrol {New Project} >
+            \uicontrol {Application (Qt for Python)} >
+            \uicontrol {Qt Quick Application - Empty} > \uicontrol Choose.
+
+            The \uicontrol {Project Location} dialog opens.
+            \image qtcreator-new-qt-for-python-app-qt-quick-empty-project-location.webp {Project Location dialog}
+        \li In \uicontrol {Name}, enter the project name. For example,
+            \e {hello_world_quick}.
+        \li In \uicontrol {Create in}, enter the path for the project files.
+            For example, \c {C:\Qt\examples}.
+        \li Select \uicontrol{Next} (on Windows and Linux) or \uicontrol Continue
+            (on \macos) to open the \uicontrol {Define Project Details} dialog.
+            \image qtcreator-new-qt-for-python-app-qt-quick-empty-project-details.webp {Define Project Details dialog}
+        \li In \uicontrol {PySide version}, select the PySide version of
+            the generated code.
+        \li In \uicontrol {Interpreter}, select the Python interpreter to use for
+            the project.
+        \li Select the \uicontrol {Create new virtual environment} check box to
+            use a clean \l{https://docs.python.org/3/library/venv.html}{Python}
+            environment that is independent of your global Python installation.
+        \li In \uicontrol {Path to virtual environment}, specify the directory
+            where to create the environment.
+        \li Select \uicontrol{Next} or \uicontrol Continue.
+        \li Review the project settings, and select \uicontrol {Finish} (on
+            Windows and Linux) or \uicontrol Done (on \macos) to create the
+            project.
+    \endlist
+
+    The wizard generates the following files:
+
+    \list
+        \li \c {hello_world_quick.pyproject}, which lists the files in the Python
+            project.
+        \li \c {main.py}, which has some boilerplate code.
+        \li \c {main.qml}, which imports Qt Quick controls.
+    \endlist
+
+    \section1 Adding Qt Quick Imports
+
+    The wizard adds the following imports to the \c {main.py} source file for
+    access to QGuiApplication and QQmlApplicationEngine:
+
+    \badcode
+    import sys
+    from pathlib import Path
+
+    from PySide6.QtGui import QGuiApplication
+    from PySide6.QtQml import QQmlApplicationEngine
+    \endcode
+
+    \section1 Adding a Main Function
+
+    The wizard also adds a main function, where it creates a QGuiApplication
+    instance and passes system arguments to the QGuiApplication object:
+
+    \badcode
+    if __name__ == "__main__":
+        app = QGuiApplication(sys.argv)
+        ...
+    \endcode
+
+    \section1 Loading the QML File
+
+    The following lines in the main class create a QQmlApplicationEngine
+    instance and load the generated QML file to the engine object:
+
+    \badcode
+        ...
+        engine = QQmlApplicationEngine()
+        qml_file = Path(__file__).resolve().parent / "main.qml"
+        engine.load(qml_file)
+        ...
+    \endcode
+
+    Finally, the wizard adds code that checks whether the file was successfully
+    loaded. If loading the file fails, the application exits with an error code.
+    If loading succeeds, the wizard calls the \c app.exec() method to enter the
+    Qt main loop and start executing the Qt code:
+
+    \badcode
+    ...
+    if not engine.rootObjects():
+        sys.exit(-1)
+    sys.exit(app.exec())
+    ...
+    \endcode
+
+    \section1 Designing the UI
+
+    Open the \c {main.qml} file in the \uicontrol Edit mode to design a
+    Qt Quick UI.
+
+    \section2 Adding Imports
+
+    Add imports for Qt Quick Controls and Layouts:
+
+    \badcode
+    import QtQuick
+    import QtQuick.Window
+    import QtQuick.Controls
+    import QtQuick.Layouts
+    \endcode
+
+    \section2 Adding Properties and Functions
+
+    The wizard adds a main window:
+
+    \badcode
+    Window {
+        width: 640
+        height: 480
+        visible: true
+        title: qsTr("Hello World")
+    }
+    \endcode
+
+    Add a property and function to randomly select the language of the displayed
+    text:
+
+    \badcode
+        ...
+        readonly property list<string> texts: ["Hallo Welt", "Hei maailma",
+                                           "Hola Mundo", "Привет мир"]
+
+    function setText() {
+        var i = Math.round(Math.random() * 3)
+        text.text = texts[i]
+    }
+    \endcode
+
+    \section2 Adding Qt Quick Controls
+
+    Add \l {Text} and \l {Button} QML types within a \l {ColumnLayout} type to
+    design the UI:
+
+    \badcode
+        ColumnLayout {
+        anchors.fill:  parent
+
+        Text {
+            id: text
+            text: "Hello World"
+            Layout.alignment: Qt.AlignHCenter
+        }
+        Button {
+            text: "Click me"
+            Layout.alignment: Qt.AlignHCenter
+            onClicked:  setText()
+        }
+    }
+    \endcode
+
+    You can also use \l{Qt Design Studio Manual}{\QDS} to design Qt Quick UIs.
+
+    \section1 Running the Application
+
+    Select the \inlineimage icons/run_small.png
+    button to run the application.
+
+    \sa {Creating a Qt for Python Application with Qt Widgets},
+    {Develop Qt for Python Applications}
+*/

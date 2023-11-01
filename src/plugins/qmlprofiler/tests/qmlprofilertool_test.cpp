@@ -5,17 +5,23 @@
 #include "fakedebugserver.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/runcontrol.h>
+
 #include <qmlprofiler/qmlprofilerattachdialog.h>
 #include <qmlprofiler/qmlprofilerclientmanager.h>
 #include <qmlprofiler/qmlprofilermodelmanager.h>
 #include <qmlprofiler/qmlprofilerstatemanager.h>
+
+#include <utils/qtcsettings.h>
 #include <utils/url.h>
 
 #include <QTcpServer>
 #include <QtTest>
+
+using namespace Utils;
 
 namespace QmlProfiler {
 namespace Internal {
@@ -26,9 +32,9 @@ void QmlProfilerToolTest::testAttachToWaitingApplication()
     QVERIFY(kitManager);
     ProjectExplorer::Kit * const newKit = ProjectExplorer::KitManager::registerKit({}, "fookit");
     QVERIFY(newKit);
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     QVERIFY(settings);
-    settings->setValue(QLatin1String("AnalyzerQmlAttachDialog/kitId"), newKit->id().toSetting());
+    settings->setValue("AnalyzerQmlAttachDialog/kitId", newKit->id().toSetting());
 
     QmlProfilerTool &profilerTool = *QmlProfilerTool::instance();
 

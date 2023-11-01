@@ -3,20 +3,22 @@
 
 #pragma once
 
-#include "../beautifierabstracttool.h"
+#include "../beautifiertool.h"
 
-#include "clangformatsettings.h"
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 namespace Beautifier::Internal {
 
-class ClangFormat : public BeautifierAbstractTool
+class ClangFormat : public BeautifierTool
 {
 public:
     ClangFormat();
 
     QString id() const override;
     void updateActions(Core::IEditor *editor) override;
-    TextEditor::Command command() const override;
+    TextEditor::Command textCommand() const override;
     bool isApplicable(const Core::IDocument *document) const override;
 
 private:
@@ -25,14 +27,12 @@ private:
     void formatAtCursor();
     void formatLines();
     void disableFormattingSelectedText();
-    TextEditor::Command command(int offset, int length) const;
+    TextEditor::Command textCommand(int offset, int length) const;
 
     QAction *m_formatFile = nullptr;
     QAction *m_formatLines = nullptr;
     QAction *m_formatRange = nullptr;
     QAction *m_disableFormattingSelectedText = nullptr;
-    ClangFormatSettings m_settings;
-    ClangFormatOptionsPage m_page{&m_settings};
 };
 
 } // Beautifier::Internal

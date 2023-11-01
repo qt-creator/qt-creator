@@ -33,11 +33,15 @@ public:
     void setFormatOnSave(bool enable);
     bool formatOnSave() const;
 
+    void setFileSizeThreshold(int fileSizeInKb);
+    int fileSizeThreshold() const;
+
 private:
     Mode m_mode;
     bool m_overrideDefaultFile = false;
     bool m_formatWhileTyping = false;
     bool m_formatOnSave = false;
+    int m_fileSizeThreshold = 200;
 };
 
 } // namespace ClangFormat

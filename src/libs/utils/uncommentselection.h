@@ -31,7 +31,7 @@ public:
     bool hasMultiLineStyle() const;
 
 public:
-    bool isAfterWhiteSpaces = false;
+    bool isAfterWhitespace = false;
     QString singleLine;
     QString multiLineStart;
     QString multiLineEnd;

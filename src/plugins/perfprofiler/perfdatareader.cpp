@@ -3,11 +3,7 @@
 
 #include "perfdatareader.h"
 #include "perfprofilerconstants.h"
-#include "perfprofilerplugin.h"
 #include "perfprofilertr.h"
-#include "perfrunconfigurationaspect.h"
-#include "perfsettings.h"
-#include "perftimelinemodel.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
@@ -15,16 +11,16 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <QDateTime>
 #include <QDebug>

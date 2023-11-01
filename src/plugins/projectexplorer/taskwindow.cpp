@@ -21,6 +21,7 @@
 #include <coreplugin/session.h>
 
 #include <utils/algorithm.h>
+#include <utils/execmenu.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/hostosinfo.h>
 #include <utils/itemviews.h>
@@ -167,6 +168,10 @@ static QToolButton *createFilterButton(const QIcon &icon, const QString &toolTip
 
 TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 {
+    setId("Issues");
+    setDisplayName(Tr::tr("Issues"));
+    setPriorityInStatusBar(100);
+
     d->m_model = new Internal::TaskModel(this);
     d->m_filter = new Internal::TaskFilterModel(d->m_model);
     d->m_filter->setAutoAcceptChildRows(true);
@@ -221,6 +226,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
     d->m_categoriesMenu = new QMenu(d->m_categoriesButton);
     connect(d->m_categoriesMenu, &QMenu::aboutToShow, this, &TaskWindow::updateCategoriesMenu);
+    Utils::addToolTipsToMenu(d->m_categoriesMenu);
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
@@ -239,17 +245,17 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
     connect(hub, &TaskHub::showTask, this, &TaskWindow::showTask);
     connect(hub, &TaskHub::openTask, this, &TaskWindow::openTask);
 
-    connect(d->m_filter, &TaskFilterModel::rowsAboutToBeRemoved,
+    connect(d->m_filter, &TaskFilterModel::rowsAboutToBeRemoved, this,
             [this](const QModelIndex &, int first, int last) {
         d->m_visibleIssuesCount -= d->m_filter->issuesCount(first, last);
         emit setBadgeNumber(d->m_visibleIssuesCount);
     });
-    connect(d->m_filter, &TaskFilterModel::rowsInserted,
+    connect(d->m_filter, &TaskFilterModel::rowsInserted, this,
             [this](const QModelIndex &, int first, int last) {
         d->m_visibleIssuesCount += d->m_filter->issuesCount(first, last);
         emit setBadgeNumber(d->m_visibleIssuesCount);
     });
-    connect(d->m_filter, &TaskFilterModel::modelReset, [this] {
+    connect(d->m_filter, &TaskFilterModel::modelReset, this, [this] {
         d->m_visibleIssuesCount = d->m_filter->issuesCount(0, d->m_filter->rowCount());
         emit setBadgeNumber(d->m_visibleIssuesCount);
     });
@@ -304,11 +310,6 @@ QList<QWidget*> TaskWindow::toolBarWidgets() const
     return {d->m_filterWarningsButton, d->m_categoriesButton, filterWidget()};
 }
 
-QString TaskWindow::displayName() const
-{
-    return Tr::tr("Issues");
-}
-
 QWidget *TaskWindow::outputWidget(QWidget *)
 {
     return &d->m_treeView;
@@ -341,19 +342,19 @@ void TaskWindow::saveSettings()
 {
     const QStringList categories = Utils::toList(
         Utils::transform(d->m_filter->filteredCategories(), &Id::toString));
-    SessionManager::setValue(QLatin1String(SESSION_FILTER_CATEGORIES), categories);
-    SessionManager::setValue(QLatin1String(SESSION_FILTER_WARNINGS), d->m_filter->filterIncludesWarnings());
+    SessionManager::setValue(SESSION_FILTER_CATEGORIES, categories);
+    SessionManager::setValue(SESSION_FILTER_WARNINGS, d->m_filter->filterIncludesWarnings());
 }
 
 void TaskWindow::loadSettings()
 {
-    QVariant value = SessionManager::value(QLatin1String(SESSION_FILTER_CATEGORIES));
+    QVariant value = SessionManager::value(SESSION_FILTER_CATEGORIES);
     if (value.isValid()) {
         const QSet<Id> categories = Utils::toSet(
             Utils::transform(value.toStringList(), &Id::fromString));
         d->m_filter->setFilteredCategories(categories);
     }
-    value = SessionManager::value(QLatin1String(SESSION_FILTER_WARNINGS));
+    value = SessionManager::value(SESSION_FILTER_WARNINGS);
     if (value.isValid()) {
         bool includeWarnings = value.toBool();
         d->m_filter->setFilterIncludesWarnings(includeWarnings);
@@ -367,12 +368,12 @@ void TaskWindow::visibilityChanged(bool visible)
         delayedInitialization();
 }
 
-void TaskWindow::addCategory(Id categoryId, const QString &displayName, bool visible, int priority)
+void TaskWindow::addCategory(const TaskCategory &category)
 {
-    d->m_model->addCategory(categoryId, displayName, priority);
-    if (!visible) {
+    d->m_model->addCategory(category);
+    if (!category.visible) {
         QSet<Id> filters = d->m_filter->filteredCategories();
-        filters.insert(categoryId);
+        filters.insert(category.id);
         d->m_filter->setFilteredCategories(filters);
     }
 }
@@ -467,27 +468,20 @@ void TaskWindow::setShowWarnings(bool show)
 
 void TaskWindow::updateCategoriesMenu()
 {
-    using NameToIdsConstIt = QMap<QString, Id>::ConstIterator;
-
     d->m_categoriesMenu->clear();
 
     const QSet<Id> filteredCategories = d->m_filter->filteredCategories();
+    const QList<TaskCategory> categories = Utils::sorted(d->m_model->categories(),
+                                                         &TaskCategory::displayName);
 
-    QMap<QString, Id> nameToIds;
-    const QList<Id> ids = d->m_model->categoryIds();
-    for (const Id categoryId : ids)
-        nameToIds.insert(d->m_model->categoryDisplayName(categoryId), categoryId);
-
-    const NameToIdsConstIt cend = nameToIds.constEnd();
-    for (NameToIdsConstIt it = nameToIds.constBegin(); it != cend; ++it) {
-        const QString &displayName = it.key();
-        const Id categoryId = it.value();
+    for (const TaskCategory &c : categories) {
         auto action = new QAction(d->m_categoriesMenu);
         action->setCheckable(true);
-        action->setText(displayName);
-        action->setChecked(!filteredCategories.contains(categoryId));
-        connect(action, &QAction::triggered, this, [this, action, categoryId] {
-            setCategoryVisibility(categoryId, action->isChecked());
+        action->setText(c.displayName);
+        action->setToolTip(c.description);
+        action->setChecked(!filteredCategories.contains(c.id));
+        connect(action, &QAction::triggered, this, [this, action, id = c.id] {
+            setCategoryVisibility(id, action->isChecked());
         });
         d->m_categoriesMenu->addAction(action);
     }
@@ -506,11 +500,6 @@ int TaskWindow::errorTaskCount(Id category) const
 int TaskWindow::warningTaskCount(Id category) const
 {
     return d->m_model->warningTaskCount(category);
-}
-
-int TaskWindow::priorityInStatusBar() const
-{
-    return 90;
 }
 
 void TaskWindow::clearContents()
@@ -672,6 +661,7 @@ TaskView::TaskView()
 {
     setMouseTracking(true);
     setVerticalScrollMode(ScrollPerPixel);
+    setUniformRowHeights(false);
 }
 
 void TaskView::resizeColumns()

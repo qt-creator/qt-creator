@@ -15,7 +15,7 @@ Item {
     property bool expanded: model && model.expanded
     property var labels: (expanded && model) ? model.labels : []
 
-    property bool dragging
+    property bool isDragging
     property int visualIndex
     property int dragOffset
     property Item draggerParent
@@ -38,10 +38,10 @@ Item {
         id: dragArea
         anchors.fill: txt
         drag.target: dragger
-        cursorShape: labelContainer.dragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+        cursorShape: labelContainer.isDragging ? Qt.ClosedHandCursor : Qt.OpenHandCursor
         // Account for parent change below
-        drag.minimumY: labelContainer.dragging ? 0 : -labelContainer.dragOffset
-        drag.maximumY: labelContainer.visibleHeight - (labelContainer.dragging ? 0 : labelContainer.dragOffset)
+        drag.minimumY: labelContainer.isDragging ? 0 : -labelContainer.dragOffset
+        drag.maximumY: labelContainer.visibleHeight - (labelContainer.isDragging ? 0 : labelContainer.dragOffset)
         drag.axis: Drag.YAxis
         hoverEnabled: true
         ToolTip {
@@ -221,7 +221,7 @@ Item {
 
     MouseArea {
         anchors.top: dragArea.bottom
-        anchors.bottom: labelContainer.dragging ? labelContainer.bottom : dragArea.bottom
+        anchors.bottom: labelContainer.isDragging ? labelContainer.bottom : dragArea.bottom
         anchors.left: labelContainer.left
         anchors.right: labelContainer.right
         cursorShape: dragArea.cursorShape

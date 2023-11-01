@@ -1,0 +1,34 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-preferences-nim.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-preferences
+
+    \title Nim
+
+    \brief Set Nim code style.
+
+    To specify settings for the Nim editor (experimental):
+
+    \list 1
+        \li Select \preferences > \uicontrol Nim.
+        \li In the \uicontrol {Current settings} field, select the settings to
+            modify and click \uicontrol Copy.
+            \image qtcreator-options-code-style-nim.png {Nim Code Style preferences}
+        \li Give a name to the settings and click \uicontrol OK.
+        \li Click \uicontrol Edit to specify code style settings for the project.
+            \image qtcreator-code-style-settings-edit-nim.png {Edit Code Style dialog}
+    \endlist
+
+    You can specify how to interpret the \key Tab key presses and how to align
+    continuation lines.
+
+    To specify different settings for a particular project, select
+    \uicontrol Projects > \uicontrol {Code Style}.
+
+    \sa {Find preferences}, {Indent text or code},
+    {Specify code style}, {Setting Up Nimble}
+*/

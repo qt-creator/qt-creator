@@ -45,6 +45,7 @@
 #include <texteditor/textmark.h>
 #include <texteditor/typingsettings.h>
 
+#include <utils/algorithm.h>
 #include <utils/aspects.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
@@ -72,7 +73,6 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollBar>
-#include <QSettings>
 #include <QStackedWidget>
 #include <QStandardPaths>
 #include <QStyleHints>
@@ -501,7 +501,7 @@ FakeVimExCommandsMappings::FakeVimExCommandsMappings()
 
     auto infoLabel = new InfoLabel(Tr::tr("Invalid regular expression."), InfoLabel::Error);
     infoLabel->setVisible(false);
-    connect(m_commandEdit, &FancyLineEdit::validChanged, [infoLabel](bool valid){
+    connect(m_commandEdit, &FancyLineEdit::validChanged, this, [infoLabel](bool valid){
         infoLabel->setVisible(!valid);
     });
     commandBoxLayout->addWidget(infoLabel);
@@ -635,7 +635,7 @@ void FakeVimExCommandsMappings::apply()
 
     if (newMapping != globalCommandMapping) {
         const ExCommandMap &defaultMap = dd->m_defaultExCommandMap;
-        QSettings *settings = ICore::settings();
+        QtcSettings *settings = ICore::settings();
         settings->beginWriteArray(exCommandMapGroup);
         int count = 0;
         using Iterator = ExCommandMap::const_iterator;
@@ -681,6 +681,8 @@ public:
         setWidgetCreator([] { return new FakeVimExCommandsPageWidget; });
     }
 };
+
+const FakeVimExCommandsPage exCommandPage;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -751,11 +753,10 @@ public:
 class FakeVimUserCommandsPageWidget : public IOptionsPageWidget
 {
 public:
-    FakeVimUserCommandsPageWidget(FakeVimUserCommandsModel *model)
-        : m_model(model)
+    FakeVimUserCommandsPageWidget()
     {
         auto widget = new QTreeView;
-        widget->setModel(m_model);
+        widget->setModel(&m_model);
         widget->resizeColumnToContents(0);
 
         auto delegate = new FakeVimUserCommandsDelegate(widget);
@@ -770,11 +771,11 @@ private:
     void apply() final
     {
         // now save the mappings if necessary
-        const UserCommandMap &current = m_model->commandMap();
+        const UserCommandMap &current = m_model.commandMap();
         UserCommandMap &userMap = dd->m_userCommandMap;
 
         if (current != userMap) {
-            QSettings *settings = ICore::settings();
+            QtcSettings *settings = ICore::settings();
             settings->beginWriteArray(userCommandMapGroup);
             int count = 0;
             using Iterator = UserCommandMap::const_iterator;
@@ -799,7 +800,7 @@ private:
         }
     }
 
-    FakeVimUserCommandsModel *m_model;
+    FakeVimUserCommandsModel m_model;
 };
 
 class FakeVimUserCommandsPage : public IOptionsPage
@@ -810,13 +811,11 @@ public:
         setId(SETTINGS_USER_CMDS_ID);
         setDisplayName(Tr::tr("User Command Mapping"));
         setCategory(SETTINGS_CATEGORY);
-        setWidgetCreator([this] { return new FakeVimUserCommandsPageWidget(&m_model); });
+        setWidgetCreator([] { return new FakeVimUserCommandsPageWidget; });
     }
-
-private:
-    FakeVimUserCommandsModel m_model;
 };
 
+const FakeVimUserCommandsPage userCommandsPage;
 
 ///////////////////////////////////////////////////////////////////////
 //
@@ -944,9 +943,8 @@ public:
             QString found = sel.selectedText();
             // Only add "real" completions.
             if (found.startsWith(needle)
-                    && !seen.contains(found)
-                    && sel.anchor() != basePosition) {
-                seen.insert(found);
+                    && sel.anchor() != basePosition
+                    && Utils::insert(seen, found)) {
                 auto item = new FakeVimAssistProposalItem(m_provider);
                 item->setText(found);
                 items.append(item);
@@ -978,10 +976,6 @@ IAssistProcessor *FakeVimCompletionAssistProvider::createProcessor(const AssistI
 class FakeVimPluginRunData
 {
 public:
-    FakeVimSettings settings;
-    FakeVimExCommandsPage exCommandsPage;
-    FakeVimUserCommandsPage userCommandsPage;
-
     FakeVimCompletionAssistProvider wordProvider;
 };
 
@@ -1089,16 +1083,16 @@ void FakeVimPluginPrivate::initialize()
             this, &FakeVimPluginPrivate::documentRenamed);
 
     FakeVimSettings &s = settings();
-    connect(&s.useFakeVim, &FvBoolAspect::valueChanged,
-            this, &FakeVimPluginPrivate::setUseFakeVim);
+    connect(&s.useFakeVim, &FvBoolAspect::changed,
+            this, [this, &s] { setUseFakeVim(s.useFakeVim()); });
     connect(&s.readVimRc, &FvBaseAspect::changed,
             this, &FakeVimPluginPrivate::maybeReadVimRc);
     connect(&s.vimRcPath, &FvBaseAspect::changed,
             this, &FakeVimPluginPrivate::maybeReadVimRc);
-    connect(&s.relativeNumber, &FvBoolAspect::valueChanged,
-            this, &FakeVimPluginPrivate::setShowRelativeLineNumbers);
-    connect(&s.blinkingCursor, &FvBoolAspect::valueChanged,
-            this, &FakeVimPluginPrivate::setCursorBlinking);
+    connect(&s.relativeNumber, &FvBoolAspect::changed,
+            this, [this, &s] { setShowRelativeLineNumbers(s.relativeNumber()); });
+    connect(&s.blinkingCursor, &FvBoolAspect::changed,
+            this, [this, &s] { setCursorBlinking(s.blinkingCursor()); });
 
     // Delayed operations.
     connect(this, &FakeVimPluginPrivate::delayedQuitRequested,
@@ -1151,7 +1145,7 @@ void FakeVimPluginPrivate::createRelativeNumberWidget(IEditor *editor)
 
 void FakeVimPluginPrivate::readSettings()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
 
     m_exCommandMap = m_defaultExCommandMap;
     int size = settings->beginReadArray(exCommandMapGroup);
@@ -1183,7 +1177,7 @@ void FakeVimPluginPrivate::maybeReadVimRc()
     //qDebug() << theFakeVimSetting(ConfigShiftWidth)->value();
     if (!settings().readVimRc())
         return;
-    QString fileName = settings().vimRcPath();
+    QString fileName = settings().vimRcPath().path();
     if (fileName.isEmpty()) {
         fileName = QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
             + QLatin1String(HostOsInfo::isWindowsHost() ? "/_vimrc" : "/.vimrc");

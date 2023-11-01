@@ -34,7 +34,7 @@ bool RemoteModel::removeRemote(int row)
 {
     QString output;
     QString error;
-    bool success = GitClient::instance()->synchronousRemoteCmd(
+    bool success = gitClient().synchronousRemoteCmd(
                 m_workingDirectory, {"rm", remoteName(row)}, &output, &error);
     if (success)
         success = refresh(m_workingDirectory, &error);
@@ -48,7 +48,7 @@ bool RemoteModel::addRemote(const QString &name, const QString &url)
     if (name.isEmpty() || url.isEmpty())
         return false;
 
-    bool success = GitClient::instance()->synchronousRemoteCmd(
+    bool success = gitClient().synchronousRemoteCmd(
                 m_workingDirectory, {"add", name, url}, &output, &error);
     if (success)
         success = refresh(m_workingDirectory, &error);
@@ -59,7 +59,7 @@ bool RemoteModel::renameRemote(const QString &oldName, const QString &newName)
 {
     QString output;
     QString error;
-    bool success = GitClient::instance()->synchronousRemoteCmd(
+    bool success = gitClient().synchronousRemoteCmd(
                 m_workingDirectory, {"rename", oldName, newName}, &output, &error);
     if (success)
         success = refresh(m_workingDirectory, &error);
@@ -70,7 +70,7 @@ bool RemoteModel::updateUrl(const QString &name, const QString &newUrl)
 {
     QString output;
     QString error;
-    bool success = GitClient::instance()->synchronousRemoteCmd(
+    bool success = gitClient().synchronousRemoteCmd(
                 m_workingDirectory, {"set-url", name, newUrl}, &output, &error);
     if (success)
         success = refresh(m_workingDirectory, &error);
@@ -112,14 +112,13 @@ QVariant RemoteModel::data(const QModelIndex &index, int role) const
     default:
         break;
     }
-    return QVariant();
+    return {};
 }
 
 QVariant RemoteModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role != Qt::DisplayRole || orientation != Qt::Horizontal)
-        return QVariant();
-
+        return {};
     return (section == 0) ? Tr::tr("Name") : Tr::tr("URL");
 }
 
@@ -165,7 +164,7 @@ bool RemoteModel::refresh(const FilePath &workingDirectory, QString *errorMessag
 
     // get list of remotes.
     QMap<QString,QString> remotesList
-            = GitClient::instance()->synchronousRemotesList(workingDirectory, errorMessage);
+            = gitClient().synchronousRemotesList(workingDirectory, errorMessage);
 
     beginResetModel();
     m_remotes.clear();

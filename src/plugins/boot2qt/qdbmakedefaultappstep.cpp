@@ -28,19 +28,15 @@ public:
     QdbMakeDefaultAppStep(BuildStepList *bsl, Id id)
         : AbstractRemoteLinuxDeployStep(bsl, id)
     {
-        auto selection = addAspect<SelectionAspect>();
-        selection->setSettingsKey("QdbMakeDefaultDeployStep.MakeDefault");
-        selection->addOption(Tr::tr("Set this application to start by default"));
-        selection->addOption(Tr::tr("Reset default application"));
+        selection.setSettingsKey("QdbMakeDefaultDeployStep.MakeDefault");
+        selection.addOption(Tr::tr("Set this application to start by default"));
+        selection.addOption(Tr::tr("Reset default application"));
 
-        setInternalInitializer([this, selection] {
-            m_makeDefault = selection->value() == 0;
-            return isDeploymentPossible();
-        });
+        setInternalInitializer([this] { return isDeploymentPossible(); });
     }
 
 private:
-    Group deployRecipe() final
+    GroupItem deployRecipe() final
     {
         const auto setupHandler = [this](Process &process) {
             QString remoteExe;
@@ -49,7 +45,7 @@ private:
                     remoteExe = exeAspect->executable().nativePath();
             }
             CommandLine cmd{deviceConfiguration()->filePath(Constants::AppcontrollerFilepath)};
-            if (m_makeDefault && !remoteExe.isEmpty())
+            if (selection() == 0 && !remoteExe.isEmpty())
                 cmd.addArgs({"--make-default", remoteExe});
             else
                 cmd.addArg("--remove-default");
@@ -60,7 +56,7 @@ private:
             });
         };
         const auto doneHandler = [this](const Process &) {
-            if (m_makeDefault)
+            if (selection() == 0)
                 addProgressMessage(Tr::tr("Application set as the default one."));
             else
                 addProgressMessage(Tr::tr("Reset the default application."));
@@ -68,10 +64,10 @@ private:
         const auto errorHandler = [this](const Process &process) {
             addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
         };
-        return Group { ProcessTask(setupHandler, doneHandler, errorHandler) };
+        return ProcessTask(setupHandler, doneHandler, errorHandler);
     }
 
-    bool m_makeDefault = true;
+    SelectionAspect selection{this};
 };
 
 // QdbMakeDefaultAppStepFactory

@@ -81,7 +81,7 @@ UseSelectionsTestCase::UseSelectionsTestCase(CppTestDocument &testFile,
 
     bool hasTimedOut;
     const SelectionList selections = waitForUseSelections(&hasTimedOut);
-    const bool clangCodeModel = CppModelManager::instance()->isClangCodeModelActive();
+    const bool clangCodeModel = CppModelManager::isClangCodeModelActive();
     if (clangCodeModel) {
         QEXPECT_FAIL("local use as macro argument - argument eaten", "fails with CCM, find out why",
                      Abort);

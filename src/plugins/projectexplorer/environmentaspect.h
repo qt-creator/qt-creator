@@ -9,9 +9,7 @@
 
 #include <utils/aspects.h>
 #include <utils/environment.h>
-
-#include <QList>
-#include <QVariantMap>
+#include <utils/store.h>
 
 namespace ProjectExplorer {
 
@@ -20,7 +18,10 @@ class PROJECTEXPLORER_EXPORT EnvironmentAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    EnvironmentAspect();
+    EnvironmentAspect(Utils::AspectContainer *container = nullptr);
+
+    enum DeviceSelector { HostDevice, BuildDevice, RunDevice };
+    void setDeviceSelector(Target *target, DeviceSelector selector);
 
     // The environment including the user's modifications.
     Utils::Environment environment() const;
@@ -50,6 +51,8 @@ public:
 
     bool isLocal() const { return m_isLocal; }
 
+    Target *target() const { return m_target; }
+
     bool isPrintOnRunAllowed() const { return m_allowPrintOnRun; }
     bool isPrintOnRunEnabled() const { return m_printOnRun; }
     void setPrintOnRun(bool enabled) { m_printOnRun = enabled; }
@@ -59,8 +62,7 @@ public:
         Utils::Environment environment;
     };
 
-    using Utils::BaseAspect::setupLabel;
-    using Utils::BaseAspect::label;
+    using Utils::BaseAspect::createLabel;
 
 signals:
     void baseEnvironmentChanged();
@@ -68,8 +70,8 @@ signals:
     void environmentChanged();
 
 protected:
-    void fromMap(const QVariantMap &map) override;
-    void toMap(QVariantMap &map) const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     void setIsLocal(bool local) { m_isLocal = local; }
     void setAllowPrintOnRun(bool allow) { m_allowPrintOnRun = allow; }
@@ -93,6 +95,8 @@ private:
     bool m_isLocal = false;
     bool m_allowPrintOnRun = true;
     bool m_printOnRun = false;
+    Target *m_target = nullptr;
+    DeviceSelector m_selector = RunDevice;
 };
 
 } // namespace ProjectExplorer

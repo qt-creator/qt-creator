@@ -52,7 +52,7 @@ TargetSetupWidget::TargetSetupWidget(Kit *k, const FilePath &projectPath) :
 
     auto panel = new FadingWidget(m_detailsWidget);
     auto panelLayout = new QHBoxLayout(panel);
-    m_manageButton = new QPushButton(KitAspectWidget::msgManage());
+    m_manageButton = new QPushButton(KitAspect::msgManage());
     panelLayout->addWidget(m_manageButton);
     m_detailsWidget->setToolWidget(panel);
 
@@ -138,7 +138,7 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
         store.pathChooser = new PathChooser();
         store.pathChooser->setExpectedKind(PathChooser::Directory);
         store.pathChooser->setFilePath(info.buildDirectory);
-        store.pathChooser->setHistoryCompleter(QLatin1String("TargetSetup.BuildDir.History"));
+        store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");
         store.pathChooser->setReadOnly(isImport);
         m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
 
@@ -180,7 +180,7 @@ void TargetSetupWidget::manageKit()
     if (!m_kit)
         return;
 
-    KitOptionsPage::showKit(m_kit);
+    setSelectectKitId(m_kit->id());
     Core::ICore::showOptionsDialog(Constants::KITS_SETTINGS_PAGE_ID, parentWidget());
 }
 

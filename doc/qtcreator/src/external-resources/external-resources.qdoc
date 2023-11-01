@@ -102,12 +102,28 @@
     \title CMake: cmake-variables(7)
 */
 /*!
+    \externalpage https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html
+    \title CMake: cmake-packages(7)
+*/
+/*!
+    \externalpage https://cmake.org/cmake/help/latest/command/add_executable.html
+    \title CMake: add_executable command
+*/
+/*!
+    \externalpage https://cmake.org/cmake/help/latest/command/find_package.html
+    \title CMake: find_package command
+*/
+/*!
     \externalpage https://cmake.org/cmake/help/latest/command/install.html
     \title CMake: install command
 */
 /*!
     \externalpage https://cmake.org/cmake/help/latest/command/set_property.html
     \title CMake: set_property command
+*/
+/*!
+    \externalpage https://cmake.org/cmake/help/latest/command/set_source_files_properties.html
+    \title CMake: set_source_files_properties command
 */
 /*!
     \externalpage https://cmake.org/cmake/help/latest/command/target_compile_definitions.html
@@ -122,12 +138,24 @@
     \title CMake: target_sources command
 */
 /*!
+    \externalpage https://cmake.org/cmake/help/latest/manual/cmake-developer.7.html#find-modules
+    \title CMake: Find Modules
+*/
+/*!
     \externalpage https://cmake.org/cmake/help/latest/variable/CMAKE_OSX_DEPLOYMENT_TARGET.html
     \title CMake: CMAKE_OSX_DEPLOYMENT_TARGET
 */
 /*!
     \externalpage https://cmake.org/cmake/help/latest/prop_sf/HEADER_FILE_ONLY.html
     \title CMake: HEADER_FILE_ONLY
+*/
+/*!
+    \externalpage https://cmake.org/cmake/help/latest/variable/CMAKE_EXPORT_COMPILE_COMMANDS.html
+    \title CMake: CMAKE_EXPORT_COMPILE_COMMANDS
+*/
+/*!
+    \externalpage https://cmake-format.readthedocs.io/en/latest/cmake-format.html
+    \title cmake-format
 */
 /*!
     \externalpage https://microsoft.github.io/language-server-protocol/

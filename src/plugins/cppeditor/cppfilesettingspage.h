@@ -6,12 +6,15 @@
 #include "cppeditorconstants.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <projectexplorer/projectsettingswidget.h>
 
 #include <QDir>
 
 QT_BEGIN_NAMESPACE
 class QSettings;
 QT_END_NAMESPACE
+
+namespace ProjectExplorer { class Project; }
 
 namespace CppEditor::Internal {
 
@@ -33,23 +36,53 @@ public:
     bool headerPragmaOnce = false;
     bool lowerCaseFiles = Constants::LOWERCASE_CPPFILES_DEFAULT;
 
-    void toSettings(QSettings *) const;
-    void fromSettings(QSettings *);
+    void toSettings(Utils::QtcSettings *) const;
+    void fromSettings(Utils::QtcSettings *);
+    void addMimeInitializer() const;
     bool applySuffixesToMimeDB();
 
     // Convenience to return a license template completely formatted.
-    // Currently made public in
-    static QString licenseTemplate();
+    QString licenseTemplate() const;
 
     bool equals(const CppFileSettings &rhs) const;
     bool operator==(const CppFileSettings &s) const { return equals(s); }
     bool operator!=(const CppFileSettings &s) const { return !equals(s); }
 };
 
+class CppFileSettingsForProject
+{
+public:
+    CppFileSettingsForProject(ProjectExplorer::Project *project);
+
+    CppFileSettings settings() const;
+    void setSettings(const CppFileSettings &settings);
+    bool useGlobalSettings() const { return m_useGlobalSettings; }
+    void setUseGlobalSettings(bool useGlobal);
+
+private:
+    void loadSettings();
+    void saveSettings();
+
+    ProjectExplorer::Project * const m_project;
+    CppFileSettings m_customSettings;
+    bool m_useGlobalSettings = true;
+};
+
 class CppFileSettingsPage : public Core::IOptionsPage
 {
 public:
     explicit CppFileSettingsPage(CppFileSettings *settings);
+};
+
+class CppFileSettingsForProjectWidget : public ProjectExplorer::ProjectSettingsWidget
+{
+public:
+    CppFileSettingsForProjectWidget(const CppFileSettingsForProject &settings);
+    ~CppFileSettingsForProjectWidget();
+
+private:
+    class Private;
+    Private * const d;
 };
 
 } // namespace CppEditor::Internal

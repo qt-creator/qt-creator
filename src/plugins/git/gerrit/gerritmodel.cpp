@@ -81,7 +81,7 @@ static inline QString defaultUrl(const QSharedPointer<GerritParameters> &p,
 QString GerritPatchSet::approvalsToHtml() const
 {
     if (approvals.isEmpty())
-        return QString();
+        return {};
 
     QString result;
     QTextStream str(&result);
@@ -268,7 +268,7 @@ QueryContext::QueryContext(const QString &query,
         m_output.append(m_process.readAllRawStandardOutput());
     });
     connect(&m_process, &Process::done, this, &QueryContext::processDone);
-    m_process.setEnvironment(Git::Internal::GitClient::instance()->processEnvironment());
+    m_process.setEnvironment(Git::Internal::gitClient().processEnvironment());
 
     m_timer.setInterval(timeOutMS);
     m_timer.setSingleShot(true);
@@ -411,7 +411,7 @@ QString GerritModel::toHtml(const QModelIndex& index) const
     static const QString neededByHeader = Git::Tr::tr("Needed by");
 
     if (!index.isValid())
-        return QString();
+        return {};
     const GerritChangePtr c = change(index);
     const QString serverPrefix = c->url.left(c->url.lastIndexOf('/') + 1);
     QString result;

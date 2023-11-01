@@ -6,6 +6,8 @@
 #include "constants.h"
 #include "mercurialtr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/layoutbuilder.h>
 
 #include <vcsbase/vcsbaseconstants.h>
@@ -14,20 +16,15 @@ using namespace Utils;
 
 namespace Mercurial::Internal {
 
-static MercurialSettings *theSettings;
-
 MercurialSettings &settings()
 {
-    return *theSettings;
+    static MercurialSettings theSettings;
+    return theSettings;
 }
 
 MercurialSettings::MercurialSettings()
 {
-    theSettings = this;
-
-    setId(VcsBase::Constants::VCS_ID_MERCURIAL);
-    setDisplayName(Tr::tr("Mercurial"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setAutoApply(false);
     setSettingsGroup("Mercurial");
 
     binaryPath.setExpectedKind(PathChooser::ExistingCommand);
@@ -73,6 +70,24 @@ MercurialSettings::MercurialSettings()
             st
         };
     });
+
+    readSettings();
 }
+
+// MercurialSettingsPage
+
+class MercurialSettingsPage final : public Core::IOptionsPage
+{
+public:
+    MercurialSettingsPage()
+    {
+        setId(VcsBase::Constants::VCS_ID_MERCURIAL);
+        setDisplayName(Tr::tr("Mercurial"));
+        setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const MercurialSettingsPage settingsPage;
 
 } // Mercurial::Internal

@@ -346,7 +346,7 @@ void ObjectsMapModel::removeSymbolicName(const QModelIndex &idx)
 QStringList ObjectsMapModel::allSymbolicNames() const
 {
     TreeItem *root = rootItem();
-    QTC_ASSERT(root, return QStringList());
+    QTC_ASSERT(root, return {});
 
     QMap<QString, PropertyList> objects;
     forAllItems([&objects](ObjectsMapTreeItem *item) {

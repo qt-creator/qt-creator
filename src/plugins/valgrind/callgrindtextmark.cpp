@@ -3,18 +3,15 @@
 
 #include "callgrindtextmark.h"
 
-#include "callgrindhelper.h"
-
 #include "callgrind/callgrinddatamodel.h"
 #include "callgrind/callgrindfunction.h"
+#include "callgrindhelper.h"
 #include "valgrindtr.h"
 
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QLabel>
 #include <QLayout>
-#include <QPainter>
 
 using namespace Utils;
 using namespace Valgrind::Internal;

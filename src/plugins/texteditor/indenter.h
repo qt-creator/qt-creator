@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <utils/changeset.h>
 #include <utils/fileutils.h>
-#include <utils/textutils.h>
 
 #include <QMap>
 #include <QTextBlock>
@@ -70,9 +70,11 @@ public:
         indent(cursor, QChar::Null, tabSettings, cursorPositionInEditor);
     }
 
-    virtual Utils::Text::Replacements format(const RangesInLines & /*rangesInLines*/)
+    enum class FormattingMode { Forced, Settings };
+    virtual Utils::EditOperations format(const RangesInLines &,
+                                         FormattingMode = FormattingMode::Forced)
     {
-        return Utils::Text::Replacements();
+        return Utils::EditOperations();
     }
 
     virtual bool formatOnSave() const { return false; }

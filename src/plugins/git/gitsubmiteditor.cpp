@@ -11,6 +11,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/progressmanager/progressmanager.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/async.h>
 #include <utils/qtcassert.h>
 #include <vcsbase/submitfilemodel.h>
@@ -68,7 +69,7 @@ CommitDataFetchResult CommitDataFetchResult::fetch(CommitType commitType, const 
     CommitDataFetchResult result;
     result.commitData.commitType = commitType;
     QString commitTemplate;
-    result.success = GitClient::instance()->getCommitData(
+    result.success = gitClient().getCommitData(
                 workingDirectory, &commitTemplate, result.commitData, &result.errorMessage);
     return result;
 }
@@ -180,15 +181,15 @@ void GitSubmitEditor::slotDiffSelected(const QList<int> &rows)
         }
     }
     if (!unstagedFiles.empty() || !stagedFiles.empty())
-        GitClient::instance()->diffFiles(m_workingDirectory, unstagedFiles, stagedFiles);
+        gitClient().diffFiles(m_workingDirectory, unstagedFiles, stagedFiles);
     if (!unmergedFiles.empty())
-        GitClient::instance()->merge(m_workingDirectory, unmergedFiles);
+        gitClient().merge(m_workingDirectory, unmergedFiles);
 }
 
 void GitSubmitEditor::showCommit(const QString &commit)
 {
     if (!m_workingDirectory.isEmpty())
-        GitClient::instance()->show(m_workingDirectory, commit);
+        gitClient().show(m_workingDirectory, commit);
 }
 
 void GitSubmitEditor::updateFileModel()
@@ -209,7 +210,7 @@ void GitSubmitEditor::updateFileModel()
     Core::ProgressManager::addTask(m_fetchWatcher.future(), Tr::tr("Refreshing Commit Data"),
                                    TASK_UPDATE_COMMIT);
 
-    GitClient::instance()->addFuture(QFuture<void>(m_fetchWatcher.future()));
+    ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(m_fetchWatcher.future());
 }
 
 void GitSubmitEditor::forceUpdateFileModel()

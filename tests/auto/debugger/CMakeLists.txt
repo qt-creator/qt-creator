@@ -24,6 +24,7 @@ if (NOT QT_CREATOR_API_DEFINED)
 
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
+  qtc_handle_compiler_cache_support()
 
   set(WITH_TESTS ON)
 

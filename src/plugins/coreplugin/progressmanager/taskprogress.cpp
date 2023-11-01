@@ -12,6 +12,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFutureWatcher>
+#include <QPointer>
 #include <QTimer>
 
 using namespace Utils;

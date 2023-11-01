@@ -5,7 +5,7 @@
 
 #include "memcheckerrorview.h"
 #include "valgrindengine.h"
-#include "valgrindrunner.h"
+#include "valgrindprocess.h"
 #include "valgrindsettings.h"
 #include "valgrindtr.h"
 
@@ -13,30 +13,8 @@
 #include "xmlprotocol/error.h"
 #include "xmlprotocol/errorlistmodel.h"
 #include "xmlprotocol/frame.h"
+#include "xmlprotocol/parser.h"
 #include "xmlprotocol/stack.h"
-#include "xmlprotocol/threadedparser.h"
-
-#include <debugger/debuggerkitinformation.h>
-#include <debugger/debuggerruncontrol.h>
-#include <debugger/analyzer/analyzerconstants.h>
-#include <debugger/analyzer/analyzermanager.h>
-#include <debugger/analyzer/startremotedialog.h>
-
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitinformation.h>
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/taskhub.h>
-#include <projectexplorer/toolchain.h>
-
-#include <extensionsystem/iplugin.h>
-#include <extensionsystem/pluginmanager.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -46,8 +24,26 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
 
+#include <debugger/debuggerkitaspect.h>
+#include <debugger/debuggerruncontrol.h>
+#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/analyzer/analyzermanager.h>
+#include <debugger/analyzer/startremotedialog.h>
+
+#include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchain.h>
+
 #include <utils/checkablemessagebox.h>
-#include <utils/fancymainwindow.h>
 #include <utils/pathchooser.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
@@ -55,22 +51,20 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QFile>
-#include <QFileDialog>
 #include <QFileInfo>
 #include <QHostAddress>
 #include <QInputDialog>
 #include <QLabel>
-#include <QMenu>
-#include <QToolButton>
-#include <QSortFilterProxyModel>
-
-#include <QCheckBox>
-#include <QComboBox>
 #include <QLineEdit>
+#include <QMenu>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QStandardPaths>
+#include <QToolButton>
+#include <QSortFilterProxyModel>
 #include <QVBoxLayout>
 
 #ifdef Q_OS_WIN
@@ -107,7 +101,6 @@ public:
 signals:
     void internalParserError(const QString &errorString);
     void parserError(const Valgrind::XmlProtocol::Error &error);
-    void suppressionCount(const QString &name, qint64 count);
 
 private:
     QString progressTitle() const override;
@@ -176,7 +169,7 @@ void MemcheckToolRunner::start()
 
 void MemcheckToolRunner::stop()
 {
-    disconnect(m_runner.parser(), &ThreadedParser::internalError,
+    disconnect(&m_runner, &ValgrindProcess::internalError,
                this, &MemcheckToolRunner::internalParserError);
     ValgrindToolRunner::stop();
 }
@@ -193,13 +186,13 @@ void MemcheckToolRunner::addToolArguments(CommandLine &cmd) const
 
     QString leakCheckValue;
     switch (m_settings.leakCheckOnFinish()) {
-    case ValgrindBaseSettings::LeakCheckOnFinishNo:
+    case ValgrindSettings::LeakCheckOnFinishNo:
         leakCheckValue = "no";
         break;
-    case ValgrindBaseSettings::LeakCheckOnFinishYes:
+    case ValgrindSettings::LeakCheckOnFinishYes:
         leakCheckValue = "full";
         break;
-    case ValgrindBaseSettings::LeakCheckOnFinishSummaryOnly:
+    case ValgrindSettings::LeakCheckOnFinishSummaryOnly:
     default:
         leakCheckValue = "summary";
         break;
@@ -246,11 +239,11 @@ static ErrorListModel::RelevantFrameFinder makeFrameFinder(const QStringList &pr
 {
     return [projectFiles](const Error &error) {
         const Frame defaultFrame = Frame();
-        const QVector<Stack> stacks = error.stacks();
+        const QList<Stack> stacks = error.stacks();
         if (stacks.isEmpty())
             return defaultFrame;
         const Stack &stack = stacks[0];
-        const QVector<Frame> frames = stack.frames();
+        const QList<Frame> frames = stack.frames();
         if (frames.isEmpty())
             return defaultFrame;
 
@@ -349,7 +342,7 @@ bool MemcheckErrorFilterProxyModel::filterAcceptsRow(int sourceRow, const QModel
             }
         }
 
-        const QVector<Frame> frames = error.stacks().constFirst().frames();
+        const QList<Frame> frames = error.stacks().constFirst().frames();
 
         const int framesToLookAt = qMin(6, frames.size());
 
@@ -420,7 +413,7 @@ private:
     void heobAction();
 
 private:
-    ValgrindBaseSettings *m_settings;
+    ValgrindSettings *m_settings;
     QMenu *m_filterMenu = nullptr;
 
     Valgrind::XmlProtocol::ErrorListModel m_errorModel;
@@ -439,6 +432,7 @@ private:
     QAction *m_goNext;
     bool m_toolBusy = false;
 
+    std::unique_ptr<Parser> m_logParser;
     QString m_exitMsg;
     Perspective m_perspective{"Memcheck.Perspective", Tr::tr("Memcheck")};
 
@@ -519,7 +513,7 @@ private:
 
 MemcheckToolPrivate::MemcheckToolPrivate()
 {
-    m_settings = ValgrindGlobalSettings::instance();
+    m_settings = &globalSettings();
 
     setObjectName("MemcheckTool");
 
@@ -712,7 +706,7 @@ MemcheckToolPrivate::~MemcheckToolPrivate()
 
 void MemcheckToolPrivate::heobAction()
 {
-    Runnable sr;
+    ProcessRunData sr;
     Abi abi;
     bool hasLocalRc = false;
     Kit *kit = nullptr;
@@ -784,7 +778,7 @@ void MemcheckToolPrivate::heobAction()
     // heob executable
     const QString heob = QString("heob%1.exe").arg(abi.wordWidth());
     const QString heobPath = dialog.path() + '/' + heob;
-    if (!QFile::exists(heobPath)) {
+    if (!QFileInfo::exists(heobPath)) {
         QMessageBox::critical(
             Core::ICore::dialogParent(),
             Tr::tr("Heob"),
@@ -797,7 +791,7 @@ void MemcheckToolPrivate::heobAction()
     if (abi.osFlavor() == Abi::WindowsMSysFlavor) {
         const QString dwarfstack = QString("dwarfstack%1.dll").arg(abi.wordWidth());
         const QString dwarfstackPath = dialog.path() + '/' + dwarfstack;
-        if (!QFile::exists(dwarfstackPath)
+        if (!QFileInfo::exists(dwarfstackPath)
             && CheckableMessageBox::information(
                    Core::ICore::dialogParent(),
                    Tr::tr("Heob"),
@@ -806,7 +800,7 @@ void MemcheckToolPrivate::heobAction()
                        .arg(
                            "<a "
                            "href=\"https://github.com/ssbssa/dwarfstack/releases\">Dwarfstack</a>"),
-                   QString("HeobDwarfstackInfo"),
+                   Key("HeobDwarfstackInfo"),
                    QMessageBox::Ok | QMessageBox::Cancel,
                    QMessageBox::Ok)
                    != QMessageBox::Ok)
@@ -888,14 +882,15 @@ void MemcheckToolPrivate::updateRunActions()
         m_startWithGdbAction->setToolTip(Tr::tr("A Valgrind Memcheck analysis is still in progress."));
         m_stopAction->setEnabled(true);
     } else {
-        QString whyNot = Tr::tr("Start a Valgrind Memcheck analysis.");
-        bool canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_RUN_MODE, &whyNot);
-        m_startAction->setToolTip(whyNot);
-        m_startAction->setEnabled(canRun);
-        whyNot = Tr::tr("Start a Valgrind Memcheck with GDB analysis.");
-        canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_WITH_GDB_RUN_MODE, &whyNot);
-        m_startWithGdbAction->setToolTip(whyNot);
-        m_startWithGdbAction->setEnabled(canRun);
+        const auto canRun = ProjectExplorerPlugin::canRunStartupProject(MEMCHECK_RUN_MODE);
+        m_startAction->setToolTip(canRun ? Tr::tr("Start a Valgrind Memcheck analysis.")
+                                         : canRun.error());
+        m_startAction->setEnabled(bool(canRun));
+        const auto canRunGdb = ProjectExplorerPlugin::canRunStartupProject(
+            MEMCHECK_WITH_GDB_RUN_MODE);
+        m_startWithGdbAction->setToolTip(
+            canRunGdb ? Tr::tr("Start a Valgrind Memcheck with GDB analysis.") : canRunGdb.error());
+        m_startWithGdbAction->setEnabled(bool(canRunGdb));
         m_stopAction->setEnabled(false);
     }
 }
@@ -903,19 +898,22 @@ void MemcheckToolPrivate::updateRunActions()
 void MemcheckToolPrivate::settingsDestroyed(QObject *settings)
 {
     QTC_ASSERT(m_settings == settings, return);
-    m_settings = ValgrindGlobalSettings::instance();
+    m_settings = &globalSettings();
 }
 
 void MemcheckToolPrivate::updateFromSettings()
 {
+    const QList<int> stored = m_settings->visibleErrorKinds();
     for (QAction *action : std::as_const(m_errorFilterActions)) {
         bool contained = true;
         const QList<QVariant> actions = action->data().toList();
         for (const QVariant &v : actions) {
             bool ok;
             int kind = v.toInt(&ok);
-            if (ok && !m_settings->visibleErrorKinds().contains(kind))
+            if (ok && !stored.contains(kind)) {
                 contained = false;
+                break;
+            }
         }
         action->setChecked(contained);
     }
@@ -923,27 +921,28 @@ void MemcheckToolPrivate::updateFromSettings()
     m_filterProjectAction->setChecked(!m_settings->filterExternalIssues());
     m_errorView->settingsChanged(m_settings);
 
-    connect(&m_settings->visibleErrorKinds, &IntegersAspect::valueChanged,
-            &m_errorProxyModel, &MemcheckErrorFilterProxyModel::setAcceptedKinds);
     m_errorProxyModel.setAcceptedKinds(m_settings->visibleErrorKinds());
-
-    connect(&m_settings->filterExternalIssues, &BoolAspect::valueChanged,
-            &m_errorProxyModel, &MemcheckErrorFilterProxyModel::setFilterExternalIssues);
+    connect(&m_settings->visibleErrorKinds, &BaseAspect::changed, &m_errorProxyModel, [this] {
+        m_errorProxyModel.setAcceptedKinds(m_settings->visibleErrorKinds());
+    });
     m_errorProxyModel.setFilterExternalIssues(m_settings->filterExternalIssues());
+    connect(&m_settings->filterExternalIssues, &BaseAspect::changed, &m_errorProxyModel, [this] {
+        m_errorProxyModel.setFilterExternalIssues(m_settings->filterExternalIssues());
+    });
 }
 
 void MemcheckToolPrivate::maybeActiveRunConfigurationChanged()
 {
     updateRunActions();
 
-    ValgrindBaseSettings *settings = nullptr;
+    ValgrindSettings *settings = nullptr;
     if (Project *project = ProjectManager::startupProject())
         if (Target *target = project->activeTarget())
             if (RunConfiguration *rc = target->activeRunConfiguration())
-                settings = rc->currentSettings<ValgrindBaseSettings>(ANALYZER_VALGRIND_SETTINGS);
+                settings = rc->currentSettings<ValgrindSettings>(ANALYZER_VALGRIND_SETTINGS);
 
     if (!settings) // fallback to global settings
-        settings = ValgrindGlobalSettings::instance();
+        settings = &globalSettings();
 
     if (m_settings == settings)
         return;
@@ -957,7 +956,7 @@ void MemcheckToolPrivate::maybeActiveRunConfigurationChanged()
     // now make the new settings current, update and connect input widgets
     m_settings = settings;
     QTC_ASSERT(m_settings, return);
-    connect(m_settings, &ValgrindBaseSettings::destroyed,
+    connect(m_settings, &ValgrindSettings::destroyed,
             this, &MemcheckToolPrivate::settingsDestroyed);
 
     updateFromSettings();
@@ -1030,9 +1029,8 @@ void MemcheckToolPrivate::loadExternalXmlLogFile()
 
 void MemcheckToolPrivate::loadXmlLogFile(const QString &filePath)
 {
-    auto logFile = new QFile(filePath);
-    if (!logFile->open(QIODevice::ReadOnly | QIODevice::Text)) {
-        delete logFile;
+    QFile logFile(filePath);
+    if (!logFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QString msg = Tr::tr("Memcheck: Failed to open file for reading: %1").arg(filePath);
         TaskHub::addTask(Task::Error, msg, Debugger::Constants::ANALYZERTASK_ID);
         TaskHub::requestPopup();
@@ -1045,23 +1043,23 @@ void MemcheckToolPrivate::loadXmlLogFile(const QString &filePath)
     clearErrorView();
     m_loadExternalLogFile->setDisabled(true);
 
-    if (!m_settings || m_settings != ValgrindGlobalSettings::instance()) {
-        m_settings = ValgrindGlobalSettings::instance();
+    if (!m_settings || m_settings != &globalSettings()) {
+        m_settings = &globalSettings();
         m_errorView->settingsChanged(m_settings);
         updateFromSettings();
     }
 
-    auto parser = new ThreadedParser;
-    connect(parser, &ThreadedParser::error,
-            this, &MemcheckToolPrivate::parserError);
-    connect(parser, &ThreadedParser::internalError,
-            this, &MemcheckToolPrivate::internalParserError);
-    connect(parser, &ThreadedParser::finished,
-            this, &MemcheckToolPrivate::loadingExternalXmlLogFileFinished);
-    connect(parser, &ThreadedParser::finished,
-            parser, &ThreadedParser::deleteLater);
+    m_logParser.reset(new Parser);
+    connect(m_logParser.get(), &Parser::error, this, &MemcheckToolPrivate::parserError);
+    connect(m_logParser.get(), &Parser::done, this, [this](bool success, const QString &err) {
+        if (!success)
+            internalParserError(err);
+        loadingExternalXmlLogFileFinished();
+        m_logParser.release()->deleteLater();
+    });
 
-    parser->parse(logFile); // ThreadedParser owns the file
+    m_logParser->setData(logFile.readAll());
+    m_logParser->start();
 }
 
 void MemcheckToolPrivate::parserError(const Error &error)
@@ -1106,6 +1104,7 @@ void MemcheckToolPrivate::updateErrorFilter()
         }
     }
     m_settings->visibleErrorKinds.setValue(errorKinds);
+    m_settings->visibleErrorKinds.writeToSettingsImmediatly();
 }
 
 int MemcheckToolPrivate::updateUiAfterFinishedHelper()
@@ -1149,19 +1148,15 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
       m_localServerAddress(QHostAddress::LocalHost)
 {
     setId("MemcheckToolRunner");
-    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::error,
-            this, &MemcheckToolRunner::parserError);
-    connect(m_runner.parser(), &XmlProtocol::ThreadedParser::suppressionCount,
-            this, &MemcheckToolRunner::suppressionCount);
+    connect(&m_runner, &ValgrindProcess::error, this, &MemcheckToolRunner::parserError);
 
     if (m_withGdb) {
-        connect(&m_runner, &ValgrindRunner::valgrindStarted,
+        connect(&m_runner, &ValgrindProcess::valgrindStarted,
                 this, &MemcheckToolRunner::startDebugger);
-        connect(&m_runner, &ValgrindRunner::logMessageReceived,
+        connect(&m_runner, &ValgrindProcess::logMessageReceived,
                 this, &MemcheckToolRunner::appendLog);
-//        m_runner.disableXml();
     } else {
-        connect(m_runner.parser(), &XmlProtocol::ThreadedParser::internalError,
+        connect(&m_runner, &ValgrindProcess::internalError,
                 this, &MemcheckToolRunner::internalParserError);
     }
 
@@ -1174,7 +1169,6 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
 
     dd->setupRunner(this);
 }
-
 
 const char heobProfileC[] = "Heob/Profile";
 const char heobProfileNameC[] = "Name";
@@ -1193,7 +1187,7 @@ const char heobPathC[] = "Path";
 HeobDialog::HeobDialog(QWidget *parent) :
     QDialog(parent)
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     bool hasSelProfile = settings->contains(heobProfileC);
     const QString selProfile = hasSelProfile ? settings->value(heobProfileC).toString() : "Heob";
     m_profiles = settings->childGroups().filter(QRegularExpression("^Heob\\.Profile\\."));
@@ -1205,7 +1199,7 @@ HeobDialog::HeobDialog(QWidget *parent) :
     auto profilesLayout = new QHBoxLayout;
     m_profilesCombo = new QComboBox;
     for (const auto &profile : std::as_const(m_profiles))
-        m_profilesCombo->addItem(settings->value(profile + "/" + heobProfileNameC).toString());
+        m_profilesCombo->addItem(settings->value(keyFromString(profile) + "/" + heobProfileNameC).toString());
     if (hasSelProfile) {
         int selIdx = m_profiles.indexOf(selProfile);
         if (selIdx >= 0)
@@ -1408,8 +1402,9 @@ void HeobDialog::keyPressEvent(QKeyEvent *e)
 
 void HeobDialog::updateProfile()
 {
-    QSettings *settings = Core::ICore::settings();
-    const QString selProfile = m_profiles.empty() ? "heob" : m_profiles[m_profilesCombo->currentIndex()];
+    QtcSettings *settings = Core::ICore::settings();
+    const Key selProfile =
+        keyFromString(m_profiles.empty() ? "heob" : m_profiles[m_profilesCombo->currentIndex()]);
 
     settings->beginGroup(selProfile);
     const QString xml = settings->value(heobXmlC, "leaks.xml").toString();
@@ -1462,12 +1457,12 @@ void HeobDialog::updateEnabled()
 
 void HeobDialog::saveOptions()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     const QString selProfile = m_profiles.at(m_profilesCombo->currentIndex());
 
     settings->setValue(heobProfileC, selProfile);
 
-    settings->beginGroup(selProfile);
+    settings->beginGroup(keyFromString(selProfile));
     settings->setValue(heobProfileNameC, m_profilesCombo->currentText());
     settings->setValue(heobXmlC, m_xmlEdit->text());
     settings->setValue(heobHandleExceptionC, m_handleExceptionCombo->currentIndex());
@@ -1534,11 +1529,11 @@ void HeobDialog::deleteProfileDialog()
 
 void HeobDialog::deleteProfile()
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     int index = m_profilesCombo->currentIndex();
     const QString profile = m_profiles.at(index);
     bool isDefault = settings->value(heobProfileC).toString() == profile;
-    settings->remove(profile);
+    settings->remove(keyFromString(profile));
     m_profiles.removeAt(index);
     m_profilesCombo->removeItem(index);
     if (isDefault)

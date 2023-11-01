@@ -5,15 +5,15 @@
 
 #include "qtsupport_global.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/macroexpander.h>
+#include <utils/store.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/task.h>
 
 #include <QSet>
 #include <QStringList>
-#include <QVariantMap>
 #include <QVersionNumber>
 
 QT_BEGIN_NAMESPACE
@@ -49,7 +49,9 @@ public:
 
     virtual ~QtVersion();
 
-    virtual void fromMap(const QVariantMap &map, const Utils::FilePath &filePath = {});
+    virtual void fromMap(const Utils::Store &map,
+                         const Utils::FilePath &filePath = {},
+                         bool forceRefreshCache = false);
     virtual bool equals(QtVersion *other);
 
     bool isAutodetected() const;
@@ -64,7 +66,7 @@ public:
 
     QString type() const;
 
-    virtual QVariantMap toMap() const;
+    virtual Utils::Store toMap() const;
     virtual bool isValid() const;
     static Predicate isValidPredicate(const Predicate &predicate = {});
     virtual QString invalidReason() const;
@@ -73,7 +75,9 @@ public:
     virtual QString description() const = 0;
     virtual QString toHtml(bool verbose) const;
 
+    bool hasQtAbisSet() const;
     ProjectExplorer::Abis qtAbis() const;
+    void setQtAbis(const ProjectExplorer::Abis &abis);
     bool hasAbi(ProjectExplorer::Abi::OS, ProjectExplorer::Abi::OSFlavor flavor = ProjectExplorer::Abi::UnknownFlavor) const;
 
     void applyProperties(QMakeGlobals *qmakeGlobals) const;
@@ -221,7 +225,7 @@ private:
     friend class Internal::QtOptionsPageWidget;
 
     void setId(int id);
-    QtVersion *clone() const;
+    QtVersion *clone(bool forceRefreshCache = false) const;
 
     Internal::QtVersionPrivate *d = nullptr;
 };

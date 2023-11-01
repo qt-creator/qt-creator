@@ -137,9 +137,9 @@ Utils::EnvironmentItems QmlProjectItem::environment() const
 {
     Utils::EnvironmentItems envItems;
     QJsonObject envVariables = m_project["environment"].toObject();
-    foreach (const QString &variableName, envVariables.keys()) {
+    const QStringList variableNames = envVariables.keys();
+    for (const QString &variableName : variableNames)
         envItems.append(Utils::EnvironmentItem(variableName, envVariables[variableName].toString()));
-    }
     return envItems;
 }
 

@@ -247,7 +247,7 @@ protected:
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
             int line, column;
-            translationUnit()->getTokenStartPosition(nameExp->firstToken(), &line, &column);
+            translationUnit()->getTokenPosition(nameExp->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
                         _doc->filePath(),
@@ -308,7 +308,7 @@ protected:
         if (packageName.isEmpty()) {
             packageName = QmlJS::CppQmlTypes::defaultPackage;
             int line, column;
-            translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
+            translationUnit()->getTokenPosition(ast->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
                         _doc->filePath(),
@@ -346,7 +346,7 @@ protected:
 
         // we want to do lookup later, so also store the surrounding scope
         int line, column;
-        translationUnit()->getTokenStartPosition(ast->firstToken(), &line, &column);
+        translationUnit()->getTokenPosition(ast->firstToken(), &line, &column);
         exportedType.scope = _doc->scopeAt(line, column);
 
         if (typeId){
@@ -490,7 +490,7 @@ protected:
             nameLit = translationUnit()->stringLiteral(nameAst->literal_token);
         if (!nameLit) {
             int line, column;
-            translationUnit()->getTokenStartPosition(ast->expression_list->value->firstToken(), &line, &column);
+            translationUnit()->getTokenPosition(ast->expression_list->value->firstToken(), &line, &column);
             _messages += Document::DiagnosticMessage(
                         Document::DiagnosticMessage::Warning,
                         _doc->filePath(),
@@ -504,9 +504,9 @@ protected:
         contextProperty.name = QString::fromUtf8(nameLit->chars(), nameLit->size());
         contextProperty.expression = stringOf(skipQVariant(ast->expression_list->next->value, translationUnit()));
         // we want to do lookup later, so also store the line and column of the target scope
-        translationUnit()->getTokenStartPosition(ast->firstToken(),
-                                                 &contextProperty.line,
-                                                 &contextProperty.column);
+        translationUnit()->getTokenPosition(ast->firstToken(),
+                                            &contextProperty.line,
+                                            &contextProperty.column);
 
         _contextProperties += contextProperty;
 
@@ -827,7 +827,7 @@ FindExportedCppTypes::FindExportedCppTypes(const CPlusPlus::Snapshot &snapshot)
 
 QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &document)
 {
-    QTC_ASSERT(!document.isNull(), return QStringList());
+    QTC_ASSERT(!document.isNull(), return {});
 
     m_contextProperties.clear();
     m_exportedTypes.clear();
@@ -842,8 +842,7 @@ QStringList FindExportedCppTypes::operator()(const CPlusPlus::Document::Ptr &doc
     FindExportsVisitor finder(document);
     finder();
     static const QString kindKey = QLatin1String("QmlJSTools.ExportedQmlTypesDiagnostic");
-    CppModelManagerBase::trySetExtraDiagnostics(document->filePath().toString(), kindKey,
-                                                finder.messages());
+    CppModelManagerBase::trySetExtraDiagnostics(document->filePath(), kindKey, finder.messages());
 
     // if nothing was found, done
     const QList<ContextProperty> contextPropertyDescriptions = finder.contextProperties();

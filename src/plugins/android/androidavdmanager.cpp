@@ -38,8 +38,7 @@ bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QSt
 {
     CommandLine cmd(config.avdManagerToolPath(), args);
     Process proc;
-    Environment env = AndroidConfigurations::toolsEnvironment(config);
-    proc.setEnvironment(env);
+    proc.setEnvironment(config.toolsEnvironment());
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
     proc.setCommand(cmd);
     proc.runBlocking();
@@ -87,7 +86,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << avdManager.toUserOutput();
     Process proc;
     proc.setProcessMode(ProcessMode::Writer);
-    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(config));
+    proc.setEnvironment(config.toolsEnvironment());
     proc.setCommand(avdManager);
     proc.start();
     if (!proc.waitForStarted()) {
@@ -140,18 +139,6 @@ AndroidAvdManager::~AndroidAvdManager() = default;
 QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 {
     return Utils::asyncRun(&createAvdCommand, m_config, info);
-}
-
-bool AndroidAvdManager::removeAvd(const QString &name) const
-{
-    const CommandLine command(m_config.avdManagerToolPath(), {"delete", "avd", "-n", name});
-    qCDebug(avdManagerLog).noquote() << "Running command (removeAvd):" << command.toUserOutput();
-    Process proc;
-    proc.setTimeoutS(5);
-    proc.setEnvironment(AndroidConfigurations::toolsEnvironment(m_config));
-    proc.setCommand(command);
-    proc.runBlocking();
-    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMode = false)

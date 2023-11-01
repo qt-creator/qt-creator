@@ -18,6 +18,7 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
@@ -222,9 +223,8 @@ bool BinEditorWidget::requestDataAt(qint64 pos) const
     it = m_data.find(block);
     if (it != m_data.end())
         return true;
-    if (m_requests.contains(block))
+    if (!Utils::insert(m_requests, block))
         return false;
-    m_requests.insert(block);
     d->fetchData((m_baseAddr / m_blockSize + block) * m_blockSize);
     return true;
 }

@@ -434,7 +434,7 @@ QList<NamedEasingCurve> PresetList::storedCurves() const
     QVariant presetSettings = settings.value(Internal::settingsKey);
 
     if (!presetSettings.isValid())
-        return QList<NamedEasingCurve>();
+        return {};
 
     QList<QVariant> presets = presetSettings.toList();
 

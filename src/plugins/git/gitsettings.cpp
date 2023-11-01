@@ -5,6 +5,8 @@
 
 #include "gittr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <utils/environment.h>
 #include <utils/layoutbuilder.h>
 
@@ -17,20 +19,15 @@ using namespace VcsBase;
 
 namespace Git::Internal {
 
-static GitSettings *theSettings;
-
 GitSettings &settings()
 {
-    return *theSettings;
+    static GitSettings theSettings;
+    return theSettings;
 }
 
 GitSettings::GitSettings()
 {
-    theSettings = this;
-
-    setId(VcsBase::Constants::VCS_ID_GIT);
-    setDisplayName(Tr::tr("Git"));
-    setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+    setAutoApply(false);
     setSettingsGroup("Git");
 
     path.setDisplayStyle(StringAspect::LineEditDisplay);
@@ -92,6 +89,16 @@ GitSettings::GitSettings()
     instantBlame.setLabelText(Tr::tr("Add instant blame annotations to editor"));
     instantBlame.setToolTip(
         Tr::tr("Annotate the current line in the editor with Git \"blame\" output."));
+    instantBlameIgnoreSpaceChanges.setSettingsKey("GitInstantIgnoreSpaceChanges");
+    instantBlameIgnoreSpaceChanges.setDefaultValue(false);
+    instantBlameIgnoreSpaceChanges.setLabelText(trIgnoreWhitespaceChanges());
+    instantBlameIgnoreSpaceChanges.setToolTip(
+        Tr::tr("Finds the commit that introduced the last real code changes to the line."));
+    instantBlameIgnoreLineMoves.setSettingsKey("GitInstantIgnoreLineMoves");
+    instantBlameIgnoreLineMoves.setDefaultValue(false);
+    instantBlameIgnoreLineMoves.setLabelText(trIgnoreLineMoves());
+    instantBlameIgnoreLineMoves.setToolTip(
+        Tr::tr("Finds the commit that introduced the line before it was moved."));
 
     graphLog.setSettingsKey("GraphLog");
 
@@ -140,14 +147,17 @@ GitSettings::GitSettings()
 
             Group {
                 title(Tr::tr("Instant Blame")),
-                Row { instantBlame }
+                instantBlame.groupChecker(),
+                Row { instantBlameIgnoreSpaceChanges, instantBlameIgnoreLineMoves, st },
             },
 
             st
         };
     });
-    connect(&binaryPath, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
-    connect(&path, &StringAspect::valueChanged, this, [this] { tryResolve = true; });
+    connect(&binaryPath, &BaseAspect::changed, this, [this] { tryResolve = true; });
+    connect(&path, &BaseAspect::changed, this, [this] { tryResolve = true; });
+
+    readSettings();
 }
 
 FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
@@ -161,7 +171,7 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
     if (tryResolve) {
         resolvedBinPath = binaryPath();
         if (!resolvedBinPath.isAbsolutePath())
-            resolvedBinPath = resolvedBinPath.searchInPath({path.filePath()}, FilePath::PrependToPath);
+            resolvedBinPath = resolvedBinPath.searchInPath(searchPathList(), FilePath::PrependToPath);
         tryResolve = false;
     }
 
@@ -170,9 +180,35 @@ FilePath GitSettings::gitExecutable(bool *ok, QString *errorMessage) const
             *ok = false;
         if (errorMessage)
             *errorMessage = Tr::tr("The binary \"%1\" could not be located in the path \"%2\"")
-                .arg(binaryPath.value(), path.value());
+                .arg(binaryPath().toUserOutput(), path());
     }
     return resolvedBinPath;
 }
+
+QString GitSettings::trIgnoreWhitespaceChanges()
+{
+    return Tr::tr("Ignore whitespace changes");
+}
+
+QString GitSettings::trIgnoreLineMoves()
+{
+    return Tr::tr("Ignore line moves");
+}
+
+// GitSettingsPage
+
+class GitSettingsPage final : public Core::IOptionsPage
+{
+public:
+    GitSettingsPage()
+    {
+        setId(VcsBase::Constants::VCS_ID_GIT);
+        setDisplayName(Tr::tr("Git"));
+        setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
+        setSettingsProvider([] { return &settings(); });
+    }
+};
+
+const GitSettingsPage settingsPage;
 
 } // Git::Internal

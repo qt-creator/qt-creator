@@ -9,7 +9,6 @@
 #include <QApplication>
 #include <QDir>
 #include <QFile>
-#include <QImageReader>
 #include <QPixmapCache>
 #include <QUrl>
 
@@ -18,7 +17,7 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 
 #include <utils/algorithm.h>
@@ -50,13 +49,13 @@ Q_GLOBAL_STATIC_WITH_ARGS(QVersionNumber, minQtVersionForCategories, (6, 5, 1));
 
 void ExampleSetModel::writeCurrentIdToSettings(int currentIndex) const
 {
-    QSettings *settings = Core::ICore::settings();
-    settings->setValue(QLatin1String(kSelectedExampleSetKey), getId(currentIndex));
+    QtcSettings *settings = Core::ICore::settings();
+    settings->setValue(kSelectedExampleSetKey, getId(currentIndex));
 }
 
 int ExampleSetModel::readCurrentIndexFromSettings() const
 {
-    QVariant id = Core::ICore::settings()->value(QLatin1String(kSelectedExampleSetKey));
+    QVariant id = Core::ICore::settings()->value(kSelectedExampleSetKey);
     for (int i=0; i < rowCount(); i++) {
         if (id == getId(i))
             return i;
@@ -69,7 +68,7 @@ ExampleSetModel::ExampleSetModel()
     if (debugExamples() && !log().isDebugEnabled())
         log().setEnabled(QtDebugMsg, true);
     // read extra example sets settings
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     const QStringList list = settings->value("Help/InstalledExamples", QStringList()).toStringList();
     qCDebug(log) << "Reading Help/InstalledExamples from settings:" << list;
     for (const QString &item : list) {
@@ -244,19 +243,19 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
         return pixmap;
 
     if (url.startsWith("qthelp://")) {
-        QByteArray fetchedData = Core::HelpManager::fileData(url);
+        const QByteArray fetchedData = Core::HelpManager::fileData(url);
         if (!fetchedData.isEmpty()) {
-            QBuffer imgBuffer(&fetchedData);
-            imgBuffer.open(QIODevice::ReadOnly);
-            QImageReader reader(&imgBuffer, QFileInfo(url).suffix().toLatin1());
-            QImage img = reader.read();
-            img.convertTo(QImage::Format_RGB32);
+            const QImage img = QImage::fromData(fetchedData, QFileInfo(url).suffix().toLatin1())
+                                   .convertToFormat(QImage::Format_RGB32);
             const int dpr = qApp->devicePixelRatio();
             // boundedTo -> don't scale thumbnails up
             const QSize scaledSize =
                 WelcomePageHelpers::GridItemImageSize.boundedTo(img.size()) * dpr;
-            pixmap = QPixmap::fromImage(
-                img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            const QImage scaled = img.isNull() ? img
+                                               : img.scaled(scaledSize,
+                                                            Qt::KeepAspectRatio,
+                                                            Qt::SmoothTransformation);
+            pixmap = QPixmap::fromImage(scaled);
             pixmap.setDevicePixelRatio(dpr);
         }
     } else {
@@ -273,11 +272,13 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
 
 ExamplesViewController::ExamplesViewController(ExampleSetModel *exampleSetModel,
                                                SectionedGridView *view,
+                                               QLineEdit *searchField,
                                                bool isExamples,
                                                QObject *parent)
     : QObject(parent)
     , m_exampleSetModel(exampleSetModel)
     , m_view(view)
+    , m_searchField(searchField)
     , m_isExamples(isExamples)
 {
     if (isExamples) {
@@ -290,6 +291,10 @@ ExamplesViewController::ExamplesViewController(ExampleSetModel *exampleSetModel,
             &Core::HelpManager::Signals::documentationChanged,
             this,
             &ExamplesViewController::updateExamples);
+    connect(m_searchField,
+            &QLineEdit::textChanged,
+            m_view,
+            &SectionedGridView::setSearchStringDelayed);
     view->setPixmapFunction(fetchPixmapAndUpdatePixmapCache);
     updateExamples();
 }
@@ -325,8 +330,33 @@ static bool isValidExampleOrDemo(ExampleItem *item)
     return ok || debugExamples();
 }
 
+// ordered list of "known" categories
+// TODO this should be defined in the manifest
+Q_GLOBAL_STATIC_WITH_ARGS(QStringList,
+                          defaultOrder,
+                          {QStringList() << "Application Examples"
+                                         << "Desktop"
+                                         << "Mobile"
+                                         << "Embedded"
+                                         << "Graphics & Multimedia"
+                                         << "Graphics"
+                                         << "Data Visualization & 3D"
+                                         << "Data Processing & I/O"
+                                         << "Input/Output"
+                                         << "Connectivity"
+                                         << "Networking"
+                                         << "Positioning & Location"
+                                         << "Web Technologies"
+                                         << "Internationalization"});
+
 void ExamplesViewController::updateExamples()
 {
+    if (!isVisible()) {
+        m_needsUpdateExamples = true;
+        return;
+    }
+    m_needsUpdateExamples = false;
+
     QString examplesInstallPath;
     QString demosInstallPath;
     QVersionNumber qtVersion;
@@ -334,15 +364,14 @@ void ExamplesViewController::updateExamples()
     const QStringList sources = m_exampleSetModel->exampleSources(&examplesInstallPath,
                                                                   &demosInstallPath,
                                                                   &qtVersion);
-    m_view->clear();
-
+    QStringList categoryOrder;
     QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
         const auto manifest = FilePath::fromUserInput(exampleSource);
         qCDebug(log) << QString::fromLatin1("Reading file \"%1\"...")
                             .arg(manifest.absoluteFilePath().toUserOutput());
 
-        const expected_str<QList<ExampleItem *>> result
+        const expected_str<ParsedExamples> result
             = parseExamples(manifest,
                             FilePath::fromUserInput(examplesInstallPath),
                             FilePath::fromUserInput(demosInstallPath),
@@ -352,7 +381,9 @@ void ExamplesViewController::updateExamples()
                          << result.error();
             continue;
         }
-        items += filtered(*result, isValidExampleOrDemo);
+        items += filtered(result->items, isValidExampleOrDemo);
+        if (categoryOrder.isEmpty())
+            categoryOrder = result->categoryOrder;
     }
 
     if (m_isExamples) {
@@ -366,13 +397,37 @@ void ExamplesViewController::updateExamples()
         }
     }
 
-    const bool sortIntoCategories = qtVersion >= *minQtVersionForCategories;
+    const bool sortIntoCategories = !m_isExamples || qtVersion >= *minQtVersionForCategories;
+    const QStringList order = categoryOrder.isEmpty() && m_isExamples ? *defaultOrder
+                                                                      : categoryOrder;
     const QList<std::pair<Section, QList<ExampleItem *>>> sections
-        = getCategories(items, sortIntoCategories);
+        = getCategories(items, sortIntoCategories, order, m_isExamples);
+
+    m_view->setVisible(false);
+    m_view->clear();
+
     for (int i = 0; i < sections.size(); ++i) {
         m_view->addSection(sections.at(i).first,
                            static_container_cast<ListItem *>(sections.at(i).second));
     }
+    if (!m_searchField->text().isEmpty())
+        m_view->setSearchString(m_searchField->text());
+
+    m_view->setVisible(true);
+}
+
+void ExamplesViewController::setVisible(bool visible)
+{
+    if (m_isVisible == visible)
+        return;
+    m_isVisible = visible;
+    if (m_isVisible && m_needsUpdateExamples)
+        updateExamples();
+}
+
+bool ExamplesViewController::isVisible() const
+{
+    return m_isVisible;
 }
 
 void ExampleSetModel::updateQtVersionList()
@@ -410,8 +465,8 @@ void ExampleSetModel::updateQtVersionList()
     // Make sure to select something even if the above failed
     if (currentIndex < 0 && rowCount() > 0)
         currentIndex = 0; // simply select first
-    selectExampleSet(currentIndex);
-    emit selectedExampleSetChanged(currentIndex);
+    if (!selectExampleSet(currentIndex))
+        emit selectedExampleSetChanged(currentIndex); // ensure running updateExamples in any case
 }
 
 QtVersion *ExampleSetModel::findHighestQtVersion(const QtVersions &versions) const
@@ -494,7 +549,7 @@ QStringList ExampleSetModel::exampleSources(QString *examplesInstallPath,
     return sources;
 }
 
-void ExampleSetModel::selectExampleSet(int index)
+bool ExampleSetModel::selectExampleSet(int index)
 {
     if (index != m_selectedExampleSetIndex) {
         m_selectedExampleSetIndex = index;
@@ -506,7 +561,9 @@ void ExampleSetModel::selectExampleSet(int index)
             m_selectedQtTypes.clear();
         }
         emit selectedExampleSetChanged(m_selectedExampleSetIndex);
+        return true;
     }
+    return false;
 }
 
 void ExampleSetModel::qtVersionManagerLoaded()

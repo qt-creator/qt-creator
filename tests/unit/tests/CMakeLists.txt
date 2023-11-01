@@ -1,4 +1,4 @@
-find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate)
+find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate QUIET)
 
 if (MSVC)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")

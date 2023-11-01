@@ -341,14 +341,15 @@ private:
 void LspInspector::show(const QString &defaultClient)
 {
     if (!m_currentWidget) {
-        m_currentWidget = new LspInspectorWidget(this);
-        m_currentWidget->setAttribute(Qt::WA_DeleteOnClose);
-        Core::ICore::registerWindow(m_currentWidget, Core::Context("LanguageClient.Inspector"));
+        auto widget = new LspInspectorWidget(this);
+        connect(widget, &LspInspectorWidget::finished, this, &LspInspector::onInspectorClosed);
+        Core::ICore::registerWindow(widget, Core::Context("LanguageClient.Inspector"));
+        m_currentWidget = widget;
     } else {
         QApplication::setActiveWindow(m_currentWidget);
     }
     if (!defaultClient.isEmpty())
-        static_cast<LspInspectorWidget *>(m_currentWidget.data())->selectClient(defaultClient);
+        static_cast<LspInspectorWidget *>(m_currentWidget)->selectClient(defaultClient);
     m_currentWidget->show();
 }
 
@@ -390,6 +391,12 @@ Capabilities LspInspector::capabilities(const QString &clientName) const
 QList<QString> LspInspector::clients() const
 {
     return m_logs.keys();
+}
+
+void LspInspector::onInspectorClosed()
+{
+    m_currentWidget->deleteLater();
+    m_currentWidget = nullptr;
 }
 
 LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)

@@ -5,9 +5,7 @@
 
 #include "projectexplorer_export.h"
 
-#include <utils/commandline.h>
-#include <utils/environment.h>
-#include <utils/fileutils.h>
+#include <utils/processinterface.h>
 
 namespace Utils {
 class MacroExpander;
@@ -22,13 +20,13 @@ public:
     ProcessParameters();
 
     void setCommandLine(const Utils::CommandLine &cmdLine);
-    Utils::CommandLine command() const { return m_command; }
+    Utils::CommandLine command() const { return m_runData.command; }
 
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
-    Utils::FilePath workingDirectory() const { return m_workingDirectory; }
+    Utils::FilePath workingDirectory() const { return m_runData.workingDirectory; }
 
-    void setEnvironment(const Utils::Environment &env) { m_environment = env; }
-    Utils::Environment environment() const { return m_environment; }
+    void setEnvironment(const Utils::Environment &env) { m_runData.environment = env; }
+    Utils::Environment environment() const { return m_runData.environment; }
 
     void setMacroExpander(Utils::MacroExpander *mx) { m_macroExpander = mx; }
     Utils::MacroExpander *macroExpander() const { return m_macroExpander; }
@@ -49,9 +47,7 @@ public:
     QString summaryInWorkdir(const QString &displayName) const;
 
 private:
-    Utils::FilePath m_workingDirectory;
-    Utils::CommandLine m_command;
-    Utils::Environment m_environment;
+    Utils::ProcessRunData m_runData;
     Utils::MacroExpander *m_macroExpander = nullptr;
 
     mutable Utils::FilePath m_effectiveWorkingDirectory;

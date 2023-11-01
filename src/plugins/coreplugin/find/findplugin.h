@@ -3,7 +3,9 @@
 
 #pragma once
 
-#include "textfindconstants.h"
+#include "../core_global.h"
+
+#include <utils/filesearch.h>
 
 #include <QObject>
 
@@ -30,9 +32,9 @@ public:
 
     enum { CompletionModelFindFlagsRole = Qt::UserRole + 1 };
 
-    static FindFlags findFlags();
-    static bool hasFindFlag(FindFlag flag);
-    static void updateFindCompletion(const QString &text, FindFlags flags = {});
+    static Utils::FindFlags findFlags();
+    static bool hasFindFlag(Utils::FindFlag flag);
+    static void updateFindCompletion(const QString &text, Utils::FindFlags flags = {});
     static void updateReplaceCompletion(const QString &text);
     static QAbstractListModel *findCompletionModel();
     static QStringListModel *replaceCompletionModel();

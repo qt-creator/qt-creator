@@ -10,6 +10,8 @@ const char CMAKE_MIMETYPE[] = "text/x-cmake";
 const char CMAKE_PROJECT_MIMETYPE[] = "text/x-cmake-project";
 const char CMAKE_EDITOR_ID[] = "CMakeProject.CMakeEditor";
 const char RUN_CMAKE[] = "CMakeProject.RunCMake";
+const char RUN_CMAKE_PROFILER[] = "CMakeProject.RunCMakeProfiler";
+const char RUN_CMAKE_DEBUGGER[] = "CMakeProject.RunCMakeDebugger";
 const char CLEAR_CMAKE_CACHE[] = "CMakeProject.ClearCache";
 const char RESCAN_PROJECT[] = "CMakeProject.RescanProject";
 const char RUN_CMAKE_CONTEXT_MENU[] = "CMakeProject.RunCMakeContextMenu";
@@ -23,6 +25,7 @@ const char CMAKEFORMATTER_SETTINGS_GROUP[] = "CMakeFormatter";
 const char CMAKEFORMATTER_GENERAL_GROUP[] = "General";
 const char CMAKEFORMATTER_ACTION_ID[] = "CMakeFormatter.Action";
 const char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
+const char CMAKE_DEBUGGING_GROUP[] = "Debugger.Group.CMake";
 
 const char PACKAGE_MANAGER_DIR[] = ".qtc/package-manager";
 
@@ -67,6 +70,9 @@ const char TOOL_ID[] = "CMakeProjectManager.CMakeKitInformation";
 
 // Data
 const char BUILD_FOLDER_ROLE[] = "CMakeProjectManager.data.buildFolder";
+
+// Output
+const char OUTPUT_PREFIX[] = "[cmake] ";
 
 } // namespace Constants
 } // namespace CMakeProjectManager

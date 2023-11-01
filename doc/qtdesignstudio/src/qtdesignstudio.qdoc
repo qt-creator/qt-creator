@@ -72,7 +72,7 @@
         \li \b {\l{Advanced Designer Topics}}
             \list
                 \li \l{UI Files}
-                \li \l {Managing Data Collection}
+                \li \l {Manage Data Collection}
                 \li \l{Packaging Applications}
             \endlist
         \li \b {\l{Developer Topics}}
@@ -80,12 +80,12 @@
                 \li \l{Using Git}
                 \li \l{Converting Qt 5 Projects into Qt 6 Projects}
                 \li \l{Converting UI Projects to Applications}
-                \li \l{Using External Tools}
+                \li \l{Use external tools}{Using External Tools}
                 \li \l{\QDS on MCUs}
             \endlist
         \li \b {\l Help}
             \list
-                \li \l{Using the Help Mode}
+                \li \l{Get help}{Getting Help}
                 \li \l{Frequently Asked Questions}
                 \li \l{Supported Platforms}
             \endlist

@@ -18,7 +18,6 @@
 #include <QMap>
 #include <QMenu>
 #include <QMouseEvent>
-#include <QSettings>
 #include <QSortFilterProxyModel>
 #include <QTimer>
 
@@ -92,13 +91,13 @@ public:
         m_userHandled.clear();
         if (m_settings && !m_settingsKey.isEmpty()) {
             m_settings->beginGroup(m_settingsKey);
-            QVariantList l = m_settings->value(QLatin1String(ColumnKey)).toList();
-            QTC_ASSERT(l.size() % 2 == 0, qDebug() << m_settingsKey; l.append(0));
+            QVariantList l = m_settings->value(ColumnKey).toList();
+            QTC_ASSERT(l.size() % 2 == 0, qDebug() << m_settingsKey.view(); l.append(0));
             for (int i = 0; i < l.size(); i += 2) {
                 int column = l.at(i).toInt();
                 int width = l.at(i + 1).toInt();
-                QTC_ASSERT(column >= 0 && column < 20, qDebug() << m_settingsKey << column; continue);
-                QTC_ASSERT(width > 0 && width < 10000, qDebug() << m_settingsKey << width; continue);
+                QTC_ASSERT(column >= 0 && column < 20, qDebug() << m_settingsKey.view() << column; continue);
+                QTC_ASSERT(width > 0 && width < 10000, qDebug() << m_settingsKey.view() << width; continue);
                 m_userHandled[column] = width;
             }
             m_settings->endGroup();
@@ -138,7 +137,7 @@ public:
                 l.append(column);
                 l.append(width);
             }
-            QtcSettings::setValueWithDefault(m_settings, ColumnKey, l);
+            m_settings->setValueWithDefault(ColumnKey, l);
             m_settings->endGroup();
         }
     }
@@ -306,9 +305,9 @@ public:
 public:
     BaseTreeView *q;
     QMap<int, int> m_userHandled; // column -> width, "not present" means "automatic"
-    QSettings *m_settings = nullptr;
+    QtcSettings *m_settings = nullptr;
     QTimer m_settingsTimer;
-    QString m_settingsKey;
+    Key m_settingsKey;
     bool m_expectUserChanges = false;
     ProgressIndicator *m_progressIndicator = nullptr;
     int m_spanColumn = -1;
@@ -345,7 +344,6 @@ BaseTreeView::BaseTreeView(QWidget *parent)
     setRootIsDecorated(false);
     setIconSize(QSize(16, 16));
     setSelectionMode(QAbstractItemView::ExtendedSelection);
-    setUniformRowHeights(true);
     setItemDelegate(new BaseTreeViewDelegate(this));
     setAlternatingRowColors(false);
 
@@ -561,11 +559,11 @@ void BaseTreeView::refreshSpanColumn()
     d->rebalanceColumns();
 }
 
-void BaseTreeView::setSettings(QSettings *settings, const QByteArray &key)
+void BaseTreeView::setSettings(QtcSettings *settings, const QByteArray &key)
 {
     QTC_ASSERT(!d->m_settings, qDebug() << "DUPLICATED setSettings" << key);
     d->m_settings = settings;
-    d->m_settingsKey = QString::fromLatin1(key);
+    d->m_settingsKey = key;
     d->readSettings();
 }
 

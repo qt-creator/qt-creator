@@ -25,8 +25,12 @@
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/outputpane.h>
+
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcsettings.h>
+#include <utils/stringutils.h>
+#include <utils/theme/theme.h>
 
 #include <QDesignerFormEditorPluginInterface>
 #include <QDesignerFormEditorInterface>
@@ -41,22 +45,20 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QCursor>
+#include <QDebug>
 #include <QDockWidget>
+#include <QElapsedTimer>
+#include <QKeySequence>
 #include <QMenu>
 #include <QMessageBox>
-#include <QKeySequence>
+#include <QPainter>
+#include <QPluginLoader>
 #include <QPrintDialog>
 #include <QPrinter>
-#include <QPainter>
 #include <QStyle>
+#include <QTime>
 #include <QToolBar>
 #include <QVBoxLayout>
-
-#include <QDebug>
-#include <QSettings>
-#include <QPluginLoader>
-#include <QTime>
-#include <QElapsedTimer>
 
 #include <algorithm>
 
@@ -77,6 +79,9 @@ static inline QIcon designerIcon(const QString &iconName)
         qWarning() << "Unable to locate " << iconName;
     return icon;
 }
+
+Q_GLOBAL_STATIC(QString, sQtPluginPath);
+Q_GLOBAL_STATIC(QStringList, sAdditionalPluginPaths);
 
 using namespace Core;
 using namespace Designer::Constants;
@@ -139,7 +144,7 @@ public:
 
     void fullInit();
 
-    void saveSettings(QSettings *s);
+    void saveSettings(QtcSettings *s);
 
     void initDesignerSubWindows();
 
@@ -203,9 +208,35 @@ public:
 
 static FormEditorData *d = nullptr;
 
-FormEditorData::FormEditorData() :
-    m_formeditor(QDesignerComponents::createFormEditor(nullptr))
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+static QStringList designerPluginPaths()
 {
+    const QStringList qtPluginPath = sQtPluginPath->isEmpty()
+                                         ? QDesignerComponents::defaultPluginPaths()
+                                         : QStringList(*sQtPluginPath);
+    return qtPluginPath + *sAdditionalPluginPaths;
+}
+#endif
+
+FormEditorData::FormEditorData()
+{
+#if QT_VERSION >= QT_VERSION_CHECK(6, 7, 0)
+    m_formeditor = QDesignerComponents::createFormEditorWithPluginPaths(designerPluginPaths(),
+                                                                        nullptr);
+#else
+    // Qt < 6.7.0 doesn't have API for changing the plugin path yet.
+    // Work around it by temporarily changing the application's library paths,
+    // which are used for Designer's plugin paths.
+    // This must be done before creating the FormEditor, and with it QDesignerPluginManager.
+    const QStringList restoreLibraryPaths = sQtPluginPath->isEmpty()
+                                                ? QStringList()
+                                                : QCoreApplication::libraryPaths();
+    if (!sQtPluginPath->isEmpty())
+        QCoreApplication::setLibraryPaths(QStringList(*sQtPluginPath));
+    m_formeditor = QDesignerComponents::createFormEditor(nullptr);
+    if (!sQtPluginPath->isEmpty())
+        QCoreApplication::setLibraryPaths(restoreLibraryPaths);
+#endif
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO;
     QTC_ASSERT(!d, return);
@@ -230,7 +261,7 @@ FormEditorData::FormEditorData() :
         m_settingsPages.append(settingsPage);
     }
 
-    QObject::connect(EditorManager::instance(), &EditorManager::currentEditorChanged, [this](IEditor *editor) {
+    QObject::connect(EditorManager::instance(), &EditorManager::currentEditorChanged, this, [this](IEditor *editor) {
         if (Designer::Constants::Internal::debug)
             qDebug() << Q_FUNC_INFO << editor << " of " << m_fwm->formWindowCount();
 
@@ -251,7 +282,7 @@ FormEditorData::FormEditorData() :
 FormEditorData::~FormEditorData()
 {
     if (m_initStage == FullyInitialized) {
-        QSettings *s = ICore::settings();
+        QtcSettings *s = ICore::settings();
         s->beginGroup(settingsGroupC);
         m_editorWidget->saveSettings(s);
         s->endGroup();
@@ -360,7 +391,7 @@ void FormEditorData::fullInit()
         delete initTime;
     }
 
-    QObject::connect(EditorManager::instance(), &EditorManager::editorsClosed,
+    QObject::connect(EditorManager::instance(), &EditorManager::editorsClosed, this,
                      [this] (const QList<IEditor *> editors) {
         for (IEditor *editor : editors)
             m_editorWidget->removeFormWindowEditor(editor);
@@ -368,7 +399,7 @@ void FormEditorData::fullInit()
 
     // Nest toolbar and editor widget
     m_editorWidget = new EditorWidget;
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(settingsGroupC);
     m_editorWidget->restoreSettings(settings);
     settings->endGroup();
@@ -487,7 +518,7 @@ void FormEditorData::setupActions()
 
     m_actionPrint = new QAction(this);
     bindShortcut(ActionManager::registerAction(m_actionPrint, Core::Constants::PRINT, m_contexts), m_actionPrint);
-    QObject::connect(m_actionPrint, &QAction::triggered, [this]() { print(); });
+    connect(m_actionPrint, &QAction::triggered, this, &FormEditorData::print);
 
     //'delete' action. Do not set a shortcut as Designer handles
     // the 'Delete' key by event filter. Setting a shortcut triggers
@@ -500,7 +531,7 @@ void FormEditorData::setupActions()
 
     m_actionGroupEditMode = new QActionGroup(this);
     m_actionGroupEditMode->setExclusive(true);
-    QObject::connect(m_actionGroupEditMode, &QActionGroup::triggered,
+    QObject::connect(m_actionGroupEditMode, &QActionGroup::triggered, this,
             [this](QAction *a) { activateEditMode(a->data().toInt()); });
 
     medit->addSeparator(m_contexts, Core::Constants::G_EDIT_OTHER);
@@ -605,7 +636,7 @@ void FormEditorData::setupActions()
     m_actionAboutPlugins->setEnabled(false);
 
     // FWM
-    QObject::connect(m_fwm, &QDesignerFormWindowManagerInterface::activeFormWindowChanged,
+    QObject::connect(m_fwm, &QDesignerFormWindowManagerInterface::activeFormWindowChanged, this,
         [this] (QDesignerFormWindowInterface *afw) {
             m_fwm->closeAllPreviews();
             setPreviewMenuEnabled(afw != nullptr);
@@ -670,7 +701,7 @@ void FormEditorData::setPreviewMenuEnabled(bool e)
     m_previewInStyleMenu->setEnabled(e);
 }
 
-void FormEditorData::saveSettings(QSettings *s)
+void FormEditorData::saveSettings(QtcSettings *s)
 {
     s->beginGroup(settingsGroupC);
     m_editorWidget->saveSettings(s);
@@ -739,7 +770,8 @@ IEditor *FormEditorData::createEditor()
     QDesignerFormWindowInterface *form = m_fwm->createFormWindow(nullptr);
     QTC_ASSERT(form, return nullptr);
     form->setPalette(Theme::initialPalette());
-    QObject::connect(form, &QDesignerFormWindowInterface::toolChanged, [this] (int i) { toolChanged(i); });
+    connect(form, &QDesignerFormWindowInterface::toolChanged,
+            this, &FormEditorData::toolChanged);
 
     auto widgetHost = new SharedTools::WidgetHost( /* parent */ nullptr, form);
     FormWindowEditor *formWindowEditor = m_xmlEditorFactory->create(form);
@@ -869,6 +901,34 @@ void FormEditorData::print()
     } while (false);
     printer->setFullPage(oldFullPage);
     printer->setPageOrientation(oldOrientation);
+}
+
+void setQtPluginPath(const QString &qtPluginPath)
+{
+    QTC_CHECK(!d);
+    *sQtPluginPath = QDir::fromNativeSeparators(qtPluginPath);
+#if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
+    // Cut a "/designer" postfix off, if present.
+    // For Qt < 6.7.0 we hack the plugin path by temporarily setting the application library paths
+    // and Designer adds "/designer" to these.
+    static const QString postfix = "/designer";
+    *sQtPluginPath = Utils::trimBack(*sQtPluginPath, '/');
+    if (sQtPluginPath->endsWith(postfix))
+        sQtPluginPath->chop(postfix.size());
+    if (!QFileInfo::exists(*sQtPluginPath + postfix)) {
+        qWarning() << qPrintable(
+            QLatin1String(
+                "Warning: The path \"%1\" passed to -designer-qt-pluginpath does not exist. "
+                "Note that \"%2\" at the end is enforced.")
+                .arg(*sQtPluginPath + postfix, postfix));
+    }
+#endif
+}
+
+void addPluginPath(const QString &pluginPath)
+{
+    QTC_CHECK(!d);
+    sAdditionalPluginPaths->append(pluginPath);
 }
 
 } // namespace Internal

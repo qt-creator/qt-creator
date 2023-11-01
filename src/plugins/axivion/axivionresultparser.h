@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include "dashboard/dto.h"
+
+#include <utils/expected.h>
+
 #include <QList>
 
 namespace Axivion::Internal {
@@ -27,49 +31,6 @@ public:
     QList<Project> projects;
 };
 
-class User : public BaseResult
-{
-public:
-    QString name;
-    QString displayName;
-    enum UserType { Dashboard, Virtual, Unknown } type;
-};
-
-class IssueKind : public BaseResult
-{
-public:
-    QString prefix;
-    QString niceSingular;
-    QString nicePlural;
-};
-
-class IssueCount : public BaseResult
-{
-public:
-    QString issueKind;
-    int total = 0;
-    int added = 0;
-    int removed = 0;
-};
-
-class ResultVersion : public BaseResult
-{
-public:
-    QString name;
-    QString timeStamp;
-    QList<IssueCount> issueCounts;
-    int linesOfCode = 0;
-};
-
-class ProjectInfo : public BaseResult
-{
-public:
-    QString name;
-    QList<User> users;
-    QList<ResultVersion> versions;
-    QList<IssueKind> issueKinds;
-};
-
 class ShortIssue : public BaseResult
 {
 public:
@@ -92,7 +53,7 @@ public:
 namespace ResultParser {
 
 DashboardInfo parseDashboardInfo(const QByteArray &input);
-ProjectInfo parseProjectInfo(const QByteArray &input);
+Utils::expected_str<Dto::ProjectInfoDto> parseProjectInfo(const QByteArray &input);
 IssuesList parseIssuesList(const QByteArray &input);
 QString parseRuleInfo(const QByteArray &input);
 

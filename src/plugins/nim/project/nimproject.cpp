@@ -6,13 +6,13 @@
 #include "../nimconstants.h"
 #include "../nimtr.h"
 #include "nimbuildsystem.h"
-#include "nimtoolchain.h"
 
 #include <coreplugin/icontext.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/toolchain.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -27,14 +27,14 @@ public:
     Tasks projectIssues(const Kit *k) const final;
 
     // Keep for compatibility with Qt Creator 4.10
-    QVariantMap toMap() const final;
+    void toMap(Store &map) const final;
 
     QStringList excludedFiles() const;
     void setExcludedFiles(const QStringList &excludedFiles);
 
 protected:
     // Keep for compatibility with Qt Creator 4.10
-    RestoreResult fromMap(const QVariantMap &map, QString *errorMessage) final;
+    RestoreResult fromMap(const Store &map, QString *errorMessage) final;
 
     QStringList m_excludedFiles;
 };
@@ -52,7 +52,7 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
 Tasks NimProject::projectIssues(const Kit *k) const
 {
     Tasks result = Project::projectIssues(k);
-    auto tc = dynamic_cast<NimToolChain *>(ToolChainKitAspect::toolChain(k, Constants::C_NIMLANGUAGE_ID));
+    auto tc = ToolChainKitAspect::toolChain(k, Constants::C_NIMLANGUAGE_ID);
     if (!tc) {
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Nim compiler set.")));
         return result;
@@ -63,14 +63,13 @@ Tasks NimProject::projectIssues(const Kit *k) const
     return result;
 }
 
-QVariantMap NimProject::toMap() const
+void NimProject::toMap(Store &map) const
 {
-    QVariantMap result = Project::toMap();
-    result[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
-    return result;
+    Project::toMap(map);
+    map[Constants::C_NIMPROJECT_EXCLUDEDFILES] = m_excludedFiles;
 }
 
-Project::RestoreResult NimProject::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult NimProject::fromMap(const Store &map, QString *errorMessage)
 {
     auto result = Project::fromMap(map, errorMessage);
     m_excludedFiles = map.value(Constants::C_NIMPROJECT_EXCLUDEDFILES).toStringList();

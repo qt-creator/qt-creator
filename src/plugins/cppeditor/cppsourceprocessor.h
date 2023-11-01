@@ -96,7 +96,7 @@ private:
     QSet<Utils::FilePath> m_included;
     CPlusPlus::Document::Ptr m_currentDoc;
     QSet<QString> m_todo;
-    QSet<QString> m_processed;
+    QSet<Utils::FilePath> m_processed;
     QHash<Utils::FilePath, Utils::FilePath> m_fileNameCache;
     int m_fileSizeLimitInMb = -1;
     QTextCodec *m_defaultCodec;

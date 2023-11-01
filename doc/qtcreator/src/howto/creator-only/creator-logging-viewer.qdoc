@@ -1,12 +1,13 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page creator-logging-viewer.html
-    \previouspage creator-task-lists.html
-    \nextpage creator-telemetry.html
+    \previouspage creator-how-tos.html
 
-    \title Inspecting Internal Logs
+    \ingroup creator-how-to-use
+
+    \title Inspect internal logs
 
     You can inspect internal log messages of \QC at runtime without having to
     restart it or configure the logging rules. Log messages are helpful when
@@ -25,7 +26,7 @@
     \note Messages are not cached, so the viewer displays only messages that
     are recorded after you enabled a category.
 
-    \section1 Viewing Logs
+    \section1 View logs
 
     To enable logging categories, select them in \uicontrol Category.
     \uicontrol Type specifies the minimum level of messages to display from

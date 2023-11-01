@@ -18,8 +18,6 @@
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 
-#include <vcsbase/vcsbaseconstants.h>
-
 #include <QList>
 #include <QMap>
 #include <QMessageBox>
@@ -335,8 +333,9 @@ FilePaths VcsManager::promptToDelete(IVersionControl *vc, const FilePaths &fileP
         return fp.toUserOutput();
     }).join("</li><li>") + "</li></ul>";
     const QString title = Tr::tr("Version Control");
-    const QString msg = Tr::tr("Remove the following files from the version control system (%2)? "
-                           "%1Note: This might remove the local file.").arg(fileListForUi, vc->displayName());
+    const QString msg = Tr::tr("Remove the following files from the version control system (%1)?")
+                            .arg(vc->displayName())
+                        + fileListForUi + Tr::tr("Note: This might remove the local file.");
     const QMessageBox::StandardButton button =
         QMessageBox::question(ICore::dialogParent(), title, msg, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
     if (button != QMessageBox::Yes)

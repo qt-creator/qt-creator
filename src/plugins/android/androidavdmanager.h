@@ -17,7 +17,6 @@ public:
     ~AndroidAvdManager();
 
     QFuture<CreateAvdInfo> createAvd(CreateAvdInfo info) const;
-    bool removeAvd(const QString &name) const;
     QFuture<AndroidDeviceInfoList> avdList() const;
 
     QString startAvd(const QString &name) const;
@@ -28,6 +27,7 @@ public:
     static bool avdManagerCommand(const AndroidConfig &config,
                                   const QStringList &args,
                                   QString *output);
+    const AndroidConfig &config() const { return m_config; }
 
 private:
     bool waitForBooted(const QString &serialNumber, const std::optional<QFuture<void>> &future = {}) const;

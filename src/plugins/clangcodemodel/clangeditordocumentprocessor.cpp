@@ -3,6 +3,7 @@
 
 #include "clangeditordocumentprocessor.h"
 
+#include "clangdclient.h"
 #include "clangmodelmanagersupport.h"
 
 #include <cppeditor/builtincursorinfo.h>
@@ -14,6 +15,8 @@
 #include <cppeditor/cpptoolsreuse.h>
 #include <cppeditor/cppworkingcopy.h>
 #include <cppeditor/editordocumenthandle.h>
+
+#include <languageclient/languageclientmanager.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditor.h>
@@ -75,6 +78,14 @@ ClangEditorDocumentProcessor *ClangEditorDocumentProcessor::get(const Utils::Fil
 {
     return qobject_cast<ClangEditorDocumentProcessor*>(
                 CppEditor::CppModelManager::cppEditorDocumentProcessor(filePath));
+}
+
+void ClangEditorDocumentProcessor::forceUpdate(TextEditor::TextDocument *doc)
+{
+    if (const auto client = qobject_cast<ClangdClient *>(
+            LanguageClient::LanguageClientManager::clientForDocument(doc))) {
+        client->documentContentsChanged(doc, 0, 0, 0);
+    }
 }
 
 } // namespace Internal

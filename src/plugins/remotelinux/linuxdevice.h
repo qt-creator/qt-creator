@@ -23,13 +23,13 @@ public:
     ProjectExplorer::IDeviceWidget *createWidget() override;
 
     bool canCreateProcessModel() const override { return true; }
-    ProjectExplorer::DeviceProcessList *createProcessListModel(QObject *parent) const override;
     bool hasDeviceTester() const override { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() const override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     bool usableAsBuildDevice() const override;
 
     QString userAtHost() const;
+    QString userAtHostAndPort() const;
 
     Utils::FilePath rootPath() const override;
 

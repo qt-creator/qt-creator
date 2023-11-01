@@ -7,8 +7,7 @@
 
 #include <QAbstractItemModel>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class Function;
 class ParseData;
@@ -69,5 +68,4 @@ private:
     Private *d;
 };
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

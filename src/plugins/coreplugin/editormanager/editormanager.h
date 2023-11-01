@@ -29,7 +29,7 @@ namespace Core {
 class IDocument;
 class LocatorFilterEntry;
 
-namespace Internal { class MainWindow; }
+namespace Internal { class ICorePrivate; }
 
 class CORE_EXPORT EditorManagerPlaceHolder final : public QWidget
 {
@@ -143,6 +143,9 @@ public:
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
 
+    static void runWithTemporaryEditor(const Utils::FilePath &filePath,
+                                       const std::function<void(IEditor *)> &callback);
+
 public: // for tests
     static IDocument::ReloadSetting reloadSetting();
     static void setReloadSetting(IDocument::ReloadSetting behavior);
@@ -151,7 +154,7 @@ signals:
     void currentEditorChanged(Core::IEditor *editor);
     void currentDocumentStateChanged();
     void documentStateChanged(Core::IDocument *document);
-    void editorCreated(Core::IEditor *editor, const QString &fileName);
+    void editorCreated(Core::IEditor *editor, const Utils::FilePath &filePath);
     void editorOpened(Core::IEditor *editor);
     void documentOpened(Core::IDocument *document);
     void editorAboutToClose(Core::IEditor *editor);
@@ -185,7 +188,7 @@ private:
     explicit EditorManager(QObject *parent);
     ~EditorManager() override;
 
-    friend class Core::Internal::MainWindow;
+    friend class Internal::ICorePrivate;
 };
 
 } // namespace Core

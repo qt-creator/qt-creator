@@ -8,11 +8,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-vcs-bazaar.html
     \page creator-vcs-clearcase.html
-    \nextpage creator-vcs-cvs.html
+    \previouspage creator-reference.html
 
-    \title Using ClearCase
+    \ingroup creator-reference-vcs
+
+    \title ClearCase
+
+    \brief Additional ClearCase functions.
 
     IBM Rational ClearCase is a version control, workspace management, parallel
     development support, and build automation solution developed by IBM. Use the
@@ -28,8 +31,8 @@
         \li Download \l{http://gnuwin32.sourceforge.net/packages/diffutils.htm}
             {Diffutils} and extract it to a directory in your PATH.
 
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol {Version Control} > \uicontrol ClearCase.
+        \li Select \preferences > \uicontrol {Version Control} >
+            \uicontrol ClearCase.
 
             \image qtcreator-preferences-vcs-clearcase.webp {ClearCase preferences}
 
@@ -44,14 +47,14 @@
     \section1 Checking out and Checking in
 
     In addition to the standard version control system functions described in
-    \l {Using Common Functions}, you can check out and check in files.
+    \l {Use common VCS Functions}, you can check out and check in files.
 
     To create a writable copy of a file, select \uicontrol Tools >
     \uicontrol ClearCase > \uicontrol {Check Out}. If you check out files in a
     Unified Change Management (UCM) view, they are added to the change set of
     a UCM activity. By default, the activities are automatically assigned names.
-    To disable this functionality, select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol {Version Control} > \uicontrol ClearCase, and then deselect the
+    To disable this functionality, select \preferences >
+    \uicontrol {Version Control} > \uicontrol ClearCase, and then deselect the
     \uicontrol {Auto assign activity names} check box.
 
     To automatically check out files when you edit them, select the
@@ -68,15 +71,14 @@
     To create a permanent new version of the current file or all files in the
     versioned object base (VOB), select \uicontrol Tools >
     \uicontrol {ClearCase} > \uicontrol {Check In}. To confirm
-    that you want to check in the files, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol ClearCase,
+    that you want to check in the files, select \preferences >
+    \uicontrol {Version Control} > \uicontrol ClearCase,
     and then select the \uicontrol {Prompt on check-in} check box.
 
     By default, you have to enter a comment when checking files out or in.
-    To suppress this prompt, select \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
-    \uicontrol {Do not prompt for comment during checkout or check-in} check
-    box.
+    To suppress this prompt, select \preferences > \uicontrol {Version Control} >
+    \uicontrol ClearCase, and then select the
+    \uicontrol {Do not prompt for comment during checkout or check-in} check box.
 
     If you change the read-only attribute of a file that is loaded into a
     snapshot view and modify the file without checking it out, you \e hijack the
@@ -84,12 +86,15 @@
     \uicontrol Tools > \uicontrol ClearCase > \uicontrol {Undo Hijack}.
 
     By default, the files in the VOBs are indexed for quick access to their
-    statuses. To disable indexing, select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
+    statuses. To disable indexing, select \preferences >
+    \uicontrol {Version Control} > \uicontrol ClearCase, and then select the
     \uicontrol {Disable indexer} check box. To only have some VOBs indexed,
     specify them in the \uicontrol {Index only VOBs} field.
 
     Specify the number of event records to show in \uicontrol {History count}.
 
     Set a timeout for version control operations in \uicontrol Timeout.
+
+    \sa {Set up version control systems}, {Use common VCS functions},
+    {Version Control Systems}
 */

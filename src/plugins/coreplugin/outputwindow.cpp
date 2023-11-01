@@ -50,7 +50,7 @@ public:
     {
     }
 
-    QString settingsKey;
+    Key settingsKey;
     OutputFormatter formatter;
     QList<QPair<QString, OutputFormat>> queuedOutput;
     QTimer queueTimer;
@@ -77,7 +77,7 @@ public:
 
 /*******************/
 
-OutputWindow::OutputWindow(Context context, const QString &settingsKey, QWidget *parent)
+OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *parent)
     : QPlainTextEdit(parent)
     , d(new Internal::OutputWindowPrivate(document()))
 {

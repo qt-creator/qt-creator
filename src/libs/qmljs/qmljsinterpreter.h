@@ -3,10 +3,11 @@
 
 #pragma once
 
+#include "qmljsdocument.h"
+#include <qmljs/parser/qmljsastfwd_p.h>
 #include <qmljs/qmljs_global.h>
 #include <qmljs/qmljsconstants.h>
 #include <qmljs/qmljsimportdependencies.h>
-#include <qmljs/parser/qmljsastfwd_p.h>
 
 #include <languageutils/fakemetaobject.h>
 
@@ -689,8 +690,8 @@ public:
     static BuiltinObjects loadQmlTypes(const QFileInfoList &qmltypesFiles,
                              QStringList *errors, QStringList *warnings);
 
-    static BuiltinObjects defaultQtObjects;
-    static BuiltinObjects defaultLibraryObjects;
+    static BuiltinObjects &defaultQtObjects();
+    static BuiltinObjects &defaultLibraryObjects();
 
     // parses the contents of a qmltypes file and fills the newObjects map
     static void parseQmlTypeDescriptions(const QByteArray &contents,
@@ -700,6 +701,8 @@ public:
                                          QString *errorMessage,
                                          QString *warningMessage,
                                          const QString &fileName);
+
+    static std::function<void()> defaultObjectsInitializer;
 };
 
 class QMLJS_EXPORT FakeMetaObjectWithOrigin
@@ -1108,12 +1111,20 @@ class QMLJS_EXPORT CustomImportsProvider : public QObject
 {
     Q_OBJECT
 public:
+    typedef QHash<const Document *, QSharedPointer<const Imports>> ImportsPerDocument;
     explicit CustomImportsProvider(QObject *parent = nullptr);
     virtual ~CustomImportsProvider();
 
     static const QList<CustomImportsProvider *> allProviders();
 
-    virtual QList<Import> imports(ValueOwner *valueOwner, const Document *context) const = 0;
+    virtual QList<Import> imports(ValueOwner *valueOwner,
+                                  const Document *context,
+                                  Snapshot *snapshot = nullptr) const = 0;
+    virtual void loadBuiltins([[maybe_unused]] ImportsPerDocument *importsPerDocument,
+                              [[maybe_unused]] Imports *imports,
+                              [[maybe_unused]] const Document *context,
+                              [[maybe_unused]] ValueOwner *valueOwner,
+                              [[maybe_unused]] Snapshot *snapshot) {}
 };
 
 } // namespace QmlJS

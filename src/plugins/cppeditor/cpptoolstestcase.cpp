@@ -149,15 +149,15 @@ VerifyCleanCppModelManager::~VerifyCleanCppModelManager() {
 
 bool VerifyCleanCppModelManager::isClean(bool testOnlyForCleanedProjects)
 {
-    CppModelManager *mm = CppModelManager::instance();
-    RETURN_FALSE_IF_NOT(mm->projectInfos().isEmpty());
-    RETURN_FALSE_IF_NOT(mm->headerPaths().isEmpty());
-    RETURN_FALSE_IF_NOT(mm->definedMacros().isEmpty());
-    RETURN_FALSE_IF_NOT(mm->projectFiles().isEmpty());
+    RETURN_FALSE_IF_NOT(CppModelManager::projectInfos().isEmpty());
+    RETURN_FALSE_IF_NOT(CppModelManager::headerPaths().isEmpty());
+    RETURN_FALSE_IF_NOT(CppModelManager::definedMacros().isEmpty());
+    RETURN_FALSE_IF_NOT(CppModelManager::projectFiles().isEmpty());
     if (!testOnlyForCleanedProjects) {
-        RETURN_FALSE_IF_NOT(mm->snapshot().isEmpty());
-        RETURN_FALSE_IF_NOT(mm->workingCopy().size() == 1);
-        RETURN_FALSE_IF_NOT(mm->workingCopy().get(mm->configurationFileName()));
+        RETURN_FALSE_IF_NOT(CppModelManager::snapshot().isEmpty());
+        RETURN_FALSE_IF_NOT(CppModelManager::workingCopy().size() == 1);
+        RETURN_FALSE_IF_NOT(CppModelManager::workingCopy()
+            .get(CppModelManager::configurationFileName()));
     }
     return true;
 }
@@ -170,9 +170,9 @@ namespace CppEditor::Tests {
 
 static bool closeEditorsWithoutGarbageCollectorInvocation(const QList<Core::IEditor *> &editors)
 {
-    CppModelManager::instance()->enableGarbageCollector(false);
+    CppModelManager::enableGarbageCollector(false);
     const bool closeEditorsSucceeded = Core::EditorManager::closeEditors(editors, false);
-    CppModelManager::instance()->enableGarbageCollector(true);
+    CppModelManager::enableGarbageCollector(true);
     return closeEditorsSucceeded;
 }
 
@@ -188,8 +188,7 @@ static bool snapshotContains(const CPlusPlus::Snapshot &snapshot, const QSet<Fil
 }
 
 TestCase::TestCase(bool runGarbageCollector)
-    : m_modelManager(CppModelManager::instance())
-    , m_succeededSoFar(false)
+    : m_succeededSoFar(false)
     , m_runGarbageCollector(runGarbageCollector)
 {
     if (m_runGarbageCollector)
@@ -239,12 +238,12 @@ bool TestCase::openCppEditor(const FilePath &filePath, TextEditor::BaseTextEdito
 
 CPlusPlus::Snapshot TestCase::globalSnapshot()
 {
-    return CppModelManager::instance()->snapshot();
+    return CppModelManager::snapshot();
 }
 
 bool TestCase::garbageCollectGlobalSnapshot()
 {
-    CppModelManager::instance()->GC();
+    CppModelManager::GC();
     return globalSnapshot().isEmpty();
 }
 
@@ -269,7 +268,7 @@ static bool waitForProcessedEditorDocument_internal(CppEditorDocumentHandle *edi
 
 bool TestCase::waitForProcessedEditorDocument(const FilePath &filePath, int timeOutInMs)
 {
-    auto *editorDocument = CppModelManager::instance()->cppEditorDocument(filePath);
+    auto *editorDocument = CppModelManager::cppEditorDocument(filePath);
     return waitForProcessedEditorDocument_internal(editorDocument, timeOutInMs);
 }
 
@@ -282,7 +281,7 @@ CPlusPlus::Document::Ptr TestCase::waitForRehighlightedSemanticDocument(CppEdito
 
 bool TestCase::parseFiles(const QSet<FilePath> &filePaths)
 {
-    CppModelManager::instance()->updateSourceFiles(filePaths).waitForFinished();
+    CppModelManager::updateSourceFiles(filePaths).waitForFinished();
     QCoreApplication::processEvents();
     const CPlusPlus::Snapshot snapshot = globalSnapshot();
     if (snapshot.isEmpty()) {
@@ -333,7 +332,7 @@ QList<CPlusPlus::Document::Ptr> TestCase::waitForFilesInGlobalSnapshot(const Fil
                 break;
             }
             if (t.elapsed() > timeOutInMs)
-                return QList<CPlusPlus::Document::Ptr>();
+                return {};
             QCoreApplication::processEvents();
         }
     }
@@ -349,7 +348,7 @@ bool TestCase::waitUntilProjectIsFullyOpened(Project *project, int timeOutInMs)
         [project]() {
             return ProjectManager::startupBuildSystem()
                     && !ProjectManager::startupBuildSystem()->isParsing()
-                    && CppModelManager::instance()->projectInfo(project);
+                    && CppModelManager::projectInfo(project);
         },
         timeOutInMs);
 }
@@ -405,7 +404,7 @@ ProjectInfo::ConstPtr ProjectOpenerAndCloser::open(const FilePath &projectFile,
 
     if (TestCase::waitUntilProjectIsFullyOpened(project)) {
         m_openProjects.append(project);
-        return CppModelManager::instance()->projectInfo(project);
+        return CppModelManager::projectInfo(project);
     }
 
     return {};

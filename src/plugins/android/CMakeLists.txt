@@ -3,7 +3,6 @@ add_qtc_plugin(Android
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport LanguageClient
   SOURCES
     android.qrc
-    android_global.h
     androidtr.h
     androidavdmanager.cpp androidavdmanager.h
     androidbuildapkstep.cpp androidbuildapkstep.h
@@ -14,7 +13,6 @@ add_qtc_plugin(Android
     androiddeployqtstep.cpp androiddeployqtstep.h
     androiddevice.cpp androiddevice.h
     androiddeviceinfo.cpp androiddeviceinfo.h
-    androiderrormessage.cpp androiderrormessage.h
     androidextralibrarylistmodel.cpp androidextralibrarylistmodel.h
     androidglobal.h
     androidmanager.cpp androidmanager.h

@@ -5,11 +5,10 @@
 
 #include "texteditor_global.h"
 
-#include <QTextBlock>
+#include <utils/store.h>
+#include <utils/qtcsettings.h>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <QTextBlock>
 
 namespace TextEditor {
 
@@ -36,11 +35,8 @@ public:
     TabSettings(TabPolicy tabPolicy, int tabSize,
                 int indentSize, ContinuationAlignBehavior continuationAlignBehavior);
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
-
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     int lineIndentPosition(const QString &text) const;
     int columnAt(const QString &text, int position) const;

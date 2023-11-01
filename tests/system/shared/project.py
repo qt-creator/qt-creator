@@ -81,8 +81,8 @@ def __createProjectOrFileSelectType__(category, template, fromWelcome = False, i
     return __getSupportedPlatforms__(str(text), template)[0]
 
 def __createProjectSetNameAndPath__(path, projectName = None, checks = True):
-    directoryEdit = waitForObject("{type='Utils::FancyLineEdit' unnamed='1' visible='1' "
-                                  "toolTip~='Full path: .*'}")
+    pathChooser = waitForObject("{type='Utils::PathChooser' name='baseFolder' visible='1'}")
+    directoryEdit = getChildByClass(pathChooser, "Utils::FancyLineEdit")
     replaceEditorContent(directoryEdit, path)
     projectNameEdit = waitForObject("{name='nameLineEdit' visible='1' "
                                     "type='Utils::FancyLineEdit'}")

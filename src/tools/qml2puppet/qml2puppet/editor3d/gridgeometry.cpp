@@ -80,8 +80,6 @@ void GridGeometry::doUpdateGeometry()
 
     setVertexData(vertexData);
 
-    int lastIndex = (vertexData.size() - 1) / int(sizeof(QVector3D));
-
     // Set bounds based on main grid size instead of actual mesh size to make all parts of the
     // grid have consistent bounds.
     const float extent = float(m_lines) * m_step;

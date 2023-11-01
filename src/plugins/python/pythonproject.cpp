@@ -131,10 +131,9 @@ static QStringList readLines(const FilePath &projectFile)
             const QString line = stream.readLine();
             if (line.isNull())
                 break;
-            if (visited.contains(line))
+            if (!Utils::insert(visited, line))
                 continue;
             lines.append(line);
-            visited.insert(line);
         }
     }
 
@@ -149,10 +148,8 @@ static QStringList readLinesJson(const FilePath &projectFile, QString *errorMess
     const QJsonObject obj = readObjJson(projectFile, errorMessage);
     for (const QJsonValue &file : obj.value("files").toArray()) {
         const QString fileName = file.toString();
-        if (visited.contains(fileName))
-            continue;
-        lines.append(fileName);
-        visited.insert(fileName);
+        if (Utils::insert(visited, fileName))
+            lines.append(fileName);
     }
 
     return lines;
@@ -232,7 +229,8 @@ void PythonBuildSystem::triggerParsing()
 
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(entry.filePath, displayName, fileType));
         const MimeType mt = mimeTypeForFile(entry.filePath, MimeMatchMode::MatchExtension);
-        if (mt.matchesName(Constants::C_PY_MIMETYPE) || mt.matchesName(Constants::C_PY3_MIMETYPE)) {
+        if (mt.matchesName(Constants::C_PY_MIMETYPE) || mt.matchesName(Constants::C_PY3_MIMETYPE)
+            || mt.matchesName(Constants::C_PY_GUI_MIMETYPE)) {
             BuildTargetInfo bti;
             bti.displayName = displayName;
             bti.buildKey = entry.filePath.toString();
@@ -422,7 +420,7 @@ QList<PythonBuildSystem::FileEntry> PythonBuildSystem::processEntries(
     return processed;
 }
 
-Project::RestoreResult PythonProject::fromMap(const QVariantMap &map, QString *errorMessage)
+Project::RestoreResult PythonProject::fromMap(const Store &map, QString *errorMessage)
 {
     Project::RestoreResult res = Project::fromMap(map, errorMessage);
     if (res == RestoreResult::Ok) {

@@ -15,13 +15,12 @@
     application or the \uicontrol {Open Terminal} button to open a terminal,
     it opens as an output view.
 
-    To open the terminal in a separate window, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Terminal, and deselet the
-    \uicontrol {Use internal terminal} check box.
+    To open the terminal in a separate window, select \preferences >
+    \uicontrol Terminal, and deselet the \uicontrol {Use internal terminal}
+    check box.
 
     On Linux and \macos, you can set the terminal to open by selecting
-    \uicontrol Edit > \uicontrol Preferences >
-    \uicontrol Environment > \uicontrol System.
+    \preferences > \uicontrol Environment > \uicontrol System.
 
     \image qtcreator-output-terminal.webp {Terminal pane}
 
@@ -53,6 +52,8 @@
 
         \li To open terminal preferences, select \inlineimage icons/settings.png
         (\uicontrol Configure).
+        \li To keep \QC keyboard shortcuts from interfering in the terminal,
+            select \inlineimage icons/shortcuts.png.
     \endlist
 
     Most of the \QC keyboard shortcuts are disabled in the terminal, except the
@@ -63,9 +64,9 @@
 
     \section1 Terminal Preferences
 
-    To set preferences for the internal terminal, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol Terminal, or select the
-    \uicontrol Configure button in the \uicontrol Terminal pane.
+    To set preferences for the internal terminal, select \preferences >
+    \uicontrol Terminal, or select the \uicontrol Configure button in
+    the \uicontrol Terminal pane.
 
     \image qtcreator-preferences-terminal.webp {Terminal tab in Preferences}
 
@@ -81,11 +82,17 @@
         \li \uicontrol {Send escape key to terminal}
         \li Send the escape key to the terminal instead of closing the terminal.
     \row
+        \li \uicontrol {Block shortcuts in terminal}
+        \li Keep \QC keyboard shortcuts from interfering in the terminal.
+    \row
         \li \uicontrol {Audible bell}
         \li Play an audible bell when the a bell character is received.
     \row
         \li \uicontrol {Allow blinking cursor}
         \li Allow the cursor to blink.
+    \row
+        \li \uicontrol {Enable mouse tracking}
+        \li Enable mouse tracking in the terminal.
     \row
         \li \uicontrol {Font}
         \li Select the \uicontrol {Font family} and \uicontrol Size for the text
@@ -97,6 +104,10 @@
         \li Set colors for the \uicontrol Terminal pane \uicontrol Foreground,
             \uicontrol Background, \uicontrol Selection, and
             \uicontrol {Find match}.
+
+            To use an existing color scheme, select \uicontrol {Load Theme}.
+
+            To revert color changes, select \uicontrol {Reset Theme}.
     \row
         \li \uicontrol {Default shell}
         \li Set the full path to the default terminal executable in
@@ -104,8 +115,5 @@
             in \uicontrol {Shell arguments}.
     \endtable
 
-    To use an existing color scheme, select \uicontrol {Load Theme}. To revert
-    color changes, select \uicontrol {Reset Theme}.
-
-    \sa {View output}
+    \sa {View output}, {Keyboard Shortcuts}
 */

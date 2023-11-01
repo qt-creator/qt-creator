@@ -12,6 +12,16 @@ namespace ProjectExplorer {
 
 class ProjectExplorerPlugin;
 
+class PROJECTEXPLORER_EXPORT TaskCategory
+{
+public:
+    Utils::Id id;
+    QString displayName;
+    QString description;
+    bool visible = true;
+    int priority = 0;
+};
+
 class PROJECTEXPLORER_EXPORT TaskHub : public QObject
 {
     Q_OBJECT
@@ -28,8 +38,7 @@ public slots:
     static void removeTask(const ProjectExplorer::Task &task);
 
 public:
-    static void addCategory(Utils::Id categoryId, const QString &displayName, bool visible = true,
-                            int priority = 0);
+    static void addCategory(const TaskCategory &category);
     static void updateTaskFileName(const Task &task, const QString &fileName);
     static void updateTaskLineNumber(const Task &task, int line);
     static void taskMarkClicked(const Task &task);
@@ -39,8 +48,7 @@ public:
     static void requestPopup();
 
 signals:
-    void categoryAdded(Utils::Id categoryId, const QString &displayName, bool visible,
-                       int priority);
+    void categoryAdded(const TaskCategory &category);
     void taskAdded(const ProjectExplorer::Task &task);
     void taskRemoved(const ProjectExplorer::Task &task);
     void tasksCleared(Utils::Id categoryId);

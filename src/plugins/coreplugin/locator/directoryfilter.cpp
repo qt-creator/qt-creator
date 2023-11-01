@@ -6,6 +6,8 @@
 #include "locator.h"
 #include "../coreplugintr.h"
 
+#include <extensionsystem/pluginmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/fileutils.h>
@@ -50,21 +52,21 @@ static void refresh(QPromise<FilePaths> &promise, const FilePaths &directories,
                     const QStringList &filters, const QStringList &exclusionFilters,
                     const QString &displayName)
 {
-    SubDirFileIterator subDirIterator(directories, filters, exclusionFilters);
-    promise.setProgressRange(0, subDirIterator.maxProgress());
+    SubDirFileContainer fileContainer(directories, filters, exclusionFilters);
+    promise.setProgressRange(0, fileContainer.progressMaximum());
     FilePaths files;
-    const auto end = subDirIterator.end();
-    for (auto it = subDirIterator.begin(); it != end; ++it) {
+    const auto end = fileContainer.end();
+    for (auto it = fileContainer.begin(); it != end; ++it) {
         if (promise.isCanceled()) {
-            promise.setProgressValueAndText(subDirIterator.currentProgress(),
+            promise.setProgressValueAndText(it.progressValue(),
                                             Tr::tr("%1 filter update: canceled").arg(displayName));
             return;
         }
-        files << (*it).filePath;
-        promise.setProgressValueAndText(subDirIterator.currentProgress(),
-                                        Tr::tr("%1 filter update: %n files", nullptr, files.size()).arg(displayName));
+        files << it->filePath;
+        promise.setProgressValueAndText(it.progressValue(),
+            Tr::tr("%1 filter update: %n files", nullptr, files.size()).arg(displayName));
     }
-    promise.setProgressValue(subDirIterator.maxProgress());
+    promise.setProgressValue(fileContainer.progressMaximum());
     promise.addResult(files);
 }
 
@@ -87,6 +89,7 @@ DirectoryFilter::DirectoryFilter(Id id)
         return SetupResult::StopWithDone; // Group stops, skips async task
     };
     const auto asyncSetup = [this](Async<FilePaths> &async) {
+        async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
                                     displayName());
     };

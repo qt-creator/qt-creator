@@ -162,6 +162,7 @@ DebuggerMainWindowPrivate::DebuggerMainWindowPrivate(DebuggerMainWindow *parent)
 {
     m_centralWidgetStack = new QStackedWidget;
     m_statusLabel = new Utils::StatusLabel;
+    m_statusLabel->setObjectName("DebuggerStatusLabel"); // used by Squish
     StyleHelper::setPanelWidget(m_statusLabel);
     m_statusLabel->setIndent(2 * QFontMetrics(q->font()).horizontalAdvance(QChar('x')));
     m_editorPlaceHolder = new EditorManagerPlaceHolder;
@@ -399,7 +400,7 @@ void DebuggerMainWindow::enterDebugMode()
     if (theMainWindow->d->needRestoreOnModeEnter)
         theMainWindow->restorePersistentSettings();
 
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     const QString lastPerspectiveId = settings->value(LAST_PERSPECTIVE_KEY).toString();
     Perspective *perspective = Perspective::findPerspective(lastPerspectiveId);
     // If we don't find a perspective with the stored name, pick any.
@@ -440,7 +441,7 @@ void DebuggerMainWindow::leaveDebugMode()
 void DebuggerMainWindow::restorePersistentSettings()
 {
     qCDebug(perspectivesLog) << "RESTORE ALL PERSPECTIVES";
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(MAINWINDOW_KEY);
 
     // state2 is current, state is kept for upgradeing from <=4.10
@@ -488,7 +489,7 @@ void DebuggerMainWindow::savePersistentSettings() const
         states.insert(type, QVariant::fromValue(state));
     }
 
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(MAINWINDOW_KEY);
     settings->setValue(CHANGED_DOCK_KEY, QStringList(Utils::toList(d->m_persistentChangedDocks)));
     settings->setValue(STATE_KEY2, states);
@@ -783,6 +784,11 @@ void Perspective::setCentralWidget(QWidget *centralWidget)
 QString Perspective::id() const
 {
     return d->m_id;
+}
+
+QString Perspective::parentPerspectiveId() const
+{
+    return d->m_parentPerspectiveId;
 }
 
 QString Perspective::name() const

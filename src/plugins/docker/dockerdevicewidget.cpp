@@ -9,6 +9,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/clangutils.h>
+#include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
@@ -33,22 +34,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
     auto dockerDevice = device.dynamicCast<DockerDevice>();
     QTC_ASSERT(dockerDevice, return);
 
-    m_data = dockerDevice->data();
+    DockerDeviceSettings *deviceSettings = static_cast<DockerDeviceSettings *>(device->settings());
 
-    auto repoLabel = new QLabel(Tr::tr("Repository:"));
-    m_repoLineEdit = new QLineEdit;
-    m_repoLineEdit->setText(m_data.repo);
-    m_repoLineEdit->setEnabled(false);
-
-    auto tagLabel = new QLabel(Tr::tr("Tag:"));
-    m_tagLineEdit = new QLineEdit;
-    m_tagLineEdit->setText(m_data.tag);
-    m_tagLineEdit->setEnabled(false);
-
-    auto idLabel = new QLabel(Tr::tr("Image ID:"));
-    m_idLineEdit = new QLineEdit;
-    m_idLineEdit->setText(m_data.imageId);
-    m_idLineEdit->setEnabled(false);
+    using namespace Layouting;
 
     auto daemonStateLabel = new QLabel(Tr::tr("Daemon state:"));
     m_daemonReset = new QToolButton;
@@ -67,80 +55,16 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         DockerApi::recheckDockerDaemon();
     });
 
-    m_keepEntryPoint = new QCheckBox(Tr::tr("Do not modify entry point"));
-    m_keepEntryPoint->setToolTip(
-        Tr::tr("Prevents modifying the entry point of the image. Enable only if "
-               "the image starts into a shell."));
-    m_keepEntryPoint->setChecked(m_data.keepEntryPoint);
-    m_keepEntryPoint->setEnabled(true);
-
-    connect(m_keepEntryPoint, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
-        m_data.keepEntryPoint = on;
-        dockerDevice->setData(m_data);
-    });
-
-    m_enableLldbFlags = new QCheckBox(Tr::tr("Enable flags needed for LLDB"));
-    m_enableLldbFlags->setToolTip(Tr::tr("Adds the following flags to the container "
-                                         "to allow LLDB to run: "
-                                         "--cap-add=SYS_PTRACE --security-opt seccomp=unconfined"));
-    m_enableLldbFlags->setChecked(m_data.enableLldbFlags);
-    m_enableLldbFlags->setEnabled(true);
-
-    connect(m_enableLldbFlags, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
-        m_data.enableLldbFlags = on;
-        dockerDevice->setData(m_data);
-    });
-
-    m_runAsOutsideUser = new QCheckBox(Tr::tr("Run as outside user"));
-    m_runAsOutsideUser->setToolTip(Tr::tr("Uses user ID and group ID of the user running Qt Creator "
-                                          "in the docker container."));
-    m_runAsOutsideUser->setChecked(m_data.useLocalUidGid);
-    m_runAsOutsideUser->setEnabled(HostOsInfo::isAnyUnixHost());
-
-    connect(m_runAsOutsideUser, &QCheckBox::toggled, this, [this, dockerDevice](bool on) {
-        m_data.useLocalUidGid = on;
-        dockerDevice->setData(m_data);
-    });
-
-    auto clangDLabel = new QLabel(Tr::tr("Clangd Executable:"));
-
-    m_clangdExecutable = new PathChooser();
-    m_clangdExecutable->setExpectedKind(PathChooser::ExistingCommand);
-    m_clangdExecutable->setHistoryCompleter("Docker.ClangdExecutable.History");
-    m_clangdExecutable->setAllowPathFromDevice(true);
-    m_clangdExecutable->setFilePath(m_data.clangdExecutable);
-    m_clangdExecutable->setValidationFunction(
-        [chooser = m_clangdExecutable](FancyLineEdit *, QString *error) {
-            return Utils::checkClangdVersion(chooser->filePath(), error);
-        });
-
-    connect(m_clangdExecutable, &PathChooser::rawPathChanged, this, [this, dockerDevice] {
-        m_data.clangdExecutable = m_clangdExecutable->filePath();
-        dockerDevice->setData(m_data);
-    });
-
     auto pathListLabel = new InfoLabel(Tr::tr("Paths to mount:"));
     pathListLabel->setAdditionalToolTip(Tr::tr("Source directory list should not be empty."));
 
-    m_pathsListEdit = new PathListEditor;
-    m_pathsListEdit->setPlaceholderText(Tr::tr("Host directories to mount into the container"));
-    m_pathsListEdit->setToolTip(Tr::tr("Maps paths in this list one-to-one to the "
-                                       "docker container."));
-    m_pathsListEdit->setPathList(m_data.mounts);
-    m_pathsListEdit->setMaximumHeight(100);
-    m_pathsListEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-
-    auto markupMounts = [this, pathListLabel] {
-        const bool isEmpty = m_pathsListEdit->pathList().isEmpty();
+    auto markupMounts = [deviceSettings, pathListLabel] {
+        const bool isEmpty = deviceSettings->mounts.volatileValue().isEmpty();
         pathListLabel->setType(isEmpty ? InfoLabel::Warning : InfoLabel::None);
     };
     markupMounts();
 
-    connect(m_pathsListEdit, &PathListEditor::changed, this, [this, dockerDevice, markupMounts] {
-        m_data.mounts = m_pathsListEdit->pathList();
-        dockerDevice->setData(m_data);
-        markupMounts();
-    });
+    connect(&deviceSettings->mounts, &FilePathListAspect::volatileValueChanged, this, markupMounts);
 
     auto logView = new QTextBrowser;
     connect(&m_kitItemDetector, &KitDetector::logOutput,
@@ -177,31 +101,38 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         return paths;
     };
 
-    connect(autoDetectButton, &QPushButton::clicked, this,
-            [this, logView, dockerDevice, searchPaths] {
-        logView->clear();
-        dockerDevice->updateContainerAccess();
+    connect(autoDetectButton,
+            &QPushButton::clicked,
+            this,
+            [this, logView, dockerDevice, searchPaths, deviceSettings] {
+                logView->clear();
+                expected_str<void> startResult = dockerDevice->updateContainerAccess();
 
-        const FilePath clangdPath = dockerDevice->filePath("clangd")
-                                        .searchInPath({},
-                                                      FilePath::AppendToPath,
-                                                      [](const FilePath &clangd) {
-                                                          return Utils::checkClangdVersion(clangd);
-                                                      });
+                if (!startResult) {
+                    logView->append(Tr::tr("Failed to start container."));
+                    logView->append(startResult.error());
+                    return;
+                }
 
-        if (!clangdPath.isEmpty())
-            m_clangdExecutable->setFilePath(clangdPath);
+                const FilePath clangdPath
+                    = dockerDevice->filePath("clangd")
+                          .searchInPath({}, FilePath::AppendToPath, [](const FilePath &clangd) {
+                              return Utils::checkClangdVersion(clangd);
+                          });
 
-        m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
+                if (!clangdPath.isEmpty())
+                    deviceSettings->clangdExecutable.setValue(clangdPath);
 
-        if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
-            logView->append(Tr::tr("Docker daemon appears to be stopped."));
-        else
-            logView->append(Tr::tr("Docker daemon appears to be running."));
+                m_kitItemDetector.autoDetect(dockerDevice->id().toString(), searchPaths());
 
-        logView->append(Tr::tr("Detection complete."));
-        updateDaemonStateTexts();
-    });
+                if (DockerApi::instance()->dockerDaemonAvailable().value_or(false) == false)
+                    logView->append(Tr::tr("Docker daemon appears to be stopped."));
+                else
+                    logView->append(Tr::tr("Docker daemon appears to be running."));
+
+                logView->append(Tr::tr("Detection complete."));
+                updateDaemonStateTexts();
+            });
 
     connect(undoAutoDetectButton, &QPushButton::clicked, this, [this, logView, device] {
         logView->clear();
@@ -212,6 +143,9 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         logView->clear();
         m_kitItemDetector.listAutoDetected(device->id().toString());
     });
+
+    auto createLineLabel = new QLabel(dockerDevice->createCommandLine().toUserOutput());
+    createLineLabel->setWordWrap(true);
 
     using namespace Layouting;
 
@@ -232,22 +166,28 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
         Tr::tr("Detection log:"),
         logView
     };
-
-    Form {
-        repoLabel, m_repoLineEdit, br,
-        tagLabel, m_tagLineEdit, br,
-        idLabel, m_idLineEdit, br,
-        daemonStateLabel, m_daemonReset, m_daemonState, br,
-        m_runAsOutsideUser, br,
-        m_keepEntryPoint, br,
-        m_enableLldbFlags, br,
-        clangDLabel, m_clangdExecutable, br,
-        Column {
-            pathListLabel,
-            m_pathsListEdit,
-        }, br,
-        (dockerDevice->isAutoDetected() ? Column {} : std::move(detectionControls)),
+    Column {
         noMargin,
+        Form {
+            deviceSettings->repo, br,
+            deviceSettings->tag, br,
+            deviceSettings->imageId, br,
+            daemonStateLabel, m_daemonReset, m_daemonState, br,
+            Tr::tr("Container state:"), deviceSettings->containerStatus, br,
+            deviceSettings->useLocalUidGid, br,
+            deviceSettings->keepEntryPoint, br,
+            deviceSettings->enableLldbFlags, br,
+            deviceSettings->clangdExecutable, br,
+            deviceSettings->network, br,
+            deviceSettings->extraArgs, br,
+            Column {
+                pathListLabel,
+                deviceSettings->mounts,
+            }, br,
+            If { dockerDevice->isAutoDetected(), {}, {detectionControls} },
+            noMargin,
+        },br,
+        Tr::tr("Command line:"), createLineLabel, br,
     }.attachTo(this);
     // clang-format on
 
@@ -258,6 +198,10 @@ DockerDeviceWidget::DockerDeviceWidget(const IDevice::Ptr &device)
             searchDirsLineEdit->setFocus();
     };
     QObject::connect(searchDirsComboBox, &QComboBox::activated, this, updateDirectoriesLineEdit);
+
+    connect(deviceSettings, &AspectContainer::applied, this, [createLineLabel, dockerDevice] {
+        createLineLabel->setText(dockerDevice->createCommandLine().toUserOutput());
+    });
 }
 
 void DockerDeviceWidget::updateDaemonStateTexts()

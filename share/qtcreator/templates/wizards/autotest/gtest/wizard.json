@@ -1,0 +1,223 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject", "Qbs.QbsProject", "Qt4ProjectManager.Qt4Project" ],
+    "id": "G.AutoTest",
+    "category": "I.TestProject",
+    "trDescription": "Creates a new unit test project using Google Test. Unit tests allow you to verify that the code is fit for use and that there are no regressions.",
+    "trDisplayName": "Google Test Project",
+    "trDisplayCategory": "Test Project",
+    "icon": "../autotest.png",
+    "iconKind": "Themed",
+    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
+
+    "options":
+    [
+        { "key": "ProjectFilePath",
+          "value": "%{JS: value('BuildSystem') == 'qmake' ? value('ProFileName') : (value('BuildSystem') == 'qbs' ? value('QbsFileName') : value('CMakeFileName')) }"
+        },
+        { "key": "ProFileName",
+          "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}"
+        },
+        {
+          "key": "QbsFileName",
+          "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qbs')}"
+        },
+        {
+          "key": "CMakeFileName",
+          "value": "%{ProjectDirectory}/CMakeLists.txt"
+        },
+        { "key": "IsTopLevelProject",
+           "value": "%{JS: !'%{Exists:ProjectExplorer.Profile.Ids}' }"
+        },
+        { "key": "MainCppName",
+          "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src') }"
+        },
+        {
+          "key": "TestCaseFileGTestWithCppSuffix",
+          "value": "%{JS: 'tst_' + value('TestCaseName').toLowerCase() + '.' + Util.preferredSuffix('text/x-c++src') }"
+        },
+        {
+            "key": "GTestBaseFolder",
+            "value": "%{JS: value('TestFrameWork') === 'GTest' ? value('GTestRepository') : value('GTestInstallFolder')}"
+        },
+        {
+          "key": "GUARD",
+          "value": "%{JS: value('TestCaseFileWithHeaderSuffix').toUpperCase().replace('.', '_') }"
+        }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data":
+            {
+                "trDescription": "This wizard creates a simple unit test project using Google Test."
+            }
+        },
+        {
+            "trDisplayName": "Project and Test Information",
+            "trShortTitle": "Details",
+            "typeId": "Fields",
+            "data":
+            [
+                {
+                    "name": "TestFrameWork",
+                    "trDisplayName": "Test framework:",
+                    "type": "ComboBox",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "Google Test (header only)",
+                                "value": "GTest"
+                            },
+                            {
+                                "trKey": "Google Test (shared libraries)",
+                                "value": "GTest_dyn"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "TestSuiteName",
+                    "trDisplayName": "Test suite name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": { "validator": "^[a-zA-Z_0-9]+$" }
+                },
+                {
+                    "name": "TestCaseName",
+                    "trDisplayName": "Test case name:",
+                    "mandatory": true,
+                    "type": "LineEdit",
+                    "data": { "validator": "^[a-zA-Z_0-9]+$" }
+                },
+                {
+                    "name": "GTestRepository",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'GTest'}",
+                    "trDisplayName": "Googletest source directory (optional):",
+                    "mandatory": false,
+                    "type": "PathChooser",
+                    "data": {
+                        "kind": "existingDirectory"
+                    }
+                },
+                {
+                    "name": "GTestInstallFolder",
+                    "visible": "%{JS: '%{TestFrameWork}' === 'GTest_dyn'}",
+                    "trDisplayName": "Googletest install directory (optional):",
+                    "mandatory": false,
+                    "type": "PathChooser",
+                    "data": {
+                        "kind": "existingDirectory"
+                    }
+                },
+                {
+                    "name": "BuildSystem",
+                    "trDisplayName": "Build system:",
+                    "type": "ComboBox",
+                    "persistenceKey": "BuildSystemType",
+                    "data":
+                    {
+                        "index": 1,
+                        "items":
+                        [
+                            {
+                                "trKey": "qmake",
+                                "value": "qmake",
+                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "CMake",
+                                "value": "cmake",
+                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                            },
+                            {
+                                "trKey": "Qbs",
+                                "value": "qbs",
+                                "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "enabled": "%{IsTopLevelProject}",
+            "data": {
+                 "projectFilePath": "%{ProjectFilePath}",
+                 "requiredFeatures": [ "%{JS: value('BuildSystem') === 'qmake' ? 'QtSupport.Wizards.FeatureQt' : 'DeviceType.Desktop' }" ]
+            }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "../files/gtest_dependency.pri",
+                    "target": "gtest_dependency.pri",
+                    "condition": "%{JS: value('BuildSystem') == 'qmake'}",
+                    "openInEditor": false
+                },
+                {
+                    "source": "../files/googlecommon.js",
+                    "target": "googlecommon.js",
+                    "condition": "%{JS: value('BuildSystem') == 'qbs'}",
+                    "openInEditor": false
+                },
+                {
+                    "source": "../files/tst.pro",
+                    "target": "%{ProjectFilePath}",
+                    "condition": "%{JS: value('BuildSystem') == 'qmake'}",
+                    "openInEditor": false,
+                    "openAsProject": true
+                },
+                {
+                    "source": "../files/tst.qbs",
+                    "target": "%{ProjectFilePath}",
+                    "condition": "%{JS: value('BuildSystem') == 'qbs'}",
+                    "openInEditor": false,
+                    "openAsProject": true
+                },
+                {
+                    "source": "../files/tst.txt",
+                    "target": "CMakeLists.txt",
+                    "condition": "%{JS: value('BuildSystem') == 'cmake'}",
+                    "openInEditor": false,
+                    "openAsProject": true
+                },
+                {
+                    "source": "../files/tst_src_gt.cpp",
+                    "target": "%{TestCaseFileGTestWithCppSuffix}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../files/tst_main.cpp",
+                    "target": "%{MainCppName}",
+                    "openInEditor": true
+                },
+                {
+                    "source": "../../projects/git.ignore",
+                    "target": ".gitignore",
+                    "condition": "%{JS: ( %{IsTopLevelProject} && value('VersionControl') === 'G.Git' )}"
+                }
+            ]
+        }
+    ]
+}

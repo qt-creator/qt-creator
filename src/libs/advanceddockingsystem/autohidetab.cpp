@@ -4,6 +4,7 @@
 #include "autohidetab.h"
 
 #include "ads_globals_p.h"
+#include "advanceddockingsystemtr.h"
 #include "autohidedockcontainer.h"
 #include "autohidesidebar.h"
 #include "dockareawidget.h"
@@ -335,7 +336,7 @@ void AutoHideTab::contextMenuEvent(QContextMenuEvent *event)
     const bool isFloatable = d->m_dockWidget->features().testFlag(DockWidget::DockWidgetFloatable);
     QMenu menu(this);
 
-    QAction *detachAction = menu.addAction(tr("Detach"));
+    QAction *detachAction = menu.addAction(Tr::tr("Detach"));
     detachAction->connect(detachAction,
                           &QAction::triggered,
                           this,
@@ -345,17 +346,17 @@ void AutoHideTab::contextMenuEvent(QContextMenuEvent *event)
     auto isPinnable = d->m_dockWidget->features().testFlag(DockWidget::DockWidgetPinnable);
     detachAction->setEnabled(isPinnable);
 
-    auto pinToMenu = menu.addMenu(tr("Pin To..."));
+    auto pinToMenu = menu.addMenu(Tr::tr("Pin To..."));
     pinToMenu->setEnabled(isPinnable);
-    d->createAutoHideToAction(tr("Top"), SideBarTop, pinToMenu);
-    d->createAutoHideToAction(tr("Left"), SideBarLeft, pinToMenu);
-    d->createAutoHideToAction(tr("Right"), SideBarRight, pinToMenu);
-    d->createAutoHideToAction(tr("Bottom"), SideBarBottom, pinToMenu);
+    d->createAutoHideToAction(Tr::tr("Top"), SideBarTop, pinToMenu);
+    d->createAutoHideToAction(Tr::tr("Left"), SideBarLeft, pinToMenu);
+    d->createAutoHideToAction(Tr::tr("Right"), SideBarRight, pinToMenu);
+    d->createAutoHideToAction(Tr::tr("Bottom"), SideBarBottom, pinToMenu);
 
-    QAction *unpinAction = menu.addAction(tr("Unpin (Dock)"));
+    QAction *unpinAction = menu.addAction(Tr::tr("Unpin (Dock)"));
     unpinAction->connect(unpinAction, &QAction::triggered, this, &AutoHideTab::unpinDockWidget);
     menu.addSeparator();
-    QAction *closeAction = menu.addAction(tr("Close"));
+    QAction *closeAction = menu.addAction(Tr::tr("Close"));
     closeAction->connect(closeAction,
                          &QAction::triggered,
                          this,

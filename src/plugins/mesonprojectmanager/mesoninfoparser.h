@@ -11,7 +11,7 @@
 #include "target.h"
 #include "targetparser.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <optional>
 
@@ -30,7 +30,7 @@ struct Result
     std::optional<MesonInfo> mesonInfo;
 };
 
-inline Result parse(const QString &buildDir)
+inline Result parse(const Utils::FilePath &buildDir)
 {
     return {TargetParser{buildDir}.targetList(),
             BuildOptionsParser{buildDir}.takeBuildOptions(),
@@ -58,7 +58,8 @@ inline Result parse(QIODevice *introFile)
     }
     return {};
 }
-inline std::optional<MesonInfo> mesonInfo(const QString &buildDir)
+
+inline std::optional<MesonInfo> mesonInfo(const Utils::FilePath &buildDir)
 {
     return InfoParser{buildDir}.info();
 }

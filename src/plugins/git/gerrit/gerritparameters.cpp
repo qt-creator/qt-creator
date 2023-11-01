@@ -8,9 +8,9 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/pathchooser.h>
+#include <utils/qtcsettings.h>
 
 #include <QDir>
-#include <QSettings>
 #include <QStandardPaths>
 
 using namespace Utils;
@@ -86,7 +86,7 @@ bool GerritParameters::equals(const GerritParameters &rhs) const
     return server == rhs.server && ssh == rhs.ssh && curl == rhs.curl && https == rhs.https;
 }
 
-void GerritParameters::toSettings(QSettings *s) const
+void GerritParameters::toSettings(QtcSettings *s) const
 {
     s->beginGroup(settingsGroupC);
     s->setValue(hostKeyC, server.host);
@@ -99,16 +99,16 @@ void GerritParameters::toSettings(QSettings *s) const
     s->endGroup();
 }
 
-void GerritParameters::saveQueries(QSettings *s) const
+void GerritParameters::saveQueries(QtcSettings *s) const
 {
     s->beginGroup(settingsGroupC);
     s->setValue(savedQueriesKeyC, savedQueries.join(','));
     s->endGroup();
 }
 
-void GerritParameters::fromSettings(const QSettings *s)
+void GerritParameters::fromSettings(const QtcSettings *s)
 {
-    const QString rootKey = QLatin1String(settingsGroupC) + '/';
+    const Key rootKey = Key(settingsGroupC) + '/';
     server.host = s->value(rootKey + hostKeyC, GerritServer::defaultHost()).toString();
     server.user.userName = s->value(rootKey + userKeyC, QString()).toString();
     ssh = FilePath::fromSettings(s->value(rootKey + sshKeyC, QString()));

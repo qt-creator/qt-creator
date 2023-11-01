@@ -27,7 +27,7 @@ AnalyzerRunConfigWidget::AnalyzerRunConfigWidget(ProjectExplorer::GlobalOrProjec
     auto restoreButton = new QPushButton(Tr::tr("Restore Global"));
 
     auto innerPane = new QWidget;
-    auto configWidget = aspect->projectSettings()->createConfigWidget();
+    auto configWidget = aspect->projectSettings()->layouter()().emerge();
 
     auto details = new DetailsWidget;
     details->setWidget(innerPane);

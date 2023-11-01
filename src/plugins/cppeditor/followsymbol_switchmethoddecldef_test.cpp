@@ -174,7 +174,7 @@ private:
 
 QList<TestDocumentPtr> singleDocument(const QByteArray &source)
 {
-    return QList<TestDocumentPtr>() << CppTestDocument::create(source, "file.cpp");
+    return {CppTestDocument::create(source, "file.cpp")};
 }
 
 /**
@@ -331,7 +331,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
     switch (action) {
     case FollowSymbolUnderCursorAction: {
         CppEditorWidget *widget = initialTestFile->m_editorWidget;
-        if (CppModelManager::instance()->isClangCodeModelActive()) {
+        if (CppModelManager::isClangCodeModelActive()) {
             if (curTestName == "testFollowSymbolQTCREATORBUG7903")
                 QSKIP((curTestName + " is not supported by Clang FollowSymbol").toLatin1());
             widget->enableTestMode();
@@ -381,7 +381,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
             QObject::connect(&t, &QTimer::timeout, &l, &QEventLoop::quit);
             const IAssistProposal *immediateProposal = nullptr;
             const IAssistProposal *finalProposal = nullptr;
-            QObject::connect(initialTestFile->m_editorWidget, &CppEditorWidget::proposalsReady,
+            QObject::connect(initialTestFile->m_editorWidget, &CppEditorWidget::proposalsReady, &l,
                              [&](const IAssistProposal *i, const IAssistProposal *f) {
                 immediateProposal = i;
                 finalProposal = f;
@@ -449,7 +449,7 @@ F2TestCase::F2TestCase(CppEditorAction action,
                 first.text = "<base declaration>";
             expectedImmediate << first;
         }
-        expectedImmediate << OverrideItem(QLatin1String("collecting overrides ..."));
+        expectedImmediate << OverrideItem(QLatin1String("collecting overrides..."));
     }
     QCOMPARE(immediateVirtualSymbolResults, expectedImmediate);
     if (useClangd) {

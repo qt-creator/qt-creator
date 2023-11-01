@@ -5,6 +5,7 @@
 
 #include "hostosinfo.h"
 #include "qtcassert.h"
+#include "qtcsettings.h"
 #include "utilstr.h"
 
 #include <QApplication>
@@ -12,7 +13,6 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
-#include <QSettings>
 #include <QStyle>
 #include <QTextEdit>
 
@@ -32,7 +32,7 @@ static const char kDoNotAskAgainKey[] = "DoNotAskAgain";
 
 namespace Utils {
 
-static QSettings *theSettings;
+static QtcSettings *theSettings;
 
 static QMessageBox::StandardButton exec(
     QWidget *parent,
@@ -53,15 +53,18 @@ static QMessageBox::StandardButton exec(
     msgBox.setTextFormat(Qt::RichText);
     msgBox.setTextInteractionFlags(Qt::LinksAccessibleByKeyboard | Qt::LinksAccessibleByMouse);
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     if (HostOsInfo::isMacHost()) {
         // Message boxes on macOS cannot display links.
         // If the message contains a link, we need to disable native dialogs.
-        if (text.contains("<a ")) {
-#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+        if (text.contains("<a "))
             msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
-#endif
-        }
+
+        // Workaround for QTBUG-118241
+        if (!buttonTextOverrides.isEmpty())
+            msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
     }
+#endif
 
     if (decider.shouldAskAgain) {
         if (!decider.shouldAskAgain())
@@ -86,17 +89,17 @@ static QMessageBox::StandardButton exec(
     return clickedBtn;
 }
 
-CheckableDecider::CheckableDecider(const QString &settingsSubKey)
+CheckableDecider::CheckableDecider(const Key &settingsSubKey)
 {
     QTC_ASSERT(theSettings, return);
     shouldAskAgain = [settingsSubKey] {
-        theSettings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+        theSettings->beginGroup(kDoNotAskAgainKey);
         bool shouldNotAsk = theSettings->value(settingsSubKey, false).toBool();
         theSettings->endGroup();
         return !shouldNotAsk;
     };
     doNotAskAgain =  [settingsSubKey] {
-        theSettings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+        theSettings->beginGroup(kDoNotAskAgainKey);
         theSettings->setValue(settingsSubKey, true);
         theSettings->endGroup();
     };
@@ -160,8 +163,8 @@ QMessageBox::StandardButton CheckableMessageBox::information(
 void CheckableMessageBox::resetAllDoNotAskAgainQuestions()
 {
     QTC_ASSERT(theSettings, return);
-    theSettings->beginGroup(QLatin1String(kDoNotAskAgainKey));
-    theSettings->remove(QString());
+    theSettings->beginGroup(kDoNotAskAgainKey);
+    theSettings->remove(Key());
     theSettings->endGroup();
 }
 
@@ -172,7 +175,7 @@ void CheckableMessageBox::resetAllDoNotAskAgainQuestions()
 bool CheckableMessageBox::hasSuppressedQuestions()
 {
     QTC_ASSERT(theSettings, return false);
-    theSettings->beginGroup(QLatin1String(kDoNotAskAgainKey));
+    theSettings->beginGroup(kDoNotAskAgainKey);
     const bool hasSuppressed = !theSettings->childKeys().isEmpty()
                                || !theSettings->childGroups().isEmpty();
     theSettings->endGroup();
@@ -195,7 +198,7 @@ QString CheckableMessageBox::msgDoNotShowAgain()
     return Tr::tr("Do not &show again");
 }
 
-void CheckableMessageBox::initialize(QSettings *settings)
+void CheckableMessageBox::initialize(QtcSettings *settings)
 {
     theSettings = settings;
 }

@@ -12,7 +12,7 @@ const char ANALYZER_VALGRIND_SETTINGS[] = "Analyzer.Valgrind.Settings";
 
 class SuppressionAspectPrivate;
 
-class SuppressionAspect final : public Utils::BaseAspect
+class SuppressionAspect final : public Utils::TypedAspect<Utils::FilePaths>
 {
     Q_OBJECT
 
@@ -20,34 +20,31 @@ public:
     SuppressionAspect(Utils::AspectContainer *container, bool global);
     ~SuppressionAspect() final;
 
-    Utils::FilePaths operator()() const { return value(); }
-    Utils::FilePaths value() const;
-    void setValue(const Utils::FilePaths &val);
-
     void addToLayout(Layouting::LayoutItem &parent) final;
 
-    void fromMap(const QVariantMap &map) final;
-    void toMap(QVariantMap &map) const final;
-
-    QVariant volatileValue() const final;
-    void setVolatileValue(const QVariant &val) final;
+    void fromMap(const Utils::Store &map) final;
+    void toMap(Utils::Store &map) const final;
 
     void addSuppressionFile(const Utils::FilePath &suppressionFile);
 
 private:
-    friend class ValgrindBaseSettings;
+    void bufferToGui() override;
+    bool guiToBuffer() override;
+
+    friend class ValgrindSettings;
     SuppressionAspectPrivate *d = nullptr;
 };
 
 /**
  * Valgrind settings shared for global and per-project.
  */
-class ValgrindBaseSettings : public ProjectExplorer::ISettingsAspect
+class ValgrindSettings : public Utils::AspectContainer
 {
     Q_OBJECT
 
 public:
-    explicit ValgrindBaseSettings(bool global);
+    // These exists once globally, and once per project
+    explicit ValgrindSettings(bool global);
 
     enum SelfModifyingCodeDetection {
         DetectSmcNo,
@@ -62,20 +59,14 @@ public:
         LeakCheckOnFinishYes
     };
 
-/**
- * Base valgrind settings
- */
-public:
+    // Generic valgrind settings
     Utils::FilePathAspect valgrindExecutable{this};
     Utils::StringAspect valgrindArguments{this};
     Utils::SelectionAspect selfModifyingCodeDetection{this};
 
     SuppressionAspect suppressions;
 
-/**
- * Base memcheck settings
- */
-public:
+    // Memcheck
     Utils::StringAspect memcheckArguments{this};
     Utils::IntegerAspect numCallers{this};
     Utils::SelectionAspect leakCheckOnFinish{this};
@@ -84,12 +75,12 @@ public:
     Utils::BoolAspect filterExternalIssues{this};
     Utils::IntegersAspect visibleErrorKinds{this};
 
+    Utils::FilePathAspect lastSuppressionDirectory{this}; // Global only
+    Utils::StringAspect lastSuppressionHistory{this}; // Global only
+
     void setVisibleErrorKinds(const QList<int> &);
 
-/**
- * Base callgrind settings
- */
-public:
+    // Callgrind
     Utils::StringAspect callgrindArguments{this};
     Utils::FilePathAspect kcachegrindExecutable{this};
 
@@ -101,51 +92,11 @@ public:
     Utils::DoubleAspect minimumInclusiveCostRatio{this};
     Utils::DoubleAspect visualizationMinimumInclusiveCostRatio{this};
 
-    QVariantMap defaultSettings() const;
+    Utils::SelectionAspect costFormat{this}; // Global only
+    Utils::BoolAspect detectCycles{this}; // Global only
+    Utils::BoolAspect shortenTemplates{this}; // Global only
 };
 
-
-/**
- * Global valgrind settings
- */
-class ValgrindGlobalSettings : public ValgrindBaseSettings
-{
-    Q_OBJECT
-
-public:
-    ValgrindGlobalSettings();
-
-    static ValgrindGlobalSettings *instance();
-
-    /**
-     * Global memcheck settings
-     */
-
-    void writeSettings() const;
-    void readSettings();
-
-    Utils::StringAspect lastSuppressionDirectory{this};
-    Utils::StringAspect lastSuppressionHistory{this};
-
-
-    /**
-     * Global callgrind settings
-     */
-    Utils::SelectionAspect costFormat{this};
-    Utils::BoolAspect detectCycles{this};
-    Utils::BoolAspect shortenTemplates{this};
-};
-
-
-/**
- * Per-project valgrind settings.
- */
-class ValgrindProjectSettings : public ValgrindBaseSettings
-{
-    Q_OBJECT
-
-public:
-    ValgrindProjectSettings();
-};
+ValgrindSettings &globalSettings();
 
 } // Valgrind::Internal

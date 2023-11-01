@@ -13,28 +13,24 @@ namespace Utils { class FancyLineEdit; }
 
 namespace Git::Internal {
 
-class GitClient;
+class GitGrepParameters;
 
 class GitGrep : public TextEditor::SearchEngine
 {
 public:
-    explicit GitGrep(GitClient *client);
+    GitGrep();
     ~GitGrep() override;
 
     QString title() const override;
     QString toolTip() const override;
     QWidget *widget() const override;
-    QVariant parameters() const override;
-    void readSettings(QSettings *settings) override;
-    void writeSettings(QSettings *settings) const override;
-    QFuture<Utils::SearchResultItems> executeSearch(
-            const TextEditor::FileFindParameters &parameters,
-            TextEditor::BaseFileFind *baseFileFind) override;
-    Core::IEditor *openEditor(const Utils::SearchResultItem &item,
-                              const TextEditor::FileFindParameters &parameters) override;
+    void readSettings(Utils::QtcSettings *settings) override;
+    void writeSettings(Utils::QtcSettings *settings) const override;
+    TextEditor::SearchExecutor searchExecutor() const override;
+    TextEditor::EditorOpener editorOpener() const override;
 
 private:
-    GitClient *m_client;
+    GitGrepParameters gitParameters() const;
     QWidget *m_widget;
     Utils::FancyLineEdit *m_treeLineEdit;
     QCheckBox *m_recurseSubmodules = nullptr;

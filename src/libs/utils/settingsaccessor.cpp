@@ -46,9 +46,9 @@ SettingsAccessor::~SettingsAccessor() = default;
 /*!
  * Restore settings from disk and report any issues in a message box centered on \a parent.
  */
-QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
+Store SettingsAccessor::restoreSettings(QWidget *parent) const
 {
-    QTC_ASSERT(!m_baseFilePath.isEmpty(), return QVariantMap());
+    QTC_ASSERT(!m_baseFilePath.isEmpty(), return Store());
 
     return restoreSettings(m_baseFilePath, parent);
 }
@@ -56,7 +56,7 @@ QVariantMap SettingsAccessor::restoreSettings(QWidget *parent) const
 /*!
  * Save \a data to disk and report any issues in a message box centered on \a parent.
  */
-bool SettingsAccessor::saveSettings(const QVariantMap &data, QWidget *parent) const
+bool SettingsAccessor::saveSettings(const Store &data, QWidget *parent) const
 {
     QTC_CHECK(!m_docType.isEmpty());
     QTC_CHECK(!m_applicationDisplayName.isEmpty());
@@ -83,14 +83,14 @@ SettingsAccessor::RestoreData SettingsAccessor::readData(const FilePath &path, Q
  * Store the \a data in \a path on disk. Do all the necessary preprocessing of the data.
  */
 std::optional<SettingsAccessor::Issue> SettingsAccessor::writeData(const FilePath &path,
-                                                                   const QVariantMap &data,
+                                                                   const Store &data,
                                                                    QWidget *parent) const
 {
     Q_UNUSED(parent)
     return writeFile(path, prepareToWriteSettings(data));
 }
 
-QVariantMap SettingsAccessor::restoreSettings(const FilePath &settingsPath, QWidget *parent) const
+Store SettingsAccessor::restoreSettings(const FilePath &settingsPath, QWidget *parent) const
 {
     QTC_CHECK(!m_docType.isEmpty());
     QTC_CHECK(!m_applicationDisplayName.isEmpty());
@@ -99,7 +99,7 @@ QVariantMap SettingsAccessor::restoreSettings(const FilePath &settingsPath, QWid
 
     const ProceedInfo pi = result.hasIssue() ? reportIssues(result.issue.value(), result.path, parent)
                                              : ProceedInfo::Continue;
-    return pi == ProceedInfo::DiscardAndContinue ? QVariantMap() : result.data;
+    return pi == ProceedInfo::DiscardAndContinue ? Store() : result.data;
 }
 
 /*!
@@ -116,7 +116,7 @@ SettingsAccessor::RestoreData SettingsAccessor::readFile(const FilePath &path) c
                                  .arg(path.toUserOutput()), Issue::Type::ERROR));
     }
 
-    const QVariantMap data = reader.restoreValues();
+    const Store data = reader.restoreValues();
     if (!m_readOnly && path == m_baseFilePath) {
         if (!m_writer)
             m_writer = std::make_unique<PersistentSettingsWriter>(m_baseFilePath, m_docType);
@@ -132,7 +132,7 @@ SettingsAccessor::RestoreData SettingsAccessor::readFile(const FilePath &path) c
  * This method does not do *any* processing of the file contents.
  */
 std::optional<SettingsAccessor::Issue> SettingsAccessor::writeFile(const FilePath &path,
-                                                                   const QVariantMap &data) const
+                                                                   const Store &data) const
 {
     if (data.isEmpty()) {
         return Issue(Tr::tr("Failed to Write File"),
@@ -175,7 +175,7 @@ SettingsAccessor::reportIssues(const Issue &issue, const FilePath &path, QWidget
 /*!
  * This method is called right after reading data from disk and modifies \a data.
  */
-QVariantMap SettingsAccessor::preprocessReadSettings(const QVariantMap &data) const
+Store SettingsAccessor::preprocessReadSettings(const Store &data) const
 {
     return data;
 }
@@ -183,7 +183,7 @@ QVariantMap SettingsAccessor::preprocessReadSettings(const QVariantMap &data) co
 /*!
  * This method is called right before writing data to disk and modifies \a data.
  */
-QVariantMap SettingsAccessor::prepareToWriteSettings(const QVariantMap &data) const
+Store SettingsAccessor::prepareToWriteSettings(const Store &data) const
 {
     return data;
 }
@@ -212,9 +212,9 @@ int BackUpStrategy::compare(const SettingsAccessor::RestoreData &data1,
     return 0;
 }
 
-std::optional<FilePath> BackUpStrategy::backupName(const QVariantMap &oldData,
+std::optional<FilePath> BackUpStrategy::backupName(const Store &oldData,
                                                    const FilePath &path,
-                                                   const QVariantMap &data) const
+                                                   const Store &data) const
 {
     if (oldData == data)
         return std::nullopt;
@@ -230,7 +230,7 @@ BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
 {
     const FilePaths fileList = readFileCandidates(path);
     if (fileList.isEmpty()) // No settings found at all.
-        return RestoreData(path, QVariantMap());
+        return RestoreData(path, Store());
 
     RestoreData result = bestReadFileData(fileList, parent);
     if (result.path.isEmpty())
@@ -253,7 +253,7 @@ BackingUpSettingsAccessor::readData(const FilePath &path, QWidget *parent) const
 }
 
 std::optional<SettingsAccessor::Issue> BackingUpSettingsAccessor::writeData(const FilePath &path,
-                                                                            const QVariantMap &data,
+                                                                            const Store &data,
                                                                             QWidget *parent) const
 {
     if (data.isEmpty())
@@ -290,7 +290,7 @@ BackingUpSettingsAccessor::bestReadFileData(const FilePaths &candidates, QWidget
     return bestMatch;
 }
 
-void BackingUpSettingsAccessor::backupFile(const FilePath &path, const QVariantMap &data,
+void BackingUpSettingsAccessor::backupFile(const FilePath &path, const Store &data,
                                            QWidget *parent) const
 {
     RestoreData oldSettings = SettingsAccessor::readData(path, parent);
@@ -331,9 +331,9 @@ int VersionedBackUpStrategy::compare(const SettingsAccessor::RestoreData &data1,
     return -1;
 }
 
-std::optional<FilePath> VersionedBackUpStrategy::backupName(const QVariantMap &oldData,
+std::optional<FilePath> VersionedBackUpStrategy::backupName(const Store &oldData,
                                                             const FilePath &path,
-                                                            const QVariantMap &data) const
+                                                            const Store &data) const
 {
     Q_UNUSED(data)
     FilePath backupName = path;
@@ -374,7 +374,7 @@ QString VersionUpgrader::backupExtension() const
 /*!
  * Performs a simple renaming of the listed keys in \a changes recursively on \a map.
  */
-QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMap map) const
+Store VersionUpgrader::renameKeys(const QList<Change> &changes, Store map) const
 {
     for (const Change &change : changes) {
         const auto oldSetting = map.constFind(change.first);
@@ -384,11 +384,11 @@ QVariantMap VersionUpgrader::renameKeys(const QList<Change> &changes, QVariantMa
         }
     }
 
-    QVariantMap::iterator i = map.begin();
+    Store::iterator i = map.begin();
     while (i != map.end()) {
         QVariant v = i.value();
-        if (v.type() == QVariant::Map)
-            i.value() = renameKeys(changes, v.toMap());
+        if (Utils::isStore(v))
+            i.value() = variantFromStore(renameKeys(changes, storeFromVariant(v)));
 
         ++i;
     }
@@ -433,9 +433,9 @@ SettingsAccessor::RestoreData UpgradingSettingsAccessor::readData(const FilePath
     return upgradeSettings(BackingUpSettingsAccessor::readData(path, parent), currentVersion());
 }
 
-QVariantMap UpgradingSettingsAccessor::prepareToWriteSettings(const QVariantMap &data) const
+Store UpgradingSettingsAccessor::prepareToWriteSettings(const Store &data) const
 {
-    QVariantMap tmp = BackingUpSettingsAccessor::prepareToWriteSettings(data);
+    Store tmp = BackingUpSettingsAccessor::prepareToWriteSettings(data);
 
     setVersionInMap(tmp,currentVersion());
     if (!m_id.isEmpty())
@@ -639,7 +639,7 @@ MergingSettingsAccessor::mergeSettings(const SettingsAccessor::RestoreData &main
             = [this](const SettingsMergeData &global, const SettingsMergeData &local) {
         return merge(global, local);
     };
-    const QVariantMap result = mergeQVariantMaps(main.data, secondary.data, mergeFunction).toMap();
+    const Store result = storeFromVariant(mergeQVariantMaps(main.data, secondary.data, mergeFunction));
 
     // Update from the base version to Creator's version.
     return RestoreData(main.path, postprocessMerge(main.data, secondary.data, result));
@@ -648,14 +648,14 @@ MergingSettingsAccessor::mergeSettings(const SettingsAccessor::RestoreData &main
 /*!
  * Returns true for housekeeping related keys.
  */
-bool MergingSettingsAccessor::isHouseKeepingKey(const QString &key)
+bool MergingSettingsAccessor::isHouseKeepingKey(const Key &key)
 {
     return key == VERSION_KEY || key == ORIGINAL_VERSION_KEY || key == SETTINGS_ID_KEY;
 }
 
-QVariantMap MergingSettingsAccessor::postprocessMerge(const QVariantMap &main,
-                                                      const QVariantMap &secondary,
-                                                      const QVariantMap &result) const
+Store MergingSettingsAccessor::postprocessMerge(const Store &main,
+                                                      const Store &secondary,
+                                                      const Store &result) const
 {
     Q_UNUSED(main)
     Q_UNUSED(secondary)
@@ -666,74 +666,75 @@ QVariantMap MergingSettingsAccessor::postprocessMerge(const QVariantMap &main,
 // Helper functions:
 // --------------------------------------------------------------------
 
-int versionFromMap(const QVariantMap &data)
+int versionFromMap(const Store &data)
 {
     return data.value(VERSION_KEY, -1).toInt();
 }
 
-int originalVersionFromMap(const QVariantMap &data)
+int originalVersionFromMap(const Store &data)
 {
     return data.value(ORIGINAL_VERSION_KEY, versionFromMap(data)).toInt();
 }
 
-QByteArray settingsIdFromMap(const QVariantMap &data)
+QByteArray settingsIdFromMap(const Store &data)
 {
     return data.value(SETTINGS_ID_KEY).toByteArray();
 }
 
-void setOriginalVersionInMap(QVariantMap &data, int version)
+void setOriginalVersionInMap(Store &data, int version)
 {
     data.insert(ORIGINAL_VERSION_KEY, version);
 }
 
-void setVersionInMap(QVariantMap &data, int version)
+void setVersionInMap(Store &data, int version)
 {
     data.insert(VERSION_KEY, version);
 }
 
-void setSettingsIdInMap(QVariantMap &data, const QByteArray &id)
+void setSettingsIdInMap(Store &data, const QByteArray &id)
 {
     data.insert(SETTINGS_ID_KEY, id);
 }
 
-static QVariant mergeQVariantMapsRecursion(const QVariantMap &mainTree, const QVariantMap &secondaryTree,
-                                           const QString &keyPrefix,
-                                           const QVariantMap &mainSubtree, const QVariantMap &secondarySubtree,
+static QVariant mergeQVariantMapsRecursion(const Store &mainTree, const Store &secondaryTree,
+                                           const Key &keyPrefix,
+                                           const Store &mainSubtree, const Store &secondarySubtree,
                                            const SettingsMergeFunction &merge)
 {
-    QVariantMap result;
-    const QList<QString> allKeys = filteredUnique(mainSubtree.keys() + secondarySubtree.keys());
+    Store result;
+    const QList<Key> allKeys = filteredUnique(mainSubtree.keys() + secondarySubtree.keys());
 
-    MergingSettingsAccessor::SettingsMergeData global = {mainTree, secondaryTree, QString()};
-    MergingSettingsAccessor::SettingsMergeData local = {mainSubtree, secondarySubtree, QString()};
+    MergingSettingsAccessor::SettingsMergeData global = {mainTree, secondaryTree, Key()};
+    MergingSettingsAccessor::SettingsMergeData local = {mainSubtree, secondarySubtree, Key()};
 
-    for (const QString &key : allKeys) {
+    for (const Key &key : allKeys) {
         global.key = keyPrefix + key;
         local.key = key;
 
-        std::optional<QPair<QString, QVariant>> mergeResult = merge(global, local);
+        std::optional<QPair<Key, QVariant>> mergeResult = merge(global, local);
         if (!mergeResult)
             continue;
 
-        QPair<QString, QVariant> kv = mergeResult.value();
+        QPair<Key, QVariant> kv = mergeResult.value();
 
-        if (kv.second.type() == QVariant::Map) {
-            const QString newKeyPrefix = keyPrefix + kv.first + '/';
+        if (Utils::isStore(kv.second)) {
+            const Key newKeyPrefix = keyPrefix + kv.first + '/';
             kv.second = mergeQVariantMapsRecursion(mainTree, secondaryTree, newKeyPrefix,
-                                                   kv.second.toMap(), secondarySubtree.value(kv.first)
-                                                   .toMap(), merge);
+                                                   storeFromVariant(kv.second),
+                                                   storeFromVariant(secondarySubtree.value(kv.first)),
+                                                   merge);
         }
         if (!kv.second.isNull())
             result.insert(kv.first, kv.second);
     }
 
-    return result;
+    return variantFromStore(result);
 }
 
-QVariant mergeQVariantMaps(const QVariantMap &mainTree, const QVariantMap &secondaryTree,
+QVariant mergeQVariantMaps(const Store &mainTree, const Store &secondaryTree,
                            const SettingsMergeFunction &merge)
 {
-    return mergeQVariantMapsRecursion(mainTree, secondaryTree, QString(),
+    return mergeQVariantMapsRecursion(mainTree, secondaryTree, Key(),
                                       mainTree, secondaryTree, merge);
 }
 

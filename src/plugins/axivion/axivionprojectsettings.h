@@ -3,25 +3,14 @@
 
 #pragma once
 
-#include "axivionsettings.h"
-
-#include <projectexplorer/projectsettingswidget.h>
-
 #include <QObject>
 
-QT_BEGIN_NAMESPACE
-class QLabel;
-class QPushButton;
-class QTreeWidget;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer { class Project; }
-
-namespace Utils { class InfoLabel; }
+namespace ProjectExplorer {
+class Project;
+class ProjectSettingsWidget;
+}
 
 namespace Axivion::Internal {
-
-class DashboardInfo;
 
 class AxivionProjectSettings : public QObject
 {
@@ -31,37 +20,16 @@ public:
     void setDashboardProjectName(const QString &name) { m_dashboardProjectName = name; }
     QString dashboardProjectName() const { return m_dashboardProjectName; }
 
+    static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
+    static void destroyProjectSettings();
+    static ProjectExplorer::ProjectSettingsWidget *createSettingsWidget(ProjectExplorer::Project *project);
+
 private:
     void load();
     void save();
 
     ProjectExplorer::Project *m_project = nullptr;
     QString m_dashboardProjectName;
-};
-
-class AxivionProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
-{
-public:
-    explicit AxivionProjectSettingsWidget(ProjectExplorer::Project *project,
-                                          QWidget *parent = nullptr);
-
-private:
-    void fetchProjects();
-    void onDashboardInfoReceived(const DashboardInfo &info);
-    void onSettingsChanged();
-    void linkProject();
-    void unlinkProject();
-    void updateUi();
-    void updateEnabledStates();
-
-    AxivionProjectSettings *m_projectSettings = nullptr;
-    AxivionSettings *m_globalSettings;
-    QLabel *m_linkedProject = nullptr;
-    QTreeWidget *m_dashboardProjects = nullptr;
-    QPushButton *m_fetchProjects = nullptr;
-    QPushButton *m_link = nullptr;
-    QPushButton *m_unlink = nullptr;
-    Utils::InfoLabel *m_infoLabel = nullptr;
 };
 
 } // Axivion::Internal

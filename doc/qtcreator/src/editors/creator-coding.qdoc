@@ -90,13 +90,6 @@
             \l{https://github.com/features/copilot}{GitHub Copilot} into \QC.
             You can view suggestions from Copilot in the code editor.
 
-        \li \l{Developing Qt for Python Applications}
-
-            To support developing Qt for Python applications, \QC lets you
-            set up Qt for Python, use project wizards to create Qt for
-            Python applications, write Python code, and run and debug the
-            applications.
-
         \li \l{Editing MIME Types}
 
             \QC uses the MIME type of a file to determine which mode and editor
@@ -114,7 +107,7 @@
             You can use \QC to create applications that embed state machines. A
             project wizard creates \l{https://www.w3.org/TR/scxml/}
             {State Chart XML (SCXML)} files with boilerplate code that you can
-            edit using an experimental SCXML editor. You can use the classes in
+            edit using an SCXML editor. You can use the classes in
             the Qt SCXML module to embed state machines created from the files
             in Qt applications.
 

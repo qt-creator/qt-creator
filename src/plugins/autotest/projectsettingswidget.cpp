@@ -10,11 +10,10 @@
 #include "testtreemodel.h"
 
 #include <utils/algorithm.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
-#include <QBoxLayout>
 #include <QComboBox>
-#include <QLabel>
 #include <QTreeWidget>
 
 namespace Autotest {
@@ -25,46 +24,45 @@ enum ItemDataRole  {
     BaseTypeRole
 };
 
-static QSpacerItem *createSpacer(QSizePolicy::Policy horizontal, QSizePolicy::Policy vertical)
-{
-    return new QSpacerItem(20, 10, horizontal, vertical);
-}
-
 ProjectTestSettingsWidget::ProjectTestSettingsWidget(ProjectExplorer::Project *project,
                                                      QWidget *parent)
     : ProjectExplorer::ProjectSettingsWidget(parent)
     , m_projectSettings(AutotestPlugin::projectSettings(project))
 {
     setGlobalSettingsId(Constants::AUTOTEST_SETTINGS_ID);
-    auto verticalLayout = new QVBoxLayout(this);
-    verticalLayout->setContentsMargins(0, 0, 0, 0);
 
-    auto generalWidget = new QWidget;
-    auto groupBoxLayout = new QVBoxLayout;
-    groupBoxLayout->setContentsMargins(0, 0, 0, 0);
+    QWidget *generalWidget;
     m_activeFrameworks = new QTreeWidget;
     m_activeFrameworks->setHeaderHidden(true);
     m_activeFrameworks->setRootIsDecorated(false);
-    groupBoxLayout->addWidget(new QLabel(Tr::tr("Active frameworks:")));
-    groupBoxLayout->addWidget(m_activeFrameworks);
-    auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->addWidget(new QLabel(Tr::tr("Automatically run tests after build")));
     m_runAfterBuild = new QComboBox;
     m_runAfterBuild->addItem(Tr::tr("None"));
     m_runAfterBuild->addItem(Tr::tr("All"));
     m_runAfterBuild->addItem(Tr::tr("Selected"));
     m_runAfterBuild->setCurrentIndex(int(m_projectSettings->runAfterBuild()));
-    horizontalLayout->addWidget(m_runAfterBuild);
-    horizontalLayout->addItem(createSpacer(QSizePolicy::Expanding, QSizePolicy::Minimum));
-    groupBoxLayout->addLayout(horizontalLayout);
-    generalWidget->setLayout(groupBoxLayout);
 
-    horizontalLayout = new QHBoxLayout;
-    verticalLayout->addItem(createSpacer(QSizePolicy::Minimum, QSizePolicy::Fixed));
-    horizontalLayout->addWidget(generalWidget);
-    horizontalLayout->addItem(createSpacer(QSizePolicy::Expanding, QSizePolicy::Minimum));
-    verticalLayout->addLayout(horizontalLayout);
-    verticalLayout->addItem(createSpacer(QSizePolicy::Minimum, QSizePolicy::Expanding));
+    using namespace Layouting;
+    Column {
+        Widget {
+            bindTo(&generalWidget),
+            Column {
+                Row {
+                    Group {
+                        title(Tr::tr("Active frameworks:")),
+                        Column { m_activeFrameworks },
+                    },
+                    st,
+                },
+                Row {
+                    Tr::tr("Automatically run tests after build"),
+                    m_runAfterBuild,
+                    st,
+                },
+                noMargin(),
+            },
+        },
+        noMargin(),
+    }.attachTo(this);
 
     generalWidget->setDisabled(m_projectSettings->useGlobalSettings());
 

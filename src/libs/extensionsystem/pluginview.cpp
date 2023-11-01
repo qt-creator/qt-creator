@@ -275,7 +275,6 @@ PluginView::PluginView(QWidget *parent)
     m_categoryView = new TreeView(this);
     m_categoryView->setAlternatingRowColors(true);
     m_categoryView->setIndentation(20);
-    m_categoryView->setUniformRowHeights(true);
     m_categoryView->setSortingEnabled(true);
     m_categoryView->setColumnWidth(LoadedColumn, 40);
     m_categoryView->header()->setDefaultSectionSize(120);

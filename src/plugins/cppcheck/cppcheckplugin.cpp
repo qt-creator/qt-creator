@@ -5,6 +5,7 @@
 
 #include "cppcheckconstants.h"
 #include "cppcheckdiagnosticview.h"
+#include "cppchecksettings.h"
 #include "cppchecktextmarkmanager.h"
 #include "cppchecktool.h"
 #include "cppchecktr.h"
@@ -12,7 +13,7 @@
 #include "cppcheckdiagnosticsmodel.h"
 #include "cppcheckmanualrundialog.h"
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -39,11 +40,10 @@ public:
     explicit CppcheckPluginPrivate();
 
     CppcheckTextMarkManager marks;
-    CppcheckOptions options;
-    CppcheckTool tool{options, marks, Constants::CHECK_PROGRESS_ID};
+    CppcheckTool tool{marks, Constants::CHECK_PROGRESS_ID};
     CppcheckTrigger trigger{marks, tool};
     DiagnosticsModel manualRunModel;
-    CppcheckTool manualRunTool{options, manualRunModel, Constants::MANUAL_CHECK_PROGRESS_ID};
+    CppcheckTool manualRunTool{manualRunModel, Constants::MANUAL_CHECK_PROGRESS_ID};
     Utils::Perspective perspective{Constants::PERSPECTIVE_ID, ::Cppcheck::Tr::tr("Cppcheck")};
 
     QAction *manualRunAction;
@@ -55,7 +55,7 @@ public:
 CppcheckPluginPrivate::CppcheckPluginPrivate()
 {
     tool.updateOptions();
-    connect(&options, &AspectContainer::changed, [this] {
+    connect(&settings(), &AspectContainer::changed, this, [this] {
         tool.updateOptions();
         trigger.recheck();
     });
@@ -112,9 +112,7 @@ void CppcheckPluginPrivate::startManualRun()
 
     manualRunTool.updateOptions();
 
-    auto optionsWidget = options.layouter()().emerge();
-
-    ManualRunDialog dialog(optionsWidget, project);
+    ManualRunDialog dialog(project);
     if (dialog.exec() == ManualRunDialog::Rejected)
         return;
 

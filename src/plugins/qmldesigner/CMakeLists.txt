@@ -1,7 +1,7 @@
 #only if the plugin is requested by qtc_plugin_enabled continue if not stop as early as possible
 
 
-find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate)
+find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompilerPrivate QUIET)
 
 set(QmlDesignerPluginInstallPrefix "${IDE_PLUGIN_PATH}/qmldesigner")
 if (APPLE)
@@ -1049,11 +1049,11 @@ extend_qtc_plugin(QmlDesigner
     timeline.qrc
     timelineabstracttool.cpp timelineabstracttool.h
     timelineactions.cpp timelineactions.h
-    timelineanimationform.cpp timelineanimationform.h timelineanimationform.ui
+    timelineanimationform.cpp timelineanimationform.h
     timelineconstants.h
     timelinecontext.cpp timelinecontext.h
     timelinecontrols.cpp timelinecontrols.h
-    timelineform.cpp timelineform.h timelineform.ui
+    timelineform.cpp timelineform.h
     timelinegraphicslayout.cpp timelinegraphicslayout.h
     timelinegraphicsscene.cpp timelinegraphicsscene.h
     timelineicons.h
@@ -1064,8 +1064,7 @@ extend_qtc_plugin(QmlDesigner
     timelinepropertyitem.cpp timelinepropertyitem.h
     timelinesectionitem.cpp timelinesectionitem.h
     timelineselectiontool.cpp timelineselectiontool.h
-    timelinesettingsdialog.cpp
-    timelinesettingsdialog.h timelinesettingsdialog.ui
+    timelinesettingsdialog.cpp timelinesettingsdialog.h
     timelinesettingsmodel.cpp timelinesettingsmodel.h
     timelinetoolbar.cpp timelinetoolbar.h
     timelinetoolbutton.cpp timelinetoolbutton.h

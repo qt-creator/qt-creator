@@ -52,7 +52,7 @@ private:
             }
             return displayPath.isEmpty() ? Tr::tr("[none]") : displayPath.toUserOutput();
         }
-        return QVariant();
+        return {};
     }
 
     const RunConfigurationCreationInfo m_creationInfo;
@@ -95,10 +95,7 @@ private:
 class CandidatesTreeView : public TreeView
 {
 public:
-    CandidatesTreeView(QWidget *parent) : TreeView(parent)
-    {
-        setUniformRowHeights(true);
-    }
+    CandidatesTreeView(QWidget *parent) : TreeView(parent) {}
 
 private:
     QSize sizeHint() const override

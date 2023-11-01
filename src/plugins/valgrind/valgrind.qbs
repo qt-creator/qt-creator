@@ -28,12 +28,10 @@ QtcPlugin {
             "callgrindvisualisation.cpp", "callgrindvisualisation.h",
             "memcheckerrorview.cpp", "memcheckerrorview.h",
             "memchecktool.cpp", "memchecktool.h",
-            "suppressiondialog.cpp", "suppressiondialog.h",
             "valgrind.qrc",
-            "valgrindconfigwidget.cpp", "valgrindconfigwidget.h",
             "valgrindengine.cpp", "valgrindengine.h",
             "valgrindplugin.cpp",
-            "valgrindrunner.cpp", "valgrindrunner.h",
+            "valgrindprocess.cpp", "valgrindprocess.h",
             "valgrindsettings.cpp", "valgrindsettings.h",
             "valgrindtr.h",
         ]
@@ -66,13 +64,11 @@ QtcPlugin {
             "error.cpp", "error.h",
             "errorlistmodel.cpp", "errorlistmodel.h",
             "frame.cpp", "frame.h",
-            "modelhelpers.cpp", "modelhelpers.h",
             "parser.cpp", "parser.h",
             "stack.cpp", "stack.h",
             "stackmodel.cpp", "stackmodel.h",
             "status.cpp", "status.h",
             "suppression.cpp", "suppression.h",
-            "threadedparser.cpp", "threadedparser.h",
         ]
     }
 

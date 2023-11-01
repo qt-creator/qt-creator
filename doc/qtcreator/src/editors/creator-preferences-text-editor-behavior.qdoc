@@ -1,0 +1,96 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-preferences-text-editor-behavior.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-indenting-code.html
+    \nextpage creator-preferences-qtquick-code-style.html
+    \else
+    \previouspage creator-reference.html
+    \endif
+
+    \ingroup creator-reference-preferences-text-editor
+
+    \title Behavior
+
+    \brief Set preferences for the behavior of the text editor.
+
+    To specify indentation settings for text files that do not have C++ or
+    QML code (such as Python code files), select \preferences >
+    \uicontrol {Text Editor} > \uicontrol Behavior.
+
+    \image qtcreator-indentation.png {Text Editor Behavior preferences}
+
+    You can specify how to interpret the \key Tab and \key Backspace key
+    presses and how to align continuation lines.
+
+    \section1 Specifying Tab Settings
+
+    You can specify tab settings at the following levels:
+
+    \list
+        \if defined(qtcreator)
+        \li For all C++ files
+        \endif
+        \li For all QML files
+        \li For all other text files
+        \if defined(qtcreator)
+        \li For C++ files in a project
+        \endif
+        \li For QML files in a project
+        \li For other text files in a project
+    \endlist
+
+    \section2 Specifying Tabs and Indentation
+
+    You can specify tab policy and tab size in the
+    \uicontrol {Tabs and Indentation} group. In the \uicontrol {Tab policy}
+    field, select whether to use only spaces or only tabs for indentation,
+    or to use a mixture of them.
+
+    By default, the tab length in code editor is 8 spaces and the indent size is
+    4 spaces. You can specify the tab length and indent size separately for each
+    project and for different types of files.
+
+    You can have continuation lines aligned with the previous line. In the
+    \uicontrol {Align continuation lines} field, select
+    \uicontrol {Not at all} to disable automatic alignment and indent
+    continuation lines to the logical depth. To always use spaces for alignment,
+    select \uicontrol {With Spaces}. To follow the \uicontrol {Tab policy},
+    select \uicontrol {With Regular Indent}.
+
+    \section1 Setting Typing Preferences
+
+    When you type text or code, it is indented automatically according to the
+    selected text editor or code style preferences. To set typing preferences,
+    select \preferences > \uicontrol {Text Editor} >
+    \uicontrol Behavior > \uicontrol Typing.
+
+    To disable automatic indentation, deselect the
+    \uicontrol {Enable automatic indentation} check box.
+
+    You can specify how the indentation is decreased when you press
+    \uicontrol Backspace in the \uicontrol {Backspace indentation} field. To go
+    back one space at a time, select \uicontrol None. To decrease indentation
+    in leading white space by one level, select
+    \uicontrol {Follows Previous Indents}. To move back one tab length if the
+    character to the left of the cursor is a space, select
+    \uicontrol Unindents.
+
+    You can specify whether the \key Tab key automatically indents text when you
+    press it. To automatically indent text, select \uicontrol Always in the
+    \uicontrol {Tab key performs auto-indent} field. To only indent text when
+    the cursor is located within leading white space, select \uicontrol {In
+    Leading White Space}.
+
+    Your highlight definition file can have definitions for both multi and
+    single line comments. To apply the single line comment definition when
+    commenting out a selection, select \uicontrol {Prefer single line comments}.
+
+    \if defined(qtcreator)
+    \sa {Find preferences}, {C++ Code Style}, {Nim}
+    \endif
+
+    \sa {Indent text or code}, {Qt Quick Code Style}
+*/

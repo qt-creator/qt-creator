@@ -21,13 +21,14 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
-#include <utils/qtcassert.h>
+#include <utils/async.h>
 #include <utils/detailswidget.h>
 #include <utils/environment.h>
-#include <utils/listmodel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/listmodel.h>
 #include <utils/pathchooser.h>
 #include <utils/process.h>
+#include <utils/qtcassert.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
@@ -169,6 +170,8 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
             return f;
         }
         case Qt::ToolTipRole:
+            if (interpreter.command.needsDevice())
+                break;
             if (interpreter.command.isEmpty())
                 return Tr::tr("Executable is empty.");
             if (!interpreter.command.exists())
@@ -178,6 +181,8 @@ InterpreterOptionsWidget::InterpreterOptionsWidget()
                     .arg(interpreter.command.toUserOutput());
             break;
         case Qt::DecorationRole:
+            if (interpreter.command.needsDevice())
+                break;
             if (column == 0 && !interpreter.command.isExecutableFile())
                 return Utils::Icons::CRITICAL.icon();
             break;
@@ -365,14 +370,6 @@ public:
 private:
     InterpreterOptionsWidget *m_widget = nullptr;
 };
-
-static bool alreadyRegistered(const QList<Interpreter> &pythons, const FilePath &pythonExecutable)
-{
-    return Utils::anyOf(pythons, [pythonExecutable](const Interpreter &interpreter) {
-        return interpreter.command.toFileInfo().canonicalFilePath()
-               == pythonExecutable.toFileInfo().canonicalFilePath();
-    });
-}
 
 static InterpreterOptionsPage &interpreterOptionsPage()
 {
@@ -626,8 +623,9 @@ static void disableOutdatedPyls()
     }
 }
 
-static void addPythonsFromRegistry(QList<Interpreter> &pythons)
+static QList<Interpreter> pythonsFromRegistry()
 {
+    QList<Interpreter> pythons;
     QSettings pythonRegistry("HKEY_LOCAL_MACHINE\\SOFTWARE\\Python\\PythonCore",
                              QSettings::NativeFormat);
     for (const QString &versionGroup : pythonRegistry.childGroups()) {
@@ -636,7 +634,7 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
         QVariant regVal = pythonRegistry.value("InstallPath/ExecutablePath");
         if (regVal.isValid()) {
             const FilePath &executable = FilePath::fromUserInput(regVal.toString());
-            if (executable.exists() && !alreadyRegistered(pythons, executable)) {
+            if (executable.exists()) {
                 pythons << Interpreter{QUuid::createUuid().toString(),
                                        name,
                                        FilePath::fromUserInput(regVal.toString())};
@@ -645,7 +643,7 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
         regVal = pythonRegistry.value("InstallPath/WindowedExecutablePath");
         if (regVal.isValid()) {
             const FilePath &executable = FilePath::fromUserInput(regVal.toString());
-            if (executable.exists() && !alreadyRegistered(pythons, executable)) {
+            if (executable.exists()) {
                 pythons << Interpreter{QUuid::createUuid().toString(),
                                        //: <python display name> (Windowed)
                                        Tr::tr("%1 (Windowed)").arg(name),
@@ -656,28 +654,30 @@ static void addPythonsFromRegistry(QList<Interpreter> &pythons)
         if (regVal.isValid()) {
             const FilePath &path = FilePath::fromUserInput(regVal.toString());
             const FilePath python = path.pathAppended("python").withExecutableSuffix();
-            if (python.exists() && !alreadyRegistered(pythons, python))
+            if (python.exists())
                 pythons << createInterpreter(python, "Python " + versionGroup);
             const FilePath pythonw = path.pathAppended("pythonw").withExecutableSuffix();
-            if (pythonw.exists() && !alreadyRegistered(pythons, pythonw))
+            if (pythonw.exists())
                 pythons << createInterpreter(pythonw, "Python " + versionGroup, "(Windowed)");
         }
         pythonRegistry.endGroup();
     }
+    return pythons;
 }
 
-static void addPythonsFromPath(QList<Interpreter> &pythons)
+static QList<Interpreter> pythonsFromPath()
 {
+    QList<Interpreter> pythons;
     if (HostOsInfo::isWindowsHost()) {
         for (const FilePath &executable : FilePath("python").searchAllInPath()) {
             // Windows creates empty redirector files that may interfere
             if (executable.toFileInfo().size() == 0)
                 continue;
-            if (executable.exists() && !alreadyRegistered(pythons, executable))
+            if (executable.exists())
                 pythons << createInterpreter(executable, "Python from Path");
         }
         for (const FilePath &executable : FilePath("pythonw").searchAllInPath()) {
-            if (executable.exists() && !alreadyRegistered(pythons, executable))
+            if (executable.exists())
                 pythons << createInterpreter(executable, "Python from Path", "(Windowed)");
         }
     } else {
@@ -690,11 +690,12 @@ static void addPythonsFromPath(QList<Interpreter> &pythons)
             const QDir dir(path.toString());
             for (const QFileInfo &fi : dir.entryInfoList(filters)) {
                 const FilePath executable = Utils::FilePath::fromFileInfo(fi);
-                if (executable.exists() && !alreadyRegistered(pythons, executable))
+                if (executable.exists())
                     pythons << createInterpreter(executable, "Python from Path");
             }
         }
     }
+    return pythons;
 }
 
 static QString idForPythonFromPath(const QList<Interpreter> &pythons)
@@ -713,6 +714,51 @@ static QString idForPythonFromPath(const QList<Interpreter> &pythons)
 
 static PythonSettings *settingsInstance = nullptr;
 
+static bool alreadyRegistered(const Interpreter &candidate)
+{
+    return Utils::anyOf(settingsInstance->interpreters(),
+                        [candidate = candidate.command](const Interpreter &interpreter) {
+                            return interpreter.command.isSameDevice(candidate)
+                                   && interpreter.command.resolveSymlinks()
+                                          == candidate.resolveSymlinks();
+                        });
+}
+
+static void scanPath()
+{
+    auto watcher = new QFutureWatcher<QList<Interpreter>>();
+    QObject::connect(watcher, &QFutureWatcher<QList<Interpreter>>::finished, [watcher]() {
+        for (const Interpreter &interpreter : watcher->result()) {
+            if (!alreadyRegistered(interpreter))
+                settingsInstance->addInterpreter(interpreter);
+        }
+        watcher->deleteLater();
+    });
+    watcher->setFuture(Utils::asyncRun(pythonsFromPath));
+}
+
+static void scanRegistry()
+{
+    auto watcher = new QFutureWatcher<QList<Interpreter>>();
+    QObject::connect(watcher, &QFutureWatcher<QList<Interpreter>>::finished, [watcher]() {
+        for (const Interpreter &interpreter : watcher->result()) {
+            if (!alreadyRegistered(interpreter))
+                settingsInstance->addInterpreter(interpreter);
+        }
+        watcher->deleteLater();
+        scanPath();
+    });
+    watcher->setFuture(Utils::asyncRun(pythonsFromRegistry));
+}
+
+static void scanSystemForInterpreters()
+{
+    if (Utils::HostOsInfo::isWindowsHost())
+        scanRegistry();
+    else
+        scanPath();
+}
+
 PythonSettings::PythonSettings()
 {
     QTC_ASSERT(!settingsInstance, return);
@@ -723,9 +769,7 @@ PythonSettings::PythonSettings()
 
     initFromSettings(Core::ICore::settings());
 
-    if (HostOsInfo::isWindowsHost())
-        addPythonsFromRegistry(m_interpreters);
-    addPythonsFromPath(m_interpreters);
+    scanSystemForInterpreters();
 
     if (m_defaultInterpreterId.isEmpty())
         m_defaultInterpreterId = idForPythonFromPath(m_interpreters);
@@ -908,7 +952,7 @@ QList<Interpreter> PythonSettings::detectPythonVenvs(const FilePath &path)
     return result;
 }
 
-void PythonSettings::initFromSettings(QSettings *settings)
+void PythonSettings::initFromSettings(QtcSettings *settings)
 {
     settings->beginGroup(settingsGroupKey);
     const QVariantList interpreters = settings->value(interpreterKey).toList();
@@ -954,7 +998,7 @@ void PythonSettings::initFromSettings(QSettings *settings)
     settings->endGroup();
 }
 
-void PythonSettings::writeToSettings(QSettings *settings)
+void PythonSettings::writeToSettings(QtcSettings *settings)
 {
     settings->beginGroup(settingsGroupKey);
     QVariantList interpretersVar;

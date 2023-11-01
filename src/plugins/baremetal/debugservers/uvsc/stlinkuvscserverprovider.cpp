@@ -32,6 +32,29 @@ constexpr char adapterOptionsKeyC[] = "AdapterOptions";
 constexpr char adapterPortKeyC[] = "AdapterPort";
 constexpr char adapterSpeedKeyC[] = "AdapterSpeed";
 
+// StLinkUvscAdapterOptions
+
+class StLinkUvscAdapterOptions final
+{
+public:
+    enum Port { JTAG, SWD };
+    enum Speed {
+        // SWD speeds.
+        Speed_4MHz = 0, Speed_1_8MHz, Speed_950kHz, Speed_480kHz,
+        Speed_240kHz, Speed_125kHz, Speed_100kHz, Speed_50kHz,
+        Speed_25kHz, Speed_15kHz, Speed_5kHz,
+        // JTAG speeds.
+        Speed_9MHz = 256, Speed_4_5MHz, Speed_2_25MHz, Speed_1_12MHz,
+        Speed_560kHz, Speed_280kHz, Speed_140kHz,
+    };
+    Port port = Port::SWD;
+    Speed speed = Speed::Speed_4MHz;
+
+    QVariantMap toMap() const;
+    bool fromMap(const Store &data);
+    bool operator==(const StLinkUvscAdapterOptions &other) const;
+};
+
 static QString buildAdapterOptions(const StLinkUvscAdapterOptions &opts)
 {
     QString s;
@@ -58,6 +81,27 @@ static QString buildDllRegistryName(const DeviceSelection &device,
             .arg(path.fileName(), flashStart, flashSize, device.name, path.filePath(), adaptOpts);
 }
 
+// StLinkUvscServerProvider
+
+class StLinkUvscServerProvider final : public UvscServerProvider
+{
+public:
+    void toMap(Store &data) const final;
+    void fromMap(const Store &data) final;
+
+    bool operator==(const IDebugServerProvider &other) const final;
+    Utils::FilePath optionsFilePath(Debugger::DebuggerRunTool *runTool,
+                                    QString &errorMessage) const final;
+private:
+    explicit StLinkUvscServerProvider();
+
+    StLinkUvscAdapterOptions m_adapterOpts;
+
+    friend class StLinkUvscServerProviderConfigWidget;
+    friend class StLinkUvscServerProviderFactory;
+    friend class StLinkUvProjectOptions;
+};
+
 // StLinkUvProjectOptions
 
 class StLinkUvProjectOptions final : public Uv::ProjectOptions
@@ -82,8 +126,6 @@ public:
     }
 };
 
-// StLinkUvscAdapterOptions
-
 QVariantMap StLinkUvscAdapterOptions::toMap() const
 {
     QVariantMap map;
@@ -92,7 +134,7 @@ QVariantMap StLinkUvscAdapterOptions::toMap() const
     return map;
 }
 
-bool StLinkUvscAdapterOptions::fromMap(const QVariantMap &data)
+bool StLinkUvscAdapterOptions::fromMap(const Store &data)
 {
     port = static_cast<Port>(data.value(adapterPortKeyC, SWD).toInt());
     speed = static_cast<Speed>(data.value(adapterSpeedKeyC, Speed_4MHz).toInt());
@@ -104,6 +146,50 @@ bool StLinkUvscAdapterOptions::operator==(const StLinkUvscAdapterOptions &other)
     return port == other.port && speed == other.speed;
 }
 
+// StLinkUvscServerProviderConfigWidget
+
+class StLinkUvscAdapterOptionsWidget;
+class StLinkUvscServerProviderConfigWidget final : public UvscServerProviderConfigWidget
+{
+public:
+    explicit StLinkUvscServerProviderConfigWidget(StLinkUvscServerProvider *provider);
+
+private:
+    void apply() override;
+    void discard() override;
+
+    void setAdapterOpitons(const StLinkUvscAdapterOptions &adapterOpts);
+    StLinkUvscAdapterOptions adapterOptions() const;
+    void setFromProvider();
+
+    StLinkUvscAdapterOptionsWidget *m_adapterOptionsWidget = nullptr;
+};
+
+// StLinkUvscAdapterOptionsWidget
+
+class StLinkUvscAdapterOptionsWidget final : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit StLinkUvscAdapterOptionsWidget(QWidget *parent = nullptr);
+    void setAdapterOptions(const StLinkUvscAdapterOptions &adapterOpts);
+    StLinkUvscAdapterOptions adapterOptions() const;
+
+signals:
+    void optionsChanged();
+
+private:
+    StLinkUvscAdapterOptions::Port portAt(int index) const;
+    StLinkUvscAdapterOptions::Speed speedAt(int index) const;
+
+    void populatePorts();
+    void populateSpeeds();
+
+    QComboBox *m_portBox = nullptr;
+    QComboBox *m_speedBox = nullptr;
+};
+
 // StLinkUvscServerProvider
 
 StLinkUvscServerProvider::StLinkUvscServerProvider()
@@ -114,19 +200,16 @@ StLinkUvscServerProvider::StLinkUvscServerProvider()
     setSupportedDrivers({"STLink\\ST-LINKIII-KEIL_SWO.dll"});
 }
 
-QVariantMap StLinkUvscServerProvider::toMap() const
+void StLinkUvscServerProvider::toMap(Store &data) const
 {
-    QVariantMap data = UvscServerProvider::toMap();
+    UvscServerProvider::toMap(data);
     data.insert(adapterOptionsKeyC, m_adapterOpts.toMap());
-    return data;
 }
 
-bool StLinkUvscServerProvider::fromMap(const QVariantMap &data)
+void StLinkUvscServerProvider::fromMap(const Store &data)
 {
-    if (!UvscServerProvider::fromMap(data))
-        return false;
-    m_adapterOpts.fromMap(data.value(adapterOptionsKeyC).toMap());
-    return true;
+    UvscServerProvider::fromMap(data);
+    m_adapterOpts.fromMap(storeFromVariant(data.value(adapterOptionsKeyC)));
 }
 
 bool StLinkUvscServerProvider::operator==(const IDebugServerProvider &other) const
@@ -310,3 +393,5 @@ void StLinkUvscAdapterOptionsWidget::populateSpeeds()
 }
 
 } // BareMetal::Internal
+
+#include "stlinkuvscserverprovider.moc"

@@ -1,6 +1,6 @@
 import qbs.FileInfo
 
-QtcManualtest {
+QtcManualTest {
     name: "Manual FakeVim test"
     type: ["application"]
 
@@ -11,9 +11,7 @@ QtcManualtest {
     cpp.defines: base.concat(["FAKEVIM_STANDALONE"])
     cpp.includePaths: fakeVimDir
 
-    files: [
-        "main.cpp"
-    ]
+    files: "main.cpp"
 
     Group {
         name: "FakeVim files"

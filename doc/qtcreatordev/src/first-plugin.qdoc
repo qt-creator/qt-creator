@@ -254,7 +254,7 @@
 
     \snippet exampleplugin/Example.json.in 3
 
-    The \c {$$dependencyList} variable is automatically replaced by the
+    The \c {IDE_PLUGIN_DEPENDENCIES} variable is automatically replaced by the
     dependency information in \c {QTC_PLUGIN_DEPENDS} and
     \c {QTC_PLUGIN_RECOMMENDS} from your plugin's \c {.pro} file.
 

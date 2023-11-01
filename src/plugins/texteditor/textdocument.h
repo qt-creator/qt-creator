@@ -103,6 +103,7 @@ public:
     // IDocument implementation.
     QByteArray contents() const override;
     bool setContents(const QByteArray &contents) override;
+    void formatContents() override;
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;

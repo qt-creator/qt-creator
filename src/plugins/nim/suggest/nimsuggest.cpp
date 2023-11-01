@@ -3,8 +3,9 @@
 
 #include "nimsuggest.h"
 
-namespace Nim {
-namespace Suggest {
+using namespace Utils;
+
+namespace Nim::Suggest {
 
 NimSuggest::NimSuggest(QObject *parent)
     : QObject(parent)
@@ -16,12 +17,12 @@ NimSuggest::NimSuggest(QObject *parent)
     connect(&m_client, &NimSuggestClient::connected, this, &NimSuggest::onClientConnected);
 }
 
-QString NimSuggest::projectFile() const
+FilePath NimSuggest::projectFile() const
 {
     return m_projectFile;
 }
 
-void NimSuggest::setProjectFile(const QString &file)
+void NimSuggest::setProjectFile(const Utils::FilePath &file)
 {
     if (m_projectFile == file)
         return;
@@ -32,12 +33,12 @@ void NimSuggest::setProjectFile(const QString &file)
     restart();
 }
 
-QString NimSuggest::executablePath() const
+FilePath NimSuggest::executablePath() const
 {
     return m_executablePath;
 }
 
-void NimSuggest::setExecutablePath(const QString &path)
+void NimSuggest::setExecutablePath(const FilePath &path)
 {
     if (m_executablePath == path)
         return;
@@ -145,5 +146,4 @@ void NimSuggest::onClientDisconnected()
         connectClient();
 }
 
-} // namespace Suggest
-} // namespace Nim
+} // Nim::Suggest

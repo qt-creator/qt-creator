@@ -35,13 +35,13 @@ bool DisplayName::usesDefaultValue() const
     return m_value.isEmpty();
 }
 
-void DisplayName::toMap(QVariantMap &map, const QString &key) const
+void DisplayName::toMap(Store &map, const Key &key) const
 {
-    if (!usesDefaultValue())
+    if (m_forceSerialization || !usesDefaultValue())
         map.insert(key, m_value);
 }
 
-void DisplayName::fromMap(const QVariantMap &map, const QString &key)
+void DisplayName::fromMap(const Store &map, const Key &key)
 {
     m_value = map.value(key).toString();
 }

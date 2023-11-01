@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,20 +8,16 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-run-settings.html
     \page creator-editor-settings.html
-    \nextpage creator-code-style-settings.html
+    \previouspage creator-how-tos.html
 
-    \title Specifying Editor Settings
+    \ingroup creator-how-to-projects-configure
+
+    \title Specify editor settings
 
     \QC uses the \l{Editing MIME Types}{MIME type} of the file to
     determine which mode and editor to use for opening the file. For example,
     \QC opens .txt files in \uicontrol Edit mode in the text editor.
-
-    You can configure the text editor according to your needs. You can specify
-    editor behavior either globally for all projects or separately for each
-    project. To specify global editor behavior, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Text Editor} > \uicontrol Behavior.
 
     To configure the text editor behavior for the current project:
 
@@ -40,24 +36,8 @@
 
     Click \uicontrol {Restore Global} to revert to the global settings.
 
-    For more information about the settings, see:
-
-    \list
-
-        \li \l{Indenting Text or Code}
-
-        \li \l{File Encoding}
-
-        \li \l{Selecting Line Ending Style}
-
-        \li \l{Moving to Symbol Definition or Declaration}
-
-        \li \l{Configuring Fonts}
-
-        \li \l{Highlighting and Folding Blocks}
-
-        \li \l{Viewing Function Tooltips}
-
-    \endlist
-
+    \sa {Configuring Fonts}, {File Encoding},
+    {Moving to Symbol Definition or Declaration}, {Indent text or code},
+    {Selecting Line Ending Style}, {Semantic Highlighting},
+    {View function tooltips}
 */

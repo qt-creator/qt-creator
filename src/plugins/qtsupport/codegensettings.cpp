@@ -3,73 +3,85 @@
 
 #include "codegensettings.h"
 
-#include <coreplugin/icore.h>
-#include <utils/qtcsettings.h>
+#include "qtsupportconstants.h"
+#include "qtsupporttr.h"
 
-#include <QSettings>
+#include <coreplugin/dialogs/ioptionspage.h>
+
+#include <cppeditor/cppeditorconstants.h>
+#include <cppeditor/cppeditortr.h>
+
+#include <utils/layoutbuilder.h>
 
 using namespace Utils;
 
 namespace QtSupport {
 
-const char CODE_GEN_GROUP[] = "FormClassWizardPage";
-const char TRANSLATION_KEY[] = "RetranslationSupport";
-const char EMBEDDING_KEY[] = "Embedding";
-const char INCLUDE_QT_MODULE_KEY[] = "IncludeQtModule";
-const char ADD_QT_VERSION_CHECK_KEY[] = "AddQtVersionCheck";
-
-const bool retranslationSupportDefault = false;
-const CodeGenSettings::UiClassEmbedding embeddingDefault
-    = CodeGenSettings::PointerAggregatedUiClass;
-const bool includeQtModuleDefault = false;
-const bool addQtVersionCheckDefault = false;
+CodeGenSettings &codeGenSettings()
+{
+    static CodeGenSettings theCodeGenSettings;
+    return theCodeGenSettings;
+}
 
 CodeGenSettings::CodeGenSettings()
-    : embedding(embeddingDefault)
-    , retranslationSupport(retranslationSupportDefault)
-    , includeQtModule(includeQtModuleDefault)
-    , addQtVersionCheck(addQtVersionCheckDefault)
 {
+    setSettingsGroup("FormClassWizardPage");
+
+    embedding.setSettingsKey("Embedding");
+    embedding.addOption(Tr::tr("Aggregation as a pointer member"));
+    embedding.addOption(Tr::tr("Aggregation"));
+    embedding.addOption(Tr::tr("Multiple inheritance"));
+    embedding.setDefaultValue(CodeGenSettings::PointerAggregatedUiClass);
+
+    retranslationSupport.setSettingsKey("RetranslationSupport");
+    retranslationSupport.setLabelText(Tr::tr("Support for changing languages at runtime"));
+
+    includeQtModule.setSettingsKey("IncludeQtModule");
+    includeQtModule.setLabelText(Tr::tr("Use Qt module name in #include-directive"));
+
+    addQtVersionCheck.setSettingsKey("AddQtVersionCheck");
+    addQtVersionCheck.setLabelText(Tr::tr("Add Qt version #ifdef for module names"));
+    addQtVersionCheck.setEnabler(&includeQtModule);
+
+    setLayouter([this] {
+        using namespace Layouting;
+        return Column {
+            Group {
+                title(Tr::tr("Embedding of the UI Class")),
+                Column {
+                    embedding,
+                }
+            },
+            Group {
+                title(Tr::tr("Code Generation")),
+                Column {
+                    retranslationSupport,
+                    includeQtModule,
+                    addQtVersionCheck
+                }
+            },
+            st
+        };
+    });
+
+
+    readSettings();
 }
 
-bool CodeGenSettings::equals(const CodeGenSettings &rhs) const
+class CodeGenSettingsPage final : public Core::IOptionsPage
 {
-    return embedding == rhs.embedding
-            && retranslationSupport == rhs.retranslationSupport
-            && includeQtModule == rhs.includeQtModule
-            && addQtVersionCheck == rhs.addQtVersionCheck;
-}
+public:
+    CodeGenSettingsPage()
+    {
+        setId(Constants::CODEGEN_SETTINGS_PAGE_ID);
+        setDisplayName(Tr::tr("Qt Class Generation"));
+        setCategory(CppEditor::Constants::CPP_SETTINGS_CATEGORY);
+        setDisplayCategory(::CppEditor::Tr::tr(CppEditor::Constants::CPP_SETTINGS_NAME));
+        setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
+        setSettingsProvider([] { return &codeGenSettings(); });
+    }
+};
 
-void CodeGenSettings::fromSettings(const QSettings *settings)
-{
-    QString group = QLatin1String(CODE_GEN_GROUP) + '/';
+const CodeGenSettingsPage settingsPage;
 
-    retranslationSupport = settings->value(group + TRANSLATION_KEY, retranslationSupportDefault)
-                               .toBool();
-    embedding = static_cast<UiClassEmbedding>(
-        settings->value(group + EMBEDDING_KEY, int(embeddingDefault)).toInt());
-    includeQtModule = settings->value(group + INCLUDE_QT_MODULE_KEY, includeQtModuleDefault).toBool();
-    addQtVersionCheck = settings->value(group + ADD_QT_VERSION_CHECK_KEY, addQtVersionCheckDefault).toBool();
-}
-
-void CodeGenSettings::toSettings(QSettings *settings) const
-{
-    settings->beginGroup(CODE_GEN_GROUP);
-    QtcSettings::setValueWithDefault(settings,
-                                     TRANSLATION_KEY,
-                                     retranslationSupport,
-                                     retranslationSupportDefault);
-    QtcSettings::setValueWithDefault(settings, EMBEDDING_KEY, int(embedding), int(embeddingDefault));
-    QtcSettings::setValueWithDefault(settings,
-                                     INCLUDE_QT_MODULE_KEY,
-                                     includeQtModule,
-                                     includeQtModuleDefault);
-    QtcSettings::setValueWithDefault(settings,
-                                     ADD_QT_VERSION_CHECK_KEY,
-                                     addQtVersionCheck,
-                                     addQtVersionCheckDefault);
-    settings->endGroup();
-
-}
-
-} // namespace QtSupport
+} // QtSupport

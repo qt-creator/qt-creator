@@ -95,9 +95,11 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
 
     connect(m_pathChooser, &PathChooser::textChanged, this, [this] {
         m_directoryLE->validate();
-        GitLabCloneDialog::updateUi();
+        updateUi();
     });
+    connect(m_pathChooser, &PathChooser::validChanged, this, &GitLabCloneDialog::updateUi);
     connect(m_directoryLE, &FancyLineEdit::textChanged, this, &GitLabCloneDialog::updateUi);
+    connect(m_directoryLE, &FancyLineEdit::validChanged, this, &GitLabCloneDialog::updateUi);
     connect(m_cloneButton, &QPushButton::clicked, this, &GitLabCloneDialog::cloneProject);
     connect(m_cancelButton, &QPushButton::clicked,
             this, &GitLabCloneDialog::cancel);

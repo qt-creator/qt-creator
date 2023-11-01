@@ -90,7 +90,7 @@ QString CvsEditorWidget::changeUnderCursor(const QTextCursor &c) const
         }
         break;
     }
-    return QString();
+    return {};
 }
 
 VcsBase::BaseAnnotationHighlighter *CvsEditorWidget::createAnnotationHighlighter(const QSet<QString> &changes) const
@@ -101,7 +101,7 @@ VcsBase::BaseAnnotationHighlighter *CvsEditorWidget::createAnnotationHighlighter
 QStringList CvsEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
     if (isFirstRevision(revision))
-        return QStringList();
+        return {};
     return QStringList(previousRevision(revision));
 }
 

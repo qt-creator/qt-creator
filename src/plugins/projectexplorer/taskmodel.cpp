@@ -60,13 +60,12 @@ bool TaskModel::hasFile(const QModelIndex &index) const
     return !m_tasks.at(row).file.isEmpty();
 }
 
-void TaskModel::addCategory(Utils::Id categoryId, const QString &categoryName, int priority)
+void TaskModel::addCategory(const TaskCategory &category)
 {
-    QTC_ASSERT(categoryId.isValid(), return);
+    QTC_ASSERT(category.id.isValid(), return);
     CategoryData data;
-    data.displayName = categoryName;
-    data.priority = priority;
-    m_categories.insert(categoryId, data);
+    data.category = category;
+    m_categories.insert(category.id, data);
 }
 
 Tasks TaskModel::tasks(Utils::Id categoryId) const
@@ -88,8 +87,8 @@ bool TaskModel::compareTasks(const Task &task1, const Task &task2)
         return task1.taskId < task2.taskId;
 
     // Higher-priority task should appear higher up in the view and thus compare less-than.
-    const int prio1 = m_categories.value(task1.category).priority;
-    const int prio2 = m_categories.value(task2.category).priority;
+    const int prio1 = m_categories.value(task1.category).category.priority;
+    const int prio2 = m_categories.value(task2.category).category.priority;
     if (prio1 < prio2)
         return false;
     if (prio1 > prio2)
@@ -284,7 +283,7 @@ Task TaskModel::task(const QModelIndex &index) const
     int row = index.row();
     if (!index.isValid() || row < 0 || row >= m_tasks.count() || index.internalId()
         || index.column() > 0) {
-        return Task();
+        return {};
     }
     return m_tasks.at(row);
 }
@@ -296,16 +295,10 @@ Tasks TaskModel::tasks(const QModelIndexList &indexes) const
                 [](const Task &t) { return !t.isNull(); });
 }
 
-QList<Utils::Id> TaskModel::categoryIds() const
+QList<TaskCategory> TaskModel::categories() const
 {
-    QList<Utils::Id> categories = m_categories.keys();
-    categories.removeAll(Utils::Id()); // remove global category we added for bookkeeping
-    return categories;
-}
-
-QString TaskModel::categoryDisplayName(Utils::Id categoryId) const
-{
-    return m_categories.value(categoryId).displayName;
+    const QList<TaskCategory> cat = Utils::transform<QList>(m_categories, &CategoryData::category);
+    return Utils::filtered(cat, [](const TaskCategory &c) { return c.id.isValid(); });
 }
 
 int TaskModel::sizeOfFile(const QFont &font)

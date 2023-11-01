@@ -80,7 +80,7 @@ public:
     /** Returns the suggested label title when used in a form layout. */
     static QString label();
 
-    FancyLineEdit::ValidationFunction defaultValidationFunction() const;
+    FancyLineEdit::AsyncValidationFunction defaultValidationFunction() const;
     void setValidationFunction(const FancyLineEdit::ValidationFunction &fn);
 
     /** Return the home directory, which needs some fixing under Windows. */
@@ -105,7 +105,7 @@ public:
     static void installLineEditVersionToolTip(QLineEdit *le, const QStringList &arguments);
 
     // Enable a history completer with a history of entries.
-    void setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory = false);
+    void setHistoryCompleter(const Key &historyKey, bool restoreLastItemFromHistory = false);
 
     // Sets a macro expander that is used when producing path and fileName.
     // By default, the global expander is used.
@@ -153,7 +153,6 @@ private:
     // Use filePath().toString() or better suitable conversions.
     QString path() const { return filePath().toString(); }
 
-    bool validatePath(FancyLineEdit *edit, QString *errorMessage) const;
     // Returns overridden title or the one from <title>
     QString makeDialogTitle(const QString &title);
     void slotBrowse(bool remote);

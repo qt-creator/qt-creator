@@ -7,19 +7,23 @@
 #include "execmenu.h"
 #include "historycompleter.h"
 #include "hostosinfo.h"
+#include "icon.h"
 #include "qtcassert.h"
-#include "utilsicons.h"
 #include "utilstr.h"
 
+#include <solutions/spinner/spinner.h>
+
 #include <QApplication>
+#include <QFutureWatcher>
 #include <QKeyEvent>
 #include <QKeySequence>
 #include <QMenu>
-#include <QShortcut>
-#include <QStylePainter>
 #include <QPropertyAnimation>
+#include <QShortcut>
 #include <QStyle>
 #include <QStyleOptionFocusRect>
+#include <QStylePainter>
+#include <QTimer>
 #include <QValidator>
 #include <QWindow>
 
@@ -45,8 +49,7 @@
 
     \li A history completer.
 
-    \li The ability to validate the contents of the text field by overriding
-    virtual \c validate() function in derived clases.
+    \li The ability to validate the contents of the text field by setting the \a validationFunction.
     \endlist
 
     When invalid, the text color will turn red and a tooltip will
@@ -99,7 +102,7 @@ public:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     FancyLineEdit *m_lineEdit;
-    IconButton *m_iconbutton[2];
+    FancyIconButton *m_iconbutton[2];
     HistoryCompleter *m_historyCompleter = nullptr;
     QShortcut m_completionShortcut;
     FancyLineEdit::ValidationFunction m_validationFunction = &FancyLineEdit::validateWithValidator;
@@ -120,23 +123,35 @@ public:
     const QColor m_errorTextColor;
     const QColor m_placeholderTextColor;
     QString m_errorMessage;
+
+    SpinnerSolution::Spinner *m_spinner = nullptr;
+    QTimer m_spinnerDelayTimer;
+
+    std::unique_ptr<QFutureWatcher<FancyLineEdit::AsyncValidationResult>> m_validatorWatcher;
 };
 
-FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent) :
-    QObject(parent),
-    m_lineEdit(parent),
-    m_completionShortcut(completionShortcut()->key(), parent),
-    m_okTextColor(creatorTheme()->color(Theme::TextColorNormal)),
-    m_errorTextColor(creatorTheme()->color(Theme::TextColorError)),
-    m_placeholderTextColor(QApplication::palette().color(QPalette::PlaceholderText))
-
+FancyLineEditPrivate::FancyLineEditPrivate(FancyLineEdit *parent)
+    : QObject(parent)
+    , m_lineEdit(parent)
+    , m_completionShortcut(completionShortcut()->key(), parent)
+    , m_okTextColor(creatorTheme()->color(Theme::TextColorNormal))
+    , m_errorTextColor(creatorTheme()->color(Theme::TextColorError))
+    , m_placeholderTextColor(QApplication::palette().color(QPalette::PlaceholderText))
+    , m_spinner(new SpinnerSolution::Spinner(SpinnerSolution::SpinnerSize::Small, m_lineEdit))
 {
+    m_spinner->setVisible(false);
+    m_spinnerDelayTimer.setInterval(200);
+    m_spinnerDelayTimer.setSingleShot(true);
+    connect(&m_spinnerDelayTimer, &QTimer::timeout, m_spinner, [spinner = m_spinner] {
+        spinner->setVisible(true);
+    });
+
     m_completionShortcut.setContext(Qt::WidgetShortcut);
     connect(completionShortcut(), &CompletionShortcut::keyChanged,
             &m_completionShortcut, &QShortcut::setKey);
 
     for (int i = 0; i < 2; ++i) {
-        m_iconbutton[i] = new IconButton(parent);
+        m_iconbutton[i] = new FancyIconButton(parent);
         m_iconbutton[i]->installEventFilter(this);
         m_iconbutton[i]->hide();
         m_iconbutton[i]->setAutoHide(false);
@@ -331,7 +346,7 @@ bool FancyLineEdit::hasAutoHideButton(Side side) const
     return d->m_iconbutton[side]->hasAutoHide();
 }
 
-void FancyLineEdit::setHistoryCompleter(const QString &historyKey, bool restoreLastItemFromHistory)
+void FancyLineEdit::setHistoryCompleter(const Key &historyKey, bool restoreLastItemFromHistory)
 {
     QTC_ASSERT(!d->m_historyCompleter, return);
     d->m_historyCompleter = new HistoryCompleter(historyKey, this);
@@ -413,15 +428,13 @@ void FancyLineEdit::setFiltering(bool on)
     d->m_isFiltering = on;
     if (on) {
         d->m_lastFilterText = text();
-        // KDE has custom icons for this. Notice that icon namings are counter intuitive.
-        // If these icons are not available we use the freedesktop standard name before
-        // falling back to a bundled resource.
-        QIcon icon = QIcon::fromTheme(layoutDirection() == Qt::LeftToRight ?
-                         QLatin1String("edit-clear-locationbar-rtl") :
-                         QLatin1String("edit-clear-locationbar-ltr"),
-                         QIcon::fromTheme(QLatin1String("edit-clear"),
-                                          Icons::EDIT_CLEAR.icon()));
-
+        // KDE has custom icons for this. The "ltr" and "rtl" suffixes describe the direction
+        // into which the arrows are pointing. They do not describe which writing direction they
+        // are intended to be used for.
+        const QLatin1String pointingWest("edit-clear-locationbar-rtl");
+        const QLatin1String pointingEast("edit-clear-locationbar-ltr");
+        const QIcon icon = Icon::fromTheme(layoutDirection() == Qt::LeftToRight ? pointingWest
+                                                                                : pointingEast);
         setButtonIcon(Right, icon);
         setButtonVisible(Right, true);
         setPlaceholderText(Tr::tr("Filter"));
@@ -475,21 +488,20 @@ void FancyLineEdit::setValidatePlaceHolder(bool on)
     d->m_validatePlaceHolder = on;
 }
 
-void FancyLineEdit::validate()
+void FancyLineEdit::handleValidationResult(AsyncValidationResult result, const QString &oldText)
 {
-    const QString t = text();
+    d->m_spinner->setVisible(false);
+    d->m_spinnerDelayTimer.stop();
 
-    if (d->m_isFiltering){
-        if (t != d->m_lastFilterText) {
-            d->m_lastFilterText = t;
-            emit filterChanged(t);
-        }
-    }
+    const QString newText = result ? *result : oldText;
+    if (!result)
+        d->m_errorMessage = result.error();
+    else
+        d->m_errorMessage.clear();
 
-    d->m_errorMessage.clear();
     // Are we displaying the placeholder text?
-    const bool isDisplayingPlaceholderText = !placeholderText().isEmpty() && t.isEmpty();
-    const bool validates = d->m_validationFunction(this, &d->m_errorMessage);
+    const bool isDisplayingPlaceholderText = !placeholderText().isEmpty() && newText.isEmpty();
+    const bool validates = result.has_value();
     const State newState = isDisplayingPlaceholderText ? DisplayingPlaceholderText
                                                        : (validates ? Valid : Invalid);
     if (!validates || d->m_toolTipSet) {
@@ -504,18 +516,20 @@ void FancyLineEdit::validate()
         d->m_firstChange = false;
 
         QPalette p = palette();
-        p.setColor(QPalette::Active, QPalette::Text,
-            newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
-        p.setColor(QPalette::Active, QPalette::PlaceholderText,
-            validates || !d->m_validatePlaceHolder
-                ? d->m_placeholderTextColor : d->m_errorTextColor);
+        p.setColor(QPalette::Active,
+                   QPalette::Text,
+                   newState == Invalid ? d->m_errorTextColor : d->m_okTextColor);
+        p.setColor(QPalette::Active,
+                   QPalette::PlaceholderText,
+                   validates || !d->m_validatePlaceHolder ? d->m_placeholderTextColor
+                                                          : d->m_errorTextColor);
         setPalette(p);
 
         if (validHasChanged)
             emit validChanged(newState == Valid);
     }
-    const QString fixedString = fixInputString(t);
-    if (t != fixedString) {
+    const QString fixedString = fixInputString(newText);
+    if (newText != fixedString) {
         const int cursorPos = cursorPosition();
         QSignalBlocker blocker(this);
         setText(fixedString);
@@ -523,15 +537,79 @@ void FancyLineEdit::validate()
     }
 
     // Check buttons.
-    if (d->m_oldText.isEmpty() || t.isEmpty()) {
+    if (d->m_oldText.isEmpty() || newText.isEmpty()) {
         for (auto &button : std::as_const(d->m_iconbutton)) {
             if (button->hasAutoHide())
-                button->animateShow(!t.isEmpty());
+                button->animateShow(!newText.isEmpty());
         }
-        d->m_oldText = t;
+        d->m_oldText = newText;
     }
 
-    handleChanged(t);
+    handleChanged(newText);
+}
+
+void FancyLineEdit::validate()
+{
+    if (d->m_validationFunction.index() == 0) {
+        AsyncValidationFunction &validationFunction = std::get<0>(d->m_validationFunction);
+        if (!validationFunction)
+            return;
+
+        if (d->m_validatorWatcher)
+            d->m_validatorWatcher->cancel();
+
+        const QString oldText = text();
+
+        if (d->m_isFiltering) {
+            if (oldText != d->m_lastFilterText) {
+                d->m_lastFilterText = oldText;
+                emit filterChanged(oldText);
+            }
+        }
+
+        d->m_validatorWatcher = std::make_unique<QFutureWatcher<AsyncValidationResult>>();
+        connect(d->m_validatorWatcher.get(),
+                &QFutureWatcher<AsyncValidationResult>::finished,
+                this,
+                [this, oldText]() {
+                    FancyLineEdit::AsyncValidationResult result = d->m_validatorWatcher->result();
+
+                    handleValidationResult(result, oldText);
+                });
+
+        d->m_spinnerDelayTimer.start();
+
+        AsyncValidationFuture future = validationFunction(text());
+        d->m_validatorWatcher->setFuture(future);
+
+        return;
+    }
+
+    if (d->m_validationFunction.index() == 1) {
+        auto &validationFunction = std::get<1>(d->m_validationFunction);
+        if (!validationFunction)
+            return;
+
+        const QString t = text();
+
+        if (d->m_isFiltering) {
+            if (t != d->m_lastFilterText) {
+                d->m_lastFilterText = t;
+                emit filterChanged(t);
+            }
+        }
+
+        QString error;
+        const bool validates = validationFunction(this, &error);
+        expected_str<QString> result;
+
+        if (validates)
+            result = t;
+        else
+            result = make_unexpected(error);
+
+        handleValidationResult(result, t);
+    }
 }
 
 QString FancyLineEdit::fixInputString(const QString &string)
@@ -543,14 +621,14 @@ QString FancyLineEdit::fixInputString(const QString &string)
 // IconButton - helper class to represent a clickable icon
 //
 
-IconButton::IconButton(QWidget *parent)
-    : QAbstractButton(parent), m_autoHide(false)
+FancyIconButton::FancyIconButton(QWidget *parent)
+    : QAbstractButton(parent)
 {
     setCursor(Qt::ArrowCursor);
     setFocusPolicy(Qt::NoFocus);
 }
 
-void IconButton::paintEvent(QPaintEvent *)
+void FancyIconButton::paintEvent(QPaintEvent *)
 {
     const qreal pixelRatio = window()->windowHandle()->devicePixelRatio();
     const QPixmap iconPixmap = icon().pixmap(sizeHint(), pixelRatio,
@@ -577,7 +655,7 @@ void IconButton::paintEvent(QPaintEvent *)
     }
 }
 
-void IconButton::animateShow(bool visible)
+void FancyIconButton::animateShow(bool visible)
 {
     QPropertyAnimation *animation = new QPropertyAnimation(this, "iconOpacity");
     animation->setDuration(FADE_TIME);
@@ -585,13 +663,13 @@ void IconButton::animateShow(bool visible)
     animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
-QSize IconButton::sizeHint() const
+QSize FancyIconButton::sizeHint() const
 {
     QWindow *window = this->window()->windowHandle();
     return icon().actualSize(window, QSize(32, 16)); // Find flags icon can be wider than 16px
 }
 
-void IconButton::keyPressEvent(QKeyEvent *ke)
+void FancyIconButton::keyPressEvent(QKeyEvent *ke)
 {
     QAbstractButton::keyPressEvent(ke);
     if (!ke->modifiers() && (ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return))
@@ -600,7 +678,7 @@ void IconButton::keyPressEvent(QKeyEvent *ke)
     ke->accept();
 }
 
-void IconButton::keyReleaseEvent(QKeyEvent *ke)
+void FancyIconButton::keyReleaseEvent(QKeyEvent *ke)
 {
     QAbstractButton::keyReleaseEvent(ke);
     // do not forward to line edit

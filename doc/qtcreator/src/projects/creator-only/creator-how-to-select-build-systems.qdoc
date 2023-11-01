@@ -1,0 +1,60 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage creator-project-creating.html
+    \page creator-how-to-select-build-system.html
+    \nextpage creator-file-creating.html
+
+    \ingroup creator-how-to-projects-create
+
+    \title Select the build system
+
+    You can use several build systems to build your projects:
+
+    \list
+        \li \l {Build with CMake}{CMake} is a cross-platform system for build
+            automation that helps simplify the build process for development
+            projects across different platforms. It automates the generation of
+            build configurations. For more information, see \l {CMake}.
+        \li \l{qmake Manual}{qmake} is an alternative to CMake for automating the
+            generation of build configurations. Qt installers install and
+            configure qmake. To use one of the other supported build systems,
+            you need to set it up.
+        \li \l {https://mesonbuild.com/}{Meson} is a fast and user-friendly
+            open-source build system that aims to minimize the time developers spend
+            writing or debugging build definitions and waiting for the build system
+            to start compiling code. For more information, see \l {Setting Up Meson}.
+        \li \l{Qbs Manual}{Qbs} is an all-in-one build tool that generates a build graph
+            from a high-level project description (like qmake or CMake do) and executes
+            the commands in the low-level build graph (like make does). For more
+            information, see \l{Setting Up Qbs}.
+    \endlist
+
+    Typically, you select the build system when you create a project.
+
+    \section1 Migrate to another build system
+
+    To export a project to some other build system, such as Microsoft Visual
+    Studio, select \uicontrol Build > \uicontrol {Run Generator}, and select
+    a generator in the list. \QC generates the build files, such as .vcxproj,
+    in the project's build directory.
+
+    The tool that you use to build the project (qmake or CMake) provides the
+    generators. Their availability depends on the version of the build tool,
+    host platform, and properties of the host system.
+    Also, a JSON compilation database generator is available if the
+    \l{Parsing C++ Files with the Clang Code Model}{Clang Code Model plugin}
+    is enabled (default).
+
+    \section1 Set preferences for building and running
+
+    To change the location of the project directory, and to specify settings
+    for building and running projects, select \preferences >
+    \uicontrol {Build & Run} > \uicontrol General.
+
+    Specify build and run settings for different target platforms, in the
+    \uicontrol Projects mode.
+
+    \sa {Specifying Build Settings}, {Build Systems}, {Use project wizards}
+*/

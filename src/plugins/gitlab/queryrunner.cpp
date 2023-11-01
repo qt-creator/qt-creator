@@ -51,7 +51,7 @@ QString Query::toString() const
     QString query = API_PREFIX;
     switch (m_type) {
     case Query::NoQuery:
-        return QString();
+        return {};
     case Query::Project:
         QTC_ASSERT(!m_parameter.isEmpty(), return {});
         query += QLatin1String(QUERY_PROJECT).arg(QLatin1String(

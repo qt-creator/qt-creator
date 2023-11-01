@@ -14,16 +14,16 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectwindow.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/kitinformation.h>
 
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/texteditor.h>
@@ -41,6 +41,7 @@
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QImage>
 #include <QLabel>
@@ -83,6 +84,32 @@ static Target *androidTarget(const FilePath &fileName)
     }
     return nullptr;
 }
+
+class PermissionsModel: public QAbstractListModel
+{
+public:
+    PermissionsModel(QObject *parent = nullptr);
+    void setPermissions(const QStringList &permissions);
+    const QStringList &permissions();
+    QModelIndex addPermission(const QString &permission);
+    void removePermission(int index);
+    QVariant data(const QModelIndex &index, int role) const override;
+
+protected:
+    int rowCount(const QModelIndex &parent) const override;
+
+private:
+    QStringList m_permissions;
+};
+
+class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
+{
+public:
+    explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
+
+private:
+    Core::IContext *m_context;
+};
 
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 {
@@ -1360,7 +1387,7 @@ void PermissionsModel::removePermission(int index)
 QVariant PermissionsModel::data(const QModelIndex &index, int role) const
 {
     if (role != Qt::DisplayRole || !index.isValid())
-        return QVariant();
+        return {};
     return m_permissions[index.row()];
 }
 

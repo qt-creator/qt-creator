@@ -5,6 +5,7 @@
 
 #include "dockersettings.h"
 
+#include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/guard.h>
 
@@ -15,18 +16,33 @@
 
 namespace Docker::Internal {
 
+struct Network
+{
+    QString id;
+    QString name;
+    QString driver;
+    QString scope;
+    bool internal;
+    bool ipv6;
+    QDateTime createdAt;
+    QString labels;
+
+    QString toString() const;
+};
+
 class DockerApi : public QObject
 {
     Q_OBJECT
 
 public:
-    DockerApi(DockerSettings *settings);
+    DockerApi();
 
     static DockerApi *instance();
 
     bool canConnect();
     void checkCanConnect(bool async = true);
     static void recheckDockerDaemon();
+    QFuture<Utils::expected_str<QList<Network>>> networks();
 
 signals:
     void dockerDaemonAvailableChanged();
@@ -40,7 +56,6 @@ private:
 
     std::optional<bool> m_dockerDaemonAvailable;
     QMutex m_daemonCheckGuard;
-    DockerSettings *m_settings;
 };
 
 } // Docker::Internal

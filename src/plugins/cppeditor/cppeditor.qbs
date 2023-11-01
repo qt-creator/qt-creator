@@ -4,7 +4,7 @@ QtcPlugin {
     name: "CppEditor"
 
     Depends { name: "Qt.widgets" }
-    Depends { condition: project.withAutotests; name: "Qt.testlib" }
+    Depends { condition: project.withPluginTests; name: "Qt.testlib" }
 
     Depends { name: "CPlusPlus" }
     Depends { name: "Utils" }
@@ -12,8 +12,6 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "TextEditor" }
     Depends { name: "ProjectExplorer" }
-
-    Depends { name: "app_version_header" }
 
     pluginTestDepends: [
         "QmakeProjectManager",
@@ -235,7 +233,7 @@ QtcPlugin {
 
     Group {
         name: "TestCase"
-        condition: qtc.testsEnabled || project.withAutotests
+        condition: qtc.withPluginTests || qtc.withAutotests
         files: [
             "cpptoolstestcase.cpp",
             "cpptoolstestcase.h",
@@ -267,6 +265,8 @@ QtcPlugin {
             "cpppointerdeclarationformatter_test.h",
             "cppquickfix_test.cpp",
             "cppquickfix_test.h",
+            "cpprenaming_test.cpp",
+            "cpprenaming_test.h",
             "cppsourceprocessor_test.cpp",
             "cppsourceprocessor_test.h",
             "cppsourceprocessertesthelper.cpp",

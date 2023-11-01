@@ -3,10 +3,7 @@
 
 #include "behaviorsettings.h"
 
-#include <utils/settingsutils.h>
-
-#include <QSettings>
-#include <QString>
+#include <coreplugin/icore.h>
 
 static const char mouseHidingKey[] = "MouseHiding";
 static const char mouseNavigationKey[] = "MouseNavigation";
@@ -14,8 +11,9 @@ static const char scrollWheelZoomingKey[] = "ScrollWheelZooming";
 static const char constrainTooltips[] = "ConstrainTooltips";
 static const char camelCaseNavigationKey[] = "CamelCaseNavigation";
 static const char keyboardTooltips[] = "KeyboardTooltips";
-static const char groupPostfix[] = "BehaviorSettings";
 static const char smartSelectionChanging[] = "SmartSelectionChanging";
+
+using namespace Utils;
 
 namespace TextEditor {
 
@@ -30,18 +28,7 @@ BehaviorSettings::BehaviorSettings() :
 {
 }
 
-void BehaviorSettings::toSettings(const QString &category, QSettings *s) const
-{
-    Utils::toSettings(QLatin1String(groupPostfix), category, s, this);
-}
-
-void BehaviorSettings::fromSettings(const QString &category, QSettings *s)
-{
-    *this = BehaviorSettings();
-    Utils::fromSettings(QLatin1String(groupPostfix), category, s, this);
-}
-
-QVariantMap BehaviorSettings::toMap() const
+Store BehaviorSettings::toMap() const
 {
     return {
         {mouseHidingKey, m_mouseHiding},
@@ -54,7 +41,7 @@ QVariantMap BehaviorSettings::toMap() const
     };
 }
 
-void BehaviorSettings::fromMap(const QVariantMap &map)
+void BehaviorSettings::fromMap(const Store &map)
 {
     m_mouseHiding = map.value(mouseHidingKey, m_mouseHiding).toBool();
     m_mouseNavigation = map.value(mouseNavigationKey, m_mouseNavigation).toBool();

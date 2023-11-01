@@ -32,6 +32,7 @@ public:
     QString userName() const { return m_userName; }
 
     QString userAtHost() const;
+    QString userAtHostAndPort() const;
 
     void setHost(const QString &host) { m_host = host; }
     void setPort(int port) { m_port = port; }
@@ -63,6 +64,7 @@ quint16 PROJECTEXPLORER_EXPORT getPortFromEnvironment();
 const QString PROJECTEXPLORER_EXPORT getUserFromEnvironment();
 const QString PROJECTEXPLORER_EXPORT getKeyFileFromEnvironment();
 const PROJECTEXPLORER_EXPORT QString userAtHost();
+const PROJECTEXPLORER_EXPORT QString userAtHostAndPort();
 SshParameters PROJECTEXPLORER_EXPORT getParameters();
 bool PROJECTEXPLORER_EXPORT checkParameters(const SshParameters &params);
 void PROJECTEXPLORER_EXPORT printSetupHelp();

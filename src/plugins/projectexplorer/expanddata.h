@@ -14,14 +14,14 @@ class ExpandData
 {
 public:
     ExpandData() = default;
-    ExpandData(const QString &path_, const QString &displayName_);
+    ExpandData(const QString &path, int priority);
     bool operator==(const ExpandData &other) const;
 
     static ExpandData fromSettings(const QVariant &v);
     QVariant toSettings() const;
 
     QString path;
-    QString displayName;
+    int priority = 0;
 };
 
 size_t qHash(const ExpandData &data);

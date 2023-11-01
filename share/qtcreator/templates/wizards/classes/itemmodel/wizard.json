@@ -14,7 +14,7 @@
         { "key": "HdrPath", "value": "%{Path}/%{HdrFileName}" },
         { "key": "SrcPath", "value": "%{Path}/%{SrcFileName}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
-        { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('Class'), Util.preferredSuffix('text/x-c++hdr'))}" }
+        { "key": "GUARD", "value": "%{JS: Cpp.classToHeaderGuard(value('Class'), Cpp.cxxHeaderSuffix())}" }
     ],
 
     "pages":
@@ -92,14 +92,14 @@
                     "type": "LineEdit",
                     "trDisplayName": "Header file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-c++hdr'))}" }
+                    "data": { "text": "%{JS: Cpp.classToFileName(value('Class'), Cpp.cxxHeaderSuffix())}" }
                 },
                 {
                     "name": "SrcFileName",
                     "type": "LineEdit",
                     "trDisplayName": "Source file:",
                     "mandatory": true,
-                    "data": { "trText": "%{JS: Cpp.classToFileName(value('Class'), Util.preferredSuffix('text/x-c++src'))}" }
+                    "data": { "text": "%{JS: Cpp.classToFileName(value('Class'), Cpp.cxxSourceSuffix())}" }
                 },
                 {
                     "name": "Path",

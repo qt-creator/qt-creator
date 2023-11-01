@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <coreplugin/locator/ilocatorfilter.h>
+#include "locator/ilocatorfilter.h"
 
 #include <QAction>
 #include <QPointer>

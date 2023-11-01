@@ -206,6 +206,8 @@ const char INDENT[]        = "TextEditor.Indent";
 const char UNINDENT[]        = "TextEditor.Unindent";
 const char FOLLOW_SYMBOL_UNDER_CURSOR[] = "TextEditor.FollowSymbolUnderCursor";
 const char FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT[] = "TextEditor.FollowSymbolUnderCursorInNextSplit";
+const char FOLLOW_SYMBOL_TO_TYPE[] = "TextEditor.FollowSymbolToType";
+const char FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT[] = "TextEditor.FollowSymbolToTypeInNextSplit";
 const char FIND_USAGES[] = "TextEditor.FindUsages";
 // moved from CppEditor to TextEditor avoid breaking the setting by using the old key
 const char RENAME_SYMBOL[] = "CppEditor.RenameSymbolUnderCursor";
@@ -226,6 +228,7 @@ const char TEXT_EDITOR_BEHAVIOR_SETTINGS[] = "B.BehaviourSettings";
 const char TEXT_EDITOR_DISPLAY_SETTINGS[] = "D.DisplaySettings";
 const char TEXT_EDITOR_HIGHLIGHTER_SETTINGS[] = "E.HighlighterSettings";
 const char TEXT_EDITOR_SNIPPETS_SETTINGS[] = "F.SnippetsSettings";
+const char TEXT_EDITOR_COMMENTS_SETTINGS[] = "Q.CommentsSettings";
 
 const char HIGHLIGHTER_SETTINGS_CATEGORY[] = "HighlighterSettings";
 
@@ -234,6 +237,9 @@ const char TEXT_SNIPPET_GROUP_ID[] = "Text";
 
 const char GLOBAL_SETTINGS_ID[]    = "Global";
 const char GENERIC_PROPOSAL_ID[] = "TextEditor.GenericProposalId";
+
+const char BOOKMARKS_PREV_ACTION[]        = "Bookmarks.Previous";
+const char BOOKMARKS_NEXT_ACTION[]        = "Bookmarks.Next";
 
 /**
  * Delay before tooltip will be shown near completion assistant proposal

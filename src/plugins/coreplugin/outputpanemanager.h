@@ -15,8 +15,12 @@ class QTimeLine;
 QT_END_NAMESPACE
 
 namespace Core {
+
+class ICore;
+
 namespace Internal {
 
+class ICorePrivate;
 class MainWindow;
 class OutputPaneToggleButton;
 class OutputPaneManageButton;
@@ -33,6 +37,11 @@ public:
     static int outputPaneHeightSetting();
     static void setOutputPaneHeightSetting(int value);
 
+    // FIXME: Hide again
+    static void create();
+    static void initialize();
+    static void destroy();
+
 public slots:
     void slotHide();
     void slotNext();
@@ -44,12 +53,10 @@ protected:
 
 private:
     // the only class that is allowed to create and destroy
+    friend class ICore;
+    friend class ICorePrivate;
     friend class MainWindow;
     friend class OutputPaneManageButton;
-
-    static void create();
-    static void initialize();
-    static void destroy();
 
     explicit OutputPaneManager(QWidget *parent = nullptr);
     ~OutputPaneManager() override;
@@ -67,24 +74,14 @@ private:
 
     QLabel *m_titleLabel = nullptr;
     OutputPaneManageButton *m_manageButton = nullptr;
-    QAction *m_clearAction = nullptr;
-    QToolButton *m_clearButton = nullptr;
-    QToolButton *m_closeButton = nullptr;
 
     QAction *m_minMaxAction = nullptr;
-    QToolButton *m_minMaxButton = nullptr;
-
     QAction *m_nextAction = nullptr;
     QAction *m_prevAction = nullptr;
-    QToolButton *m_prevToolButton = nullptr;
-    QToolButton *m_nextToolButton = nullptr;
-    QWidget *m_toolBar = nullptr;
 
     QStackedWidget *m_outputWidgetPane = nullptr;
     QStackedWidget *m_opToolBarWidgets = nullptr;
     QWidget *m_buttonsWidget = nullptr;
-    QIcon m_minimizeIcon;
-    QIcon m_maximizeIcon;
     int m_outputPaneHeightSetting = 0;
 };
 
@@ -118,6 +115,11 @@ public:
     void setIconBadgeNumber(int number);
     bool isPaneVisible() const;
 
+    void contextMenuEvent(QContextMenuEvent *e) override;
+
+signals:
+    void contextMenuRequested();
+
 private:
     void updateToolTip();
     void checkStateSet() override;
@@ -134,7 +136,12 @@ class OutputPaneManageButton : public QToolButton
     Q_OBJECT
 public:
     OutputPaneManageButton();
-    void paintEvent(QPaintEvent*) override;
+    void paintEvent(QPaintEvent *) override;
+
+    void contextMenuEvent(QContextMenuEvent *e) override;
+
+signals:
+    void menuRequested();
 };
 
 } // namespace Internal

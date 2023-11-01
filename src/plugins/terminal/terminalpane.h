@@ -27,8 +27,6 @@ public:
 
     QWidget *outputWidget(QWidget *parent) override;
     QList<QWidget *> toolBarWidgets() const override;
-    QString displayName() const override;
-    int priorityInStatusBar() const override;
     void clearContents() override;
     void visibilityChanged(bool visible) override;
     void setFocus() override;
@@ -68,7 +66,6 @@ private:
     QAction nextTerminal;
     QAction prevTerminal;
     QAction closeTerminal;
-    QAction lockKeyboard;
 
     QMenu m_shellMenu;
 

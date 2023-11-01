@@ -4,30 +4,64 @@
 #pragma once
 
 #include <debugger/debuggerengine.h>
+
 #include <utils/process.h>
 
+#include <QLoggingCategory>
 #include <QVariant>
+
+#include <queue>
 
 namespace Debugger::Internal {
 
+class DapClient;
 class DebuggerCommand;
+class IDataProvider;
 class GdbMi;
+enum class DapResponseType;
+enum class DapEventType;
+class DapEngine;
+
+class VariablesHandler {
+public:
+    VariablesHandler(DapEngine *dapEngine);
+
+    struct VariableItem {
+        QString iname;
+        int variablesReference;
+    };
+
+    void addVariable(const QString &iname, int variablesReference);
+    void handleNext();
+
+    VariableItem currentItem() const { return m_currentVarItem; }
+    int queueSize() const { return int(m_queue.size()); }
+
+private:
+    void startHandling();
+
+    DapEngine *m_dapEngine;
+    std::list<VariableItem> m_queue;
+    VariableItem m_currentVarItem;
+};
 
 /*
  * A debugger engine for the debugger adapter protocol.
  */
-
 class DapEngine : public DebuggerEngine
 {
 public:
     DapEngine();
+    ~DapEngine() override = default;
 
-private:
+    DapClient *dapClient() const { return m_dapClient; }
+    int currentStackFrameId() const { return m_currentStackFrameId; }
+
+protected:
     void executeStepIn(bool) override;
     void executeStepOut() override;
     void executeStepOver(bool) override;
 
-    void setupEngine() override;
     void shutdownInferior() override;
     void shutdownEngine() override;
 
@@ -48,27 +82,26 @@ private:
     void updateBreakpoint(const Breakpoint &bp) override;
     void removeBreakpoint(const Breakpoint &bp) override;
 
-    void assignValueInDebugger(WatchItem *item,
-        const QString &expr, const QVariant &value) override;
     void executeDebuggerCommand(const QString &command) override;
 
     void loadSymbols(const Utils::FilePath &moduleName) override;
     void loadAllSymbols() override;
-    void requestModuleSymbols(const Utils::FilePath &moduleName) override;
     void reloadModules() override;
     void reloadRegisters() override {}
     void reloadSourceFiles() override {}
-    void reloadFullStack() override {}
+    void reloadFullStack() override;
 
     bool supportsThreads() const { return true; }
     void updateItem(const QString &iname) override;
+    void reexpandItems(const QSet<QString> &inames) override;
+    void doUpdateLocals(const UpdateParameters &params) override;
+    void getVariableFromQueue();
 
     void runCommand(const DebuggerCommand &cmd) override;
-    void postDirectCommand(const QJsonObject &ob);
 
     void refreshLocation(const GdbMi &reportedLocation);
-    void refreshStack(const GdbMi &stack);
-    void refreshLocals(const GdbMi &vars);
+    void refreshStack(const QJsonArray &stackFrames);
+    void refreshLocals(const QJsonArray &variables);
     void refreshModules(const GdbMi &modules);
     void refreshState(const GdbMi &reportedState);
     void refreshSymbols(const GdbMi &symbols);
@@ -78,21 +111,47 @@ private:
 
     void claimInitialBreakpoints();
 
-    void handleDabStarted();
-    void handleDabLaunch();
-    void handleDabConfigurationDone();
+    void handleDapStarted();
+    virtual void handleDapInitialize();
+    void handleDapEventInitialized();
+    virtual void handleDapConfigurationDone();
+
+    void dapRemoveBreakpoint(const Breakpoint &bp);
+    void dapInsertBreakpoint(const Breakpoint &bp);
 
     void handleDapDone();
     void readDapStandardOutput();
     void readDapStandardError();
-    void handleOutput(const QJsonDocument &data);
-    void handleResponse(const QString &ba);
+
+    void handleResponse(DapResponseType type, const QJsonObject &response);
+    void handleStackTraceResponse(const QJsonObject &response);
+    void handleScopesResponse(const QJsonObject &response);
+    void handleThreadsResponse(const QJsonObject &response);
+    void handleEvaluateResponse(const QJsonObject &response);
+
+    void handleEvent(DapEventType type, const QJsonObject &event);
+    void handleBreakpointEvent(const QJsonObject &event);
+    void handleStoppedEvent(const QJsonObject &event);
+
     void updateAll() override;
     void updateLocals() override;
+    void connectDataGeneratorSignals();
 
     QByteArray m_inbuffer;
-    Utils::Process m_proc;
+    DapClient *m_dapClient = nullptr;
+
     int m_nextBreakpointId = 1;
+    int m_currentThreadId = -1;
+    int m_currentStackFrameId = -1;
+
+    std::unique_ptr<VariablesHandler> m_variablesHandler;
+
+    virtual const QLoggingCategory &logCategory()
+    {
+        static const QLoggingCategory logCategory = QLoggingCategory("qtc.dbg.dapengine",
+                                                                     QtWarningMsg);
+        return logCategory;
+    }
 };
 
 } // Debugger::Internal

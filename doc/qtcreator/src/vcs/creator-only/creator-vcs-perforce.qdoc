@@ -8,33 +8,28 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-vcs-mercurial.html
     \page creator-vcs-perforce.html
-    \nextpage creator-vcs-subversion.html
+    \previouspage creator-reference.html
 
-    \title Using Perforce
+    \ingroup creator-reference-vcs
+
+    \title Perforce
+
+    \brief Additional Perforce functions.
 
     Perforce is a fast software configuration management system developed by
     Perforce Software.
 
-    \section1 Enabling the Perforce Plugin
-
-    To enable the Perforce plugin:
-
-    \list 1
-        \li Select \uicontrol Help > \uicontrol {About Plugins} >
-        \uicontrol {Version Control} > \uicontrol Perforce.
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-    \endlist
+    \note Enable the Perforce plugin to use it.
 
     \section1 Configuring Perforce
 
-    To set Perforce preferences, select \uicontrol Edit > \uicontrol Preferences
-    > \uicontrol {Version Control} > \uicontrol Perforce:
+    To set Perforce preferences, select \preferences >
+    \uicontrol {Version Control} > \uicontrol Perforce:
 
     \image qtcreator-preferences-vcs-perforce.webp {Perforce preferences}
 
-    In \uicontrol {P4 command}, set the path to the command line client
+    In \uicontrol {P4 command}, set the path to the command-line client
     executable.
 
     Set workspace details in \uicontrol {P4 user}, \uicontrol {P4 client}, and
@@ -49,11 +44,11 @@
     \section1 Editing Files
 
     In addition to the standard version control system functions described in
-    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \l {Use common VCS Functions}, you can select \uicontrol Tools >
     \uicontrol Perforce > \uicontrol {Edit File} to open a file for editing
     within the client workspace. By default, files are automatically opened for
-    editing. To disable this feature, select \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Version Control} > \uicontrol Perforce,
+    editing. To disable this feature, select \preferences >
+    \uicontrol {Version Control} > \uicontrol Perforce,
     and then deselect the \uicontrol {Automatically open files when editing}
     check box.
 
@@ -65,4 +60,7 @@
 
     To view information about change lists and the files in them, select
     \uicontrol Tools > \uicontrol Perforce > \uicontrol Describe.
+
+    \sa {Enable and disable plugins}, {Set up version control systems},
+    {Use common VCS functions}, {Version Control Systems}
 */

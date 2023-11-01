@@ -3,32 +3,32 @@
 
 #pragma once
 
-#include "../beautifierabstracttool.h"
+#include "../beautifiertool.h"
 
-#include "uncrustifysettings.h"
+QT_BEGIN_NAMESPACE
+class QAction;
+QT_END_NAMESPACE
 
 namespace Beautifier::Internal {
 
-class Uncrustify : public BeautifierAbstractTool
+class Uncrustify : public BeautifierTool
 {
 public:
     Uncrustify();
 
     QString id() const override;
     void updateActions(Core::IEditor *editor) override;
-    TextEditor::Command command() const override;
+    TextEditor::Command textCommand() const override;
     bool isApplicable(const Core::IDocument *document) const override;
 
 private:
     void formatFile();
     void formatSelectedText();
     Utils::FilePath configurationFile() const;
-    TextEditor::Command command(const Utils::FilePath &cfgFile, bool fragment = false) const;
+    TextEditor::Command textCommand(const Utils::FilePath &cfgFile, bool fragment = false) const;
 
     QAction *m_formatFile = nullptr;
     QAction *m_formatRange = nullptr;
-    UncrustifySettings m_settings;
-    UncrustifyOptionsPage m_page{&m_settings};
 };
 
 } // Beautifier::Internal

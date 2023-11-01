@@ -27,71 +27,13 @@
     and presents the issues in an organized way.
 
     To further filter the output by type, select \inlineimage icons/filtericon.png
-    (\uicontrol {Filter Tree}) and then select a filter:
+    (\uicontrol {Filter Tree}) and then select a filter. See the tooltips for
+    more information about each filter.
 
-    \list
-
-        \if defined(qtdesignstudio)
-        \li \uicontrol {Asset Export} - Errors and warnings encountered
-            while exporting assets.
-
-        \li \uicontrol {Asset Importer Error} - Errors and warnings encountered
-            while importing assets from a design tool.
-        \else
-        \li \uicontrol Autotests - Errors and warnings encountered while running
-            tests.
-        \endif
-
-        \li \uicontrol {Build System} - Errors and warnings encountered when
-            opening and managing projects.
-
-        \if defined(qtcreator)
-        \li \uicontrol {Clang Code Model} -
-            \l {Parsing C++ Files with the Clang Code Model}
-            {Errors and warnings from the current editor}.
-        \li \uicontrol {Clang Tools} - Errors and warnings from
-            \l {Using Clang Tools}{Clang-Tidy and Clazy}
-        \endif
-
-        \li \uicontrol Compile - Selected output from the compiler. Open
-            \uicontrol {Compile Output} for more detailed information.
-
-       \li \uicontrol{Debug Information} - Lists debug information packages that might
-            be missing.
-
-        \if defined(qtcreator)
-        \li \uicontrol Debugger - Errors encountered while running the
-            \l{Analyzing Code}{Valgrind code analysis tools}.
-        \endif
-
-       \li \uicontrol{Debugger Runtime} - Errors encountered when starting \QC. For
-            example, information about missing DLLs.
-
-       \li \uicontrol Deployment - Errors encountered between building an application
-            successfully and starting it on a \l{glossary-device}{device}.
-
-        \if defined(qtcreator)
-        \li \uicontrol {My Tasks} - Entries from a task list file (.tasks) generated
-            by \l{Showing Task List Files in Issues}
-            {code scanning and analysis tools}.
-
-        \li \uicontrol Python - Runtime errors and exceptions of Python scripts.
-        \endif
-
-        \li \uicontrol QML and \uicontrol {QML Analysis} -
-            \l{JavaScript and QML Error Codes}
-            {QML and JavaScript syntax errors}.
-
-        \if defined(qtcreator)
-        \li \uicontrol Sanitizer - Tasks created when you run an application if
-            you used an \e {address sanitizer} to detect memory handling issues.
-        \endif
-    \endlist
+    \image qtcreator-issues.webp {Issues}
 
     To find output in the view, enter search criteria in the \uicontrol Filter
     field.
-
-    \image qtcreator-issues.webp {Issues}
 
     Select one or several lines to apply context-menu actions to their contents.
     You can remove the selected lines or copy their contents to the clipboard.
@@ -115,9 +57,14 @@
     or press \key F6 and \key Shift+F6.
 
     By default, a new build clears the \uicontrol Issues view. To keep
-    the issues from the previous build rounds, deselect \uicontrol Edit >
-    \uicontrol Preferences > \uicontrol {Build & Run} > \uicontrol General >
+    the issues from the previous build rounds, deselect \preferences >
+    \uicontrol {Build & Run} > \uicontrol General >
     \uicontrol {Clear issues list on new build}.
+
+    \sa {View output}
+    \if defined(qtcreator)
+    \sa {Show task list files in Issues}
+    \endif
 */
 
 /*!
@@ -148,6 +95,8 @@
 
     For more information about the different search options, see
     \l {Finding and Replacing}.
+
+    \sa {View output}
 */
 
 /*!
@@ -170,7 +119,7 @@
     \image qtcreator-application-output.webp {Application Output}
 
     \if defined(qtcreator)
-    If you specify command line arguments in the run settings that are passed
+    If you specify command-line arguments in the run settings that are passed
     to the application when running it, they are displayed as a part of the
     application output. For more information, see
     \l{Specifying Run Settings for Desktop Device Types}.
@@ -184,8 +133,8 @@
     To set preferences for displaying application output:
 
     \list
-        \li Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol {Build & Run} > \uicontrol {Application Output}.
+        \li Select \preferences > \uicontrol {Build & Run} >
+            \uicontrol {Application Output}.
         \li Select the \inlineimage icons/settings.png
             (\uicontrol {Open Settings Page}) button.
     \endlist
@@ -195,6 +144,8 @@
     You can select whether to open \uicontrol{Application Output} on output when
     running or debugging applications, to clear old output on a new run,
     to word-wrap output, and to limit output to the specified number of lines.
+
+    \sa {View output}
 */
 
 /*!
@@ -239,8 +190,8 @@
                 \li In the \uicontrol {Compile Output} view,
                     select \inlineimage icons/settings.png
                     (\uicontrol {Open Settings Page}).
-                \li Select \uicontrol Edit > \uicontrol Preferences >
-                    \uicontrol {Build & Run} > \uicontrol {Compile Output}.
+                \li Select \preferences > \uicontrol {Build & Run} >
+                    \uicontrol {Compile Output}.
             \endlist
             \image qtcreator-preferences-compile-output.webp {Compile Output tab in Preferences}
         \li Select the \uicontrol {Open Compile Output when building} check box.
@@ -273,4 +224,6 @@
             the new output to the old output.
         \li Select \uicontrol OK to start parsing.
     \endlist
+
+    \sa {View output}
 */

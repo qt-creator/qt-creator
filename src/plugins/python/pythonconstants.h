@@ -27,6 +27,7 @@ const char PYLS_SETTINGS_ID[] = "Python.PyLSSettingsID";
  * MIME type
  ******************************************************************************/
 const char C_PY_MIMETYPE[] = "text/x-python";
+const char C_PY_GUI_MIMETYPE[] = "text/x-python-gui";
 const char C_PY3_MIMETYPE[] = "text/x-python3";
 const char C_PY_MIME_ICON[] = "text-x-python";
 

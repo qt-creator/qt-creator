@@ -21,7 +21,6 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QScreen>
-#include <QSettings>
 #include <QToolButton>
 #include <QWidgetAction>
 
@@ -104,27 +103,27 @@ static FilePath fileNameForSize(QString pattern, const QSize &s)
 
 // Helpers for writing/reading the user-specified size specifications
 // from/to the settings.
-static inline QString settingsGroup() { return QStringLiteral("ExportSvgSizes"); }
+static Key settingsGroup() { return "ExportSvgSizes"; }
 
 static QVector<QSize> readSettings(const QSize &size)
 {
     QVector<QSize> result;
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(settingsGroup());
     const QStringList keys = settings->allKeys();
     const int idx = keys.indexOf(sizeToString(size));
     if (idx >= 0)
-        result = stringToSizes(settings->value(keys.at(idx)).toString());
+        result = stringToSizes(settings->value(keyFromString(keys.at(idx))).toString());
     settings->endGroup();
     return result;
 }
 
 static void writeSettings(const QSize &size, const QString &sizeSpec)
 {
-    QSettings *settings = Core::ICore::settings();
+    QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(settingsGroup());
     const QString spec = sizeToString(size);
-    settings->setValue(spec, QVariant(sizeSpec));
+    settings->setValue(keyFromString(spec), QVariant(sizeSpec));
 
     // Limit the number of sizes to 10. Remove the
     // first element unless it is the newly added spec.
@@ -132,7 +131,7 @@ static void writeSettings(const QSize &size, const QString &sizeSpec)
     while (keys.size() > 10) {
         const int existingIndex = keys.indexOf(spec);
         const int removeIndex = existingIndex == 0 ? 1 : 0;
-        settings->remove(keys.takeAt(removeIndex));
+        settings->remove(keyFromString(keys.takeAt(removeIndex)));
     }
     settings->endGroup();
 }

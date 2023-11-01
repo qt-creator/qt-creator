@@ -7,7 +7,7 @@
 #include "mculegacyconstants.h"
 #include "mcusupportconstants.h"
 
-#include <cmakeprojectmanager/cmakekitinformation.h>
+#include <cmakeprojectmanager/cmakekitaspect.h>
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildsteplist.h>
@@ -30,22 +30,28 @@
 #include <QTemporaryDir>
 #include <QVersionNumber>
 
+using namespace Utils;
+
 namespace McuSupport::Internal {
 
 class DeployMcuProcessStep : public ProjectExplorer::AbstractProcessStep
 {
 public:
-    static const Utils::Id id;
+    static const Id id;
     static void showError(const QString &text);
 
-    DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, Utils::Id id);
+    DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, Id id);
 
 private:
     QString findKitInformation(ProjectExplorer::Kit *kit, const QString &key);
     QTemporaryDir m_tmpDir;
+
+    FilePathAspect cmd{this};
+    StringAspect args{this};
+    FilePathAspect outDir{this};
 };
 
-const Utils::Id DeployMcuProcessStep::id = "QmlProject.Mcu.DeployStep";
+const Id DeployMcuProcessStep::id = "QmlProject.Mcu.DeployStep";
 
 void DeployMcuProcessStep::showError(const QString &text)
 {
@@ -53,7 +59,7 @@ void DeployMcuProcessStep::showError(const QString &text)
     ProjectExplorer::TaskHub::addTask(task);
 }
 
-DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, Utils::Id id)
+DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, Id id)
     : AbstractProcessStep(bc, id)
     , m_tmpDir()
 {
@@ -71,50 +77,46 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, U
     if (!kit)
         return;
 
-    QString root = findKitInformation(kit, Internal::Legacy::Constants::QUL_CMAKE_VAR);
-    auto rootPath = Utils::FilePath::fromString(root);
+    const QString root = findKitInformation(kit, Internal::Legacy::Constants::QUL_CMAKE_VAR);
+    const FilePath rootPath = FilePath::fromString(root);
 
-    auto cmd = addAspect<Utils::FilePathAspect>();
-    cmd->setSettingsKey("QmlProject.Mcu.ProcessStep.Command");
-    cmd->setExpectedKind(Utils::PathChooser::Command);
-    cmd->setLabelText(QmlProjectManager::Tr::tr("Command:"));
-    cmd->setFilePath(rootPath.pathAppended("/bin/qmlprojectexporter"));
+    cmd.setSettingsKey("QmlProject.Mcu.ProcessStep.Command");
+    cmd.setExpectedKind(PathChooser::Command);
+    cmd.setLabelText(QmlProjectManager::Tr::tr("Command:"));
+    cmd.setValue(rootPath.pathAppended("/bin/qmlprojectexporter"));
 
     const char *importPathConstant = QtSupport::Constants::KIT_QML_IMPORT_PATH;
-    Utils::FilePath projectDir = buildSystem()->projectDirectory();
-    Utils::FilePath qulIncludeDir = Utils::FilePath::fromVariant(kit->value(importPathConstant));
+    const FilePath qulIncludeDir = FilePath::fromVariant(kit->value(importPathConstant));
     QStringList includeDirs {
-        Utils::ProcessArgs::quoteArg(qulIncludeDir.toString()),
-        Utils::ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Timeline").toString())
+        ProcessArgs::quoteArg(qulIncludeDir.toString()),
+        ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Timeline").toString())
     };
 
     const char *toolChainConstant = Internal::Constants::KIT_MCUTARGET_TOOLCHAIN_KEY;
     QStringList arguments = {
-        Utils::ProcessArgs::quoteArg(buildSystem()->projectFilePath().toString()),
+        ProcessArgs::quoteArg(buildSystem()->projectFilePath().toString()),
         "--platform", findKitInformation(kit, "QUL_PLATFORM"),
         "--toolchain", kit->value(toolChainConstant).toString(),
         "--include-dirs", includeDirs.join(","),
     };
 
-    auto args = addAspect<Utils::StringAspect>();
-    args->setSettingsKey("QmlProject.Mcu.ProcessStep.Arguments");
-    args->setDisplayStyle(Utils::StringAspect::LineEditDisplay);
-    args->setLabelText(QmlProjectManager::Tr::tr("Arguments:"));
-    args->setValue(Utils::ProcessArgs::joinArgs(arguments));
+    args.setSettingsKey("QmlProject.Mcu.ProcessStep.Arguments");
+    args.setDisplayStyle(StringAspect::LineEditDisplay);
+    args.setLabelText(QmlProjectManager::Tr::tr("Arguments:"));
+    args.setValue(ProcessArgs::joinArgs(arguments));
 
-    auto outDir = addAspect<Utils::FilePathAspect>();
-    outDir->setSettingsKey("QmlProject.Mcu.ProcessStep.BuildDirectory");
-    outDir->setExpectedKind(Utils::PathChooser::Directory);
-    outDir->setLabelText(QmlProjectManager::Tr::tr("Build directory:"));
-    outDir->setPlaceHolderText(m_tmpDir.path());
+    outDir.setSettingsKey("QmlProject.Mcu.ProcessStep.BuildDirectory");
+    outDir.setExpectedKind(PathChooser::Directory);
+    outDir.setLabelText(QmlProjectManager::Tr::tr("Build directory:"));
+    outDir.setPlaceHolderText(m_tmpDir.path());
 
-    setCommandLineProvider([this, cmd, args, outDir]() -> Utils::CommandLine {
-        auto directory = outDir->value();
+    setCommandLineProvider([this] {
+        QString directory = outDir().path();
         if (directory.isEmpty())
             directory = m_tmpDir.path();
 
-        Utils::CommandLine cmdLine(cmd->filePath());
-        cmdLine.addArgs(args->value(), Utils::CommandLine::Raw);
+        CommandLine cmdLine(cmd());
+        cmdLine.addArgs(args(), CommandLine::Raw);
         cmdLine.addArg("--outdir");
         cmdLine.addArg(directory);
         return cmdLine;

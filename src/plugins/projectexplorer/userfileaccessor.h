@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
 #include <utils/settingsaccessor.h>
 
 #include <QHash>
 #include <QVariantMap>
+#include <QMessageBox>
 
 namespace ProjectExplorer {
 
@@ -29,17 +29,17 @@ public:
     Utils::FilePath sharedFile() const;
 
 protected:
-    QVariantMap postprocessMerge(const QVariantMap &main,
-                                 const QVariantMap &secondary,
-                                 const QVariantMap &result) const final;
+    Utils::Store postprocessMerge(const Utils::Store &main,
+                                  const Utils::Store &secondary,
+                                  const Utils::Store &result) const final;
 
-    QVariantMap preprocessReadSettings(const QVariantMap &data) const final;
-    QVariantMap prepareToWriteSettings(const QVariantMap &data) const final;
+    Utils::Store preprocessReadSettings(const Utils::Store &data) const final;
+    Utils::Store prepareToWriteSettings(const Utils::Store &data) const final;
 
     Utils::SettingsMergeResult merge(const SettingsMergeData &global,
                                      const SettingsMergeData &local) const final;
 private:
-    Utils::SettingsMergeFunction userStickyTrackerFunction(QStringList &stickyKeys) const;
+    Utils::SettingsMergeFunction userStickyTrackerFunction(Utils::KeyList &stickyKeys) const;
 
     Project *m_project;
 };

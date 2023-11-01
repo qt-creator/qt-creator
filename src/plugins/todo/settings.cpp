@@ -6,14 +6,16 @@
 #include "constants.h"
 
 #include <coreplugin/coreconstants.h>
+
+#include <utils/qtcsettings.h>
 #include <utils/theme/theme.h>
 
-#include <QSettings>
+using namespace Utils;
 
 namespace Todo {
 namespace Internal {
 
-void Settings::save(QSettings *settings) const
+void Settings::save(QtcSettings *settings) const
 {
     if (!keywordsEdited)
         return;
@@ -23,9 +25,9 @@ void Settings::save(QSettings *settings) const
 
     settings->beginWriteArray(Constants::KEYWORDS_LIST);
     if (const int size = keywords.size()) {
-        const QString nameKey = "name";
-        const QString colorKey = "color";
-        const QString iconTypeKey = "iconType";
+        const Key nameKey = "name";
+        const Key colorKey = "color";
+        const Key iconTypeKey = "iconType";
         for (int i = 0; i < size; ++i) {
             settings->setArrayIndex(i);
             settings->setValue(nameKey, keywords.at(i).name);
@@ -39,7 +41,7 @@ void Settings::save(QSettings *settings) const
     settings->sync();
 }
 
-void Settings::load(QSettings *settings)
+void Settings::load(QtcSettings *settings)
 {
     setDefault();
 
@@ -53,9 +55,9 @@ void Settings::load(QSettings *settings)
     KeywordList newKeywords;
     const int keywordsSize = settings->beginReadArray(Constants::KEYWORDS_LIST);
     if (keywordsSize > 0) {
-        const QString nameKey = "name";
-        const QString colorKey = "color";
-        const QString iconTypeKey = "iconType";
+        const Key nameKey = "name";
+        const Key colorKey = "color";
+        const Key iconTypeKey = "iconType";
         for (int i = 0; i < keywordsSize; ++i) {
             settings->setArrayIndex(i);
             Keyword keyword;
@@ -82,6 +84,11 @@ void Settings::setDefault()
     Keyword keyword;
 
     keyword.name = "TODO";
+    keyword.iconType = IconType::Todo;
+    keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
+    keywords.append(keyword);
+
+    keyword.name = R"(\todo)";
     keyword.iconType = IconType::Todo;
     keyword.color = theme->color(Utils::Theme::OutputPanes_NormalMessageTextColor);
     keywords.append(keyword);

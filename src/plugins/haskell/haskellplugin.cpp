@@ -9,15 +9,17 @@
 #include "haskellmanager.h"
 #include "haskellproject.h"
 #include "haskellrunconfiguration.h"
-#include "haskellsettings.h"
 #include "haskelltr.h"
 #include "stackbuildstep.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <projectexplorer/projectmanager.h>
+
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
+
 #include <texteditor/snippets/snippetprovider.h>
 
 #include <QAction>
@@ -28,7 +30,6 @@ namespace Internal {
 class HaskellPluginPrivate
 {
 public:
-    HaskellSettings settings;
     HaskellEditorFactory editorFactory;
     HaskellBuildConfigurationFactory buildConfigFactory;
     StackBuildStepFactory stackBuildStepFactory;

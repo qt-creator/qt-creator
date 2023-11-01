@@ -11,12 +11,15 @@
 #include <qtsingleapplication.h>
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
+#include <utils/aspects.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcsettings.h>
 #include <utils/singleton.h>
+#include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/terminalcommand.h>
 
@@ -278,16 +281,18 @@ static Utils::QtcSettings *createUserSettings()
 
 static void setHighDpiEnvironmentVariable()
 {
-    if (Utils::HostOsInfo::isMacHost() || qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
+    if (Utils::StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
+            == Qt::HighDpiScaleFactorRoundingPolicy::Unset
+        || qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
         return;
 
-    std::unique_ptr<QSettings> settings(createUserSettings());
+    std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
 
-    const bool defaultValue = Utils::HostOsInfo::isWindowsHost();
-    const bool enableHighDpiScaling = settings->value("Core/EnableHighDpiScaling", defaultValue).toBool();
-    const auto policy = enableHighDpiScaling ? Qt::HighDpiScaleFactorRoundingPolicy::PassThrough
-                                             : Qt::HighDpiScaleFactorRoundingPolicy::Floor;
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(policy);
+    using Policy = Qt::HighDpiScaleFactorRoundingPolicy;
+    const Policy defaultPolicy = Utils::StyleHelper::defaultHighDpiScaleFactorRoundingPolicy();
+    const Policy userPolicy = settings->value("Core/HighDpiScaleFactorRoundingPolicy",
+                                              int(defaultPolicy)).value<Policy>();
+    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(userPolicy);
 }
 
 void setPixmapCacheLimit()
@@ -411,7 +416,7 @@ QStringList lastSessionArgument()
 // and src\tools\qml2puppet\qml2puppet\qmlpuppet.cpp -> QString crashReportsPath()
 QString crashReportsPath()
 {
-    std::unique_ptr<QSettings> settings(createUserSettings());
+    std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
     QFileInfo(settings->fileName()).path() + "/crashpad_reports";
     if (Utils::HostOsInfo::isMacHost())
         return QFileInfo(createUserSettings()->fileName()).path() + "/crashpad_reports";
@@ -520,8 +525,6 @@ int main(int argc, char **argv)
     }
 
     qputenv("QSG_RHI_BACKEND", "opengl");
-    QGuiApplication::setHighDpiScaleFactorRoundingPolicy(
-                Qt::HighDpiScaleFactorRoundingPolicy::Round);
 
     if (qEnvironmentVariableIsSet("QTCREATOR_DISABLE_NATIVE_MENUBAR")
             || qgetenv("XDG_CURRENT_DESKTOP").startsWith("Unity")) {
@@ -607,11 +610,20 @@ int main(int argc, char **argv)
     // Re-setup install settings for real
     setupInstallSettings(options.installSettingsPath);
     Utils::QtcSettings *settings = createUserSettings();
-    Utils::QtcSettings *globalSettings
+    Utils::QtcSettings *installSettings
         = new Utils::QtcSettings(QSettings::IniFormat,
                                  QSettings::SystemScope,
                                  QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
                                  QLatin1String(Core::Constants::IDE_CASED_ID));
+    // warn if -installsettings points to a place where no install settings are located
+    if (!options.installSettingsPath.isEmpty() && !QFileInfo::exists(installSettings->fileName())) {
+        displayError(QLatin1String("The install settings \"%1\" do not exist. The %2 option must "
+                                   "point to a path with existing settings, excluding the %3 part "
+                                   "of the path.")
+                         .arg(QDir::toNativeSeparators(installSettings->fileName()),
+                              INSTALL_SETTINGS_OPTION,
+                              Core::Constants::IDE_SETTINGSVARIANT_STR));
+    }
     Utils::TerminalCommand::setSettings(settings);
     setPixmapCacheLimit();
     loadFonts();
@@ -640,13 +652,27 @@ int main(int argc, char **argv)
 
     PluginManager pluginManager;
     PluginManager::setPluginIID(QLatin1String("org.qt-project.Qt.QtCreatorPlugin"));
-    PluginManager::setGlobalSettings(globalSettings);
+    PluginManager::setInstallSettings(installSettings);
     PluginManager::setSettings(settings);
+    PluginManager::startProfiling();
+
+    Utils::BaseAspect::setQtcSettings(settings);
+
+    using namespace Core;
+    Utils::AppInfo info;
+    info.author = Constants::IDE_AUTHOR;
+    info.year = Constants::IDE_YEAR;
+    info.displayVersion = Constants::IDE_VERSION_DISPLAY;
+    info.id = Constants::IDE_ID;
+    info.revision = Constants::IDE_REVISION_STR;
+    info.revisionUrl = Constants::IDE_REVISION_URL;
+    info.userFileExtension = Constants::IDE_PROJECT_USER_FILE_EXTENSION;
+    Utils::Internal::setAppInfo(info);
 
     QTranslator translator;
     QTranslator qtTranslator;
     QStringList uiLanguages = QLocale::system().uiLanguages();
-    QString overrideLanguage = settings->value(QLatin1String("General/OverrideLanguage")).toString();
+    QString overrideLanguage = settings->value("General/OverrideLanguage").toString();
     if (!overrideLanguage.isEmpty())
         uiLanguages.prepend(overrideLanguage);
     if (!options.uiLanguage.isEmpty())
@@ -678,7 +704,7 @@ int main(int argc, char **argv)
     if (!overrideCodecForLocale.isEmpty())
         QTextCodec::setCodecForLocale(QTextCodec::codecForName(overrideCodecForLocale));
 
-    app.setDesktopFileName("org.qt-project.qtcreator.desktop");
+    app.setDesktopFileName("org.qt-project.qtcreator");
 
     // Make sure we honor the system's proxy settings
     QNetworkProxyFactory::setUseSystemConfiguration(true);

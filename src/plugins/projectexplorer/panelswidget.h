@@ -19,7 +19,7 @@ class PROJECTEXPLORER_EXPORT PanelsWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit PanelsWidget(QWidget *parent = nullptr);
+    explicit PanelsWidget(QWidget *parent = nullptr, bool addStretch = true);
     PanelsWidget(const QString &displayName, QWidget *widget);
     PanelsWidget(const QString &displayName, ProjectSettingsWidget *widget);
     ~PanelsWidget() override;

@@ -8,14 +8,14 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
@@ -31,7 +31,7 @@ using namespace ProjectExplorer;
 
 namespace QmlProfiler::Internal {
 
-const QString QmlServerUrl = "QmlServerUrl";
+const char QmlServerUrl[] = "QmlServerUrl";
 
 //
 // QmlProfilerRunControlPrivate

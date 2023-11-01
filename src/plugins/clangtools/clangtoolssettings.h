@@ -5,6 +5,7 @@
 
 #include <cppeditor/clangdiagnosticconfig.h>
 
+#include <utils/aspects.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
 
@@ -25,8 +26,8 @@ class RunSettings
 public:
     RunSettings();
 
-    void fromMap(const QVariantMap &map, const QString &prefix = QString());
-    void toMap(QVariantMap &map, const QString &prefix = QString()) const;
+    void fromMap(const Utils::Store &map, const Utils::Key &prefix = {});
+    void toMap(Utils::Store &map, const Utils::Key &prefix = {}) const;
 
     Utils::Id diagnosticConfigId() const;
     void setDiagnosticConfigId(const Utils::Id &id) { m_diagnosticConfigId = id; }
@@ -55,13 +56,17 @@ private:
     bool m_analyzeOpenFiles = true;
 };
 
-class ClangToolsSettings : public QObject
+class ClangToolsSettings : public Utils::AspectContainer
 {
-    Q_OBJECT
+    ClangToolsSettings();
 
 public:
     static ClangToolsSettings *instance();
-    void writeSettings();
+    void writeSettings() const override;
+
+    // Executables
+    Utils::FilePathAspect clangTidyExecutable{this};
+    Utils::FilePathAspect clazyStandaloneExecutable{this};
 
     Utils::FilePath executable(CppEditor::ClangToolType tool) const;
     void setExecutable(CppEditor::ClangToolType tool, const Utils::FilePath &path);
@@ -76,16 +81,8 @@ public:
     static VersionAndSuffix clangTidyVersion();
     static QVersionNumber clazyVersion();
 
-signals:
-    void changed();
-
 private:
-    ClangToolsSettings();
-    void readSettings();
-
-    // Executables
-    Utils::FilePath m_clangTidyExecutable;
-    Utils::FilePath m_clazyStandaloneExecutable;
+    void readSettings() override;
 
     // Diagnostic Configs
     CppEditor::ClangDiagnosticConfigs m_diagnosticConfigs;

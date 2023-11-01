@@ -225,7 +225,7 @@ static FilePath findQMakeBinaryFromMakefile(const FilePath &makefile)
             }
         }
     }
-    return FilePath();
+    return {};
 }
 
 MakeFileParse::MakeFileParse(const FilePath &makefile, Mode mode) : m_mode(mode)

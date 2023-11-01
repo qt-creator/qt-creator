@@ -4,8 +4,8 @@
 #include "command.h"
 #include "command_p.h"
 
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
+#include "../coreconstants.h"
+#include "../icontext.h"
 
 #include <utils/hostosinfo.h>
 #include <utils/stringutils.h>

@@ -16,9 +16,9 @@
     \title Setting Up Debugger
 
     The main debugger preferences are associated with the
-    \l{Adding Kits}{kit} you build and run your project with. To
+    \l{Kits}{kit} you build and run your project with. To
     specify the debugger and compiler to use for each kit, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits.
+    \preferences > \uicontrol Kits.
 
     \image qtcreator-kits.png {Kits preferences}
 
@@ -30,13 +30,13 @@
     installed replacement instead.
 
     To change the debugger in an automatically detected kit, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+    \preferences > \uicontrol Kits >
     \uicontrol Clone to create a copy of the kit, and change the
     parameters in the cloned kit. Make sure to enable the cloned kit
     for your project.
 
     If the debugger you want to use is not automatically detected, select
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits >
+    \preferences > \uicontrol Kits >
     \uicontrol Debuggers > \uicontrol Add to add it.
 
     \image qtcreator-preferences-kits-debuggers.webp {Debuggers tab in Kits preferences}
@@ -178,7 +178,7 @@
     32-bit executable with a 64-bit debugger can result in a stack trace of the
     WOW64 emulator 32-bit emulation layer being displayed.
 
-    \QC extends the command line debugger by loading the
+    \QC extends the command-line debugger by loading the
     \c qtcreatorcdbext.dll extension library into it. The
     library must be available in the \c {libs\qtcreatorcdbext64}
     and \c {libs\qtcreatorcdbext32} folder. To install it there,
@@ -214,7 +214,7 @@
 
     \l{https://docs.python.org/3/library/pdb.html}{PDB} is a source code debugger
     for Python applications. You can use it to debug projects that have a
-    \l {Creating Widget-Based Qt for Python Applications}{.pyproject}
+    \l {Creating a Qt for Python Application with Qt Widgets}{.pyproject}
     configuration file.
 
     You must install Python and set the interpreter to use in \uicontrol Projects

@@ -25,8 +25,8 @@ public:
     IosDeviceType(Type type = IosDevice, const QString &identifier = QString(),
                   const QString &displayName = QString());
 
-    bool fromMap(const QVariantMap &map);
-    QVariantMap toMap() const;
+    bool fromMap(const Utils::Store &map);
+    Utils::Store toMap() const;
 
     bool operator ==(const IosDeviceType &o) const;
     bool operator !=(const IosDeviceType &o) const { return !(*this == o); }

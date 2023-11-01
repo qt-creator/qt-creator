@@ -10,11 +10,11 @@
 #include <languageclient/client.h>
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientutils.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <utils/environment.h>
 #include <utils/pathchooser.h>
 #include <utils/temporarydirectory.h>
@@ -136,14 +136,14 @@ bool JLSSettings::isValid() const
     return StdIOSettings::isValid() && !m_languageServer.isEmpty();
 }
 
-QVariantMap JLSSettings::toMap() const
+Store JLSSettings::toMap() const
 {
-    QVariantMap map = StdIOSettings::toMap();
+    Store map = StdIOSettings::toMap();
     map.insert(languageServerKey, m_languageServer.toSettings());
     return map;
 }
 
-void JLSSettings::fromMap(const QVariantMap &map)
+void JLSSettings::fromMap(const Store &map)
 {
     StdIOSettings::fromMap(map);
     m_languageServer = FilePath::fromSettings(map[languageServerKey]);

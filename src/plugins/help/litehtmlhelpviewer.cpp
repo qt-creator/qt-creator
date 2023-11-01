@@ -134,6 +134,11 @@ void LiteHtmlHelpViewer::setScale(qreal scale)
     m_viewer->setZoomFactor(scale == 0 ? qreal(1) : scale);
 }
 
+void LiteHtmlHelpViewer::setAntialias(bool on)
+{
+    m_viewer->setAntialias(on);
+}
+
 QString LiteHtmlHelpViewer::title() const
 {
     return m_viewer->title();
@@ -209,11 +214,11 @@ void LiteHtmlHelpViewer::addForwardHistoryItems(QMenu *forwardMenu)
 }
 
 bool LiteHtmlHelpViewer::findText(
-    const QString &text, Core::FindFlags flags, bool incremental, bool fromSearch, bool *wrapped)
+    const QString &text, Utils::FindFlags flags, bool incremental, bool fromSearch, bool *wrapped)
 {
     Q_UNUSED(fromSearch)
     return m_viewer->findText(text,
-                              Core::textDocumentFlagsForFindFlags(flags),
+                              Utils::textDocumentFlagsForFindFlags(flags),
                               incremental,
                               wrapped);
 }

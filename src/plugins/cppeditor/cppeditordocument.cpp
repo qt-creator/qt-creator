@@ -41,11 +41,6 @@ using namespace Utils;
 namespace CppEditor {
 namespace Internal {
 
-static CppEditor::CppModelManager *mm()
-{
-    return CppEditor::CppModelManager::instance();
-}
-
 enum { processDocumentIntervalInMs = 150 };
 
 class CppEditorDocumentHandleImpl : public CppEditorDocumentHandle
@@ -55,12 +50,12 @@ public:
         : m_cppEditorDocument(cppEditorDocument)
         , m_registrationFilePath(cppEditorDocument->filePath().toString())
     {
-        mm()->registerCppEditorDocument(this);
+        CppModelManager::registerCppEditorDocument(this);
     }
 
     ~CppEditorDocumentHandleImpl() override
     {
-        mm()->unregisterCppEditorDocument(m_registrationFilePath);
+        CppModelManager::unregisterCppEditorDocument(m_registrationFilePath);
     }
 
     FilePath filePath() const override { return m_cppEditorDocument->filePath(); }
@@ -101,7 +96,7 @@ CppEditorDocument::CppEditorDocument()
     connect(this, &IDocument::filePathChanged,
             this, &CppEditorDocument::onFilePathChanged);
 
-    connect(mm(), &CppModelManager::diagnosticsChanged,
+    connect(CppModelManager::instance(), &CppModelManager::diagnosticsChanged,
             this, &CppEditorDocument::onDiagnosticsChanged);
 
     connect(&m_parseContextModel, &ParseContextModel::preferredParseContextChanged,
@@ -187,7 +182,7 @@ void CppEditorDocument::onMimeTypeChanged()
     const QString &mt = mimeType();
     m_isObjCEnabled = (mt == QLatin1String(Constants::OBJECTIVE_C_SOURCE_MIMETYPE)
                        || mt == QLatin1String(Constants::OBJECTIVE_CPP_SOURCE_MIMETYPE));
-    m_completionAssistProvider = mm()->completionAssistProvider();
+    m_completionAssistProvider = CppModelManager::completionAssistProvider();
 
     initializeTimer();
 }
@@ -215,7 +210,7 @@ void CppEditorDocument::reparseWithPreferredParseContext(const QString &parseCon
     setPreferredParseContext(parseContextId);
 
     // Remember the setting
-    const QString key = Constants::PREFERRED_PARSE_CONTEXT + filePath().toString();
+    const Key key = Constants::PREFERRED_PARSE_CONTEXT + keyFromString(filePath().toString());
     Core::SessionManager::setValue(key, parseContextId);
 
     // Reprocess
@@ -282,7 +277,7 @@ void CppEditorDocument::applyPreferredParseContextFromSettings()
     if (filePath().isEmpty())
         return;
 
-    const QString key = Constants::PREFERRED_PARSE_CONTEXT + filePath().toString();
+    const Key key = Constants::PREFERRED_PARSE_CONTEXT + keyFromString(filePath().toString());
     const QString parseContextId = Core::SessionManager::value(key).toString();
 
     setPreferredParseContext(parseContextId);
@@ -293,7 +288,7 @@ void CppEditorDocument::applyExtraPreprocessorDirectivesFromSettings()
     if (filePath().isEmpty())
         return;
 
-    const QString key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + filePath().toString();
+    const Key key = Constants::EXTRA_PREPROCESSOR_DIRECTIVES + keyFromString(filePath().toString());
     const QByteArray directives = Core::SessionManager::value(key).toString().toUtf8();
 
     setExtraPreprocessorDirectives(directives);
@@ -380,7 +375,7 @@ void CppEditorDocument::updateOutline()
 {
     CPlusPlus::Document::Ptr document;
     if (!usesClangd())
-        document = CppModelManager::instance()->snapshot().document(filePath());
+        document = CppModelManager::snapshot().document(filePath());
     m_overviewModel.update(document);
 }
 
@@ -392,9 +387,8 @@ QFuture<CursorInfo> CppEditorDocument::cursorInfo(const CursorInfoParams &params
 BaseEditorDocumentProcessor *CppEditorDocument::processor()
 {
     if (!m_processor) {
-        m_processor.reset(mm()->createEditorDocumentProcessor(this));
-        connect(m_processor.data(),
-                &BaseEditorDocumentProcessor::projectPartInfoUpdated,
+        m_processor.reset(CppModelManager::createEditorDocumentProcessor(this));
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::projectPartInfoUpdated, this,
                 [this](const ProjectPartInfo &info) {
                     const bool hasProjectPart = !(info.hints & ProjectPartInfo::IsFallbackMatch);
                     minimizableInfoBars()->setInfoVisible(NO_PROJECT_CONFIGURATION, !hasProjectPart);
@@ -403,15 +397,15 @@ BaseEditorDocumentProcessor *CppEditorDocument::processor()
                     const bool isProjectFile = info.hints & ProjectPartInfo::IsFromProjectMatch;
                     showHideInfoBarAboutMultipleParseContexts(isAmbiguous && isProjectFile);
                 });
-        connect(m_processor.data(), &BaseEditorDocumentProcessor::codeWarningsUpdated,
-                [this] (unsigned revision,
-                        const QList<QTextEdit::ExtraSelection> selections,
-                        const TextEditor::RefactorMarkers &refactorMarkers) {
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::codeWarningsUpdated, this,
+                [this](unsigned revision,
+                       const QList<QTextEdit::ExtraSelection> selections,
+                       const TextEditor::RefactorMarkers &refactorMarkers) {
             emit codeWarningsUpdated(revision, selections, refactorMarkers);
         });
         connect(m_processor.data(), &BaseEditorDocumentProcessor::ifdefedOutBlocksUpdated,
                 this, &CppEditorDocument::ifdefedOutBlocksUpdated);
-        connect(m_processor.data(), &BaseEditorDocumentProcessor::cppDocumentUpdated,
+        connect(m_processor.data(), &BaseEditorDocumentProcessor::cppDocumentUpdated, this,
                 [this](const CPlusPlus::Document::Ptr document) {
                     // Update syntax highlighter
                     auto *highlighter = qobject_cast<CppHighlighter *>(syntaxHighlighter());
@@ -467,7 +461,7 @@ bool CppEditorDocument::saveImpl(QString *errorString, const FilePath &filePath,
     if (!editedRanges.empty()) {
         QTextCursor cursor(document());
         cursor.joinPreviousEditBlock();
-        indenter()->format(editedRanges);
+        indenter()->format(editedRanges, Indenter::FormattingMode::Forced);
         cursor.endEditBlock();
     }
 
@@ -484,16 +478,16 @@ bool CppEditorDocument::usesClangd() const
     return CppModelManager::usesClangd(this);
 }
 
-void CppEditorDocument::onDiagnosticsChanged(const QString &fileName, const QString &kind)
+void CppEditorDocument::onDiagnosticsChanged(const FilePath &fileName, const QString &kind)
 {
-    if (FilePath::fromString(fileName) != filePath())
+    if (fileName != filePath())
         return;
 
     TextMarks removedMarks = marks();
 
     const Utils::Id category = Utils::Id::fromString(kind);
 
-    for (const auto &diagnostic : mm()->diagnosticMessages()) {
+    for (const auto &diagnostic : CppModelManager::diagnosticMessages()) {
         if (diagnostic.filePath() == filePath()) {
             auto it = std::find_if(std::begin(removedMarks),
                                    std::end(removedMarks),

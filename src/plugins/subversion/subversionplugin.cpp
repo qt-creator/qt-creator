@@ -261,7 +261,6 @@ private:
 
     const QStringList m_svnDirectories;
 
-    SubversionSettings m_settings;
     SubversionClient *m_client = nullptr;
     QString m_commitMessageFileName;
     FilePath m_commitRepository;
@@ -865,7 +864,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
 
     CommandLine args{settings().binaryPath(), {"annotate"}};
     args << SubversionClient::AddAuthOptions();
-    if (settings().spaceIgnorantAnnotation.value())
+    if (settings().spaceIgnorantAnnotation())
         args << "-x" << "-uw";
     if (!revision.isEmpty())
         args << "-r" << revision;
@@ -995,7 +994,7 @@ QString SubversionPluginPrivate::monitorFile(const FilePath &repository) const
                 return fi.absoluteFilePath();
         }
     }
-    return QString();
+    return {};
 }
 
 QString SubversionPluginPrivate::synchronousTopic(const FilePath &repository) const

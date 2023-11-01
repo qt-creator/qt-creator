@@ -2,21 +2,22 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-project-generic.html
     \page creator-project-nimble.html
-    \nextpage creator-project-meson.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Setting Up Nimble
+
+    \brief The Nimble package manager generates Nim application
+    executables that are supported on Windows, Linux, and \macos.
 
     \l {https://github.com/nim-lang/nimble#readme}{Nimble} is a package
     manager for the Nim programming language. It is delivered with
     \l{https://nim-lang.org/}{Nim} and uses the Nim compiler to generate
     executables that are supported on Windows, Linux, and \macos.
 
-    To use \QC for Nim development, you need to enable the experimental
-    Nim plugin. Select \uicontrol Help > \uicontrol {About Plugins} >
-    \uicontrol {Other Languages} > \uicontrol Nim. Then select
-    \uicontrol {Restart Now} to restart \QC and load the plugin.
+    \note Enable the Nim plugin to use Nimble and Nim.
 
     In addition, you have to download and install Nim and set up a Nim kit
     in \QC.
@@ -28,7 +29,7 @@
     To configure \QC to build Nim executables:
 
     \list 1
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits
+        \li Select \preferences > \uicontrol Kits >
             \uicontrol Compilers > \uicontrol Add > \uicontrol Nim to specify
             the path to the Nim compiler.
         \li Select \uicontrol Apply to add the compiler.
@@ -58,4 +59,6 @@
             \image qtcreator-project-nimble.png
         \li Select \uicontrol Next to create the project.
     \endlist
+
+    \sa {Enable and disable plugins}
 */

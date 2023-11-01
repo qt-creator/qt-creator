@@ -96,7 +96,7 @@
     When you start \QC from the command line, you can give the name of
     a session as an argument and \QC will start with this session.
 
-    For more information, see \l{Using Command Line Options}.
+    For more information, see \l{Command-Line Options}.
     \endif
 
 */

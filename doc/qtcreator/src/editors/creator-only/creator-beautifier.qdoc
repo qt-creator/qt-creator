@@ -32,6 +32,12 @@
     specified in the Beautifier preferences. You can use a predefined style or
     define your own style.
 
+    \note Enable the Beautifier plugin to use it. Since \QC 10.0.0, the
+    ClangFormat plugin is enabled by default. Select \preferences >
+    \uicontrol {C++} > \uicontrol {Formatting mode} > \uicontrol Disable
+    to turn off ClangFormat if you enable Beautifier because combining
+    them can lead to unexpected results.
+
     To use the Beautifier plugin:
 
     \list 1
@@ -48,18 +54,7 @@
 
             You might have to build the tools from sources for some platforms.
 
-        \li Select \uicontrol Help > \uicontrol {About Plugins} > \uicontrol {C++} >
-            \uicontrol Beautifier to enable the plugin.
-
-            \note Since \QC 10.0.0, the ClangFormat plugin is enabled by
-            default. Select \uicontrol Edit > \uicontrol Preferences >
-            \uicontrol {C++} > \uicontrol {Formatting mode} > \uicontrol Disable
-            to turn off ClangFormat if you enable Beautifier because combining
-            them can lead to unexpected results.
-
-        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
-
-        \li Select \uicontrol Edit > \uicontrol Preferences >
+        \li Select \preferences >
             \uicontrol Beautifier to specify settings for beautifying files.
 
         \li Select the \uicontrol {Enable auto format on file save} check box to
@@ -105,7 +100,7 @@
 
                 \li Select \uicontrol {Use file *.astylerc defined in project files}
                     or \uicontrol {Use file uncrustify.cfg defined in project files},
-                    to use the configuration file \l{Specifying Project Contents}
+                    to use the configuration file \l{Specify project contents}
                     {defined in the project file} as the configuration file
                     for the selected tool.
 
@@ -148,7 +143,7 @@
 
             \endlist
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Beautifier
+        \li Select \preferences > \uicontrol Beautifier
             > \uicontrol {Artistic Style}, \uicontrol ClangFormat, or
             \uicontrol Uncrustify > \uicontrol {Format Current File} to format
             the currently open file.
@@ -168,4 +163,6 @@
     select it when no text is selected, the whole file is formatted by default.
     To disable this behavior, deselect the
     \uicontrol {Format entire file if no text was selected} check box.
+
+    \sa {Enable and disable plugins}
 */

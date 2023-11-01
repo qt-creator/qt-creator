@@ -4,13 +4,11 @@
 #pragma once
 
 #include <utils/filepath.h>
+#include <utils/storekey.h>
 
 #include <QHash>
-#include <QString>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils { class QtcSettings; }
 
 namespace ClearCase::Internal {
 
@@ -25,8 +23,8 @@ class ClearCaseSettings
 public:
     ClearCaseSettings();
 
-    void fromSettings(QSettings *);
-    void toSettings(QSettings *) const;
+    void fromSettings(Utils::QtcSettings *);
+    void toSettings(Utils::QtcSettings *) const;
 
     bool equals(const ClearCaseSettings &s) const;
 
@@ -40,7 +38,7 @@ public:
     DiffType diffType = GraphicalDiff;
     QString diffArgs;
     QString indexOnlyVOBs;
-    QHash<QString, int> totalFiles;
+    QHash<Utils::Key, int> totalFiles;
     bool autoAssignActivityName = true;
     bool autoCheckOut = true;
     bool noComment = false;

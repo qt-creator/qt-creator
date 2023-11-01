@@ -7,10 +7,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <QVector>
+#include <QList>
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 //BEGIN FunctionCall::Private
 class FunctionCall::Private
@@ -20,8 +19,8 @@ public:
     const Function *m_caller = nullptr;
     quint64 m_calls = 0;
     quint64 m_totalInclusiveCost = 0;
-    QVector<quint64> m_destinations;
-    QVector<quint64> m_costs;
+    QList<quint64> m_destinations;
+    QList<quint64> m_costs;
 };
 
 //BEGIN FunctionCall
@@ -71,12 +70,12 @@ quint64 FunctionCall::destination(int posIdx) const
     return d->m_destinations.at(posIdx);
 }
 
-QVector<quint64> FunctionCall::destinations() const
+QList<quint64> FunctionCall::destinations() const
 {
     return d->m_destinations;
 }
 
-void FunctionCall::setDestinations(const QVector<quint64> &destinations)
+void FunctionCall::setDestinations(const QList<quint64> &destinations)
 {
     d->m_destinations = destinations;
 }
@@ -87,15 +86,14 @@ quint64 FunctionCall::cost(int event) const
     return d->m_costs.at(event);
 }
 
-QVector<quint64> FunctionCall::costs() const
+QList<quint64> FunctionCall::costs() const
 {
     return d->m_costs;
 }
 
-void FunctionCall::setCosts(const QVector<quint64> &costs)
+void FunctionCall::setCosts(const QList<quint64> &costs)
 {
     d->m_costs = costs;
 }
 
-} // namespace Callgrind
-} // namespace Valgrind
+} // namespace Valgrind::Callgrind

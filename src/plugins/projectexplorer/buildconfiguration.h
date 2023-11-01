@@ -68,8 +68,8 @@ public:
     void appendInitialBuildStep(Utils::Id id);
     void appendInitialCleanStep(Utils::Id id);
 
-    bool fromMap(const QVariantMap &map) override;
-    QVariantMap toMap() const override;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 
     bool isEnabled() const;
     QString disabledReason() const;
@@ -102,9 +102,9 @@ public:
 
     ProjectExplorer::BuildDirectoryAspect *buildDirectoryAspect() const;
     void setConfigWidgetDisplayName(const QString &display);
-    void setBuildDirectoryHistoryCompleter(const QString &history);
+    void setBuildDirectoryHistoryCompleter(const Utils::Key &history);
     void setConfigWidgetHasFrame(bool configWidgetHasFrame);
-    void setBuildDirectorySettingsKey(const QString &key);
+    void setBuildDirectorySettingsKey(const Utils::Key &key);
 
     void addConfigWidgets(const std::function<void (NamedWidget *)> &adder);
 
@@ -149,7 +149,7 @@ public:
 
     BuildConfiguration *create(Target *parent, const BuildInfo &info) const;
 
-    static BuildConfiguration *restore(Target *parent, const QVariantMap &map);
+    static BuildConfiguration *restore(Target *parent, const Utils::Store &map);
     static BuildConfiguration *clone(Target *parent, const BuildConfiguration *source);
 
     static BuildConfigurationFactory *find(const Kit *k, const Utils::FilePath &projectPath);

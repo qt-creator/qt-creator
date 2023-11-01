@@ -6,8 +6,7 @@
 #include "buildconfiguration.h"
 #include "buildsystem.h"
 #include "environmentaspect.h"
-#include "kitinformation.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
@@ -15,7 +14,6 @@
 #include "projectmanager.h"
 #include "projectnodes.h"
 #include "runconfigurationaspects.h"
-#include "runcontrol.h"
 #include "target.h"
 
 #include <coreplugin/icontext.h>
@@ -29,6 +27,7 @@
 #include <utils/detailswidget.h>
 #include <utils/layoutbuilder.h>
 #include <utils/outputformatter.h>
+#include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
@@ -37,7 +36,6 @@
 #include <QPushButton>
 #include <QTimer>
 #include <QLoggingCategory>
-#include <QSettings>
 
 using namespace Utils;
 using namespace ProjectExplorer::Internal;
@@ -45,25 +43,7 @@ using namespace ProjectExplorer::Internal;
 namespace ProjectExplorer {
 
 const char BUILD_KEY[] = "ProjectExplorer.RunConfiguration.BuildKey";
-
-///////////////////////////////////////////////////////////////////////
-//
-// ISettingsAspect
-//
-///////////////////////////////////////////////////////////////////////
-
-ISettingsAspect::ISettingsAspect() = default;
-
-QWidget *ISettingsAspect::createConfigWidget() const
-{
-    QTC_ASSERT(m_configWidgetCreator, return nullptr);
-    return m_configWidgetCreator();
-}
-
-void ISettingsAspect::setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator)
-{
-    m_configWidgetCreator = configWidgetCreator;
-}
+const char CUSTOMIZED_KEY[] = "ProjectExplorer.RunConfiguration.Customized";
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -82,14 +62,16 @@ GlobalOrProjectAspect::~GlobalOrProjectAspect()
     delete m_projectSettings;
 }
 
-void GlobalOrProjectAspect::setProjectSettings(ISettingsAspect *settings)
+void GlobalOrProjectAspect::setProjectSettings(AspectContainer *settings)
 {
     m_projectSettings = settings;
+    m_projectSettings->setAutoApply(true);
 }
 
-void GlobalOrProjectAspect::setGlobalSettings(ISettingsAspect *settings)
+void GlobalOrProjectAspect::setGlobalSettings(AspectContainer *settings)
 {
     m_globalSettings = settings;
+    m_projectSettings->setAutoApply(false);
 }
 
 void GlobalOrProjectAspect::setUsingGlobalSettings(bool value)
@@ -97,26 +79,26 @@ void GlobalOrProjectAspect::setUsingGlobalSettings(bool value)
     m_useGlobalSettings = value;
 }
 
-ISettingsAspect *GlobalOrProjectAspect::currentSettings() const
+AspectContainer *GlobalOrProjectAspect::currentSettings() const
 {
    return m_useGlobalSettings ? m_globalSettings : m_projectSettings;
 }
 
-void GlobalOrProjectAspect::fromMap(const QVariantMap &map)
+void GlobalOrProjectAspect::fromMap(const Store &map)
 {
     if (m_projectSettings)
         m_projectSettings->fromMap(map);
-    m_useGlobalSettings = map.value(id().toString() + ".UseGlobalSettings", true).toBool();
+    m_useGlobalSettings = map.value(id().toKey() + ".UseGlobalSettings", true).toBool();
 }
 
-void GlobalOrProjectAspect::toMap(QVariantMap &map) const
+void GlobalOrProjectAspect::toMap(Store &map) const
 {
     if (m_projectSettings)
         m_projectSettings->toMap(map);
-    map.insert(id().toString() + ".UseGlobalSettings", m_useGlobalSettings);
+    map.insert(id().toKey() + ".UseGlobalSettings", m_useGlobalSettings);
 }
 
-void GlobalOrProjectAspect::toActiveMap(QVariantMap &data) const
+void GlobalOrProjectAspect::toActiveMap(Store &data) const
 {
     if (m_useGlobalSettings)
         m_globalSettings->toMap(data);
@@ -130,7 +112,7 @@ void GlobalOrProjectAspect::toActiveMap(QVariantMap &data) const
 void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 {
     QTC_ASSERT(m_globalSettings, return);
-    QVariantMap map;
+    Store map;
     m_globalSettings->toMap(map);
     if (m_projectSettings)
         m_projectSettings->fromMap(map);
@@ -158,10 +140,12 @@ void GlobalOrProjectAspect::resetProjectToGlobalSettings()
 
 static std::vector<RunConfiguration::AspectFactory> theAspectFactories;
 
+static QList<RunConfigurationFactory *> g_runConfigurationFactories;
+
 RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
     : ProjectConfiguration(target, id)
 {
-    QTC_CHECK(target && target == this->target());
+    forceDisplayNameSerialization();
     connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
 
     m_expander.setDisplayName(Tr::tr("Run Settings"));
@@ -239,14 +223,47 @@ bool RunConfiguration::isConfigured() const
     return !Utils::anyOf(checkForIssues(), [](const Task &t) { return t.type == Task::Error; });
 }
 
+bool RunConfiguration::isCustomized() const
+{
+    if (m_customized)
+        return true;
+    Store state;
+    toMapSimple(state);
+
+    // TODO: Why do we save this at all? It's a computed value.
+    state.remove("RunConfiguration.WorkingDirectory.default");
+
+    return state != m_pristineState;
+}
+
+bool RunConfiguration::hasCreator() const
+{
+    for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
+        if (factory->runConfigurationId() == id()) {
+            if (factory->supportsBuildKey(target(), buildKey()))
+                return true;
+        }
+    }
+    return false;
+}
+
+void RunConfiguration::setPristineState()
+{
+    if (!m_customized) {
+        m_pristineState.clear();
+        toMapSimple(m_pristineState);
+        m_pristineState.remove("RunConfiguration.WorkingDirectory.default");
+    }
+}
+
 void RunConfiguration::addAspectFactory(const AspectFactory &aspectFactory)
 {
     theAspectFactories.push_back(aspectFactory);
 }
 
-QMap<Utils::Id, QVariantMap> RunConfiguration::settingsData() const
+QMap<Id, Store> RunConfiguration::settingsData() const
 {
-    QMap<Utils::Id, QVariantMap> data;
+    QMap<Id, Store> data;
     for (BaseAspect *aspect : *this)
         aspect->toActiveMap(data[aspect->id()]);
     return data;
@@ -275,10 +292,15 @@ Task RunConfiguration::createConfigurationIssue(const QString &description) cons
     return BuildSystemTask(Task::Error, description);
 }
 
-QVariantMap RunConfiguration::toMap() const
+void RunConfiguration::toMap(Store &map) const
 {
-    QVariantMap map = ProjectConfiguration::toMap();
+    toMapSimple(map);
+    map.insert(CUSTOMIZED_KEY, isCustomized());
+}
 
+void RunConfiguration::toMapSimple(Store &map) const
+{
+    ProjectConfiguration::toMap(map);
     map.insert(BUILD_KEY, m_buildKey);
 
     // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
@@ -286,8 +308,6 @@ QVariantMap RunConfiguration::toMap() const
         const Utils::Id mangled = id().withSuffix(m_buildKey);
         map.insert(settingsIdKey(), mangled.toSetting());
     }
-
-    return map;
 }
 
 void RunConfiguration::setCommandLineGetter(const CommandLineGetter &cmdGetter)
@@ -339,11 +359,13 @@ ProjectNode *RunConfiguration::productNode() const
     });
 }
 
-bool RunConfiguration::fromMap(const QVariantMap &map)
+void RunConfiguration::fromMap(const Store &map)
 {
-    if (!ProjectConfiguration::fromMap(map))
-        return false;
+    ProjectConfiguration::fromMap(map);
+    if (hasError())
+        return;
 
+    m_customized = m_customized || map.value(CUSTOMIZED_KEY, false).toBool();
     m_buildKey = map.value(BUILD_KEY).toString();
 
     if (m_buildKey.isEmpty()) {
@@ -356,8 +378,6 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
         if (magicIndex != -1)
             m_buildKey = m_buildKey.mid(magicIndex + magicSeparator.length());
     }
-
-    return  true;
 }
 
 /*!
@@ -395,17 +415,25 @@ bool RunConfiguration::fromMap(const QVariantMap &map)
     \brief Returns a \l Runnable described by this RunConfiguration.
 */
 
-Runnable RunConfiguration::runnable() const
+ProcessRunData RunConfiguration::runnable() const
 {
-    Runnable r;
+    ProcessRunData r;
     r.command = commandLine();
     if (auto workingDirectoryAspect = aspect<WorkingDirectoryAspect>())
-        r.workingDirectory = r.command.executable().withNewPath(workingDirectoryAspect->workingDirectory().path());
+        r.workingDirectory = r.command.executable().withNewMappedPath(workingDirectoryAspect->workingDirectory());
     if (auto environmentAspect = aspect<EnvironmentAspect>())
         r.environment = environmentAspect->environment();
     if (m_runnableModifier)
         m_runnableModifier(r);
     return r;
+}
+
+QVariantHash RunConfiguration::extraData() const
+{
+    QVariantHash data;
+    if (auto forwardingAspect = aspect<X11ForwardingAspect>())
+        data.insert("Ssh.X11ForwardToDisplay", forwardingAspect->display());
+    return data;
 }
 
 /*!
@@ -429,8 +457,6 @@ Runnable RunConfiguration::runnable() const
     a plain data member of a structure that is allocated in your plugin's
     ExtensionSystem::IPlugin::initialize() method.
 */
-
-static QList<RunConfigurationFactory *> g_runConfigurationFactories;
 
 /*!
     Constructs a RunConfigurationFactory instance and registers it into a global
@@ -497,6 +523,14 @@ RunConfigurationFactory::availableCreators(Target *target) const
         rci.buildKey = ti.buildKey;
         return rci;
     });
+}
+
+bool RunConfigurationFactory::supportsBuildKey(Target *target, const QString &key) const
+{
+    if (!canHandle(target))
+        return false;
+    const QList<BuildTargetInfo> buildTargets = target->buildSystem()->applicationTargets();
+    return anyOf(buildTargets, [&key](const BuildTargetInfo &info) { return info.buildKey == key; });
 }
 
 /*!
@@ -582,19 +616,22 @@ RunConfiguration *RunConfigurationCreationInfo::create(Target *target) const
     rc->m_buildKey = buildKey;
     rc->update();
     rc->setDisplayName(displayName);
+    rc->setPristineState();
 
     return rc;
 }
 
-RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVariantMap &map)
+RunConfiguration *RunConfigurationFactory::restore(Target *parent, const Store &map)
 {
     for (RunConfigurationFactory *factory : std::as_const(g_runConfigurationFactories)) {
         if (factory->canHandle(parent)) {
             const Utils::Id id = idFromMap(map);
             if (id.name().startsWith(factory->m_runConfigurationId.name())) {
                 RunConfiguration *rc = factory->create(parent);
-                if (rc->fromMap(map)) {
+                rc->fromMap(map);
+                if (!rc->hasError()) {
                     rc->update();
+                    rc->setPristineState();
                     return rc;
                 }
                 delete rc;
@@ -607,7 +644,9 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const QVarian
 
 RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
 {
-    return restore(parent, source->toMap());
+    Store map;
+    source->toMap(map);
+    return restore(parent, map);
 }
 
 const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)
@@ -644,6 +683,13 @@ FixedRunConfigurationFactory::availableCreators(Target *parent) const
     rci.factory = this;
     rci.displayName = displayName;
     return {rci};
+}
+
+bool FixedRunConfigurationFactory::supportsBuildKey(Target *target, const QString &key) const
+{
+    Q_UNUSED(target)
+    Q_UNUSED(key)
+    return false;
 }
 
 } // namespace ProjectExplorer

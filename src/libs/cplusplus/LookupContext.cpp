@@ -78,8 +78,7 @@ static bool isNestedInstantiationEnclosingTemplate(
 {
     QSet<ClassOrNamespace *> processed;
     while (enclosingTemplateClassInstantiation
-           && !processed.contains(enclosingTemplateClassInstantiation)) {
-        processed.insert(enclosingTemplateClassInstantiation);
+           && Utils::insert(processed, enclosingTemplateClassInstantiation)) {
         if (enclosingTemplateClassInstantiation == nestedClassOrNamespaceInstantiation)
             return false;
         enclosingTemplateClassInstantiation = enclosingTemplateClassInstantiation->parent();
@@ -389,11 +388,10 @@ ClassOrNamespace *LookupContext::lookupType(const Name *name, Scope *scope,
                         }
                         if (const NamedType *namedTy = d->type()->asNamedType()) {
                             // Stop on recursive typedef declarations
-                            if (typedefsBeingResolved.contains(d))
+                            if (!Utils::insert(typedefsBeingResolved, d))
                                 return nullptr;
                             return lookupType(namedTy->name(), scope, nullptr,
-                                              QSet<const Declaration *>(typedefsBeingResolved)
-                                                << d);
+                                              typedefsBeingResolved);
                         }
                     }
                 }
@@ -504,9 +502,8 @@ QList<LookupItem> LookupContext::lookup(const Name *name, Scope *scope) const
                     // try find this name in parent class
                     QSet<ClassOrNamespace *> processed;
                     while (candidates.isEmpty() && (binding = binding->parent())) {
-                        if (processed.contains(binding))
+                        if (!Utils::insert(processed, binding))
                             break;
-                        processed.insert(binding);
                         candidates = binding->find(name);
                     }
 
@@ -683,9 +680,8 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
                 for (ClassOrNamespace *parentBinding = binding->parent();
                         parentBinding && !match;
                         parentBinding = parentBinding->parent()) {
-                    if (processed.contains(parentBinding))
+                    if (!Utils::insert(processed, parentBinding))
                         break;
-                    processed.insert(parentBinding);
                     match = parentBinding->lookupInScope(fullName);
                 }
 
@@ -704,9 +700,8 @@ QList<LookupItem> ClassOrNamespace::lookup_helper(const Name *name, bool searchI
         QSet<ClassOrNamespace *> processedOwnParents;
         ClassOrNamespace *binding = this;
         do {
-            if (processedOwnParents.contains(binding))
+            if (!Utils::insert(processedOwnParents, binding))
                 break;
-            processedOwnParents.insert(binding);
             lookup_helper(name, binding, &result, &processed, /*templateId = */ nullptr);
             binding = binding->_parent;
         } while (searchInEnclosingScope && binding);
@@ -720,9 +715,7 @@ void ClassOrNamespace::lookup_helper(const Name *name, ClassOrNamespace *binding
                                           QSet<ClassOrNamespace *> *processed,
                                           const TemplateNameId *templateId)
 {
-    if (binding && ! processed->contains(binding)) {
-        processed->insert(binding);
-
+    if (binding && Utils::insert(*processed, binding)) {
         const Identifier *nameId = name->identifier();
 
         const QList<Symbol *> symbols = binding->symbols();
@@ -902,9 +895,8 @@ ClassOrNamespace *ClassOrNamespace::findBlock_helper(Block *block,
                                                      bool searchInEnclosingScope)
 {
     for (ClassOrNamespace *binding = this; binding; binding = binding->_parent) {
-        if (processed->contains(binding))
+        if (!Utils::insert(*processed, binding))
             break;
-        processed->insert(binding);
         binding->flush();
         auto end = binding->_blocks.end();
         auto citBlock = binding->_blocks.find(block);
@@ -977,9 +969,7 @@ ClassOrNamespace *ClassOrNamespace::lookupType_helper(const Name *name,
 
         return nullptr;
 
-    } else if (! processed->contains(this)) {
-        processed->insert(this);
-
+    } else if (Utils::insert(*processed, this)) {
         if (name->asNameId() || name->asTemplateNameId() || name->asAnonymousNameId()) {
             flush();
 
@@ -1260,9 +1250,8 @@ ClassOrNamespace *ClassOrNamespace::nestedType(const Name *name,
 
         QSet<ClassOrNamespace *> otherProcessed;
         while (!origin->_symbols.isEmpty() && origin->_symbols[0]->asBlock()) {
-            if (otherProcessed.contains(origin))
+            if (!Utils::insert(otherProcessed, origin))
                 break;
-            otherProcessed.insert(origin);
             origin = origin->parent();
         }
 
@@ -1489,9 +1478,8 @@ void ClassOrNamespace::NestedClassInstantiator::instantiate(ClassOrNamespace *en
 {
     if (_alreadyConsideredNestedClassInstantiations.size() >= 3)
         return;
-    if (_alreadyConsideredNestedClassInstantiations.contains(enclosingTemplateClass))
+    if (!Utils::insert(_alreadyConsideredNestedClassInstantiations, enclosingTemplateClass))
         return;
-    _alreadyConsideredNestedClassInstantiations.insert(enclosingTemplateClass);
     ClassOrNamespace::Table::const_iterator cit = enclosingTemplateClass->_classOrNamespaces.begin();
     for (; cit != enclosingTemplateClass->_classOrNamespaces.end(); ++cit) {
         const Name *nestedName = cit->first;
@@ -1720,9 +1708,7 @@ void CreateBindings::process(Document::Ptr doc)
         return;
 
     if (Namespace *globalNamespace = doc->globalNamespace()) {
-        if (! _processed.contains(globalNamespace)) {
-            _processed.insert(globalNamespace);
-
+        if (Utils::insert(_processed, globalNamespace)) {
             const QList<Document::Include> includes = doc->resolvedIncludes();
             for (const Document::Include &i : includes) {
                 if (Document::Ptr incl = _snapshot.document(i.resolvedFileName()))

@@ -17,8 +17,6 @@
 #include <projectexplorer/projectpanelfactory.h>
 #include <utils/link.h>
 
-#include <QSettings>
-
 namespace Todo {
 namespace Internal {
 

@@ -3,16 +3,17 @@
 
 #pragma once
 
+#include <QList>
 #include <QMetaType>
 #include <QSharedDataPointer>
-#include <QVector>
 
 QT_BEGIN_NAMESPACE
 class QString;
 QT_END_NAMESPACE
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
+
+Q_NAMESPACE
 
 class Stack;
 class Suppression;
@@ -20,7 +21,7 @@ class Suppression;
 /**
  * Error kinds, specific to memcheck
  */
-enum MemcheckErrorKind
+enum MemcheckError
 {
     InvalidFree,
     MismatchedFree,
@@ -37,18 +38,20 @@ enum MemcheckErrorKind
     Leak_PossiblyLost,
     Leak_StillReachable,
     Leak_IndirectlyLost,
-    MemcheckErrorKindCount
+    ReallocSizeZero
 };
+Q_ENUM_NS(MemcheckError);
 
-enum PtrcheckErrorKind
+enum PtrcheckError
 {
     SorG,
     Heap,
     Arith,
     SysParam
 };
+Q_ENUM_NS(PtrcheckError);
 
-enum HelgrindErrorKind
+enum HelgrindError
 {
     Race,
     UnlockUnlocked,
@@ -58,6 +61,7 @@ enum HelgrindErrorKind
     LockOrder,
     Misc
 };
+Q_ENUM_NS(HelgrindError);
 
 class Error
 {
@@ -85,8 +89,8 @@ public:
     int kind() const;
     void setKind(int kind);
 
-    QVector<Stack> stacks() const;
-    void setStacks(const QVector<Stack> &stacks);
+    QList<Stack> stacks() const;
+    void setStacks(const QList<Stack> &stacks);
 
     Suppression suppression() const;
     void setSuppression(const Suppression &suppression);
@@ -109,7 +113,6 @@ private:
     QSharedDataPointer<Private> d;
 };
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol
 
 Q_DECLARE_METATYPE(Valgrind::XmlProtocol::Error)

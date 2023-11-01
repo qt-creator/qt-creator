@@ -220,7 +220,7 @@ QString StateListener::windowTitleVcsTopic(const FilePath &filePath)
             searchPath = projects.first()->projectDirectory();
     }
     if (searchPath.isEmpty())
-        return QString();
+        return {};
     FilePath topLevelPath;
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(
                 searchPath, &topLevelPath);
@@ -232,7 +232,7 @@ static inline QString displayNameOfEditor(const FilePath &fileName)
     IDocument *document = DocumentModel::documentForFilePath(fileName);
     if (document)
         return document->displayName();
-    return QString();
+    return {};
 }
 
 void StateListener::slotStateChanged()
@@ -751,8 +751,10 @@ FilePath source(IDocument *document)
 void setProcessEnvironment(Environment *e)
 {
     const QString prompt = Internal::commonSettings().sshPasswordPrompt().path();
-    if (!prompt.isEmpty())
+    if (!prompt.isEmpty()) {
         e->set("SSH_ASKPASS", prompt);
+        e->set("SSH_ASKPASS_REQUIRE", "force");
+    }
 }
 
 } // namespace VcsBase

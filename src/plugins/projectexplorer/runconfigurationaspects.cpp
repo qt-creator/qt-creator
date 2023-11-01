@@ -6,7 +6,7 @@
 #include "devicesupport/devicemanager.h"
 #include "devicesupport/idevice.h"
 #include "environmentaspect.h"
-#include "kitinformation.h"
+#include "kitaspects.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"
 #include "projectexplorertr.h"
@@ -47,7 +47,8 @@ namespace ProjectExplorer {
     The initial value is provided as a hint from the build systems.
 */
 
-TerminalAspect::TerminalAspect()
+TerminalAspect::TerminalAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Terminal"));
     setId("TerminalAspect");
@@ -79,7 +80,7 @@ void TerminalAspect::addToLayout(LayoutItem &parent)
 /*!
     \reimp
 */
-void TerminalAspect::fromMap(const QVariantMap &map)
+void TerminalAspect::fromMap(const Store &map)
 {
     if (map.contains(settingsKey())) {
         m_useTerminal = map.value(settingsKey()).toBool();
@@ -95,7 +96,7 @@ void TerminalAspect::fromMap(const QVariantMap &map)
 /*!
     \reimp
 */
-void TerminalAspect::toMap(QVariantMap &data) const
+void TerminalAspect::toMap(Store &data) const
 {
     if (m_userSet)
         data.insert(settingsKey(), m_useTerminal);
@@ -152,13 +153,22 @@ bool TerminalAspect::isUserSet() const
     working directory for running the executable.
 */
 
-WorkingDirectoryAspect::WorkingDirectoryAspect(const MacroExpander *expander,
-                                               EnvironmentAspect *envAspect)
-    : m_envAspect(envAspect), m_macroExpander(expander)
+WorkingDirectoryAspect::WorkingDirectoryAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Working Directory"));
     setId("WorkingDirectoryAspect");
     setSettingsKey("RunConfiguration.WorkingDirectory");
+}
+
+void WorkingDirectoryAspect::setMacroExpander(const MacroExpander *expander)
+{
+    m_macroExpander = expander;
+}
+
+void WorkingDirectoryAspect::setEnvironment(EnvironmentAspect *envAspect)
+{
+    m_envAspect = envAspect;
 }
 
 /*!
@@ -204,7 +214,7 @@ void WorkingDirectoryAspect::resetPath()
 /*!
     \reimp
 */
-void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
+void WorkingDirectoryAspect::fromMap(const Store &map)
 {
     m_workingDirectory = FilePath::fromString(map.value(settingsKey()).toString());
     m_defaultWorkingDirectory = FilePath::fromString(map.value(settingsKey() + ".default").toString());
@@ -219,7 +229,7 @@ void WorkingDirectoryAspect::fromMap(const QVariantMap &map)
 /*!
     \reimp
 */
-void WorkingDirectoryAspect::toMap(QVariantMap &data) const
+void WorkingDirectoryAspect::toMap(Store &data) const
 {
     const QString wd = m_workingDirectory == m_defaultWorkingDirectory
         ? QString() : m_workingDirectory.toString();
@@ -297,8 +307,8 @@ PathChooser *WorkingDirectoryAspect::pathChooser() const
     arguments for an executable.
 */
 
-ArgumentsAspect::ArgumentsAspect(const MacroExpander *macroExpander)
-    : m_macroExpander(macroExpander)
+ArgumentsAspect::ArgumentsAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Arguments"));
     setId("ArgumentsAspect");
@@ -307,6 +317,11 @@ ArgumentsAspect::ArgumentsAspect(const MacroExpander *macroExpander)
     addDataExtractor(this, &ArgumentsAspect::arguments, &Data::arguments);
 
     m_labelText = Tr::tr("Command line arguments:");
+}
+
+void ArgumentsAspect::setMacroExpander(const MacroExpander *expander)
+{
+    m_macroExpander = expander;
 }
 
 /*!
@@ -382,7 +397,7 @@ void ArgumentsAspect::resetArguments()
 /*!
     \reimp
 */
-void ArgumentsAspect::fromMap(const QVariantMap &map)
+void ArgumentsAspect::fromMap(const Store &map)
 {
     QVariant args = map.value(settingsKey());
     // Until 3.7 a QStringList was stored for Remote Linux
@@ -404,7 +419,7 @@ void ArgumentsAspect::fromMap(const QVariantMap &map)
 /*!
     \reimp
 */
-void ArgumentsAspect::toMap(QVariantMap &map) const
+void ArgumentsAspect::toMap(Store &map) const
 {
     saveToMap(map, m_arguments, QString(), settingsKey());
     saveToMap(map, m_multiLine, false, settingsKey() + ".multi");
@@ -495,18 +510,16 @@ void ArgumentsAspect::addToLayout(LayoutItem &builder)
     by the build system's parsing results with an optional manual override.
 */
 
-ExecutableAspect::ExecutableAspect(Target *target, ExecutionDeviceSelector selector)
-    : m_target(target), m_selector(selector)
+ExecutableAspect::ExecutableAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Executable"));
     setId("ExecutableAspect");
+    setReadOnly(true);
     addDataExtractor(this, &ExecutableAspect::executable, &Data::executable);
 
     m_executable.setPlaceHolderText(Tr::tr("Enter the path to the executable"));
     m_executable.setLabelText(Tr::tr("Executable:"));
-    m_executable.setDisplayStyle(StringAspect::LabelDisplay);
-
-    updateDevice();
 
     connect(&m_executable, &StringAspect::changed, this, &ExecutableAspect::changed);
 }
@@ -533,8 +546,11 @@ ExecutableAspect::~ExecutableAspect()
     m_alternativeExecutable = nullptr;
 }
 
-void ExecutableAspect::updateDevice()
+void ExecutableAspect::setDeviceSelector(Target *target, ExecutionDeviceSelector selector)
 {
+    m_target = target;
+    m_selector = selector;
+
     const IDevice::ConstPtr dev = executionDevice(m_target, m_selector);
     const OsType osType = dev ? dev->osType() : HostOsInfo::hostOs();
 
@@ -548,7 +564,7 @@ void ExecutableAspect::updateDevice()
 
    \sa Utils::PathChooser::setHistoryCompleter()
 */
-void ExecutableAspect::setHistoryCompleter(const QString &historyCompleterKey)
+void ExecutableAspect::setHistoryCompleter(const Key &historyCompleterKey)
 {
     m_executable.setHistoryCompleter(historyCompleterKey);
     if (m_alternativeExecutable)
@@ -579,14 +595,9 @@ void ExecutableAspect::setEnvironment(const Environment &env)
         m_alternativeExecutable->setEnvironment(env);
 }
 
-/*!
-   Sets the display \a style for aspect.
-
-   \sa Utils::StringAspect::setDisplayStyle()
-*/
-void ExecutableAspect::setDisplayStyle(StringAspect::DisplayStyle style)
+void ExecutableAspect::setReadOnly(bool readOnly)
 {
-    m_executable.setDisplayStyle(style);
+    m_executable.setReadOnly(readOnly);
 }
 
 /*!
@@ -598,14 +609,13 @@ void ExecutableAspect::setDisplayStyle(StringAspect::DisplayStyle style)
 
    \sa Utils::StringAspect::makeCheckable()
 */
-void ExecutableAspect::makeOverridable(const QString &overridingKey, const QString &useOverridableKey)
+void ExecutableAspect::makeOverridable(const Key &overridingKey, const Key &useOverridableKey)
 {
     QTC_ASSERT(!m_alternativeExecutable, return);
-    m_alternativeExecutable = new StringAspect;
-    m_alternativeExecutable->setDisplayStyle(StringAspect::LineEditDisplay);
+    m_alternativeExecutable = new FilePathAspect;
     m_alternativeExecutable->setLabelText(Tr::tr("Alternate executable on device:"));
     m_alternativeExecutable->setSettingsKey(overridingKey);
-    m_alternativeExecutable->makeCheckable(StringAspect::CheckBoxPlacement::Right,
+    m_alternativeExecutable->makeCheckable(CheckBoxPlacement::Right,
                                            Tr::tr("Use this command instead"), useOverridableKey);
     connect(m_alternativeExecutable, &StringAspect::changed,
             this, &ExecutableAspect::changed);
@@ -621,8 +631,8 @@ void ExecutableAspect::makeOverridable(const QString &overridingKey, const QStri
 FilePath ExecutableAspect::executable() const
 {
     FilePath exe = m_alternativeExecutable && m_alternativeExecutable->isChecked()
-            ? m_alternativeExecutable->filePath()
-            : m_executable.filePath();
+            ? (*m_alternativeExecutable)()
+            : m_executable();
 
     if (const IDevice::ConstPtr dev = executionDevice(m_target, m_selector))
         exe = dev->rootPath().withNewMappedPath(exe);
@@ -667,14 +677,14 @@ void ExecutableAspect::setPlaceHolderText(const QString &placeHolderText)
 */
 void ExecutableAspect::setExecutable(const FilePath &executable)
 {
-   m_executable.setFilePath(executable);
+   m_executable.setValue(executable);
    m_executable.setShowToolTipOnLabel(true);
 }
 
 /*!
     Sets the settings key to \a key.
 */
-void ExecutableAspect::setSettingsKey(const QString &key)
+void ExecutableAspect::setSettingsKey(const Key &key)
 {
     BaseAspect::setSettingsKey(key);
     m_executable.setSettingsKey(key);
@@ -683,7 +693,7 @@ void ExecutableAspect::setSettingsKey(const QString &key)
 /*!
   \reimp
 */
-void ExecutableAspect::fromMap(const QVariantMap &map)
+void ExecutableAspect::fromMap(const Store &map)
 {
     m_executable.fromMap(map);
     if (m_alternativeExecutable)
@@ -693,7 +703,7 @@ void ExecutableAspect::fromMap(const QVariantMap &map)
 /*!
    \reimp
 */
-void ExecutableAspect::toMap(QVariantMap &map) const
+void ExecutableAspect::toMap(Store &map) const
 {
     m_executable.toMap(map);
     if (m_alternativeExecutable)
@@ -713,7 +723,8 @@ void ExecutableAspect::toMap(QVariantMap &map) const
     on Windows and LD_LIBRARY_PATH everywhere else.
 */
 
-UseLibraryPathsAspect::UseLibraryPathsAspect()
+UseLibraryPathsAspect::UseLibraryPathsAspect(AspectContainer *container)
+    : BoolAspect(container)
 {
     setId("UseLibraryPath");
     setSettingsKey("RunConfiguration.UseLibrarySearchPath");
@@ -738,7 +749,8 @@ UseLibraryPathsAspect::UseLibraryPathsAspect()
     DYLD_IMAGE_SUFFIX environment variable should be used on Mac.
 */
 
-UseDyldSuffixAspect::UseDyldSuffixAspect()
+UseDyldSuffixAspect::UseDyldSuffixAspect(AspectContainer *container)
+    : BoolAspect(container)
 {
     setId("UseDyldSuffix");
     setSettingsKey("RunConfiguration.UseDyldImageSuffix");
@@ -754,7 +766,8 @@ UseDyldSuffixAspect::UseDyldSuffixAspect()
     application should run with root permissions.
 */
 
-RunAsRootAspect::RunAsRootAspect()
+RunAsRootAspect::RunAsRootAspect(AspectContainer *container)
+    : BoolAspect(container)
 {
     setId("RunAsRoot");
     setSettingsKey("RunConfiguration.RunAsRoot");
@@ -783,7 +796,8 @@ Interpreter::Interpreter(const QString &_id,
     to use with files or projects using an interpreted language.
 */
 
-InterpreterAspect::InterpreterAspect()
+InterpreterAspect::InterpreterAspect(AspectContainer *container)
+    : BaseAspect(container)
 {
     addDataExtractor(this, &InterpreterAspect::currentInterpreter, &Data::interpreter);
 }
@@ -795,6 +809,8 @@ Interpreter InterpreterAspect::currentInterpreter() const
 
 void InterpreterAspect::updateInterpreters(const QList<Interpreter> &interpreters)
 {
+    if (m_interpreters == interpreters)
+        return;
     m_interpreters = interpreters;
     if (m_comboBox)
         updateComboBox();
@@ -802,9 +818,11 @@ void InterpreterAspect::updateInterpreters(const QList<Interpreter> &interpreter
 
 void InterpreterAspect::setDefaultInterpreter(const Interpreter &interpreter)
 {
+    if (m_defaultId == interpreter.id)
+        return;
     m_defaultId = interpreter.id;
     if (m_currentId.isEmpty())
-        m_currentId = m_defaultId;
+        setCurrentInterpreter(interpreter);
 }
 
 void InterpreterAspect::setCurrentInterpreter(const Interpreter &interpreter)
@@ -815,17 +833,16 @@ void InterpreterAspect::setCurrentInterpreter(const Interpreter &interpreter)
             return;
         m_comboBox->setCurrentIndex(index);
     } else {
-        m_currentId = interpreter.id;
+        setCurrentInterpreterId(interpreter.id);
     }
-    emit changed();
 }
 
-void InterpreterAspect::fromMap(const QVariantMap &map)
+void InterpreterAspect::fromMap(const Store &map)
 {
-    m_currentId = map.value(settingsKey(), m_defaultId).toString();
+    setCurrentInterpreterId(map.value(settingsKey(), m_defaultId).toString());
 }
 
-void InterpreterAspect::toMap(QVariantMap &map) const
+void InterpreterAspect::toMap(Store &map) const
 {
     if (m_currentId != m_defaultId)
         saveToMap(map, m_currentId, QString(), settingsKey());
@@ -841,11 +858,19 @@ void InterpreterAspect::addToLayout(LayoutItem &builder)
             this, &InterpreterAspect::updateCurrentInterpreter);
 
     auto manageButton = new QPushButton(Tr::tr("Manage..."));
-    connect(manageButton, &QPushButton::clicked, [this] {
+    connect(manageButton, &QPushButton::clicked, this, [this] {
         Core::ICore::showOptionsDialog(m_settingsDialogId);
     });
 
     builder.addItems({Tr::tr("Interpreter:"), m_comboBox.data(), manageButton});
+}
+
+void InterpreterAspect::setCurrentInterpreterId(const QString &id)
+{
+    if (id == m_currentId)
+        return;
+    m_currentId = id;
+    emit changed();
 }
 
 void InterpreterAspect::updateCurrentInterpreter()
@@ -854,9 +879,8 @@ void InterpreterAspect::updateCurrentInterpreter()
     if (index < 0)
         return;
     QTC_ASSERT(index < m_interpreters.size(), return);
-    m_currentId = m_interpreters[index].id;
     m_comboBox->setToolTip(m_interpreters[index].command.toUserOutput());
-    emit changed();
+    setCurrentInterpreterId(m_interpreters[index].id);
 }
 
 void InterpreterAspect::updateComboBox()
@@ -893,8 +917,8 @@ static QString defaultDisplay()
     return qtcEnvironmentVariable("DISPLAY");
 }
 
-X11ForwardingAspect::X11ForwardingAspect(const MacroExpander *expander)
-    : m_macroExpander(expander)
+X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
+    : StringAspect(container)
 {
     setLabelText(Tr::tr("X11 Forwarding:"));
     setDisplayStyle(LineEditDisplay);
@@ -907,10 +931,33 @@ X11ForwardingAspect::X11ForwardingAspect(const MacroExpander *expander)
     addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
 }
 
+void X11ForwardingAspect::setMacroExpander(const MacroExpander *expander)
+{
+   m_macroExpander = expander;
+}
+
 QString X11ForwardingAspect::display() const
 {
     QTC_ASSERT(m_macroExpander, return value());
     return !isChecked() ? QString() : m_macroExpander->expandProcessArgs(value());
 }
+
+
+/*!
+    \class ProjectExplorer::SymbolFileAspect
+    \inmodule QtCreator
+
+    \brief The SymbolFileAspect class lets a user specify a symbol file
+     for debugging.
+*/
+
+
+SymbolFileAspect::SymbolFileAspect(AspectContainer *container)
+    : FilePathAspect(container)
+{}
+
+MainScriptAspect::MainScriptAspect(AspectContainer *container)
+    : FilePathAspect(container)
+{}
 
 } // namespace ProjectExplorer

@@ -5,6 +5,7 @@
 
 #include <utils/basetreeview.h>
 #include <utils/treemodel.h>
+#include <utils/store.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -23,8 +24,8 @@ public:
     int index = 0;
     int cpuDllIndex = 0;
 
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     bool operator==(const DriverSelection &other) const;
 };

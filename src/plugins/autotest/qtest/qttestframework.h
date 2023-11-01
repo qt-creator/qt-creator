@@ -5,25 +5,39 @@
 
 #include "../itestframework.h"
 
-#include "qttestsettings.h"
-
 namespace Autotest::Internal {
+
+enum MetricsType
+{
+    Walltime,
+    TickCounter,
+    EventCounter,
+    CallGrind,
+    Perf
+};
 
 class QtTestFramework : public ITestFramework
 {
 public:
-    QtTestFramework() : ITestFramework(true) {}
+    QtTestFramework();
+
+    static QString metricsTypeToOption(const MetricsType type);
+
+    Utils::SelectionAspect metrics{this};
+    Utils::BoolAspect noCrashHandler{this};
+    Utils::BoolAspect useXMLOutput{this};
+    Utils::BoolAspect verboseBench{this};
+    Utils::BoolAspect logSignalsSlots{this};
+    Utils::BoolAspect limitWarnings{this};
+    Utils::IntegerAspect maxWarnings{this};
+    Utils::BoolAspect quickCheckForDerivedTests{this};
 
     QStringList testNameForSymbolName(const QString &symbolName) const override;
-private:
-    const char *name() const override;
-    QString displayName() const override;
-    unsigned priority() const override;
+
     ITestParser *createTestParser() override;
     ITestTreeItem *createRootNode() override;
-    ITestSettings *testSettings() override { return &m_settings; }
-
-    QtTestSettings m_settings{settingsId()};
 };
+
+QtTestFramework &theQtTestFramework();
 
 } // Autotest::Internal

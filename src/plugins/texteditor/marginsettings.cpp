@@ -3,17 +3,17 @@
 
 #include "marginsettings.h"
 
-#include <QSettings>
-#include <QString>
-#include <QVariantMap>
+#include <utils/qtcsettings.h>
 
-static const char showWrapColumnKey[] = "ShowMargin";
-static const char wrapColumnKey[] = "MarginColumn";
-static const char groupPostfix[] = "textMarginSettings";
-static const char useIndenterColumnKey[] = "UseIndenter";
-static const char tintMarginAreaColumnKey[] = "tintMarginArea";
+using namespace Utils;
 
-using namespace TextEditor;
+namespace TextEditor {
+
+const char showWrapColumnKey[] = "ShowMargin";
+const char wrapColumnKey[] = "MarginColumn";
+const char groupPostfix[] = "textMarginSettings";
+const char useIndenterColumnKey[] = "UseIndenter";
+const char tintMarginAreaColumnKey[] = "tintMarginArea";
 
 MarginSettings::MarginSettings()
     : m_showMargin(false)
@@ -23,29 +23,29 @@ MarginSettings::MarginSettings()
 {
 }
 
-void MarginSettings::toSettings(QSettings *s) const
+void MarginSettings::toSettings(QtcSettings *s) const
 {
     s->beginGroup(groupPostfix);
-    s->setValue(QLatin1String(showWrapColumnKey), m_showMargin);
-    s->setValue(QLatin1String(tintMarginAreaColumnKey), m_tintMarginArea);
-    s->setValue(QLatin1String(useIndenterColumnKey), m_useIndenter);
-    s->setValue(QLatin1String(wrapColumnKey), m_marginColumn);
+    s->setValue(showWrapColumnKey, m_showMargin);
+    s->setValue(tintMarginAreaColumnKey, m_tintMarginArea);
+    s->setValue(useIndenterColumnKey, m_useIndenter);
+    s->setValue(wrapColumnKey, m_marginColumn);
     s->endGroup();
 }
 
-void MarginSettings::fromSettings(QSettings *s)
+void MarginSettings::fromSettings(QtcSettings *s)
 {
     s->beginGroup(groupPostfix);
     *this = MarginSettings(); // Assign defaults
 
-    m_showMargin = s->value(QLatin1String(showWrapColumnKey), m_showMargin).toBool();
-    m_tintMarginArea = s->value(QLatin1String(tintMarginAreaColumnKey), m_tintMarginArea).toBool();
-    m_useIndenter = s->value(QLatin1String(useIndenterColumnKey), m_useIndenter).toBool();
-    m_marginColumn = s->value(QLatin1String(wrapColumnKey), m_marginColumn).toInt();
+    m_showMargin = s->value(showWrapColumnKey, m_showMargin).toBool();
+    m_tintMarginArea = s->value(tintMarginAreaColumnKey, m_tintMarginArea).toBool();
+    m_useIndenter = s->value(useIndenterColumnKey, m_useIndenter).toBool();
+    m_marginColumn = s->value(wrapColumnKey, m_marginColumn).toInt();
     s->endGroup();
 }
 
-QVariantMap MarginSettings::toMap() const
+Store MarginSettings::toMap() const
 {
     return {
         {tintMarginAreaColumnKey, m_tintMarginArea},
@@ -55,7 +55,7 @@ QVariantMap MarginSettings::toMap() const
     };
 }
 
-void MarginSettings::fromMap(const QVariantMap &map)
+void MarginSettings::fromMap(const Store &map)
 {
     m_showMargin = map.value(showWrapColumnKey, m_showMargin).toBool();
     m_tintMarginArea = map.value(tintMarginAreaColumnKey, m_tintMarginArea).toBool();
@@ -71,3 +71,5 @@ bool MarginSettings::equals(const MarginSettings &other) const
         && m_marginColumn == other.m_marginColumn
         ;
 }
+
+} // TextEditor

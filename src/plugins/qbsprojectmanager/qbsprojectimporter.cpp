@@ -10,13 +10,14 @@
 #include <coreplugin/documentmanager.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
+#include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 
@@ -100,10 +101,8 @@ FilePaths QbsProjectImporter::importCandidates()
     for (Kit * const k : kits) {
         FilePath bdir = buildDir(projectFilePath(), k);
         const FilePath candidate = bdir.absolutePath();
-        if (!seenCandidates.contains(candidate)) {
-            seenCandidates.insert(candidate);
+        if (Utils::insert(seenCandidates, candidate))
             candidates << candidatesForDirectory(candidate);
-        }
     }
     qCDebug(qbsPmLog) << "build directory candidates:" << candidates;
     return candidates;

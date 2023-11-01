@@ -100,6 +100,7 @@ static void setupPreregisteredOsFlavors() {
                                                      Abi::OS::UnixOS,
                                                      Abi::OS::QnxOS,
                                                      Abi::OS::BareMetalOS});
+    registerOsFlavor(Abi::PokyFlavor, "poky", {Abi::OS::LinuxOS});
     registerOsFlavor(Abi::UnknownFlavor, "unknown", {Abi::OS::BsdOS,
                                                      Abi::OS::LinuxOS,
                                                      Abi::OS::DarwinOS,
@@ -196,7 +197,7 @@ static Abi macAbiForCpu(quint32 type) {
     case 0x01000000 + 12: // CPU_TYPE_ARM64
         return Abi(Abi::ArmArchitecture, Abi::DarwinOS, Abi::GenericFlavor, Abi::MachOFormat, 64);
     default:
-        return Abi();
+        return {};
     }
 }
 
@@ -451,7 +452,7 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
 {
     const QString machine = triple.toLower();
     if (machine.isEmpty())
-        return Abi();
+        return {};
 
     const QStringList parts = machine.split(QRegularExpression("[ /-]"));
 
@@ -618,6 +619,9 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             width = 32;
         } else if (p.startsWith("asmjs")) {
             arch = AsmJsArchitecture;
+        } else if (p == "poky") {
+            os = LinuxOS;
+            flavor = PokyFlavor;
         } else if (p == "none") {
             os = BareMetalOS;
             flavor = GenericFlavor;
@@ -873,7 +877,7 @@ Abi Abi::fromString(const QString &abiString)
     if (!abiParts.isEmpty()) {
         architecture = architectureFromString(abiParts.at(0));
         if (abiParts.at(0) != toString(architecture))
-            return Abi();
+            return {};
     }
 
     Abi::OS os = UnknownOS;

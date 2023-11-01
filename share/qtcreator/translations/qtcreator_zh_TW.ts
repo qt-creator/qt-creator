@@ -32,7 +32,7 @@
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>新增書籤</translation>
@@ -6472,19 +6472,19 @@ Add, modify, and remove document filters, which determine the documentation set 
         <translation>工作階段管理器</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>新增(&amp;N)</translation>
+        <source>&amp;New...</source>
+        <translation>新增(&amp;N)...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>重新命名(&amp;R)</translation>
+        <source>&amp;Rename...</source>
+        <translation>重新命名(&amp;R)...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>複製(&amp;L)</translation>
+        <source>C&amp;lone...</source>
+        <translation>複製(&amp;L)...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
+        <source>&amp;Delete...</source>
         <translation>刪除(&amp;D)</translation>
     </message>
     <message>
@@ -13569,8 +13569,8 @@ Requires &lt;b&gt;Qt 4.7.4&lt;/b&gt; or newer.</source>
         <translation>無法啟動 &apos;%1&apos;：%2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &apos;%1&apos;</source>
-        <translation>執行 &apos;%1&apos; 發生逾時</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>執行 &apos;%1&apos; 發生逾時。</translation>
     </message>
     <message>
         <source>&apos;%1&apos; crashed.</source>
@@ -25151,10 +25151,6 @@ Specifies how backspace interacts with indentation.
         <translation>編輯...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>移除</translation>
-    </message>
-    <message>
         <source>Export...</source>
         <translation>匯出...</translation>
     </message>
@@ -25243,10 +25239,6 @@ Specifies how backspace interacts with indentation.
     <message>
         <source>Group: </source>
         <translation>群組：</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>新增</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -28363,7 +28355,7 @@ Please choose a valid package name for your application (e.g. &quot;org.example.
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation type="unfinished"></translation>

@@ -3,9 +3,10 @@
 
 #pragma once
 
-#include <coreplugin/minisplitter.h>
+#include "minisplitter.h"
 
 #include <utils/id.h>
+#include <utils/store.h>
 
 #include <QHash>
 
@@ -69,9 +70,9 @@ public:
 
     void setFactories(const QList<INavigationWidgetFactory*> &factories);
 
-    QString settingsGroup() const;
+    Utils::Key settingsGroup() const;
     void saveSettings(Utils::QtcSettings *settings);
-    void restoreSettings(QSettings *settings);
+    void restoreSettings(Utils::QtcSettings *settings);
 
     QWidget *activateSubWidget(Utils::Id factoryId, int preferredPosition);
     void closeSubWidgets();
@@ -96,9 +97,11 @@ protected:
 private:
     void closeSubWidget(Internal::NavigationSubWidget *subWidget);
     void updateToggleText();
-    Internal::NavigationSubWidget *insertSubItem(int position, int factoryIndex);
+    Internal::NavigationSubWidget *insertSubItem(int position,
+                                                 int factoryIndex,
+                                                 bool updateActivationsMap = true);
     int factoryIndex(Utils::Id id);
-    QString settingsKey(const QString &key) const;
+    Utils::Key settingsKey(const Utils::Key &key) const;
 
     NavigationWidgetPrivate *d;
 };

@@ -7,12 +7,10 @@
 #include "debuggerruncontrol.h"
 #include "debuggertr.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/sshparameters.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
@@ -30,6 +28,7 @@
 #include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QPushButton>
@@ -87,8 +86,8 @@ class StartApplicationParameters
 public:
     QString displayName() const;
     bool equals(const StartApplicationParameters &rhs) const;
-    void toSettings(QSettings *) const;
-    void fromSettings(const QSettings *settings);
+    void toSettings(QtcSettings *) const;
+    void fromSettings(const QtcSettings *settings);
 
     bool operator==(const StartApplicationParameters &p) const { return equals(p); }
     bool operator!=(const StartApplicationParameters &p) const { return !equals(p); }
@@ -96,7 +95,7 @@ public:
     Id kitId;
     uint serverPort;
     QString serverAddress;
-    Runnable runnable;
+    ProcessRunData runnable;
     bool breakAtMain = false;
     bool runInTerminal = false;
     bool useTargetExtendedRemote = false;
@@ -141,7 +140,7 @@ QString StartApplicationParameters::displayName() const
     return name;
 }
 
-void StartApplicationParameters::toSettings(QSettings *settings) const
+void StartApplicationParameters::toSettings(QtcSettings *settings) const
 {
     settings->setValue("LastKitId", kitId.toSetting());
     settings->setValue("LastServerPort", serverPort);
@@ -158,7 +157,7 @@ void StartApplicationParameters::toSettings(QSettings *settings) const
     settings->setValue("LastSysRoot", sysRoot.toSettings());
 }
 
-void StartApplicationParameters::fromSettings(const QSettings *settings)
+void StartApplicationParameters::fromSettings(const QtcSettings *settings)
 {
     kitId = Id::fromSetting(settings->value("LastKitId"));
     serverPort = settings->value("LastServerPort").toUInt();
@@ -291,8 +290,11 @@ StartApplicationDialog::StartApplicationDialog(QWidget *parent)
     verticalLayout->addWidget(Layouting::createHr());
     verticalLayout->addWidget(d->buttonBox);
 
-    connect(d->localExecutablePathChooser, &PathChooser::rawPathChanged,
-            this, &StartApplicationDialog::updateState);
+    connect(d->localExecutablePathChooser,
+            &PathChooser::validChanged,
+            this,
+            &StartApplicationDialog::updateState);
+
     connect(d->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(d->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(d->historyComboBox, &QComboBox::currentIndexChanged,
@@ -342,11 +344,11 @@ void StartApplicationDialog::updateState()
 
 void StartApplicationDialog::run(bool attachRemote)
 {
-    const QString settingsGroup = "DebugMode";
+    const Key settingsGroup = "DebugMode";
     const QString arrayName = "StartApplication";
 
     QList<StartApplicationParameters> history;
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     settings->beginGroup(settingsGroup);
     if (const int arraySize = settings->beginReadArray(arrayName)) {
         for (int i = 0; i < arraySize; ++i) {
@@ -400,7 +402,7 @@ void StartApplicationDialog::run(bool attachRemote)
     }
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
-    Runnable inferior = newParameters.runnable;
+    ProcessRunData inferior = newParameters.runnable;
     const QString inputAddress = dialog.d->channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
         debugger->setRemoteChannel(inputAddress);
@@ -563,15 +565,18 @@ static QString cdbRemoteHelp()
 
     const QString ext32 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(false));
     const QString ext64 = QDir::toNativeSeparators(CdbEngine::extensionLibraryName(true));
-    return  Tr::tr(
-                "<html><body><p>The remote CDB needs to load the matching %1 CDB extension "
-                "(<code>%2</code> or <code>%3</code>, respectively).</p><p>Copy it onto the remote machine and set the "
-                "environment variable <code>%4</code> to point to its folder.</p><p>"
-                "Launch the remote CDB as <code>%5 &lt;executable&gt;</code> "
-                "to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
-                "<pre>%6</pre></body></html>")
-            .arg(QString(Core::Constants::IDE_DISPLAY_NAME),
-                 ext32, ext64, QString("_NT_DEBUGGER_EXTENSION_PATH"),
+    return Tr::
+        tr("<html><body><p>The remote CDB needs to load the matching %1 CDB extension "
+           "(<code>%2</code> or <code>%3</code>, respectively).</p><p>Copy it onto the remote "
+           "machine and set the "
+           "environment variable <code>%4</code> to point to its folder.</p><p>"
+           "Launch the remote CDB as <code>%5 &lt;executable&gt;</code> "
+           "to use TCP/IP as communication protocol.</p><p>Enter the connection parameters as:</p>"
+           "<pre>%6</pre></body></html>")
+            .arg(QGuiApplication::applicationDisplayName(),
+                 ext32,
+                 ext64,
+                 QString("_NT_DEBUGGER_EXTENSION_PATH"),
                  QString("cdb.exe -server tcp:port=1234"),
                  QString(cdbConnectionSyntax));
 }

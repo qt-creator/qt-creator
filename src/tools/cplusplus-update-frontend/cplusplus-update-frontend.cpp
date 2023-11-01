@@ -126,7 +126,7 @@ static ASTNodes astNodes;
 static QTextCursor createCursor(TranslationUnit *unit, AST *ast, QTextDocument *document)
 {
     int startLine, startColumn, endLine, endColumn;
-    unit->getTokenStartPosition(ast->firstToken(), &startLine, &startColumn);
+    unit->getTokenPosition(ast->firstToken(), &startLine, &startColumn);
     unit->getTokenEndPosition(ast->lastToken() - 1, &endLine, &endColumn);
 
     QTextCursor tc(document);
@@ -1058,7 +1058,7 @@ void generateAST_cpp(const Snapshot &snapshot, const QDir &cplusplusDir)
                     QTextCursor cursor(&cpp_document);
 
                     int line = 0, column = 0;
-                    AST_cpp_document->translationUnit()->getTokenStartPosition(funDef->firstToken(), &line, &column);
+                    AST_cpp_document->translationUnit()->getTokenPosition(funDef->firstToken(), &line, &column);
                     const int start = cpp_document.findBlockByNumber(line - 1).position() + column - 1;
                     cursor.setPosition(start);
                     int doxyStart = start;
@@ -1606,7 +1606,7 @@ int main(int argc, char *argv[])
     }
 
     QDir cplusplusDir(pathCppFrontend);
-    if (!QFile::exists(pathCppFrontend)) {
+    if (!QFileInfo::exists(pathCppFrontend)) {
         std::cerr << "Error: Directory \"" << qPrintable(cplusplusDir.absolutePath())
                   << "\" does not exist." << std::endl;
         return EXIT_FAILURE;
@@ -1616,7 +1616,7 @@ int main(int argc, char *argv[])
                   << "\"." << std::endl;
         return EXIT_FAILURE;
     }
-    if (!QFile::exists(pathDumpersFile)) {
+    if (!QFileInfo::exists(pathDumpersFile)) {
         std::cerr << "Error: File \"" << qPrintable(pathDumpersFile)
                   << "\" does not exist." << std::endl;
         return EXIT_FAILURE;

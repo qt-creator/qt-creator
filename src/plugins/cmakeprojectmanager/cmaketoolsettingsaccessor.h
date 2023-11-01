@@ -5,6 +5,7 @@
 
 #include <utils/id.h>
 #include <utils/settingsaccessor.h>
+#include <utils/store.h>
 
 namespace CMakeProjectManager {
 
@@ -29,7 +30,7 @@ public:
                         QWidget *parent);
 
 private:
-    CMakeTools cmakeTools(const QVariantMap &data, bool fromSdk) const;
+    CMakeTools cmakeTools(const Utils::Store &data, bool fromSdk) const;
 };
 
 } // namespace Internal

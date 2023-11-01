@@ -24,6 +24,7 @@ class TopicChooser : public QDialog
 public:
     TopicChooser(QWidget *parent, const QString &keyword,
         const QMultiMap<QString, QUrl> &links);
+    ~TopicChooser() override;
 
     QUrl link() const;
 

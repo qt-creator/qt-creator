@@ -1,13 +1,7 @@
-if (NOT IS_ABSOLUTE ${IDE_LOGO_PATH})
-  set(IDE_LOGO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${IDE_LOGO_PATH}")
-endif()
-configure_file(core_logo.qrc.cmakein core_logo_cmake.qrc)
-
 add_qtc_plugin(Core
-  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate
-  PUBLIC_DEPENDS Aggregation ExtensionSystem Utils app_version
+  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate TerminalLib
+  PUBLIC_DEPENDS Aggregation ExtensionSystem Utils
   SOURCES
-    ${CMAKE_CURRENT_BINARY_DIR}/core_logo_cmake.qrc
     actionmanager/actioncontainer.cpp
     actionmanager/actioncontainer.h
     actionmanager/actioncontainer_p.h
@@ -92,8 +86,6 @@ add_qtc_plugin(Core
     editormanager/ieditorfactory.cpp
     editormanager/ieditorfactory.h
     editormanager/ieditorfactory_p.h
-    editormanager/iexternaleditor.cpp
-    editormanager/iexternaleditor.h
     editormanager/openeditorsview.cpp
     editormanager/openeditorsview.h
     editormanager/openeditorswindow.cpp
@@ -217,12 +209,8 @@ add_qtc_plugin(Core
     locator/spotlightlocatorfilter.h
     locator/urllocatorfilter.cpp
     locator/urllocatorfilter.h
-    loggingmanager.cpp
-    loggingmanager.h
     loggingviewer.cpp
     loggingviewer.h
-    mainwindow.cpp
-    mainwindow.h
     manhattanstyle.cpp
     manhattanstyle.h
     messagebox.cpp
@@ -274,7 +262,6 @@ add_qtc_plugin(Core
     rightpane.h
     session.cpp
     session.h
-    session_p.h
     sessiondialog.cpp
     sessiondialog.h
     sessionmodel.cpp
@@ -291,6 +278,8 @@ add_qtc_plugin(Core
     statusbarmanager.h
     systemsettings.cpp
     systemsettings.h
+    terminal/searchableterminal.cpp
+    terminal/searchableterminal.h
     textdocument.cpp
     textdocument.h
     themechooser.cpp
@@ -342,16 +331,6 @@ extend_qtc_plugin(Core
   CONDITION BUILD_WITH_CRASHPAD
   DEFINES ENABLE_CRASHPAD
 )
-
-if ((NOT WIN32) AND (NOT APPLE))
-  # install logo
-  foreach(size 16 24 32 48 64 128 256 512)
-    install(
-      FILES ${IDE_LOGO_PATH}/images/logo/${size}/QtProject-qtcreator.png
-      DESTINATION share/icons/hicolor/${size}x${size}/apps
-    )
-  endforeach()
-endif()
 
 set(FONTS_BASE "${QtCreator_SOURCE_DIR}/src/share/3rdparty/studiofonts/")
 qt_add_resources(Core

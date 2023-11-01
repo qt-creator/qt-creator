@@ -15,8 +15,7 @@ class CPPEDITOR_EXPORT GeneratedCodeModelSupport : public AbstractEditorSupport
     Q_OBJECT
 
 public:
-    GeneratedCodeModelSupport(CppModelManager *modelmanager,
-                              ProjectExplorer::ExtraCompiler *generator,
+    GeneratedCodeModelSupport(ProjectExplorer::ExtraCompiler *generator,
                               const Utils::FilePath &generatedFile);
     ~GeneratedCodeModelSupport() override;
 

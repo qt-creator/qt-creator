@@ -609,7 +609,7 @@ QList<AssistProposalItemInterface *> ClangdCompletionAssistProcessor::generateCo
     if (!doc || pos < 0 || !Utils::anyOf(items, criterion))
         return itemGenerator(items);
     const QString content = doc->toPlainText();
-    const bool requiresSignal = CppModelManager::instance()->getSignalSlotType(
+    const bool requiresSignal = CppModelManager::getSignalSlotType(
                 filePath(), content.toUtf8(), pos)
             == SignalSlotType::NewStyleSignal;
     if (requiresSignal)
@@ -635,7 +635,7 @@ IAssistProposal *ClangdFunctionHintProcessor::perform()
 ClangdCompletionCapabilities::ClangdCompletionCapabilities(const JsonObject &object)
     : TextDocumentClientCapabilities::CompletionCapabilities(object)
 {
-    insert(u"editsNearCursor", true); // For dot-to-arrow correction.
+    insert("editsNearCursor", true); // For dot-to-arrow correction.
     if (std::optional<CompletionItemCapbilities> completionItemCaps = completionItem()) {
         completionItemCaps->setSnippetSupport(false);
         setCompletionItem(*completionItemCaps);

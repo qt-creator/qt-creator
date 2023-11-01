@@ -10,41 +10,43 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+using namespace ProjectExplorer;
+using namespace Utils;
 
-MesonProjectNode::MesonProjectNode(const Utils::FilePath &directory)
-    : ProjectExplorer::ProjectNode{directory}
+namespace MesonProjectManager::Internal {
+
+MesonProjectNode::MesonProjectNode(const FilePath &directory)
+    : ProjectNode(directory)
 {
     setPriority(Node::DefaultProjectPriority + 1000);
     setIcon(Constants::Icons::MESON);
     setListInProject(false);
 }
 
-MesonFileNode::MesonFileNode(const Utils::FilePath &file)
-    : ProjectExplorer::ProjectNode{file}
+MesonFileNode::MesonFileNode(const FilePath &file)
+    : ProjectNode(file)
 {
-    setIcon(ProjectExplorer::DirectoryIcon(Constants::Icons::MESON));
+    setIcon(DirectoryIcon(Constants::Icons::MESON));
     setListInProject(true);
 }
 
-MesonTargetNode::MesonTargetNode(const Utils::FilePath &directory, const QString &name)
-    : ProjectExplorer::ProjectNode{directory}
-    , m_name{name}
+MesonTargetNode::MesonTargetNode(const FilePath &directory, const QString &name)
+    : ProjectNode(directory)
+    , m_name(name)
 {
     setPriority(Node::DefaultProjectPriority + 900);
     setIcon(":/projectexplorer/images/build.png");
     setListInProject(false);
     setShowWhenEmpty(true);
-    setProductType(ProjectExplorer::ProductType::Other);
+    setProductType(ProductType::Other);
 }
 
 void MesonTargetNode::build()
 {
-    ProjectExplorer::Project *p = getProject();
+    Project *p = getProject();
     ProjectExplorer::Target *t = p ? p->activeTarget() : nullptr;
     if (t)
-        static_cast<MesonBuildSystem *>(t->buildSystem())->mesonBuildConfiguration()->build(m_name);
+        static_cast<MesonBuildConfiguration *>(t->buildSystem()->buildConfiguration())->build(m_name);
 }
 
 QString MesonTargetNode::tooltip() const
@@ -57,5 +59,4 @@ QString MesonTargetNode::buildKey() const
     return m_name;
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

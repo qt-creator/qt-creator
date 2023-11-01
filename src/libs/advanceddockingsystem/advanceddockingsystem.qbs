@@ -7,7 +7,7 @@ QtcLibrary {
     cpp.defines: base.concat("ADVANCEDDOCKINGSYSTEM_LIBRARY")
     cpp.includePaths: base.concat([".", linux.prefix])
 
-    Depends { name: "Qt"; submodules: ["widgets", "xml"] }
+    Depends { name: "Qt"; submodules: ["quickwidgets", "widgets", "xml"] }
     Depends { name: "Utils" }
 
     Group {

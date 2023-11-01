@@ -54,7 +54,7 @@ Scope *CanonicalSymbol::getScopeAndExpression(const QTextCursor &cursor, QString
     return m_document->scopeAt(line, column);
 }
 
-Symbol *CanonicalSymbol::operator()(const QTextCursor &cursor)
+Symbol *CanonicalSymbol::operator()(const QTextCursor &cursor) &
 {
     QString code;
 

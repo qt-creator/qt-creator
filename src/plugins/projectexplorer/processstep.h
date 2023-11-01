@@ -5,8 +5,7 @@
 
 #include "buildstep.h"
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class ProcessStepFactory final : public BuildStepFactory
 {
@@ -14,5 +13,4 @@ public:
     ProcessStepFactory();
 };
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

@@ -102,7 +102,7 @@
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Dodaj zaznamek</translation>
@@ -6752,20 +6752,20 @@ enojen »Vstopi« za oddajo signala pa vas bo privedel neposredno do ustrezne pr
         <translation>Upravljalnik sej</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Nova</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Nova...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>Pre&amp;imenuj</translation>
+        <source>&amp;Rename...</source>
+        <translation>Pre&amp;imenuj...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Podvoji</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Podvoji...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Izbriši</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Izbriši...</translation>
     </message>
     <message>
         <source>&amp;Open</source>
@@ -15893,8 +15893,8 @@ Projekte programov QML izvede pregledovalnik QML in jih ni potrebno zgraditi.</t
         <translation>Ni moč zagnati »%1«: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &apos;%1&apos;</source>
-        <translation>Med poganjanjem »%1« je potekel čas</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Med poganjanjem »%1« je potekel čas.</translation>
     </message>
     <message>
         <source>&apos;%1&apos; crashed.</source>
@@ -18440,14 +18440,6 @@ Potreben je Qt 4.7.4 ali novejši in nabor komponent za vašo različico Qt.</tr
     <message>
         <source>Group: </source>
         <translation>Skupina: </translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Dodaj</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Odstrani</translation>
     </message>
     <message>
         <source>Revert Built-in</source>

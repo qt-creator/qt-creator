@@ -10,8 +10,6 @@
 
 #include <optional>
 
-namespace CppEditor { class CppModelManager; }
-
 namespace Autotest {
 namespace Internal {
 
@@ -40,8 +38,7 @@ public:
                          const Utils::FilePath &fileName) override;
 
 private:
-    TestCases testCases(const CppEditor::CppModelManager *modelManager,
-                        const Utils::FilePath &fileName) const;
+    TestCases testCases(const Utils::FilePath &fileName) const;
     QHash<QString, QtTestCodeLocationList> checkForDataTags(const Utils::FilePath &fileName) const;
     struct TestCaseData {
         Utils::FilePath fileName;
@@ -60,6 +57,7 @@ private:
                                          const QString &projectFile) const;
     QHash<Utils::FilePath, TestCases> m_testCases;
     QMultiHash<Utils::FilePath, Utils::FilePath> m_alternativeFiles;
+    QSet<Utils::FilePath> m_prefilteredFiles;
 };
 
 } // namespace Internal

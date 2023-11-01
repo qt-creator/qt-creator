@@ -43,6 +43,8 @@ private:
 
     SemanticInfo::Source createSemanticInfoSource(bool force) const;
 
+    virtual void forceUpdate(TextEditor::TextDocument *) {}
+
 private:
     BuiltinEditorDocumentParser::Ptr m_parser;
     QFuture<void> m_parserFuture;

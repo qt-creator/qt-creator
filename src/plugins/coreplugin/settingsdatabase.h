@@ -5,48 +5,28 @@
 
 #include "core_global.h"
 
-#include <QObject>
-#include <QString>
-#include <QStringList>
 #include <QVariant>
 
-namespace Core {
+namespace Core::SettingsDatabase {
 
-namespace Internal { class SettingsDatabasePrivate; }
+CORE_EXPORT void setValue(const QString &key, const QVariant &value);
+CORE_EXPORT QVariant value(const QString &key, const QVariant &defaultValue = {});
 
-class CORE_EXPORT SettingsDatabase : public QObject
-{
-public:
-    SettingsDatabase(const QString &path, const QString &application, QObject *parent = nullptr);
-    ~SettingsDatabase() override;
+CORE_EXPORT bool contains(const QString &key);
+CORE_EXPORT void remove(const QString &key);
 
-    void setValue(const QString &key, const QVariant &value);
-    QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
+CORE_EXPORT void beginGroup(const QString &prefix);
+CORE_EXPORT void endGroup();
+CORE_EXPORT QString group();
+CORE_EXPORT QStringList childKeys();
 
-    template<typename T>
-    void setValueWithDefault(const QString &key, const T &val, const T &defaultValue);
-    template<typename T>
-    void setValueWithDefault(const QString &key, const T &val);
+CORE_EXPORT void beginTransaction();
+CORE_EXPORT void endTransaction();
 
-    bool contains(const QString &key) const;
-    void remove(const QString &key);
-
-    void beginGroup(const QString &prefix);
-    void endGroup();
-    QString group() const;
-    QStringList childKeys() const;
-
-    void beginTransaction();
-    void endTransaction();
-
-    void sync();
-
-private:
-    Internal::SettingsDatabasePrivate *d;
-};
+CORE_EXPORT void destroy();
 
 template<typename T>
-void SettingsDatabase::setValueWithDefault(const QString &key, const T &val, const T &defaultValue)
+void setValueWithDefault(const QString &key, const T &val, const T &defaultValue)
 {
     if (val == defaultValue)
         remove(key);
@@ -55,7 +35,7 @@ void SettingsDatabase::setValueWithDefault(const QString &key, const T &val, con
 }
 
 template<typename T>
-void SettingsDatabase::setValueWithDefault(const QString &key, const T &val)
+void setValueWithDefault(const QString &key, const T &val)
 {
     if (val == T())
         remove(key);
@@ -63,4 +43,4 @@ void SettingsDatabase::setValueWithDefault(const QString &key, const T &val)
         setValue(key, QVariant::fromValue(val));
 }
 
-} // namespace Core
+} // Core::SettingsDatabase

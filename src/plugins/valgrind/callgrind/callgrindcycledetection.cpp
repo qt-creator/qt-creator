@@ -5,12 +5,10 @@
 
 #include "callgrindfunction.h"
 #include "callgrindfunctioncall.h"
-#include "callgrindparsedata.h"
 #include "callgrindfunctioncycle.h"
+#include "callgrindparsedata.h"
 
 #include <utils/qtcassert.h>
-
-#include <QDebug>
 
 namespace Valgrind::Callgrind::Internal {
 
@@ -19,7 +17,7 @@ CycleDetection::CycleDetection(ParseData *data)
 {
 }
 
-QVector<const Function *> CycleDetection::run(const QVector<const Function *> &input)
+QList<const Function *> CycleDetection::run(const QList<const Function *> &input)
 {
     for (const Function *function : input) {
         Node *node = new Node;
@@ -45,12 +43,12 @@ void CycleDetection::tarjan(Node *node)
     m_depth++;
     m_stack.push(node);
 
-    const QVector<const FunctionCall *> calls = node->function->outgoingCalls();
+    const QList<const FunctionCall *> calls = node->function->outgoingCalls();
     for (const FunctionCall *call : calls)
         tarjanForChildNode(node, m_nodes.value(call->callee()));
 
     if (node->dfs == node->lowlink) {
-        QVector<const Function *> functions;
+        QList<const Function *> functions;
         Node *n;
         do {
             n = m_stack.pop();

@@ -6,14 +6,12 @@
 #include "textdocument.h"
 #include "texteditortr.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/editormanager/editormanager.h>
 
-#include <utils/filesearch.h>
-#include <utils/fileutils.h>
+#include <utils/qtcsettings.h>
 
-#include <QSettings>
+using namespace Utils;
 
 namespace TextEditor::Internal {
 
@@ -34,24 +32,15 @@ QString FindInCurrentFile::displayName() const
     return Tr::tr("Current File");
 }
 
-Utils::FileIterator *FindInCurrentFile::files(const QStringList &nameFilters,
-                                              const QStringList &exclusionFilters,
-                                              const QVariant &additionalParameters) const
+FileContainerProvider FindInCurrentFile::fileContainerProvider() const
 {
-    Q_UNUSED(nameFilters)
-    Q_UNUSED(exclusionFilters)
-    const auto fileName = Utils::FilePath::fromVariant(additionalParameters);
-    QMap<Utils::FilePath, QTextCodec *> openEditorEncodings
-        = TextDocument::openedTextDocumentEncodings();
-    QTextCodec *codec = openEditorEncodings.value(fileName);
-    if (!codec)
-        codec = Core::EditorManager::defaultTextCodec();
-    return new Utils::FileListIterator({fileName}, {codec});
-}
-
-QVariant FindInCurrentFile::additionalParameters() const
-{
-    return m_currentDocument->filePath().toVariant();
+    return [fileName = m_currentDocument->filePath()] {
+        const QMap<FilePath, QTextCodec *> encodings = TextDocument::openedTextDocumentEncodings();
+        QTextCodec *codec = encodings.value(fileName);
+        if (!codec)
+            codec = Core::EditorManager::defaultTextCodec();
+        return FileListContainer({fileName}, {codec});
+    };
 }
 
 QString FindInCurrentFile::label() const
@@ -84,17 +73,16 @@ void FindInCurrentFile::handleFileChange(Core::IEditor *editor)
     }
 }
 
-
-void FindInCurrentFile::writeSettings(QSettings *settings)
+void FindInCurrentFile::writeSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInCurrentFile"));
+    settings->beginGroup("FindInCurrentFile");
     writeCommonSettings(settings);
     settings->endGroup();
 }
 
-void FindInCurrentFile::readSettings(QSettings *settings)
+void FindInCurrentFile::readSettings(QtcSettings *settings)
 {
-    settings->beginGroup(QLatin1String("FindInCurrentFile"));
+    settings->beginGroup("FindInCurrentFile");
     readCommonSettings(settings, "*", "");
     settings->endGroup();
 }

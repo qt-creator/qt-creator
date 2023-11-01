@@ -29,7 +29,7 @@ QString CvsSubmitEditor::stateName(State st) const
     case LocallyRemoved:
         return m_msgRemoved;
     }
-    return QString();
+    return {};
 }
 
 void CvsSubmitEditor::setStateList(const StateFilePairs &statusOutput)

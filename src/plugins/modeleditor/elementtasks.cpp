@@ -87,7 +87,7 @@ bool ElementTasks::hasClassDefinition(const qmt::MElement *element) const
     if (auto klass = dynamic_cast<const qmt::MClass *>(element)) {
         const QString qualifiedClassName = klass->umlNamespace().isEmpty() ? klass->name()
                                          : klass->umlNamespace() + "::" + klass->name();
-        auto *locatorData = CppModelManager::instance()->locatorData();
+        auto *locatorData = CppModelManager::locatorData();
         if (!locatorData)
             return false;
         const QList<IndexItem::Ptr> matches = locatorData->findSymbols(IndexItem::Class,
@@ -118,7 +118,7 @@ void ElementTasks::openClassDefinition(const qmt::MElement *element)
         const QString qualifiedClassName = klass->umlNamespace().isEmpty() ? klass->name()
                                          : klass->umlNamespace() + "::" + klass->name();
 
-        auto *locatorData = CppModelManager::instance()->locatorData();
+        auto *locatorData = CppModelManager::locatorData();
         if (!locatorData)
             return;
         const QList<IndexItem::Ptr> matches = locatorData->findSymbols(IndexItem::Class,

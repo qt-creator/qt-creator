@@ -21,7 +21,6 @@ class NameValueModel;
 
 class QTCREATOR_UTILS_EXPORT NameValueValidator : public QValidator
 {
-    Q_OBJECT
 public:
     NameValueValidator(QWidget *parent,
                        NameValueModel *model,
@@ -40,4 +39,5 @@ private:
     QPersistentModelIndex m_index;
     mutable QTimer m_hideTipTimer;
 };
+
 } // namespace Utils

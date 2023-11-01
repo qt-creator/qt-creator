@@ -9,17 +9,17 @@
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/buildsystem.h>
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/hostosinfo.h>
 #include <utils/process.h>
@@ -46,7 +46,7 @@ public:
 private:
     bool init() final;
     void setupOutputFormatter(OutputFormatter *formatter) final;
-    void doRun() final;
+    Tasking::GroupItem runRecipe() final;
 
     void reportWarningOrError(const QString &message, ProjectExplorer::Task::TaskType type);
 
@@ -60,7 +60,7 @@ AndroidPackageInstallationStep::AndroidPackageInstallationStep(BuildStepList *bs
     setWidgetExpandedByDefault(false);
     setImmutable(true);
     setSummaryUpdater([this] {
-        return Tr::tr("<b>Make install:</b> Copy App Files to %1")
+        return Tr::tr("<b>Make install:</b> Copy App Files to \"%1\"")
             .arg(QDir::toNativeSeparators(nativeAndroidBuildPath()));
     });
     setUseEnglishOutput();
@@ -120,55 +120,58 @@ void AndroidPackageInstallationStep::setupOutputFormatter(OutputFormatter *forma
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-void AndroidPackageInstallationStep::doRun()
+Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
 {
-    if (AndroidManager::skipInstallationAndPackageSteps(target())) {
-        reportWarningOrError(Tr::tr("Product type is not an application, not running the "
-                                    "Make install step."),
-                             Task::Warning);
-        emit finished(true);
-        return;
-    }
+    using namespace Tasking;
 
-    QString error;
-    for (const QString &dir : std::as_const(m_androidDirsToClean)) {
-        FilePath androidDir = FilePath::fromString(dir);
-        if (!dir.isEmpty() && androidDir.exists()) {
-            emit addOutput(Tr::tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
-            if (!androidDir.removeRecursively(&error)) {
-                reportWarningOrError(Tr::tr("Failed to clean \"%1\" from the previous build, with "
-                                            "error:\n%2").arg(androidDir.toUserOutput()).arg(error),
-                                     Task::TaskType::Error);
-                emit finished(false);
-                return;
+    const auto onSetup = [this] {
+        if (AndroidManager::skipInstallationAndPackageSteps(target())) {
+            reportWarningOrError(Tr::tr("Product type is not an application, not running the "
+                                        "Make install step."), Task::Warning);
+            return SetupResult::StopWithDone;
+        }
+
+        for (const QString &dir : std::as_const(m_androidDirsToClean)) {
+            const FilePath androidDir = FilePath::fromString(dir);
+            if (!dir.isEmpty() && androidDir.exists()) {
+                emit addOutput(Tr::tr("Removing directory %1").arg(dir), OutputFormat::NormalMessage);
+                QString error;
+                if (!androidDir.removeRecursively(&error)) {
+                    reportWarningOrError(Tr::tr("Failed to clean \"%1\" from the previous build, "
+                                         "with error:\n%2").arg(androidDir.toUserOutput()).arg(error),
+                                         Task::TaskType::Error);
+                    return SetupResult::StopWithError;
+                }
             }
         }
-    }
-    AbstractProcessStep::doRun();
 
-    // NOTE: This is a workaround for QTCREATORBUG-24155
-    // Needed for Qt 5.15.0 and Qt 5.14.x versions
-    if (buildType() == BuildConfiguration::BuildType::Debug) {
-        QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
-        if (version && version->qtVersion() >= QVersionNumber(5, 14)
-            && version->qtVersion() <= QVersionNumber(5, 15, 0)) {
-            const QString assetsDebugDir = nativeAndroidBuildPath().append(
-                "/assets/--Added-by-androiddeployqt--/");
-            QDir dir;
-            if (!dir.exists(assetsDebugDir))
-                dir.mkpath(assetsDebugDir);
+        // NOTE: This is a workaround for QTCREATORBUG-24155
+        // Needed for Qt 5.15.0 and Qt 5.14.x versions
+        if (buildType() == BuildConfiguration::BuildType::Debug) {
+            QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
+            if (version && version->qtVersion() >= QVersionNumber(5, 14)
+                && version->qtVersion() <= QVersionNumber(5, 15, 0)) {
+                const QString assetsDebugDir = nativeAndroidBuildPath().append(
+                    "/assets/--Added-by-androiddeployqt--/");
+                QDir dir;
+                if (!dir.exists(assetsDebugDir))
+                    dir.mkpath(assetsDebugDir);
 
-            QFile file(assetsDebugDir + "debugger.command");
-            if (file.open(QIODevice::WriteOnly)) {
-                qCDebug(packageInstallationStepLog, "Successful added %s to the package.",
-                        qPrintable(file.fileName()));
-            } else {
-                qCDebug(packageInstallationStepLog,
-                        "Cannot add %s to the package. The QML debugger might not work properly.",
-                        qPrintable(file.fileName()));
+                QFile file(assetsDebugDir + "debugger.command");
+                if (file.open(QIODevice::WriteOnly)) {
+                    qCDebug(packageInstallationStepLog, "Successful added %s to the package.",
+                            qPrintable(file.fileName()));
+                } else {
+                    qCDebug(packageInstallationStepLog,
+                            "Cannot add %s to the package. The QML debugger might not work properly.",
+                            qPrintable(file.fileName()));
+                }
             }
         }
-    }
+        return SetupResult::Continue;
+    };
+
+    return Group { onGroupSetup(onSetup), defaultProcessTask() };
 }
 
 void AndroidPackageInstallationStep::reportWarningOrError(const QString &message,

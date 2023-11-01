@@ -751,12 +751,8 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <translation>Handlingen kræver indgriben fra brugeren. Brug kommandolinjeværktøjet &quot;sdkmanager&quot;.</translation>
     </message>
     <message>
-        <source>License command failed.
-
-</source>
-        <translation>Licens-kommando mislykkedes.
-
-</translation>
+        <source>License command failed.</source>
+        <translation>Licens-kommando mislykkedes.</translation>
     </message>
     <message>
         <source>Android SDK Manager</source>
@@ -807,16 +803,12 @@ Vil du afinstallere den eksisterende pakke?</translation>
         <translation>Vil du acceptere Android SDK-licensen?</translation>
     </message>
     <message>
-        <source>Checking pending licenses...
-</source>
-        <translation>Tjekker afventende licenser...
-</translation>
+        <source>Checking pending licenses...</source>
+        <translation>Tjekker afventende licenser...</translation>
     </message>
     <message>
-        <source>
-SDK Manager is busy.</source>
-        <translation>
-SDK manager er optaget.</translation>
+        <source>SDK Manager is busy.</source>
+        <translation>SDK manager er optaget.</translation>
     </message>
     <message>
         <source>Android SDK Changes</source>
@@ -1295,12 +1287,8 @@ Installer en SDK af mindst API version %1.</translation>
         <translation>Mislykkedes.</translation>
     </message>
     <message>
-        <source>Done
-
-</source>
-        <translation>Færdig
-
-</translation>
+        <source>Done</source>
+        <translation>Færdig</translation>
     </message>
     <message>
         <source>Installing</source>
@@ -2953,8 +2941,8 @@ Lokale commits pushes ikke til master-grenen inden en normal commit udføres.</t
         <translation>Lokalt filsystem:</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>F.eks.: &apos;https://[bruger[:kode]@]vært[:port]/[sti]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>F.eks.: &quot;https://[bruger[:kode]@]vært[:port]/[sti]&quot;.</translation>
     </message>
     <message>
         <source>Specify URL:</source>
@@ -3454,7 +3442,7 @@ F.eks., vil &quot;Revision: 15&quot; efterlade grenen ved revision 15.</translat
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Tilføj bogmærke</translation>
@@ -7818,8 +7806,8 @@ Vil du dræbe den?</translation>
         <translation>Kunne ikke starte &quot;%1&quot;: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &quot;%1&quot;</source>
-        <translation>Timeout under kørsel af &quot;%1&quot;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Timeout under kørsel af &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; crashed.</source>
@@ -19514,8 +19502,8 @@ Fejl: %5</translation>
         <translation>Lokalt filsystem:</translation>
     </message>
     <message>
-        <source>For example: &apos;https://[user[:pass]@]host[:port]/[path]&apos;.</source>
-        <translation>F.eks.: &apos;https://[bruger[:kode]@]vært[:port]/[sti]&apos;.</translation>
+        <source>For example: &quot;https://[user[:pass]@]host[:port]/[path]&quot;.</source>
+        <translation>F.eks.: &quot;https://[bruger[:kode]@]vært[:port]/[sti]&quot;.</translation>
     </message>
     <message>
         <source>Specify URL:</source>
@@ -22699,20 +22687,20 @@ til projektet &quot;%2&quot;.</translation>
         <translation>Sessionshåndtering</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Ny</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Ny...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Omdøb</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Omdøb...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>&amp;Klon</translation>
+        <source>C&amp;lone...</source>
+        <translation>&amp;Klon...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Slet</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Slet...</translation>
     </message>
     <message>
         <source>&amp;Open</source>
@@ -33662,10 +33650,6 @@ Angiver hvordan backspace interagerer med indrykning.
     <message>
         <source>Edit...</source>
         <translation>Rediger...</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation>Fjern</translation>
     </message>
     <message>
         <source>Export...</source>

@@ -16,8 +16,6 @@ namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT OptionPushButton : public QPushButton
 {
-    Q_OBJECT
-
 public:
     OptionPushButton(QWidget *parent = nullptr);
     OptionPushButton(const QString &text, QWidget *parent = nullptr);

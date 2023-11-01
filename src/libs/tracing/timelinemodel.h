@@ -133,6 +133,7 @@ protected:
     int insertStart(qint64 startTime, int selectionId);
     void insertEnd(int index, qint64 duration);
     void computeNesting();
+    QList<int> computeRows(int *maxlevel) const;
 
     void setCollapsedRowCount(int rows);
     void setExpandedRowCount(int rows);

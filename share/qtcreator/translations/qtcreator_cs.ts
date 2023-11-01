@@ -44,7 +44,7 @@
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Add Bookmark</source>
         <translation>Přidat záložku</translation>
@@ -9724,20 +9724,20 @@ se projektu &apos;%2&apos; nepodařilo přidat.</translation>
         <translation type="obsolete">Přepnout na sezení</translation>
     </message>
     <message>
-        <source>&amp;New</source>
-        <translation>&amp;Nový</translation>
+        <source>&amp;New...</source>
+        <translation>&amp;Nový...</translation>
     </message>
     <message>
-        <source>&amp;Rename</source>
-        <translation>&amp;Přejmenovat</translation>
+        <source>&amp;Rename...</source>
+        <translation>&amp;Přejmenovat...</translation>
     </message>
     <message>
-        <source>C&amp;lone</source>
-        <translation>Zdvo&amp;jit</translation>
+        <source>C&amp;lone...</source>
+        <translation>Zdvo&amp;jit...</translation>
     </message>
     <message>
-        <source>&amp;Delete</source>
-        <translation>&amp;Smazat</translation>
+        <source>&amp;Delete...</source>
+        <translation>&amp;Smazat...</translation>
     </message>
     <message>
         <source>&amp;Open</source>
@@ -24897,8 +24897,8 @@ Vybere pro napodobovatele a přenosné cíle vhodné verze Qt, jsou-li dostupné
         <translation>&apos;%1&apos; se nepodařilo spustit: %2</translation>
     </message>
     <message>
-        <source>A timeout occurred running &apos;%1&apos;</source>
-        <translation>Překročení času při spuštění &apos;%1&apos;</translation>
+        <source>A timeout occurred running &quot;%1&quot;.</source>
+        <translation>Překročení času při spuštění &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>&apos;%1&apos; crashed.</source>
@@ -40282,10 +40282,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
         <translation>Upravit...</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Odstranit</translation>
-    </message>
-    <message>
         <source>Export...</source>
         <translation>Exportovat...</translation>
     </message>
@@ -40390,10 +40386,6 @@ Určuje, jak se chová zpětná klávesa (backspace) co se týče odsazování.
     <message>
         <source>Group: </source>
         <translation>Skupina: </translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation>Přidat</translation>
     </message>
     <message>
         <source>Revert Built-in</source>
@@ -44826,7 +44818,7 @@ Nainstalujte, prosím, alespoň jedno SDK.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Alt+Meta+M</source>
         <translation>Alt+Meta+M</translation>
@@ -48370,7 +48362,7 @@ nelze najít v cestě.</translation>
     </message>
 </context>
 <context>
-    <name>QtC::Bookmarks</name>
+    <name>QtC::TextEditor</name>
     <message>
         <source>Note text:</source>
         <translation>Text poznámky:</translation>

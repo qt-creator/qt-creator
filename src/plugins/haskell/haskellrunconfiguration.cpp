@@ -4,19 +4,76 @@
 #include "haskellrunconfiguration.h"
 
 #include "haskellconstants.h"
-#include "haskellproject.h"
 #include "haskelltr.h"
 #include "haskellsettings.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
-#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
-using namespace ProjectExplorer;
+#include <utils/processinterface.h>
 
-namespace Haskell {
-namespace Internal {
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace Haskell::Internal {
+
+class HaskellRunConfiguration : public RunConfiguration
+{
+public:
+    HaskellRunConfiguration(Target *target, Id id)
+        : RunConfiguration(target, id)
+    {
+        environment.setSupportForBuildEnvironment(target);
+
+        executable.setSettingsKey("Haskell.Executable");
+        executable.setLabelText(Tr::tr("Executable"));
+
+        arguments.setMacroExpander(macroExpander());
+
+        workingDir.setMacroExpander(macroExpander());
+        workingDir.setEnvironment(&environment);
+        workingDir.setDefaultWorkingDirectory(project()->projectDirectory());
+        workingDir.setVisible(false);
+
+        setUpdater([this] { executable.setValue(buildTargetInfo().buildKey); });
+
+        connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+        update();
+    }
+
+private:
+    Utils::ProcessRunData runnable() const final
+    {
+        const FilePath projectDirectory = project()->projectDirectory();
+        ProcessRunData r;
+        QStringList args;
+        if (BuildConfiguration *buildConfiguration = target()->activeBuildConfiguration()) {
+            args << "--work-dir"
+                 << QDir(projectDirectory.toString()).relativeFilePath(
+                        buildConfiguration->buildDirectory().toString());
+        }
+        args << "exec" << executable();
+        if (!arguments.arguments().isEmpty())
+            args << "--" << arguments.arguments();
+
+        r.workingDirectory = projectDirectory;
+        r.environment = environment.environment();
+        r.command = {r.environment.searchInPath(settings().stackPath().path()), args};
+        return r;
+    }
+
+    EnvironmentAspect environment{this};
+    StringAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
+};
+
+// Factory
 
 HaskellRunConfigurationFactory::HaskellRunConfigurationFactory()
 {
@@ -25,52 +82,4 @@ HaskellRunConfigurationFactory::HaskellRunConfigurationFactory()
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 }
 
-HaskellExecutableAspect::HaskellExecutableAspect()
-{
-    setSettingsKey("Haskell.Executable");
-    setLabelText(Tr::tr("Executable"));
-}
-
-HaskellRunConfiguration::HaskellRunConfiguration(Target *target, Utils::Id id)
-    : RunConfiguration(target, id)
-{
-    auto envAspect = addAspect<EnvironmentAspect>();
-    envAspect->setSupportForBuildEnvironment(target);
-
-    addAspect<HaskellExecutableAspect>();
-    addAspect<ArgumentsAspect>(macroExpander());
-
-    auto workingDirAspect = addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
-    workingDirAspect->setDefaultWorkingDirectory(target->project()->projectDirectory());
-    workingDirAspect->setVisible(false);
-
-    addAspect<TerminalAspect>();
-
-    setUpdater([this] { aspect<HaskellExecutableAspect>()->setValue(buildTargetInfo().buildKey); });
-    connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-    update();
-}
-
-Runnable HaskellRunConfiguration::runnable() const
-{
-    const Utils::FilePath projectDirectory = target()->project()->projectDirectory();
-    Runnable r;
-    QStringList args;
-    if (BuildConfiguration *buildConfiguration = target()->activeBuildConfiguration()) {
-        args << "--work-dir"
-             << QDir(projectDirectory.toString()).relativeFilePath(
-                    buildConfiguration->buildDirectory().toString());
-    }
-    args << "exec" << aspect<HaskellExecutableAspect>()->value();
-    const QString arguments = aspect<ArgumentsAspect>()->arguments();
-    if (!arguments.isEmpty())
-        args << "--" << arguments;
-
-    r.workingDirectory = projectDirectory;
-    r.environment = aspect<EnvironmentAspect>()->environment();
-    r.command = {r.environment.searchInPath(settings().stackPath().path()), args};
-    return r;
-}
-
-} // namespace Internal
-} // namespace Haskell
+} // Haskell::Internal

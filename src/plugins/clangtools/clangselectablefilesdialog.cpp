@@ -7,6 +7,7 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/find/itemviewfind.h>
+#include <coreplugin/find/textfindconstants.h>
 #include <cppeditor/projectinfo.h>
 #include <projectexplorer/selectablefilesmodel.h>
 #include <texteditor/textdocument.h>

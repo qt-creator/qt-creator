@@ -4,6 +4,7 @@
 #pragma once
 
 #include "languageclient_global.h"
+#include "languageclientsymbolsupport.h"
 #include "languageclientutils.h"
 #include "semantichighlightsupport.h"
 
@@ -15,6 +16,8 @@ class IAssistProcessor;
 class TextDocument;
 class TextEditorWidget;
 }
+
+namespace Utils { namespace Text { class Range; } }
 
 QT_BEGIN_NAMESPACE
 class QWidget;
@@ -43,7 +46,6 @@ class LanguageClientOutlineItem;
 class LanguageClientQuickFixProvider;
 class LanguageFilter;
 class ProgressManager;
-class SymbolSupport;
 
 class LANGUAGECLIENT_EXPORT Client : public QObject
 {
@@ -75,6 +77,7 @@ public:
     enum State {
         Uninitialized,
         InitializeRequested,
+        FailedToInitialize,
         Initialized,
         ShutdownRequested,
         Shutdown,
@@ -149,6 +152,14 @@ public:
     void addAssistProcessor(TextEditor::IAssistProcessor *processor);
     void removeAssistProcessor(TextEditor::IAssistProcessor *processor);
     SymbolSupport &symbolSupport();
+    // In contrast to the findLinkAt of symbol support this find link makes sure that there is only
+    // one request running at a time and cancels the running request if the document changes, cursor
+    // moves or another link is requested
+    void findLinkAt(TextEditor::TextDocument *document,
+                    const QTextCursor &cursor,
+                    Utils::LinkHandler callback,
+                    const bool resolveTarget,
+                    LinkTarget target);
     DocumentSymbolCache *documentSymbolCache();
     HoverHandler *hoverHandler();
     QList<LanguageServerProtocol::Diagnostic> diagnosticsAt(const Utils::FilePath &filePath,
@@ -219,6 +230,8 @@ private:
                                                       TextEditor::TextDocument *doc);
     virtual bool referencesShadowFile(const TextEditor::TextDocument *doc,
                                       const Utils::FilePath &candidate);
+    virtual QList<Utils::Text::Range> additionalDocumentHighlights(
+        TextEditor::TextEditorWidget *, const QTextCursor &) { return {}; }
 };
 
 } // namespace LanguageClient

@@ -4,17 +4,17 @@ if(NOT IS_ABSOLUTE "${IDE_ICON_PATH}")
   set(IDE_ICON_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${IDE_ICON_PATH}")
 endif()
 
-install(
-  FILES ${CMAKE_CURRENT_BINARY_DIR}/app_version.h
-  DESTINATION ${IDE_HEADER_INSTALL_PATH}/src/app
-  COMPONENT Devel EXCLUDE_FROM_ALL
-)
+if (NOT IS_ABSOLUTE ${IDE_LOGO_PATH})
+  set(IDE_LOGO_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${IDE_LOGO_PATH}")
+endif()
+configure_file(app_logo.qrc.cmakein app_logo_cmake.qrc)
 
 add_qtc_executable(qtcreator
   DEFINES IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
   DEPENDS Aggregation ExtensionSystem Qt::Core Qt::Widgets Utils shared_qtsingleapplication app_version
   SOURCES
     main.cpp
+    ${CMAKE_CURRENT_BINARY_DIR}/app_logo_cmake.qrc
     ../tools/qtcreatorcrashhandler/crashhandlersetup.cpp ../tools/qtcreatorcrashhandler/crashhandlersetup.h
   PROPERTIES
     WIN32_EXECUTABLE ON
@@ -150,4 +150,14 @@ if(BUILD_WITH_CRASHPAD)
     PROGRAMS ${CRASHPAD_BIN_DIR}/crashpad_handler${CMAKE_EXECUTABLE_SUFFIX}
     DESTINATION "${IDE_LIBEXEC_PATH}"
   )
+endif()
+
+if ((NOT WIN32) AND (NOT APPLE))
+  # install logo
+  foreach(size 16 24 32 48 64 128 256 512)
+    install(
+      FILES ${IDE_LOGO_PATH}/images/logo/${size}/QtProject-qtcreator.png
+      DESTINATION share/icons/hicolor/${size}x${size}/apps
+    )
+  endforeach()
 endif()

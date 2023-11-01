@@ -1,6 +1,6 @@
 import qbs.FileInfo
 
-QtcManualtest {
+QtcManualTest {
     name: "Tasking demo"
     type: ["application"]
 

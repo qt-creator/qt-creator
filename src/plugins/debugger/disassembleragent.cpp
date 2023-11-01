@@ -20,15 +20,14 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/aspects.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
 #include <QTextBlock>
-#include <QDir>
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace Debugger::Internal {
 
@@ -43,9 +42,7 @@ class DisassemblerBreakpointMarker : public TextMark
 {
 public:
     DisassemblerBreakpointMarker(const Breakpoint &bp, int lineNumber)
-        : TextMark(Utils::FilePath(),
-                   lineNumber,
-                   {Tr::tr("Breakpoint"), Constants::TEXT_MARK_CATEGORY_BREAKPOINT})
+        : TextMark({}, lineNumber, {Tr::tr("Breakpoint"), Constants::TEXT_MARK_CATEGORY_BREAKPOINT})
         , m_bp(bp)
     {
         setIcon(bp->icon());
@@ -161,7 +158,7 @@ int DisassemblerAgentPrivate::lineForAddress(quint64 address) const
 DisassemblerAgent::DisassemblerAgent(DebuggerEngine *engine)
     : d(new DisassemblerAgentPrivate(engine))
 {
-    connect(&debuggerSettings()->intelFlavor, &Utils::BaseAspect::changed,
+    connect(&settings().intelFlavor, &Utils::BaseAspect::changed,
             this, &DisassemblerAgent::reload);
 }
 

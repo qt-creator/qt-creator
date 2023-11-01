@@ -5,8 +5,7 @@
 
 #include <extensionsystem/iplugin.h>
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 class CtfVisualizerPlugin : public ExtensionSystem::IPlugin
 {
@@ -21,5 +20,4 @@ public:
     class CtfVisualizerPluginPrivate *d = nullptr;
 };
 
-} // namespace Internal
-} // namespace CtfVisualizer
+} // namespace CtfVisualizer::Internal

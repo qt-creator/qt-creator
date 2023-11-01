@@ -511,14 +511,13 @@ namespace Internal {
 
 static QList<Include> includesForSource(const FilePath &filePath)
 {
-    CppModelManager *cmm = CppModelManager::instance();
-    cmm->GC();
+    CppModelManager::GC();
     QScopedPointer<CppSourceProcessor> sourceProcessor(CppModelManager::createSourceProcessor());
     sourceProcessor->setHeaderPaths({ProjectExplorer::HeaderPath::makeUser(
                                      TestIncludePaths::globalIncludePath())});
     sourceProcessor->run(filePath);
 
-    Document::Ptr document = cmm->document(filePath);
+    Document::Ptr document = CppModelManager::document(filePath);
     return document->resolvedIncludes();
 }
 

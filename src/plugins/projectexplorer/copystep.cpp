@@ -7,7 +7,9 @@
 #include "projectexplorertr.h"
 
 #include <utils/aspects.h>
+#include <utils/filestreamer.h>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer::Internal {
@@ -38,26 +40,27 @@ protected:
         return m_source.exists();
     }
 
-    void doRun() final
-    {
-        // FIXME: asyncCopy does not handle directories yet.
-        QTC_ASSERT(m_source.isFile(), emit finished(false));
-        m_source.asyncCopy(m_target, this, [this](const expected_str<void> &cont) {
-            if (!cont) {
-                addOutput(cont.error(), OutputFormat::ErrorMessage);
-                addOutput(Tr::tr("Copying failed."), OutputFormat::ErrorMessage);
-                emit finished(false);
-            } else {
-                addOutput(Tr::tr("Copying finished."), OutputFormat::NormalMessage);
-                emit finished(true);
-            }
-        });
-    }
-
     FilePathAspect m_sourceAspect{this};
     FilePathAspect m_targetAspect{this};
 
 private:
+    GroupItem runRecipe() final
+    {
+        const auto onSetup = [this](FileStreamer &streamer) {
+            QTC_ASSERT(m_source.isFile(), return SetupResult::StopWithError);
+            streamer.setSource(m_source);
+            streamer.setDestination(m_target);
+            return SetupResult::Continue;
+        };
+        const auto onDone = [this](const FileStreamer &) {
+            addOutput(Tr::tr("Copying finished."), OutputFormat::NormalMessage);
+        };
+        const auto onError = [this](const FileStreamer &) {
+            addOutput(Tr::tr("Copying failed."), OutputFormat::ErrorMessage);
+        };
+        return FileStreamerTask(onSetup, onDone, onError);
+    }
+
     FilePath m_source;
     FilePath m_target;
 };

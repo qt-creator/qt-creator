@@ -26,7 +26,9 @@
 
 #include <QObject>
 
-QT_FORWARD_DECLARE_CLASS(QPlainTextEdit)
+QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+QT_END_NAMESPACE
 
 namespace EmacsKeys {
 namespace Internal {

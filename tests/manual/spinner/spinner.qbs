@@ -1,13 +1,11 @@
 import qbs.FileInfo
 
-QtcManualtest {
+QtcManualTest {
     name: "Spinner example"
     type: ["application"]
 
     Depends { name: "Qt"; submodules: ["widgets"] }
     Depends { name: "Spinner" }
 
-    files: [
-        "main.cpp",
-    ]
+    files: "main.cpp"
 }

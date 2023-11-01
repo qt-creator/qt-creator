@@ -228,8 +228,6 @@ public:
     QString newText() const { return typedValue<QString>(newTextKey); }
     void setNewText(const QString &text) { insert(newTextKey, text); }
 
-    Utils::Text::Replacement toReplacement(QTextDocument *document) const;
-
     bool isValid() const override
     { return contains(rangeKey) && contains(newTextKey); }
 };
@@ -287,6 +285,106 @@ public:
     bool isValid() const override { return contains(textDocumentKey) && contains(editsKey); }
 };
 
+class CreateFileOptions : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    std::optional<bool> overwrite() const { return optionalValue<bool>(overwriteKey); }
+    void setOverwrite(bool overwrite) { insert(overwriteKey, overwrite); }
+    void clearOverwrite() { remove(overwriteKey); }
+
+    std::optional<bool> ignoreIfExists() const { return optionalValue<bool>(ignoreIfExistsKey); }
+    void setIgnoreIfExists(bool ignoreIfExists) { insert(ignoreIfExistsKey, ignoreIfExists); }
+    void clearIgnoreIfExists() { remove(ignoreIfExistsKey); }
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT CreateFileOperation : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+    CreateFileOperation();
+
+    DocumentUri uri() const { return DocumentUri::fromProtocol(typedValue<QString>(uriKey)); }
+    void setUri(const DocumentUri &uri) { insert(uriKey, uri); }
+
+    std::optional<CreateFileOptions> options() const
+    { return optionalValue<CreateFileOptions>(optionsKey); }
+    void setOptions(const CreateFileOptions &options) { insert(optionsKey, options); }
+    void clearOptions() { remove(optionsKey); }
+
+    QString message(const DocumentUri::PathMapper &mapToHostPath) const;
+
+    bool isValid() const override;
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT RenameFileOperation : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+    RenameFileOperation();
+
+    DocumentUri oldUri() const { return DocumentUri::fromProtocol(typedValue<QString>(oldUriKey)); }
+    void setOldUri(const DocumentUri &oldUri) { insert(oldUriKey, oldUri); }
+
+    DocumentUri newUri() const { return DocumentUri::fromProtocol(typedValue<QString>(newUriKey)); }
+    void setNewUri(const DocumentUri &newUri) { insert(newUriKey, newUri); }
+
+    std::optional<CreateFileOptions> options() const
+    { return optionalValue<CreateFileOptions>(optionsKey); }
+    void setOptions(const CreateFileOptions &options) { insert(optionsKey, options); }
+    void clearOptions() { remove(optionsKey); }
+
+    QString message(const DocumentUri::PathMapper &mapToHostPath) const;
+
+    bool isValid() const override;
+};
+
+class DeleteFileOptions : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    std::optional<bool> recursive() const { return optionalValue<bool>(recursiveKey); }
+    void setRecursive(bool recursive) { insert(recursiveKey, recursive); }
+    void clearRecursive() { remove(recursiveKey); }
+
+    std::optional<bool> ignoreIfNotExists() const { return optionalValue<bool>(ignoreIfNotExistsKey); }
+    void setIgnoreIfNotExists(bool ignoreIfNotExists) { insert(ignoreIfNotExistsKey, ignoreIfNotExists); }
+    void clearIgnoreIfNotExists() { remove(ignoreIfNotExistsKey); }
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT DeleteFileOperation : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+    DeleteFileOperation();
+
+    DocumentUri uri() const { return DocumentUri::fromProtocol(typedValue<QString>(uriKey)); }
+    void setUri(const DocumentUri &uri) { insert(uriKey, uri); }
+
+    std::optional<DeleteFileOptions> options() const
+    { return optionalValue<DeleteFileOptions>(optionsKey); }
+    void setOptions(const DeleteFileOptions &options) { insert(optionsKey, options); }
+    void clearOptions() { remove(optionsKey); }
+
+    QString message(const DocumentUri::PathMapper &mapToHostPath) const;
+
+    bool isValid() const override;
+};
+
+class LANGUAGESERVERPROTOCOL_EXPORT DocumentChange
+    : public std::variant<TextDocumentEdit, CreateFileOperation, RenameFileOperation, DeleteFileOperation>
+{
+public:
+    using variant::variant;
+    DocumentChange(const QJsonValue &value);
+
+    bool isValid() const;
+
+    operator const QJsonValue() const;
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT WorkspaceEdit : public JsonObject
 {
 public:
@@ -298,17 +396,23 @@ public:
     void setChanges(const Changes &changes);
 
     /*
-     * An array of `TextDocumentEdit`s to express changes to n different text documents
-     * where each text document edit addresses a specific version of a text document.
-     * Whether a client supports versioned document edits is expressed via
-     * `WorkspaceClientCapabilities.workspaceEdit.documentChanges`.
+     * Depending on the client capability
+     * `workspace.workspaceEdit.resourceOperations` document changes are either
+     * an array of `TextDocumentEdit`s to express changes to n different text
+     * documents where each text document edit addresses a specific version of
+     * a text document. Or it can contain above `TextDocumentEdit`s mixed with
+     * create, rename and delete file / folder operations.
      *
-     * Note: If the client can handle versioned document edits and if documentChanges are present,
-     * the latter are preferred over changes.
+     * Whether a client supports versioned document edits is expressed via
+     * `workspace.workspaceEdit.documentChanges` client capability.
+     *
+     * If a client neither supports `documentChanges` nor
+     * `workspace.workspaceEdit.resourceOperations` then only plain `TextEdit`s
+     * using the `changes` property are supported.
      */
-    std::optional<QList<TextDocumentEdit>> documentChanges() const
-    { return optionalArray<TextDocumentEdit>(documentChangesKey); }
-    void setDocumentChanges(const QList<TextDocumentEdit> &changes)
+    std::optional<QList<DocumentChange>> documentChanges() const
+    { return optionalArray<DocumentChange>(documentChangesKey); }
+    void setDocumentChanges(const QList<DocumentChange> &changes)
     { insertArray(documentChangesKey, changes); }
 };
 

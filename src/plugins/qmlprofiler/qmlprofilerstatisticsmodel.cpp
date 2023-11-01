@@ -121,11 +121,7 @@ QStringList QmlProfilerStatisticsModel::details(int typeIndex) const
             data = data.left(maxColumnWidth - 1) + ellipsisChar;
     }
 
-    return QStringList({
-        displayName,
-        data,
-        QString::number(durationPercent(typeIndex), 'f', 2) + QLatin1Char('%')
-    });
+    return {displayName, data, QString::number(durationPercent(typeIndex), 'f', 2) + '%'};
 }
 
 QString QmlProfilerStatisticsModel::summary(const QVector<int> &typeIds) const

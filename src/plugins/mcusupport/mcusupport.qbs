@@ -5,9 +5,8 @@ QtcPlugin {
 
     Depends { name: "Qt.core" }
     Depends { name: "Qt.widgets" }
-    Depends { name: "Qt.testlib"; condition: qtc.testsEnabled }
+    Depends { name: "Qt.testlib"; condition: qtc.withPluginTests }
     Depends { name: "Utils" }
-    Depends { name: "app_version_header" }
 
     Depends { name: "Core" }
     Depends { name: "BareMetal" }
@@ -15,9 +14,10 @@ QtcPlugin {
     Depends { name: "Debugger" }
     Depends { name: "CMakeProjectManager" }
     Depends { name: "QmlJS" }
+    Depends { name: "QmlJSTools" }
     Depends { name: "QtSupport" }
 
-    Depends { name: "qtc_gtest_gmock"; condition: qtc.testsEnabled; required: false }
+    Depends { name: "qtc_gtest_gmock"; condition: qtc.withPluginTests; required: false }
 
     files: [
         "mcuabstractpackage.h",
@@ -53,18 +53,20 @@ QtcPlugin {
         "mcusupportversiondetection.cpp",
         "mcusupportversiondetection.h",
         "mcutargetdescription.h",
-        "mcukitinformation.cpp",
-        "mcukitinformation.h",
+        "mcukitaspect.cpp",
+        "mcukitaspect.h",
         "mcuhelpers.cpp",
         "mcuhelpers.h",
         "settingshandler.h",
         "settingshandler.cpp",
         "dialogs/mcukitcreationdialog.h",
         "dialogs/mcukitcreationdialog.cpp",
+        "mcusupportimportprovider.h",
+        "mcusupportimportprovider.cpp",
     ]
 
     QtcTestFiles {
-        condition: qtc.testsEnabled && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
+        condition: qtc.withPluginTests && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
         prefix: "test/"
         files: [
             "packagemock.h",
@@ -74,7 +76,7 @@ QtcPlugin {
     }
 
     Properties {
-        condition: qtc.testsEnabled && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
+        condition: qtc.withPluginTests && (qtc_gtest_gmock.hasRepo || qtc_gtest_gmock.externalLibsPresent)
         cpp.defines: base.concat(["GOOGLE_TEST_IS_FOUND"])
         cpp.includePaths: base.concat([ "." ])
     }

@@ -1,17 +1,17 @@
 {
 //! [1]
-    \"Name\" : \"Example\",
-    \"Version\" : \"0.0.1\",
-    \"CompatVersion\" : \"0.0.1\",
+    "Name" : "Example",
+    "Version" : "0.0.1",
+    "CompatVersion" : "0.0.1",
 //! [1]
 //! [2]
-    \"Vendor\" : \"MyCompany\",
-    \"Copyright\" : \"(C) MyCompany\",
-    \"License\" : \"Put short license information here\",
-    \"Description\" : \"Put a short description of your plugin here\",
-    \"Url\" : \"https://www.mycompany.com\",
+    "Vendor" : "MyCompany",
+    "Copyright" : "(C) MyCompany",
+    "License" : "Put short license information here",
+    "Description" : "Put a short description of your plugin here",
+    "Url" : "https://www.mycompany.com",
 //! [2]
 //! [3]
-    $$dependencyList
+    ${IDE_PLUGIN_DEPENDENCIES}
 //! [3]
 }

@@ -25,8 +25,6 @@ QtcPlugin {
         "webassemblyqtversion.h",
         "webassemblyrunconfiguration.cpp",
         "webassemblyrunconfiguration.h",
-        "webassemblyrunconfigurationaspects.cpp",
-        "webassemblyrunconfigurationaspects.h",
         "webassemblysettings.cpp",
         "webassemblysettings.h",
         "webassemblytoolchain.cpp",

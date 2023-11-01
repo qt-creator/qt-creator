@@ -183,7 +183,7 @@ BuiltinEditorDocumentProcessor::~BuiltinEditorDocumentProcessor()
 void BuiltinEditorDocumentProcessor::runImpl(
         const BaseEditorDocumentParser::UpdateParams &updateParams)
 {
-    m_parserFuture = Utils::asyncRun(CppModelManager::instance()->sharedThreadPool(),
+    m_parserFuture = Utils::asyncRun(CppModelManager::sharedThreadPool(),
                                      runParser, parser(), updateParams);
 }
 
@@ -277,13 +277,13 @@ void BuiltinEditorDocumentProcessor::onParserFinished(CPlusPlus::Document::Ptr d
             continue;
         if (cppEditorDoc->filePath() == document->filePath())
             continue;
-        CPlusPlus::Document::Ptr cppDoc = CppModelManager::instance()->document(
-            cppEditorDoc->filePath());
+        CPlusPlus::Document::Ptr cppDoc = CppModelManager::document(cppEditorDoc->filePath());
         if (!cppDoc)
             continue;
         if (!cppDoc->includedFiles().contains(document->filePath()))
             continue;
         cppEditorDoc->scheduleProcessDocument();
+        forceUpdate(cppEditorDoc);
     }
 }
 
@@ -325,7 +325,7 @@ SemanticInfo::Source BuiltinEditorDocumentProcessor::createSemanticInfoSource(bo
 {
     QByteArray source;
     int revision = 0;
-    if (const auto entry = CppModelManager::instance()->workingCopy().get(filePath())) {
+    if (const auto entry = CppModelManager::workingCopy().get(filePath())) {
         source = entry->first;
         revision = entry->second;
     }

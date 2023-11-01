@@ -3,18 +3,8 @@
 
 #pragma once
 
-#include "android_global.h"
-
-#include <QPair>
-#include <QObject>
-#include <QVersionNumber>
-
 #include <qtsupport/baseqtversion.h>
 #include <projectexplorer/abi.h>
-
-QT_BEGIN_NAMESPACE
-class QProcess;
-QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class Kit;
@@ -22,8 +12,8 @@ class Target;
 }
 
 namespace Utils {
-class CommandLine;
 class FilePath;
+class Process;
 }
 
 namespace Android {
@@ -36,78 +26,66 @@ public:
     const QString &stdErr() const { return m_stdErr; }
     const QString &exitMessage() const { return m_exitMessage; }
 
-private:
     bool m_success = false;
     QString m_stdOut;
     QString m_stdErr;
     QString m_exitMessage;
-    friend class AndroidManager;
 };
 
-class ANDROID_EXPORT AndroidManager : public QObject
+namespace AndroidManager
 {
-    Q_OBJECT
 
-public:
-    static QString packageName(const ProjectExplorer::Target *target);
-    static QString packageName(const Utils::FilePath &manifestFile);
-    static QString activityName(const ProjectExplorer::Target *target);
+QString packageName(const ProjectExplorer::Target *target);
+QString packageName(const Utils::FilePath &manifestFile);
+QString activityName(const ProjectExplorer::Target *target);
 
-    static QString deviceSerialNumber(const ProjectExplorer::Target *target);
-    static void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
+QString deviceSerialNumber(const ProjectExplorer::Target *target);
+void setDeviceSerialNumber(ProjectExplorer::Target *target, const QString &deviceSerialNumber);
 
-    static QString apkDevicePreferredAbi(const ProjectExplorer::Target *target);
-    static void setDeviceAbis(ProjectExplorer::Target *target, const QStringList &deviceAbis);
+QString apkDevicePreferredAbi(const ProjectExplorer::Target *target);
+void setDeviceAbis(ProjectExplorer::Target *target, const QStringList &deviceAbis);
 
-    static int deviceApiLevel(const ProjectExplorer::Target *target);
-    static void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
+int deviceApiLevel(const ProjectExplorer::Target *target);
+void setDeviceApiLevel(ProjectExplorer::Target *target, int level);
 
-    static QString buildTargetSDK(const ProjectExplorer::Target *target);
+QString buildTargetSDK(const ProjectExplorer::Target *target);
 
-    static int minimumSDK(const ProjectExplorer::Target *target);
-    static int minimumSDK(const ProjectExplorer::Kit *kit);
-    static int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion);
+int minimumSDK(const ProjectExplorer::Target *target);
+int minimumSDK(const ProjectExplorer::Kit *kit);
+int defaultMinimumSDK(const QtSupport::QtVersion *qtVersion);
 
-    static QStringList applicationAbis(const ProjectExplorer::Target *target);
-    static QString archTriplet(const QString &abi);
+QStringList applicationAbis(const ProjectExplorer::Target *target);
+QString archTriplet(const QString &abi);
 
-    static bool isQt5CmakeProject(const ProjectExplorer::Target *target);
+bool isQt5CmakeProject(const ProjectExplorer::Target *target);
 
-    static Utils::FilePath androidBuildDirectory(const ProjectExplorer::Target *target);
-    static Utils::FilePath androidAppProcessDir(const ProjectExplorer::Target *target);
-    static Utils::FilePath buildDirectory(const ProjectExplorer::Target *target);
-    static Utils::FilePath manifestPath(const ProjectExplorer::Target *target);
-    static void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);
-    static Utils::FilePath manifestSourcePath(const ProjectExplorer::Target *target);
-    static Utils::FilePath packagePath(const ProjectExplorer::Target *target);
-    static bool matchedAbis(const QStringList &deviceAbis, const QStringList &appAbis);
-    static QString devicePreferredAbi(const QStringList &deviceAbis, const QStringList &appAbis);
-    static ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
-    static bool skipInstallationAndPackageSteps(const ProjectExplorer::Target *target);
+Utils::FilePath androidBuildDirectory(const ProjectExplorer::Target *target);
+Utils::FilePath androidAppProcessDir(const ProjectExplorer::Target *target);
+Utils::FilePath buildDirectory(const ProjectExplorer::Target *target);
+Utils::FilePath manifestPath(const ProjectExplorer::Target *target);
+void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);
+Utils::FilePath packagePath(const ProjectExplorer::Target *target);
+ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
+bool skipInstallationAndPackageSteps(const ProjectExplorer::Target *target);
 
-    static QString androidNameForApiLevel(int x);
+QString androidNameForApiLevel(int x);
 
-    static void installQASIPackage(ProjectExplorer::Target *target, const Utils::FilePath &packagePath);
+void installQASIPackage(ProjectExplorer::Target *target, const Utils::FilePath &packagePath);
 
-    static bool checkKeystorePassword(const Utils::FilePath &keystorePath,
-                                      const QString &keystorePasswd);
-    static bool checkCertificatePassword(const Utils::FilePath &keystorePath,
-                                         const QString &keystorePasswd,
-                                         const QString &alias, const QString &certificatePasswd);
-    static bool checkCertificateExists(const Utils::FilePath &keystorePath,
-                                       const QString &keystorePasswd, const QString &alias);
+bool checkKeystorePassword(const Utils::FilePath &keystorePath,
+                           const QString &keystorePasswd);
+bool checkCertificatePassword(const Utils::FilePath &keystorePath,
+                              const QString &keystorePasswd,
+                              const QString &alias, const QString &certificatePasswd);
+bool checkCertificateExists(const Utils::FilePath &keystorePath,
+                            const QString &keystorePasswd, const QString &alias);
 
-    static QProcess *runAdbCommandDetached(const QStringList &args, QString *err = nullptr,
-                                           bool deleteOnFinish = false);
-    static SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData = {},
-                                       int timeoutS = 30);
+Utils::Process *startAdbProcess(const QStringList &args, QString *err = nullptr);
+SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData = {},
+                            int timeoutS = 30);
 
-    static QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
-    static bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
+QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
+bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
-private:
-    static SdkToolResult runCommand(const Utils::CommandLine &command,
-                                    const QByteArray &writeData = {}, int timeoutS = 30);
-};
-
+} // namespace AndroidManager
 } // namespace Android

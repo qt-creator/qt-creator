@@ -26,12 +26,21 @@ public:
     QList<Utils::OutputLineParser *> createOutputParsers() const final;
     std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() final;
 
-    bool fromMap(const QVariantMap &data) final;
+    void fromMap(const Utils::Store &data) final;
 
     static bool parseVersion(const Utils::FilePath &path, std::tuple<int, int, int> &version);
 
 private:
     std::tuple<int, int, int> m_version;
+};
+
+class NimToolChainFactory : public ProjectExplorer::ToolChainFactory
+{
+public:
+    NimToolChainFactory();
+
+    ProjectExplorer::Toolchains autoDetect(const ProjectExplorer::ToolchainDetector &detector) const final;
+    ProjectExplorer::Toolchains detectForImport(const ProjectExplorer::ToolChainDescription &tcd) const final;
 };
 
 } // Nim

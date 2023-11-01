@@ -56,7 +56,7 @@ private:
 class QuickTestAstVisitor : public CPlusPlus::ASTVisitor
 {
 public:
-    QuickTestAstVisitor(CPlusPlus::Document::Ptr doc, const CPlusPlus::Snapshot &snapshot);
+    QuickTestAstVisitor(CPlusPlus::Document::Ptr doc);
 
     bool visit(CPlusPlus::CallAST *ast) override;
 
@@ -64,7 +64,6 @@ public:
 private:
     QString m_testBaseName;
     CPlusPlus::Document::Ptr m_currentDoc;
-    const CPlusPlus::Snapshot &m_snapshot;
 };
 
 } // namespace Internal

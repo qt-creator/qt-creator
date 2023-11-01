@@ -11,7 +11,7 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -56,8 +56,8 @@ private:
 
     bool init() final;
     void setupOutputFormatter(Utils::OutputFormatter *formatter) final;
-    bool fromMap(const QVariantMap &map) final;
-    QVariantMap toMap() const final;
+    void fromMap(const Store &map) final;
+    void toMap(Store &map) const final;
 
     QStringList m_baseBuildArguments;
     QStringList m_extraArguments;
@@ -166,26 +166,24 @@ void IosBuildStep::setupOutputFormatter(OutputFormatter *formatter)
     AbstractProcessStep::setupOutputFormatter(formatter);
 }
 
-QVariantMap IosBuildStep::toMap() const
+void IosBuildStep::toMap(Store &map) const
 {
-    QVariantMap map(AbstractProcessStep::toMap());
+    AbstractProcessStep::toMap(map);
 
     map.insert(BUILD_ARGUMENTS_KEY, m_baseBuildArguments);
     map.insert(BUILD_USE_DEFAULT_ARGS_KEY, m_useDefaultArguments);
 
     // Not used anymore since 4.14. But make sure older versions of Creator can read this.
     map.insert(CLEAN_KEY, stepList()->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN);
-
-    return map;
 }
 
-bool IosBuildStep::fromMap(const QVariantMap &map)
+void IosBuildStep::fromMap(const Store &map)
 {
     QVariant bArgs = map.value(BUILD_ARGUMENTS_KEY);
     m_baseBuildArguments = bArgs.toStringList();
     m_useDefaultArguments = map.value(BUILD_USE_DEFAULT_ARGS_KEY).toBool();
 
-    return BuildStep::fromMap(map);
+    BuildStep::fromMap(map);
 }
 
 QStringList IosBuildStep::allArguments() const

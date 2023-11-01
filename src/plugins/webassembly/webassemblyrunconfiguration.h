@@ -8,6 +8,12 @@
 
 namespace WebAssembly::Internal {
 
+using WebBrowserEntry = QPair<QString, QString>; // first: id, second: display name
+using WebBrowserEntries = QList<WebBrowserEntry>;
+
+WebBrowserEntries parseEmrunOutput(const QByteArray &output);
+
+
 class EmrunRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
 public:

@@ -13,7 +13,6 @@
 #include <QKeySequence>
 
 QT_BEGIN_NAMESPACE
-class QSettings;
 class QToolButton;
 class QWidget;
 QT_END_NAMESPACE
@@ -57,7 +56,7 @@ public:
     virtual NavigationView createWidget() = 0;
 
     virtual void saveSettings(Utils::QtcSettings *settings, int position, QWidget *widget);
-    virtual void restoreSettings(QSettings *settings, int position, QWidget *widget);
+    virtual void restoreSettings(Utils::QtcSettings *settings, int position, QWidget *widget);
 
     virtual void addRootPath(Utils::Id id, const QString &displayName, const QIcon &icon, const Utils::FilePath &path);
     virtual void removeRootPath(Utils::Id id);

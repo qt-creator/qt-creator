@@ -34,7 +34,6 @@ class SourcePreprocessor
 {
 public:
     SourcePreprocessor()
-        : m_cmm(CppModelManager::instance())
     {
         cleanUp();
     }
@@ -47,7 +46,7 @@ public:
                                          TestIncludePaths::directoryOfTestFile())});
         sourceProcessor->run(filePath);
 
-        Document::Ptr document = m_cmm->document(filePath);
+        Document::Ptr document = CppModelManager::document(filePath);
         return document;
     }
 
@@ -59,12 +58,9 @@ public:
 private:
     void cleanUp()
     {
-        m_cmm->GC();
-        QVERIFY(m_cmm->snapshot().isEmpty());
+        CppModelManager::GC();
+        QVERIFY(CppModelManager::snapshot().isEmpty());
     }
-
-private:
-    CppModelManager *m_cmm;
 };
 
 /// Check: Resolved and unresolved includes are properly tracked.

@@ -3,10 +3,9 @@
 
 #include "gtestconfiguration.h"
 
+#include "gtestframework.h"
 #include "gtestoutputreader.h"
-#include "gtestsettings.h"
 
-#include "../itestframework.h"
 #include "../testsettings.h"
 
 #include <utils/algorithm.h>
@@ -54,7 +53,7 @@ QStringList filterInterfering(const QStringList &provided, QStringList *omitted)
 QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) const
 {
     QStringList arguments;
-    if (TestSettings::instance()->processArgs()) {
+    if (testSettings().processArgs()) {
         arguments << filterInterfering(runnable().command.arguments().split(
                                            ' ', Qt::SkipEmptyParts), omitted);
     }
@@ -67,21 +66,19 @@ QStringList GTestConfiguration::argumentsForTestRunner(QStringList *omitted) con
             arguments << "--gtest_filter=\"" + testSets.join(':') + '"';
     }
 
-    auto gSettings = static_cast<GTestSettings *>(framework()->testSettings());
-    if (!gSettings)
-        return arguments;
+    GTestFramework &gSettings = theGTestFramework();
 
-    if (gSettings->runDisabled.value())
+    if (gSettings.runDisabled())
         arguments << "--gtest_also_run_disabled_tests";
-    if (gSettings->repeat.value())
-        arguments << QString("--gtest_repeat=%1").arg(gSettings->iterations.value());
-    if (gSettings->shuffle.value())
-        arguments << "--gtest_shuffle" << QString("--gtest_random_seed=%1").arg(gSettings->seed.value());
-    if (gSettings->throwOnFailure.value())
+    if (gSettings.repeat())
+        arguments << QString("--gtest_repeat=%1").arg(gSettings.iterations());
+    if (gSettings.shuffle())
+        arguments << "--gtest_shuffle" << QString("--gtest_random_seed=%1").arg(gSettings.seed());
+    if (gSettings.throwOnFailure())
         arguments << "--gtest_throw_on_failure";
 
     if (isDebugRunMode()) {
-        if (gSettings->breakOnFailure.value())
+        if (gSettings.breakOnFailure())
             arguments << "--gtest_break_on_failure";
         arguments << "--gtest_catch_exceptions=0";
     }

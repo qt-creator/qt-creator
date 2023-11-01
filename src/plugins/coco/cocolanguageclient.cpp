@@ -3,7 +3,6 @@
 
 #include "cocolanguageclient.h"
 
-#include <app/app_version.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <languageclient/diagnosticmanager.h>
 #include <languageclient/languageclienthoverhandler.h>
@@ -17,6 +16,7 @@
 #include <texteditor/textmark.h>
 #include <utils/utilsicons.h>
 
+#include <QGuiApplication>
 #include <QTextEdit>
 
 using namespace LanguageClient;
@@ -52,7 +52,7 @@ CocoLanguageClient::CocoLanguageClient(const FilePath &coco, const FilePath &csm
 
     ClientInfo info;
     info.setName("CocoQtCreator");
-    info.setVersion(Core::Constants::IDE_VERSION_DISPLAY);
+    info.setVersion(QGuiApplication::applicationDisplayName());
     setClientInfo(info);
 
     initClientCapabilities();
@@ -239,7 +239,7 @@ public:
     void enableCodecoverageSupport()
     {
         JsonObject coverageSupport(QJsonObject{{"codeCoverageSupport", true}});
-        insert(u"publishDiagnostics", coverageSupport);
+        insert("publishDiagnostics", coverageSupport);
     }
 };
 

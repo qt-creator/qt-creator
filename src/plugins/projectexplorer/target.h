@@ -6,6 +6,7 @@
 #include "projectexplorer_export.h"
 
 #include <utils/id.h>
+#include <utils/store.h>
 
 #include <QObject>
 
@@ -56,8 +57,8 @@ public:
     QString displayName() const;
     QString toolTip() const;
 
-    static QString displayNameKey();
-    static QString deviceTypeKey();
+    static Utils::Key displayNameKey();
+    static Utils::Key deviceTypeKey();
 
     // Build configuration
     void addBuildConfiguration(BuildConfiguration *bc);
@@ -77,6 +78,7 @@ public:
     const QList<RunConfiguration *> runConfigurations() const;
     void addRunConfiguration(RunConfiguration *rc);
     void removeRunConfiguration(RunConfiguration *rc);
+    void removeAllRunConfigurations();
 
     RunConfiguration *activeRunConfiguration() const;
     void setActiveRunConfiguration(RunConfiguration *rc);
@@ -86,14 +88,14 @@ public:
     void setOverlayIcon(const QIcon &icon);
     QString overlayIconToolTip();
 
-    QVariantMap toMap() const;
+    Utils::Store toMap() const;
 
     void updateDefaultBuildConfigurations();
     void updateDefaultDeployConfigurations();
     void updateDefaultRunConfigurations();
 
-    QVariant namedSettings(const QString &name) const;
-    void setNamedSettings(const QString &name, const QVariant &value);
+    QVariant namedSettings(const Utils::Key &name) const;
+    void setNamedSettings(const Utils::Key &name, const QVariant &value);
 
     QVariant additionalData(Utils::Id id) const;
 
@@ -130,6 +132,7 @@ signals:
     void removedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void addedRunConfiguration(ProjectExplorer::RunConfiguration *rc);
     void activeRunConfigurationChanged(ProjectExplorer::RunConfiguration *rc);
+    void runConfigurationsUpdated();
 
     void removedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
     void addedBuildConfiguration(ProjectExplorer::BuildConfiguration *bc);
@@ -143,7 +146,7 @@ signals:
     void deploymentDataChanged();
 
 private:
-    bool fromMap(const QVariantMap &map);
+    bool fromMap(const Utils::Store &map);
 
     void updateDeviceState();
 

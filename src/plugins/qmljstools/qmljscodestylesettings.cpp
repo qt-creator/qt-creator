@@ -15,24 +15,25 @@
 #include <cplusplus/Overview.h>
 
 #include <utils/qtcassert.h>
-#include <utils/settingsutils.h>
 
 static const char lineLengthKey[] = "LineLength";
 
+using namespace Utils;
+
 namespace QmlJSTools {
 
-// ------------------ QmlJSCodeStyleSettingsWidget
+// QmlJSCodeStyleSettings
 
 QmlJSCodeStyleSettings::QmlJSCodeStyleSettings() = default;
 
-QVariantMap QmlJSCodeStyleSettings::toMap() const
+Store QmlJSCodeStyleSettings::toMap() const
 {
     return {
         {lineLengthKey, lineLength}
     };
 }
 
-void QmlJSCodeStyleSettings::fromMap(const QVariantMap &map)
+void QmlJSCodeStyleSettings::fromMap(const Store &map)
 {
     lineLength = map.value(lineLengthKey, lineLength).toInt();
 }

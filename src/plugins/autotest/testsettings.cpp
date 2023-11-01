@@ -7,7 +7,9 @@
 #include "autotesttr.h"
 #include "testframeworkmanager.h"
 
-#include <QSettings>
+#include <utils/qtcsettings.h>
+
+using namespace Utils;
 
 namespace Autotest::Internal  {
 
@@ -15,18 +17,21 @@ static const char groupSuffix[]                 = ".group";
 
 constexpr int defaultTimeout = 60000;
 
-static TestSettings *s_instance;
-
-TestSettings *TestSettings::instance()
+TestSettings &testSettings()
 {
-    return s_instance;
+    static TestSettings theSettings;
+    return theSettings;
 }
 
 TestSettings::TestSettings()
 {
-    s_instance = this;
-
     setSettingsGroup(Constants::SETTINGSGROUP);
+
+    scanThreadLimit.setSettingsKey("ScanThreadLimit");
+    scanThreadLimit.setDefaultValue(0);
+    scanThreadLimit.setRange(0, QThread::idealThreadCount());
+    scanThreadLimit.setSpecialValueText("Automatic");
+    scanThreadLimit.setToolTip(Tr::tr("Number of worker threads used when scanning for tests."));
 
     timeout.setSettingsKey("Timeout");
     timeout.setDefaultValue(defaultTimeout);
@@ -102,28 +107,30 @@ TestSettings::TestSettings()
     runAfterBuild.addOption(Tr::tr("Selected"));
 }
 
-void TestSettings::toSettings(QSettings *s) const
+void TestSettings::toSettings() const
 {
-    AspectContainer::writeSettings(s);
+    AspectContainer::writeSettings();
 
+    QtcSettings *s = BaseAspect::qtcSettings();
     s->beginGroup(Constants::SETTINGSGROUP);
 
     // store frameworks and their current active and grouping state
     for (auto it = frameworks.cbegin(); it != frameworks.cend(); ++it) {
         const Utils::Id &id = it.key();
-        s->setValue(id.toString(), it.value());
-        s->setValue(id.toString() + groupSuffix, frameworksGrouping.value(id));
+        s->setValue(id.toKey(), it.value());
+        s->setValue(id.toKey() + groupSuffix, frameworksGrouping.value(id));
     }
     // ..and the testtools as well
     for (auto it = tools.cbegin(); it != tools.cend(); ++it)
-        s->setValue(it.key().toString(), it.value());
+        s->setValue(it.key().toKey(), it.value());
     s->endGroup();
 }
 
-void TestSettings::fromSettings(QSettings *s)
+void TestSettings::fromSettings()
 {
-    AspectContainer::readSettings(s);
+    AspectContainer::readSettings();
 
+    QtcSettings *s = BaseAspect::qtcSettings();
     s->beginGroup(Constants::SETTINGSGROUP);
 
     // try to get settings for registered frameworks
@@ -132,8 +139,8 @@ void TestSettings::fromSettings(QSettings *s)
     frameworksGrouping.clear();
     for (const ITestFramework *framework : registered) {
         // get their active state
-        const Utils::Id id = framework->id();
-        const QString key = id.toString();
+        const Id id = framework->id();
+        const Key key = id.toKey();
         frameworks.insert(id, s->value(key, framework->active()).toBool());
         // and whether grouping is enabled
         frameworksGrouping.insert(id, s->value(key + groupSuffix, framework->grouping()).toBool());
@@ -143,14 +150,14 @@ void TestSettings::fromSettings(QSettings *s)
     tools.clear();
     for (const ITestTool *testTool : registeredTools) {
         const Utils::Id id = testTool->id();
-        tools.insert(id, s->value(id.toString(), testTool->active()).toBool());
+        tools.insert(id, s->value(id.toKey(), testTool->active()).toBool());
     }
     s->endGroup();
 }
 
 RunAfterBuildMode TestSettings::runAfterBuildMode() const
 {
-    return static_cast<RunAfterBuildMode>(runAfterBuild.value());
+    return static_cast<RunAfterBuildMode>(runAfterBuild());
 }
 
 } // namespace Autotest::Internal

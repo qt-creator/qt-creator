@@ -5,18 +5,17 @@
 #include "frame.h"
 
 #include <QSharedData>
-#include <QVector>
+#include <QList>
 
 #include <algorithm>
 
-namespace Valgrind {
-namespace XmlProtocol {
+namespace Valgrind::XmlProtocol {
 
 class AnnounceThread::Private : public QSharedData
 {
 public:
     qint64 hThreadId = -1;
-    QVector<Frame> stack;
+    QList<Frame> stack;
 };
 
 AnnounceThread::AnnounceThread()
@@ -56,15 +55,14 @@ void AnnounceThread::setHelgrindThreadId(qint64 id)
     d->hThreadId = id;
 }
 
-QVector<Frame> AnnounceThread::stack() const
+QList<Frame> AnnounceThread::stack() const
 {
     return d->stack;
 }
 
-void AnnounceThread::setStack(const QVector<Frame> &stack)
+void AnnounceThread::setStack(const QList<Frame> &stack)
 {
     d->stack = stack;
 }
 
-} // namespace XmlProtocol
-} // namespace Valgrind
+} // namespace Valgrind::XmlProtocol

@@ -13,6 +13,7 @@
 #include "../modemanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/execmenu.h>
 #include <utils/fancylineedit.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/highlightingitemdelegate.h>
@@ -22,7 +23,6 @@
 #include <utils/qtcassert.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
-
 #include <QAction>
 #include <QApplication>
 #include <QColor>
@@ -250,7 +250,6 @@ CompletionList::CompletionList(QWidget *parent)
 
     setItemDelegate(new CompletionDelegate(this));
     setRootIsDecorated(false);
-    setUniformRowHeights(true);
     header()->hide();
     header()->setStretchLastSection(true);
     // This is too slow when done on all results
@@ -584,13 +583,12 @@ LocatorWidget::LocatorWidget(Locator *locator)
 
     m_centeredPopupAction->setCheckable(true);
     m_centeredPopupAction->setChecked(Locator::useCenteredPopupForShortcut());
+
     connect(m_filterMenu, &QMenu::aboutToShow, this, [this] {
         m_centeredPopupAction->setChecked(Locator::useCenteredPopupForShortcut());
     });
-    connect(m_filterMenu, &QMenu::hovered, this, [this](QAction *action) {
-        ToolTip::show(m_filterMenu->mapToGlobal(m_filterMenu->actionGeometry(action).topRight()),
-                      action->toolTip());
-    });
+    Utils::addToolTipsToMenu(m_filterMenu);
+
     connect(m_centeredPopupAction, &QAction::toggled, locator, [locator](bool toggled) {
         if (toggled != Locator::useCenteredPopupForShortcut()) {
             Locator::setUseCenteredPopupForShortcut(toggled);

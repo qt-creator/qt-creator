@@ -52,6 +52,24 @@ void ServerCapabilities::setHoverProvider(
 }
 
 std::optional<std::variant<bool, ServerCapabilities::RegistrationOptions>>
+ServerCapabilities::definitionProvider() const
+{
+    using RetType = std::variant<bool, ServerCapabilities::RegistrationOptions>;
+    const QJsonValue &provider = value(definitionProviderKey);
+    if (provider.isUndefined() || !(provider.isBool() || provider.isObject()))
+        return std::nullopt;
+    return std::make_optional(provider.isBool()
+                                  ? RetType(provider.toBool())
+                                  : RetType(RegistrationOptions(provider.toObject())));
+}
+
+void ServerCapabilities::setDefinitionProvider(
+    const std::variant<bool, RegistrationOptions> &definitionProvider)
+{
+    insertVariant<bool, RegistrationOptions>(definitionProviderKey, definitionProvider);
+}
+
+std::optional<std::variant<bool, ServerCapabilities::RegistrationOptions>>
 ServerCapabilities::typeDefinitionProvider() const
 {
     using RetType = std::variant<bool, ServerCapabilities::RegistrationOptions>;

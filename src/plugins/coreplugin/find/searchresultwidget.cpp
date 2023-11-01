@@ -478,7 +478,7 @@ void SearchResultWidget::doReplace()
 {
     m_infoBar.clear();
     setShowReplaceUI(false);
-    emit replaceButtonClicked(m_replaceTextEdit->text(), checkedItems(),
+    emit replaceButtonClicked(m_replaceTextEdit->text(), items(true),
                               m_preserveCaseSupported && m_preserveCaseCheck->isChecked());
 }
 
@@ -496,7 +496,7 @@ void SearchResultWidget::searchAgain()
     emit searchAgainRequested();
 }
 
-SearchResultItems SearchResultWidget::checkedItems() const
+SearchResultItems SearchResultWidget::items(bool checkedOnly) const
 {
     SearchResultItems result;
     SearchResultFilterModel *model = m_searchResultTreeView->model();
@@ -508,7 +508,7 @@ SearchResultItems SearchResultWidget::checkedItems() const
             const QModelIndex textIndex = model->index(rowIndex, 0, fileIndex);
             const SearchResultTreeItem * const rowItem = model->itemForIndex(textIndex);
             QTC_ASSERT(rowItem != nullptr, continue);
-            if (rowItem->checkState())
+            if (!checkedOnly || rowItem->checkState())
                 result << rowItem->item;
         }
     }

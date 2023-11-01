@@ -8,16 +8,19 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-vcs-clearcase.html
     \page creator-vcs-cvs.html
-    \nextpage creator-vcs-fossil.html
+    \previouspage creator-reference.html
 
-    \title Using CVS
+    \ingroup creator-reference-vcs
+
+    \title CVS
+
+    \brief Additional CVS functions.
 
     CVS is an open source version control system.
 
     In addition to the standard version control system functions described in
-    \l {Using Common Functions}, you can select \uicontrol Tools >
+    \l {Use common VCS Functions}, you can select \uicontrol Tools >
     \uicontrol CVS > \uicontrol Edit to set a file as writable, notify
     watchers that the file is being edited, and watch for actions performed
      on the file by other users.
@@ -31,13 +34,13 @@
 
     \section1 CVS Preferences
 
-    To set CVS preferences, select \uicontrol Edit > \uicontrol Preferences >
+    To set CVS preferences, select \preferences >
     \uicontrol {Version Control} > \uicontrol CVS:
 
     \image qtcreator-preferences-vcs-cvs.webp {CVS preferences}
 
     \list
-        \li \uicontrol {CVS Command} specifies the path to the command line
+        \li \uicontrol {CVS Command} specifies the path to the command-line
             client executable.
         \li \uicontrol {CVS root} specifies the CVS root.
         \li \uicontrol Timeout sets a timeout for version control operations.
@@ -45,4 +48,7 @@
         \li \uicontrol {Describe all files matching commit id} annotates all
             files that belong to the commit.
     \endlist
+
+    \sa {Set up version control systems}, {Use common VCS functions},
+    {Version Control Systems}
 */

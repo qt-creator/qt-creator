@@ -3,11 +3,11 @@
 
 #pragma once
 
-#include <QObject>
-
 #include "qmt/infrastructure/qmt_global.h"
 
+#include <QObject>
 #include <QScopedPointer>
+
 #include <functional>
 
 QT_BEGIN_NAMESPACE
@@ -28,8 +28,6 @@ class StyleController;
 
 class QMT_EXPORT PropertiesView : public QObject
 {
-    Q_OBJECT
-
 public:
     class MView;
 

@@ -4,12 +4,20 @@
 #include "settingsmanager.h"
 
 #include <coreplugin/icore.h>
+
 #include <utils/qtcassert.h>
 
-#include <QSettings>
-#include <QDebug>
+using namespace Utils;
 
-using namespace Designer::Internal;
+namespace Designer::Internal {
+
+static Key addPrefix(const QString &name)
+{
+    Key result;
+    if (Core::ICore::settings()->group().isEmpty())
+        result = "Designer";
+    return Key(result + name.toUtf8());
+}
 
 void SettingsManager::beginGroup(const QString &prefix)
 {
@@ -41,10 +49,4 @@ void SettingsManager::remove(const QString &key)
     Core::ICore::settings()->remove(addPrefix(key));
 }
 
-QString SettingsManager::addPrefix(const QString &name) const
-{
-    QString result = name;
-    if (Core::ICore::settings()->group().isEmpty())
-        result.prepend("Designer");
-    return result;
-}
+} // Designer::Internal

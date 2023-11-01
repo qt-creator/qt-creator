@@ -84,20 +84,15 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
 
 bool FormWindowFile::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
 {
-    const FilePath &actualName = filePath.isEmpty() ? this->filePath() : filePath;
-
-    if (Designer::Constants::Internal::debug)
-        qDebug() << Q_FUNC_INFO << filePath << "->" << actualName;
-
     QTC_ASSERT(m_formWindow, return false);
 
-    if (actualName.isEmpty())
+    if (filePath.isEmpty())
         return false;
 
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
-        m_formWindow->setFileName(actualName.toString());
-    const bool writeOK = writeFile(actualName, errorString);
+        m_formWindow->setFileName(filePath.toString());
+    const bool writeOK = writeFile(filePath, errorString);
     m_shouldAutoSave = false;
     if (autoSave)
         return writeOK;
@@ -108,7 +103,7 @@ bool FormWindowFile::saveImpl(QString *errorString, const FilePath &filePath, bo
     }
 
     m_formWindow->setDirty(false);
-    setFilePath(actualName);
+    setFilePath(filePath);
     updateIsModified();
 
     return true;

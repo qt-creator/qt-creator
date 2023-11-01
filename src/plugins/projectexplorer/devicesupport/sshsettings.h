@@ -5,21 +5,19 @@
 
 #include "../projectexplorer_export.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <functional>
 
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+namespace Utils { class QtcSettings; }
 
 namespace ProjectExplorer {
 
 class PROJECTEXPLORER_EXPORT SshSettings
 {
 public:
-    static void loadSettings(QSettings *settings);
-    static void storeSettings(QSettings *settings);
+    static void loadSettings(Utils::QtcSettings *settings);
+    static void storeSettings(Utils::QtcSettings *settings);
 
     static void setConnectionSharingEnabled(bool share);
     static bool connectionSharingEnabled();

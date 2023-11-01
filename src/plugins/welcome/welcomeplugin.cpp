@@ -7,8 +7,6 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
-#include <app/app_version.h>
-
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
@@ -30,6 +28,7 @@
 #include <utils/treemodel.h>
 
 #include <QDesktopServices>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
@@ -187,7 +186,7 @@ public:
 
             hbox->addSpacing(8);
 
-            auto ideNameLabel = new QLabel(Core::Constants::IDE_DISPLAY_NAME);
+            auto ideNameLabel = new QLabel(QGuiApplication::applicationDisplayName());
             ideNameLabel->setFont(welcomeFont);
             ideNameLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
             QPalette pal = palette();
@@ -352,16 +351,14 @@ WelcomeMode::WelcomeMode()
 
     m_modeWidget = new ResizeSignallingWidget;
     m_modeWidget->setPalette(palette);
-    connect(m_modeWidget, &ResizeSignallingWidget::resized,
+    connect(m_modeWidget, &ResizeSignallingWidget::resized, this,
             [this](const QSize &size, const QSize &) {
         const bool hideSideArea = size.width() <= 750;
         const bool hideBottomArea = size.width() <= 850;
         const bool compactVertically = size.height() <= 530;
-        QTimer::singleShot(0, [this, hideSideArea, hideBottomArea, compactVertically]() {
-            m_sideArea->setVisible(!hideSideArea);
-            m_bottomArea->setVisible(!(hideBottomArea || compactVertically));
-            m_topArea->setCompact(compactVertically);
-        });
+        m_sideArea->setVisible(!hideSideArea);
+        m_bottomArea->setVisible(!(hideBottomArea || compactVertically));
+        m_topArea->setCompact(compactVertically);
     });
 
     m_sideArea = new SideArea(m_modeWidget);
@@ -399,7 +396,7 @@ WelcomeMode::~WelcomeMode()
 
 void WelcomeMode::initPlugins()
 {
-    QSettings *settings = ICore::settings();
+    QtcSettings *settings = ICore::settings();
     m_activePage = Id::fromSetting(settings->value(currentPageSettingsKeyC));
 
     for (IWelcomePage *page : IWelcomePage::allWelcomePages())

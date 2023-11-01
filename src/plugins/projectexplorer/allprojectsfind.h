@@ -26,22 +26,18 @@ public:
     bool isEnabled() const override;
 
     QWidget *createConfigWidget() override;
-    void writeSettings(QSettings *settings) override;
-    void readSettings(QSettings *settings) override;
+    void writeSettings(Utils::QtcSettings *settings) override;
+    void readSettings(Utils::QtcSettings *settings) override;
 
 protected:
-    Utils::FileIterator *files(const QStringList &nameFilters,
-                               const QStringList &exclusionFilters,
-                               const QVariant &additionalParameters) const override;
-    Utils::FileIterator *filesForProjects(const QStringList &nameFilters,
-                                          const QStringList &exclusionFilters,
-                                          const QList<Project *> &projects) const;
-
-    QVariant additionalParameters() const override;
+    static Utils::FileContainer filesForProjects(const QStringList &nameFilters,
+                                                 const QStringList &exclusionFilters,
+                                                 const QList<Project *> &projects);
     QString label() const override;
     QString toolTip() const override;
 
 private:
+    TextEditor::FileContainerProvider fileContainerProvider() const override;
     void handleFileListChanged();
 
     QPointer<QWidget> m_configWidget;

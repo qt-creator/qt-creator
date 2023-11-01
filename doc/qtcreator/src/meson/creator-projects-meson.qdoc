@@ -1,28 +1,29 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-project-nimble.html
     \page creator-project-meson.html
-    \nextpage creator-project-incredibuild.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-systems
 
     \title Setting Up Meson
+
+    \brief Use Meson to build native desktop applications.
 
     \l{https://mesonbuild.com/}{Meson} is an open source and multi-platform build
     system generator using Ninja as main backend. Build definitions are located
     in \c {meson.build} files while build options are located in
     \c {meson_options.txt}.
 
-    Meson build support in \QC is not mature yet, you can only use it to build
-    native desktop applications. Many features available with Meson build or
-    usually available from \QC are missing.
+    \note Many features available with Meson build or usually available from \QC
+    are missing.
 
     \QC automatically detects the Meson and Ninja executables specified in the
     \c PATH. You can add paths to other Meson or Ninja executables and use them
     in different build and run \l{glossary-buildandrun-kit}{kits}.
 
-    \note Meson build plugin is disabled by default, see
-    \l{Enable and disable plugins}{How-to: Enable and disable plugins}.
+    \note Enable the Meson plugin to use it.
 
     \section1 Adding Meson Tools
 
@@ -33,7 +34,7 @@
 
     \list 1
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Meson >
+        \li Select \preferences > \uicontrol Meson >
             \uicontrol Tools > \uicontrol Add.
 
             \image qtcreator-mesonexecutable.png
@@ -48,12 +49,12 @@
     \endlist
 
     Select the
-    \uicontrol Edit > \uicontrol Preferences > \uicontrol Kits > \uicontrol Kits
+    \preferences > \uicontrol Kits > \uicontrol Kits
     tab to add the Meson and Ninja tools to a build and run kit:
 
     \image qtcreator-kits-meson.png "Setting Meson executable in Kit preferences"
 
-    For more information, see \l {Adding Kits}.
+    For more information, see \l {Kits}.
 
     \section1 Editing Meson Build Descriptions
 
@@ -84,11 +85,6 @@
         \li Adding files to Meson projects from \QC.
     \endlist
 
-    \section1 Related Topics
-
-    \list
-        \li \l {Opening Projects}
-        \li \l {Meson Build Configuration}
-        \li \l {Specifying Run Settings}
-    \endlist
+    \sa {Enable and disable plugins}, {Open projects},
+    {Meson Build Configuration}, {Specifying Run Settings}
 */

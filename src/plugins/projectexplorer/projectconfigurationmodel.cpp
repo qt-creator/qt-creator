@@ -5,9 +5,10 @@
 
 #include "buildconfiguration.h"
 #include "deployconfiguration.h"
+#include "projectconfiguration.h"
+#include "projectexplorertr.h"
 #include "runconfiguration.h"
 #include "target.h"
-#include "projectconfiguration.h"
 
 #include <utils/algorithm.h>
 #include <utils/stringutils.h>
@@ -30,6 +31,9 @@ static bool isOrderedBefore(const ProjectConfiguration *a, const ProjectConfigur
 ProjectConfigurationModel::ProjectConfigurationModel(Target *target) :
     m_target(target)
 {
+    connect(target, &Target::runConfigurationsUpdated, this, [this] {
+        emit dataChanged(index(0, 0), index(rowCount(), 0));
+    });
 }
 
 int ProjectConfigurationModel::rowCount(const QModelIndex &parent) const
@@ -87,13 +91,17 @@ void ProjectConfigurationModel::displayNameChanged(ProjectConfiguration *pc)
 
 QVariant ProjectConfigurationModel::data(const QModelIndex &index, int role) const
 {
-    if (role == Qt::DisplayRole) {
-        const int row = index.row();
-        if (row < m_projectConfigurations.size())
-            return m_projectConfigurations.at(row)->expandedDisplayName();
-    }
+    if (index.row() >= m_projectConfigurations.size())
+        return {};
 
-    return QVariant();
+    if (role == Qt::DisplayRole) {
+        ProjectConfiguration * const config = m_projectConfigurations.at(index.row());
+        QString displayName = config->expandedDisplayName();
+        if (const auto rc = qobject_cast<RunConfiguration *>(config); rc && !rc->hasCreator())
+            displayName += QString(" [%1]").arg(Tr::tr("unavailable"));
+        return displayName;
+    }
+    return {};
 }
 
 ProjectConfiguration *ProjectConfigurationModel::projectConfigurationAt(int i) const

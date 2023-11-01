@@ -5,7 +5,7 @@
 
 #include "projectexplorertr.h"
 
-#include <coreplugin/icore.h>
+#include <QGuiApplication>
 
 namespace ProjectExplorer {
 namespace Constants {
@@ -18,7 +18,7 @@ QString msgAutoDetected()
 QString msgAutoDetectedToolTip()
 {
     return Tr::tr("Automatically managed by %1 or the installer.")
-        .arg(Core::ICore::ideDisplayName());
+        .arg(QGuiApplication::applicationDisplayName());
 }
 
 QString msgManual()

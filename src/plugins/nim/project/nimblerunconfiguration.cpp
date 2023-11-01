@@ -11,10 +11,8 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
-#include <utils/algorithm.h>
-#include <utils/environment.h>
-
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace Nim {
 
@@ -23,28 +21,34 @@ namespace Nim {
 class NimbleRunConfiguration : public RunConfiguration
 {
 public:
-    NimbleRunConfiguration(Target *target, Utils::Id id)
+    NimbleRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        auto envAspect = addAspect<EnvironmentAspect>();
-        envAspect->setSupportForBuildEnvironment(target);
+        environment.setSupportForBuildEnvironment(target);
 
-        addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
-        addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(macroExpander(), envAspect);
-        addAspect<TerminalAspect>();
+        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+
+        arguments.setMacroExpander(macroExpander());
+
+        workingDir.setMacroExpander(macroExpander());
 
         setUpdater([this] {
             BuildTargetInfo bti = buildTargetInfo();
             setDisplayName(bti.displayName);
             setDefaultDisplayName(bti.displayName);
-            aspect<ExecutableAspect>()->setExecutable(bti.targetFilePath);
-            aspect<WorkingDirectoryAspect>()->setDefaultWorkingDirectory(bti.workingDirectory);
+            executable.setExecutable(bti.targetFilePath);
+            workingDir.setDefaultWorkingDirectory(bti.workingDirectory);
         });
 
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
         update();
     }
+
+    EnvironmentAspect environment{this};
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
 };
 
 NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
@@ -61,19 +65,26 @@ NimbleRunConfigurationFactory::NimbleRunConfigurationFactory()
 class NimbleTestConfiguration : public RunConfiguration
 {
 public:
-    NimbleTestConfiguration(ProjectExplorer::Target *target, Utils::Id id)
+    NimbleTestConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        addAspect<ExecutableAspect>(target, ExecutableAspect::BuildDevice)
-                ->setExecutable(Nim::nimblePathFromKit(target->kit()));
-        addAspect<ArgumentsAspect>(macroExpander())->setArguments("test");
-        addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr)
-                ->setDefaultWorkingDirectory(project()->projectDirectory());
-        addAspect<TerminalAspect>();
-
         setDisplayName(Tr::tr("Nimble Test"));
         setDefaultDisplayName(Tr::tr("Nimble Test"));
+
+        executable.setDeviceSelector(target, ExecutableAspect::BuildDevice);
+        executable.setExecutable(Nim::nimblePathFromKit(kit()));
+
+        arguments.setMacroExpander(macroExpander());
+        arguments.setArguments("test");
+
+        workingDir.setMacroExpander(macroExpander());
+        workingDir.setDefaultWorkingDirectory(project()->projectDirectory());
     }
+
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
+    TerminalAspect terminal{this};
 };
 
 NimbleTestConfigurationFactory::NimbleTestConfigurationFactory()

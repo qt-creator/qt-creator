@@ -3,12 +3,9 @@
 
 #pragma once
 
-#include "ctfvisualizerconstants.h"
-
 #include <utils/itemviews.h>
 
-namespace CtfVisualizer {
-namespace Internal {
+namespace CtfVisualizer::Internal {
 
 class CtfStatisticsModel;
 
@@ -25,5 +22,4 @@ signals:
     void eventTypeSelected(const QString &title);
 };
 
-}  // Internal
-}  // CtfVisualizer
+}  // CtfVisualizer::Internal

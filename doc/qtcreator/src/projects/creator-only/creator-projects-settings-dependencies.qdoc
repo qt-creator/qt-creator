@@ -9,20 +9,20 @@
 
 /*!
     \page creator-build-dependencies.html
-    \previouspage creator-code-style-settings.html
-    \nextpage creator-project-settings-environment.html
+    \previouspage creator-how-tos.html
 
-    \title Specifying Dependencies
+    \ingroup creator-how-to-projects-configure
+
+    \title Specify dependencies
 
     If you have multiple projects loaded in a session, you can define the
     order in which they are built. For example, if project A depends on project
     B, project B must be built first.
 
     \note The build order is stored as a property of a session, not a project.
-    You must open the session for these settings to take effect. For more
-    information, see \l{Managing Sessions}.
+    You must open the session for these settings to take effect.
 
-    \image qtcreator-build-dependencies.png "Dependencies view"
+    \image qtcreator-build-dependencies.png {Dependencies settings in Projects mode}
 
     To define the build order of projects within a session:
 
@@ -45,7 +45,7 @@
     specify for the projects loaded in the session.
 
     \note You cannot use this view to specify subprojects for projects.
-    For more information on how to add subprojects, see \l{Adding Subprojects
-    to Projects}.
+
+    \sa {Add subprojects to projects}, {Managing Sessions}
 
 */

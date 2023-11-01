@@ -25,20 +25,24 @@ public:
     explicit BareMetalRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        const auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
-        exeAspect->setDisplayStyle(StringAspect::LabelDisplay);
-        exeAspect->setPlaceHolderText(Tr::tr("Unknown"));
+        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+        executable.setPlaceHolderText(Tr::tr("Unknown"));
 
-        addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
+        arguments.setMacroExpander(macroExpander());
 
-        setUpdater([this, exeAspect] {
+        workingDir.setMacroExpander(macroExpander());
+
+        setUpdater([this] {
             const BuildTargetInfo bti = buildTargetInfo();
-            exeAspect->setExecutable(bti.targetFilePath);
+            executable.setExecutable(bti.targetFilePath);
         });
 
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
     }
+
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
 };
 
 class BareMetalCustomRunConfiguration final : public RunConfiguration
@@ -47,33 +51,37 @@ public:
     explicit BareMetalCustomRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        const auto exeAspect = addAspect<ExecutableAspect>(target, ExecutableAspect::RunDevice);
-        exeAspect->setSettingsKey("BareMetal.CustomRunConfig.Executable");
-        exeAspect->setPlaceHolderText(Tr::tr("Unknown"));
-        exeAspect->setDisplayStyle(StringAspect::PathChooserDisplay);
-        exeAspect->setHistoryCompleter("BareMetal.CustomRunConfig.History");
-        exeAspect->setExpectedKind(PathChooser::Any);
+        executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
+        executable.setSettingsKey("BareMetal.CustomRunConfig.Executable");
+        executable.setPlaceHolderText(Tr::tr("Unknown"));
+        executable.setReadOnly(false);
+        executable.setHistoryCompleter("BareMetal.CustomRunConfig.History");
+        executable.setExpectedKind(PathChooser::Any);
 
-        addAspect<ArgumentsAspect>(macroExpander());
-        addAspect<WorkingDirectoryAspect>(macroExpander(), nullptr);
+        arguments.setMacroExpander(macroExpander());
+
+        workingDir.setMacroExpander(macroExpander());
 
         setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(
-                                  Tr::tr("Custom Executable"), target));
+            Tr::tr("Custom Executable"), target));
     }
 
 public:
-    Tasks checkForIssues() const final;
+    Tasks checkForIssues() const final
+    {
+        Tasks tasks;
+        if (executable.executable().isEmpty()) {
+            tasks << createConfigurationIssue(Tr::tr("The remote executable must be set in order to "
+                                                     "run a custom remote run configuration."));
+        }
+        return tasks;
+    }
+
+    ExecutableAspect executable{this};
+    ArgumentsAspect arguments{this};
+    WorkingDirectoryAspect workingDir{this};
 };
 
-Tasks BareMetalCustomRunConfiguration::checkForIssues() const
-{
-    Tasks tasks;
-    if (aspect<ExecutableAspect>()->executable().isEmpty()) {
-        tasks << createConfigurationIssue(Tr::tr("The remote executable must be set in order to "
-                                                 "run a custom remote run configuration."));
-    }
-    return tasks;
-}
 
 // BareMetalRunConfigurationFactory
 

@@ -286,7 +286,7 @@ class VirtualMethodsSettings
 public:
     void read()
     {
-        QSettings *s = Core::ICore::settings();
+        QtcSettings *s = Core::ICore::settings();
         s->beginGroup(group());
         insertVirtualKeyword = s->value(insertVirtualKeywordKey(), kInsertVirtualKeywordDefault)
                                    .toBool();
@@ -304,7 +304,7 @@ public:
 
     void write() const
     {
-        Utils::QtcSettings *s = Core::ICore::settings();
+        QtcSettings *s = Core::ICore::settings();
         s->beginGroup(group());
         s->setValueWithDefault(insertVirtualKeywordKey(),
                                insertVirtualKeyword,
@@ -334,14 +334,13 @@ public:
     bool insertOverrideReplacement = kInsertOVerrideReplacementDefault;
 
 private:
-    using _ = QLatin1String;
-    static QString group() { return _("QuickFix/InsertVirtualMethods"); }
-    static QString insertVirtualKeywordKey() { return _("insertKeywordVirtual"); }
-    static QString insertOverrideReplacementKey() { return _("insertOverrideReplacement"); }
-    static QString overrideReplacementIndexKey() { return _("overrideReplacementIndex"); }
-    static QString userAddedOverrideReplacementsKey() { return _("userAddedOverrideReplacements"); }
-    static QString implementationModeKey() { return _("implementationMode"); }
-    static QString hideReimplementedFunctionsKey() { return _("hideReimplementedFunctions"); }
+    static Key group() { return "QuickFix/InsertVirtualMethods"; }
+    static Key insertVirtualKeywordKey() { return "insertKeywordVirtual"; }
+    static Key insertOverrideReplacementKey() { return "insertOverrideReplacement"; }
+    static Key overrideReplacementIndexKey() { return "overrideReplacementIndex"; }
+    static Key userAddedOverrideReplacementsKey() { return "userAddedOverrideReplacements"; }
+    static Key implementationModeKey() { return "implementationMode"; }
+    static Key hideReimplementedFunctionsKey() { return "hideReimplementedFunctions"; }
 };
 
 class InsertVirtualMethodsModel : public QAbstractItemModel
@@ -1048,7 +1047,7 @@ void InsertVirtualMethodsDialog::initGui()
     auto clearUserAddedReplacements = new QAction(this);
     clearUserAddedReplacements->setIcon(Utils::Icons::CLEAN_TOOLBAR.icon());
     clearUserAddedReplacements->setText(Tr::tr("Clear Added \"override\" Equivalents"));
-    connect(clearUserAddedReplacements, &QAction::triggered, [this] {
+    connect(clearUserAddedReplacements, &QAction::triggered, this, [this] {
        m_availableOverrideReplacements = defaultOverrideReplacements();
        updateOverrideReplacementsComboBox();
        m_clearUserAddedReplacementsButton->setEnabled(false);

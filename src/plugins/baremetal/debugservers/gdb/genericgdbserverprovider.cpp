@@ -16,7 +16,45 @@
 
 namespace BareMetal::Internal {
 
+// GenericGdbServerProviderConfigWidget
+
+class GenericGdbServerProvider;
+
+class GenericGdbServerProviderConfigWidget final : public GdbServerProviderConfigWidget
+{
+public:
+    explicit GenericGdbServerProviderConfigWidget(GenericGdbServerProvider *provider);
+
+private:
+    void apply() final;
+    void discard() final;
+
+    void setFromProvider();
+
+    HostWidget *m_hostWidget = nullptr;
+    QCheckBox *m_useExtendedRemoteCheckBox = nullptr;
+    QPlainTextEdit *m_initCommandsTextEdit = nullptr;
+    QPlainTextEdit *m_resetCommandsTextEdit = nullptr;
+};
+
 // GenericGdbServerProvider
+
+class GenericGdbServerProvider final : public GdbServerProvider
+{
+private:
+    GenericGdbServerProvider();
+    QSet<StartupMode> supportedStartupModes() const final;
+    ProjectExplorer::RunWorker *targetRunner(ProjectExplorer::RunControl *runControl) const final {
+        Q_UNUSED(runControl)
+        // Generic Runner assumes GDB Server already running
+        return nullptr;
+    }
+
+    friend class GenericGdbServerProviderConfigWidget;
+    friend class GenericGdbServerProviderFactory;
+};
+
+// GenericGdbServerProviderFactory
 
 GenericGdbServerProvider::GenericGdbServerProvider()
     : GdbServerProvider(Constants::GDBSERVER_GENERIC_PROVIDER_ID)

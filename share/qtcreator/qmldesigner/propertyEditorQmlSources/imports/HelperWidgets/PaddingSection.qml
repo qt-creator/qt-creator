@@ -67,7 +67,7 @@ Section {
 
         PropertyLabel {
             text: qsTr("Horizontal")
-            tooltip: qsTr("Sets the paddding on the left and right sides of the item.")
+            tooltip: qsTr("Sets the padding on the left and right sides of the item.")
             blockedByTemplate: !backendValues.leftPadding.isAvailable
                                && !backendValues.rightPadding.isAvailable
         }

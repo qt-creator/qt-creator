@@ -9,9 +9,9 @@
 #include "callgrind/callgrindparser.h"
 
 #include <utils/process.h>
+#include <utils/processinterface.h>
 
-namespace Valgrind {
-namespace Internal {
+namespace Valgrind::Internal {
 
 class CallgrindToolRunner : public ValgrindToolRunner
 {
@@ -74,7 +74,7 @@ private:
     bool m_markAsPaused = false;
 
     std::unique_ptr<Utils::Process> m_controllerProcess;
-    ProjectExplorer::Runnable m_valgrindRunnable;
+    Utils::ProcessRunData m_valgrindRunnable;
     qint64 m_pid = 0;
 
     Option m_lastOption = Unknown;
@@ -89,5 +89,4 @@ private:
     QString m_argumentForToggleCollect;
 };
 
-} // namespace Internal
-} // namespace Valgrind
+} // namespace Valgrind::Internal

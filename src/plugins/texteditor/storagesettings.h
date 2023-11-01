@@ -5,11 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <QVariantMap>
-
-QT_BEGIN_NAMESPACE
-class QSettings;
-QT_END_NAMESPACE
+#include <utils/store.h>
 
 namespace TextEditor {
 
@@ -18,11 +14,8 @@ class TEXTEDITOR_EXPORT StorageSettings
 public:
     StorageSettings();
 
-    void toSettings(const QString &category, QSettings *s) const;
-    void fromSettings(const QString &category, QSettings *s);
-
-    QVariantMap toMap() const;
-    void fromMap(const QVariantMap &map);
+    Utils::Store toMap() const;
+    void fromMap(const Utils::Store &map);
 
     // calculated based on boolean setting plus file type blacklist examination
     bool removeTrailingWhitespace(const QString &filePattern) const;

@@ -96,7 +96,7 @@ FilePath ExamplesWelcomePage::copyToAlternativeLocation(const FilePath &proFile,
     auto chooser = new PathChooser;
     txt->setBuddy(chooser);
     chooser->setExpectedKind(PathChooser::ExistingDirectory);
-    chooser->setHistoryCompleter(QLatin1String("Qt.WritableExamplesDir.History"));
+    chooser->setHistoryCompleter("Qt.WritableExamplesDir.History");
     const FilePath defaultRootDirectory = DocumentManager::projectsDirectory();
     QtcSettings *settings = ICore::settings();
     chooser->setFilePath(
@@ -116,7 +116,8 @@ FilePath ExamplesWelcomePage::copyToAlternativeLocation(const FilePath &proFile,
     if (code == Copy) {
         const QString exampleDirName = projectDir.fileName();
         const FilePath destBaseDir = chooser->filePath();
-        settings->setValueWithDefault(C_FALLBACK_ROOT, destBaseDir, defaultRootDirectory);
+        settings->setValueWithDefault(C_FALLBACK_ROOT, destBaseDir.toSettings(),
+                                                       defaultRootDirectory.toSettings());
         const FilePath targetDir = destBaseDir / exampleDirName;
         if (targetDir.exists()) {
             QMessageBox::warning(ICore::dialogParent(),
@@ -304,14 +305,14 @@ public:
         grid->addWidget(WelcomePageHelpers::panelBar(this), 0, 2);
 
         auto gridView = new SectionedGridView(this);
-        new ExamplesViewController(s_exampleSetModel, gridView, isExamples, this);
+        m_viewController
+            = new ExamplesViewController(s_exampleSetModel, gridView, m_searcher, isExamples, this);
 
         gridView->setItemDelegate(&m_exampleDelegate);
         grid->addWidget(gridView, 1, 1, 1, 2);
 
         connect(&m_exampleDelegate, &ExampleDelegate::tagClicked,
                 this, &ExamplesPageWidget::onTagClicked);
-        connect(m_searcher, &QLineEdit::textChanged, gridView, &SectionedGridView::setSearchString);
     }
 
     void onTagClicked(const QString &tag)
@@ -321,9 +322,22 @@ public:
                             + QString("tag:\"%1\" ").arg(tag));
     }
 
+    void showEvent(QShowEvent *event) override
+    {
+        m_viewController->setVisible(true);
+        QWidget::showEvent(event);
+    }
+
+    void hideEvent(QHideEvent *event) override
+    {
+        m_viewController->setVisible(false);
+        QWidget::hideEvent(event);
+    }
+
     const bool m_isExamples;
     ExampleDelegate m_exampleDelegate;
     QLineEdit *m_searcher;
+    ExamplesViewController *m_viewController = nullptr;
 };
 
 QWidget *ExamplesWelcomePage::createWidget() const

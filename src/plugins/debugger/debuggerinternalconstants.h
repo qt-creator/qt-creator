@@ -41,8 +41,8 @@ const char C_QMLDEBUGGER[]                    = "Qml/JavaScript Debugger";
 const char C_DEBUGGER_NOTRUNNING[]            = "Debugger.NotRunning";
 
 const char PRESET_PERSPECTIVE_ID[]            = "Debugger.Perspective.Preset";
+const char DAP_PERSPECTIVE_ID[]               = "DAPDebugger";
 
-const char TASK_CATEGORY_DEBUGGER_DEBUGINFO[] = "Debuginfo";
 const char TASK_CATEGORY_DEBUGGER_RUNTIME[]   = "DebugRuntime";
 
 const char TEXT_MARK_CATEGORY_BREAKPOINT[]    = "Debugger.Mark.Breakpoint";

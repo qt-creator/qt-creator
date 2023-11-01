@@ -81,7 +81,7 @@ public:
 
     void createIconButton()
     {
-        m_iconButton = new IconButton;
+        m_iconButton = new FancyIconButton;
         m_iconButton->setIcon(Icons::REPLACE.icon());
         m_iconButton->setToolTip(Tr::tr("Insert Variable"));
         m_iconButton->hide();
@@ -108,7 +108,7 @@ public:
     QPointer<QLineEdit> m_lineEdit;
     QPointer<QTextEdit> m_textEdit;
     QPointer<QPlainTextEdit> m_plainTextEdit;
-    QPointer<IconButton> m_iconButton;
+    QPointer<FancyIconButton> m_iconButton;
 
     FancyLineEdit *m_variableFilter;
     VariableTreeView *m_variableTree;

@@ -8,7 +8,9 @@
 #include "../autotesttr.h"
 #include "../itestframework.h"
 
+#include <cplusplus/Symbol.h>
 #include <cppeditor/cppmodelmanager.h>
+#include <cppeditor/symbolfinder.h>
 
 #include <projectexplorer/projectmanager.h>
 
@@ -16,8 +18,7 @@
 
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 QtTestTreeItem::QtTestTreeItem(ITestFramework *testFramework, const QString &name,
                                const FilePath &filePath, TestTreeItem::Type type)
@@ -46,12 +47,17 @@ QVariant QtTestTreeItem::data(int column, int role) const
     case Qt::ToolTipRole: {
         QString toolTip = TestTreeItem::data(column, role).toString();
         if (m_multiTest && type() == TestCase) {
-            toolTip.append(Tr::tr("<p>Multiple testcases inside a single executable are not officially "
-                                  "supported. Depending on the implementation they might get executed "
-                                  "or not, but never will be explicitly selectable.</p>"));
+            toolTip.append(
+                "<p>"
+                + Tr::tr("Multiple testcases inside a single executable are not officially "
+                         "supported. Depending on the implementation they might get executed "
+                         "or not, but never will be explicitly selectable.")
+                + "</p>");
+        } else  if (type() == TestFunction) {
+            // avoid confusion (displaying header file, but ending up inside source)
+            toolTip = parentItem()->name() + "::" + name();
         }
         return toolTip;
-        break;
     }
     case Qt::CheckStateRole:
         switch (type()) {
@@ -69,6 +75,13 @@ QVariant QtTestTreeItem::data(int column, int role) const
         default:
             return m_multiTest;
         }
+    case LinkRole:
+        if (type() == GroupNode || type() == Root)
+            return QVariant();
+        if (type() == TestDataFunction || type() == TestDataTag)
+            return TestTreeItem::data(column, role);
+        // other functions would end up inside declaration - so, find its definition
+        return linkForTreeItem();
     }
     return TestTreeItem::data(column, role);
 }
@@ -120,8 +133,6 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
 {
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     QTC_ASSERT(project, return nullptr);
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    QTC_ASSERT(cppMM, return nullptr);
 
     QtTestConfiguration *config = nullptr;
     switch (type()) {
@@ -155,15 +166,13 @@ ITestConfiguration *QtTestTreeItem::testConfiguration() const
         return nullptr;
     }
     if (config)
-        config->setInternalTargets(cppMM->internalTargets(filePath()));
+        config->setInternalTargets(CppEditor::CppModelManager::internalTargets(filePath()));
     return config;
 }
 
 static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
                                                  QList<ITestConfiguration *> &testConfigurations)
 {
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    QTC_ASSERT(cppMM, return);
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {
         for (int row = 0, count = item->childCount(); row < count; ++row)
@@ -198,15 +207,14 @@ static void fillTestConfigurationsFromCheckState(const TestTreeItem *item,
         testConfig->setTestCases(testCases);
         testConfig->setProjectFile(item->proFile());
         testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
-        testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
+        testConfig->setInternalTargets(
+            CppEditor::CppModelManager::internalTargets(item->filePath()));
         testConfigurations << testConfig;
     }
 }
 
 static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *> &testConfigs)
 {
-    const auto cppMM = CppEditor::CppModelManager::instance();
-    QTC_ASSERT(cppMM, return);
     QTC_ASSERT(item, return);
     if (item->type() == TestTreeItem::GroupNode) {
         for (int row = 0, count = item->childCount(); row < count; ++row)
@@ -232,7 +240,8 @@ static void collectFailedTestInfo(TestTreeItem *item, QList<ITestConfiguration *
     testConfig->setTestCases(testCases);
     testConfig->setProjectFile(item->proFile());
     testConfig->setProject(ProjectExplorer::ProjectManager::startupProject());
-    testConfig->setInternalTargets(cppMM->internalTargets(item->filePath()));
+    testConfig->setInternalTargets(
+        CppEditor::CppModelManager::internalTargets(item->filePath()));
     testConfigs << testConfig;
 }
 
@@ -407,6 +416,26 @@ bool QtTestTreeItem::isGroupable() const
     return type() == TestCase;
 }
 
+QVariant QtTestTreeItem::linkForTreeItem() const
+{
+    QVariant itemLink;
+    using namespace CPlusPlus;
+    const Snapshot snapshot = CppEditor::CppModelManager::instance()->snapshot();
+    const Document::Ptr doc = snapshot.document(filePath());
+    Symbol *symbol = doc->lastVisibleSymbolAt(line(), this->column() + 1);
+    if (auto decl = symbol->asDeclaration()) {
+        static CppEditor::SymbolFinder symbolFinder;
+        if (Symbol *definition = symbolFinder.findMatchingDefinition(decl, snapshot, true);
+                definition && definition->fileId()) {
+            itemLink.setValue(Link(FilePath::fromUtf8(definition->fileName()),
+                                   definition->line(), definition->column() - 1));
+        }
+    }
+    if (!itemLink.isValid()) // fallback in case we failed to find the definition
+        itemLink.setValue(Link(filePath(), line(), this->column()));
+    return itemLink;
+}
+
 TestTreeItem *QtTestTreeItem::findChildByFileNameAndType(const FilePath &file,
                                                          const QString &name, Type type) const
 {
@@ -442,5 +471,4 @@ QString QtTestTreeItem::nameSuffix() const
     return suffix.isEmpty() ? suffix : QString{" [" + suffix + "]"};
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

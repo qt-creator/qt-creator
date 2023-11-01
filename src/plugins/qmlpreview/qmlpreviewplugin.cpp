@@ -21,7 +21,7 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -37,13 +37,14 @@
 
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>
 
 #include <android/androidconstants.h>
 
 #include <QAction>
+#include <QMessageBox>
 #include <QPointer>
 #include <QTimer>
 
@@ -174,11 +175,6 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
 
     menu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT);
     action = new QAction(Tr::tr("Preview File"), this);
-    action->setEnabled(false);
-    connect(q, &QmlPreviewPlugin::runningPreviewsChanged,
-            action, [action](const QmlPreviewRunControlList &previews) {
-        action->setEnabled(!previews.isEmpty());
-    });
     connect(action, &QAction::triggered, q, &QmlPreviewPlugin::previewCurrentFile);
     menu->addAction(
         Core::ActionManager::registerAction(action, "QmlPreview.PreviewFile",  Core::Context(Constants::C_PROJECT_TREE)),
@@ -336,6 +332,11 @@ void QmlPreviewPlugin::previewCurrentFile()
             || currentNode->asFileNode()->fileType() != FileType::QML)
         return;
 
+    if (runningPreviews().isEmpty())
+        QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("QML Preview Not Running"),
+                             Tr::tr("Start the QML Preview for the project before selecting "
+                                    "a specific file for preview."));
+
     const QString file = currentNode->filePath().toString();
     if (file != d->m_previewedFile)
         setPreviewedFile(file);
@@ -412,6 +413,8 @@ void QmlPreviewPluginPrivate::attachToEditor()
 
 void QmlPreviewPluginPrivate::checkEditor()
 {
+    if (m_runningPreviews.isEmpty())
+        return;
     QmlJS::Dialect::Enum dialect = QmlJS::Dialect::AnyLanguage;
     Core::IDocument *doc = m_lastEditor->document();
     const QString mimeType = doc->mimeType();

@@ -32,7 +32,7 @@ WatchTreeView::WatchTreeView(WatchType type)
     connect(this, &QTreeView::expanded, this, &WatchTreeView::expandNode);
     connect(this, &QTreeView::collapsed, this, &WatchTreeView::collapseNode);
 
-    connect(&debuggerSettings()->logTimeStamps, &Utils::BaseAspect::changed,
+    connect(&settings().logTimeStamps, &Utils::BaseAspect::changed,
             this, &WatchTreeView::updateTimeColumn);
 }
 
@@ -84,8 +84,7 @@ void WatchTreeView::setModel(QAbstractItemModel *model)
 void WatchTreeView::updateTimeColumn()
 {
     if (header())
-        header()->setSectionHidden(WatchModelBase::TimeColumn,
-                                   !debuggerSettings()->logTimeStamps.value());
+        header()->setSectionHidden(WatchModelBase::TimeColumn, !settings().logTimeStamps());
 }
 
 void WatchTreeView::handleItemIsExpanded(const QModelIndex &idx)

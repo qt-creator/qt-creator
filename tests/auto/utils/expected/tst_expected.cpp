@@ -26,11 +26,30 @@ private slots:
                               return expected_str<QByteArray>(
                                   make_unexpected(QString("Error: " + error)));
                           })
-                          .transform_or([](auto error) -> QString {
+                          .transform_error([](auto error) -> QString {
                               return QString(QString("More Info: ") + error);
                           });
 
         QVERIFY(!result);
+    }
+
+    void tryCompareVoid()
+    {
+        tl::expected<void, QString> e1;
+        QVERIFY(e1 == e1);
+
+        tl::expected<void, QString> e2 = make_unexpected("error");
+        QVERIFY(e1 != e2);
+
+        e1 = make_unexpected(QString("error"));
+        QVERIFY(e1 == e2);
+
+        e2 = {};
+        QVERIFY(e1 != e2);
+
+        e1 = {};
+        QVERIFY(e1 == e2);
+        QVERIFY(!(e1 != e2));
     }
 };
 QTEST_GUILESS_MAIN(tst_expected)

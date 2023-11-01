@@ -971,20 +971,57 @@ class Dumper(DumperBase):
                     self.debugger.GetListener(),
                     self.remoteChannel_, None, error)
             else:
-                f = lldb.SBFileSpec()
-                f.SetFilename(self.executable_)
+                if self.platform_ == "remote-macosx":
+                    self.report("Connecting to remote target: connect://%s" % self.remoteChannel_)
+                    self.process = self.target.ConnectRemote(
+                        self.debugger.GetListener(),
+                        "connect://" + self.remoteChannel_, None, error)
 
-                launchInfo = lldb.SBLaunchInfo(self.processArgs_)
-                #launchInfo.SetWorkingDirectory(self.workingDirectory_)
-                launchInfo.SetWorkingDirectory('/tmp')
-                if self.platform_ == 'remote-android':
-                    launchInfo.SetWorkingDirectory('/data/local/tmp')
-                launchInfo.SetEnvironmentEntries(self.environment_, False)
-                launchInfo.SetExecutableFile(f, True)
+                    if not error.Success():
+                        self.report("Failed to connect to remote target: %s" % error.GetCString())
+                        self.reportState('enginerunfailed')
+                        return
 
-                DumperBase.warn("TARGET: %s" % self.target)
-                self.process = self.target.Launch(launchInfo, error)
-                DumperBase.warn("PROCESS: %s" % self.process)
+                    if self.breakOnMain_:
+                        self.createBreakpointAtMain()
+
+                    DumperBase.warn("PROCESS: %s (%s)" % (self.process, error.Success() and "Success" or error.GetCString()))
+                elif self.platform_ == "remote-linux":
+                    self.report("Connecting to remote target: connect://%s" % self.remoteChannel_)
+
+                    platform = self.target.GetPlatform()
+                    url = "connect://" + self.remoteChannel_
+                    conOptions = lldb.SBPlatformConnectOptions(url)
+                    error = platform.ConnectRemote(conOptions)
+
+                    if not error.Success():
+                        self.report("Failed to connect to remote target (%s): %s" % (url, error.GetCString()))
+                        self.reportState('enginerunfailed')
+                        return
+
+                    f = lldb.SBFileSpec()
+                    f.SetFilename(self.executable_)
+                    launchInfo = lldb.SBLaunchInfo(self.processArgs_)
+                    launchInfo.SetWorkingDirectory(self.workingDirectory_)
+                    launchInfo.SetWorkingDirectory('/tmp')
+                    launchInfo.SetEnvironmentEntries(self.environment_, False)
+                    launchInfo.SetExecutableFile(f, True)
+                    self.process = self.target.Launch(launchInfo, error)
+
+                    if not error.Success():
+                        self.report("Failed to launch remote target: %s" % (error.GetCString()))
+                        self.reportState('enginerunfailed')
+                        return
+                    else:
+                        self.report("Process has launched.")
+
+                    if self.breakOnMain_:
+                        self.createBreakpointAtMain()
+
+                else:
+                    self.report("Unsupported platform: %s" % self.platform_)
+                    self.reportState('enginerunfailed')
+                    return
 
             if not error.Success():
                 self.report(self.describeError(error))
@@ -1479,8 +1516,9 @@ class Dumper(DumperBase):
                     self.reportState("stopped")
                     if self.firstStop_:
                         self.firstStop_ = False
-                        if self.useTerminal_:
-                            # When using a terminal, the process will be interrupted on startup.
+                        if self.useTerminal_ or self.platform_ == "remote-macosx":
+                            # When using a terminal or remote debugging macosx apps,
+                            # the process will be interrupted on startup.
                             # We therefore need to continue it here.
                             self.process.Continue()
             else:
@@ -1798,11 +1836,11 @@ class Dumper(DumperBase):
         self.process.SetSelectedThreadByID(int(args['id']))
         self.reportResult('', args)
 
-    def fetchFullBacktrace(self, _=None):
+    def fetchFullBacktrace(self, args):
         command = 'thread backtrace all'
         result = lldb.SBCommandReturnObject()
         self.debugger.GetCommandInterpreter().HandleCommand(command, result)
-        self.reportResult(self.hexencode(result.GetOutput()), {})
+        self.reportResult('fulltrace="%s"' % self.hexencode(result.GetOutput()), args)
 
     def executeDebuggerCommand(self, args):
         self.reportToken(args)
@@ -2030,20 +2068,23 @@ class Tester(Dumper):
 
         lldb.SBDebugger.Destroy(self.debugger)
 
+if 'QT_CREATOR_LLDB_PROCESS' in os.environ:
+    # Initialize Qt Creator dumper
+    try:
+        theDumper = Dumper()
+    except Exception as error:
+        print('@\nstate="enginesetupfailed",error="{}"@\n'.format(error))
+
 # ------------------------------ For use in LLDB ------------------------------
 
+debug = print if 'QT_LLDB_SUMMARY_PROVIDER_DEBUG' in os.environ \
+    else lambda *a, **k: None
 
-from pprint import pprint
-
-__module__ = sys.modules[__name__]
-DEBUG = False if not hasattr(__module__, 'DEBUG') else DEBUG
-
+debug(f"Loading lldbbridge.py from {__file__}")
 
 class LogMixin():
     @staticmethod
     def log(message='', log_caller=False, frame=1, args=''):
-        if not DEBUG:
-            return
         if log_caller:
             message = ": " + message if len(message) else ''
             # FIXME: Compute based on first frame not in this class?
@@ -2052,7 +2093,7 @@ class LogMixin():
             localz = frame.f_locals
             instance = str(localz["self"]) + "." if 'self' in localz else ''
             message = "%s%s(%s)%s" % (instance, fn, args, message)
-        print(message)
+        debug(message)
 
     @staticmethod
     def log_fn(arg_str=''):
@@ -2116,14 +2157,7 @@ class SummaryDumper(Dumper, LogMixin):
         return  # Don't mess up lldb output
 
     def dump_summary(self, valobj, expanded=False):
-        try:
-            from pygdbmi import gdbmiparser
-        except ImportError:
-            print("Qt summary provider requires the pygdbmi module, "
-                  "please install using 'sudo /usr/bin/easy_install pygdbmi', "
-                  "and then restart Xcode.")
-            lldb.debugger.HandleCommand('type category delete Qt')
-            return None
+        from pygdbmi import gdbmiparser
 
         value = self.fromNativeValue(valobj)
 
@@ -2396,9 +2430,51 @@ class SyntheticChildrenProvider(SummaryProvider):
             self.valobj = self.create_value(dereference_child)
             self.update()
 
+def ensure_gdbmiparser():
+    try:
+        from pygdbmi import gdbmiparser
+        return True
+    except ImportError:
+        try:
+            if not 'QT_LLDB_SUMMARY_PROVIDER_NO_AUTO_INSTALL' in os.environ:
+                print("Required module 'pygdbmi' not installed. Installing automatically...")
+                import subprocess
+                python3 = os.path.join(sys.exec_prefix, 'bin', 'python3')
+                process = subprocess.run([python3, '-m', 'pip',
+                    '--disable-pip-version-check',
+                    'install', '--user', 'pygdbmi' ],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT)
+                print(process.stdout.decode('utf-8').strip())
+                process.check_returncode()
+                from importlib import invalidate_caches
+                invalidate_caches()
+                from pygdbmi import gdbmiparser
+                return True
+        except Exception as e:
+            print(e)
+
+    print("Qt summary provider requires the pygdbmi module. Please install\n" \
+          "manually using '/usr/bin/pip3 install pygdbmi', and restart Xcode.")
+    return False
+
 
 def __lldb_init_module(debugger, internal_dict):
     # Module is being imported in an LLDB session
+    if 'QT_CREATOR_LLDB_PROCESS' in os.environ:
+        # Let Qt Creator take care of its own dumper
+        return
+
+    debug("Initializing module with", debugger)
+
+    if not ensure_gdbmiparser():
+        return
+
+    if not __name__ == 'qt':
+        # Make available under global 'qt' name for consistency,
+        # and so we can refer to SyntheticChildrenProvider below.
+        internal_dict['qt'] = internal_dict[__name__]
+
     dumper = SummaryDumper.initialize()
 
     type_category = 'Qt'
@@ -2424,17 +2500,6 @@ def __lldb_init_module(debugger, internal_dict):
 
     # Synthetic children
     debugger.HandleCommand("type synthetic add -x '^Q.*$' -l %s -w %s"
-                           % ("lldbbridge.SyntheticChildrenProvider", type_category))
+                           % ("qt.SyntheticChildrenProvider", type_category))
 
     debugger.HandleCommand('type category enable %s' % type_category)
-
-    if not __name__ == 'qt':
-        # Make available under global 'qt' name for consistency
-        internal_dict['qt'] = internal_dict[__name__]
-
-
-if __name__ == "lldbbridge":
-    try:
-        theDumper = Dumper()
-    except Exception as error:
-        print('@\nstate="enginesetupfailed",error="{}"@\n'.format(error))

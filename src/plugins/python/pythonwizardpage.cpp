@@ -109,16 +109,15 @@ PythonWizardPage::PythonWizardPage(const QList<QPair<QString, QVariant>> &pySide
     m_stateLabel->setWordWrap(true);
     m_stateLabel->setFilled(true);
     m_stateLabel->setType(InfoLabel::Error);
-    connect(&m_venvPath, &StringAspect::valueChanged, this, &PythonWizardPage::updateStateLabel);
-    connect(&m_createVenv, &BoolAspect::valueChanged, this, &PythonWizardPage::updateStateLabel);
+    connect(&m_venvPath, &FilePathAspect::validChanged, this, &PythonWizardPage::updateStateLabel);
+    connect(&m_createVenv, &BaseAspect::changed, this, &PythonWizardPage::updateStateLabel);
 
-    Grid {
-        m_pySideVersion, br,
-        m_interpreter, br,
-        m_createVenv, br,
+    Form {
+        m_pySideVersion, st, br,
+        m_interpreter, st, br,
+        m_createVenv, st, br,
         m_venvPath, br,
-        m_stateLabel, br,
-        noMargin
+        m_stateLabel, br
     }.attachTo(this);
 }
 
@@ -132,8 +131,8 @@ void PythonWizardPage::initializePage()
 
     const FilePath projectDir = FilePath::fromString(wiz->property("ProjectDirectory").toString());
     m_createVenv.setValue(!projectDir.isEmpty());
-    if (m_venvPath.filePath().isEmpty())
-        m_venvPath.setFilePath(projectDir.isEmpty() ? FilePath{} : projectDir / "venv");
+    if (m_venvPath().isEmpty())
+        m_venvPath.setValue(projectDir.isEmpty() ? FilePath{} : projectDir / "venv");
 
     updateInterpreters();
     updateStateLabel();
@@ -141,7 +140,7 @@ void PythonWizardPage::initializePage()
 
 bool PythonWizardPage::validatePage()
 {
-    if (m_createVenv.value() && !m_venvPath.pathChooser()->isValid())
+    if (m_createVenv() && !m_venvPath.pathChooser()->isValid())
         return false;
     auto wiz = qobject_cast<JsonWizard *>(wizard());
     const QMap<QString, QVariant> data = m_pySideVersion.itemValue().toMap();
@@ -157,7 +156,7 @@ void PythonWizardPage::setupProject(const JsonWizard::GeneratorFiles &files)
             Interpreter interpreter = m_interpreter.currentInterpreter();
             Project *project = ProjectManager::openProject(Utils::mimeTypeForFile(f.file.filePath()),
                                                            f.file.filePath().absoluteFilePath());
-            if (m_createVenv.value()) {
+            if (m_createVenv()) {
                 auto openProjectWithInterpreter = [f](const std::optional<Interpreter> &interpreter) {
                     if (!interpreter)
                         return;
@@ -171,7 +170,7 @@ void PythonWizardPage::setupProject(const JsonWizard::GeneratorFiles &files)
                         }
                     }
                 };
-                PythonSettings::createVirtualEnvironment(m_venvPath.filePath(),
+                PythonSettings::createVirtualEnvironment(m_venvPath(),
                                                          interpreter,
                                                          openProjectWithInterpreter,
                                                          project ? project->displayName()
@@ -203,7 +202,7 @@ void PythonWizardPage::updateInterpreters()
 void PythonWizardPage::updateStateLabel()
 {
     QTC_ASSERT(m_stateLabel, return);
-    if (m_createVenv.value()) {
+    if (m_createVenv()) {
         if (PathChooser *pathChooser = m_venvPath.pathChooser()) {
             if (!pathChooser->isValid()) {
                 m_stateLabel->show();

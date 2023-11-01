@@ -25,8 +25,8 @@ public:
     // tracks parent hierarchy until currentParentSettings is null
     QmlJSCodeStyleSettings currentCodeStyleSettings() const;
 
-    QVariantMap toMap() const override;
-    void fromMap(const QVariantMap &map) override;
+    Utils::Store toMap() const override;
+    void fromMap(const Utils::Store &map) override;
 
 public slots:
     void setCodeStyleSettings(const QmlJSCodeStyleSettings &data);

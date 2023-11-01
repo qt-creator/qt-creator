@@ -7,8 +7,7 @@
 
 namespace Utils { class FilePath; }
 
-namespace Valgrind {
-namespace Callgrind {
+namespace Valgrind::Callgrind {
 
 class ParseData;
 
@@ -42,5 +41,4 @@ private:
     Private *const d;
 };
 
-} // Callgrind
-} // Valgrind
+} // namespace Valgrind::Callgrind

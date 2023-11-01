@@ -60,7 +60,7 @@
 
     \list
 
-        \li Select \uicontrol Edit > \uicontrol Preferences > \uicontrol Designer.
+        \li Select \preferences > \uicontrol Designer.
 
         \li Specify embedded device profiles, that determine style, font, and
             screen resolution, for example, in \uicontrol{Embedded Design}.
@@ -91,7 +91,7 @@
 
     \list 1
 
-        \li \uicontrol Edit > \uicontrol Preferences > \uicontrol Designer.
+        \li \preferences > \uicontrol Designer.
             \image qtdesigner-embedded-design.png "Qt Designer Embedded Design preferences"
         \li In \uicontrol {Embedded Design}, select \inlineimage icons/plus.png
             to open the \uicontrol {Add Profile} dialog.

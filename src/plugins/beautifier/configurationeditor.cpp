@@ -3,7 +3,7 @@
 
 #include "configurationeditor.h"
 
-#include "abstractsettings.h"
+#include "beautifiertool.h"
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/texteditorsettings.h>

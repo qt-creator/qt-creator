@@ -1,6 +1,8 @@
 QtcLibrary {
     name: "Tasking"
-    Depends { name: "Qt"; submodules: ["concurrent", "core", "network"] }
+
+    Depends { name: "Qt"; submodules: ["concurrent", "network"] }
+
     cpp.defines: base.concat("TASKING_LIBRARY")
 
     files: [
@@ -13,5 +15,10 @@ QtcLibrary {
         "tasktree.cpp",
         "tasktree.h",
     ]
+
+    Export {
+        Depends { name: "cpp" }
+        cpp.includePaths: ["..", "../.."]
+    }
 }
 

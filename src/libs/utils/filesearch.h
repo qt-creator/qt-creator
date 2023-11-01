@@ -9,8 +9,7 @@
 #include "searchresultitem.h"
 
 #include <QMap>
-#include <QSet>
-#include <QStack>
+#include <QPromise>
 #include <QTextDocument>
 
 #include <functional>
@@ -22,6 +21,22 @@ class QTextCodec;
 QT_END_NAMESPACE
 
 namespace Utils {
+
+enum FindFlag {
+    FindBackward = 0x01,
+    FindCaseSensitively = 0x02,
+    FindWholeWords = 0x04,
+    FindRegularExpression = 0x08,
+    FindPreserveCase = 0x10
+};
+Q_DECLARE_FLAGS(FindFlags, FindFlag)
+
+QTCREATOR_UTILS_EXPORT
+QTextDocument::FindFlags textDocumentFlagsForFindFlags(FindFlags flags);
+
+QTCREATOR_UTILS_EXPORT
+void searchInContents(QPromise<SearchResultItems> &promise, const QString &searchTerm,
+                      FindFlags flags, const FilePath &filePath, const QString &contents);
 
 QTCREATOR_UTILS_EXPORT
 std::function<FilePaths(const FilePaths &)> filterFilesFunction(const QStringList &filters,
@@ -44,125 +59,105 @@ enum class InclusionType {
 QTCREATOR_UTILS_EXPORT
 QString msgFilePatternToolTip(InclusionType inclusionType = InclusionType::Included);
 
-class QTCREATOR_UTILS_EXPORT FileIterator
+class FileContainer;
+
+class QTCREATOR_UTILS_EXPORT FileContainerIterator
 {
 public:
     class Item
     {
     public:
-        Item() = default;
-        Item(const FilePath &path, QTextCodec *codec)
-            : filePath(path)
-            , encoding(codec)
-        {}
-        FilePath filePath;
+        FilePath filePath {};
         QTextCodec *encoding = nullptr;
     };
 
-    using value_type = Item;
+    class Data;
+    using Advancer = std::function<void(Data *)>;
 
-    class const_iterator
+    class Data
     {
     public:
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = Item;
-        using difference_type = std::ptrdiff_t;
-        using pointer = const value_type*;
-        using reference = const value_type&;
-
-        const_iterator() = default;
-        const_iterator(const FileIterator *parent, int id)
-            : m_parent(parent), m_index(id)
-        {}
-        const_iterator(const const_iterator &) = default;
-        const_iterator &operator=(const const_iterator &) = default;
-
-        reference operator*() const { return m_parent->itemAt(m_index); }
-        pointer operator->() const { return &m_parent->itemAt(m_index); }
-        void operator++() { m_parent->advance(this); }
-        bool operator==(const const_iterator &other) const
-        {
-            return m_parent == other.m_parent && m_index == other.m_index;
-        }
-        bool operator!=(const const_iterator &other) const { return !operator==(other); }
-
-        const FileIterator *m_parent = nullptr;
-        int m_index = -1; // -1 == end
+        const FileContainer *m_container = nullptr;
+        int m_progressValue = 0;
+        Advancer m_advancer = {};
+        int m_index = -1; // end iterator
+        Item m_value = {};
     };
 
-    virtual ~FileIterator() = default;
-    const_iterator begin() const;
-    const_iterator end() const;
+    using value_type = Item;
+    using pointer = const value_type *;
+    using reference = const value_type &;
+    using iterator_category = std::forward_iterator_tag;
+    using difference_type = std::ptrdiff_t;
 
-    virtual int maxProgress() const = 0;
-    virtual int currentProgress() const = 0;
+    FileContainerIterator() = default;
 
-    void advance(const_iterator *it) const;
-    virtual const Item &itemAt(int index) const = 0;
+    reference operator*() const { return m_data.m_value; }
+    pointer operator->() const { return &m_data.m_value; }
+    void operator++();
 
-protected:
-    virtual void update(int requestedIndex) = 0;
-    virtual int currentFileCount() const = 0;
-};
-
-class QTCREATOR_UTILS_EXPORT FileListIterator : public FileIterator
-{
-public:
-    explicit FileListIterator(const FilePaths &fileList = {},
-                              const QList<QTextCodec *> &encodings = {});
-
-    int maxProgress() const override;
-    int currentProgress() const override;
-
-protected:
-    void update(int requestedIndex) override;
-    int currentFileCount() const override;
-    const Item &itemAt(int index) const override;
+    bool operator==(const FileContainerIterator &other) const {
+        return m_data.m_container == other.m_data.m_container
+               && m_data.m_index == other.m_data.m_index;
+    }
+    bool operator!=(const FileContainerIterator &other) const { return !operator==(other); }
+    int progressValue() const { return m_data.m_progressValue; }
+    int progressMaximum() const;
 
 private:
-    const QList<Item> m_items;
-    int m_maxIndex = -1;
+    friend class FileContainer;
+    FileContainerIterator(const Data &data) : m_data(data) {}
+    Data m_data;
 };
 
-class QTCREATOR_UTILS_EXPORT SubDirFileIterator : public FileIterator
+class QTCREATOR_UTILS_EXPORT FileContainer
 {
 public:
-    SubDirFileIterator(const FilePaths &directories,
-                       const QStringList &filters,
-                       const QStringList &exclusionFilters,
-                       QTextCodec *encoding = nullptr);
-    ~SubDirFileIterator() override;
+    using AdvancerProvider = std::function<FileContainerIterator::Advancer()>;
 
-    int maxProgress() const override;
-    int currentProgress() const override;
+    FileContainer() = default;
+
+    FileContainerIterator begin() const {
+        if (!m_provider)
+            return end();
+        const FileContainerIterator::Advancer advancer = m_provider();
+        if (!advancer)
+            return end();
+        FileContainerIterator iterator({this, 0, advancer});
+        advancer(&iterator.m_data);
+        return iterator;
+    }
+    FileContainerIterator end() const { return FileContainerIterator({this, m_progressMaximum}); }
+    int progressMaximum() const { return m_progressMaximum; }
 
 protected:
-    void update(int requestedIndex) override;
-    int currentFileCount() const override;
-    const Item &itemAt(int index) const override;
+    FileContainer(const AdvancerProvider &provider, int progressMaximum)
+        : m_provider(provider)
+        , m_progressMaximum(progressMaximum) {}
 
 private:
-    std::function<FilePaths(const FilePaths &)> m_filterFiles;
-    QTextCodec *m_encoding;
-    QStack<FilePath> m_dirs;
-    QSet<FilePath> m_knownDirs;
-    QStack<qreal> m_progressValues;
-    QStack<bool> m_processedValues;
-    qreal m_progress;
-    // Use heap allocated objects directly because we want references to stay valid even after resize
-    QList<Item *> m_items;
+    friend class FileContainerIterator;
+    AdvancerProvider m_provider;
+    int m_progressMaximum = 0;
+};
+
+class QTCREATOR_UTILS_EXPORT FileListContainer : public FileContainer
+{
+public:
+    FileListContainer(const FilePaths &fileList, const QList<QTextCodec *> &encodings);
+};
+
+class QTCREATOR_UTILS_EXPORT SubDirFileContainer : public FileContainer
+{
+public:
+    SubDirFileContainer(const FilePaths &directories,
+                        const QStringList &filters,
+                        const QStringList &exclusionFilters,
+                        QTextCodec *encoding = nullptr);
 };
 
 QTCREATOR_UTILS_EXPORT QFuture<SearchResultItems> findInFiles(const QString &searchTerm,
-    FileIterator *files,
-    QTextDocument::FindFlags flags,
-    const QMap<FilePath, QString> &fileToContentsMap = {});
-
-QTCREATOR_UTILS_EXPORT QFuture<SearchResultItems> findInFilesRegExp(
-    const QString &searchTerm,
-    FileIterator *files,
-    QTextDocument::FindFlags flags,
-    const QMap<FilePath, QString> &fileToContentsMap = {});
+    const FileContainer &container, FindFlags flags, const QMap<FilePath, QString> &fileToContentsMap);
 
 QTCREATOR_UTILS_EXPORT QString expandRegExpReplacement(const QString &replaceText,
                                                        const QStringList &capturedTexts);
@@ -170,3 +165,6 @@ QTCREATOR_UTILS_EXPORT QString matchCaseReplacement(const QString &originalText,
                                                     const QString &replaceText);
 
 } // namespace Utils
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::FindFlags)
+Q_DECLARE_METATYPE(Utils::FindFlags)

@@ -23,9 +23,9 @@ public:
     QStringList preferredStyles;
     QString defaultTextEditorColorScheme;
     QString enforceAccentColorOnMacOS;
-    QVector<QPair<QColor, QString> > colors;
-    QVector<QString> imageFiles;
-    QVector<bool> flags;
+    QList<QPair<QColor, QString> > colors;
+    QList<QString> imageFiles;
+    QList<bool> flags;
     QMap<QString, QColor> palette;
 };
 

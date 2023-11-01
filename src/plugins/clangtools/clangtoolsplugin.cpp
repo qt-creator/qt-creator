@@ -17,6 +17,7 @@
 #include "clangtoolsunittests.h"
 #endif
 
+#include <utils/icon.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -34,7 +35,7 @@
 
 #include <texteditor/texteditor.h>
 
-#include <projectexplorer/kitinformation.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -89,7 +90,9 @@ ClangToolsPlugin::~ClangToolsPlugin()
 
 void ClangToolsPlugin::initialize()
 {
-    TaskHub::addCategory(taskCategory(), Tr::tr("Clang Tools"));
+    TaskHub::addCategory({taskCategory(),
+                          Tr::tr("Clang Tools"),
+                          Tr::tr("Issues that Clang-Tidy and Clazy found when analyzing code.")});
 
     // Import tidy/clazy diagnostic configs from CppEditor now
     // instead of at opening time of the settings page
@@ -135,6 +138,20 @@ void ClangToolsPlugin::onCurrentEditorChanged()
 
 void ClangToolsPlugin::registerAnalyzeActions()
 {
+    const char * const menuGroupId = "ClangToolsCppGroup";
+    ActionContainer * const mtoolscpp
+        = ActionManager::actionContainer(CppEditor::Constants::M_TOOLS_CPP);
+    if (mtoolscpp) {
+        mtoolscpp->insertGroup(CppEditor::Constants::G_GLOBAL, menuGroupId);
+        mtoolscpp->addSeparator(menuGroupId);
+    }
+    Core::ActionContainer * const mcontext = Core::ActionManager::actionContainer(
+        CppEditor::Constants::M_CONTEXT);
+    if (mcontext) {
+        mcontext->insertGroup(CppEditor::Constants::G_GLOBAL, menuGroupId);
+        mcontext->addSeparator(menuGroupId);
+    }
+
     for (const auto &toolInfo : {std::make_tuple(ClangTidyTool::instance(),
                                                  Constants::RUN_CLANGTIDY_ON_PROJECT,
                                                  Constants::RUN_CLANGTIDY_ON_CURRENT_FILE),
@@ -145,14 +162,10 @@ void ClangToolsPlugin::registerAnalyzeActions()
         ActionManager::registerAction(tool->startAction(), std::get<1>(toolInfo));
         Command *cmd = ActionManager::registerAction(tool->startOnCurrentFileAction(),
                                                      std::get<2>(toolInfo));
-        ActionContainer *mtoolscpp = ActionManager::actionContainer(CppEditor::Constants::M_TOOLS_CPP);
         if (mtoolscpp)
-            mtoolscpp->addAction(cmd);
-
-        Core::ActionContainer *mcontext = Core::ActionManager::actionContainer(
-            CppEditor::Constants::M_CONTEXT);
+            mtoolscpp->addAction(cmd, menuGroupId);
         if (mcontext)
-            mcontext->addAction(cmd, CppEditor::Constants::G_CONTEXT_FIRST);
+            mcontext->addAction(cmd, menuGroupId);
     }
 
     // add button to tool bar of C++ source files
