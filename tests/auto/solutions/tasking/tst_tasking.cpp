@@ -223,9 +223,10 @@ void tst_Tasking::testTree_data()
         };
     };
 
-    const auto setupDone = [storage](int taskId) {
-        return [storage, taskId](const TaskObject &, bool success) {
-            storage->m_log.append({taskId, success ? Handler::Done : Handler::Error});
+    const auto setupDone = [storage](int taskId, bool successTask = true) {
+        return [storage, taskId, successTask](const TaskObject &, bool success) {
+            storage->m_log.append({taskId, successTask && success ? Handler::Done : Handler::Error});
+            return successTask && success;
         };
     };
 
@@ -237,14 +238,7 @@ void tst_Tasking::testTree_data()
 
     const auto createTask = [storage, setupTask, setupDone](
             int taskId, bool successTask, milliseconds timeout = 0ms) -> GroupItem {
-        if (successTask)
-            return TestTask(setupTask(taskId, timeout), setupDone(taskId));
-        const Group root {
-            finishAllAndError,
-            TestTask(setupTask(taskId, timeout)),
-            onGroupError([storage, taskId] { storage->m_log.append({taskId, Handler::Error}); })
-        };
-        return root;
+        return TestTask(setupTask(taskId, timeout), setupDone(taskId, successTask));
     };
 
     const auto createSuccessTask = [createTask](int taskId, milliseconds timeout = 0ms) {

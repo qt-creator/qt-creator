@@ -956,15 +956,14 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
 GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
                                  const GroupEndHandler &handler)
 {
-    const TimeoutTask::EndFunction taskHandler = handler
-        ? [handler](const milliseconds &) { handler(); } : TimeoutTask::EndFunction();
+    const auto onSetup = [timeout](milliseconds &timeoutData) { timeoutData = timeout; };
     return Group {
         parallel,
         stopOnFinished,
         Group {
             finishAllAndError,
-            TimeoutTask([timeout](milliseconds &timeoutData) { timeoutData = timeout; },
-                        taskHandler, CallDoneIf::Success)
+            handler ? TimeoutTask(onSetup, [handler] { handler(); }, CallDoneIf::Success)
+                    : TimeoutTask(onSetup)
         },
         item
     };
@@ -1089,7 +1088,7 @@ public:
     // in order to unwind properly.
     SetupResult start();
     void stop();
-    void invokeDoneHandler(bool success);
+    bool invokeDoneHandler(bool success);
     bool isRunning() const { return m_task || m_container.isRunning(); }
     bool isTask() const { return bool(m_taskHandler.m_createHandler); }
     int taskCount() const { return isTask() ? 1 : m_container.m_constData.m_taskCount; }
@@ -1451,14 +1450,14 @@ SetupResult TaskNode::start()
     const std::shared_ptr<SetupResult> unwindAction
         = std::make_shared<SetupResult>(SetupResult::Continue);
     QObject::connect(m_task.get(), &TaskInterface::done, taskTree(), [=](bool success) {
-        invokeDoneHandler(success);
+        const bool result = invokeDoneHandler(success);
         QObject::disconnect(m_task.get(), &TaskInterface::done, taskTree(), nullptr);
         m_task.release()->deleteLater();
         QTC_ASSERT(parentContainer() && parentContainer()->isRunning(), return);
         if (parentContainer()->isStarting())
-            *unwindAction = toSetupResult(success);
+            *unwindAction = toSetupResult(result);
         else
-            parentContainer()->childDone(success);
+            parentContainer()->childDone(result);
     });
 
     m_task->start();
@@ -1490,11 +1489,13 @@ static bool shouldCall(CallDoneIf callDoneIf, bool success)
     return callDoneIf != CallDoneIf::Success;
 }
 
-void TaskNode::invokeDoneHandler(bool success)
+bool TaskNode::invokeDoneHandler(bool success)
 {
+    bool result = success;
     if (m_taskHandler.m_doneHandler && shouldCall(m_taskHandler.m_callDoneIf, success))
-        invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get(), success);
+        result = invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get(), success);
     m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
+    return result;
 }
 
 /*!

@@ -147,8 +147,8 @@ public:
     using TaskCreateHandler = std::function<TaskInterface *(void)>;
     // Called prior to task start, just after createHandler
     using TaskSetupHandler = std::function<SetupResult(TaskInterface &)>;
-    // Called on task done, just before delete later
-    using TaskDoneHandler = std::function<void(const TaskInterface &, bool)>;
+    // Called on task done, just before deleteLater
+    using TaskDoneHandler = std::function<bool(const TaskInterface &, bool)>;
     // Called when group entered
     using GroupSetupHandler = std::function<SetupResult()>;
     // Called when group done / error
@@ -335,20 +335,14 @@ public:
                   "The Adapter type for the CustomTask<Adapter> needs to be derived from "
                   "TaskAdapter<Task>.");
     using SetupFunction = std::function<void(const Task &)>;
-    using DoneFunction = std::function<void(const Task &, bool)>;
-    using EndFunction = std::function<void(const Task &)>;
+    using DoneFunction = std::function<bool(const Task &, bool)>;
     static Adapter *createAdapter() { return new Adapter; }
-    CustomTask() : GroupItem({&createAdapter}) {}
-    template <typename SetupHandler = SetupFunction>
-    CustomTask(SetupHandler &&setup, const EndFunction &done, CallDoneIf callDoneIf)
-        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)), wrapEnd(done),
-                     callDoneIf}) {}
 
-    template <typename SetupHandler>
-    CustomTask(SetupHandler &&setup, const DoneFunction &done = {},
+    template <typename SetupHandler = SetupFunction, typename DoneHandler = DoneFunction>
+    CustomTask(SetupHandler &&setup = SetupFunction(), DoneHandler &&done = DoneFunction(),
                CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
-        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)), wrapDone(done),
-                     callDoneIf})
+        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
+                     wrapDone(std::forward<DoneHandler>(done)), callDoneIf})
     {}
 
     GroupItem withTimeout(std::chrono::milliseconds timeout,
@@ -357,17 +351,17 @@ public:
     }
 
 private:
-    template<typename SetupHandler>
-    static GroupItem::TaskSetupHandler wrapSetup(SetupHandler &&handler) {
-        if constexpr (std::is_same_v<SetupHandler, std::function<void()>>)
-            return {}; // When user passed {} for setup handler.
-        static constexpr bool isDynamic = std::is_same_v<SetupResult,
-                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::TaskType &>>;
-        constexpr bool isVoid = std::is_same_v<void,
-                std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::TaskType &>>;
+    template<typename Handler>
+    static GroupItem::TaskSetupHandler wrapSetup(Handler &&handler) {
+        if constexpr (std::is_same_v<Handler, SetupFunction>)
+            return {}; // When user passed {} for the setup handler.
+        static constexpr bool isDynamic
+            = std::is_same_v<SetupResult, std::invoke_result_t<std::decay_t<Handler>, Task &>>;
+        constexpr bool isVoid
+            = std::is_same_v<void, std::invoke_result_t<std::decay_t<Handler>, Task &>>;
         static_assert(isDynamic || isVoid,
-                "Task setup handler needs to take (Task &) as an argument and has to return "
-                "void or SetupResult. The passed handler doesn't fulfill these requirements.");
+            "Task setup handler needs to take (Task &) as an argument (optionally) and has to "
+            "return void or SetupResult. The passed handler doesn't fulfill these requirements.");
         return [=](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
             if constexpr (isDynamic)
@@ -377,21 +371,42 @@ private:
         };
     };
 
-    static TaskDoneHandler wrapEnd(const EndFunction &handler) {
-        if (!handler)
-            return {};
-        return [handler](const TaskInterface &taskInterface, bool) {
+    template<typename Handler>
+    static GroupItem::TaskDoneHandler wrapDone(Handler &&handler) {
+        if constexpr (std::is_same_v<Handler, DoneFunction>)
+            return {}; // When user passed {} for the done handler.
+        static constexpr bool is2ArgDynamic
+            = std::is_invocable_r_v<bool, std::decay_t<Handler>, const Task &, bool>;
+        static constexpr bool is1ArgDynamic
+            = std::is_invocable_r_v<bool, std::decay_t<Handler>, const Task &>;
+        static constexpr bool is0ArgDynamic
+            = std::is_invocable_r_v<bool, std::decay_t<Handler>>;
+        static constexpr bool is2ArgVoid
+            = std::is_invocable_r_v<void, std::decay_t<Handler>, const Task &, bool>;
+        static constexpr bool is1ArgVoid
+            = std::is_invocable_r_v<void, std::decay_t<Handler>, const Task &>;
+        static constexpr bool is0ArgVoid
+            = std::is_invocable_r_v<void, std::decay_t<Handler>>;
+        static constexpr bool isInvocable = is2ArgDynamic || is1ArgDynamic || is0ArgDynamic
+                                            || is2ArgVoid || is1ArgVoid  || is0ArgVoid;
+        static_assert(isInvocable,
+            "Task done handler needs to take (const Task &, bool) as arguments (optionally) and "
+            "has to return void or bool. The passed handler doesn't fulfill these requirements.");
+        return [=](const TaskInterface &taskInterface, bool success) {
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
-            handler(*adapter.task());
-        };
-    };
-
-    static TaskDoneHandler wrapDone(const DoneFunction &handler) {
-        if (!handler)
-            return {};
-        return [handler](const TaskInterface &taskInterface, bool success) {
-            const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
-            handler(*adapter.task(), success);
+            if constexpr (is2ArgDynamic)
+                return std::invoke(handler, *adapter.task(), success);
+            if constexpr (is1ArgDynamic)
+                return std::invoke(handler, *adapter.task());
+            if constexpr (is0ArgDynamic)
+                return std::invoke(handler);
+            if constexpr (is2ArgVoid)
+                std::invoke(handler, *adapter.task(), success);
+            else if constexpr (is1ArgVoid)
+                std::invoke(handler, *adapter.task());
+            else if constexpr (is0ArgVoid)
+                std::invoke(handler);
+            return success;
         };
     };
 };
@@ -429,9 +444,9 @@ public:
 
     template <typename StorageStruct, typename StorageHandler>
     void onStorageSetup(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
-        constexpr bool isInvokable = std::is_invocable_v<std::decay_t<StorageHandler>,
+        constexpr bool isInvocable = std::is_invocable_v<std::decay_t<StorageHandler>,
                                                          StorageStruct &>;
-        static_assert(isInvokable,
+        static_assert(isInvocable,
                       "Storage setup handler needs to take (Storage &) as an argument. "
                       "The passed handler doesn't fulfill these requirements.");
         setupStorageHandler(storage,
@@ -439,9 +454,9 @@ public:
     }
     template <typename StorageStruct, typename StorageHandler>
     void onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
-        constexpr bool isInvokable = std::is_invocable_v<std::decay_t<StorageHandler>,
+        constexpr bool isInvocable = std::is_invocable_v<std::decay_t<StorageHandler>,
                                                          const StorageStruct &>;
-        static_assert(isInvokable,
+        static_assert(isInvocable,
                       "Storage done handler needs to take (const Storage &) as an argument. "
                       "The passed handler doesn't fulfill these requirements.");
         setupStorageHandler(storage,
