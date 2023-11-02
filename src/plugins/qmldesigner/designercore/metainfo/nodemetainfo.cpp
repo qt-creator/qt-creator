@@ -2600,10 +2600,7 @@ bool NodeMetaInfo::isNumber() const
             return false;
         }
 
-        auto type = simplifiedTypeName();
-
-        return type == "int" || type == "uint" || type == "float" || type == "double"
-               || type == "real";
+        return isFloat() || isInteger();
     }
 }
 
@@ -3079,7 +3076,7 @@ bool NodeMetaInfo::isInteger() const
 
         auto type = simplifiedTypeName();
 
-        return type == "int" || type == "integer";
+        return type == "int" || type == "integer" || type == "uint";
     }
 }
 
@@ -3101,7 +3098,7 @@ bool NodeMetaInfo::isFloat() const
 
         auto type = simplifiedTypeName();
 
-        return type == "qreal" || type == "double" || type == "float";
+        return type == "qreal" || type == "double" || type == "float" || type == "real";
     }
 }
 
