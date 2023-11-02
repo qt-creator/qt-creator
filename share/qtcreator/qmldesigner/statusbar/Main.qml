@@ -89,9 +89,9 @@ Item {
                 model: backend.styles
                 onActivated: backend.setCurrentStyle(styles.currentIndex)
                 openUpwards: true
-                enabled: backend.isInDesignMode
+                enabled: backend.isInDesignMode && !backend.isMCUs
                 property int currentStyleIndex: backend.currentStyle
-                onCurrentStyleIndexChanged: currentIndex = backend.currentStyle
+                onCurrentStyleIndexChanged: styles.currentIndex = backend.currentStyle
             }
         }
     }
