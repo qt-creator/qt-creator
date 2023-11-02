@@ -686,7 +686,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         const auto onSetup = [runControl](QPointer<RunControl> &buildRunControl) {
             buildRunControl = runControl;
         };
-        const auto onError = [this](const QPointer<RunControl> &) {
+        const auto onError = [this] {
             const QString message(Tr::tr("Failed to build the project."));
             m_infoBarWidget->setError(InfoBarWidget::Error, message, [this] { showOutputPane(); });
             m_runControl->postMessage(message, ErrorMessageFormat);
@@ -803,7 +803,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         return SetupResult::Continue;
     };
 
-    const auto onTreeDone = [this, target, runSettings](const TaskTree &) {
+    const auto onTreeDone = [this, target, runSettings] {
         if (m_filesFailed != 0) {
             m_runControl->postMessage(Tr::tr("Error: Failed to analyze %n files.", nullptr,
                                              m_filesFailed), ErrorMessageFormat);

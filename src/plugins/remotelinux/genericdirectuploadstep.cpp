@@ -140,7 +140,7 @@ GroupItem GenericDirectUploadStep::statTask(UploadStorage *storage,
         process.setCommand({deviceConfiguration()->filePath("stat"),
                             {"-t", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
-    const auto onDone = [this, storage, file, statEndHandler](const Process &process, bool) {
+    const auto onDone = [this, storage, file, statEndHandler](const Process &process) {
         Process *proc = const_cast<Process *>(&process);
         const QDateTime timestamp = timestampFromStat(file, proc);
         statEndHandler(storage, file, timestamp);

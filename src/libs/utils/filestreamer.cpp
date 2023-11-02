@@ -266,7 +266,7 @@ private:
                 process.setWriteData(m_writeData);
             connect(&process, &Process::started, this, [this] { emit started(); });
         };
-        const auto onDone = [this](const Process &, bool) {
+        const auto onDone = [this] {
             delete m_writeBuffer;
             m_writeBuffer = nullptr;
         };
@@ -278,7 +278,7 @@ private:
             async.setConcurrentCallData(localWrite, m_filePath, m_writeData, m_writeBuffer);
             emit started();
         };
-        const auto onDone = [this](const Async<void> &, bool) {
+        const auto onDone = [this] {
             delete m_writeBuffer;
             m_writeBuffer = nullptr;
         };
@@ -327,17 +327,17 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
     SingleBarrier writerReadyBarrier;
     TreeStorage<TransferStorage> storage;
 
-    const auto onReaderSetup = [=](FileStreamReader &reader) {
+    const auto onReaderSetup = [storage, source](FileStreamReader &reader) {
         reader.setFilePath(source);
         QTC_CHECK(storage->writer != nullptr);
         QObject::connect(&reader, &FileStreamReader::readyRead,
                          storage->writer, &FileStreamWriter::write);
     };
-    const auto onReaderDone = [=](const FileStreamReader &, bool) {
+    const auto onReaderDone = [storage] {
         if (storage->writer) // writer may be deleted before the reader on TaskTree::stop().
             storage->writer->closeWriteChannel();
     };
-    const auto onWriterSetup = [=](FileStreamWriter &writer) {
+    const auto onWriterSetup = [writerReadyBarrier, storage, destination](FileStreamWriter &writer) {
         writer.setFilePath(destination);
         QObject::connect(&writer, &FileStreamWriter::started,
                          writerReadyBarrier->barrier(), &Barrier::advance);

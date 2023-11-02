@@ -365,7 +365,7 @@ GroupItem CMakeBuildStep::runRecipe()
         parseTarget = target();
         return SetupResult::Continue;
     };
-    const auto onParserError = [this](const QPointer<Target> &) {
+    const auto onParserError = [this] {
         emit addOutput(Tr::tr("Project did not parse successfully, cannot build."),
                        OutputFormat::ErrorMessage);
     };

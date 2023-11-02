@@ -78,8 +78,8 @@ void tst_Tasking::validConstructs()
     const Group task {
         parallel,
         TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
-        TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
-        TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {})
+        TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
+        TestTask([](TaskObject &) {}, [] {})
     };
 
     const Group group1 {
@@ -93,10 +93,10 @@ void tst_Tasking::validConstructs()
             TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
             Group {
                 parallel,
-                TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
+                TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
                 Group {
                     parallel,
-                    TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {})
+                    TestTask([](TaskObject &) {}, [] {})
                 }
             },
             Group {

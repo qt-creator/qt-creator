@@ -441,7 +441,7 @@ void LocatorMatcher::start()
             emit serialOutputDataReady(serialOutputData);
         });
     };
-    const auto onCollectorDone = [collectorStorage](const ResultsCollector &, bool) {
+    const auto onCollectorDone = [collectorStorage] {
         collectorStorage->m_collector = nullptr;
     };
 

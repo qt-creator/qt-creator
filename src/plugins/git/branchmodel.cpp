@@ -429,7 +429,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
     };
 
     const auto onForEachRefDone = [this, workingDirectory, showError](const Process &process,
-                                                                    bool success) {
+                                                                      bool success) {
         if (!success) {
             if (showError == ShowError::No)
                 return;

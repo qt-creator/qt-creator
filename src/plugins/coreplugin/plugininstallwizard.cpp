@@ -230,7 +230,7 @@ public:
                 m_output->append(output);
             });
         };
-        const auto onUnarchiverError = [this](const Unarchiver &) {
+        const auto onUnarchiverError = [this] {
             m_label->setType(InfoLabel::Error);
             m_label->setText(Tr::tr("There was an error while unarchiving."));
         };

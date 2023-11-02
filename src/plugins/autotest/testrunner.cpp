@@ -410,7 +410,7 @@ void TestRunner::runTestsHelper()
             qCInfo(runnerLog) << "Working directory:" << process.workingDirectory();
             qCDebug(runnerLog) << "Environment:" << process.environment().toStringList();
         };
-        const auto onProcessDone = [this, config, storage](const Process &process, bool) {
+        const auto onProcessDone = [this, config, storage](const Process &process) {
             TestStorage *testStorage = storage.activeStorage();
             QTC_ASSERT(testStorage, return);
             if (process.result() == ProcessResult::StartFailed) {

@@ -164,7 +164,7 @@ GroupItem AbstractProcessStep::defaultProcessTask()
     const auto onSetup = [this](Process &process) {
         return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
     };
-    const auto onDone = [this](const Process &process, bool) { handleProcessDone(process); };
+    const auto onDone = [this](const Process &process) { handleProcessDone(process); };
     return ProcessTask(onSetup, onDone);
 }
 

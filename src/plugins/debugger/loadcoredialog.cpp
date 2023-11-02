@@ -250,13 +250,13 @@ void AttachCoreDialog::accepted()
 
     const Group root = {
         parallel,
-        AsyncTask<ResultType>{[=](auto &task) {
-                              task.setConcurrentCallData(copyFileAsync, this->coreFile());
+        AsyncTask<ResultType>{[this, copyFileAsync](auto &task) {
+                                  task.setConcurrentCallData(copyFileAsync, coreFile());
                               },
                               [=](const auto &task) { d->coreFileResult = task.result(); },
                               CallDoneIf::Success},
-        AsyncTask<ResultType>{[=](auto &task) {
-                              task.setConcurrentCallData(copyFileAsync, this->symbolFile());
+        AsyncTask<ResultType>{[this, copyFileAsync](auto &task) {
+                                  task.setConcurrentCallData(copyFileAsync, symbolFile());
                               },
                               [=](const auto &task) { d->symbolFileResult = task.result(); },
                               CallDoneIf::Success}

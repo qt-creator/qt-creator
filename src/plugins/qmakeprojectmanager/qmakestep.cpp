@@ -291,7 +291,7 @@ Tasking::GroupItem QMakeStep::runRecipe()
         return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
     };
 
-    const auto onProcessDone = [this](const Process &process, bool) { handleProcessDone(process); };
+    const auto onProcessDone = [this](const Process &process) { handleProcessDone(process); };
 
     const auto onDone = [this] {
         emit buildConfiguration()->buildDirectoryInitialized();
