@@ -812,7 +812,7 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
     if (currentItem && currentItem->iname.startsWith("watch"))
         currentItem->removeChildren();
 
-    for (auto variable : variables) {
+    for (const QJsonValueConstRef &variable : variables) {
         WatchItem *item = new WatchItem;
         const QString name = variable.toObject().value("name").toString();
 
