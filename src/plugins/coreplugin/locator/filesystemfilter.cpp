@@ -77,7 +77,13 @@ static void createAndOpenFile(const FilePath &filePath)
     if (!filePath.exists()) {
         if (askForCreating(Tr::tr("Create File"), filePath)) {
             QFile file(filePath.toFSPathString());
-            file.open(QFile::WriteOnly);
+            if (!file.open(QFile::WriteOnly)) {
+                QMessageBox::warning(ICore::dialogParent(),
+                                     Tr::tr("Cannot Create File"),
+                                     Tr::tr("Cannot create file \"%1\".")
+                                         .arg(filePath.toUserOutput()));
+                return;
+            }
             file.close();
             VcsManager::promptToAdd(filePath.absolutePath(), {filePath});
         }
