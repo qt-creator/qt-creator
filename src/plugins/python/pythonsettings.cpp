@@ -661,25 +661,12 @@ static QList<Interpreter> pythonsFromRegistry()
                                        FilePath::fromUserInput(regVal.toString())};
             }
         }
-        regVal = pythonRegistry.value("InstallPath/WindowedExecutablePath");
-        if (regVal.isValid()) {
-            const FilePath &executable = FilePath::fromUserInput(regVal.toString());
-            if (executable.exists()) {
-                pythons << Interpreter{QUuid::createUuid().toString(),
-                                       //: <python display name> (Windowed)
-                                       Tr::tr("%1 (Windowed)").arg(name),
-                                       FilePath::fromUserInput(regVal.toString())};
-            }
-        }
         regVal = pythonRegistry.value("InstallPath/.");
         if (regVal.isValid()) {
             const FilePath &path = FilePath::fromUserInput(regVal.toString());
             const FilePath python = path.pathAppended("python").withExecutableSuffix();
             if (python.exists())
                 pythons << createInterpreter(python, "Python " + versionGroup);
-            const FilePath pythonw = path.pathAppended("pythonw").withExecutableSuffix();
-            if (pythonw.exists())
-                pythons << createInterpreter(pythonw, "Python " + versionGroup, "(Windowed)");
         }
         pythonRegistry.endGroup();
     }
@@ -696,10 +683,6 @@ static QList<Interpreter> pythonsFromPath()
                 continue;
             if (executable.exists())
                 pythons << createInterpreter(executable, "Python from Path");
-        }
-        for (const FilePath &executable : FilePath("pythonw").searchAllInPath()) {
-            if (executable.exists())
-                pythons << createInterpreter(executable, "Python from Path", "(Windowed)");
         }
     } else {
         const QStringList filters = {"python",
