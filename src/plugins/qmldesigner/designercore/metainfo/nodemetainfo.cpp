@@ -2602,7 +2602,8 @@ bool NodeMetaInfo::isNumber() const
 
         auto type = simplifiedTypeName();
 
-        return type == "int" || type == "uint" || type == "float" || type == "double";
+        return type == "int" || type == "uint" || type == "float" || type == "double"
+               || type == "real";
     }
 }
 
