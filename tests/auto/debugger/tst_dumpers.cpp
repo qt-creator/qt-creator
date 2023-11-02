@@ -5627,7 +5627,7 @@ void tst_Dumpers::dumper_data()
 
                + Cxx17Profile()
 
-               + Check("o1", "<uninitialized>", "std::optional<bool>")
+               + Check("o1", "<empty>", "std::optional<bool>")
                + Check("o2", "1", "bool") // 1 -> true is done on display
                + Check("o3", "<3 items>", "std::vector<int>")
                + Check("o3.1", "[1]", "2", "int");
