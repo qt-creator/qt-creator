@@ -240,7 +240,7 @@ Column {
                                    + StudioTheme.Values.actionIndicatorWidth
                     backendValue: backendValues.loops
                     decimals: 0
-                    minimumValue: 0
+                    minimumValue: -1 //AnimatedSprite.Infinite = -1
                     maximumValue: 100000
                     enabled: backendValue.isAvailable
                 }
