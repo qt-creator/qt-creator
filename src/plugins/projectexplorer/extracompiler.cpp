@@ -328,14 +328,14 @@ ProcessExtraCompiler::ProcessExtraCompiler(const Project *project, const FilePat
 
 GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
 {
-    const auto setupTask = [=](Async<FileNameToContentsHash> &async) {
+    const auto onSetup = [=](Async<FileNameToContentsHash> &async) {
         async.setThreadPool(extraCompilerThreadPool());
         // The passed synchronizer has cancelOnWait set to true by default.
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&ProcessExtraCompiler::runInThread, this, command(),
                                     workingDirectory(), arguments(), provider, buildEnvironment());
     };
-    const auto taskDone = [=](const Async<FileNameToContentsHash> &async) {
+    const auto onDone = [=](const Async<FileNameToContentsHash> &async) {
         if (!async.isResultAvailable())
             return;
         const FileNameToContentsHash data = async.result();
@@ -345,7 +345,7 @@ GroupItem ProcessExtraCompiler::taskItemImpl(const ContentProvider &provider)
             setContent(it.key(), it.value());
         updateCompileTime();
     };
-    return AsyncTask<FileNameToContentsHash>(setupTask, taskDone);
+    return AsyncTask<FileNameToContentsHash>(onSetup, onDone, CallDoneIf::Success);
 }
 
 FilePath ProcessExtraCompiler::workingDirectory() const

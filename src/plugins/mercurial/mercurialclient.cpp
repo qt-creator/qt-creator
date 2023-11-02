@@ -55,7 +55,7 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 
     const TreeStorage<QString> diffInputStorage;
 
-    const auto setupDiff = [=](Process &process) {
+    const auto onDiffSetup = [=](Process &process) {
         setupCommand(process, {addConfigurationArguments(args)});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
@@ -65,7 +65,7 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 
     const Group root {
         Tasking::Storage(diffInputStorage),
-        ProcessTask(setupDiff, onDiffDone),
+        ProcessTask(onDiffSetup, onDiffDone, CallDoneIf::Success),
         postProcessTask(diffInputStorage)
     };
     setReloadRecipe(root);

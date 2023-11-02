@@ -88,18 +88,18 @@ DirectoryFilter::DirectoryFilter(Id id)
         m_cache.setFilePaths({});
         return SetupResult::StopWithDone; // Group stops, skips async task
     };
-    const auto asyncSetup = [this](Async<FilePaths> &async) {
+    const auto onSetup = [this](Async<FilePaths> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&refresh, m_directories, m_filters, m_exclusionFilters,
                                     displayName());
     };
-    const auto asyncDone = [this](const Async<FilePaths> &async) {
+    const auto onDone = [this](const Async<FilePaths> &async) {
         if (async.isResultAvailable())
             m_cache.setFilePaths(async.result());
     };
     const Group root {
         onGroupSetup(groupSetup),
-        AsyncTask<FilePaths>(asyncSetup, asyncDone)
+        AsyncTask<FilePaths>(onSetup, onDone, CallDoneIf::Success)
     };
     setRefreshRecipe(root);
 }

@@ -238,7 +238,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
 {
     const TreeStorage<QString> diffInputStorage;
 
-    const auto setupDiff = [=](Process &process) {
+    const auto onDiffSetup = [=](Process &process) {
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), {}));
         setupCommand(process, {addConfigurationArguments(diffArgs(leftCommit, rightCommit, extraArgs))});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
@@ -249,7 +249,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
 
     const Group root {
         Tasking::Storage(diffInputStorage),
-        ProcessTask(setupDiff, onDiffDone),
+        ProcessTask(onDiffSetup, onDiffDone, CallDoneIf::Success),
         postProcessTask(diffInputStorage)
     };
     setReloadRecipe(root);
@@ -302,7 +302,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
     const TreeStorage<DiffStorage> storage;
     const TreeStorage<QString> diffInputStorage;
 
-    const auto setupStaged = [this, stagedFiles](Process &process) {
+    const auto onStagedSetup = [this, stagedFiles](Process &process) {
         if (stagedFiles.isEmpty())
             return SetupResult::StopWithError;
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), stagedFiles));
@@ -315,7 +315,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         storage->m_stagedOutput = process.cleanedStdOut();
     };
 
-    const auto setupUnstaged = [this, unstagedFiles](Process &process) {
+    const auto onUnstagedSetup = [this, unstagedFiles](Process &process) {
         if (unstagedFiles.isEmpty())
             return SetupResult::StopWithError;
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), unstagedFiles));
@@ -328,7 +328,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         storage->m_unstagedOutput = process.cleanedStdOut();
     };
 
-    const auto onStagingDone = [storage, diffInputStorage] {
+    const auto onDone = [storage, diffInputStorage] {
         *diffInputStorage = storage->m_stagedOutput + storage->m_unstagedOutput;
     };
 
@@ -338,9 +338,9 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         Group {
             parallel,
             continueOnDone,
-            ProcessTask(setupStaged, onStagedDone),
-            ProcessTask(setupUnstaged, onUnstagedDone),
-            onGroupDone(onStagingDone)
+            ProcessTask(onStagedSetup, onStagedDone, CallDoneIf::Success),
+            ProcessTask(onUnstagedSetup, onUnstagedDone, CallDoneIf::Success),
+            onGroupDone(onDone)
         },
         postProcessTask(diffInputStorage)
     };
@@ -500,14 +500,14 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
         QList<GroupItem> tasks { parallel, continueOnDone, onGroupError(onFollowsError) };
         for (int i = 0, total = parents.size(); i < total; ++i) {
-            const auto setupFollow = [this, parent = parents.at(i)](Process &process) {
+            const auto onFollowSetup = [this, parent = parents.at(i)](Process &process) {
                 setupCommand(process, {"describe", "--tags", "--abbrev=0", parent});
             };
             const auto onFollowDone = [data, updateDescription, i](const Process &process) {
                 data->m_follows[i] = process.cleanedStdOut().trimmed();
                 updateDescription(*data);
             };
-            tasks.append(ProcessTask(setupFollow, onFollowDone));
+            tasks.append(ProcessTask(onFollowSetup, onFollowDone, CallDoneIf::Success));
         }
         taskTree.setRecipe(tasks);
     };
@@ -529,18 +529,18 @@ ShowController::ShowController(IDocument *document, const QString &id)
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {
             finishAllAndDone,
-            ProcessTask(onDescriptionSetup, onDescriptionDone),
+            ProcessTask(onDescriptionSetup, onDescriptionDone, CallDoneIf::Success),
             Group {
                 parallel,
                 finishAllAndDone,
                 onGroupSetup(desciptionDetailsSetup),
-                ProcessTask(onBranchesSetup, onBranchesDone),
-                ProcessTask(onPrecedesSetup, onPrecedesDone),
+                ProcessTask(onBranchesSetup, onBranchesDone, CallDoneIf::Success),
+                ProcessTask(onPrecedesSetup, onPrecedesDone, CallDoneIf::Success),
                 TaskTreeTask(setupFollows)
             }
         },
         Group {
-            ProcessTask(onDiffSetup, onDiffDone),
+            ProcessTask(onDiffSetup, onDiffDone, CallDoneIf::Success),
             postProcessTask(diffInputStorage)
         }
     };
@@ -1712,7 +1712,7 @@ bool GitClient::synchronousRevParseCmd(const FilePath &workingDirectory, const Q
 GroupItem GitClient::topRevision(const FilePath &workingDirectory,
     const std::function<void(const QString &, const QDateTime &)> &callback)
 {
-    const auto setupProcess = [this, workingDirectory](Process &process) {
+    const auto onProcessSetup = [this, workingDirectory](Process &process) {
         setupCommand(process, workingDirectory, {"show", "-s", "--pretty=format:%H:%ct", HEAD});
     };
     const auto onProcessDone = [callback](const Process &process) {
@@ -1727,7 +1727,7 @@ GroupItem GitClient::topRevision(const FilePath &workingDirectory,
         callback(output.first(), dateTime);
     };
 
-    return ProcessTask(setupProcess, onProcessDone);
+    return ProcessTask(onProcessSetup, onProcessDone, CallDoneIf::Success);
 }
 
 bool GitClient::isRemoteCommit(const FilePath &workingDirectory, const QString &commit)

@@ -77,9 +77,9 @@ void tst_Tasking::validConstructs()
 {
     const Group task {
         parallel,
-        TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
-        TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
-        TestTask([](TaskObject &) {}, [](const TaskObject &) {})
+        TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
+        TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
+        TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {})
     };
 
     const Group group1 {
@@ -90,18 +90,18 @@ void tst_Tasking::validConstructs()
         parallel,
         Group {
             parallel,
-            TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
+            TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
             Group {
                 parallel,
-                TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
+                TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
                 Group {
                     parallel,
-                    TestTask([](TaskObject &) {}, [](const TaskObject &) {})
+                    TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {})
                 }
             },
             Group {
                 parallel,
-                TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
+                TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
                 onGroupDone([] {})
             }
         },
@@ -119,14 +119,12 @@ void tst_Tasking::validConstructs()
         parallel,
         TestTask(),
         TestTask(setupHandler),
-        TestTask(setupHandler, finishHandler),
-        TestTask(setupHandler, finishHandler, errorHandler),
+        TestTask(setupHandler, finishHandler, CallDoneIf::Success),
         TestTask(setupHandler, doneHandler),
         // need to explicitly pass empty handler for done
-        TestTask(setupHandler, {}, errorHandler),
-        TestTask({}, finishHandler),
-        TestTask({}, finishHandler, errorHandler),
-        TestTask({}, {}, errorHandler)
+        TestTask(setupHandler, errorHandler, CallDoneIf::Error),
+        TestTask({}, finishHandler, CallDoneIf::Success),
+        TestTask({}, errorHandler, CallDoneIf::Error)
     };
 
     // When turning each of below blocks on, you should see the specific compiler error message.

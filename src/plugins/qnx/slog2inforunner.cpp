@@ -71,8 +71,8 @@ void Slog2InfoRunner::start()
 
     const Group root {
         ProcessTask(onTestSetup, onTestDone),
-        ProcessTask(onLaunchTimeSetup, onLaunchTimeDone),
-        ProcessTask(onLogSetup, {}, onLogError)
+        ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDoneIf::Success),
+        ProcessTask(onLogSetup, onLogError, CallDoneIf::Error)
     };
 
     m_taskTree.reset(new TaskTree(root));

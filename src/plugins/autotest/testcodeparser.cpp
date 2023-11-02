@@ -377,7 +377,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
     qCDebug(LOG) << "Using" << limit << "threads for scan.";
     QList<GroupItem> tasks{parallelLimit(limit)};
     for (const FilePath &file : filteredFiles) {
-        const auto setup = [this, codeParsers, file](Async<TestParseResultPtr> &async) {
+        const auto onSetup = [this, codeParsers, file](Async<TestParseResultPtr> &async) {
             async.setConcurrentCallData(parseFileForTests, codeParsers, file);
             async.setPriority(QThread::LowestPriority);
             async.setFutureSynchronizer(&m_futureSynchronizer);
@@ -387,7 +387,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
             for (const TestParseResultPtr &result : results)
                 emit testParseResultReady(result);
         };
-        tasks.append(AsyncTask<TestParseResultPtr>(setup, onDone));
+        tasks.append(AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDoneIf::Success));
     }
     m_taskTree.reset(new TaskTree{tasks});
     const auto onDone = [this] { m_taskTree.release()->deleteLater(); onFinished(true); };

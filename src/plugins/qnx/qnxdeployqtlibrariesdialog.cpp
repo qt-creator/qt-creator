@@ -147,24 +147,24 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
 
 GroupItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
 {
-    const auto setupHandler = [this](Process &process) {
+    const auto onSetup = [this](Process &process) {
         if (m_checkResult != CheckResult::RemoveDir)
             return SetupResult::StopWithDone;
         m_deployLogWindow->appendPlainText(Tr::tr("Removing \"%1\"").arg(fullRemoteDirectory()));
         process.setCommand({m_device->filePath("rm"), {"-rf", fullRemoteDirectory()}});
         return SetupResult::Continue;
     };
-    const auto errorHandler = [this](const Process &process) {
+    const auto onError = [this](const Process &process) {
         QTC_ASSERT(process.exitCode() == 0, return);
         m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
                                            .arg(process.errorString()));
     };
-    return ProcessTask(setupHandler, {}, errorHandler);
+    return ProcessTask(onSetup, onError, CallDoneIf::Error);
 }
 
 GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
 {
-    const auto setupHandler = [this](FileTransfer &transfer) {
+    const auto onSetup = [this](FileTransfer &transfer) {
         if (m_deployableFiles.isEmpty()) {
             emitProgressMessage(Tr::tr("No files need to be uploaded."));
             return SetupResult::StopWithDone;
@@ -190,19 +190,19 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
                          this, &QnxDeployQtLibrariesDialogPrivate::emitProgressMessage);
         return SetupResult::Continue;
     };
-    const auto errorHandler = [this](const FileTransfer &transfer) {
+    const auto onError = [this](const FileTransfer &transfer) {
         emitErrorMessage(transfer.resultData().m_errorString);
     };
-    return FileTransferTask(setupHandler, {}, errorHandler);
+    return FileTransferTask(onSetup, onError, CallDoneIf::Error);
 }
 
 GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &file)
 {
-    const auto setupHandler = [=](Process &process) {
+    const auto onSetup = [=](Process &process) {
         process.setCommand({m_device->filePath("chmod"),
                 {"a+x", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
-    const auto errorHandler = [=](const Process &process) {
+    const auto onError = [=](const Process &process) {
         const QString error = process.errorString();
         if (!error.isEmpty()) {
             emitWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
@@ -212,7 +212,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &fil
                                    .arg(file.remoteFilePath(), process.cleanedStdErr()));
         }
     };
-    return ProcessTask(setupHandler, {}, errorHandler);
+    return ProcessTask(onSetup, onError, CallDoneIf::Error);
 }
 
 GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTree()

@@ -77,7 +77,7 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
 
     const Group root {
         Tasking::Storage(resultStorage),
-        ClientWorkspaceSymbolRequestTask(onQuerySetup, onQueryDone),
+        ClientWorkspaceSymbolRequestTask(onQuerySetup, onQueryDone, CallDoneIf::Success),
         AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};
@@ -136,7 +136,7 @@ LocatorMatcherTask currentDocumentMatcher()
 
     const Group root {
         Tasking::Storage(resultStorage),
-        CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone),
+        CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone, CallDoneIf::Success),
         AsyncTask<void>(onFilterSetup)
     };
     return {root, storage};

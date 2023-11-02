@@ -434,10 +434,10 @@ void tst_Async::taskTree()
     };
 
     const Group root {
-        AsyncTask<int>(setupIntAsync, handleIntAsync),
-        AsyncTask<int>(setupIntAsync, handleIntAsync),
-        AsyncTask<int>(setupIntAsync, handleIntAsync),
-        AsyncTask<int>(setupIntAsync, handleIntAsync),
+        AsyncTask<int>(setupIntAsync, handleIntAsync, CallDoneIf::Success),
+        AsyncTask<int>(setupIntAsync, handleIntAsync, CallDoneIf::Success),
+        AsyncTask<int>(setupIntAsync, handleIntAsync, CallDoneIf::Success),
+        AsyncTask<int>(setupIntAsync, handleIntAsync, CallDoneIf::Success),
     };
 
 
@@ -506,11 +506,11 @@ void tst_Async::mapReduce_data()
         return Group {
             executeMode,
             onGroupSetup(initTree),
-            AsyncTask<int>(std::bind(setupHandler, _1, 1), handleAsync),
-            AsyncTask<int>(std::bind(setupHandler, _1, 2), handleAsync),
-            AsyncTask<int>(std::bind(setupHandler, _1, 3), handleAsync),
-            AsyncTask<int>(std::bind(setupHandler, _1, 4), handleAsync),
-            AsyncTask<int>(std::bind(setupHandler, _1, 5), handleAsync),
+            AsyncTask<int>(std::bind(setupHandler, _1, 1), handleAsync, CallDoneIf::Success),
+            AsyncTask<int>(std::bind(setupHandler, _1, 2), handleAsync, CallDoneIf::Success),
+            AsyncTask<int>(std::bind(setupHandler, _1, 3), handleAsync, CallDoneIf::Success),
+            AsyncTask<int>(std::bind(setupHandler, _1, 4), handleAsync, CallDoneIf::Success),
+            AsyncTask<int>(std::bind(setupHandler, _1, 5), handleAsync, CallDoneIf::Success),
             onGroupDone(doneHandler)
         };
     };
@@ -542,9 +542,9 @@ void tst_Async::mapReduce_data()
     const Group simpleRoot = {
         sequential,
         onGroupSetup([] { s_sum = 0; }),
-        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 1), handleSimpleAsync),
-        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 2), handleSimpleAsync),
-        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 3), handleSimpleAsync)
+        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 1), handleSimpleAsync, CallDoneIf::Success),
+        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 2), handleSimpleAsync, CallDoneIf::Success),
+        AsyncTask<int>(std::bind(setupSimpleAsync, _1, 3), handleSimpleAsync, CallDoneIf::Success)
     };
     QTest::newRow("Simple") << simpleRoot << 3.0 << QList<double>({.5, 1.5, 3.});
 
@@ -557,9 +557,9 @@ void tst_Async::mapReduce_data()
     const Group stringRoot = {
         parallel,
         onGroupSetup([] { s_sum = 90.0; }),
-        AsyncTask<int>(std::bind(setupStringAsync, _1, "blubb"), handleStringAsync),
-        AsyncTask<int>(std::bind(setupStringAsync, _1, "foo"), handleStringAsync),
-        AsyncTask<int>(std::bind(setupStringAsync, _1, "blah"), handleStringAsync)
+        AsyncTask<int>(std::bind(setupStringAsync, _1, "blubb"), handleStringAsync, CallDoneIf::Success),
+        AsyncTask<int>(std::bind(setupStringAsync, _1, "foo"), handleStringAsync, CallDoneIf::Success),
+        AsyncTask<int>(std::bind(setupStringAsync, _1, "blah"), handleStringAsync, CallDoneIf::Success)
     };
     QTest::newRow("String") << stringRoot << 1.5 << QList<double>({});
 }

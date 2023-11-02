@@ -547,7 +547,7 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
 
     const TreeStorage<FastForwardStorage> storage;
 
-    const auto setupMergeBase = [repository = m_repository, branch](Process &process) {
+    const auto onMergeBaseSetup = [repository = m_repository, branch](Process &process) {
         gitClient().setupCommand(process, repository, {"merge-base", "HEAD", branch});
     };
     const auto onMergeBaseDone = [storage](const Process &process) {
@@ -563,7 +563,7 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
     const Group root {
         Tasking::Storage(storage),
         parallel,
-        ProcessTask(setupMergeBase, onMergeBaseDone),
+        ProcessTask(onMergeBaseSetup, onMergeBaseDone, CallDoneIf::Success),
         topRevisionProc,
         onGroupDone([storage, callback] {
             if (storage->mergeBase == storage->topRevision)

@@ -964,7 +964,7 @@ GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
         Group {
             finishAllAndError,
             TimeoutTask([timeout](milliseconds &timeoutData) { timeoutData = timeout; },
-                        taskHandler)
+                        taskHandler, CallDoneIf::Success)
         },
         item
     };
@@ -1483,9 +1483,16 @@ void TaskNode::stop()
     m_task.reset();
 }
 
+static bool shouldCall(CallDoneIf callDoneIf, bool success)
+{
+    if (success)
+        return callDoneIf != CallDoneIf::Error;
+    return callDoneIf != CallDoneIf::Success;
+}
+
 void TaskNode::invokeDoneHandler(bool success)
 {
-    if (m_taskHandler.m_doneHandler)
+    if (m_taskHandler.m_doneHandler && shouldCall(m_taskHandler.m_callDoneIf, success))
         invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get(), success);
     m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
 }

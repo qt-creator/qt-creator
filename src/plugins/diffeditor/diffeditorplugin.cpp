@@ -118,7 +118,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
 
         QList<GroupItem> tasks { parallel, finishAllAndDone };
         for (int i = 0; i < inputList.size(); ++i) {
-            const auto setupDiff = [this, reloadInput = inputList.at(i)](Async<FileData> &async) {
+            const auto onDiffSetup = [this, reloadInput = inputList.at(i)](Async<FileData> &async) {
                 async.setConcurrentCallData(
                     DiffFile(ignoreWhitespace(), contextLineCount()), reloadInput);
                 async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
@@ -128,7 +128,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
                 if (async.isResultAvailable())
                     (*outputList)[i] = async.result();
             };
-            tasks.append(AsyncTask<FileData>(setupDiff, onDiffDone));
+            tasks.append(AsyncTask<FileData>(onDiffSetup, onDiffDone, CallDoneIf::Success));
         }
         taskTree.setRecipe(tasks);
     };

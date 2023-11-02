@@ -109,7 +109,7 @@ GroupItem GenericDeployStep::mkdirTask(const TreeStorage<FilesToTransfer> &stora
         }
     };
 
-    return AsyncTask<ResultType>(onSetup, {}, onError);
+    return AsyncTask<ResultType>(onSetup, onError, CallDoneIf::Error);
 }
 
 static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileToTransfer)
@@ -135,7 +135,7 @@ static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileT
 
 GroupItem GenericDeployStep::transferTask(const TreeStorage<FilesToTransfer> &storage)
 {
-    const auto setupHandler = [this, storage](FileTransfer &transfer) {
+    const auto onSetup = [this, storage](FileTransfer &transfer) {
         FileTransferMethod preferredTransferMethod = FileTransferMethod::Rsync;
         if (method() == 0)
             preferredTransferMethod = FileTransferMethod::Rsync;
@@ -164,7 +164,7 @@ GroupItem GenericDeployStep::transferTask(const TreeStorage<FilesToTransfer> &st
         transfer.setFilesToTransfer(*storage);
         connect(&transfer, &FileTransfer::progress, this, &GenericDeployStep::handleStdOutData);
     };
-    const auto errorHandler = [this](const FileTransfer &transfer) {
+    const auto onError = [this](const FileTransfer &transfer) {
         const ProcessResultData result = transfer.resultData();
         if (result.m_error == QProcess::FailedToStart) {
             addErrorMessage(Tr::tr("rsync failed to start: %1").arg(result.m_errorString));
@@ -175,7 +175,7 @@ GroupItem GenericDeployStep::transferTask(const TreeStorage<FilesToTransfer> &st
                             + "\n" + result.m_errorString);
         }
     };
-    return FileTransferTask(setupHandler, {}, errorHandler);
+    return FileTransferTask(onSetup, onError, CallDoneIf::Error);
 }
 
 GroupItem GenericDeployStep::deployRecipe()

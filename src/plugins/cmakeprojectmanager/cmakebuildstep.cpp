@@ -374,7 +374,7 @@ GroupItem CMakeBuildStep::runRecipe()
     };
     Group root {
         ignoreReturnValue() ? finishAllAndDone : stopOnError,
-        ProjectParserTask(onParserSetup, {}, onParserError),
+        ProjectParserTask(onParserSetup, onParserError, CallDoneIf::Error),
         defaultProcessTask(),
         onGroupDone(onEnd),
         onGroupError(onEnd)

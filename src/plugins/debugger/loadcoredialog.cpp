@@ -252,12 +252,14 @@ void AttachCoreDialog::accepted()
         parallel,
         AsyncTask<ResultType>{[=](auto &task) {
                               task.setConcurrentCallData(copyFileAsync, this->coreFile());
-                          },
-                          [=](const auto &task) { d->coreFileResult = task.result(); }},
+                              },
+                              [=](const auto &task) { d->coreFileResult = task.result(); },
+                              CallDoneIf::Success},
         AsyncTask<ResultType>{[=](auto &task) {
                               task.setConcurrentCallData(copyFileAsync, this->symbolFile());
-                          },
-                          [=](const auto &task) { d->symbolFileResult = task.result(); }},
+                              },
+                              [=](const auto &task) { d->symbolFileResult = task.result(); },
+                              CallDoneIf::Success}
     };
 
     d->taskTree.setRecipe(root);

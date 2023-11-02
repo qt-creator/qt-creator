@@ -1526,7 +1526,7 @@ LocatorMatcherTask LocatorFileCache::matcher() const
         that->update(async.result());
     };
 
-    return {AsyncTask<LocatorFileCachePrivate>(onSetup, onDone), storage};
+    return {AsyncTask<LocatorFileCachePrivate>(onSetup, onDone, CallDoneIf::Success), storage};
 }
 
 } // Core

@@ -257,8 +257,8 @@ public:
         };
 
         const Group root {
-            UnarchiverTask(onUnarchiverSetup, {}, onUnarchiverError),
-            AsyncTask<ArchiveIssue>(onCheckerSetup, onCheckerDone)
+            UnarchiverTask(onUnarchiverSetup, onUnarchiverError, CallDoneIf::Error),
+            AsyncTask<ArchiveIssue>(onCheckerSetup, onCheckerDone, CallDoneIf::Success)
         };
         m_taskTree.reset(new TaskTree(root));
 

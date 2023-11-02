@@ -112,7 +112,8 @@ private:
 // 4. Always run all children, let them finish, ignore their results and report done afterwards.
 // 5. Always run all children, let them finish, ignore their results and report error afterwards.
 
-enum class WorkflowPolicy {
+enum class WorkflowPolicy
+{
     StopOnError,      // 1a - Reports error on first child error, otherwise done (if all children were done).
     ContinueOnError,  // 1b - The same, but children execution continues. Reports done when no children.
     StopOnDone,       // 2a - Reports done on first child done, otherwise error (if all children were error).
@@ -130,6 +131,14 @@ enum class SetupResult
     StopWithError
 };
 Q_ENUM_NS(SetupResult);
+
+enum class CallDoneIf
+{
+    SuccessOrError,
+    Success,
+    Error
+};
+Q_ENUM_NS(CallDoneIf);
 
 class TASKING_EXPORT GroupItem
 {
@@ -149,6 +158,7 @@ public:
         TaskCreateHandler m_createHandler;
         TaskSetupHandler m_setupHandler = {};
         TaskDoneHandler m_doneHandler = {};
+        CallDoneIf m_callDoneIf = CallDoneIf::SuccessOrError;
     };
 
     struct GroupHandler {
@@ -330,13 +340,15 @@ public:
     static Adapter *createAdapter() { return new Adapter; }
     CustomTask() : GroupItem({&createAdapter}) {}
     template <typename SetupHandler = SetupFunction>
-    CustomTask(SetupHandler &&setup, const EndFunction &done = {}, const EndFunction &error = {})
-        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
-                     wrapEnds(done, error)}) {}
+    CustomTask(SetupHandler &&setup, const EndFunction &done, CallDoneIf callDoneIf)
+        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)), wrapEnd(done),
+                     callDoneIf}) {}
 
     template <typename SetupHandler>
-    CustomTask(SetupHandler &&setup, const DoneFunction &done)
-        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)), wrapDone(done)})
+    CustomTask(SetupHandler &&setup, const DoneFunction &done = {},
+               CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+        : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)), wrapDone(done),
+                     callDoneIf})
     {}
 
     GroupItem withTimeout(std::chrono::milliseconds timeout,
@@ -365,14 +377,12 @@ private:
         };
     };
 
-    static TaskDoneHandler wrapEnds(const EndFunction &doneHandler, const EndFunction &errorHandler) {
-        if (!doneHandler && !errorHandler)
+    static TaskDoneHandler wrapEnd(const EndFunction &handler) {
+        if (!handler)
             return {};
-        return [doneHandler, errorHandler](const TaskInterface &taskInterface, bool success) {
+        return [handler](const TaskInterface &taskInterface, bool) {
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
-            const auto handler = success ? doneHandler : errorHandler;
-            if (handler)
-                handler(*adapter.task());
+            handler(*adapter.task());
         };
     };
 

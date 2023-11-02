@@ -203,7 +203,7 @@ Group ValgrindProcessPrivate::runRecipe() const
         Group {
             onGroupSetup(onParserGroupSetup),
             waitForBarrierTask(xmlBarrier),
-            ParserTask(onParserSetup, {}, onParserError)
+            ParserTask(onParserSetup, onParserError, CallDoneIf::Error)
         }
     };
     return root;
