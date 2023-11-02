@@ -18,11 +18,24 @@ static QString styleConfigFileName(const QString &qmlFileName)
         Utils::FilePath::fromString(qmlFileName));
 
     if (currentProject) {
-        const QList<Utils::FilePath> fileNames = currentProject->files(
-            ProjectExplorer::Project::SourceFiles);
-        for (const Utils::FilePath &fileName : fileNames)
-            if (fileName.endsWith("qtquickcontrols2.conf"))
-                return fileName.toString();
+        const auto &environment = currentProject->additionalEnvironment();
+        const auto &envVar = std::find_if(std::begin(environment),
+                                          std::end(environment),
+                                          [](const auto &envVar) {
+                                              return (envVar.name == u"QT_QUICK_CONTROLS_CONF"
+                                                      && envVar.operation
+                                                             != Utils::EnvironmentItem::SetDisabled);
+                                          });
+        if (envVar != std::end(environment)) {
+            const auto &fileNames = currentProject->files(ProjectExplorer::Project::SourceFiles);
+            const auto &foundFile = std::find_if(std::begin(fileNames),
+                                                 std::end(fileNames),
+                                                 [&](const auto &fileName) {
+                                                     return fileName.fileName() == envVar->value;
+                                                 });
+            if (foundFile != std::end(fileNames))
+                return foundFile->toString();
+        }
     }
 
     return QString();
