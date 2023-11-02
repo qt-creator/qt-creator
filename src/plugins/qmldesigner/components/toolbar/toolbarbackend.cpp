@@ -353,6 +353,7 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             [this](ProjectExplorer::Project *project) {
                 disconnect(m_kitConnection);
                 emit isQt6Changed();
+                emit isMCUsChanged();
                 emit projectOpenedChanged();
                 if (project) {
                     m_kitConnection = connect(project,
@@ -699,6 +700,20 @@ bool ToolBarBackend::isQt6() const
     const bool isQt6Project = buildSystem && buildSystem->qt6Project();
 
     return isQt6Project;
+}
+
+bool ToolBarBackend::isMCUs() const
+{
+    if (!ProjectExplorer::ProjectManager::startupTarget())
+        return false;
+
+    const QmlProjectManager::QmlBuildSystem *buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+        ProjectExplorer::ProjectManager::startupTarget()->buildSystem());
+    QTC_ASSERT(buildSystem, return false);
+
+    const bool isQtForMCUsProject = buildSystem && buildSystem->qtForMCUs();
+
+    return isQtForMCUsProject;
 }
 
 bool ToolBarBackend::projectOpened() const

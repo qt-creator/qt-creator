@@ -14,7 +14,8 @@ namespace QmlDesigner {
 
 static QString styleConfigFileName(const QString &qmlFileName)
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(Utils::FilePath::fromString(qmlFileName));
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(
+        Utils::FilePath::fromString(qmlFileName));
 
     if (currentProject) {
         const QList<Utils::FilePath> fileNames = currentProject->files(
@@ -57,6 +58,11 @@ QList<StyleWidgetEntry> ChangeStyleWidgetAction::getAllStyleItems()
         items.append({"macOS", "macOS", {}});
     if (Utils::HostOsInfo::isWindowsHost())
         items.append({"Windows", "Windows", {}});
+
+    if (DesignerMcuManager::instance().isMCUProject())
+        items.append({"MCUDefaultStyle", "MCUDefaultStyle", {}});
+
+    //what if we have a custom style set in .conf?
 
     return items;
 }
@@ -155,7 +161,6 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
             comboBox->setCurrentIndex(0);
         } else if (DesignerMcuManager::instance().isMCUProject()) {
             comboBox->setDisabled(true);
-            //TODO: add tooltip regarding MCU limitations, however we are behind string freeze
             comboBox->setEditText(style);
         } else {
             comboBox->setDisabled(false);

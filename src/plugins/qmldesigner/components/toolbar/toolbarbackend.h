@@ -93,6 +93,7 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(QStringList kits READ kits NOTIFY kitsChanged)
     Q_PROPERTY(int currentKit READ currentKit NOTIFY currentKitChanged)
     Q_PROPERTY(bool isQt6 READ isQt6 NOTIFY isQt6Changed)
+    Q_PROPERTY(bool isMCUs READ isMCUs NOTIFY isMCUsChanged)
     Q_PROPERTY(bool projectOpened READ projectOpened NOTIFY projectOpenedChanged)
 
 public:
@@ -138,6 +139,7 @@ public:
     int currentKit() const;
 
     bool isQt6() const;
+    bool isMCUs() const;
 
     bool projectOpened() const;
 
@@ -157,6 +159,7 @@ signals:
     void kitsChanged();
     void currentKitChanged();
     void isQt6Changed();
+    void isMCUsChanged();
     void projectOpenedChanged();
 
 private:
