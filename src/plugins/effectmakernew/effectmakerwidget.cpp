@@ -9,12 +9,11 @@
 #include "effectmakerview.h"
 #include "propertyhandler.h"
 
+//#include "qmldesigner/designercore/imagecache/midsizeimagecacheprovider.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qqmlcontext.h"
 #include "theme.h"
-
-#include "qmldesigner/components/propertyeditor/assetimageprovider.h"
 
 #include <coreplugin/icore.h>
 
@@ -140,9 +139,10 @@ void EffectMakerWidget::initView()
     m_quickWidget->rootContext()->setContextProperty("modelNodeBackend", &m_backendModelNode);
     m_quickWidget->rootContext()->setContextProperty("activeDragSuffix", "");
 
-    m_quickWidget->engine()->addImageProvider("qmldesigner_thumbnails",
-                                              new QmlDesigner::AssetImageProvider(
-                                                  QmlDesigner::QmlDesignerPlugin::imageCache()));
+    //TODO: Fix crash on macos
+//    m_quickWidget->engine()->addImageProvider("qmldesigner_thumbnails",
+//                                              new QmlDesigner::AssetImageProvider(
+//                                                  QmlDesigner::QmlDesignerPlugin::imageCache()));
 
     // init the first load of the QML UI elements
     reloadQmlSource();

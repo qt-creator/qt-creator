@@ -1,9 +1,8 @@
 find_package(Qt6 OPTIONAL_COMPONENTS Gui Quick)
 
 add_qtc_plugin(EffectMakerNew
-  CONDITION TARGET QmlDesigner
   PLUGIN_DEPENDS
-    Qt::Core QtCreator::QmlDesigner QtCreator::ProjectExplorer QtCreator::QmlProjectManager
+    QtCreator::QmlDesigner QtCreator::ProjectExplorer QtCreator::QmlProjectManager
   DEPENDS
     Qt::Core
     QtCreator::Utils Qt::CorePrivate Qt::Widgets Qt::Qml Qt::QmlPrivate Qt::Quick
