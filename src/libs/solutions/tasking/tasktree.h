@@ -324,17 +324,18 @@ public:
     static_assert(std::is_base_of_v<TaskAdapter<Task, Deleter>, Adapter>,
                   "The Adapter type for the CustomTask<Adapter> needs to be derived from "
                   "TaskAdapter<Task>.");
-    using DoneHandler = std::function<void(const Task &, bool)>;
-    using EndHandler = std::function<void(const Task &)>;
+    using SetupFunction = std::function<void(const Task &)>;
+    using DoneFunction = std::function<void(const Task &, bool)>;
+    using EndFunction = std::function<void(const Task &)>;
     static Adapter *createAdapter() { return new Adapter; }
     CustomTask() : GroupItem({&createAdapter}) {}
-    template <typename SetupHandler>
-    CustomTask(SetupHandler &&setup, const EndHandler &done = {}, const EndHandler &error = {})
+    template <typename SetupHandler = SetupFunction>
+    CustomTask(SetupHandler &&setup, const EndFunction &done = {}, const EndFunction &error = {})
         : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
                      wrapEnds(done, error)}) {}
 
     template <typename SetupHandler>
-    CustomTask(SetupHandler &&setup, const DoneHandler &done)
+    CustomTask(SetupHandler &&setup, const DoneFunction &done)
         : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)), wrapDone(done)})
     {}
 
@@ -346,6 +347,8 @@ public:
 private:
     template<typename SetupHandler>
     static GroupItem::TaskSetupHandler wrapSetup(SetupHandler &&handler) {
+        if constexpr (std::is_same_v<SetupHandler, std::function<void()>>)
+            return {}; // When user passed {} for setup handler.
         static constexpr bool isDynamic = std::is_same_v<SetupResult,
                 std::invoke_result_t<std::decay_t<SetupHandler>, typename Adapter::TaskType &>>;
         constexpr bool isVoid = std::is_same_v<void,
@@ -362,7 +365,7 @@ private:
         };
     };
 
-    static TaskDoneHandler wrapEnds(const EndHandler &doneHandler, const EndHandler &errorHandler) {
+    static TaskDoneHandler wrapEnds(const EndFunction &doneHandler, const EndFunction &errorHandler) {
         if (!doneHandler && !errorHandler)
             return {};
         return [doneHandler, errorHandler](const TaskInterface &taskInterface, bool success) {
@@ -373,7 +376,7 @@ private:
         };
     };
 
-    static TaskDoneHandler wrapDone(const DoneHandler &handler) {
+    static TaskDoneHandler wrapDone(const DoneFunction &handler) {
         if (!handler)
             return {};
         return [handler](const TaskInterface &taskInterface, bool success) {

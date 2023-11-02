@@ -956,8 +956,8 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
 GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
                                  const GroupEndHandler &handler)
 {
-    const TimeoutTask::EndHandler taskHandler = handler
-        ? [handler](const milliseconds &) { handler(); } : TimeoutTask::EndHandler();
+    const TimeoutTask::EndFunction taskHandler = handler
+        ? [handler](const milliseconds &) { handler(); } : TimeoutTask::EndFunction();
     return Group {
         parallel,
         stopOnFinished,

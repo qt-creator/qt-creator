@@ -117,12 +117,16 @@ void tst_Tasking::validConstructs()
 
     const Group task2 {
         parallel,
+        TestTask(),
         TestTask(setupHandler),
         TestTask(setupHandler, finishHandler),
         TestTask(setupHandler, finishHandler, errorHandler),
         TestTask(setupHandler, doneHandler),
         // need to explicitly pass empty handler for done
-        TestTask(setupHandler, {}, errorHandler)
+        TestTask(setupHandler, {}, errorHandler),
+        TestTask({}, finishHandler),
+        TestTask({}, finishHandler, errorHandler),
+        TestTask({}, {}, errorHandler)
     };
 
     // When turning each of below blocks on, you should see the specific compiler error message.
