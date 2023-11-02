@@ -67,26 +67,25 @@ QString TarPackageDeployStep::remoteFilePath() const
 
 GroupItem TarPackageDeployStep::uploadTask()
 {
-    const auto setupHandler = [this](FileTransfer &transfer) {
+    const auto onSetup = [this](FileTransfer &transfer) {
         const FilesToTransfer files {{m_packageFilePath,
                         deviceConfiguration()->filePath(remoteFilePath())}};
         transfer.setFilesToTransfer(files);
         connect(&transfer, &FileTransfer::progress, this, &TarPackageDeployStep::addProgressMessage);
         addProgressMessage(Tr::tr("Uploading package to device..."));
     };
-    const auto doneHandler = [this](const FileTransfer &) {
-        addProgressMessage(Tr::tr("Successfully uploaded package file."));
+    const auto onDone = [this](const FileTransfer &transfer, bool success) {
+        if (success)
+            addProgressMessage(Tr::tr("Successfully uploaded package file."));
+        else
+            addErrorMessage(transfer.resultData().m_errorString);
     };
-    const auto errorHandler = [this](const FileTransfer &transfer) {
-        const ProcessResultData result = transfer.resultData();
-        addErrorMessage(result.m_errorString);
-    };
-    return FileTransferTask(setupHandler, doneHandler, errorHandler);
+    return FileTransferTask(onSetup, onDone);
 }
 
 GroupItem TarPackageDeployStep::installTask()
 {
-    const auto setupHandler = [this](Process &process) {
+    const auto onSetup = [this](Process &process) {
         const QString cmdLine = QLatin1String("cd / && tar xvf ") + remoteFilePath()
                 + " && (rm " + remoteFilePath() + " || :)";
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"), {"-c", cmdLine}});
@@ -99,14 +98,15 @@ GroupItem TarPackageDeployStep::installTask()
         });
         addProgressMessage(Tr::tr("Installing package to device..."));
     };
-    const auto doneHandler = [this](const Process &) {
-        saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
-        addProgressMessage(Tr::tr("Successfully installed package file."));
-    };
-    const auto errorHandler = [this](const Process &process) {
+    const auto onDone = [this](const Process &process, bool success) {
+        if (success) {
+            saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
+            addProgressMessage(Tr::tr("Successfully installed package file."));
+            return;
+        }
         addErrorMessage(Tr::tr("Installing package failed.") + process.errorString());
     };
-    return ProcessTask(setupHandler, doneHandler, errorHandler);
+    return ProcessTask(onSetup, onDone);
 }
 
 GroupItem TarPackageDeployStep::deployRecipe()

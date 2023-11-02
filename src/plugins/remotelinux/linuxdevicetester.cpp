@@ -92,38 +92,42 @@ QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
 
 GroupItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) const
 {
-    const auto setup = [this, contents](Process &process) {
+    const auto onSetup = [this, contents](Process &process) {
         emit q->progressMessage(Tr::tr("Sending echo to device..."));
         process.setCommand({m_device->filePath("echo"), {contents}});
     };
-    const auto done = [this, contents](const Process &process) {
+    const auto onDone = [this, contents](const Process &process, bool success) {
+        if (!success) {
+            const QString stdErrOutput = process.cleanedStdErr();
+            if (!stdErrOutput.isEmpty())
+                emit q->errorMessage(Tr::tr("echo failed: %1").arg(stdErrOutput) + '\n');
+            else
+                emit q->errorMessage(Tr::tr("echo failed.") + '\n');
+            return;
+        }
         const QString reply = Utils::chopIfEndsWith(process.cleanedStdOut(), '\n');
-        if (reply != contents)
+        if (reply != contents) {
             emit q->errorMessage(Tr::tr("Device replied to echo with unexpected contents: \"%1\"")
-                    .arg(reply) + '\n');
-        else
-            emit q->progressMessage(Tr::tr("Device replied to echo with expected contents.") + '\n');
+                                     .arg(reply) + '\n');
+        } else {
+            emit q->progressMessage(Tr::tr("Device replied to echo with expected contents.")
+                                    + '\n');
+        }
     };
-    const auto error = [this](const Process &process) {
-        const QString stdErrOutput = process.cleanedStdErr();
-        if (!stdErrOutput.isEmpty())
-            emit q->errorMessage(Tr::tr("echo failed: %1").arg(stdErrOutput) + '\n');
-        else
-            emit q->errorMessage(Tr::tr("echo failed.") + '\n');
-    };
-    return ProcessTask(setup, done, error);
+    return ProcessTask(onSetup, onDone);
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::unameTask() const
 {
-    const auto setup = [this](Process &process) {
+    const auto onSetup = [this](Process &process) {
         emit q->progressMessage(Tr::tr("Checking kernel version..."));
         process.setCommand({m_device->filePath("uname"), {"-rsm"}});
     };
-    const auto done = [this](const Process &process) {
-        emit q->progressMessage(process.cleanedStdOut());
-    };
-    const auto error = [this](const Process &process) {
+    const auto onDone = [this](const Process &process, bool success) {
+        if (success) {
+            emit q->progressMessage(process.cleanedStdOut());
+            return;
+        }
         const QString stdErrOutput = process.cleanedStdErr();
         if (!stdErrOutput.isEmpty())
             emit q->errorMessage(Tr::tr("uname failed: %1").arg(stdErrOutput) + '\n');
@@ -132,18 +136,21 @@ GroupItem GenericLinuxDeviceTesterPrivate::unameTask() const
     };
     return Group {
         finishAllAndDone,
-        ProcessTask(setup, done, error)
+        ProcessTask(onSetup, onDone)
     };
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::gathererTask() const
 {
-    const auto setup = [this](DeviceUsedPortsGatherer &gatherer) {
+    const auto onSetup = [this](DeviceUsedPortsGatherer &gatherer) {
         emit q->progressMessage(Tr::tr("Checking if specified ports are available..."));
         gatherer.setDevice(m_device);
     };
-    const auto done = [this](const DeviceUsedPortsGatherer &gatherer) {
-        if (gatherer.usedPorts().isEmpty()) {
+    const auto onDone = [this](const DeviceUsedPortsGatherer &gatherer, bool success) {
+        if (!success) {
+            emit q->errorMessage(Tr::tr("Error gathering ports: %1").arg(gatherer.errorString()) + '\n'
+                                 + Tr::tr("Some tools will not work out of the box.\n"));
+        } else if (gatherer.usedPorts().isEmpty()) {
             emit q->progressMessage(Tr::tr("All specified ports are available.") + '\n');
         } else {
             const QString portList = transform(gatherer.usedPorts(), [](const Port &port) {
@@ -153,38 +160,34 @@ GroupItem GenericLinuxDeviceTesterPrivate::gathererTask() const
                 .arg(portList) + '\n');
         }
     };
-    const auto error = [this](const DeviceUsedPortsGatherer &gatherer) {
-        emit q->errorMessage(Tr::tr("Error gathering ports: %1").arg(gatherer.errorString()) + '\n'
-                           + Tr::tr("Some tools will not work out of the box.\n"));
-    };
 
     return Group {
         finishAllAndDone,
-        DeviceUsedPortsGathererTask(setup, done, error)
+        DeviceUsedPortsGathererTask(onSetup, onDone)
     };
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method,
                                            const TreeStorage<TransferStorage> &storage) const
 {
-    const auto setup = [this, method](FileTransfer &transfer) {
+    const auto onSetup = [this, method](FileTransfer &transfer) {
         emit q->progressMessage(Tr::tr("Checking whether \"%1\" works...")
                                 .arg(FileTransfer::transferMethodName(method)));
         transfer.setTransferMethod(method);
         transfer.setTestDevice(m_device);
     };
-    const auto done = [this, method, storage](const FileTransfer &) {
+    const auto onDone = [this, method, storage](const FileTransfer &transfer, bool success) {
         const QString methodName = FileTransfer::transferMethodName(method);
-        emit q->progressMessage(Tr::tr("\"%1\" is functional.\n").arg(methodName));
-        if (method == FileTransferMethod::Rsync)
-            m_device->setExtraData(Constants::SUPPORTS_RSYNC, true);
-        else if (method == FileTransferMethod::Sftp)
-            m_device->setExtraData(Constants::SUPPORTS_SFTP, true);
-        else
-            storage->useGenericCopy = true;
-    };
-    const auto error = [this, method, storage](const FileTransfer &transfer) {
-        const QString methodName = FileTransfer::transferMethodName(method);
+        if (success) {
+            emit q->progressMessage(Tr::tr("\"%1\" is functional.\n").arg(methodName));
+            if (method == FileTransferMethod::Rsync)
+                m_device->setExtraData(Constants::SUPPORTS_RSYNC, true);
+            else if (method == FileTransferMethod::Sftp)
+                m_device->setExtraData(Constants::SUPPORTS_SFTP, true);
+            else
+                storage->useGenericCopy = true;
+            return;
+        }
         const ProcessResultData resultData = transfer.resultData();
         QString error;
         if (resultData.m_error == QProcess::FailedToStart) {
@@ -218,7 +221,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
                                     + "\n");
         }
     };
-    return FileTransferTestTask(setup, done, error);
+    return FileTransferTestTask(onSetup, onDone);
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
@@ -238,23 +241,24 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 
 GroupItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName) const
 {
-    const auto setup = [this, commandName](Process &process) {
+    const auto onSetup = [this, commandName](Process &process) {
         emit q->progressMessage(Tr::tr("%1...").arg(commandName));
         CommandLine command{m_device->filePath("/bin/sh"), {"-c"}};
         command.addArgs(QLatin1String("\"command -v %1\"").arg(commandName), CommandLine::Raw);
         process.setCommand(command);
     };
-    const auto done = [this, commandName](const Process &) {
-        emit q->progressMessage(Tr::tr("%1 found.").arg(commandName));
-    };
-    const auto error = [this, commandName](const Process &process) {
+    const auto onDone = [this, commandName](const Process &process, bool success) {
+        if (success) {
+            emit q->progressMessage(Tr::tr("%1 found.").arg(commandName));
+            return;
+        }
         const QString message = process.result() == ProcessResult::StartFailed
                 ? Tr::tr("An error occurred while checking for %1.").arg(commandName)
                   + '\n' + process.errorString()
                 : Tr::tr("%1 not found.").arg(commandName);
         emit q->errorMessage(message);
     };
-    return ProcessTask(setup, done, error);
+    return ProcessTask(onSetup, onDone);
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const

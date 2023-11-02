@@ -53,7 +53,7 @@ expected_str<void> CustomCommandDeployStep::isDeploymentPossible() const
 
 GroupItem CustomCommandDeployStep::deployRecipe()
 {
-    const auto setupHandler = [this](Process &process) {
+    const auto onSetup = [this](Process &process) {
         addProgressMessage(Tr::tr("Starting remote command \"%1\"...").arg(commandLine()));
         process.setCommand({deviceConfiguration()->filePath("/bin/sh"),
                                  {"-c", commandLine()}});
@@ -65,11 +65,10 @@ GroupItem CustomCommandDeployStep::deployRecipe()
             handleStdErrData(proc->readAllStandardError());
         });
     };
-    const auto doneHandler = [this](const Process &) {
-        addProgressMessage(Tr::tr("Remote command finished successfully."));
-    };
-    const auto errorHandler = [this](const Process &process) {
-        if (process.error() != QProcess::UnknownError
+    const auto onDone = [this](const Process &process, bool success) {
+        if (success) {
+            addProgressMessage(Tr::tr("Remote command finished successfully."));
+        } else if (process.error() != QProcess::UnknownError
                 || process.exitStatus() != QProcess::NormalExit) {
             addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
         } else if (process.exitCode() != 0) {
@@ -77,7 +76,7 @@ GroupItem CustomCommandDeployStep::deployRecipe()
                 .arg(process.exitCode()));
         }
     };
-    return ProcessTask(setupHandler, doneHandler, errorHandler);
+    return ProcessTask(onSetup, onDone);
 }
 
 

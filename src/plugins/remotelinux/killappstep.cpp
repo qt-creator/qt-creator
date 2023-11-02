@@ -45,7 +45,7 @@ private:
 
 GroupItem KillAppStep::deployRecipe()
 {
-    const auto setupHandler = [this](DeviceProcessKiller &killer) {
+    const auto onSetup = [this](DeviceProcessKiller &killer) {
         if (m_remoteExecutable.isEmpty()) {
             addSkipDeploymentMessage();
             return SetupResult::StopWithDone;
@@ -55,14 +55,13 @@ GroupItem KillAppStep::deployRecipe()
                                   .arg(m_remoteExecutable.path()));
         return SetupResult::Continue;
     };
-    const auto doneHandler = [this](const DeviceProcessKiller &) {
-        addProgressMessage(Tr::tr("Remote application killed."));
+    const auto onDone = [this](const DeviceProcessKiller &, bool success) {
+        const QString message = success ? Tr::tr("Remote application killed.")
+                                        : Tr::tr("Failed to kill remote application. "
+                                                 "Assuming it was not running.");
+        addProgressMessage(message);
     };
-    const auto errorHandler = [this](const DeviceProcessKiller &) {
-        addProgressMessage(Tr::tr("Failed to kill remote application. "
-                                    "Assuming it was not running."));
-    };
-    return DeviceProcessKillerTask(setupHandler, doneHandler, errorHandler);
+    return DeviceProcessKillerTask(onSetup, onDone);
 }
 
 KillAppStepFactory::KillAppStepFactory()

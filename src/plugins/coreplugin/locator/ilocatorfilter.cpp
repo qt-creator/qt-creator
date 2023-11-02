@@ -441,8 +441,7 @@ void LocatorMatcher::start()
             emit serialOutputDataReady(serialOutputData);
         });
     };
-    const auto onCollectorDone = [collectorStorage](const ResultsCollector &collector) {
-        Q_UNUSED(collector)
+    const auto onCollectorDone = [collectorStorage](const ResultsCollector &, bool) {
         collectorStorage->m_collector = nullptr;
     };
 
@@ -480,7 +479,7 @@ void LocatorMatcher::start()
     const Group root {
         parallel,
         Storage(collectorStorage),
-        ResultsCollectorTask(onCollectorSetup, onCollectorDone, onCollectorDone),
+        ResultsCollectorTask(onCollectorSetup, onCollectorDone),
         Group {
             parallelTasks
         }

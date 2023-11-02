@@ -79,27 +79,27 @@ void Images::process()
             query.setNetworkAccessManager(&qnam);
             query.setRequest(QNetworkRequest(url));
         };
-        const auto onDownloadDone = [storage](const NetworkQuery &query) {
-            *storage = query.reply()->readAll();
-        };
-        const auto onDownloadError = [this, i](const NetworkQuery &query) {
-            labels[i]->setText(tr("Download\nError.\nCode: %1.").arg(query.reply()->error()));
+        const auto onDownloadDone = [this, storage, i](const NetworkQuery &query, bool success) {
+            if (success)
+                *storage = query.reply()->readAll();
+            else
+                labels[i]->setText(tr("Download\nError.\nCode: %1.").arg(query.reply()->error()));
         };
 
         const auto onScalingSetup = [storage](ConcurrentCall<QImage> &data) {
             data.setConcurrentCallData(&scale, *storage);
         };
-        const auto onScalingDone = [this, i](const ConcurrentCall<QImage> &data) {
-            labels[i]->setPixmap(QPixmap::fromImage(data.result()));
-        };
-        const auto onScalingError = [this, i](const ConcurrentCall<QImage> &) {
-            labels[i]->setText(tr("Image\nData\nError."));
+        const auto onScalingDone = [this, i](const ConcurrentCall<QImage> &data, bool success) {
+            if (success)
+                labels[i]->setPixmap(QPixmap::fromImage(data.result()));
+            else
+                labels[i]->setText(tr("Image\nData\nError."));
         };
 
         const Group group {
             Storage(storage),
-            NetworkQueryTask(onDownloadSetup, onDownloadDone, onDownloadError),
-            ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone, onScalingError)
+            NetworkQueryTask(onDownloadSetup, onDownloadDone),
+            ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone)
         };
         tasks.append(group);
         ++i;

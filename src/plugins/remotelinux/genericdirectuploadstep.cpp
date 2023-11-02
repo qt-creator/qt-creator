@@ -135,17 +135,17 @@ GroupItem GenericDirectUploadStep::statTask(UploadStorage *storage,
                                             const DeployableFile &file,
                                             StatEndHandler statEndHandler)
 {
-    const auto setupHandler = [=](Process &process) {
+    const auto onSetup = [this, file](Process &process) {
         // We'd like to use --format=%Y, but it's not supported by busybox.
         process.setCommand({deviceConfiguration()->filePath("stat"),
                             {"-t", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
-    const auto endHandler = [=](const Process &process) {
+    const auto onDone = [this, storage, file, statEndHandler](const Process &process, bool) {
         Process *proc = const_cast<Process *>(&process);
         const QDateTime timestamp = timestampFromStat(file, proc);
         statEndHandler(storage, file, timestamp);
     };
-    return ProcessTask(setupHandler, endHandler, endHandler);
+    return ProcessTask(onSetup, onDone);
 }
 
 GroupItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &storage,

@@ -252,7 +252,7 @@ signals:
 
 private:
     GroupItem remoteTask() final {
-        const auto setup = [this](Process &process) {
+        const auto onSetup = [this](Process &process) {
             m_writeBuffer = new WriteBuffer(false, &process);
             connect(m_writeBuffer, &WriteBuffer::writeRequested, &process, &Process::writeRaw);
             connect(m_writeBuffer, &WriteBuffer::closeWriteChannelRequested,
@@ -266,23 +266,23 @@ private:
                 process.setWriteData(m_writeData);
             connect(&process, &Process::started, this, [this] { emit started(); });
         };
-        const auto finalize = [this](const Process &) {
+        const auto onDone = [this](const Process &, bool) {
             delete m_writeBuffer;
             m_writeBuffer = nullptr;
         };
-        return ProcessTask(setup, finalize, finalize);
+        return ProcessTask(onSetup, onDone);
     }
     GroupItem localTask() final {
-        const auto setup = [this](Async<void> &async) {
+        const auto onSetup = [this](Async<void> &async) {
             m_writeBuffer = new WriteBuffer(isBuffered(), &async);
             async.setConcurrentCallData(localWrite, m_filePath, m_writeData, m_writeBuffer);
             emit started();
         };
-        const auto finalize = [this](const Async<void> &) {
+        const auto onDone = [this](const Async<void> &, bool) {
             delete m_writeBuffer;
             m_writeBuffer = nullptr;
         };
-        return AsyncTask<void>(setup, finalize, finalize);
+        return AsyncTask<void>(onSetup, onDone);
     }
 
     bool isBuffered() const { return m_writeData.isEmpty(); }
@@ -327,17 +327,17 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
     SingleBarrier writerReadyBarrier;
     TreeStorage<TransferStorage> storage;
 
-    const auto setupReader = [=](FileStreamReader &reader) {
+    const auto onReaderSetup = [=](FileStreamReader &reader) {
         reader.setFilePath(source);
         QTC_CHECK(storage->writer != nullptr);
         QObject::connect(&reader, &FileStreamReader::readyRead,
                          storage->writer, &FileStreamWriter::write);
     };
-    const auto finalizeReader = [=](const FileStreamReader &) {
+    const auto onReaderDone = [=](const FileStreamReader &, bool) {
         if (storage->writer) // writer may be deleted before the reader on TaskTree::stop().
             storage->writer->closeWriteChannel();
     };
-    const auto setupWriter = [=](FileStreamWriter &writer) {
+    const auto onWriterSetup = [=](FileStreamWriter &writer) {
         writer.setFilePath(destination);
         QObject::connect(&writer, &FileStreamWriter::started,
                          writerReadyBarrier->barrier(), &Barrier::advance);
@@ -349,10 +349,10 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
         Storage(writerReadyBarrier),
         parallel,
         Storage(storage),
-        FileStreamWriterTask(setupWriter),
+        FileStreamWriterTask(onWriterSetup),
         Group {
             waitForBarrierTask(writerReadyBarrier),
-            FileStreamReaderTask(setupReader, finalizeReader, finalizeReader)
+            FileStreamReaderTask(onReaderSetup, onReaderDone)
         }
     };
 

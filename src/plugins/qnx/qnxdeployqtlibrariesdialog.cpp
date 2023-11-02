@@ -119,13 +119,22 @@ QList<DeployableFile> collectFilesToUpload(const DeployableFile &deployable)
 
 GroupItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
 {
-    const auto setupHandler = [this](Process &process) {
+    const auto onSetup = [this](Process &process) {
         m_deployLogWindow->appendPlainText(Tr::tr("Checking existence of \"%1\"")
                                            .arg(fullRemoteDirectory()));
         process.setCommand({m_device->filePath("test"), {"-d", fullRemoteDirectory()}});
     };
-    const auto doneHandler = [this](const Process &process) {
-        Q_UNUSED(process)
+    const auto onDone = [this](const Process &process, bool success) {
+        if (!success) {
+            if (process.result() != ProcessResult::FinishedWithError) {
+                m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
+                                                       .arg(process.errorString()));
+                m_checkResult = CheckResult::Abort;
+                return;
+            }
+            m_checkResult = CheckResult::SkipRemoveDir;
+            return;
+        }
         const int answer = QMessageBox::question(q, q->windowTitle(),
                 Tr::tr("The remote directory \"%1\" already exists.\n"
                        "Deploying to that directory will remove any files already present.\n\n"
@@ -133,16 +142,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
                        QMessageBox::Yes | QMessageBox::No);
         m_checkResult = answer == QMessageBox::Yes ? CheckResult::RemoveDir : CheckResult::Abort;
     };
-    const auto errorHandler = [this](const Process &process) {
-        if (process.result() != ProcessResult::FinishedWithError) {
-            m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
-                                               .arg(process.errorString()));
-            m_checkResult = CheckResult::Abort;
-            return;
-        }
-        m_checkResult = CheckResult::SkipRemoveDir;
-    };
-    return ProcessTask(setupHandler, doneHandler, errorHandler);
+    return ProcessTask(onSetup, onDone);
 }
 
 GroupItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()

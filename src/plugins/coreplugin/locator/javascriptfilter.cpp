@@ -394,7 +394,13 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
         request.setEngine(engine);
         request.setEvaluateData(storage->input());
     };
-    const auto onJavaScriptDone = [storage](const JavaScriptRequest &request) {
+    const auto onJavaScriptDone = [storage](const JavaScriptRequest &request, bool success) {
+        if (!success) {
+            LocatorFilterEntry entry;
+            entry.displayName = request.output().m_output;
+            storage->reportOutput({entry});
+            return;
+        }
         const auto acceptor = [](const QString &clipboardContents) {
             return [clipboardContents] {
                 QGuiApplication::clipboard()->setText(clipboardContents);
@@ -418,15 +424,10 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
 
         storage->reportOutput({entry, copyResultEntry, copyExpressionEntry});
     };
-    const auto onJavaScriptError = [storage](const JavaScriptRequest &request) {
-        LocatorFilterEntry entry;
-        entry.displayName = request.output().m_output;
-        storage->reportOutput({entry});
-    };
 
     const Group root {
         onGroupSetup(onSetup),
-        JavaScriptRequestTask(onJavaScriptSetup, onJavaScriptDone, onJavaScriptError)
+        JavaScriptRequestTask(onJavaScriptSetup, onJavaScriptDone)
     };
 
     return {{root, storage}};

@@ -34,27 +34,28 @@ void Slog2InfoRunner::start()
     using namespace Tasking;
     QTC_CHECK(!m_taskTree);
 
-    const auto testStartHandler = [this](Process &process) {
+    const auto onTestSetup = [this](Process &process) {
         process.setCommand({device()->filePath("slog2info"), {}});
     };
-    const auto testDoneHandler = [this](const Process &) {
-        m_found = true;
-    };
-    const auto testErrorHandler = [this](const Process &) {
+    const auto onTestDone = [this](const Process &, bool success) {
+        if (success) {
+            m_found = true;
+            return;
+        }
         appendMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
                              "debug output not available."), ErrorMessageFormat);
     };
 
-    const auto launchTimeStartHandler = [this](Process &process) {
+    const auto onLaunchTimeSetup = [this](Process &process) {
         process.setCommand({device()->filePath("date"), "+\"%d %H:%M:%S\"", CommandLine::Raw});
     };
-    const auto launchTimeDoneHandler = [this](const Process &process) {
+    const auto onLaunchTimeDone = [this](const Process &process) {
         QTC_CHECK(!m_applicationId.isEmpty());
         QTC_CHECK(m_found);
         m_launchDateTime = QDateTime::fromString(process.cleanedStdOut().trimmed(), "dd HH:mm:ss");
     };
 
-    const auto logStartHandler = [this](Process &process) {
+    const auto onLogSetup = [this](Process &process) {
         process.setCommand({device()->filePath("slog2info"), {"-w"}});
         connect(&process, &Process::readyReadStandardOutput, this, [&] {
             processLogInput(QString::fromLatin1(process.readAllRawStandardOutput()));
@@ -63,15 +64,15 @@ void Slog2InfoRunner::start()
             appendMessage(QString::fromLatin1(process.readAllRawStandardError()), StdErrFormat);
         });
     };
-    const auto logErrorHandler = [this](const Process &process) {
+    const auto onLogError = [this](const Process &process) {
         appendMessage(Tr::tr("Cannot show slog2info output. Error: %1").arg(process.errorString()),
                       StdErrFormat);
     };
 
     const Group root {
-        ProcessTask(testStartHandler, testDoneHandler, testErrorHandler),
-        ProcessTask(launchTimeStartHandler, launchTimeDoneHandler),
-        ProcessTask(logStartHandler, {}, logErrorHandler)
+        ProcessTask(onTestSetup, onTestDone),
+        ProcessTask(onLaunchTimeSetup, onLaunchTimeDone),
+        ProcessTask(onLogSetup, {}, onLogError)
     };
 
     m_taskTree.reset(new TaskTree(root));

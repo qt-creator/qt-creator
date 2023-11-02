@@ -130,10 +130,15 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
 #endif
         });
     };
-    const auto onQueryDone = [this, storage](const NetworkQuery &query) {
+    const auto onQueryDone = [this, storage](const NetworkQuery &query, bool success) {
         QNetworkReply *reply = query.reply();
         QTC_ASSERT(reply, return);
         const QUrl url = reply->url();
+        if (!success) {
+            logError(Tr::tr("Downloading Android SDK Tools from URL %1 has failed: %2.")
+                         .arg(url.toString(), reply->errorString()));
+            return;
+        }
         if (isHttpRedirect(reply)) {
             logError(Tr::tr("Download from %1 was redirected.").arg(url.toString()));
             return;
@@ -145,13 +150,6 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
             return;
         }
         *storage = sdkFileName;
-    };
-    const auto onQueryError = [this](const NetworkQuery &query) {
-        QNetworkReply *reply = query.reply();
-        QTC_ASSERT(reply, return);
-        const QUrl url = reply->url();
-        logError(Tr::tr("Downloading Android SDK Tools from URL %1 has failed: %2.")
-                            .arg(url.toString(), reply->errorString()));
     };
 
     const auto onUnarchiveSetup = [this, storage](Unarchiver &unarchiver) {
@@ -173,19 +171,20 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         unarchiver.setDestDir(sdkFileName.parentDir());
         return SetupResult::Continue;
     };
-    const auto onUnarchiverDone = [this, storage](const Unarchiver &) {
+    const auto onUnarchiverDone = [this, storage](const Unarchiver &, bool success) {
+        if (!success) {
+            logError(Tr::tr("Unarchiving error."));
+            return;
+        }
         m_androidConfig.setTemporarySdkToolsPath(
             (*storage)->parentDir().pathAppended(Constants::cmdlineToolsName));
         QMetaObject::invokeMethod(this, [this] { emit sdkExtracted(); }, Qt::QueuedConnection);
     };
-    const auto onUnarchiverError = [this](const Unarchiver &) {
-        logError(Tr::tr("Unarchiving error."));
-    };
 
     const Group root {
         Tasking::Storage(storage),
-        NetworkQueryTask(onQuerySetup, onQueryDone, onQueryError),
-        UnarchiverTask(onUnarchiveSetup, onUnarchiverDone, onUnarchiverError)
+        NetworkQueryTask(onQuerySetup, onQueryDone),
+        UnarchiverTask(onUnarchiveSetup, onUnarchiverDone)
     };
 
     m_taskTree.reset(new TaskTree(root));

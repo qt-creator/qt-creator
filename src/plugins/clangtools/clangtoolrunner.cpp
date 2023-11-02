@@ -163,24 +163,19 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
     };
-    const auto onProcessDone = [=](const Process &process) {
+    const auto onProcessDone = [=](const Process &process, bool success) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
 
-        // Here we handle only the case of process success with stderr output.
         if (!outputHandler)
             return;
-        if (process.result() != ProcessResult::FinishedWithSuccess)
+        if (success) {
+            const QString stdErr = process.cleanedStdErr();
+            if (stdErr.isEmpty())
+                return;
+            outputHandler({true, input.unit.file, {}, {}, input.tool,
+                           Tr::tr("%1 produced stderr output:").arg(storage->name), stdErr});
             return;
-        const QString stdErr = process.cleanedStdErr();
-        if (stdErr.isEmpty())
-            return;
-        outputHandler(
-            {true, input.unit.file, {}, {}, input.tool, Tr::tr("%1 produced stderr output:")
-                                                            .arg(storage->name), stdErr});
-    };
-    const auto onProcessError = [=](const Process &process) {
-        if (!outputHandler)
-            return;
+        }
         const QString details = Tr::tr("Command line: %1\nProcess Error: %2\nOutput:\n%3")
                                     .arg(process.commandLine().toUserOutput())
                                     .arg(process.error())
@@ -203,30 +198,23 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
                                    input.diagnosticsFilter);
         data.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     };
-    const auto onReadDone = [=](const Async<expected_str<Diagnostics>> &data) {
+    const auto onReadDone = [=](const Async<expected_str<Diagnostics>> &data, bool success) {
         if (!outputHandler)
             return;
         const expected_str<Diagnostics> result = data.result();
-        const bool success = result.has_value();
+        const bool ok = success && result.has_value();
         Diagnostics diagnostics;
         QString error;
-        if (success)
+        if (ok)
             diagnostics = *result;
         else
             error = result.error();
-        outputHandler({success,
+        outputHandler({ok,
                        input.unit.file,
                        storage->outputFilePath,
                        diagnostics,
                        input.tool,
                        error});
-    };
-    const auto onReadError = [=](const Async<expected_str<Diagnostics>> &data) {
-        if (!outputHandler)
-            return;
-        const expected_str<Diagnostics> result = data.result();
-        outputHandler(
-            {false, input.unit.file, storage->outputFilePath, {}, input.tool, result.error()});
     };
 
     const Group group {
@@ -235,8 +223,8 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
         onGroupSetup(onSetup),
         Group {
             sequential,
-            ProcessTask(onProcessSetup, onProcessDone, onProcessError),
-            AsyncTask<expected_str<Diagnostics>>(onReadSetup, onReadDone, onReadError)
+            ProcessTask(onProcessSetup, onProcessDone),
+            AsyncTask<expected_str<Diagnostics>>(onReadSetup, onReadDone)
         }
     };
     return group;

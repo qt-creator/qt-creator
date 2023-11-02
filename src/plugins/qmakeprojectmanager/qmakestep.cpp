@@ -275,14 +275,14 @@ Tasking::GroupItem QMakeStep::runRecipe()
         return SetupResult::StopWithDone;
     };
 
-    const auto setupQMake = [this](Process &process) {
+    const auto onQMakeSetup = [this](Process &process) {
         m_outputFormatter->setLineParsers({new QMakeParser});
         ProcessParameters *pp = processParameters();
         pp->setCommandLine(m_qmakeCommand);
         return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
     };
 
-    const auto setupMakeQMake = [this](Process &process) {
+    const auto onMakeQMakeSetup = [this](Process &process) {
         auto *parser = new GnuMakeParser;
         parser->addSearchDir(processParameters()->workingDirectory());
         m_outputFormatter->setLineParsers({parser});
@@ -291,7 +291,7 @@ Tasking::GroupItem QMakeStep::runRecipe()
         return setupProcess(process) ? SetupResult::Continue : SetupResult::StopWithError;
     };
 
-    const auto onProcessDone = [this](const Process &process) { handleProcessDone(process); };
+    const auto onProcessDone = [this](const Process &process, bool) { handleProcessDone(process); };
 
     const auto onDone = [this] {
         emit buildConfiguration()->buildDirectoryInitialized();
@@ -300,9 +300,9 @@ Tasking::GroupItem QMakeStep::runRecipe()
 
     QList<GroupItem> processList = {onGroupSetup(onSetup),
                                     onGroupDone(onDone),
-                                    ProcessTask(setupQMake, onProcessDone, onProcessDone)};
+                                    ProcessTask(onQMakeSetup, onProcessDone)};
     if (m_runMakeQmake)
-        processList << ProcessTask(setupMakeQMake, onProcessDone, onProcessDone);
+        processList << ProcessTask(onMakeQMakeSetup, onProcessDone);
 
     return Group(processList);
 }

@@ -410,7 +410,7 @@ void TestRunner::runTestsHelper()
             qCInfo(runnerLog) << "Working directory:" << process.workingDirectory();
             qCDebug(runnerLog) << "Environment:" << process.environment().toStringList();
         };
-        const auto onProcessDone = [this, config, storage](const Process &process) {
+        const auto onProcessDone = [this, config, storage](const Process &process, bool) {
             TestStorage *testStorage = storage.activeStorage();
             QTC_ASSERT(testStorage, return);
             if (process.result() == ProcessResult::StartFailed) {
@@ -448,7 +448,7 @@ void TestRunner::runTestsHelper()
             finishAllAndDone,
             Tasking::Storage(storage),
             onGroupSetup(onSetup),
-            ProcessTask(onProcessSetup, onProcessDone, onProcessDone)
+            ProcessTask(onProcessSetup, onProcessDone)
         };
         tasks.append(group);
     }
