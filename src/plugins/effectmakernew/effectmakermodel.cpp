@@ -13,7 +13,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
-#include <qtsupport/qtkitinformation.h>
+#include <qtsupport/qtkitaspect.h>
 
 #include <utils/qtcassert.h>
 #include <utils/process.h>
@@ -93,6 +93,8 @@ bool EffectMakerModel::setData(const QModelIndex &index, const QVariant &value, 
 
     if (role == EnabledRole) {
         m_nodes.at(index.row())->setIsEnabled(value.toBool());
+        bakeShaders();
+
         emit dataChanged(index, index, {role});
     }
 
@@ -1060,4 +1062,3 @@ void EffectMakerModel::clearImageWatchers()
 }
 
 } // namespace EffectMaker
-
