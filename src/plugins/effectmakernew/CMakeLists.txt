@@ -1,12 +1,12 @@
-find_package(Qt6 OPTIONAL_COMPONENTS Gui Quick ShaderTools)
+find_package(Qt6 OPTIONAL_COMPONENTS Gui Quick)
 
 add_qtc_plugin(EffectMakerNew
-  CONDITION TARGET QmlDesigner AND TARGET Qt::ShaderTools
+  CONDITION TARGET QmlDesigner
   PLUGIN_DEPENDS
-    QtCreator::Core QtCreator::QmlDesigner QtCreator::ProjectExplorer QtCreator::QmlProjectManager
+    Qt::Core QtCreator::QmlDesigner QtCreator::ProjectExplorer QtCreator::QmlProjectManager
   DEPENDS
     Qt::Core
-    QtCreator::Utils Qt::CorePrivate Qt::Widgets Qt::Qml Qt::QmlPrivate Qt::Quick Qt::ShaderTools Qt::ShaderToolsPrivate
+    QtCreator::Utils Qt::CorePrivate Qt::Widgets Qt::Qml Qt::QmlPrivate Qt::Quick
   SOURCES
     effectmakerplugin.cpp effectmakerplugin.h
     effectmakerwidget.cpp effectmakerwidget.h

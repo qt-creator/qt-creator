@@ -1,8 +1,7 @@
 {
     \"Name\" : \"EffectMakerNew\",
-    \"Version\" : \"$$QTCREATOR_VERSION\",
-    \"CompatVersion\" : \"$$QTCREATOR_COMPAT_VERSION\",
-    \"Revision\" : \"$$QTC_PLUGIN_REVISION\",
+    \"Version\" : \"${IDE_VERSION}\",
+    \"CompatVersion\" : \"${IDE_VERSION_COMPAT}\",
     \"Vendor\" : \"The Qt Company Ltd\",
     \"Copyright\" : \"(C) $$QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd\",
     \"License\" : [ \"Commercial Usage\",
@@ -11,5 +10,6 @@
     ],
     \"Description\" : \"Plugin for Effect Maker.\",
     \"Url\" : \"http://www.qt.io\",
-    $$dependencyList
+    ${IDE_PLUGIN_DEPENDENCIES}
 }
+
