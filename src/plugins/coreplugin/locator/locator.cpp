@@ -396,11 +396,9 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
     }
 
     m_taskTree.reset(new TaskTree{tasks});
-    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
-        saveSettings();
-        m_taskTree.release()->deleteLater();
-    });
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] {
+    connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
+        if (result == DoneWith::Success)
+            saveSettings();
         m_taskTree.release()->deleteLater();
     });
     auto progress = new TaskProgress(m_taskTree.get());

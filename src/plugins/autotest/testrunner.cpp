@@ -455,7 +455,6 @@ void TestRunner::runTestsHelper()
 
     m_taskTree.reset(new TaskTree(tasks));
     connect(m_taskTree.get(), &TaskTree::done, this, &TestRunner::onFinished);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, &TestRunner::onFinished);
 
     auto progress = new TaskProgress(m_taskTree.get());
     progress->setDisplayName(Tr::tr("Running Tests"));

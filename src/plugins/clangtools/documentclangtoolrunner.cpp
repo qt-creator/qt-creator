@@ -225,7 +225,6 @@ void DocumentClangToolRunner::run()
     cleanup.dismiss();
     m_taskTree.reset(new TaskTree(tasks));
     connect(m_taskTree.get(), &TaskTree::done, this, &DocumentClangToolRunner::finalize);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, &DocumentClangToolRunner::finalize);
     m_taskTree->start();
 }
 

@@ -682,7 +682,8 @@ void BuildManager::startBuildQueue()
         topLevel.append(Group(targetTasks));
 
     d->m_taskTree.reset(new TaskTree(Group{topLevel}));
-    const auto endHandler = [](bool success) {
+    const auto onDone = [](DoneWith result) {
+        const bool success = result == DoneWith::Success;
         d->m_taskTree.release()->deleteLater();
 
         if (!success && d->m_progressFutureInterface)
@@ -703,9 +704,7 @@ void BuildManager::startBuildQueue()
             startBuildQueue();
         }
     };
-    connect(d->m_taskTree.get(), &TaskTree::done, instance(), [endHandler] { endHandler(true); });
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, instance(),
-            [endHandler] { endHandler(false); });
+    connect(d->m_taskTree.get(), &TaskTree::done, instance(), onDone);
 
     // Progress Reporting
     d->m_progressFutureInterface = new QFutureInterface<void>;

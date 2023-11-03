@@ -482,7 +482,7 @@ public:
 
 signals:
     void started();
-    void done();
+    void done(DoneWith result);
     void errorOccurred();
     void progressValueChanged(int value); // updated whenever task finished / skipped / stopped
 

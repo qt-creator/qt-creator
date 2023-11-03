@@ -32,12 +32,10 @@ public:
 
         const GroupItem task = m_filePath.needsDevice() ? remoteTask() : localTask();
         m_taskTree.reset(new TaskTree({task}));
-        const auto finalize = [this](bool success) {
+        connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
             m_taskTree.release()->deleteLater();
-            emit done(success);
-        };
-        connect(m_taskTree.get(), &TaskTree::done, this, [=] { finalize(true); });
-        connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [=] { finalize(false); });
+            emit done(result == DoneWith::Success);
+        });
         m_taskTree->start();
     }
 
@@ -466,14 +464,12 @@ void FileStreamer::start()
     // TODO: Preliminary check if local source exists?
     QTC_ASSERT(!d->m_taskTree, return);
     d->m_taskTree.reset(new TaskTree({d->task()}));
-    const auto finalize = [this](bool success) {
-        d->m_streamResult = success ? StreamResult::FinishedWithSuccess
-                                    : StreamResult::FinishedWithError;
+    connect(d->m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
+        d->m_streamResult = result == DoneWith::Success ? StreamResult::FinishedWithSuccess
+                                                          : StreamResult::FinishedWithError;
         d->m_taskTree.release()->deleteLater();
         emit done();
-    };
-    connect(d->m_taskTree.get(), &TaskTree::done, this, [=] { finalize(true); });
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, [=] { finalize(false); });
+    });
     d->m_taskTree->start();
 }
 

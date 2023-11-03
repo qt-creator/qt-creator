@@ -173,7 +173,7 @@ int AttachCoreDialog::exec()
     connect(d->buttonBox, &QDialogButtonBox::accepted, this, &AttachCoreDialog::accepted);
     changed();
 
-    connect(&d->taskTree, &TaskTree::done, this, [&]() {
+    connect(&d->taskTree, &TaskTree::done, this, [this] {
         setEnabled(true);
         d->progressIndicator->setVisible(false);
         d->progressLabel->setVisible(false);

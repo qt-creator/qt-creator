@@ -1053,12 +1053,10 @@ void RunControlPrivate::startTaskTree()
 
     m_taskTree.reset(new TaskTree(*m_runRecipe));
     connect(m_taskTree.get(), &TaskTree::started, q, &RunControl::started);
-    const auto finalize = [this] {
+    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
         m_taskTree.release()->deleteLater();
         checkAutoDeleteAndEmitStopped();
-    };
-    connect(m_taskTree.get(), &TaskTree::done, this, finalize);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, finalize);
+    });
     m_taskTree->start();
 }
 

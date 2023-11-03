@@ -128,13 +128,10 @@ TaskProgress::TaskProgress(TaskTree *taskTree)
     connect(d->m_taskTree, &TaskTree::progressValueChanged, this, [this](int value) {
         d->advanceProgress(value);
     });
-    connect(d->m_taskTree, &TaskTree::done, this, [this] {
+    connect(d->m_taskTree, &TaskTree::done, this, [this](DoneWith result) {
         d->m_timer.stop();
-        d->m_futureInterface.reportFinished();
-    });
-    connect(d->m_taskTree, &TaskTree::errorOccurred, this, [this] {
-        d->m_timer.stop();
-        d->m_futureInterface.reportCanceled();
+        if (result != DoneWith::Success)
+            d->m_futureInterface.reportCanceled();
         d->m_futureInterface.reportFinished();
     });
 }

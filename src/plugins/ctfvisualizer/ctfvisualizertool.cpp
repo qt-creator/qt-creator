@@ -219,36 +219,33 @@ void CtfVisualizerTool::loadJson(const QString &fileName)
             m_traceManager->addEvent(asyncPtr->resultAt(index));
         });
     };
-    const auto onDone = [this] {
-        m_traceManager->updateStatistics();
-        if (m_traceManager->isEmpty()) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                                 Tr::tr("CTF Visualizer"),
-                                 Tr::tr("The file does not contain any trace data."));
-        } else if (!m_traceManager->errorString().isEmpty()) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                                 Tr::tr("CTF Visualizer"),
-                                 m_traceManager->errorString());
+    const auto onDone = [this](DoneWith result) {
+        if (result == DoneWith::Success) {
+            m_traceManager->updateStatistics();
+            if (m_traceManager->isEmpty()) {
+                QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("CTF Visualizer"),
+                                     Tr::tr("The file does not contain any trace data."));
+            } else if (!m_traceManager->errorString().isEmpty()) {
+                QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("CTF Visualizer"),
+                                     m_traceManager->errorString());
+            } else {
+                m_traceManager->finalize();
+                m_perspective.select();
+                const auto end = m_traceManager->traceEnd() + m_traceManager->traceDuration() / 20;
+                zoomControl()->setTrace(m_traceManager->traceBegin(), end);
+                zoomControl()->setRange(m_traceManager->traceBegin(), end);
+            }
+            setAvailableThreads(m_traceManager->getSortedThreads());
         } else {
-            m_traceManager->finalize();
-            m_perspective.select();
-            zoomControl()->setTrace(m_traceManager->traceBegin(), m_traceManager->traceEnd() + m_traceManager->traceDuration() / 20);
-            zoomControl()->setRange(m_traceManager->traceBegin(), m_traceManager->traceEnd() + m_traceManager->traceDuration() / 20);
+            QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("CTF Visualizer"),
+                                 Tr::tr("Cannot read the CTF file."));
         }
-        setAvailableThreads(m_traceManager->getSortedThreads());
-        m_loader.release()->deleteLater();
-    };
-    const auto onError = [this] {
-        QMessageBox::warning(Core::ICore::dialogParent(),
-                             Tr::tr("CTF Visualizer"),
-                             Tr::tr("Cannot read the CTF file."));
         m_loader.release()->deleteLater();
     };
 
     const Group recipe { AsyncTask<json>(onSetup) };
     m_loader.reset(new TaskTree(recipe));
     connect(m_loader.get(), &TaskTree::done, this, onDone);
-    connect(m_loader.get(), &TaskTree::errorOccurred, this, onError);
     auto progress = new TaskProgress(m_loader.get());
     progress->setDisplayName(Tr::tr("Loading CTF File"));
     m_loader->start();

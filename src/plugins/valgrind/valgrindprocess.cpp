@@ -213,12 +213,10 @@ bool ValgrindProcessPrivate::run()
 {
     m_taskTree.reset(new TaskTree);
     m_taskTree->setRecipe(runRecipe());
-    const auto finalize = [this](bool success) {
+    connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
         m_taskTree.release()->deleteLater();
-        emit q->done(success);
-    };
-    connect(m_taskTree.get(), &TaskTree::done, this, [finalize] { finalize(true); });
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [finalize] { finalize(false); });
+        emit q->done(result == DoneWith::Success);
+    });
     m_taskTree->start();
     return bool(m_taskTree);
 }

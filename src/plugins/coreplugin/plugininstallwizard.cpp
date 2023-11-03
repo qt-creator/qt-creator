@@ -262,12 +262,10 @@ public:
         };
         m_taskTree.reset(new TaskTree(root));
 
-        const auto onEnd = [this] {
+        connect(m_taskTree.get(), &TaskTree::done, this, [this] {
             m_cancelButton->setVisible(false);
             m_taskTree.release()->deleteLater();
-        };
-        connect(m_taskTree.get(), &TaskTree::done, this, onEnd);
-        connect(m_taskTree.get(), &TaskTree::errorOccurred, this, onEnd);
+        });
 
         m_cancelButton->setVisible(true);
         m_taskTree->start();

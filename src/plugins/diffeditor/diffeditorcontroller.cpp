@@ -110,18 +110,14 @@ void DiffEditorController::requestReload()
 {
     m_document->beginReload();
     m_taskTree.reset(new TaskTree(m_reloadRecipe));
-    connect(m_taskTree.get(), &TaskTree::done, this, [this] { reloadFinished(true); });
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, [this] { reloadFinished(false); });
+    connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
+        if (m_taskTree)
+            m_taskTree.release()->deleteLater();
+        m_document->endReload(result == DoneWith::Success);
+    });
     auto progress = new TaskProgress(m_taskTree.get());
     progress->setDisplayName(m_displayName);
     m_taskTree->start();
-}
-
-void DiffEditorController::reloadFinished(bool success)
-{
-    if (m_taskTree)
-        m_taskTree.release()->deleteLater();
-    m_document->endReload(success);
 }
 
 void DiffEditorController::addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,

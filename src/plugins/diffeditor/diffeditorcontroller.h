@@ -66,7 +66,6 @@ protected:
     void forceContextLineCount(int lines);
 
 private:
-    void reloadFinished(bool success);
     friend class Internal::DiffEditorWidgetController;
     virtual void addExtraActions(QMenu *menu, int fileIndex, int chunkIndex,
                                  const ChunkSelection &selection);

@@ -985,8 +985,7 @@ public:
     void advanceProgress(int byValue);
     void emitStartedAndProgress();
     void emitProgress();
-    void emitDone();
-    void emitError();
+    void emitDone(DoneWith result);
     QList<TreeStorageBase> addStorages(const QList<TreeStorageBase> &storages);
     void callSetupHandler(TreeStorageBase storage, int storageId) {
         callStorageHandler(storage, storageId, &StorageHandler::m_setupHandler);
@@ -1119,13 +1118,8 @@ void TaskTreePrivate::stop()
     QTC_ASSERT(m_root, return);
     if (!m_root->isRunning())
         return;
-    // TODO: should we have canceled flag (passed to handler)?
-    // Just one done handler with result flag:
-    //   FinishedWithSuccess, FinishedWithError, Canceled, TimedOut.
-    // Canceled either directly by user, or by workflow policy - doesn't matter, in both
-    // cases canceled from outside.
     m_root->stop();
-    emitError();
+    emitDone(DoneWith::Cancel);
 }
 
 void TaskTreePrivate::advanceProgress(int byValue)
@@ -1151,18 +1145,11 @@ void TaskTreePrivate::emitProgress()
     emit q->progressValueChanged(m_progressValue);
 }
 
-void TaskTreePrivate::emitDone()
+void TaskTreePrivate::emitDone(DoneWith result)
 {
     QTC_CHECK(m_progressValue == m_root->taskCount());
     GuardLocker locker(m_guard);
-    emit q->done();
-}
-
-void TaskTreePrivate::emitError()
-{
-    QTC_CHECK(m_progressValue == m_root->taskCount());
-    GuardLocker locker(m_guard);
-    emit q->errorOccurred();
+    emit q->done(result);
 }
 
 QList<TreeStorageBase> TaskTreePrivate::addStorages(const QList<TreeStorageBase> &storages)
@@ -1348,10 +1335,8 @@ SetupResult TaskContainer::continueStart(SetupResult startAction, int nextChild)
             QTC_CHECK(parentContainer->isRunning());
             if (!parentContainer->isStarting())
                 parentContainer->childDone(success);
-        } else if (success) {
-            m_constData.m_taskTreePrivate->emitDone();
         } else {
-            m_constData.m_taskTreePrivate->emitError();
+            m_constData.m_taskTreePrivate->emitDone(success ? DoneWith::Success : DoneWith::Error);
         }
     }
     return groupAction;
@@ -2338,20 +2323,16 @@ bool TaskTree::runBlocking(const QFuture<void> &future)
 
     bool ok = false;
     QEventLoop loop;
-
-    const auto finalize = [&loop, &ok](bool success) {
-        ok = success;
+    connect(this, &TaskTree::done, &loop, [&loop, &ok](DoneWith result) {
+        ok = result == DoneWith::Success;
         // Otherwise, the tasks from inside the running tree that were deleteLater()
         // will be leaked. Refer to the QObject::deleteLater() docs.
         QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
-    };
-
+    });
     QFutureWatcher<void> watcher;
     connect(&watcher, &QFutureWatcherBase::canceled, this, &TaskTree::stop);
     watcher.setFuture(future);
 
-    connect(this, &TaskTree::done, &loop, [finalize] { finalize(true); });
-    connect(this, &TaskTree::errorOccurred, &loop, [finalize] { finalize(false); });
     QTimer::singleShot(0, this, &TaskTree::start);
 
     loop.exec(QEventLoop::ExcludeUserInputEvents);
@@ -2558,8 +2539,8 @@ void TaskTree::setupStorageHandler(const TreeStorageBase &storage,
 
 TaskTreeTaskAdapter::TaskTreeTaskAdapter()
 {
-    connect(task(), &TaskTree::done, this, [this] { emit done(true); });
-    connect(task(), &TaskTree::errorOccurred, this, [this] { emit done(false); });
+    connect(task(), &TaskTree::done, this,
+            [this](DoneWith result) { emit done(result == DoneWith::Success); });
 }
 
 void TaskTreeTaskAdapter::start()

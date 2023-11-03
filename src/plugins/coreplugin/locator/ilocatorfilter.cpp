@@ -486,15 +486,10 @@ void LocatorMatcher::start()
     };
 
     d->m_taskTree->setRecipe(root);
-
-    const auto onFinish = [this](bool success) {
-        return [this, success] {
-            emit done(success);
-            d->m_taskTree.release()->deleteLater();
-        };
-    };
-    connect(d->m_taskTree.get(), &TaskTree::done, this, onFinish(true));
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, onFinish(false));
+    connect(d->m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
+        emit done(result == DoneWith::Success);
+        d->m_taskTree.release()->deleteLater();
+    });
     d->m_taskTree->start();
 }
 

@@ -390,11 +390,11 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         tasks.append(AsyncTask<TestParseResultPtr>(onSetup, onDone, CallDoneIf::Success));
     }
     m_taskTree.reset(new TaskTree{tasks});
-    const auto onDone = [this] { m_taskTree.release()->deleteLater(); onFinished(true); };
-    const auto onError = [this] { m_taskTree.release()->deleteLater(); onFinished(false); };
     connect(m_taskTree.get(), &TaskTree::started, this, &TestCodeParser::parsingStarted);
-    connect(m_taskTree.get(), &TaskTree::done, this, onDone);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, onError);
+    connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
+        m_taskTree.release()->deleteLater();
+        onFinished(result == DoneWith::Success);
+    });
     if (filteredFiles.size() > 5) {
         auto progress = new TaskProgress(m_taskTree.get());
         progress->setDisplayName(Tr::tr("Scanning for Tests"));

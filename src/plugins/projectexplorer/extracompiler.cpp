@@ -154,12 +154,10 @@ void ExtraCompiler::compileContent(const QByteArray &content)
 
 void ExtraCompiler::compileImpl(const ContentProvider &provider)
 {
-    const auto finalize = [=] {
-        d->m_taskTree.release()->deleteLater();
-    };
     d->m_taskTree.reset(new TaskTree({taskItemImpl(provider)}));
-    connect(d->m_taskTree.get(), &TaskTree::done, this, finalize);
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, finalize);
+    connect(d->m_taskTree.get(), &TaskTree::done, this, [this] {
+        d->m_taskTree.release()->deleteLater();
+    });
     d->m_taskTree->start();
 }
 

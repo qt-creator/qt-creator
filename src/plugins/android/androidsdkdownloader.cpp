@@ -188,12 +188,10 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     };
 
     m_taskTree.reset(new TaskTree(root));
-    const auto onDone = [this] {
+    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
         m_taskTree.release()->deleteLater();
         m_progressDialog.reset();
-    };
-    connect(m_taskTree.get(), &TaskTree::done, this, onDone);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, onDone);
+    });
     m_taskTree->start();
 }
 

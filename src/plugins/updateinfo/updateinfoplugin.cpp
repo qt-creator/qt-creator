@@ -122,10 +122,6 @@ void UpdateInfoPlugin::startCheckForUpdates()
         process.setCommand({d->m_maintenanceTool, args});
         process.setLowPriority();
     };
-    const auto doCleanup = [this] {
-        d->m_taskTree.release()->deleteLater();
-        checkForUpdatesStopped();
-    };
 
     const auto onUpdateSetup = [doSetup](Process &process) {
         doSetup(process, {"ch", "-g", "*=false,ifw.package.*=true"});
@@ -146,11 +142,12 @@ void UpdateInfoPlugin::startCheckForUpdates()
     }
 
     d->m_taskTree.reset(new TaskTree(Group{tasks}));
-    connect(d->m_taskTree.get(), &TaskTree::done, this, [this, doCleanup] {
-        checkForUpdatesFinished();
-        doCleanup();
+    connect(d->m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
+        if (result == DoneWith::Success)
+            checkForUpdatesFinished();
+        d->m_taskTree.release()->deleteLater();
+        checkForUpdatesStopped();
     });
-    connect(d->m_taskTree.get(), &TaskTree::errorOccurred, this, doCleanup);
     d->m_progress = new TaskProgress(d->m_taskTree.get());
     d->m_progress->setHalfLifeTimePerTask(30000); // 30 seconds
     d->m_progress->setDisplayName(Tr::tr("Checking for Updates"));

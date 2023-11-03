@@ -300,12 +300,10 @@ void QnxDeployQtLibrariesDialogPrivate::start()
     m_deployProgress->setRange(0, m_deployableFiles.count());
 
     m_taskTree.reset(new TaskTree(deployRecipe()));
-    const auto endHandler = [this] {
+    connect(m_taskTree.get(), &TaskTree::done, this, [this] {
         m_taskTree.release()->deleteLater();
         handleUploadFinished();
-    };
-    connect(m_taskTree.get(), &TaskTree::done, this, endHandler);
-    connect(m_taskTree.get(), &TaskTree::errorOccurred, this, endHandler);
+    });
     m_taskTree->start();
 }
 
