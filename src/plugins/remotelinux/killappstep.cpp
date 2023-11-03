@@ -55,7 +55,7 @@ GroupItem KillAppStep::deployRecipe()
                                   .arg(m_remoteExecutable.path()));
         return SetupResult::Continue;
     };
-    const auto onDone = [this](const DeviceProcessKiller &, DoneWith result) {
+    const auto onDone = [this](DoneWith result) {
         const QString message = result == DoneWith::Success ? Tr::tr("Remote application killed.")
             : Tr::tr("Failed to kill remote application. Assuming it was not running.");
         addProgressMessage(message);

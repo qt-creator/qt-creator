@@ -171,7 +171,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         unarchiver.setDestDir(sdkFileName.parentDir());
         return SetupResult::Continue;
     };
-    const auto onUnarchiverDone = [this, storage](const Unarchiver &, DoneWith result) {
+    const auto onUnarchiverDone = [this, storage](DoneWith result) {
         if (result != DoneWith::Success) {
             logError(Tr::tr("Unarchiving error."));
             return;

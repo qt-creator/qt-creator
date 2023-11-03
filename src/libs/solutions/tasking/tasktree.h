@@ -368,8 +368,8 @@ private:
         constexpr bool isVoid
             = std::is_same_v<void, std::invoke_result_t<std::decay_t<Handler>, Task &>>;
         static_assert(isDynamic || isVoid,
-            "Task setup handler needs to take (Task &) as an argument (optionally) and has to "
-            "return void or SetupResult. The passed handler doesn't fulfill these requirements.");
+            "Task setup handler needs to take (Task &) as an argument and has to return "
+            "void or SetupResult. The passed handler doesn't fulfill these requirements.");
         return [=](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
             if constexpr (isDynamic)
@@ -383,37 +383,45 @@ private:
     static GroupItem::TaskDoneHandler wrapDone(Handler &&handler) {
         if constexpr (std::is_same_v<Handler, DoneFunction>)
             return {}; // When user passed {} for the done handler.
-        static constexpr bool is2ArgDynamic
+        static constexpr bool isBTD // stands for [B]ool, [T]ask, [D]oneWith
             = std::is_invocable_r_v<bool, std::decay_t<Handler>, const Task &, DoneWith>;
-        static constexpr bool is1ArgDynamic
+        static constexpr bool isBT
             = std::is_invocable_r_v<bool, std::decay_t<Handler>, const Task &>;
-        static constexpr bool is0ArgDynamic
+        static constexpr bool isBD
+            = std::is_invocable_r_v<bool, std::decay_t<Handler>, DoneWith>;
+        static constexpr bool isB
             = std::is_invocable_r_v<bool, std::decay_t<Handler>>;
-        static constexpr bool is2ArgVoid
+        static constexpr bool isVTD // stands for [V]oid, [T]ask, [D]oneWith
             = std::is_invocable_r_v<void, std::decay_t<Handler>, const Task &, DoneWith>;
-        static constexpr bool is1ArgVoid
+        static constexpr bool isVT
             = std::is_invocable_r_v<void, std::decay_t<Handler>, const Task &>;
-        static constexpr bool is0ArgVoid
+        static constexpr bool isVD
+            = std::is_invocable_r_v<void, std::decay_t<Handler>, DoneWith>;
+        static constexpr bool isV
             = std::is_invocable_r_v<void, std::decay_t<Handler>>;
-        static constexpr bool isInvocable = is2ArgDynamic || is2ArgVoid
-                                         || is1ArgDynamic || is1ArgVoid
-                                         || is0ArgDynamic || is0ArgVoid;
+        static constexpr bool isInvocable = isBTD || isBT || isBD || isB
+                                         || isVTD || isVT || isVD || isV;
         static_assert(isInvocable,
-            "Task done handler needs to take (const Task &, bool) as arguments (optionally) and "
-            "has to return void or bool. The passed handler doesn't fulfill these requirements.");
+            "Task done handler needs to take (const Task &, DoneWith), (const Task &), "
+            "(DoneWith) or (void) as arguments and has to return void or bool. "
+            "The passed handler doesn't fulfill these requirements.");
         return [=](const TaskInterface &taskInterface, DoneWith result) {
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
-            if constexpr (is2ArgDynamic)
+            if constexpr (isBTD)
                 return std::invoke(handler, *adapter.task(), result);
-            if constexpr (is1ArgDynamic)
+            if constexpr (isBT)
                 return std::invoke(handler, *adapter.task());
-            if constexpr (is0ArgDynamic)
+            if constexpr (isBD)
+                return std::invoke(handler, result);
+            if constexpr (isB)
                 return std::invoke(handler);
-            if constexpr (is2ArgVoid)
+            if constexpr (isVTD)
                 std::invoke(handler, *adapter.task(), result);
-            else if constexpr (is1ArgVoid)
+            else if constexpr (isVT)
                 std::invoke(handler, *adapter.task());
-            else if constexpr (is0ArgVoid)
+            else if constexpr (isVD)
+                std::invoke(handler, result);
+            else if constexpr (isV)
                 std::invoke(handler);
             return result == DoneWith::Success;
         };

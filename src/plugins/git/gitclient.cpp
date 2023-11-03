@@ -483,7 +483,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
         updateDescription(*data);
     };
 
-    const auto setupFollows = [this, storage, updateDescription](TaskTree &taskTree) {
+    const auto onFollowsSetup = [this, storage, updateDescription](TaskTree &taskTree) {
         ReloadStorage *data = storage.activeStorage();
         QStringList parents;
         QString errorMessage;
@@ -536,7 +536,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
                 onGroupSetup(desciptionDetailsSetup),
                 ProcessTask(onBranchesSetup, onBranchesDone, CallDoneIf::Success),
                 ProcessTask(onPrecedesSetup, onPrecedesDone, CallDoneIf::Success),
-                TaskTreeTask(setupFollows)
+                TaskTreeTask(onFollowsSetup)
             }
         },
         Group {

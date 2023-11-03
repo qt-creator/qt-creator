@@ -110,7 +110,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
 
     const TreeStorage<QList<std::optional<FileData>>> storage;
 
-    const auto setupTree = [this, storage](TaskTree &taskTree) {
+    const auto onTreeSetup = [this, storage](TaskTree &taskTree) {
         QList<std::optional<FileData>> *outputList = storage.activeStorage();
 
         const QList<ReloadInput> inputList = reloadInputList();
@@ -147,7 +147,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
 
     const Group root = {
         Storage(storage),
-        TaskTreeTask(setupTree),
+        TaskTreeTask(onTreeSetup),
         onGroupDone(onTreeDone),
         onGroupError(onTreeError)
     };

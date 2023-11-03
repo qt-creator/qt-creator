@@ -151,7 +151,7 @@ GroupItem GenericDirectUploadStep::statTask(UploadStorage *storage,
 GroupItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &storage,
                                             FilesToStat filesToStat, StatEndHandler statEndHandler)
 {
-    const auto setupHandler = [=](TaskTree &tree) {
+    const auto onSetup = [this, storage, filesToStat, statEndHandler](TaskTree &tree) {
         UploadStorage *storagePtr = storage.activeStorage();
         const QList<DeployableFile> files = filesToStat(storagePtr);
         QList<GroupItem> statList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
@@ -161,7 +161,7 @@ GroupItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &st
         }
         tree.setRecipe({statList});
     };
-    return TaskTreeTask(setupHandler);
+    return TaskTreeTask(onSetup);
 }
 
 GroupItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &storage)
@@ -225,7 +225,7 @@ GroupItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
 
 GroupItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &storage)
 {
-    const auto setupChmodHandler = [=](TaskTree &tree) {
+    const auto onSetup = [this, storage](TaskTree &tree) {
         QList<DeployableFile> filesToChmod;
         for (const DeployableFile &file : std::as_const(storage->filesToUpload)) {
             if (file.isExecutable())
@@ -238,7 +238,7 @@ GroupItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &s
         }
         tree.setRecipe({chmodList});
     };
-    return TaskTreeTask(setupChmodHandler);
+    return TaskTreeTask(onSetup);
 }
 
 GroupItem GenericDirectUploadStep::deployRecipe()

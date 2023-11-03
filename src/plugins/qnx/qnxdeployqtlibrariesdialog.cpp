@@ -198,11 +198,11 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
 
 GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &file)
 {
-    const auto onSetup = [=](Process &process) {
+    const auto onSetup = [this, file](Process &process) {
         process.setCommand({m_device->filePath("chmod"),
                 {"a+x", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
     };
-    const auto onError = [=](const Process &process) {
+    const auto onError = [this, file](const Process &process) {
         const QString error = process.errorString();
         if (!error.isEmpty()) {
             emitWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
@@ -217,7 +217,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &fil
 
 GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
 {
-    const auto setupChmodHandler = [=](TaskTree &tree) {
+    const auto onSetup = [this](TaskTree &tree) {
         QList<DeployableFile> filesToChmod;
         for (const DeployableFile &file : std::as_const(m_deployableFiles)) {
             if (file.isExecutable())
@@ -230,7 +230,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
         }
         tree.setRecipe(chmodList);
     };
-    return TaskTreeTask{setupChmodHandler};
+    return TaskTreeTask(onSetup);
 }
 
 Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()

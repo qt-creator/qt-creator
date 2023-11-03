@@ -80,14 +80,16 @@ void tst_Tasking::validConstructs()
         parallel,
         TestTask([](TaskObject &) {}, [](const TaskObject &, DoneWith) {}),
         TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
+        TestTask([](TaskObject &) {}, [](DoneWith) {}),
         TestTask([](TaskObject &) {}, [] {}),
         TestTask([](TaskObject &) {}, {}),
         TestTask([](TaskObject &) {}),
         TestTask({}, [](const TaskObject &, DoneWith) {}),
         TestTask({}, [](const TaskObject &) {}),
+        TestTask({}, [](DoneWith) {}),
         TestTask({}, [] {}),
         TestTask({}, {}),
-        TestTask({}),
+        TestTask({})
     };
 
     const Group group1 {
@@ -232,7 +234,7 @@ void tst_Tasking::testTree_data()
     };
 
     const auto setupDone = [storage](int taskId, bool success = true) {
-        return [storage, taskId, success](const TaskObject &, DoneWith result) {
+        return [storage, taskId, success](DoneWith result) {
             const Handler handler = result == DoneWith::Cancel ? Handler::Canceled
                                   : success ? Handler::Success : Handler::Error;
             storage->m_log.append({taskId, handler});

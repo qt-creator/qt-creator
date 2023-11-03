@@ -37,7 +37,7 @@ void Slog2InfoRunner::start()
     const auto onTestSetup = [this](Process &process) {
         process.setCommand({device()->filePath("slog2info"), {}});
     };
-    const auto onTestDone = [this](const Process &, DoneWith result) {
+    const auto onTestDone = [this](DoneWith result) {
         if (result == DoneWith::Success) {
             m_found = true;
             return;
