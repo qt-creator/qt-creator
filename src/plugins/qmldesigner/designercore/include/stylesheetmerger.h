@@ -50,7 +50,9 @@ private:
     void syncBindingProperties(ModelNode &outputNode, const ModelNode &inputNode);
     void syncAuxiliaryProperties(ModelNode &outputNode, const ModelNode &inputNode);
     void syncVariantProperties(ModelNode &outputNode, const ModelNode &inputNode);
+    void syncStateNode(ModelNode &outputState, const ModelNode &inputState) const;
     void parseTemplateOptions();
+    void mergeStates(ModelNode &outputNode, const ModelNode &inputNode) const;
 
     AbstractView *m_templateView;
     AbstractView *m_styleView;
