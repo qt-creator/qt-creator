@@ -26,6 +26,7 @@
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -42,6 +43,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+using namespace CppEditor;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -402,7 +404,6 @@ void CMakeManager::buildFile(Node *node)
     QTC_ASSERT(target, return);
     const QString generator = CMakeGeneratorKitAspect::generator(target->kit());
     const QString relativeSource = filePath.relativeChildPath(targetNode->filePath()).toString();
-    const QString objExtension = Utils::HostOsInfo::isWindowsHost() ? QString(".obj") : QString(".o");
     Utils::FilePath targetBase;
     BuildConfiguration *bc = target->activeBuildConfiguration();
     QTC_ASSERT(bc, return);
@@ -416,8 +417,32 @@ void CMakeManager::buildFile(Node *node)
         return;
     }
 
-    static_cast<CMakeBuildSystem *>(bc->buildSystem())
-            ->buildCMakeTarget(targetBase.pathAppended(relativeSource).toString() + objExtension);
+    auto cbc = static_cast<CMakeBuildSystem *>(bc->buildSystem());
+    const QString sourceFile = targetBase.pathAppended(relativeSource).toString();
+    const QString objExtension = [&]() -> QString {
+        const auto sourceKind = ProjectFile::classify(relativeSource);
+        const QByteArray cmakeLangExtension = ProjectFile::isCxx(sourceKind)
+                                                  ? "CMAKE_CXX_OUTPUT_EXTENSION"
+                                                  : "CMAKE_C_OUTPUT_EXTENSION";
+        const QString extension = cbc->configurationFromCMake().stringValueOf(cmakeLangExtension);
+        if (!extension.isEmpty())
+            return extension;
+
+        const auto toolchain = ProjectFile::isCxx(sourceKind)
+                                   ? ToolChainKitAspect::cxxToolChain(target->kit())
+                                   : ToolChainKitAspect::cToolChain(target->kit());
+        using namespace ProjectExplorer::Constants;
+        static QSet<Id> objIds{
+            CLANG_CL_TOOLCHAIN_TYPEID,
+            MSVC_TOOLCHAIN_TYPEID,
+            MINGW_TOOLCHAIN_TYPEID,
+        };
+        if (objIds.contains(toolchain->typeId()))
+            return ".obj";
+        return ".o";
+    }();
+
+    cbc->buildCMakeTarget(sourceFile + objExtension);
 }
 
 void CMakeManager::buildFileContextMenu()
