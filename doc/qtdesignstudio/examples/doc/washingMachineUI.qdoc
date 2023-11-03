@@ -40,10 +40,23 @@
 
     We use the \uicontrol {\QMCU Application} project template to create
     an application for MCUs, which support only a subset of the preset
-    \l{glossary-component}{components}. We select \uicontrol File >
-    \uicontrol {New Project} > \uicontrol {\QMCU Application} >
-    \uicontrol Choose, and follow the instructions of the wizard to create our
-    project.
+    \l{glossary-component}{components}.
+
+    To create an MCU project:
+
+    \list 1
+        \li Select \uicontrol {File} > \uicontrol {New Project}.
+        \li In the \uicontrol {Presets} tab, select the \uicontrol {\QMCU} preset.
+        \li In the \uicontrol {Details} tab:
+        \list
+            \li Select the path for the project files. You can move the project
+            folders later.
+            \li Set the screen size to match the device screen, which also enables
+            previewing on the desktop. You can change the screen size later in
+            \l {Properties}.
+        \endlist
+        \li Select \uicontrol {Create} to create the project.
+    \endlist
 
     This way, only the components and properties supported on MCUs are visible
     in \l Components and \l Properties, and we won't accidentally
