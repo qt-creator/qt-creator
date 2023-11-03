@@ -67,11 +67,6 @@ MakeStep::MakeStep(BuildStepList *parent, Id id)
     m_overrideMakeflagsAspect.setSettingsKey(id.toKey() + OVERRIDE_MAKEFLAGS_SUFFIX);
     m_overrideMakeflagsAspect.setLabel(text, BoolAspect::LabelPlacement::AtCheckBox);
 
-    m_nonOverrideWarning.setText("<html><body><p>" +
-         Tr::tr("<code>MAKEFLAGS</code> specifies parallel jobs. Check \"%1\" to override.")
-         .arg(text) + "</p></body></html>");
-    m_nonOverrideWarning.setIconType(InfoLabel::Warning);
-
     m_disabledForSubdirsAspect.setSettingsKey(id.toKey() + ".disabledForSubdirs");
     m_disabledForSubdirsAspect.setLabel(Tr::tr("Disable in subdirectories:"));
     m_disabledForSubdirsAspect.setToolTip(Tr::tr("Runs this step only for a top-level build."));
@@ -354,8 +349,22 @@ QWidget *MakeStep::createConfigWidget()
         const bool jobCountEnabled = !userArgsContainsJobCount();
         m_jobCountAspect.setEnabled(jobCountEnabled);
         m_overrideMakeflagsAspect.setEnabled(jobCountEnabled);
-        m_nonOverrideWarning.setVisible(makeflagsJobCountMismatch()
-                                         && !jobCountOverridesMakeflags());
+
+        QString warningText;
+        InfoLabel::InfoType iconType = InfoLabel::Information;
+        if (makeflagsJobCountMismatch()) {
+            if (m_overrideMakeflagsAspect.value()) {
+                warningText = Tr::tr("Overriding <code>MAKEFLAGS</code> environment variable.");
+            } else {
+                warningText = Tr::tr("<code>MAKEFLAGS</code> specifies a conflicting job count.");
+                iconType = InfoLabel::Warning;
+            }
+        } else {
+            warningText = Tr::tr("No conflict with <code>MAKEFLAGS</code> environment variable.");
+        }
+        m_nonOverrideWarning.setText(QString::fromLatin1("<html><body><p>%1</p></body></html>")
+                                         .arg(warningText));
+        m_nonOverrideWarning.setIconType(iconType);
     };
 
     updateDetails();
