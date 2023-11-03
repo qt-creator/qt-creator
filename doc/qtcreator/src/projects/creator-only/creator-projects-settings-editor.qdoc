@@ -11,7 +11,7 @@
     \page creator-editor-settings.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-configure
 
     \title Specify editor settings
 
@@ -32,7 +32,7 @@
 
     \endlist
 
-    \image qtcreator-editor-settings.png "Editor view"
+    \image qtcreator-editor-settings.webp {Editor settings for a project}
 
     Click \uicontrol {Restore Global} to revert to the global settings.
 

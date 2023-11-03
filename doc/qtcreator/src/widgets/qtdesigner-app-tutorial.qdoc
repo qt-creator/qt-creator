@@ -44,7 +44,7 @@
 
             \image qtcreator-new-project-build-system-qt-gui.png {Define Build System dialog}
 
-        \li In the \uicontrol {Build system} field, select \l {Setting Up CMake}
+        \li In the \uicontrol {Build system} field, select \l {CMake}
             {CMake} as the build system to use for building the project.
 
         \li Select \uicontrol Next or \uicontrol Continue to open the

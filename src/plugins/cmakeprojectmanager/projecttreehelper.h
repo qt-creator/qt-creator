@@ -11,13 +11,15 @@ namespace CMakeProjectManager::Internal {
 
 std::unique_ptr<ProjectExplorer::FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
                                                                 int priority,
-                                                                const QString &displayName);
+                                                                const QString &displayName,
+                                                                bool sourcesOrHeaders);
 
 void addCMakeVFolder(ProjectExplorer::FolderNode *base,
                      const Utils::FilePath &basePath,
                      int priority,
                      const QString &displayName,
-                     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&files);
+                     std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&files,
+                     bool sourcesOrHeaders = false);
 
 std::vector<std::unique_ptr<ProjectExplorer::FileNode>> &&removeKnownNodes(
     const QSet<Utils::FilePath> &knownFiles,

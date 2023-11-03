@@ -120,7 +120,7 @@ struct SavedEntry
 {
     QColor color;
     QString name;
-    QtMsgType level;
+    QtMsgType level{QtFatalMsg};
     std::optional<std::array<bool, 5>> levels;
 
     static Utils::expected_str<SavedEntry> fromJson(const QJsonObject &obj)
@@ -990,7 +990,7 @@ void LoggingCategoryModel::saveEnabledCategoryPreset() const
 
     QJsonArray array;
 
-    for (auto item : m_categories) {
+    for (const auto &item : m_categories) {
         QJsonObject itemObj;
         itemObj.insert("name", item.name());
         QJsonObject entryObj;

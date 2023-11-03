@@ -76,7 +76,7 @@
     \page creator-how-to-use-project-wizards.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-create
 
     \title Use project wizards
 
@@ -177,7 +177,7 @@
     \page creator-how-to-specify-project-contents.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-configure
 
     \title Specify project contents
 
@@ -251,7 +251,7 @@
     \page creator-how-to-add-subprojects-to-projects.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-create
 
     \title Add subprojects to projects
 
@@ -316,5 +316,5 @@
     To specify dependencies, use the \uicontrol{Add Library} wizard.
 
     \sa {Creating Projects}, {Use project wizards},
-    {Add libraries to projects}
+    {Add libraries to qmake projects}, {Add libraries to CMake projects}
 */

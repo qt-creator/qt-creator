@@ -1208,7 +1208,7 @@ void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
     } else {
 
         context.iname = "tooltip." + toHex(context.expression);
-        auto reusable = [context](DebuggerToolTipHolder *tooltip) {
+        auto reusable = [&context](DebuggerToolTipHolder *tooltip) {
             return tooltip->context.isSame(context);
         };
         DebuggerToolTipHolder *tooltip = Utils::findOrDefault(m_tooltips, reusable);

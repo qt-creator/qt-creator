@@ -371,7 +371,8 @@
             \li  Follow symbol under cursor
 
                Works with namespaces, classes, functions, variables, include
-               statements, and macros. Also, opens URLs in the default browser
+               statements, and macros, as well as CMake functions, macros,
+               targets, and packages. Also, opens URLs in the default browser
                \if defined(qtcreator)
                and Qt resource files (.qrc) in the \l{Resource Files}
                {resource editor}

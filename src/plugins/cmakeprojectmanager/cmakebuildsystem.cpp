@@ -1310,7 +1310,7 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
 
     // Handle project targets, unfortunately the CMake file-api doesn't deliver the
     // column of the target, just the line. Make sure to find it out
-    QHash<FilePath, int> projectTargetsSourceAndLine;
+    QHash<FilePath, QPair<int, QString>> projectTargetsSourceAndLine;
     for (const auto &target : std::as_const(buildTargets())) {
         if (target.targetType == TargetType::UtilityType)
             continue;
@@ -1318,11 +1318,11 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
             continue;
 
         projectTargetsSourceAndLine.insert(target.backtrace.last().path,
-                                           target.backtrace.last().line);
+                                           {target.backtrace.last().line, target.title});
     }
     auto handleProjectTargets = [&](const CMakeFileInfo &cmakeFile, const cmListFileFunction &func) {
-        if (!projectTargetsSourceAndLine.contains(cmakeFile.path)
-            || projectTargetsSourceAndLine.value(cmakeFile.path) != func.Line())
+        const auto it = projectTargetsSourceAndLine.find(cmakeFile.path);
+        if (it == projectTargetsSourceAndLine.end() || it->first != func.Line())
             return;
 
         if (func.Arguments().size() == 0)
@@ -1333,7 +1333,7 @@ void CMakeBuildSystem::setupCMakeSymbolsHash()
         link.targetFilePath = cmakeFile.path;
         link.targetLine = arg.Line;
         link.targetColumn = arg.Column - 1;
-        m_cmakeSymbolsHash.insert(QString::fromUtf8(arg.Value), link);
+        m_cmakeSymbolsHash.insert(it->second, link);
     };
 
     // Gather the exported variables for the Find<Package> CMake packages

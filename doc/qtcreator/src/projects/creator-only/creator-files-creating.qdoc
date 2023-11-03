@@ -5,7 +5,7 @@
     \page creator-file-creating.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-files
 
     \title Create files
 
@@ -81,7 +81,7 @@
     \page creator-how-to-create-cpp-classes.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-files
 
     \title Create C++ classes
 
@@ -111,7 +111,7 @@
     \page creator-how-to-set-cpp-file-naming.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-files
 
     \title Set C++ file naming preferences
 
@@ -137,7 +137,7 @@
     \page creator-how-to-create-resource-files.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-files
 
     \title Create resource files
 
@@ -203,7 +203,7 @@
     \page creator-how-to-create-opengl-shaders.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-files
 
     \title Create OpenGL fragment and vertex shaders
 

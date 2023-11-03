@@ -251,8 +251,11 @@ static QPixmap fetchPixmapAndUpdatePixmapCache(const QString &url)
             // boundedTo -> don't scale thumbnails up
             const QSize scaledSize =
                 WelcomePageHelpers::GridItemImageSize.boundedTo(img.size()) * dpr;
-            pixmap = QPixmap::fromImage(
-                img.scaled(scaledSize, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            const QImage scaled = img.isNull() ? img
+                                               : img.scaled(scaledSize,
+                                                            Qt::KeepAspectRatio,
+                                                            Qt::SmoothTransformation);
+            pixmap = QPixmap::fromImage(scaled);
             pixmap.setDevicePixelRatio(dpr);
         }
     } else {
@@ -361,8 +364,6 @@ void ExamplesViewController::updateExamples()
     const QStringList sources = m_exampleSetModel->exampleSources(&examplesInstallPath,
                                                                   &demosInstallPath,
                                                                   &qtVersion);
-    m_view->clear();
-
     QStringList categoryOrder;
     QList<ExampleItem *> items;
     for (const QString &exampleSource : sources) {
@@ -401,12 +402,18 @@ void ExamplesViewController::updateExamples()
                                                                       : categoryOrder;
     const QList<std::pair<Section, QList<ExampleItem *>>> sections
         = getCategories(items, sortIntoCategories, order, m_isExamples);
+
+    m_view->setVisible(false);
+    m_view->clear();
+
     for (int i = 0; i < sections.size(); ++i) {
         m_view->addSection(sections.at(i).first,
                            static_container_cast<ListItem *>(sections.at(i).second));
     }
     if (!m_searchField->text().isEmpty())
         m_view->setSearchString(m_searchField->text());
+
+    m_view->setVisible(true);
 }
 
 void ExamplesViewController::setVisible(bool visible)

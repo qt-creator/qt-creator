@@ -20,7 +20,7 @@
     QML code (such as Python code files), select \preferences >
     \uicontrol {Text Editor} > \uicontrol Behavior.
 
-    \image qtcreator-indentation.png {Text Editor Behavior preferences}
+    \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
 
     You can specify how to interpret the \key Tab and \key Backspace key
     presses and how to align continuation lines.
@@ -87,6 +87,12 @@
     Your highlight definition file can have definitions for both multi and
     single line comments. To apply the single line comment definition when
     commenting out a selection, select \uicontrol {Prefer single line comments}.
+    In \uicontrol {Preferred comment position}, select \uicontrol Automatic to
+    let the highlight definition for the file determine the position of single
+    line comments. If no highlight definition is available, the comments are
+    placed after leading whitespace. Select \uicontrol {After Whitespace} to
+    always place them there. Select \uicontrol {At Line Start} to place single
+    line comments at the end of the line.
 
     \if defined(qtcreator)
     \sa {Find preferences}, {C++ Code Style}, {Nim}

@@ -74,8 +74,10 @@ static SimulatorInfoList selectedSimulators(const QTreeView *deviceTreeView)
     return list;
 }
 
-static void onSimOperation(const SimulatorInfo &simInfo, SimulatorOperationDialog* dlg,
-                           const QString &contextStr, const SimulatorControl::ResponseData &response)
+static void onSimOperation(const SimulatorInfo &simInfo,
+                           SimulatorOperationDialog *dlg,
+                           const QString &contextStr,
+                           const SimulatorControl::Response &response)
 {
     dlg->addMessage(simInfo, response, contextStr);
 }
@@ -224,14 +226,17 @@ void IosSettingsWidget::onCreate()
     statusDialog->setAttribute(Qt::WA_DeleteOnClose);
     statusDialog->addMessage(Tr::tr("Creating simulator device..."), Utils::NormalMessageFormat);
     const auto onSimulatorCreate = [statusDialog](const QString &name,
-            const SimulatorControl::ResponseData &response) {
-        if (response.success) {
+                                                  const SimulatorControl::Response &response) {
+        if (response) {
             statusDialog->addMessage(Tr::tr("Simulator device (%1) created.\nUDID: %2")
-                                    .arg(name).arg(response.simUdid), Utils::StdOutFormat);
+                                         .arg(name)
+                                         .arg(response->simUdid),
+                                     Utils::StdOutFormat);
         } else {
-            statusDialog->addMessage(Tr::tr("Simulator device (%1) creation failed.\nError: %2").
-                                    arg(name).arg(response.commandOutput),
-                                    Utils::StdErrFormat);
+            statusDialog->addMessage(Tr::tr("Simulator device (%1) creation failed.\nError: %2")
+                                         .arg(name)
+                                         .arg(response.error()),
+                                     Utils::StdErrFormat);
         }
     };
 

@@ -16,9 +16,26 @@
 
     The following topics describe how to use \QC to perform a particular task.
 
+    \section1 Analyze
+
+    \QC integrates code analysis tools for detecting memory leaks, profiling
+    function execution, analyzing CPU use, and eliminating unnecessary
+    complexity of code. Other integrated tools provide code coverage and
+    visualize trace events.
+
+    \generatelist creator-how-to-analyze
+
     \section1 Build and Run
 
     \generatelist creator-how-to-build
+
+    \section2 Build with CMake
+
+    \generatelist creator-how-to-build-with-cmake
+
+    \section2 Build with qmake
+
+    \generatelist creator-how-to-build-with-qmake
 
     \section1 Debug
 
@@ -40,7 +57,19 @@
 
     \generatelist creator-how-to-projects
 
-    \section1 Read Qt Documentation
+    \section2 Create Projects
+
+    \generatelist creator-how-to-projects-create
+
+    \section2 Create Files
+
+    \generatelist creator-how-to-projects-files
+
+    \section2 Configure Projects
+
+    \generatelist creator-how-to-projects-configure
+
+    \section1 Read Documentation
 
     \generatelist creator-how-to-get-help
 
@@ -235,7 +264,7 @@
     \page creator-how-to-add-license-header-templates.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-files
 
     \title Add a license header template for C++ code
 

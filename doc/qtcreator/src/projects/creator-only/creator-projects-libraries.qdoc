@@ -11,10 +11,12 @@
     \page creator-project-qmake-libraries.html
     \previouspage creator-how-tos.html
 
-    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-projects-create
+    \ingroup creator-how-to-build-with-qmake
 
-    \title Add libraries to projects
+    \title Add libraries to qmake projects
 
+    //! [libraries}
     In addition to Qt libraries, you can add other libraries to your projects.
     The process depends on the type and location of the library:
 
@@ -24,16 +26,12 @@
         \li A 3rd party library
     \endlist
 
+    \QC supports code completion and syntax highlighting for the added
+    libraries once your project successfully builds and links to them.
+    //! [libraries}
+
     The library can be located either in the build tree of the current project or
     in another build tree.
-
-    \section1 CMake projects
-
-    If you use CMake to build the project, use the \l qt_add_library command to
-    create a library and link against it in the CMakeLists.txt file, as
-    instructed in \l{Structuring projects}.
-
-    \section1 qmake projects
 
     To add libraries to projects that you build with qmake:
 
@@ -46,7 +44,7 @@
             The settings depend on the library type.
     \endlist
 
-    \section1 Library settings
+    \section1 Library location
 
     Because system libraries do not typically change and are often found by
     default, you do not need to specify the path to the library or to its
@@ -58,13 +56,18 @@
     but you need to check it and modify it if necessary. \QC automatically
     adds the include path for an internal library.
 
+    \section1 Target platform
+
     For all libraries, select the target platforms for the application, library,
     or plugin.
 
+    \section1 Linking
+
     Specify whether the library is statically or dynamically linked. For a
-    statically linked internal library, \QC adds dependencies
-    (\l{CMake: target_link_libraries command}{target_link_libraries} when using
-    CMake or \l PRE_TARGETDEPS when using  qmake) in the project file.
+    statically linked internal library, \QC adds dependencies as the value of
+    the \l PRE_TARGETDEPS qmake variable in the project file (.pro).
+
+    \section1 Development platform
 
     Depending on the development platform, \QC might detect some options
     automatically. For example, on \macos, it detects the library type
@@ -85,14 +88,12 @@
     If the library name ends in \e d, deselect the \uicontrol {Remove "d" suffix
     for release version} option.
 
-    \QC supports code completion and syntax highlighting for the added
-    libraries once your project successfully builds and links to them.
-
     For more information about the project file settings, see
-    \l{Declaring Other Libraries}.
+    \l{Declaring Other Libraries}{qmake Manual: Declaring Other Libraries}.
 
-    \sa {Adding an Internal Library to a qmake Project},
-    {Add subprojects to projects}, {Use project wizards}, {Creating Projects}
+    \sa {Adding an Internal Library to a qmake Project}{Tutorial: Adding an Internal Library to a qmake Project},
+    {Add subprojects to projects}, {Add libraries to CMake projects},
+    {Use project wizards}, {Creating Projects}
 */
 
 /*!
@@ -198,6 +199,7 @@
     else:unix: PRE_TARGETDEPS += $$OUT_PWD/../../../projects/mylib/libmylib.a
     \endcode
 
-    \sa {Add libraries to projects}, {Add subprojects to projects},
-    {Select the build system}, {Use project wizards}, {Creating Projects}
+    \sa {Add libraries to qmake projects}, {Add libraries to CMake projects},
+    {Add subprojects to projects}, {Select the build system},
+    {Use project wizards}, {Creating Projects}
 */

@@ -19,13 +19,13 @@ namespace CMakeProjectManager::Internal {
 
 std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
                                                int priority,
-                                               const QString &displayName)
+                                               const QString &displayName,
+                                               bool sourcesOrHeaders)
 {
     auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
     newFolder->setPriority(priority);
     newFolder->setDisplayName(displayName);
-    newFolder->setIsSourcesOrHeaders(displayName == "Source Files"
-                                  || displayName == "Header Files");
+    newFolder->setIsSourcesOrHeaders(sourcesOrHeaders);
     return newFolder;
 }
 
@@ -33,13 +33,14 @@ void addCMakeVFolder(FolderNode *base,
                      const Utils::FilePath &basePath,
                      int priority,
                      const QString &displayName,
-                     std::vector<std::unique_ptr<FileNode>> &&files)
+                     std::vector<std::unique_ptr<FileNode>> &&files,
+                     bool sourcesOrHeaders)
 {
     if (files.size() == 0)
         return;
     FolderNode *folder = base;
     if (!displayName.isEmpty()) {
-        auto newFolder = createCMakeVFolder(basePath, priority, displayName);
+        auto newFolder = createCMakeVFolder(basePath, priority, displayName, sourcesOrHeaders);
         folder = newFolder.get();
         base->addNode(std::move(newFolder));
     }

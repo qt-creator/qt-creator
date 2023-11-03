@@ -162,7 +162,7 @@ public:
     PythonInterpreterAspect *q;
     RunConfiguration *rc;
     QList<PySideUicExtraCompiler *> m_extraCompilers;
-    QFutureWatcher<PipPackageInfo> m_watcher;
+    QFutureWatcher<PipPackageInfo> *m_watcher = nullptr;
     QMetaObject::Connection m_watcherConnection;
 };
 
@@ -219,11 +219,13 @@ void PythonInterpreterAspectPrivate::checkForPySide(const FilePath &python,
 {
     const PipPackage package(pySidePackageName);
     QObject::disconnect(m_watcherConnection);
-    m_watcherConnection = QObject::connect(&m_watcher, &QFutureWatcherBase::finished, q, [=] {
-        handlePySidePackageInfo(m_watcher.result(), python, pySidePackageName);
+    delete m_watcher;
+    m_watcher = new QFutureWatcher<PipPackageInfo>(this);
+    m_watcherConnection = QObject::connect(m_watcher, &QFutureWatcherBase::finished, q, [=] {
+        handlePySidePackageInfo(m_watcher->result(), python, pySidePackageName);
     });
     const auto future = Pip::instance(python)->info(package);
-    m_watcher.setFuture(future);
+    m_watcher->setFuture(future);
     ExtensionSystem::PluginManager::futureSynchronizer()->addFuture(future);
 }
 

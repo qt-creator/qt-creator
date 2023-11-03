@@ -242,6 +242,8 @@ Projects
       ([QTCREATORBUG-29643](https://bugreports.qt.io/browse/QTCREATORBUG-29643))
     * Fixed unnecessary restrictions on the preset name
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-project-cmake.html))
+
 ### Python
 
 * Added auto-detection of PySide from the installer
@@ -298,6 +300,8 @@ Terminal
 * Added mouse support
 * Added support for Windows Terminal schemes
 * Fixed `Ctrl+C/V` on Windows
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-reference-terminal-view.html))
 
 Version Control Systems
 -----------------------

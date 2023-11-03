@@ -80,8 +80,7 @@ signals:
 
 void ResizeSignallingWidget::resizeEvent(QResizeEvent *event)
 {
-    if (isVisible())
-        emit resized(event->size(), event->oldSize());
+    emit resized(event->size(), event->oldSize());
 }
 
 class WelcomeMode : public IMode
@@ -357,11 +356,9 @@ WelcomeMode::WelcomeMode()
         const bool hideSideArea = size.width() <= 750;
         const bool hideBottomArea = size.width() <= 850;
         const bool compactVertically = size.height() <= 530;
-        QTimer::singleShot(0, this, [this, hideSideArea, hideBottomArea, compactVertically] {
-            m_sideArea->setVisible(!hideSideArea);
-            m_bottomArea->setVisible(!(hideBottomArea || compactVertically));
-            m_topArea->setCompact(compactVertically);
-        });
+        m_sideArea->setVisible(!hideSideArea);
+        m_bottomArea->setVisible(!(hideBottomArea || compactVertically));
+        m_topArea->setCompact(compactVertically);
     });
 
     m_sideArea = new SideArea(m_modeWidget);

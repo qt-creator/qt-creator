@@ -2477,7 +2477,8 @@ void WatchModel::showEditValue(const WatchItem *item)
             QString fileName;
             ts >> width >> height >> nbytes >> imformat >> fileName;
             QFile f(fileName);
-            f.open(QIODevice::ReadOnly);
+            const bool didFileOpen = f.open(QIODevice::ReadOnly);
+            QTC_ASSERT(didFileOpen, return);
             ba = f.readAll();
             bits = (uchar*)ba.data();
             nbytes = width * height;

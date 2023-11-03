@@ -6,6 +6,7 @@
 
 #include "algorithm.h"
 #include "devicefileaccess.h"
+#include "environment.h"
 #include "qtcassert.h"
 #include "utilstr.h"
 
@@ -841,6 +842,20 @@ qint64 FileUtils::bytesAvailableFromDFOutput(const QByteArray &dfOutput)
     if (ok)
         return result;
     return -1;
+}
+
+FilePaths FileUtils::usefulExtraSearchPaths()
+{
+    if (HostOsInfo::isMacHost()) {
+        return {"/opt/homebrew/bin"};
+    } else if (HostOsInfo::isWindowsHost()) {
+        const QString programData =
+            qtcEnvironmentVariable("ProgramData",
+                                   qtcEnvironmentVariable("ALLUSERSPROFILE", "C:/ProgramData"));
+        return {FilePath::fromUserInput(programData) / "chocolatey/bin"};
+    }
+
+    return {};
 }
 
 } // namespace Utils

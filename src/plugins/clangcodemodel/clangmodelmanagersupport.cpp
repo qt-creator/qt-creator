@@ -553,17 +553,15 @@ void ClangModelManagerSupport::updateLanguageClient(Project *project)
                 hasDocuments = true;
             }
 
-            for (auto it = m_queuedShadowDocuments.begin(); it != m_queuedShadowDocuments.end();) {
-                if (fileIsProjectBuildArtifact(client, it.key())) {
-                    if (it.value().isEmpty())
-                        client->removeShadowDocument(it.key());
-                    else
-                        client->setShadowDocument(it.key(), it.value());
-                    ClangdClient::handleUiHeaderChange(it.key().fileName());
-                    it = m_queuedShadowDocuments.erase(it);
-                } else {
-                    ++it;
-                }
+            for (auto it = m_potentialShadowDocuments.begin();
+                 it != m_potentialShadowDocuments.end(); ++it) {
+                if (!fileIsProjectBuildArtifact(client, it.key()))
+                    continue;
+                if (it.value().isEmpty())
+                    client->removeShadowDocument(it.key());
+                else
+                    client->setShadowDocument(it.key(), it.value());
+                ClangdClient::handleUiHeaderChange(it.key().fileName());
             }
 
             updateParserConfig(client);
@@ -799,10 +797,8 @@ void ClangModelManagerSupport::onAbstractEditorSupportContentsUpdated(const QStr
     if (Client * const client = clientForGeneratedFile(fp)) {
         client->setShadowDocument(fp, stringContent);
         ClangdClient::handleUiHeaderChange(fp.fileName());
-        QTC_CHECK(m_queuedShadowDocuments.remove(fp) == 0);
-    } else  {
-        m_queuedShadowDocuments.insert(fp, stringContent);
     }
+    m_potentialShadowDocuments.insert(fp, stringContent);
 }
 
 void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const QString &filePath)
@@ -813,10 +809,8 @@ void ClangModelManagerSupport::onAbstractEditorSupportRemoved(const QString &fil
     if (Client * const client = clientForGeneratedFile(fp)) {
         client->removeShadowDocument(fp);
         ClangdClient::handleUiHeaderChange(fp.fileName());
-        QTC_CHECK(m_queuedShadowDocuments.remove(fp) == 0);
-    } else {
-        m_queuedShadowDocuments.insert(fp, {});
     }
+    m_potentialShadowDocuments.remove(fp);
 }
 
 void addFixItsActionsToMenu(QMenu *menu, const TextEditor::QuickFixOperations &fixItOperations)

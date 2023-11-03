@@ -85,7 +85,7 @@
             {generic projects}.
         \li Add existing files and directories.
         \li Add libraries. For more information, see
-            \l{Add libraries to projects}.
+            \l{Add libraries to qmake projects}.
         \li Add and remove subprojects.
         \li Find unused functions.
         \endif
@@ -151,5 +151,7 @@
     from the version control system in brackets after the project name.
     \QC currently implements this for Git (the view displays the branch name
     or a tag) and ClearCase (the view displays the branch name).
+
+    \sa {View CMake project contents}, {File System}
     \endif
 */

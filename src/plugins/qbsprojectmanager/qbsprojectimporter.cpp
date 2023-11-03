@@ -22,6 +22,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QFileInfo>
+#include <QJsonArray>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -40,6 +41,7 @@ struct BuildGraphData
     FilePath qtBinPath;
     FilePath sysroot;
     QString buildVariant;
+    QStringList targetOS;
 };
 static BuildGraphData extractBgData(const QbsSession::BuildGraphInfo &bgInfo)
 {
@@ -50,7 +52,8 @@ static BuildGraphData extractBgData(const QbsSession::BuildGraphInfo &bgInfo)
     const QVariantMap prjCompilerPathByLanguage
             = moduleProps.value("cpp.compilerPathByLanguage").toMap();
     const QString prjCompilerPath = moduleProps.value("cpp.compilerPath").toString();
-    const QStringList prjToolchain = moduleProps.value("qbs.toolchain").toStringList();
+    const QStringList prjToolchain = arrayToStringList(
+        moduleProps.value("qbs.toolchain").toJsonArray());
     const bool prjIsMsvc = prjToolchain.contains("msvc");
     bgData.cCompilerPath = FilePath::fromString(
                 prjIsMsvc ? prjCompilerPath : prjCompilerPathByLanguage.value("c").toString());
@@ -59,6 +62,7 @@ static BuildGraphData extractBgData(const QbsSession::BuildGraphInfo &bgInfo)
     bgData.qtBinPath = FilePath::fromString(moduleProps.value("Qt.core.binPath").toString());
     bgData.sysroot = FilePath::fromString(moduleProps.value("qbs.sysroot").toString());
     bgData.buildVariant = moduleProps.value("qbs.buildVariant").toString();
+    bgData.targetOS = arrayToStringList(moduleProps.value("qbs.targetOS").toJsonArray());
     return bgData;
 }
 
@@ -116,7 +120,7 @@ QList<void *> QbsProjectImporter::examineDirectory(const FilePath &importPath,
     QList<void *> data;
     const FilePath bgFilePath = importPath.pathAppended(importPath.fileName() + ".bg");
     const QStringList relevantProperties({
-            "qbs.buildVariant", "qbs.sysroot", "qbs.toolchain",
+            "qbs.buildVariant", "qbs.sysroot", "qbs.targetOS", "qbs.toolchain",
             "cpp.compilerPath", "cpp.compilerPathByLanguage",
             "Qt.core.binPath"
     });
@@ -162,7 +166,7 @@ bool QbsProjectImporter::matchKit(void *directoryData, const Kit *k) const
         if (bgData->qtBinPath != qtVersion->hostBinPath())
             return false;
     }
-    if (bgData->sysroot != SysRootKitAspect::sysRoot(k))
+    if (!bgData->targetOS.contains("macos") && bgData->sysroot != SysRootKitAspect::sysRoot(k))
         return false;
 
     qCDebug(qbsPmLog) << "Kit matches";

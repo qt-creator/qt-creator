@@ -93,13 +93,13 @@
                 \endlist
             \li \b {\l{How To}}
                 \list
+                    \li \l{Analyze}
+                    \li \l{Build and Run}
+                    \li \l{Debug}
                     \li \l{Design UIs}
                     \li \l{Edit Code}
                     \li \l{Manage Projects}
-                    \li \l{Build and Run}
-                    \li \l{Read Qt Documentation}
-                    \li \l{Use \QC}
-                    \li \l{Use the UI}
+                    \li \l{How To}{See More...}
                 \endlist
             \li \b {\l{Reference}}
                 \list
