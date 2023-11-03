@@ -94,9 +94,12 @@ Tasking::GroupItem AutogenStep::runRecipe()
         }
         return SetupResult::Continue;
     };
-    const auto onDone = [this] { m_runAutogen = false; };
 
-    return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
+    return Group {
+        onGroupSetup(onSetup),
+        onGroupDone([this] { m_runAutogen = false; }, CallDoneIf::Success),
+        defaultProcessTask()
+    };
 }
 
 // AutogenStepFactory

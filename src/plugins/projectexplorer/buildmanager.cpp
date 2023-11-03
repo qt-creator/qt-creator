@@ -648,15 +648,14 @@ void BuildManager::startBuildQueue()
             if (d->m_futureProgress)
                 d->m_futureProgress.data()->setTitle(name);
         };
-        const auto onRecipeDone = [buildStep] {
+        const auto onRecipeDone = [buildStep, target](DoneWith result) {
             disconnect(buildStep, &BuildStep::progress, instance(), nullptr);
             d->m_outputWindow->flush();
             ++d->m_progress;
             d->m_progressFutureInterface->setProgressValueAndText(
                 100 * d->m_progress, msgProgress(d->m_progress, d->m_maxProgress));
-        };
-        const auto onRecipeError = [buildStep, target, onRecipeDone] {
-            onRecipeDone();
+            if (result == DoneWith::Success)
+                return;
             const QString projectName = buildStep->project()->displayName();
             const QString targetName = target->displayName();
             addToOutputWindow(Tr::tr("Error while building/deploying project %1 (kit: %2)")
@@ -673,8 +672,7 @@ void BuildManager::startBuildQueue()
         const Group recipeGroup {
             onGroupSetup(onRecipeSetup),
             buildStep->runRecipe(),
-            onGroupDone(onRecipeDone),
-            onGroupError(onRecipeError),
+            onGroupDone(onRecipeDone)
         };
         targetTasks.append(recipeGroup);
     }

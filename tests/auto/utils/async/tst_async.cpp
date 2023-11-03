@@ -511,7 +511,7 @@ void tst_Async::mapReduce_data()
             AsyncTask<int>(std::bind(setupHandler, _1, 3), handleAsync, CallDoneIf::Success),
             AsyncTask<int>(std::bind(setupHandler, _1, 4), handleAsync, CallDoneIf::Success),
             AsyncTask<int>(std::bind(setupHandler, _1, 5), handleAsync, CallDoneIf::Success),
-            onGroupDone(doneHandler)
+            onGroupDone(doneHandler, CallDoneIf::Success)
         };
     };
 

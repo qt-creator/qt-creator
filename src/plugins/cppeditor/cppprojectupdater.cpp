@@ -68,7 +68,10 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
             tasks.append(compiler->compileFileItem());
     }
 
-    const auto onDone = [this, storage, compilers] {
+    const auto onDone = [this, storage, compilers](DoneWith result) {
+        m_taskTree.release()->deleteLater();
+        if (result != DoneWith::Success)
+            return;
         QList<ExtraCompiler *> extraCompilers;
         QSet<FilePath> compilerFiles;
         for (const QPointer<ExtraCompiler> &compiler : compilers) {
@@ -80,17 +83,12 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
         GeneratedCodeModelSupport::update(extraCompilers);
         auto updateFuture = CppModelManager::updateProjectInfo(storage->projectInfo, compilerFiles);
         m_futureSynchronizer.addFuture(updateFuture);
-        m_taskTree.release()->deleteLater();
-    };
-    const auto onError = [this] {
-        m_taskTree.release()->deleteLater();
     };
 
     const Group root {
         Tasking::Storage(storage),
         Group(tasks),
-        onGroupDone(onDone),
-        onGroupError(onError)
+        onGroupDone(onDone)
     };
     m_taskTree.reset(new TaskTree(root));
     auto progress = new Core::TaskProgress(m_taskTree.get());

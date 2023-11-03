@@ -707,6 +707,8 @@ private:
     \sa onGroupDone(), onGroupError()
 */
 
+// TODO: Fix docs
+
 /*!
     \fn template <typename SetupHandler> GroupItem onGroupSetup(SetupHandler &&handler)
 
@@ -726,6 +728,8 @@ private:
     \sa GroupItem::GroupSetupHandler, onGroupDone(), onGroupError()
 */
 
+// TODO: Fix docs
+
 /*!
     Constructs a group's element holding the group done handler.
     The \a handler is invoked whenever the group finishes with success.
@@ -740,10 +744,8 @@ private:
 
     \sa GroupItem::GroupEndHandler, onGroupSetup(), onGroupError()
 */
-GroupItem onGroupDone(const GroupItem::GroupEndHandler &handler)
-{
-    return Group::onGroupDone(handler);
-}
+
+// TODO: Fix docs
 
 /*!
     Constructs a group's element holding the group error handler.
@@ -759,10 +761,6 @@ GroupItem onGroupDone(const GroupItem::GroupEndHandler &handler)
 
     \sa GroupItem::GroupEndHandler, onGroupSetup(), onGroupDone()
 */
-GroupItem onGroupError(const GroupItem::GroupEndHandler &handler)
-{
-    return Group::onGroupError(handler);
-}
 
 /*!
     Constructs a group's element describing the \l{Execution Mode}{execution mode}.
@@ -924,12 +922,6 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
                 m_groupData.m_groupHandler.m_doneHandler
                     = child.m_groupData.m_groupHandler.m_doneHandler;
             }
-            if (child.m_groupData.m_groupHandler.m_errorHandler) {
-                QTC_ASSERT(!m_groupData.m_groupHandler.m_errorHandler,
-                           qWarning("Group Error Handler redefinition, overriding..."));
-                m_groupData.m_groupHandler.m_errorHandler
-                    = child.m_groupData.m_groupHandler.m_errorHandler;
-            }
             if (child.m_groupData.m_parallelLimit) {
                 QTC_ASSERT(!m_groupData.m_parallelLimit,
                            qWarning("Group Execution Mode redefinition, overriding..."));
@@ -954,7 +946,7 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
 }
 
 GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
-                                 const GroupEndHandler &handler)
+                                 const std::function<void()> &handler)
 {
     const auto onSetup = [timeout](milliseconds &timeoutData) { timeoutData = timeout; };
     return Group {
@@ -1032,7 +1024,7 @@ public:
     SetupResult startChildren(int nextChild);
     SetupResult childDone(bool success);
     void stop();
-    void invokeEndHandler();
+    bool invokeDoneHandler(DoneWith result);
     bool isRunning() const { return m_runtimeData.has_value(); }
     bool isStarting() const { return isRunning() && m_runtimeData->m_startGuard.isLocked(); }
 
@@ -1329,14 +1321,14 @@ SetupResult TaskContainer::continueStart(SetupResult startAction, int nextChild)
                                                                        : startAction;
     QTC_CHECK(isRunning()); // TODO: superfluous
     if (groupAction != SetupResult::Continue) {
-        const bool success = m_runtimeData->updateSuccessBit(groupAction == SetupResult::StopWithDone);
-        invokeEndHandler();
+        const bool bit = m_runtimeData->updateSuccessBit(groupAction == SetupResult::StopWithDone);
+        const bool result = invokeDoneHandler(bit ? DoneWith::Success : DoneWith::Error);
         if (TaskContainer *parentContainer = m_constData.m_parentContainer) {
             QTC_CHECK(parentContainer->isRunning());
             if (!parentContainer->isStarting())
-                parentContainer->childDone(success);
+                parentContainer->childDone(result);
         } else {
-            m_constData.m_taskTreePrivate->emitDone(success ? DoneWith::Success : DoneWith::Error);
+            m_constData.m_taskTreePrivate->emitDone(result ? DoneWith::Success : DoneWith::Error);
         }
     }
     return groupAction;
@@ -1406,15 +1398,22 @@ void TaskContainer::stop()
     m_constData.m_taskTreePrivate->advanceProgress(skippedTaskCount);
 }
 
-void TaskContainer::invokeEndHandler()
+static bool shouldCall(CallDoneIf callDoneIf, DoneWith result)
 {
+    if (result == DoneWith::Success)
+        return callDoneIf != CallDoneIf::Error;
+    return callDoneIf != CallDoneIf::Success;
+}
+
+bool TaskContainer::invokeDoneHandler(DoneWith result)
+{
+    bool success = result == DoneWith::Success;
     const GroupItem::GroupHandler &groupHandler = m_constData.m_groupHandler;
-    if (m_runtimeData->m_successBit && groupHandler.m_doneHandler)
-        invokeHandler(this, groupHandler.m_doneHandler);
-    else if (!m_runtimeData->m_successBit && groupHandler.m_errorHandler)
-        invokeHandler(this, groupHandler.m_errorHandler);
+    if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneIf, result))
+        success = invokeHandler(this, groupHandler.m_doneHandler, result);
     m_runtimeData->callStorageDoneHandlers();
     m_runtimeData.reset();
+    return success;
 }
 
 SetupResult TaskNode::start()
@@ -1457,7 +1456,7 @@ void TaskNode::stop()
     if (!m_task) {
         m_container.stop();
         m_container.m_runtimeData->updateSuccessBit(false);
-        m_container.invokeEndHandler();
+        m_container.invokeDoneHandler(DoneWith::Cancel);
         return;
     }
 
@@ -1465,13 +1464,6 @@ void TaskNode::stop()
     // TODO: call TaskInterface::stop() ?
     invokeDoneHandler(DoneWith::Cancel);
     m_task.reset();
-}
-
-static bool shouldCall(CallDoneIf callDoneIf, DoneWith result)
-{
-    if (result == DoneWith::Success)
-        return callDoneIf != CallDoneIf::Error;
-    return callDoneIf != CallDoneIf::Success;
 }
 
 bool TaskNode::invokeDoneHandler(DoneWith result)

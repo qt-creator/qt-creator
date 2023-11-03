@@ -157,10 +157,10 @@ public:
     using TaskSetupHandler = std::function<SetupResult(TaskInterface &)>;
     // Called on task done, just before deleteLater
     using TaskDoneHandler = std::function<bool(const TaskInterface &, DoneWith)>;
-    // Called when group entered
+    // Called when group entered, after group's storages are created
     using GroupSetupHandler = std::function<SetupResult()>;
-    // Called when group done / error
-    using GroupEndHandler = std::function<void()>;
+    // Called when group done, before group's storages are deleted
+    using GroupDoneHandler = std::function<bool(DoneWith)>;
 
     struct TaskHandler {
         TaskCreateHandler m_createHandler;
@@ -171,8 +171,8 @@ public:
 
     struct GroupHandler {
         GroupSetupHandler m_setupHandler;
-        GroupEndHandler m_doneHandler = {};
-        GroupEndHandler m_errorHandler = {};
+        GroupDoneHandler m_doneHandler = {};
+        CallDoneIf m_callDoneIf = CallDoneIf::SuccessOrError;
     };
 
     struct GroupData {
@@ -210,7 +210,7 @@ protected:
     static GroupItem parallelLimit(int limit) { return GroupItem({{}, limit}); }
     static GroupItem workflowPolicy(WorkflowPolicy policy) { return GroupItem({{}, {}, policy}); }
     static GroupItem withTimeout(const GroupItem &item, std::chrono::milliseconds timeout,
-                                 const GroupEndHandler &handler = {});
+                                 const std::function<void()> &handler = {});
 
 private:
     Type m_type = Type::Group;
@@ -227,32 +227,30 @@ public:
     Group(std::initializer_list<GroupItem> children) { addChildren(children); }
 
     // GroupData related:
-    template <typename SetupHandler>
-    static GroupItem onGroupSetup(SetupHandler &&handler) {
-        return groupHandler({wrapGroupSetup(std::forward<SetupHandler>(handler))});
+    template <typename Handler>
+    static GroupItem onGroupSetup(Handler &&handler) {
+        return groupHandler({wrapGroupSetup(std::forward<Handler>(handler))});
     }
-    static GroupItem onGroupDone(const GroupEndHandler &handler) {
-        return groupHandler({{}, handler});
-    }
-    static GroupItem onGroupError(const GroupEndHandler &handler) {
-        return groupHandler({{}, {}, handler});
+    template <typename Handler>
+    static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDoneIf::SuccessOrError) {
+        return groupHandler({{}, wrapGroupDone(std::forward<Handler>(handler)), callDoneIf});
     }
     using GroupItem::parallelLimit;  // Default: 1 (sequential). 0 means unlimited (parallel).
     using GroupItem::workflowPolicy; // Default: WorkflowPolicy::StopOnError.
 
     GroupItem withTimeout(std::chrono::milliseconds timeout,
-                          const GroupEndHandler &handler = {}) const {
+                          const std::function<void()> &handler = {}) const {
         return GroupItem::withTimeout(*this, timeout, handler);
     }
 
 private:
-    template<typename SetupHandler>
-    static GroupSetupHandler wrapGroupSetup(SetupHandler &&handler)
+    template<typename Handler>
+    static GroupSetupHandler wrapGroupSetup(Handler &&handler)
     {
         static constexpr bool isDynamic
-            = std::is_same_v<SetupResult, std::invoke_result_t<std::decay_t<SetupHandler>>>;
+            = std::is_same_v<SetupResult, std::invoke_result_t<std::decay_t<Handler>>>;
         constexpr bool isVoid
-            = std::is_same_v<void, std::invoke_result_t<std::decay_t<SetupHandler>>>;
+            = std::is_same_v<void, std::invoke_result_t<std::decay_t<Handler>>>;
         static_assert(isDynamic || isVoid,
                       "Group setup handler needs to take no arguments and has to return "
                       "void or SetupResult. The passed handler doesn't fulfill these requirements.");
@@ -263,16 +261,49 @@ private:
             return SetupResult::Continue;
         };
     };
+    template<typename Handler>
+    static GroupDoneHandler wrapGroupDone(Handler &&handler)
+    {
+        static constexpr bool isBD // stands for [B]ool, [D]oneWith
+            = std::is_invocable_r_v<bool, std::decay_t<Handler>, DoneWith>;
+        static constexpr bool isB
+            = std::is_invocable_r_v<bool, std::decay_t<Handler>>;
+        static constexpr bool isVD // stands for [V]oid, [D]oneWith
+            = std::is_invocable_r_v<void, std::decay_t<Handler>, DoneWith>;
+        static constexpr bool isV
+            = std::is_invocable_r_v<void, std::decay_t<Handler>>;
+        static constexpr bool isInvocable = isBD || isB || isVD || isV;
+
+        static_assert(isInvocable,
+                      "Group done handler needs to take (DoneWith) or (void) "
+                      "as arguments and has to return void or bool. "
+                      "The passed handler doesn't fulfill these requirements.");
+        return [=](DoneWith result) {
+            if constexpr (isBD)
+                return std::invoke(handler, result);
+            if constexpr (isB)
+                return std::invoke(handler);
+            if constexpr (isVD)
+                std::invoke(handler, result);
+            else if constexpr (isV)
+                std::invoke(handler);
+            return result == DoneWith::Success;
+        };
+    };
 };
 
-template <typename SetupHandler>
-static GroupItem onGroupSetup(SetupHandler &&handler)
+template <typename Handler>
+static GroupItem onGroupSetup(Handler &&handler)
 {
-    return Group::onGroupSetup(std::forward<SetupHandler>(handler));
+    return Group::onGroupSetup(std::forward<Handler>(handler));
 }
 
-TASKING_EXPORT GroupItem onGroupDone(const GroupItem::GroupEndHandler &handler);
-TASKING_EXPORT GroupItem onGroupError(const GroupItem::GroupEndHandler &handler);
+template <typename Handler>
+static GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+{
+    return Group::onGroupDone(std::forward<Handler>(handler), callDoneIf);
+}
+
 TASKING_EXPORT GroupItem parallelLimit(int limit);
 TASKING_EXPORT GroupItem workflowPolicy(WorkflowPolicy policy);
 
@@ -354,7 +385,8 @@ public:
     {}
 
     GroupItem withTimeout(std::chrono::milliseconds timeout,
-                          const GroupEndHandler &handler = {}) const {
+                          const std::function<void()> &handler = {}) const
+    {
         return GroupItem::withTimeout(*this, timeout, handler);
     }
 

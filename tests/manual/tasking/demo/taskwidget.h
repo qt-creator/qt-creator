@@ -20,8 +20,9 @@ QT_END_NAMESPACE
 enum class State {
     Initial,
     Running,
-    Done,
-    Error
+    Done, // TODO: Rename to Success
+    Error,
+    // TODO: Add Canceled state
 };
 
 enum class ExecuteMode {

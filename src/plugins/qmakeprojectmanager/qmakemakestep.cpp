@@ -229,7 +229,7 @@ Tasking::GroupItem QmakeMakeStep::runRecipe()
     return Group {
         ignoreReturnValue() ? finishAllAndDone : stopOnError,
         onGroupSetup(onSetup),
-        onGroupError(onError),
+        onGroupDone(onError, CallDoneIf::Error),
         defaultProcessTask()
     };
 }

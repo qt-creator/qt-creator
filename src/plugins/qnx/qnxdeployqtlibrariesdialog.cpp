@@ -272,7 +272,7 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
             uploadTask(),
             chmodTree()
         },
-        onGroupDone(doneHandler)
+        onGroupDone(doneHandler, CallDoneIf::Success)
     };
     return root;
 }

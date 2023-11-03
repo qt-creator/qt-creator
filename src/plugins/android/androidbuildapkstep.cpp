@@ -834,7 +834,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
 
     const Group root {
         onGroupSetup(onSetup),
-        onGroupDone(onDone),
+        onGroupDone(onDone, CallDoneIf::Success),
         defaultProcessTask()
     };
     return root;

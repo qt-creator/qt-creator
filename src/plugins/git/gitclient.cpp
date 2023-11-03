@@ -340,7 +340,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
             continueOnDone,
             ProcessTask(onStagedSetup, onStagedDone, CallDoneIf::Success),
             ProcessTask(onUnstagedSetup, onUnstagedDone, CallDoneIf::Success),
-            onGroupDone(onDone)
+            onGroupDone(onDone, CallDoneIf::Success)
         },
         postProcessTask(diffInputStorage)
     };
@@ -498,7 +498,11 @@ ShowController::ShowController(IDocument *document, const QString &id)
             updateDescription(*data);
         };
 
-        QList<GroupItem> tasks { parallel, continueOnDone, onGroupError(onFollowsError) };
+        QList<GroupItem> tasks {
+            parallel,
+            continueOnDone,
+            onGroupDone(onFollowsError, CallDoneIf::Error)
+        };
         for (int i = 0, total = parents.size(); i < total; ++i) {
             const auto onFollowSetup = [this, parent = parents.at(i)](Process &process) {
                 setupCommand(process, {"describe", "--tags", "--abbrev=0", parent});

@@ -24,7 +24,7 @@ enum class Handler {
     Canceled,
     GroupSetup,
     GroupSuccess,
-    GroupError,
+    GroupError, // TODO: Add GroupCanceled
     Sync,
     BarrierAdvance,
     Timeout
@@ -116,8 +116,7 @@ void tst_Tasking::validConstructs()
             }
         },
         task,
-        onGroupDone([] {}),
-        onGroupError([] {})
+        onGroupDone([] {})
     };
 
     const auto setupHandler = [](TaskObject &) {};
@@ -213,6 +212,11 @@ GroupItem createBarrierAdvance(const TreeStorage<CustomStorage> &storage,
     });
 }
 
+static Handler resultToGroupHandler(DoneWith result)
+{
+    return result == DoneWith::Success ? Handler::GroupSuccess : Handler::GroupError;
+}
+
 void tst_Tasking::testTree_data()
 {
     QTest::addColumn<TestData>("testData");
@@ -267,13 +271,14 @@ void tst_Tasking::testTree_data()
     };
 
     const auto groupSetup = [storage](int taskId) {
-        return onGroupSetup([=] { storage->m_log.append({taskId, Handler::GroupSetup}); });
+        return onGroupSetup([storage, taskId] {
+            storage->m_log.append({taskId, Handler::GroupSetup});
+        });
     };
     const auto groupDone = [storage](int taskId) {
-        return onGroupDone([=] { storage->m_log.append({taskId, Handler::GroupSuccess}); });
-    };
-    const auto groupError = [storage](int taskId) {
-        return onGroupError([=] { storage->m_log.append({taskId, Handler::GroupError}); });
+        return onGroupDone([storage, taskId](DoneWith result) {
+            storage->m_log.append({taskId, resultToGroupHandler(result)});
+        });
     };
     const auto createSync = [storage](int taskId) {
         return Sync([=] { storage->m_log.append({taskId, Handler::Sync}); });
@@ -285,26 +290,22 @@ void tst_Tasking::testTree_data()
     {
         const Group root1 {
             Storage(storage),
-            groupDone(0),
-            groupError(0)
+            groupDone(0)
         };
         const Group root2 {
             Storage(storage),
             onGroupSetup([] { return SetupResult::Continue; }),
-            groupDone(0),
-            groupError(0)
+            groupDone(0)
         };
         const Group root3 {
             Storage(storage),
             onGroupSetup([] { return SetupResult::StopWithDone; }),
-            groupDone(0),
-            groupError(0)
+            groupDone(0)
         };
         const Group root4 {
             Storage(storage),
             onGroupSetup([] { return SetupResult::StopWithError; }),
-            groupDone(0),
-            groupError(0)
+            groupDone(0)
         };
 
         const Log logDone {{0, Handler::GroupSuccess}};
@@ -322,8 +323,7 @@ void tst_Tasking::testTree_data()
                 Storage(storage),
                 workflowPolicy(policy),
                 onGroupSetup([setupResult] { return setupResult; }),
-                groupDone(0),
-                groupError(0)
+                groupDone(0)
             };
         };
 
@@ -641,8 +641,7 @@ void tst_Tasking::testTree_data()
             createFailingTask(3),
             createSuccessTask(4),
             createSuccessTask(5),
-            groupDone(0),
-            groupError(0)
+            groupDone(0)
         };
         const Log log {
             {1, Handler::Setup},
@@ -657,12 +656,11 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [storage, groupDone, groupError](WorkflowPolicy policy) {
+        const auto createRoot = [storage, groupDone](WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 workflowPolicy(policy),
-                groupDone(0),
-                groupError(0)
+                groupDone(0)
             };
         };
 
@@ -699,14 +697,13 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [storage, createSuccessTask, groupDone, groupError](
+        const auto createRoot = [storage, createSuccessTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 workflowPolicy(policy),
                 createSuccessTask(1),
-                groupDone(0),
-                groupError(0)
+                groupDone(0)
             };
         };
 
@@ -752,14 +749,13 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [storage, createFailingTask, groupDone, groupError](
+        const auto createRoot = [storage, createFailingTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 workflowPolicy(policy),
                 createFailingTask(1),
-                groupDone(0),
-                groupError(0)
+                groupDone(0)
             };
         };
 
@@ -808,16 +804,15 @@ void tst_Tasking::testTree_data()
         // These tests check whether the proper root's group end handler is called
         // when the group is stopped. Test it with different workflow policies.
         // The root starts one short failing task together with one long task.
-        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
-                                 groupError](WorkflowPolicy policy) {
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
+                                    WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 parallel,
                 workflowPolicy(policy),
                 createFailingTask(1, 1ms),
                 createSuccessTask(2, 1ms),
-                groupDone(0),
-                groupError(0)
+                groupDone(0)
             };
         };
 
@@ -879,8 +874,8 @@ void tst_Tasking::testTree_data()
         // when the group is stopped. Test it with different workflow policies.
         // The root starts in parallel: one very short successful task, one short failing task
         // and one long task.
-        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
-                                 groupError](WorkflowPolicy policy) {
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
+                                    WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 parallel,
@@ -888,8 +883,7 @@ void tst_Tasking::testTree_data()
                 createSuccessTask(1),
                 createFailingTask(2, 1ms),
                 createSuccessTask(3, 1ms),
-                groupDone(0),
-                groupError(0)
+                groupDone(0)
             };
         };
 
@@ -966,24 +960,22 @@ void tst_Tasking::testTree_data()
         // These tests check whether the proper subgroup's end handler is called
         // when the group is stopped. Test it with different workflow policies.
         // The subgroup starts one long task.
-        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
-                                 groupError](WorkflowPolicy policy) {
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
+                                    WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 parallel,
                 Group {
                     workflowPolicy(policy),
                     createSuccessTask(1, 1000ms),
-                    groupDone(1),
-                    groupError(1)
+                    groupDone(1)
                 },
                 createFailingTask(2, 1ms),
-                groupDone(2),
-                groupError(2)
+                groupDone(2)
             };
         };
 
-        const Log errorLog = {
+        const Log log = {
             {1, Handler::Setup},
             {2, Handler::Setup},
             {2, Handler::Error},
@@ -992,50 +984,43 @@ void tst_Tasking::testTree_data()
             {2, Handler::GroupError}
         };
 
-        const Log doneLog = {
-            {1, Handler::Setup},
-            {2, Handler::Setup},
-            {2, Handler::Error},
-            {1, Handler::Canceled},
-            {1, Handler::GroupSuccess},
-            {2, Handler::GroupError}
-        };
-
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
         QTest::newRow("StopGroupWithStopOnError")
-            << TestData{storage, root1, errorLog, 2, OnDone::Failure};
+            << TestData{storage, root1, log, 2, OnDone::Failure};
 
         const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
         QTest::newRow("StopGroupWithContinueOnError")
-            << TestData{storage, root2, errorLog, 2, OnDone::Failure};
+            << TestData{storage, root2, log, 2, OnDone::Failure};
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
         QTest::newRow("StopGroupWithStopOnDone")
-            << TestData{storage, root3, errorLog, 2, OnDone::Failure};
+            << TestData{storage, root3, log, 2, OnDone::Failure};
 
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
         QTest::newRow("StopGroupWithContinueOnDone")
-            << TestData{storage, root4, errorLog, 2, OnDone::Failure};
+            << TestData{storage, root4, log, 2, OnDone::Failure};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
         QTest::newRow("StopGroupWithStopOnFinished")
-            << TestData{storage, root5, errorLog, 2, OnDone::Failure};
+            << TestData{storage, root5, log, 2, OnDone::Failure};
 
+        // TODO: Behavioral change! Fix Docs!
+        // Cancellation always invokes error handler (i.e. DoneWith is Cancel)
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
         QTest::newRow("StopGroupWithFinishAllAndDone")
-            << TestData{storage, root6, doneLog, 2, OnDone::Failure};
+            << TestData{storage, root6, log, 2, OnDone::Failure};
 
         const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
         QTest::newRow("StopGroupWithFinishAllAndError")
-            << TestData{storage, root7, errorLog, 2, OnDone::Failure};
+            << TestData{storage, root7, log, 2, OnDone::Failure};
     }
 
     {
         // These tests check whether the proper subgroup's end handler is called
         // when the group is stopped. Test it with different workflow policies.
         // The sequential subgroup starts one short successful task followed by one long task.
-        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
-                                 groupError](WorkflowPolicy policy) {
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
+                                    WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 parallel,
@@ -1043,12 +1028,10 @@ void tst_Tasking::testTree_data()
                     workflowPolicy(policy),
                     createSuccessTask(1),
                     createSuccessTask(2, 1000ms),
-                    groupDone(1),
-                    groupError(1)
+                    groupDone(1)
                 },
                 createFailingTask(3, 1ms),
-                groupDone(2),
-                groupError(2)
+                groupDone(2)
             };
         };
 
@@ -1063,23 +1046,12 @@ void tst_Tasking::testTree_data()
             {2, Handler::GroupError}
         };
 
-        const Log shortDoneLog = {
+        const Log doneLog = {
             {1, Handler::Setup},
             {3, Handler::Setup},
             {1, Handler::Success},
             {1, Handler::GroupSuccess},
             {3, Handler::Error},
-            {2, Handler::GroupError}
-        };
-
-        const Log longDoneLog = {
-            {1, Handler::Setup},
-            {3, Handler::Setup},
-            {1, Handler::Success},
-            {2, Handler::Setup},
-            {3, Handler::Error},
-            {2, Handler::Canceled},
-            {1, Handler::GroupSuccess},
             {2, Handler::GroupError}
         };
 
@@ -1093,19 +1065,21 @@ void tst_Tasking::testTree_data()
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
         QTest::newRow("StopGroupAfterDoneWithStopOnDone")
-            << TestData{storage, root3, shortDoneLog, 3, OnDone::Failure};
+            << TestData{storage, root3, doneLog, 3, OnDone::Failure};
 
+        // TODO: Behavioral change!
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
         QTest::newRow("StopGroupAfterDoneWithContinueOnDone")
-            << TestData{storage, root4, longDoneLog, 3, OnDone::Failure};
+            << TestData{storage, root4, errorLog, 3, OnDone::Failure};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
         QTest::newRow("StopGroupAfterDoneWithStopOnFinished")
-            << TestData{storage, root5, shortDoneLog, 3, OnDone::Failure};
+            << TestData{storage, root5, doneLog, 3, OnDone::Failure};
 
+        // TODO: Behavioral change!
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
         QTest::newRow("StopGroupAfterDoneWithFinishAllAndDone")
-            << TestData{storage, root6, longDoneLog, 3, OnDone::Failure};
+            << TestData{storage, root6, errorLog, 3, OnDone::Failure};
 
         const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
         QTest::newRow("StopGroupAfterDoneWithFinishAllAndError")
@@ -1116,8 +1090,8 @@ void tst_Tasking::testTree_data()
         // These tests check whether the proper subgroup's end handler is called
         // when the group is stopped. Test it with different workflow policies.
         // The sequential subgroup starts one short failing task followed by one long task.
-        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
-                                 groupError](WorkflowPolicy policy) {
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
+                                    WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 parallel,
@@ -1125,16 +1099,14 @@ void tst_Tasking::testTree_data()
                     workflowPolicy(policy),
                     createFailingTask(1),
                     createSuccessTask(2, 1000ms),
-                    groupDone(1),
-                    groupError(1)
+                    groupDone(1)
                 },
                 createFailingTask(3, 1ms),
-                groupDone(2),
-                groupError(2)
+                groupDone(2)
             };
         };
 
-        const Log shortErrorLog = {
+        const Log shortLog = {
             {1, Handler::Setup},
             {3, Handler::Setup},
             {1, Handler::Error},
@@ -1143,7 +1115,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::GroupError}
         };
 
-        const Log longErrorLog = {
+        const Log longLog = {
             {1, Handler::Setup},
             {3, Handler::Setup},
             {1, Handler::Error},
@@ -1154,57 +1126,46 @@ void tst_Tasking::testTree_data()
             {2, Handler::GroupError}
         };
 
-        const Log doneLog = {
-            {1, Handler::Setup},
-            {3, Handler::Setup},
-            {1, Handler::Error},
-            {2, Handler::Setup},
-            {3, Handler::Error},
-            {2, Handler::Canceled},
-            {1, Handler::GroupSuccess},
-            {2, Handler::GroupError}
-        };
-
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
         QTest::newRow("StopGroupAfterErrorWithStopOnError")
-            << TestData{storage, root1, shortErrorLog, 3, OnDone::Failure};
+            << TestData{storage, root1, shortLog, 3, OnDone::Failure};
 
         const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
         QTest::newRow("StopGroupAfterErrorWithContinueOnError")
-            << TestData{storage, root2, longErrorLog, 3, OnDone::Failure};
+            << TestData{storage, root2, longLog, 3, OnDone::Failure};
 
         const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
         QTest::newRow("StopGroupAfterErrorWithStopOnDone")
-            << TestData{storage, root3, longErrorLog, 3, OnDone::Failure};
+            << TestData{storage, root3, longLog, 3, OnDone::Failure};
 
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
         QTest::newRow("StopGroupAfterErrorWithContinueOnDone")
-            << TestData{storage, root4, longErrorLog, 3, OnDone::Failure};
+            << TestData{storage, root4, longLog, 3, OnDone::Failure};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
         QTest::newRow("StopGroupAfterErrorWithStopOnFinished")
-            << TestData{storage, root5, shortErrorLog, 3, OnDone::Failure};
+            << TestData{storage, root5, shortLog, 3, OnDone::Failure};
 
+        // TODO: Behavioral change!
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndDone);
         QTest::newRow("StopGroupAfterErrorWithFinishAllAndDone")
-            << TestData{storage, root6, doneLog, 3, OnDone::Failure};
+            << TestData{storage, root6, longLog, 3, OnDone::Failure};
 
         const Group root7 = createRoot(WorkflowPolicy::FinishAllAndError);
         QTest::newRow("StopGroupAfterErrorWithFinishAllAndError")
-            << TestData{storage, root7, longErrorLog, 3, OnDone::Failure};
+            << TestData{storage, root7, longLog, 3, OnDone::Failure};
     }
 
     {
-        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone,
-                                 groupError](WorkflowPolicy policy) {
+        const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
+                                    WorkflowPolicy policy) {
             return Group {
                 Storage(storage),
                 workflowPolicy(policy),
                 createSuccessTask(1),
                 createFailingTask(2),
                 createSuccessTask(3),
-                groupDone(0),
-                groupError(0)
+                groupDone(0)
             };
         };
 
@@ -1266,7 +1227,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [storage, createTask, groupDone, groupError](
+        const auto createRoot = [storage, createTask, groupDone](
                                     bool firstSuccess, bool secondSuccess) {
             return Group {
                 parallel,
@@ -1274,8 +1235,7 @@ void tst_Tasking::testTree_data()
                 Storage(storage),
                 createTask(1, firstSuccess, 1000ms),
                 createTask(2, secondSuccess, 1ms),
-                groupDone(0),
-                groupError(0)
+                groupDone(0)
             };
         };
 
@@ -1306,8 +1266,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [storage, createSuccessTask, groupDone, groupError](
-                                    SetupResult setupResult) {
+        const auto createRoot = [storage, createSuccessTask, groupDone](SetupResult setupResult) {
             return Group {
                 Storage(storage),
                 Group {
@@ -1319,8 +1278,7 @@ void tst_Tasking::testTree_data()
                     createSuccessTask(3),
                     createSuccessTask(4)
                 },
-                groupDone(0),
-                groupError(0)
+                groupDone(0)
             };
         };
 
@@ -1809,7 +1767,7 @@ void tst_Tasking::testTree_data()
             createSyncWithReturn(3, false),
             createSuccessTask(4),
             createSync(5),
-            groupError(0)
+            groupDone(0)
         };
         const Log log {
             {1, Handler::Sync},

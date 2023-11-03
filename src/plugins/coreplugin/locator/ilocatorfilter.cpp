@@ -457,10 +457,6 @@ void LocatorMatcher::start()
         };
     };
 
-    const auto onDone = [](const TreeStorage<LocatorStorage> &storage) {
-        return [storage] { storage->finalize(); };
-    };
-
     int index = 0;
     for (const LocatorMatcherTask &task : std::as_const(d->m_tasks)) {
         const auto storage = task.storage;
@@ -468,8 +464,7 @@ void LocatorMatcher::start()
             finishAllAndDone,
             Storage(storage),
             onGroupSetup(onSetup(storage, index)),
-            onGroupDone(onDone(storage)),
-            onGroupError(onDone(storage)),
+            onGroupDone([storage] { storage->finalize(); }),
             task.task
         };
         parallelTasks << group;

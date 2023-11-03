@@ -25,7 +25,7 @@ static QWidget *hr()
     return frame;
 }
 
-QWidget *taskGroup(QWidget *groupWidget, const QList<QWidget *> &widgets)
+static QWidget *taskGroup(QWidget *groupWidget, const QList<QWidget *> &widgets)
 {
     QWidget *widget = new QWidget;
     QBoxLayout *layout = new QHBoxLayout(widget);
@@ -40,6 +40,11 @@ QWidget *taskGroup(QWidget *groupWidget, const QList<QWidget *> &widgets)
     }
     layout->addWidget(groupBox);
     return widget;
+}
+
+static State resultToState(DoneWith result)
+{
+    return result == DoneWith::Success ? State::Done : State::Error;
 }
 
 int main(int argc, char *argv[])
@@ -172,8 +177,7 @@ int main(int argc, char *argv[])
         const Group root {
             widget->isSuccess() ? stopOnError : finishAllAndError,
             TimeoutTask(setupTask),
-            onGroupDone([widget] { widget->setState(State::Done); }),
-            onGroupError([widget] { widget->setState(State::Error); })
+            onGroupDone([widget](DoneWith result) { widget->setState(resultToState(result)); })
         };
         return root;
     };
@@ -183,15 +187,13 @@ int main(int argc, char *argv[])
             rootGroup->executeMode(),
             rootGroup->workflowPolicy(),
             onGroupSetup([rootGroup] { rootGroup->setState(State::Running); }),
-            onGroupDone([rootGroup] { rootGroup->setState(State::Done); }),
-            onGroupError([rootGroup] { rootGroup->setState(State::Error); }),
+            onGroupDone([rootGroup](DoneWith result) { rootGroup->setState(resultToState(result)); }),
 
             Group {
                 groupTask_1->executeMode(),
                 groupTask_1->workflowPolicy(),
                 onGroupSetup([groupTask_1] { groupTask_1->setState(State::Running); }),
-                onGroupDone([groupTask_1] { groupTask_1->setState(State::Done); }),
-                onGroupError([groupTask_1] { groupTask_1->setState(State::Error); }),
+                onGroupDone([groupTask_1](DoneWith result) { groupTask_1->setState(resultToState(result)); }),
 
                 createTask(task_1_1),
                 createTask(task_1_2),
@@ -203,8 +205,7 @@ int main(int argc, char *argv[])
                 groupTask_4->executeMode(),
                 groupTask_4->workflowPolicy(),
                 onGroupSetup([groupTask_4] { groupTask_4->setState(State::Running); }),
-                onGroupDone([groupTask_4] { groupTask_4->setState(State::Done); }),
-                onGroupError([groupTask_4] { groupTask_4->setState(State::Error); }),
+                onGroupDone([groupTask_4](DoneWith result) { groupTask_4->setState(resultToState(result)); }),
 
                 createTask(task_4_1),
                 createTask(task_4_2),
@@ -212,8 +213,7 @@ int main(int argc, char *argv[])
                     groupTask_4_3->executeMode(),
                     groupTask_4_3->workflowPolicy(),
                     onGroupSetup([groupTask_4_3] { groupTask_4_3->setState(State::Running); }),
-                    onGroupDone([groupTask_4_3] { groupTask_4_3->setState(State::Done); }),
-                    onGroupError([groupTask_4_3] { groupTask_4_3->setState(State::Error); }),
+                    onGroupDone([groupTask_4_3](DoneWith result) { groupTask_4_3->setState(resultToState(result)); }),
 
                     createTask(task_4_3_1),
                     createTask(task_4_3_2),

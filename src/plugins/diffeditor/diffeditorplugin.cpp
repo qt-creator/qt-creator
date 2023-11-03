@@ -132,24 +132,21 @@ DiffFilesController::DiffFilesController(IDocument *document)
         }
         taskTree.setRecipe(tasks);
     };
-    const auto onTreeDone = [this, storage] {
-        const QList<std::optional<FileData>> &results = *storage;
+    const auto onTreeDone = [this, storage](DoneWith result) {
         QList<FileData> finalList;
-        for (const std::optional<FileData> &result : results) {
-            if (result.has_value())
-                finalList.append(*result);
+        if (result == DoneWith::Success) {
+            const QList<std::optional<FileData>> &results = *storage;
+            for (const std::optional<FileData> &result : results) {
+                if (result.has_value())
+                    finalList.append(*result);
+            }
         }
         setDiffFiles(finalList);
-    };
-    const auto onTreeError = [this, storage] {
-        setDiffFiles({});
     };
 
     const Group root = {
         Storage(storage),
-        TaskTreeTask(onTreeSetup),
-        onGroupDone(onTreeDone),
-        onGroupError(onTreeError)
+        TaskTreeTask(onTreeSetup, onTreeDone)
     };
     setReloadRecipe(root);
 }

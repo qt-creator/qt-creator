@@ -227,16 +227,17 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
 GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 {
     TreeStorage<TransferStorage> storage;
-    return Group{continueOnDone,
-                 Tasking::Storage(storage),
-                 transferTask(FileTransferMethod::GenericCopy, storage),
-                 transferTask(FileTransferMethod::Sftp, storage),
-                 transferTask(FileTransferMethod::Rsync, storage),
-                 onGroupError([this] {
-                     emit q->errorMessage(Tr::tr("Deployment to this device will not "
-                                                 "work out of the box.")
-                                          + "\n");
-                 })};
+    return Group {
+        continueOnDone,
+        Tasking::Storage(storage),
+        transferTask(FileTransferMethod::GenericCopy, storage),
+        transferTask(FileTransferMethod::Sftp, storage),
+        transferTask(FileTransferMethod::Rsync, storage),
+        onGroupDone([this] {
+            emit q->errorMessage(Tr::tr("Deployment to this device will not work out of the box.")
+                                 + "\n");
+        }, CallDoneIf::Error)
+    };
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandName) const
@@ -299,8 +300,8 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
 
     d->m_device = deviceConfiguration;
 
-    auto allFinished = [this](DeviceTester::TestResult testResult) {
-        emit finished(testResult);
+    auto onDone = [this](DoneWith result) {
+        emit finished(result == DoneWith::Success ? TestSuccess : TestFailure);
         d->m_taskTree.release()->deleteLater();
     };
 
@@ -313,9 +314,7 @@ void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguratio
     };
     if (!d->m_extraTests.isEmpty())
         taskItems << Group { d->m_extraTests };
-    taskItems << d->commandTasks()
-              << onGroupDone(std::bind(allFinished, TestSuccess))
-              << onGroupError(std::bind(allFinished, TestFailure));
+    taskItems << d->commandTasks() << onGroupDone(onDone);
 
     d->m_taskTree.reset(new TaskTree(taskItems));
     d->m_taskTree->start();

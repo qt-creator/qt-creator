@@ -299,7 +299,7 @@ Tasking::GroupItem QMakeStep::runRecipe()
     };
 
     QList<GroupItem> processList = {onGroupSetup(onSetup),
-                                    onGroupDone(onDone),
+                                    onGroupDone(onDone, CallDoneIf::Success),
                                     ProcessTask(onQMakeSetup, onProcessDone)};
     if (m_runMakeQmake)
         processList << ProcessTask(onMakeQMakeSetup, onProcessDone);

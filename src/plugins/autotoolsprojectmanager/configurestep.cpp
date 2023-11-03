@@ -98,9 +98,12 @@ Tasking::GroupItem ConfigureStep::runRecipe()
         }
         return SetupResult::Continue;
     };
-    const auto onDone = [this] { m_runConfigure = false; };
 
-    return Group { onGroupSetup(onSetup), onGroupDone(onDone), defaultProcessTask() };
+    return Group {
+        onGroupSetup(onSetup),
+        onGroupDone([this] { m_runConfigure = false; }, CallDoneIf::Success),
+        defaultProcessTask()
+    };
 }
 
 // ConfigureStepFactory

@@ -468,8 +468,7 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
     const Group root {
         topRevisionProc,
         ProcessTask(onForEachRefSetup, onForEachRefDone),
-        onGroupDone(finalize),
-        onGroupError(finalize)
+        onGroupDone(finalize)
     };
     d->refreshTask.reset(new TaskTree(root));
     d->refreshTask->start();

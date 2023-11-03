@@ -297,7 +297,7 @@ GroupItem GenericDirectUploadStep::deployRecipe()
         uploadTask(storage),
         chmodTree(storage),
         statTree(storage, postFilesToStat, postStatEndHandler),
-        onGroupDone(doneHandler)
+        onGroupDone(doneHandler, CallDoneIf::Success)
     };
     return root;
 }

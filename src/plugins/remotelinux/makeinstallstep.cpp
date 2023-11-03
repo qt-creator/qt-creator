@@ -192,7 +192,14 @@ Tasking::GroupItem MakeInstallStep::runRecipe()
 {
     using namespace Tasking;
 
-    const auto onDone = [this] {
+    const auto onDone = [this](DoneWith result) {
+        if (result != DoneWith::Success) {
+            if (m_noInstallTarget && m_isCmakeProject) {
+                emit addTask(DeploymentTask(Task::Warning, Tr::tr("You need to add an install "
+                                                                  "statement to your CMakeLists.txt file for deployment to work.")));
+            }
+            return;
+        }
         const FilePath rootDir = makeCommand().withNewPath(m_installRoot().path()); // FIXME: Needed?
 
         m_deploymentData = DeploymentData();
@@ -215,14 +222,8 @@ Tasking::GroupItem MakeInstallStep::runRecipe()
 
         buildSystem()->setDeploymentData(m_deploymentData);
     };
-    const auto onError = [this] {
-        if (m_noInstallTarget && m_isCmakeProject) {
-            emit addTask(DeploymentTask(Task::Warning, Tr::tr("You need to add an install "
-                "statement to your CMakeLists.txt file for deployment to work.")));
-        }
-    };
 
-    return Group { onGroupDone(onDone), onGroupError(onError), defaultProcessTask() };
+    return Group { onGroupDone(onDone), defaultProcessTask() };
 }
 
 void MakeInstallStep::updateCommandFromAspect()

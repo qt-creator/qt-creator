@@ -568,7 +568,7 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
         onGroupDone([storage, callback] {
             if (storage->mergeBase == storage->topRevision)
                 callback();
-        })
+        }, CallDoneIf::Success)
     };
     auto taskTree = new TaskTree(root);
     taskTree->start();

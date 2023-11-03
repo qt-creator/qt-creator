@@ -369,15 +369,11 @@ GroupItem CMakeBuildStep::runRecipe()
         emit addOutput(Tr::tr("Project did not parse successfully, cannot build."),
                        OutputFormat::ErrorMessage);
     };
-    const auto onEnd = [this] {
-        updateDeploymentData();
-    };
     Group root {
         ignoreReturnValue() ? finishAllAndDone : stopOnError,
         ProjectParserTask(onParserSetup, onParserError, CallDoneIf::Error),
         defaultProcessTask(),
-        onGroupDone(onEnd),
-        onGroupError(onEnd)
+        onGroupDone([this] { updateDeploymentData(); })
     };
     return root;
 }

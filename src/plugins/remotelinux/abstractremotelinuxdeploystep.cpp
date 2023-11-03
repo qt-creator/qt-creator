@@ -148,17 +148,16 @@ GroupItem AbstractRemoteLinuxDeployStep::runRecipe()
         }
         return SetupResult::Continue;
     };
-    const auto onDone = [this] {
-        emit addOutput(Tr::tr("Deploy step finished."), OutputFormat::NormalMessage);
-    };
-    const auto onError = [this] {
-        emit addOutput(Tr::tr("Deploy step failed."), OutputFormat::ErrorMessage);
+    const auto onDone = [this](DoneWith result) {
+        if (result == DoneWith::Success)
+            emit addOutput(Tr::tr("Deploy step finished."), OutputFormat::NormalMessage);
+        else
+            emit addOutput(Tr::tr("Deploy step failed."), OutputFormat::ErrorMessage);
     };
     return Group {
         onGroupSetup(onSetup),
         deployRecipe(),
-        onGroupDone(onDone),
-        onGroupError(onError)
+        onGroupDone(onDone)
     };
 }
 

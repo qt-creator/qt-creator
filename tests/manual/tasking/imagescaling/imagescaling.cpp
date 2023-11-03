@@ -68,7 +68,7 @@ void Images::process()
         finishAllAndDone,
         parallel,
         onGroupSetup(onRootSetup),
-        onGroupDone(onRootDone)
+        onGroupDone(onRootDone, CallDoneIf::Success)
     };
 
     int i = 0;
