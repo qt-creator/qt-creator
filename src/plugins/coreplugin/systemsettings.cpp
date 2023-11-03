@@ -85,7 +85,6 @@ SystemSettings::SystemSettings()
     autoSaveInterval.setSuffix(Tr::tr("min"));
     autoSaveInterval.setRange(1, 1000000);
     autoSaveInterval.setDefaultValue(5);
-    autoSaveInterval.setEnabler(&autoSaveModifiedFiles);
     autoSaveInterval.setLabelText(Tr::tr("Interval:"));
 
     autoSaveAfterRefactoring.setSettingsKey("EditorManager/AutoSaveAfterRefactoring");
@@ -107,7 +106,6 @@ SystemSettings::SystemSettings()
     autoSuspendMinDocumentCount.setSettingsKey("EditorManager/AutoSuspendMinDocuments");
     autoSuspendMinDocumentCount.setRange(1, 500);
     autoSuspendMinDocumentCount.setDefaultValue(30);
-    autoSuspendMinDocumentCount.setEnabler(&autoSuspendEnabled);
     autoSuspendMinDocumentCount.setLabelText(Tr::tr("Files to keep open:"));
     autoSuspendMinDocumentCount.setToolTip(
         Tr::tr("Minimum number of open documents that should be kept in memory. Increasing this "
@@ -122,7 +120,6 @@ SystemSettings::SystemSettings()
     bigFileSizeLimitInMB.setSuffix(Tr::tr("MB"));
     bigFileSizeLimitInMB.setRange(1, 500);
     bigFileSizeLimitInMB.setDefaultValue(5);
-    bigFileSizeLimitInMB.setEnabler(&warnBeforeOpeningBigFiles);
 
     maxRecentFiles.setSettingsKey("EditorManager/MaxRecentFiles");
     maxRecentFiles.setRange(1, 99);
@@ -151,6 +148,11 @@ SystemSettings::SystemSettings()
     showCrashButton.setSettingsKey("ShowCrashButton");
 #endif
     readSettings();
+
+    autoSaveInterval.setEnabler(&autoSaveModifiedFiles);
+    autoSuspendMinDocumentCount.setEnabler(&autoSuspendEnabled);
+    bigFileSizeLimitInMB.setEnabler(&warnBeforeOpeningBigFiles);
+
     connect(&autoSaveModifiedFiles, &BaseAspect::changed,
             this, &EditorManagerPrivate::updateAutoSave);
     connect(&autoSaveInterval, &BaseAspect::changed, this, &EditorManagerPrivate::updateAutoSave);

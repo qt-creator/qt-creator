@@ -108,6 +108,9 @@ CTestTool::CTestTool()
     threshold.setLabelText(Tr::tr("Threshold"));
     threshold.setDefaultValue(1);
     threshold.setRange(1, 128);
+
+    readSettings();
+
     threshold.setEnabler(&testLoad);
 }
 
