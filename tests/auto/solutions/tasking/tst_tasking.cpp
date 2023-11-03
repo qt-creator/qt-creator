@@ -19,10 +19,11 @@ Q_NAMESPACE
 
 enum class Handler {
     Setup,
-    Done,
+    Success,
     Error,
+    Canceled,
     GroupSetup,
-    GroupDone,
+    GroupSuccess,
     GroupError,
     Sync,
     BarrierAdvance,
@@ -232,9 +233,10 @@ void tst_Tasking::testTree_data()
 
     const auto setupDone = [storage](int taskId, bool success = true) {
         return [storage, taskId, success](const TaskObject &, DoneWith result) {
-            const bool done = success && result != DoneWith::Cancel;
-            storage->m_log.append({taskId, done ? Handler::Done : Handler::Error});
-            return done;
+            const Handler handler = result == DoneWith::Cancel ? Handler::Canceled
+                                  : success ? Handler::Success : Handler::Error;
+            storage->m_log.append({taskId, handler});
+            return success && result != DoneWith::Cancel;
         };
     };
 
@@ -245,7 +247,7 @@ void tst_Tasking::testTree_data()
     };
 
     const auto createTask = [storage, setupTask, setupDone](
-            int taskId, bool successTask, milliseconds timeout = 0ms) -> GroupItem {
+            int taskId, bool successTask, milliseconds timeout = 0ms) {
         return TestTask(setupTask(taskId, timeout), setupDone(taskId, successTask));
     };
 
@@ -266,7 +268,7 @@ void tst_Tasking::testTree_data()
         return onGroupSetup([=] { storage->m_log.append({taskId, Handler::GroupSetup}); });
     };
     const auto groupDone = [storage](int taskId) {
-        return onGroupDone([=] { storage->m_log.append({taskId, Handler::GroupDone}); });
+        return onGroupDone([=] { storage->m_log.append({taskId, Handler::GroupSuccess}); });
     };
     const auto groupError = [storage](int taskId) {
         return onGroupError([=] { storage->m_log.append({taskId, Handler::GroupError}); });
@@ -303,7 +305,7 @@ void tst_Tasking::testTree_data()
             groupError(0)
         };
 
-        const Log logDone {{0, Handler::GroupDone}};
+        const Log logDone {{0, Handler::GroupSuccess}};
         const Log logError {{0, Handler::GroupError}};
 
         QTest::newRow("Empty") << TestData{storage, root1, logDone, 0, OnDone::Success};
@@ -325,7 +327,7 @@ void tst_Tasking::testTree_data()
 
         const auto doneData = [storage, setupGroup](WorkflowPolicy policy) {
             return TestData{storage, setupGroup(SetupResult::StopWithDone, policy),
-                            Log{{0, Handler::GroupDone}}, 0, OnDone::Success};
+                            Log{{0, Handler::GroupSuccess}}, 0, OnDone::Success};
         };
         const auto errorData = [storage, setupGroup](WorkflowPolicy policy) {
             return TestData{storage, setupGroup(SetupResult::StopWithError, policy),
@@ -379,9 +381,9 @@ void tst_Tasking::testTree_data()
         };
         const Log log {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Setup}
         };
         QTest::newRow("DynamicMixed") << TestData{storage, root, log, 4, OnDone::Failure};
@@ -400,8 +402,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {3, Handler::Setup},
-            {1, Handler::Error},
-            {2, Handler::Error}
+            {1, Handler::Canceled},
+            {2, Handler::Canceled}
         };
         QTest::newRow("DynamicParallel") << TestData{storage, root, log, 4, OnDone::Failure};
     }
@@ -421,8 +423,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {3, Handler::Setup},
-            {1, Handler::Error},
-            {2, Handler::Error}
+            {1, Handler::Canceled},
+            {2, Handler::Canceled}
         };
         QTest::newRow("DynamicParallelGroup") << TestData{storage, root, log, 4, OnDone::Failure};
     }
@@ -446,8 +448,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {0, Handler::GroupSetup},
-            {1, Handler::Error},
-            {2, Handler::Error}
+            {1, Handler::Canceled},
+            {2, Handler::Canceled}
         };
         QTest::newRow("DynamicParallelGroupSetup")
             << TestData{storage, root, log, 4, OnDone::Failure};
@@ -486,13 +488,13 @@ void tst_Tasking::testTree_data()
             {4, Handler::GroupSetup},
             {5, Handler::GroupSetup},
             {5, Handler::Setup},
-            {5, Handler::Done},
-            {5, Handler::GroupDone},
-            {4, Handler::GroupDone},
-            {3, Handler::GroupDone},
-            {2, Handler::GroupDone},
-            {1, Handler::GroupDone},
-            {0, Handler::GroupDone}
+            {5, Handler::Success},
+            {5, Handler::GroupSuccess},
+            {4, Handler::GroupSuccess},
+            {3, Handler::GroupSuccess},
+            {2, Handler::GroupSuccess},
+            {1, Handler::GroupSuccess},
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("Nested") << TestData{storage, root, log, 1, OnDone::Success};
     }
@@ -514,12 +516,12 @@ void tst_Tasking::testTree_data()
             {3, Handler::Setup},
             {4, Handler::Setup},
             {5, Handler::Setup},
-            {1, Handler::Done},
-            {2, Handler::Done},
-            {3, Handler::Done},
-            {4, Handler::Done},
-            {5, Handler::Done},
-            {0, Handler::GroupDone}
+            {1, Handler::Success},
+            {2, Handler::Success},
+            {3, Handler::Success},
+            {4, Handler::Success},
+            {5, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("Parallel") << TestData{storage, root, log, 5, OnDone::Success};
     }
@@ -566,16 +568,16 @@ void tst_Tasking::testTree_data()
         };
         const Log log {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Setup},
-            {3, Handler::Done},
+            {3, Handler::Success},
             {4, Handler::Setup},
-            {4, Handler::Done},
+            {4, Handler::Success},
             {5, Handler::Setup},
-            {5, Handler::Done},
-            {0, Handler::GroupDone}
+            {5, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("Sequential") << TestData{storage, root1, log, 5, OnDone::Success};
         QTest::newRow("SequentialEncapsulated") << TestData{storage, root2, log, 5, OnDone::Success};
@@ -610,21 +612,21 @@ void tst_Tasking::testTree_data()
         };
         const Log log {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Setup},
-            {3, Handler::Done},
+            {3, Handler::Success},
             {4, Handler::Setup},
-            {4, Handler::Done},
+            {4, Handler::Success},
             {5, Handler::Setup},
-            {5, Handler::Done},
-            {5, Handler::GroupDone},
-            {4, Handler::GroupDone},
-            {3, Handler::GroupDone},
-            {2, Handler::GroupDone},
-            {1, Handler::GroupDone},
-            {0, Handler::GroupDone}
+            {5, Handler::Success},
+            {5, Handler::GroupSuccess},
+            {4, Handler::GroupSuccess},
+            {3, Handler::GroupSuccess},
+            {2, Handler::GroupSuccess},
+            {1, Handler::GroupSuccess},
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("SequentialNested") << TestData{storage, root, log, 5, OnDone::Success};
     }
@@ -642,9 +644,9 @@ void tst_Tasking::testTree_data()
         };
         const Log log {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Setup},
             {3, Handler::Error},
             {0, Handler::GroupError}
@@ -662,7 +664,7 @@ void tst_Tasking::testTree_data()
             };
         };
 
-        const Log doneLog = {{0, Handler::GroupDone}};
+        const Log doneLog = {{0, Handler::GroupSuccess}};
         const Log errorLog = {{0, Handler::GroupError}};
 
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
@@ -708,13 +710,13 @@ void tst_Tasking::testTree_data()
 
         const Log doneLog = {
             {1, Handler::Setup},
-            {1, Handler::Done},
-            {0, Handler::GroupDone}
+            {1, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
 
         const Log errorLog = {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {0, Handler::GroupError}
         };
 
@@ -762,7 +764,7 @@ void tst_Tasking::testTree_data()
         const Log doneLog = {
             {1, Handler::Setup},
             {1, Handler::Error},
-            {0, Handler::GroupDone}
+            {0, Handler::GroupSuccess}
         };
 
         const Log errorLog = {
@@ -821,7 +823,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {1, Handler::Error},
-            {2, Handler::Error},
+            {2, Handler::Canceled},
             {0, Handler::GroupError}
         };
 
@@ -829,7 +831,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {1, Handler::Error},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {0, Handler::GroupError}
         };
 
@@ -837,8 +839,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {1, Handler::Error},
-            {2, Handler::Done},
-            {0, Handler::GroupDone}
+            {2, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
 
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
@@ -893,9 +895,9 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {3, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Error},
-            {3, Handler::Error},
+            {3, Handler::Canceled},
             {0, Handler::GroupError}
         };
 
@@ -903,9 +905,9 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {3, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Error},
-            {3, Handler::Done},
+            {3, Handler::Success},
             {0, Handler::GroupError}
         };
 
@@ -913,20 +915,20 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {3, Handler::Setup},
-            {1, Handler::Done},
-            {2, Handler::Error},
-            {3, Handler::Error},
-            {0, Handler::GroupDone}
+            {1, Handler::Success},
+            {2, Handler::Canceled},
+            {3, Handler::Canceled},
+            {0, Handler::GroupSuccess}
         };
 
         const Log doneDoneLog = {
             {1, Handler::Setup},
             {2, Handler::Setup},
             {3, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Error},
-            {3, Handler::Done},
-            {0, Handler::GroupDone}
+            {3, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
 
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
@@ -983,7 +985,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {2, Handler::Error},
-            {1, Handler::Error},
+            {1, Handler::Canceled},
             {1, Handler::GroupError},
             {2, Handler::GroupError}
         };
@@ -992,8 +994,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::Setup},
             {2, Handler::Error},
-            {1, Handler::Error},
-            {1, Handler::GroupDone},
+            {1, Handler::Canceled},
+            {1, Handler::GroupSuccess},
             {2, Handler::GroupError}
         };
 
@@ -1051,10 +1053,10 @@ void tst_Tasking::testTree_data()
         const Log errorLog = {
             {1, Handler::Setup},
             {3, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
             {3, Handler::Error},
-            {2, Handler::Error},
+            {2, Handler::Canceled},
             {1, Handler::GroupError},
             {2, Handler::GroupError}
         };
@@ -1062,8 +1064,8 @@ void tst_Tasking::testTree_data()
         const Log shortDoneLog = {
             {1, Handler::Setup},
             {3, Handler::Setup},
-            {1, Handler::Done},
-            {1, Handler::GroupDone},
+            {1, Handler::Success},
+            {1, Handler::GroupSuccess},
             {3, Handler::Error},
             {2, Handler::GroupError}
         };
@@ -1071,11 +1073,11 @@ void tst_Tasking::testTree_data()
         const Log longDoneLog = {
             {1, Handler::Setup},
             {3, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
             {3, Handler::Error},
-            {2, Handler::Error},
-            {1, Handler::GroupDone},
+            {2, Handler::Canceled},
+            {1, Handler::GroupSuccess},
             {2, Handler::GroupError}
         };
 
@@ -1135,7 +1137,7 @@ void tst_Tasking::testTree_data()
             {3, Handler::Setup},
             {1, Handler::Error},
             {1, Handler::GroupError},
-            {3, Handler::Error},
+            {3, Handler::Canceled},
             {2, Handler::GroupError}
         };
 
@@ -1145,7 +1147,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Error},
             {2, Handler::Setup},
             {3, Handler::Error},
-            {2, Handler::Error},
+            {2, Handler::Canceled},
             {1, Handler::GroupError},
             {2, Handler::GroupError}
         };
@@ -1156,8 +1158,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::Error},
             {2, Handler::Setup},
             {3, Handler::Error},
-            {2, Handler::Error},
-            {1, Handler::GroupDone},
+            {2, Handler::Canceled},
+            {1, Handler::GroupSuccess},
             {2, Handler::GroupError}
         };
 
@@ -1207,7 +1209,7 @@ void tst_Tasking::testTree_data()
         const Group root1 = createRoot(WorkflowPolicy::StopOnError);
         const Log log1 {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
             {2, Handler::Error},
             {0, Handler::GroupError}
@@ -1217,11 +1219,11 @@ void tst_Tasking::testTree_data()
         const Group root2 = createRoot(WorkflowPolicy::ContinueOnError);
         const Log errorLog {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
             {2, Handler::Error},
             {3, Handler::Setup},
-            {3, Handler::Done},
+            {3, Handler::Success},
             {0, Handler::GroupError}
         };
         QTest::newRow("ContinueOnError") << TestData{storage, root2, errorLog, 3, OnDone::Failure};
@@ -1229,28 +1231,28 @@ void tst_Tasking::testTree_data()
         const Group root3 = createRoot(WorkflowPolicy::StopOnDone);
         const Log log3 {
             {1, Handler::Setup},
-            {1, Handler::Done},
-            {0, Handler::GroupDone}
+            {1, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("StopOnDone") << TestData{storage, root3, log3, 3, OnDone::Success};
 
         const Group root4 = createRoot(WorkflowPolicy::ContinueOnDone);
         const Log doneLog {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
             {2, Handler::Error},
             {3, Handler::Setup},
-            {3, Handler::Done},
-            {0, Handler::GroupDone}
+            {3, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("ContinueOnDone") << TestData{storage, root4, doneLog, 3, OnDone::Success};
 
         const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
         const Log log5 {
             {1, Handler::Setup},
-            {1, Handler::Done},
-            {0, Handler::GroupDone}
+            {1, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("StopOnFinished") << TestData{storage, root5, log5, 3, OnDone::Success};
 
@@ -1283,15 +1285,15 @@ void tst_Tasking::testTree_data()
         const Log success {
             {1, Handler::Setup},
             {2, Handler::Setup},
-            {2, Handler::Done},
-            {1, Handler::Error},
-            {0, Handler::GroupDone}
+            {2, Handler::Success},
+            {1, Handler::Canceled},
+            {0, Handler::GroupSuccess}
         };
         const Log failure {
             {1, Handler::Setup},
             {2, Handler::Setup},
             {2, Handler::Error},
-            {1, Handler::Error},
+            {1, Handler::Canceled},
             {0, Handler::GroupError}
         };
 
@@ -1323,15 +1325,15 @@ void tst_Tasking::testTree_data()
         const Group root1 = createRoot(SetupResult::StopWithDone);
         const Log log1 {
             {1, Handler::Setup},
-            {1, Handler::Done},
-            {0, Handler::GroupDone}
+            {1, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("DynamicSetupDone") << TestData{storage, root1, log1, 4, OnDone::Success};
 
         const Group root2 = createRoot(SetupResult::StopWithError);
         const Log log2 {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {0, Handler::GroupError}
         };
         QTest::newRow("DynamicSetupError") << TestData{storage, root2, log2, 4, OnDone::Failure};
@@ -1339,14 +1341,14 @@ void tst_Tasking::testTree_data()
         const Group root3 = createRoot(SetupResult::Continue);
         const Log log3 {
             {1, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Setup},
-            {3, Handler::Done},
+            {3, Handler::Success},
             {4, Handler::Setup},
-            {4, Handler::Done},
-            {0, Handler::GroupDone}
+            {4, Handler::Success},
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("DynamicSetupContinue") << TestData{storage, root3, log3, 4, OnDone::Success};
     }
@@ -1377,14 +1379,14 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {4, Handler::GroupSetup},
             {4, Handler::Setup},
-            {3, Handler::Done},
-            {4, Handler::Done}
+            {3, Handler::Success},
+            {4, Handler::Success}
         };
         QTest::newRow("NestedParallel") << TestData{storage, root, log, 4, OnDone::Success};
     }
@@ -1419,16 +1421,16 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
             {4, Handler::GroupSetup},
             {4, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {5, Handler::GroupSetup},
             {5, Handler::Setup},
-            {4, Handler::Done},
-            {5, Handler::Done}
+            {4, Handler::Success},
+            {5, Handler::Success}
         };
         QTest::newRow("NestedParallelDone") << TestData{storage, root, log, 5, OnDone::Success};
     }
@@ -1463,10 +1465,10 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
-            {2, Handler::Error}
+            {2, Handler::Canceled}
         };
 
         // Inside this test the task 2 should finish first, then synchonously:
@@ -1502,10 +1504,10 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
-            {1, Handler::Error}
+            {1, Handler::Canceled}
         };
 
         // This test ensures that the task 1 doesn't invoke its done handler,
@@ -1548,13 +1550,13 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
-            {1, Handler::Error},
+            {1, Handler::Canceled},
             {5, Handler::GroupSetup},
             {5, Handler::Setup},
-            {5, Handler::Done}
+            {5, Handler::Success}
         };
         QTest::newRow("NestedParallelError1")
             << TestData{storage, root1, log1, 5, OnDone::Failure};
@@ -1602,14 +1604,14 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {4, Handler::GroupSetup},
             {4, Handler::Setup},
-            {3, Handler::Done},
-            {4, Handler::Done}
+            {3, Handler::Success},
+            {4, Handler::Success}
         };
         QTest::newRow("DeeplyNestedParallel") << TestData{storage, root, log, 4, OnDone::Success};
     }
@@ -1644,16 +1646,16 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
             {4, Handler::GroupSetup},
             {4, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {5, Handler::GroupSetup},
             {5, Handler::Setup},
-            {4, Handler::Done},
-            {5, Handler::Done}
+            {4, Handler::Success},
+            {5, Handler::Success}
         };
         QTest::newRow("DeeplyNestedParallelDone")
             << TestData{storage, root, log, 5, OnDone::Success};
@@ -1689,10 +1691,10 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {1, Handler::Done},
+            {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
-            {2, Handler::Error}
+            {2, Handler::Canceled}
         };
         QTest::newRow("DeeplyNestedParallelError")
             << TestData{storage, root, log, 5, OnDone::Failure};
@@ -1787,12 +1789,12 @@ void tst_Tasking::testTree_data()
         const Log log {
             {1, Handler::Sync},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Sync},
             {4, Handler::Setup},
-            {4, Handler::Done},
+            {4, Handler::Success},
             {5, Handler::Sync},
-            {0, Handler::GroupDone}
+            {0, Handler::GroupSuccess}
         };
         QTest::newRow("SyncAndAsync") << TestData{storage, root, log, 2, OnDone::Success};
     }
@@ -1810,7 +1812,7 @@ void tst_Tasking::testTree_data()
         const Log log {
             {1, Handler::Sync},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Sync},
             {0, Handler::GroupError}
         };
@@ -1840,9 +1842,9 @@ void tst_Tasking::testTree_data()
             {1, Handler::BarrierAdvance},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Setup},
-            {3, Handler::Done}
+            {3, Handler::Success}
         };
 
         // Test that barrier advance, triggered from inside the task described by
@@ -1865,9 +1867,9 @@ void tst_Tasking::testTree_data()
             {2, Handler::GroupSetup},
             {1, Handler::BarrierAdvance},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Setup},
-            {3, Handler::Done}
+            {3, Handler::Success}
         };
 
         // Test that barrier advance, triggered from inside the task described by
@@ -1897,9 +1899,9 @@ void tst_Tasking::testTree_data()
             {1, Handler::Setup},
             {1, Handler::BarrierAdvance},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Setup},
-            {3, Handler::Done}
+            {3, Handler::Success}
         };
 
         // Test that barrier advance, triggered from inside the task described by
@@ -1928,8 +1930,8 @@ void tst_Tasking::testTree_data()
             {1, Handler::BarrierAdvance},
             {4, Handler::Setup},
             {5, Handler::Setup},
-            {4, Handler::Done},
-            {5, Handler::Done}
+            {4, Handler::Success},
+            {5, Handler::Success}
         };
 
         // Test two separate single barriers.
@@ -1960,7 +1962,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::BarrierAdvance},
             {2, Handler::BarrierAdvance},
             {3, Handler::Setup},
-            {3, Handler::Done}
+            {3, Handler::Success}
         };
 
         // Notice the different log order for each scenario.
@@ -2002,9 +2004,9 @@ void tst_Tasking::testTree_data()
             {2, Handler::BarrierAdvance},
             {2, Handler::GroupSetup},
             {2, Handler::Setup},
-            {2, Handler::Done},
+            {2, Handler::Success},
             {3, Handler::Setup},
-            {3, Handler::Done}
+            {3, Handler::Success}
         };
 
         // Test that multi barrier advance, triggered from inside the tasks described by
@@ -2030,9 +2032,9 @@ void tst_Tasking::testTree_data()
             {1, Handler::BarrierAdvance},
             {2, Handler::BarrierAdvance},
             {3, Handler::Setup},
-            {3, Handler::Done},
+            {3, Handler::Success},
             {4, Handler::Setup},
-            {4, Handler::Done}
+            {4, Handler::Success}
         };
 
         // Test that multi barrier advance, triggered from inside the tasks described by
@@ -2065,9 +2067,9 @@ void tst_Tasking::testTree_data()
             {1, Handler::BarrierAdvance},
             {2, Handler::BarrierAdvance},
             {3, Handler::Setup},
-            {3, Handler::Done},
+            {3, Handler::Success},
             {4, Handler::Setup},
-            {4, Handler::Done}
+            {4, Handler::Success}
         };
 
         // Test that multi barrier advance, triggered from inside the task described by
@@ -2099,8 +2101,8 @@ void tst_Tasking::testTree_data()
             {2, Handler::BarrierAdvance},
             {3, Handler::Setup},
             {4, Handler::Setup},
-            {3, Handler::Done},
-            {4, Handler::Done}
+            {3, Handler::Success},
+            {4, Handler::Success}
         };
 
         // Notice the different log order for each scenario.
@@ -2125,7 +2127,7 @@ void tst_Tasking::testTree_data()
         };
         const Log log1 {
             {1, Handler::Setup},
-            {1, Handler::Error}
+            {1, Handler::Canceled}
         };
         QTest::newRow("TaskErrorWithTimeout") << TestData{storage, root1, log1, 2,
                                                           OnDone::Failure};
@@ -2138,7 +2140,7 @@ void tst_Tasking::testTree_data()
         const Log log2 {
             {1, Handler::Setup},
             {1, Handler::Timeout},
-            {1, Handler::Error}
+            {1, Handler::Canceled}
         };
         QTest::newRow("TaskErrorWithTimeoutHandler") << TestData{storage, root2, log2, 2,
                                                                  OnDone::Failure};
@@ -2150,7 +2152,7 @@ void tst_Tasking::testTree_data()
         };
         const Log doneLog {
             {1, Handler::Setup},
-            {1, Handler::Done}
+            {1, Handler::Success}
         };
         QTest::newRow("TaskDoneWithTimeout") << TestData{storage, root3, doneLog, 2,
                                                          OnDone::Success};
@@ -2176,7 +2178,7 @@ void tst_Tasking::testTree_data()
         };
         const Log log1 {
             {1, Handler::Setup},
-            {1, Handler::Error}
+            {1, Handler::Canceled}
         };
         QTest::newRow("GroupErrorWithTimeout") << TestData{storage, root1, log1, 2,
                                                            OnDone::Failure};
@@ -2191,7 +2193,7 @@ void tst_Tasking::testTree_data()
         const Log log2 {
             {1, Handler::Setup},
             {1, Handler::Timeout},
-            {1, Handler::Error}
+            {1, Handler::Canceled}
         };
         QTest::newRow("GroupErrorWithTimeoutHandler") << TestData{storage, root2, log2, 2,
                                                                   OnDone::Failure};
@@ -2204,7 +2206,7 @@ void tst_Tasking::testTree_data()
         };
         const Log doneLog {
             {1, Handler::Setup},
-            {1, Handler::Done}
+            {1, Handler::Success}
         };
         QTest::newRow("GroupDoneWithTimeout") << TestData{storage, root3, doneLog, 2,
                                                           OnDone::Success};
