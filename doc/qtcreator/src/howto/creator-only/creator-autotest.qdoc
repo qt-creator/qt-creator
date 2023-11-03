@@ -482,6 +482,12 @@
 
     To run disabled tests, select the \uicontrol {Run disabled tests} check box.
 
+    To turn assertion failures into C++ exceptions, select the
+    \uicontrol {Throw on failure} check box.
+
+    To turn failures into debugger breakpoints, select the
+    \uicontrol {Break on failure while debugging} check box.
+
     To run several iterations of the tests, select the \uicontrol {Repeat tests}
     check box and enter the number of times to run the tests in the
     \uicontrol Iterations field. To make sure that the tests are independent and
@@ -490,8 +496,6 @@
     randomizer in the \uicontrol Seed field. The value 0 generates a seed
     based on the current timestamp.
 
-    To turn failures into debugger breakpoints, select the
-    \uicontrol {Break on failure while debugging} check box.
 
     To group Google tests by using a GTest filter, select
     \uicontrol {GTest Filter} in the \uicontrol {Group mode} field,
