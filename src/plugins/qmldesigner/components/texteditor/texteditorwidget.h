@@ -5,6 +5,7 @@
 #include <texteditor/texteditor.h>
 #include <utils/uniqueobjectptr.h>
 
+#include <itemlibraryentry.h>
 #include <modelnode.h>
 
 #include <QTimer>
@@ -63,6 +64,7 @@ private:
     QVBoxLayout *m_layout = nullptr;
     bool m_blockCursorSelectionSynchronisation = false;
     bool m_blockRoundTrip = false;
+    ItemLibraryEntry m_draggedEntry;
 };
 
 } // namespace QmlDesigner
