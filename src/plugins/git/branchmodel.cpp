@@ -429,8 +429,8 @@ void BranchModel::refresh(const FilePath &workingDirectory, ShowError showError)
     };
 
     const auto onForEachRefDone = [this, workingDirectory, showError](const Process &process,
-                                                                      bool success) {
-        if (!success) {
+                                                                      DoneWith result) {
+        if (result != DoneWith::Success) {
             if (showError == ShowError::No)
                 return;
             const QString message = Tr::tr("Cannot run \"%1\" in \"%2\": %3")

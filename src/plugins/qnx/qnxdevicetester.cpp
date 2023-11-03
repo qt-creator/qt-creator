@@ -51,8 +51,8 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &device)
             {"-c", QLatin1String("rm %1 > /dev/null 2>&1; echo ABC > %1 && rm %1").arg(pidFile)});
         process.setCommand(cmd);
     };
-    auto onDone = [this](const Process &process, bool success) {
-        if (success) {
+    auto onDone = [this](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
             emit progressMessage(Tr::tr("Files can be created in /var/run.") + '\n');
             return;
         }

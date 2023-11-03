@@ -44,8 +44,9 @@ GroupItem VcsBaseDiffEditorController::postProcessTask(const TreeStorage<QString
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
         async.setConcurrentCallData(&DiffUtils::readPatchWithPromise, *inputStorage);
     };
-    const auto onDone = [this](const Async<QList<FileData>> &async, bool success) {
-        setDiffFiles(success && async.isResultAvailable() ? async.result() : QList<FileData>());
+    const auto onDone = [this](const Async<QList<FileData>> &async, DoneWith result) {
+        setDiffFiles(result == DoneWith::Success && async.isResultAvailable()
+                     ? async.result() : QList<FileData>());
         // TODO: We should set the right starting line here
     };
     return AsyncTask<QList<FileData>>(onSetup, onDone);

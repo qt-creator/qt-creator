@@ -55,8 +55,8 @@ private:
                 handleStdErrData(proc->readAllStandardError());
             });
         };
-        const auto onDone = [this](const Process &process, bool success) {
-            if (!success)
+        const auto onDone = [this](const Process &process, DoneWith result) {
+            if (result != DoneWith::Success)
                 addErrorMessage(Tr::tr("Remote process failed: %1").arg(process.errorString()));
             else if (selection() == 0)
                 addProgressMessage(Tr::tr("Application set as the default one."));

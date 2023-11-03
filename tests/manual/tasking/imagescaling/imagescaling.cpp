@@ -79,8 +79,8 @@ void Images::process()
             query.setNetworkAccessManager(&qnam);
             query.setRequest(QNetworkRequest(url));
         };
-        const auto onDownloadDone = [this, storage, i](const NetworkQuery &query, bool success) {
-            if (success)
+        const auto onDownloadDone = [this, storage, i](const NetworkQuery &query, DoneWith result) {
+            if (result == DoneWith::Success)
                 *storage = query.reply()->readAll();
             else
                 labels[i]->setText(tr("Download\nError.\nCode: %1.").arg(query.reply()->error()));
@@ -89,8 +89,8 @@ void Images::process()
         const auto onScalingSetup = [storage](ConcurrentCall<QImage> &data) {
             data.setConcurrentCallData(&scale, *storage);
         };
-        const auto onScalingDone = [this, i](const ConcurrentCall<QImage> &data, bool success) {
-            if (success)
+        const auto onScalingDone = [this, i](const ConcurrentCall<QImage> &data, DoneWith result) {
+            if (result == DoneWith::Success)
                 labels[i]->setPixmap(QPixmap::fromImage(data.result()));
             else
                 labels[i]->setText(tr("Image\nData\nError."));

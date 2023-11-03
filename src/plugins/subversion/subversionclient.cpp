@@ -175,8 +175,8 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
         setDescription(Tr::tr("Waiting for data..."));
         return SetupResult::Continue;
     };
-    const auto onDescriptionDone = [this](const Process &process, bool success) {
-        setDescription(success ? process.cleanedStdOut() : QString());
+    const auto onDescriptionDone = [this](const Process &process, DoneWith result) {
+        setDescription(result == DoneWith::Success ? process.cleanedStdOut() : QString());
     };
 
     const auto onDiffSetup = [this](Process &process) {

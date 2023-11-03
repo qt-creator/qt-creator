@@ -153,8 +153,8 @@ Tasking::GroupItem TarPackageCreationStep::runRecipe()
         async.setFutureSynchronizer(&m_synchronizer);
         return SetupResult::Continue;
     };
-    const auto onDone = [this](const Async<void> &, bool success) {
-        if (!success) {
+    const auto onDone = [this](const Async<void> &, DoneWith result) {
+        if (result != DoneWith::Success) {
             emit addOutput(Tr::tr("Packaging failed."), OutputFormat::ErrorMessage);
             return;
         }

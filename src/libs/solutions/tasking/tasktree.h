@@ -132,6 +132,14 @@ enum class SetupResult
 };
 Q_ENUM_NS(SetupResult);
 
+enum class DoneWith
+{
+    Success,
+    Error,
+    Cancel
+};
+Q_ENUM_NS(DoneWith);
+
 enum class CallDoneIf
 {
     SuccessOrError,
@@ -148,7 +156,7 @@ public:
     // Called prior to task start, just after createHandler
     using TaskSetupHandler = std::function<SetupResult(TaskInterface &)>;
     // Called on task done, just before deleteLater
-    using TaskDoneHandler = std::function<bool(const TaskInterface &, bool)>;
+    using TaskDoneHandler = std::function<bool(const TaskInterface &, DoneWith)>;
     // Called when group entered
     using GroupSetupHandler = std::function<SetupResult()>;
     // Called when group done / error
@@ -335,7 +343,7 @@ public:
                   "The Adapter type for the CustomTask<Adapter> needs to be derived from "
                   "TaskAdapter<Task>.");
     using SetupFunction = std::function<void(const Task &)>;
-    using DoneFunction = std::function<bool(const Task &, bool)>;
+    using DoneFunction = std::function<bool(const Task &, DoneWith)>;
     static Adapter *createAdapter() { return new Adapter; }
 
     template <typename SetupHandler = SetupFunction, typename DoneHandler = DoneFunction>
@@ -376,37 +384,38 @@ private:
         if constexpr (std::is_same_v<Handler, DoneFunction>)
             return {}; // When user passed {} for the done handler.
         static constexpr bool is2ArgDynamic
-            = std::is_invocable_r_v<bool, std::decay_t<Handler>, const Task &, bool>;
+            = std::is_invocable_r_v<bool, std::decay_t<Handler>, const Task &, DoneWith>;
         static constexpr bool is1ArgDynamic
             = std::is_invocable_r_v<bool, std::decay_t<Handler>, const Task &>;
         static constexpr bool is0ArgDynamic
             = std::is_invocable_r_v<bool, std::decay_t<Handler>>;
         static constexpr bool is2ArgVoid
-            = std::is_invocable_r_v<void, std::decay_t<Handler>, const Task &, bool>;
+            = std::is_invocable_r_v<void, std::decay_t<Handler>, const Task &, DoneWith>;
         static constexpr bool is1ArgVoid
             = std::is_invocable_r_v<void, std::decay_t<Handler>, const Task &>;
         static constexpr bool is0ArgVoid
             = std::is_invocable_r_v<void, std::decay_t<Handler>>;
-        static constexpr bool isInvocable = is2ArgDynamic || is1ArgDynamic || is0ArgDynamic
-                                            || is2ArgVoid || is1ArgVoid  || is0ArgVoid;
+        static constexpr bool isInvocable = is2ArgDynamic || is2ArgVoid
+                                         || is1ArgDynamic || is1ArgVoid
+                                         || is0ArgDynamic || is0ArgVoid;
         static_assert(isInvocable,
             "Task done handler needs to take (const Task &, bool) as arguments (optionally) and "
             "has to return void or bool. The passed handler doesn't fulfill these requirements.");
-        return [=](const TaskInterface &taskInterface, bool success) {
+        return [=](const TaskInterface &taskInterface, DoneWith result) {
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
             if constexpr (is2ArgDynamic)
-                return std::invoke(handler, *adapter.task(), success);
+                return std::invoke(handler, *adapter.task(), result);
             if constexpr (is1ArgDynamic)
                 return std::invoke(handler, *adapter.task());
             if constexpr (is0ArgDynamic)
                 return std::invoke(handler);
             if constexpr (is2ArgVoid)
-                std::invoke(handler, *adapter.task(), success);
+                std::invoke(handler, *adapter.task(), result);
             else if constexpr (is1ArgVoid)
                 std::invoke(handler, *adapter.task());
             else if constexpr (is0ArgVoid)
                 std::invoke(handler);
-            return success;
+            return result == DoneWith::Success;
         };
     };
 };

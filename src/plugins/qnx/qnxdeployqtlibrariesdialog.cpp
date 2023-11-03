@@ -124,8 +124,8 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::checkDirTask()
                                            .arg(fullRemoteDirectory()));
         process.setCommand({m_device->filePath("test"), {"-d", fullRemoteDirectory()}});
     };
-    const auto onDone = [this](const Process &process, bool success) {
-        if (!success) {
+    const auto onDone = [this](const Process &process, DoneWith result) {
+        if (result != DoneWith::Success) {
             if (process.result() != ProcessResult::FinishedWithError) {
                 m_deployLogWindow->appendPlainText(Tr::tr("Connection failed: %1")
                                                        .arg(process.errorString()));

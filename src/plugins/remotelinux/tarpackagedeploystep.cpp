@@ -74,8 +74,8 @@ GroupItem TarPackageDeployStep::uploadTask()
         connect(&transfer, &FileTransfer::progress, this, &TarPackageDeployStep::addProgressMessage);
         addProgressMessage(Tr::tr("Uploading package to device..."));
     };
-    const auto onDone = [this](const FileTransfer &transfer, bool success) {
-        if (success)
+    const auto onDone = [this](const FileTransfer &transfer, DoneWith result) {
+        if (result == DoneWith::Success)
             addProgressMessage(Tr::tr("Successfully uploaded package file."));
         else
             addErrorMessage(transfer.resultData().m_errorString);
@@ -98,8 +98,8 @@ GroupItem TarPackageDeployStep::installTask()
         });
         addProgressMessage(Tr::tr("Installing package to device..."));
     };
-    const auto onDone = [this](const Process &process, bool success) {
-        if (success) {
+    const auto onDone = [this](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
             saveDeploymentTimeStamp(DeployableFile(m_packageFilePath, {}), {});
             addProgressMessage(Tr::tr("Successfully installed package file."));
             return;

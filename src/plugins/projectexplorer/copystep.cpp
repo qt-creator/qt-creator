@@ -52,8 +52,8 @@ private:
             streamer.setDestination(m_target);
             return SetupResult::Continue;
         };
-        const auto onDone = [this](const FileStreamer &, bool success) {
-            if (success)
+        const auto onDone = [this](const FileStreamer &, DoneWith result) {
+            if (result == DoneWith::Success)
                 addOutput(Tr::tr("Copying finished."), OutputFormat::NormalMessage);
             else
                 addOutput(Tr::tr("Copying failed."), OutputFormat::ErrorMessage);

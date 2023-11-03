@@ -96,8 +96,8 @@ GroupItem GenericLinuxDeviceTesterPrivate::echoTask(const QString &contents) con
         emit q->progressMessage(Tr::tr("Sending echo to device..."));
         process.setCommand({m_device->filePath("echo"), {contents}});
     };
-    const auto onDone = [this, contents](const Process &process, bool success) {
-        if (!success) {
+    const auto onDone = [this, contents](const Process &process, DoneWith result) {
+        if (result != DoneWith::Success) {
             const QString stdErrOutput = process.cleanedStdErr();
             if (!stdErrOutput.isEmpty())
                 emit q->errorMessage(Tr::tr("echo failed: %1").arg(stdErrOutput) + '\n');
@@ -123,8 +123,8 @@ GroupItem GenericLinuxDeviceTesterPrivate::unameTask() const
         emit q->progressMessage(Tr::tr("Checking kernel version..."));
         process.setCommand({m_device->filePath("uname"), {"-rsm"}});
     };
-    const auto onDone = [this](const Process &process, bool success) {
-        if (success) {
+    const auto onDone = [this](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
             emit q->progressMessage(process.cleanedStdOut());
             return;
         }
@@ -146,8 +146,8 @@ GroupItem GenericLinuxDeviceTesterPrivate::gathererTask() const
         emit q->progressMessage(Tr::tr("Checking if specified ports are available..."));
         gatherer.setDevice(m_device);
     };
-    const auto onDone = [this](const DeviceUsedPortsGatherer &gatherer, bool success) {
-        if (!success) {
+    const auto onDone = [this](const DeviceUsedPortsGatherer &gatherer, DoneWith result) {
+        if (result != DoneWith::Success) {
             emit q->errorMessage(Tr::tr("Error gathering ports: %1").arg(gatherer.errorString()) + '\n'
                                  + Tr::tr("Some tools will not work out of the box.\n"));
         } else if (gatherer.usedPorts().isEmpty()) {
@@ -176,9 +176,9 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
         transfer.setTransferMethod(method);
         transfer.setTestDevice(m_device);
     };
-    const auto onDone = [this, method, storage](const FileTransfer &transfer, bool success) {
+    const auto onDone = [this, method, storage](const FileTransfer &transfer, DoneWith result) {
         const QString methodName = FileTransfer::transferMethodName(method);
-        if (success) {
+        if (result == DoneWith::Success) {
             emit q->progressMessage(Tr::tr("\"%1\" is functional.\n").arg(methodName));
             if (method == FileTransferMethod::Rsync)
                 m_device->setExtraData(Constants::SUPPORTS_RSYNC, true);
@@ -247,8 +247,8 @@ GroupItem GenericLinuxDeviceTesterPrivate::commandTask(const QString &commandNam
         command.addArgs(QLatin1String("\"command -v %1\"").arg(commandName), CommandLine::Raw);
         process.setCommand(command);
     };
-    const auto onDone = [this, commandName](const Process &process, bool success) {
-        if (success) {
+    const auto onDone = [this, commandName](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
             emit q->progressMessage(Tr::tr("%1 found.").arg(commandName));
             return;
         }

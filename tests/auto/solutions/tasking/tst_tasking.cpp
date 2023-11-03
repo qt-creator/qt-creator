@@ -77,12 +77,12 @@ void tst_Tasking::validConstructs()
 {
     const Group task {
         parallel,
-        TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
+        TestTask([](TaskObject &) {}, [](const TaskObject &, DoneWith) {}),
         TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
         TestTask([](TaskObject &) {}, [] {}),
         TestTask([](TaskObject &) {}, {}),
         TestTask([](TaskObject &) {}),
-        TestTask({}, [](const TaskObject &, bool) {}),
+        TestTask({}, [](const TaskObject &, DoneWith) {}),
         TestTask({}, [](const TaskObject &) {}),
         TestTask({}, [] {}),
         TestTask({}, {}),
@@ -97,7 +97,7 @@ void tst_Tasking::validConstructs()
         parallel,
         Group {
             parallel,
-            TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
+            TestTask([](TaskObject &) {}, [](const TaskObject &, DoneWith) {}),
             Group {
                 parallel,
                 TestTask([](TaskObject &) {}, [](const TaskObject &) {}),
@@ -108,7 +108,7 @@ void tst_Tasking::validConstructs()
             },
             Group {
                 parallel,
-                TestTask([](TaskObject &) {}, [](const TaskObject &, bool) {}),
+                TestTask([](TaskObject &) {}, [](const TaskObject &, DoneWith) {}),
                 onGroupDone([] {})
             }
         },
@@ -120,7 +120,7 @@ void tst_Tasking::validConstructs()
     const auto setupHandler = [](TaskObject &) {};
     const auto finishHandler = [](const TaskObject &) {};
     const auto errorHandler = [](const TaskObject &) {};
-    const auto doneHandler = [](const TaskObject &, bool) {};
+    const auto doneHandler = [](const TaskObject &, DoneWith) {};
 
     const Group task2 {
         parallel,
@@ -230,10 +230,11 @@ void tst_Tasking::testTree_data()
         };
     };
 
-    const auto setupDone = [storage](int taskId, bool successTask = true) {
-        return [storage, taskId, successTask](const TaskObject &, bool success) {
-            storage->m_log.append({taskId, successTask && success ? Handler::Done : Handler::Error});
-            return successTask && success;
+    const auto setupDone = [storage](int taskId, bool success = true) {
+        return [storage, taskId, success](const TaskObject &, DoneWith result) {
+            const bool done = success && result != DoneWith::Cancel;
+            storage->m_log.append({taskId, done ? Handler::Done : Handler::Error});
+            return done;
         };
     };
 

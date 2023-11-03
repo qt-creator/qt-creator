@@ -130,11 +130,11 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
 #endif
         });
     };
-    const auto onQueryDone = [this, storage](const NetworkQuery &query, bool success) {
+    const auto onQueryDone = [this, storage](const NetworkQuery &query, DoneWith result) {
         QNetworkReply *reply = query.reply();
         QTC_ASSERT(reply, return);
         const QUrl url = reply->url();
-        if (!success) {
+        if (result != DoneWith::Success) {
             logError(Tr::tr("Downloading Android SDK Tools from URL %1 has failed: %2.")
                          .arg(url.toString(), reply->errorString()));
             return;
@@ -171,8 +171,8 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         unarchiver.setDestDir(sdkFileName.parentDir());
         return SetupResult::Continue;
     };
-    const auto onUnarchiverDone = [this, storage](const Unarchiver &, bool success) {
-        if (!success) {
+    const auto onUnarchiverDone = [this, storage](const Unarchiver &, DoneWith result) {
+        if (result != DoneWith::Success) {
             logError(Tr::tr("Unarchiving error."));
             return;
         }

@@ -423,10 +423,10 @@ ShowController::ShowController(IDocument *document, const QString &id)
         setupCommand(process, {"branch", noColorOption, "-a", "--contains", storage->m_commit});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
-    const auto onBranchesDone = [storage, updateDescription](const Process &process, bool success) {
+    const auto onBranchesDone = [storage, updateDescription](const Process &process, DoneWith result) {
         ReloadStorage *data = storage.activeStorage();
         data->m_branches.clear();
-        if (success) {
+        if (result == DoneWith::Success) {
             const QString remotePrefix = "remotes/";
             const QString localPrefix = "<Local>";
             const int prefixLength = remotePrefix.length();
@@ -469,10 +469,10 @@ ShowController::ShowController(IDocument *document, const QString &id)
         storage->m_precedes = busyMessage;
         setupCommand(process, {"describe", "--contains", storage->m_commit});
     };
-    const auto onPrecedesDone = [storage, updateDescription](const Process &process, bool success) {
+    const auto onPrecedesDone = [storage, updateDescription](const Process &process, DoneWith result) {
         ReloadStorage *data = storage.activeStorage();
         data->m_precedes.clear();
-        if (success) {
+        if (result == DoneWith::Success) {
             data->m_precedes = process.cleanedStdOut().trimmed();
             const int tilde = data->m_precedes.indexOf('~');
             if (tilde != -1)

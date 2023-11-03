@@ -54,8 +54,8 @@ GroupItem QdbStopApplicationStep::deployRecipe()
         });
         return SetupResult::Continue;
     };
-    const auto onDone = [this](const Process &process, bool success) {
-        if (success) {
+    const auto onDone = [this](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
             addProgressMessage(Tr::tr("Stopped the running application."));
             return;
         }

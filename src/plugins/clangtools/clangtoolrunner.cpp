@@ -163,12 +163,12 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
     };
-    const auto onProcessDone = [=](const Process &process, bool success) {
+    const auto onProcessDone = [=](const Process &process, DoneWith result) {
         qCDebug(LOG).noquote() << "Output:\n" << process.cleanedStdOut();
 
         if (!outputHandler)
             return;
-        if (success) {
+        if (result == DoneWith::Success) {
             const QString stdErr = process.cleanedStdErr();
             if (stdErr.isEmpty())
                 return;
@@ -198,17 +198,17 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
                                    input.diagnosticsFilter);
         data.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
     };
-    const auto onReadDone = [=](const Async<expected_str<Diagnostics>> &data, bool success) {
+    const auto onReadDone = [=](const Async<expected_str<Diagnostics>> &data, DoneWith result) {
         if (!outputHandler)
             return;
-        const expected_str<Diagnostics> result = data.result();
-        const bool ok = success && result.has_value();
+        const expected_str<Diagnostics> diagnosticsResult = data.result();
+        const bool ok = result == DoneWith::Success && diagnosticsResult.has_value();
         Diagnostics diagnostics;
         QString error;
         if (ok)
-            diagnostics = *result;
+            diagnostics = *diagnosticsResult;
         else
-            error = result.error();
+            error = diagnosticsResult.error();
         outputHandler({ok,
                        input.unit.file,
                        storage->outputFilePath,

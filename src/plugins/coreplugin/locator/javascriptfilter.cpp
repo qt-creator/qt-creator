@@ -394,8 +394,8 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
         request.setEngine(engine);
         request.setEvaluateData(storage->input());
     };
-    const auto onJavaScriptDone = [storage](const JavaScriptRequest &request, bool success) {
-        if (!success) {
+    const auto onJavaScriptDone = [storage](const JavaScriptRequest &request, DoneWith result) {
+        if (result != DoneWith::Success) {
             LocatorFilterEntry entry;
             entry.displayName = request.output().m_output;
             storage->reportOutput({entry});
@@ -408,15 +408,15 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
             };
         };
         const QString input = storage->input();
-        const QString result = request.output().m_output;
-        const QString expression = input + " = " + result;
+        const QString output = request.output().m_output;
+        const QString expression = input + " = " + output;
 
         LocatorFilterEntry entry;
         entry.displayName = expression;
 
         LocatorFilterEntry copyResultEntry;
-        copyResultEntry.displayName = Tr::tr("Copy to clipboard: %1").arg(result);
-        copyResultEntry.acceptor = acceptor(result);
+        copyResultEntry.displayName = Tr::tr("Copy to clipboard: %1").arg(output);
+        copyResultEntry.acceptor = acceptor(output);
 
         LocatorFilterEntry copyExpressionEntry;
         copyExpressionEntry.displayName = Tr::tr("Copy to clipboard: %1").arg(expression);

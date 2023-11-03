@@ -65,8 +65,8 @@ GroupItem CustomCommandDeployStep::deployRecipe()
             handleStdErrData(proc->readAllStandardError());
         });
     };
-    const auto onDone = [this](const Process &process, bool success) {
-        if (success) {
+    const auto onDone = [this](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
             addProgressMessage(Tr::tr("Remote command finished successfully."));
         } else if (process.error() != QProcess::UnknownError
                 || process.exitStatus() != QProcess::NormalExit) {

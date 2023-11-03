@@ -1088,7 +1088,7 @@ public:
     // in order to unwind properly.
     SetupResult start();
     void stop();
-    bool invokeDoneHandler(bool success);
+    bool invokeDoneHandler(DoneWith result);
     bool isRunning() const { return m_task || m_container.isRunning(); }
     bool isTask() const { return bool(m_taskHandler.m_createHandler); }
     int taskCount() const { return isTask() ? 1 : m_container.m_constData.m_taskCount; }
@@ -1450,7 +1450,7 @@ SetupResult TaskNode::start()
     const std::shared_ptr<SetupResult> unwindAction
         = std::make_shared<SetupResult>(SetupResult::Continue);
     QObject::connect(m_task.get(), &TaskInterface::done, taskTree(), [=](bool success) {
-        const bool result = invokeDoneHandler(success);
+        const bool result = invokeDoneHandler(success ? DoneWith::Success : DoneWith::Error);
         QObject::disconnect(m_task.get(), &TaskInterface::done, taskTree(), nullptr);
         m_task.release()->deleteLater();
         QTC_ASSERT(parentContainer() && parentContainer()->isRunning(), return);
@@ -1478,24 +1478,24 @@ void TaskNode::stop()
 
     // TODO: cancelHandler?
     // TODO: call TaskInterface::stop() ?
-    invokeDoneHandler(false);
+    invokeDoneHandler(DoneWith::Cancel);
     m_task.reset();
 }
 
-static bool shouldCall(CallDoneIf callDoneIf, bool success)
+static bool shouldCall(CallDoneIf callDoneIf, DoneWith result)
 {
-    if (success)
+    if (result == DoneWith::Success)
         return callDoneIf != CallDoneIf::Error;
     return callDoneIf != CallDoneIf::Success;
 }
 
-bool TaskNode::invokeDoneHandler(bool success)
+bool TaskNode::invokeDoneHandler(DoneWith result)
 {
-    bool result = success;
-    if (m_taskHandler.m_doneHandler && shouldCall(m_taskHandler.m_callDoneIf, success))
-        result = invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get(), success);
+    bool success = result == DoneWith::Success;
+    if (m_taskHandler.m_doneHandler && shouldCall(m_taskHandler.m_callDoneIf, result))
+        success = invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get(), result);
     m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
-    return result;
+    return success;
 }
 
 /*!
