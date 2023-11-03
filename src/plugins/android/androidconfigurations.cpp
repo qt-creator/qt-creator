@@ -505,6 +505,9 @@ FilePath AndroidConfig::toolchainPathFromNdk(const FilePath &ndkLocation, OsType
         toolchainPath = tcPath / llvmIter.fileName() / "prebuilt/";
     }
 
+    if (toolchainPath.isEmpty())
+        return {};
+
     // detect toolchain host
     QStringList hostPatterns;
     switch (hostOs) {
