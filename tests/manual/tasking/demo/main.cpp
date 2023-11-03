@@ -8,6 +8,7 @@
 #include <QApplication>
 #include <QBoxLayout>
 #include <QGroupBox>
+#include <QLabel>
 #include <QProgressBar>
 #include <QScrollArea>
 #include <QTimer>
@@ -44,7 +45,12 @@ static QWidget *taskGroup(QWidget *groupWidget, const QList<QWidget *> &widgets)
 
 static State resultToState(DoneWith result)
 {
-    return result == DoneWith::Success ? State::Done : State::Error;
+    switch (result) {
+    case DoneWith::Success : return State::Success;
+    case DoneWith::Error : return State::Error;
+    case DoneWith::Cancel : return State::Canceled;
+    }
+    return State::Initial;
 }
 
 int main(int argc, char *argv[])
@@ -69,16 +75,17 @@ int main(int argc, char *argv[])
 
     // Task GUI
 
-    QList<StateWidget *> allStateWidgets;
+    QList<GroupWidget *> allGroupWidgets;
+    QList<TaskWidget *> allTaskWidgets;
 
-    auto createGroupWidget = [&allStateWidgets] {
-        auto *widget = new GroupWidget();
-        allStateWidgets.append(widget);
+    auto createGroupWidget = [&allGroupWidgets] {
+        auto *widget = new GroupWidget;
+        allGroupWidgets.append(widget);
         return widget;
     };
-    auto createTaskWidget = [&allStateWidgets] {
-        auto *widget = new TaskWidget();
-        allStateWidgets.append(widget);
+    auto createTaskWidget = [&allTaskWidgets] {
+        auto *widget = new TaskWidget;
+        allTaskWidgets.append(widget);
         return widget;
     };
 
@@ -162,6 +169,14 @@ int main(int argc, char *argv[])
         mainLayout->addLayout(subLayout);
         mainLayout->addWidget(hr());
         mainLayout->addWidget(scrollArea);
+        mainLayout->addWidget(hr());
+        QBoxLayout *footerLayout = new QHBoxLayout;
+        footerLayout->addWidget(new StateLabel(State::Initial));
+        footerLayout->addWidget(new StateLabel(State::Running));
+        footerLayout->addWidget(new StateLabel(State::Success));
+        footerLayout->addWidget(new StateLabel(State::Error));
+        footerLayout->addWidget(new StateLabel(State::Canceled));
+        mainLayout->addLayout(footerLayout);
     }
 
     // Task tree (takes initial configuation from GUI)
@@ -250,7 +265,9 @@ int main(int argc, char *argv[])
 
         stopTaskTree();
         taskTree.reset();
-        for (StateWidget *widget : allStateWidgets)
+        for (GroupWidget *widget : allGroupWidgets)
+            widget->setState(State::Initial);
+        for (TaskWidget *widget : allTaskWidgets)
             widget->setState(State::Initial);
         progressBar->setValue(0);
     };

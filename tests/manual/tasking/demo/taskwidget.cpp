@@ -26,8 +26,9 @@ static QColor stateToColor(State state) {
     switch (state) {
     case State::Initial: return Qt::gray;
     case State::Running: return Qt::yellow;
-    case State::Done: return Qt::green;
+    case State::Success: return Qt::green;
     case State::Error: return Qt::red;
+    case State::Canceled: return Qt::cyan;
     }
     return {};
 }
@@ -35,9 +36,14 @@ static QColor stateToColor(State state) {
 class StateIndicator : public QLabel
 {
 public:
-    StateIndicator(QWidget *parent = nullptr)
+    StateIndicator(State initialState = State::Initial, QWidget *parent = nullptr)
         : QLabel(parent)
+        , m_state(initialState)
     {
+        setAlignment(Qt::AlignCenter);
+        QFont f = font();
+        f.setBold(true);
+        setFont(f);
         m_progressIndicator = new ProgressIndicator(this);
         m_progressIndicator->hide();
         updateState();
@@ -59,13 +65,20 @@ private:
             m_progressIndicator->show();
         else
             m_progressIndicator->hide();
+        setText(m_state == State::Canceled ? "X" : "");
     }
     State m_state = State::Initial;
     ProgressIndicator *m_progressIndicator = nullptr;
 };
 
-StateWidget::StateWidget()
-    : m_stateIndicator(new StateIndicator(this)) {}
+StateWidget::StateWidget(State initialState)
+    : m_stateIndicator(new StateIndicator(initialState, this))
+{
+    QBoxLayout *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(m_stateIndicator);
+    setFixedSize(30, 30);
+}
 
 void StateWidget::setState(State state)
 {
@@ -73,17 +86,17 @@ void StateWidget::setState(State state)
 }
 
 TaskWidget::TaskWidget()
-    : m_infoLabel(new QLabel("Sleep:"))
+    : m_stateWidget(new StateWidget)
+    , m_infoLabel(new QLabel("Sleep:"))
     , m_spinBox(new QSpinBox)
     , m_checkBox(new QCheckBox("Report success"))
 {
-    m_stateIndicator->setFixedSize(30, 30);
     m_spinBox->setSuffix(" sec");
     setBusyTime(1);
     setSuccess(true);
 
     QBoxLayout *layout = new QHBoxLayout(this);
-    layout->addWidget(m_stateIndicator);
+    layout->addWidget(m_stateWidget);
     layout->addWidget(m_infoLabel);
     layout->addWidget(m_spinBox);
     layout->addWidget(m_checkBox);
@@ -112,10 +125,11 @@ bool TaskWidget::isSuccess() const
 }
 
 GroupWidget::GroupWidget()
-    : m_executeCombo(new QComboBox)
+    : m_stateWidget(new StateWidget)
+    , m_executeCombo(new QComboBox)
     , m_workflowCombo(new QComboBox)
 {
-    m_stateIndicator->setFixedWidth(30);
+    m_stateWidget->setFixedSize(30, QWIDGETSIZE_MAX);
 
     m_executeCombo->addItem("Sequential", int(ExecuteMode::Sequential));
     m_executeCombo->addItem("Parallel", int(ExecuteMode::Parallel));
@@ -134,7 +148,7 @@ GroupWidget::GroupWidget()
     });
 
     QBoxLayout *layout = new QHBoxLayout(this);
-    layout->addWidget(m_stateIndicator);
+    layout->addWidget(m_stateWidget);
     QBoxLayout *subLayout = new QVBoxLayout;
     subLayout->addWidget(new QLabel("Execute Mode:"));
     subLayout->addWidget(m_executeCombo);
@@ -177,4 +191,23 @@ void GroupWidget::updateWorkflowPolicy()
 GroupItem GroupWidget::workflowPolicy() const
 {
     return Tasking::workflowPolicy(m_workflowPolicy);
+}
+
+static QString stateToString(State state)
+{
+    switch (state) {
+    case State::Initial : return "Initial";
+    case State::Running : return "Running";
+    case State::Success : return "Success";
+    case State::Error : return "Error";
+    case State::Canceled : return "Canceled";
+    }
+    return "";
+}
+
+StateLabel::StateLabel(State state)
+{
+    QBoxLayout *layout = new QHBoxLayout(this);
+    layout->addWidget(new StateWidget(state));
+    layout->addWidget(new QLabel(stateToString(state)));
 }

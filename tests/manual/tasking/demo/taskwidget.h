@@ -20,9 +20,9 @@ QT_END_NAMESPACE
 enum class State {
     Initial,
     Running,
-    Done, // TODO: Rename to Success
+    Success,
     Error,
-    // TODO: Add Canceled state
+    Canceled
 };
 
 enum class ExecuteMode {
@@ -33,18 +33,19 @@ enum class ExecuteMode {
 class StateWidget : public QWidget
 {
 public:
-    StateWidget();
-
+    StateWidget(State initialState = State::Initial);
     void setState(State state);
 
 protected:
     StateIndicator *m_stateIndicator = nullptr;
 };
 
-class TaskWidget : public StateWidget
+class TaskWidget : public QWidget
 {
 public:
     TaskWidget();
+
+    void setState(State state) { m_stateWidget->setState(state); }
 
     void setBusyTime(int seconds);
     int busyTime() const;
@@ -52,15 +53,18 @@ public:
     bool isSuccess() const;
 
 private:
+    StateWidget *m_stateWidget = nullptr;
     QLabel *m_infoLabel = nullptr;
     QSpinBox *m_spinBox = nullptr;
     QCheckBox *m_checkBox = nullptr;
 };
 
-class GroupWidget : public StateWidget
+class GroupWidget : public QWidget
 {
 public:
     GroupWidget();
+
+    void setState(State state) { m_stateWidget->setState(state); }
 
     void setExecuteMode(ExecuteMode mode);
     Tasking::GroupItem executeMode() const;
@@ -72,11 +76,18 @@ private:
     void updateExecuteMode();
     void updateWorkflowPolicy();
 
+    StateWidget *m_stateWidget = nullptr;
     QComboBox *m_executeCombo = nullptr;
     QComboBox *m_workflowCombo = nullptr;
 
     ExecuteMode m_executeMode = ExecuteMode::Sequential;
     Tasking::WorkflowPolicy m_workflowPolicy = Tasking::WorkflowPolicy::StopOnError;
+};
+
+class StateLabel : public QWidget
+{
+public:
+    StateLabel(State state);
 };
 
 #endif // TASKWIDGET_H
