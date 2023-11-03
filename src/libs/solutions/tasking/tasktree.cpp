@@ -902,10 +902,17 @@ void TreeStorageBase::activateStorage(int id) const
 
 void GroupItem::addChildren(const QList<GroupItem> &children)
 {
-    QTC_ASSERT(m_type == Type::Group, qWarning("Only Group may have children, skipping...");
-               return);
+    QTC_ASSERT(m_type == Type::Group || m_type == Type::List,
+               qWarning("Only Group or List may have children, skipping..."); return);
+    if (m_type == Type::List) {
+        m_children.append(children);
+        return;
+    }
     for (const GroupItem &child : children) {
         switch (child.m_type) {
+        case Type::List:
+            addChildren(child.m_children);
+            break;
         case Type::Group:
             m_children.append(child);
             break;

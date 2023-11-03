@@ -188,6 +188,7 @@ public:
 
 protected:
     enum class Type {
+        List,
         Group,
         GroupData,
         Storage,
@@ -195,6 +196,7 @@ protected:
     };
 
     GroupItem() = default;
+    GroupItem(Type type) : m_type(type) { }
     GroupItem(const GroupData &data)
         : m_type(Type::GroupData)
         , m_groupData(data) {}
@@ -218,6 +220,14 @@ private:
     GroupData m_groupData;
     QList<TreeStorageBase> m_storageList;
     TaskHandler m_taskHandler;
+};
+
+// TODO: Add tests.
+class TASKING_EXPORT List final : public GroupItem
+{
+public:
+    List(const QList<GroupItem> &children) : GroupItem(Type::List) { addChildren(children); }
+    List(std::initializer_list<GroupItem> children) : GroupItem(Type::List) { addChildren(children); }
 };
 
 class TASKING_EXPORT Group final : public GroupItem

@@ -183,6 +183,15 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<TaskTree> taskTree;
 
+    const auto createGroup = [](GroupWidget *widget) {
+        return List {
+            widget->executeMode(),
+            widget->workflowPolicy(),
+            onGroupSetup([widget] { widget->setState(State::Running); }),
+            onGroupDone([widget](DoneWith result) { widget->setState(resultToState(result)); }),
+        };
+    };
+
     const auto createTask = [](TaskWidget *widget) {
         const milliseconds timeout{widget->busyTime() * 1000};
         const auto setupTask = [widget, timeout](milliseconds &taskObject) {
@@ -199,17 +208,9 @@ int main(int argc, char *argv[])
 
     const auto recipe = [&] {
         const Group root {
-            rootGroup->executeMode(),
-            rootGroup->workflowPolicy(),
-            onGroupSetup([rootGroup] { rootGroup->setState(State::Running); }),
-            onGroupDone([rootGroup](DoneWith result) { rootGroup->setState(resultToState(result)); }),
-
+            createGroup(rootGroup),
             Group {
-                groupTask_1->executeMode(),
-                groupTask_1->workflowPolicy(),
-                onGroupSetup([groupTask_1] { groupTask_1->setState(State::Running); }),
-                onGroupDone([groupTask_1](DoneWith result) { groupTask_1->setState(resultToState(result)); }),
-
+                createGroup(groupTask_1),
                 createTask(task_1_1),
                 createTask(task_1_2),
                 createTask(task_1_3)
@@ -217,19 +218,11 @@ int main(int argc, char *argv[])
             createTask(task_2),
             createTask(task_3),
             Group {
-                groupTask_4->executeMode(),
-                groupTask_4->workflowPolicy(),
-                onGroupSetup([groupTask_4] { groupTask_4->setState(State::Running); }),
-                onGroupDone([groupTask_4](DoneWith result) { groupTask_4->setState(resultToState(result)); }),
-
+                createGroup(groupTask_4),
                 createTask(task_4_1),
                 createTask(task_4_2),
                 Group {
-                    groupTask_4_3->executeMode(),
-                    groupTask_4_3->workflowPolicy(),
-                    onGroupSetup([groupTask_4_3] { groupTask_4_3->setState(State::Running); }),
-                    onGroupDone([groupTask_4_3](DoneWith result) { groupTask_4_3->setState(resultToState(result)); }),
-
+                    createGroup(groupTask_4_3),
                     createTask(task_4_3_1),
                     createTask(task_4_3_2),
                     createTask(task_4_3_3),
