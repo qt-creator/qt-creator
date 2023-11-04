@@ -1078,7 +1078,7 @@ class TaskNode
 public:
     TaskNode(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
              TaskContainer *parentContainer)
-        : m_taskHandler(task.taskHandler())
+        : m_taskHandler(task.m_taskHandler)
         , m_container(taskTreePrivate, task, this, parentContainer)
     {}
 
@@ -1202,10 +1202,9 @@ ReturnType invokeHandler(TaskContainer *container, Handler &&handler, Args &&...
 }
 
 static QList<TaskNode *> createChildren(TaskTreePrivate *taskTreePrivate, TaskContainer *container,
-                                        const GroupItem &task)
+                                        const QList<GroupItem> &children)
 {
     QList<TaskNode *> result;
-    const QList<GroupItem> &children = task.children();
     for (const GroupItem &child : children)
         result.append(new TaskNode(taskTreePrivate, child, container));
     return result;
@@ -1217,11 +1216,11 @@ TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const Grou
     : m_taskTreePrivate(taskTreePrivate)
     , m_parentNode(parentNode)
     , m_parentContainer(parentContainer)
-    , m_parallelLimit(task.groupData().m_parallelLimit.value_or(1))
-    , m_workflowPolicy(task.groupData().m_workflowPolicy.value_or(WorkflowPolicy::StopOnError))
-    , m_groupHandler(task.groupData().m_groupHandler)
-    , m_storageList(taskTreePrivate->addStorages(task.storageList()))
-    , m_children(createChildren(taskTreePrivate, thisContainer, task))
+    , m_parallelLimit(task.m_groupData.m_parallelLimit.value_or(1))
+    , m_workflowPolicy(task.m_groupData.m_workflowPolicy.value_or(WorkflowPolicy::StopOnError))
+    , m_groupHandler(task.m_groupData.m_groupHandler)
+    , m_storageList(taskTreePrivate->addStorages(task.m_storageList))
+    , m_children(createChildren(taskTreePrivate, thisContainer, task.m_children))
     , m_taskCount(std::accumulate(m_children.cbegin(), m_children.cend(), 0,
                                   [](int r, TaskNode *n) { return r + n->taskCount(); }))
 {}

@@ -181,11 +181,6 @@ public:
         std::optional<WorkflowPolicy> m_workflowPolicy = {};
     };
 
-    QList<GroupItem> children() const { return m_children; }
-    GroupData groupData() const { return m_groupData; }
-    QList<TreeStorageBase> storageList() const { return m_storageList; }
-    TaskHandler taskHandler() const { return m_taskHandler; }
-
 protected:
     enum class Type {
         List,
@@ -226,6 +221,8 @@ protected:
     }
 
 private:
+    friend class TaskContainer;
+    friend class TaskNode;
     Type m_type = Type::Group;
     QList<GroupItem> m_children;
     GroupData m_groupData;
