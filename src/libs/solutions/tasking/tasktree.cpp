@@ -865,6 +865,11 @@ void *TreeStorageBase::activeStorageVoid() const
     return it.value();
 }
 
+int TreeStorageBase::activeStorageId() const
+{
+    return m_storageData->m_activeStorage;
+}
+
 int TreeStorageBase::createStorage() const
 {
     QTC_ASSERT(m_storageData->m_constructor, return 0); // TODO: add isValid()?
@@ -895,6 +900,7 @@ void TreeStorageBase::activateStorage(int id) const
         return;
     }
     QTC_ASSERT(m_storageData->m_activeStorage == 0, return);
+    // TODO: Unneeded check? OTOH, it's quite important...
     const auto it = m_storageData->m_storageHash.find(id);
     QTC_ASSERT(it != m_storageData->m_storageHash.end(), return);
     m_storageData->m_activeStorage = id;
@@ -946,7 +952,15 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
             m_children.append(child);
             break;
         case Type::Storage:
-            m_storageList.append(child.m_storageList);
+            // Check for duplicates, as can't have the same storage twice on the same level.
+            for (const TreeStorageBase &storage : child.m_storageList) {
+                if (m_storageList.contains(storage)) {
+                    QTC_ASSERT(false, qWarning("Can't add the same storage into one Group twice, "
+                                               "skipping..."));
+                    continue;
+                }
+                m_storageList.append(storage);
+            }
             break;
         }
     }
@@ -985,7 +999,6 @@ public:
     void emitStartedAndProgress();
     void emitProgress();
     void emitDone(DoneWith result);
-    QList<TreeStorageBase> addStorages(const QList<TreeStorageBase> &storages);
     void callSetupHandler(TreeStorageBase storage, int storageId) {
         callStorageHandler(storage, storageId, &StorageHandler::m_setupHandler);
     }
@@ -1151,45 +1164,33 @@ void TaskTreePrivate::emitDone(DoneWith result)
     emit q->done(result);
 }
 
-QList<TreeStorageBase> TaskTreePrivate::addStorages(const QList<TreeStorageBase> &storages)
-{
-    QList<TreeStorageBase> addedStorages;
-    for (const TreeStorageBase &storage : storages) {
-        QTC_ASSERT(!m_storages.contains(storage), qWarning("Can't add the same storage into "
-                                                           "one TaskTree twice, skipping..."); continue);
-        addedStorages << storage;
-        m_storages << storage;
-    }
-    return addedStorages;
-}
-
 class ExecutionContextActivator
 {
 public:
-    ExecutionContextActivator(TaskContainer *container)
-        : m_container(container) { activateContext(m_container); }
-    ~ExecutionContextActivator() { deactivateContext(m_container); }
+    ExecutionContextActivator(TaskContainer *container) { activateContext(container); }
+    ~ExecutionContextActivator() {
+        for (int i = m_activeStorages.size() - 1; i >= 0; --i) // iterate in reverse order
+            m_activeStorages[i].activateStorage(0);
+    }
 
 private:
-    static void activateContext(TaskContainer *container)
+    void activateContext(TaskContainer *container)
     {
         QTC_ASSERT(container && container->isRunning(), return);
         const TaskContainer::ConstData &constData = container->m_constData;
+        for (int i = 0; i < constData.m_storageList.size(); ++i) {
+            const TreeStorageBase &storage = constData.m_storageList[i];
+            if (storage.activeStorageId())
+                continue; // Storage shadowing: The storage is already active, skipping it...
+            m_activeStorages.append(storage);
+            storage.activateStorage(container->m_runtimeData->m_storageIdList.value(i));
+        }
+        // Go to the parent after activating this storages so that storage shadowing works
+        // in the direction from child to parent root.
         if (constData.m_parentContainer)
             activateContext(constData.m_parentContainer);
-        for (int i = 0; i < constData.m_storageList.size(); ++i)
-            constData.m_storageList[i].activateStorage(container->m_runtimeData->m_storageIdList.value(i));
     }
-    static void deactivateContext(TaskContainer *container)
-    {
-        QTC_ASSERT(container && container->isRunning(), return);
-        const TaskContainer::ConstData &constData = container->m_constData;
-        for (int i = constData.m_storageList.size() - 1; i >= 0; --i) // iterate in reverse order
-            constData.m_storageList[i].activateStorage(0);
-        if (constData.m_parentContainer)
-            deactivateContext(constData.m_parentContainer);
-    }
-    TaskContainer *m_container = nullptr;
+    QList<TreeStorageBase> m_activeStorages;
 };
 
 template <typename Handler, typename ...Args,
@@ -1219,11 +1220,14 @@ TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const Grou
     , m_parallelLimit(task.m_groupData.m_parallelLimit.value_or(1))
     , m_workflowPolicy(task.m_groupData.m_workflowPolicy.value_or(WorkflowPolicy::StopOnError))
     , m_groupHandler(task.m_groupData.m_groupHandler)
-    , m_storageList(taskTreePrivate->addStorages(task.m_storageList))
+    , m_storageList(task.m_storageList)
     , m_children(createChildren(taskTreePrivate, thisContainer, task.m_children))
     , m_taskCount(std::accumulate(m_children.cbegin(), m_children.cend(), 0,
                                   [](int r, TaskNode *n) { return r + n->taskCount(); }))
-{}
+{
+    for (const TreeStorageBase &storage : m_storageList)
+        m_taskTreePrivate->m_storages << storage;
+}
 
 QList<int> TaskContainer::RuntimeData::createStorages(const TaskContainer::ConstData &constData)
 {
@@ -2170,6 +2174,7 @@ void TaskTree::setRecipe(const Group &recipe)
     QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
     QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The setRecipe() is called from one of the"
                                                 "TaskTree handlers, ignoring..."); return);
+    // TODO: Should we clear the m_storageHandlers, too?
     d->m_storages.clear();
     d->m_root.reset(new TaskNode(d, recipe, nullptr));
 }

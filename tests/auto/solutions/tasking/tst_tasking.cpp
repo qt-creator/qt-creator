@@ -4,6 +4,7 @@
 #include <tasking/barrier.h>
 
 #include <QtTest>
+#include <QHash>
 
 using namespace Tasking;
 
@@ -39,7 +40,8 @@ enum class Handler {
     TweakDoneToError,
     Sync,
     BarrierAdvance,
-    Timeout
+    Timeout,
+    Storage
 };
 Q_ENUM_NS(Handler);
 
@@ -2424,6 +2426,81 @@ void tst_Tasking::testTree_data()
         };
         QTest::newRow("GroupDoneWithTimeoutHandler") << TestData{storage, root4, doneLog, 2,
                                                                  OnDone::Success};
+    }
+
+    {
+        // This test check if storage shadowing works OK.
+
+        // This helper storage collect the pointers to storages created by shadowedStorage.
+        const TreeStorage<QHash<int, int *>> helperStorage; // One instance in this test.
+        // This storage is repeated in nested groups, the innermost storage will shadow outer ones.
+        const TreeStorage<int> shadowedStorage; // Three instances in this test.
+
+        const auto groupSetupWithStorage = [storage, helperStorage, shadowedStorage](int taskId) {
+            return onGroupSetup([storage, helperStorage, shadowedStorage, taskId] {
+                storage->m_log.append({taskId, Handler::GroupSetup});
+                helperStorage->insert(taskId, shadowedStorage.activeStorage());
+                *shadowedStorage = taskId;
+            });
+        };
+        const auto groupDoneWithStorage = [storage, helperStorage, shadowedStorage](int taskId) {
+            return onGroupDone([storage, helperStorage, shadowedStorage, taskId](DoneWith result) {
+                storage->m_log.append({taskId, resultToGroupHandler(result)});
+                auto it = helperStorage->find(taskId);
+                if (it == helperStorage->end()) {
+                    qWarning() << "The helperStorage is missing the shadowedStorage.";
+                    return;
+                } else if (*it != shadowedStorage.activeStorage()) {
+                    qWarning() << "Wrong active instance of the shadowedStorage.";
+                    return;
+                } else if (**it != taskId) {
+                    qWarning() << "Wrong data of the active instance of the shadowedStorage.";
+                    return;
+                }
+                helperStorage->erase(it);
+                storage->m_log.append({*shadowedStorage, Handler::Storage});
+            });
+        };
+
+        const Group root {
+            Storage(storage),
+            Storage(helperStorage),
+            Storage(shadowedStorage),
+            groupSetupWithStorage(1),
+            Group {
+                Storage(shadowedStorage),
+                groupSetupWithStorage(2),
+                Group {
+                    Storage(shadowedStorage),
+                    groupSetupWithStorage(3),
+                    groupDoneWithStorage(3)
+                },
+                Group {
+                    Storage(shadowedStorage),
+                    groupSetupWithStorage(4),
+                    groupDoneWithStorage(4)
+                },
+                groupDoneWithStorage(2)
+            },
+            groupDoneWithStorage(1)
+        };
+
+        const Log log {
+            {1, Handler::GroupSetup},
+            {2, Handler::GroupSetup},
+            {3, Handler::GroupSetup},
+            {3, Handler::GroupSuccess},
+            {3, Handler::Storage},
+            {4, Handler::GroupSetup},
+            {4, Handler::GroupSuccess},
+            {4, Handler::Storage},
+            {2, Handler::GroupSuccess},
+            {2, Handler::Storage},
+            {1, Handler::GroupSuccess},
+            {1, Handler::Storage},
+        };
+
+        QTest::newRow("StorageShadowing") << TestData{storage, root, log, 0, OnDone::Success};
     }
 }
 

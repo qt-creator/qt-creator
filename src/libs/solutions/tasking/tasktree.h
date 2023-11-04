@@ -52,6 +52,7 @@ private:
 
     TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor);
     void *activeStorageVoid() const;
+    int activeStorageId() const;
 
     int createStorage() const;
     void deleteStorage(int id) const;
