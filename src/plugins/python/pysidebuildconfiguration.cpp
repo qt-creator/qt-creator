@@ -65,7 +65,7 @@ Tasking::GroupItem PySideBuildStep::runRecipe()
 
     const auto onSetup = [this] {
         if (!processParameters()->effectiveCommand().isExecutableFile())
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         return SetupResult::Continue;
     };
 

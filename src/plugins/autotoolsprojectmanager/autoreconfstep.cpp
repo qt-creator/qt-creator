@@ -75,7 +75,7 @@ private:
                 emit addOutput(::AutotoolsProjectManager::Tr::tr(
                                    "Configuration unchanged, skipping autoreconf step."),
                                OutputFormat::NormalMessage);
-                return SetupResult::StopWithDone;
+                return SetupResult::StopWithSuccess;
             }
             return SetupResult::Continue;
         };

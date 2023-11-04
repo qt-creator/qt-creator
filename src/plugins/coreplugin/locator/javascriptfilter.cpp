@@ -385,7 +385,7 @@ LocatorMatcherTasks JavaScriptFilter::matchers()
                 return AcceptResult();
             };
             storage->reportOutput({entry});
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         return SetupResult::Continue;
     };

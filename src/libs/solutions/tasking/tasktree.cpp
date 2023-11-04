@@ -417,7 +417,7 @@ private:
 
         const auto onFirstSetup = [input](ConcurrentCall<void> &task) {
             if (input == "Skip")
-                return SetupResult::StopWithDone; // This task won't start, the next one will
+                return SetupResult::StopWithSuccess; // This task won't start, the next one will
             if (input == "Error")
                 return SetupResult::StopWithError; // This task and the next one won't start
             task.setConcurrentCallData(parseAndLog, input);
@@ -439,10 +439,10 @@ private:
     the return value of the handler instructs the running tree on how to proceed after
     the handler's invocation is finished. The default return value of SetupResult::Continue
     instructs the tree to continue running, i.e. to execute the associated \c Task.
-    The return value of SetupResult::StopWithDone or SetupResult::StopWithError instructs
+    The return value of SetupResult::StopWithSuccess or SetupResult::StopWithError instructs
     the tree to skip the task's execution and finish immediately with success or an error,
     respectively.
-    When the return type is either SetupResult::StopWithDone or SetupResult::StopWithError,
+    When the return type is either SetupResult::StopWithSuccess or SetupResult::StopWithError,
     the task's \a done or \a error handler (even if provided) are not called afterwards.
 
     The \a setup handler may be of a shortened form of std::function<void(Task &)>,
@@ -647,7 +647,7 @@ private:
            Default. The group's or task's execution continues normally.
            When a group's or task's setup handler returns void, it's assumed that
            it returned Continue.
-    \value StopWithDone
+    \value StopWithSuccess
            The group's or task's execution stops immediately with success.
            When returned from the group's setup handler, all child tasks are skipped,
            and the group's onGroupDone() handler is invoked (if provided).
@@ -675,15 +675,15 @@ private:
     The return value of the handler instructs the running group on how to proceed
     after the handler's invocation is finished. The default return value of SetupResult::Continue
     instructs the group to continue running, i.e. to start executing its child tasks.
-    The return value of SetupResult::StopWithDone or SetupResult::StopWithError
+    The return value of SetupResult::StopWithSuccess or SetupResult::StopWithError
     instructs the group to skip the child tasks' execution and finish immediately with
     success or an error, respectively.
 
-    When the return type is either SetupResult::StopWithDone
+    When the return type is either SetupResult::StopWithSuccess
     of SetupResult::StopWithError, the group's done or error handler (if provided)
     is called synchronously immediately afterwards.
 
-    \note Even if the group setup handler returns StopWithDone or StopWithError,
+    \note Even if the group setup handler returns StopWithSuccess or StopWithError,
     one of the group's done or error handlers is invoked. This behavior differs
     from that of task handlers and might change in the future.
 
@@ -834,7 +834,7 @@ const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndE
 
 static SetupResult toSetupResult(bool success)
 {
-    return success ? SetupResult::StopWithDone : SetupResult::StopWithError;
+    return success ? SetupResult::StopWithSuccess : SetupResult::StopWithError;
 }
 
 bool TreeStorageBase::isValid() const
@@ -1312,7 +1312,7 @@ SetupResult TaskContainer::start()
         if (startAction != SetupResult::Continue) {
             m_constData.m_taskTreePrivate->advanceProgress(m_constData.m_taskCount);
             // Non-Continue SetupResult takes precedence over the workflow policy.
-            m_runtimeData->m_successBit = startAction == SetupResult::StopWithDone;
+            m_runtimeData->m_successBit = startAction == SetupResult::StopWithSuccess;
         }
     }
     if (startAction == SetupResult::Continue) {
@@ -1328,7 +1328,7 @@ SetupResult TaskContainer::continueStart(SetupResult startAction, int nextChild)
                                                                        : startAction;
     QTC_CHECK(isRunning()); // TODO: superfluous
     if (groupAction != SetupResult::Continue) {
-        const bool bit = m_runtimeData->updateSuccessBit(groupAction == SetupResult::StopWithDone);
+        const bool bit = m_runtimeData->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
         const bool result = invokeDoneHandler(bit ? DoneWith::Success : DoneWith::Error);
         if (TaskContainer *parentContainer = m_constData.m_parentContainer) {
             QTC_CHECK(parentContainer->isRunning());
@@ -1354,7 +1354,7 @@ SetupResult TaskContainer::startChildren(int nextChild)
         if (startAction == SetupResult::Continue)
             continue;
 
-        const SetupResult finalizeAction = childDone(startAction == SetupResult::StopWithDone);
+        const SetupResult finalizeAction = childDone(startAction == SetupResult::StopWithSuccess);
         if (finalizeAction == SetupResult::Continue)
             continue;
 
@@ -1699,7 +1699,7 @@ bool TaskNode::invokeDoneHandler(DoneWith result)
             setup handler doesn't return SetupResult (that is, its return type is
             void).
     \row
-        \li StopWithDone
+        \li StopWithSuccess
         \li The task won't be started and it will report success to its parent.
     \row
         \li StopWithError
@@ -1739,7 +1739,7 @@ bool TaskNode::invokeDoneHandler(DoneWith result)
     The error handler is also optional. When used, it must always be the third argument.
     You can omit the handlers or substitute the ones that you do not need with curly braces ({}).
 
-    \note If the task setup handler returns StopWithDone or StopWithError,
+    \note If the task setup handler returns StopWithSuccess or StopWithError,
     neither the done nor error handler is invoked.
 
     \section1 Group Handlers
@@ -1773,7 +1773,7 @@ bool TaskNode::invokeDoneHandler(DoneWith result)
     whole group. If you do not specify a group start handler or its return type
     is void, the default group's action is SetupResult::Continue, so that all
     tasks are started normally. Otherwise, when the start handler returns
-    SetupResult::StopWithDone or SetupResult::StopWithError, the tasks are not
+    SetupResult::StopWithSuccess or SetupResult::StopWithError, the tasks are not
     started (they are skipped) and the group itself reports success or failure,
     depending on the returned value, respectively.
 
@@ -1785,7 +1785,7 @@ bool TaskNode::invokeDoneHandler(DoneWith result)
                 ProcessTask(...) // Process 1
             },
             Group {
-                onGroupSetup([] { qDebug() << "Group 2 setup"; return SetupResult::StopWithDone; }),
+                onGroupSetup([] { qDebug() << "Group 2 setup"; return SetupResult::StopWithSuccess; }),
                 ProcessTask(...) // Process 2
             },
             Group {
@@ -1823,7 +1823,7 @@ bool TaskNode::invokeDoneHandler(DoneWith result)
         \li
     \row
         \li Group 2 starts
-        \li Returns StopWithDone, so Process 2 is skipped and Group 2 reports
+        \li Returns StopWithSuccess, so Process 2 is skipped and Group 2 reports
             success.
     \row
         \li Group 2 finishes (success)
@@ -1856,7 +1856,7 @@ bool TaskNode::invokeDoneHandler(DoneWith result)
             onGroupSetup([] { qDebug() << "Root setup"; }),
             ProcessTask(...),
             onGroupDone([] { qDebug() << "Root finished with success"; }),
-            onGroupError([] { qDebug() << "Root finished with error"; })
+            onGroupError([] { qDebug() << "Root finished with an error"; })
         };
     \endcode
 
@@ -1864,7 +1864,7 @@ bool TaskNode::invokeDoneHandler(DoneWith result)
     onGroupDone() or onGroupError() each to a group, an assert is triggered at
     runtime that includes an error message.
 
-    \note Even if the group setup handler returns StopWithDone or StopWithError,
+    \note Even if the group setup handler returns StopWithSuccess or StopWithError,
     one of the group's done or error handlers is invoked. This behavior differs
     from that of task handlers and might change in the future.
 

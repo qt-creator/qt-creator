@@ -190,7 +190,7 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
         const Link link = Link::fromString(storage->input(), true);
         const FilePath input = link.targetFilePath;
         if (input.isEmpty())
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
 
         // only pass the file name part to allow searches like "somepath/*foo"
         const std::unique_ptr<MacroExpander> expander(createMacroExpander(input.fileName()));

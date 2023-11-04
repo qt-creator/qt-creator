@@ -355,11 +355,11 @@ void TestRunner::runTestsHelper()
 
         const auto onSetup = [this, config] {
             if (!config->project())
-                return SetupResult::StopWithDone;
+                return SetupResult::StopWithSuccess;
             if (config->testExecutable().isEmpty()) {
                 reportResult(ResultType::MessageFatal,
                              Tr::tr("Executable path is empty. (%1)").arg(config->displayName()));
-                return SetupResult::StopWithDone;
+                return SetupResult::StopWithSuccess;
             }
             return SetupResult::Continue;
         };

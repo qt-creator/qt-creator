@@ -115,7 +115,7 @@ GroupItem TarPackageDeployStep::deployRecipe()
         if (hasLocalFileChanged(DeployableFile(m_packageFilePath, {})))
             return SetupResult::Continue;
         addSkipDeploymentMessage();
-        return SetupResult::StopWithDone;
+        return SetupResult::StopWithSuccess;
     };
     return Group { onGroupSetup(onSetup), uploadTask(), installTask() };
 }

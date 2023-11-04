@@ -267,12 +267,12 @@ Tasking::GroupItem QMakeStep::runRecipe()
 
     const auto onSetup = [this] {
         if (m_scriptTemplate)
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         if (m_needToRunQMake)
             return SetupResult::Continue;
         emit addOutput(Tr::tr("Configuration unchanged, skipping qmake step."),
                        OutputFormat::NormalMessage);
-        return SetupResult::StopWithDone;
+        return SetupResult::StopWithSuccess;
     };
 
     const auto onQMakeSetup = [this](Process &process) {

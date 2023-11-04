@@ -86,7 +86,7 @@ DirectoryFilter::DirectoryFilter(Id id)
         if (!m_directories.isEmpty())
             return SetupResult::Continue; // Async task will run
         m_cache.setFilePaths({});
-        return SetupResult::StopWithDone; // Group stops, skips async task
+        return SetupResult::StopWithSuccess; // Group stops, skips async task
     };
     const auto onSetup = [this](Async<FilePaths> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());

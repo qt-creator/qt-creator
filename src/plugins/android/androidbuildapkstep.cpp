@@ -814,12 +814,12 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
         if (m_skipBuilding) {
             reportWarningOrError(Tr::tr("Android deploy settings file not found, "
                                         "not building an APK."), Task::Error);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         if (AndroidManager::skipInstallationAndPackageSteps(target())) {
             reportWarningOrError(Tr::tr("Product type is not an application, not building an APK."),
                                  Task::Warning);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         if (setupHelper())
             return SetupResult::Continue;

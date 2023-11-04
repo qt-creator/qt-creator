@@ -414,7 +414,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     const auto desciptionDetailsSetup = [storage] {
         if (!storage->m_postProcessDescription)
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         return SetupResult::Continue;
     };
 

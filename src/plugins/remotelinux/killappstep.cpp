@@ -48,7 +48,7 @@ GroupItem KillAppStep::deployRecipe()
     const auto onSetup = [this](DeviceProcessKiller &killer) {
         if (m_remoteExecutable.isEmpty()) {
             addSkipDeploymentMessage();
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         killer.setProcessPath(m_remoteExecutable);
         addProgressMessage(Tr::tr("Trying to kill \"%1\" on remote device...")

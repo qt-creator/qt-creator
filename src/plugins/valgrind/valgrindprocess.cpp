@@ -181,7 +181,7 @@ Group ValgrindProcessPrivate::runRecipe() const
     };
 
     const auto onParserGroupSetup = [this] {
-        return m_localServerAddress.isNull() ? SetupResult::StopWithDone : SetupResult::Continue;
+        return m_localServerAddress.isNull() ? SetupResult::StopWithSuccess : SetupResult::Continue;
     };
 
     const auto onParserSetup = [this, storage](Parser &parser) {

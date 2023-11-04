@@ -128,7 +128,7 @@ Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
         if (AndroidManager::skipInstallationAndPackageSteps(target())) {
             reportWarningOrError(Tr::tr("Product type is not an application, not running the "
                                         "Make install step."), Task::Warning);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
 
         for (const QString &dir : std::as_const(m_androidDirsToClean)) {

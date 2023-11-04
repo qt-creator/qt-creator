@@ -360,7 +360,7 @@ GroupItem CMakeBuildStep::runRecipe()
         else if (bs->isWaitingForParse())
             message = Tr::tr("Running CMake in preparation to build...");
         else
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         emit addOutput(message, OutputFormat::NormalMessage);
         parseTarget = target();
         return SetupResult::Continue;

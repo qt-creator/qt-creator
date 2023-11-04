@@ -191,7 +191,7 @@ GroupItem GenericDeployStep::deployRecipe()
         }
         if (files.isEmpty()) {
             addSkipDeploymentMessage();
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         return SetupResult::Continue;
     };

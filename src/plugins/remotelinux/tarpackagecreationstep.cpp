@@ -145,7 +145,7 @@ Tasking::GroupItem TarPackageCreationStep::runRecipe()
         if (!m_packagingNeeded) {
             emit addOutput(Tr::tr("Tarball up to date, skipping packaging."),
                            OutputFormat::NormalMessage);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
 
         async.setConcurrentCallData(&TarPackageCreationStep::doPackage, this,

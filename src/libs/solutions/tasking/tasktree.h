@@ -127,7 +127,7 @@ Q_ENUM_NS(WorkflowPolicy);
 enum class SetupResult
 {
     Continue,
-    StopWithDone,
+    StopWithSuccess,
     StopWithError
 };
 Q_ENUM_NS(SetupResult);
@@ -352,10 +352,10 @@ private:
         static_assert(isBool || isVoid,
                       "Sync element: The synchronous function has to return void or bool.");
         if constexpr (isBool) {
-            return onGroupSetup([function] { return function() ? SetupResult::StopWithDone
+            return onGroupSetup([function] { return function() ? SetupResult::StopWithSuccess
                                                                : SetupResult::StopWithError; });
         }
-        return onGroupSetup([function] { function(); return SetupResult::StopWithDone; });
+        return onGroupSetup([function] { function(); return SetupResult::StopWithSuccess; });
     };
 };
 

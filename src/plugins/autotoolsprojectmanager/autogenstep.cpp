@@ -90,7 +90,7 @@ Tasking::GroupItem AutogenStep::runRecipe()
         if (!m_runAutogen) {
             emit addOutput(Tr::tr("Configuration unchanged, skipping autogen step."),
                            OutputFormat::NormalMessage);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         return SetupResult::Continue;
     };

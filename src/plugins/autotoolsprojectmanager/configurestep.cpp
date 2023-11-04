@@ -88,7 +88,7 @@ Tasking::GroupItem ConfigureStep::runRecipe()
 
         if (!m_runConfigure) {
             emit addOutput(Tr::tr("Configuration unchanged, skipping configure step."), OutputFormat::NormalMessage);
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
 
         ProcessParameters *param = processParameters();

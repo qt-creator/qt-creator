@@ -149,7 +149,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::removeDirTask()
 {
     const auto onSetup = [this](Process &process) {
         if (m_checkResult != CheckResult::RemoveDir)
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         m_deployLogWindow->appendPlainText(Tr::tr("Removing \"%1\"").arg(fullRemoteDirectory()));
         process.setCommand({m_device->filePath("rm"), {"-rf", fullRemoteDirectory()}});
         return SetupResult::Continue;
@@ -167,7 +167,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
     const auto onSetup = [this](FileTransfer &transfer) {
         if (m_deployableFiles.isEmpty()) {
             emitProgressMessage(Tr::tr("No files need to be uploaded."));
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         emitProgressMessage(Tr::tr("%n file(s) need to be uploaded.", "",
                                    m_deployableFiles.size()));
@@ -183,7 +183,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
         }
         if (files.isEmpty()) {
             emitProgressMessage(Tr::tr("No files need to be uploaded."));
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         }
         transfer.setFilesToTransfer(files);
         QObject::connect(&transfer, &FileTransfer::progress,
@@ -250,7 +250,7 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
             return SetupResult::Continue;
 
         emitProgressMessage(Tr::tr("No deployment action necessary. Skipping."));
-        return SetupResult::StopWithDone;
+        return SetupResult::StopWithSuccess;
     };
     const auto doneHandler = [this] {
         emitProgressMessage(Tr::tr("All files successfully deployed."));

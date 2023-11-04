@@ -82,7 +82,7 @@ GroupItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
         Barrier *activeSharedBarrier = activeBarrier->barrier();
         const std::optional<bool> result = activeSharedBarrier->result();
         if (result.has_value())
-            return result.value() ? SetupResult::StopWithDone : SetupResult::StopWithError;
+            return result.value() ? SetupResult::StopWithSuccess : SetupResult::StopWithError;
         QObject::connect(activeSharedBarrier, &Barrier::done, &barrier, &Barrier::stopWithResult);
         return SetupResult::Continue;
     });

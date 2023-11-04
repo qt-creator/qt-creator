@@ -1488,10 +1488,10 @@ LocatorMatcherTask LocatorFileCache::matcher() const
     const auto onSetup = [storage, weak](Async<LocatorFileCachePrivate> &async) {
         auto that = weak.lock();
         if (!that) // LocatorMatcher is running after *this LocatorFileCache was destructed.
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
 
         if (!that->ensureValidated())
-            return SetupResult::StopWithDone; // The cache is invalid and
+            return SetupResult::StopWithSuccess; // The cache is invalid and
                                              // no provider is set or it returned empty generator
         that->bumpExecutionId();
 

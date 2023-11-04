@@ -167,7 +167,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
 
     const auto onDescriptionSetup = [this](Process &process) {
         if (m_changeNumber == 0)
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
         setupCommand(process, {"log", "-r", QString::number(m_changeNumber)});
         CommandLine command = process.commandLine();
         command << SubversionClient::AddAuthOptions();

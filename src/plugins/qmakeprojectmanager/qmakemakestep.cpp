@@ -206,7 +206,7 @@ Tasking::GroupItem QmakeMakeStep::runRecipe()
 
     const auto onSetup = [this] {
         if (m_scriptTarget || m_ignoredNonTopLevelBuild)
-            return SetupResult::StopWithDone;
+            return SetupResult::StopWithSuccess;
 
         if (!m_makeFileToCheck.exists()) {
             const bool success = ignoreReturnValue();
@@ -214,7 +214,7 @@ Tasking::GroupItem QmakeMakeStep::runRecipe()
                 emit addOutput(Tr::tr("Cannot find Makefile. Check your build settings."),
                                OutputFormat::NormalMessage);
             }
-            return success ? SetupResult::StopWithDone : SetupResult::StopWithError;
+            return success ? SetupResult::StopWithSuccess : SetupResult::StopWithError;
         }
         return SetupResult::Continue;
     };
