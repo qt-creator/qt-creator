@@ -24,7 +24,8 @@ enum class Handler {
     Canceled,
     GroupSetup,
     GroupSuccess,
-    GroupError, // TODO: Add GroupCanceled
+    GroupError,
+    GroupCanceled,
     Sync,
     BarrierAdvance,
     Timeout
@@ -214,7 +215,12 @@ GroupItem createBarrierAdvance(const TreeStorage<CustomStorage> &storage,
 
 static Handler resultToGroupHandler(DoneWith result)
 {
-    return result == DoneWith::Success ? Handler::GroupSuccess : Handler::GroupError;
+    switch (result) {
+    case DoneWith::Success : return Handler::GroupSuccess;
+    case DoneWith::Error : return Handler::GroupError;
+    case DoneWith::Cancel : return Handler::GroupCanceled;
+    }
+    return Handler::GroupCanceled;
 }
 
 void tst_Tasking::testTree_data()
@@ -980,7 +986,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Setup},
             {2, Handler::Error},
             {1, Handler::Canceled},
-            {1, Handler::GroupError},
+            {1, Handler::GroupCanceled},
             {2, Handler::GroupError}
         };
 
@@ -1042,7 +1048,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Setup},
             {3, Handler::Error},
             {2, Handler::Canceled},
-            {1, Handler::GroupError},
+            {1, Handler::GroupCanceled},
             {2, Handler::GroupError}
         };
 
@@ -1122,7 +1128,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Setup},
             {3, Handler::Error},
             {2, Handler::Canceled},
-            {1, Handler::GroupError},
+            {1, Handler::GroupCanceled},
             {2, Handler::GroupError}
         };
 
