@@ -1056,13 +1056,13 @@ public:
         ~RuntimeData();
 
         static QList<int> createStorages(const TaskContainer::ConstData &constData);
-        void callStorageDoneHandlers();
         bool updateSuccessBit(bool success);
         int currentLimit() const;
 
         const ConstData &m_constData;
         const QList<int> m_storageIdList;
         bool m_successBit = true;
+        bool m_callStorageDoneHandlersOnDestruction = false;
         int m_doneCount = 0;
         Guard m_startGuard;
     };
@@ -1237,15 +1237,6 @@ QList<int> TaskContainer::RuntimeData::createStorages(const TaskContainer::Const
     return storageIdList;
 }
 
-void TaskContainer::RuntimeData::callStorageDoneHandlers()
-{
-    for (int i = m_constData.m_storageList.size() - 1; i >= 0; --i) { // iterate in reverse order
-        const TreeStorageBase storage = m_constData.m_storageList[i];
-        const int storageId = m_storageIdList.value(i);
-        m_constData.m_taskTreePrivate->callDoneHandler(storage, storageId);
-    }
-}
-
 static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
 {
     switch (workflowPolicy) {
@@ -1274,6 +1265,8 @@ TaskContainer::RuntimeData::~RuntimeData()
     for (int i = m_constData.m_storageList.size() - 1; i >= 0; --i) { // iterate in reverse order
         const TreeStorageBase storage = m_constData.m_storageList[i];
         const int storageId = m_storageIdList.value(i);
+        if (m_callStorageDoneHandlersOnDestruction)
+            m_constData.m_taskTreePrivate->callDoneHandler(storage, storageId);
         storage.deleteStorage(storageId);
     }
 }
@@ -1418,7 +1411,7 @@ bool TaskContainer::invokeDoneHandler(DoneWith result)
     const GroupItem::GroupHandler &groupHandler = m_constData.m_groupHandler;
     if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneIf, result))
         success = invokeHandler(this, groupHandler.m_doneHandler, result);
-    m_runtimeData->callStorageDoneHandlers();
+    m_runtimeData->m_callStorageDoneHandlersOnDestruction = true;
     m_runtimeData.reset();
     return success;
 }
