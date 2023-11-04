@@ -17,6 +17,12 @@ namespace PrintableEnums {
 
 Q_NAMESPACE
 
+// TODO: Is it possible to check for synchronous invocation of subsequent events, so that
+//       we may be sure that the control didn't went back to the main event loop between 2 events?
+//       In theory: yes! We can add a signal / handler to the task tree sent before / after
+//       receiving done signal from each task!
+// TODO: Check if the TaskTree's main guard isn't locked when receiving done signal from each task.
+
 enum class Handler {
     Setup,
     Success,
@@ -26,6 +32,11 @@ enum class Handler {
     GroupSuccess,
     GroupError,
     GroupCanceled,
+    TweakSetupToSuccess,
+    TweakSetupToError,
+    TweakSetupToContinue,
+    TweakDoneToSuccess,
+    TweakDoneToError,
     Sync,
     BarrierAdvance,
     Timeout
@@ -284,6 +295,21 @@ static Handler resultToGroupHandler(DoneWith result)
     return Handler::GroupCanceled;
 }
 
+static Handler setupToTweakHandler(SetupResult result)
+{
+    switch (result) {
+    case SetupResult::Continue : return Handler::TweakSetupToContinue;
+    case SetupResult::StopWithSuccess : return Handler::TweakSetupToSuccess;
+    case SetupResult::StopWithError : return Handler::TweakSetupToError;
+    }
+    return Handler::TweakSetupToContinue;
+}
+
+static Handler doneToTweakHandler(bool result)
+{
+    return result ? Handler::TweakDoneToSuccess : Handler::TweakDoneToError;
+}
+
 void tst_Tasking::testTree_data()
 {
     QTest::addColumn<TestData>("testData");
@@ -297,19 +323,20 @@ void tst_Tasking::testTree_data()
         };
     };
 
-    const auto setupDynamicTask = [storage](int taskId, SetupResult action) {
-        return [storage, taskId, action](TaskObject &) {
+    const auto setupTaskWithTweak = [storage](int taskId, SetupResult desiredResult) {
+        return [storage, taskId, desiredResult](TaskObject &) {
             storage->m_log.append({taskId, Handler::Setup});
-            return action;
+            storage->m_log.append({taskId, setupToTweakHandler(desiredResult)});
+            return desiredResult;
         };
     };
 
-    const auto setupDone = [storage](int taskId, bool success = true) {
-        return [storage, taskId, success](DoneWith result) {
+    const auto setupDone = [storage](int taskId, bool desiredResult = true) {
+        return [storage, taskId, desiredResult](DoneWith result) {
             const Handler handler = result == DoneWith::Cancel ? Handler::Canceled
-                                  : success ? Handler::Success : Handler::Error;
+                                  : desiredResult ? Handler::Success : Handler::Error;
             storage->m_log.append({taskId, handler});
-            return success && result != DoneWith::Cancel;
+            return desiredResult && result != DoneWith::Cancel;
         };
     };
 
@@ -332,9 +359,9 @@ void tst_Tasking::testTree_data()
         return createTask(taskId, false, timeout);
     };
 
-    const auto createDynamicTask = [storage, setupDynamicTask, setupDone](int taskId,
-                                                                          SetupResult action) {
-        return TestTask(setupDynamicTask(taskId, action), setupDone(taskId));
+    const auto createTaskWithSetupTweak = [storage, setupTaskWithTweak, setupDone](
+                                          int taskId, SetupResult desiredResult) {
+        return TestTask(setupTaskWithTweak(taskId, desiredResult), setupDone(taskId));
     };
 
     const auto groupSetup = [storage](int taskId) {
@@ -347,11 +374,29 @@ void tst_Tasking::testTree_data()
             storage->m_log.append({taskId, resultToGroupHandler(result)});
         });
     };
-    const auto createSync = [storage](int taskId) {
-        return Sync([=] { storage->m_log.append({taskId, Handler::Sync}); });
+    const auto groupSetupWithTweak = [storage](int taskId, SetupResult desiredResult) {
+        return onGroupSetup([storage, taskId, desiredResult] {
+            storage->m_log.append({taskId, Handler::GroupSetup});
+            storage->m_log.append({taskId, setupToTweakHandler(desiredResult)});
+            return desiredResult;
+        });
     };
-    const auto createSyncWithReturn = [storage](int taskId, bool success) {
-        return Sync([=] { storage->m_log.append({taskId, Handler::Sync}); return success; });
+    const auto groupDoneWithTweak = [storage](int taskId, bool desiredResult) {
+        return onGroupDone([storage, taskId, desiredResult](DoneWith result) {
+            storage->m_log.append({taskId, resultToGroupHandler(result)});
+            storage->m_log.append({taskId, doneToTweakHandler(desiredResult)});
+            return desiredResult;
+        });
+    };
+    const auto createSync = [storage](int taskId) {
+        return Sync([storage, taskId] { storage->m_log.append({taskId, Handler::Sync}); });
+    };
+    const auto createSyncWithTweak = [storage](int taskId, bool desiredResult) {
+        return Sync([storage, taskId, desiredResult] {
+            storage->m_log.append({taskId, Handler::Sync});
+            storage->m_log.append({taskId, doneToTweakHandler(desiredResult)});
+            return desiredResult;
+        });
     };
 
     {
@@ -423,104 +468,121 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            createDynamicTask(1, SetupResult::StopWithSuccess),
-            createDynamicTask(2, SetupResult::StopWithSuccess)
-        };
-        const Log log {{1, Handler::Setup}, {2, Handler::Setup}};
-        QTest::newRow("DynamicTaskDone") << TestData{storage, root, log, 2, OnDone::Success};
-    }
-
-    {
-        const Group root {
-            Storage(storage),
-            createDynamicTask(1, SetupResult::StopWithError),
-            createDynamicTask(2, SetupResult::StopWithError)
-        };
-        const Log log {{1, Handler::Setup}};
-        QTest::newRow("DynamicTaskError") << TestData{storage, root, log, 2, OnDone::Failure};
-    }
-
-    {
-        const Group root {
-            Storage(storage),
-            createDynamicTask(1, SetupResult::Continue),
-            createDynamicTask(2, SetupResult::Continue),
-            createDynamicTask(3, SetupResult::StopWithError),
-            createDynamicTask(4, SetupResult::Continue)
+            createTaskWithSetupTweak(1, SetupResult::StopWithSuccess),
+            createTaskWithSetupTweak(2, SetupResult::StopWithSuccess)
         };
         const Log log {
             {1, Handler::Setup},
+            {1, Handler::TweakSetupToSuccess},
+            {2, Handler::Setup},
+            {2, Handler::TweakSetupToSuccess}
+        };
+        QTest::newRow("TweekTaskSuccess") << TestData{storage, root, log, 2, OnDone::Success};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
+            createTaskWithSetupTweak(1, SetupResult::StopWithError),
+            createTaskWithSetupTweak(2, SetupResult::StopWithError)
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::TweakSetupToError}
+        };
+        QTest::newRow("TweekTaskError") << TestData{storage, root, log, 2, OnDone::Failure};
+    }
+
+    {
+        const Group root {
+            Storage(storage),
+            createTaskWithSetupTweak(1, SetupResult::Continue),
+            createTaskWithSetupTweak(2, SetupResult::Continue),
+            createTaskWithSetupTweak(3, SetupResult::StopWithError),
+            createTaskWithSetupTweak(4, SetupResult::Continue)
+        };
+        const Log log {
+            {1, Handler::Setup},
+            {1, Handler::TweakSetupToContinue},
             {1, Handler::Success},
             {2, Handler::Setup},
+            {2, Handler::TweakSetupToContinue},
             {2, Handler::Success},
-            {3, Handler::Setup}
+            {3, Handler::Setup},
+            {3, Handler::TweakSetupToError}
         };
-        QTest::newRow("DynamicMixed") << TestData{storage, root, log, 4, OnDone::Failure};
+        QTest::newRow("TweekMixed") << TestData{storage, root, log, 4, OnDone::Failure};
     }
 
     {
         const Group root {
             parallel,
             Storage(storage),
-            createDynamicTask(1, SetupResult::Continue),
-            createDynamicTask(2, SetupResult::Continue),
-            createDynamicTask(3, SetupResult::StopWithError),
-            createDynamicTask(4, SetupResult::Continue)
+            createTaskWithSetupTweak(1, SetupResult::Continue),
+            createTaskWithSetupTweak(2, SetupResult::Continue),
+            createTaskWithSetupTweak(3, SetupResult::StopWithError),
+            createTaskWithSetupTweak(4, SetupResult::Continue)
         };
         const Log log {
             {1, Handler::Setup},
+            {1, Handler::TweakSetupToContinue},
             {2, Handler::Setup},
+            {2, Handler::TweakSetupToContinue},
             {3, Handler::Setup},
+            {3, Handler::TweakSetupToError},
             {1, Handler::Canceled},
             {2, Handler::Canceled}
         };
-        QTest::newRow("DynamicParallel") << TestData{storage, root, log, 4, OnDone::Failure};
+        QTest::newRow("TweekParallel") << TestData{storage, root, log, 4, OnDone::Failure};
     }
 
     {
         const Group root {
             parallel,
             Storage(storage),
-            createDynamicTask(1, SetupResult::Continue),
-            createDynamicTask(2, SetupResult::Continue),
+            createTaskWithSetupTweak(1, SetupResult::Continue),
+            createTaskWithSetupTweak(2, SetupResult::Continue),
             Group {
-                createDynamicTask(3, SetupResult::StopWithError)
+                createTaskWithSetupTweak(3, SetupResult::StopWithError)
             },
-            createDynamicTask(4, SetupResult::Continue)
+            createTaskWithSetupTweak(4, SetupResult::Continue)
         };
         const Log log {
             {1, Handler::Setup},
+            {1, Handler::TweakSetupToContinue},
             {2, Handler::Setup},
+            {2, Handler::TweakSetupToContinue},
             {3, Handler::Setup},
+            {3, Handler::TweakSetupToError},
             {1, Handler::Canceled},
             {2, Handler::Canceled}
         };
-        QTest::newRow("DynamicParallelGroup") << TestData{storage, root, log, 4, OnDone::Failure};
+        QTest::newRow("TweekParallelGroup") << TestData{storage, root, log, 4, OnDone::Failure};
     }
 
     {
         const Group root {
             parallel,
             Storage(storage),
-            createDynamicTask(1, SetupResult::Continue),
-            createDynamicTask(2, SetupResult::Continue),
+            createTaskWithSetupTweak(1, SetupResult::Continue),
+            createTaskWithSetupTweak(2, SetupResult::Continue),
             Group {
-                onGroupSetup([storage] {
-                    storage->m_log.append({0, Handler::GroupSetup});
-                    return SetupResult::StopWithError;
-                }),
-                createDynamicTask(3, SetupResult::Continue)
+                groupSetupWithTweak(0, SetupResult::StopWithError),
+                createTaskWithSetupTweak(3, SetupResult::Continue)
             },
-            createDynamicTask(4, SetupResult::Continue)
+            createTaskWithSetupTweak(4, SetupResult::Continue)
         };
         const Log log {
             {1, Handler::Setup},
+            {1, Handler::TweakSetupToContinue},
             {2, Handler::Setup},
+            {2, Handler::TweakSetupToContinue},
             {0, Handler::GroupSetup},
+            {0, Handler::TweakSetupToError},
             {1, Handler::Canceled},
             {2, Handler::Canceled}
         };
-        QTest::newRow("DynamicParallelGroupSetup")
+        QTest::newRow("TweekParallelGroupSetup")
             << TestData{storage, root, log, 4, OnDone::Failure};
     }
 
@@ -1333,17 +1395,117 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [storage, createSuccessTask, groupDone](SetupResult setupResult) {
+        // This test checks whether group setup handler's result is properly dispatched.
+        const auto createRoot = [storage, createSuccessTask, groupDone, groupSetupWithTweak](
+                                    SetupResult desiredResult) {
             return Group {
                 Storage(storage),
                 Group {
+                    groupSetupWithTweak(1, desiredResult),
                     createSuccessTask(1)
                 },
+                groupDone(0)
+            };
+        };
+
+        const Group root1 = createRoot(SetupResult::StopWithSuccess);
+        const Log log1 {
+            {1, Handler::GroupSetup},
+            {1, Handler::TweakSetupToSuccess},
+            {0, Handler::GroupSuccess}
+        };
+        QTest::newRow("GroupSetupTweakToSuccess")
+            << TestData{storage, root1, log1, 1, OnDone::Success};
+
+        const Group root2 = createRoot(SetupResult::StopWithError);
+        const Log log2 {
+            {1, Handler::GroupSetup},
+            {1, Handler::TweakSetupToError},
+            {0, Handler::GroupError}
+        };
+        QTest::newRow("GroupSetupTweakToError")
+            << TestData{storage, root2, log2, 1, OnDone::Failure};
+
+        const Group root3 = createRoot(SetupResult::Continue);
+        const Log log3 {
+            {1, Handler::GroupSetup},
+            {1, Handler::TweakSetupToContinue},
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {0, Handler::GroupSuccess}
+        };
+        QTest::newRow("GroupSetupTweakToContinue")
+            << TestData{storage, root3, log3, 1, OnDone::Success};
+    }
+
+    {
+        // This test checks whether group done handler's result is properly dispatched.
+        const auto createRoot = [storage, createTask, groupDone, groupDoneWithTweak](
+                                 bool successTask, bool desiredResult) {
+            return Group {
+                Storage(storage),
                 Group {
-                    onGroupSetup([=] { return setupResult; }),
-                    createSuccessTask(2),
-                    createSuccessTask(3),
-                    createSuccessTask(4)
+                    createTask(1, successTask),
+                    groupDoneWithTweak(1, desiredResult)
+                },
+                groupDone(0)
+            };
+        };
+
+        const Group root1 = createRoot(true, true);
+        const Log log1 {
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {1, Handler::GroupSuccess},
+            {1, Handler::TweakDoneToSuccess},
+            {0, Handler::GroupSuccess}
+        };
+        QTest::newRow("GroupDoneWithSuccessTweakToSuccess")
+            << TestData{storage, root1, log1, 1, OnDone::Success};
+
+        const Group root2 = createRoot(true, false);
+        const Log log2 {
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {1, Handler::GroupSuccess},
+            {1, Handler::TweakDoneToError},
+            {0, Handler::GroupError}
+        };
+        QTest::newRow("GroupDoneWithSuccessTweakToError")
+            << TestData{storage, root2, log2, 1, OnDone::Failure};
+
+        const Group root3 = createRoot(false, true);
+        const Log log3 {
+            {1, Handler::Setup},
+            {1, Handler::Error},
+            {1, Handler::GroupError},
+            {1, Handler::TweakDoneToSuccess},
+            {0, Handler::GroupSuccess}
+        };
+        QTest::newRow("GroupDoneWithErrorTweakToSuccess")
+            << TestData{storage, root3, log3, 1, OnDone::Success};
+
+        const Group root4 = createRoot(false, false);
+        const Log log4 {
+            {1, Handler::Setup},
+            {1, Handler::Error},
+            {1, Handler::GroupError},
+            {1, Handler::TweakDoneToError},
+            {0, Handler::GroupError}
+        };
+        QTest::newRow("GroupDoneWithErrorTweakToError")
+            << TestData{storage, root4, log4, 1, OnDone::Failure};
+    }
+
+    {
+        // This test checks whether task setup handler's result is properly dispatched.
+        const auto createRoot = [storage, createSuccessTask, groupDone, createTaskWithSetupTweak](
+                                    SetupResult desiredResult) {
+            return Group {
+                Storage(storage),
+                Group {
+                    createTaskWithSetupTweak(1, desiredResult),
+                    createSuccessTask(2)
                 },
                 groupDone(0)
             };
@@ -1352,32 +1514,34 @@ void tst_Tasking::testTree_data()
         const Group root1 = createRoot(SetupResult::StopWithSuccess);
         const Log log1 {
             {1, Handler::Setup},
-            {1, Handler::Success},
+            {1, Handler::TweakSetupToSuccess},
+            {2, Handler::Setup},
+            {2, Handler::Success},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("DynamicSetupDone") << TestData{storage, root1, log1, 4, OnDone::Success};
+        QTest::newRow("TaskSetupTweakToSuccess")
+            << TestData{storage, root1, log1, 2, OnDone::Success};
 
         const Group root2 = createRoot(SetupResult::StopWithError);
         const Log log2 {
             {1, Handler::Setup},
-            {1, Handler::Success},
+            {1, Handler::TweakSetupToError},
             {0, Handler::GroupError}
         };
-        QTest::newRow("DynamicSetupError") << TestData{storage, root2, log2, 4, OnDone::Failure};
+        QTest::newRow("TaskSetupTweakToError")
+            << TestData{storage, root2, log2, 2, OnDone::Failure};
 
         const Group root3 = createRoot(SetupResult::Continue);
         const Log log3 {
             {1, Handler::Setup},
+            {1, Handler::TweakSetupToContinue},
             {1, Handler::Success},
             {2, Handler::Setup},
             {2, Handler::Success},
-            {3, Handler::Setup},
-            {3, Handler::Success},
-            {4, Handler::Setup},
-            {4, Handler::Success},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("DynamicSetupContinue") << TestData{storage, root3, log3, 4, OnDone::Success};
+        QTest::newRow("TaskSetupTweakToContinue")
+            << TestData{storage, root3, log3, 2, OnDone::Success};
     }
 
     {
@@ -1432,7 +1596,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                createDynamicTask(3, SetupResult::StopWithSuccess)
+                createTaskWithSetupTweak(3, SetupResult::StopWithSuccess)
             },
             Group {
                 groupSetup(4),
@@ -1451,6 +1615,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
+            {3, Handler::TweakSetupToSuccess},
             {4, Handler::GroupSetup},
             {4, Handler::Setup},
             {2, Handler::Success},
@@ -1476,7 +1641,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                createDynamicTask(3, SetupResult::StopWithError)
+                createTaskWithSetupTweak(3, SetupResult::StopWithError)
             },
             Group {
                 groupSetup(4),
@@ -1495,6 +1660,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
+            {3, Handler::TweakSetupToError},
             {2, Handler::Canceled}
         };
 
@@ -1515,7 +1681,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                createDynamicTask(3, SetupResult::StopWithError)
+                createTaskWithSetupTweak(3, SetupResult::StopWithError)
             },
             Group {
                 groupSetup(4),
@@ -1534,6 +1700,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
+            {3, Handler::TweakSetupToError},
             {1, Handler::Canceled}
         };
 
@@ -1560,7 +1727,7 @@ void tst_Tasking::testTree_data()
                 },
                 Group {
                     groupSetup(3),
-                    createDynamicTask(3, SetupResult::StopWithError)
+                    createTaskWithSetupTweak(3, SetupResult::StopWithError)
                 },
                 Group {
                     groupSetup(4),
@@ -1580,6 +1747,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
+            {3, Handler::TweakSetupToError},
             {1, Handler::Canceled},
             {5, Handler::GroupSetup},
             {5, Handler::Setup},
@@ -1657,7 +1825,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                Group { createDynamicTask(3, SetupResult::StopWithSuccess) }
+                Group { createTaskWithSetupTweak(3, SetupResult::StopWithSuccess) }
             },
             Group {
                 groupSetup(4),
@@ -1676,6 +1844,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
+            {3, Handler::TweakSetupToSuccess},
             {4, Handler::GroupSetup},
             {4, Handler::Setup},
             {2, Handler::Success},
@@ -1684,7 +1853,7 @@ void tst_Tasking::testTree_data()
             {4, Handler::Success},
             {5, Handler::Success}
         };
-        QTest::newRow("DeeplyNestedParallelDone")
+        QTest::newRow("DeeplyNestedParallelSuccess")
             << TestData{storage, root, log, 5, OnDone::Success};
     }
 
@@ -1702,7 +1871,7 @@ void tst_Tasking::testTree_data()
             },
             Group {
                 groupSetup(3),
-                Group { createDynamicTask(3, SetupResult::StopWithError) }
+                Group { createTaskWithSetupTweak(3, SetupResult::StopWithError) }
             },
             Group {
                 groupSetup(4),
@@ -1721,6 +1890,7 @@ void tst_Tasking::testTree_data()
             {1, Handler::Success},
             {3, Handler::GroupSetup},
             {3, Handler::Setup},
+            {3, Handler::TweakSetupToError},
             {2, Handler::Canceled}
         };
         QTest::newRow("DeeplyNestedParallelError")
@@ -1749,18 +1919,23 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            createSyncWithReturn(1, true),
-            createSyncWithReturn(2, true),
-            createSyncWithReturn(3, true),
-            createSyncWithReturn(4, true),
-            createSyncWithReturn(5, true)
+            createSyncWithTweak(1, true),
+            createSyncWithTweak(2, true),
+            createSyncWithTweak(3, true),
+            createSyncWithTweak(4, true),
+            createSyncWithTweak(5, true)
         };
         const Log log {
             {1, Handler::Sync},
+            {1, Handler::TweakDoneToSuccess},
             {2, Handler::Sync},
+            {2, Handler::TweakDoneToSuccess},
             {3, Handler::Sync},
+            {3, Handler::TweakDoneToSuccess},
             {4, Handler::Sync},
-            {5, Handler::Sync}
+            {4, Handler::TweakDoneToSuccess},
+            {5, Handler::Sync},
+            {5, Handler::TweakDoneToSuccess}
         };
         QTest::newRow("SyncWithReturn") << TestData{storage, root, log, 0, OnDone::Success};
     }
@@ -1791,14 +1966,15 @@ void tst_Tasking::testTree_data()
             parallel,
             createSync(1),
             createSync(2),
-            createSyncWithReturn(3, false),
+            createSyncWithTweak(3, false),
             createSync(4),
             createSync(5)
         };
         const Log log {
             {1, Handler::Sync},
             {2, Handler::Sync},
-            {3, Handler::Sync}
+            {3, Handler::Sync},
+            {3, Handler::TweakDoneToError}
         };
         QTest::newRow("SyncError") << TestData{storage, root, log, 0, OnDone::Failure};
     }
@@ -1831,7 +2007,7 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             createSync(1),
             createSuccessTask(2),
-            createSyncWithReturn(3, false),
+            createSyncWithTweak(3, false),
             createSuccessTask(4),
             createSync(5),
             groupDone(0)
@@ -1841,6 +2017,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Setup},
             {2, Handler::Success},
             {3, Handler::Sync},
+            {3, Handler::TweakDoneToError},
             {0, Handler::GroupError}
         };
         QTest::newRow("SyncAndAsyncError") << TestData{storage, root, log, 2, OnDone::Failure};
