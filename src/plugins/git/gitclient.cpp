@@ -337,7 +337,7 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         Tasking::Storage(diffInputStorage),
         Group {
             parallel,
-            continueOnDone,
+            continueOnSuccess,
             ProcessTask(onStagedSetup, onStagedDone, CallDoneIf::Success),
             ProcessTask(onUnstagedSetup, onUnstagedDone, CallDoneIf::Success),
             onGroupDone(onDone, CallDoneIf::Success)
@@ -500,7 +500,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
         QList<GroupItem> tasks {
             parallel,
-            continueOnDone,
+            continueOnSuccess,
             onGroupDone(onFollowsError, CallDoneIf::Error)
         };
         for (int i = 0, total = parents.size(); i < total; ++i) {
@@ -532,11 +532,11 @@ ShowController::ShowController(IDocument *document, const QString &id)
         parallel,
         onGroupSetup([this] { setStartupFile(VcsBase::source(this->document()).toString()); }),
         Group {
-            finishAllAndDone,
+            finishAllAndSuccess,
             ProcessTask(onDescriptionSetup, onDescriptionDone, CallDoneIf::Success),
             Group {
                 parallel,
-                finishAllAndDone,
+                finishAllAndSuccess,
                 onGroupSetup(desciptionDetailsSetup),
                 ProcessTask(onBranchesSetup, onBranchesDone, CallDoneIf::Success),
                 ProcessTask(onPrecedesSetup, onPrecedesDone, CallDoneIf::Success),

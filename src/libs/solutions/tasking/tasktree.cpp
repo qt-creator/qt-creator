@@ -234,7 +234,7 @@ private:
 
     \code
         const Group group {
-            finishAllAndDone,
+            finishAllAndSuccess,
             NetworkQueryTask(...),
             Group {
                 NetworkQueryTask(...),
@@ -311,7 +311,7 @@ private:
 
     \code
         const Group group {
-            finishAllAndDone,
+            finishAllAndSuccess,
             NetworkQueryTask(...),
             Group {
                 NetworkQueryTask(...),
@@ -484,14 +484,14 @@ private:
         afterwards, even when some other tasks in the group finished with success.
         If all child tasks finish successfully, the group finishes with success.
         If a group is empty, it finishes with success.
-    \value StopOnDone
-        Corresponds to the stopOnDone global element.
+    \value StopOnSuccess
+        Corresponds to the stopOnSuccess global element.
         If any child task finishes with success, the group stops and finishes with success.
         If all child tasks finished with an error, the group finishes with an error.
         If a group is empty, it finishes with an error.
-    \value ContinueOnDone
-        Corresponds to the continueOnDone global element.
-        Similar to stopOnDone, but in case any child finishes successfully,
+    \value ContinueOnSuccess
+        Corresponds to the continueOnSuccess global element.
+        Similar to stopOnSuccess, but in case any child finishes successfully,
         the execution continues until all tasks finish, and the group reports success
         afterwards, even when some other tasks in the group finished with an error.
         If all child tasks finish with an error, the group finishes with an error.
@@ -504,8 +504,8 @@ private:
         In sequential mode, only the first task is started, and when finished,
         the group finishes too, so the other tasks are always skipped.
         If a group is empty, it finishes with an error.
-    \value FinishAllAndDone
-        Corresponds to the finishAllAndDone global element.
+    \value FinishAllAndSuccess
+        Corresponds to the finishAllAndSuccess global element.
         The group executes all tasks and ignores their return results. When all
         tasks finished, the group finishes with success.
         If a group is empty, it finishes with success.
@@ -516,7 +516,7 @@ private:
         If a group is empty, it finishes with an error.
 
     Whenever a child task's result causes the Group to stop,
-    i.e. in case of StopOnError, StopOnDone, or StopOnFinished policies,
+    i.e. in case of StopOnError, StopOnSuccess, or StopOnFinished policies,
     the Group stops the other running child tasks (if any - for example in parallel mode),
     and skips executing tasks it has not started yet (for example, in the sequential mode -
     those, that are placed after the failed task). Both stopping and skipping child tasks
@@ -541,12 +541,12 @@ private:
         \li An error when at least one child task failed, success otherwise
         \li Success
     \row
-        \li StopOnDone
+        \li StopOnSuccess
         \li Stops when any child task finished with success and reports success
         \li Success when at least one child task succeeded, an error otherwise
         \li An error
     \row
-        \li ContinueOnDone
+        \li ContinueOnSuccess
         \li Yes
         \li Success when at least one child task succeeded, an error otherwise
         \li An error
@@ -556,7 +556,7 @@ private:
         \li Success or an error, depending on the finished child task's result
         \li An error
     \row
-        \li FinishAllAndDone
+        \li FinishAllAndSuccess
         \li Yes
         \li Success
         \li Success
@@ -569,7 +569,7 @@ private:
 
     If a child of a group is also a group, the child group runs its tasks according to its own
     workflow policy. When a parent group stops the running child group because
-    of parent group's workflow policy, i.e. when the StopOnError, StopOnDone, or StopOnFinished
+    of parent group's workflow policy, i.e. when the StopOnError, StopOnSuccess, or StopOnFinished
     policy was used for the parent, the child group's result is reported according to the
     \b Result column and to the \b {child group's workflow policy} row in the table above.
 */
@@ -613,13 +613,13 @@ private:
 */
 
 /*!
-    \variable stopOnDone
-    A convenient global group's element describing the StopOnDone workflow policy.
+    \variable stopOnSuccess
+    A convenient global group's element describing the StopOnSuccess workflow policy.
 */
 
 /*!
-    \variable continueOnDone
-    A convenient global group's element describing the ContinueOnDone workflow policy.
+    \variable continueOnSuccess
+    A convenient global group's element describing the ContinueOnSuccess workflow policy.
 */
 
 /*!
@@ -628,8 +628,8 @@ private:
 */
 
 /*!
-    \variable finishAllAndDone
-    A convenient global group's element describing the FinishAllAndDone workflow policy.
+    \variable finishAllAndSuccess
+    A convenient global group's element describing the FinishAllAndSuccess workflow policy.
 */
 
 /*!
@@ -734,7 +734,7 @@ private:
     Constructs a group's element holding the group done handler.
     The \a handler is invoked whenever the group finishes with success.
     Depending on the group's workflow policy, this handler may also be called
-    when the running group is stopped (e.g. when finishAllAndDone element was used).
+    when the running group is stopped (e.g. when finishAllAndSuccess element was used).
 
     When the \a handler is invoked, all of the group's child tasks are already finished.
 
@@ -813,8 +813,8 @@ GroupItem parallelLimit(int limit)
 
     For convenience, global elements may be used instead.
 
-    \sa stopOnError, continueOnError, stopOnDone, continueOnDone, stopOnFinished, finishAllAndDone,
-        finishAllAndError, WorkflowPolicy
+    \sa stopOnError, continueOnError, stopOnSuccess, continueOnSuccess, stopOnFinished,
+        finishAllAndSuccess, finishAllAndError, WorkflowPolicy
 */
 GroupItem workflowPolicy(WorkflowPolicy policy)
 {
@@ -826,10 +826,10 @@ const GroupItem parallel = parallelLimit(0);
 
 const GroupItem stopOnError = workflowPolicy(WorkflowPolicy::StopOnError);
 const GroupItem continueOnError = workflowPolicy(WorkflowPolicy::ContinueOnError);
-const GroupItem stopOnDone = workflowPolicy(WorkflowPolicy::StopOnDone);
-const GroupItem continueOnDone = workflowPolicy(WorkflowPolicy::ContinueOnDone);
+const GroupItem stopOnSuccess = workflowPolicy(WorkflowPolicy::StopOnSuccess);
+const GroupItem continueOnSuccess = workflowPolicy(WorkflowPolicy::ContinueOnSuccess);
 const GroupItem stopOnFinished = workflowPolicy(WorkflowPolicy::StopOnFinished);
-const GroupItem finishAllAndDone = workflowPolicy(WorkflowPolicy::FinishAllAndDone);
+const GroupItem finishAllAndSuccess = workflowPolicy(WorkflowPolicy::FinishAllAndSuccess);
 const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
 
 static SetupResult toSetupResult(bool success)
@@ -1251,10 +1251,10 @@ static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
     switch (workflowPolicy) {
     case WorkflowPolicy::StopOnError:
     case WorkflowPolicy::ContinueOnError:
-    case WorkflowPolicy::FinishAllAndDone:
+    case WorkflowPolicy::FinishAllAndSuccess:
         return true;
-    case WorkflowPolicy::StopOnDone:
-    case WorkflowPolicy::ContinueOnDone:
+    case WorkflowPolicy::StopOnSuccess:
+    case WorkflowPolicy::ContinueOnSuccess:
     case WorkflowPolicy::StopOnFinished:
     case WorkflowPolicy::FinishAllAndError:
         return false;
@@ -1280,7 +1280,7 @@ TaskContainer::RuntimeData::~RuntimeData()
 
 bool TaskContainer::RuntimeData::updateSuccessBit(bool success)
 {
-    if (m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndDone
+    if (m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndSuccess
         || m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndError
         || m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished) {
         if (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished)
@@ -1288,8 +1288,8 @@ bool TaskContainer::RuntimeData::updateSuccessBit(bool success)
         return m_successBit;
     }
 
-    const bool donePolicy = m_constData.m_workflowPolicy == WorkflowPolicy::StopOnDone
-                         || m_constData.m_workflowPolicy == WorkflowPolicy::ContinueOnDone;
+    const bool donePolicy = m_constData.m_workflowPolicy == WorkflowPolicy::StopOnSuccess
+                         || m_constData.m_workflowPolicy == WorkflowPolicy::ContinueOnSuccess;
     m_successBit = donePolicy ? (m_successBit || success) : (m_successBit && success);
     return m_successBit;
 }
@@ -1373,7 +1373,7 @@ SetupResult TaskContainer::childDone(bool success)
     QTC_CHECK(isRunning());
     const int limit = m_runtimeData->currentLimit(); // Read before bumping m_doneCount and stop()
     const bool shouldStop = m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished
-                        || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnDone && success)
+                        || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnSuccess && success)
                         || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnError && !success);
     if (shouldStop)
         stop();

@@ -215,7 +215,7 @@ void DocumentClangToolRunner::run()
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
         const auto outputHandler = [this](const AnalyzeOutputData &output) { onDone(output); };
-        tasks.append(Group{finishAllAndDone, clangToolTask(input, setupHandler, outputHandler)});
+        tasks.append(Group{finishAllAndSuccess, clangToolTask(input, setupHandler, outputHandler)});
     };
     addClangTool(ClangToolType::Tidy);
     addClangTool(ClangToolType::Clazy);

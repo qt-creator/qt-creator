@@ -370,7 +370,7 @@ GroupItem CMakeBuildStep::runRecipe()
                        OutputFormat::ErrorMessage);
     };
     Group root {
-        ignoreReturnValue() ? finishAllAndDone : stopOnError,
+        ignoreReturnValue() ? finishAllAndSuccess : stopOnError,
         ProjectParserTask(onParserSetup, onParserError, CallDoneIf::Error),
         defaultProcessTask(),
         onGroupDone([this] { updateDeploymentData(); })

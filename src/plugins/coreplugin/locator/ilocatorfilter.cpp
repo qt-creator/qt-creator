@@ -461,7 +461,7 @@ void LocatorMatcher::start()
     for (const LocatorMatcherTask &task : std::as_const(d->m_tasks)) {
         const auto storage = task.storage;
         const Group group {
-            finishAllAndDone,
+            finishAllAndSuccess,
             Storage(storage),
             onGroupSetup(onSetup(storage, index)),
             onGroupDone([storage] { storage->finalize(); }),

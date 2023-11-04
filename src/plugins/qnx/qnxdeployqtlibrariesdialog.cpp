@@ -223,7 +223,7 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
             if (file.isExecutable())
                 filesToChmod << file;
         }
-        QList<GroupItem> chmodList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
+        QList<GroupItem> chmodList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(filesToChmod)) {
             QTC_ASSERT(file.isValid(), continue);
             chmodList.append(chmodTask(file));
@@ -263,7 +263,7 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
     const Group root {
         onGroupSetup(setupHandler),
         Group {
-            finishAllAndDone,
+            finishAllAndSuccess,
             checkDirTask()
         },
         Group {

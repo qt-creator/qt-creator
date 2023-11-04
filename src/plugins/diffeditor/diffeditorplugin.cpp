@@ -116,7 +116,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
         const QList<ReloadInput> inputList = reloadInputList();
         outputList->resize(inputList.size());
 
-        QList<GroupItem> tasks { parallel, finishAllAndDone };
+        QList<GroupItem> tasks { parallel, finishAllAndSuccess };
         for (int i = 0; i < inputList.size(); ++i) {
             const auto onDiffSetup = [this, reloadInput = inputList.at(i)](Async<FileData> &async) {
                 async.setConcurrentCallData(

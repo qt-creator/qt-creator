@@ -65,7 +65,7 @@ void Images::process()
         cancelButton->setEnabled(false);
     };
     QList<GroupItem> tasks {
-        finishAllAndDone,
+        finishAllAndSuccess,
         parallel,
         onGroupSetup(onRootSetup),
         onGroupDone(onRootDone, CallDoneIf::Success)

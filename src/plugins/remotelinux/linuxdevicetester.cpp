@@ -135,7 +135,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::unameTask() const
             emit q->errorMessage(Tr::tr("uname failed.") + '\n');
     };
     return Group {
-        finishAllAndDone,
+        finishAllAndSuccess,
         ProcessTask(onSetup, onDone)
     };
 }
@@ -162,7 +162,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::gathererTask() const
     };
 
     return Group {
-        finishAllAndDone,
+        finishAllAndSuccess,
         DeviceUsedPortsGathererTask(onSetup, onDone)
     };
 }
@@ -228,7 +228,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 {
     TreeStorage<TransferStorage> storage;
     return Group {
-        continueOnDone,
+        continueOnSuccess,
         Tasking::Storage(storage),
         transferTask(FileTransferMethod::GenericCopy, storage),
         transferTask(FileTransferMethod::Sftp, storage),

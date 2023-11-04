@@ -154,7 +154,7 @@ GroupItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &st
     const auto onSetup = [this, storage, filesToStat, statEndHandler](TaskTree &tree) {
         UploadStorage *storagePtr = storage.activeStorage();
         const QList<DeployableFile> files = filesToStat(storagePtr);
-        QList<GroupItem> statList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
+        QList<GroupItem> statList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(files)) {
             QTC_ASSERT(file.isValid(), continue);
             statList.append(statTask(storagePtr, file, statEndHandler));
@@ -231,7 +231,7 @@ GroupItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &s
             if (file.isExecutable())
                 filesToChmod << file;
         }
-        QList<GroupItem> chmodList{finishAllAndDone, parallelLimit(MaxConcurrentStatCalls)};
+        QList<GroupItem> chmodList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(filesToChmod)) {
             QTC_ASSERT(file.isValid(), continue);
             chmodList.append(chmodTask(file));

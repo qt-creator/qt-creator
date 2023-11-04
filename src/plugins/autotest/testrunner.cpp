@@ -347,7 +347,7 @@ void TestRunner::runTestsHelper()
         std::unique_ptr<TestOutputReader> m_outputReader;
     };
 
-    QList<GroupItem> tasks{finishAllAndDone};
+    QList<GroupItem> tasks{finishAllAndSuccess};
 
     for (ITestConfiguration *config : m_selectedTests) {
         QTC_ASSERT(config, continue);
@@ -445,7 +445,7 @@ void TestRunner::runTestsHelper()
             }
         };
         const Group group {
-            finishAllAndDone,
+            finishAllAndSuccess,
             Tasking::Storage(storage),
             onGroupSetup(onSetup),
             ProcessTask(onProcessSetup, onProcessDone)

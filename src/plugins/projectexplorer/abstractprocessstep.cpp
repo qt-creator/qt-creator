@@ -283,7 +283,7 @@ void AbstractProcessStep::setDisplayedParameters(ProcessParameters *params)
 
 GroupItem AbstractProcessStep::runRecipe()
 {
-    return Group { ignoreReturnValue() ? finishAllAndDone : stopOnError, defaultProcessTask() };
+    return Group { ignoreReturnValue() ? finishAllAndSuccess : stopOnError, defaultProcessTask() };
 }
 
 } // namespace ProjectExplorer
