@@ -214,6 +214,17 @@ protected:
     static GroupItem withTimeout(const GroupItem &item, std::chrono::milliseconds timeout,
                                  const std::function<void()> &handler = {});
 
+    // Checks if Function may be invoked with Args and if Function's return type is Result.
+    template <typename Result, typename Function, typename ...Args,
+              typename DecayedFunction = std::decay_t<Function>>
+    static constexpr bool isInvocable()
+    {
+        // Note, that std::is_invocable_r_v doesn't check Result type properly.
+        if constexpr (std::is_invocable_r_v<Result, DecayedFunction, Args...>)
+            return std::is_same_v<Result, std::invoke_result_t<DecayedFunction, Args...>>;
+        return false;
+    }
+
 private:
     Type m_type = Type::Group;
     QList<GroupItem> m_children;
@@ -254,40 +265,33 @@ public:
     }
 
 private:
-    template<typename Handler>
+    template <typename Handler>
     static GroupSetupHandler wrapGroupSetup(Handler &&handler)
     {
-        static constexpr bool isDynamic
-            = std::is_same_v<SetupResult, std::invoke_result_t<std::decay_t<Handler>>>;
-        constexpr bool isVoid
-            = std::is_same_v<void, std::invoke_result_t<std::decay_t<Handler>>>;
-        static_assert(isDynamic || isVoid,
-                      "Group setup handler needs to take no arguments and has to return "
-                      "void or SetupResult. The passed handler doesn't fulfill these requirements.");
+        // S, V stands for: [S]etupResult, [V]oid
+        static constexpr bool isS = isInvocable<SetupResult, Handler>();
+        static constexpr bool isV = isInvocable<void, Handler>();
+        static_assert(isS || isV,
+            "Group setup handler needs to take no arguments and has to return void or SetupResult. "
+            "The passed handler doesn't fulfill these requirements.");
         return [=] {
-            if constexpr (isDynamic)
+            if constexpr (isS)
                 return std::invoke(handler);
             std::invoke(handler);
             return SetupResult::Continue;
         };
     };
-    template<typename Handler>
+    template <typename Handler>
     static GroupDoneHandler wrapGroupDone(Handler &&handler)
     {
-        static constexpr bool isBD // stands for [B]ool, [D]oneWith
-            = std::is_invocable_r_v<bool, std::decay_t<Handler>, DoneWith>;
-        static constexpr bool isB
-            = std::is_invocable_r_v<bool, std::decay_t<Handler>>;
-        static constexpr bool isVD // stands for [V]oid, [D]oneWith
-            = std::is_invocable_r_v<void, std::decay_t<Handler>, DoneWith>;
-        static constexpr bool isV
-            = std::is_invocable_r_v<void, std::decay_t<Handler>>;
-        static constexpr bool isInvocable = isBD || isB || isVD || isV;
-
-        static_assert(isInvocable,
-                      "Group done handler needs to take (DoneWith) or (void) "
-                      "as arguments and has to return void or bool. "
-                      "The passed handler doesn't fulfill these requirements.");
+        // B, V, D stands for: [B]ool, [V]oid, [D]oneWith
+        static constexpr bool isBD = isInvocable<bool, Handler, DoneWith>();
+        static constexpr bool isB = isInvocable<bool, Handler>();
+        static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
+        static constexpr bool isV = isInvocable<void, Handler>();
+        static_assert(isBD || isB || isVD || isV,
+            "Group done handler needs to take (DoneWith) or (void) as an argument and has to "
+            "return void or bool. The passed handler doesn't fulfill these requirements.");
         return [=](DoneWith result) {
             if constexpr (isBD)
                 return std::invoke(handler, result);
@@ -338,24 +342,28 @@ public:
 class TASKING_EXPORT Sync final : public GroupItem
 {
 public:
-    template<typename Function>
-    Sync(Function &&function) { addChildren({init(std::forward<Function>(function))}); }
+    template <typename Handler>
+    Sync(Handler &&handler) {
+        addChildren({ onGroupSetup(wrapHandler(std::forward<Handler>(handler))) });
+    }
 
 private:
-    template<typename Function>
-    static GroupItem init(Function &&function) {
-        constexpr bool isInvocable = std::is_invocable_v<std::decay_t<Function>>;
-        static_assert(isInvocable,
-                      "Sync element: The synchronous function can't take any arguments.");
-        constexpr bool isBool = std::is_same_v<bool, std::invoke_result_t<std::decay_t<Function>>>;
-        constexpr bool isVoid = std::is_same_v<void, std::invoke_result_t<std::decay_t<Function>>>;
-        static_assert(isBool || isVoid,
-                      "Sync element: The synchronous function has to return void or bool.");
-        if constexpr (isBool) {
-            return onGroupSetup([function] { return function() ? SetupResult::StopWithSuccess
-                                                               : SetupResult::StopWithError; });
-        }
-        return onGroupSetup([function] { function(); return SetupResult::StopWithSuccess; });
+    template <typename Handler>
+    static GroupSetupHandler wrapHandler(Handler &&handler) {
+        // B, V stands for: [B]ool, [V]oid
+        static constexpr bool isB = isInvocable<bool, Handler>();
+        static constexpr bool isV = isInvocable<void, Handler>();
+        static_assert(isB || isV,
+            "Sync handler needs to take no arguments and has to return void or bool. "
+            "The passed handler doesn't fulfill these requirements.");
+        return [=] {
+            if constexpr (isB) {
+                return std::invoke(handler) ? SetupResult::StopWithSuccess
+                                            : SetupResult::StopWithError;
+            }
+            std::invoke(handler);
+            return SetupResult::StopWithSuccess;
+        };
     };
 };
 
@@ -401,49 +409,39 @@ public:
     }
 
 private:
-    template<typename Handler>
+    template <typename Handler>
     static GroupItem::TaskSetupHandler wrapSetup(Handler &&handler) {
         if constexpr (std::is_same_v<Handler, SetupFunction>)
             return {}; // When user passed {} for the setup handler.
-        static constexpr bool isDynamic
-            = std::is_same_v<SetupResult, std::invoke_result_t<std::decay_t<Handler>, Task &>>;
-        constexpr bool isVoid
-            = std::is_same_v<void, std::invoke_result_t<std::decay_t<Handler>, Task &>>;
-        static_assert(isDynamic || isVoid,
-            "Task setup handler needs to take (Task &) as an argument and has to return "
-            "void or SetupResult. The passed handler doesn't fulfill these requirements.");
+        // S, V stands for: [S]etupResult, [V]oid
+        static constexpr bool isS = isInvocable<SetupResult, Handler, Task &>();
+        static constexpr bool isV = isInvocable<void, Handler, Task &>();
+        static_assert(isS || isV,
+            "Task setup handler needs to take (Task &) as an argument and has to return void or "
+            "SetupResult. The passed handler doesn't fulfill these requirements.");
         return [=](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
-            if constexpr (isDynamic)
+            if constexpr (isS)
                 return std::invoke(handler, *adapter.task());
             std::invoke(handler, *adapter.task());
             return SetupResult::Continue;
         };
     };
 
-    template<typename Handler>
+    template <typename Handler>
     static GroupItem::TaskDoneHandler wrapDone(Handler &&handler) {
         if constexpr (std::is_same_v<Handler, DoneFunction>)
             return {}; // When user passed {} for the done handler.
-        static constexpr bool isBTD // stands for [B]ool, [T]ask, [D]oneWith
-            = std::is_invocable_r_v<bool, std::decay_t<Handler>, const Task &, DoneWith>;
-        static constexpr bool isBT
-            = std::is_invocable_r_v<bool, std::decay_t<Handler>, const Task &>;
-        static constexpr bool isBD
-            = std::is_invocable_r_v<bool, std::decay_t<Handler>, DoneWith>;
-        static constexpr bool isB
-            = std::is_invocable_r_v<bool, std::decay_t<Handler>>;
-        static constexpr bool isVTD // stands for [V]oid, [T]ask, [D]oneWith
-            = std::is_invocable_r_v<void, std::decay_t<Handler>, const Task &, DoneWith>;
-        static constexpr bool isVT
-            = std::is_invocable_r_v<void, std::decay_t<Handler>, const Task &>;
-        static constexpr bool isVD
-            = std::is_invocable_r_v<void, std::decay_t<Handler>, DoneWith>;
-        static constexpr bool isV
-            = std::is_invocable_r_v<void, std::decay_t<Handler>>;
-        static constexpr bool isInvocable = isBTD || isBT || isBD || isB
-                                         || isVTD || isVT || isVD || isV;
-        static_assert(isInvocable,
+        // B, V, T, D stands for: [B]ool, [V]oid, [T]ask, [D]oneWith
+        static constexpr bool isBTD = isInvocable<bool, Handler, const Task &, DoneWith>();
+        static constexpr bool isBT = isInvocable<bool, Handler, const Task &>();
+        static constexpr bool isBD = isInvocable<bool, Handler, DoneWith>();
+        static constexpr bool isB = isInvocable<bool, Handler>();
+        static constexpr bool isVTD = isInvocable<void, Handler, const Task &, DoneWith>();
+        static constexpr bool isVT = isInvocable<void, Handler, const Task &>();
+        static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
+        static constexpr bool isV = isInvocable<void, Handler>();
+        static_assert(isBTD || isBT || isBD || isB || isVTD || isVT || isVD || isV,
             "Task done handler needs to take (const Task &, DoneWith), (const Task &), "
             "(DoneWith) or (void) as arguments and has to return void or bool. "
             "The passed handler doesn't fulfill these requirements.");
@@ -503,23 +501,19 @@ public:
 
     template <typename StorageStruct, typename StorageHandler>
     void onStorageSetup(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
-        constexpr bool isInvocable = std::is_invocable_v<std::decay_t<StorageHandler>,
-                                                         StorageStruct &>;
-        static_assert(isInvocable,
+        static_assert(std::is_invocable_v<std::decay_t<StorageHandler>, StorageStruct &>,
                       "Storage setup handler needs to take (Storage &) as an argument. "
-                      "The passed handler doesn't fulfill these requirements.");
+                      "The passed handler doesn't fulfill this requirement.");
         setupStorageHandler(storage,
                             wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)), {});
     }
     template <typename StorageStruct, typename StorageHandler>
     void onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
-        constexpr bool isInvocable = std::is_invocable_v<std::decay_t<StorageHandler>,
-                                                         const StorageStruct &>;
-        static_assert(isInvocable,
+        static_assert(std::is_invocable_v<std::decay_t<StorageHandler>, const StorageStruct &>,
                       "Storage done handler needs to take (const Storage &) as an argument. "
-                      "The passed handler doesn't fulfill these requirements.");
-        setupStorageHandler(storage,
-                            {}, wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)));
+                      "The passed handler doesn't fulfill this requirement.");
+        setupStorageHandler(storage, {},
+                            wrapHandler<const StorageStruct>(std::forward<StorageHandler>(handler)));
     }
 
 signals:
@@ -536,7 +530,7 @@ private:
     template <typename StorageStruct, typename StorageHandler>
     StorageVoidHandler wrapHandler(StorageHandler &&handler) {
         return [=](void *voidStruct) {
-            StorageStruct *storageStruct = static_cast<StorageStruct *>(voidStruct);
+            auto *storageStruct = static_cast<StorageStruct *>(voidStruct);
             std::invoke(handler, *storageStruct);
         };
     }

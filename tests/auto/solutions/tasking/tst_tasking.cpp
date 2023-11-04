@@ -139,28 +139,89 @@ void tst_Tasking::validConstructs()
 
     // When turning each of below blocks on, you should see the specific compiler error message.
 
+    // Sync handler needs to take no arguments and has to return void or bool.
 #if 0
-    {
-        // "Sync element: The synchronous function has to return void or bool."
-        const auto setupSync = [] { return 3; };
-        const Sync sync(setupSync);
-    }
+    Sync([] { return 7; });
+#endif
+#if 0
+    Sync([](int) { });
+#endif
+#if 0
+    Sync([](int) { return true; });
 #endif
 
+    // Group setup handler needs to take no arguments and has to return void or SetupResult.
 #if 0
-    {
-        // "Sync element: The synchronous function can't take any arguments."
-        const auto setupSync = [](int) { };
-        const Sync sync(setupSync);
-    }
+    onGroupSetup([] { return 7; });
+#endif
+#if 0
+    onGroupSetup([](int) { });
 #endif
 
+    // Group done handler needs to take (DoneWith) or (void) as an argument and has to
+    // return void or bool.
 #if 0
-    {
-        // "Sync element: The synchronous function can't take any arguments."
-        const auto setupSync = [](int) { return true; };
-        const Sync sync(setupSync);
-    }
+    onGroupDone([] { return 7; });
+#endif
+#if 0
+    onGroupDone([](DoneWith) { return 7; });
+#endif
+#if 0
+    onGroupDone([](int) { });
+#endif
+#if 0
+    onGroupDone([](DoneWith, int) { });
+#endif
+
+    // Task setup handler needs to take (Task &) as an argument and has to return void or
+    // SetupResult.
+#if 0
+    TestTask([] {});
+#endif
+#if 0
+    TestTask([] { return 7; });
+#endif
+#if 0
+    TestTask([](TaskObject &) { return 7; });
+#endif
+#if 0
+    TestTask([](TaskObject &, int) { return SetupResult::Continue; });
+#endif
+
+    // Task done handler needs to take (const Task &, DoneWith), (const Task &),
+    // (DoneWith) or (void) as arguments and has to return void or bool.
+#if 0
+    TestTask({}, [](const TaskObject &, DoneWith) { return 7; });
+#endif
+#if 0
+    TestTask({}, [](const TaskObject &) { return 7; });
+#endif
+#if 0
+    TestTask({}, [] { return 7; });
+#endif
+#if 0
+    TestTask({}, [](const TaskObject &, DoneWith, int) {});
+#endif
+#if 0
+    TestTask({}, [](const TaskObject &, int) {});
+#endif
+#if 0
+    TestTask({}, [](DoneWith, int) {});
+#endif
+#if 0
+    TestTask({}, [](int) {});
+#endif
+#if 0
+    TestTask({}, [](const TaskObject &, DoneWith, int) { return true; });
+#endif
+#if 0
+    TestTask({}, [](const TaskObject &, int) { return true; });
+#endif
+#if 0
+    TestTask({}, [](DoneWith, int) { return true; });
+#endif
+#if 0
+    TestTask({}, [](int) { return true; });
 #endif
 }
 
