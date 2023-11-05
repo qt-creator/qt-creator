@@ -959,30 +959,30 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
         case Type::GroupData:
             if (child.m_groupData.m_groupHandler.m_setupHandler) {
                 QTC_ASSERT(!m_groupData.m_groupHandler.m_setupHandler,
-                           qWarning("Group Setup Handler redefinition, overriding..."));
+                           qWarning("Group setup handler redefinition, overriding..."));
                 m_groupData.m_groupHandler.m_setupHandler
                     = child.m_groupData.m_groupHandler.m_setupHandler;
             }
             if (child.m_groupData.m_groupHandler.m_doneHandler) {
                 QTC_ASSERT(!m_groupData.m_groupHandler.m_doneHandler,
-                           qWarning("Group Done Handler redefinition, overriding..."));
+                           qWarning("Group done handler redefinition, overriding..."));
                 m_groupData.m_groupHandler.m_doneHandler
                     = child.m_groupData.m_groupHandler.m_doneHandler;
             }
             if (child.m_groupData.m_parallelLimit) {
                 QTC_ASSERT(!m_groupData.m_parallelLimit,
-                           qWarning("Group Execution Mode redefinition, overriding..."));
+                           qWarning("Group execution mode redefinition, overriding..."));
                 m_groupData.m_parallelLimit = child.m_groupData.m_parallelLimit;
             }
             if (child.m_groupData.m_workflowPolicy) {
                 QTC_ASSERT(!m_groupData.m_workflowPolicy,
-                           qWarning("Group Workflow Policy redefinition, overriding..."));
+                           qWarning("Group workflow policy redefinition, overriding..."));
                 m_groupData.m_workflowPolicy = child.m_groupData.m_workflowPolicy;
             }
             break;
         case Type::TaskHandler:
             QTC_ASSERT(child.m_taskHandler.m_createHandler,
-                       qWarning("Task Create Handler can't be null, skipping..."); return);
+                       qWarning("Task create handler can't be null, skipping..."); return);
             m_children.append(child);
             break;
         case Type::Storage:

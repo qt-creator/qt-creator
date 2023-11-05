@@ -94,6 +94,7 @@ class tst_Tasking : public QObject
 
 private slots:
     void validConstructs(); // compile test
+    void runtimeCheck(); // checks done on runtime
     void testTree_data();
     void testTree();
     void testInThread_data();
@@ -252,6 +253,74 @@ void tst_Tasking::validConstructs()
 #if 0
     TestTask({}, [](int) { return true; });
 #endif
+}
+
+void tst_Tasking::runtimeCheck()
+{
+    {
+        QTest::ignoreMessage(QtDebugMsg, QRegularExpression("^SOFT ASSERT: "));
+        QTest::ignoreMessage(QtWarningMsg,
+                             "Can't add the same storage into one Group twice, skipping...");
+        const TreeStorage<int> storage;
+
+        Group {
+            Storage(storage),
+            Storage(storage),
+        };
+    }
+
+    {
+        QTest::ignoreMessage(QtDebugMsg, QRegularExpression("^SOFT ASSERT: "));
+        QTest::ignoreMessage(QtWarningMsg,
+                             "Can't add the same storage into one Group twice, skipping...");
+        const TreeStorage<int> storage1;
+        const auto storage2 = storage1;
+
+        Group {
+            Storage(storage1),
+            Storage(storage2),
+        };
+    }
+
+    {
+        QTest::ignoreMessage(QtDebugMsg, QRegularExpression("^SOFT ASSERT: "));
+        QTest::ignoreMessage(QtWarningMsg,
+                             "Group setup handler redefinition, overriding...");
+        Group {
+            onGroupSetup([] {}),
+            onGroupSetup([] {}),
+        };
+    }
+
+    {
+        QTest::ignoreMessage(QtDebugMsg, QRegularExpression("^SOFT ASSERT: "));
+        QTest::ignoreMessage(QtWarningMsg,
+                             "Group done handler redefinition, overriding...");
+        Group {
+            onGroupDone([] {}),
+            onGroupDone([] {}),
+        };
+    }
+
+    {
+        QTest::ignoreMessage(QtDebugMsg, QRegularExpression("^SOFT ASSERT: "));
+        QTest::ignoreMessage(QtWarningMsg,
+                             "Group execution mode redefinition, overriding...");
+        Group {
+            sequential,
+            sequential,
+        };
+    }
+
+    {
+        QTest::ignoreMessage(QtDebugMsg, QRegularExpression("^SOFT ASSERT: "));
+        QTest::ignoreMessage(QtWarningMsg,
+                             "Group workflow policy redefinition, overriding...");
+        Group {
+            stopOnError,
+            stopOnError,
+        };
+    }
 }
 
 class TickAndDone : public QObject
