@@ -6,9 +6,11 @@
 #include "tasking_global.h"
 
 #include <QHash>
+#include <QMutex>
 #include <QObject>
 #include <QSharedPointer>
 
+#include <atomic>
 #include <memory>
 
 QT_BEGIN_NAMESPACE
@@ -51,12 +53,33 @@ private:
     using StorageDestructor = std::function<void(void *)>;
 
     TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor);
-    void *activeStorageVoid() const;
-    int activeStorageId() const;
 
+    struct StorageData;
+
+    struct TASKING_EXPORT ThreadData
+    {
+        Q_DISABLE_COPY_MOVE(ThreadData)
+
+        ThreadData(StorageData *storageData);
+        ~ThreadData();
+
+        int createStorage();
+        bool deleteStorage(int id); // Returns true if it was the last storage.
+
+        void activateStorage(int id);
+
+        void *activeStorageVoid() const;
+        int activeStorageId() const;
+
+    private:
+        StorageData *m_storageData = nullptr;
+        QHash<int, void *> m_storageHash;
+        int m_activeStorage = 0; // 0 means no active storage.
+    };
+
+    ThreadData &threadData() const;
     int createStorage() const;
     void deleteStorage(int id) const;
-    void activateStorage(int id) const;
 
     friend bool operator==(const TreeStorageBase &first, const TreeStorageBase &second)
     { return first.m_storageData == second.m_storageData; }
@@ -67,13 +90,16 @@ private:
     friend size_t qHash(const TreeStorageBase &storage, uint seed = 0)
     { return size_t(storage.m_storageData.get()) ^ seed; }
 
-    struct StorageData {
+    struct StorageData
+    {
         ~StorageData();
-        StorageConstructor m_constructor = {};
-        StorageDestructor m_destructor = {};
-        QHash<int, void *> m_storageHash = {};
-        int m_activeStorage = 0; // 0 means no active storage
-        int m_storageCounter = 0;
+        const StorageConstructor m_constructor = {};
+        const StorageDestructor m_destructor = {};
+        QMutex m_threadDataMutex = {};
+        // Use std::map on purpose, so that it doesn't invalidate references on modifications.
+        // Don't optimize it by using std::unordered_map.
+        std::map<QThread *, ThreadData> m_threadDataMap = {};
+        std::atomic_int m_storageInstanceCounter = 0; // Bumped on each creation.
     };
     QSharedPointer<StorageData> m_storageData;
 
@@ -91,7 +117,7 @@ public:
     StorageStruct &operator*() const noexcept { return *activeStorage(); }
     StorageStruct *operator->() const noexcept { return activeStorage(); }
     StorageStruct *activeStorage() const {
-        return static_cast<StorageStruct *>(activeStorageVoid());
+        return static_cast<StorageStruct *>(threadData().activeStorageVoid()); // HERE
     }
 
 private:
