@@ -804,7 +804,7 @@ Item {
                         + (viewRoot.activeSplit === 0 || viewRoot.activeSplit === 1 ? 1 : 0)
                 width: viewRects[viewRoot.activeSplit].width
                        + (viewRoot.activeSplit === 0 || viewRoot.activeSplit === 2 ? 1 : 0)
-                border.width: 1
+                border.width: 2
                 border.color: "#57B9FC"
                 color: "transparent"
             }

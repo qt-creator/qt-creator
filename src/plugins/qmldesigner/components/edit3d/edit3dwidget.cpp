@@ -282,7 +282,7 @@ void Edit3DWidget::createContextMenu()
 
     m_contextMenu->addSeparator();
 
-    auto overridesSubMenu = new QmlEditorMenu(tr("Shader Overrides"), m_contextMenu);
+    auto overridesSubMenu = new QmlEditorMenu(tr("Viewport Shading"), m_contextMenu);
     overridesSubMenu->setToolTipsVisible(true);
     m_contextMenu->addMenu(overridesSubMenu);
 
@@ -320,54 +320,42 @@ void Edit3DWidget::createContextMenu()
         m_matOverrideActions.insert(int(type), action);
     };
 
-    addOverrideMenuAction(tr("No Material Override"),
+    addOverrideMenuAction(tr("Default"),
                           tr("Rendering occurs as normal."),
                           MaterialOverrideType::None);
     addOverrideMenuAction(tr("Base Color"),
-                          tr("The BaseColor or Diffuse color of a material is passed through without any lighting."),
+                          tr("The base or diffuse color of a material is passed through without any lighting."),
                           MaterialOverrideType::BaseColor);
     addOverrideMenuAction(tr("Roughness"),
-                          tr("The Roughness of a material is passed through as an unlit greyscale value."),
+                          tr("The roughness of a material is passed through as an unlit greyscale value."),
                           MaterialOverrideType::Roughness);
     addOverrideMenuAction(tr("Metalness"),
-                          tr("The Metalness of a material is passed through as an unlit greyscale value."),
+                          tr("The metalness of a material is passed through as an unlit greyscale value."),
                           MaterialOverrideType::Metalness);
+    addOverrideMenuAction(tr("Normals"),
+                          tr("The interpolated world space normal value of the material mapped to an RGB color."),
+                          MaterialOverrideType::Normals);
+    addOverrideMenuAction(tr("Ambient Occlusion"),
+                          tr("Only the ambient occlusion of the material."),
+                          MaterialOverrideType::AmbientOcclusion);
+    addOverrideMenuAction(tr("Emission"),
+                          tr("Only the emissive contribution of the material."),
+                          MaterialOverrideType::Emission);
+    addOverrideMenuAction(tr("Shadow Occlusion"),
+                          tr("The occlusion caused by shadows as a greyscale value."),
+                          MaterialOverrideType::ShadowOcclusion);
     addOverrideMenuAction(tr("Diffuse"),
                           tr("Only the diffuse contribution of the material after all lighting."),
                           MaterialOverrideType::Diffuse);
     addOverrideMenuAction(tr("Specular"),
                           tr("Only the specular contribution of the material after all lighting."),
                           MaterialOverrideType::Specular);
-    addOverrideMenuAction(tr("Shadow Occlusion"),
-                          tr("The Occlusion caused by shadows as a greyscale value."),
-                          MaterialOverrideType::ShadowOcclusion);
-    addOverrideMenuAction(tr("Emission"),
-                          tr("Only the emissive contribution of the material."),
-                          MaterialOverrideType::Emission);
-    addOverrideMenuAction(tr("Ambient Occlusion"),
-                          tr("Only the Ambient Occlusion of the material."),
-                          MaterialOverrideType::AmbientOcclusion);
-    addOverrideMenuAction(tr("Normals"),
-                          tr("The interpolated world space Normal value of the material mapped to an RGB color."),
-                          MaterialOverrideType::Normals);
-    addOverrideMenuAction(tr("Tangents"),
-                          tr("The interpolated world space Tangent value of the material mapped to an RGB color.\n"
-                             "This will only be visible if the Tangent value is used."),
-                          MaterialOverrideType::Tangents);
-    addOverrideMenuAction(tr("Binormals"),
-                          tr("The interpolated world space Binormal value of the material mapped to an RGB color.\n"
-                             "This will only be visible if the Binormal value is used."),
-                          MaterialOverrideType::Binormals);
-    addOverrideMenuAction(tr("Fresnel 0"),
-                          tr("This represents the Fresnel Reflectance at 0 Degrees.\n"
-                             "This will only be visible for materials that calculate an F0 value."),
-                          MaterialOverrideType::F0);
 
     overridesSubMenu->addSeparator();
 
     QAction *resetAction = overridesSubMenu->addAction(
-        tr("Reset All Overrides"), this, &Edit3DWidget::onResetAllOverridesAction);
-    resetAction->setToolTip(tr("Reset all overrides for all splits."));
+        tr("Reset All Viewports"), this, &Edit3DWidget::onResetAllOverridesAction);
+    resetAction->setToolTip(tr("Reset all shading options for all viewports."));
 
     m_contextMenu->addSeparator();
 }
