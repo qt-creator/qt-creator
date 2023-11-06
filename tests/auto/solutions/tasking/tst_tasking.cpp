@@ -372,32 +372,32 @@ GroupItem createBarrierAdvance(const TreeStorage<CustomStorage> &storage,
     });
 }
 
-static Handler resultToGroupHandler(DoneWith result)
+static Handler resultToGroupHandler(DoneWith doneWith)
 {
-    switch (result) {
-    case DoneWith::Success : return Handler::GroupSuccess;
-    case DoneWith::Error : return Handler::GroupError;
-    case DoneWith::Cancel : return Handler::GroupCanceled;
+    switch (doneWith) {
+    case DoneWith::Success: return Handler::GroupSuccess;
+    case DoneWith::Error: return Handler::GroupError;
+    case DoneWith::Cancel: return Handler::GroupCanceled;
     }
     return Handler::GroupCanceled;
 }
 
-static Handler setupToTweakHandler(SetupResult result)
+static Handler toTweakSetupHandler(SetupResult result)
 {
     switch (result) {
-    case SetupResult::Continue : return Handler::TweakSetupToContinue;
-    case SetupResult::StopWithSuccess : return Handler::TweakSetupToSuccess;
-    case SetupResult::StopWithError : return Handler::TweakSetupToError;
+    case SetupResult::Continue: return Handler::TweakSetupToContinue;
+    case SetupResult::StopWithSuccess: return Handler::TweakSetupToSuccess;
+    case SetupResult::StopWithError: return Handler::TweakSetupToError;
     }
     return Handler::TweakSetupToContinue;
 }
 
-static Handler doneToTweakHandler(bool result)
+static Handler toTweakDoneHandler(bool success)
 {
-    return result ? Handler::TweakDoneToSuccess : Handler::TweakDoneToError;
+    return success ? Handler::TweakDoneToSuccess : Handler::TweakDoneToError;
 }
 
-static Handler doneToTweakHandler(DoneResult result)
+static Handler toTweakDoneHandler(DoneResult result)
 {
     return result == DoneResult::Success ? Handler::TweakDoneToSuccess : Handler::TweakDoneToError;
 }
@@ -492,20 +492,21 @@ void tst_Tasking::testTree_data()
         };
     };
 
-    const auto setupTaskWithTweak = [storage](int taskId, SetupResult desiredResult) {
-        return [storage, taskId, desiredResult](TaskObject &) {
+    const auto setupTaskWithTweak = [storage](int taskId, SetupResult result) {
+        return [storage, taskId, result](TaskObject &) {
             storage->m_log.append({taskId, Handler::Setup});
-            storage->m_log.append({taskId, setupToTweakHandler(desiredResult)});
-            return desiredResult;
+            storage->m_log.append({taskId, toTweakSetupHandler(result)});
+            return result;
         };
     };
 
-    const auto setupDone = [storage](int taskId, bool desiredResult = true) {
-        return [storage, taskId, desiredResult](DoneWith result) {
-            const Handler handler = result == DoneWith::Cancel ? Handler::Canceled
-                                  : desiredResult ? Handler::Success : Handler::Error;
+    const auto setupDone = [storage](int taskId, DoneResult result = DoneResult::Success) {
+        return [storage, taskId, result](DoneWith doneWith) {
+            const Handler handler = doneWith == DoneWith::Cancel ? Handler::Canceled
+                                    : result == DoneResult::Success ? Handler::Success : Handler::Error;
             storage->m_log.append({taskId, handler});
-            return desiredResult && result != DoneWith::Cancel;
+            return doneWith == DoneWith::Cancel ? DoneResult::Error
+                   : result == DoneResult::Success ? DoneResult::Success : DoneResult::Error;
         };
     };
 
@@ -516,16 +517,16 @@ void tst_Tasking::testTree_data()
     };
 
     const auto createTask = [storage, setupTask, setupDone](
-            int taskId, bool successTask, milliseconds timeout = 0ms) {
-        return TestTask(setupTask(taskId, timeout), setupDone(taskId, successTask));
+            int taskId, DoneResult result, milliseconds timeout = 0ms) {
+        return TestTask(setupTask(taskId, timeout), setupDone(taskId, result));
     };
 
     const auto createSuccessTask = [createTask](int taskId, milliseconds timeout = 0ms) {
-        return createTask(taskId, true, timeout);
+        return createTask(taskId, DoneResult::Success, timeout);
     };
 
     const auto createFailingTask = [createTask](int taskId, milliseconds timeout = 0ms) {
-        return createTask(taskId, false, timeout);
+        return createTask(taskId, DoneResult::Error, timeout);
     };
 
     const auto createTaskWithSetupTweak = [storage, setupTaskWithTweak, setupDone](
@@ -546,14 +547,14 @@ void tst_Tasking::testTree_data()
     const auto groupSetupWithTweak = [storage](int taskId, SetupResult desiredResult) {
         return onGroupSetup([storage, taskId, desiredResult] {
             storage->m_log.append({taskId, Handler::GroupSetup});
-            storage->m_log.append({taskId, setupToTweakHandler(desiredResult)});
+            storage->m_log.append({taskId, toTweakSetupHandler(desiredResult)});
             return desiredResult;
         });
     };
     const auto groupDoneWithTweak = [storage](int taskId, bool desiredResult) {
         return onGroupDone([storage, taskId, desiredResult](DoneWith result) {
             storage->m_log.append({taskId, resultToGroupHandler(result)});
-            storage->m_log.append({taskId, doneToTweakHandler(desiredResult)});
+            storage->m_log.append({taskId, toTweakDoneHandler(desiredResult)});
             return desiredResult;
         });
     };
@@ -563,7 +564,7 @@ void tst_Tasking::testTree_data()
     const auto createSyncWithTweak = [storage](int taskId, DoneResult result) {
         return Sync([storage, taskId, result] {
             storage->m_log.append({taskId, Handler::Sync});
-            storage->m_log.append({taskId, doneToTweakHandler(result)});
+            storage->m_log.append({taskId, toTweakDoneHandler(result)});
             return result;
         });
     };
@@ -1525,22 +1526,22 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const auto createRoot = [storage, createTask, groupDone](
-                                    bool firstSuccess, bool secondSuccess) {
+        const auto createRoot = [storage, createTask, groupDone](DoneResult firstResult,
+                                                                 DoneResult secondResult) {
             return Group {
                 parallel,
                 stopOnFinished,
                 Storage(storage),
-                createTask(1, firstSuccess, 1000ms),
-                createTask(2, secondSuccess, 1ms),
+                createTask(1, firstResult, 1000ms),
+                createTask(2, secondResult, 1ms),
                 groupDone(0)
             };
         };
 
-        const Group root1 = createRoot(true, true);
-        const Group root2 = createRoot(true, false);
-        const Group root3 = createRoot(false, true);
-        const Group root4 = createRoot(false, false);
+        const Group root1 = createRoot(DoneResult::Success, DoneResult::Success);
+        const Group root2 = createRoot(DoneResult::Success, DoneResult::Error);
+        const Group root3 = createRoot(DoneResult::Error, DoneResult::Success);
+        const Group root4 = createRoot(DoneResult::Error, DoneResult::Error);
 
         const Log success {
             {1, Handler::Setup},
@@ -1610,18 +1611,18 @@ void tst_Tasking::testTree_data()
     {
         // This test checks whether group done handler's result is properly dispatched.
         const auto createRoot = [storage, createTask, groupDone, groupDoneWithTweak](
-                                 bool successTask, bool desiredResult) {
+                                 DoneResult firstResult, bool desiredResult) {
             return Group {
                 Storage(storage),
                 Group {
-                    createTask(1, successTask),
+                    createTask(1, firstResult),
                     groupDoneWithTweak(1, desiredResult)
                 },
                 groupDone(0)
             };
         };
 
-        const Group root1 = createRoot(true, true);
+        const Group root1 = createRoot(DoneResult::Success, true);
         const Log log1 {
             {1, Handler::Setup},
             {1, Handler::Success},
@@ -1632,7 +1633,7 @@ void tst_Tasking::testTree_data()
         QTest::newRow("GroupDoneWithSuccessTweakToSuccess")
             << TestData{storage, root1, log1, 1, OnDone::Success};
 
-        const Group root2 = createRoot(true, false);
+        const Group root2 = createRoot(DoneResult::Success, false);
         const Log log2 {
             {1, Handler::Setup},
             {1, Handler::Success},
@@ -1643,7 +1644,7 @@ void tst_Tasking::testTree_data()
         QTest::newRow("GroupDoneWithSuccessTweakToError")
             << TestData{storage, root2, log2, 1, OnDone::Failure};
 
-        const Group root3 = createRoot(false, true);
+        const Group root3 = createRoot(DoneResult::Error, true);
         const Log log3 {
             {1, Handler::Setup},
             {1, Handler::Error},
@@ -1654,7 +1655,7 @@ void tst_Tasking::testTree_data()
         QTest::newRow("GroupDoneWithErrorTweakToSuccess")
             << TestData{storage, root3, log3, 1, OnDone::Success};
 
-        const Group root4 = createRoot(false, false);
+        const Group root4 = createRoot(DoneResult::Error, false);
         const Log log4 {
             {1, Handler::Setup},
             {1, Handler::Error},

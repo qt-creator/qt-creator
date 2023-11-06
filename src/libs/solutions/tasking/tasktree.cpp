@@ -837,6 +837,11 @@ static SetupResult toSetupResult(bool success)
     return success ? SetupResult::StopWithSuccess : SetupResult::StopWithError;
 }
 
+static DoneResult toDoneResult(DoneWith doneWith)
+{
+    return doneWith == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
+}
+
 bool TreeStorageBase::isValid() const
 {
     return m_storageData && m_storageData->m_constructor && m_storageData->m_destructor;
@@ -1136,7 +1141,7 @@ public:
     // in order to unwind properly.
     SetupResult start();
     void stop();
-    bool invokeDoneHandler(DoneWith result);
+    bool invokeDoneHandler(DoneWith doneWith);
     bool isRunning() const { return m_task || m_container.isRunning(); }
     bool isTask() const { return bool(m_taskHandler.m_createHandler); }
     int taskCount() const { return isTask() ? 1 : m_container.m_constData.m_taskCount; }
@@ -1507,13 +1512,13 @@ void TaskNode::stop()
     m_task.reset();
 }
 
-bool TaskNode::invokeDoneHandler(DoneWith result)
+bool TaskNode::invokeDoneHandler(DoneWith doneWith)
 {
-    bool success = result == DoneWith::Success;
-    if (m_taskHandler.m_doneHandler && shouldCall(m_taskHandler.m_callDoneIf, result))
-        success = invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get(), result);
+    DoneResult result = toDoneResult(doneWith);
+    if (m_taskHandler.m_doneHandler && shouldCall(m_taskHandler.m_callDoneIf, doneWith))
+        result = invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get(), doneWith);
     m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
-    return success;
+    return result == DoneResult::Success;
 }
 
 /*!
