@@ -32,8 +32,8 @@ public:
 
     virtual QSize minimumSizeHint() const;
 
-    Q_INVOKABLE bool loadJsonFile(const QString &jsonFileAddress);
-    Q_INVOKABLE bool loadCsvFile(const QString &collectionName, const QString &csvFileAddress);
+    Q_INVOKABLE bool loadJsonFile(const QString &jsonFileAddress, const QString &collectionName = {});
+    Q_INVOKABLE bool loadCsvFile(const QString &csvFileAddress, const QString &collectionName = {});
     Q_INVOKABLE bool isJsonFile(const QString &jsonFileAddress) const;
     Q_INVOKABLE bool isCsvFile(const QString &csvFileAddress) const;
     Q_INVOKABLE bool addCollection(const QString &collectionName,

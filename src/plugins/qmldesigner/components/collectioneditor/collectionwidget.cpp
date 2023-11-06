@@ -37,7 +37,7 @@ QString collectionViewResourcesPath()
     return Core::ICore::resourcePath("qmldesigner/collectionEditorQmlSource").toString();
 }
 
-static QString urlToLocalPath(const QUrl &url)
+QString urlToLocalPath(const QUrl &url)
 {
     QString localPath;
 
@@ -50,6 +50,16 @@ static QString urlToLocalPath(const QUrl &url)
     }
 
     return localPath;
+}
+
+QString getPreferredCollectionName(const QUrl &url, const QString &collectionName)
+{
+    if (collectionName.isEmpty()) {
+        QFileInfo fileInfo(url.isLocalFile() ? url.toLocalFile() : url.toString());
+        return fileInfo.completeBaseName();
+    }
+
+    return collectionName;
 }
 
 } // namespace
@@ -136,23 +146,23 @@ QSize CollectionWidget::minimumSizeHint() const
     return {300, 400};
 }
 
-bool CollectionWidget::loadJsonFile(const QString &jsonFileAddress)
+bool CollectionWidget::loadJsonFile(const QString &jsonFileAddress, const QString &collectionName)
 {
     if (!isJsonFile(jsonFileAddress))
         return false;
 
-    QUrl jsonUrl(jsonFileAddress);
-    QFileInfo fileInfo(jsonUrl.isLocalFile() ? jsonUrl.toLocalFile() : jsonUrl.toString());
-
-    m_view->addResource(jsonUrl, fileInfo.completeBaseName(), "json");
+    m_view->addResource(jsonFileAddress,
+                        getPreferredCollectionName(jsonFileAddress, collectionName),
+                        "json");
 
     return true;
 }
 
-bool CollectionWidget::loadCsvFile(const QString &collectionName, const QString &csvFileAddress)
+bool CollectionWidget::loadCsvFile(const QString &csvFileAddress, const QString &collectionName)
 {
-    QUrl csvUrl(csvFileAddress);
-    m_view->addResource(csvUrl, collectionName, "csv");
+    m_view->addResource(csvFileAddress,
+                        getPreferredCollectionName(csvFileAddress, collectionName),
+                        "csv");
 
     return true;
 }
@@ -211,7 +221,7 @@ bool CollectionWidget::addCollection(const QString &collectionName,
             sourceFile.write(QJsonDocument(jsonObject).toJson());
             sourceFile.close();
 
-            bool loaded = loadJsonFile(sourcePath);
+            bool loaded = loadJsonFile(sourcePath, collectionName);
             if (!loaded)
                 sourceFile.remove();
 
@@ -226,7 +236,7 @@ bool CollectionWidget::addCollection(const QString &collectionName,
 
             sourceFile.close();
 
-            bool loaded = loadCsvFile(collectionName, sourcePath);
+            bool loaded = loadCsvFile(sourcePath, collectionName);
             if (!loaded)
                 sourceFile.remove();
 
@@ -234,9 +244,9 @@ bool CollectionWidget::addCollection(const QString &collectionName,
         } else if (collectionType == "existing") {
             QFileInfo fileInfo(sourcePath);
             if (fileInfo.suffix() == "json")
-                return loadJsonFile(sourcePath);
+                return loadJsonFile(sourcePath, collectionName);
             else if (fileInfo.suffix() == "csv")
-                return loadCsvFile(collectionName, sourcePath);
+                return loadCsvFile(sourcePath, collectionName);
         }
     } else if (collectionType == "json") {
         QString errorMsg;

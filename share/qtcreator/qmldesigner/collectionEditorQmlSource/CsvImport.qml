@@ -169,7 +169,7 @@ StudioControls.Dialog {
                 enabled: root.fileExists && collectionName.text !== ""
 
                 onClicked: {
-                    let csvLoaded = root.backendValue.loadCsvFile(collectionName.text, fileName.text)
+                    let csvLoaded = root.backendValue.loadCsvFile(fileName.text, collectionName.text)
 
                     if (csvLoaded)
                         root.accept()
