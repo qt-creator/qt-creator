@@ -49,7 +49,7 @@
     the \uicontrol {Skip clean whitespace for file types} check box to
     exclude the specified file types.
 
-    \image qtcreator-options-text-editor-behavior.png {Text Editor Behavior preferences}
+    \image qtcreator-preferences-texteditor-behavior.webp {Text Editor Behavior preferences}
 
     \section1 Show whitespace in editor
 

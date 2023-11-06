@@ -52,7 +52,7 @@ PluginDialog::PluginDialog(QWidget *parent)
         buttonBox,
     }.attachTo(this);
 
-    resize(650, 400);
+    resize(760, 440);
     setWindowTitle(Tr::tr("Installed Plugins"));
 
     connect(m_view, &ExtensionSystem::PluginView::currentPluginChanged,

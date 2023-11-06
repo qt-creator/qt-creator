@@ -95,14 +95,14 @@ GTestFramework::GTestFramework()
         // avoid problems if user messes around with the settings file
         bool ok = false;
         const int tmp = savedValue.toInt(&ok);
-        return ok ? groupMode.indexForItemValue(tmp) : GTest::Constants::Directory;
+        return groupMode.indexForItemValue(ok ? tmp : GTest::Constants::Directory);
     });
     groupMode.setToSettingsTransformation([this](const QVariant &value) {
         return groupMode.itemValueForIndex(value.toInt());
     });
     groupMode.addOption({Tr::tr("Directory"), {}, GTest::Constants::Directory});
     groupMode.addOption({Tr::tr("GTest Filter"), {}, GTest::Constants::GTestFilter});
-    groupMode.setDefaultValue(GTest::Constants::Directory);
+    groupMode.setDefaultValue(groupMode.indexForItemValue(GTest::Constants::Directory));
     groupMode.setLabelText(Tr::tr("Group mode:"));
     groupMode.setToolTip(Tr::tr("Select on what grouping the tests should be based."));
 
@@ -142,6 +142,12 @@ ITestParser *GTestFramework::createTestParser()
 ITestTreeItem *GTestFramework::createRootNode()
 {
     return new GTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
+}
+
+void GTestFramework::readSettings()
+{
+    Utils::AspectContainer::readSettings();
+    gtestFilter.setEnabled(groupMode.itemValue() == GTest::Constants::GTestFilter);
 }
 
 QString GTestFramework::currentGTestFilter()

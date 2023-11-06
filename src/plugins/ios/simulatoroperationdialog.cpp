@@ -94,15 +94,15 @@ void SimulatorOperationDialog::addMessage(const QString &message, Utils::OutputF
 }
 
 void SimulatorOperationDialog::addMessage(const SimulatorInfo &siminfo,
-                                       const SimulatorControl::ResponseData &response,
-                                       const QString &context)
+                                          const SimulatorControl::Response &response,
+                                          const QString &context)
 {
-    QTC_CHECK(siminfo.identifier == response.simUdid);
-    if (response.success) {
+    if (response) {
+        QTC_CHECK(siminfo.identifier == response->simUdid);
         addMessage(Tr::tr("%1, %2\nOperation %3 completed successfully.").arg(siminfo.name)
                    .arg(siminfo.runtimeName).arg(context), Utils::StdOutFormat);
     } else {
-        QString erroMsg = response.commandOutput.trimmed();
+        QString erroMsg = response.error();
         QString message = Tr::tr("%1, %2\nOperation %3 failed.\nUDID: %4\nError: %5").arg(siminfo.name)
                 .arg(siminfo.runtimeName).arg(context).arg(siminfo.identifier)
                 .arg(erroMsg.isEmpty() ? Tr::tr("Unknown") : erroMsg);

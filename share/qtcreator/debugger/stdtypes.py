@@ -1108,7 +1108,7 @@ def qdump__std__optional(d, value):
         d.putItem(payload)
         d.putBetterType(innerType)
     else:
-        d.putSpecialValue("uninitialized")
+        d.putSpecialValue("empty")
 
 
 def qdump__std__experimental__optional(d, value):

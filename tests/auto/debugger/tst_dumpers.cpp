@@ -2514,7 +2514,7 @@ void tst_Dumpers::dumper_data()
                     "#include <QPainter>\n",
 
                     "QApplication app(argc, argv);\n"
-                    "QImage im(QSize(200, 200), QImage::Format_RGB32);\n"
+                    "QImage im(QSize(200, 199), QImage::Format_RGB32);\n"
                     "im.fill(QColor(200, 100, 130).rgba());\n\n"
                     "QPainter pain;\n"
                     "pain.begin(&im);\n"
@@ -2525,9 +2525,12 @@ void tst_Dumpers::dumper_data()
 
                + GuiProfile()
 
-               + Check("im", "(200x200)", "@QImage")
+               + Check("im", "(200x199)", "@QImage")
+               + Check("im.width", "200", "int")
+               + Check("im.height", "199", "int")
+               + Check("im.data", ValuePattern("0x[[:xdigit:]]{2,}"), "void *")
                + Check("pain", AnyValue, "@QPainter")
-               + Check("pm", "(200x200)", "@QPixmap");
+               + Check("pm", "(200x199)", "@QPixmap");
 
 
     QTest::newRow("QLinkedList")
@@ -5624,7 +5627,7 @@ void tst_Dumpers::dumper_data()
 
                + Cxx17Profile()
 
-               + Check("o1", "<uninitialized>", "std::optional<bool>")
+               + Check("o1", "<empty>", "std::optional<bool>")
                + Check("o2", "1", "bool") // 1 -> true is done on display
                + Check("o3", "<3 items>", "std::vector<int>")
                + Check("o3.1", "[1]", "2", "int");

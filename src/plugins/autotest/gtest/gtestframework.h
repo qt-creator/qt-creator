@@ -32,6 +32,8 @@ public:
     QString groupingToolTip() const override;
     ITestParser *createTestParser() override;
     ITestTreeItem *createRootNode() override;
+
+    void readSettings() final;
 };
 
 GTestFramework &theGTestFramework();

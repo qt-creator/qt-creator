@@ -16,6 +16,15 @@
 
     The following topics describe how to use \QC to perform a particular task.
 
+    \section1 Analyze
+
+    \QC integrates code analysis tools for detecting memory leaks, profiling
+    function execution, analyzing CPU use, and eliminating unnecessary
+    complexity of code. Other integrated tools provide code coverage and
+    visualize trace events.
+
+    \generatelist creator-how-to-analyze
+
     \section1 Build and Run
 
     \generatelist creator-how-to-build

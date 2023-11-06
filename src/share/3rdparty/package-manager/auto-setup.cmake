@@ -16,6 +16,12 @@ if (QT_CREATOR_SKIP_PACKAGE_MANAGER_SETUP)
 endif()
 option(QT_CREATOR_SKIP_PACKAGE_MANAGER_SETUP "Skip Qt Creator's package manager auto-setup" OFF)
 
+# Store the C/C++ object output extension
+if (CMAKE_VERSION GREATER_EQUAL "3.19")
+  cmake_language(DEFER CALL set CMAKE_C_OUTPUT_EXTENSION "${CMAKE_C_OUTPUT_EXTENSION}" CACHE STRING "" FORCE)
+  cmake_language(DEFER CALL set CMAKE_CXX_OUTPUT_EXTENSION "${CMAKE_CXX_OUTPUT_EXTENSION}" CACHE STRING "" FORCE)
+endif()
+
 macro(qtc_auto_setup_compiler_standard toolchainFile)
   foreach(lang_var C CXX CUDA OBJC OBJCXX)
     foreach(prop_var STANDARD STANDARD_REQUIRED EXTENSIONS)
