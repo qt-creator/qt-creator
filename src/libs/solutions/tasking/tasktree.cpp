@@ -19,18 +19,16 @@ using namespace std::chrono;
 namespace Tasking {
 
 // That's cut down qtcassert.{c,h} to avoid the dependency.
-#define QTC_STRINGIFY_HELPER(x) #x
-#define QTC_STRINGIFY(x) QTC_STRINGIFY_HELPER(x)
-#define QTC_STRING(cond) qDebug("SOFT ASSERT: \"%s\" in %s: %s", cond,  __FILE__, QTC_STRINGIFY(__LINE__))
-#define QTC_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QTC_STRING(#cond); action; } do {} while (0)
-#define QTC_CHECK(cond) if (cond) {} else { QTC_STRING(#cond); } do {} while (0)
+#define QT_STRING(cond) qDebug("SOFT ASSERT: \"%s\" in %s: %s", cond,  __FILE__, QT_STRINGIFY(__LINE__))
+#define QT_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QT_STRING(#cond); action; } do {} while (0)
+#define QT_CHECK(cond) if (cond) {} else { QT_STRING(#cond); } do {} while (0)
 
 class Guard
 {
     Q_DISABLE_COPY(Guard)
 public:
     Guard() = default;
-    ~Guard() { QTC_CHECK(m_lockCount == 0); }
+    ~Guard() { QT_CHECK(m_lockCount == 0); }
     bool isLocked() const { return m_lockCount; }
 private:
     int m_lockCount = 0;
@@ -899,13 +897,13 @@ public:
 StorageThreadData::StorageThreadData(StorageData *storageData)
     : m_storageData(storageData)
 {
-    QTC_CHECK(m_storageData->m_constructor);
-    QTC_CHECK(m_storageData->m_destructor);
+    QT_CHECK(m_storageData->m_constructor);
+    QT_CHECK(m_storageData->m_destructor);
 }
 
 StorageThreadData::~StorageThreadData()
 {
-    QTC_CHECK(m_storageHash.isEmpty());
+    QT_CHECK(m_storageHash.isEmpty());
     // TODO: Issue a warning about the leak instead?
     for (void *ptr : std::as_const(m_storageHash))
         m_storageData->m_destructor(ptr);
@@ -913,7 +911,7 @@ StorageThreadData::~StorageThreadData()
 
 int StorageThreadData::createStorage()
 {
-    QTC_ASSERT(m_activeStorage == 0, return 0); // TODO: should be allowed?
+    QT_ASSERT(m_activeStorage == 0, return 0); // TODO: should be allowed?
     const int newId = m_storageData->m_storageInstanceCounter.fetch_add(1) + 1;
     m_storageHash.insert(newId, m_storageData->m_constructor());
     return newId;
@@ -921,9 +919,9 @@ int StorageThreadData::createStorage()
 
 bool StorageThreadData::deleteStorage(int id)
 {
-    QTC_ASSERT(m_activeStorage == 0, return false); // TODO: should be allowed?
+    QT_ASSERT(m_activeStorage == 0, return false); // TODO: should be allowed?
     const auto it = m_storageHash.constFind(id);
-    QTC_ASSERT(it != m_storageHash.constEnd(), return false);
+    QT_ASSERT(it != m_storageHash.constEnd(), return false);
     m_storageData->m_destructor(it.value());
     m_storageHash.erase(it);
     return m_storageHash.empty();
@@ -933,33 +931,33 @@ bool StorageThreadData::deleteStorage(int id)
 void StorageThreadData::activateStorage(int id)
 {
     if (id == 0) {
-        QTC_ASSERT(m_activeStorage, return);
+        QT_ASSERT(m_activeStorage, return);
         m_activeStorage = 0;
         return;
     }
-    QTC_ASSERT(m_activeStorage == 0, return);
+    QT_ASSERT(m_activeStorage == 0, return);
     // TODO: Unneeded check? OTOH, it's quite important...
     const auto it = m_storageHash.find(id);
-    QTC_ASSERT(it != m_storageHash.end(), return);
+    QT_ASSERT(it != m_storageHash.end(), return);
     m_activeStorage = id;
 }
 
 void *StorageThreadData::activeStorageVoid() const
 {
-    QTC_ASSERT(m_activeStorage, qWarning(
+    QT_ASSERT(m_activeStorage, qWarning(
         "The referenced storage is not reachable in the running tree. "
         "A nullptr will be returned which might lead to a crash in the calling code. "
         "It is possible that no storage was added to the tree, "
         "or the storage is not reachable from where it is referenced."); return nullptr);
     const auto it = m_storageHash.constFind(m_activeStorage);
-    QTC_ASSERT(it != m_storageHash.constEnd(), return nullptr);
+    QT_ASSERT(it != m_storageHash.constEnd(), return nullptr);
     return it.value();
 }
 
 StorageData::~StorageData()
 {
     QMutexLocker lock(&m_threadDataMutex);
-    QTC_CHECK(m_threadDataMap.empty());
+    QT_CHECK(m_threadDataMap.empty());
 }
 
 bool TreeStorageBase::isValid() const
@@ -978,8 +976,8 @@ void *TreeStorageBase::activeStorageVoid() const
 
 void GroupItem::addChildren(const QList<GroupItem> &children)
 {
-    QTC_ASSERT(m_type == Type::Group || m_type == Type::List,
-               qWarning("Only Group or List may have children, skipping..."); return);
+    QT_ASSERT(m_type == Type::Group || m_type == Type::List,
+              qWarning("Only Group or List may have children, skipping..."); return);
     if (m_type == Type::List) {
         m_children.append(children);
         return;
@@ -994,39 +992,39 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
             break;
         case Type::GroupData:
             if (child.m_groupData.m_groupHandler.m_setupHandler) {
-                QTC_ASSERT(!m_groupData.m_groupHandler.m_setupHandler,
-                           qWarning("Group setup handler redefinition, overriding..."));
+                QT_ASSERT(!m_groupData.m_groupHandler.m_setupHandler,
+                          qWarning("Group setup handler redefinition, overriding..."));
                 m_groupData.m_groupHandler.m_setupHandler
                     = child.m_groupData.m_groupHandler.m_setupHandler;
             }
             if (child.m_groupData.m_groupHandler.m_doneHandler) {
-                QTC_ASSERT(!m_groupData.m_groupHandler.m_doneHandler,
-                           qWarning("Group done handler redefinition, overriding..."));
+                QT_ASSERT(!m_groupData.m_groupHandler.m_doneHandler,
+                          qWarning("Group done handler redefinition, overriding..."));
                 m_groupData.m_groupHandler.m_doneHandler
                     = child.m_groupData.m_groupHandler.m_doneHandler;
             }
             if (child.m_groupData.m_parallelLimit) {
-                QTC_ASSERT(!m_groupData.m_parallelLimit,
-                           qWarning("Group execution mode redefinition, overriding..."));
+                QT_ASSERT(!m_groupData.m_parallelLimit,
+                          qWarning("Group execution mode redefinition, overriding..."));
                 m_groupData.m_parallelLimit = child.m_groupData.m_parallelLimit;
             }
             if (child.m_groupData.m_workflowPolicy) {
-                QTC_ASSERT(!m_groupData.m_workflowPolicy,
-                           qWarning("Group workflow policy redefinition, overriding..."));
+                QT_ASSERT(!m_groupData.m_workflowPolicy,
+                          qWarning("Group workflow policy redefinition, overriding..."));
                 m_groupData.m_workflowPolicy = child.m_groupData.m_workflowPolicy;
             }
             break;
         case Type::TaskHandler:
-            QTC_ASSERT(child.m_taskHandler.m_createHandler,
-                       qWarning("Task create handler can't be null, skipping..."); return);
+            QT_ASSERT(child.m_taskHandler.m_createHandler,
+                      qWarning("Task create handler can't be null, skipping..."); return);
             m_children.append(child);
             break;
         case Type::Storage:
             // Check for duplicates, as can't have the same storage twice on the same level.
             for (const TreeStorageBase &storage : child.m_storageList) {
                 if (m_storageList.contains(storage)) {
-                    QTC_ASSERT(false, qWarning("Can't add the same storage into one Group twice, "
-                                               "skipping..."));
+                    QT_ASSERT(false, qWarning("Can't add the same storage into one Group twice, "
+                                              "skipping..."));
                     continue;
                 }
                 m_storageList.append(storage);
@@ -1187,20 +1185,20 @@ private:
 
 void TaskTreePrivate::start()
 {
-    QTC_ASSERT(m_root, return);
+    QT_ASSERT(m_root, return);
     m_progressValue = 0;
     emitStartedAndProgress();
     // TODO: check storage handlers for not existing storages in tree
     for (auto it = m_storageHandlers.cbegin(); it != m_storageHandlers.cend(); ++it) {
-        QTC_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
-                   "exist in task tree. Its handlers will never be called."));
+        QT_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
+                  "exist in task tree. Its handlers will never be called."));
     }
     m_root->start();
 }
 
 void TaskTreePrivate::stop()
 {
-    QTC_ASSERT(m_root, return);
+    QT_ASSERT(m_root, return);
     if (!m_root->isRunning())
         return;
     m_root->stop();
@@ -1211,8 +1209,8 @@ void TaskTreePrivate::advanceProgress(int byValue)
 {
     if (byValue == 0)
         return;
-    QTC_CHECK(byValue > 0);
-    QTC_CHECK(m_progressValue + byValue <= m_root->taskCount());
+    QT_CHECK(byValue > 0);
+    QT_CHECK(m_progressValue + byValue <= m_root->taskCount());
     m_progressValue += byValue;
     emitProgress();
 }
@@ -1232,7 +1230,7 @@ void TaskTreePrivate::emitProgress()
 
 void TaskTreePrivate::emitDone(DoneWith result)
 {
-    QTC_CHECK(m_progressValue == m_root->taskCount());
+    QT_CHECK(m_progressValue == m_root->taskCount());
     GuardLocker locker(m_guard);
     emit q->done(result);
 }
@@ -1249,7 +1247,7 @@ public:
 private:
     void activateContext(TaskContainer *container)
     {
-        QTC_ASSERT(container && container->isRunning(), return);
+        QT_ASSERT(container && container->isRunning(), return);
         const TaskContainer::ConstData &constData = container->m_constData;
         for (int i = 0; i < constData.m_storageList.size(); ++i) {
             const TreeStorageBase &storage = constData.m_storageList[i];
@@ -1327,7 +1325,7 @@ static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
     case WorkflowPolicy::FinishAllAndError:
         return false;
     }
-    QTC_CHECK(false);
+    QT_CHECK(false);
     return false;
 }
 
@@ -1373,7 +1371,7 @@ int TaskContainer::RuntimeData::currentLimit() const
 
 SetupResult TaskContainer::start()
 {
-    QTC_CHECK(!isRunning());
+    QT_CHECK(!isRunning());
     m_runtimeData.emplace(m_constData);
 
     SetupResult startAction = SetupResult::Continue;
@@ -1396,12 +1394,12 @@ SetupResult TaskContainer::continueStart(SetupResult startAction, int nextChild)
 {
     const SetupResult groupAction = startAction == SetupResult::Continue ? startChildren(nextChild)
                                                                        : startAction;
-    QTC_CHECK(isRunning()); // TODO: superfluous
+    QT_CHECK(isRunning()); // TODO: superfluous
     if (groupAction != SetupResult::Continue) {
         const bool bit = m_runtimeData->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
         const bool result = invokeDoneHandler(bit ? DoneWith::Success : DoneWith::Error);
         if (TaskContainer *parentContainer = m_constData.m_parentContainer) {
-            QTC_CHECK(parentContainer->isRunning());
+            QT_CHECK(parentContainer->isRunning());
             if (!parentContainer->isStarting())
                 parentContainer->childDone(result);
         } else {
@@ -1413,7 +1411,7 @@ SetupResult TaskContainer::continueStart(SetupResult startAction, int nextChild)
 
 SetupResult TaskContainer::startChildren(int nextChild)
 {
-    QTC_CHECK(isRunning());
+    QT_CHECK(isRunning());
     GuardLocker locker(m_runtimeData->m_startGuard);
     for (int i = nextChild; i < m_constData.m_children.size(); ++i) {
         const int limit = m_runtimeData->currentLimit();
@@ -1440,7 +1438,7 @@ SetupResult TaskContainer::startChildren(int nextChild)
 
 SetupResult TaskContainer::childDone(bool success)
 {
-    QTC_CHECK(isRunning());
+    QT_CHECK(isRunning());
     const int limit = m_runtimeData->currentLimit(); // Read before bumping m_doneCount and stop()
     const bool shouldStop = m_constData.m_workflowPolicy == WorkflowPolicy::StopOnFinished
                         || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnSuccess && success)
@@ -1495,7 +1493,7 @@ bool TaskContainer::invokeDoneHandler(DoneWith doneWith)
 
 SetupResult TaskNode::start()
 {
-    QTC_CHECK(!isRunning());
+    QT_CHECK(!isRunning());
     if (!isTask())
         return m_container.start();
 
@@ -1514,7 +1512,7 @@ SetupResult TaskNode::start()
         const bool result = invokeDoneHandler(success ? DoneWith::Success : DoneWith::Error);
         QObject::disconnect(m_task.get(), &TaskInterface::done, taskTree(), nullptr);
         m_task.release()->deleteLater();
-        QTC_ASSERT(parentContainer() && parentContainer()->isRunning(), return);
+        QT_ASSERT(parentContainer() && parentContainer()->isRunning(), return);
         if (parentContainer()->isStarting())
             *unwindAction = toSetupResult(result);
         else
@@ -2228,8 +2226,8 @@ TaskTree::TaskTree(const Group &recipe) : TaskTree()
 */
 TaskTree::~TaskTree()
 {
-    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting TaskTree instance directly from "
-               "one of its handlers will lead to a crash!"));
+    QT_ASSERT(!d->m_guard.isLocked(), qWarning("Deleting TaskTree instance directly from "
+              "one of its handlers will lead to a crash!"));
     // TODO: delete storages explicitly here?
     delete d;
 }
@@ -2245,9 +2243,9 @@ TaskTree::~TaskTree()
 */
 void TaskTree::setRecipe(const Group &recipe)
 {
-    QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
-    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The setRecipe() is called from one of the"
-                                                "TaskTree handlers, ignoring..."); return);
+    QT_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
+    QT_ASSERT(!d->m_guard.isLocked(), qWarning("The setRecipe() is called from one of the"
+                                               "TaskTree handlers, ignoring..."); return);
     // TODO: Should we clear the m_storageHandlers, too?
     d->m_storages.clear();
     d->m_root.reset(new TaskNode(d, recipe, nullptr));
@@ -2281,9 +2279,9 @@ void TaskTree::setRecipe(const Group &recipe)
 */
 void TaskTree::start()
 {
-    QTC_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
-    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The start() is called from one of the"
-                                                "TaskTree handlers, ignoring..."); return);
+    QT_ASSERT(!isRunning(), qWarning("The TaskTree is already running, ignoring..."); return);
+    QT_ASSERT(!d->m_guard.isLocked(), qWarning("The start() is called from one of the"
+                                               "TaskTree handlers, ignoring..."); return);
     d->start();
 }
 
@@ -2348,8 +2346,8 @@ void TaskTree::start()
 */
 void TaskTree::stop()
 {
-    QTC_ASSERT(!d->m_guard.isLocked(), qWarning("The stop() is called from one of the"
-                                                "TaskTree handlers, ignoring..."); return);
+    QT_ASSERT(!d->m_guard.isLocked(), qWarning("The stop() is called from one of the"
+                                               "TaskTree handlers, ignoring..."); return);
     d->stop();
 }
 
@@ -2596,13 +2594,13 @@ void TaskTree::setupStorageHandler(const TreeStorageBase &storage,
         return;
     }
     if (setupHandler) {
-        QTC_ASSERT(!it->m_setupHandler,
-                   qWarning("The storage has its setup handler defined, overriding..."));
+        QT_ASSERT(!it->m_setupHandler,
+                  qWarning("The storage has its setup handler defined, overriding..."));
         it->m_setupHandler = setupHandler;
     }
     if (doneHandler) {
-        QTC_ASSERT(!it->m_doneHandler,
-                   qWarning("The storage has its done handler defined, overriding..."));
+        QT_ASSERT(!it->m_doneHandler,
+                  qWarning("The storage has its done handler defined, overriding..."));
         it->m_doneHandler = doneHandler;
     }
 }
@@ -2660,14 +2658,14 @@ static void removeTimerId(int timerId)
 {
     QMutexLocker lock(&s_mutex);
     const auto it = s_timerIdToTimerData.constFind(timerId);
-    QTC_ASSERT(it != s_timerIdToTimerData.cend(),
-               qWarning("Removing active timerId failed."); return);
+    QT_ASSERT(it != s_timerIdToTimerData.cend(),
+              qWarning("Removing active timerId failed."); return);
 
     const system_clock::time_point deadline = it->m_deadline;
     s_timerIdToTimerData.erase(it);
 
     const int removedCount = s_deadlineToTimerId.remove(deadline, timerId);
-    QTC_ASSERT(removedCount == 1, qWarning("Removing active timerId failed."); return);
+    QT_ASSERT(removedCount == 1, qWarning("Removing active timerId failed."); return);
 }
 
 static void handleTimeout(int timerId)
