@@ -98,7 +98,7 @@
     Select the \inlineimage icons/settings.png
     button to customize Clang diagnostics for the current project.
 
-    \image qtcreator-clang-tools-options-customized.png {Clang Tools customized settings}
+    \image qtcreator-clang-tools-settings.webp {Clang Tools customized settings}
 
     To restore the global settings, select \uicontrol {Restore Global Settings}.
     To view and modify the global settings, select the link in
@@ -114,7 +114,7 @@
         \li Select \preferences > \uicontrol Analyzer >
             \uicontrol {Clang Tools}.
 
-            \image qtcreator-clang-tools-options.png {Clang Tools preferences}
+            \image qtcreator-preferences-analyzer-clang-tools.webp {Clang Tools preferences}
 
         \li In the \uicontrol Clang-Tidy and \uicontrol Clazy-Standalone fields,
             set the paths to the executables to use.
@@ -139,6 +139,10 @@
             select and edit the checks to perform.
 
             \image qtcreator-clang-tools-diagnostics-configuration.png {Diagnostics Configuration dialog}
+
+            To perform checks from a Clang Tidy configuration file instead,
+            select \uicontrol {Prefer .clang-tidy file, if present} in the
+            \uicontrol {Clang Tools} tab.
 
         \li Select \uicontrol Copy to copy the selected diagnostics for editing.
 

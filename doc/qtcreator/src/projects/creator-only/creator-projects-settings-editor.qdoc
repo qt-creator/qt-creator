@@ -32,7 +32,7 @@
 
     \endlist
 
-    \image qtcreator-editor-settings.png "Editor view"
+    \image qtcreator-editor-settings.webp {Editor settings for a project}
 
     Click \uicontrol {Restore Global} to revert to the global settings.
 

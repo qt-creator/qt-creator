@@ -1058,6 +1058,8 @@ void Client::setShadowDocument(const Utils::FilePath &filePath, const QString &c
     if (shadowIt == d->m_shadowDocuments.end()) {
         shadowIt = d->m_shadowDocuments.insert(filePath, {content, {}});
     } else  {
+        if (shadowIt.value().first == content)
+            return;
         shadowIt.value().first = content;
         if (!shadowIt.value().second.isEmpty()) {
             VersionedTextDocumentIdentifier docId(hostPathToServerUri(filePath));

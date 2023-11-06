@@ -96,7 +96,7 @@ private:
     Utils::FutureSynchronizer m_generatorSynchronizer;
     QList<QPointer<ClangdClient>> m_clientsToRestart;
     QTimer * const m_clientRestartTimer;
-    QHash<Utils::FilePath, QString> m_queuedShadowDocuments;
+    QHash<Utils::FilePath, QString> m_potentialShadowDocuments;
 };
 
 } // namespace Internal

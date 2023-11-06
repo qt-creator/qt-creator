@@ -276,10 +276,6 @@ PluginView::PluginView(QWidget *parent)
     m_categoryView->setAlternatingRowColors(true);
     m_categoryView->setIndentation(20);
     m_categoryView->setSortingEnabled(true);
-    m_categoryView->setColumnWidth(LoadedColumn, 40);
-    m_categoryView->header()->setDefaultSectionSize(120);
-    m_categoryView->header()->setMinimumSectionSize(35);
-    m_categoryView->header()->setSortIndicator(0, Qt::AscendingOrder);
     m_categoryView->setActivationMode(DoubleClickActivation);
     m_categoryView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_categoryView->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -298,8 +294,8 @@ PluginView::PluginView(QWidget *parent)
     gridLayout->addWidget(m_categoryView, 1, 0, 1, 1);
 
     QHeaderView *header = m_categoryView->header();
-    header->setSectionResizeMode(0, QHeaderView::ResizeToContents);
-    header->setSectionResizeMode(2, QHeaderView::ResizeToContents);
+    header->setSortIndicator(NameColumn, Qt::AscendingOrder);
+    header->setSectionResizeMode(QHeaderView::ResizeToContents);
 
     connect(PluginManager::instance(), &PluginManager::pluginsChanged,
             this, &PluginView::updatePlugins);

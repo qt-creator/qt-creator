@@ -245,7 +245,7 @@ int ProcessTestApp::RecursiveBlockingProcess::main()
         std::cout << s_leafProcessStarted << std::flush;
         while (true) {
             // TODO: make it configurable so that we could test the reaper timeout
-            QThread::msleep(100);
+            QThread::msleep(10);
 #ifndef Q_OS_WIN
             if (s_terminate.load()) {
                 std::cout << s_leafProcessTerminated << std::flush;
@@ -260,7 +260,7 @@ int ProcessTestApp::RecursiveBlockingProcess::main()
     process.setProcessChannelMode(QProcess::ForwardedChannels);
     process.start();
     while (true) {
-        if (process.waitForFinished(1000))
+        if (process.waitForFinished(10))
             return 0;
 #ifndef Q_OS_WIN
         if (s_terminate.load()) {

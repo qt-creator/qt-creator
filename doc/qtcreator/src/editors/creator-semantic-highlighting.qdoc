@@ -124,5 +124,5 @@
     > \uicontrol {Text Editor} > \uicontrol Behavior >
     \uicontrol {Enable smart selection changing}.
 
-    \image qtcreator-options-text-editor-behavior.png "Text Editor Behavior preferences"
+    \image qtcreator-preferences-texteditor-behavior.webp "Text Editor Behavior preferences"
 */

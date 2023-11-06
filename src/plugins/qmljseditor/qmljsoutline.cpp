@@ -44,9 +44,13 @@ bool QmlJSOutlineFilterModel::filterAcceptsRow(int sourceRow,
 {
     if (m_filterBindings) {
         QModelIndex sourceIndex = sourceModel()->index(sourceRow, 0, sourceParent);
-        QVariant itemType = sourceIndex.data(QmlOutlineModel::ItemTypeRole);
-        if (itemType == QmlOutlineModel::NonElementBindingType)
-            return false;
+        while (sourceIndex.isValid()) {
+            if (sourceIndex.data(QmlOutlineModel::ItemTypeRole)
+                == QmlOutlineModel::NonElementBindingType) {
+                return false;
+            }
+            sourceIndex = sourceIndex.parent();
+        }
     }
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
 }

@@ -508,12 +508,9 @@ def qdump__std____1__variant(d, value):
 
 def qdump__std____1__optional(d, value):
     if value['__engaged_'].integer() == 0:
-        d.putSpecialValue("uninitialized")
-    d.putNumChild(2)
-    if d.isExpanded():
-        with Children(d):
-            d.putSubItem("engaged", value['__engaged_'])
-            d.putSubItem("value", value['#1']['__val_'])
+        d.putSpecialValue("empty")
+    else:
+        d.putItem(value['#1']['__val_'])
 
 
 def qdump__std____1__tuple(d, value):
