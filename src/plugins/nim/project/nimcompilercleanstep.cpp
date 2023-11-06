@@ -63,19 +63,19 @@ GroupItem NimCompilerCleanStep::runRecipe()
         if (!m_buildDir.exists()) {
             emit addOutput(Tr::tr("Build directory \"%1\" does not exist.")
                                .arg(m_buildDir.toUserOutput()), OutputFormat::ErrorMessage);
-            return false;
+            return DoneResult::Error;
         }
         if (!removeCacheDirectory()) {
             emit addOutput(Tr::tr("Failed to delete the cache directory."),
                            OutputFormat::ErrorMessage);
-            return false;
+            return DoneResult::Error;
         }
         if (!removeOutFilePath()) {
             emit addOutput(Tr::tr("Failed to delete the out file."), OutputFormat::ErrorMessage);
-            return false;
+            return DoneResult::Error;
         }
         emit addOutput(Tr::tr("Clean step completed successfully."), OutputFormat::NormalMessage);
-        return true;
+        return DoneResult::Success;
     };
     return Sync(onSetup);
 }

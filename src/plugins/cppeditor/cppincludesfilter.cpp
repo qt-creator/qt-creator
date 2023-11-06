@@ -59,7 +59,7 @@ CppIncludesFilter::CppIncludesFilter()
     setDefaultShortcutString("ai");
     setDefaultIncludedByDefault(true);
     const auto invalidate = [this] { m_cache.invalidate(); };
-    setRefreshRecipe(Tasking::Sync([invalidate] { invalidate(); return true; }));
+    setRefreshRecipe(Tasking::Sync([invalidate] { invalidate(); }));
     setPriority(ILocatorFilter::Low);
 
     connect(ProjectExplorerPlugin::instance(), &ProjectExplorerPlugin::fileListChanged,

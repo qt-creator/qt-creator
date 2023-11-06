@@ -159,6 +159,13 @@ enum class SetupResult
 };
 Q_ENUM_NS(SetupResult);
 
+enum class DoneResult
+{
+    Success,
+    Error
+};
+Q_ENUM_NS(DoneResult);
+
 enum class DoneWith
 {
     Success,
@@ -374,16 +381,16 @@ public:
 private:
     template <typename Handler>
     static GroupSetupHandler wrapHandler(Handler &&handler) {
-        // B, V stands for: [B]ool, [V]oid
-        static constexpr bool isB = isInvocable<bool, Handler>();
+        // D, V stands for: [D]oneResult, [V]oid
+        static constexpr bool isB = isInvocable<DoneResult, Handler>();
         static constexpr bool isV = isInvocable<void, Handler>();
         static_assert(isB || isV,
-            "Sync handler needs to take no arguments and has to return void or bool. "
+            "Sync handler needs to take no arguments and has to return void or DoneResult. "
             "The passed handler doesn't fulfill these requirements.");
         return [=] {
             if constexpr (isB) {
-                return std::invoke(handler) ? SetupResult::StopWithSuccess
-                                            : SetupResult::StopWithError;
+                return std::invoke(handler) == DoneResult::Success ? SetupResult::StopWithSuccess
+                                                                   : SetupResult::StopWithError;
             }
             std::invoke(handler);
             return SetupResult::StopWithSuccess;

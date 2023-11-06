@@ -397,6 +397,11 @@ static Handler doneToTweakHandler(bool result)
     return result ? Handler::TweakDoneToSuccess : Handler::TweakDoneToError;
 }
 
+static Handler doneToTweakHandler(DoneResult result)
+{
+    return result == DoneResult::Success ? Handler::TweakDoneToSuccess : Handler::TweakDoneToError;
+}
+
 static TestData storageShadowing()
 {
     // This test check if storage shadowing works OK.
@@ -555,11 +560,11 @@ void tst_Tasking::testTree_data()
     const auto createSync = [storage](int taskId) {
         return Sync([storage, taskId] { storage->m_log.append({taskId, Handler::Sync}); });
     };
-    const auto createSyncWithTweak = [storage](int taskId, bool desiredResult) {
-        return Sync([storage, taskId, desiredResult] {
+    const auto createSyncWithTweak = [storage](int taskId, DoneResult result) {
+        return Sync([storage, taskId, result] {
             storage->m_log.append({taskId, Handler::Sync});
-            storage->m_log.append({taskId, doneToTweakHandler(desiredResult)});
-            return desiredResult;
+            storage->m_log.append({taskId, doneToTweakHandler(result)});
+            return result;
         });
     };
 
@@ -2083,11 +2088,11 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             Storage(storage),
-            createSyncWithTweak(1, true),
-            createSyncWithTweak(2, true),
-            createSyncWithTweak(3, true),
-            createSyncWithTweak(4, true),
-            createSyncWithTweak(5, true)
+            createSyncWithTweak(1, DoneResult::Success),
+            createSyncWithTweak(2, DoneResult::Success),
+            createSyncWithTweak(3, DoneResult::Success),
+            createSyncWithTweak(4, DoneResult::Success),
+            createSyncWithTweak(5, DoneResult::Success)
         };
         const Log log {
             {1, Handler::Sync},
@@ -2130,7 +2135,7 @@ void tst_Tasking::testTree_data()
             parallel,
             createSync(1),
             createSync(2),
-            createSyncWithTweak(3, false),
+            createSyncWithTweak(3, DoneResult::Error),
             createSync(4),
             createSync(5)
         };
@@ -2171,7 +2176,7 @@ void tst_Tasking::testTree_data()
             Storage(storage),
             createSync(1),
             createSuccessTask(2),
-            createSyncWithTweak(3, false),
+            createSyncWithTweak(3, DoneResult::Error),
             createSuccessTask(4),
             createSync(5),
             groupDone(0)
