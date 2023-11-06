@@ -1647,8 +1647,8 @@ QList<ProjectPart::ConstPtr> CppModelManager::projectPart(const FilePath &fileNa
 {
     {
         QReadLocker locker(&d->m_projectLock);
-        auto it = d->m_fileToProjectParts.find(fileName);
-        if (it != d->m_fileToProjectParts.end())
+        auto it = d->m_fileToProjectParts.constFind(fileName);
+        if (it != d->m_fileToProjectParts.constEnd())
             return it.value();
     }
     const FilePath canonicalPath = fileName.canonicalPath();
