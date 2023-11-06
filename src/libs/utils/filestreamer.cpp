@@ -369,8 +369,8 @@ static void transfer(QPromise<void> &promise, const FilePath &source, const File
     if (promise.isCanceled())
         return;
 
-    if (!TaskTree::runBlocking(transferTask(source, destination), promise.future()))
-        promise.future().cancel();
+    if (TaskTree::runBlocking(transferTask(source, destination), promise.future()) != DoneWith::Success)
+        promise.future().cancel(); // TODO: Is this needed?
 }
 
 class FileStreamerPrivate : public QObject

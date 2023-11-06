@@ -519,12 +519,12 @@ public:
     // Helper methods. They execute a local event loop with ExcludeUserInputEvents.
     // The passed future is used for listening to the cancel event.
     // Don't use it in main thread. To be used in non-main threads or in auto tests.
-    bool runBlocking();
-    bool runBlocking(const QFuture<void> &future);
-    static bool runBlocking(const Group &recipe,
-                            std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
-    static bool runBlocking(const Group &recipe, const QFuture<void> &future,
-                            std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
+    DoneWith runBlocking();
+    DoneWith runBlocking(const QFuture<void> &future);
+    static DoneWith runBlocking(const Group &recipe,
+        std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
+    static DoneWith runBlocking(const Group &recipe, const QFuture<void> &future,
+        std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
 
     int taskCount() const;
     int progressMaximum() const { return taskCount(); }

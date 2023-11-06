@@ -441,7 +441,7 @@ void tst_Async::taskTree()
     };
 
 
-    QVERIFY(TaskTree::runBlocking(root, 1000ms));
+    QCOMPARE(TaskTree::runBlocking(root, 1000ms), DoneWith::Success);
     QCOMPARE(value, 16);
 }
 
@@ -577,7 +577,7 @@ void tst_Async::mapReduce()
     QFETCH(double, sum);
     QFETCH(QList<double>, results);
 
-    QVERIFY(TaskTree::runBlocking(root, 1000ms));
+    QCOMPARE(TaskTree::runBlocking(root, 1000ms), DoneWith::Success);
     QCOMPARE(s_results, results);
     QCOMPARE(s_sum, sum);
 }

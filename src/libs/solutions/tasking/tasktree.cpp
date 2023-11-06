@@ -2342,7 +2342,7 @@ bool TaskTree::isRunning() const
 
     \sa start()
 */
-bool TaskTree::runBlocking()
+DoneWith TaskTree::runBlocking()
 {
     QPromise<void> dummy;
     dummy.start();
@@ -2353,17 +2353,17 @@ bool TaskTree::runBlocking()
     \overload runBlocking()
 
     The passed \a future is used for listening to the cancel event.
-    When the task tree finishes with an error, this method cancels the passed \a future.
+    When the task tree is canceled, this method cancels the passed \a future.
 */
-bool TaskTree::runBlocking(const QFuture<void> &future)
+DoneWith TaskTree::runBlocking(const QFuture<void> &future)
 {
     if (future.isCanceled())
-        return false;
+        return DoneWith::Cancel;
 
-    bool ok = false;
+    DoneWith doneWith = DoneWith::Cancel;
     QEventLoop loop;
-    connect(this, &TaskTree::done, &loop, [&loop, &ok](DoneWith result) {
-        ok = result == DoneWith::Success;
+    connect(this, &TaskTree::done, &loop, [&loop, &doneWith](DoneWith result) {
+        doneWith = result;
         // Otherwise, the tasks from inside the running tree that were deleteLater()
         // will be leaked. Refer to the QObject::deleteLater() docs.
         QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
@@ -2375,11 +2375,11 @@ bool TaskTree::runBlocking(const QFuture<void> &future)
     QTimer::singleShot(0, this, &TaskTree::start);
 
     loop.exec(QEventLoop::ExcludeUserInputEvents);
-    if (!ok) {
+    if (doneWith == DoneWith::Cancel) {
         auto nonConstFuture = future;
         nonConstFuture.cancel();
     }
-    return ok;
+    return doneWith;
 }
 
 /*!
@@ -2395,7 +2395,7 @@ bool TaskTree::runBlocking(const QFuture<void> &future)
 
     \sa start()
 */
-bool TaskTree::runBlocking(const Group &recipe, milliseconds timeout)
+DoneWith TaskTree::runBlocking(const Group &recipe, milliseconds timeout)
 {
     QPromise<void> dummy;
     dummy.start();
@@ -2406,9 +2406,9 @@ bool TaskTree::runBlocking(const Group &recipe, milliseconds timeout)
     \overload runBlocking(const Group &recipe, milliseconds timeout)
 
     The passed \a future is used for listening to the cancel event.
-    When the task tree finishes with an error, this method cancels the passed \a future.
+    When the task tree is canceled, this method cancels the passed \a future.
 */
-bool TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future, milliseconds timeout)
+DoneWith TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future, milliseconds timeout)
 {
     const Group root = timeout == milliseconds::max() ? recipe
                                                       : Group { recipe.withTimeout(timeout) };
