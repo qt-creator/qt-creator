@@ -14,6 +14,8 @@
 
 #include <QtTest>
 
+using namespace Utils;
+
 namespace {
 
 QTC_DECLARE_MYTESTDATADIR("../../../tests/cppsymbolsearcher/")
@@ -76,7 +78,7 @@ public:
         QVERIFY(parseFiles(testFile));
 
         const QScopedPointer<SymbolSearcher> symbolSearcher(
-            new SymbolSearcher(searchParameters, QSet<QString>{testFile}));
+            new SymbolSearcher(searchParameters, QSet<FilePath>{FilePath::fromString(testFile)}));
         QFuture<Utils::SearchResultItem> search
             = Utils::asyncRun(&SymbolSearcher::runSearch, symbolSearcher.data());
         search.waitForFinished();

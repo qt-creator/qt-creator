@@ -107,10 +107,10 @@ void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)
 void SymbolsFindFilter::startSearch(SearchResult *search)
 {
     SymbolSearcher::Parameters parameters = search->userData().value<SymbolSearcher::Parameters>();
-    QSet<QString> projectFileNames;
+    QSet<FilePath> projectFileNames;
     if (parameters.scope == SymbolSearcher::SearchProjectsOnly) {
         for (ProjectExplorer::Project *project : ProjectExplorer::ProjectManager::projects())
-            projectFileNames += Utils::transform<QSet>(project->files(ProjectExplorer::Project::AllFiles), &Utils::FilePath::toString);
+            projectFileNames += Utils::toSet(project->files(ProjectExplorer::Project::AllFiles));
     }
 
     auto watcher = new QFutureWatcher<SearchResultItem>;

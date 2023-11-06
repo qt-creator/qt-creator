@@ -30,10 +30,10 @@ namespace CppEditor {
 static Q_LOGGING_CATEGORY(indexerLog, "qtc.cppeditor.indexer", QtWarningMsg)
 
 SymbolSearcher::SymbolSearcher(const SymbolSearcher::Parameters &parameters,
-                               const QSet<QString> &fileNames)
+                               const QSet<FilePath> &filePaths)
     : m_snapshot(CppModelManager::snapshot())
     , m_parameters(parameters)
-    , m_fileNames(fileNames)
+    , m_filePaths(filePaths)
 {}
 
 namespace {
@@ -261,7 +261,7 @@ void SymbolSearcher::runSearch(QPromise<SearchResultItem> &promise)
         promise.suspendIfRequested();
         if (promise.isCanceled())
             break;
-        if (m_fileNames.isEmpty() || m_fileNames.contains(it.value()->filePath().path())) {
+        if (m_filePaths.isEmpty() || m_filePaths.contains(it.value()->filePath())) {
             SearchResultItems resultItems;
             auto filter = [&](const IndexItem::Ptr &info) -> IndexItem::VisitorResult {
                 if (matcher.match(info->symbolName()).hasMatch()) {
