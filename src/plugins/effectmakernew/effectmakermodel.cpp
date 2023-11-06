@@ -944,7 +944,7 @@ QString EffectMakerModel::getQmlImagesString(bool localFiles)
                 imagePath = fi.fileName();
             }
             if (m_loadComponentImages)
-                imagesString += QString("            source: \"%1\"\n").arg(imagePath);
+                imagesString += QString("            source: g_propertyData.%1\n").arg(uniform->name());
             if (!localFiles) {
                 QString mipmapProperty = mipmapPropertyName(uniform->name());
                 imagesString += QString("            mipmap: g_propertyData.%1\n").arg(mipmapProperty);
