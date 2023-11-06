@@ -12,8 +12,9 @@ import EffectMakerBackend
 Column {
     id: root
 
-    property real animatedTime: 0 //TODO get from animator
-    property int animatedFrame: 0 //TODO get from animator
+    property real animatedTime: previewFrameTimer.elapsedTime
+    property int animatedFrame: previewFrameTimer.currentFrame
+    property bool timeRunning: previewAnimationRunning
 
     width: parent.width
 
@@ -108,13 +109,14 @@ Column {
 
             Column {
                 Text {
-                    text: "0.000s"
+                    text: animatedTime >= 100
+                          ? animatedTime.toFixed(1) + " s" : animatedTime.toFixed(3) + " s"
                     color: StudioTheme.Values.themeTextColor
                     font.pixelSize: 10
                 }
 
                 Text {
-                    text: "0000000"
+                    text: (animatedFrame).toString().padStart(6, '0')
                     color: StudioTheme.Values.themeTextColor
                     font.pixelSize: 10
                 }
@@ -125,15 +127,21 @@ Column {
                 buttonIcon: StudioTheme.Constants.toStartFrame_medium
                 tooltip: qsTr("Restart Animation")
 
-                onClicked: {} // TODO
+                onClicked: {
+                    previewFrameTimer.reset()
+                }
             }
 
+            //TODO: Change the icon to outlined version
             HelperWidgets.AbstractButton {
                 style: StudioTheme.Values.viewBarButtonStyle
-                buttonIcon: StudioTheme.Constants.topToolbar_runProject
+                buttonIcon: previewAnimationRunning
+                            ? StudioTheme.Constants.pause : StudioTheme.Constants.playOutline_medium
                 tooltip: qsTr("Play Animation")
 
-                onClicked: {} // TODO
+                onClicked: {
+                    previewAnimationRunning = !previewAnimationRunning
+                }
             }
         }
     }
@@ -175,7 +183,6 @@ Column {
             width: source.width
             height: source.height
             anchors.centerIn: parent
-            scale: 1 //TODO should come from toolbar
             // Cache the layer. This way heavy shaders rendering doesn't
             // slow down code editing & rest of the UI.
             layer.enabled: true

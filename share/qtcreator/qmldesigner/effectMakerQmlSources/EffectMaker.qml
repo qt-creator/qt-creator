@@ -14,6 +14,7 @@ Item {
     property var secsY: []
     property int moveFromIdx: 0
     property int moveToIdx: 0
+    property bool previewAnimationRunning: false
 
     SaveDialog {
         id: saveDialog
@@ -36,7 +37,7 @@ Item {
             FrameAnimation {
                 id: previewFrameTimer
                 running: true
-                paused: false // TODO: from the toolbar
+                paused: !previewAnimationRunning
             }
         }
 
