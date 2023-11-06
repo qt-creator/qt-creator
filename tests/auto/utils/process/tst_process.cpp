@@ -1367,20 +1367,18 @@ void tst_Process::recursiveBlockingProcess()
                                QString::number(recursionDepth));
     {
         Process process;
+        QSignalSpy readSpy(&process, &Process::readyReadStandardOutput);
+        QSignalSpy doneSpy(&process, &Process::done);
         subConfig.setupSubProcess(&process);
         process.start();
-        QVERIFY(process.waitForStarted(1000));
-        // The readyRead() is generated from the innermost nested process, so it means
-        // we need to give enough time for all nested processes to start their
-        // process launchers successfully.
-        QVERIFY(process.waitForReadyRead(2000));
+        QTRY_COMPARE(readSpy.count(), 1); // Wait until 1st ready read signal comes.
         QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessStarted);
         QCOMPARE(runningTestProcessCount(), recursionDepth);
-        QVERIFY(!process.waitForFinished(10));
+        QCOMPARE(doneSpy.count(), 0);
         process.terminate();
-        QVERIFY(process.waitForReadyRead(1000));
+        QTRY_COMPARE(readSpy.count(), 2); // Wait until 2nd ready read signal comes.
         QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessTerminated);
-        QVERIFY(process.waitForFinished(1000));
+        QTRY_COMPARE(doneSpy.count(), 1); // Wait until done signal comes.
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
         QCOMPARE(process.exitCode(), s_crashCode);
     }
@@ -1424,16 +1422,16 @@ void tst_Process::quitBlockingProcess()
                                QString::number(recursionDepth));
 
     Process process;
+    QSignalSpy readSpy(&process, &Process::readyReadStandardOutput);
+    QSignalSpy doneSpy(&process, &Process::done);
     subConfig.setupSubProcess(&process);
-    bool done = false;
-    connect(&process, &Process::done, this, [&done] { done = true; });
 
     process.start();
     QVERIFY(process.waitForStarted());
-    QVERIFY(!done);
+    QCOMPARE(doneSpy.count(), 0);
     QVERIFY(process.isRunning());
 
-    QVERIFY(process.waitForReadyRead(1000));
+    QTRY_COMPARE(readSpy.count(), 1); // Wait until ready read signal comes.
     QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessStarted);
 
     switch (quitType) {
@@ -1443,7 +1441,7 @@ void tst_Process::quitBlockingProcess()
     case QuitType::Close: process.close(); break;
     }
 
-    QVERIFY(!done);
+    QCOMPARE(doneSpy.count(), 0);
 
     if (doneExpected) {
         QVERIFY(process.isRunning());
@@ -1451,7 +1449,7 @@ void tst_Process::quitBlockingProcess()
         QVERIFY(process.waitForFinished());
 
         QVERIFY(!process.isRunning());
-        QVERIFY(done);
+        QCOMPARE(doneSpy.count(), 1);
 
         if (gracefulQuit) {
             if (HostOsInfo::isWindowsHost())
