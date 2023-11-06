@@ -472,7 +472,7 @@ void TerminalWidget::linkActivated(const Link &link)
     FilePath filePath = FilePath::fromUserInput(link.text);
 
     if (filePath.scheme().toString().startsWith("http")) {
-        QDesktopServices::openUrl(filePath.toUrl());
+        QDesktopServices::openUrl(QUrl::fromUserInput(link.text));
         return;
     }
 
