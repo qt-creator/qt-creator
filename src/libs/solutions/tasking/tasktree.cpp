@@ -5,10 +5,14 @@
 
 #include <QEventLoop>
 #include <QFutureWatcher>
+#include <QHash>
+#include <QMutex>
 #include <QPromise>
 #include <QPointer>
 #include <QSet>
 #include <QTimer>
+
+#include <atomic>
 
 using namespace std::chrono;
 
@@ -842,23 +846,64 @@ static DoneResult toDoneResult(DoneWith doneWith)
     return doneWith == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
 }
 
-bool TreeStorageBase::isValid() const
+class StorageThreadData
 {
-    return m_storageData && m_storageData->m_constructor && m_storageData->m_destructor;
-}
+    Q_DISABLE_COPY_MOVE(StorageThreadData)
 
-TreeStorageBase::TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor)
-    : m_storageData(new StorageData{ctor, dtor})
-{}
+public:
+    StorageThreadData(StorageData *storageData);
+    ~StorageThreadData();
 
-TreeStorageBase::ThreadData::ThreadData(TreeStorageBase::StorageData *storageData)
+    int createStorage();
+    bool deleteStorage(int id); // Returns true if it was the last storage.
+
+    void activateStorage(int id);
+
+    void *activeStorageVoid() const;
+    int activeStorageId() const { return m_activeStorage; }
+
+private:
+    StorageData *m_storageData = nullptr;
+    QHash<int, void *> m_storageHash;
+    int m_activeStorage = 0; // 0 means no active storage.
+};
+
+class StorageData
+{
+public:
+    ~StorageData();
+    StorageThreadData &threadData() {
+        QMutexLocker lock(&m_threadDataMutex);
+        return m_threadDataMap.emplace(QThread::currentThread(), this).first->second;
+    }
+
+    void deleteStorage(int id)
+    {
+        if (!threadData().deleteStorage(id))
+            return;
+
+        QMutexLocker lock(&m_threadDataMutex);
+        m_threadDataMap.erase(
+            m_threadDataMap.find(QThread::currentThread()));
+    }
+
+    const TreeStorageBase::StorageConstructor m_constructor = {};
+    const TreeStorageBase::StorageDestructor m_destructor = {};
+    QMutex m_threadDataMutex = {};
+    // Use std::map on purpose, so that it doesn't invalidate references on modifications.
+    // Don't optimize it by using std::unordered_map.
+    std::map<QThread *, StorageThreadData> m_threadDataMap = {};
+    std::atomic_int m_storageInstanceCounter = 0; // Bumped on each creation.
+};
+
+StorageThreadData::StorageThreadData(StorageData *storageData)
     : m_storageData(storageData)
 {
     QTC_CHECK(m_storageData->m_constructor);
     QTC_CHECK(m_storageData->m_destructor);
 }
 
-TreeStorageBase::ThreadData::~ThreadData()
+StorageThreadData::~StorageThreadData()
 {
     QTC_CHECK(m_storageHash.isEmpty());
     // TODO: Issue a warning about the leak instead?
@@ -866,7 +911,7 @@ TreeStorageBase::ThreadData::~ThreadData()
         m_storageData->m_destructor(ptr);
 }
 
-int TreeStorageBase::ThreadData::createStorage()
+int StorageThreadData::createStorage()
 {
     QTC_ASSERT(m_activeStorage == 0, return 0); // TODO: should be allowed?
     const int newId = m_storageData->m_storageInstanceCounter.fetch_add(1) + 1;
@@ -874,7 +919,7 @@ int TreeStorageBase::ThreadData::createStorage()
     return newId;
 }
 
-bool TreeStorageBase::ThreadData::deleteStorage(int id)
+bool StorageThreadData::deleteStorage(int id)
 {
     QTC_ASSERT(m_activeStorage == 0, return false); // TODO: should be allowed?
     const auto it = m_storageHash.constFind(id);
@@ -884,24 +929,8 @@ bool TreeStorageBase::ThreadData::deleteStorage(int id)
     return m_storageHash.empty();
 }
 
-int TreeStorageBase::createStorage() const
-{
-    return threadData().createStorage();
-}
-
-void TreeStorageBase::deleteStorage(int id) const
-{
-    if (!threadData().deleteStorage(id))
-        return;
-
-    QMutexLocker lock(&m_storageData->m_threadDataMutex);
-    m_storageData->m_threadDataMap.erase(
-        m_storageData->m_threadDataMap.find(QThread::currentThread()));
-}
-
-
 // passing 0 deactivates currently active storage
-void TreeStorageBase::ThreadData::activateStorage(int id)
+void StorageThreadData::activateStorage(int id)
 {
     if (id == 0) {
         QTC_ASSERT(m_activeStorage, return);
@@ -915,7 +944,7 @@ void TreeStorageBase::ThreadData::activateStorage(int id)
     m_activeStorage = id;
 }
 
-void *TreeStorageBase::ThreadData::activeStorageVoid() const
+void *StorageThreadData::activeStorageVoid() const
 {
     QTC_ASSERT(m_activeStorage, qWarning(
         "The referenced storage is not reachable in the running tree. "
@@ -927,22 +956,24 @@ void *TreeStorageBase::ThreadData::activeStorageVoid() const
     return it.value();
 }
 
-int TreeStorageBase::ThreadData::activeStorageId() const
-{
-    return m_activeStorage;
-}
-
-TreeStorageBase::StorageData::~StorageData()
+StorageData::~StorageData()
 {
     QMutexLocker lock(&m_threadDataMutex);
     QTC_CHECK(m_threadDataMap.empty());
 }
 
-TreeStorageBase::ThreadData &TreeStorageBase::threadData() const
+bool TreeStorageBase::isValid() const
 {
-    QMutexLocker lock(&m_storageData->m_threadDataMutex);
-    return m_storageData->m_threadDataMap.emplace(QThread::currentThread(),
-                                                  m_storageData.get()).first->second;
+    return m_storageData && m_storageData->m_constructor && m_storageData->m_destructor;
+}
+
+TreeStorageBase::TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor)
+    : m_storageData(new StorageData{ctor, dtor})
+{}
+
+void *TreeStorageBase::activeStorageVoid() const
+{
+    return m_storageData->threadData().activeStorageVoid();
 }
 
 void GroupItem::addChildren(const QList<GroupItem> &children)
@@ -1058,7 +1089,7 @@ public:
         const StorageHandler storageHandler = *it;
         // TODO: we don't necessarily need to activate the storage here, it's enough to
         // get a pointer to the relevant storage instance.
-        auto &threadData = storage.threadData();
+        auto &threadData = storage.m_storageData->threadData();
         threadData.activateStorage(storageId);
         if (storageHandler.*ptr)
             (storageHandler.*ptr)(threadData.activeStorageVoid());
@@ -1212,7 +1243,7 @@ public:
     ExecutionContextActivator(TaskContainer *container) { activateContext(container); }
     ~ExecutionContextActivator() {
         for (int i = m_activeStorages.size() - 1; i >= 0; --i) // iterate in reverse order
-            m_activeStorages[i].threadData().activateStorage(0);
+            m_activeStorages[i].m_storageData->threadData().activateStorage(0);
     }
 
 private:
@@ -1222,7 +1253,7 @@ private:
         const TaskContainer::ConstData &constData = container->m_constData;
         for (int i = 0; i < constData.m_storageList.size(); ++i) {
             const TreeStorageBase &storage = constData.m_storageList[i];
-            auto &threadData = storage.threadData();
+            auto &threadData = storage.m_storageData->threadData();
             if (threadData.activeStorageId())
                 continue; // Storage shadowing: The storage is already active, skipping it...
             m_activeStorages.append(storage);
@@ -1276,7 +1307,7 @@ QList<int> TaskContainer::RuntimeData::createStorages(const TaskContainer::Const
 {
     QList<int> storageIdList;
     for (const TreeStorageBase &storage : constData.m_storageList) {
-        const int storageId = storage.createStorage();
+        const int storageId = storage.m_storageData->threadData().createStorage();
         storageIdList.append(storageId);
         constData.m_taskTreePrivate->callSetupHandler(storage, storageId);
     }
@@ -1313,7 +1344,7 @@ TaskContainer::RuntimeData::~RuntimeData()
         const int storageId = m_storageIdList.value(i);
         if (m_callStorageDoneHandlersOnDestruction)
             m_constData.m_taskTreePrivate->callDoneHandler(storage, storageId);
-        storage.deleteStorage(storageId);
+        storage.m_storageData->deleteStorage(storageId);
     }
 }
 
