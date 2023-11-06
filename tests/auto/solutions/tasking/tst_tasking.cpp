@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <tasking/barrier.h>
+#include <tasking/concurrentcall.h>
 
 #include <QtTest>
 #include <QHash>
@@ -48,6 +49,18 @@ Q_ENUM_NS(Handler);
 enum class OnDone { Success, Failure };
 Q_ENUM_NS(OnDone);
 
+enum class ThreadResult
+{
+    Success,
+    FailOnTaskCountCheck,
+    FailOnRunningCheck,
+    FailOnProgressCheck,
+    FailOnLogCheck,
+    FailOnDoneStatusCheck,
+    Canceled
+};
+Q_ENUM_NS(ThreadResult);
+
 } // namespace PrintableEnums
 
 using namespace PrintableEnums;
@@ -56,17 +69,18 @@ using Log = QList<QPair<int, Handler>>;
 
 struct CustomStorage
 {
-    CustomStorage() { ++s_count; }
-    ~CustomStorage() { --s_count; }
+    CustomStorage() { s_count.fetch_add(1); }
+    ~CustomStorage() { s_count.fetch_add(-1); }
     Log m_log;
-    static int instanceCount() { return s_count; }
+    static int instanceCount() { return s_count.load(); }
 private:
-    static int s_count;
+    static std::atomic_int s_count;
 };
 
-int CustomStorage::s_count = 0;
+std::atomic_int CustomStorage::s_count = 0;
 
-struct TestData {
+struct TestData
+{
     TreeStorage<CustomStorage> storage;
     Group root;
     Log expectedLog;
@@ -82,6 +96,8 @@ private slots:
     void validConstructs(); // compile test
     void testTree_data();
     void testTree();
+    void testInThread_data();
+    void testInThread();
     void storageIO_data();
     void storageIO();
     void storageOperators();
@@ -310,6 +326,83 @@ static Handler setupToTweakHandler(SetupResult result)
 static Handler doneToTweakHandler(bool result)
 {
     return result ? Handler::TweakDoneToSuccess : Handler::TweakDoneToError;
+}
+
+static TestData storageShadowing()
+{
+    // This test check if storage shadowing works OK.
+
+    const TreeStorage<CustomStorage> storage;
+    // This helper storage collect the pointers to storages created by shadowedStorage.
+    const TreeStorage<QHash<int, int *>> helperStorage; // One instance in this test.
+    // This storage is repeated in nested groups, the innermost storage will shadow outer ones.
+    const TreeStorage<int> shadowedStorage; // Three instances in this test.
+
+    const auto groupSetupWithStorage = [storage, helperStorage, shadowedStorage](int taskId) {
+        return onGroupSetup([storage, helperStorage, shadowedStorage, taskId] {
+            storage->m_log.append({taskId, Handler::GroupSetup});
+            helperStorage->insert(taskId, shadowedStorage.activeStorage());
+            *shadowedStorage = taskId;
+        });
+    };
+    const auto groupDoneWithStorage = [storage, helperStorage, shadowedStorage](int taskId) {
+        return onGroupDone([storage, helperStorage, shadowedStorage, taskId](DoneWith result) {
+            storage->m_log.append({taskId, resultToGroupHandler(result)});
+            auto it = helperStorage->find(taskId);
+            if (it == helperStorage->end()) {
+                qWarning() << "The helperStorage is missing the shadowedStorage.";
+                return;
+            } else if (*it != shadowedStorage.activeStorage()) {
+                qWarning() << "Wrong active instance of the shadowedStorage.";
+                return;
+            } else if (**it != taskId) {
+                qWarning() << "Wrong data of the active instance of the shadowedStorage.";
+                return;
+            }
+            helperStorage->erase(it);
+            storage->m_log.append({*shadowedStorage, Handler::Storage});
+        });
+    };
+
+    const Group root {
+        Storage(storage),
+        Storage(helperStorage),
+        Storage(shadowedStorage),
+        groupSetupWithStorage(1),
+        Group {
+            Storage(shadowedStorage),
+            groupSetupWithStorage(2),
+            Group {
+                Storage(shadowedStorage),
+                groupSetupWithStorage(3),
+                groupDoneWithStorage(3)
+            },
+            Group {
+                Storage(shadowedStorage),
+                groupSetupWithStorage(4),
+                groupDoneWithStorage(4)
+            },
+            groupDoneWithStorage(2)
+        },
+        groupDoneWithStorage(1)
+    };
+
+    const Log log {
+        {1, Handler::GroupSetup},
+        {2, Handler::GroupSetup},
+        {3, Handler::GroupSetup},
+        {3, Handler::GroupSuccess},
+        {3, Handler::Storage},
+        {4, Handler::GroupSetup},
+        {4, Handler::GroupSuccess},
+        {4, Handler::Storage},
+        {2, Handler::GroupSuccess},
+        {2, Handler::Storage},
+        {1, Handler::GroupSuccess},
+        {1, Handler::Storage},
+    };
+
+    return {storage, root, log, 0, OnDone::Success};
 }
 
 void tst_Tasking::testTree_data()
@@ -2430,77 +2523,7 @@ void tst_Tasking::testTree_data()
 
     {
         // This test check if storage shadowing works OK.
-
-        // This helper storage collect the pointers to storages created by shadowedStorage.
-        const TreeStorage<QHash<int, int *>> helperStorage; // One instance in this test.
-        // This storage is repeated in nested groups, the innermost storage will shadow outer ones.
-        const TreeStorage<int> shadowedStorage; // Three instances in this test.
-
-        const auto groupSetupWithStorage = [storage, helperStorage, shadowedStorage](int taskId) {
-            return onGroupSetup([storage, helperStorage, shadowedStorage, taskId] {
-                storage->m_log.append({taskId, Handler::GroupSetup});
-                helperStorage->insert(taskId, shadowedStorage.activeStorage());
-                *shadowedStorage = taskId;
-            });
-        };
-        const auto groupDoneWithStorage = [storage, helperStorage, shadowedStorage](int taskId) {
-            return onGroupDone([storage, helperStorage, shadowedStorage, taskId](DoneWith result) {
-                storage->m_log.append({taskId, resultToGroupHandler(result)});
-                auto it = helperStorage->find(taskId);
-                if (it == helperStorage->end()) {
-                    qWarning() << "The helperStorage is missing the shadowedStorage.";
-                    return;
-                } else if (*it != shadowedStorage.activeStorage()) {
-                    qWarning() << "Wrong active instance of the shadowedStorage.";
-                    return;
-                } else if (**it != taskId) {
-                    qWarning() << "Wrong data of the active instance of the shadowedStorage.";
-                    return;
-                }
-                helperStorage->erase(it);
-                storage->m_log.append({*shadowedStorage, Handler::Storage});
-            });
-        };
-
-        const Group root {
-            Storage(storage),
-            Storage(helperStorage),
-            Storage(shadowedStorage),
-            groupSetupWithStorage(1),
-            Group {
-                Storage(shadowedStorage),
-                groupSetupWithStorage(2),
-                Group {
-                    Storage(shadowedStorage),
-                    groupSetupWithStorage(3),
-                    groupDoneWithStorage(3)
-                },
-                Group {
-                    Storage(shadowedStorage),
-                    groupSetupWithStorage(4),
-                    groupDoneWithStorage(4)
-                },
-                groupDoneWithStorage(2)
-            },
-            groupDoneWithStorage(1)
-        };
-
-        const Log log {
-            {1, Handler::GroupSetup},
-            {2, Handler::GroupSetup},
-            {3, Handler::GroupSetup},
-            {3, Handler::GroupSuccess},
-            {3, Handler::Storage},
-            {4, Handler::GroupSetup},
-            {4, Handler::GroupSuccess},
-            {4, Handler::Storage},
-            {2, Handler::GroupSuccess},
-            {2, Handler::Storage},
-            {1, Handler::GroupSuccess},
-            {1, Handler::Storage},
-        };
-
-        QTest::newRow("StorageShadowing") << TestData{storage, root, log, 0, OnDone::Success};
+        QTest::newRow("StorageShadowing") << storageShadowing();
     }
 }
 
@@ -2522,6 +2545,89 @@ void tst_Tasking::testTree()
     QCOMPARE(actualLog, testData.expectedLog);
     QCOMPARE(CustomStorage::instanceCount(), 0);
 
+    QCOMPARE(result, testData.onDone);
+}
+
+void tst_Tasking::testInThread_data()
+{
+    QTest::addColumn<TestData>("testData");
+    QTest::newRow("StorageShadowing") << storageShadowing();
+}
+
+struct TestResult
+{
+    int executeCount = 0;
+    ThreadResult threadResult = ThreadResult::Success;
+};
+
+static const int s_loopCount = 1000;
+static const int s_threadCount = 12;
+
+static void runInThread(QPromise<TestResult> &promise, const TestData &testData)
+{
+    for (int i = 0; i < s_loopCount; ++i) {
+        if (promise.isCanceled()) {
+            promise.addResult(TestResult{i, ThreadResult::Canceled});
+            return;
+        }
+
+        TaskTree taskTree({testData.root.withTimeout(1000ms)});
+        if (taskTree.taskCount() - 1 != testData.taskCount) { // -1 for the timeout task above
+            promise.addResult(TestResult{i, ThreadResult::FailOnTaskCountCheck});
+            return;
+        }
+        Log actualLog;
+        const auto collectLog = [&actualLog](const CustomStorage &storage) {
+            actualLog = storage.m_log;
+        };
+        taskTree.onStorageDone(testData.storage, collectLog);
+
+        const OnDone result = taskTree.runBlocking(QFuture<void>(promise.future()))
+                                  ? OnDone::Success : OnDone::Failure;
+
+        if (taskTree.isRunning()) {
+            promise.addResult(TestResult{i, ThreadResult::FailOnRunningCheck});
+            return;
+        }
+        if (taskTree.progressValue() != taskTree.progressMaximum()) {
+            promise.addResult(TestResult{i, ThreadResult::FailOnProgressCheck});
+            return;
+        }
+        if (actualLog != testData.expectedLog) {
+            promise.addResult(TestResult{i, ThreadResult::FailOnLogCheck});
+            return;
+        }
+        if (result != testData.onDone) {
+            promise.addResult(TestResult{i, ThreadResult::FailOnDoneStatusCheck});
+            return;
+        }
+    }
+    promise.addResult(TestResult{s_loopCount, ThreadResult::Success});
+}
+
+void tst_Tasking::testInThread()
+{
+    QFETCH(TestData, testData);
+
+    const auto onSetup = [testData](ConcurrentCall<TestResult> &task) {
+        task.setConcurrentCallData(runInThread, testData);
+    };
+    const auto onDone = [testData](const ConcurrentCall<TestResult> &task) {
+        QVERIFY(task.future().resultCount());
+        const TestResult result = task.result();
+        QCOMPARE(result.executeCount, s_loopCount);
+        QCOMPARE(result.threadResult, ThreadResult::Success);
+    };
+
+    QList<GroupItem> tasks = { parallel };
+    for (int i = 0; i < s_threadCount; ++i)
+        tasks.append(ConcurrentCallTask<TestResult>(onSetup, onDone));
+
+    TaskTree taskTree(Group{tasks});
+    const OnDone result = taskTree.runBlocking() ? OnDone::Success : OnDone::Failure;
+    QCOMPARE(taskTree.isRunning(), false);
+
+    QCOMPARE(CustomStorage::instanceCount(), 0);
     QCOMPARE(result, testData.onDone);
 }
 
