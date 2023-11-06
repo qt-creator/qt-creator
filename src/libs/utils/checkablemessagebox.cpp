@@ -64,8 +64,8 @@ static QMessageBox::StandardButton exec(
 #if QT_VERSION < QT_VERSION_CHECK(6, 6, 1)
         if (!buttonTextOverrides.isEmpty())
             msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
+#endif // QT_VERSION < QT_VERSION_CHECK(6, 6, 1)
     }
-#endif
 #endif
 
     if (decider.shouldAskAgain) {
