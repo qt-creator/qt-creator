@@ -8,7 +8,11 @@
 #include "terminalcommand.h"
 #include "utilstr.h"
 
+#include <QLoggingCategory>
 #include <QTemporaryFile>
+#include <QVersionNumber>
+
+Q_LOGGING_CATEGORY(log, "terminal.externalprocess", QtWarningMsg)
 
 namespace Utils {
 
@@ -33,6 +37,16 @@ static const QLatin1String TerminalAppScriptAttached{R"(
     end tell
 )"};
 
+static const QLatin1String TerminalAppScriptAttachedWithoutWindowClose{R"(
+    tell application "Terminal"
+        activate
+        set newTab to do script "%1 && exit"
+        repeat until ((count of processes of newTab) = 0)
+            delay 0.1
+        end repeat
+    end tell
+)"};
+
 static const QLatin1String TerminalAppScriptDetached{R"(
     tell application "Terminal"
         activate
@@ -52,8 +66,17 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
     bool detached = setupData.m_terminalMode == TerminalMode::Detached;
 
     if (HostOsInfo::isMacHost()) {
+        // There is a bug in macOS 14.0 where the script fails if it tries to find
+        // the window id. We will have to check in future versions of macOS if they fixed
+        // the issue.
+        static const QVersionNumber osVersionNumber = QVersionNumber::fromString(
+            QSysInfo::productVersion());
+
         static const QMap<QString, AppScript> terminalMap = {
-            {"Terminal.app", {TerminalAppScriptAttached, TerminalAppScriptDetached}},
+            {"Terminal.app",
+             {osVersionNumber.majorVersion() >= 14 ? TerminalAppScriptAttachedWithoutWindowClose
+                                                   : TerminalAppScriptAttached,
+              TerminalAppScriptDetached}},
         };
 
         if (terminalMap.contains(terminal.command.toString())) {
@@ -100,6 +123,17 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
                 return make_unexpected(
                     Tr::tr("Failed to start terminal process: \"%1\".").arg(process->errorString()));
             }
+
+            QObject::connect(process, &Process::readyReadStandardOutput, process, [process] {
+                const QString output = process->readAllStandardOutput();
+                if (!output.isEmpty())
+                    qCWarning(log).noquote() << output;
+            });
+            QObject::connect(process, &Process::readyReadStandardError, process, [process] {
+                const QString output = process->readAllStandardError();
+                if (!output.isEmpty())
+                    qCCritical(log).noquote() << output;
+            });
 
             QObject::connect(process, &Process::done, m_interface, &TerminalInterface::onStubExited);
 
