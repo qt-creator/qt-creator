@@ -892,6 +892,8 @@ void RewriterView::handleLibraryInfoUpdate()
     if (isAttached() && !m_modelAttachPending
         && !debugQmlPuppet(externalDependencies().designerSettings()))
         m_amendTimer.start();
+
+    emitCustomNotification(UpdateItemlibrary);
 }
 
 void RewriterView::handleProjectUpdate()
