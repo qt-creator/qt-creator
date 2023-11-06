@@ -10,6 +10,7 @@ StudioControls.AbstractButton {
     id: button
 
     property alias tooltip: toolTipArea.tooltip
+    property alias checkedInverted: button.checkedInverted
 
     style: StudioTheme.Values.toolbarButtonStyle
     hover: toolTipArea.containsMouse

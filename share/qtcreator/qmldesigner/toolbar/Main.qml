@@ -290,6 +290,7 @@ Rectangle {
             visible: !root.flyoutEnabled
             checkable: true
             checked: backend.lockWorkspace
+            checkedInverted: true
 
             onClicked: backend.setLockWorkspace(lockWorkspace.checked)
         }
