@@ -1370,14 +1370,17 @@ void tst_Process::recursiveBlockingProcess()
         subConfig.setupSubProcess(&process);
         process.start();
         QVERIFY(process.waitForStarted(1000));
-        QVERIFY(process.waitForReadyRead(1000));
+        // The readyRead() is generated from the innermost nested process, so it means
+        // we need to give enough time for all nested processes to start their
+        // process launchers successfully.
+        QVERIFY(process.waitForReadyRead(2000));
         QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessStarted);
         QCOMPARE(runningTestProcessCount(), recursionDepth);
-        QVERIFY(!process.waitForFinished(1000));
+        QVERIFY(!process.waitForFinished(10));
         process.terminate();
-        QVERIFY(process.waitForReadyRead());
+        QVERIFY(process.waitForReadyRead(1000));
         QCOMPARE(process.readAllRawStandardOutput(), s_leafProcessTerminated);
-        QVERIFY(process.waitForFinished());
+        QVERIFY(process.waitForFinished(1000));
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
         QCOMPARE(process.exitCode(), s_crashCode);
     }

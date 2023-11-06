@@ -17319,127 +17319,127 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <name>QtC::CompilerExplorer</name>
     <message>
         <source>Not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht gefunden</translation>
     </message>
     <message>
         <source>Reset used libraries</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzte Bibliotheken zurücksetzen</translation>
     </message>
     <message>
         <source>No libraries selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Bibliotheken ausgewählt</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <source>Add Compiler</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler hinzufügen</translation>
     </message>
     <message>
         <source>Remove Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle entfernen</translation>
     </message>
     <message>
         <source>Advanced Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterte Optionen</translation>
     </message>
     <message>
         <source>Remove Compiler</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler entfernen</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Bytes</translation>
+        <translation>Bytes</translation>
     </message>
     <message>
         <source>Failed to compile: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Compilierung fehlgeschlagen: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Add Source Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelltext hinzufügen</translation>
     </message>
     <message>
         <source>No source code added yet. Add some using the button below.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde noch kein Quelltext hinzugefügt. Benutzen Sie die Schaltfläche unten, um einen Code-Editor hinzuzufügen.</translation>
     </message>
     <message>
         <source>Add Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle hinzufügen</translation>
     </message>
     <message>
         <source>powered by %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Powered by %1</translation>
     </message>
     <message>
         <source>Compiler Explorer Editor</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler Explorer-Editor</translation>
     </message>
     <message>
         <source>Open Compiler Explorer</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler Explorer öffnen</translation>
     </message>
     <message>
         <source>Compiler Explorer</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler Explorer</translation>
     </message>
     <message>
         <source>Language:</source>
-        <translation type="unfinished">Sprache:</translation>
+        <translation>Sprache:</translation>
     </message>
     <message>
         <source>Compiler:</source>
-        <translation type="unfinished">Compiler:</translation>
+        <translation>Compiler:</translation>
     </message>
     <message>
         <source>Compiler options:</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler-Optionen:</translation>
     </message>
     <message>
         <source>Arguments passed to the compiler.</source>
-        <translation type="unfinished"></translation>
+        <translation>Argumente, die an den Compiler übergeben werden.</translation>
     </message>
     <message>
         <source>Libraries:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliotheken:</translation>
     </message>
     <message>
         <source>Execute the code</source>
-        <translation type="unfinished"></translation>
+        <translation>Code ausführen</translation>
     </message>
     <message>
         <source>Compile to binary object</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu Binärobjekt compilieren</translation>
     </message>
     <message>
         <source>Intel asm syntax</source>
-        <translation type="unfinished"></translation>
+        <translation>Intel ASM-Syntax</translation>
     </message>
     <message>
         <source>Demangle identifiers</source>
-        <translation type="unfinished"></translation>
+        <translation>Bezeichner entschlüsseln</translation>
     </message>
     <message>
         <source>Failed to fetch libraries: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrufen von Bibliotheken fehlgeschlagen: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed to fetch languages: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrufen von Sprachen fehlgeschlagen: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Failed to fetch compilers: &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrufen von Compilern fehlgeschlagen: &quot;%1&quot;.</translation>
     </message>
     <message>
         <source>Compiler Explorer URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler Explorer-URL:</translation>
     </message>
     <message>
         <source>URL of the Compiler Explorer instance to use.</source>
-        <translation type="unfinished"></translation>
+        <translation>URL der zu benutzenden Compiler Explorer-Instanz.</translation>
     </message>
 </context>
 <context>
@@ -48945,207 +48945,207 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     <name>QtC::ScreenRecorder</name>
     <message>
         <source>Save current, cropped frame as image file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuellen, zugeschnittenen Frame als Bilddatei speichern.</translation>
     </message>
     <message>
         <source>Copy current, cropped frame as image to the clipboard.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuellen, zugeschnittenen Frame als Bild in die Zwischenablage kopieren.</translation>
     </message>
     <message>
         <source>X:</source>
-        <translation type="unfinished"></translation>
+        <translation>X:</translation>
     </message>
     <message>
         <source>Y:</source>
-        <translation type="unfinished"></translation>
+        <translation>Y:</translation>
     </message>
     <message>
         <source>Width:</source>
-        <translation type="unfinished">Breite:</translation>
+        <translation>Breite:</translation>
     </message>
     <message>
         <source>Height:</source>
-        <translation type="unfinished">Höhe:</translation>
+        <translation>Höhe:</translation>
     </message>
     <message>
         <source>Save Current Frame As</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuellen Frame speichern als</translation>
     </message>
     <message>
         <source>Start:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anfang:</translation>
     </message>
     <message>
         <source>End:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ende:</translation>
     </message>
     <message>
         <source>Trimming</source>
-        <translation type="unfinished"></translation>
+        <translation>Trimmen</translation>
     </message>
     <message>
         <source>Range:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bereich:</translation>
     </message>
     <message>
         <source>Crop and Trim</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuschneiden und trimmen</translation>
     </message>
     <message>
         <source>Crop and Trim...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuschneiden und trimmen...</translation>
     </message>
     <message>
         <source>Crop to %1x%2px.</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf %1x%2px zuschneiden.</translation>
     </message>
     <message>
         <source>Complete area.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamter Bereich.</translation>
     </message>
     <message>
         <source>Frames %1 to %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>Frames %1 bis %2.</translation>
     </message>
     <message>
         <source>Complete clip.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gesamter Clip.</translation>
     </message>
     <message>
         <source>Video</source>
-        <translation type="unfinished"></translation>
+        <translation>Video</translation>
     </message>
     <message>
         <source>Animated image</source>
-        <translation type="unfinished"></translation>
+        <translation>Animiertes Bild</translation>
     </message>
     <message>
         <source>Lossy</source>
-        <translation type="unfinished"></translation>
+        <translation>Verlustbehaftet</translation>
     </message>
     <message>
         <source>Lossless</source>
-        <translation type="unfinished"></translation>
+        <translation>Verlustfrei</translation>
     </message>
     <message>
         <source>Export...</source>
-        <translation type="unfinished">Exportieren...</translation>
+        <translation>Exportieren...</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished">Speichern unter</translation>
+        <translation>Speichern unter</translation>
     </message>
     <message>
         <source>Exporting Screen Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirmaufnahme exportieren</translation>
     </message>
     <message>
         <source>Width and height are not both divisible by 2. The video export for some of the lossy formats will not work.</source>
-        <translation type="unfinished"></translation>
+        <translation>Breite und Höhe sind nicht beide durch 2 teilbar. Der Videoexport wird für einige verlustbehaftete Formate nicht funktionieren.</translation>
     </message>
     <message>
         <source>Screen Recording Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Optionen für die Bildschirmaufnahme</translation>
     </message>
     <message>
         <source>Display:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzeige:</translation>
     </message>
     <message>
         <source>FPS:</source>
-        <translation type="unfinished"></translation>
+        <translation>FPS:</translation>
     </message>
     <message>
         <source>Recorded screen area:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufgenommener Bildschirmbereich:</translation>
     </message>
     <message>
         <source>Open Mov/qtrle rgb24 File</source>
-        <translation type="unfinished"></translation>
+        <translation>Mov/qtrle-rgb24-Datei öffnen</translation>
     </message>
     <message>
         <source>Cannot Open Clip</source>
-        <translation type="unfinished"></translation>
+        <translation>Clip kann nicht geöffnet werden</translation>
     </message>
     <message>
         <source>FFmpeg cannot open %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>FFmpeg kann %1 nicht öffnen.</translation>
     </message>
     <message>
         <source>Clip Not Supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Clip wird nicht unterstützt</translation>
     </message>
     <message>
         <source>Choose a clip with the &quot;qtrle&quot; codec and pixel format &quot;rgb24&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie einen Clip mit dem &quot;qtrle&quot;-Codec und dem Pixelformat &quot;rgb24&quot;.</translation>
     </message>
     <message>
         <source>Record Screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirmaufnahme</translation>
     </message>
     <message>
         <source>Record Screen...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirmaufnahme...</translation>
     </message>
     <message>
         <source>ffmpeg tool:</source>
-        <translation type="unfinished"></translation>
+        <translation>ffmpeg-Werkzeug:</translation>
     </message>
     <message>
         <source>ffprobe tool:</source>
-        <translation type="unfinished"></translation>
+        <translation>ffprobe-Werkzeug:</translation>
     </message>
     <message>
         <source>Capture the mouse cursor</source>
-        <translation type="unfinished"></translation>
+        <translation>Mauszeiger aufnehmen</translation>
     </message>
     <message>
         <source>Capture the screen mouse clicks</source>
-        <translation type="unfinished"></translation>
+        <translation>Mausklicks aufnehmen</translation>
     </message>
     <message>
         <source>Capture device/filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufnahmegerät/-filter:</translation>
     </message>
     <message>
         <source>Size limit for intermediate output file</source>
-        <translation type="unfinished"></translation>
+        <translation>Größenbegrenzung für die Zwischenausgabedatei</translation>
     </message>
     <message>
         <source>RAM buffer for real-time frames</source>
-        <translation type="unfinished"></translation>
+        <translation>RAM-Puffer für Echtzeitframes</translation>
     </message>
     <message>
         <source>Write command line of FFmpeg calls to General Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandozeilenaufrufe von FFmpeg in die Allgemeinen Ausgaben schreiben</translation>
     </message>
     <message>
         <source>Export animated images as infinite loop</source>
-        <translation type="unfinished"></translation>
+        <translation>Animierte Bilder als Endlosschleifen exportieren</translation>
     </message>
     <message>
         <source>Recording frame rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildrate für die Aufnahme:</translation>
     </message>
     <message>
         <source>Screen ID:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirm-ID:</translation>
     </message>
     <message>
         <source>FFmpeg Installation</source>
-        <translation type="unfinished"></translation>
+        <translation>FFmpeg-Installation</translation>
     </message>
     <message>
         <source>Record Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufnahmeeinstellungen</translation>
     </message>
     <message>
         <source>Export Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Export-Einstellungen</translation>
     </message>
     <message>
         <source>Screen Recording</source>
-        <translation type="unfinished"></translation>
+        <translation>Bildschirmaufnahme</translation>
     </message>
 </context>
 <context>
