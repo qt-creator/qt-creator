@@ -160,14 +160,6 @@ Item {
         }
     }
 
-    Rectangle {
-        anchors.fill: parent
-        z: -1
-        color: "grey"
-        opacity: 0.6
-        radius: 5
-    }
-
     component IconButton: HelperWidgets.IconButton {
         height: root.iconHeight
         width: root.iconHeight

@@ -58,7 +58,7 @@ Item {
         readonly property bool isHorizontal: width >= 500
 
         anchors.fill: parent
-        columns: isHorizontal ? 2 : 1
+        columns: isHorizontal ? 3 : 1
 
         ColumnLayout {
             id: collectionsSideBar
@@ -146,6 +146,14 @@ Item {
                     onClicked: newCollection.open()
                 }
             }
+        }
+
+        Rectangle { // Splitter
+            Layout.fillWidth: !grid.isHorizontal
+            Layout.fillHeight: grid.isHorizontal
+            Layout.minimumWidth: 2
+            Layout.minimumHeight: 2
+            color: "black"
         }
 
         CollectionDetailsView {

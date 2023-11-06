@@ -14,7 +14,7 @@ StudioControls.Dialog {
 
     title: qsTr("Edit Property")
 
-    function editProperty(index) {
+    function editProperty(index, initialPosition) {
         root.__propertyIndex = index
 
         if (root.__propertyIndex < 0)
@@ -29,6 +29,10 @@ StudioControls.Dialog {
         propertyType.initialType = previousType
 
         forceChangeType.checked = false
+
+        let newPoint = mapFromGlobal(initialPosition.x, initialPosition.y)
+        x = newPoint.x
+        y = newPoint.y
 
         root.open()
     }

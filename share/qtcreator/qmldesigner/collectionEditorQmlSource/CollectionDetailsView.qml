@@ -18,7 +18,7 @@ Rectangle {
     implicitWidth: 300
     implicitHeight: 400
 
-    color: StudioTheme.Values.themeBackgroundColorAlternate
+    color: StudioTheme.Values.themeControlBackground
 
     ColumnLayout {
         id: topRow
@@ -46,12 +46,6 @@ Rectangle {
             text: root.model.collectionName
             font.pixelSize: StudioTheme.Values.mediumIconFont
             elide: Text.ElideRight
-
-            Rectangle {
-                anchors.fill: parent
-                z: parent.z - 1
-                color: StudioTheme.Values.themeBackgroundColorNormal
-            }
         }
 
         Item { // spacer
@@ -64,6 +58,7 @@ Rectangle {
             model: root.model
             backend: root.backend
             Layout.fillWidth: true
+            Layout.minimumWidth: implicitWidth
         }
 
         Item { // spacer
@@ -78,12 +73,13 @@ Rectangle {
 
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.maximumWidth: parent.width
 
             Rectangle {
                 clip: true
                 visible: !tableView.model.isEmpty
-                color: StudioTheme.Values.themeControlBackground
-                border.color: StudioTheme.Values.themeControlOutline
+                color: StudioTheme.Values.themeControlBackgroundInteraction
+                border.color: StudioTheme.Values.themeControlBackgroundInteraction
                 border.width: 2
 
                 Layout.preferredWidth: rowIdView.width
@@ -113,7 +109,14 @@ Rectangle {
                 clip: true
 
                 delegate: HeaderDelegate {
+                    id: horizontalHeaderItem
+
                     selectedItem: tableView.model.selectedColumn
+                    color: StudioTheme.Values.themeControlBackgroundInteraction
+
+                    function getGlobalBottomLeft() {
+                        return mapToGlobal(0, horizontalHeaderItem.height)
+                    }
 
                     MouseArea {
                         anchors.fill: parent
@@ -123,7 +126,7 @@ Rectangle {
                             tableView.model.selectColumn(index)
 
                             if (mouse.button === Qt.RightButton)
-                                headerMenu.popIndex(index)
+                                headerMenu.popIndex(index, horizontalHeaderItem.getGlobalBottomLeft())
                         }
                     }
                 }
@@ -132,10 +135,12 @@ Rectangle {
                     id: headerMenu
 
                     property int clickedHeader: -1
+                    property point initialPosition
 
-                    function popIndex(clickedIndex)
+                    function popIndex(clickedIndex, clickedRect)
                     {
                         headerMenu.clickedHeader = clickedIndex
+                        headerMenu.initialPosition = clickedRect
                         headerMenu.popup()
                     }
 
@@ -145,7 +150,7 @@ Rectangle {
 
                     StudioControls.MenuItem {
                         text: qsTr("Edit")
-                        onTriggered: editProperyDialog.editProperty(headerMenu.clickedHeader)
+                        onTriggered: editProperyDialog.editProperty(headerMenu.clickedHeader, headerMenu.initialPosition)
                     }
 
                     StudioControls.MenuItem {
@@ -177,6 +182,7 @@ Rectangle {
 
                 delegate: HeaderDelegate {
                     selectedItem: tableView.model.selectedRow
+                    color: StudioTheme.Values.themeControlBackgroundHover
 
                     MouseArea {
                         anchors.fill: parent
@@ -197,13 +203,13 @@ Rectangle {
                 Layout.preferredHeight: tableView.contentHeight
                 Layout.minimumWidth: 10
                 Layout.minimumHeight: 10
+                Layout.maximumWidth: root.width
 
                 delegate: Rectangle {
                     id: itemCell
                     implicitWidth: 100
                     implicitHeight: itemText.height
                     border.width: 1
-                    border.color: StudioTheme.Values.themeControlOutline
 
                     Text {
                         id: itemText
@@ -235,11 +241,12 @@ Rectangle {
                             PropertyChanges {
                                 target: itemCell
                                 color: StudioTheme.Values.themeControlBackground
+                                border.color: StudioTheme.Values.themeControlBackgroundInteraction
                             }
 
                             PropertyChanges {
                                 target: itemText
-                                color: StudioTheme.Values.themeTextColor
+                                color: StudioTheme.Values.themePlaceholderTextColorInteraction
                             }
                         },
                         State {
@@ -249,6 +256,7 @@ Rectangle {
                             PropertyChanges {
                                 target: itemCell
                                 color: StudioTheme.Values.themeControlBackgroundInteraction
+                                border.color: StudioTheme.Values.themeControlBackground
                             }
 
                             PropertyChanges {
@@ -322,10 +330,9 @@ Rectangle {
         property alias horizontalAlignment: headerText.horizontalAlignment
         property alias verticalAlignment: headerText.verticalAlignment
 
-        implicitWidth: headerText.width
-        implicitHeight: headerText.height
-        border.width: 2
-        border.color: StudioTheme.Values.themeControlOutline
+        implicitWidth: headerText.implicitWidth
+        implicitHeight: headerText.implicitHeight
+        border.width: 1
         clip: true
 
         Text {
@@ -337,9 +344,10 @@ Rectangle {
             rightPadding: 5
             text: display
             font: headerTextMetrics.font
+            color: StudioTheme.Values.themeTextColor
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
-            anchors.centerIn: parent
+            anchors.fill: parent
             elide: Text.ElideRight
         }
 
@@ -349,12 +357,12 @@ Rectangle {
                 when: index !== selectedItem
                 PropertyChanges {
                     target: headerItem
-                    color: StudioTheme.Values.themeControlBackground
+                    border.color: StudioTheme.Values.themeControlBackgroundInteraction
                 }
 
                 PropertyChanges {
                     target: headerText
-                    color: StudioTheme.Values.themeIdleGreen
+                    font.bold: false
                 }
             },
             State {
@@ -363,12 +371,12 @@ Rectangle {
 
                 PropertyChanges {
                     target: headerItem
-                    color: StudioTheme.Values.themeControlBackgroundInteraction
+                    border.color: StudioTheme.Values.themeControlBackground
                 }
 
                 PropertyChanges {
                     target: headerText
-                    color: StudioTheme.Values.themeRunningGreen
+                    font.bold: true
                 }
             }
         ]

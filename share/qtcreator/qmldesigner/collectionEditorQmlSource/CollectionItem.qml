@@ -281,12 +281,12 @@ Item {
             PropertyChanges {
                 target: innerRect
                 opacity: 1
-                color: StudioTheme.Values.themeControlBackgroundInteraction
+                color: StudioTheme.Values.themeIconColorSelected
             }
 
             PropertyChanges {
                 target: root
-                textColor: StudioTheme.Values.themeIconColorSelected
+                textColor: StudioTheme.Values.themeTextSelectedTextColor
             }
         }
     ]
