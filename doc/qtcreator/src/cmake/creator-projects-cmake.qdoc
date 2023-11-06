@@ -47,10 +47,9 @@
             Typically, you cannot compile such projects without manual changes.
     \endlist
 
-    \sa {Build with CMake}{How To: Build with CMake}, {Open projects},
-    {CMake Build Configuration}, {Debug CMake project files},
-    {Specifying Build Settings}, {Specifying Run Settings},
-    {Deploying to Remote Linux}
+    \sa {Build with CMake}{How To: Build with CMake}, {CMake Build Configuration},
+    {Configure projects for building}, {Configure projects for running},
+    {Debug CMake project files}, {Deploying to Remote Linux}, {Open projects}
 */
 
 /*!

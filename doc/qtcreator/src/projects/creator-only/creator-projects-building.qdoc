@@ -116,5 +116,6 @@
 
     \image qtcreator-preferences-build-run-qmake.png "qmake tab in Build & Run Preferences"
 
-    For more information, see \l {qmake Build Configuration}.
+    \sa {Configure projects for building}, {Configure projects for running},
+    {qmake Build Configuration}
 */

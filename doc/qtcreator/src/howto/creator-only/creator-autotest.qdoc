@@ -438,7 +438,7 @@
     or select \uicontrol {Reset Cached Choices}.
 
     Select the \uicontrol {Process arguments} check box to pass arguments to the
-    test executable that you specify in the \l {Managing Run Configurations}
+    test executable that you specify in the \l {Configure projects for running}
     {run configuration}. This is an experimental feature that might cause the
     execution of the test executable to fail.
 

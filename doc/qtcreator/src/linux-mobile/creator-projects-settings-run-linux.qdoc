@@ -1,15 +1,23 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-//! [run settings linux]
+    \page creator-run-settings-remote-linux.html
+    \previouspage creator-reference.html
 
-    \section1 Specifying Run Settings for Linux-Based Devices
+    \ingroup creator-reference-run-configurations
 
-    To run and debug an application on a Linux-based device,
-    you must create connections from the development
-    host to the device and add the device configurations to
-    \l{glossary-buildandrun-kit}{kits}. Click \uicontrol {Manage Kits} to add devices
+    \title Remote Linux Run Settings
+
+    \brief Settings for running applications on Linux-based devices.
+
+    Specify run settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Run >
+    \uicontrol {Run Settings}.
+
+    To run and debug an application on a Linux-based device, you must create
+    connections from the development host to the device and add the device
+    configurations to kits. Select \uicontrol {Manage Kits} to add devices
     to kits. For more information, see
     \l {Connecting Remote Linux Devices}.
 
@@ -29,5 +37,6 @@
     Select the \uicontrol {Forward to local display} check box to show a remotely
     running X11 client on a local display.
 
-//! [run settings linux]
+    \sa {Activate kits for a project}, {Configure projects for running}, {Kits},
+    {Connecting Remote Linux Devices}
 */

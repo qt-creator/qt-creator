@@ -55,7 +55,7 @@
         \li \key Ctrl+5
         \li Configure how to build and run projects.
             This mode is available when a project is open.
-        \li \l{Specifying Build Settings}
+        \li \l{Configuring Projects}
     \row
         \li \uicontrol Help
         \li \key Ctrl+6

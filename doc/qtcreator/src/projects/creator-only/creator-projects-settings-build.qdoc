@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,41 +8,25 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-debuggers.html
     \page creator-build-settings.html
-    \nextpage creator-build-settings-cmake.html
+    \previouspage creator-how-tos.html
 
-    \title Specifying Build Settings
+    \ingroup creator-how-to-projects
+    \ingroup creator-how-to-build
 
-    Different build configurations allow you to quickly switch between
-    different build settings. By default, \QC creates \e debug, \e release, and
-    \e profile build configurations. A debug build has additional
-    debug symbols that you need for debugging the application but that you
-    can leave out from the release version. Generally, you use the debug
-    configuration for testing and the release configuration for creating
-    the final installation binary package.
+    \title Configure projects for building
 
-    If you selected CMake as the build system for the project, you can
-    use a \e {minimum size release} build configuration to create the
-    final installation binary package. It is a release build that makes the size
-    of the binary package as small as possible, even if this makes the
-    application slower.
+    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
+    \uicontrol {Build Settings}.
 
-    A profile build (which is called \e {release with debug information}
-    when using CMake) is an optimized release build that is delivered
-    with separate debug information. It is best suited for analyzing
-    applications.
+    \image qtcreator-build-configurations.png {Build Settings}
 
-    \section1 Managing Build Configurations
+    \section1 Manage build configurations
 
-    Specify build settings for the selected \l{glossary-buildandrun-kit}
-    {build and run kit} in \uicontrol Projects > \uicontrol {Build & Run}
-    > \uicontrol Build > \uicontrol {Build Settings}.
-
-    \image qtcreator-build-configurations.png "Build Settings"
-
-    To add a new build configuration, click \uicontrol Add and select the type of
-    configuration you would like to add. The options you have depend on the
+    To add a new build configuration to the list in
+    \uicontrol {Edit build configuration}, click \uicontrol Add and select the
+    type of configuration to add. The options you have depend on the
     build system that you selected for the project. You can add as many build
     configurations as you need. You can also select \uicontrol Clone to
     add a build configuration that is based on the currently selected one.
@@ -50,9 +34,9 @@
     Select \uicontrol Rename to give the currently selected build configuration
     a new name.
 
-    To delete the build configuration currently selected, click \uicontrol Remove.
+    To delete the currently selected build configuration, click \uicontrol Remove.
 
-    \section1 Editing Build Configurations
+    \section1 Edit build configurations
 
     Select the build configuration to edit in the
     \uicontrol {Edit build configuration} field.
@@ -70,10 +54,7 @@
 
     This topic describes the build settings at a general level.
 
-    For more information about debugging Qt Quick projects, see
-    \l{Setting Up QML Debugging}.
-
-    \section1 Building on Remote Devices
+    \section1 Build on remote devices
 
     You can build applications on \l{Connecting Remote Linux Devices}
     {remote Linux} or \l{Adding Docker Devices}{Docker} devices if you
@@ -86,7 +67,7 @@
     Also, the \uicontrol {Open Terminal} button in the
     \uicontrol {Build Environment} section opens a terminal on the device.
 
-    \section1 Starting External Processes
+    \section1 Start external processes
 
     \QC executes external processes to accomplish tasks such as building
     and running applications. To execute the processes, \QC uses shell
@@ -111,9 +92,10 @@
     \uicontrol Executable field is always placed first when constructing the command.
 
     You can \l {Use Qt Creator variables}{use \QC variables} in arguments,
-    executable paths, and working directories.
+    executable paths, and working directories. That is, in all fields where you
+    see the \inlineimage icons/replace.png (\uicontrol {Variables}) button.
 
-    \section1 Build Steps
+    \section1 Add build steps
 
     \image qtcreator-cmake-build-steps.webp {CMake build steps}
 
@@ -131,26 +113,35 @@
     You can use \l{IncrediBuild Build Steps}{IncrediBuild} to accelerate the
     build process when using qmake or CMake.
 
-    \section2 Adding Custom Build Steps
+    To manage build steps:
+
+        \list
+        \li To add a build step, select \uicontrol {Add Build Step} and select
+            the step to add.
+        \li To disable a step you added, select
+            \inlineimage icons/buildstepdisable.png (\uicontrol {Disable}).
+        \li To change the order of steps, select \inlineimage icons/arrowup.png
+            (\uicontrol {Move Up}) and \inlineimage icons/arrowdown.png
+            (\uicontrol {Move Down}).
+        \li To remove a step, select \inlineimage icons/close.png
+            (\uicontrol {Remove Item}).
+    \endlist
+
+    \section2 Add custom build steps
 
     To add custom steps to the build settings, select
     \uicontrol {Add Build Step} > \uicontrol {Custom Process Step}.
 
-    By default, custom steps are enabled. To disable a custom step, select
-    the \inlineimage icons/buildstepdisable.png
-    (\uicontrol Disable) button.
 
-    \image qtcreator-build-steps-custom.png "Custom Process Step"
+    \image qtcreator-build-steps-custom.png {Custom Process Step}
 
-    \section2 Executing Custom Commands
+    \section2 Execute custom commands
 
     To execute custom commands when building for embedded devices, select
     \uicontrol {Add Build Step} > \uicontrol {Custom Remote Command
     (via adb shell)} (commercial only) and enter the command to execute.
 
-    \section1 Clean Steps
-
-    \image qtcreator-clean-steps.png "Clean steps"
+    \section1 Add clean steps
 
     You can use the cleaning process to remove intermediate files. This process
     might help you to fix obscure issues during the process of building a
@@ -165,19 +156,12 @@
     \endlist
 
     You can define the clean steps for your builds in \uicontrol {Clean Steps}.
+    To add a clean step using make or a custom process, select
+    \uicontrol{Add Clean Step} and select the step to add.
 
-    \list
+    \image qtcreator-cmake-clean-steps.webp {Clean steps}
 
-        \li To add a clean step using make or a custom process, click
-            \uicontrol{Add Clean Step} and select the type of step you want to add.
-
-            By default, custom steps are enabled. To disable a custom step,
-            select the \uicontrol Disable button.
-
-        \li To remove a clean step, click \uicontrol{Remove Item}.
-
-        \li To change the order of steps, click \inlineimage icons/arrowup.png
-            (\uicontrol {Move Up}) and \inlineimage icons/arrowdown.png
-            (\uicontrol {Move Down}).
-    \endlist
+    \sa {Configuring Projects}, {Select the build system}, {Use \QC variables},
+    {Enable debugging}, {Setting Up QML Debugging},
+    {Build Systems}{Reference: Build Systems}
 */

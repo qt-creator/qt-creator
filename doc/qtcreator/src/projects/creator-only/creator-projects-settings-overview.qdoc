@@ -30,6 +30,49 @@
     To specify build or run settings for a kit, select \uicontrol Build or
     \uicontrol Run below the kit name.
 
+    \section1 Specifying Build Settings
+
+    \image qtcreator-build-configurations.png {Build configurations}
+
+    Different build configurations allow you to quickly switch between
+    different build settings. By default, \QC creates the following
+    configurations:
+
+    \list
+        \li Debug
+        \li Release
+        \li Profile
+    \endlist
+
+    A debug build has debug symbols that you need for debugging the application
+    but that you can leave out from the release version. Generally, you use the
+    debug configuration for testing and the release configuration for creating
+    the final installation binary package.
+
+    If you selected CMake as the build system for the project, you can
+    use a \e {minimum size release} build configuration to create the
+    final installation binary package. It is a release build that makes the size
+    of the binary package as small as possible, even if this makes the
+    application slower.
+
+    A profile build (which is called \e {release with debug information}
+    when using CMake) is an optimized release build that is delivered
+    with separate debug information. It is best suited for analyzing
+    applications.
+
+    \section1 Specifying Run Settings
+
+    The run settings to specify depend on the type of the project and on the
+    \l{Kits}{Run device} that you select for the kit.
+
+    \QC automatically creates deploy and run configurations for your project.
+
+    \image qtcreator-settings-run-desktop.webp {Run Settings}
+
+    To prevent \QC from automatically creating run configurations, select
+    \preferences > \uicontrol {Build & Run}, and then deselect the
+    \uicontrol {Create suitable run configurations automatically} check box.
+
     \section1 Overriding Global Preferences
 
     In \uicontrol {Project Settings}, you can override global preferences for
@@ -52,8 +95,8 @@
     If you have multiple projects open in \QC, select the project to configure
     in \uicontrol {Active Project}.
 
-    \sa {Activate kits for a project}, {Open projects},
-    {Specifying Build Settings}, {Specifying Run Settings}
+    \sa {Activate kits for a project}, {Configure projects for building},
+    {Configure projects for running}, {Open projects}
 */
 
 /*!

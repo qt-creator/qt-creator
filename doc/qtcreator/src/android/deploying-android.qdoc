@@ -36,7 +36,7 @@
     \uicontrol {Build Android APK} > \uicontrol Details.
 
     For more information about options that you have for running applications,
-    see \l {Specifying Run Settings for Android Devices}.
+    see \l {Android Run Settings}.
 
     \section1 Packaging Applications
 
@@ -65,7 +65,7 @@
     \uicontrol Manage.
 
     For more information about specifying additional start options for
-    applications, see \l{Specifying Run Settings for Android Devices}.
+    applications, see \l{Android Run Settings}.
 
     To remove previously installed files from the device, select
     \uicontrol {Uninstall the existing app before deployment}.

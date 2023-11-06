@@ -19,6 +19,14 @@
 
     \annotatedlist creator-reference-build-systems
 
+    \section1 Build Configurations
+
+    \annotatedlist creator-reference-build-configurations
+
+    \section1 Run Configurations
+
+    \annotatedlist creator-reference-run-configurations
+
     \section1 Preferences
 
     \annotatedlist creator-reference-preferences

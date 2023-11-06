@@ -23,8 +23,8 @@
         \li \l{Create a virtual environment}
         \li \l{Use Python interactive shell}
         \li \l{Python Language Server}
-        \li \l{Running Python projects}
-        \li \l{Specifying Run Settings for Python Projects}
+        \li \l{Run Python applications}
+        \li \l{Python Run Settings}
         \li \l{PDB}
         \li \l{Launching the Debugger}
     \endlist

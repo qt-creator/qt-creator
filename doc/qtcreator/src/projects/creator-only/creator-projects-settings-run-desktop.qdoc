@@ -1,10 +1,23 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-//! [run settings desktop]
+    \page creator-run-settings-desktop-devices.html
+    \previouspage creator-reference.html
 
-    \section1 Specifying Run Settings for Desktop Device Types
+    \ingroup creator-reference-run-configurations
+
+    \title Desktop Device Run Settings
+
+    \brief Settings for running applications on desktop device types.
+
+    Specify settings for running applications on the \l {Kits}{Run device} that
+    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
+    \uicontrol Run > \uicontrol {Run Settings}.
+
+    \image qtcreator-settings-run-desktop.webp {Run Settings for desktop devices}
+
+    \section1 Working Directory
 
     You can specify command-line arguments to be passed to the executable
     and the working directory to use. The working directory defaults to
@@ -17,7 +30,7 @@
     \uicontrol {Working directory} field as the installation directory in the
     \c {--install} signature.
 
-    \image qtcreator-settings-run-desktop.webp {Run Settings}
+    \section1 Run in Terminal
 
     For console applications, check the \uicontrol{Run in terminal} check box.
     To specify the terminal to use on Linux and \macos, select \preferences >
@@ -25,9 +38,7 @@
     {internal terminal}, select \preferences > \uicontrol Terminal >
     \uicontrol {Use internal terminal}.
 
-    To run with special environment variables set up, select them in the
-    \uicontrol {Run Environment} section. For more information, see
-    \l {Specify the run environment}.
+    \section1 Linker Libraries
 
     When building an application, \QC creates a list of directories where the
     linker will look for libraries that the application links to. By
@@ -43,17 +54,18 @@
     \uicontrol {Build & Run}, and then deselect the
     \uicontrol {Add linker library search paths to run environment} check box.
 
+    \section1 \macos Options
+
     The \uicontrol {Use debug version of frameworks (DYLD_IMAGE_SUFFIX=_debug)} option
     (only available on \macos) enables you to debug (for example, step into)
     linked frameworks, such as the Qt framework itself. You do not need this
     option for debugging your application code.
 
+    \section1 Linux Options
+
     On Linux, select the \uicontrol {Run as root user} check box to run the
     application with root user permissions.
 
-    You can also create custom executable run configurations where you
-    can set the executable to run. For more information, see
-    \l{Specifying a Custom Executable to Run}.
-
-//! [run settings desktop]
+    \sa {Configure projects for running}, {Specify a custom executable to run},
+    {Specify the run environment}
 */

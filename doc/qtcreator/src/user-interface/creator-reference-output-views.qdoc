@@ -121,8 +121,7 @@
     \if defined(qtcreator)
     If you specify command-line arguments in the run settings that are passed
     to the application when running it, they are displayed as a part of the
-    application output. For more information, see
-    \l{Specifying Run Settings for Desktop Device Types}.
+    application output. For more information, see \l{Desktop Device Run Settings}.
     \endif
 
     Select toolbar buttons to run applications, to attach the debugger to the

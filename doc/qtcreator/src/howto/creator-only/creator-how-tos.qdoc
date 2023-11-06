@@ -37,6 +37,10 @@
 
     \generatelist creator-how-to-build-with-qmake
 
+    \section2 Run applications
+
+    \generatelist creator-how-to-run
+
     \section1 Debug
 
     \generatelist creator-how-to-debug

@@ -55,5 +55,6 @@
     %{variable:-default}
     \endcode
 
-    \sa {Specify the environment for projects}, {Specifying Build Settings},
+    \sa {Specify the environment for projects}, {Configure projects for building},
+    {Configure projects for running}
 */

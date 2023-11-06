@@ -1,11 +1,18 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 /*!
-    \previouspage creator-build-settings-meson.html
     \page creator-build-settings-incredibuild.html
-    \nextpage creator-build-settings-conan.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-build-configurations
 
     \title IncrediBuild Build Configuration
+
+    \brief Build and clean steps for Incredibuild.
+
+    Specify build settings for the selected \l{glossary-buildandrun-kit}{kit} in
+    \uicontrol Projects > \uicontrol {Build & Run} > \uicontrol Build >
+    \uicontrol {Build Settings}.
 
     You can specify build steps and clean steps for IncrediBuild.
 
@@ -114,10 +121,11 @@
     \section1 IncrediBuild Clean Steps
 
     When building with IncrediBuild, you can add arguments and targets for the
-    clean command in \uicontrol {Clean Steps}. For more information, see
-    \l{Clean Steps}.
-
-    For more information about the settings, see \l{IncrediBuild Build Steps}.
+    clean command in \uicontrol {Clean Steps}.
 
     The build errors and warnings are parsed and displayed in \l Issues.
+
+    \sa {Activate kits for a project}, {Add clean steps},
+    {Configure projects for building}, {Configure projects for running},
+    {Open projects}, {Configuring projects}, {Setting Up IncrediBuild}
 */

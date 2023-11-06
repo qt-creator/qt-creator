@@ -26,19 +26,6 @@
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
             \list
-                \li \l{Specifying Build Settings}
-                    \list
-                        \li \l{Cmake Build Configuration}
-                        \list
-                            \li \l{CMake Presets}
-                        \endlist
-                        \li \l{qmake Build Configuration}
-                        \li \l{Qbs Build Configuration}
-                        \li \l{Meson Build Configuration}
-                        \li \l{IncrediBuild Build Configuration}
-                        \li \l{Conan Build Configuration}
-                    \endlist
-                \li \l{Specifying Run Settings}
                 \li \l{Using Custom Output Parsers}
                 \li \l{Sharing Project Settings}
             \endlist
@@ -182,6 +169,8 @@
                 \generatelist creator-how-to-build-with-cmake
             \li Build with qmake
                 \generatelist creator-how-to-build-with-qmake
+            \li Run applications
+                \generatelist creator-how-to-run
             \li Debug
                 \generatelist creator-how-to-debug
             \li Design UIs
@@ -212,6 +201,13 @@
                 \list
                     \li Build Systems
                         \generatelist creator-reference-build-systems
+                        \list
+                            \li Build Configurations
+                                \generatelist creator-reference-build-configurations
+                            \li Run Configurations
+                                \generatelist creator-reference-run-configurations
+                        \endlist
+                \endlist
                     \li Preferences
                         \generatelist creator-reference-preferences
                         \list
@@ -229,6 +225,5 @@
                         \li Sidebar Views
                             \generatelist creator-reference-sidebar-views
                     \endlist
-                \endlist
     \endlist
 */

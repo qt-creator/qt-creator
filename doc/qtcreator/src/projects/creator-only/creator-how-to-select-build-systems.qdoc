@@ -56,5 +56,6 @@
     Specify build and run settings for different target platforms, in the
     \uicontrol Projects mode.
 
-    \sa {Specifying Build Settings}, {Build Systems}, {Use project wizards}
+    \sa {Configure projects for building}, {Configure projects for running},
+    {Build Systems}, {Use project wizards}
 */

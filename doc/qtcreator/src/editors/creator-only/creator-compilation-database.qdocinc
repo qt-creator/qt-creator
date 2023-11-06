@@ -31,10 +31,10 @@
     \uicontrol C++ > \uicontrol {Switch Header/Source}.
 
     You can specify custom build steps and run settings for compilation
-    database projects in the \uicontrol Projects mode. For more information,
-    see \l{Adding Custom Build Steps} and \l {Specifying Run Settings}.
+    database projects in the \uicontrol Projects mode.
 
-    \sa {Enable and disable plugins}
+    \sa {Enable and disable plugins}, {Add custom build steps},
+    {Configure projects for running}
 
 //! [using compilation databases]
 */

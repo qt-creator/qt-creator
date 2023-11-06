@@ -1,0 +1,30 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-run-settings-boot2qt.html
+    \previouspage creator-reference.html
+
+    \ingroup creator-reference-run-configurations
+
+    \title Boot2Qt Run Settings
+
+    \brief Settings for running applications on Boot2Qt devices.
+
+    Specify settings for running applications on the \l {Kits}{Run device} that
+    you select for a kit in \uicontrol Projects > \uicontrol {Build & Run} >
+    \uicontrol Run > \uicontrol {Run Settings}.
+
+    To run and debug an application on a \l Boot2Qt device (commercial only), you
+    must create connections from the development host to the device and add the
+    device configurations to kits. Select \uicontrol {Manage Kits} to add devices
+    to kits. For more information, see
+    \l{http://doc.qt.io/Boot2Qt/b2qt-installation-guides.html}
+    {Boot2Qt: Installation Guide}.
+
+    The run settings display the path to the executable file on the development
+    host and on the device.
+
+    \sa {Activate kits for a project}, {Configure projects for running}, {Kits},
+    {Deploying to Boot2Qt}
+*/
