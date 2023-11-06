@@ -1086,7 +1086,7 @@ public:
     SetupResult startChildren(int nextChild);
     SetupResult childDone(bool success);
     void stop();
-    bool invokeDoneHandler(DoneWith result);
+    bool invokeDoneHandler(DoneWith doneWith);
     bool isRunning() const { return m_runtimeData.has_value(); }
     bool isStarting() const { return isRunning() && m_runtimeData->m_startGuard.isLocked(); }
 
@@ -1451,15 +1451,15 @@ static bool shouldCall(CallDoneIf callDoneIf, DoneWith result)
     return callDoneIf != CallDoneIf::Success;
 }
 
-bool TaskContainer::invokeDoneHandler(DoneWith result)
+bool TaskContainer::invokeDoneHandler(DoneWith doneWith)
 {
-    bool success = result == DoneWith::Success;
+    DoneResult result = toDoneResult(doneWith);
     const GroupItem::GroupHandler &groupHandler = m_constData.m_groupHandler;
-    if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneIf, result))
-        success = invokeHandler(this, groupHandler.m_doneHandler, result);
+    if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneIf, doneWith))
+        result = invokeHandler(this, groupHandler.m_doneHandler, doneWith);
     m_runtimeData->m_callStorageDoneHandlersOnDestruction = true;
     m_runtimeData.reset();
-    return success;
+    return result == DoneResult::Success;
 }
 
 SetupResult TaskNode::start()

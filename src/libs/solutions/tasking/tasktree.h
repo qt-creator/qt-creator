@@ -194,7 +194,7 @@ public:
     // Called when group entered, after group's storages are created
     using GroupSetupHandler = std::function<SetupResult()>;
     // Called when group done, before group's storages are deleted
-    using GroupDoneHandler = std::function<bool(DoneWith)>;
+    using GroupDoneHandler = std::function<DoneResult(DoneWith)>;
 
     struct TaskHandler {
         TaskCreateHandler m_createHandler;
@@ -315,24 +315,24 @@ private:
     template <typename Handler>
     static GroupDoneHandler wrapGroupDone(Handler &&handler)
     {
-        // B, V, D stands for: [B]ool, [V]oid, [D]oneWith
-        static constexpr bool isBD = isInvocable<bool, Handler, DoneWith>();
-        static constexpr bool isB = isInvocable<bool, Handler>();
-        static constexpr bool isVD = isInvocable<void, Handler, DoneWith>();
+        // D, V, W stands for: [D]oneResult, [V]oid, Done[W]ith
+        static constexpr bool isDW = isInvocable<DoneResult, Handler, DoneWith>();
+        static constexpr bool isD = isInvocable<DoneResult, Handler>();
+        static constexpr bool isVW = isInvocable<void, Handler, DoneWith>();
         static constexpr bool isV = isInvocable<void, Handler>();
-        static_assert(isBD || isB || isVD || isV,
+        static_assert(isDW || isD || isVW || isV,
             "Group done handler needs to take (DoneWith) or (void) as an argument and has to "
-            "return void or bool. The passed handler doesn't fulfill these requirements.");
+            "return void or DoneResult. The passed handler doesn't fulfill these requirements.");
         return [=](DoneWith result) {
-            if constexpr (isBD)
+            if constexpr (isDW)
                 return std::invoke(handler, result);
-            if constexpr (isB)
+            if constexpr (isD)
                 return std::invoke(handler);
-            if constexpr (isVD)
+            if constexpr (isVW)
                 std::invoke(handler, result);
             else if constexpr (isV)
                 std::invoke(handler);
-            return result == DoneWith::Success;
+            return result == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
         };
     };
 };
