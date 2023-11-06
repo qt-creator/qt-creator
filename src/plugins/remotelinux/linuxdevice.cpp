@@ -768,8 +768,9 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
         inner.addArgs(QString("echo ") + s_pidMarker + "$$" + s_pidMarker + " && ", CommandLine::Raw);
 
     const Environment &env = q->m_setup.m_environment;
-    env.forEachEntry([&](const QString &key, const QString &value, bool) {
-        inner.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
+    env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
+        if (enabled)
+            inner.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
     });
 
     if (!useTerminal && !commandLine.isEmpty())

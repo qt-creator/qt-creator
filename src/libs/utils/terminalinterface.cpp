@@ -356,8 +356,9 @@ void TerminalInterface::start()
             return;
         }
         QTextStream stream(d->envListFile.get());
-        finalEnv.forEachEntry([&stream](const QString &key, const QString &value, bool) {
-            stream << key << '=' << value << '\0';
+        finalEnv.forEachEntry([&stream](const QString &key, const QString &value, bool enabled) {
+            if (enabled)
+                stream << key << '=' << value << '\0';
         });
 
         if (d->envListFile->error() != QFile::NoError) {
