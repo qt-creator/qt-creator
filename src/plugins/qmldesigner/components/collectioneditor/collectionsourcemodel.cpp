@@ -5,6 +5,7 @@
 
 #include "abstractview.h"
 #include "collectioneditorconstants.h"
+#include "collectioneditorutils.h"
 #include "collectionlistmodel.h"
 #include "variantproperty.h"
 
@@ -62,18 +63,6 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
     return collectionsList;
 }
 
-QString getSourceCollectionType(const QmlDesigner::ModelNode &node)
-{
-    using namespace QmlDesigner;
-    if (node.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
-        return "json";
-
-    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
-        return "csv";
-
-    return {};
-}
-
 } // namespace
 
 namespace QmlDesigner {
@@ -101,7 +90,7 @@ QVariant CollectionSourceModel::data(const QModelIndex &index, int role) const
     case NodeRole:
         return QVariant::fromValue(*collectionSource);
     case CollectionTypeRole:
-        return getSourceCollectionType(*collectionSource);
+        return CollectionEditor::getSourceCollectionType(*collectionSource);
     case SourceRole:
         return collectionSource->variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value();
     case SelectedRole:
@@ -488,8 +477,8 @@ void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, cons
 
     QFile jsonFile(sourceFileAddress);
     if (!jsonFile.open(QFile::ReadWrite)) {
-        return emitRenameWarning(tr("Can't read or write \"%1\".\n%2")
-                                     .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
+        emitRenameWarning(tr("Can't read or write \"%1\".\n%2")
+                              .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
         return;
     }
 
@@ -535,6 +524,88 @@ void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, cons
 
         if (writtenBytes != jsonData.size()) {
             emitRenameWarning(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+            return;
+        }
+
+        updateCollectionList(nodeIndex);
+    }
+}
+
+void CollectionSourceModel::onCollectionsRemoved(const QStringList &removedCollections)
+{
+    CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
+    QTC_ASSERT(collectionList, return);
+
+    auto emitDeleteWarning = [this](const QString &msg) -> void {
+        emit warning(tr("Delete Collection"), msg);
+    };
+
+    const ModelNode node = collectionList->sourceNode();
+    const QModelIndex nodeIndex = indexOfNode(node);
+
+    if (!nodeIndex.isValid()) {
+        emitDeleteWarning(tr("Invalid node"));
+        return;
+    }
+
+    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME) {
+        removeSource(node);
+        return;
+    } else if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME) {
+        emitDeleteWarning(tr("Invalid node type"));
+        return;
+    }
+
+    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
+                                    .value()
+                                    .toString();
+
+    QFileInfo sourceFileInfo(sourceFileAddress);
+    if (!sourceFileInfo.isFile()) {
+        emitDeleteWarning(tr("The selected node has an invalid source address"));
+        return;
+    }
+
+    QFile jsonFile(sourceFileAddress);
+    if (!jsonFile.open(QFile::ReadWrite)) {
+        emitDeleteWarning(tr("Can't read or write \"%1\".\n%2")
+                              .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
+        return;
+    }
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        emitDeleteWarning(tr("\"%1\" is corrupted.\n%2")
+                              .arg(sourceFileInfo.absoluteFilePath(), parseError.errorString()));
+        return;
+    }
+
+    if (document.isObject()) {
+        QJsonObject rootObject = document.object();
+
+        for (const QString &collectionName : removedCollections) {
+            bool sourceContainsCollection = rootObject.contains(collectionName);
+            if (sourceContainsCollection) {
+                rootObject.remove(collectionName);
+            } else {
+                emitDeleteWarning(tr("Collection doesn't contain the collection name (%1).")
+                                      .arg(sourceContainsCollection));
+            }
+        }
+
+        document.setObject(rootObject);
+        if (!jsonFile.resize(0)) {
+            emitDeleteWarning(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+            return;
+        }
+
+        QByteArray jsonData = document.toJson();
+        auto writtenBytes = jsonFile.write(jsonData);
+        jsonFile.close();
+
+        if (writtenBytes != jsonData.size()) {
+            emitDeleteWarning(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
             return;
         }
 
@@ -612,6 +683,12 @@ void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionLi
             &CollectionListModel::collectionNameChanged,
             this,
             &CollectionSourceModel::onCollectionNameChanged,
+            Qt::UniqueConnection);
+
+    connect(collection.data(),
+            &CollectionListModel::collectionsRemoved,
+            this,
+            &CollectionSourceModel::onCollectionsRemoved,
             Qt::UniqueConnection);
 }
 

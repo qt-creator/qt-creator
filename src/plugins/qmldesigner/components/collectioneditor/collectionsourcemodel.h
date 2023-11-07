@@ -80,6 +80,7 @@ signals:
 private slots:
     void onSelectedCollectionChanged(int collectionIndex);
     void onCollectionNameChanged(const QString &oldName, const QString &newName);
+    void onCollectionsRemoved(const QStringList &removedCollections);
 
 private:
     void setSelectedIndex(int idx);

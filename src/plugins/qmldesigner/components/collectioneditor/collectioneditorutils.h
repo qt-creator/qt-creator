@@ -9,4 +9,6 @@ namespace QmlDesigner::CollectionEditor {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type);
 
+QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
+
 } // namespace QmlDesigner::CollectionEditor

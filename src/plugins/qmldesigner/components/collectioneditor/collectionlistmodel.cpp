@@ -4,6 +4,7 @@
 #include "collectionlistmodel.h"
 
 #include "collectioneditorconstants.h"
+#include "collectioneditorutils.h"
 #include "variantproperty.h"
 
 #include <utils/algorithm.h>
@@ -28,6 +29,7 @@ namespace QmlDesigner {
 CollectionListModel::CollectionListModel(const ModelNode &sourceModel)
     : QStringListModel()
     , m_sourceNode(sourceModel)
+    , m_sourceType(CollectionEditor::getSourceCollectionType(sourceModel))
 {
     connect(this, &CollectionListModel::modelReset, this, &CollectionListModel::updateEmpty);
     connect(this, &CollectionListModel::rowsRemoved, this, &CollectionListModel::updateEmpty);
@@ -71,6 +73,24 @@ bool CollectionListModel::setData(const QModelIndex &index, const QVariant &valu
         }
     }
     return false;
+}
+
+bool CollectionListModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    const int rows = rowCount(parent);
+    if (count < 1 || row >= rows)
+        return false;
+
+    row = qBound(0, row, rows - 1);
+    count = qBound(1, count, rows - row);
+
+    QStringList removedCollections = stringList().mid(row, count);
+
+    bool itemsRemoved = Super::removeRows(row, count, parent);
+    if (itemsRemoved)
+        emit collectionsRemoved(removedCollections);
+
+    return itemsRemoved;
 }
 
 QVariant CollectionListModel::data(const QModelIndex &index, int role) const
@@ -166,4 +186,5 @@ void CollectionListModel::updateEmpty()
             setSelectedIndex(-1);
     }
 }
+
 } // namespace QmlDesigner

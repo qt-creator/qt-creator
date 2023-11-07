@@ -15,6 +15,7 @@ Item {
     implicitHeight: innerRect.height + 3
 
     property color textColor
+    property string sourceType
 
     signal selectItem(int itemIndex)
     signal deleteItem()
@@ -130,13 +131,28 @@ Item {
         id: deleteDialog
 
         title: qsTr("Deleting whole collection")
+        clip: true
 
-        contentItem: Column {
+        contentItem: ColumnLayout {
             spacing: 2
 
             Text {
-                text: qsTr("Are you sure that you want to delete collection \"" + collectionName + "\"?")
+                Layout.fillHeight: true
+                Layout.fillWidth: true
+
+                wrapMode: Text.WordWrap
                 color: StudioTheme.Values.themeTextColor
+                text: {
+                    if (root.sourceType === "json") {
+                        qsTr("Are you sure that you want to delete collection \"%1\"?"
+                             + "\nYou can't undo this action if you proceed and "
+                             + "the collection will be removed from the json file.").arg(collectionName)
+                    } else if (root.sourceType === "csv") {
+                        qsTr("Are you sure that you want to delete collection \"%1\"?"
+                             + "\nIn this case, the csv file will not be deleted, but "
+                             + "the collection model will be removed from the project.").arg(collectionName)
+                    }
+                }
             }
 
             Item { // spacer
@@ -144,21 +160,17 @@ Item {
                 height: 20
             }
 
-            Row {
-                anchors.right: parent.right
+            RowLayout {
                 spacing: 10
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
                 HelperWidgets.Button {
-                    id: btnDelete
-                    anchors.verticalCenter: parent.verticalCenter
-
                     text: qsTr("Delete")
-                    onClicked: root.deleteItem(index)
+                    onClicked: root.deleteItem()
                 }
 
                 HelperWidgets.Button {
                     text: qsTr("Cancel")
-                    anchors.verticalCenter: parent.verticalCenter
                     onClicked: deleteDialog.reject()
                 }
             }

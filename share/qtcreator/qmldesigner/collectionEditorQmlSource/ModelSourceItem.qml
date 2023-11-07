@@ -155,7 +155,8 @@ Item {
 
             delegate: CollectionItem {
                 width: collectionListView.width
-                onDeleteItem: root.model.removeRow(index)
+                sourceType: collectionListView.model.sourceType
+                onDeleteItem: collectionListView.model.removeRow(index)
             }
         }
     }
