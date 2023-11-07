@@ -83,6 +83,7 @@ public:
     bool m_enabled = true;
     bool m_readOnly = false;
     bool m_autoApply = true;
+    bool m_hasEnabler = false;
     int m_spanX = 1;
     int m_spanY = 1;
     BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
@@ -346,6 +347,8 @@ void BaseAspect::setEnabled(bool enabled)
 void BaseAspect::setEnabler(BoolAspect *checker)
 {
     QTC_ASSERT(checker, return);
+
+    d->m_hasEnabler = true;
 
     auto update = [this, checker] {
         BaseAspect::setEnabled(checker->isEnabled() && checker->volatileValue());
@@ -646,6 +649,10 @@ void BaseAspect::readSettings()
     if (settingsKey().isEmpty())
         return;
     QTC_ASSERT(theSettings, return);
+    // The enabler needs to be set up after reading the settings, otherwise
+    // changes from reading the settings will not update the enabled state
+    // because the updates are "quiet".
+    QTC_CHECK(!d->m_hasEnabler);
     const QVariant val = theSettings->value(settingsKey());
     setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue(), BeQuiet);
 }
