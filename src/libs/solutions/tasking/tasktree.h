@@ -19,9 +19,7 @@ namespace Tasking {
 
 Q_NAMESPACE_EXPORT(TASKING_EXPORT)
 
-class ExecutionContextActivator;
 class StorageData;
-class TaskContainer;
 class TaskTreePrivate;
 
 class TASKING_EXPORT TaskInterface : public QObject
@@ -33,7 +31,7 @@ signals:
 
 private:
     template <typename Task, typename Deleter> friend class TaskAdapter;
-    friend class TaskNode;
+    friend class TaskTreePrivate;
     TaskInterface() = default;
 #ifdef Q_QDOC
 protected:
@@ -46,6 +44,7 @@ class TASKING_EXPORT TreeStorageBase
 public:
     using StorageConstructor = std::function<void *(void)>;
     using StorageDestructor = std::function<void(void *)>;
+    using StorageVoidHandler = std::function<void(void *)>;
 
     bool isValid() const;
 
@@ -66,9 +65,9 @@ private:
     QSharedPointer<StorageData> m_storageData;
 
     template <typename StorageStruct> friend class TreeStorage;
-    friend ExecutionContextActivator;
-    friend TaskContainer;
-    friend TaskTreePrivate;
+    friend class ExecutionContextActivator;
+    friend class TaskRuntimeContainer;
+    friend class TaskTreePrivate;
 };
 
 template <typename StorageStruct>
@@ -461,8 +460,6 @@ private:
     };
 };
 
-class TaskTreePrivate;
-
 class TASKING_EXPORT TaskTree final : public QObject
 {
     Q_OBJECT
@@ -515,19 +512,17 @@ signals:
     void progressValueChanged(int value); // updated whenever task finished / skipped / stopped
 
 private:
-    using StorageVoidHandler = std::function<void(void *)>;
     void setupStorageHandler(const TreeStorageBase &storage,
-                             StorageVoidHandler setupHandler,
-                             StorageVoidHandler doneHandler);
+                             TreeStorageBase::StorageVoidHandler setupHandler,
+                             TreeStorageBase::StorageVoidHandler doneHandler);
     template <typename StorageStruct, typename StorageHandler>
-    StorageVoidHandler wrapHandler(StorageHandler &&handler) {
+    TreeStorageBase::StorageVoidHandler wrapHandler(StorageHandler &&handler) {
         return [=](void *voidStruct) {
             auto *storageStruct = static_cast<StorageStruct *>(voidStruct);
             std::invoke(handler, *storageStruct);
         };
     }
 
-    friend class TaskTreePrivate;
     TaskTreePrivate *d;
 };
 

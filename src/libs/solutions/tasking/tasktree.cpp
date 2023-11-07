@@ -3,6 +3,7 @@
 
 #include "tasktree.h"
 
+#include <QDebug>
 #include <QEventLoop>
 #include <QFutureWatcher>
 #include <QHash>
@@ -1053,6 +1054,22 @@ GroupItem GroupItem::withTimeout(const GroupItem &item, milliseconds timeout,
 
 class TaskTreePrivate;
 class TaskNode;
+class TaskRuntimeNode;
+class TaskRuntimeContainer;
+
+class ExecutionContextActivator
+{
+public:
+    ExecutionContextActivator(TaskRuntimeContainer *container) { activateContext(container); }
+    ~ExecutionContextActivator() {
+        for (int i = m_activeStorages.size() - 1; i >= 0; --i) // iterate in reverse order
+            m_activeStorages[i].m_storageData->threadData().activateStorage(0);
+    }
+
+private:
+    void activateContext(TaskRuntimeContainer *container);
+    QList<TreeStorageBase> m_activeStorages;
+};
 
 class TaskTreePrivate
 {
@@ -1075,10 +1092,10 @@ public:
         callStorageHandler(storage, storageId, &StorageHandler::m_doneHandler);
     }
     struct StorageHandler {
-        TaskTree::StorageVoidHandler m_setupHandler = {};
-        TaskTree::StorageVoidHandler m_doneHandler = {};
+        TreeStorageBase::StorageVoidHandler m_setupHandler = {};
+        TreeStorageBase::StorageVoidHandler m_doneHandler = {};
     };
-    typedef TaskTree::StorageVoidHandler StorageHandler::*HandlerPtr; // ptr to class member
+    typedef TreeStorageBase::StorageVoidHandler StorageHandler::*HandlerPtr; // ptr to class member
     void callStorageHandler(TreeStorageBase storage, int storageId, HandlerPtr ptr)
     {
         const auto it = m_storageHandlers.constFind(storage);
@@ -1095,98 +1112,176 @@ public:
         threadData.activateStorage(0);
     }
 
+    // Node related methods
+
+    // If returned value != Continue, childDone() needs to be called in parent container (in caller)
+    // in order to unwind properly.
+    SetupResult start(TaskRuntimeNode *node);
+    void stop(TaskRuntimeNode *node);
+    bool invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith);
+
+    // Container related methods
+
+    SetupResult start(TaskRuntimeContainer *container);
+    SetupResult continueStart(TaskRuntimeContainer *container, SetupResult startAction, int nextChild);
+    SetupResult startChildren(TaskRuntimeContainer *container, int nextChild);
+    SetupResult childDone(TaskRuntimeContainer *container, bool success);
+    void stop(TaskRuntimeContainer *container);
+    bool invokeDoneHandler(TaskRuntimeContainer *container, DoneWith doneWith);
+
+    template <typename Handler, typename ...Args,
+              typename ReturnType = typename std::invoke_result_t<Handler, Args...>>
+    ReturnType invokeHandler(TaskRuntimeContainer *container, Handler &&handler, Args &&...args)
+    {
+        ExecutionContextActivator activator(container);
+        GuardLocker locker(m_guard);
+        return std::invoke(std::forward<Handler>(handler), std::forward<Args>(args)...);
+    }
+
     TaskTree *q = nullptr;
     Guard m_guard;
     int m_progressValue = 0;
     QSet<TreeStorageBase> m_storages;
     QHash<TreeStorageBase, StorageHandler> m_storageHandlers;
     std::unique_ptr<TaskNode> m_root = nullptr; // Keep me last in order to destruct first
+    std::unique_ptr<TaskRuntimeNode> m_runtimeRoot = nullptr;
 };
 
 class TaskContainer
 {
-    Q_DISABLE_COPY_MOVE(TaskContainer)
+    Q_DISABLE_COPY(TaskContainer)
 
 public:
+    TaskContainer(TaskContainer &&other) = default;
     TaskContainer(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
-                  TaskNode *parentNode, TaskContainer *parentContainer)
-        : m_constData(taskTreePrivate, task, parentNode, parentContainer, this) {}
-    SetupResult start();
-    SetupResult continueStart(SetupResult startAction, int nextChild);
-    SetupResult startChildren(int nextChild);
-    SetupResult childDone(bool success);
-    void stop();
-    bool invokeDoneHandler(DoneWith doneWith);
-    bool isRunning() const { return m_runtimeData.has_value(); }
-    bool isStarting() const { return isRunning() && m_runtimeData->m_startGuard.isLocked(); }
+                  TaskNode *parentNode, TaskContainer *parentContainer);
 
-    struct ConstData {
-        ConstData(TaskTreePrivate *taskTreePrivate, const GroupItem &task, TaskNode *parentNode,
-                  TaskContainer *parentContainer, TaskContainer *thisContainer);
-        ~ConstData() { qDeleteAll(m_children); }
-        TaskTreePrivate * const m_taskTreePrivate = nullptr;
-        TaskNode * const m_parentNode = nullptr;
-        TaskContainer * const m_parentContainer = nullptr;
+    TaskTreePrivate *const m_taskTreePrivate = nullptr;
+    TaskNode *const m_parentNode = nullptr;
+    TaskContainer *const m_parentContainer = nullptr;
 
-        const int m_parallelLimit = 1;
-        const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
-        const GroupItem::GroupHandler m_groupHandler;
-        const QList<TreeStorageBase> m_storageList;
-        const QList<TaskNode *> m_children;
-        const int m_taskCount = 0;
-    };
-
-    struct RuntimeData {
-        RuntimeData(const ConstData &constData);
-        ~RuntimeData();
-
-        static QList<int> createStorages(const TaskContainer::ConstData &constData);
-        bool updateSuccessBit(bool success);
-        int currentLimit() const;
-
-        const ConstData &m_constData;
-        const QList<int> m_storageIdList;
-        bool m_successBit = true;
-        bool m_callStorageDoneHandlersOnDestruction = false;
-        int m_doneCount = 0;
-        Guard m_startGuard;
-    };
-
-    const ConstData m_constData;
-    std::optional<RuntimeData> m_runtimeData;
+    const int m_parallelLimit = 1;
+    const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
+    const GroupItem::GroupHandler m_groupHandler;
+    const QList<TreeStorageBase> m_storageList;
+    std::vector<TaskNode> m_children;
+    const int m_taskCount = 0;
 };
 
 class TaskNode
 {
-    Q_DISABLE_COPY_MOVE(TaskNode)
+    Q_DISABLE_COPY(TaskNode)
 
 public:
+    TaskNode(TaskNode &&other) = default;
     TaskNode(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
              TaskContainer *parentContainer)
         : m_taskHandler(task.m_taskHandler)
         , m_container(taskTreePrivate, task, this, parentContainer)
     {}
 
-    // If returned value != Continue, childDone() needs to be called in parent container (in caller)
-    // in order to unwind properly.
-    SetupResult start();
-    void stop();
-    bool invokeDoneHandler(DoneWith doneWith);
-    bool isRunning() const { return m_task || m_container.isRunning(); }
     bool isTask() const { return bool(m_taskHandler.m_createHandler); }
-    int taskCount() const { return isTask() ? 1 : m_container.m_constData.m_taskCount; }
-    TaskContainer *parentContainer() const { return m_container.m_constData.m_parentContainer; }
-    TaskTree *taskTree() const { return m_container.m_constData.m_taskTreePrivate->q; }
+    int taskCount() const { return isTask() ? 1 : m_container.m_taskCount; }
+    TaskContainer *parentContainer() const { return m_container.m_parentContainer; }
 
-private:
     const GroupItem::TaskHandler m_taskHandler;
     TaskContainer m_container;
-    std::unique_ptr<TaskInterface> m_task;
 };
+
+static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
+{
+    switch (workflowPolicy) {
+    case WorkflowPolicy::StopOnError:
+    case WorkflowPolicy::ContinueOnError:
+    case WorkflowPolicy::FinishAllAndSuccess:
+        return true;
+    case WorkflowPolicy::StopOnSuccess:
+    case WorkflowPolicy::ContinueOnSuccess:
+    case WorkflowPolicy::StopOnSuccessOrError:
+    case WorkflowPolicy::FinishAllAndError:
+        return false;
+    }
+    QT_CHECK(false);
+    return false;
+}
+
+class TaskRuntimeContainer
+{
+public:
+    TaskRuntimeContainer(const TaskContainer &taskContainer, TaskRuntimeNode *parentNode,
+                         TaskRuntimeContainer *parentContainer)
+        : m_taskContainer(taskContainer)
+        , m_parentNode(parentNode)
+        , m_parentContainer(parentContainer)
+        , m_storageIdList(createStorages(taskContainer))
+        , m_successBit(initialSuccessBit(taskContainer.m_workflowPolicy))
+    {}
+
+    ~TaskRuntimeContainer()
+    {
+        for (int i = m_taskContainer.m_storageList.size() - 1; i >= 0; --i) { // iterate in reverse order
+            const TreeStorageBase storage = m_taskContainer.m_storageList[i];
+            const int storageId = m_storageIdList.value(i);
+            if (m_callStorageDoneHandlersOnDestruction)
+                m_taskContainer.m_taskTreePrivate->callDoneHandler(storage, storageId);
+            storage.m_storageData->deleteStorage(storageId);
+        }
+        qDeleteAll(m_children);
+    }
+
+
+    static QList<int> createStorages(const TaskContainer &container);
+    bool isStarting() const { return m_startGuard.isLocked(); }
+    bool updateSuccessBit(bool success);
+    int currentLimit() const;
+
+    const TaskContainer &m_taskContainer; // Not owning.
+    TaskRuntimeNode *m_parentNode = nullptr; // Not owning.
+    TaskRuntimeContainer *m_parentContainer = nullptr; // Not owning.
+    const QList<int> m_storageIdList;
+
+    QList<TaskRuntimeNode *> m_children; // Owning.
+    bool m_successBit = true;
+    bool m_callStorageDoneHandlersOnDestruction = false;
+    int m_doneCount = 0;
+    Guard m_startGuard;
+};
+
+class TaskRuntimeNode
+{
+public:
+    TaskRuntimeNode(const TaskNode &taskNode, TaskRuntimeContainer *parentContainer)
+        : m_taskNode(taskNode)
+        , m_parentContainer(parentContainer)
+    {}
+
+    const TaskNode &m_taskNode; // Not owning.
+    TaskRuntimeContainer *m_parentContainer = nullptr; // Not owning.
+    std::unique_ptr<TaskRuntimeContainer> m_container; // Owning.
+    std::unique_ptr<TaskInterface> m_task; // Owning.
+};
+
+void ExecutionContextActivator::activateContext(TaskRuntimeContainer *container)
+{
+    const TaskContainer &taskContainer = container->m_taskContainer;
+    for (int i = 0; i < taskContainer.m_storageList.size(); ++i) {
+        const TreeStorageBase &storage = taskContainer.m_storageList[i];
+        auto &threadData = storage.m_storageData->threadData();
+        if (threadData.activeStorageId())
+            continue; // Storage shadowing: The storage is already active, skipping it...
+        m_activeStorages.append(storage);
+        threadData.activateStorage(container->m_storageIdList.value(i));
+    }
+    // Go to the parent after activating this storages so that storage shadowing works
+    // in the direction from child to parent root.
+    if (container->m_parentContainer)
+        activateContext(container->m_parentContainer);
+}
 
 void TaskTreePrivate::start()
 {
     QT_ASSERT(m_root, return);
+    QT_ASSERT(!m_runtimeRoot, return);
     m_progressValue = 0;
     emitStartedAndProgress();
     // TODO: check storage handlers for not existing storages in tree
@@ -1194,15 +1289,16 @@ void TaskTreePrivate::start()
         QT_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
                   "exist in task tree. Its handlers will never be called."));
     }
-    m_root->start();
+    m_runtimeRoot.reset(new TaskRuntimeNode(*m_root.get(), nullptr));
+    start(m_runtimeRoot.get());
 }
 
 void TaskTreePrivate::stop()
 {
     QT_ASSERT(m_root, return);
-    if (!m_root->isRunning())
+    if (!m_runtimeRoot)
         return;
-    m_root->stop();
+    stop(m_runtimeRoot.get());
     emitDone(DoneWith::Cancel);
 }
 
@@ -1236,57 +1332,18 @@ void TaskTreePrivate::emitDone(DoneWith result)
     emit q->done(result);
 }
 
-class ExecutionContextActivator
+static std::vector<TaskNode> createChildren(TaskTreePrivate *taskTreePrivate, TaskContainer *container,
+                                            const QList<GroupItem> &children)
 {
-public:
-    ExecutionContextActivator(TaskContainer *container) { activateContext(container); }
-    ~ExecutionContextActivator() {
-        for (int i = m_activeStorages.size() - 1; i >= 0; --i) // iterate in reverse order
-            m_activeStorages[i].m_storageData->threadData().activateStorage(0);
-    }
-
-private:
-    void activateContext(TaskContainer *container)
-    {
-        QT_ASSERT(container && container->isRunning(), return);
-        const TaskContainer::ConstData &constData = container->m_constData;
-        for (int i = 0; i < constData.m_storageList.size(); ++i) {
-            const TreeStorageBase &storage = constData.m_storageList[i];
-            auto &threadData = storage.m_storageData->threadData();
-            if (threadData.activeStorageId())
-                continue; // Storage shadowing: The storage is already active, skipping it...
-            m_activeStorages.append(storage);
-            threadData.activateStorage(container->m_runtimeData->m_storageIdList.value(i));
-        }
-        // Go to the parent after activating this storages so that storage shadowing works
-        // in the direction from child to parent root.
-        if (constData.m_parentContainer)
-            activateContext(constData.m_parentContainer);
-    }
-    QList<TreeStorageBase> m_activeStorages;
-};
-
-template <typename Handler, typename ...Args,
-          typename ReturnType = typename std::invoke_result_t<Handler, Args...>>
-ReturnType invokeHandler(TaskContainer *container, Handler &&handler, Args &&...args)
-{
-    ExecutionContextActivator activator(container);
-    GuardLocker locker(container->m_constData.m_taskTreePrivate->m_guard);
-    return std::invoke(std::forward<Handler>(handler), std::forward<Args>(args)...);
-}
-
-static QList<TaskNode *> createChildren(TaskTreePrivate *taskTreePrivate, TaskContainer *container,
-                                        const QList<GroupItem> &children)
-{
-    QList<TaskNode *> result;
+    std::vector<TaskNode> result;
+    result.reserve(children.size());
     for (const GroupItem &child : children)
-        result.append(new TaskNode(taskTreePrivate, child, container));
+        result.emplace_back(taskTreePrivate, child, container);
     return result;
 }
 
-TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
-                                    TaskNode *parentNode, TaskContainer *parentContainer,
-                                    TaskContainer *thisContainer)
+TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
+                             TaskNode *parentNode, TaskContainer *parentContainer)
     : m_taskTreePrivate(taskTreePrivate)
     , m_parentNode(parentNode)
     , m_parentContainer(parentContainer)
@@ -1294,184 +1351,157 @@ TaskContainer::ConstData::ConstData(TaskTreePrivate *taskTreePrivate, const Grou
     , m_workflowPolicy(task.m_groupData.m_workflowPolicy.value_or(WorkflowPolicy::StopOnError))
     , m_groupHandler(task.m_groupData.m_groupHandler)
     , m_storageList(task.m_storageList)
-    , m_children(createChildren(taskTreePrivate, thisContainer, task.m_children))
+    , m_children(createChildren(taskTreePrivate, this, task.m_children))
     , m_taskCount(std::accumulate(m_children.cbegin(), m_children.cend(), 0,
-                                  [](int r, TaskNode *n) { return r + n->taskCount(); }))
+                                  [](int r, const TaskNode &n) { return r + n.taskCount(); }))
 {
     for (const TreeStorageBase &storage : m_storageList)
         m_taskTreePrivate->m_storages << storage;
 }
 
-QList<int> TaskContainer::RuntimeData::createStorages(const TaskContainer::ConstData &constData)
+QList<int> TaskRuntimeContainer::createStorages(const TaskContainer &container)
 {
     QList<int> storageIdList;
-    for (const TreeStorageBase &storage : constData.m_storageList) {
+    for (const TreeStorageBase &storage : container.m_storageList) {
         const int storageId = storage.m_storageData->threadData().createStorage();
         storageIdList.append(storageId);
-        constData.m_taskTreePrivate->callSetupHandler(storage, storageId);
+        container.m_taskTreePrivate->callSetupHandler(storage, storageId);
     }
     return storageIdList;
 }
 
-static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
+bool TaskRuntimeContainer::updateSuccessBit(bool success)
 {
-    switch (workflowPolicy) {
-    case WorkflowPolicy::StopOnError:
-    case WorkflowPolicy::ContinueOnError:
-    case WorkflowPolicy::FinishAllAndSuccess:
-        return true;
-    case WorkflowPolicy::StopOnSuccess:
-    case WorkflowPolicy::ContinueOnSuccess:
-    case WorkflowPolicy::StopOnSuccessOrError:
-    case WorkflowPolicy::FinishAllAndError:
-        return false;
-    }
-    QT_CHECK(false);
-    return false;
-}
-
-TaskContainer::RuntimeData::RuntimeData(const ConstData &constData)
-    : m_constData(constData)
-    , m_storageIdList(createStorages(constData))
-    , m_successBit(initialSuccessBit(m_constData.m_workflowPolicy))
-{}
-
-TaskContainer::RuntimeData::~RuntimeData()
-{
-    for (int i = m_constData.m_storageList.size() - 1; i >= 0; --i) { // iterate in reverse order
-        const TreeStorageBase storage = m_constData.m_storageList[i];
-        const int storageId = m_storageIdList.value(i);
-        if (m_callStorageDoneHandlersOnDestruction)
-            m_constData.m_taskTreePrivate->callDoneHandler(storage, storageId);
-        storage.m_storageData->deleteStorage(storageId);
-    }
-}
-
-bool TaskContainer::RuntimeData::updateSuccessBit(bool success)
-{
-    if (m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndSuccess
-        || m_constData.m_workflowPolicy == WorkflowPolicy::FinishAllAndError
-        || m_constData.m_workflowPolicy == WorkflowPolicy::StopOnSuccessOrError) {
-        if (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnSuccessOrError)
+    if (m_taskContainer.m_workflowPolicy == WorkflowPolicy::FinishAllAndSuccess
+        || m_taskContainer.m_workflowPolicy == WorkflowPolicy::FinishAllAndError
+        || m_taskContainer.m_workflowPolicy == WorkflowPolicy::StopOnSuccessOrError) {
+        if (m_taskContainer.m_workflowPolicy == WorkflowPolicy::StopOnSuccessOrError)
             m_successBit = success;
         return m_successBit;
     }
 
-    const bool donePolicy = m_constData.m_workflowPolicy == WorkflowPolicy::StopOnSuccess
-                         || m_constData.m_workflowPolicy == WorkflowPolicy::ContinueOnSuccess;
+    const bool donePolicy = m_taskContainer.m_workflowPolicy == WorkflowPolicy::StopOnSuccess
+                         || m_taskContainer.m_workflowPolicy == WorkflowPolicy::ContinueOnSuccess;
     m_successBit = donePolicy ? (m_successBit || success) : (m_successBit && success);
     return m_successBit;
 }
 
-int TaskContainer::RuntimeData::currentLimit() const
+int TaskRuntimeContainer::currentLimit() const
 {
-    const int childCount = m_constData.m_children.size();
-    return m_constData.m_parallelLimit
-               ? qMin(m_doneCount + m_constData.m_parallelLimit, childCount) : childCount;
+    // TODO: Handle children well
+    const int childCount = m_taskContainer.m_children.size();
+    return m_taskContainer.m_parallelLimit
+               ? qMin(m_doneCount + m_taskContainer.m_parallelLimit, childCount) : childCount;
 }
 
-SetupResult TaskContainer::start()
+SetupResult TaskTreePrivate::start(TaskRuntimeContainer *container)
 {
-    QT_CHECK(!isRunning());
-    m_runtimeData.emplace(m_constData);
-
     SetupResult startAction = SetupResult::Continue;
-    if (m_constData.m_groupHandler.m_setupHandler) {
-        startAction = invokeHandler(this, m_constData.m_groupHandler.m_setupHandler);
+    if (container->m_taskContainer.m_groupHandler.m_setupHandler) {
+        startAction = invokeHandler(container, container->m_taskContainer.m_groupHandler.m_setupHandler);
         if (startAction != SetupResult::Continue) {
-            m_constData.m_taskTreePrivate->advanceProgress(m_constData.m_taskCount);
+            // TODO: Handle progress well.
+            advanceProgress(container->m_taskContainer.m_taskCount);
             // Non-Continue SetupResult takes precedence over the workflow policy.
-            m_runtimeData->m_successBit = startAction == SetupResult::StopWithSuccess;
+            container->m_successBit = startAction == SetupResult::StopWithSuccess;
         }
     }
     if (startAction == SetupResult::Continue) {
-        if (m_constData.m_children.isEmpty())
-            startAction = toSetupResult(m_runtimeData->m_successBit);
+        if (container->m_taskContainer.m_children.empty())
+            startAction = toSetupResult(container->m_successBit);
+    } else { // TODO: Check if repeater exists, call its handler.
+
     }
-    return continueStart(startAction, 0);
+    return continueStart(container, startAction, 0);
 }
 
-SetupResult TaskContainer::continueStart(SetupResult startAction, int nextChild)
+SetupResult TaskTreePrivate::continueStart(TaskRuntimeContainer *container, SetupResult startAction, int nextChild)
 {
-    const SetupResult groupAction = startAction == SetupResult::Continue ? startChildren(nextChild)
-                                                                       : startAction;
-    QT_CHECK(isRunning()); // TODO: superfluous
+    const SetupResult groupAction = startAction == SetupResult::Continue ? startChildren(container, nextChild)
+                                                                         : startAction;
     if (groupAction != SetupResult::Continue) {
-        const bool bit = m_runtimeData->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
-        const bool result = invokeDoneHandler(bit ? DoneWith::Success : DoneWith::Error);
-        if (TaskContainer *parentContainer = m_constData.m_parentContainer) {
-            QT_CHECK(parentContainer->isRunning());
+        const bool bit = container->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
+        TaskRuntimeContainer *parentContainer = container->m_parentContainer;
+        const bool result = invokeDoneHandler(container, bit ? DoneWith::Success : DoneWith::Error);
+        if (parentContainer) {
             if (!parentContainer->isStarting())
-                parentContainer->childDone(result);
+                childDone(parentContainer, result);
         } else {
-            m_constData.m_taskTreePrivate->emitDone(result ? DoneWith::Success : DoneWith::Error);
+            m_runtimeRoot.reset();
+            emitDone(result ? DoneWith::Success : DoneWith::Error);
         }
     }
     return groupAction;
 }
 
-SetupResult TaskContainer::startChildren(int nextChild)
+SetupResult TaskTreePrivate::startChildren(TaskRuntimeContainer *container, int nextChild)
 {
-    QT_CHECK(isRunning());
-    GuardLocker locker(m_runtimeData->m_startGuard);
-    for (int i = nextChild; i < m_constData.m_children.size(); ++i) {
-        const int limit = m_runtimeData->currentLimit();
+    GuardLocker locker(container->m_startGuard);
+    for (int i = nextChild; i < int(container->m_taskContainer.m_children.size()); ++i) {
+        const int limit = container->currentLimit();
         if (i >= limit)
             break;
 
-        const SetupResult startAction = m_constData.m_children.at(i)->start();
+        TaskRuntimeNode *newTask = new TaskRuntimeNode(container->m_taskContainer.m_children.at(i), container);
+        container->m_children.append(newTask);
+
+        const SetupResult startAction = start(newTask);
         if (startAction == SetupResult::Continue)
             continue;
 
-        const SetupResult finalizeAction = childDone(startAction == SetupResult::StopWithSuccess);
+        const SetupResult finalizeAction = childDone(container, startAction == SetupResult::StopWithSuccess);
         if (finalizeAction == SetupResult::Continue)
             continue;
 
         int skippedTaskCount = 0;
         // Skip scheduled but not run yet. The current (i) was already notified.
         for (int j = i + 1; j < limit; ++j)
-            skippedTaskCount += m_constData.m_children.at(j)->taskCount();
-        m_constData.m_taskTreePrivate->advanceProgress(skippedTaskCount);
+            skippedTaskCount += container->m_taskContainer.m_children.at(j).taskCount();
+        // TODO: Handle progress well
+        advanceProgress(skippedTaskCount);
         return finalizeAction;
     }
     return SetupResult::Continue;
 }
 
-SetupResult TaskContainer::childDone(bool success)
+SetupResult TaskTreePrivate::childDone(TaskRuntimeContainer *container, bool success)
 {
-    QT_CHECK(isRunning());
-    const int limit = m_runtimeData->currentLimit(); // Read before bumping m_doneCount and stop()
-    const bool shouldStop = m_constData.m_workflowPolicy == WorkflowPolicy::StopOnSuccessOrError
-                        || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnSuccess && success)
-                        || (m_constData.m_workflowPolicy == WorkflowPolicy::StopOnError && !success);
+    const int limit = container->currentLimit(); // Read before bumping m_doneCount and stop()
+    const WorkflowPolicy &workflowPolicy = container->m_taskContainer.m_workflowPolicy;
+    const bool shouldStop = workflowPolicy == WorkflowPolicy::StopOnSuccessOrError
+                        || (workflowPolicy == WorkflowPolicy::StopOnSuccess && success)
+                        || (workflowPolicy == WorkflowPolicy::StopOnError && !success);
     if (shouldStop)
-        stop();
+        stop(container);
 
-    ++m_runtimeData->m_doneCount;
-    const bool updatedSuccess = m_runtimeData->updateSuccessBit(success);
+    ++container->m_doneCount;
+    const bool updatedSuccess = container->updateSuccessBit(success);
     const SetupResult startAction
-        = (shouldStop || m_runtimeData->m_doneCount == m_constData.m_children.size())
+        = (shouldStop || container->m_doneCount == int(container->m_taskContainer.m_children.size()))
         ? toSetupResult(updatedSuccess) : SetupResult::Continue;
 
-    if (isStarting())
+    if (container->isStarting())
         return startAction;
-    return continueStart(startAction, limit);
+    return continueStart(container, startAction, limit);
 }
 
-void TaskContainer::stop()
+void TaskTreePrivate::stop(TaskRuntimeContainer *container)
 {
-    if (!isRunning())
-        return;
-
-    const int limit = m_runtimeData->currentLimit();
-    for (int i = 0; i < limit; ++i)
-        m_constData.m_children.at(i)->stop();
+    const int limit = container->currentLimit();
+    for (int i = 0; i < limit; ++i) {
+        if (i == container->m_children.size())
+            break;
+        TaskRuntimeNode *child = container->m_children.at(i);
+        if (child)
+            stop(child);
+    }
 
     int skippedTaskCount = 0;
-    for (int i = limit; i < m_constData.m_children.size(); ++i)
-        skippedTaskCount += m_constData.m_children.at(i)->taskCount();
+    for (int i = limit; i < int(container->m_taskContainer.m_children.size()); ++i)
+        skippedTaskCount += container->m_taskContainer.m_children.at(i).taskCount();
 
-    m_constData.m_taskTreePrivate->advanceProgress(skippedTaskCount);
+    // TODO: Handle progress well
+    advanceProgress(skippedTaskCount);
 }
 
 static bool shouldCall(CallDoneIf callDoneIf, DoneWith result)
@@ -1481,73 +1511,78 @@ static bool shouldCall(CallDoneIf callDoneIf, DoneWith result)
     return callDoneIf != CallDoneIf::Success;
 }
 
-bool TaskContainer::invokeDoneHandler(DoneWith doneWith)
+bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeContainer *container, DoneWith doneWith)
 {
     DoneResult result = toDoneResult(doneWith);
-    const GroupItem::GroupHandler &groupHandler = m_constData.m_groupHandler;
+    const GroupItem::GroupHandler &groupHandler = container->m_taskContainer.m_groupHandler;
     if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneIf, doneWith))
-        result = invokeHandler(this, groupHandler.m_doneHandler, doneWith);
-    m_runtimeData->m_callStorageDoneHandlersOnDestruction = true;
-    m_runtimeData.reset();
+        result = invokeHandler(container, groupHandler.m_doneHandler, doneWith);
+    container->m_callStorageDoneHandlersOnDestruction = true;
+    container->m_parentNode->m_container.reset();
     return result == DoneResult::Success;
 }
 
-SetupResult TaskNode::start()
+SetupResult TaskTreePrivate::start(TaskRuntimeNode *node)
 {
-    QT_CHECK(!isRunning());
-    if (!isTask())
-        return m_container.start();
+    if (!node->m_taskNode.isTask()) {
+        node->m_container.reset(new TaskRuntimeContainer(node->m_taskNode.m_container, node,
+                                                         node->m_parentContainer));
+        return start(node->m_container.get());
+    }
 
-    m_task.reset(m_taskHandler.m_createHandler());
-    const SetupResult startAction = m_taskHandler.m_setupHandler
-        ? invokeHandler(parentContainer(), m_taskHandler.m_setupHandler, *m_task.get())
+    const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
+    node->m_task.reset(handler.m_createHandler());
+    const SetupResult startAction = handler.m_setupHandler
+        ? invokeHandler(node->m_parentContainer, handler.m_setupHandler, *node->m_task.get())
         : SetupResult::Continue;
     if (startAction != SetupResult::Continue) {
-        m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
-        m_task.reset();
+        // TODO: Handle progress well
+        advanceProgress(1);
+        node->m_task.reset();
         return startAction;
     }
     const std::shared_ptr<SetupResult> unwindAction
         = std::make_shared<SetupResult>(SetupResult::Continue);
-    QObject::connect(m_task.get(), &TaskInterface::done, taskTree(), [=](bool success) {
-        const bool result = invokeDoneHandler(success ? DoneWith::Success : DoneWith::Error);
-        QObject::disconnect(m_task.get(), &TaskInterface::done, taskTree(), nullptr);
-        m_task.release()->deleteLater();
-        QT_ASSERT(parentContainer() && parentContainer()->isRunning(), return);
-        if (parentContainer()->isStarting())
+    QObject::connect(node->m_task.get(), &TaskInterface::done,
+                     q, [this, node, unwindAction](bool success) {
+        const bool result = invokeDoneHandler(node, success ? DoneWith::Success : DoneWith::Error);
+        QObject::disconnect(node->m_task.get(), &TaskInterface::done, q, nullptr);
+        node->m_task.release()->deleteLater(); // TODO: delete later this???
+        if (node->m_parentContainer->isStarting())
             *unwindAction = toSetupResult(result);
         else
-            parentContainer()->childDone(result);
+            childDone(node->m_parentContainer, result);
     });
 
-    m_task->start();
+    node->m_task->start();
     return *unwindAction;
 }
 
-void TaskNode::stop()
+void TaskTreePrivate::stop(TaskRuntimeNode *node)
 {
-    if (!isRunning())
-        return;
-
-    if (!m_task) {
-        m_container.stop();
-        m_container.m_runtimeData->updateSuccessBit(false);
-        m_container.invokeDoneHandler(DoneWith::Cancel);
+    if (!node->m_task) {
+        if (!node->m_container)
+            return;
+        stop(node->m_container.get());
+        node->m_container->updateSuccessBit(false);
+        invokeDoneHandler(node->m_container.get(), DoneWith::Cancel);
         return;
     }
 
-    // TODO: cancelHandler?
-    // TODO: call TaskInterface::stop() ?
-    invokeDoneHandler(DoneWith::Cancel);
-    m_task.reset();
+    invokeDoneHandler(node, DoneWith::Cancel);
+    node->m_task.reset();
 }
 
-bool TaskNode::invokeDoneHandler(DoneWith doneWith)
+bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith)
 {
     DoneResult result = toDoneResult(doneWith);
-    if (m_taskHandler.m_doneHandler && shouldCall(m_taskHandler.m_callDoneIf, doneWith))
-        result = invokeHandler(parentContainer(), m_taskHandler.m_doneHandler, *m_task.get(), doneWith);
-    m_container.m_constData.m_taskTreePrivate->advanceProgress(1);
+    const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
+    if (handler.m_doneHandler && shouldCall(handler.m_callDoneIf, doneWith)) {
+        result = invokeHandler(node->m_parentContainer,
+                               handler.m_doneHandler, *node->m_task.get(), doneWith);
+    }
+    // TODO: Handle progress well
+    advanceProgress(1);
     return result == DoneResult::Success;
 }
 
@@ -2359,7 +2394,7 @@ void TaskTree::stop()
 */
 bool TaskTree::isRunning() const
 {
-    return d->m_root && d->m_root->isRunning();
+    return bool(d->m_runtimeRoot);
 }
 
 /*!
@@ -2586,8 +2621,8 @@ int TaskTree::progressValue() const
 */
 
 void TaskTree::setupStorageHandler(const TreeStorageBase &storage,
-                                   StorageVoidHandler setupHandler,
-                                   StorageVoidHandler doneHandler)
+                                   TreeStorageBase::StorageVoidHandler setupHandler,
+                                   TreeStorageBase::StorageVoidHandler doneHandler)
 {
     auto it = d->m_storageHandlers.find(storage);
     if (it == d->m_storageHandlers.end()) {
