@@ -15,7 +15,7 @@ Project  {
             if (qbs.targetOS === "windows")
                 defines.push("_CRT_SECURE_NO_WARNINGS");
             defines.push('PROCESS_TESTAPP="'
-                         + FileInfo.joinPaths(destinationDirectory, "testsleep") + '"');
+                         + FileInfo.joinPaths(destinationDirectory, "testsleep/testsleep") + '"');
             return defines;
         }
         destinationDirectory: project.buildDirectory + '/'

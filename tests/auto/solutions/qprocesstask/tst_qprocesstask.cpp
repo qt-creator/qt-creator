@@ -15,16 +15,10 @@ private slots:
     void qProcessTask();
 };
 
-#ifdef Q_OS_WIN
-static const char s_processName[] = "testsleep.exe";
-#else
-static const char s_processName[] = "testsleep";
-#endif
-
 void tst_QProcessTask::qProcessTask()
 {
     const auto setupProcess = [](QProcess &process) {
-        process.setProgram(QLatin1String(PROCESS_TESTAPP) + '/' + s_processName);
+        process.setProgram(QLatin1String(PROCESS_TESTAPP));
     };
 
     {
