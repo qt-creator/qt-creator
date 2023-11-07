@@ -199,8 +199,7 @@ void ClangdFollowSymbol::emitDone(const Link &link)
         return;
 
     d->done = true;
-    if (link.hasValidTarget())
-        d->callback(link);
+    d->callback(link);
     emit done();
 }
 

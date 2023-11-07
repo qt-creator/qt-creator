@@ -3017,6 +3017,7 @@ void AddDeclarationForUndeclaredIdentifier::match(const CppQuickFixInterface &in
             collectOperations(interface, result);
     };
     CppModelManager::followSymbol(cursorInEditor, followSymbolFallback, false, false,
+                                  FollowSymbolMode::Exact,
                                   CppModelManager::Backend::Builtin);
 }
 
@@ -9649,7 +9650,8 @@ private:
             (const Link &link) {
             moveComments(link, symbolLoc, comments);
         };
-        CppModelManager::followSymbol(cursorInEditor, callback, true, false);
+        CppModelManager::followSymbol(cursorInEditor, callback, true, false,
+                                      FollowSymbolMode::Exact);
     }
 
     static void moveComments(const Link &targetLoc, const Link &symbolLoc,

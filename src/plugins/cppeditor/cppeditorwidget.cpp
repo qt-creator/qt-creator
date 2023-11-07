@@ -625,7 +625,7 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
     };
     CppModelManager::followSymbol(
                 CursorInEditor{cursor, textDocument()->filePath(), this, textDocument()},
-                continuation, true, false);
+        continuation, true, false, FollowSymbolMode::Exact);
 }
 
 void CppEditorWidget::renameUsages(const Utils::FilePath &filePath, const QString &replacement,
@@ -986,7 +986,8 @@ void CppEditorWidget::findLinkAt(const QTextCursor &cursor,
     CppModelManager::followSymbol(CursorInEditor{cursor, filePath, this, textDocument()},
                                   callbackWrapper,
                                   resolveTarget,
-                                  inNextSplit);
+                                  inNextSplit,
+                                  FollowSymbolMode::Fuzzy);
 }
 
 void CppEditorWidget::findTypeAt(const QTextCursor &cursor,

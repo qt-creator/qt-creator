@@ -33,6 +33,8 @@ class CppRefactoringFile;
 class ProjectInfo;
 class CppCompletionAssistProcessor;
 
+enum class FollowSymbolMode { Exact, Fuzzy };
+
 void CPPEDITOR_EXPORT moveCursorToEndOfIdentifier(QTextCursor *tc);
 void CPPEDITOR_EXPORT moveCursorToStartOfIdentifier(QTextCursor *tc);
 

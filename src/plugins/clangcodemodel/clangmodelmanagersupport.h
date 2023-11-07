@@ -52,8 +52,9 @@ public:
 
 private:
     void followSymbol(const CppEditor::CursorInEditor &data,
-                      const Utils::LinkHandler &processLinkCallback, bool resolveTarget,
-                      bool inNextSplit) override;
+                      const Utils::LinkHandler &processLinkCallback,
+                      CppEditor::FollowSymbolMode mode,
+                      bool resolveTarget, bool inNextSplit) override;
     void followSymbolToType(const CppEditor::CursorInEditor &data,
                             const Utils::LinkHandler &processLinkCallback,
                             bool inNextSplit) override;

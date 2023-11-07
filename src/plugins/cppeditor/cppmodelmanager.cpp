@@ -2065,10 +2065,11 @@ TextEditor::BaseHoverHandler *CppModelManager::createHoverHandler()
 
 void CppModelManager::followSymbol(const CursorInEditor &data,
                                    const LinkHandler &processLinkCallback,
-                                   bool resolveTarget, bool inNextSplit, Backend backend)
+                                   bool resolveTarget, bool inNextSplit,
+                                   FollowSymbolMode mode, Backend backend)
 {
-    modelManagerSupport(backend)->followSymbol(data, processLinkCallback,
-                                                           resolveTarget, inNextSplit);
+    modelManagerSupport(backend)->followSymbol(data, processLinkCallback, mode,
+                                               resolveTarget, inNextSplit);
 }
 
 void CppModelManager::followSymbolToType(const CursorInEditor &data,

@@ -101,8 +101,13 @@ TextEditor::BaseHoverHandler *BuiltinModelManagerSupport::createHoverHandler()
 
 void BuiltinModelManagerSupport::followSymbol(const CursorInEditor &data,
                                               const Utils::LinkHandler &processLinkCallback,
+                                              FollowSymbolMode mode,
                                               bool resolveTarget, bool inNextSplit)
 {
+    // findMatchingDefinition() has an "strict" parameter, but it doesn't seem worth to
+    // pass the mode down all the way. In practice, we are always fuzzy.
+    Q_UNUSED(mode)
+
     SymbolFinder finder;
     m_followSymbol->findLink(data, processLinkCallback,
             resolveTarget, CppModelManager::snapshot(),

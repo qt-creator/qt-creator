@@ -53,6 +53,7 @@
 #include <QLabel>
 #include <QLoggingCategory>
 #include <QMenu>
+#include <QPointer>
 #include <QTextBlock>
 #include <QTimer>
 #include <QtDebug>
@@ -299,17 +300,27 @@ ClangModelManagerSupport::~ClangModelManagerSupport()
 
 void ClangModelManagerSupport::followSymbol(const CursorInEditor &data,
                                             const LinkHandler &processLinkCallback,
+                                            FollowSymbolMode mode,
                                             bool resolveTarget, bool inNextSplit)
 {
     if (ClangdClient * const client = clientForFile(data.filePath());
             client && client->isFullyIndexed()) {
+        LinkHandler extendedCallback = [editor = QPointer(data.editorWidget()), data,
+                                        processLinkCallback, mode, resolveTarget, inNextSplit]
+            (const Link &link) {
+            if (link.hasValidTarget() || mode == FollowSymbolMode::Exact || !editor)
+                return processLinkCallback(link);
+            CppModelManager::followSymbol(data, processLinkCallback, resolveTarget, inNextSplit,
+                                          mode, CppModelManager::Backend::Builtin);
+
+        };
         client->followSymbol(data.textDocument(), data.cursor(), data.editorWidget(),
-                             processLinkCallback, resolveTarget, FollowTo::SymbolDef, inNextSplit);
+                             extendedCallback, resolveTarget, FollowTo::SymbolDef, inNextSplit);
         return;
     }
 
     CppModelManager::followSymbol(data, processLinkCallback, resolveTarget, inNextSplit,
-                                  CppModelManager::Backend::Builtin);
+                                  mode, CppModelManager::Backend::Builtin);
 }
 
 void ClangModelManagerSupport::followSymbolToType(const CursorInEditor &data,
