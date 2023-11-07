@@ -735,55 +735,57 @@ void NavigatorTreeModel::handleItemLibraryItemDrop(const QMimeData *mimeData, in
                         return;
                     }
                     MaterialUtils::assignMaterialTo3dModel(m_view, targetNode, newModelNode);
-                }
+                } else {
+                    ChooseFromPropertyListDialog *dialog = ChooseFromPropertyListDialog::createIfNeeded(
+                        targetNode, newModelNode, Core::ICore::dialogParent());
+                    if (dialog) {
+                        bool soloProperty = dialog->isSoloProperty();
+                        if (!soloProperty)
+                            dialog->exec();
+                        if (soloProperty || dialog->result() == QDialog::Accepted) {
+                            TypeName selectedProp = dialog->selectedProperty();
 
-                ChooseFromPropertyListDialog *dialog = ChooseFromPropertyListDialog::createIfNeeded(
-                            targetNode, newModelNode, Core::ICore::dialogParent());
-                if (dialog) {
-                    bool soloProperty = dialog->isSoloProperty();
-                    if (!soloProperty)
-                        dialog->exec();
-                    if (soloProperty || dialog->result() == QDialog::Accepted) {
-                        TypeName selectedProp = dialog->selectedProperty();
+                            // Pass and TextureInput can't have children, so we have to move nodes under parent
+                            if (((newModelNode.metaInfo().isQtQuick3DShader()
+                                  || newModelNode.metaInfo().isQtQuick3DCommand()
+                                  || newModelNode.metaInfo().isQtQuick3DBuffer())
+                                 && targetProperty.parentModelNode().metaInfo().isQtQuick3DPass())
+                                || (newModelNode.metaInfo().isQtQuick3DTexture()
+                                    && targetProperty.parentModelNode().metaInfo().isQtQuick3DTextureInput())) {
+                                if (moveNodeToParent(targetProperty, newQmlObjectNode)) {
+                                    targetProperty = targetProperty.parentProperty();
+                                    moveNodesAfter = false;
+                                }
+                            }
 
-                        // Pass and TextureInput can't have children, so we have to move nodes under parent
-                        if (((newModelNode.metaInfo().isQtQuick3DShader()
-                              || newModelNode.metaInfo().isQtQuick3DCommand()
-                              || newModelNode.metaInfo().isQtQuick3DBuffer())
-                             && targetProperty.parentModelNode().metaInfo().isQtQuick3DPass())
-                            || (newModelNode.metaInfo().isQtQuick3DTexture()
-                                && targetProperty.parentModelNode().metaInfo().isQtQuick3DTextureInput())) {
-                            if (moveNodeToParent(targetProperty, newQmlObjectNode)) {
-                                targetProperty = targetProperty.parentProperty();
-                                moveNodesAfter = false;
+                            if (targetNode.metaInfo().property(selectedProp).isListProperty()) {
+                                BindingProperty listProp = targetNode.bindingProperty(selectedProp);
+                                listProp.addModelNodeToArray(newModelNode);
+                                validContainer = true;
+                            } else {
+                                targetNode.bindingProperty(dialog->selectedProperty()).setExpression(
+                                    newModelNode.validId());
+                                validContainer = true;
                             }
                         }
-
-                        if (targetNode.metaInfo().property(selectedProp).isListProperty()) {
-                            BindingProperty listProp = targetNode.bindingProperty(selectedProp);
-                            listProp.addModelNodeToArray(newModelNode);
-                            validContainer = true;
-                        } else {
-                            targetNode.bindingProperty(dialog->selectedProperty()).setExpression(newModelNode.validId());
-                            validContainer = true;
-                        }
+                        delete dialog;
                     }
-                    delete dialog;
-                }
 
-                if (newModelNode.metaInfo().isQtQuick3DView3D()) {
-                    const QList<ModelNode> models = newModelNode.subModelNodesOfType(
-                        m_view->model()->qtQuick3DModelMetaInfo());
-                    QTC_ASSERT(models.size() == 1, return);
-                    MaterialUtils::assignMaterialTo3dModel(m_view, models.at(0));
-                } else if (newModelNode.metaInfo().isQtQuick3DModel()) {
-                    MaterialUtils::assignMaterialTo3dModel(m_view, newModelNode);
-                }
+                    if (newModelNode.metaInfo().isQtQuick3DView3D()) {
+                        const QList<ModelNode> models = newModelNode.subModelNodesOfType(
+                            m_view->model()->qtQuick3DModelMetaInfo());
+                        QTC_ASSERT(models.size() == 1, return);
+                        MaterialUtils::assignMaterialTo3dModel(m_view, models.at(0));
+                    } else if (newModelNode.metaInfo().isQtQuick3DModel()) {
+                        MaterialUtils::assignMaterialTo3dModel(m_view, newModelNode);
+                    }
 
-                if (!validContainer) {
-                    validContainer = NodeHints::fromModelNode(targetProperty.parentModelNode()).canBeContainerFor(newModelNode);
-                    if (!validContainer)
-                        newQmlObjectNode.destroy();
+                    if (!validContainer) {
+                        validContainer = NodeHints::fromModelNode(targetProperty.parentModelNode())
+                                             .canBeContainerFor(newModelNode);
+                        if (!validContainer)
+                            newQmlObjectNode.destroy();
+                    }
                 }
             }
         });
