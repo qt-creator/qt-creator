@@ -95,31 +95,6 @@
     \include creator-projects-settings-run-qnx.qdocinc run settings qnx
     \include linux-mobile/creator-projects-settings-run-b2qt.qdocinc run settings boot2qt
 
-    \section1 Selecting the Run Environment
-
-    \QC automatically selects the environment used for running the application
-    based on the \l{glossary-device}{device} type. You can edit the environment
-    or select another environment in the \uicontrol {Run Environment} section.
-
-    You can edit existing environment variables or add, reset and unset new
-    variables.
-
-    \image qtcreator-run-environment.png {Run Environment section}
-
-    When running on the desktop, the \uicontrol {Build Environment} is used by
-    default, but you can also use the \uicontrol {System Environment} without the
-    additions made to the build environment. For more information, see
-    \l {Build Environment} and \l{Specifying Environment Settings}.
-
-    To run in a clean system environment, select \uicontrol {Clean Environment}.
-
-    When running on a mobile device connected to the development host, \QC
-    fetches information about the \uicontrol {Device Environment} from the device.
-    Usually, it does not make sense to edit the device environment.
-
-    To modify the environment variable values for the run environment, select
-    \uicontrol {Batch Edit}. For more information, see \l{Batch Editing}.
-
     \section1 Specifying a Custom Executable to Run
 
     If you use CMake, Meson or the generic project type in \QC, or want
