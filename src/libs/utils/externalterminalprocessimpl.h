@@ -13,6 +13,8 @@ class QTCREATOR_UTILS_EXPORT ExternalTerminalProcessImpl final : public Terminal
 {
 public:
     ExternalTerminalProcessImpl();
+
+    static QString openTerminalScriptAttached();
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessStubCreator : public StubCreator
