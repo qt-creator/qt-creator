@@ -777,6 +777,9 @@ void CMakeBuildStep::updateDeploymentData()
 
     IDeviceConstPtr runDevice = DeviceKitAspect::device(buildSystem()->kit());
 
+    if (!runDevice)
+        return;
+
     const auto appFileNames = transform<QSet<QString>>(buildSystem()->applicationTargets(),
            [](const BuildTargetInfo &appTarget) { return appTarget.targetFilePath.fileName(); });
 
