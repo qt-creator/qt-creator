@@ -1004,6 +1004,30 @@ void CMakeBuildSystem::updateProjectData()
     QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return );
 
+    struct QtMajorToPkgNames
+    {
+        QtMajorVersion major = QtMajorVersion::None;
+        QStringList pkgNames;
+    };
+
+    auto qtVersionFromCMake = [this](const QList<QtMajorToPkgNames> &mapping) {
+        for (const QtMajorToPkgNames &m : mapping) {
+            for (const QString &pkgName : m.pkgNames) {
+                auto qt = m_findPackagesFilesHash.value(pkgName);
+                if (qt.hasValidTarget())
+                    return m.major;
+            }
+        }
+        return QtMajorVersion::None;
+    };
+
+    QtMajorVersion qtVersion = kitInfo.projectPartQtVersion;
+    if (qtVersion == QtMajorVersion::None)
+        qtVersion = qtVersionFromCMake({{QtMajorVersion::Qt6, {"Qt6", "Qt6Core"}},
+                                        {QtMajorVersion::Qt5, {"Qt5", "Qt5Core"}},
+                                        {QtMajorVersion::Qt4, {"Qt4", "Qt4Core"}}
+                                       });
+
     QString errorMessage;
     RawProjectParts rpps = m_reader.createRawProjectParts(errorMessage);
     if (!errorMessage.isEmpty())
@@ -1011,8 +1035,7 @@ void CMakeBuildSystem::updateProjectData()
     qCDebug(cmakeBuildSystemLog) << "Raw project parts created." << errorMessage;
 
     for (RawProjectPart &rpp : rpps) {
-        rpp.setQtVersion(
-                    kitInfo.projectPartQtVersion); // TODO: Check if project actually uses Qt.
+        rpp.setQtVersion(qtVersion); // TODO: Check if project actually uses Qt.
         const FilePath includeFileBaseDir = buildConfiguration()->buildDirectory();
         QStringList cxxFlags = rpp.flagsForCxx.commandLineFlags;
         QStringList cFlags = rpp.flagsForC.commandLineFlags;
