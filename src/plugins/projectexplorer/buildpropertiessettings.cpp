@@ -16,7 +16,7 @@ namespace ProjectExplorer {
 
 static QString defaultBuildDirectoryTemplate()
 {
-    return "../%{asciify:build-%{Project:Name}-%{Kit:FileSystemName}-%{BuildConfig:Name}}";
+    return "../%{Asciify:build-%{Project:Name}-%{Kit:FileSystemName}-%{BuildConfig:Name}}";
 }
 
 BuildPropertiesSettings &buildPropertiesSettings()

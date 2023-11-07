@@ -232,7 +232,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                                [] { return QUuid::createUuid().toString(); });
 
     expander->registerPrefix("#:", Tr::tr("A comment."), [](const QString &) { return QString(); });
-    expander->registerPrefix("asciify:", Tr::tr("Convert string into pure ascii."),
+    expander->registerPrefix("Asciify:", Tr::tr("Convert string into pure ascii."),
                              [expander] (const QString &s) {
                                  return asciify(expander->expand(s)); });
 
