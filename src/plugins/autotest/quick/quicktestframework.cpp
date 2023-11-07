@@ -21,8 +21,6 @@ QuickTestFramework::QuickTestFramework()
     setId(QuickTest::Constants::FRAMEWORK_ID);
     setDisplayName(Tr::tr("Quick Test"));
     setPriority(5);
-
-    readSettings();
 }
 
 ITestParser *QuickTestFramework::createTestParser()
