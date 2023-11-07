@@ -72,6 +72,8 @@ signals:
     void alwaysCreateDirChanged();
 
 private:
+    void removeTempTargetPath();
+
     Utils::FilePath m_targetPath;
     QString m_targetFolder; // The same as m_targetPath, but with the archive name also.
     Utils::FilePath m_sourceFile;
@@ -86,6 +88,7 @@ private:
     QDateTime m_birthTime;
     bool m_clearTargetPathContents = false;
     bool m_alwaysCreateDir = false;
+    bool m_isTempTargetPath = false;
 
     qint64 m_bytesBefore = 0;
     qint64 m_compressedSize = 0;

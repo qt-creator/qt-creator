@@ -70,10 +70,14 @@ FileExtractor::FileExtractor(QObject *parent)
         });
 }
 
-FileExtractor::~FileExtractor() {}
+FileExtractor::~FileExtractor()
+{
+    removeTempTargetPath();
+}
 
 void FileExtractor::changeTargetPath(const QString &path)
 {
+    removeTempTargetPath();
     m_targetPath = FilePath::fromString(path);
     emit targetPathChanged();
     emit targetFolderExistsChanged();
@@ -86,6 +90,7 @@ QString FileExtractor::targetPath() const
 
 void FileExtractor::setTargetPath(const QString &path)
 {
+    removeTempTargetPath();
     m_targetPath = FilePath::fromString(path);
 
     QDir dir(m_targetPath.toString());
@@ -101,8 +106,10 @@ void FileExtractor::browse()
 {
     const FilePath path = FileUtils::getExistingDirectory(nullptr, tr("Choose Directory"),
                                                           m_targetPath);
-    if (!path.isEmpty())
+    if (!path.isEmpty()) {
+        removeTempTargetPath();
         m_targetPath = path;
+    }
 
     emit targetPathChanged();
     emit targetFolderExistsChanged();
@@ -203,6 +210,7 @@ void FileExtractor::extract()
         QString tempFileName = QDir::tempPath() + "/.qds_" + uniqueText + "_extract_" + m_archiveName + "_dir";
 
         m_targetPath = FilePath::fromString(tempFileName);
+        m_isTempTargetPath = true;
     }
 
     m_targetFolder = m_targetPath.toString() + "/" + m_archiveName;
@@ -248,6 +256,14 @@ void FileExtractor::extract()
         QTC_CHECK(success);
     });
     m_unarchiver->start();
+}
+
+void QmlDesigner::FileExtractor::removeTempTargetPath()
+{
+    if (m_isTempTargetPath && m_targetPath.exists()) {
+        m_targetPath.removeRecursively();
+        m_isTempTargetPath = false;
+    }
 }
 
 } // namespace QmlDesigner
