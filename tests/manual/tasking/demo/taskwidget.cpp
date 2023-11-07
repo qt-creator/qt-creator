@@ -196,13 +196,13 @@ GroupItem GroupWidget::workflowPolicy() const
 static QString stateToString(State state)
 {
     switch (state) {
-    case State::Initial : return "Initial";
-    case State::Running : return "Running";
-    case State::Success : return "Success";
-    case State::Error : return "Error";
-    case State::Canceled : return "Canceled";
+    case State::Initial: return "Initial";
+    case State::Running: return "Running";
+    case State::Success: return "Success";
+    case State::Error: return "Error";
+    case State::Canceled: return "Canceled";
     }
-    return "";
+    return {};
 }
 
 StateLabel::StateLabel(State state)

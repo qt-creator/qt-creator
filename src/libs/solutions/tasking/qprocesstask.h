@@ -16,16 +16,20 @@ namespace Tasking {
 // managed by the internal ProcessReaper, instead of deleting it immediately.
 // Inside the ProcessReaper's thread we try to finish the process in a most gentle way:
 // we call QProcess::terminate() with 500 ms timeout, and if the process is still running
-// after the timeout passed, we call QProcess::kill() and wait for the process to finish.
-// All these waitings are done is a separate thread, so the main thread doesn't block at all
-// when the QProcessTask is destructed. Finally, on application quit, QProcessDeleter::deleteAll()
-// should be called to in order to synchronize all the processes being reaped in a separate thread.
-// The call to QProcessDeleter::deleteAll() is blocking, but it's unavoidable - sooner or later
-// all the processes needs to finish ultimately, so better: block later!
-// In this way we terminate running processes in the most safe way and keep the main thread
-// responsive. That's a common case when the running QProcess needs to quit quite quicky,
-// and the caller thread wants to forget about it, hoping it will be terminated in the most
-// sensible way.
+// after this timeout passed, we call QProcess::kill() and wait for the process to finish.
+// All these handlings are done is a separate thread, so the main thread doesn't block at all
+// when the QProcessTask is destructed.
+// Finally, on application quit, QProcessDeleter::deleteAll() should be called in order
+// to synchronize all the processes being still potentially reaped in a separate thread.
+// The call to QProcessDeleter::deleteAll() is blocking in case some processes
+// are still being reaped.
+// This strategy seems most sensible, since when passing the running QProcess into the
+// ProcessReaper we don't block immediately, but postpone the possible (not certain) block
+// until the end of an application.
+// In this way we terminate the running processes in the most safe way and keep the main thread
+// responsive. That's a common case when the running application wants to terminate the QProcess
+// immediately (e.g. on Cancel button pressed), without keeping and managing the handle
+// to the still running QProcess.
 
 // The implementation of the internal reaper is inspired by the Utils::ProcessReaper taken
 // from the QtCreator codebase.

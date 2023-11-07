@@ -46,9 +46,9 @@ static QWidget *taskGroup(QWidget *groupWidget, const QList<QWidget *> &widgets)
 static State resultToState(DoneWith result)
 {
     switch (result) {
-    case DoneWith::Success : return State::Success;
-    case DoneWith::Error : return State::Error;
-    case DoneWith::Cancel : return State::Canceled;
+    case DoneWith::Success: return State::Success;
+    case DoneWith::Error: return State::Error;
+    case DoneWith::Cancel: return State::Canceled;
     }
     return State::Initial;
 }
