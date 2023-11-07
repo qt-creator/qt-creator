@@ -48,6 +48,11 @@ public:
         p.waitForFinished();
         return {p.exitCode(), p.readAllStandardOutput(), p.readAllStandardError()};
     }
+
+    void findUsingLs(const QString &current, const FileFilter &filter, QStringList *found)
+    {
+        UnixDeviceFileAccess::findUsingLs(current, filter, found, {});
+    }
 };
 
 class tst_unixdevicefileaccess : public QObject
@@ -67,6 +72,27 @@ private slots:
     {
         const auto size = m_dfaPtr->fileSize(m_fileSizeTestFile);
         QCOMPARE(size, 1024);
+    }
+
+    void findUsingLs()
+    {
+        QStringList result;
+        m_dfa.findUsingLs(m_tempDir.path(),
+                          {{}, QDir::NoFilter, QDirIterator::Subdirectories},
+                          &result);
+
+        QCOMPARE(result, QStringList({".", "..", "size-test"}));
+
+        QDir tDir(m_tempDir.path());
+        tDir.mkdir("lsfindsubdir");
+
+        result.clear();
+        m_dfa.findUsingLs(m_tempDir.path(),
+                          {{}, QDir::NoFilter, QDirIterator::Subdirectories},
+                          &result);
+        QCOMPARE(result,
+                 QStringList(
+                     {".", "..", "lsfindsubdir/.", "lsfindsubdir/..", "lsfindsubdir", "size-test"}));
     }
 
 private:

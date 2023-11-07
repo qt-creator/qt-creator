@@ -183,16 +183,15 @@ protected:
 
     expected_str<FilePath> createTempFile(const FilePath &filePath) override;
 
+    void findUsingLs(const QString &current,
+                     const FileFilter &filter,
+                     QStringList *found,
+                     const QString &start) const;
 
 private:
-    bool iterateWithFind(
-            const FilePath &filePath,
-            const FileFilter &filter,
-            const FilePath::IterateDirCallback &callBack) const;
-    void findUsingLs(
-            const QString &current,
-            const FileFilter &filter,
-            QStringList *found) const;
+    bool iterateWithFind(const FilePath &filePath,
+                         const FileFilter &filter,
+                         const FilePath::IterateDirCallback &callBack) const;
 
     QStringList statArgs(const FilePath &filePath,
                          const QString &linuxFormat,
