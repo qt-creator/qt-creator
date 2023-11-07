@@ -8,7 +8,7 @@ set(QT_QML_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/qml")
 include(FetchContent)
 FetchContent_Declare(
     ds
-    GIT_TAG qds-4.3
+    GIT_TAG qds-4.4
     GIT_REPOSITORY https://code.qt.io/qt-labs/qtquickdesigner-components.git
 )
 
@@ -24,6 +24,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     QuickStudioMultiTextplugin
     QuickStudioEventSimulatorplugin
     QuickStudioEventSystemplugin
+    QuickStudioUtilsplugin
 )
 
 add_subdirectory(${ds_SOURCE_DIR} ${ds_BINARY_DIR})
