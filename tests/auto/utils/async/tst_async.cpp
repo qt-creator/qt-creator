@@ -33,7 +33,20 @@ void report3(QPromise<int> &promise)
     promise.addResult(1);
 }
 
+static void staticReport3(QPromise<int> &promise)
+{
+    promise.addResult(0);
+    promise.addResult(2);
+    promise.addResult(1);
+}
+
 void reportN(QPromise<double> &promise, int n)
+{
+    for (int i = 0; i < n; ++i)
+        promise.addResult(0);
+}
+
+static void staticReportN(QPromise<double> &promise, int n)
 {
     for (int i = 0; i < n; ++i)
         promise.addResult(0);
@@ -135,6 +148,24 @@ std::shared_ptr<Async<ResultType>> createAsyncTask(Function &&function, Args &&.
 
 void tst_Async::runAsync()
 {
+    // tesing QtConcurrent::run()
+    QCOMPARE(QtConcurrent::run(&report3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(QtConcurrent::run(report3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(QtConcurrent::run(&staticReport3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(QtConcurrent::run(staticReport3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(QtConcurrent::run(&reportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(QtConcurrent::run(reportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(QtConcurrent::run(&staticReportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(QtConcurrent::run(staticReportN, 2).results(),
+             QList<double>({0, 0}));
+
     // free function pointer
     QCOMPARE(createAsyncTask(&report3)->results(),
              QList<int>({0, 2, 1}));
@@ -144,14 +175,30 @@ void tst_Async::runAsync()
              QList<int>({0, 2, 1}));
     QCOMPARE(Utils::asyncRun(report3).results(),
              QList<int>({0, 2, 1}));
+    QCOMPARE(createAsyncTask(&staticReport3)->results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(&staticReport3).results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(createAsyncTask(staticReport3)->results(),
+             QList<int>({0, 2, 1}));
+    QCOMPARE(Utils::asyncRun(staticReport3).results(),
+             QList<int>({0, 2, 1}));
 
-    QCOMPARE(createAsyncTask(reportN, 4)->results(),
-             QList<double>({0, 0, 0, 0}));
-    QCOMPARE(Utils::asyncRun(reportN, 4).results(),
-             QList<double>({0, 0, 0, 0}));
+    QCOMPARE(createAsyncTask(&reportN, 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(&reportN, 2).results(),
+             QList<double>({0, 0}));
     QCOMPARE(createAsyncTask(reportN, 2)->results(),
              QList<double>({0, 0}));
     QCOMPARE(Utils::asyncRun(reportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(createAsyncTask(&staticReportN, 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(&staticReportN, 2).results(),
+             QList<double>({0, 0}));
+    QCOMPARE(createAsyncTask(staticReportN, 2)->results(),
+             QList<double>({0, 0}));
+    QCOMPARE(Utils::asyncRun(staticReportN, 2).results(),
              QList<double>({0, 0}));
 
     QString s = QLatin1String("string");
