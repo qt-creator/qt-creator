@@ -13,8 +13,6 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -23,10 +21,7 @@
 #include <projectexplorer/selectablefilesmodel.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
-
-#include <QAction>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -44,8 +39,8 @@ public:
     ProjectFilesFactory projectFilesFactory;
     GenericMakeStepFactory makeStepFactory;
     GenericBuildConfigurationFactory buildConfigFactory;
-
-    QAction editFilesAction{Tr::tr("Edit Files..."), nullptr};
+    Action editAction;
+    Action removeDirAction;
 };
 
 GenericProjectPlugin::~GenericProjectPlugin()
@@ -64,23 +59,21 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
 
     IWizardFactory::registerFactoryCreator([] { return new GenericProjectWizard; });
 
-    ActionContainer *mproject = ActionManager::actionContainer(PEC::M_PROJECTCONTEXT);
-
-    Command *command = ActionManager::registerAction(&editFilesAction,
-        "GenericProjectManager.EditFiles", Context(Constants::GENERICPROJECT_ID));
-    command->setAttribute(Command::CA_Hide);
-    mproject->addAction(command, PEC::G_PROJECT_FILES);
-
-    connect(&editFilesAction, &QAction::triggered, this, [] {
+    editAction.setId("GenericProjectManager.EditFiles");
+    editAction.setContext(Constants::GENERICPROJECT_ID);
+    editAction.setText(Tr::tr("Edit Files..."));
+    editAction.setCommandAttribute(Command::CA_Hide);
+    editAction.setContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_FILES);
+    editAction.setOnTriggered([] {
         if (auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject()))
             genericProject->editFilesTriggered();
     });
 
-    const auto removeDirAction = new QAction(Tr::tr("Remove Directory"), this);
-    Command * const cmd = ActionManager::registerAction(removeDirAction, "GenericProject.RemoveDir",
-                                                        Context(PEC::C_PROJECT_TREE));
-    ActionManager::actionContainer(PEC::M_FOLDERCONTEXT)->addAction(cmd, PEC::G_FOLDER_OTHER);
-    connect(removeDirAction, &QAction::triggered, this, [] {
+    removeDirAction.setId("GenericProject.RemoveDir");
+    removeDirAction.setContext(PEC::C_PROJECT_TREE);
+    removeDirAction.setText(Tr::tr("Remove Directory"));
+    removeDirAction.setContainer(PEC::M_FOLDERCONTEXT, PEC::G_FOLDER_OTHER);
+    removeDirAction.setOnTriggered([] {
         const auto folderNode = ProjectTree::currentNode()->asFolderNode();
         QTC_ASSERT(folderNode, return);
         const auto project = qobject_cast<GenericProject *>(folderNode->getProject());
