@@ -103,13 +103,13 @@ private:
 
 enum class WorkflowPolicy
 {
-    StopOnError,         // 1a - Reports error on first child error, otherwise success (if all children were success).
-    ContinueOnError,     // 1b - The same, but children execution continues. Reports success when no children.
-    StopOnSuccess,       // 2a - Reports success on first child success, otherwise error (if all children were error).
-    ContinueOnSuccess,   // 2b - The same, but children execution continues. Reports error when no children.
-    StopOnFinished,      // 3  - Stops on first finished child and report its result.
-    FinishAllAndSuccess, // 4  - Reports success after all children finished.
-    FinishAllAndError    // 5  - Reports error after all children finished.
+    StopOnError,          // 1a - Reports error on first child error, otherwise success (if all children were success).
+    ContinueOnError,      // 1b - The same, but children execution continues. Reports success when no children.
+    StopOnSuccess,        // 2a - Reports success on first child success, otherwise error (if all children were error).
+    ContinueOnSuccess,    // 2b - The same, but children execution continues. Reports error when no children.
+    StopOnSuccessOrError, // 3  - Stops on first finished child and report its result.
+    FinishAllAndSuccess,  // 4  - Reports success after all children finished.
+    FinishAllAndError     // 5  - Reports error after all children finished.
 };
 Q_ENUM_NS(WorkflowPolicy);
 
@@ -321,7 +321,7 @@ TASKING_EXPORT extern const GroupItem stopOnError;
 TASKING_EXPORT extern const GroupItem continueOnError;
 TASKING_EXPORT extern const GroupItem stopOnSuccess;
 TASKING_EXPORT extern const GroupItem continueOnSuccess;
-TASKING_EXPORT extern const GroupItem stopOnFinished;
+TASKING_EXPORT extern const GroupItem stopOnSuccessOrError;
 TASKING_EXPORT extern const GroupItem finishAllAndSuccess;
 TASKING_EXPORT extern const GroupItem finishAllAndError;
 

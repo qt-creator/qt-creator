@@ -614,7 +614,7 @@ void tst_Tasking::testTree_data()
         QTest::newRow("DoneAndContinueOnError") << doneData(WorkflowPolicy::ContinueOnError);
         QTest::newRow("DoneAndStopOnSuccess") << doneData(WorkflowPolicy::StopOnSuccess);
         QTest::newRow("DoneAndContinueOnSuccess") << doneData(WorkflowPolicy::ContinueOnSuccess);
-        QTest::newRow("DoneAndStopOnFinished") << doneData(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("DoneAndStopOnSuccessOrError") << doneData(WorkflowPolicy::StopOnSuccessOrError);
         QTest::newRow("DoneAndFinishAllAndSuccess") << doneData(WorkflowPolicy::FinishAllAndSuccess);
         QTest::newRow("DoneAndFinishAllAndError") << doneData(WorkflowPolicy::FinishAllAndError);
 
@@ -622,7 +622,7 @@ void tst_Tasking::testTree_data()
         QTest::newRow("ErrorAndContinueOnError") << errorData(WorkflowPolicy::ContinueOnError);
         QTest::newRow("ErrorAndStopOnSuccess") << errorData(WorkflowPolicy::StopOnSuccess);
         QTest::newRow("ErrorAndContinueOnSuccess") << errorData(WorkflowPolicy::ContinueOnSuccess);
-        QTest::newRow("ErrorAndStopOnFinished") << errorData(WorkflowPolicy::StopOnFinished);
+        QTest::newRow("ErrorAndStopOnSuccessOrError") << errorData(WorkflowPolicy::StopOnSuccessOrError);
         QTest::newRow("ErrorAndFinishAllAndSuccess") << errorData(WorkflowPolicy::FinishAllAndSuccess);
         QTest::newRow("ErrorAndFinishAllAndError") << errorData(WorkflowPolicy::FinishAllAndError);
     }
@@ -974,8 +974,8 @@ void tst_Tasking::testTree_data()
         QTest::newRow("EmptyContinueOnSuccess") << TestData{storage, root4, errorLog, 0,
                                                          DoneWith::Error};
 
-        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("EmptyStopOnFinished") << TestData{storage, root5, errorLog, 0,
+        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("EmptyStopOnSuccessOrError") << TestData{storage, root5, errorLog, 0,
                                                          DoneWith::Error};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
@@ -1026,8 +1026,8 @@ void tst_Tasking::testTree_data()
         QTest::newRow("DoneContinueOnSuccess") << TestData{storage, root4, doneLog, 1,
                                                         DoneWith::Success};
 
-        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("DoneStopOnFinished") << TestData{storage, root5, doneLog, 1,
+        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("DoneStopOnSuccessOrError") << TestData{storage, root5, doneLog, 1,
                                                         DoneWith::Success};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
@@ -1078,8 +1078,8 @@ void tst_Tasking::testTree_data()
         QTest::newRow("ErrorContinueOnSuccess") << TestData{storage, root4, errorLog, 1,
                                                          DoneWith::Error};
 
-        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("ErrorStopOnFinished") << TestData{storage, root5, errorLog, 1,
+        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("ErrorStopOnSuccessOrError") << TestData{storage, root5, errorLog, 1,
                                                          DoneWith::Error};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
@@ -1147,8 +1147,8 @@ void tst_Tasking::testTree_data()
         QTest::newRow("StopRootWithContinueOnSuccess")
             << TestData{storage, root4, doneLog, 2, DoneWith::Success};
 
-        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("StopRootWithStopOnFinished")
+        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("StopRootWithStopOnSuccessOrError")
             << TestData{storage, root5, errorErrorLog, 2, DoneWith::Error};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
@@ -1234,8 +1234,8 @@ void tst_Tasking::testTree_data()
         QTest::newRow("StopRootAfterDoneWithContinueOnSuccess")
             << TestData{storage, root4, doneDoneLog, 3, DoneWith::Success};
 
-        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("StopRootAfterDoneWithStopOnFinished")
+        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("StopRootAfterDoneWithStopOnSuccessOrError")
             << TestData{storage, root5, doneErrorLog, 3, DoneWith::Success};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
@@ -1291,8 +1291,8 @@ void tst_Tasking::testTree_data()
         QTest::newRow("StopGroupWithContinueOnSuccess")
             << TestData{storage, root4, log, 2, DoneWith::Error};
 
-        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("StopGroupWithStopOnFinished")
+        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("StopGroupWithStopOnSuccessOrError")
             << TestData{storage, root5, log, 2, DoneWith::Error};
 
         // TODO: Behavioral change! Fix Docs!
@@ -1363,8 +1363,8 @@ void tst_Tasking::testTree_data()
         QTest::newRow("StopGroupAfterDoneWithContinueOnSuccess")
             << TestData{storage, root4, errorLog, 3, DoneWith::Error};
 
-        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("StopGroupAfterDoneWithStopOnFinished")
+        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("StopGroupAfterDoneWithStopOnSuccessOrError")
             << TestData{storage, root5, doneLog, 3, DoneWith::Error};
 
         // TODO: Behavioral change!
@@ -1433,8 +1433,8 @@ void tst_Tasking::testTree_data()
         QTest::newRow("StopGroupAfterErrorWithContinueOnSuccess")
             << TestData{storage, root4, longLog, 3, DoneWith::Error};
 
-        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
-        QTest::newRow("StopGroupAfterErrorWithStopOnFinished")
+        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
+        QTest::newRow("StopGroupAfterErrorWithStopOnSuccessOrError")
             << TestData{storage, root5, shortLog, 3, DoneWith::Error};
 
         // TODO: Behavioral change!
@@ -1502,13 +1502,13 @@ void tst_Tasking::testTree_data()
         };
         QTest::newRow("ContinueOnSuccess") << TestData{storage, root4, doneLog, 3, DoneWith::Success};
 
-        const Group root5 = createRoot(WorkflowPolicy::StopOnFinished);
+        const Group root5 = createRoot(WorkflowPolicy::StopOnSuccessOrError);
         const Log log5 {
             {1, Handler::Setup},
             {1, Handler::Success},
             {0, Handler::GroupSuccess}
         };
-        QTest::newRow("StopOnFinished") << TestData{storage, root5, log5, 3, DoneWith::Success};
+        QTest::newRow("StopOnSuccessOrError") << TestData{storage, root5, log5, 3, DoneWith::Success};
 
         const Group root6 = createRoot(WorkflowPolicy::FinishAllAndSuccess);
         QTest::newRow("FinishAllAndSuccess") << TestData{storage, root6, doneLog, 3, DoneWith::Success};
@@ -1522,7 +1522,7 @@ void tst_Tasking::testTree_data()
                                                                  DoneResult secondResult) {
             return Group {
                 parallel,
-                stopOnFinished,
+                stopOnSuccessOrError,
                 Storage(storage),
                 createTask(1, firstResult, 1000ms),
                 createTask(2, secondResult, 1ms),
@@ -1550,10 +1550,14 @@ void tst_Tasking::testTree_data()
             {0, Handler::GroupError}
         };
 
-        QTest::newRow("StopOnFinished1") << TestData{storage, root1, success, 2, DoneWith::Success};
-        QTest::newRow("StopOnFinished2") << TestData{storage, root2, failure, 2, DoneWith::Error};
-        QTest::newRow("StopOnFinished3") << TestData{storage, root3, success, 2, DoneWith::Success};
-        QTest::newRow("StopOnFinished4") << TestData{storage, root4, failure, 2, DoneWith::Error};
+        QTest::newRow("StopOnSuccessOrError1")
+            << TestData{storage, root1, success, 2, DoneWith::Success};
+        QTest::newRow("StopOnSuccessOrError2")
+            << TestData{storage, root2, failure, 2, DoneWith::Error};
+        QTest::newRow("StopOnSuccessOrError3")
+            << TestData{storage, root3, success, 2, DoneWith::Success};
+        QTest::newRow("StopOnSuccessOrError4")
+            << TestData{storage, root4, failure, 2, DoneWith::Error};
     }
 
     {
