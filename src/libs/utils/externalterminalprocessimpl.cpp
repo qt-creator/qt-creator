@@ -12,7 +12,7 @@
 #include <QTemporaryFile>
 #include <QVersionNumber>
 
-Q_LOGGING_CATEGORY(log, "terminal.externalprocess", QtWarningMsg)
+Q_LOGGING_CATEGORY(logTE, "terminal.externalprocess", QtWarningMsg)
 
 namespace Utils {
 
@@ -155,12 +155,12 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
             QObject::connect(process, &Process::readyReadStandardOutput, process, [process] {
                 const QString output = process->readAllStandardOutput();
                 if (!output.isEmpty())
-                    qCWarning(log).noquote() << output;
+                    qCWarning(logTE).noquote() << output;
             });
             QObject::connect(process, &Process::readyReadStandardError, process, [process] {
                 const QString output = process->readAllStandardError();
                 if (!output.isEmpty())
-                    qCCritical(log).noquote() << output;
+                    qCCritical(logTE).noquote() << output;
             });
 
             QObject::connect(process, &Process::done, m_interface, &TerminalInterface::onStubExited);
