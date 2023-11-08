@@ -40,76 +40,56 @@ Project {
         directory: "imports"
     }
 
-    Files {
+    JavaScriptFiles {
         directory: "content"
-        filter: "*.js;*.ts"
-        files: [  ]
     }
 
-    Files {
+    JavaScriptFiles {
         directory: "imports"
-        filter: "*.js;*.ts"
-        files: [  ]
     }
 
-    Files {
+    ImageFiles {
         directory: "content"
-        filter: "*.jpeg;*.jpg;*.png;*.svg;*.hdr;.ktx"
-        files: [  ]
     }
 
-    Files {
+    ImageFiles {
         directory: "asset_imports"
-        filter: "*.jpeg;*.jpg;*.png;*.svg;*.hdr;.ktx"
-        files: [  ]
     }
 
     Files {
-        directory: ""
-        filter: ""
-        files: [ "qtquickcontrols2.conf" ]
+        files: [
+            "qtquickcontrols2.conf"
+        ]
     }
 
     Files {
-        directory: ""
         filter: "*.conf"
-        files: [  ]
     }
 
     Files {
         directory: "."
         filter: "qmldir"
-        files: [  ]
     }
 
     Files {
-        directory: ""
         filter: "*.ttf;*.otf;*.ctf"
-        files: [  ]
     }
 
     Files {
-        directory: ""
         filter: "*.wav;*.mp3"
-        files: [  ]
     }
 
     Files {
-        directory: ""
         filter: "*.mp4"
-        files: [  ]
     }
 
     Files {
-        directory: ""
         filter: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag;*.trag"
-        files: [  ]
     }
 
     Files {
         directory: "asset_imports"
         filter: "*.mesh"
-        files: [  ]
     }
 
     QmlFiles {

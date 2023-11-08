@@ -13,7 +13,12 @@
             ],
             "filters": [
                 "*.qml"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Qml"
         },
         {
             "directory": ".",
@@ -22,7 +27,12 @@
             "filters": [
                 "*.js",
                 "*.ts"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "JavaScript"
         },
         {
             "directory": ".",
@@ -34,8 +44,13 @@
                 "*.png",
                 "*.svg",
                 "*.hdr",
-                ".ktx"
-            ]
+                "*.ktx"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Image"
         },
         {
             "directory": "",
@@ -43,7 +58,12 @@
                 "qtquickcontrols2.conf"
             ],
             "filters": [
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": "",
@@ -51,7 +71,12 @@
             ],
             "filters": [
                 "*.conf"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": ".",
@@ -59,7 +84,12 @@
             ],
             "filters": [
                 "qmldir"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         }
     ],
     "fileVersion": 1,
@@ -68,7 +98,14 @@
     ],
     "language": {
     },
-    "mcuConfig": {
+    "mcu": {
+        "config": {
+        },
+        "enabled": false,
+        "module": {
+        }
+    },
+    "otherProperties": {
     },
     "runConfig": {
         "fileSelectors": [

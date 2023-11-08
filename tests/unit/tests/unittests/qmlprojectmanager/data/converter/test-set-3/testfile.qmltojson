@@ -16,7 +16,12 @@
             ],
             "filters": [
                 "*.qml"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Qml"
         },
         {
             "directory": "imports",
@@ -24,7 +29,12 @@
             ],
             "filters": [
                 "*.qml"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Qml"
         },
         {
             "directory": "content",
@@ -33,7 +43,12 @@
             "filters": [
                 "*.js",
                 "*.ts"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "JavaScript"
         },
         {
             "directory": "imports",
@@ -42,7 +57,12 @@
             "filters": [
                 "*.js",
                 "*.ts"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "JavaScript"
         },
         {
             "directory": "content",
@@ -54,8 +74,13 @@
                 "*.png",
                 "*.svg",
                 "*.hdr",
-                ".ktx"
-            ]
+                "*.ktx"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Image"
         },
         {
             "directory": "asset_imports",
@@ -67,8 +92,13 @@
                 "*.png",
                 "*.svg",
                 "*.hdr",
-                ".ktx"
-            ]
+                "*.ktx"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Image"
         },
         {
             "directory": "",
@@ -76,7 +106,12 @@
                 "qtquickcontrols2.conf"
             ],
             "filters": [
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": "",
@@ -84,7 +119,12 @@
             ],
             "filters": [
                 "*.conf"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": ".",
@@ -92,7 +132,12 @@
             ],
             "filters": [
                 "qmldir"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": "",
@@ -102,7 +147,12 @@
                 "*.ttf",
                 "*.otf",
                 "*.ctf"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": "",
@@ -111,7 +161,12 @@
             "filters": [
                 "*.wav",
                 "*.mp3"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": "",
@@ -119,7 +174,12 @@
             ],
             "filters": [
                 "*.mp4"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": "",
@@ -134,7 +194,12 @@
                 "*.vert",
                 "*.frag",
                 "*.trag"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": "asset_imports",
@@ -142,7 +207,12 @@
             ],
             "filters": [
                 "*.mesh"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
         {
             "directory": "asset_imports",
@@ -150,7 +220,12 @@
             ],
             "filters": [
                 "*.qml"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         }
     ],
     "fileVersion": 1,
@@ -165,8 +240,14 @@
             "en"
         ]
     },
-    "mcuConfig": {
-        "mcuEnabled": true
+    "mcu": {
+        "config": {
+        },
+        "enabled": true,
+        "module": {
+        }
+    },
+    "otherProperties": {
     },
     "runConfig": {
         "fileSelectors": [

@@ -5,19 +5,12 @@ import QmlProject
 
 Project {
     mainFile: "fileSelectors.qml"
-    mainUiFile: ""
     targetDirectory: "/opt/fileSelectors"
     widgetApp: false
     importPaths: [ "imports" ]
 
-    qdsVersion: ""
-    quickVersion: ""
     qt6Project: false
     qtForMCUs: false
-
-    multilanguageSupport: false
-    primaryLanguage: ""
-    supportedLanguages: [  ]
 
     Environment {
         QT_AUTO_SCREEN_SCALE_FACTOR: "1"
@@ -28,33 +21,26 @@ Project {
         directory: "."
     }
 
-    Files {
+    JavaScriptFiles {
         directory: "."
-        filter: "*.js;*.ts"
-        files: [  ]
     }
 
-    Files {
+    ImageFiles {
         directory: "."
-        filter: "*.jpeg;*.jpg;*.png;*.svg;*.hdr;.ktx"
-        files: [  ]
     }
 
     Files {
-        directory: ""
-        filter: ""
-        files: [ "qtquickcontrols2.conf" ]
+        files: [
+            "qtquickcontrols2.conf"
+        ]
     }
 
     Files {
-        directory: ""
         filter: "*.conf"
-        files: [  ]
     }
 
     Files {
         directory: "."
         filter: "qmldir"
-        files: [  ]
     }
 }

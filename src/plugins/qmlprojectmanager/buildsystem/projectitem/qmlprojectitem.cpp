@@ -130,7 +130,7 @@ QString QmlProjectItem::targetDirectory() const
 
 bool QmlProjectItem::isQt4McuProject() const
 {
-    return m_project["mcuConfig"].toObject()["mcuEnabled"].toBool();
+    return m_project["mcu"].toObject()["enabled"].toBool();
 }
 
 Utils::EnvironmentItems QmlProjectItem::environment() const
