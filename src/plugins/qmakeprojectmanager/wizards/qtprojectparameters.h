@@ -30,11 +30,7 @@ struct QtProjectParameters
     QtProjectParameters();
     // Return project path as "path/name"
     Utils::FilePath projectPath() const;
-    void writeProFile(QTextStream &) const;
-    static void writeProFileHeader(QTextStream &);
 
-    // Shared library: Name of export macro (XXX_EXPORT)
-    static QString exportMacro(const QString &projectName);
     // Shared library: name of #define indicating compilation within library
     static QString libraryMacro(const QString &projectName);
 
