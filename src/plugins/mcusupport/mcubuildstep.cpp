@@ -89,7 +89,8 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
     const FilePath qulIncludeDir = FilePath::fromVariant(kit->value(importPathConstant));
     QStringList includeDirs {
         ProcessArgs::quoteArg(qulIncludeDir.toString()),
-        ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Timeline").toString())
+        ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Timeline").toString()),
+        ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Shapes").toString())
     };
 
     const char *toolChainConstant = Internal::Constants::KIT_MCUTARGET_TOOLCHAIN_KEY;
