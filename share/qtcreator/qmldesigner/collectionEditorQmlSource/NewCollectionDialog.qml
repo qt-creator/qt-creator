@@ -234,8 +234,8 @@ StudioControls.Dialog {
                 visible: enabled
                 actionIndicator.visible: false
                 translationIndicator.visible: false
-                validator: HelperWidgets.RegExpValidator {
-                    regExp: /^\w+$/
+                validator: RegularExpressionValidator {
+                    regularExpression: /^\w+$/
                 }
 
                 Keys.onEnterPressed: btnCreate.onClicked()

@@ -30,9 +30,9 @@ StudioControls.Dialog {
         fileName.text = ""
     }
 
-    HelperWidgets.RegExpValidator {
+    RegularExpressionValidator {
         id: fileNameValidator
-        regExp: /^(\w[^*><?|]*)[^/\\:*><?|]$/
+        regularExpression: /^(\w[^*><?|]*)[^/\\:*><?|]$/
     }
 
     PlatformWidgets.FileDialog {

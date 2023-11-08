@@ -295,9 +295,9 @@ Item {
         }
     }
 
-    HelperWidgets.RegExpValidator {
+    RegularExpressionValidator {
         id: newNameValidator
-        regExp: /^\w+$/
+        regularExpression: /^\w+$/
     }
 
     states: [

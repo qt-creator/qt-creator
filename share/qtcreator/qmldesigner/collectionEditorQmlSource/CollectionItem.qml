@@ -156,8 +156,8 @@ Item {
             }
 
             Item { // spacer
-                width: 1
-                height: 20
+                Layout.fillWidth: true
+                Layout.preferredHeight: 20
             }
 
             RowLayout {
@@ -250,9 +250,9 @@ Item {
         }
     }
 
-    HelperWidgets.RegExpValidator {
+    RegularExpressionValidator {
         id: newNameValidator
-        regExp: /^\w+$/
+        regularExpression: /^\w+$/
     }
 
     states: [

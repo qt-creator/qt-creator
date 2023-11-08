@@ -165,9 +165,9 @@ Item {
         width: root.iconHeight
     }
 
-    HelperWidgets.RegExpValidator {
+    RegularExpressionValidator {
         id: nameValidator
-        regExp: /^\w+$/
+        regularExpression: /^\w+$/
     }
 
     StudioControls.Dialog {

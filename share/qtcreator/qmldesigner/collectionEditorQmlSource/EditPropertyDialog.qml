@@ -77,8 +77,8 @@ StudioControls.Dialog {
                 Keys.onReturnPressed: root.accept()
                 Keys.onEscapePressed: root.reject()
 
-                validator: HelperWidgets.RegExpValidator {
-                    regExp: /^\w+$/
+                validator: RegularExpressionValidator {
+                    regularExpression: /^\w+$/
                 }
 
                 onTextChanged: {
