@@ -46,6 +46,11 @@ StudioControls.Dialog {
             root.model.setPropertyType(root.__propertyIndex, propertyType.currentText, forceChangeType.checked)
     }
 
+    onRejected: {
+        let currentDatatype = propertyType.initialType
+        propertyType.currentIndex = propertyType.find(currentDatatype)
+    }
+
     contentItem: Column {
         spacing: 2
 
