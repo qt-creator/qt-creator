@@ -7,6 +7,8 @@
 #include "qtcassert.h"
 #include "qtcsettings.h"
 #include "stringutils.h"
+#include "styledbar.h"
+#include "utilsicons.h"
 #include "utilstr.h"
 
 #include <QAbstractButton>
@@ -98,6 +100,10 @@ public:
     void paintEvent(QPaintEvent *event) override;
 };
 
+const int titleMinWidth = 10;
+const int titleMaxWidth = 10000;
+const int titleInactiveHeight = 0;
+
 void DockWidgetTitleButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
@@ -115,20 +121,21 @@ void DockWidgetTitleButton::paintEvent(QPaintEvent *)
     style()->drawComplexControl(QStyle::CC_ToolButton, &opt, &p, this);
 }
 
-class TitleBarWidget : public QWidget
+class TitleBarWidget : public StyledBar
 {
 public:
-    TitleBarWidget(DockWidget *parent, const QStyleOptionDockWidget &opt)
-        : QWidget(parent)
+    TitleBarWidget(DockWidget *parent)
+        : StyledBar(parent)
         , q(parent)
     {
         m_titleLabel = new QLabel(this);
 
         m_floatButton = new DockWidgetTitleButton(this);
-        m_floatButton->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarNormalButton, &opt, q));
+        m_floatButton->setIcon(
+            Icon({{":/utils/images/app-on-top.png", Theme::IconsBaseColor}}).icon());
 
         m_closeButton = new DockWidgetTitleButton(this);
-        m_closeButton->setIcon(q->style()->standardIcon(QStyle::SP_TitleBarCloseButton, &opt, q));
+        m_closeButton->setIcon(Icons::CLOSE_TOOLBAR.icon());
 
 #ifndef QT_NO_ACCESSIBILITY
         m_floatButton->setAccessibleName(QDockWidget::tr("Float"));
@@ -136,16 +143,6 @@ public:
         m_closeButton->setAccessibleName(QDockWidget::tr("Close"));
         m_closeButton->setAccessibleDescription(QDockWidget::tr("Closes the dock widget"));
 #endif
-
-        const int minWidth = 10;
-        const int maxWidth = 10000;
-        const int inactiveHeight = 0;
-        const int activeHeight = m_closeButton->sizeHint().height() + 2;
-
-        m_minimumInactiveSize = QSize(minWidth, inactiveHeight);
-        m_maximumInactiveSize = QSize(maxWidth, inactiveHeight);
-        m_minimumActiveSize   = QSize(minWidth, activeHeight);
-        m_maximumActiveSize   = QSize(maxWidth, activeHeight);
 
         auto layout = new QHBoxLayout(this);
         layout->setSpacing(0);
@@ -195,23 +192,21 @@ public:
     QSize sizeHint() const override
     {
         ensurePolished();
-        return m_active ? m_maximumActiveSize : m_maximumInactiveSize;
+        return m_active ? QSize(titleMaxWidth, StyledBar::minimumHeight())
+                        : QSize(titleMaxWidth, titleInactiveHeight);
     }
 
     QSize minimumSizeHint() const override
     {
         ensurePolished();
-        return m_active ? m_minimumActiveSize : m_minimumInactiveSize;
+        return m_active ? QSize(titleMinWidth, StyledBar::minimumHeight())
+                        : QSize(titleMinWidth, titleInactiveHeight);
     }
 
 private:
     DockWidget *q;
     bool m_active = true;
     bool m_hovered = false;
-    QSize m_minimumActiveSize;
-    QSize m_maximumActiveSize;
-    QSize m_minimumInactiveSize;
-    QSize m_maximumInactiveSize;
 
 public:
     QLabel *m_titleLabel;
@@ -235,7 +230,7 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
 
     QStyleOptionDockWidget opt;
     initStyleOption(&opt);
-    m_titleBar = new TitleBarWidget(this, opt);
+    m_titleBar = new TitleBarWidget(this);
     m_titleBar->m_titleLabel->setText(title);
     setTitleBarWidget(m_titleBar);
 
