@@ -13,6 +13,7 @@ Project {
         "fsengine/fsengine.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",
         "indexedcontainerproxyconstiterator/indexedcontainerproxyconstiterator.qbs",
+        "synchronizedvalue/synchronizedvalue.qbs",
         "mathutils/mathutils.qbs",
         "multicursor/multicursor.qbs",
         "persistentsettings/persistentsettings.qbs",
