@@ -559,9 +559,8 @@ void doLayout(KitAspect *aspect, Layouting::LayoutItem &builder)
 
 class KitAreaWidget : public QWidget
 {
-    Q_OBJECT
 public:
-    explicit KitAreaWidget(QWidget *parent = nullptr)
+    explicit KitAreaWidget(QWidget *parent)
         : QWidget(parent)
     {
         connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
@@ -571,8 +570,6 @@ public:
 
     void setKit(Kit *k)
     {
-        qDeleteAll(m_labels);
-        m_labels.clear();
         qDeleteAll(m_kitAspects);
         m_kitAspects.clear();
 
@@ -587,7 +584,6 @@ public:
                 KitAspect *aspect = factory->createKitAspect(k);
                 m_kitAspects << aspect;
                 auto label = new QLabel(aspect->displayName());
-                m_labels << label;
                 grid.addItems({label, aspect, Layouting::br});
             }
         }
@@ -600,7 +596,7 @@ public:
     }
 
 private:
-    void updateKit(ProjectExplorer::Kit *k)
+    void updateKit(Kit *k)
     {
         if (!m_kit || m_kit != k)
             return;
@@ -629,7 +625,6 @@ private:
     }
 
     Kit *m_kit = nullptr;
-    QList<QWidget *> m_labels;
     QList<KitAspect *> m_kitAspects;
 };
 
