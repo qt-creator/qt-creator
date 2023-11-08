@@ -176,7 +176,6 @@ public:
 
     Kit *kit(const QModelIndex &);
     KitNode *kitNode(const QModelIndex &);
-    QModelIndex indexOf(Kit *k) const;
     QModelIndex indexOf(Id kitId) const;
 
     void setDefaultKit(const QModelIndex &index);
@@ -187,7 +186,7 @@ public:
     void apply();
 
     void markForRemoval(Kit *k);
-    Kit *markForAddition(Kit *baseKit);
+    Id markForAddition(Kit *baseKit);
 
     void updateVisibility();
 
@@ -261,12 +260,6 @@ KitNode *KitModel::kitNode(const QModelIndex &index)
 QModelIndex KitModel::indexOf(Id kitId) const
 {
     KitNode *n = findItemAtLevel<2>([kitId](KitNode *n) { return n->kit()->id() == kitId; });
-    return n ? indexForItem(n) : QModelIndex();
-}
-
-QModelIndex KitModel::indexOf(Kit *k) const
-{
-    KitNode *n = findWorkingCopy(k);
     return n ? indexForItem(n) : QModelIndex();
 }
 
@@ -348,7 +341,7 @@ void KitModel::markForRemoval(Kit *k)
     validateKitNames();
 }
 
-Kit *KitModel::markForAddition(Kit *baseKit)
+Id KitModel::markForAddition(Kit *baseKit)
 {
     const QString newName = newKitName(baseKit ? baseKit->unexpandedDisplayName() : QString());
     KitNode *node = createNode(nullptr);
@@ -367,7 +360,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     if (!m_defaultNode)
         setDefaultNode(node);
 
-    return k;
+    return k->id();
 }
 
 void KitModel::updateVisibility()
@@ -625,9 +618,9 @@ void KitOptionsPageWidget::kitSelectionChanged()
 
 void KitOptionsPageWidget::addNewKit()
 {
-    Kit *k = m_model->markForAddition(nullptr);
+    Id kitId = m_model->markForAddition(nullptr);
 
-    QModelIndex newIdx = m_sortModel->mapFromSource(m_model->indexOf(k));
+    QModelIndex newIdx = m_sortModel->mapFromSource(m_model->indexOf(kitId));
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
                              | QItemSelectionModel::SelectCurrent
@@ -648,8 +641,8 @@ void KitOptionsPageWidget::cloneKit()
     if (!current)
         return;
 
-    Kit *k = m_model->markForAddition(current);
-    QModelIndex newIdx = m_sortModel->mapFromSource(m_model->indexOf(k));
+    Id kitId = m_model->markForAddition(current);
+    QModelIndex newIdx = m_sortModel->mapFromSource(m_model->indexOf(kitId));
     m_kitsView->scrollTo(newIdx);
     m_selectionModel->select(newIdx,
                              QItemSelectionModel::Clear
