@@ -105,6 +105,50 @@ Column {
             }
 
             PropertyLabel {
+                text: qsTr("Start angle")
+                tooltip: qsTr("This property holds the starting angle of the dial in degrees.")
+                visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    maximumValue: backendValues.endAngle.value - 1
+                    minimumValue: Math.min (-360, (backendValues.endAngle.value - 360))
+                    decimals: 2
+                    stepSize: 0.1
+                    backendValue: backendValues.startAngle
+                    visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: qsTr("End angle")
+                tooltip: qsTr("This property holds the ending angle of the dial in degrees.")
+                visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+            }
+
+            SecondColumnLayout {
+                SpinBox {
+                    implicitWidth: StudioTheme.Values.twoControlColumnWidth
+                                   + StudioTheme.Values.actionIndicatorWidth
+                    width: implicitWidth
+                    maximumValue: Math.min (720, (backendValues.startAngle.value + 360))
+                    minimumValue: backendValues.startAngle.value + 1
+                    decimals: 2
+                    stepSize: 0.1
+                    backendValue: backendValues.endAngle
+                    visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+                }
+
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
                 text: qsTr("Snap mode")
                 tooltip: qsTr("Sets how the dial's handle snaps to the steps\n"
                             + "defined in <b>Step size</b>.")
