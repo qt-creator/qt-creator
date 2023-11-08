@@ -555,7 +555,7 @@ ClangTool::ClangTool(const QString &name, Id id, ClangToolType type)
     mainLayout->addWidget(m_diagnosticView);
     auto mainWidget = new QWidget;
     mainWidget->setObjectName(id.toString() + "IssuesView");
-    mainWidget->setWindowTitle(name);
+    mainWidget->setWindowTitle(Tr::tr("Diagnostics"));
     mainWidget->setLayout(mainLayout);
 
     m_perspective.addWindow(mainWidget, Perspective::SplitVertical, nullptr);
