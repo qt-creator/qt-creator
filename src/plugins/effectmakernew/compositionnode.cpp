@@ -104,6 +104,7 @@ void CompositionNode::parse(const QString &qenPath)
     for (const auto /*QJsonValueRef*/ &prop : jsonProps) {
         const auto uniform = new Uniform(prop.toObject(), qenPath);
         m_unifomrsModel.addUniform(uniform);
+        m_uniforms.append(uniform);
         g_propertyData.insert(uniform->name(), uniform->value());
     }
 
@@ -121,6 +122,16 @@ void CompositionNode::parse(const QString &qenPath)
                 m_requiredNodes << nodeName;
         }
     }
+}
+
+QList<Uniform *> CompositionNode::uniforms() const
+{
+    return m_uniforms;
+}
+
+QString CompositionNode::name() const
+{
+    return m_name;
 }
 
 } // namespace EffectMaker

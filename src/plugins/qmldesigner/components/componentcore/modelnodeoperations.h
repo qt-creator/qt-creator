@@ -125,7 +125,7 @@ void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);
 
 QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getEffectsImportDirectory();
-QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir);
+QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir = {});
 void openEffectMaker(const QString &filePath);
 QString getEffectIcon(const QString &effectPath);
 bool useLayerEffect();

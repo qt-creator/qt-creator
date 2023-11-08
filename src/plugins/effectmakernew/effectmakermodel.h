@@ -83,6 +83,8 @@ public:
     Q_INVOKABLE void resetEffectError(int type);
     Q_INVOKABLE void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
 
+    Q_INVOKABLE void exportComposition(const QString &name);
+
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);

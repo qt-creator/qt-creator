@@ -18,6 +18,8 @@
 #include <utils/qtcassert.h>
 #include <utils/process.h>
 
+#include <modelnodeoperations.h>
+
 #include <QByteArrayView>
 #include <QVector2D>
 
@@ -353,6 +355,170 @@ void EffectMakerModel::setEffectError(const QString &errorMessage, int type, int
     error.m_message = additionalErrorInfo + errorMessage;
     m_effectErrors.insert(type, error);
     Q_EMIT effectErrorChanged();
+}
+
+QString variantAsDataString(const Uniform::Type type, const QVariant &variant)
+{
+    QString s;
+    switch (type) {
+    case Uniform::Type::Bool:
+        s = variant.toBool() ? QString("true") : QString("false");
+        break;
+    case Uniform::Type::Int:
+        s = QString::number(variant.toInt());
+        break;
+    case Uniform::Type::Float:
+        s = QString::number(variant.toDouble());
+        break;
+    case Uniform::Type::Vec2: {
+        QStringList list;
+        QVector2D v2 = variant.value<QVector2D>();
+        list << QString::number(v2.x());
+        list << QString::number(v2.y());
+        s = list.join(", ");
+        break;
+    }
+    case Uniform::Type::Vec3: {
+        QStringList list;
+        QVector3D v3 = variant.value<QVector3D>();
+        list << QString::number(v3.x());
+        list << QString::number(v3.y());
+        list << QString::number(v3.z());
+        s = list.join(", ");
+        break;
+    }
+    case Uniform::Type::Vec4: {
+        QStringList list;
+        QVector4D v4 = variant.value<QVector4D>();
+        list << QString::number(v4.x());
+        list << QString::number(v4.y());
+        list << QString::number(v4.z());
+        list << QString::number(v4.w());
+        s = list.join(", ");
+        break;
+    }
+    case Uniform::Type::Color: {
+        QStringList list;
+        QColor c = variant.value<QColor>();
+        list << QString::number(c.redF(), 'g', 3);
+        list << QString::number(c.greenF(), 'g', 3);
+        list << QString::number(c.blueF(), 'g', 3);
+        list << QString::number(c.alphaF(), 'g', 3);
+        s = list.join(", ");
+        break;
+    }
+    case Uniform::Type::Sampler:
+    case Uniform::Type::Define: {
+        s = variant.toString();
+        break;
+    }
+    }
+    return s;
+}
+
+QJsonObject nodeToJson(const CompositionNode &node)
+{
+    QJsonObject nodeObject;
+    nodeObject.insert("name", node.name());
+    if (!node.description().isEmpty())
+        nodeObject.insert("description", node.description());
+    nodeObject.insert("enabled", node.isEnabled());
+    nodeObject.insert("version", 1);
+    // Add properties
+    QJsonArray propertiesArray;
+    const QList<Uniform *> uniforms = node.uniforms();
+    for (const Uniform *uniform : uniforms) {
+        QJsonObject uniformObject;
+        uniformObject.insert("name", QString(uniform->name()));
+        QString type = Uniform::stringFromType(uniform->type());
+        uniformObject.insert("type", type);
+
+        QString value = variantAsDataString(uniform->type(), uniform->value());
+        if (uniform->type() == Uniform::Type::Sampler)
+            value = QFileInfo(value).fileName();
+        uniformObject.insert("value", value);
+
+        QString defaultValue = variantAsDataString(uniform->type(), uniform->defaultValue());
+        if (uniform->type() == Uniform::Type::Sampler) {
+            defaultValue = QFileInfo(value).fileName();
+            if (uniform->enableMipmap())
+                uniformObject.insert("enableMipmap", uniform->enableMipmap());
+        }
+        uniformObject.insert("defaultValue", defaultValue);
+        if (!uniform->description().isEmpty())
+            uniformObject.insert("description", uniform->description());
+        if (uniform->type() == Uniform::Type::Float
+            || uniform->type() == Uniform::Type::Int
+            || uniform->type() == Uniform::Type::Vec2
+            || uniform->type() == Uniform::Type::Vec3
+            || uniform->type() == Uniform::Type::Vec4) {
+            uniformObject.insert("minValue", variantAsDataString(uniform->type(), uniform->minValue()));
+            uniformObject.insert("maxValue", variantAsDataString(uniform->type(), uniform->maxValue()));
+        }
+        if (!uniform->customValue().isEmpty())
+            uniformObject.insert("customValue", uniform->customValue());
+        if (uniform->useCustomValue())
+            uniformObject.insert("useCustomValue", true);
+
+        propertiesArray.append(uniformObject);
+    }
+    if (!propertiesArray.isEmpty())
+        nodeObject.insert("properties", propertiesArray);
+
+    // Add shaders
+    if (!node.fragmentCode().trimmed().isEmpty()) {
+        QJsonArray fragmentCodeArray;
+        const QStringList fsLines = node.fragmentCode().split('\n');
+        for (const QString &line : fsLines)
+            fragmentCodeArray.append(line);
+
+        if (!fragmentCodeArray.isEmpty())
+            nodeObject.insert("fragmentCode", fragmentCodeArray);
+    }
+    if (!node.vertexCode().trimmed().isEmpty()) {
+        QJsonArray vertexCodeArray;
+        const QStringList vsLines = node.vertexCode().split('\n');
+        for (const QString &line : vsLines)
+            vertexCodeArray.append(line);
+
+        if (!vertexCodeArray.isEmpty())
+            nodeObject.insert("vertexCode", vertexCodeArray);
+    }
+
+    return nodeObject;
+}
+
+void EffectMakerModel::exportComposition(const QString &name)
+{
+    const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
+    const QString path = effectsAssetsDir + QDir::separator() + name + ".qep";
+    auto saveFile = QFile(path);
+    if (!saveFile.open(QIODevice::WriteOnly)) {
+        QString error = QString("Error: Couldn't save composition file: '%1'").arg(path);
+        qWarning() << error;
+        return;
+    }
+
+    QJsonObject json;
+    // File format version
+    json.insert("version", 1);
+
+    // Add nodes
+    QJsonArray nodesArray;
+    for (const CompositionNode *node : std::as_const(m_nodes)) {
+        QJsonObject nodeObject = nodeToJson(*node);
+        nodesArray.append(nodeObject);
+    }
+
+    if (!nodesArray.isEmpty())
+        json.insert("nodes", nodesArray);
+
+    QJsonObject rootJson;
+    rootJson.insert("QEP", json);
+    QJsonDocument jsonDoc(rootJson);
+
+    saveFile.write(jsonDoc.toJson());
+    saveFile.close();
 }
 
 void EffectMakerModel::resetEffectError(int type)

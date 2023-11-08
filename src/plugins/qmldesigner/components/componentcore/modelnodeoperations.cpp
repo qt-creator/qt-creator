@@ -1683,6 +1683,12 @@ Utils::FilePath getEffectsImportDirectory()
 
 QString getEffectsDefaultDirectory(const QString &defaultDir)
 {
+    if (defaultDir.isEmpty()) {
+        return Utils::FilePath::fromString(getAssetDefaultDirectory(
+            "effects",
+            QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath().toString())).toString();
+    }
+
     return getAssetDefaultDirectory("effects", defaultDir);
 }
 

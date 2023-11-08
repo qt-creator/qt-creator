@@ -19,7 +19,7 @@ Item {
     SaveDialog {
         id: saveDialog
         anchors.centerIn: parent
-        onAccepted: print("TODO: export and save effect files")
+        onAccepted: EffectMakerBackend.effectMakerModel.exportComposition(saveDialog.compositionName)
     }
 
     Column {

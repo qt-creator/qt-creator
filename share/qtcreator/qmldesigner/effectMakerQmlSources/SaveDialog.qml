@@ -17,8 +17,10 @@ StudioControls.Dialog {
     modal: true
     implicitWidth: 250
 
+    property string compositionName: null
+
     onOpened: {
-        nameText.text = ""
+        nameText.text = "" //TODO: Generate unique name
         emptyText.opacity = 0
         nameText.forceActiveFocus()
     }
@@ -47,7 +49,9 @@ StudioControls.Dialog {
                 validator: validator
 
                 onTextChanged: {
-                    emptyText.opacity = nameText.text === "" ? 1 : 0
+                    let validator = /^[A-Z]\w{2,}[A-Za-z0-9_]*$/
+                    emptyText.visible = text.length > 0 && !validator.test(text)
+                    btnSave.enabled = !emptyText.visible
                 }
                 Keys.onEnterPressed: btnSave.onClicked()
                 Keys.onReturnPressed: btnSave.onClicked()
@@ -76,7 +80,10 @@ StudioControls.Dialog {
 
                 text: qsTr("Save")
                 enabled: nameText.text !== ""
-                onClicked: root.accept()
+                onClicked: {
+                    root.compositionName = nameText.text
+                    root.accept() //TODO: Check if name is unique
+                }
             }
 
             HelperWidgets.Button {
