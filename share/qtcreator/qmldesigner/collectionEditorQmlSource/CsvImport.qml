@@ -91,7 +91,7 @@ StudioControls.Dialog {
         Row {
             spacing: 10
             Text {
-                text: qsTr("Collection name: ")
+                text: qsTr("The model name: ")
                 anchors.verticalCenter: parent.verticalCenter
                 color: StudioTheme.Values.themeTextColor
             }
@@ -145,7 +145,7 @@ StudioControls.Dialog {
 
                     PropertyChanges {
                         target: fieldErrorText
-                        text: qsTr("Collection name can not be empty")
+                        text: qsTr("The model name can not be empty")
                         visible: true
                     }
                 }

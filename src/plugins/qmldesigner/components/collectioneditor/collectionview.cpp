@@ -64,8 +64,8 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                             "CollectionEditor",
                             WidgetInfo::LeftPane,
                             0,
-                            tr("Collection Editor"),
-                            tr("Collection Editor view"));
+                            tr("Model Editor"),
+                            tr("Model Editor view"));
 }
 
 void CollectionView::modelAttached(Model *model)
@@ -89,7 +89,7 @@ void CollectionView::nodeReparented(const ModelNode &node,
 
 void CollectionView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    // removing the collections lib node
+    // removing the model lib node
     if (isStudioCollectionModel(removedNode))
         m_widget->sourceModel()->removeSource(removedNode);
 }
@@ -135,11 +135,11 @@ void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
 
     m_widget->setTargetNodeSelected(singleSelectedHasModelProperty);
 
-    // More than one collections are selected. So ignore them
+    // More than one model is selected. So ignore them
     if (selectedCollectionNodes.size() > 1)
         return;
 
-    if (selectedCollectionNodes.size() == 1) { // If exactly one collection is selected
+    if (selectedCollectionNodes.size() == 1) { // If exactly one model is selected
         m_widget->sourceModel()->selectSource(selectedCollectionNodes.first());
         return;
     }
@@ -161,7 +161,7 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
         VariantProperty nameProperty = resourceNode.variantProperty("objectName");
         sourceProperty.setValue(sourceAddress);
         nameProperty.setValue(name);
-        resourceNode.setIdWithoutRefactoring(model()->generateIdFromName(name, "collection"));
+        resourceNode.setIdWithoutRefactoring(model()->generateIdFromName(name, "model"));
         rootModelNode().defaultNodeAbstractProperty().reparentHere(resourceNode);
     });
 }
@@ -177,7 +177,7 @@ void CollectionView::refreshModel()
     if (!model())
         return;
 
-    // Load Collections
+    // Load Model Groups
     const ModelNodes collectionSourceNodes = rootModelNode().subModelNodesOfType(
                                                  jsonCollectionMetaInfo())
                                              + rootModelNode().subModelNodesOfType(

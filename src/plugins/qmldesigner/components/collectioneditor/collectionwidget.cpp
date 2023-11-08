@@ -74,7 +74,7 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     , m_collectionDetailsSortFilterModel(std::make_unique<CollectionDetailsSortFilterModel>())
     , m_quickWidget(new StudioQuickWidget(this))
 {
-    setWindowTitle(tr("Collection View", "Title of collection view widget"));
+    setWindowTitle(tr("Model Editor", "Title of model editor widget"));
 
     Core::IContext *icontext = nullptr;
     Core::Context context(Constants::C_QMLMATERIALBROWSER);
@@ -194,7 +194,7 @@ bool CollectionWidget::isCsvFile(const QString &csvFileAddress) const
     if (!file.exists())
         return false;
 
-    // TODO: Evaluate the csv file
+    // TODO: Evaluate the CSV file
     return true;
 }
 
@@ -253,7 +253,7 @@ bool CollectionWidget::addCollection(const QString &collectionName,
         QString errorMsg;
         bool added = m_sourceModel->addCollectionToSource(node, collectionName, &errorMsg);
         if (!added)
-            warn(tr("Can not add a collection to the json file"), errorMsg);
+            warn(tr("Can not add a model to the JSON file"), errorMsg);
         return added;
     }
 
@@ -268,8 +268,8 @@ void CollectionWidget::assignSourceNodeToSelectedItem(const QVariant &sourceNode
     QTC_ASSERT(sourceModel.isValid() && targetNode.isValid(), return);
 
     if (sourceModel.id().isEmpty()) {
-        warn(tr("Assigning the collection source"),
-             tr("The collection source must have a valid id to be assigned."));
+        warn(tr("Assigning the model group"),
+             tr("The model group must have a valid id to be assigned."));
         return;
     }
 

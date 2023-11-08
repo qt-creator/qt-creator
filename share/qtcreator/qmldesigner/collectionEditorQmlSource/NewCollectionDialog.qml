@@ -24,13 +24,13 @@ StudioControls.Dialog {
                                     && jsonCollections.isValid
                                     && newCollectionPath.isValid
 
-    title: qsTr("Add a new Collection")
+    title: qsTr("Add a new Model")
     anchors.centerIn: parent
     closePolicy: Popup.CloseOnEscape
     modal: true
 
     onOpened: {
-        collectionName.text = qsTr("Collection")
+        collectionName.text = qsTr("Model")
         updateType()
         updateJsonSourceIndex()
         updateCollectionExists()
@@ -53,7 +53,7 @@ StudioControls.Dialog {
     function updateType() {
         newCollectionPath.text = ""
         if (typeMode.currentValue === NewCollectionDialog.SourceType.NewJson) {
-            newCollectionFileDialog.nameFilters = ["Json Files (*.json)"]
+            newCollectionFileDialog.nameFilters = ["JSON Files (*.json)"]
             newCollectionFileDialog.fileMode = PlatformWidgets.FileDialog.SaveFile
             newCollectionPath.enabled = true
             jsonCollections.enabled = false
@@ -65,8 +65,8 @@ StudioControls.Dialog {
             jsonCollections.enabled = false
             typeMode.collectionType = "csv"
         } else if (typeMode.currentValue === NewCollectionDialog.SourceType.ExistingCollection) {
-            newCollectionFileDialog.nameFilters = ["All Collection Files (*.json *.csv)",
-                                                   "Json Files (*.json)",
+            newCollectionFileDialog.nameFilters = ["All Model Group Files (*.json *.csv)",
+                                                   "JSON Files (*.json)",
                                                    "Comma-Separated Values (*.csv)"]
             newCollectionFileDialog.fileMode = PlatformWidgets.FileDialog.OpenFile
             newCollectionPath.enabled = true
@@ -107,7 +107,6 @@ StudioControls.Dialog {
     component ErrorField: Text {
         Layout.columnSpan: 2
         color: StudioTheme.Values.themeError
-        text: qsTr("Collection name can not be empty")
         font.family: StudioTheme.Constants.font.family
         font.pixelSize: StudioTheme.Values.baseIconFontSize
     }
@@ -131,10 +130,10 @@ StudioControls.Dialog {
                 Layout.fillWidth: true
 
                 model: ListModel {
-                    ListElement { text: qsTr("New Json collection"); value: NewCollectionDialog.SourceType.NewJson}
-                    ListElement { text: qsTr("New CSV collection"); value: NewCollectionDialog.SourceType.NewCsv}
-                    ListElement { text: qsTr("Import an existing collection"); value: NewCollectionDialog.SourceType.ExistingCollection}
-                    ListElement { text: qsTr("Add collection to an available JSON"); value: NewCollectionDialog.SourceType.NewCollectionToJson}
+                    ListElement { text: qsTr("New JSON model group"); value: NewCollectionDialog.SourceType.NewJson}
+                    ListElement { text: qsTr("New CSV model"); value: NewCollectionDialog.SourceType.NewCsv}
+                    ListElement { text: qsTr("Import an existing model group"); value: NewCollectionDialog.SourceType.ExistingCollection}
+                    ListElement { text: qsTr("Add a model to an available JSON model group"); value: NewCollectionDialog.SourceType.NewCollectionToJson}
                 }
 
                 textRole: "text"
@@ -189,7 +188,7 @@ StudioControls.Dialog {
             }
 
             NameField {
-                text: qsTr("Json Collection")
+                text: qsTr("JSON model group")
                 visible: jsonCollections.enabled
             }
 
@@ -217,11 +216,11 @@ StudioControls.Dialog {
 
             ErrorField {
                 visible: !jsonCollections.isValid
-                text: qsTr("Add a json resource to continue")
+                text: qsTr("Add a JSON resource to continue")
             }
 
             NameField {
-                text: qsTr("Collection name")
+                text: qsTr("Model name")
                 visible: collectionName.enabled
             }
 
@@ -246,12 +245,12 @@ StudioControls.Dialog {
             }
 
             ErrorField {
-                text: qsTr("Collection name can not be empty")
+                text: qsTr("The model name can not be empty")
                 visible: collectionName.enabled && collectionName.text === ""
             }
 
             ErrorField {
-                text: qsTr("Collection name already exists %1").arg(collectionName.text)
+                text: qsTr("The model name already exists %1").arg(collectionName.text)
                 visible: collectionName.enabled && collectionName.alreadyExists
             }
         }

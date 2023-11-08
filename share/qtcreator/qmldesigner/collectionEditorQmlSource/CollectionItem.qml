@@ -130,7 +130,7 @@ Item {
     StudioControls.Dialog {
         id: deleteDialog
 
-        title: qsTr("Deleting whole collection")
+        title: qsTr("Deleting the model")
         clip: true
 
         contentItem: ColumnLayout {
@@ -144,13 +144,12 @@ Item {
                 color: StudioTheme.Values.themeTextColor
                 text: {
                     if (root.sourceType === "json") {
-                        qsTr("Are you sure that you want to delete collection \"%1\"?"
-                             + "\nYou can't undo this action if you proceed and "
-                             + "the collection will be removed from the json file.").arg(collectionName)
+                        qsTr("Are you sure that you want to delete model \"%1\"?"
+                             + "\nThe model will be deleted permanently.").arg(collectionName)
                     } else if (root.sourceType === "csv") {
-                        qsTr("Are you sure that you want to delete collection \"%1\"?"
-                             + "\nIn this case, the csv file will not be deleted, but "
-                             + "the collection model will be removed from the project.").arg(collectionName)
+                        qsTr("Are you sure that you want to delete model \"%1\"?"
+                             + "\nThe model will be removed from the project "
+                             + "but the file will not be deleted.").arg(collectionName)
                     }
                 }
             }
@@ -180,7 +179,7 @@ Item {
     StudioControls.Dialog {
         id: renameDialog
 
-        title: qsTr("Rename collection")
+        title: qsTr("Rename model")
 
         onAccepted: {
             if (newNameField.text !== "")

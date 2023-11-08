@@ -203,7 +203,7 @@ QHash<int, QByteArray> CollectionSourceModel::roleNames() const
                       {CollectionTypeRole, "sourceCollectionType"},
                       {SelectedRole, "sourceIsSelected"},
                       {SourceRole, "sourceAddress"},
-                      {CollectionsRole, "collections"}});
+                      {CollectionsRole, "internalModels"}});
     }
     return roles;
 }
@@ -295,13 +295,13 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
 
     int idx = sourceIndex(node);
     if (idx < 0)
-        return returnError(tr("Node is not indexed in the collections model."));
+        return returnError(tr("Node is not indexed in the models."));
 
     if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
-        return returnError(tr("Node should be a json collection model."));
+        return returnError(tr("Node should be a JSON model."));
 
     if (collectionExists(node, collectionName))
-        return returnError(tr("Collection does not exist."));
+        return returnError(tr("Model does not exist."));
 
     QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
                                     .value()
@@ -340,12 +340,12 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
 
         auto collections = m_collectionList.at(idx);
         if (collections.isNull())
-            return returnError(tr("No collection is available for the json file."));
+            return returnError(tr("No model is available for the JSON model group."));
 
         collections->selectCollectionName(collectionName);
         return true;
     } else {
-        return returnError(tr("Json document type should be an object containing collections."));
+        return returnError(tr("JSON document type should be an object containing models."));
     }
 }
 
@@ -445,7 +445,7 @@ void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, cons
     QTC_ASSERT(collectionList, return);
 
     auto emitRenameWarning = [this](const QString &msg) -> void {
-        emit this->warning(tr("Rename Collection"), msg);
+        emit this->warning(tr("Rename Model"), msg);
     };
 
     const ModelNode node = collectionList->sourceNode();
@@ -498,13 +498,13 @@ void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, cons
 
         if (!collectionContainsOldName) {
             emitRenameWarning(
-                tr("Collection doesn't contain the old collection name (%1).").arg(oldName));
+                tr("The model group doesn't contain the old model name (%1).").arg(oldName));
             return;
         }
 
         if (collectionContainsNewName) {
             emitRenameWarning(
-                tr("The collection name \"%1\" already exists in the source file.").arg(newName));
+                tr("The model name \"%1\" already exists in the model group.").arg(newName));
             return;
         }
 
@@ -537,7 +537,7 @@ void CollectionSourceModel::onCollectionsRemoved(const QStringList &removedColle
     QTC_ASSERT(collectionList, return);
 
     auto emitDeleteWarning = [this](const QString &msg) -> void {
-        emit warning(tr("Delete Collection"), msg);
+        emit warning(tr("Delete Model"), msg);
     };
 
     const ModelNode node = collectionList->sourceNode();
@@ -589,7 +589,7 @@ void CollectionSourceModel::onCollectionsRemoved(const QStringList &removedColle
             if (sourceContainsCollection) {
                 rootObject.remove(collectionName);
             } else {
-                emitDeleteWarning(tr("Collection doesn't contain the collection name (%1).")
+                emitDeleteWarning(tr("The model group doesn't contain the model name (%1).")
                                       .arg(sourceContainsCollection));
             }
         }

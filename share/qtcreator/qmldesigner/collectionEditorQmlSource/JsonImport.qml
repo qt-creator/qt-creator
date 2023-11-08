@@ -12,7 +12,7 @@ import StudioTheme as StudioTheme
 StudioControls.Dialog {
     id: root
 
-    title: qsTr("Import Collections")
+    title: qsTr("Import Models")
     anchors.centerIn: parent
     closePolicy: Popup.CloseOnEscape
     modal: true
@@ -21,7 +21,7 @@ StudioControls.Dialog {
     property bool fileExists: false
 
     onOpened: {
-        fileName.text = qsTr("New Json File")
+        fileName.text = qsTr("New JSON File")
         fileName.selectAll()
         fileName.forceActiveFocus()
     }

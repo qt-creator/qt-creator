@@ -76,7 +76,7 @@ Item {
                     id: collectionText
 
                     anchors.verticalCenter: parent.verticalCenter
-                    text: qsTr("Collections")
+                    text: qsTr("Data Models")
                     font.pixelSize: StudioTheme.Values.mediumIconFont
                     color: StudioTheme.Values.themeTextColor
                     leftPadding: 15
@@ -90,7 +90,7 @@ Item {
 
                     HelperWidgets.IconButton {
                         icon: StudioTheme.Constants.downloadjson_large
-                        tooltip: qsTr("Import Json")
+                        tooltip: qsTr("Import JSON")
 
                         onClicked: jsonImporter.open()
                     }
@@ -104,7 +104,7 @@ Item {
                 }
             }
 
-            Rectangle { // Collections
+            Rectangle { // Model Groups
                 Layout.fillWidth: true
                 color: StudioTheme.Values.themeBackgroundColorNormal
                 Layout.minimumHeight: 150
@@ -134,19 +134,17 @@ Item {
                 }
             }
 
-            Rectangle {
+            HelperWidgets.IconButton {
+                id: addCollectionButton
+
+                iconSize:16
                 Layout.fillWidth: true
-                Layout.preferredHeight: addCollectionButton.height
-                color: StudioTheme.Values.themeBackgroundColorNormal
+                Layout.minimumWidth: 24
+                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
 
-                IconTextButton {
-                    id: addCollectionButton
-
-                    anchors.centerIn: parent
-                    text: qsTr("Add new collection")
-                    icon: StudioTheme.Constants.create_medium
-                    onClicked: newCollection.open()
-                }
+                tooltip: qsTr("Add a new model")
+                icon: StudioTheme.Constants.create_medium
+                onClicked: newCollection.open()
             }
         }
 

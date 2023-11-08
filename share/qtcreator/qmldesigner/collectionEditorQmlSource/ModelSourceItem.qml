@@ -149,7 +149,7 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: root.expanded ? contentHeight : 0
             Layout.leftMargin: 6
-            model: collections
+            model: internalModels
             clip: true
 
             Behavior on Layout.preferredHeight {

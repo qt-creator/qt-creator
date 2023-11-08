@@ -116,7 +116,7 @@ Item {
 
         IconButton {
             icon: StudioTheme.Constants.export_medium
-            tooltip: qsTr("Export collection to a new file")
+            tooltip: qsTr("Export the model to a new file")
             enabled: root.model.collectionName !== ""
             onClicked: exportMenu.popup()
         }
@@ -228,7 +228,7 @@ Item {
                 }
 
                 Text {
-                    text: qsTr("The collection already contains \"%1\"!").arg(columnName.text)
+                    text: qsTr("The model already contains \"%1\"!").arg(columnName.text)
                     visible: columnName.text !== "" && !addColumnDialog.nameIsValid
                     color: StudioTheme.Values.themeRedLight
                     Layout.columnSpan: 2

@@ -307,7 +307,7 @@ Rectangle {
 
     Text {
         anchors.fill: parent
-        text: qsTr("Select a collection to continue")
+        text: qsTr("Select a model to continue")
         visible: !topRow.visible
         textFormat: Text.RichText
         color: StudioTheme.Values.themeTextColor
