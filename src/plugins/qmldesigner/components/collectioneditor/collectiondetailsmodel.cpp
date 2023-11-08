@@ -176,6 +176,7 @@ bool CollectionDetailsModel::insertRows(int row, int count, const QModelIndex &p
     m_currentCollection.insertEmptyElements(row, count);
     endInsertRows();
 
+    selectRow(row);
     return true;
 }
 
@@ -189,6 +190,11 @@ bool CollectionDetailsModel::removeColumns(int column, int count, const QModelIn
     bool columnsRemoved = m_currentCollection.removeColumns(column, count);
     endRemoveColumns();
 
+    int nextColumn = column - 1;
+    if (nextColumn < 0 && columnCount(parent) > 0)
+        nextColumn = 0;
+
+    selectColumn(nextColumn);
     return columnsRemoved;
 }
 

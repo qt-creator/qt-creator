@@ -44,8 +44,13 @@ protected:
 
 private:
     void updateEmpty();
+    void updateSelectedRow();
+    void updateSelectedColumn();
+    void updateRowCountChanges();
 
     QPointer<CollectionDetailsModel> m_source;
+    int m_selectedColumn = -1;
+    int m_selectedRow = -1;
     bool m_isEmpty = true;
 };
 

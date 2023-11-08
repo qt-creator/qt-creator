@@ -14,24 +14,24 @@ CollectionDetailsSortFilterModel::CollectionDetailsSortFilterModel(QObject *pare
     : QSortFilterProxyModel(parent)
 {
     connect(this, &CollectionDetailsSortFilterModel::rowsInserted,
-            this, &CollectionDetailsSortFilterModel::updateEmpty);
+            this, &CollectionDetailsSortFilterModel::updateRowCountChanges);
     connect(this, &CollectionDetailsSortFilterModel::rowsRemoved,
-            this, &CollectionDetailsSortFilterModel::updateEmpty);
+            this, &CollectionDetailsSortFilterModel::updateRowCountChanges);
     connect(this, &CollectionDetailsSortFilterModel::modelReset,
-            this, &CollectionDetailsSortFilterModel::updateEmpty);
+            this, &CollectionDetailsSortFilterModel::updateRowCountChanges);
+
+    setDynamicSortFilter(true);
 }
 
 void CollectionDetailsSortFilterModel::setSourceModel(CollectionDetailsModel *model)
 {
     m_source = model;
     Super::setSourceModel(model);
-    connect(m_source, &CollectionDetailsModel::selectedColumnChanged, this, [this](int sourceColumn) {
-        emit selectedColumnChanged(mapFromSource(m_source->index(0, sourceColumn)).column());
-    });
+    connect(m_source, &CollectionDetailsModel::selectedColumnChanged,
+            this, &CollectionDetailsSortFilterModel::updateSelectedColumn);
 
-    connect(m_source, &CollectionDetailsModel::selectedRowChanged, this, [this](int sourceRow) {
-        emit selectedRowChanged(mapFromSource(m_source->index(sourceRow, 0)).row());
-    });
+    connect(m_source, &CollectionDetailsModel::selectedRowChanged,
+            this, &CollectionDetailsSortFilterModel::updateSelectedRow);
 }
 
 int CollectionDetailsSortFilterModel::selectedRow() const
@@ -64,10 +64,12 @@ bool CollectionDetailsSortFilterModel::selectColumn(int column)
 
 CollectionDetailsSortFilterModel::~CollectionDetailsSortFilterModel() = default;
 
-bool CollectionDetailsSortFilterModel::filterAcceptsRow(
-    [[maybe_unused]] int sourceRow, [[maybe_unused]] const QModelIndex &sourceParent) const
+bool CollectionDetailsSortFilterModel::filterAcceptsRow(int sourceRow,
+                                                        const QModelIndex &sourceParent) const
 {
-    return true;
+    QTC_ASSERT(m_source, return false);
+    QModelIndex sourceIndex(m_source->index(sourceRow, 0, sourceParent));
+    return sourceIndex.isValid();
 }
 
 bool CollectionDetailsSortFilterModel::lessThan(const QModelIndex &sourceleft,
@@ -91,6 +93,63 @@ void CollectionDetailsSortFilterModel::updateEmpty()
         m_isEmpty = newValue;
         emit isEmptyChanged(m_isEmpty);
     }
+}
+
+void CollectionDetailsSortFilterModel::updateSelectedRow()
+{
+    const int upToDateSelectedRow = selectedRow();
+    if (m_selectedRow == upToDateSelectedRow)
+        return;
+
+    const int rows = rowCount();
+    const int columns = columnCount();
+    const int previousRow = m_selectedRow;
+
+    m_selectedRow = upToDateSelectedRow;
+    emit this->selectedRowChanged(m_selectedRow);
+
+    auto notifySelectedDataChanged = [this, rows, columns](int notifyingRow) {
+        if (notifyingRow > -1 && notifyingRow < rows && columns) {
+            emit dataChanged(index(notifyingRow, 0),
+                             index(notifyingRow, columns - 1),
+                             {CollectionDetailsModel::SelectedRole});
+        }
+    };
+
+    notifySelectedDataChanged(previousRow);
+    notifySelectedDataChanged(m_selectedRow);
+}
+
+void CollectionDetailsSortFilterModel::updateSelectedColumn()
+{
+    const int upToDateSelectedColumn = selectedColumn();
+    if (m_selectedColumn == upToDateSelectedColumn)
+        return;
+
+    const int rows = rowCount();
+    const int columns = columnCount();
+    const int previousColumn = m_selectedColumn;
+
+    m_selectedColumn = upToDateSelectedColumn;
+    emit this->selectedColumnChanged(m_selectedColumn);
+
+    auto notifySelectedDataChanged = [this, rows, columns](int notifyingCol) {
+        if (notifyingCol > -1 && notifyingCol < columns && rows) {
+            emit dataChanged(index(0, notifyingCol),
+                             index(rows - 1, notifyingCol),
+                             {CollectionDetailsModel::SelectedRole});
+        }
+    };
+
+    notifySelectedDataChanged(previousColumn);
+    notifySelectedDataChanged(m_selectedColumn);
+}
+
+void CollectionDetailsSortFilterModel::updateRowCountChanges()
+{
+    updateEmpty();
+    updateSelectedRow();
+    invalidate();
 }
 
 } // namespace QmlDesigner
