@@ -2782,10 +2782,27 @@ public:
             }
             const QString name = oo.prettyName(LookupContext::minimalName(decl, targetCoN,
                                                                           control));
-            const QString defText = inlinePrefix(
-                        targetFilePath, [defPos] { return defPos == DefPosOutsideClass; })
-                    + oo.prettyType(tn, name)
-                    + QLatin1String("\n{\n\n}");
+
+            const QString inlinePref = inlinePrefix(targetFilePath, [defPos] {
+                return defPos == DefPosOutsideClass;
+            });
+
+            const QString prettyType = oo.prettyType(tn, name);
+
+            QString input = prettyType;
+            int index = 0;
+            while (input.startsWith("template")) {
+                QRegularExpression templateRegex("template\\s*<[^>]*>");
+                QRegularExpressionMatch match = templateRegex.match(input);
+                if (match.hasMatch()) {
+                    index += match.captured().size() + 1;
+                    input = input.mid(match.captured().size() + 1);
+                }
+            }
+
+            QString defText = prettyType;
+            defText.insert(index, inlinePref);
+            defText += QLatin1String("\n{\n\n}");
 
             const int targetPos = targetFile->position(loc.line(), loc.column());
             const int targetPos2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
@@ -2901,7 +2918,7 @@ void InsertDefFromDecl::match(const CppQuickFixInterface &interface, QuickFixOpe
                             const bool isFreeFunction = func->enclosingClass() == nullptr;
 
                             // Insert Position: Outside Class
-                            if (!isFreeFunction) {
+                            if (!isFreeFunction || m_defPosOutsideClass) {
                                 result << new InsertDefOperation(interface, decl, declAST,
                                                                  InsertionLocation(),
                                                                  DefPosOutsideClass,

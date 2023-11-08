@@ -357,6 +357,7 @@ class InsertDefFromDecl: public CppQuickFixFactory
 {
 public:
     void match(const CppQuickFixInterface &interface, TextEditor::QuickFixOperations &result) override;
+    bool m_defPosOutsideClass = false;
 };
 
 class AddDeclarationForUndeclaredIdentifier : public CppQuickFixFactory

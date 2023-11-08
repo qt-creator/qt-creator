@@ -362,34 +362,38 @@ static bool endsWithPtrOrRef(const QString &type)
 void TypePrettyPrinter::visit(Function *type)
 {
     bool showTemplateParameters = _overview->showTemplateParameters;
-        QStringList nameParts = _name.split("::");
-        int i = nameParts.length() - 1;
-        for (Scope *s = type->enclosingScope(); s && i >= 0; s = s->enclosingScope()) {
-            if (s->asClass())
-                showTemplateParameters = true;
-            if (Template *templ = s->asTemplate(); templ && showTemplateParameters) {
-                QString &n = nameParts[i];
-                const int paramCount = templ->templateParameterCount();
-                if (paramCount > 0) {
-                    n += '<';
-                    for (int index = 0; index < paramCount; ++index) {
-                        if (index)
-                            n += QLatin1String(", ");
-                        QString arg = _overview->prettyName(
-                                    templ->templateParameterAt(index)->name());
-                        if (arg.isEmpty()) {
-                            arg += 'T';
-                            arg += QString::number(index + 1);
-                        }
-                        n += arg;
+    QStringList nameParts = _name.split("::");
+    int i = nameParts.length() - 1;
+    Scope *s = type->enclosingScope();
+    if (s && s->asTemplate())
+        s = s->enclosingScope();
+
+    for (; s && i >= 0; s = s->enclosingScope()) {
+        if (s->asClass())
+            showTemplateParameters = true;
+
+        if (Template *templ = s->asTemplate(); templ && showTemplateParameters) {
+            QString &n = nameParts[i];
+            const int paramCount = templ->templateParameterCount();
+            if (paramCount > 0) {
+                n += '<';
+                for (int index = 0; index < paramCount; ++index) {
+                    if (index)
+                        n += QLatin1String(", ");
+                    QString arg = _overview->prettyName(templ->templateParameterAt(index)->name());
+                    if (arg.isEmpty()) {
+                        arg += 'T';
+                        arg += QString::number(index + 1);
                     }
-                    n += '>';
+                    n += arg;
                 }
+                n += '>';
             }
-            if (s->identifier())
-                --i;
+        } else if (s->identifier()) {
+            --i;
         }
-        _name = nameParts.join("::");
+    }
+    _name = nameParts.join("::");
 
     if (_needsParens) {
         _text.prepend(QLatin1Char('('));
@@ -429,28 +433,30 @@ void TypePrettyPrinter::visit(Function *type)
     }
 
     if (_overview->showEnclosingTemplate) {
-        if (Template *templ = type->enclosingTemplate()) {
-            QString templateScope = "template<";
-            const int paramCount = templ->templateParameterCount();
-            for (int i = 0; i < paramCount; ++i) {
-                if (Symbol *param = templ->templateParameterAt(i)) {
-                    if (i > 0)
-                        templateScope.append(", ");
-                    if (TypenameArgument *typenameArg = param->asTypenameArgument()) {
-                        templateScope.append(QLatin1String(typenameArg->isClassDeclarator()
-                                                           ? "class " : "typename "));
-                        QString name = _overview->prettyName(typenameArg->name());
-                        if (name.isEmpty())
-                            name.append('T').append(QString::number(i + 1));
-                        templateScope.append(name);
-                    } else if (Argument *arg = param->asArgument()) {
-                        templateScope.append(operator()(arg->type(),
-                                                        _overview->prettyName(arg->name())));
+        for (Scope *s = type->enclosingScope(); s && i >= 0; s = s->enclosingScope()) {
+            if (Template *templ = s->asTemplate()) {
+                QString templateScope = "template<";
+                const int paramCount = templ->templateParameterCount();
+                for (int i = 0; i < paramCount; ++i) {
+                    if (Symbol *param = templ->templateParameterAt(i)) {
+                        if (i > 0)
+                            templateScope.append(", ");
+                        if (TypenameArgument *typenameArg = param->asTypenameArgument()) {
+                            templateScope.append(QLatin1String(
+                                typenameArg->isClassDeclarator() ? "class " : "typename "));
+                            QString name = _overview->prettyName(typenameArg->name());
+                            if (name.isEmpty())
+                                name.append('T').append(QString::number(i + 1));
+                            templateScope.append(name);
+                        } else if (Argument *arg = param->asArgument()) {
+                            templateScope.append(operator()(arg->type(),
+                                                            _overview->prettyName(arg->name())));
+                        }
                     }
                 }
+                if (paramCount > 0)
+                    _text.prepend(templateScope + ">\n");
             }
-            if (paramCount > 0)
-                _text.prepend(templateScope + ">\n");
         }
     }
 

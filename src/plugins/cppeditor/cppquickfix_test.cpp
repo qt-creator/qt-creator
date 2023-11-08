@@ -4999,6 +4999,34 @@ void QuickfixTest::testInsertDefFromDeclTemplateFunction()
     QuickFixOperationTest(singleDocument(original, expected), &factory);
 }
 
+void QuickfixTest::testInsertDefFromDeclTemplateClassAndTemplateFunction()
+{
+    QByteArray original =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "template<class U>\n"
+        "void Foo<T>::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    QuickFixOperationTest(singleDocument(original, expected), &factory);
+}
+
 void QuickfixTest::testInsertDefFromDeclFunctionWithSignedUnsignedArgument()
 {
     QByteArray original;
@@ -5396,6 +5424,115 @@ SpaceBeforeParens: Always
     prefs->setCodeStyleSettings(tempSettings);
     QuickFixOperationTest(testDocuments, &factory, {}, {}, {}, clangFormatSettings);
     prefs->setCodeStyleSettings(settings);
+}
+
+QList<TestDocumentPtr> singleHeader(const QByteArray &original, const QByteArray &expected)
+{
+    return {CppTestDocument::create("file.h", original, expected)};
+}
+
+void QuickfixTest::testInsertDefOutsideFromDeclTemplateClassAndTemplateFunction()
+{
+    QByteArray original =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "template<class U>\n"
+        "inline void Foo<T>::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    factory.m_defPosOutsideClass = true;
+    QuickFixOperationTest(singleHeader(original, expected), &factory);
+}
+
+void QuickfixTest::testInsertDefOutsideFromDeclTemplateClass()
+{
+    QByteArray original =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "template<class T>"
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "template<class T>\n"
+        "inline void Foo<T>::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    factory.m_defPosOutsideClass = true;
+    QuickFixOperationTest(singleHeader(original, expected), &factory);
+}
+
+void QuickfixTest::testInsertDefOutsideFromDeclTemplateFunction()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    template<class U>\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "template<class U>\n"
+        "inline void Foo::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    factory.m_defPosOutsideClass = true;
+    QuickFixOperationTest(singleHeader(original, expected), &factory);
+}
+
+void QuickfixTest::testInsertDefOutsideFromDeclFunction()
+{
+    QByteArray original =
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n";
+    QByteArray expected =
+        "class Foo\n"
+        "{\n"
+        "    void fun@c();\n"
+        "};\n"
+        "\n"
+        "inline void Foo::func()\n"
+        "{\n"
+        "\n"
+        "}\n";
+
+    InsertDefFromDecl factory;
+    factory.m_defPosOutsideClass = true;
+    QuickFixOperationTest(singleHeader(original, expected), &factory);
 }
 
 // Function for one of InsertDeclDef section cases
