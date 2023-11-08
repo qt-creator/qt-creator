@@ -132,11 +132,10 @@ Column {
                 }
             }
 
-            //TODO: Change the icon to outlined version
             HelperWidgets.AbstractButton {
                 style: StudioTheme.Values.viewBarButtonStyle
-                buttonIcon: previewAnimationRunning
-                            ? StudioTheme.Constants.pause : StudioTheme.Constants.playOutline_medium
+                buttonIcon: previewAnimationRunning ? StudioTheme.Constants.pause_medium
+                                                    : StudioTheme.Constants.playOutline_medium
                 tooltip: qsTr("Play Animation")
 
                 onClicked: {

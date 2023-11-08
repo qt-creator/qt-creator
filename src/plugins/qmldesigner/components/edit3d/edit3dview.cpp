@@ -1029,7 +1029,7 @@ void Edit3DView::createEdit3DActions()
     createSeekerSliderAction();
 
     m_bakeLightsAction = std::make_unique<Edit3DBakeLightsAction>(
-        toolbarIcon(DesignerIcons::EditLightIcon), //: TODO placeholder icon
+        toolbarIcon(DesignerIcons::BakeLightIcon),
         this,
         bakeLightsTrigger);
 

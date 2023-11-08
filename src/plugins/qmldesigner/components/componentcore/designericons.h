@@ -54,6 +54,7 @@ public:
         AnnotationIcon,
         ArrangeIcon,
         BackspaceIcon,
+        BakeLightIcon,
         CameraIcon,
         CameraOrthographicIcon,
         CameraPerspectiveIcon,

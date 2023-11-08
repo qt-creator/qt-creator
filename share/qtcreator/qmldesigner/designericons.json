@@ -221,6 +221,9 @@
         "EditColorIcon": {
             "iconName": "colorSelection_medium"
         },
+        "BakeLightIcon": {
+            "iconName": "bakeLights_medium"
+        },
         "EditLightIcon": {
             "Off": {
                 "iconName": "editLightOff_medium"

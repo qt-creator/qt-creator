@@ -60,6 +60,7 @@ Item {
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.code
                 tooltip: qsTr("Open Shader in Code Editor")
+                visible: false // TODO: to be implemented
 
                 onClicked: {} // TODO
             }
