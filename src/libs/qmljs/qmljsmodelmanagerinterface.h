@@ -10,9 +10,10 @@
 
 #include <cplusplus/CppDocument.h>
 #include <utils/environment.h>
+#include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qrcparser.h>
-#include <utils/filepath.h>
+#include <utils/synchronizedvalue.h>
 
 #include <QFuture>
 #include <QHash>
@@ -117,6 +118,9 @@ public:
     QmlJS::Snapshot snapshot() const;
     QmlJS::Snapshot newestSnapshot() const;
     QThreadPool *threadPool();
+
+    QSet<Utils::FilePath> scannedPaths() const;
+    void removeFromScannedPaths(const PathsAndLanguages &pathsAndLanguages);
 
     void activateScan();
     void updateSourceFiles(const QList<Utils::FilePath> &files, bool emitDocumentOnDiskChanged);
@@ -242,17 +246,25 @@ private:
                          const std::function<void(Utils::QrcParser::ConstPtr)> &callback);
     ViewerContext getVContext(const ViewerContext &vCtx, const Document::Ptr &doc, bool limitToProject) const;
 
-    mutable QMutex m_mutex;
-    QmlJS::Snapshot m_validSnapshot;
-    QmlJS::Snapshot m_newestSnapshot;
-    PathsAndLanguages m_allImportPaths;
-    QList<Utils::FilePath> m_applicationPaths;
-    QList<Utils::FilePath> m_defaultImportPaths;
-    QmlJS::QmlLanguageBundles m_activeBundles;
-    QmlJS::QmlLanguageBundles m_extendedBundles;
-    QHash<Dialect, QmlJS::ViewerContext> m_defaultVContexts;
-    bool m_shouldScanImports = false;
-    QSet<Utils::FilePath> m_scannedPaths;
+    struct SyncedData
+    {
+        SyncedData(const QList<Utils::FilePath> &defaultImportPaths);
+        QmlJS::Snapshot m_validSnapshot;
+        QmlJS::Snapshot m_newestSnapshot;
+        PathsAndLanguages m_allImportPaths;
+        QList<Utils::FilePath> m_applicationPaths;
+        QList<Utils::FilePath> m_defaultImportPaths;
+        QmlJS::QmlLanguageBundles m_activeBundles;
+        QmlJS::QmlLanguageBundles m_extendedBundles;
+        QHash<Dialect, QmlJS::ViewerContext> m_defaultVContexts;
+        bool m_shouldScanImports = false;
+        QSet<Utils::FilePath> m_scannedPaths;
+        ProjectExplorer::Project *m_defaultProject = nullptr;
+        ProjectInfo m_defaultProjectInfo;
+        QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
+        QMultiHash<Utils::FilePath, ProjectExplorer::Project *> m_fileToProject;
+    };
+    Utils::SynchronizedValue<SyncedData> m_syncedData;
 
     QTimer *m_updateCppQmlTypesTimer = nullptr;
     QTimer *m_asyncResetTimer = nullptr;
@@ -261,15 +273,12 @@ private:
     Utils::QrcCache m_qrcCache;
     QHash<Utils::FilePath, QString> m_qrcContents;
 
-    CppDataHash m_cppDataHash;
-    QHash<QString, QList<CPlusPlus::Document::Ptr>> m_cppDeclarationFiles;
-    mutable QMutex m_cppDataMutex;
-
-    // project integration
-    QMap<ProjectExplorer::Project *, ProjectInfo> m_projects;
-    ProjectInfo m_defaultProjectInfo;
-    ProjectExplorer::Project *m_defaultProject = nullptr;
-    QMultiHash<Utils::FilePath, ProjectExplorer::Project *> m_fileToProject;
+    struct SyncedCppData
+    {
+        CppDataHash m_cppDataHash;
+        QHash<QString, QList<CPlusPlus::Document::Ptr>> m_cppDeclarationFiles;
+    };
+    Utils::SynchronizedValue<SyncedCppData> m_syncedCppData;
 
     PluginDumper *m_pluginDumper = nullptr;
 
@@ -278,6 +287,30 @@ private:
 
     bool m_indexerDisabled = false;
     QThreadPool m_threadPool;
+
+private:
+    QList<Utils::FilePath> importPathsNames(const SyncedData &lockedData) const;
+
+    static void findNewLibraryImports(const Document::Ptr &doc,
+                                      const Snapshot &snapshot,
+                                      ModelManagerInterface *modelManager,
+                                      Utils::FilePaths *importedFiles,
+                                      QSet<Utils::FilePath> *scannedPaths,
+                                      QSet<Utils::FilePath> *newLibraries,
+                                      SyncedData *lockedData);
+
+    static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
+                                        const Snapshot &snapshot,
+                                        ModelManagerInterface *modelManager,
+                                        QList<Utils::FilePath> *importedFiles,
+                                        QSet<Utils::FilePath> *scannedPaths,
+                                        QSet<Utils::FilePath> *newLibraries,
+                                        bool ignoreMissing,
+                                        SyncedData *lockedData);
+
+    void updateLibraryInfo(const Utils::FilePath &path,
+                           const QmlJS::LibraryInfo &info,
+                           SyncedData &lockedData);
 };
 
 } // namespace QmlJS
