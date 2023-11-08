@@ -40,7 +40,6 @@ QmlProfilerSettings::QmlProfilerSettings()
     flushInterval.setRange(1, 10000000);
     flushInterval.setDefaultValue(1000);
     flushInterval.setLabelText(Tr::tr("Flush interval (ms):"));
-    flushInterval.setEnabler(&flushEnabled);
 
     lastTraceFile.setSettingsKey("Analyzer.QmlProfiler.LastTraceFile");
 
@@ -63,6 +62,8 @@ QmlProfilerSettings::QmlProfilerSettings()
     });
 
     readSettings();
+
+    flushInterval.setEnabler(&flushEnabled);
 }
 
 // QmlProfilerSettingsPage

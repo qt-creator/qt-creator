@@ -264,6 +264,8 @@ Projects
 * Added parsing the dependencies from `vcpkg.json` manifest files
 * Improved the addition of dependencies to `vcpkg.json`
 
+([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-edit-vcpkg-manifest-files.html))
+
 ### Qt Safe Renderer
 
 * Added a wizard for Qt Safe Renderer 2.1 and later

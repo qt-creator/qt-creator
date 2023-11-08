@@ -2676,7 +2676,7 @@ void tst_Tasking::testInThread()
     QFETCH(TestData, testData);
 
     const auto onSetup = [testData](ConcurrentCall<TestResult> &task) {
-        task.setConcurrentCallData(runInThread, testData);
+        task.setConcurrentCallData(&runInThread, testData);
     };
     const auto onDone = [testData](const ConcurrentCall<TestResult> &task) {
         QVERIFY(task.future().resultCount());

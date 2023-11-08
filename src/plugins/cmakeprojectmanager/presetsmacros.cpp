@@ -116,8 +116,10 @@ static Environment getEnvCombined(const std::optional<Environment> &optPresetEnv
     Environment result = env;
 
     if (optPresetEnv) {
-        optPresetEnv->forEachEntry([&result](const QString &key, const QString &value, bool) {
-            result.set(key, value);
+        optPresetEnv->forEachEntry([&result](const QString &key, const QString &value,
+                                             bool enabled) {
+            if (enabled)
+                result.set(key, value);
         });
     }
 
@@ -128,7 +130,9 @@ template<class PresetType>
 void expand(const PresetType &preset, Environment &env, const FilePath &sourceDirectory)
 {
     const Environment presetEnv = getEnvCombined(preset.environment, env);
-    presetEnv.forEachEntry([&](const QString &key, const QString &value_, bool) {
+    presetEnv.forEachEntry([&](const QString &key, const QString &value_, bool enabled) {
+        if (!enabled)
+            return;
         QString value = value_;
         expandAllButEnv(preset, sourceDirectory, value);
         value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
@@ -163,7 +167,9 @@ template<class PresetType>
 void expand(const PresetType &preset, EnvironmentItems &envItems, const FilePath &sourceDirectory)
 {
     const Environment presetEnv = preset.environment ? *preset.environment : Environment();
-    presetEnv.forEachEntry([&](const QString &key, const QString &value_, bool) {
+    presetEnv.forEachEntry([&](const QString &key, const QString &value_, bool enabled) {
+        if (!enabled)
+            return;
         QString value = value_;
         expandAllButEnv(preset, sourceDirectory, value);
         value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {

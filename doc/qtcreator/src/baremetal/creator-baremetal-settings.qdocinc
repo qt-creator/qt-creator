@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 //! [baremetal-common]
@@ -6,6 +6,8 @@
     \li In the \uicontrol Name field, enter a name for the connection.
     \li In the \uicontrol {Startup mode} field, select the mode to start
         the debug server provider in.
+    \li In the \uicontrol {Peripheral description file} field, specify a path to
+        a file that describes the peripherals on the device.
     \li In the \uicontrol Host field, select the host name and port number
         to connect to the debug server provider.
     \li In the \uicontrol {Executable file} field, enter the path to the

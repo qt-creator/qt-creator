@@ -8,7 +8,11 @@
 #include "terminalcommand.h"
 #include "utilstr.h"
 
+#include <QLoggingCategory>
 #include <QTemporaryFile>
+#include <QVersionNumber>
+
+Q_LOGGING_CATEGORY(log, "terminal.externalprocess", QtWarningMsg)
 
 namespace Utils {
 
@@ -17,21 +21,61 @@ ExternalTerminalProcessImpl::ExternalTerminalProcessImpl()
     setStubCreator(new ProcessStubCreator(this));
 }
 
+QString ExternalTerminalProcessImpl::openTerminalScriptAttached()
+{
+    static const QLatin1String script{R"(
+tell application "Terminal"
+    activate
+    set windowId to 0
+    set newTab to do script "%1 && exit"
+
+    -- Try to get window id
+    try
+        -- We have seen this work on macOS 13, and 12.5.1, but not on 14.0 or 14.1
+        set windowId to (the id of window 1 where its tab 1 = newTab) as text
+    on error eMsg number eNum
+        -- If we get an error we try to generate a known error that will contain the window id in its message
+        try
+            set windowId to window of newTab
+        on error eMsg number eNum
+            if eNum = -1728 then
+                try
+                    -- Search for "window id " in the error message, examples of error messages are:
+                    -- „Terminal“ hat einen Fehler erhalten: „window of tab 1 of window id 4018“ kann nicht gelesen werden.
+                    -- Terminal got an error: Can't get window of tab 1 of window id 4707.
+                    set windowIdPrefix to "window id "
+                    set theOffset to (offset of windowIdPrefix in eMsg)
+                    if theOffset = 0 then
+                        log "Failed to parse window id from error message: " & eMsg
+                    else
+                        set windowIdPosition to theOffset + (length of windowIdPrefix)
+                        set windowId to (first word of (text windowIdPosition thru -1 of eMsg)) as integer
+                    end if
+                on error eMsg2 number eNum2
+                    log "Failed to parse window id from error message: " & eMsg2 & " (" & eMsg & ") " & theOffset
+                end try
+            end if
+        end try
+    end try
+
+    repeat until ((count of processes of newTab) = 0)
+        delay 0.1
+    end repeat
+
+    if windowId is not equal to 0 then
+        close window id windowId
+    else
+        log "Cannot close window, sorry."
+    end if
+end tell
+    )"};
+
+    return script;
+}
+
 ProcessStubCreator::ProcessStubCreator(TerminalInterface *interface)
     : m_interface(interface)
 {}
-
-static const QLatin1String TerminalAppScriptAttached{R"(
-    tell application "Terminal"
-        activate
-        set newTab to do script "%1 && exit"
-        set win to (the id of window 1 where its tab 1 = newTab) as text
-        repeat until ((count of processes of newTab) = 0)
-            delay 0.1
-        end repeat
-        close window id win
-    end tell
-)"};
 
 static const QLatin1String TerminalAppScriptDetached{R"(
     tell application "Terminal"
@@ -52,8 +96,15 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
     bool detached = setupData.m_terminalMode == TerminalMode::Detached;
 
     if (HostOsInfo::isMacHost()) {
+        // There is a bug in macOS 14.0 where the script fails if it tries to find
+        // the window id. We will have to check in future versions of macOS if they fixed
+        // the issue.
+        static const QVersionNumber osVersionNumber = QVersionNumber::fromString(
+            QSysInfo::productVersion());
+
         static const QMap<QString, AppScript> terminalMap = {
-            {"Terminal.app", {TerminalAppScriptAttached, TerminalAppScriptDetached}},
+            {"Terminal.app",
+             {ExternalTerminalProcessImpl::openTerminalScriptAttached(), TerminalAppScriptDetached}},
         };
 
         if (terminalMap.contains(terminal.command.toString())) {
@@ -100,6 +151,17 @@ expected_str<qint64> ProcessStubCreator::startStubProcess(const ProcessSetupData
                 return make_unexpected(
                     Tr::tr("Failed to start terminal process: \"%1\".").arg(process->errorString()));
             }
+
+            QObject::connect(process, &Process::readyReadStandardOutput, process, [process] {
+                const QString output = process->readAllStandardOutput();
+                if (!output.isEmpty())
+                    qCWarning(log).noquote() << output;
+            });
+            QObject::connect(process, &Process::readyReadStandardError, process, [process] {
+                const QString output = process->readAllStandardError();
+                if (!output.isEmpty())
+                    qCCritical(log).noquote() << output;
+            });
 
             QObject::connect(process, &Process::done, m_interface, &TerminalInterface::onStubExited);
 

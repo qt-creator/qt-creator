@@ -156,8 +156,6 @@ FakeVimSettings::FakeVimSettings()
 
         Row ints { shiftWidth, tabStop, scrollOff, st };
 
-        vimRcPath.setEnabler(&readVimRc);
-
         Column strings {
             backspace,
             isKeyword,
@@ -238,6 +236,8 @@ FakeVimSettings::FakeVimSettings()
     });
 
     readSettings();
+
+    vimRcPath.setEnabler(&readVimRc);
 
 #endif
 }
