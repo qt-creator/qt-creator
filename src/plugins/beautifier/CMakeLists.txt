@@ -5,7 +5,7 @@ add_qtc_plugin(Beautifier
     artisticstyle/artisticstyle.cpp artisticstyle/artisticstyle.h
     beautifier.qrc
     beautifierconstants.h
-    beautifierplugin.cpp beautifierplugin.h
+    beautifierplugin.cpp
     beautifiertool.cpp beautifiertool.h
     beautifiertr.h
     clangformat/clangformat.cpp clangformat/clangformat.h

@@ -1,8 +1,6 @@
 // Copyright (C) 2016 Lorenz Haas
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "beautifierplugin.h"
-
 #include "beautifierconstants.h"
 #include "beautifiertr.h"
 #include "generalsettings.h"
@@ -20,6 +18,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
@@ -35,12 +35,14 @@
 
 #include <QMenu>
 
+using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace Beautifier::Internal {
 
-bool isAutoFormatApplicable(const Core::IDocument *document,
-                            const QList<Utils::MimeType> &allowedMimeTypes)
+static bool isAutoFormatApplicable(const IDocument *document,
+                                   const QList<MimeType> &allowedMimeTypes)
 {
     if (!document)
         return false;
@@ -48,8 +50,8 @@ bool isAutoFormatApplicable(const Core::IDocument *document,
     if (allowedMimeTypes.isEmpty())
         return true;
 
-    const Utils::MimeType documentMimeType = Utils::mimeTypeForName(document->mimeType());
-    return Utils::anyOf(allowedMimeTypes, [&documentMimeType](const Utils::MimeType &mime) {
+    const MimeType documentMimeType = mimeTypeForName(document->mimeType());
+    return anyOf(allowedMimeTypes, [&documentMimeType](const MimeType &mime) {
         return documentMimeType.inherits(mime.name());
     });
 }
@@ -59,36 +61,14 @@ class BeautifierPluginPrivate : public QObject
 public:
     BeautifierPluginPrivate();
 
-    void updateActions(Core::IEditor *editor = nullptr);
+    void updateActions(IEditor *editor = nullptr);
 
-    void autoFormatOnSave(Core::IDocument *document);
+    void autoFormatOnSave(IDocument *document);
 
     ArtisticStyle artisticStyleBeautifier;
     ClangFormat clangFormatBeautifier;
     Uncrustify uncrustifyBeautifier;
 };
-
-static BeautifierPluginPrivate *dd = nullptr;
-
-void BeautifierPlugin::initialize()
-{
-    Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(Tr::tr("Bea&utifier"));
-    menu->setOnAllDisabledBehavior(Core::ActionContainer::Show);
-    Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
-}
-
-void BeautifierPlugin::extensionsInitialized()
-{
-    dd = new BeautifierPluginPrivate;
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag BeautifierPlugin::aboutToShutdown()
-{
-    delete dd;
-    dd = nullptr;
-    return SynchronousShutdown;
-}
 
 BeautifierPluginPrivate::BeautifierPluginPrivate()
 {
@@ -97,20 +77,20 @@ BeautifierPluginPrivate::BeautifierPluginPrivate()
 
     updateActions();
 
-    const Core::EditorManager *editorManager = Core::EditorManager::instance();
-    connect(editorManager, &Core::EditorManager::currentEditorChanged,
+    const EditorManager *editorManager = EditorManager::instance();
+    connect(editorManager, &EditorManager::currentEditorChanged,
             this, &BeautifierPluginPrivate::updateActions);
-    connect(editorManager, &Core::EditorManager::aboutToSave,
+    connect(editorManager, &EditorManager::aboutToSave,
             this, &BeautifierPluginPrivate::autoFormatOnSave);
 }
 
-void BeautifierPluginPrivate::updateActions(Core::IEditor *editor)
+void BeautifierPluginPrivate::updateActions(IEditor *editor)
 {
     for (BeautifierTool *tool : BeautifierTool::allTools())
         tool->updateActions(editor);
 }
 
-void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
+void BeautifierPluginPrivate::autoFormatOnSave(IDocument *document)
 {
     if (!generalSettings().autoFormatOnSave())
         return;
@@ -142,7 +122,7 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
         const TextEditor::Command command = (*tool)->textCommand();
         if (!command.isValid())
             return;
-        const QList<Core::IEditor *> editors = Core::DocumentModel::editorsForDocument(document);
+        const QList<IEditor *> editors = DocumentModel::editorsForDocument(document);
         if (editors.isEmpty())
             return;
         if (auto widget = TextEditorWidget::fromEditor(editors.first()))
@@ -150,4 +130,33 @@ void BeautifierPluginPrivate::autoFormatOnSave(Core::IDocument *document)
     }
 }
 
+class BeautifierPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Beautifier.json")
+
+    void initialize() final
+    {
+        ActionContainer *menu = ActionManager::createMenu(Constants::MENU_ID);
+        menu->menu()->setTitle(Tr::tr("Bea&utifier"));
+        menu->setOnAllDisabledBehavior(ActionContainer::Show);
+        ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+    }
+
+    void extensionsInitialized() final
+    {
+        d = new BeautifierPluginPrivate;
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        delete d;
+        return SynchronousShutdown;
+    }
+
+    BeautifierPluginPrivate *d = nullptr;
+};
+
 } // Beautifier::Internal
+
+#include "beautifierplugin.moc"

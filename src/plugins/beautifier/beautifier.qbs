@@ -14,7 +14,6 @@ QtcPlugin {
         "beautifier.qrc",
         "beautifierconstants.h",
         "beautifierplugin.cpp",
-        "beautifierplugin.h",
         "beautifiertool.h",
         "beautifiertool.cpp",
         "beautifiertr.h",
