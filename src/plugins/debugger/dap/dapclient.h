@@ -81,7 +81,7 @@ public:
 
     virtual void sendInitialize();
 
-    void sendLaunch(const Utils::FilePath &executable);
+    void sendLaunch(const Utils::CommandLine &command);
     void sendAttach();
     void sendConfigurationDone();
 

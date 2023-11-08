@@ -53,7 +53,7 @@
     To specify settings for managing the GDB process, select \preferences >
     \uicontrol Debugger > \uicontrol GDB.
 
-    \image qtcreator-gdb-options.png "GDB preferences"
+    \image qtcreator-preferences-debugger-gdb.webp {GDB preferences}
 
     To specify a timeout for terminating non-responsive GDB processes, set the
     number of seconds to wait in the \uicontrol {GDB timeout} field. The default
@@ -110,6 +110,8 @@
     with \c python  on a separate line, and append \c end on a separate line.
     To execute arbitrary Python scripts, use
     \c {python execfile('/path/to/script.py')}.
+
+    \section2 Extended GDB Settings
 
     The settings in the \uicontrol Extended group give access to advanced
     or experimental functions of GDB.

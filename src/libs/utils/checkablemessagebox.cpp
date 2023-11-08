@@ -60,9 +60,11 @@ static QMessageBox::StandardButton exec(
         if (text.contains("<a "))
             msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
 
-        // Workaround for QTBUG-118241
+        // Workaround for QTBUG-118241, fixed in Qt 6.6.1
+#if QT_VERSION < QT_VERSION_CHECK(6, 6, 1)
         if (!buttonTextOverrides.isEmpty())
             msgBox.setOptions(QMessageBox::Option::DontUseNativeDialog);
+#endif // QT_VERSION < QT_VERSION_CHECK(6, 6, 1)
     }
 #endif
 

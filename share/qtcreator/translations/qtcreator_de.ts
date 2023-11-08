@@ -17857,27 +17857,27 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Round Up for .5 and Above</source>
-        <translation type="unfinished"></translation>
+        <translation>Ab 0,5 aufrunden</translation>
     </message>
     <message>
         <source>Always Round Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer aufrunden</translation>
     </message>
     <message>
         <source>Always Round Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Immer abrunden</translation>
     </message>
     <message>
         <source>Round Up for .75 and Above</source>
-        <translation type="unfinished"></translation>
+        <translation>Ab 0,75 aufrunden</translation>
     </message>
     <message>
         <source>Don&apos;t Round</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht runden</translation>
     </message>
     <message>
         <source>DPI rounding policy:</source>
-        <translation type="unfinished"></translation>
+        <translation>DPI-Rundungsstrategie:</translation>
     </message>
     <message>
         <source>Text codec for tools:</source>
@@ -17897,7 +17897,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>The DPI rounding policy change will take effect after restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Änderung der DPI-Rundungsstrategie wird nach einem Neustart wirksam.</translation>
     </message>
     <message>
         <source>Interface</source>
@@ -18071,19 +18071,19 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Show Menu Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Menüleiste anzeigen</translation>
     </message>
     <message>
         <source>Ctrl+Alt+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+Alt+M</translation>
     </message>
     <message>
         <source>Hide Menu Bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Menüleiste verbergen</translation>
     </message>
     <message>
         <source>This will hide the menu bar completely. You can show it again by typing %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies verbirgt die Menüleiste. Sie können Sie durch Eingeben von %1 wieder anzeigen.</translation>
     </message>
     <message>
         <source>Version:</source>
@@ -18313,7 +18313,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Reset to Default</source>
-        <translation type="unfinished">Auf Vorgabe zurücksetzen</translation>
+        <translation>Auf Vorgabe zurücksetzen</translation>
     </message>
     <message>
         <source>Error Details</source>
@@ -18394,7 +18394,7 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Sort categories</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategorien sortieren</translation>
     </message>
     <message>
         <source>Preferences</source>
@@ -18735,11 +18735,11 @@ Trotzdem fortfahren?</translation>
     </message>
     <message>
         <source>Remove the following files from the version control system (%1)?</source>
-        <translation type="unfinished"></translation>
+        <translation>Möchten Sie die folgenden Dateien aus der Versionskontrolle (%1) entfernen?</translation>
     </message>
     <message>
         <source>Note: This might remove the local file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Hinweis: Unter Umständen werden die lokalen Dateien gelöscht.</translation>
     </message>
     <message>
         <source>Add to Version Control</source>
@@ -20549,7 +20549,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Sort results</source>
-        <translation type="unfinished"></translation>
+        <translation>Ergebnisse sortieren</translation>
     </message>
     <message>
         <source>Case sensitive:</source>
@@ -21046,15 +21046,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Entry is missing a logging category name.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Name der Log-Kategorie fehlt im Eintrag.</translation>
     </message>
     <message>
         <source>Entry is missing data.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Eintrag fehlen Daten.</translation>
     </message>
     <message>
         <source>Invalid level: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültige Stufe: %1</translation>
     </message>
     <message>
         <source>Category</source>
@@ -21062,23 +21062,23 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Debug</source>
-        <translation type="unfinished">Debug</translation>
+        <translation>Debug</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Critical</source>
-        <translation type="unfinished"></translation>
+        <translation>Kritisch</translation>
     </message>
     <message>
         <source>Fatal</source>
-        <translation type="unfinished"></translation>
+        <translation>Fatal</translation>
     </message>
     <message>
         <source>Info</source>
-        <translation type="unfinished">Info</translation>
+        <translation>Info</translation>
     </message>
     <message>
         <source>Type</source>
@@ -21090,15 +21090,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Filter Qt Internal Log Categories</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt-interne Log-Kategorien ausschließen</translation>
     </message>
     <message>
         <source>Filter categories by regular expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Kategorien mit regulärem Ausdruck filtern</translation>
     </message>
     <message>
         <source>Invalid regular expression: %1</source>
-        <translation type="unfinished">Ungültiger regulärer Ausdruck: %1</translation>
+        <translation>Ungültiger regulärer Ausdruck: %1</translation>
     </message>
     <message>
         <source>Start Logging</source>
@@ -21114,15 +21114,16 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Uncheck All %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle vom Typ %1 abwählen</translation>
     </message>
     <message>
         <source>Check All %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle vom Typ %1 auswählen</translation>
     </message>
     <message>
         <source>Reset All %1</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>%1 is &quot;Info&quot;, &quot;Debug&quot;, etc</translatorcomment>
+        <translation>Alle vom Typ %1 zurücksetzen</translation>
     </message>
     <message>
         <source>Save Enabled as Preset...</source>
@@ -21457,19 +21458,19 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Convert Comment to C-Style</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentar in C-Stil umwandeln</translation>
     </message>
     <message>
         <source>Convert Comment to C++-Style</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommentar in C++-Stil umwandeln</translation>
     </message>
     <message>
         <source>Move Function Documentation to Declaration</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionsdokumentation zur Deklaration verschieben</translation>
     </message>
     <message>
         <source>Move Function Documentation to Definition</source>
-        <translation type="unfinished"></translation>
+        <translation>Funktionsdokumentation zur Definition verschieben</translation>
     </message>
     <message>
         <source>Insert Virtual Functions of Base Classes</source>
@@ -21513,15 +21514,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Fold All Comment Blocks</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Kommentarblöcke einklappen</translation>
     </message>
     <message>
         <source>Unfold All Comment Blocks</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Kommentarblöcke ausklappen</translation>
     </message>
     <message>
         <source>C++ File Naming</source>
-        <translation type="unfinished"></translation>
+        <translation>Namenskonvention für C++-Dateien</translation>
     </message>
     <message>
         <source>The license template.</source>
@@ -22484,9 +22485,9 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message numerus="yes">
         <source>Checked %1 of %n function(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1 von einer Funktion geprüft</numerusform>
+            <numerusform>%1 von %n Funktionen geprüft</numerusform>
         </translation>
     </message>
     <message>
@@ -22535,11 +22536,11 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>Decision Forest</source>
-        <translation type="unfinished"></translation>
+        <translation>Decision Forest</translation>
     </message>
     <message>
         <source>Heuristics</source>
-        <translation type="unfinished"></translation>
+        <translation>Heuristik</translation>
     </message>
     <message>
         <source>Interpret ambiguous headers as C headers</source>
@@ -22583,15 +22584,15 @@ z.B. name = &quot;m_test_foo_&quot;:
     </message>
     <message>
         <source>&lt;p&gt;If background indexing is enabled, global symbol searches will yield more accurate results, at the cost of additional CPU load when the project is first opened. The indexing result is persisted in the project&apos;s build directory. If you disable background indexing, a faster, but less accurate, built-in indexer is used instead. The thread priority for building the background index can be adjusted since clangd 15.&lt;/p&gt;&lt;p&gt;Background Priority: Minimum priority, runs on idle CPUs. May leave &apos;performance&apos; cores unused.&lt;/p&gt;&lt;p&gt;Normal Priority: Reduced priority compared to interactive work.&lt;/p&gt;&lt;p&gt;Low Priority: Same priority as other clangd work.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Wenn sie das globale Indizieren aktivieren, liefert die globale Symbolsuche genauere Resultate, es erhöht aber die CPU-Last beim ersten Öffnen von Projekten. Das Resultat der Indizierung wird im Build-Verzeichnis des Projekts gespeichert. Wenn sie das globale Indizieren deaktivieren, wird stattdessen ein schnellerer, aber weniger genauer, integrierter Indexer benutzt. Seit Clangd 15 können Sie die Priorität für die Indizierungs-Threads anpassen.&lt;/p&gt;&lt;p&gt;Hintergrund-Priorität: Niedrigste Priorität, läuft nur auf leerlaufenden CPUs. Kann &quot;Performance&quot;-Kerne ungenutzt lassen.&lt;/p&gt;&lt;p&gt;Normale Priorität: Geringere Priorität im Vergleich zu interaktiven Aktivitäten.&lt;/p&gt;&lt;p&gt;Niedrige Priorität: Dieselbe Priorität wie andere Clangd-Aktivitäten.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The C/C++ backend to use for switching between header and source files.&lt;/p&gt;&lt;p&gt;While the clangd implementation has more capabilities than the built-in code model, it tends to find false positives.&lt;/p&gt;&lt;p&gt;When &quot;Try Both&quot; is selected, clangd is used only if the built-in variant does not find anything.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Bestimmt, welches C/C++-Backend zum Wechseln zwischen Header- und Quelldatei benutzt wird.&lt;/p&gt;&lt;p&gt;Die Clangd-Implementation hat mehr Fähigkeiten, aber auch einige Fehler, die nicht in der integrierten Variante vorhanden sind.&lt;/p&gt;&lt;p&gt;Wenn &quot;Beide versuchen&quot; ausgewählt ist, wird Clangd nur benutzt, wenn die integrierte Variant nichts findet.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;Which model clangd should use to rank possible completions.&lt;/p&gt;&lt;p&gt;This determines the order of candidates in the combo box when doing code completion.&lt;/p&gt;&lt;p&gt;The &quot;%1&quot; model used by default results from (pre-trained) machine learning and provides superior results on average.&lt;/p&gt;&lt;p&gt;If you feel that its suggestions stray too much from your expectations for your code base, you can try switching to the hand-crafted &quot;%2&quot; model.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;Das Modell, das Clangd für die Rangfolge der möglichen Vervollständigungen benutzen soll.&lt;/p&gt;&lt;p&gt;Dies bestimmt die Reihenfolge der Kandidaten im Drop-Down-Menü der Code-Vervollständigung.&lt;/p&gt;&lt;p&gt;Das voreingestellte Modell &quot;%1&quot; wurde durch maschinelles Lernen trainiert und bietet im Schnitt die besten Ergebnisse.&lt;/p&gt;&lt;p&gt;Falls dies für Ihren Code zu sehr von Ihren Erwartungen abweicht, können Sie auf das manuell erstellte Modell &quot;%2&quot; umstellen.&lt;p&gt;</translation>
     </message>
     <message>
         <source>Number of worker threads used by clangd. Background indexing also uses this many worker threads.</source>
@@ -22655,7 +22656,7 @@ Das integrierte Codemodell übernimmt Syntaxhervorhebung, Code-Vervollständigun
     </message>
     <message>
         <source>Completion ranking model:</source>
-        <translation type="unfinished"></translation>
+        <translation>Rangfolge-Modell für die Code-Vervollständigung:</translation>
     </message>
     <message>
         <source>Document update threshold:</source>
@@ -23007,7 +23008,7 @@ Flags: %3</translation>
     </message>
     <message>
         <source>collecting overrides...</source>
-        <translation type="unfinished"></translation>
+        <translation>Suche überschriebene Methoden...</translation>
     </message>
 </context>
 <context>
@@ -28336,11 +28337,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Docker executable not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausführbare Datei für Docker nicht gefunden</translation>
     </message>
     <message>
         <source>Failed to retrieve docker networks. Exit code: %1. Error: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Netzwerke konnten nicht abgerufen werden. Rückgabewert: %1. Fehler: %2</translation>
     </message>
     <message>
         <source>Path &quot;%1&quot; is not a directory or does not exist.</source>
@@ -28356,39 +28357,39 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Run as outside user:</source>
-        <translation type="unfinished"></translation>
+        <translation>Als Benutzer von außerhalb ausführen:</translation>
     </message>
     <message>
         <source>Do not modify entry point:</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstiegspunkt nicht ändern:</translation>
     </message>
     <message>
         <source>Enable flags needed for LLDB:</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviert Optionen, die für LLDB benötigt werden:</translation>
     </message>
     <message>
         <source>Extra arguments:</source>
-        <translation type="unfinished">Zusätzliche Argumente:</translation>
+        <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
         <source>Extra arguments to pass to docker create.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Argumente für docker create.</translation>
     </message>
     <message>
         <source>Network:</source>
-        <translation type="unfinished"></translation>
+        <translation>Netzwerk:</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>The path &quot;%1&quot; does not exist.</source>
-        <translation type="unfinished">Der Pfad &quot;%1&quot; existiert nicht.</translation>
+        <translation>Der Pfad &quot;%1&quot; existiert nicht.</translation>
     </message>
     <message>
         <source>stopped</source>
-        <translation type="unfinished"></translation>
+        <translation>angehalten</translation>
     </message>
     <message>
         <source>Error starting remote shell. No container.</source>
@@ -28400,15 +28401,15 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Image &quot;%1&quot; is not available.</source>
-        <translation type="unfinished"></translation>
+        <translation>Image &quot;%1&quot; ist nicht verfügbar.</translation>
     </message>
     <message>
         <source>Failed creating Docker container. Exit code: %1, output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Container konnte nicht erstellt werden. Rückgabewert: %1, Ausgabe: %2</translation>
     </message>
     <message>
         <source>Failed creating Docker container. No container ID received.</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Container konnte nicht erstellt werden. Keine Container-ID erhalten.</translation>
     </message>
     <message>
         <source>Docker daemon appears to be not running. Verify daemon is up and running and reset the Docker daemon in Docker device preferences or restart %1.</source>
@@ -28417,23 +28418,23 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed to create container shell (Out of memory).</source>
-        <translation type="unfinished"></translation>
+        <translation>Container-Shell konnte nicht erstellt werden (nicht genügend Speicherplatz).</translation>
     </message>
     <message>
         <source>Cannot start docker device from non-main thread</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Gerät kann nur vom Haupt-Thread gestartet werden</translation>
     </message>
     <message>
         <source>Device is shut down</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Gerät ist heruntergefahren</translation>
     </message>
     <message>
         <source>Docker system is not reachable</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-System ist nicht erreichbar</translation>
     </message>
     <message>
         <source>Running</source>
-        <translation type="unfinished">Läuft</translation>
+        <translation>Läuft</translation>
     </message>
     <message>
         <source>Docker Image Selection</source>
@@ -28505,7 +28506,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Host directories to mount into the container.</source>
-        <translation>Host-Verzeichnisse die in den Container eingehängt werden sollen.</translation>
+        <translation>Host-Verzeichnisse, die in den Container eingehängt werden sollen.</translation>
     </message>
     <message>
         <source>Maps paths in this list one-to-one to the docker container.</source>
@@ -28545,7 +28546,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed to start container.</source>
-        <translation type="unfinished"></translation>
+        <translation>Container konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Docker daemon appears to be stopped.</source>
@@ -28569,11 +28570,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Container state:</source>
-        <translation type="unfinished"></translation>
+        <translation>Container-Status:</translation>
     </message>
     <message>
         <source>Command line:</source>
-        <translation type="unfinished">Kommandozeile:</translation>
+        <translation>Kommandozeile:</translation>
     </message>
     <message>
         <source>Daemon state not evaluated.</source>
@@ -34167,27 +34168,27 @@ Ablaufdatum: %3</translation>
     </message>
     <message>
         <source>Symbols in Workspace</source>
-        <translation>Symbole im Arbeitsbereich</translation>
+        <translation>Symbole im Workspace</translation>
     </message>
     <message>
         <source>Locates symbols in the language server workspace.</source>
-        <translation>Findet Symbole im Arbeitsbereich des Language Servers.</translation>
+        <translation>Findet Symbole im Workspace des Language Servers.</translation>
     </message>
     <message>
         <source>Classes and Structs in Workspace</source>
-        <translation>Klassen und Strukturen im Arbeitsbereich</translation>
+        <translation>Klassen und Strukturen im Workspace</translation>
     </message>
     <message>
         <source>Locates classes and structs in the language server workspace.</source>
-        <translation>Findet Klassen und Strukturen im Arbeitsbereich des Language Servers.</translation>
+        <translation>Findet Klassen und Strukturen im Workspace des Language Servers.</translation>
     </message>
     <message>
         <source>Functions and Methods in Workspace</source>
-        <translation>Funktionen und Methoden im Arbeitsbereich</translation>
+        <translation>Funktionen und Methoden im Workspace</translation>
     </message>
     <message>
         <source>Locates functions and methods in the language server workspace.</source>
-        <translation>Findet Funktionen und Methoden im Arbeitsbereich des Language Servers.</translation>
+        <translation>Findet Funktionen und Methoden im Workspace des Language Servers.</translation>
     </message>
     <message>
         <source>Unexpectedly finished. Restarting in %1 seconds.</source>
@@ -34265,12 +34266,13 @@ Beispiel: *.cpp%1*.h</translation>
     </message>
     <message>
         <source>Workspace Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace-Konfiguration</translation>
     </message>
     <message>
         <source>Additional JSON configuration sent to all running language servers for this project.
 See the documentation of the specific language server for valid settings.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche JSON-Konfiguration, die an alle laufenden Language Server für dieses Projekt gesendet wird.
+Für gültige Einstellungen schauen Sie in die Dokumentation des benutzten Language Servers.</translation>
     </message>
     <message>
         <source>&amp;Add</source>
@@ -34310,7 +34312,7 @@ See the documentation of the specific language server for valid settings.</sourc
     <message>
         <source>failed to initialize</source>
         <extracomment>language client state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Initialisierung fehlgeschlagen</translation>
     </message>
     <message>
         <source>initialized</source>
@@ -34380,7 +34382,7 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Language Server</source>
-        <translation type="unfinished">Language Server</translation>
+        <translation>Language Server</translation>
     </message>
     <message>
         <source>Generic StdIO Language Server</source>
@@ -34536,15 +34538,15 @@ See the documentation of the specific language server for valid settings.</sourc
     </message>
     <message>
         <source>Create %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstelle %1</translation>
     </message>
     <message>
         <source>Rename %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 in %2 umbenennen</translation>
     </message>
     <message>
         <source>Delete %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 löschen</translation>
     </message>
 </context>
 <context>
@@ -43036,19 +43038,19 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Select PySide Version</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide-Version auswählen</translation>
     </message>
     <message>
         <source>Select which PySide version to install:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die zu installierende PySide-Version aus:</translation>
     </message>
     <message>
         <source>Latest PySide from the Python Package Index</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte PySide-Version aus dem Python-Paketindex</translation>
     </message>
     <message>
         <source>PySide %1 Wheel (%2)</source>
-        <translation type="unfinished"></translation>
+        <translation>PySide %1 Wheel (%2)</translation>
     </message>
     <message>
         <source>%1 installation missing for %2 (%3)</source>
@@ -43180,7 +43182,7 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Issues parsed from Python runtime output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Probleme, die in der Laufzeitausgabe von Python gefunden wurden.</translation>
     </message>
 </context>
 <context>
@@ -43998,11 +44000,11 @@ Die betroffenen Dateien sind:
     </message>
     <message>
         <source>File does not exist.</source>
-        <translation type="unfinished">Datei existiert nicht.</translation>
+        <translation>Datei existiert nicht.</translation>
     </message>
     <message>
         <source>File does not match filter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei entspricht nicht dem Filter.</translation>
     </message>
     <message>
         <source>Library Type</source>
@@ -44132,7 +44134,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Could not load kits in a reasonable amount of time.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kits konnten nicht in angemessener Zeit geladen werden.</translation>
     </message>
     <message>
         <source>The application &quot;%1&quot; could not be found.</source>
@@ -48453,7 +48455,7 @@ Der Kontrollprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Failed: %1</source>
@@ -48587,27 +48589,27 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Flags for rsync:</source>
-        <translation type="unfinished"></translation>
+        <translation>Optionen für rsync:</translation>
     </message>
     <message>
         <source>Transfer method:</source>
-        <translation type="unfinished"></translation>
+        <translation>Übertragungsmethode:</translation>
     </message>
     <message>
         <source>Use rsync if available. Otherwise use default transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze rsync, sofern verfügbar. Sonst Standardmethode verwenden.</translation>
     </message>
     <message>
         <source>Use sftp if available. Otherwise use default transfer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze SFTP, sofern verfügbar. Sonst Standardmethode verwenden.</translation>
     </message>
     <message>
         <source>Use default transfer. This might be slow.</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutze Standardmethode. Dies könnte langsam sein.</translation>
     </message>
     <message>
         <source>Unknown error occurred while trying to create remote directories</source>
-        <translation type="unfinished"></translation>
+        <translation>Beim Erstellen von entfernten Verzeichnissen ist ein unbekannter Fehler aufgetreten</translation>
     </message>
     <message>
         <source>rsync failed to start: %1</source>
@@ -48623,7 +48625,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Deploy files</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei-Deployment</translation>
     </message>
     <message>
         <source>Ignore missing files:</source>
@@ -55633,19 +55635,19 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Parsing canceled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Auswertung wurde abgebrochen.</translation>
     </message>
     <message>
         <source>Premature end of XML document.</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorzeitiges Ende des XML-Dokuments.</translation>
     </message>
     <message>
         <source>Could not parse hex number from &quot;%1&quot; (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; konnte nicht als Hexadezimalzahl ausgewertet werden (%2).</translation>
     </message>
     <message>
         <source>Trying to read element text although current position is not start of element.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde versucht, Elementtext zu lesen, obwohl die aktuelle Position nicht am Beginn eines Elements ist.</translation>
     </message>
     <message>
         <source>Unexpected child element while reading element text</source>
@@ -55669,7 +55671,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Unknown %1 kind &quot;%2&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein &quot;%2&quot; in Enum %1 gefunden</translation>
     </message>
     <message>
         <source>Could not parse error kind, tool not yet set.</source>
@@ -55805,7 +55807,7 @@ in &quot;%2&quot; aus.
     </message>
     <message>
         <source>Valgrind arguments:</source>
-        <translation>Valgrind-Argumente</translation>
+        <translation>Valgrind-Argumente:</translation>
     </message>
     <message>
         <source>Enable cache simulation</source>

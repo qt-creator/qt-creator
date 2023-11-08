@@ -412,7 +412,7 @@
 
     \list 1
         \li Select \preferences > \uicontrol Environment > \uicontrol System.
-            \image qtcreator-options-environment-system.png {System preferences}
+            \image qtcreator-preferences-environment-system.webp {System preferences}
         \li In \uicontrol {Maximum number of entries in "Recent Files"}, set
             the number of files to show.
     \endlist

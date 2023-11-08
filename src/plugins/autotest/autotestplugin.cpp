@@ -136,7 +136,6 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     TestFrameworkManager::registerTestFramework(&theCatchFramework());
 
     TestFrameworkManager::registerTestTool(&theCTestTool());
-    TestFrameworkManager::synchronizeSettings();
 
     m_resultsPane = TestResultsPane::instance();
 

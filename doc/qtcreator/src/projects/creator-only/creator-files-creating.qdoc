@@ -65,8 +65,7 @@
         \li Class and script files for Python projects.
     \row
         \li \uicontrol {vcpkg} (experimental)
-        \li \l {Managing Packages with vcpkg}{vcpkg package manager} manifest
-            files (vcpkg.json).
+        \li vcpkg package manager manifest files (vcpkg.json).
     \row
         \li \uicontrol {Nim} (experimental)
         \li Empty Nim source and script files.
@@ -74,7 +73,7 @@
 
     \sa {Create compiler explorer sessions}, {Create C++ classes},
     {Create OpenGL fragment and vertex shaders}, {Create resource files},
-    {Use project wizards}
+    {Create vcpkg manifest files}, {Use project wizards}
 */
 
 /*!

@@ -84,6 +84,7 @@ public:
     bool m_enabled = true;
     bool m_readOnly = false;
     bool m_autoApply = true;
+    bool m_hasEnabler = false;
     int m_spanX = 1;
     int m_spanY = 1;
     BaseAspect::ConfigWidgetCreator m_configWidgetCreator;
@@ -347,6 +348,8 @@ void BaseAspect::setEnabled(bool enabled)
 void BaseAspect::setEnabler(BoolAspect *checker)
 {
     QTC_ASSERT(checker, return);
+
+    d->m_hasEnabler = true;
 
     auto update = [this, checker] {
         BaseAspect::setEnabled(checker->isEnabled() && checker->volatileValue());
@@ -647,6 +650,10 @@ void BaseAspect::readSettings()
     if (settingsKey().isEmpty())
         return;
     QTC_ASSERT(theSettings, return);
+    // The enabler needs to be set up after reading the settings, otherwise
+    // changes from reading the settings will not update the enabled state
+    // because the updates are "quiet".
+    QTC_CHECK(!d->m_hasEnabler);
     const QVariant val = theSettings->value(settingsKey());
     setVariantValue(val.isValid() ? fromSettingsValue(val) : defaultVariantValue(), BeQuiet);
 }
@@ -1795,8 +1802,6 @@ LayoutItem BoolAspect::adoptButton(QAbstractButton *button)
 */
 void BoolAspect::addToLayout(Layouting::LayoutItem &parent)
 {
-    QTC_ASSERT(m_buffer == m_internal, m_buffer = m_internal);
-
     QCheckBox *checkBox = createSubWidget<QCheckBox>();
     addToLayoutHelper(parent, checkBox);
     bufferToGui();
@@ -1904,7 +1909,6 @@ void SelectionAspect::addToLayout(Layouting::LayoutItem &parent)
     QTC_CHECK(d->m_buttonGroup == nullptr);
     QTC_CHECK(!d->m_comboBox);
     QTC_ASSERT(d->m_buttons.isEmpty(), d->m_buttons.clear());
-    QTC_ASSERT(m_buffer == m_internal, m_buffer = m_internal);
 
     switch (d->m_displayStyle) {
     case DisplayStyle::RadioButtons:

@@ -49,29 +49,24 @@ CatchFramework::CatchFramework()
 
     abortAfter.setSettingsKey("AbortAfter");
     abortAfter.setRange(1, 9999);
-    abortAfter.setEnabler(&abortAfterChecked);
 
     benchmarkSamples.setSettingsKey("BenchSamples");
     benchmarkSamples.setRange(1, 999999);
     benchmarkSamples.setDefaultValue(100);
-    benchmarkSamples.setEnabler(&samplesChecked);
 
     benchmarkResamples.setSettingsKey("BenchResamples");
     benchmarkResamples.setRange(1, 9999999);
     benchmarkResamples.setDefaultValue(100000);
     benchmarkResamples.setToolTip(Tr::tr("Number of resamples for bootstrapping."));
-    benchmarkResamples.setEnabler(&resamplesChecked);
 
     confidenceInterval.setSettingsKey("BenchConfInt");
     confidenceInterval.setRange(0., 1.);
     confidenceInterval.setSingleStep(0.05);
     confidenceInterval.setDefaultValue(0.95);
-    confidenceInterval.setEnabler(&confidenceIntervalChecked);
 
     benchmarkWarmupTime.setSettingsKey("BenchWarmup");
     benchmarkWarmupTime.setSuffix(Tr::tr(" ms"));
     benchmarkWarmupTime.setRange(0, 10000);
-    benchmarkWarmupTime.setEnabler(&warmupChecked);
 
     abortAfterChecked.setSettingsKey("AbortChecked");
     abortAfterChecked.setLabelText(Tr::tr("Abort after"));
@@ -117,6 +112,14 @@ CatchFramework::CatchFramework()
     warnOnEmpty.setSettingsKey("WarnEmpty");
     warnOnEmpty.setLabelText(Tr::tr("Warn on empty tests"));
     warnOnEmpty.setToolTip(Tr::tr("Warns if a test section does not check any assertion."));
+
+    readSettings();
+
+    benchmarkWarmupTime.setEnabler(&warmupChecked);
+    confidenceInterval.setEnabler(&confidenceIntervalChecked);
+    benchmarkResamples.setEnabler(&resamplesChecked);
+    benchmarkSamples.setEnabler(&samplesChecked);
+    abortAfter.setEnabler(&abortAfterChecked);
 }
 
 ITestParser *CatchFramework::createTestParser()

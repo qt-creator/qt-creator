@@ -2701,10 +2701,7 @@ TimeoutTaskAdapter::~TimeoutTaskAdapter()
 
 void TimeoutTaskAdapter::start()
 {
-    if (*task() == milliseconds::zero())
-        QTimer::singleShot(0, this, [this] { emit done(true); });
-    else
-        m_timerId = scheduleTimeout(*task(), this, [this] { m_timerId = {}; emit done(true); });
+    m_timerId = scheduleTimeout(*task(), this, [this] { m_timerId = {}; emit done(true); });
 }
 
 } // namespace Tasking

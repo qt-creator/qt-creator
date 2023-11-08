@@ -52,7 +52,6 @@ GTestFramework::GTestFramework()
     iterations.setDefaultValue(1);
     iterations.setEnabled(false);
     iterations.setLabelText(Tr::tr("Iterations:"));
-    iterations.setEnabler(&repeat);
 
     seed.setSettingsKey("Seed");
     seed.setSpecialValueText({});
@@ -60,7 +59,6 @@ GTestFramework::GTestFramework()
     seed.setEnabled(false);
     seed.setLabelText(Tr::tr("Seed:"));
     seed.setToolTip(Tr::tr("A seed of 0 generates a seed based on the current timestamp."));
-    seed.setEnabler(&shuffle);
 
     runDisabled.setSettingsKey("RunDisabled");
     runDisabled.setLabelText(Tr::tr("Run disabled tests"));
@@ -95,14 +93,14 @@ GTestFramework::GTestFramework()
         // avoid problems if user messes around with the settings file
         bool ok = false;
         const int tmp = savedValue.toInt(&ok);
-        return ok ? groupMode.indexForItemValue(tmp) : GTest::Constants::Directory;
+        return groupMode.indexForItemValue(ok ? tmp : GTest::Constants::Directory);
     });
     groupMode.setToSettingsTransformation([this](const QVariant &value) {
         return groupMode.itemValueForIndex(value.toInt());
     });
     groupMode.addOption({Tr::tr("Directory"), {}, GTest::Constants::Directory});
     groupMode.addOption({Tr::tr("GTest Filter"), {}, GTest::Constants::GTestFilter});
-    groupMode.setDefaultValue(GTest::Constants::Directory);
+    groupMode.setDefaultValue(groupMode.indexForItemValue(GTest::Constants::Directory));
     groupMode.setLabelText(Tr::tr("Group mode:"));
     groupMode.setToolTip(Tr::tr("Select on what grouping the tests should be based."));
 
@@ -132,6 +130,11 @@ GTestFramework::GTestFramework()
     connect(this, &AspectContainer::applied, this, [] {
         TestTreeModel::instance()->rebuild({GTest::Constants::FRAMEWORK_ID});
     });
+
+    readSettings();
+
+    seed.setEnabler(&shuffle);
+    iterations.setEnabler(&repeat);
 }
 
 ITestParser *GTestFramework::createTestParser()
@@ -142,6 +145,12 @@ ITestParser *GTestFramework::createTestParser()
 ITestTreeItem *GTestFramework::createRootNode()
 {
     return new GTestTreeItem(this, displayName(), {}, ITestTreeItem::Root);
+}
+
+void GTestFramework::readSettings()
+{
+    Utils::AspectContainer::readSettings();
+    gtestFilter.setEnabled(groupMode.itemValue() == GTest::Constants::GTestFilter);
 }
 
 QString GTestFramework::currentGTestFilter()

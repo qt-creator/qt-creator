@@ -59,8 +59,9 @@
     \section1 Specifying Settings for Debug Server Providers
 
     To create connections to bare metal devices using a debug server provider,
-    select \preferences > \uicontrol Devices
-    > \uicontrol {Bare Metal} > \uicontrol Add > \uicontrol Default.
+    select \preferences > \uicontrol Devices > \uicontrol {Bare Metal} >
+    \uicontrol Add.
+
     The available settings depend on the debug server provider.
 
     \section2 EBlink
@@ -68,7 +69,7 @@
     \l{https://github.com/EmBitz/EBlink}{EBlink} is an ARM Cortex-M debug tool
     that supports squirrel scripting, live variables, and hot-plugging.
 
-    \image qtcreator-baremetal-eblink.png "Bare metal device preferences for EBlink"
+    \image qtcreator-baremetal-eblink.webp {Bare metal device preferences for EBlink}
 
     To specify settings for \EBlink:
 
@@ -105,7 +106,7 @@
     \l{https://www.segger.com/products/debug-probes/j-link/}{J-Link} is a line
     of debug probes by Segger.
 
-    \image qtcreator-baremetal-jlink.png "Bare metal device preferences for J-Link"
+    \image qtcreator-baremetal-jlink.webp "Bare metal device preferences for J-Link"
 
     To specify settings for J-Link debug probes:
 
@@ -137,7 +138,7 @@
     (JTAG) facility. It enables source level debugging with the GDB compiled
     for the ARM architecture.
 
-    \image qtcreator-baremetal-openocd.png "Bare metal device preferences for OpenOCD"
+    \image qtcreator-baremetal-openocd.webp "Bare metal device preferences for OpenOCD"
 
     To specify settings for \OpenOCD:
 
@@ -163,7 +164,7 @@
     \l{https://www.st.com/en/development-tools/stm32-programmers.html#products}
     {ST-LINK Utility} is used for programming STM32 microcontrollers.
 
-    \image qtcreator-baremetal-stlink.png "Bare metal device preferences for St-Link"
+    \image qtcreator-baremetal-stlink.webp "Bare metal device preferences for St-Link"
 
     To specify settings for St-Link:
 
@@ -202,7 +203,7 @@
 
     \image qtcreator-baremetal-uvision-simulator.png "Bare metal device preferences for uVision Simulator"
 
-    To specify settings for uVision Simulator or uVision St-Link Debugger:
+    To specify settings for uVision Simulator:
 
     \list 1
 
@@ -215,11 +216,11 @@
 
        \endlist
 
-    \section3 uVision St-Link Debugger
+    \section3 uVision St-Link or JLink Debugger
 
     \image qtcreator-baremetal-uvision-st-link.png "Bare metal device preferences for uVision St-Link"
 
-    To specify settings for uVision St-Link Debugger:
+    To specify settings for uVision St-Link or JLink Debugger:
 
     \list 1
 

@@ -120,8 +120,10 @@ OutlineWidgetStack::OutlineWidgetStack(OutlineFactory *factory) :
     m_toggleSort->setToolTip(Tr::tr("Sort Alphabetically"));
     connect(m_toggleSort, &QAbstractButton::clicked, this, &OutlineWidgetStack::toggleSort);
 
-    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged,
-            this, &OutlineWidgetStack::updateEditor);
+    connect(Core::EditorManager::instance(),
+            &Core::EditorManager::currentEditorChanged,
+            this,
+            &OutlineWidgetStack::updateCurrentEditor);
     connect(factory, &OutlineFactory::updateOutline,
             this, &OutlineWidgetStack::updateCurrentEditor);
     updateCurrentEditor();

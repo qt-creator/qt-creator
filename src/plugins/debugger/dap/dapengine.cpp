@@ -195,7 +195,7 @@ void DapEngine::handleDapInitialize()
 {
     QTC_ASSERT(state() == EngineRunRequested, qCDebug(logCategory()) << state());
 
-    m_dapClient->sendLaunch(runParameters().inferior.command.executable());
+    m_dapClient->sendLaunch(runParameters().inferior.command);
 
     qCDebug(logCategory()) << "handleDapLaunch";
 }
@@ -532,6 +532,9 @@ QString DapEngine::errorMessage(QProcess::ProcessError error) const
 
 void DapEngine::handleDapDone()
 {
+    if (state() == DebuggerFinished)
+        return;
+
     if (m_dapClient->dataProvider()->result() == ProcessResult::StartFailed) {
         notifyEngineSetupFailed();
         showMessage("ADAPTER START FAILED");
@@ -864,7 +867,7 @@ void DapEngine::refreshLocals(const QJsonArray &variables)
     if (currentItem && currentItem->iname.startsWith("watch"))
         currentItem->removeChildren();
 
-    for (auto variable : variables) {
+    for (const QJsonValueConstRef &variable : variables) {
         WatchItem *item = new WatchItem;
         const QString name = variable.toObject().value("name").toString();
 
