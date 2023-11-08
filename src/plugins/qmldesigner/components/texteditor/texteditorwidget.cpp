@@ -116,8 +116,24 @@ void TextEditorWidget::jumpToModelNode(const ModelNode &modelNode)
         int line, column;
         m_textEditor->editorWidget()->convertPosition(nodeOffset, &line, &column);
         m_textEditor->editorWidget()->gotoLine(line + 1, column);
+
+        highlightToModelNode(modelNode);
     }
     m_blockCursorSelectionSynchronisation = false;
+}
+
+void TextEditorWidget::highlightToModelNode(const ModelNode &modelNode)
+{
+    RewriterView *rewriterView = m_textEditorView->model()->rewriterView();
+    const int nodeOffset = rewriterView->nodeOffset(modelNode);
+    if (nodeOffset > 0) {
+        int line, column;
+        m_textEditor->editorWidget()->convertPosition(nodeOffset, &line, &column);
+
+        QTextCursor cursor = m_textEditor->textCursor();
+        cursor.setPosition(nodeOffset);
+        m_textEditor->editorWidget()->updateFoldingHighlight(cursor);
+    }
 }
 
 void TextEditorWidget::jumpTextCursorToSelectedModelNode()
@@ -217,6 +233,10 @@ bool TextEditorWidget::eventFilter(QObject *, QEvent *event)
                 return true;
             }
         }
+    } else if (event->type() == QEvent::FocusIn) {
+        m_textEditor->editorWidget()->updateFoldingHighlight(QTextCursor());
+    } else if (event->type() == QEvent::FocusOut) {
+        m_textEditor->editorWidget()->updateFoldingHighlight(QTextCursor());
     }
     return false;
 }
@@ -237,6 +257,20 @@ void TextEditorWidget::dragEnterEvent(QDragEnterEvent *dragEnterEvent)
         }
         dragEnterEvent->acceptProposedAction();
     }
+}
+
+void TextEditorWidget::dragMoveEvent(QDragMoveEvent *dragMoveEvent)
+{
+    QTextCursor cursor = m_textEditor->editorWidget()->cursorForPosition(dragMoveEvent->pos());
+    const int cursorPosition = cursor.position();
+    RewriterView *rewriterView = m_textEditorView->model()->rewriterView();
+
+    QTC_ASSERT(rewriterView, return );
+    ModelNode modelNode = rewriterView->nodeAtTextCursorPosition(cursorPosition);
+
+    if (!modelNode.isValid())
+        return;
+    highlightToModelNode(modelNode);
 }
 
 void TextEditorWidget::dropEvent(QDropEvent *dropEvent)
@@ -323,6 +357,7 @@ void TextEditorWidget::dropEvent(QDropEvent *dropEvent)
         actionManager.handleExternalAssetsDrop(dropEvent->mimeData());
     }
     m_textEditorView->model()->endDrag();
+    m_textEditor->editorWidget()->updateFoldingHighlight(QTextCursor());
 }
 
 } // namespace QmlDesigner

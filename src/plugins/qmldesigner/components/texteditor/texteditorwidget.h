@@ -47,10 +47,12 @@ public:
 
     void setBlockCursorSelectionSynchronisation(bool b);
     void jumpToModelNode(const ModelNode &modelNode);
+    void highlightToModelNode(const ModelNode &modelNode);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
+    void dragMoveEvent(QDragMoveEvent *dragMoveEvent) override;
     void dropEvent(QDropEvent *dropEvent) override;
 
 private:
