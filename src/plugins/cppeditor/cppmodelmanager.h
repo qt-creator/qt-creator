@@ -290,18 +290,12 @@ private:
     static void setupFallbackProjectPart();
 
     static void delayedGC();
-    static void recalculateProjectPartMappings();
 
     static void replaceSnapshot(const CPlusPlus::Snapshot &newSnapshot);
     static void removeFilesFromSnapshot(const QSet<Utils::FilePath> &removedFiles);
     static void removeProjectInfoFilesAndIncludesFromSnapshot(const ProjectInfo &projectInfo);
 
     static WorkingCopy buildWorkingCopyList();
-
-    static void ensureUpdated();
-    static Utils::FilePaths internalProjectFiles();
-    static ProjectExplorer::HeaderPaths internalHeaderPaths();
-    static ProjectExplorer::Macros internalDefinedMacros();
 
     static void dumpModelManagerConfiguration(const QString &logFileId);
     static void initCppTools();
