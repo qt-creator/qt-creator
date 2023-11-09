@@ -127,11 +127,17 @@ Item {
         }
     }
 
+    component Spacer: Item {
+        implicitWidth: 1
+        implicitHeight: StudioTheme.Values.columnGap
+    }
+
     StudioControls.Dialog {
         id: deleteDialog
 
         title: qsTr("Deleting the model")
         clip: true
+        implicitWidth: contentItem.width
 
         contentItem: ColumnLayout {
             spacing: 2
@@ -154,13 +160,10 @@ Item {
                 }
             }
 
-            Item { // spacer
-                Layout.fillWidth: true
-                Layout.preferredHeight: 20
-            }
+            Spacer {}
 
             RowLayout {
-                spacing: 10
+                spacing: StudioTheme.Values.sectionRowSpacing
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
                 HelperWidgets.Button {
@@ -190,7 +193,7 @@ Item {
             newNameField.text = collectionName
         }
 
-        contentItem: Column {
+        contentItem: ColumnLayout {
             spacing: 2
 
             Text {
@@ -198,51 +201,48 @@ Item {
                 color: StudioTheme.Values.themeTextColor
             }
 
-            Row {
-                spacing: 10
-                Text {
-                    text: qsTr("New name:")
-                    color: StudioTheme.Values.themeTextColor
-                }
+            Spacer {}
 
-                StudioControls.TextField {
-                    id: newNameField
+            Text {
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                text: qsTr("New name:")
+                color: StudioTheme.Values.themeTextColor
+            }
 
-                    anchors.verticalCenter: parent.verticalCenter
-                    actionIndicator.visible: false
-                    translationIndicator.visible: false
-                    validator: newNameValidator
+            StudioControls.TextField {
+                id: newNameField
 
-                    Keys.onEnterPressed: renameDialog.accept()
-                    Keys.onReturnPressed: renameDialog.accept()
-                    Keys.onEscapePressed: renameDialog.reject()
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                Layout.fillWidth: true
 
-                    onTextChanged: {
-                        btnRename.enabled = newNameField.text !== ""
-                    }
+                actionIndicator.visible: false
+                translationIndicator.visible: false
+                validator: newNameValidator
+
+                Keys.onEnterPressed: renameDialog.accept()
+                Keys.onReturnPressed: renameDialog.accept()
+                Keys.onEscapePressed: renameDialog.reject()
+
+                onTextChanged: {
+                    btnRename.enabled = newNameField.text !== ""
                 }
             }
 
-            Item { // spacer
-                width: 1
-                height: 20
-            }
+            Spacer {}
 
-            Row {
-                anchors.right: parent.right
-                spacing: 10
+            RowLayout {
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                spacing: StudioTheme.Values.sectionRowSpacing
 
                 HelperWidgets.Button {
                     id: btnRename
 
-                    anchors.verticalCenter: parent.verticalCenter
                     text: qsTr("Rename")
                     onClicked: renameDialog.accept()
                 }
 
                 HelperWidgets.Button {
                     text: qsTr("Cancel")
-                    anchors.verticalCenter: parent.verticalCenter
                     onClicked: renameDialog.reject()
                 }
             }

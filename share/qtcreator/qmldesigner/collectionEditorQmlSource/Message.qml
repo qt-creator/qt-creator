@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
@@ -17,22 +18,22 @@ StudioControls.Dialog {
     implicitWidth: 300
     modal: true
 
-    contentItem: Column {
-        spacing: 20
-        width: parent.width
+    contentItem: ColumnLayout {
+        spacing: StudioTheme.Values.sectionColumnSpacing
 
         Text {
+            Layout.fillWidth: true
             text: root.message
             color: StudioTheme.Values.themeTextColor
             wrapMode: Text.WordWrap
-            width: root.width
             leftPadding: 10
             rightPadding: 10
         }
 
         HelperWidgets.Button {
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+
             text: qsTr("Close")
-            anchors.right: parent.right
             onClicked: root.reject()
         }
     }

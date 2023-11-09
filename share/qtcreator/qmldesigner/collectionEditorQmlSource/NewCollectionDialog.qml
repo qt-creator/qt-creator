@@ -96,7 +96,7 @@ StudioControls.Dialog {
     }
 
     component NameField: Text {
-        Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
         horizontalAlignment: Qt.AlignRight
         verticalAlignment: Qt.AlignCenter
         color: StudioTheme.Values.themeTextColor
@@ -111,157 +111,168 @@ StudioControls.Dialog {
         font.pixelSize: StudioTheme.Values.baseIconFontSize
     }
 
+    component Spacer: Item {
+        Layout.minimumWidth: 1
+        Layout.preferredHeight: StudioTheme.Values.columnGap
+    }
+
     contentItem: ColumnLayout {
-        spacing: 10
-        GridLayout {
-            columns: 2
-            rowSpacing: 10
+        spacing: 5
 
-            NameField {
-                text: qsTr("Type")
+        NameField {
+            text: qsTr("Type")
+        }
+
+        StudioControls.ComboBox {
+            id: typeMode
+
+            property string collectionType
+
+            Layout.minimumWidth: 300
+            Layout.fillWidth: true
+
+            model: ListModel {
+                ListElement { text: qsTr("New JSON model group"); value: NewCollectionDialog.SourceType.NewJson}
+                ListElement { text: qsTr("New CSV model"); value: NewCollectionDialog.SourceType.NewCsv}
+                ListElement { text: qsTr("Import an existing model group"); value: NewCollectionDialog.SourceType.ExistingCollection}
+                ListElement { text: qsTr("Add a model to an available JSON model group"); value: NewCollectionDialog.SourceType.NewCollectionToJson}
             }
 
-            StudioControls.ComboBox {
-                id: typeMode
+            textRole: "text"
+            valueRole: "value"
+            actionIndicatorVisible: false
 
-                property string collectionType
+            onCurrentValueChanged: root.updateType()
+        }
 
-                Layout.minimumWidth: 300
-                Layout.fillWidth: true
+        Spacer {}
 
-                model: ListModel {
-                    ListElement { text: qsTr("New JSON model group"); value: NewCollectionDialog.SourceType.NewJson}
-                    ListElement { text: qsTr("New CSV model"); value: NewCollectionDialog.SourceType.NewCsv}
-                    ListElement { text: qsTr("Import an existing model group"); value: NewCollectionDialog.SourceType.ExistingCollection}
-                    ListElement { text: qsTr("Add a model to an available JSON model group"); value: NewCollectionDialog.SourceType.NewCollectionToJson}
-                }
-
-                textRole: "text"
-                valueRole: "value"
-                actionIndicatorVisible: false
-
-                onCurrentValueChanged: root.updateType()
-            }
+        RowLayout {
+            visible: newCollectionPath.enabled
 
             NameField {
                 text: qsTr("File location")
                 visible: newCollectionPath.enabled
             }
 
-            RowLayout {
-                visible: newCollectionPath.enabled
+            Text {
+                id: newCollectionPath
 
-                Text {
-                    id: newCollectionPath
+                readonly property bool isValid: !newCollectionPath.enabled || newCollectionPath.text !== ""
 
-                    readonly property bool isValid: !enabled || text !== ""
+                Layout.fillWidth: true
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                elide: Text.ElideRight
+                font.family: StudioTheme.Constants.font.family
+                font.pixelSize: StudioTheme.Values.baseIconFontSize
+                color: StudioTheme.Values.themePlaceholderTextColor
+            }
 
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-                    elide: Text.ElideRight
-                    font.family: StudioTheme.Constants.font.family
-                    font.pixelSize: StudioTheme.Values.baseIconFontSize
-                    color: StudioTheme.Values.themePlaceholderTextColor
+            HelperWidgets.Button {
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                text: qsTr("Select")
+
+                onClicked: newCollectionFileDialog.open()
+
+                PlatformWidgets.FileDialog {
+                    id: newCollectionFileDialog
+
+                    title: qsTr("Select source file")
+                    fileMode: PlatformWidgets.FileDialog.OpenFile
+                    acceptLabel: newCollectionFileDialog.fileMode === PlatformWidgets.FileDialog.OpenFile
+                                    ? qsTr("Open")
+                                    : qsTr("Add")
+
+                    onAccepted: newCollectionPath.text = newCollectionFileDialog.currentFile
                 }
-
-                HelperWidgets.Button {
-                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-                    text: qsTr("Select")
-
-                    onClicked: newCollectionFileDialog.open()
-
-                    PlatformWidgets.FileDialog {
-                        id: newCollectionFileDialog
-
-                        title: "Select source file"
-                        fileMode: PlatformWidgets.FileDialog.OpenFile
-                        acceptLabel: fileMode === PlatformWidgets.FileDialog.OpenFile ? qsTr("Open") : qsTr("Add")
-
-                        onAccepted: newCollectionPath.text = newCollectionFileDialog.currentFile
-                    }
-                }
-            }
-
-            ErrorField {
-                visible: !newCollectionPath.isValid
-                text: qsTr("Select a file to continue")
-            }
-
-            NameField {
-                text: qsTr("JSON model group")
-                visible: jsonCollections.enabled
-            }
-
-            StudioControls.ComboBox {
-                id: jsonCollections
-
-                readonly property bool isValid: !enabled || currentIndex !== -1
-
-                implicitWidth: 300
-                textRole: "sourceName"
-                valueRole: "sourceNode"
-                visible: enabled
-                actionIndicatorVisible: false
-
-                model: CollectionJsonSourceFilterModel {
-                    sourceModel: root.sourceModel
-                    onRowsInserted: root.updateJsonSourceIndex()
-                    onModelReset: root.updateJsonSourceIndex()
-                    onRowsRemoved: root.updateJsonSourceIndex()
-                }
-
-                onEnabledChanged: root.updateJsonSourceIndex()
-                onCurrentValueChanged: root.updateCollectionExists()
-            }
-
-            ErrorField {
-                visible: !jsonCollections.isValid
-                text: qsTr("Add a JSON resource to continue")
-            }
-
-            NameField {
-                text: qsTr("Model name")
-                visible: collectionName.enabled
-            }
-
-            StudioControls.TextField {
-                id: collectionName
-
-                readonly property bool isValid: !enabled || (text !== "" && !alreadyExists)
-                property bool alreadyExists
-
-                visible: enabled
-                actionIndicator.visible: false
-                translationIndicator.visible: false
-                validator: RegularExpressionValidator {
-                    regularExpression: /^\w+$/
-                }
-
-                Keys.onEnterPressed: btnCreate.onClicked()
-                Keys.onReturnPressed: btnCreate.onClicked()
-                Keys.onEscapePressed: root.reject()
-
-                onTextChanged: root.updateCollectionExists()
-            }
-
-            ErrorField {
-                text: qsTr("The model name can not be empty")
-                visible: collectionName.enabled && collectionName.text === ""
-            }
-
-            ErrorField {
-                text: qsTr("The model name already exists %1").arg(collectionName.text)
-                visible: collectionName.enabled && collectionName.alreadyExists
             }
         }
 
-        Item { // spacer
-            Layout.fillHeight: true
-            Layout.preferredWidth: 1
+        ErrorField {
+            visible: !newCollectionPath.isValid
+            text: qsTr("Select a file to continue")
         }
+
+        Spacer { visible: newCollectionPath.enabled }
+
+        NameField {
+            text: qsTr("JSON model group")
+            visible: jsonCollections.enabled
+        }
+
+        StudioControls.ComboBox {
+            id: jsonCollections
+
+            readonly property bool isValid: !jsonCollections.enabled || jsonCollections.currentIndex !== -1
+
+            Layout.fillWidth: true
+
+            implicitWidth: 300
+            textRole: "sourceName"
+            valueRole: "sourceNode"
+            visible: jsonCollections.enabled
+            actionIndicatorVisible: false
+
+            model: CollectionJsonSourceFilterModel {
+                sourceModel: root.sourceModel
+                onRowsInserted: root.updateJsonSourceIndex()
+                onModelReset: root.updateJsonSourceIndex()
+                onRowsRemoved: root.updateJsonSourceIndex()
+            }
+
+            onEnabledChanged: root.updateJsonSourceIndex()
+            onCurrentValueChanged: root.updateCollectionExists()
+        }
+
+        ErrorField {
+            visible: !jsonCollections.isValid
+            text: qsTr("Add a JSON resource to continue")
+        }
+
+        Spacer {visible: jsonCollections.visible }
+
+        NameField {
+            text: qsTr("The model name")
+            visible: collectionName.enabled
+        }
+
+        StudioControls.TextField {
+            id: collectionName
+
+            readonly property bool isValid: !collectionName.enabled
+                                            || (collectionName.text !== "" && !collectionName.alreadyExists)
+            property bool alreadyExists
+
+            Layout.fillWidth: true
+
+            visible: collectionName.enabled
+            actionIndicator.visible: false
+            translationIndicator.visible: false
+            validator: RegularExpressionValidator {
+                regularExpression: /^\w+$/
+            }
+
+            Keys.onEnterPressed: btnCreate.onClicked()
+            Keys.onReturnPressed: btnCreate.onClicked()
+            Keys.onEscapePressed: root.reject()
+
+            onTextChanged: root.updateCollectionExists()
+        }
+
+        ErrorField {
+            text: qsTr("The model name can not be empty")
+            visible: collectionName.enabled && collectionName.text === ""
+        }
+
+        ErrorField {
+            text: qsTr("The model name already exists %1").arg(collectionName.text)
+            visible: collectionName.enabled && collectionName.alreadyExists
+        }
+
+        Spacer { visible: collectionName.visible }
 
         RowLayout {
-            spacing: 10
+            spacing: StudioTheme.Values.sectionRowSpacing
             Layout.alignment: Qt.AlignRight | Qt.AlignBottom
 
             HelperWidgets.Button {

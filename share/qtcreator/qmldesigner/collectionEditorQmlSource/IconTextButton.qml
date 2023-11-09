@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 import StudioTheme as StudioTheme
 
 Rectangle {
@@ -10,42 +12,45 @@ Rectangle {
     required property string text
     required property string icon
 
+    property alias tooltip: toolTip.text
     property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
+    property int fontSize: StudioTheme.Values.baseFontSize
 
     implicitHeight: style.squareControlSize.height
     implicitWidth: rowAlign.width
 
     signal clicked()
 
-    Row {
+    RowLayout {
         id: rowAlign
-        spacing: 0
-        leftPadding: StudioTheme.Values.inputHorizontalPadding
-        rightPadding: StudioTheme.Values.inputHorizontalPadding
+
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: StudioTheme.Values.inputHorizontalPadding
 
         Text {
             id: iconItem
-            width: root.style.squareControlSize.width
-            height: root.height
-            anchors.verticalCenter: parent.verticalCenter
+
+            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             text: root.icon
             color: StudioTheme.Values.themeTextColor
             font.family: StudioTheme.Constants.iconFont.family
-            font.pixelSize: root.style.baseIconFontSize
+            font.pixelSize: StudioTheme.Values.bigFont
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
+            leftPadding: StudioTheme.Values.inputHorizontalPadding
         }
 
         Text {
             id: textItem
-            height: root.height
-            anchors.verticalCenter: parent.verticalCenter
+
+            Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             text: root.text
             color: StudioTheme.Values.themeTextColor
             font.family: StudioTheme.Constants.font.family
-            font.pixelSize: root.style.baseIconFontSize
+            font.pixelSize: StudioTheme.Values.baseFontSize
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
+            rightPadding: StudioTheme.Values.inputHorizontalPadding
         }
     }
 
@@ -56,13 +61,20 @@ Rectangle {
         onClicked: root.clicked()
     }
 
+    ToolTip {
+        id: toolTip
+
+        visible: mouseArea.containsMouse && text !== ""
+        delay: 1000
+    }
+
     states: [
         State {
             name: "default"
             when: !mouseArea.pressed && !mouseArea.containsMouse
             PropertyChanges {
                 target: root
-                color: StudioTheme.Values.themeBackgroundColorNormal
+                color: StudioTheme.Values.themeControlBackground
             }
         },
         State {

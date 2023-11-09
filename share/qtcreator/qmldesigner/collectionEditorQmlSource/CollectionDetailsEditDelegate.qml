@@ -5,6 +5,7 @@ import QtQuick
 import CollectionDetails 1.0 as CollectionDetails
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
+import StudioHelpers as StudioHelpers
 import StudioTheme 1.0 as StudioTheme
 import QtQuick.Templates as T
 
@@ -100,14 +101,23 @@ Item {
         implicitWidth: colorPicker.width + leftPadding + rightPadding
         padding: 8
 
-        HelperWidgets.ColorPicker {
+        StudioHelpers.ColorBackend {
+            id: colorBackend
+        }
+
+        StudioControls.ColorEditorPopup {
             id: colorPicker
 
-            property alias editValue: colorPicker.color
+            property alias editValue: colorBackend.color
+            color: colorBackend.color
 
-            width: 100
+            width: 200
 
             Keys.onEnterPressed: colorPicker.focus = false
+
+            onActivateColor: function(color) {
+                colorBackend.activateColor(color)
+            }
         }
 
         background: Rectangle {

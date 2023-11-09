@@ -44,13 +44,13 @@ Rectangle {
 
             color: StudioTheme.Values.themeTextColor
             text: root.model.collectionName
-            font.pixelSize: StudioTheme.Values.mediumIconFont
+            font.pixelSize: StudioTheme.Values.baseFontSize
             elide: Text.ElideRight
         }
 
         Item { // spacer
-            width: 1
-            height: 10
+            implicitWidth: 1
+            implicitHeight: 10
         }
 
         CollectionDetailsToolbar {
@@ -62,8 +62,8 @@ Rectangle {
         }
 
         Item { // spacer
-            width: 1
-            height: 5
+            implicitWidth: 1
+            implicitHeight: 5
         }
 
         GridLayout {
@@ -201,8 +201,8 @@ Rectangle {
 
                 Layout.preferredWidth: tableView.contentWidth
                 Layout.preferredHeight: tableView.contentHeight
-                Layout.minimumWidth: 10
-                Layout.minimumHeight: 10
+                Layout.minimumWidth: 100
+                Layout.minimumHeight: 20
                 Layout.maximumWidth: root.width
 
                 delegate: Rectangle {
@@ -405,8 +405,8 @@ Rectangle {
             deleteColumnDialog.open()
         }
 
-        contentItem: Column {
-            spacing: 2
+        contentItem: ColumnLayout {
+            spacing: StudioTheme.Values.sectionColumnSpacing
 
             Text {
                 text: qsTr("Are you sure that you want to delete column \"%1\"?").arg(
@@ -415,14 +415,9 @@ Rectangle {
                 color: StudioTheme.Values.themeTextColor
             }
 
-            Item { // spacer
-                width: 1
-                height: 20
-            }
-
-            Row {
-                anchors.right: parent.right
-                spacing: 10
+            RowLayout {
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                spacing: StudioTheme.Values.sectionRowSpacing
 
                 HelperWidgets.Button {
                     text: qsTr("Delete")

@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import QtQuickDesignerTheme 1.0
 import Qt.labs.platform as PlatformWidgets
 import HelperWidgets 2.0 as HelperWidgets
@@ -51,21 +52,30 @@ StudioControls.Dialog {
         onClosed: root.reject()
     }
 
-    contentItem: Column {
-        spacing: 10
+    component Spacer: Item {
+        implicitWidth: 1
+        implicitHeight: StudioTheme.Values.columnGap
+    }
 
-        Row {
-            spacing: 10
-            Text {
-                text: qsTr("File name: ")
-                anchors.verticalCenter: parent.verticalCenter
-                color: StudioTheme.Values.themeTextColor
-            }
+    contentItem: ColumnLayout {
+        spacing: 2
+
+        Text {
+            text: qsTr("File name: ")
+            color: StudioTheme.Values.themeTextColor
+        }
+
+        RowLayout {
+            spacing: StudioTheme.Values.sectionRowSpacing
+
+            Layout.fillWidth: true
 
             StudioControls.TextField {
                 id: fileName
 
-                anchors.verticalCenter: parent.verticalCenter
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                Layout.fillWidth: true
+
                 actionIndicator.visible: false
                 translationIndicator.visible: false
                 validator: fileNameValidator
@@ -74,49 +84,58 @@ StudioControls.Dialog {
                 Keys.onReturnPressed: btnCreate.onClicked()
                 Keys.onEscapePressed: root.reject()
 
-                onTextChanged: {
-                    root.fileExists = root.backendValue.isCsvFile(fileName.text)
-                }
+                onTextChanged: root.fileExists = root.backendValue.isCsvFile(fileName.text)
             }
 
             HelperWidgets.Button {
                 id: fileDialogButton
 
-                anchors.verticalCenter: parent.verticalCenter
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+
                 text: qsTr("Open")
                 onClicked: fileDialog.open()
             }
         }
 
-        Row {
-            spacing: 10
-            Text {
-                text: qsTr("The model name: ")
-                anchors.verticalCenter: parent.verticalCenter
-                color: StudioTheme.Values.themeTextColor
-            }
-
-            StudioControls.TextField {
-                id: collectionName
-
-                anchors.verticalCenter: parent.verticalCenter
-                actionIndicator.visible: false
-                translationIndicator.visible: false
-                validator: RegularExpressionValidator {
-                    regularExpression: /^\w+$/
-                }
-
-                Keys.onEnterPressed: btnCreate.onClicked()
-                Keys.onReturnPressed: btnCreate.onClicked()
-                Keys.onEscapePressed: root.reject()
-            }
-        }
+        Spacer {}
 
         Text {
+            text: qsTr("The model name: ")
+            color: StudioTheme.Values.themeTextColor
+        }
+
+        StudioControls.TextField {
+            id: collectionName
+
+            Layout.fillWidth: true
+
+            actionIndicator.visible: false
+            translationIndicator.visible: false
+            validator: RegularExpressionValidator {
+                regularExpression: /^\w+$/
+            }
+
+            Keys.onEnterPressed: btnCreate.onClicked()
+            Keys.onReturnPressed: btnCreate.onClicked()
+            Keys.onEscapePressed: root.reject()
+        }
+
+        Spacer { implicitHeight: StudioTheme.Values.controlLabelGap }
+
+        Label {
             id: fieldErrorText
 
+            Layout.fillWidth: true
+
             color: StudioTheme.Values.themeTextColor
-            anchors.right: parent.right
+            wrapMode: Label.WordWrap
+            padding: 5
+
+            background: Rectangle {
+                color: "transparent"
+                border.width: StudioTheme.Values.border
+                border.color: StudioTheme.Values.themeWarning
+            }
 
             states: [
                 State {
@@ -152,19 +171,16 @@ StudioControls.Dialog {
             ]
         }
 
-        Item { // spacer
-            width: 1
-            height: 20
-        }
+        Spacer {}
 
-        Row {
-            anchors.right: parent.right
-            spacing: 10
+        RowLayout {
+            spacing: StudioTheme.Values.sectionRowSpacing
+
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
             HelperWidgets.Button {
                 id: btnCreate
 
-                anchors.verticalCenter: parent.verticalCenter
                 text: qsTr("Import")
                 enabled: root.fileExists && collectionName.text !== ""
 
@@ -180,7 +196,6 @@ StudioControls.Dialog {
 
             HelperWidgets.Button {
                 text: qsTr("Cancel")
-                anchors.verticalCenter: parent.verticalCenter
                 onClicked: root.reject()
             }
         }

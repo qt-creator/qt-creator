@@ -82,7 +82,7 @@ Item {
 
                     text: StudioTheme.Constants.startNode
                     font.family: StudioTheme.Constants.iconFont.family
-                    font.pixelSize: expandButton.style.baseIconFontSize
+                    font.pixelSize: 6
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     color: textColor
@@ -188,27 +188,27 @@ Item {
         }
     }
 
+    component Spacer: Item {
+        implicitWidth: 1
+        implicitHeight: StudioTheme.Values.sectionColumnSpacing
+    }
+
     StudioControls.Dialog {
         id: deleteDialog
 
         title: qsTr("Deleting source")
 
-        contentItem: Column {
-            spacing: 2
+        contentItem: ColumnLayout {
+            spacing: StudioTheme.Values.sectionColumnSpacing
 
             Text {
                 text: qsTr("Are you sure that you want to delete source \"" + sourceName + "\"?")
                 color: StudioTheme.Values.themeTextColor
             }
 
-            Item { // spacer
-                width: 1
-                height: 20
-            }
-
-            Row {
-                anchors.right: parent.right
-                spacing: 10
+            RowLayout {
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                spacing: StudioTheme.Values.sectionRowSpacing
 
                 HelperWidgets.Button {
                     id: btnDelete
@@ -239,7 +239,7 @@ Item {
             newNameField.text = sourceName
         }
 
-        contentItem: Column {
+        contentItem: ColumnLayout {
             spacing: 2
 
             Text {
@@ -247,38 +247,35 @@ Item {
                 color: StudioTheme.Values.themeTextColor
             }
 
-            Row {
-                spacing: 10
-                Text {
-                    text: qsTr("New name:")
-                    color: StudioTheme.Values.themeTextColor
-                }
+            Spacer {}
 
-                StudioControls.TextField {
-                    id: newNameField
+            Text {
+                text: qsTr("New name:")
+                color: StudioTheme.Values.themeTextColor
+            }
 
-                    actionIndicator.visible: false
-                    translationIndicator.visible: false
-                    validator: newNameValidator
+            StudioControls.TextField {
+                id: newNameField
 
-                    Keys.onEnterPressed: renameDialog.accept()
-                    Keys.onReturnPressed: renameDialog.accept()
-                    Keys.onEscapePressed: renameDialog.reject()
+                Layout.fillWidth: true
+                actionIndicator.visible: false
+                translationIndicator.visible: false
+                validator: newNameValidator
 
-                    onTextChanged: {
-                        btnRename.enabled = newNameField.text !== ""
-                    }
+                Keys.onEnterPressed: renameDialog.accept()
+                Keys.onReturnPressed: renameDialog.accept()
+                Keys.onEscapePressed: renameDialog.reject()
+
+                onTextChanged: {
+                    btnRename.enabled = newNameField.text !== ""
                 }
             }
 
-            Item { // spacer
-                width: 1
-                height: 20
-            }
+            Spacer {}
 
-            Row {
-                anchors.right: parent.right
-                spacing: 10
+            RowLayout {
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                spacing: StudioTheme.Values.sectionRowSpacing
 
                 HelperWidgets.Button {
                     id: btnRename

@@ -67,40 +67,41 @@ Item {
             Layout.minimumWidth: 300
             Layout.fillWidth: !grid.isHorizontal
 
-            Rectangle {
+            RowLayout {
+                spacing: StudioTheme.Values.sectionRowSpacing
                 Layout.fillWidth: true
-                Layout.preferredHeight: StudioTheme.Values.height + 5
-                color: StudioTheme.Values.themeToolbarBackground
+                Layout.preferredHeight: 50
 
                 Text {
-                    id: collectionText
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                    Layout.fillWidth: true
 
-                    anchors.verticalCenter: parent.verticalCenter
                     text: qsTr("Data Models")
-                    font.pixelSize: StudioTheme.Values.mediumIconFont
+                    font.pixelSize: StudioTheme.Values.baseFontSize
                     color: StudioTheme.Values.themeTextColor
                     leftPadding: 15
                 }
 
-                Row {
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    rightPadding: 12
-                    spacing: 2
+                IconTextButton {
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
-                    HelperWidgets.IconButton {
-                        icon: StudioTheme.Constants.downloadjson_large
-                        tooltip: qsTr("Import JSON")
+                    icon: StudioTheme.Constants.import_medium
+                    text: qsTr("JSON")
+                    tooltip: qsTr("Import JSON")
+                    radius: StudioTheme.Values.smallRadius
 
-                        onClicked: jsonImporter.open()
-                    }
+                    onClicked: jsonImporter.open()
+                }
 
-                    HelperWidgets.IconButton {
-                        icon: StudioTheme.Constants.downloadcsv_large
-                        tooltip: qsTr("Import CSV")
+                IconTextButton {
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
-                        onClicked: csvImporter.open()
-                    }
+                    icon: StudioTheme.Constants.import_medium
+                    text: qsTr("CSV")
+                    tooltip: qsTr("Import CSV")
+                    radius: StudioTheme.Values.smallRadius
+
+                    onClicked: csvImporter.open()
                 }
             }
 

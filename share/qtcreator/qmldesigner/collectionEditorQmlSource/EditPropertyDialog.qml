@@ -12,8 +12,10 @@ StudioControls.Dialog {
 
     required property var model
     property int __propertyIndex: -1
+    property string __oldName
 
     title: qsTr("Edit Property")
+    clip: true
 
     function editProperty(index, initialPosition) {
         root.__propertyIndex = index
@@ -24,7 +26,7 @@ StudioControls.Dialog {
         let previousName = root.model.propertyName(root.__propertyIndex)
         let previousType = root.model.propertyType(root.__propertyIndex)
 
-        oldName.text = previousName
+        root.__oldName = previousName
         newNameField.text = previousName
 
         propertyType.initialType = previousType
@@ -39,7 +41,7 @@ StudioControls.Dialog {
     }
 
     onAccepted: {
-        if (newNameField.text !== "" && newNameField.text !== oldName.text)
+        if (newNameField.text !== "" && newNameField.text !== root.__oldName)
             root.model.renameColumn(root.__propertyIndex, newNameField.text)
 
         if (propertyType.changed || forceChangeType.checked)
@@ -51,66 +53,65 @@ StudioControls.Dialog {
         propertyType.currentIndex = propertyType.find(currentDatatype)
     }
 
-    contentItem: Column {
+    component Spacer: Item {
+        implicitWidth: 1
+        implicitHeight: StudioTheme.Values.columnGap
+    }
+
+    contentItem: ColumnLayout {
         spacing: 2
 
-        Grid {
-            spacing: 10
-            columns: 2
+        Text {
+            text: qsTr("Name")
+            color: StudioTheme.Values.themeTextColor
+        }
 
-            Text {
-                text: qsTr("Previous name")
-                color: StudioTheme.Values.themeTextColor
+        StudioControls.TextField {
+            id: newNameField
+
+            Layout.fillWidth: true
+
+            actionIndicator.visible: false
+            translationIndicator.visible: false
+
+            Keys.onEnterPressed: root.accept()
+            Keys.onReturnPressed: root.accept()
+            Keys.onEscapePressed: root.reject()
+
+            validator: RegularExpressionValidator {
+                regularExpression: /^\w+$/
             }
 
-            Text {
-                id: oldName
-                color: StudioTheme.Values.themeTextColor
+            onTextChanged: {
+                editButton.enabled = newNameField.text !== ""
             }
+        }
 
-            Text {
-                text: qsTr("New name")
-                color: StudioTheme.Values.themeTextColor
-            }
+        Spacer {}
 
-            StudioControls.TextField {
-                id: newNameField
+        Text {
+            text: qsTr("Type")
+            color: StudioTheme.Values.themeTextColor
+        }
 
-                actionIndicator.visible: false
-                translationIndicator.visible: false
+        StudioControls.ComboBox {
+            id: propertyType
 
-                Keys.onEnterPressed: root.accept()
-                Keys.onReturnPressed: root.accept()
-                Keys.onEscapePressed: root.reject()
+            Layout.fillWidth: true
 
-                validator: RegularExpressionValidator {
-                    regularExpression: /^\w+$/
-                }
+            property string initialType
+            readonly property bool changed: propertyType.initialType !== propertyType.currentText
 
-                onTextChanged: {
-                    editButton.enabled = newNameField.text !== ""
-                }
-            }
+            model: root.model.typesList()
+            actionIndicatorVisible: false
 
-            Text {
-                text: qsTr("Type")
-                color: StudioTheme.Values.themeTextColor
-            }
+            onInitialTypeChanged: propertyType.currentIndex = propertyType.find(initialType)
+        }
 
-            StudioControls.ComboBox {
-                id: propertyType
+        Spacer {}
 
-                property string initialType
-                readonly property bool changed: propertyType.initialType !== propertyType.currentText
-
-                model: root.model.typesList()
-                actionIndicatorVisible: false
-
-                onInitialTypeChanged: {
-                    let propertyIndex = propertyType.find(initialType)
-                    propertyType.currentIndex = propertyIndex
-                }
-            }
+        RowLayout {
+            spacing: StudioTheme.Values.sectionRowSpacing
 
             StudioControls.CheckBox {
                 id: forceChangeType
@@ -120,35 +121,41 @@ StudioControls.Dialog {
             Text {
                 text: qsTr("Force update values")
                 color: StudioTheme.Values.themeTextColor
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             }
         }
 
-        Item { // spacer
-            width: 1
-            height: 10
+        Spacer {
+            visible: warningBox.visible
+            implicitHeight: StudioTheme.Values.controlLabelGap
         }
 
         Rectangle {
             id: warningBox
 
+            Layout.fillWidth: true
+            Layout.preferredHeight: warning.height
+
             visible: propertyType.initialType !== propertyType.currentText
-            width: parent.width
-            height: warning.implicitHeight
             color: "transparent"
+            clip: true
             border.color: StudioTheme.Values.themeWarning
 
             RowLayout {
                 id: warning
 
-                anchors.fill: parent
+                width: parent.width
 
                 HelperWidgets.IconLabel {
-                    icon: StudioTheme.Constants.warning
+                    icon: StudioTheme.Constants.warning_medium
                     Layout.leftMargin: 10
                 }
 
                 Text {
-                    text: qsTr("Conversion from %1 to %2 may lead to irreversible data loss").arg(propertyType.initialType).arg(propertyType.currentText)
+                    text: qsTr("Conversion from %1 to %2 may lead to irreversible data loss")
+                        .arg(propertyType.initialType)
+                        .arg(propertyType.currentText)
+
                     color: StudioTheme.Values.themeTextColor
                     wrapMode: Text.WordWrap
                     Layout.fillWidth: true
@@ -157,15 +164,11 @@ StudioControls.Dialog {
             }
         }
 
-        Item { // spacer
-            visible: warningBox.visible
-            width: 1
-            height: 10
-        }
+        Spacer {}
 
-        Row {
-            anchors.right: parent.right
-            spacing: 10
+        RowLayout {
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+            spacing: StudioTheme.Values.sectionRowSpacing
 
             HelperWidgets.Button {
                 id: editButton
