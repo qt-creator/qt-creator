@@ -25,10 +25,14 @@ WindowManager::WindowManager()
 
 void WindowManager::registerDeclarativeType()
 {
-    [[maybe_unused]] static const int typeIndex = qmlRegisterSingletonType<WindowManager>(
-        "QtQuickDesignerWindowManager", 1, 0, "WindowManager", [](QQmlEngine *, QJSEngine *) {
-            return new WindowManager();
-        });
+    [[maybe_unused]] static const int typeIndex
+        = qmlRegisterSingletonType<WindowManager>("StudioWindowManager",
+                                                  1,
+                                                  0,
+                                                  "WindowManager",
+                                                  [](QQmlEngine *, QJSEngine *) {
+                                                      return new WindowManager();
+                                                  });
 }
 
 WindowManager::~WindowManager() {}

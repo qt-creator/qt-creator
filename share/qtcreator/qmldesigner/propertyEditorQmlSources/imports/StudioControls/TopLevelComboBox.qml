@@ -5,7 +5,7 @@ import QtQuick
 import QtQuick.Templates as T
 import StudioTheme as StudioTheme
 import QtQuickDesignerTheme
-import QtQuickDesignerWindowManager
+import StudioWindowManager
 
 T.ComboBox {
     id: control

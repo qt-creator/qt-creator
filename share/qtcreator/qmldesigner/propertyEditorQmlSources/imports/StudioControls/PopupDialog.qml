@@ -6,7 +6,7 @@ import QtQuick.Controls.Basic as Basic
 import QtQuick.Window
 import QtQuick.Shapes
 import StudioTheme as StudioTheme
-import QtQuickDesignerWindowManager
+import StudioWindowManager
 
 QtObject {
     id: root
