@@ -203,6 +203,13 @@ void Action::setCheckable(bool on)
         d->command->action()->setCheckable(on);
 }
 
+void Action::setMenuRole(QAction::MenuRole role)
+{
+    d->action.setMenuRole(role);
+    if (d->command)
+        d->command->action()->setMenuRole(role);
+}
+
 Command *Action::command() const
 {
     d->ensureCommand();

@@ -339,6 +339,9 @@ public:
     QAction *m_setModeSelectorStyleIconsOnlyAction = nullptr;
     QAction *m_themeAction = nullptr;
 
+    Action m_aboutIdeAction;
+    Action m_aboutPluginsAction;
+
     QToolButton *m_toggleLeftSideBarButton = nullptr;
     QToolButton *m_toggleRightSideBarButton = nullptr;
     QList<std::function<bool()>> m_preCloseListeners;
@@ -1885,35 +1888,30 @@ void ICorePrivate::registerDefaultActions()
         mhelp->addSeparator(Constants::G_HELP_ABOUT);
 
     // About IDE Action
-    icon = Icon::fromTheme("help-about");
-    if (HostOsInfo::isMacHost())
-        tmpaction = new QAction(icon,
-                                Tr::tr("About &%1").arg(QGuiApplication::applicationDisplayName()),
-                                this); // it's convention not to add dots to the about menu
-    else
-        tmpaction
-            = new QAction(icon,
-                          Tr::tr("About &%1...").arg(QGuiApplication::applicationDisplayName()),
-                          this);
-    tmpaction->setMenuRole(QAction::AboutRole);
-    cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_QTCREATOR);
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
-    connect(tmpaction, &QAction::triggered, this, &ICorePrivate::aboutQtCreator);
+    m_aboutIdeAction.setId(Constants::ABOUT_QTCREATOR);
+    m_aboutIdeAction.setIcon(Icon::fromTheme("help-about"));
+    m_aboutIdeAction.setText(
+        (HostOsInfo::isMacHost() ? Tr::tr("About &%1") : Tr::tr("About &%1..."))
+            .arg(QGuiApplication::applicationDisplayName()));
+    m_aboutIdeAction.setMenuRole(QAction::AboutRole);
+    m_aboutIdeAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    m_aboutIdeAction.setEnabled(true);
+    m_aboutIdeAction.setOnTriggered(this, [this] { aboutQtCreator(); });
 
-    //About Plugins Action
-    tmpaction = new QAction(Tr::tr("About &Plugins..."), this);
-    tmpaction->setMenuRole(QAction::ApplicationSpecificRole);
-    cmd = ActionManager::registerAction(tmpaction, Constants::ABOUT_PLUGINS);
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
-    connect(tmpaction, &QAction::triggered, this, &ICorePrivate::aboutPlugins);
+    // About Plugins Action
+    m_aboutPluginsAction.setId(Constants::ABOUT_PLUGINS);
+    m_aboutPluginsAction.setText(Tr::tr("About &Plugins..."));
+    m_aboutPluginsAction.setMenuRole(QAction::ApplicationSpecificRole);
+    m_aboutPluginsAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    m_aboutPluginsAction.setEnabled(true);
+    m_aboutPluginsAction.setOnTriggered(this, [this] { aboutPlugins(); });
+
     // About Qt Action
-    //    tmpaction = new QAction(Tr::tr("About &Qt..."), this);
-    //    cmd = ActionManager::registerAction(tmpaction, Constants:: ABOUT_QT);
-    //    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    //    tmpaction->setEnabled(true);
-    //    connect(tmpaction, &QAction::triggered, qApp, &QApplication::aboutQt);
+    //    aboutQtAction.setId(Constants:: ABOUT_QT);
+    //    aboutQtAction.setText(Tr::tr("About &Qt..."), this);
+    //    aboutQtAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    //    aboutQtAction.setEnabled(true);
+    //    aboutQtAction.setOnTriggered(this, &QApplication::aboutQt);
 
     // Change Log Action
     tmpaction = new QAction(Tr::tr("Change Log..."), this);

@@ -8,15 +8,10 @@
 #include "../icontext.h"
 #include "command.h"
 
-#include <QObject>
+#include <QAction>
 #include <QList>
 
 #include <functional>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-class QString;
-QT_END_NAMESPACE
 
 namespace Core {
 
@@ -55,6 +50,7 @@ public:
     void setChecked(bool on);
     void setVisible(bool on);
     void setCheckable(bool on);
+    void setMenuRole(QAction::MenuRole role);
 
     Command *command() const;
     QAction *commandAction() const;
