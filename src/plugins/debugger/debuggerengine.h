@@ -214,6 +214,7 @@ public:
     }
 
     QString partialVariable;
+    bool qmlFocusOnFrame = true; // QTCREATORBUG-29874
 };
 
 class Location

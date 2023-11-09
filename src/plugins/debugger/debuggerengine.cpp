@@ -2411,6 +2411,7 @@ void DebuggerEngine::updateWatchData(const QString &iname)
     // e.g. when changing the expression in a watcher.
     UpdateParameters params;
     params.partialVariable = iname;
+    params.qmlFocusOnFrame = false;
     doUpdateLocals(params);
 }
 

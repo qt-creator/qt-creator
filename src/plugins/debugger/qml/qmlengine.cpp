@@ -141,7 +141,7 @@ public:
     void evaluate(const QString expr, qint64 context, const QmlCallback &cb);
     void lookup(const LookupItems &items);
     void backtrace();
-    void updateLocals();
+    void updateLocals(bool focusOnFrame = true);
     void scope(int number, int frameNumber = -1);
     void scripts(int types = 4, const QList<int> ids = QList<int>(),
                  bool includeSource = false, const QVariant filter = QVariant());
@@ -215,6 +215,8 @@ public:
     QHash<int, QmlCallback> callbackForToken;
 
     FileInProjectFinder fileFinder;
+
+    bool skipFocusOnNextHandleFrame = false;
 
 private:
     ConsoleItem *constructLogItemTree(const QmlV8ObjectData &objectData, QList<int> &seenHandles);
@@ -791,7 +793,7 @@ void QmlEngine::assignValueInDebugger(WatchItem *item,
             StackHandler *handler = stackHandler();
             QString exp = QString("%1 = %2;").arg(expression).arg(value.toString());
             if (handler->isContentsValid() && handler->currentFrame().isUsable()) {
-                d->evaluate(exp, -1, [this](const QVariantMap &) { d->updateLocals(); });
+                d->evaluate(exp, -1, [this](const QVariantMap &) { d->updateLocals(false); });
             } else {
                 showMessage(Tr::tr("Cannot evaluate %1 in current stack frame.")
                             .arg(expression), ConsoleOutput);
@@ -941,8 +943,7 @@ void QmlEngine::quitDebugger()
 
 void QmlEngine::doUpdateLocals(const UpdateParameters &params)
 {
-    Q_UNUSED(params)
-    d->updateLocals();
+    d->updateLocals(params.qmlFocusOnFrame);
 }
 
 Context QmlEngine::languageContext() const
@@ -1292,13 +1293,14 @@ void QmlEnginePrivate::backtrace()
     runCommand(cmd, CB(handleBacktrace));
 }
 
-void QmlEnginePrivate::updateLocals()
+void QmlEnginePrivate::updateLocals(bool focusOnFrame)
 {
     //    { "seq"       : <number>,
     //      "type"      : "request",
     //      "command"   : "frame",
     //      "arguments" : { "number" : <frame number> }
     //    }
+    skipFocusOnNextHandleFrame = focusOnFrame;
 
     DebuggerCommand cmd(FRAME);
     cmd.arg(NUMBER, stackIndexLookup.value(engine->stackHandler()->currentIndex()));
@@ -2136,7 +2138,9 @@ void QmlEnginePrivate::handleFrame(const QVariantMap &response)
         currentFrameScopes.append(scopeIndex);
         this->scope(scopeIndex);
     }
-    engine->gotoLocation(stackHandler->currentFrame());
+
+    if (skipFocusOnNextHandleFrame)
+        engine->gotoLocation(stackHandler->currentFrame());
 
     // Send watchers list
     if (stackHandler->isContentsValid() && stackHandler->currentFrame().isUsable()) {
