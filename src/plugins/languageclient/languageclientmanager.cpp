@@ -159,6 +159,7 @@ void LanguageClientManager::clientFinished(Client *client)
     QTC_ASSERT(managerInstance, return);
 
     if (managerInstance->m_restartingClients.remove(client)) {
+        client->resetRestartCounter();
         client->reset();
         client->start();
         return;
