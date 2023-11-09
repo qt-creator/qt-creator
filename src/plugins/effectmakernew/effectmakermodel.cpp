@@ -488,6 +488,56 @@ QJsonObject nodeToJson(const CompositionNode &node)
     return nodeObject;
 }
 
+QString EffectMakerModel::getQmlEffectString()
+{
+    QString s;
+
+    s += QString("// Created with Qt Design Studio (version %1), %2\n\n")
+             .arg(qApp->applicationVersion(), QDateTime::currentDateTime().toString());
+    s += "import QtQuick\n";
+    s += '\n';
+    s += "Item {\n";
+    s += "    id: rootItem\n";
+    s += '\n';
+    if (m_shaderFeatures.enabled(ShaderFeatures::Source)) {
+        s += "    // This is the main source for the effect\n";
+        s += "    property Item source: null\n";
+    }
+    if (m_shaderFeatures.enabled(ShaderFeatures::Time)
+        || m_shaderFeatures.enabled(ShaderFeatures::Frame)) {
+        s += "    // Enable this to animate iTime property\n";
+        s += "    property bool timeRunning: false\n";
+    }
+    if (m_shaderFeatures.enabled(ShaderFeatures::Time)) {
+        s += "    // When timeRunning is false, this can be used to control iTime manually\n";
+        s += "    property real animatedTime: frameAnimation.elapsedTime\n";
+    }
+    if (m_shaderFeatures.enabled(ShaderFeatures::Frame)) {
+        s += "    // When timeRunning is false, this can be used to control iFrame manually\n";
+        s += "    property int animatedFrame: frameAnimation.currentFrame\n";
+    }
+    s += '\n';
+    // Custom properties
+    if (!m_exportedRootPropertiesString.isEmpty()) {
+        s += m_exportedRootPropertiesString;
+        s += '\n';
+    }
+    if (m_shaderFeatures.enabled(ShaderFeatures::Time)
+        || m_shaderFeatures.enabled(ShaderFeatures::Frame)) {
+        s += "    FrameAnimation {\n";
+        s += "        id: frameAnimation\n";
+        s += "        running: rootItem.timeRunning\n";
+        s += "    }\n";
+        s += '\n';
+    }
+
+    //TODO: Blue stuff goes here
+
+    s += getQmlComponentString(true);
+    s += "}\n";
+    return s;
+}
+
 void EffectMakerModel::exportComposition(const QString &name)
 {
     const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
@@ -519,6 +569,101 @@ void EffectMakerModel::exportComposition(const QString &name)
 
     saveFile.write(jsonDoc.toJson());
     saveFile.close();
+}
+
+void EffectMakerModel::exportResources(const QString &name)
+{
+    // Make sure that uniforms are up-to-date
+    updateCustomUniforms();
+
+    QString qmlFilename = name + ".qml";
+    QString vsFilename = name + ".vert.qsb";
+    QString fsFilename = name + ".frag.qsb";
+
+    // Shaders should be all lowercase
+    vsFilename = vsFilename.toLower();
+    fsFilename = fsFilename.toLower();
+
+    // Get effects dir
+    const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
+    const QString effectsResPath = effectsResDir.pathAppended(name).toString() + QDir::separator();
+
+    // Create the qmldir for effects
+    Utils::FilePath qmldirPath = effectsResDir.resolvePath(QStringLiteral("qmldir"));
+    QString qmldirContent = QString::fromUtf8(qmldirPath.fileContents().value_or(QByteArray()));
+    if (qmldirContent.isEmpty()) {
+        qmldirContent.append("module Effects\n");
+        qmldirPath.writeFileContents(qmldirContent.toUtf8());
+    }
+
+    // Create effect folder if not created
+    Utils::FilePath effectPath = Utils::FilePath::fromString(effectsResPath);
+    if (!effectPath.exists()) {
+        QDir effectDir(effectsResDir.toString());
+        effectDir.mkdir(name);
+    }
+
+    // Create effect qmldir
+    qmldirPath = effectPath.resolvePath(QStringLiteral("qmldir"));
+    qmldirContent = QString::fromUtf8(qmldirPath.fileContents().value_or(QByteArray()));
+    if (qmldirContent.isEmpty()) {
+        qmldirContent.append("module Effects.");
+        qmldirContent.append(name);
+        qmldirContent.append('\n');
+        qmldirContent.append(name);
+        qmldirContent.append(" 1.0 ");
+        qmldirContent.append(name);
+        qmldirContent.append(".qml\n");
+        qmldirPath.writeFileContents(qmldirContent.toUtf8());
+    }
+
+    // Create the qml file
+    QString qmlComponentString = getQmlEffectString();
+    QStringList qmlStringList = qmlComponentString.split('\n');
+
+    // Replace shaders with local versions
+    for (int i = 1; i < qmlStringList.size(); i++) {
+        QString line = qmlStringList.at(i).trimmed();
+        if (line.startsWith("vertexShader")) {
+            QString vsLine = "        vertexShader: '" + vsFilename + "'";
+            qmlStringList[i] = vsLine;
+        } else  if (line.startsWith("fragmentShader")) {
+            QString fsLine = "        fragmentShader: '" + fsFilename + "'";
+            qmlStringList[i] = fsLine;
+        }
+    }
+
+    const QString qmlString = qmlStringList.join('\n');
+    QString qmlFilePath = effectsResPath + qmlFilename;
+    writeToFile(qmlString.toUtf8(), qmlFilePath, FileType::Text);
+
+    // Export shaders and images
+    QStringList sources = {m_vertexShaderFilename, m_fragmentShaderFilename};
+    QStringList dests = {vsFilename, fsFilename};
+
+    const QList<Uniform *> uniforms = allUniforms();
+    for (const Uniform *uniform : uniforms) {
+        if (uniform->type() == Uniform::Type::Sampler && !uniform->value().toString().isEmpty()) {
+            QString imagePath = uniform->value().toString();
+            QFileInfo fi(imagePath);
+            QString imageFilename = fi.fileName();
+            sources.append(imagePath);
+            dests.append(imageFilename);
+        }
+    }
+
+    //TODO: Copy source files if requested in future versions
+
+    // Copy files
+    for (int i = 0; i < sources.count(); ++i) {
+        Utils::FilePath source = Utils::FilePath::fromString(sources[i]);
+        Utils::FilePath target = Utils::FilePath::fromString(effectsResPath + dests[i]);
+        if (target.exists())
+            target.removeFile(); // Remove existing file for update
+
+        if (!source.copyFile(target))
+            qWarning() << __FUNCTION__ << " Failed to copy file: " << source;
+    }
 }
 
 void EffectMakerModel::resetEffectError(int type)

@@ -19,7 +19,11 @@ Item {
     SaveDialog {
         id: saveDialog
         anchors.centerIn: parent
-        onAccepted: EffectMakerBackend.effectMakerModel.exportComposition(saveDialog.compositionName)
+        onAccepted: {
+            let name = saveDialog.compositionName
+            EffectMakerBackend.effectMakerModel.exportComposition(name)
+            EffectMakerBackend.effectMakerModel.exportResources(name)
+        }
     }
 
     Column {

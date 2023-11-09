@@ -84,6 +84,7 @@ public:
     Q_INVOKABLE void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
 
     Q_INVOKABLE void exportComposition(const QString &name);
+    Q_INVOKABLE void exportResources(const QString &name);
 
 signals:
     void isEmptyChanged();
@@ -139,6 +140,7 @@ private:
     QString stripFileFromURL(const QString &urlString) const;
     void updateImageWatchers();
     void clearImageWatchers();
+    QString getQmlEffectString();
 
     void updateCustomUniforms();
     void createFiles();

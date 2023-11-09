@@ -1675,7 +1675,7 @@ Utils::FilePath getEffectsImportDirectory()
 
     if (!effectsPath.exists()) {
         QDir dir(projectPath.toString());
-        dir.mkpath(defaultDir);
+        dir.mkpath(effectsPath.toString());
     }
 
     return effectsPath;
