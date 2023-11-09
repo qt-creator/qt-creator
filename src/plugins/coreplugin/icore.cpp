@@ -337,10 +337,11 @@ public:
     QAction *m_setModeSelectorStyleIconsAndTextAction = nullptr;
     QAction *m_setModeSelectorStyleHiddenAction = nullptr;
     QAction *m_setModeSelectorStyleIconsOnlyAction = nullptr;
-    QAction *m_themeAction = nullptr;
 
     Action m_aboutIdeAction;
     Action m_aboutPluginsAction;
+    Action m_changeLogAction;
+    Action m_contactAction;
 
     QToolButton *m_toggleLeftSideBarButton = nullptr;
     QToolButton *m_toggleRightSideBarButton = nullptr;
@@ -1914,19 +1915,19 @@ void ICorePrivate::registerDefaultActions()
     //    aboutQtAction.setOnTriggered(this, &QApplication::aboutQt);
 
     // Change Log Action
-    tmpaction = new QAction(Tr::tr("Change Log..."), this);
-    tmpaction->setMenuRole(QAction::ApplicationSpecificRole);
-    cmd = ActionManager::registerAction(tmpaction, Constants::CHANGE_LOG);
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
-    connect(tmpaction, &QAction::triggered, this, &ICorePrivate::changeLog);
+    m_changeLogAction.setId(Constants::CHANGE_LOG);
+    m_changeLogAction.setText(Tr::tr("Change Log..."));
+    m_changeLogAction.setMenuRole(QAction::ApplicationSpecificRole);
+    m_changeLogAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    m_changeLogAction.setEnabled(true);
+    m_changeLogAction.setOnTriggered(this, [this] { changeLog(); });
 
     // Contact
-    tmpaction = new QAction(Tr::tr("Contact..."), this);
-    cmd = ActionManager::registerAction(tmpaction, "QtCreator.Contact");
-    mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
-    tmpaction->setEnabled(true);
-    connect(tmpaction, &QAction::triggered, this, &ICorePrivate::contact);
+    m_contactAction.setId("QtCreator.Contact");
+    m_contactAction.setText(Tr::tr("Contact..."));
+    m_contactAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    m_contactAction.setEnabled(true);
+    m_contactAction.setOnTriggered(this, [this] { contact(); });
 
     // About sep
     if (!HostOsInfo::isMacHost()) { // doesn't have the "About" actions in the Help menu
