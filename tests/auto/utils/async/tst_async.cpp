@@ -62,7 +62,7 @@ void reportString2(QPromise<QString> &promise, QString s)
     promise.addResult(s);
 }
 
-class Callable {
+class Functor {
 public:
     void operator()(QPromise<double> &promise, int n) const
     {
@@ -262,11 +262,11 @@ void tst_Async::runAsync()
              QList<double>({0, 0}));
 
     // operator()
-    QCOMPARE(createAsyncTask(Callable(), 3)->results(),
+    QCOMPARE(createAsyncTask(Functor(), 3)->results(),
              QList<double>({0, 0, 0}));
-    QCOMPARE(Utils::asyncRun(Callable(), 3).results(),
+    QCOMPARE(Utils::asyncRun(Functor(), 3).results(),
              QList<double>({0, 0, 0}));
-    const Callable c{};
+    const Functor c{};
     QCOMPARE(createAsyncTask(c, 2)->results(),
              QList<double>({0, 0}));
     QCOMPARE(Utils::asyncRun(c, 2).results(),
@@ -361,7 +361,7 @@ void tst_Async::crefFunction()
              QList<double>({0, 0}));
 
     // callable with promise
-    const Callable c{};
+    const Functor c{};
     QCOMPARE(createAsyncTask(std::cref(c), 2)->results(),
              QList<double>({0, 0}));
     QCOMPARE(Utils::asyncRun(std::cref(c), 2).results(),

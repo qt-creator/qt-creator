@@ -31,6 +31,10 @@ public:
     {
         return m_future.resultCount() ? m_future.result() : ResultType();
     }
+    QList<ResultType> results() const
+    {
+        return m_future.results();
+    }
     QFuture<ResultType> future() const { return m_future; }
 
 private:
@@ -38,9 +42,8 @@ private:
     void wrapConcurrent(Function &&function, Args &&...args)
     {
         m_startHandler = [=] {
-            if (m_threadPool)
-                return QtConcurrent::run(m_threadPool, function, args...);
-            return QtConcurrent::run(function, args...);
+            QThreadPool *threadPool = m_threadPool ? m_threadPool : QThreadPool::globalInstance();
+            return QtConcurrent::run(threadPool, function, args...);
         };
     }
 
@@ -48,11 +51,9 @@ private:
     void wrapConcurrent(std::reference_wrapper<const Function> &&wrapper, Args &&...args)
     {
         m_startHandler = [=] {
-            if (m_threadPool) {
-                return QtConcurrent::run(m_threadPool,
-                                         std::forward<const Function>(wrapper.get()), args...);
-            }
-            return QtConcurrent::run(std::forward<const Function>(wrapper.get()), args...);
+            QThreadPool *threadPool = m_threadPool ? m_threadPool : QThreadPool::globalInstance();
+            return QtConcurrent::run(threadPool, std::forward<const Function>(wrapper.get()),
+                                     args...);
         };
     }
 
