@@ -21,7 +21,7 @@
     checkbox.
 
     Select the build directory in the \uicontrol {Build Directory} field. You
-    can use the \l{Using Qt Creator Variables}{variables} that are listed when
+    can use the \l{Use Qt Creator variables}{variables} that are listed when
     you select the \inlineimage icons/replace.png (\uicontrol {Variables})
     button.
 

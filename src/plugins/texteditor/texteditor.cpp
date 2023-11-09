@@ -27,7 +27,6 @@
 #include "tabsettings.h"
 #include "textdocument.h"
 #include "textdocumentlayout.h"
-#include "texteditor_p.h"
 #include "texteditoractionhandler.h"
 #include "texteditorconstants.h"
 #include "texteditoroverlay.h"
@@ -562,6 +561,19 @@ struct PaintEventBlockData
 };
 
 struct ExtraAreaPaintEventData;
+
+struct TextEditorPrivateHighlightBlocks
+{
+    QList<int> open;
+    QList<int> close;
+    QList<int> visualIndent;
+    inline int count() const { return visualIndent.size(); }
+    inline bool isEmpty() const { return open.isEmpty() || close.isEmpty() || visualIndent.isEmpty(); }
+    inline bool operator==(const TextEditorPrivateHighlightBlocks &o) const {
+        return (open == o.open && close == o.close && visualIndent == o.visualIndent);
+    }
+    inline bool operator!=(const TextEditorPrivateHighlightBlocks &o) const { return !(*this == o); }
+};
 
 class TextEditorWidgetPrivate : public QObject
 {

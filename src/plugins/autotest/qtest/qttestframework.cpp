@@ -92,7 +92,6 @@ QtTestFramework::QtTestFramework()
     maxWarnings.setRange(0, 10000);
     maxWarnings.setDefaultValue(2000);
     maxWarnings.setSpecialValueText(Tr::tr("Unlimited"));
-    maxWarnings.setEnabler(&limitWarnings);
 
     quickCheckForDerivedTests.setSettingsKey("QuickCheckForDerivedTests");
     quickCheckForDerivedTests.setDefaultValue(false);
@@ -100,6 +99,10 @@ QtTestFramework::QtTestFramework()
     quickCheckForDerivedTests.setToolTip(
         Tr::tr("Search for Qt Quick tests that are derived from TestCase.\nWarning: Enabling this "
                "feature significantly increases scan time."));
+
+    readSettings();
+
+    maxWarnings.setEnabler(&limitWarnings);
 }
 
 QString QtTestFramework::metricsTypeToOption(const MetricsType type)

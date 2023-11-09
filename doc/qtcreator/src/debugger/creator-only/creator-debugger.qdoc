@@ -1368,7 +1368,7 @@
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Load system GDB pretty
     printers}. For more information, see \l{Specifying GDB Settings}.
 
-    \image qtcreator-gdb-options.png {GDB preferences}
+    \image qtcreator-preferences-debugger-gdb.webp {GDB preferences}
 
     \section2 Customizing Built-In Debugging Helpers
 
@@ -2036,7 +2036,7 @@
     when loading the same binary in the future. Select \preferences >
     \uicontrol Debugger > \uicontrol GDB > \uicontrol {Use automatic symbol cache}.
 
-    \image qtcreator-gdb-options.png {GDB preferences}
+    \image qtcreator-preferences-debugger-gdb.webp {GDB preferences}
 
     \section2 Minimizing Number of Breakpoints
 

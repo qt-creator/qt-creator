@@ -8,6 +8,8 @@
 
 #include <utils/aspects.h>
 
+#include <texteditor/textdocument.h>
+
 #include <QNetworkAccessManager>
 
 namespace CompilerExplorer {
@@ -58,6 +60,12 @@ public:
 
     ApiConfigFunction apiConfigFunction() const { return m_apiConfigFunction; }
 
+    TextEditor::TextDocumentPtr sourceTextDocument() const { return m_sourceTextDocument; }
+    void setSourceTextDocument(TextEditor::TextDocumentPtr sourceTextDocument)
+    {
+        m_sourceTextDocument = sourceTextDocument;
+    }
+
 public:
     Utils::StringSelectionAspect languageId{this};
     Utils::StringAspect source{this};
@@ -75,6 +83,7 @@ private:
 private:
     CompilerExplorerSettings *m_parent;
     ApiConfigFunction m_apiConfigFunction;
+    TextEditor::TextDocumentPtr m_sourceTextDocument{nullptr};
 };
 
 class CompilerSettings : public Utils::AspectContainer,

@@ -145,6 +145,12 @@ Editing
 
 ### QML
 
+* Fixed multiple crashes when updating the `Outline` view
+  ([QTCREATORBUG-28862](https://bugreports.qt.io/browse/QTCREATORBUG-28862),
+   [QTCREATORBUG-29653](https://bugreports.qt.io/browse/QTCREATORBUG-29653),
+   [QTCREATORBUG-29702](https://bugreports.qt.io/browse/QTCREATORBUG-29702))
+* Fixed that reformatting QML code removed type annotations
+  ([QTCREATORBUG-29061](https://bugreports.qt.io/browse/QTCREATORBUG-29061))
 * Fixed invalid `M325` warnings
   ([QTCREATORBUG-29601](https://bugreports.qt.io/browse/QTCREATORBUG-29601))
 * Language Server
@@ -237,6 +243,8 @@ Projects
 * Fixed issues with the subdirectory structure of the project tree
   ([QTCREATORBUG-23942](https://bugreports.qt.io/browse/QTCREATORBUG-23942),
    [QTCREATORBUG-29105](https://bugreports.qt.io/browse/QTCREATORBUG-29105))
+* Fixed an issue with source file specific compiler flags
+  ([QTCREATORBUG-29707](https://bugreports.qt.io/browse/QTCREATORBUG-29707))
 * Presets
     * Fixed that variables were not expanded for `cmakeExecutable`
       ([QTCREATORBUG-29643](https://bugreports.qt.io/browse/QTCREATORBUG-29643))
@@ -258,11 +266,18 @@ Projects
 * Fixed the project tree structure in case of some subfolder structures
   ([QTCREATORBUG-29733](https://bugreports.qt.io/browse/QTCREATORBUG-29733))
 
+### Qbs
+
+* Fixed the importing of builds on macOS
+  ([QTCREATORBUG-29829](https://bugreports.qt.io/browse/QTCREATORBUG-29829))
+
 ### vcpkg
 
 * Added the generation of code for `CMakeLists.txt`
 * Added parsing the dependencies from `vcpkg.json` manifest files
 * Improved the addition of dependencies to `vcpkg.json`
+
+([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-edit-vcpkg-manifest-files.html))
 
 ### Qt Safe Renderer
 
@@ -277,6 +292,11 @@ Debugging
 * Added support for remote Linux debugging with LLDB
 * Fixed warnings about index cache permissions
   ([QTCREATORBUG-29556](https://bugreports.qt.io/browse/QTCREATORBUG-29556))
+* Pretty Printers
+    * Fixed `QDateTime` with a time zone offset
+      ([QTCREATORBUG-29737](https://bugreports.qt.io/browse/QTCREATORBUG-29737))
+    * Fixed `std::unique_ptr` on macOS
+    * Fixed `QImage`
 
 Analyzer
 --------
@@ -323,9 +343,16 @@ Test Integration
 * Added an option for the number of threads used for scanning
   ([QTCREATORBUG-29301](https://bugreports.qt.io/browse/QTCREATORBUG-29301))
 * Improved the wizards for `GTest` and `Catch2`
+* CTest
+    * Enabled colored test output
 
 Platforms
 ---------
+
+### macOS
+
+* Fixed running and debugging in an external terminal
+  ([QTCREATORBUG-29246](https://bugreports.qt.io/browse/QTCREATORBUG-29246))
 
 ### Android
 

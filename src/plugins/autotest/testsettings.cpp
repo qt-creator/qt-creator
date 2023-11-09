@@ -64,7 +64,6 @@ TestSettings::TestSettings()
     resultDescriptionMaxSize.setSettingsKey("ResultDescriptionMaxSize");
     resultDescriptionMaxSize.setDefaultValue(10);
     resultDescriptionMaxSize.setRange(1, 100000);
-    resultDescriptionMaxSize.setEnabler(&limitResultDescription);
 
     autoScroll.setSettingsKey("AutoScrollResults");
     autoScroll.setDefaultValue(true);
@@ -95,7 +94,6 @@ TestSettings::TestSettings()
 
     popupOnFail.setSettingsKey("PopupOnFail");
     popupOnFail.setLabelText(Tr::tr("Only for unsuccessful test runs"));
-    popupOnFail.setEnabler(&popupOnFinish);
     popupOnFail.setToolTip(Tr::tr("Displays test results only if the test run contains "
                                   "failed, fatal or unexpectedly passed tests."));
 
@@ -105,6 +103,11 @@ TestSettings::TestSettings()
     runAfterBuild.addOption(Tr::tr("None"));
     runAfterBuild.addOption(Tr::tr("All"));
     runAfterBuild.addOption(Tr::tr("Selected"));
+
+    fromSettings();
+
+    resultDescriptionMaxSize.setEnabler(&limitResultDescription);
+    popupOnFail.setEnabler(&popupOnFinish);
 }
 
 void TestSettings::toSettings() const

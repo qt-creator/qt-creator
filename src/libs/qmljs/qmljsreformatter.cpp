@@ -1282,6 +1282,10 @@ protected:
         out(ast->rparenToken);
         if (ast->isArrowFunction && !ast->formals)
             out("()");
+        if (ast->typeAnnotation) {
+            out(": ");
+            out(ast->typeAnnotation->type->toString());
+        }
         out(" ");
         if (ast->isArrowFunction)
             out("=> ");
@@ -1406,6 +1410,10 @@ protected:
     {
         for (FormalParameterList *it = ast; it; it = it->next) {
             accept(it->element);
+            if (it->element->typeAnnotation) {
+                out(": ");
+                out(it->element->typeAnnotation->type->toString());
+            }
             if (it->next)
                 out(", ");
         }

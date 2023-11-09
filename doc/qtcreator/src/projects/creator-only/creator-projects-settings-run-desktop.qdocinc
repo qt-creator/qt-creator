@@ -27,7 +27,7 @@
 
     To run with special environment variables set up, select them in the
     \uicontrol {Run Environment} section. For more information, see
-    \l {Selecting the Run Environment}.
+    \l {Specify the run environment}.
 
     When building an application, \QC creates a list of directories where the
     linker will look for libraries that the application links to. By

@@ -113,7 +113,6 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     fileSizeLimit.setDefaultValue(1024);
     fileSizeLimit.setRange(100, 1024 * 1024 * 2); // Up to 2GB
     fileSizeLimit.setSuffix("MB");
-    fileSizeLimit.setEnabler(&enableFileSizeLimit);
 
     enableRtBuffer.setSettingsKey("EnableRealTimeBuffer");
     enableRtBuffer.setDefaultValue(true);
@@ -124,7 +123,6 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     rtBufferSize.setDefaultValue(1024);
     rtBufferSize.setRange(100, 1024 * 1024 * 2); // Up to 2GB
     rtBufferSize.setSuffix("MB");
-    rtBufferSize.setEnabler(&enableRtBuffer);
 
     logFfmpegCommandline.setSettingsKey("LogFFMpegCommandLine");
     logFfmpegCommandline.setDefaultValue(false);
@@ -205,6 +203,9 @@ ScreenRecorderSettings::ScreenRecorderSettings()
     });
 
     readSettings();
+
+    rtBufferSize.setEnabler(&enableRtBuffer);
+    fileSizeLimit.setEnabler(&enableFileSizeLimit);
 
     setCaptureMouseClicksVisible();
     connect(&screenCaptureType, &SelectionAspect::volatileValueChanged, this,

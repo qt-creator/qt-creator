@@ -110,10 +110,8 @@
     tested or grouping commands, are not supported because the value of the
     \uicontrol Executable field is always placed first when constructing the command.
 
-    You can use \l {Using Environment Variables}{environment variables} as
-    values in the fields. In addition, you can \l {Using Qt Creator Variables}
-    {use \QC variables} in arguments, executable paths, and working
-    directories.
+    You can \l {Use Qt Creator variables}{use \QC variables} in arguments,
+    executable paths, and working directories.
 
     \section1 Build Steps
 

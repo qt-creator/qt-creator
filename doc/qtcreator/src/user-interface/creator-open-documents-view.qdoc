@@ -38,7 +38,7 @@
     To set preferences for opening files and handling open files, select
     \preferences > \uicontrol Environment > \uicontrol System:
 
-    \image qtcreator-options-environment-system.png {System tab in Environment preferences}
+    \image qtcreator-preferences-environment-system.webp {System tab in Environment preferences}
 
     \list
         \li In the \uicontrol {When files are externally modified} field,

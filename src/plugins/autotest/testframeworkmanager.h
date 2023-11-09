@@ -9,7 +9,6 @@ namespace Autotest::TestFrameworkManager {
 
 void registerTestFramework(ITestFramework *framework);
 void registerTestTool(ITestTool *testTool);
-void synchronizeSettings();
 
 ITestFramework *frameworkForId(Utils::Id frameworkId);
 ITestTool *testToolForId(Utils::Id testToolId);
