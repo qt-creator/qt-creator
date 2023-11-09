@@ -209,14 +209,17 @@ SourceEditorWidget::SourceEditorWidget(const std::shared_ptr<SourceSettings> &se
 
     connect(m_codeEditor, &CodeEditorWidget::gotFocus, this, &SourceEditorWidget::gotFocus);
 
-    TextDocumentPtr document = TextDocumentPtr(new SourceTextDocument(m_sourceSettings, undoStack));
+    auto sourceTextDocument = settings->sourceTextDocument();
+    if (!sourceTextDocument)
+        sourceTextDocument = TextDocumentPtr(new SourceTextDocument(m_sourceSettings, undoStack));
+    settings->setSourceTextDocument(sourceTextDocument);
 
-    connect(document.get(),
+    connect(sourceTextDocument.get(),
             &SourceTextDocument::changed,
             this,
             &SourceEditorWidget::sourceCodeChanged);
 
-    m_codeEditor->setTextDocument(document);
+    m_codeEditor->setTextDocument(sourceTextDocument);
     m_codeEditor->updateHighlighter();
 
     auto addCompilerButton = new QToolButton;

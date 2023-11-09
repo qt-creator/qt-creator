@@ -41,7 +41,6 @@ CodeGenSettings::CodeGenSettings()
 
     addQtVersionCheck.setSettingsKey("AddQtVersionCheck");
     addQtVersionCheck.setLabelText(Tr::tr("Add Qt version #ifdef for module names"));
-    addQtVersionCheck.setEnabler(&includeQtModule);
 
     setLayouter([this] {
         using namespace Layouting;
@@ -66,6 +65,7 @@ CodeGenSettings::CodeGenSettings()
 
 
     readSettings();
+    addQtVersionCheck.setEnabler(&includeQtModule);
 }
 
 class CodeGenSettingsPage final : public Core::IOptionsPage

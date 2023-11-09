@@ -48,6 +48,8 @@
 
     \section1 iOS
 
+    \note Deployment, running, and debugging on iOS 17 devices are not supported.
+
     To be able to use \QC on \macos, you must install Xcode, and therefore
     you should already have the tool chain for building applications for
     iOS. \QC automatically detects the tool chain and creates the necessary
