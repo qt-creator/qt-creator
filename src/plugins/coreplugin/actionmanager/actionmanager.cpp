@@ -78,14 +78,13 @@ public:
     {
         if (!command) {
             QTC_ASSERT(actionId.isValid(), return);
-            QTC_ASSERT(!context.isEmpty(), return);
             command = ActionManager::registerAction(&action, actionId, context);
         }
     }
 
     QAction action;
     Id actionId;
-    Context context;
+    Context context{Constants::C_GLOBAL};
     Command *command = nullptr;
 };
 
@@ -102,6 +101,8 @@ Action::~Action()
 void Action::setText(const QString &text)
 {
     d->action.setText(text);
+    if (d->command)
+        d->command->action()->setText(text);
 }
 
 void Action::setCommandAttribute(Command::CommandAttribute attr)
@@ -126,7 +127,12 @@ void Action::setOnTriggered(const std::function<void ()> &func)
     QObject::connect(&d->action, &QAction::triggered, &d->action, func);
 }
 
-void Action::setOnTriggered(QObject *guard, const std::function<void ()> &func)
+void Action::setOnTriggered(QObject *guard, const std::function<void()> &func)
+{
+    QObject::connect(&d->action, &QAction::triggered, guard, func);
+}
+
+void Action::setOnTriggered(QObject *guard, const std::function<void(bool)> &func)
 {
     QObject::connect(&d->action, &QAction::triggered, guard, func);
 }
@@ -148,11 +154,15 @@ void Action::setDefaultKeySequence(const QString &mac, const QString &nonMac)
 void Action::setIcon(const QIcon &icon)
 {
     d->action.setIcon(icon);
+    if (d->command)
+        d->command->action()->setIcon(icon);
 }
 
 void Action::setIconVisibleInMenu(bool on)
 {
     d->action.setIconVisibleInMenu(on);
+    if (d->command)
+        d->command->action()->setIconVisibleInMenu(on);
 }
 
 void Action::setTouchBarIcon(const QIcon &icon)
@@ -165,6 +175,32 @@ void Action::setTouchBarIcon(const QIcon &icon)
 void Action::setEnabled(bool on)
 {
     d->action.setEnabled(on);
+    // Explicitly not needed, done via context update:
+    // if (d->command)
+    //    d->command->action()->...
+}
+
+void Action::setChecked(bool on)
+{
+    d->action.setChecked(on);
+    // Explicitly not needed, done via context update:
+    // if (d->command)
+    //    d->command->action()->...
+}
+
+void Action::setVisible(bool on)
+{
+    d->action.setVisible(on);
+    // Explicitly not needed, done via context update:
+    // if (d->command)
+    //    d->command->action()->....
+}
+
+void Action::setCheckable(bool on)
+{
+    d->action.setCheckable(on);
+    if (d->command)
+        d->command->action()->setCheckable(on);
 }
 
 Command *Action::command() const
@@ -172,6 +208,18 @@ Command *Action::command() const
     d->ensureCommand();
     QTC_CHECK(d->command);
     return d->command;
+}
+
+QAction *Action::commandAction() const
+{
+    d->ensureCommand();
+    QTC_ASSERT(d->command, return nullptr);
+    return d->command->action();
+}
+
+QAction *Action::contextAction() const
+{
+    return &d->action;
 }
 
 void Action::setId(Id id)
@@ -186,6 +234,7 @@ void Action::setContext(Id id)
 
 void Action::setContext(const Context &context)
 {
+    QTC_ASSERT(!context.isEmpty(), return);
     d->context = context;
 }
 

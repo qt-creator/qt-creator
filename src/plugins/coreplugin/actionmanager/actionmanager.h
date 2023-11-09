@@ -45,14 +45,20 @@ public:
     void setContainer(Utils::Id containerId, Utils::Id groupId = {});
     void setOnTriggered(const std::function<void()> &func);
     void setOnTriggered(QObject *guard, const std::function<void()> &func);
+    void setOnTriggered(QObject *guard, const std::function<void(bool)> &func);
     void setDefaultKeySequence(const QKeySequence &seq);
     void setDefaultKeySequence(const QString &mac, const QString &nonMac);
     void setIcon(const QIcon &icon);
     void setIconVisibleInMenu(bool on);
     void setTouchBarIcon(const QIcon &icon);
     void setEnabled(bool on);
+    void setChecked(bool on);
+    void setVisible(bool on);
+    void setCheckable(bool on);
 
     Command *command() const;
+    QAction *commandAction() const;
+    QAction *contextAction() const;
 
 private:
     class ActionPrivate *d = nullptr;
