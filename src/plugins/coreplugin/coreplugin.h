@@ -7,6 +7,7 @@
 #include <qglobal.h>
 
 #include <extensionsystem/iplugin.h>
+#include <extensionsystem/pluginspec.h>
 #include <utils/environment.h>
 
 #include <memory>
@@ -53,6 +54,8 @@ public:
     static Utils::EnvironmentItems environmentChanges();
     static void setEnvironmentChanges(const Utils::EnvironmentItems &changes);
     static QString msgCrashpadInformation();
+
+    static void loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin);
 
 public slots:
     void fileOpenRequest(const QString &);

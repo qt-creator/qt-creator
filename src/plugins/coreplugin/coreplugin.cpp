@@ -126,17 +126,22 @@ CoreArguments parseArguments(const QStringList &arguments)
     return args;
 }
 
+void CorePlugin::loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
+{
+    const QJsonObject metaData = plugin->metaData();
+    const QJsonValue mimetypes = metaData.value("Mimetypes");
+    QString mimetypeString;
+    if (Utils::readMultiLineString(mimetypes, &mimetypeString))
+        Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
+}
+
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // register all mime types from all plugins
     for (ExtensionSystem::PluginSpec *plugin : ExtensionSystem::PluginManager::plugins()) {
         if (!plugin->isEffectivelyEnabled())
             continue;
-        const QJsonObject metaData = plugin->metaData();
-        const QJsonValue mimetypes = metaData.value("Mimetypes");
-        QString mimetypeString;
-        if (Utils::readMultiLineString(mimetypes, &mimetypeString))
-            Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
+        loadMimeFromPlugin(plugin);
     }
 
     if (ThemeEntry::availableThemes().isEmpty()) {

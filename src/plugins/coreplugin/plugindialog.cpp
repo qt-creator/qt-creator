@@ -3,6 +3,7 @@
 
 #include "plugindialog.h"
 
+#include "coreplugin.h"
 #include "coreplugintr.h"
 #include "dialogs/restartdialog.h"
 #include "icore.h"
@@ -87,8 +88,10 @@ void PluginDialog::closeDialog()
 {
     PluginManager::writeSettings();
 
-    for (PluginSpec *plugin : m_softLoad)
+    for (PluginSpec *plugin : m_softLoad) {
         PluginManager::loadPlugin(plugin);
+        CorePlugin::loadMimeFromPlugin(plugin);
+    }
 
     if (m_isRestartRequired) {
         RestartDialog restartDialog(ICore::dialogParent(),
