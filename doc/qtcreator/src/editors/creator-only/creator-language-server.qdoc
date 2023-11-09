@@ -81,7 +81,7 @@
         \li In the \uicontrol Name field, enter a name for the language server.
             Select the \inlineimage icons/replace.png
             (\uicontrol {Variables}) button to use a variable for the server
-            name. For more information, see \l{Using Qt Creator Variables}.
+            name. For more information, see \l{Use Qt Creator variables}.
         \li In the \uicontrol {Language} field, select
             \uicontrol {Set MIME Types} to select the MIME types of the files to
             send to the language server. In the field below, you can enter file
@@ -113,7 +113,7 @@
         \li In the \uicontrol Name field, enter a name for the language server.
             Select the \inlineimage icons/replace.png
             (\uicontrol {Variables}) button to use a variable for the server
-            name. For more information, see \l{Using Qt Creator Variables}.
+            name. For more information, see \l{Use Qt Creator variables}.
         \li In the \uicontrol Java field, enter the path to the Java executable.
         \li In the \uicontrol {Java Language Server} field, enter the path to
             the Java language server \c .jar file. You can download the Java

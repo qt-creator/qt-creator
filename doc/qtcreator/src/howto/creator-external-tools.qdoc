@@ -35,10 +35,12 @@
 
     \image qtcreator-external-tools.png
 
+    \if defined(qtcreator)
     Select the \inlineimage icons/replace.png
     (\uicontrol {Variables}) button in a field to select from a list of
-    \l{Using Qt Creator Variables}{variables} that are available in a
+    \l{Use Qt Creator variables}{variables} that are available in a
     particular context.
+    \endif
 
     To configure external tools:
 
@@ -71,8 +73,8 @@
 
         \if defined(qtcreator)
         \li In the \uicontrol {Base environment} field, select whether to run
-            the tool in the system environment or the \l{Build Environment}
-            {build environment} or \l {Selecting the Run Environment}
+            the tool in the system environment or the \l{Specify the environment for projects}
+            {build environment} or \l {Specify the run environment}
             {run environment} of the active project. Select the build or run
             environment if the system environment does not have the necessary
             PATH settings to find the tool chain, for example.
@@ -82,20 +84,12 @@
 
         \li In the \uicontrol Environment field, select \uicontrol Change to modify
             environment variable values for build and run environments in
-            the \uicontrol {Edit Environment Changes} dialog.
-            \if defined(qtcreator)
-            For more information about how to add and remove variable values,
-            see \l{Batch Editing}.
-            \endif
-
+            the \uicontrol {Edit Environment} dialog.
 
             To globally change the system environment from the one in which
             \QC is started, select \preferences >
             \uicontrol Environment > \uicontrol System, and then select
             \uicontrol Change in the \uicontrol Environment field.
-            \if defined(qtcreator)
-            For more information, see \l{Specifying Environment Settings}.
-            \endif
 
         \li Select the \uicontrol {Modifies current document} check box to make sure
             that if the current document is modified by the tool, it is saved
@@ -121,6 +115,11 @@
     configuration file to the folder.
 
     \sa {Run QML files}, {Use external text editors}, {Use Qt Linguist}
+
+    \if defined(qtcreator)
+    \sa {Batch edit environment settings}, {Specify the environment for projects},
+    {Use Qt Creator variables}
+    \endif
 */
 
 /*!

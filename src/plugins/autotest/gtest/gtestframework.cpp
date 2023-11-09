@@ -52,7 +52,6 @@ GTestFramework::GTestFramework()
     iterations.setDefaultValue(1);
     iterations.setEnabled(false);
     iterations.setLabelText(Tr::tr("Iterations:"));
-    iterations.setEnabler(&repeat);
 
     seed.setSettingsKey("Seed");
     seed.setSpecialValueText({});
@@ -60,7 +59,6 @@ GTestFramework::GTestFramework()
     seed.setEnabled(false);
     seed.setLabelText(Tr::tr("Seed:"));
     seed.setToolTip(Tr::tr("A seed of 0 generates a seed based on the current timestamp."));
-    seed.setEnabler(&shuffle);
 
     runDisabled.setSettingsKey("RunDisabled");
     runDisabled.setLabelText(Tr::tr("Run disabled tests"));
@@ -132,6 +130,11 @@ GTestFramework::GTestFramework()
     connect(this, &AspectContainer::applied, this, [] {
         TestTreeModel::instance()->rebuild({GTest::Constants::FRAMEWORK_ID});
     });
+
+    readSettings();
+
+    seed.setEnabler(&shuffle);
+    iterations.setEnabler(&repeat);
 }
 
 ITestParser *GTestFramework::createTestParser()

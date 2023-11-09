@@ -14,13 +14,12 @@
 
     \title Configuring Projects
 
-    When you install Qt for a target platform, such as Android or QNX,
-    \l{https://www.qt.io/download-qt-installer}{\QOI}
-    creates \l{glossary-buildandrun-kit}{kits} for the development
-    targets.
+    When you install Qt for a development or target platform, such as Linux,
+    \macos, Windows, Android or QNX, \l{https://www.qt.io/download-qt-installer}
+    {\QOI} creates \l{glossary-buildandrun-kit}{kits} for the development targets.
 
-    Select the kits to use in the \uicontrol {Configure Projects}
-    view when you open a project for the first time. At least one kit must be
+    Select the kits to use for a project in the \uicontrol {Configure Projects}
+    view when you open the project for the first time. At least one kit must be
     active.
 
     To maintain the list of active kits for a currently open project, switch to
@@ -29,7 +28,7 @@
     \image qtcreator-projects-kits.webp {Sidebar in the Projects mode}
 
     To specify build or run settings for a kit, select \uicontrol Build or
-    \uicontrol Run below the kit.
+    \uicontrol Run below the kit name.
 
     \section1 Overriding Global Preferences
 
@@ -45,7 +44,7 @@
                 \li \l{Specify dependencies}{Dependencies}
                 \li \l{Document code}{Documentation Comments}
                 \li \l{Specify editor settings}{Editor}
-                \li \l{Specifying Environment Settings}{Environment}
+                \li \l{Specify the environment for projects}{Environment}
                 \li \l{Applying Refactoring Actions}{Quick Fixes}
                 \li \l{To-Do Entries}{To-Do} (experimental)
             \endlist
@@ -69,7 +68,7 @@
     lists the kits that are compatible with your project. To activate one or more
     kits, click them.
 
-    \image qtcreator-project-kits.png
+    \image qtcreator-project-kits.png {List of kits in Projects mode sidebar}
 
     The list displays kits from \preferences >
     \uicontrol Kits. Warning and error icons indicate that the kit configuration

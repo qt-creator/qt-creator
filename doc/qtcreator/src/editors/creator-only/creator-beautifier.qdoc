@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -57,11 +57,11 @@
         \li Select \preferences >
             \uicontrol Beautifier to specify settings for beautifying files.
 
-        \li Select the \uicontrol {Enable auto format on file save} check box to
+        \li Select the \uicontrol {Automatic formatting on file save} check box to
             automatically beautify files when you save them using the tool you
             select in the \uicontrol Tool field.
 
-            \image qt-creator-beautifier-options-general.png "General Beautifier preferences"
+            \image qtcreator-preferences-beautifier-general.webp {General Beautifier preferences}
 
         \li In the \uicontrol {Restrict to MIME types} field, define the MIME
             types of the files to beautify, separated by semicolons. Leave the

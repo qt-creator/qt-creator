@@ -1256,7 +1256,8 @@ bool UnixDeviceFileAccess::iterateWithFind(const FilePath &filePath,
 
 void UnixDeviceFileAccess::findUsingLs(const QString &current,
                                        const FileFilter &filter,
-                                       QStringList *found) const
+                                       QStringList *found,
+                                       const QString &start) const
 {
     const RunResult result = runInShell(
         {"ls", {"-1", "-a", "-p", "--", current}, OsType::OsTypeLinux});
@@ -1265,10 +1266,11 @@ void UnixDeviceFileAccess::findUsingLs(const QString &current,
         const QChar last = entry.back();
         if (last == '/') {
             entry.chop(1);
-            if (filter.iteratorFlags.testFlag(QDirIterator::Subdirectories))
-                findUsingLs(current + '/' + entry, filter, found);
+            if (filter.iteratorFlags.testFlag(QDirIterator::Subdirectories) && entry != "."
+                && entry != "..")
+                findUsingLs(current + '/' + entry, filter, found, start + entry + "/");
         }
-        found->append(entry);
+        found->append(start + entry);
     }
 }
 
@@ -1327,7 +1329,7 @@ void UnixDeviceFileAccess::iterateDirectory(const FilePath &filePath,
 
     // if we do not have find - use ls as fallback
     QStringList entries;
-    findUsingLs(filePath.path(), filter, &entries);
+    findUsingLs(filePath.path(), filter, &entries, {});
     iterateLsOutput(filePath, entries, filter, callBack);
 }
 

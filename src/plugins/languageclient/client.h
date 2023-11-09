@@ -86,6 +86,7 @@ public:
     State state() const;
     QString stateString() const;
     bool reachable() const;
+    void resetRestartCounter();
 
     void setClientInfo(const LanguageServerProtocol::ClientInfo &clientInfo);
     // capabilities

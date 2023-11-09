@@ -197,12 +197,13 @@
     \if defined(qtcreator)
     Also specify a text string or C++ or QML code construct
     in the snippet editor, depending on the snippet category.
+
+    You can use \l{Use Qt Creator variables}{predefined variables} in
+    snippets.
     \else
     Also specify a text string or QML code in the snippet editor, depending on
     the snippet category.
     \endif
-    You can use \l{Using Qt Creator Variables}{predefined variables} in
-    snippets.
 
     The snippet editor offers:
 
@@ -299,8 +300,6 @@
     \preferences > \uicontrol Nim > \uicontrol Tools,
     and enter the path to the tool executable in the \uicontrol Path field.
 
-    \sa {Document code}
-    \else
-    \include qtcreator-variables.qdocinc qtcreator variables
+    \sa {Document code}, {Use Qt Creator variables}
     \endif
 */

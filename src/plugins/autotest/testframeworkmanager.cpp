@@ -86,14 +86,4 @@ ITestTool *testToolForBuildSystemId(Id buildSystemId)
     });
 }
 
-void synchronizeSettings()
-{
-    Internal::testSettings().fromSettings();
-    for (ITestFramework *framework : std::as_const(testFrameworks()))
-        framework->readSettings();
-
-    for (ITestTool *testTool : std::as_const(testTools()))
-        testTool->readSettings();
-}
-
 } // Autotest::TestframeworkManager

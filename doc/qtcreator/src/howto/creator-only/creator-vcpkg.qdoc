@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Managing Packages with vcpkg
+    \title vcpkg Package Manager
 
     \brief The experimental vcpkg plugin integrates the vcpkg C/C++ package
     manager into \QC.
@@ -36,16 +36,31 @@
     Select \inlineimage icons/online.png
     to download vcpkg if you have not installed it yet.
 
-    \section1 Creating vcpkg Manifest Files
+    \sa {Create vcpkg manifest files}, {Edit vcpkg manifest files},
+    {Enable and disable plugins}
+*/
+
+/*!
+    \page creator-how-to-create-vcpkg-manifest-files.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects
+
+    \title Create vcpkg manifest files
 
     To create a new vcpkg package manager manifest (vcpkg.json) file:
 
     \list 1
         \li Select \uicontrol File > \uicontrol {New File} >
-            \uicontrol Vcpkg.
-            \image qtcreator-file-new-file-vcpkg-manifest-file.webp {vcpkg.json Manifest File wizard page}
+            \uicontrol vcpkg > \uicontrol {vcpkg.json Manifest File} >
+            \uicontrol Choose to open the \uicontrol Location dialog.
+        \li In \uicontrol {File name}, enter a name for the manifest file.
+        \li In \uicontrol Path, enter the path for the manifest file.
+        \li Select \uicontrol Next to open the
+            \uicontrol {vcpkg.json Manifest File} dialog.
+            \image qtcreator-file-new-file-vcpkg-manifest-file.webp {vcpkg.json Manifest File dialog}
         \li In \uicontrol Name, enter a name for the manifest file.
-        \li In \uicontrol Version, enter a version number for the file.
+        \li In \uicontrol {Version string}, enter a version number for the file.
         \li In \uicontrol Dependencies, enter the packages to manage.
 
             You can add packages later in a manifest editor.
@@ -57,27 +72,51 @@
     The wizard automatically adds the vcpkg.json file to the CMakeLists.txt file
     of the project.
 
-    \section1 Selecting Packages to Manage
+    \sa {vcpkg Package Manager}, {Edit vcpkg manifest files}
+*/
+
+/*!
+    \page creator-how-to-edit-vcpkg-manifest-files.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-build
+
+    \title Edit vcpkg manifest files
 
     When you open a vcpkg.json file, it opens in the manifest file editor:
 
     \image qtcreator-vcpkg-manifest-file-editor.webp {vcpkg.json file in the manifest file editor}
 
+    \section1 Add packages to manage
+
     To add a package to your project:
 
     \list 1
-        \li Place the cursor on the line where you want to add a package.
-        \li Select the \inlineimage icons/zoom.png
-            (\uicontrol {Search Package}) button.
-            \image qtcreator-vcpkg-package-selector.webp {Package selector dialog}
+        \li Select the \inlineimage icons/vcpkg.png
+            (\uicontrol {Add vcpkg Package}) button on the manifest editor
+            toolbar.
+            \image qtcreator-vcpkg-package-selector.webp {Add vcpkg Package dialog}
         \li Select the package to add to your project.
         \li Select \uicontrol OK to return to the editor.
         \li Repeat to add more packages.
     \endlist
 
-    To set the path to the directory where you installed vcpkg, select
-    \inlineimage icons/settings.png
-    (\uicontrol Configure) on the editor toolbar.
+    \section1 Generate code for CMake configuration files
 
-    \sa {Enable and disable plugins}
+    To generate sample CMake code to copy to the CMakeLists.text file:
+
+    \list 1
+        \li Select the \inlineimage icons/cmake.png (\uicontrol {CMake Code})
+            button on the manifest editor toolbar.
+            \image qtcreator-vcpkg-cmake-config.webp {CMake Code dialog}
+        \li Select the example code you need and copy-paste it to the
+            CMakeLists.txt file.
+    \endlist
+
+    \section1 Set the path to vcpkg
+
+    To set the path to the directory where you installed vcpkg, select
+    \inlineimage icons/settings.png (\uicontrol Configure) on the editor toolbar.
+
+    \sa {vcpkg Package Manager}, {Create vcpkg manifest files}
 */

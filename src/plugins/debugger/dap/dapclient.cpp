@@ -58,10 +58,13 @@ void DapClient::sendInitialize()
     postRequest("initialize", QJsonObject{{"clientID", "QtCreator"}, {"clientName", "QtCreator"}});
 }
 
-void DapClient::sendLaunch(const Utils::FilePath &executable)
+void DapClient::sendLaunch(const Utils::CommandLine &command)
 {
     postRequest("launch",
-                QJsonObject{{"noDebug", false}, {"program", executable.path()}, {"__restart", ""}});
+                QJsonObject{{"noDebug", false},
+                            {"program", command.executable().path()},
+                            {"args", command.arguments()},
+                            {"__restart", ""}});
 }
 
 void DapClient::sendAttach()

@@ -39,7 +39,6 @@
                         \li \l{Conan Build Configuration}
                     \endlist
                 \li \l{Specifying Run Settings}
-                \li \l{Specifying Environment Settings}
                 \li \l{Using Custom Output Parsers}
                 \li \l{Sharing Project Settings}
             \endlist

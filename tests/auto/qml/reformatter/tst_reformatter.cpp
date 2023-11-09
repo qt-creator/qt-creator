@@ -28,6 +28,11 @@ public:
 private slots:
     void test();
     void test_data();
+
+    void reformatter_data();
+    void reformatter();
+
+private:
 };
 
 tst_Reformatter::tst_Reformatter()
@@ -41,10 +46,18 @@ void tst_Reformatter::test_data()
 {
     QTest::addColumn<QString>("path");
 
+    // This test performs line-by-line comparison and fails if reformatting
+    // makes a change inline, for example whitespace removal. We omit
+    // those files in this test.
+    QSet<QString> excludedFiles;
+    excludedFiles << QString::fromLatin1(TESTSRCDIR) + QDir::separator() + "typeAnnotations.qml";
+    excludedFiles << QString::fromLatin1(TESTSRCDIR) + QDir::separator() + "typeAnnotations.formatted.qml";
+
     QDirIterator it(TESTSRCDIR, QStringList() << QLatin1String("*.qml") << QLatin1String("*.js"), QDir::Files);
     while (it.hasNext()) {
         const QString fileName = it.next();
-        QTest::newRow(fileName.toLatin1()) << it.filePath();
+        if (!excludedFiles.contains(fileName))
+            QTest::newRow(fileName.toLatin1()) << it.filePath();
     }
 }
 
@@ -82,6 +95,44 @@ void tst_Reformatter::test()
         }
     }
     QCOMPARE(sourceLines.size(), newLines.size());
+}
+
+void tst_Reformatter::reformatter_data()
+{
+    QTest::addColumn<QString>("filePath");
+    QTest::addColumn<QString>("formattedFilePath");
+
+    QTest::newRow("typeAnnotations")
+        << QString::fromLatin1(TESTSRCDIR) + QDir::separator() + "typeAnnotations.qml"
+        << QString::fromLatin1(TESTSRCDIR) + QDir::separator() + "typeAnnotations.formatted.qml";
+}
+
+void tst_Reformatter::reformatter()
+{
+    QFETCH(QString, filePath);
+    QFETCH(QString, formattedFilePath);
+
+    Utils::FilePath fPath = Utils::FilePath::fromString(filePath);
+    Document::MutablePtr doc
+        = Document::create(fPath, ModelManagerInterface::guessLanguageOfFile(fPath));
+
+    QString fileContent;
+    {
+        QFile file(filePath);
+        QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
+        fileContent = QString::fromUtf8(file.readAll());
+    }
+    doc->setSource(fileContent);
+    doc->parse();
+    QString expected;
+    {
+        QFile file(formattedFilePath);
+        QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
+        expected = QString::fromUtf8(file.readAll());
+    }
+
+    QString formatted = reformat(doc);
+    QCOMPARE(formatted, expected);
 }
 
 QTEST_GUILESS_MAIN(tst_Reformatter);

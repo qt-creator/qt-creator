@@ -10,6 +10,7 @@
 #include <coreplugin/icore.h>
 
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
+#include <cppeditor/cppprojectfile.h>
 #include <cppeditor/cpptoolsreuse.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -76,14 +77,17 @@ static QStringList checksArguments(const AnalyzeInputData &input)
     return {};
 }
 
-static QStringList clangArguments(const ClangDiagnosticConfig &diagnosticConfig,
-                                  const QStringList &baseOptions)
+static QStringList clangArguments(const AnalyzeInputData &input)
 {
     QStringList arguments;
+    const ClangDiagnosticConfig &diagnosticConfig = input.config;
+    const QStringList &baseOptions = input.unit.arguments;
     arguments << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
               << (isClMode(baseOptions) ? clangArgsForCl(diagnosticConfig.clangOptions())
                                         : diagnosticConfig.clangOptions())
               << baseOptions;
+    if (ProjectFile::isHeader(input.unit.file))
+        arguments << "-Wno-pragma-once-outside-header";
 
     if (LOG().isDebugEnabled())
         arguments << QLatin1String("-v");
@@ -157,7 +161,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
         const QStringList args = checksArguments(input)
                                  + mainToolArguments(data)
                                  + QStringList{"--"}
-                                 + clangArguments(input.config, input.unit.arguments);
+                                 + clangArguments(input);
         const CommandLine commandLine = {data.executable, args};
 
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();

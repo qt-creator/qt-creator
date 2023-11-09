@@ -74,7 +74,6 @@ BoostTestFramework::BoostTestFramework()
     seed.setLabelText(Tr::tr("Seed:"));
     seed.setToolTip(Tr::tr("A seed of 0 means no randomization. A value of 1 uses the current "
                            "time, any other value is used as random seed generator."));
-    seed.setEnabler(&randomize);
 
     randomize.setSettingsKey("Randomize");
     randomize.setLabelPlacement(BoolAspect::LabelPlacement::Compact);
@@ -96,6 +95,10 @@ BoostTestFramework::BoostTestFramework()
     memLeaks.setDefaultValue(true);
     memLeaks.setLabelText(Tr::tr("Detect memory leaks"));
     memLeaks.setToolTip(Tr::tr("Enable memory leak detection."));
+
+    readSettings();
+
+    seed.setEnabler(&randomize);
 }
 
 QString BoostTestFramework::logLevelToOption(const LogLevel logLevel)
