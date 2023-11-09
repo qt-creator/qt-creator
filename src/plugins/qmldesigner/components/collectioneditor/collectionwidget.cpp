@@ -210,7 +210,12 @@ bool CollectionWidget::addCollection(const QString &collectionName,
         QString sourcePath = ::urlToLocalPath(sourceAddress);
         if (collectionType == "json") {
             QJsonObject jsonObject;
-            jsonObject.insert(collectionName, QJsonArray());
+            QJsonObject initialObject;
+            QJsonArray initialCollection;
+
+            initialObject.insert("Column1", "");
+            initialCollection.append(initialObject);
+            jsonObject.insert(collectionName, initialCollection);
 
             QFile sourceFile(sourcePath);
             if (!sourceFile.open(QFile::WriteOnly)) {
@@ -235,6 +240,7 @@ bool CollectionWidget::addCollection(const QString &collectionName,
                 return false;
             }
 
+            sourceFile.write("Column1\n\n");
             sourceFile.close();
 
             bool loaded = loadCsvFile(sourcePath, collectionName);
