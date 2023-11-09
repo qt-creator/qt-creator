@@ -14,6 +14,7 @@
 #include <QLatin1String>
 #include <QNetworkReply>
 #include <QNetworkRequest>
+#include <QPromise>
 
 #include <memory>
 
@@ -25,67 +26,47 @@ DashboardClient::DashboardClient(Utils::NetworkAccessManager &networkAccessManag
 {
 }
 
-static void deleteLater(QObject *obj)
-{
-    obj->deleteLater();
-}
-
 using ResponseData = Utils::expected<DataWithOrigin<QByteArray>, Error>;
 
 static constexpr int httpStatusCodeOk = 200;
 static const QLatin1String jsonContentType{ "application/json" };
 
-class ResponseReader final
+ResponseData readResponse(QNetworkReply& reply, QAnyStringView expectedContentType)
 {
-public:
-    ResponseReader(std::shared_ptr<QNetworkReply> reply, QAnyStringView expectedContentType)
-        : m_reply(std::move(reply)),
-          m_expectedContentType(expectedContentType)
-    { }
-
-    ~ResponseReader() { }
-
-    ResponseData operator()()
-    {
-        QNetworkReply::NetworkError error = m_reply->error();
-        int statusCode = m_reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-        QString contentType = m_reply->header(QNetworkRequest::ContentTypeHeader)
-                                  .toString()
-                                  .split(';')
-                                  .constFirst()
-                                  .trimmed()
-                                  .toLower();
-        if (error == QNetworkReply::NetworkError::NoError
-                && statusCode == httpStatusCodeOk
-                && contentType == m_expectedContentType) {
-            return DataWithOrigin(m_reply->url(), m_reply->readAll());
-        }
-        if (contentType == jsonContentType) {
-            try {
-                return tl::make_unexpected(DashboardError(
-                    m_reply->url(),
-                    statusCode,
-                    m_reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                    Dto::ErrorDto::deserialize(m_reply->readAll())));
-            } catch (const Dto::invalid_dto_exception &) {
-                // ignore
-            }
-        }
-        if (statusCode != 0) {
-            return tl::make_unexpected(HttpError(
-                m_reply->url(),
-                statusCode,
-                m_reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
-                QString::fromUtf8(m_reply->readAll()))); // encoding?
-        }
-        return tl::make_unexpected(
-            NetworkError(m_reply->url(), error, m_reply->errorString()));
+    QNetworkReply::NetworkError error = reply.error();
+    int statusCode = reply.attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    QString contentType = reply.header(QNetworkRequest::ContentTypeHeader)
+                              .toString()
+                              .split(';')
+                              .constFirst()
+                              .trimmed()
+                              .toLower();
+    if (error == QNetworkReply::NetworkError::NoError
+            && statusCode == httpStatusCodeOk
+            && contentType == expectedContentType) {
+        return DataWithOrigin(reply.url(), reply.readAll());
     }
-
-private:
-    std::shared_ptr<QNetworkReply> m_reply;
-    QAnyStringView m_expectedContentType;
-};
+    if (contentType == jsonContentType) {
+        try {
+            return tl::make_unexpected(DashboardError(
+                reply.url(),
+                statusCode,
+                reply.attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+                Dto::ErrorDto::deserialize(reply.readAll())));
+        } catch (const Dto::invalid_dto_exception &) {
+            // ignore
+        }
+    }
+    if (statusCode != 0) {
+        return tl::make_unexpected(HttpError(
+            reply.url(),
+            statusCode,
+            reply.attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+            QString::fromUtf8(reply.readAll()))); // encoding?
+    }
+    return tl::make_unexpected(
+        NetworkError(reply.url(), error, reply.errorString()));
+}
 
 template<typename T>
 static Utils::expected<DataWithOrigin<T>, Error> parseResponse(ResponseData rawBody)
@@ -106,11 +87,13 @@ QFuture<ResponseData> fetch(Utils::NetworkAccessManager &networkAccessManager,
                             const std::optional<QUrl> &base,
                             const QUrl &target)
 {
+    QPromise<ResponseData> promise;
+    promise.start();
     const AxivionServer &server = settings().server;
     QUrl url = base ? base->resolved(target) : target;
     QNetworkRequest request{ url };
     request.setRawHeader(QByteArrayLiteral(u8"Accept"),
-                         QByteArrayLiteral(u8"Application/Json"));
+                         QByteArray(jsonContentType.data(), jsonContentType.size()));
     request.setRawHeader(QByteArrayLiteral(u8"Authorization"),
                          QByteArrayLiteral(u8"AxToken ") + server.token.toUtf8());
     QByteArray ua = QByteArrayLiteral(u8"Axivion")
@@ -118,10 +101,17 @@ QFuture<ResponseData> fetch(Utils::NetworkAccessManager &networkAccessManager,
                     + QByteArrayLiteral(u8"Plugin/")
                     + QCoreApplication::applicationVersion().toUtf8();
     request.setRawHeader(QByteArrayLiteral(u8"X-Axivion-User-Agent"), ua);
-    std::shared_ptr<QNetworkReply> reply{ networkAccessManager.get(request), deleteLater };
-    return QtFuture::connect(reply.get(), &QNetworkReply::finished)
-        .onCanceled(reply.get(), [reply] { reply->abort(); })
-        .then(ResponseReader(reply, jsonContentType));
+    QFuture<ResponseData> future = promise.future();
+    QNetworkReply* reply = networkAccessManager.get(request);
+    QObject::connect(reply,
+                     &QNetworkReply::finished,
+                     reply,
+                     [promise = std::move(promise), reply]() mutable {
+                         promise.addResult(readResponse(*reply, jsonContentType));
+                         promise.finish();
+                         reply->deleteLater();
+                     });
+    return future;
 }
 
 QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const QString &projectName)
@@ -137,4 +127,4 @@ QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const
         .then(QtFuture::Launch::Async, &parseResponse<Dto::ProjectInfoDto>);
 }
 
-}
+} // namespace Axivion::Internal
