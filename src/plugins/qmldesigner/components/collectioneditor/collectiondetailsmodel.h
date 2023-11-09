@@ -83,6 +83,7 @@ private:
     void loadCsvCollection(const QString &source, const QString &collectionName);
     bool saveCollectionAsJson(const QString &path, const QJsonArray &content, const QString &collectionName);
     bool saveCollectionAsCsv(const QString &path, const QString &content);
+    QVariant variantFromString(const QString &value);
 
     QHash<CollectionReference, CollectionDetails> m_openedCollections;
     CollectionDetails m_currentCollection;

@@ -428,6 +428,7 @@ void CollectionDetails::resetPropertyType(CollectionProperty &property)
                 break;
         }
     }
+
     property.type = type;
 }
 
