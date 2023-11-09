@@ -33,6 +33,7 @@ public:
     void restoreSettings(const QtcSettings *settings);
     QHash<Key, QVariant> saveSettings() const;
     void restoreSettings(const QHash<Key, QVariant> &settings);
+    bool restoreFancyState(const QByteArray &state, int version = 0);
 
     // Additional context menu actions
     QAction *menuSeparator1() const;
@@ -47,6 +48,7 @@ signals:
     // Emitted by resetLayoutAction(). Connect to a slot
     // restoring the default layout.
     void resetLayout();
+    void dockWidgetsChanged();
 
 public slots:
     void setDockActionsVisible(bool v);

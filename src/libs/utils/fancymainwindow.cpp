@@ -49,8 +49,11 @@ class DockWidget : public QDockWidget
 {
 public:
     DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable = false);
+    ~DockWidget();
 
     FancyMainWindow *q;
+
+    QWidget *m_hiddenInnerWidget = nullptr;
 
 private:
     QPoint m_startPos;
@@ -130,6 +133,23 @@ public:
     {
         m_titleLabel = new QLabel(this);
 
+        m_collapseButton = new DockWidgetTitleButton(this);
+        updateCollapse();
+        connect(m_collapseButton, &DockWidgetTitleButton::clicked, this, [this] {
+            if (supportsCollapse()) {
+                if (!q->m_hiddenInnerWidget) {
+                    q->m_hiddenInnerWidget = q->widget();
+                    auto w = new QWidget;
+                    w->setMaximumHeight(0);
+                    q->setWidget(w);
+                } else {
+                    ensureWidgetShown();
+                }
+            }
+            updateCollapse();
+        });
+        connect(q->q, &FancyMainWindow::dockWidgetsChanged, this, &TitleBarWidget::updateCollapse);
+
         m_floatButton = new DockWidgetTitleButton(this);
         m_floatButton->setIcon(
             Icon({{":/utils/images/app-on-top.png", Theme::IconsBaseColor}}).icon());
@@ -147,6 +167,7 @@ public:
         auto layout = new QHBoxLayout(this);
         layout->setSpacing(0);
         layout->setContentsMargins(4, 0, 0, 0);
+        layout->addWidget(m_collapseButton);
         layout->addWidget(m_titleLabel);
         layout->addStretch();
         layout->addWidget(m_floatButton);
@@ -187,6 +208,7 @@ public:
                                   && q->features().testFlag(QDockWidget::DockWidgetFloatable));
         m_closeButton->setVisible(m_active && m_hovered
                                   && q->features().testFlag(QDockWidget::DockWidgetClosable));
+        updateCollapse();
     }
 
     QSize sizeHint() const override
@@ -203,6 +225,50 @@ public:
                         : QSize(titleMinWidth, titleInactiveHeight);
     }
 
+    bool supportsCollapse() const
+    {
+        // not if floating
+        if (q->isFloating())
+            return false;
+        // not if tabbed
+        if (!filtered(q->q->tabifiedDockWidgets(q), [](QDockWidget *w) {
+                 return w->isVisible();
+             }).isEmpty())
+            return false;
+        const QList<QDockWidget *> docksInArea
+            = filtered(q->q->dockWidgets(), [this, area = q->q->dockWidgetArea(q)](QDockWidget *w) {
+                  return w != q && w->isVisible() && q->q->dockWidgetArea(w) == area;
+              });
+        // not if only dock in area
+        if (docksInArea.isEmpty())
+            return false;
+        // not if in horizontal layout
+        if (anyOf(docksInArea, [y = q->y()](QDockWidget *w) { return w->y() == y; }))
+            return false;
+        return true;
+    }
+
+    void ensureWidgetShown()
+    {
+        if (q->m_hiddenInnerWidget) {
+            delete q->widget();
+            q->setWidget(q->m_hiddenInnerWidget);
+            q->m_hiddenInnerWidget = nullptr;
+        }
+    }
+
+    void updateCollapse()
+    {
+        const bool supported = m_active && supportsCollapse();
+        m_collapseButton->setVisible(supported);
+        if (!supported)
+            ensureWidgetShown();
+        if (q->m_hiddenInnerWidget)
+            m_collapseButton->setIcon(Icons::NEXT_TOOLBAR.icon());
+        else
+            m_collapseButton->setIcon(Icons::ARROW_DOWN_TOOLBAR.icon());
+    }
+
 private:
     DockWidget *q;
     bool m_active = true;
@@ -210,6 +276,7 @@ private:
 
 public:
     QLabel *m_titleLabel;
+    DockWidgetTitleButton *m_collapseButton;
     DockWidgetTitleButton *m_floatButton;
     DockWidgetTitleButton *m_closeButton;
 };
@@ -251,6 +318,11 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
     auto origCloseButton = findChild<QAbstractButton *>(QLatin1String("qt_dockwidget_closebutton"));
     connect(m_titleBar->m_closeButton, &QAbstractButton::clicked,
             origCloseButton, &QAbstractButton::clicked);
+}
+
+DockWidget::~DockWidget()
+{
+    delete m_hiddenInnerWidget;
 }
 
 /*!
@@ -316,6 +388,19 @@ QDockWidget *FancyMainWindow::addDockForWidget(QWidget *widget, bool immutable)
         }, Qt::QueuedConnection);
 
         dockWidget->setProperty(dockWidgetActiveState, true);
+
+        connect(dockWidget,
+                &QDockWidget::dockLocationChanged,
+                this,
+                &FancyMainWindow::dockWidgetsChanged);
+        connect(dockWidget,
+                &QDockWidget::topLevelChanged,
+                this,
+                &FancyMainWindow::dockWidgetsChanged);
+        connect(dockWidget,
+                &QDockWidget::visibilityChanged,
+                this,
+                &FancyMainWindow::dockWidgetsChanged);
     }
 
     return dockWidget;
@@ -396,7 +481,7 @@ void FancyMainWindow::restoreSettings(const QHash<Key, QVariant> &settings)
 {
     QByteArray ba = settings.value(StateKey, QByteArray()).toByteArray();
     if (!ba.isEmpty()) {
-        if (!restoreState(ba, settingsVersion))
+        if (!restoreFancyState(ba, settingsVersion))
             qWarning() << "Restoring the state of dock widgets failed.";
     }
     d->m_showCentralWidget.setChecked(settings.value(ShowCentralWidgetKey, true).toBool());
@@ -404,6 +489,13 @@ void FancyMainWindow::restoreSettings(const QHash<Key, QVariant> &settings)
         widget->setProperty(dockWidgetActiveState,
                             settings.value(keyFromString(widget->objectName()), false));
     }
+}
+
+bool FancyMainWindow::restoreFancyState(const QByteArray &state, int version)
+{
+    const bool result = restoreState(state, version);
+    emit dockWidgetsChanged();
+    return result;
 }
 
 static void findDockChildren(QWidget *parent, QList<QDockWidget *> &result)

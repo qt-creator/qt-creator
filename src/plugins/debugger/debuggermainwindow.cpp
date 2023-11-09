@@ -1004,7 +1004,7 @@ void PerspectivePrivate::restoreLayout()
     if (state.mainWindowState.isEmpty()) {
         qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORE NOT POSSIBLE, NO STORED STATE";
     } else {
-        bool result = theMainWindow->restoreState(state.mainWindowState);
+        bool result = theMainWindow->restoreFancyState(state.mainWindowState);
         qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORED, SUCCESS: " << result;
     }
 
