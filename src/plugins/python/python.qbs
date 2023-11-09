@@ -27,6 +27,8 @@ QtcPlugin {
             "pysideuicextracompiler.cpp",
             "pysideuicextracompiler.h",
             "python.qrc",
+            "pythonbuildsystem.cpp",
+            "pythonbuildsystem.h",
             "pythonconstants.h",
             "pythoneditor.cpp",
             "pythoneditor.h",
