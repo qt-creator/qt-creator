@@ -16,64 +16,66 @@ StudioControls.Dialog {
     closePolicy: Popup.CloseOnEscape
     modal: true
     implicitWidth: 250
+    implicitHeight: 160
 
-    property string compositionName: null
+    property string compositionName: ""
 
     onOpened: {
         nameText.text = "" //TODO: Generate unique name
-        emptyText.opacity = 0
+        emptyText.text = ""
         nameText.forceActiveFocus()
     }
 
-    HelperWidgets.RegExpValidator {
-        id: validator
-        regExp: /^(\w[^*/><?\\|:]*)$/
-    }
+    contentItem: Item {
+        Column {
+            spacing: 2
 
-    contentItem: Column {
-        spacing: 2
-
-        Row {
-            id: row
-            Text {
-                text: qsTr("Effect name: ")
-                anchors.verticalCenter: parent.verticalCenter
-                color: StudioTheme.Values.themeTextColor
-            }
-
-            StudioControls.TextField {
-                id: nameText
-
-                actionIndicator.visible: false
-                translationIndicator.visible: false
-                validator: validator
-
-                onTextChanged: {
-                    let validator = /^[A-Z]\w{2,}[A-Za-z0-9_]*$/
-                    emptyText.visible = text.length > 0 && !validator.test(text)
-                    btnSave.enabled = !emptyText.visible
+            Row {
+                id: row
+                Text {
+                    text: qsTr("Effect name: ")
+                    anchors.verticalCenter: parent.verticalCenter
+                    color: StudioTheme.Values.themeTextColor
                 }
-                Keys.onEnterPressed: btnSave.onClicked()
-                Keys.onReturnPressed: btnSave.onClicked()
-                Keys.onEscapePressed: root.reject()
+
+                StudioControls.TextField {
+                    id: nameText
+
+                    actionIndicator.visible: false
+                    translationIndicator.visible: false
+
+                    onTextChanged: {
+                        let errMsg = ""
+                        if (/[^A-Za-z0-9_]+/.test(text))
+                            errMsg = qsTr("Name contains invalid characters.")
+                        else if (!/^[A-Z]/.test(text))
+                            errMsg = qsTr("Name must start with a capital letter")
+                        else if (text.length < 3)
+                            errMsg = qsTr("Name must have at least 3 characters")
+                        else if (/\s/.test(text))
+                            errMsg = qsTr("Name cannot contain white space")
+
+                        emptyText.text = errMsg
+                        btnSave.enabled = errMsg.length === 0
+                    }
+                    Keys.onEnterPressed: btnSave.onClicked()
+                    Keys.onReturnPressed: btnSave.onClicked()
+                    Keys.onEscapePressed: root.reject()
+                }
             }
-        }
 
-        Text {
-            id: emptyText
+            Text {
+                id: emptyText
 
-            text: qsTr("Effect name cannot be empty.")
-            color: StudioTheme.Values.themeError
-            anchors.right: row.right
-        }
-
-        Item { // spacer
-            width: 1
-            height: 20
+                color: StudioTheme.Values.themeError
+                anchors.right: row.right
+            }
         }
 
         Row {
             anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            spacing: 2
 
             HelperWidgets.Button {
                 id: btnSave
