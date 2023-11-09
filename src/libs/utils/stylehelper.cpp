@@ -37,10 +37,10 @@ static int range(float x, int min, int max)
 
 namespace Utils {
 
-static StyleHelper::ToolbarStyle m_toolbarStyle = StyleHelper::defaultToolbarStyle;
+static StyleHelper::ToolbarStyle s_toolbarStyle = StyleHelper::defaultToolbarStyle;
 // Invalid by default, setBaseColor needs to be called at least once
-static QColor m_baseColor;
-static QColor m_requestedBaseColor;
+static QColor s_baseColor;
+static QColor s_requestedBaseColor;
 
 QColor StyleHelper::mergedColors(const QColor &colorA, const QColor &colorB, int factor)
 {
@@ -81,17 +81,17 @@ QColor StyleHelper::toolBarDropShadowColor()
 
 int StyleHelper::navigationWidgetHeight()
 {
-    return m_toolbarStyle == ToolbarStyleCompact ? 24 : 30;
+    return s_toolbarStyle == ToolbarStyleCompact ? 24 : 30;
 }
 
 void StyleHelper::setToolbarStyle(ToolbarStyle style)
 {
-    m_toolbarStyle = style;
+    s_toolbarStyle = style;
 }
 
 StyleHelper::ToolbarStyle StyleHelper::toolbarStyle()
 {
-    return m_toolbarStyle;
+    return s_toolbarStyle;
 }
 
 qreal StyleHelper::sidebarFontSize()
@@ -130,12 +130,12 @@ QColor StyleHelper::baseColor(bool lightColored)
     static const QColor windowColor = QApplication::palette().color(QPalette::Window);
     static const bool windowColorAsBase = creatorTheme()->flag(Theme::WindowColorAsBase);
 
-    return (lightColored || windowColorAsBase) ? windowColor : m_baseColor;
+    return (lightColored || windowColorAsBase) ? windowColor : s_baseColor;
 }
 
 QColor StyleHelper::requestedBaseColor()
 {
-    return m_requestedBaseColor;
+    return s_requestedBaseColor;
 }
 
 QColor StyleHelper::toolbarBaseColor(bool lightColored)
@@ -196,7 +196,7 @@ QColor StyleHelper::buttonTextColor()
 // from the users request.
 void StyleHelper::setBaseColor(const QColor &newcolor)
 {
-    m_requestedBaseColor = newcolor;
+    s_requestedBaseColor = newcolor;
 
     const QColor themeBaseColor = creatorTheme()->color(Theme::PanelStatusBarBackgroundColor);
     const QColor defaultBaseColor = QColor(DEFAULT_BASE_COLOR);
@@ -213,8 +213,8 @@ void StyleHelper::setBaseColor(const QColor &newcolor)
                      value);
     }
 
-    if (color.isValid() && color != m_baseColor) {
-        m_baseColor = color;
+    if (color.isValid() && color != s_baseColor) {
+        s_baseColor = color;
         const QWidgetList widgets = QApplication::allWidgets();
         for (QWidget *w : widgets)
             w->update();
