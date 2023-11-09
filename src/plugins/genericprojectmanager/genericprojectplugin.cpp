@@ -39,8 +39,6 @@ public:
     ProjectFilesFactory projectFilesFactory;
     GenericMakeStepFactory makeStepFactory;
     GenericBuildConfigurationFactory buildConfigFactory;
-    Action editAction;
-    Action removeDirAction;
 };
 
 GenericProjectPlugin::~GenericProjectPlugin()
@@ -59,7 +57,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
 
     IWizardFactory::registerFactoryCreator([] { return new GenericProjectWizard; });
 
-    editAction.setId("GenericProjectManager.EditFiles");
+    ActionBuilder editAction(this, "GenericProjectManager.EditFiles");
     editAction.setContext(Constants::GENERICPROJECT_ID);
     editAction.setText(Tr::tr("Edit Files..."));
     editAction.setCommandAttribute(Command::CA_Hide);
@@ -69,7 +67,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
             genericProject->editFilesTriggered();
     });
 
-    removeDirAction.setId("GenericProject.RemoveDir");
+    ActionBuilder removeDirAction(this, "GenericProject.RemoveDir");
     removeDirAction.setContext(PEC::C_PROJECT_TREE);
     removeDirAction.setText(Tr::tr("Remove Directory"));
     removeDirAction.setContainer(PEC::M_FOLDERCONTEXT, PEC::G_FOLDER_OTHER);

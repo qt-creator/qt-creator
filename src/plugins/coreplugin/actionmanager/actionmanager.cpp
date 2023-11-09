@@ -71,175 +71,164 @@ void PresentationModeHandler::showShortcutPopup(const QString &shortcut)
 
 namespace Core {
 
-class ActionPrivate
+class ActionBuilderPrivate
 {
 public:
-    void ensureCommand()
+    ActionBuilderPrivate(QObject *contextActionParent, const Id actionId)
+        : action(new QAction(contextActionParent))
+        , actionId(actionId)
     {
-        if (!command) {
-            QTC_ASSERT(actionId.isValid(), return);
-            command = ActionManager::registerAction(&action, actionId, context);
-        }
+        command = ActionManager::createCommand(actionId);
     }
 
-    QAction action;
+    void registerAction()
+    {
+        QTC_ASSERT(actionId.isValid(), return);
+        ActionManager::registerAction(action, actionId, context);
+    }
+
+    QAction *action = nullptr;
+    Command *command = nullptr;
+
     Id actionId;
     Context context{Constants::C_GLOBAL};
-    Command *command = nullptr;
 };
 
-Action::Action()
-    : d(new ActionPrivate)
+ActionBuilder::ActionBuilder(QObject *contextActionParent, const Id actionId)
+    : d(new ActionBuilderPrivate(contextActionParent, actionId))
 {
 }
 
-Action::~Action()
+ActionBuilder::~ActionBuilder()
 {
-    delete d;
+    d->registerAction();
 }
 
-void Action::setText(const QString &text)
+void ActionBuilder::setText(const QString &text)
 {
-    d->action.setText(text);
-    if (d->command)
-        d->command->action()->setText(text);
+    d->action->setText(text);
 }
 
-void Action::setCommandAttribute(Command::CommandAttribute attr)
+void ActionBuilder::setCommandAttribute(Command::CommandAttribute attr)
 {
-    d->ensureCommand();
-    QTC_ASSERT(d->command, return);
     d->command->setAttribute(attr);
 }
 
-void Action::setContainer(Utils::Id containerId, Utils::Id groupId)
+void ActionBuilder::setCommandDescription(const QString &desc)
 {
-    d->ensureCommand();
-    QTC_ASSERT(d->command, return);
-    if (containerId.isValid()) {
-        ActionContainer *container = ActionManager::actionContainer(containerId);
-        container->addAction(d->command, groupId);
-    }
+    d->command->setDescription(desc);
 }
 
-void Action::setOnTriggered(const std::function<void ()> &func)
+void ActionBuilder::setContainer(Id containerId, Id groupId)
 {
-    QObject::connect(&d->action, &QAction::triggered, &d->action, func);
+    QTC_ASSERT(containerId.isValid(), return);
+    ActionContainer *container = ActionManager::actionContainer(containerId);
+    QTC_ASSERT(container, return);
+    container->addAction(d->command, groupId);
 }
 
-void Action::setOnTriggered(QObject *guard, const std::function<void()> &func)
+void ActionBuilder::setOnTriggered(const std::function<void ()> &func)
 {
-    QObject::connect(&d->action, &QAction::triggered, guard, func);
+    QObject::connect(d->action, &QAction::triggered, d->action, func);
 }
 
-void Action::setOnTriggered(QObject *guard, const std::function<void(bool)> &func)
+void ActionBuilder::setOnTriggered(QObject *guard, const std::function<void()> &func)
 {
-    QObject::connect(&d->action, &QAction::triggered, guard, func);
+    QObject::connect(d->action, &QAction::triggered, guard, func);
 }
 
-void Action::setDefaultKeySequence(const QKeySequence &seq)
+void ActionBuilder::setOnTriggered(QObject *guard, const std::function<void(bool)> &func)
 {
-    d->ensureCommand();
-    QTC_ASSERT(d->command, return);
+    QObject::connect(d->action, &QAction::triggered, guard, func);
+}
+
+void ActionBuilder::setDefaultKeySequence(const QKeySequence &seq)
+{
     d->command->setDefaultKeySequence(seq);
 }
 
-void Action::setDefaultKeySequence(const QString &mac, const QString &nonMac)
+void ActionBuilder::setDefaultKeySequences(const QList<QKeySequence> &seqs)
 {
-    d->ensureCommand();
-    QTC_ASSERT(d->command, return);
+    d->command->setDefaultKeySequences(seqs);
+}
+
+void ActionBuilder::setDefaultKeySequence(const QString &mac, const QString &nonMac)
+{
     d->command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? mac : nonMac));
 }
 
-void Action::setIcon(const QIcon &icon)
+void ActionBuilder::setIcon(const QIcon &icon)
 {
-    d->action.setIcon(icon);
-    if (d->command)
-        d->command->action()->setIcon(icon);
+    d->action->setIcon(icon);
 }
 
-void Action::setIconVisibleInMenu(bool on)
+void ActionBuilder::setIconVisibleInMenu(bool on)
 {
-    d->action.setIconVisibleInMenu(on);
-    if (d->command)
-        d->command->action()->setIconVisibleInMenu(on);
+    d->action->setIconVisibleInMenu(on);
 }
 
-void Action::setTouchBarIcon(const QIcon &icon)
+void ActionBuilder::setTouchBarIcon(const QIcon &icon)
 {
-    d->ensureCommand();
-    QTC_ASSERT(d->command, return);
     d->command->setTouchBarIcon(icon);
 }
 
-void Action::setEnabled(bool on)
+void ActionBuilder::setEnabled(bool on)
 {
-    d->action.setEnabled(on);
-    // Explicitly not needed, done via context update:
-    // if (d->command)
-    //    d->command->action()->...
+    d->action->setEnabled(on);
 }
 
-void Action::setChecked(bool on)
+void ActionBuilder::setChecked(bool on)
 {
-    d->action.setChecked(on);
-    // Explicitly not needed, done via context update:
-    // if (d->command)
-    //    d->command->action()->...
+    d->action->setChecked(on);
 }
 
-void Action::setVisible(bool on)
+void ActionBuilder::setVisible(bool on)
 {
-    d->action.setVisible(on);
-    // Explicitly not needed, done via context update:
-    // if (d->command)
-    //    d->command->action()->....
+    d->action->setVisible(on);
 }
 
-void Action::setCheckable(bool on)
+void ActionBuilder::setCheckable(bool on)
 {
-    d->action.setCheckable(on);
-    if (d->command)
-        d->command->action()->setCheckable(on);
+    d->action->setCheckable(on);
 }
 
-void Action::setMenuRole(QAction::MenuRole role)
+void ActionBuilder::setMenuRole(QAction::MenuRole role)
 {
-    d->action.setMenuRole(role);
-    if (d->command)
-        d->command->action()->setMenuRole(role);
+    d->action->setMenuRole(role);
 }
 
-Command *Action::command() const
+Command *ActionBuilder::command() const
 {
-    d->ensureCommand();
-    QTC_CHECK(d->command);
     return d->command;
 }
 
-QAction *Action::commandAction() const
+QAction *ActionBuilder::commandAction() const
 {
-    d->ensureCommand();
-    QTC_ASSERT(d->command, return nullptr);
     return d->command->action();
 }
 
-QAction *Action::contextAction() const
+QAction *ActionBuilder::contextAction() const
 {
-    return &d->action;
+    return d->action;
 }
 
-void Action::setId(Id id)
+void ActionBuilder::bindContextAction(QAction **dest)
+{
+    QTC_ASSERT(dest, return);
+    *dest = d->action;
+}
+
+void ActionBuilder::setId(Id id)
 {
     d->actionId = id;
 }
 
-void Action::setContext(Id id)
+void ActionBuilder::setContext(Id id)
 {
     d->context = Context(id);
 }
 
-void Action::setContext(const Context &context)
+void ActionBuilder::setContext(const Context &context)
 {
     QTC_ASSERT(!context.isEmpty(), return);
     d->context = context;
@@ -482,6 +471,21 @@ Command *ActionManager::registerAction(QAction *action, Id id, const Context &co
         emit m_instance->commandAdded(id);
     }
     return cmd;
+}
+
+/*!
+    Creates a Command or returns an existing Command with the specified \a id.
+
+    The created command doesn't have any actions associated with it yet, so
+    it cannot actually be triggered.
+    But the system is aware of it, it appears in the keyboard shortcut
+    settings, and QActions can later be registered for it.
+    If you already have a QAction, ID and Context that you want to register,
+    there is no need to call this. Just directly call registerAction().
+*/
+Command *ActionManager::createCommand(Utils::Id id)
+{
+    return d->overridableAction(id);
 }
 
 /*!

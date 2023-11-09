@@ -26,22 +26,24 @@ class ICorePrivate;
 class MainWindow;
 } // Internal
 
-class CORE_EXPORT Action
+class CORE_EXPORT ActionBuilder
 {
 public:
-    Action();
-    ~Action();
+    ActionBuilder(QObject *contextActionParent, const Utils::Id actionId = {});
+    ~ActionBuilder();
 
     void setId(Utils::Id id);
     void setContext(const Utils::Id id);
     void setContext(const Core::Context &context);
     void setText(const QString &text);
     void setCommandAttribute(Core::Command::CommandAttribute attr);
+    void setCommandDescription(const QString &desc);
     void setContainer(Utils::Id containerId, Utils::Id groupId = {});
     void setOnTriggered(const std::function<void()> &func);
     void setOnTriggered(QObject *guard, const std::function<void()> &func);
     void setOnTriggered(QObject *guard, const std::function<void(bool)> &func);
     void setDefaultKeySequence(const QKeySequence &seq);
+    void setDefaultKeySequences(const QList<QKeySequence> &seqs);
     void setDefaultKeySequence(const QString &mac, const QString &nonMac);
     void setIcon(const QIcon &icon);
     void setIconVisibleInMenu(bool on);
@@ -55,9 +57,10 @@ public:
     Command *command() const;
     QAction *commandAction() const;
     QAction *contextAction() const;
+    void bindContextAction(QAction **dest);
 
 private:
-    class ActionPrivate *d = nullptr;
+    class ActionBuilderPrivate *d = nullptr;
 };
 
 class CORE_EXPORT Menu
@@ -96,6 +99,7 @@ public:
                                    const Context &context = Context(Constants::C_GLOBAL),
                                    bool scriptable = false);
 
+    static Command *createCommand(Utils::Id id);
     static Command *command(Utils::Id id);
     static ActionContainer *actionContainer(Utils::Id id);
 

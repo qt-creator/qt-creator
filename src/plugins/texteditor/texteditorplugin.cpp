@@ -87,12 +87,12 @@ public:
     BookmarkViewFactory m_bookmarkViewFactory{&m_bookmarkManager};
 
     Menu m_bookmarkMenu;
-    Action m_toggleAction;
-    Action m_editAction;
-    Action m_prevAction;
-    Action m_nextAction;
-    Action m_docPrevAction;
-    Action m_docNextAction;
+    QAction *m_toggleAction = nullptr;
+    QAction *m_editAction = nullptr;
+    QAction *m_prevAction = nullptr;
+    QAction *m_nextAction = nullptr;
+    QAction *m_docPrevAction = nullptr;
+    QAction *m_docNextAction = nullptr;
 
     QAction m_editBookmarkAction{Tr::tr("Edit Bookmark")};
     QAction m_bookmarkMarginAction{Tr::tr("Toggle Bookmark")};
@@ -122,25 +122,27 @@ TextEditorPluginPrivate::TextEditorPluginPrivate()
     m_bookmarkMenu.setTitle(Tr::tr("&Bookmarks"));
     m_bookmarkMenu.setContainer(Core::Constants::M_TOOLS);
 
-    m_toggleAction.setId("Bookmarks.Toggle");
-    m_toggleAction.setContext(editorManagerContext);
-    m_toggleAction.setText(Tr::tr("Toggle Bookmark"));
-    m_toggleAction.setDefaultKeySequence(Tr::tr("Meta+M"), Tr::tr("Ctrl+M"));
-    m_toggleAction.setTouchBarIcon(Icons::MACOS_TOUCHBAR_BOOKMARK.icon());
-    m_toggleAction.setContainer(bookmarkMenuId);
-    m_toggleAction.setOnTriggered(this, [this] {
+    ActionBuilder toggleAction(this, "Bookmarks.Toggle");
+    toggleAction.setContext(editorManagerContext);
+    toggleAction.setText(Tr::tr("Toggle Bookmark"));
+    toggleAction.setDefaultKeySequence(Tr::tr("Meta+M"), Tr::tr("Ctrl+M"));
+    toggleAction.setTouchBarIcon(Icons::MACOS_TOUCHBAR_BOOKMARK.icon());
+    toggleAction.setContainer(bookmarkMenuId);
+    toggleAction.bindContextAction(&m_toggleAction);
+    toggleAction.setOnTriggered(this, [this] {
         IEditor *editor = EditorManager::currentEditor();
         auto widget = TextEditorWidget::fromEditor(editor);
         if (widget && editor && !editor->document()->isTemporary())
             m_bookmarkManager.toggleBookmark(editor->document()->filePath(), editor->currentLine());
     });
 
-    m_editAction.setId("Bookmarks.Edit");
-    m_editAction.setContext(editorManagerContext);
-    m_editAction.setText(Tr::tr("Edit Bookmark"));
-    m_editAction.setDefaultKeySequence(Tr::tr("Meta+Shift+M"), Tr::tr("Ctrl+Shift+M"));
-    m_editAction.setContainer(bookmarkMenuId);
-    m_editAction.setOnTriggered(this, [this] {
+    ActionBuilder editAction(this, "Bookmarks.Edit");
+    editAction.setContext(editorManagerContext);
+    editAction.setText(Tr::tr("Edit Bookmark"));
+    editAction.setDefaultKeySequence(Tr::tr("Meta+Shift+M"), Tr::tr("Ctrl+Shift+M"));
+    editAction.setContainer(bookmarkMenuId);
+    editAction.bindContextAction(&m_editAction);
+    editAction.setOnTriggered(this, [this] {
         IEditor *editor = EditorManager::currentEditor();
         auto widget = TextEditorWidget::fromEditor(editor);
         if (widget && editor && !editor->document()->isTemporary()) {
@@ -154,37 +156,41 @@ TextEditorPluginPrivate::TextEditorPluginPrivate()
 
     m_bookmarkMenu.addSeparator();
 
-    m_prevAction.setId(BOOKMARKS_PREV_ACTION);
-    m_prevAction.setContext(editorManagerContext);
-    m_prevAction.setText(Tr::tr("Previous Bookmark"));
-    m_prevAction.setDefaultKeySequence(Tr::tr("Meta+,"), Tr::tr("Ctrl+,"));
-    m_prevAction.setContainer(bookmarkMenuId);
-    m_prevAction.setIcon(Icons::PREV_TOOLBAR.icon());
-    m_prevAction.setIconVisibleInMenu(false);
-    m_prevAction.setOnTriggered(this, [this] { m_bookmarkManager.prev(); });
+    ActionBuilder prevAction(this, BOOKMARKS_PREV_ACTION);
+    prevAction.setContext(editorManagerContext);
+    prevAction.setText(Tr::tr("Previous Bookmark"));
+    prevAction.setDefaultKeySequence(Tr::tr("Meta+,"), Tr::tr("Ctrl+,"));
+    prevAction.setContainer(bookmarkMenuId);
+    prevAction.setIcon(Icons::PREV_TOOLBAR.icon());
+    prevAction.setIconVisibleInMenu(false);
+    prevAction.bindContextAction(&m_prevAction);
+    prevAction.setOnTriggered(this, [this] { m_bookmarkManager.prev(); });
 
-    m_nextAction.setId(BOOKMARKS_NEXT_ACTION);
-    m_nextAction.setContext(editorManagerContext);
-    m_nextAction.setText(Tr::tr("Next Bookmark"));
-    m_nextAction.setIcon(Icons::NEXT_TOOLBAR.icon());
-    m_nextAction.setIconVisibleInMenu(false);
-    m_nextAction.setDefaultKeySequence(Tr::tr("Meta+."), Tr::tr("Ctrl+."));
-    m_nextAction.setContainer(bookmarkMenuId);
-    m_nextAction.setOnTriggered(this, [this] { m_bookmarkManager.next(); });
+    ActionBuilder nextAction(this, BOOKMARKS_NEXT_ACTION);
+    nextAction.setContext(editorManagerContext);
+    nextAction.setText(Tr::tr("Next Bookmark"));
+    nextAction.setIcon(Icons::NEXT_TOOLBAR.icon());
+    nextAction.setIconVisibleInMenu(false);
+    nextAction.setDefaultKeySequence(Tr::tr("Meta+."), Tr::tr("Ctrl+."));
+    nextAction.setContainer(bookmarkMenuId);
+    nextAction.bindContextAction(&m_nextAction);
+    nextAction.setOnTriggered(this, [this] { m_bookmarkManager.next(); });
 
     m_bookmarkMenu.addSeparator();
 
-    m_docPrevAction.setId("Bookmarks.PreviousDocument");
-    m_docPrevAction.setContext(editorManagerContext);
-    m_docPrevAction.setText(Tr::tr("Previous Bookmark in Document"));
-    m_docPrevAction.setContainer(bookmarkMenuId);
-    m_docPrevAction.setOnTriggered(this, [this] { m_bookmarkManager.prevInDocument(); });
+    ActionBuilder docPrevAction(this, "Bookmarks.PreviousDocument");
+    docPrevAction.setContext(editorManagerContext);
+    docPrevAction.setText(Tr::tr("Previous Bookmark in Document"));
+    docPrevAction.setContainer(bookmarkMenuId);
+    docPrevAction.bindContextAction(&m_docPrevAction);
+    docPrevAction.setOnTriggered(this, [this] { m_bookmarkManager.prevInDocument(); });
 
-    m_docNextAction.setId("Bookmarks.NextDocument");
-    m_docNextAction.setContext(Core::Constants::C_EDITORMANAGER);
-    m_docNextAction.setText(Tr::tr("Next Bookmark in Document"));
-    m_docNextAction.setContainer(bookmarkMenuId);
-    m_docNextAction.setOnTriggered(this, [this] { m_bookmarkManager.nextInDocument(); });
+    ActionBuilder docNextAction(this, "Bookmarks.NextDocument");
+    docNextAction.setContext(Core::Constants::C_EDITORMANAGER);
+    docNextAction.setText(Tr::tr("Next Bookmark in Document"));
+    docNextAction.setContainer(bookmarkMenuId);
+    docNextAction.bindContextAction(&m_docNextAction);
+    docNextAction.setOnTriggered(this, [this] { m_bookmarkManager.nextInDocument(); });
 
     connect(&m_editBookmarkAction, &QAction::triggered, this, [this] {
             m_bookmarkManager.editByFileAndLine(m_marginActionFileName, m_marginActionLineNumber);
@@ -199,7 +205,7 @@ TextEditorPluginPrivate::TextEditorPluginPrivate()
     });
 
     ActionContainer *touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
-    touchBar->addAction(m_toggleAction.command(), Core::Constants::G_TOUCHBAR_EDITOR);
+    touchBar->addAction(toggleAction.command(), Core::Constants::G_TOUCHBAR_EDITOR);
 
     // EditorManager
     connect(EditorManager::instance(), &EditorManager::editorAboutToClose,
@@ -213,12 +219,12 @@ void TextEditorPluginPrivate::updateActions(bool enableToggle, int state)
     const bool hasbm    = state >= BookmarkManager::HasBookMarks;
     const bool hasdocbm = state == BookmarkManager::HasBookmarksInDocument;
 
-    m_toggleAction.setEnabled(enableToggle);
-    m_editAction.setEnabled(enableToggle);
-    m_prevAction.setEnabled(hasbm);
-    m_nextAction.setEnabled(hasbm);
-    m_docPrevAction.setEnabled(hasdocbm);
-    m_docNextAction.setEnabled(hasdocbm);
+    m_toggleAction->setEnabled(enableToggle);
+    m_editAction->setEnabled(enableToggle);
+    m_prevAction->setEnabled(hasbm);
+    m_nextAction->setEnabled(hasbm);
+    m_docPrevAction->setEnabled(hasdocbm);
+    m_docNextAction->setEnabled(hasdocbm);
 }
 
 void TextEditorPluginPrivate::editorOpened(IEditor *editor)
