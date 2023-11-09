@@ -5,6 +5,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <QCursor>
 #include <QGuiApplication>
 #include <QMainWindow>
 #include <QWindow>
@@ -36,5 +37,10 @@ void WindowManager::registerDeclarativeType()
 }
 
 WindowManager::~WindowManager() {}
+
+QPoint WindowManager::globalCursorPosition()
+{
+    return QCursor::pos();
+}
 
 } // namespace QmlDesignerBase

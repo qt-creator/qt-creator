@@ -5,6 +5,7 @@
 
 #include "../qmldesignerbase_global.h"
 
+#include <QPoint>
 #include <QtQml/qqml.h>
 
 QT_FORWARD_DECLARE_CLASS(QWindow)
@@ -22,6 +23,8 @@ public:
     void operator=(const WindowManager &) = delete;
 
     static void registerDeclarativeType();
+
+    Q_INVOKABLE QPoint globalCursorPosition();
 
 signals:
     void focusWindowChanged(QWindow *window);

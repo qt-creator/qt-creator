@@ -48,6 +48,9 @@ StudioControls.PopupDialog {
             function onPopupShouldClose() {
                 root.close()
             }
+            function onPopupShouldOpen() {
+                root.showGlobal()
+            }
         }
     }
 }

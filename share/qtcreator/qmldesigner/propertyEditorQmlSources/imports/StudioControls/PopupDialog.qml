@@ -33,10 +33,20 @@ QtObject {
 
     signal closing(close: var)
 
+    function showGlobal()
+    {
+        var pos =  WindowManager.globalCursorPosition();
+        root.__itemGlobal = Qt.rect(pos.x, pos.y, 300, 20)
+        root.chevronVisible = false
+        root.layout()
+        window.show()
+        window.raise()
+    }
+
     function show(target: Item) {
         var originGlobal = target.mapToGlobal(0, 0)
         root.__itemGlobal = Qt.rect(originGlobal.x, originGlobal.y, target.width, target.height)
-
+        root.chevronVisible = true
         root.layout()
         window.show()
         window.raise()

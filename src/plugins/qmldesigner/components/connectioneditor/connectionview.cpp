@@ -11,13 +11,14 @@
 #include "theme.h"
 
 #include <bindingproperty.h>
+#include <customnotifications.h>
 #include <nodeabstractproperty.h>
-#include <signalhandlerproperty.h>
-#include <variantproperty.h>
-#include <viewmanager.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmldesignertr.h>
+#include <signalhandlerproperty.h>
+#include <variantproperty.h>
+#include <viewmanager.h>
 
 #include <studioquickwidget.h>
 
@@ -350,6 +351,32 @@ ConnectionView *ConnectionView::instance()
 
     QTC_ASSERT(s_instance, return nullptr);
     return s_instance;
+}
+
+void ConnectionView::customNotification(const AbstractView *,
+                                        const QString &identifier,
+                                        const QList<ModelNode> &nodeList,
+                                        const QList<QVariant> &data)
+{
+    if (identifier == AddConnectionNotification) {
+        QTC_ASSERT(data.count() == 1, return );
+
+        const PropertyName name = data.first().toString().toUtf8();
+        m_connectionModel->addConnection(name);
+        m_connectionModel->showPopup();
+    } else if (identifier == EditConnectionNotification) {
+        QTC_ASSERT(nodeList.count() == 1, return );
+        ModelNode modelNode = nodeList.first();
+
+        QTC_ASSERT(data.count() == 1, return );
+
+        const PropertyName name = data.first().toByteArray();
+
+        QTC_ASSERT(modelNode.hasSignalHandlerProperty(name), return );
+
+        m_connectionModel->selectProperty(modelNode.signalHandlerProperty(name));
+        m_connectionModel->showPopup();
+    }
 }
 
 } // namespace QmlDesigner

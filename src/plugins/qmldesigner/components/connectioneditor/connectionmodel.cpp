@@ -346,7 +346,7 @@ static PropertyName getFirstSignalForTarget(const NodeMetaInfo &target)
     return ret;
 }
 
-void ConnectionModel::addConnection()
+void ConnectionModel::addConnection(const PropertyName &signalName)
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_CONNECTION_ADDED);
 
@@ -358,10 +358,13 @@ void ConnectionModel::addConnection()
 
         if (nodeMetaInfo.isValid()) {
             ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
-            const PropertyName signalHandlerName = addOnToSignalName(
-                                                       QString::fromUtf8(getFirstSignalForTarget(
-                                                           selectedNode.metaInfo())))
-                                                       .toUtf8();
+
+            PropertyName signalHandlerName = signalName;
+            if (signalHandlerName.isEmpty()) {
+                signalHandlerName = addOnToSignalName(QString::fromUtf8(getFirstSignalForTarget(
+                                                          selectedNode.metaInfo())))
+                                        .toUtf8();
+            }
 
             connectionView()
                 ->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode]() {
@@ -2125,6 +2128,11 @@ ConnectionEditorStatements::ComparativeStatement ConditionListModel::toStatement
 void QmlDesigner::ConnectionModel::modelAboutToBeDetached()
 {
     emit m_delegate->popupShouldClose();
+}
+
+void ConnectionModel::showPopup()
+{
+    emit m_delegate->popupShouldOpen();
 }
 
 } // namespace QmlDesigner

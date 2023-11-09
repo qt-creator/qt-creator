@@ -15,6 +15,7 @@
 #include "qmleditormenu.h"
 #include "rewritingexception.h"
 #include <bindingproperty.h>
+#include <customnotifications.h>
 #include <nodehints.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
@@ -740,7 +741,19 @@ public:
                         activeSignalHandlerGroup->addMenu(editSlotGroup);
                     }
 
-                    //add an action to open Connection Form from here:
+                    ActionTemplate *openEditorAction = new ActionTemplate(
+                        (propertyName + "OpenEditorId").toLatin1(),
+                        QString(
+                            QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
+                        [=](const SelectionContext &) {
+                            signalHandler.view()
+                                ->emitCustomNotification(EditConnectionNotification,
+                                                         {signalHandler.parentModelNode()},
+                                                         {signalHandler.name()});
+                            //ActionEditor::invokeEditor(signalHandler, removeSignal);
+                        });
+
+                    activeSignalHandlerGroup->addAction(openEditorAction);
 
                     ActionTemplate *removeSignalHandlerAction = new ActionTemplate(
                         (propertyName + "RemoveSignalHandlerId").toLatin1(),
@@ -809,7 +822,15 @@ public:
                 }
             }
 
-            //add an action to open Connection Form from here
+            ActionTemplate *openEditorAction = new ActionTemplate(
+                (signalStr + "OpenEditorId").toLatin1(),
+                QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Connection")),
+                [=](const SelectionContext &) {
+                    currentNode.view()->emitCustomNotification(AddConnectionNotification,
+                                                               {currentNode},
+                                                               {signalStr});
+                });
+            newSignal->addAction(openEditorAction);
 
             addConnection->addMenu(newSignal);
         }
