@@ -3,7 +3,7 @@
 
 import QtQuick
 import QtQuickDesignerTheme
-import HelperWidgets as HelperWidgets
+import StudioControls as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import EffectMakerBackend
 
@@ -13,11 +13,11 @@ Row {
     width: parent.width
     spacing: 5
 
-    HelperWidgets.ColorEditor {
-        backendValue: uniformBackendValue
+    StudioControls.ColorEditor {
+        actionIndicatorVisible: false
 
-        showExtendedFunctionButton: false
+        Component.onCompleted: color = uniformValue
 
-        onValueChanged: uniformValue = convertColorToString(color)
+        onColorChanged: uniformValue = color
     }
 }
