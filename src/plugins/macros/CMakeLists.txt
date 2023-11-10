@@ -11,7 +11,7 @@ add_qtc_plugin(Macros
     macrooptionspage.cpp macrooptionspage.h
     macros.qrc
     macrosconstants.h
-    macrosplugin.cpp macrosplugin.h
+    macrosplugin.cpp
     macrotextfind.cpp macrotextfind.h
     macrostr.h
     texteditormacrohandler.cpp texteditormacrohandler.h
