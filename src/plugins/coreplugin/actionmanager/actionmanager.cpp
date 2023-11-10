@@ -109,6 +109,11 @@ void ActionBuilder::setText(const QString &text)
     d->action->setText(text);
 }
 
+void ActionBuilder::setToolTip(const QString &toolTip)
+{
+    d->action->setToolTip(toolTip);
+}
+
 void ActionBuilder::setCommandAttribute(Command::CommandAttribute attr)
 {
     d->command->setAttribute(attr);

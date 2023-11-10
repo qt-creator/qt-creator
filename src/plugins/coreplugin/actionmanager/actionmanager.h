@@ -36,6 +36,7 @@ public:
     void setContext(const Utils::Id id);
     void setContext(const Core::Context &context);
     void setText(const QString &text);
+    void setToolTip(const QString &toolTip);
     void setCommandAttribute(Core::Command::CommandAttribute attr);
     void setCommandDescription(const QString &desc);
     void setContainer(Utils::Id containerId, Utils::Id groupId = {});
