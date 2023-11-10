@@ -10,20 +10,17 @@
 #include <utils/id.h>
 #include <utils/proxyaction.h>
 
-#include <QList>
-#include <QMultiMap>
-#include <QPointer>
-#include <QMap>
 #include <QKeySequence>
+#include <QList>
+#include <QMap>
+#include <QPointer>
 
 #include <memory>
 
-namespace Core {
-namespace Internal {
+namespace Core::Internal {
 
 class CommandPrivate : public QObject
 {
-    Q_OBJECT
 public:
     CommandPrivate(Command *parent);
 
@@ -56,5 +53,4 @@ public:
     bool m_contextInitialized = false;
 };
 
-} // namespace Internal
-} // namespace Core
+} // namespace Core::Internal
