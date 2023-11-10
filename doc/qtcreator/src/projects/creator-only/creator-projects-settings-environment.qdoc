@@ -1,16 +1,17 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-build-dependencies.html
-    \page creator-project-settings-environment.html
-    \nextpage creator-custom-output-parsers.html
+    \page creator-how-set-project-environment.html
+    \previouspage creator-how-tos.html
 
-    \title Specifying Environment Settings
+    \ingroup creator-how-to-projects
 
-    You can specify the environment you want to use for building
-    a project in the \uicontrol {Build Environment} section of
-    the \uicontrol {Build Settings}.
+    \title Specify the environment for projects
+
+    The environment for a project is determined according to a settings hierarchy:
+
+    \image qtcreator-environment-settings-hierarchy.webp {Environment settings hierarchy}
 
     By default, the environment in which \QC was started is used and modified
     to include the Qt version. Depending on the selected Qt version, \QC
@@ -18,36 +19,109 @@
     existing environment variables or add, reset and unset new variables
     based on your project requirements.
 
-    To globally change the system environment from the one in which
-    \QC is started, select \preferences >
-    \uicontrol Environment > \uicontrol System, and then select
-    \uicontrol Change in the \uicontrol Environment field.
+    The final environment is specified separately for each kit. With
+    project-specific environment settings you can change the environment for
+    all kits that you use to build, deploy, and run the project simultaneously,
+    rather than having to change it separately for each kit.
+
+    The changes are stored in the local project-specific \c{CMakeLists.txt.user}
+    or \c{.pro.user} file, depending on the build system you use, such as CMake
+    or qmake. Therefore, they are not suitable for sharing between developers or
+    development PCs. To share settings, incorporate them into the build system.
+    For example, if you use CMake, make the changes in the \c {CMakeLists.txt}
+    file, and if you use qmake, make the changes in the \c{.pro} file.
+
+    \section1 Globally change the environment
+
+    To globally change the environment from the one in which \QC is started,
+    select \preferences > \uicontrol Environment > \uicontrol System, and then
+    select \uicontrol Change in the \uicontrol Environment field.
 
     \image qtcreator-preferences-environment-system.webp "Environment preferences System tab"
 
-    In addition, you can specify custom environment variables in the
-    \uicontrol {Project Settings} > \uicontrol Environment settings.
-    They are added to all build environments. The final build environment
-    is specified separately for each kit. The project-specific environment
-    settings enable you to amend the build environment for all kits that
-    you use to build the project simultaneously, rather than having to edit
-    it separately for each kit.
+    \section1 Change the environment for a project
 
-    \image qtcreator-build-environment.png "Build Environment"
+    To change the system environment for a project from the one in which
+    \QC is started, select \uicontrol Projects > \uicontrol {Project Settings}
+    > \uicontrol Environment.
 
-    The changes are stored in the local project specific \c{CMakeLists.txt.user}
-    or \c{.pro.user} file, depending on the build system you use. Therefore,
-    they are not suitable for sharing between developers or development PCs. To
-    share settings, incorporate them into the build system. For example, if you
-    use CMake, make the changes in the \c {CMakeLists.txt} file, and if you use
-    qmake, make the changes in the \c{.pro} file.
+    \image qtcreator-projects-environment.webp {Environment tab in Project Settings}
 
-    \section1 Batch Editing
+    \section1 Specify the build environment
 
-    To modify environment variable values for build or run environments,
-    select \uicontrol {Batch Edit} in the \uicontrol {Build Environment}
-    or \uicontrol {Environment} pane and enter environment variables in
-    the \uicontrol {Edit Environment} dialog.
+    Specify the build environment to use for a kit in \uicontrol Projects >
+    \uicontrol {Build Settings} > \uicontrol {Build Environment}.
+
+    \image qtcreator-build-environment.png {Build Environment section in Build Settings}
+
+    \section2 Clear the build environment
+
+    To build with a clean system environment, select the \uicontrol {Clear
+    system environment} check box. \QC discards the current environment, and
+    populates a clean system environment with the environment variables that
+    the compilers and tools need. Therefore, the environment is never totally
+    empty, even after you clear it.
+
+    \section1 Specify the run environment
+
+    \QC automatically selects the environment used for running the application
+    based on the \l{glossary-device}{device} type. You can edit the environment
+    or select another environment in \uicontrol Projects >
+    \uicontrol {Run Settings} > \uicontrol {Environment}.
+
+    You can edit existing environment variables or add, reset and unset new
+    variables.
+
+    \image qtcreator-run-environment.png {Environment section in Run Settings}
+
+    When running on the desktop, the \uicontrol {Build Environment} is used by
+    default, but you can also use the \uicontrol {System Environment} without the
+    additions made to the build environment.
+
+    To modify the environment variable values for the run environment,
+    double-click environment variables or their values and change them inline,
+    or select \uicontrol {Batch Edit} to change several variable values at a
+    time.
+
+    \section2 Clean the run environment
+
+    To run in a clean system environment, select \uicontrol {Clean Environment}.
+
+    \section2 Run on devices
+
+    When running on a mobile device connected to the development host, \QC
+    fetches information about the \uicontrol {Device Environment} from the device.
+    Usually, it does not make sense to edit the device environment.
+
+    \sa {Batch edit environment settings}, {Specifying Build Settings},
+    {Specifying Run Settings}, {Use Qt Creator variables}
+*/
+
+/*!
+    \page creator-how-to-batch-edit-environment-settings.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects
+
+    \title Batch edit environment settings
+
+    You can change the environment variable values for build or run environments
+    either for a particular project or globally for all projects in the
+    \uicontrol {Edit Environment} dialog:
+
+    \list
+        \li To change values globally, select \uicontrol Change in the
+            \l {Globally change the environment}{global environment preferences}.
+        \li To change values for a project, select \uicontrol {Batch Edit} in the
+            \l {Change the environment for a project}{project},
+            \l {Specify the build environment}{build}, or
+            \l {Specify the run environment}{run} environment settings.
+    \endlist
+
+    \image qtcreator-edit-environment.webp {Edit Environment dialog}
+
+    Use the following syntax to enter environment variable names and values:
+    \c {<VARIABLE>=<VALUE>}.
 
     To remove a variable value from the environment, enter the variable name.
     For example, \c TEST sets the value of the \c TEST variable empty when
@@ -70,21 +144,6 @@
     To temporarily disable a variable, add a hash character (#) to the beginning
     of the line.
 
-    \section1 Clearing the System Environment
-
-    To build with a clean system environment, select the \uicontrol {Clear
-    system environment} check box. \QC discards the current environment, and
-    populates a clean system environment with the environment variables that
-    the compilers and tools need. Therefore, the environment is never totally
-    empty, even after you clear it.
-
-    \section1 Using Environment Variables
-
-    You can use any environment variables in build, deploy, and run
-    configurations. For a list of variable names, select \uicontrol {Build
-    Settings} > \uicontrol {Build Environment} > \uicontrol Details.
-    Environment variables are referenced using the native syntax: $VARNAME
-    or ${VARNAME} on Unix and %VARNAME% on Windows.
-
-    \include qtcreator-variables.qdocinc qtcreator variables
+    \sa {Specify the environment for projects}, {Specifying Build Settings},
+    {Use Qt Creator variables}
 */

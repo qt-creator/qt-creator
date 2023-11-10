@@ -3,6 +3,8 @@ add_qtc_library(Utils
   PUBLIC_DEPENDS
     Qt::Concurrent Qt::Core Qt::Network Qt::Gui Qt::Widgets
     Qt::Core5Compat
+    $<$<BOOL:${QTC_STATIC_BUILD}>:Tasking>
+    $<$<BOOL:${QTC_STATIC_BUILD}>:Spinner>
   SOURCES
     ../3rdparty/span/span.hpp
     ../3rdparty/tl_expected/include/tl/expected.hpp

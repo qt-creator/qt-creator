@@ -9381,7 +9381,9 @@ template<typename T> inline T aFunction() { return T(); }
 
     const QByteArrayList headersMemberDecl2Def{R"(
 class C {
-    // Member function comment
+    /**
+      * \brief Foo::aMember
+      */
     void @aMember();
 )", R"(
 class C {
@@ -9394,7 +9396,9 @@ void C::aMember() {}
 )", R"(
 #include "file.h"
 
-// Member function comment
+/**
+  * \brief Foo::aMember
+  */
 void C::aMember() {}
 )"};
     QTest::newRow("member function: from decl to def") << headersMemberDecl2Def
@@ -9405,13 +9409,17 @@ class C {
     void aMember();
 )", R"(
 class C {
-    // Member function comment
+    /**
+      * \brief Foo::aMember
+      */
     void aMember();
 )"};
     const QByteArrayList sourcesMemberDef2Decl{R"(
 #include "file.h"
 
-// Member function comment
+/**
+  * \brief Foo::aMember
+  */
 void C::aMember() {@}
 )", R"(
 #include "file.h"

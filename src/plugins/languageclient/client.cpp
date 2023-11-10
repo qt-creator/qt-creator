@@ -592,6 +592,11 @@ bool Client::reachable() const
     return d->m_state == Initialized;
 }
 
+void Client::resetRestartCounter()
+{
+    d->m_restartsLeft = ClientPrivate::MaxRestarts;
+}
+
 void Client::setClientInfo(const LanguageServerProtocol::ClientInfo &clientInfo)
 {
     d->m_clientInfo = clientInfo;
