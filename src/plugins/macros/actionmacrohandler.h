@@ -9,13 +9,10 @@
 
 #include <QSet>
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 class ActionMacroHandler : public IMacroHandler
 {
-    Q_OBJECT
-
 public:
     ActionMacroHandler();
 
@@ -31,5 +28,4 @@ private:
     QSet<Utils::Id> m_commandIds;
 };
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal

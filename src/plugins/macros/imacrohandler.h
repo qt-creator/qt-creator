@@ -5,26 +5,23 @@
 
 #include <QObject>
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 class Macro;
 class MacroEvent;
 class MacroManager;
 
-class IMacroHandler: public QObject
+class IMacroHandler : public QObject
 {
-    Q_OBJECT
-
 public:
-    virtual void startRecording(Macro* macro);
-    virtual void endRecordingMacro(Macro* macro);
+    virtual void startRecording(Macro *macro);
+    virtual void endRecordingMacro(Macro *macro);
 
     virtual bool canExecuteEvent(const MacroEvent &macroEvent) = 0;
     virtual bool executeEvent(const MacroEvent &macroEvent) = 0;
 
 protected:
-    void addMacroEvent(const MacroEvent& event);
+    void addMacroEvent(const MacroEvent &event);
 
     void setCurrentMacro(Macro *macro);
 
@@ -36,5 +33,4 @@ private:
     Macro *m_currentMacro = nullptr;
 };
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal

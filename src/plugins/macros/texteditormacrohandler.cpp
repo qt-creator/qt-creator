@@ -18,8 +18,7 @@
 #include <QKeyEvent>
 #include <QApplication>
 
-using namespace Macros;
-using namespace Macros::Internal;
+namespace Macros::Internal {
 
 static const char KEYEVENTNAME[] = "TextEditorKey";
 static quint8 TEXT = 0;
@@ -118,3 +117,5 @@ void TextEditorMacroHandler::closeEditor(Core::IEditor *editor)
         m_currentEditor->widget()->removeEventFilter(this);
     m_currentEditor = nullptr;
 }
+
+} // namespace Macro::Internal

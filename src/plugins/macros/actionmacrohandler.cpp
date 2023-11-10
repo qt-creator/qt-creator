@@ -21,10 +21,9 @@
 using namespace Core;
 using namespace Utils;
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
-static const char EVENTNAME[] = "Action";
+const char EVENTNAME[] = "Action";
 static quint8 ACTIONNAME = 0;
 
 ActionMacroHandler::ActionMacroHandler()
@@ -82,5 +81,4 @@ void ActionMacroHandler::addCommand(Id id)
         registerCommand(id);
 }
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal

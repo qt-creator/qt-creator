@@ -9,13 +9,10 @@ namespace Core { class IEditor; }
 
 namespace TextEditor { class BaseTextEditor; }
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 class TextEditorMacroHandler : public IMacroHandler
 {
-    Q_OBJECT
-
 public:
     TextEditorMacroHandler();
 
@@ -34,5 +31,4 @@ private:
     TextEditor::BaseTextEditor *m_currentEditor = nullptr;
 };
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal
