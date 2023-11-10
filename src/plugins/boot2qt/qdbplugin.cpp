@@ -1,8 +1,6 @@
 // Copyright (C) 2019 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "qdbplugin.h"
-
 #include "device-detection/devicedetector.h"
 #include "qdbconstants.h"
 #include "qdbdevice.h"
@@ -18,10 +16,10 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitaspects.h>
-#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -30,11 +28,8 @@
 
 #include <remotelinux/remotelinux_constants.h>
 
-#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/process.h>
-
-#include <QAction>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -124,10 +119,10 @@ public:
     }
 };
 
-class QdbPluginPrivate : public QObject
+class QdbPluginPrivate final : public QObject
 {
 public:
-    void setupDeviceDetection();
+    void setupDeviceDetection() { m_deviceDetector.start(); }
 
     QdbLinuxDeviceFactory m_qdbDeviceFactory;
     QdbQtVersionFactory m_qtVersionFactory;
@@ -153,39 +148,43 @@ public:
     DeviceDetector m_deviceDetector;
 };
 
-QdbPlugin::~QdbPlugin()
+class QdbPlugin final : public ExtensionSystem::IPlugin
 {
-    delete d;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Boot2Qt.json")
 
-void QdbPlugin::initialize()
-{
-    d = new QdbPluginPrivate;
+public:
+    ~QdbPlugin() final { delete d; }
 
-    registerFlashAction(this);
-}
+private:
+    void initialize() final
+    {
+        d = new QdbPluginPrivate;
 
-void QdbPlugin::extensionsInitialized()
-{
-    DeviceManager * const dm = DeviceManager::instance();
-    if (dm->isLoaded()) {
-        d->setupDeviceDetection();
-    } else {
-        connect(dm, &DeviceManager::devicesLoaded,
-                d, &QdbPluginPrivate::setupDeviceDetection);
+        registerFlashAction(this);
     }
-}
 
-ExtensionSystem::IPlugin::ShutdownFlag QdbPlugin::aboutToShutdown()
-{
-    d->m_deviceDetector.stop();
+    void extensionsInitialized() final
+    {
+        DeviceManager * const dm = DeviceManager::instance();
+        if (dm->isLoaded()) {
+            d->setupDeviceDetection();
+        } else {
+            connect(dm, &DeviceManager::devicesLoaded,
+                    d, &QdbPluginPrivate::setupDeviceDetection);
+        }
+    }
 
-    return SynchronousShutdown;
-}
+    ShutdownFlag aboutToShutdown() final
+    {
+        d->m_deviceDetector.stop();
 
-void QdbPluginPrivate::setupDeviceDetection()
-{
-    m_deviceDetector.start();
-}
+        return SynchronousShutdown;
+    }
+
+    class QdbPluginPrivate *d = nullptr;
+};
 
 } // Qdb::Internal
+
+#include "qdbplugin.moc"
