@@ -34,8 +34,6 @@ QtcPlugin {
         "macrostr.h",
         "macrotextfind.cpp",
         "macrotextfind.h",
-        "savedialog.cpp",
-        "savedialog.h",
         "texteditormacrohandler.cpp",
         "texteditormacrohandler.h",
     ]

@@ -6,20 +6,17 @@
 #include <QObject>
 #include <QMap>
 
-namespace Macros {
-namespace Internal {
+namespace Macros::Internal {
 
 class IMacroHandler;
 class Macro;
 class MacroOptionsWidget;
 
-class MacroManager : public QObject
+class MacroManager final : public QObject
 {
-    Q_OBJECT
-
 public:
     MacroManager();
-    ~MacroManager() override;
+    ~MacroManager() final;
 
     static MacroManager *instance();
 
@@ -35,15 +32,13 @@ public:
     bool executeMacro(const QString &name);
     void endMacro();
 
-protected:
+private:
     friend class Internal::MacroOptionsWidget;
 
     void deleteMacro(const QString &name);
     void changeMacro(const QString &name, const QString &description);
 
-private:
     class MacroManagerPrivate *d;
 };
 
-} // namespace Internal
-} // namespace Macros
+} // namespace Macros::Internal
