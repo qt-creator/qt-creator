@@ -10,6 +10,7 @@
     ],
     "Description" : "Plugin for Effect Maker.",
     "Url" : "http://www.qt.io",
+    "DisabledByDefault" : true,
     ${IDE_PLUGIN_DEPENDENCIES}
 }
 
