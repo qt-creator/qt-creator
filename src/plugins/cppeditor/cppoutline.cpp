@@ -6,73 +6,117 @@
 #include "cppeditordocument.h"
 #include "cppeditoroutline.h"
 #include "cppeditortr.h"
+#include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
 #include "cppoutlinemodel.h"
 
-#include <coreplugin/find/itemviewfind.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/find/itemviewfind.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
+#include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 
-#include <QDebug>
-#include <QVBoxLayout>
 #include <QMenu>
+#include <QSortFilterProxyModel>
+#include <QTimer>
+#include <QVBoxLayout>
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
-CppOutlineTreeView::CppOutlineTreeView(QWidget *parent) :
-    Utils::NavigationTreeView(parent)
+class CppOutlineTreeView final : public Utils::NavigationTreeView
 {
-    setExpandsOnDoubleClick(false);
-    setDragEnabled(true);
-    setDragDropMode(QAbstractItemView::DragOnly);
-}
+public:
+    CppOutlineTreeView(QWidget *parent) :
+        Utils::NavigationTreeView(parent)
+    {
+        setExpandsOnDoubleClick(false);
+        setDragEnabled(true);
+        setDragDropMode(QAbstractItemView::DragOnly);
+    }
 
-void CppOutlineTreeView::contextMenuEvent(QContextMenuEvent *event)
+    void contextMenuEvent(QContextMenuEvent *event) final
+    {
+        if (!event)
+            return;
+
+        QMenu contextMenu;
+
+        QAction *action = contextMenu.addAction(Tr::tr("Expand All"));
+        connect(action, &QAction::triggered, this, &QTreeView::expandAll);
+        action = contextMenu.addAction(Tr::tr("Collapse All"));
+        connect(action, &QAction::triggered, this, &QTreeView::collapseAll);
+
+        contextMenu.exec(event->globalPos());
+
+        event->accept();
+    }
+};
+
+class CppOutlineFilterModel : public QSortFilterProxyModel
 {
-    if (!event)
-        return;
+public:
+    CppOutlineFilterModel(OutlineModel &sourceModel, QObject *parent)
+        : QSortFilterProxyModel(parent)
+        , m_sourceModel(sourceModel)
+    {}
 
-    QMenu contextMenu;
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const final
+    {
+        // ignore artificial "<Select Symbol>" entry
+        if (!sourceParent.isValid() && sourceRow == 0)
+            return false;
+        // ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
+        const QModelIndex sourceIndex = m_sourceModel.index(sourceRow, 0, sourceParent);
+        if (m_sourceModel.isGenerated(sourceIndex))
+            return false;
 
-    QAction *action = contextMenu.addAction(Tr::tr("Expand All"));
-    connect(action, &QAction::triggered, this, &QTreeView::expandAll);
-    action = contextMenu.addAction(Tr::tr("Collapse All"));
-    connect(action, &QAction::triggered, this, &QTreeView::collapseAll);
+        return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
+    }
 
-    contextMenu.exec(event->globalPos());
+    Qt::DropActions supportedDragActions() const final
+    {
+        return sourceModel()->supportedDragActions();
+    }
 
-    event->accept();
-}
+private:
+    OutlineModel &m_sourceModel;
+};
 
-CppOutlineFilterModel::CppOutlineFilterModel(OutlineModel &sourceModel,
-                                             QObject *parent)
-    : QSortFilterProxyModel(parent)
-    , m_sourceModel(sourceModel)
+class CppOutlineWidget : public TextEditor::IOutlineWidget
 {
-}
+public:
+    CppOutlineWidget(CppEditorWidget *editor);
 
-bool CppOutlineFilterModel::filterAcceptsRow(int sourceRow,
-                                             const QModelIndex &sourceParent) const
-{
-    // ignore artifical "<Select Symbol>" entry
-    if (!sourceParent.isValid() && sourceRow == 0)
-        return false;
-    // ignore generated symbols, e.g. by macro expansion (Q_OBJECT)
-    const QModelIndex sourceIndex = m_sourceModel.index(sourceRow, 0, sourceParent);
-    if (m_sourceModel.isGenerated(sourceIndex))
-        return false;
+    // IOutlineWidget
+    QList<QAction*> filterMenuActions() const final;
+    void setCursorSynchronization(bool syncWithCursor) final;
+    bool isSorted() const final;
+    void setSorted(bool sorted) final;
 
-    return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
-}
+    void restoreSettings(const QVariantMap &map) final;
+    QVariantMap settings() const final;
 
-Qt::DropActions CppOutlineFilterModel::supportedDragActions() const
-{
-    return sourceModel()->supportedDragActions();
-}
+private:
+    void modelUpdated();
+    void updateIndex();
+    void updateIndexNow();
+    void updateTextCursor(const QModelIndex &index);
+    void onItemActivated(const QModelIndex &index);
+    bool syncCursor();
 
+    CppEditorWidget *m_editor;
+    CppOutlineTreeView *m_treeView;
+    OutlineModel * const m_model;
+    QSortFilterProxyModel *m_proxyModel;
+    QTimer m_updateIndexTimer;
+
+    bool m_enableCursorSync;
+    bool m_blockCursorSync;
+    bool m_sorted;
+};
 
 CppOutlineWidget::CppOutlineWidget(CppEditorWidget *editor) :
     m_editor(editor),
@@ -229,5 +273,4 @@ TextEditor::IOutlineWidget *CppOutlineWidgetFactory::createWidget(Core::IEditor 
     return new CppOutlineWidget(cppEditorWidget);
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal
