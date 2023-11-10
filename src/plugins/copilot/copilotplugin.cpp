@@ -57,79 +57,68 @@ void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
 
 void CopilotPlugin::initialize()
 {
-    QAction *requestAction = new QAction(this);
-    requestAction->setText(Tr::tr("Request Copilot Suggestion"));
-    requestAction->setToolTip(
-        Tr::tr("Request Copilot suggestion at the current editor's cursor position."));
-
-    connect(requestAction, &QAction::triggered, this, [this] {
+    ActionBuilder requestAction(this,  Constants::COPILOT_REQUEST_SUGGESTION);
+    requestAction.setText(Tr::tr("Request Copilot Suggestion"));
+    requestAction.setToolTip(Tr::tr(
+        "Request Copilot suggestion at the current editor's cursor position."));
+    requestAction.setOnTriggered(this, [this] {
         if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget()) {
             if (m_client && m_client->reachable())
                 m_client->requestCompletions(editor);
         }
     });
 
-    ActionManager::registerAction(requestAction, Constants::COPILOT_REQUEST_SUGGESTION);
-
-    QAction *nextSuggestionAction = new QAction(this);
-    nextSuggestionAction->setText(Tr::tr("Show Next Copilot Suggestion"));
-    nextSuggestionAction->setToolTip(Tr::tr(
+    ActionBuilder nextSuggestionAction(this, Constants::COPILOT_NEXT_SUGGESTION);
+    nextSuggestionAction.setText(Tr::tr("Show Next Copilot Suggestion"));
+    nextSuggestionAction.setToolTip(Tr::tr(
         "Cycles through the received Copilot Suggestions showing the next available Suggestion."));
-
-    connect(nextSuggestionAction, &QAction::triggered, this, [] {
+    nextSuggestionAction.setOnTriggered(this, [] {
         if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
             cycleSuggestion(editor, Next);
     });
 
-    ActionManager::registerAction(nextSuggestionAction, Constants::COPILOT_NEXT_SUGGESTION);
-
-    QAction *previousSuggestionAction = new QAction(this);
-    previousSuggestionAction->setText(Tr::tr("Show Previous Copilot Suggestion"));
-    previousSuggestionAction->setToolTip(Tr::tr("Cycles through the received Copilot Suggestions "
-                                                "showing the previous available Suggestion."));
-
-    connect(previousSuggestionAction, &QAction::triggered, this, [] {
+    ActionBuilder previousSuggestionAction(this, Constants::COPILOT_PREVIOUS_SUGGESTION);
+    previousSuggestionAction.setText(Tr::tr("Show Previous Copilot Suggestion"));
+    previousSuggestionAction.setToolTip(Tr::tr("Cycles through the received Copilot Suggestions "
+                                               "showing the previous available Suggestion."));
+    previousSuggestionAction.setOnTriggered(this, [] {
         if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
             cycleSuggestion(editor, Previous);
     });
 
-    ActionManager::registerAction(previousSuggestionAction, Constants::COPILOT_PREVIOUS_SUGGESTION);
-
-    QAction *disableAction = new QAction(this);
-    disableAction->setText(Tr::tr("Disable Copilot"));
-    disableAction->setToolTip(Tr::tr("Disable Copilot."));
-    connect(disableAction, &QAction::triggered, this, [] {
+    ActionBuilder disableAction(this, Constants::COPILOT_DISABLE);
+    disableAction.setText(Tr::tr("Disable Copilot"));
+    disableAction.setToolTip(Tr::tr("Disable Copilot."));
+    disableAction.setOnTriggered(this, [] {
         settings().enableCopilot.setValue(true);
         settings().apply();
     });
-    ActionManager::registerAction(disableAction, Constants::COPILOT_DISABLE);
 
-    QAction *enableAction = new QAction(this);
-    enableAction->setText(Tr::tr("Enable Copilot"));
-    enableAction->setToolTip(Tr::tr("Enable Copilot."));
-    connect(enableAction, &QAction::triggered, this, [] {
+    ActionBuilder enableAction(this, Constants::COPILOT_ENABLE);
+    enableAction.setText(Tr::tr("Enable Copilot"));
+    enableAction.setToolTip(Tr::tr("Enable Copilot."));
+    enableAction.setOnTriggered(this, [] {
         settings().enableCopilot.setValue(false);
         settings().apply();
     });
-    ActionManager::registerAction(enableAction, Constants::COPILOT_ENABLE);
 
-    QAction *toggleAction = new QAction(this);
-    toggleAction->setText(Tr::tr("Toggle Copilot"));
-    toggleAction->setCheckable(true);
-    toggleAction->setChecked(settings().enableCopilot());
-    toggleAction->setIcon(COPILOT_ICON.icon());
-    connect(toggleAction, &QAction::toggled, this, [](bool checked) {
+    ActionBuilder toggleAction(this, Constants::COPILOT_TOGGLE);
+    toggleAction.setText(Tr::tr("Toggle Copilot"));
+    toggleAction.setCheckable(true);
+    toggleAction.setChecked(settings().enableCopilot());
+    toggleAction.setIcon(COPILOT_ICON.icon());
+    toggleAction.setOnTriggered(this, [](bool checked) {
         settings().enableCopilot.setValue(checked);
         settings().apply();
     });
 
-    ActionManager::registerAction(toggleAction, Constants::COPILOT_TOGGLE);
-
-    auto updateActions = [toggleAction, requestAction] {
+    QAction *toggleAct = toggleAction.contextAction();
+    QAction *requestAct = requestAction.contextAction();
+    auto updateActions = [toggleAct, requestAct] {
         const bool enabled = settings().enableCopilot();
-        toggleAction->setToolTip(enabled ? Tr::tr("Disable Copilot.") : Tr::tr("Enable Copilot."));
-        toggleAction->setChecked(enabled);
-        requestAction->setEnabled(enabled);
+        toggleAct->setToolTip(enabled ? Tr::tr("Disable Copilot.") : Tr::tr("Enable Copilot."));
+        toggleAct->setChecked(enabled);
+        requestAct->setEnabled(enabled);
     };
 
     connect(&settings().enableCopilot, &BaseAspect::changed, this, updateActions);
@@ -137,7 +126,7 @@ void CopilotPlugin::initialize()
     updateActions();
 
     auto toggleButton = new QToolButton;
-    toggleButton->setDefaultAction(toggleAction);
+    toggleButton->setDefaultAction(toggleAction.contextAction());
     StatusBarManager::addStatusBarWidget(toggleButton, StatusBarManager::RightCorner);
 
     auto panelFactory = new ProjectPanelFactory;
