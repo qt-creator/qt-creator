@@ -50,6 +50,7 @@ Item {
             Layout.maximumWidth: 140
             Layout.minimumWidth: 140
             Layout.preferredWidth: 140
+            elide: Text.ElideRight
 
             HelperWidgets.ToolTipArea {
                 anchors.fill: parent

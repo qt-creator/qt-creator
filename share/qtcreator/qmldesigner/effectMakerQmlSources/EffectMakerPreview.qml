@@ -57,6 +57,7 @@ Column {
             spacing: 5
             anchors.leftMargin: 5
             anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
 
             PreviewImagesComboBox {
                 id: imagesComboBox
@@ -76,6 +77,7 @@ Column {
         Row {
             spacing: 5
             anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
 
             HelperWidgets.AbstractButton {
                 enabled: sourceImage.scale > .4
@@ -115,6 +117,7 @@ Column {
             spacing: 5
             anchors.rightMargin: 5
             anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
 
             Column {
                 Text {
