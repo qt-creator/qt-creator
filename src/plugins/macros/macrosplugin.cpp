@@ -8,9 +8,8 @@
 #include "macrostr.h"
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
 
@@ -18,9 +17,9 @@
 
 #include <texteditor/texteditorconstants.h>
 
-#include <QAction>
-#include <QKeySequence>
 #include <QMenu>
+
+using namespace Core;
 
 namespace Macros::Internal {
 
@@ -47,40 +46,44 @@ public:
     {
         d = new MacrosPluginPrivate;
 
-        Core::Context textContext(TextEditor::Constants::C_TEXTEDITOR);
+        Context textContext(TextEditor::Constants::C_TEXTEDITOR);
 
         // Menus
-        Core::ActionContainer *mtools = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
-        Core::ActionContainer *mmacrotools = Core::ActionManager::createMenu(Constants::M_TOOLS_MACRO);
+        ActionContainer *mtools = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+        ActionContainer *mmacrotools = ActionManager::createMenu(Constants::M_TOOLS_MACRO);
         QMenu *menu = mmacrotools->menu();
         menu->setTitle(Tr::tr("Text Editing &Macros"));
         menu->setEnabled(true);
         mtools->addMenu(mmacrotools);
 
-        QAction *startMacro = new QAction(Tr::tr("Record Macro"),  this);
-        Core::Command *command = Core::ActionManager::registerAction(startMacro, Constants::START_MACRO, textContext);
-        command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Ctrl+[") : Tr::tr("Alt+[")));
-        mmacrotools->addAction(command);
-        connect(startMacro, &QAction::triggered, &d->macroManager, &MacroManager::startMacro);
+        ActionBuilder startMacro(this, Constants::START_MACRO);
+        startMacro.setText(Tr::tr("Record Macro"));
+        startMacro.setContext(textContext);
+        startMacro.setDefaultKeySequence(Tr::tr("Ctrl+["), Tr::tr("Alt+["));
+        startMacro.setContainer(Constants::M_TOOLS_MACRO);
+        startMacro.setOnTriggered(this, [this] { d->macroManager.startMacro(); });
 
-        QAction *endMacro = new QAction(Tr::tr("Stop Recording Macro"),  this);
-        endMacro->setEnabled(false);
-        command = Core::ActionManager::registerAction(endMacro, Constants::END_MACRO);
-        command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Ctrl+]") : Tr::tr("Alt+]")));
-        mmacrotools->addAction(command);
-        connect(endMacro, &QAction::triggered, &d->macroManager, &MacroManager::endMacro);
+        ActionBuilder endMacro(this, Constants::END_MACRO);
+        endMacro.setText(Tr::tr("Stop Recording Macro"));
+        endMacro.setContext(textContext);
+        endMacro.setEnabled(false);
+        endMacro.setDefaultKeySequence(Tr::tr("Ctrl+]"), Tr::tr("Alt+]"));
+        endMacro.setContainer(Constants::M_TOOLS_MACRO);
+        endMacro.setOnTriggered(this, [this] { d->macroManager.endMacro(); });
 
-        QAction *executeLastMacro = new QAction(Tr::tr("Play Last Macro"),  this);
-        command = Core::ActionManager::registerAction(executeLastMacro, Constants::EXECUTE_LAST_MACRO, textContext);
-        command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? Tr::tr("Meta+R") : Tr::tr("Alt+R")));
-        mmacrotools->addAction(command);
-        connect(executeLastMacro, &QAction::triggered, &d->macroManager, &MacroManager::executeLastMacro);
+        ActionBuilder executeLastMacro(this, Constants::EXECUTE_LAST_MACRO);
+        executeLastMacro.setText(Tr::tr("Play Last Macro"));
+        executeLastMacro.setContext(textContext);
+        executeLastMacro.setDefaultKeySequence(Tr::tr("Meta+R"), Tr::tr("Alt+R"));
+        executeLastMacro.setContainer(Constants::M_TOOLS_MACRO);
+        executeLastMacro.setOnTriggered(this, [this] { d->macroManager.executeLastMacro(); });
 
-        QAction *saveLastMacro = new QAction(Tr::tr("Save Last Macro"),  this);
-        saveLastMacro->setEnabled(false);
-        command = Core::ActionManager::registerAction(saveLastMacro, Constants::SAVE_LAST_MACRO, textContext);
-        mmacrotools->addAction(command);
-        connect(saveLastMacro, &QAction::triggered, &d->macroManager, &MacroManager::saveLastMacro);
+        ActionBuilder saveLastMacro(this, Constants::SAVE_LAST_MACRO);
+        saveLastMacro.setContext(textContext);
+        saveLastMacro.setText(Tr::tr("Save Last Macro"));
+        saveLastMacro.setEnabled(false);
+        saveLastMacro.setContainer(Constants::M_TOOLS_MACRO);
+        saveLastMacro.setOnTriggered(this, [this] { d->macroManager.saveLastMacro(); });
     }
 
 private:
