@@ -52,14 +52,10 @@ void LanguageClientPlugin::initialize()
                                                 Tr::tr("Generic StdIO Language Server"),
                                                 []() { return new StdIOSettings; }});
 
-    //register actions
-    ActionContainer *toolsDebugContainer = ActionManager::actionContainer(
-        Core::Constants::M_TOOLS_DEBUG);
-
-    auto inspectAction = new QAction(Tr::tr("Inspect Language Clients..."), this);
-    connect(inspectAction, &QAction::triggered, this, &LanguageClientManager::showInspector);
-    toolsDebugContainer->addAction(
-        ActionManager::registerAction(inspectAction, "LanguageClient.InspectLanguageClients"));
+    ActionBuilder inspectAction(this, "LanguageClient.InspectLanguageClients");
+    inspectAction.setText(Tr::tr("Inspect Language Clients..."));
+    inspectAction.setContainer(Core::Constants::M_TOOLS_DEBUG);
+    inspectAction.setOnTriggered(this, &LanguageClientManager::showInspector);
 }
 
 void LanguageClientPlugin::extensionsInitialized()
