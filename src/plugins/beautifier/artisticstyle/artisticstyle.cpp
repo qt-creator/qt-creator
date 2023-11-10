@@ -236,12 +236,15 @@ public:
 
 ArtisticStyle::ArtisticStyle()
 {
-    Core::ActionContainer *menu = Core::ActionManager::createMenu("ArtisticStyle.Menu");
+    const Id menuId = "ArtisticStyle.Menu";
+    Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
     menu->menu()->setTitle(Tr::tr("&Artistic Style"));
 
-    m_formatFile = new QAction(msgFormatCurrentFile(), this);
-    menu->addAction(Core::ActionManager::registerAction(m_formatFile, "ArtisticStyle.FormatFile"));
-    connect(m_formatFile, &QAction::triggered, this, &ArtisticStyle::formatFile);
+    Core::ActionBuilder formatFile(this, "ArtisticStyle.FormatFile");
+    formatFile.setText(msgFormatCurrentFile());
+    formatFile.bindContextAction(&m_formatFile);
+    formatFile.setContainer(menuId);
+    formatFile.setOnTriggered(this, [this] { this->formatFile(); });
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 

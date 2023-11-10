@@ -312,31 +312,33 @@ public:
 
 ClangFormat::ClangFormat()
 {
-    Core::ActionContainer *menu = Core::ActionManager::createMenu("ClangFormat.Menu");
+    const Id menuId = "ClangFormat.Menu";
+    Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
     menu->menu()->setTitle(Tr::tr("&ClangFormat"));
 
-    m_formatFile = new QAction(msgFormatCurrentFile(), this);
-    Core::Command *cmd
-            = Core::ActionManager::registerAction(m_formatFile, "ClangFormat.FormatFile");
-    menu->addAction(cmd);
-    connect(m_formatFile, &QAction::triggered, this, &ClangFormat::formatFile);
+    Core::ActionBuilder formatFile(this, "ClangFormat.FormatFile");
+    formatFile.setText(msgFormatCurrentFile());
+    formatFile.bindContextAction(&m_formatFile);
+    formatFile.setContainer(menuId);
+    formatFile.setOnTriggered(this, [this] { this->formatFile(); });
 
-    m_formatLines = new QAction(msgFormatLines(), this);
-    cmd = Core::ActionManager::registerAction(m_formatLines, "ClangFormat.FormatLines");
-    menu->addAction(cmd);
-    connect(m_formatLines, &QAction::triggered, this, &ClangFormat::formatLines);
+    Core::ActionBuilder formatLines(this, "ClangFormat.FormatLines");
+    formatLines.setText(msgFormatLines());
+    formatLines.bindContextAction(&m_formatLines);
+    formatLines.setContainer(menuId);
+    formatLines.setOnTriggered(this, [this] { this->formatLines(); });
 
-    m_formatRange = new QAction(msgFormatAtCursor(), this);
-    cmd = Core::ActionManager::registerAction(m_formatRange, "ClangFormat.FormatAtCursor");
-    menu->addAction(cmd);
-    connect(m_formatRange, &QAction::triggered, this, &ClangFormat::formatAtCursor);
+    Core::ActionBuilder formatAtCursor(this, "ClangFormat.FormatAtCursor");
+    formatAtCursor.setText(msgFormatAtCursor());
+    formatAtCursor.bindContextAction(&m_formatRange);
+    formatAtCursor.setContainer(menuId);
+    formatAtCursor.setOnTriggered(this, [this] { this->formatAtCursor(); });
 
-    m_disableFormattingSelectedText = new QAction(msgDisableFormattingSelectedText(), this);
-    cmd = Core::ActionManager::registerAction(
-        m_disableFormattingSelectedText, "ClangFormat.DisableFormattingSelectedText");
-    menu->addAction(cmd);
-    connect(m_disableFormattingSelectedText, &QAction::triggered,
-            this, &ClangFormat::disableFormattingSelectedText);
+    Core::ActionBuilder formatDisable(this, "ClangFormat.DisableFormattingSelectedText");
+    formatDisable.setText(msgDisableFormattingSelectedText());
+    formatDisable.bindContextAction(&m_disableFormattingSelectedText);
+    formatDisable.setContainer(menuId);
+    formatDisable.setOnTriggered(this, [this] { disableFormattingSelectedText(); });
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 

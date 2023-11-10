@@ -233,19 +233,21 @@ public:
 
 Uncrustify::Uncrustify()
 {
-    Core::ActionContainer *menu = Core::ActionManager::createMenu("Uncrustify.Menu");
+    const Id menuId = "Uncrustify.Menu";
+    Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
     menu->menu()->setTitle(Tr::tr("&Uncrustify"));
 
-    m_formatFile = new QAction(msgFormatCurrentFile(), this);
-    Core::Command *cmd
-            = Core::ActionManager::registerAction(m_formatFile, "Uncrustify.FormatFile");
-    menu->addAction(cmd);
-    connect(m_formatFile, &QAction::triggered, this, &Uncrustify::formatFile);
+    Core::ActionBuilder formatFile(this, "Uncrustify.FormatFile");
+    formatFile.setText(msgFormatCurrentFile());
+    formatFile.bindContextAction(&m_formatFile);
+    formatFile.setContainer(menuId);
+    formatFile.setOnTriggered(this, [this] { this->formatFile(); });
 
-    m_formatRange = new QAction(msgFormatSelectedText(), this);
-    cmd = Core::ActionManager::registerAction(m_formatRange, "Uncrustify.FormatSelectedText");
-    menu->addAction(cmd);
-    connect(m_formatRange, &QAction::triggered, this, &Uncrustify::formatSelectedText);
+    Core::ActionBuilder formatRange(this, "Uncrustify.FormatSelectedText");
+    formatRange.setText(msgFormatSelectedText());
+    formatRange.bindContextAction(&m_formatRange);
+    formatRange.setContainer(menuId);
+    formatRange.setOnTriggered(this, [this] { this->formatSelectedText(); });
 
     Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
