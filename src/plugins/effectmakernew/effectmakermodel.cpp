@@ -1200,7 +1200,7 @@ void EffectMakerModel::bakeShaders()
     const QStringList outPaths = {m_vertexShaderFilename, m_fragmentShaderFilename};
     for (int i = 0; i < 2; ++i) {
         const auto workDir = Utils::FilePath::fromString(outPaths[i]);
-        QStringList args = {"-s", "--glsl", "\"300 es,120,150,440\"", "--hlsl", "50", "--msl", "12"};
+        QStringList args = {"-s", "--glsl", "300es,120,150,440", "--hlsl", "50", "--msl", "12"};
         args << "-o" << outPaths[i] << srcPaths[i];
 
         auto qsbProcess = new Utils::Process(this);
