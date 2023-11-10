@@ -146,6 +146,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
                                   int(Policy::RoundPreferFloor));
         m_policyComboBox->addItem(Tr::tr("Don't Round"), int(Policy::PassThrough));
         m_policyComboBox->setSizeAdjustPolicy(QComboBox::AdjustToContents);
+        m_policyComboBox->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
         const Policy userPolicy =
             ICore::settings()->value(settingsKeyDpiPolicy,
@@ -153,7 +154,25 @@ GeneralSettingsWidget::GeneralSettingsWidget()
                                       .value<Policy>();
         m_policyComboBox->setCurrentIndex(m_policyComboBox->findData(int(userPolicy)));
 
-        form.addRow({Tr::tr("DPI rounding policy:"), m_policyComboBox, st});
+        form.addRow({Tr::tr("DPI rounding policy:"), m_policyComboBox});
+        static const char *envVars[] = {
+            StyleHelper::C_QT_SCALE_FACTOR_ROUNDING_POLICY, "QT_ENABLE_HIGHDPI_SCALING",
+            "QT_FONT_DPI", "QT_SCALE_FACTOR", "QT_SCREEN_SCALE_FACTORS", "QT_USE_PHYSICAL_DPI",
+        };
+        if (anyOf(envVars, qEnvironmentVariableIsSet)) {
+            QString toolTip = Tr::tr("The following environment variables are set and can "
+                                     "influence the UI scaling behavior of %1:")
+                                  .arg(QGuiApplication::applicationDisplayName()) + "\n";
+            for (auto var : envVars) {
+                if (qEnvironmentVariableIsSet(var))
+                    toolTip.append(QLatin1String("\n") + var + "=" + qEnvironmentVariable(var));
+            }
+            auto envVarInfo = new InfoLabel(Tr::tr("Environment influences UI scaling behavior."));
+            envVarInfo->setAdditionalToolTip(toolTip);
+            form.addItem(envVarInfo);
+        } else {
+            form.addItem(st);
+        }
     }
 
     form.addRow({empty, generalSettings().showShortcutsInContextMenus});

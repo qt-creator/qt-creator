@@ -283,7 +283,7 @@ static void setHighDpiEnvironmentVariable()
 {
     if (Utils::StyleHelper::defaultHighDpiScaleFactorRoundingPolicy()
             == Qt::HighDpiScaleFactorRoundingPolicy::Unset
-        || qEnvironmentVariableIsSet("QT_SCALE_FACTOR_ROUNDING_POLICY"))
+        || qEnvironmentVariableIsSet(Utils::StyleHelper::C_QT_SCALE_FACTOR_ROUNDING_POLICY))
         return;
 
     std::unique_ptr<Utils::QtcSettings> settings(createUserSettings());
