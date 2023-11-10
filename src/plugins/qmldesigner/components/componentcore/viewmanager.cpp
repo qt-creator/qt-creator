@@ -203,16 +203,14 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->materialBrowserView,
                                   &d->textureEditorView,
                                   &d->statesEditorView,
-                                  &d->designerActionManagerView};
+                                  &d->designerActionManagerView,
+                                  &d->collectionView};
 
     if (QmlDesignerPlugin::instance()
             ->settings()
             .value(DesignerSettingsKey::ENABLE_DEBUGVIEW)
             .toBool())
         list.append(&d->debugView);
-
-    if (qEnvironmentVariableIsSet("ENABLE_QDS_COLLECTIONVIEW"))
-        list.append(&d->collectionView);
 
 #ifdef CHECK_LICENSE
     if (checkLicense() == FoundLicense::enterprise)
@@ -388,9 +386,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
     widgetInfoList.append(d->textureEditorView.widgetInfo());
     widgetInfoList.append(d->statesEditorView.widgetInfo());
-
-    if (qEnvironmentVariableIsSet("ENABLE_QDS_COLLECTIONVIEW"))
-        widgetInfoList.append(d->collectionView.widgetInfo());
+    widgetInfoList.append(d->collectionView.widgetInfo());
 
 #ifdef CHECK_LICENSE
     if (checkLicense() == FoundLicense::enterprise)
