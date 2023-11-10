@@ -36,6 +36,7 @@
 
 #include <QAction>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -80,21 +81,16 @@ void registerFlashAction(QObject *parentForAction)
     }
 
     const char flashActionId[] = "Qdb.FlashAction";
-    if (Core::ActionManager::command(flashActionId))
+    if (ActionManager::command(flashActionId))
         return; // The action has already been registered.
 
-    Core::ActionContainer *toolsContainer =
-        Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
+    ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsContainer->insertGroup(Core::Constants::G_TOOLS_DEBUG, flashActionId);
 
-    Core::Context globalContext(Core::Constants::C_GLOBAL);
-
-    QAction *flashAction = new QAction(Tr::tr("Flash Boot to Qt Device"), parentForAction);
-    Core::Command *flashCommand = Core::ActionManager::registerAction(flashAction,
-                                                                      flashActionId,
-                                                                      globalContext);
-    QObject::connect(flashAction, &QAction::triggered, startFlashingWizard);
-    toolsContainer->addAction(flashCommand, flashActionId);
+    ActionBuilder flashAction(parentForAction, flashActionId);
+    flashAction.setText(Tr::tr("Flash Boot to Qt Device"));
+    flashAction.setContainer(Core::Constants::G_TOOLS_DEBUG, flashActionId);
+    flashAction.setOnTriggered(&startFlashingWizard);
 }
 
 class QdbDeployStepFactory : public BuildStepFactory
