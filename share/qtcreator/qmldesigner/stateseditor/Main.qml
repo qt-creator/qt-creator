@@ -557,7 +557,7 @@ Rectangle {
                 isTiny: root.tinyMode
 
                 onFocusSignal: root.currentStateInternalId = 0
-                onDefaultClicked: StatesEditorBackend.statesEditorModel.resetDefaultState
+                onDefaultClicked: StatesEditorBackend.statesEditorModel.resetDefaultState()
             }
         }
 
