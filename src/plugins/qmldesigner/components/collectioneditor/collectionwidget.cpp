@@ -198,17 +198,13 @@ bool CollectionWidget::isJsonFile(const QString &jsonFileAddress) const
     return true;
 }
 
-bool CollectionWidget::isCsvFile(const QString &csvFileAddress) const
+bool CollectionWidget::isCsvFile(const QString &csvFilePath) const
 {
-    QUrl csvUrl(csvFileAddress);
-    QString fileAddress = csvUrl.isLocalFile() ? csvUrl.toLocalFile() : csvUrl.toString();
-    QFile file(fileAddress);
+    QUrl csvUrl(csvFilePath);
+    QString filePath = csvUrl.isLocalFile() ? csvUrl.toLocalFile() : csvUrl.toString();
+    QFile file(filePath);
 
-    if (!file.exists())
-        return false;
-
-    // TODO: Evaluate the CSV file
-    return true;
+    return file.exists() && file.fileName().endsWith(".csv");
 }
 
 bool CollectionWidget::addCollection(const QString &collectionName,
