@@ -1234,6 +1234,7 @@ public:
     bool isStarting() const { return m_startGuard.isLocked(); }
     bool updateSuccessBit(bool success);
     int currentLimit() const;
+    void deleteChild(TaskRuntimeNode *node);
 
     const TaskContainer &m_taskContainer; // Not owning.
     TaskRuntimeNode *m_parentNode = nullptr; // Not owning.
@@ -1394,6 +1395,14 @@ int TaskRuntimeContainer::currentLimit() const
                ? qMin(m_doneCount + m_taskContainer.m_parallelLimit, childCount) : childCount;
 }
 
+void TaskRuntimeContainer::deleteChild(TaskRuntimeNode *node)
+{
+    const int index = m_children.indexOf(node);
+    QT_CHECK(index >= 0);
+    m_children[index] = nullptr;
+    delete node;
+}
+
 SetupResult TaskTreePrivate::start(TaskRuntimeContainer *container)
 {
     SetupResult startAction = SetupResult::Continue;
@@ -1422,11 +1431,15 @@ SetupResult TaskTreePrivate::continueStart(TaskRuntimeContainer *container, Setu
     if (groupAction != SetupResult::Continue) {
         const bool bit = container->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
         TaskRuntimeContainer *parentContainer = container->m_parentContainer;
+        TaskRuntimeNode *parentNode = container->m_parentNode;
+        QT_CHECK(parentNode);
         const bool result = invokeDoneHandler(container, bit ? DoneWith::Success : DoneWith::Error);
         if (parentContainer) {
+            parentContainer->deleteChild(parentNode);
             if (!parentContainer->isStarting())
                 childDone(parentContainer, result);
         } else {
+            QT_CHECK(m_runtimeRoot.get() == parentNode);
             m_runtimeRoot.reset();
             emitDone(result ? DoneWith::Success : DoneWith::Error);
         }
@@ -1547,11 +1560,13 @@ SetupResult TaskTreePrivate::start(TaskRuntimeNode *node)
                      q, [this, node, unwindAction](bool success) {
         const bool result = invokeDoneHandler(node, success ? DoneWith::Success : DoneWith::Error);
         QObject::disconnect(node->m_task.get(), &TaskInterface::done, q, nullptr);
-        node->m_task.release()->deleteLater(); // TODO: delete later this???
-        if (node->m_parentContainer->isStarting())
+        node->m_task.release()->deleteLater();
+        TaskRuntimeContainer *parentContainer = node->m_parentContainer;
+        parentContainer->deleteChild(node);
+        if (parentContainer->isStarting())
             *unwindAction = toSetupResult(result);
         else
-            childDone(node->m_parentContainer, result);
+            childDone(parentContainer, result);
     });
 
     node->m_task->start();
