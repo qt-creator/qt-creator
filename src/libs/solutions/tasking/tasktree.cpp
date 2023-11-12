@@ -1228,9 +1228,7 @@ public:
                 m_taskContainer.m_taskTreePrivate->callDoneHandler(storage, storageId);
             storage.m_storageData->deleteStorage(storageId);
         }
-        qDeleteAll(m_children);
     }
-
 
     static QList<int> createStorages(const TaskContainer &container);
     bool isStarting() const { return m_startGuard.isLocked(); }
@@ -1243,7 +1241,7 @@ public:
     TaskRuntimeContainer *m_parentContainer = nullptr; // Not owning.
     const QList<int> m_storageIdList;
 
-    QList<TaskRuntimeNode *> m_children; // Owning.
+    std::vector<std::unique_ptr<TaskRuntimeNode>> m_children; // Owning.
     bool m_successBit = true;
     bool m_callStorageDoneHandlersOnDestruction = false;
     int m_doneCount = 0;
@@ -1401,10 +1399,9 @@ int TaskRuntimeContainer::currentLimit() const
 
 void TaskRuntimeContainer::deleteChild(TaskRuntimeNode *node)
 {
-    const int index = m_children.indexOf(node);
-    QT_CHECK(index >= 0);
-    m_children[index] = nullptr;
-    delete node;
+    std::remove_if(m_children.begin(), m_children.end(), [node](const auto &ptr) {
+        return ptr.get() == node;
+    });
 }
 
 SetupResult TaskTreePrivate::start(TaskRuntimeContainer *container)
@@ -1460,7 +1457,7 @@ SetupResult TaskTreePrivate::startChildren(TaskRuntimeContainer *container, int 
             break;
 
         TaskRuntimeNode *newTask = new TaskRuntimeNode(container->m_taskContainer.m_children.at(i), container);
-        container->m_children.append(newTask);
+        container->m_children.emplace_back(newTask);
 
         const SetupResult startAction = start(newTask);
         if (startAction == SetupResult::Continue)
@@ -1504,17 +1501,13 @@ SetupResult TaskTreePrivate::childDone(TaskRuntimeContainer *container, bool suc
 
 void TaskTreePrivate::stop(TaskRuntimeContainer *container)
 {
-    const int limit = container->currentLimit();
-    for (int i = 0; i < limit; ++i) {
-        if (i == container->m_children.size())
-            break;
-        TaskRuntimeNode *child = container->m_children.at(i);
+    for (auto &child : container->m_children) {
         if (child)
-            stop(child);
+            stop(child.get());
     }
 
     int skippedTaskCount = 0;
-    for (int i = limit; i < int(container->m_taskContainer.m_children.size()); ++i)
+    for (int i = container->currentLimit(); i < int(container->m_taskContainer.m_children.size()); ++i)
         skippedTaskCount += container->m_taskContainer.m_children.at(i).taskCount();
 
     // TODO: Handle progress well
