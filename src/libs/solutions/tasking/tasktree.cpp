@@ -1071,6 +1071,47 @@ private:
     QList<TreeStorageBase> m_activeStorages;
 };
 
+class TaskContainer
+{
+    Q_DISABLE_COPY(TaskContainer)
+
+public:
+    TaskContainer(TaskContainer &&other) = default;
+    TaskContainer(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
+                  TaskNode *parentNode, TaskContainer *parentContainer);
+
+    TaskTreePrivate *const m_taskTreePrivate = nullptr;
+    TaskNode *const m_parentNode = nullptr;
+    TaskContainer *const m_parentContainer = nullptr;
+
+    const int m_parallelLimit = 1;
+    const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
+    const GroupItem::GroupHandler m_groupHandler;
+    const QList<TreeStorageBase> m_storageList;
+    std::vector<TaskNode> m_children;
+    const int m_taskCount = 0;
+};
+
+class TaskNode
+{
+    Q_DISABLE_COPY(TaskNode)
+
+public:
+    TaskNode(TaskNode &&other) = default;
+    TaskNode(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
+             TaskContainer *parentContainer)
+        : m_taskHandler(task.m_taskHandler)
+        , m_container(taskTreePrivate, task, this, parentContainer)
+    {}
+
+    bool isTask() const { return bool(m_taskHandler.m_createHandler); }
+    int taskCount() const { return isTask() ? 1 : m_container.m_taskCount; }
+    TaskContainer *parentContainer() const { return m_container.m_parentContainer; }
+
+    const GroupItem::TaskHandler m_taskHandler;
+    TaskContainer m_container;
+};
+
 class TaskTreePrivate
 {
     Q_DISABLE_COPY_MOVE(TaskTreePrivate)
@@ -1143,49 +1184,8 @@ public:
     int m_progressValue = 0;
     QSet<TreeStorageBase> m_storages;
     QHash<TreeStorageBase, StorageHandler> m_storageHandlers;
-    std::unique_ptr<TaskNode> m_root = nullptr; // Keep me last in order to destruct first
-    std::unique_ptr<TaskRuntimeNode> m_runtimeRoot = nullptr;
-};
-
-class TaskContainer
-{
-    Q_DISABLE_COPY(TaskContainer)
-
-public:
-    TaskContainer(TaskContainer &&other) = default;
-    TaskContainer(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
-                  TaskNode *parentNode, TaskContainer *parentContainer);
-
-    TaskTreePrivate *const m_taskTreePrivate = nullptr;
-    TaskNode *const m_parentNode = nullptr;
-    TaskContainer *const m_parentContainer = nullptr;
-
-    const int m_parallelLimit = 1;
-    const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
-    const GroupItem::GroupHandler m_groupHandler;
-    const QList<TreeStorageBase> m_storageList;
-    std::vector<TaskNode> m_children;
-    const int m_taskCount = 0;
-};
-
-class TaskNode
-{
-    Q_DISABLE_COPY(TaskNode)
-
-public:
-    TaskNode(TaskNode &&other) = default;
-    TaskNode(TaskTreePrivate *taskTreePrivate, const GroupItem &task,
-             TaskContainer *parentContainer)
-        : m_taskHandler(task.m_taskHandler)
-        , m_container(taskTreePrivate, task, this, parentContainer)
-    {}
-
-    bool isTask() const { return bool(m_taskHandler.m_createHandler); }
-    int taskCount() const { return isTask() ? 1 : m_container.m_taskCount; }
-    TaskContainer *parentContainer() const { return m_container.m_parentContainer; }
-
-    const GroupItem::TaskHandler m_taskHandler;
-    TaskContainer m_container;
+    std::optional<TaskNode> m_root;
+    std::unique_ptr<TaskRuntimeNode> m_runtimeRoot; // Keep me last in order to destruct first
 };
 
 static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
@@ -1207,6 +1207,8 @@ static bool initialSuccessBit(WorkflowPolicy workflowPolicy)
 
 class TaskRuntimeContainer
 {
+    Q_DISABLE_COPY(TaskRuntimeContainer)
+
 public:
     TaskRuntimeContainer(const TaskContainer &taskContainer, TaskRuntimeNode *parentNode,
                          TaskRuntimeContainer *parentContainer)
@@ -1250,6 +1252,8 @@ public:
 
 class TaskRuntimeNode
 {
+    Q_DISABLE_COPY(TaskRuntimeNode)
+
 public:
     TaskRuntimeNode(const TaskNode &taskNode, TaskRuntimeContainer *parentContainer)
         : m_taskNode(taskNode)
@@ -1258,7 +1262,7 @@ public:
 
     const TaskNode &m_taskNode; // Not owning.
     TaskRuntimeContainer *m_parentContainer = nullptr; // Not owning.
-    std::unique_ptr<TaskRuntimeContainer> m_container; // Owning.
+    std::optional<TaskRuntimeContainer> m_container; // Owning.
     std::unique_ptr<TaskInterface> m_task; // Owning.
 };
 
@@ -1290,7 +1294,7 @@ void TaskTreePrivate::start()
         QT_ASSERT(m_storages.contains(it.key()), qWarning("The registered storage doesn't "
                   "exist in task tree. Its handlers will never be called."));
     }
-    m_runtimeRoot.reset(new TaskRuntimeNode(*m_root.get(), nullptr));
+    m_runtimeRoot.reset(new TaskRuntimeNode(*m_root, nullptr));
     start(m_runtimeRoot.get());
 }
 
@@ -1538,9 +1542,8 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeContainer *container, DoneWit
 SetupResult TaskTreePrivate::start(TaskRuntimeNode *node)
 {
     if (!node->m_taskNode.isTask()) {
-        node->m_container.reset(new TaskRuntimeContainer(node->m_taskNode.m_container, node,
-                                                         node->m_parentContainer));
-        return start(node->m_container.get());
+        node->m_container.emplace(node->m_taskNode.m_container, node, node->m_parentContainer);
+        return start(&*node->m_container);
     }
 
     const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
@@ -1578,9 +1581,9 @@ void TaskTreePrivate::stop(TaskRuntimeNode *node)
     if (!node->m_task) {
         if (!node->m_container)
             return;
-        stop(node->m_container.get());
+        stop(&*node->m_container);
         node->m_container->updateSuccessBit(false);
-        invokeDoneHandler(node->m_container.get(), DoneWith::Cancel);
+        invokeDoneHandler(&*node->m_container, DoneWith::Cancel);
         return;
     }
 
@@ -2299,7 +2302,7 @@ void TaskTree::setRecipe(const Group &recipe)
                                                "TaskTree handlers, ignoring..."); return);
     // TODO: Should we clear the m_storageHandlers, too?
     d->m_storages.clear();
-    d->m_root.reset(new TaskNode(d, recipe, nullptr));
+    d->m_root.emplace(d, recipe, nullptr);
 }
 
 /*!
