@@ -7,6 +7,8 @@
 #include "bindingproperty.h"
 #include "nodemetainfo.h"
 #include "propertymetainfo.h"
+#include "qmldesignerplugin.h"
+#include "variantproperty.h"
 
 #include <variant>
 
@@ -109,6 +111,18 @@ bool canAcceptCollectionAsModel(const ModelNode &node)
 
     return modelProperty.isWritable() && !modelProperty.isPrivate()
            && modelProperty.propertyType().isVariant();
+}
+
+QString getSourceCollectionPath(const ModelNode &node)
+{
+    QUrl nodeSource = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toUrl();
+    QString sourcePath = nodeSource.isLocalFile() ? nodeSource.toLocalFile() : nodeSource.toString();
+    return QmlDesignerPlugin::instance()
+        ->currentDesignDocument()
+        ->fileName()
+        .parentDir()
+        .resolvePath(sourcePath)
+        .toFSPathString();
 }
 
 } // namespace QmlDesigner::CollectionEditor

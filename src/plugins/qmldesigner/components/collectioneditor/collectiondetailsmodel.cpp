@@ -4,6 +4,7 @@
 #include "collectiondetailsmodel.h"
 
 #include "collectioneditorconstants.h"
+#include "collectioneditorutils.h"
 #include "modelnode.h"
 #include "variantproperty.h"
 
@@ -385,7 +386,7 @@ QStringList CollectionDetailsModel::typesList()
 
 void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const QString &collection)
 {
-    QString fileName = sourceNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toString();
+    QString fileName = CollectionEditor::getSourceCollectionPath(sourceNode);
 
     CollectionReference newReference{sourceNode, collection};
     bool alreadyOpen = m_openedCollections.contains(newReference);

@@ -34,13 +34,13 @@ public:
 
     virtual QSize minimumSizeHint() const;
 
-    Q_INVOKABLE bool loadJsonFile(const QString &jsonFileAddress, const QString &collectionName = {});
-    Q_INVOKABLE bool loadCsvFile(const QString &csvFileAddress, const QString &collectionName = {});
-    Q_INVOKABLE bool isJsonFile(const QString &jsonFileAddress) const;
-    Q_INVOKABLE bool isCsvFile(const QString &csvFileAddress) const;
+    Q_INVOKABLE bool loadJsonFile(const QUrl &url, const QString &collectionName = {});
+    Q_INVOKABLE bool loadCsvFile(const QUrl &url, const QString &collectionName = {});
+    Q_INVOKABLE bool isJsonFile(const QUrl &url) const;
+    Q_INVOKABLE bool isCsvFile(const QUrl &url) const;
     Q_INVOKABLE bool addCollection(const QString &collectionName,
                                    const QString &collectionType,
-                                   const QString &sourceAddress,
+                                   const QUrl &sourceUrl,
                                    const QVariant &sourceNode);
 
     Q_INVOKABLE void assignSourceNodeToSelectedItem(const QVariant &sourceNode);

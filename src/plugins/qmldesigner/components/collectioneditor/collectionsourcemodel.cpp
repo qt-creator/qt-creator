@@ -26,7 +26,7 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
     QSharedPointer<QmlDesigner::CollectionListModel> initialCollection = {})
 {
     using namespace QmlDesigner::CollectionEditor;
-    QString sourceFileAddress = sourceNode.variantProperty(SOURCEFILE_PROPERTY).value().toString();
+    QString sourceFileAddress = getSourceCollectionPath(sourceNode);
 
     QSharedPointer<QmlDesigner::CollectionListModel> collectionsList;
     auto setupCollectionList = [&sourceNode, &initialCollection, &collectionsList]() {
@@ -286,9 +286,7 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
     if (collectionExists(node, collectionName))
         return returnError(tr("Model does not exist."));
 
-    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
-                                    .value()
-                                    .toString();
+    QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile())
@@ -442,9 +440,7 @@ void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, cons
         return;
     }
 
-    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
-                                    .value()
-                                    .toString();
+    QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile()) {
@@ -533,9 +529,7 @@ void CollectionSourceModel::onCollectionsRemoved(const QStringList &removedColle
         return;
     }
 
-    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
-                                    .value()
-                                    .toString();
+    QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile()) {

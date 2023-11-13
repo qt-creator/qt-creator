@@ -39,21 +39,6 @@ QString collectionViewResourcesPath()
     return Core::ICore::resourcePath("qmldesigner/collectionEditorQmlSource").toString();
 }
 
-QString urlToLocalPath(const QUrl &url)
-{
-    QString localPath;
-
-    if (url.isLocalFile())
-        localPath = url.toLocalFile();
-
-    if (url.scheme() == QLatin1String("qrc")) {
-        const QString &path = url.path();
-        localPath = QStringLiteral(":") + path;
-    }
-
-    return localPath;
-}
-
 QString getPreferredCollectionName(const QUrl &url, const QString &collectionName)
 {
     if (collectionName.isEmpty()) {
@@ -162,32 +147,27 @@ QSize CollectionWidget::minimumSizeHint() const
     return {300, 400};
 }
 
-bool CollectionWidget::loadJsonFile(const QString &jsonFileAddress, const QString &collectionName)
+bool CollectionWidget::loadJsonFile(const QUrl &url, const QString &collectionName)
 {
-    if (!isJsonFile(jsonFileAddress))
+    if (!isJsonFile(url))
         return false;
 
-    m_view->addResource(jsonFileAddress,
-                        getPreferredCollectionName(jsonFileAddress, collectionName),
-                        "json");
+    m_view->addResource(url, getPreferredCollectionName(url, collectionName), "json");
 
     return true;
 }
 
-bool CollectionWidget::loadCsvFile(const QString &csvFileAddress, const QString &collectionName)
+bool CollectionWidget::loadCsvFile(const QUrl &url, const QString &collectionName)
 {
-    m_view->addResource(csvFileAddress,
-                        getPreferredCollectionName(csvFileAddress, collectionName),
-                        "csv");
+    m_view->addResource(url, getPreferredCollectionName(url, collectionName), "csv");
 
     return true;
 }
 
-bool CollectionWidget::isJsonFile(const QString &jsonFileAddress) const
+bool CollectionWidget::isJsonFile(const QUrl &url) const
 {
-    QUrl jsonUrl(jsonFileAddress);
-    QString fileAddress = jsonUrl.isLocalFile() ? jsonUrl.toLocalFile() : jsonUrl.toString();
-    QFile file(fileAddress);
+    QString filePath = url.isLocalFile() ? url.toLocalFile() : url.toString();
+    QFile file(filePath);
 
     if (!file.exists() || !file.open(QFile::ReadOnly))
         return false;
@@ -200,10 +180,9 @@ bool CollectionWidget::isJsonFile(const QString &jsonFileAddress) const
     return true;
 }
 
-bool CollectionWidget::isCsvFile(const QString &csvFilePath) const
+bool CollectionWidget::isCsvFile(const QUrl &url) const
 {
-    QUrl csvUrl(csvFilePath);
-    QString filePath = csvUrl.isLocalFile() ? csvUrl.toLocalFile() : csvUrl.toString();
+    QString filePath = url.isLocalFile() ? url.toLocalFile() : url.toString();
     QFile file(filePath);
 
     return file.exists() && file.fileName().endsWith(".csv");
@@ -211,14 +190,15 @@ bool CollectionWidget::isCsvFile(const QString &csvFilePath) const
 
 bool CollectionWidget::addCollection(const QString &collectionName,
                                      const QString &collectionType,
-                                     const QString &sourceAddress,
+                                     const QUrl &sourceUrl,
                                      const QVariant &sourceNode)
 {
     const ModelNode node = sourceNode.value<ModelNode>();
     bool isNewCollection = !node.isValid();
 
     if (isNewCollection) {
-        QString sourcePath = ::urlToLocalPath(sourceAddress);
+        QString sourcePath = sourceUrl.isLocalFile() ? sourceUrl.toLocalFile() : sourceUrl.toString();
+
         if (collectionType == "json") {
             QJsonObject jsonObject;
             QJsonObject initialObject;

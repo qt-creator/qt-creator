@@ -147,7 +147,15 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
 {
     executeInTransaction(Q_FUNC_INFO, [this, &url, &name, &type]() {
         ensureStudioModelImport();
-        QString sourceAddress = url.isLocalFile() ? url.toLocalFile() : url.toString();
+        QString sourceAddress;
+        if (url.isLocalFile()) {
+            Utils::FilePath fp = QmlDesignerPlugin::instance()->currentDesignDocument()->fileName().parentDir();
+            sourceAddress = Utils::FilePath::calcRelativePath(url.toLocalFile(),
+                                                              fp.absoluteFilePath().toString());
+        } else {
+            sourceAddress = url.toString();
+        }
+
         const NodeMetaInfo resourceMetaInfo = type.compare("json", Qt::CaseInsensitive) == 0
                                                   ? jsonCollectionMetaInfo()
                                                   : csvCollectionMetaInfo();
