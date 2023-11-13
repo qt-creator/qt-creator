@@ -69,13 +69,6 @@ void setMimeStartupPhase(MimeStartupPhase phase)
 void addMimeTypes(const QString &id, const QByteArray &data)
 {
     auto d = MimeDatabasePrivate::instance();
-    {
-        QReadLocker locker(&d->m_initMutex);
-        if (d->m_startupPhase >= int(MimeStartupPhase::PluginsDelayedInitializing)) {
-            qWarning("Adding items for ID \"%s\" to MimeDatabase after initialization time",
-                     qPrintable(id));
-        }
-    }
     QMutexLocker locker(&d->mutex);
 
     d->addMimeData(id, data);
