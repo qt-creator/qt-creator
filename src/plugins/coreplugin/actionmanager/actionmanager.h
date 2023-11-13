@@ -42,7 +42,7 @@ public:
     void setToolTip(const QString &toolTip);
     void setCommandAttribute(Core::Command::CommandAttribute attr);
     void setCommandDescription(const QString &desc);
-    void setContainer(Utils::Id containerId, Utils::Id groupId = {});
+    void setContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
     void setOnTriggered(const std::function<void()> &func);
     void setOnTriggered(QObject *guard, const std::function<void()> &func);
     void setOnTriggered(QObject *guard, const std::function<void(bool)> &func);

@@ -130,12 +130,14 @@ void ActionBuilder::setCommandDescription(const QString &desc)
     d->command->setDescription(desc);
 }
 
-void ActionBuilder::setContainer(Id containerId, Id groupId)
+void ActionBuilder::setContainer(Id containerId, Id groupId, bool needsToExist)
 {
     QTC_ASSERT(containerId.isValid(), return);
-    ActionContainer *container = ActionManager::actionContainer(containerId);
-    QTC_ASSERT(container, return);
-    container->addAction(d->command, groupId);
+    if (ActionContainer *container = ActionManager::actionContainer(containerId)) {
+        container->addAction(d->command, groupId);
+        return;
+    }
+    QTC_CHECK(!needsToExist);
 }
 
 void ActionBuilder::setOnTriggered(const std::function<void ()> &func)
