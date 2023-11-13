@@ -22,6 +22,9 @@ int main(int argc, char *argv[])
         { StyleHelper::UiElementH2, "H2" },
         { StyleHelper::UiElementH3, "H3" },
         { StyleHelper::UiElementH4, "H4" },
+        { StyleHelper::UiElementH5, "H5" },
+        { StyleHelper::UiElementH6, "H6" },
+        { StyleHelper::UiElementH6Capital, "H6 CAPITAL" },
         { StyleHelper::UiElementCaptionStrong, "Caption strong" },
         { StyleHelper::UiElementCaption, "Caption" },
     };

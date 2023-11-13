@@ -37,6 +37,7 @@ Project {
         "designer/designer.qbs",
         "diffeditor/diffeditor.qbs",
         "docker/docker.qbs",
+        "extensionmanager/extensionmanager.qbs",
         "fakevim/fakevim.qbs",
         "fossil/fossil.qbs",
         "emacskeys/emacskeys.qbs",
