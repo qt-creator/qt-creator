@@ -1,5 +1,6 @@
 #include "%{HdrFileName}"
 #include "%{ConstantsHdrFileName}"
+#include "%{TrHdrFileName}"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
@@ -39,14 +40,14 @@ void %{CN}::initialize()
     //    bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
     // overload.
 
-    auto action = new QAction(tr("%{PluginName} Action"), this);
+    auto action = new QAction(Tr::tr("%{PluginName} Action"), this);
     Core::Command *cmd = Core::ActionManager::registerAction(action, Constants::ACTION_ID,
                          Core::Context(Core::Constants::C_GLOBAL));
-    cmd->setDefaultKeySequence(QKeySequence(tr("Ctrl+Alt+Meta+A")));
+    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+Meta+A")));
     connect(action, &QAction::triggered, this, &%{CN}::triggerAction);
 
     Core::ActionContainer *menu = Core::ActionManager::createMenu(Constants::MENU_ID);
-    menu->menu()->setTitle(tr("%{PluginName}"));
+    menu->menu()->setTitle(Tr::tr("%{PluginName}"));
     menu->addAction(cmd);
     Core::ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 }
@@ -69,8 +70,8 @@ ExtensionSystem::IPlugin::ShutdownFlag %{CN}::aboutToShutdown()
 void %{CN}::triggerAction()
 {
     QMessageBox::information(Core::ICore::mainWindow(),
-                             tr("Action Triggered"),
-                             tr("This is an action from %{PluginName}."));
+                             Tr::tr("Action Triggered"),
+                             Tr::tr("This is an action from %{PluginName}."));
 }
 
 } // namespace %{PluginName}::Internal

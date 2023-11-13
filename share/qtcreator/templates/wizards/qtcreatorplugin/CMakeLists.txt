@@ -54,4 +54,5 @@ add_qtc_plugin(%{PluginName}
     %{HdrFileName}
     %{GlobalHdrFileName}
     %{ConstantsHdrFileName}
+    %{TrHdrFileName}
 )
