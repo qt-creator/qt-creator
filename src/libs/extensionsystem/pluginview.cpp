@@ -5,7 +5,6 @@
 
 #include "extensionsystemtr.h"
 #include "pluginmanager.h"
-#include "pluginspec.h"
 #include "pluginspec_p.h"
 
 #include <utils/algorithm.h>
@@ -54,8 +53,6 @@
     \fn void ExtensionSystem::PluginView::pluginSettingsChanged(ExtensionSystem::PluginSpec *spec)
     The settings for the plugin list entry corresponding to \a spec changed.
 */
-
-Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec*)
 
 using namespace Utils;
 

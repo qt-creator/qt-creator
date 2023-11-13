@@ -4,9 +4,11 @@
 #pragma once
 
 #include "extensionsystem_global.h"
+#include "pluginspec.h"
 
 #include <utils/treemodel.h>
 
+#include <QMetaType>
 #include <QSet>
 #include <QWidget>
 
@@ -57,4 +59,6 @@ private:
     friend class Internal::PluginItem;
 };
 
-} // namespae ExtensionSystem
+} // namespace ExtensionSystem
+
+Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec *)
