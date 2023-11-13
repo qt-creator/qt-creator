@@ -36,6 +36,7 @@ public:
     void setContext(const Utils::Id id);
     void setContext(const Core::Context &context);
     void setText(const QString &text);
+    void setIconText(const QString &text);
     void setToolTip(const QString &toolTip);
     void setCommandAttribute(Core::Command::CommandAttribute attr);
     void setCommandDescription(const QString &desc);
@@ -43,6 +44,7 @@ public:
     void setOnTriggered(const std::function<void()> &func);
     void setOnTriggered(QObject *guard, const std::function<void()> &func);
     void setOnTriggered(QObject *guard, const std::function<void(bool)> &func);
+    void setOnToggled(QObject *guard, const std::function<void(bool)> &func);
     void setDefaultKeySequence(const QKeySequence &seq);
     void setDefaultKeySequences(const QList<QKeySequence> &seqs);
     void setDefaultKeySequence(const QString &mac, const QString &nonMac);
@@ -59,6 +61,7 @@ public:
     QAction *commandAction() const;
     QAction *contextAction() const;
     void bindContextAction(QAction **dest);
+    void augmentActionWithShortcutToolTip();
 
 private:
     class ActionBuilderPrivate *d = nullptr;

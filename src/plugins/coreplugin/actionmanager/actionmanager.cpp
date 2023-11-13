@@ -110,6 +110,11 @@ void ActionBuilder::setText(const QString &text)
     d->action->setText(text);
 }
 
+void ActionBuilder::setIconText(const QString &text)
+{
+    d->action->setIconText(text);
+}
+
 void ActionBuilder::setToolTip(const QString &toolTip)
 {
     d->action->setToolTip(toolTip);
@@ -146,6 +151,11 @@ void ActionBuilder::setOnTriggered(QObject *guard, const std::function<void()> &
 void ActionBuilder::setOnTriggered(QObject *guard, const std::function<void(bool)> &func)
 {
     QObject::connect(d->action, &QAction::triggered, guard, func);
+}
+
+void ActionBuilder::setOnToggled(QObject *guard, const std::function<void (bool)> &func)
+{
+    QObject::connect(d->action, &QAction::toggled, guard, func);
 }
 
 void ActionBuilder::setDefaultKeySequence(const QKeySequence &seq)
@@ -222,6 +232,11 @@ void ActionBuilder::bindContextAction(QAction **dest)
 {
     QTC_ASSERT(dest, return);
     *dest = d->action;
+}
+
+void ActionBuilder::augmentActionWithShortcutToolTip()
+{
+    d->command->augmentActionWithShortcutToolTip(d->action);
 }
 
 void ActionBuilder::setId(Id id)
