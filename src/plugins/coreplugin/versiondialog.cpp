@@ -13,6 +13,7 @@
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QDialogButtonBox>
@@ -44,6 +45,8 @@ VersionDialog::VersionDialog(QWidget *parent)
     copyRightLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
+    QPushButton *copyButton = buttonBox->addButton(Tr::tr("Copy and Close"),
+                                                   QDialogButtonBox::ApplyRole);
 
     using namespace Layouting;
     Column {
@@ -56,6 +59,10 @@ VersionDialog::VersionDialog(QWidget *parent)
 
     layout()->setSizeConstraint(QLayout::SetFixedSize);
 
+    connect(copyButton, &QPushButton::pressed, this, [this] {
+        Utils::setClipboardAndSelection(ICore::aboutInformationCompact());
+        accept();
+    });
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
