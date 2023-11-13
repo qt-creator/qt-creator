@@ -1896,13 +1896,6 @@ void ICorePrivate::registerDefaultActions()
     aboutPluginsAction.setEnabled(true);
     aboutPluginsAction.setOnTriggered(this, [this] { aboutPlugins(); });
 
-    // About Qt Action
-    //    ActionBuilder aboutQtAction(this, Constants:: ABOUT_QT);
-    //    aboutQtAction.setText(Tr::tr("About &Qt..."), this);
-    //    aboutQtAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
-    //    aboutQtAction.setEnabled(true);
-    //    aboutQtAction.setOnTriggered(this, &QApplication::aboutQt);
-
     // Change Log Action
     ActionBuilder changeLogAction(this, Constants::CHANGE_LOG);
     changeLogAction.setText(Tr::tr("Change Log..."));
