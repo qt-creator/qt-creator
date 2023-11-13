@@ -84,8 +84,8 @@ void ClangCodeModelPlugin::initialize()
     CppEditor::CppModelManager::activateClangCodeModel(std::make_unique<ClangModelManagerSupport>());
     createCompilationDBAction();
 
-    QAction * const updateStaleIndexEntries
-        = new QAction(Tr::tr("Update potentially stale clangd index entries"), this);
+    QAction *const updateStaleIndexEntries
+        = new QAction(Tr::tr("Update Potentially Stale Clangd Index Entries"), this);
     Command * const cmd = ActionManager::registerAction(updateStaleIndexEntries,
                                                        "ClangCodeModel.UpdateStaleIndexEntries");
     connect(updateStaleIndexEntries, &QAction::triggered, this,
