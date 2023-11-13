@@ -322,11 +322,9 @@ void PluginManager::loadPlugins()
     d->loadPlugins();
 }
 
-void PluginManager::loadPlugin(PluginSpec *spec)
+void PluginManager::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins)
 {
-    d->loadPlugin(spec, PluginSpec::Loaded);
-    d->loadPlugin(spec, PluginSpec::Initialized);
-    d->loadPlugin(spec, PluginSpec::Running);
+    d->loadPluginsAtRuntime(plugins);
 }
 
 /*!
@@ -1387,6 +1385,32 @@ void PluginManagerPrivate::loadPlugins()
             this,
             &PluginManagerPrivate::startDelayedInitialize);
     delayedInitializeTimer.start();
+}
+
+void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins)
+{
+    QTC_CHECK(allOf(plugins, [](PluginSpec *spec) { return spec->isSoftLoadable(); }));
+    // load the plugins ordered by dependency
+    const QList<PluginSpec *> queue = filtered(loadQueue(), [&plugins](PluginSpec *spec) {
+        return plugins.contains(spec);
+    });
+    std::queue<PluginSpec *> localDelayedInitializeQueue;
+    for (PluginSpec *spec : queue)
+        loadPlugin(spec, PluginSpec::Loaded);
+    for (PluginSpec *spec : queue)
+        loadPlugin(spec, PluginSpec::Initialized);
+    Utils::reverseForeach(queue,
+                          [this](PluginSpec *spec) { loadPlugin(spec, PluginSpec::Running); });
+    Utils::reverseForeach(queue, [](PluginSpec *spec) {
+        if (spec->state() == PluginSpec::Running) {
+            const bool delay = spec->d->delayedInitialize();
+            if (delay)
+                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        } else {
+            // Plugin initialization failed, so cleanup after it
+            spec->d->kill();
+        }
+    });
 }
 
 /*!

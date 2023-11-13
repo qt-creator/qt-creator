@@ -88,10 +88,9 @@ void PluginDialog::closeDialog()
 {
     PluginManager::writeSettings();
 
-    for (PluginSpec *plugin : m_softLoad) {
-        PluginManager::loadPlugin(plugin);
+    PluginManager::loadPluginsAtRuntime(m_softLoad);
+    for (PluginSpec *plugin : std::as_const(m_softLoad))
         CorePlugin::loadMimeFromPlugin(plugin);
-    }
 
     if (m_isRestartRequired) {
         RestartDialog restartDialog(ICore::dialogParent(),

@@ -51,6 +51,7 @@ public:
     // Plugin operations
     void checkForProblematicPlugins();
     void loadPlugins();
+    void loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins);
     void shutdown();
     void setPluginPaths(const QStringList &paths);
     const QVector<ExtensionSystem::PluginSpec *> loadQueue();
