@@ -173,7 +173,7 @@
 
     To open a project that is located in a particular directory, you can
     pass on the directory name as a command-line argument. \QC looks for
-    a \l{Managing Sessions}{session} that matches the directory name and
+    a \l{Manage sessions}{session} that matches the directory name and
     loads it. Or it looks for a project file in the directory and opens it.
 
     For example, on Windows:
