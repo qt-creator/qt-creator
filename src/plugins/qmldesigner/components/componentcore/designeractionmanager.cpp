@@ -743,8 +743,7 @@ public:
 
                     ActionTemplate *openEditorAction = new ActionTemplate(
                         (propertyName + "OpenEditorId").toLatin1(),
-                        QString(
-                            QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Open Connections Editor")),
+                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit the Connection")),
                         [=](const SelectionContext &) {
                             signalHandler.view()
                                 ->emitCustomNotification(EditConnectionNotification,
@@ -757,7 +756,8 @@ public:
 
                     ActionTemplate *removeSignalHandlerAction = new ActionTemplate(
                         (propertyName + "RemoveSignalHandlerId").toLatin1(),
-                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove This Handler")),
+                        QString(
+                            QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove the Connection")),
                         [signalHandler](const SelectionContext &) {
                             signalHandler.parentModelNode().view()->executeInTransaction(
                                 "ConnectionsModelNodeActionGroup::"
@@ -774,7 +774,7 @@ public:
 
         //singular add connection:
         QMenu *addConnection = new QmlEditorMenu(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                           "Add Signal Handler")),
+                                                                           "Add new Connection")),
                                                  menu());
 
         for (const auto &signalStr : signalsList) {
@@ -824,7 +824,7 @@ public:
 
             ActionTemplate *openEditorAction = new ActionTemplate(
                 (signalStr + "OpenEditorId").toLatin1(),
-                QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add Connection")),
+                QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add new Connection")),
                 [=](const SelectionContext &) {
                     currentNode.view()->emitCustomNotification(AddConnectionNotification,
                                                                {currentNode},
