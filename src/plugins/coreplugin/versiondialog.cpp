@@ -11,6 +11,7 @@
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/hostosinfo.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -33,8 +34,6 @@ VersionDialog::VersionDialog(QWidget *parent)
         setWindowIcon(Icons::QTCREATORLOGO_BIG.icon());
 
     setWindowTitle(Tr::tr("About %1").arg(QGuiApplication::applicationDisplayName()));
-    auto layout = new QGridLayout(this);
-    layout->setSizeConstraint(QLayout::SetFixedSize);
 
     const Utils::AppInfo appInfo = Utils::appInfo();
     QString ideRev;
@@ -78,22 +77,29 @@ VersionDialog::VersionDialog(QWidget *parent)
                    "Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are "
                    "registered trademarks of The Qt Company Ltd.");
 
-    QLabel *copyRightLabel = new QLabel(description);
+    auto logoLabel = new QLabel;
+    logoLabel->setPixmap(Icons::QTCREATORLOGO_BIG.pixmap());
+
+    auto copyRightLabel = new QLabel(description);
     copyRightLabel->setWordWrap(true);
     copyRightLabel->setOpenExternalLinks(true);
     copyRightLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 
-    QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
-    QPushButton *closeButton = buttonBox->button(QDialogButtonBox::Close);
-    QTC_CHECK(closeButton);
-    buttonBox->addButton(closeButton, QDialogButtonBox::ButtonRole(QDialogButtonBox::RejectRole | QDialogButtonBox::AcceptRole));
-    connect(buttonBox , &QDialogButtonBox::rejected, this, &QDialog::reject);
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Close);
 
-    QLabel *logoLabel = new QLabel;
-    logoLabel->setPixmap(Icons::QTCREATORLOGO_BIG.pixmap());
-    layout->addWidget(logoLabel , 0, 0, 1, 1);
-    layout->addWidget(copyRightLabel, 0, 1, 4, 4);
-    layout->addWidget(buttonBox, 4, 0, 1, 5);
+    using namespace Layouting;
+    Column {
+        Row {
+            Column { logoLabel, st },
+            Column { copyRightLabel },
+        },
+        buttonBox,
+    }.attachTo(this);
+
+    layout()->setSizeConstraint(QLayout::SetFixedSize);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
 bool VersionDialog::event(QEvent *event)
