@@ -125,6 +125,8 @@ TerminalPane::TerminalPane(QObject *parent)
 
     updateLockButton();
 
+    connect(&toggleKeyboardLock, &QAction::triggered, m_lockKeyboardButton, &QToolButton::toggle);
+
     connect(m_lockKeyboardButton, &QToolButton::toggled, this, [this, updateLockButton] {
         settings().lockKeyboard.setValue(m_lockKeyboardButton->isChecked());
         updateLockButton();
@@ -292,6 +294,8 @@ void TerminalPane::initActions()
     closeTerminal.setIcon(CLOSE_TERMINAL_ICON.icon());
     closeTerminal.setToolTip(Tr::tr("Close the current Terminal."));
 
+    toggleKeyboardLock.setText(Tr::tr("Toggle Keyboard Lock"));
+
     using namespace Constants;
 
     Command *cmd = ActionManager::registerAction(&newTerminal, NEWTERMINAL, m_selfContext);
@@ -309,6 +313,10 @@ void TerminalPane::initActions()
             {QKeySequence("Alt+Shift+Tab"),
              QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+]")
                                                   : QLatin1String("Ctrl+PgDown"))});
+
+    ActionManager::registerAction(&toggleKeyboardLock,
+                                  TOGGLE_KEYBOARD_LOCK,
+                                  m_selfContext);
 
     connect(&newTerminal, &QAction::triggered, this, [this] { openTerminal({}); });
     connect(&closeTerminal, &QAction::triggered, this, [this] {

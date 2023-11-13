@@ -571,6 +571,12 @@ bool TerminalWidget::event(QEvent *event)
             return true;
         }
 
+        if (settings().lockKeyboard()
+            && QKeySequence(keyEvent->keyCombination())
+                   == ActionManager::command(Constants::TOGGLE_KEYBOARD_LOCK)->keySequence()) {
+            return false;
+        }
+
         if (settings().lockKeyboard()) {
             event->accept();
             return true;
