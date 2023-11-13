@@ -35,6 +35,7 @@
 #include <QLineEdit>
 #include <QList>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QRegularExpressionValidator>
 
 namespace Macros::Internal {
@@ -214,12 +215,17 @@ public:
         setWindowTitle(Tr::tr("Save Macro"));
 
         m_name = new QLineEdit;
-        m_name->setValidator(new QRegularExpressionValidator(QRegularExpression("\\w*"), this));
+        m_name->setValidator(new QRegularExpressionValidator(QRegularExpression("\\w+"), this));
 
         m_description = new QLineEdit;
 
         auto buttonBox = new QDialogButtonBox;
         buttonBox->setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::Save);
+        auto saveButton = buttonBox->button(QDialogButtonBox::Save);
+        saveButton->setEnabled(false);
+        connect(m_name, &QLineEdit::textChanged, [saveButton, this]() {
+            saveButton->setEnabled(m_name->hasAcceptableInput());
+        });
 
         using namespace Layouting;
 
