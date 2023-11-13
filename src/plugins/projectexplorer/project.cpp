@@ -821,7 +821,11 @@ void Project::createTargetFromMap(const Store &map, int index)
     }
 
     Kit *k = KitManager::kit(id);
-    if (!k && !ICore::isQtDesignStudio()) {
+    if (!k) {
+        // QDS does not want replacement kits.
+        if (ICore::isQtDesignStudio())
+            return;
+
         Id deviceTypeId = Id::fromSetting(targetMap.value(Target::deviceTypeKey()));
         if (!deviceTypeId.isValid())
             deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
