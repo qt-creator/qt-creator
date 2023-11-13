@@ -25,6 +25,10 @@ Column {
 
     // Create a dummy parent to host the effect qml object
     function createNewComponent() {
+        // If we have a working effect, do not show preview image as it shows through
+        // transparent parts of the final image
+        source.visible = false;
+
         var oldComponent = componentParent.children[0];
         if (oldComponent)
             oldComponent.destroy();
@@ -45,6 +49,7 @@ Column {
                 errorLine = e.lineNumber;
             }
             effectMakerModel.setEffectError(errorString, 0, errorLine);
+            source.visible = true;
         }
     }
 
