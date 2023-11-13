@@ -6,6 +6,9 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
+
+#include <qmlbuildsystem.h>
 
 #include <QComboBox>
 #include <QSettings>
@@ -17,24 +20,27 @@ static QString styleConfigFileName(const QString &qmlFileName)
     ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(
         Utils::FilePath::fromString(qmlFileName));
 
-    if (currentProject) {
-        const auto &environment = currentProject->additionalEnvironment();
-        const auto &envVar = std::find_if(std::begin(environment),
-                                          std::end(environment),
-                                          [](const auto &envVar) {
-                                              return (envVar.name == u"QT_QUICK_CONTROLS_CONF"
-                                                      && envVar.operation
-                                                             != Utils::EnvironmentItem::SetDisabled);
-                                          });
-        if (envVar != std::end(environment)) {
-            const auto &fileNames = currentProject->files(ProjectExplorer::Project::SourceFiles);
-            const auto &foundFile = std::find_if(std::begin(fileNames),
-                                                 std::end(fileNames),
-                                                 [&](const auto &fileName) {
-                                                     return fileName.fileName() == envVar->value;
-                                                 });
-            if (foundFile != std::end(fileNames))
-                return foundFile->toString();
+    if (currentProject && currentProject->activeTarget()) {
+        const auto *qmlBuild = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+            currentProject->activeTarget()->buildSystem());
+
+        if (qmlBuild) {
+            const auto &environment = qmlBuild->environment();
+            const auto &envVar = std::find_if(
+                std::begin(environment), std::end(environment), [](const auto &envVar) {
+                    return (envVar.name == u"QT_QUICK_CONTROLS_CONF"
+                            && envVar.operation != Utils::EnvironmentItem::SetDisabled);
+                });
+            if (envVar != std::end(environment)) {
+                const auto &fileNames = currentProject->files(ProjectExplorer::Project::SourceFiles);
+                const auto &foundFile = std::find_if(std::begin(fileNames),
+                                                     std::end(fileNames),
+                                                     [&](const auto &fileName) {
+                                                         return fileName.fileName() == envVar->value;
+                                                     });
+                if (foundFile != std::end(fileNames))
+                    return foundFile->toString();
+            }
         }
     }
 
