@@ -114,6 +114,8 @@ CollectionWidget::CollectionWidget(CollectionView *view)
     connect(hotReloadShortcut, &QShortcut::activated, this, &CollectionWidget::reloadQmlSource);
 
     reloadQmlSource();
+
+    QmlDesignerPlugin::trackWidgetFocusTime(this, Constants::EVENT_MODELEDITOR_TIME);
 }
 
 void CollectionWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

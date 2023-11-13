@@ -135,6 +135,7 @@ const char EVENT_MATERIALEDITOR_TIME[] = "materialEditor";
 const char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
 const char EVENT_CONTENTLIBRARY_TIME[] = "contentLibrary";
 const char EVENT_INSIGHT_TIME[] = "insight";
+const char EVENT_MODELEDITOR_TIME[] = "modelEditor";
 const char EVENT_TOOLBAR_MODE_CHANGE[] = "ToolBarTriggerModeChange";
 const char EVENT_TOOLBAR_PROJECT_SETTINGS[] = "ToolBarTriggerProjectSettings";
 const char EVENT_TOOLBAR_RUN_PROJECT[] = "ToolBarRunProject";
