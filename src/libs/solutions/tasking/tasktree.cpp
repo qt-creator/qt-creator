@@ -2672,46 +2672,51 @@ struct TimerData
     TimeoutCallback m_callback;
 };
 
-QMutex s_mutex;
-std::atomic_int s_timerId = 0;
-QHash<int, TimerData> s_timerIdToTimerData = {};
-QMultiMap<system_clock::time_point, int> s_deadlineToTimerId = {};
+struct TimerThreadData
+{
+    Q_DISABLE_COPY_MOVE(TimerThreadData)
+
+    QHash<int, TimerData> m_timerIdToTimerData = {};
+    QMultiMap<system_clock::time_point, int> m_deadlineToTimerId = {};
+    int m_timerIdCounter = 0;
+};
+
+// Please note the thread_local keyword below guarantees a separate instance per thread.
+static thread_local TimerThreadData s_threadTimerData = {};
 
 static QList<TimerData> prepareForActivation(int timerId)
 {
-    QMutexLocker lock(&s_mutex);
-    const auto it = s_timerIdToTimerData.constFind(timerId);
-    if (it == s_timerIdToTimerData.cend())
+    const auto it = s_threadTimerData.m_timerIdToTimerData.constFind(timerId);
+    if (it == s_threadTimerData.m_timerIdToTimerData.cend())
         return {}; // the timer was already activated
 
     const system_clock::time_point deadline = it->m_deadline;
     QList<TimerData> toActivate;
-    auto itMap = s_deadlineToTimerId.cbegin();
-    while (itMap != s_deadlineToTimerId.cend()) {
+    auto itMap = s_threadTimerData.m_deadlineToTimerId.cbegin();
+    while (itMap != s_threadTimerData.m_deadlineToTimerId.cend()) {
         if (itMap.key() > deadline)
             break;
 
-        const auto it = s_timerIdToTimerData.constFind(itMap.value());
-        if (it != s_timerIdToTimerData.cend()) {
+        const auto it = s_threadTimerData.m_timerIdToTimerData.constFind(itMap.value());
+        if (it != s_threadTimerData.m_timerIdToTimerData.cend()) {
             toActivate.append(it.value());
-            s_timerIdToTimerData.erase(it);
+            s_threadTimerData.m_timerIdToTimerData.erase(it);
         }
-        itMap = s_deadlineToTimerId.erase(itMap);
+        itMap = s_threadTimerData.m_deadlineToTimerId.erase(itMap);
     }
     return toActivate;
 }
 
 static void removeTimerId(int timerId)
 {
-    QMutexLocker lock(&s_mutex);
-    const auto it = s_timerIdToTimerData.constFind(timerId);
-    QT_ASSERT(it != s_timerIdToTimerData.cend(),
+    const auto it = s_threadTimerData.m_timerIdToTimerData.constFind(timerId);
+    QT_ASSERT(it != s_threadTimerData.m_timerIdToTimerData.cend(),
               qWarning("Removing active timerId failed."); return);
 
     const system_clock::time_point deadline = it->m_deadline;
-    s_timerIdToTimerData.erase(it);
+    s_threadTimerData.m_timerIdToTimerData.erase(it);
 
-    const int removedCount = s_deadlineToTimerId.remove(deadline, timerId);
+    const int removedCount = s_threadTimerData.m_deadlineToTimerId.remove(deadline, timerId);
     QT_ASSERT(removedCount == 1, qWarning("Removing active timerId failed."); return);
 }
 
@@ -2720,18 +2725,17 @@ static void handleTimeout(int timerId)
     const QList<TimerData> toActivate = prepareForActivation(timerId);
     for (const TimerData &timerData : toActivate) {
         if (timerData.m_context)
-            QMetaObject::invokeMethod(timerData.m_context.get(), timerData.m_callback);
+            timerData.m_callback();
     }
 }
 
 static int scheduleTimeout(milliseconds timeout, QObject *context, const TimeoutCallback &callback)
 {
-    const int timerId = s_timerId.fetch_add(1) + 1;
+    const int timerId = ++s_threadTimerData.m_timerIdCounter;
     const system_clock::time_point deadline = system_clock::now() + timeout;
     QTimer::singleShot(timeout, context, [timerId] { handleTimeout(timerId); });
-    QMutexLocker lock(&s_mutex);
-    s_timerIdToTimerData.emplace(timerId, TimerData{deadline, context, callback});
-    s_deadlineToTimerId.insert(deadline, timerId);
+    s_threadTimerData.m_timerIdToTimerData.emplace(timerId, TimerData{deadline, context, callback});
+    s_threadTimerData.m_deadlineToTimerId.insert(deadline, timerId);
     return timerId;
 }
 

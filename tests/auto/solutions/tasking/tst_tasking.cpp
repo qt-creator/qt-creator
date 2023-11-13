@@ -394,7 +394,7 @@ static Handler toTweakDoneHandler(DoneResult result)
     return result == DoneResult::Success ? Handler::TweakDoneToSuccess : Handler::TweakDoneToError;
 }
 
-static TestData storageShadowing()
+static TestData storageShadowingData()
 {
     // This test check if storage shadowing works OK.
 
@@ -469,6 +469,70 @@ static TestData storageShadowing()
     };
 
     return {storage, root, log, 0, DoneWith::Success};
+}
+
+static TestData parallelData()
+{
+    TreeStorage<CustomStorage> storage;
+
+    const auto setupTask = [storage](int taskId, milliseconds timeout) {
+        return [storage, taskId, timeout](TaskObject &taskObject) {
+            taskObject = timeout;
+            storage->m_log.append({taskId, Handler::Setup});
+        };
+    };
+
+    const auto setupDone = [storage](int taskId, DoneResult result = DoneResult::Success) {
+        return [storage, taskId, result](DoneWith doneWith) {
+            const Handler handler = doneWith == DoneWith::Cancel ? Handler::Canceled
+                                    : result == DoneResult::Success ? Handler::Success : Handler::Error;
+            storage->m_log.append({taskId, handler});
+            return doneWith == DoneWith::Cancel ? DoneResult::Error
+                   : result == DoneResult::Success ? DoneResult::Success : DoneResult::Error;
+        };
+    };
+
+    const auto createTask = [storage, setupTask, setupDone](
+                                int taskId, DoneResult result, milliseconds timeout = 0ms) {
+        return TestTask(setupTask(taskId, timeout), setupDone(taskId, result));
+    };
+
+    const auto createSuccessTask = [createTask](int taskId, milliseconds timeout = 0ms) {
+        return createTask(taskId, DoneResult::Success, timeout);
+    };
+
+    const auto groupDone = [storage](int taskId) {
+        return onGroupDone([storage, taskId](DoneWith result) {
+            storage->m_log.append({taskId, resultToGroupHandler(result)});
+        });
+    };
+
+    const Group root {
+        Storage(storage),
+        parallel,
+        createSuccessTask(1),
+        createSuccessTask(2),
+        createSuccessTask(3),
+        createSuccessTask(4),
+        createSuccessTask(5),
+        groupDone(0)
+    };
+
+    const Log log {
+        {1, Handler::Setup}, // Setup order is determined in parallel mode
+        {2, Handler::Setup},
+        {3, Handler::Setup},
+        {4, Handler::Setup},
+        {5, Handler::Setup},
+        {1, Handler::Success},
+        {2, Handler::Success},
+        {3, Handler::Success},
+        {4, Handler::Success},
+        {5, Handler::Success},
+        {0, Handler::GroupSuccess}
+    };
+
+    return {storage, root, log, 5, DoneWith::Success};
 }
 
 void tst_Tasking::testTree_data()
@@ -792,32 +856,7 @@ void tst_Tasking::testTree_data()
         QTest::newRow("Nested") << TestData{storage, root, log, 1, DoneWith::Success};
     }
 
-    {
-        const Group root {
-            Storage(storage),
-            parallel,
-            createSuccessTask(1),
-            createSuccessTask(2),
-            createSuccessTask(3),
-            createSuccessTask(4),
-            createSuccessTask(5),
-            groupDone(0)
-        };
-        const Log log {
-            {1, Handler::Setup}, // Setup order is determined in parallel mode
-            {2, Handler::Setup},
-            {3, Handler::Setup},
-            {4, Handler::Setup},
-            {5, Handler::Setup},
-            {1, Handler::Success},
-            {2, Handler::Success},
-            {3, Handler::Success},
-            {4, Handler::Success},
-            {5, Handler::Success},
-            {0, Handler::GroupSuccess}
-        };
-        QTest::newRow("Parallel") << TestData{storage, root, log, 5, DoneWith::Success};
-    }
+    QTest::newRow("Parallel") << parallelData();
 
     {
         auto setupSubTree = [storage, createSuccessTask](TaskTree &taskTree) {
@@ -2592,10 +2631,8 @@ void tst_Tasking::testTree_data()
                                                                  DoneWith::Success};
     }
 
-    {
-        // This test check if storage shadowing works OK.
-        QTest::newRow("StorageShadowing") << storageShadowing();
-    }
+    // This test check if storage shadowing works OK.
+    QTest::newRow("StorageShadowing") << storageShadowingData();
 }
 
 void tst_Tasking::testTree()
@@ -2622,13 +2659,15 @@ void tst_Tasking::testTree()
 void tst_Tasking::testInThread_data()
 {
     QTest::addColumn<TestData>("testData");
-    QTest::newRow("StorageShadowing") << storageShadowing();
+    QTest::newRow("StorageShadowing") << storageShadowingData();
+    QTest::newRow("Parallel") << parallelData();
 }
 
 struct TestResult
 {
     int executeCount = 0;
     ThreadResult threadResult = ThreadResult::Success;
+    Log actualLog = {};
 };
 
 static const int s_loopCount = 1000;
@@ -2664,7 +2703,7 @@ static void runInThread(QPromise<TestResult> &promise, const TestData &testData)
             return;
         }
         if (actualLog != testData.expectedLog) {
-            promise.addResult(TestResult{i, ThreadResult::FailOnLogCheck});
+            promise.addResult(TestResult{i, ThreadResult::FailOnLogCheck, actualLog});
             return;
         }
         if (result != testData.onDone) {
@@ -2672,7 +2711,7 @@ static void runInThread(QPromise<TestResult> &promise, const TestData &testData)
             return;
         }
     }
-    promise.addResult(TestResult{s_loopCount, ThreadResult::Success});
+    promise.addResult(TestResult{s_loopCount, ThreadResult::Success, testData.expectedLog});
 }
 
 void tst_Tasking::testInThread()
@@ -2685,8 +2724,9 @@ void tst_Tasking::testInThread()
     const auto onDone = [testData](const ConcurrentCall<TestResult> &task) {
         QVERIFY(task.future().resultCount());
         const TestResult result = task.result();
-        QCOMPARE(result.executeCount, s_loopCount);
+        QCOMPARE(result.actualLog, testData.expectedLog);
         QCOMPARE(result.threadResult, ThreadResult::Success);
+        QCOMPARE(result.executeCount, s_loopCount);
     };
 
     QList<GroupItem> tasks = { parallel };
