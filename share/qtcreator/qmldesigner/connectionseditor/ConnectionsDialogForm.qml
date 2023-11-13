@@ -243,7 +243,7 @@ Column {
                     id: jumpToCodeButton
                     style: StudioTheme.Values.microToolbarButtonStyle
                     buttonIcon: StudioTheme.Constants.jumpToCode_medium
-                    tooltip: qsTr("Jump to Code Editor.")
+                    tooltip: qsTr("Jump to the code.")
                     onClicked: backend.jumpToCode()
                 }
             }

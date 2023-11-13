@@ -121,7 +121,7 @@ const char copyFormatDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
 const char applyFormatDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Apply Formatting");
 
 const char enterComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit Component");
-const char JumpToCodeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Jump To Code");
+const char JumpToCodeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Jump to the Code");
 const char mergeTemplateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Merge with Template");
 const char goToImplementationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Go to Implementation");
 const char makeComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Create Component");

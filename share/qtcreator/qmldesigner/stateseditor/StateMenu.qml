@@ -87,7 +87,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         enabled: !root.isBaseState
-        text: qsTr("Jump To Code")
+        text: qsTr("Jump to the code")
         onTriggered: root.jumpToCode()
     }
 
