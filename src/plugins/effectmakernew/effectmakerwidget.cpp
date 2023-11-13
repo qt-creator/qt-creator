@@ -17,6 +17,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <qmldesigner/qmldesignerconstants.h>
+#include <qmldesigner/qmldesignerplugin.h>
 #include <studioquickwidget.h>
 
 #include <utils/algorithm.h>
@@ -72,6 +74,8 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     map->setProperties({{"effectMakerNodesModel", QVariant::fromValue(m_effectMakerNodesModel.data())},
                         {"effectMakerModel", QVariant::fromValue(m_effectMakerModel.data())},
                         {"rootView", QVariant::fromValue(this)}});
+    QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(
+        this, QmlDesigner::Constants::EVENT_NEWEFFECTMAKER_TIME);
 }
 
 
