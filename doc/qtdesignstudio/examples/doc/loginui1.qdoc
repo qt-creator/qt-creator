@@ -252,7 +252,7 @@
 
     \image loginui1-entry-field-styled.jpg "Modified button in the 2D view"
 
-    \note Do not edit the the value of \uicontrol Text in the \uicontrol Character
+    \note Do not edit the value of \uicontrol Text in the \uicontrol Character
     property, because this will break the connection, and later you won't be able
     to change the text in \uicontrol {Button Content} > \uicontrol Text.
 

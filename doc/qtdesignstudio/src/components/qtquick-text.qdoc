@@ -206,7 +206,7 @@
 
     Text can be either in plain text or rich text format, depending on the
     value you set in the \uicontrol Format field. If you select
-    \uicontrol AutoText and the the first line of text contains an HTML tag,
+    \uicontrol AutoText and the first line of text contains an HTML tag,
     the text is treated as rich text. Rich text supports a subset of HTML 4
     described on the \l {Supported HTML Subset}. Note that plain text offers
     better performance than rich text.

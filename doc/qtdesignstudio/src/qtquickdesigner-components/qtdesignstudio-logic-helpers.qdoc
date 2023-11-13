@@ -285,7 +285,7 @@
     \uicontrol {Input 01} field to the value of the \uicontrol {Below min}
     field of the minimum-maximum mapper for the bad value range. For the
     \e overValueAnd operator, we bind it to the value of the
-    \uicontrol {Above max} field of the the same mapper.
+    \uicontrol {Above max} field of the same mapper.
 
     \image studio-logic-helper-combining-example-ao2.png "Under value minimum-maximum mapper Input 01"
 

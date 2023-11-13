@@ -72,7 +72,7 @@
             the \l{UI Files}{UI files} (.ui.qml), while developers should work
             on the corresponding implementation files (.qml) to define their
             programmatic behaviors or JavaScript. This enables iteration from
-            both the design and development side of the process without the the
+            both the design and development side of the process without the
             risk of overwriting each other's work.
     \endlist
 */

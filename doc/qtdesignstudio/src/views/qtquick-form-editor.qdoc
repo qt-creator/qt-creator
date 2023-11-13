@@ -45,7 +45,7 @@
         \li \l{Previewing Component Size}
     \row
         \li \inlineimage icons/canvas-color.png
-        \li Sets the color of the the \uicontrol {2D} view working area.
+        \li Sets the color of the \uicontrol {2D} view working area.
         \li \l{Setting Canvas Color}
     \row
         \li \inlineimage icons/zoomIn.png
