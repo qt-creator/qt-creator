@@ -77,7 +77,7 @@ CreateSimulatorDialog::~CreateSimulatorDialog()
 }
 
 /*!
-    Returns the the simulator name entered by user.
+    Returns the simulator name entered by user.
  */
 QString CreateSimulatorDialog::name() const
 {
@@ -85,7 +85,7 @@ QString CreateSimulatorDialog::name() const
 }
 
 /*!
-    Returns the the simulator runtime (OS version) selected by user.
+    Returns the simulator runtime (OS version) selected by user.
     Though the runtimes are filtered by the selected device type but the runtime camppatibility is
     not checked. i.e. User can select the Runtime iOS 10.2 for iPhone 4 but the combination is not
     possible as iOS 10.2 is not compatible with iPhone 4. In this case the command to create
@@ -97,7 +97,7 @@ RuntimeInfo CreateSimulatorDialog::runtime() const
 }
 
 /*!
-    Returns the the selected device type.
+    Returns the selected device type.
  */
 DeviceTypeInfo CreateSimulatorDialog::deviceType() const
 {

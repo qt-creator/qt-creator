@@ -14,7 +14,7 @@
     IEditor instances are usually created by a corresponding IEditorFactory.
 
     An IEditor instance provides an editor widget for a single IDocument via
-    the IContext::widget() method. If the the editor type supports it, multiple
+    the IContext::widget() method. If the editor type supports it, multiple
     editors can be opened for the same document. Multiple IEditor instances
     share ownership of the same IDocument instance in that case.
 

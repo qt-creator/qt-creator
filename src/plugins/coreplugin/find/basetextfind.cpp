@@ -249,7 +249,7 @@ void BaseTextFind::replace(const QString &before, const QString &after, FindFlag
     setTextCursor(cursor);
 }
 
-// QTextCursor::insert moves all other QTextCursors that are the the insertion point forward.
+// QTextCursor::insert moves all other QTextCursors that are the insertion point forward.
 // We do not want that for the replace operation, because then e.g. the find scope would move when
 // replacing a match at the start.
 static void insertTextAfterSelection(const QString &text, QTextCursor &cursor)

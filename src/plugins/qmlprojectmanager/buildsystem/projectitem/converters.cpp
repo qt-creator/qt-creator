@@ -218,7 +218,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     QJsonObject mcuObject;
     QJsonObject shaderToolObject;
 
-    // convert the the non-object props
+    // convert the non-object props
     for (const QString &propName : rootNode->propertyNames()) {
         QJsonObject *currentObj = &rootObject;
         QString objKey = QString(propName).remove("QDS.", Qt::CaseInsensitive);
@@ -267,7 +267,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
         versionObject.insert("qt", "5");
     }
 
-    // convert the the object props
+    // convert the object props
     for (const QmlJS::SimpleReaderNode::Ptr &childNode : rootNode->children()) {
         if (childNode->name().contains("files", Qt::CaseInsensitive)) {
             PropsPair propsPair;

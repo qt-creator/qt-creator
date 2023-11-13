@@ -41142,7 +41142,7 @@ Refusing to record test case &quot;%2&quot;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Specifies how many seconds Squish should wait after the the first AUT process has exited.</source>
+        <source>Specifies how many seconds Squish should wait after the first AUT process has exited.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
