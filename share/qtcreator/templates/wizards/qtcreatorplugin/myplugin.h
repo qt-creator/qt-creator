@@ -1,3 +1,4 @@
+%{Cpp:LicenseTemplate}\
 #pragma once
 
 #include "%{GlobalHdrFileName}"

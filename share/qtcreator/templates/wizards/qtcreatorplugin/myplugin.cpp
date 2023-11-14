@@ -1,3 +1,4 @@
+%{Cpp:LicenseTemplate}\
 #include "%{HdrFileName}"
 #include "%{ConstantsHdrFileName}"
 #include "%{TrHdrFileName}"
