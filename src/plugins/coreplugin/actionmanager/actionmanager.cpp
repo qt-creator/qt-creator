@@ -255,6 +255,12 @@ void ActionBuilder::bindContextAction(QAction **dest)
     *dest = d->action;
 }
 
+void ActionBuilder::bindContextAction(Utils::ParameterAction **dest)
+{
+    QTC_ASSERT(dest, return);
+    *dest = d->action;
+}
+
 void ActionBuilder::augmentActionWithShortcutToolTip()
 {
     d->command->augmentActionWithShortcutToolTip(d->action);
