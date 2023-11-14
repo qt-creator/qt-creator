@@ -22,6 +22,10 @@ Row {
     // by QtQuick3D to add built-in primitives to the model.
     property var defaultItems
 
+    // These paths will be used for default items if they are defined. Otherwise, default item
+    // itself is used as the path.
+    property var defaultPaths
+
     // Current item
     property string absoluteFilePath: ""
 
@@ -422,8 +426,10 @@ Row {
         if (root.defaultItems !== undefined) {
             for (var i = 0; i < root.defaultItems.length; ++i) {
                 comboBox.listModel.append({
-                    absoluteFilePath: "",
-                    relativeFilePath: root.defaultItems[i],
+                    absoluteFilePath: root.defaultPaths ? root.defaultPaths[i]
+                                                        : "",
+                    relativeFilePath: root.defaultPaths ? root.defaultPaths[i]
+                                                        : root.defaultItems[i],
                     name: root.defaultItems[i],
                     group: 0
                 })
@@ -454,6 +460,7 @@ Row {
     }
 
     onDefaultItemsChanged: root.createModel()
+    onDefaultPathsChanged: root.createModel()
 
     Component.onCompleted: {
         root.createModel()
