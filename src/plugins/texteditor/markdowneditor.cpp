@@ -83,6 +83,7 @@ public:
         context->setWidget(m_textEditorWidget);
         context->setContext(Context(MARKDOWNVIEWER_TEXT_CONTEXT));
         ICore::addContextObject(context);
+        m_lineColumnButton = new LineColumnButton(m_textEditorWidget);
 
         m_splitter->addWidget(m_textEditorWidget); // sets splitter->focusWidget() on non-Windows
         m_splitter->addWidget(m_previewWidget);
@@ -115,6 +116,7 @@ public:
         m_toggleEditorVisible->setCheckable(true);
         m_toggleEditorVisible->setChecked(showEditor);
         m_textEditorWidget->setVisible(showEditor);
+        m_lineColumnButton->setVisible(showEditor);
 
         auto button = new CommandButton(EMPHASIS_ACTION);
         button->setText("i");
@@ -150,6 +152,7 @@ public:
         for (auto button : m_markDownButtons)
             m_toolbarLayout->addWidget(button);
         m_toolbarLayout->addStretch();
+        m_toolbarLayout->addWidget(m_lineColumnButton);
         m_toolbarLayout->addWidget(m_togglePreviewVisible);
         m_toolbarLayout->addWidget(m_toggleEditorVisible);
         m_toolbarLayout->addWidget(m_swapViews);
@@ -210,6 +213,7 @@ public:
                                 m_togglePreviewVisible);
                     for (auto button : m_markDownButtons)
                         button->setVisible(visible);
+                    m_lineColumnButton->setVisible(visible);
                     saveViewSettings();
                 });
         connect(m_togglePreviewVisible,
@@ -443,6 +447,7 @@ private:
     QWidget m_toolbar;
     QHBoxLayout *m_toolbarLayout;
     QList<QToolButton *> m_markDownButtons;
+    LineColumnButton *m_lineColumnButton;
     CommandButton *m_toggleEditorVisible;
     CommandButton *m_togglePreviewVisible;
     CommandButton *m_swapViews;

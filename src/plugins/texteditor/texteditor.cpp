@@ -164,7 +164,7 @@ LineColumnButton::LineColumnButton(TextEditorWidget *parent)
     m_d->m_editor = parent;
     connect(m_d->m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
     connect(this, &QToolButton::clicked, ActionManager::instance(), [this] {
-        emit m_d->m_editor->activateEditor(EditorManager::IgnoreNavigationHistory);
+        m_d->m_editor->setFocus();
         QMetaObject::invokeMethod(
             ActionManager::instance(),
             [] {
