@@ -29,6 +29,32 @@ public:
     DataWithOrigin(QUrl origin, T data) : origin(std::move(origin)), data(std::move(data)) { }
 };
 
+class Credential
+{
+public:
+    Credential(const QString &apiToken);
+
+    const QByteArray &authorizationValue() const;
+
+private:
+    QByteArray m_authorizationValue;
+};
+
+class CredentialProvider
+{
+public:
+    QFuture<Credential> getCredential();
+};
+
+class ClientData
+{
+public:
+    Utils::NetworkAccessManager &networkAccessManager;
+    std::unique_ptr<CredentialProvider> credentialProvider;
+
+    ClientData(Utils::NetworkAccessManager &networkAccessManager);
+};
+
 class DashboardClient
 {
 public:
@@ -40,7 +66,7 @@ public:
     QFuture<RawProjectInfo> fetchProjectInfo(const QString &projectName);
 
 private:
-    Utils::NetworkAccessManager &m_networkAccessManager;
+    std::shared_ptr<ClientData> m_clientData;
 };
 
 } // namespace Axivion::Internal

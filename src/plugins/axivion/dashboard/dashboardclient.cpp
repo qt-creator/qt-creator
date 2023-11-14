@@ -11,6 +11,7 @@
 
 #include <QByteArray>
 #include <QCoreApplication>
+#include <QFutureWatcher>
 #include <QLatin1String>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -21,8 +22,29 @@
 namespace Axivion::Internal
 {
 
+Credential::Credential(const QString &apiToken)
+    : m_authorizationValue(QByteArrayLiteral(u8"AxToken ") + apiToken.toUtf8())
+{
+}
+
+const QByteArray &Credential::authorizationValue() const
+{
+    return m_authorizationValue;
+}
+
+QFuture<Credential> CredentialProvider::getCredential()
+{
+    return QtFuture::makeReadyFuture(Credential(settings().server.token));
+}
+
+ClientData::ClientData(Utils::NetworkAccessManager &networkAccessManager)
+    : networkAccessManager(networkAccessManager),
+      credentialProvider(std::make_unique<CredentialProvider>())
+{
+}
+
 DashboardClient::DashboardClient(Utils::NetworkAccessManager &networkAccessManager)
-    : m_networkAccessManager(networkAccessManager)
+    : m_clientData(std::make_shared<ClientData>(networkAccessManager))
 {
 }
 
@@ -31,7 +53,7 @@ using ResponseData = Utils::expected<DataWithOrigin<QByteArray>, Error>;
 static constexpr int httpStatusCodeOk = 200;
 static const QLatin1String jsonContentType{ "application/json" };
 
-ResponseData readResponse(QNetworkReply& reply, QAnyStringView expectedContentType)
+static ResponseData readResponse(QNetworkReply &reply, QAnyStringView expectedContentType)
 {
     QNetworkReply::NetworkError error = reply.error();
     int statusCode = reply.attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
@@ -83,26 +105,22 @@ static Utils::expected<DataWithOrigin<T>, Error> parseResponse(ResponseData rawB
     }
 }
 
-QFuture<ResponseData> fetch(Utils::NetworkAccessManager &networkAccessManager,
-                            const std::optional<QUrl> &base,
-                            const QUrl &target)
+static void fetch(QPromise<ResponseData> promise,
+                  std::shared_ptr<ClientData> clientData,
+                  const QUrl &url,
+                  const Credential &credential)
 {
-    QPromise<ResponseData> promise;
-    promise.start();
-    const AxivionServer &server = settings().server;
-    QUrl url = base ? base->resolved(target) : target;
     QNetworkRequest request{ url };
     request.setRawHeader(QByteArrayLiteral(u8"Accept"),
                          QByteArray(jsonContentType.data(), jsonContentType.size()));
     request.setRawHeader(QByteArrayLiteral(u8"Authorization"),
-                         QByteArrayLiteral(u8"AxToken ") + server.token.toUtf8());
+                         credential.authorizationValue());
     QByteArray ua = QByteArrayLiteral(u8"Axivion")
                     + QCoreApplication::applicationName().toUtf8()
                     + QByteArrayLiteral(u8"Plugin/")
                     + QCoreApplication::applicationVersion().toUtf8();
     request.setRawHeader(QByteArrayLiteral(u8"X-Axivion-User-Agent"), ua);
-    QFuture<ResponseData> future = promise.future();
-    QNetworkReply* reply = networkAccessManager.get(request);
+    QNetworkReply *reply = clientData->networkAccessManager.get(request);
     QObject::connect(reply,
                      &QNetworkReply::finished,
                      reply,
@@ -111,6 +129,28 @@ QFuture<ResponseData> fetch(Utils::NetworkAccessManager &networkAccessManager,
                          promise.finish();
                          reply->deleteLater();
                      });
+}
+
+static QFuture<ResponseData> fetch(std::shared_ptr<ClientData> clientData,
+                                   const std::optional<QUrl> &base,
+                                   const QUrl &target)
+{
+    QPromise<ResponseData> promise;
+    promise.start();
+    QFuture<ResponseData> future = promise.future();
+    QUrl url = base ? base->resolved(target) : target;
+    QFutureWatcher<Credential> *watcher = new QFutureWatcher<Credential>(&clientData->networkAccessManager);
+    QObject::connect(watcher,
+                     &QFutureWatcher<Credential>::finished,
+                     &clientData->networkAccessManager,
+                     [promise = std::move(promise), clientData, url = std::move(url), watcher]() mutable {
+                         fetch(std::move(promise),
+                               std::move(clientData),
+                               url,
+                               watcher->result());
+                         watcher->deleteLater();;
+                     });
+    watcher->setFuture(clientData->credentialProvider->getCredential());
     return future;
 }
 
@@ -123,7 +163,7 @@ QFuture<DashboardClient::RawProjectInfo> DashboardClient::fetchProjectInfo(const
     QUrl url = QUrl(dashboard)
         .resolved(QUrl(QStringLiteral(u"api/projects/")))
         .resolved(QUrl(projectName));
-    return fetch(this->m_networkAccessManager, std::nullopt, url)
+    return fetch(this->m_clientData, std::nullopt, url)
         .then(QtFuture::Launch::Async, &parseResponse<Dto::ProjectInfoDto>);
 }
 
