@@ -104,6 +104,8 @@ static QString surroundSelectionWithBrackets(const QString &textToInsert, const 
         replacement = selection + QLatin1Char(')');
     } else if (textToInsert == QLatin1String("[")) {
         replacement = selection + QLatin1Char(']');
+    } else if (textToInsert == QLatin1String("<")) {
+        replacement = selection + QLatin1Char('>');
     } else if (textToInsert == QLatin1String("{")) {
         //If the text spans multiple lines, insert on different lines
         replacement = selection;
