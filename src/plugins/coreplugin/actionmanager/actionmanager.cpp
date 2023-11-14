@@ -146,16 +146,6 @@ void ActionBuilder::setOnTriggered(const std::function<void ()> &func)
     QObject::connect(d->action, &QAction::triggered, d->action, func);
 }
 
-void ActionBuilder::setOnTriggered(QObject *guard, const std::function<void()> &func)
-{
-    QObject::connect(d->action, &QAction::triggered, guard, func);
-}
-
-void ActionBuilder::setOnTriggered(QObject *guard, const std::function<void(bool)> &func)
-{
-    QObject::connect(d->action, &QAction::triggered, guard, func);
-}
-
 void ActionBuilder::setOnToggled(QObject *guard, const std::function<void (bool)> &func)
 {
     QObject::connect(d->action, &QAction::toggled, guard, func);
