@@ -47,6 +47,15 @@ enum ToolbarStyle {
 };
 constexpr ToolbarStyle defaultToolbarStyle = ToolbarStyleCompact;
 
+enum UiElement {
+    UiElementH1,
+    UiElementH2,
+    UiElementH3,
+    UiElementH4,
+    UiElementPanelTitle,
+    UiElementPanelSubtitle,
+};
+
 // Height of the project explorer navigation bar
 QTCREATOR_UTILS_EXPORT int navigationWidgetHeight();
 QTCREATOR_UTILS_EXPORT void setToolbarStyle(ToolbarStyle style);
@@ -72,6 +81,8 @@ QTCREATOR_UTILS_EXPORT QColor sidebarHighlight();
 QTCREATOR_UTILS_EXPORT QColor sidebarShadow();
 QTCREATOR_UTILS_EXPORT QColor toolBarDropShadowColor();
 QTCREATOR_UTILS_EXPORT QColor notTooBrightHighlightColor();
+
+QTCREATOR_UTILS_EXPORT QFont UiFont(UiElement element);
 
 // Sets the base color and makes sure all top level widgets are updated
 QTCREATOR_UTILS_EXPORT void setBaseColor(const QColor &color);

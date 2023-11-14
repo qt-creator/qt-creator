@@ -938,4 +938,36 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
     return foreground;
 }
 
+QFont StyleHelper::UiFont(UiElement element)
+{
+    QFont font;
+
+    constexpr qreal panelTitleSize = HostOsInfo::isMacHost() ? 10 : 7.5;
+
+    switch (element) {
+    case UiElementH1:
+        font.setPointSizeF(font.pointSizeF() * 1.6);
+        font.setBold(true);
+        break;
+    case UiElementH2:
+        font.setPointSizeF(font.pointSizeF() * 1.2);
+        font.setBold(true);
+        break;
+    case UiElementH3:
+        break;
+    case UiElementH4:
+        break;
+    case UiElementPanelTitle: {
+        font.setPointSizeF(panelTitleSize);
+        font.setBold(true);
+        break;
+    }
+    case UiElementPanelSubtitle:
+        font.setPointSizeF(panelTitleSize);
+        break;
+    }
+
+    return font;
+}
+
 } // namespace Utils
