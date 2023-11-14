@@ -102,6 +102,7 @@ ActionBuilder::ActionBuilder(QObject *contextActionParent, const Id actionId)
 ActionBuilder::~ActionBuilder()
 {
     d->registerAction();
+    delete d;
 }
 
 void ActionBuilder::setText(const QString &text)
