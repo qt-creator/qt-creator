@@ -125,7 +125,7 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
 
     BuildInfoStore store;
     store.buildInfo = info;
-    store.isEnabled = true;
+    store.isEnabled = info.enabledByDefault;
     ++m_selected;
 
     if (info.factory) {
@@ -138,6 +138,8 @@ void TargetSetupWidget::addBuildInfo(const BuildInfo &info, bool isImport)
         store.pathChooser = new PathChooser();
         store.pathChooser->setExpectedKind(PathChooser::Directory);
         store.pathChooser->setFilePath(info.buildDirectory);
+        if (!info.showBuildDirConfigWidget)
+            store.pathChooser->setVisible(false);
         store.pathChooser->setHistoryCompleter("TargetSetup.BuildDir.History");
         store.pathChooser->setReadOnly(isImport);
         m_newBuildsLayout->addWidget(store.pathChooser, pos * 2, 1);
@@ -280,6 +282,7 @@ void TargetSetupWidget::updateDefaultBuildDirectories()
                 if (!buildInfoStore.customBuildDir) {
                     const GuardLocker locker(m_ignoreChanges);
                     buildInfoStore.pathChooser->setFilePath(buildInfo.buildDirectory);
+                    buildInfoStore.pathChooser->setVisible(buildInfo.showBuildDirConfigWidget);
                 }
                 found = true;
                 break;
