@@ -27,6 +27,7 @@ class MacroExpander;
 
 namespace ProjectExplorer {
 
+class BuildConfiguration;
 class BuildInfo;
 class BuildSystem;
 class ContainerNode;
@@ -134,6 +135,7 @@ public:
     bool hasMakeInstallEquivalent() const;
 
     void setup(const QList<BuildInfo> &infoList);
+    BuildConfiguration *setup(const BuildInfo &info);
     Utils::MacroExpander *macroExpander() const;
 
     ProjectNode *findNodeForBuildKey(const QString &buildKey) const;
