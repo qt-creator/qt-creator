@@ -104,6 +104,16 @@
     selected, the camera is pointed at the world origin. This does not affect
     the camera zoom level.
 
+    To view the scene in a split view of four different point of views, select
+    \inlineimage icons/split-view.png.
+
+    \image studio-3d-split-view.webp "Split view in the 3D view"
+
+    To select one of the four panes, click on it. The selected pane is marked with
+    a blue frame. Use the world axis helper to change the point of view for each pane
+    independently. Navigate each split by panning, rotating, and zooming, as
+    described above.
+
     \image studio-3d-editor-axis-helper.webp "Axis helper in the 3D view"
 
     You can use scene cameras (2) to view the \uicontrol View3D component from a
@@ -441,6 +451,11 @@
         \li Background Color Actions
         \li
         \li \l{Changing Colors}
+    \row
+        \li \inlineimage icons/split-view.png
+        \li Toggle Split View On/Off
+        \li \key Ctrl + \key Alt + \key Q
+        \li \l{Using Split View}
     \row
         \li \inlineimage icons/particles-seek.png
         \li Seek Particle System Time
