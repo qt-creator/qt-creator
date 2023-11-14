@@ -3227,7 +3227,7 @@ public:
         : QWidget(parent)
         , m_index(idx)
     {}
-    void paintEvent(QPaintEvent *event)
+    void paintEvent(QPaintEvent *event) override
     {
         QPainter p(this);
         QPalette pal = palette();

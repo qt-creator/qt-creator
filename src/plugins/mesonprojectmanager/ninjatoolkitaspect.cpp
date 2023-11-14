@@ -64,7 +64,7 @@ public:
         setup(k);
     }
 
-    ItemList toUserOutput( const Kit *k) const
+    ItemList toUserOutput(const Kit *k) const override
     {
         const auto tool = NinjaToolKitAspect::ninjaTool(k);
         if (tool)

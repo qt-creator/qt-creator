@@ -314,7 +314,7 @@ struct BaseClass
 struct DerivedClass : BaseClass
 {
     DerivedClass() : b(2) {}
-    int foo() { return b; }
+    int foo() override { return b; }
     int b;
 };
 
@@ -4204,7 +4204,7 @@ namespace qthread {
 
         void setId(int id) { m_id = id; }
 
-        void run()
+        void run() override
         {
             int j = 2;
             ++j;
@@ -4787,7 +4787,7 @@ namespace namespc {
         {
         public:
             MyFoo() {}
-            virtual void doit(int i)
+            void doit(int i) override
             {
                 // Note there's a local 'n' and one in the base class.
                 n = i;
@@ -4799,7 +4799,7 @@ namespace namespc {
         class MyBar : public MyFoo
         {
         public:
-            virtual void doit(int i)
+            void doit(int i) override
             {
                n = i + 1;
             }
@@ -4810,7 +4810,7 @@ namespace namespc {
             class MyAnon : public MyBar
             {
             public:
-                virtual void doit(int i)
+                void doit(int i) override
                 {
                    n = i + 3;
                 }
@@ -4821,7 +4821,7 @@ namespace namespc {
                 class MyBaz : public MyAnon
                 {
                 public:
-                    virtual void doit(int i)
+                    void doit(int i) override
                     {
                        n = i + 5;
                     }
@@ -6549,7 +6549,7 @@ namespace bug5106 {
     {
     public:
             B5106(int c, int a, int b) : A5106(a, b), m_c(c) {Q_UNUSED(m_c)}
-            virtual int test() { return 4; BREAK_HERE; }
+            int test() override { return 4; BREAK_HERE; }
     private:
             int m_c;
     };

@@ -36,7 +36,7 @@ public:
 #endif
     }
 
-    virtual void extensionsInitialized() final { settings().setVcpkgRootEnvironmentVariable(); }
+    void extensionsInitialized() final { settings().setVcpkgRootEnvironmentVariable(); }
 
     std::unique_ptr<VcpkgPluginPrivate> d;
 };

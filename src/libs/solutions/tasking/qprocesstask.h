@@ -45,7 +45,7 @@ public:
 class TASKING_EXPORT QProcessAdapter : public TaskAdapter<QProcess, QProcessDeleter>
 {
 private:
-    void start() {
+    void start() override {
         connect(task(), &QProcess::finished, this, [this] {
             const bool success = task()->exitStatus() == QProcess::NormalExit
                                  && task()->error() == QProcess::UnknownError

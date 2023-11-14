@@ -45,9 +45,9 @@ public:
     bool hasError() const { return m_hasError; }
 
     // Note: Make sure subclasses call the superclasses' fromMap() function!
-    virtual void fromMap(const Utils::Store &map) override;
+    void fromMap(const Utils::Store &map) override;
     // Note: Make sure subclasses call the superclasses' toMap() function!
-    virtual void toMap(Utils::Store &map) const override;
+    void toMap(Utils::Store &map) const override;
 
     Target *target() const;
     Project *project() const;

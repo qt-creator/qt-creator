@@ -15,7 +15,7 @@ public:
 
 protected:
     void findLinkAt(const QTextCursor &, const Utils::LinkHandler &processLinkCallback,
-                    bool resolveTarget, bool inNextSplit);
+                    bool resolveTarget, bool inNextSplit) override;
 
 private:
     void onFindLinkFinished(Suggest::NimSuggestClientRequest *request);

@@ -21,7 +21,7 @@ class IncrediBuildPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "IncrediBuild.json")
 
 public:
-    void initialize()
+    void initialize() override
     {
         d = std::make_unique<IncrediBuildPluginPrivate>();
     }

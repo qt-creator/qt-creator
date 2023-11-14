@@ -24,7 +24,7 @@ public:
     virtual ~TransientScrollAreaSupport();
 
 protected:
-    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 
 private:
     explicit TransientScrollAreaSupport(QAbstractScrollArea *scrollArea);
@@ -66,6 +66,6 @@ public:
 private:
     GlobalTransientSupport();
     static GlobalTransientSupport *instance();
-    virtual bool eventFilter(QObject *watched, QEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
 };
 }

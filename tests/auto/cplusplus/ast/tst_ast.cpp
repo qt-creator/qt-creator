@@ -68,10 +68,10 @@ public:
             : errorCount(0)
         { }
 
-        virtual void report(int /*level*/,
-                            const StringLiteral *fileName,
-                            int line, int column,
-                            const char *format, va_list ap)
+        void report(int /*level*/,
+                    const StringLiteral *fileName,
+                    int line, int column,
+                    const char *format, va_list ap) override
         {
             ++errorCount;
 

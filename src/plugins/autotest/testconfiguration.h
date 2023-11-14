@@ -124,7 +124,7 @@ public:
     explicit TestToolConfiguration(ITestBase *testBase) : ITestConfiguration(testBase) {}
     Utils::CommandLine commandLine() const { return m_commandLine; }
     void setCommandLine(const Utils::CommandLine &cmdline) { m_commandLine = cmdline; }
-    virtual Utils::FilePath testExecutable() const override { return m_commandLine.executable(); };
+    Utils::FilePath testExecutable() const override { return m_commandLine.executable(); };
 
 private:
     Utils::CommandLine m_commandLine;

@@ -113,7 +113,7 @@ public:
         VersionedBackUpStrategy(accessor)
     { }
 
-    FilePaths readFileCandidates(const Utils::FilePath &baseFileName) const
+    FilePaths readFileCandidates(const Utils::FilePath &baseFileName) const override
     {
         return Utils::filtered(static_cast<const BasicTestSettingsAccessor *>(accessor())->fileNames(),
                                [&baseFileName](const Utils::FilePath &f) {

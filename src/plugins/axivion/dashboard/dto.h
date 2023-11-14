@@ -126,7 +126,7 @@ namespace Axivion::Internal::Dto
         // Throws std::bad_variant_access
         const bool &getBool() const;
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
 
     private:
         std::variant<
@@ -179,7 +179,7 @@ namespace Axivion::Internal::Dto
             std::optional<QString> languageName
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -252,7 +252,7 @@ namespace Axivion::Internal::Dto
             QString newPassword
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -292,7 +292,7 @@ namespace Axivion::Internal::Dto
             QString displayColor
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -314,7 +314,7 @@ namespace Axivion::Internal::Dto
             QString text
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -342,7 +342,7 @@ namespace Axivion::Internal::Dto
             QString csrfToken
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -389,7 +389,7 @@ namespace Axivion::Internal::Dto
             std::optional<qint32> line
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -510,7 +510,7 @@ namespace Axivion::Internal::Dto
             std::optional<std::map<QString, Any>> data
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -577,7 +577,7 @@ namespace Axivion::Internal::Dto
             std::optional<QString> commentDeletionId
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -723,7 +723,7 @@ namespace Axivion::Internal::Dto
             qint32 endColumn
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -754,7 +754,7 @@ namespace Axivion::Internal::Dto
             QString color
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -814,7 +814,7 @@ namespace Axivion::Internal::Dto
             std::optional<bool> selected
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -898,7 +898,7 @@ namespace Axivion::Internal::Dto
             Any maxValue
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -960,7 +960,7 @@ namespace Axivion::Internal::Dto
             QString entityId
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1020,7 +1020,7 @@ namespace Axivion::Internal::Dto
             std::optional<std::vector<QString>> groups
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1048,7 +1048,7 @@ namespace Axivion::Internal::Dto
             QString url
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1087,7 +1087,7 @@ namespace Axivion::Internal::Dto
             std::optional<bool> disabled
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1178,7 +1178,7 @@ namespace Axivion::Internal::Dto
             QString buildDate
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1244,7 +1244,7 @@ namespace Axivion::Internal::Dto
             qint32 Removed
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1358,7 +1358,7 @@ namespace Axivion::Internal::Dto
             std::optional<double> cloneRatio
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1423,7 +1423,7 @@ namespace Axivion::Internal::Dto
 
         void setTypeEnum(ApiTokenType newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1557,7 +1557,7 @@ namespace Axivion::Internal::Dto
 
         void setTypeEnum(ApiTokenType newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1672,7 +1672,7 @@ namespace Axivion::Internal::Dto
 
         void setAlignmentEnum(TableCellAlignment newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1816,7 +1816,7 @@ namespace Axivion::Internal::Dto
             std::optional<QString> csrfTokenUrl
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1838,7 +1838,7 @@ namespace Axivion::Internal::Dto
             std::vector<IssueCommentDto> comments
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1885,7 +1885,7 @@ namespace Axivion::Internal::Dto
 
         void setPrefixEnum(IssueKind newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -1907,7 +1907,7 @@ namespace Axivion::Internal::Dto
             std::vector<IssueTagTypeDto> tags
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2022,7 +2022,7 @@ namespace Axivion::Internal::Dto
 
         void setKindEnum(IssueKind newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2065,7 +2065,7 @@ namespace Axivion::Internal::Dto
 
         void setSeverityEnum(std::optional<MessageSeverity> newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2087,7 +2087,7 @@ namespace Axivion::Internal::Dto
             std::vector<RuleDto> rules
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2127,7 +2127,7 @@ namespace Axivion::Internal::Dto
 
         void setDirectionEnum(SortDirection newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2185,7 +2185,7 @@ namespace Axivion::Internal::Dto
 
         void setTypeEnum(std::optional<UserRefType> newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2213,7 +2213,7 @@ namespace Axivion::Internal::Dto
             std::vector<AnalyzedFileDto> rows
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2241,7 +2241,7 @@ namespace Axivion::Internal::Dto
             std::vector<EntityDto> entities
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2291,7 +2291,7 @@ namespace Axivion::Internal::Dto
             std::vector<LineMarkerDto> lineMarkers
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2372,7 +2372,7 @@ namespace Axivion::Internal::Dto
 
         void setKindEnum(IssueKind newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2470,7 +2470,7 @@ namespace Axivion::Internal::Dto
             std::optional<qint32> totalRemovedCount
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2498,7 +2498,7 @@ namespace Axivion::Internal::Dto
             std::vector<MetricDto> metrics
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2552,7 +2552,7 @@ namespace Axivion::Internal::Dto
             std::vector<std::optional<double>> values
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2582,7 +2582,7 @@ namespace Axivion::Internal::Dto
             std::vector<MetricValueTableRowDto> rows
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2660,7 +2660,7 @@ namespace Axivion::Internal::Dto
 
         void setKindEnum(IssueKindForNamedFilterCreation newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2792,7 +2792,7 @@ namespace Axivion::Internal::Dto
 
         void setTypeEnum(std::optional<NamedFilterType> newValue);
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2854,7 +2854,7 @@ namespace Axivion::Internal::Dto
             std::optional<NamedFilterVisibilityDto> visibility
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2916,7 +2916,7 @@ namespace Axivion::Internal::Dto
             bool hasHiddenIssues
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -2953,7 +2953,7 @@ namespace Axivion::Internal::Dto
             bool hasWarnings
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
     /**
@@ -3023,7 +3023,7 @@ namespace Axivion::Internal::Dto
             QString axivionDefaultFilter
         );
 
-        virtual QByteArray serialize() const override;
+        QByteArray serialize() const override;
     };
 
 }

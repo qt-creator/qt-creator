@@ -62,7 +62,7 @@ public:
 private:
     void makeReadOnly() final { m_combo->setEnabled(false); }
 
-    void addToLayoutImpl(Layouting::LayoutItem &parent)
+    void addToLayoutImpl(Layouting::LayoutItem &parent) override
     {
         addMutableAction(m_combo);
         parent.addItem(m_combo);

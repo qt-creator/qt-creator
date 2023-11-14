@@ -292,7 +292,7 @@ class NoOpTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Do nothing on each token
-    void run(CppEditorWidget *) {}
+    void run(CppEditorWidget *) override {}
 };
 
 class FollowSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractAction
@@ -300,7 +300,7 @@ class FollowSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractA
 public:
     /// Follow symbol under cursor
     /// Warning: May block if file does not exist (e.g. a not generated ui_* file).
-    void run(CppEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget) override;
 };
 
 void FollowSymbolUnderCursorTokenAction::run(CppEditorWidget *editorWidget)
@@ -326,7 +326,7 @@ class SwitchDeclarationDefinitionTokenAction : public TestActionsTestCase::Abstr
 {
 public:
     /// Switch Declaration/Definition on each token
-    void run(CppEditorWidget *);
+    void run(CppEditorWidget *) override;
 };
 
 void SwitchDeclarationDefinitionTokenAction::run(CppEditorWidget *)
@@ -351,7 +351,7 @@ class FindUsagesTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Find Usages on each token
-    void run(CppEditorWidget *editor);
+    void run(CppEditorWidget *editor) override;
 };
 
 void FindUsagesTokenAction::run(CppEditorWidget *editor)
@@ -364,7 +364,7 @@ class RenameSymbolUnderCursorTokenAction : public TestActionsTestCase::AbstractA
 {
 public:
     /// Rename Symbol Under Cursor on each token (Renaming is not applied)
-    void run(CppEditorWidget *);
+    void run(CppEditorWidget *) override;
 };
 
 void RenameSymbolUnderCursorTokenAction::run(CppEditorWidget *)
@@ -377,7 +377,7 @@ class OpenTypeHierarchyTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Open Type Hierarchy on each token
-    void run(CppEditorWidget *);
+    void run(CppEditorWidget *) override;
 };
 
 void OpenTypeHierarchyTokenAction::run(CppEditorWidget *)
@@ -391,7 +391,7 @@ class InvokeCompletionTokenAction : public TestActionsTestCase::AbstractAction
 public:
     /// Invoke completion menu on each token.
     /// Warning: May create tool tip artefacts if focus is lost.
-    void run(CppEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget) override;
 };
 
 void InvokeCompletionTokenAction::run(CppEditorWidget *editorWidget)
@@ -417,7 +417,7 @@ class RunAllQuickFixesTokenAction : public TestActionsTestCase::AbstractAction
 {
 public:
     /// Trigger all Quick Fixes and apply the matching ones
-    void run(CppEditorWidget *editorWidget);
+    void run(CppEditorWidget *editorWidget) override;
 };
 
 // TODO: Some QuickFixes operate on selections.
@@ -456,7 +456,7 @@ void RunAllQuickFixesTokenAction::run(CppEditorWidget *editorWidget)
 class SwitchHeaderSourceFileAction : public TestActionsTestCase::AbstractAction
 {
 public:
-    void run(CppEditorWidget *);
+    void run(CppEditorWidget *) override;
 };
 
 void SwitchHeaderSourceFileAction::run(CppEditorWidget *)

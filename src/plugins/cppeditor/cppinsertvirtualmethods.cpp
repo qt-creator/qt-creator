@@ -1270,8 +1270,8 @@ public:
         m_settings->overrideReplacement = QLatin1String("override");
     }
 
-    bool gather() { return true; }
-    void saveSettings() { }
+    bool gather() override { return true; }
+    void saveSettings() override { }
 };
 
 void InsertVirtualMethodsTest::test_data()

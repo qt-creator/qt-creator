@@ -116,7 +116,7 @@ private:
             {settings().dockerBinaryPath(), {"container", "start", "-i", "-a", m_containerId}});
     }
 
-    CommandLine createFallbackCommand(const CommandLine &cmdLine)
+    CommandLine createFallbackCommand(const CommandLine &cmdLine) override
     {
         CommandLine result = cmdLine;
         result.setExecutable(m_devicePath.withNewPath(cmdLine.executable().path()));

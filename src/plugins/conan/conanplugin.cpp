@@ -18,7 +18,7 @@ class ConanPlugin final : public ExtensionSystem::IPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Conan.json")
 
-    void initialize()
+    void initialize() override
     {
         d = std::make_unique<ConanPluginPrivate>();
     }

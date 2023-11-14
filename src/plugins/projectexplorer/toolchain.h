@@ -143,7 +143,7 @@ public:
 
     // Used by the toolchainmanager to save user-generated tool chains.
     // Make sure to call this function when deriving!
-    virtual void toMap(Utils::Store &map) const;
+    void toMap(Utils::Store &map) const override;
     virtual Tasks validateKit(const Kit *k) const;
 
     virtual bool isJobCountSupported() const { return true; }
@@ -180,7 +180,7 @@ protected:
     void toolChainUpdated();
 
     // Make sure to call this function when deriving!
-    virtual void fromMap(const Utils::Store &data);
+    void fromMap(const Utils::Store &data) override;
 
     void reportError();
     bool hasError() const;

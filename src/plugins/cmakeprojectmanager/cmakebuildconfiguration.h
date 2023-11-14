@@ -44,8 +44,8 @@ public:
     ConfigureEnvironmentAspect(Utils::AspectContainer *container,
                                ProjectExplorer::BuildConfiguration *buildConfig);
 
-    void fromMap(const Utils::Store &map);
-    void toMap(Utils::Store &map) const;
+    void fromMap(const Utils::Store &map) override;
+    void toMap(Utils::Store &map) const override;
 };
 
 } // namespace Internal

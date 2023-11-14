@@ -131,7 +131,7 @@ public:
         m_settings.reset(LanguageClientManager::currentSettings());
         resetCurrentSettings(row);
     }
-    void finish()
+    void finish() override
     {
         m_settings.reset(LanguageClientManager::currentSettings());
         m_changedSettings.clear();

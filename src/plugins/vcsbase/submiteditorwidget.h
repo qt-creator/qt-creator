@@ -84,7 +84,7 @@ signals:
     void submitActionEnabledChanged(bool);
 
 protected:
-    virtual void changeEvent(QEvent *event) override;
+    void changeEvent(QEvent *event) override;
     virtual QString cleanupDescription(const QString &) const;
     virtual QString commitName() const;
     void insertTopWidget(QWidget *w);

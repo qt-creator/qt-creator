@@ -72,7 +72,7 @@ class ResizeSignallingWidget : public QWidget
     Q_OBJECT
 
 public:
-    void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 
 signals:
     void resized(const QSize &size, const QSize &oldSize);

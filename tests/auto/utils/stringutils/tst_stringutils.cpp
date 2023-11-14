@@ -13,7 +13,8 @@ using namespace Utils;
 class TestMacroExpander : public Utils::AbstractMacroExpander
 {
 public:
-    virtual bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
+    bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
+        override
     {
         // loop prevention
         const int count = seen.count();

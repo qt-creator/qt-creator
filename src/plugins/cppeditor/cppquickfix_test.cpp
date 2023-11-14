@@ -268,7 +268,7 @@ public:
     AddIncludeForUndefinedIdentifierTestFactory(const QString &include)
         : m_include(include) {}
 
-    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result)
+    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result) override
     {
         result << new AddIncludeForUndefinedIdentifierOp(cppQuickFixInterface, 0, m_include);
     }
@@ -283,7 +283,7 @@ public:
     AddForwardDeclForUndefinedIdentifierTestFactory(const QString &className, int symbolPos)
         : m_className(className), m_symbolPos(symbolPos) {}
 
-    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result)
+    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result) override
     {
         result << new AddForwardDeclForUndefinedIdentifierOp(cppQuickFixInterface, 0,
                                                              m_className, m_symbolPos);

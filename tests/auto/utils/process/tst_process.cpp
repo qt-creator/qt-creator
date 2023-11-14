@@ -64,7 +64,8 @@ QtMessageHandler MessageHandler::s_oldMessageHandler = 0;
 
 class MacroMapExpander : public AbstractMacroExpander {
 public:
-    virtual bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
+    bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
+        override
     {
         // loop prevention
         const int count = seen.count();

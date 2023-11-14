@@ -129,7 +129,7 @@ class QTCREATOR_UTILS_EXPORT MarkdownHighlighter : public QSyntaxHighlighter
 {
 public:
     MarkdownHighlighter(QTextDocument *parent);
-    void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text) override;
 
 private:
     QBrush codeBgBrush();

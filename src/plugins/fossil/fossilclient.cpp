@@ -840,7 +840,7 @@ class FossilLogHighlighter : QSyntaxHighlighter
 {
 public:
     explicit FossilLogHighlighter(QTextDocument *parent);
-    virtual void highlightBlock(const QString &text) final;
+    void highlightBlock(const QString &text) final;
 
 private:
     const QRegularExpression m_revisionIdRx;

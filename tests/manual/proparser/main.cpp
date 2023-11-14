@@ -31,14 +31,14 @@ static void print(const QString &fileName, int lineNo, int type, const QString &
 
 class EvalHandler : public QMakeHandler {
 public:
-    virtual void message(int type, const QString &msg, const QString &fileName, int lineNo)
+    void message(int type, const QString &msg, const QString &fileName, int lineNo) override
         { print(fileName, lineNo, type, msg); }
 
-    virtual void fileMessage(int /*type*/, const QString &msg)
+    void fileMessage(int /*type*/, const QString &msg) override
         { qWarning("%s", qPrintable(msg)); }
 
-    virtual void aboutToEval(ProFile *, ProFile *, EvalFileType) {}
-    virtual void doneWithEval(ProFile *) {}
+    void aboutToEval(ProFile *, ProFile *, EvalFileType) override {}
+    void doneWithEval(ProFile *) override {}
 };
 
 static EvalHandler evalHandler;

@@ -63,12 +63,12 @@ public:
         setup(k);
     }
 
-    KitAspect *createKitAspect(Kit *k) const
+    KitAspect *createKitAspect(Kit *k) const override
     {
         return new ToolKitAspectWidget{k, this, ToolKitAspectWidget::ToolType::Meson};
     }
 
-    ItemList toUserOutput( const Kit *k) const
+    ItemList toUserOutput(const Kit *k) const override
     {
         const auto tool = MesonToolKitAspect::mesonTool(k);
         if (tool)

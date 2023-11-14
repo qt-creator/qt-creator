@@ -202,7 +202,7 @@ public:
 class DefaultImpl : public ProcessInterface
 {
 private:
-    virtual void start() final;
+    void start() final;
     virtual void doDefaultStart(const QString &program, const QStringList &arguments) = 0;
     bool dissolveCommand(QString *program, QStringList *arguments);
     bool ensureProgramExists(const QString &program);
@@ -481,7 +481,7 @@ private:
         }
     }
 
-    virtual ProcessBlockingInterface *processBlockingInterface() const { return m_blockingImpl; }
+    ProcessBlockingInterface *processBlockingInterface() const override { return m_blockingImpl; }
 
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
@@ -614,7 +614,7 @@ private:
         }
     }
 
-    virtual ProcessBlockingInterface *processBlockingInterface() const { return m_blockingImpl; }
+    ProcessBlockingInterface *processBlockingInterface() const override { return m_blockingImpl; }
 
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {

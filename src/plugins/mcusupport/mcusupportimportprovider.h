@@ -20,14 +20,14 @@ public:
     ~McuSupportImportProvider() {}
 
     // Overridden functions
-    virtual QList<Import> imports(ValueOwner *valueOwner,
-                                  const Document *context,
-                                  Snapshot *snapshot) const override;
-    virtual void loadBuiltins(ImportsPerDocument *importsPerDocument,
-                              Imports *imports,
-                              const Document *context,
-                              ValueOwner *valueOwner,
-                              Snapshot *snapshot) override;
+    QList<Import> imports(ValueOwner *valueOwner,
+                          const Document *context,
+                          Snapshot *snapshot) const override;
+    void loadBuiltins(ImportsPerDocument *importsPerDocument,
+                      Imports *imports,
+                      const Document *context,
+                      ValueOwner *valueOwner,
+                      Snapshot *snapshot) override;
 
     // Add to the interfaces needed for a document
     // path: opened qml document
