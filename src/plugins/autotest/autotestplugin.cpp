@@ -45,7 +45,6 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
@@ -138,14 +137,7 @@ AutotestPluginPrivate::AutotestPluginPrivate()
 
     m_resultsPane = TestResultsPane::instance();
 
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory();
-    panelFactory->setPriority(666);
-//    panelFactory->setIcon();  // TODO ?
-    panelFactory->setDisplayName(Tr::tr("Testing"));
-    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
-        return new ProjectTestSettingsWidget(project);
-    });
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    setupAutotestProjectPanel();
 
     TestFrameworkManager::activateFrameworksAndToolsFromSettings();
     m_testTreeModel.synchronizeTestFrameworks();
