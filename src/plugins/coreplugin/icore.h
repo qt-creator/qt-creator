@@ -136,6 +136,8 @@ public:
     static QStringList additionalAboutInformation();
     static void clearAboutInformation();
     static void appendAboutInformation(const QString &line);
+    static QString aboutInformationCompact();
+    static QString aboutInformationHtml();
     static QString systemInformation();
     static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
     static QString pluginPath();
@@ -146,7 +148,6 @@ public:
     static Utils::FilePath clazyStandaloneExecutable(const Utils::FilePath &clangBinDirectory);
     static Utils::FilePath clangIncludeDirectory(const QString &clangVersion,
                                                  const Utils::FilePath &clangFallbackIncludeDir);
-    static QString buildCompatibilityString();
     static QStatusBar *statusBar();
 
     static void saveSettings(SaveSettingsReason reason);

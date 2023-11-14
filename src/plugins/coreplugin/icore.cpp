@@ -811,16 +811,6 @@ QString ICore::versionString()
 }
 
 /*!
-    \internal
-*/
-QString ICore::buildCompatibilityString()
-{
-    return Tr::tr("Based on Qt %1 (%2, %3)").arg(QLatin1String(qVersion()),
-                                                 compilerString(),
-                                                 QSysInfo::buildCpuArchitecture());
-}
-
-/*!
     Returns the top level IContext of the current context, or \c nullptr if
     there is none.
 
@@ -1006,15 +996,7 @@ void ICore::addPreCloseListener(const std::function<bool ()> &listener)
 */
 QString ICore::systemInformation()
 {
-    QString result = PluginManager::systemInformation() + '\n';
-    result += versionString() + '\n';
-    result += buildCompatibilityString() + '\n';
-    if (!Utils::appInfo().revision.isEmpty())
-        result += QString("From revision %1\n").arg(Utils::appInfo().revision.left(10));
-#ifdef QTC_SHOW_BUILD_DATE
-     result += QString("Built on %1 %2\n").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
-#endif
-     return result;
+    return PluginManager::systemInformation() + '\n' + aboutInformationCompact() + '\n';
 }
 
 static const QString &screenShotsPath()
@@ -1144,6 +1126,79 @@ void ICore::clearAboutInformation()
 void ICore::appendAboutInformation(const QString &line)
 {
     d->m_aboutInformation.append(line);
+}
+
+/*!
+    \internal
+*/
+QString ICore::aboutInformationCompact()
+{
+    QString information = QString("Product: %1\n").arg(versionString());
+    information += QString("Based on: Qt %1 (%2, %3)\n")
+                       .arg(QLatin1String(qVersion()), compilerString(),
+                            QSysInfo::buildCpuArchitecture());
+#ifdef QTC_SHOW_BUILD_DATE
+    information += QString("Built on: %1 %2\n").arg(QLatin1String(__DATE__),
+                                                    QLatin1String(__TIME__));
+#endif
+    const AppInfo &appInfo = Utils::appInfo();
+    if (!appInfo.revision.isEmpty())
+        information += QString("From revision: %1\n").arg(appInfo.revision.left(10));
+
+    return information;
+}
+
+/*!
+    \internal
+*/
+QString ICore::aboutInformationHtml()
+{
+    const QString buildCompatibilityString = Tr::tr("Based on Qt %1 (%2, %3)")
+                                                 .arg(QLatin1String(qVersion()), compilerString(),
+                                                      QSysInfo::buildCpuArchitecture());
+    const AppInfo &appInfo = Utils::appInfo();
+    QString ideRev;
+    if (!appInfo.revision.isEmpty())
+        ideRev = Tr::tr("<br/>From revision %1<br/>")
+                     .arg(appInfo.revisionUrl.isEmpty()
+                              ? appInfo.revision
+                              : QString::fromLatin1("<a href=\"%1\">%2</a>")
+                                    .arg(appInfo.revisionUrl, appInfo.revision));
+    QString buildDateInfo;
+#ifdef QTC_SHOW_BUILD_DATE
+    buildDateInfo = Tr::tr("<br/>Built on %1 %2<br/>").arg(QLatin1String(__DATE__),
+                                                           QLatin1String(__TIME__));
+#endif
+
+    const QString br = QLatin1String("<br/>");
+    const QStringList additionalInfoLines = ICore::additionalAboutInformation();
+    const QString additionalInfo =
+        QStringList(Utils::transform(additionalInfoLines, &QString::toHtmlEscaped)).join(br);
+    const QString information
+        = Tr::tr("<h3>%1</h3>"
+                 "%2<br/>"
+                 "%3"
+                 "%4"
+                 "%5"
+                 "<br/>"
+                 "Copyright 2008-%6 %7. All rights reserved.<br/>"
+                 "<br/>"
+                 "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
+                 "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
+                 "PARTICULAR PURPOSE.<br/>")
+              .arg(ICore::versionString(),
+                   buildCompatibilityString,
+                   buildDateInfo,
+                   ideRev,
+                   additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
+                   appInfo.year,
+                   appInfo.author)
+          + "<br/>"
+          + Tr::tr("The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, "
+                   "Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are "
+                   "registered trademarks of The Qt Company Ltd.");
+
+    return information;
 }
 
 void ICore::updateNewItemDialogState()

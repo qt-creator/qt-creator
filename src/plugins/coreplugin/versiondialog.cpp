@@ -35,52 +35,10 @@ VersionDialog::VersionDialog(QWidget *parent)
 
     setWindowTitle(Tr::tr("About %1").arg(QGuiApplication::applicationDisplayName()));
 
-    const Utils::AppInfo appInfo = Utils::appInfo();
-    QString ideRev;
-    if (!appInfo.revision.isEmpty())
-        ideRev = Tr::tr("<br/>From revision %1<br/>")
-                .arg(appInfo.revisionUrl.isEmpty()
-                     ? appInfo.revision
-                     : QString::fromLatin1("<a href=\"%1\">%2</a>")
-                       .arg(appInfo.revisionUrl, appInfo.revision));
-    QString buildDateInfo;
-#ifdef QTC_SHOW_BUILD_DATE
-     buildDateInfo = Tr::tr("<br/>Built on %1 %2<br/>").arg(QLatin1String(__DATE__), QLatin1String(__TIME__));
-#endif
-
-    const QString br = QLatin1String("<br/>");
-    const QStringList additionalInfoLines = ICore::additionalAboutInformation();
-    const QString additionalInfo =
-            QStringList(Utils::transform(additionalInfoLines, &QString::toHtmlEscaped)).join(br);
-
-    const QString description
-        = Tr::tr("<h3>%1</h3>"
-                 "%2<br/>"
-                 "%3"
-                 "%4"
-                 "%5"
-                 "<br/>"
-                 "Copyright 2008-%6 %7. All rights reserved.<br/>"
-                 "<br/>"
-                 "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
-                 "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
-                 "PARTICULAR PURPOSE.<br/>")
-              .arg(ICore::versionString(),
-                   ICore::buildCompatibilityString(),
-                   buildDateInfo,
-                   ideRev,
-                   additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
-                   appInfo.year,
-                   appInfo.author)
-          + "<br/>"
-          + Tr::tr("The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, "
-                   "Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are "
-                   "registered trademarks of The Qt Company Ltd.");
-
     auto logoLabel = new QLabel;
     logoLabel->setPixmap(Icons::QTCREATORLOGO_BIG.pixmap());
 
-    auto copyRightLabel = new QLabel(description);
+    auto copyRightLabel = new QLabel(ICore::aboutInformationHtml());
     copyRightLabel->setWordWrap(true);
     copyRightLabel->setOpenExternalLinks(true);
     copyRightLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
