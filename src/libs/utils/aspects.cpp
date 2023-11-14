@@ -287,6 +287,11 @@ void BaseAspect::setIcon(const QIcon &icon)
         d->m_action->setIcon(icon);
 }
 
+QIcon BaseAspect::icon() const
+{
+    return d->m_icon;
+}
+
 /*!
     Returns the current text for the separate label in the visual
     representation of this aspect.
@@ -695,6 +700,17 @@ class BoolAspectPrivate
 public:
     BoolAspect::LabelPlacement m_labelPlacement = BoolAspect::LabelPlacement::AtCheckBox;
     UndoableValue<bool> m_undoable;
+};
+
+class ToggleAspectPrivate
+{
+public:
+    struct Data
+    {
+        QIcon icon;
+        QString tooltip;
+        QString text;
+    } on, off;
 };
 
 class ColorAspectPrivate
@@ -1729,6 +1745,130 @@ void ColorAspect::bufferToGui()
 {
     if (d->m_colorButton)
         d->m_colorButton->setColor(m_buffer);
+}
+
+static void updateToggleAction(ToggleAspect &aspect,
+                               const std::unique_ptr<Internal::ToggleAspectPrivate> &d)
+{
+    if (!aspect.hasAction())
+        return;
+
+    QAction *action = aspect.action();
+
+    Internal::ToggleAspectPrivate::Data data = aspect.value() ? d->on : d->off;
+    if (data.icon.isNull())
+        data.icon = aspect() ? aspect.icon() : d->on.icon;
+    if (data.text.isEmpty())
+        data.text = aspect() ? aspect.toolTip() : d->on.text;
+    if (data.tooltip.isEmpty())
+        data.tooltip = aspect() ? aspect.toolTip() : d->on.tooltip;
+
+    action->setIcon(data.icon);
+    action->setText(data.text);
+    action->setToolTip(data.tooltip);
+}
+
+/*!
+    \class Utils::ToggleAspect
+    \inmodule QtCreator
+
+    \brief A toggle aspect is a boolean property of some object, together with
+    a description of its behavior for common operations like visualizing or
+    persisting. It also contains independent tooltips, icons and text for the action()
+    according to the on / off state of the aspect.
+
+    The aspect is displayed using a QCheckBox.
+
+    The visual representation often contains a label in front or after
+    the display of the actual checkmark.
+*/
+
+ToggleAspect::ToggleAspect(AspectContainer *container)
+    : BoolAspect(container)
+    , d(std::make_unique<Internal::ToggleAspectPrivate>())
+{}
+
+ToggleAspect::~ToggleAspect() {}
+
+void ToggleAspect::setOffIcon(const QIcon &icon)
+{
+    d->off.icon = icon;
+    updateToggleAction(*this, d);
+}
+
+void ToggleAspect::setOffTooltip(const QString &tooltip)
+{
+    d->off.tooltip = tooltip;
+    updateToggleAction(*this, d);
+}
+
+void ToggleAspect::setOnTooltip(const QString &tooltip)
+{
+    d->on.tooltip = tooltip;
+    updateToggleAction(*this, d);
+}
+
+void ToggleAspect::setOnIcon(const QIcon &icon)
+{
+    d->on.icon = icon;
+    updateToggleAction(*this, d);
+}
+
+QString ToggleAspect::onTooltip() const
+{
+    return d->on.tooltip;
+}
+
+QIcon ToggleAspect::onIcon() const
+{
+    return d->on.icon;
+}
+
+QString ToggleAspect::offTooltip() const
+{
+    return d->off.tooltip;
+}
+
+QIcon ToggleAspect::offIcon() const
+{
+    return d->off.icon;
+}
+
+void ToggleAspect::setOnText(const QString &text)
+{
+    d->on.text = text;
+}
+
+QString ToggleAspect::onText() const
+{
+    return d->on.text;
+}
+
+void ToggleAspect::setOffText(const QString &text)
+{
+    d->off.text = text;
+}
+QString ToggleAspect::offText() const
+{
+    return d->off.text;
+}
+
+void ToggleAspect::announceChanges(Changes changes, Announcement howToAnnounce)
+{
+    if (changes.internalFromBuffer || changes.internalFromOutside)
+        updateToggleAction(*this, d);
+    BoolAspect::announceChanges(changes, howToAnnounce);
+}
+
+QAction *ToggleAspect::action()
+{
+    if (hasAction())
+        return BoolAspect::action();
+
+    QAction *a = BoolAspect::action();
+    updateToggleAction(*this, d);
+
+    return a;
 }
 
 /*!

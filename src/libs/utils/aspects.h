@@ -39,6 +39,7 @@ class CheckableDecider;
 namespace Internal {
 class AspectContainerPrivate;
 class BaseAspectPrivate;
+class ToggleAspectPrivate;
 class BoolAspectPrivate;
 class ColorAspectPrivate;
 class DoubleAspectPrivate;
@@ -107,6 +108,7 @@ public:
     void setLabelText(const QString &labelText);
     void setLabelPixmap(const QPixmap &labelPixmap);
     void setIcon(const QIcon &labelIcon);
+    QIcon icon() const;
 
     using ConfigWidgetCreator = std::function<QWidget *()>;
     void setConfigWidgetCreator(const ConfigWidgetCreator &configWidgetCreator);
@@ -149,7 +151,7 @@ public:
         unsigned bufferFromGui : 1;
     };
 
-    void announceChanges(Changes changes, Announcement howToAnnounce = DoEmit);
+    virtual void announceChanges(Changes changes, Announcement howToAnnounce = DoEmit);
 
     class QTCREATOR_UTILS_EXPORT Data
     {
@@ -446,6 +448,39 @@ private:
     bool guiToBuffer() override;
 
     std::unique_ptr<Internal::BoolAspectPrivate> d;
+};
+
+class QTCREATOR_UTILS_EXPORT ToggleAspect : public BoolAspect
+{
+public:
+    ToggleAspect(AspectContainer *container = nullptr);
+    ~ToggleAspect();
+
+    void setOffIcon(const QIcon &icon);
+    QIcon offIcon() const;
+
+    void setOffTooltip(const QString &tooltip);
+    QString offTooltip() const;
+
+    void setOnIcon(const QIcon &icon);
+    QIcon onIcon() const;
+
+    void setOnTooltip(const QString &tooltip);
+    QString onTooltip() const;
+
+    void setOnText(const QString &text);
+    QString onText() const;
+
+    void setOffText(const QString &text);
+    QString offText() const;
+
+    QAction *action() override;
+
+protected:
+    void announceChanges(Changes changes, Announcement howToAnnounce = DoEmit) override;
+
+private:
+    std::unique_ptr<Internal::ToggleAspectPrivate> d;
 };
 
 class QTCREATOR_UTILS_EXPORT ColorAspect : public TypedAspect<QColor>
