@@ -6,7 +6,6 @@
 #include "shaderfeatures.h"
 
 #include <utils/filepath.h>
-#include <utils/filesystemwatcher.h>
 
 #include <QFileSystemWatcher>
 #include <QMap>
@@ -47,7 +46,7 @@ class EffectMakerModel : public QAbstractListModel
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(QString qmlComponentString READ qmlComponentString)
-
+    Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
 
 public:
     EffectMakerModel(QObject *parent = nullptr);
@@ -86,12 +85,19 @@ public:
     Q_INVOKABLE void exportComposition(const QString &name);
     Q_INVOKABLE void exportResources(const QString &name);
 
+    void openComposition(const QString &path);
+
+    QString currentComposition() const;
+    void setCurrentComposition(const QString &newCurrentComposition);
+
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
     void effectErrorChanged();
     void shadersUpToDateChanged();
     void shadersBaked();
+
+    void currentCompositionChanged();
 
 private:
     enum Roles {
@@ -138,8 +144,6 @@ private:
     QString generateFragmentShader(bool includeUniforms = true);
     void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader);
     QString stripFileFromURL(const QString &urlString) const;
-    void updateImageWatchers();
-    void clearImageWatchers();
     QString getQmlEffectString();
 
     void updateCustomUniforms();
@@ -179,7 +183,7 @@ private:
     QString m_previewEffectPropertiesString;
     QString m_qmlComponentString;
     bool m_loadComponentImages = true;
-    Utils::FileSystemWatcher m_fileWatcher;
+    QString m_currentComposition;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

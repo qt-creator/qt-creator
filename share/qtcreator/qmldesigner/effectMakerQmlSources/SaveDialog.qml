@@ -21,7 +21,7 @@ StudioControls.Dialog {
     property string compositionName: ""
 
     onOpened: {
-        nameText.text = "" //TODO: Generate unique name
+        nameText.text = compositionName //TODO: Generate unique name
         emptyText.text = ""
         nameText.forceActiveFocus()
     }

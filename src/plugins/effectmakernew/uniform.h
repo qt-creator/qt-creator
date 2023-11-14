@@ -40,7 +40,7 @@ public:
         Define
     };
 
-    Uniform(const QJsonObject &props, const QString &qenPath);
+    Uniform(const QString &effectName, const QJsonObject &props, const QString &qenPath);
 
     Type type() const;
     QString typeName() const;
@@ -78,7 +78,7 @@ signals:
 private:
     QString mipmapPropertyName(const QString &name) const;
     bool getBoolValue(const QJsonValue &jsonValue, bool defaultValue);
-    QString getResourcePath(const QString &value) const;
+    QString getResourcePath(const QString &effectName, const QString &value, const QString &qenPath) const;
     void setValueData(const QString &value, const QString &defaultValue,
                       const QString &minValue, const QString &maxValue);
 

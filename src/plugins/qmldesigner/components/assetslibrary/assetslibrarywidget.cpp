@@ -13,6 +13,9 @@
 #include "qmldesignerplugin.h"
 #include "theme.h"
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <studioquickwidget.h>
 
 #include <coreplugin/fileutils.h>
@@ -364,9 +367,22 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
     return suffixes;
 }
 
+bool isEffectMakerActivated()
+{
+    const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
+    return std::find_if(specs.begin(), specs.end(),
+                        [](ExtensionSystem::PluginSpec *spec) {
+                            return spec->name() == "EffectMakerNew" && spec->isEffectivelyEnabled();
+                        })
+           != specs.end();
+}
+
 void AssetsLibraryWidget::openEffectMaker(const QString &filePath)
 {
-    ModelNodeOperations::openEffectMaker(filePath);
+    if (isEffectMakerActivated())
+        m_assetsView->emitCustomNotification("open_effectmaker_composition", {}, {filePath});
+    else
+        ModelNodeOperations::openEffectMaker(filePath);
 }
 
 QString AssetsLibraryWidget::qmlSourcesPath()

@@ -49,19 +49,6 @@ static bool writeToFile(const QByteArray &buf, const QString &filename, FileType
 EffectMakerModel::EffectMakerModel(QObject *parent)
     : QAbstractListModel{parent}
 {
-    connect(&m_fileWatcher, &Utils::FileSystemWatcher::fileChanged, this, [this]() {
-        // Update component with images not set.
-        m_loadComponentImages = false;
-        updateQmlComponent();
-        // Then enable component images with a longer delay than
-        // the component updating delay. This way Image elements
-        // will reload the changed image files.
-        const int enableImagesDelay = 200;
-        QTimer::singleShot(enableImagesDelay, this, [this]() {
-            m_loadComponentImages = true;
-            updateQmlComponent();
-        } );
-    });
 }
 
 QHash<int, QByteArray> EffectMakerModel::roleNames() const
@@ -117,7 +104,7 @@ void EffectMakerModel::setIsEmpty(bool val)
 void EffectMakerModel::addNode(const QString &nodeQenPath)
 {
     beginInsertRows({}, m_nodes.size(), m_nodes.size());
-    auto *node = new CompositionNode(nodeQenPath);
+    auto *node = new CompositionNode("", nodeQenPath);
     m_nodes.append(node);
     endInsertRows();
 
@@ -189,12 +176,17 @@ void EffectMakerModel::clear()
     if (m_nodes.isEmpty())
         return;
 
+    beginRemoveRows({}, 0, m_nodes.count());
+
     for (CompositionNode *node : std::as_const(m_nodes))
         delete node;
 
     m_nodes.clear();
 
+    endRemoveRows();
+
     setIsEmpty(true);
+    bakeShaders();
 }
 
 const QList<Uniform *> EffectMakerModel::allUniforms()
@@ -571,6 +563,69 @@ void EffectMakerModel::exportComposition(const QString &name)
     saveFile.close();
 }
 
+void EffectMakerModel::openComposition(const QString &path)
+{
+    clear();
+
+    QFile compFile(path);
+    if (!compFile.open(QIODevice::ReadOnly)) {
+        QString error = QString("Couldn't open composition file: '%1'").arg(path);
+        qWarning() << qPrintable(error);
+        setEffectError(error);
+        return;
+    }
+
+    QByteArray data = compFile.readAll();
+    QJsonParseError parseError;
+    QJsonDocument jsonDoc(QJsonDocument::fromJson(data, &parseError));
+    if (parseError.error != QJsonParseError::NoError) {
+        QString error = QString("Error parsing the project file: %1").arg(parseError.errorString());
+        qWarning() << error;
+        setEffectError(error);
+        return;
+    }
+    QJsonObject rootJson = jsonDoc.object();
+    if (!rootJson.contains("QEP")) {
+        QString error = QStringLiteral("Error: Invalid project file");
+        qWarning() << error;
+        setEffectError(error);
+        return;
+    }
+
+    QJsonObject json = rootJson["QEP"].toObject();
+
+    int version = -1;
+    if (json.contains("version"))
+        version = json["version"].toInt(-1);
+
+    if (version != 1) {
+        QString error = QString("Error: Unknown project version (%1)").arg(version);
+        qWarning() << error;
+        setEffectError(error);
+        return;
+    }
+
+    // Get effects dir
+    const QString effectName = QFileInfo(path).baseName();
+    const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
+    const QString effectsResPath = effectsResDir.pathAppended(effectName).toString();
+
+    if (json.contains("nodes") && json["nodes"].isArray()) {
+        const QJsonArray nodesArray = json["nodes"].toArray();
+        for (const auto &nodeElement : nodesArray) {
+            beginInsertRows({}, m_nodes.size(), m_nodes.size());
+            auto *node = new CompositionNode(effectName, "", nodeElement.toObject());
+            m_nodes.append(node);
+            endInsertRows();
+        }
+
+        setIsEmpty(m_nodes.isEmpty());
+        bakeShaders();
+    }
+
+    setCurrentComposition(effectName);
+}
+
 void EffectMakerModel::exportResources(const QString &name)
 {
     // Make sure that uniforms are up-to-date
@@ -647,18 +702,15 @@ void EffectMakerModel::exportResources(const QString &name)
             QString imagePath = uniform->value().toString();
             QFileInfo fi(imagePath);
             QString imageFilename = fi.fileName();
-            sources.append(imagePath);
+            sources.append(imagePath.remove(0, 7)); // Removes "file://"
             dests.append(imageFilename);
         }
     }
 
-    //TODO: Copy source files if requested in future versions
-
-    // Copy files
     for (int i = 0; i < sources.count(); ++i) {
         Utils::FilePath source = Utils::FilePath::fromString(sources[i]);
         Utils::FilePath target = Utils::FilePath::fromString(effectsResPath + dests[i]);
-        if (target.exists())
+        if (target.exists() && source.fileName() != target.fileName())
             target.removeFile(); // Remove existing file for update
 
         if (!source.copyFile(target))
@@ -1254,15 +1306,16 @@ QString EffectMakerModel::getQmlImagesString(bool localFiles)
             if (localFiles) {
                 QFileInfo fi(imagePath);
                 imagePath = fi.fileName();
-            }
-            if (m_loadComponentImages)
+                imagesString += QString("            source: %1\n").arg(uniform->name());
+            } else {
                 imagesString += QString("            source: g_propertyData.%1\n").arg(uniform->name());
-            if (!localFiles) {
-                QString mipmapProperty = mipmapPropertyName(uniform->name());
-                imagesString += QString("            mipmap: g_propertyData.%1\n").arg(mipmapProperty);
-            } else if (uniform->enableMipmap()) {
-                imagesString += "            mipmap: true\n";
+
+                if (uniform->enableMipmap())
+                    imagesString += "            mipmap: true\n";
+                else
+                    QString mipmapProperty = mipmapPropertyName(uniform->name());
             }
+
             imagesString += "            visible: false\n";
             imagesString += "        }\n";
         }
@@ -1336,6 +1389,19 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
     return s;
 }
 
+QString EffectMakerModel::currentComposition() const
+{
+    return m_currentComposition;
+}
+
+void EffectMakerModel::setCurrentComposition(const QString &newCurrentComposition)
+{
+    if (m_currentComposition == newCurrentComposition)
+        return;
+    m_currentComposition = newCurrentComposition;
+    emit currentCompositionChanged();
+}
+
 void EffectMakerModel::updateQmlComponent()
 {
     // Clear possible QML runtime errors
@@ -1350,27 +1416,6 @@ QString EffectMakerModel::stripFileFromURL(const QString &urlString) const
     QUrl url(urlString);
     QString filePath = (url.scheme() == QStringLiteral("file")) ? url.toLocalFile() : url.toString();
     return filePath;
-}
-
-void EffectMakerModel::updateImageWatchers()
-{
-    const QList<Uniform *> uniforms = allUniforms();
-    for (Uniform *uniform : uniforms) {
-        if (uniform->type() == Uniform::Type::Sampler) {
-            // Watch all image properties files
-            QString imagePath = stripFileFromURL(uniform->value().toString());
-            if (imagePath.isEmpty())
-                continue;
-            m_fileWatcher.addFile(imagePath, Utils::FileSystemWatcher::WatchAllChanges);
-        }
-    }
-}
-
-void EffectMakerModel::clearImageWatchers()
-{
-    const auto watchedFiles = m_fileWatcher.files();
-    if (!watchedFiles.isEmpty())
-        m_fileWatcher.removeFiles(watchedFiles);
 }
 
 } // namespace EffectMaker

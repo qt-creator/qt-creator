@@ -6,13 +6,15 @@
 
 #include "propertyhandler.h"
 
+#include <modelnodeoperations.h>
+
 #include <QColor>
 #include <QJsonObject>
 #include <QVector2D>
 
 namespace EffectMaker {
 
-Uniform::Uniform(const QJsonObject &propObj, const QString &qenPath)
+Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QString &qenPath)
     : m_qenPath(qenPath)
 {
     QString value, defaultValue, minValue, maxValue;
@@ -26,9 +28,11 @@ Uniform::Uniform(const QJsonObject &propObj, const QString &qenPath)
     if (m_displayName.isEmpty())
         m_displayName = m_name;
 
+    QString resPath;
     if (m_type == Type::Sampler) {
+        resPath = getResourcePath(effectName, defaultValue, qenPath);
         if (!defaultValue.isEmpty())
-            defaultValue = getResourcePath(defaultValue);
+            defaultValue = resPath;
         if (propObj.contains("enableMipmap"))
             m_enableMipmap = getBoolValue(propObj.value("enableMipmap"), false);
         // Update the mipmap property
@@ -39,7 +43,7 @@ Uniform::Uniform(const QJsonObject &propObj, const QString &qenPath)
     if (propObj.contains("value")) {
         value = propObj.value("value").toString();
         if (m_type == Type::Sampler)
-            value = getResourcePath(value);
+            value = resPath;
     } else {
         // QEN files don't store the current value, so with those use default value
         value = defaultValue;
@@ -166,15 +170,20 @@ bool Uniform::getBoolValue(const QJsonValue &jsonValue, bool defaultValue)
 
 // Returns the path for a shader resource
 // Used with sampler types
-QString Uniform::getResourcePath(const QString &value) const
+QString Uniform::getResourcePath(const QString &effectName, const QString &value, const QString &qenPath) const
 {
     QString filePath = value;
-    QDir dir(m_qenPath);
-    dir.cdUp();
-    QString absPath = dir.absoluteFilePath(filePath);
-    absPath = QDir::cleanPath(absPath);
-    absPath = QUrl::fromLocalFile(absPath).toString();
-    return absPath;
+    if (qenPath.isEmpty()) {
+        const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
+        return effectsResDir.pathAppended(effectName).pathAppended(value).toString();
+    } else {
+        QDir dir(m_qenPath);
+        dir.cdUp();
+        QString absPath = dir.absoluteFilePath(filePath);
+        absPath = QDir::cleanPath(absPath);
+        absPath = QUrl::fromLocalFile(absPath).toString();
+        return absPath;
+    }
 }
 
 // Validation and setting values
@@ -300,7 +309,7 @@ Uniform::Type Uniform::typeFromString(const QString &typeString)
         return Uniform::Type::Vec4;
     else if (typeString == "color")
         return Uniform::Type::Color;
-    else if (typeString == "image")
+    else if (typeString == "sampler2D" || typeString == "image") //TODO: change image to sample2D in all QENs
         return Uniform::Type::Sampler;
     else if (typeString == "define")
         return Uniform::Type::Define;

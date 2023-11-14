@@ -18,6 +18,7 @@ Item {
 
     SaveDialog {
         id: saveDialog
+        compositionName: EffectMakerBackend.effectMakerModel.currentComposition
         anchors.centerIn: parent
         onAccepted: {
             let name = saveDialog.compositionName
