@@ -148,114 +148,118 @@ using ListTransformationMethod = void(QStringList &);
 
 static constexpr char dropProperty[] = "dropProp";
 
-class LineColumnButton : public QToolButton
+class LineColumnButtonPrivate
 {
-    Q_OBJECT
 public:
-    LineColumnButton(TextEditorWidget *parent)
-        : QToolButton(parent)
-        , m_editor(parent)
-    {
-        connect(m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
-        connect(this, &QToolButton::pressed, ActionManager::instance(), [this] {
-            emit m_editor->activateEditor(EditorManager::IgnoreNavigationHistory);
-            QMetaObject::invokeMethod(ActionManager::instance(), [] {
+    QSize m_maxSize;
+    TextEditorWidget *m_editor;
+};
+
+} // namespace Internal
+
+LineColumnButton::LineColumnButton(TextEditorWidget *parent)
+    : QToolButton(parent)
+    , m_d(new LineColumnButtonPrivate)
+{
+    m_d->m_editor = parent;
+    connect(m_d->m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
+    connect(this, &QToolButton::clicked, ActionManager::instance(), [this] {
+        emit m_d->m_editor->activateEditor(EditorManager::IgnoreNavigationHistory);
+        QMetaObject::invokeMethod(
+            ActionManager::instance(),
+            [] {
                 if (Command *cmd = ActionManager::command(Core::Constants::GOTO)) {
                     if (QAction *act = cmd->action())
                         act->trigger();
                 }
-            }, Qt::QueuedConnection);
-        });
+            },
+            Qt::QueuedConnection);
+    });
+}
+
+LineColumnButton::~LineColumnButton() = default;
+
+void LineColumnButton::update()
+{
+    const Utils::MultiTextCursor &cursors = m_d->m_editor->multiTextCursor();
+    QString text;
+    if (cursors.hasMultipleCursors()) {
+        text = Tr::tr("Cursors: %2").arg(cursors.cursorCount());
+    } else {
+        const QTextCursor cursor = cursors.mainCursor();
+        const QTextBlock block = cursor.block();
+        const int line = block.blockNumber() + 1;
+        const TabSettings &tabSettings = m_d->m_editor->textDocument()->tabSettings();
+        const int column = tabSettings.columnAt(block.text(), cursor.positionInBlock()) + 1;
+        text = Tr::tr("Line: %1, Col: %2").arg(line).arg(column);
+        const QString toolTipText = Tr::tr("Cursor position: %1");
+        setToolTip(toolTipText.arg(cursor.position()));
     }
+    int selection = 0;
+    for (const QTextCursor &cursor : cursors)
+        selection += cursor.selectionEnd() - cursor.selectionStart();
+    if (selection > 0)
+        text += " " + Tr::tr("(Sel: %1)").arg(selection);
+    setText(text);
+}
 
-private:
-    void update()
-    {
-        const Utils::MultiTextCursor &cursors = m_editor->multiTextCursor();
-        QString text;
-        if (cursors.hasMultipleCursors()) {
-            text = Tr::tr("Cursors: %2").arg(cursors.cursorCount());
-        } else {
-            const QTextCursor cursor = cursors.mainCursor();
-            const QTextBlock block = cursor.block();
-            const int line = block.blockNumber() + 1;
-            const TabSettings &tabSettings = m_editor->textDocument()->tabSettings();
-            const int column = tabSettings.columnAt(block.text(), cursor.positionInBlock()) + 1;
-            text = Tr::tr("Line: %1, Col: %2").arg(line).arg(column);
-            const QString toolTipText = Tr::tr("Cursor position: %1");
-            setToolTip(toolTipText.arg(cursor.position()));
-        }
-        int selection = 0;
-        for (const QTextCursor &cursor : cursors)
-            selection += cursor.selectionEnd() - cursor.selectionStart();
-        if (selection > 0)
-            text += " " + Tr::tr("(Sel: %1)").arg(selection);
-        setText(text);
-    }
+bool LineColumnButton::event(QEvent *event)
+{
+    if (event->type() != QEvent::ToolTip)
+        return QToolButton::event(event);
 
-    bool event(QEvent *event) override
-    {
-        if (event->type() != QEvent::ToolTip)
-            return QToolButton::event(event);
+    QString tooltipText = "<table cellpadding='2'>\n";
 
-        QString tooltipText = "<table cellpadding='2'>\n";
+    const MultiTextCursor multiCursor = m_d->m_editor->multiTextCursor();
+    const QList<QTextCursor> cursors = multiCursor.cursors().mid(0, 15);
 
-        const MultiTextCursor multiCursor = m_editor->multiTextCursor();
-        const QList<QTextCursor> cursors = multiCursor.cursors().mid(0, 15);
+    tooltipText += "<tr>";
+    tooltipText += QString("<th align='left'>%1</th>").arg(Tr::tr("Cursors:"));
+    tooltipText += QString("<td>%1</td>").arg(multiCursor.cursorCount());
+    tooltipText += "</tr>\n";
 
+    auto addRow = [&](const QString header, auto cellText) {
         tooltipText += "<tr>";
-        tooltipText += QString("<th align='left'>%1</th>").arg(Tr::tr("Cursors:"));
-        tooltipText += QString("<td>%1</td>").arg(multiCursor.cursorCount());
+        tooltipText += QString("<th align='left'>%1</th>").arg(header);
+        for (const QTextCursor &c : cursors)
+            tooltipText += QString("<td>%1</td>").arg(cellText(c));
+        if (multiCursor.cursorCount() > cursors.count())
+            tooltipText += QString("<td>...</td>");
         tooltipText += "</tr>\n";
+    };
 
-        auto addRow = [&](const QString header, auto cellText) {
-            tooltipText += "<tr>";
-            tooltipText += QString("<th align='left'>%1</th>").arg(header);
-            for (const QTextCursor &c : cursors)
-                tooltipText += QString("<td>%1</td>").arg(cellText(c));
-            if (multiCursor.cursorCount() > cursors.count())
-                tooltipText += QString("<td>...</td>");
-            tooltipText += "</tr>\n";
-        };
+    addRow(Tr::tr("Line:"), [](const QTextCursor &c) { return c.blockNumber() + 1; });
 
-        addRow(Tr::tr("Line:"), [](const QTextCursor &c) { return c.blockNumber() + 1; });
+    const TabSettings &tabSettings = m_d->m_editor->textDocument()->tabSettings();
+    addRow(Tr::tr("Column:"), [&](const QTextCursor &c) {
+        return tabSettings.columnAt(c.block().text(), c.positionInBlock()) + 1;
+    });
 
-        const TabSettings &tabSettings = m_editor->textDocument()->tabSettings();
-        addRow(Tr::tr("Column:"), [&](const QTextCursor &c) {
-            return tabSettings.columnAt(c.block().text(), c.positionInBlock()) + 1;
-        });
+    addRow(Tr::tr("Selection length:"),
+           [](const QTextCursor &c) { return c.selectionEnd() - c.selectionStart(); });
 
-        addRow(Tr::tr("Selection length:"),
-               [](const QTextCursor &c) { return c.selectionEnd() - c.selectionStart(); });
+    addRow(Tr::tr("Position in document:"), [](const QTextCursor &c) { return c.position(); });
 
-        addRow(Tr::tr("Position in document:"), [](const QTextCursor &c) { return c.position(); });
+    addRow(Tr::tr("Anchor:"), [](const QTextCursor &c) { return c.anchor(); });
 
-        addRow(Tr::tr("Anchor:"), [](const QTextCursor &c) { return c.anchor(); });
+    tooltipText += "</table>\n";
 
-        tooltipText += "</table>\n";
+    ToolTip::show(static_cast<const QHelpEvent *>(event)->globalPos(), tooltipText, Qt::RichText);
+    event->accept();
+    return true;
+}
 
-        ToolTip::show(static_cast<const QHelpEvent *>(event)->globalPos(),
-                      tooltipText,
-                      Qt::RichText);
-        event->accept();
-        return true;
-    }
+QSize LineColumnButton::sizeHint() const
+{
+    const QSize size = QToolButton::sizeHint();
+    auto wider = [](const QSize &left, const QSize &right) { return left.width() < right.width(); };
+    if (m_d->m_editor->multiTextCursor().hasSelection())
+        return std::max(m_d->m_maxSize, size, wider); // do not save the size if we have a selection
+    m_d->m_maxSize = std::max(m_d->m_maxSize, size, wider);
+    return m_d->m_maxSize;
+}
 
-    QSize sizeHint() const override
-    {
-        const QSize size = QToolButton::sizeHint();
-        auto wider = [](const QSize &left, const QSize &right) {
-            return left.width() < right.width();
-        };
-        if (m_editor->multiTextCursor().hasSelection())
-            return std::max(m_maxSize, size, wider); // do not save the size if we have a selection
-        m_maxSize = std::max(m_maxSize, size, wider);
-        return m_maxSize;
-    }
-
-    mutable QSize m_maxSize;
-    TextEditorWidget *m_editor;
-};
+namespace Internal {
 
 class TextEditorAnimator : public QObject
 {
