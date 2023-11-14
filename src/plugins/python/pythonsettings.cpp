@@ -690,12 +690,15 @@ static QList<Interpreter> pythonsFromPath()
                                      "python[1-9].[1-9][0-9]",
                                      "python[1-9]"};
         const FilePaths dirs = Environment::systemEnvironment().path();
+        QSet<FilePath> used;
         for (const FilePath &path : dirs) {
             const QDir dir(path.toString());
             for (const QFileInfo &fi : dir.entryInfoList(filters)) {
-                const FilePath executable = Utils::FilePath::fromFileInfo(fi);
-                if (executable.exists())
+                const FilePath executable = FilePath::fromUserInput(fi.canonicalFilePath());
+                if (!used.contains(executable) && executable.exists()) {
+                    used.insert(executable);
                     pythons << createInterpreter(executable, "Python from Path");
+                }
             }
         }
     }
