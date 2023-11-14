@@ -412,6 +412,8 @@ Rectangle {
                     anchors.verticalCenter: parent.verticalCenter
                     width: stateGroupLabel.visible ? StudioTheme.Values.defaultControlWidth
                                                    : root.width - 2 * root.padding
+                    enabled: !(StatesEditorBackend.statesEditorModel.isMCUs
+                                && stateGroupComboBox.count <= 1)
 
                     HelperWidgets.Tooltip { id: comboBoxTooltip }
 
@@ -420,7 +422,9 @@ Rectangle {
                         running: stateGroupComboBox.hovered
                         onTriggered: comboBoxTooltip.showText(stateGroupComboBox,
                                                               hoverHandler.point.position,
-                                                              qsTr("Switch State Group"))
+                                                              StatesEditorBackend.statesEditorModel.isMCUs
+                                                                ? qsTr("State Groups are not supported with Qt for MCUs")
+                                                                : qsTr("Switch State Group"))
                     }
 
                     onHoverChanged: {
@@ -463,8 +467,11 @@ Rectangle {
                         style: StudioTheme.Values.viewBarButtonStyle
                         buttonIcon: StudioTheme.Constants.add_medium
                         anchors.verticalCenter: parent.verticalCenter
-                        tooltip: qsTr("Create State Group")
+                        tooltip: StatesEditorBackend.statesEditorModel.isMCUs
+                                    ? qsTr("State Groups are not supported with Qt for MCUs")
+                                    : qsTr("Create State Group")
                         onClicked: StatesEditorBackend.statesEditorModel.addStateGroup("stateGroup")
+                        enabled: !StatesEditorBackend.statesEditorModel.isMCUs
                     }
 
                     HelperWidgets.AbstractButton {

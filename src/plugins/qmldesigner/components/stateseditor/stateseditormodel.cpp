@@ -5,6 +5,7 @@
 #include "stateseditorview.h"
 
 #include <bindingproperty.h>
+#include <designermcumanager.h>
 #include <modelnode.h>
 #include <modelnodeoperations.h>
 #include <nodelistproperty.h>
@@ -74,6 +75,7 @@ void StatesEditorModel::reset()
 
     evaluateExtend();
     emit baseStateChanged();
+    emit isMCUsChanged();
 }
 
 QVariant StatesEditorModel::data(const QModelIndex &index, int role) const
@@ -454,6 +456,11 @@ void StatesEditorModel::setCanAddNewStates(bool b)
     m_canAddNewStates = b;
 
     emit canAddNewStatesChanged();
+}
+
+bool StatesEditorModel::isMCUs() const
+{
+    return DesignerMcuManager::instance().isMCUProject();
 }
 
 } // namespace QmlDesigner
