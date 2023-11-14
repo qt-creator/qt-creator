@@ -83,8 +83,6 @@ QVariant CollectionSourceModel::data(const QModelIndex &index, int role) const
     const ModelNode *collectionSource = &m_collectionSources.at(index.row());
 
     switch (role) {
-    case IdRole:
-        return collectionSource->id();
     case NameRole:
         return collectionSource->variantProperty("objectName").value();
     case NodeRole:
@@ -109,20 +107,6 @@ bool CollectionSourceModel::setData(const QModelIndex &index, const QVariant &va
 
     ModelNode collectionSource = m_collectionSources.at(index.row());
     switch (role) {
-    case IdRole: {
-        if (collectionSource.id() == value)
-            return false;
-
-        bool duplicatedId = Utils::anyOf(std::as_const(m_collectionSources),
-                                         [&collectionSource, &value](const ModelNode &otherCollection) {
-                                             return (otherCollection.id() == value
-                                                     && otherCollection != collectionSource);
-                                         });
-        if (duplicatedId)
-            return false;
-
-        collectionSource.setIdWithRefactoring(value.toString());
-    } break;
     case Qt::DisplayRole:
     case NameRole: {
         auto collectionName = collectionSource.variantProperty("objectName");
@@ -197,8 +181,7 @@ QHash<int, QByteArray> CollectionSourceModel::roleNames() const
     static QHash<int, QByteArray> roles;
     if (roles.isEmpty()) {
         roles.insert(Super::roleNames());
-        roles.insert({{IdRole, "sourceId"},
-                      {NameRole, "sourceName"},
+        roles.insert({{NameRole, "sourceName"},
                       {NodeRole, "sourceNode"},
                       {CollectionTypeRole, "sourceCollectionType"},
                       {SelectedRole, "sourceIsSelected"},
@@ -410,12 +393,6 @@ void CollectionSourceModel::updateNodeSource(const ModelNode &node)
     QModelIndex index = indexOfNode(node);
     emit dataChanged(index, index, {SourceRole});
     updateCollectionList(index);
-}
-
-void CollectionSourceModel::updateNodeId(const ModelNode &node)
-{
-    QModelIndex index = indexOfNode(node);
-    emit dataChanged(index, index, {IdRole});
 }
 
 QString CollectionSourceModel::selectedSourceAddress() const

@@ -23,8 +23,7 @@ class CollectionSourceModel : public QAbstractListModel
 
 public:
     enum Roles {
-        IdRole = Qt::UserRole + 1,
-        NameRole,
+        NameRole = Qt::UserRole + 1,
         NodeRole,
         CollectionTypeRole,
         SourceRole,
@@ -67,7 +66,6 @@ public:
 
     void updateNodeName(const ModelNode &node);
     void updateNodeSource(const ModelNode &node);
-    void updateNodeId(const ModelNode &node);
 
     Q_INVOKABLE QString selectedSourceAddress() const;
 

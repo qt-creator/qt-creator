@@ -112,8 +112,6 @@ void CollectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
                 m_widget->sourceModel()->updateNodeName(node);
             else if (property.name() == CollectionEditor::SOURCEFILE_PROPERTY)
                 m_widget->sourceModel()->updateNodeSource(node);
-            else if (property.name() == "id")
-                m_widget->sourceModel()->updateNodeId(node);
         }
     }
 }
