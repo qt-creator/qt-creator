@@ -1200,7 +1200,8 @@ void EffectMakerModel::bakeShaders()
     const QStringList outPaths = {m_vertexShaderFilename, m_fragmentShaderFilename};
     for (int i = 0; i < 2; ++i) {
         const auto workDir = Utils::FilePath::fromString(outPaths[i]);
-        QStringList args = {"-s", "--glsl", "300es,120,150,440", "--hlsl", "50", "--msl", "12"};
+        // TODO: Optional legacy glsl support like standalone effect maker needs to add "100es,120"
+        QStringList args = {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50", "--msl", "12"};
         args << "-o" << outPaths[i] << srcPaths[i];
 
         auto qsbProcess = new Utils::Process(this);
