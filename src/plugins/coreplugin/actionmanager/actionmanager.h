@@ -13,6 +13,8 @@
 
 #include <functional>
 
+namespace Utils { class ParameterAction; }
+
 namespace Core {
 
 class ActionContainer;
@@ -57,10 +59,18 @@ public:
     void setCheckable(bool on);
     void setMenuRole(QAction::MenuRole role);
 
+    enum EnablingMode { AlwaysEnabled, EnabledWithParameter };
+    void setParameterText(const QString &parametrizedText,
+                          const QString &emptyText,
+                          EnablingMode mode = EnabledWithParameter);
+
+
     Command *command() const;
     QAction *commandAction() const;
     QAction *contextAction() const;
+    Utils::ParameterAction *contextParameterAction() const;
     void bindContextAction(QAction **dest);
+    void bindContextAction(Utils::ParameterAction **dest);
     void augmentActionWithShortcutToolTip();
 
 private:

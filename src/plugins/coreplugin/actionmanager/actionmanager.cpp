@@ -9,11 +9,11 @@
 
 #include <utils/algorithm.h>
 #include <utils/fadingindicator.h>
+#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 
 #include <nanotrace/nanotrace.h>
 
-#include <QAction>
 #include <QApplication>
 #include <QDebug>
 #include <QMainWindow>
@@ -75,7 +75,7 @@ class ActionBuilderPrivate
 {
 public:
     ActionBuilderPrivate(QObject *contextActionParent, const Id actionId)
-        : action(new QAction(contextActionParent))
+        : action(new ParameterAction({}, {}, ParameterAction::AlwaysEnabled, contextActionParent))
         , actionId(actionId)
     {
         command = ActionManager::createCommand(actionId);
@@ -87,7 +87,7 @@ public:
         ActionManager::registerAction(action, actionId, context);
     }
 
-    QAction *action = nullptr;
+    ParameterAction *action = nullptr;
     Command *command = nullptr;
 
     Id actionId;
@@ -213,6 +213,20 @@ void ActionBuilder::setMenuRole(QAction::MenuRole role)
     d->action->setMenuRole(role);
 }
 
+void ActionBuilder::setParameterText(const QString &parameterText,
+                                     const QString &emptyText,
+                                     EnablingMode mode)
+{
+    QTC_CHECK(parameterText.contains("%1"));
+    QTC_CHECK(!emptyText.contains("%1"));
+
+    d->action->setEmptyText(emptyText);
+    d->action->setParameterText(parameterText);
+    d->action->setEnablingMode(mode == AlwaysEnabled
+                                   ? ParameterAction::AlwaysEnabled
+                                   : ParameterAction::EnabledWithParameter);
+}
+
 Command *ActionBuilder::command() const
 {
     return d->command;
@@ -224,6 +238,11 @@ QAction *ActionBuilder::commandAction() const
 }
 
 QAction *ActionBuilder::contextAction() const
+{
+    return d->action;
+}
+
+ParameterAction *ActionBuilder::contextParameterAction() const
 {
     return d->action;
 }
