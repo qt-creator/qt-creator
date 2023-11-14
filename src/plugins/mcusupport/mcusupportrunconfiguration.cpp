@@ -8,6 +8,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
@@ -58,8 +59,19 @@ public:
         connect(target->project(), &Project::displayNameChanged, this, &RunConfiguration::update);
     }
 
+    bool isEnabled() const override
+    {
+        if (disabled)
+            return false;
+
+        return RunConfiguration::isEnabled();
+    }
+
+    static bool disabled;
     StringAspect flashAndRunParameters{this};
 };
+
+bool FlashAndRunConfiguration::disabled = false;
 
 class FlashAndRunWorker : public SimpleTargetRunner
 {
@@ -73,6 +85,15 @@ public:
                             CommandLine::Raw});
             setWorkingDirectory(target->activeBuildConfiguration()->buildDirectory());
             setEnvironment(target->activeBuildConfiguration()->environment());
+        });
+
+        connect(runControl, &RunControl::started, []() {
+            FlashAndRunConfiguration::disabled = true;
+            ProjectExplorerPlugin::updateRunActions();
+        });
+        connect(runControl, &RunControl::stopped, []() {
+            FlashAndRunConfiguration::disabled = false;
+            ProjectExplorerPlugin::updateRunActions();
         });
     }
 };
