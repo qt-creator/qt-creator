@@ -24,6 +24,11 @@ Import Import::empty()
     return Import(QString(), QString(), QString(), QStringList(), Type::Empty);
 }
 
+bool Import::hasVersion() const
+{
+    return !m_version.isEmpty() && m_version != "-1.-1";
+}
+
 QString Import::toImportString() const
 {
     QString result = QStringLiteral("import ");
