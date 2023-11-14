@@ -3,6 +3,8 @@
 
 #include "helloworldplugin.h"
 
+#include "helloworldtr.h"
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/coreconstants.h>
@@ -25,9 +27,9 @@ class HelloMode : public Core::IMode
 public:
     HelloMode()
     {
-        setWidget(new QPushButton(tr("Hello World PushButton!")));
+        setWidget(new QPushButton(Tr::tr("Hello World PushButton!")));
         setContext(Core::Context("HelloWorld.MainView"));
-        setDisplayName(tr("Hello world!"));
+        setDisplayName(Tr::tr("Hello world!"));
         setIcon(QIcon());
         setPriority(0);
         setId("HelloWorld.HelloWorldMode");
@@ -63,7 +65,7 @@ void HelloWorldPlugin::initialize()
     Core::Context context("HelloWorld.MainView");
 
     // Create an action to be triggered by a menu entry
-    auto helloWorldAction = new QAction(tr("Say \"&Hello World!\""), this);
+    auto helloWorldAction = new QAction(Tr::tr("Say \"&Hello World!\""), this);
     connect(helloWorldAction, &QAction::triggered, this, &HelloWorldPlugin::sayHelloWorld);
 
     // Register the action with the action manager
@@ -75,7 +77,7 @@ void HelloWorldPlugin::initialize()
     Core::ActionContainer *helloWorldMenu =
             Core::ActionManager::createMenu("HelloWorld.HelloWorldMenu");
     QMenu *menu = helloWorldMenu->menu();
-    menu->setTitle(tr("&Hello World"));
+    menu->setTitle(Tr::tr("&Hello World"));
     menu->setEnabled(true);
 
     // Add the Hello World action command to the menu
@@ -109,8 +111,9 @@ void HelloWorldPlugin::sayHelloWorld()
 {
     // When passing nullptr for the parent, the message box becomes an
     // application-global modal dialog box
-    QMessageBox::information(
-            nullptr, tr("Hello World!"), tr("Hello World! Beautiful day today, isn't it?"));
+    QMessageBox::information(nullptr,
+                             Tr::tr("Hello World!"),
+                             Tr::tr("Hello World! Beautiful day today, isn't it?"));
 }
 
 } // namespace HelloWorld::Internal

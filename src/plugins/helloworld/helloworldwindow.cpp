@@ -3,6 +3,8 @@
 
 #include "helloworldwindow.h"
 
+#include "helloworldtr.h"
+
 #include <QTextEdit>
 #include <QVBoxLayout>
 
@@ -12,6 +14,6 @@ HelloWorldWindow::HelloWorldWindow(QWidget *parent)
    : QWidget(parent)
 {
     auto layout = new QVBoxLayout(this);
-    layout->addWidget(new QTextEdit(tr("Focus me to activate my context!")));
-    setWindowTitle(tr("Hello, world!"));
+    layout->addWidget(new QTextEdit(Tr::tr("Focus me to activate my context!")));
+    setWindowTitle(Tr::tr("Hello, world!"));
 }
