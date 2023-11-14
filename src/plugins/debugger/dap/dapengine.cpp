@@ -316,6 +316,8 @@ static QJsonObject createBreakpoint(const BreakpointParameters &params)
 
     QJsonObject bp;
     bp["line"] = params.textPosition.line;
+    bp["condition"] = params.condition;
+    bp["hitCondition"] = QString::number(params.ignoreCount);
     return bp;
 }
 
