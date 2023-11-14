@@ -81,13 +81,9 @@ void GitLabPlugin::initialize()
 {
     dd = new GitLabPluginPrivate;
     dd->parameters.fromSettings(Core::ICore::settings());
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
-    panelFactory->setPriority(999);
-    panelFactory->setDisplayName(Tr::tr("GitLab"));
-    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
-        return new GitLabProjectSettingsWidget(project);
-    });
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+
+    setupGitlabProjectPanel();
+
     QAction *openViewAction = new QAction(Tr::tr("GitLab..."), this);
     auto gitlabCommand = Core::ActionManager::registerAction(openViewAction,
                                                              Constants::GITLAB_OPEN_VIEW);

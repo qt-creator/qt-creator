@@ -10,7 +10,11 @@
 #include "resultparser.h"
 
 #include <git/gitclient.h>
+
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
+
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
 
@@ -107,10 +111,33 @@ void GitLabProjectSettings::save()
     m_project->setNamedSettings(PSK_LAST_REQ, m_lastRequest);
 }
 
-GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Project *project,
-                                                         QWidget *parent)
-    : ProjectExplorer::ProjectSettingsWidget(parent)
-    , m_projectSettings(GitLabPlugin::projectSettings(project))
+class GitLabProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+{
+public:
+    explicit GitLabProjectSettingsWidget(ProjectExplorer::Project *project);
+
+private:
+    enum CheckMode { Connection, Link };
+
+    void unlink();
+    void checkConnection(CheckMode mode);
+    void onConnectionChecked(const Project &project, const Utils::Id &serverId,
+                             const QString &remote, const QString &projName);
+    void updateUi();
+    void updateEnabledStates();
+
+    GitLabProjectSettings *m_projectSettings = nullptr;
+    QComboBox *m_linkedGitLabServer = nullptr;
+    QComboBox *m_hostCB = nullptr;
+    QPushButton *m_linkWithGitLab = nullptr;
+    QPushButton *m_unlink = nullptr;
+    QPushButton *m_checkConnection = nullptr;
+    Utils::InfoLabel *m_infoLabel = nullptr;
+    CheckMode m_checkMode = Connection;
+};
+
+GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Project *project)
+    : m_projectSettings(GitLabPlugin::projectSettings(project))
 {
     setUseGlobalSettingsCheckBoxVisible(false);
     setUseGlobalSettingsLabelVisible(true);
@@ -300,6 +327,25 @@ void GitLabProjectSettingsWidget::updateEnabledStates()
         m_infoLabel->setType(Utils::InfoLabel::None);
         m_infoLabel->setVisible(true);
     }
+}
+
+class GitlabProjectPanelFactory final : public ProjectExplorer::ProjectPanelFactory
+{
+public:
+    GitlabProjectPanelFactory()
+    {
+        setPriority(999);
+        setDisplayName(Tr::tr("GitLab"));
+        setCreateWidgetFunction([](ProjectExplorer::Project *project) {
+            return new GitLabProjectSettingsWidget(project);
+        });
+        ProjectExplorer::ProjectPanelFactory::registerFactory(this);
+    }
+};
+
+void setupGitlabProjectPanel()
+{
+    static GitlabProjectPanelFactory theGitlabProjectPanelFactory;
 }
 
 } // namespace GitLab
