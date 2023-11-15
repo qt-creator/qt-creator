@@ -25,6 +25,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
@@ -184,10 +185,7 @@ void TargetGroupItemPrivate::ensureWidget()
 
         auto label = new QLabel;
         label->setText(Tr::tr("No kit defined in this project."));
-        QFont f = label->font();
-        f.setPointSizeF(f.pointSizeF() * 1.4);
-        f.setBold(true);
-        label->setFont(f);
+        label->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
         label->setContentsMargins(10, 10, 10, 10);
         label->setAlignment(Qt::AlignTop);
 

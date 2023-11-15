@@ -60,7 +60,6 @@ enum UiElement {
 QTCREATOR_UTILS_EXPORT int navigationWidgetHeight();
 QTCREATOR_UTILS_EXPORT void setToolbarStyle(ToolbarStyle style);
 QTCREATOR_UTILS_EXPORT ToolbarStyle toolbarStyle();
-QTCREATOR_UTILS_EXPORT qreal sidebarFontSize();
 QTCREATOR_UTILS_EXPORT QPalette sidebarFontPalette(const QPalette &original);
 
 // This is our color table, all colors derive from baseColor

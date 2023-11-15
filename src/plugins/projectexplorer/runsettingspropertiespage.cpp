@@ -17,7 +17,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/infolabel.h>
+#include <utils/stylehelper.h>
 
 #include <QAction>
 #include <QComboBox>
@@ -69,10 +69,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     runLabel->setBuddy(m_runConfigurationCombo);
 
-    QFont f = runLabel->font();
-    f.setBold(true);
-    f.setPointSizeF(f.pointSizeF() * 1.2);
-
+    const QFont f = Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementH2);
     runTitle->setFont(f);
     deployTitle->setFont(f);
 
@@ -501,10 +498,7 @@ void RunSettingsWidget::addSubWidget(QWidget *widget, QLabel *label)
 {
     widget->setContentsMargins({});
 
-    QFont f = label->font();
-    f.setBold(true);
-    f.setPointSizeF(f.pointSizeF() * 1.2);
-    label->setFont(f);
+    label->setFont(Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementH2));
 
     label->setContentsMargins(0, 18, 0, 0);
 

@@ -68,9 +68,7 @@ QSize FancyTabBar::tabSizeHint(bool minimum) const
                     Core::Constants::MODEBAR_ICONSONLY_BUTTON_SIZE / (minimum ? 3 : 1)};
     }
 
-    QFont boldFont(font());
-    boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
-    boldFont.setBold(true);
+    const QFont boldFont = StyleHelper::UiFont(StyleHelper::UiElementPanelTitle);
     const QFontMetrics fm(boldFont);
     const int spacing = 8;
     const int width = 60 + spacing + 2;
@@ -285,9 +283,7 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
                              const QIcon &icon, const QString &text,
                              bool enabled, bool selected)
 {
-    QFont boldFont(painter->font());
-    boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
-    boldFont.setBold(true);
+    const QFont boldFont = StyleHelper::UiFont(StyleHelper::UiElementPanelTitle);
     painter->setFont(boldFont);
 
     const bool drawIcon = rect.height() > 36;

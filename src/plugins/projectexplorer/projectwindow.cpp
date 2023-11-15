@@ -37,6 +37,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
 #include <utils/styledbar.h>
+#include <utils/stylehelper.h>
 #include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 
@@ -569,10 +570,7 @@ public:
         selectorView->setAutoFillBackground(true);
 
         auto activeLabel = new QLabel(Tr::tr("Active Project"));
-        QFont font = activeLabel->font();
-        font.setBold(true);
-        font.setPointSizeF(font.pointSizeF() * 1.2);
-        activeLabel->setFont(font);
+        activeLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
 
         auto innerLayout = new QVBoxLayout;
         innerLayout->setSpacing(10);
@@ -905,8 +903,7 @@ void SelectorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         case 2: {
             QColor col = creatorTheme()->color(Theme::TextColorNormal);
             opt.palette.setColor(QPalette::Text, col);
-            opt.font.setBold(true);
-            opt.font.setPointSizeF(opt.font.pointSizeF() * 1.2);
+            opt.font = StyleHelper::UiFont(StyleHelper::UiElementH2);
             break;
             }
         }

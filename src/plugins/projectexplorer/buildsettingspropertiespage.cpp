@@ -18,7 +18,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
-#include <utils/stringutils.h>
+#include <utils/stylehelper.h>
 
 #include <QMargins>
 #include <QCoreApplication>
@@ -54,9 +54,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     if (!BuildConfigurationFactory::find(m_target)) {
         auto noSettingsLabel = new QLabel(this);
         noSettingsLabel->setText(Tr::tr("No build settings available"));
-        QFont f = noSettingsLabel->font();
-        f.setPointSizeF(f.pointSizeF() * 1.2);
-        noSettingsLabel->setFont(f);
+        noSettingsLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
         vbox->addWidget(noSettingsLabel);
         return;
     }
@@ -128,10 +126,7 @@ void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
 
     auto label = new QLabel(this);
     label->setText(widget->displayName());
-    QFont f = label->font();
-    f.setBold(true);
-    f.setPointSizeF(f.pointSizeF() * 1.2);
-    label->setFont(f);
+    label->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
 
     label->setContentsMargins(0, 18, 0, 0);
 

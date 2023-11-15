@@ -9,10 +9,11 @@
 #include "../iwizardfactory.h"
 
 #include <utils/algorithm.h>
+#include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
-#include <utils/fancylineedit.h>
 #include <utils/qtcassert.h>
+#include <utils/stylehelper.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -569,14 +570,7 @@ void SettingsDialog::showPage(const Id pageId)
 
 void SettingsDialog::createGui()
 {
-    // Header label with large font and a bit of spacing (align with group boxes)
-    QFont headerLabelFont = m_headerLabel->font();
-    headerLabelFont.setBold(true);
-    // Paranoia: Should a font be set in pixels...
-    const int pointSize = headerLabelFont.pointSize();
-    if (pointSize > 0)
-        headerLabelFont.setPointSize(pointSize + 2);
-    m_headerLabel->setFont(headerLabelFont);
+    m_headerLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
 
     auto headerHLayout = new QHBoxLayout;
     const int leftMargin = QApplication::style()->pixelMetric(QStyle::PM_LayoutLeftMargin);

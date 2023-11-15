@@ -94,11 +94,6 @@ StyleHelper::ToolbarStyle StyleHelper::toolbarStyle()
     return s_toolbarStyle;
 }
 
-qreal StyleHelper::sidebarFontSize()
-{
-    return HostOsInfo::isMacHost() ? 10 : 7.5;
-}
-
 QColor StyleHelper::notTooBrightHighlightColor()
 {
     QColor highlightColor = QApplication::palette().highlight().color();

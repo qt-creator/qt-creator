@@ -52,7 +52,6 @@ protected:
     void mouseReleaseEvent(QMouseEvent *event) override;
 
 private:
-    QFont titleFont() const;
     QFont subtitleFont() const;
 
     QString m_text;

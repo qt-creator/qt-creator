@@ -166,7 +166,8 @@ QSize ProgressBar::sizeHint() const
     int width = 50;
     int height = PROGRESSBAR_HEIGHT + 5;
     if (m_titleVisible) {
-        const QFontMetrics fm(titleFont());
+        const QFont font = StyleHelper::UiFont(StyleHelper::UiElementPanelTitle);
+        const QFontMetrics fm(font);
         width = qMax(width, fm.horizontalAdvance(m_title) + 16);
         height += fm.height() + 5;
         if (!m_subtitle.isEmpty()) {
@@ -192,14 +193,6 @@ void ProgressBar::mouseReleaseEvent(QMouseEvent *event)
     QWidget::mouseReleaseEvent(event);
 }
 
-QFont ProgressBar::titleFont() const
-{
-    QFont boldFont(font());
-    boldFont.setPointSizeF(StyleHelper::sidebarFontSize());
-    boldFont.setBold(true);
-    return boldFont;
-}
-
 void ProgressBar::mouseMoveEvent(QMouseEvent *ev)
 {
     update();
@@ -220,7 +213,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         percent = 1;
 
     QPainter p(this);
-    const QFont fnt(titleFont());
+    const QFont fnt = StyleHelper::UiFont(StyleHelper::UiElementPanelTitle);
     const QFontMetrics fm(fnt);
 
     const int titleHeight = m_titleVisible ? fm.height() + 5 : 4;

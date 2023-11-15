@@ -3,6 +3,9 @@
 
 #include "dragshapebutton.h"
 #include "baseitem.h"
+
+#include <utils/stylehelper.h>
+
 #include <QDrag>
 #include <QGuiApplication>
 #include <QMimeData>
@@ -17,9 +20,7 @@ DragShapeButton::DragShapeButton(QWidget *parent)
     setMinimumSize(75, 75);
     setMaximumSize(75, 75);
     setIconSize(QSize(45, 45));
-    QFont f = font();
-    f.setPointSize(8);
-    setFont(f);
+    setFont(Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementPanelSubtitle));
 }
 
 void DragShapeButton::setShapeInfo(int groupIndex, int shapeIndex)
