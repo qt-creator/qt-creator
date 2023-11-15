@@ -76,6 +76,8 @@ public:
 
     QString message() const;
 
+    bool isInvalidCredentialsError();
+
 private:
     std::variant<GeneralError,
                  NetworkError,

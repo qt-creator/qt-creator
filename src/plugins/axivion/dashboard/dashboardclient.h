@@ -44,6 +44,12 @@ class CredentialProvider
 {
 public:
     QFuture<Credential> getCredential();
+
+    QFuture<void> authenticationFailure(const Credential &credential);
+
+    QFuture<void> authenticationSuccess(const Credential &credential);
+
+    bool canReRequestPasswordOnAuthenticationFailure();
 };
 
 class ClientData

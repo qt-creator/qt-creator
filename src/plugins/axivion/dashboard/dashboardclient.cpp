@@ -37,6 +37,28 @@ QFuture<Credential> CredentialProvider::getCredential()
     return QtFuture::makeReadyFuture(Credential(settings().server.token));
 }
 
+QFuture<void> CredentialProvider::authenticationFailure(const Credential &credential)
+{
+    Q_UNUSED(credential);
+    // ToDo: invalidate stored credential to prevent further accesses with it.
+    // This is to prevent account locking on password change day due to to many
+    // authentication failuers caused by automated requests.
+    return QtFuture::makeReadyFuture();
+}
+
+QFuture<void> CredentialProvider::authenticationSuccess(const Credential &credential)
+{
+    Q_UNUSED(credential);
+    // ToDo: store (now verified) credential on disk if not already happened.
+    return QtFuture::makeReadyFuture();
+}
+
+bool CredentialProvider::canReRequestPasswordOnAuthenticationFailure()
+{
+    // ToDo: support on-demand password input dialog.
+    return false;
+}
+
 ClientData::ClientData(Utils::NetworkAccessManager &networkAccessManager)
     : networkAccessManager(networkAccessManager),
       credentialProvider(std::make_unique<CredentialProvider>())
@@ -105,10 +127,44 @@ static Utils::expected<DataWithOrigin<T>, Error> parseResponse(ResponseData rawB
     }
 }
 
+static void fetch(QPromise<ResponseData> promise, std::shared_ptr<ClientData> clientData, QUrl url);
+
+static void processResponse(QPromise<ResponseData> promise,
+                            std::shared_ptr<ClientData> clientData,
+                            QNetworkReply *reply,
+                            Credential credential)
+{
+    ResponseData response = readResponse(*reply, jsonContentType);
+    if (!response
+        && response.error().isInvalidCredentialsError()
+        && clientData->credentialProvider->canReRequestPasswordOnAuthenticationFailure()) {
+        QFutureWatcher<void> *watcher = new QFutureWatcher<void>(&clientData->networkAccessManager);
+        QObject::connect(watcher,
+                         &QFutureWatcher<void>::finished,
+                         &clientData->networkAccessManager,
+                         [promise = std::move(promise),
+                          clientData,
+                          url = reply->url(),
+                          watcher]() mutable {
+                             fetch(std::move(promise), std::move(clientData), std::move(url));
+                             watcher->deleteLater();
+                         });
+        watcher->setFuture(clientData->credentialProvider->authenticationFailure(credential));
+        return;
+    }
+    if (response) {
+        clientData->credentialProvider->authenticationSuccess(credential);
+    } else if (response.error().isInvalidCredentialsError()) {
+        clientData->credentialProvider->authenticationFailure(credential);
+    }
+    promise.addResult(std::move(response));
+    promise.finish();
+}
+
 static void fetch(QPromise<ResponseData> promise,
                   std::shared_ptr<ClientData> clientData,
                   const QUrl &url,
-                  const Credential &credential)
+                  Credential credential)
 {
     QNetworkRequest request{ url };
     request.setRawHeader(QByteArrayLiteral(u8"Accept"),
@@ -124,21 +180,22 @@ static void fetch(QPromise<ResponseData> promise,
     QObject::connect(reply,
                      &QNetworkReply::finished,
                      reply,
-                     [promise = std::move(promise), reply]() mutable {
-                         promise.addResult(readResponse(*reply, jsonContentType));
-                         promise.finish();
+                     [promise = std::move(promise),
+                      clientData = std::move(clientData),
+                      reply,
+                      credential = std::move(credential)]() mutable {
+                         processResponse(std::move(promise),
+                                         std::move(clientData),
+                                         reply,
+                                         std::move(credential));
                          reply->deleteLater();
                      });
 }
 
-static QFuture<ResponseData> fetch(std::shared_ptr<ClientData> clientData,
-                                   const std::optional<QUrl> &base,
-                                   const QUrl &target)
+static void fetch(QPromise<ResponseData> promise,
+                  std::shared_ptr<ClientData> clientData,
+                  QUrl url)
 {
-    QPromise<ResponseData> promise;
-    promise.start();
-    QFuture<ResponseData> future = promise.future();
-    QUrl url = base ? base->resolved(target) : target;
     QFutureWatcher<Credential> *watcher = new QFutureWatcher<Credential>(&clientData->networkAccessManager);
     QObject::connect(watcher,
                      &QFutureWatcher<Credential>::finished,
@@ -151,6 +208,18 @@ static QFuture<ResponseData> fetch(std::shared_ptr<ClientData> clientData,
                          watcher->deleteLater();;
                      });
     watcher->setFuture(clientData->credentialProvider->getCredential());
+}
+
+static QFuture<ResponseData> fetch(std::shared_ptr<ClientData> clientData,
+                                   const std::optional<QUrl> &base,
+                                   const QUrl &target)
+{
+    QPromise<ResponseData> promise;
+    promise.start();
+    QFuture<ResponseData> future = promise.future();
+    fetch(std::move(promise),
+          std::move(clientData),
+          base ? base->resolved(target) : target);
     return future;
 }
 

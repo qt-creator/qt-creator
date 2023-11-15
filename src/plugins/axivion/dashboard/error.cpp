@@ -104,4 +104,11 @@ QString Error::message() const
         }, this->m_error);
 }
 
+bool Error::isInvalidCredentialsError()
+{
+    DashboardError *dashboardError = std::get_if<DashboardError>(&this->m_error);
+    return dashboardError != nullptr
+           && dashboardError->type == QLatin1String("InvalidCredentialsException");
+}
+
 } // namespace Axivion::Internal
