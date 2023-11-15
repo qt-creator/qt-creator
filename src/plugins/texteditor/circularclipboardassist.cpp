@@ -20,10 +20,9 @@
 
 using namespace Utils;
 
-namespace TextEditor {
-namespace Internal {
+namespace TextEditor::Internal {
 
-class ClipboardProposalItem: public AssistProposalItem
+class ClipboardProposalItem final : public AssistProposalItem
 {
 public:
     enum { maxLen = 80 };
@@ -39,9 +38,7 @@ public:
         setText(text);
     }
 
-    ~ClipboardProposalItem() noexcept override = default;
-
-    void apply(TextDocumentManipulatorInterface &manipulator, int /*basePosition*/) const override
+    void apply(TextDocumentManipulatorInterface &manipulator, int /*basePosition*/) const final
     {
 
         //Move to last in circular clipboard
@@ -62,10 +59,10 @@ private:
     QSharedPointer<const QMimeData> m_mimeData;
 };
 
-class ClipboardAssistProcessor: public IAssistProcessor
+class ClipboardAssistProcessor final : public IAssistProcessor
 {
 public:
-    IAssistProposal *perform() override
+    IAssistProposal *perform() final
     {
         QIcon icon = Icon::fromTheme("edit-paste");
         CircularClipboard * clipboard = CircularClipboard::instance();
@@ -84,10 +81,19 @@ public:
     }
 };
 
-IAssistProcessor *ClipboardAssistProvider::createProcessor(const AssistInterface *) const
+class ClipboardAssistProvider final : public IAssistProvider
 {
-    return new ClipboardAssistProcessor;
+public:
+    IAssistProcessor *createProcessor(const AssistInterface *) const final
+    {
+        return new ClipboardAssistProcessor;
+    }
+};
+
+IAssistProvider &clipboardAssistProvider()
+{
+    static ClipboardAssistProvider theClipboardAssistProvider;
+    return theClipboardAssistProvider;
 }
 
-} // namespace Internal
-} // namespace TextEditor
+} // TextEditor::Internal

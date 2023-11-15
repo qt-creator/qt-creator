@@ -883,8 +883,6 @@ public:
     TextMark* m_dragMark = nullptr;
     QTextCursor m_dndCursor;
 
-    QScopedPointer<ClipboardAssistProvider> m_clipboardAssistProvider;
-
     QScopedPointer<AutoCompleter> m_autoCompleter;
     CommentDefinition m_commentDefinition;
 
@@ -1028,7 +1026,6 @@ TextEditorWidgetPrivate::TextEditorWidgetPrivate(TextEditorWidget *parent)
     , m_maybeFakeTooltipEvent(false)
     , m_codeAssistant(parent)
     , m_hoverHandlerRunner(parent, m_hoverHandlers)
-    , m_clipboardAssistProvider(new ClipboardAssistProvider)
     , m_autoCompleter(new AutoCompleter)
 {
     m_selectionHighlightOverlay->show();
@@ -8301,7 +8298,7 @@ void TextEditorWidget::circularPaste()
     }
 
     if (circularClipBoard->size() > 1) {
-        invokeAssist(QuickFix, d->m_clipboardAssistProvider.data());
+        invokeAssist(QuickFix, &clipboardAssistProvider());
         return;
     }
 
