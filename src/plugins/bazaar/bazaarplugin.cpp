@@ -507,7 +507,6 @@ BazaarPluginPrivate::BazaarPluginPrivate()
 
     ActionBuilder createRepository(this, CREATE_REPOSITORY);
     createRepository.setText(Tr::tr("Create Repository..."));
-    createRepository.setContext(context);
     createRepository.setContainer(bazaarMenuId);
     createRepository.setOnTriggered(this, [this] { this->createRepository(); });
 

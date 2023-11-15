@@ -227,6 +227,7 @@ void ActionBuilder::setParameterText(const QString &parameterText,
     d->action->setEnablingMode(mode == AlwaysEnabled
                                    ? ParameterAction::AlwaysEnabled
                                    : ParameterAction::EnabledWithParameter);
+    d->action->setText(emptyText);
 }
 
 Command *ActionBuilder::command() const
