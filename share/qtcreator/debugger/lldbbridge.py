@@ -667,16 +667,16 @@ class Dumper(DumperBase):
         return None if val is None else self.fromNativeValue(val)
 
     def isWindowsTarget(self):
-        return False
+        return 'windows' in self.target.triple
 
     def isQnxTarget(self):
         return False
 
     def isArmArchitecture(self):
-        return False
+        return 'arm' in self.target.triple
 
     def isMsvcTarget(self):
-        return False
+        return 'msvc' in self.target.triple
 
     def prettySymbolByAddress(self, address):
         try:
