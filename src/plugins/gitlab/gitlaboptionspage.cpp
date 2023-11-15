@@ -132,7 +132,7 @@ void GitLabServerWidget::setGitLabServer(const GitLabServer &server)
 class GitLabOptionsWidget : public Core::IOptionsPageWidget
 {
 public:
-    explicit GitLabOptionsWidget(GitLabParameters *parameters);
+    GitLabOptionsWidget();
 
 private:
     void showEditServerDialog();
@@ -151,8 +151,8 @@ private:
     FilePathAspect m_curl;
 };
 
-GitLabOptionsWidget::GitLabOptionsWidget(GitLabParameters *params)
-    : m_parameters(params)
+GitLabOptionsWidget::GitLabOptionsWidget()
+    : m_parameters(&gitLabParameters())
 {
     auto defaultLabel = new QLabel(Tr::tr("Default:"), this);
     m_defaultGitLabServer = new QComboBox(this);
@@ -178,14 +178,14 @@ GitLabOptionsWidget::GitLabOptionsWidget(GitLabParameters *params)
         }, Column { m_add, m_edit, m_remove, st },
     }.attachTo(this);
 
-    m_curl.setValue(params->curl);
+    m_curl.setValue(m_parameters->curl);
 
-    for (const auto &gitLabServer : params->gitLabServers) {
+    for (const auto &gitLabServer : m_parameters->gitLabServers) {
         m_defaultGitLabServer->addItem(gitLabServer.displayString(),
                                        QVariant::fromValue(gitLabServer));
     }
 
-    const GitLabServer found = params->currentDefaultServer();
+    const GitLabServer found = m_parameters->currentDefaultServer();
     if (found.id.isValid()) {
         m_defaultGitLabServer->setCurrentIndex(m_defaultGitLabServer->findData(
                                                    QVariant::fromValue(found)));
@@ -298,12 +298,12 @@ void GitLabOptionsWidget::updateButtonsState()
 
 // GitLabOptionsPage
 
-GitLabOptionsPage::GitLabOptionsPage(GitLabParameters *p)
+GitLabOptionsPage::GitLabOptionsPage()
 {
     setId(Constants::GITLAB_SETTINGS);
     setDisplayName(Tr::tr("GitLab"));
     setCategory(VcsBase::Constants::VCS_SETTINGS_CATEGORY);
-    setWidgetCreator([p] { return new GitLabOptionsWidget(p); });
+    setWidgetCreator([] { return new GitLabOptionsWidget; });
 }
 
 } // namespace GitLab

@@ -45,13 +45,7 @@ public:
     void handleUser(const User &user);
     void handleEvents(const Events &events, const QDateTime &timeStamp);
 
-    void onSettingsChanged() {
-        if (dialog)
-            dialog->updateRemotes();
-    }
-
-    GitLabParameters parameters;
-    GitLabOptionsPage optionsPage{&parameters};
+    GitLabOptionsPage optionsPage;
     QHash<ProjectExplorer::Project *, GitLabProjectSettings *> projectSettings;
     QPointer<GitLabDialog> dialog;
 
@@ -80,7 +74,7 @@ GitLabPlugin::~GitLabPlugin()
 void GitLabPlugin::initialize()
 {
     dd = new GitLabPluginPrivate;
-    dd->parameters.fromSettings(Core::ICore::settings());
+    gitLabParameters().fromSettings(Core::ICore::settings());
 
     setupGitlabProjectPanel();
 
@@ -98,7 +92,7 @@ void GitLabPlugin::initialize()
 void GitLabPlugin::openView()
 {
     if (dd->dialog.isNull()) {
-        while (!dd->parameters.isValid()) {
+        while (!gitLabParameters().isValid()) {
             QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Error"),
                                  Tr::tr("Invalid GitLab configuration. For a fully functional "
                                     "configuration, you need to set up host name or address and "
@@ -253,23 +247,6 @@ void GitLabPluginPrivate::handleEvents(const Events &events, const QDateTime &ti
         createAndSendEventsRequest(timeStamp, events.pageInfo.currentPage + 1);
 }
 
-QList<GitLabServer> GitLabPlugin::allGitLabServers()
-{
-    QTC_ASSERT(dd, return {});
-    return dd->parameters.gitLabServers;
-}
-
-GitLabServer GitLabPlugin::gitLabServerForId(const Utils::Id &id)
-{
-    QTC_ASSERT(dd, return {});
-    return dd->parameters.serverForId(id);
-}
-
-GitLabParameters *GitLabPlugin::globalParameters()
-{
-    return &dd->parameters;
-}
-
 GitLabProjectSettings *GitLabPlugin::projectSettings(ProjectExplorer::Project *project)
 {
     QTC_ASSERT(project, return nullptr);
@@ -280,17 +257,12 @@ GitLabProjectSettings *GitLabPlugin::projectSettings(ProjectExplorer::Project *p
     return settings;
 }
 
-GitLabOptionsPage *GitLabPlugin::optionsPage()
-{
-    QTC_ASSERT(dd, return {});
-    return &dd->optionsPage;
-}
-
 bool GitLabPlugin::handleCertificateIssue(const Utils::Id &serverId)
 {
     QTC_ASSERT(dd, return false);
 
-    GitLabServer server = dd->parameters.serverForId(serverId);
+    GitLabParameters &params = gitLabParameters();
+    GitLabServer server = params.serverForId(serverId);
     if (QMessageBox::question(Core::ICore::dialogParent(),
                               Tr::tr("Certificate Error"),
                               Tr::tr(
@@ -299,10 +271,12 @@ bool GitLabPlugin::handleCertificateIssue(const Utils::Id &serverId)
                                   "Note: This can expose you to man-in-the-middle attack.")
                               .arg(server.host))
             == QMessageBox::Yes) {
-        int index = dd->parameters.gitLabServers.indexOf(server);
+        int index = params.gitLabServers.indexOf(server);
         server.validateCert = false;
-        dd->parameters.gitLabServers.replace(index, server);
-        dd->onSettingsChanged();
+        params.gitLabServers.replace(index, server);
+        if (dd->dialog)
+            dd->dialog->updateRemotes();
+
         return true;
     }
     return false;

@@ -83,8 +83,7 @@ QString Query::toString() const
 QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
     : QObject(parent)
 {
-    const GitLabParameters *p = GitLabPlugin::globalParameters();
-    const auto server = p->serverForId(id);
+    const auto server = gitLabParameters().serverForId(id);
     QStringList args = server.curlArguments();
     if (query.hasPaginatedResults())
         args << "-i";
@@ -95,7 +94,7 @@ QueryRunner::QueryRunner(const Query &query, const Id &id, QObject *parent)
         url.append(':' + QString::number(server.port));
     url += query.toString();
     args << url;
-    m_process.setCommand({p->curl, args});
+    m_process.setCommand({gitLabParameters().curl, args});
     connect(&m_process, &Process::done, this, [this, id] {
         if (m_process.result() != ProcessResult::FinishedWithSuccess) {
             const int exitCode = m_process.exitCode();

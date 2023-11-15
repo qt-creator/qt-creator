@@ -13,7 +13,6 @@ namespace GitLab {
 
 class Events;
 class GitLabProjectSettings;
-class GitLabOptionsPage;
 
 class GitLabPlugin : public ExtensionSystem::IPlugin
 {
@@ -26,11 +25,7 @@ public:
 
     void initialize() override;
 
-    static QList<GitLabServer> allGitLabServers();
-    static GitLabServer gitLabServerForId(const Utils::Id &id);
-    static GitLabParameters *globalParameters();
     static GitLabProjectSettings *projectSettings(ProjectExplorer::Project *project);
-    static GitLabOptionsPage *optionsPage();
     static bool handleCertificateIssue(const Utils::Id &serverId);
 
     static void linkedStateChanged(bool enabled);

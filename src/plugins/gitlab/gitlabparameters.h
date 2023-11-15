@@ -74,6 +74,8 @@ public:
     Utils::FilePath curl;
 };
 
+GitLabParameters &gitLabParameters();
+
 } // namespace GitLab
 
 Q_DECLARE_METATYPE(GitLab::GitLabServer)

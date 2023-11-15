@@ -95,7 +95,7 @@ void GitLabProjectSettings::load()
     if (!m_id.isValid() || m_host.isEmpty())
         m_linked = false;
     else
-        m_linked = GitLabPlugin::globalParameters()->serverForId(m_id).id.isValid();
+        m_linked = gitLabParameters().serverForId(m_id).id.isValid();
 }
 
 void GitLabProjectSettings::save()
@@ -184,7 +184,7 @@ GitLabProjectSettingsWidget::GitLabProjectSettingsWidget(ProjectExplorer::Projec
     connect(m_hostCB, &QComboBox::currentIndexChanged, this, [this] {
         m_infoLabel->setVisible(false);
     });
-    connect(GitLabPlugin::globalParameters(), &GitLabParameters::changed,
+    connect(&gitLabParameters(), &GitLabParameters::changed,
             this, &GitLabProjectSettingsWidget::updateUi);
     updateUi();
 }
@@ -266,7 +266,7 @@ void GitLabProjectSettingsWidget::onConnectionChecked(const Project &project,
 void GitLabProjectSettingsWidget::updateUi()
 {
     m_linkedGitLabServer->clear();
-    const QList<GitLabServer> allServers = GitLabPlugin::allGitLabServers();
+    const QList<GitLabServer> allServers = gitLabParameters().gitLabServers;
     for (const GitLabServer &server : allServers) {
         const QString display = server.host + " (" + server.description + ')';
         m_linkedGitLabServer->addItem(display, QVariant::fromValue(server));
@@ -289,13 +289,13 @@ void GitLabProjectSettingsWidget::updateUi()
     const Utils::Id id = m_projectSettings->currentServer();
     const QString serverHost = m_projectSettings->currentServerHost();
     if (id.isValid()) {
-        const GitLabServer server = GitLabPlugin::gitLabServerForId(id);
+        const GitLabServer server = gitLabParameters().serverForId(id);
         auto [remoteHost, projName, port] = GitLabProjectSettings::remotePartsFromRemote(serverHost);
         if (server.id.isValid() && server.host == remoteHost) { // found config
             m_projectSettings->setLinked(true);
             m_hostCB->setCurrentIndex(m_hostCB->findData(QVariant::fromValue(serverHost)));
             m_linkedGitLabServer->setCurrentIndex(
-                        m_linkedGitLabServer->findData(QVariant::fromValue(server)));
+                m_linkedGitLabServer->findData(QVariant::fromValue(server)));
             GitLabPlugin::linkedStateChanged(true);
         } else {
             m_projectSettings->setLinked(false);
