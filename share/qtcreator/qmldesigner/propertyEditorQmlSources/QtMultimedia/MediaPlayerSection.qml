@@ -20,6 +20,21 @@ Section {
     // TODO position property, what should be the range?!
 
     SectionLayout {
+
+        PropertyLabel {
+            text: qsTr("Source")
+            tooltip: qsTr("Adds an image from the local file system.")
+        }
+
+        SecondColumnLayout {
+            UrlChooser {
+                backendValue: backendValues.source
+                filter: "*.avi *.mp4 *.mpeg *.wav"
+            }
+
+            ExpandingSpacer {}
+        }
+
         PropertyLabel { text: qsTr("Playback rate") }
 
         SecondColumnLayout {
