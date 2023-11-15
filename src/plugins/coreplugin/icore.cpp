@@ -804,10 +804,10 @@ QString ICore::versionString()
 {
     QString ideVersionDescription;
     if (QCoreApplication::applicationVersion() != appInfo().displayVersion)
-        ideVersionDescription = Tr::tr(" (%1)").arg(QCoreApplication::applicationVersion());
-    return Tr::tr("%1 %2%3").arg(QGuiApplication::applicationDisplayName(),
-                                 appInfo().displayVersion,
-                                 ideVersionDescription);
+        ideVersionDescription = QString(" (%1)").arg(QCoreApplication::applicationVersion());
+    return QString("%1 %2%3").arg(QGuiApplication::applicationDisplayName(),
+                                  appInfo().displayVersion,
+                                  ideVersionDescription);
 }
 
 /*!
