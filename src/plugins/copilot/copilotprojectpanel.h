@@ -3,13 +3,8 @@
 
 #pragma once
 
-namespace ProjectExplorer {
-class ProjectSettingsWidget;
-class Project;
-} // namespace ProjectExplorer
-
 namespace Copilot::Internal {
 
-ProjectExplorer::ProjectSettingsWidget *createCopilotProjectPanel(ProjectExplorer::Project *project);
+void setupCopilotProjectPanel();
 
-} // namespace Copilot::Internal
+} // Copilot::Internal

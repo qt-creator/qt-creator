@@ -2,21 +2,22 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "copilotprojectpanel.h"
+
 #include "copilotconstants.h"
 #include "copilotsettings.h"
+#include "copilottr.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/layoutbuilder.h>
-
-#include <QWidget>
 
 using namespace ProjectExplorer;
 
 namespace Copilot::Internal {
 
-class CopilotProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+class CopilotProjectSettingsWidget final : public ProjectSettingsWidget
 {
 public:
     CopilotProjectSettingsWidget()
@@ -26,10 +27,9 @@ public:
     }
 };
 
-ProjectSettingsWidget *createCopilotProjectPanel(Project *project)
+static ProjectSettingsWidget *createCopilotProjectPanel(Project *project)
 {
     using namespace Layouting;
-    using namespace ProjectExplorer;
 
     auto widget = new CopilotProjectSettingsWidget;
     auto settings = new CopilotProjectSettings(project);
@@ -55,6 +55,23 @@ ProjectSettingsWidget *createCopilotProjectPanel(Project *project)
     // clang-format on
 
     return widget;
+}
+
+class CopilotProjectPanelFactory final : public ProjectPanelFactory
+{
+public:
+    CopilotProjectPanelFactory()
+    {
+        setPriority(1000);
+        setDisplayName(Tr::tr("Copilot"));
+        setCreateWidgetFunction(&createCopilotProjectPanel);
+        ProjectPanelFactory::registerFactory(this);
+    }
+};
+
+void setupCopilotProjectPanel()
+{
+    static CopilotProjectPanelFactory theCopilotProjectPanelFactory;
 }
 
 } // namespace Copilot::Internal

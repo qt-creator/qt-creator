@@ -17,8 +17,6 @@
 
 #include <languageclient/languageclientmanager.h>
 
-#include <projectexplorer/projectpanelfactory.h>
-
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
 
@@ -129,11 +127,7 @@ void CopilotPlugin::initialize()
     toggleButton->setDefaultAction(toggleAction.contextAction());
     StatusBarManager::addStatusBarWidget(toggleButton, StatusBarManager::RightCorner);
 
-    auto panelFactory = new ProjectPanelFactory;
-    panelFactory->setPriority(1000);
-    panelFactory->setDisplayName(Tr::tr("Copilot"));
-    panelFactory->setCreateWidgetFunction(&Internal::createCopilotProjectPanel);
-    ProjectPanelFactory::registerFactory(panelFactory);
+    setupCopilotProjectPanel();
 }
 
 bool CopilotPlugin::delayedInitialize()
