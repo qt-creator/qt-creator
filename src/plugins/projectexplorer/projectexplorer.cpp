@@ -885,19 +885,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     setupEditorSettingsProjectPanel();
     setupCodeStyleProjectPanel();
+    setupCommentsSettingsProjectPanel();
 
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
-    panelFactory->setPriority(45);
-    panelFactory->setDisplayName(Tr::tr("Documentation Comments"));
-    panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {
-        return new ProjectCommentsSettingsWidget(project);
-    });
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
-    TextEditor::TextEditorSettings::setCommentsSettingsRetriever([](const FilePath &filePath) {
-        return ProjectCommentsSettings(ProjectManager::projectForFile(filePath)).settings();
-    });
-
-    panelFactory = new ProjectPanelFactory;
+    auto panelFactory = new ProjectPanelFactory;
     panelFactory->setPriority(50);
     panelFactory->setDisplayName(Tr::tr("Dependencies"));
     panelFactory->setCreateWidgetFunction([](Project *project) { return new DependenciesWidget(project); });
