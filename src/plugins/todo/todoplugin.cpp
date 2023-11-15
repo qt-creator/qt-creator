@@ -2,8 +2,6 @@
 // Copyright (C) 2016 Vasiliy Sorokin
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "todoplugin.h"
-
 #include "optionsdialog.h"
 #include "todooutputpane.h"
 #include "todoitemsprovider.h"
@@ -14,11 +12,11 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 
-#include <projectexplorer/projectpanelfactory.h>
+#include <extensionsystem/iplugin.h>
+
 #include <utils/link.h>
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 class TodoPluginPrivate : public QObject
 {
@@ -87,20 +85,31 @@ void TodoPluginPrivate::createTodoOutputPane()
             this, &TodoPluginPrivate::todoItemClicked);
 }
 
-TodoPlugin::TodoPlugin()
+class TodoPlugin final : public ExtensionSystem::IPlugin
 {
-    qRegisterMetaType<TodoItem>("TodoItem");
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Todo.json")
 
-TodoPlugin::~TodoPlugin()
-{
-    delete d;
-}
+public:
+    TodoPlugin()
+    {
+        qRegisterMetaType<TodoItem>("TodoItem");
+    }
 
-void TodoPlugin::initialize()
-{
-    d = new TodoPluginPrivate;
-}
+    ~TodoPlugin() final
+    {
+        delete d;
+    }
 
-} // namespace Internal
-} // namespace Todo
+    void initialize() final
+    {
+        d = new TodoPluginPrivate;
+    }
+
+private:
+    TodoPluginPrivate *d = nullptr;
+};
+
+} // Todo::Internal
+
+#include "todoplugin.moc"
