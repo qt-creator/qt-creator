@@ -115,29 +115,7 @@ Item {
                 icon: StudioTheme.Constants.export_medium
                 tooltip: qsTr("Export the model to a new file")
                 enabled: root.model.collectionName !== ""
-                onClicked: exportMenu.popup()
-            }
-
-            StudioControls.Menu {
-                id: exportMenu
-
-                StudioControls.MenuItem {
-                    text: qsTr("Export as JSON")
-                    onTriggered:
-                    {
-                        fileDialog.defaultSuffix = "json"
-                        fileDialog.open()
-                    }
-                }
-
-                StudioControls.MenuItem {
-                    text: qsTr("Export as CSV")
-                    onTriggered:
-                    {
-                        fileDialog.defaultSuffix = "csv"
-                        fileDialog.open()
-                    }
-                }
+                onClicked: fileDialog.open()
             }
         }
     }
@@ -145,17 +123,19 @@ Item {
 
     PlatformWidgets.FileDialog {
         id: fileDialog
+
         fileMode: PlatformWidgets.FileDialog.SaveFile
-        onAccepted:
-        {
-            var fileAddress = file.toString()
 
-            if (fileAddress.indexOf("json") !== -1)
-                root.model.exportCollection(fileAddress, root.model.collectionName, "JSON")
-            else if (fileAddress.indexOf("csv") !== -1)
-                root.model.exportCollection(fileAddress, root.model.collectionName, "CSV")
+        nameFilters: ["JSON Files (*.json)",
+            "Comma-Separated Values (*.csv)"
+        ]
 
-            fileDialog.reject()
+        selectedNameFilter.index: 0
+
+        onAccepted: {
+            let filePath = fileDialog.file.toString()
+            let exportType = fileDialog.selectedNameFilter.index === 0 ? "JSON" : "CSV"
+            root.model.exportCollection(filePath, root.model.collectionName, exportType)
         }
     }
 

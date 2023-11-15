@@ -10,6 +10,7 @@
 #include <utils/qtcassert.h>
 
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -409,14 +410,22 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
 bool CollectionDetailsModel::exportCollection(const QString &path, const QString &collectionName, const QString &exportType)
 {
     QUrl url(path);
-    QString fileAddress = url.isLocalFile() ? url.toLocalFile() : path;
+    QString filePath;
+    if (url.isLocalFile()) {
+        QFileInfo fileInfo(url.toLocalFile());
+        if (fileInfo.suffix().toLower() != exportType.toLower())
+            fileInfo.setFile(QString("%1.%2").arg(url.toLocalFile(), exportType.toLower()));
+        filePath = fileInfo.absoluteFilePath();
+    } else {
+        filePath = path;
+    }
 
     if (exportType == "JSON") {
         QJsonArray content = m_currentCollection.getJsonCollection();
-        return saveCollectionAsJson(fileAddress, content, collectionName);
+        return saveCollectionAsJson(filePath, content, collectionName);
     } else if (exportType == "CSV") {
         QString content = m_currentCollection.getCsvCollection();
-        return saveCollectionAsCsv(fileAddress, content);
+        return saveCollectionAsCsv(filePath, content);
     }
 
     return false;
