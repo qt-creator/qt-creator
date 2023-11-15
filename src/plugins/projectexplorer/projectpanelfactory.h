@@ -53,9 +53,6 @@ public:
     ProjectSettingsWidget *createWidget(Project *project) const;
 
 private:
-    friend class ProjectExplorerPlugin;
-    static void destroyFactories();
-
     Utils::Id m_id;
     int m_priority = 0;
     QString m_displayName;

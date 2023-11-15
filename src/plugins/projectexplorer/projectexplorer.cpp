@@ -785,7 +785,6 @@ ProjectExplorerPlugin::~ProjectExplorerPlugin()
     // Force sequence of deletion:
     KitManager::destroy(); // remove all the profile information
     delete dd->m_toolChainManager;
-    ProjectPanelFactory::destroyFactories();
     delete dd;
     dd = nullptr;
     m_instance = nullptr;

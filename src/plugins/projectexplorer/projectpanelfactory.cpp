@@ -54,12 +54,6 @@ QList<ProjectPanelFactory *> ProjectPanelFactory::factories()
     return s_factories;
 }
 
-void ProjectPanelFactory::destroyFactories()
-{
-    qDeleteAll(s_factories);
-    s_factories.clear();
-}
-
 Utils::Id ProjectPanelFactory::id() const
 {
     return m_id;
