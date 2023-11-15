@@ -46,12 +46,7 @@ private:
     QList<CPlusPlus::AST *> m_path;
 };
 
-class CppQuickFixAssistProvider : public TextEditor::IAssistProvider
-{
-public:
-    CppQuickFixAssistProvider() = default;
-    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override;
-};
+TextEditor::IAssistProvider &cppQuickFixAssistProvider();
 
 TextEditor::QuickFixOperations quickFixOperations(const TextEditor::AssistInterface *interface);
 

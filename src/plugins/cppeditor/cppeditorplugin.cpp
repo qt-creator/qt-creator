@@ -18,7 +18,6 @@
 #include "cppoutline.h"
 #include "cppprojectfile.h"
 #include "cppprojectupdater.h"
-#include "cppquickfixassistant.h"
 #include "cppquickfixes.h"
 #include "cppquickfixprojectsettingswidget.h"
 #include "cppquickfixsettingspage.h"
@@ -175,7 +174,6 @@ public:
     QAction *m_openTypeHierarchyAction = nullptr;
     QAction *m_openIncludeHierarchyAction = nullptr;
 
-    CppQuickFixAssistProvider m_quickFixProvider;
     CppQuickFixSettingsPage m_quickFixSettingsPage;
 
     QPointer<CppCodeModelInspectorDialog> m_cppCodeModelInspectorDialog;
@@ -215,11 +213,6 @@ CppEditorPlugin::~CppEditorPlugin()
 CppEditorPlugin *CppEditorPlugin::instance()
 {
     return m_instance;
-}
-
-CppQuickFixAssistProvider *CppEditorPlugin::quickFixProvider() const
-{
-    return &d->m_quickFixProvider;
 }
 
 void CppEditorPlugin::initialize()

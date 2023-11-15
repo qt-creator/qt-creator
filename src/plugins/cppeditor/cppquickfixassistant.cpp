@@ -3,10 +3,9 @@
 
 #include "cppquickfixassistant.h"
 
-#include "cppeditorconstants.h"
 #include "cppeditorwidget.h"
 #include "cppmodelmanager.h"
-#include "cppquickfixes.h"
+#include "cppquickfix.h"
 #include "cpprefactoringchanges.h"
 
 #include <texteditor/codeassist/genericproposal.h>
@@ -21,32 +20,35 @@
 using namespace CPlusPlus;
 using namespace TextEditor;
 
-namespace CppEditor {
-namespace Internal {
+namespace CppEditor::Internal {
 
-// -------------------------
-// CppQuickFixAssistProcessor
-// -------------------------
-class CppQuickFixAssistProcessor : public IAssistProcessor
+// CppQuickFixAssistProvider
+
+class CppQuickFixAssistProvider final : public IAssistProvider
 {
-    IAssistProposal *perform() override
+public:
+    class CppQuickFixAssistProcessor final : public IAssistProcessor
     {
-        return GenericProposal::createProposal(interface(), quickFixOperations(interface()));
+        IAssistProposal *perform() final
+        {
+            return GenericProposal::createProposal(interface(), quickFixOperations(interface()));
+        }
+    };
+
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const final
+    {
+        return new CppQuickFixAssistProcessor;
     }
 };
 
-// -------------------------
-// CppQuickFixAssistProvider
-// -------------------------
-
-IAssistProcessor *CppQuickFixAssistProvider::createProcessor(const AssistInterface *) const
+IAssistProvider &cppQuickFixAssistProvider()
 {
-    return new CppQuickFixAssistProcessor;
+    static CppQuickFixAssistProvider theCppQuickFixAssistProvider;
+    return theCppQuickFixAssistProvider;
 }
 
-// --------------------------
 // CppQuickFixAssistInterface
-// --------------------------
+
 CppQuickFixInterface::CppQuickFixInterface(CppEditorWidget *editor, AssistReason reason)
     : AssistInterface(editor->textCursor(), editor->textDocument()->filePath(), reason)
     , m_editor(editor)
@@ -157,5 +159,4 @@ QuickFixOperations quickFixOperations(const TextEditor::AssistInterface *interfa
     return quickFixes;
 }
 
-} // namespace Internal
-} // namespace CppEditor
+} // namespace CppEditor::Internal
