@@ -175,8 +175,8 @@ bool GdbDapEngine::acceptsBreakpoint(const BreakpointParameters &bp) const
 {
     const auto mimeType = Utils::mimeTypeForFile(bp.fileName);
     return mimeType.matchesName(C_HEADER_MIMETYPE) || mimeType.matchesName(C_SOURCE_MIMETYPE)
-           || mimeType.matchesName(CPP_HEADER_MIMETYPE)
-           || mimeType.matchesName(CPP_SOURCE_MIMETYPE);
+           || mimeType.matchesName(CPP_HEADER_MIMETYPE) || mimeType.matchesName(CPP_SOURCE_MIMETYPE)
+           || bp.type == BreakpointByFunction;
 }
 
 const QLoggingCategory &GdbDapEngine::logCategory()

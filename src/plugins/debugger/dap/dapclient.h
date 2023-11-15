@@ -53,6 +53,7 @@ enum class DapResponseType
     Pause,
     Evaluate,
     SetBreakpoints,
+    SetFunctionBreakpoints,
     Unknown
 };
 
@@ -146,9 +147,11 @@ public:
     void threads();
     void variables(int variablesReference);
     void setBreakpoints(const QJsonArray &breakpoints, const Utils::FilePath &fileName);
+    void setFunctionBreakpoints(const QJsonArray &breakpoints);
 
     void emitSignals(const QJsonDocument &doc);
     void fillCapabilities(const QJsonObject &response);
+    Capabilities capabilities() const { return m_capabilities; }
 
 signals:
     void started();

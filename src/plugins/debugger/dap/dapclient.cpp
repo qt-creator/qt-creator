@@ -154,6 +154,11 @@ void DapClient::setBreakpoints(const QJsonArray &breakpoints, const FilePath &fi
                             {"breakpoints", breakpoints}});
 }
 
+void DapClient::setFunctionBreakpoints(const QJsonArray &breakpoints)
+{
+    postRequest("setFunctionBreakpoints", QJsonObject{{"breakpoints", breakpoints}});
+}
+
 void DapClient::readOutput()
 {
     m_inbuffer.append(m_dataProvider->readAllStandardOutput());
@@ -230,6 +235,8 @@ void DapClient::emitSignals(const QJsonDocument &doc)
             type = DapResponseType::Evaluate;
         } else if (command == "setBreakpoints") {
             type = DapResponseType::SetBreakpoints;
+        } else if (command == "setFunctionBreakpoints") {
+            type = DapResponseType::SetFunctionBreakpoints;
         }
         emit responseReady(type, ob);
         return;

@@ -306,7 +306,7 @@ void DapEngine::selectThread(const Thread &thread)
 
 bool DapEngine::acceptsBreakpoint(const BreakpointParameters &) const
 {
-    return true; // FIXME: Too bold.
+    return true;
 }
 
 static QJsonObject createBreakpoint(const BreakpointParameters &params)
@@ -316,6 +316,18 @@ static QJsonObject createBreakpoint(const BreakpointParameters &params)
 
     QJsonObject bp;
     bp["line"] = params.textPosition.line;
+    bp["condition"] = params.condition;
+    bp["hitCondition"] = QString::number(params.ignoreCount);
+    return bp;
+}
+
+static QJsonObject createFunctionBreakpoint(const BreakpointParameters &params)
+{
+    if (params.functionName.isEmpty())
+        return QJsonObject();
+
+    QJsonObject bp;
+    bp["name"] = params.functionName;
     bp["condition"] = params.condition;
     bp["hitCondition"] = QString::number(params.ignoreCount);
     return bp;
@@ -335,7 +347,30 @@ void DapEngine::insertBreakpoint(const Breakpoint &bp)
         return;
     }
 
+    if (parameters.type == BreakpointByFunction
+        && m_dapClient->capabilities().supportsFunctionBreakpoints) {
+        qDebug() << "BreakpointByFunction" << parameters.type << bp->functionName();
+        dapInsertFunctionBreakpoint(bp);
+        return;
+    }
+
     dapInsertBreakpoint(bp);
+}
+
+void DapEngine::dapInsertFunctionBreakpoint(const Breakpoint &bp)
+{
+    QJsonArray breakpoints;
+    for (const auto &breakpoint : breakHandler()->breakpoints()) {
+        const BreakpointParameters &bpParams = breakpoint->requestedParameters();
+        QJsonObject jsonBp = createFunctionBreakpoint(bpParams);
+        if (!jsonBp.isEmpty() && bpParams.type == BreakpointByFunction && bpParams.enabled) {
+            breakpoints.append(jsonBp);
+        }
+    }
+
+    m_dapClient->setFunctionBreakpoints(breakpoints);
+
+    qCDebug(logCategory()) << "insertBreakpoint" << bp->modelId() << bp->responseId();
 }
 
 void DapEngine::dapInsertBreakpoint(const Breakpoint &bp)
@@ -362,11 +397,22 @@ void DapEngine::updateBreakpoint(const Breakpoint &bp)
     BreakpointParameters parameters = bp->requestedParameters();
     notifyBreakpointChangeProceeding(bp);
 
-    if (parameters.enabled != bp->isEnabled()) {
+    auto updateBp = [this, bp](void (DapEngine::*insert)(const Breakpoint &),
+                               void (DapEngine::*remove)(const Breakpoint &)) {
         if (bp->isEnabled())
-            dapRemoveBreakpoint(bp);
+            (this->*remove)(bp);
         else
-            dapInsertBreakpoint(bp);
+            (this->*insert)(bp);
+    };
+
+    if (parameters.enabled != bp->isEnabled()) {
+        if (parameters.type == BreakpointByFunction) {
+            updateBp(&DapEngine::dapInsertFunctionBreakpoint,
+                     &DapEngine ::dapRemoveFunctionBreakpoint);
+            return;
+        }
+
+        updateBp(&DapEngine::dapInsertBreakpoint, &DapEngine::dapRemoveBreakpoint);
     }
 }
 
@@ -393,7 +439,30 @@ void DapEngine::dapRemoveBreakpoint(const Breakpoint &bp)
         }
     }
 
+    if (params.type == BreakpointByFunction
+        && m_dapClient->capabilities().supportsFunctionBreakpoints) {
+        dapRemoveFunctionBreakpoint(bp);
+        return;
+    }
+
     m_dapClient->setBreakpoints(breakpoints, params.fileName);
+
+    qCDebug(logCategory()) << "removeBreakpoint" << bp->modelId() << bp->responseId();
+}
+
+void DapEngine::dapRemoveFunctionBreakpoint(const Breakpoint &bp)
+{
+    QJsonArray breakpoints;
+    for (const auto &breakpoint : breakHandler()->breakpoints()) {
+        const BreakpointParameters &bpParams = breakpoint->requestedParameters();
+        if (breakpoint->responseId() != bp->responseId() && bpParams.type == BreakpointByFunction
+            && bpParams.enabled) {
+            QJsonObject jsonBp = createFunctionBreakpoint(bpParams);
+            breakpoints.append(jsonBp);
+        }
+    }
+
+    m_dapClient->setFunctionBreakpoints(breakpoints);
 
     qCDebug(logCategory()) << "removeBreakpoint" << bp->modelId() << bp->responseId();
 }
@@ -613,6 +682,7 @@ void DapEngine::handleResponse(DapResponseType type, const QJsonObject &response
     case DapResponseType::Evaluate:
         handleEvaluateResponse(response);
         break;
+    case DapResponseType::SetFunctionBreakpoints:
     case DapResponseType::SetBreakpoints:
         handleBreakpointResponse(response);
         break;
@@ -772,7 +842,7 @@ void DapEngine::handleBreakpointResponse(const QJsonObject &response)
 
             QJsonObject jsonBreakpoint;
             QString key;
-            for (QString bpKey : map.keys()) {
+            for (const QString &bpKey : map.keys()) {
                 QJsonObject breakpoint = map.value(bpKey);
                 if (path == bp->requestedParameters().fileName.toString()
                     && abs(breakpoint.value("line").toInt() - line)

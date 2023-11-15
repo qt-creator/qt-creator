@@ -119,6 +119,9 @@ protected:
     void dapRemoveBreakpoint(const Breakpoint &bp);
     void dapInsertBreakpoint(const Breakpoint &bp);
 
+    void dapRemoveFunctionBreakpoint(const Breakpoint &bp);
+    void dapInsertFunctionBreakpoint(const Breakpoint &bp);
+
     void handleDapDone();
     void readDapStandardOutput();
     void readDapStandardError();
