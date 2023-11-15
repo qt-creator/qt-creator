@@ -100,7 +100,7 @@ void PanelsWidget::addPropertiesPanel(const QString &displayName)
     auto nameLabel = new QLabel(m_root);
     nameLabel->setText(displayName);
     nameLabel->setContentsMargins(0, ABOVE_HEADING_MARGIN, 0, 0);
-    nameLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH1));
+    nameLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH3));
     m_layout->addWidget(nameLabel);
     m_layout->addWidget(Layouting::createHr());
 }

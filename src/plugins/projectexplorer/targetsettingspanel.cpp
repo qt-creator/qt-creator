@@ -185,7 +185,7 @@ void TargetGroupItemPrivate::ensureWidget()
 
         auto label = new QLabel;
         label->setText(Tr::tr("No kit defined in this project."));
-        label->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
+        label->setFont(StyleHelper::UiFont(StyleHelper::UiElementH4));
         label->setContentsMargins(10, 10, 10, 10);
         label->setAlignment(Qt::AlignTop);
 

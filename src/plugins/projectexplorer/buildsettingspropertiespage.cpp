@@ -54,7 +54,7 @@ BuildSettingsWidget::BuildSettingsWidget(Target *target) :
     if (!BuildConfigurationFactory::find(m_target)) {
         auto noSettingsLabel = new QLabel(this);
         noSettingsLabel->setText(Tr::tr("No build settings available"));
-        noSettingsLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
+        noSettingsLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH4));
         vbox->addWidget(noSettingsLabel);
         return;
     }
@@ -126,7 +126,7 @@ void BuildSettingsWidget::addSubWidget(NamedWidget *widget)
 
     auto label = new QLabel(this);
     label->setText(widget->displayName());
-    label->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
+    label->setFont(StyleHelper::UiFont(StyleHelper::UiElementH4));
 
     label->setContentsMargins(0, 18, 0, 0);
 

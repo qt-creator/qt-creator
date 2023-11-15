@@ -69,7 +69,7 @@ RunSettingsWidget::RunSettingsWidget(Target *target) :
 
     runLabel->setBuddy(m_runConfigurationCombo);
 
-    const QFont f = Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementH2);
+    const QFont f = Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementH4);
     runTitle->setFont(f);
     deployTitle->setFont(f);
 
@@ -498,7 +498,7 @@ void RunSettingsWidget::addSubWidget(QWidget *widget, QLabel *label)
 {
     widget->setContentsMargins({});
 
-    label->setFont(Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementH2));
+    label->setFont(Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementH4));
 
     label->setContentsMargins(0, 18, 0, 0);
 

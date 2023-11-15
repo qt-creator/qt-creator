@@ -941,16 +941,16 @@ QFont StyleHelper::UiFont(UiElement element)
 
     switch (element) {
     case UiElementH1:
+        break;
+    case UiElementH2:
+        break;
+    case UiElementH3:
         font.setPointSizeF(font.pointSizeF() * 1.6);
         font.setBold(true);
         break;
-    case UiElementH2:
+    case UiElementH4:
         font.setPointSizeF(font.pointSizeF() * 1.2);
         font.setBold(true);
-        break;
-    case UiElementH3:
-        break;
-    case UiElementH4:
         break;
     case UiElementPanelTitle: {
         font.setPointSizeF(panelTitleSize);
