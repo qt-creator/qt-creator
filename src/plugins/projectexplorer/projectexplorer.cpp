@@ -882,19 +882,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             &dd->m_outputPane, &AppOutputPane::projectRemoved);
 
     // ProjectPanelFactories
-    auto panelFactory = new ProjectPanelFactory;
-    panelFactory->setPriority(30);
-    panelFactory->setDisplayName(Tr::tr("Editor"));
-    panelFactory->setCreateWidgetFunction([](Project *project) { return new EditorSettingsWidget(project); });
-    ProjectPanelFactory::registerFactory(panelFactory);
 
-    panelFactory = new ProjectPanelFactory;
-    panelFactory->setPriority(40);
-    panelFactory->setDisplayName(Tr::tr("Code Style"));
-    panelFactory->setCreateWidgetFunction([](Project *project) { return new CodeStyleSettingsWidget(project); });
-    ProjectPanelFactory::registerFactory(panelFactory);
+    setupEditorSettingsProjectPanel();
+    setupCodeStyleProjectPanel();
 
-    panelFactory = new ProjectExplorer::ProjectPanelFactory;
+    auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
     panelFactory->setPriority(45);
     panelFactory->setDisplayName(Tr::tr("Documentation Comments"));
     panelFactory->setCreateWidgetFunction([](ProjectExplorer::Project *project) {

@@ -6,6 +6,8 @@
 #include "editorconfiguration.h"
 #include "project.h"
 #include "projectexplorertr.h"
+#include "projectpanelfactory.h"
+#include "projectsettingswidget.h"
 
 #include <cppeditor/cppeditorconstants.h>
 
@@ -17,44 +19,64 @@
 
 #include <QComboBox>
 #include <QLabel>
-#include <QLayout>
 #include <QStackedWidget>
 
 using namespace TextEditor;
 
 namespace ProjectExplorer::Internal {
 
-CodeStyleSettingsWidget::CodeStyleSettingsWidget(Project *project)
+class CodeStyleSettingsWidget final : public ProjectSettingsWidget
 {
-    auto languageComboBox = new QComboBox(this);
-    auto stackedWidget = new QStackedWidget(this);
+public:
+    explicit CodeStyleSettingsWidget(Project *project)
+    {
+        auto languageComboBox = new QComboBox(this);
+        auto stackedWidget = new QStackedWidget(this);
 
-    setGlobalSettingsId(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
-    setUseGlobalSettingsCheckBoxVisible(false);
+        setGlobalSettingsId(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
+        setUseGlobalSettingsCheckBoxVisible(false);
 
-    const EditorConfiguration *config = project->editorConfiguration();
+        const EditorConfiguration *config = project->editorConfiguration();
 
-    for (ICodeStylePreferencesFactory *factory : TextEditorSettings::codeStyleFactories()) {
-        Utils::Id languageId = factory->languageId();
-        ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
+        for (ICodeStylePreferencesFactory *factory : TextEditorSettings::codeStyleFactories()) {
+            Utils::Id languageId = factory->languageId();
+            ICodeStylePreferences *codeStylePreferences = config->codeStyle(languageId);
 
-        auto preview = factory->createCodeStyleEditor(codeStylePreferences, project, stackedWidget);
-        if (preview && preview->layout())
-            preview->layout()->setContentsMargins(QMargins());
-        stackedWidget->addWidget(preview);
-        languageComboBox->addItem(factory->displayName());
+            auto preview = factory->createCodeStyleEditor(codeStylePreferences, project, stackedWidget);
+            if (preview && preview->layout())
+                preview->layout()->setContentsMargins(QMargins());
+            stackedWidget->addWidget(preview);
+            languageComboBox->addItem(factory->displayName());
+        }
+
+        connect(languageComboBox, &QComboBox::currentIndexChanged,
+                stackedWidget, &QStackedWidget::setCurrentIndex);
+
+        using namespace Layouting;
+
+        Column {
+            Row { new QLabel(Tr::tr("Language:")), languageComboBox, st },
+            stackedWidget,
+            noMargin
+        }.attachTo(this);
     }
+};
 
-    connect(languageComboBox, &QComboBox::currentIndexChanged,
-            stackedWidget, &QStackedWidget::setCurrentIndex);
+class CodeStyleProjectPanelFactory final : public ProjectPanelFactory
+{
+public:
+    CodeStyleProjectPanelFactory()
+    {
+        setPriority(40);
+        setDisplayName(Tr::tr("Code Style"));
+        setCreateWidgetFunction([](Project *project) { return new CodeStyleSettingsWidget(project); });
+        ProjectPanelFactory::registerFactory(this);
+    }
+};
 
-    using namespace Layouting;
-
-    Column {
-        Row { new QLabel(Tr::tr("Language:")), languageComboBox, st },
-        stackedWidget,
-        noMargin
-    }.attachTo(this);
+void setupCodeStyleProjectPanel()
+{
+    static CodeStyleProjectPanelFactory theCodeStyleProjectPanelFactory;
 }
 
 } // ProjectExplorer::Internal

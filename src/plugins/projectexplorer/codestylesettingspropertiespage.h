@@ -3,20 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/projectsettingswidget.h>
+namespace ProjectExplorer::Internal {
 
-namespace ProjectExplorer {
+void setupCodeStyleProjectPanel();
 
-class Project;
-
-namespace Internal {
-
-class CodeStyleSettingsWidget : public ProjectSettingsWidget
-{
-    Q_OBJECT
-public:
-    explicit CodeStyleSettingsWidget(Project *project);
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal
