@@ -248,14 +248,14 @@ bool ExternalDependencies::isQt6Project() const
 
 bool ExternalDependencies::isQtForMcusProject() const
 {
-    // CMakeBuildSystem
-    ProjectExplorer::Target *activeTarget = ProjectExplorer::ProjectManager::startupTarget();
-    if (activeTarget && activeTarget->kit())
-        return activeTarget->kit()->hasValue("McuSupport.McuTargetKitVersion");
-
     // QmlBuildSystem
     auto [project, target, qmlBuildSystem] = activeProjectEntries();
-    return qmlBuildSystem && qmlBuildSystem->qtForMCUs();
+    if (qmlBuildSystem)
+        return  qmlBuildSystem->qtForMCUs();
+
+    // CMakeBuildSystem
+    ProjectExplorer::Target *activeTarget = ProjectExplorer::ProjectManager::startupTarget();
+    return activeTarget && activeTarget->kit() && activeTarget->kit()->hasValue("McuSupport.McuTargetKitVersion");
 }
 
 QString ExternalDependencies::qtQuickVersion() const
