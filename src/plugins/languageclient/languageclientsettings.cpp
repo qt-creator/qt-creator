@@ -15,6 +15,8 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
 
 #include <texteditor/plaintexteditorfactory.h>
 #include <texteditor/textmark.h>
@@ -66,6 +68,7 @@ constexpr char typedClientsKey[] = "typedClients";
 constexpr char outlineSortedKey[] = "outlineSorted";
 constexpr char mimeType[] = "application/language.client.setting";
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace LanguageClient {
@@ -1105,30 +1108,56 @@ void ProjectSettings::setJson(const QByteArray &json)
         LanguageClientManager::updateWorkspaceConfiguration(m_project, newConfig);
 }
 
-ProjectSettingsWidget::ProjectSettingsWidget(ProjectExplorer::Project *project)
-    : m_settings(project)
+class LanguageClientProjectSettingsWidget : public ProjectSettingsWidget
 {
-    setUseGlobalSettingsCheckBoxVisible(false);
-    setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
-    setExpanding(true);
+public:
+    explicit LanguageClientProjectSettingsWidget(Project *project)
+        : m_settings(project)
+    {
+        setUseGlobalSettingsCheckBoxVisible(false);
+        setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
+        setExpanding(true);
 
-    TextEditor::BaseTextEditor *editor = jsonEditor();
-    editor->document()->setContents(m_settings.json());
+        TextEditor::BaseTextEditor *editor = jsonEditor();
+        editor->document()->setContents(m_settings.json());
 
-    auto layout = new QVBoxLayout;
-    setLayout(layout);
-    auto group = new QGroupBox(Tr::tr("Workspace Configuration"));
-    group->setLayout(new QVBoxLayout);
-    group->layout()->addWidget(new QLabel(Tr::tr(
-        "Additional JSON configuration sent to all running language servers for this project.\n"
-        "See the documentation of the specific language server for valid settings.")));
-    group->layout()->addWidget(editor->widget());
-    layout->addWidget(group);
+        auto layout = new QVBoxLayout;
+        setLayout(layout);
+        auto group = new QGroupBox(Tr::tr("Workspace Configuration"));
+        group->setLayout(new QVBoxLayout);
+        group->layout()->addWidget(new QLabel(Tr::tr(
+            "Additional JSON configuration sent to all running language servers for this project.\n"
+            "See the documentation of the specific language server for valid settings.")));
+        group->layout()->addWidget(editor->widget());
+        layout->addWidget(group);
 
-    connect(editor->editorWidget()->textDocument(),
-            &TextEditor::TextDocument::contentsChanged,
-            this,
-            [=]() { m_settings.setJson(editor->document()->contents()); });
+        connect(editor->editorWidget()->textDocument(),
+                &TextEditor::TextDocument::contentsChanged,
+                this,
+                [=]() { m_settings.setJson(editor->document()->contents()); });
+    }
+
+private:
+    ProjectSettings m_settings;
+};
+
+class LanguageClientProjectPanelFactory : public ProjectPanelFactory
+{
+public:
+    LanguageClientProjectPanelFactory()
+    {
+        setPriority(35);
+        setDisplayName(Tr::tr("Language Server"));
+        setCreateWidgetFunction([](Project *project) {
+            return new LanguageClientProjectSettingsWidget(project);
+        });
+        ProjectPanelFactory::registerFactory(this);
+    }
+};
+
+void setupLanguageClientProjectPanel()
+{
+    static LanguageClientProjectPanelFactory theLanguageClientProjectPanelFactory;
 }
 
 } // namespace LanguageClient
