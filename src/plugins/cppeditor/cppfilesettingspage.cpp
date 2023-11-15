@@ -597,7 +597,6 @@ public:
         setCreateWidgetFunction([](Project *project) {
             return new CppFileSettingsForProjectWidget(project);
         });
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 

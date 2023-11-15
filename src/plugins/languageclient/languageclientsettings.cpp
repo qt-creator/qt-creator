@@ -1151,7 +1151,6 @@ public:
         setCreateWidgetFunction([](Project *project) {
             return new LanguageClientProjectSettingsWidget(project);
         });
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 

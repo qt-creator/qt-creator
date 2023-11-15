@@ -162,7 +162,6 @@ public:
         setCreateWidgetFunction([](Project *project) {
             return new ProjectTestSettingsWidget(project);
         });
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 

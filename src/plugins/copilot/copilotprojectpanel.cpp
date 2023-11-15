@@ -65,7 +65,6 @@ public:
         setPriority(1000);
         setDisplayName(Tr::tr("Copilot"));
         setCreateWidgetFunction(&createCopilotProjectPanel);
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 

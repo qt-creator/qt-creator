@@ -115,7 +115,6 @@ public:
         setCreateWidgetFunction([](Project *project) {
             return new CppQuickFixProjectSettingsWidget(project);
         });
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 

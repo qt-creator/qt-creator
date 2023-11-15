@@ -142,7 +142,6 @@ public:
         TextEditor::TextEditorSettings::setCommentsSettingsRetriever([](const FilePath &filePath) {
             return ProjectCommentsSettings(ProjectManager::projectForFile(filePath)).settings();
         });
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 

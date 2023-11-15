@@ -179,7 +179,6 @@ public:
                     provider, [project, provider] { provider->projectSettingsChanged(project); });
             return widget;
         });
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 

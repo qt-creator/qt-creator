@@ -251,9 +251,9 @@ public:
         setPriority(100);
         setId(Constants::PROJECT_PANEL_ID);
         setDisplayName(Tr::tr("Clang Tools"));
-        setCreateWidgetFunction(
-            [](Project *project) { return new ClangToolsProjectSettingsWidget(project); });
-        ProjectPanelFactory::registerFactory(this);
+        setCreateWidgetFunction([](Project *project) {
+            return new ClangToolsProjectSettingsWidget(project);
+        });
     }
 };
 

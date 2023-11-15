@@ -339,7 +339,6 @@ public:
         setCreateWidgetFunction([](ProjectExplorer::Project *project) {
             return new GitLabProjectSettingsWidget(project);
         });
-        ProjectExplorer::ProjectPanelFactory::registerFactory(this);
     }
 };
 

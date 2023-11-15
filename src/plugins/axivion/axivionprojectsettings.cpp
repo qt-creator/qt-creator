@@ -259,7 +259,6 @@ public:
         setCreateWidgetFunction([](ProjectExplorer::Project *project) {
             return new AxivionProjectSettingsWidget(project);
         });
-        ProjectExplorer::ProjectPanelFactory::registerFactory(this);
     }
 };
 

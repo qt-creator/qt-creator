@@ -167,7 +167,6 @@ public:
         setPriority(30);
         setDisplayName(Tr::tr("Editor"));
         setCreateWidgetFunction([](Project *project) { return new EditorSettingsWidget(project); });
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 

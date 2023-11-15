@@ -411,7 +411,6 @@ public:
         setCreateWidgetFunction([](Project *project) {
             return new ProjectEnvironmentWidget(project);
         });
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 

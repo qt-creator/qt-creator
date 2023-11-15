@@ -15,7 +15,6 @@
 namespace ProjectExplorer {
 
 class Project;
-class ProjectExplorerPlugin;
 
 class PROJECTEXPLORER_EXPORT ProjectPanelFactory
 {
@@ -41,9 +40,6 @@ public:
     // if you need something different
     using SupportsFunction = std::function<bool (Project *)>;
     void setSupportsFunction(std::function<bool (Project *)> function);
-
-    // This takes ownership.
-    static void registerFactory(ProjectPanelFactory *factory);
 
     static QList<ProjectPanelFactory *> factories();
 

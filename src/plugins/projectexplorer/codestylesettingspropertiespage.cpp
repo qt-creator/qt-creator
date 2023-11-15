@@ -70,7 +70,6 @@ public:
         setPriority(40);
         setDisplayName(Tr::tr("Code Style"));
         setCreateWidgetFunction([](Project *project) { return new CodeStyleSettingsWidget(project); });
-        ProjectPanelFactory::registerFactory(this);
     }
 };
 
