@@ -73,7 +73,7 @@ bool isSupportedVersion(QmlDesigner::Version version)
         return version.minor <= 15;
 
     if (version.major == 6)
-        return version.minor <= 5;
+        return version.minor <= 6;
 
     return false;
 }
