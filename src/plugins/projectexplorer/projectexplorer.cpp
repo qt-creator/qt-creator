@@ -401,6 +401,25 @@ public:
     }
 };
 
+class ProjectEnvironmentPanelFactory final : public ProjectPanelFactory
+{
+public:
+    ProjectEnvironmentPanelFactory()
+    {
+        setPriority(60);
+        setDisplayName(Tr::tr("Environment"));
+        setCreateWidgetFunction([](Project *project) {
+            return new ProjectEnvironmentWidget(project);
+        });
+        ProjectPanelFactory::registerFactory(this);
+    }
+};
+
+static void setupProjectEnvironmentPanel()
+{
+    static ProjectEnvironmentPanelFactory theProjectEnvironmentPanelFactory;
+}
+
 class AllProjectFilesFilter : public DirectoryFilter
 {
 public:
@@ -887,14 +906,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupCodeStyleProjectPanel();
     setupCommentsSettingsProjectPanel();
     setupDependenciesProjectPanel();
-
-    auto panelFactory = new ProjectPanelFactory;
-    panelFactory->setPriority(60);
-    panelFactory->setDisplayName(Tr::tr("Environment"));
-    panelFactory->setCreateWidgetFunction([](Project *project) {
-        return new ProjectEnvironmentWidget(project);
-    });
-    ProjectPanelFactory::registerFactory(panelFactory);
+    setupProjectEnvironmentPanel();
 
     RunConfiguration::registerAspect<CustomParsersAspect>();
 
