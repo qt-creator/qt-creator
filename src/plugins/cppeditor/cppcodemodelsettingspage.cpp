@@ -12,6 +12,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/session.h>
 
+#include <projectexplorer/projectpanelfactory.h>
+#include <projectexplorer/projectsettingswidget.h>
+
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
 #include <utils/itemviews.h>
@@ -35,6 +38,8 @@
 #include <QVersionNumber>
 
 #include <limits>
+
+using namespace ProjectExplorer;
 
 namespace CppEditor::Internal {
 
@@ -578,56 +583,67 @@ ClangdSettingsPage::ClangdSettingsPage()
     setWidgetCreator([] { return new ClangdSettingsPageWidget; });
 }
 
-
-class ClangdProjectSettingsWidget::Private
+class ClangdProjectSettingsWidget : public ProjectSettingsWidget
 {
 public:
-    Private(const ClangdProjectSettings &s) : settings(s), widget(s.settings(), true) {}
+    ClangdProjectSettingsWidget(const ClangdProjectSettings &settings)
+        : m_settings(settings), m_widget(settings.settings(), true)
+    {
+        setGlobalSettingsId(Constants::CPP_CLANGD_SETTINGS_ID);
+        const auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(&m_widget);
 
-    ClangdProjectSettings settings;
-    ClangdSettingsWidget widget;
-    QCheckBox useGlobalSettingsCheckBox;
+        const auto updateGlobalSettingsCheckBox = [this] {
+            if (ClangdSettings::instance().granularity() == ClangdSettings::Granularity::Session) {
+                setUseGlobalSettingsCheckBoxEnabled(false);
+                setUseGlobalSettings(true);
+            } else {
+                setUseGlobalSettingsCheckBoxEnabled(true);
+                setUseGlobalSettings(m_settings.useGlobalSettings());
+            }
+            m_widget.setEnabled(!useGlobalSettings());
+        };
+
+        updateGlobalSettingsCheckBox();
+        connect(&ClangdSettings::instance(), &ClangdSettings::changed,
+                this, updateGlobalSettingsCheckBox);
+
+        connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
+                [this](bool checked) {
+                    m_widget.setEnabled(!checked);
+                    m_settings.setUseGlobalSettings(checked);
+                    if (!checked)
+                        m_settings.setSettings(m_widget.settingsData());
+                });
+
+        connect(&m_widget, &ClangdSettingsWidget::settingsDataChanged, this, [this] {
+            m_settings.setSettings(m_widget.settingsData());
+        });
+    }
+
+private:
+    ClangdProjectSettings m_settings;
+    ClangdSettingsWidget m_widget;
 };
 
-ClangdProjectSettingsWidget::ClangdProjectSettingsWidget(const ClangdProjectSettings &settings)
-    : d(new Private(settings))
+class ClangdProjectSettingsPanelFactory final : public ProjectPanelFactory
 {
-    setGlobalSettingsId(Constants::CPP_CLANGD_SETTINGS_ID);
-    const auto layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(&d->widget);
+public:
+    ClangdProjectSettingsPanelFactory()
+    {
+        setPriority(100);
+        setDisplayName(Tr::tr("Clangd"));
+        setCreateWidgetFunction([](Project *project) {
+            return new ClangdProjectSettingsWidget(project);
+        });
+        ProjectPanelFactory::registerFactory(this);
+    }
+};
 
-    const auto updateGlobalSettingsCheckBox = [this] {
-        if (ClangdSettings::instance().granularity() == ClangdSettings::Granularity::Session) {
-            setUseGlobalSettingsCheckBoxEnabled(false);
-            setUseGlobalSettings(true);
-        } else {
-            setUseGlobalSettingsCheckBoxEnabled(true);
-            setUseGlobalSettings(d->settings.useGlobalSettings());
-        }
-        d->widget.setEnabled(!useGlobalSettings());
-    };
-
-    updateGlobalSettingsCheckBox();
-    connect(&ClangdSettings::instance(), &ClangdSettings::changed,
-            this, updateGlobalSettingsCheckBox);
-
-    connect(this, &ProjectSettingsWidget::useGlobalSettingsChanged, this,
-            [this](bool checked) {
-                d->widget.setEnabled(!checked);
-                d->settings.setUseGlobalSettings(checked);
-                if (!checked)
-                    d->settings.setSettings(d->widget.settingsData());
-            });
-
-    connect(&d->widget, &ClangdSettingsWidget::settingsDataChanged, this, [this] {
-        d->settings.setSettings(d->widget.settingsData());
-    });
-}
-
-ClangdProjectSettingsWidget::~ClangdProjectSettingsWidget()
+void setupClangdProjectSettingsPanel()
 {
-    delete d;
+    static ClangdProjectSettingsPanelFactory theClangdProjectSettingsPanelFactory;
 }
 
 } // CppEditor::Internal

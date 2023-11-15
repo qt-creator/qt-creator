@@ -4,7 +4,6 @@
 #pragma once
 
 #include "cppcodemodelsettings.h"
-#include <projectexplorer/projectsettingswidget.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -40,17 +39,6 @@ private:
     Private * const d;
 };
 
-class ClangdProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
-{
-    Q_OBJECT
+void setupClangdProjectSettingsPanel();
 
-public:
-    ClangdProjectSettingsWidget(const ClangdProjectSettings &settings);
-    ~ClangdProjectSettingsWidget();
-
-private:
-    class Private;
-    Private * const d;
-};
-
-} // CppEditor::Internal namespace
+} // CppEditor::Internal

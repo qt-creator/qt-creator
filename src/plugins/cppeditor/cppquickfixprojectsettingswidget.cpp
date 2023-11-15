@@ -5,17 +5,35 @@
 
 #include "cppeditorconstants.h"
 #include "cppeditortr.h"
+#include "cppquickfixprojectsettings.h"
 #include "cppquickfixsettingswidget.h"
+
+#include <projectexplorer/projectpanelfactory.h>
 
 #include <QFile>
 #include <QGridLayout>
 #include <QPushButton>
 
+using namespace ProjectExplorer;
+
 namespace CppEditor::Internal {
 
-CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(ProjectExplorer::Project *project,
-                                                                   QWidget *parent)
-    : ProjectExplorer::ProjectSettingsWidget(parent)
+class CppQuickFixProjectSettingsWidget : public ProjectSettingsWidget
+{
+public:
+    explicit CppQuickFixProjectSettingsWidget(Project *project);
+
+private:
+    void currentItemChanged(bool useGlobalSettings);
+    void buttonCustomClicked();
+
+    CppQuickFixSettingsWidget *m_settingsWidget;
+    CppQuickFixProjectsSettings::CppQuickFixProjectsSettingsPtr m_projectSettings;
+
+    QPushButton *m_pushButton;
+};
+
+CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(Project *project)
 {
     setGlobalSettingsId(CppEditor::Constants::QUICK_FIX_SETTINGS_ID);
     m_projectSettings = CppQuickFixProjectsSettings::getSettings(project);
@@ -49,8 +67,6 @@ CppQuickFixProjectSettingsWidget::CppQuickFixProjectSettingsWidget(ProjectExplor
                     m_projectSettings->saveOwnSettings();
             });
 }
-
-CppQuickFixProjectSettingsWidget::~CppQuickFixProjectSettingsWidget() = default;
 
 void CppQuickFixProjectSettingsWidget::currentItemChanged(bool useGlobalSettings)
 {
@@ -86,6 +102,26 @@ void CppQuickFixProjectSettingsWidget::buttonCustomClicked()
         m_projectSettings->saveOwnSettings();
         m_settingsWidget->loadSettings(m_projectSettings->getSettings());
     }
+}
+
+class CppQuickFixProjectPanelFactory final : public ProjectPanelFactory
+{
+public:
+    CppQuickFixProjectPanelFactory()
+    {
+        setPriority(100);
+        setId(Constants::QUICK_FIX_PROJECT_PANEL_ID);
+        setDisplayName(Tr::tr(Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
+        setCreateWidgetFunction([](Project *project) {
+            return new CppQuickFixProjectSettingsWidget(project);
+        });
+        ProjectPanelFactory::registerFactory(this);
+    }
+};
+
+void setupCppQuickFixProjectPanel()
+{
+    static CppQuickFixProjectPanelFactory theCppQuickFixProjectPanelFactory;
 }
 
 } // CppEditor::Internal

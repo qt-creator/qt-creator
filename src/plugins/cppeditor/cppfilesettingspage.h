@@ -85,4 +85,6 @@ private:
     Private * const d;
 };
 
+void setupCppFileSettingsProjectPanel();
+
 } // namespace CppEditor::Internal

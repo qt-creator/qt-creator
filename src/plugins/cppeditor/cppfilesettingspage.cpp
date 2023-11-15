@@ -10,6 +10,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
 
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
@@ -21,7 +22,6 @@
 
 #include <QCheckBox>
 #include <QComboBox>
-#include <QCoreApplication>
 #include <QFile>
 #include <QGuiApplication>
 #include <QLineEdit>
@@ -29,6 +29,7 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CppEditor::Internal {
@@ -584,6 +585,25 @@ void CppFileSettingsForProjectWidget::Private::maybeClearHeaderSourceCache()
         || s.sourceSearchPaths != initialSettings.sourceSearchPaths) {
         CppEditorPlugin::clearHeaderSourceCache();
     }
+}
+
+class CppFileSettingsProjectPanelFactory final : public ProjectPanelFactory
+{
+public:
+    CppFileSettingsProjectPanelFactory()
+    {
+        setPriority(99);
+        setDisplayName(Tr::tr("C++ File Naming"));
+        setCreateWidgetFunction([](Project *project) {
+            return new CppFileSettingsForProjectWidget(project);
+        });
+        ProjectPanelFactory::registerFactory(this);
+    }
+};
+
+void setupCppFileSettingsProjectPanel()
+{
+    static CppFileSettingsProjectPanelFactory theCppFileSettingsProjectPanelFactory;
 }
 
 } // namespace CppEditor::Internal

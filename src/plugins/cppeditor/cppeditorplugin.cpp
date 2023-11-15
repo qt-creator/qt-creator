@@ -72,7 +72,6 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projecttree.h>
 
 #include <texteditor/colorpreviewhoverhandler.h>
@@ -524,32 +523,12 @@ void CppEditorPlugin::addGlobalActions()
 
 void CppEditorPlugin::setupProjectPanels()
 {
-    const auto quickFixSettingsPanelFactory = new ProjectPanelFactory;
-    quickFixSettingsPanelFactory->setPriority(100);
-    quickFixSettingsPanelFactory->setId(Constants::QUICK_FIX_PROJECT_PANEL_ID);
-    quickFixSettingsPanelFactory->setDisplayName(Tr::tr(Constants::QUICK_FIX_SETTINGS_DISPLAY_NAME));
-    quickFixSettingsPanelFactory->setCreateWidgetFunction([](Project *project) {
-        return new CppQuickFixProjectSettingsWidget(project);
-    });
-    ProjectPanelFactory::registerFactory(quickFixSettingsPanelFactory);
-
-    const auto fileNamesPanelFactory = new ProjectPanelFactory;
-    fileNamesPanelFactory->setPriority(99);
-    fileNamesPanelFactory->setDisplayName(Tr::tr("C++ File Naming"));
-    fileNamesPanelFactory->setCreateWidgetFunction([](Project *project) {
-        return new CppFileSettingsForProjectWidget(project);
-    });
-    ProjectPanelFactory::registerFactory(fileNamesPanelFactory);
+    setupCppQuickFixProjectPanel();
+    setupCppFileSettingsProjectPanel();
 
     if (CppModelManager::isClangCodeModelActive()) {
         d->m_clangdSettingsPage = new ClangdSettingsPage;
-        const auto clangdPanelFactory = new ProjectPanelFactory;
-        clangdPanelFactory->setPriority(100);
-        clangdPanelFactory->setDisplayName(Tr::tr("Clangd"));
-        clangdPanelFactory->setCreateWidgetFunction([](Project *project) {
-            return new ClangdProjectSettingsWidget(project);
-        });
-        ProjectPanelFactory::registerFactory(clangdPanelFactory);
+        setupClangdProjectSettingsPanel();
     }
 }
 
