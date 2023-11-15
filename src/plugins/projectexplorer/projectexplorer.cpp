@@ -886,14 +886,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupEditorSettingsProjectPanel();
     setupCodeStyleProjectPanel();
     setupCommentsSettingsProjectPanel();
+    setupDependenciesProjectPanel();
 
     auto panelFactory = new ProjectPanelFactory;
-    panelFactory->setPriority(50);
-    panelFactory->setDisplayName(Tr::tr("Dependencies"));
-    panelFactory->setCreateWidgetFunction([](Project *project) { return new DependenciesWidget(project); });
-    ProjectPanelFactory::registerFactory(panelFactory);
-
-    panelFactory = new ProjectPanelFactory;
     panelFactory->setPriority(60);
     panelFactory->setDisplayName(Tr::tr("Environment"));
     panelFactory->setCreateWidgetFunction([](Project *project) {
