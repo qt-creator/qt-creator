@@ -22,7 +22,6 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projectpanelfactory.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -110,11 +109,8 @@ void AxivionPlugin::initialize()
 {
     dd = new AxivionPluginPrivate;
 
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
-    panelFactory->setPriority(250);
-    panelFactory->setDisplayName(Tr::tr("Axivion"));
-    panelFactory->setCreateWidgetFunction(&AxivionProjectSettings::createSettingsWidget);
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    AxivionProjectSettings::setupProjectPanel();
+
     connect(ProjectExplorer::ProjectManager::instance(),
             &ProjectExplorer::ProjectManager::startupProjectChanged,
             dd, &AxivionPluginPrivate::onStartupProjectChanged);

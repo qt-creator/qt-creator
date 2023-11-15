@@ -10,6 +10,7 @@
 #include "axiviontr.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettingswidget.h>
 
 #include <utils/infolabel.h>
@@ -248,9 +249,23 @@ void AxivionProjectSettingsWidget::updateEnabledStates()
     }
 }
 
-ProjectSettingsWidget *AxivionProjectSettings::createSettingsWidget(ProjectExplorer::Project *project)
+class AxivionProjectPanelFactory : public ProjectExplorer::ProjectPanelFactory
 {
-   return new AxivionProjectSettingsWidget(project);
+public:
+    AxivionProjectPanelFactory()
+    {
+        setPriority(250);
+        setDisplayName(Tr::tr("Axivion"));
+        setCreateWidgetFunction([](ProjectExplorer::Project *project) {
+            return new AxivionProjectSettingsWidget(project);
+        });
+        ProjectExplorer::ProjectPanelFactory::registerFactory(this);
+    }
+};
+
+void AxivionProjectSettings::setupProjectPanel()
+{
+    static AxivionProjectPanelFactory theAxivionProjectPanelFactory;
 }
 
 } // Axivion::Internal

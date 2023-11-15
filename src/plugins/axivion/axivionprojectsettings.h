@@ -5,10 +5,7 @@
 
 #include <QObject>
 
-namespace ProjectExplorer {
-class Project;
-class ProjectSettingsWidget;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace Axivion::Internal {
 
@@ -22,7 +19,7 @@ public:
 
     static AxivionProjectSettings *projectSettings(ProjectExplorer::Project *project);
     static void destroyProjectSettings();
-    static ProjectExplorer::ProjectSettingsWidget *createSettingsWidget(ProjectExplorer::Project *project);
+    static void setupProjectPanel();
 
 private:
     void load();
