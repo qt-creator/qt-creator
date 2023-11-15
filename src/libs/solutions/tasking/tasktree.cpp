@@ -2684,29 +2684,6 @@ struct TimerThreadData
 // Please note the thread_local keyword below guarantees a separate instance per thread.
 static thread_local TimerThreadData s_threadTimerData = {};
 
-static QList<TimerData> prepareForActivation(int timerId)
-{
-    const auto it = s_threadTimerData.m_timerIdToTimerData.constFind(timerId);
-    if (it == s_threadTimerData.m_timerIdToTimerData.cend())
-        return {}; // the timer was already activated
-
-    const system_clock::time_point deadline = it->m_deadline;
-    QList<TimerData> toActivate;
-    auto itMap = s_threadTimerData.m_deadlineToTimerId.cbegin();
-    while (itMap != s_threadTimerData.m_deadlineToTimerId.cend()) {
-        if (itMap.key() > deadline)
-            break;
-
-        const auto it = s_threadTimerData.m_timerIdToTimerData.constFind(itMap.value());
-        if (it != s_threadTimerData.m_timerIdToTimerData.cend()) {
-            toActivate.append(it.value());
-            s_threadTimerData.m_timerIdToTimerData.erase(it);
-        }
-        itMap = s_threadTimerData.m_deadlineToTimerId.erase(itMap);
-    }
-    return toActivate;
-}
-
 static void removeTimerId(int timerId)
 {
     const auto it = s_threadTimerData.m_timerIdToTimerData.constFind(timerId);
@@ -2722,8 +2699,30 @@ static void removeTimerId(int timerId)
 
 static void handleTimeout(int timerId)
 {
-    const QList<TimerData> toActivate = prepareForActivation(timerId);
-    for (const TimerData &timerData : toActivate) {
+    const auto itData = s_threadTimerData.m_timerIdToTimerData.constFind(timerId);
+    if (itData == s_threadTimerData.m_timerIdToTimerData.cend())
+        return; // The timer was already activated.
+
+    const auto deadline = itData->m_deadline;
+    while (true) {
+        const auto itMap = s_threadTimerData.m_deadlineToTimerId.cbegin();
+        if (itMap == s_threadTimerData.m_deadlineToTimerId.cend())
+            return;
+
+        if (itMap.key() > deadline)
+            return;
+
+        const auto it = s_threadTimerData.m_timerIdToTimerData.constFind(itMap.value());
+        if (it == s_threadTimerData.m_timerIdToTimerData.cend()) {
+            s_threadTimerData.m_deadlineToTimerId.erase(itMap);
+            QT_CHECK(false);
+            return;
+        }
+
+        const TimerData timerData = it.value();
+        s_threadTimerData.m_timerIdToTimerData.erase(it);
+        s_threadTimerData.m_deadlineToTimerId.erase(itMap);
+
         if (timerData.m_context)
             timerData.m_callback();
     }
