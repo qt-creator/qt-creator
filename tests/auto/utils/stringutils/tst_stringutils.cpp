@@ -448,7 +448,7 @@ void tst_StringUtils::testAsciify_data()
 
     QTest::newRow("Basic Latin") << QString("Basic text") << QString("Basic text");
     QTest::newRow("Control character") << QString("\x07 text") << QString("u0007 text");
-    QTest::newRow("Miscellaneous Technical") << QString("\u23F0 text") << QString("u23f0 text");
+    QTest::newRow("Miscellaneous Technical") << QString(u8"\u23F0 text") << QString("u23f0 text");
 }
 
 void tst_StringUtils::testAsciify()
