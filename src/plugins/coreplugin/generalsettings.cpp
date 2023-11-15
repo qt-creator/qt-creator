@@ -1,10 +1,11 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "dialogs/ioptionspage.h"
 #include "generalsettings.h"
 #include "coreconstants.h"
 #include "coreplugintr.h"
+#include "dialogs/ioptionspage.h"
+#include "editormanager/editormanager_p.h"
 #include "icore.h"
 #include "themechooser.h"
 
@@ -76,6 +77,13 @@ GeneralSettings::GeneralSettings()
     preferInfoBarOverPopup.setSettingsKey("General/PreferInfoBarOverPopup");
     preferInfoBarOverPopup.setDefaultValue(false);
     preferInfoBarOverPopup.setLabelText(Tr::tr("Prefer banner style info bars over pop-ups"));
+
+    useTabsInEditorViews.setSettingsKey("General/UseTabsInEditorViews");
+    useTabsInEditorViews.setDefaultValue(false);
+    useTabsInEditorViews.setLabelText(Tr::tr("Use tabbed editors"));
+    useTabsInEditorViews.addOnChanged(EditorManagerPrivate::instance(), [this] {
+        EditorManagerPrivate::setShowingTabs(useTabsInEditorViews.value());
+    });
 
     readSettings();
 }
@@ -190,6 +198,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     form.addRow({empty, generalSettings().showShortcutsInContextMenus});
     form.addRow({empty, generalSettings().provideSplitterCursors});
     form.addRow({empty, generalSettings().preferInfoBarOverPopup});
+    form.addRow({empty, generalSettings().useTabsInEditorViews});
     form.addRow({Row{m_resetWarningsButton, st}});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
 

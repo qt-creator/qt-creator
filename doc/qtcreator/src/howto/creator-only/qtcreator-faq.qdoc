@@ -267,10 +267,9 @@
     \l{https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/dist}{changes file}
     for the upcoming release.
 
-    \b {Why does \QC not use tabs for editors?}
+    \b {Why does \QC not use tabs for editors by default?}
 
-    This question comes up from time to time, so we have considered it
-    carefully. Here are our main reasons for not using tabs:
+    Here are our main reasons for not using tabs by default:
 
     \list
 
@@ -281,7 +280,7 @@
         \li Tabs do not adapt to your working set.
 
         \li The common solution is to give the user the ability to reorder
-            tabs. Now user has to manage tabs instead of writing code.
+            tabs. Now the user has to manage tabs instead of writing code.
 
         \li Tabs force you to limit the amount of open editors because
             otherwise you get confused.
@@ -334,6 +333,12 @@
     they were.
 
     Other locator filters include \c c for classes, \c : for all symbols, and
-    (thanks to a community contribution) \c . for symbols in the current file.
+    \c . for symbols in the current file.
 
+    Another way to switch between open documents is to select the document in
+    the \uicontrol {Open Documents} view.
+
+    If you still want to use tabs in editors, go to \preferences >
+    \uicontrol Environment > \uicontrol Interface, and then select
+    \uicontrol {Use tabbed editors}.
 */

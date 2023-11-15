@@ -61,6 +61,7 @@ public:
     void setCanGoForward(bool canGoForward);
     void setGoBackMenu(QMenu *menu);
     void setGoForwardMenu(QMenu *menu);
+    void setDocumentDropdownVisible(bool visible);
     void removeToolbarForEditor(IEditor *editor);
     void setCloseSplitEnabled(bool enable);
     void setCloseSplitIcon(const QIcon &icon);

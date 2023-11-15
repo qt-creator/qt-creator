@@ -375,6 +375,12 @@ void EditorToolBar::setGoForwardMenu(QMenu *menu)
     d->m_forwardButton->setMenu(menu);
 }
 
+void EditorToolBar::setDocumentDropdownVisible(bool visible)
+{
+    d->m_editorList->setVisible(visible);
+    d->m_closeEditorButton->setVisible(visible);
+}
+
 void EditorToolBar::updateActionShortcuts()
 {
     d->m_closeEditorButton->setToolTip(ActionManager::command(Constants::CLOSE)->stringWithAppendedShortcut(Tr::tr("Close Document")));

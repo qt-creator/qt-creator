@@ -50,8 +50,11 @@ public:
     enum class CloseFlag {
         CloseWithAsking,
         CloseWithoutAsking,
-        Suspend
+        Suspend, // tab is kept, and document model entry is suspended if editor was the last one
+        SuspendRemoveTab // tab is removed, but document model entry is suspended if editor was the last one
     };
+
+    enum class RemoveEditorFlag { None, EnsureNewEditor };
 
     static EditorManagerPrivate *instance();
 
@@ -83,6 +86,13 @@ public:
     /* closes the document if there is no other editor on the document visible */
     static void closeEditorOrDocument(IEditor *editor);
     static bool closeEditors(const QList<IEditor *> &editors, CloseFlag flag);
+    static void tabClosed(DocumentModel::Entry *entry);
+    static QSet<DocumentModel::Entry *> entriesToCloseForTabbedViews(
+        const QSet<EditorView *> &viewsToClose);
+    static void removeEditorsFromViews(
+        const QList<std::pair<EditorView *, IEditor *>> &editorsPerView,
+        EditorView::RemovalOption option,
+        RemoveEditorFlag flag);
 
     static EditorView *viewForEditor(IEditor *editor);
     static void setCurrentView(EditorView *view);
@@ -105,6 +115,7 @@ public:
     static void splitNewWindow(Internal::EditorView *view);
     static void closeView(Internal::EditorView *view);
     static const QList<IEditor *> emptyView(Internal::EditorView *view);
+    static void setShowingTabs(bool visible);
     static void deleteEditors(const QList<IEditor *> &editors);
 
     static void updateActions();

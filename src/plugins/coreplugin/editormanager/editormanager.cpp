@@ -4,15 +4,6 @@
 #include "editormanager.h"
 #include "editormanager_p.h"
 
-#include "documentmodel.h"
-#include "documentmodel_p.h"
-#include "editorview.h"
-#include "editorwindow.h"
-#include "ieditor.h"
-#include "ieditorfactory.h"
-#include "ieditorfactory_p.h"
-#include "openeditorsview.h"
-#include "openeditorswindow.h"
 #include "../actionmanager/actioncontainer.h"
 #include "../actionmanager/actionmanager.h"
 #include "../actionmanager/command.h"
@@ -34,6 +25,15 @@
 #include "../settingsdatabase.h"
 #include "../systemsettings.h"
 #include "../vcsmanager.h"
+#include "documentmodel.h"
+#include "documentmodel_p.h"
+#include "editorview.h"
+#include "editorwindow.h"
+#include "ieditor.h"
+#include "ieditorfactory.h"
+#include "ieditorfactory_p.h"
+#include "openeditorsview.h"
+#include "openeditorswindow.h"
 
 #include <extensionsystem/pluginmanager.h>
 
@@ -1408,25 +1408,21 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
 
     const QByteArray state = editor->saveState();
     if (EditorView *sourceView = viewForEditor(editor)) {
-        // try duplication or pull editor over to new view
-        bool duplicateSupported = editor->duplicateSupported();
-        if (editor != sourceView->currentEditor() || !duplicateSupported) {
+        // Pulling the editor over is preferred in case the editor is currently not visible,
+        // to decrease resource consumption. Otherwise we duplicate if the editor supports it.
+        const bool duplicateSupported = editor->duplicateSupported();
+        const bool isEditorVisible = editor == sourceView->currentEditor();
+        if (!isEditorVisible || !duplicateSupported) {
             // pull the IEditor over to the new view
-            sourceView->removeEditor(editor);
+            removeEditorsFromViews(
+                {{sourceView, editor}},
+                !duplicateSupported ? EditorView::RemoveTab : EditorView::KeepTab,
+                RemoveEditorFlag::EnsureNewEditor);
             view->addEditor(editor);
             // possibly adapts old state to new layout
             editor->restoreState(state);
-            if (!sourceView->currentEditor()) {
-                EditorView *replacementView = nullptr;
-                if (IEditor *replacement = pickUnusedEditor(&replacementView)) {
-                    if (replacementView)
-                        replacementView->removeEditor(replacement);
-                    sourceView->addEditor(replacement);
-                    sourceView->setCurrentEditor(replacement);
-                }
-            }
             return editor;
-        } else if (duplicateSupported) {
+        } else if (QTC_GUARD(duplicateSupported)) {
             editor = duplicateEditor(editor);
             Q_ASSERT(editor);
         }
@@ -1506,16 +1502,126 @@ bool EditorManagerPrivate::activateEditorForEntry(EditorView *view, DocumentMode
     return true;
 }
 
+// Removes the editors given in \a editorsPerView from the respective view.
+// If \a option specifies to remove tabs, and \a flag is \c EnsureNewEditor,
+// for any editor that is the current editor of its view, a new editor or tab
+// is switched to, as appropriate.
+void EditorManagerPrivate::removeEditorsFromViews(
+    const QList<std::pair<EditorView *, IEditor *>> &editorsPerView,
+    EditorView::RemovalOption option,
+    RemoveEditorFlag flag)
+{
+    EditorView *globallyCurrentView = currentEditorView();
+    QList<std::pair<EditorView *, IEditor *>> secondPass;
+    // First close all editors that are not the current editor of a view,
+    // then all "current" editors.
+    // Since we might switch to a different editor/tab when we close the "current" editor
+    // of a view, and doing that might move another (non-current) editor from a different
+    // view, we prevent that from messing with our list of editors to close. Otherwise,
+    // a (non-current) editor that we have in our list might move to be the "current" editor
+    // of a different view before we have processed (and closed) it.
+    for (const std::pair<EditorView *, IEditor *> &item : editorsPerView) {
+        EditorView *view = item.first;
+        IEditor *editor = item.second;
+        QTC_ASSERT(view->hasEditor(editor), continue);
+        if (flag == RemoveEditorFlag::None || editor != view->currentEditor()
+            || option == EditorView::KeepTab) {
+            view->removeEditor(editor, option);
+            continue;
+        }
+        secondPass.append(item);
+    }
+
+    // Second pass. Close "current" editors, and choose a different one to show in the view,
+    // as appropriate.
+    for (const std::pair<EditorView *, IEditor *> &item : secondPass) {
+        EditorView *view = item.first;
+        IEditor *editor = item.second;
+        // Prefer setting an IEditor that already is in the view
+        const QList<IEditor *> editors = view->editors(); // last seen are at the back, current last
+        if (editors.size() > 1) {
+            // has more than only the closed editor,
+            // so set the last seen one as the new current
+            view->setCurrentEditor(editors.at(editors.size() - 2));
+        } else {
+            const EditorManager::OpenEditorFlags openEditorflags
+                = view != globallyCurrentView ? EditorManager::DoNotChangeCurrentEditor
+                                              : EditorManager::NoFlags;
+            // Find a next (suspended) tab to open instead.
+            // If the view doesn't show tabs, this still represents previously opened documents there.
+            const QList<EditorView::TabData> tabs = view->tabs();
+            const int tabToBeRemoved = view->tabForEditor(editor);
+            if (tabs.size() > 1 && QTC_GUARD(tabToBeRemoved >= 0)) {
+                const int tabToSwitchTo = tabToBeRemoved > 0 ? tabToBeRemoved - 1
+                                                             : tabToBeRemoved + 1;
+                if (QTC_GUARD(tabToSwitchTo < tabs.size()))
+                    activateEditorForEntry(view, tabs.at(tabToSwitchTo).entry, openEditorflags);
+            } else if (!view->isShowingTabs()) {
+                // If the view *is* showing tabs, we don't want to open an arbitrary editor there,
+                // but in the non-tabbed case we want to avoid an "empty" view, so pick something.
+                // TODO do not choose an editor for the same document that we were closing
+                IEditor *newCurrent = pickUnusedEditor();
+                if (newCurrent) {
+                    activateEditor(view, newCurrent, openEditorflags);
+                } else {
+                    DocumentModel::Entry *entry = DocumentModelPrivate::firstSuspendedEntry();
+                    if (entry) {
+                        activateEditorForEntry(view, entry, openEditorflags);
+                    } else { // no "suspended" ones, so any entry left should have a document
+                        const QList<DocumentModel::Entry *> documents = DocumentModel::entries();
+                        if (!documents.isEmpty()) {
+                            if (IDocument *document = documents.last()->document) {
+                                // Do not auto-switch to design mode if the new editor will be for
+                                // the same document as the one that was closed.
+                                // TODO we should not open the same document that we closed in the
+                                // first place
+                                const EditorManager::OpenEditorFlags addFlags
+                                    = (view == globallyCurrentView && document == editor->document())
+                                          ? EditorManager::DoNotSwitchToDesignMode
+                                          : EditorManager::NoFlags;
+                                activateEditorForDocument(view, document, openEditorflags | addFlags);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        view->removeEditor(editor, option);
+    }
+}
+
 void EditorManagerPrivate::closeEditorOrDocument(IEditor *editor)
 {
     QTC_ASSERT(editor, return);
+
+    static const auto isEditorDocumentVisibleInDifferentView = [](IEditor *editor) {
+        const QList<EditorView *> allViews = EditorManagerPrivate::allEditorViews();
+        return Utils::contains(allViews, [editor](EditorView *view) {
+            if (view->hasEditor(editor)) // this is the view where the editor comes from, ignore
+                return false;
+            return Utils::contains(view->visibleTabs(), [editor](const EditorView::TabData &tabData) {
+                return tabData.entry->document == editor->document();
+            });
+        });
+    };
+
     EditorManager::addCurrentPositionToNavigationHistory();
-    QList<IEditor *> visible = EditorManager::visibleEditors();
-    if (Utils::contains(visible,
-                        [&editor](IEditor *other) {
-                            return editor != other && other->document() == editor->document();
-                        })) {
-        EditorManager::closeEditors({editor});
+    if (isEditorDocumentVisibleInDifferentView(editor)) {
+        // Another view either shows a tab for the document, or it is the visible editor there if
+        // tabs are not shown
+        EditorManagerPrivate::addClosedDocumentToCloseHistory(editor);
+        if (DocumentModel::editorsForDocument(editor->document()).size() == 1) {
+            // It's the only editor for that file, but tabs are still open somewhere
+            // so we need to keep it around (--> in the editor model).
+            // If the view doesn't show tabs, we do not end up in this code.
+            removeEditorsFromViews(
+                {{viewForEditor(editor), editor}},
+                EditorView::RemoveTab,
+                RemoveEditorFlag::EnsureNewEditor);
+        } else {
+            EditorManagerPrivate::closeEditors(
+                {editor}, EditorManagerPrivate::CloseFlag::SuspendRemoveTab);
+        }
     } else {
         EditorManager::closeDocuments({editor->document()});
     }
@@ -1597,16 +1703,17 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     // Remove accepted editors from document model/manager and context list,
     // and sort them per view, so we can remove them from views in an orderly
     // manner.
-    QMultiHash<EditorView *, IEditor *> editorsPerView;
+    QList<std::pair<EditorView *, IEditor *>> editorsPerView;
     for (IEditor *editor : std::as_const(acceptedEditors)) {
         emit m_instance->editorAboutToClose(editor);
         const DocumentModel::Entry *entry = DocumentModel::entryForDocument(editor->document());
         // If the file is pinned, closing it should remove the editor but keep it in Open Documents.
         const bool isPinned = QTC_GUARD(entry) && entry->pinned;
-        const bool removeSuspendedEntry = !isPinned && flag != CloseFlag::Suspend;
+        const bool removeSuspendedEntry = !isPinned && flag != CloseFlag::Suspend
+                                          && flag != CloseFlag::SuspendRemoveTab;
         removeEditor(editor, removeSuspendedEntry);
         if (EditorView *view = viewForEditor(editor)) {
-            editorsPerView.insert(view, editor);
+            editorsPerView.append({view, editor});
             if (QApplication::focusWidget()
                 && QApplication::focusWidget() == editor->widget()->focusWidget()) {
                 focusView = view;
@@ -1615,68 +1722,10 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     }
     QTC_CHECK(!focusView || focusView == currentView);
 
-    // Go through views, remove the editors from them.
-    // Sort such that views for which the current editor is closed come last,
-    // and if the global current view is one of them, that comes very last.
-    // When handling the last view in the list we handle the case where all
-    // visible editors are closed, and we need to e.g. revive an invisible or
-    // a suspended editor
-    const QList<EditorView *> views = Utils::sorted(editorsPerView.keys(),
-                [editorsPerView, currentView](EditorView *a, EditorView *b) {
-        if (a == b)
-            return false;
-        const bool aHasCurrent = editorsPerView.values(a).contains(a->currentEditor());
-        const bool bHasCurrent = editorsPerView.values(b).contains(b->currentEditor());
-        const bool aHasGlobalCurrent = (a == currentView && aHasCurrent);
-        const bool bHasGlobalCurrent = (b == currentView && bHasCurrent);
-        if (bHasGlobalCurrent && !aHasGlobalCurrent)
-            return true;
-        if (bHasCurrent && !aHasCurrent)
-            return true;
-        return false;
-    });
-    for (EditorView *view : views) {
-        QList<IEditor *> editors = editorsPerView.values(view);
-        // handle current editor in view last
-        IEditor *viewCurrentEditor = view->currentEditor();
-        if (editors.contains(viewCurrentEditor) && editors.last() != viewCurrentEditor) {
-            editors.removeAll(viewCurrentEditor);
-            editors.append(viewCurrentEditor);
-        }
-        for (IEditor *editor : std::as_const(editors)) {
-            if (editor == viewCurrentEditor && view == views.last()) {
-                // Avoid removing the globally current editor from its view,
-                // set a new current editor before.
-                EditorManager::OpenEditorFlags flags = view != currentView
-                        ? EditorManager::DoNotChangeCurrentEditor : EditorManager::NoFlags;
-                const QList<IEditor *> viewEditors = view->editors();
-                IEditor *newCurrent = viewEditors.size() > 1 ? viewEditors.at(viewEditors.size() - 2)
-                                                             : nullptr;
-                if (!newCurrent)
-                    newCurrent = pickUnusedEditor();
-                if (newCurrent) {
-                    activateEditor(view, newCurrent, flags);
-                } else {
-                    DocumentModel::Entry *entry = DocumentModelPrivate::firstSuspendedEntry();
-                    if (entry) {
-                        activateEditorForEntry(view, entry, flags);
-                    } else { // no "suspended" ones, so any entry left should have a document
-                        const QList<DocumentModel::Entry *> documents = DocumentModel::entries();
-                        if (!documents.isEmpty()) {
-                            if (IDocument *document = documents.last()->document) {
-                                // Do not auto-switch to design mode if the new editor will be for
-                                // the same document as the one that was closed.
-                                if (view == currentView && document == editor->document())
-                                    flags = EditorManager::DoNotSwitchToDesignMode;
-                                activateEditorForDocument(view, document, flags);
-                            }
-                        }
-                    }
-                }
-            }
-            view->removeEditor(editor);
-        }
-    }
+    removeEditorsFromViews(
+        editorsPerView,
+        flag == CloseFlag::Suspend ? EditorView::KeepTab : EditorView::RemoveTab,
+        RemoveEditorFlag::EnsureNewEditor);
 
     emit m_instance->editorsClosed(Utils::toList(acceptedEditors));
 
@@ -1688,6 +1737,49 @@ bool EditorManagerPrivate::closeEditors(const QList<IEditor*> &editors, CloseFla
     qDeleteAll(acceptedEditors);
 
     return !closingFailed;
+}
+
+void EditorManagerPrivate::tabClosed(DocumentModel::Entry *entry)
+{
+    // a tab was closed that wasn't backed by an IEditor (e.g. suspended)
+    // close the entry if it was the only one
+    const QList<EditorView *> allViews = EditorManagerPrivate::allEditorViews();
+    if (Utils::contains(allViews, [entry](EditorView *view) {
+            return Utils::contains(
+                view->visibleTabs(), Utils::equal(&EditorView::TabData::entry, entry));
+        })) {
+        return;
+    }
+    DocumentModelPrivate::removeEntry(entry);
+}
+
+// Collects all tabs from the given viewsToClose for which no other tab is shown anywhere.
+QSet<DocumentModel::Entry *> EditorManagerPrivate::entriesToCloseForTabbedViews(
+    const QSet<EditorView *> &viewsToClose)
+{
+    QSet<DocumentModel::Entry *> entriesToClose;
+    QSet<DocumentModel::Entry *> visibleTabs;
+    for (EditorView *view : viewsToClose) {
+        if (view->isShowingTabs()) {
+            const QList<EditorView::TabData> tabs = view->visibleTabs();
+            for (const EditorView::TabData &tab : tabs)
+                visibleTabs.insert(tab.entry);
+        }
+    }
+    if (!visibleTabs.isEmpty()) {
+        const QSet<EditorView *> allOtherViews
+            = toSet(EditorManagerPrivate::allEditorViews()).subtract(viewsToClose);
+        for (DocumentModel::Entry *tabEntry : visibleTabs) {
+            if (!Utils::contains(allOtherViews, [tabEntry](EditorView *otherView) {
+                    return Utils::contains(
+                        otherView->visibleTabs(),
+                        Utils::equal(&EditorView::TabData::entry, tabEntry));
+                })) {
+                entriesToClose.insert(tabEntry);
+            }
+        }
+    }
+    return entriesToClose;
 }
 
 void EditorManagerPrivate::activateView(EditorView *view)
@@ -1798,6 +1890,13 @@ void EditorManagerPrivate::closeView(EditorView *view)
     if (!view)
         return;
 
+    // Check if there are documents that should be closed because there are no other views
+    // with tabs open for it.
+    const QSet<DocumentModel::Entry *> entriesToClose
+        = EditorManagerPrivate::entriesToCloseForTabbedViews({view});
+    if (!entriesToClose.isEmpty() && !EditorManager::closeDocuments(toList(entriesToClose)))
+        return;
+
     const QList<IEditor *> editorsToDelete = emptyView(view);
     EditorView *newCurrent = view->editorArea()->unsplit(view);
     if (newCurrent)
@@ -1827,11 +1926,11 @@ const QList<IEditor *> EditorManagerPrivate::emptyView(EditorView *view)
                 setCurrentView(view);
                 setCurrentEditor(nullptr);
             }
-            view->removeEditor(editor);
+            removeEditorsFromViews({{view, editor}}, EditorView::RemoveTab, RemoveEditorFlag::None);
         } else {
             emit m_instance->editorAboutToClose(editor);
             removeEditor(editor, true /*=removeSuspendedEntry, but doesn't matter since it's not the last editor anyhow*/);
-            view->removeEditor(editor);
+            removeEditorsFromViews({{view, editor}}, EditorView::RemoveTab, RemoveEditorFlag::None);
             removedEditors.append(editor);
         }
     }
@@ -1848,6 +1947,13 @@ void EditorManagerPrivate::deleteEditors(const QList<IEditor *> &editors)
         emit m_instance->editorsClosed(editors);
         qDeleteAll(editors);
     }
+}
+
+void EditorManagerPrivate::setShowingTabs(bool visible)
+{
+    const QList<EditorView *> allViews = allEditorViews();
+    for (EditorView *view : allViews)
+        view->setTabsVisible(visible);
 }
 
 EditorWindow *EditorManagerPrivate::createEditorWindow()
@@ -2257,7 +2363,11 @@ void EditorManagerPrivate::gotoPreviousSplit()
 void EditorManagerPrivate::addClosedDocumentToCloseHistory(IEditor *editor)
 {
     EditorView *view = EditorManagerPrivate::viewForEditor(editor);
-    QTC_ASSERT(view, return);
+    // Editors can be owned by the document model.
+    // E.g. split, open some document there, modify it, close the split
+    // -> we do not close the editor, because we'd lose the modifications.
+    if (!view)
+        return;
     view->addClosedEditorToCloseHistory(editor);
     EditorManagerPrivate::updateActions();
 }
@@ -2678,6 +2788,19 @@ void EditorManagerPrivate::removeAllSplits()
     QTC_ASSERT(view, return);
     EditorArea *currentArea = view->editorArea();
     QTC_ASSERT(currentArea, return);
+    // Check if there are documents that should be closed because there are no other views
+    // with tabs open for it.
+    QSet<EditorView *> viewsToClose; // all views from the area except the current one
+    EditorView *current = currentArea->findFirstView();
+    while (current) {
+        if (current != view)
+            viewsToClose.insert(current);
+        current = current->findNextView();
+    }
+    const QSet<DocumentModel::Entry *> entriesToClose
+        = EditorManagerPrivate::entriesToCloseForTabbedViews(viewsToClose);
+    if (!entriesToClose.isEmpty() && !EditorManager::closeDocuments(toList(entriesToClose)))
+        return;
     currentArea->unsplitAll(view);
 }
 

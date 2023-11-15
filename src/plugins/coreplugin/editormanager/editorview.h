@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "documentmodel.h"
+
 #include <utils/dropsupport.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
@@ -15,12 +17,14 @@
 #include <functional>
 
 QT_BEGIN_NAMESPACE
+class QDataStream;
 class QFrame;
 class QLabel;
 class QMenu;
 class QSplitter;
 class QStackedLayout;
 class QStackedWidget;
+class QTabBar;
 class QToolButton;
 QT_END_NAMESPACE
 
@@ -58,6 +62,14 @@ class EditorView : public QWidget
     Q_OBJECT
 
 public:
+    enum RemovalOption { RemoveTab, KeepTab };
+
+    struct TabData
+    {
+        IEditor *editor = nullptr;
+        DocumentModel::Entry *entry = nullptr;
+    };
+
     explicit EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent = nullptr);
     ~EditorView() override;
 
@@ -71,7 +83,7 @@ public:
 
     int editorCount() const;
     void addEditor(IEditor *editor);
-    void removeEditor(IEditor *editor);
+    void removeEditor(IEditor *editor, RemovalOption option = RemoveTab);
     IEditor *currentEditor() const;
     void setCurrentEditor(IEditor *editor);
 
@@ -79,6 +91,11 @@ public:
 
     QList<IEditor *> editors() const;
     IEditor *editorForDocument(const IDocument *document) const;
+    // If no tabs are shown, this is just the current, visible editor, if any
+    QList<TabData> visibleTabs() const;
+    int tabForEditor(IEditor *editor) const;
+    // all "tabs" (even if no actual tabs are shown)
+    QList<TabData> tabs() const;
 
     void showEditorStatusBar(const QString &id,
                            const QString &infoText,
@@ -87,6 +104,9 @@ public:
     void hideEditorStatusBar(const QString &id);
     void setCloseSplitEnabled(bool enable);
     void setCloseSplitIcon(const QIcon &icon);
+
+    bool isShowingTabs() const;
+    void setTabsVisible(bool visible);
 
     bool canGoForward() const;
     bool canGoBack() const;
@@ -109,6 +129,9 @@ public:
     void updateEditorHistory(IEditor *editor);
     static void updateEditorHistory(IEditor *editor, QList<EditLocation> &history);
 
+    void saveTabState(QDataStream *stream) const;
+    void restoreTabState(QDataStream *stream);
+
 signals:
     void currentEditorChanged(Core::IEditor *editor);
 
@@ -128,6 +151,8 @@ private:
     void splitNewWindow();
     void closeSplit();
     void openDroppedFiles(const QList<Utils::DropSupport::FileSpec> &files);
+    int tabForEntry(DocumentModel::Entry *entry) const;
+    void activateTab(int index);
 
     void setParentSplitterOrView(SplitterOrView *splitterOrView);
 
@@ -142,6 +167,8 @@ private:
 
     SplitterOrView *m_parentSplitterOrView;
     EditorToolBar *m_toolBar;
+    QTabBar *m_tabBar;
+    bool m_isShowingTabs = false;
 
     QStackedWidget *m_container;
     Utils::InfoBarDisplay *m_infoBarDisplay;
