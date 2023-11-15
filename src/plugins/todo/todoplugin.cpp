@@ -44,16 +44,8 @@ TodoPluginPrivate::TodoPluginPrivate()
     createItemsProvider();
     createTodoOutputPane();
 
-    auto panelFactory = new ProjectExplorer::ProjectPanelFactory;
-    panelFactory->setPriority(100);
-    panelFactory->setDisplayName(Tr::tr("To-Do"));
-    panelFactory->setCreateWidgetFunction([this](ProjectExplorer::Project *project) {
-        auto widget = new TodoProjectSettingsWidget(project);
-        connect(widget, &TodoProjectSettingsWidget::projectSettingsChanged,
-                m_todoItemsProvider, [this, project] { m_todoItemsProvider->projectSettingsChanged(project); });
-        return widget;
-    });
-    ProjectExplorer::ProjectPanelFactory::registerFactory(panelFactory);
+    setupTodoSettingsProjectPanel(m_todoItemsProvider);
+
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, [this] { m_settings.save(Core::ICore::settings()); });
 }

@@ -4,22 +4,51 @@
 #include "todoprojectsettingswidget.h"
 
 #include "constants.h"
+#include "todoitemsprovider.h"
 #include "todotr.h"
 
 #include <projectexplorer/project.h>
+#include <projectexplorer/projectpanelfactory.h>
 
 #include <utils/layoutbuilder.h>
 
 #include <QListWidget>
 #include <QPushButton>
 
-namespace Todo {
-namespace Internal {
+using namespace ProjectExplorer;
+
+namespace Todo::Internal {
 
 static QString excludePlaceholder()
 {
     return Tr::tr("<Enter regular expression to exclude>");
 }
+
+class TodoProjectSettingsWidget : public ProjectExplorer::ProjectSettingsWidget
+{
+    Q_OBJECT
+
+public:
+    explicit TodoProjectSettingsWidget(ProjectExplorer::Project *project);
+    ~TodoProjectSettingsWidget() override;
+
+signals:
+    void projectSettingsChanged();
+
+private:
+    void addExcludedPatternButtonClicked();
+    void removeExcludedPatternButtonClicked();
+    void setExcludedPatternsButtonsEnabled();
+    void excludedPatternChanged(QListWidgetItem *item);
+    QListWidgetItem *addToExcludedPatternsList(const QString &pattern);
+    void loadSettings();
+    void saveSettings();
+    void prepareItem(QListWidgetItem *item) const;
+
+    ProjectExplorer::Project *m_project;
+    QListWidget *m_excludedPatternsList;
+    QPushButton *m_removeExcludedPatternButton;
+};
 
 TodoProjectSettingsWidget::TodoProjectSettingsWidget(ProjectExplorer::Project *project)
     : m_project(project)
@@ -137,5 +166,28 @@ void TodoProjectSettingsWidget::excludedPatternChanged(QListWidgetItem *item)
     m_excludedPatternsList->setCurrentItem(nullptr);
 }
 
-} // namespace Internal
-} // namespace Todo
+class TodoSettingsProjectPanelFactory : public ProjectPanelFactory
+{
+public:
+    TodoSettingsProjectPanelFactory(TodoItemsProvider *provider)
+    {
+        setPriority(100);
+        setDisplayName(Tr::tr("To-Do"));
+        setCreateWidgetFunction([provider](Project *project) {
+            auto widget = new TodoProjectSettingsWidget(project);
+            QObject::connect(widget, &TodoProjectSettingsWidget::projectSettingsChanged,
+                    provider, [project, provider] { provider->projectSettingsChanged(project); });
+            return widget;
+        });
+        ProjectPanelFactory::registerFactory(this);
+    }
+};
+
+void setupTodoSettingsProjectPanel(TodoItemsProvider *provider)
+{
+    static TodoSettingsProjectPanelFactory theTodoSettingsProjectPanelFactory(provider);
+}
+
+} // Todo::Internal
+
+#include "todoprojectsettingswidget.moc"
