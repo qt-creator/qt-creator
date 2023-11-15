@@ -1953,25 +1953,30 @@ LookupResult lookUpDefinition(const CppQuickFixInterface &interface, const NameA
     // Try to find the class/template definition
     const Name *name = nameAst->name;
     const QList<LookupItem> results = interface.context().lookup(name, scope);
+    LookupResult best = LookupResult::NotDeclared;
     for (const LookupItem &item : results) {
         if (Symbol *declaration = item.declaration()) {
             if (declaration->asClass())
                 return LookupResult::Declared;
-            if (declaration->asForwardClassDeclaration())
-                return LookupResult::ForwardDeclared;
+            if (declaration->asForwardClassDeclaration()) {
+                best = LookupResult::ForwardDeclared;
+                continue;
+            }
             if (Template *templ = declaration->asTemplate()) {
                 if (Symbol *declaration = templ->declaration()) {
                     if (declaration->asClass())
                         return LookupResult::Declared;
-                    if (declaration->asForwardClassDeclaration())
-                        return LookupResult::ForwardDeclared;
+                    if (declaration->asForwardClassDeclaration()) {
+                        best = LookupResult::ForwardDeclared;
+                        continue;
+                    }
                 }
             }
             return LookupResult::Declared;
         }
     }
 
-    return LookupResult::NotDeclared;
+    return best;
 }
 
 QString templateNameAsString(const TemplateNameId *templateName)
