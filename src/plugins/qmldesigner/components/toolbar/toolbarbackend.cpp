@@ -513,7 +513,7 @@ void ToolBarBackend::setCurrentStyle(int index)
 
     const QString qmlFile = view->model()->fileUrl().toLocalFile();
 
-    ChangeStyleWidgetAction::changeCurrentStyle(item.styleName, qmlFile);
+    ChangeStyleWidgetAction::changeCurrentStyle(item.displayName, qmlFile);
 
     view->resetPuppet();
 }
