@@ -270,6 +270,14 @@
                                     'TargetQuickVersion': '6.5',
                                     'TargetQuick3DVersion': '6.5'
                                 })"
+                            },
+                            {
+                                "trKey": "Qt 6.6",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.6',
+                                    'TargetQuick3DVersion': '6.6'
+                                })"
                             }
                         ]
                     }
