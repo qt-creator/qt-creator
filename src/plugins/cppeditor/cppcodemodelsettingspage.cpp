@@ -575,12 +575,21 @@ private:
     ClangdSettingsWidget m_widget;
 };
 
-ClangdSettingsPage::ClangdSettingsPage()
+class ClangdSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::CPP_CLANGD_SETTINGS_ID);
-    setDisplayName(Tr::tr("Clangd"));
-    setCategory(Constants::CPP_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new ClangdSettingsPageWidget; });
+public:
+    ClangdSettingsPage()
+    {
+        setId(Constants::CPP_CLANGD_SETTINGS_ID);
+        setDisplayName(Tr::tr("Clangd"));
+        setCategory(Constants::CPP_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new ClangdSettingsPageWidget; });
+    }
+};
+
+void setupClangdSettingsPage()
+{
+    static ClangdSettingsPage theClangdSettingsPage;
 }
 
 class ClangdProjectSettingsWidget : public ProjectSettingsWidget

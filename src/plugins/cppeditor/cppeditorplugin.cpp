@@ -160,11 +160,6 @@ public:
 class CppEditorPluginPrivate : public QObject
 {
 public:
-    ~CppEditorPluginPrivate()
-    {
-        delete m_clangdSettingsPage;
-    }
-
     void onTaskStarted(Utils::Id type);
     void onAllTasksFinished(Utils::Id type);
     void inspectCppCodeModel();
@@ -189,7 +184,6 @@ public:
     CppFileSettings m_fileSettings;
     CppFileSettingsPage m_cppFileSettingsPage{&m_fileSettings};
     CppCodeModelSettingsPage m_cppCodeModelSettingsPage{&m_codeModelSettings};
-    ClangdSettingsPage *m_clangdSettingsPage = nullptr;
     CppCodeStyleSettingsPage m_cppCodeStyleSettingsPage;
     CppProjectUpdaterFactory m_cppProjectUpdaterFactory;
 };
@@ -238,7 +232,13 @@ void CppEditorPlugin::initialize()
 
 void CppEditorPlugin::extensionsInitialized()
 {
-    setupProjectPanels();
+    setupCppQuickFixProjectPanel();
+    setupCppFileSettingsProjectPanel();
+
+    if (CppModelManager::isClangCodeModelActive()) {
+        setupClangdProjectSettingsPanel();
+        setupClangdSettingsPage();
+    }
 
     d->m_fileSettings.fromSettings(ICore::settings());
     d->m_fileSettings.addMimeInitializer();
@@ -476,17 +476,6 @@ void CppEditorPlugin::addGlobalActions()
     reparseChangedFiles.addToContainers(menus, Constants::G_GLOBAL);
     reparseChangedFiles.addOnTriggered(CppModelManager::instance(),
                                        &CppModelManager::updateModifiedSourceFiles);
-}
-
-void CppEditorPlugin::setupProjectPanels()
-{
-    setupCppQuickFixProjectPanel();
-    setupCppFileSettingsProjectPanel();
-
-    if (CppModelManager::isClangCodeModelActive()) {
-        d->m_clangdSettingsPage = new ClangdSettingsPage;
-        setupClangdProjectSettingsPanel();
-    }
 }
 
 void CppEditorPlugin::registerVariables()
