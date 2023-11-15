@@ -293,7 +293,11 @@ void TerminalWidget::setupActions()
             this,
             &TerminalWidget::moveCursorWordRight);
 
-    unlockGlobalAction(Core::Constants::EXIT);
+    // Ctrl+Q, the default "Quit" shortcut, is a useful key combination in a shell.
+    // It can be used in combination with Ctrl+S to pause a program, and resume it with Ctrl+Q.
+    // So we unlock the EXIT command only for macOS where the default is Cmd+Q to quit.
+    if (HostOsInfo::isMacHost())
+        unlockGlobalAction(Core::Constants::EXIT);
     unlockGlobalAction(Core::Constants::OPTIONS);
     unlockGlobalAction("Preferences.Terminal.General");
     unlockGlobalAction(Core::Constants::FIND_IN_DOCUMENT);
