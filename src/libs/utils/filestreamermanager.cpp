@@ -129,7 +129,7 @@ FileStreamHandle FileStreamerManager::copy(const FilePath &source, const FilePat
         return execute(onSetup, {}, context);
 
     const auto onDone = [=](FileStreamer *streamer) {
-        if (streamer->result() == StreamResult::FinishedWithSuccess)
+        if (streamer->result() == Tasking::DoneResult::Success)
             cont({});
         else
             cont(make_unexpected(Tr::tr("Failed copying file.")));
@@ -153,7 +153,7 @@ FileStreamHandle FileStreamerManager::read(const FilePath &source, QObject *cont
         return execute(onSetup, {}, context);
 
     const auto onDone = [=](FileStreamer *streamer) {
-        if (streamer->result() == StreamResult::FinishedWithSuccess)
+        if (streamer->result() == Tasking::DoneResult::Success)
             cont(streamer->readData());
         else
             cont(make_unexpected(Tr::tr("Failed reading file.")));
@@ -179,7 +179,7 @@ FileStreamHandle FileStreamerManager::write(const FilePath &destination, const Q
         return execute(onSetup, {}, context);
 
     const auto onDone = [=](FileStreamer *streamer) {
-        if (streamer->result() == StreamResult::FinishedWithSuccess)
+        if (streamer->result() == Tasking::DoneResult::Success)
             cont(0); // TODO: return write count?
         else
             cont(make_unexpected(Tr::tr("Failed writing file.")));

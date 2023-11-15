@@ -13,6 +13,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace QbsProjectManager::Internal {
@@ -40,7 +41,7 @@ public:
     void cancel();
 
 signals:
-    void done(bool success);
+    void done(DoneResult result);
     void progressChanged(int progress, const QString &info); // progress in %
     void outputAdded(const QString &output, ProjectExplorer::BuildStep::OutputFormat format);
     void taskAdded(const ProjectExplorer::Task &task);
@@ -114,7 +115,7 @@ void QbsRequestObject::start()
     if (m_parseData) {
         connect(m_parseData->target(), &Target::parsingFinished, this, [this](bool success) {
             disconnect(m_parseData->target(), &Target::parsingFinished, this, nullptr);
-            emit done(success);
+            emit done(toDoneResult(success));
         });
         QMetaObject::invokeMethod(m_parseData.get(), &QbsBuildSystem::startParsing,
                                   Qt::QueuedConnection);
@@ -127,7 +128,7 @@ void QbsRequestObject::start()
             emit outputAdded(item.description, BuildStep::OutputFormat::Stdout);
             emit taskAdded(CompileTask(Task::Error, item.description, item.filePath, item.line));
         }
-        emit done(error.items.isEmpty());
+        emit done(toDoneResult(error.items.isEmpty()));
     };
     connect(m_session, &QbsSession::projectBuilt, this, handleDone);
     connect(m_session, &QbsSession::projectCleaned, this, handleDone);
@@ -188,7 +189,7 @@ QbsRequest::~QbsRequest()
 void QbsRequest::start()
 {
     QTC_ASSERT(!m_requestObject, return);
-    QTC_ASSERT(m_parseData || (m_session && m_requestData), emit done(false); return);
+    QTC_ASSERT(m_parseData || (m_session && m_requestData), emit done(DoneResult::Error); return);
 
     m_requestObject = new QbsRequestObject;
     m_requestObject->setSession(m_session);
@@ -199,10 +200,10 @@ void QbsRequest::start()
         m_requestObject->setParseData(m_parseData);
     }
 
-    connect(m_requestObject, &QbsRequestObject::done, this, [this](bool success) {
+    connect(m_requestObject, &QbsRequestObject::done, this, [this](DoneResult result) {
         m_requestObject->deleteLater();
         m_requestObject = nullptr;
-        emit done(success);
+        emit done(result);
     });
     connect(m_requestObject, &QbsRequestObject::progressChanged,
             this, &QbsRequest::progressChanged);

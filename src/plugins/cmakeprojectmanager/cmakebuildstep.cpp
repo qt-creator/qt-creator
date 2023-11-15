@@ -68,10 +68,12 @@ public:
     void start() final {
         Target *target = *task();
         if (!target) {
-            emit done(false);
+            emit done(DoneResult::Error);
             return;
         }
-        connect(target, &Target::parsingFinished, this, &TaskInterface::done);
+        connect(target, &Target::parsingFinished, this, [this](bool success) {
+            emit done(toDoneResult(success));
+        });
     }
 };
 

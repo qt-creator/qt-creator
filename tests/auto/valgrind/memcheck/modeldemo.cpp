@@ -36,8 +36,8 @@ int main(int argc, char *argv[])
     QObject::connect(&runner, &ValgrindProcess::processErrorReceived, &app, [](const QString &err) {
         qDebug() << err;
     });
-    QObject::connect(&runner, &ValgrindProcess::done, &app, [](bool success) {
-        qApp->exit(success ? 0 : 1);
+    QObject::connect(&runner, &ValgrindProcess::done, &app, [](Tasking::DoneResult result) {
+        qApp->exit(result == Tasking::DoneResult::Success ? 0 : 1);
     });
     ErrorListModel model;
     QObject::connect(&runner, &ValgrindProcess::error, &model, &ErrorListModel::addError,

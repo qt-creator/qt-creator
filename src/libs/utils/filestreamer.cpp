@@ -34,13 +34,13 @@ public:
         m_taskTree.reset(new TaskTree({task}));
         connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
             m_taskTree.release()->deleteLater();
-            emit done(result == DoneWith::Success);
+            emit done(toDoneResult(result == DoneWith::Success));
         });
         m_taskTree->start();
     }
 
 signals:
-    void done(bool success);
+    void done(DoneResult result);
 
 protected:
     FilePath m_filePath;
@@ -381,7 +381,7 @@ public:
     FilePath m_destination;
     QByteArray m_readBuffer;
     QByteArray m_writeBuffer;
-    StreamResult m_streamResult = StreamResult::FinishedWithError;
+    DoneResult m_streamResult = DoneResult::Error;
     std::unique_ptr<TaskTree> m_taskTree;
 
     GroupItem task() {
@@ -454,7 +454,7 @@ void FileStreamer::setWriteData(const QByteArray &writeData)
     d->m_writeBuffer = writeData;
 }
 
-StreamResult FileStreamer::result() const
+DoneResult FileStreamer::result() const
 {
     return d->m_streamResult;
 }
@@ -465,8 +465,7 @@ void FileStreamer::start()
     QTC_ASSERT(!d->m_taskTree, return);
     d->m_taskTree.reset(new TaskTree({d->task()}));
     connect(d->m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
-        d->m_streamResult = result == DoneWith::Success ? StreamResult::FinishedWithSuccess
-                                                          : StreamResult::FinishedWithError;
+        d->m_streamResult = toDoneResult(result == DoneWith::Success);
         d->m_taskTree.release()->deleteLater();
         emit done();
     });

@@ -305,7 +305,7 @@ public:
             m_timer.reset();
             m_output = output;
             m_id = {};
-            emit done(output.m_result == JavaScriptResult::FinishedWithSuccess);
+            emit done(toDoneResult(output.m_result == JavaScriptResult::FinishedWithSuccess));
         };
         m_id = m_engine->addRequest(input);
         if (m_timeout > 0ms) {
@@ -318,7 +318,7 @@ public:
                 m_timer.release()->deleteLater();
                 m_id = {};
                 m_output = {Tr::tr("Engine aborted after timeout."), JavaScriptResult::Canceled};
-                emit done(false);
+                emit done(DoneResult::Error);
             });
             m_timer->start();
         }
@@ -328,7 +328,7 @@ public:
     JavaScriptOutput output() const { return m_output; }
 
 signals:
-    void done(bool success);
+    void done(DoneResult result);
 
 private:
     QPointer<JavaScriptEngine> m_engine;

@@ -50,12 +50,12 @@ private:
             const bool success = task()->exitStatus() == QProcess::NormalExit
                                  && task()->error() == QProcess::UnknownError
                                  && task()->exitCode() == 0;
-            emit done(success);
+            emit done(toDoneResult(success));
         });
         connect(task(), &QProcess::errorOccurred, this, [this](QProcess::ProcessError error) {
             if (error != QProcess::FailedToStart)
                 return;
-            emit done(false);
+            emit done(DoneResult::Error);
         });
         task()->start();
     }

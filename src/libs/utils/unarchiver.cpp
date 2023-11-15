@@ -10,6 +10,8 @@
 
 #include <QSettings>
 
+using namespace Tasking;
+
 namespace Utils {
 
 namespace {
@@ -128,16 +130,16 @@ static CommandLine unarchiveCommand(const CommandLine &commandTemplate, const Fi
 
 void Unarchiver::start()
 {
-    QTC_ASSERT(!m_process, emit done(false); return);
+    QTC_ASSERT(!m_process, emit done(DoneResult::Error); return);
 
     if (!m_sourceAndCommand) {
         emit outputReceived(Tr::tr("No source file set."));
-        emit done(false);
+        emit done(DoneResult::Error);
         return;
     }
     if (m_destDir.isEmpty()) {
         emit outputReceived(Tr::tr("No destination directory set."));
-        emit done(false);
+        emit done(DoneResult::Error);
         return;
     }
 
@@ -154,7 +156,7 @@ void Unarchiver::start()
         const bool success = m_process->result() == ProcessResult::FinishedWithSuccess;
         if (!success)
             emit outputReceived(Tr::tr("Command failed."));
-        emit done(success);
+        emit done(toDoneResult(success));
     });
 
     emit outputReceived(Tr::tr("Running %1\nin \"%2\".\n\n", "Running <cmd> in <workingdirectory>")
@@ -167,7 +169,7 @@ void Unarchiver::start()
 
 UnarchiverTaskAdapter::UnarchiverTaskAdapter()
 {
-    connect(task(), &Unarchiver::done, this, &Tasking::TaskInterface::done);
+    connect(task(), &Unarchiver::done, this, &TaskInterface::done);
 }
 
 void UnarchiverTaskAdapter::start()

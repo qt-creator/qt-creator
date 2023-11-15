@@ -78,12 +78,12 @@ public:
 
     void start() {
         if (!this->task()->m_startHandler) {
-            emit this->done(false); // TODO: Add runtime assert
+            emit this->done(DoneResult::Error); // TODO: Add runtime assert
             return;
         }
         m_watcher.reset(new QFutureWatcher<ResultType>);
         this->connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [this] {
-            emit this->done(!m_watcher->isCanceled());
+            emit this->done(toDoneResult(!m_watcher->isCanceled()));
             m_watcher.release()->deleteLater();
         });
         this->task()->m_future = this->task()->m_startHandler();

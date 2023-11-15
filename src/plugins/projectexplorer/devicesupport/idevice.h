@@ -279,7 +279,7 @@ public:
     QString errorString() const { return m_errorString; }
 
 signals:
-    void done(bool success);
+    void done(Tasking::DoneResult result);
 
 private:
     Utils::FilePath m_processPath;

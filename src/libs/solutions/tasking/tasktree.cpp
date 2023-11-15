@@ -836,6 +836,11 @@ const GroupItem stopOnSuccessOrError = workflowPolicy(WorkflowPolicy::StopOnSucc
 const GroupItem finishAllAndSuccess = workflowPolicy(WorkflowPolicy::FinishAllAndSuccess);
 const GroupItem finishAllAndError = workflowPolicy(WorkflowPolicy::FinishAllAndError);
 
+DoneResult toDoneResult(bool success)
+{
+    return success ? DoneResult::Success : DoneResult::Error;
+}
+
 static SetupResult toSetupResult(bool success)
 {
     return success ? SetupResult::StopWithSuccess : SetupResult::StopWithError;
@@ -844,6 +849,11 @@ static SetupResult toSetupResult(bool success)
 static DoneResult toDoneResult(DoneWith doneWith)
 {
     return doneWith == DoneWith::Success ? DoneResult::Success : DoneResult::Error;
+}
+
+static DoneWith toDoneWith(DoneResult result)
+{
+    return result == DoneResult::Success ? DoneWith::Success : DoneWith::Error;
 }
 
 class StorageThreadData
@@ -1548,8 +1558,8 @@ SetupResult TaskTreePrivate::start(TaskRuntimeNode *node)
     const std::shared_ptr<SetupResult> unwindAction
         = std::make_shared<SetupResult>(SetupResult::Continue);
     QObject::connect(node->m_task.get(), &TaskInterface::done,
-                     q, [this, node, unwindAction](bool success) {
-        const bool result = invokeDoneHandler(node, success ? DoneWith::Success : DoneWith::Error);
+                     q, [this, node, unwindAction](DoneResult doneResult) {
+        const bool result = invokeDoneHandler(node, toDoneWith(doneResult));
         QObject::disconnect(node->m_task.get(), &TaskInterface::done, q, nullptr);
         node->m_task.release()->deleteLater();
         TaskRuntimeContainer *parentContainer = node->m_parentContainer;
@@ -2650,7 +2660,7 @@ void TaskTree::setupStorageHandler(const TreeStorageBase &storage,
 TaskTreeTaskAdapter::TaskTreeTaskAdapter()
 {
     connect(task(), &TaskTree::done, this,
-            [this](DoneWith result) { emit done(result == DoneWith::Success); });
+            [this](DoneWith result) { emit done(toDoneResult(result)); });
 }
 
 void TaskTreeTaskAdapter::start()
@@ -2743,7 +2753,10 @@ TimeoutTaskAdapter::~TimeoutTaskAdapter()
 
 void TimeoutTaskAdapter::start()
 {
-    m_timerId = scheduleTimeout(*task(), this, [this] { m_timerId = {}; emit done(true); });
+    m_timerId = scheduleTimeout(*task(), this, [this] {
+        m_timerId = {};
+        emit done(DoneResult::Success);
+    });
 }
 
 } // namespace Tasking

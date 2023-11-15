@@ -35,7 +35,7 @@ public:
 
 signals:
     void started();
-    void done(bool success);
+    void done(DoneResult result);
 
 private:
     QNetworkRequest m_request;

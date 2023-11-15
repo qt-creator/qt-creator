@@ -41,7 +41,7 @@ public:
     void setExpectSuccess(bool success) { m_expectSuccess = success; }
     void start()
     {
-        QTC_ASSERT(m_deviceType, emit done(false); return);
+        QTC_ASSERT(m_deviceType, emit done(DoneResult::Error); return);
         QTC_ASSERT(!m_toolHandler, return);
 
         m_toolHandler.reset(new IosToolHandler(*m_deviceType));
@@ -65,19 +65,19 @@ public:
                 TaskHub::addTask(DeploymentTask(Task::Error, Tr::tr("Deployment failed. "
                     "The settings in the Devices window of Xcode might be incorrect.")));
             }
-            emit done(status == IosToolHandler::Success);
+            emit done(toDoneResult(status == IosToolHandler::Success));
         });
         connect(m_toolHandler.get(), &IosToolHandler::finished, this, [this] {
             disconnect(m_toolHandler.get(), nullptr, this, nullptr);
             m_toolHandler.release()->deleteLater();
             TaskHub::addTask(DeploymentTask(Task::Error, Tr::tr("Deployment failed.")));
-            emit done(false);
+            emit done(DoneResult::Error);
         });
         m_toolHandler->requestTransferApp(m_bundlePath, m_deviceType->identifier);
     }
 
 signals:
-    void done(bool success);
+    void done(DoneResult result);
     void progressValueChanged(int progress, const QString &info); // progress in %
     void errorMessage(const QString &message);
 

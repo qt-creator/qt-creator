@@ -5,7 +5,6 @@
 
 #include "devicemanager.h"
 #include "idevicefactory.h"
-#include "processlist.h"
 #include "sshparameters.h"
 
 #include "../kit.h"
@@ -710,6 +709,8 @@ void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)
 
 DeviceProcessSignalOperation::DeviceProcessSignalOperation() = default;
 
+using namespace Tasking;
+
 void DeviceProcessKiller::start()
 {
     m_signalOperation.reset();
@@ -718,7 +719,7 @@ void DeviceProcessKiller::start()
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_processPath);
     if (!device) {
         m_errorString = Tr::tr("No device for given path: \"%1\".").arg(m_processPath.toUserOutput());
-        emit done(false);
+        emit done(DoneResult::Error);
         return;
     }
 
@@ -726,14 +727,14 @@ void DeviceProcessKiller::start()
     if (!m_signalOperation) {
         m_errorString = Tr::tr("Device for path \"%1\" does not support killing processes.")
                        .arg(m_processPath.toUserOutput());
-        emit done(false);
+        emit done(DoneResult::Error);
         return;
     }
 
     connect(m_signalOperation.get(), &DeviceProcessSignalOperation::finished,
             this, [this](const QString &errorMessage) {
         m_errorString = errorMessage;
-        emit done(m_errorString.isEmpty());
+        emit done(toDoneResult(m_errorString.isEmpty()));
     });
 
     m_signalOperation->killProcess(m_processPath.path());

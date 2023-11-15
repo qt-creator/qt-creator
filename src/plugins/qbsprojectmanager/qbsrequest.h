@@ -28,7 +28,7 @@ public:
     void start();
 
 signals:
-    void done(bool success);
+    void done(Tasking::DoneResult result);
     void progressChanged(int progress, const QString &info); // progress in %
     void outputAdded(const QString &output, ProjectExplorer::BuildStep::OutputFormat format);
     void taskAdded(const ProjectExplorer::Task &task);

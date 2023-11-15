@@ -19,6 +19,63 @@ namespace Tasking {
 
 Q_NAMESPACE_EXPORT(TASKING_EXPORT)
 
+// WorkflowPolicy:
+// 1. When all children finished with success -> report success, otherwise:
+//    a) Report error on first error and stop executing other children (including their subtree).
+//    b) On first error - continue executing all children and report error afterwards.
+// 2. When all children finished with error -> report error, otherwise:
+//    a) Report success on first success and stop executing other children (including their subtree).
+//    b) On first success - continue executing all children and report success afterwards.
+// 3. Stops on first finished child. In sequential mode it will never run other children then the first one.
+//    Useful only in parallel mode.
+// 4. Always run all children, let them finish, ignore their results and report success afterwards.
+// 5. Always run all children, let them finish, ignore their results and report error afterwards.
+
+enum class WorkflowPolicy
+{
+    StopOnError,          // 1a - Reports error on first child error, otherwise success (if all children were success).
+    ContinueOnError,      // 1b - The same, but children execution continues. Reports success when no children.
+    StopOnSuccess,        // 2a - Reports success on first child success, otherwise error (if all children were error).
+    ContinueOnSuccess,    // 2b - The same, but children execution continues. Reports error when no children.
+    StopOnSuccessOrError, // 3  - Stops on first finished child and report its result.
+    FinishAllAndSuccess,  // 4  - Reports success after all children finished.
+    FinishAllAndError     // 5  - Reports error after all children finished.
+};
+Q_ENUM_NS(WorkflowPolicy);
+
+enum class SetupResult
+{
+    Continue,
+    StopWithSuccess,
+    StopWithError
+};
+Q_ENUM_NS(SetupResult);
+
+enum class DoneResult
+{
+    Success,
+    Error
+};
+Q_ENUM_NS(DoneResult);
+
+enum class DoneWith
+{
+    Success,
+    Error,
+    Cancel
+};
+Q_ENUM_NS(DoneWith);
+
+enum class CallDoneIf
+{
+    SuccessOrError,
+    Success,
+    Error
+};
+Q_ENUM_NS(CallDoneIf);
+
+TASKING_EXPORT DoneResult toDoneResult(bool success);
+
 class StorageData;
 class TaskTreePrivate;
 
@@ -27,7 +84,7 @@ class TASKING_EXPORT TaskInterface : public QObject
     Q_OBJECT
 
 signals:
-    void done(bool success);
+    void done(DoneResult result);
 
 private:
     template <typename Task, typename Deleter> friend class TaskAdapter;
@@ -87,61 +144,6 @@ private:
         return [](void *storage) { delete static_cast<StorageStruct *>(storage); };
     }
 };
-
-// WorkflowPolicy:
-// 1. When all children finished with success -> report success, otherwise:
-//    a) Report error on first error and stop executing other children (including their subtree).
-//    b) On first error - continue executing all children and report error afterwards.
-// 2. When all children finished with error -> report error, otherwise:
-//    a) Report success on first success and stop executing other children (including their subtree).
-//    b) On first success - continue executing all children and report success afterwards.
-// 3. Stops on first finished child. In sequential mode it will never run other children then the first one.
-//    Useful only in parallel mode.
-// 4. Always run all children, let them finish, ignore their results and report success afterwards.
-// 5. Always run all children, let them finish, ignore their results and report error afterwards.
-
-enum class WorkflowPolicy
-{
-    StopOnError,          // 1a - Reports error on first child error, otherwise success (if all children were success).
-    ContinueOnError,      // 1b - The same, but children execution continues. Reports success when no children.
-    StopOnSuccess,        // 2a - Reports success on first child success, otherwise error (if all children were error).
-    ContinueOnSuccess,    // 2b - The same, but children execution continues. Reports error when no children.
-    StopOnSuccessOrError, // 3  - Stops on first finished child and report its result.
-    FinishAllAndSuccess,  // 4  - Reports success after all children finished.
-    FinishAllAndError     // 5  - Reports error after all children finished.
-};
-Q_ENUM_NS(WorkflowPolicy);
-
-enum class SetupResult
-{
-    Continue,
-    StopWithSuccess,
-    StopWithError
-};
-Q_ENUM_NS(SetupResult);
-
-enum class DoneResult
-{
-    Success,
-    Error
-};
-Q_ENUM_NS(DoneResult);
-
-enum class DoneWith
-{
-    Success,
-    Error,
-    Cancel
-};
-Q_ENUM_NS(DoneWith);
-
-enum class CallDoneIf
-{
-    SuccessOrError,
-    Success,
-    Error
-};
-Q_ENUM_NS(CallDoneIf);
 
 class TASKING_EXPORT GroupItem
 {

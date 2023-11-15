@@ -11,6 +11,8 @@
 
 #include <utils/portlist.h>
 
+using namespace Tasking;
+
 namespace ProjectExplorer {
 
 namespace Internal {
@@ -45,12 +47,12 @@ private:
 };
 
 class PROJECTEXPLORER_EXPORT DeviceUsedPortsGathererTaskAdapter
-    : public Tasking::TaskAdapter<DeviceUsedPortsGatherer>
+    : public TaskAdapter<DeviceUsedPortsGatherer>
 {
 public:
     DeviceUsedPortsGathererTaskAdapter() {
-        connect(task(), &DeviceUsedPortsGatherer::portListReady, this, [this] { emit done(true); });
-        connect(task(), &DeviceUsedPortsGatherer::error, this, [this] { emit done(false); });
+        connect(task(), &DeviceUsedPortsGatherer::portListReady, this, [this] { emit done(DoneResult::Success); });
+        connect(task(), &DeviceUsedPortsGatherer::error, this, [this] { emit done(DoneResult::Error); });
     }
     void start() final { task()->start(); }
 };
@@ -87,6 +89,6 @@ private:
     QVector<Internal::SubChannelProvider *> m_channelProviders;
 };
 
-using DeviceUsedPortsGathererTask = Tasking::CustomTask<DeviceUsedPortsGathererTaskAdapter>;
+using DeviceUsedPortsGathererTask = CustomTask<DeviceUsedPortsGathererTaskAdapter>;
 
 } // namespace ProjectExplorer

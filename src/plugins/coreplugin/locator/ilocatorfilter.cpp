@@ -322,7 +322,7 @@ class ResultsCollectorTaskAdapter : public TaskAdapter<ResultsCollector>
 {
 public:
     ResultsCollectorTaskAdapter() {
-        connect(task(), &ResultsCollector::done, this, [this] { emit done(true); });
+        connect(task(), &ResultsCollector::done, this, [this] { emit done(DoneResult::Success); });
     }
     void start() final { task()->start(); }
 };

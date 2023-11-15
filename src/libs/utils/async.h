@@ -204,7 +204,7 @@ class AsyncTaskAdapter : public Tasking::TaskAdapter<Async<ResultType>>
 public:
     AsyncTaskAdapter() {
         this->connect(this->task(), &AsyncBase::done, this, [this] {
-            emit this->done(!this->task()->isCanceled());
+            emit this->done(Tasking::toDoneResult(!this->task()->isCanceled()));
         });
     }
     void start() final { this->task()->start(); }

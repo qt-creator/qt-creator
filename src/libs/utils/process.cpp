@@ -2160,7 +2160,7 @@ void ProcessPrivate::storeEventLoopDebugInfo(const QVariant &value)
 ProcessTaskAdapter::ProcessTaskAdapter()
 {
     connect(task(), &Process::done, this, [this] {
-        emit done(task()->result() == ProcessResult::FinishedWithSuccess);
+        emit done(Tasking::toDoneResult(task()->result() == ProcessResult::FinishedWithSuccess));
     });
 }
 

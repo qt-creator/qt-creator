@@ -67,14 +67,14 @@ private:
                     this, [this, buildSystem](bool success) {
                 disconnect(buildSystem, &BuildSystem::parsingFinished, this, nullptr);
                 if (!success) {
-                    emit done(false);
+                    emit done(DoneResult::Error);
                     return;
                 }
                 checkParsing();
             });
             return;
         }
-        emit done(true);
+        emit done(DoneResult::Success);
     }
 };
 

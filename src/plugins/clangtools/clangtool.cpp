@@ -75,11 +75,13 @@ class ProjectBuilderTaskAdapter : public TaskAdapter<QPointer<RunControl>>
 public:
     void start() final {
         connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
-                this, &TaskInterface::done);
+                this, [this](bool success) {
+            emit done(toDoneResult(success));
+        });
         RunControl *runControl = *task();
-        QTC_ASSERT(runControl, emit done(false); return);
+        QTC_ASSERT(runControl, emit done(DoneResult::Error); return);
         Target *target = runControl->target();
-        QTC_ASSERT(target, emit done(false); return);
+        QTC_ASSERT(target, emit done(DoneResult::Error); return);
         if (!BuildManager::isBuilding(target)) {
             BuildManager::buildProjectWithDependencies(target->project(), ConfigSelection::Active,
                                                        runControl);
@@ -822,7 +824,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     };
 
     topTasks.append(Group {
-        Tasking::Storage(storage),
+        Storage(storage),
         TaskTreeTask(onTreeSetup, onTreeDone, CallDoneIf::Success)
     });
     return {topTasks};

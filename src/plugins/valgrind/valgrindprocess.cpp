@@ -93,7 +93,7 @@ public:
             const bool success = process->result() == ProcessResult::FinishedWithSuccess;
             if (!success)
                 emit q->processErrorReceived(process->errorString(), process->error());
-            emit q->done(success);
+            emit q->done(toDoneResult(success));
         });
         connect(process, &Process::readyReadStandardOutput, this, [this, process] {
             emit q->appendMessage(process->readAllStandardOutput(), StdOutFormat);
@@ -215,7 +215,7 @@ bool ValgrindProcessPrivate::run()
     m_taskTree->setRecipe(runRecipe());
     connect(m_taskTree.get(), &TaskTree::done, this, [this](DoneWith result) {
         m_taskTree.release()->deleteLater();
-        emit q->done(result == DoneWith::Success);
+        emit q->done(toDoneResult(result == DoneWith::Success));
     });
     m_taskTree->start();
     return bool(m_taskTree);
@@ -268,8 +268,8 @@ bool ValgrindProcess::runBlocking()
     bool ok = false;
     QEventLoop loop;
 
-    const auto finalize = [&loop, &ok](bool success) {
-        ok = success;
+    const auto finalize = [&loop, &ok](DoneResult result) {
+        ok = result == DoneResult::Success;
         // Refer to the QObject::deleteLater() docs.
         QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
     };

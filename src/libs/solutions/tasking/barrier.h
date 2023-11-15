@@ -19,17 +19,17 @@ public:
 
     void start();
     void advance(); // If limit reached, stops with true
-    void stopWithResult(bool success); // Ignores limit
+    void stopWithResult(DoneResult result); // Ignores limit
 
     bool isRunning() const { return m_current >= 0; }
     int current() const { return m_current; }
-    std::optional<bool> result() const { return m_result; }
+    std::optional<DoneResult> result() const { return m_result; }
 
 signals:
-    void done(bool success);
+    void done(DoneResult success);
 
 private:
-    std::optional<bool> m_result = {};
+    std::optional<DoneResult> m_result = {};
     int m_limit = 1;
     int m_current = -1;
 };
@@ -80,9 +80,11 @@ GroupItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
             return SetupResult::StopWithError;
         }
         Barrier *activeSharedBarrier = activeBarrier->barrier();
-        const std::optional<bool> result = activeSharedBarrier->result();
-        if (result.has_value())
-            return result.value() ? SetupResult::StopWithSuccess : SetupResult::StopWithError;
+        const std::optional<DoneResult> result = activeSharedBarrier->result();
+        if (result.has_value()) {
+            return result.value() == DoneResult::Success ? SetupResult::StopWithSuccess
+                                                         : SetupResult::StopWithError;
+        }
         QObject::connect(activeSharedBarrier, &Barrier::done, &barrier, &Barrier::stopWithResult);
         return SetupResult::Continue;
     });

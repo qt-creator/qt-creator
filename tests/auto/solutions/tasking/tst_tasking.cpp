@@ -345,7 +345,7 @@ class TickAndDoneTaskAdapter : public TaskAdapter<TickAndDone>
 {
 public:
     TickAndDoneTaskAdapter() { connect(task(), &TickAndDone::done, this,
-                                       [this] { emit done(true); }); }
+                                       [this] { emit done(DoneResult::Success); }); }
     void start() final { task()->start(); }
 };
 
