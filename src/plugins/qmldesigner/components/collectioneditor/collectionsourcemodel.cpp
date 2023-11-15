@@ -305,7 +305,7 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
 
     if (document.isObject()) {
         QJsonObject sourceObject = document.object();
-        sourceObject.insert(collectionName, QJsonArray{});
+        sourceObject.insert(collectionName, CollectionEditor::defaultCollectionArray());
         document.setObject(sourceObject);
         if (!jsonFile.resize(0))
             return returnError(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));

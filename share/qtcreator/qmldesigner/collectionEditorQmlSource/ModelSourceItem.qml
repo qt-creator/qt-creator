@@ -20,10 +20,12 @@ Item {
     property var collectionModel
 
     property bool expanded: false
+    readonly property bool isJsonModel: sourceCollectionType === "json"
 
     signal selectItem(int itemIndex)
     signal deleteItem()
     signal assignToSelected()
+    signal addCollection(string collectionName)
 
     function toggleExpanded() {
         if (collectionListView.count > 0)
@@ -170,6 +172,12 @@ Item {
         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         StudioControls.MenuItem {
+            text: qsTr("Add a model")
+            visible: root.isJsonModel && internalModels !== undefined
+            onTriggered: newCollectionDialog.open()
+        }
+
+        StudioControls.MenuItem {
             text: qsTr("Delete")
             shortcut: StandardKey.Delete
             onTriggered: deleteDialog.open()
@@ -191,6 +199,21 @@ Item {
     component Spacer: Item {
         implicitWidth: 1
         implicitHeight: StudioTheme.Values.sectionColumnSpacing
+    }
+
+    component NameField: Text {
+        Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+        horizontalAlignment: Qt.AlignRight
+        verticalAlignment: Qt.AlignCenter
+        color: StudioTheme.Values.themeTextColor
+        font.family: StudioTheme.Constants.font.family
+        font.pixelSize: StudioTheme.Values.baseIconFontSize
+    }
+
+    component ErrorField: Text {
+        color: StudioTheme.Values.themeError
+        font.family: StudioTheme.Constants.font.family
+        font.pixelSize: StudioTheme.Values.baseIconFontSize
     }
 
     StudioControls.Dialog {
@@ -287,6 +310,71 @@ Item {
                 HelperWidgets.Button {
                     text: qsTr("Cancel")
                     onClicked: renameDialog.reject()
+                }
+            }
+        }
+    }
+
+    StudioControls.Dialog {
+        id: newCollectionDialog
+
+        title: qsTr("Add a new model")
+
+        onOpened: newCollectionName.text = qsTr("Model")
+
+        onAccepted: root.addCollection(newCollectionName.text)
+
+        contentItem: ColumnLayout {
+            spacing: 2
+
+            NameField {
+                text: qsTr("The model name")
+            }
+
+            StudioControls.TextField {
+                id: newCollectionName
+
+                readonly property bool isValid: newCollectionName.text !== "" && !newCollectionName.alreadyExists
+                property bool alreadyExists
+
+                Layout.fillWidth: true
+
+                actionIndicator.visible: false
+                translationIndicator.visible: false
+                validator: RegularExpressionValidator {
+                    regularExpression: /^\w+$/
+                }
+
+                Keys.onEnterPressed: createCollectionButton.onClicked()
+                Keys.onReturnPressed: createCollectionButton.onClicked()
+                Keys.onEscapePressed: newCollectionDialog.reject()
+
+                onTextChanged: newCollectionName.alreadyExists = internalModels.contains(newCollectionName.text)
+            }
+
+            ErrorField {
+                text: qsTr("The model name already exists %1").arg(newCollectionName.text)
+                visible: newCollectionName.alreadyExists
+            }
+
+            Spacer{}
+
+            RowLayout {
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                spacing: StudioTheme.Values.sectionRowSpacing
+
+                HelperWidgets.Button {
+                    id: createCollectionButton
+
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                    text: qsTr("Add")
+                    enabled: newCollectionName.isValid
+                    onClicked: newCollectionDialog.accept()
+                }
+
+                HelperWidgets.Button {
+                    text: qsTr("Cancel")
+                    onClicked: newCollectionDialog.reject()
                 }
             }
         }

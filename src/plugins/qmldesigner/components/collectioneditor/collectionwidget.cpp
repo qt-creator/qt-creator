@@ -201,12 +201,7 @@ bool CollectionWidget::addCollection(const QString &collectionName,
 
         if (collectionType == "json") {
             QJsonObject jsonObject;
-            QJsonObject initialObject;
-            QJsonArray initialCollection;
-
-            initialObject.insert("Column1", "");
-            initialCollection.append(initialObject);
-            jsonObject.insert(collectionName, initialCollection);
+            jsonObject.insert(collectionName, CollectionEditor::defaultCollectionArray());
 
             QFile sourceFile(sourcePath);
             if (!sourceFile.open(QFile::WriteOnly)) {

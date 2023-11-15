@@ -131,6 +131,12 @@ Item {
                         onDeleteItem: root.model.removeRow(index)
                         hasSelectedTarget: root.rootView.targetNodeSelected
                         onAssignToSelected: root.rootView.assignSourceNodeToSelectedItem(sourceNode)
+                        onAddCollection: (collectionName) => {
+                            root.rootView.addCollection(collectionName,
+                                                        sourceCollectionType,
+                                                        "",
+                                                        sourceNode)
+                        }
                     }
                 }
             }

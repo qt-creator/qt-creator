@@ -5,6 +5,10 @@
 
 #include "collectiondetails.h"
 
+QT_BEGIN_NAMESPACE
+class QJsonArray;
+QT_END_NAMESPACE
+
 namespace QmlDesigner::CollectionEditor {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type);
@@ -18,5 +22,7 @@ void assignCollectionSourceToNode(AbstractView *view,
                                   const ModelNode &collectionSourceNode = {});
 
 bool canAcceptCollectionAsModel(const ModelNode &node);
+
+QJsonArray defaultCollectionArray();
 
 } // namespace QmlDesigner::CollectionEditor

@@ -15,6 +15,8 @@
 #include <utils/qtcassert.h>
 
 #include <QColor>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QUrl>
 
 namespace {
@@ -123,6 +125,16 @@ QString getSourceCollectionPath(const ModelNode &node)
         .parentDir()
         .resolvePath(sourcePath)
         .toFSPathString();
+}
+
+QJsonArray defaultCollectionArray()
+{
+    QJsonObject initialObject;
+    QJsonArray initialCollection;
+
+    initialObject.insert("Column1", "");
+    initialCollection.append(initialObject);
+    return initialCollection;
 }
 
 } // namespace QmlDesigner::CollectionEditor

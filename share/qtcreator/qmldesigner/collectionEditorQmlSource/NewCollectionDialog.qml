@@ -14,7 +14,7 @@ import CollectionEditor 1.0
 StudioControls.Dialog {
     id: root
 
-    enum SourceType { NewJson, NewCsv, ExistingCollection, NewCollectionToJson }
+    enum SourceType { NewJson, NewCsv, ExistingCollection }
 
     required property var backendValue
     required property var sourceModel
@@ -72,11 +72,6 @@ StudioControls.Dialog {
             newCollectionPath.enabled = true
             jsonCollections.enabled = false
             typeMode.collectionType = "existing"
-        } else if (typeMode.currentValue === NewCollectionDialog.SourceType.NewCollectionToJson) {
-            newCollectionFileDialog.nameFilters = [""]
-            newCollectionPath.enabled = false
-            jsonCollections.enabled = true
-            typeMode.collectionType = "json"
         }
     }
 
@@ -135,7 +130,6 @@ StudioControls.Dialog {
                 ListElement { text: qsTr("New JSON model group"); value: NewCollectionDialog.SourceType.NewJson}
                 ListElement { text: qsTr("New CSV model"); value: NewCollectionDialog.SourceType.NewCsv}
                 ListElement { text: qsTr("Import an existing model group"); value: NewCollectionDialog.SourceType.ExistingCollection}
-                ListElement { text: qsTr("Add a model to an available JSON model group"); value: NewCollectionDialog.SourceType.NewCollectionToJson}
             }
 
             textRole: "text"
