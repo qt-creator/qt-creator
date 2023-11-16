@@ -386,6 +386,8 @@ PropertyNameList ModelToTextMerger::propertyOrder()
                                                 PropertyName("lineHeight"),
                                                 PropertyName("lineHeightMode"),
                                                 PropertyName("wrapMode"),
+                                                PropertyName(),
+                                                PropertyName("states"),
                                                 PropertyName("to"),
                                                 PropertyName("from"),
                                                 PropertyName("transitions")};
