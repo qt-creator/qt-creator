@@ -61,7 +61,9 @@ ResultType TestResult::resultFromString(const QString &resultString)
         return ResultType::MessageWarn;
     if (resultString == "qfatal")
         return ResultType::MessageFatal;
-    if ((resultString == "system") || (resultString == "qsystem"))
+    if (resultString == "error" || resultString == "qcritical")
+        return ResultType::MessageError;
+    if (resultString == "system" || resultString == "qsystem")
         return ResultType::MessageSystem;
     if (resultString == "bpass")
         return ResultType::BlacklistedPass;
