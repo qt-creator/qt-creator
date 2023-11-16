@@ -404,7 +404,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
         if (negation) {
@@ -498,7 +498,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
         changes.flip(currentFile->range(binary->left_expression),
@@ -587,7 +587,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
         changes.replace(currentFile->range(pattern->binary_op_token), QLatin1String("||"));
@@ -672,7 +672,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
 
@@ -763,7 +763,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
 
@@ -837,7 +837,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
 
@@ -910,7 +910,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
 
@@ -988,7 +988,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         const Token binaryToken = currentFile->tokenAt(condition->binary_op_token);
 
@@ -1227,7 +1227,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
 
@@ -1430,7 +1430,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
 
@@ -1492,7 +1492,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
         changes.replace(start, end, replacement);
@@ -1651,7 +1651,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         QString declaration = getDeclaration();
 
         if (!declaration.isEmpty()) {
@@ -1668,7 +1668,7 @@ private:
     QString getDeclaration()
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         const auto settings = CppQuickFixProjectsSettings::getQuickFixSettings(
                     ProjectExplorer::ProjectTree::currentProject());
@@ -1704,7 +1704,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         QString newName = m_isAllUpper ? m_name.toLower() : m_name;
         for (int i = 1; i < newName.length(); ++i) {
@@ -1786,7 +1786,7 @@ AddIncludeForUndefinedIdentifierOp::AddIncludeForUndefinedIdentifierOp(
 void AddIncludeForUndefinedIdentifierOp::perform()
 {
     CppRefactoringChanges refactoring(snapshot());
-    CppRefactoringFilePtr file = refactoring.file(filePath());
+    CppRefactoringFilePtr file = refactoring.cppFile(filePath());
 
     insertNewIncludeDirective(m_include, file, semanticInfo().doc);
 }
@@ -1808,7 +1808,7 @@ void AddForwardDeclForUndefinedIdentifierOp::perform()
     const QStringList namespaces = parts.mid(0, parts.length() - 1);
 
     CppRefactoringChanges refactoring(snapshot());
-    CppRefactoringFilePtr file = refactoring.file(filePath());
+    CppRefactoringFilePtr file = refactoring.cppFile(filePath());
 
     NSVisitor visitor(file.data(), namespaces, m_symbolPos);
     visitor.accept(file->cppDocument()->translationUnit()->ast());
@@ -2157,7 +2157,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         int targetEndPos = currentFile->endOf(m_targetParam);
         ChangeSet changes;
@@ -2236,7 +2236,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         currentFile->setChangeSet(m_change);
         currentFile->apply();
     }
@@ -2397,7 +2397,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ChangeSet changes;
         int start = currentFile->endOf(compoundStatement->lbrace_token);
@@ -2541,7 +2541,7 @@ public:
                     m_targetFilePath, m_targetSymbol, m_xsSpec);
         QTC_ASSERT(loc.isValid(), return);
 
-        CppRefactoringFilePtr targetFile = refactoring.file(m_targetFilePath);
+        CppRefactoringFilePtr targetFile = refactoring.cppFile(m_targetFilePath);
         int targetPosition1 = targetFile->position(loc.line(), loc.column());
         int targetPosition2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
 
@@ -2717,7 +2717,7 @@ public:
                                                       refactoring, targetFilePath);
         QTC_ASSERT(loc.isValid(), return);
 
-        CppRefactoringFilePtr targetFile = refactoring.file(loc.filePath());
+        CppRefactoringFilePtr targetFile = refactoring.cppFile(loc.filePath());
         Overview oo = CppCodeStyleSettings::currentProjectCodeStyleOverview();
         oo.showFunctionSignatures = true;
         oo.showReturnTypes = true;
@@ -2784,7 +2784,7 @@ public:
 
             // rewrite the function name
             if (nameIncludesOperatorName(decl->name())) {
-                CppRefactoringFilePtr file = refactoring.file(op->filePath());
+                CppRefactoringFilePtr file = refactoring.cppFile(op->filePath());
                 const QString operatorNameText = file->textOf(declAST->core_declarator);
                 oo.includeWhiteSpaceInOperatorName = operatorNameText.contains(QLatin1Char(' '));
             }
@@ -2994,7 +2994,7 @@ private:
                     filePath, m_class, m_accessSpec);
         QTC_ASSERT(loc.isValid(), return);
 
-        CppRefactoringFilePtr targetFile = refactoring.file(filePath);
+        CppRefactoringFilePtr targetFile = refactoring.cppFile(filePath);
         const int targetPosition1 = targetFile->position(loc.line(), loc.column());
         const int targetPosition2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
         ChangeSet target;
@@ -3579,7 +3579,7 @@ private:
                         &changeSet.first, &changeSet.second);
         }
         for (auto it = changeSets.cbegin(); it != changeSets.cend(); ++it) {
-            const CppRefactoringFilePtr file = refactoring.file(it.key());
+            const CppRefactoringFilePtr file = refactoring.cppFile(it.key());
             for (const ChangeSet::Range &r : it.value().second)
                 file->appendIndentRange(r);
             file->setChangeSet(it.value().first);
@@ -3705,14 +3705,14 @@ public:
         : m_operation(operation)
         , m_changes(m_operation->snapshot())
         , m_locator(m_changes)
-        , m_headerFile(m_changes.file(filePath))
+        , m_headerFile(m_changes.cppFile(filePath))
         , m_sourceFile([&] {
             FilePath cppFilePath = correspondingHeaderOrSource(filePath, &m_isHeaderHeaderFile);
             if (!m_isHeaderHeaderFile || !cppFilePath.exists()) {
                 // there is no "source" file
                 return m_headerFile;
             } else {
-                return m_changes.file(cppFilePath);
+                return m_changes.cppFile(cppFilePath);
             }
         }())
         , m_class(clazz)
@@ -5052,7 +5052,7 @@ public:
     {
         QTC_ASSERT(!m_funcReturn || !m_relevantDecls.isEmpty(), return);
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         ExtractFunctionOptions options;
         if (m_functionNameGetter)
@@ -5208,7 +5208,7 @@ public:
             const FilePath filePath = FilePath::fromUtf8(matchingClass->fileName());
             const InsertionLocation &location =
                     locator.methodDeclarationInClass(filePath, matchingClass, options.access);
-            CppRefactoringFilePtr declFile = refactoring.file(filePath);
+            CppRefactoringFilePtr declFile = refactoring.cppFile(filePath);
             change.clear();
             position = declFile->position(location.line(), location.column());
             change.insert(position, location.prefix() + funcDecl + location.suffix());
@@ -5717,7 +5717,7 @@ public:
                 }
 
                 const FilePath declFilePath = matchingClass->filePath();
-                result.file = refactoring.file(declFilePath);
+                result.file = refactoring.cppFile(declFilePath);
                 ASTPath astPath(result.file->cppDocument());
                 const QList<AST *> path = astPath(s->line(), s->column());
                 SimpleDeclarationAST *simpleDecl = nullptr;
@@ -5740,7 +5740,7 @@ public:
             FilePath declFilePath = correspondingHeaderOrSource(filePath(), &isHeaderFile);
             if (!declFilePath.exists())
                 return FoundDeclaration();
-            result.file = refactoring.file(declFilePath);
+            result.file = refactoring.cppFile(declFilePath);
             if (!result.file)
                 return FoundDeclaration();
             const LookupContext lc(result.file->cppDocument(), snapshot());
@@ -5769,7 +5769,7 @@ public:
         FunctionDeclaratorAST *functionDeclaratorOfDefinition
                 = functionDeclarator(m_functionDefinition);
         const CppRefactoringChanges refactoring(snapshot());
-        const CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        const CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         deduceTypeNameOfLiteral(currentFile->cppDocument());
 
         ChangeSet changes;
@@ -5951,7 +5951,7 @@ public:
         , m_identifierAST(identifierAST)
         , m_symbol(symbol)
         , m_refactoring(snapshot())
-        , m_file(m_refactoring.file(filePath()))
+        , m_file(m_refactoring.cppFile(filePath()))
         , m_document(interface.semanticInfo().doc)
     {
         setDescription(
@@ -6552,8 +6552,8 @@ public:
                                  const FilePath &fromFile, const FilePath &toFile)
         : m_operation(operation), m_type(type), m_changes(m_operation->snapshot())
     {
-        m_fromFile = m_changes.file(fromFile);
-        m_toFile = (m_type == MoveOutside) ? m_fromFile : m_changes.file(toFile);
+        m_fromFile = m_changes.cppFile(fromFile);
+        m_toFile = (m_type == MoveOutside) ? m_fromFile : m_changes.cppFile(toFile);
     }
 
     void performMove(FunctionDefinitionAST *funcAST)
@@ -6819,8 +6819,8 @@ private:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr fromFile = refactoring.file(m_fromFilePath);
-        CppRefactoringFilePtr toFile = refactoring.file(m_toFilePath);
+        CppRefactoringFilePtr fromFile = refactoring.cppFile(m_fromFilePath);
+        CppRefactoringFilePtr toFile = refactoring.cppFile(m_toFilePath);
 
         ensureFuncDefAstAndRange(*fromFile);
         if (!m_funcAST)
@@ -6912,7 +6912,7 @@ void MoveFuncDefToDeclPush::match(const CppQuickFixInterface &interface, QuickFi
         return;
 
     const CppRefactoringChanges refactoring(interface.snapshot());
-    const CppRefactoringFilePtr defFile = refactoring.file(interface.filePath());
+    const CppRefactoringFilePtr defFile = refactoring.cppFile(interface.filePath());
     const ChangeSet::Range defRange = defFile->range(completeDefAST);
 
     // Determine declaration (file, range, text);
@@ -6944,7 +6944,7 @@ void MoveFuncDefToDeclPush::match(const CppQuickFixInterface &interface, QuickFi
             }
 
             declFilePath = matchingClass->filePath();
-            const CppRefactoringFilePtr declFile = refactoring.file(declFilePath);
+            const CppRefactoringFilePtr declFile = refactoring.cppFile(declFilePath);
             ASTPath astPath(declFile->cppDocument());
             const QList<AST *> path = astPath(s->line(), s->column());
             for (int idx = path.size() - 1; idx > 0; --idx) {
@@ -6969,7 +6969,7 @@ void MoveFuncDefToDeclPush::match(const CppQuickFixInterface &interface, QuickFi
         if (isHeaderFile)
             return;
 
-        const CppRefactoringFilePtr declFile = refactoring.file(declFilePath);
+        const CppRefactoringFilePtr declFile = refactoring.cppFile(declFilePath);
         const LookupContext lc(declFile->cppDocument(), interface.snapshot());
         const QList<LookupItem> candidates = lc.lookup(func->name(), matchingNamespace);
         for (const LookupItem &candidate : candidates) {
@@ -7059,7 +7059,7 @@ public:
         , m_name(name)
         , m_oo(CppCodeStyleSettings::currentProjectCodeStyleOverview())
         , m_originalName(m_oo.prettyName(m_name))
-        , m_file(CppRefactoringChanges(snapshot()).file(filePath()))
+        , m_file(CppRefactoringChanges(snapshot()).cppFile(filePath()))
     {
         setDescription(Tr::tr("Assign to Local Variable"));
     }
@@ -7289,7 +7289,7 @@ public:
 
         const Utils::FilePath filePath = currentFile()->filePath();
         const CppRefactoringChanges refactoring(snapshot());
-        const CppRefactoringFilePtr file = refactoring.file(filePath);
+        const CppRefactoringFilePtr file = refactoring.cppFile(filePath);
         ChangeSet change;
 
         // Optimize post (in|de)crement operator to pre (in|de)crement operator
@@ -7549,7 +7549,7 @@ public:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
 
         const int startPos = currentFile->startOf(m_literal);
         const int endPos = currentFile->endOf(m_literal);
@@ -7647,7 +7647,7 @@ private:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         currentFile->setChangeSet(m_changes);
         currentFile->apply();
     }
@@ -8397,7 +8397,7 @@ private:
         while (!nodesWithProcessedParents.empty()) {
             Node &node = nodesWithProcessedParents.back();
             nodesWithProcessedParents.pop_back();
-            CppRefactoringFilePtr file = refactoring.file(node.document->filePath());
+            CppRefactoringFilePtr file = refactoring.cppFile(node.document->filePath());
             const bool parentHasUsing = Utils::anyOf(node.includes, &Node::hasGlobalUsingDirective);
             const int startPos = parentHasUsing
                                      ? 0
@@ -8416,7 +8416,7 @@ private:
     void perform() override
     {
         CppRefactoringChanges refactoring(snapshot());
-        CppRefactoringFilePtr currentFile = refactoring.file(filePath());
+        CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         if (m_removeAllAtGlobalScope) {
             removeAllUsingsAtGlobalScope(refactoring);
         } else if (refactorFile(currentFile,
@@ -8469,7 +8469,7 @@ private:
             if (!Utils::insert(m_processed, loc.first))
                 continue;
 
-            CppRefactoringFilePtr file = refactoring.file(loc.first->filePath());
+            CppRefactoringFilePtr file = refactoring.cppFile(loc.first->filePath());
             const bool noGlobalUsing = refactorFile(file,
                                                     refactoring.snapshot(),
                                                     file->position(loc.second, 1));
@@ -9686,11 +9686,11 @@ private:
             return;
 
         CppRefactoringChanges changes(CppModelManager::snapshot());
-        const CppRefactoringFilePtr sourceFile = changes.file(symbolLoc.targetFilePath);
+        const CppRefactoringFilePtr sourceFile = changes.cppFile(symbolLoc.targetFilePath);
         const CppRefactoringFilePtr targetFile
             = targetLoc.targetFilePath == symbolLoc.targetFilePath
                   ? sourceFile
-                  : changes.file(targetLoc.targetFilePath);
+                  : changes.cppFile(targetLoc.targetFilePath);
         const Document::Ptr &targetCppDoc = targetFile->cppDocument();
         const QList<AST *> targetAstPath = ASTPath(targetCppDoc)(
             targetLoc.targetLine, targetLoc.targetColumn + 1);

@@ -199,7 +199,7 @@ void FunctionDeclDefLinkFinder::startFindLinkAt(
 
     // find the start/end offsets
     CppRefactoringChanges refactoringChanges(snapshot);
-    CppRefactoringFilePtr sourceFile = refactoringChanges.file(doc->filePath());
+    CppRefactoringFilePtr sourceFile = refactoringChanges.cppFile(doc->filePath());
     sourceFile->setCppDocument(doc);
     int start, end;
     declDefLinkStartEnd(sourceFile, parent, funcDecl, &start, &end);
@@ -259,7 +259,7 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
 
     // first verify the interesting region of the target file is unchanged
     CppRefactoringChanges refactoringChanges(snapshot);
-    CppRefactoringFilePtr newTargetFile = refactoringChanges.file(targetFile->filePath());
+    CppRefactoringFilePtr newTargetFile = refactoringChanges.cppFile(targetFile->filePath());
     if (!newTargetFile->isValid())
         return;
     const int targetStart = newTargetFile->position(targetLine, targetColumn);

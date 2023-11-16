@@ -56,7 +56,9 @@ public:
 
     static QmlJSRefactoringFilePtr file(TextEditor::TextEditorWidget *editor,
                                         const QmlJS::Document::Ptr &document);
-    QmlJSRefactoringFilePtr file(const Utils::FilePath &filePath) const;
+    TextEditor::RefactoringFilePtr file(const Utils::FilePath &filePath) const;
+
+    QmlJSRefactoringFilePtr qmlJSFile(const Utils::FilePath &filePath) const;
 
     const QmlJS::Snapshot &snapshot() const;
 

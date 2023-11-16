@@ -248,7 +248,7 @@ void performComponentFromObjectDef(QmlJSEditorWidget *editor,
 {
     QmlJSRefactoringChanges refactoring(QmlJS::ModelManagerInterface::instance(),
                                         QmlJS::ModelManagerInterface::instance()->snapshot());
-    QmlJSRefactoringFilePtr current = refactoring.file(Utils::FilePath::fromString(fileName));
+    QmlJSRefactoringFilePtr current = refactoring.qmlJSFile(Utils::FilePath::fromString(fileName));
 
     QmlJSQuickFixAssistInterface interface(editor, TextEditor::AssistReason::ExplicitlyInvoked);
     Operation operation(&interface, objDef);

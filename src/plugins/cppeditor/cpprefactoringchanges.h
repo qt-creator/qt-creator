@@ -93,7 +93,10 @@ public:
 
     static CppRefactoringFilePtr file(TextEditor::TextEditorWidget *editor,
                                       const CPlusPlus::Document::Ptr &document);
-    CppRefactoringFilePtr file(const Utils::FilePath &filePath) const;
+    TextEditor::RefactoringFilePtr file(const Utils::FilePath &filePath) const override;
+
+    CppRefactoringFilePtr cppFile(const Utils::FilePath &filePath) const;
+
     // safe to use from non-gui threads
     CppRefactoringFileConstPtr fileNoEditor(const Utils::FilePath &filePath) const;
 

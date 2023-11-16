@@ -763,7 +763,7 @@ public:
         Utils::ChangeSet headerChangeSet;
         const CppRefactoringChanges refactoring(snapshot());
         const Utils::FilePath filePath = currentFile()->filePath();
-        const CppRefactoringFilePtr headerFile = refactoring.file(filePath);
+        const CppRefactoringFilePtr headerFile = refactoring.cppFile(filePath);
         const LookupContext targetContext(headerFile->cppDocument(), snapshot());
 
         const Class *targetClass = m_classAST->symbol;
@@ -881,7 +881,7 @@ public:
             if (!clazz)
                 return;
 
-            CppRefactoringFilePtr implementationFile = refactoring.file(m_cppFilePath);
+            CppRefactoringFilePtr implementationFile = refactoring.cppFile(m_cppFilePath);
             Utils::ChangeSet implementationChangeSet;
             const int insertPos = qMax(0, implementationFile->document()->characterCount() - 1);
 
