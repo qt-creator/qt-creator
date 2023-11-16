@@ -30,13 +30,13 @@ public:
 
 QmlJSRefactoringChanges::QmlJSRefactoringChanges(ModelManagerInterface *modelManager,
                                                  const Snapshot &snapshot)
-    : RefactoringChanges(new QmlJSRefactoringChangesData(modelManager, snapshot))
+    : m_data(new QmlJSRefactoringChangesData(modelManager, snapshot))
 {
 }
 
 TextEditor::RefactoringFilePtr QmlJSRefactoringChanges::file(const Utils::FilePath &filePath) const
 {
-    return QmlJSRefactoringFilePtr(new QmlJSRefactoringFile(filePath, m_data.staticCast<QmlJSRefactoringChangesData>()));
+    return QmlJSRefactoringFilePtr(new QmlJSRefactoringFile(filePath, m_data));
 }
 
 QmlJSRefactoringFilePtr QmlJSRefactoringChanges::qmlJSFile(const Utils::FilePath &filePath) const
@@ -52,12 +52,7 @@ QmlJSRefactoringFilePtr QmlJSRefactoringChanges::file(
 
 const Snapshot &QmlJSRefactoringChanges::snapshot() const
 {
-    return data()->m_snapshot;
-}
-
-QmlJSRefactoringChangesData *QmlJSRefactoringChanges::data() const
-{
-    return static_cast<QmlJSRefactoringChangesData *>(m_data.data());
+    return m_data->m_snapshot;
 }
 
 QmlJSRefactoringFile::QmlJSRefactoringFile(

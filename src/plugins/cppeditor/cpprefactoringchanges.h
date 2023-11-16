@@ -98,7 +98,7 @@ public:
     const CPlusPlus::Snapshot &snapshot() const;
 
 private:
-    CppRefactoringChangesData *data() const;
+    const QSharedPointer<CppRefactoringChangesData> m_data;
 };
 
 } // namespace CppEditor

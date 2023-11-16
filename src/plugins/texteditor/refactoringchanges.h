@@ -112,7 +112,6 @@ class TEXTEDITOR_EXPORT RefactoringChanges
 public:
     using Range = Utils::ChangeSet::Range;
 
-    explicit RefactoringChanges(RefactoringChangesData *data = nullptr);
     virtual ~RefactoringChanges();
 
     // TODO: Make pure virtual and introduce dedicated subclass for generic refactoring,
@@ -131,8 +130,6 @@ protected:
                                         int column);
     static RefactoringSelections rangesToSelections(QTextDocument *document,
                                                     const QList<Range> &ranges);
-
-    QSharedPointer<RefactoringChangesData> m_data;
 
     friend class RefactoringFile;
 };

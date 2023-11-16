@@ -67,7 +67,7 @@ public:
     const QmlJS::Snapshot &snapshot() const;
 
 private:
-    QmlJSRefactoringChangesData *data() const;
+    const QSharedPointer<QmlJSRefactoringChangesData> m_data;
 };
 
 } // namespace QmlJSTools

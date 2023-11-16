@@ -34,13 +34,8 @@ static std::unique_ptr<TextEditor::Indenter> createIndenter(const FilePath &file
 }
 
 CppRefactoringChanges::CppRefactoringChanges(const Snapshot &snapshot)
-    : RefactoringChanges(new CppRefactoringChangesData(snapshot))
+    : m_data(new CppRefactoringChangesData(snapshot))
 {
-}
-
-CppRefactoringChangesData *CppRefactoringChanges::data() const
-{
-    return static_cast<CppRefactoringChangesData *>(m_data.data());
 }
 
 CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::TextEditorWidget *editor, const Document::Ptr &document)
@@ -52,8 +47,7 @@ CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::TextEditorWidget *
 
 TextEditor::RefactoringFilePtr CppRefactoringChanges::file(const FilePath &filePath) const
 {
-    CppRefactoringFilePtr result(new CppRefactoringFile(filePath, m_data.staticCast<CppRefactoringChangesData>()));
-    return result;
+    return TextEditor::RefactoringFilePtr(new CppRefactoringFile(filePath, m_data));
 }
 
 CppRefactoringFilePtr CppRefactoringChanges::cppFile(const Utils::FilePath &filePath) const
@@ -64,7 +58,7 @@ CppRefactoringFilePtr CppRefactoringChanges::cppFile(const Utils::FilePath &file
 CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const FilePath &filePath) const
 {
     QTextDocument *document = nullptr;
-    if (const auto source = data()->m_workingCopy.source(filePath))
+    if (const auto source = m_data->m_workingCopy.source(filePath))
         document = new QTextDocument(QString::fromUtf8(*source));
     CppRefactoringFilePtr result(new CppRefactoringFile(document, filePath));
     result->m_data = m_data.staticCast<CppRefactoringChangesData>();
@@ -74,7 +68,7 @@ CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const FilePath &f
 
 const Snapshot &CppRefactoringChanges::snapshot() const
 {
-    return data()->m_snapshot;
+    return m_data->m_snapshot;
 }
 
 CppRefactoringFile::CppRefactoringFile(const FilePath &filePath, const QSharedPointer<CppRefactoringChangesData> &data)

@@ -26,10 +26,6 @@ using namespace Utils;
 
 namespace TextEditor {
 
-RefactoringChanges::RefactoringChanges(RefactoringChangesData *data)
-    : m_data(data ? data : new RefactoringChangesData)
-{}
-
 RefactoringChanges::~RefactoringChanges() = default;
 
 RefactoringSelections RefactoringChanges::rangesToSelections(QTextDocument *document,
