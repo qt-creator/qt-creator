@@ -197,15 +197,13 @@
             \li -lastsession
             \li ProjectExplorer plugin: load the last session when \QC starts.
                 Open the projects and files that were open when you last exited
-                \QC. For more information about managing sessions, see
-                \l{Managing Sessions}.
+                \QC.
 
         \row
             \li <session>
             \li ProjectExplorer plugin: load the given session when \QC starts.
                 Open the projects and files that were open when you last exited
-                \QC. For more information about managing sessions, see
-                \l{Managing Sessions}.
+                \QC.
 
     \endtable
 
@@ -225,5 +223,5 @@
     You can also switch to a dark theme to customize the appearance of widgets,
     colors, and icons without using stylesheets.
 
-    \sa {Run Qt Creator from the command line}
+    \sa {Run Qt Creator from the command line}, {Manage sessions}
 */

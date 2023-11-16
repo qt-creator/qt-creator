@@ -300,7 +300,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
 
     Column {
         Group {
-            title("Headers"),
+            title(Tr::tr("Headers")),
             Form {
                 Tr::tr("&Suffix:"), m_headerSuffixComboBox, st, br,
                 Tr::tr("S&earch paths:"), m_headerSearchPathsEdit, br,
@@ -309,7 +309,7 @@ CppFileSettingsWidget::CppFileSettingsWidget(CppFileSettings *settings)
             }
         },
         Group {
-            title("Sources"),
+            title(Tr::tr("Sources")),
             Form {
                 Tr::tr("S&uffix:"), m_sourceSuffixComboBox, st, br,
                 Tr::tr("Se&arch paths:"), m_sourceSearchPathsEdit, br,

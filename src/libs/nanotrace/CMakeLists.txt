@@ -1,6 +1,5 @@
 add_qtc_library(Nanotrace
   BUILD_DEFAULT OFF
-  DEFINES NANOTRACE_LIBRARY
   PUBLIC_DEFINES NANOTRACE_ENABLED
   SOURCES
     nanotraceglobals.h

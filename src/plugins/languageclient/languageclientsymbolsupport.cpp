@@ -691,13 +691,10 @@ void SymbolSupport::handleRenameResponse(Core::SearchResult *search,
 void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
                                 Core::SearchResult *search)
 {
-    QSet<Utils::FilePath> affectedNonOpenFilePaths;
     QMap<Utils::FilePath, QList<TextEdit>> editsForDocuments;
     QList<DocumentChange> changes;
     for (const Utils::SearchResultItem &item : checkedItems) {
         const auto filePath = Utils::FilePath::fromUserInput(item.path().value(0));
-        if (!m_client->documentForFilePath(filePath))
-            affectedNonOpenFilePaths << filePath;
         const QJsonObject jsonObject = item.userData().toJsonObject();
         if (const TextEdit edit(jsonObject); edit.isValid())
             editsForDocuments[filePath] << edit;
@@ -714,10 +711,6 @@ void SymbolSupport::applyRename(const Utils::SearchResultItems &checkedItems,
 
     for (auto it = editsForDocuments.begin(), end = editsForDocuments.end(); it != end; ++it)
         applyTextEdits(m_client, it.key(), it.value());
-
-    if (!affectedNonOpenFilePaths.isEmpty()) {
-        Core::DocumentManager::notifyFilesChangedInternally(Utils::toList(affectedNonOpenFilePaths));
-    }
 
     const auto extraWidget = qobject_cast<ReplaceWidget *>(search->additionalReplaceWidget());
     QTC_ASSERT(extraWidget, return);

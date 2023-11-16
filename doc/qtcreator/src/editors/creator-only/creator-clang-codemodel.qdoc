@@ -149,7 +149,7 @@
     \image qtcreator-toggle-progress-bar.webp {Toggle Progress Details button}
 
     By default, \QC runs one clangd process per project. If you have created
-    \l{Managing Sessions}{sessions} that have related projects, you can
+    \l{Manage sessions}{sessions} that have related projects, you can
     specify that the projects in the session should be managed by a single
     clangd process.
 

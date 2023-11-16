@@ -157,7 +157,7 @@ public:
         , m_editor(parent)
     {
         connect(m_editor, &QPlainTextEdit::cursorPositionChanged, this, &LineColumnButton::update);
-        connect(this, &QToolButton::pressed, ActionManager::instance(), [this] {
+        connect(this, &QToolButton::clicked, ActionManager::instance(), [this] {
             emit m_editor->activateEditor(EditorManager::IgnoreNavigationHistory);
             QMetaObject::invokeMethod(ActionManager::instance(), [] {
                 if (Command *cmd = ActionManager::command(Core::Constants::GOTO)) {

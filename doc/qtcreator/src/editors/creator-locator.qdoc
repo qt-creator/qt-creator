@@ -170,7 +170,7 @@
     \section2 Opening Sessions from Locator
 
     You can use the filter that triggers menu commands to open
-    \l{Managing Sessions}{sessions}. Enter
+    \l{Manage sessions}{sessions}. Enter
     \c {t yoursess} or \c {t sess yoursess} to trigger \uicontrol File >
     \uicontrol Sessions > \e <session_name>.
 

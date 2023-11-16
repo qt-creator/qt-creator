@@ -268,6 +268,7 @@ void InfoBarDisplay::update()
 {
     for (QWidget *widget : std::as_const(m_infoWidgets)) {
         widget->disconnect(this); // We want no destroyed() signal now
+        widget->hide(); // Late deletion can cause duplicate infos. Hide immediately to prevent it.
         widget->deleteLater();
     }
     m_infoWidgets.clear();

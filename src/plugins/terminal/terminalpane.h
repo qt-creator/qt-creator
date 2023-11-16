@@ -66,6 +66,7 @@ private:
     QAction nextTerminal;
     QAction prevTerminal;
     QAction closeTerminal;
+    QAction toggleKeyboardLock;
 
     QMenu m_shellMenu;
 

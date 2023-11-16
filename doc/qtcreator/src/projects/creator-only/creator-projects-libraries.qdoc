@@ -111,7 +111,7 @@
     You can add a library into a \e subdirs project. Use wizards to create the
     project and the library and to link the library against the project.
 
-    \note This tutorial only applies when you select qmake as the the build
+    \note This tutorial only applies when you select qmake as the build
     system for the subdirs project.
 
     \section1 Creating a shared library
