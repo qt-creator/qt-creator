@@ -85,11 +85,11 @@ private:
 */
 
 /*!
-    \fn void TaskInterface::done(bool success)
+    \fn void TaskInterface::done(DoneResult result)
 
     Emit this signal from the \c TaskAdapter<Task>'s subclass, when the \c Task is finished.
-    Pass \c true as a \a success argument when the task finishes with success;
-    otherwise, when an error occurs, pass \c false.
+    Pass \c DoneResult::Success as a \a result argument when the task finishes with success;
+    otherwise, when an error occurs, pass \c DoneResult::Error.
 */
 
 /*!
@@ -2174,8 +2174,7 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
 
     To extend a TaskTree with a new task type, implement a simple adapter class
     derived from the TaskAdapter class template. The following class is an
-    adapter for a single shot timer, which may be considered as a new
-    asynchronous task:
+    adapter for a single shot timer, which may be considered as a new asynchronous task:
 
     \code
         class TimerTaskAdapter : public TaskAdapter<QTimer>
@@ -2184,7 +2183,7 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
             TimerTaskAdapter() {
                 task()->setSingleShot(true);
                 task()->setInterval(1000);
-                connect(task(), &QTimer::timeout, this, [this] { emit done(true); });
+                connect(task(), &QTimer::timeout, this, [this] { emit done(DoneResult::Success); });
             }
         private:
             void start() final { task()->start(); }
@@ -2201,8 +2200,8 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     accessible through the TaskAdapter::task() method. The constructor
     of TimerTaskAdapter initially configures the QTimer object and connects
     to the QTimer::timeout signal. When the signal is triggered, TimerTaskAdapter
-    emits the \c done(true) signal to inform the task tree that the task finished
-    successfully. If it emits \c done(false), the task finished with an error.
+    emits the \c done(DoneResult::Success) signal to inform the task tree that the task finished
+    successfully. If it emits \c done(DoneResult::Error), the task finished with an error.
     The TaskAdapter::start() method starts the timer.
 
     To make QTimer accessible inside TaskTree under the \e TimerTask name,
@@ -2212,14 +2211,10 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     The new task type is now registered, and you can use it in TaskTree:
 
     \code
-        const auto onTimerSetup = [](QTimer &task) {
-            task.setInterval(2000);
-        };
-        const auto onTimerDone = [](const QTimer &task) {
-            qDebug() << "timer triggered";
-        };
+        const auto onSetup = [](QTimer &task) { task.setInterval(2000); };
+        const auto onDone = [] { qDebug() << "timer triggered"; };
         const Group root {
-            TimerTask(onTimerSetup, onTimerDone)
+            TimerTask(onSetup, onDone)
         };
     \endcode
 
