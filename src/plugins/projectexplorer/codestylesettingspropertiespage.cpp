@@ -35,6 +35,7 @@ public:
 
         setGlobalSettingsId(CppEditor::Constants::CPP_CODE_STYLE_SETTINGS_ID);
         setUseGlobalSettingsCheckBoxVisible(false);
+        setExpanding(true);
 
         const EditorConfiguration *config = project->editorConfiguration();
 
