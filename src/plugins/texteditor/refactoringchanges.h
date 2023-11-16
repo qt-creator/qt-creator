@@ -60,6 +60,7 @@ public:
     void appendReindentRange(const Range &range);
     void setOpenEditor(bool activate = false, int pos = -1);
     bool apply();
+    bool create(const QString &contents, bool reindent, bool openEditor);
 
 protected:
     // users may only get const access to RefactoringFiles created through

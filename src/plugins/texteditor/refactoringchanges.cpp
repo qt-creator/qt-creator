@@ -54,37 +54,7 @@ bool RefactoringChanges::createFile(const FilePath &filePath,
                                     bool reindent,
                                     bool openEditor) const
 {
-    if (filePath.exists())
-        return false;
-
-    // Create a text document for the new file:
-    auto document = new QTextDocument;
-    QTextCursor cursor(document);
-    cursor.beginEditBlock();
-    cursor.insertText(contents);
-
-    // Reindent the contents:
-    if (reindent) {
-        cursor.select(QTextCursor::Document);
-        m_data->indentSelection(cursor, filePath, nullptr);
-    }
-    cursor.endEditBlock();
-
-    // Write the file to disk:
-    TextFileFormat format;
-    format.codec = EditorManager::defaultTextCodec();
-    QString error;
-    bool saveOk = format.writeFile(filePath, document->toPlainText(), &error);
-    delete document;
-    if (!saveOk)
-        return false;
-
-    m_data->fileChanged(filePath);
-
-    if (openEditor)
-        RefactoringChanges::openEditor(filePath, /*bool activate =*/ false, -1, -1);
-
-    return true;
+    return file(filePath)->create(contents, reindent, openEditor);
 }
 
 TextEditorWidget *RefactoringChanges::openEditor(const FilePath &filePath,
@@ -132,6 +102,41 @@ RefactoringFile::RefactoringFile(const FilePath &filePath,
         if (editorWidget && !editorWidget->isReadOnly())
             m_editor = editorWidget;
     }
+}
+
+bool RefactoringFile::create(const QString &contents, bool reindent, bool openEditor)
+{
+    if (m_filePath.isEmpty() || m_filePath.exists() || m_editor)
+        return false;
+
+    // Create a text document for the new file:
+    auto document = new QTextDocument;
+    QTextCursor cursor(document);
+    cursor.beginEditBlock();
+    cursor.insertText(contents);
+
+    // Reindent the contents:
+    if (reindent) {
+        cursor.select(QTextCursor::Document);
+        m_data->indentSelection(cursor, m_filePath, nullptr);
+    }
+    cursor.endEditBlock();
+
+    // Write the file to disk:
+    TextFileFormat format;
+    format.codec = EditorManager::defaultTextCodec();
+    QString error;
+    bool saveOk = format.writeFile(m_filePath, document->toPlainText(), &error);
+    delete document;
+    if (!saveOk)
+        return false;
+
+    fileChanged();
+
+    if (openEditor)
+        RefactoringChanges::openEditor(m_filePath, /*bool activate =*/ false, -1, -1);
+
+    return true;
 }
 
 RefactoringFile::~RefactoringFile()
@@ -443,7 +448,7 @@ void RefactoringFile::doFormatting()
             formattingRanges.push_back({line, line});
     }
 
-    static const QString clangFormatLineRemovalBlocker("// QTC_TEMP");
+    static const QString clangFormatLineRemovalBlocker("");
     for (const RangeInLines &r : std::as_const(formattingRanges)) {
         QTextBlock b = m_editor->document()->findBlockByNumber(r.startLine - 1);
         while (true) {
