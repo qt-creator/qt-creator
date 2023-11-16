@@ -347,8 +347,6 @@ using UserCommandMap = QMap<int, QString>;
 //
 ///////////////////////////////////////////////////////////////////////
 
-class FakeVimPluginRunData;
-
 class FakeVimPluginPrivate : public QObject
 {
     Q_OBJECT
@@ -428,7 +426,6 @@ public:
     UserCommandMap m_defaultUserCommandMap;
 
     MiniBuffer *m_miniBuffer = nullptr;
-    FakeVimPluginRunData *runData = nullptr;
 
     QString m_lastHighlight;
 
@@ -870,6 +867,8 @@ private:
     QString m_needle;
 };
 
+static FakeVimCompletionAssistProvider theFakeVimCompletionAssistProvider;
+
 class FakeVimAssistProposalItem final : public AssistProposalItem
 {
 public:
@@ -967,17 +966,7 @@ IAssistProcessor *FakeVimCompletionAssistProvider::createProcessor(const AssistI
 }
 
 
-///////////////////////////////////////////////////////////////////////
-//
-// FakeVimPluginRunData
-//
-///////////////////////////////////////////////////////////////////////
-
-class FakeVimPluginRunData
-{
-public:
-    FakeVimCompletionAssistProvider wordProvider;
-};
+// FakeVimUserCommandsModel
 
 QVariant FakeVimUserCommandsModel::data(const QModelIndex &index, int role) const
 {
@@ -1028,7 +1017,6 @@ FakeVimPluginPrivate::FakeVimPluginPrivate()
 
 void FakeVimPluginPrivate::initialize()
 {
-    runData = new FakeVimPluginRunData;
 /*
     // Set completion settings and keep them up to date.
     TextEditorSettings *textEditorSettings = TextEditorSettings::instance();
@@ -1591,7 +1579,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
     });
 
     handler->simpleCompletionRequested.set([this, handler](const QString &needle, bool forward) {
-        runData->wordProvider.setActive(needle, forward, handler);
+        theFakeVimCompletionAssistProvider.setActive(needle, forward, handler);
     });
 
     handler->windowCommandRequested.set([this, handler](const QString &map, int count) {
@@ -1726,7 +1714,7 @@ void FakeVimPluginPrivate::editorOpened(IEditor *editor)
 
     handler->completionRequested.set([this, tew] {
         if (tew)
-            tew->invokeAssist(Completion, &runData->wordProvider);
+            tew->invokeAssist(Completion, &theFakeVimCompletionAssistProvider);
     });
 
     handler->processOutput.set([](const QString &command, const QString &input, QString *output) {
@@ -2037,9 +2025,6 @@ void FakeVimPlugin::initialize()
 
 ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
 {
-    delete dd->runData;
-    dd->runData = nullptr;
-
     StatusBarManager::destroyStatusBarWidget(dd->m_miniBuffer);
     dd->m_miniBuffer = nullptr;
     return SynchronousShutdown;
