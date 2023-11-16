@@ -148,21 +148,23 @@ private:
 class TASKING_EXPORT GroupItem
 {
 public:
-    // Internal, provided by QTC_DECLARE_CUSTOM_TASK
-    using TaskCreateHandler = std::function<TaskInterface *(void)>;
-    // Called prior to task start, just after createHandler
-    using TaskSetupHandler = std::function<SetupResult(TaskInterface &)>;
-    // Called on task done, just before deleteLater
-    using TaskDoneHandler = std::function<DoneResult(const TaskInterface &, DoneWith)>;
     // Called when group entered, after group's storages are created
     using GroupSetupHandler = std::function<SetupResult()>;
     // Called when group done, before group's storages are deleted
     using GroupDoneHandler = std::function<DoneResult(DoneWith)>;
 
+protected:
+    // Internal, provided by CustomTask
+    using InterfaceCreateHandler = std::function<TaskInterface *(void)>;
+    // Called prior to task start, just after createHandler
+    using InterfaceSetupHandler = std::function<SetupResult(TaskInterface &)>;
+    // Called on task done, just before deleteLater
+    using InterfaceDoneHandler = std::function<DoneResult(const TaskInterface &, DoneWith)>;
+
     struct TaskHandler {
-        TaskCreateHandler m_createHandler;
-        TaskSetupHandler m_setupHandler = {};
-        TaskDoneHandler m_doneHandler = {};
+        InterfaceCreateHandler m_createHandler;
+        InterfaceSetupHandler m_setupHandler = {};
+        InterfaceDoneHandler m_doneHandler = {};
         CallDoneIf m_callDoneIf = CallDoneIf::SuccessOrError;
     };
 
@@ -178,7 +180,6 @@ public:
         std::optional<WorkflowPolicy> m_workflowPolicy = {};
     };
 
-protected:
     enum class Type {
         List,
         Group,
@@ -220,6 +221,7 @@ protected:
 private:
     friend class TaskContainer;
     friend class TaskNode;
+    friend class TaskTreePrivate;
     Type m_type = Type::Group;
     QList<GroupItem> m_children;
     GroupData m_groupData;
@@ -385,12 +387,12 @@ public:
     static_assert(std::is_base_of_v<TaskAdapter<Task, Deleter>, Adapter>,
                   "The Adapter type for the CustomTask<Adapter> needs to be derived from "
                   "TaskAdapter<Task>.");
-    using SetupFunction = std::function<void(const Task &)>;
-    using DoneFunction = std::function<DoneResult(const Task &, DoneWith)>;
+    using TaskSetupHandler = std::function<SetupResult(Task &)>;
+    using TaskDoneHandler = std::function<DoneResult(const Task &, DoneWith)>;
     static Adapter *createAdapter() { return new Adapter; }
 
-    template <typename SetupHandler = SetupFunction, typename DoneHandler = DoneFunction>
-    CustomTask(SetupHandler &&setup = SetupFunction(), DoneHandler &&done = DoneFunction(),
+    template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler>
+    CustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(),
                CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
         : GroupItem({&createAdapter, wrapSetup(std::forward<SetupHandler>(setup)),
                      wrapDone(std::forward<DoneHandler>(done)), callDoneIf})
@@ -404,8 +406,8 @@ public:
 
 private:
     template <typename Handler>
-    static GroupItem::TaskSetupHandler wrapSetup(Handler &&handler) {
-        if constexpr (std::is_same_v<Handler, SetupFunction>)
+    static InterfaceSetupHandler wrapSetup(Handler &&handler) {
+        if constexpr (std::is_same_v<Handler, TaskSetupHandler>)
             return {}; // When user passed {} for the setup handler.
         // S, V stands for: [S]etupResult, [V]oid
         static constexpr bool isS = isInvocable<SetupResult, Handler, Task &>();
@@ -423,8 +425,8 @@ private:
     };
 
     template <typename Handler>
-    static GroupItem::TaskDoneHandler wrapDone(Handler &&handler) {
-        if constexpr (std::is_same_v<Handler, DoneFunction>)
+    static InterfaceDoneHandler wrapDone(Handler &&handler) {
+        if constexpr (std::is_same_v<Handler, TaskDoneHandler>)
             return {}; // When user passed {} for the done handler.
         // D, V, T, W stands for: [D]oneResult, [V]oid, [T]ask, done[W]ith
         static constexpr bool isDTW = isInvocable<DoneResult, Handler, const Task &, DoneWith>();
