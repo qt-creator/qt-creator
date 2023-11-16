@@ -137,13 +137,11 @@ Item {
 
         title: qsTr("Deleting the model")
         clip: true
-        implicitWidth: contentItem.width
 
         contentItem: ColumnLayout {
             spacing: 2
 
             Text {
-                Layout.fillHeight: true
                 Layout.fillWidth: true
 
                 wrapMode: Text.WordWrap
