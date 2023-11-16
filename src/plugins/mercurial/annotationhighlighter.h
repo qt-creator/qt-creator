@@ -10,8 +10,7 @@ namespace Mercurial::Internal {
 class MercurialAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit MercurialAnnotationHighlighter(const VcsBase::Annotation &annotation,
-                                            QTextDocument *document = nullptr);
+    explicit MercurialAnnotationHighlighter(const VcsBase::Annotation &annotation);
 
 private:
     QString changeNumber(const QString &block) const override;

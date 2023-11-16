@@ -11,8 +11,7 @@ namespace Internal {
 class FossilAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit FossilAnnotationHighlighter(const VcsBase::Annotation &annotation,
-                                         QTextDocument *document = nullptr);
+    explicit FossilAnnotationHighlighter(const VcsBase::Annotation &annotation);
 
 private:
     QString changeNumber(const QString &block) const final;

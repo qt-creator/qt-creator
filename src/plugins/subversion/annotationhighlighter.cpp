@@ -6,9 +6,8 @@
 using namespace Subversion;
 using namespace Subversion::Internal;
 
-SubversionAnnotationHighlighter::SubversionAnnotationHighlighter(
-    const VcsBase::Annotation &annotation, QTextDocument *document)
-    : VcsBase::BaseAnnotationHighlighter(annotation, document)
+SubversionAnnotationHighlighter::SubversionAnnotationHighlighter(const VcsBase::Annotation &annotation)
+    : VcsBase::BaseAnnotationHighlighter(annotation)
     , m_blank(QLatin1Char(' '))
 {}
 

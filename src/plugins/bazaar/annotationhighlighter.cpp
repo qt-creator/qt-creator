@@ -6,9 +6,8 @@
 
 namespace Bazaar::Internal {
 
-BazaarAnnotationHighlighter::BazaarAnnotationHighlighter(const VcsBase::Annotation &annotation,
-                                                         QTextDocument *document)
-    : VcsBase::BaseAnnotationHighlighter(annotation, document)
+BazaarAnnotationHighlighter::BazaarAnnotationHighlighter(const VcsBase::Annotation &annotation)
+    : VcsBase::BaseAnnotationHighlighter(annotation)
     , m_changeset(QLatin1String(Constants::ANNOTATE_CHANGESET_ID))
 {}
 

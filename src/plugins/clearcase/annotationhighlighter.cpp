@@ -5,9 +5,8 @@
 
 namespace ClearCase::Internal {
 
-ClearCaseAnnotationHighlighter::ClearCaseAnnotationHighlighter(const VcsBase::Annotation &annotation,
-                                                               QTextDocument *document)
-    : VcsBase::BaseAnnotationHighlighter(annotation, document)
+ClearCaseAnnotationHighlighter::ClearCaseAnnotationHighlighter(const VcsBase::Annotation &annotation)
+    : VcsBase::BaseAnnotationHighlighter(annotation)
 {}
 
 QString ClearCaseAnnotationHighlighter::changeNumber(const QString &block) const

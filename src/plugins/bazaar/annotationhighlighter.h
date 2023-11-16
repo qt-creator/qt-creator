@@ -10,8 +10,7 @@ namespace Bazaar::Internal {
 class BazaarAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit BazaarAnnotationHighlighter(const VcsBase::Annotation &annotation,
-                                         QTextDocument *document = nullptr);
+    explicit BazaarAnnotationHighlighter(const VcsBase::Annotation &annotation);
 
 private:
     QString changeNumber(const QString &block) const override;

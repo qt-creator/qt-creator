@@ -26,8 +26,7 @@ class VCSBASE_EXPORT BaseAnnotationHighlighter : public TextEditor::SyntaxHighli
 public:
     typedef  QSet<QString> ChangeNumbers;
 
-    explicit BaseAnnotationHighlighter(const Annotation &annotation,
-                                       QTextDocument *document = nullptr);
+    explicit BaseAnnotationHighlighter(const Annotation &annotation);
     ~BaseAnnotationHighlighter() override;
 
 

@@ -12,8 +12,7 @@ class ClearCaseAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
     Q_OBJECT
 public:
-    explicit ClearCaseAnnotationHighlighter(const VcsBase::Annotation &annotation,
-                                            QTextDocument *document = nullptr);
+    explicit ClearCaseAnnotationHighlighter(const VcsBase::Annotation &annotation);
 
 private:
     QString changeNumber(const QString &block) const override;

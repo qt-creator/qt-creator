@@ -25,9 +25,8 @@ namespace Cvs::Internal {
 class CvsAnnotationHighlighter : public VcsBase::BaseAnnotationHighlighter
 {
 public:
-    explicit CvsAnnotationHighlighter(const VcsBase::Annotation &annotation,
-                                      QTextDocument *document = nullptr)
-        : VcsBase::BaseAnnotationHighlighter(annotation, document)
+    explicit CvsAnnotationHighlighter(const VcsBase::Annotation &annotation)
+        : VcsBase::BaseAnnotationHighlighter(annotation)
     {}
 
 private:

@@ -6,9 +6,8 @@
 
 namespace Mercurial::Internal {
 
-MercurialAnnotationHighlighter::MercurialAnnotationHighlighter(const VcsBase::Annotation &annotation,
-                                                               QTextDocument *document)
-    : VcsBase::BaseAnnotationHighlighter(annotation, document)
+MercurialAnnotationHighlighter::MercurialAnnotationHighlighter(const VcsBase::Annotation &annotation)
+    : VcsBase::BaseAnnotationHighlighter(annotation)
     , changeset(QLatin1String(Constants::CHANGESETID12))
 {
 }

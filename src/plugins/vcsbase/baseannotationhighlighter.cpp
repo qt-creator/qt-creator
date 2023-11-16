@@ -78,9 +78,8 @@ QSet<QString> BaseAnnotationHighlighterPrivate::annotationChanges() const
     return changes;
 }
 
-
-BaseAnnotationHighlighter::BaseAnnotationHighlighter(const Annotation &annotation, QTextDocument *document)
-    : TextEditor::SyntaxHighlighter(document)
+BaseAnnotationHighlighter::BaseAnnotationHighlighter(const Annotation &annotation)
+    : TextEditor::SyntaxHighlighter()
     , d(new BaseAnnotationHighlighterPrivate(this))
 {
     setDefaultTextFormatCategories();
