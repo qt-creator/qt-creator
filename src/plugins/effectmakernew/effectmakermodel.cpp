@@ -1306,7 +1306,7 @@ QString EffectMakerModel::getQmlImagesString(bool localFiles)
             if (localFiles) {
                 QFileInfo fi(imagePath);
                 imagePath = fi.fileName();
-                imagesString += QString("            source: %1\n").arg(uniform->name());
+                imagesString += QString("            source: \"%1\"\n").arg(imagePath);
             } else {
                 imagesString += QString("            source: g_propertyData.%1\n").arg(uniform->name());
 
