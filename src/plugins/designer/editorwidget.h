@@ -12,7 +12,10 @@ class QDesignerFormWindowInterface;
 QT_END_NAMESPACE
 
 namespace SharedTools { class WidgetHost; }
-namespace Core { class IEditor; }
+namespace Core {
+class EditorToolBar;
+class IEditor;
+} // namespace Core
 
 namespace Designer {
 
@@ -29,7 +32,7 @@ class EditorWidget : public Utils::FancyMainWindow
     Q_OBJECT
 
 public:
-    explicit EditorWidget(QWidget *parent = nullptr);
+    explicit EditorWidget(Core::EditorToolBar *toolBar, QWidget *parent = nullptr);
 
     QDockWidget* const* designerDockWidgets() const;
 
@@ -46,6 +49,7 @@ public:
 private:
     FormEditorStack *m_stack = nullptr;
     QDockWidget *m_designerDockWidgets[Designer::Constants::DesignerSubWindowCount];
+    Core::EditorToolBar *m_toolBar = nullptr;
 };
 
 } // namespace Internal

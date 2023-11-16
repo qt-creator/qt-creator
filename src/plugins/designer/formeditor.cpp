@@ -200,9 +200,6 @@ public:
     QWidget *m_modeWidget = nullptr;
     EditorWidget *m_editorWidget = nullptr;
 
-    QWidget *m_editorToolBar = nullptr;
-    EditorToolBar *m_toolBar = nullptr;
-
     QMap<Command *, QAction *> m_commandToDesignerAction;
     FormWindowEditorFactory *m_xmlEditorFactory = nullptr;
 };
@@ -392,25 +389,24 @@ void FormEditorData::fullInit()
             m_editorWidget->removeFormWindowEditor(editor);
     });
 
+    QWidget *editorToolBar = createEditorToolBar();
+    auto toolBar = new EditorToolBar;
+    toolBar->setToolbarCreationFlags(EditorToolBar::FlagsStandalone);
+    toolBar->setNavigationVisible(false);
+    toolBar->addCenterToolBar(editorToolBar);
+
     // Nest toolbar and editor widget
-    m_editorWidget = new EditorWidget;
+    m_editorWidget = new EditorWidget(toolBar);
     QtcSettings *settings = ICore::settings();
     settings->beginGroup(settingsGroupC);
     m_editorWidget->restoreSettings(settings);
     settings->endGroup();
-
-    m_editorToolBar = createEditorToolBar();
-    m_toolBar = new EditorToolBar;
-    m_toolBar->setToolbarCreationFlags(EditorToolBar::FlagsStandalone);
-    m_toolBar->setNavigationVisible(false);
-    m_toolBar->addCenterToolBar(m_editorToolBar);
 
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName("DesignerModeWidget");
     auto layout = new QVBoxLayout(m_modeWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
-    layout->addWidget(m_toolBar);
     // Avoid mode switch to 'Edit' mode when the application started by
     // 'Run' in 'Design' mode emits output.
     auto splitter = new MiniSplitter(Qt::Vertical);
@@ -772,7 +768,6 @@ IEditor *FormEditorData::createEditor()
     FormWindowEditor *formWindowEditor = m_xmlEditorFactory->create(form);
 
     m_editorWidget->add(widgetHost, formWindowEditor);
-    m_toolBar->addEditor(formWindowEditor);
 
     if (formWindowEditor) {
         Utils::InfoBarEntry info(Id(Constants::INFO_READ_ONLY),
