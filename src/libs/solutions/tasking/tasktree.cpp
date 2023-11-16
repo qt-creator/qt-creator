@@ -66,6 +66,7 @@ private:
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
     \brief TaskInterface is the abstract base class for implementing custom task adapters.
+    \reentrant
 
     To implement a custom task adapter, derive your adapter from the
     \c TaskAdapter<Task> class template. TaskAdapter automatically creates and destroys
@@ -88,8 +89,8 @@ private:
     \fn void TaskInterface::done(DoneResult result)
 
     Emit this signal from the \c TaskAdapter<Task>'s subclass, when the \c Task is finished.
-    Pass \c DoneResult::Success as a \a result argument when the task finishes with success;
-    otherwise, when an error occurs, pass \c DoneResult::Error.
+    Pass DoneResult::Success as a \a result argument when the task finishes with success;
+    otherwise, when an error occurs, pass DoneResult::Error.
 */
 
 /*!
@@ -97,6 +98,7 @@ private:
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
     \brief A class template for implementing custom task adapters.
+    \reentrant
 
     The TaskAdapter class template is responsible for creating a task of the \c Task type,
     starting it, and reporting success or an error when the task is finished.
@@ -118,9 +120,18 @@ private:
         // Adapts Worker's interface to work with task tree
         class WorkerTaskAdapter : public TaskAdapter<Worker> {...};
 
-        // Defines WorkerTask as a new task tree element
+        // Defines WorkerTask as a new custom task type to be placed inside Group items
         using WorkerTask = CustomTask<WorkerTaskAdapter>;
     \endcode
+
+    Optionally, you may pass a custom \c Deleter for the associated \c Task
+    as a second template parameter of your \c TaskAdapter subclass.
+    When the \c Deleter parameter is omitted, the \c std::default_delete<Task> is used by default.
+    The custom \c Deleter is useful when the destructor of the running \c Task
+    may potentially block the caller thread. Instead of blocking, the custom deleter may move
+    the running task into a separate thread and implement the blocking destruction there.
+    In this way, the fast destruction (seen from the caller thread) of the running task
+    with a blocking destructor may be achieved.
 
     For more information on implementing the custom task adapters, refer to \l {Task Adapters}.
 
@@ -128,39 +139,36 @@ private:
 */
 
 /*!
-    \typealias TaskAdapter::Type
+    \fn template <typename Task, typename Deleter = std::default_delete<Task>> TaskAdapter<Task, Deleter>::TaskAdapter<Task, Deleter>()
 
-    Type alias for the \c Task type.
-*/
+    Creates a task adapter for the given \c Task type.
 
-/*!
-    \fn template <typename Task> TaskAdapter<Task>::TaskAdapter<Task>()
-
-    Creates a task adapter for the given \c Task type. Internally, it creates
-    an instance of \c Task, which is accessible via the task() method.
+    Internally, it creates an instance of \c Task, which is accessible via the task() method.
+    The optionally provided \c Deleter is used instead of the \c Task destructor.
+    When \c Deleter is omitted, the \c std::default_delete<Task> is used by default.
 
     \sa task()
 */
 
 /*!
-    \fn template <typename Task> Task *TaskAdapter<Task>::task()
+    \fn template <typename Task, typename Deleter = std::default_delete<Task>> Task *TaskAdapter<Task, Deleter>::task()
 
     Returns the pointer to the associated \c Task instance.
 */
 
 /*!
-    \fn template <typename Task> Task *TaskAdapter<Task>::task() const
+    \fn template <typename Task, typename Deleter = std::default_delete<Task>> Task *TaskAdapter<Task, Deleter>::task() const
     \overload
 
-    Returns the const pointer to the associated \c Task instance.
+    Returns the \c const pointer to the associated \c Task instance.
 */
 
 /*!
     \class Tasking::GroupItem
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
-    \brief GroupItem represents the basic element that may be a part of any
-           \l {Tasking::Group} {Group}.
+    \brief GroupItem represents the basic element that may be a part of any Group.
+    \reentrant
 
     GroupItem is a basic element that may be a part of any \l {Tasking::Group} {Group}.
     It encapsulates the functionality provided by any GroupItem's subclass.
@@ -176,14 +184,14 @@ private:
         \li \l CustomTask
         \li Defines asynchronous task type and task's start, done, and error handlers.
             Aliased with a unique task name, such as, \c ConcurrentCallTask<ResultType>
-            or \l NetworkQueryTask. Asynchronous tasks are the main reason for using a task tree.
+            or NetworkQueryTask. Asynchronous tasks are the main reason for using a task tree.
     \row
-        \li \l Group
+        \li \l {Tasking::Group} {Group}
         \li A container for other group items. Since the group is of the GroupItem type,
             it's possible to nest it inside another group. The group is seen by its parent
             as a single asynchronous task.
     \row
-        \li \l Storage
+        \li Storage
         \li Enables the child tasks of a group to exchange data.
             When Storage is placed inside a group, the task tree instantiates
             the storage object just before the group is entered,
@@ -192,9 +200,8 @@ private:
         \li Other group control items
         \li The items returned by \l {Tasking::parallelLimit()} {parallelLimit()} or
             \l {Tasking::workflowPolicy()} {workflowPolicy()} influence the group's behavior.
-            The items returned by \l {Tasking::onGroupSetup()} {onGroupSetup()},
-            \l {Tasking::onGroupDone()} {onGroupDone()} or
-            \l {Tasking::onGroupError()} {onGroupError()} define custom handlers called when
+            The items returned by \l {Tasking::onGroupSetup()} {onGroupSetup()} or
+            \l {Tasking::onGroupDone()} {onGroupDone()} define custom handlers called when
             the group starts or ends execution.
     \endtable
 */
@@ -205,6 +212,7 @@ private:
     \inmodule TaskingSolution
     \brief Group represents the basic element for composing declarative recipes describing
            how to execute and handle a nested tree of asynchronous tasks.
+    \reentrant
 
     Group is a container for other group items. It encloses child tasks into one unit,
     which is seen by the group's parent as a single, asynchronous task.
@@ -277,7 +285,7 @@ private:
             // the *storage or storage-> operators.
             sequential,
             Storage(storage),
-            NetworkQueryTask(onFirstSetup, onFirstDone),
+            NetworkQueryTask(onFirstSetup, onFirstDone, CallDoneIf::Success),
             ConcurrentCallTask<QImage>(onSecondSetup)
         };
     \endcode
@@ -330,7 +338,7 @@ private:
 */
 
 /*!
-    \fn GroupItem Group::withTimeout(std::chrono::milliseconds timeout, const GroupEndHandler &handler) const
+    \fn GroupItem Group::withTimeout(std::chrono::milliseconds timeout, const std::function<void()> &handler) const
 
     Attaches \c TimeoutTask to a copy of \c this group, elapsing after \a timeout in milliseconds,
     with an optionally provided timeout \a handler, and returns the coupled item.
@@ -345,16 +353,17 @@ private:
     \class Tasking::CustomTask
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
-    \brief A class template used for declaring task items and defining their setup,
-           done, and error handlers.
+    \brief A class template used for declaring custom task items and defining their setup
+           and done handlers.
+    \reentrant
 
-    The CustomTask class template is used inside TaskTree for describing custom task items.
+    Describes custom task items within task tree recipes.
 
-    Custom task names are aliased with unique names using the CustomTask template
+    Custom task names are aliased with unique names using the \c CustomTask template
     with a given TaskAdapter subclass as a template parameter.
-    For example, \c ConcurrentCallTask<T> is an alias to the CustomTask that is defined
+    For example, \c ConcurrentCallTask<T> is an alias to the \c CustomTask that is defined
     to work with \c ConcurrentCall<T> as an associated task class.
-    The following table contains all the built-in tasks and their associated task classes:
+    The following table contains example custom tasks and their associated task classes:
 
     \table
     \header
@@ -387,29 +396,91 @@ private:
 /*!
     \typealias CustomTask::Task
 
-    Type alias for \c Adapter::Type.
-
-    This is the associated task's type.
+    Type alias for the task type associated with the custom task's \c Adapter.
 */
 
 /*!
-    \typealias CustomTask::EndHandler
+    \typealias CustomTask::Deleter
 
-    Type alias for \c std::function<void(const Task &)>.
+    Type alias for the task's type deleter associated with the custom task's \c Adapter.
 */
 
 /*!
-    \fn template <typename Adapter> template <typename SetupHandler> CustomTask<Adapter>::CustomTask<Adapter>(SetupHandler &&setup, const EndHandler &done, const EndHandler &error)
+    \typealias CustomTask::TaskSetupHandler
 
-    Constructs the CustomTask instance and attaches the \a setup, \a done, and \a error
-    handlers to the task. When the running task tree is about to start the task,
+    Type alias for \c std::function<SetupResult(Task &)>.
+
+    The \c TaskSetupHandler is an optional argument of a custom task element's constructor.
+    Any function with the above signature, when passed as a task setup handler,
+    will be called by the running task tree after the task is created and before it is started.
+
+    Inside the body of the handler, you may configure the task according to your needs.
+    The additional parameters, including storages, may be passed to the handler
+    via the lambda capture.
+    You can decide dynamically whether the task should be started or skipped with
+    success or an error.
+
+    \note Do not start the task inside the start handler by yourself. Leave it for TaskTree,
+    otherwise the behavior is undefined.
+
+    The return value of the handler instructs the running task tree on how to proceed
+    after the handler's invocation is finished. The return value of SetupResult::Continue
+    instructs the task tree to continue running, that is, to execute the associated \c Task.
+    The return value of SetupResult::StopWithSuccess or SetupResult::StopWithError
+    instructs the task tree to skip the task's execution and finish it immediately with
+    success or an error, respectively.
+
+    When the return type is either SetupResult::StopWithSuccess or SetupResult::StopWithError,
+    the task's done handler (if provided) isn't called afterwards.
+
+    The constructor of a custom task accepts also functions in the shortened form of
+    \c std::function<void(Task &)>, that is, the return value is \c void.
+    In this case, it's assumed that the return value is SetupResult::Continue.
+
+    \sa CustomTask(), TaskDoneHandler, GroupSetupHandler
+*/
+
+/*!
+    \typealias CustomTask::TaskDoneHandler
+
+    Type alias for \c std::function<DoneResult(const Task &, DoneWith)>.
+
+    The \c TaskDoneHandler is an optional argument of a custom task element's constructor.
+    Any function with the above signature, when passed as a task done handler,
+    will be called by the running task tree after the task execution finished and before
+    the final result of the execution is reported back to the parent group.
+
+    Inside the body of the handler you may retrieve the final data from the finished task.
+    The additional parameters, including storages, may be passed to the handler
+    via the lambda capture.
+    It is also possible to decide dynamically whether the task should finish with its return
+    value, or the final result should be tweaked.
+
+    The DoneWith argument is optional and your done handler may omit it.
+    When provided, it holds the info about the final result of a task that will be
+    reported to its parent.
+
+    If you do not plan to read any data from the finished task,
+    you may omit the \c {const Task &} argument.
+
+    The returned DoneResult value is optional and your handler may return \c void instead.
+    In this case, the final result of the task will be equal to the value indicated by
+    the DoneWith argument. When the handler returns the DoneResult value,
+    the task's final result may be tweaked inside the done handler's body by the returned value.
+
+    \sa CustomTask(), TaskSetupHandler, GroupDoneHandler
+*/
+
+/*!
+    \fn template <typename Adapter> template <typename SetupHandler = TaskSetupHandler, typename DoneHandler = TaskDoneHandler> CustomTask<Adapter>::CustomTask(SetupHandler &&setup = TaskSetupHandler(), DoneHandler &&done = TaskDoneHandler(), CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+
+    Constructs a \c CustomTask instance and attaches the \a setup and \a done handlers to the task.
+    When the running task tree is about to start the task,
     it instantiates the associated \l Task object, invokes \a setup handler with a \e reference
-    to the created task, and starts it. When the running task finishes with success or an error,
-    the task tree invokes \a done or \a error handler, respectively,
-    with a \e {const reference} to the created task.
+    to the created task, and starts it. When the running task finishes,
+    the task tree invokes a \a done handler, with a \c const \e reference to the created task.
 
-    The passed \a setup handler is either of the \c std::function<SetupResult(Task &)> or
-    \c std::function<void(Task &)> type. For example:
+    The passed \a setup handler is of the \l TaskSetupHandler type. For example:
 
     \code
         static void parseAndLog(const QString &input);
@@ -438,35 +509,23 @@ private:
         };
     \endcode
 
-    When the passed \a setup handler is of the \c std::function<SetupResult(Task &)> type,
-    the return value of the handler instructs the running tree on how to proceed after
-    the handler's invocation is finished. The default return value of SetupResult::Continue
-    instructs the tree to continue running, i.e. to execute the associated \c Task.
-    The return value of SetupResult::StopWithSuccess or SetupResult::StopWithError instructs
-    the tree to skip the task's execution and finish immediately with success or an error,
-    respectively.
-    When the return type is either SetupResult::StopWithSuccess or SetupResult::StopWithError,
-    the task's \a done or \a error handler (even if provided) are not called afterwards.
+    The \a done handler is of the \l TaskDoneHandler type.
+    By default, the \a done handler is invoked whenever the task finishes.
+    Pass a non-default value for the \a callDoneIf argument when you want the handler to be called
+    only on a successful or failed execution.
 
-    The \a setup handler may be of a shortened form of std::function<void(Task &)>,
-    i.e. the return value is void. In this case it's assumed that the return value is
-    SetupResult::Continue by default.
-
-    When the running task finishes, one of \a done or \a error handlers is called,
-    depending on whether it finished with success or an error, respectively.
-    Both handlers are of std::function<void(const Task &)> type.
+    \sa TaskSetupHandler, TaskDoneHandler
 */
 
 /*!
-    \fn template <typename Adapter> GroupItem CustomTask<Adapter>::withTimeout(std::chrono::milliseconds timeout, const GroupItem::GroupEndHandler &handler) const
+    \fn template <typename Adapter> GroupItem CustomTask<Adapter>::withTimeout(std::chrono::milliseconds timeout, const std::function<void()> &handler) const
 
     Attaches \c TimeoutTask to a copy of \c this task, elapsing after \a timeout in milliseconds,
     with an optionally provided timeout \a handler, and returns the coupled item.
 
-    When the task finishes before \a timeout passes,
-    the returned item finishes immediately with the task's result.
-    Otherwise, the \a handler is invoked (if provided), the task is stopped,
-    and the returned item finishes with an error.
+    When the task finishes before \a timeout passes, the returned item finishes immediately
+    with the task's result. Otherwise, \a handler is invoked (if provided),
+    the task is stopped, and the returned item finishes with an error.
 */
 
 /*!
@@ -518,8 +577,8 @@ private:
         tasks finished, the group finishes with an error.
         If a group is empty, it finishes with an error.
 
-    Whenever a child task's result causes the Group to stop,
-    i.e. in case of StopOnError, StopOnSuccess, or StopOnSuccessOrError policies,
+    Whenever a child task's result causes the Group to stop, that is,
+    in case of StopOnError, StopOnSuccess, or StopOnSuccessOrError policies,
     the Group stops the other running child tasks (if any - for example in parallel mode),
     and skips executing tasks it has not started yet (for example, in the sequential mode -
     those, that are placed after the failed task). Both stopping and skipping child tasks
@@ -572,7 +631,7 @@ private:
 
     If a child of a group is also a group, the child group runs its tasks according to its own
     workflow policy. When a parent group stops the running child group because
-    of parent group's workflow policy, i.e. when the StopOnError, StopOnSuccess,
+    of parent group's workflow policy, that is, when the StopOnError, StopOnSuccess,
     or StopOnSuccessOrError policy was used for the parent,
     the child group's result is reported according to the
     \b Result column and to the \b {child group's workflow policy} row in the table above.
@@ -654,17 +713,77 @@ private:
     \value StopWithSuccess
            The group's or task's execution stops immediately with success.
            When returned from the group's setup handler, all child tasks are skipped,
-           and the group's onGroupDone() handler is invoked (if provided).
+           and the group's onGroupDone() handler is invoked with DoneWith::Success.
            The group reports success to its parent. The group's workflow policy is ignored.
            When returned from the task's setup handler, the task isn't started,
            its done handler isn't invoked, and the task reports success to its parent.
     \value StopWithError
            The group's or task's execution stops immediately with an error.
            When returned from the group's setup handler, all child tasks are skipped,
-           and the group's onGroupError() handler is invoked (if provided).
+           and the group's onGroupDone() handler is invoked with DoneWith::Error.
            The group reports an error to its parent. The group's workflow policy is ignored.
            When returned from the task's setup handler, the task isn't started,
            its error handler isn't invoked, and the task reports an error to its parent.
+*/
+
+/*!
+    \enum Tasking::DoneResult
+
+    This enum is optionally returned from the group's or task's done handler function.
+    When the done handler doesn't return any value, that is, its return type is \c void,
+    its final return value is automatically deduced by the running task tree and reported
+    to its parent group.
+
+    When the done handler returns the DoneResult, you can tweak the final return value
+    inside the handler.
+
+    When the DoneResult is returned by the group's done handler, the group's workflow policy
+    is ignored.
+
+    This enum is also used inside the TaskInterface::done() signal and it indicates whether
+    the task finished with success or an error.
+
+    \value Success
+           The group's or task's execution ends with success.
+    \value Error
+           The group's or task's execution ends with an error.
+*/
+
+/*!
+    \enum Tasking::DoneWith
+
+    This enum is an optional argument for the group's or task's done handler.
+    It indicates whether the group or task finished with success or an error, or it was canceled.
+
+    It is also used as an argument inside the TaskTree::done() signal,
+    indicating the final result of the TaskTree execution.
+
+    \value Success
+           The group's or task's execution ended with success.
+    \value Error
+           The group's or task's execution ended with an error.
+    \value Cancel
+           The group's or task's execution was canceled. This happens when the user calls
+           TaskTree::stop() for the running task tree or when the group's workflow policy
+           results in stopping some of its running children.
+           Tweaking the done handler's final result by returning Tasking::DoneResult from
+           the handler is no-op when the group's or task's execution was canceled.
+*/
+
+/*!
+    \enum Tasking::CallDoneIf
+
+    This enum is an optional argument for the \l onGroupDone() element or custom task's constructor.
+    It instructs the task tree on when the group's or task's done handler should be invoked.
+
+    \value SuccessOrError
+           The done handler is always invoked.
+    \value Success
+           The done handler is invoked only after successful execution,
+           that is, when DoneWith::Success.
+    \value Error
+           The done handler is invoked only after failed execution,
+           that is, when DoneWith::Error or when DoneWith::Cancel.
 */
 
 /*!
@@ -672,55 +791,60 @@ private:
 
     Type alias for \c std::function<SetupResult()>.
 
-    The GroupSetupHandler is used when constructing the onGroupSetup() element.
+    The \c GroupSetupHandler is an argument of the onGroupSetup() element.
     Any function with the above signature, when passed as a group setup handler,
     will be called by the running task tree when the group execution starts.
 
     The return value of the handler instructs the running group on how to proceed
     after the handler's invocation is finished. The default return value of SetupResult::Continue
-    instructs the group to continue running, i.e. to start executing its child tasks.
+    instructs the group to continue running, that is, to start executing its child tasks.
     The return value of SetupResult::StopWithSuccess or SetupResult::StopWithError
     instructs the group to skip the child tasks' execution and finish immediately with
     success or an error, respectively.
 
-    When the return type is either SetupResult::StopWithSuccess
-    of SetupResult::StopWithError, the group's done or error handler (if provided)
-    is called synchronously immediately afterwards.
+    When the return type is either SetupResult::StopWithSuccess or SetupResult::StopWithError,
+    the group's done handler (if provided) is called synchronously immediately afterwards.
 
     \note Even if the group setup handler returns StopWithSuccess or StopWithError,
-    one of the group's done or error handlers is invoked. This behavior differs
-    from that of task handlers and might change in the future.
+    the group's done handler is invoked. This behavior differs from that of task done handler
+    and might change in the future.
 
-    The onGroupSetup() accepts also functions in the shortened form of \c std::function<void()>,
-    i.e. the return value is void. In this case it's assumed that the return value
-    is SetupResult::Continue by default.
+    The onGroupSetup() element accepts also functions in the shortened form of
+    \c std::function<void()>, that is, the return value is \c void.
+    In this case, it's assumed that the return value is SetupResult::Continue.
 
-    \sa onGroupSetup()
+    \sa onGroupSetup(), GroupDoneHandler, CustomTask::TaskSetupHandler
 */
 
 /*!
-    \typealias GroupItem::GroupEndHandler
+    \typealias GroupItem::GroupDoneHandler
 
-    Type alias for \c std::function<void()>.
+    Type alias for \c std::function<DoneResult(DoneWith)>.
 
-    The GroupEndHandler is used when constructing the onGroupDone() and onGroupError() elements.
-    Any function with the above signature, when passed as a group done or error handler,
-    will be called by the running task tree when the group ends with success or an error,
-    respectively.
+    The \c GroupDoneHandler is an argument of the onGroupDone() element.
+    Any function with the above signature, when passed as a group done handler,
+    will be called by the running task tree when the group execution ends.
 
-    \sa onGroupDone(), onGroupError()
+    The DoneWith argument is optional and your done handler may omit it.
+    When provided, it holds the info about the final result of a group that will be
+    reported to its parent.
+
+    The returned DoneResult value is optional and your handler may return \c void instead.
+    In this case, the final result of the group will be equal to the value indicated by
+    the DoneWith argument. When the handler returns the DoneResult value,
+    the group's final result may be tweaked inside the done handler's body by the returned value.
+
+    \sa onGroupDone(), GroupSetupHandler, CustomTask::TaskDoneHandler
 */
 
-// TODO: Fix docs
-
 /*!
-    \fn template <typename SetupHandler> GroupItem onGroupSetup(SetupHandler &&handler)
+    \fn template <typename Handler> GroupItem onGroupSetup(Handler &&handler)
 
     Constructs a group's element holding the group setup handler.
     The \a handler is invoked whenever the group starts.
 
-    The passed \a handler is either of \c std::function<SetupResult()> or \c std::function<void()>
-    type. For more information on possible argument type, refer to
+    The passed \a handler is either of the \c std::function<SetupResult()> or the
+    \c std::function<void()> type. For more information on a possible handler type, refer to
     \l {GroupItem::GroupSetupHandler}.
 
     When the \a handler is invoked, none of the group's child tasks are running yet.
@@ -729,41 +853,31 @@ private:
     after the storages are constructed, so that the \a handler may already
     perform some initial modifications to the active storages.
 
-    \sa GroupItem::GroupSetupHandler, onGroupDone(), onGroupError()
+    \sa GroupItem::GroupSetupHandler, onGroupDone()
 */
 
-// TODO: Fix docs
-
 /*!
+    \fn template <typename Handler> GroupItem onGroupDone(Handler &&handler, CallDoneIf callDoneIf = CallDoneIf::SuccessOrError)
+
     Constructs a group's element holding the group done handler.
-    The \a handler is invoked whenever the group finishes with success.
-    Depending on the group's workflow policy, this handler may also be called
-    when the running group is stopped (e.g. when finishAllAndSuccess element was used).
-
-    When the \a handler is invoked, all of the group's child tasks are already finished.
-
-    If a group contains the Storage elements, the \a handler is invoked
-    before the storages are destructed, so that the \a handler may still
-    perform a last read of the active storages' data.
-
-    \sa GroupItem::GroupEndHandler, onGroupSetup(), onGroupError()
-*/
-
-// TODO: Fix docs
-
-/*!
-    Constructs a group's element holding the group error handler.
-    The \a handler is invoked whenever the group finishes with an error.
+    By default, the \a handler is invoked whenever the group finishes.
+    Pass a non-default value for the \a callDoneIf argument when you want the handler to be called
+    only on a successful or failed execution.
     Depending on the group's workflow policy, this handler may also be called
     when the running group is stopped (e.g. when stopOnError element was used).
 
+    The passed \a handler is of the \c std::function<DoneResult(DoneWith)> type.
+    Optionally, each of the return DoneResult type or the argument DoneWith type may be omitted
+    (that is, its return type may be \c void). For more information on a possible handler type,
+    refer to \l {GroupItem::GroupDoneHandler}.
+
     When the \a handler is invoked, all of the group's child tasks are already finished.
 
     If a group contains the Storage elements, the \a handler is invoked
     before the storages are destructed, so that the \a handler may still
     perform a last read of the active storages' data.
 
-    \sa GroupItem::GroupEndHandler, onGroupSetup(), onGroupDone()
+    \sa GroupItem::GroupDoneHandler, onGroupSetup()
 */
 
 /*!
@@ -784,7 +898,7 @@ private:
 
         \li When \a limit equals to 1, it means that only one child task may run at the time.
         This means the sequential execution, and the \l sequential element may be used instead.
-        In this case child tasks run in chain, so the next child task starts after
+        In this case, child tasks run in chain, so the next child task starts after
         the previous child task has finished.
 
         \li When other positive number is passed as \a limit, the group's child tasks run
@@ -1602,46 +1716,46 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
     \brief The TaskTree class runs an async task tree structure defined in a declarative way.
+    \reentrant
 
     Use the Tasking namespace to build extensible, declarative task tree
-    structures that contain possibly asynchronous tasks, such as Process,
-    FileTransfer, or ConcurrentCall<ReturnType>. TaskTree structures enable you
+    structures that contain possibly asynchronous tasks, such as QProcess,
+    NetworkQuery, or ConcurrentCall<ReturnType>. TaskTree structures enable you
     to create a sophisticated mixture of a parallel or sequential flow of tasks
     in the form of a tree and to run it any time later.
 
     \section1 Root Element and Tasks
 
     The TaskTree has a mandatory Group root element, which may contain
-    any number of tasks of various types, such as ProcessTask, FileTransferTask,
+    any number of tasks of various types, such as QProcessTask, NetworkQueryTask,
     or ConcurrentCallTask<ReturnType>:
 
     \code
         using namespace Tasking;
 
         const Group root {
-            ProcessTask(...),
-            ConcurrentCallTask<int>(...),
-            FileTransferTask(...)
+            QProcessTask(...),
+            NetworkQueryTask(...),
+            ConcurrentCallTask<int>(...)
         };
 
         TaskTree *taskTree = new TaskTree(root);
-        connect(taskTree, &TaskTree::done, ...);          // a successfully finished handler
-        connect(taskTree, &TaskTree::errorOccurred, ...); // an erroneously finished handler
+        connect(taskTree, &TaskTree::done, ...);  // finish handler
         taskTree->start();
     \endcode
 
     The task tree above has a top level element of the Group type that contains
-    tasks of the ProcessTask, FileTransferTask, and ConcurrentCallTask<int> type.
+    tasks of the QProcessTask, NetworkQueryTask, and ConcurrentCallTask<int> type.
     After taskTree->start() is called, the tasks are run in a chain, starting
-    with ProcessTask. When the ProcessTask finishes successfully, the ConcurrentCallTask<int>
-    task is started. Finally, when the asynchronous task finishes successfully, the
-    FileTransferTask task is started.
+    with QProcessTask. When the QProcessTask finishes successfully, the NetworkQueryTask
+    task is started. Finally, when the network task finishes successfully, the
+    ConcurrentCallTask<int> task is started.
 
     When the last running task finishes with success, the task tree is considered
-    to have run successfully and the TaskTree::done() signal is emitted.
+    to have run successfully and the done() signal is emitted with DoneWith::Success.
     When a task finishes with an error, the execution of the task tree is stopped
     and the remaining tasks are skipped. The task tree finishes with an error and
-    sends the TaskTree::errorOccurred() signal.
+    sends the TaskTree::done() signal with DoneWith::Error.
 
     \section1 Groups
 
@@ -1653,27 +1767,27 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
         const Group root {
             Group {
                 parallel,
-                ProcessTask(...),
+                QProcessTask(...),
                 ConcurrentCallTask<int>(...)
             },
-            FileTransferTask(...)
+            NetworkQueryTask(...)
         };
     \endcode
 
     The example above differs from the first example in that the root element has
-    a subgroup that contains the ProcessTask and ConcurrentCallTask<int>. The subgroup is a
-    sibling element of the FileTransferTask in the root. The subgroup contains an
+    a subgroup that contains the QProcessTask and ConcurrentCallTask<int>. The subgroup is a
+    sibling element of the NetworkQueryTask in the root. The subgroup contains an
     additional \e parallel element that instructs its Group to execute its tasks
     in parallel.
 
-    So, when the tree above is started, the ProcessTask and ConcurrentCallTask<int> start
+    So, when the tree above is started, the QProcessTask and ConcurrentCallTask<int> start
     immediately and run in parallel. Since the root group doesn't contain a
     \e parallel element, its direct child tasks are run in sequence. Thus, the
-    FileTransferTask starts when the whole subgroup finishes. The group is
+    NetworkQueryTask starts when the whole subgroup finishes. The group is
     considered as finished when all its tasks have finished. The order in which
     the tasks finish is not relevant.
 
-    So, depending on which task lasts longer (ProcessTask or ConcurrentCallTask<int>), the
+    So, depending on which task lasts longer (QProcessTask or ConcurrentCallTask<int>), the
     following scenarios can take place:
 
     \table
@@ -1687,8 +1801,8 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
         \li Sub Group starts
         \li Sub Group starts
     \row
-        \li ProcessTask starts
-        \li ProcessTask starts
+        \li QProcessTask starts
+        \li QProcessTask starts
     \row
         \li ConcurrentCallTask<int> starts
         \li ConcurrentCallTask<int> starts
@@ -1696,26 +1810,26 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
         \li ...
         \li ...
     \row
-        \li \b {ProcessTask finishes}
+        \li \b {QProcessTask finishes}
         \li \b {ConcurrentCallTask<int> finishes}
     \row
         \li ...
         \li ...
     \row
         \li \b {ConcurrentCallTask<int> finishes}
-        \li \b {ProcessTask finishes}
+        \li \b {QProcessTask finishes}
     \row
         \li Sub Group finishes
         \li Sub Group finishes
     \row
-        \li FileTransferTask starts
-        \li FileTransferTask starts
+        \li NetworkQueryTask starts
+        \li NetworkQueryTask starts
     \row
         \li ...
         \li ...
     \row
-        \li FileTransferTask finishes
-        \li FileTransferTask finishes
+        \li NetworkQueryTask finishes
+        \li NetworkQueryTask finishes
     \row
         \li Root Group finishes
         \li Root Group finishes
@@ -1728,24 +1842,24 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
 
     The presented scenarios assume that all tasks run successfully. If a task
     fails during execution, the task tree finishes with an error. In particular,
-    when ProcessTask finishes with an error while ConcurrentCallTask<int> is still being executed,
+    when QProcessTask finishes with an error while ConcurrentCallTask<int> is still being executed,
     the ConcurrentCallTask<int> is automatically stopped, the subgroup finishes with an error,
-    the FileTransferTask is skipped, and the tree finishes with an error.
+    the NetworkQueryTask is skipped, and the tree finishes with an error.
 
     \section1 Task Types
 
     Each task type is associated with its corresponding task class that executes
-    the task. For example, a ProcessTask inside a task tree is associated with
-    the Process class that executes the process. The associated objects are
+    the task. For example, a QProcessTask inside a task tree is associated with
+    the QProcess class that executes the process. The associated objects are
     automatically created, started, and destructed exclusively by the task tree
     at the appropriate time.
 
-    If a root group consists of five sequential ProcessTask tasks, and the task tree
-    executes the group, it creates an instance of Process for the first
-    ProcessTask and starts it. If the Process instance finishes successfully,
-    the task tree destructs it and creates a new Process instance for the
-    second ProcessTask, and so on. If the first task finishes with an error, the task
-    tree stops creating Process instances, and the root group finishes with an
+    If a root group consists of five sequential QProcessTask tasks, and the task tree
+    executes the group, it creates an instance of QProcess for the first
+    QProcessTask and starts it. If the QProcess instance finishes successfully,
+    the task tree destructs it and creates a new QProcess instance for the
+    second QProcessTask, and so on. If the first task finishes with an error, the task
+    tree stops creating QProcess instances, and the root group finishes with an
     error.
 
     The following table shows examples of task types and their corresponding task
@@ -1757,8 +1871,8 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
         \li Associated Task Class
         \li Brief Description
     \row
-        \li ProcessTask
-        \li Utils::Process
+        \li QProcessTask
+        \li QProcess
         \li Starts process.
     \row
         \li ConcurrentCallTask<ReturnType>
@@ -1767,11 +1881,11 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     \row
         \li TaskTreeTask
         \li Tasking::TaskTree
-        \li Starts a nested task tree.
+        \li Starts nested task tree.
     \row
-        \li FileTransferTask
-        \li ProjectExplorer::FileTransfer
-        \li Starts file transfer between different devices.
+        \li NetworkQueryTask
+        \li NetworkQuery
+        \li Starts network download.
     \endtable
 
     \section1 Task Handlers
@@ -1786,17 +1900,17 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     handler should always take a \e reference to the associated task class object:
 
     \code
-        const auto onSetup = [](Process &process) {
+        const auto onSetup = [](QProcess &process) {
             process.setCommand({"sleep", {"3"}});
         };
         const Group root {
-            ProcessTask(onSetup)
+            QProcessTask(onSetup)
         };
     \endcode
 
-    You can modify the passed Process in the setup handler, so that the task
+    You can modify the passed QProcess in the setup handler, so that the task
     tree can start the process according to your configuration.
-    You should not call \e {process.start();} in the setup handler,
+    You should not call \c {process.start();} in the setup handler,
     as the task tree calls it when needed. The setup handler is optional. When used,
     it must be the first argument of the task's constructor.
 
@@ -1827,35 +1941,31 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     corresponding task normally or skip it and report success or an error.
     For more information about inter-task data exchange, see \l Storage.
 
-    \section2 Task's Done and Error Handlers
+    \section2 Task's Done Handler
 
-    When a running task finishes, the task tree invokes an optionally provided
-    done or error handler. Both handlers should always take a \e {const reference}
-    to the associated task class object:
+    When a running task finishes, the task tree invokes an optionally provided done handler.
+    The handler should always take a \c const \e reference to the associated task class object:
 
     \code
-        const auto onSetup = [](Process &process) {
+        const auto onSetup = [](QProcess &process) {
             process.setCommand({"sleep", {"3"}});
         };
-        const auto onDone = [](const Process &process) {
-            qDebug() << "Success" << process.cleanedStdOut();
-        };
-        const auto onError = [](const Process &process) {
-            qDebug() << "Failure" << process.cleanedStdErr();
+        const auto onDone = [](const QProcess &process, DoneWith result) {
+            if (result == DoneWith::Success)
+                qDebug() << "Success" << process.cleanedStdOut();
+            else
+                qDebug() << "Failure" << process.cleanedStdErr();
         };
         const Group root {
-            ProcessTask(onSetup, onDone, onError)
+            QProcessTask(onSetup, onDone)
         };
     \endcode
 
-    The done and error handlers may collect output data from Process, and store it
-    for further processing or perform additional actions. The done handler is optional.
-    When used, it must be the second argument of the task's constructor.
-    The error handler is also optional. When used, it must always be the third argument.
-    You can omit the handlers or substitute the ones that you do not need with curly braces ({}).
+    The done handler may collect output data from QProcess, and store it
+    for further processing or perform additional actions.
 
     \note If the task setup handler returns StopWithSuccess or StopWithError,
-    neither the done nor error handler is invoked.
+          the done handler is not invoked.
 
     \section1 Group Handlers
 
@@ -1874,7 +1984,7 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
         };
         const Group root {
             onGroupSetup(onSetup),
-            ProcessTask(...)
+            QProcessTask(...)
         };
     \endcode
 
@@ -1897,17 +2007,17 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
             onGroupSetup([] { qDebug() << "Root setup"; }),
             Group {
                 onGroupSetup([] { qDebug() << "Group 1 setup"; return SetupResult::Continue; }),
-                ProcessTask(...) // Process 1
+                QProcessTask(...) // Process 1
             },
             Group {
                 onGroupSetup([] { qDebug() << "Group 2 setup"; return SetupResult::StopWithSuccess; }),
-                ProcessTask(...) // Process 2
+                QProcessTask(...) // Process 2
             },
             Group {
                 onGroupSetup([] { qDebug() << "Group 3 setup"; return SetupResult::StopWithError; }),
-                ProcessTask(...) // Process 3
+                QProcessTask(...) // Process 3
             },
-            ProcessTask(...) // Process 4
+            QProcessTask(...) // Process 4
         };
     \endcode
 
@@ -1957,31 +2067,33 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
             not started yet, and reports an error.
     \endtable
 
-    \section2 Groups's Done and Error Handlers
+    \section2 Groups's Done Handler
 
-    A Group's done or error handler is executed after the successful or failed
-    execution of its tasks, respectively. The final value reported by the
-    group depends on its \l {Workflow Policy}. The handlers can apply other
-    necessary actions. The done and error handlers are defined inside the
-    onGroupDone() and onGroupError() elements of a group, respectively. They do not
-    take arguments:
+    A Group's done handler is executed after the successful or failed execution of its tasks.
+    The final value reported by the group depends on its \l {Workflow Policy}.
+    The handler can apply other necessary actions.
+    The done handler is defined inside the onGroupDone() element of a group.
+    It may take the optional DoneWith argument, indicating the successful or failed execution:
 
     \code
         const Group root {
             onGroupSetup([] { qDebug() << "Root setup"; }),
-            ProcessTask(...),
-            onGroupDone([] { qDebug() << "Root finished with success"; }),
-            onGroupError([] { qDebug() << "Root finished with an error"; })
+            QProcessTask(...),
+            onGroupDone([](DoneWith result) {
+                if (result == DoneWith::Success)
+                    qDebug() << "Root finished with success";
+                else
+                    qDebug() << "Root finished with an error";
+            })
         };
     \endcode
 
-    The group done and error handlers are optional. If you add more than one
-    onGroupDone() or onGroupError() each to a group, an assert is triggered at
-    runtime that includes an error message.
+    The group done handler is optional. If you add more than one onGroupDone() to a group,
+    an assert is triggered at runtime that includes an error message.
 
     \note Even if the group setup handler returns StopWithSuccess or StopWithError,
-    one of the group's done or error handlers is invoked. This behavior differs
-    from that of task handlers and might change in the future.
+    the group's done handler is invoked. This behavior differs from that of task done handler
+    and might change in the future.
 
     \section1 Other Group Elements
 
@@ -2051,8 +2163,8 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
             const Group root {
                 // [7] runtime: task tree creates an instance of CopyStorage when root is entered
                 Storage(storage),
-                ConcurrentCallTask<QByteArray>(onLoaderSetup, onLoaderDone),
-                ConcurrentCallTask<void>(onSaverSetup, onSaverDone)
+                ConcurrentCallTask<QByteArray>(onLoaderSetup, onLoaderDone, CallDoneIf::Success),
+                ConcurrentCallTask<void>(onSaverSetup, onSaverDone, CallDoneIf::Success)
             };
             return root;
         }
@@ -2061,7 +2173,10 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
         const QString destination = ...;
         TaskTree taskTree(copyRecipe(source, destination));
         connect(&taskTree, &TaskTree::done,
-                &taskTree, [] { qDebug() << "The copying finished successfully."; });
+                &taskTree, [](DoneWith result) {
+            if (result == DoneWith::Success)
+                qDebug() << "The copying finished successfully.";
+        });
         tasktree.start();
     \endcode
 
@@ -2077,9 +2192,9 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     tree leaves this group, the existing instance of CopyStorage struct is
     destructed as it's no longer needed.
 
-    If several task trees that hold a copy of the common TreeStorage<CopyStorage>
-    instance run simultaneously, each task tree contains its own copy of the
-    CopyStorage struct.
+    If several task trees that hold a copy of the common TreeStorage<CopyStorage> instance
+    run simultaneously (including also a case when the task trees are run in different threads),
+    each task tree contains its own copy of the CopyStorage struct.
 
     You can access CopyStorage from any handler in the group with a storage object.
     This includes all handlers of all descendant tasks of the group with
@@ -2104,24 +2219,20 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
         \li Insert the TreeStorage<MyStorage> instance into a group [7]
     \endlist
 
-    \note The current implementation assumes that all running task trees
-    containing copies of the same TreeStorage run in the same thread. Otherwise,
-    the behavior is undefined.
-
-    \section1 TaskTree
+    \section1 TaskTree class
 
     TaskTree executes the tree structure of asynchronous tasks according to the
     recipe described by the Group root element.
 
     As TaskTree is also an asynchronous task, it can be a part of another TaskTree.
     To place a nested TaskTree inside another TaskTree, insert the TaskTreeTask
-    element into other tree's Group element.
+    element into another Group element.
 
     TaskTree reports progress of completed tasks when running. The progress value
     is increased when a task finishes or is skipped or stopped.
-    When TaskTree is finished and the TaskTree::done() or TaskTree::errorOccurred()
-    signal is emitted, the current value of the progress equals the maximum
-    progress value. Maximum progress equals the total number of tasks in a tree.
+    When TaskTree is finished and the TaskTree::done() signal is emitted,
+    the current value of the progress equals the maximum progress value.
+    Maximum progress equals the total number of tasks in a tree.
     A nested TaskTree is counted as a single task, and its child tasks are not
     counted in the top level tree. Groups themselves are not counted as tasks,
     but their tasks are counted.
@@ -2193,15 +2304,16 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     later as an argument to the task's handlers. The instance of this class
     parameter automatically becomes a member of the TaskAdapter template, and is
     accessible through the TaskAdapter::task() method. The constructor
-    of TimerTaskAdapter initially configures the QTimer object and connects
-    to the QTimer::timeout signal. When the signal is triggered, TimerTaskAdapter
-    emits the \c done(DoneResult::Success) signal to inform the task tree that the task finished
-    successfully. If it emits \c done(DoneResult::Error), the task finished with an error.
+    of \c TimerTaskAdapter initially configures the QTimer object and connects
+    to the QTimer::timeout() signal. When the signal is triggered, \c TimerTaskAdapter
+    emits the TaskInterface::done(DoneResult::Success) signal to inform the task tree that
+    the task finished successfully. If it emits TaskInterface::done(DoneResult::Error),
+    the task finished with an error.
     The TaskAdapter::start() method starts the timer.
 
-    To make QTimer accessible inside TaskTree under the \e TimerTask name,
-    define TimerTask to be an alias to the Tasking::CustomTask<TimerTaskAdapter>.
-    TimerTask becomes a new task type, using TimerTaskAdapter.
+    To make QTimer accessible inside TaskTree under the \c TimerTask name,
+    define \c TimerTask to be an alias to the CustomTask<\c TimerTaskAdapter>.
+    \c TimerTask becomes a new custom task type, using \c TimerTaskAdapter.
 
     The new task type is now registered, and you can use it in TaskTree:
 
@@ -2220,6 +2332,8 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     and objects of this class should be freely destructible. It should be allowed
     to destroy a running object, preferably without waiting for the running task
     to finish (that is, safe non-blocking destructor of a running task).
+    To achieve a non-blocking destruction of a task that has a blocking destructor,
+    consider using the optional \c Deleter template parameter of the TaskAdapter.
 */
 
 /*!
@@ -2235,6 +2349,8 @@ TaskTree::TaskTree()
 {}
 
 /*!
+    \overload
+
     Constructs a task tree with a given \a recipe. After the task tree is started,
     it executes the tasks contained inside the \a recipe and
     handles finished tasks according to the passed description.
@@ -2251,12 +2367,12 @@ TaskTree::TaskTree(const Group &recipe) : TaskTree()
 
     When the task tree is running while being destructed, it stops all the running tasks
     immediately. In this case, no handlers are called, not even the groups' and
-    tasks' error handlers or onStorageDone() handlers. The task tree also doesn't emit any
-    signals from the destructor, not even errorOccurred() or progressValueChanged() signals.
+    tasks' done handlers or onStorageDone() handlers. The task tree also doesn't emit any
+    signals from the destructor, not even done() or progressValueChanged() signals.
     This behavior may always be relied on.
     It is completely safe to destruct the running task tree.
 
-    It's a usual pattern to destruct the running task tree, even from the main thread.
+    It's a usual pattern to destruct the running task tree.
     It's guaranteed that the destruction will run quickly, without having to wait for
     the currently running tasks to finish, provided that the used tasks implement
     their destructors in a non-blocking way.
@@ -2300,24 +2416,24 @@ void TaskTree::setRecipe(const Group &recipe)
     the task tree will execute the contained tasks and handle finished tasks.
 
     When the task tree is empty, that is, constructed with a default constructor,
-    a call to \e start is no-op and the relevant warning message is issued.
+    a call to \c start() is no-op and the relevant warning message is issued.
 
-    Otherwise, when the task tree is already running, a call to \e start is ignored and the
+    Otherwise, when the task tree is already running, a call to \e start() is ignored and the
     relevant warning message is issued.
 
     Otherwise, the task tree is started.
 
     The started task tree may finish synchronously,
     for example when the main group's start handler returns SetupResult::StopWithError.
-    For this reason, the connections to the done and errorOccurred signals should be
-    established before calling start. Use isRunning() in order to detect whether
-    the task tree is still running after a call to start().
+    For this reason, the connection to the done signal should be established before calling
+    \c start(). Use isRunning() in order to detect whether the task tree is still running
+    after a call to \c start().
 
-    The task tree implementation relies on the running event loop for listening to the tasks'
-    done signals. Make sure you have a QEventLoop or QCoreApplication or one of its
+    The task tree implementation relies on the running event loop.
+    Make sure you have a QEventLoop or QCoreApplication or one of its
     subclasses running (or about to be run) when calling this method.
 
-    \sa TaskTree(const Tasking::Group &recipe), setRecipe(), isRunning(), stop()
+    \sa TaskTree(const Tasking::Group &), setRecipe(), isRunning(), stop()
 */
 void TaskTree::start()
 {
@@ -2333,31 +2449,20 @@ void TaskTree::start()
     This signal is emitted when the task tree is started. The emission of this signal is
     followed synchronously by the progressValueChanged() signal with an initial \c 0 value.
 
-    \sa start(), done(), errorOccurred()
+    \sa start(), done()
 */
 
 /*!
-    \fn void TaskTree::done()
+    \fn void TaskTree::done(DoneWith result)
 
-    This signal is emitted when the task tree finished with success.
-    The task tree neither calls any handler, nor emits any signal anymore after this signal
-    was emitted.
+    This signal is emitted when the task tree finished, passing the final \a result
+    of the execution. The task tree neither calls any handler,
+    nor emits any signal anymore after this signal was emitted.
 
-    Don't delete the task tree directly from this signal's handler. Use deleteLater() instead.
+    \note Do not delete the task tree directly from this signal's handler.
+          Use deleteLater() instead.
 
-    \sa started(), errorOccurred()
-*/
-
-/*!
-    \fn void TaskTree::errorOccurred()
-
-    This signal is emitted when the task tree finished with an error.
-    The task tree neither calls any handler, nor emits any signal anymore after this signal
-    was emitted.
-
-    Don't delete the task tree directly from this signal's handler. Use deleteLater() instead.
-
-    \sa started(), done()
+    \sa started()
 */
 
 /*!
@@ -2366,20 +2471,20 @@ void TaskTree::start()
     Stops all the running tasks immediately.
     All running tasks finish with an error, invoking their error handlers.
     All running groups dispatch their handlers according to their workflow policies,
-    invoking one of their end handlers. The storages' onStorageDone() handlers are invoked, too.
-    The \l progressValueChanged signals are also being sent.
+    invoking their done handlers. The storages' onStorageDone() handlers are invoked, too.
+    The progressValueChanged() signals are also being sent.
     This behavior may always be relied on.
 
-    The \l stop is executed synchronously, so that after a call to \e stop
+    The \c stop() function is executed synchronously, so that after a call to \c stop()
     all running tasks are finished and the tree is already stopped.
-    It's guaranteed that the stop will run quickly, without any blocking wait for
+    It's guaranteed that \c stop() will run quickly, without any blocking wait for
     the currently running tasks to finish, provided the used tasks implement their destructors
     in a non-blocking way.
 
     When the task tree is empty, that is, constructed with a default constructor,
-    a call to \e stop is no-op and the relevant warning message is issued.
+    a call to \c stop() is no-op and the relevant warning message is issued.
 
-    Otherwise, when the task tree wasn't started, a call to stop is ignored.
+    Otherwise, when the task tree wasn't started, a call to \c stop() is ignored.
 
     \note Do not call this function directly from any of the running task's handlers
           or task tree's signals.
@@ -2406,7 +2511,8 @@ bool TaskTree::isRunning() const
 /*!
     Executes a local event loop with QEventLoop::ExcludeUserInputEvents and starts the task tree.
 
-    Returns \c true if the task tree finished successfully; otherwise returns \c false.
+    Returns DoneWith::Success if the task tree finished successfully;
+    otherwise returns DoneWith::Error.
 
     \note Avoid using this method from the main thread. Use asynchronous start() instead.
           This method is to be used in non-main threads or in auto tests.
@@ -2459,7 +2565,8 @@ DoneWith TaskTree::runBlocking(const QFuture<void> &future)
     The optionally provided \a timeout is used to stop the tree automatically after
     \a timeout milliseconds have passed.
 
-    Returns \c true if the task tree finished successfully; otherwise returns \c false.
+    Returns DoneWith::Success if the task tree finished successfully;
+    otherwise returns DoneWith::Error.
 
     \note Avoid using this method from the main thread. Use asynchronous start() instead.
           This method is to be used in non-main threads or in auto tests.
@@ -2508,8 +2615,8 @@ int TaskTree::taskCount() const
     The \a value gives the current total number of finished, stopped or skipped tasks.
     When the task tree is started, and after the started() signal was emitted,
     this signal is emitted with an initial \a value of \c 0.
-    When the task tree is about to finish, and before the done() or errorOccurred() signal
-    is emitted, this signal is emitted with the final \a value of progressMaximum().
+    When the task tree is about to finish, and before the done() signal is emitted,
+    this signal is emitted with the final \a value of progressMaximum().
 
     \sa progressValue(), progressMaximum()
 */
@@ -2545,14 +2652,14 @@ int TaskTree::progressValue() const
     Installs a storage setup \a handler for the \a storage to pass the initial data
     dynamically to the running task tree.
 
-    The \c StorageHandler takes a reference to the \c StorageStruct instance:
+    The \c StorageHandler takes a \e reference to the \c StorageStruct instance:
 
     \code
         static void save(const QString &fileName, const QByteArray &array) { ... }
 
         TreeStorage<QByteArray> storage;
 
-        const auto onSaverSetup = [storage](ConcurrentCall<void> &concurrent) {
+        const auto onSaverSetup = [storage](ConcurrentCall<QByteArray> &concurrent) {
             concurrent.setConcurrentCallData(&save, "foo.txt", *storage);
         };
 
@@ -2586,23 +2693,23 @@ int TaskTree::progressValue() const
     Installs a storage done \a handler for the \a storage to retrieve the final data
     dynamically from the running task tree.
 
-    The \c StorageHandler takes a const reference to the \c StorageStruct instance:
+    The \c StorageHandler takes a \c const \e reference to the \c StorageStruct instance:
 
     \code
         static QByteArray load(const QString &fileName) { ... }
 
         TreeStorage<QByteArray> storage;
 
-        const auto onLoaderSetup = [storage](ConcurrentCall<void> &concurrent) {
+        const auto onLoaderSetup = [](ConcurrentCall<QByteArray> &concurrent) {
             concurrent.setConcurrentCallData(&load, "foo.txt");
         };
-        const auto onLoaderDone = [storage](const ConcurrentCall<void> &concurrent) {
+        const auto onLoaderDone = [storage](const ConcurrentCall<QByteArray> &concurrent) {
             *storage = concurrent.result();
         };
 
         const Group root {
             Storage(storage),
-            ConcurrentCallTask(onLoaderDone, onLoaderDone)
+            ConcurrentCallTask(onLoaderDone, onLoaderDone, CallDoneIf::Success)
         };
 
         TaskTree taskTree(root);
