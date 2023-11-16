@@ -155,6 +155,18 @@ void Edit3DCanvas::focusInEvent(QFocusEvent *focusEvent)
     QWidget::focusInEvent(focusEvent);
 }
 
+void Edit3DCanvas::enterEvent(QEnterEvent *e)
+{
+    m_parent->view()->sendInputEvent(e);
+    QWidget::enterEvent(e);
+}
+
+void Edit3DCanvas::leaveEvent(QEvent *e)
+{
+    m_parent->view()->sendInputEvent(e);
+    QWidget::leaveEvent(e);
+}
+
 void Edit3DCanvas::positionBusyInidicator()
 {
     m_busyIndicator->move(width() / 2 - 32, height() / 2 - 32);

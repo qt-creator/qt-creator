@@ -59,7 +59,7 @@ public:
     bool isEmpty() const { return m_type == Type::Empty; }
     bool isFileImport() const { return m_type == Type::File; }
     bool isLibraryImport() const { return m_type == Type::Library; }
-    bool hasVersion() const { return !m_version.isEmpty(); }
+    bool hasVersion() const;
     bool hasAlias() const { return !m_alias.isEmpty(); }
 
     const QString &url() const { return m_type == Type::Library ? m_url : emptyString; }

@@ -10,11 +10,13 @@
 #include <module.h>
 #include <projectstorage/projectstoragefwd.h>
 #include <projectstorage/projectstorageinfotypes.h>
+#include <projectstorage/projectstorageobserver.h>
 #include <projectstorageids.h>
 
 #include <QMimeData>
 #include <QObject>
 #include <QPair>
+#include <QVarLengthArray>
 
 #include <import.h>
 
@@ -44,6 +46,7 @@ class AbstractProperty;
 class RewriterView;
 class NodeInstanceView;
 class TextModifier;
+class ItemLibraryEntry;
 
 using PropertyListType = QList<QPair<PropertyName, QVariant>>;
 
@@ -125,15 +128,18 @@ public:
     SourceId fileUrlSourceId() const;
     void setFileUrl(const QUrl &url);
 
+#ifndef QDS_USE_PROJECTSTORAGE
     const MetaInfo metaInfo() const;
     MetaInfo metaInfo();
+    void setMetaInfo(const MetaInfo &metaInfo);
+#endif
+
     Module module(Utils::SmallStringView moduleName);
     NodeMetaInfo metaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
     NodeMetaInfo metaInfo(Module module,
                           Utils::SmallStringView typeName,
                           Storage::Version version = Storage::Version{}) const;
     bool hasNodeMetaInfo(const TypeName &typeName, int majorVersion = -1, int minorVersion = -1) const;
-    void setMetaInfo(const MetaInfo &metaInfo);
 
     NodeMetaInfo boolMetaInfo() const;
     NodeMetaInfo doubleMetaInfo() const;
@@ -148,10 +154,15 @@ public:
     NodeMetaInfo qtQmlModelsListElementMetaInfo() const;
     NodeMetaInfo qtQuick3DBakedLightmapMetaInfo() const;
     NodeMetaInfo qtQuick3DDefaultMaterialMetaInfo() const;
+    NodeMetaInfo qtQuick3DDirectionalLightMetaInfo() const;
     NodeMetaInfo qtQuick3DMaterialMetaInfo() const;
     NodeMetaInfo qtQuick3DModelMetaInfo() const;
     NodeMetaInfo qtQuick3DNodeMetaInfo() const;
+    NodeMetaInfo qtQuick3DOrthographicCameraMetaInfo() const;
+    NodeMetaInfo qtQuick3DPerspectiveCameraMetaInfo() const;
+    NodeMetaInfo qtQuick3DPointLightMetaInfo() const;
     NodeMetaInfo qtQuick3DPrincipledMaterialMetaInfo() const;
+    NodeMetaInfo qtQuick3DSpotLightMetaInfo() const;
     NodeMetaInfo qtQuick3DTextureMetaInfo() const;
     NodeMetaInfo qtQuickConnectionsMetaInfo() const;
     NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
@@ -169,6 +180,9 @@ public:
     NodeMetaInfo vector2dMetaInfo() const;
     NodeMetaInfo vector3dMetaInfo() const;
     NodeMetaInfo vector4dMetaInfo() const;
+    QVarLengthArray<NodeMetaInfo, 256> metaInfosForModule(Module module) const;
+
+    QList<ItemLibraryEntry> itemLibraryEntries() const;
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, ViewNotification emitDetachNotify = NotifyView);

@@ -33,6 +33,8 @@ enum class MetaInfoType { None, Reference, Value, Sequence };
 
 class QMLDESIGNERCORE_EXPORT NodeMetaInfo
 {
+    using NodeMetaInfos = std::vector<NodeMetaInfo>;
+
 public:
     NodeMetaInfo();
     NodeMetaInfo(Model *model, const TypeName &typeName, int majorVersion, int minorVersion);
@@ -59,6 +61,20 @@ public:
     bool isFileComponent() const;
     bool isProjectComponent() const;
     bool isInProjectModule() const;
+    FlagIs canBeContainer() const;
+    FlagIs forceClip() const;
+    FlagIs doesLayoutChildren() const;
+    FlagIs canBeDroppedInFormEditor() const;
+    FlagIs canBeDroppedInNavigator() const;
+    FlagIs canBeDroppedInView3D() const;
+    FlagIs isMovable() const;
+    FlagIs isResizable() const;
+    FlagIs hasFormEditorItem() const;
+    FlagIs isStackedContainer() const;
+    FlagIs takesOverRenderingOfChildren() const;
+    FlagIs visibleInNavigator() const;
+    FlagIs visibleInLibrary() const;
+
     bool hasProperty(::Utils::SmallStringView propertyName) const;
     PropertyMetaInfos properties() const;
     PropertyMetaInfos localProperties() const;
@@ -69,8 +85,9 @@ public:
     PropertyMetaInfo defaultProperty() const;
     bool hasDefaultProperty() const;
 
-    std::vector<NodeMetaInfo> selfAndPrototypes() const;
-    std::vector<NodeMetaInfo> prototypes() const;
+    NodeMetaInfos selfAndPrototypes() const;
+    NodeMetaInfos prototypes() const;
+    NodeMetaInfos heirs() const;
     NodeMetaInfo commonBase(const NodeMetaInfo &metaInfo) const;
 
     bool defaultPropertyIsComponent() const;
@@ -82,6 +99,10 @@ public:
 
     Storage::Info::ExportedTypeNames allExportedTypeNames() const;
     Storage::Info::ExportedTypeNames exportedTypeNamesForSourceId(SourceId sourceId) const;
+
+    Storage::Info::TypeHints typeHints() const;
+    Utils::PathString iconPath() const;
+    Storage::Info::ItemLibraryEntries itemLibrariesEntries() const;
 
     SourceId sourceId() const;
     QString componentFileName() const;

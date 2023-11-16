@@ -4,6 +4,7 @@
 #include "qmldesignerplugin.h"
 #include "qmldesignertr.h"
 
+#include "collectioneditor/collectionview.h"
 #include "coreplugin/iwizardfactory.h"
 #include "designmodecontext.h"
 #include "designmodewidget.h"
@@ -25,7 +26,11 @@
 #include <designeractionmanager.h>
 #include <eventlist/eventlistpluginview.h>
 #include <formeditor/transitiontool.h>
-#include <metainfo.h>
+#include <studioquickwidget.h>
+#include <windowmanager.h>
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include <metainfo.h>
+#endif
 #include <pathtool/pathtool.h>
 #include <sourcetool/sourcetool.h>
 #include <texttool/texttool.h>
@@ -70,12 +75,12 @@
 #include <QAction>
 #include <QApplication>
 #include <QDebug>
+#include <qplugin.h>
 #include <QProcessEnvironment>
 #include <QQuickItem>
 #include <QScreen>
 #include <QTimer>
 #include <QWindow>
-#include <qplugin.h>
 
 #include "nanotrace/nanotrace.h"
 #include <modelnodecontextmenu_helper.h>
@@ -280,6 +285,9 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
 
     //TODO Move registering those types out of the property editor, since they are used also in the states editor
     Quick2PropertyEditorView::registerQmlTypes();
+    CollectionView::registerDeclarativeType();
+    StudioQuickWidget::registerDeclarativeType();
+    QmlDesignerBase::WindowManager::registerDeclarativeType();
 
     if (checkEnterpriseLicense())
         Core::IWizardFactory::registerFeatureProvider(new EnterpriseFeatureProvider);
@@ -545,7 +553,9 @@ void QmlDesignerPlugin::activateAutoSynchronization()
 
     d->mainWidget.setupNavigatorHistory(currentDesignDocument()->textEditor());
 
+#ifndef QDS_USE_PROJECTSTORAGE
     currentDesignDocument()->updateSubcomponentManager();
+#endif
 }
 
 void QmlDesignerPlugin::deactivateAutoSynchronization()
@@ -607,7 +617,9 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
                                                          return QString(p + postfix);
                                                      });
 
+#ifndef QDS_USE_PROJECTSTORAGE
     MetaInfo::initializeGlobal(pluginPaths, d->externalDependencies);
+#endif
 
     d->viewManager.registerView(std::make_unique<ConnectionView>(d->externalDependencies));
 

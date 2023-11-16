@@ -74,6 +74,8 @@ public:
 
     GlobalAnnotationEditor &globalAnnotationEditor();
 
+    void setMinimumSizeHintFromContentMinimumSize(bool value);
+
 signals:
     void navigationHistoryChanged();
     void initialized();
@@ -113,6 +115,8 @@ private:
 
     bool m_canGoForward = false;
     bool m_canGoBack = false;
+
+    ADS::DockWidget::eMinimumSizeHintMode m_minimumSizeHintMode = ADS::DockWidget::MinimumSizeHintFromDockWidget;
 };
 
 } // namespace Internal

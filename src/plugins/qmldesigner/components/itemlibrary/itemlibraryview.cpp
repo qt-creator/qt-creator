@@ -9,6 +9,7 @@
 #include <bindingproperty.h>
 #include <componentcore_constants.h>
 #include <coreplugin/icore.h>
+#include <customnotifications.h>
 #include <designeractionmanager.h>
 #include <import.h>
 #include <nodelistproperty.h>
@@ -16,12 +17,12 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
-#include <rewriterview.h>
-#include <sqlitedatabase.h>
-#include <utils/algorithm.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
+#include <rewriterview.h>
+#include <sqlitedatabase.h>
+#include <utils/algorithm.h>
 
 namespace QmlDesigner {
 
@@ -76,9 +77,11 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
 
 void ItemLibraryView::importsChanged(const Imports &addedImports, const Imports &removedImports)
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     for (const auto &import : addedImports)
         document->addSubcomponentManagerImport(import);
+#endif
 
     updateImports();
     m_widget->updatePossibleImports(model()->possibleImports());
@@ -114,9 +117,11 @@ void ItemLibraryView::importsChanged(const Imports &addedImports, const Imports 
 
 void ItemLibraryView::possibleImportsChanged(const Imports &possibleImports)
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
     for (const auto &import : possibleImports)
         document->addSubcomponentManagerImport(import);
+#endif
 
     m_widget->updatePossibleImports(possibleImports);
 }
@@ -193,8 +198,12 @@ void ItemLibraryView::customNotification(const AbstractView *view, const QString
                                          const QList<ModelNode> &nodeList, const QList<QVariant> &data)
 {
     if (identifier == "UpdateImported3DAsset" && nodeList.size() > 0) {
-        ItemLibraryAssetImportDialog::updateImport(nodeList[0], m_importableExtensions3DMap,
+        ItemLibraryAssetImportDialog::updateImport(nodeList[0],
+                                                   m_importableExtensions3DMap,
                                                    m_importOptions3DMap);
+
+    } else if (identifier == UpdateItemlibrary) {
+        updateImports();
     } else {
         AbstractView::customNotification(view, identifier, nodeList, data);
     }

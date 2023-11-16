@@ -26,6 +26,19 @@
 
 namespace QmlDesigner {
 
+using namespace NanotraceHR::Literals;
+
+constexpr NanotraceHR::Tracing projectStorageTracingStatus()
+{
+#ifdef ENABLE_PROJECT_STORAGE_TRACING
+    return NanotraceHR::tracingStatus();
+#else
+    return NanotraceHR::Tracing::IsDisabled;
+#endif
+}
+
+NanotraceHR::StringViewCategory<projectStorageTracingStatus()> &projectStorageCategory();
+
 template<typename Database>
 class ProjectStorage final : public ProjectStorageInterface
 {
@@ -44,6 +57,8 @@ public:
         , exclusiveTransaction{database}
         , initializer{database, isInitialized}
     {
+        NanotraceHR::Tracer tracer{"initialize"_t, projectStorageCategory()};
+
         exclusiveTransaction.commit();
 
         database.walCheckpointFull();
@@ -53,6 +68,8 @@ public:
 
     void synchronize(Storage::Synchronization::SynchronizationPackage package) override
     {
+        NanotraceHR::Tracer tracer{"synchronize"_t, projectStorageCategory()};
+
         TypeIds deletedTypeIds;
         Sqlite::withImmediateTransaction(database, [&] {
             AliasPropertyDeclarations insertedAliasPropertyDeclarations;
@@ -86,6 +103,8 @@ public:
                              relinkablePrototypes,
                              relinkableExtensions,
                              package.updatedSourceIds);
+            synchronizeTypeAnnotations(package.typeAnnotations,
+                                       package.updatedTypeAnnotationSourceIds);
             synchronizePropertyEditorQmlPaths(package.propertyEditorQmlPaths,
                                               package.updatedPropertyEditorQmlPathSourceIds);
 
@@ -116,6 +135,8 @@ public:
 
     void synchronizeDocumentImports(Storage::Imports imports, SourceId sourceId) override
     {
+        NanotraceHR::Tracer tracer{"synchronize document imports"_t, projectStorageCategory()};
+
         Sqlite::withImmediateTransaction(database, [&] {
             synchronizeDocumentImports(imports,
                                        {sourceId},
@@ -123,24 +144,24 @@ public:
         });
     }
 
-    void addRefreshCallback(std::function<void(const TypeIds &deletedTypeIds)> *callback) override
-    {
-        m_refreshCallbacks.push_back(callback);
-    }
+    void addObserver(ProjectStorageObserver *observer) override { observers.push_back(observer); }
 
-    void removeRefreshCallback(std::function<void(const TypeIds &deletedTypeIds)> *callback) override
+    void removeObserver(ProjectStorageObserver *observer) override
     {
-        m_refreshCallbacks.erase(
-            std::find(m_refreshCallbacks.begin(), m_refreshCallbacks.end(), callback));
+        observers.removeOne(observer);
     }
 
     ModuleId moduleId(Utils::SmallStringView moduleName) const override
     {
+        NanotraceHR::Tracer tracer{"get module id"_t, projectStorageCategory()};
+
         return moduleCache.id(moduleName);
     }
 
     Utils::SmallString moduleName(ModuleId moduleId) const
     {
+        NanotraceHR::Tracer tracer{"get module name"_t, projectStorageCategory()};
+
         if (!moduleId)
             throw ModuleDoesNotExists{};
 
@@ -151,6 +172,8 @@ public:
                   Utils::SmallStringView exportedTypeName,
                   Storage::Version version) const override
     {
+        NanotraceHR::Tracer tracer{"get type id by exported name"_t, projectStorageCategory()};
+
         if (version.minor)
             return selectTypeIdByModuleIdAndExportedNameAndVersionStatement
                 .template valueWithTransaction<TypeId>(moduleId,
@@ -168,11 +191,23 @@ public:
 
     TypeId typeId(ImportedTypeNameId typeNameId) const override
     {
+        NanotraceHR::Tracer tracer{"get type id by imported type name"_t, projectStorageCategory()};
+
         return Sqlite::withDeferredTransaction(database, [&] { return fetchTypeId(typeNameId); });
+    }
+
+    QVarLengthArray<TypeId, 256> typeIds(ModuleId moduleId) const override
+    {
+        NanotraceHR::Tracer tracer{"get type ids by module id"_t, projectStorageCategory()};
+
+        return selectTypeIdsByModuleIdStatement
+            .template valuesWithTransaction<QVarLengthArray<TypeId, 256>>(moduleId);
     }
 
     Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId) const override
     {
+        NanotraceHR::Tracer tracer{"get exported type names by type id"_t, projectStorageCategory()};
+
         return selectExportedTypesByTypeIdStatement
             .template valuesWithTransaction<Storage::Info::ExportedTypeName, 4>(typeId);
     }
@@ -180,12 +215,16 @@ public:
     Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId,
                                                        SourceId sourceId) const override
     {
+        NanotraceHR::Tracer tracer{"get exported type names by source id"_t, projectStorageCategory()};
+
         return selectExportedTypesByTypeIdAndSourceIdStatement
             .template valuesWithTransaction<Storage::Info::ExportedTypeName, 4>(typeId, sourceId);
     }
 
     ImportId importId(const Storage::Import &import) const override
     {
+        NanotraceHR::Tracer tracer{"get import id by import"_t, projectStorageCategory()};
+
         return Sqlite::withDeferredTransaction(database, [&] {
             return fetchImportId(import.sourceId, import);
         });
@@ -194,6 +233,9 @@ public:
     ImportedTypeNameId importedTypeNameId(ImportId importId,
                                           Utils::SmallStringView typeName) override
     {
+        NanotraceHR::Tracer tracer{"get imported type name id by import id"_t,
+                                   projectStorageCategory()};
+
         return Sqlite::withDeferredTransaction(database, [&] {
             return fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind::QualifiedExported,
                                            importId,
@@ -204,6 +246,9 @@ public:
     ImportedTypeNameId importedTypeNameId(SourceId sourceId,
                                           Utils::SmallStringView typeName) override
     {
+        NanotraceHR::Tracer tracer{"get imported type name id by source id"_t,
+                                   projectStorageCategory()};
+
         return Sqlite::withDeferredTransaction(database, [&] {
             return fetchImportedTypeNameId(Storage::Synchronization::TypeNameKind::Exported,
                                            sourceId,
@@ -213,12 +258,16 @@ public:
 
     QVarLengthArray<PropertyDeclarationId, 128> propertyDeclarationIds(TypeId typeId) const override
     {
+        NanotraceHR::Tracer tracer{"get property declaration ids"_t, projectStorageCategory()};
+
         return selectPropertyDeclarationIdsForTypeStatement
             .template valuesWithTransaction<QVarLengthArray<PropertyDeclarationId, 128>>(typeId);
     }
 
     QVarLengthArray<PropertyDeclarationId, 128> localPropertyDeclarationIds(TypeId typeId) const override
     {
+        NanotraceHR::Tracer tracer{"get local property declaration ids"_t, projectStorageCategory()};
+
         return selectLocalPropertyDeclarationIdsForTypeStatement
             .template valuesWithTransaction<QVarLengthArray<PropertyDeclarationId, 128>>(typeId);
     }
@@ -226,6 +275,8 @@ public:
     PropertyDeclarationId propertyDeclarationId(TypeId typeId,
                                                 Utils::SmallStringView propertyName) const override
     {
+        NanotraceHR::Tracer tracer{"get property declaration id"_t, projectStorageCategory()};
+
         return selectPropertyDeclarationIdForTypeAndPropertyNameStatement
             .template valueWithTransaction<PropertyDeclarationId>(typeId, propertyName);
     }
@@ -233,6 +284,8 @@ public:
     PropertyDeclarationId localPropertyDeclarationId(TypeId typeId,
                                                      Utils::SmallStringView propertyName) const
     {
+        NanotraceHR::Tracer tracer{"get local property declaration id"_t, projectStorageCategory()};
+
         return selectLocalPropertyDeclarationIdForTypeAndPropertyNameStatement
             .template valueWithTransaction<PropertyDeclarationId>(typeId, propertyName);
     }
@@ -240,6 +293,8 @@ public:
     std::optional<Storage::Info::PropertyDeclaration> propertyDeclaration(
         PropertyDeclarationId propertyDeclarationId) const override
     {
+        NanotraceHR::Tracer tracer{"get property declaration"_t, projectStorageCategory()};
+
         return selectPropertyDeclarationForPropertyDeclarationIdStatement
             .template optionalValueWithTransaction<Storage::Info::PropertyDeclaration>(
                 propertyDeclarationId);
@@ -247,24 +302,135 @@ public:
 
     std::optional<Storage::Info::Type> type(TypeId typeId) const override
     {
+        NanotraceHR::Tracer tracer{"get type"_t, projectStorageCategory()};
+
         return selectInfoTypeByTypeIdStatement.template optionalValueWithTransaction<Storage::Info::Type>(
             typeId);
     }
 
+    Utils::PathString typeIconPath(TypeId typeId) const override
+    {
+        NanotraceHR::Tracer tracer{"get type icon path"_t, projectStorageCategory()};
+
+        return selectTypeIconPathStatement.template valueWithTransaction<Utils::PathString>(typeId);
+    }
+
+    Storage::Info::TypeHints typeHints(TypeId typeId) const override
+    {
+        NanotraceHR::Tracer tracer{"get type hints"_t, projectStorageCategory()};
+
+        return selectTypeHintsStatement.template valuesWithTransaction<Storage::Info::TypeHints, 4>(
+            typeId);
+    }
+
+    Storage::Info::ItemLibraryEntries itemLibraryEntries(TypeId typeId) const override
+    {
+        NanotraceHR::Tracer tracer{"get item library entries  by type id"_t, projectStorageCategory()};
+
+        using Storage::Info::ItemLibraryProperties;
+        Storage::Info::ItemLibraryEntries entries;
+
+        auto callback = [&](TypeId typeId_,
+                            Utils::SmallStringView name,
+                            Utils::SmallStringView iconPath,
+                            Utils::SmallStringView category,
+                            Utils::SmallStringView import,
+                            Utils::SmallStringView toolTip,
+                            Utils::SmallStringView properties,
+                            Utils::SmallStringView extraFilePaths,
+                            Utils::SmallStringView templatePath) {
+            auto &last = entries.emplace_back(
+                typeId_, name, iconPath, category, import, toolTip, templatePath);
+            if (properties.size())
+                selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
+            if (extraFilePaths.size())
+                selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
+        };
+
+        selectItemLibraryEntriesByTypeIdStatement.readCallbackWithTransaction(callback, typeId);
+
+        return entries;
+    }
+
+    Storage::Info::ItemLibraryEntries itemLibraryEntries(SourceId sourceId) const override
+    {
+        NanotraceHR::Tracer tracer{"get item library entries by source id"_t,
+                                   projectStorageCategory()};
+
+        using Storage::Info::ItemLibraryProperties;
+        Storage::Info::ItemLibraryEntries entries;
+
+        auto callback = [&](TypeId typeId,
+                            Utils::SmallStringView name,
+                            Utils::SmallStringView iconPath,
+                            Utils::SmallStringView category,
+                            Utils::SmallStringView import,
+                            Utils::SmallStringView toolTip,
+                            Utils::SmallStringView properties,
+                            Utils::SmallStringView extraFilePaths,
+                            Utils::SmallStringView templatePath) {
+            auto &last = entries.emplace_back(
+                typeId, name, iconPath, category, import, toolTip, templatePath);
+            if (properties.size())
+                selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
+            if (extraFilePaths.size())
+                selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
+        };
+
+        selectItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(callback, sourceId);
+
+        return entries;
+    }
+
+    Storage::Info::ItemLibraryEntries allItemLibraryEntries() const override
+    {
+        NanotraceHR::Tracer tracer{"get all item library entries"_t, projectStorageCategory()};
+
+        using Storage::Info::ItemLibraryProperties;
+        Storage::Info::ItemLibraryEntries entries;
+
+        auto callback = [&](TypeId typeId,
+                            Utils::SmallStringView name,
+                            Utils::SmallStringView iconPath,
+                            Utils::SmallStringView category,
+                            Utils::SmallStringView import,
+                            Utils::SmallStringView toolTip,
+                            Utils::SmallStringView properties,
+                            Utils::SmallStringView extraFilePaths,
+                            Utils::SmallStringView templatePath) {
+            auto &last = entries.emplace_back(
+                typeId, name, iconPath, category, import, toolTip, templatePath);
+            if (properties.size())
+                selectItemLibraryPropertiesStatement.readTo(last.properties, properties);
+            if (extraFilePaths.size())
+                selectItemLibraryExtraFilePathsStatement.readTo(last.extraFilePaths, extraFilePaths);
+        };
+
+        selectItemLibraryEntriesStatement.readCallbackWithTransaction(callback);
+
+        return entries;
+    }
+
     std::vector<Utils::SmallString> signalDeclarationNames(TypeId typeId) const override
     {
+        NanotraceHR::Tracer tracer{"get signal names"_t, projectStorageCategory()};
+
         return selectSignalDeclarationNamesForTypeStatement
             .template valuesWithTransaction<Utils::SmallString, 32>(typeId);
     }
 
     std::vector<Utils::SmallString> functionDeclarationNames(TypeId typeId) const override
     {
+        NanotraceHR::Tracer tracer{"get function names"_t, projectStorageCategory()};
+
         return selectFuncionDeclarationNamesForTypeStatement
             .template valuesWithTransaction<Utils::SmallString, 32>(typeId);
     }
 
     std::optional<Utils::SmallString> propertyName(PropertyDeclarationId propertyDeclarationId) const override
     {
+        NanotraceHR::Tracer tracer{"get property name"_t, projectStorageCategory()};
+
         return selectPropertyNameStatement.template optionalValueWithTransaction<Utils::SmallString>(
             propertyDeclarationId);
     }
@@ -277,36 +443,57 @@ public:
     template<const char *moduleName, const char *typeName>
     TypeId commonTypeId() const
     {
+        NanotraceHR::Tracer tracer{"get type id from common type cache"_t, projectStorageCategory()};
+
         return commonTypeCache_.template typeId<moduleName, typeName>();
     }
 
     template<typename BuiltinType>
     TypeId builtinTypeId() const
     {
+        NanotraceHR::Tracer tracer{"get builtin type id from common type cache"_t,
+                                   projectStorageCategory()};
+
         return commonTypeCache_.template builtinTypeId<BuiltinType>();
     }
 
     template<const char *builtinType>
     TypeId builtinTypeId() const
     {
+        NanotraceHR::Tracer tracer{"get builtin type id from common type cache"_t,
+                                   projectStorageCategory()};
+
         return commonTypeCache_.template builtinTypeId<builtinType>();
     }
 
     TypeIds prototypeIds(TypeId type) const override
     {
+        NanotraceHR::Tracer tracer{"get prototypes"_t, projectStorageCategory()};
+
         return selectPrototypeIdsForTypeIdInOrderStatement.template valuesWithTransaction<TypeId, 16>(
             type);
     }
 
     TypeIds prototypeAndSelfIds(TypeId type) const override
     {
+        NanotraceHR::Tracer tracer{"get prototypes and self"_t, projectStorageCategory()};
+
         return selectPrototypeAndSelfIdsForTypeIdInOrderStatement
             .template valuesWithTransaction<TypeId, 16>(type);
+    }
+
+    TypeIds heirIds(TypeId typeId) const override
+    {
+        NanotraceHR::Tracer tracer{"get heirs"_t, projectStorageCategory()};
+
+        return selectHeirTypeIdsStatement.template valuesWithTransaction<TypeId, 64>(typeId);
     }
 
     template<typename... TypeIds>
     bool isBasedOn_(TypeId typeId, TypeIds... baseTypeIds) const
     {
+        NanotraceHR::Tracer tracer{"is based on"_t, projectStorageCategory()};
+
         static_assert(((std::is_same_v<TypeId, TypeIds>) &&...), "Parameter must be a TypeId!");
 
         if (((typeId == baseTypeIds) || ...))
@@ -366,6 +553,8 @@ public:
 
     TypeId fetchTypeIdByExportedName(Utils::SmallStringView name) const
     {
+        NanotraceHR::Tracer tracer{"is based on"_t, projectStorageCategory()};
+
         return selectTypeIdByExportedNameStatement.template valueWithTransaction<TypeId>(name);
     }
 
@@ -426,6 +615,8 @@ public:
 
     SourceContextId fetchSourceContextIdUnguarded(Utils::SmallStringView sourceContextPath)
     {
+        NanotraceHR::Tracer tracer{"fetch source context id unguarded"_t, projectStorageCategory()};
+
         auto sourceContextId = readSourceContextId(sourceContextPath);
 
         return sourceContextId ? sourceContextId : writeSourceContextId(sourceContextPath);
@@ -433,6 +624,8 @@ public:
 
     SourceContextId fetchSourceContextId(Utils::SmallStringView sourceContextPath)
     {
+        NanotraceHR::Tracer tracer{"fetch source context id"_t, projectStorageCategory()};
+
         try {
             return Sqlite::withDeferredTransaction(database, [&] {
                 return fetchSourceContextIdUnguarded(sourceContextPath);
@@ -444,6 +637,8 @@ public:
 
     Utils::PathString fetchSourceContextPath(SourceContextId sourceContextId) const
     {
+        NanotraceHR::Tracer tracer{"fetch source context path"_t, projectStorageCategory()};
+
         return Sqlite::withDeferredTransaction(database, [&] {
             auto optionalSourceContextPath = selectSourceContextPathFromSourceContextsBySourceContextIdStatement
                                                  .template optionalValue<Utils::PathString>(
@@ -458,12 +653,16 @@ public:
 
     auto fetchAllSourceContexts() const
     {
+        NanotraceHR::Tracer tracer{"fetch all source contexts"_t, projectStorageCategory()};
+
         return selectAllSourceContextsStatement
             .template valuesWithTransaction<Cache::SourceContext, 128>();
     }
 
     SourceId fetchSourceId(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
     {
+        NanotraceHR::Tracer tracer{"fetch source id"_t, projectStorageCategory()};
+
         return Sqlite::withDeferredTransaction(database, [&] {
             return fetchSourceIdUnguarded(sourceContextId, sourceName);
         });
@@ -471,6 +670,9 @@ public:
 
     auto fetchSourceNameAndSourceContextId(SourceId sourceId) const
     {
+        NanotraceHR::Tracer tracer{"fetch source name and source context id"_t,
+                                   projectStorageCategory()};
+
         auto value = selectSourceNameAndSourceContextIdFromSourcesBySourceIdStatement
                          .template valueWithTransaction<Cache::SourceNameAndSourceContextId>(sourceId);
 
@@ -490,6 +692,8 @@ public:
 
     SourceContextId fetchSourceContextId(SourceId sourceId) const
     {
+        NanotraceHR::Tracer tracer{"fetch source context id"_t, projectStorageCategory()};
+
         auto sourceContextId = selectSourceContextIdFromSourcesBySourceIdStatement
                                    .template valueWithTransaction<SourceContextId>(sourceId);
 
@@ -501,11 +705,15 @@ public:
 
     auto fetchAllSources() const
     {
+        NanotraceHR::Tracer tracer{"fetch all sources"_t, projectStorageCategory()};
+
         return selectAllSourcesStatement.template valuesWithTransaction<Cache::Source, 1024>();
     }
 
     SourceId fetchSourceIdUnguarded(SourceContextId sourceContextId, Utils::SmallStringView sourceName)
     {
+        NanotraceHR::Tracer tracer{"fetch source id unguarded"_t, projectStorageCategory()};
+
         auto sourceId = readSourceId(sourceContextId, sourceName);
 
         if (sourceId)
@@ -516,23 +724,31 @@ public:
 
     auto fetchAllFileStatuses() const
     {
+        NanotraceHR::Tracer tracer{"fetch all file statuses"_t, projectStorageCategory()};
+
         return selectAllFileStatusesStatement.template rangeWithTransaction<FileStatus>();
     }
 
     FileStatus fetchFileStatus(SourceId sourceId) const override
     {
+        NanotraceHR::Tracer tracer{"fetch file status"_t, projectStorageCategory()};
+
         return selectFileStatusesForSourceIdStatement.template valueWithTransaction<FileStatus>(
             sourceId);
     }
 
     std::optional<Storage::Synchronization::ProjectData> fetchProjectData(SourceId sourceId) const override
     {
+        NanotraceHR::Tracer tracer{"fetch project data"_t, projectStorageCategory()};
+
         return selectProjectDataForSourceIdStatement
             .template optionalValueWithTransaction<Storage::Synchronization::ProjectData>(sourceId);
     }
 
     Storage::Synchronization::ProjectDatas fetchProjectDatas(SourceId projectSourceId) const override
     {
+        NanotraceHR::Tracer tracer{"fetch project datas by source id"_t, projectStorageCategory()};
+
         return selectProjectDatasForSourceIdStatement
             .template valuesWithTransaction<Storage::Synchronization::ProjectData, 1024>(
                 projectSourceId);
@@ -540,6 +756,8 @@ public:
 
     Storage::Synchronization::ProjectDatas fetchProjectDatas(const SourceIds &projectSourceIds) const
     {
+        NanotraceHR::Tracer tracer{"fetch project datas by source ids"_t, projectStorageCategory()};
+
         return selectProjectDatasForSourceIdsStatement
             .template valuesWithTransaction<Storage::Synchronization::ProjectData, 64>(
                 toIntegers(projectSourceIds));
@@ -561,8 +779,17 @@ public:
 
     Storage::Imports fetchDocumentImports() const
     {
+        NanotraceHR::Tracer tracer{"fetch document imports"_t, projectStorageCategory()};
+
         return selectAllDocumentImportForSourceIdStatement
             .template valuesWithTransaction<Storage::Imports>();
+    }
+
+    void resetForTestsOnly()
+    {
+        database.clearAllTablesForTestsOnly();
+        commonTypeCache_.clearForTestsOnly();
+        moduleCache.clearForTestOnly();
     }
 
 private:
@@ -624,8 +851,10 @@ private:
 
     void callRefreshMetaInfoCallback(const TypeIds &deletedTypeIds)
     {
-        for (auto *callback : m_refreshCallbacks)
-            (*callback)(deletedTypeIds);
+        if (deletedTypeIds.size()) {
+            for (ProjectStorageObserver *observer : observers)
+                observer->removedTypeIds(deletedTypeIds);
+        }
     }
 
     class AliasPropertyDeclaration
@@ -768,6 +997,101 @@ private:
         sourceIds.erase(newEnd, sourceIds.end());
     }
 
+    void synchronizeTypeTraits(TypeId typeId, Storage::TypeTraits traits)
+    {
+        updateTypeAnnotationTraitStatement.write(typeId, traits.annotation);
+    }
+
+    class TypeAnnotationView
+    {
+    public:
+        TypeAnnotationView(TypeId typeId,
+                           Utils::SmallStringView iconPath,
+                           Utils::SmallStringView itemLibraryJson,
+                           Utils::SmallStringView hintsJson)
+            : typeId{typeId}
+            , iconPath{iconPath}
+            , itemLibraryJson{itemLibraryJson}
+            , hintsJson{hintsJson}
+        {}
+
+    public:
+        TypeId typeId;
+        Utils::SmallStringView iconPath;
+        Utils::SmallStringView itemLibraryJson;
+        Utils::PathString hintsJson;
+    };
+
+    void updateTypeIdInTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations)
+    {
+        for (auto &annotation : typeAnnotations) {
+            annotation.typeId = fetchTypeIdByModuleIdAndExportedName(annotation.moduleId,
+                                                                     annotation.typeName);
+        }
+    }
+
+    void synchronizeTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations,
+                                    const SourceIds &updatedTypeAnnotationSourceIds)
+    {
+        NanotraceHR::Tracer tracer{"synchronize type annotations"_t, projectStorageCategory()};
+
+        using Storage::Synchronization::TypeAnnotation;
+
+        updateTypeIdInTypeAnnotations(typeAnnotations);
+
+        auto compareKey = [](auto &&first, auto &&second) { return first.typeId - second.typeId; };
+
+        std::sort(typeAnnotations.begin(), typeAnnotations.end(), [&](auto &&first, auto &&second) {
+            return first.typeId < second.typeId;
+        });
+
+        auto range = selectTypeAnnotationsForSourceIdsStatement.template range<TypeAnnotationView>(
+            toIntegers(updatedTypeAnnotationSourceIds));
+
+        auto insert = [&](const TypeAnnotation &annotation) {
+            if (!annotation.sourceId)
+                throw TypeAnnotationHasInvalidSourceId{};
+
+            synchronizeTypeTraits(annotation.typeId, annotation.traits);
+
+            insertTypeAnnotationStatement.write(annotation.typeId,
+                                                annotation.sourceId,
+                                                annotation.iconPath,
+                                                annotation.itemLibraryJson,
+                                                annotation.hintsJson);
+        };
+
+        auto update = [&](const TypeAnnotationView &annotationFromDatabase,
+                          const TypeAnnotation &annotation) {
+            synchronizeTypeTraits(annotation.typeId, annotation.traits);
+
+            if (annotationFromDatabase.iconPath != annotation.iconPath
+                || annotationFromDatabase.itemLibraryJson != annotation.itemLibraryJson
+                || annotationFromDatabase.hintsJson != annotation.hintsJson) {
+                updateTypeAnnotationStatement.write(annotation.typeId,
+                                                    annotation.iconPath,
+                                                    annotation.itemLibraryJson,
+                                                    annotation.hintsJson);
+                return Sqlite::UpdateChange::Update;
+            }
+
+            return Sqlite::UpdateChange::No;
+        };
+
+        auto remove = [&](const TypeAnnotationView &annotationFromDatabase) {
+            synchronizeTypeTraits(annotationFromDatabase.typeId, Storage::TypeTraits{});
+
+            deleteTypeAnnotationStatement.write(annotationFromDatabase.typeId);
+        };
+
+        Sqlite::insertUpdateDelete(range, typeAnnotations, compareKey, insert, update, remove);
+    }
+
+    void synchronizeTypeTrait(const Storage::Synchronization::Type &type)
+    {
+        updateTypeTraitStatement.write(type.typeId, type.traits.type);
+    }
+
     void synchronizeTypes(Storage::Synchronization::Types &types,
                           TypeIds &updatedTypeIds,
                           AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
@@ -778,6 +1102,8 @@ private:
                           Prototypes &relinkableExtensions,
                           const SourceIds &updatedSourceIds)
     {
+        NanotraceHR::Tracer tracer{"synchronize types"_t, projectStorageCategory()};
+
         Storage::Synchronization::ExportedTypes exportedTypes;
         exportedTypes.reserve(types.size() * 3);
         SourceIds sourceIdsOfTypes;
@@ -792,6 +1118,7 @@ private:
                 throw TypeHasInvalidSourceId{};
 
             TypeId typeId = declareType(type);
+            synchronizeTypeTrait(type);
             sourceIdsOfTypes.push_back(type.sourceId);
             updatedTypeIds.push_back(typeId);
             if (type.changeLevel != Storage::Synchronization::ChangeLevel::ExcludeExportedTypes) {
@@ -832,6 +1159,8 @@ private:
     void synchronizeProjectDatas(Storage::Synchronization::ProjectDatas &projectDatas,
                                  const SourceIds &updatedProjectSourceIds)
     {
+        NanotraceHR::Tracer tracer{"synchronize project datas"_t, projectStorageCategory()};
+
         auto compareKey = [](auto &&first, auto &&second) {
             auto projectSourceIdDifference = first.projectSourceId - second.projectSourceId;
             if (projectSourceIdDifference != 0)
@@ -884,6 +1213,8 @@ private:
 
     void synchronizeFileStatuses(FileStatuses &fileStatuses, const SourceIds &updatedSourceIds)
     {
+        NanotraceHR::Tracer tracer{"synchronize file statuses"_t, projectStorageCategory()};
+
         auto compareKey = [](auto &&first, auto &&second) {
             return first.sourceId - second.sourceId;
         };
@@ -929,6 +1260,8 @@ private:
                             Storage::Synchronization::ModuleExportedImports &moduleExportedImports,
                             const ModuleIds &updatedModuleIds)
     {
+        NanotraceHR::Tracer tracer{"synchronize imports"_t, projectStorageCategory()};
+
         synchromizeModuleExportedImports(moduleExportedImports, updatedModuleIds);
         synchronizeDocumentImports(imports,
                                    updatedSourceIds,
@@ -1016,7 +1349,7 @@ private:
     void handleAliasPropertyDeclarationsWithPropertyType(
         TypeId typeId, AliasPropertyDeclarations &relinkableAliasPropertyDeclarations)
     {
-        auto callback = [&](TypeId typeId,
+        auto callback = [&](TypeId typeId_,
                             PropertyDeclarationId propertyDeclarationId,
                             ImportedTypeNameId propertyImportedTypeNameId,
                             PropertyDeclarationId aliasPropertyDeclarationId,
@@ -1029,7 +1362,7 @@ private:
                     aliasPropertyDeclarationTailId);
 
             relinkableAliasPropertyDeclarations
-                .emplace_back(TypeId{typeId},
+                .emplace_back(TypeId{typeId_},
                               PropertyDeclarationId{propertyDeclarationId},
                               ImportedTypeNameId{propertyImportedTypeNameId},
                               std::move(aliasPropertyName),
@@ -1088,6 +1421,8 @@ private:
     void relinkAliasPropertyDeclarations(AliasPropertyDeclarations &aliasPropertyDeclarations,
                                          const TypeIds &deletedTypeIds)
     {
+        NanotraceHR::Tracer tracer{"relink alias properties"_t, projectStorageCategory()};
+
         std::sort(aliasPropertyDeclarations.begin(), aliasPropertyDeclarations.end());
 
         Utils::set_greedy_difference(
@@ -1116,6 +1451,8 @@ private:
     void relinkPropertyDeclarations(PropertyDeclarations &relinkablePropertyDeclaration,
                                     const TypeIds &deletedTypeIds)
     {
+        NanotraceHR::Tracer tracer{"relink properties"_t, projectStorageCategory()};
+
         std::sort(relinkablePropertyDeclaration.begin(), relinkablePropertyDeclaration.end());
 
         Utils::set_greedy_difference(
@@ -1140,6 +1477,8 @@ private:
                           const TypeIds &deletedTypeIds,
                           Callable updateStatement)
     {
+        NanotraceHR::Tracer tracer{"relink prototypes"_t, projectStorageCategory()};
+
         std::sort(relinkablePrototypes.begin(), relinkablePrototypes.end());
 
         Utils::set_greedy_difference(
@@ -1168,6 +1507,8 @@ private:
                                Prototypes &relinkableExtensions,
                                TypeIds &deletedTypeIds)
     {
+        NanotraceHR::Tracer tracer{"delete not updated types"_t, projectStorageCategory()};
+
         auto callback = [&](TypeId typeId) {
             deletedTypeIds.push_back(typeId);
             deleteType(typeId,
@@ -1190,6 +1531,8 @@ private:
                 Prototypes &relinkableExtensions,
                 TypeIds &deletedTypeIds)
     {
+        NanotraceHR::Tracer tracer{"relink"_t, projectStorageCategory()};
+
         std::sort(deletedTypeIds.begin(), deletedTypeIds.end());
 
         relinkPrototypes(relinkablePrototypes, deletedTypeIds, [&](TypeId typeId, TypeId prototypeId) {
@@ -1256,6 +1599,8 @@ private:
     void linkAliases(const AliasPropertyDeclarations &insertedAliasPropertyDeclarations,
                      const AliasPropertyDeclarations &updatedAliasPropertyDeclarations)
     {
+        NanotraceHR::Tracer tracer{"link aliases"_t, projectStorageCategory()};
+
         linkAliasPropertyDeclarationAliasIds(insertedAliasPropertyDeclarations);
         linkAliasPropertyDeclarationAliasIds(updatedAliasPropertyDeclarations);
 
@@ -1273,6 +1618,8 @@ private:
                                   Prototypes &relinkablePrototypes,
                                   Prototypes &relinkableExtensions)
     {
+        NanotraceHR::Tracer tracer{"synchronize exported types"_t, projectStorageCategory()};
+
         std::sort(exportedTypes.begin(), exportedTypes.end(), [](auto &&first, auto &&second) {
             if (first.moduleId < second.moduleId)
                 return true;
@@ -1456,6 +1803,8 @@ private:
         AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
         PropertyDeclarationIds &propertyDeclarationIds)
     {
+        NanotraceHR::Tracer tracer{"synchronize property declaration"_t, projectStorageCategory()};
+
         std::sort(propertyDeclarations.begin(),
                   propertyDeclarations.end(),
                   [](auto &&first, auto &&second) {
@@ -1572,6 +1921,9 @@ private:
         Storage::Synchronization::Types &types,
         AliasPropertyDeclarations &relinkableAliasPropertyDeclarations)
     {
+        NanotraceHR::Tracer tracer{"reset removed alias properties to null"_t,
+                                   projectStorageCategory()};
+
         PropertyDeclarationIds propertyDeclarationIds;
         propertyDeclarationIds.reserve(types.size());
 
@@ -1684,14 +2036,14 @@ private:
         for (const auto &parameter : parameters) {
             json.append(comma);
             comma = ",";
-            json.append("{\"n\":\"");
+            json.append(R"({"n":")");
             json.append(parameter.name);
-            json.append("\",\"tn\":\"");
+            json.append(R"(","tn":")");
             json.append(parameter.typeName);
             if (parameter.traits == Storage::PropertyDeclarationTraits::None) {
                 json.append("\"}");
             } else {
-                json.append("\",\"tr\":");
+                json.append(R"(","tr":)");
                 json.append(Utils::SmallString::number(to_underlying(parameter.traits)));
                 json.append("}");
             }
@@ -1769,6 +2121,9 @@ private:
     void synchronizePropertyEditorQmlPaths(Storage::Synchronization::PropertyEditorQmlPaths &paths,
                                            SourceIds updatedPropertyEditorQmlPathsSourceIds)
     {
+        NanotraceHR::Tracer tracer{"synchronize property editor qml paths"_t,
+                                   projectStorageCategory()};
+
         addTypeIdToPropertyEditorQmlPaths(paths);
         synchronizePropertyEditorPaths(paths, updatedPropertyEditorQmlPathsSourceIds);
     }
@@ -1776,6 +2131,8 @@ private:
     void synchronizeFunctionDeclarations(
         TypeId typeId, Storage::Synchronization::FunctionDeclarations &functionsDeclarations)
     {
+        NanotraceHR::Tracer tracer{"synchronize function declaration"_t, projectStorageCategory()};
+
         std::sort(functionsDeclarations.begin(),
                   functionsDeclarations.end(),
                   [](auto &&first, auto &&second) {
@@ -1833,6 +2190,8 @@ private:
     void synchronizeSignalDeclarations(TypeId typeId,
                                        Storage::Synchronization::SignalDeclarations &signalDeclarations)
     {
+        NanotraceHR::Tracer tracer{"synchronize signal declaration"_t, projectStorageCategory()};
+
         std::sort(signalDeclarations.begin(), signalDeclarations.end(), [](auto &&first, auto &&second) {
             auto compare = Sqlite::compare(first.name, second.name);
 
@@ -1907,6 +2266,8 @@ private:
     void synchronizeEnumerationDeclarations(
         TypeId typeId, Storage::Synchronization::EnumerationDeclarations &enumerationDeclarations)
     {
+        NanotraceHR::Tracer tracer{"synchronize enumeation declaration"_t, projectStorageCategory()};
+
         std::sort(enumerationDeclarations.begin(),
                   enumerationDeclarations.end(),
                   [](auto &&first, auto &&second) {
@@ -1965,9 +2326,7 @@ private:
             return type.typeId;
         }
 
-        type.typeId = upsertTypeStatement.template value<TypeId>(type.sourceId,
-                                                                 type.typeName,
-                                                                 type.traits);
+        type.typeId = insertTypeStatement.template value<TypeId>(type.sourceId, type.typeName);
 
         if (!type.typeId)
             type.typeId = selectTypeIdBySourceIdAndNameStatement.template value<TypeId>(type.sourceId,
@@ -1981,6 +2340,8 @@ private:
                           AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
                           PropertyDeclarationIds &propertyDeclarationIds)
     {
+        NanotraceHR::Tracer tracer{"synchronize declaration per type"_t, projectStorageCategory()};
+
         if (type.changeLevel == Storage::Synchronization::ChangeLevel::Minimal)
             return;
 
@@ -1998,6 +2359,8 @@ private:
     template<typename Relinkable, typename Ids, typename Compare>
     void removeRelinkableEntries(std::vector<Relinkable> &relinkables, Ids &ids, Compare compare)
     {
+        NanotraceHR::Tracer tracer{"remove relinkable entries"_t, projectStorageCategory()};
+
         std::vector<Relinkable> newRelinkables;
         newRelinkables.reserve(relinkables.size());
 
@@ -2020,6 +2383,8 @@ private:
                           AliasPropertyDeclarations &updatedAliasPropertyDeclarations,
                           PropertyDeclarations &relinkablePropertyDeclarations)
     {
+        NanotraceHR::Tracer tracer{"synchronize declaration"_t, projectStorageCategory()};
+
         PropertyDeclarationIds propertyDeclarationIds;
         propertyDeclarationIds.reserve(types.size() * 10);
 
@@ -2048,6 +2413,8 @@ private:
 
     void syncDefaultProperties(Storage::Synchronization::Types &types)
     {
+        NanotraceHR::Tracer tracer{"synchronize default properties"_t, projectStorageCategory()};
+
         auto range = selectTypesWithDefaultPropertyStatement.template range<TypeWithDefaultPropertyView>();
 
         auto compareKey = [](const TypeWithDefaultPropertyView &view,
@@ -2082,6 +2449,8 @@ private:
 
     void resetDefaultPropertiesIfChanged(Storage::Synchronization::Types &types)
     {
+        NanotraceHR::Tracer tracer{"reset changed default properties"_t, projectStorageCategory()};
+
         auto range = selectTypesWithDefaultPropertyStatement.template range<TypeWithDefaultPropertyView>();
 
         auto compareKey = [](const TypeWithDefaultPropertyView &view,
@@ -2142,7 +2511,7 @@ private:
     {
         TypeId typeId;
         ImportedTypeNameId typeNameId;
-        if (!std::visit([](auto &&typeName) -> bool { return typeName.name.isEmpty(); }, typeName)) {
+        if (!std::visit([](auto &&typeName_) -> bool { return typeName_.name.isEmpty(); }, typeName)) {
             typeNameId = fetchImportedTypeNameId(typeName, sourceId);
 
             typeId = fetchTypeId(typeNameId);
@@ -2180,6 +2549,8 @@ private:
                                      Prototypes &relinkablePrototypes,
                                      Prototypes &relinkableExtensions)
     {
+        NanotraceHR::Tracer tracer{"synchronize prototypes"_t, projectStorageCategory()};
+
         TypeIds typeIds;
         typeIds.reserve(types.size());
 
@@ -2430,6 +2801,7 @@ private:
                 createFileStatusesTable(database);
                 createProjectDatasTable(database);
                 createPropertyEditorPathsTable(database);
+                createTypeAnnotionsTable(database);
             }
             database.setIsInitialized(true);
         }
@@ -2478,21 +2850,23 @@ private:
             auto &sourceIdColumn = typesTable.addColumn("sourceId", Sqlite::StrictColumnType::Integer);
             auto &typesNameColumn = typesTable.addColumn("name", Sqlite::StrictColumnType::Text);
             typesTable.addColumn("traits", Sqlite::StrictColumnType::Integer);
-            typesTable.addForeignKeyColumn("prototypeId",
-                                           typesTable,
-                                           Sqlite::ForeignKeyAction::NoAction,
-                                           Sqlite::ForeignKeyAction::Restrict);
+            auto &prototypeIdColumn = typesTable.addForeignKeyColumn("prototypeId",
+                                                                     typesTable,
+                                                                     Sqlite::ForeignKeyAction::NoAction,
+                                                                     Sqlite::ForeignKeyAction::Restrict);
             typesTable.addColumn("prototypeNameId", Sqlite::StrictColumnType::Integer);
-            typesTable.addForeignKeyColumn("extensionId",
-                                           typesTable,
-                                           Sqlite::ForeignKeyAction::NoAction,
-                                           Sqlite::ForeignKeyAction::Restrict);
+            auto &extensionIdColumn = typesTable.addForeignKeyColumn("extensionId",
+                                                                     typesTable,
+                                                                     Sqlite::ForeignKeyAction::NoAction,
+                                                                     Sqlite::ForeignKeyAction::Restrict);
             typesTable.addColumn("extensionNameId", Sqlite::StrictColumnType::Integer);
             auto &defaultPropertyIdColumn = typesTable.addColumn("defaultPropertyId",
                                                                  Sqlite::StrictColumnType::Integer);
-
+            typesTable.addColumn("annotationTraits", Sqlite::StrictColumnType::Integer);
             typesTable.addUniqueIndex({sourceIdColumn, typesNameColumn});
             typesTable.addIndex({defaultPropertyIdColumn});
+            typesTable.addIndex({prototypeIdColumn});
+            typesTable.addIndex({extensionIdColumn});
 
             typesTable.initialize(database);
 
@@ -2779,6 +3153,25 @@ private:
 
             table.initialize(database);
         }
+
+        void createTypeAnnotionsTable(Database &database)
+        {
+            Sqlite::StrictTable table;
+            table.setUseIfNotExists(true);
+            table.setUseWithoutRowId(true);
+            table.setName("typeAnnotations");
+            auto &typeIdColumn = table.addColumn("typeId",
+                                                 Sqlite::StrictColumnType::Integer,
+                                                 {Sqlite::PrimaryKey{}});
+            auto &sourceIdColumn = table.addColumn("sourceId", Sqlite::StrictColumnType::Integer);
+            table.addColumn("iconPath", Sqlite::StrictColumnType::Text);
+            table.addColumn("itemLibrary", Sqlite::StrictColumnType::Text);
+            table.addColumn("hints", Sqlite::StrictColumnType::Text);
+
+            table.addUniqueIndex({sourceIdColumn, typeIdColumn});
+
+            table.initialize(database);
+        }
     };
 
 public:
@@ -2787,12 +3180,9 @@ public:
     Initializer initializer;
     mutable ModuleCache moduleCache{ModuleStorageAdapter{*this}};
     Storage::Info::CommonTypeCache<ProjectStorageInterface> commonTypeCache_{*this};
-    std::vector<std::function<void(const TypeIds &deletedTypeIds)> *> m_refreshCallbacks;
-    ReadWriteStatement<1, 3> upsertTypeStatement{
-        "INSERT INTO types(sourceId, name,  traits) VALUES(?1, ?2, ?3) ON CONFLICT DO "
-        "UPDATE SET traits=excluded.traits WHERE traits IS NOT "
-        "excluded.traits RETURNING typeId",
-        database};
+    QVarLengthArray<ProjectStorageObserver *, 24> observers;
+    ReadWriteStatement<1, 2> insertTypeStatement{
+        "INSERT OR IGNORE INTO types(sourceId, name) VALUES(?1, ?2) RETURNING typeId", database};
     WriteStatement<5> updatePrototypeAndExtensionStatement{
         "UPDATE types SET prototypeId=?2, prototypeNameId=?3, extensionId=?4, extensionNameId=?5 "
         "WHERE typeId=?1 AND (prototypeId IS NOT ?2 OR extensionId IS NOT ?3 AND prototypeId "
@@ -2891,10 +3281,12 @@ public:
         "INSERT INTO sources(sourceContextId, sourceName) VALUES (?,?)", database};
     mutable ReadStatement<3> selectAllSourcesStatement{
         "SELECT sourceName, sourceContextId, sourceId  FROM sources", database};
-    mutable ReadStatement<7, 1> selectTypeByTypeIdStatement{
-        "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, pd.name "
-        "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
-        "  ON defaultPropertyId=propertyDeclarationId WHERE t.typeId=?",
+    mutable ReadStatement<8, 1> selectTypeByTypeIdStatement{
+        "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, annotationTraits, "
+        "pd.name "
+        "FROM types AS t LEFT JOIN propertyDeclarations AS pd ON "
+        "defaultPropertyId=propertyDeclarationId "
+        "WHERE t.typeId=?",
         database};
     mutable ReadStatement<4, 1> selectExportedTypesByTypeIdStatement{
         "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1) FROM "
@@ -2905,11 +3297,16 @@ public:
         "FROM exportedTypeNames AS etn JOIN documentImports USING(moduleId) WHERE typeId=?1 AND "
         "sourceId=?2",
         database};
-    mutable ReadStatement<7> selectTypesStatement{
-        "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, pd.name "
-        "FROM types AS t LEFT JOIN propertyDeclarations AS pd "
-        "  ON defaultPropertyId=propertyDeclarationId",
+    mutable ReadStatement<8> selectTypesStatement{
+        "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, annotationTraits, "
+        "pd.name "
+        "FROM types AS t LEFT JOIN propertyDeclarations AS pd ON "
+        "defaultPropertyId=propertyDeclarationId",
         database};
+    WriteStatement<2> updateTypeTraitStatement{"UPDATE types SET traits = ?2 WHERE typeId=?1",
+                                               database};
+    WriteStatement<2> updateTypeAnnotationTraitStatement{
+        "UPDATE types SET annotationTraits = ?2 WHERE typeId=?1", database};
     ReadStatement<1, 2> selectNotUpdatedTypesInSourcesStatement{
         "SELECT DISTINCT typeId FROM types WHERE (sourceId IN carray(?1) AND typeId NOT IN "
         "carray(?2))",
@@ -3430,8 +3827,9 @@ public:
         "UPDATE types SET defaultPropertyId=?2 WHERE typeId=?1", database};
     WriteStatement<1> updateDefaultPropertyIdToNullStatement{
         "UPDATE types SET defaultPropertyId=NULL WHERE defaultPropertyId=?1", database};
-    mutable ReadStatement<3, 1> selectInfoTypeByTypeIdStatement{
-        "SELECT defaultPropertyId, sourceId, traits FROM types WHERE typeId=?", database};
+    mutable ReadStatement<4, 1> selectInfoTypeByTypeIdStatement{
+        "SELECT defaultPropertyId, sourceId, traits, annotationTraits FROM types WHERE typeId=?",
+        database};
     mutable ReadStatement<1, 1> selectPrototypeIdsForTypeIdInOrderStatement{
         "WITH RECURSIVE "
         "  all_prototype_and_extension(typeId, prototypeId) AS ("
@@ -3493,6 +3891,65 @@ public:
                                                          database};
     WriteStatement<1> deletePropertyEditorPathStatement{
         "DELETE FROM propertyEditorPaths WHERE typeId=?1", database};
+    mutable ReadStatement<4, 1> selectTypeAnnotationsForSourceIdsStatement{
+        "SELECT typeId, iconPath, itemLibrary, hints FROM typeAnnotations WHERE "
+        "sourceId IN carray(?1) ORDER BY typeId",
+        database};
+    WriteStatement<5> insertTypeAnnotationStatement{
+        "INSERT INTO typeAnnotations(typeId, sourceId, iconPath, itemLibrary, hints) VALUES(?1, "
+        "?2, ?3, ?4, ?5)",
+        database};
+    WriteStatement<4> updateTypeAnnotationStatement{
+        "UPDATE typeAnnotations SET iconPath=?2, itemLibrary=?3, hints=?4 WHERE typeId=?1", database};
+    WriteStatement<1> deleteTypeAnnotationStatement{"DELETE FROM typeAnnotations WHERE typeId=?1",
+                                                    database};
+    mutable ReadStatement<1, 1> selectTypeIconPathStatement{
+        "SELECT iconPath FROM typeAnnotations WHERE typeId=?1", database};
+    mutable ReadStatement<2, 1> selectTypeHintsStatement{
+        "SELECT hints.key, hints.value "
+        "FROM typeAnnotations, json_each(typeAnnotations.hints) AS hints "
+        "WHERE typeId=?1",
+        database};
+    mutable ReadStatement<9> selectItemLibraryEntriesStatement{
+        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
+        "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
+        "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
+        "FROM typeAnnotations, json_each(typeAnnotations.itemLibrary) AS i",
+        database};
+    mutable ReadStatement<9, 1> selectItemLibraryEntriesByTypeIdStatement{
+        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
+        "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
+        "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
+        "FROM typeAnnotations, json_each(typeAnnotations.itemLibrary) AS i "
+        "WHERE typeId=?1",
+        database};
+    mutable ReadStatement<9, 1> selectItemLibraryEntriesBySourceIdStatement{
+        "SELECT typeId, i.value->>'$.name', i.value->>'$.iconPath', i.value->>'$.category', "
+        "  i.value->>'$.import', i.value->>'$.toolTip', i.value->>'$.properties', "
+        "  i.value->>'$.extraFilePaths', i.value->>'$.templatePath' "
+        "FROM typeAnnotations, json_each(typeAnnotations.itemLibrary) AS i "
+        "WHERE typeId IN (SELECT DISTINCT typeId "
+        "                 FROM documentImports AS di JOIN exportedTypeNames USING(moduleId) "
+        "                 WHERE di.sourceId=?)",
+        database};
+    mutable ReadStatement<3, 1> selectItemLibraryPropertiesStatement{
+        "SELECT p.value->>0, p.value->>1, p.value->>2 FROM json_each(?1) AS p", database};
+    mutable ReadStatement<1, 1> selectItemLibraryExtraFilePathsStatement{
+        "SELECT p.value FROM json_each(?1) AS p", database};
+    mutable ReadStatement<1, 1> selectTypeIdsByModuleIdStatement{
+        "SELECT DISTINCT typeId FROM exportedTypeNames WHERE moduleId=?", database};
+    mutable ReadStatement<1, 1> selectHeirTypeIdsStatement{
+        "WITH RECURSIVE "
+        "  typeSelection(typeId) AS ("
+        "      SELECT typeId FROM types WHERE prototypeId=?1 OR extensionId=?1"
+        "    UNION ALL "
+        "      SELECT t.typeId "
+        "      FROM types AS t JOIN typeSelection AS ts "
+        "      WHERE prototypeId=ts.typeId OR extensionId=ts.typeId)"
+        "SELECT typeId FROM typeSelection",
+        database};
 };
+
 extern template class ProjectStorage<Sqlite::Database>;
+
 } // namespace QmlDesigner

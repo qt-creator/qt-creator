@@ -22,6 +22,7 @@
 
 #include <externaldependenciesinterface.h>
 #include <import.h>
+#include <model/modelutils.h>
 #include <projectstorage/modulescanner.h>
 #include <rewritingexception.h>
 
@@ -37,6 +38,7 @@
 #include <qmljs/qmljsvalueowner.h>
 
 #include <utils/algorithm.h>
+#include <utils/array.h>
 #include <utils/qrcparser.h>
 #include <utils/qtcassert.h>
 
@@ -71,50 +73,53 @@ bool isSupportedVersion(QmlDesigner::Version version)
         return version.minor <= 15;
 
     if (version.major == 6)
-        return version.minor <= 5;
+        return version.minor <= 6;
 
     return false;
 }
 
 bool isGlobalQtEnums(QStringView value)
 {
-    static constexpr QLatin1StringView list[] = {
-        "Horizontal"_L1,      "Vertical"_L1,        "AlignVCenter"_L1,       "AlignLeft"_L1,
-        "LeftToRight"_L1,     "RightToLeft"_L1,     "AlignHCenter"_L1,       "AlignRight"_L1,
-        "AlignBottom"_L1,     "AlignBaseline"_L1,   "AlignTop"_L1,           "BottomLeft"_L1,
-        "LeftEdge"_L1,        "RightEdge"_L1,       "BottomEdge"_L1,         "TopEdge"_L1,
-        "TabFocus"_L1,        "ClickFocus"_L1,      "StrongFocus"_L1,        "WheelFocus"_L1,
-        "NoFocus"_L1,         "ArrowCursor"_L1,     "UpArrowCursor"_L1,      "CrossCursor"_L1,
-        "WaitCursor"_L1,      "IBeamCursor"_L1,     "SizeVerCursor"_L1,      "SizeHorCursor"_L1,
-        "SizeBDiagCursor"_L1, "SizeFDiagCursor"_L1, "SizeAllCursor"_L1,      "BlankCursor"_L1,
-        "SplitVCursor"_L1,    "SplitHCursor"_L1,    "PointingHandCursor"_L1, "ForbiddenCursor"_L1,
-        "WhatsThisCursor"_L1, "BusyCursor"_L1,      "OpenHandCursor"_L1,     "ClosedHandCursor"_L1,
-        "DragCopyCursor"_L1,  "DragMoveCursor"_L1,  "DragLinkCursor"_L1,     "TopToBottom"_L1,
-        "LeftButton"_L1,      "RightButton"_L1,     "MiddleButton"_L1,       "BackButton"_L1,
-        "ForwardButton"_L1,   "AllButtons"_L1};
+    static constexpr auto list = Utils::to_array<std::u16string_view>(
+        {u"AlignBaseline",   u"AlignBottom",    u"AlignHCenter",       u"AlignLeft",
+         u"AlignRight",      u"AlignTop",       u"AlignVCenter",       u"AllButtons",
+         u"ArrowCursor",     u"BackButton",     u"BlankCursor",        u"BottomEdge",
+         u"BottomLeft",      u"BusyCursor",     u"ClickFocus",         u"ClosedHandCursor",
+         u"CrossCursor",     u"DragCopyCursor", u"DragLinkCursor",     u"DragMoveCursor",
+         u"ForbiddenCursor", u"ForwardButton",  u"Horizontal",         u"IBeamCursor",
+         u"LeftButton",      u"LeftEdge",       u"LeftToRight",        u"MiddleButton",
+         u"NoFocus",         u"OpenHandCursor", u"PointingHandCursor", u"RightButton",
+         u"RightEdge",       u"RightToLeft",    u"SizeAllCursor",      u"SizeBDiagCursor",
+         u"SizeFDiagCursor", u"SizeHorCursor",  u"SizeVerCursor",      u"SplitHCursor",
+         u"SplitVCursor",    u"StrongFocus",    u"TabFocus",           u"TopEdge",
+         u"TopToBottom",     u"UpArrowCursor",  u"Vertical",           u"WaitCursor",
+         u"WhatsThisCursor", u"WheelFocus"});
 
-    return std::find(std::begin(list), std::end(list), value) != std::end(list);
+    return std::binary_search(std::begin(list),
+                              std::end(list),
+                              QmlDesigner::ModelUtils::toStdStringView(value));
 }
 
 bool isKnownEnumScopes(QStringView value)
 {
-    static constexpr QLatin1StringView list[] = {"TextInput"_L1,
-                                                 "TextEdit"_L1,
-                                                 "Material"_L1,
-                                                 "Universal"_L1,
-                                                 "Font"_L1,
-                                                 "Shape"_L1,
-                                                 "ShapePath"_L1,
-                                                 "AbstractButton"_L1,
-                                                 "Text"_L1,
-                                                 "ShaderEffectSource"_L1,
-                                                 "Grid"_L1,
-                                                 "ItemLayer"_L1,
-                                                 "ImageLayer"_L1,
-                                                 "SpriteLayer"_L1,
-                                                 "Light"_L1};
+    static constexpr auto list = Utils::to_array<std::u16string_view>({u"TextInput",
+                                                                       u"TextEdit",
+                                                                       u"Material",
+                                                                       u"Universal",
+                                                                       u"Font",
+                                                                       u"Shape",
+                                                                       u"ShapePath",
+                                                                       u"AbstractButton",
+                                                                       u"Text",
+                                                                       u"ShaderEffectSource",
+                                                                       u"Grid",
+                                                                       u"ItemLayer",
+                                                                       u"ImageLayer",
+                                                                       u"SpriteLayer",
+                                                                       u"Light"});
 
-    return std::find(std::begin(list), std::end(list), value) != std::end(list);
+    return std::find(std::begin(list), std::end(list), QmlDesigner::ModelUtils::toStdStringView(value))
+           != std::end(list);
 }
 
 bool supportedQtQuickVersion(const QmlDesigner::Import &import)
@@ -1235,8 +1240,14 @@ void TextToModelMerger::syncNode(ModelNode &modelNode,
         return;
     }
 
-    int majorVersion = info.majorVersion();
-    int minorVersion = info.minorVersion();
+    int majorVersion = -1;
+    int minorVersion = -1;
+
+    if constexpr (!useProjectStorage()) {
+        typeName = info.typeName();
+        majorVersion = info.majorVersion();
+        minorVersion = info.minorVersion();
+    }
 
     if (modelNode.isRootNode() && !m_rewriterView->allowComponentRoot() && info.isQmlComponent()) {
         for (AST::UiObjectMemberList *iter = astInitializer->members; iter; iter = iter->next) {

@@ -90,6 +90,7 @@ public:
     QString m_workspacePresetsPath;
     QList<Workspace> m_workspaces;
     Workspace m_workspace;
+    bool m_workspaceLocked = false;
 
     QtcSettings *m_settings = nullptr;
     bool m_modeChangeState = false;
@@ -366,6 +367,7 @@ DockManager::~DockManager()
     emit aboutToUnloadWorkspace(d->m_workspace.fileName());
     save();
     saveStartupWorkspace();
+    saveLockWorkspace();
 
     // Fix memory leaks, see https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/issues/307
     std::vector<ADS::DockAreaWidget *> areas;
@@ -468,19 +470,17 @@ void DockManager::initialize()
             if (!workspaceExists(lastWorkspace)) {
                 // This is a fallback mechanism for pre 4.1 settings which stored the workspace name
                 // instead of the file name.
-                QString minusVariant = lastWorkspace;
-                minusVariant.replace(" ", "-");
-                minusVariant.append("." + workspaceFileExtension);
 
-                if (workspaceExists(minusVariant))
-                    workspace = minusVariant;
+                const std::vector<QString> separators = {"-", "_"};
 
-                QString underscoreVariant = lastWorkspace;
-                underscoreVariant.replace(" ", "_");
-                underscoreVariant.append("." + workspaceFileExtension);
+                for (const QString &separator : separators) {
+                    QString workspaceVariant = lastWorkspace;
+                    workspaceVariant.replace(" ", separator);
+                    workspaceVariant.append("." + workspaceFileExtension);
 
-                if (workspaceExists(underscoreVariant))
-                    workspace = underscoreVariant;
+                    if (workspaceExists(workspaceVariant))
+                        workspace = workspaceVariant;
+                }
             } else {
                 workspace = lastWorkspace;
             }
@@ -489,6 +489,8 @@ void DockManager::initialize()
     }
 
     openWorkspace(workspace);
+
+    lockWorkspace(d->m_settings->value(Constants::LOCK_WORKSPACE_SETTINGS_KEY, false).toBool());
 }
 
 DockAreaWidget *DockManager::addDockWidget(DockWidgetArea area,
@@ -1103,6 +1105,32 @@ void DockManager::showWorkspaceMananger()
                             workspaceDialog.autoLoadWorkspace());
 }
 
+void DockManager::lockWorkspace(bool value)
+{
+    if (value == d->m_workspaceLocked)
+        return;
+
+    d->m_workspaceLocked = value;
+
+    DockWidget::DockWidgetFeatures features = DockWidget::DefaultDockWidgetFeatures;
+
+    if (value) {
+        internal::setFlag(features, DockWidget::DockWidgetMovable, false);
+        internal::setFlag(features, DockWidget::DockWidgetFloatable, false);
+    }
+
+    const auto &dockWidgets = dockWidgetsMap();
+    for (auto dockWidget : dockWidgets)
+        dockWidget->setFeatures(features);
+
+    emit lockWorkspaceChanged();
+}
+
+bool DockManager::isWorkspaceLocked() const
+{
+    return d->m_workspaceLocked;
+}
+
 expected_str<QString> DockManager::createWorkspace(const QString &workspaceName)
 {
     qCInfo(adsLog) << "Create workspace" << workspaceName;
@@ -1111,7 +1139,7 @@ expected_str<QString> DockManager::createWorkspace(const QString &workspaceName)
     uniqueWorkspaceFileName(fileName);
     const FilePath filePath = userDirectory().pathAppended(fileName);
 
-    expected_str<void> result = write(filePath, saveState(workspaceName));
+    expected_str<void> result = write(filePath, saveState(workspaceName)); // TODO utils
     if (!result)
         return make_unexpected(result.error());
 
@@ -1458,9 +1486,6 @@ QByteArray DockManager::loadFile(const FilePath &filePath)
 
 QString DockManager::readDisplayName(const FilePath &filePath)
 {
-    if (!filePath.exists())
-        return {};
-
     auto data = loadFile(filePath);
 
     if (data.isEmpty())
@@ -1564,8 +1589,11 @@ void DockManager::syncWorkspacePresets()
 
             // If *.wrk file and displayName attribute is empty set the displayName. This
             // should fix old workspace files which don't have the displayName attribute.
-            if (userFile.suffix() == workspaceFileExtension && readDisplayName(userFile).isEmpty())
-                writeDisplayName(userFile, readDisplayName(filePath));
+            if (userFile.suffix() == workspaceFileExtension) {
+                const QString name = readDisplayName(userFile);
+                if (name.isEmpty())
+                    writeDisplayName(userFile, name);
+            }
 
             continue;
         }
@@ -1613,6 +1641,12 @@ void DockManager::saveStartupWorkspace()
     QTC_ASSERT(d->m_settings, return);
     d->m_settings->setValue(Constants::STARTUP_WORKSPACE_SETTINGS_KEY,
                             activeWorkspace()->fileName());
+}
+
+void DockManager::saveLockWorkspace()
+{
+    QTC_ASSERT(d->m_settings, return);
+    d->m_settings->setValue(Constants::LOCK_WORKSPACE_SETTINGS_KEY, d->m_workspaceLocked);
 }
 
 } // namespace ADS

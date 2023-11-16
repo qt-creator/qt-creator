@@ -44,6 +44,7 @@ public:
     virtual QStringList modulePaths() const = 0;
     virtual QStringList projectModulePaths() const = 0;
     virtual bool isQt6Project() const = 0;
+    virtual bool isQtForMcusProject() const = 0;
     virtual QString qtQuickVersion() const = 0;
     virtual Utils::FilePath resourcePath(const QString &relativePath) const = 0;
 };

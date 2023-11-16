@@ -18,7 +18,8 @@ public:
                Utils::SmallStringView extraId,
                const ImageCache::AuxiliaryData &auxiliaryData,
                CaptureCallback captureCallback,
-               AbortCallback abortCallback) override;
+               AbortCallback abortCallback,
+               ImageCache::TraceToken traceToken) override;
 
     ImageTuple createImage(Utils::SmallStringView filePath,
                            Utils::SmallStringView extraId,

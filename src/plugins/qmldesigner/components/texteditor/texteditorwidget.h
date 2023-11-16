@@ -5,6 +5,9 @@
 #include <texteditor/texteditor.h>
 #include <utils/uniqueobjectptr.h>
 
+#include <itemlibraryentry.h>
+#include <modelnode.h>
+
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -43,10 +46,13 @@ public:
     int currentLine() const;
 
     void setBlockCursorSelectionSynchronisation(bool b);
+    void jumpToModelNode(const ModelNode &modelNode);
+    void highlightToModelNode(const ModelNode &modelNode);
 
 protected:
     bool eventFilter(QObject *object, QEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *dragEnterEvent) override;
+    void dragMoveEvent(QDragMoveEvent *dragMoveEvent) override;
     void dropEvent(QDropEvent *dropEvent) override;
 
 private:
@@ -60,6 +66,7 @@ private:
     QVBoxLayout *m_layout = nullptr;
     bool m_blockCursorSelectionSynchronisation = false;
     bool m_blockRoundTrip = false;
+    ItemLibraryEntry m_draggedEntry;
 };
 
 } // namespace QmlDesigner

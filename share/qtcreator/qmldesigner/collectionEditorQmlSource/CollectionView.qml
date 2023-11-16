@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import QtQuickDesignerTheme 1.0
 import HelperWidgets 2.0 as HelperWidgets
 import StudioTheme 1.0 as StudioTheme
@@ -14,7 +15,8 @@ Item {
 
     property var rootView: CollectionEditorBackend.rootView
     property var model: CollectionEditorBackend.model
-    property var singleCollectionModel: CollectionEditorBackend.singleCollectionModel
+    property var collectionDetailsModel: CollectionEditorBackend.collectionDetailsModel
+    property var collectionDetailsSortFilterModel: CollectionEditorBackend.collectionDetailsSortFilterModel
 
     function showWarning(title, message) {
         warningDialog.title = title
@@ -40,6 +42,7 @@ Item {
         id: newCollection
 
         backendValue: root.rootView
+        sourceModel: root.model
         anchors.centerIn: parent
     }
 
@@ -50,57 +53,63 @@ Item {
         message: ""
     }
 
-    Rectangle {
-        id: collectionsRect
+    GridLayout {
+        id: grid
+        readonly property bool isHorizontal: width >= 500
 
-        color: StudioTheme.Values.themeToolbarBackground
-        width: 300
-        height: root.height
+        anchors.fill: parent
+        columns: isHorizontal ? 3 : 1
 
-        Column {
-            width: parent.width
+        ColumnLayout {
+            id: collectionsSideBar
 
-            Rectangle {
-                width: parent.width
-                height: StudioTheme.Values.height + 5
-                color: StudioTheme.Values.themeToolbarBackground
+            Layout.alignment: Qt.AlignTop | Qt.AlignLeft
+            Layout.minimumWidth: 300
+            Layout.fillWidth: !grid.isHorizontal
+
+            RowLayout {
+                spacing: StudioTheme.Values.sectionRowSpacing
+                Layout.fillWidth: true
+                Layout.preferredHeight: 50
 
                 Text {
-                    id: collectionText
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                    Layout.fillWidth: true
 
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: qsTr("Collections")
-                    font.pixelSize: StudioTheme.Values.mediumIconFont
+                    text: qsTr("Data Models")
+                    font.pixelSize: StudioTheme.Values.baseFontSize
                     color: StudioTheme.Values.themeTextColor
                     leftPadding: 15
                 }
 
-                Row {
-                    anchors.right: parent.right
-                    anchors.verticalCenter: parent.verticalCenter
-                    rightPadding: 12
-                    spacing: 2
+                IconTextButton {
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
-                    HelperWidgets.IconButton {
-                        icon: StudioTheme.Constants.downloadjson_large
-                        tooltip: qsTr("Import Json")
+                    icon: StudioTheme.Constants.import_medium
+                    text: qsTr("JSON")
+                    tooltip: qsTr("Import JSON")
+                    radius: StudioTheme.Values.smallRadius
 
-                        onClicked: jsonImporter.open()
-                    }
+                    onClicked: jsonImporter.open()
+                }
 
-                    HelperWidgets.IconButton {
-                        icon: StudioTheme.Constants.downloadcsv_large
-                        tooltip: qsTr("Import CSV")
+                IconTextButton {
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
-                        onClicked: csvImporter.open()
-                    }
+                    icon: StudioTheme.Constants.import_medium
+                    text: qsTr("CSV")
+                    tooltip: qsTr("Import CSV")
+                    radius: StudioTheme.Values.smallRadius
+
+                    onClicked: csvImporter.open()
                 }
             }
 
-            Rectangle { // Collections
-                width: parent.width
+            Rectangle { // Model Groups
+                Layout.fillWidth: true
                 color: StudioTheme.Values.themeBackgroundColorNormal
-                height: 330
+                Layout.minimumHeight: 150
+                Layout.preferredHeight: sourceListView.contentHeight
 
                 MouseArea {
                     anchors.fill: parent
@@ -114,41 +123,46 @@ Item {
                 ListView {
                     id: sourceListView
 
-                    width: parent.width
-                    height: contentHeight
+                    anchors.fill: parent
                     model: root.model
 
                     delegate: ModelSourceItem {
+                        implicitWidth: sourceListView.width
                         onDeleteItem: root.model.removeRow(index)
+                        hasSelectedTarget: root.rootView.targetNodeSelected
+                        onAssignToSelected: root.rootView.assignSourceNodeToSelectedItem(sourceNode)
                     }
-
                 }
             }
 
-            Rectangle {
-                width: parent.width
-                height: addCollectionButton.height
-                color: StudioTheme.Values.themeBackgroundColorNormal
+            HelperWidgets.IconButton {
+                id: addCollectionButton
 
-                IconTextButton {
-                    id: addCollectionButton
+                iconSize:16
+                Layout.fillWidth: true
+                Layout.minimumWidth: 24
+                Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
 
-                    anchors.centerIn: parent
-                    text: qsTr("Add new collection")
-                    icon: StudioTheme.Constants.create_medium
-                    onClicked: newCollection.open()
-                }
+                tooltip: qsTr("Add a new model")
+                icon: StudioTheme.Constants.create_medium
+                onClicked: newCollection.open()
             }
         }
-    }
 
-    SingleCollectionView {
-        model: root.singleCollectionModel
-        anchors {
-            left: collectionsRect.right
-            right: parent.right
-            top: parent.top
-            bottom: parent.bottom
+        Rectangle { // Splitter
+            Layout.fillWidth: !grid.isHorizontal
+            Layout.fillHeight: grid.isHorizontal
+            Layout.minimumWidth: 2
+            Layout.minimumHeight: 2
+            color: "black"
+        }
+
+        CollectionDetailsView {
+            model: root.collectionDetailsModel
+            backend: root.model
+            sortedModel: root.collectionDetailsSortFilterModel
+            Layout.fillHeight: true
+            Layout.fillWidth: true
         }
     }
 }

@@ -193,6 +193,8 @@ public:
      */
     ~DockContainerWidget() override;
 
+    QSize minimumSizeHint() const override;
+
     /**
      * Adds dockwidget into the given area.
      * If DockAreaWidget is not null, then the area parameter indicates the area

@@ -34,8 +34,11 @@ Item {
                 id: settingButton
                 style: StudioTheme.Values.statusbarButtonStyle
                 buttonIcon: StudioTheme.Constants.settings_medium
-                onClicked: backend.triggerProjectSettings()
-                enabled: backend.isInDesignMode || (backend.isInEditMode && backend.projectOpened)
+                checkable: true
+                checkedInverted: true
+                checked: backend.isInSessionMode
+                onClicked: settingButton.checked ? backend.triggerProjectSettings() : backend.triggerModeChange()
+                enabled: backend.projectOpened
                 tooltip: qsTr("Set runtime configuration for the project.")
             }
 
@@ -86,9 +89,9 @@ Item {
                 model: backend.styles
                 onActivated: backend.setCurrentStyle(styles.currentIndex)
                 openUpwards: true
-                enabled: backend.isInDesignMode
+                enabled: backend.isInDesignMode && !backend.isMCUs
                 property int currentStyleIndex: backend.currentStyle
-                onCurrentStyleIndexChanged: currentIndex = backend.currentStyle
+                onCurrentStyleIndexChanged: styles.currentIndex = backend.currentStyle
             }
         }
     }

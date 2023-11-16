@@ -204,10 +204,14 @@ public:
     QIcon icon() const;
     void setIcon(const QIcon icon);
 
+    bool useUnavailableMarker() const;
+    void setUseUnavailableMarker(bool useUnavailableMarker);
+
 private:
     FileType m_fileType;
     mutable QIcon m_icon;
     mutable bool m_hasError = false;
+    bool m_useUnavailableMarker = false;
 };
 
 // Documentation inside.

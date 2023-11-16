@@ -132,7 +132,7 @@
 
     \section2 Set the AVD as the Device in the Android Kit
 
-    Next, you need to set the AVD as the Android device kit. You do this under the the
+    Next, you need to set the AVD as the Android device kit. You do this under the
     \uicontrol Kits tab. If the \uicontrol Kits list is empty, restart \QDS.
 
     \image qtds-options-kits.png

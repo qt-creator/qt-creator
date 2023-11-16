@@ -1,9 +1,12 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+﻿// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "uniform.h"
 #include <qmldesignerplugin.h>
 
+#include "propertyhandler.h"
+
+#include <modelnodeoperations.h>
 
 #include <QColor>
 #include <QJsonObject>
@@ -11,7 +14,8 @@
 
 namespace EffectMaker {
 
-Uniform::Uniform(const QJsonObject &propObj)
+Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QString &qenPath)
+    : m_qenPath(qenPath)
 {
     QString value, defaultValue, minValue, maxValue;
 
@@ -24,22 +28,29 @@ Uniform::Uniform(const QJsonObject &propObj)
     if (m_displayName.isEmpty())
         m_displayName = m_name;
 
+    QString resPath;
     if (m_type == Type::Sampler) {
+        resPath = getResourcePath(effectName, defaultValue, qenPath);
         if (!defaultValue.isEmpty())
-            defaultValue = getResourcePath(defaultValue);
+            defaultValue = resPath;
         if (propObj.contains("enableMipmap"))
             m_enableMipmap = getBoolValue(propObj.value("enableMipmap"), false);
         // Update the mipmap property
         QString mipmapProperty = mipmapPropertyName(m_name);
+        g_propertyData[mipmapProperty] = m_enableMipmap;
     }
+
     if (propObj.contains("value")) {
         value = propObj.value("value").toString();
-        if (m_type == Type::Sampler && !value.isEmpty())
-            value = getResourcePath(value);
+        if (m_type == Type::Sampler)
+            value = resPath;
     } else {
         // QEN files don't store the current value, so with those use default value
         value = defaultValue;
     }
+    m_customValue = propObj.value("customValue").toString();
+    m_useCustomValue = getBoolValue(propObj.value("useCustomValue"), false);
+
     minValue = propObj.value("minValue").toString();
     maxValue = propObj.value("maxValue").toString();
 
@@ -159,11 +170,20 @@ bool Uniform::getBoolValue(const QJsonValue &jsonValue, bool defaultValue)
 
 // Returns the path for a shader resource
 // Used with sampler types
-QString Uniform::getResourcePath(const QString &value) const
+QString Uniform::getResourcePath(const QString &effectName, const QString &value, const QString &qenPath) const
 {
-    Q_UNUSED(value)
-    //TODO
-    return {};
+    QString filePath = value;
+    if (qenPath.isEmpty()) {
+        const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
+        return effectsResDir.pathAppended(effectName).pathAppended(value).toString();
+    } else {
+        QDir dir(m_qenPath);
+        dir.cdUp();
+        QString absPath = dir.absoluteFilePath(filePath);
+        absPath = QDir::cleanPath(absPath);
+        absPath = QUrl::fromLocalFile(absPath).toString();
+        return absPath;
+    }
 }
 
 // Validation and setting values
@@ -248,7 +268,7 @@ QVariant Uniform::valueStringToVariant(const QString &value)
     return variant;
 }
 
-QString Uniform::stringFromType(Uniform::Type type)
+QString Uniform::stringFromType(Uniform::Type type, bool isShader)
 {
     if (type == Type::Bool)
         return "bool";
@@ -263,7 +283,7 @@ QString Uniform::stringFromType(Uniform::Type type)
     else if (type == Type::Vec4)
         return "vec4";
     else if (type == Type::Color)
-        return "color";
+        return isShader ? QString("vec4") : QString("color");
     else if (type == Type::Sampler)
         return "sampler2D";
     else if (type == Type::Define)
@@ -289,7 +309,7 @@ Uniform::Type Uniform::typeFromString(const QString &typeString)
         return Uniform::Type::Vec4;
     else if (typeString == "color")
         return Uniform::Type::Color;
-    else if (typeString == "sampler2D")
+    else if (typeString == "sampler2D" || typeString == "image") //TODO: change image to sample2D in all QENs
         return Uniform::Type::Sampler;
     else if (typeString == "define")
         return Uniform::Type::Define;

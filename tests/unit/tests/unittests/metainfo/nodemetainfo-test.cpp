@@ -4,6 +4,7 @@
 #include "../utils/googletest.h"
 
 #include <matchers/info_exportedtypenames-matcher.h>
+#include <matchers/projectstorage-matcher.h>
 #include <mocks/projectstoragemock.h>
 #include <mocks/sourcepathcachemock.h>
 
@@ -13,8 +14,11 @@
 
 namespace {
 
+using QmlDesigner::FlagIs;
 using QmlDesigner::ModelNode;
 using QmlDesigner::ModelNodes;
+using QmlDesigner::Storage::TypeTraits;
+using QmlDesigner::Storage::TypeTraitsKind;
 
 template<typename Matcher>
 auto PropertyId(const Matcher &matcher)
@@ -211,11 +215,10 @@ TEST_F(NodeMetaInfo, invalid_is_not_file_component)
 
 TEST_F(NodeMetaInfo, component_is_file_component)
 {
-    using QmlDesigner::Storage::TypeTraits;
     auto moduleId = projectStorageMock.createModule("/path/to/project");
-    auto typeId = projectStorageMock.createType(moduleId,
-                                                "Foo",
-                                                TypeTraits::IsFileComponent | TypeTraits::Reference);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.isFileComponent = true;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
     QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
 
     bool isFileComponent = metaInfo.isFileComponent();
@@ -225,9 +228,10 @@ TEST_F(NodeMetaInfo, component_is_file_component)
 
 TEST_F(NodeMetaInfo, is_project_component)
 {
-    using QmlDesigner::Storage::TypeTraits;
     auto moduleId = projectStorageMock.createModule("/path/to/project");
-    auto typeId = projectStorageMock.createType(moduleId, "Foo", TypeTraits::IsProjectComponent);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.isProjectComponent = true;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
     QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
 
     bool isProjectComponent = metaInfo.isProjectComponent();
@@ -258,9 +262,10 @@ TEST_F(NodeMetaInfo, invalid_is_not_project_component)
 
 TEST_F(NodeMetaInfo, is_in_project_module)
 {
-    using QmlDesigner::Storage::TypeTraits;
     auto moduleId = projectStorageMock.createModule("/path/to/project");
-    auto typeId = projectStorageMock.createType(moduleId, "Foo", TypeTraits::IsInProjectModule);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.isInProjectModule = true;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
     QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
 
     bool isInProjectModule = metaInfo.isInProjectModule();
@@ -791,6 +796,25 @@ TEST_F(NodeMetaInfo, prototypes_returns_empty_container_for_default)
     auto prototypes = metaInfo.prototypes();
 
     ASSERT_THAT(prototypes, IsEmpty());
+}
+
+TEST_F(NodeMetaInfo, heirs)
+{
+    auto metaInfo = model.qmlQtObjectMetaInfo();
+    projectStorageMock.setHeirs(metaInfo.id(), {model.qtQuickItemMetaInfo().id()});
+
+    auto heirs = metaInfo.heirs();
+
+    ASSERT_THAT(heirs, ElementsAre(model.qtQuickItemMetaInfo()));
+}
+
+TEST_F(NodeMetaInfo, heirs_returns_empty_container_for_default)
+{
+    auto metaInfo = QmlDesigner::NodeMetaInfo();
+
+    auto heirs = metaInfo.heirs();
+
+    ASSERT_THAT(heirs, IsEmpty());
 }
 
 TEST_F(NodeMetaInfo, common_base_is_root)
@@ -2402,7 +2426,9 @@ TEST_F(NodeMetaInfo, default_is_not_view)
 
 TEST_F(NodeMetaInfo, is_enumeration)
 {
-    auto metaInfo = createMetaInfo("QML", "Foo", QmlDesigner::Storage::TypeTraits::IsEnum);
+    TypeTraits traits;
+    traits.isEnum = true;
+    auto metaInfo = createMetaInfo("QML", "Foo", traits);
 
     bool isType = metaInfo.isEnumeration();
 
@@ -2562,7 +2588,7 @@ TEST_F(NodeMetaInfo, default_property_editor_specifics_path_is_empty)
 
 TEST_F(NodeMetaInfo, is_reference)
 {
-    auto metaInfo = createMetaInfo("QtQuick", "Item", QmlDesigner::Storage::TypeTraits::Reference);
+    auto metaInfo = createMetaInfo("QtQuick", "Item", TypeTraitsKind::Reference);
 
     auto type = metaInfo.type();
 
@@ -2571,7 +2597,7 @@ TEST_F(NodeMetaInfo, is_reference)
 
 TEST_F(NodeMetaInfo, is_value)
 {
-    auto metaInfo = createMetaInfo("QML", "bool", QmlDesigner::Storage::TypeTraits::Value);
+    auto metaInfo = createMetaInfo("QML", "bool", TypeTraitsKind::Value);
 
     auto type = metaInfo.type();
 
@@ -2580,7 +2606,7 @@ TEST_F(NodeMetaInfo, is_value)
 
 TEST_F(NodeMetaInfo, is_sequence)
 {
-    auto metaInfo = createMetaInfo("QML", "QObjectList", QmlDesigner::Storage::TypeTraits::Sequence);
+    auto metaInfo = createMetaInfo("QML", "QObjectList", TypeTraitsKind::Sequence);
 
     auto type = metaInfo.type();
 
@@ -2589,7 +2615,7 @@ TEST_F(NodeMetaInfo, is_sequence)
 
 TEST_F(NodeMetaInfo, is_none)
 {
-    auto metaInfo = createMetaInfo("QML", "void", QmlDesigner::Storage::TypeTraits::None);
+    auto metaInfo = createMetaInfo("QML", "void", TypeTraitsKind::None);
 
     auto type = metaInfo.type();
 
@@ -2603,6 +2629,557 @@ TEST_F(NodeMetaInfo, default_is_none)
     auto type = metaInfo.type();
 
     ASSERT_THAT(type, QmlDesigner::MetaInfoType::None);
+}
+
+TEST_F(NodeMetaInfo, object_can_not_be_container)
+{
+    auto canBeContainer = objectMetaInfo.canBeContainer();
+
+    ASSERT_THAT(canBeContainer, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_can_not_be_container)
+{
+    auto canBeContainer = QmlDesigner::NodeMetaInfo{}.canBeContainer();
+
+    ASSERT_THAT(canBeContainer, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_can_not_be_container)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto canBeContainer = metaInfo.canBeContainer();
+
+    ASSERT_THAT(canBeContainer, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_can_be_container)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.canBeContainer = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto canBeContainer = metaInfo.canBeContainer();
+
+    ASSERT_THAT(canBeContainer, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_do_no_forces_clipping)
+{
+    auto forceClip = objectMetaInfo.forceClip();
+
+    ASSERT_THAT(forceClip, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_do_no_forces_clipping)
+{
+    auto forceClip = QmlDesigner::NodeMetaInfo{}.forceClip();
+
+    ASSERT_THAT(forceClip, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_do_no_forces_clipping)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto forceClip = metaInfo.forceClip();
+
+    ASSERT_THAT(forceClip, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_forces_clipping)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.forceClip = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto forceClip = metaInfo.forceClip();
+
+    ASSERT_THAT(forceClip, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_does_not_layout_children)
+{
+    auto doesLayoutChildren = objectMetaInfo.doesLayoutChildren();
+
+    ASSERT_THAT(doesLayoutChildren, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_does_not_layout_children)
+{
+    auto doesLayoutChildren = QmlDesigner::NodeMetaInfo{}.doesLayoutChildren();
+
+    ASSERT_THAT(doesLayoutChildren, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_does_not_layout_children)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto doesLayoutChildren = metaInfo.doesLayoutChildren();
+
+    ASSERT_THAT(doesLayoutChildren, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_layouts_children)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.doesLayoutChildren = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto doesLayoutChildren = metaInfo.doesLayoutChildren();
+
+    ASSERT_THAT(doesLayoutChildren, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_cannot_be_dropped_in_form_editor)
+{
+    auto canBeDroppedInFormEditor = objectMetaInfo.canBeDroppedInFormEditor();
+
+    ASSERT_THAT(canBeDroppedInFormEditor, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_cannot_be_dropped_in_form_editor)
+{
+    auto canBeDroppedInFormEditor = QmlDesigner::NodeMetaInfo{}.canBeDroppedInFormEditor();
+
+    ASSERT_THAT(canBeDroppedInFormEditor, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_cannot_be_dropped_in_form_editor)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto canBeDroppedInFormEditor = metaInfo.canBeDroppedInFormEditor();
+
+    ASSERT_THAT(canBeDroppedInFormEditor, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_can_be_dropped_in_form_editor)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.canBeDroppedInFormEditor = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto canBeDroppedInFormEditor = metaInfo.canBeDroppedInFormEditor();
+
+    ASSERT_THAT(canBeDroppedInFormEditor, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_cannot_be_dropped_in_navigator)
+{
+    auto canBeDroppedInNavigator = objectMetaInfo.canBeDroppedInNavigator();
+
+    ASSERT_THAT(canBeDroppedInNavigator, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_cannot_be_dropped_in_navigator)
+{
+    auto canBeDroppedInNavigator = QmlDesigner::NodeMetaInfo{}.canBeDroppedInNavigator();
+
+    ASSERT_THAT(canBeDroppedInNavigator, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_cannot_be_dropped_in_navigator)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto canBeDroppedInNavigator = metaInfo.canBeDroppedInNavigator();
+
+    ASSERT_THAT(canBeDroppedInNavigator, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_can_be_dropped_in_navigator)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.canBeDroppedInNavigator = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto canBeDroppedInNavigator = metaInfo.canBeDroppedInNavigator();
+
+    ASSERT_THAT(canBeDroppedInNavigator, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_cannot_be_dropped_in_3d_view)
+{
+    auto canBeDroppedInView3D = objectMetaInfo.canBeDroppedInView3D();
+
+    ASSERT_THAT(canBeDroppedInView3D, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_cannot_be_dropped_in_3d_view)
+{
+    auto canBeDroppedInView3D = QmlDesigner::NodeMetaInfo{}.canBeDroppedInView3D();
+
+    ASSERT_THAT(canBeDroppedInView3D, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_cannot_be_dropped_in_3d_view)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto canBeDroppedInView3D = metaInfo.canBeDroppedInView3D();
+
+    ASSERT_THAT(canBeDroppedInView3D, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_can_be_dropped_in_3d_view)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.canBeDroppedInView3D = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto canBeDroppedInView3D = metaInfo.canBeDroppedInView3D();
+
+    ASSERT_THAT(canBeDroppedInView3D, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_is_not_movable)
+{
+    auto isMovable = objectMetaInfo.isMovable();
+
+    ASSERT_THAT(isMovable, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_is_not_movable)
+{
+    auto isMovable = QmlDesigner::NodeMetaInfo{}.isMovable();
+
+    ASSERT_THAT(isMovable, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_movable)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto isMovable = metaInfo.isMovable();
+
+    ASSERT_THAT(isMovable, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_is_movable)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.isMovable = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto isMovable = metaInfo.isMovable();
+
+    ASSERT_THAT(isMovable, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_is_not_resizable)
+{
+    auto isResizable = objectMetaInfo.isResizable();
+
+    ASSERT_THAT(isResizable, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_is_not_resizable)
+{
+    auto isResizable = QmlDesigner::NodeMetaInfo{}.isResizable();
+
+    ASSERT_THAT(isResizable, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_resizable)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto isResizable = metaInfo.isResizable();
+
+    ASSERT_THAT(isResizable, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_is_resizable)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.isResizable = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto isResizable = metaInfo.isResizable();
+
+    ASSERT_THAT(isResizable, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_has_not_form_editor_item)
+{
+    auto hasFormEditorItem = objectMetaInfo.hasFormEditorItem();
+
+    ASSERT_THAT(hasFormEditorItem, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_has_not_form_editor_item)
+{
+    auto hasFormEditorItem = QmlDesigner::NodeMetaInfo{}.hasFormEditorItem();
+
+    ASSERT_THAT(hasFormEditorItem, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_has_not_form_editor_item)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto hasFormEditorItem = metaInfo.hasFormEditorItem();
+
+    ASSERT_THAT(hasFormEditorItem, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_has_form_editor_item)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.hasFormEditorItem = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto hasFormEditorItem = metaInfo.hasFormEditorItem();
+
+    ASSERT_THAT(hasFormEditorItem, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_is_not_stacked_container)
+{
+    auto isStackedContainer = objectMetaInfo.isStackedContainer();
+
+    ASSERT_THAT(isStackedContainer, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_is_not_stacked_container)
+{
+    auto isStackedContainer = QmlDesigner::NodeMetaInfo{}.isStackedContainer();
+
+    ASSERT_THAT(isStackedContainer, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_stacked_container)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto isStackedContainer = metaInfo.isStackedContainer();
+
+    ASSERT_THAT(isStackedContainer, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_is_stacked_container)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.isStackedContainer = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto isStackedContainer = metaInfo.isStackedContainer();
+
+    ASSERT_THAT(isStackedContainer, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_dont_takes_over_rendering_of_children)
+{
+    auto takesOverRenderingOfChildren = objectMetaInfo.takesOverRenderingOfChildren();
+
+    ASSERT_THAT(takesOverRenderingOfChildren, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_dont_takes_over_rendering_of_children)
+{
+    auto takesOverRenderingOfChildren = QmlDesigner::NodeMetaInfo{}.takesOverRenderingOfChildren();
+
+    ASSERT_THAT(takesOverRenderingOfChildren, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_dont_takes_over_rendering_of_children)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto takesOverRenderingOfChildren = metaInfo.takesOverRenderingOfChildren();
+
+    ASSERT_THAT(takesOverRenderingOfChildren, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_takes_over_rendering_of_children)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.takesOverRenderingOfChildren = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto takesOverRenderingOfChildren = metaInfo.takesOverRenderingOfChildren();
+
+    ASSERT_THAT(takesOverRenderingOfChildren, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_is_not_visible_in_navigator)
+{
+    auto visibleInNavigator = objectMetaInfo.visibleInNavigator();
+
+    ASSERT_THAT(visibleInNavigator, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_is_not_visible_in_navigator)
+{
+    auto visibleInNavigator = QmlDesigner::NodeMetaInfo{}.visibleInNavigator();
+
+    ASSERT_THAT(visibleInNavigator, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_visible_in_navigator)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto visibleInNavigator = metaInfo.visibleInNavigator();
+
+    ASSERT_THAT(visibleInNavigator, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_is_visible_in_navigator)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.visibleInNavigator = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto visibleInNavigator = metaInfo.visibleInNavigator();
+
+    ASSERT_THAT(visibleInNavigator, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, object_is_not_visible_in_library)
+{
+    auto visibleInLibrary = objectMetaInfo.visibleInLibrary();
+
+    ASSERT_THAT(visibleInLibrary, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_is_not_visible_in_library)
+{
+    auto visibleInLibrary = QmlDesigner::NodeMetaInfo{}.visibleInLibrary();
+
+    ASSERT_THAT(visibleInLibrary, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_visible_in_library)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto visibleInLibrary = metaInfo.visibleInLibrary();
+
+    ASSERT_THAT(visibleInLibrary, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_is_visible_in_library)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project");
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.visibleInLibrary = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto visibleInLibrary = metaInfo.visibleInLibrary();
+
+    ASSERT_THAT(visibleInLibrary, FlagIs::True);
+}
+
+TEST_F(NodeMetaInfo, type_hints)
+{
+    projectStorageMock.setTypeHints(objectMetaInfo.id(), {{"inContainer", "true"}});
+
+    auto typeHints = objectMetaInfo.typeHints();
+
+    ASSERT_THAT(typeHints, ElementsAre(IsTypeHint("inContainer", "true")));
+}
+
+TEST_F(NodeMetaInfo, no_type_hints_for_default)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    auto typeHints = metaInfo.typeHints();
+
+    ASSERT_THAT(typeHints, IsEmpty());
+}
+
+TEST_F(NodeMetaInfo, icon_path)
+{
+    projectStorageMock.setTypeIconPath(objectMetaInfo.id(), "/icon/path");
+
+    auto path = objectMetaInfo.iconPath();
+
+    ASSERT_THAT(path, Eq("/icon/path"));
+}
+
+TEST_F(NodeMetaInfo, no_icon_path_for_default)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    auto path = metaInfo.iconPath();
+
+    ASSERT_THAT(path, IsEmpty());
+}
+
+TEST_F(NodeMetaInfo, item_library_entries)
+{
+    projectStorageMock.setItemLibraryEntries(objectMetaInfo.id(),
+                                             {{objectMetaInfo.id(),
+                                               "Object",
+                                               "/icon/path",
+                                               "Basic",
+                                               "QtQuick",
+                                               "An object",
+                                               {{"x", "double", Sqlite::ValueView::create(1)}}}});
+
+    auto entries = objectMetaInfo.itemLibrariesEntries();
+
+    ASSERT_THAT(entries,
+                ElementsAre(IsItemLibraryEntry(objectMetaInfo.id(),
+                                               "Object",
+                                               "/icon/path",
+                                               "Basic",
+                                               "QtQuick",
+                                               "An object",
+                                               "",
+                                               ElementsAre(IsItemLibraryProperty("x", "double", 1)),
+                                               IsEmpty())));
+}
+
+TEST_F(NodeMetaInfo, no_item_library_entries_for_default)
+{
+    QmlDesigner::NodeMetaInfo metaInfo;
+
+    auto entries = metaInfo.itemLibrariesEntries();
+
+    ASSERT_THAT(entries, IsEmpty());
 }
 
 } // namespace

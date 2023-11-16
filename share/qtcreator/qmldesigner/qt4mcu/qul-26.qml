@@ -57,7 +57,8 @@ VersionData {
         "QtQuick.Shapes",
         "QtQuick.Timeline",
         "QtQuickUltralite.Extras",
-        "QtQuickUltralite.Layers"
+        "QtQuickUltralite.Layers",
+        "QtQuickUltralite.Profiling"
     ]
 
     bannedImports: [
@@ -146,6 +147,12 @@ VersionData {
 
     QtQuick.Animation {
         bannedProperties: ["paused"]
+    }
+
+    QtQuick.AnimatedSprite {
+        allowedProperties: ["currentFrame", "frameCount", "paused"]
+        bannedProperties: ["finishBehavior", "frameRate", "frameSync",
+            "frameX", "frameY", "interpolate", "reverse"]
     }
 
     //Quick Controls2 Items and properties:

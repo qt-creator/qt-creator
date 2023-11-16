@@ -3,8 +3,9 @@
 
 import QtQuick
 import QtQuick.Templates as T
-import StudioTheme 1.0 as StudioTheme
-import QtQuickDesignerTheme 1.0
+import StudioTheme as StudioTheme
+import QtQuickDesignerTheme
+import StudioWindowManager
 
 T.ComboBox {
     id: control
@@ -110,9 +111,9 @@ T.ComboBox {
         width: control.listView.width
         height: control.listView.height + 2 * control.style.borderWidth
         visible: false
-        flags: Qt.FramelessWindowHint | Qt.Dialog | Qt.NoDropShadowWindowHint
+        flags: Qt.FramelessWindowHint | Qt.Dialog | Qt.NoDropShadowWindowHint | Qt.WindowStaysOnTopHint
         modality: Qt.NonModal
-        transientParent: null
+        transientParent: control.Window.window
         color: "transparent"
 
         onActiveFocusItemChanged: {
@@ -157,6 +158,10 @@ T.ComboBox {
             id: itemDelegate
 
             onClicked: {
+                // Necessary to keep the transient parent open otherwise it will change the focus
+                // to the main window "Utils::AppMainWindowClassWindow" and closes the transient
+                // parent.
+                window.transientParent.requestActivate()
                 comboBoxPopup.close()
                 control.currentIndex = index
                 control.activated(index)

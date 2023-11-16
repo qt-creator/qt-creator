@@ -84,6 +84,10 @@ public:
 
     void registerBusyHandler();
 
+    void resetDatabaseForTestsOnly();
+    void enableForeignKeys();
+    void disableForeignKeys();
+
 protected:
     bool databaseIsOpen() const;
 

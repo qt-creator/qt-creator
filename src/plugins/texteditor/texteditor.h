@@ -277,6 +277,7 @@ public:
     virtual void extraAreaContextMenuEvent(QContextMenuEvent *);
     virtual void extraAreaMouseEvent(QMouseEvent *);
     void updateFoldingHighlight(const QPoint &pos);
+    void updateFoldingHighlight(const QTextCursor &cursor);
 
     void setLanguageSettingsId(Utils::Id settingsId);
     Utils::Id languageSettingsId() const;

@@ -17,7 +17,10 @@
 #include "internalproperty.h"
 #include "internalsignalhandlerproperty.h"
 #include "internalvariantproperty.h"
-#include "metainfo.h"
+#include "itemlibraryentry.h"
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include "metainfo.h"
+#endif
 #include "nodeinstanceview.h"
 #include "nodemetainfo.h"
 
@@ -42,6 +45,8 @@
 #include <QPointer>
 #include <QRegularExpression>
 #include <qcompilerdetection.h>
+
+#include <string>
 
 /*!
 \defgroup CoreModel
@@ -84,7 +89,7 @@ ModelPrivate::ModelPrivate(Model *model,
     m_currentTimelineNode = m_rootInternalNode;
 
     if constexpr (useProjectStorage())
-        projectStorage->addRefreshCallback(&m_metaInfoRefreshCallback);
+        projectStorage->addObserver(this);
 }
 
 ModelPrivate::ModelPrivate(Model *model,
@@ -108,7 +113,7 @@ ModelPrivate::ModelPrivate(Model *model,
     m_currentTimelineNode = m_rootInternalNode;
 
     if constexpr (useProjectStorage())
-        projectStorage->addRefreshCallback(&m_metaInfoRefreshCallback);
+        projectStorage->addObserver(this);
 }
 
 ModelPrivate::ModelPrivate(Model *model,
@@ -132,14 +137,11 @@ ModelPrivate::ModelPrivate(Model *model,
 ModelPrivate::~ModelPrivate()
 {
     if constexpr (useProjectStorage())
-        projectStorage->removeRefreshCallback(&m_metaInfoRefreshCallback);
+        projectStorage->removeObserver(this);
 };
 
 void ModelPrivate::detachAllViews()
 {
-    if constexpr (useProjectStorage())
-        projectStorage->removeRefreshCallback(&m_metaInfoRefreshCallback);
-
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         detachView(view.data(), true);
 
@@ -394,11 +396,6 @@ void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName
     }
 }
 
-void ModelPrivate::emitRefreshMetaInfos(const TypeIds &deletedTypeIds)
-{
-    notifyNodeInstanceViewLast([&](AbstractView *view) { view->refreshMetaInfos(deletedTypeIds); });
-}
-
 void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
 {
     for (const ModelNode &node : resourceSet.removeModelNodes) {
@@ -409,6 +406,11 @@ void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
     removeProperties(toInternalProperties(resourceSet.removeProperties));
 
     setBindingProperties(resourceSet.setExpressions);
+}
+
+void ModelPrivate::removedTypeIds(const TypeIds &removedTypeIds)
+{
+    notifyNodeInstanceViewLast([&](AbstractView *view) { view->refreshMetaInfos(removedTypeIds); });
 }
 
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
@@ -459,6 +461,7 @@ InternalNodePointer ModelPrivate::rootNode() const
     return m_rootInternalNode;
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 MetaInfo ModelPrivate::metaInfo() const
 {
     return m_metaInfo;
@@ -468,12 +471,16 @@ void ModelPrivate::setMetaInfo(const MetaInfo &metaInfo)
 {
     m_metaInfo = metaInfo;
 }
+#endif
 
 void ModelPrivate::changeNodeId(const InternalNodePointer &node, const QString &id)
 {
+    using namespace NanotraceHR::Literals;
+
     const QString oldId = node->id;
 
     node->id = id;
+    node->traceToken.change("id"_t, std::forward_as_tuple("id", id));
     if (!oldId.isEmpty())
         m_idNodeHash.remove(oldId);
     if (!id.isEmpty())
@@ -2061,23 +2068,21 @@ void Model::setFileUrl(const QUrl &url)
     d->setFileUrl(url);
 }
 
-/*!
-  \brief Returns list of QML types available within the model.
-  */
-const MetaInfo Model::metaInfo() const
-{
-    return d->metaInfo();
-}
-
 bool Model::hasNodeMetaInfo(const TypeName &typeName, int majorVersion, int minorVersion) const
 {
     return metaInfo(typeName, majorVersion, minorVersion).isValid();
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
+const MetaInfo Model::metaInfo() const
+{
+    return d->metaInfo();
+}
 void Model::setMetaInfo(const MetaInfo &metaInfo)
 {
     d->setMetaInfo(metaInfo);
 }
+#endif
 
 NodeMetaInfo Model::boolMetaInfo() const
 {
@@ -2287,6 +2292,45 @@ NodeMetaInfo Model::qtQuick3DNodeMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DPointLightMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, PointLight>();
+    } else {
+        return metaInfo("QtQuick3D.PointLight");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DSpotLightMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, SpotLight>();
+    } else {
+        return metaInfo("QtQuick3D.SpotLight");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DOrthographicCameraMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, OrthographicCamera>();
+    } else {
+        return metaInfo("QtQuick3D.OrthographicCamera");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DPerspectiveCameraMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, PerspectiveCamera>();
+    } else {
+        return metaInfo("QtQuick3D.PerspectiveCamera");
+    }
+}
 NodeMetaInfo Model::qtQuick3DTextureMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2324,6 +2368,16 @@ NodeMetaInfo Model::qtQuick3DDefaultMaterialMetaInfo() const
         return createNodeMetaInfo<QtQuick3D, DefaultMaterial>();
     } else {
         return metaInfo("QtQuick3D.DefaultMaterial");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DDirectionalLightMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, DirectionalLight>();
+    } else {
+        return metaInfo("QtQuick3D.DirectionalLight");
     }
 }
 
@@ -2407,6 +2461,30 @@ NodeMetaInfo Model::vector4dMetaInfo() const
     }
 }
 
+QVarLengthArray<NodeMetaInfo, 256> Model::metaInfosForModule(Module module) const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return Utils::transform<QVarLengthArray<NodeMetaInfo, 256>>(
+            d->projectStorage->typeIds(module.id()), [&](TypeId id) {
+                return NodeMetaInfo{id, d->projectStorage};
+            });
+    } else {
+        return {};
+    }
+}
+
+QList<ItemLibraryEntry> Model::itemLibraryEntries() const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    using namespace Storage::Info;
+    return toItemLibraryEntries(d->projectStorage->itemLibraryEntries(d->m_sourceId),
+                                *d->projectStorage);
+#else
+    return d->metaInfo().itemLibraryInfo()->entries();
+#endif
+}
+
 NodeMetaInfo Model::qtQuickTimelineKeyframeGroupMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2460,13 +2538,12 @@ NodeMetaInfo Model::metaInfo(Module module, Utils::SmallStringView typeName, Sto
     }
 }
 
-/*!
-  \brief Returns list of QML types available within the model.
-  */
+#ifndef QDS_USE_PROJECTSTORAGE
 MetaInfo Model::metaInfo()
 {
     return d->metaInfo();
 }
+#endif
 
 Module Model::module(Utils::SmallStringView moduleName)
 {

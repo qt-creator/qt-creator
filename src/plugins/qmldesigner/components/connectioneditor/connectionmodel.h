@@ -54,7 +54,7 @@ public:
     QStringList getflowActionTriggerForRow(int row) const;
     ModelNode getTargetNodeForConnection(const ModelNode &connection) const;
 
-    void addConnection();
+    void addConnection(const PropertyName &signalName = {});
 
     void bindingPropertyChanged(const BindingProperty &bindingProperty);
     void variantPropertyChanged(const VariantProperty &variantProperty);
@@ -73,6 +73,8 @@ public:
 
     void nodeAboutToBeRemoved(const ModelNode &removedNode);
     void modelAboutToBeDetached();
+
+    void showPopup();
 
 signals:
     void currentIndexChanged();
@@ -293,6 +295,8 @@ public:
     void setCurrentRow(int i);
     void update();
 
+    Q_INVOKABLE void jumpToCode();
+
 signals:
     void currentRowChanged();
     void actionTypeChanged();
@@ -300,6 +304,7 @@ signals:
     void hasElseChanged();
     void sourceChanged();
     void popupShouldClose();
+    void popupShouldOpen();
 
 private:
     int currentRow() const;

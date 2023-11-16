@@ -43,6 +43,7 @@
 
 #include <QAction>
 #include <QDateTime>
+#include <QDesktopServices>
 #include <QTimer>
 
 using namespace Core;
@@ -51,6 +52,7 @@ using namespace ProjectExplorer;
 namespace McuSupport::Internal {
 
 const char setupMcuSupportKits[] = "SetupMcuSupportKits";
+const char qdsMcuDocInfoEntry[] = "McuDocInfoEntry";
 
 void printMessage(const QString &message, bool important)
 {
@@ -114,6 +116,24 @@ McuSupportPlugin::~McuSupportPlugin()
     dd = nullptr;
 }
 
+static bool isQtMCUsProject(ProjectExplorer::Project *p)
+{
+    if (!Core::ICore::isQtDesignStudio())
+        // should be unreachable
+        printMessage("Testing if the QDS project is an MCU project outside the QDS", true);
+
+    if (!p || !p->rootProjectNode())
+        return false;
+
+    ProjectExplorer::Target *target = p->activeTarget();
+    if (!target)
+        return false;
+
+    const bool isMcuProject = target->additionalData("CustomQtForMCUs").toBool();
+
+    return isMcuProject;
+}
+
 void McuSupportPlugin::initialize()
 {
     setObjectName("McuSupportPlugin");
@@ -160,6 +180,23 @@ void McuSupportPlugin::initialize()
                     ->action()
                     ->trigger();
             });
+    } else {
+        // Only in design studio
+        connect(ProjectManager::instance(),
+                &ProjectManager::projectFinishedParsing,
+                [&](ProjectExplorer::Project *p) {
+                    if (!isQtMCUsProject(p) || !ICore::infoBar()->canInfoBeAdded(qdsMcuDocInfoEntry))
+                        return;
+                    Utils::InfoBarEntry docInfo(qdsMcuDocInfoEntry,
+                                                Tr::tr("Read about Using QtMCUs in the Qt Design Studio"),
+                                                Utils::InfoBarEntry::GlobalSuppression::Enabled);
+                    docInfo.addCustomButton(Tr::tr("Go to the Documentation"), [] {
+                        ICore::infoBar()->suppressInfo(qdsMcuDocInfoEntry);
+                        QDesktopServices::openUrl(
+                            QUrl("https://doc.qt.io/qtdesignstudio/studio-on-mcus.html"));
+                    });
+                    ICore::infoBar()->addInfo(docInfo);
+                });
     }
 
     dd->m_options.registerQchFiles();
@@ -270,3 +307,4 @@ void McuSupportPlugin::updateDeployStep(ProjectExplorer::Target *target, bool en
 }
 
 } // namespace McuSupport::Internal
+

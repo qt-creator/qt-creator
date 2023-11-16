@@ -8,32 +8,24 @@ import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 import MaterialBrowserBackend
 
-Rectangle {
+Item {
     id: root
 
     signal showContextMenu()
 
-    function refreshPreview()
-    {
+    function refreshPreview() {
         img.source = ""
         img.source = "image://materialBrowser/" + materialInternalId
     }
 
-    function forceFinishEditing()
-    {
+    function forceFinishEditing() {
         matName.commitRename()
     }
 
-    function startRename()
-    {
+    function startRename() {
         matName.startRename()
     }
 
-    border.width: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index ? MaterialBrowserBackend.rootView.materialSectionFocused ? 3 : 1 : 0
-    border.color: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index
-                        ? StudioTheme.Values.themeControlOutlineInteraction
-                        : "transparent"
-    color: "transparent"
     visible: materialVisible
 
     DropArea {
@@ -81,12 +73,10 @@ Rectangle {
         anchors.fill: parent
         spacing: 1
 
-        Item { width: 1; height: 5 } // spacer
-
         Image {
             id: img
 
-            width: root.width - 10
+            width: root.width
             height: img.width
             anchors.horizontalCenter: parent.horizontalCenter
             source: "image://materialBrowser/" + materialInternalId
@@ -94,8 +84,8 @@ Rectangle {
         }
 
         // Eat keys so they are not passed to parent while editing name
-        Keys.onPressed: (e) => {
-            e.accepted = true;
+        Keys.onPressed: (event) => {
+            event.accepted = true
         }
 
         MaterialBrowserItemName {
@@ -115,5 +105,15 @@ Rectangle {
                 MaterialBrowserBackend.rootView.focusMaterialSection(true)
             }
         }
+    }
+
+    Rectangle {
+        id: marker
+        anchors.fill: parent
+        border.width: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index ? MaterialBrowserBackend.rootView.materialSectionFocused ? 3 : 1 : 0
+        border.color: MaterialBrowserBackend.materialBrowserModel.selectedIndex === index
+                            ? StudioTheme.Values.themeControlOutlineInteraction
+                            : "transparent"
+        color: "transparent"
     }
 }

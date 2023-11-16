@@ -1,5 +1,5 @@
 add_qtc_plugin(StudioWelcome
-  CONDITION TARGET Qt::QuickWidgets AND TARGET QmlDesigner
+  CONDITION TARGET Qt::QuickWidgets AND TARGET QtCreator::QmlDesigner
   DEPENDS Qt::QuickWidgets Qt::QmlPrivate
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlDesigner
   DEFINES STUDIO_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/qml/"

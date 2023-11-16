@@ -12,11 +12,11 @@ View3D {
     property alias showSceneLight: sceneLight.visible
     property alias showGrid: helperGrid.visible
     property alias gridColor: helperGrid.gridColor
-    property alias sceneHelpers: sceneHelpers
     property alias perspectiveCamera: scenePerspectiveCamera
     property alias orthoCamera: sceneOrthoCamera
     property alias sceneEnv: sceneEnv
     property vector3d cameraLookAt
+    property var selectionBoxes: []
 
     // Measuring the distance from camera to lookAt plus the distance of lookAt from grid plane
     // gives a reasonable grid spacing in most cases while keeping spacing constant when
@@ -38,6 +38,24 @@ View3D {
     camera: usePerspective ? scenePerspectiveCamera : sceneOrthoCamera
 
     environment: sceneEnv
+
+    function ensureSelectionBoxes(count)
+    {
+        var needMore = count - selectionBoxes.length
+        if (needMore > 0) {
+            var component = Qt.createComponent("SelectionBox.qml");
+            if (component.status === Component.Ready) {
+                for (let i = 0; i < needMore; ++i) {
+                    let geometryName = _generalHelper.generateUniqueName("SelectionBoxGeometry");
+                    let box = component.createObject(sceneHelpers, {"view3D": sceneView,
+                                                     "geometryName": geometryName});
+                    selectionBoxes[selectionBoxes.length] = box;
+                    box.showBox = Qt.binding(function() {return showSelectionBox;});
+                }
+            }
+        }
+    }
+
     SceneEnvironment {
         id: sceneEnv
         antialiasingMode: SceneEnvironment.MSAA

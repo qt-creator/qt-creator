@@ -52,6 +52,8 @@
     This tutorial requires that you know the basics of \QDS, see
     \l{Getting Started}.
 
+    \include run-tutorial-project.qdocinc
+
     \section1 Creating a Timeline Animation
 
     First, you create an animation where the ball bearing continuously rotates

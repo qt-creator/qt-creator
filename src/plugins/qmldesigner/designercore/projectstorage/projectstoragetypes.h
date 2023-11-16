@@ -7,6 +7,7 @@
 #include "projectstorageids.h"
 #include "projectstorageinfotypes.h"
 
+#include <sqlite/sqlitevalue.h>
 #include <utils/smallstring.h>
 
 #include <tuple>
@@ -640,6 +641,19 @@ public:
     explicit Type(::Utils::SmallStringView typeName,
                   TypeId prototypeId,
                   TypeId extensionId,
+                  long long typeTraits,
+                  long long typeAnnotationTraits,
+                  SourceId sourceId)
+        : typeName{typeName}
+        , traits{typeTraits, typeAnnotationTraits}
+        , sourceId{sourceId}
+        , prototypeId{prototypeId}
+        , extensionId{extensionId}
+    {}
+
+    explicit Type(::Utils::SmallStringView typeName,
+                  TypeId prototypeId,
+                  TypeId extensionId,
                   TypeTraits traits,
                   SourceId sourceId)
         : typeName{typeName}
@@ -679,11 +693,12 @@ public:
                   TypeId typeId,
                   TypeId prototypeId,
                   TypeId extensionId,
-                  TypeTraits traits,
+                  long long typeTraits,
+                  long long typeAnnotationTraits,
                   ::Utils::SmallStringView defaultPropertyName)
         : typeName{typeName}
         , defaultPropertyName{defaultPropertyName}
-        , traits{traits}
+        , traits{typeTraits, typeAnnotationTraits}
         , sourceId{sourceId}
         , typeId{typeId}
         , prototypeId{prototypeId}
@@ -712,7 +727,7 @@ public:
     FunctionDeclarations functionDeclarations;
     SignalDeclarations signalDeclarations;
     EnumerationDeclarations enumerationDeclarations;
-    TypeTraits traits = TypeTraits::None;
+    TypeTraits traits;
     SourceId sourceId;
     TypeId typeId;
     TypeId prototypeId;
@@ -768,6 +783,41 @@ public:
 
 using ProjectDatas = std::vector<ProjectData>;
 
+class TypeAnnotation
+{
+public:
+    TypeAnnotation(SourceId sourceId)
+        : sourceId{sourceId}
+    {}
+    TypeAnnotation(SourceId sourceId,
+                   Utils::SmallStringView typeName,
+                   ModuleId moduleId,
+                   Utils::SmallStringView iconPath,
+                   TypeTraits traits,
+                   Utils::SmallStringView hintsJson,
+                   Utils::SmallStringView itemLibraryJson)
+        : typeName{typeName}
+        , iconPath{iconPath}
+        , itemLibraryJson{itemLibraryJson}
+        , hintsJson{hintsJson}
+        , sourceId{sourceId}
+        , moduleId{moduleId}
+        , traits{traits}
+    {}
+
+public:
+    TypeNameString typeName;
+    Utils::PathString iconPath;
+    Utils::PathString itemLibraryJson;
+    Utils::PathString hintsJson;
+    TypeId typeId;
+    SourceId sourceId;
+    ModuleId moduleId;
+    TypeTraits traits;
+};
+
+using TypeAnnotations = std::vector<TypeAnnotation>;
+
 class SynchronizationPackage
 {
 public:
@@ -822,6 +872,8 @@ public:
     ModuleIds updatedModuleIds;
     PropertyEditorQmlPaths propertyEditorQmlPaths;
     SourceIds updatedPropertyEditorQmlPathSourceIds;
+    TypeAnnotations typeAnnotations;
+    SourceIds updatedTypeAnnotationSourceIds;
 };
 
 } // namespace Synchronization

@@ -93,6 +93,7 @@ private:
         const ModelNode &modelNode) const;
 
     const std::vector<PropertyName> getDynamicProperties(const ModelNode &modelNode) const;
+    const std::vector<PropertyName> getDynamicSignals(const ModelNode &modelNode) const;
     const std::vector<PropertyName> sortedAndFilteredPropertyNames(const NodeMetaInfo &metaInfo,
                                                                    bool recursive = false) const;
 

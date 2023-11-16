@@ -1,8 +1,6 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include <QIcon>
-
 #include "loadwatcher.h"
 #include "qmlruntime.h"
 
@@ -12,8 +10,40 @@
 #include <private/qabstractanimation_p.h>
 #endif
 
+#include <QDirIterator>
+#include <QFontDatabase>
+#include <QIcon>
+
 #define FILE_OPEN_EVENT_WAIT_TIME 3000 // ms
 #define QSL QStringLiteral
+
+static void registerFonts(const QDir &projectDir)
+{
+    // Autoregister all fonts found inside the project
+    QDirIterator it{projectDir.absolutePath(),
+                    {"*.ttf", "*.otf"},
+                    QDir::Files,
+                    QDirIterator::Subdirectories};
+    while (it.hasNext()) {
+        QFontDatabase::addApplicationFont(it.next());
+    }
+}
+
+static QDir findProjectFolder(const QDir &currentDir, int ret = 0)
+{
+    if (ret > 2)
+        QDir::current();
+
+    QDirIterator it{currentDir.absolutePath(),
+                    {"*.qmlproject"},
+                    QDir::Files,
+                    QDirIterator::NoIteratorFlags};
+    while (it.hasNext())
+        return currentDir;
+    QDir newDir = currentDir;
+    newDir.cdUp();
+    return findProjectFolder(newDir, ret + 1);
+}
 
 void QmlRuntime::populateParser()
 {
@@ -127,6 +157,7 @@ void QmlRuntime::initCoreApp()
 
 void QmlRuntime::initQmlRunner()
 {
+    registerFonts(findProjectFolder(QDir::current()));
     m_qmlEngine.reset(new QQmlApplicationEngine());
 
     QStringList files;

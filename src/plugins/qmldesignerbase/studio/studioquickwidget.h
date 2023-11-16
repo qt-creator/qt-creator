@@ -9,6 +9,45 @@
 #include <QQmlPropertyMap>
 #include <QtQuickWidgets/QQuickWidget>
 
+class QMLDESIGNERBASE_EXPORT StudioQmlColorBackend : public QObject
+{
+    Q_OBJECT
+
+    Q_PROPERTY(QColor color READ color WRITE setColor NOTIFY colorChanged)
+
+public:
+    explicit StudioQmlColorBackend(QObject *parent = nullptr)
+        : QObject(parent)
+    {}
+
+    void setColor(const QColor &value)
+    {
+        if (m_color == value)
+            return;
+
+        m_color = value;
+        emit colorChanged();
+    }
+
+    QColor color() const { return m_color; }
+
+    Q_INVOKABLE void activateColor(const QColor &value)
+    {
+        if (m_color == value)
+            return;
+
+        setColor(value);
+        emit activated(value);
+    }
+
+signals:
+    void colorChanged();
+    void activated(const QColor &value);
+
+private:
+    QColor m_color = Qt::red;
+};
+
 class QMLDESIGNERBASE_EXPORT StudioQmlTextBackend : public QObject
 {
     Q_OBJECT
@@ -168,6 +207,8 @@ public:
 
     StudioPropertyMap *registerPropertyMap(const QByteArray &name);
     QQuickWidget *quickWidget() const;
+
+    static void registerDeclarativeType();
 
 signals:
     void adsFocusChanged();

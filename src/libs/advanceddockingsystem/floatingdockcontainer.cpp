@@ -496,8 +496,8 @@ void FloatingDockContainerPrivate::updateDropOverlays(const QPoint &globalPositi
         if (m_dockContainer == containerWidget)
             continue;
 
-        QPoint mappedPos = containerWidget->mapFromGlobal(globalPosition);
-        if (containerWidget->rect().contains(mappedPos)) {
+        QPoint mappedPosition = containerWidget->mapFromGlobal(globalPosition);
+        if (containerWidget->rect().contains(mappedPosition)) {
             if (!topContainer || containerWidget->isInFrontOf(topContainer))
                 topContainer = containerWidget;
         }
@@ -580,7 +580,6 @@ FloatingDockContainer::FloatingDockContainer(DockManager *dockManager)
     // on linux are missing from floating dock widgets.
     setWindowFlags(Qt::Window | Qt::WindowMinMaxButtonsHint | Qt::FramelessWindowHint | Qt::Tool);
     QDockWidget::setWidget(d->m_dockContainer);
-    //QDockWidget::setFloating(true);
     QDockWidget::setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable
                              | QDockWidget::DockWidgetFloatable);
 
@@ -637,6 +636,11 @@ FloatingDockContainer::~FloatingDockContainer()
         d->m_dockManager->removeFloatingWidget(this);
 
     delete d;
+}
+
+QSize FloatingDockContainer::minimumSizeHint() const
+{
+    return d->m_dockContainer->minimumSizeHint();
 }
 
 DockContainerWidget *FloatingDockContainer::dockContainer() const

@@ -694,7 +694,7 @@ Item {
             ScrollBar.vertical: TransientScrollBar {
                 id: popupScrollBar
                 parent: listView
-                x: listView.width - verticalScrollBar.width
+                x: listView.width - popupScrollBar.width
                 y: 0
                 height: listView.availableHeight
                 orientation: Qt.Vertical

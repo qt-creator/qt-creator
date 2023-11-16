@@ -5,6 +5,7 @@
 
 #include "effectmakeruniformsmodel.h"
 
+#include <QJsonObject>
 #include <QObject>
 
 namespace EffectMaker {
@@ -24,7 +25,7 @@ public:
         CustomNode
     };
 
-    CompositionNode(const QString &qenPath);
+    CompositionNode(const QString &effectName, const QString &qenPath, const QJsonObject &json = {});
 
     QString fragmentCode() const;
     QString vertexCode() const;
@@ -39,12 +40,16 @@ public:
     bool isEnabled() const;
     void setIsEnabled(bool newIsEnabled);
 
+    QString name() const;
+
+    QList<Uniform *> uniforms() const;
+
 signals:
     void uniformsModelChanged();
     void isEnabledChanged();
 
 private:
-    void parse(const QString &qenPath);
+    void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);
 
     QString m_name;
     NodeType m_type = CustomNode;
@@ -53,6 +58,8 @@ private:
     QString m_description;
     QStringList m_requiredNodes;
     bool m_isEnabled = true;
+
+    QList<Uniform*> m_uniforms;
 
     EffectMakerUniformsModel m_unifomrsModel;
 };

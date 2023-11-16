@@ -5,18 +5,42 @@
 
 #include "effectutils.h"
 #include "effectmakeruniformsmodel.h"
+#include "propertyhandler.h"
 #include "uniform.h"
 
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
 
 namespace EffectMaker {
 
-CompositionNode::CompositionNode(const QString &qenPath)
+CompositionNode::CompositionNode(const QString &effectName, const QString &qenPath, const QJsonObject &jsonObject)
 {
-    parse(qenPath);
+    QJsonObject json;
+    if (jsonObject.isEmpty()) {
+        QFile qenFile(qenPath);
+        if (!qenFile.open(QIODevice::ReadOnly)) {
+            qWarning("Couldn't open effect file.");
+            return;
+        }
+
+        QByteArray loadData = qenFile.readAll();
+        QJsonParseError parseError;
+        QJsonDocument jsonDoc(QJsonDocument::fromJson(loadData, &parseError));
+
+        if (parseError.error != QJsonParseError::NoError) {
+            QString error = QString("Error parsing effect node");
+            QString errorDetails = QString("%1: %2").arg(parseError.offset).arg(parseError.errorString());
+            qWarning() << error;
+            qWarning() << errorDetails;
+            return;
+        }
+        json = jsonDoc.object().value("QEN").toObject();
+        parse(effectName, qenPath, json);
+    }
+    else {
+        parse(effectName, "", jsonObject);
+    }
 }
 
 QString CompositionNode::fragmentCode() const
@@ -62,28 +86,8 @@ CompositionNode::NodeType CompositionNode::type() const
     return m_type;
 }
 
-void CompositionNode::parse(const QString &qenPath)
+void CompositionNode::parse(const QString &effectName, const QString &qenPath, const QJsonObject &json)
 {
-    QFile qenFile(qenPath);
-
-    if (!qenFile.open(QIODevice::ReadOnly)) {
-        qWarning("Couldn't open effect file.");
-        return;
-    }
-
-    QByteArray loadData = qenFile.readAll();
-    QJsonParseError parseError;
-    QJsonDocument jsonDoc(QJsonDocument::fromJson(loadData, &parseError));
-    if (parseError.error != QJsonParseError::NoError) {
-        QString error = QString("Error parsing the effect node: %1:").arg(qenPath);
-        QString errorDetails = QString("%1: %2").arg(parseError.offset).arg(parseError.errorString());
-        qWarning() << qPrintable(error);
-        qWarning() << qPrintable(errorDetails);
-        return;
-    }
-
-    QJsonObject json = jsonDoc.object().value("QEN").toObject();
-
     int version = -1;
     if (json.contains("version"))
         version = json["version"].toInt(-1);
@@ -100,8 +104,12 @@ void CompositionNode::parse(const QString &qenPath)
 
     // parse properties
     QJsonArray jsonProps = json.value("properties").toArray();
-    for (const auto /*QJsonValueRef*/ &prop : jsonProps)
-        m_unifomrsModel.addUniform(new Uniform(prop.toObject()));
+    for (const auto /*QJsonValueRef*/ &prop : jsonProps) {
+        const auto uniform = new Uniform(effectName, prop.toObject(), qenPath);
+        m_unifomrsModel.addUniform(uniform);
+        m_uniforms.append(uniform);
+        g_propertyData.insert(uniform->name(), uniform->value());
+    }
 
     // Seek through code to get tags
     QStringList shaderCodeLines;
@@ -117,6 +125,16 @@ void CompositionNode::parse(const QString &qenPath)
                 m_requiredNodes << nodeName;
         }
     }
+}
+
+QList<Uniform *> CompositionNode::uniforms() const
+{
+    return m_uniforms;
+}
+
+QString CompositionNode::name() const
+{
+    return m_name;
 }
 
 } // namespace EffectMaker

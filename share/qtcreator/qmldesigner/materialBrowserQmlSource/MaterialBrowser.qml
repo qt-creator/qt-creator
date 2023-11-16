@@ -12,8 +12,8 @@ Item {
     id: root
     focus: true
 
-    readonly property int cellWidth: 100
-    readonly property int cellHeight: 120
+    readonly property real cellWidth: root.thumbnailSize
+    readonly property real cellHeight: root.thumbnailSize + 20
     readonly property bool enableUiElements: materialBrowserModel.hasMaterialLibrary
                                              && materialBrowserModel.hasQuick3DImport
 
@@ -22,30 +22,60 @@ Item {
     property var materialBrowserModel: MaterialBrowserBackend.materialBrowserModel
     property var materialBrowserTexturesModel: MaterialBrowserBackend.materialBrowserTexturesModel
 
+    property int numColumns: 0
+    property real thumbnailSize: 100
+
+    readonly property int minThumbSize: 100
+    readonly property int maxThumbSize: 150
+
+    function responsiveResize(width: int, height: int) {
+        width -= 2 * StudioTheme.Values.sectionPadding
+
+        let numColumns = Math.floor(width / root.minThumbSize)
+        let remainder = width % root.minThumbSize
+        let space = (numColumns - 1) * StudioTheme.Values.sectionGridSpacing
+
+        if (remainder < space)
+            numColumns -= 1
+
+        if (numColumns < 1)
+            return
+
+        let maxItems = Math.max(texturesRepeater.count, materialRepeater.count)
+
+        if (numColumns > maxItems)
+            numColumns = maxItems
+
+        let rest = width - (numColumns * root.minThumbSize)
+                   - ((numColumns - 1) * StudioTheme.Values.sectionGridSpacing)
+
+        root.thumbnailSize = Math.min(root.minThumbSize + (rest / numColumns),
+                                      root.maxThumbSize)
+        root.numColumns = numColumns
+    }
+
+    onWidthChanged: root.responsiveResize(root.width, root.height)
+
     // Called also from C++ to close context menu on focus out
-    function closeContextMenu()
-    {
+    function closeContextMenu() {
         ctxMenu.close()
         ctxMenuTextures.close()
         HelperWidgets.Controller.closeContextMenu()
     }
 
     // Called from C++ to refresh a preview material after it changes
-    function refreshPreview(idx)
-    {
+    function refreshPreview(idx) {
         var item = materialRepeater.itemAt(idx);
         if (item)
-            item.refreshPreview();
+            item.refreshPreview()
     }
 
     // Called from C++
-    function clearSearchFilter()
-    {
-        searchBox.clear();
+    function clearSearchFilter() {
+        searchBox.clear()
     }
 
-    function nextVisibleItem(idx, count, itemModel)
-    {
+    function nextVisibleItem(idx, count, itemModel) {
         if (count === 0)
             return idx
 
@@ -66,8 +96,7 @@ Item {
         return newIdx
     }
 
-    function visibleItemCount(itemModel)
-    {
+    function visibleItemCount(itemModel) {
         let curIdx = 0
         let count = 0
 
@@ -79,8 +108,7 @@ Item {
         return count
     }
 
-    function rowIndexOfItem(idx, rowSize, itemModel)
-    {
+    function rowIndexOfItem(idx, rowSize, itemModel) {
         if (rowSize === 1)
             return 1
 
@@ -98,8 +126,7 @@ Item {
         return count % rowSize
     }
 
-    function selectNextVisibleItem(delta)
-    {
+    function selectNextVisibleItem(delta) {
         if (searchBox.activeFocus)
             return
 
@@ -112,36 +139,36 @@ Item {
 
         if (delta < 0) {
             if (matSecFocused) {
-                targetIdx = nextVisibleItem(materialBrowserModel.selectedIndex,
-                                            delta, materialBrowserModel)
+                targetIdx = root.nextVisibleItem(materialBrowserModel.selectedIndex,
+                                                 delta, materialBrowserModel)
                 if (targetIdx >= 0)
                     materialBrowserModel.selectMaterial(targetIdx)
             } else if (texSecFocused) {
-                targetIdx = nextVisibleItem(materialBrowserTexturesModel.selectedIndex,
-                                            delta, materialBrowserTexturesModel)
+                targetIdx = root.nextVisibleItem(materialBrowserTexturesModel.selectedIndex,
+                                                 delta, materialBrowserTexturesModel)
                 if (targetIdx >= 0) {
                     materialBrowserTexturesModel.selectTexture(targetIdx)
                 } else if (!materialBrowserModel.isEmpty && materialsSection.expanded) {
-                    targetIdx = nextVisibleItem(materialBrowserModel.rowCount(), -1, materialBrowserModel)
+                    targetIdx = root.nextVisibleItem(materialBrowserModel.rowCount(), -1, materialBrowserModel)
                     if (targetIdx >= 0) {
                         if (delta !== -1) {
                             // Try to match column when switching between materials/textures
-                            origRowIdx  = rowIndexOfItem(materialBrowserTexturesModel.selectedIndex,
-                                                         -delta, materialBrowserTexturesModel)
-                            if (visibleItemCount(materialBrowserModel) > origRowIdx) {
-                                rowIdx = rowIndexOfItem(targetIdx, -delta, materialBrowserModel)
+                            origRowIdx = root.rowIndexOfItem(materialBrowserTexturesModel.selectedIndex,
+                                                             -delta, materialBrowserTexturesModel)
+                            if (root.visibleItemCount(materialBrowserModel) > origRowIdx) {
+                                rowIdx = root.rowIndexOfItem(targetIdx, -delta, materialBrowserModel)
                                 if (rowIdx >= origRowIdx) {
-                                    newTargetIdx = nextVisibleItem(targetIdx,
-                                                                   -(rowIdx - origRowIdx),
-                                                                   materialBrowserModel)
+                                    newTargetIdx = root.nextVisibleItem(targetIdx,
+                                                                        -(rowIdx - origRowIdx),
+                                                                        materialBrowserModel)
                                 } else {
-                                    newTargetIdx = nextVisibleItem(targetIdx,
-                                                                   -(-delta - origRowIdx + rowIdx),
-                                                                   materialBrowserModel)
+                                    newTargetIdx = root.nextVisibleItem(targetIdx,
+                                                                        -(-delta - origRowIdx + rowIdx),
+                                                                        materialBrowserModel)
                                 }
                             } else {
-                                newTargetIdx = nextVisibleItem(materialBrowserModel.rowCount(),
-                                                               -1, materialBrowserModel)
+                                newTargetIdx = root.nextVisibleItem(materialBrowserModel.rowCount(),
+                                                                    -1, materialBrowserModel)
                             }
                             if (newTargetIdx >= 0)
                                 targetIdx = newTargetIdx
@@ -153,25 +180,25 @@ Item {
             }
         } else if (delta > 0) {
             if (matSecFocused) {
-                targetIdx = nextVisibleItem(materialBrowserModel.selectedIndex,
-                                            delta, materialBrowserModel)
+                targetIdx = root.nextVisibleItem(materialBrowserModel.selectedIndex,
+                                                 delta, materialBrowserModel)
                 if (targetIdx >= 0) {
                     materialBrowserModel.selectMaterial(targetIdx)
                 } else if (!materialBrowserTexturesModel.isEmpty && texturesSection.expanded) {
-                    targetIdx = nextVisibleItem(-1, 1, materialBrowserTexturesModel)
+                    targetIdx = root.nextVisibleItem(-1, 1, materialBrowserTexturesModel)
                     if (targetIdx >= 0) {
                         if (delta !== 1) {
                             // Try to match column when switching between materials/textures
-                            origRowIdx  = rowIndexOfItem(materialBrowserModel.selectedIndex,
-                                                         delta, materialBrowserModel)
-                            if (visibleItemCount(materialBrowserTexturesModel) > origRowIdx) {
+                            origRowIdx = root.rowIndexOfItem(materialBrowserModel.selectedIndex,
+                                                             delta, materialBrowserModel)
+                            if (root.visibleItemCount(materialBrowserTexturesModel) > origRowIdx) {
                                 if (origRowIdx > 0) {
-                                    newTargetIdx = nextVisibleItem(targetIdx, origRowIdx,
-                                                                   materialBrowserTexturesModel)
+                                    newTargetIdx = root.nextVisibleItem(targetIdx, origRowIdx,
+                                                                        materialBrowserTexturesModel)
                                 }
                             } else {
-                                newTargetIdx = nextVisibleItem(materialBrowserTexturesModel.rowCount(),
-                                                            -1, materialBrowserTexturesModel)
+                                newTargetIdx = root.nextVisibleItem(materialBrowserTexturesModel.rowCount(),
+                                                                    -1, materialBrowserTexturesModel)
                             }
                             if (newTargetIdx >= 0)
                                 targetIdx = newTargetIdx
@@ -181,8 +208,8 @@ Item {
                     }
                 }
             } else if (texSecFocused) {
-                targetIdx = nextVisibleItem(materialBrowserTexturesModel.selectedIndex,
-                                            delta, materialBrowserTexturesModel)
+                targetIdx = root.nextVisibleItem(materialBrowserTexturesModel.selectedIndex,
+                                                 delta, materialBrowserTexturesModel)
                 if (targetIdx >= 0)
                     materialBrowserTexturesModel.selectTexture(targetIdx)
             }
@@ -190,24 +217,12 @@ Item {
     }
 
     Keys.enabled: true
-    Keys.onDownPressed: {
-        selectNextVisibleItem(gridMaterials.columns)
-    }
+    Keys.onDownPressed: root.selectNextVisibleItem(gridMaterials.columns)
+    Keys.onUpPressed: root.selectNextVisibleItem(-gridMaterials.columns)
+    Keys.onLeftPressed: root.selectNextVisibleItem(-1)
+    Keys.onRightPressed: root.selectNextVisibleItem(1)
 
-    Keys.onUpPressed: {
-        selectNextVisibleItem(-gridMaterials.columns)
-    }
-
-    Keys.onLeftPressed: {
-        selectNextVisibleItem(-1)
-    }
-
-    Keys.onRightPressed: {
-        selectNextVisibleItem(1)
-    }
-
-    function handleEnterPress()
-    {
+    function handleEnterPress() {
         if (searchBox.activeFocus)
             return
 
@@ -217,13 +232,8 @@ Item {
             materialBrowserTexturesModel.openTextureEditor()
     }
 
-    Keys.onEnterPressed: {
-        handleEnterPress()
-    }
-
-    Keys.onReturnPressed: {
-        handleEnterPress()
-    }
+    Keys.onEnterPressed: root.handleEnterPress()
+    Keys.onReturnPressed: root.handleEnterPress()
 
     MouseArea {
         id: focusGrabber
@@ -249,10 +259,10 @@ Item {
 
         onClicked: (mouse) => {
             if (!root.enableUiElements)
-                return;
+                return
 
             var matsSecBottom = mapFromItem(materialsSection, 0, materialsSection.y).y
-                                + materialsSection.height;
+                                + materialsSection.height
 
             if (mouse.y < matsSecBottom)
                 ctxMenu.popupMenu()
@@ -261,8 +271,7 @@ Item {
         }
     }
 
-    function ensureVisible(yPos, itemHeight)
-    {
+    function ensureVisible(yPos, itemHeight) {
         let currentY = contentYBehavior.targetValue && scrollViewAnim.running
             ? contentYBehavior.targetValue : scrollView.contentY
 
@@ -286,18 +295,18 @@ Item {
         return false
     }
 
-    function ensureSelectedVisible()
-    {
+    function ensureSelectedVisible() {
         if (rootView.materialSectionFocused && materialsSection.expanded && root.currMaterialItem
                 && materialBrowserModel.isVisible(materialBrowserModel.selectedIndex)) {
-            return ensureVisible(root.currMaterialItem.mapToItem(scrollView.contentItem, 0, 0).y,
-                                 root.currMaterialItem.height)
+            return root.ensureVisible(root.currMaterialItem.mapToItem(scrollView.contentItem, 0, 0).y,
+                                      root.currMaterialItem.height)
         } else if (!rootView.materialSectionFocused && texturesSection.expanded) {
             let currItem = texturesRepeater.itemAt(materialBrowserTexturesModel.selectedIndex)
             if (currItem && materialBrowserTexturesModel.isVisible(materialBrowserTexturesModel.selectedIndex))
-                return ensureVisible(currItem.mapToItem(scrollView.contentItem, 0, 0).y, currItem.height)
+                return root.ensureVisible(currItem.mapToItem(scrollView.contentItem, 0, 0).y,
+                                          currItem.height)
         } else {
-            return ensureVisible(0, 90)
+            return root.ensureVisible(0, 90)
         }
     }
 
@@ -310,15 +319,14 @@ Item {
         onTriggered: {
             // Redo until ensuring didn't change things
             if (!root.ensureSelectedVisible()) {
-                stop()
-                interval = 20
-                triggeredOnStart = true
+                ensureTimer.stop()
+                ensureTimer.interval = 20
+                ensureTimer.triggeredOnStart = true
             }
         }
     }
 
-    function startDelayedEnsureTimer(delay)
-    {
+    function startDelayedEnsureTimer(delay) {
         // Ensuring visibility immediately in some cases like before new search results are rendered
         // causes mapToItem return incorrect values, leading to undesirable flicker,
         // so delay ensuring visibility a bit.
@@ -330,8 +338,7 @@ Item {
     Connections {
         target: materialBrowserModel
 
-        function onSelectedIndexChanged()
-        {
+        function onSelectedIndexChanged() {
             // commit rename upon changing selection
             if (root.currMaterialItem)
                 root.currMaterialItem.forceFinishEditing();
@@ -341,8 +348,7 @@ Item {
             ensureTimer.start()
         }
 
-        function onIsEmptyChanged()
-        {
+        function onIsEmptyChanged() {
             ensureTimer.start()
         }
     }
@@ -350,13 +356,11 @@ Item {
     Connections {
         target: materialBrowserTexturesModel
 
-        function onSelectedIndexChanged()
-        {
+        function onSelectedIndexChanged() {
             ensureTimer.start()
         }
 
-        function onIsEmptyChanged()
-        {
+        function onIsEmptyChanged() {
             ensureTimer.start()
         }
     }
@@ -364,8 +368,7 @@ Item {
     Connections {
         target: rootView
 
-        function onMaterialSectionFocusedChanged()
-        {
+        function onMaterialSectionFocusedChanged() {
             ensureTimer.start()
         }
     }
@@ -614,9 +617,10 @@ Item {
             id: scrollView
 
             width: root.width
-            height: root.height - toolbar.height
+            height: root.height - toolbar.height - col.spacing
             clip: true
             visible: root.enableUiElements
+            hideHorizontalScrollBar: true
             interactive: !ctxMenu.opened && !ctxMenuTextures.opened && !rootView.isDragging
                          && !HelperWidgets.Controller.contextMenuOpened
 
@@ -637,6 +641,12 @@ Item {
                         id: materialsSection
 
                         width: root.width
+
+                        leftPadding: StudioTheme.Values.sectionPadding
+                        rightPadding: StudioTheme.Values.sectionPadding
+                        topPadding: StudioTheme.Values.sectionPadding
+                        bottomPadding: StudioTheme.Values.sectionPadding
+
                         caption: qsTr("Materials")
                         dropEnabled: true
                         category: "MaterialBrowser"
@@ -671,11 +681,10 @@ Item {
                         Grid {
                             id: gridMaterials
 
-                            width: scrollView.width
-                            leftPadding: 5
-                            rightPadding: 5
-                            bottomPadding: 5
-                            columns: root.width / root.cellWidth
+                            width: scrollView.width - materialsSection.leftPadding
+                                   - materialsSection.rightPadding
+                            spacing: StudioTheme.Values.sectionGridSpacing
+                            columns: root.numColumns
 
                             Repeater {
                                 id: materialRepeater
@@ -691,10 +700,10 @@ Item {
                                     width: root.cellWidth
                                     height: root.cellHeight
 
-                                    onShowContextMenu: {
-                                        ctxMenu.popupMenu(this, model)
-                                    }
+                                    onShowContextMenu: ctxMenu.popupMenu(this, model)
                                 }
+
+                                onCountChanged: root.responsiveResize(root.width, root.height)
                             }
                         }
 
@@ -727,6 +736,11 @@ Item {
                         id: texturesSection
 
                         width: root.width
+                        leftPadding: StudioTheme.Values.sectionPadding
+                        rightPadding: StudioTheme.Values.sectionPadding
+                        topPadding: StudioTheme.Values.sectionPadding
+                        bottomPadding: StudioTheme.Values.sectionPadding
+
                         caption: qsTr("Textures")
                         category: "MaterialBrowser"
 
@@ -768,11 +782,10 @@ Item {
                         Grid {
                             id: gridTextures
 
-                            width: scrollView.width
-                            leftPadding: 5
-                            rightPadding: 5
-                            bottomPadding: 5
-                            columns: root.width / root.cellWidth
+                            width: scrollView.width - texturesSection.leftPadding
+                                   - texturesSection.rightPadding
+                            spacing: StudioTheme.Values.sectionGridSpacing
+                            columns: root.numColumns
 
                             Repeater {
                                 id: texturesRepeater
@@ -782,10 +795,10 @@ Item {
                                     width: root.cellWidth
                                     height: root.cellHeight
 
-                                    onShowContextMenu: {
-                                        ctxMenuTextures.popupMenu(model)
-                                    }
+                                    onShowContextMenu: ctxMenuTextures.popupMenu(model)
                                 }
+
+                                onCountChanged: root.responsiveResize(root.width, root.height)
                             }
                         }
 

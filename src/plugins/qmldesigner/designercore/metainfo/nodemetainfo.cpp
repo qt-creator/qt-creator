@@ -1118,9 +1118,15 @@ bool NodeMetaInfoPrivate::cleverCheckType(const TypeName &otherType) const
     return typeName == convertedName.toUtf8();
 }
 
+static TypeName toSimplifiedTypeName(const TypeName &typeName)
+{
+    return typeName.split('.').constLast();
+}
+
 QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyName) const
 {
-    TypeName typeName = propertyType(propertyName);
+    TypeName typeName = toSimplifiedTypeName(propertyType(propertyName));
+
     if (typeName == "string")
         return QVariant::String;
 
@@ -1478,12 +1484,12 @@ MetaInfoType NodeMetaInfo::type() const
 {
     if constexpr (useProjectStorage()) {
         if (isValid()) {
-            switch (typeData().traits) {
-            case Storage::TypeTraits::Reference:
+            switch (typeData().traits.kind) {
+            case Storage::TypeTraitsKind::Reference:
                 return MetaInfoType::Reference;
-            case Storage::TypeTraits::Value:
+            case Storage::TypeTraitsKind::Value:
                 return MetaInfoType::Value;
-            case Storage::TypeTraits::Sequence:
+            case Storage::TypeTraitsKind::Sequence:
                 return MetaInfoType::Sequence;
             default:
                 break;
@@ -1497,7 +1503,7 @@ MetaInfoType NodeMetaInfo::type() const
 bool NodeMetaInfo::isFileComponent() const
 {
     if constexpr (useProjectStorage())
-        return isValid() && bool(typeData().traits & Storage::TypeTraits::IsFileComponent);
+        return isValid() && typeData().traits.isFileComponent;
     else
         return isValid() && m_privateData->isFileComponent();
 }
@@ -1505,7 +1511,7 @@ bool NodeMetaInfo::isFileComponent() const
 bool NodeMetaInfo::isProjectComponent() const
 {
     if constexpr (useProjectStorage()) {
-        return isValid() && bool(typeData().traits & Storage::TypeTraits::IsProjectComponent);
+        return isValid() && typeData().traits.isProjectComponent;
     }
 
     return false;
@@ -1514,10 +1520,166 @@ bool NodeMetaInfo::isProjectComponent() const
 bool NodeMetaInfo::isInProjectModule() const
 {
     if constexpr (useProjectStorage()) {
-        return isValid() && bool(typeData().traits & Storage::TypeTraits::IsInProjectModule);
+        return isValid() && typeData().traits.isInProjectModule;
     }
 
     return false;
+}
+
+FlagIs NodeMetaInfo::canBeContainer() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.canBeContainer;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::forceClip() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.forceClip;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::doesLayoutChildren() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.doesLayoutChildren;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::canBeDroppedInFormEditor() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.canBeDroppedInFormEditor;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::canBeDroppedInNavigator() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.canBeDroppedInNavigator;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::canBeDroppedInView3D() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.canBeDroppedInView3D;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::isMovable() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.isMovable;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::isResizable() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.isResizable;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::hasFormEditorItem() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.hasFormEditorItem;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::isStackedContainer() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.isStackedContainer;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::takesOverRenderingOfChildren() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.takesOverRenderingOfChildren;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::visibleInNavigator() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.visibleInNavigator;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
+FlagIs NodeMetaInfo::visibleInLibrary() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.visibleInLibrary;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
 }
 
 namespace {
@@ -1773,7 +1935,7 @@ TypeName NodeMetaInfo::typeName() const
 TypeName NodeMetaInfo::simplifiedTypeName() const
 {
     if (isValid())
-        return typeName().split('.').constLast();
+        return toSimplifiedTypeName(typeName());
 
     return {};
 }
@@ -1815,6 +1977,36 @@ Storage::Info::ExportedTypeNames NodeMetaInfo::exportedTypeNamesForSourceId(Sour
         if (isValid()) {
             return m_projectStorage->exportedTypeNames(m_typeId, sourceId);
         }
+    }
+
+    return {};
+}
+
+Storage::Info::TypeHints NodeMetaInfo::typeHints() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return m_projectStorage->typeHints(m_typeId);
+    }
+
+    return {};
+}
+
+Utils::PathString NodeMetaInfo::iconPath() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return m_projectStorage->typeIconPath(m_typeId);
+    }
+
+    return {};
+}
+
+Storage::Info::ItemLibraryEntries NodeMetaInfo::itemLibrariesEntries() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return m_projectStorage->itemLibraryEntries(m_typeId);
     }
 
     return {};
@@ -2230,7 +2422,7 @@ bool NodeMetaInfo::isView() const
 bool NodeMetaInfo::usesCustomParser() const
 {
     if constexpr (useProjectStorage()) {
-        return isValid() && bool(typeData().traits & Storage::TypeTraits::UsesCustomParser);
+        return isValid() && typeData().traits.usesCustomParser;
     } else {
         if (!isValid())
             return false;
@@ -2408,9 +2600,7 @@ bool NodeMetaInfo::isNumber() const
             return false;
         }
 
-        auto type = simplifiedTypeName();
-
-        return type == "int" || type == "uint" || type == "float" || type == "double";
+        return isFloat() || isInteger();
     }
 }
 
@@ -2886,7 +3076,7 @@ bool NodeMetaInfo::isInteger() const
 
         auto type = simplifiedTypeName();
 
-        return type == "int" || type == "integer";
+        return type == "int" || type == "integer" || type == "uint";
     }
 }
 
@@ -2908,7 +3098,7 @@ bool NodeMetaInfo::isFloat() const
 
         auto type = simplifiedTypeName();
 
-        return type == "qreal" || type == "double" || type == "float";
+        return type == "qreal" || type == "double" || type == "float" || type == "real";
     }
 }
 
@@ -3129,7 +3319,7 @@ bool NodeMetaInfo::isQtQuick3DEffect() const
 bool NodeMetaInfo::isEnumeration() const
 {
     if constexpr (useProjectStorage())
-        return isValid() && bool(typeData().traits & Storage::TypeTraits::IsEnum);
+        return isValid() && typeData().traits.isEnum;
 
     return false;
 }
@@ -3396,6 +3586,19 @@ NodeMetaInfo NodeMetaInfo::commonBase(const NodeMetaInfo &metaInfo) const
             if (isBasedOn(info)) {
                 return info;
             }
+        }
+    }
+
+    return {};
+}
+
+NodeMetaInfo::NodeMetaInfos NodeMetaInfo::heirs() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid()) {
+            return Utils::transform<NodeMetaInfos>(m_projectStorage->heirIds(m_typeId), [&](TypeId typeId) {
+                return NodeMetaInfo{typeId, m_projectStorage};
+            });
         }
     }
 

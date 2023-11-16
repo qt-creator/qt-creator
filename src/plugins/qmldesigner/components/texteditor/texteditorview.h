@@ -81,6 +81,8 @@ public:
 
     void reformatFile();
 
+    void jumpToModelNode(const ModelNode &modelNode);
+
 private:
     QPointer<TextEditorWidget> m_widget;
     Internal::TextEditorContext *m_textEditorContext;

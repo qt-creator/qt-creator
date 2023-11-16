@@ -12,6 +12,7 @@
 
 namespace {
 using QmlDesigner::ImageCache::FontCollectorSizesAuxiliaryData;
+using QmlDesigner::ImageCache::TraceToken;
 
 MATCHER_P(IsIcon, icon, std::string(negation ? "isn't " : "is ") + PrintToString(icon))
 {
@@ -47,8 +48,8 @@ protected:
 
 protected:
     std::vector<QSize> sizes{{20, 11}};
-    NiceMock<MockFunction<void(const QImage &, const QImage &, const QImage &)>> captureCallbackMock;
-    NiceMock<MockFunction<void(QmlDesigner::ImageCache::AbortReason)>> abortCallbackMock;
+    NiceMock<MockFunction<void(const QImage &, const QImage &, const QImage &, TraceToken)>> captureCallbackMock;
+    NiceMock<MockFunction<void(QmlDesigner::ImageCache::AbortReason, TraceToken)>> abortCallbackMock;
     NiceMock<ImageCacheCollectorMock> collectorMock1;
     NiceMock<ImageCacheCollectorMock> collectorMock2;
     QImage image1{1, 1, QImage::Format_ARGB32};
@@ -83,8 +84,8 @@ TEST_F(ImageCacheDispatchCollector, call_qml_collector_start)
             },
             &collectorMock2))};
 
-    EXPECT_CALL(captureCallbackMock, Call(_, _, _));
-    EXPECT_CALL(abortCallbackMock, Call(_));
+    EXPECT_CALL(captureCallbackMock, Call(_, _, _, _));
+    EXPECT_CALL(abortCallbackMock, Call(_, _));
     EXPECT_CALL(collectorMock2,
                 start(Eq("foo.qml"),
                       Eq("state"),
@@ -93,18 +94,20 @@ TEST_F(ImageCacheDispatchCollector, call_qml_collector_start)
                                       ElementsAre(QSize{20, 11})),
                                 Field(&FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")))),
                       _,
+                      _,
                       _))
-        .WillRepeatedly([&](auto, auto, auto, auto captureCallback, auto abortCallback) {
-            captureCallback({}, {}, {});
-            abortCallback(QmlDesigner::ImageCache::AbortReason::Abort);
+        .WillRepeatedly([&](auto, auto, auto, auto captureCallback, auto abortCallback, auto) {
+            captureCallback({}, {}, {}, {});
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Abort, {});
         });
-    EXPECT_CALL(collectorMock1, start(_, _, _, _, _)).Times(0);
+    EXPECT_CALL(collectorMock1, start(_, _, _, _, _, _)).Times(0);
 
     collector.start("foo.qml",
                     "state",
                     FontCollectorSizesAuxiliaryData{sizes, "color", "text"},
                     captureCallbackMock.AsStdFunction(),
-                    abortCallbackMock.AsStdFunction());
+                    abortCallbackMock.AsStdFunction(),
+                    {});
 }
 
 TEST_F(ImageCacheDispatchCollector, call_ui_file_collector_start)
@@ -119,8 +122,8 @@ TEST_F(ImageCacheDispatchCollector, call_ui_file_collector_start)
                           const QmlDesigner::ImageCache::AuxiliaryData &) { return true; },
                        &collectorMock2))};
 
-    EXPECT_CALL(captureCallbackMock, Call(_, _, _));
-    EXPECT_CALL(abortCallbackMock, Call(_));
+    EXPECT_CALL(captureCallbackMock, Call(_, _, _, _));
+    EXPECT_CALL(abortCallbackMock, Call(_, _));
     EXPECT_CALL(collectorMock1,
                 start(Eq("foo.ui.qml"),
                       Eq("state"),
@@ -129,18 +132,20 @@ TEST_F(ImageCacheDispatchCollector, call_ui_file_collector_start)
                                       ElementsAre(QSize{20, 11})),
                                 Field(&FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")))),
                       _,
+                      _,
                       _))
-        .WillRepeatedly([&](auto, auto, auto, auto captureCallback, auto abortCallback) {
-            captureCallback({}, {}, {});
-            abortCallback(QmlDesigner::ImageCache::AbortReason::Abort);
+        .WillRepeatedly([&](auto, auto, auto, auto captureCallback, auto abortCallback, auto) {
+            captureCallback({}, {}, {}, {});
+            abortCallback(QmlDesigner::ImageCache::AbortReason::Abort, {});
         });
-    EXPECT_CALL(collectorMock2, start(_, _, _, _, _)).Times(0);
+    EXPECT_CALL(collectorMock2, start(_, _, _, _, _, _)).Times(0);
 
     collector.start("foo.ui.qml",
                     "state",
                     FontCollectorSizesAuxiliaryData{sizes, "color", "text"},
                     captureCallbackMock.AsStdFunction(),
-                    abortCallbackMock.AsStdFunction());
+                    abortCallbackMock.AsStdFunction(),
+                    {});
 }
 
 TEST_F(ImageCacheDispatchCollector, dont_call_collector_start_for_unknown_file)
@@ -155,14 +160,15 @@ TEST_F(ImageCacheDispatchCollector, dont_call_collector_start_for_unknown_file)
                           const QmlDesigner::ImageCache::AuxiliaryData &) { return false; },
                        &collectorMock2))};
 
-    EXPECT_CALL(collectorMock2, start(_, _, _, _, _)).Times(0);
-    EXPECT_CALL(collectorMock1, start(_, _, _, _, _)).Times(0);
+    EXPECT_CALL(collectorMock2, start(_, _, _, _, _, _)).Times(0);
+    EXPECT_CALL(collectorMock1, start(_, _, _, _, _, _)).Times(0);
 
     collector.start("foo.mesh",
                     "state",
                     FontCollectorSizesAuxiliaryData{sizes, "color", "text"},
                     captureCallbackMock.AsStdFunction(),
-                    abortCallbackMock.AsStdFunction());
+                    abortCallbackMock.AsStdFunction(),
+                    {});
 }
 
 TEST_F(ImageCacheDispatchCollector, call_first_collector_create_icon)

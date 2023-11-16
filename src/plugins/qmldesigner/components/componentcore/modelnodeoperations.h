@@ -56,6 +56,7 @@ private:
 namespace ModelNodeOperations {
 
 bool goIntoComponent(const ModelNode &modelNode);
+void jumpToCode(const ModelNode &modelNode);
 
 void select(const SelectionContext &selectionState);
 void deSelect(const SelectionContext &selectionState);
@@ -75,6 +76,7 @@ void setFillHeight(const SelectionContext &selectionState);
 void resetSize(const SelectionContext &selectionState);
 void resetPosition(const SelectionContext &selectionState);
 void goIntoComponentOperation(const SelectionContext &selectionState);
+void jumpToCodeOperation(const SelectionContext &selectionState);
 void setId(const SelectionContext &selectionState);
 void resetZ(const SelectionContext &selectionState);
 void reverse(const SelectionContext &selectionState);
@@ -123,13 +125,37 @@ void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);
 
 QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getEffectsImportDirectory();
-QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir);
+QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir = {});
 void openEffectMaker(const QString &filePath);
 QString getEffectIcon(const QString &effectPath);
 bool useLayerEffect();
 bool validateEffect(const QString &effectPath);
 
 Utils::FilePath getImagesDefaultDirectory();
+
+//Item Library and Assets related drop operations
+ModelNode handleItemLibraryEffectDrop(const QString &effectPath, const ModelNode &targetNode);
+void handleTextureDrop(const QMimeData *mimeData, const ModelNode &targetModelNode);
+void handleMaterialDrop(const QMimeData *mimeData, const ModelNode &targetNode);
+ModelNode handleItemLibraryImageDrop(const QString &imagePath,
+                                     NodeAbstractProperty targetProperty,
+                                     const ModelNode &targetNode,
+                                     bool &outMoveNodesAfter);
+ModelNode handleItemLibraryFontDrop(const QString &fontFamily,
+                                    NodeAbstractProperty targetProperty,
+                                    const ModelNode &targetNode);
+ModelNode handleItemLibraryShaderDrop(const QString &shaderPath,
+                                      bool isFragShader,
+                                      NodeAbstractProperty targetProperty,
+                                      const ModelNode &targetNode,
+                                      bool &outMoveNodesAfter);
+ModelNode handleItemLibrarySoundDrop(const QString &soundPath,
+                                     NodeAbstractProperty targetProperty,
+                                     const ModelNode &targetNode);
+ModelNode handleItemLibraryTexture3dDrop(const QString &tex3DPath,
+                                         NodeAbstractProperty targetProperty,
+                                         const ModelNode &targetNode,
+                                         bool &outMoveNodesAfter);
 
 // ModelNodePreviewImageOperations
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode);

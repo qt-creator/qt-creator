@@ -494,7 +494,9 @@ const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyName
         return returnValue;
 
     if (m_type == SignalType) {
-        returnValue = sortedAndFilteredSignalNames(modelNode.metaInfo());
+        auto list = sortedAndFilteredSignalNames(modelNode.metaInfo());
+        returnValue = getDynamicSignals(modelNode);
+        std::move(list.begin(), list.end(), std::back_inserter(returnValue));
     } else if (m_type == SlotType) {
         returnValue = sortedAndFilteredSlotNames(modelNode.metaInfo());
     } else {
@@ -547,6 +549,18 @@ const std::vector<PropertyName> PropertyTreeModel::getDynamicProperties(
           });
 
     return Utils::sorted(std::vector<PropertyName>(filtered.begin(), filtered.end()));
+}
+
+const std::vector<PropertyName> PropertyTreeModel::getDynamicSignals(const ModelNode &modelNode) const
+{
+    QList<PropertyName> list = Utils::transform(modelNode.dynamicProperties(),
+                                                [](const AbstractProperty &property) {
+                                                    if (property.isSignalDeclarationProperty())
+                                                        return property.name();
+
+                                                    return PropertyName(property.name() + "Changed");
+                                                });
+    return Utils::sorted(std::vector<PropertyName>(list.begin(), list.end()));
 }
 
 const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyNames(

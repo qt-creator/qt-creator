@@ -15,6 +15,7 @@
 #include "qmleditormenu.h"
 #include "rewritingexception.h"
 #include <bindingproperty.h>
+#include <customnotifications.h>
 #include <nodehints.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
@@ -740,11 +741,23 @@ public:
                         activeSignalHandlerGroup->addMenu(editSlotGroup);
                     }
 
-                    //add an action to open Connection Form from here:
+                    ActionTemplate *openEditorAction = new ActionTemplate(
+                        (propertyName + "OpenEditorId").toLatin1(),
+                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit the Connection")),
+                        [=](const SelectionContext &) {
+                            signalHandler.view()
+                                ->emitCustomNotification(EditConnectionNotification,
+                                                         {signalHandler.parentModelNode()},
+                                                         {signalHandler.name()});
+                            //ActionEditor::invokeEditor(signalHandler, removeSignal);
+                        });
+
+                    activeSignalHandlerGroup->addAction(openEditorAction);
 
                     ActionTemplate *removeSignalHandlerAction = new ActionTemplate(
                         (propertyName + "RemoveSignalHandlerId").toLatin1(),
-                        QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove This Handler")),
+                        QString(
+                            QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Remove the Connection")),
                         [signalHandler](const SelectionContext &) {
                             signalHandler.parentModelNode().view()->executeInTransaction(
                                 "ConnectionsModelNodeActionGroup::"
@@ -761,7 +774,7 @@ public:
 
         //singular add connection:
         QMenu *addConnection = new QmlEditorMenu(QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
-                                                                           "Add Signal Handler")),
+                                                                           "Add new Connection")),
                                                  menu());
 
         for (const auto &signalStr : signalsList) {
@@ -809,7 +822,15 @@ public:
                 }
             }
 
-            //add an action to open Connection Form from here
+            ActionTemplate *openEditorAction = new ActionTemplate(
+                (signalStr + "OpenEditorId").toLatin1(),
+                QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add new Connection")),
+                [=](const SelectionContext &) {
+                    currentNode.view()->emitCustomNotification(AddConnectionNotification,
+                                                               {currentNode},
+                                                               {signalStr});
+                });
+            newSignal->addAction(openEditorAction);
 
             addConnection->addMenu(newSignal);
         }
@@ -1876,15 +1897,23 @@ void DesignerActionManager::createDefaultDesignerActions()
     addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::ViewOprionsSection));
     addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::CustomActionsSection));
 
-    addDesignerAction(new ModelNodeContextMenuAction(
-                          goIntoComponentCommandId,
-                          enterComponentDisplayName,
-                          contextIcon(DesignerIcons::EnterComponentIcon),
-                          rootCategory,
-                          QKeySequence(Qt::Key_F2),
-                          Priorities::ComponentActions + 2,
-                          &goIntoComponentOperation,
-                          &selectionIsComponent));
+    addDesignerAction(new ModelNodeContextMenuAction(goIntoComponentCommandId,
+                                                     enterComponentDisplayName,
+                                                     contextIcon(DesignerIcons::EnterComponentIcon),
+                                                     rootCategory,
+                                                     QKeySequence(Qt::Key_F2),
+                                                     Priorities::ComponentActions + 2,
+                                                     &goIntoComponentOperation,
+                                                     &selectionIsComponent));
+
+    addDesignerAction(new ModelNodeContextMenuAction(jumpToCodeCommandId,
+                                                     JumpToCodeDisplayName,
+                                                     contextIcon(DesignerIcons::JumpToCodeIcon),
+                                                     rootCategory,
+                                                     QKeySequence(Qt::Key_F4),
+                                                     Priorities::JumpToCode,
+                                                     &jumpToCodeOperation,
+                                                     &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
                           editAnnotationsCommandId,

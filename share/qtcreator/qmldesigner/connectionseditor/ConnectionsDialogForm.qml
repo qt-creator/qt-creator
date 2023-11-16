@@ -16,7 +16,6 @@ Column {
 
     property var backend
 
-    y: StudioTheme.Values.popupMargin
     width: parent.width
     spacing: root.verticalSpacing
 
@@ -45,6 +44,7 @@ Column {
 
         StudioControls.TopLevelComboBox {
             id: signal
+
             style: StudioTheme.Values.connectionPopupControlStyle
             width: root.columnWidth
 
@@ -216,71 +216,100 @@ Column {
                  && backend.hasCondition && backend.hasElse
     }
 
-    HelperWidgets.AbstractButton {
-        id: editorButton
-        buttonIcon: StudioTheme.Constants.codeEditor_medium
-        tooltip: qsTr("Write the conditions for the components and the signals manually.")
-        onClicked: expressionDialogLoader.show()
-    }
-
-    // Editor
-    Rectangle {
-        id: editor
+    // code preview toolbar
+    Column {
+        id: miniToolbarEditor
         width: parent.width
-        height: 150
-        color: StudioTheme.Values.themeConnectionCodeEditor
+        spacing: -2
 
-        Text {
-            id: code
-            anchors.fill: parent
-            anchors.margins: 4
-            text: backend.indentedSource
-            color: StudioTheme.Values.themeTextColor
-            font.pixelSize: StudioTheme.Values.myFontSize
-            wrapMode: Text.Wrap
-            horizontalAlignment: code.lineCount === 1 ? Text.AlignHCenter : Text.AlignLeft
-            verticalAlignment: Text.AlignVCenter
-            elide: Text.ElideRight
+        Rectangle {
+            id: miniToolbar
+            width: parent.width
+            height: editorButton.height + 2
+            radius: 4
+            z: -1
+            color: StudioTheme.Values.themeConnectionEditorMicroToolbar
 
-        }
-
-        Loader {
-            id: expressionDialogLoader
-            parent: editor
-            anchors.fill: parent
-            visible: false
-            active: visible
-
-            function show() {
-                expressionDialogLoader.visible = true
-            }
-
-            sourceComponent: Item {
-                id: bindingEditorParent
-
-                Component.onCompleted: {
-                    bindingEditor.showWidget()
-                    bindingEditor.text = backend.source
-                    bindingEditor.showControls(false)
-                    bindingEditor.setMultilne(true)
-                    bindingEditor.updateWindowName()
+            Row {
+                spacing: 2
+                HelperWidgets.AbstractButton {
+                    id: editorButton
+                    style: StudioTheme.Values.microToolbarButtonStyle
+                    buttonIcon: StudioTheme.Constants.codeEditor_medium
+                    tooltip: qsTr("Write the conditions for the components and the signals manually.")
+                    onClicked: expressionDialogLoader.show()
                 }
-
-                ActionEditor {
-                    id: bindingEditor
-
-                    onRejected: {
-                        hideWidget()
-                        expressionDialogLoader.visible = false
-                    }
-
-                    onAccepted: {
-                        backend.setNewSource(bindingEditor.text)
-                        hideWidget()
-                        expressionDialogLoader.visible = false
-                    }
+                HelperWidgets.AbstractButton {
+                    id: jumpToCodeButton
+                    style: StudioTheme.Values.microToolbarButtonStyle
+                    buttonIcon: StudioTheme.Constants.jumpToCode_medium
+                    tooltip: qsTr("Jump to the code.")
+                    onClicked: backend.jumpToCode()
                 }
             }
         }
-    }
-}
+
+        // Editor
+        Rectangle {
+            id: editor
+            width: parent.width
+            height: 150
+            color: StudioTheme.Values.themeConnectionCodeEditor
+
+            Text {
+                id: code
+                anchors.fill: parent
+                anchors.margins: 4
+                text: backend.indentedSource
+                color: StudioTheme.Values.themeTextColor
+                font.pixelSize: StudioTheme.Values.myFontSize
+                wrapMode: Text.Wrap
+                horizontalAlignment: code.lineCount === 1 ? Text.AlignHCenter : Text.AlignLeft
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+
+            }
+
+
+            Loader {
+                id: expressionDialogLoader
+                parent: editor
+                anchors.fill: parent
+                visible: false
+                active: visible
+
+                function show() {
+                    expressionDialogLoader.visible = true
+                }
+
+                sourceComponent: Item {
+                    id: bindingEditorParent
+
+                    Component.onCompleted: {
+                        bindingEditor.showWidget()
+                        bindingEditor.text = backend.source
+                        bindingEditor.showControls(false)
+                        bindingEditor.setMultilne(true)
+                        bindingEditor.updateWindowName()
+                    }
+
+                    ActionEditor {
+                        id: bindingEditor
+
+                        onRejected: {
+                            hideWidget()
+                            expressionDialogLoader.visible = false
+                        }
+
+                        onAccepted: {
+                            backend.setNewSource(bindingEditor.text)
+                            hideWidget()
+                            expressionDialogLoader.visible = false
+                        }
+                    }
+                }
+            } // loader
+        } // rect
+    } //col 2
+}//col1
+

@@ -9,16 +9,18 @@
 #include <connectioneditorevaluator.h>
 #include <exception.h>
 #include <model/modelutils.h>
+#include <modelnodeoperations.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <plaintexteditmodifier.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 #include <rewritertransaction.h>
 #include <rewriterview.h>
 #include <signalhandlerproperty.h>
 #include <variantproperty.h>
-#include <qmldesignerconstants.h>
-#include <qmldesignerplugin.h>
+#include <viewmanager.h>
 
 #include <utils/qtcassert.h>
 
@@ -344,7 +346,7 @@ static PropertyName getFirstSignalForTarget(const NodeMetaInfo &target)
     return ret;
 }
 
-void ConnectionModel::addConnection()
+void ConnectionModel::addConnection(const PropertyName &signalName)
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_CONNECTION_ADDED);
 
@@ -356,10 +358,13 @@ void ConnectionModel::addConnection()
 
         if (nodeMetaInfo.isValid()) {
             ModelNode selectedNode = connectionView()->selectedModelNodes().constFirst();
-            const PropertyName signalHandlerName = addOnToSignalName(
-                                                       QString::fromUtf8(getFirstSignalForTarget(
-                                                           selectedNode.metaInfo())))
-                                                       .toUtf8();
+
+            PropertyName signalHandlerName = signalName;
+            if (signalHandlerName.isEmpty()) {
+                signalHandlerName = addOnToSignalName(QString::fromUtf8(getFirstSignalForTarget(
+                                                          selectedNode.metaInfo())))
+                                        .toUtf8();
+            }
 
             connectionView()
                 ->executeInTransaction("ConnectionModel::addConnection", [=, &rootModelNode]() {
@@ -916,6 +921,17 @@ void ConnectionModelBackendDelegate::update()
     setupCondition();
 
     QTC_ASSERT(model, return );
+}
+
+void ConnectionModelBackendDelegate::jumpToCode()
+{
+    ConnectionModel *model = qobject_cast<ConnectionModel *>(parent());
+
+    QTC_ASSERT(model, return );
+    QTC_ASSERT(model->connectionView()->isAttached(), return );
+    SignalHandlerProperty signalHandlerProperty = model->signalHandlerPropertyForRow(currentRow());
+
+    ModelNodeOperations::jumpToCode(signalHandlerProperty.parentModelNode());
 }
 
 void ConnectionModelBackendDelegate::handleException()
@@ -2112,6 +2128,11 @@ ConnectionEditorStatements::ComparativeStatement ConditionListModel::toStatement
 void QmlDesigner::ConnectionModel::modelAboutToBeDetached()
 {
     emit m_delegate->popupShouldClose();
+}
+
+void ConnectionModel::showPopup()
+{
+    emit m_delegate->popupShouldOpen();
 }
 
 } // namespace QmlDesigner

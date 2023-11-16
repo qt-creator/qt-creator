@@ -63,7 +63,13 @@ bool Navigation2dFilter::gestureEvent(QGestureEvent *event)
 
 bool Navigation2dFilter::wheelEvent(QWheelEvent *event)
 {
-    if (!event->modifiers().testFlag(Qt::ControlModifier)) {
+    bool isMac = Utils::HostOsInfo::isMacHost();
+    bool controlPressed = event->modifiers().testFlag(Qt::ControlModifier);
+
+    if (isMac)
+        controlPressed = controlPressed || event->modifiers().testFlag(Qt::MetaModifier);
+
+    if (!controlPressed) {
         if (event->source() == Qt::MouseEventSynthesizedBySystem) {
             emit panChanged(QPointF(event->pixelDelta()));
             event->accept();
@@ -77,7 +83,6 @@ bool Navigation2dFilter::wheelEvent(QWheelEvent *event)
 
     if (zoomChangedConnected) {
         double speed = 1.0 / 200.0;
-        bool isMac = Utils::HostOsInfo::isMacHost();
         if (QPointF delta = event->pixelDelta(); !delta.isNull() && isMac) {
             double dist = std::abs(delta.x()) > std::abs(delta.y()) ? -delta.x() : delta.y();
             emit zoomChanged(dist * speed, event->position());

@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmlitemnode.h"
-#include <metainfo.h>
 #include "nodelistproperty.h"
 #include "nodehints.h"
 #include "nodeproperty.h"
 #include "variantproperty.h"
 #include "bindingproperty.h"
 #include "qmlanchors.h"
-#include "itemlibraryinfo.h"
 
 #include <model.h>
 #include <abstractview.h>

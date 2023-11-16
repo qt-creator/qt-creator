@@ -1,26 +1,25 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import Qt.labs.platform 1.1
-import QtQuickDesignerTheme 1.0
-import HelperWidgets 2.0
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import QtQuick
+import QtQuick.Layouts
+import Qt.labs.platform
+import QtQuickDesignerTheme
+import HelperWidgets
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 
-
-HelperWindow {
-    id: dialogWindow
+Window {
+    id: root
     width: 1200
     height: 650
     title: qsTr("Gradient Picker")
+    flags: Qt.Dialog
 
     signal saved
     signal applied
     signal accepted
     property alias gradientData: gradientPickerData
-
 
     QtObject {
         id: gradientPickerData
@@ -104,9 +103,9 @@ HelperWindow {
                 Layout.alignment: Qt.AlignBottom | Qt.AlignRight
                 Layout.topMargin: 5
 
-                Button { id: buttonClose; text: qsTr("Close"); onClicked: { dialogWindow.hide(); } }
-                Button { id: buttonSave; text: qsTr("Save"); onClicked: { dialogWindow.saved(); } }
-                Button { id: buttonApply; text: qsTr("Apply"); onClicked: { dialogWindow.applied(); dialogWindow.hide(); } }
+                Button { id: buttonClose; text: qsTr("Close"); onClicked: { root.hide(); } }
+                Button { id: buttonSave; text: qsTr("Save"); onClicked: { root.saved(); } }
+                Button { id: buttonApply; text: qsTr("Apply"); onClicked: { root.applied(); root.hide(); } }
             }
         }
     }

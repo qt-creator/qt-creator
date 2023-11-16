@@ -14,8 +14,18 @@ HelperWidgets.ScrollView {
     interactive: !ctxMenu.opened && !ContentLibraryBackend.rootView.isDragging
                  && !HelperWidgets.Controller.contextMenuOpened
 
-    readonly property int cellWidth: 100
-    readonly property int cellHeight: 120
+    property real cellWidth: 100
+    property real cellHeight: 120
+    property int numColumns: 4
+
+    property int count: 0
+    function assignMaxCount() {
+        let c = 0
+        for (let i = 0; i < categoryRepeater.count; ++i)
+            c = Math.max(c, categoryRepeater.itemAt(i)?.count ?? 0)
+
+        root.count = c
+    }
 
     property var currMaterialItem: null
     property var rootItem: null
@@ -23,15 +33,13 @@ HelperWidgets.ScrollView {
 
     required property var searchBox
 
-    signal unimport(var bundleMat);
+    signal unimport(var bundleMat)
 
-    function closeContextMenu()
-    {
+    function closeContextMenu() {
         ctxMenu.close()
     }
 
-    function expandVisibleSections()
-    {
+    function expandVisibleSections() {
         for (let i = 0; i < categoryRepeater.count; ++i) {
             let cat = categoryRepeater.itemAt(i)
             if (cat.visible && !cat.expanded)
@@ -56,10 +64,15 @@ HelperWidgets.ScrollView {
             model: materialsModel
 
             delegate: HelperWidgets.Section {
+                id: section
+
                 width: root.width
+                leftPadding: StudioTheme.Values.sectionPadding
+                rightPadding: StudioTheme.Values.sectionPadding
+                topPadding: StudioTheme.Values.sectionPadding
+                bottomPadding: StudioTheme.Values.sectionPadding
+
                 caption: bundleCategoryName
-                addTopPadding: false
-                sectionBackgroundColor: "transparent"
                 visible: bundleCategoryVisible && !materialsModel.isEmpty
                 expanded: bundleCategoryExpanded
                 expandOnClick: false
@@ -73,14 +86,17 @@ HelperWidgets.ScrollView {
                     bundleCategoryExpanded = true
                 }
 
+                property alias count: repeater.count
+
+                onCountChanged: root.assignMaxCount()
+
                 Grid {
-                    width: root.width
-                    leftPadding: 5
-                    rightPadding: 5
-                    bottomPadding: 5
-                    columns: root.width / root.cellWidth
+                    width: section.width - section.leftPadding - section.rightPadding
+                    spacing: StudioTheme.Values.sectionGridSpacing
+                    columns: root.numColumns
 
                     Repeater {
+                        id: repeater
                         model: bundleCategoryMaterials
 
                         delegate: ContentLibraryMaterial {
@@ -89,6 +105,8 @@ HelperWidgets.ScrollView {
 
                             onShowContextMenu: ctxMenu.popupMenu(modelData)
                         }
+
+                        onCountChanged: root.assignMaxCount()
                     }
                 }
             }

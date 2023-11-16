@@ -79,7 +79,7 @@ public:
 
     ~AbstractView() override;
 
-    Model *model() const;
+    Model *model() const { return m_model.data(); }
     bool isAttached() const;
 
     RewriterTransaction beginRewriterTransaction(const QByteArray &identifier);

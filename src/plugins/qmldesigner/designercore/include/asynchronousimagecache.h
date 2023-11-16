@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <qmldesignercorelib_exports.h>
+
 #include "asynchronousimagecacheinterface.h"
 
 #include <imagecache/taskqueue.h>
@@ -53,18 +55,21 @@ private:
     struct Entry
     {
         Entry() = default;
+
         Entry(Utils::PathString name,
               Utils::SmallString extraId,
               ImageCache::CaptureImageCallback &&captureCallback,
               ImageCache::AbortCallback &&abortCallback,
               ImageCache::AuxiliaryData &&auxiliaryData,
-              RequestType requestType)
+              RequestType requestType,
+              ImageCache::TraceToken traceToken)
             : name{std::move(name)}
             , extraId{std::move(extraId)}
             , captureCallback{std::move(captureCallback)}
             , abortCallback{std::move(abortCallback)}
             , auxiliaryData{std::move(auxiliaryData)}
             , requestType{requestType}
+            , traceToken{std::move(traceToken)}
         {}
 
         Utils::PathString name;
@@ -73,6 +78,7 @@ private:
         ImageCache::AbortCallback abortCallback;
         ImageCache::AuxiliaryData auxiliaryData;
         RequestType requestType = RequestType::Image;
+        NO_UNIQUE_ADDRESS ImageCache::TraceToken traceToken;
     };
 
     static void request(Utils::SmallStringView name,
@@ -81,24 +87,14 @@ private:
                         ImageCache::CaptureImageCallback captureCallback,
                         ImageCache::AbortCallback abortCallback,
                         ImageCache::AuxiliaryData auxiliaryData,
+                        ImageCache::TraceToken traceToken,
                         ImageCacheStorageInterface &storage,
                         ImageCacheGeneratorInterface &generator,
                         TimeStampProviderInterface &timeStampProvider);
 
     struct Dispatch
     {
-        void operator()(Entry &entry)
-        {
-            request(entry.name,
-                    entry.extraId,
-                    entry.requestType,
-                    std::move(entry.captureCallback),
-                    std::move(entry.abortCallback),
-                    std::move(entry.auxiliaryData),
-                    storage,
-                    generator,
-                    timeStampProvider);
-        }
+        QMLDESIGNERCORE_EXPORT void operator()(Entry &entry);
 
         ImageCacheStorageInterface &storage;
         ImageCacheGeneratorInterface &generator;
@@ -107,7 +103,7 @@ private:
 
     struct Clean
     {
-        void operator()(Entry &entry) { entry.abortCallback(ImageCache::AbortReason::Abort); }
+        QMLDESIGNERCORE_EXPORT void operator()(Entry &entry);
     };
 
 private:

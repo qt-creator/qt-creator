@@ -135,6 +135,10 @@ public:
     void setBgColor(const QVariant &colors);
     QVariant bgColor() const { return m_bgColor; }
 
+    Q_INVOKABLE QVector3D dirForRotation(const QQuaternion &rotation) const;
+    Q_INVOKABLE bool compareVectors(const QVector3D &v1, const QVector3D &v2) const;
+    Q_INVOKABLE bool compareQuaternions(const QQuaternion &q1, const QQuaternion &q2) const;
+
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);

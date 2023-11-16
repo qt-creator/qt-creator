@@ -187,6 +187,8 @@ public:
      */
     ~FloatingDockContainer() override;
 
+    virtual QSize minimumSizeHint() const override;
+
     /**
      * Access function for the internal dock container
      */

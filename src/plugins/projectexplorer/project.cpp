@@ -852,6 +852,8 @@ void Project::createTargetFromMap(const Store &map, int index)
                 "kit \"%2\" with id %3, which does not exist anymore. The new kit \"%4\" was "
                 "created in its place, in an attempt not to lose custom project settings.")
                 .arg(displayName(), formerKitName, id.toString(), k->displayName())));
+    } else {
+        return;
     }
 
     auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});

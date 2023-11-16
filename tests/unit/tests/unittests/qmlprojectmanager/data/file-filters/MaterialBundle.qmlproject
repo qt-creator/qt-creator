@@ -55,7 +55,7 @@ Project {
     Files {
         filter: "*.mesh"
         directory: "asset_imports"
-    }
+    }    
 
     Files {
         filter: "*.mesh"

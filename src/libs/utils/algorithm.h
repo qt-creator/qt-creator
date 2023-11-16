@@ -1410,13 +1410,13 @@ OutputContainer setUnionMerge(InputContainer1 &&input1,
 }
 
 template<typename Container>
-auto usize(const Container &container)
+constexpr auto usize(const Container &container)
 {
     return static_cast<std::make_unsigned_t<decltype(std::size(container))>>(std::size(container));
 }
 
 template<typename Container>
-auto ssize(const Container &container)
+constexpr auto ssize(const Container &container)
 {
     return static_cast<std::make_signed_t<decltype(std::size(container))>>(std::size(container));
 }

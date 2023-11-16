@@ -557,9 +557,8 @@ void DockWidget::toggleViewInternal(bool open)
     if (open && topLevelDockWidgetBefore)
         DockWidget::emitTopLevelEventForWidget(topLevelDockWidgetBefore, false);
 
-    // Here we need to call the dockContainer() function again, because if
-    // this dock widget was unassigned before the call to showDockWidget() then
-    // it has a dock container now
+    // Here we need to call the dockContainer() function again, because if this dock widget was
+    // unassigned before the call to showDockWidget() then it has a dock container now
     const DockContainerWidget *const dockContainerWidget = dockContainer();
     DockWidget *topLevelDockWidgetAfter = dockContainerWidget
                                               ? dockContainerWidget->topLevelDockWidget()
@@ -614,18 +613,17 @@ bool DockWidget::event(QEvent *event)
 
     case QEvent::WindowTitleChange: {
         const auto title = windowTitle();
-        if (d->m_tabWidget) {
+        if (d->m_tabWidget)
             d->m_tabWidget->setText(title);
-        }
+
         if (d->m_sideTabWidget)
             d->m_sideTabWidget->setText(title);
 
-        if (d->m_toggleViewAction) {
+        if (d->m_toggleViewAction)
             d->m_toggleViewAction->setText(title);
-        }
-        if (d->m_dockArea) {
+
+        if (d->m_dockArea)
             d->m_dockArea->markTitleBarMenuOutdated(); // update tabs menu
-        }
 
         auto floatingWidget = floatingDockContainer();
         if (floatingWidget)
@@ -771,14 +769,6 @@ QSize DockWidget::minimumSizeHint() const
     if (!d->m_widget)
         return QSize(60, 40);
 
-    // TODO
-    DockContainerWidget *container = this->dockContainer();
-    if (!container || container->isFloating()) {
-        const QSize sh = d->m_widget->minimumSizeHint();
-        const QSize s = d->m_widget->minimumSize();
-        return {std::max(s.width(), sh.width()), std::max(s.height(), sh.height())};
-    }
-
     switch (d->m_minimumSizeHintMode) {
     case MinimumSizeHintFromDockWidget:
         return QSize(60, 40);
@@ -837,8 +827,7 @@ bool DockWidget::closeDockWidgetInternal(bool forceClose)
         return false;
 
     if (features().testFlag(DockWidget::DockWidgetDeleteOnClose)) {
-        // If the dock widget is floating, then we check if we also need to
-        // delete the floating widget
+        // If the dock widget is floating, then check if we also need to delete the floating widget
         if (isFloating()) {
             FloatingDockContainer *floatingWidget = internal::findParent<FloatingDockContainer *>(
                 this);

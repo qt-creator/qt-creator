@@ -50,6 +50,7 @@ public:
     Q_INVOKABLE void setStateAsDefault(int internalNodeId);
     Q_INVOKABLE void resetDefaultState();
     Q_INVOKABLE bool hasDefaultState() const;
+    Q_INVOKABLE void jumpToCode();
     Q_INVOKABLE void setAnnotation(int internalNodeId);
     Q_INVOKABLE void removeAnnotation(int internalNodeId);
     Q_INVOKABLE bool hasAnnotation(int internalNodeId) const;
@@ -81,6 +82,7 @@ public:
     Q_PROPERTY(int activeStateGroupIndex READ activeStateGroupIndex WRITE setActiveStateGroupIndex
                    NOTIFY activeStateGroupIndexChanged)
     Q_PROPERTY(QStringList stateGroups READ stateGroups NOTIFY stateGroupsChanged)
+    Q_PROPERTY(bool isMCUs READ isMCUs NOTIFY isMCUsChanged)
 
     Q_INVOKABLE void move(int from, int to);
     Q_INVOKABLE void drop(int from, int to);
@@ -91,6 +93,8 @@ public:
     bool canAddNewStates() const;
     void setCanAddNewStates(bool b);
 
+    bool isMCUs() const;
+
 signals:
     void changedToState(int n);
     void baseStateChanged();
@@ -100,6 +104,7 @@ signals:
     void activeStateGroupIndexChanged();
     void stateGroupsChanged();
     void canAddNewStatesChanged();
+    void isMCUsChanged();
 
 private:
     QPointer<StatesEditorView> m_statesEditorView;

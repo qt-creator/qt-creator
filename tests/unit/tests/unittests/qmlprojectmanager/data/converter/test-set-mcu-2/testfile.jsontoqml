@@ -1,0 +1,32 @@
+// prop: json-converted
+// prop: auto-generated
+
+import QmlProject
+
+Project {
+    widgetApp: false
+
+    qt6Project: false
+    qtForMCUs: true
+
+    projectRootPath: "../.."
+
+    MCU.Module {
+        generateQmltypes: true
+        uri: "MyModule"
+    }
+
+    QmlFiles {
+        files: [
+            "qml/TextIcon.qml"
+        ]
+    }
+
+    ImageFiles {
+        files: [
+            "images/qt_logo.png"
+        ]
+        MCU.base: "images"
+        MCU.prefix: "logo"
+    }
+}

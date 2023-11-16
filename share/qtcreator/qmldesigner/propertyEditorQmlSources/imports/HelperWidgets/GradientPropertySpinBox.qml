@@ -1,13 +1,12 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import QtQuick
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 
-SecondColumnLayout {
-    id: wrapper
+Row {
+    id: root
 
     property string propertyName
     property string gradientTypeName
@@ -20,24 +19,26 @@ SecondColumnLayout {
 
     property alias pixelsPerUnit: spinBox.pixelsPerUnit
 
-    width: 90
-    implicitHeight: spinBox.height
+    property real spinBoxWidth: 100
+    property real unitWidth: 50
+
+    spacing: StudioTheme.Values.controlGap
 
     onFocusChanged: restoreCursor()
 
     property bool __isPercentage: false
-    property bool __mightHavePercents: gradientLine.model.isPercentageSupportedByProperty(wrapper.propertyName, wrapper.gradientTypeName)
+    property bool __mightHavePercents: gradientLine.model.isPercentageSupportedByProperty(root.propertyName, root.gradientTypeName)
 
     function readValue() {
-        wrapper.__isPercentage = (gradientLine.model.readGradientPropertyUnits(wrapper.propertyName) === GradientModel.Percentage);
+        root.__isPercentage = (gradientLine.model.readGradientPropertyUnits(root.propertyName) === GradientModel.Percentage);
 
-        if (wrapper.__isPercentage) {
+        if (root.__isPercentage) {
             unitType.currentIndex = 1;
-            spinBox.realValue = gradientLine.model.readGradientPropertyPercentage(wrapper.propertyName)
+            spinBox.realValue = gradientLine.model.readGradientPropertyPercentage(root.propertyName)
         }
         else {
             unitType.currentIndex = 0;
-            spinBox.realValue = gradientLine.model.readGradientProperty(wrapper.propertyName)
+            spinBox.realValue = gradientLine.model.readGradientProperty(root.propertyName)
         }
     }
 
@@ -46,21 +47,21 @@ SecondColumnLayout {
 
         __devicePixelRatio: devicePixelRatio()
 
-        implicitWidth: StudioTheme.Values.colorEditorPopupSpinBoxWidth * 1.5
-        width: implicitWidth
+        implicitWidth: root.spinBoxWidth
+        width: spinBox.implicitWidth
         actionIndicatorVisible: false
 
         realFrom: -9999
         realTo: 9999
-        realStepSize: wrapper.__isPercentage ? 0.1 : 1
-        decimals: wrapper.__isPercentage ? 4 : 0
+        realStepSize: root.__isPercentage ? 0.1 : 1
+        decimals: root.__isPercentage ? 4 : 0
 
-        Component.onCompleted: wrapper.readValue()
+        Component.onCompleted: root.readValue()
         onCompressedRealValueModified: {
-            if (wrapper.__isPercentage)
-                gradientLine.model.setGradientPropertyPercentage(wrapper.propertyName, spinBox.realValue)
+            if (root.__isPercentage)
+                gradientLine.model.setGradientPropertyPercentage(root.propertyName, spinBox.realValue)
             else
-                gradientLine.model.setGradientProperty(wrapper.propertyName, spinBox.realValue)
+                gradientLine.model.setGradientProperty(root.propertyName, spinBox.realValue)
         }
 
         onDragStarted: hideCursor()
@@ -68,30 +69,24 @@ SecondColumnLayout {
         onDragging: holdCursorInPlace()
     }
 
-    Spacer {
-        implicitWidth: StudioTheme.Values.twoControlColumnGap
-    }
-
     StudioControls.ComboBox {
         id: unitType
-        implicitWidth: StudioTheme.Values.colorEditorPopupSpinBoxWidth
-        width: implicitWidth
+        implicitWidth: root.unitWidth
+        width: unitType.implicitWidth
         model: ["px", "%"] //px = 0, % = 1
         actionIndicatorVisible: false
-        visible: wrapper.__mightHavePercents
+        visible: root.__mightHavePercents
 
         onActivated: {
-            if (!wrapper.__mightHavePercents)
+            if (!root.__mightHavePercents)
                 return
 
             if (unitType.currentIndex === 0)
-                gradientLine.model.setGradientPropertyUnits(wrapper.propertyName, GradientModel.Pixels)
+                gradientLine.model.setGradientPropertyUnits(root.propertyName, GradientModel.Pixels)
             else
-                gradientLine.model.setGradientPropertyUnits(wrapper.propertyName, GradientModel.Percentage)
+                gradientLine.model.setGradientPropertyUnits(root.propertyName, GradientModel.Percentage)
 
-            wrapper.readValue()
+            root.readValue()
         }
     }
-
-    ExpandingSpacer {}
 }

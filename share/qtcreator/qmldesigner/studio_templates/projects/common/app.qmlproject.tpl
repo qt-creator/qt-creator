@@ -69,6 +69,11 @@ Project {
     }
 
     Files {
+        filter: "*.qad"
+        directory: "asset_imports"
+    }
+
+    Files {
         filter: "*.qml"
         directory: "asset_imports"
     }
@@ -105,7 +110,7 @@ Project {
     /* Required for deployment */
     targetDirectory: "/opt/%{ProjectName}"
 
-    qdsVersion: "4.3"
+    qdsVersion: "4.4"
 
     quickVersion: "%{QtQuickVersion}"
 

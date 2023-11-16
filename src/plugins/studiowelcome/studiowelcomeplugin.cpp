@@ -221,12 +221,15 @@ public:
 
     Q_PROPERTY(bool communityVersion MEMBER m_communityVersion NOTIFY communityVersionChanged)
     Q_PROPERTY(bool enterpriseVersion MEMBER m_enterpriseVersion NOTIFY enterpriseVersionChanged)
+    Q_PROPERTY(int count READ count NOTIFY countChanged)
 
     explicit ProjectModel(QObject *parent = nullptr);
 
     int rowCount(const QModelIndex &parent) const override;
     QVariant data(const QModelIndex &index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
+
+    int count() { return ProjectExplorer::ProjectExplorerPlugin::recentProjects().count(); }
 
     Q_INVOKABLE void createProject()
     {
@@ -258,6 +261,33 @@ public:
                 }
             };
         }
+
+        delayedResetProjects();
+    }
+
+    Q_INVOKABLE void removeFromRecentProjects(int row)
+    {
+        if (m_blockOpenRecent)
+            return;
+
+        m_blockOpenRecent = true;
+        const FilePath projectFile = FilePath::fromVariant(
+            data(index(row, 0), ProjectModel::FilePathRole));
+
+        if (projectFile.exists())
+            ProjectExplorer::ProjectExplorerPlugin::removeFromRecentProjects(projectFile);
+
+        resetProjects();
+    }
+
+    Q_INVOKABLE void clearRecentProjects()
+    {
+        if (m_blockOpenRecent)
+            return;
+
+        m_blockOpenRecent = true;
+
+        ProjectExplorer::ProjectExplorerPlugin::clearRecentProjects();
 
         resetProjects();
     }
@@ -317,10 +347,12 @@ public:
 
 public slots:
     void resetProjects();
+    void delayedResetProjects();
 
 signals:
     void communityVersionChanged();
     void enterpriseVersionChanged();
+    void countChanged();
 
 private:
     void setupVersion();
@@ -343,7 +375,9 @@ ProjectModel::ProjectModel(QObject *parent)
     connect(ProjectExplorer::ProjectExplorerPlugin::instance(),
             &ProjectExplorer::ProjectExplorerPlugin::recentProjectsChanged,
             this,
-            &ProjectModel::resetProjects);
+            &ProjectModel::delayedResetProjects);
+
+    connect(this, &QAbstractListModel::modelReset, this, &ProjectModel::countChanged);
 
     setupVersion();
 }
@@ -410,13 +444,13 @@ static QString tags(const FilePath &projectFilePath)
     const bool isQt6 = data.contains("qt6Project: true");
     const bool isMcu = data.contains("qtForMCUs: true");
 
-    if (isQt6)
+    if (isMcu)
+        ret.append("Qt For MCU");
+    else if (isQt6)
         ret.append("Qt 6");
     else
         ret.append("Qt 5");
 
-    if (isMcu)
-        ret.append("Qt For MCU");
 
     return ret.join(",");
 }
@@ -467,6 +501,13 @@ QHash<int, QByteArray> ProjectModel::roleNames() const
 }
 
 void ProjectModel::resetProjects()
+{
+    beginResetModel();
+    endResetModel();
+    m_blockOpenRecent = false;
+}
+
+void ProjectModel::delayedResetProjects()
 {
     QTimer::singleShot(2000, this, [this]() {
         beginResetModel();

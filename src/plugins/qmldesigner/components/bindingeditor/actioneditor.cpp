@@ -8,7 +8,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <bindingeditor/actioneditordialog.h>
 
-#include <metainfo.h>
 #include <qmlmodelnodeproxy.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>

@@ -93,21 +93,7 @@ private:
                               int targetIndex, bool executeInTransaction = true);
     void handleInternalDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
-    void handleTextureDrop(const QMimeData *mimeData, const QModelIndex &dropModelIndex);
-    void handleMaterialDrop(const QMimeData *mimeData, const QModelIndex &dropModelIndex);
-    ModelNode handleItemLibraryImageDrop(const QString &imagePath, NodeAbstractProperty targetProperty,
-                                         const QModelIndex &rowModelIndex, bool &outMoveNodesAfter);
-    ModelNode handleItemLibraryFontDrop(const QString &fontFamily, NodeAbstractProperty targetProperty,
-                                        const QModelIndex &rowModelIndex);
-    ModelNode handleItemLibraryShaderDrop(const QString &shaderPath, bool isFragShader,
-                                          NodeAbstractProperty targetProperty,
-                                          const QModelIndex &rowModelIndex,
-                                          bool &outMoveNodesAfter);
-    ModelNode handleItemLibrarySoundDrop(const QString &soundPath, NodeAbstractProperty targetProperty,
-                                         const QModelIndex &rowModelIndex);
-    ModelNode handleItemLibraryTexture3dDrop(const QString &tex3DPath, NodeAbstractProperty targetProperty,
-                                             const QModelIndex &rowModelIndex, bool &outMoveNodesAfter);
-    ModelNode handleItemLibraryEffectDrop(const QString &effectPath, const QModelIndex &rowModelIndex);
+
     bool dropAsImage3dTexture(const ModelNode &targetNode, const NodeAbstractProperty &targetProp,
                               const QString &imagePath, ModelNode &newNode, bool &outMoveNodesAfter);
     ModelNode createTextureNode(const NodeAbstractProperty &targetProp, const QString &imagePath);

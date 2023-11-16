@@ -73,19 +73,6 @@
     \note Using 3D components will affect the performance of your UI. Do not
     use 3D components if the same results can be achieved using 2D components.
 
-    \section2 Videos About 3D Components
-
-    The following video shows you how to add the components included in the
-    \uicontrol {Qt Quick 3D} module, such as 3D models, cameras, and lights,
-    to your scene:
-
-    \youtube u3kZJjlk3CY
-
-    The following video shows you how to use the custom shader utilities, 3D
-    effects, and materials:
-
-    \youtube bMXeeQw6BYs
-
     The following video shows you how to combine 2D and 3D components:
 
     \youtube w1yhDl93YI0

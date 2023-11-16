@@ -1837,8 +1837,8 @@ TEST(SmallString, number_to_string)
     ASSERT_THAT(SmallString::number(std::numeric_limits<int>::min()), "-2147483648");
     ASSERT_THAT(SmallString::number(std::numeric_limits<long long int>::max()), "9223372036854775807");
     ASSERT_THAT(SmallString::number(std::numeric_limits<long long int>::min()), "-9223372036854775808");
-    ASSERT_THAT(SmallString::number(1.2), "1.200000");
-    ASSERT_THAT(SmallString::number(-1.2), "-1.200000");
+    ASSERT_THAT(SmallString::number(1.2), "1.2");
+    ASSERT_THAT(SmallString::number(-1.2), "-1.2");
 }
 
 TEST(SmallString, string_view_plus_operator)

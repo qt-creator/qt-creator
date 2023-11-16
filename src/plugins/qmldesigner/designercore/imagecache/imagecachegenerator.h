@@ -34,8 +34,9 @@ public:
                        Utils::SmallStringView extraId,
                        Sqlite::TimeStamp timeStamp,
                        ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
-                       ImageCache::AbortCallback &&abortCallback,
-                       ImageCache::AuxiliaryData &&auxiliaryData) override;
+                       ImageCache::InternalAbortCallback &&abortCallback,
+                       ImageCache::AuxiliaryData &&auxiliaryData,
+                       ImageCache::TraceToken traceToken = {}) override;
     void clean() override;
 
     void waitForFinished() override;
@@ -44,34 +45,38 @@ private:
     struct Task
     {
         Task() = default;
+
         Task(Utils::SmallStringView filePath,
              Utils::SmallStringView extraId,
              ImageCache::AuxiliaryData &&auxiliaryData,
              Sqlite::TimeStamp timeStamp,
              ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
-             ImageCache::AbortCallback &&abortCallback)
+             ImageCache::InternalAbortCallback &&abortCallback,
+             ImageCache::TraceToken traceToken)
             : filePath(filePath)
             , extraId(std::move(extraId))
             , auxiliaryData(std::move(auxiliaryData))
             , captureCallbacks({std::move(captureCallback)})
             , abortCallbacks({std::move(abortCallback)})
             , timeStamp(timeStamp)
+            , traceToken{std::move(traceToken)}
         {}
 
         Utils::PathString filePath;
         Utils::SmallString extraId;
         ImageCache::AuxiliaryData auxiliaryData;
         std::vector<ImageCache::CaptureImageWithScaledImagesCallback> captureCallbacks;
-        std::vector<ImageCache::AbortCallback> abortCallbacks;
+        std::vector<ImageCache::InternalAbortCallback> abortCallbacks;
         Sqlite::TimeStamp timeStamp;
+        NO_UNIQUE_ADDRESS ImageCache::TraceToken traceToken;
     };
 
     void startGeneration();
+    std::optional<Task> getTask();
     void ensureThreadIsRunning();
     [[nodiscard]] std::tuple<std::unique_lock<std::mutex>, bool> waitForEntries();
     void stopThread();
 
-private:
 private:
     std::unique_ptr<QThread> m_backgroundThread;
     mutable std::mutex m_mutex;

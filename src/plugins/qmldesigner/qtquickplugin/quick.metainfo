@@ -106,6 +106,22 @@ MetaInfo {
     }
 
     Type {
+        name: "QtQuick.DropArea"
+        icon: ":/qtquickplugin/images/drop-area-16px.png"
+
+        ItemLibraryEntry {
+            name: "Drop Area"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: ":/qtquickplugin/images/drop-area-24px.png"
+            version: "2.0"
+
+            Property { name: "width"; type: "int"; value: 100; }
+            Property { name: "height"; type: "int"; value: 100; }
+            toolTip: qsTr("Sets an area that serves as a drag target.")
+    }
+}
+
+    Type {
         name: "QtQuick.Image"
         icon: ":/qtquickplugin/images/image-icon16.png"
 
@@ -137,6 +153,26 @@ MetaInfo {
             Property { name: "height"; type: "int"; value: 100; }
             Property { name: "source"; type: "QUrl"; value:"qrc:/qtquickplugin/images/template_image.png"; }
             toolTip: qsTr("Animates a series of images.")
+        }
+    }
+
+    Type {
+        name: "QtQuick.AnimatedSprite"
+        icon: ":/qtquickplugin/images/animated-image-icon16.png"
+
+        ItemLibraryEntry {
+            name: "Animated Sprite"
+            category: "a.Qt Quick - Basic"
+            libraryIcon: ":/qtquickplugin/images/animated-image-icon.png"
+            version: "2.0"
+
+            Property { name: "frameWidth"; type: "int"; value: 64; }
+            Property { name: "frameHeight"; type: "int"; value: 64; }
+            Property { name: "frameCount"; type: "int"; value: 4; }
+            Property { name: "frameDuration"; type: "int"; value: 500; }
+            Property { name: "source"; type: "QUrl"; value:"animatedsprite-loading.png"; }
+            ExtraFile { source: ":/qtquickplugin/images/animatedsprite-loading.png" }
+            toolTip: qsTr("Draws a sprite animation.")
         }
     }
 

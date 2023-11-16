@@ -6,7 +6,6 @@
 #include <nodeproperty.h>
 #include <variantproperty.h>
 #include <modelnode.h>
-#include <metainfo.h>
 
 #include "pathtool.h"
 

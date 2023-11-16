@@ -421,7 +421,7 @@
     The child components of grid layout components are arranged according to the
     \uicontrol Flow property. When the direction of a flow is set to
     \uicontrol LeftToRight, child components are positioned next to to each
-    other until the the number of columns specified in the
+    other until the number of columns specified in the
     \uicontrol {Columns & Rows} field is reached. Then,
     the auto-positioning wraps back to the beginning of the next row.
 

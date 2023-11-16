@@ -15,15 +15,15 @@ Rectangle {
     height: StudioTheme.Values.toolbarHeight
     color: StudioTheme.Values.themeToolbarBackground
 
+    signal saveClicked
+
     HelperWidgets.Button {
         anchors.verticalCenter: parent.verticalCenter
         x: 5
 
         text: qsTr("Save in Library")
 
-        onClicked: {
-            // TODO
-        }
+        onClicked: root.saveClicked()
     }
 
     HelperWidgets.AbstractButton {

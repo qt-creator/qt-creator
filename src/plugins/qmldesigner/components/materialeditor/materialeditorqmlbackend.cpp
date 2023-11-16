@@ -206,7 +206,7 @@ void MaterialEditorQmlBackend::setSource(const QUrl &url)
     m_view->setSource(url);
 }
 
-Internal::QmlAnchorBindingProxy &MaterialEditorQmlBackend::backendAnchorBinding()
+QmlAnchorBindingProxy &MaterialEditorQmlBackend::backendAnchorBinding()
 {
     return m_backendAnchorBinding;
 }

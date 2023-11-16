@@ -792,7 +792,7 @@
     in particle size, specify values for \uicontrol {Particle scale variation}
     and \uicontrol {Particle end scale variation}.
 
-    \uicontrol {Depth bias} specifies the the depth bias of the emitter. Depth
+    \uicontrol {Depth bias} specifies the depth bias of the emitter. Depth
     bias is added to the object's distance from camera when sorting objects.
     This can be used to force the rendering order of objects that are located
     close to each other if it might otherwise change between frames. Negative
@@ -1046,7 +1046,7 @@
     \uicontrol {Maximum Size} defines the maximum size that the affector can
     scale particles to.
 
-    \uicontrol Duration defines the the duration of the scaling cycle in
+    \uicontrol Duration defines the duration of the scaling cycle in
     milliseconds.
 
     \uicontrol {Easing Curve} defines the

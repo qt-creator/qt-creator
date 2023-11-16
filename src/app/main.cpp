@@ -35,6 +35,7 @@
 #include <QScopeGuard>
 #include <QStandardPaths>
 #include <QStyle>
+#include <QSurfaceFormat>
 #include <QTextCodec>
 #include <QTextStream>
 #include <QThreadPool>
@@ -522,6 +523,15 @@ int main(int argc, char **argv)
             Utils::Environment::modifySystemEnvironment(
                 {{"LD_LIBRARY_PATH", *options.userLibraryPath, Utils::EnvironmentItem::SetEnabled}});
         }
+    }
+
+    if (Utils::HostOsInfo::isMacHost()) {
+        QSurfaceFormat surfaceFormat;
+        surfaceFormat.setStencilBufferSize(8);
+        surfaceFormat.setDepthBufferSize(24);
+        surfaceFormat.setVersion(4, 1);
+        surfaceFormat.setProfile(QSurfaceFormat::CoreProfile);
+        QSurfaceFormat::setDefaultFormat(surfaceFormat);
     }
 
     qputenv("QSG_RHI_BACKEND", "opengl");

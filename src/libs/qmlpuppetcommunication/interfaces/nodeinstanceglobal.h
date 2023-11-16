@@ -46,7 +46,10 @@ enum class View3DActionType {
     ParticlesSeek,
     SyncEnvBackground,
     GetNodeAtPos,
-    SetBakeLightsView3D
+    SetBakeLightsView3D,
+    SplitViewToggle,
+    MaterialOverride,
+    ShowWireframe
 };
 
 constexpr bool isNanotraceEnabled()

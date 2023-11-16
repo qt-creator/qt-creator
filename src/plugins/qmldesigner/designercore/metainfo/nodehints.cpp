@@ -6,10 +6,11 @@
 
 #include "metainfo.h"
 #include <enumeration.h>
-#include <rewriterview.h>
-#include <propertyparser.h>
+#include <itemlibraryentry.h>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
+#include <propertyparser.h>
+#include <rewriterview.h>
 
 #include <QDebug>
 
@@ -21,7 +22,9 @@
 
 #include <utils/qtcassert.h>
 
-#include <itemlibraryinfo.h>
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include <itemlibraryinfo.h>
+#endif
 
 #include <QJSEngine>
 
@@ -65,8 +68,15 @@ static QVariant evaluateExpression(const QString &expression, const ModelNode &m
 
 } //Internal
 
-QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
+QmlDesigner::NodeHints::NodeHints(const ModelNode &node)
+#ifdef QDS_USE_PROJECTSTORAGE
+    : NodeHints{node.metaInfo()}
+#else
+    : m_modelNode(node)
+#endif
 {
+#ifndef QDS_USE_PROJECTSTORAGE
+
     if (!isValid())
         return;
 
@@ -92,12 +102,30 @@ QmlDesigner::NodeHints::NodeHints(const ModelNode &node) : m_modelNode(node)
 
         }
     }
+#endif
+}
+
+NodeHints::NodeHints(const NodeMetaInfo &metaInfo)
+{
+    for (const auto &[name, expression] : metaInfo.typeHints())
+        m_hints.insert(name.toQString(), expression.toQString());
 }
 
 NodeHints::NodeHints(const ItemLibraryEntry &entry)
+#ifdef QDS_USE_PROJECTSTORAGE
+    : NodeHints{entry.metaInfo()}
+#endif
 {
-    m_hints = entry.hints();
+    if constexpr (!useProjectStorage())
+        m_hints = entry.hints();
 }
+
+namespace {
+bool convert(FlagIs flagIs)
+{
+    return flagIs == FlagIs::True ? true : false;
+}
+} // namespace
 
 bool NodeHints::canBeContainerFor(const ModelNode &potenialChild) const
 {
@@ -106,6 +134,11 @@ bool NodeHints::canBeContainerFor(const ModelNode &potenialChild) const
 
     if (!isValid())
         return true;
+
+    auto flagIs = m_modelNode.metaInfo().canBeContainer();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
 
     return evaluateBooleanExpression("canBeContainer", true, potenialChild);
 }
@@ -118,6 +151,11 @@ bool NodeHints::forceClip() const
     if (isSwipeView(modelNode()))
         return true;
 
+    auto flagIs = m_modelNode.metaInfo().forceClip();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("forceClip", false);
 }
 
@@ -129,21 +167,41 @@ bool NodeHints::doesLayoutChildren() const
     if (isSwipeView(modelNode()))
         return true;
 
+    auto flagIs = m_modelNode.metaInfo().doesLayoutChildren();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("doesLayoutChildren", false);
 }
 
 bool NodeHints::canBeDroppedInFormEditor() const
 {
+    auto flagIs = m_modelNode.metaInfo().canBeDroppedInFormEditor();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("canBeDroppedInFormEditor", true);
 }
 
 bool NodeHints::canBeDroppedInNavigator() const
 {
+    auto flagIs = m_modelNode.metaInfo().canBeDroppedInNavigator();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("canBeDroppedInNavigator", true);
 }
 
 bool NodeHints::canBeDroppedInView3D() const
 {
+    auto flagIs = m_modelNode.metaInfo().canBeDroppedInView3D();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("canBeDroppedInView3D", false);
 }
 
@@ -152,16 +210,37 @@ bool NodeHints::isMovable() const
     if (!isValid())
         return true;
 
+    auto flagIs = m_modelNode.metaInfo().isMovable();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("isMovable", true);
 }
 
 bool NodeHints::isResizable() const
 {
+    if (!isValid())
+        return true;
+
+    auto flagIs = m_modelNode.metaInfo().isResizable();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("isResizable", true);
 }
 
 bool NodeHints::hasFormEditorItem() const
 {
+    if (!isValid())
+        return true;
+
+    auto flagIs = m_modelNode.metaInfo().hasFormEditorItem();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("hasFormEditorItem", true);
 }
 
@@ -172,6 +251,11 @@ bool NodeHints::isStackedContainer() const
 
     if (isSwipeView(modelNode()))
         return true;
+
+    auto flagIs = m_modelNode.metaInfo().isStackedContainer();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
 
     return evaluateBooleanExpression("isStackedContainer", false);
 }
@@ -215,6 +299,11 @@ bool NodeHints::takesOverRenderingOfChildren() const
     if (!isValid())
         return false;
 
+    auto flagIs = m_modelNode.metaInfo().takesOverRenderingOfChildren();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("takesOverRenderingOfChildren", false);
 }
 
@@ -223,11 +312,21 @@ bool NodeHints::visibleInNavigator() const
     if (!isValid())
         return false;
 
+    auto flagIs = m_modelNode.metaInfo().visibleInNavigator();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("visibleInNavigator", false);
 }
 
 bool NodeHints::visibleInLibrary() const
 {
+    auto flagIs = m_modelNode.metaInfo().visibleInLibrary();
+
+    if (flagIs != FlagIs::Set)
+        return convert(flagIs);
+
     return evaluateBooleanExpression("visibleInLibrary", true);
 }
 
@@ -297,7 +396,7 @@ NodeHints NodeHints::fromItemLibraryEntry(const ItemLibraryEntry &entry)
     return NodeHints(entry);
 }
 
-ModelNode NodeHints::modelNode() const
+const ModelNode &NodeHints::modelNode() const
 {
     return m_modelNode;
 }

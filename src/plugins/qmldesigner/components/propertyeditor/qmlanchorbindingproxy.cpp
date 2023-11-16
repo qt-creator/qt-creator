@@ -52,8 +52,6 @@ static inline void restoreProperty(const ModelNode &node, const PropertyName &pr
         node.variantProperty(propertyName).setValue(*value);
 }
 
-namespace Internal {
-
 QmlAnchorBindingProxy::QmlAnchorBindingProxy(QObject *parent) :
     QObject(parent),
     m_relativeTopTarget(SameEdge), m_relativeBottomTarget(SameEdge),
@@ -1132,6 +1130,4 @@ void QmlAnchorBindingProxy::setDefaultAnchorTarget(const ModelNode &modelNode)
     m_rightTarget = modelNode;
 }
 
-} // namespace Internal
 } // namespace QmlDesigner
-

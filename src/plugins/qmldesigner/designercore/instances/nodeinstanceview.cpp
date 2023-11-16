@@ -57,7 +57,6 @@
 #include <auxiliarydataproperties.h>
 #include <designersettings.h>
 #include <externaldependenciesinterface.h>
-#include <metainfo.h>
 #include <model.h>
 #include <model/modelutils.h>
 #include <modelnode.h>
@@ -1720,6 +1719,11 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
     } else if (command.type() == PuppetToCreatorCommand::ActiveSceneChanged) {
         const auto sceneState = qvariant_cast<QVariantMap>(command.data());
         emitUpdateActiveScene3D(sceneState);
+    } else if (command.type() == PuppetToCreatorCommand::ActiveSplitChanged) {
+        // Active split change is a special case of active scene change
+        QVariantMap splitState;
+        splitState.insert("activeSplit", command.data());
+        emitUpdateActiveScene3D(splitState);
     } else if (command.type() == PuppetToCreatorCommand::RenderModelNodePreviewImage) {
         ImageContainer container = qvariant_cast<ImageContainer>(command.data());
         QImage image = container.image();
@@ -1764,7 +1768,7 @@ void NodeInstanceView::selectedNodesChanged(const QList<ModelNode> &selectedNode
     m_rotBlockTimer.start();
 }
 
-void NodeInstanceView::sendInputEvent(QInputEvent *e) const
+void NodeInstanceView::sendInputEvent(QEvent *e) const
 {
     m_nodeInstanceServer->inputEvent(InputEventCommand(e));
 }
@@ -1777,7 +1781,7 @@ void NodeInstanceView::view3DAction(View3DActionType type, const QVariant &value
 void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
                                                     const ModelNode &renderNode) const
 {
-    if (m_nodeInstanceServer && node.isValid()) {
+    if (m_nodeInstanceServer && node.isValid() && hasInstanceForModelNode(node)) {
         auto instance = instanceForModelNode(node);
         if (instance.isValid()) {
             qint32 renderItemId = -1;

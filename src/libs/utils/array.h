@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <array>
+
 namespace Utils {
 
 namespace Internal {

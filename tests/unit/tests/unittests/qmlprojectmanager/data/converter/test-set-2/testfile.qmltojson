@@ -6,24 +6,36 @@
         "QT_AUTO_SCREEN_SCALE_FACTOR": "1",
         "QT_QUICK_CONTROLS_CONF": "qtquickcontrols2.conf"
     },
-    "fileGroups": {
-        "config": {
-            "directories": [
-                "."
-            ],
+    "fileGroups": [
+        {
+            "directory": ".",
             "files": [
-                {
-                    "name": "qtquickcontrols2.conf"
-                }
             ],
             "filters": [
-                "*.conf"
-            ]
-        },
-        "image": {
-            "directories": [
-                "."
+                "*.qml"
             ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Qml"
+        },
+        {
+            "directory": ".",
+            "files": [
+            ],
+            "filters": [
+                "*.js",
+                "*.ts"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "JavaScript"
+        },
+        {
+            "directory": ".",
             "files": [
             ],
             "filters": [
@@ -32,48 +44,68 @@
                 "*.png",
                 "*.svg",
                 "*.hdr",
-                ".ktx"
-            ]
-        },
-        "javaScript": {
-            "directories": [
-                "."
+                "*.ktx"
             ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Image"
+        },
+        {
+            "directory": "",
+            "files": [
+                "qtquickcontrols2.conf"
+            ],
+            "filters": [
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
+        },
+        {
+            "directory": "",
             "files": [
             ],
             "filters": [
-                "*.js",
-                "*.ts"
-            ]
+                "*.conf"
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         },
-        "qml": {
-            "directories": [
-                "."
-            ],
-            "files": [
-            ],
-            "filters": [
-                "*.qml"
-            ]
-        },
-        "qmldir": {
-            "directories": [
-                "."
-            ],
+        {
+            "directory": ".",
             "files": [
             ],
             "filters": [
                 "qmldir"
-            ]
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": ""
         }
-    },
+    ],
     "fileVersion": 1,
     "importPaths": [
         "imports"
     ],
     "language": {
     },
-    "mcuConfig": {
+    "mcu": {
+        "config": {
+        },
+        "enabled": false,
+        "module": {
+        }
+    },
+    "otherProperties": {
     },
     "runConfig": {
         "fileSelectors": [

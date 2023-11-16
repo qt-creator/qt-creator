@@ -14,6 +14,18 @@ Item {
     property var secsY: []
     property int moveFromIdx: 0
     property int moveToIdx: 0
+    property bool previewAnimationRunning: false
+
+    SaveDialog {
+        id: saveDialog
+        compositionName: EffectMakerBackend.effectMakerModel.currentComposition
+        anchors.centerIn: parent
+        onAccepted: {
+            let name = saveDialog.compositionName
+            EffectMakerBackend.effectMakerModel.exportComposition(name)
+            EffectMakerBackend.effectMakerModel.exportResources(name)
+        }
+    }
 
     Column {
         id: col
@@ -21,11 +33,17 @@ Item {
         spacing: 1
 
         EffectMakerTopBar {
-
+            onSaveClicked: saveDialog.open()
         }
 
         EffectMakerPreview {
             mainRoot: root
+
+            FrameAnimation {
+                id: previewFrameTimer
+                running: true
+                paused: !previewAnimationRunning
+            }
         }
 
         Rectangle {
@@ -47,10 +65,13 @@ Item {
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.code
                 tooltip: qsTr("Open Shader in Code Editor")
+                visible: false // TODO: to be implemented
 
                 onClicked: {} // TODO
             }
         }
+
+        Component.onCompleted: HelperWidgets.Controller.mainScrollView = scrollView
 
         HelperWidgets.ScrollView {
             id: scrollView

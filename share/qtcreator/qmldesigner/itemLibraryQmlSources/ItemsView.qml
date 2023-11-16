@@ -237,9 +237,7 @@ Item {
                 Repeater {
                     model: ItemLibraryBackend.itemLibraryModel  // to be set in Qml context
                     delegate: HelperWidgets.Section {
-                        width: itemsView.width -
-                               (verticalScrollView.verticalScrollBarVisible
-                                ? verticalScrollView.verticalThickness : 0)
+                        width: itemsView.width
                         caption: importName
                         visible: importVisible
                         sectionHeight: 30
@@ -270,9 +268,7 @@ Item {
                             Repeater {
                                 model: categoryModel
                                 delegate: HelperWidgets.Section {
-                                    width: itemsView.width -
-                                           (verticalScrollView.verticalScrollBarVisible
-                                           ? verticalScrollView.verticalThickness : 0)
+                                    width: itemsView.width
                                     sectionBackgroundColor: "transparent"
                                     showTopSeparator: index > 0
                                     hideHeader: categoryModel.rowCount() <= 1
@@ -351,9 +347,7 @@ Item {
                     Repeater {
                         model: ItemLibraryBackend.itemLibraryModel  // to be set in Qml context
                         delegate: HelperWidgets.Section {
-                            width: 265 -
-                                   (horizontalScrollView.verticalScrollBarVisible
-                                   ? horizontalScrollView.verticalThickness : 0)
+                            width: 265
                             caption: importName
                             visible: importVisible
                             sectionHeight: 30
@@ -384,9 +378,7 @@ Item {
                                 Repeater {
                                     model: categoryModel
                                     delegate: Rectangle {
-                                        width: 265 -
-                                               (horizontalScrollView.verticalScrollBarVisible
-                                               ? horizontalScrollView.verticalThickness : 0)
+                                        width: 265
                                         height: 25
                                         visible: categoryVisible
                                         border.width: StudioTheme.Values.border

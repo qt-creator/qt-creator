@@ -25,6 +25,12 @@ add_qtc_test(unittest GTEST
     unittests-main.cpp
 )
 
+extend_qtc_test(unittest
+  CONDITION TARGET Nanotrace
+  DEPENDS Nanotrace
+)
+
+
 finalize_qtc_gtest(unittest
   EXCLUDE_SOURCES_REGEX ".c$"
   EXCLUDE_ALL_FROM_PRECHECK

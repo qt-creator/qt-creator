@@ -308,6 +308,13 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
                 this,
                 &ToolBarBackend::currentWorkspaceChanged);
         emit currentWorkspaceChanged();
+
+        connect(dockManager,
+                &ADS::DockManager::lockWorkspaceChanged,
+                this,
+                &ToolBarBackend::lockWorkspaceChanged);
+        emit lockWorkspaceChanged();
+
         return true;
     };
 
@@ -336,6 +343,7 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
     connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this]() {
         emit isInDesignModeChanged();
         emit isInEditModeChanged();
+        emit isInSessionModeChanged();
         emit isDesignModeEnabledChanged();
     });
 
@@ -345,6 +353,7 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             [this](ProjectExplorer::Project *project) {
                 disconnect(m_kitConnection);
                 emit isQt6Changed();
+                emit isMCUsChanged();
                 emit projectOpenedChanged();
                 if (project) {
                     m_kitConnection = connect(project,
@@ -451,6 +460,11 @@ void ToolBarBackend::setCurrentWorkspace(const QString &workspace)
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_SET_CURRENT_WORKSPACE);
     designModeWidget()->dockManager()->openWorkspace(workspace);
+}
+
+void ToolBarBackend::setLockWorkspace(bool value)
+{
+    designModeWidget()->dockManager()->lockWorkspace(value);
 }
 
 void ToolBarBackend::editGlobalAnnoation()
@@ -588,6 +602,14 @@ QString ToolBarBackend::currentWorkspace() const
     return {};
 }
 
+bool ToolBarBackend::lockWorkspace() const
+{
+    if (designModeWidget() && designModeWidget()->dockManager())
+        return designModeWidget()->dockManager()->isWorkspaceLocked();
+
+    return false;
+}
+
 QStringList ToolBarBackend::styles() const
 {
     const QList<StyleWidgetEntry> items = ChangeStyleWidgetAction::getAllStyleItems();
@@ -612,6 +634,14 @@ bool ToolBarBackend::isInEditMode() const
         return false;
 
     return Core::ModeManager::currentModeId() == Core::Constants::MODE_EDIT;
+}
+
+bool ToolBarBackend::isInSessionMode() const
+{
+    if (!Core::ModeManager::instance())
+        return false;
+
+    return Core::ModeManager::currentModeId() == ProjectExplorer::Constants::MODE_SESSION;
 }
 
 bool ToolBarBackend::isDesignModeEnabled() const
@@ -670,6 +700,20 @@ bool ToolBarBackend::isQt6() const
     const bool isQt6Project = buildSystem && buildSystem->qt6Project();
 
     return isQt6Project;
+}
+
+bool ToolBarBackend::isMCUs() const
+{
+    if (!ProjectExplorer::ProjectManager::startupTarget())
+        return false;
+
+    const QmlProjectManager::QmlBuildSystem *buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+        ProjectExplorer::ProjectManager::startupTarget()->buildSystem());
+    QTC_ASSERT(buildSystem, return false);
+
+    const bool isQtForMCUsProject = buildSystem && buildSystem->qtForMCUs();
+
+    return isQtForMCUsProject;
 }
 
 bool ToolBarBackend::projectOpened() const

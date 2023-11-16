@@ -129,12 +129,6 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
     return widgetInfo;
 }
 
-// Returns the model of the view.
-Model* AbstractView::model() const
-{
-    return m_model.data();
-}
-
 bool AbstractView::isAttached() const
 {
     return model();

@@ -5,6 +5,8 @@
 
 #include "qmldesignercorelib_global.h"
 
+#include <tracing/qmldesignertracing.h>
+
 #include <QVariant>
 
 #include <memory>
@@ -13,6 +15,8 @@
 namespace QmlDesigner {
 
 namespace Internal {
+
+using namespace NanotraceHR::Literals;
 
 class InternalBindingProperty;
 class InternalSignalHandlerProperty;
@@ -83,6 +87,10 @@ struct TypeLookup<PropertyType::NodeList, PropertyType::Node>
 
 template<PropertyType... propertyType>
 using type_lookup_t = typename TypeLookup<propertyType...>::Type;
+
+using NanotraceHR::array;
+using NanotraceHR::dictonary;
+using NanotraceHR::keyValue;
 
 class QMLDESIGNERCORE_EXPORT InternalProperty : public std::enable_shared_from_this<InternalProperty>
 {
@@ -185,6 +193,8 @@ private:
     TypeName m_dynamicType;
     std::weak_ptr<InternalNode> m_propertyOwner;
     PropertyType m_propertyType = PropertyType::None;
+    NO_UNIQUE_ADDRESS ModelTracing::ObjectTraceToken traceToken = ModelTracing::category().beginObject(
+        "InternalProperty"_t, keyValue("name", m_name));
 };
 
 } // namespace Internal

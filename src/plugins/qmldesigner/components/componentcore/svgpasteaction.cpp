@@ -3,9 +3,9 @@
 
 #include "svgpasteaction.h"
 
-#include <itemlibraryinfo.h>
-#include <variantproperty.h>
+#include <itemlibraryentry.h>
 #include <nodeabstractproperty.h>
+#include <variantproperty.h>
 
 #include <private/qlocale_tools_p.h>
 

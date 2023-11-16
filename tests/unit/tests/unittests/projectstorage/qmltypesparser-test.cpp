@@ -58,6 +58,15 @@ MATCHER_P(HasFlag, flag, std::string(negation ? "hasn't " : "has ") + PrintToStr
     return bool(arg & flag);
 }
 
+MATCHER_P(UsesCustomParser,
+          value,
+          std::string(negation ? "don't used custom parser " : "uses custom parser"))
+{
+    const Storage::TypeTraits &traits = arg;
+
+    return traits.usesCustomParser == value;
+}
+
 template<typename Matcher>
 auto IsTypeTrait(const Matcher &matcher)
 {
@@ -215,12 +224,12 @@ TEST_F(QmlTypesParser, types)
                 UnorderedElementsAre(IsType("QObject",
                                             Synchronization::ImportedType{},
                                             Synchronization::ImportedType{},
-                                            Storage::TypeTraits::Reference,
+                                            Storage::TypeTraitsKind::Reference,
                                             qmltypesFileSourceId),
                                      IsType("QQmlComponent",
                                             Synchronization::ImportedType{},
                                             Synchronization::ImportedType{},
-                                            Storage::TypeTraits::Reference,
+                                            Storage::TypeTraitsKind::Reference,
                                             qmltypesFileSourceId)));
 }
 
@@ -238,12 +247,12 @@ TEST_F(QmlTypesParser, prototype)
                 UnorderedElementsAre(IsType("QObject",
                                             Synchronization::ImportedType{},
                                             Synchronization::ImportedType{},
-                                            Storage::TypeTraits::Reference,
+                                            Storage::TypeTraitsKind::Reference,
                                             qmltypesFileSourceId),
                                      IsType("QQmlComponent",
                                             Synchronization::ImportedType{"QObject"},
                                             Synchronization::ImportedType{},
-                                            Storage::TypeTraits::Reference,
+                                            Storage::TypeTraitsKind::Reference,
                                             qmltypesFileSourceId)));
 }
 
@@ -261,12 +270,12 @@ TEST_F(QmlTypesParser, extension)
                 UnorderedElementsAre(IsType("QObject",
                                             Synchronization::ImportedType{},
                                             Synchronization::ImportedType{},
-                                            Storage::TypeTraits::Reference,
+                                            Storage::TypeTraitsKind::Reference,
                                             qmltypesFileSourceId),
                                      IsType("QQmlComponent",
                                             Synchronization::ImportedType{},
                                             Synchronization::ImportedType{"QObject"},
-                                            Storage::TypeTraits::Reference,
+                                            Storage::TypeTraitsKind::Reference,
                                             qmltypesFileSourceId)));
 }
 
@@ -588,6 +597,8 @@ TEST_F(QmlTypesParser, enumeration_is_exported_as_type)
                       }})"};
 
     parser.parse(source, imports, types, projectData);
+    QmlDesigner::Storage::TypeTraits traits{QmlDesigner::Storage::TypeTraitsKind::Value};
+    traits.isEnum = true;
 
     ASSERT_THAT(
         types,
@@ -595,7 +606,7 @@ TEST_F(QmlTypesParser, enumeration_is_exported_as_type)
             AllOf(IsType("QObject::NamedColorSpace",
                          Synchronization::ImportedType{},
                          Synchronization::ImportedType{},
-                         Storage::TypeTraits::Value | Storage::TypeTraits::IsEnum,
+                         traits,
                          qmltypesFileSourceId),
                   Field(&Synchronization::Type::exportedTypes,
                         UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
@@ -604,7 +615,7 @@ TEST_F(QmlTypesParser, enumeration_is_exported_as_type)
             AllOf(IsType("QObject::VerticalLayoutDirection",
                          Synchronization::ImportedType{},
                          Synchronization::ImportedType{},
-                         Storage::TypeTraits::Value | Storage::TypeTraits::IsEnum,
+                         traits,
                          qmltypesFileSourceId),
                   Field(&Synchronization::Type::exportedTypes,
                         UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
@@ -632,13 +643,15 @@ TEST_F(QmlTypesParser, enumeration_is_exported_as_type_with_alias)
                       }})"};
 
     parser.parse(source, imports, types, projectData);
+    QmlDesigner::Storage::TypeTraits traits{QmlDesigner::Storage::TypeTraitsKind::Value};
+    traits.isEnum = true;
 
     ASSERT_THAT(types,
                 UnorderedElementsAre(
                     AllOf(IsType("QObject::NamedColorSpaces",
                                  Synchronization::ImportedType{},
                                  Synchronization::ImportedType{},
-                                 Storage::TypeTraits::Value | Storage::TypeTraits::IsEnum,
+                                 traits,
                                  qmltypesFileSourceId),
                           Field(&Synchronization::Type::exportedTypes,
                                 UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
@@ -678,13 +691,15 @@ TEST_F(QmlTypesParser, enumeration_is_exported_as_type_with_alias_too)
                       }})"};
 
     parser.parse(source, imports, types, projectData);
+    QmlDesigner::Storage::TypeTraits traits{QmlDesigner::Storage::TypeTraitsKind::Value};
+    traits.isEnum = true;
 
     ASSERT_THAT(types,
                 UnorderedElementsAre(
                     AllOf(IsType("QObject::NamedColorSpaces",
                                  Synchronization::ImportedType{},
                                  Synchronization::ImportedType{},
-                                 Storage::TypeTraits::Value | Storage::TypeTraits::IsEnum,
+                                 traits,
                                  qmltypesFileSourceId),
                           Field(&Synchronization::Type::exportedTypes,
                                 UnorderedElementsAre(IsExportedType(qtQmlNativeModuleId,
@@ -760,7 +775,7 @@ TEST_F(QmlTypesParser, access_type_is_reference)
 
     parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraits::Reference)));
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraitsKind::Reference)));
 }
 
 TEST_F(QmlTypesParser, access_type_is_value)
@@ -772,7 +787,7 @@ TEST_F(QmlTypesParser, access_type_is_value)
 
     parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraits::Value)));
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraitsKind::Value)));
 }
 
 TEST_F(QmlTypesParser, access_type_is_sequence)
@@ -784,7 +799,7 @@ TEST_F(QmlTypesParser, access_type_is_sequence)
 
     parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraits::Sequence)));
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraitsKind::Sequence)));
 }
 
 TEST_F(QmlTypesParser, access_type_is_none)
@@ -796,7 +811,7 @@ TEST_F(QmlTypesParser, access_type_is_none)
 
     parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraits::None)));
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Storage::TypeTraitsKind::None)));
 }
 
 TEST_F(QmlTypesParser, uses_custom_parser)
@@ -808,7 +823,7 @@ TEST_F(QmlTypesParser, uses_custom_parser)
 
     parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(types, ElementsAre(IsTypeTrait(HasFlag(Storage::TypeTraits::UsesCustomParser))));
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(UsesCustomParser(true))));
 }
 
 TEST_F(QmlTypesParser, uses_no_custom_parser)
@@ -820,7 +835,7 @@ TEST_F(QmlTypesParser, uses_no_custom_parser)
 
     parser.parse(source, imports, types, projectData);
 
-    ASSERT_THAT(types, ElementsAre(IsTypeTrait(Not(HasFlag(Storage::TypeTraits::UsesCustomParser)))));
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(UsesCustomParser(false))));
 }
 
 } // namespace

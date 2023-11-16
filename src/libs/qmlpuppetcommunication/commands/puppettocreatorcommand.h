@@ -16,6 +16,7 @@ public:
         Edit3DToolState,
         Render3DView,
         ActiveSceneChanged,
+        ActiveSplitChanged,
         RenderModelNodePreviewImage,
         Import3DSupport,
         NodeAtPos,

@@ -30,7 +30,8 @@ void MeshImageCacheCollector::start(Utils::SmallStringView name,
                                     Utils::SmallStringView state,
                                     const ImageCache::AuxiliaryData &auxiliaryData,
                                     CaptureCallback captureCallback,
-                                    AbortCallback abortCallback)
+                                    AbortCallback abortCallback,
+                                    ImageCache::TraceToken traceToken)
 {
     QTemporaryFile file(QDir::tempPath() + "/mesh-XXXXXX.qml");
     if (file.open()) {
@@ -63,7 +64,8 @@ void MeshImageCacheCollector::start(Utils::SmallStringView name,
 
     Utils::PathString path{file.fileName()};
 
-    m_imageCacheCollector.start(path, state, auxiliaryData, captureCallback, abortCallback);
+    m_imageCacheCollector
+        .start(path, state, auxiliaryData, captureCallback, abortCallback, std::move(traceToken));
 }
 
 ImageCacheCollectorInterface::ImageTuple MeshImageCacheCollector::createImage(

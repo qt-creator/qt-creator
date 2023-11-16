@@ -41,7 +41,7 @@ public:
     PropertyEditorContextObject* contextObject();
     QQuickWidget *widget();
     void setSource(const QUrl& url);
-    Internal::QmlAnchorBindingProxy &backendAnchorBinding();
+    QmlAnchorBindingProxy &backendAnchorBinding();
     DesignerPropertyMap &backendValuesPropertyMap();
     PropertyEditorTransaction *propertyEditorTransaction();
 
@@ -88,7 +88,7 @@ private:
 
 private:
     Quick2PropertyEditorView *m_view;
-    Internal::QmlAnchorBindingProxy m_backendAnchorBinding;
+    QmlAnchorBindingProxy m_backendAnchorBinding;
     QmlModelNodeProxy m_backendModelNode;
     DesignerPropertyMap m_backendValuesPropertyMap;
     QScopedPointer<PropertyEditorTransaction> m_propertyEditorTransaction;

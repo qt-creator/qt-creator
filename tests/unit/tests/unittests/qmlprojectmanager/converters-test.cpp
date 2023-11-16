@@ -67,7 +67,9 @@ INSTANTIATE_TEST_SUITE_P(QmlProjectItem,
                          QmlProjectConverter,
                          ::testing::Values(QString("test-set-1"),
                                            QString("test-set-2"),
-                                           QString("test-set-3")));
+                                           QString("test-set-3"),
+                                           QString("test-set-mcu-1"),
+                                           QString("test-set-mcu-2")));
 
 TEST_P(QmlProjectConverter, qml_project_to_json)
 {

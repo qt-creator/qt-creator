@@ -4,7 +4,6 @@
 #pragma once
 
 #include <abstractview.h>
-#include <itemlibraryinfo.h>
 
 #include <QHash>
 #include <QPointer>
@@ -119,7 +118,6 @@ private:
     bool m_initializingPreviewData = false;
 
     QPointer<QColorDialog> m_colorDialog;
-    QPointer<ItemLibraryInfo> m_itemLibraryInfo;
     DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 };
 

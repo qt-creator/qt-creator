@@ -4,6 +4,7 @@
 #include "collectionlistmodel.h"
 
 #include "collectioneditorconstants.h"
+#include "collectioneditorutils.h"
 #include "variantproperty.h"
 
 #include <utils/algorithm.h>
@@ -20,6 +21,7 @@ bool containsItem(const std::initializer_list<ValueType> &container, const Value
     auto it = std::find(begin, end, value);
     return it != end;
 }
+
 } // namespace
 
 namespace QmlDesigner {
@@ -27,6 +29,7 @@ namespace QmlDesigner {
 CollectionListModel::CollectionListModel(const ModelNode &sourceModel)
     : QStringListModel()
     , m_sourceNode(sourceModel)
+    , m_sourceType(CollectionEditor::getSourceCollectionType(sourceModel))
 {
     connect(this, &CollectionListModel::modelReset, this, &CollectionListModel::updateEmpty);
     connect(this, &CollectionListModel::rowsRemoved, this, &CollectionListModel::updateEmpty);
@@ -52,8 +55,17 @@ bool CollectionListModel::setData(const QModelIndex &index, const QVariant &valu
     if (!index.isValid())
         return false;
 
-    if (containsItem<int>({IdRole, Qt::EditRole, Qt::DisplayRole}, role)) {
-        return Super::setData(index, value);
+    if (containsItem<int>({Qt::EditRole, Qt::DisplayRole, NameRole}, role)) {
+        if (contains(value.toString()))
+            return false;
+
+        QString oldName = collectionNameAt(index.row());
+        bool nameChanged = Super::setData(index, value);
+        if (nameChanged) {
+            QString newName = collectionNameAt(index.row());
+            emit this->collectionNameChanged(oldName, newName);
+        }
+        return nameChanged;
     } else if (role == SelectedRole) {
         if (value.toBool() != index.data(SelectedRole).toBool()) {
             setSelectedIndex(value.toBool() ? index.row() : -1);
@@ -61,6 +73,24 @@ bool CollectionListModel::setData(const QModelIndex &index, const QVariant &valu
         }
     }
     return false;
+}
+
+bool CollectionListModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    const int rows = rowCount(parent);
+    if (count < 1 || row >= rows)
+        return false;
+
+    row = qBound(0, row, rows - 1);
+    count = qBound(1, count, rows - row);
+
+    QStringList removedCollections = stringList().mid(row, count);
+
+    bool itemsRemoved = Super::removeRows(row, count, parent);
+    if (itemsRemoved)
+        emit collectionsRemoved(removedCollections);
+
+    return itemsRemoved;
 }
 
 QVariant CollectionListModel::data(const QModelIndex &index, int role) const
@@ -94,6 +124,11 @@ QString CollectionListModel::sourceAddress() const
     return m_sourceNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toString();
 }
 
+bool CollectionListModel::contains(const QString &collectionName) const
+{
+    return stringList().contains(collectionName);
+}
+
 void CollectionListModel::selectCollectionIndex(int idx, bool selectAtLeastOne)
 {
     int collectionCount = stringList().size();
@@ -106,6 +141,13 @@ void CollectionListModel::selectCollectionIndex(int idx, bool selectAtLeastOne)
     }
 
     setSelectedIndex(preferredIndex);
+}
+
+void CollectionListModel::selectCollectionName(const QString &collectionName)
+{
+    int idx = stringList().indexOf(collectionName);
+    if (idx > -1)
+        selectCollectionIndex(idx);
 }
 
 QString CollectionListModel::collectionNameAt(int idx) const
@@ -144,4 +186,5 @@ void CollectionListModel::updateEmpty()
             setSelectedIndex(-1);
     }
 }
+
 } // namespace QmlDesigner

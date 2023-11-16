@@ -16,7 +16,8 @@ public:
                  Utils::SmallStringView state,
                  const QmlDesigner::ImageCache::AuxiliaryData &auxiliaryData,
                  ImageCacheCollectorInterface::CaptureCallback captureCallback,
-                 ImageCacheCollectorInterface::AbortCallback abortCallback),
+                 ImageCacheCollectorInterface::AbortCallback abortCallback,
+                 QmlDesigner::ImageCache::TraceToken),
                 (override));
 
     MOCK_METHOD(ImageTuple,

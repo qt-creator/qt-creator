@@ -30,11 +30,11 @@ Rectangle {
         id: icon
         anchors.fill: parent
         text: StudioTheme.Constants.actionIcon
-        visible: text !== StudioTheme.Constants.actionIcon || control.forceVisible
-                 || (control.__parentControl !== undefined &&
-                     ((control.__parentControl.edit !== undefined && control.__parentControl.edit)
-                      || (control.__parentControl.hover !== undefined && control.__parentControl.hover)
-                      || (control.__parentControl.drag !== undefined && control.__parentControl.drag)))
+        visible: icon.text !== StudioTheme.Constants.actionIcon || control.forceVisible
+                 || ((control.__parentControl ?? false) &&
+                     ((control.__parentControl.edit ?? false)
+                      || (control.__parentControl.hover ?? false)
+                      || (control.__parentControl.drag ?? false)))
         color: control.style.icon.idle
         font.family: StudioTheme.Constants.iconFont.family
         font.pixelSize: control.style.baseIconFontSize

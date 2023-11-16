@@ -40,6 +40,7 @@ graniteGrey=ff343434
 ashGrey=ff434343
 midnightGrey=ff333333
 dawnGrey=ff2a2a2a
+coalGrey=ff282828
 offBlack=ff202020
 nearBlack=ff1b1b1b
 fullBlack=ff000000
@@ -109,6 +110,9 @@ DSpopoutButtonBorder_disabled=offWhite
 
 ;4.4
 DSconnectionCodeEditor=lightWhite
+DSconnectionEditorMicroToolbar=concreteGrey
+DSconnectionEditorButtonBackground_hover=lightWhite
+DSconnectionEditorButtonBorder_hover=duskGrey
 DSpillText=fullWhite
 DSpillTextSelected=fullBlack
 DspillTextEdit=fullBlack
@@ -211,9 +215,8 @@ DStableHeaderText=ff00ff00
 
 DSdockContainerBackground=ff323232
 DSdockContainerSplitter=ff323232
-DSdockAreaBackground=ff262728
-
-DSdockWidgetBackground=ff00ff00
+DSdockAreaBackground=ffeaeaea
+DSdockWidgetBackground=ffeaeaea
 DSdockWidgetSplitter=ff595959
 DSdockWidgetTitleBar=ffeaeaea
 

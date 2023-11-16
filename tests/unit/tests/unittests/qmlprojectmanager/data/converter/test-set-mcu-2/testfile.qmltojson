@@ -1,0 +1,56 @@
+{
+    "deployment": {
+    },
+    "fileGroups": [
+        {
+            "directory": "",
+            "files": [
+                "qml/TextIcon.qml"
+            ],
+            "filters": [
+            ],
+            "mcuProperties": {
+            },
+            "otherProperties": {
+            },
+            "type": "Qml"
+        },
+        {
+            "directory": "",
+            "files": [
+                "images/qt_logo.png"
+            ],
+            "filters": [
+            ],
+            "mcuProperties": {
+                "base": "images",
+                "prefix": "logo"
+            },
+            "otherProperties": {
+            },
+            "type": "Image"
+        }
+    ],
+    "fileVersion": 1,
+    "language": {
+    },
+    "mcu": {
+        "config": {
+        },
+        "enabled": true,
+        "module": {
+            "generateQmltypes": true,
+            "uri": "MyModule"
+        }
+    },
+    "otherProperties": {
+        "projectRootPath": "../.."
+    },
+    "runConfig": {
+        "fileSelectors": [
+        ]
+    },
+    "versions": {
+        "qt": "5"
+    }
+}

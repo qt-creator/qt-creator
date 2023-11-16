@@ -16,6 +16,9 @@ Flickable {
     readonly property bool bothVisible: flickable.verticalScrollBarVisible
                                         && flickable.horizontalScrollBarVisible
 
+    property bool hideVerticalScrollBar: false
+    property bool hideHorizontalScrollBar: false
+
     property real temporaryHeight: 0
 
     default property alias content: areaItem.children
@@ -36,6 +39,8 @@ Flickable {
         width: flickable.availableWidth - (verticalScrollBar.isNeeded ? verticalScrollBar.thickness : 0)
         orientation: Qt.Horizontal
 
+        visible: !flickable.hideHorizontalScrollBar
+
         show: (hoverHandler.hovered || flickable.focus || flickable.adsFocus
                || horizontalScrollBar.inUse || horizontalScrollBar.otherInUse)
               && horizontalScrollBar.isNeeded
@@ -50,6 +55,8 @@ Flickable {
         y: 0
         height: flickable.availableHeight - (horizontalScrollBar.isNeeded ? horizontalScrollBar.thickness : 0)
         orientation: Qt.Vertical
+
+        visible: !flickable.hideVerticalScrollBar
 
         show: (hoverHandler.hovered || flickable.focus || flickable.adsFocus
                || horizontalScrollBar.inUse || horizontalScrollBar.otherInUse)

@@ -24,6 +24,7 @@ add_qtc_library(TestMocks OBJECT
     propertycomponentgeneratormock.h
     projectstoragemock.cpp
     projectstoragemock.h
+    projectstorageobservermock.h
     projectstoragepathwatchermock.h
     projectstoragepathwatchernotifiermock.h
     qmldocumentparsermock.h

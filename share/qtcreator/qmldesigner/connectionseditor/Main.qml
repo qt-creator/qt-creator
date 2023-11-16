@@ -22,7 +22,7 @@ Rectangle {
     Column {
         id: column
         anchors.fill: parent
-        spacing: 8 // TODO
+        spacing: 5 // TODO
 
         Rectangle {
             id: toolbar

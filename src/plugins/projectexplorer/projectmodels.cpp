@@ -193,6 +193,7 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         return {};
 
     const FolderNode * const folderNode = node->asFolderNode();
+    const FileNode * const fileNode = node->asFileNode();
     const ContainerNode * const containerNode = node->asContainerNode();
     const Project * const project = containerNode ? containerNode->project() : nullptr;
     const Target * const target = project ? project->activeTarget() : nullptr;
@@ -246,6 +247,8 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         return node->filePath().toString();
     case Project::isParsingRole:
         return project && bs ? bs->isParsing() && !project->needsConfiguration() : false;
+    case Project::UseUnavailableMarkerRole:
+        return fileNode ? fileNode->useUnavailableMarker() : false;
     }
     return {};
 }
@@ -923,4 +926,3 @@ const QLoggingCategory &FlatModel::logger()
 
 } // namespace Internal
 } // namespace ProjectExplorer
-

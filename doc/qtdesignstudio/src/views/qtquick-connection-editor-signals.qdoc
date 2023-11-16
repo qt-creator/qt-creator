@@ -112,6 +112,13 @@
       \li Open the \uicontrol {Manual Code Edit} window from the
           \uicontrol {Connections} view and write JavaScript expressions with components
           and logical expressions manually.
+
+          \note If you create a conditional expression by selecting options from the
+            drop-down menus in the \uicontrol {Connection} view, you can only create a single
+            level \e {if-else} expression. For nested level \e {if-else} expressions,
+            use the \uicontrol {Manual Code Edit}.
+
+        \image qmldesigner-connections-ConditionalAction-Manual.webp
     \endlist
 
     \section2 Action Properties
@@ -152,11 +159,7 @@
             \li N/A
     \endtable
 
-    \note If you create a conditional expression by selecting options from drop-down menus in
-            the \uicontrol {Connection} view, you can only create a single
-            level {if-else} expression. For nested level \e {if-elseif-else} expressions,
-            you have to use the \uicontrol {Manual Code Edit}.
-
-    \image qmldesigner-connections-ConditionalAction-Manual.webp
+    Watch this video for practical examples of the \uicontrol {Connection} view workflow:
+    \youtube KDxnMQzgmIY
 
 */

@@ -6,7 +6,6 @@
 #include "rewritertransaction.h"
 #include "variantproperty.h"
 #include "abstractview.h"
-#include <metainfo.h>
 
 #include <utils/algorithm.h>
 

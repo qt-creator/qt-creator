@@ -3,8 +3,9 @@
 
 #include "effectmakerview.h"
 
-#include "effectmakerwidget.h"
+#include "effectmakermodel.h"
 #include "effectmakernodesmodel.h"
+#include "effectmakerwidget.h"
 
 #include "nodeinstanceview.h"
 #include "qmldesignerconstants.h"
@@ -58,12 +59,15 @@ QmlDesigner::WidgetInfo EffectMakerView::widgetInfo()
                             QmlDesigner::WidgetInfo::LeftPane, 0, tr("Effect Maker"));
 }
 
-void EffectMakerView::customNotification(const AbstractView * /*view*/,
-                                         const QString & /*identifier*/,
-                                         const QList<QmlDesigner::ModelNode> & /*nodeList*/,
-                                         const QList<QVariant> & /*data*/)
+void EffectMakerView::customNotification([[maybe_unused]] const AbstractView *view,
+                                         const QString &identifier,
+                                         [[maybe_unused]] const QList<QmlDesigner::ModelNode> &nodeList,
+                                         const QList<QVariant> &data)
 {
-    // TODO
+    if (identifier == "open_effectmaker_composition" && data.count() > 0) {
+        const QString compositionPath = data[0].toString();
+        m_widget->effectMakerModel()->openComposition(compositionPath);
+    }
 }
 
 void EffectMakerView::modelAttached(QmlDesigner::Model *model)
@@ -71,6 +75,7 @@ void EffectMakerView::modelAttached(QmlDesigner::Model *model)
     AbstractView::modelAttached(model);
 
     m_widget->effectMakerNodesModel()->loadModel();
+    m_widget->effectMakerModel()->clear();
     m_widget->initView();
 }
 

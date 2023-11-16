@@ -1,6 +1,6 @@
-
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 import QtQuick
 import QtQuick.Controls
 import StudioControls as StudioControls
@@ -10,12 +10,11 @@ Column {
     id: root
 
     readonly property real horizontalSpacing: 10
-    readonly property real verticalSpacing: 16
+    readonly property real verticalSpacing: 12
     readonly property real columnWidth: (root.width - root.horizontalSpacing) / 2
 
     property var backend
 
-    y: StudioTheme.Values.popupMargin
     width: parent.width
     spacing: root.verticalSpacing
 
@@ -53,8 +52,8 @@ Column {
         PopupLabel {
              width: root.columnWidth
              text: backend.targetNode
+             anchors.verticalCenter: parent.verticalCenter
         }
-
     }
 
     Row {

@@ -7,6 +7,9 @@
 #include "effectmakermodel.h"
 #include "effectmakernodesmodel.h"
 #include "effectmakerview.h"
+#include "propertyhandler.h"
+
+//#include "qmldesigner/designercore/imagecache/midsizeimagecacheprovider.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qqmlcontext.h"
@@ -14,6 +17,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <qmldesigner/qmldesignerconstants.h>
+#include <qmldesigner/qmldesignerplugin.h>
 #include <studioquickwidget.h>
 
 #include <utils/algorithm.h>
@@ -63,10 +68,14 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
 
     QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(this, QmlDesigner::Constants::EVENT_EFFECTMAKER_TIME);
 
+    m_quickWidget->rootContext()->setContextProperty("g_propertyData", &g_propertyData);
+
     auto map = m_quickWidget->registerPropertyMap("EffectMakerBackend");
     map->setProperties({{"effectMakerNodesModel", QVariant::fromValue(m_effectMakerNodesModel.data())},
                         {"effectMakerModel", QVariant::fromValue(m_effectMakerModel.data())},
                         {"rootView", QVariant::fromValue(this)}});
+    QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(
+        this, QmlDesigner::Constants::EVENT_NEWEFFECTMAKER_TIME);
 }
 
 
@@ -130,7 +139,14 @@ void EffectMakerWidget::initView()
     m_quickWidget->rootContext()->setContextObject(ctxObj);
 
     m_backendModelNode.setup(m_effectMakerView->rootModelNode());
+    m_quickWidget->rootContext()->setContextProperty("anchorBackend", &m_backendAnchorBinding);
     m_quickWidget->rootContext()->setContextProperty("modelNodeBackend", &m_backendModelNode);
+    m_quickWidget->rootContext()->setContextProperty("activeDragSuffix", "");
+
+    //TODO: Fix crash on macos
+//    m_quickWidget->engine()->addImageProvider("qmldesigner_thumbnails",
+//                                              new QmlDesigner::AssetImageProvider(
+//                                                  QmlDesigner::QmlDesignerPlugin::imageCache()));
 
     // init the first load of the QML UI elements
     reloadQmlSource();

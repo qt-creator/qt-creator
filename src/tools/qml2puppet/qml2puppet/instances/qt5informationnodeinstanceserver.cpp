@@ -213,7 +213,7 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
                     // Peek at next command. If that is also a wheel with same button/modifiers
                     // state, skip this event and add the angle delta to the next one.
                     auto nextCommand = m_pendingInputEventCommands[i + 1];
-                    if (nextCommand.type() == QEvent::MouseMove
+                    if (nextCommand.type() == QEvent::Wheel
                             && nextCommand.button() == command.button()
                             && nextCommand.buttons() == command.buttons()
                             && nextCommand.modifiers() == command.modifiers()) {
@@ -232,6 +232,12 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
                 QKeyEvent *ke = new QKeyEvent(command.type(), command.key(), command.modifiers(),
                                               QString(), command.autoRepeat(), command.count());
                 QGuiApplication::sendEvent(m_editView3DData.window, ke);
+            } else if (command.type() == QEvent::Enter) {
+                QEnterEvent *ee = new QEnterEvent(command.pos(), {}, {});
+                QGuiApplication::sendEvent(m_editView3DData.window, ee);
+            } else if (command.type() == QEvent::Leave) {
+                QEvent *e = new QEvent(command.type());
+                QGuiApplication::sendEvent(m_editView3DData.window, e);
             } else {
                 if (command.type() == QEvent::MouseMove && i < m_pendingInputEventCommands.size() - 1) {
                     // Peek at next command. If that is also a move with only difference being
@@ -422,23 +428,26 @@ void Qt5InformationNodeInstanceServer::getNodeAtPos([[maybe_unused]] const QPoin
     if (!helper)
         return;
 
-    QQmlProperty editViewProp(m_editView3DData.rootItem, "editView", context());
-    QObject *obj = qvariant_cast<QObject *>(editViewProp.read());
-    QQuick3DViewport *editView = qobject_cast<QQuick3DViewport *>(obj);
-
-    // Non-model nodes with icon gizmos are also valid results
+    // Non-model nodes with icon gizmos are also valid results.
     QVariant gizmoVar;
     QMetaObject::invokeMethod(m_editView3DData.rootItem, "gizmoAt", Qt::DirectConnection,
                               Q_RETURN_ARG(QVariant, gizmoVar),
                               Q_ARG(QVariant, pos.x()),
                               Q_ARG(QVariant, pos.y()));
     QObject *gizmoObj = qvariant_cast<QObject *>(gizmoVar);
+
+    // gizmoAt() call above will update the activeEditView
+    QQmlProperty editViewProp(m_editView3DData.rootItem, "activeEditView", context());
+    QObject *obj = qvariant_cast<QObject *>(editViewProp.read());
+    QQuick3DViewport *editView = qobject_cast<QQuick3DViewport *>(obj);
+    QPointF mappedPos = m_editView3DData.rootItem->mapToItem(editView, pos);
+
     qint32 instanceId = -1;
 
     if (gizmoObj && hasInstanceForObject(gizmoObj)) {
         instanceId = instanceForObject(gizmoObj).instanceId();
     } else {
-        QQuick3DModel *hitModel = helper->pickViewAt(editView, pos.x(), pos.y()).objectHit();
+        QQuick3DModel *hitModel = helper->pickViewAt(editView, mappedPos.x(), mappedPos.y()).objectHit();
         QObject *resolvedPick = helper->resolvePick(hitModel);
         if (hasInstanceForObject(resolvedPick))
             instanceId = instanceForObject(resolvedPick).instanceId();
@@ -450,7 +459,7 @@ void Qt5InformationNodeInstanceServer::getNodeAtPos([[maybe_unused]] const QPoin
         Internal::MouseArea3D ma;
         ma.setView3D(editView);
         ma.setEulerRotation({90, 0, 0}); // Default grid plane (XZ plane)
-        QVector3D planePos = ma.getMousePosInPlane(nullptr, pos);
+        QVector3D planePos = ma.getMousePosInPlane(nullptr, mappedPos);
         const float limit = 10000000; // Remove extremes on nearly parallel plane
         if (!qFuzzyCompare(planePos.z(), -1.f) && qAbs(planePos.x()) < limit && qAbs(planePos.y()) < limit)
             pos3d = {planePos.x(), 0, planePos.y()};
@@ -870,6 +879,12 @@ void Qt5InformationNodeInstanceServer::handleActiveSceneChange()
                                                         toolStates});
     m_selectionChangeTimer.start(0);
 #endif
+}
+
+void Qt5InformationNodeInstanceServer::handleActiveSplitChange(int index)
+{
+    nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::ActiveSplitChanged,
+                                                        index});
 }
 
 void Qt5InformationNodeInstanceServer::handleToolStateChanged(const QString &sceneId,
@@ -1851,6 +1866,8 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
                      this, SLOT(handleObjectPropertyChange(QVariant, QVariant)));
     QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveSceneChange()),
                      this, SLOT(handleActiveSceneChange()));
+    QObject::connect(m_editView3DData.rootItem, SIGNAL(notifyActiveSplitChange(int)),
+                     this, SLOT(handleActiveSplitChange(int)));
     QObject::connect(&m_propertyChangeTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleObjectPropertyChangeTimeout);
     QObject::connect(&m_selectionChangeTimer, &QTimer::timeout,
@@ -2214,7 +2231,7 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
     // Ensure the UI has enough selection box items. If it doesn't yet have them, which can be the
     // case when the first selection processed is a multiselection, we wait a bit as
     // using the new boxes immediately leads to visual glitches.
-    int boxCount = m_editView3DData.rootItem->property("selectionBoxes").value<QVariantList>().size();
+    int boxCount = m_editView3DData.rootItem->property("selectionBoxCount").toInt();
     if (boxCount < selectedObjs.size()) {
         QMetaObject::invokeMethod(m_editView3DData.rootItem, "ensureSelectionBoxes",
                                   Q_ARG(QVariant, QVariant::fromValue(selectedObjs.size())));
@@ -2491,6 +2508,15 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         return;
     }
 #endif
+    case View3DActionType::SplitViewToggle:
+        updatedToolState.insert("splitView", command.isEnabled());
+        break;
+    case View3DActionType::ShowWireframe:
+        updatedToolState.insert("showWireframe", command.value().toList());
+        break;
+    case View3DActionType::MaterialOverride:
+        updatedToolState.insert("matOverride", command.value().toList());
+        break;
 
     default:
         break;

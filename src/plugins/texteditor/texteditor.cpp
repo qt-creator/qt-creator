@@ -6429,9 +6429,6 @@ void TextEditorWidget::updateFoldingHighlight(const QPoint &pos)
     QTextCursor cursor = cursorForPosition(QPoint(0, pos.y()));
 
     // Update which folder marker is highlighted
-    const int highlightBlockNumber = d->extraAreaHighlightFoldedBlockNumber;
-    d->extraAreaHighlightFoldedBlockNumber = -1;
-
     int boxWidth = 0;
     if (TextEditorSettings::fontSettings().relativeLineSpacing() == 100)
         boxWidth = foldBoxWidth(fontMetrics());
@@ -6439,13 +6436,25 @@ void TextEditorWidget::updateFoldingHighlight(const QPoint &pos)
         boxWidth = foldBoxWidth();
 
     if (pos.x() > extraArea()->width() - boxWidth) {
-        d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
+        updateFoldingHighlight(cursor);
     } else if (d->m_displaySettings.m_highlightBlocks) {
         QTextCursor cursor = textCursor();
-        d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
+        updateFoldingHighlight(cursor);
+    } else {
+        updateFoldingHighlight(QTextCursor());
     }
+}
 
-    if (highlightBlockNumber != d->extraAreaHighlightFoldedBlockNumber)
+void TextEditorWidget::updateFoldingHighlight(const QTextCursor &cursor)
+{
+    const int highlightBlockNumber = d->extraAreaHighlightFoldedBlockNumber;
+    const bool curserIsNull = !cursor.isNull();
+    if (curserIsNull)
+        d->extraAreaHighlightFoldedBlockNumber = cursor.blockNumber();
+    else
+        d->extraAreaHighlightFoldedBlockNumber = -1;
+
+    if (curserIsNull || (highlightBlockNumber != d->extraAreaHighlightFoldedBlockNumber))
         d->m_highlightBlocksTimer.start(d->m_highlightBlocksInfo.isEmpty() ? 120 : 0);
 }
 

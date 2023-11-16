@@ -67,7 +67,7 @@ StudioControls.ComboBox {
 
         width: col.width + 2 // 2: scrollView left and right 1px margins
         height: Math.min(800, Math.min(col.height + 2, Screen.height - y - 40)) // 40: some bottom margin to cover OS bottom toolbar
-        flags: Qt.Dialog | Qt.FramelessWindowHint
+        flags: Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
         onActiveFocusItemChanged: {
             if (!window.activeFocusItem && !root.indicator.hover && root.popup.opened)

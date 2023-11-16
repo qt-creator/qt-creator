@@ -54,6 +54,7 @@ public:
         AnnotationIcon,
         ArrangeIcon,
         BackspaceIcon,
+        BakeLightIcon,
         CameraIcon,
         CameraOrthographicIcon,
         CameraPerspectiveIcon,
@@ -67,6 +68,7 @@ public:
         EditIcon,
         EditLightIcon,
         EnterComponentIcon,
+        JumpToCodeIcon,
         EventListIcon,
         FitSelectedIcon,
         FitToViewIcon,
@@ -103,6 +105,7 @@ public:
         SimpleCheckIcon,
         SnappingIcon,
         SnappingConfIcon,
+        SplitViewIcon,
         TimelineIcon,
         ToggleGroupIcon,
         VisibilityIcon

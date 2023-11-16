@@ -5,12 +5,16 @@
 
 #include "abstractview.h"
 #include "collectioneditorconstants.h"
+#include "collectioneditorutils.h"
 #include "collectionlistmodel.h"
 #include "variantproperty.h"
 
 #include <utils/qtcassert.h>
+#include <qqml.h>
 
 #include <QFile>
+#include <QFileInfo>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -58,11 +62,14 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
     }
     return collectionsList;
 }
+
 } // namespace
 
 namespace QmlDesigner {
 
-CollectionSourceModel::CollectionSourceModel() {}
+CollectionSourceModel::CollectionSourceModel(QObject *parent)
+    : Super(parent)
+{}
 
 int CollectionSourceModel::rowCount(const QModelIndex &) const
 {
@@ -76,10 +83,12 @@ QVariant CollectionSourceModel::data(const QModelIndex &index, int role) const
     const ModelNode *collectionSource = &m_collectionSources.at(index.row());
 
     switch (role) {
-    case IdRole:
-        return collectionSource->id();
     case NameRole:
         return collectionSource->variantProperty("objectName").value();
+    case NodeRole:
+        return QVariant::fromValue(*collectionSource);
+    case CollectionTypeRole:
+        return CollectionEditor::getSourceCollectionType(*collectionSource);
     case SourceRole:
         return collectionSource->variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value();
     case SelectedRole:
@@ -98,20 +107,6 @@ bool CollectionSourceModel::setData(const QModelIndex &index, const QVariant &va
 
     ModelNode collectionSource = m_collectionSources.at(index.row());
     switch (role) {
-    case IdRole: {
-        if (collectionSource.id() == value)
-            return false;
-
-        bool duplicatedId = Utils::anyOf(std::as_const(m_collectionSources),
-                                         [&collectionSource, &value](const ModelNode &otherCollection) {
-                                             return (otherCollection.id() == value
-                                                     && otherCollection != collectionSource);
-                                         });
-        if (duplicatedId)
-            return false;
-
-        collectionSource.setIdWithRefactoring(value.toString());
-    } break;
     case Qt::DisplayRole:
     case NameRole: {
         auto collectionName = collectionSource.variantProperty("objectName");
@@ -186,11 +181,12 @@ QHash<int, QByteArray> CollectionSourceModel::roleNames() const
     static QHash<int, QByteArray> roles;
     if (roles.isEmpty()) {
         roles.insert(Super::roleNames());
-        roles.insert({{IdRole, "sourceId"},
-                      {NameRole, "sourceName"},
+        roles.insert({{NameRole, "sourceName"},
+                      {NodeRole, "sourceNode"},
+                      {CollectionTypeRole, "sourceCollectionType"},
                       {SelectedRole, "sourceIsSelected"},
                       {SourceRole, "sourceAddress"},
-                      {CollectionsRole, "collections"}});
+                      {CollectionsRole, "internalModels"}});
     }
     return roles;
 }
@@ -208,11 +204,7 @@ void CollectionSourceModel::setSources(const ModelNodes &sources)
         auto loadedCollection = loadCollection(collectionSource);
         m_collectionList.append(loadedCollection);
 
-        connect(loadedCollection.data(),
-                &CollectionListModel::selectedIndexChanged,
-                this,
-                &CollectionSourceModel::onSelectedCollectionChanged,
-                Qt::UniqueConnection);
+        registerCollection(loadedCollection);
     }
 
     updateEmpty();
@@ -245,11 +237,7 @@ void CollectionSourceModel::addSource(const ModelNode &node)
     auto loadedCollection = loadCollection(node);
     m_collectionList.append(loadedCollection);
 
-    connect(loadedCollection.data(),
-            &CollectionListModel::selectedIndexChanged,
-            this,
-            &CollectionSourceModel::onSelectedCollectionChanged,
-            Qt::UniqueConnection);
+    registerCollection(loadedCollection);
 
     updateEmpty();
     endInsertRows();
@@ -263,6 +251,85 @@ void CollectionSourceModel::selectSource(const ModelNode &node)
         return;
 
     selectSourceIndex(nodePlace, true);
+}
+
+bool CollectionSourceModel::collectionExists(const ModelNode &node, const QString &collectionName) const
+{
+    int idx = sourceIndex(node);
+    if (idx < 0)
+        return false;
+
+    auto collections = m_collectionList.at(idx);
+    if (collections.isNull())
+        return false;
+
+    return collections->contains(collectionName);
+}
+
+bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
+                                                  const QString &collectionName,
+                                                  QString *errorString)
+{
+    auto returnError = [errorString](const QString &msg) -> bool {
+        if (errorString)
+            *errorString = msg;
+        return false;
+    };
+
+    int idx = sourceIndex(node);
+    if (idx < 0)
+        return returnError(tr("Node is not indexed in the models."));
+
+    if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
+        return returnError(tr("Node should be a JSON model."));
+
+    if (collectionExists(node, collectionName))
+        return returnError(tr("Model does not exist."));
+
+    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
+                                    .value()
+                                    .toString();
+
+    QFileInfo sourceFileInfo(sourceFileAddress);
+    if (!sourceFileInfo.isFile())
+        return returnError(tr("Selected node must have a valid source file address"));
+
+    QFile jsonFile(sourceFileAddress);
+    if (!jsonFile.open(QFile::ReadWrite))
+        return returnError(tr("Can't read or write \"%1\".\n%2")
+                               .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError)
+        return returnError(tr("\"%1\" is corrupted.\n%2")
+                               .arg(sourceFileInfo.absoluteFilePath(), parseError.errorString()));
+
+    if (document.isObject()) {
+        QJsonObject sourceObject = document.object();
+        sourceObject.insert(collectionName, QJsonArray{});
+        document.setObject(sourceObject);
+        if (!jsonFile.resize(0))
+            return returnError(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+
+        QByteArray jsonData = document.toJson();
+        auto writtenBytes = jsonFile.write(jsonData);
+        jsonFile.close();
+
+        if (writtenBytes != jsonData.size())
+            return returnError(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+
+        updateCollectionList(index(idx));
+
+        auto collections = m_collectionList.at(idx);
+        if (collections.isNull())
+            return returnError(tr("No model is available for the JSON model group."));
+
+        collections->selectCollectionName(collectionName);
+        return true;
+    } else {
+        return returnError(tr("JSON document type should be an object containing models."));
+    }
 }
 
 QmlDesigner::ModelNode CollectionSourceModel::sourceNodeAt(int idx)
@@ -309,6 +376,11 @@ void CollectionSourceModel::updateSelectedSource(bool selectAtLeastOne)
     selectSourceIndex(idx, selectAtLeastOne);
 }
 
+bool CollectionSourceModel::collectionExists(const QVariant &node, const QString &collectionName) const
+{
+    return collectionExists(node.value<ModelNode>(), collectionName);
+}
+
 void CollectionSourceModel::updateNodeName(const ModelNode &node)
 {
     QModelIndex index = indexOfNode(node);
@@ -323,12 +395,6 @@ void CollectionSourceModel::updateNodeSource(const ModelNode &node)
     updateCollectionList(index);
 }
 
-void CollectionSourceModel::updateNodeId(const ModelNode &node)
-{
-    QModelIndex index = indexOfNode(node);
-    emit dataChanged(index, index, {IdRole});
-}
-
 QString CollectionSourceModel::selectedSourceAddress() const
 {
     return index(m_selectedIndex).data(SourceRole).toString();
@@ -338,13 +404,189 @@ void CollectionSourceModel::onSelectedCollectionChanged(int collectionIndex)
 {
     CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
     if (collectionIndex > -1 && collectionList) {
-        if (_previousSelectedList && _previousSelectedList != collectionList)
-            _previousSelectedList->selectCollectionIndex(-1);
+        if (m_previousSelectedList && m_previousSelectedList != collectionList)
+            m_previousSelectedList->selectCollectionIndex(-1);
+
+        m_previousSelectedList = collectionList;
 
         emit collectionSelected(collectionList->sourceNode(),
                                 collectionList->collectionNameAt(collectionIndex));
 
-        _previousSelectedList = collectionList;
+        selectSourceIndex(sourceIndex(collectionList->sourceNode()));
+    }
+}
+
+void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, const QString &newName)
+{
+    CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
+    QTC_ASSERT(collectionList, return);
+
+    auto emitRenameWarning = [this](const QString &msg) -> void {
+        emit this->warning(tr("Rename Model"), msg);
+    };
+
+    const ModelNode node = collectionList->sourceNode();
+    const QModelIndex nodeIndex = indexOfNode(node);
+
+    if (!nodeIndex.isValid()) {
+        emitRenameWarning(tr("Invalid node"));
+        return;
+    }
+
+    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME) {
+        if (!setData(nodeIndex, newName, NameRole))
+            emitRenameWarning(tr("Can't rename the node"));
+        return;
+    } else if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME) {
+        emitRenameWarning(tr("Invalid node type"));
+        return;
+    }
+
+    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
+                                    .value()
+                                    .toString();
+
+    QFileInfo sourceFileInfo(sourceFileAddress);
+    if (!sourceFileInfo.isFile()) {
+        emitRenameWarning(tr("Selected node must have a valid source file address"));
+        return;
+    }
+
+    QFile jsonFile(sourceFileAddress);
+    if (!jsonFile.open(QFile::ReadWrite)) {
+        emitRenameWarning(tr("Can't read or write \"%1\".\n%2")
+                              .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
+        return;
+    }
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        emitRenameWarning(tr("\"%1\" is corrupted.\n%2")
+                              .arg(sourceFileInfo.absoluteFilePath(), parseError.errorString()));
+        return;
+    }
+
+    if (document.isObject()) {
+        QJsonObject rootObject = document.object();
+
+        bool collectionContainsOldName = rootObject.contains(oldName);
+        bool collectionContainsNewName = rootObject.contains(newName);
+
+        if (!collectionContainsOldName) {
+            emitRenameWarning(
+                tr("The model group doesn't contain the old model name (%1).").arg(oldName));
+            return;
+        }
+
+        if (collectionContainsNewName) {
+            emitRenameWarning(
+                tr("The model name \"%1\" already exists in the model group.").arg(newName));
+            return;
+        }
+
+        QJsonValue oldValue = rootObject.value(oldName);
+        rootObject.insert(newName, oldValue);
+        rootObject.remove(oldName);
+
+        document.setObject(rootObject);
+        if (!jsonFile.resize(0)) {
+            emitRenameWarning(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+            return;
+        }
+
+        QByteArray jsonData = document.toJson();
+        auto writtenBytes = jsonFile.write(jsonData);
+        jsonFile.close();
+
+        if (writtenBytes != jsonData.size()) {
+            emitRenameWarning(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+            return;
+        }
+
+        updateCollectionList(nodeIndex);
+    }
+}
+
+void CollectionSourceModel::onCollectionsRemoved(const QStringList &removedCollections)
+{
+    CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
+    QTC_ASSERT(collectionList, return);
+
+    auto emitDeleteWarning = [this](const QString &msg) -> void {
+        emit warning(tr("Delete Model"), msg);
+    };
+
+    const ModelNode node = collectionList->sourceNode();
+    const QModelIndex nodeIndex = indexOfNode(node);
+
+    if (!nodeIndex.isValid()) {
+        emitDeleteWarning(tr("Invalid node"));
+        return;
+    }
+
+    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME) {
+        removeSource(node);
+        return;
+    } else if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME) {
+        emitDeleteWarning(tr("Invalid node type"));
+        return;
+    }
+
+    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
+                                    .value()
+                                    .toString();
+
+    QFileInfo sourceFileInfo(sourceFileAddress);
+    if (!sourceFileInfo.isFile()) {
+        emitDeleteWarning(tr("The selected node has an invalid source address"));
+        return;
+    }
+
+    QFile jsonFile(sourceFileAddress);
+    if (!jsonFile.open(QFile::ReadWrite)) {
+        emitDeleteWarning(tr("Can't read or write \"%1\".\n%2")
+                              .arg(sourceFileInfo.absoluteFilePath(), jsonFile.errorString()));
+        return;
+    }
+
+    QJsonParseError parseError;
+    QJsonDocument document = QJsonDocument::fromJson(jsonFile.readAll(), &parseError);
+    if (parseError.error != QJsonParseError::NoError) {
+        emitDeleteWarning(tr("\"%1\" is corrupted.\n%2")
+                              .arg(sourceFileInfo.absoluteFilePath(), parseError.errorString()));
+        return;
+    }
+
+    if (document.isObject()) {
+        QJsonObject rootObject = document.object();
+
+        for (const QString &collectionName : removedCollections) {
+            bool sourceContainsCollection = rootObject.contains(collectionName);
+            if (sourceContainsCollection) {
+                rootObject.remove(collectionName);
+            } else {
+                emitDeleteWarning(tr("The model group doesn't contain the model name (%1).")
+                                      .arg(sourceContainsCollection));
+            }
+        }
+
+        document.setObject(rootObject);
+        if (!jsonFile.resize(0)) {
+            emitDeleteWarning(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+            return;
+        }
+
+        QByteArray jsonData = document.toJson();
+        auto writtenBytes = jsonFile.write(jsonData);
+        jsonFile.close();
+
+        if (writtenBytes != jsonData.size()) {
+            emitDeleteWarning(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
+            return;
+        }
+
+        updateCollectionList(nodeIndex);
     }
 }
 
@@ -365,6 +607,18 @@ void CollectionSourceModel::setSelectedIndex(int idx)
             emit dataChanged(newIndex, newIndex, {SelectedRole});
 
         emit selectedIndexChanged(idx);
+
+        if (idx > -1) {
+            QPointer<CollectionListModel> relatedCollectionList = m_collectionList.at(idx).data();
+            if (relatedCollectionList) {
+                if (relatedCollectionList->selectedIndex() < 0)
+                    relatedCollectionList->selectCollectionIndex(0, true);
+            } else if (m_previousSelectedList) {
+                m_previousSelectedList->selectCollectionIndex(-1);
+                m_previousSelectedList = {};
+                emit this->collectionSelected(sourceNodeAt(idx), {});
+            }
+        }
     }
 }
 
@@ -394,8 +648,46 @@ void CollectionSourceModel::updateCollectionList(QModelIndex index)
     }
 }
 
+void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionListModel> &collection)
+{
+    connect(collection.data(),
+            &CollectionListModel::selectedIndexChanged,
+            this,
+            &CollectionSourceModel::onSelectedCollectionChanged,
+            Qt::UniqueConnection);
+
+    connect(collection.data(),
+            &CollectionListModel::collectionNameChanged,
+            this,
+            &CollectionSourceModel::onCollectionNameChanged,
+            Qt::UniqueConnection);
+
+    connect(collection.data(),
+            &CollectionListModel::collectionsRemoved,
+            this,
+            &CollectionSourceModel::onCollectionsRemoved,
+            Qt::UniqueConnection);
+}
+
 QModelIndex CollectionSourceModel::indexOfNode(const ModelNode &node) const
 {
     return index(m_sourceIndexHash.value(node.internalId(), -1));
 }
+
+void CollectionJsonSourceFilterModel::registerDeclarativeType()
+{
+    qmlRegisterType<CollectionJsonSourceFilterModel>("CollectionEditor",
+                                                     1,
+                                                     0,
+                                                     "CollectionJsonSourceFilterModel");
+}
+
+bool CollectionJsonSourceFilterModel::filterAcceptsRow(int source_row, const QModelIndex &) const
+{
+    if (!sourceModel())
+        return false;
+    QModelIndex sourceItem = sourceModel()->index(source_row, 0, {});
+    return sourceItem.data(CollectionSourceModel::Roles::CollectionTypeRole).toString() == "json";
+}
+
 } // namespace QmlDesigner

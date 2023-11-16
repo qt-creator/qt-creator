@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme as StudioTheme
@@ -11,7 +12,9 @@ Item {
     id: root
 
     implicitWidth: 300
-    implicitHeight: wholeColumn.height + 6
+    implicitHeight: wholeColumn.height
+
+    property bool hasSelectedTarget
 
     property color textColor
     property var collectionModel
@@ -20,16 +23,24 @@ Item {
 
     signal selectItem(int itemIndex)
     signal deleteItem()
+    signal assignToSelected()
 
-    Column {
+    function toggleExpanded() {
+        if (collectionListView.count > 0)
+            root.expanded = !root.expanded || sourceIsSelected;
+    }
+
+    ColumnLayout {
         id: wholeColumn
+        width: parent.width
+        spacing: 0
 
         Item {
             id: boundingRect
 
-            anchors.centerIn: root
-            width: root.width - 24
-            height: nameHolder.height
+            Layout.fillWidth: true
+            Layout.preferredHeight: nameHolder.height
+            Layout.leftMargin: 6
             clip: true
 
             MouseArea {
@@ -48,8 +59,7 @@ Item {
                 }
 
                 onDoubleClicked: (event) => {
-                    if (collectionListView.count > 0)
-                       root.expanded = !root.expanded;
+                    root.toggleExpanded()
                 }
             }
 
@@ -58,26 +68,27 @@ Item {
                 anchors.fill: parent
             }
 
-            Row {
-                width: parent.width - threeDots.width
-                leftPadding: 20
+            RowLayout {
+                width: parent.width
 
                 Text {
                     id: expandButton
 
                     property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
 
-                    width: expandButton.style.squareControlSize.width
-                    height: nameHolder.height
+                    Layout.preferredWidth: expandButton.style.squareControlSize.width
+                    Layout.preferredHeight: nameHolder.height
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
                     text: StudioTheme.Constants.startNode
                     font.family: StudioTheme.Constants.iconFont.family
-                    font.pixelSize: expandButton.style.baseIconFontSize
+                    font.pixelSize: 6
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
                     color: textColor
 
                     rotation: root.expanded ? 90 : 0
+                    visible: collectionListView.count > 0
 
                     Behavior on rotation {
                         SpringAnimation { spring: 2; damping: 0.2 }
@@ -85,17 +96,16 @@ Item {
 
                     MouseArea {
                         anchors.fill: parent
-                        acceptedButtons: Qt.RightButton + Qt.LeftButton
-                        onClicked: (event) => {
-                            root.expanded = !root.expanded
-                            event.accepted = true
-                        }
+                        acceptedButtons: Qt.RightButton | Qt.LeftButton
+                        onClicked: root.toggleExpanded()
                     }
-                    visible: collectionListView.count > 0
                 }
 
                 Text {
                     id: nameHolder
+
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
                     text: sourceName
                     font.pixelSize: StudioTheme.Values.baseFontSize
@@ -105,30 +115,29 @@ Item {
                     rightPadding: 8
                     bottomPadding: 8
                     elide: Text.ElideMiddle
+                    horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
                 }
-            }
 
-            Text {
-                id: threeDots
+                Text {
+                    id: threeDots
 
-                text: StudioTheme.Constants.more_medium
-                font.family: StudioTheme.Constants.iconFont.family
-                font.pixelSize: StudioTheme.Values.baseIconFontSize
-                color: textColor
-                anchors.right: boundingRect.right
-                anchors.verticalCenter: parent.verticalCenter
-                rightPadding: 12
-                topPadding: nameHolder.topPadding
-                bottomPadding: nameHolder.bottomPadding
-                verticalAlignment: Text.AlignVCenter
+                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
-                MouseArea {
-                    anchors.fill: parent
-                    acceptedButtons: Qt.RightButton + Qt.LeftButton
-                    onClicked: (event) => {
-                        collectionMenu.popup()
-                        event.accepted = true
+                    text: StudioTheme.Constants.more_medium
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: StudioTheme.Values.baseIconFontSize
+                    color: textColor
+                    rightPadding: 12
+                    topPadding: nameHolder.topPadding
+                    bottomPadding: nameHolder.bottomPadding
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.RightButton | Qt.LeftButton
+                        onClicked: collectionMenu.popup()
                     }
                 }
             }
@@ -137,24 +146,28 @@ Item {
         ListView {
             id: collectionListView
 
-            width: parent.width
-            height: root.expanded ? contentHeight : 0
-            model: collections
+            Layout.fillWidth: true
+            Layout.preferredHeight: root.expanded ? contentHeight : 0
+            Layout.leftMargin: 6
+            model: internalModels
             clip: true
 
-            Behavior on height {
+            Behavior on Layout.preferredHeight {
                 NumberAnimation {duration: 500}
             }
 
             delegate: CollectionItem {
-                width: parent.width
-                onDeleteItem: root.model.removeRow(index)
+                width: collectionListView.width
+                sourceType: collectionListView.model.sourceType
+                onDeleteItem: collectionListView.model.removeRow(index)
             }
         }
     }
 
     StudioControls.Menu {
         id: collectionMenu
+
+        closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
 
         StudioControls.MenuItem {
             text: qsTr("Delete")
@@ -167,6 +180,17 @@ Item {
             shortcut: StandardKey.Replace
             onTriggered: renameDialog.open()
         }
+
+        StudioControls.MenuItem {
+            text: qsTr("Assign to the selected node")
+            enabled: root.hasSelectedTarget
+            onTriggered: root.assignToSelected()
+        }
+    }
+
+    component Spacer: Item {
+        implicitWidth: 1
+        implicitHeight: StudioTheme.Values.sectionColumnSpacing
     }
 
     StudioControls.Dialog {
@@ -174,22 +198,17 @@ Item {
 
         title: qsTr("Deleting source")
 
-        contentItem: Column {
-            spacing: 2
+        contentItem: ColumnLayout {
+            spacing: StudioTheme.Values.sectionColumnSpacing
 
             Text {
                 text: qsTr("Are you sure that you want to delete source \"" + sourceName + "\"?")
                 color: StudioTheme.Values.themeTextColor
             }
 
-            Item { // spacer
-                width: 1
-                height: 20
-            }
-
-            Row {
-                anchors.right: parent.right
-                spacing: 10
+            RowLayout {
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                spacing: StudioTheme.Values.sectionRowSpacing
 
                 HelperWidgets.Button {
                     id: btnDelete
@@ -220,7 +239,7 @@ Item {
             newNameField.text = sourceName
         }
 
-        contentItem: Column {
+        contentItem: ColumnLayout {
             spacing: 2
 
             Text {
@@ -228,38 +247,35 @@ Item {
                 color: StudioTheme.Values.themeTextColor
             }
 
-            Row {
-                spacing: 10
-                Text {
-                    text: qsTr("New name:")
-                    color: StudioTheme.Values.themeTextColor
-                }
+            Spacer {}
 
-                StudioControls.TextField {
-                    id: newNameField
+            Text {
+                text: qsTr("New name:")
+                color: StudioTheme.Values.themeTextColor
+            }
 
-                    actionIndicator.visible: false
-                    translationIndicator.visible: false
-                    validator: newNameValidator
+            StudioControls.TextField {
+                id: newNameField
 
-                    Keys.onEnterPressed: renameDialog.accept()
-                    Keys.onReturnPressed: renameDialog.accept()
-                    Keys.onEscapePressed: renameDialog.reject()
+                Layout.fillWidth: true
+                actionIndicator.visible: false
+                translationIndicator.visible: false
+                validator: newNameValidator
 
-                    onTextChanged: {
-                        btnRename.enabled = newNameField.text !== ""
-                    }
+                Keys.onEnterPressed: renameDialog.accept()
+                Keys.onReturnPressed: renameDialog.accept()
+                Keys.onEscapePressed: renameDialog.reject()
+
+                onTextChanged: {
+                    btnRename.enabled = newNameField.text !== ""
                 }
             }
 
-            Item { // spacer
-                width: 1
-                height: 20
-            }
+            Spacer {}
 
-            Row {
-                anchors.right: parent.right
-                spacing: 10
+            RowLayout {
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                spacing: StudioTheme.Values.sectionRowSpacing
 
                 HelperWidgets.Button {
                     id: btnRename
@@ -276,9 +292,9 @@ Item {
         }
     }
 
-    HelperWidgets.RegExpValidator {
+    RegularExpressionValidator {
         id: newNameValidator
-        regExp: /^\w+$/
+        regularExpression: /^\w+$/
     }
 
     states: [
@@ -325,6 +341,12 @@ Item {
             PropertyChanges {
                 target: root
                 textColor: StudioTheme.Values.themeIconColorSelected
+                expanded: true
+            }
+
+            PropertyChanges {
+                target: expandButton
+                enabled: false
             }
         }
     ]

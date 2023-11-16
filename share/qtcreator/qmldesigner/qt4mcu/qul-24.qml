@@ -149,6 +149,12 @@ VersionData {
         bannedProperties: ["paused"]
     }
 
+    QtQuick.AnimatedSprite {
+        allowedProperties: ["currentFrame", "frameCount"]
+        bannedProperties: ["finishBehavior", "frameRate", "frameSync",
+            "frameX", "frameY", "interpolate", "reverse", "paused"]
+    }
+
     //Quick Controls2 Items and properties:
 
     QtQuick.Controls.Control {

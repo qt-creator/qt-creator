@@ -40,10 +40,6 @@ Project {
         directory: "imports"
     }
 
-    QmlFiles {
-        directory: "asset_imports"
-    }
-
     JavaScriptFiles {
         directory: "content"
     }
@@ -61,38 +57,42 @@ Project {
     }
 
     Files {
-        directory: "."
-        filters: "*.conf"
-        files: [ "qtquickcontrols2.conf" ]
+        files: [
+            "qtquickcontrols2.conf"
+        ]
+    }
+
+    Files {
+        filter: "*.conf"
     }
 
     Files {
         directory: "."
-        filters: "*.ttf;*.otf;*.ctf"
+        filter: "qmldir"
+    }
+
+    Files {
+        filter: "*.ttf;*.otf;*.ctf"
+    }
+
+    Files {
+        filter: "*.wav;*.mp3"
+    }
+
+    Files {
+        filter: "*.mp4"
+    }
+
+    Files {
+        filter: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag;*.trag"
     }
 
     Files {
         directory: "asset_imports"
-        filters: "*.mesh"
+        filter: "*.mesh"
     }
 
-    Files {
-        directory: "."
-        filters: "qmldir"
-    }
-
-    Files {
-        directory: "."
-        filters: "*.glsl;*.glslv;*.glslf;*.vsh;*.fsh;*.vert;*.frag;*.trag"
-    }
-
-    Files {
-        directory: "."
-        filters: "*.mp3;*.wav"
-    }
-
-    Files {
-        directory: "."
-        filters: "*.mp4"
+    QmlFiles {
+        directory: "asset_imports"
     }
 }

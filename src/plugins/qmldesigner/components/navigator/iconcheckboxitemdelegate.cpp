@@ -10,7 +10,6 @@
 #include "navigatortreemodel.h"
 #include "qproxystyle.h"
 
-#include <metainfo.h>
 #include <theme.h>
 
 #include <utils/qtcassert.h>

@@ -57,6 +57,7 @@ inline constexpr char IGNORE_DEVICE_PIXEL_RATIO[]
     = "IgnoreDevicePixelRaio"; /* The settings can be used to turn off the feature, if there are serious issues */
 inline constexpr char SHOW_DEBUG_SETTINGS[] = "ShowDebugSettings";
 inline constexpr char ENABLE_TIMELINEVIEW[] = "EnableTimelineView";
+inline constexpr char ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE[] = "EnableDockWidgetContentMinSize";
 inline constexpr char COLOR_PALETTE_RECENT[] = "ColorPaletteRecent";
 inline constexpr char COLOR_PALETTE_FAVORITE[] = "ColorPaletteFavorite";
 inline constexpr char ALWAYS_DESIGN_MODE[] = "AlwaysDesignMode";

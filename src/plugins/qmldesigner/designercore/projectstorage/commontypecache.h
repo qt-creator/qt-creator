@@ -38,6 +38,7 @@ inline constexpr char Control[] = "Control";
 inline constexpr char CubeMapTexture[] = "CubeMapTexture";
 inline constexpr char DefaultMaterial[] = "DefaultMaterial";
 inline constexpr char Dialog[] = "Dialog";
+inline constexpr char DirectionalLight[] = "DirectionalLight";
 inline constexpr char DoubleType[] = "double";
 inline constexpr char Effect[] = "Effect";
 inline constexpr char FloatType[] = "float";
@@ -52,12 +53,12 @@ inline constexpr char GroupItem[] = "GroupItem";
 inline constexpr char Image[] = "Image";
 inline constexpr char InstanceListEntry[] = "InstanceListEntry";
 inline constexpr char InstanceList[] = "InstanceList";
-inline constexpr char Light[] = "Light";
 inline constexpr char IntType[] = "int";
 inline constexpr char Item[] = "Item";
 inline constexpr char KeyframeGroup[] = "KeyframeGroup";
 inline constexpr char Keyframe[] = "Keyframe";
 inline constexpr char Layout[] = "Layout";
+inline constexpr char Light[] = "Light";
 inline constexpr char ListElement[] = "ListElement";
 inline constexpr char ListModel[] = "ListModel";
 inline constexpr char ListView[] = "ListView";
@@ -66,17 +67,19 @@ inline constexpr char Material[] = "Material";
 inline constexpr char Model[] = "Model";
 inline constexpr char MouseArea[] = "MouseArea";
 inline constexpr char Node[] = "Node";
+inline constexpr char OrthographicCamera[] = "OrthographicCamera";
 inline constexpr char Particle3D[] = "Particle3D";
 inline constexpr char ParticleEmitter3D[] = "ParticleEmitter3D";
 inline constexpr char Pass[] = "Pass";
 inline constexpr char PathView[] = "PathView";
 inline constexpr char Path[] = "Path";
 inline constexpr char PauseAnimation[] = "PauseAnimation";
+inline constexpr char PerspectiveCamera[] = "PerspectiveCamera";
 inline constexpr char Picture[] = "Picture";
+inline constexpr char PointLight[] = "PointLight";
 inline constexpr char Popup[] = "Popup";
 inline constexpr char Positioner[] = "Positioner";
 inline constexpr char PrincipledMaterial[] = "PrincipledMaterial";
-inline constexpr char SpecularGlossyMaterial[] = "SpecularGlossyMaterial";
 inline constexpr char PropertyAnimation[] = "PropertyAnimation";
 inline constexpr char PropertyChanges[] = "PropertyChanges";
 inline constexpr char QML[] = "QML";
@@ -91,7 +94,6 @@ inline constexpr char QtQuick3D[] = "QtQuick3D";
 inline constexpr char QtQuick3D_Particles3D[] = "QtQuick3D.Particles3D";
 inline constexpr char QtQuick3D_Particles3D_cppnative[] = "QtQuick3D.Particles3D-cppnative";
 inline constexpr char QtQuick[] = "QtQuick";
-inline constexpr char QtQuick_cppnative[] = "QtQuick-cppnative";
 inline constexpr char QtQuick_Controls[] = "QtQuick.Controls";
 inline constexpr char QtQuick_Dialogs[] = "QtQuick.Dialogs";
 inline constexpr char QtQuick_Extras[] = "QtQuick.Extras";
@@ -100,6 +102,7 @@ inline constexpr char QtQuick_Studio_Components[] = "QtQuick.Studio.Components";
 inline constexpr char QtQuick_Templates[] = "QtQuick.Templates";
 inline constexpr char QtQuick_Timeline[] = "QtQuick.Timeline";
 inline constexpr char QtQuick_Window[] = "QtQuick.Window";
+inline constexpr char QtQuick_cppnative[] = "QtQuick-cppnative";
 inline constexpr char Qt_SafeRenderer[] = "Qt.SafeRenderer";
 inline constexpr char Rectangle[] = "Rectangle";
 inline constexpr char Repeater[] = "Repeater";
@@ -108,7 +111,9 @@ inline constexpr char SafeRendererPicture[] = "SafeRendererPicture";
 inline constexpr char SceneEnvironment[] = "SceneEnvironment";
 inline constexpr char Shader[] = "Shader";
 inline constexpr char SoundEffect[] = "SoundEffect";
+inline constexpr char SpecularGlossyMaterial[] = "SpecularGlossyMaterial";
 inline constexpr char SplitView[] = "SplitView";
+inline constexpr char SpotLight[] = "SpotLight";
 inline constexpr char SpriteParticle3D[] = "SpriteParticle3D";
 inline constexpr char StateGroup[] = "StateGroup";
 inline constexpr char State[] = "State";
@@ -201,6 +206,7 @@ class CommonTypeCache
                                    CacheType<QtQuick3D, Command>,
                                    CacheType<QtQuick3D, CubeMapTexture>,
                                    CacheType<QtQuick3D, DefaultMaterial>,
+                                   CacheType<QtQuick3D, DirectionalLight>,
                                    CacheType<QtQuick3D, Effect>,
                                    CacheType<QtQuick3D, InstanceList>,
                                    CacheType<QtQuick3D, InstanceListEntry>,
@@ -208,11 +214,15 @@ class CommonTypeCache
                                    CacheType<QtQuick3D, Material>,
                                    CacheType<QtQuick3D, Model>,
                                    CacheType<QtQuick3D, Node>,
+                                   CacheType<QtQuick3D, OrthographicCamera>,
                                    CacheType<QtQuick3D, Pass>,
+                                   CacheType<QtQuick3D, PerspectiveCamera>,
+                                   CacheType<QtQuick3D, PointLight>,
                                    CacheType<QtQuick3D, PrincipledMaterial>,
                                    CacheType<QtQuick3D, SceneEnvironment>,
-                                   CacheType<QtQuick3D, SpecularGlossyMaterial>,
                                    CacheType<QtQuick3D, Shader>,
+                                   CacheType<QtQuick3D, SpecularGlossyMaterial>,
+                                   CacheType<QtQuick3D, SpotLight>,
                                    CacheType<QtQuick3D, Texture>,
                                    CacheType<QtQuick3D, TextureInput>,
                                    CacheType<QtQuick3D, View3D>,
@@ -260,6 +270,12 @@ public:
         std::apply([](auto &...type) { ((type.typeId = QmlDesigner::TypeId{}), ...); }, m_types);
 
         updateTypeIdsWithoutProperties();
+    }
+
+    void clearForTestsOnly()
+    {
+        std::apply([](auto &...type) { ((type.typeId = QmlDesigner::TypeId{}), ...); }, m_types);
+        std::fill(std::begin(m_typesWithoutProperties), std ::end(m_typesWithoutProperties), TypeId{});
     }
 
     template<const char *moduleName, const char *typeName>

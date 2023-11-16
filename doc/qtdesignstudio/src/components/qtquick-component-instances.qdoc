@@ -28,19 +28,19 @@
             in ways that are not supported in \QDS by default, you can define
             custom properties on the \uicontrol {Properties} tab in the
             \l {Connections} view.
-            \image qmldesigner-dynamicprops.png "Connections View Properties tab"
+            \image add-updated-local-custom-property.webp "Connections View Properties tab"
             For more information, see \l{Specifying Custom Properties}.
         \li To enable users to interact with the component instances, connect
             the instances to signals on the \uicontrol Connections tab in the
             \uicontrol {Connections} view. For example, you can specify what
             happens when a component instance is clicked. For more information,
             see \l{Connecting Components to Signals}.
-            \image qmldesigner-connections.png "Connections View Connections tab"
+            \image qmldesigner-connections.webp "Connections View Connections tab"
         \li To dynamically change the behavior of a component instance when
             another component instance changes, create bindings between them on
             the \uicontrol Bindings tab in the \uicontrol {Connections} view.
             For more information, see \l{Adding Bindings Between Properties}.
-            \image qmldesigner-bindings.png "Connections view Bindings tab"
+            \image qmldesigner-bindings.webp "Connections view Bindings tab"
         \li Add states to apply sets of changes to the property values of one
             or several component instances in the \uicontrol States view.
             For more information, see \l{Working with States}.

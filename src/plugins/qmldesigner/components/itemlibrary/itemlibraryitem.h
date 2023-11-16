@@ -8,7 +8,7 @@
 #include <QSize>
 #include <QVariant>
 
-#include "itemlibraryinfo.h"
+#include <itemlibraryentry.h>
 
 namespace QmlDesigner {
 

@@ -37,11 +37,13 @@ Item {
         var scenePosWithOffset = Qt.vector3d(scenePos.x + offset.x,
                                              scenePos.y + offset.y,
                                              scenePos.z + offset.z);
-        var viewPos = targetView ? targetView.mapFrom3DScene(scenePosWithOffset)
-                                 : Qt.vector3d(0, 0, 0);
-        root.x = viewPos.x;
-        root.y = viewPos.y;
 
-        isBehindCamera = viewPos.z <= 0;
+        if (targetView) {
+            var viewPos = targetView.mapFrom3DScene(scenePosWithOffset);
+            let newPos = parent.mapFromItem(targetView, viewPos.x, viewPos.y);
+            x = newPos.x;
+            y = newPos.y;
+            isBehindCamera = viewPos.z <= 0;
+        }
     }
 }

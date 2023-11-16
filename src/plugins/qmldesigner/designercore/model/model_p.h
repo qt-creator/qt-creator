@@ -6,7 +6,9 @@
 #include "qmldesignercorelib_global.h"
 
 #include "abstractview.h"
-#include "metainfo.h"
+#ifndef QDS_USE_PROJECTSTORAGE
+#  include "metainfo.h"
+#endif
 #include "modelnode.h"
 #include "skipiterator.h"
 
@@ -82,7 +84,8 @@ public:
     {}
 };
 
-class ModelPrivate : public QObject
+class ModelPrivate : public QObject,
+                     protected ProjectStorageObserver
 {
     Q_OBJECT
 
@@ -137,8 +140,10 @@ public:
     InternalNodePointer rootNode() const;
     InternalNodePointer findNode(const QString &id) const;
 
+#ifndef QDS_USE_PROJECTSTORAGE
     MetaInfo metaInfo() const;
     void setMetaInfo(const MetaInfo &metaInfo);
+#endif
 
     void attachView(AbstractView *view);
     void detachView(AbstractView *view, bool notifyView);
@@ -303,6 +308,9 @@ public:
         return m_nodeMetaInfoCache;
     }
 
+protected:
+    void removedTypeIds(const TypeIds &removedTypeIds) override;
+
 private:
     void removePropertyWithoutNotification(InternalProperty *property);
     void removeAllSubNodes(const InternalNodePointer &node);
@@ -317,7 +325,6 @@ private:
     EnabledViewRange enabledViews() const;
     ImportedTypeNameId importedTypeNameId(Utils::SmallStringView typeName);
     void setTypeId(InternalNode *node, Utils::SmallStringView typeName);
-    void emitRefreshMetaInfos(const TypeIds &deletedTypeIds);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
@@ -325,9 +332,9 @@ public:
 
 private:
     Model *m_model = nullptr;
+#ifndef QDS_USE_PROJECTSTORAGE
     MetaInfo m_metaInfo;
-    std::function<void(const TypeIds &deletedTypeIds)> m_metaInfoRefreshCallback{
-        [&](const TypeIds &deletedTypeIds) { emitRefreshMetaInfos(deletedTypeIds); }};
+#endif
     Imports m_imports;
     Imports m_possibleImportList;
     Imports m_usedImportList;

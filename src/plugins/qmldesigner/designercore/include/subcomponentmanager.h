@@ -3,18 +3,20 @@
 
 #pragma once
 
-#include "qmldesignercorelib_global.h"
+#ifndef QDS_USE_PROJECTSTORAGE
 
-#include <import.h>
+#  include "qmldesignercorelib_global.h"
 
-#include <QObject>
-#include <QString>
-#include <QUrl>
-#include <QFileSystemWatcher>
-#include <QMultiHash>
-#include <QPointer>
-#include <QFileInfo>
-#include <QDir>
+#  include <import.h>
+
+#  include <QObject>
+#  include <QString>
+#  include <QUrl>
+#  include <QFileSystemWatcher>
+#  include <QMultiHash>
+#  include <QPointer>
+#  include <QFileInfo>
+#  include <QDir>
 
 namespace QmlDesigner {
 
@@ -63,3 +65,4 @@ private: // variables
 };
 
 } // namespace QmlDesigner
+#endif

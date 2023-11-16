@@ -29,6 +29,7 @@ extend_qtc_plugin(QmlDesignerBase
     designerpaths.cpp designerpaths.h
     designersettings.cpp designersettings.h
     qmlpuppetpaths.cpp qmlpuppetpaths.h
+    windowmanager.cpp windowmanager.h
 )
 
 extend_qtc_plugin(QmlDesignerBase

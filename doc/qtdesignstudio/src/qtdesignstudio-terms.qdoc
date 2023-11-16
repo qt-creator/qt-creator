@@ -57,7 +57,7 @@
     component height is adjusted automatically. Similarly, the opacity of a
     component can be bound to the opacity of its parent component.
 
-    \image qtquick-connection-editor-assignment.png "Binding Editor"
+    \image qtquick-connection-editor-assignment.webp "Binding Editor"
 
     Property bindings are created implicitly whenever a property is assigned a
     JavaScript expression.
@@ -115,7 +115,7 @@
     is to create \l{glossary-binding}{bindings} between the values of their
     \l{glossary-property}{properties}.
 
-    \image qmldesigner-connections.png "The Connections view"
+    \image qmldesigner-connections.webp "The Connections view"
 
     Read more about connections:
 
@@ -211,9 +211,9 @@
     the application. For example, the \l {Mouse Area} component has a \c clicked
     signal that is emitted whenever the mouse is clicked within the area. Since
     the signal name is \c clicked, the signal handler for receiving this signal
-    is named \c onClicked.
+    is named \c onClicked. Then it performs the defined \uicontrol {Action}.
 
-    \image washingmachineui-connections.png "Connections view, Connections tab"
+    \image qtquick-component-signal.webp "Component signal"
 
     Further, a signal is automatically emitted when the value of a
     \l{glossary-property}{property} changes.

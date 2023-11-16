@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
-import HelperWidgets 2.0 as HelperWidgets
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
+import HelperWidgets as HelperWidgets
 
-PopupDialog {
+StudioControls.PopupDialog {
     id: root
+
     property alias backend: form.backend
 
     titleBar: Row {
@@ -19,6 +20,7 @@ PopupDialog {
             text: qsTr("Target")
             font.pixelSize: StudioTheme.Values.myFontSize
             anchors.verticalCenter: parent.verticalCenter
+
             HelperWidgets.ToolTipArea {
                 anchors.fill: parent
                 tooltip: qsTr("Sets the Component that is connected to a <b>Signal</b>.")
@@ -45,6 +47,9 @@ PopupDialog {
             target: root.backend
             function onPopupShouldClose() {
                 root.close()
+            }
+            function onPopupShouldOpen() {
+                root.showGlobal()
             }
         }
     }

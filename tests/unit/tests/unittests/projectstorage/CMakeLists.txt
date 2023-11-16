@@ -11,6 +11,7 @@ extend_qtc_test(unittest
     sourcepathcache-test.cpp
     sourcepathview-test.cpp
     storagecache-test.cpp
+    typeannotationreader-test.cpp
 )
 
 extend_qtc_test(unittest

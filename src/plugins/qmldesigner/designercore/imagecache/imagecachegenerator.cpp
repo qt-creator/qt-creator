@@ -42,8 +42,9 @@ void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
                                         Utils::SmallStringView extraId,
                                         Sqlite::TimeStamp timeStamp,
                                         ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
-                                        ImageCache::AbortCallback &&abortCallback,
-                                        ImageCache::AuxiliaryData &&auxiliaryData)
+                                        ImageCache::InternalAbortCallback &&abortCallback,
+                                        ImageCache::AuxiliaryData &&auxiliaryData,
+                                        ImageCache::TraceToken traceToken)
 {
     {
         std::lock_guard lock{m_mutex};
@@ -64,7 +65,8 @@ void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
                                  std::move(auxiliaryData),
                                  timeStamp,
                                  std::move(captureCallback),
-                                 std::move(abortCallback));
+                                 std::move(abortCallback),
+                                 std::move(traceToken));
         }
     }
 
@@ -89,9 +91,12 @@ void callCallbacks(const Callbacks &callbacks, Argument &&...arguments)
 
 void ImageCacheGenerator::clean()
 {
+    using namespace NanotraceHR::Literals;
+
     std::lock_guard lock{m_mutex};
-    for (Task &task : m_tasks)
-        callCallbacks(task.abortCallbacks, ImageCache::AbortReason::Abort);
+    for (Task &task : m_tasks) {
+        callCallbacks(task.abortCallbacks, ImageCache::AbortReason::Abort, std::move(task.traceToken));
+    }
     m_tasks.clear();
 }
 
@@ -104,47 +109,71 @@ void ImageCacheGenerator::waitForFinished()
         m_backgroundThread->wait();
 }
 
+std::optional<ImageCacheGenerator::Task> ImageCacheGenerator::getTask()
+{
+    {
+        auto [lock, abort] = waitForEntries();
+
+        if (abort)
+            return {};
+
+        std::optional<Task> task = std::move(m_tasks.front());
+
+        m_tasks.pop_front();
+
+        return task;
+    }
+}
+
 void ImageCacheGenerator::startGeneration()
 {
     while (true) {
-        Task task;
+        auto task = getTask();
 
-        {
-            auto [lock, abort] = waitForEntries();
-
-            if (abort)
-                return;
-
-            task = std::move(m_tasks.front());
-
-            m_tasks.pop_front();
-        }
+        if (!task)
+            return;
 
         m_collector.start(
-            task.filePath,
-            task.extraId,
-            std::move(task.auxiliaryData),
-            [this, task](const QImage &image, const QImage &midSizeImage, const QImage &smallImage) {
+            task->filePath,
+            task->extraId,
+            std::move(task->auxiliaryData),
+            [this,
+             abortCallbacks = task->abortCallbacks,
+             captureCallbacks = std::move(task->captureCallbacks),
+             filePath = task->filePath,
+             extraId = task->extraId,
+             timeStamp = task->timeStamp](const QImage &image,
+                                          const QImage &midSizeImage,
+                                          const QImage &smallImage,
+                                          ImageCache::TraceToken traceToken) {
                 if (image.isNull() && midSizeImage.isNull() && smallImage.isNull())
-                    callCallbacks(task.abortCallbacks, ImageCache::AbortReason::Failed);
+                    callCallbacks(abortCallbacks,
+                                  ImageCache::AbortReason::Failed,
+                                  std::move(traceToken));
                 else
-                    callCallbacks(task.captureCallbacks, image, midSizeImage, smallImage);
+                    callCallbacks(captureCallbacks,
+                                  image,
+                                  midSizeImage,
+                                  smallImage,
+                                  std::move(traceToken));
 
-                m_storage.storeImage(createId(task.filePath, task.extraId),
-                                     task.timeStamp,
+                m_storage.storeImage(createId(filePath, extraId),
+                                     timeStamp,
                                      image,
                                      midSizeImage,
                                      smallImage);
             },
-            [this, task](ImageCache::AbortReason abortReason) {
-                callCallbacks(task.abortCallbacks, abortReason);
+            [this,
+             abortCallbacks = task->abortCallbacks,
+             filePath = task->filePath,
+             extraId = task->extraId,
+             timeStamp = task->timeStamp](ImageCache::AbortReason abortReason,
+                                          ImageCache::TraceToken traceToken) {
+                callCallbacks(abortCallbacks, abortReason, std::move(traceToken));
                 if (abortReason != ImageCache::AbortReason::Abort)
-                    m_storage.storeImage(createId(task.filePath, task.extraId),
-                                         task.timeStamp,
-                                         {},
-                                         {},
-                                         {});
-            });
+                    m_storage.storeImage(createId(filePath, extraId), timeStamp, {}, {}, {});
+            },
+            std::move(task->traceToken));
 
         std::lock_guard lock{m_mutex};
         if (m_tasks.empty())

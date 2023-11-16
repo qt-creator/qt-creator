@@ -3,14 +3,15 @@
 
 #include "collectionview.h"
 
+#include "collectiondetailsmodel.h"
 #include "collectioneditorconstants.h"
+#include "collectioneditorutils.h"
 #include "collectionsourcemodel.h"
 #include "collectionwidget.h"
 #include "designmodecontext.h"
 #include "nodeabstractproperty.h"
 #include "nodemetainfo.h"
 #include "qmldesignerplugin.h"
-#include "singlecollectionmodel.h"
 #include "variantproperty.h"
 
 #include <QJsonArray>
@@ -55,7 +56,7 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                 &CollectionSourceModel::collectionSelected,
                 this,
                 [this](const ModelNode &sourceNode, const QString &collection) {
-                    m_widget->singleCollectionModel()->loadCollection(sourceNode, collection);
+                    m_widget->collectionDetailsModel()->loadCollection(sourceNode, collection);
                 });
     }
 
@@ -63,8 +64,8 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                             "CollectionEditor",
                             WidgetInfo::LeftPane,
                             0,
-                            tr("Collection Editor"),
-                            tr("Collection Editor view"));
+                            tr("Model Editor"),
+                            tr("Model Editor view"));
 }
 
 void CollectionView::modelAttached(Model *model)
@@ -88,7 +89,7 @@ void CollectionView::nodeReparented(const ModelNode &node,
 
 void CollectionView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    // removing the collections lib node
+    // removing the model lib node
     if (isStudioCollectionModel(removedNode))
         m_widget->sourceModel()->removeSource(removedNode);
 }
@@ -111,8 +112,6 @@ void CollectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
                 m_widget->sourceModel()->updateNodeName(node);
             else if (property.name() == CollectionEditor::SOURCEFILE_PROPERTY)
                 m_widget->sourceModel()->updateNodeSource(node);
-            else if (property.name() == "id")
-                m_widget->sourceModel()->updateNodeId(node);
         }
     }
 }
@@ -120,15 +119,26 @@ void CollectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
 void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                                           [[maybe_unused]] const QList<ModelNode> &lastSelectedNodeList)
 {
-    QList<ModelNode> selectedJsonCollections = Utils::filtered(selectedNodeList,
+    QList<ModelNode> selectedCollectionNodes = Utils::filtered(selectedNodeList,
                                                                &isStudioCollectionModel);
 
-    // More than one collections are selected. So ignore them
-    if (selectedJsonCollections.size() > 1)
+    bool singleNonCollectionNodeSelected = selectedNodeList.size() == 1
+                                           && selectedCollectionNodes.isEmpty();
+
+    bool singleSelectedHasModelProperty = false;
+    if (singleNonCollectionNodeSelected) {
+        const ModelNode selectedNode = selectedNodeList.first();
+        singleSelectedHasModelProperty = CollectionEditor::canAcceptCollectionAsModel(selectedNode);
+    }
+
+    m_widget->setTargetNodeSelected(singleSelectedHasModelProperty);
+
+    // More than one model is selected. So ignore them
+    if (selectedCollectionNodes.size() > 1)
         return;
 
-    if (selectedJsonCollections.size() == 1) { // If exactly one collection is selected
-        m_widget->sourceModel()->selectSource(selectedJsonCollections.first());
+    if (selectedCollectionNodes.size() == 1) { // If exactly one model is selected
+        m_widget->sourceModel()->selectSource(selectedCollectionNodes.first());
         return;
     }
 }
@@ -149,8 +159,15 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
         VariantProperty nameProperty = resourceNode.variantProperty("objectName");
         sourceProperty.setValue(sourceAddress);
         nameProperty.setValue(name);
+        resourceNode.setIdWithoutRefactoring(model()->generateIdFromName(name, "model"));
         rootModelNode().defaultNodeAbstractProperty().reparentHere(resourceNode);
     });
+}
+
+void CollectionView::registerDeclarativeType()
+{
+    CollectionDetails::registerDeclarativeType();
+    CollectionJsonSourceFilterModel::registerDeclarativeType();
 }
 
 void CollectionView::refreshModel()
@@ -158,9 +175,12 @@ void CollectionView::refreshModel()
     if (!model())
         return;
 
-    // Load Json Collections
-    const ModelNodes jsonSourceNodes = rootModelNode().subModelNodesOfType(jsonCollectionMetaInfo());
-    m_widget->sourceModel()->setSources(jsonSourceNodes);
+    // Load Model Groups
+    const ModelNodes collectionSourceNodes = rootModelNode().subModelNodesOfType(
+                                                 jsonCollectionMetaInfo())
+                                             + rootModelNode().subModelNodesOfType(
+                                                 csvCollectionMetaInfo());
+    m_widget->sourceModel()->setSources(collectionSourceNodes);
 }
 
 NodeMetaInfo CollectionView::jsonCollectionMetaInfo() const

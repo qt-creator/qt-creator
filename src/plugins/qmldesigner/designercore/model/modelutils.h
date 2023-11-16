@@ -5,10 +5,15 @@
 
 #include "qmldesignercorelib_global.h"
 
+#include <utils/algorithm.h>
+
 #include <import.h>
 #include <model.h>
 
+#include <QStringView>
+
 #include <functional>
+#include <string_view>
 
 namespace QmlDesigner {
 class PropertyMetaInfo;
@@ -40,5 +45,10 @@ QMLDESIGNERCORE_EXPORT QList<ModelNode> allModelNodesWithId(AbstractView *view);
 
 QMLDESIGNERCORE_EXPORT bool isThisOrAncestorLocked(const ModelNode &node);
 QMLDESIGNERCORE_EXPORT ModelNode lowestCommonAncestor(Utils::span<const ModelNode> nodes);
+
+constexpr std::u16string_view toStdStringView(QStringView view)
+{
+    return {view.utf16(), Utils::usize(view)};
+}
 
 } // namespace QmlDesigner::ModelUtils

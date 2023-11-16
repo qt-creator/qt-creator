@@ -3,7 +3,7 @@
 #pragma once
 
 #include "edit3dactions.h"
-#include "itemlibraryinfo.h"
+#include <itemlibraryentry.h>
 #include <qmldesignercomponents_global.h>
 
 #include <abstractview.h>
@@ -32,6 +32,12 @@ class QMLDESIGNERCOMPONENTS_EXPORT Edit3DView : public AbstractView
     Q_OBJECT
 
 public:
+    struct SplitToolState
+    {
+        int matOverride = 0;
+        bool showWireframe = false;
+    };
+
     Edit3DView(ExternalDependenciesInterface &externalDependencies);
 
     WidgetInfo widgetInfo() override;
@@ -52,7 +58,7 @@ public:
     void nodeRemoved(const ModelNode &removedNode, const NodeAbstractProperty &parentProperty,
                      PropertyChangeFlags propertyChange) override;
 
-    void sendInputEvent(QInputEvent *e) const;
+    void sendInputEvent(QEvent *e) const;
     void edit3DViewResized(const QSize &size) const;
 
     QSize canvasSize() const;
@@ -77,6 +83,11 @@ public:
     bool isBakingLightsSupported() const;
 
     void syncSnapAuxPropsToSettings();
+
+    const QList<SplitToolState> &splitToolStates() const;
+    void setSplitToolState(int splitIndex, const SplitToolState &state);
+
+    int activeSplit() const;
 
 private slots:
     void onEntriesChanged();
@@ -139,6 +150,7 @@ private:
     std::unique_ptr<Edit3DAction> m_selectBackgroundColorAction;
     std::unique_ptr<Edit3DAction> m_selectGridColorAction;
     std::unique_ptr<Edit3DAction> m_resetColorAction;
+    std::unique_ptr<Edit3DAction> m_splitViewAction;
 
     // View3DActionType::Empty actions
     std::unique_ptr<Edit3DAction> m_resetAction;
@@ -159,6 +171,9 @@ private:
     QPointer<BakeLights> m_bakeLights;
     bool m_isBakingLightsSupported = false;
     QPointer<SnapConfiguration> m_snapConfiguration;
+    int m_activeSplit = 0;
+
+    QList<SplitToolState> m_splitToolStates;
 
     friend class Edit3DAction;
 };

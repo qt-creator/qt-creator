@@ -72,6 +72,11 @@ public:
 
     static ConnectionView *instance();
 
+    void customNotification(const AbstractView *view,
+                            const QString &identifier,
+                            const QList<ModelNode> &nodeList,
+                            const QList<QVariant> &data) override;
+
 signals:
     void currentIndexChanged();
 

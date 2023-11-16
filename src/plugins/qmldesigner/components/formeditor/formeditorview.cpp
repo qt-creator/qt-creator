@@ -42,6 +42,10 @@
 
 namespace QmlDesigner {
 
+namespace {
+constexpr AuxiliaryDataKeyView autoSizeProperty{AuxiliaryDataType::Temporary, "autoSize"};
+}
+
 FormEditorView::FormEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
 {}
@@ -233,6 +237,10 @@ void FormEditorView::nodeCreated(const ModelNode &node)
 
 void FormEditorView::cleanupToolsAndScene()
 {
+    QTC_ASSERT(m_scene, return );
+    QTC_ASSERT(m_formEditorWidget, return );
+    QTC_ASSERT(m_currentTool, return );
+
     m_currentTool->setItems(QList<FormEditorItem *>());
     m_selectionTool->clear();
     m_rotationTool->clear();
@@ -251,6 +259,11 @@ void FormEditorView::cleanupToolsAndScene()
 
 void FormEditorView::modelAboutToBeDetached(Model *model)
 {
+    rootModelNode().removeAuxiliaryData(contextImageProperty);
+    rootModelNode().removeAuxiliaryData(widthProperty);
+    rootModelNode().removeAuxiliaryData(heightProperty);
+    rootModelNode().removeAuxiliaryData(autoSizeProperty);
+
     cleanupToolsAndScene();
     AbstractView::modelAboutToBeDetached(model);
 }
@@ -681,7 +694,6 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
     const bool isFlow = QmlItemNode(rootModelNode()).isFlowView();
     QList<FormEditorItem*> itemNodeList;
     for (const ModelNode &node : completedNodeList) {
-        ;
         if (const QmlItemNode qmlItemNode = (node)) {
             if (FormEditorItem *item = scene()->itemForQmlItemNode(qmlItemNode)) {
                 scene()->synchronizeParent(qmlItemNode);
@@ -692,10 +704,6 @@ void FormEditorView::instancesCompleted(const QVector<ModelNode> &completedNodeL
         }
     }
     currentTool()->instancesCompleted(itemNodeList);
-}
-
-namespace {
-constexpr AuxiliaryDataKeyView autoSizeProperty{AuxiliaryDataType::Temporary, "autoSize"};
 }
 
 void FormEditorView::instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangedHash)
@@ -935,34 +943,45 @@ void FormEditorView::setupFormEditor3DView()
 void FormEditorView::setupRootItemSize()
 {
     if (const QmlItemNode rootQmlNode = rootModelNode()) {
-        const int rootElementInitWidth = QmlDesignerPlugin::settings()
+        int rootElementInitWidth = QmlDesignerPlugin::settings()
                                              .value(DesignerSettingsKey::ROOT_ELEMENT_INIT_WIDTH)
                                              .toInt();
-        const int rootElementInitHeight = QmlDesignerPlugin::settings()
+        int rootElementInitHeight = QmlDesignerPlugin::settings()
                                               .value(DesignerSettingsKey::ROOT_ELEMENT_INIT_HEIGHT)
                                               .toInt();
 
-        if (rootQmlNode.instanceBoundingRect().isEmpty()
-            && !(rootQmlNode.propertyAffectedByCurrentState("width")
-                 && rootQmlNode.propertyAffectedByCurrentState("height"))) {
+        if (rootModelNode().hasAuxiliaryData(defaultWidthProperty))
+            rootElementInitWidth = rootModelNode().auxiliaryData(defaultWidthProperty).value().toInt();
+        if (rootModelNode().hasAuxiliaryData(defaultHeightProperty))
+            rootElementInitHeight = rootModelNode().auxiliaryData(defaultHeightProperty).value().toInt();
+
+        bool affectedByCurrentState =
+            rootQmlNode.propertyAffectedByCurrentState("width") ||
+            rootQmlNode.propertyAffectedByCurrentState("height");
+
+        QRectF rootRect = rootQmlNode.instanceBoundingRect();
+        if (rootRect.isEmpty() && !affectedByCurrentState) {
+
             if (!rootModelNode().hasAuxiliaryData(widthProperty))
                 rootModelNode().setAuxiliaryData(widthProperty, rootElementInitWidth);
+
             if (!rootModelNode().hasAuxiliaryData(heightProperty))
                 rootModelNode().setAuxiliaryData(heightProperty, rootElementInitHeight);
+
             rootModelNode().setAuxiliaryData(autoSizeProperty, true);
+
             formEditorWidget()->updateActions();
-        } else {
-            if (rootModelNode().hasAuxiliaryData(autoSizeProperty)
-                && (rootQmlNode.propertyAffectedByCurrentState("width")
-                    || rootQmlNode.propertyAffectedByCurrentState("height"))) {
-                rootModelNode().removeAuxiliaryData(widthProperty);
-                rootModelNode().removeAuxiliaryData(heightProperty);
-                rootModelNode().removeAuxiliaryData(autoSizeProperty);
-                formEditorWidget()->updateActions();
-            }
+            rootRect.setWidth(rootModelNode().auxiliaryData(widthProperty).value().toFloat() );
+            rootRect.setHeight(rootModelNode().auxiliaryData(heightProperty).value().toFloat() );
+
+        } else if (rootModelNode().hasAuxiliaryData(autoSizeProperty) && affectedByCurrentState ) {
+            rootModelNode().removeAuxiliaryData(widthProperty);
+            rootModelNode().removeAuxiliaryData(heightProperty);
+            rootModelNode().removeAuxiliaryData(autoSizeProperty);
+            formEditorWidget()->updateActions();
         }
 
-        formEditorWidget()->setRootItemRect(rootQmlNode.instanceBoundingRect());
+        formEditorWidget()->setRootItemRect(rootRect);
         formEditorWidget()->centerScene();
 
         auto contextImage = rootModelNode().auxiliaryData(contextImageProperty);

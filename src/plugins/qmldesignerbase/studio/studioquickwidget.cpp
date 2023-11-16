@@ -24,6 +24,8 @@ StudioQuickWidget::StudioQuickWidget(QWidget *parent)
     setLayout(layout);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(m_quickWidget);
+
+    setMinimumSize(QSize(100, 100)); // sensible default
 }
 
 QQmlEngine *StudioQuickWidget::engine() const
@@ -50,12 +52,17 @@ void StudioQuickWidget::setSource(const QUrl &url)
 {
     m_quickWidget->setSource(url);
 
-    if (rootObject()) {
-        const auto windows = rootObject()->findChildren<QWindow *>();
+    if (!rootObject())
+        return;
 
-        for (auto window : windows) {
+    if (!Core::ICore::dialogParent()->windowHandle())
+        return;
+
+    const auto windows = rootObject()->findChildren<QWindow *>();
+
+    for (auto window : windows) {
+        if (!window->transientParent())
             window->setTransientParent(Core::ICore::dialogParent()->windowHandle());
-        }
     }
 }
 
@@ -82,6 +89,11 @@ StudioPropertyMap *StudioQuickWidget::registerPropertyMap(const QByteArray &name
 QQuickWidget *StudioQuickWidget::quickWidget() const
 {
     return m_quickWidget;
+}
+
+void StudioQuickWidget::registerDeclarativeType()
+{
+    qmlRegisterType<StudioQmlColorBackend>("StudioHelpers", 1, 0, "ColorBackend");
 }
 
 StudioPropertyMap::StudioPropertyMap(QObject *parent)

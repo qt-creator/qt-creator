@@ -15,6 +15,20 @@ env_with_default("QDS_USE_PROJECTSTORAGE" ENV_QDS_USE_PROJECTSTORAGE OFF)
 option(USE_PROJECTSTORAGE "Use ProjectStorage" ${ENV_QDS_USE_PROJECTSTORAGE})
 add_feature_info("ProjectStorage" ${USE_PROJECTSTORAGE} "")
 
+env_with_default("QTC_ENABLE_PROJECT_STORAGE_TRACING" ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING OFF)
+option(ENABLE_PROJECT_STORAGE_TRACING "Enable sqlite tracing" ${ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING})
+add_feature_info("Sqlite tracing" ${ENABLE_PROJECT_STORAGE_TRACING} "")
+
+env_with_default("QTC_ENABLE_IMAGE_CACHE_TRACING" ENV_QTC_ENABLE_IMAGE_CACHE_TRACING OFF)
+option(ENABLE_IMAGE_CACHE_TRACING "Enable image cache tracing" ${ENV_QTC_ENABLE_IMAGE_CACHE_TRACING})
+add_feature_info("Image cache tracing" ${ENABLE_IMAGE_CACHE_TRACING} "")
+
+env_with_default("QTC_ENABLE_MODEL_TRACING" ENV_QTC_ENABLE_MODEL_TRACING OFF)
+option(ENABLE_MODEL_TRACING "Enable model tracing" ${ENV_QTC_ENABLE_MODEL_TRACING})
+add_feature_info("Model tracing" ${ENABLE_MODEL_TRACING} "")
+
+
+
 add_qtc_library(QmlDesignerUtils STATIC
   DEPENDS
     Qt::Gui Utils Qt::QmlPrivate Core
@@ -77,6 +91,16 @@ add_qtc_library(QmlDesignerCore STATIC
   SOURCES
     rewritertransaction.cpp
     rewritertransaction.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION TARGET Nanotrace
+  DEPENDS Nanotrace
+  DEFINES
+    ENABLE_QMLDESIGNER_TRACING
+    $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
+    $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
+    $<$<BOOL:${ENABLE_MODEL_TRACING}>:ENABLE_MODEL_TRACING>
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -181,6 +205,12 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/tracing
+  SOURCES
+    qmldesignertracing.cpp qmldesignertracing.h
+)
+
+extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/include
   SOURCES
     abstractview.h
@@ -188,16 +218,24 @@ extend_qtc_library(QmlDesignerCore
     bytearraymodifier.h
     componenttextmodifier.h
     forwardview.h
-    itemlibraryinfo.h
-    metainforeader.h
+    itemlibraryentry.h
     model.h
     nodehints.h
     plaintexteditmodifier.h
     nodeinstanceview.h
     propertyparser.h
     rewriterview.h
-    subcomponentmanager.h
     textmodifier.h
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION NOT USE_PROJECTSTORAGE
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/include
+  SOURCES
+    itemlibraryinfo.h
+    metainforeader.h
+    subcomponentmanager.h
+    metainfo.h
 )
 
 extend_qtc_library(QmlDesignerCore
@@ -229,7 +267,6 @@ extend_qtc_library(QmlDesignerCore
     invalidreparentingexception.h
     invalidslideindexexception.h
     mathutils.h
-    metainfo.h
     modelfwd.h
     modelmerger.h
     modelnode.h
@@ -270,13 +307,21 @@ extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/metainfo
   DEFINES SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
   SOURCES
+    itemlibraryentry.cpp
+    nodehints.cpp
+    nodemetainfo.cpp
+)
+
+extend_qtc_library(QmlDesignerCore
+  CONDITION NOT USE_PROJECTSTORAGE
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/designercore/metainfo
+  SOURCES
     itemlibraryinfo.cpp
     metainfo.cpp
     metainforeader.cpp
-    nodehints.cpp
-    nodemetainfo.cpp
     subcomponentmanager.cpp
 )
+
 
 extend_qtc_library(QmlDesignerCore
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/designercore/instances
@@ -401,6 +446,7 @@ extend_qtc_library(QmlDesignerCore
     projectstorageinterface.h
     projectstoragefwd.h
     projectstorageinfotypes.h
+    projectstorageobserver.h
     projectstoragepathwatcher.h
     projectstoragepathwatcherinterface.h
     projectstoragepathwatchernotifierinterface.h
@@ -418,6 +464,7 @@ extend_qtc_library(QmlDesignerCore
     storagecache.h
     storagecacheentry.h
     storagecachefwd.h
+    typeannotationreader.cpp typeannotationreader.h
     qmldocumentparserinterface.h
     qmltypesparserinterface.h
     qmltypesparser.cpp qmltypesparser.h
@@ -788,12 +835,14 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/collectioneditor
   SOURCES
     collectiondetails.cpp collectiondetails.h
+    collectiondetailsmodel.cpp collectiondetailsmodel.h
+    collectiondetailssortfiltermodel.cpp collectiondetailssortfiltermodel.h
     collectioneditorconstants.h
+    collectioneditorutils.cpp collectioneditorutils.h
     collectionlistmodel.cpp collectionlistmodel.h
     collectionsourcemodel.cpp collectionsourcemodel.h
     collectionview.cpp collectionview.h
     collectionwidget.cpp collectionwidget.h
-    singlecollectionmodel.cpp singlecollectionmodel.h
 )
 
 extend_qtc_plugin(QmlDesigner

@@ -12,6 +12,11 @@ PropertyEditorPane {
 
     ComponentSection {}
 
+    DynamicPropertiesSection {
+        propertiesModel: SelectionDynamicPropertiesModel {}
+        visible: !hasMultiSelection
+    }
+
     Column {
         anchors.left: parent.left
         anchors.right: parent.right

@@ -3,7 +3,7 @@
 
 import QtQuick
 import QtQuick.Layouts
-import StudioTheme 1.0 as StudioTheme
+import StudioTheme as StudioTheme
 
 Item {
     id: control
@@ -14,11 +14,13 @@ Item {
     property alias captionPixelSize: label.font.pixelSize
     property alias captionColor: header.color
     property alias captionTextColor: label.color
-    property int leftPadding: 8
-    property int topPadding: 4
+    property int leftPadding: 0
     property int rightPadding: 0
+    property int topPadding: control.style.sectionHeadSpacerHeight
+    property int bottomPadding: control.style.sectionHeadSpacerHeight
     property int animationDuration: 120
     property bool expanded: true
+    property int collapsedBottomPadding: StudioTheme.Values.border
 
     clip: true
 
@@ -28,16 +30,7 @@ Item {
         anchors.right: parent.right
         height: control.style.sectionHeadHeight
         color: control.style.section.head
-
-        SectionLabel {
-            id: label
-            style: control.style
-            anchors.verticalCenter: parent.verticalCenter
-            color: control.style.text.idle
-            x: 22
-            font.pixelSize: control.style.baseFontSize
-            font.capitalization: Font.AllUppercase
-        }
+        radius: StudioTheme.Values.smallRadius
 
         SectionLabel {
             id: arrow
@@ -52,12 +45,24 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             font.pixelSize: control.style.smallIconFontSize
             font.family: StudioTheme.Constants.iconFont.family
+
             Behavior on rotation {
                 NumberAnimation {
                     easing.type: Easing.OutCubic
                     duration: control.animationDuration
                 }
             }
+        }
+
+        SectionLabel {
+            id: label
+            style: control.style
+            anchors.verticalCenter: parent.verticalCenter
+            color: control.style.text.idle
+            x: 22
+            width: header.width - label.x
+            font.pixelSize: control.style.baseFontSize
+            font.capitalization: Font.AllUppercase
         }
 
         MouseArea {
@@ -78,22 +83,22 @@ Item {
 
     Row {
         id: topRow
-        height: control.style.sectionHeadSpacerHeight
+        height: control.topPadding
         anchors.top: header.bottom
     }
 
     Column {
         id: column
         anchors.left: parent.left
-        anchors.leftMargin: leftPadding
+        anchors.leftMargin: control.leftPadding
         anchors.right: parent.right
-        anchors.rightMargin: rightPadding
+        anchors.rightMargin: control.rightPadding
         anchors.top: topRow.bottom
     }
 
     Row {
         id: bottomRow
-        height: control.style.sectionHeadSpacerHeight
+        height: control.bottomPadding
         anchors.top: column.bottom
     }
 
@@ -118,7 +123,7 @@ Item {
             when: !control.expanded
             PropertyChanges {
                 target: control
-                implicitHeight: header.height
+                implicitHeight: header.height + control.collapsedBottomPadding
             }
             PropertyChanges {
                 target: arrow

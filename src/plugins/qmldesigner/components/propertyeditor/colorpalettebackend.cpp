@@ -205,20 +205,17 @@ void ColorPaletteBackend::showDialog(QColor color)
 
 void ColorPaletteBackend::eyeDropper()
 {
-    QWidget *widget = QApplication::activeWindow();
-    if (!widget)
+    QWindow *window = QGuiApplication::focusWindow();
+    if (!window)
         return;
 
     if (!m_colorPickingEventFilter)
         m_colorPickingEventFilter = new QColorPickingEventFilter(this);
 
-    widget->installEventFilter(m_colorPickingEventFilter);
+    window->installEventFilter(m_colorPickingEventFilter);
+    window->setMouseGrabEnabled(true);
+    window->setKeyboardGrabEnabled(true);
 
-#ifndef QT_NO_CURSOR
-    widget->grabMouse(/*Qt::CrossCursor*/);
-#else
-    w->grabMouse();
-#endif
 #ifdef Q_OS_WIN32 // excludes WinRT
     // On Windows mouse tracking doesn't work over other processes's windows
     updateTimer->start(30);
@@ -227,11 +224,6 @@ void ColorPaletteBackend::eyeDropper()
     // and loose focus.
     dummyTransparentWindow.show();
 #endif
-    widget->grabKeyboard();
-    /* With setMouseTracking(true) the desired color can be more precisely picked up,
-     * and continuously pushing the mouse button is not necessary.
-     */
-    widget->setMouseTracking(true);
     updateEyeDropperPosition(QCursor::pos());
 }
 
@@ -281,8 +273,8 @@ void ColorPaletteBackend::updateEyeDropperPosition(const QPoint &globalPos)
 
 void ColorPaletteBackend::updateCursor(const QImage &image)
 {
-    QWidget *widget = QApplication::activeWindow();
-    if (!widget)
+    QWindow *window = QGuiApplication::focusWindow();
+    if (!window)
         return;
 
     QPixmap pixmap(QSize(g_cursorWidth, g_cursorHeight));
@@ -316,25 +308,23 @@ void ColorPaletteBackend::updateCursor(const QImage &image)
 
     painter.end();
     QCursor cursor(pixmap);
-    widget->setCursor(cursor);
+    window->setCursor(cursor);
 }
 
 void ColorPaletteBackend::releaseEyeDropper()
 {
-    QWidget *widget = QApplication::activeWindow();
-    if (!widget)
+    QWindow *window = QGuiApplication::focusWindow();
+    if (!window)
         return;
 
-    widget->removeEventFilter(m_colorPickingEventFilter);
-    widget->releaseMouse();
+    window->removeEventFilter(m_colorPickingEventFilter);
+    window->setMouseGrabEnabled(false);
 #ifdef Q_OS_WIN32
     updateTimer->stop();
     dummyTransparentWindow.setVisible(false);
 #endif
-    widget->releaseKeyboard();
-    widget->setMouseTracking(false);
-
-    widget->unsetCursor();
+    window->setKeyboardGrabEnabled(false);
+    window->unsetCursor();
 }
 
 bool ColorPaletteBackend::handleEyeDropperMouseMove(QMouseEvent *e)
@@ -369,8 +359,5 @@ bool ColorPaletteBackend::handleEyeDropperKeyPress(QKeyEvent *e)
     e->accept();
     return true;
 }
-
-/// EYE DROPPER
-
 
 } // namespace QmlDesigner

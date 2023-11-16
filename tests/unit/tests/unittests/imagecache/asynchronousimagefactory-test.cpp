@@ -43,8 +43,9 @@ TEST_F(AsynchronousImageFactory, request_image_request_image_from_collector)
                       IsEmpty(),
                       VariantWith<std::monostate>(std::monostate{}),
                       _,
+                      _,
                       _))
-        .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
+        .WillRepeatedly([&](auto, auto, auto, auto, auto, auto) { notification.notify(); });
 
     factory.generate("/path/to/Component.qml");
     notification.wait();
@@ -57,8 +58,9 @@ TEST_F(AsynchronousImageFactory, request_image_with_extra_id_request_image_from_
                       Eq("foo"),
                       VariantWith<std::monostate>(std::monostate{}),
                       _,
+                      _,
                       _))
-        .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
+        .WillRepeatedly([&](auto, auto, auto, auto, auto, auto) { notification.notify(); });
 
     factory.generate("/path/to/Component.qml", "foo");
     notification.wait();
@@ -77,8 +79,9 @@ TEST_F(AsynchronousImageFactory, request_image_with_auxiliary_data_request_image
                                 Field(&FontCollectorSizesAuxiliaryData::colorName, Eq(u"color")),
                                 Field(&FontCollectorSizesAuxiliaryData::text, Eq(u"some text")))),
                       _,
+                      _,
                       _))
-        .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
+        .WillRepeatedly([&](auto, auto, auto, auto, auto, auto) { notification.notify(); });
 
     factory.generate("/path/to/Component.qml",
                      "foo",
@@ -99,7 +102,7 @@ TEST_F(AsynchronousImageFactory, dont_request_image_request_image_from_collector
     ON_CALL(timeStampProviderMock, timeStamp(Eq("/path/to/Component.qml")))
         .WillByDefault(Return(Sqlite::TimeStamp{1}));
 
-    EXPECT_CALL(collectorMock, start(_, _, _, _, _)).Times(0);
+    EXPECT_CALL(collectorMock, start(_, _, _, _, _, _)).Times(0);
 
     factory.generate("/path/to/Component.qml");
     notification.wait();
@@ -113,7 +116,7 @@ TEST_F(AsynchronousImageFactory, request_image_request_image_from_collector_if_f
         .WillByDefault(Return(Sqlite::TimeStamp{125}));
     ON_CALL(timeStampProviderMock, pause()).WillByDefault(Return(Sqlite::TimeStamp{1}));
 
-    EXPECT_CALL(collectorMock, start(_, _, _, _, _)).WillOnce([&](auto, auto, auto, auto, auto) {
+    EXPECT_CALL(collectorMock, start(_, _, _, _, _, _)).WillOnce([&](auto, auto, auto, auto, auto, auto) {
         notification.notify();
     });
 
@@ -123,15 +126,15 @@ TEST_F(AsynchronousImageFactory, request_image_request_image_from_collector_if_f
 
 TEST_F(AsynchronousImageFactory, clean_removes_entries)
 {
-    EXPECT_CALL(collectorMock, start(Eq("/path/to/Component1.qml"), _, _, _, _))
-        .WillRepeatedly([&](auto, auto, auto, auto, auto) {
+    EXPECT_CALL(collectorMock, start(Eq("/path/to/Component1.qml"), _, _, _, _, _))
+        .WillRepeatedly([&](auto, auto, auto, auto, auto, auto) {
             notification.notify();
             waitInThread.wait();
         });
     factory.generate("/path/to/Component1.qml");
     notification.wait();
 
-    EXPECT_CALL(collectorMock, start(Eq("/path/to/Component3.qml"), _, _, _, _)).Times(0);
+    EXPECT_CALL(collectorMock, start(Eq("/path/to/Component3.qml"), _, _, _, _, _)).Times(0);
 
     factory.generate("/path/to/Component3.qml");
     factory.clean();
@@ -147,8 +150,9 @@ TEST_F(AsynchronousImageFactory, after_clean_new_jobs_works)
                       IsEmpty(),
                       VariantWith<std::monostate>(std::monostate{}),
                       _,
+                      _,
                       _))
-        .WillRepeatedly([&](auto, auto, auto, auto, auto) { notification.notify(); });
+        .WillRepeatedly([&](auto, auto, auto, auto, auto, auto) { notification.notify(); });
 
     factory.generate("/path/to/Component.qml");
     notification.wait();
@@ -166,9 +170,10 @@ TEST_F(AsynchronousImageFactory, capture_image_callback_stores_image)
                   Eq("id"),
                   VariantWith<std::monostate>(std::monostate{}),
                   _,
+                  _,
                   _))
-        .WillByDefault([&](auto, auto, auto, auto capture, auto) {
-            capture(image1, midSizeImage1, smallImage1);
+        .WillByDefault([&](auto, auto, auto, auto capture, auto, auto) {
+            capture(image1, midSizeImage1, smallImage1, {});
         });
 
     EXPECT_CALL(storageMock,

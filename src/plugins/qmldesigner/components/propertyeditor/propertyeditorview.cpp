@@ -82,7 +82,7 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
 
     m_stackedWidget->setStyleSheet(Theme::replaceCssColors(
         QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
-    m_stackedWidget->setMinimumWidth(340);
+    m_stackedWidget->setMinimumSize(340, 340);
     m_stackedWidget->move(0, 0);
     connect(m_stackedWidget, &PropertyEditorWidget::resized, this, &PropertyEditorView::updateSize);
 

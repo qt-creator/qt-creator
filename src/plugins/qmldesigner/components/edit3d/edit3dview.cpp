@@ -58,6 +58,9 @@ Edit3DView::Edit3DView(ExternalDependenciesInterface &externalDependencies)
     m_compressionTimer.setInterval(1000);
     m_compressionTimer.setSingleShot(true);
     connect(&m_compressionTimer, &QTimer::timeout, this, &Edit3DView::handleEntriesChanged);
+
+    for (int i = 0; i < 4; ++i)
+        m_splitToolStates.append({0, false});
 }
 
 void Edit3DView::createEdit3DWidget()
@@ -108,6 +111,18 @@ void Edit3DView::renderImage3DChanged(const QImage &img)
 
 void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
 {
+    const QString activeSplitKey = QStringLiteral("activeSplit");
+    if (sceneState.contains(activeSplitKey)) {
+        m_activeSplit = sceneState[activeSplitKey].toInt();
+
+        // If the sceneState contained just activeSplit key, then this is simply an active split
+        // change rather than entire active scene change, and we don't need to process further.
+        if (sceneState.size() == 1)
+            return;
+    } else {
+        m_activeSplit = 0;
+    }
+
     const QString sceneKey           = QStringLiteral("sceneInstanceId");
     const QString selectKey          = QStringLiteral("selectionMode");
     const QString transformKey       = QStringLiteral("transformMode");
@@ -121,6 +136,9 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     const QString particleEmitterKey = QStringLiteral("showParticleEmitter");
     const QString particlesPlayKey   = QStringLiteral("particlePlay");
     const QString syncEnvBgKey       = QStringLiteral("syncEnvBackground");
+    const QString splitViewKey       = QStringLiteral("splitView");
+    const QString matOverrideKey     = QStringLiteral("matOverride");
+    const QString showWireframeKey   = QStringLiteral("showWireframe");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -191,6 +209,29 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     else
         m_particlesPlayAction->action()->setChecked(true);
 
+    if (sceneState.contains(splitViewKey))
+        m_splitViewAction->action()->setChecked(sceneState[splitViewKey].toBool());
+    else
+        m_splitViewAction->action()->setChecked(false);
+
+    if (sceneState.contains(matOverrideKey)) {
+        const QVariantList overrides = sceneState[matOverrideKey].toList();
+        for (int i = 0; i < 4; ++i)
+            m_splitToolStates[i].matOverride = i < overrides.size() ? overrides[i].toInt() : 0;
+    } else {
+        for (SplitToolState &state : m_splitToolStates)
+            state.matOverride = 0;
+    }
+
+    if (sceneState.contains(showWireframeKey)) {
+        const QVariantList showList = sceneState[showWireframeKey].toList();
+        for (int i = 0; i < 4; ++i)
+            m_splitToolStates[i].showWireframe = i < showList.size() ? showList[i].toBool() : false;
+    } else {
+        for (SplitToolState &state : m_splitToolStates)
+            state.showWireframe = false;
+    }
+
     // Syncing background color only makes sense for children of View3D instances
     bool syncValue = false;
     bool syncEnabled = false;
@@ -257,9 +298,13 @@ void Edit3DView::modelAttached(Model *model)
         if (QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit()))
             m_isBakingLightsSupported = qtVer->qtVersion() >= QVersionNumber(6, 5, 0);
     }
-
-    connect(model->metaInfo().itemLibraryInfo(), &ItemLibraryInfo::entriesChanged, this,
-            &Edit3DView::onEntriesChanged, Qt::UniqueConnection);
+#ifndef QDS_USE_PROJECTSTORAGE
+    connect(model->metaInfo().itemLibraryInfo(),
+            &ItemLibraryInfo::entriesChanged,
+            this,
+            &Edit3DView::onEntriesChanged,
+            Qt::UniqueConnection);
+#endif
 }
 
 void Edit3DView::onEntriesChanged()
@@ -285,24 +330,43 @@ void Edit3DView::handleEntriesChanged()
         EK_importedModels
     };
 
-    QMap<ItemLibraryEntryKeys, ItemLibraryDetails> entriesMap {
+    QMap<ItemLibraryEntryKeys, ItemLibraryDetails> entriesMap{
         {EK_cameras, {tr("Cameras"), contextIcon(DesignerIcons::CameraIcon)}},
         {EK_lights, {tr("Lights"), contextIcon(DesignerIcons::LightIcon)}},
         {EK_primitives, {tr("Primitives"), contextIcon(DesignerIcons::PrimitivesIcon)}},
-        {EK_importedModels, {tr("Imported Models"), contextIcon(DesignerIcons::ImportedModelsIcon)}}
+        {EK_importedModels, {tr("Imported Models"), contextIcon(DesignerIcons::ImportedModelsIcon)}}};
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    const auto &projectStorage = *model()->projectStorage();
+    auto append = [&](const NodeMetaInfo &metaInfo, ItemLibraryEntryKeys key) {
+        auto entries = metaInfo.itemLibrariesEntries();
+        if (entries.size())
+            entriesMap[key].entryList.append(toItemLibraryEntries(entries, projectStorage));
     };
 
+    append(model()->qtQuick3DModelMetaInfo(), EK_primitives);
+    append(model()->qtQuick3DDirectionalLightMetaInfo(), EK_lights);
+    append(model()->qtQuick3DSpotLightMetaInfo(), EK_lights);
+    append(model()->qtQuick3DPointLightMetaInfo(), EK_lights);
+    append(model()->qtQuick3DOrthographicCameraMetaInfo(), EK_cameras);
+    append(model()->qtQuick3DPerspectiveCameraMetaInfo(), EK_cameras);
+
+    auto assetsModule = model()->module("Quick3DAssets");
+
+    for (const auto &metaInfo : model()->metaInfosForModule(assetsModule))
+        append(metaInfo, EK_importedModels);
+#else
     const QList<ItemLibraryEntry> itemLibEntries = model()->metaInfo().itemLibraryInfo()->entries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
         ItemLibraryEntryKeys entryKey;
         if (entry.typeName() == "QtQuick3D.Model" && entry.name() != "Empty") {
             entryKey = EK_primitives;
         } else if (entry.typeName() == "QtQuick3D.DirectionalLight"
-                || entry.typeName() == "QtQuick3D.PointLight"
-                || entry.typeName() == "QtQuick3D.SpotLight") {
+                   || entry.typeName() == "QtQuick3D.PointLight"
+                   || entry.typeName() == "QtQuick3D.SpotLight") {
             entryKey = EK_lights;
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
-                || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
+                   || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
             entryKey = EK_cameras;
         } else if (entry.typeName().startsWith("Quick3DAssets.")
                    && NodeHints::fromItemLibraryEntry(entry).canBeDroppedInView3D()) {
@@ -312,6 +376,7 @@ void Edit3DView::handleEntriesChanged()
         }
         entriesMap[entryKey].entryList.append(entry);
     }
+#endif
 
     m_edit3DWidget->updateCreateSubMenu(entriesMap.values());
 }
@@ -431,7 +496,7 @@ void Edit3DView::nodeRemoved(const ModelNode &,
     updateAlignActionStates();
 }
 
-void Edit3DView::sendInputEvent(QInputEvent *e) const
+void Edit3DView::sendInputEvent(QEvent *e) const
 {
     if (nodeInstanceView())
         nodeInstanceView()->sendInputEvent(e);
@@ -631,6 +696,24 @@ void Edit3DView::syncSnapAuxPropsToSettings()
                                      Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL));
     rootModelNode().setAuxiliaryData(edit3dSnapScaleIntProperty,
                                      Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL));
+}
+
+const QList<Edit3DView::SplitToolState> &Edit3DView::splitToolStates() const
+{
+    return m_splitToolStates;
+}
+
+void Edit3DView::setSplitToolState(int splitIndex, const SplitToolState &state)
+{
+    if (splitIndex >= m_splitToolStates.size())
+        return;
+
+    m_splitToolStates[splitIndex] = state;
+}
+
+int Edit3DView::activeSplit() const
+{
+    return m_activeSplit;
 }
 
 void Edit3DView::createEdit3DActions()
@@ -946,7 +1029,7 @@ void Edit3DView::createEdit3DActions()
     createSeekerSliderAction();
 
     m_bakeLightsAction = std::make_unique<Edit3DBakeLightsAction>(
-        toolbarIcon(DesignerIcons::EditLightIcon), //: TODO placeholder icon
+        toolbarIcon(DesignerIcons::BakeLightIcon),
         this,
         bakeLightsTrigger);
 
@@ -991,6 +1074,17 @@ void Edit3DView::createEdit3DActions()
         this,
         snapConfigTrigger);
 
+    m_splitViewAction = std::make_unique<Edit3DAction>(
+        QmlDesigner::Constants::EDIT3D_SPLIT_VIEW,
+        View3DActionType::SplitViewToggle,
+        QCoreApplication::translate("SplitViewToggleAction",
+                                    "Toggle Split View On/Off"),
+        QKeySequence(Qt::CTRL | Qt::ALT | Qt::Key_Q),
+        true,
+        false,
+        toolbarIcon(DesignerIcons::SplitViewIcon),
+        this);
+
     m_leftActions << m_selectionModeAction.get();
     m_leftActions << nullptr; // Null indicates separator
     m_leftActions << nullptr; // Second null after separator indicates an exclusive group
@@ -1012,6 +1106,7 @@ void Edit3DView::createEdit3DActions()
     m_leftActions << nullptr;
     m_leftActions << m_visibilityTogglesAction.get();
     m_leftActions << m_backgroundColorMenuAction.get();
+    m_leftActions << m_splitViewAction.get();
 
     m_rightActions << m_particleViewModeAction.get();
     m_rightActions << m_particlesPlayAction.get();

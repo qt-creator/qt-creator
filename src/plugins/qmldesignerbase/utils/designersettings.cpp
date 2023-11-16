@@ -77,6 +77,7 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_SHOW_ONLY_VISIBLE_ITEMS, true);
     restoreValue(settings, DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER, false);
     restoreValue(settings, DesignerSettingsKey::ENABLE_TIMELINEVIEW, true);
+    restoreValue(settings, DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE, true);
     restoreValue(settings, DesignerSettingsKey::COLOR_PALETTE_RECENT, QStringList());
     restoreValue(settings, DesignerSettingsKey::COLOR_PALETTE_FAVORITE, QStringList());
     restoreValue(settings, DesignerSettingsKey::ALWAYS_DESIGN_MODE, true);

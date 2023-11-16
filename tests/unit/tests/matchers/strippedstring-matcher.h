@@ -19,6 +19,11 @@ public:
         : m_content(strip(std::move(content)))
     {}
 
+    bool MatchAndExplain(std::string_view s, testing::MatchResultListener *listener) const
+    {
+        return MatchAndExplain(QString::fromUtf8(s.data(), Utils::ssize(s)), listener);
+    }
+
     bool MatchAndExplain(const QString &s, testing::MatchResultListener *listener) const
     {
         auto strippedContent = strip(s);
@@ -78,4 +83,10 @@ private:
 inline auto StrippedStringEq(const QStringView &content)
 {
     return ::testing::PolymorphicMatcher(Internal::StippedStringEqMatcher(content.toString()));
+}
+
+inline auto StrippedStringEq(const std::string_view &content)
+{
+    return ::testing::PolymorphicMatcher(
+        Internal::StippedStringEqMatcher(QString::fromUtf8(content.data(), Utils::ssize(content))));
 }

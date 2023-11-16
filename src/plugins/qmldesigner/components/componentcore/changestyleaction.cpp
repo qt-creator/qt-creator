@@ -6,6 +6,9 @@
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
+
+#include <qmlbuildsystem.h>
 
 #include <QComboBox>
 #include <QSettings>
@@ -14,14 +17,31 @@ namespace QmlDesigner {
 
 static QString styleConfigFileName(const QString &qmlFileName)
 {
-    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(Utils::FilePath::fromString(qmlFileName));
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::projectForFile(
+        Utils::FilePath::fromString(qmlFileName));
 
-    if (currentProject) {
-        const QList<Utils::FilePath> fileNames = currentProject->files(
-            ProjectExplorer::Project::SourceFiles);
-        for (const Utils::FilePath &fileName : fileNames)
-            if (fileName.endsWith("qtquickcontrols2.conf"))
-                return fileName.toString();
+    if (currentProject && currentProject->activeTarget()) {
+        const auto *qmlBuild = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+            currentProject->activeTarget()->buildSystem());
+
+        if (qmlBuild) {
+            const auto &environment = qmlBuild->environment();
+            const auto &envVar = std::find_if(
+                std::begin(environment), std::end(environment), [](const auto &envVar) {
+                    return (envVar.name == u"QT_QUICK_CONTROLS_CONF"
+                            && envVar.operation != Utils::EnvironmentItem::SetDisabled);
+                });
+            if (envVar != std::end(environment)) {
+                const auto &fileNames = currentProject->files(ProjectExplorer::Project::SourceFiles);
+                const auto &foundFile = std::find_if(std::begin(fileNames),
+                                                     std::end(fileNames),
+                                                     [&](const auto &fileName) {
+                                                         return fileName.fileName() == envVar->value;
+                                                     });
+                if (foundFile != std::end(fileNames))
+                    return foundFile->toString();
+            }
+        }
     }
 
     return QString();
@@ -29,9 +49,6 @@ static QString styleConfigFileName(const QString &qmlFileName)
 
 ChangeStyleWidgetAction::ChangeStyleWidgetAction(QObject *parent) : QWidgetAction(parent)
 {
-    // The Default style was renamed to Basic in Qt 6. In Qt 6, "Default"
-    // will result in a platform-specific style being chosen.
-
     items = getAllStyleItems();
 }
 
@@ -48,7 +65,6 @@ const QList<StyleWidgetEntry> ChangeStyleWidgetAction::styleItems() const
 QList<StyleWidgetEntry> ChangeStyleWidgetAction::getAllStyleItems()
 {
     QList<StyleWidgetEntry> items = {{"Basic", "Basic", {}},
-                                     {"Default", "Default", {}},
                                      {"Fusion", "Fusion", {}},
                                      {"Imagine", "Imagine", {}},
                                      {"Material Light", "Material", "Light"},
@@ -61,6 +77,11 @@ QList<StyleWidgetEntry> ChangeStyleWidgetAction::getAllStyleItems()
         items.append({"macOS", "macOS", {}});
     if (Utils::HostOsInfo::isWindowsHost())
         items.append({"Windows", "Windows", {}});
+
+    if (DesignerMcuManager::instance().isMCUProject())
+        items.append({"MCUDefaultStyle", "MCUDefaultStyle", {}});
+
+    //what if we have a custom style set in .conf?
 
     return items;
 }
@@ -159,7 +180,6 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
             comboBox->setCurrentIndex(0);
         } else if (DesignerMcuManager::instance().isMCUProject()) {
             comboBox->setDisabled(true);
-            //TODO: add tooltip regarding MCU limitations, however we are behind string freeze
             comboBox->setEditText(style);
         } else {
             comboBox->setDisabled(false);

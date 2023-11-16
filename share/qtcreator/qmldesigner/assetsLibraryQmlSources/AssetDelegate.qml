@@ -32,12 +32,7 @@ TreeViewDelegate {
     readonly property int __dirItemHeight: 21
 
     implicitHeight: root.__isDirectory ? root.__dirItemHeight : root.__fileItemHeight
-    implicitWidth: {
-        if (root.assetsView.verticalScrollBar.scrollBarVisible)
-            return root.assetsView.width - root.indentation - root.assetsView.verticalScrollBar.width
-        else
-            return root.assetsView.width - root.indentation
-    }
+    implicitWidth: root.assetsView.width
 
     leftMargin: root.__isDirectory ? 0 : thumbnailImage.width
 
@@ -88,7 +83,7 @@ TreeViewDelegate {
     background: Rectangle {
         id: bg
 
-        x: root.indentation * root.depth
+        x: root.indentation * (root.depth - 1)
         width: root.implicitWidth - bg.x
 
         color: {

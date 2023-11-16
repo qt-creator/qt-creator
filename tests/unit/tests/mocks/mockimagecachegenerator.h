@@ -16,8 +16,9 @@ public:
                  Utils::SmallStringView state,
                  Sqlite::TimeStamp timeStamp,
                  QmlDesigner::ImageCache::CaptureImageWithScaledImagesCallback &&captureCallback,
-                 QmlDesigner::ImageCache::AbortCallback &&abortCallback,
-                 QmlDesigner::ImageCache::AuxiliaryData &&auxiliaryData),
+                 QmlDesigner::ImageCache::InternalAbortCallback &&abortCallback,
+                 QmlDesigner::ImageCache::AuxiliaryData &&auxiliaryData,
+                 QmlDesigner::ImageCache::TraceToken),
                 (override));
     MOCK_METHOD(void, clean, (), (override));
     MOCK_METHOD(void, waitForFinished, (), (override));

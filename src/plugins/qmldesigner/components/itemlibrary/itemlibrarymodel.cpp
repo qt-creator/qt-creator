@@ -3,10 +3,10 @@
 
 #include "itemlibrarymodel.h"
 #include "itemlibrarycategoriesmodel.h"
-#include "itemlibraryimport.h"
 #include "itemlibrarycategory.h"
+#include "itemlibraryentry.h"
+#include "itemlibraryimport.h"
 #include "itemlibraryitem.h"
-#include "itemlibraryinfo.h"
 
 #include <designermcumanager.h>
 #include <model.h>
@@ -304,7 +304,7 @@ Import ItemLibraryModel::entryToImport(const ItemLibraryEntry &entry)
 
 }
 
-void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
+void ItemLibraryModel::update([[maybe_unused]] ItemLibraryInfo *itemLibraryInfo, Model *model)
 {
     if (!model)
         return;
@@ -365,9 +365,14 @@ void ItemLibraryModel::update(ItemLibraryInfo *itemLibraryInfo, Model *model)
     }
 
     const bool blockNewImports = document->inFileComponentModelActive();
-    const QList<ItemLibraryEntry> itemLibEntries = itemLibraryInfo->entries();
+    const QList<ItemLibraryEntry> itemLibEntries = model->itemLibraryEntries();
     for (const ItemLibraryEntry &entry : itemLibEntries) {
-        NodeMetaInfo metaInfo = model->metaInfo(entry.typeName());
+        NodeMetaInfo metaInfo;
+
+        if constexpr (useProjectStorage())
+            metaInfo = entry.metaInfo();
+        else
+            metaInfo = model->metaInfo(entry.typeName());
 
         bool valid = metaInfo.isValid()
                      && (metaInfo.majorVersion() >= entry.majorVersion()

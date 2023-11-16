@@ -11,36 +11,53 @@ class StudioQuickWidget;
 
 namespace QmlDesigner {
 
+class CollectionDetailsModel;
+class CollectionDetailsSortFilterModel;
 class CollectionSourceModel;
 class CollectionView;
-class SingleCollectionModel;
+class ModelNode;
 
 class CollectionWidget : public QFrame
 {
     Q_OBJECT
+
+    Q_PROPERTY(bool targetNodeSelected MEMBER m_targetNodeSelected NOTIFY targetNodeSelectedChanged)
 
 public:
     CollectionWidget(CollectionView *view);
     void contextHelp(const Core::IContext::HelpCallback &callback) const;
 
     QPointer<CollectionSourceModel> sourceModel() const;
-    QPointer<SingleCollectionModel> singleCollectionModel() const;
+    QPointer<CollectionDetailsModel> collectionDetailsModel() const;
 
     void reloadQmlSource();
 
-    Q_INVOKABLE bool loadJsonFile(const QString &jsonFileAddress);
-    Q_INVOKABLE bool loadCsvFile(const QString &collectionName, const QString &csvFileAddress);
+    virtual QSize minimumSizeHint() const;
+
+    Q_INVOKABLE bool loadJsonFile(const QString &jsonFileAddress, const QString &collectionName = {});
+    Q_INVOKABLE bool loadCsvFile(const QString &csvFileAddress, const QString &collectionName = {});
     Q_INVOKABLE bool isJsonFile(const QString &jsonFileAddress) const;
     Q_INVOKABLE bool isCsvFile(const QString &csvFileAddress) const;
-    Q_INVOKABLE bool addCollection(const QString &collectionName) const;
+    Q_INVOKABLE bool addCollection(const QString &collectionName,
+                                   const QString &collectionType,
+                                   const QString &sourceAddress,
+                                   const QVariant &sourceNode);
+
+    Q_INVOKABLE void assignSourceNodeToSelectedItem(const QVariant &sourceNode);
 
     void warn(const QString &title, const QString &body);
+    void setTargetNodeSelected(bool selected);
+
+signals:
+    void targetNodeSelectedChanged(bool);
 
 private:
     QPointer<CollectionView> m_view;
     QPointer<CollectionSourceModel> m_sourceModel;
-    QPointer<SingleCollectionModel> m_singleCollectionModel;
+    QPointer<CollectionDetailsModel> m_collectionDetailsModel;
+    std::unique_ptr<CollectionDetailsSortFilterModel> m_collectionDetailsSortFilterModel;
     QScopedPointer<StudioQuickWidget> m_quickWidget;
+    bool m_targetNodeSelected = false;
 };
 
 } // namespace QmlDesigner

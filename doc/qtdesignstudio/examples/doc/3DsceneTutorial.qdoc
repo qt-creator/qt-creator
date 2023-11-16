@@ -41,6 +41,8 @@
     Besides the 3D model, the 3D scene also has the default camera and the default directional
     light.
 
+    \include run-tutorial-project.qdocinc
+
     \section1 Adding Materials to the 3D Models
 
     First, use materials from \uicontrol {Content Library} on the ball bearing.

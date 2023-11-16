@@ -30,6 +30,8 @@
 
     All assets you need for this tutorial are included in the Car Demo project.
 
+    \include run-tutorial-project.qdocinc
+
     \section1 Creating States
 
     First, you create the different states. In this tutorial, you create four
@@ -121,16 +123,19 @@
     \list 1
       \li Go to the \uicontrol Connections view.
       \li In \uicontrol{Navigator}, select \e button_side and in
-      \uicontrol {Connections}, select \inlineimage icons/plus.png
-      .
-      This creates a new connection with \e button_side as the target.
-      \li Set \uicontrol{Signal Handler} to \uicontrol onClicked.
-      \li Set \uicontrol Actions to \e {Change state to side}.
+          \uicontrol {Connections}, select the \inlineimage icons/plus.png
+          button to open the connection setup options.
+      \li Set \uicontrol Signal to \c clicked, \uicontrol Action to
+            \c {Change State}, \uicontrol {State Group} to \c rectangle and
+            \uicontrol State to \c side in the respective
+            drop-down menus.
+      \li Select the \inlineimage icons/close.png
+            button to close the connection setup options.
       \li Repeat steps 2 to 4 for the next three buttons and set them to go to
       their corresponding states.
     \endlist
 
-    \image state-transition-connections.png
+    \image state-transition-connections.webp
 
     Now you can preview and try the transitions to see how the UI moves between
     the states when you select the buttons.

@@ -44,6 +44,7 @@ StudioControls.Menu {
     signal remove()
     signal toggle()
     signal resetWhenCondition()
+    signal jumpToCode()
     signal editAnnotation()
     signal removeAnnotation()
 
@@ -80,6 +81,14 @@ StudioControls.Menu {
         text: qsTr("Extend")
         height: extend.visible ? extend.implicitHeight : 0
         onTriggered: root.extend()
+    }
+
+    StudioControls.MenuSeparator {}
+
+    StudioControls.MenuItem {
+        enabled: !root.isBaseState
+        text: qsTr("Jump to the code")
+        onTriggered: root.jumpToCode()
     }
 
     StudioControls.MenuSeparator {}

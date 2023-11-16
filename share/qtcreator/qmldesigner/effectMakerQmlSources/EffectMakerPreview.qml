@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
-import QtQuick.Layouts
 import QtQuickDesignerTheme
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
@@ -12,24 +11,58 @@ import EffectMakerBackend
 Column {
     id: root
 
+    property real animatedTime: previewFrameTimer.elapsedTime
+    property int animatedFrame: previewFrameTimer.currentFrame
+    property bool timeRunning: previewAnimationRunning
+
     width: parent.width
 
     required property Item mainRoot
     property var effectMakerModel: EffectMakerBackend.effectMakerModel
     property alias source: source
     // The delay in ms to wait until updating the effect
-    readonly property int updateDelay: 200
+    readonly property int updateDelay: 100
+
+    // Create a dummy parent to host the effect qml object
+    function createNewComponent() {
+        // If we have a working effect, do not show preview image as it shows through
+        // transparent parts of the final image
+        source.visible = false;
+
+        var oldComponent = componentParent.children[0];
+        if (oldComponent)
+            oldComponent.destroy();
+        try {
+            const newObject = Qt.createQmlObject(
+                effectMakerModel.qmlComponentString,
+                componentParent,
+                ""
+            );
+            effectMakerModel.resetEffectError(0);
+        } catch (error) {
+            let errorString = "QML: ERROR: ";
+            let errorLine = -1;
+            if (error.qmlErrors.length > 0) {
+                // Show the first QML error
+                let e = error.qmlErrors[0];
+                errorString += e.lineNumber + ": " + e.message;
+                errorLine = e.lineNumber;
+            }
+            effectMakerModel.setEffectError(errorString, 0, errorLine);
+            source.visible = true;
+        }
+    }
 
     Rectangle { // toolbar
         width: parent.width
         height: StudioTheme.Values.toolbarHeight
         color: StudioTheme.Values.themeToolbarBackground
 
-        RowLayout {
-            anchors.fill: parent
+        Row {
             spacing: 5
-            anchors.rightMargin: 5
             anchors.leftMargin: 5
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
 
             PreviewImagesComboBox {
                 id: imagesComboBox
@@ -37,9 +70,19 @@ Column {
                 mainRoot: root.mainRoot
             }
 
-            Item {
-                Layout.fillWidth: true
+            StudioControls.ColorEditor {
+                id: colorEditor
+
+                actionIndicatorVisible: false
+                showHexTextField: false
+                color: "#dddddd"
             }
+        }
+
+        Row {
+            spacing: 5
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
 
             HelperWidgets.AbstractButton {
                 enabled: sourceImage.scale > .4
@@ -73,20 +116,24 @@ Column {
                     sourceImage.scale = 1
                 }
             }
+        }
 
-            Item {
-                Layout.fillWidth: true
-            }
+        Row {
+            spacing: 5
+            anchors.rightMargin: 5
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
 
             Column {
                 Text {
-                    text: "0.000s"
+                    text: animatedTime >= 100
+                          ? animatedTime.toFixed(1) + " s" : animatedTime.toFixed(3) + " s"
                     color: StudioTheme.Values.themeTextColor
                     font.pixelSize: 10
                 }
 
                 Text {
-                    text: "0000000"
+                    text: (animatedFrame).toString().padStart(6, '0')
                     color: StudioTheme.Values.themeTextColor
                     font.pixelSize: 10
                 }
@@ -97,15 +144,20 @@ Column {
                 buttonIcon: StudioTheme.Constants.toStartFrame_medium
                 tooltip: qsTr("Restart Animation")
 
-                onClicked: {} // TODO
+                onClicked: {
+                    previewFrameTimer.reset()
+                }
             }
 
             HelperWidgets.AbstractButton {
                 style: StudioTheme.Values.viewBarButtonStyle
-                buttonIcon: StudioTheme.Constants.topToolbar_runProject
+                buttonIcon: previewAnimationRunning ? StudioTheme.Constants.pause_medium
+                                                    : StudioTheme.Constants.playOutline_medium
                 tooltip: qsTr("Play Animation")
 
-                onClicked: {} // TODO
+                onClicked: {
+                    previewAnimationRunning = !previewAnimationRunning
+                }
             }
         }
     }
@@ -113,7 +165,7 @@ Column {
     Rectangle { // preview image
         id: preview
 
-        color: "#dddddd"
+        color: colorEditor.color
         width: parent.width
         height: 200
         clip: true
@@ -146,54 +198,27 @@ Column {
             id: componentParent
             width: source.width
             height: source.height
-                anchors.centerIn: parent
-            scale: 1 //TODO should come from toolbar
+            anchors.centerIn: parent
             // Cache the layer. This way heavy shaders rendering doesn't
             // slow down code editing & rest of the UI.
             layer.enabled: true
             layer.smooth: true
         }
 
-        // Create a dummy parent to host the effect qml object
-        function createNewComponent() {
-            var oldComponent = componentParent.children[0];
-            if (oldComponent)
-                oldComponent.destroy();
-
-            try {
-                const newObject = Qt.createQmlObject(
-                    effectMakerModel.qmlComponentString,
-                    componentParent,
-                    ""
-                );
-                effectMakerModel.resetEffectError(0);
-            } catch (error) {
-                let errorString = "QML: ERROR: ";
-                let errorLine = -1;
-                if (error.qmlErrors.length > 0) {
-                    // Show the first QML error
-                    let e = error.qmlErrors[0];
-                    errorString += e.lineNumber + ": " + e.message;
-                    errorLine = e.lineNumber;
-                }
-                effectMakerModel.setEffectError(errorString, 0, errorLine);
-            }
-        }
-
         Connections {
             target: effectMakerModel
             function onShadersBaked() {
                 console.log("Shaders Baked!")
-                //updateTimer.restart(); // Disable for now
+                updateTimer.restart()
             }
         }
 
         Timer {
             id: updateTimer
-            interval: updateDelay;
+            interval: updateDelay
             onTriggered: {
-                effectMakerModel.updateQmlComponent();
-                createNewComponent();
+                effectMakerModel.updateQmlComponent()
+                createNewComponent()
             }
         }
     }

@@ -182,6 +182,7 @@ ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, Mo
     syncId(newNode, modelNode);
     syncNodeProperties(newNode, modelNode);
     syncNodeListProperties(newNode, modelNode);
+    mergeStates(newNode, modelNode);
 
     return newNode;
 }
@@ -402,6 +403,80 @@ void StylesheetMerger::parseTemplateOptions()
     }
 }
 
+void StylesheetMerger::syncStateNode(ModelNode &outputState, const ModelNode &inputState) const
+{
+    auto addProperty = [](ModelNode &n, const AbstractProperty &p) {
+        if (n.hasProperty(p.name()))
+            return; // Do not ovewrite. Only merge when property not defined in template.
+        if (p.isBindingProperty())
+            n.bindingProperty(p.name()).setExpression(p.toBindingProperty().expression());
+        else
+            n.variantProperty(p.name()).setValue(p.toVariantProperty().value());
+    };
+
+    addProperty(outputState, inputState.property("when"));
+    addProperty(outputState, inputState.property("extend"));
+
+    auto changeSetKey = [](const ModelNode &n) {
+        return QString("%1::%2").arg(QString::fromUtf8(n.type()),
+                                     n.bindingProperty("target").expression());
+    };
+
+    // Collect change sets already defined in the output state.
+    std::map<QString, ModelNode> outputChangeSets;
+    for (ModelNode propChange : outputState.directSubModelNodes())
+        outputChangeSets.insert({changeSetKey(propChange), propChange});
+
+    // Merge the child nodes of the states i.e. AnchorChanges, PropertyChanges, etc.
+    for (ModelNode inputChangeset : inputState.directSubModelNodes()) {
+        const QString key = changeSetKey(inputChangeset);
+        const auto itr = outputChangeSets.find(key);
+        ModelNode changeSet;
+        if (itr != outputChangeSets.end()) {
+            changeSet = itr->second;
+        } else {
+            const QByteArray typeName = inputChangeset.type();
+            NodeMetaInfo metaInfo = m_templateView->model()->metaInfo(typeName);
+            int major = metaInfo.majorVersion();
+            int minor = metaInfo.minorVersion();
+            changeSet = m_templateView->createModelNode(typeName, major, minor);
+            outputState.nodeListProperty("changes").reparentHere(changeSet);
+            outputChangeSets.insert({key, changeSet});
+        }
+
+        for (const auto &p : inputChangeset.properties())
+            addProperty(changeSet, p);
+    }
+}
+
+void StylesheetMerger::mergeStates(ModelNode &outputNode, const ModelNode &inputNode) const
+{
+    QMap<QString, ModelNode> outputStates;
+    for (auto stateNode : outputNode.nodeListProperty("states").toModelNodeList()) {
+        const QString name = stateNode.variantProperty("name").value().toString();
+        if (name.isEmpty())
+            continue;
+        outputStates[name] = stateNode;
+    }
+
+    for (auto inputStateNode : inputNode.nodeListProperty("states").toModelNodeList()) {
+        const QString name = inputStateNode.variantProperty("name").value().toString();
+        try {
+            if (outputStates.contains(name)) {
+                syncStateNode(outputStates[name], inputStateNode);
+                continue;
+            }
+            ModelMerger merger(m_templateView);
+            ModelNode stateClone = merger.insertModel(inputStateNode);
+            if (stateClone.isValid())
+                outputNode.nodeListProperty("states").reparentHere(stateClone);
+        } catch (Exception &e) {
+            qDebug().noquote() << "Exception while merging states.";
+            e.createWarning();
+        }
+    }
+}
+
 void StylesheetMerger::merge()
 {
     ModelNode templateRootNode = m_templateView->rootModelNode();
@@ -421,6 +496,8 @@ void StylesheetMerger::merge()
         replaceRootNode(templateRootNode);
         return;
     }
+
+    mergeStates(templateRootNode, styleRootNode);
 
     QQueue<ModelNode> replacementNodes;
 

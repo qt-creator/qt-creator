@@ -41,7 +41,7 @@
             \image qtquick-annotation-editor.png "Annotation Editor"
         \li The \uicontrol {Selected Item} field displays the ID of the
             component.
-        \li In the the \uicontrol Name field, enter a free-form text that
+        \li In the \uicontrol Name field, enter a free-form text that
             describes the component.
         \li In the \uicontrol Title field, enter the text to display in
             the tab for this comment.

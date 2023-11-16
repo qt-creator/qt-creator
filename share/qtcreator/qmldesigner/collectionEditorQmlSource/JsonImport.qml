@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import QtQuickDesignerTheme 1.0
 import Qt.labs.platform as PlatformWidgets
 import HelperWidgets 2.0 as HelperWidgets
@@ -12,7 +13,7 @@ import StudioTheme as StudioTheme
 StudioControls.Dialog {
     id: root
 
-    title: qsTr("Import Collections")
+    title: qsTr("Import Models")
     anchors.centerIn: parent
     closePolicy: Popup.CloseOnEscape
     modal: true
@@ -21,7 +22,7 @@ StudioControls.Dialog {
     property bool fileExists: false
 
     onOpened: {
-        fileName.text = qsTr("New Json File")
+        fileName.text = qsTr("New JSON File")
         fileName.selectAll()
         fileName.forceActiveFocus()
     }
@@ -30,9 +31,9 @@ StudioControls.Dialog {
         fileName.text = ""
     }
 
-    HelperWidgets.RegExpValidator {
+    RegularExpressionValidator {
         id: fileNameValidator
-        regExp: /^(\w[^*><?|]*)[^/\\:*><?|]$/
+        regularExpression: /^(\w[^*><?|]*)[^/\\:*><?|]$/
     }
 
     PlatformWidgets.FileDialog {
@@ -49,21 +50,25 @@ StudioControls.Dialog {
         onClosed: root.reject()
     }
 
-    contentItem: Column {
+    contentItem: ColumnLayout {
         spacing: 2
 
-        Row {
-            spacing: 10
-            Text {
-                text: qsTr("File name: ")
-                anchors.verticalCenter: parent.verticalCenter
-                color: StudioTheme.Values.themeTextColor
-            }
+        Text {
+            text: qsTr("File name: ")
+            color: StudioTheme.Values.themeTextColor
+        }
+
+        RowLayout {
+            spacing: StudioTheme.Values.sectionRowSpacing
+
+            Layout.fillWidth: true
 
             StudioControls.TextField {
                 id: fileName
 
-                anchors.verticalCenter: parent.verticalCenter
+                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                Layout.fillWidth: true
+
                 actionIndicator.visible: false
                 translationIndicator.visible: false
                 validator: fileNameValidator
@@ -72,38 +77,52 @@ StudioControls.Dialog {
                 Keys.onReturnPressed: btnCreate.onClicked()
                 Keys.onEscapePressed: root.reject()
 
-                onTextChanged: {
-                    root.fileExists = root.backendValue.isJsonFile(fileName.text)
-                }
+                onTextChanged: root.fileExists = root.backendValue.isJsonFile(fileName.text)
             }
 
             HelperWidgets.Button {
                 id: fileDialogButton
-                anchors.verticalCenter: parent.verticalCenter
+
+                Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+
                 text: qsTr("Open")
                 onClicked: fileDialog.open()
             }
         }
 
-        Text {
+        Item { // spacer
+            implicitWidth: 1
+            implicitHeight: StudioTheme.Values.controlLabelGap
+        }
+
+        Label {
+            Layout.fillWidth: true
+
+            padding: 5
             text: qsTr("File name cannot be empty.")
+            wrapMode: Label.WordWrap
             color: StudioTheme.Values.themeTextColor
-            anchors.right: parent.right
             visible: fileName.text === ""
+
+            background: Rectangle {
+                color: "transparent"
+                border.width: StudioTheme.Values.border
+                border.color: StudioTheme.Values.themeWarning
+            }
         }
 
         Item { // spacer
-            width: 1
-            height: 20
+            implicitWidth: 1
+            implicitHeight: StudioTheme.Values.sectionColumnSpacing
         }
 
-        Row {
-            anchors.right: parent.right
-            spacing: 10
+        RowLayout {
+            spacing: StudioTheme.Values.sectionRowSpacing
+
+            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
             HelperWidgets.Button {
                 id: btnCreate
-                anchors.verticalCenter: parent.verticalCenter
 
                 text: qsTr("Import")
                 enabled: root.fileExists
@@ -119,7 +138,6 @@ StudioControls.Dialog {
 
             HelperWidgets.Button {
                 text: qsTr("Cancel")
-                anchors.verticalCenter: parent.verticalCenter
                 onClicked: root.reject()
             }
         }

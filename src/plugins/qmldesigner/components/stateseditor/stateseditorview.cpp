@@ -612,6 +612,7 @@ void StatesEditorView::setStateAsDefault(int internalNodeId)
             e.showException();
         }
     }
+    resetModel();
 }
 
 void StatesEditorView::resetDefaultState()
@@ -629,6 +630,7 @@ void StatesEditorView::resetDefaultState()
     } catch (const RewritingException &e) {
         e.showException();
     }
+    resetModel();
 }
 
 bool StatesEditorView::hasDefaultState() const
@@ -729,8 +731,12 @@ void StatesEditorView::modelAboutToBeDetached(Model *model)
 
 void StatesEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
 {
+    if (m_block)
+        return;
+
     for (const AbstractProperty &property : propertyList) {
-        if (property.name() == "states" && property.parentModelNode() == activeStateGroup().modelNode())
+        if ((property.name() == "states" || property.name() == "state")
+            && property.parentModelNode() == activeStateGroup().modelNode())
             resetModel();
         if ((property.name() == "when" || property.name() == "name")
             && QmlModelState::isValidQmlModelState(property.parentModelNode()))

@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "qmldesigner/components/propertyeditor/qmlanchorbindingproxy.h"
 #include "qmldesigner/components/propertyeditor/qmlmodelnodeproxy.h"
 
 #include <coreplugin/icontext.h>
@@ -54,6 +55,7 @@ private:
     QPointer<EffectMakerView> m_effectMakerView;
     QPointer<StudioQuickWidget> m_quickWidget;
     QmlDesigner::QmlModelNodeProxy m_backendModelNode;
+    QmlDesigner::QmlAnchorBindingProxy m_backendAnchorBinding;
 };
 
 } // namespace EffectMaker

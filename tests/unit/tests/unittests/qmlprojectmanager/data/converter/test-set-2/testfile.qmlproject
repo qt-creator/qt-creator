@@ -19,8 +19,11 @@ Project {
     }
 
     Files {
-        filter: "*.conf"
         files: ["qtquickcontrols2.conf"]
+    }
+
+    Files {
+        filter: "*.conf"
     }
 
     Files {

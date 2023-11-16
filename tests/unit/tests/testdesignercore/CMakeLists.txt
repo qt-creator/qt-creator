@@ -61,9 +61,7 @@ add_qtc_library(TestDesignerCore OBJECT
     include/bindingproperty.h
     include/imagecacheauxiliarydata.h
     include/import.h
-    include/itemlibraryinfo.h
-    include/metainfo.h
-    include/metainforeader.h
+    include/itemlibraryentry.h
     include/modelnode.h
     include/module.h
     include/nodeabstractproperty.h
@@ -78,9 +76,7 @@ add_qtc_library(TestDesignerCore OBJECT
     include/signalhandlerproperty.h
     include/synchronousimagecache.h
     include/variantproperty.h
-    metainfo/itemlibraryinfo.cpp
-    metainfo/metainfo.cpp
-    metainfo/metainforeader.cpp
+    metainfo/itemlibraryentry.cpp
     metainfo/nodemetainfo.cpp
     model/abstractproperty.cpp
     model/abstractview.cpp
@@ -127,6 +123,7 @@ add_qtc_library(TestDesignerCore OBJECT
     projectstorage/nonlockingmutex.h
     projectstorage/projectstorageexceptions.cpp projectstorage/projectstorageexceptions.h
     projectstorage/projectstorageinterface.h
+    projectstorage/projectstorageobserver.h
     projectstorage/projectstorage.cpp projectstorage/projectstorage.h
     projectstorage/projectstoragepathwatcher.h
     projectstorage/projectstoragepathwatcherinterface.h
@@ -143,8 +140,11 @@ add_qtc_library(TestDesignerCore OBJECT
     projectstorage/storagecache.h
     projectstorage/storagecacheentry.h
     projectstorage/storagecachefwd.h
+    projectstorage/typeannotationreader.cpp
+    projectstorage/typeannotationreader.h
     projectstorage/qmldocumentparserinterface.h
     projectstorage/qmltypesparserinterface.h
+    tracing/qmldesignertracing.cpp tracing/qmldesignertracing.h
     rewritertransaction.cpp
     rewritertransaction.h
 )

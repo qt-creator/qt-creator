@@ -14,8 +14,6 @@ QT_FORWARD_DECLARE_CLASS(QVector2D)
 
 namespace EffectMaker {
 
-
-
 class Uniform : public QObject
 {
     Q_OBJECT
@@ -42,7 +40,7 @@ public:
         Define
     };
 
-    Uniform(const QJsonObject &props);
+    Uniform(const QString &effectName, const QJsonObject &props, const QString &qenPath);
 
     Type type() const;
     QString typeName() const;
@@ -69,7 +67,7 @@ public:
 
     bool enableMipmap() const;
 
-    static QString stringFromType(Uniform::Type type);
+    static QString stringFromType(Uniform::Type type, bool isShader = false);
     static Uniform::Type typeFromString(const QString &typeString);
     static QString typeToProperty(Uniform::Type type);
 
@@ -80,13 +78,14 @@ signals:
 private:
     QString mipmapPropertyName(const QString &name) const;
     bool getBoolValue(const QJsonValue &jsonValue, bool defaultValue);
-    QString getResourcePath(const QString &value) const;
+    QString getResourcePath(const QString &effectName, const QString &value, const QString &qenPath) const;
     void setValueData(const QString &value, const QString &defaultValue,
                       const QString &minValue, const QString &maxValue);
 
     QVariant getInitializedVariant(bool maxValue);
     QVariant valueStringToVariant(const QString &value);
 
+    QString m_qenPath;
     Type m_type;
     QVariant m_value;
     QVariant m_defaultValue;

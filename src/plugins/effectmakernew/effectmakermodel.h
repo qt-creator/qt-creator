@@ -5,12 +5,21 @@
 
 #include "shaderfeatures.h"
 
+#include <utils/filepath.h>
+
+#include <QFileSystemWatcher>
 #include <QMap>
 #include <QRegularExpression>
 #include <QStandardItemModel>
 #include <QTemporaryFile>
 
-#include <QtShaderTools/private/qshaderbaker_p.h>
+namespace ProjectExplorer {
+class Target;
+}
+
+namespace Utils {
+class Process;
+}
 
 namespace EffectMaker {
 
@@ -37,7 +46,7 @@ class EffectMakerModel : public QAbstractListModel
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(QString qmlComponentString READ qmlComponentString)
-
+    Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
 
 public:
     EffectMakerModel(QObject *parent = nullptr);
@@ -60,13 +69,26 @@ public:
 
     QString fragmentShader() const;
     void setFragmentShader(const QString &newFragmentShader);
+
     QString vertexShader() const;
     void setVertexShader(const QString &newVertexShader);
 
     const QString &qmlComponentString() const;
-    void setQmlComponentString(const QString &string);
+
+    void clear();
 
     Q_INVOKABLE void updateQmlComponent();
+
+    Q_INVOKABLE void resetEffectError(int type);
+    Q_INVOKABLE void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
+
+    Q_INVOKABLE void exportComposition(const QString &name);
+    Q_INVOKABLE void exportResources(const QString &name);
+
+    void openComposition(const QString &path);
+
+    QString currentComposition() const;
+    void setCurrentComposition(const QString &newCurrentComposition);
 
 signals:
     void isEmptyChanged();
@@ -74,6 +96,8 @@ signals:
     void effectErrorChanged();
     void shadersUpToDateChanged();
     void shadersBaked();
+
+    void currentCompositionChanged();
 
 private:
     enum Roles {
@@ -99,11 +123,8 @@ private:
     const QString getVSUniforms();
     const QString getFSUniforms();
 
-    void updateBakedShaderVersions();
     QString detectErrorMessage(const QString &errorMessage);
     EffectError effectError() const;
-    void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
-    void resetEffectError(int type);
 
     QString valueAsString(const Uniform &uniform);
     QString valueAsBinding(const Uniform &uniform);
@@ -121,9 +142,15 @@ private:
     QString getCustomShaderVaryings(bool outState);
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
+    void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader);
+    QString stripFileFromURL(const QString &urlString) const;
+    QString getQmlEffectString();
+
     void updateCustomUniforms();
+    void createFiles();
     void bakeShaders();
 
+    QString mipmapPropertyName(const QString &name) const;
     QString getQmlImagesString(bool localFiles);
     QString getQmlComponentString(bool localFiles);
 
@@ -133,6 +160,7 @@ private:
     bool m_isEmpty = true;
     // True when shaders haven't changed since last baking
     bool m_shadersUpToDate = true;
+    int m_remainingQsbTargets = 0;
     QMap<int, EffectError> m_effectErrors;
     ShaderFeatures m_shaderFeatures;
     QStringList m_shaderVaryingVariables;
@@ -140,9 +168,13 @@ private:
     QString m_vertexShader;
     QStringList m_defaultRootVertexShader;
     QStringList m_defaultRootFragmentShader;
-    QShaderBaker m_baker;
-    QTemporaryFile m_fragmentShaderFile;
-    QTemporaryFile m_vertexShaderFile;
+    // Temp files to store shaders sources and binary data
+    QTemporaryFile m_fragmentSourceFile;
+    QTemporaryFile m_vertexSourceFile;
+    QString m_fragmentSourceFilename;
+    QString m_vertexSourceFilename;
+    QString m_fragmentShaderFilename;
+    QString m_vertexShaderFilename;
     // Used in exported QML, at root of the file
     QString m_exportedRootPropertiesString;
     // Used in exported QML, at ShaderEffect component of the file
@@ -150,6 +182,8 @@ private:
     // Used in preview QML, at ShaderEffect component of the file
     QString m_previewEffectPropertiesString;
     QString m_qmlComponentString;
+    bool m_loadComponentImages = true;
+    QString m_currentComposition;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

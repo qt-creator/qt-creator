@@ -179,7 +179,9 @@ TEST_F(PropertyMetaInfo, default_is_not_list)
 
 TEST_F(PropertyMetaInfo, is_enumeration)
 {
-    auto enumInfo = createNodeMetaInfo("QtQuick", "MyEnum", TypeTraits::IsEnum);
+    TypeTraits traits;
+    traits.isEnum = true;
+    auto enumInfo = createNodeMetaInfo("QtQuick", "MyEnum", traits);
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, enumInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
 
@@ -271,7 +273,9 @@ TEST_F(PropertyMetaInfo, default_is_not_pointer)
 
 TEST_F(PropertyMetaInfo, cast_to_enumeration)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "MyEnum", TypeTraits::IsEnum);
+    TypeTraits traits;
+    traits.isEnum = true;
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "MyEnum", traits);
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     Enumeration enumeration{"MyEnum.Foo"};
@@ -297,7 +301,9 @@ TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_property_type_is_not_enumer
 
 TEST_F(PropertyMetaInfo, dont_to_cast_enumeration_if_value_is_not_Enumeration)
 {
-    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "MyEnum", TypeTraits::IsEnum);
+    TypeTraits traits;
+    traits.isEnum = true;
+    auto propertyTypeInfo = createNodeMetaInfo("QtQuick", "MyEnum", traits);
     projectStorageMock.createProperty(nodeInfo.id(), "bar", {}, propertyTypeInfo.id());
     auto propertyInfo = nodeInfo.property("bar");
     auto value = QVariant::fromValue(QString{"enumeration"});

@@ -736,6 +736,9 @@ Item {
         onRemove: root.remove()
         onToggle: root.setPropertyChangesVisible(!root.propertyChangesVisible)
         onResetWhenCondition: statesEditorModel.resetWhenCondition(root.internalNodeId)
+
+        onJumpToCode: StatesEditorBackend.statesEditorModel.jumpToCode()
+
         onEditAnnotation: {
             StatesEditorBackend.statesEditorModel.setAnnotation(root.internalNodeId)
             stateMenu.hasAnnotation = root.checkAnnotation()

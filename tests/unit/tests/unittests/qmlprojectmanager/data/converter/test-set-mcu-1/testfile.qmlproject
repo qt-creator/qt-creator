@@ -1,0 +1,156 @@
+import QmlProject 1.3
+
+// This file works with Qt for MCUs 2.6, with the testfile of set-set-mcu-2 used as the module.
+// Do not make any changes to this or the expected output before communicating with the MCU team
+
+// The set of properties may not be exhaustive and may not match every supported Qt for MCUs version
+
+Project {
+// These properties are used by Qt for MCUs
+// They should never have the QDS-prefix
+    mainFile: "Main.qml"
+    supportedLanguages: ["no"]
+    primaryLanguage: "en"
+    importPaths: [ "imports", "asset_imports" ]
+    idBasedTranslations: true
+    projectRootPath: ".."
+// END of common properties
+
+// The following properties are ignored by Qt for MCUs
+// They can have the QDS-prefix, but do not need it
+    targetDirectory: "/opt/UntitledProject13"
+    qdsVersion: "4.0"
+    quickVersion: "6.2"
+    qtForMCUs: true
+    widgetApp: true
+    multilanguageSupport: true
+// END of ignored properties
+
+// The following properties must have the QDS prefix as of Qt for MCUs 2.6
+// empty
+// END of QDS prefixed properties
+
+// These nodes are used by Qt for MCUs as well as Design Studio
+// Their object type and content must never change based on conversion
+// Any child properties prefixed with MCU must remain unchanged
+
+// The nodes can have properties set on the file group.
+// This test set does not contain an exhaustive set of the available properties
+
+    QmlFiles {
+        directory: "content"
+        MCU.copyQmlFiles: true
+    }
+
+    QmlFiles {
+        files: [
+            "qml/Header.qml",
+            "qml/Footer.qml"
+        ]
+    }
+
+    ImageFiles {
+        directory: "assets"
+    }
+
+    ImageFiles {
+        files: [
+            "images/clock.png"
+        ]
+        MCU.resourceCompression: false
+    }
+
+    ImageFiles {
+        files: [
+            "images/weather.png",
+            "images/navigation.png"
+        ]
+        MCU.prefix: "assets"
+        MCU.base: "images"
+    }
+
+// END common nodes
+
+// These nodes are used by Qt for MCUs but not Design Studio
+// Their object type and content must never change based on conversion
+// Any child properties prefixed with MCU must remain unchanged
+    ModuleFiles {
+        files: [
+            "qmlproject/module/module.qmlproject"
+        ]
+        MCU.qulModules: [
+            "Controls",
+            "Timeline"
+        ]
+    }
+
+    FontFiles {
+        files: [
+            "fonts/RobotoFonts.fmp"
+        ]
+    }
+
+    InterfaceFiles {
+        files: [
+            "src/BoardInterface.h"
+        ]
+    }
+
+    TranslationFiles {
+        files: [
+            "additional_translations/qml_en.ts",
+            "i18n/qml_no.ts"
+        ]
+        MCU.omitSourceLanguage: true
+    }
+// END MCU nodes
+
+// This node is prefixed with MCU. Its props are not prefixed
+// It must remain unchanged after conversion. Modules may have MCU.Module
+    MCU.Config {
+        resourceCompression: true
+        fontEngine: "Spark"
+        defaultFontFamily: "Roboto"
+
+        maxResourceCacheSize: [
+            [128, 128],
+            [16384, 1]
+        ]
+
+    }
+//END MCU-prefixed node
+
+// The following nodes are ignored by Qt for MCUs
+// They do not need the QDS-prefix, but may have it
+    Environment {
+        QT_QUICK_CONTROLS_CONF: "qtquickcontrols2.conf"
+        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
+        QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT: "1"
+        QT_LOGGING_RULES: "qt.qml.connections=false"
+        QT_ENABLE_HIGHDPI_SCALING: "0"
+        /* Useful for debugging
+       QSG_VISUALIZE=batches
+       QSG_VISUALIZE=clip
+       QSG_VISUALIZE=changes
+       QSG_VISUALIZE=overdraw
+       */
+    }
+
+    JavaScriptFiles {
+        directory: "scripts"
+    }
+
+    Files {
+        directory: "more_files"
+        filter: "*.mp3"
+    }
+// END of ignored nodes
+
+// The following nodes are unknown to Qt for MCUs (2.6)
+// Unknown nodes cause a warning in MCU tooling, but no error as of Qt for MCUs 2.6
+    ShaderTool {
+        args: "-s --glsl \"100 es,120,150\" --hlsl 50 --msl 12"
+        files: [ "content/shaders/*" ]
+    }
+// END of unknown nodes
+}
