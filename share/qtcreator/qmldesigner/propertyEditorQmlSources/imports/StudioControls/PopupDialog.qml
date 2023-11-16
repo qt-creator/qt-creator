@@ -33,9 +33,8 @@ QtObject {
 
     signal closing(close: var)
 
-    function showGlobal()
-    {
-        var pos =  WindowManager.globalCursorPosition();
+    function showGlobal() {
+        var pos = WindowManager.globalCursorPosition()
         root.__itemGlobal = Qt.rect(pos.x, pos.y, 300, 20)
         root.chevronVisible = false
         root.layout()
@@ -57,11 +56,8 @@ QtObject {
     }
 
     function layout() {
-        // Setup
-        var screen = Qt.rect(0, //Screen.virtualX, // TODO
-                             0, //Screen.virtualY, // TODO
-                             Screen.desktopAvailableWidth,
-                             Screen.desktopAvailableHeight)
+        let position = Qt.point(root.__itemGlobal.x, root.__itemGlobal.y)
+        var screen = WindowManager.getScreenGeometry(position)
 
         // Collect region information
         let edges = window.getRegions(screen, root.__itemGlobal)
@@ -165,9 +161,18 @@ QtObject {
             var targetCenter = Qt.point(target.x + (target.width * 0.5),
                                         target.y + (target.height * 0.5))
 
+            // Just as a reminder why calculating custom right and bottom:
+            // > Note that for historical reasons this function returns top() + height() - 1;
+            // > use y() + height() to retrieve the true y-coordinate.
+            let sourceRight = source.x + source.width
+            let sourceBottom = source.y + source.height
+
             // TOP
             let topAnchor = Qt.point(targetCenter.x, target.y)
-            let topRegion = Qt.rect(source.x, source.y, source.width, Math.max(0, topAnchor.y))
+            let topRegion = Qt.rect(source.x,
+                                    source.y,
+                                    source.width,
+                                    (topAnchor.y < source.top) ? 0 : Math.abs(topAnchor.y - source.top))
 
             edges[Qt.TopEdge] = {
                 anchor: topAnchor,
@@ -180,7 +185,7 @@ QtObject {
             let rightAnchor = Qt.point(target.x + target.width, targetCenter.y)
             let rightRegion = Qt.rect(rightAnchor.x,
                                       source.y,
-                                      Math.max(0, source.width - rightAnchor.x),
+                                      (rightAnchor.x > sourceRight) ? 0 : Math.abs(sourceRight - rightAnchor.x),
                                       source.height)
 
             edges[Qt.RightEdge] = {
@@ -195,7 +200,7 @@ QtObject {
             let bottomRegion = Qt.rect(source.x,
                                        bottomAnchor.y,
                                        source.width,
-                                       Math.max(0, source.height - bottomAnchor.y))
+                                       (bottomAnchor.y > sourceBottom) ? 0 : Math.abs(sourceBottom - bottomAnchor.y))
 
             edges[Qt.BottomEdge] = {
                 anchor: bottomAnchor,
@@ -206,7 +211,10 @@ QtObject {
 
             // LEFT
             let leftAnchor = Qt.point(target.x, targetCenter.y)
-            let leftRegion = Qt.rect(source.x, source.y, Math.max(0, leftAnchor.x), source.height)
+            let leftRegion = Qt.rect(source.x,
+                                     source.y,
+                                     (leftAnchor.x < source.left) ? 0 : Math.abs(leftAnchor.x - source.left),
+                                     source.height)
 
             edges[Qt.LeftEdge] = {
                 anchor: leftAnchor,
@@ -391,6 +399,19 @@ QtObject {
                 id: titleBarItem
                 width: parent.width
                 height: StudioTheme.Values.titleBarHeight
+
+                DragHandler {
+                    id: dragHandler
+
+                    target: null
+                    grabPermissions: PointerHandler.CanTakeOverFromAnything
+                    onActiveChanged: {
+                        if (dragHandler.active)
+                            window.startSystemMove() // QTBUG-102488
+
+                        root.chevronVisible = false
+                    }
+                }
 
                 Row {
                     id: row

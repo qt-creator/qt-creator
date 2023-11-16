@@ -8,6 +8,7 @@
 #include <QCursor>
 #include <QGuiApplication>
 #include <QMainWindow>
+#include <QScreen>
 #include <QWindow>
 
 namespace QmlDesignerBase {
@@ -41,6 +42,16 @@ WindowManager::~WindowManager() {}
 QPoint WindowManager::globalCursorPosition()
 {
     return QCursor::pos();
+}
+
+QRect WindowManager::getScreenGeometry(QPoint point)
+{
+    QScreen *screen = QGuiApplication::screenAt(point);
+
+    if (!screen)
+        return {};
+
+    return screen->geometry();
 }
 
 } // namespace QmlDesignerBase
