@@ -24,7 +24,6 @@ class TextDocument;
 class TextEditorWidget;
 class RefactoringChanges;
 class RefactoringFile;
-class RefactoringChangesData;
 using RefactoringFilePtr = QSharedPointer<RefactoringFile>;
 using RefactoringSelections = QVector<QPair<QTextCursor, QTextCursor>>;
 
@@ -132,15 +131,6 @@ protected:
                                                     const QList<Range> &ranges);
 
     friend class RefactoringFile;
-};
-
-class TEXTEDITOR_EXPORT RefactoringChangesData
-{
-    Q_DISABLE_COPY(RefactoringChangesData)
-
-public:
-    RefactoringChangesData() = default;
-    virtual ~RefactoringChangesData();
 };
 
 } // namespace TextEditor

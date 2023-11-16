@@ -72,7 +72,7 @@ private:
     friend class CppRefactoringChanges; // for access to constructor
 };
 
-class CPPEDITOR_EXPORT CppRefactoringChangesData : public TextEditor::RefactoringChangesData
+class CPPEDITOR_EXPORT CppRefactoringChangesData
 {
 public:
     explicit CppRefactoringChangesData(const CPlusPlus::Snapshot &snapshot);

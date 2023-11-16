@@ -486,6 +486,4 @@ void RefactoringFile::reindentSelection(const QTextCursor &selection,
     Q_UNUSED(textDocument)
 }
 
-RefactoringChangesData::~RefactoringChangesData() = default;
-
 } // namespace TextEditor

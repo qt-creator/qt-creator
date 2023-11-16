@@ -15,7 +15,7 @@ using namespace QmlJS;
 
 namespace QmlJSTools {
 
-class QmlJSRefactoringChangesData : public TextEditor::RefactoringChangesData
+class QmlJSRefactoringChangesData
 {
 public:
     QmlJSRefactoringChangesData(ModelManagerInterface *modelManager,
