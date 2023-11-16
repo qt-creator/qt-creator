@@ -702,7 +702,11 @@ void EffectMakerModel::exportResources(const QString &name)
             QString imagePath = uniform->value().toString();
             QFileInfo fi(imagePath);
             QString imageFilename = fi.fileName();
-            sources.append(imagePath.remove(0, 7)); // Removes "file://"
+            if (imagePath.startsWith("file:")) {
+                QUrl url(imagePath);
+                imagePath = url.toLocalFile();
+            }
+            sources.append(imagePath);
             dests.append(imageFilename);
         }
     }
