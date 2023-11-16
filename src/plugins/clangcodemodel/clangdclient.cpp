@@ -73,9 +73,7 @@
 #include <QRegularExpression>
 
 #include <cmath>
-#include <new>
 #include <optional>
-#include <set>
 #include <unordered_map>
 #include <utility>
 
@@ -770,10 +768,9 @@ QList<Text::Range> ClangdClient::additionalDocumentHighlights(
         qobject_cast<CppEditor::CppEditorWidget *>(editorWidget), cursor);
 }
 
-RefactoringChangesData *ClangdClient::createRefactoringChangesBackend() const
+RefactoringFilePtr ClangdClient::createRefactoringFile(const FilePath &filePath) const
 {
-    return new CppEditor::CppRefactoringChangesData(
-                CppEditor::CppModelManager::snapshot());
+    return CppEditor::CppRefactoringChanges(CppEditor::CppModelManager::snapshot()).file(filePath);
 }
 
 QVersionNumber ClangdClient::versionNumber() const

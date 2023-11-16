@@ -51,13 +51,19 @@ public:
     using TextEditor::RefactoringFile::textOf;
     QString textOf(const CPlusPlus::AST *ast) const;
 
-protected:
+private:
     CppRefactoringFile(const Utils::FilePath &filePath, const QSharedPointer<TextEditor::RefactoringChangesData> &data);
     CppRefactoringFile(QTextDocument *document, const Utils::FilePath &filePath);
     explicit CppRefactoringFile(TextEditor::TextEditorWidget *editor);
 
     CppRefactoringChangesData *data() const;
+
     void fileChanged() override;
+    void indentSelection(const QTextCursor &selection,
+                         const TextEditor::TextDocument *textDocument) const override;
+    virtual void reindentSelection(const QTextCursor &selection,
+                                   const TextEditor::TextDocument *textDocument) const override;
+
 
     int tokenIndexForPosition(const std::vector<CPlusPlus::Token> &tokens, int pos,
                               int startIndex) const;
@@ -71,16 +77,6 @@ class CPPEDITOR_EXPORT CppRefactoringChangesData : public TextEditor::Refactorin
 {
 public:
     explicit CppRefactoringChangesData(const CPlusPlus::Snapshot &snapshot);
-
-    void indentSelection(const QTextCursor &selection,
-                         const Utils::FilePath &filePath,
-                         const TextEditor::TextDocument *textDocument) const override;
-
-    void reindentSelection(const QTextCursor &selection,
-                           const Utils::FilePath &filePath,
-                           const TextEditor::TextDocument *textDocument) const override;
-
-    void fileChanged(const Utils::FilePath &filePath) override;
 
     CPlusPlus::Snapshot m_snapshot;
     WorkingCopy m_workingCopy;

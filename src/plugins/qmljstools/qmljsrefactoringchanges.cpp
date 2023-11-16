@@ -24,53 +24,6 @@ public:
         , m_snapshot(snapshot)
     {}
 
-    void indentSelection(const QTextCursor &selection,
-                         const Utils::FilePath &filePath,
-                         const TextEditor::TextDocument *textDocument) const override
-    {
-        // ### shares code with QmlJSTextEditor::indent
-        QTextDocument *doc = selection.document();
-
-        QTextBlock block = doc->findBlock(selection.selectionStart());
-        const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
-
-        const TextEditor::TabSettings &tabSettings =
-            ProjectExplorer::actualTabSettings(filePath, textDocument);
-        CreatorCodeFormatter codeFormatter(tabSettings);
-        codeFormatter.updateStateUntil(block);
-        do {
-            int depth = codeFormatter.indentFor(block);
-            if (depth != -1) {
-                if (QStringView(block.text()).trimmed().isEmpty()) {
-                    // we do not want to indent empty lines (as one is indentent when pressing tab
-                    // assuming that the user will start writing something), and get rid of that
-                    // space if one had pressed tab in an empty line just before refactoring.
-                    // If depth == -1 (inside a multiline string for example) leave the spaces.
-                    depth = 0;
-                }
-                tabSettings.indentLine(block, depth);
-            }
-            codeFormatter.updateLineStateChange(block);
-            block = block.next();
-        } while (block.isValid() && block != end);
-    }
-
-    void reindentSelection(const QTextCursor &selection,
-                           const Utils::FilePath &filePath,
-                           const TextEditor::TextDocument *textDocument) const override
-    {
-        const TextEditor::TabSettings &tabSettings =
-            ProjectExplorer::actualTabSettings(filePath, textDocument);
-
-        QmlJSEditor::Internal::Indenter indenter(selection.document());
-        indenter.reindent(selection, tabSettings);
-    }
-
-    void fileChanged(const Utils::FilePath &filePath) override
-    {
-        m_modelManager->updateSourceFiles({filePath}, true);
-    }
-
     ModelManagerInterface *m_modelManager;
     Snapshot m_snapshot;
 };
@@ -193,8 +146,49 @@ QmlJSRefactoringChangesData *QmlJSRefactoringFile::data() const
 
 void QmlJSRefactoringFile::fileChanged()
 {
+    QTC_ASSERT(!m_filePath.isEmpty(), return);
     m_qmljsDocument.clear();
-    RefactoringFile::fileChanged();
+    data()->m_modelManager->updateSourceFiles({filePath()}, true);
+}
+
+void QmlJSRefactoringFile::indentSelection(const QTextCursor &selection,
+                                           const TextEditor::TextDocument *textDocument) const
+{
+    // ### shares code with QmlJSTextEditor::indent
+    QTextDocument *doc = selection.document();
+
+    QTextBlock block = doc->findBlock(selection.selectionStart());
+    const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
+
+    const TextEditor::TabSettings &tabSettings =
+        ProjectExplorer::actualTabSettings(filePath(), textDocument);
+    CreatorCodeFormatter codeFormatter(tabSettings);
+    codeFormatter.updateStateUntil(block);
+    do {
+        int depth = codeFormatter.indentFor(block);
+        if (depth != -1) {
+            if (QStringView(block.text()).trimmed().isEmpty()) {
+                // we do not want to indent empty lines (as one is indentent when pressing tab
+                // assuming that the user will start writing something), and get rid of that
+                // space if one had pressed tab in an empty line just before refactoring.
+                // If depth == -1 (inside a multiline string for example) leave the spaces.
+                depth = 0;
+            }
+            tabSettings.indentLine(block, depth);
+        }
+        codeFormatter.updateLineStateChange(block);
+        block = block.next();
+    } while (block.isValid() && block != end);
+}
+
+void QmlJSRefactoringFile::reindentSelection(const QTextCursor &selection,
+                                             const TextEditor::TextDocument *textDocument) const
+{
+    const TextEditor::TabSettings &tabSettings =
+        ProjectExplorer::actualTabSettings(filePath(), textDocument);
+
+    QmlJSEditor::Internal::Indenter indenter(selection.document());
+    indenter.reindent(selection, tabSettings);
 }
 
 } // namespace QmlJSTools

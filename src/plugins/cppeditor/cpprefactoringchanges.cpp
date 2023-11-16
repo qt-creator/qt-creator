@@ -246,8 +246,9 @@ CppRefactoringChangesData *CppRefactoringFile::data() const
 
 void CppRefactoringFile::fileChanged()
 {
+    QTC_ASSERT(!m_filePath.isEmpty(), return);
     m_cppDocument.clear();
-    RefactoringFile::fileChanged();
+    CppModelManager::updateSourceFiles({filePath()});
 }
 
 int CppRefactoringFile::tokenIndexForPosition(const std::vector<CPlusPlus::Token> &tokens,
@@ -278,35 +279,28 @@ CppRefactoringChangesData::CppRefactoringChangesData(const Snapshot &snapshot)
     , m_workingCopy(CppModelManager::workingCopy())
 {}
 
-void CppRefactoringChangesData::indentSelection(const QTextCursor &selection,
-                                                const FilePath &filePath,
-                                                const TextEditor::TextDocument *textDocument) const
+void CppRefactoringFile::indentSelection(const QTextCursor &selection,
+                                         const TextEditor::TextDocument *textDocument) const
 {
     if (textDocument) { // use the indenter from the textDocument if there is one, can be ClangFormat
         textDocument->indenter()->indent(selection, QChar::Null, textDocument->tabSettings());
     } else {
-        const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath, textDocument);
-        auto indenter = createIndenter(filePath, selection.document());
+        const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath(), textDocument);
+        auto indenter = createIndenter(filePath(), selection.document());
         indenter->indent(selection, QChar::Null, tabSettings);
     }
 }
 
-void CppRefactoringChangesData::reindentSelection(const QTextCursor &selection,
-                                                  const FilePath &filePath,
-                                                  const TextEditor::TextDocument *textDocument) const
+void CppRefactoringFile::reindentSelection(const QTextCursor &selection,
+                                           const TextEditor::TextDocument *textDocument) const
 {
     if (textDocument) { // use the indenter from the textDocument if there is one, can be ClangFormat
         textDocument->indenter()->reindent(selection, textDocument->tabSettings());
     } else {
-        const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath, textDocument);
-        auto indenter = createIndenter(filePath, selection.document());
+        const auto &tabSettings = ProjectExplorer::actualTabSettings(filePath(), textDocument);
+        auto indenter = createIndenter(filePath(), selection.document());
         indenter->reindent(selection, tabSettings);
     }
 }
 
-void CppRefactoringChangesData::fileChanged(const FilePath &filePath)
-{
-    CppModelManager::updateSourceFiles({filePath});
-}
-
-} // CppEditor
+} // namespace CppEditor

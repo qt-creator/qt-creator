@@ -89,15 +89,10 @@ bool applyTextEdits(const Client *client,
 {
     if (edits.isEmpty())
         return true;
-    RefactoringChangesData * const backend = client->createRefactoringChangesBackend();
-    RefactoringChanges changes(backend);
-    RefactoringFilePtr file;
-    file = changes.file(filePath);
+    const RefactoringFilePtr file = client->createRefactoringFile(filePath);
     file->setChangeSet(editsToChangeSet(edits, file->document()));
-    if (backend) {
-        for (const TextEdit &edit : edits)
-            file->appendIndentRange(convertRange(file->document(), edit.range()));
-    }
+    for (const TextEdit &edit : edits)
+        file->appendIndentRange(convertRange(file->document(), edit.range()));
     return file->apply();
 }
 

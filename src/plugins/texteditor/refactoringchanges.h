@@ -72,14 +72,20 @@ protected:
                     const QSharedPointer<RefactoringChangesData> &data);
 
     QTextDocument *mutableDocument() const;
+
     // derived classes may want to clear language specific extra data
-    virtual void fileChanged();
+    virtual void fileChanged() {}
 
     enum IndentType {Indent, Reindent};
     void indentOrReindent(const RefactoringSelections &ranges, IndentType indent);
 
     void setupFormattingRanges(const QList<Utils::ChangeSet::EditOp> &replaceList);
     void doFormatting();
+
+    virtual void indentSelection(const QTextCursor &selection,
+                                 const TextDocument *textDocument) const;
+    virtual void reindentSelection(const QTextCursor &selection,
+                                   const TextDocument *textDocument) const;
 
     Utils::FilePath m_filePath;
     QSharedPointer<RefactoringChangesData> m_data;
@@ -140,14 +146,6 @@ class TEXTEDITOR_EXPORT RefactoringChangesData
 public:
     RefactoringChangesData() = default;
     virtual ~RefactoringChangesData();
-
-    virtual void indentSelection(const QTextCursor &selection,
-                                 const Utils::FilePath &filePath,
-                                 const TextDocument *textEditor) const;
-    virtual void reindentSelection(const QTextCursor &selection,
-                                   const Utils::FilePath &filePath,
-                                   const TextDocument *textEditor) const;
-    virtual void fileChanged(const Utils::FilePath &filePath);
 };
 
 } // namespace TextEditor

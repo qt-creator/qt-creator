@@ -34,13 +34,18 @@ public:
     bool isCursorOn(QmlJS::AST::UiQualifiedId *ast) const;
     bool isCursorOn(QmlJS::SourceLocation loc) const;
 
-protected:
+private:
     QmlJSRefactoringFile(const Utils::FilePath &filePath,
                          const QSharedPointer<TextEditor::RefactoringChangesData> &data);
     QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, QmlJS::Document::Ptr document);
 
     QmlJSRefactoringChangesData *data() const;
+
     void fileChanged() override;
+    void indentSelection(const QTextCursor &selection,
+                         const TextEditor::TextDocument *textDocument) const override;
+    void reindentSelection(const QTextCursor &selection,
+                           const TextEditor::TextDocument *textDocument) const override;
 
     mutable QmlJS::Document::Ptr m_qmljsDocument;
 

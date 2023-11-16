@@ -118,7 +118,7 @@ bool RefactoringFile::create(const QString &contents, bool reindent, bool openEd
     // Reindent the contents:
     if (reindent) {
         cursor.select(QTextCursor::Document);
-        m_data->indentSelection(cursor, m_filePath, nullptr);
+        indentSelection(cursor, nullptr);
     }
     cursor.endEditBlock();
 
@@ -375,9 +375,9 @@ void RefactoringFile::indentOrReindent(const RefactoringSelections &ranges,
         QTextCursor selection(anchor);
         selection.setPosition(position.position(), QTextCursor::KeepAnchor);
         if (indent == Indent)
-            m_data->indentSelection(selection, m_filePath, document);
+            indentSelection(selection, document);
         else
-            m_data->reindentSelection(selection, m_filePath, document);
+            reindentSelection(selection, document);
     }
 }
 
@@ -479,30 +479,20 @@ void RefactoringFile::doFormatting()
     }
 }
 
-void RefactoringFile::fileChanged()
+void RefactoringFile::indentSelection(const QTextCursor &selection,
+                                      const TextDocument *textDocument) const
 {
-    if (!m_filePath.isEmpty())
-        m_data->fileChanged(m_filePath);
+    Q_UNUSED(selection)
+    Q_UNUSED(textDocument)
+}
+
+void RefactoringFile::reindentSelection(const QTextCursor &selection,
+                                        const TextDocument *textDocument) const
+{
+    Q_UNUSED(selection)
+    Q_UNUSED(textDocument)
 }
 
 RefactoringChangesData::~RefactoringChangesData() = default;
-
-void RefactoringChangesData::indentSelection(const QTextCursor &,
-                                             const FilePath &,
-                                             const TextDocument *) const
-{
-    qWarning() << Q_FUNC_INFO << "not implemented";
-}
-
-void RefactoringChangesData::reindentSelection(const QTextCursor &,
-                                               const FilePath &,
-                                               const TextDocument *) const
-{
-    qWarning() << Q_FUNC_INFO << "not implemented";
-}
-
-void RefactoringChangesData::fileChanged(const FilePath &)
-{
-}
 
 } // namespace TextEditor

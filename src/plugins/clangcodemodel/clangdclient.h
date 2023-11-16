@@ -141,7 +141,8 @@ private:
     QTextCursor adjustedCursorForHighlighting(const QTextCursor &cursor,
                                               TextEditor::TextDocument *doc) override;
     const CustomInspectorTabs createCustomInspectorTabs() override;
-    TextEditor::RefactoringChangesData *createRefactoringChangesBackend() const override;
+    TextEditor::RefactoringFilePtr createRefactoringFile(
+        const Utils::FilePath &filePath) const override;
     LanguageClient::DiagnosticManager *createDiagnosticManager() override;
     LanguageClient::LanguageClientOutlineItem *createOutlineItem(
         const LanguageServerProtocol::DocumentSymbol &symbol) override;
