@@ -388,7 +388,6 @@ void BaseFileFind::doReplace(const QString &text, const SearchResultItems &items
     if (!files.isEmpty()) {
         FadingIndicator::showText(ICore::dialogParent(),
             Tr::tr("%n occurrences replaced.", nullptr, items.size()), FadingIndicator::SmallText);
-        DocumentManager::notifyFilesChangedInternally(files);
         SearchResultWindow::instance()->hide();
     }
 }

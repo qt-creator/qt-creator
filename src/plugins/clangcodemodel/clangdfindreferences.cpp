@@ -252,10 +252,8 @@ void ClangdFindReferences::Private::handleRenameRequest(
 {
     const Utils::FilePaths filePaths = BaseFileFind::replaceAll(newSymbolName, checkedItems,
                                                                 preserveCase);
-    if (!filePaths.isEmpty()) {
-        DocumentManager::notifyFilesChangedInternally(filePaths);
+    if (!filePaths.isEmpty())
         SearchResultWindow::instance()->hide();
-    }
 
     const auto renameFilesCheckBox = qobject_cast<QCheckBox *>(search->additionalReplaceWidget());
     QTC_ASSERT(renameFilesCheckBox, return);
