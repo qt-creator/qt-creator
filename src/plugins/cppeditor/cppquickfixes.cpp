@@ -34,9 +34,12 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/projectmanager.h>
+
+#include <texteditor/tabsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
@@ -1950,25 +1953,30 @@ LookupResult lookUpDefinition(const CppQuickFixInterface &interface, const NameA
     // Try to find the class/template definition
     const Name *name = nameAst->name;
     const QList<LookupItem> results = interface.context().lookup(name, scope);
+    LookupResult best = LookupResult::NotDeclared;
     for (const LookupItem &item : results) {
         if (Symbol *declaration = item.declaration()) {
             if (declaration->asClass())
                 return LookupResult::Declared;
-            if (declaration->asForwardClassDeclaration())
-                return LookupResult::ForwardDeclared;
+            if (declaration->asForwardClassDeclaration()) {
+                best = LookupResult::ForwardDeclared;
+                continue;
+            }
             if (Template *templ = declaration->asTemplate()) {
                 if (Symbol *declaration = templ->declaration()) {
                     if (declaration->asClass())
                         return LookupResult::Declared;
-                    if (declaration->asForwardClassDeclaration())
-                        return LookupResult::ForwardDeclared;
+                    if (declaration->asForwardClassDeclaration()) {
+                        best = LookupResult::ForwardDeclared;
+                        continue;
+                    }
                 }
             }
             return LookupResult::Declared;
         }
     }
 
-    return LookupResult::NotDeclared;
+    return best;
 }
 
 QString templateNameAsString(const TemplateNameId *templateName)
@@ -9610,7 +9618,45 @@ private:
             comments.first(), sourceFile->document());
         const int sourceCommentEndPos = sourceTu->getTokenEndPositionInDocument(
             comments.last(), sourceFile->document());
-        const QString functionDoc = sourceFile->textOf(sourceCommentStartPos, sourceCommentEndPos);
+
+        // Manually adjust indentation, as both our built-in indenter and ClangFormat
+        // are unreliable with regards to comment continuation lines.
+        auto tabSettings = [](CppRefactoringFilePtr file) {
+            if (auto editor = file->editor())
+                return editor->textDocument()->tabSettings();
+            return ProjectExplorer::actualTabSettings(file->filePath(), nullptr);
+        };
+        const TabSettings &sts = tabSettings(sourceFile);
+        const TabSettings &tts = tabSettings(targetFile);
+        const QTextBlock insertionBlock = targetFile->document()->findBlock(insertionPos);
+        const int insertionColumn = tts.columnAt(insertionBlock.text(),
+                                                 insertionPos - insertionBlock.position());
+        const QTextBlock removalBlock = sourceFile->document()->findBlock(sourceCommentStartPos);
+        const QTextBlock removalBlockEnd = sourceFile->document()->findBlock(sourceCommentEndPos);
+        const int removalColumn = sts.columnAt(removalBlock.text(),
+                                               sourceCommentStartPos - removalBlock.position());
+        const int columnOffset = insertionColumn - removalColumn;
+        QString functionDoc;
+        if (columnOffset != 0) {
+            for (QTextBlock block = removalBlock;
+                 block.isValid() && block != removalBlockEnd.next();
+                 block = block.next()) {
+                QString text = block.text() + QChar::ParagraphSeparator;
+                if (block == removalBlockEnd)
+                    text = text.left(sourceCommentEndPos - block.position());
+                if (block == removalBlock) {
+                    text = text.mid(sourceCommentStartPos - block.position());
+                } else {
+                    int lineIndentColumn = sts.indentationColumn(text) + columnOffset;
+                    text.replace(0,
+                                 TabSettings::firstNonSpace(text),
+                                 tts.indentationString(0, lineIndentColumn, 0, insertionBlock));
+                }
+                functionDoc += text;
+            }
+        } else {
+            functionDoc = sourceFile->textOf(sourceCommentStartPos, sourceCommentEndPos);
+        }
 
         // Remove comment plus leading and trailing whitespace, including trailing newline.
         const auto removeAtSource = [&](ChangeSet &changeSet) {
@@ -9642,10 +9688,10 @@ private:
         ChangeSet targetChangeSet;
         targetChangeSet.insert(insertionPos, functionDoc);
         targetChangeSet.insert(insertionPos, "\n");
+        targetChangeSet.insert(insertionPos, QString(insertionColumn, ' '));
         if (targetFile == sourceFile)
             removeAtSource(targetChangeSet);
         targetFile->setChangeSet(targetChangeSet);
-        targetFile->appendIndentRange({insertionPos, insertionPos + int(functionDoc.length())});
         const bool targetFileSuccess = targetFile->apply();
         if (targetFile == sourceFile || !targetFileSuccess)
             return;

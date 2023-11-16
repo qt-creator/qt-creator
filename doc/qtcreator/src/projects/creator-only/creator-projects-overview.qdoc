@@ -16,10 +16,6 @@
 
     \image front-projects.png
 
-    You can share projects with other designers and developers across different
-    development platforms with a common tool for design, development, and
-    debugging.
-
     \list
 
         \li \l{Creating Projects}
@@ -42,14 +38,8 @@
             configurations for \QC and your projects. You can modify
             the settings in the \uicontrol Projects mode.
 
-        \li \l{Managing Sessions}
-
-            Sessions store items such as open files, breakpoints, and evaluated
-            expressions, which you do not typically want to share across
-            platforms.
-
     \endlist
 
-    \sa {Build Systems}
-
+    \sa {Manage Projects}{How To: Manage Projects}, {Manage sessions},
+    {Build Systems}
 */

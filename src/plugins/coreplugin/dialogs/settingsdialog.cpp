@@ -478,6 +478,7 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 
     m_model.setPages(m_pages, IOptionsPageProvider::allOptionsPagesProviders());
 
+    m_proxyModel.setSortLocaleAware(true);
     m_proxyModel.setSourceModel(&m_model);
     m_proxyModel.setFilterCaseSensitivity(Qt::CaseInsensitive);
     m_categoryList->setIconSize(QSize(categoryIconSize, categoryIconSize));

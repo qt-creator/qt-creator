@@ -46,6 +46,6 @@
 
     \note You cannot use this view to specify subprojects for projects.
 
-    \sa {Add subprojects to projects}, {Managing Sessions}
+    \sa {Add subprojects to projects}, {Manage sessions}
 
 */

@@ -123,7 +123,10 @@ else()
       ${YAML_SOURCE_DIR}/src/tag.h
       ${YAML_SOURCE_DIR}/src/token.h
     )
-    if (NOT QTC_STATIC_BUILD)
+    if (QTC_STATIC_BUILD)
+      extend_qtc_target(yaml-cpp
+        PUBLIC_DEFINES YAML_CPP_STATIC_DEFINE)
+    else()
       extend_qtc_target(yaml-cpp
         DEFINES yaml_cpp_EXPORTS
         PUBLIC_DEFINES YAML_CPP_DLL)

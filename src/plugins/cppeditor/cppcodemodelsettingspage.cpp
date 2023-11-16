@@ -294,7 +294,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
     d->autoIncludeHeadersCheckBox.setChecked(settings.autoIncludeHeaders());
     d->autoIncludeHeadersCheckBox.setToolTip(autoIncludeToolTip);
     d->threadLimitSpinBox.setValue(settings.workerThreadLimit());
-    d->threadLimitSpinBox.setSpecialValueText("Automatic");
+    d->threadLimitSpinBox.setSpecialValueText(Tr::tr("Automatic"));
     d->threadLimitSpinBox.setToolTip(workerThreadsToolTip);
     d->documentUpdateThreshold.setMinimum(50);
     d->documentUpdateThreshold.setMaximum(10000);

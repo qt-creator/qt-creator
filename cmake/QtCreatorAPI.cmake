@@ -211,9 +211,14 @@ function(add_qtc_library name)
   )
 
   if (QTC_STATIC_BUILD)
-    extend_qtc_target(${name} PUBLIC_DEFINES ${EXPORT_SYMBOL})
+    extend_qtc_target(${name}
+      DEFINES ${EXPORT_SYMBOL}
+      PUBLIC_DEFINES ${EXPORT_SYMBOL})
   else()
     extend_qtc_target(${name} DEFINES ${EXPORT_SYMBOL})
+    if (_arg_OBJECT OR _arg_STATIC)
+      extend_qtc_target(${name} PUBLIC_DEFINES ${EXPORT_SYMBOL})
+    endif()
   endif()
 
   # everything is different with SOURCES_PREFIX

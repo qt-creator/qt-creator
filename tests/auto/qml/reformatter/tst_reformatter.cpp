@@ -50,8 +50,8 @@ void tst_Reformatter::test_data()
     // makes a change inline, for example whitespace removal. We omit
     // those files in this test.
     QSet<QString> excludedFiles;
-    excludedFiles << QString::fromLatin1(TESTSRCDIR) + QDir::separator() + "typeAnnotations.qml";
-    excludedFiles << QString::fromLatin1(TESTSRCDIR) + QDir::separator() + "typeAnnotations.formatted.qml";
+    excludedFiles << QString::fromLatin1(TESTSRCDIR) + "/typeAnnotations.qml";
+    excludedFiles << QString::fromLatin1(TESTSRCDIR) + "/typeAnnotations.formatted.qml";
 
     QDirIterator it(TESTSRCDIR, QStringList() << QLatin1String("*.qml") << QLatin1String("*.js"), QDir::Files);
     while (it.hasNext()) {
@@ -103,8 +103,8 @@ void tst_Reformatter::reformatter_data()
     QTest::addColumn<QString>("formattedFilePath");
 
     QTest::newRow("typeAnnotations")
-        << QString::fromLatin1(TESTSRCDIR) + QDir::separator() + "typeAnnotations.qml"
-        << QString::fromLatin1(TESTSRCDIR) + QDir::separator() + "typeAnnotations.formatted.qml";
+        << QString::fromLatin1(TESTSRCDIR) + "/typeAnnotations.qml"
+        << QString::fromLatin1(TESTSRCDIR) +"/typeAnnotations.formatted.qml";
 }
 
 void tst_Reformatter::reformatter()
