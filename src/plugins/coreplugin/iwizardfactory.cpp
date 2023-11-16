@@ -186,33 +186,35 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
 
         QHash<Id, IWizardFactory *> sanityCheck;
         for (const FactoryCreator &fc : std::as_const(s_factoryCreators)) {
-            IWizardFactory *newFactory = fc();
-            // skip factories referencing wizard page generators provided by plugins not loaded
-            if (!newFactory)
-                continue;
-            IWizardFactory *existingFactory = sanityCheck.value(newFactory->id());
+            for (IWizardFactory *newFactory : fc()) {
+                if (!newFactory) // should not happen, but maybe something went wrong
+                    continue;
+                IWizardFactory *existingFactory = sanityCheck.value(newFactory->id());
 
-            QTC_ASSERT(existingFactory != newFactory, continue);
-            if (existingFactory) {
-                qWarning("%s", qPrintable(Tr::tr("Factory with id=\"%1\" already registered. Deleting.")
-                                          .arg(existingFactory->id().toString())));
-                delete newFactory;
-                continue;
-            }
-
-            QTC_ASSERT(!newFactory->m_action, continue);
-            newFactory->m_action = new QAction(newFactory->displayName(), newFactory);
-            ActionManager::registerAction(newFactory->m_action, actionId(newFactory));
-
-            connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory] {
-                if (!ICore::isNewItemDialogRunning()) {
-                    FilePath path = newFactory->runPath({});
-                    newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
+                QTC_ASSERT(existingFactory != newFactory, continue);
+                if (existingFactory) {
+                    qWarning("%s",
+                             qPrintable(
+                                 Tr::tr("Factory with id=\"%1\" already registered. Deleting.")
+                                     .arg(existingFactory->id().toString())));
+                    delete newFactory;
+                    continue;
                 }
-            });
 
-            sanityCheck.insert(newFactory->id(), newFactory);
-            s_allFactories << newFactory;
+                QTC_ASSERT(!newFactory->m_action, continue);
+                newFactory->m_action = new QAction(newFactory->displayName(), newFactory);
+                ActionManager::registerAction(newFactory->m_action, actionId(newFactory));
+
+                connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory] {
+                    if (!ICore::isNewItemDialogRunning()) {
+                        FilePath path = newFactory->runPath({});
+                        newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
+                    }
+                });
+
+                sanityCheck.insert(newFactory->id(), newFactory);
+                s_allFactories << newFactory;
+            }
         }
     }
 
@@ -320,6 +322,11 @@ QSet<Id> IWizardFactory::supportedPlatforms() const
 void IWizardFactory::registerFactoryCreator(const IWizardFactory::FactoryCreator &creator)
 {
     s_factoryCreators << creator;
+}
+
+void IWizardFactory::registerFactoryCreator(const std::function<IWizardFactory *()> &creator)
+{
+    s_factoryCreators << [creator] { return QList<IWizardFactory *>({creator()}); };
 }
 
 QSet<Id> IWizardFactory::allAvailablePlatforms()

@@ -402,8 +402,9 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
 //FIXME: loadDefaultValues() has an almost identical loop. Make the loop return the results instead of
 //internal processing and create a separate function for it. Then process the results in
 //loadDefaultValues() and loadDefaultValues()
-void JsonWizardFactory::createWizardFactories()
+QList<Core::IWizardFactory *> JsonWizardFactory::createWizardFactories()
 {
+    QList<Core::IWizardFactory *> result;
     QString verboseLog;
     const QString wizardFileName = QLatin1String("wizard.json");
 
@@ -465,10 +466,16 @@ void JsonWizardFactory::createWizardFactories()
                 continue;
             }
 
-            IWizardFactory::registerFactoryCreator([data, currentFile] {
-                QString errorMessage;
-                return createWizardFactory(data, currentFile.parentDir(), &errorMessage);
-            });
+            QString errorMessage;
+            JsonWizardFactory *factory = createWizardFactory(data,
+                                                             currentFile.parentDir(),
+                                                             &errorMessage);
+            if (!factory) {
+                verboseLog.append(tr("* Failed to create: %1\n").arg(errorMessage));
+                continue;
+            }
+
+            result << factory;
         }
     }
 
@@ -476,6 +483,7 @@ void JsonWizardFactory::createWizardFactories()
         qWarning("%s", qPrintable(verboseLog));
         Core::MessageManager::writeDisrupting(verboseLog);
     }
+    return result;
 }
 
 JsonWizardFactory *JsonWizardFactory::createWizardFactory(const QVariantMap &data,

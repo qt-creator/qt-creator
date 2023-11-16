@@ -2042,7 +2042,8 @@ void ProjectExplorerPluginPrivate::closeAllProjects()
 void ProjectExplorerPlugin::extensionsInitialized()
 {
     CustomWizard::createWizards();
-    JsonWizardFactory::createWizardFactories();
+    IWizardFactory::registerFactoryCreator(
+        [] { return JsonWizardFactory::createWizardFactories(); });
 
     // Register factories for all project managers
 
