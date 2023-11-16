@@ -21,7 +21,6 @@ QtcPlugin {
         "fakevimhandler.cpp",
         "fakevimhandler.h",
         "fakevimplugin.cpp",
-        "fakevimplugin.h",
         "fakevimtr.h",
     ]
 

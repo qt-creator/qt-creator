@@ -5,7 +5,7 @@ add_qtc_plugin(FakeVim
     fakevim.qrc
     fakevimactions.cpp fakevimactions.h
     fakevimhandler.cpp fakevimhandler.h
-    fakevimplugin.cpp fakevimplugin.h
+    fakevimplugin.cpp
     fakevimtr.h
 )
 

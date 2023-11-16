@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "fakevimplugin.h"
-
 #include "fakevimactions.h"
 #include "fakevimhandler.h"
 #include "fakevimtr.h"
@@ -24,6 +22,8 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/statusbarmanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
@@ -88,8 +88,7 @@ using namespace TextEditor;
 using namespace Core;
 using namespace Utils;
 
-namespace FakeVim {
-namespace Internal {
+namespace FakeVim::Internal {
 
 const char INSTALL_HANDLER[]                = "TextEditor.FakeVimHandler";
 const char SETTINGS_CATEGORY[]              = "D.FakeVim";
@@ -2050,38 +2049,42 @@ static void setupTest(QString *title, FakeVimHandler **handler, QWidget **edit)
 
 QObject *createFakeVimTester( void (*setupTest)(QString *, FakeVimHandler **, QWidget **) ); // in fakevim_test.cpp
 
-FakeVimPlugin::FakeVimPlugin()
+class FakeVimPlugin : public ExtensionSystem::IPlugin
 {
-    addTestCreator([] { return createFakeVimTester(&setupTest); });
-    dd = new FakeVimPluginPrivate;
-}
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "FakeVim.json")
 
-FakeVimPlugin::~FakeVimPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
+public:
+    FakeVimPlugin()
+    {
+        addTestCreator([] { return createFakeVimTester(&setupTest); });
+        dd = new FakeVimPluginPrivate;
+    }
+    ~FakeVimPlugin() override
+    {
+        delete dd;
+        dd = nullptr;
+    }
 
-void FakeVimPlugin::initialize()
-{
-    dd->initialize();
-}
+    ExtensionSystem::IPlugin::ShutdownFlag aboutToShutdown()
+    {
+        StatusBarManager::destroyStatusBarWidget(dd->m_miniBuffer);
+        dd->m_miniBuffer = nullptr;
+        return SynchronousShutdown;
+    }
 
-ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
-{
-    StatusBarManager::destroyStatusBarWidget(dd->m_miniBuffer);
-    dd->m_miniBuffer = nullptr;
-    return SynchronousShutdown;
-}
+    void initialize() override
+    {
+        dd->initialize();
+    }
 
-void FakeVimPlugin::extensionsInitialized()
-{
-    dd->m_miniBuffer = new MiniBuffer;
-    StatusBarManager::addStatusBarWidget(dd->m_miniBuffer, StatusBarManager::LastLeftAligned);
-}
+    void extensionsInitialized() override
+    {
+        dd->m_miniBuffer = new MiniBuffer;
+        StatusBarManager::addStatusBarWidget(dd->m_miniBuffer, StatusBarManager::LastLeftAligned);
+    }
+};
 
-
-} // namespace Internal
-} // namespace FakeVim
+} // FakeVim::Internal
 
 #include "fakevimplugin.moc"
