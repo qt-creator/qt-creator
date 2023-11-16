@@ -171,8 +171,6 @@ expected_str<void> DeviceShell::start()
 
     setupShellProcess(m_shellProcess.get());
 
-    CommandLine cmdLine = m_shellProcess->commandLine();
-
     m_shellProcess->setProcessMode(ProcessMode::Writer);
 
     // Moving the process into its own thread ...
