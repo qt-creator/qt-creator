@@ -358,25 +358,8 @@
 
     If you receive a large number of icons that are not visible in either light
     or dark mode or have a solid background, run the \c recolordocsicons.py
-    Python script from the \c src/tools/icons/ directory. By default, the script
-    recolors icons in \c qtcreator/doc/qtcreator/images/icons. Use the
-    \c -docspath option to specify the path to another icon source directory.
-
-    For example, if you saved the new icons in \c {C:\iconconversions}, switch to
-    the \c {qtcreator\src\tools\icons} folder and enter:
-
-    \badcode
-    recolordocsicons.py -docspath C:\iconconversions
-    \endcode
-
-    To run the script, you will need to install the following tools and add them
-    to the PATH:
-
-    \list
-        \li Python 3.x (the script has been tested to work with 3.10)
-        \li ImageMagick
-        \li optipng
-    \endlist
+    Python script from the \c src/tools/icons/ directory. For options
+    and examples, see the \c README.md file.
 
     \section2 Saving Images
 
