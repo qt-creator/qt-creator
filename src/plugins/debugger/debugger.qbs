@@ -15,6 +15,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "TextEditor" }
+    Depends { name: "clang_defines" }
 
     pluginRecommends: ["BinEditor"]
     pluginTestDepends: ["QmakeProjectManager"]

@@ -6,6 +6,8 @@
 #include "debuggerprotocol.h"
 #include "debuggertr.h"
 
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/abi.h>
 
 #include <utils/algorithm.h>
@@ -148,8 +150,9 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
     // Prevent calling lldb on Windows because the lldb from the llvm package is linked against
     // python but does not contain a python dll.
     const bool isAndroidNdkLldb = DebuggerItem::addAndroidLldbPythonEnv(m_command, env);
-    if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb")
-            && !isAndroidNdkLldb) {
+    const FilePath qtcreatorLldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
+    if (HostOsInfo::isWindowsHost() && m_command.fileName().startsWith("lldb") && !isAndroidNdkLldb
+        && qtcreatorLldb != m_command) {
         QString errorMessage;
         m_version = winGetDLLVersion(WinDLLFileVersion,
                                      m_command.absoluteFilePath().path(),

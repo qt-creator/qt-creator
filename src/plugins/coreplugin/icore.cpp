@@ -768,6 +768,14 @@ FilePath ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
     return clangBinary("clazy-standalone", clangBinDirectory);
 }
 
+/*!
+    \internal
+ */
+FilePath ICore::lldbExecutable(const Utils::FilePath &lldbBinDirectory)
+{
+    return clangBinary("lldb", lldbBinDirectory);
+}
+
 static QString compilerString()
 {
 #if defined(Q_CC_CLANG) // must be before GNU, because clang claims to be GNU too

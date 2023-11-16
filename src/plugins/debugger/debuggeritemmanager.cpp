@@ -635,8 +635,13 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
     }
 
     FilePaths paths = searchPaths;
-    if (!searchPaths.front().needsDevice())
+    if (!searchPaths.front().needsDevice()) {
         paths.append(searchGdbPathsFromRegistry());
+
+        const FilePath lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
+        if (lldb.exists())
+            suspects.append(lldb);
+    }
 
     paths = Utils::filteredUnique(paths);
 

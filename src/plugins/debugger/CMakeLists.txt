@@ -3,6 +3,8 @@ add_qtc_plugin(Debugger
   PLUGIN_DEPENDS Core CppEditor ProjectExplorer QtSupport TextEditor
   PLUGIN_RECOMMENDS QmakeProjectManager
   PLUGIN_TEST_DEPENDS QmakeProjectManager
+  DEFINES
+    CLANG_BINDIR="${LLVM_TOOLS_BINARY_DIR}"
   SOURCES
     analyzer/analyzerbase.qrc
     analyzer/analyzerconstants.h
