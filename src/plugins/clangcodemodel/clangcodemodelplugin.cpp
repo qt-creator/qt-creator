@@ -84,19 +84,11 @@ void ClangCodeModelPlugin::initialize()
     CppEditor::CppModelManager::activateClangCodeModel(std::make_unique<ClangModelManagerSupport>());
     createCompilationDBAction();
 
-    QAction *const updateStaleIndexEntries
-        = new QAction(Tr::tr("Update Potentially Stale Clangd Index Entries"), this);
-    Command * const cmd = ActionManager::registerAction(updateStaleIndexEntries,
-                                                       "ClangCodeModel.UpdateStaleIndexEntries");
-    connect(updateStaleIndexEntries, &QAction::triggered, this,
-            [] { ClangModelManagerSupport::updateStaleIndexEntries(); });
-    const QList<ActionContainer *> menus;
-    namespace CppConstants = CppEditor::Constants;
-    for (ActionContainer * const menu : {ActionManager::actionContainer(CppConstants::M_TOOLS_CPP),
-                                        ActionManager::actionContainer(CppConstants::M_CONTEXT)}) {
-        QTC_ASSERT(menu, continue);
-        menu->addAction(cmd, CppEditor::Constants::G_GLOBAL);
-    }
+    ActionBuilder updateStaleIndexEntries(this, "ClangCodeModel.UpdateStaleIndexEntries");
+    updateStaleIndexEntries.setText(Tr::tr("Update Potentially Stale Clangd Index Entries"));
+    updateStaleIndexEntries.setOnTriggered(this, &ClangModelManagerSupport::updateStaleIndexEntries);
+    updateStaleIndexEntries.setContainer(CppEditor::Constants::M_TOOLS_CPP);
+    updateStaleIndexEntries.setContainer(CppEditor::Constants::M_CONTEXT);
 
 #ifdef WITH_TESTS
     addTest<Tests::ActivationSequenceProcessorTest>();
