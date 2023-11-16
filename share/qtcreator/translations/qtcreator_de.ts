@@ -33333,147 +33333,147 @@ Möchten Sie sie überschreiben?</translation>
     <name>QtC::IncrediBuild</name>
     <message>
         <source>IncrediBuild for Windows</source>
-        <translation type="unfinished">IncrediBuild für Windows</translation>
+        <translation>IncrediBuild für Windows</translation>
     </message>
     <message>
         <source>Target and Configuration</source>
-        <translation type="unfinished"></translation>
+        <translation>Ziel und Konfiguration</translation>
     </message>
     <message>
         <source>Enter the appropriate arguments to your build command.</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie die entsprechenden Argumente für das Erstellkommando ein.</translation>
     </message>
     <message>
         <source>Make sure the build command&apos;s multi-job parameter value is large enough (such as -j200 for the JOM or Make build tools)</source>
-        <translation type="unfinished"></translation>
+        <translation>Stellen Sie sicher, dass der Wert für die Anzahl paralleler Jobs im Erstellkommando groß genug ist (wie zum Beispiel -j200 für JOM oder Make)</translation>
     </message>
     <message>
         <source>Keep original jobs number:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ursprüngliche Anzahl Jobs beibehalten:</translation>
     </message>
     <message>
         <source>Forces IncrediBuild to not override the -j command line switch, that controls the number of parallel spawned tasks. The default IncrediBuild behavior is to set it to 200.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zwingt IncrediBuild dazu, das -j Kommandozeilenargument, das die Anzahl der parallelen Jobs bestimmt, nicht zu überschreiben. Normalerweise setzt IncrediBuild die Anzahl der parallelen Jobs auf 200.</translation>
     </message>
     <message>
         <source>IncrediBuild Distribution Control</source>
-        <translation type="unfinished"></translation>
+        <translation>IncrediBuild-Verteilungskontrolle</translation>
     </message>
     <message>
         <source>Profile.xml:</source>
-        <translation type="unfinished"></translation>
+        <translation>Profile.xml:</translation>
     </message>
     <message>
         <source>Defines how Automatic Interception Interface should handle the various processes involved in a distributed job. It is not necessary for &quot;Visual Studio&quot; or &quot;Make and Build tools&quot; builds, but can be used to provide configuration options if those builds use additional processes that are not included in those packages. It is required to configure distributable processes in &quot;Dev Tools&quot; builds.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestimmt, wie das Automatic Interception Interface die in einem verteilten Job involvierten Prozesse behandelt. Benötigt, um verteilte Prozesse in Kompilierungen mit &quot;Dev Tools&quot; zu konfigurieren. Nicht für Kompilierungen mit &quot;Visual Studio&quot; oder &quot;Make and Build tools&quot; benötigt, kann aber zur Konfiguration zusätzlicher Prozesse benutzt werden, die nicht in diesen Paketen enthalten sind.</translation>
     </message>
     <message>
         <source>Avoid local task execution:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokales Ausführen von Aufgaben vermeiden:</translation>
     </message>
     <message>
         <source>Overrides the Agent Settings dialog Avoid task execution on local machine when possible option. This allows to free more resources on the initiator machine and could be beneficial to distribution in scenarios where the initiating machine is bottlenecking the build with High CPU usage.</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibt die Option &quot;Avoid task execution on local machine when possible&quot; aus dem Agent Settings-Dialog. Die Einstellung hilft, Ressourcen auf der initiierenden Maschine freizuhalten, und kann in Situationen helfen, in denen die initiierende Maschine durch hohe CPU-Auslastung zum Flaschenhals der verteilten Kompilierung wird.</translation>
     </message>
     <message>
         <source>Determines the maximum number of CPU cores that can be used in a build, regardless of the number of available Agents. It takes into account both local and remote cores, even if the Avoid Task Execution on Local Machine option is selected.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestimmt unabhängig von der Anzahl verfügbarer Agents die maximale Anzahl CPU-Kerne, die beim Erstellen benutzt werden. Berücksichtigt sowohl lokale als auch entfernte Kerne, auch wenn die Option &quot;Lokales Ausführen von Aufgaben vermeiden&quot; ausgewählt ist.</translation>
     </message>
     <message>
         <source>Maximum CPUs to utilize in the build:</source>
-        <translation type="unfinished"></translation>
+        <translation>Maximale Anzahl CPUs für das Erstellen:</translation>
     </message>
     <message>
         <source>Newest allowed helper machine OS:</source>
-        <translation type="unfinished"></translation>
+        <translation>Höchste erlaubte OS-Version für Hilfsmaschinen:</translation>
     </message>
     <message>
         <source>Specifies the newest operating system installed on a helper machine to be allowed to participate as helper in the build.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gibt die höchste OS-Version an, die auf einer Maschine installiert sein darf, um beim Erstellen zu helfen.</translation>
     </message>
     <message>
         <source>Oldest allowed helper machine OS:</source>
-        <translation type="unfinished"></translation>
+        <translation>Niedrigste erlaubte OS-Version für Hilfsmaschinen:</translation>
     </message>
     <message>
         <source>Specifies the oldest operating system installed on a helper machine to be allowed to participate as helper in the build.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gibt die niedrigste OS-Version an, die auf einer Maschine installiert sein darf, um beim Erstellen zu helfen.</translation>
     </message>
     <message>
         <source>Output and Logging</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe und Protokollierung</translation>
     </message>
     <message>
         <source>Build title:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompilierungstitel:</translation>
     </message>
     <message>
         <source>Specifies a custom header line which will be displayed in the beginning of the build output text. This title will also be used for the Build History and Build Monitor displays.</source>
-        <translation type="unfinished"></translation>
+        <translation>Gibt eine benutzerdefinierte Kopfzeile an, die vor der Ausgabe der Kompilierung angezeigt wird. Dieser Titel wird auch für die Anzeigen &quot;Build History&quot; und &quot;Build Monitor&quot; benutzt.</translation>
     </message>
     <message>
         <source>Save IncrediBuild monitor file:</source>
-        <translation type="unfinished"></translation>
+        <translation>IncrediBuild Monitor-Datei speichern:</translation>
     </message>
     <message>
         <source>Writes a copy of the build progress file (.ib_mon) to the specified location. If only a folder name is given, a generated GUID will serve as the file name. The full path of the saved Build Monitor will be written to the end of the build output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreibt eine Kopie der Monitor-Datei (.ib_mon) an den angegebenen Ort. Wenn nur ein Verzeichnisname angegeben ist, wird eine generierte GUID als Dateiname benutzt. Der vollständige Pfad der gespeicherten Monitor-Datei wird am Ende der Ausgabe der Kompilierung angezeigt.</translation>
     </message>
     <message>
         <source>Suppress STDOUT:</source>
-        <translation type="unfinished"></translation>
+        <translation>STDOUT unterdrücken:</translation>
     </message>
     <message>
         <source>Does not write anything to the standard output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreibt nichts in die Standardausgabe.</translation>
     </message>
     <message>
         <source>Output Log file:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabe-Logdatei:</translation>
     </message>
     <message>
         <source>Writes build output to a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Schreibt die Ausgabe der Kompilierung in eine Datei.</translation>
     </message>
     <message>
         <source>Show Commands in output:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommandos in der Ausgabe zeigen:</translation>
     </message>
     <message>
         <source>Shows, for each file built, the command-line used by IncrediBuild to build the file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt für jede Datei die Kommandozeile, die von IncrediBuild zum Erstellen der Datei benutzt wird.</translation>
     </message>
     <message>
         <source>Show Agents in output:</source>
-        <translation type="unfinished"></translation>
+        <translation>Agents in der Ausgabe anzeigen:</translation>
     </message>
     <message>
         <source>Shows the Agent used to build each file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt für jede Datei den Agent, der zum Erstellen der Datei benutzt wird.</translation>
     </message>
     <message>
         <source>Show Time in output:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeit in der Ausgabe anzeigen:</translation>
     </message>
     <message>
         <source>Shows the Start and Finish time for each file built.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt für jede Datei die Zeit des Beginns und des Endes der Kompilierung.</translation>
     </message>
     <message>
         <source>Hide IncrediBuild Header in output:</source>
-        <translation type="unfinished"></translation>
+        <translation>IncrediBuilds Kopfzeile in der Ausgabe verstecken:</translation>
     </message>
     <message>
         <source>Suppresses IncrediBuild&apos;s header in the build output</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterdrückt die Kopfzeile von IncrediBuild in der Ausgabe der Kompilierung</translation>
     </message>
     <message>
         <source>Internal IncrediBuild logging level:</source>
-        <translation type="unfinished"></translation>
+        <translation>Stufe der internen IncrediBuild-Protokollierung:</translation>
     </message>
     <message>
         <source>Overrides the internal Incredibuild logging level for this build. Does not affect output or any user accessible logging. Used mainly to troubleshoot issues with the help of IncrediBuild support</source>
-        <translation type="unfinished"></translation>
+        <translation>Überschreibt die Stufe der internen Protokollierung von IncrediBuild für diese Kompilierung. Beeinflusst weder die Ausgabe noch die dem Benutzer zugängliche Protokollierung. Wird hauptsächlich zur Fehlerbehebung mit Hilfe des Supports von IncrediBuild benutzt</translation>
     </message>
     <message>
         <source>Miscellaneous</source>
@@ -33481,83 +33481,83 @@ Möchten Sie sie überschreiben?</translation>
     </message>
     <message>
         <source>Set an Environment Variable:</source>
-        <translation type="unfinished"></translation>
+        <translation>Umgebungsvariable setzen:</translation>
     </message>
     <message>
         <source>Sets or overrides environment variables for the context of the build.</source>
-        <translation type="unfinished"></translation>
+        <translation>Setzt oder überschreibt Umgebungsvariablen für die Kompilierung.</translation>
     </message>
     <message>
         <source>Stop on errors:</source>
-        <translation type="unfinished"></translation>
+        <translation>Bei Fehler anhalten:</translation>
     </message>
     <message>
         <source>When specified, the execution will stop as soon as an error is encountered. This is the default behavior in &quot;Visual Studio&quot; builds, but not the default for &quot;Make and Build tools&quot; or &quot;Dev Tools&quot; builds</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn angegeben, wird die Ausführung angehalten sobald ein Fehler auftritt. Dies ist das voreingestellte Verhalten bei Kompilierungen mit &quot;Visual Studio&quot;, aber nicht für Kompilierungen mit &quot;Make and Build tools&quot; oder &quot;Dev Tools&quot;</translation>
     </message>
     <message>
         <source>Additional Arguments:</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Argumente:</translation>
     </message>
     <message>
         <source>Add additional buildconsole arguments manually. The value of this field will be concatenated to the final buildconsole command line</source>
-        <translation type="unfinished"></translation>
+        <translation>Fügt zusätzliche Argumente für buildconsole manuell hinzu. Der Inhalt dieses Eingabefelds wird an die finale Kommandozeile für buildconsole angefügt</translation>
     </message>
     <message>
         <source>Open Build Monitor:</source>
-        <translation type="unfinished"></translation>
+        <translation>Build Monitor öffnen:</translation>
     </message>
     <message>
         <source>Opens Build Monitor once the build starts.</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnet den Build Monitor, wenn die Kompilierung beginnt.</translation>
     </message>
     <message>
         <source>IncrediBuild for Linux</source>
-        <translation type="unfinished">IncrediBuild für Linux</translation>
+        <translation>IncrediBuild für Linux</translation>
     </message>
     <message>
         <source>Specify nice value. Nice Value should be numeric and between -20 and 19</source>
-        <translation type="unfinished"></translation>
+        <translation>Gibt den Wert für &quot;nice&quot; an. Der Wert sollte numerisch sein und zwischen -20 und 19 liegen</translation>
     </message>
     <message>
         <source>Nice value:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wert für &quot;nice&quot;:</translation>
     </message>
     <message>
         <source>Force remote:</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;--force-remote&quot; benutzen:</translation>
     </message>
     <message>
         <source>Alternate tasks preference:</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;--alternate&quot; benutzen:</translation>
     </message>
     <message>
         <source>CMake</source>
-        <translation type="unfinished">CMake</translation>
+        <translation>CMake</translation>
     </message>
     <message>
         <source>Custom Command</source>
-        <translation type="unfinished"></translation>
+        <translation>Benutzerdefiniertes Kommando</translation>
     </message>
     <message>
         <source>Command Helper:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando-Helfer:</translation>
     </message>
     <message>
         <source>Select a helper to establish the build command.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie einen Helfer zum Ermitteln des Erstellkommandos.</translation>
     </message>
     <message>
         <source>Make command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Make-Kommando:</translation>
     </message>
     <message>
         <source>Make arguments:</source>
-        <translation type="unfinished">Kommandozeilenargumente für make:</translation>
+        <translation>Kommandozeilenargumente für make:</translation>
     </message>
     <message>
         <source>Make</source>
-        <translation type="unfinished">Make</translation>
+        <translation>Make</translation>
     </message>
 </context>
 <context>
