@@ -2007,37 +2007,7 @@ void FakeVimPluginPrivate::switchToFile(int n)
 //
 ///////////////////////////////////////////////////////////////////////
 
-FakeVimPlugin::FakeVimPlugin()
-{
-    dd = new FakeVimPluginPrivate;
-}
-
-FakeVimPlugin::~FakeVimPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-void FakeVimPlugin::initialize()
-{
-    dd->initialize();
-}
-
-ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
-{
-    StatusBarManager::destroyStatusBarWidget(dd->m_miniBuffer);
-    dd->m_miniBuffer = nullptr;
-    return SynchronousShutdown;
-}
-
-void FakeVimPlugin::extensionsInitialized()
-{
-    dd->m_miniBuffer = new MiniBuffer;
-    StatusBarManager::addStatusBarWidget(dd->m_miniBuffer, StatusBarManager::LastLeftAligned);
-}
-
-#ifdef WITH_TESTS
-void FakeVimPlugin::setupTest(QString *title, FakeVimHandler **handler, QWidget **edit)
+static void setupTest(QString *title, FakeVimHandler **handler, QWidget **edit)
 {
     *title = QString::fromLatin1("test.cpp");
     IEditor *iedit = EditorManager::openEditorWithContents(Id(), title);
@@ -2077,7 +2047,39 @@ void FakeVimPlugin::setupTest(QString *title, FakeVimHandler **handler, QWidget 
 //    QCOMPARE(EDITOR(toPlainText()), lines);
     (*handler)->handleCommand("set iskeyword=@,48-57,_,192-255,a-z,A-Z");
 }
-#endif
+
+QObject *createFakeVimTester( void (*setupTest)(QString *, FakeVimHandler **, QWidget **) ); // in fakevim_test.cpp
+
+FakeVimPlugin::FakeVimPlugin()
+{
+    addTestCreator([] { return createFakeVimTester(&setupTest); });
+    dd = new FakeVimPluginPrivate;
+}
+
+FakeVimPlugin::~FakeVimPlugin()
+{
+    delete dd;
+    dd = nullptr;
+}
+
+void FakeVimPlugin::initialize()
+{
+    dd->initialize();
+}
+
+ExtensionSystem::IPlugin::ShutdownFlag FakeVimPlugin::aboutToShutdown()
+{
+    StatusBarManager::destroyStatusBarWidget(dd->m_miniBuffer);
+    dd->m_miniBuffer = nullptr;
+    return SynchronousShutdown;
+}
+
+void FakeVimPlugin::extensionsInitialized()
+{
+    dd->m_miniBuffer = new MiniBuffer;
+    StatusBarManager::addStatusBarWidget(dd->m_miniBuffer, StatusBarManager::LastLeftAligned);
+}
+
 
 } // namespace Internal
 } // namespace FakeVim
