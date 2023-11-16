@@ -1411,6 +1411,7 @@ void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugin
             spec->d->kill();
         }
     });
+    emit q->pluginsChanged();
 }
 
 /*!

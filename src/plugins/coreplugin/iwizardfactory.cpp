@@ -431,6 +431,9 @@ void IWizardFactory::initialize()
     connect(resetAction, &QAction::triggered, &IWizardFactory::clearWizardFactories);
     connect(ICore::instance(), &ICore::newItemDialogStateChanged, resetAction,
             [resetAction] { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
+    connect(ExtensionSystem::PluginManager::instance(),
+            &ExtensionSystem::PluginManager::pluginsChanged,
+            &IWizardFactory::clearWizardFactories);
 
     s_inspectWizardAction = new QAction(Tr::tr("Inspect Wizard State"), ActionManager::instance());
     ActionManager::registerAction(s_inspectWizardAction, "Wizard.Inspect");
