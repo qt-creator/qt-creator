@@ -57,6 +57,7 @@ public:
     void setChecked(bool on);
     void setVisible(bool on);
     void setCheckable(bool on);
+    void setScriptable(bool on);
     void setMenuRole(QAction::MenuRole role);
 
     enum EnablingMode { AlwaysEnabled, EnabledWithParameter };

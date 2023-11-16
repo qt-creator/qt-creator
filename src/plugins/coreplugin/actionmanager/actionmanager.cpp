@@ -84,7 +84,7 @@ public:
     void registerAction()
     {
         QTC_ASSERT(actionId.isValid(), return);
-        ActionManager::registerAction(action, actionId, context);
+        ActionManager::registerAction(action, actionId, context, scriptable);
     }
 
     ParameterAction *action = nullptr;
@@ -92,6 +92,7 @@ public:
 
     Id actionId;
     Context context{Constants::C_GLOBAL};
+    bool scriptable = false;
 };
 
 ActionBuilder::ActionBuilder(QObject *contextActionParent, const Id actionId)
@@ -208,6 +209,11 @@ void ActionBuilder::setVisible(bool on)
 void ActionBuilder::setCheckable(bool on)
 {
     d->action->setCheckable(on);
+}
+
+void ActionBuilder::setScriptable(bool on)
+{
+    d->scriptable = on;
 }
 
 void ActionBuilder::setMenuRole(QAction::MenuRole role)
