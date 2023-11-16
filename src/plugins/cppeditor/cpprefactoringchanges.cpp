@@ -52,7 +52,7 @@ CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::TextEditorWidget *
 
 TextEditor::RefactoringFilePtr CppRefactoringChanges::file(const FilePath &filePath) const
 {
-    CppRefactoringFilePtr result(new CppRefactoringFile(filePath, m_data));
+    CppRefactoringFilePtr result(new CppRefactoringFile(filePath, m_data.staticCast<CppRefactoringChangesData>()));
     return result;
 }
 
@@ -67,7 +67,7 @@ CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const FilePath &f
     if (const auto source = data()->m_workingCopy.source(filePath))
         document = new QTextDocument(QString::fromUtf8(*source));
     CppRefactoringFilePtr result(new CppRefactoringFile(document, filePath));
-    result->m_data = m_data;
+    result->m_data = m_data.staticCast<CppRefactoringChangesData>();
 
     return result;
 }
@@ -77,10 +77,10 @@ const Snapshot &CppRefactoringChanges::snapshot() const
     return data()->m_snapshot;
 }
 
-CppRefactoringFile::CppRefactoringFile(const FilePath &filePath, const QSharedPointer<TextEditor::RefactoringChangesData> &data)
-    : RefactoringFile(filePath, data)
+CppRefactoringFile::CppRefactoringFile(const FilePath &filePath, const QSharedPointer<CppRefactoringChangesData> &data)
+    : RefactoringFile(filePath), m_data(data)
 {
-    const Snapshot &snapshot = this->data()->m_snapshot;
+    const Snapshot &snapshot = data->m_snapshot;
     m_cppDocument = snapshot.document(filePath);
     m_formattingEnabled = true;
 }
@@ -102,7 +102,7 @@ Document::Ptr CppRefactoringFile::cppDocument() const
     if (!m_cppDocument || !m_cppDocument->translationUnit() ||
             !m_cppDocument->translationUnit()->ast()) {
         const QByteArray source = document()->toPlainText().toUtf8();
-        const Snapshot &snapshot = data()->m_snapshot;
+        const Snapshot &snapshot = m_data->m_snapshot;
 
         m_cppDocument = snapshot.preprocessedDocument(source, filePath());
         m_cppDocument->check();
@@ -237,11 +237,6 @@ QString CppRefactoringFile::textOf(const AST *ast) const
 const Token &CppRefactoringFile::tokenAt(unsigned index) const
 {
     return cppDocument()->translationUnit()->tokenAt(index);
-}
-
-CppRefactoringChangesData *CppRefactoringFile::data() const
-{
-    return static_cast<CppRefactoringChangesData *>(m_data.data());
 }
 
 void CppRefactoringFile::fileChanged()

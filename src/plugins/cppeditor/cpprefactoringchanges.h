@@ -52,11 +52,9 @@ public:
     QString textOf(const CPlusPlus::AST *ast) const;
 
 private:
-    CppRefactoringFile(const Utils::FilePath &filePath, const QSharedPointer<TextEditor::RefactoringChangesData> &data);
+    CppRefactoringFile(const Utils::FilePath &filePath, const QSharedPointer<CppRefactoringChangesData> &data);
     CppRefactoringFile(QTextDocument *document, const Utils::FilePath &filePath);
     explicit CppRefactoringFile(TextEditor::TextEditorWidget *editor);
-
-    CppRefactoringChangesData *data() const;
 
     void fileChanged() override;
     void indentSelection(const QTextCursor &selection,
@@ -69,6 +67,7 @@ private:
                               int startIndex) const;
 
     mutable CPlusPlus::Document::Ptr m_cppDocument;
+    QSharedPointer<CppRefactoringChangesData> m_data;
 
     friend class CppRefactoringChanges; // for access to constructor
 };

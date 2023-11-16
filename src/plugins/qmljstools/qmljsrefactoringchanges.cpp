@@ -36,7 +36,7 @@ QmlJSRefactoringChanges::QmlJSRefactoringChanges(ModelManagerInterface *modelMan
 
 TextEditor::RefactoringFilePtr QmlJSRefactoringChanges::file(const Utils::FilePath &filePath) const
 {
-    return QmlJSRefactoringFilePtr(new QmlJSRefactoringFile(filePath, m_data));
+    return QmlJSRefactoringFilePtr(new QmlJSRefactoringFile(filePath, m_data.staticCast<QmlJSRefactoringChangesData>()));
 }
 
 QmlJSRefactoringFilePtr QmlJSRefactoringChanges::qmlJSFile(const Utils::FilePath &filePath) const
@@ -61,8 +61,8 @@ QmlJSRefactoringChangesData *QmlJSRefactoringChanges::data() const
 }
 
 QmlJSRefactoringFile::QmlJSRefactoringFile(
-    const Utils::FilePath &filePath, const QSharedPointer<TextEditor::RefactoringChangesData> &data)
-    : RefactoringFile(filePath, data)
+    const Utils::FilePath &filePath, const QSharedPointer<QmlJSRefactoringChangesData> &data)
+    : RefactoringFile(filePath), m_data(data)
 {
     // the RefactoringFile is invalid if its not for a file with qml or js code
     if (ModelManagerInterface::guessLanguageOfFile(filePath) == Dialect::NoLanguage)
@@ -81,7 +81,7 @@ Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
 {
     if (!m_qmljsDocument) {
         const QString source = document()->toPlainText();
-        const Snapshot &snapshot = data()->m_snapshot;
+        const Snapshot &snapshot = m_data->m_snapshot;
 
         Document::MutablePtr newDoc
             = snapshot.documentFromSource(source,
@@ -139,16 +139,11 @@ bool QmlJSRefactoringFile::isCursorOn(SourceLocation loc) const
     return pos >= loc.begin() && pos <= loc.end();
 }
 
-QmlJSRefactoringChangesData *QmlJSRefactoringFile::data() const
-{
-    return static_cast<QmlJSRefactoringChangesData *>(m_data.data());
-}
-
 void QmlJSRefactoringFile::fileChanged()
 {
     QTC_ASSERT(!m_filePath.isEmpty(), return);
     m_qmljsDocument.clear();
-    data()->m_modelManager->updateSourceFiles({filePath()}, true);
+    m_data->m_modelManager->updateSourceFiles({filePath()}, true);
 }
 
 void QmlJSRefactoringFile::indentSelection(const QTextCursor &selection,

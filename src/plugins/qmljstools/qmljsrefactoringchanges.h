@@ -36,10 +36,8 @@ public:
 
 private:
     QmlJSRefactoringFile(const Utils::FilePath &filePath,
-                         const QSharedPointer<TextEditor::RefactoringChangesData> &data);
+                         const QSharedPointer<QmlJSRefactoringChangesData> &data);
     QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, QmlJS::Document::Ptr document);
-
-    QmlJSRefactoringChangesData *data() const;
 
     void fileChanged() override;
     void indentSelection(const QTextCursor &selection,
@@ -48,6 +46,7 @@ private:
                            const TextEditor::TextDocument *textDocument) const override;
 
     mutable QmlJS::Document::Ptr m_qmljsDocument;
+    QSharedPointer<QmlJSRefactoringChangesData> m_data;
 
     friend class QmlJSRefactoringChanges;
 };

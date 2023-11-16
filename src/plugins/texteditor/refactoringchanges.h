@@ -68,8 +68,7 @@ protected:
     RefactoringFile(QTextDocument *document, const Utils::FilePath &filePath);
 
     RefactoringFile(TextEditorWidget *editor);
-    RefactoringFile(const Utils::FilePath &filePath,
-                    const QSharedPointer<RefactoringChangesData> &data);
+    RefactoringFile(const Utils::FilePath &filePath);
 
     QTextDocument *mutableDocument() const;
 
@@ -88,7 +87,6 @@ protected:
                                    const TextDocument *textDocument) const;
 
     Utils::FilePath m_filePath;
-    QSharedPointer<RefactoringChangesData> m_data;
     mutable Utils::TextFileFormat m_textFileFormat;
     mutable QTextDocument *m_document = nullptr;
     TextEditorWidget *m_editor = nullptr;

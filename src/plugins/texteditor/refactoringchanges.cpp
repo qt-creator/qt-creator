@@ -78,7 +78,7 @@ TextEditorWidget *RefactoringChanges::openEditor(const FilePath &filePath,
 
 RefactoringFilePtr RefactoringChanges::file(const FilePath &filePath) const
 {
-    return RefactoringFilePtr(new RefactoringFile(filePath, m_data));
+    return RefactoringFilePtr(new RefactoringFile(filePath));
 }
 
 RefactoringFile::RefactoringFile(QTextDocument *document, const FilePath &filePath)
@@ -91,10 +91,7 @@ RefactoringFile::RefactoringFile(TextEditorWidget *editor)
     , m_editor(editor)
 { }
 
-RefactoringFile::RefactoringFile(const FilePath &filePath,
-                                 const QSharedPointer<RefactoringChangesData> &data)
-    : m_filePath(filePath)
-    , m_data(data)
+RefactoringFile::RefactoringFile(const FilePath &filePath) : m_filePath(filePath)
 {
     QList<IEditor *> editors = DocumentModel::editorsForFilePath(filePath);
     if (!editors.isEmpty()) {
@@ -307,7 +304,7 @@ bool RefactoringFile::apply()
     bool result = true;
 
     // apply changes, if any
-    if (m_data && !(m_indentRanges.isEmpty() && m_changes.isEmpty())) {
+    if (!m_indentRanges.isEmpty() || !m_changes.isEmpty()) {
         QTextDocument *doc = mutableDocument();
         if (doc) {
             QTextCursor c = cursor();
