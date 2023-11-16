@@ -75,19 +75,21 @@ inline static QHash<PropertyName, QVariant> getProperties(const ModelNode &node)
 inline static void applyProperties(ModelNode &node, const QHash<PropertyName, QVariant> &propertyHash)
 {
     const auto auxiliaryData = node.auxiliaryData(AuxiliaryDataType::NodeInstancePropertyOverwrite);
-
     for (const auto &element : auxiliaryData)
         node.removeAuxiliaryData(AuxiliaryDataType::NodeInstancePropertyOverwrite, element.first);
 
-    for (auto propertyIterator = propertyHash.cbegin(), end = propertyHash.cend();
-              propertyIterator != end;
-              ++propertyIterator) {
-        const PropertyName propertyName = propertyIterator.key();
-        if (propertyName == "width" || propertyName == "height") {
-            node.setAuxiliaryData(AuxiliaryDataType::NodeInstancePropertyOverwrite,
-                                  propertyIterator.key(),
-                                  propertyIterator.value());
+    auto needsOverwrite = [&node](const auto& check, const auto& name, const auto& instanceValue) {
+        if (check == name) {
+            VariantProperty property = node.variantProperty(name);
+            if (property.isValid() && property.value() != instanceValue)
+                return true;
         }
+        return false;
+    };
+
+    for (const auto& [name, value] : propertyHash.asKeyValueRange()) {
+        if (needsOverwrite("width", name, value) || needsOverwrite("height", name, value))
+            node.setAuxiliaryData(AuxiliaryDataType::NodeInstancePropertyOverwrite, name, value);
     }
 }
 

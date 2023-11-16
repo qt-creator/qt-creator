@@ -16,6 +16,13 @@ namespace QmlDesigner {
 inline constexpr AuxiliaryDataKeyDefaultValue customIdProperty{AuxiliaryDataType::Document,
                                                                "customId",
                                                                QStringView{}};
+
+inline constexpr AuxiliaryDataKeyDefaultValue defaultWidthProperty{
+    AuxiliaryDataType::NodeInstancePropertyOverwrite, "defaultWidth", 640};
+
+inline constexpr AuxiliaryDataKeyDefaultValue defaultHeightProperty{
+    AuxiliaryDataType::NodeInstancePropertyOverwrite, "defaultHeight", 480};
+
 inline constexpr AuxiliaryDataKeyDefaultValue widthProperty{
     AuxiliaryDataType::NodeInstancePropertyOverwrite, "width", 4};
 inline constexpr AuxiliaryDataKeyView heightProperty{AuxiliaryDataType::NodeInstancePropertyOverwrite,

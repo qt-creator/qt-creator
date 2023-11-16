@@ -305,6 +305,7 @@ void FormEditorWidget::changeRootItemWidth(const QString &widthText)
     bool canConvert;
     int width = widthText.toInt(&canConvert);
     if (canConvert) {
+        m_formEditorView->rootModelNode().setAuxiliaryData(defaultWidthProperty, width);
         m_formEditorView->rootModelNode().setAuxiliaryData(widthProperty, width);
     } else {
         m_formEditorView->rootModelNode().removeAuxiliaryData(widthProperty);
@@ -316,6 +317,7 @@ void FormEditorWidget::changeRootItemHeight(const QString &heighText)
     bool canConvert;
     int height = heighText.toInt(&canConvert);
     if (canConvert) {
+        m_formEditorView->rootModelNode().setAuxiliaryData(defaultHeightProperty, height);
         m_formEditorView->rootModelNode().setAuxiliaryData(heightProperty, height);
     } else {
         m_formEditorView->rootModelNode().removeAuxiliaryData(heightProperty);
