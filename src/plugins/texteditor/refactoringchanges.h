@@ -110,13 +110,11 @@ public:
     explicit RefactoringChanges(RefactoringChangesData *data = nullptr);
     virtual ~RefactoringChanges();
 
-    static RefactoringFilePtr file(TextEditorWidget *editor);
     RefactoringFilePtr file(const Utils::FilePath &filePath) const;
     bool createFile(const Utils::FilePath &filePath,
                     const QString &contents,
                     bool reindent = true,
                     bool openEditor = true) const;
-    bool removeFile(const Utils::FilePath &filePath) const;
 
 protected:
     static TextEditorWidget *openEditor(const Utils::FilePath &filePath,

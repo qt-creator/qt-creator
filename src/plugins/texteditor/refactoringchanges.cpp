@@ -87,16 +87,6 @@ bool RefactoringChanges::createFile(const FilePath &filePath,
     return true;
 }
 
-bool RefactoringChanges::removeFile(const FilePath &filePath) const
-{
-    if (!filePath.exists())
-        return false;
-
-    // ### implement!
-    qWarning() << "RefactoringChanges::removeFile is not implemented";
-    return true;
-}
-
 TextEditorWidget *RefactoringChanges::openEditor(const FilePath &filePath,
                                                  bool activate,
                                                  int line,
@@ -114,11 +104,6 @@ TextEditorWidget *RefactoringChanges::openEditor(const FilePath &filePath,
     IEditor *editor = EditorManager::openEditorAt(Link{filePath, line, column}, Id(), flags);
 
     return TextEditorWidget::fromEditor(editor);
-}
-
-RefactoringFilePtr RefactoringChanges::file(TextEditorWidget *editor)
-{
-    return RefactoringFilePtr(new RefactoringFile(editor));
 }
 
 RefactoringFilePtr RefactoringChanges::file(const FilePath &filePath) const
