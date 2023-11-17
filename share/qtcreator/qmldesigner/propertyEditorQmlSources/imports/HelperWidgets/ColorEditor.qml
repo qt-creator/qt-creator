@@ -184,7 +184,6 @@ SecondColumnLayout {
             property string gradientPropertyName
 
             width: 260
-            maximumHeight: Screen.desktopAvailableHeight * 0.7
 
             function commitToGradient() {
                 if (!loader.active)

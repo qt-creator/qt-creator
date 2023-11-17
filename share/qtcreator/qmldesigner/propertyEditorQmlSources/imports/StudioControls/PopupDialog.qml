@@ -25,9 +25,10 @@ QtObject {
     property alias flags: window.flags
     property alias visible: window.visible
 
+    property int anchorGap: 10
     property int edge: Qt.LeftEdge
     property int actualEdge: root.edge
-    property alias chevronVisible: chevron.visible
+    //property alias chevronVisible: chevron.visible
 
     property rect __itemGlobal: Qt.rect(0, 0, 100, 100)
 
@@ -36,7 +37,7 @@ QtObject {
     function showGlobal() {
         var pos = WindowManager.globalCursorPosition()
         root.__itemGlobal = Qt.rect(pos.x, pos.y, 300, 20)
-        root.chevronVisible = false
+        //root.chevronVisible = false
         root.layout()
         window.show()
         window.raise()
@@ -45,7 +46,7 @@ QtObject {
     function show(target: Item) {
         var originGlobal = target.mapToGlobal(0, 0)
         root.__itemGlobal = Qt.rect(originGlobal.x, originGlobal.y, target.width, target.height)
-        root.chevronVisible = true
+        //root.chevronVisible = true
         root.layout()
         window.show()
         window.raise()
@@ -74,8 +75,8 @@ QtObject {
         let anchor = edges[edge].anchor
         let popoverRect = window.popoverGeometry(edge, anchor, edges[edge].region)
 
-        if (chevron.visible)
-            chevron.layout(edge, popoverRect, anchor)
+        //if (chevron.visible)
+        //    chevron.layout(edge, popoverRect, anchor)
 
         window.x = popoverRect.x
         window.y = popoverRect.y
@@ -84,7 +85,7 @@ QtObject {
     property Window window: Window {
         id: window
 
-        property int margin: 20
+        property int margin: 0 //20
 
         width: root.width + (2 * window.margin)
         height: root.height + (2 * window.margin)
@@ -168,7 +169,7 @@ QtObject {
             let sourceBottom = source.y + source.height
 
             // TOP
-            let topAnchor = Qt.point(targetCenter.x, target.y)
+            let topAnchor = Qt.point(targetCenter.x, target.y - root.anchorGap)
             let topRegion = Qt.rect(source.x,
                                     source.y,
                                     source.width,
@@ -182,7 +183,7 @@ QtObject {
             }
 
             // RIGHT
-            let rightAnchor = Qt.point(target.x + target.width, targetCenter.y)
+            let rightAnchor = Qt.point(target.x + target.width + root.anchorGap, targetCenter.y)
             let rightRegion = Qt.rect(rightAnchor.x,
                                       source.y,
                                       (rightAnchor.x > sourceRight) ? 0 : Math.abs(sourceRight - rightAnchor.x),
@@ -196,7 +197,7 @@ QtObject {
             }
 
             // BOTTOM
-            let bottomAnchor = Qt.point(targetCenter.x, target.y + target.height)
+            let bottomAnchor = Qt.point(targetCenter.x, target.y + target.height + root.anchorGap)
             let bottomRegion = Qt.rect(source.x,
                                        bottomAnchor.y,
                                        source.width,
@@ -210,7 +211,7 @@ QtObject {
             }
 
             // LEFT
-            let leftAnchor = Qt.point(target.x, targetCenter.y)
+            let leftAnchor = Qt.point(target.x - root.anchorGap, targetCenter.y)
             let leftRegion = Qt.rect(source.x,
                                      source.y,
                                      (leftAnchor.x < source.left) ? 0 : Math.abs(leftAnchor.x - source.left),
@@ -229,7 +230,9 @@ QtObject {
         function popoverGeometry(edge: int, anchor: point, region: rect) {
             if (edge === Qt.TopEdge) {
                 let height = Math.min(window.height, region.height)
-                return Qt.rect(Math.max(0, Math.min(anchor.x - (window.width * 0.5), region.width - window.width)),
+                return Qt.rect(Math.max(region.x,
+                                        Math.min(anchor.x - (window.width * 0.5),
+                                                 region.x + region.width - window.width)),
                                anchor.y - height,
                                Math.min(window.width, region.width),
                                height)
@@ -238,14 +241,18 @@ QtObject {
             if (edge === Qt.RightEdge) {
                 let width = Math.min(window.width, region.width)
                 return Qt.rect(anchor.x,
-                               Math.max(0, Math.min(anchor.y - (window.height * 0.5), region.height - window.height)),
+                               Math.max(region.y,
+                                        Math.min(anchor.y - (window.height * 0.5),
+                                                 region.y + region.height - window.height)),
                                width,
                                Math.min(window.height, region.height))
             }
 
             if (edge === Qt.BottomEdge) {
                 let height = Math.min(window.height, region.height)
-                return Qt.rect(Math.max(0, Math.min(anchor.x - (window.width * 0.5), region.width - window.width)),
+                return Qt.rect(Math.max(region.x,
+                                        Math.min(anchor.x - (window.width * 0.5),
+                                                 region.x + region.width - window.width)),
                                anchor.y,
                                Math.min(window.width, region.width),
                                height)
@@ -254,7 +261,9 @@ QtObject {
             if (edge === Qt.LeftEdge) {
                 let width = Math.min(window.width, region.width)
                 return Qt.rect(anchor.x - width,
-                               Math.max(0, Math.min(anchor.y - (window.height * 0.5), region.height - window.height)),
+                               Math.max(region.y,
+                                        Math.min(anchor.y - (window.height * 0.5),
+                                                 region.y + region.height - window.height)),
                                width,
                                Math.min(window.height, region.height))
             }
@@ -312,7 +321,10 @@ QtObject {
                 }
             }
         }
-
+/*
+        // The chevron will be reactivated when we fixed all the issues that where found during testing.
+        // * Potential Qt bug: black background instead of transparent border due to GPU selection on Windows
+        // * Ghost chevron on macOS after dragging the window
         Shape {
             id: chevron
 
@@ -389,7 +401,7 @@ QtObject {
                 PathLine { id: end; x: 0; y: 0 }
             }
         }
-
+*/
         Column {
             id: column
             anchors.fill: parent
@@ -408,8 +420,6 @@ QtObject {
                     onActiveChanged: {
                         if (dragHandler.active)
                             window.startSystemMove() // QTBUG-102488
-
-                        root.chevronVisible = false
                     }
                 }
 
