@@ -5,8 +5,6 @@
 #pragma once
 
 #include <coreplugin/editormanager/ieditor.h>
-#include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/idocument.h>
 
 namespace ImageViewer::Internal {
 
@@ -49,10 +47,6 @@ private:
     struct ImageViewerPrivate *d;
 };
 
-class ImageViewerFactory final : public Core::IEditorFactory
-{
-public:
-    ImageViewerFactory();
-};
+void setupImageViewer(QObject *guard);
 
 } // ImageViewer::Internal

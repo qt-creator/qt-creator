@@ -9,11 +9,14 @@
 #include "imageviewerfile.h"
 #include "imageviewertr.h"
 
-#include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
 #include <coreplugin/actionmanager/commandbutton.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/idocument.h>
 
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
@@ -390,15 +393,68 @@ void ImageViewer::updatePauseAction()
 
 // Factory
 
-ImageViewerFactory::ImageViewerFactory()
+class ImageViewerFactory final : public Core::IEditorFactory
 {
-    setId(Constants::IMAGEVIEWER_ID);
-    setDisplayName(Tr::tr("Image Viewer"));
-    setEditorCreator([] { return new ImageViewer; });
+public:
+    ImageViewerFactory()
+    {
+        setId(Constants::IMAGEVIEWER_ID);
+        setDisplayName(Tr::tr("Image Viewer"));
+        setEditorCreator([] { return new ImageViewer; });
 
-    const QList<QByteArray> supportedMimeTypes = QImageReader::supportedMimeTypes();
-    for (const QByteArray &format : supportedMimeTypes)
-        addMimeType(QString::fromLatin1(format));
+        const QList<QByteArray> supportedMimeTypes = QImageReader::supportedMimeTypes();
+        for (const QByteArray &format : supportedMimeTypes)
+            addMimeType(QString::fromLatin1(format));
+    }
+};
+
+static void createAction(QObject *guard, Id id,
+                         const std::function<void(ImageViewer *v)> &onTriggered,
+                         const QString &title = {},
+                         const QKeySequence &key = {})
+{
+    ActionBuilder builder(guard, id);
+    builder.setText(title);
+    builder.setContext(Context(Constants::IMAGEVIEWER_ID));
+    if (!key.isEmpty())
+        builder.setDefaultKeySequence(key);
+
+    builder.setOnTriggered(guard, [onTriggered] {
+        if (auto iv = qobject_cast<ImageViewer *>(EditorManager::currentEditor()))
+            onTriggered(iv);
+    });
+}
+
+void setupImageViewer(QObject *guard)
+{
+    static ImageViewerFactory theImageViewerFactory;
+
+    createAction(guard, Core::Constants::ZOOM_IN, &ImageViewer::zoomIn);
+
+    createAction(guard, Core::Constants::ZOOM_OUT, &ImageViewer::zoomOut);
+
+    createAction(guard, Core::Constants::ZOOM_RESET, &ImageViewer::resetToOriginalSize);
+
+    createAction(guard, Constants::ACTION_FIT_TO_SCREEN, &ImageViewer::fitToScreen,
+                 Tr::tr("Fit to Screen"), Tr::tr("Ctrl+="));
+
+    createAction( guard, Constants::ACTION_BACKGROUND, &ImageViewer::switchViewBackground,
+                 Tr::tr("Switch Background"), Tr::tr("Ctrl+["));
+
+    createAction(guard, Constants::ACTION_OUTLINE, &ImageViewer::switchViewOutline,
+                 Tr::tr("Switch Outline"), Tr::tr("Ctrl+]"));
+
+    createAction(guard, Constants::ACTION_TOGGLE_ANIMATION, &ImageViewer::togglePlay,
+                 Tr::tr("Toggle Animation"));
+
+    createAction(guard, Constants::ACTION_EXPORT_IMAGE, &ImageViewer::exportImage,
+                 Tr::tr("Export Image"));
+
+    createAction(guard, Constants::ACTION_EXPORT_MULTI_IMAGES, &ImageViewer::exportMultiImages,
+                 Tr::tr("Export Multiple Images"));
+
+    createAction(guard, Constants::ACTION_COPY_DATA_URL, &ImageViewer::copyDataUrl,
+                 Tr::tr("Copy as Data URL"));
 }
 
 } // ImageViewer::Internal
