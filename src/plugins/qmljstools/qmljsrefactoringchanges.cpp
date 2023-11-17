@@ -68,8 +68,6 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor,
     : RefactoringFile(editor)
     , m_qmljsDocument(document)
 {
-    if (document)
-        setFilePath(document->fileName()); // TODO: Is this really a different file path than in the editor?
 }
 
 Document::Ptr QmlJSRefactoringFile::qmljsDocument() const

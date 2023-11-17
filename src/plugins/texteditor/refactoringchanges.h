@@ -70,7 +70,6 @@ protected:
     RefactoringFile(const Utils::FilePath &filePath);
 
     void invalidate() { m_filePath.clear(); }
-    void setFilePath(const Utils::FilePath &filePath) { m_filePath = filePath; }  // FIXME: Really necessary?
     void enableFormatting() { m_formattingEnabled = true; }
 
 private:
