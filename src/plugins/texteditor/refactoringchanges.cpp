@@ -28,48 +28,12 @@ namespace TextEditor {
 
 RefactoringChanges::~RefactoringChanges() = default;
 
-RefactoringSelections RefactoringChanges::rangesToSelections(QTextDocument *document,
-                                                             const QList<Range> &ranges)
-{
-    RefactoringSelections selections;
-
-    for (const Range &range : ranges) {
-        QTextCursor start(document);
-        start.setPosition(range.start);
-        start.setKeepPositionOnInsert(true);
-        QTextCursor end(document);
-        end.setPosition(qMin(range.end, document->characterCount() - 1));
-        selections.push_back({start, end});
-    }
-
-    return selections;
-}
-
 bool RefactoringChanges::createFile(const FilePath &filePath,
                                     const QString &contents,
                                     bool reindent,
                                     bool openEditor) const
 {
     return file(filePath)->create(contents, reindent, openEditor);
-}
-
-TextEditorWidget *RefactoringChanges::openEditor(const FilePath &filePath,
-                                                 bool activate,
-                                                 int line,
-                                                 int column)
-{
-    EditorManager::OpenEditorFlags flags = EditorManager::IgnoreNavigationHistory;
-    if (activate)
-        flags |= EditorManager::SwitchSplitIfAlreadyVisible;
-    else
-        flags |= EditorManager::DoNotChangeCurrentEditor;
-    if (line != -1) {
-        // openEditorAt uses a 1-based line and a 0-based column!
-        column -= 1;
-    }
-    IEditor *editor = EditorManager::openEditorAt(Link{filePath, line, column}, Id(), flags);
-
-    return TextEditorWidget::fromEditor(editor);
 }
 
 RefactoringFilePtr RefactoringChanges::file(const FilePath &filePath) const
@@ -97,7 +61,7 @@ RefactoringFile::RefactoringFile(const FilePath &filePath) : m_filePath(filePath
     }
 }
 
-bool RefactoringFile::create(const QString &contents, bool reindent, bool openEditor)
+bool RefactoringFile::create(const QString &contents, bool reindent, bool openInEditor)
 {
     if (m_filePath.isEmpty() || m_filePath.exists() || m_editor)
         return false;
@@ -126,8 +90,8 @@ bool RefactoringFile::create(const QString &contents, bool reindent, bool openEd
 
     fileChanged();
 
-    if (openEditor)
-        RefactoringChanges::openEditor(m_filePath, /*bool activate =*/ false, -1, -1);
+    if (openInEditor)
+        openEditor(/*bool activate =*/ false, -1, -1);
 
     return true;
 }
@@ -290,7 +254,7 @@ bool RefactoringFile::apply()
             lineAndColumn(m_editorCursorPosition, &line, &column);
             ensureCursorVisible = true;
         }
-        m_editor = RefactoringChanges::openEditor(m_filePath, m_activateEditor, line, column);
+        m_editor = openEditor(m_activateEditor, line, column);
         m_openEditor = false;
         m_activateEditor = false;
         m_editorCursorPosition = -1;
@@ -313,11 +277,10 @@ bool RefactoringFile::apply()
             sort(m_reindentRanges);
 
             // build indent selections now, applying the changeset will change locations
-            const RefactoringSelections &indentSelections =
-                    RefactoringChanges::rangesToSelections(doc, m_indentRanges);
+            const RefactoringSelections &indentSelections = rangesToSelections(doc, m_indentRanges);
             m_indentRanges.clear();
-            const RefactoringSelections &reindentSelections =
-                    RefactoringChanges::rangesToSelections(doc, m_reindentRanges);
+            const RefactoringSelections &reindentSelections
+                = rangesToSelections(doc, m_reindentRanges);
             m_reindentRanges.clear();
 
             // apply changes
@@ -484,6 +447,39 @@ void RefactoringFile::reindentSelection(const QTextCursor &selection,
 {
     Q_UNUSED(selection)
     Q_UNUSED(textDocument)
+}
+
+TextEditorWidget *RefactoringFile::openEditor(bool activate, int line, int column)
+{
+    EditorManager::OpenEditorFlags flags = EditorManager::IgnoreNavigationHistory;
+    if (activate)
+        flags |= EditorManager::SwitchSplitIfAlreadyVisible;
+    else
+        flags |= EditorManager::DoNotChangeCurrentEditor;
+    if (line != -1) {
+        // openEditorAt uses a 1-based line and a 0-based column!
+        column -= 1;
+    }
+    IEditor *editor = EditorManager::openEditorAt(Link{m_filePath, line, column}, Id(), flags);
+
+    return TextEditorWidget::fromEditor(editor);
+}
+
+RefactoringSelections RefactoringFile::rangesToSelections(QTextDocument *document,
+                                                          const QList<Range> &ranges)
+{
+    RefactoringSelections selections;
+
+    for (const Range &range : ranges) {
+        QTextCursor start(document);
+        start.setPosition(range.start);
+        start.setKeepPositionOnInsert(true);
+        QTextCursor end(document);
+        end.setPosition(qMin(range.end, document->characterCount() - 1));
+        selections.push_back({start, end});
+    }
+
+    return selections;
 }
 
 } // namespace TextEditor

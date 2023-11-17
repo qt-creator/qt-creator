@@ -59,7 +59,7 @@ public:
     void appendReindentRange(const Range &range);
     void setOpenEditor(bool activate = false, int pos = -1);
     bool apply();
-    bool create(const QString &contents, bool reindent, bool openEditor);
+    bool create(const QString &contents, bool reindent, bool openInEditor);
 
 protected:
     // users may only get const access to RefactoringFiles created through
@@ -79,6 +79,10 @@ protected:
 
     void setupFormattingRanges(const QList<Utils::ChangeSet::EditOp> &replaceList);
     void doFormatting();
+
+    TextEditorWidget *openEditor(bool activate, int line, int column);
+    static RefactoringSelections rangesToSelections(QTextDocument *document,
+                                                    const QList<Range> &ranges);
 
     virtual void indentSelection(const QTextCursor &selection,
                                  const TextDocument *textDocument) const;
@@ -109,8 +113,6 @@ protected:
 class TEXTEDITOR_EXPORT RefactoringChanges
 {
 public:
-    using Range = Utils::ChangeSet::Range;
-
     virtual ~RefactoringChanges();
 
     // TODO: Make pure virtual and introduce dedicated subclass for generic refactoring,
@@ -121,16 +123,6 @@ public:
                     const QString &contents,
                     bool reindent = true,
                     bool openEditor = true) const;
-
-protected:
-    static TextEditorWidget *openEditor(const Utils::FilePath &filePath,
-                                        bool activate,
-                                        int line,
-                                        int column);
-    static RefactoringSelections rangesToSelections(QTextDocument *document,
-                                                    const QList<Range> &ranges);
-
-    friend class RefactoringFile;
 };
 
 } // namespace TextEditor
