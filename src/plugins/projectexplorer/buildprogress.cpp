@@ -49,7 +49,7 @@ BuildProgress::BuildProgress(TaskWindow *taskWindow, Qt::Orientation orientation
     warningLayout->addWidget(m_warningIcon);
     warningLayout->addWidget(m_warningLabel);
 
-    const QFont f = Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementPanelTitle);
+    const QFont f = Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementCaptionStrong);
     m_errorLabel->setFont(f);
     m_warningLabel->setFont(f);
     m_errorLabel->setPalette(Utils::StyleHelper::sidebarFontPalette(m_errorLabel->palette()));

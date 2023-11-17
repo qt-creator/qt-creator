@@ -166,7 +166,7 @@ QSize ProgressBar::sizeHint() const
     int width = 50;
     int height = PROGRESSBAR_HEIGHT + 5;
     if (m_titleVisible) {
-        const QFont font = StyleHelper::UiFont(StyleHelper::UiElementPanelTitle);
+        const QFont font = StyleHelper::UiFont(StyleHelper::UiElementCaptionStrong);
         const QFontMetrics fm(font);
         width = qMax(width, fm.horizontalAdvance(m_title) + 16);
         height += fm.height() + 5;
@@ -213,7 +213,7 @@ void ProgressBar::paintEvent(QPaintEvent *)
         percent = 1;
 
     QPainter p(this);
-    const QFont fnt = StyleHelper::UiFont(StyleHelper::UiElementPanelTitle);
+    const QFont fnt = StyleHelper::UiFont(StyleHelper::UiElementCaptionStrong);
     const QFontMetrics fm(fnt);
 
     const int titleHeight = m_titleVisible ? fm.height() + 5 : 4;

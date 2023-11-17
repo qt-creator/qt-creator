@@ -952,12 +952,11 @@ QFont StyleHelper::UiFont(UiElement element)
         font.setPointSizeF(font.pointSizeF() * 1.2);
         font.setBold(true);
         break;
-    case UiElementPanelTitle: {
+    case UiElementCaptionStrong:
         font.setPointSizeF(panelTitleSize);
         font.setBold(true);
         break;
-    }
-    case UiElementPanelSubtitle:
+    case UiElementCaption:
         font.setPointSizeF(panelTitleSize);
         break;
     }

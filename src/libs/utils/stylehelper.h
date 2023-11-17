@@ -52,8 +52,8 @@ enum UiElement {
     UiElementH2,
     UiElementH3,
     UiElementH4,
-    UiElementPanelTitle,
-    UiElementPanelSubtitle,
+    UiElementCaptionStrong,
+    UiElementCaption,
 };
 
 // Height of the project explorer navigation bar
