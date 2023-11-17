@@ -13,7 +13,6 @@ namespace Utils { class PersistentSettingsWriter; }
 namespace BareMetal::Internal {
 
 class BareMetalPlugin;
-class BareMetalPluginPrivate;
 class IDebugServerProvider;
 class IDebugServerProviderFactory;
 
@@ -25,7 +24,6 @@ class DebugServerProviderManager final : public QObject
 
 public:
     static DebugServerProviderManager *instance();
-    ~DebugServerProviderManager() final;
 
     static QList<IDebugServerProvider *> providers();
     static QList<IDebugServerProviderFactory *> factories();
@@ -42,9 +40,10 @@ signals:
     void providersLoaded();
 
 private:
-    void saveProviders();
     DebugServerProviderManager();
+    ~DebugServerProviderManager() final;
 
+    void saveProviders();
     void restoreProviders();
     static void notifyAboutUpdate(IDebugServerProvider *provider);
 
@@ -53,9 +52,9 @@ private:
     const Utils::FilePath m_configFile;
     const QList<IDebugServerProviderFactory *> m_factories;
 
-    friend class BareMetalPlugin; // for restoreProviders
-    friend class BareMetalPluginPrivate; // for constructor
     friend class IDebugServerProvider;
 };
+
+void setupDebugServerProviderManager(QObject *guard);
 
 } // BareMetal::Internal

@@ -13,12 +13,8 @@ class BareMetalPlugin final : public ExtensionSystem::IPlugin
    Q_OBJECT
    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BareMetal.json")
 
-   ~BareMetalPlugin() final;
-
    void initialize() final;
    void extensionsInitialized() final;
-
-   class BareMetalPluginPrivate *d = nullptr;
 
 #ifdef WITH_TESTS
 private slots:

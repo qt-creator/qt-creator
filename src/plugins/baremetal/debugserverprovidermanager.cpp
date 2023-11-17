@@ -33,8 +33,6 @@ const char countKeyC[] = "DebugServerProvider.Count";
 const char fileVersionKeyC[] = "Version";
 const char fileNameKeyC[] = "debugserverproviders.xml";
 
-static DebugServerProviderManager *m_instance = nullptr;
-
 // DebugServerProviderManager
 
 DebugServerProviderManager::DebugServerProviderManager()
@@ -48,7 +46,6 @@ DebugServerProviderManager::DebugServerProviderManager()
                    new StLinkUvscServerProviderFactory,
                    new JLinkUvscServerProviderFactory})
 {
-    m_instance = this;
     m_writer = new Utils::PersistentSettingsWriter(
                 m_configFile, "QtCreatorDebugServerProviders");
 
@@ -69,12 +66,24 @@ DebugServerProviderManager::~DebugServerProviderManager()
     m_providers.clear();
     qDeleteAll(m_factories);
     delete m_writer;
-    m_instance = nullptr;
 }
+
+static DebugServerProviderManager *m_instance = nullptr;
 
 DebugServerProviderManager *DebugServerProviderManager::instance()
 {
+    if (!m_instance) {
+        m_instance = new DebugServerProviderManager;
+        m_instance->restoreProviders();
+    }
+
     return m_instance;
+}
+
+void setupDebugServerProviderManager(QObject *guard)
+{
+    DebugServerProviderManager::instance(); // force creation
+    m_instance->setParent(guard);
 }
 
 void DebugServerProviderManager::restoreProviders()

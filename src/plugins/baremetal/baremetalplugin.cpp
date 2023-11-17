@@ -4,11 +4,9 @@
 
 #include "baremetalplugin.h"
 
-#include "baremetalconstants.h"
 #include "baremetaldebugsupport.h"
 #include "baremetaldevice.h"
 #include "baremetalrunconfiguration.h"
-#include "baremetaltr.h"
 
 #include "debugserverprovidermanager.h"
 
@@ -18,25 +16,10 @@
 
 namespace BareMetal::Internal {
 
-// BareMetalPluginPrivate
-
-class BareMetalPluginPrivate
-{
-public:
-    DebugServerProviderManager debugServerProviderManager;
-};
-
 // BareMetalPlugin
-
-BareMetalPlugin::~BareMetalPlugin()
-{
-    delete d;
-}
 
 void BareMetalPlugin::initialize()
 {
-    d = new BareMetalPluginPrivate;
-
     setupBareMetalDevice();
 
     setupIarToolChain();
@@ -49,7 +32,7 @@ void BareMetalPlugin::initialize()
 
 void BareMetalPlugin::extensionsInitialized()
 {
-    DebugServerProviderManager::instance()->restoreProviders();
+    setupDebugServerProviderManager(this);
 }
 
 } // BareMetal::Internal
