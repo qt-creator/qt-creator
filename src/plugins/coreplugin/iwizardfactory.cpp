@@ -378,6 +378,9 @@ void IWizardFactory::destroyFeatureProvider()
 
 void IWizardFactory::clearWizardFactories()
 {
+    if (!s_areFactoriesLoaded)
+        return;
+
     for (IWizardFactory *factory : std::as_const(s_allFactories))
         ActionManager::unregisterAction(factory->m_action, actionId(factory));
 
