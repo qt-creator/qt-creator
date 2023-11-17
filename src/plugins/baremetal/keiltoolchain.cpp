@@ -538,14 +538,31 @@ QStringList KeilToolChain::extraCodeModelFlags() const
 
 // KeilToolchainFactory
 
-KeilToolChainFactory::KeilToolChainFactory()
+class KeilToolChainFactory final : public ToolChainFactory
 {
-    setDisplayName(Tr::tr("KEIL"));
-    setSupportedToolChainType(Constants::KEIL_TOOLCHAIN_TYPEID);
-    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
-                           ProjectExplorer::Constants::CXX_LANGUAGE_ID});
-    setToolchainConstructor([] { return new KeilToolChain; });
-    setUserCreatable(true);
+public:
+    KeilToolChainFactory()
+    {
+        setDisplayName(Tr::tr("KEIL"));
+        setSupportedToolChainType(Constants::KEIL_TOOLCHAIN_TYPEID);
+        setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
+                               ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+        setToolchainConstructor([] { return new KeilToolChain; });
+        setUserCreatable(true);
+    }
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
+
+private:
+    Toolchains autoDetectToolchains(const Candidates &candidates,
+            const Toolchains &alreadyKnown) const;
+    Toolchains autoDetectToolchain(
+            const Candidate &candidate, Utils::Id language) const;
+};
+
+void setupKeilToolChain()
+{
+    static KeilToolChainFactory theKeilToolChainFactory;
 }
 
 // Parse the 'tools.ini' file to fetch a toolchain version.

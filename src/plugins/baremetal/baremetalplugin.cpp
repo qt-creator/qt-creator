@@ -16,15 +16,7 @@
 #include "keiltoolchain.h"
 #include "sdcctoolchain.h"
 
-#include <coreplugin/actionmanager/actioncontainer.h>
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/actionmanager/command.h>
-#include <coreplugin/coreconstants.h>
-#include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
-
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/projectexplorerconstants.h>
 
 using namespace ProjectExplorer;
 
@@ -46,9 +38,6 @@ public:
 class BareMetalPluginPrivate
 {
 public:
-    IarToolChainFactory iarToolChainFactory;
-    KeilToolChainFactory keilToolChainFactory;
-    SdccToolChainFactory sdccToolChainFactory;
     BareMetalDeviceFactory deviceFactory;
     BareMetalRunConfigurationFactory runConfigurationFactory;
     BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;
@@ -67,6 +56,10 @@ BareMetalPlugin::~BareMetalPlugin()
 void BareMetalPlugin::initialize()
 {
     d = new BareMetalPluginPrivate;
+
+    setupIarToolChain();
+    setupKeilToolChain();
+    setupSdccToolChain();
 }
 
 void BareMetalPlugin::extensionsInitialized()

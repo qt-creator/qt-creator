@@ -300,13 +300,29 @@ bool SdccToolChain::operator==(const ToolChain &other) const
 
 // SdccToolChainFactory
 
-SdccToolChainFactory::SdccToolChainFactory()
+class SdccToolChainFactory final : public ToolChainFactory
 {
-    setDisplayName(Tr::tr("SDCC"));
-    setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
-    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID});
-    setToolchainConstructor([] { return new SdccToolChain; });
-    setUserCreatable(true);
+public:
+    SdccToolChainFactory()
+    {
+        setDisplayName(Tr::tr("SDCC"));
+        setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
+        setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID});
+        setToolchainConstructor([] { return new SdccToolChain; });
+        setUserCreatable(true);
+    }
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
+
+private:
+    Toolchains autoDetectToolchains(const Candidates &candidates,
+                                    const Toolchains &alreadyKnown) const;
+    Toolchains autoDetectToolchain(const Candidate &candidate, Id language) const;
+};
+
+void setupSdccToolChain()
+{
+    static SdccToolChainFactory theSdccToolChainFactory;
 }
 
 Toolchains SdccToolChainFactory::autoDetect(const ToolchainDetector &detector) const

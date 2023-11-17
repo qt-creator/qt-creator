@@ -3,23 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/toolchain.h>
-
 namespace BareMetal::Internal {
 
-class SdccToolChainFactory final : public ProjectExplorer::ToolChainFactory
-{
-public:
-    SdccToolChainFactory();
-
-    ProjectExplorer::Toolchains autoDetect(
-            const ProjectExplorer::ToolchainDetector &detector) const final;
-
-private:
-    ProjectExplorer::Toolchains autoDetectToolchains(const Candidates &candidates,
-            const ProjectExplorer::Toolchains &alreadyKnown) const;
-    ProjectExplorer::Toolchains autoDetectToolchain(
-            const Candidate &candidate, Utils::Id language) const;
-};
+void setupSdccToolChain();
 
 } // BareMetal::Internal

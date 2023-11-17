@@ -405,17 +405,33 @@ bool IarToolChain::operator==(const ToolChain &other) const
 }
 
 
-
 // IarToolChainFactory
 
-IarToolChainFactory::IarToolChainFactory()
+class IarToolChainFactory final : public ToolChainFactory
 {
-    setDisplayName(Tr::tr("IAREW"));
-    setSupportedToolChainType(Constants::IAREW_TOOLCHAIN_TYPEID);
-    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
-                           ProjectExplorer::Constants::CXX_LANGUAGE_ID});
-    setToolchainConstructor([] { return new IarToolChain; });
-    setUserCreatable(true);
+public:
+    IarToolChainFactory()
+    {
+        setDisplayName(Tr::tr("IAREW"));
+        setSupportedToolChainType(Constants::IAREW_TOOLCHAIN_TYPEID);
+        setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
+                               ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+        setToolchainConstructor([] { return new IarToolChain; });
+        setUserCreatable(true);
+    }
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
+    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
+
+private:
+    Toolchains autoDetectToolchains(const Candidates &candidates,
+                                    const Toolchains &alreadyKnown) const;
+    Toolchains autoDetectToolchain(const Candidate &candidate, Id languageId) const;
+};
+
+void setupIarToolChain()
+{
+    static IarToolChainFactory theIarToolChainFactory;
 }
 
 Toolchains IarToolChainFactory::autoDetect(const ToolchainDetector &detector) const
