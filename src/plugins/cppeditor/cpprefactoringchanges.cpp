@@ -4,6 +4,7 @@
 #include "cpprefactoringchanges.h"
 
 #include "cppeditorconstants.h"
+#include "cppworkingcopy.h"
 
 #include <projectexplorer/editorconfiguration.h>
 
@@ -22,6 +23,18 @@ using namespace CPlusPlus;
 using namespace Utils;
 
 namespace CppEditor {
+namespace Internal {
+class CppRefactoringChangesData
+{
+public:
+    explicit CppRefactoringChangesData(const CPlusPlus::Snapshot &snapshot);
+
+    CPlusPlus::Snapshot m_snapshot;
+    WorkingCopy m_workingCopy;
+};
+} // namespace Internal
+
+using namespace Internal;
 
 static std::unique_ptr<TextEditor::Indenter> createIndenter(const FilePath &filePath,
                                                             QTextDocument *textDocument)

@@ -6,21 +6,18 @@
 #include "cppeditor_global.h"
 
 #include "cppmodelmanager.h"
-#include "cppworkingcopy.h"
 
 #include <cplusplus/CppDocument.h>
 
 #include <texteditor/refactoringchanges.h>
 
-#include <optional>
-
 namespace CppEditor {
-
 class CppRefactoringChanges;
 class CppRefactoringFile;
-class CppRefactoringChangesData;
 using CppRefactoringFilePtr = QSharedPointer<CppRefactoringFile>;
 using CppRefactoringFileConstPtr = QSharedPointer<const CppRefactoringFile>;
+
+namespace Internal { class CppRefactoringChangesData; }
 
 class CPPEDITOR_EXPORT CppRefactoringFile: public TextEditor::RefactoringFile
 {
@@ -52,7 +49,8 @@ public:
     QString textOf(const CPlusPlus::AST *ast) const;
 
 private:
-    CppRefactoringFile(const Utils::FilePath &filePath, const QSharedPointer<CppRefactoringChangesData> &data);
+    CppRefactoringFile(const Utils::FilePath &filePath,
+                       const QSharedPointer<Internal::CppRefactoringChangesData> &data);
     CppRefactoringFile(QTextDocument *document, const Utils::FilePath &filePath);
     explicit CppRefactoringFile(TextEditor::TextEditorWidget *editor);
 
@@ -67,18 +65,9 @@ private:
                               int startIndex) const;
 
     mutable CPlusPlus::Document::Ptr m_cppDocument;
-    QSharedPointer<CppRefactoringChangesData> m_data;
+    QSharedPointer<Internal::CppRefactoringChangesData> m_data;
 
     friend class CppRefactoringChanges; // for access to constructor
-};
-
-class CPPEDITOR_EXPORT CppRefactoringChangesData
-{
-public:
-    explicit CppRefactoringChangesData(const CPlusPlus::Snapshot &snapshot);
-
-    CPlusPlus::Snapshot m_snapshot;
-    WorkingCopy m_workingCopy;
 };
 
 class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringFileFactory
@@ -98,7 +87,7 @@ public:
     const CPlusPlus::Snapshot &snapshot() const;
 
 private:
-    const QSharedPointer<CppRefactoringChangesData> m_data;
+    const QSharedPointer<Internal::CppRefactoringChangesData> m_data;
 };
 
 } // namespace CppEditor
