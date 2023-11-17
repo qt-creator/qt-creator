@@ -40,6 +40,8 @@ QtcPlugin {
         "remotelinuxcustomrunconfiguration.h",
         "remotelinuxdebugsupport.cpp",
         "remotelinuxdebugsupport.h",
+        "remotelinuxdeploysupport.cpp",
+        "remotelinuxdeploysupport.h",
         "remotelinuxenvironmentaspect.cpp",
         "remotelinuxenvironmentaspect.h",
         "remotelinuxplugin.cpp",
