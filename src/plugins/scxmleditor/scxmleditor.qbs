@@ -21,9 +21,8 @@ QtcPlugin {
     files: [
         "scxmleditor_global.h", "scxmleditortr.h",
         "scxmleditorconstants.h",
-        "scxmleditordata.cpp",
+        "scxmleditor.cpp", "scxmleditor.h",
         "scxmleditordocument.cpp", "scxmleditordocument.h",
-        "scxmleditorfactory.h",
         "scxmleditorplugin.cpp",
         "scxmleditorstack.cpp", "scxmleditorstack.h",
         "scxmltexteditor.cpp", "scxmltexteditor.h",
