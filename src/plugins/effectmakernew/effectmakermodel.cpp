@@ -682,7 +682,7 @@ void EffectMakerModel::exportResources(const QString &name)
         if (line.startsWith("vertexShader")) {
             QString vsLine = "        vertexShader: '" + vsFilename + "'";
             qmlStringList[i] = vsLine;
-        } else  if (line.startsWith("fragmentShader")) {
+        } else if (line.startsWith("fragmentShader")) {
             QString fsLine = "        fragmentShader: '" + fsFilename + "'";
             qmlStringList[i] = fsLine;
         }
@@ -737,16 +737,18 @@ QString EffectMakerModel::valueAsString(const Uniform &uniform)
         return QString::number(uniform.value().toDouble());
     } else if (uniform.type() == Uniform::Type::Vec2) {
         QVector2D v2 = uniform.value().value<QVector2D>();
-        return QString("Qt.point(%1, %2)").arg(v2.x(), v2.y());
+        return QString("Qt.point(%1, %2)").arg(v2.x()).arg(v2.y());
     } else if (uniform.type() == Uniform::Type::Vec3) {
         QVector3D v3 = uniform.value().value<QVector3D>();
-        return QString("Qt.vector3d(%1, %2, %3)").arg(v3.x(), v3.y(), v3.z());
+        return QString("Qt.vector3d(%1, %2, %3)").arg(v3.x()).arg(v3.y()).arg(v3.z());
     } else if (uniform.type() == Uniform::Type::Vec4) {
         QVector4D v4 = uniform.value().value<QVector4D>();
-        return QString("Qt.vector4d(%1, %2, %3, %4)").arg(v4.x(), v4.y(), v4.z(), v4.w());
+        return QString("Qt.vector4d(%1, %2, %3, %4)").arg(v4.x()).arg(v4.y()).arg(v4.z()).arg(v4.w());
     } else if (uniform.type() == Uniform::Type::Sampler) {
         return getImageElementName(uniform);
-    } else if (uniform.type() == Uniform::Type::Define || uniform.type() == Uniform::Type::Color) {
+    } else if (uniform.type() == Uniform::Type::Color) {
+        return QString("\"%1\"").arg(uniform.value().toString());
+    } else if (uniform.type() == Uniform::Type::Define) {
         return uniform.value().toString();
     } else {
         qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
