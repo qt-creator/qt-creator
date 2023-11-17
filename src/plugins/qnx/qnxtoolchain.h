@@ -26,17 +26,6 @@ protected:
     DetectedAbisResult detectSupportedAbis() const override;
 };
 
-// --------------------------------------------------------------------------
-// QnxToolChainFactory
-// --------------------------------------------------------------------------
-
-class QnxToolChainFactory : public ProjectExplorer::ToolChainFactory
-{
-public:
-    QnxToolChainFactory();
-
-    ProjectExplorer::Toolchains autoDetect(
-            const ProjectExplorer::ToolchainDetector &detector) const final;
-};
+void setupQnxToolChain();
 
 } // Qnx::Internal

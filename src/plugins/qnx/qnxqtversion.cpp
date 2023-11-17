@@ -190,12 +190,21 @@ EnvironmentItems QnxQtVersion::environment() const
 
 // Factory
 
-QnxQtVersionFactory::QnxQtVersionFactory()
+class QnxQtVersionFactory : public QtSupport::QtVersionFactory
 {
-    setQtVersionCreator([] { return new QnxQtVersion; });
-    setSupportedType(Constants::QNX_QNX_QT);
-    setPriority(50);
-    setRestrictionChecker([](const SetupData &setup) { return setup.isQnx; });
+public:
+    QnxQtVersionFactory()
+    {
+        setQtVersionCreator([] { return new QnxQtVersion; });
+        setSupportedType(Constants::QNX_QNX_QT);
+        setPriority(50);
+        setRestrictionChecker([](const SetupData &setup) { return setup.isQnx; });
+    }
+};
+
+void setupQnxQtVersion()
+{
+    static QnxQtVersionFactory theQnxQtVersionFactory;
 }
 
 } // Qnx::Internal

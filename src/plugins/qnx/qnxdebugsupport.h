@@ -3,16 +3,9 @@
 
 #pragma once
 
-#include <debugger/debuggerruncontrol.h>
-
 namespace Qnx::Internal {
 
 void showAttachToProcessDialog();
-
-class QnxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    QnxDebugWorkerFactory();
-};
+void setupQnxDebugging();
 
 } // Qnx::Internal

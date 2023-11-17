@@ -48,11 +48,20 @@ public:
     }
 };
 
-QnxQmlProfilerWorkerFactory::QnxQmlProfilerWorkerFactory()
+class QnxQmlProfilerWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<QnxQmlProfilerSupport>();
-    // FIXME: Shouldn't this use the run mode id somehow?
-    addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);
+public:
+    QnxQmlProfilerWorkerFactory()
+    {
+        setProduct<QnxQmlProfilerSupport>();
+        // FIXME: Shouldn't this use the run mode id somehow?
+        addSupportedRunConfig(Constants::QNX_RUNCONFIG_ID);
+    }
+};
+
+void setupQnxQmlProfiler()
+{
+    static QnxQmlProfilerWorkerFactory theQnxQmlProfilerWorkerFactory;
 }
 
 } // Qnx::Internal

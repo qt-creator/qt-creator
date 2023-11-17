@@ -162,30 +162,6 @@ bool QnxToolChain::operator ==(const ToolChain &other) const
     return sdpPath() == qnxTc->sdpPath() && cpuDir() == qnxTc->cpuDir();
 }
 
-// --------------------------------------------------------------------------
-// QnxToolChainFactory
-// --------------------------------------------------------------------------
-
-QnxToolChainFactory::QnxToolChainFactory()
-{
-    setDisplayName(Tr::tr("QCC"));
-    setSupportedToolChainType(Constants::QNX_TOOLCHAIN_ID);
-    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
-                           ProjectExplorer::Constants::CXX_LANGUAGE_ID});
-    setToolchainConstructor([] { return new QnxToolChain; });
-    setUserCreatable(true);
-}
-
-Toolchains QnxToolChainFactory::autoDetect(const ToolchainDetector &detector) const
-{
-    // FIXME: Support detecting toolchains on remote devices
-    if (detector.device)
-        return {};
-
-    Toolchains tcs = QnxSettingsPage::autoDetect(detector.alreadyKnown);
-    return tcs;
-}
-
 //---------------------------------------------------------------------------------
 // QnxToolChainConfigWidget
 //---------------------------------------------------------------------------------
@@ -273,6 +249,37 @@ void QnxToolChainConfigWidget::handleSdpPathChange()
 
     m_abiWidget->setAbis(abiList, newAbi);
     emit dirty();
+}
+
+// QnxToolChainFactory
+
+class QnxToolChainFactory : public ToolChainFactory
+{
+public:
+    QnxToolChainFactory()
+    {
+        setDisplayName(Tr::tr("QCC"));
+        setSupportedToolChainType(Constants::QNX_TOOLCHAIN_ID);
+        setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
+                               ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+        setToolchainConstructor([] { return new QnxToolChain; });
+        setUserCreatable(true);
+    }
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final
+    {
+        // FIXME: Support detecting toolchains on remote devices
+        if (detector.device)
+            return {};
+
+        Toolchains tcs = QnxSettingsPage::autoDetect(detector.alreadyKnown);
+        return tcs;
+    }
+};
+
+void setupQnxToolChain()
+{
+    static QnxToolChainFactory theQnxToolChainFactory;
 }
 
 } // Qnx::Internal

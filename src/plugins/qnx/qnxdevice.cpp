@@ -10,6 +10,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 
 #include <remotelinux/linuxdevice.h>
@@ -86,20 +87,29 @@ public:
     DeviceTester *createDeviceTester() const final { return new QnxDeviceTester; }
 };
 
-QnxDeviceFactory::QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE)
+class QnxDeviceFactory final : public IDeviceFactory
 {
-    setDisplayName(Tr::tr("QNX Device"));
-    setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
-                    ":/qnx/images/qnxdevice.png");
-    setQuickCreationAllowed(true);
-    setConstructionFunction([] { return IDevice::Ptr(new QnxDevice); });
-    setCreator([]() -> IDevice::Ptr {
-        const IDevice::Ptr device = IDevice::Ptr(new QnxDevice);
-        SshDeviceWizard wizard(Tr::tr("New QNX Device Configuration Setup"), device);
-        if (wizard.exec() != QDialog::Accepted)
-            return {};
-        return device;
-    });
+public:
+    QnxDeviceFactory() : IDeviceFactory(Constants::QNX_QNX_OS_TYPE)
+    {
+        setDisplayName(Tr::tr("QNX Device"));
+        setCombinedIcon(":/qnx/images/qnxdevicesmall.png",
+                        ":/qnx/images/qnxdevice.png");
+        setQuickCreationAllowed(true);
+        setConstructionFunction([] { return IDevice::Ptr(new QnxDevice); });
+        setCreator([]() -> IDevice::Ptr {
+            const IDevice::Ptr device = IDevice::Ptr(new QnxDevice);
+            SshDeviceWizard wizard(Tr::tr("New QNX Device Configuration Setup"), device);
+            if (wizard.exec() != QDialog::Accepted)
+                return {};
+            return device;
+        });
+    }
+};
+
+void setupQnxDevice()
+{
+    static QnxDeviceFactory theQnxDeviceFactory;
 }
 
 } // Qnx::Internal

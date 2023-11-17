@@ -84,10 +84,20 @@ public:
 
 // QnxRunConfigurationFactory
 
-QnxRunConfigurationFactory::QnxRunConfigurationFactory()
+class QnxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
-    registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_RUNCONFIG_ID);
-    addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
+public:
+    QnxRunConfigurationFactory()
+    {
+        registerRunConfiguration<QnxRunConfiguration>(Constants::QNX_RUNCONFIG_ID);
+        addSupportedTargetDeviceType(Constants::QNX_QNX_OS_TYPE);
+    }
+};
+
+void setupQnxRunnning()
+{
+    static QnxRunConfigurationFactory theQnxRunConfigurationFactory;
+    static SimpleTargetRunnerFactory theQnxRunWorkerFactory({Constants::QNX_RUNCONFIG_ID});
 }
 
 } // Qnx::Internal

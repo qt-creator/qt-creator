@@ -57,10 +57,6 @@ private:
     mutable Utils::EnvironmentItems m_qnxEnv;
 };
 
-class QnxQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    QnxQtVersionFactory();
-};
+void setupQnxQtVersion();
 
 } // Qnx::Internal

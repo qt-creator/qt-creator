@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevicefactory.h>
-
 namespace Qnx::Internal {
 
-class QnxDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    QnxDeviceFactory();
-};
+void setupQnxDevice();
 
 } // Qnx::Internal

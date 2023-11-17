@@ -71,6 +71,14 @@ public:
     }
 };
 
+void setupQnxDeployment()
+{
+    static QnxDeployConfigurationFactory deployConfigFactory;
+    static QnxDeployStepFactory directUploadDeployFactory{RemoteLinux::Constants::DirectUploadStepId,
+                                                   Constants::QNX_DIRECT_UPLOAD_STEP_ID};
+    static QnxDeployStepFactory makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
+}
+
 class QnxPluginPrivate
 {
 public:
@@ -80,17 +88,6 @@ public:
     QAction m_attachToQnxApplication{Tr::tr("Attach to remote QNX application..."), nullptr};
 
     QnxSettingsPage settingsPage;
-    QnxQtVersionFactory qtVersionFactory;
-    QnxDeviceFactory deviceFactory;
-    QnxDeployConfigurationFactory deployConfigFactory;
-    QnxDeployStepFactory directUploadDeployFactory{RemoteLinux::Constants::DirectUploadStepId,
-                                                   Constants::QNX_DIRECT_UPLOAD_STEP_ID};
-    QnxDeployStepFactory makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
-    QnxRunConfigurationFactory runConfigFactory;
-    QnxToolChainFactory toolChainFactory;
-    SimpleTargetRunnerFactory runWorkerFactory{{runConfigFactory.runConfigurationId()}};
-    QnxDebugWorkerFactory debugWorkerFactory;
-    QnxQmlProfilerWorkerFactory qmlProfilerWorkerFactory;
 };
 
 class QnxPlugin final : public ExtensionSystem::IPlugin
@@ -102,7 +99,19 @@ public:
     ~QnxPlugin() final { delete d; }
 
 private:
-    void initialize() final { d = new QnxPluginPrivate; }
+    void initialize() final
+    {
+        d = new QnxPluginPrivate;
+
+        setupQnxDevice();
+        setupQnxToolChain();
+        setupQnxQtVersion();
+        setupQnxDeployment();
+        setupQnxRunnning();
+        setupQnxDebugging();
+        setupQnxQmlProfiler();
+    }
+
     void extensionsInitialized() final;
 
     QnxPluginPrivate *d = nullptr;
