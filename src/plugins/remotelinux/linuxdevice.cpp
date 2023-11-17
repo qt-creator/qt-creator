@@ -1511,20 +1511,29 @@ void LinuxDevice::checkOsType()
 
 namespace Internal {
 
-LinuxDeviceFactory::LinuxDeviceFactory()
-    : IDeviceFactory(Constants::GenericLinuxOsType)
+class LinuxDeviceFactory final : public IDeviceFactory
 {
-    setDisplayName(Tr::tr("Remote Linux Device"));
-    setIcon(QIcon());
-    setConstructionFunction(&LinuxDevice::create);
-    setQuickCreationAllowed(true);
-    setCreator([]() -> IDevice::Ptr {
-        const IDevice::Ptr device = LinuxDevice::create();
-        SshDeviceWizard wizard(Tr::tr("New Remote Linux Device Configuration Setup"), device);
-        if (wizard.exec() != QDialog::Accepted)
-            return {};
-        return device;
-    });
+public:
+    LinuxDeviceFactory()
+        : IDeviceFactory(Constants::GenericLinuxOsType)
+    {
+        setDisplayName(Tr::tr("Remote Linux Device"));
+        setIcon(QIcon());
+        setConstructionFunction(&LinuxDevice::create);
+        setQuickCreationAllowed(true);
+        setCreator([]() -> IDevice::Ptr {
+            const IDevice::Ptr device = LinuxDevice::create();
+            SshDeviceWizard wizard(Tr::tr("New Remote Linux Device Configuration Setup"), device);
+            if (wizard.exec() != QDialog::Accepted)
+                return {};
+            return device;
+        });
+    }
+};
+
+void setupLinuxDevice()
+{
+    static LinuxDeviceFactory theLinuxDeviceFactory;
 }
 
 } // namespace Internal

@@ -51,13 +51,6 @@ protected:
     friend class LinuxDevicePrivate;
 };
 
-namespace Internal {
+namespace Internal { void setupLinuxDevice(); }
 
-class LinuxDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    LinuxDeviceFactory();
-};
-
-} // namespace Internal
 } // namespace RemoteLinux

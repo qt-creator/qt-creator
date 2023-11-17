@@ -82,12 +82,21 @@ GroupItem CustomCommandDeployStep::deployRecipe()
 
 // CustomCommandDeployStepFactory
 
-CustomCommandDeployStepFactory::CustomCommandDeployStepFactory()
+class CustomCommandDeployStepFactory final : public BuildStepFactory
 {
-    registerStep<CustomCommandDeployStep>(Constants::CustomCommandDeployStepId);
-    setDisplayName(Tr::tr("Run custom remote command"));
-    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    CustomCommandDeployStepFactory()
+    {
+        registerStep<CustomCommandDeployStep>(Constants::CustomCommandDeployStepId);
+        setDisplayName(Tr::tr("Run custom remote command"));
+        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupCustomCommandDeployStep()
+{
+    static CustomCommandDeployStepFactory theCustomCommandDeployStepFactory;
 }
 
 } // RemoteLinux::Internal

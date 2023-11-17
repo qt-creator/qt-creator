@@ -446,13 +446,22 @@ bool TarPackageCreationStep::appendFile(QPromise<void> &promise,
     return true;
 }
 
-TarPackageCreationStepFactory::TarPackageCreationStepFactory()
+class TarPackageCreationStepFactory final : public BuildStepFactory
 {
-    registerStep<TarPackageCreationStep>(Constants::TarPackageCreationStepId);
-    setDisplayName(Tr::tr("Create tarball"));
+public:
+    TarPackageCreationStepFactory()
+    {
+        registerStep<TarPackageCreationStep>(Constants::TarPackageCreationStepId);
+        setDisplayName(Tr::tr("Create tarball"));
 
-    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupTarPackageCreationStep()
+{
+    static TarPackageCreationStepFactory theTarPackageCreationStepFactory;
 }
 
 } // RemoteLinux::Internal

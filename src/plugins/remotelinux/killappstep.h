@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace RemoteLinux::Internal {
 
-class KillAppStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    KillAppStepFactory();
-};
+void setupKillAppStep();
 
 } // RemoteLinux::Internal

@@ -92,11 +92,20 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
 
 // RemoteLinuxRunConfigurationFactory
 
-RemoteLinuxRunConfigurationFactory::RemoteLinuxRunConfigurationFactory()
+class RemoteLinuxRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
-    registerRunConfiguration<RemoteLinuxRunConfiguration>(Constants::RunConfigId);
-    setDecorateDisplayNames(true);
-    addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+public:
+    RemoteLinuxRunConfigurationFactory()
+    {
+        registerRunConfiguration<RemoteLinuxRunConfiguration>(Constants::RunConfigId);
+        setDecorateDisplayNames(true);
+        addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+    }
+};
+
+void setupRemoteLinuxRunConfiguration()
+{
+    static RemoteLinuxRunConfigurationFactory theRemoteLinuxRunConfigurationFactory;
 }
 
 } // RemoteLinux::Internal

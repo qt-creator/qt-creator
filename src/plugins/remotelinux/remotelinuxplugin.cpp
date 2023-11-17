@@ -77,26 +77,13 @@ public:
     }
 };
 
-class RemoteLinuxPluginPrivate
+void setupRemoteLinuxDeployment()
 {
-public:
-    LinuxDeviceFactory linuxDeviceFactory;
-    RemoteLinuxRunConfigurationFactory runConfigurationFactory;
-    RemoteLinuxCustomRunConfigurationFactory customRunConfigurationFactory;
-    RemoteLinuxDeployConfigurationFactory deployConfigurationFactory;
-    TarPackageCreationStepFactory tarPackageCreationStepFactory;
-    TarPackageDeployStepFactory tarPackageDeployStepFactory;
-    RemoteLinuxDeployStepFactory<GenericDirectUploadStepFactory> genericDirectUploadStepFactory;
-    RemoteLinuxDeployStepFactory<GenericDeployStepFactory> rsyncDeployStepFactory;
-    CustomCommandDeployStepFactory customCommandDeployStepFactory;
-    KillAppStepFactory killAppStepFactory;
-    RemoteLinuxDeployStepFactory<MakeInstallStepFactory> makeInstallStepFactory;
-    RemoteLinuxRunWorkerFactory runWorkerFactory;
-    RemoteLinuxDebugWorkerFactory debugWorkerFactory;
-    RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory;
-};
-
-static RemoteLinuxPluginPrivate *dd = nullptr;
+    static RemoteLinuxDeployConfigurationFactory deployConfigurationFactory;
+    static RemoteLinuxDeployStepFactory<GenericDirectUploadStepFactory> genericDirectUploadStep;
+    static RemoteLinuxDeployStepFactory<GenericDeployStepFactory> rsyncDeployStepFactory;
+    static RemoteLinuxDeployStepFactory<MakeInstallStepFactory> makeInstallStepFactory;
+}
 
 RemoteLinuxPlugin::RemoteLinuxPlugin()
 {
@@ -107,12 +94,19 @@ RemoteLinuxPlugin::RemoteLinuxPlugin()
 RemoteLinuxPlugin::~RemoteLinuxPlugin()
 {
     FSEngine::unregisterDeviceScheme(u"ssh");
-    delete dd;
 }
 
 void RemoteLinuxPlugin::initialize()
 {
-    dd = new RemoteLinuxPluginPrivate;
+    setupLinuxDevice();
+    setupRemoteLinuxRunConfiguration();
+    setupRemoteLinuxCustomRunConfiguration();
+    setupRemoteLinuxRunAndDebugSupport();
+    setupRemoteLinuxDeployment();
+    setupTarPackageCreationStep();
+    setupTarPackageDeployStep();
+    setupCustomCommandDeployStep();
+    setupKillAppStep();
 
 #ifdef WITH_TESTS
     addTest<FileSystemAccessTest>();

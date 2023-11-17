@@ -63,12 +63,21 @@ GroupItem KillAppStep::deployRecipe()
     return DeviceProcessKillerTask(onSetup, onDone);
 }
 
-KillAppStepFactory::KillAppStepFactory()
+class KillAppStepFactory final : public BuildStepFactory
 {
-    registerStep<KillAppStep>(Constants::KillAppStepId);
-    setDisplayName(Tr::tr("Kill current application instance"));
-    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    KillAppStepFactory()
+    {
+        registerStep<KillAppStep>(Constants::KillAppStepId);
+        setDisplayName(Tr::tr("Kill current application instance"));
+        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupKillAppStep()
+{
+    static KillAppStepFactory theKillAppStepFactory;
 }
 
 } // RemoteLinux::Internal

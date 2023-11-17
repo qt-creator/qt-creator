@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace RemoteLinux::Internal {
 
-class CustomCommandDeployStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    CustomCommandDeployStepFactory();
-};
+void setupCustomCommandDeployStep();
 
 } // RemoteLinux::Internal

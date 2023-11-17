@@ -3,26 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 namespace RemoteLinux::Internal {
 
-class RemoteLinuxRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    explicit RemoteLinuxRunWorkerFactory();
-};
-
-class RemoteLinuxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    explicit RemoteLinuxDebugWorkerFactory();
-};
-
-class RemoteLinuxQmlToolingWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    explicit RemoteLinuxQmlToolingWorkerFactory();
-};
+void setupRemoteLinuxRunAndDebugSupport();
 
 } // RemoteLinux::Internal

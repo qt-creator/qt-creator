@@ -89,29 +89,48 @@ static const QList<Id> supportedRunConfigs()
     };
 }
 
-RemoteLinuxRunWorkerFactory::RemoteLinuxRunWorkerFactory()
+class RemoteLinuxRunWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<SimpleTargetRunner>();
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    addSupportedDeviceType(Constants::GenericLinuxOsType);
-    setSupportedRunConfigs(supportedRunConfigs());
-}
+public:
+    RemoteLinuxRunWorkerFactory()
+    {
+        setProduct<SimpleTargetRunner>();
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedDeviceType(Constants::GenericLinuxOsType);
+        setSupportedRunConfigs(supportedRunConfigs());
+    }
+};
 
-RemoteLinuxDebugWorkerFactory::RemoteLinuxDebugWorkerFactory()
+class RemoteLinuxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
-    setProduct<RemoteLinuxDebugWorker>();
-    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    addSupportedDeviceType(Constants::GenericLinuxOsType);
-    setSupportedRunConfigs(supportedRunConfigs());
-}
+public:
+    RemoteLinuxDebugWorkerFactory()
+    {
+        setProduct<RemoteLinuxDebugWorker>();
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedDeviceType(Constants::GenericLinuxOsType);
+        setSupportedRunConfigs(supportedRunConfigs());
+    }
+};
 
-RemoteLinuxQmlToolingWorkerFactory::RemoteLinuxQmlToolingWorkerFactory()
+class RemoteLinuxQmlToolingWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
-    setProduct<RemoteLinuxQmlToolingSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-    addSupportedDeviceType(Constants::GenericLinuxOsType);
-    setSupportedRunConfigs(supportedRunConfigs());
+public:
+    RemoteLinuxQmlToolingWorkerFactory()
+    {
+        setProduct<RemoteLinuxQmlToolingSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
+        addSupportedDeviceType(Constants::GenericLinuxOsType);
+        setSupportedRunConfigs(supportedRunConfigs());
+    }
+};
+
+void setupRemoteLinuxRunAndDebugSupport()
+{
+    static RemoteLinuxRunWorkerFactory runWorkerFactory;
+    static RemoteLinuxDebugWorkerFactory debugWorkerFactory;
+    static RemoteLinuxQmlToolingWorkerFactory qmlToolingWorkerFactory;
 }
 
 } // RemoteLinux::Internal

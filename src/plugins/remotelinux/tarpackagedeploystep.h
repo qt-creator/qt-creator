@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace RemoteLinux::Internal {
 
-class TarPackageDeployStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    TarPackageDeployStepFactory();
-};
+void setupTarPackageDeployStep();
 
 } // RemoteLinux::Internal

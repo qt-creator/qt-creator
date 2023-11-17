@@ -123,12 +123,21 @@ GroupItem TarPackageDeployStep::deployRecipe()
 
 // TarPackageDeployStepFactory
 
-TarPackageDeployStepFactory::TarPackageDeployStepFactory()
+class TarPackageDeployStepFactory final : public BuildStepFactory
 {
-    registerStep<TarPackageDeployStep>(Constants::TarPackageDeployStepId);
-    setDisplayName(Tr::tr("Deploy tarball via SFTP upload"));
-    setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+public:
+    TarPackageDeployStepFactory()
+    {
+        registerStep<TarPackageDeployStep>(Constants::TarPackageDeployStepId);
+        setDisplayName(Tr::tr("Deploy tarball via SFTP upload"));
+        setSupportedConfiguration(RemoteLinux::Constants::DeployToGenericLinux);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+    }
+};
+
+void setupTarPackageDeployStep()
+{
+    static TarPackageDeployStepFactory theTarPackageDeployStepFactory;
 }
 
 } // RemoteLinux::Internal
