@@ -3,6 +3,9 @@
 
 #include "effectmakernodesmodel.h"
 
+#include <coreplugin/icore.h>
+
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
@@ -38,44 +41,27 @@ QVariant EffectMakerNodesModel::data(const QModelIndex &index, int role) const
     return m_categories.at(index.row())->property(roleNames().value(role));
 }
 
-void EffectMakerNodesModel::findNodesPath()
+QString EffectMakerNodesModel::nodesSourcesPath() const
 {
-    if (m_nodesPath.exists() || m_probeNodesDir)
-        return;
-
-    QDir nodesDir;
-
-    if (!qEnvironmentVariable("EFFECT_MAKER_NODES_PATH").isEmpty())
-        nodesDir.setPath(qEnvironmentVariable("EFFECT_MAKER_NODES_PATH"));
-    else if (Utils::HostOsInfo::isMacHost())
-        nodesDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/effect_maker_nodes");
-
-    // search for nodesDir from exec dir and up
-    if (nodesDir.dirName() == ".") {
-        m_probeNodesDir = true; // probe only once
-        nodesDir.setPath(QCoreApplication::applicationDirPath());
-        while (!nodesDir.cd("effect_maker_nodes") && nodesDir.cdUp())
-            ; // do nothing
-
-        if (nodesDir.dirName() != "effect_maker_nodes") // bundlePathDir not found
-            return;
-    }
-
-    m_nodesPath = Utils::FilePath::fromString(nodesDir.path());
+#ifdef SHARE_QML_PATH
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/effectMakerNodes";
+#endif
+    return Core::ICore::resourcePath("qmldesigner/effectMakerNodes").toString();
 }
 
 void EffectMakerNodesModel::loadModel()
 {
-    findNodesPath();
+    auto nodesPath = Utils::FilePath::fromString(nodesSourcesPath());
 
-    if (!m_nodesPath.exists()) {
+    if (!nodesPath.exists()) {
         qWarning() << __FUNCTION__ << "Effects not found.";
         return;
     }
 
     m_categories = {};
 
-    QDirIterator itCategories(m_nodesPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
+    QDirIterator itCategories(nodesPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
     while (itCategories.hasNext()) {
         itCategories.next();
 
@@ -85,7 +71,7 @@ void EffectMakerNodesModel::loadModel()
         QString catName = itCategories.fileName();
 
         QList<EffectNode *> effects = {};
-        Utils::FilePath categoryPath = m_nodesPath.resolvePath(itCategories.fileName());
+        Utils::FilePath categoryPath = nodesPath.resolvePath(itCategories.fileName());
         QDirIterator itEffects(categoryPath.toString(), {"*.qen"}, QDir::Files);
         while (itEffects.hasNext()) {
             itEffects.next();
@@ -112,4 +98,3 @@ void EffectMakerNodesModel::resetModel()
 }
 
 } // namespace EffectMaker
-
