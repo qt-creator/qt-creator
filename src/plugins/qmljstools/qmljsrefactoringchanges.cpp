@@ -61,7 +61,7 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(
 {
     // the RefactoringFile is invalid if its not for a file with qml or js code
     if (ModelManagerInterface::guessLanguageOfFile(filePath) == Dialect::NoLanguage)
-        m_filePath.clear();
+        invalidate();
 }
 
 QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, Document::Ptr document)
@@ -69,7 +69,7 @@ QmlJSRefactoringFile::QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor,
     , m_qmljsDocument(document)
 {
     if (document)
-        m_filePath = document->fileName();
+        setFilePath(document->fileName()); // TODO: Is this really a different file path than in the editor?
 }
 
 Document::Ptr QmlJSRefactoringFile::qmljsDocument() const
@@ -136,7 +136,7 @@ bool QmlJSRefactoringFile::isCursorOn(SourceLocation loc) const
 
 void QmlJSRefactoringFile::fileChanged()
 {
-    QTC_ASSERT(!m_filePath.isEmpty(), return);
+    QTC_ASSERT(!filePath().isEmpty(), return);
     m_qmljsDocument.clear();
     m_data->m_modelManager->updateSourceFiles({filePath()}, true);
 }

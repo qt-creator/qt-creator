@@ -31,6 +31,7 @@ class TextEditorWidget;
 class TEXTEDITOR_EXPORT RefactoringFile
 {
     Q_DISABLE_COPY(RefactoringFile)
+    friend class PlainRefactoringFileFactory; // access to constructor
 public:
     using Range = Utils::ChangeSet::Range;
 
@@ -39,8 +40,7 @@ public:
     bool isValid() const;
 
     const QTextDocument *document() const;
-    // mustn't use the cursor to change the document
-    const QTextCursor cursor() const;
+    const QTextCursor cursor() const; // mustn't use the cursor to change the document
     Utils::FilePath filePath() const;
     TextEditorWidget *editor() const;
 
@@ -69,10 +69,16 @@ protected:
     RefactoringFile(TextEditorWidget *editor);
     RefactoringFile(const Utils::FilePath &filePath);
 
-    QTextDocument *mutableDocument() const;
+    void invalidate() { m_filePath.clear(); }
+    void setFilePath(const Utils::FilePath &filePath) { m_filePath = filePath; }  // FIXME: Really necessary?
+    void enableFormatting() { m_formattingEnabled = true; }
 
-    // derived classes may want to clear language specific extra data
-    virtual void fileChanged() {}
+private:
+    virtual void fileChanged() {} // derived classes may want to clear language specific extra data
+    virtual void indentSelection(const QTextCursor &selection,
+                                 const TextDocument *textDocument) const;
+    virtual void reindentSelection(const QTextCursor &selection,
+                                   const TextDocument *textDocument) const;
 
     enum IndentType {Indent, Reindent};
     void indentOrReindent(const RefactoringSelections &ranges, IndentType indent);
@@ -84,10 +90,7 @@ protected:
     static RefactoringSelections rangesToSelections(QTextDocument *document,
                                                     const QList<Range> &ranges);
 
-    virtual void indentSelection(const QTextCursor &selection,
-                                 const TextDocument *textDocument) const;
-    virtual void reindentSelection(const QTextCursor &selection,
-                                   const TextDocument *textDocument) const;
+    QTextDocument *mutableDocument() const;
 
     Utils::FilePath m_filePath;
     mutable Utils::TextFileFormat m_textFileFormat;
@@ -102,8 +105,6 @@ protected:
     int m_editorCursorPosition = -1;
     bool m_appliedOnce = false;
     bool m_formattingEnabled = false;
-
-    friend class PlainRefactoringFileFactory; // access to constructor
 };
 
 class TEXTEDITOR_EXPORT RefactoringFileFactory

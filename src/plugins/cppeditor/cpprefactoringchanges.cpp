@@ -76,19 +76,19 @@ CppRefactoringFile::CppRefactoringFile(const FilePath &filePath, const QSharedPo
 {
     const Snapshot &snapshot = data->m_snapshot;
     m_cppDocument = snapshot.document(filePath);
-    m_formattingEnabled = true;
+    enableFormatting();
 }
 
 CppRefactoringFile::CppRefactoringFile(QTextDocument *document, const FilePath &filePath)
     : RefactoringFile(document, filePath)
 {
-    m_formattingEnabled = true;
+    enableFormatting();
 }
 
 CppRefactoringFile::CppRefactoringFile(TextEditor::TextEditorWidget *editor)
     : RefactoringFile(editor)
 {
-    m_formattingEnabled = true;
+    enableFormatting();
 }
 
 Document::Ptr CppRefactoringFile::cppDocument() const
@@ -235,7 +235,7 @@ const Token &CppRefactoringFile::tokenAt(unsigned index) const
 
 void CppRefactoringFile::fileChanged()
 {
-    QTC_ASSERT(!m_filePath.isEmpty(), return);
+    QTC_ASSERT(!filePath().isEmpty(), return);
     m_cppDocument.clear();
     CppModelManager::updateSourceFiles({filePath()});
 }
