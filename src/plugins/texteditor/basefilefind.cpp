@@ -539,7 +539,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems 
     if (items.isEmpty())
         return {};
 
-    RefactoringFileFactory refactoring;
+    PlainRefactoringFileFactory refactoring;
 
     QHash<FilePath, SearchResultItems> changes;
     for (const SearchResultItem &item : items)

@@ -20,12 +20,12 @@ class QTextDocument;
 QT_END_NAMESPACE
 
 namespace TextEditor {
-class TextDocument;
-class TextEditorWidget;
+class PlainRefactoringFileFactory;
 class RefactoringFile;
 using RefactoringFilePtr = QSharedPointer<RefactoringFile>;
-class RefactoringFileFactory;
 using RefactoringSelections = QVector<QPair<QTextCursor, QTextCursor>>;
+class TextDocument;
+class TextEditorWidget;
 
 // ### listen to the m_editor::destroyed signal?
 class TEXTEDITOR_EXPORT RefactoringFile
@@ -103,17 +103,20 @@ protected:
     bool m_appliedOnce = false;
     bool m_formattingEnabled = false;
 
-    friend class RefactoringFileFactory; // access to constructor
+    friend class PlainRefactoringFileFactory; // access to constructor
 };
 
 class TEXTEDITOR_EXPORT RefactoringFileFactory
 {
 public:
     virtual ~RefactoringFileFactory();
+    virtual RefactoringFilePtr file(const Utils::FilePath &filePath) const = 0;
+};
 
-    // TODO: Make pure virtual and introduce dedicated subclass for generic refactoring,
-    //       so no one instantiates this one by mistake.
-    virtual RefactoringFilePtr file(const Utils::FilePath &filePath) const;
+class TEXTEDITOR_EXPORT PlainRefactoringFileFactory final : public RefactoringFileFactory
+{
+public:
+    RefactoringFilePtr file(const Utils::FilePath &filePath) const override;
 };
 
 } // namespace TextEditor

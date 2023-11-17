@@ -26,13 +26,6 @@ using namespace Utils;
 
 namespace TextEditor {
 
-RefactoringFileFactory::~RefactoringFileFactory() = default;
-
-RefactoringFilePtr RefactoringFileFactory::file(const FilePath &filePath) const
-{
-    return RefactoringFilePtr(new RefactoringFile(filePath));
-}
-
 RefactoringFile::RefactoringFile(QTextDocument *document, const FilePath &filePath)
     : m_filePath(filePath)
     , m_document(document)
@@ -472,6 +465,13 @@ RefactoringSelections RefactoringFile::rangesToSelections(QTextDocument *documen
     }
 
     return selections;
+}
+
+RefactoringFileFactory::~RefactoringFileFactory() = default;
+
+RefactoringFilePtr PlainRefactoringFileFactory::file(const Utils::FilePath &filePath) const
+{
+    return RefactoringFilePtr(new RefactoringFile(filePath));
 }
 
 } // namespace TextEditor

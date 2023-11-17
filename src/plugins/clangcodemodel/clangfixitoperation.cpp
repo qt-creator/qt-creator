@@ -46,7 +46,7 @@ static FileToFixits fixitsPerFile(const QList<ClangFixIt> &fixIts)
 
 void ClangFixItOperation::perform()
 {
-    const TextEditor::RefactoringFileFactory refactoringChanges;
+    const TextEditor::PlainRefactoringFileFactory refactoringChanges;
     const FileToFixits fileToFixIts = fixitsPerFile(fixIts);
 
     for (auto i = fileToFixIts.cbegin(), end = fileToFixIts.cend(); i != end; ++i) {

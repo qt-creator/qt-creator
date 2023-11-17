@@ -514,7 +514,7 @@ bool TextDocument::applyChangeSet(const ChangeSet &changeSet)
 {
     if (changeSet.isEmpty())
         return true;
-    RefactoringFileFactory changes;
+    PlainRefactoringFileFactory changes;
     const RefactoringFilePtr file = changes.file(filePath());
     file->setChangeSet(changeSet);
     return file->apply();
