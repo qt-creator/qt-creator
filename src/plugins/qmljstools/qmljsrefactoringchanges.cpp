@@ -36,12 +36,12 @@ QmlJSRefactoringChanges::QmlJSRefactoringChanges(ModelManagerInterface *modelMan
 
 TextEditor::RefactoringFilePtr QmlJSRefactoringChanges::file(const Utils::FilePath &filePath) const
 {
-    return QmlJSRefactoringFilePtr(new QmlJSRefactoringFile(filePath, m_data));
+    return qmlJSFile(filePath);
 }
 
 QmlJSRefactoringFilePtr QmlJSRefactoringChanges::qmlJSFile(const Utils::FilePath &filePath) const
 {
-    return file(filePath).staticCast<QmlJSRefactoringFile>();
+    return QmlJSRefactoringFilePtr(new QmlJSRefactoringFile(filePath, m_data));
 }
 
 QmlJSRefactoringFilePtr QmlJSRefactoringChanges::file(

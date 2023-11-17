@@ -60,12 +60,12 @@ CppRefactoringFilePtr CppRefactoringChanges::file(TextEditor::TextEditorWidget *
 
 TextEditor::RefactoringFilePtr CppRefactoringChanges::file(const FilePath &filePath) const
 {
-    return TextEditor::RefactoringFilePtr(new CppRefactoringFile(filePath, m_data));
+    return cppFile(filePath);
 }
 
 CppRefactoringFilePtr CppRefactoringChanges::cppFile(const Utils::FilePath &filePath) const
 {
-    return file(filePath).staticCast<CppRefactoringFile>();
+    return CppRefactoringFilePtr(new CppRefactoringFile(filePath, m_data));
 }
 
 CppRefactoringFileConstPtr CppRefactoringChanges::fileNoEditor(const FilePath &filePath) const
