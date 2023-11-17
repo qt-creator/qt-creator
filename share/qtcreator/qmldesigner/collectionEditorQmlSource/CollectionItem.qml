@@ -54,16 +54,16 @@ Item {
             Text {
                 id: moveTool
 
-                property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
+                property StudioTheme.ControlStyle textStyle: StudioTheme.Values.viewBarButtonStyle
 
-                Layout.preferredWidth: moveTool.style.squareControlSize.width
+                Layout.preferredWidth: moveTool.textStyle.squareControlSize.width
                 Layout.preferredHeight: nameHolder.height
                 Layout.leftMargin: 12
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
                 text: StudioTheme.Constants.dragmarks
                 font.family: StudioTheme.Constants.iconFont.family
-                font.pixelSize: moveTool.style.baseIconFontSize
+                font.pixelSize: moveTool.textStyle.baseIconFontSize
                 color: root.textColor
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter

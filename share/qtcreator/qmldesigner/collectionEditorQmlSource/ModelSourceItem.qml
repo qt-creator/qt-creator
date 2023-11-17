@@ -74,9 +74,9 @@ Item {
                 Text {
                     id: expandButton
 
-                    property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
+                    property StudioTheme.ControlStyle textStyle: StudioTheme.Values.viewBarButtonStyle
 
-                    Layout.preferredWidth: expandButton.style.squareControlSize.width
+                    Layout.preferredWidth: expandButton.textStyle.squareControlSize.width
                     Layout.preferredHeight: nameHolder.height
                     Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
