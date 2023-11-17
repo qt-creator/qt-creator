@@ -86,8 +86,6 @@ public:
 
     QAction *m_debugSeparator = nullptr;
     QAction m_attachToQnxApplication{Tr::tr("Attach to remote QNX application..."), nullptr};
-
-    QnxSettingsPage settingsPage;
 };
 
 class QnxPlugin final : public ExtensionSystem::IPlugin
@@ -110,6 +108,7 @@ private:
         setupQnxRunnning();
         setupQnxDebugging();
         setupQnxQmlProfiler();
+        setupQnxSettingsPage(this);
     }
 
     void extensionsInitialized() final;

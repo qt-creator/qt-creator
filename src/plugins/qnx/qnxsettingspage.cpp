@@ -417,20 +417,21 @@ const QnxTarget *QnxConfiguration::findTargetByDebuggerPath(
     return it == m_targets.end() ? nullptr : &(*it);
 }
 
+// QnxSettingsPage
 
-// QnxSettingsPagePrivate
+static QHash<FilePath, QnxConfiguration> m_configurations;
 
-class QnxSettingsPagePrivate : public QObject
+static QnxConfiguration *configurationFromEnvFile(const FilePath &envFile)
+{
+    auto it = m_configurations.find(envFile);
+    return it == m_configurations.end() ? nullptr : &*it;
+}
+
+class QnxSettingsPage : public QObject, public Core::IOptionsPage
 {
 public:
-    QnxSettingsPagePrivate()
-    {
-        connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-                this, &QnxSettingsPagePrivate::saveConfigs);
-        // Can't do yet as not all devices are around.
-        connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
-                this, &QnxSettingsPagePrivate::restoreConfigurations);
-    }
+    explicit QnxSettingsPage(QObject *guard);
+    ~QnxSettingsPage() {}
 
     void saveConfigs()
     {
@@ -469,18 +470,8 @@ public:
         }
     }
 
-    QnxConfiguration *configurationFromEnvFile(const FilePath &envFile)
-    {
-        auto it = m_configurations.find(envFile);
-        return it == m_configurations.end() ? nullptr : &*it;
-    }
-
-    QHash<FilePath, QnxConfiguration> m_configurations;
     PersistentSettingsWriter m_writer{qnxConfigSettingsFileName(), "QnxConfigurations"};
 };
-
-static QnxSettingsPagePrivate *dd = nullptr;
-
 
 // QnxSettingsWidget
 
@@ -492,7 +483,7 @@ public:
         m_envFile = envFile;
         delete layout();
 
-        QnxConfiguration *config = dd->configurationFromEnvFile(envFile);
+        QnxConfiguration *config = configurationFromEnvFile(envFile);
         if (!config)
             return;
 
@@ -608,7 +599,7 @@ void QnxSettingsWidget::addConfiguration()
     if (envFile.isEmpty())
         return;
 
-    if (dd->m_configurations.contains(envFile)) {
+    if (m_configurations.contains(envFile)) {
         QMessageBox::warning(Core::ICore::dialogParent(),
                              Tr::tr("Warning"),
                              Tr::tr("Configuration already exists."));
@@ -634,7 +625,7 @@ void QnxSettingsWidget::removeConfiguration()
     const FilePath envFile =  m_configsCombo->currentData().value<FilePath>();
     QTC_ASSERT(!envFile.isEmpty(), return);
 
-    QnxConfiguration *config = dd->configurationFromEnvFile(envFile);
+    QnxConfiguration *config = configurationFromEnvFile(envFile);
     QTC_ASSERT(config, return);
 
     config->ensureContents();
@@ -657,7 +648,7 @@ void QnxSettingsWidget::updateInformation()
 {
     const FilePath envFile = m_configsCombo->currentData().value<FilePath>();
 
-    if (QnxConfiguration *config = dd->configurationFromEnvFile(envFile)) {
+    if (QnxConfiguration *config = configurationFromEnvFile(envFile)) {
         config->ensureContents();
         m_configName->setText(config->m_configName);
         m_configVersion->setText(config->m_version.toString());
@@ -679,7 +670,7 @@ void QnxSettingsWidget::updateInformation()
 void QnxSettingsWidget::populateConfigsCombo()
 {
     m_configsCombo->clear();
-    for (const QnxConfiguration &config : std::as_const(dd->m_configurations)) {
+    for (const QnxConfiguration &config : std::as_const(m_configurations)) {
         config.ensureContents();
         m_configsCombo->addItem(config.m_configName, QVariant::fromValue(config.m_envFile));
     }
@@ -717,13 +708,13 @@ void QnxSettingsWidget::apply()
     for (const ConfigState &configState : std::as_const(m_changedConfigs)) {
         switch (configState.state) {
         case Activated: {
-            QnxConfiguration *config = dd->configurationFromEnvFile(configState.envFile);
+            QnxConfiguration *config = configurationFromEnvFile(configState.envFile);
             QTC_ASSERT(config, break);
             config->activate();
             break;
         }
         case Deactivated: {
-            QnxConfiguration *config = dd->configurationFromEnvFile(configState.envFile);
+            QnxConfiguration *config = configurationFromEnvFile(configState.envFile);
             QTC_ASSERT(config, break);
             config->deactivate();
             break;
@@ -731,14 +722,14 @@ void QnxSettingsWidget::apply()
         case Added: {
             QnxConfiguration config(configState.envFile);
             config.ensureContents();
-            dd->m_configurations.insert(configState.envFile, config);
+            m_configurations.insert(configState.envFile, config);
             break;
         }
         case Removed:
-            QnxConfiguration *config = dd->configurationFromEnvFile(configState.envFile);
+            QnxConfiguration *config = configurationFromEnvFile(configState.envFile);
             QTC_ASSERT(config, break);
             config->deactivate();
-            dd->m_configurations.remove(configState.envFile);
+            m_configurations.remove(configState.envFile);
             break;
         }
     }
@@ -749,10 +740,25 @@ void QnxSettingsWidget::apply()
 
 // QnxSettingsPage
 
-QList<ToolChain *> QnxSettingsPage::autoDetect(const QList<ToolChain *> &alreadyKnown)
+QnxSettingsPage::QnxSettingsPage(QObject *guard)
+    : QObject(guard)
+{
+    setId("DD.Qnx Configuration");
+    setDisplayName(Tr::tr("QNX"));
+    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setWidgetCreator([] { return new QnxSettingsWidget; });
+
+    connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
+            this, &QnxSettingsPage::saveConfigs);
+    // Can't do yet as not all devices are around.
+    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+            this, &QnxSettingsPage::restoreConfigurations);
+}
+
+QList<ToolChain *> autoDetectHelper(const QList<ToolChain *> &alreadyKnown)
 {
     QList<ToolChain *> result;
-    for (const QnxConfiguration &config : std::as_const(dd->m_configurations)) {
+    for (const QnxConfiguration &config : std::as_const(m_configurations)) {
         config.ensureContents();
         for (const QnxTarget &target : std::as_const(config.m_targets)) {
             result +=  Utils::filtered(alreadyKnown, [config, target](ToolChain *tc) {
@@ -765,19 +771,9 @@ QList<ToolChain *> QnxSettingsPage::autoDetect(const QList<ToolChain *> &already
     return result;
 }
 
-QnxSettingsPage::QnxSettingsPage()
+void setupQnxSettingsPage(QObject *guard)
 {
-    setId("DD.Qnx Configuration");
-    setDisplayName(Tr::tr("QNX"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new QnxSettingsWidget; });
-
-    dd = new QnxSettingsPagePrivate;
-}
-
-QnxSettingsPage::~QnxSettingsPage()
-{
-    delete dd;
+    (void) new QnxSettingsPage(guard);
 }
 
 } // Qnx::Internal

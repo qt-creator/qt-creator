@@ -9,14 +9,9 @@ namespace ProjectExplorer { class ToolChain; }
 
 namespace Qnx::Internal {
 
-class QnxSettingsPage final : public Core::IOptionsPage
-{
-public:
-    QnxSettingsPage();
-    ~QnxSettingsPage();
+QList<ProjectExplorer::ToolChain *> autoDetectHelper(
+    const QList<ProjectExplorer::ToolChain *> &alreadyKnown);
 
-    static QList<ProjectExplorer::ToolChain *> autoDetect(
-        const QList<ProjectExplorer::ToolChain *> &alreadyKnown);
-};
+void setupQnxSettingsPage(QObject *guard);
 
 } // Qnx::Internal
