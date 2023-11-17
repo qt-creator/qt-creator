@@ -12,10 +12,6 @@ QT_BEGIN_NAMESPACE
 class QImage;
 QT_END_NAMESPACE
 
-namespace Utils {
-class QtcSettings;
-}
-
 namespace ImageViewer::Internal {
 
 class ImageViewerFile;
@@ -53,8 +49,8 @@ public:
     void resetToOriginalSize();
     void setFitToScreen(bool fit);
 
-    void readSettings(Utils::QtcSettings *settings);
-    void writeSettings(Utils::QtcSettings *settings) const;
+    void readSettings();
+    void writeSettings() const;
     Settings settings() const;
 
 signals:

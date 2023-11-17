@@ -14,7 +14,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 
 #include <utils/filepath.h>
@@ -122,7 +121,7 @@ ImageViewer::ImageViewer(const QSharedPointer<ImageViewerFile> &document)
 void ImageViewer::ctor()
 {
     m_imageView = new ImageView(m_file.data());
-    m_imageView->readSettings(ICore::settings());
+    m_imageView->readSettings();
     const ImageView::Settings settings = m_imageView->settings();
 
     setContext(Core::Context(Constants::IMAGEVIEWER_ID));
@@ -266,7 +265,7 @@ void ImageViewer::ctor()
     connect(m_imageView, &ImageView::scaleFactorChanged,
             this, &ImageViewer::scaleFactorUpdate);
     connect(setAsDefault, &QAction::triggered, m_imageView, [this, updateSetAsDefaultToolTip] {
-        m_imageView->writeSettings(ICore::settings());
+        m_imageView->writeSettings();
         updateSetAsDefaultToolTip();
     });
 }
@@ -431,52 +430,51 @@ public:
     }
 };
 
-static void createAction(QObject *guard, Id id,
-                         const std::function<void(ImageViewer *v)> &onTriggered,
-                         const QString &title = {},
-                         const QKeySequence &key = {})
-{
-    ActionBuilder builder(guard, id);
-    builder.setText(title);
-    builder.setContext(Context(Constants::IMAGEVIEWER_ID));
-    if (!key.isEmpty())
-        builder.setDefaultKeySequence(key);
-
-    builder.setOnTriggered(guard, [onTriggered] {
-        if (auto iv = qobject_cast<ImageViewer *>(EditorManager::currentEditor()))
-            onTriggered(iv);
-    });
-}
-
 void setupImageViewer(QObject *guard)
 {
     static ImageViewerFactory theImageViewerFactory;
 
-    createAction(guard, Core::Constants::ZOOM_IN, &ImageViewer::zoomIn);
+    auto createAction = [guard](Id id,
+                                const std::function<void(ImageViewer *v)> &onTriggered,
+                                const QString &title = {},
+                                const QKeySequence &key = {}) {
+        ActionBuilder builder(guard, id);
+        builder.setText(title);
+        builder.setContext(Context(Constants::IMAGEVIEWER_ID));
+        if (!key.isEmpty())
+            builder.setDefaultKeySequence(key);
 
-    createAction(guard, Core::Constants::ZOOM_OUT, &ImageViewer::zoomOut);
+        builder.setOnTriggered(guard, [onTriggered] {
+            if (auto iv = qobject_cast<ImageViewer *>(EditorManager::currentEditor()))
+                onTriggered(iv);
+        });
+    };
 
-    createAction(guard, Core::Constants::ZOOM_RESET, &ImageViewer::resetToOriginalSize);
+    createAction(Core::Constants::ZOOM_IN, &ImageViewer::zoomIn);
 
-    createAction(guard, Constants::ACTION_FIT_TO_SCREEN, &ImageViewer::fitToScreen,
+    createAction(Core::Constants::ZOOM_OUT, &ImageViewer::zoomOut);
+
+    createAction(Core::Constants::ZOOM_RESET, &ImageViewer::resetToOriginalSize);
+
+    createAction(Constants::ACTION_FIT_TO_SCREEN, &ImageViewer::fitToScreen,
                  Tr::tr("Fit to Screen"), Tr::tr("Ctrl+="));
 
-    createAction( guard, Constants::ACTION_BACKGROUND, &ImageViewer::switchViewBackground,
+    createAction(Constants::ACTION_BACKGROUND, &ImageViewer::switchViewBackground,
                  Tr::tr("Switch Background"), Tr::tr("Ctrl+["));
 
-    createAction(guard, Constants::ACTION_OUTLINE, &ImageViewer::switchViewOutline,
+    createAction(Constants::ACTION_OUTLINE, &ImageViewer::switchViewOutline,
                  Tr::tr("Switch Outline"), Tr::tr("Ctrl+]"));
 
-    createAction(guard, Constants::ACTION_TOGGLE_ANIMATION, &ImageViewer::togglePlay,
+    createAction(Constants::ACTION_TOGGLE_ANIMATION, &ImageViewer::togglePlay,
                  Tr::tr("Toggle Animation"));
 
-    createAction(guard, Constants::ACTION_EXPORT_IMAGE, &ImageViewer::exportImage,
+    createAction(Constants::ACTION_EXPORT_IMAGE, &ImageViewer::exportImage,
                  Tr::tr("Export Image"));
 
-    createAction(guard, Constants::ACTION_EXPORT_MULTI_IMAGES, &ImageViewer::exportMultiImages,
+    createAction(Constants::ACTION_EXPORT_MULTI_IMAGES, &ImageViewer::exportMultiImages,
                  Tr::tr("Export Multiple Images"));
 
-    createAction(guard, Constants::ACTION_COPY_DATA_URL, &ImageViewer::copyDataUrl,
+    createAction(Constants::ACTION_COPY_DATA_URL, &ImageViewer::copyDataUrl,
                  Tr::tr("Copy as Data URL"));
 }
 
