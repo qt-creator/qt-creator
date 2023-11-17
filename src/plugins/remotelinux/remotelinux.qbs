@@ -45,7 +45,6 @@ QtcPlugin {
         "remotelinuxenvironmentaspect.cpp",
         "remotelinuxenvironmentaspect.h",
         "remotelinuxplugin.cpp",
-        "remotelinuxplugin.h",
         "remotelinuxrunconfiguration.cpp",
         "remotelinuxrunconfiguration.h",
         "remotelinuxsignaloperation.cpp",
