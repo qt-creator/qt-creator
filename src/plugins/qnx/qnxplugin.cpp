@@ -20,17 +20,13 @@
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/devicesupport/devicecheckbuildstep.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
-#include <projectexplorer/toolchain.h>
 
 #include <remotelinux/remotelinux_constants.h>
 
@@ -79,28 +75,13 @@ void setupQnxDeployment()
     static QnxDeployStepFactory makeInstallStepFactory{RemoteLinux::Constants::MakeInstallStepId};
 }
 
-class QnxPluginPrivate
-{
-public:
-    void updateDebuggerActions();
-
-    QAction *m_debugSeparator = nullptr;
-    QAction m_attachToQnxApplication{Tr::tr("Attach to remote QNX application..."), nullptr};
-};
-
 class QnxPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Qnx.json")
 
-public:
-    ~QnxPlugin() final { delete d; }
-
-private:
     void initialize() final
     {
-        d = new QnxPluginPrivate;
-
         setupQnxDevice();
         setupQnxToolChain();
         setupQnxQtVersion();
@@ -111,43 +92,39 @@ private:
         setupQnxSettingsPage(this);
     }
 
-    void extensionsInitialized() final;
+    void extensionsInitialized() final
+    {
+        auto attachToQnxApplication = new QAction{Tr::tr("Attach to remote QNX application..."), this};
+        // Attach support
+        connect(attachToQnxApplication, &QAction::triggered, this, &showAttachToProcessDialog);
 
-    QnxPluginPrivate *d = nullptr;
+        const Utils::Id QNX_DEBUGGING_GROUP = "Debugger.Group.Qnx";
+
+        QAction *debugSeparator = nullptr;
+
+        Core::ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
+        mstart->appendGroup(QNX_DEBUGGING_GROUP);
+        mstart->addSeparator(Core::Context(Core::Constants::C_GLOBAL), QNX_DEBUGGING_GROUP,
+                             &debugSeparator);
+
+        Core::Command *cmd = Core::ActionManager::registerAction
+            (attachToQnxApplication, "Debugger.AttachToQnxApplication");
+        mstart->addAction(cmd, QNX_DEBUGGING_GROUP);
+
+        connect(KitManager::instance(), &KitManager::kitsChanged, this,
+                [attachToQnxApplication, debugSeparator] {
+            auto isQnxKit = [](const Kit *kit) {
+                return DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
+                       && !DeviceKitAspect::device(kit).isNull() && kit->isValid();
+            };
+
+            const bool hasValidQnxKit = KitManager::kit(isQnxKit) != nullptr;
+
+            attachToQnxApplication->setVisible(hasValidQnxKit);
+            debugSeparator->setVisible(hasValidQnxKit);
+        });
+    }
 };
-
-void QnxPlugin::extensionsInitialized()
-{
-    // Attach support
-    connect(&d->m_attachToQnxApplication, &QAction::triggered, this, &showAttachToProcessDialog);
-
-    const char QNX_DEBUGGING_GROUP[] = "Debugger.Group.Qnx";
-
-    Core::ActionContainer *mstart = Core::ActionManager::actionContainer(ProjectExplorer::Constants::M_DEBUG_STARTDEBUGGING);
-    mstart->appendGroup(QNX_DEBUGGING_GROUP);
-    mstart->addSeparator(Core::Context(Core::Constants::C_GLOBAL), QNX_DEBUGGING_GROUP,
-                         &d->m_debugSeparator);
-
-    Core::Command *cmd = Core::ActionManager::registerAction
-            (&d->m_attachToQnxApplication, "Debugger.AttachToQnxApplication");
-    mstart->addAction(cmd, QNX_DEBUGGING_GROUP);
-
-    connect(KitManager::instance(), &KitManager::kitsChanged,
-            this, [this] { d->updateDebuggerActions(); });
-}
-
-void QnxPluginPrivate::updateDebuggerActions()
-{
-    auto isQnxKit = [](const Kit *kit) {
-        return DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
-               && !DeviceKitAspect::device(kit).isNull() && kit->isValid();
-    };
-
-    const bool hasValidQnxKit = KitManager::kit(isQnxKit) != nullptr;
-
-    m_attachToQnxApplication.setVisible(hasValidQnxKit);
-    m_debugSeparator->setVisible(hasValidQnxKit);
-}
 
 } // Qnx::Internal
 
