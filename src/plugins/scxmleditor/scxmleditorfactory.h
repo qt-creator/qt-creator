@@ -3,22 +3,10 @@
 
 #pragma once
 
-#include <coreplugin/editormanager/ieditorfactory.h>
+#include <QObject>
 
-namespace ScxmlEditor {
-namespace Internal {
+namespace ScxmlEditor::Internal {
 
-class ScxmlEditorData;
+void setupScxmlEditor(QObject *guard);
 
-class ScxmlEditorFactory final : public Core::IEditorFactory
-{
-public:
-    ScxmlEditorFactory();
-    ~ScxmlEditorFactory();
-
-private:
-    ScxmlEditorData* m_editorData = nullptr;
-};
-
-} // namespace Internal
-} // namespace ScxmlEditor
+} // ScxmlEditor::Internal
