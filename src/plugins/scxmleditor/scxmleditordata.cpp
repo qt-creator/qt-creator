@@ -3,7 +3,6 @@
 
 #include "mainwidget.h"
 #include "scxmleditorconstants.h"
-#include "scxmleditordata.h"
 #include "scxmleditordocument.h"
 #include "scxmleditorstack.h"
 #include "scxmleditortr.h"
@@ -11,8 +10,12 @@
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/designmode.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/editortoolbar.h>
+#include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/minisplitter.h>
@@ -21,21 +24,24 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <utils/fsengine/fileiconprovider.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
+#include <QGuiApplication>
 #include <QVBoxLayout>
+#include <QToolBar>
+#include <QUndoGroup>
 
+using namespace Core;
 using namespace ScxmlEditor::Common;
 using namespace ScxmlEditor::PluginInterface;
 using namespace Utils;
 
-namespace ScxmlEditor {
-
-namespace Internal {
+namespace ScxmlEditor::Internal {
 
 class ScxmlTextEditorWidget : public TextEditor::TextEditorWidget
 {
@@ -65,6 +71,32 @@ public:
         setDocumentCreator([designWidget] { return new ScxmlEditorDocument(designWidget); });
         return qobject_cast<ScxmlTextEditor*>(createEditor());
     }
+};
+
+class ScxmlEditorData : public QObject
+{
+public:
+    ScxmlEditorData();
+    ~ScxmlEditorData() override;
+
+    void fullInit();
+    IEditor *createEditor();
+
+private:
+    void updateToolBar();
+    QWidget *createModeWidget();
+    EditorToolBar *createMainToolBar();
+
+    Context m_contexts;
+    QWidget *m_modeWidget = nullptr;
+    ScxmlEditorStack *m_widgetStack = nullptr;
+    QToolBar *m_widgetToolBar = nullptr;
+    EditorToolBar *m_mainToolBar = nullptr;
+    QUndoGroup *m_undoGroup = nullptr;
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
+
+    ScxmlTextEditorFactory *m_xmlEditorFactory = nullptr;
 };
 
 ScxmlEditorData::ScxmlEditorData()
@@ -218,5 +250,40 @@ QWidget *ScxmlEditorData::createModeWidget()
     return widget;
 }
 
-} // namespace Internal
-} // namespace ScxmlEditor
+class ScxmlEditorFactory final : public QObject, public Core::IEditorFactory
+{
+public:
+    ScxmlEditorFactory(QObject *guard)
+        : QObject(guard)
+    {
+        setId(Constants::K_SCXML_EDITOR_ID);
+        setDisplayName(::Core::Tr::tr(Constants::C_SCXMLEDITOR_DISPLAY_NAME));
+        addMimeType(Utils::Constants::SCXML_MIMETYPE);
+
+        Utils::FileIconProvider::registerIconOverlayForSuffix(":/projectexplorer/images/fileoverlay_scxml.png", "scxml");
+
+        setEditorCreator([this] {
+            if (!m_editorData) {
+                m_editorData = new ScxmlEditorData;
+                QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+                m_editorData->fullInit();
+                QGuiApplication::restoreOverrideCursor();
+            }
+            return m_editorData->createEditor();
+        });
+    }
+    ~ScxmlEditorFactory()
+    {
+        delete m_editorData;
+    }
+
+private:
+    ScxmlEditorData *m_editorData = nullptr;
+};
+
+void setupScxmlEditor(QObject *guard)
+{
+    (void) new ScxmlEditorFactory(guard);
+}
+
+} // ScxmlEditor::Internal
