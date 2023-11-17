@@ -29,6 +29,8 @@
 #include <textureeditorview.h>
 #include <qmldesignerplugin.h>
 
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 
 #include <advanceddockingsystem/dockwidget.h>
@@ -38,6 +40,14 @@
 #include <QTabWidget>
 
 namespace QmlDesigner {
+
+static bool enableModelEditor()
+{
+    Utils::QtcSettings *settings = Core::ICore::settings();
+    const Utils::Key enableModelManagerKey = "QML/Designer/UseExperimentalFeatures44";
+
+    return settings->value(enableModelManagerKey, false).toBool();
+}
 
 static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 
@@ -203,8 +213,10 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->materialBrowserView,
                                   &d->textureEditorView,
                                   &d->statesEditorView,
-                                  &d->designerActionManagerView,
-                                  &d->collectionView};
+                                  &d->designerActionManagerView};
+
+    if (enableModelEditor())
+        list.append(&d->collectionView);
 
     if (QmlDesignerPlugin::instance()
             ->settings()
@@ -386,7 +398,8 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
     widgetInfoList.append(d->textureEditorView.widgetInfo());
     widgetInfoList.append(d->statesEditorView.widgetInfo());
-    widgetInfoList.append(d->collectionView.widgetInfo());
+    if (enableModelEditor())
+        widgetInfoList.append(d->collectionView.widgetInfo());
 
 #ifdef CHECK_LICENSE
     if (checkLicense() == FoundLicense::enterprise)
