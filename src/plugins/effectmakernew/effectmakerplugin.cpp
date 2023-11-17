@@ -27,15 +27,26 @@
 
 namespace EffectMaker {
 
+static bool enableEffectMaker()
+{
+    Utils::QtcSettings *settings = Core::ICore::settings();
+    const Utils::Key enableModelManagerKey = "QML/Designer/UseExperimentalFeatures44";
+
+    return settings->value(enableModelManagerKey, false).toBool();
+}
+
 bool EffectMakerPlugin::delayedInitialize()
 {
     if (m_delayedInitialized)
         return true;
 
-    auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
-    auto &viewManager = designerPlugin->viewManager();
-    viewManager.registerView(std::make_unique<EffectMakerView>(
-        QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
+    if (enableEffectMaker()) {
+        auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
+        auto &viewManager = designerPlugin->viewManager();
+
+        viewManager.registerView(std::make_unique<EffectMakerView>(
+            QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
+    }
 
     m_delayedInitialized = true;
 
