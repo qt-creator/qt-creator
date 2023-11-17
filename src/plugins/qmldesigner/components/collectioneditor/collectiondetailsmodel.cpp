@@ -408,9 +408,10 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
     }
 }
 
-bool CollectionDetailsModel::exportCollection(const QString &path, const QString &collectionName, const QString &exportType)
+bool CollectionDetailsModel::exportCollection(const QUrl &url,
+                                              const QString &collectionName,
+                                              const QString &exportType)
 {
-    QUrl url(path);
     QString filePath;
     if (url.isLocalFile()) {
         QFileInfo fileInfo(url.toLocalFile());
@@ -418,7 +419,7 @@ bool CollectionDetailsModel::exportCollection(const QString &path, const QString
             fileInfo.setFile(QString("%1.%2").arg(url.toLocalFile(), exportType.toLower()));
         filePath = fileInfo.absoluteFilePath();
     } else {
-        filePath = path;
+        filePath = url.toString();
     }
 
     if (exportType == "JSON") {
@@ -430,6 +431,11 @@ bool CollectionDetailsModel::exportCollection(const QString &path, const QString
     }
 
     return false;
+}
+
+bool CollectionDetailsModel::saveCurrentCollection()
+{
+    return saveCollection(m_currentCollection);
 }
 
 void CollectionDetailsModel::updateEmpty()
@@ -604,6 +610,28 @@ void CollectionDetailsModel::setCollectionName(const QString &newCollectionName)
         m_collectionName = newCollectionName;
         emit this->collectionNameChanged(m_collectionName);
     }
+}
+
+bool CollectionDetailsModel::saveCollection(CollectionDetails &collection)
+{
+    if (!collection.isValid() || !m_openedCollections.contains(collection.reference()))
+        return false;
+
+    const ModelNode node = collection.reference().node;
+    bool saved = false;
+
+    if (CollectionEditor::getSourceCollectionType(node) == "json") {
+        saved = saveCollectionAsJson(CollectionEditor::getSourceCollectionPath(node),
+                                     collection.getJsonCollection(),
+                                     collection.reference().name);
+    } else if (CollectionEditor::getSourceCollectionType(node) == "csv") {
+        saved = saveCollectionAsCsv(CollectionEditor::getSourceCollectionPath(node),
+                                    collection.getCsvCollection());
+    }
+    if (saved)
+        collection.markSaved();
+
+    return saved;
 }
 
 bool CollectionDetailsModel::saveCollectionAsJson(const QString &path, const QJsonArray &content, const QString &collectionName)

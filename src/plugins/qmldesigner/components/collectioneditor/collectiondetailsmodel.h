@@ -63,7 +63,11 @@ public:
 
     void loadCollection(const ModelNode &sourceNode, const QString &collection);
 
-    Q_INVOKABLE bool exportCollection(const QString &path, const QString &collectionName, const QString &exportType);
+    Q_INVOKABLE bool exportCollection(const QUrl &url,
+                                      const QString &collectionName,
+                                      const QString &exportType);
+
+    Q_INVOKABLE bool saveCurrentCollection();
 
 signals:
     void collectionNameChanged(const QString &collectionName);
@@ -81,6 +85,7 @@ private:
     void setCollectionName(const QString &newCollectionName);
     void loadJsonCollection(const QString &source, const QString &collection);
     void loadCsvCollection(const QString &source, const QString &collectionName);
+    bool saveCollection(CollectionDetails &collection);
     bool saveCollectionAsJson(const QString &path, const QJsonArray &content, const QString &collectionName);
     bool saveCollectionAsCsv(const QString &path, const QString &content);
     QVariant variantFromString(const QString &value);

@@ -393,11 +393,6 @@ void CollectionSourceModel::updateNodeSource(const ModelNode &node)
     updateCollectionList(index);
 }
 
-QString CollectionSourceModel::selectedSourceAddress() const
-{
-    return index(m_selectedIndex).data(SourceRole).toString();
-}
-
 void CollectionSourceModel::onSelectedCollectionChanged(int collectionIndex)
 {
     CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());

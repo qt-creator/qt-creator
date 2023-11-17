@@ -67,8 +67,6 @@ public:
     void updateNodeName(const ModelNode &node);
     void updateNodeSource(const ModelNode &node);
 
-    Q_INVOKABLE QString selectedSourceAddress() const;
-
 signals:
     void selectedIndexChanged(int idx);
     void collectionSelected(const ModelNode &sourceNode, const QString &collectionName);

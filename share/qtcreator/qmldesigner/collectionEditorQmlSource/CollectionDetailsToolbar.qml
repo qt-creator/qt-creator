@@ -102,13 +102,7 @@ Item {
                 icon: StudioTheme.Constants.updateContent_medium
                 tooltip: qsTr("Update existing file with changes")
                 enabled: root.model.collectionName !== ""
-                onClicked:
-                {
-                    if (root.backend.selectedSourceAddress().indexOf("json") !== -1)
-                        root.model.exportCollection(root.backend.selectedSourceAddress(), root.model.collectionName, "JSON")
-                    else
-                        root.model.exportCollection(root.backend.selectedSourceAddress(), root.model.collectionName, "CSV")
-                }
+                onClicked: root.model.saveCurrentCollection()
             }
 
             IconButton {
