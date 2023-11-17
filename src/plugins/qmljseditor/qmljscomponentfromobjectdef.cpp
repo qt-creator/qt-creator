@@ -166,7 +166,7 @@ public:
         const bool reindent = true;
         const bool openEditor = false;
         const Utils::FilePath newFilePath = newFileName;
-        if (!refactoring.createFile(newFileName, newComponentSource, reindent, openEditor))
+        if (!refactoring.file(newFileName)->create(newComponentSource, reindent, openEditor))
             return;
 
         if (path.toString() == currentFileName.toFileInfo().path()) {

@@ -118,11 +118,6 @@ public:
     // TODO: Make pure virtual and introduce dedicated subclass for generic refactoring,
     //       so no one instantiates this one by mistake.
     virtual RefactoringFilePtr file(const Utils::FilePath &filePath) const;
-
-    bool createFile(const Utils::FilePath &filePath,
-                    const QString &contents,
-                    bool reindent = true,
-                    bool openEditor = true) const;
 };
 
 } // namespace TextEditor

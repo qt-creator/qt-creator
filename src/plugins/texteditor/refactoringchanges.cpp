@@ -28,14 +28,6 @@ namespace TextEditor {
 
 RefactoringChanges::~RefactoringChanges() = default;
 
-bool RefactoringChanges::createFile(const FilePath &filePath,
-                                    const QString &contents,
-                                    bool reindent,
-                                    bool openEditor) const
-{
-    return file(filePath)->create(contents, reindent, openEditor);
-}
-
 RefactoringFilePtr RefactoringChanges::file(const FilePath &filePath) const
 {
     return RefactoringFilePtr(new RefactoringFile(filePath));
