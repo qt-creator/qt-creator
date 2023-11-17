@@ -251,7 +251,11 @@ void ItemLibraryWidget::handleAddImport(int index)
             imports.append(dependencyImport);
     }
     imports.append(import);
-    model->changeImports(imports, {});
+    try {
+        model->changeImports(imports, {});
+    } catch (const Exception &e) {
+        e.showException();
+    }
 
     switchToComponentsView();
     updateSearch();
