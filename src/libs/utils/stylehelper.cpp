@@ -933,6 +933,15 @@ QColor StyleHelper::ensureReadableOn(const QColor &background, const QColor &des
     return foreground;
 }
 
+static QStringList brandFontFamilies()
+{
+    const static QStringList families = []{
+        const int id = QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
+        return id >= 0 ? QFontDatabase::applicationFontFamilies(id) : QStringList();
+    }();
+    return families;
+}
+
 QFont StyleHelper::UiFont(UiElement element)
 {
     QFont font;
@@ -941,8 +950,14 @@ QFont StyleHelper::UiFont(UiElement element)
 
     switch (element) {
     case UiElementH1:
+        font.setFamilies(brandFontFamilies());
+        font.setPixelSize(30);
+        font.setWeight(QFont::Light);
+        font.setWordSpacing(2);
         break;
     case UiElementH2:
+        font.setFamilies(brandFontFamilies());
+        font.setPixelSize(16);
         break;
     case UiElementH3:
         font.setPointSizeF(font.pointSizeF() * 1.6);

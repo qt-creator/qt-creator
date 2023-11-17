@@ -13,7 +13,6 @@
 #include <utils/theme/theme.h>
 
 #include <QEasingCurve>
-#include <QFontDatabase>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QHoverEvent>
@@ -46,21 +45,6 @@ static QFont sizedFont(int size, const QWidget *widget)
 
 namespace WelcomePageHelpers {
 
-QFont brandFont()
-{
-    const static QFont f = []{
-        const int id = QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
-        QFont result;
-        result.setPixelSize(16);
-        if (id >= 0) {
-            const QStringList fontFamilies = QFontDatabase::applicationFontFamilies(id);
-            result.setFamilies(fontFamilies);
-        }
-        return result;
-    }();
-    return f;
-}
-
 QWidget *panelBar(QWidget *parent)
 {
     auto frame = new QWidget(parent);
@@ -83,7 +67,7 @@ SearchBox::SearchBox(QWidget *parent)
     m_lineEdit = new FancyLineEdit;
     m_lineEdit->setFiltering(true);
     m_lineEdit->setFrame(false);
-    m_lineEdit->setFont(WelcomePageHelpers::brandFont());
+    m_lineEdit->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
     m_lineEdit->setMinimumHeight(33);
     m_lineEdit->setAttribute(Qt::WA_MacShowFocusRect, false);
 
@@ -801,7 +785,7 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     }.emerge();
     m_sectionLabels.append(sectionLabel);
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
-    sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
+    sectionLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
     auto scrollArea = qobject_cast<QScrollArea *>(widget(0));
     auto vbox = qobject_cast<QVBoxLayout *>(scrollArea->widget()->layout());
 
@@ -858,7 +842,7 @@ void SectionedGridView::zoomInSection(const Section &section)
         noMargin
     }.emerge();
     sectionLabel->setContentsMargins(0, ItemGap, 0, 0);
-    sectionLabel->setFont(Core::WelcomePageHelpers::brandFont());
+    sectionLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
 
     auto gridView = new GridView(zoomedInWidget);
     gridView->setItemDelegate(m_itemDelegate);

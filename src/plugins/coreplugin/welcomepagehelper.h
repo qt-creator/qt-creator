@@ -35,7 +35,6 @@ constexpr QSize GridItemImageSize(GridItemWidth - GridItemGap
                                       - GridItemGap - 1        // Upper margin + 1 pixel
                                       - 67);                   // Bottom margin (for title + tags)
 
-CORE_EXPORT QFont brandFont();
 CORE_EXPORT QWidget *panelBar(QWidget *parent = nullptr);
 
 } // namespace WelcomePageHelpers
