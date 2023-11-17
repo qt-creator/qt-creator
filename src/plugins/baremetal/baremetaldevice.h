@@ -5,13 +5,8 @@
 #pragma once
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/idevicefactory.h>
 
 namespace BareMetal::Internal {
-
-class IDebugServerProvider;
-
-// BareMetalDevice
 
 class BareMetalDevice final : public ProjectExplorer::IDevice
 {
@@ -28,7 +23,7 @@ public:
 
     QString debugServerProviderId() const;
     void setDebugServerProviderId(const QString &id);
-    void unregisterDebugServerProvider(IDebugServerProvider *provider);
+    void unregisterDebugServerProvider(class IDebugServerProvider *provider);
 
 protected:
     void fromMap(const Utils::Store &map) final;
@@ -39,12 +34,6 @@ private:
     QString m_debugServerProviderId;
 };
 
-// BareMetalDeviceFactory
-
-class BareMetalDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    BareMetalDeviceFactory();
-};
+void setupBareMetalDevice();
 
 } // BareMetal::Internal

@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 namespace BareMetal::Internal {
 
-class BareMetalDebugSupportFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    BareMetalDebugSupportFactory();
-};
+void setupBareMetalDebugSupport();
 
 } // BareMetal::Internal

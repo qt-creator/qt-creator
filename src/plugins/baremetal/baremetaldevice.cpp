@@ -11,6 +11,8 @@
 #include "debugserverprovidermanager.h"
 #include "idebugserverprovider.h"
 
+#include <projectexplorer/devicesupport/idevicefactory.h>
+
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
@@ -93,19 +95,28 @@ IDeviceWidget *BareMetalDevice::createWidget()
 
 // Factory
 
-BareMetalDeviceFactory::BareMetalDeviceFactory()
-    : IDeviceFactory(Constants::BareMetalOsType)
+class BareMetalDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    setDisplayName(Tr::tr("Bare Metal Device"));
-    setCombinedIcon(":/baremetal/images/baremetaldevicesmall.png",
-                    ":/baremetal/images/baremetaldevice.png");
-    setConstructionFunction(&BareMetalDevice::create);
-    setCreator([] {
-        BareMetalDeviceConfigurationWizard wizard;
-        if (wizard.exec() != QDialog::Accepted)
-            return IDevice::Ptr();
-        return wizard.device();
-    });
+public:
+    BareMetalDeviceFactory()
+        : IDeviceFactory(Constants::BareMetalOsType)
+    {
+        setDisplayName(Tr::tr("Bare Metal Device"));
+        setCombinedIcon(":/baremetal/images/baremetaldevicesmall.png",
+                        ":/baremetal/images/baremetaldevice.png");
+        setConstructionFunction(&BareMetalDevice::create);
+        setCreator([] {
+            BareMetalDeviceConfigurationWizard wizard;
+            if (wizard.exec() != QDialog::Accepted)
+                return IDevice::Ptr();
+            return wizard.device();
+        });
+    }
+};
+
+void setupBareMetalDevice()
+{
+    static BareMetalDeviceFactory theBareMetalDeviceFactory;
 }
 
 } // BareMetal::Internal

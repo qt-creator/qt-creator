@@ -16,34 +16,14 @@
 #include "keiltoolchain.h"
 #include "sdcctoolchain.h"
 
-#include <projectexplorer/deployconfiguration.h>
-
-using namespace ProjectExplorer;
-
 namespace BareMetal::Internal {
-
-class BareMetalDeployConfigurationFactory : public DeployConfigurationFactory
-{
-public:
-    BareMetalDeployConfigurationFactory()
-    {
-        setConfigBaseId("BareMetal.DeployConfiguration");
-        setDefaultDisplayName(Tr::tr("Deploy to BareMetal Device"));
-        addSupportedTargetDeviceType(Constants::BareMetalOsType);
-    }
-};
 
 // BareMetalPluginPrivate
 
 class BareMetalPluginPrivate
 {
 public:
-    BareMetalDeviceFactory deviceFactory;
-    BareMetalRunConfigurationFactory runConfigurationFactory;
-    BareMetalCustomRunConfigurationFactory customRunConfigurationFactory;
     DebugServerProviderManager debugServerProviderManager;
-    BareMetalDeployConfigurationFactory deployConfigurationFactory;
-    BareMetalDebugSupportFactory runWorkerFactory;
 };
 
 // BareMetalPlugin
@@ -57,9 +37,14 @@ void BareMetalPlugin::initialize()
 {
     d = new BareMetalPluginPrivate;
 
+    setupBareMetalDevice();
+
     setupIarToolChain();
     setupKeilToolChain();
     setupSdccToolChain();
+
+    setupBareMetalDeployAndRunConfigurations();
+    setupBareMetalDebugSupport();
 }
 
 void BareMetalPlugin::extensionsInitialized()
