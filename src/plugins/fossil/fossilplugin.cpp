@@ -52,20 +52,21 @@
 #include <QMessageBox>
 #include <QRegularExpression>
 
+#ifdef WITH_TESTS
+#include <QTest>
+#endif
+
 using namespace Core;
 using namespace Utils;
 using namespace VcsBase;
 using namespace std::placeholders;
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
-class FossilTopicCache : public IVersionControl::TopicCache
+class FossilTopicCache final : public IVersionControl::TopicCache
 {
 public:
-    FossilTopicCache(FossilClient *client) :
-        m_client(client)
-    { }
+    FossilTopicCache() = default;
 
 protected:
     FilePath trackFile(const FilePath &repository) final
@@ -75,11 +76,8 @@ protected:
 
     QString refreshTopic(const FilePath &repository) final
     {
-        return m_client->synchronousTopic(repository);
+        return fossilClient().synchronousTopic(repository);
     }
-
-private:
-    FossilClient *m_client;
 };
 
 const VcsBaseEditorParameters fileLogParameters {
@@ -183,8 +181,6 @@ public:
     bool pullOrPush(SyncMode mode);
 
     // Variables
-    FossilClient m_client;
-
     VcsSubmitEditorFactory submitEditorFactory {
         submitEditorParameters,
         [] { return new CommitEditor; },
@@ -269,18 +265,13 @@ void FossilPlugin::extensionsInitialized()
     dd->extensionsInitialized();
 }
 
-FossilClient *FossilPlugin::client()
-{
-    return &dd->m_client;
-}
-
 FossilPluginPrivate::FossilPluginPrivate()
     : VcsBasePluginPrivate(Context(Constants::FOSSIL_CONTEXT))
 {
     Context context(Constants::FOSSIL_CONTEXT);
 
-    setTopicCache(new FossilTopicCache(&m_client));
-    connect(&m_client, &VcsBaseClient::changed, this, &FossilPluginPrivate::changed);
+    setTopicCache(new FossilTopicCache);
+    connect(&fossilClient(), &VcsBaseClient::changed, this, &FossilPluginPrivate::changed);
 
     m_commandLocator = new CommandLocator("Fossil", "fossil", "fossil", this);
     m_commandLocator->setDescription(Tr::tr("Triggers a Fossil version control operation."));
@@ -387,7 +378,7 @@ void FossilPluginPrivate::addCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.synchronousAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
+    fossilClient().synchronousAdd(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void FossilPluginPrivate::deleteCurrentFile()
@@ -400,31 +391,31 @@ void FossilPluginPrivate::annotateCurrentFile()
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
     const int lineNumber = VcsBaseEditor::lineNumberOfCurrentEditor(state.currentFile());
-    m_client.annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), lineNumber);
+    fossilClient().annotate(state.currentFileTopLevel(), state.relativeCurrentFile(), lineNumber);
 }
 
 void FossilPluginPrivate::diffCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
+    fossilClient().diff(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()));
 }
 
 void FossilPluginPrivate::logCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    FossilClient::SupportedFeatures features = m_client.supportedFeatures();
+    FossilClient::SupportedFeatures features = fossilClient().supportedFeatures();
     QStringList extraOptions;
-    extraOptions << "-n" << QString::number(m_client.settings().logCount());
+    extraOptions << "-n" << QString::number(fossilClient().settings().logCount());
 
     if (features.testFlag(FossilClient::TimelineWidthFeature))
-        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth());
+        extraOptions << "-W" << QString::number(fossilClient().settings().timelineWidth());
 
     // disable annotate context menu for older client versions, used to be supported for current revision only
     bool enableAnnotationContextMenu = features.testFlag(FossilClient::AnnotateRevisionFeature);
 
-    m_client.logCurrentFile(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
+    fossilClient().logCurrentFile(state.currentFileTopLevel(), QStringList(state.relativeCurrentFile()),
                   extraOptions, enableAnnotationContextMenu);
 }
 
@@ -435,7 +426,7 @@ void FossilPluginPrivate::revertCurrentFile()
 
     RevertDialog dialog(Tr::tr("Revert"), ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted) {
-        m_client.revertFile(state.currentFileTopLevel(), state.relativeCurrentFile(),
+        fossilClient().revertFile(state.currentFileTopLevel(), state.relativeCurrentFile(),
                             dialog.revision());
     }
 }
@@ -444,7 +435,7 @@ void FossilPluginPrivate::statusCurrentFile()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasFile(), return);
-    m_client.status(state.currentFileTopLevel(), state.relativeCurrentFile());
+    fossilClient().status(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
 void FossilPluginPrivate::createDirectoryActions(const Context &context)
@@ -488,21 +479,21 @@ void FossilPluginPrivate::diffRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_client.diff(state.topLevel());
+    fossilClient().diff(state.topLevel());
 }
 
 void FossilPluginPrivate::logRepository()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    FossilClient::SupportedFeatures features = m_client.supportedFeatures();
+    FossilClient::SupportedFeatures features = fossilClient().supportedFeatures();
     QStringList extraOptions;
-    extraOptions << "-n" << QString::number(m_client.settings().logCount());
+    extraOptions << "-n" << QString::number(fossilClient().settings().logCount());
 
     if (features.testFlag(FossilClient::TimelineWidthFeature))
-        extraOptions << "-W" << QString::number(m_client.settings().timelineWidth());
+        extraOptions << "-W" << QString::number(fossilClient().settings().timelineWidth());
 
-    m_client.log(state.topLevel(), {}, extraOptions);
+    fossilClient().log(state.topLevel(), {}, extraOptions);
 }
 
 void FossilPluginPrivate::revertAll()
@@ -512,14 +503,14 @@ void FossilPluginPrivate::revertAll()
 
     RevertDialog dialog(Tr::tr("Revert"), ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted)
-        m_client.revertAll(state.topLevel(), dialog.revision());
+        fossilClient().revertAll(state.topLevel(), dialog.revision());
 }
 
 void FossilPluginPrivate::statusMulti()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasTopLevel(), return);
-    m_client.status(state.topLevel());
+    fossilClient().status(state.topLevel());
 }
 
 void FossilPluginPrivate::createRepositoryActions(const Context &context)
@@ -592,8 +583,8 @@ bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
     QTC_ASSERT(state.hasTopLevel(), return false);
 
     PullOrPushDialog dialog(pullOrPushMode, ICore::dialogParent());
-    dialog.setLocalBaseDirectory(m_client.settings().defaultRepoPath());
-    const QString defaultURL(m_client.synchronousGetRepositoryURL(state.topLevel()));
+    dialog.setLocalBaseDirectory(fossilClient().settings().defaultRepoPath());
+    const QString defaultURL(fossilClient().synchronousGetRepositoryURL(state.topLevel()));
     dialog.setDefaultRemoteLocation(defaultURL);
     if (dialog.exec() != QDialog::Accepted)
         return true;
@@ -613,9 +604,9 @@ bool FossilPluginPrivate::pullOrPush(FossilPluginPrivate::SyncMode mode)
         extraOptions << "--private";
     switch (mode) {
     case SyncPull:
-        return m_client.synchronousPull(state.topLevel(), remoteLocation, extraOptions);
+        return fossilClient().synchronousPull(state.topLevel(), remoteLocation, extraOptions);
     case SyncPush:
-        return m_client.synchronousPush(state.topLevel(), remoteLocation, extraOptions);
+        return fossilClient().synchronousPush(state.topLevel(), remoteLocation, extraOptions);
     default:
         return false;
     }
@@ -628,7 +619,7 @@ void FossilPluginPrivate::update()
 
     RevertDialog dialog(Tr::tr("Update"), ICore::dialogParent());
     if (dialog.exec() == QDialog::Accepted)
-        m_client.update(state.topLevel(), dialog.revision());
+        fossilClient().update(state.topLevel(), dialog.revision());
 }
 
 void FossilPluginPrivate::configureRepository()
@@ -639,14 +630,14 @@ void FossilPluginPrivate::configureRepository()
     ConfigureDialog dialog;
 
     // retrieve current settings from the repository
-    RepositorySettings currentSettings = m_client.synchronousSettingsQuery(state.topLevel());
+    RepositorySettings currentSettings = fossilClient().synchronousSettingsQuery(state.topLevel());
 
     dialog.setSettings(currentSettings);
     if (dialog.exec() != QDialog::Accepted)
         return;
     const RepositorySettings newSettings = dialog.settings();
 
-    m_client.synchronousConfigureRepository(state.topLevel(), newSettings, currentSettings);
+    fossilClient().synchronousConfigureRepository(state.topLevel(), newSettings, currentSettings);
 }
 
 void FossilPluginPrivate::commit()
@@ -661,14 +652,14 @@ void FossilPluginPrivate::commit()
     QTC_ASSERT(state.hasTopLevel(), return);
 
     m_submitRepository = state.topLevel();
-    connect(&m_client, &VcsBaseClient::parsedStatus, this, &FossilPluginPrivate::showCommitWidget);
-    m_client.emitParsedStatus(m_submitRepository, {});
+    connect(&fossilClient(), &VcsBaseClient::parsedStatus, this, &FossilPluginPrivate::showCommitWidget);
+    fossilClient().emitParsedStatus(m_submitRepository, {});
 }
 
 void FossilPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem> &status)
 {
     //Once we receive our data release the connection so it can be reused elsewhere
-    disconnect(&m_client, &VcsBaseClient::parsedStatus,
+    disconnect(&fossilClient(), &VcsBaseClient::parsedStatus,
                this, &FossilPluginPrivate::showCommitWidget);
 
     if (status.isEmpty()) {
@@ -702,10 +693,10 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
     const QString msg = Tr::tr("Commit changes for \"%1\".").arg(m_submitRepository.toUserOutput());
     commitEditor->document()->setPreferredDisplayName(msg);
 
-    const RevisionInfo currentRevision = m_client.synchronousRevisionQuery(m_submitRepository);
-    const BranchInfo currentBranch = m_client.synchronousCurrentBranch(m_submitRepository);
-    const QString currentUser = m_client.synchronousUserDefaultQuery(m_submitRepository);
-    QStringList tags = m_client.synchronousTagQuery(m_submitRepository, currentRevision.id);
+    const RevisionInfo currentRevision = fossilClient().synchronousRevisionQuery(m_submitRepository);
+    const BranchInfo currentBranch = fossilClient().synchronousCurrentBranch(m_submitRepository);
+    const QString currentUser = fossilClient().synchronousUserDefaultQuery(m_submitRepository);
+    QStringList tags = fossilClient().synchronousTagQuery(m_submitRepository, currentRevision.id);
     // Fossil includes branch name in tag list -- remove.
     tags.removeAll(currentBranch.name);
     commitEditor->setFields(m_submitRepository, currentBranch, tags, currentUser, status);
@@ -717,7 +708,7 @@ void FossilPluginPrivate::showCommitWidget(const QList<VcsBaseClient::StatusItem
 
 void FossilPluginPrivate::diffFromEditorSelected(const QStringList &files)
 {
-    m_client.diff(m_submitRepository, files);
+    fossilClient().diff(m_submitRepository, files);
 }
 
 static inline bool ask(QWidget *parent, const QString &title, const QString &question, bool defaultValue = true)
@@ -808,7 +799,7 @@ bool FossilPluginPrivate::activateCommit()
         // Whether local commit or not
         if (commitWidget->isPrivateOptionEnabled())
             extraOptions += "--private";
-        m_client.commit(m_submitRepository, files, editorDocument->filePath().toString(), extraOptions);
+        fossilClient().commit(m_submitRepository, files, editorDocument->filePath().toString(), extraOptions);
     }
     return true;
 }
@@ -850,12 +841,12 @@ Id FossilPluginPrivate::id() const
 
 bool FossilPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 {
-    return m_client.isVcsFileOrDirectory(filePath);
+    return fossilClient().isVcsFileOrDirectory(filePath);
 }
 
 bool FossilPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    const FilePath topLevelFound = m_client.findTopLevelForFile(directory);
+    const FilePath topLevelFound = fossilClient().findTopLevelForFile(directory);
     if (topLevel)
         *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
@@ -863,12 +854,12 @@ bool FossilPluginPrivate::managesDirectory(const FilePath &directory, FilePath *
 
 bool FossilPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
-    return m_client.managesFile(workingDirectory, fileName);
+    return fossilClient().managesFile(workingDirectory, fileName);
 }
 
 bool FossilPluginPrivate::isConfigured() const
 {
-    const FilePath binary = m_client.vcsBinary();
+    const FilePath binary = fossilClient().vcsBinary();
     if (binary.isEmpty())
         return false;
 
@@ -876,7 +867,7 @@ bool FossilPluginPrivate::isConfigured() const
         return false;
 
     // Local repositories default path must be set and exist
-    const FilePath repoPath = m_client.settings().defaultRepoPath();
+    const FilePath repoPath = fossilClient().settings().defaultRepoPath();
     if (repoPath.isEmpty())
         return false;
 
@@ -910,35 +901,35 @@ bool FossilPluginPrivate::vcsOpen(const FilePath &filePath)
 
 bool FossilPluginPrivate::vcsAdd(const FilePath &filePath)
 {
-    return m_client.synchronousAdd(filePath.absolutePath(), filePath.fileName());
+    return fossilClient().synchronousAdd(filePath.absolutePath(), filePath.fileName());
 }
 
 bool FossilPluginPrivate::vcsDelete(const FilePath &filePath)
 {
-    return m_client.synchronousRemove(filePath.absolutePath(), filePath.fileName());
+    return fossilClient().synchronousRemove(filePath.absolutePath(), filePath.fileName());
 }
 
 bool FossilPluginPrivate::vcsMove(const FilePath &from, const FilePath &to)
 {
     const QFileInfo fromInfo = from.toFileInfo();
     const QFileInfo toInfo = to.toFileInfo();
-    return m_client.synchronousMove(from.absolutePath(), fromInfo.absoluteFilePath(),
+    return fossilClient().synchronousMove(from.absolutePath(), fromInfo.absoluteFilePath(),
                                     toInfo.absoluteFilePath());
 }
 
 bool FossilPluginPrivate::vcsCreateRepository(const FilePath &directory)
 {
-    return m_client.synchronousCreateRepository(directory);
+    return fossilClient().synchronousCreateRepository(directory);
 }
 
 void FossilPluginPrivate::vcsAnnotate(const FilePath &filePath, int line)
 {
-    m_client.annotate(filePath.absolutePath(), filePath.fileName(), line);
+    fossilClient().annotate(filePath.absolutePath(), filePath.fileName(), line);
 }
 
 void FossilPluginPrivate::vcsDescribe(const FilePath &source, const QString &id)
 {
-    m_client.view(source, id);
+    fossilClient().view(source, id);
 }
 
 VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sourceUrl,
@@ -987,7 +978,7 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     checkoutPath.createDir();
 
     // Setup the wizard page command job
-    auto command = VcsBaseClient::createVcsCommand(checkoutPath, m_client.processEnvironment());
+    auto command = VcsBaseClient::createVcsCommand(checkoutPath, fossilClient().processEnvironment());
 
     if (!isLocalRepository
         && !cloneRepository.exists()) {
@@ -1019,11 +1010,11 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
         // So here we want Fossil to save the remote details when specified.
 
         QStringList args;
-        args << m_client.vcsCommandString(FossilClient::CloneCommand)
+        args << fossilClient().vcsCommandString(FossilClient::CloneCommand)
              << extraOptions
              << sourceUrl
              << fossilFileNative;
-        command->addJob({m_client.vcsBinary(), args}, -1);
+        command->addJob({fossilClient().vcsBinary(), args}, -1);
     }
 
     // check out the cloned repository file into the working copy directory;
@@ -1032,20 +1023,20 @@ VcsCommand *FossilPluginPrivate::createInitialCheckoutCommand(const QString &sou
     QStringList args({"open", fossilFileNative});
     if (!checkoutBranch.isEmpty())
         args << checkoutBranch;
-    command->addJob({m_client.vcsBinary(), args}, -1);
+    command->addJob({fossilClient().vcsBinary(), args}, -1);
 
     // set user default to admin user if specified
     if (!isLocalRepository
         && !adminUser.isEmpty()) {
         const QStringList args({ "user", "default", adminUser, "--user", adminUser});
-        command->addJob({m_client.vcsBinary(), args}, -1);
+        command->addJob({fossilClient().vcsBinary(), args}, -1);
     }
 
     // turn-off autosync if requested
     if (!isLocalRepository
         && disableAutosync) {
         const QStringList args({"settings", "autosync", "off"});
-        command->addJob({m_client.vcsBinary(), args}, -1);
+        command->addJob({fossilClient().vcsBinary(), args}, -1);
     }
 
     return command;
@@ -1094,13 +1085,9 @@ RevertDialog::RevertDialog(const QString &title, QWidget *parent)
     }.attachTo(this);
 }
 
-} // namespace Internal
-} // namespace Fossil
-
 #ifdef WITH_TESTS
-#include <QTest>
 
-void Fossil::Internal::FossilPlugin::testDiffFileResolving_data()
+void FossilPlugin::testDiffFileResolving_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("fileName");
@@ -1133,12 +1120,12 @@ void Fossil::Internal::FossilPlugin::testDiffFileResolving_data()
         << QByteArray("src/plugins/fossil/fossilclient.cpp");
 }
 
-void Fossil::Internal::FossilPlugin::testDiffFileResolving()
+void FossilPlugin::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->diffFactory);
 }
 
-void Fossil::Internal::FossilPlugin::testLogResolving()
+void FossilPlugin::testLogResolving()
 {
     QByteArray data(
         "=== 2014-03-08 ===\n"
@@ -1151,3 +1138,5 @@ void Fossil::Internal::FossilPlugin::testLogResolving()
     VcsBaseEditorWidget::testLogResolving(dd->fileLogFactory, data, "ac6d1129b8", "56d6917c3b");
 }
 #endif
+
+} // namespace Fossil::Internal

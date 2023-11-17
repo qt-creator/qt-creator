@@ -6,7 +6,6 @@
 #include "annotationhighlighter.h"
 #include "constants.h"
 #include "fossilclient.h"
-#include "fossilplugin.h"
 #include "fossiltr.h"
 
 #include <utils/qtcassert.h>
@@ -14,8 +13,7 @@
 #include <QRegularExpression>
 #include <QTextCursor>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 class FossilEditorWidgetPrivate
 {
@@ -25,7 +23,6 @@ public:
     {
         QTC_ASSERT(m_exactChangesetId.isValid(), return);
     }
-
 
     const QRegularExpression m_exactChangesetId;
 };
@@ -64,9 +61,8 @@ QString FossilEditorWidget::decorateVersion(const QString &revision) const
     static const int maxTextSize(120);
 
     const Utils::FilePath workingDirectory = source().parentDir();
-    const FossilClient *client = FossilPlugin::client();
-    const RevisionInfo revisionInfo = client->synchronousRevisionQuery(workingDirectory, revision,
-                                                                       true);
+    const RevisionInfo revisionInfo =
+        fossilClient().synchronousRevisionQuery(workingDirectory, revision, true);
     // format: 'revision (committer "comment...")'
     QString output = revision.left(shortChangesetIdSize)
             + " (" + revisionInfo.committer
@@ -83,8 +79,8 @@ QString FossilEditorWidget::decorateVersion(const QString &revision) const
 QStringList FossilEditorWidget::annotationPreviousVersions(const QString &revision) const
 {
     const Utils::FilePath workingDirectory = source().parentDir();
-    const FossilClient *client = FossilPlugin::client();
-    const RevisionInfo revisionInfo = client->synchronousRevisionQuery(workingDirectory, revision);
+    const RevisionInfo revisionInfo =
+        fossilClient().synchronousRevisionQuery(workingDirectory, revision);
     if (revisionInfo.parentId.isEmpty())
         return {};
 
@@ -99,5 +95,4 @@ VcsBase::BaseAnnotationHighlighter *FossilEditorWidget::createAnnotationHighligh
     return new FossilAnnotationHighlighter(changes);
 }
 
-} // namespace Internal
-} // namespace Fossil
+} // namespace Fossil::Internal

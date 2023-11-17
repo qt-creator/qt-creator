@@ -34,8 +34,7 @@
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
 const RunFlags s_pullFlags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage;
 
@@ -1170,7 +1169,12 @@ VcsBaseEditorConfig *FossilClient::createLogEditor(VcsBaseEditorWidget *editor)
     return new FossilLogConfig(editor->toolBar());
 }
 
-} // namespace Internal
-} // namespace Fossil
+FossilClient &fossilClient()
+{
+    static FossilClient theFossilClient;
+    return theFossilClient;
+}
+
+} // namespace Fossil::Internal
 
 #include "fossilclient.moc"

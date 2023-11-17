@@ -8,8 +8,6 @@
 namespace Fossil {
 namespace Internal {
 
-class FossilClient;
-
 class FossilPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -19,9 +17,6 @@ class FossilPlugin final : public ExtensionSystem::IPlugin
 
     bool initialize(const QStringList &arguments, QString *errorMessage) final;
     void extensionsInitialized() final;
-
-public:
-    static FossilClient *client();
 
 #ifdef WITH_TESTS
 private slots:
