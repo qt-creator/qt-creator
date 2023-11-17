@@ -226,14 +226,12 @@ void IarParser::flush()
 // Unit tests:
 
 #ifdef WITH_TESTS
-#include "baremetalplugin.h"
 #include <projectexplorer/outputparser_test.h>
 #include <QTest>
 
-namespace BareMetal {
-namespace Internal {
+namespace BareMetal::Internal {
 
-void BareMetalPlugin::testIarOutputParsers_data()
+void IarParserTest::testIarOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -392,7 +390,7 @@ void BareMetalPlugin::testIarOutputParsers_data()
             << QString();
 }
 
-void BareMetalPlugin::testIarOutputParsers()
+void IarParserTest::testIarOutputParsers()
 {
     OutputParserTester testbench;
     testbench.addLineParser(new IarParser);
@@ -408,7 +406,6 @@ void BareMetalPlugin::testIarOutputParsers()
                           outputLines);
 }
 
-} // namespace Internal
-} // namespace BareMetal
+} // BareMetal::Internal
 
 #endif // WITH_TESTS

@@ -25,4 +25,15 @@ private:
     int m_lines = 0;
 };
 
+#ifdef WITH_TESTS
+class SdccParserTest final : public QObject
+{
+   Q_OBJECT
+
+private slots:
+   void testSdccOutputParsers_data();
+   void testSdccOutputParsers();
+};
+#endif // WITH_TESTS
+
 } // BareMetal::Internal

@@ -38,4 +38,15 @@ private:
     QStringList m_descriptionParts;
 };
 
+#ifdef WITH_TESTS
+class IarParserTest final : public QObject
+{
+   Q_OBJECT
+
+private slots:
+   void testIarOutputParsers_data();
+   void testIarOutputParsers();
+};
+#endif // WITH_TESTS
+
 } // BareMetal::Internal

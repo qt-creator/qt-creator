@@ -247,13 +247,13 @@ void KeilParser::flush()
 // Unit tests:
 
 #ifdef WITH_TESTS
-#include "baremetalplugin.h"
+
 #include <projectexplorer/outputparser_test.h>
 #include <QTest>
 
 namespace BareMetal::Internal {
 
-void BareMetalPlugin::testKeilOutputParsers_data()
+void KeilParserTest::testKeilOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -504,7 +504,7 @@ void BareMetalPlugin::testKeilOutputParsers_data()
             << QString();
 }
 
-void BareMetalPlugin::testKeilOutputParsers()
+void KeilParserTest::testKeilOutputParsers()
 {
     OutputParserTester testbench;
     testbench.addLineParser(new KeilParser);

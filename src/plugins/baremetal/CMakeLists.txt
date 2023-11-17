@@ -8,7 +8,7 @@ add_qtc_plugin(BareMetal
     baremetaldeviceconfigurationwidget.cpp baremetaldeviceconfigurationwidget.h
     baremetaldeviceconfigurationwizard.cpp baremetaldeviceconfigurationwizard.h
     baremetaldeviceconfigurationwizardpages.cpp baremetaldeviceconfigurationwizardpages.h
-    baremetalplugin.cpp baremetalplugin.h
+    baremetalplugin.cpp
     baremetalrunconfiguration.cpp baremetalrunconfiguration.h
     baremetaltr.h
     debugserverproviderchooser.cpp debugserverproviderchooser.h

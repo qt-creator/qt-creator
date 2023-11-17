@@ -2,37 +2,52 @@
 // Copyright (C) 2016 Denis Shienkov <denis.shienkov@gmail.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "baremetalplugin.h"
-
 #include "baremetaldebugsupport.h"
 #include "baremetaldevice.h"
 #include "baremetalrunconfiguration.h"
 
 #include "debugserverprovidermanager.h"
 
+#include "iarewparser.h"
 #include "iarewtoolchain.h"
+#include "keilparser.h"
 #include "keiltoolchain.h"
+#include "sdccparser.h"
 #include "sdcctoolchain.h"
+
+#include <extensionsystem/iplugin.h>
 
 namespace BareMetal::Internal {
 
-// BareMetalPlugin
-
-void BareMetalPlugin::initialize()
+class BareMetalPlugin final : public ExtensionSystem::IPlugin
 {
-    setupBareMetalDevice();
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "BareMetal.json")
 
-    setupIarToolChain();
-    setupKeilToolChain();
-    setupSdccToolChain();
+    void initialize() final
+    {
+        setupBareMetalDevice();
 
-    setupBareMetalDeployAndRunConfigurations();
-    setupBareMetalDebugSupport();
-}
+        setupIarToolChain();
+        setupKeilToolChain();
+        setupSdccToolChain();
 
-void BareMetalPlugin::extensionsInitialized()
-{
-    setupDebugServerProviderManager(this);
-}
+        setupBareMetalDeployAndRunConfigurations();
+        setupBareMetalDebugSupport();
+
+#ifdef WITH_TESTS
+        addTest<IarParserTest>();
+        addTest<KeilParserTest>();
+        addTest<SdccParserTest>();
+#endif
+    }
+
+    void extensionsInitialized() final
+    {
+        setupDebugServerProviderManager(this);
+    }
+};
 
 } // BareMetal::Internal
+
+#include "baremetalplugin.moc"
