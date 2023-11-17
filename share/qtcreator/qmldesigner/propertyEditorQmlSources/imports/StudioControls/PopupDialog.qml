@@ -135,7 +135,7 @@ QtObject {
             return Qt.LeftEdge // Default
         }
 
-        function contains(a: rect, b: rect): boolean {
+        function contains(a: rect, b: rect): bool {
             let halfSizeA = Qt.size(a.width * 0.5, a.height * 0.5)
             let halfSizeB = Qt.size(b.width * 0.5, b.height * 0.5)
 
