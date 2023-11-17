@@ -1,8 +1,6 @@
 // Copyright (c) 2018 Artur Shepilko
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "fossilplugin.h"
-
 #include "commiteditor.h"
 #include "configuredialog.h"
 #include "constants.h"
@@ -39,6 +37,7 @@
 #include <vcsbase/basevcssubmiteditorfactory.h>
 #include <vcsbase/vcsbaseclient.h>
 #include <vcsbase/vcsbaseeditor.h>
+#include <vcsbase/vcsbaseplugin.h>
 #include <vcsbase/vcsbasesubmiteditor.h>
 #include <vcsbase/vcscommand.h>
 #include <vcsbase/vcsoutputwindow.h>
@@ -244,26 +243,6 @@ private:
     QLineEdit *m_revisionLineEdit = nullptr;
 };
 
-FossilPlugin::~FossilPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-bool FossilPlugin::initialize(const QStringList &arguments, QString *errorMessage)
-{
-    Q_UNUSED(arguments);
-    Q_UNUSED(errorMessage);
-
-    dd = new FossilPluginPrivate;
-
-    return true;
-}
-
-void FossilPlugin::extensionsInitialized()
-{
-    dd->extensionsInitialized();
-}
 
 FossilPluginPrivate::FossilPluginPrivate()
     : VcsBasePluginPrivate(Context(Constants::FOSSIL_CONTEXT))
@@ -1087,7 +1066,17 @@ RevertDialog::RevertDialog(const QString &title, QWidget *parent)
 
 #ifdef WITH_TESTS
 
-void FossilPlugin::testDiffFileResolving_data()
+class FossilTests final : public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void testDiffFileResolving_data();
+    void testDiffFileResolving();
+    void testLogResolving();
+};
+
+void FossilTests::testDiffFileResolving_data()
 {
     QTest::addColumn<QByteArray>("header");
     QTest::addColumn<QByteArray>("fileName");
@@ -1120,12 +1109,12 @@ void FossilPlugin::testDiffFileResolving_data()
         << QByteArray("src/plugins/fossil/fossilclient.cpp");
 }
 
-void FossilPlugin::testDiffFileResolving()
+void FossilTests::testDiffFileResolving()
 {
     VcsBaseEditorWidget::testDiffFileResolving(dd->diffFactory);
 }
 
-void FossilPlugin::testLogResolving()
+void FossilTests::testLogResolving()
 {
     QByteArray data(
         "=== 2014-03-08 ===\n"
@@ -1139,4 +1128,32 @@ void FossilPlugin::testLogResolving()
 }
 #endif
 
+class FossilPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Fossil.json")
+
+    ~FossilPlugin() final
+    {
+        delete dd;
+        dd = nullptr;
+    }
+
+    void initialize() final
+    {
+        dd = new FossilPluginPrivate;
+
+#ifdef WITH_TESTS
+        addTest<FossilTests>();
+#endif
+    }
+
+    void extensionsInitialized() final
+    {
+        dd->extensionsInitialized();
+    }
+};
+
 } // namespace Fossil::Internal
+
+#include "fossilplugin.moc"

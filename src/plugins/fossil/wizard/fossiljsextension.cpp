@@ -4,7 +4,6 @@
 #include "fossiljsextension.h"
 #include "../constants.h"
 #include "../fossilclient.h"
-#include "../fossilplugin.h"
 
 #include <coreplugin/iversioncontrol.h>
 #include <coreplugin/vcsmanager.h>

@@ -11,7 +11,7 @@ add_qtc_plugin(Fossil
     fossilclient.cpp fossilclient.h
     fossilcommitwidget.cpp fossilcommitwidget.h
     fossileditor.cpp fossileditor.h
-    fossilplugin.cpp fossilplugin.h
+    fossilplugin.cpp
     fossilsettings.cpp fossilsettings.h
     fossiltr.h
     pullorpushdialog.cpp pullorpushdialog.h
