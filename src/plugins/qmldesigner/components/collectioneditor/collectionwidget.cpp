@@ -6,6 +6,7 @@
 #include "collectiondetailsmodel.h"
 #include "collectiondetailssortfiltermodel.h"
 #include "collectioneditorutils.h"
+#include "collectionimporttools.h"
 #include "collectionsourcemodel.h"
 #include "collectionview.h"
 #include "qmldesignerconstants.h"
@@ -188,6 +189,20 @@ bool CollectionWidget::isCsvFile(const QUrl &url) const
     return file.exists() && file.fileName().endsWith(".csv");
 }
 
+bool CollectionWidget::isValidUrlToImport(const QUrl &url) const
+{
+    using Utils::FilePath;
+    FilePath fileInfo = FilePath::fromUserInput(url.isLocalFile() ? url.toLocalFile()
+                                                                  : url.toString());
+    if (fileInfo.suffix() == "json")
+        return isJsonFile(url);
+
+    if (fileInfo.suffix() == "csv")
+        return isCsvFile(url);
+
+    return false;
+}
+
 bool CollectionWidget::addCollection(const QString &collectionName,
                                      const QString &collectionType,
                                      const QUrl &sourceUrl,
@@ -243,12 +258,59 @@ bool CollectionWidget::addCollection(const QString &collectionName,
         }
     } else if (collectionType == "json") {
         QString errorMsg;
-        bool added = m_sourceModel->addCollectionToSource(node, collectionName, &errorMsg);
+        bool added = m_sourceModel->addCollectionToSource(node,
+                                                          collectionName,
+                                                          CollectionEditor::defaultCollectionArray(),
+                                                          &errorMsg);
         if (!added)
             warn(tr("Can not add a model to the JSON file"), errorMsg);
         return added;
     }
 
+    return false;
+}
+
+bool CollectionWidget::importToJson(const QVariant &sourceNode,
+                                    const QString &collectionName,
+                                    const QUrl &url)
+{
+    using CollectionEditor::SourceFormat;
+    using Utils::FilePath;
+    const ModelNode node = sourceNode.value<ModelNode>();
+    const SourceFormat nodeFormat = CollectionEditor::getSourceCollectionFormat(node);
+    QTC_ASSERT(node.isValid() && nodeFormat == SourceFormat::Json, return false);
+
+    FilePath fileInfo = FilePath::fromUserInput(url.isLocalFile() ? url.toLocalFile()
+                                                                  : url.toString());
+    bool added = false;
+    QString errorMsg;
+    QJsonArray loadedCollection;
+
+    if (fileInfo.suffix() == "json")
+        loadedCollection = CollectionEditor::ImportTools::loadAsSingleJsonCollection(url);
+    else if (fileInfo.suffix() == "csv")
+        loadedCollection = CollectionEditor::ImportTools::loadAsCsvCollection(url);
+
+    if (!loadedCollection.isEmpty()) {
+        const QString newCollectionName = generateUniqueCollectionName(node, collectionName);
+        added = m_sourceModel->addCollectionToSource(node, newCollectionName, loadedCollection, &errorMsg);
+    } else {
+        errorMsg = tr("The imported model is empty or is not supported.");
+    }
+
+    if (!added)
+        warn(tr("Can not add a model to the JSON file"), errorMsg);
+    return added;
+}
+
+bool CollectionWidget::importCollectionToDataStore(const QString &collectionName, const QUrl &url)
+{
+    using Utils::FilePath;
+    const ModelNode node = dataStoreNode();
+    if (node.isValid())
+        return importToJson(QVariant::fromValue(node), collectionName, url);
+
+    warn(tr("Can not import to the main model"), tr("The data store is not available."));
     return false;
 }
 
@@ -268,6 +330,16 @@ void CollectionWidget::assignSourceNodeToSelectedItem(const QVariant &sourceNode
     CollectionEditor::assignCollectionSourceToNode(m_view, targetNode, sourceModel);
 }
 
+ModelNode CollectionWidget::dataStoreNode() const
+{
+    for (int i = 0; i < m_sourceModel->rowCount(); ++i) {
+        const ModelNode node = m_sourceModel->sourceNodeAt(i);
+        if (CollectionEditor::getSourceCollectionFormat(node) == CollectionEditor::SourceFormat::Json)
+            return node;
+    }
+    return {};
+}
+
 void CollectionWidget::warn(const QString &title, const QString &body)
 {
     QMetaObject::invokeMethod(m_quickWidget->rootObject(),
@@ -283,6 +355,22 @@ void CollectionWidget::setTargetNodeSelected(bool selected)
 
     m_targetNodeSelected = selected;
     emit targetNodeSelectedChanged(m_targetNodeSelected);
+}
+
+QString CollectionWidget::generateUniqueCollectionName(const ModelNode &node, const QString &name)
+{
+    if (!m_sourceModel->collectionExists(node, name))
+        return name;
+
+    static QRegularExpression reg("^(?<mainName>[\\w\\d\\.\\_\\-]+)\\_(?<number>\\d+)$");
+    QRegularExpressionMatch match = reg.match(name);
+    if (match.hasMatch()) {
+        int nextNumber = match.captured("number").toInt() + 1;
+        return generateUniqueCollectionName(
+            node, QString("%1_%2").arg(match.captured("mainName")).arg(nextNumber));
+    } else {
+        return generateUniqueCollectionName(node, QString("%1_1").arg(name));
+    }
 }
 
 } // namespace QmlDesigner

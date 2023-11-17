@@ -24,15 +24,8 @@ Item {
         warningDialog.open()
     }
 
-    JsonImport {
-        id: jsonImporter
-
-        backendValue: root.rootView
-        anchors.centerIn: parent
-    }
-
-    CsvImport {
-        id: csvImporter
+    ImportDialog {
+        id: importDialog
 
         backendValue: root.rootView
         anchors.centerIn: parent
@@ -82,26 +75,14 @@ Item {
                     leftPadding: 15
                 }
 
-                IconTextButton {
+                HelperWidgets.IconButton {
                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
                     icon: StudioTheme.Constants.import_medium
-                    text: qsTr("JSON")
-                    tooltip: qsTr("Import JSON")
+                    tooltip: qsTr("Import a model")
                     radius: StudioTheme.Values.smallRadius
 
-                    onClicked: jsonImporter.open()
-                }
-
-                IconTextButton {
-                    Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-
-                    icon: StudioTheme.Constants.import_medium
-                    text: qsTr("CSV")
-                    tooltip: qsTr("Import CSV")
-                    radius: StudioTheme.Values.smallRadius
-
-                    onClicked: csvImporter.open()
+                    onClicked: importDialog.open()
                 }
             }
 

@@ -268,6 +268,7 @@ bool CollectionSourceModel::collectionExists(const ModelNode &node, const QStrin
 
 bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
                                                   const QString &collectionName,
+                                                  const QJsonArray &newCollectionData,
                                                   QString *errorString)
 {
     auto returnError = [errorString](const QString &msg) -> bool {
@@ -284,7 +285,7 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
         return returnError(tr("Node should be a JSON model."));
 
     if (collectionExists(node, collectionName))
-        return returnError(tr("Model does not exist."));
+        return returnError(tr("A model with the identical name already exists."));
 
     QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
 
@@ -305,7 +306,7 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
 
     if (document.isObject()) {
         QJsonObject sourceObject = document.object();
-        sourceObject.insert(collectionName, CollectionEditor::defaultCollectionArray());
+        sourceObject.insert(collectionName, newCollectionData);
         document.setObject(sourceObject);
         if (!jsonFile.resize(0))
             return returnError(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));

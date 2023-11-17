@@ -54,6 +54,7 @@ public:
     bool collectionExists(const ModelNode &node, const QString &collectionName) const;
     bool addCollectionToSource(const ModelNode &node,
                                const QString &collectionName,
+                               const QJsonArray &newCollectionData,
                                QString *errorString = nullptr);
 
     ModelNode sourceNodeAt(int idx);

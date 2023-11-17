@@ -23,6 +23,7 @@
 #include <utils/qtcassert.h>
 
 namespace {
+
 inline bool isStudioCollectionModel(const QmlDesigner::ModelNode &node)
 {
     using namespace QmlDesigner::CollectionEditor;

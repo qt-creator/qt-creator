@@ -13,7 +13,7 @@ import StudioTheme as StudioTheme
 StudioControls.Dialog {
     id: root
 
-    title: qsTr("Import A CSV File")
+    title: qsTr("Import a model")
     anchors.centerIn: parent
     closePolicy: Popup.CloseOnEscape
     modal: true
@@ -23,8 +23,8 @@ StudioControls.Dialog {
     property bool fileExists: false
 
     onOpened: {
-        collectionName.text = "Collection_"
-        fileName.text = qsTr("New CSV File")
+        collectionName.text = "Model"
+        fileName.text = qsTr("Model path")
         fileName.selectAll()
         fileName.forceActiveFocus()
     }
@@ -40,6 +40,14 @@ StudioControls.Dialog {
 
     PlatformWidgets.FileDialog {
         id: fileDialog
+        nameFilters : ["All Model Files (*.json *.csv)",
+            "JSON Files (*.json)",
+            "Comma-Separated Values (*.csv)"]
+
+        title: qsTr("Select a model file")
+        fileMode: PlatformWidgets.FileDialog.OpenFile
+        acceptLabel: qsTr("Open")
+
         onAccepted: fileName.text = fileDialog.file
     }
 
@@ -61,7 +69,7 @@ StudioControls.Dialog {
         spacing: 2
 
         Text {
-            text: qsTr("File name: ")
+            text: qsTr("File name")
             color: StudioTheme.Values.themeTextColor
         }
 
@@ -80,11 +88,11 @@ StudioControls.Dialog {
                 translationIndicator.visible: false
                 validator: fileNameValidator
 
-                Keys.onEnterPressed: btnCreate.onClicked()
-                Keys.onReturnPressed: btnCreate.onClicked()
+                Keys.onEnterPressed: btnImport.onClicked()
+                Keys.onReturnPressed: btnImport.onClicked()
                 Keys.onEscapePressed: root.reject()
 
-                onTextChanged: root.fileExists = root.backendValue.isCsvFile(fileName.text)
+                onTextChanged: root.fileExists = root.backendValue.isValidUrlToImport(fileName.text)
             }
 
             HelperWidgets.Button {
@@ -100,7 +108,7 @@ StudioControls.Dialog {
         Spacer {}
 
         Text {
-            text: qsTr("The model name: ")
+            text: qsTr("The model name")
             color: StudioTheme.Values.themeTextColor
         }
 
@@ -115,8 +123,8 @@ StudioControls.Dialog {
                 regularExpression: /^\w+$/
             }
 
-            Keys.onEnterPressed: btnCreate.onClicked()
-            Keys.onReturnPressed: btnCreate.onClicked()
+            Keys.onEnterPressed: btnImport.onClicked()
+            Keys.onReturnPressed: btnImport.onClicked()
             Keys.onEscapePressed: root.reject()
         }
 
@@ -179,15 +187,17 @@ StudioControls.Dialog {
             Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
             HelperWidgets.Button {
-                id: btnCreate
+                id: btnImport
 
                 text: qsTr("Import")
                 enabled: root.fileExists && collectionName.text !== ""
 
                 onClicked: {
-                    let csvLoaded = root.backendValue.loadCsvFile(fileName.text, collectionName.text)
+                    let collectionImported = root.backendValue.importCollectionToDataStore(
+                            collectionName.text,
+                            fileName.text)
 
-                    if (csvLoaded)
+                    if (collectionImported)
                         root.accept()
                     else
                         creationFailedDialog.open()

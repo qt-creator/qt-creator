@@ -38,12 +38,21 @@ public:
     Q_INVOKABLE bool loadCsvFile(const QUrl &url, const QString &collectionName = {});
     Q_INVOKABLE bool isJsonFile(const QUrl &url) const;
     Q_INVOKABLE bool isCsvFile(const QUrl &url) const;
+    Q_INVOKABLE bool isValidUrlToImport(const QUrl &url) const;
     Q_INVOKABLE bool addCollection(const QString &collectionName,
                                    const QString &collectionType,
                                    const QUrl &sourceUrl,
                                    const QVariant &sourceNode);
 
+    Q_INVOKABLE bool importToJson(const QVariant &sourceNode,
+                                  const QString &collectionName,
+                                  const QUrl &url);
+
+    Q_INVOKABLE bool importCollectionToDataStore(const QString &collectionName, const QUrl &url);
+
     Q_INVOKABLE void assignSourceNodeToSelectedItem(const QVariant &sourceNode);
+
+    Q_INVOKABLE ModelNode dataStoreNode() const;
 
     void warn(const QString &title, const QString &body);
     void setTargetNodeSelected(bool selected);
@@ -52,6 +61,8 @@ signals:
     void targetNodeSelectedChanged(bool);
 
 private:
+    QString generateUniqueCollectionName(const ModelNode &node, const QString &name);
+
     QPointer<CollectionView> m_view;
     QPointer<CollectionSourceModel> m_sourceModel;
     QPointer<CollectionDetailsModel> m_collectionDetailsModel;

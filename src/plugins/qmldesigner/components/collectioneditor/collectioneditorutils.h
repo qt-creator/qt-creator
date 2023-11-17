@@ -4,6 +4,7 @@
 #pragma once
 
 #include "collectiondetails.h"
+#include "collectioneditorconstants.h"
 
 QT_BEGIN_NAMESPACE
 class QJsonArray;
@@ -12,6 +13,8 @@ QT_END_NAMESPACE
 namespace QmlDesigner::CollectionEditor {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type);
+
+SourceFormat getSourceCollectionFormat(const QmlDesigner::ModelNode &node);
 
 QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
 
