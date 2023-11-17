@@ -552,9 +552,9 @@ Column {
                         textRole: "text"
                         valueRole: "value"
                         model: [
-                            { value: ColorPicker.Mode.HSVA, text: "HSVA" },
-                            { value: ColorPicker.Mode.RGBA, text: "RGBA" },
-                            { value: ColorPicker.Mode.HSLA, text: "HSLA" }
+                            { value: StudioControls.ColorPicker.Mode.HSVA, text: "HSVA" },
+                            { value: StudioControls.ColorPicker.Mode.RGBA, text: "RGBA" },
+                            { value: StudioControls.ColorPicker.Mode.HSLA, text: "HSLA" }
                         ]
 
                         onActivated: colorPicker.mode = colorMode.currentValue
@@ -597,7 +597,7 @@ Column {
 
                 Row {
                     id: rgbaRow
-                    visible: colorPicker.mode === ColorPicker.Mode.RGBA
+                    visible: colorPicker.mode === StudioControls.ColorPicker.Mode.RGBA
                     spacing: StudioTheme.Values.controlGap
 
                     DoubleSpinBox {
@@ -683,7 +683,7 @@ Column {
 
                 Row {
                     id: hslaRow
-                    visible: colorPicker.mode === ColorPicker.Mode.HSLA
+                    visible: colorPicker.mode === StudioControls.ColorPicker.Mode.HSLA
                     spacing: StudioTheme.Values.controlGap
 
                     DoubleSpinBox {
@@ -749,7 +749,7 @@ Column {
 
                 Row {
                     id: hsvaRow
-                    visible: colorPicker.mode === ColorPicker.Mode.HSVA
+                    visible: colorPicker.mode === StudioControls.ColorPicker.Mode.HSVA
                     spacing: StudioTheme.Values.controlGap
 
                     DoubleSpinBox {
