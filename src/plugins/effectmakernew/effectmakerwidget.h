@@ -41,6 +41,8 @@ public:
 
     Q_INVOKABLE void addEffectNode(const QString &nodeQenPath);
     Q_INVOKABLE void focusSection(int section);
+    Q_INVOKABLE QRect screenRect() const;
+    Q_INVOKABLE QPoint globalPos(const QPoint &point) const;
 
     QSize sizeHint() const override;
 

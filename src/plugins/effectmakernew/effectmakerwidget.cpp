@@ -119,6 +119,20 @@ void EffectMakerWidget::focusSection(int section)
     Q_UNUSED(section)
 }
 
+QRect EffectMakerWidget::screenRect() const
+{
+    if (m_quickWidget && m_quickWidget->screen())
+        return m_quickWidget->screen()->availableGeometry();
+    return  {};
+}
+
+QPoint EffectMakerWidget::globalPos(const QPoint &point) const
+{
+    if (m_quickWidget)
+        return m_quickWidget->mapToGlobal(point);
+    return point;
+}
+
 QSize EffectMakerWidget::sizeHint() const
 {
     return {420, 420};
