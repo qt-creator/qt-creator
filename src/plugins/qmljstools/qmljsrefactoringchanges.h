@@ -52,7 +52,7 @@ private:
 };
 
 
-class QMLJSTOOLS_EXPORT QmlJSRefactoringChanges: public TextEditor::RefactoringChanges
+class QMLJSTOOLS_EXPORT QmlJSRefactoringChanges: public TextEditor::RefactoringFileFactory
 {
 public:
     QmlJSRefactoringChanges(QmlJS::ModelManagerInterface *modelManager,

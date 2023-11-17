@@ -26,9 +26,9 @@ using namespace Utils;
 
 namespace TextEditor {
 
-RefactoringChanges::~RefactoringChanges() = default;
+RefactoringFileFactory::~RefactoringFileFactory() = default;
 
-RefactoringFilePtr RefactoringChanges::file(const FilePath &filePath) const
+RefactoringFilePtr RefactoringFileFactory::file(const FilePath &filePath) const
 {
     return RefactoringFilePtr(new RefactoringFile(filePath));
 }

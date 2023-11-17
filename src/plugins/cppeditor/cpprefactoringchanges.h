@@ -81,7 +81,7 @@ public:
     WorkingCopy m_workingCopy;
 };
 
-class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringChanges
+class CPPEDITOR_EXPORT CppRefactoringChanges: public TextEditor::RefactoringFileFactory
 {
 public:
     explicit CppRefactoringChanges(const CPlusPlus::Snapshot &snapshot);

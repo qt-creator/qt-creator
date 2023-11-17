@@ -22,9 +22,9 @@ QT_END_NAMESPACE
 namespace TextEditor {
 class TextDocument;
 class TextEditorWidget;
-class RefactoringChanges;
 class RefactoringFile;
 using RefactoringFilePtr = QSharedPointer<RefactoringFile>;
+class RefactoringFileFactory;
 using RefactoringSelections = QVector<QPair<QTextCursor, QTextCursor>>;
 
 // ### listen to the m_editor::destroyed signal?
@@ -103,17 +103,13 @@ protected:
     bool m_appliedOnce = false;
     bool m_formattingEnabled = false;
 
-    friend class RefactoringChanges; // access to constructor
+    friend class RefactoringFileFactory; // access to constructor
 };
 
- /*!
-    This class batches changes to multiple file, which are applied as a single big
-    change.
- */
-class TEXTEDITOR_EXPORT RefactoringChanges
+class TEXTEDITOR_EXPORT RefactoringFileFactory
 {
 public:
-    virtual ~RefactoringChanges();
+    virtual ~RefactoringFileFactory();
 
     // TODO: Make pure virtual and introduce dedicated subclass for generic refactoring,
     //       so no one instantiates this one by mistake.

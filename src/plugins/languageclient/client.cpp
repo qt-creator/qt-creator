@@ -1739,7 +1739,7 @@ void Client::log(const QString &message) const
 
 TextEditor::RefactoringFilePtr Client::createRefactoringFile(const FilePath &filePath) const
 {
-    return TextEditor::RefactoringChanges().file(filePath);
+    return TextEditor::RefactoringFileFactory().file(filePath);
 }
 
 void Client::setCompletionResultsLimit(int limit)

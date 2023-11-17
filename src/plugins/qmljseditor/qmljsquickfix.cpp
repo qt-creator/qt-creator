@@ -15,7 +15,7 @@
 using namespace QmlJS;
 using namespace QmlJS::AST;
 using namespace QmlJSTools;
-using TextEditor::RefactoringChanges;
+using TextEditor::RefactoringFileFactory;
 
 namespace QmlJSEditor {
 

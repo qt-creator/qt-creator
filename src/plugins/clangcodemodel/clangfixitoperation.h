@@ -12,10 +12,7 @@
 #include <QVector>
 #include <QSharedPointer>
 
-namespace TextEditor {
-class RefactoringChanges;
-class RefactoringFile;
-}
+namespace TextEditor { class RefactoringFile; }
 
 namespace ClangCodeModel {
 namespace Internal {

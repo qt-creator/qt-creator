@@ -1839,7 +1839,7 @@ void CppModelManager::renameIncludes(const FilePath &oldFilePath, const FilePath
     if (oldFilePath.absolutePath() != newFilePath.absolutePath())
         return;
 
-    const TextEditor::RefactoringChanges changes;
+    const TextEditor::RefactoringFileFactory changes;
 
     QString oldFileName = oldFilePath.fileName();
     QString newFileName = newFilePath.fileName();
