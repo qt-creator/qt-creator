@@ -261,8 +261,8 @@ void tst_Tasking::runtimeCheck()
         const TreeStorage<int> storage;
 
         Group {
-            Storage(storage),
-            Storage(storage),
+            storage,
+            storage,
         };
     }
 
@@ -274,8 +274,8 @@ void tst_Tasking::runtimeCheck()
         const auto storage2 = storage1;
 
         Group {
-            Storage(storage1),
-            Storage(storage2),
+            storage1,
+            storage2,
         };
     }
 
@@ -431,20 +431,20 @@ static TestData storageShadowingData()
     };
 
     const Group root {
-        Storage(storage),
-        Storage(helperStorage),
-        Storage(shadowedStorage),
+        storage,
+        helperStorage,
+        shadowedStorage,
         groupSetupWithStorage(1),
         Group {
-            Storage(shadowedStorage),
+            shadowedStorage,
             groupSetupWithStorage(2),
             Group {
-                Storage(shadowedStorage),
+                shadowedStorage,
                 groupSetupWithStorage(3),
                 groupDoneWithStorage(3)
             },
             Group {
-                Storage(shadowedStorage),
+                shadowedStorage,
                 groupSetupWithStorage(4),
                 groupDoneWithStorage(4)
             },
@@ -508,7 +508,7 @@ static TestData parallelData()
     };
 
     const Group root {
-        Storage(storage),
+        storage,
         parallel,
         createSuccessTask(1),
         createSuccessTask(2),
@@ -627,21 +627,21 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root1 {
-            Storage(storage),
+            storage,
             groupDone(0)
         };
         const Group root2 {
-            Storage(storage),
+            storage,
             onGroupSetup([] { return SetupResult::Continue; }),
             groupDone(0)
         };
         const Group root3 {
-            Storage(storage),
+            storage,
             onGroupSetup([] { return SetupResult::StopWithSuccess; }),
             groupDone(0)
         };
         const Group root4 {
-            Storage(storage),
+            storage,
             onGroupSetup([] { return SetupResult::StopWithError; }),
             groupDone(0)
         };
@@ -658,7 +658,7 @@ void tst_Tasking::testTree_data()
     {
         const auto setupGroup = [=](SetupResult setupResult, WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 workflowPolicy(policy),
                 onGroupSetup([setupResult] { return setupResult; }),
                 groupDone(0)
@@ -693,7 +693,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             createTaskWithSetupTweak(1, SetupResult::StopWithSuccess),
             createTaskWithSetupTweak(2, SetupResult::StopWithSuccess)
         };
@@ -708,7 +708,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             createTaskWithSetupTweak(1, SetupResult::StopWithError),
             createTaskWithSetupTweak(2, SetupResult::StopWithError)
         };
@@ -721,7 +721,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             createTaskWithSetupTweak(1, SetupResult::Continue),
             createTaskWithSetupTweak(2, SetupResult::Continue),
             createTaskWithSetupTweak(3, SetupResult::StopWithError),
@@ -743,7 +743,7 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             parallel,
-            Storage(storage),
+            storage,
             createTaskWithSetupTweak(1, SetupResult::Continue),
             createTaskWithSetupTweak(2, SetupResult::Continue),
             createTaskWithSetupTweak(3, SetupResult::StopWithError),
@@ -765,7 +765,7 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             parallel,
-            Storage(storage),
+            storage,
             createTaskWithSetupTweak(1, SetupResult::Continue),
             createTaskWithSetupTweak(2, SetupResult::Continue),
             Group {
@@ -789,7 +789,7 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             parallel,
-            Storage(storage),
+            storage,
             createTaskWithSetupTweak(1, SetupResult::Continue),
             createTaskWithSetupTweak(2, SetupResult::Continue),
             Group {
@@ -814,7 +814,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             Group {
                 Group {
                     Group {
@@ -861,7 +861,7 @@ void tst_Tasking::testTree_data()
     {
         auto setupSubTree = [storage, createSuccessTask](TaskTree &taskTree) {
             const Group nestedRoot {
-                Storage(storage),
+                storage,
                 createSuccessTask(2),
                 createSuccessTask(3),
                 createSuccessTask(4)
@@ -874,7 +874,7 @@ void tst_Tasking::testTree_data()
             taskTree.onStorageDone(storage, collectSubLog);
         };
         const Group root1 {
-            Storage(storage),
+            storage,
             createSuccessTask(1),
             createSuccessTask(2),
             createSuccessTask(3),
@@ -883,7 +883,7 @@ void tst_Tasking::testTree_data()
             groupDone(0)
         };
         const Group root2 {
-            Storage(storage),
+            storage,
             Group { createSuccessTask(1) },
             Group { createSuccessTask(2) },
             Group { createSuccessTask(3) },
@@ -892,7 +892,7 @@ void tst_Tasking::testTree_data()
             groupDone(0)
         };
         const Group root3 {
-            Storage(storage),
+            storage,
             createSuccessTask(1),
             TaskTreeTask(setupSubTree),
             createSuccessTask(5),
@@ -919,7 +919,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             Group {
                 createSuccessTask(1),
                 Group {
@@ -965,7 +965,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             createSuccessTask(1),
             createSuccessTask(2),
             createFailingTask(3),
@@ -988,7 +988,7 @@ void tst_Tasking::testTree_data()
     {
         const auto createRoot = [storage, groupDone](WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 workflowPolicy(policy),
                 groupDone(0)
             };
@@ -1030,7 +1030,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createSuccessTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 workflowPolicy(policy),
                 createSuccessTask(1),
                 groupDone(0)
@@ -1082,7 +1082,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createFailingTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 workflowPolicy(policy),
                 createFailingTask(1),
                 groupDone(0)
@@ -1137,7 +1137,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 parallel,
                 workflowPolicy(policy),
                 createFailingTask(1, 1ms),
@@ -1207,7 +1207,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 parallel,
                 workflowPolicy(policy),
                 createSuccessTask(1),
@@ -1293,7 +1293,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 parallel,
                 Group {
                     workflowPolicy(policy),
@@ -1352,7 +1352,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 parallel,
                 Group {
                     workflowPolicy(policy),
@@ -1423,7 +1423,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 parallel,
                 Group {
                     workflowPolicy(policy),
@@ -1490,7 +1490,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createSuccessTask, createFailingTask, groupDone](
                                     WorkflowPolicy policy) {
             return Group {
-                Storage(storage),
+                storage,
                 workflowPolicy(policy),
                 createSuccessTask(1),
                 createFailingTask(2),
@@ -1562,7 +1562,7 @@ void tst_Tasking::testTree_data()
             return Group {
                 parallel,
                 stopOnSuccessOrError,
-                Storage(storage),
+                storage,
                 createTask(1, firstResult, 1000ms),
                 createTask(2, secondResult, 1ms),
                 groupDone(0)
@@ -1604,7 +1604,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createSuccessTask, groupDone, groupSetupWithTweak](
                                     SetupResult desiredResult) {
             return Group {
-                Storage(storage),
+                storage,
                 Group {
                     groupSetupWithTweak(1, desiredResult),
                     createSuccessTask(1)
@@ -1648,7 +1648,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createTask, groupDone, groupDoneWithTweak](
                                  DoneResult firstResult, DoneResult secondResult) {
             return Group {
-                Storage(storage),
+                storage,
                 Group {
                     createTask(1, firstResult),
                     groupDoneWithTweak(1, secondResult)
@@ -1707,7 +1707,7 @@ void tst_Tasking::testTree_data()
         const auto createRoot = [storage, createSuccessTask, groupDone, createTaskWithSetupTweak](
                                     SetupResult desiredResult) {
             return Group {
-                Storage(storage),
+                storage,
                 Group {
                     createTaskWithSetupTweak(1, desiredResult),
                     createSuccessTask(2)
@@ -1752,7 +1752,7 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             parallelLimit(2),
-            Storage(storage),
+            storage,
             Group {
                 groupSetup(1),
                 createSuccessTask(1)
@@ -1790,7 +1790,7 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             parallelLimit(2),
-            Storage(storage),
+            storage,
             Group {
                 groupSetup(1),
                 createSuccessTask(1)
@@ -1835,7 +1835,7 @@ void tst_Tasking::testTree_data()
     {
         const Group root1 {
             parallelLimit(2),
-            Storage(storage),
+            storage,
             Group {
                 groupSetup(1),
                 createSuccessTask(1)
@@ -1875,7 +1875,7 @@ void tst_Tasking::testTree_data()
         // - tasks 4 and 5 should be skipped
         const Group root2 {
             parallelLimit(2),
-            Storage(storage),
+            storage,
             Group {
                 groupSetup(1),
                 createSuccessTask(1, 10ms)
@@ -1919,7 +1919,7 @@ void tst_Tasking::testTree_data()
         // - task 5 should be started (because of root's continueOnError policy)
         const Group root3 {
             continueOnError,
-            Storage(storage),
+            storage,
             Group {
                 parallelLimit(2),
                 Group {
@@ -1969,7 +1969,7 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             parallelLimit(2),
-            Storage(storage),
+            storage,
             Group {
                 groupSetup(1),
                 Group {
@@ -2019,7 +2019,7 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             parallelLimit(2),
-            Storage(storage),
+            storage,
             Group {
                 groupSetup(1),
                 Group { createSuccessTask(1) }
@@ -2065,7 +2065,7 @@ void tst_Tasking::testTree_data()
     {
         const Group root {
             parallelLimit(2),
-            Storage(storage),
+            storage,
             Group {
                 groupSetup(1),
                 Group { createSuccessTask(1) }
@@ -2104,7 +2104,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             createSync(1),
             createSync(2),
             createSync(3),
@@ -2123,7 +2123,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             createSyncWithTweak(1, DoneResult::Success),
             createSyncWithTweak(2, DoneResult::Success),
             createSyncWithTweak(3, DoneResult::Success),
@@ -2147,7 +2147,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             parallel,
             createSync(1),
             createSync(2),
@@ -2167,7 +2167,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             parallel,
             createSync(1),
             createSync(2),
@@ -2186,7 +2186,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             createSync(1),
             createSuccessTask(2),
             createSync(3),
@@ -2209,7 +2209,7 @@ void tst_Tasking::testTree_data()
 
     {
         const Group root {
-            Storage(storage),
+            storage,
             createSync(1),
             createSuccessTask(2),
             createSyncWithTweak(3, DoneResult::Error),
@@ -2235,8 +2235,8 @@ void tst_Tasking::testTree_data()
         // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in SEQUENTIAL mode.
         const Group root1 {
-            Storage(storage),
-            Storage(barrier),
+            storage,
+            barrier,
             sequential,
             createBarrierAdvance(storage, barrier, 1),
             Group {
@@ -2260,8 +2260,8 @@ void tst_Tasking::testTree_data()
         // setupTaskWithCondition, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         const Group root2 {
-            Storage(storage),
-            Storage(barrier),
+            storage,
+            barrier,
             parallel,
             createBarrierAdvance(storage, barrier, 1),
             Group {
@@ -2292,8 +2292,8 @@ void tst_Tasking::testTree_data()
         // come from the not yet started next task, causing a deadlock.
         // The minimal requirement for this scenario to succeed is to set parallelLimit(2) or more.
         const Group root3 {
-            Storage(storage),
-            Storage(barrier),
+            storage,
+            barrier,
             parallel,
             Group {
                 groupSetup(2),
@@ -2317,8 +2317,8 @@ void tst_Tasking::testTree_data()
         // setupBarrierAdvance, placed BEFORE the groups containing the waitFor() element
         // in the tree order, wakes both waitFor tasks.
         const Group root4 {
-            Storage(storage),
-            Storage(barrier),
+            storage,
+            barrier,
             parallel,
             createBarrierAdvance(storage, barrier, 1),
             Group {
@@ -2348,9 +2348,9 @@ void tst_Tasking::testTree_data()
         SingleBarrier barrier2;
 
         const Group root5 {
-            Storage(storage),
-            Storage(barrier),
-            Storage(barrier2),
+            storage,
+            barrier,
+            barrier2,
             parallel,
             createBarrierAdvance(storage, barrier, 1),
             createBarrierAdvance(storage, barrier2, 2),
@@ -2394,8 +2394,8 @@ void tst_Tasking::testTree_data()
         // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in SEQUENTIAL mode.
         const Group root1 {
-            Storage(storage),
-            Storage(barrier),
+            storage,
+            barrier,
             sequential,
             createBarrierAdvance(storage, barrier, 1),
             createBarrierAdvance(storage, barrier, 2),
@@ -2422,8 +2422,8 @@ void tst_Tasking::testTree_data()
         // setupBarrierAdvance, placed BEFORE the group containing the waitFor() element
         // in the tree order, works OK in PARALLEL mode.
         const Group root2 {
-            Storage(storage),
-            Storage(barrier),
+            storage,
+            barrier,
             parallel,
             createBarrierAdvance(storage, barrier, 1),
             createBarrierAdvance(storage, barrier, 2),
@@ -2457,8 +2457,8 @@ void tst_Tasking::testTree_data()
         // come from the not yet started next task, causing a deadlock.
         // The minimal requirement for this scenario to succeed is to set parallelLimit(2) or more.
         const Group root3 {
-            Storage(storage),
-            Storage(barrier),
+            storage,
+            barrier,
             parallel,
             Group {
                 groupSetup(2),
@@ -2485,8 +2485,8 @@ void tst_Tasking::testTree_data()
         // setupBarrierAdvance, placed BEFORE the groups containing the waitFor() element
         // in the tree order, wakes both waitFor tasks.
         const Group root4 {
-            Storage(storage),
-            Storage(barrier),
+            storage,
+            barrier,
             parallel,
             createBarrierAdvance(storage, barrier, 1),
             createBarrierAdvance(storage, barrier, 2),
@@ -2530,7 +2530,7 @@ void tst_Tasking::testTree_data()
         // 1. When the timeout has triggered or not.
         // 2. With and without timeout handler.
         const Group root1 {
-            Storage(storage),
+            storage,
             TestTask(setupTask(1, 1000ms), setupDone(1))
                 .withTimeout(1ms)
         };
@@ -2542,7 +2542,7 @@ void tst_Tasking::testTree_data()
                                                           DoneWith::Error};
 
         const Group root2 {
-            Storage(storage),
+            storage,
             TestTask(setupTask(1, 1000ms), setupDone(1))
                 .withTimeout(1ms, setupTimeout(1))
         };
@@ -2555,7 +2555,7 @@ void tst_Tasking::testTree_data()
                                                                  DoneWith::Error};
 
         const Group root3 {
-            Storage(storage),
+            storage,
             TestTask(setupTask(1, 1ms), setupDone(1))
                 .withTimeout(1000ms)
         };
@@ -2567,7 +2567,7 @@ void tst_Tasking::testTree_data()
                                                          DoneWith::Success};
 
         const Group root4 {
-            Storage(storage),
+            storage,
             TestTask(setupTask(1, 1ms), setupDone(1))
                 .withTimeout(1000ms, setupTimeout(1))
         };
@@ -2580,7 +2580,7 @@ void tst_Tasking::testTree_data()
         // 1. When the timeout has triggered or not.
         // 2. With and without timeout handler.
         const Group root1 {
-            Storage(storage),
+            storage,
             Group {
                 createSuccessTask(1, 1000ms)
             }.withTimeout(1ms)
@@ -2594,7 +2594,7 @@ void tst_Tasking::testTree_data()
 
         // Test Group::withTimeout(), passing custom handler
         const Group root2 {
-            Storage(storage),
+            storage,
             Group {
                 createSuccessTask(1, 1000ms)
             }.withTimeout(1ms, setupTimeout(1))
@@ -2608,7 +2608,7 @@ void tst_Tasking::testTree_data()
                                                                   DoneWith::Error};
 
         const Group root3 {
-            Storage(storage),
+            storage,
             Group {
                 createSuccessTask(1, 1ms)
             }.withTimeout(1000ms)
@@ -2622,7 +2622,7 @@ void tst_Tasking::testTree_data()
 
         // Test Group::withTimeout(), passing custom handler
         const Group root4 {
-            Storage(storage),
+            storage,
             Group {
                 createSuccessTask(1, 1ms)
             }.withTimeout(1000ms, setupTimeout(1))
@@ -2749,7 +2749,7 @@ struct StorageIO
 static Group inputOutputRecipe(const TreeStorage<StorageIO> &storage)
 {
     return Group {
-        Storage(storage),
+        storage,
         onGroupSetup([storage] { ++storage->value; }),
         onGroupDone([storage] { storage->value *= 2; })
     };
@@ -2819,7 +2819,7 @@ void tst_Tasking::storageDestructor()
             taskObject = 1000ms;
         };
         const Group root {
-            Storage(storage),
+            storage,
             TestTask(setupSleepingTask)
         };
 

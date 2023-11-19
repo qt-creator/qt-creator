@@ -446,7 +446,7 @@ void TestRunner::runTestsHelper()
         };
         const Group group {
             finishAllAndSuccess,
-            Tasking::Storage(storage),
+            storage,
             onGroupSetup(onSetup),
             ProcessTask(onProcessSetup, onProcessDone)
         };

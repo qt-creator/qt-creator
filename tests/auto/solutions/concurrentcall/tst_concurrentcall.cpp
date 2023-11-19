@@ -146,7 +146,7 @@ TestData createTestData(const QList<ResultType> &expectedResults, Function &&fun
     };
 
     const Group root {
-        Storage(storage),
+        storage,
         ConcurrentCallTask<ResultType>(onSetup, onDone)
     };
 
@@ -208,8 +208,8 @@ void tst_ConcurrentCall::taskTree_data()
         };
 
         const Group root {
-            Storage(storage),
-            Storage(internalStorage),
+            storage,
+            internalStorage,
             onGroupSetup([internalStorage] { *internalStorage = 1; }),
             ConcurrentCallTask<int>(onSetup, onDone, CallDoneIf::Success),
             ConcurrentCallTask<int>(onSetup, onDone, CallDoneIf::Success),

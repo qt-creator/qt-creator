@@ -97,7 +97,7 @@ void Images::process()
         };
 
         const Group group {
-            Storage(storage),
+            storage,
             NetworkQueryTask(onDownloadSetup, onDownloadDone),
             ConcurrentCallTask<QImage>(onScalingSetup, onScalingDone)
         };

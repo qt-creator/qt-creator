@@ -153,6 +153,10 @@ public:
     // Called when group done, before group's storages are deleted
     using GroupDoneHandler = std::function<DoneResult(DoneWith)>;
 
+    GroupItem(const TreeStorageBase &storage)
+        : m_type(Type::Storage)
+        , m_storageList{storage} {}
+
 protected:
     // Internal, provided by CustomTask
     using InterfaceCreateHandler = std::function<TaskInterface *(void)>;
@@ -193,9 +197,6 @@ protected:
     GroupItem(const GroupData &data)
         : m_type(Type::GroupData)
         , m_groupData(data) {}
-    GroupItem(const TreeStorageBase &storage)
-        : m_type(Type::Storage)
-        , m_storageList{storage} {}
     GroupItem(const TaskHandler &handler)
         : m_type(Type::TaskHandler)
         , m_taskHandler(handler) {}
@@ -327,12 +328,6 @@ TASKING_EXPORT extern const GroupItem continueOnSuccess;
 TASKING_EXPORT extern const GroupItem stopOnSuccessOrError;
 TASKING_EXPORT extern const GroupItem finishAllAndSuccess;
 TASKING_EXPORT extern const GroupItem finishAllAndError;
-
-class TASKING_EXPORT Storage final : public GroupItem
-{
-public:
-    Storage(const TreeStorageBase &storage) : GroupItem(storage) { }
-};
 
 // Synchronous invocation. Similarly to Group - isn't counted as a task inside taskCount()
 class TASKING_EXPORT Sync final : public GroupItem

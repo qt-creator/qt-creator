@@ -462,7 +462,7 @@ void LocatorMatcher::start()
         const auto storage = task.storage;
         const Group group {
             finishAllAndSuccess,
-            Storage(storage),
+            storage,
             onGroupSetup(onSetup(storage, index)),
             onGroupDone([storage] { storage->finalize(); }),
             task.task
@@ -473,7 +473,7 @@ void LocatorMatcher::start()
 
     const Group root {
         parallel,
-        Storage(collectorStorage),
+        collectorStorage,
         ResultsCollectorTask(onCollectorSetup, onCollectorDone),
         Group {
             parallelTasks

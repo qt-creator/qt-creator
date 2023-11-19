@@ -192,7 +192,7 @@ static LocatorMatcherTask currentDocumentMatcher()
     };
 
     const Group root {
-        Tasking::Storage(resultStorage),
+        resultStorage,
         CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone, CallDoneIf::Success),
         AsyncTask<void>(onFilterSetup)
     };

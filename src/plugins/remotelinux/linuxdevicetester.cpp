@@ -229,7 +229,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
     TreeStorage<TransferStorage> storage;
     return Group {
         continueOnSuccess,
-        Tasking::Storage(storage),
+        storage,
         transferTask(FileTransferMethod::GenericCopy, storage),
         transferTask(FileTransferMethod::Sftp, storage),
         transferTask(FileTransferMethod::Rsync, storage),

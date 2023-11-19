@@ -145,7 +145,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
     };
 
     const Group root = {
-        Storage(storage),
+        storage,
         TaskTreeTask(onTreeSetup, onTreeDone)
     };
     setReloadRecipe(root);

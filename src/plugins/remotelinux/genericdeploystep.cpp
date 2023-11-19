@@ -197,7 +197,7 @@ GroupItem GenericDeployStep::deployRecipe()
     };
 
     return Group {
-        Storage(storage),
+        storage,
         onGroupSetup(onSetup),
         mkdirTask(storage),
         transferTask(storage)

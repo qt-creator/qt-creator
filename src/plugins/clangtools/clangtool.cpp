@@ -824,7 +824,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
     };
 
     topTasks.append(Group {
-        Storage(storage),
+        storage,
         TaskTreeTask(onTreeSetup, onTreeDone, CallDoneIf::Success)
     });
     return {topTasks};

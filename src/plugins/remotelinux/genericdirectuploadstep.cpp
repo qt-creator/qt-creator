@@ -291,7 +291,7 @@ GroupItem GenericDirectUploadStep::deployRecipe()
     };
 
     const Group root {
-        Storage(storage),
+        storage,
         onGroupSetup(setupHandler),
         statTree(storage, preFilesToStat, preStatEndHandler),
         uploadTask(storage),

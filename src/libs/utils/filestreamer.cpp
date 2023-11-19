@@ -344,9 +344,9 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
     };
 
     const Group root {
-        Storage(writerReadyBarrier),
+        writerReadyBarrier,
         parallel,
-        Storage(storage),
+        storage,
         FileStreamWriterTask(onWriterSetup),
         Group {
             waitForBarrierTask(writerReadyBarrier),

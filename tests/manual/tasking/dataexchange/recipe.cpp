@@ -76,8 +76,8 @@ Group recipe(const Tasking::TreeStorage<ExternalData> &externalStorage)
     }
 
     const QList<GroupItem> recipe {
-        Storage(externalStorage),
-        Storage(internalStorage),
+        externalStorage,
+        internalStorage,
         NetworkQueryTask(onDownloadSetup, onDownloadDone),
         ConcurrentCallTask<QImage>(onReadSetup, onReadDone),
         Group { parallelTasks }

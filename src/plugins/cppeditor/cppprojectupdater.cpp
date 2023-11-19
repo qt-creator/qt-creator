@@ -86,7 +86,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     };
 
     const Group root {
-        Tasking::Storage(storage),
+        storage,
         Group(tasks),
         onGroupDone(onDone)
     };

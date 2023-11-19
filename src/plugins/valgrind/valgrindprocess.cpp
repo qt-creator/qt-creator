@@ -196,8 +196,8 @@ Group ValgrindProcessPrivate::runRecipe() const
 
     const Group root {
         parallel,
-        Storage(storage),
-        Storage(xmlBarrier),
+        storage,
+        xmlBarrier,
         onGroupSetup(onSetup),
         ProcessTask(onProcessSetup),
         Group {
