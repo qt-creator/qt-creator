@@ -2789,9 +2789,9 @@ void tst_Tasking::storageIO()
 
 void tst_Tasking::storageOperators()
 {
-    TreeStorageBase storage1 = TreeStorage<CustomStorage>();
-    TreeStorageBase storage2 = TreeStorage<CustomStorage>();
-    TreeStorageBase storage3 = storage1;
+    StorageBase storage1 = TreeStorage<CustomStorage>();
+    StorageBase storage2 = TreeStorage<CustomStorage>();
+    StorageBase storage3 = storage1;
 
     QVERIFY(storage1 == storage3);
     QVERIFY(storage1 != storage2);

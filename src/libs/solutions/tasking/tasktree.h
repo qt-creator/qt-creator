@@ -96,42 +96,44 @@ protected:
     virtual void start() = 0;
 };
 
-class TASKING_EXPORT TreeStorageBase
+class TASKING_EXPORT StorageBase
 {
 public:
-    using StorageConstructor = std::function<void *(void)>;
-    using StorageDestructor = std::function<void(void *)>;
-    using StorageVoidHandler = std::function<void(void *)>;
-
     bool isValid() const;
 
 private:
-    TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor);
+    using StorageConstructor = std::function<void *(void)>;
+    using StorageDestructor = std::function<void(void *)>;
+    using StorageHandler = std::function<void(void *)>;
+
+    StorageBase(StorageConstructor ctor, StorageDestructor dtor);
 
     void *activeStorageVoid() const;
 
-    friend bool operator==(const TreeStorageBase &first, const TreeStorageBase &second)
+    friend bool operator==(const StorageBase &first, const StorageBase &second)
     { return first.m_storageData == second.m_storageData; }
 
-    friend bool operator!=(const TreeStorageBase &first, const TreeStorageBase &second)
+    friend bool operator!=(const StorageBase &first, const StorageBase &second)
     { return first.m_storageData != second.m_storageData; }
 
-    friend size_t qHash(const TreeStorageBase &storage, uint seed = 0)
+    friend size_t qHash(const StorageBase &storage, uint seed = 0)
     { return size_t(storage.m_storageData.get()) ^ seed; }
 
     QSharedPointer<StorageData> m_storageData;
 
     template <typename StorageStruct> friend class TreeStorage;
     friend class ExecutionContextActivator;
+    friend class StorageData;
     friend class TaskRuntimeContainer;
+    friend class TaskTree;
     friend class TaskTreePrivate;
 };
 
 template <typename StorageStruct>
-class TreeStorage final : public TreeStorageBase
+class TreeStorage final : public StorageBase
 {
 public:
-    TreeStorage() : TreeStorageBase(TreeStorage::ctor(), TreeStorage::dtor()) {}
+    TreeStorage() : StorageBase(TreeStorage::ctor(), TreeStorage::dtor()) {}
     StorageStruct &operator*() const noexcept { return *activeStorage(); }
     StorageStruct *operator->() const noexcept { return activeStorage(); }
     StorageStruct *activeStorage() const {
@@ -153,7 +155,7 @@ public:
     // Called when group done, before group's storages are deleted
     using GroupDoneHandler = std::function<DoneResult(DoneWith)>;
 
-    GroupItem(const TreeStorageBase &storage)
+    GroupItem(const StorageBase &storage)
         : m_type(Type::Storage)
         , m_storageList{storage} {}
 
@@ -226,7 +228,7 @@ private:
     Type m_type = Type::Group;
     QList<GroupItem> m_children;
     GroupData m_groupData;
-    QList<TreeStorageBase> m_storageList;
+    QList<StorageBase> m_storageList;
     TaskHandler m_taskHandler;
 };
 
@@ -488,21 +490,21 @@ public:
     int progressMaximum() const { return taskCount(); }
     int progressValue() const; // all finished / skipped / stopped tasks, groups itself excluded
 
-    template <typename StorageStruct, typename StorageHandler>
-    void onStorageSetup(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
-        static_assert(std::is_invocable_v<std::decay_t<StorageHandler>, StorageStruct &>,
+    template <typename StorageStruct, typename Handler>
+    void onStorageSetup(const TreeStorage<StorageStruct> &storage, Handler &&handler) {
+        static_assert(std::is_invocable_v<std::decay_t<Handler>, StorageStruct &>,
                       "Storage setup handler needs to take (Storage &) as an argument. "
                       "The passed handler doesn't fulfill this requirement.");
         setupStorageHandler(storage,
-                            wrapHandler<StorageStruct>(std::forward<StorageHandler>(handler)), {});
+                            wrapHandler<StorageStruct>(std::forward<Handler>(handler)), {});
     }
-    template <typename StorageStruct, typename StorageHandler>
-    void onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler) {
-        static_assert(std::is_invocable_v<std::decay_t<StorageHandler>, const StorageStruct &>,
+    template <typename StorageStruct, typename Handler>
+    void onStorageDone(const TreeStorage<StorageStruct> &storage, Handler &&handler) {
+        static_assert(std::is_invocable_v<std::decay_t<Handler>, const StorageStruct &>,
                       "Storage done handler needs to take (const Storage &) as an argument. "
                       "The passed handler doesn't fulfill this requirement.");
         setupStorageHandler(storage, {},
-                            wrapHandler<const StorageStruct>(std::forward<StorageHandler>(handler)));
+                            wrapHandler<const StorageStruct>(std::forward<Handler>(handler)));
     }
 
 signals:
@@ -511,11 +513,11 @@ signals:
     void progressValueChanged(int value); // updated whenever task finished / skipped / stopped
 
 private:
-    void setupStorageHandler(const TreeStorageBase &storage,
-                             TreeStorageBase::StorageVoidHandler setupHandler,
-                             TreeStorageBase::StorageVoidHandler doneHandler);
-    template <typename StorageStruct, typename StorageHandler>
-    TreeStorageBase::StorageVoidHandler wrapHandler(StorageHandler &&handler) {
+    void setupStorageHandler(const StorageBase &storage,
+                             StorageBase::StorageHandler setupHandler,
+                             StorageBase::StorageHandler doneHandler);
+    template <typename StorageStruct, typename Handler>
+    StorageBase::StorageHandler wrapHandler(Handler &&handler) {
         return [=](void *voidStruct) {
             auto *storageStruct = static_cast<StorageStruct *>(voidStruct);
             std::invoke(handler, *storageStruct);

@@ -897,8 +897,8 @@ public:
             m_threadDataMap.find(QThread::currentThread()));
     }
 
-    const TreeStorageBase::StorageConstructor m_constructor = {};
-    const TreeStorageBase::StorageDestructor m_destructor = {};
+    const StorageBase::StorageConstructor m_constructor = {};
+    const StorageBase::StorageDestructor m_destructor = {};
     QMutex m_threadDataMutex = {};
     // Use std::map on purpose, so that it doesn't invalidate references on modifications.
     // Don't optimize it by using std::unordered_map.
@@ -972,16 +972,16 @@ StorageData::~StorageData()
     QT_CHECK(m_threadDataMap.empty());
 }
 
-bool TreeStorageBase::isValid() const
+bool StorageBase::isValid() const
 {
     return m_storageData && m_storageData->m_constructor && m_storageData->m_destructor;
 }
 
-TreeStorageBase::TreeStorageBase(StorageConstructor ctor, StorageDestructor dtor)
+StorageBase::StorageBase(StorageConstructor ctor, StorageDestructor dtor)
     : m_storageData(new StorageData{ctor, dtor})
 {}
 
-void *TreeStorageBase::activeStorageVoid() const
+void *StorageBase::activeStorageVoid() const
 {
     return m_storageData->threadData().activeStorageVoid();
 }
@@ -1033,7 +1033,7 @@ void GroupItem::addChildren(const QList<GroupItem> &children)
             break;
         case Type::Storage:
             // Check for duplicates, as can't have the same storage twice on the same level.
-            for (const TreeStorageBase &storage : child.m_storageList) {
+            for (const StorageBase &storage : child.m_storageList) {
                 if (m_storageList.contains(storage)) {
                     QT_ASSERT(false, qWarning("Can't add the same storage into one Group twice, "
                                               "skipping..."));
@@ -1078,7 +1078,7 @@ public:
 
 private:
     void activateContext(TaskRuntimeContainer *container);
-    QList<TreeStorageBase> m_activeStorages;
+    QList<StorageBase> m_activeStorages;
 };
 
 class TaskContainer
@@ -1094,7 +1094,7 @@ public:
     const int m_parallelLimit = 1;
     const WorkflowPolicy m_workflowPolicy = WorkflowPolicy::StopOnError;
     const GroupItem::GroupHandler m_groupHandler;
-    const QList<TreeStorageBase> m_storageList;
+    const QList<StorageBase> m_storageList;
     std::vector<TaskNode> m_children;
     const int m_taskCount = 0;
 };
@@ -1131,18 +1131,18 @@ public:
     void emitStartedAndProgress();
     void emitProgress();
     void emitDone(DoneWith result);
-    void callSetupHandler(TreeStorageBase storage, int storageId) {
+    void callSetupHandler(StorageBase storage, int storageId) {
         callStorageHandler(storage, storageId, &StorageHandler::m_setupHandler);
     }
-    void callDoneHandler(TreeStorageBase storage, int storageId) {
+    void callDoneHandler(StorageBase storage, int storageId) {
         callStorageHandler(storage, storageId, &StorageHandler::m_doneHandler);
     }
     struct StorageHandler {
-        TreeStorageBase::StorageVoidHandler m_setupHandler = {};
-        TreeStorageBase::StorageVoidHandler m_doneHandler = {};
+        StorageBase::StorageHandler m_setupHandler = {};
+        StorageBase::StorageHandler m_doneHandler = {};
     };
-    typedef TreeStorageBase::StorageVoidHandler StorageHandler::*HandlerPtr; // ptr to class member
-    void callStorageHandler(TreeStorageBase storage, int storageId, HandlerPtr ptr)
+    typedef StorageBase::StorageHandler StorageHandler::*HandlerPtr; // ptr to class member
+    void callStorageHandler(StorageBase storage, int storageId, HandlerPtr ptr)
     {
         const auto it = m_storageHandlers.constFind(storage);
         if (it == m_storageHandlers.constEnd())
@@ -1187,8 +1187,8 @@ public:
     TaskTree *q = nullptr;
     Guard m_guard;
     int m_progressValue = 0;
-    QSet<TreeStorageBase> m_storages;
-    QHash<TreeStorageBase, StorageHandler> m_storageHandlers;
+    QSet<StorageBase> m_storages;
+    QHash<StorageBase, StorageHandler> m_storageHandlers;
     std::optional<TaskNode> m_root;
     std::unique_ptr<TaskRuntimeNode> m_runtimeRoot; // Keep me last in order to destruct first
 };
@@ -1225,7 +1225,7 @@ public:
     ~TaskRuntimeContainer()
     {
         for (int i = m_taskContainer.m_storageList.size() - 1; i >= 0; --i) { // iterate in reverse order
-            const TreeStorageBase storage = m_taskContainer.m_storageList[i];
+            const StorageBase storage = m_taskContainer.m_storageList[i];
             const int storageId = m_storageIdList.value(i);
             if (m_callStorageDoneHandlersOnDestruction)
                 m_taskContainer.m_taskTreePrivate->callDoneHandler(storage, storageId);
@@ -1271,7 +1271,7 @@ void ExecutionContextActivator::activateContext(TaskRuntimeContainer *container)
 {
     const TaskContainer &taskContainer = container->m_taskContainer;
     for (int i = 0; i < taskContainer.m_storageList.size(); ++i) {
-        const TreeStorageBase &storage = taskContainer.m_storageList[i];
+        const StorageBase &storage = taskContainer.m_storageList[i];
         auto &threadData = storage.m_storageData->threadData();
         if (threadData.activeStorageId())
             continue; // Storage shadowing: The storage is already active, skipping it...
@@ -1358,14 +1358,14 @@ TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, const GroupItem &
     , m_taskCount(std::accumulate(m_children.cbegin(), m_children.cend(), 0,
                                   [](int r, const TaskNode &n) { return r + n.taskCount(); }))
 {
-    for (const TreeStorageBase &storage : m_storageList)
+    for (const StorageBase &storage : m_storageList)
         m_taskTreePrivate->m_storages << storage;
 }
 
 QList<int> TaskRuntimeContainer::createStorages(const TaskContainer &container)
 {
     QList<int> storageIdList;
-    for (const TreeStorageBase &storage : container.m_storageList) {
+    for (const StorageBase &storage : container.m_storageList) {
         const int storageId = storage.m_storageData->threadData().createStorage();
         storageIdList.append(storageId);
         container.m_taskTreePrivate->callSetupHandler(storage, storageId);
@@ -2631,9 +2631,9 @@ int TaskTree::progressValue() const
     \sa onStorageSetup()
 */
 
-void TaskTree::setupStorageHandler(const TreeStorageBase &storage,
-                                   TreeStorageBase::StorageVoidHandler setupHandler,
-                                   TreeStorageBase::StorageVoidHandler doneHandler)
+void TaskTree::setupStorageHandler(const StorageBase &storage,
+                                   StorageBase::StorageHandler setupHandler,
+                                   StorageBase::StorageHandler doneHandler)
 {
     auto it = d->m_storageHandlers.find(storage);
     if (it == d->m_storageHandlers.end()) {
