@@ -270,4 +270,4 @@ public:
 
 static const ScreenRecorderSettingsPage settingsPage;
 
-} // ImageViewer::Internal
+} // namespace ScreenRecorder::Internal
