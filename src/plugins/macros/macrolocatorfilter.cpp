@@ -30,7 +30,7 @@ LocatorMatcherTasks MacroLocatorFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage, icon = m_icon] {
         const QString input = storage->input();

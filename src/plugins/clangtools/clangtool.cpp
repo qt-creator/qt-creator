@@ -659,7 +659,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         QElapsedTimer m_timer;
         std::function<void(qint64 elapsedTime)> m_elapsedHandler = {};
     };
-    const TreeStorage<ClangStorage> storage;
+    const Storage<ClangStorage> storage;
 
     std::shared_ptr<TemporaryDirectory> tempDir(new TemporaryDirectory("clangtools-XXXXXX"));
     tempDir->setAutoRemove(qtcEnvironmentVariable("QTC_CLANG_DONT_DELETE_OUTPUT_FILES") != "1");

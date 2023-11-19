@@ -48,8 +48,8 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
-    TreeStorage<QList<SymbolInformation>> resultStorage;
+    Storage<LocatorStorage> storage;
+    Storage<QList<SymbolInformation>> resultStorage;
 
     const auto onQuerySetup = [storage, client, maxResultCount](ClientWorkspaceSymbolRequest &request) {
         request.setClient(client);
@@ -119,8 +119,8 @@ LocatorMatcherTask currentDocumentMatcher()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
-    TreeStorage<CurrentDocumentSymbolsData> resultStorage;
+    Storage<LocatorStorage> storage;
+    Storage<CurrentDocumentSymbolsData> resultStorage;
 
     const auto onQuerySetup = [](CurrentDocumentSymbolsRequest &request) {
         Q_UNUSED(request)

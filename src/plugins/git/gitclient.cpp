@@ -236,7 +236,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
                                                  const QStringList &extraArgs)
     : GitBaseDiffEditorController(document)
 {
-    const TreeStorage<QString> diffInputStorage;
+    const Storage<QString> diffInputStorage;
 
     const auto onDiffSetup = [=](Process &process) {
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), {}));
@@ -299,8 +299,8 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
         QString m_unstagedOutput;
     };
 
-    const TreeStorage<DiffStorage> storage;
-    const TreeStorage<QString> diffInputStorage;
+    const Storage<DiffStorage> storage;
+    const Storage<QString> diffInputStorage;
 
     const auto onStagedSetup = [this, stagedFiles](Process &process) {
         if (stagedFiles.isEmpty())
@@ -371,8 +371,8 @@ ShowController::ShowController(IDocument *document, const QString &id)
         QStringList m_follows;
     };
 
-    const TreeStorage<ReloadStorage> storage;
-    const TreeStorage<QString> diffInputStorage;
+    const Storage<ReloadStorage> storage;
+    const Storage<QString> diffInputStorage;
 
     const auto updateDescription = [this](const ReloadStorage &storage) {
         QString desc = storage.m_header;

@@ -64,11 +64,11 @@ public:
           = std::function<void(UploadStorage *, const DeployableFile &, const QDateTime &)>;
     GroupItem statTask(UploadStorage *storage, const DeployableFile &file,
                        StatEndHandler statEndHandler);
-    GroupItem statTree(const TreeStorage<UploadStorage> &storage, FilesToStat filesToStat,
+    GroupItem statTree(const Storage<UploadStorage> &storage, FilesToStat filesToStat,
                        StatEndHandler statEndHandler);
-    GroupItem uploadTask(const TreeStorage<UploadStorage> &storage);
+    GroupItem uploadTask(const Storage<UploadStorage> &storage);
     GroupItem chmodTask(const DeployableFile &file);
-    GroupItem chmodTree(const TreeStorage<UploadStorage> &storage);
+    GroupItem chmodTree(const Storage<UploadStorage> &storage);
 
     BoolAspect incremental{this};
     BoolAspect ignoreMissingFiles{this};
@@ -148,7 +148,7 @@ GroupItem GenericDirectUploadStep::statTask(UploadStorage *storage,
     return ProcessTask(onSetup, onDone);
 }
 
-GroupItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &storage,
+GroupItem GenericDirectUploadStep::statTree(const Storage<UploadStorage> &storage,
                                             FilesToStat filesToStat, StatEndHandler statEndHandler)
 {
     const auto onSetup = [this, storage, filesToStat, statEndHandler](TaskTree &tree) {
@@ -164,7 +164,7 @@ GroupItem GenericDirectUploadStep::statTree(const TreeStorage<UploadStorage> &st
     return TaskTreeTask(onSetup);
 }
 
-GroupItem GenericDirectUploadStep::uploadTask(const TreeStorage<UploadStorage> &storage)
+GroupItem GenericDirectUploadStep::uploadTask(const Storage<UploadStorage> &storage)
 {
     const auto onSetup = [this, storage](FileTransfer &transfer) {
         if (storage->filesToUpload.isEmpty()) {
@@ -223,7 +223,7 @@ GroupItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
     return ProcessTask(onSetup, onError, CallDoneIf::Error);
 }
 
-GroupItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &storage)
+GroupItem GenericDirectUploadStep::chmodTree(const Storage<UploadStorage> &storage)
 {
     const auto onSetup = [this, storage](TaskTree &tree) {
         QList<DeployableFile> filesToChmod;
@@ -243,7 +243,7 @@ GroupItem GenericDirectUploadStep::chmodTree(const TreeStorage<UploadStorage> &s
 
 GroupItem GenericDirectUploadStep::deployRecipe()
 {
-    const TreeStorage<UploadStorage> storage;
+    const Storage<UploadStorage> storage;
 
     const auto setupHandler = [this, storage] {
         const QList<DeployableFile> deployableFiles = target()->deploymentData().allFiles();

@@ -13,7 +13,7 @@
 namespace Tasking {
 class Group;
 template <typename T>
-class TreeStorage;
+class Storage;
 }
 
 static const int s_sizeInterval = 10;
@@ -31,6 +31,6 @@ public:
     std::optional<QString> outputError;
 };
 
-Tasking::Group recipe(const Tasking::TreeStorage<ExternalData> &externalStorage);
+Tasking::Group recipe(const Tasking::Storage<ExternalData> &externalStorage);
 
 #endif // RECIPE_H

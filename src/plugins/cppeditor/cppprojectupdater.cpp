@@ -51,7 +51,7 @@ void CppProjectUpdater::update(const ProjectUpdateInfo &projectUpdateInfo,
     struct UpdateStorage {
         ProjectInfo::ConstPtr projectInfo = nullptr;
     };
-    const TreeStorage<UpdateStorage> storage;
+    const Storage<UpdateStorage> storage;
     const auto onInfoGeneratorSetup = [=](Async<ProjectInfo::ConstPtr> &async) {
         async.setConcurrentCallData(infoGenerator);
         async.setFutureSynchronizer(&m_futureSynchronizer);

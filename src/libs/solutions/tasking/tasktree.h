@@ -121,7 +121,7 @@ private:
 
     QSharedPointer<StorageData> m_storageData;
 
-    template <typename StorageStruct> friend class TreeStorage;
+    template <typename StorageStruct> friend class Storage;
     friend class ExecutionContextActivator;
     friend class StorageData;
     friend class TaskRuntimeContainer;
@@ -130,10 +130,10 @@ private:
 };
 
 template <typename StorageStruct>
-class TreeStorage final : public StorageBase
+class Storage final : public StorageBase
 {
 public:
-    TreeStorage() : StorageBase(TreeStorage::ctor(), TreeStorage::dtor()) {}
+    Storage() : StorageBase(Storage::ctor(), Storage::dtor()) {}
     StorageStruct &operator*() const noexcept { return *activeStorage(); }
     StorageStruct *operator->() const noexcept { return activeStorage(); }
     StorageStruct *activeStorage() const {
@@ -491,7 +491,7 @@ public:
     int progressValue() const; // all finished / skipped / stopped tasks, groups itself excluded
 
     template <typename StorageStruct, typename Handler>
-    void onStorageSetup(const TreeStorage<StorageStruct> &storage, Handler &&handler) {
+    void onStorageSetup(const Storage<StorageStruct> &storage, Handler &&handler) {
         static_assert(std::is_invocable_v<std::decay_t<Handler>, StorageStruct &>,
                       "Storage setup handler needs to take (Storage &) as an argument. "
                       "The passed handler doesn't fulfill this requirement.");
@@ -499,7 +499,7 @@ public:
                             wrapHandler<StorageStruct>(std::forward<Handler>(handler)), {});
     }
     template <typename StorageStruct, typename Handler>
-    void onStorageDone(const TreeStorage<StorageStruct> &storage, Handler &&handler) {
+    void onStorageDone(const Storage<StorageStruct> &storage, Handler &&handler) {
         static_assert(std::is_invocable_v<std::decay_t<Handler>, const StorageStruct &>,
                       "Storage done handler needs to take (const Storage &) as an argument. "
                       "The passed handler doesn't fulfill this requirement.");

@@ -29,7 +29,7 @@ LocatorMatcherTasks ExternalToolsFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage] {
         const QString input = storage->input();

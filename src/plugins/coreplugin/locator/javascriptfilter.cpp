@@ -365,7 +365,7 @@ JavaScriptFilter::~JavaScriptFilter() = default;
 
 LocatorMatcherTasks JavaScriptFilter::matchers()
 {
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
     if (!m_javaScriptEngine)
         m_javaScriptEngine.reset(new JavaScriptEngine);
     QPointer<JavaScriptEngine> engine = m_javaScriptEngine.get();

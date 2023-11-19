@@ -38,7 +38,7 @@ public:
     GroupItem unameTask() const;
     GroupItem gathererTask() const;
     GroupItem transferTask(FileTransferMethod method,
-                           const TreeStorage<TransferStorage> &storage) const;
+                           const Storage<TransferStorage> &storage) const;
     GroupItem transferTasks() const;
     GroupItem commandTask(const QString &commandName) const;
     GroupItem commandTasks() const;
@@ -168,7 +168,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::gathererTask() const
 }
 
 GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod method,
-                                           const TreeStorage<TransferStorage> &storage) const
+                                           const Storage<TransferStorage> &storage) const
 {
     const auto onSetup = [this, method](FileTransfer &transfer) {
         emit q->progressMessage(Tr::tr("Checking whether \"%1\" works...")
@@ -226,7 +226,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::transferTask(FileTransferMethod metho
 
 GroupItem GenericLinuxDeviceTesterPrivate::transferTasks() const
 {
-    TreeStorage<TransferStorage> storage;
+    Storage<TransferStorage> storage;
     return Group {
         continueOnSuccess,
         storage,

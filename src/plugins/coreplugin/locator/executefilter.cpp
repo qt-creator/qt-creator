@@ -42,7 +42,7 @@ LocatorMatcherTasks ExecuteFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [=] {
         const QString input = storage->input();

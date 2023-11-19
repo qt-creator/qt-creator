@@ -25,7 +25,7 @@ private:
     QStatusBar *m_statusBar = nullptr;
 
     QNetworkAccessManager m_nam;
-    const Tasking::TreeStorage<ExternalData> m_storage;
+    const Tasking::Storage<ExternalData> m_storage;
     const Tasking::Group m_recipe;
     std::unique_ptr<Tasking::TaskTree> m_taskTree;
 };

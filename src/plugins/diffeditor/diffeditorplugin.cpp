@@ -108,7 +108,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
     setDisplayName(Tr::tr("Diff"));
     using namespace Tasking;
 
-    const TreeStorage<QList<std::optional<FileData>>> storage;
+    const Storage<QList<std::optional<FileData>>> storage;
 
     const auto onTreeSetup = [this, storage](TaskTree &taskTree) {
         QList<std::optional<FileData>> *outputList = storage.activeStorage();

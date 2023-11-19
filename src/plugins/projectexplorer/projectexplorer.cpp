@@ -4179,7 +4179,7 @@ static LocatorMatcherTasks runConfigurationMatchers(const RunAcceptor &acceptor)
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage, acceptor] {
         const QString input = storage->input();

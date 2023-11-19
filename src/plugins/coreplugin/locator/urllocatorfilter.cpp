@@ -165,7 +165,7 @@ LocatorMatcherTasks UrlLocatorFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage, urls = remoteUrls()] {
         const QString input = storage->input();

@@ -78,7 +78,7 @@ std::atomic_int CustomStorage::s_count = 0;
 
 struct TestData
 {
-    TreeStorage<CustomStorage> storage;
+    Storage<CustomStorage> storage;
     Group root;
     Log expectedLog;
     int taskCount = 0;
@@ -258,7 +258,7 @@ void tst_Tasking::runtimeCheck()
         QTest::ignoreMessage(QtDebugMsg, QRegularExpression("^SOFT ASSERT: "));
         QTest::ignoreMessage(QtWarningMsg,
                              "Can't add the same storage into one Group twice, skipping...");
-        const TreeStorage<int> storage;
+        const Storage<int> storage;
 
         Group {
             storage,
@@ -270,7 +270,7 @@ void tst_Tasking::runtimeCheck()
         QTest::ignoreMessage(QtDebugMsg, QRegularExpression("^SOFT ASSERT: "));
         QTest::ignoreMessage(QtWarningMsg,
                              "Can't add the same storage into one Group twice, skipping...");
-        const TreeStorage<int> storage1;
+        const Storage<int> storage1;
         const auto storage2 = storage1;
 
         Group {
@@ -352,7 +352,7 @@ public:
 using TickAndDoneTask = CustomTask<TickAndDoneTaskAdapter>;
 
 template <typename SharedBarrierType>
-GroupItem createBarrierAdvance(const TreeStorage<CustomStorage> &storage,
+GroupItem createBarrierAdvance(const Storage<CustomStorage> &storage,
                                const SharedBarrierType &barrier, int taskId)
 {
     return TickAndDoneTask([storage, barrier, taskId](TickAndDone &tickAndDone) {
@@ -398,11 +398,11 @@ static TestData storageShadowingData()
 {
     // This test check if storage shadowing works OK.
 
-    const TreeStorage<CustomStorage> storage;
+    const Storage<CustomStorage> storage;
     // This helper storage collect the pointers to storages created by shadowedStorage.
-    const TreeStorage<QHash<int, int *>> helperStorage; // One instance in this test.
+    const Storage<QHash<int, int *>> helperStorage; // One instance in this test.
     // This storage is repeated in nested groups, the innermost storage will shadow outer ones.
-    const TreeStorage<int> shadowedStorage; // Three instances in this test.
+    const Storage<int> shadowedStorage; // Three instances in this test.
 
     const auto groupSetupWithStorage = [storage, helperStorage, shadowedStorage](int taskId) {
         return onGroupSetup([storage, helperStorage, shadowedStorage, taskId] {
@@ -473,7 +473,7 @@ static TestData storageShadowingData()
 
 static TestData parallelData()
 {
-    TreeStorage<CustomStorage> storage;
+    Storage<CustomStorage> storage;
 
     const auto setupTask = [storage](int taskId, milliseconds timeout) {
         return [storage, taskId, timeout](TaskObject &taskObject) {
@@ -539,7 +539,7 @@ void tst_Tasking::testTree_data()
 {
     QTest::addColumn<TestData>("testData");
 
-    TreeStorage<CustomStorage> storage;
+    Storage<CustomStorage> storage;
 
     const auto setupTask = [storage](int taskId, milliseconds timeout) {
         return [storage, taskId, timeout](TaskObject &taskObject) {
@@ -2746,7 +2746,7 @@ struct StorageIO
     int value = 0;
 };
 
-static Group inputOutputRecipe(const TreeStorage<StorageIO> &storage)
+static Group inputOutputRecipe(const Storage<StorageIO> &storage)
 {
     return Group {
         storage,
@@ -2773,7 +2773,7 @@ void tst_Tasking::storageIO()
 
     int actualOutput = 0;
 
-    const TreeStorage<StorageIO> storage;
+    const Storage<StorageIO> storage;
     TaskTree taskTree(inputOutputRecipe(storage));
 
     const auto setInput = [input](StorageIO &storage) { storage.value = input; };
@@ -2789,8 +2789,8 @@ void tst_Tasking::storageIO()
 
 void tst_Tasking::storageOperators()
 {
-    StorageBase storage1 = TreeStorage<CustomStorage>();
-    StorageBase storage2 = TreeStorage<CustomStorage>();
+    StorageBase storage1 = Storage<CustomStorage>();
+    StorageBase storage2 = Storage<CustomStorage>();
     StorageBase storage3 = storage1;
 
     QVERIFY(storage1 == storage3);
@@ -2814,7 +2814,7 @@ void tst_Tasking::storageDestructor()
     };
     QCOMPARE(CustomStorage::instanceCount(), 0);
     {
-        TreeStorage<CustomStorage> storage;
+        Storage<CustomStorage> storage;
         const auto setupSleepingTask = [](TaskObject &taskObject) {
             taskObject = 1000ms;
         };

@@ -64,15 +64,15 @@ public:
 
 private:
     GroupItem deployRecipe() final;
-    GroupItem mkdirTask(const TreeStorage<FilesToTransfer> &storage);
-    GroupItem transferTask(const TreeStorage<FilesToTransfer> &storage);
+    GroupItem mkdirTask(const Storage<FilesToTransfer> &storage);
+    GroupItem transferTask(const Storage<FilesToTransfer> &storage);
 
     StringAspect flags{this};
     BoolAspect ignoreMissingFiles{this};
     SelectionAspect method{this};
 };
 
-GroupItem GenericDeployStep::mkdirTask(const TreeStorage<FilesToTransfer> &storage)
+GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
 {
     using ResultType = expected_str<void>;
 
@@ -133,7 +133,7 @@ static FileTransferMethod supportedTransferMethodFor(const FileToTransfer &fileT
     return FileTransferMethod::GenericCopy;
 }
 
-GroupItem GenericDeployStep::transferTask(const TreeStorage<FilesToTransfer> &storage)
+GroupItem GenericDeployStep::transferTask(const Storage<FilesToTransfer> &storage)
 {
     const auto onSetup = [this, storage](FileTransfer &transfer) {
         FileTransferMethod preferredTransferMethod = FileTransferMethod::Rsync;
@@ -180,7 +180,7 @@ GroupItem GenericDeployStep::transferTask(const TreeStorage<FilesToTransfer> &st
 
 GroupItem GenericDeployStep::deployRecipe()
 {
-    const TreeStorage<FilesToTransfer> storage;
+    const Storage<FilesToTransfer> storage;
 
     const auto onSetup = [this, storage] {
         const QList<DeployableFile> deployableFiles = target()->deploymentData().allFiles();

@@ -175,8 +175,8 @@ static LocatorMatcherTask currentDocumentMatcher()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
-    TreeStorage<CurrentDocumentSymbolsData> resultStorage;
+    Storage<LocatorStorage> storage;
+    Storage<CurrentDocumentSymbolsData> resultStorage;
 
     const auto onQuerySetup = [=](CurrentDocumentSymbolsRequest &request) {
         Q_UNUSED(request)

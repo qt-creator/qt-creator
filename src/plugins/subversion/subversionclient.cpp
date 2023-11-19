@@ -163,7 +163,7 @@ SubversionDiffEditorController::SubversionDiffEditorController(IDocument *docume
 
     using namespace Tasking;
 
-    const TreeStorage<QString> diffInputStorage;
+    const Storage<QString> diffInputStorage;
 
     const auto onDescriptionSetup = [this](Process &process) {
         if (m_changeNumber == 0)

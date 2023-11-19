@@ -180,7 +180,7 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage,
                           command = m_command,

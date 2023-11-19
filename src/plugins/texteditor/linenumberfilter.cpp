@@ -27,7 +27,7 @@ LocatorMatcherTasks LineNumberFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage] {
         const QStringList lineAndColumn = storage->input().split(':');

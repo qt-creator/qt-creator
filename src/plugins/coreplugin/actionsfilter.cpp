@@ -178,7 +178,7 @@ LocatorMatcherTasks ActionsFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [this, storage](Async<void> &async) {
         m_entries.clear();

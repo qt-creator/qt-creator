@@ -119,7 +119,7 @@ GroupItem clangToolTask(const AnalyzeInputData &input,
         FilePath executable;
         FilePath outputFilePath;
     };
-    const TreeStorage<ClangToolStorage> storage;
+    const Storage<ClangToolStorage> storage;
 
     const auto mainToolArguments = [=](const ClangToolStorage &data) {
         QStringList result;

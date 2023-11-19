@@ -59,7 +59,7 @@ private:
 };
 
 template <int Limit = 1>
-using MultiBarrier = TreeStorage<SharedBarrier<Limit>>;
+using MultiBarrier = Storage<SharedBarrier<Limit>>;
 
 // Can't write: "MultiBarrier barrier;". Only "MultiBarrier<> barrier;" would work.
 // Can't have one alias with default type in C++17, getting the following error:

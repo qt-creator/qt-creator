@@ -127,7 +127,7 @@ Group ValgrindProcessPrivate::runRecipe() const
         std::unique_ptr<QTcpSocket> m_xmlSocket;
     };
 
-    TreeStorage<ValgrindStorage> storage;
+    Storage<ValgrindStorage> storage;
     SingleBarrier xmlBarrier;
 
     const auto onSetup = [this, storage, xmlBarrier] {

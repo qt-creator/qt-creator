@@ -107,7 +107,7 @@ public:
 private:
     void cleanup();
 
-    Tasking::GroupItem runRecipe() final;
+    GroupItem runRecipe() final;
 
     void updateDisplayNames();
 

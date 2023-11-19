@@ -31,9 +31,9 @@ public:
 
 static int sizeForIndex(int index) { return (index + 1) * s_sizeInterval; }
 
-Group recipe(const Tasking::TreeStorage<ExternalData> &externalStorage)
+Group recipe(const Storage<ExternalData> &externalStorage)
 {
-    TreeStorage<InternalData> internalStorage;
+    Storage<InternalData> internalStorage;
 
     const auto onDownloadSetup = [externalStorage](NetworkQuery &query) {
         query.setNetworkAccessManager(externalStorage->inputNam);

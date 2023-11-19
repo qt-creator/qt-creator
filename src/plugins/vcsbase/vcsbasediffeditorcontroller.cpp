@@ -38,7 +38,7 @@ VcsBaseDiffEditorController::~VcsBaseDiffEditorController()
     delete d;
 }
 
-GroupItem VcsBaseDiffEditorController::postProcessTask(const TreeStorage<QString> &inputStorage)
+GroupItem VcsBaseDiffEditorController::postProcessTask(const Storage<QString> &inputStorage)
 {
     const auto onSetup = [inputStorage](Async<QList<FileData>> &async) {
         async.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());

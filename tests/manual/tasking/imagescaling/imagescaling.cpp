@@ -73,7 +73,7 @@ void Images::process()
 
     int i = 0;
     for (const QUrl &url : urls) {
-        TreeStorage<QByteArray> storage;
+        Storage<QByteArray> storage;
 
         const auto onDownloadSetup = [this, url](NetworkQuery &query) {
             query.setNetworkAccessManager(&qnam);

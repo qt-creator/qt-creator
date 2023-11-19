@@ -42,7 +42,7 @@ private:
 
 struct TestData
 {
-    TreeStorage<bool> storage;
+    Storage<bool> storage;
     Group root;
 };
 
@@ -136,7 +136,7 @@ template <typename Function, typename ...Args,
           typename ResultType = typename ConcurrentResultType<Function, Args...>::Type>
 TestData createTestData(const QList<ResultType> &expectedResults, Function &&function, Args &&...args)
 {
-    TreeStorage<bool> storage;
+    Storage<bool> storage;
 
     const auto onSetup = [=](ConcurrentCall<ResultType> &task) {
         task.setConcurrentCallData(function, args...);
@@ -197,8 +197,8 @@ void tst_ConcurrentCall::taskTree_data()
         << createTestData(reportNResult, &MyObject::member, &m_myObject, 2);
 
     {
-        TreeStorage<bool> storage;
-        TreeStorage<int> internalStorage;
+        Storage<bool> storage;
+        Storage<int> internalStorage;
 
         const auto onSetup = [internalStorage](ConcurrentCall<int> &task) {
             task.setConcurrentCallData(multiplyBy2, *internalStorage);

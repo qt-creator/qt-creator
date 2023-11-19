@@ -29,7 +29,7 @@ LocatorMatcherTasks BookmarkFilter::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [=] { storage->reportOutput(match(storage->input())); };
     return {{Sync(onSetup), storage}};

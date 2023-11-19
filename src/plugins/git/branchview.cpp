@@ -545,7 +545,7 @@ TaskTree *BranchView::onFastForwardMerge(const std::function<void()> &callback)
         QString topRevision;
     };
 
-    const TreeStorage<FastForwardStorage> storage;
+    const Storage<FastForwardStorage> storage;
 
     const auto onMergeBaseSetup = [repository = m_repository, branch](Process &process) {
         gitClient().setupCommand(process, repository, {"merge-base", "HEAD", branch});

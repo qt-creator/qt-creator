@@ -429,7 +429,7 @@ void LocatorMatcher::start()
     {
         ResultsCollector *m_collector = nullptr;
     };
-    TreeStorage<CollectorStorage> collectorStorage;
+    Storage<CollectorStorage> collectorStorage;
 
     const int filterCount = d->m_tasks.size();
     const auto onCollectorSetup = [this, filterCount, collectorStorage](ResultsCollector &collector) {
@@ -447,7 +447,7 @@ void LocatorMatcher::start()
 
     QList<GroupItem> parallelTasks {parallelLimit(d->m_parallelLimit)};
 
-    const auto onSetup = [this, collectorStorage](const TreeStorage<LocatorStorage> &storage,
+    const auto onSetup = [this, collectorStorage](const Storage<LocatorStorage> &storage,
                                                     int index) {
         return [this, collectorStorage, storage, index] {
             ResultsCollector *collector = collectorStorage->m_collector;
@@ -1482,7 +1482,7 @@ static void filter(QPromise<LocatorFileCachePrivate> &promise, const LocatorStor
 */
 LocatorMatcherTask LocatorFileCache::matcher() const
 {
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
     std::weak_ptr<LocatorFileCachePrivate> weak = d;
 
     const auto onSetup = [storage, weak](Async<LocatorFileCachePrivate> &async) {

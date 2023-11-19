@@ -323,7 +323,7 @@ static Group interDeviceTransferTask(const FilePath &source, const FilePath &des
 {
     struct TransferStorage { QPointer<FileStreamWriter> writer; };
     SingleBarrier writerReadyBarrier;
-    TreeStorage<TransferStorage> storage;
+    Storage<TransferStorage> storage;
 
     const auto onReaderSetup = [storage, source](FileStreamReader &reader) {
         reader.setFilePath(source);

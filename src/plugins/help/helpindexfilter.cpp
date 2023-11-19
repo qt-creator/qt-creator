@@ -83,7 +83,7 @@ static void matches(QPromise<QStringList> &promise, const LocatorStorage &storag
 
 LocatorMatcherTasks HelpIndexFilter::matchers()
 {
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [this, storage](Async<QStringList> &async) {
         if (m_needsUpdate) {

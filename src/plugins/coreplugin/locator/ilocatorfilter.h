@@ -142,7 +142,7 @@ public:
     Tasking::GroupItem task = Tasking::Group{};
 
     // When constructing the task, don't place the storage inside the task above.
-    Tasking::TreeStorage<LocatorStorage> storage;
+    Tasking::Storage<LocatorStorage> storage;
 };
 
 using LocatorMatcherTasks = QList<LocatorMatcherTask>;

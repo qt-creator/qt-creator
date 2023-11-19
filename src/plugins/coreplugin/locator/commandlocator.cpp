@@ -27,7 +27,7 @@ LocatorMatcherTasks CommandLocator::matchers()
 {
     using namespace Tasking;
 
-    TreeStorage<LocatorStorage> storage;
+    Storage<LocatorStorage> storage;
 
     const auto onSetup = [storage, commands = m_commands] {
         const QString input = storage->input();

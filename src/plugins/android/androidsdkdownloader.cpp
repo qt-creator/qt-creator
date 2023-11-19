@@ -104,7 +104,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
 
     using namespace Tasking;
 
-    TreeStorage<std::optional<FilePath>> storage;
+    Storage<std::optional<FilePath>> storage;
 
     const auto onQuerySetup = [this](NetworkQuery &query) {
         query.setRequest(QNetworkRequest(m_androidConfig.sdkToolsUrl()));

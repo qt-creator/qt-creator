@@ -53,7 +53,7 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 
     using namespace Tasking;
 
-    const TreeStorage<QString> diffInputStorage;
+    const Storage<QString> diffInputStorage;
 
     const auto onDiffSetup = [=](Process &process) {
         setupCommand(process, {addConfigurationArguments(args)});

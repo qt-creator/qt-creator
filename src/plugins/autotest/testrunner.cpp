@@ -351,7 +351,7 @@ void TestRunner::runTestsHelper()
 
     for (ITestConfiguration *config : m_selectedTests) {
         QTC_ASSERT(config, continue);
-        const TreeStorage<TestStorage> storage;
+        const Storage<TestStorage> storage;
 
         const auto onSetup = [this, config] {
             if (!config->project())
