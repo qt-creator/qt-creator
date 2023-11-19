@@ -265,7 +265,7 @@ private:
     \code
         struct MyCustomStruct { QByteArray data; };
 
-        TreeStorage<MyCustomStruct> storage;
+        Storage<MyCustomStruct> storage;
 
         const auto onFirstSetup = [](NetworkQuery &task) { ... };
         const auto onFirstDone = [storage](const NetworkQuery &task) {
@@ -284,7 +284,7 @@ private:
             // instance dynamically. It is later accessible from all handlers via
             // the *storage or storage-> operators.
             sequential,
-            Storage(storage),
+            storage,
             NetworkQueryTask(onFirstSetup, onFirstDone, CallDoneIf::Success),
             ConcurrentCallTask<QImage>(onSecondSetup)
         };
@@ -2141,7 +2141,7 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
             };
 
             // [3] instance of custom inter-task struct manageable by task tree
-            const TreeStorage<CopyStorage> storage;
+            const Storage<CopyStorage> storage;
 
             const auto onLoaderSetup = [source](ConcurrentCall<QByteArray> &async) {
                 async.setConcurrentCallData(&load, source);
@@ -2162,7 +2162,7 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
 
             const Group root {
                 // [7] runtime: task tree creates an instance of CopyStorage when root is entered
-                Storage(storage),
+                storage,
                 ConcurrentCallTask<QByteArray>(onLoaderSetup, onLoaderDone, CallDoneIf::Success),
                 ConcurrentCallTask<void>(onSaverSetup, onSaverDone, CallDoneIf::Success)
             };
@@ -2181,42 +2181,42 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     \endcode
 
     In the example above, the inter-task data consists of a QByteArray content
-    variable [2] enclosed in a CopyStorage custom struct [1]. If the loader
-    finishes successfully, it stores the data in a CopyStorage::content
+    variable [2] enclosed in a \c CopyStorage custom struct [1]. If the loader
+    finishes successfully, it stores the data in a \c CopyStorage::content
     variable [5]. The saver then uses the variable to configure the saving task [6].
 
-    To enable a task tree to manage the CopyStorage struct, an instance of
-    TreeStorage<CopyStorage> is created [3]. If a copy of this object is
-    inserted as group's child task [7], an instance of CopyStorage struct is
+    To enable a task tree to manage the \c CopyStorage struct, an instance of
+    Storage<\c CopyStorage> is created [3]. If a copy of this object is
+    inserted as the group's child item [7], an instance of the \c CopyStorage struct is
     created dynamically when the task tree enters this group. When the task
-    tree leaves this group, the existing instance of CopyStorage struct is
+    tree leaves this group, the existing instance of the \c CopyStorage struct is
     destructed as it's no longer needed.
 
-    If several task trees that hold a copy of the common TreeStorage<CopyStorage> instance
+    If several task trees holding a copy of the common Storage<\c CopyStorage> instance
     run simultaneously (including also a case when the task trees are run in different threads),
-    each task tree contains its own copy of the CopyStorage struct.
+    each task tree contains its own copy of the \c CopyStorage struct.
 
-    You can access CopyStorage from any handler in the group with a storage object.
+    You can access \c CopyStorage from any handler in the group with a storage object.
     This includes all handlers of all descendant tasks of the group with
     a storage object. To access the custom struct in a handler, pass the
-    copy of the TreeStorage<CopyStorage> object to the handler (for example, in
+    copy of the Storage<\c CopyStorage> object to the handler (for example, in
     a lambda capture) [4].
 
     When the task tree invokes a handler in a subtree containing the storage [7],
-    the task tree activates its own CopyStorage instance inside the
-    TreeStorage<CopyStorage> object. Therefore, the CopyStorage struct may be
+    the task tree activates its own \c CopyStorage instance inside the
+    Storage<\c CopyStorage> object. Therefore, the \c CopyStorage struct may be
     accessed only from within the handler body. To access the currently active
-    CopyStorage from within TreeStorage<CopyStorage>, use the TreeStorage::operator->(),
-    TreeStorage::operator*() or TreeStorage::activeStorage() method.
+    \c CopyStorage from within Storage<\c CopyStorage>, use the Storage::operator->(),
+    Storage::operator*(), or Storage::activeStorage() method.
 
     The following list summarizes how to employ a Storage object into the task
     tree:
     \list 1
-        \li Define the custom structure MyStorage with custom data [1], [2]
-        \li Create an instance of TreeStorage<MyStorage> storage [3]
-        \li Pass the TreeStorage<MyStorage> instance to handlers [4]
-        \li Access the MyStorage instance in handlers [5], [6]
-        \li Insert the TreeStorage<MyStorage> instance into a group [7]
+        \li Define the custom structure \c MyStorage with custom data [1], [2]
+        \li Create an instance of the Storage<\c MyStorage> storage [3]
+        \li Pass the Storage<\c MyStorage> instance to handlers [4]
+        \li Access the \c MyStorage instance in handlers [5], [6]
+        \li Insert the Storage<\c MyStorage> instance into a group [7]
     \endlist
 
     \section1 TaskTree class
@@ -2242,17 +2242,17 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     handler:
 
     \code
-        TreeStorage<CopyStorage> storage;
+        Storage<CopyStorage> storage;
         const Group root = ...; // storage placed inside root's group and inside handlers
         TaskTree taskTree(root);
-        auto initStorage = [](CopyStorage &storage){
+        auto initStorage = [](CopyStorage &storage) {
             storage.content = "initial content";
         };
         taskTree.onStorageSetup(storage, initStorage);
         taskTree.start();
     \endcode
 
-    When the running task tree creates a CopyStorage instance, and before any
+    When the running task tree creates a \c CopyStorage instance, and before any
     handler inside a tree is called, the task tree calls the initStorage handler,
     to enable setting up initial data of the storage, unique to this particular
     run of taskTree.
@@ -2262,17 +2262,17 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     destroyed. To do this, install a storage done handler:
 
     \code
-        TreeStorage<CopyStorage> storage;
+        Storage<CopyStorage> storage;
         const Group root = ...; // storage placed inside root's group and inside handlers
         TaskTree taskTree(root);
-        auto collectStorage = [](const CopyStorage &storage){
+        auto collectStorage = [](const CopyStorage &storage) {
             qDebug() << "final content" << storage.content;
         };
         taskTree.onStorageDone(storage, collectStorage);
         taskTree.start();
     \endcode
 
-    When the running task tree is about to destroy a CopyStorage instance, the
+    When the running task tree is about to destroy a \c CopyStorage instance, the
     task tree calls the collectStorage handler, to enable reading the final data
     from the storage, unique to this particular run of taskTree.
 
@@ -2647,7 +2647,7 @@ int TaskTree::progressValue() const
 }
 
 /*!
-    \fn template <typename StorageStruct, typename StorageHandler> void TaskTree::onStorageSetup(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler)
+    \fn template <typename StorageStruct, typename Handler> void TaskTree::onStorageSetup(const Storage<StorageStruct> &storage, Handler &&handler)
 
     Installs a storage setup \a handler for the \a storage to pass the initial data
     dynamically to the running task tree.
@@ -2657,14 +2657,14 @@ int TaskTree::progressValue() const
     \code
         static void save(const QString &fileName, const QByteArray &array) { ... }
 
-        TreeStorage<QByteArray> storage;
+        Storage<QByteArray> storage;
 
         const auto onSaverSetup = [storage](ConcurrentCall<QByteArray> &concurrent) {
             concurrent.setConcurrentCallData(&save, "foo.txt", *storage);
         };
 
         const Group root {
-            Storage(storage),
+            storage,
             ConcurrentCallTask(onSaverSetup)
         };
 
@@ -2688,7 +2688,7 @@ int TaskTree::progressValue() const
 */
 
 /*!
-    \fn template <typename StorageStruct, typename StorageHandler> void TaskTree::onStorageDone(const TreeStorage<StorageStruct> &storage, StorageHandler &&handler)
+    \fn template <typename StorageStruct, typename Handler> void TaskTree::onStorageDone(const Storage<StorageStruct> &storage, Handler &&handler)
 
     Installs a storage done \a handler for the \a storage to retrieve the final data
     dynamically from the running task tree.
@@ -2698,7 +2698,7 @@ int TaskTree::progressValue() const
     \code
         static QByteArray load(const QString &fileName) { ... }
 
-        TreeStorage<QByteArray> storage;
+        Storage<QByteArray> storage;
 
         const auto onLoaderSetup = [](ConcurrentCall<QByteArray> &concurrent) {
             concurrent.setConcurrentCallData(&load, "foo.txt");
@@ -2708,7 +2708,7 @@ int TaskTree::progressValue() const
         };
 
         const Group root {
-            Storage(storage),
+            storage,
             ConcurrentCallTask(onLoaderDone, onLoaderDone, CallDoneIf::Success)
         };
 
