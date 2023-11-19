@@ -98,9 +98,6 @@ protected:
 
 class TASKING_EXPORT StorageBase
 {
-public:
-    bool isValid() const;
-
 private:
     using StorageConstructor = std::function<void *(void)>;
     using StorageDestructor = std::function<void(void *)>;
