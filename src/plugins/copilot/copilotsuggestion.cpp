@@ -72,7 +72,7 @@ void CopilotSuggestion::reset()
 
 int CopilotSuggestion::position()
 {
-    return m_start.position();
+    return m_start.selectionEnd();
 }
 
 } // namespace Copilot::Internal

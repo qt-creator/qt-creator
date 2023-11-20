@@ -278,8 +278,11 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
                                                return target.title == targetName;
                                            });
 
-        if (target.backtrace.isEmpty())
+        if (target.backtrace.isEmpty()) {
+            qCCritical(cmakeBuildSystemLog) << "target.backtrace for" << targetName << "is empty. "
+                                            << "The location where to add the files is unknown.";
             return false;
+        }
 
         const FilePath targetCMakeFile = target.backtrace.last().path;
         const int targetDefinitionLine = target.backtrace.last().line;
@@ -295,6 +298,8 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
             if (!cmakeListFile.ParseString(fileContent->toStdString(),
                                            targetCMakeFile.fileName().toStdString(),
                                            errorString)) {
+                qCCritical(cmakeBuildSystemLog).noquote()
+                    << targetCMakeFile.path() << "failed to parse! Error:" << errorString;
                 return false;
             }
         }
@@ -305,8 +310,11 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
                                          return func.Line() == targetDefinitionLine;
                                      });
 
-        if (function == cmakeListFile.Functions.end())
+        if (function == cmakeListFile.Functions.end()) {
+            qCCritical(cmakeBuildSystemLog) << "Function that defined the target" << targetName
+                                            << "could not be found at" << targetDefinitionLine;
             return false;
+        }
 
         // Special case: when qt_add_executable and qt_add_qml_module use the same target name
         // then qt_add_qml_module function should be used
@@ -380,13 +388,20 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
             Core::EditorManager::openEditorAt({targetCMakeFile, line, column + extraChars},
                                               Constants::CMAKE_EDITOR_ID,
                                               Core::EditorManager::DoNotMakeVisible));
-        if (!editor)
+        if (!editor) {
+            qCCritical(cmakeBuildSystemLog).noquote()
+                << "BaseTextEditor cannot be obtained for" << targetCMakeFile.path() << line
+                << int(column + extraChars);
             return false;
+        }
 
         editor->insert(snippet);
         editor->editorWidget()->autoIndent();
-        if (!Core::DocumentManager::saveDocument(editor->document()))
+        if (!Core::DocumentManager::saveDocument(editor->document())) {
+            qCCritical(cmakeBuildSystemLog).noquote()
+                << "Changes to" << targetCMakeFile.path() << "could not be saved.";
             return false;
+        }
 
         if (notAdded)
             notAdded->clear();
@@ -533,6 +548,9 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
             if (filePos) {
                 if (!filePos.value().cmakeFile.exists()) {
                     badFiles << file;
+
+                    qCCritical(cmakeBuildSystemLog).noquote()
+                        << "File" << filePos.value().cmakeFile.path() << "does not exist.";
                     continue;
                 }
 
@@ -545,6 +563,11 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                                                       Core::EditorManager::DoNotMakeVisible));
                 if (!editor) {
                     badFiles << file;
+
+                    qCCritical(cmakeBuildSystemLog).noquote()
+                        << "BaseTextEditor cannot be obtained for"
+                        << filePos.value().cmakeFile.path() << filePos.value().argumentPosition.Line
+                        << int(filePos.value().argumentPosition.Column - 1);
                     continue;
                 }
 
@@ -559,6 +582,10 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                 editor->editorWidget()->autoIndent();
                 if (!Core::DocumentManager::saveDocument(editor->document())) {
                     badFiles << file;
+
+                    qCCritical(cmakeBuildSystemLog).noquote()
+                        << "Changes to" << filePos.value().cmakeFile.path()
+                        << "could not be saved.";
                     continue;
                 }
             } else {
@@ -622,8 +649,11 @@ bool CMakeBuildSystem::renameFile(Node *context,
                 ";");
 
         auto fileToRename = m_filesToBeRenamed.take(key);
-        if (!fileToRename.cmakeFile.exists())
+        if (!fileToRename.cmakeFile.exists()) {
+            qCCritical(cmakeBuildSystemLog).noquote()
+                << "File" << fileToRename.cmakeFile.path() << "does not exist.";
             return false;
+        }
 
         BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
             Core::EditorManager::openEditorAt({fileToRename.cmakeFile,
@@ -632,8 +662,12 @@ bool CMakeBuildSystem::renameFile(Node *context,
                                                                 - 1)},
                                               Constants::CMAKE_EDITOR_ID,
                                               Core::EditorManager::DoNotMakeVisible));
-        if (!editor)
+        if (!editor) {
+            qCCritical(cmakeBuildSystemLog).noquote()
+                << "BaseTextEditor cannot be obtained for" << fileToRename.cmakeFile.path()
+                << fileToRename.argumentPosition.Line << int(fileToRename.argumentPosition.Column);
             return false;
+        }
 
         // If quotes were used for the source file, skip the starting quote
         if (fileToRename.argumentPosition.Delim == cmListFileArgument::Quoted)
@@ -643,8 +677,11 @@ bool CMakeBuildSystem::renameFile(Node *context,
             editor->replace(fileToRename.relativeFileName.length(), newRelPathName);
 
         editor->editorWidget()->autoIndent();
-        if (!Core::DocumentManager::saveDocument(editor->document()))
+        if (!Core::DocumentManager::saveDocument(editor->document())) {
+            qCCritical(cmakeBuildSystemLog).noquote()
+                << "Changes to" << fileToRename.cmakeFile.path() << "could not be saved.";
             return false;
+        }
 
         return true;
     }

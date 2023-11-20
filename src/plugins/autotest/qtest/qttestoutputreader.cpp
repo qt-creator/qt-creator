@@ -333,7 +333,7 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
 
     static const QRegularExpression result("^(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |RESULT "
                                            "|BPASS  |BFAIL  |BXPASS |BXFAIL "
-                                           "|INFO   |QWARN  |WARNING|QDEBUG |QSYSTEM): (.*)$");
+                                           "|INFO   |QWARN  |WARNING|QDEBUG |QSYSTEM|QCRITICAL): (.*)$");
 
     static const QRegularExpression benchDetails("^\\s+([\\d,.]+ .* per iteration "
                                                  "\\(total: [\\d,.]+, iterations: \\d+\\))$");

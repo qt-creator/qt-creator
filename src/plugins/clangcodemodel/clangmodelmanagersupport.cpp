@@ -799,6 +799,11 @@ void ClangModelManagerSupport::watchForExternalChanges()
         if (!LanguageClientManager::hasClients<ClangdClient>())
             return;
         for (const FilePath &file : files) {
+            if (TextEditor::TextDocument::textDocumentForFilePath(file)) {
+                // if we have a document for that file we should receive the content
+                // change via the document signals
+                continue;
+            }
             const ProjectFile::Kind kind = ProjectFile::classify(file.toString());
             if (!ProjectFile::isSource(kind) && !ProjectFile::isHeader(kind))
                 continue;
