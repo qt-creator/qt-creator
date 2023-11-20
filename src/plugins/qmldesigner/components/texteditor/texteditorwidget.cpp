@@ -78,6 +78,10 @@ void TextEditorWidget::setTextEditor(
         });
 
         m_textEditor->editorWidget()->installEventFilter(this);
+        // do not call the eventfilter when the m_textEditor is gone
+        connect(m_textEditor->editorWidget(), &QObject::destroyed, this, [this](QObject *) {
+            m_textEditor->editorWidget()->removeEventFilter(this);
+        });
     }
 }
 
