@@ -314,6 +314,26 @@ bool CollectionWidget::importCollectionToDataStore(const QString &collectionName
     return false;
 }
 
+bool CollectionWidget::addCollectionToDataStore(const QString &collectionName)
+{
+    const ModelNode node = dataStoreNode();
+    if (!node.isValid()) {
+        warn(tr("Can not import to the main model"), tr("The default model node is not available."));
+        return false;
+    }
+
+    QString errorMsg;
+    bool added = m_sourceModel->addCollectionToSource(node,
+                                                      generateUniqueCollectionName(node,
+                                                                                   collectionName),
+                                                      CollectionEditor::defaultCollectionArray(),
+                                                      &errorMsg);
+    if (!added)
+        warn(tr("Failed to add a model to the default model group"), errorMsg);
+
+    return added;
+}
+
 void CollectionWidget::assignSourceNodeToSelectedItem(const QVariant &sourceNode)
 {
     ModelNode sourceModel = sourceNode.value<ModelNode>();
