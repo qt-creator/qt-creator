@@ -6,11 +6,14 @@
 #include "haskellconstants.h"
 #include "haskelltr.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
 #include <utils/mimeutils.h>
@@ -23,89 +26,107 @@
 
 using namespace ProjectExplorer;
 
-const char C_HASKELL_BUILDCONFIGURATION_ID[] = "Haskell.BuildConfiguration";
+namespace Haskell::Internal {
 
-namespace Haskell {
-namespace Internal {
-
-HaskellBuildConfigurationFactory::HaskellBuildConfigurationFactory()
+class HaskellBuildConfiguration final : public BuildConfiguration
 {
-    registerBuildConfiguration<HaskellBuildConfiguration>(C_HASKELL_BUILDCONFIGURATION_ID);
-    setSupportedProjectType(Constants::C_HASKELL_PROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::C_HASKELL_PROJECT_MIMETYPE);
+public:
+    HaskellBuildConfiguration(Target *target, Utils::Id id)
+        : BuildConfiguration(target, id)
+    {
+        setInitializer([this](const BuildInfo &info) {
+            setBuildDirectory(info.buildDirectory);
+            setBuildType(info.buildType);
+            setDisplayName(info.displayName);
+        });
+        appendInitialBuildStep(Constants::C_STACK_BUILD_STEP_ID);
+    }
 
-    setBuildGenerator([](const Kit *k, const Utils::FilePath &projectPath, bool forSetup)  {
-        BuildInfo info;
-        info.typeName = Tr::tr("Release");
-        if (forSetup) {
-            info.displayName = info.typeName;
-            info.buildDirectory = projectPath.parentDir().pathAppended(".stack-work");
-        }
-        info.kitId = k->id();
-        info.buildType = BuildConfiguration::BuildType::Release;
-        return QList<BuildInfo>{info};
-    });
-}
+    NamedWidget *createConfigWidget() final;
 
-HaskellBuildConfiguration::HaskellBuildConfiguration(Target *target, Utils::Id id)
-    : BuildConfiguration(target, id)
+    BuildType buildType() const final
+    {
+        return m_buildType;
+    }
+
+    void setBuildType(BuildType type)
+    {
+        m_buildType = type;
+    }
+
+private:
+    BuildType m_buildType = BuildType::Release;
+};
+
+class HaskellBuildConfigurationWidget final : public NamedWidget
 {
-    setInitializer([this](const BuildInfo &info) {
-        setBuildDirectory(info.buildDirectory);
-        setBuildType(info.buildType);
-        setDisplayName(info.displayName);
-    });
-    appendInitialBuildStep(Constants::C_STACK_BUILD_STEP_ID);
-}
+public:
+    HaskellBuildConfigurationWidget(HaskellBuildConfiguration *bc)
+        : NamedWidget(Tr::tr("General"))
+    {
+        setLayout(new QVBoxLayout);
+        layout()->setContentsMargins(0, 0, 0, 0);
+        auto box = new Utils::DetailsWidget;
+        box->setState(Utils::DetailsWidget::NoSummary);
+        layout()->addWidget(box);
+        auto details = new QWidget;
+        box->setWidget(details);
+        details->setLayout(new QHBoxLayout);
+        details->layout()->setContentsMargins(0, 0, 0, 0);
+        details->layout()->addWidget(new QLabel(Tr::tr("Build directory:")));
+
+        auto buildDirectoryInput = new Utils::PathChooser;
+        buildDirectoryInput->setExpectedKind(Utils::PathChooser::Directory);
+        buildDirectoryInput->setFilePath(bc->buildDirectory());
+        details->layout()->addWidget(buildDirectoryInput);
+
+        connect(bc,
+                &BuildConfiguration::buildDirectoryChanged,
+                buildDirectoryInput,
+                [bc, buildDirectoryInput] {
+                    buildDirectoryInput->setFilePath(bc->buildDirectory());
+                });
+        connect(buildDirectoryInput,
+                &Utils::PathChooser::textChanged,
+                bc,
+                [bc, buildDirectoryInput](const QString &) {
+                    bc->setBuildDirectory(buildDirectoryInput->rawFilePath());
+                });
+    }
+};
 
 NamedWidget *HaskellBuildConfiguration::createConfigWidget()
 {
     return new HaskellBuildConfigurationWidget(this);
 }
 
-BuildConfiguration::BuildType HaskellBuildConfiguration::buildType() const
+class HaskellBuildConfigurationFactory final : public BuildConfigurationFactory
 {
-    return m_buildType;
+public:
+    HaskellBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<HaskellBuildConfiguration>("Haskell.BuildConfiguration");
+
+        setSupportedProjectType(Constants::C_HASKELL_PROJECT_ID);
+        setSupportedProjectMimeTypeName(Constants::C_HASKELL_PROJECT_MIMETYPE);
+
+        setBuildGenerator([](const Kit *k, const Utils::FilePath &projectPath, bool forSetup)  {
+            BuildInfo info;
+            info.typeName = Tr::tr("Release");
+            if (forSetup) {
+                info.displayName = info.typeName;
+                info.buildDirectory = projectPath.parentDir().pathAppended(".stack-work");
+            }
+            info.kitId = k->id();
+            info.buildType = BuildConfiguration::BuildType::Release;
+            return QList<BuildInfo>{info};
+        });
+    }
+};
+
+void setupHaskellBuildConfiguration()
+{
+    static HaskellBuildConfigurationFactory theHaskellBuildConfigurationFactory;
 }
 
-void HaskellBuildConfiguration::setBuildType(BuildConfiguration::BuildType type)
-{
-    m_buildType = type;
-}
-
-HaskellBuildConfigurationWidget::HaskellBuildConfigurationWidget(HaskellBuildConfiguration *bc)
-    : NamedWidget(Tr::tr("General"))
-    , m_buildConfiguration(bc)
-{
-    setLayout(new QVBoxLayout);
-    layout()->setContentsMargins(0, 0, 0, 0);
-    auto box = new Utils::DetailsWidget;
-    box->setState(Utils::DetailsWidget::NoSummary);
-    layout()->addWidget(box);
-    auto details = new QWidget;
-    box->setWidget(details);
-    details->setLayout(new QHBoxLayout);
-    details->layout()->setContentsMargins(0, 0, 0, 0);
-    details->layout()->addWidget(new QLabel(Tr::tr("Build directory:")));
-
-    auto buildDirectoryInput = new Utils::PathChooser;
-    buildDirectoryInput->setExpectedKind(Utils::PathChooser::Directory);
-    buildDirectoryInput->setFilePath(m_buildConfiguration->buildDirectory());
-    details->layout()->addWidget(buildDirectoryInput);
-
-    connect(m_buildConfiguration,
-            &BuildConfiguration::buildDirectoryChanged,
-            buildDirectoryInput,
-            [this, buildDirectoryInput] {
-                buildDirectoryInput->setFilePath(m_buildConfiguration->buildDirectory());
-            });
-    connect(buildDirectoryInput,
-            &Utils::PathChooser::textChanged,
-            m_buildConfiguration,
-            [this, buildDirectoryInput](const QString &) {
-                m_buildConfiguration->setBuildDirectory(buildDirectoryInput->rawFilePath());
-            });
-}
-
-} // namespace Internal
-} // namespace Haskell
+} // Haskell::Internal

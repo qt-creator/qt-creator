@@ -30,7 +30,6 @@ class HaskellPluginPrivate
 {
 public:
     HaskellEditorFactory editorFactory;
-    HaskellBuildConfigurationFactory buildConfigFactory;
     HaskellRunConfigurationFactory runConfigFactory;
     ProjectExplorer::SimpleTargetRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
 };
@@ -59,6 +58,7 @@ private:
         d = new HaskellPluginPrivate;
 
         setupHaskellStackBuildStep();
+        setupHaskellBuildConfiguration();
 
         ProjectExplorer::ProjectManager::registerProjectType<HaskellProject>(
             Constants::C_HASKELL_PROJECT_MIMETYPE);
