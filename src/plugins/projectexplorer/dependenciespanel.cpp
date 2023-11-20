@@ -29,7 +29,18 @@ namespace ProjectExplorer::Internal {
 class DependenciesModel : public QAbstractListModel
 {
 public:
-    explicit DependenciesModel(Project *project, QObject *parent = nullptr);
+    explicit DependenciesModel(Project *project)
+        : m_project(project)
+    {
+        resetModel();
+
+        connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
+                this, &DependenciesModel::resetModel);
+        connect(ProjectManager::instance(), &ProjectManager::projectAdded,
+                this, &DependenciesModel::resetModel);
+        connect(Core::SessionManager::instance(), &Core::SessionManager::sessionLoaded,
+                this, &DependenciesModel::resetModel);
+    }
 
     int rowCount(const QModelIndex &index) const override;
     int columnCount(const QModelIndex &index) const override;
@@ -43,20 +54,6 @@ private:
     Project *m_project;
     QList<Project *> m_projects;
 };
-
-DependenciesModel::DependenciesModel(Project *project, QObject *parent)
-    : QAbstractListModel(parent)
-    , m_project(project)
-{
-    resetModel();
-
-    connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
-            this, &DependenciesModel::resetModel);
-    connect(ProjectManager::instance(), &ProjectManager::projectAdded,
-            this, &DependenciesModel::resetModel);
-    connect(Core::SessionManager::instance(), &Core::SessionManager::sessionLoaded,
-            this, &DependenciesModel::resetModel);
-}
 
 void DependenciesModel::resetModel()
 {
@@ -226,8 +223,7 @@ class DependenciesWidget : public ProjectSettingsWidget
 {
 public:
     explicit DependenciesWidget(Project *project)
-        : m_project(project),
-        m_model(new DependenciesModel(project, this))
+        : m_model(project)
     {
         setUseGlobalSettingsCheckBoxVisible(false);
         setUseGlobalSettingsLabelVisible(false);
@@ -242,7 +238,7 @@ public:
         auto layout = new QGridLayout(detailsWidget);
         layout->setContentsMargins(0, -1, 0, -1);
         auto treeView = new DependenciesView(this);
-        treeView->setModel(m_model);
+        treeView->setModel(&m_model);
         treeView->setHeaderHidden(true);
         layout->addWidget(treeView, 0 ,0);
         layout->addItem(new QSpacerItem(0, 0 , QSizePolicy::Expanding, QSizePolicy::Fixed), 0, 1);
@@ -257,8 +253,7 @@ public:
     }
 
 private:
-    Project *m_project;
-    DependenciesModel *m_model;
+    DependenciesModel m_model;
     Utils::DetailsWidget *m_detailsContainer;
     QCheckBox *m_cascadeSetActiveCheckBox;
 };
