@@ -10,29 +10,13 @@
 #include "haskelltr.h"
 #include "stackbuildstep.h"
 
-#include <coreplugin/actionmanager/actionmanager.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
-
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <texteditor/snippets/snippetprovider.h>
 
-#include <QAction>
-
 namespace Haskell::Internal {
-
-static void registerGhciAction(QObject *guard)
-{
-    QAction *action = new QAction(Tr::tr("Run GHCi"), guard);
-    Core::ActionManager::registerAction(action, Constants::A_RUN_GHCI);
-    QObject::connect(action, &QAction::triggered, guard, [] {
-        if (Core::IDocument *doc = Core::EditorManager::currentDocument())
-            HaskellManager::openGhci(doc->filePath());
-    });
-}
 
 class HaskellPlugin final : public ExtensionSystem::IPlugin
 {
@@ -54,7 +38,7 @@ public:
         TextEditor::SnippetProvider::registerGroup(Constants::C_HASKELLSNIPPETSGROUP_ID,
                                                    Tr::tr("Haskell", "SnippetProvider"));
 
-        registerGhciAction(this);
+        setupHaskellActions(this);
 
         ProjectExplorer::JsonWizardFactory::addWizardPath(":/haskell/share/wizards/");
     }

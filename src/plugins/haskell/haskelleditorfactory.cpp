@@ -26,7 +26,7 @@ static QWidget *createEditorWidget()
     auto ghciButton = new Core::CommandButton(Constants::A_RUN_GHCI, widget);
     ghciButton->setText(Tr::tr("GHCi"));
     QObject::connect(ghciButton, &QToolButton::clicked, widget, [widget] {
-        HaskellManager::openGhci(widget->textDocument()->filePath());
+        openGhci(widget->textDocument()->filePath());
     });
     widget->insertExtraToolBarWidget(TextEditorWidget::Left, ghciButton);
     return widget;
