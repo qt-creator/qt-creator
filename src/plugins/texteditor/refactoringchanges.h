@@ -8,6 +8,7 @@
 #include <texteditor/texteditor_global.h>
 #include <utils/changeset.h>
 #include <utils/fileutils.h>
+#include <utils/id.h>
 #include <utils/textfileformat.h>
 
 #include <QList>
@@ -55,11 +56,12 @@ public:
 
     Utils::ChangeSet changeSet() const;
     void setChangeSet(const Utils::ChangeSet &changeSet);
-    void appendIndentRange(const Range &range);
-    void appendReindentRange(const Range &range);
     void setOpenEditor(bool activate = false, int pos = -1);
     bool apply();
     bool create(const QString &contents, bool reindent, bool openInEditor);
+
+    // TODO: Per EditOp?
+    void skipFormatting() { m_formattingEnabled = false; }
 
 protected:
     // users may only get const access to RefactoringFiles created through
@@ -70,25 +72,15 @@ protected:
     RefactoringFile(const Utils::FilePath &filePath);
 
     void invalidate() { m_filePath.clear(); }
-    void enableFormatting() { m_formattingEnabled = true; }
 
 private:
     virtual void fileChanged() {} // derived classes may want to clear language specific extra data
-    virtual void indentSelection(const QTextCursor &selection,
-                                 const TextDocument *textDocument) const;
-    virtual void reindentSelection(const QTextCursor &selection,
-                                   const TextDocument *textDocument) const;
-
-    enum IndentType {Indent, Reindent};
-    void indentOrReindent(const RefactoringSelections &ranges, IndentType indent);
+    virtual Utils::Id indenterId() const { return {} ;}
 
     void setupFormattingRanges(const QList<Utils::ChangeSet::EditOp> &replaceList);
     void doFormatting();
 
     TextEditorWidget *openEditor(bool activate, int line, int column);
-    static RefactoringSelections rangesToSelections(QTextDocument *document,
-                                                    const QList<Range> &ranges);
-
     QTextDocument *mutableDocument() const;
 
     Utils::FilePath m_filePath;
@@ -96,14 +88,12 @@ private:
     mutable QTextDocument *m_document = nullptr;
     TextEditorWidget *m_editor = nullptr;
     Utils::ChangeSet m_changes;
-    QList<Range> m_indentRanges;
-    QList<Range> m_reindentRanges;
     QList<QTextCursor> m_formattingCursors;
     bool m_openEditor = false;
     bool m_activateEditor = false;
     int m_editorCursorPosition = -1;
     bool m_appliedOnce = false;
-    bool m_formattingEnabled = false;
+    bool m_formattingEnabled = true;
 };
 
 class TEXTEDITOR_EXPORT RefactoringFileFactory

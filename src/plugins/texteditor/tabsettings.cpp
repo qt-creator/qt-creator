@@ -3,6 +3,9 @@
 
 #include "tabsettings.h"
 
+#include "icodestylepreferences.h"
+#include "texteditorsettings.h"
+
 #include <QDebug>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -345,6 +348,17 @@ bool TabSettings::equals(const TabSettings &ts) const
         && m_tabSize == ts.m_tabSize
         && m_indentSize == ts.m_indentSize
         && m_continuationAlignBehavior == ts.m_continuationAlignBehavior;
+}
+
+static TabSettings::Retriever g_retriever = [](const FilePath &) {
+    return TextEditorSettings::codeStyle()->tabSettings();
+};
+
+void TabSettings::setRetriever(const Retriever &retriever) { g_retriever = retriever; }
+
+TabSettings TabSettings::settingsForFile(const Utils::FilePath &filePath)
+{
+    return g_retriever(filePath);
 }
 
 } // namespace TextEditor

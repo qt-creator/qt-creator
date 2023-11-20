@@ -3,9 +3,12 @@
 
 #include "refactoringchanges.h"
 
+#include "icodestylepreferencesfactory.h"
 #include "textdocument.h"
 #include "texteditor.h"
 #include "texteditortr.h"
+#include "texteditorsettings.h"
+#include "textindenter.h"
 
 #include <coreplugin/dialogs/readonlyfilesdialog.h>
 #include <coreplugin/documentmanager.h>
@@ -20,6 +23,8 @@
 #include <QTextCursor>
 #include <QTextDocument>
 #include <QDebug>
+
+#include <memory>
 
 using namespace Core;
 using namespace Utils;
@@ -60,7 +65,8 @@ bool RefactoringFile::create(const QString &contents, bool reindent, bool openIn
     // Reindent the contents:
     if (reindent) {
         cursor.select(QTextCursor::Document);
-        indentSelection(cursor, nullptr);
+        m_formattingCursors = {cursor};
+        doFormatting();
     }
     cursor.endEditBlock();
 
@@ -198,22 +204,6 @@ void RefactoringFile::setChangeSet(const ChangeSet &changeSet)
     m_changes = changeSet;
 }
 
-void RefactoringFile::appendIndentRange(const Range &range)
-{
-    if (m_filePath.isEmpty())
-        return;
-
-    m_indentRanges.append(range);
-}
-
-void RefactoringFile::appendReindentRange(const Range &range)
-{
-    if (m_filePath.isEmpty())
-        return;
-
-    m_reindentRanges.append(range);
-}
-
 void RefactoringFile::setOpenEditor(bool activate, int pos)
 {
     m_openEditor = true;
@@ -249,7 +239,7 @@ bool RefactoringFile::apply()
     bool result = true;
 
     // apply changes, if any
-    if (!m_indentRanges.isEmpty() || !m_changes.isEmpty()) {
+    if (!m_changes.isEmpty()) {
         QTextDocument *doc = mutableDocument();
         if (doc) {
             QTextCursor c = cursor();
@@ -258,24 +248,12 @@ bool RefactoringFile::apply()
             else
                 c.beginEditBlock();
 
-            sort(m_indentRanges);
-            sort(m_reindentRanges);
-
-            // build indent selections now, applying the changeset will change locations
-            const RefactoringSelections &indentSelections = rangesToSelections(doc, m_indentRanges);
-            m_indentRanges.clear();
-            const RefactoringSelections &reindentSelections
-                = rangesToSelections(doc, m_reindentRanges);
-            m_reindentRanges.clear();
-
             // apply changes
             setupFormattingRanges(m_changes.operationList());
             m_changes.apply(&c);
             m_changes.clear();
 
             // Do indentation and formatting.
-            indentOrReindent(indentSelections, Indent);
-            indentOrReindent(reindentSelections, Reindent);
             doFormatting();
 
             c.endEditBlock();
@@ -308,27 +286,16 @@ bool RefactoringFile::apply()
     return result;
 }
 
-void RefactoringFile::indentOrReindent(const RefactoringSelections &ranges,
-                                       RefactoringFile::IndentType indent)
-{
-    TextDocument * document = m_editor ? m_editor->textDocument() : nullptr;
-    for (const auto &[position, anchor]: ranges) {
-        QTextCursor selection(anchor);
-        selection.setPosition(position.position(), QTextCursor::KeepAnchor);
-        if (indent == Indent)
-            indentSelection(selection, document);
-        else
-            reindentSelection(selection, document);
-    }
-}
-
 void RefactoringFile::setupFormattingRanges(const QList<ChangeSet::EditOp> &replaceList)
 {
-    if (!m_editor || !m_formattingEnabled)
+    if (!m_formattingEnabled)
         return;
 
+    QTextDocument * const doc = m_editor ? m_editor->document() : m_document;
+    QTC_ASSERT(doc, return);
+
     for (const ChangeSet::EditOp &op : replaceList) {
-        QTextCursor cursor = m_editor->textCursor();
+        QTextCursor cursor(doc);
         switch (op.type) {
         case ChangeSet::EditOp::Unset:
             break;
@@ -361,55 +328,54 @@ void RefactoringFile::setupFormattingRanges(const QList<ChangeSet::EditOp> &repl
 
 void RefactoringFile::doFormatting()
 {
-    if (m_formattingCursors.empty() || !m_editor)
+    if (m_formattingCursors.empty())
         return;
 
-    RangesInLines formattingRanges;
+    QTextDocument *document = nullptr;
+    Indenter *indenter = nullptr;
+    std::unique_ptr<Indenter> indenterOwner;
+    TabSettings tabSettings;
+    if (m_editor) {
+        document = m_editor->document();
+        indenter = m_editor->textDocument()->indenter();
+        tabSettings = m_editor->textDocument()->tabSettings();
+    } else {
+        document = m_document;
+        ICodeStylePreferencesFactory * const factory
+            = TextEditorSettings::codeStyleFactory(indenterId());
+        indenterOwner.reset(factory ? factory->createIndenter(document)
+                                    : new TextIndenter(document));
+        indenter = indenterOwner.get();
+        tabSettings = TabSettings::settingsForFile(filePath());
+    }
+    QTC_ASSERT(document, return);
+    QTC_ASSERT(indenter, return);
 
-    QTextCursor cursor = m_editor->textCursor();
-    auto lineForPosition = [&](int pos) {
-        cursor.setPosition(pos);
-        return cursor.blockNumber() + 1;
-    };
-    QList<int> affectedLines;
+    Utils::sort(m_formattingCursors, [](const QTextCursor &tc1, const QTextCursor &tc2) {
+        return tc1.selectionStart() < tc2.selectionStart();
+    });
+    const int firstSelectedBlock = document->findBlock(m_formattingCursors.first().selectionStart())
+                                       .blockNumber();
+    static const QString clangFormatLineRemovalBlocker("// QTC_TEMP");
     for (const QTextCursor &formattingCursor : std::as_const(m_formattingCursors)) {
-        int startLine = lineForPosition(formattingCursor.selectionStart());
-        int endLine = lineForPosition(formattingCursor.selectionEnd());
-        for (int line = startLine; line <= endLine; ++line) {
-            const auto it = std::lower_bound(affectedLines.begin(), affectedLines.end(), line);
-            if (it == affectedLines.end() || *it > line)
-                affectedLines.insert(it, line);
-        }
-    }
-
-    for (int line : std::as_const(affectedLines)) {
-        if (!formattingRanges.empty() && formattingRanges.back().endLine == line - 1)
-            formattingRanges.back().endLine = line;
-        else
-            formattingRanges.push_back({line, line});
-    }
-
-    static const QString clangFormatLineRemovalBlocker("");
-    for (const RangeInLines &r : std::as_const(formattingRanges)) {
-        QTextBlock b = m_editor->document()->findBlockByNumber(r.startLine - 1);
+        const QTextBlock firstBlock = document->findBlock(formattingCursor.selectionStart());
+        const QTextBlock lastBlock = document->findBlock(formattingCursor.selectionEnd());
+        QTextBlock b = firstBlock;
         while (true) {
             QTC_ASSERT(b.isValid(), break);
             if (b.text().simplified().isEmpty())
                 QTextCursor(b).insertText(clangFormatLineRemovalBlocker);
-            if (b.blockNumber() == r.endLine - 1)
+            if (b == lastBlock)
                 break;
             b = b.next();
         }
     }
 
-    // TODO: The proper solution seems to be to call formatOrIndent() here (and not
-    //       use hardcoded indent regions anymore), but that would require intrusive changes
-    //       to the C++ quickfixes and tests, where we rely on the built-in indenter behavior.
-    m_editor->textDocument()->indenter()->format(formattingRanges,
-                                                 Indenter::FormattingMode::Settings);
+    for (const QTextCursor &tc : std::as_const(m_formattingCursors))
+        indenter->autoIndent(tc, tabSettings);
 
-    for (QTextBlock b = m_editor->document()->findBlockByNumber(
-             formattingRanges.front().startLine - 1); b.isValid(); b = b.next()) {
+    for (QTextBlock b = document->findBlockByNumber(firstSelectedBlock);
+         b.isValid(); b = b.next()) {
         QString blockText = b.text();
         if (blockText.remove(clangFormatLineRemovalBlocker) == b.text())
             continue;
@@ -418,20 +384,6 @@ void RefactoringFile::doFormatting()
         c.removeSelectedText();
         c.insertText(blockText);
     }
-}
-
-void RefactoringFile::indentSelection(const QTextCursor &selection,
-                                      const TextDocument *textDocument) const
-{
-    Q_UNUSED(selection)
-    Q_UNUSED(textDocument)
-}
-
-void RefactoringFile::reindentSelection(const QTextCursor &selection,
-                                        const TextDocument *textDocument) const
-{
-    Q_UNUSED(selection)
-    Q_UNUSED(textDocument)
 }
 
 TextEditorWidget *RefactoringFile::openEditor(bool activate, int line, int column)
@@ -448,23 +400,6 @@ TextEditorWidget *RefactoringFile::openEditor(bool activate, int line, int colum
     IEditor *editor = EditorManager::openEditorAt(Link{m_filePath, line, column}, Id(), flags);
 
     return TextEditorWidget::fromEditor(editor);
-}
-
-RefactoringSelections RefactoringFile::rangesToSelections(QTextDocument *document,
-                                                          const QList<Range> &ranges)
-{
-    RefactoringSelections selections;
-
-    for (const Range &range : ranges) {
-        QTextCursor start(document);
-        start.setPosition(range.start);
-        start.setKeepPositionOnInsert(true);
-        QTextCursor end(document);
-        end.setPosition(qMin(range.end, document->characterCount() - 1));
-        selections.push_back({start, end});
-    }
-
-    return selections;
 }
 
 RefactoringFileFactory::~RefactoringFileFactory() = default;

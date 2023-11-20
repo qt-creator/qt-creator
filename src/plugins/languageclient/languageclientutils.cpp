@@ -91,8 +91,6 @@ bool applyTextEdits(const Client *client,
         return true;
     const RefactoringFilePtr file = client->createRefactoringFile(filePath);
     file->setChangeSet(editsToChangeSet(edits, file->document()));
-    for (const TextEdit &edit : edits)
-        file->appendIndentRange(convertRange(file->document(), edit.range()));
     return file->apply();
 }
 

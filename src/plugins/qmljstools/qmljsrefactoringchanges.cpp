@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljsrefactoringchanges.h"
+
 #include "qmljsqtstylecodeformatter.h"
 #include "qmljsmodelmanager.h"
 #include "qmljsindenter.h"
+#include "qmljstoolsconstants.h"
 
 #include <qmljs/parser/qmljsast_p.h>
 #include <texteditor/textdocument.h>
@@ -139,44 +141,9 @@ void QmlJSRefactoringFile::fileChanged()
     m_data->m_modelManager->updateSourceFiles({filePath()}, true);
 }
 
-void QmlJSRefactoringFile::indentSelection(const QTextCursor &selection,
-                                           const TextEditor::TextDocument *textDocument) const
+Utils::Id QmlJSRefactoringFile::indenterId() const
 {
-    // ### shares code with QmlJSTextEditor::indent
-    QTextDocument *doc = selection.document();
-
-    QTextBlock block = doc->findBlock(selection.selectionStart());
-    const QTextBlock end = doc->findBlock(selection.selectionEnd()).next();
-
-    const TextEditor::TabSettings &tabSettings =
-        ProjectExplorer::actualTabSettings(filePath(), textDocument);
-    CreatorCodeFormatter codeFormatter(tabSettings);
-    codeFormatter.updateStateUntil(block);
-    do {
-        int depth = codeFormatter.indentFor(block);
-        if (depth != -1) {
-            if (QStringView(block.text()).trimmed().isEmpty()) {
-                // we do not want to indent empty lines (as one is indentent when pressing tab
-                // assuming that the user will start writing something), and get rid of that
-                // space if one had pressed tab in an empty line just before refactoring.
-                // If depth == -1 (inside a multiline string for example) leave the spaces.
-                depth = 0;
-            }
-            tabSettings.indentLine(block, depth);
-        }
-        codeFormatter.updateLineStateChange(block);
-        block = block.next();
-    } while (block.isValid() && block != end);
-}
-
-void QmlJSRefactoringFile::reindentSelection(const QTextCursor &selection,
-                                             const TextEditor::TextDocument *textDocument) const
-{
-    const TextEditor::TabSettings &tabSettings =
-        ProjectExplorer::actualTabSettings(filePath(), textDocument);
-
-    QmlJSEditor::Internal::Indenter indenter(selection.document());
-    indenter.reindent(selection, tabSettings);
+    return Constants::QML_JS_SETTINGS_ID;
 }
 
 } // namespace QmlJSTools

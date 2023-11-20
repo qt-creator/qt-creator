@@ -190,7 +190,6 @@ public:
         Utils::ChangeSet changes;
         changes.replace(start, end, replacement);
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(Range(start, end + 1));
         currentFile->apply();
 
         Core::IVersionControl *versionControl = Core::VcsManager::findVersionControlForDirectory(

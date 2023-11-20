@@ -55,11 +55,7 @@ private:
     explicit CppRefactoringFile(TextEditor::TextEditorWidget *editor);
 
     void fileChanged() override;
-    void indentSelection(const QTextCursor &selection,
-                         const TextEditor::TextDocument *textDocument) const override;
-    virtual void reindentSelection(const QTextCursor &selection,
-                                   const TextEditor::TextDocument *textDocument) const override;
-
+    Utils::Id indenterId() const override;
 
     int tokenIndexForPosition(const std::vector<CPlusPlus::Token> &tokens, int pos,
                               int startIndex) const;

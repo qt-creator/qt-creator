@@ -864,8 +864,6 @@ public:
         // Write header file
         if (!headerChangeSet.isEmpty()) {
             headerFile->setChangeSet(headerChangeSet);
-            headerFile->appendIndentRange(Utils::ChangeSet::Range(m_insertPosDecl,
-                                                                  m_insertPosDecl + 1));
             headerFile->setOpenEditor(true, m_insertPosDecl);
             headerFile->apply();
         }
@@ -920,8 +918,6 @@ public:
 
             if (!implementationChangeSet.isEmpty()) {
                 implementationFile->setChangeSet(implementationChangeSet);
-                implementationFile->appendIndentRange(Utils::ChangeSet::Range(insertPos,
-                                                                              insertPos + 1));
                 implementationFile->apply();
             }
         }

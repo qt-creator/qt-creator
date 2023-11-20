@@ -860,9 +860,6 @@ void QmlOutlineModel::reparentNodes(QmlOutlineItem *targetItem, int row, QList<Q
     QmlJSRefactoringChanges refactoring(ModelManagerInterface::instance(), m_semanticInfo.snapshot);
     TextEditor::RefactoringFilePtr file = refactoring.file(m_semanticInfo.document->fileName());
     file->setChangeSet(changeSet);
-    for (const Utils::ChangeSet::Range &range : std::as_const(changedRanges)) {
-        file->appendIndentRange(range);
-    }
     file->apply();
 }
 

@@ -599,7 +599,6 @@ public:
         changes.insert(end, QLatin1String(")"));
 
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(currentFile->range(pattern));
         currentFile->apply();
     }
 };
@@ -699,7 +698,6 @@ public:
         }
 
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(currentFile->range(declaration));
         currentFile->apply();
     }
 
@@ -774,7 +772,6 @@ public:
         changes.insert(end, QLatin1String("\n}"));
 
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(ChangeSet::Range(start, end));
         currentFile->apply();
     }
 
@@ -848,7 +845,6 @@ public:
         changes.insert(insertPos, QLatin1String(";\n"));
 
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(currentFile->range(pattern));
         currentFile->apply();
     }
 
@@ -924,7 +920,6 @@ public:
         changes.insert(insertPos, QLatin1String(";\n"));
 
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(currentFile->range(pattern));
         currentFile->apply();
     }
 
@@ -1012,7 +1007,6 @@ public:
         changes.insert(currentFile->endOf(pattern), QLatin1String("\n}"));
 
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(currentFile->range(pattern));
         currentFile->apply();
     }
 
@@ -1041,7 +1035,6 @@ public:
         changes.remove(lExprEnd, currentFile->startOf(condition->right_expression));
 
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(currentFile->range(pattern));
         currentFile->apply();
     }
 
@@ -2405,7 +2398,6 @@ public:
                        + values.join(QLatin1String(":\nbreak;\ncase "))
                        + QLatin1String(":\nbreak;"));
         currentFile->setChangeSet(changes);
-        currentFile->appendIndentRange(ChangeSet::Range(start, start + 1));
         currentFile->apply();
     }
 
@@ -2542,14 +2534,12 @@ public:
         QTC_ASSERT(loc.isValid(), return);
 
         CppRefactoringFilePtr targetFile = refactoring.cppFile(m_targetFilePath);
-        int targetPosition1 = targetFile->position(loc.line(), loc.column());
-        int targetPosition2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
+        int targetPosition = targetFile->position(loc.line(), loc.column());
 
         ChangeSet target;
-        target.insert(targetPosition1, loc.prefix() + m_decl);
+        target.insert(targetPosition, loc.prefix() + m_decl);
         targetFile->setChangeSet(target);
-        targetFile->appendIndentRange(ChangeSet::Range(targetPosition2, targetPosition1));
-        targetFile->setOpenEditor(true, targetPosition1);
+        targetFile->setOpenEditor(true, targetPosition);
         targetFile->apply();
     }
 
@@ -2708,8 +2698,7 @@ public:
             DeclaratorAST *declAST,
             Declaration *decl,
             const FilePath &targetFilePath,
-            ChangeSet *changeSet = nullptr,
-            QList<ChangeSet::Range> *indentRanges = nullptr)
+            ChangeSet *changeSet = nullptr)
     {
         CppRefactoringChanges refactoring(op->snapshot());
         if (!loc.isValid())
@@ -2736,10 +2725,6 @@ public:
             ChangeSet * const target = changeSet ? changeSet : &localChangeSet;
             target->replace(targetPos - 1, targetPos, QLatin1String("\n {\n\n}")); // replace ';'
             const ChangeSet::Range indentRange(targetPos, targetPos + 4);
-            if (indentRanges)
-                indentRanges->append(indentRange);
-            else
-                targetFile->appendIndentRange(indentRange);
 
             if (!changeSet) {
                 targetFile->setChangeSet(*target);
@@ -2819,10 +2804,6 @@ public:
             ChangeSet * const target = changeSet ? changeSet : &localChangeSet;
             target->insert(targetPos,  loc.prefix() + defText + loc.suffix());
             const ChangeSet::Range indentRange(targetPos2, targetPos);
-            if (indentRanges)
-                indentRanges->append(indentRange);
-            else
-                targetFile->appendIndentRange(indentRange);
 
             if (!changeSet) {
                 targetFile->setChangeSet(*target);
@@ -2995,12 +2976,10 @@ private:
         QTC_ASSERT(loc.isValid(), return);
 
         CppRefactoringFilePtr targetFile = refactoring.cppFile(filePath);
-        const int targetPosition1 = targetFile->position(loc.line(), loc.column());
-        const int targetPosition2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
+        const int targetPosition = targetFile->position(loc.line(), loc.column());
         ChangeSet target;
-        target.insert(targetPosition1, loc.prefix() + decl + ";\n");
+        target.insert(targetPosition, loc.prefix() + decl + ";\n");
         targetFile->setChangeSet(target);
-        targetFile->appendIndentRange(ChangeSet::Range(targetPosition2, targetPosition1));
         targetFile->apply();
     }
 
@@ -3558,7 +3537,7 @@ private:
             SimpleDeclarationAST *m_decl = nullptr;
         };
 
-        QHash<FilePath, QPair<ChangeSet, QList<ChangeSet::Range>>> changeSets;
+        QHash<FilePath, ChangeSet> changeSets;
         for (const MemberFunctionImplSetting &setting : std::as_const(settings)) {
             DeclFinder finder(currentFile().data(), setting.func);
             finder.accept(m_classAST);
@@ -3572,17 +3551,14 @@ private:
                 currentFile()->lineAndColumn(currentFile()->endOf(finder.decl()), &line, &column);
                 loc = InsertionLocation(filePath(), QString(), QString(), line, column);
             }
-            auto &changeSet = changeSets[targetFilePath];
+            ChangeSet &changeSet = changeSets[targetFilePath];
             InsertDefOperation::insertDefinition(
                         this, loc, setting.defPos, finder.decl()->declarator_list->value,
-                        setting.func->asDeclaration(),targetFilePath,
-                        &changeSet.first, &changeSet.second);
+                        setting.func->asDeclaration(),targetFilePath, &changeSet);
         }
         for (auto it = changeSets.cbegin(); it != changeSets.cend(); ++it) {
             const CppRefactoringFilePtr file = refactoring.cppFile(it.key());
-            for (const ChangeSet::Range &r : it.value().second)
-                file->appendIndentRange(r);
-            file->setChangeSet(it.value().first);
+            file->setChangeSet(it.value());
             file->apply();
         }
     }
@@ -3763,11 +3739,9 @@ protected:
                          const InsertionLocation &loc,
                          const QString &text)
     {
-        int targetPosition1 = file->position(loc.line(), loc.column());
-        int targetPosition2 = qMax(0, file->position(loc.line(), 1) - 1);
+        int targetPosition = file->position(loc.line(), loc.column());
         ChangeSet &changeSet = file == m_headerFile ? m_headerFileChangeSet : m_sourceFileChangeSet;
-        changeSet.insert(targetPosition1, loc.prefix() + text + loc.suffix());
-        file->appendIndentRange(ChangeSet::Range(targetPosition2, targetPosition1));
+        changeSet.insert(targetPosition, loc.prefix() + text + loc.suffix());
     }
 
     FullySpecifiedType makeConstRef(FullySpecifiedType type)
@@ -5190,7 +5164,6 @@ public:
         change.insert(position, funcDef);
         change.replace(m_extractionStart, m_extractionEnd, funcCall);
         currentFile->setChangeSet(change);
-        currentFile->appendIndentRange(ChangeSet::Range(position, position + 1));
         currentFile->apply();
 
         QTextCursor tc = currentFile->document()->find(QLatin1String("{"), position);
@@ -5199,7 +5172,6 @@ public:
         change.clear();
         change.insert(position, extract + '\n');
         currentFile->setChangeSet(change);
-        currentFile->appendReindentRange(ChangeSet::Range(position, position + 1));
         currentFile->apply();
 
         // Write declaration, if necessary.
@@ -5213,7 +5185,6 @@ public:
             position = declFile->position(location.line(), location.column());
             change.insert(position, location.prefix() + funcDecl + location.suffix());
             declFile->setChangeSet(change);
-            declFile->appendIndentRange(ChangeSet::Range(position, position + 1));
             declFile->apply();
         }
     }
@@ -6579,7 +6550,6 @@ public:
 
         // insert definition at new position
         m_toFileChangeSet.insert(insertPos, funcDef);
-        m_toFile->appendIndentRange(ChangeSet::Range(insertPos, insertPos + funcDef.size()));
         m_toFile->setOpenEditor(true, insertPos);
 
         // remove definition from fromFile
@@ -6605,6 +6575,7 @@ public:
         }
         if (!m_fromFileChangeSet.isEmpty()) {
             m_fromFile->setChangeSet(m_fromFileChangeSet);
+            m_fromFile->skipFormatting();
             m_fromFile->apply();
         }
     }
@@ -6836,7 +6807,6 @@ private:
         if (m_toFilePath == m_fromFilePath)
             toTarget.remove(m_fromRange);
         toFile->setChangeSet(toTarget);
-        toFile->appendIndentRange(m_toRange);
         toFile->setOpenEditor(true, m_toRange.start);
         toFile->apply();
         if (m_toFilePath != m_fromFilePath) {
@@ -7649,6 +7619,13 @@ private:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         currentFile->setChangeSet(m_changes);
+
+        // It would probably be unexpected to users if we were to re-format here, though
+        // an argument could also be made for doing it, especially if "format instead of indent"
+        // is enabled, as a difference in line length might trigger a different ClangFormat
+        // re-flowing.
+        currentFile->skipFormatting();
+
         currentFile->apply();
     }
 
@@ -8426,8 +8403,10 @@ private:
             processIncludes(refactoring, filePath());
         }
 
-        for (auto &file : std::as_const(m_changes))
+        for (auto &file : std::as_const(m_changes)) {
+            file->skipFormatting();
             file->apply();
+        }
     }
 
     /**

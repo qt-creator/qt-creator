@@ -40,6 +40,7 @@
 #include "devicesupport/devicesettingspage.h"
 #include "devicesupport/sshsettings.h"
 #include "devicesupport/sshsettingspage.h"
+#include "editorconfiguration.h"
 #include "editorsettingspropertiespage.h"
 #include "environmentaspect.h"
 #include "filesinallprojectsfind.h"
@@ -116,6 +117,7 @@
 #include <extensionsystem/pluginspec.h>
 
 #include <texteditor/findinfiles.h>
+#include <texteditor/tabsettings.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditorsettings.h>
@@ -832,6 +834,10 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
     IWizardFactory::registerFactoryCreator([] { return new SimpleProjectWizard; });
+
+    TextEditor::TabSettings::setRetriever([](const FilePath &filePath) {
+        return actualTabSettings(filePath, nullptr);
+    });
 
     ProjectManager *sessionManager = &dd->m_sessionManager;
     connect(sessionManager, &ProjectManager::projectAdded,

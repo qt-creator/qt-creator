@@ -40,10 +40,7 @@ private:
     QmlJSRefactoringFile(TextEditor::TextEditorWidget *editor, QmlJS::Document::Ptr document);
 
     void fileChanged() override;
-    void indentSelection(const QTextCursor &selection,
-                         const TextEditor::TextDocument *textDocument) const override;
-    void reindentSelection(const QTextCursor &selection,
-                           const TextEditor::TextDocument *textDocument) const override;
+    Utils::Id indenterId() const override;
 
     mutable QmlJS::Document::Ptr m_qmljsDocument;
     QSharedPointer<QmlJSRefactoringChangesData> m_data;

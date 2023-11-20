@@ -595,6 +595,7 @@ FilePaths BaseFileFind::replaceAll(const QString &text, const SearchResultItems 
             changeSet.replace(start, end, replacement);
         }
         file->setChangeSet(changeSet);
+        file->skipFormatting();
         file->apply();
     }
 
