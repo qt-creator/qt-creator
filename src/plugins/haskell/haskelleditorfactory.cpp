@@ -10,38 +10,51 @@
 
 #include <coreplugin/actionmanager/commandbutton.h>
 #include <coreplugin/coreplugintr.h>
+
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditoractionhandler.h>
 #include <texteditor/textindenter.h>
+
+using namespace TextEditor;
 
 namespace Haskell::Internal {
 
 static QWidget *createEditorWidget()
 {
-    auto widget = new TextEditor::TextEditorWidget;
+    auto widget = new TextEditorWidget;
     auto ghciButton = new Core::CommandButton(Constants::A_RUN_GHCI, widget);
     ghciButton->setText(Tr::tr("GHCi"));
     QObject::connect(ghciButton, &QToolButton::clicked, widget, [widget] {
         HaskellManager::openGhci(widget->textDocument()->filePath());
     });
-    widget->insertExtraToolBarWidget(TextEditor::TextEditorWidget::Left, ghciButton);
+    widget->insertExtraToolBarWidget(TextEditorWidget::Left, ghciButton);
     return widget;
 }
 
-HaskellEditorFactory::HaskellEditorFactory()
+class HaskellEditorFactory : public TextEditorFactory
 {
-    setId(Constants::C_HASKELLEDITOR_ID);
-    setDisplayName(::Core::Tr::tr("Haskell Editor"));
-    addMimeType("text/x-haskell");
-    setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection
-                            | TextEditor::TextEditorActionHandler::FollowSymbolUnderCursor);
-    setDocumentCreator([] { return new TextEditor::TextDocument(Constants::C_HASKELLEDITOR_ID); });
-    setIndenterCreator([](QTextDocument *doc) { return new TextEditor::TextIndenter(doc); });
-    setEditorWidgetCreator(&createEditorWidget);
-    setCommentDefinition(Utils::CommentDefinition("--", "{-", "-}"));
-    setParenthesesMatchingEnabled(true);
-    setMarksVisible(true);
-    setSyntaxHighlighterCreator([] { return new HaskellHighlighter(); });
+public:
+    HaskellEditorFactory()
+    {
+        setId(Constants::C_HASKELLEDITOR_ID);
+        setDisplayName(::Core::Tr::tr("Haskell Editor"));
+        addMimeType("text/x-haskell");
+        setEditorActionHandlers(TextEditorActionHandler::UnCommentSelection
+                              | TextEditorActionHandler::FollowSymbolUnderCursor);
+        setDocumentCreator([] { return new TextDocument(Constants::C_HASKELLEDITOR_ID); });
+        setIndenterCreator([](QTextDocument *doc) { return new TextIndenter(doc); });
+        setEditorWidgetCreator(&createEditorWidget);
+        setCommentDefinition(Utils::CommentDefinition("--", "{-", "-}"));
+        setParenthesesMatchingEnabled(true);
+        setMarksVisible(true);
+        setSyntaxHighlighterCreator([] { return new HaskellHighlighter(); });
+    }
+};
+
+void setupHaskellEditor()
+{
+    static HaskellEditorFactory theHaskellEditorFactory;
 }
 
 } // Haskell::Internal

@@ -29,7 +29,6 @@ namespace Haskell::Internal {
 class HaskellPluginPrivate
 {
 public:
-    HaskellEditorFactory editorFactory;
     HaskellRunConfigurationFactory runConfigFactory;
     ProjectExplorer::SimpleTargetRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
 };
@@ -59,6 +58,7 @@ private:
 
         setupHaskellStackBuildStep();
         setupHaskellBuildConfiguration();
+        setupHaskellEditor();
 
         ProjectExplorer::ProjectManager::registerProjectType<HaskellProject>(
             Constants::C_HASKELL_PROJECT_MIMETYPE);
