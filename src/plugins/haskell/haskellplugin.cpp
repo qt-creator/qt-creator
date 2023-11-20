@@ -17,8 +17,6 @@
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/runcontrol.h>
 
 #include <texteditor/snippets/snippetprovider.h>
 
@@ -51,8 +49,8 @@ public:
 
         setupHaskellEditor();
 
-        ProjectExplorer::ProjectManager::registerProjectType<HaskellProject>(
-            Constants::C_HASKELL_PROJECT_MIMETYPE);
+        setupHaskellProject();
+
         TextEditor::SnippetProvider::registerGroup(Constants::C_HASKELLSNIPPETSGROUP_ID,
                                                    Tr::tr("Haskell", "SnippetProvider"));
 
