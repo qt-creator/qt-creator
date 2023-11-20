@@ -1,8 +1,6 @@
 // Copyright (c) 2017 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "haskellplugin.h"
-
 #include "haskellbuildconfiguration.h"
 #include "haskellconstants.h"
 #include "haskelleditorfactory.h"
@@ -16,6 +14,8 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
@@ -24,8 +24,7 @@
 
 #include <QAction>
 
-namespace Haskell {
-namespace Internal {
+namespace Haskell::Internal {
 
 class HaskellPluginPrivate
 {
@@ -37,11 +36,6 @@ public:
     ProjectExplorer::SimpleTargetRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
 };
 
-HaskellPlugin::~HaskellPlugin()
-{
-    delete d;
-}
-
 static void registerGhciAction(QObject *guard)
 {
     QAction *action = new QAction(Tr::tr("Run GHCi"), guard);
@@ -52,23 +46,32 @@ static void registerGhciAction(QObject *guard)
     });
 }
 
-bool HaskellPlugin::initialize(const QStringList &arguments, QString *errorString)
+class HaskellPlugin final : public ExtensionSystem::IPlugin
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Haskell.json")
 
-    d = new HaskellPluginPrivate;
+public:
+    ~HaskellPlugin() final { delete d; }
 
-    ProjectExplorer::ProjectManager::registerProjectType<HaskellProject>(
-        Constants::C_HASKELL_PROJECT_MIMETYPE);
-    TextEditor::SnippetProvider::registerGroup(Constants::C_HASKELLSNIPPETSGROUP_ID,
-                                               Tr::tr("Haskell", "SnippetProvider"));
+private:
+    void initialize() final
+    {
+        d = new HaskellPluginPrivate;
 
-    registerGhciAction(this);
+        ProjectExplorer::ProjectManager::registerProjectType<HaskellProject>(
+            Constants::C_HASKELL_PROJECT_MIMETYPE);
+        TextEditor::SnippetProvider::registerGroup(Constants::C_HASKELLSNIPPETSGROUP_ID,
+                                                   Tr::tr("Haskell", "SnippetProvider"));
 
-    ProjectExplorer::JsonWizardFactory::addWizardPath(":/haskell/share/wizards/");
-    return true;
-}
+        registerGhciAction(this);
 
-} // namespace Internal
-} // namespace Haskell
+        ProjectExplorer::JsonWizardFactory::addWizardPath(":/haskell/share/wizards/");
+    }
+
+    HaskellPluginPrivate *d = nullptr;
+};
+
+} // Haskell::Internal
+
+#include "haskellplugin.moc"
