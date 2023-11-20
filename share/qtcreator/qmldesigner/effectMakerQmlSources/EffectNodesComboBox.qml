@@ -78,7 +78,7 @@ StudioControls.ComboBox {
         flags: Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
         onActiveFocusItemChanged: {
-            if (!window.activeFocusItem && !root.indicator.hover && root.popup.opened)
+            if (!window.activeFocusItem && !root.hovered && root.popup.opened)
                 root.popup.close()
         }
 
@@ -87,6 +87,7 @@ StudioControls.ComboBox {
             color: StudioTheme.Values.themePanelBackground
             border.color: StudioTheme.Values.themeInteraction
             border.width: 1
+            focus: true
 
             HelperWidgets.ScrollView {
                 anchors.fill: parent
@@ -125,6 +126,11 @@ StudioControls.ComboBox {
                         }
                     }
                 }
+            }
+
+            Keys.onPressed: function(event) {
+                if (event.key === Qt.Key_Escape && root.popup.opened)
+                    root.popup.close()
             }
         }
     }
