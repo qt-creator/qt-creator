@@ -65,8 +65,8 @@ DocumentQuickFixFactory::DocumentQuickFixFactory(DocumentQuickFixFactory::Runner
     : m_runnerCollector(runnerCollector)
 {}
 
-void DocumentQuickFixFactory::match(const CppEditor::Internal::CppQuickFixInterface &interface,
-                                    QuickFixOperations &result)
+void DocumentQuickFixFactory::doMatch(const CppEditor::Internal::CppQuickFixInterface &interface,
+                                      QuickFixOperations &result)
 {
     QTC_ASSERT(m_runnerCollector, return );
     if (DocumentClangToolRunner *runner = m_runnerCollector(interface.filePath())) {

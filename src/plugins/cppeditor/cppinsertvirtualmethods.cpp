@@ -1236,8 +1236,8 @@ InsertVirtualMethods::~InsertVirtualMethods()
     m_dialog->deleteLater();
 }
 
-void InsertVirtualMethods::match(const CppQuickFixInterface &interface,
-                                 QuickFixOperations &result)
+void InsertVirtualMethods::doMatch(const CppQuickFixInterface &interface,
+                                   QuickFixOperations &result)
 {
     QSharedPointer<InsertVirtualMethodsOp> op(new InsertVirtualMethodsOp(interface, m_dialog));
     if (op->isValid())

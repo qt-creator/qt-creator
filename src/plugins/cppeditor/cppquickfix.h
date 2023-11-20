@@ -48,14 +48,22 @@ public:
 
     using QuickFixOperations = TextEditor::QuickFixOperations;
 
-    /*!
-        Implement this function to match and create the appropriate
-        CppQuickFixOperation objects.
-     */
-    virtual void match(const Internal::CppQuickFixInterface &interface,
-                       QuickFixOperations &result) = 0;
+    void match(const Internal::CppQuickFixInterface &interface, QuickFixOperations &result);
 
     static const QList<CppQuickFixFactory *> &cppQuickFixFactories();
+
+    bool hasClangdReplacement() const { return m_hasClangdReplacement; }
+    void setHasClangdReplacement() { m_hasClangdReplacement = true; }
+
+private:
+    /*!
+        Implement this function to doMatch and create the appropriate
+        CppQuickFixOperation objects.
+     */
+    virtual void doMatch(const Internal::CppQuickFixInterface &interface,
+                         QuickFixOperations &result) = 0;
+
+    bool m_hasClangdReplacement = false;
 };
 
 } // namespace CppEditor

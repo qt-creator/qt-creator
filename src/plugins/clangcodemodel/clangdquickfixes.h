@@ -15,8 +15,8 @@ class ClangdQuickFixFactory : public CppEditor::CppQuickFixFactory
 public:
     ClangdQuickFixFactory();
 
-    void match(const CppEditor::Internal::CppQuickFixInterface &interface,
-               QuickFixOperations &result) override;
+    void doMatch(const CppEditor::Internal::CppQuickFixInterface &interface,
+                 QuickFixOperations &result) override;
 };
 
 class ClangdQuickFixProvider : public LanguageClient::LanguageClientQuickFixProvider

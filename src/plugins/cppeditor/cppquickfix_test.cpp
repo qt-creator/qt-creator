@@ -192,6 +192,9 @@ QuickFixOperationTest::QuickFixOperationTest(const QList<TestDocumentPtr> &testD
                                              const QByteArray &clangFormatSettings)
     : BaseQuickFixTestCase(testDocuments, headerPaths, clangFormatSettings)
 {
+    if (factory->hasClangdReplacement() && CppModelManager::isClangCodeModelActive())
+        return;
+
     QVERIFY(succeededSoFar());
 
     // Perform operation if there is one
@@ -268,7 +271,7 @@ public:
     AddIncludeForUndefinedIdentifierTestFactory(const QString &include)
         : m_include(include) {}
 
-    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result) override
+    void doMatch(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result) override
     {
         result << new AddIncludeForUndefinedIdentifierOp(cppQuickFixInterface, 0, m_include);
     }
@@ -283,7 +286,7 @@ public:
     AddForwardDeclForUndefinedIdentifierTestFactory(const QString &className, int symbolPos)
         : m_className(className), m_symbolPos(symbolPos) {}
 
-    void match(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result) override
+    void doMatch(const CppQuickFixInterface &cppQuickFixInterface, QuickFixOperations &result) override
     {
         result << new AddForwardDeclForUndefinedIdentifierOp(cppQuickFixInterface, 0,
                                                              m_className, m_symbolPos);

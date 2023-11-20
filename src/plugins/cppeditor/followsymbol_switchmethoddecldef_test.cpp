@@ -369,8 +369,6 @@ F2TestCase::F2TestCase(CppEditorAction action,
     }
 
     if (useClangd) {
-        QEXPECT_FAIL("infiniteLoopLocalTypedef_QTCREATORBUG-11999",
-                     "clangd bug: Go to definition does not return", Abort);
         if (expectedVirtualFunctionProposal.size() <= 1) {
             QVERIFY(CppEditor::Tests::waitForSignalOrTimeout(EditorManager::instance(),
                                                              &EditorManager::linkOpened, 10000));
