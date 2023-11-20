@@ -1109,7 +1109,7 @@ FilePath GccToolChain::detectInstallDir() const
 }
 
 // --------------------------------------------------------------------------
-// GccToolChainFactory
+// GccToolchainFactory
 // --------------------------------------------------------------------------
 
 static FilePaths gnuSearchPathsFromRegistry()
@@ -1274,33 +1274,69 @@ static ToolChain *constructLinuxIccToolchain()
     return new GccToolChain(Constants::LINUXICC_TOOLCHAIN_TYPEID, GccToolChain::LinuxIcc);
 }
 
-GccToolChainFactory::GccToolChainFactory(GccToolChain::SubType subType)
-    : m_autoDetecting(subType == GccToolChain::RealGcc)
+namespace Internal {
+
+class GccToolchainFactory final : public ToolChainFactory
 {
-    switch (subType) {
-    case GccToolChain::RealGcc:
-        setDisplayName(Tr::tr("GCC"));
-        setSupportedToolChainType(Constants::GCC_TOOLCHAIN_TYPEID);
-        setToolchainConstructor(&constructRealGccToolchain);
-        break;
-    case GccToolChain::Clang:
-        setDisplayName(Tr::tr("Clang"));
-        setSupportedToolChainType(Constants::CLANG_TOOLCHAIN_TYPEID);
-        setToolchainConstructor(&constructClangToolchain);
-        break;
-    case GccToolChain::MinGW:
-        setDisplayName(Tr::tr("MinGW"));
-        setSupportedToolChainType(Constants::MINGW_TOOLCHAIN_TYPEID);
-        setToolchainConstructor(&constructMinGWToolchain);
-        break;
-    case GccToolChain::LinuxIcc:
-        setDisplayName(Tr::tr("ICC"));
-        setSupportedToolChainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
-        setToolchainConstructor(&constructLinuxIccToolchain);
-        break;
+public:
+    explicit GccToolchainFactory(GccToolChain::SubType subType)
+        : m_autoDetecting(subType == GccToolChain::RealGcc)
+    {
+        switch (subType) {
+        case GccToolChain::RealGcc:
+            setDisplayName(Tr::tr("GCC"));
+            setSupportedToolChainType(Constants::GCC_TOOLCHAIN_TYPEID);
+            setToolchainConstructor(&constructRealGccToolchain);
+            break;
+        case GccToolChain::Clang:
+            setDisplayName(Tr::tr("Clang"));
+            setSupportedToolChainType(Constants::CLANG_TOOLCHAIN_TYPEID);
+            setToolchainConstructor(&constructClangToolchain);
+            break;
+        case GccToolChain::MinGW:
+            setDisplayName(Tr::tr("MinGW"));
+            setSupportedToolChainType(Constants::MINGW_TOOLCHAIN_TYPEID);
+            setToolchainConstructor(&constructMinGWToolchain);
+            break;
+        case GccToolChain::LinuxIcc:
+            setDisplayName(Tr::tr("ICC"));
+            setSupportedToolChainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
+            setToolchainConstructor(&constructLinuxIccToolchain);
+            break;
+        }
+        setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
+        setUserCreatable(true);
     }
-    setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
-    setUserCreatable(true);
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const final;
+    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
+
+private:
+    static Toolchains autoDetectToolchains(const FilePaths &compilerPaths,
+                                           const Id language,
+                                           const Id requiredTypeId,
+                                           const Toolchains &known,
+                                           const GccToolChain::SubType subType);
+    static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,
+                                          const GccToolChain::SubType subType);
+    static Toolchains autoDetectSdkClangToolchain(const Toolchains &known);
+
+    const bool m_autoDetecting;
+};
+
+void setupGccToolchains()
+{
+#ifndef Q_OS_WIN
+    static GccToolchainFactory theLinuxIccToolchainFactory{GccToolChain::LinuxIcc};
+#endif
+
+#ifndef Q_OS_MACOS
+    // Mingw offers cross-compiling to windows
+    static GccToolchainFactory theMingwToolchainFactory{GccToolChain::MinGW};
+#endif
+
+    static GccToolchainFactory theGccToolchainFactory{GccToolChain::RealGcc};
+    static GccToolchainFactory theClangToolchainFactory{GccToolChain::Clang};
 }
 
 static FilePaths findCompilerCandidates(OsType os,
@@ -1362,7 +1398,7 @@ static FilePaths findCompilerCandidates(OsType os,
 }
 
 
-Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) const
+Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
     QTC_ASSERT(detector.device, return {});
 
@@ -1468,7 +1504,7 @@ Toolchains GccToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     return result;
 }
 
-Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
+Toolchains GccToolchainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
     Toolchains result;
 
@@ -1515,7 +1551,7 @@ Toolchains GccToolChainFactory::detectForImport(const ToolChainDescription &tcd)
     return result;
 }
 
-Toolchains GccToolChainFactory::autoDetectSdkClangToolchain(const Toolchains &known)
+Toolchains GccToolchainFactory::autoDetectSdkClangToolchain(const Toolchains &known)
 {
     const FilePath compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
     if (compilerPath.isEmpty())
@@ -1529,7 +1565,7 @@ Toolchains GccToolChainFactory::autoDetectSdkClangToolchain(const Toolchains &kn
     return {autoDetectToolChain({compilerPath, Constants::C_LANGUAGE_ID}, GccToolChain::Clang)};
 }
 
-Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPaths,
+Toolchains GccToolchainFactory::autoDetectToolchains(const FilePaths &compilerPaths,
                                                      const Id language,
                                                      const Id requiredTypeId,
                                                      const Toolchains &known,
@@ -1580,7 +1616,7 @@ Toolchains GccToolChainFactory::autoDetectToolchains(const FilePaths &compilerPa
     return result;
 }
 
-Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &tcd,
+Toolchains GccToolchainFactory::autoDetectToolChain(const ToolChainDescription &tcd,
                                                     GccToolChain::SubType subType)
 {
     Toolchains result;
@@ -1630,7 +1666,6 @@ Toolchains GccToolChainFactory::autoDetectToolChain(const ToolChainDescription &
 // GccToolChainConfigWidget
 // --------------------------------------------------------------------------
 
-namespace Internal {
 class TargetTripleWidget : public QWidget
 {
     Q_OBJECT

@@ -17,7 +17,7 @@ namespace ProjectExplorer {
 
 namespace Internal {
 class GccToolChainConfigWidget;
-class GccToolChainFactory;
+class GccToolchainFactory;
 
 const QStringList gccPredefinedMacrosOptions(Utils::Id languageId);
 }
@@ -149,7 +149,7 @@ private:
     mutable Utils::FilePath m_installDir;
 
     friend class Internal::GccToolChainConfigWidget;
-    friend class Internal::GccToolChainFactory;
+    friend class Internal::GccToolchainFactory;
     friend class ToolChainFactory;
 
     // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
@@ -161,29 +161,6 @@ private:
     QMetaObject::Connection m_thisToolchainRemovedConnection;
 };
 
+namespace Internal { void setupGccToolchains(); }
 
-namespace Internal {
-
-class GccToolChainFactory : public ToolChainFactory
-{
-public:
-    explicit GccToolChainFactory(GccToolChain::SubType subType);
-
-    Toolchains autoDetect(const ToolchainDetector &detector) const final;
-    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
-
-private:
-    static Toolchains autoDetectToolchains(const Utils::FilePaths &compilerPaths,
-                                           const Utils::Id language,
-                                           const Utils::Id requiredTypeId,
-                                           const Toolchains &known,
-                                           const GccToolChain::SubType subType);
-    static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,
-                                          const GccToolChain::SubType subType);
-    static Toolchains autoDetectSdkClangToolchain(const Toolchains &known);
-
-    const bool m_autoDetecting;
-};
-
-} // namespace Internal
 } // namespace ProjectExplorer

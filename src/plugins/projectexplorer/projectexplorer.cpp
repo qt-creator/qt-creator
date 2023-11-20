@@ -643,17 +643,8 @@ public:
     WinDebugInterface m_winDebugInterface;
     MsvcToolChainFactory m_mscvToolChainFactory;
     ClangClToolChainFactory m_clangClToolChainFactory;
-#else
-    GccToolChainFactory m_linuxToolChainFactory{GccToolChain::LinuxIcc};
 #endif
 
-#ifndef Q_OS_MACOS
-    // Mingw offers cross-compiling to windows
-    GccToolChainFactory m_mingwToolChainFactory{GccToolChain::MinGW};
-#endif
-
-    GccToolChainFactory m_gccToolChainFactory{GccToolChain::RealGcc};
-    GccToolChainFactory m_clangToolChainFactory{GccToolChain::Clang};
     CustomToolChainFactory m_customToolChainFactory;
 
     DesktopDeviceFactory m_desktopDeviceFactory;
@@ -820,6 +811,8 @@ ProjectExplorerPlugin *ProjectExplorerPlugin::instance()
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(error)
+
+    setupGccToolchains();
 
     dd = new ProjectExplorerPluginPrivate;
 
