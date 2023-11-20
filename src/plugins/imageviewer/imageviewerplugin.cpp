@@ -21,3 +21,5 @@ public:
 };
 
 } // ImageViewer::Internal
+
+#include "imageviewerplugin.moc"
