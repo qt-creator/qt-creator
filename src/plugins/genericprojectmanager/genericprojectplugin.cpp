@@ -44,7 +44,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
 {
     ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
 
-    IWizardFactory::registerFactoryCreator([] { return new GenericProjectWizard; });
+    setupGenericProjectWizard();
 
     ActionBuilder editAction(this, "GenericProjectManager.EditFiles");
     editAction.setContext(Constants::GENERICPROJECT_ID);

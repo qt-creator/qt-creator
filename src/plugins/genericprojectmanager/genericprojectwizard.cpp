@@ -3,19 +3,22 @@
 
 #include "genericprojectwizard.h"
 
-#include "filesselectionwizardpage.h"
 #include "genericprojectconstants.h"
 #include "genericprojectmanagertr.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/iwizardfactory.h>
+
+#include <projectexplorer/customwizard/customwizard.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
-#include <projectexplorer/customwizard/customwizard.h>
+#include <projectexplorer/selectablefilesmodel.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/filewizardpage.h>
 #include <utils/mimeutils.h>
+#include <utils/wizard.h>
 
 #include <QApplication>
 #include <QDebug>
@@ -24,21 +27,99 @@
 #include <QPainter>
 #include <QPixmap>
 #include <QStyle>
+#include <QVBoxLayout>
+#include <QWizardPage>
 
+using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace GenericProjectManager {
-namespace Internal {
+namespace GenericProjectManager::Internal {
 
 const char ConfigFileTemplate[] =
         "// Add predefined macros for your project here. For example:\n"
         "// #define THE_ANSWER 42\n";
+
+
+class GenericProjectWizardDialog;
+
+class FilesSelectionWizardPage : public QWizardPage
+{
+public:
+    FilesSelectionWizardPage(GenericProjectWizardDialog *genericProjectWizard, QWidget *parent = nullptr);
+
+    bool isComplete() const override;
+    void initializePage() override;
+    void cleanupPage() override;
+    FilePaths selectedFiles() const;
+    FilePaths selectedPaths() const;
+
+private:
+    GenericProjectWizardDialog *m_genericProjectWizardDialog;
+    ProjectExplorer::SelectableFilesWidget *m_filesWidget;
+};
+
+FilesSelectionWizardPage::FilesSelectionWizardPage(GenericProjectWizardDialog *genericProjectWizard,
+                                                   QWidget *parent) :
+    QWizardPage(parent),
+    m_genericProjectWizardDialog(genericProjectWizard),
+    m_filesWidget(new ProjectExplorer::SelectableFilesWidget(this))
+{
+    auto layout = new QVBoxLayout(this);
+
+    layout->addWidget(m_filesWidget);
+    m_filesWidget->enableFilterHistoryCompletion
+            (ProjectExplorer::Constants::ADD_FILES_DIALOG_FILTER_HISTORY_KEY);
+    m_filesWidget->setBaseDirEditable(false);
+    connect(m_filesWidget, &ProjectExplorer::SelectableFilesWidget::selectedFilesChanged,
+            this, &FilesSelectionWizardPage::completeChanged);
+
+    setProperty(Utils::SHORT_TITLE_PROPERTY, Tr::tr("Files"));
+}
+
+void FilesSelectionWizardPage::cleanupPage()
+{
+    m_filesWidget->cancelParsing();
+}
+
+bool FilesSelectionWizardPage::isComplete() const
+{
+    return m_filesWidget->hasFilesSelected();
+}
+
+Utils::FilePaths FilesSelectionWizardPage::selectedPaths() const
+{
+    return m_filesWidget->selectedPaths();
+}
+
+Utils::FilePaths FilesSelectionWizardPage::selectedFiles() const
+{
+    return m_filesWidget->selectedFiles();
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
 // GenericProjectWizardDialog
 //
 //////////////////////////////////////////////////////////////////////////////
+
+class GenericProjectWizardDialog : public Core::BaseFileWizard
+{
+    Q_OBJECT
+
+public:
+    explicit GenericProjectWizardDialog(const Core::BaseFileWizardFactory *factory, QWidget *parent = nullptr);
+
+    Utils::FilePath filePath() const;
+    void setFilePath(const Utils::FilePath &path);
+    Utils::FilePaths selectedFiles() const;
+    Utils::FilePaths selectedPaths() const;
+
+    QString projectName() const;
+
+    Utils::FileWizardPage *m_firstPage;
+    FilesSelectionWizardPage *m_secondPage;
+};
 
 GenericProjectWizardDialog::GenericProjectWizardDialog(const Core::BaseFileWizardFactory *factory,
                                                        QWidget *parent) :
@@ -89,6 +170,20 @@ QString GenericProjectWizardDialog::projectName() const
 // GenericProjectWizard
 //
 //////////////////////////////////////////////////////////////////////////////
+
+class GenericProjectWizard : public Core::BaseFileWizardFactory
+{
+    Q_OBJECT
+
+public:
+    GenericProjectWizard();
+
+protected:
+    Core::BaseFileWizard *create(QWidget *parent, const Core::WizardDialogParameters &parameters) const override;
+    Core::GeneratedFiles generateFiles(const QWizard *w, QString *errorMessage) const override;
+    bool postGenerateFiles(const QWizard *w, const Core::GeneratedFiles &l,
+                           QString *errorMessage) const override;
+};
 
 GenericProjectWizard::GenericProjectWizard()
 {
@@ -198,5 +293,16 @@ bool GenericProjectWizard::postGenerateFiles(const QWizard *w, const Core::Gener
     return ProjectExplorer::CustomProjectWizard::postGenerateOpen(l, errorMessage);
 }
 
-} // namespace Internal
-} // namespace GenericProjectManager
+void FilesSelectionWizardPage::initializePage()
+{
+    m_filesWidget->resetModel(m_genericProjectWizardDialog->filePath(), Utils::FilePaths());
+}
+
+void setupGenericProjectWizard()
+{
+    IWizardFactory::registerFactoryCreator([] { return new GenericProjectWizard; });
+}
+
+} // GenericProjectManager::Internal
+
+#include "genericprojectwizard.moc"
