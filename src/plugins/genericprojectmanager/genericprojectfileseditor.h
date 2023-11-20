@@ -3,16 +3,8 @@
 
 #pragma once
 
-#include <texteditor/texteditor.h>
+namespace GenericProjectManager::Internal {
 
-namespace GenericProjectManager {
-namespace Internal {
+void setupGenericProjectFiles();
 
-class ProjectFilesFactory : public TextEditor::TextEditorFactory
-{
-public:
-    ProjectFilesFactory();
-};
-
-} // namespace Internal
-} // namespace GenericProjectManager
+} // GenericProjectManager::Internal

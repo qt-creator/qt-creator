@@ -35,7 +35,6 @@ class GenericProjectPluginPrivate : public QObject
 public:
     GenericProjectPluginPrivate();
 
-    ProjectFilesFactory projectFilesFactory;
     GenericMakeStepFactory makeStepFactory;
     GenericBuildConfigurationFactory buildConfigFactory;
 };
@@ -45,6 +44,7 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
     ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
 
     setupGenericProjectWizard();
+    setupGenericProjectFiles();
 
     ActionBuilder editAction(this, "GenericProjectManager.EditFiles");
     editAction.setContext(Constants::GENERICPROJECT_ID);

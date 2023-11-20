@@ -6,33 +6,36 @@
 
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <texteditor/textdocument.h>
-#include <texteditor/texteditoractionhandler.h>
 
-#include <QCoreApplication>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
+#include <texteditor/texteditoractionhandler.h>
 
 using namespace TextEditor;
 
-namespace GenericProjectManager {
-namespace Internal {
+namespace GenericProjectManager::Internal {
 
-//
-// ProjectFilesFactory
-//
-
-ProjectFilesFactory::ProjectFilesFactory()
+class ProjectFilesFactory : public TextEditorFactory
 {
-    setId(Constants::FILES_EDITOR_ID);
-    setDisplayName(::Core::Tr::tr(".files Editor"));
-    addMimeType("application/vnd.qtcreator.generic.files");
-    addMimeType("application/vnd.qtcreator.generic.includes");
-    addMimeType("application/vnd.qtcreator.generic.config");
-    addMimeType("application/vnd.qtcreator.generic.cxxflags");
-    addMimeType("application/vnd.qtcreator.generic.cflags");
+public:
+    ProjectFilesFactory()
+    {
+        setId(Constants::FILES_EDITOR_ID);
+        setDisplayName(::Core::Tr::tr(".files Editor"));
+        addMimeType("application/vnd.qtcreator.generic.files");
+        addMimeType("application/vnd.qtcreator.generic.includes");
+        addMimeType("application/vnd.qtcreator.generic.config");
+        addMimeType("application/vnd.qtcreator.generic.cxxflags");
+        addMimeType("application/vnd.qtcreator.generic.cflags");
 
-    setDocumentCreator([]() { return new TextDocument(Constants::FILES_EDITOR_ID); });
-    setEditorActionHandlers(TextEditorActionHandler::None);
+        setDocumentCreator([]() { return new TextDocument(Constants::FILES_EDITOR_ID); });
+        setEditorActionHandlers(TextEditorActionHandler::None);
+    }
+};
+
+void setupGenericProjectFiles()
+{
+    static ProjectFilesFactory theProjectFilesFactory;
 }
 
-} // namespace Internal
-} // namespace GenericProjectManager
+} // GenericProjectManager::Internal
