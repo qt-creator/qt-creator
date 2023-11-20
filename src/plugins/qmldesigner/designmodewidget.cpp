@@ -582,6 +582,9 @@ void DesignModeWidget::setMinimumSizeHintFromContentMinimumSize(bool value)
 
     m_minimumSizeHintMode = newMode;
 
+    if (!m_dockManager)
+        return;
+
     const auto &dockWidgets = m_dockManager->dockWidgetsMap();
     for (auto dockWidget : dockWidgets)
         dockWidget->setMinimumSizeHintMode(m_minimumSizeHintMode);
