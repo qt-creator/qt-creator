@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "genericprojectplugin.h"
-
 #include "genericbuildconfiguration.h"
 #include "genericmakestep.h"
 #include "genericproject.h"
@@ -13,6 +11,8 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -28,8 +28,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 namespace PEC = ProjectExplorer::Constants;
 
-namespace GenericProjectManager {
-namespace Internal {
+namespace GenericProjectManager::Internal {
 
 class GenericProjectPluginPrivate : public QObject
 {
@@ -40,16 +39,6 @@ public:
     GenericMakeStepFactory makeStepFactory;
     GenericBuildConfigurationFactory buildConfigFactory;
 };
-
-GenericProjectPlugin::~GenericProjectPlugin()
-{
-    delete d;
-}
-
-void GenericProjectPlugin::initialize()
-{
-    d = new GenericProjectPluginPrivate;
-}
 
 GenericProjectPluginPrivate::GenericProjectPluginPrivate()
 {
@@ -83,5 +72,26 @@ GenericProjectPluginPrivate::GenericProjectPluginPrivate()
     });
 }
 
-} // namespace Internal
-} // namespace GenericProjectManager
+class GenericProjectPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GenericProjectManager.json")
+
+public:
+    ~GenericProjectPlugin() final
+    {
+        delete d;
+    }
+
+private:
+    void initialize() final
+    {
+        d = new GenericProjectPluginPrivate;
+    }
+
+    GenericProjectPluginPrivate *d = nullptr;
+};
+
+} // GenericProjectManager::Internal
+
+#include "genericprojectplugin.moc"
