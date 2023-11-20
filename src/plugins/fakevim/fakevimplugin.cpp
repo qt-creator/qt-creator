@@ -1630,7 +1630,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
             *on = tew->multiTextCursor().hasMultipleCursors();
     });
 
-    handler->simpleCompletionRequested.set([this, handler](const QString &needle, bool forward) {
+    handler->simpleCompletionRequested.set([handler](const QString &needle, bool forward) {
         theFakeVimCompletionAssistProvider.setActive(needle, forward, handler);
     });
 
@@ -1764,7 +1764,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
 
     handler->tabPreviousRequested.set([] { triggerAction(Core::Constants::GOTOPREVINHISTORY); });
 
-    handler->completionRequested.set([this, tew] {
+    handler->completionRequested.set([tew] {
         if (tew)
             tew->invokeAssist(Completion, &theFakeVimCompletionAssistProvider);
     });
