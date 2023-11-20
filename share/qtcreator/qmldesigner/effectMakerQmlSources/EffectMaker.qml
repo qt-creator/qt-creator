@@ -96,6 +96,7 @@ Item {
 
                     delegate: EffectCompositionNode {
                         width: root.width
+                        modelIndex: index
 
                         Behavior on y {
                             PropertyAnimation {

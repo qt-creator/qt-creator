@@ -12,6 +12,8 @@ import EffectMakerBackend
 HelperWidgets.Section {
     id: root
 
+    property int modelIndex: 0
+
     caption: nodeName
     category: "EffectMaker"
 
@@ -21,7 +23,7 @@ HelperWidgets.Section {
     closeButtonToolTip: qsTr("Remove")
 
     onCloseButtonClicked: {
-        EffectMakerBackend.effectMakerModel.removeNode(root.index)
+        EffectMakerBackend.effectMakerModel.removeNode(root.modelIndex)
     }
 
     showEyeButton: true
