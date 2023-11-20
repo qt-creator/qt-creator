@@ -665,7 +665,10 @@ static void addCompileGroups(ProjectNode *targetRoot,
                                                              sourceDirectory,
                                                              targetRoot);
         if (showSourceFolders) {
-            insertNode->addNestedNodes(std::move(current), sourceDirectory);
+            FilePath baseDir = sourceDirectory.pathAppended(td.sourceGroups[i]);
+            if (!baseDir.exists())
+                baseDir = sourceDirectory;
+            insertNode->addNestedNodes(std::move(current), baseDir);
         } else {
             for (auto &fileNodes : current)
                 insertNode->addNode(std::move(fileNodes));

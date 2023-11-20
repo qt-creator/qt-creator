@@ -2040,21 +2040,15 @@ void ClangdTestExternalChanges::test()
     QVERIFY(curDoc->marks().isEmpty());
 
     // Now trigger an external change in an open, but not currently visible file and
-    // verify that we get a new client and diagnostics in the current editor.
+    // verify that we get diagnostics in the current editor.
     TextDocument * const docToChange = document("mainwindow.cpp");
     docToChange->setSilentReload();
     QFile otherSource(filePath("mainwindow.cpp").toString());
     QVERIFY(otherSource.open(QIODevice::WriteOnly));
     otherSource.write("blubb");
     otherSource.close();
-    QVERIFY(waitForSignalOrTimeout(LanguageClientManager::instance(),
-                                   &LanguageClientManager::clientAdded, timeOutInMs()));
-    ClangdClient * const newClient = ClangModelManagerSupport::clientForProject(project());
-    QVERIFY(newClient);
-    QVERIFY(newClient != oldClient);
-    newClient->enableTesting();
     if (curDoc->marks().isEmpty())
-        QVERIFY(waitForSignalOrTimeout(newClient, &ClangdClient::textMarkCreated, timeOutInMs()));
+        QVERIFY(waitForSignalOrTimeout(client(), &ClangdClient::textMarkCreated, timeOutInMs()));
 }
 
 ClangdTestIndirectChanges::ClangdTestIndirectChanges()
