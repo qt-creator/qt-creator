@@ -115,13 +115,13 @@ int main(int argc, char *argv[])
     // Task initial configuration
 
     task_1_2->setBusyTime(2);
-    task_1_2->setSuccess(false);
+    task_1_2->setDesiredResult(DoneResult::Error);
     task_1_3->setBusyTime(3);
     task_4_3_1->setBusyTime(4);
     task_4_3_2->setBusyTime(2);
     task_4_3_3->setBusyTime(1);
     task_4_3_4->setBusyTime(3);
-    task_4_3_4->setSuccess(false);
+    task_4_3_4->setDesiredResult(DoneResult::Error);
     task_4_4->setBusyTime(6);
     task_4_4->setBusyTime(3);
 
@@ -193,17 +193,20 @@ int main(int argc, char *argv[])
     };
 
     const auto createTask = [](TaskWidget *widget) {
-        const milliseconds timeout{widget->busyTime() * 1000};
-        const auto setupTask = [widget, timeout](milliseconds &taskObject) {
+        const milliseconds timeout(widget->busyTime() * 1000);
+        const auto onSetup = [widget, timeout](milliseconds &taskObject) {
             taskObject = timeout;
             widget->setState(State::Running);
         };
-        const Group root {
-            widget->isSuccess() ? stopOnError : finishAllAndError,
-            TimeoutTask(setupTask),
-            onGroupDone([widget](DoneWith result) { widget->setState(resultToState(result)); })
+        const auto onDone = [widget, desiredResult = widget->desiredResult()](DoneWith doneWith) {
+            // The TimeoutTask, when not DoneWith::Cancel, always reports DoneWith::Success.
+            // Tweak the final result in case the desired result is Error.
+            const DoneWith result = doneWith == DoneWith::Success
+                            && desiredResult == DoneResult::Error ? DoneWith::Error : doneWith;
+            widget->setState(resultToState(result));
+            return desiredResult;
         };
-        return root;
+        return TimeoutTask(onSetup, onDone);
     };
 
     const auto recipe = [&] {

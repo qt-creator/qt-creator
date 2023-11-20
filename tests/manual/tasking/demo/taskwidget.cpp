@@ -93,7 +93,7 @@ TaskWidget::TaskWidget()
 {
     m_spinBox->setSuffix(" sec");
     setBusyTime(1);
-    setSuccess(true);
+    setDesiredResult(DoneResult::Success);
 
     QBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(m_stateWidget);
@@ -114,14 +114,14 @@ int TaskWidget::busyTime() const
     return m_spinBox->value();
 }
 
-void TaskWidget::setSuccess(bool success)
+void TaskWidget::setDesiredResult(DoneResult result)
 {
-    m_checkBox->setChecked(success);
+    m_checkBox->setChecked(result == DoneResult::Success);
 }
 
-bool TaskWidget::isSuccess() const
+DoneResult TaskWidget::desiredResult() const
 {
-    return m_checkBox->isChecked();
+    return m_checkBox->isChecked() ? DoneResult::Success : DoneResult::Error;
 }
 
 GroupWidget::GroupWidget()

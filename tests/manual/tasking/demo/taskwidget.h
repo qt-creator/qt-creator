@@ -49,8 +49,8 @@ public:
 
     void setBusyTime(int seconds);
     int busyTime() const;
-    void setSuccess(bool success);
-    bool isSuccess() const;
+    void setDesiredResult(Tasking::DoneResult result);
+    Tasking::DoneResult desiredResult() const;
 
 private:
     StateWidget *m_stateWidget = nullptr;
