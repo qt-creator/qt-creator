@@ -26,13 +26,6 @@
 
 namespace Haskell::Internal {
 
-class HaskellPluginPrivate
-{
-public:
-    HaskellRunConfigurationFactory runConfigFactory;
-    ProjectExplorer::SimpleTargetRunnerFactory runWorkerFactory{{Constants::C_HASKELL_RUNCONFIG_ID}};
-};
-
 static void registerGhciAction(QObject *guard)
 {
     QAction *action = new QAction(Tr::tr("Run GHCi"), guard);
@@ -49,15 +42,13 @@ class HaskellPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Haskell.json")
 
 public:
-    ~HaskellPlugin() final { delete d; }
-
-private:
     void initialize() final
     {
-        d = new HaskellPluginPrivate;
-
         setupHaskellStackBuildStep();
         setupHaskellBuildConfiguration();
+
+        setupHaskellRunSupport();
+
         setupHaskellEditor();
 
         ProjectExplorer::ProjectManager::registerProjectType<HaskellProject>(
@@ -69,8 +60,6 @@ private:
 
         ProjectExplorer::JsonWizardFactory::addWizardPath(":/haskell/share/wizards/");
     }
-
-    HaskellPluginPrivate *d = nullptr;
 };
 
 } // Haskell::Internal
