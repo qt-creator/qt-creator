@@ -164,6 +164,155 @@ private:
 */
 
 /*!
+    \class Tasking::Storage
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief A class template for custom data exchange in the running task tree.
+    \reentrant
+
+    The Storage class template is responsible for dynamically creating and destructing objects
+    of the custom \c StorageStruct type. The creation and destruction are managed by the
+    running task tree. If a Storage object is placed inside a \l {Tasking::Group} {Group} element,
+    the running task tree creates the \c StorageStruct object when the group is started and before
+    the group's setup handler is called. Later, whenever any handler inside this group is called,
+    the task tree activates the previously created instance of the \c StorageStruct object.
+    This includes all tasks' and groups' setup and done handlers inside the group where the
+    Storage object was placed, also within the nested groups.
+    When a copy of the Storage object is passed to the handler via the lambda capture,
+    the handler may access the instance activated by the running task tree via the
+    Storage::operator->(), Storage::operator*(), or Storage::activeStorage() method.
+    If two handlers capture the same Storage object, one of them may store a custom data there,
+    and the other may read it afterwards.
+    When the group is finished, the previously created instance of the \c StorageStruct
+    object is destroyed after the group's done handler is called.
+
+    An example of data exchange between tasks:
+
+    \code
+        const Storage<QString> storage;
+
+        const auto onFirstDone = [storage](const Task &task) {
+            // Assings QString, taken from the first task result, to the active QString instance
+            // of the Storage object.
+            *storage = task.getResultAsString();
+        };
+
+        const auto onSecondSetup = [storage](Task &task) {
+            // Reads QString from the active QString instance of the Storage object and use it to
+            // configure the second task before start.
+            task.configureWithString(*storage);
+        };
+
+        const Group root {
+            // The running task tree creates QString instance when root in entered
+            storage,
+            // The done handler of the first task stores the QString in the storage
+            TaskItem(..., onFirstDone),
+            // The setup handler of the second task reads the QString from the storage
+            TaskItem(onSecondSetup, ...)
+        };
+    \endcode
+
+    Since the root group executes its tasks sequentially, the \c onFirstDone handler
+    is always called before the \c onSecondSetup handler. This means that the QString data,
+    read from the \c storage inside the \c onSecondSetup handler's body,
+    has already been set by the \c onFirstDone handler.
+    You can always rely on it in \l {Tasking::sequential} {sequential} execution mode.
+
+    The Storage internals are shared between all of its copies. That is why the copies of the
+    Storage object inside the handlers' lambda captures still refer to the same Storage instance.
+    You may place multiple Storage objects inside one \l {Tasking::Group} {Group} element,
+    provided that they do not include copies of the same Storage object.
+    Otherwise, an assert is triggered at runtime that includes an error message.
+    However, you can place copies of the same Storage object in different
+    \l {Tasking::Group} {Group} elements of the same recipe. In this case, the running task
+    tree will create multiple instances of the \c StorageStruct objects (one for each copy)
+    and storage shadowing will take place. Storage shadowing works in a similar way
+    to C++ variable shadowing inside the nested blocks of code:
+
+    \code
+        Storage<QString> storage;
+
+        const Group root {
+            storage,                             // Top copy, 1st instance of StorageStruct
+            onGroupSetup([storage] { ... }),     // Top copy is active
+            Group {
+                storage,                         // Nested copy, 2nd instance of StorageStruct,
+                                                 // shadows Top copy
+                onGroupSetup([storage] { ... }), // Nested copy is active
+            },
+            Group {
+                onGroupSetup([storage] { ... }), // Top copy is active
+            }
+        };
+    \endcode
+
+    The Storage objects may also be used for passing the initial data to the executed task tree,
+    and for reading the final data out of the task tree before it finishes.
+    To do this, use \l {TaskTree::onStorageSetup()} {onStorageSetup()} or
+    \l {TaskTree::onStorageDone()} {onStorageDone()}, respectively.
+
+    \note If you use an unreachable Storage object inside the handler,
+          because you forgot to place the storage in the recipe,
+          or placed it, but not in any handler's ancestor group,
+          you may expect a crash, preceded by the following message:
+          \e {The referenced storage is not reachable in the running tree.
+          A nullptr will be returned which might lead to a crash in the calling code.
+          It is possible that no storage was added to the tree,
+          or the storage is not reachable from where it is referenced.}
+*/
+
+/*!
+    \fn template <typename StorageStruct> Storage<StorageStruct>::Storage<StorageStruct>()
+
+    Creates a storage for the given \c StorageStruct type.
+
+    \note All copies of \c this object are considered to be the same Storage instance.
+*/
+
+/*!
+    \fn template <typename StorageStruct> StorageStruct &Storage<StorageStruct>::operator*() const noexcept
+
+    Returns a \e reference to the active \c StorageStruct object, created by the running task tree.
+    Use this function only from inside the handler body of any GroupItem element placed
+    in the recipe, otherwise you may expect a crash.
+    Make sure that Storage is placed in any group ancestor of the handler's group item.
+
+    \note The returned reference is valid as long as the group that created this instance
+          is still running.
+
+    \sa activeStorage(), operator->()
+*/
+
+/*!
+    \fn template <typename StorageStruct> StorageStruct *Storage<StorageStruct>::operator->() const noexcept
+
+    Returns a \e pointer to the active \c StorageStruct object, created by the running task tree.
+    Use this function only from inside the handler body of any GroupItem element placed
+    in the recipe, otherwise you may expect a crash.
+    Make sure that Storage is placed in any group ancestor of the handler's group item.
+
+    \note The returned pointer is valid as long as the group that created this instance
+          is still running.
+
+    \sa activeStorage(), operator*()
+*/
+
+/*!
+    \fn template <typename StorageStruct> StorageStruct *Storage<StorageStruct>::activeStorage() const
+
+    Returns a \e pointer to the active \c StorageStruct object, created by the running task tree.
+    Use this function only from inside the handler body of any GroupItem element placed
+    in the recipe, otherwise you may expect a crash.
+    Make sure that Storage is placed in any group ancestor of the handler's group item.
+
+    \note The returned pointer is valid as long as the group that created this instance
+          is still running.
+
+    \sa operator->(), operator*()
+*/
+
+/*!
     \class Tasking::GroupItem
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
