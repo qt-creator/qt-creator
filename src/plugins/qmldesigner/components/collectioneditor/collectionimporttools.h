@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QtCore/qtconfigmacros.h>
+
 QT_BEGIN_NAMESPACE
 class QJsonArray;
 class QUrl;
