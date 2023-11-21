@@ -3,26 +3,10 @@
 
 #pragma once
 
-#include <projectexplorer/project.h>
+#include <QObject>
 
-namespace GenericProjectManager {
-namespace Internal {
+namespace GenericProjectManager::Internal {
 
-class GenericProject : public ProjectExplorer::Project
-{
-    Q_OBJECT
+void setupGenericProject(QObject *guard);
 
-public:
-    explicit GenericProject(const Utils::FilePath &filename);
-
-    void editFilesTriggered();
-    void removeFilesTriggered(const Utils::FilePaths &filesToRemove);
-
-private:
-    RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) final;
-    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const final;
-    void configureAsExampleProject(ProjectExplorer::Kit *kit) override;
-};
-
-} // namespace Internal
-} // namespace GenericProjectManager
+} // GenericProjectManager::Internal
