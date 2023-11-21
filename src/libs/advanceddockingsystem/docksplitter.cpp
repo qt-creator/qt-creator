@@ -50,9 +50,8 @@ bool DockSplitter::hasVisibleContent() const
 {
     // TODO Cache or precalculate this to speed up
     for (int i = 0; i < count(); ++i) {
-        if (!widget(i)->isHidden()) {
+        if (!widget(i)->isHidden())
             return true;
-        }
     }
 
     return false;
