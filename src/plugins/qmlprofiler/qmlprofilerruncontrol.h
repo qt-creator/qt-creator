@@ -50,18 +50,6 @@ public:
                             const QUrl &serverUrl);
 };
 
-// The bits plugged in in remote setups.
-class QmlProfilerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    QmlProfilerRunWorkerFactory();
-};
-
-// The full local profiler.
-class LocalQmlProfilerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    LocalQmlProfilerRunWorkerFactory();
-};
+void setupQmlProfilerRunning();
 
 } // QmlProfiler::Internal

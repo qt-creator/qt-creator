@@ -56,16 +56,13 @@ class QmlProfilerPluginPrivate
 {
 public:
     QmlProfilerTool m_profilerTool;
-
-    // The full local profiler.
-    LocalQmlProfilerRunWorkerFactory localQmlProfilerRunWorkerFactory;
-    // The bits plugged in in remote setups.
-    QmlProfilerRunWorkerFactory qmlProfilerRunWorkerFactory;
 };
 
 bool QmlProfilerPlugin::initialize(const QStringList &arguments, QString *errorString)
 {
     Q_UNUSED(arguments)
+
+    setupQmlProfilerRunning();
 
 #ifdef WITH_TESTS
     addTest<DebugMessagesModelTest>();
