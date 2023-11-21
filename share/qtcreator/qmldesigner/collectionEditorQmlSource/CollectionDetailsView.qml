@@ -306,14 +306,11 @@ Rectangle {
     }
 
     Text {
-        anchors.fill: parent
+        anchors.centerIn: parent
         text: qsTr("Select a model to continue")
         visible: !topRow.visible
-        textFormat: Text.RichText
         color: StudioTheme.Values.themeTextColor
         font.pixelSize: StudioTheme.Values.mediumFontSize
-        horizontalAlignment: Text.AlignHCenter
-        wrapMode: Text.WordWrap
     }
 
     TextMetrics {
