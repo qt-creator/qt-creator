@@ -19,6 +19,7 @@
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <QDialogButtonBox>
@@ -153,16 +154,6 @@ static TextEditor::TextDocument *createVcpkgManifestDocument()
     return doc;
 }
 
-VcpkgManifestEditorFactory::VcpkgManifestEditorFactory()
-{
-    setId(Constants::VCPKGMANIFEST_EDITOR_ID);
-    setDisplayName(Tr::tr("Vcpkg Manifest Editor"));
-    addMimeType(Constants::VCPKGMANIFEST_MIMETYPE);
-    setDocumentCreator(createVcpkgManifestDocument);
-    setEditorWidgetCreator([] { return new VcpkgManifestEditorWidget; });
-    setUseGenericHighlighter(true);
-}
-
 QByteArray addDependencyToManifest(const QByteArray &manifest, const QString &package)
 {
     constexpr char dependenciesKey[] = "dependencies";
@@ -171,6 +162,25 @@ QByteArray addDependencyToManifest(const QByteArray &manifest, const QString &pa
     dependencies.append(package);
     jsonObject.insert(dependenciesKey, dependencies);
     return QJsonDocument(jsonObject).toJson();
+}
+
+class VcpkgManifestEditorFactory final : public TextEditor::TextEditorFactory
+{
+public:
+    VcpkgManifestEditorFactory()
+    {
+        setId(Constants::VCPKGMANIFEST_EDITOR_ID);
+        setDisplayName(Tr::tr("Vcpkg Manifest Editor"));
+        addMimeType(Constants::VCPKGMANIFEST_MIMETYPE);
+        setDocumentCreator(createVcpkgManifestDocument);
+        setEditorWidgetCreator([] { return new VcpkgManifestEditorWidget; });
+        setUseGenericHighlighter(true);
+    }
+};
+
+void setupVcpkgManifestEditor()
+{
+    static VcpkgManifestEditorFactory theVcpkgManifestEditorFactory;
 }
 
 } // namespace Vcpkg::Internal
