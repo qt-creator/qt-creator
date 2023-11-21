@@ -111,5 +111,8 @@ private:
     bool m_processRunning = false;
 };
 
+void setupPerfProfilerTool();
+void destroyPerfProfilerTool();
+
 } // namespace Internal
 } // namespace PerfProfiler

@@ -18,7 +18,7 @@ set(PERFPROFILER_CPP_SOURCES
   perfprofilerconstants.h
   perfprofilerflamegraphmodel.cpp perfprofilerflamegraphmodel.h
   perfprofilerflamegraphview.cpp perfprofilerflamegraphview.h
-  perfprofilerplugin.cpp perfprofilerplugin.h
+  perfprofilerplugin.cpp
   perfprofilerruncontrol.cpp perfprofilerruncontrol.h
   perfprofilerstatisticsmodel.cpp perfprofilerstatisticsmodel.h
   perfprofilerstatisticsview.cpp perfprofilerstatisticsview.h

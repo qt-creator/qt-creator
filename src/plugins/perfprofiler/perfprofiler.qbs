@@ -27,7 +27,6 @@ QtcPlugin {
         "perfprofiler_global.h", "perfprofilertr.h",
         "perfprofilerconstants.h",
         "perfprofilerplugin.cpp",
-        "perfprofilerplugin.h",
         "perfprofilertracemanager.cpp",
         "perfprofilertracemanager.h",
         "perftimelinemodel.cpp",

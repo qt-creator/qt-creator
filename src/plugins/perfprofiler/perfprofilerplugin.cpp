@@ -1,8 +1,6 @@
 // Copyright (C) 2018 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "perfprofilerplugin.h"
-
 #include "perfprofilerruncontrol.h"
 #include "perfprofilertool.h"
 #include "perfrunconfigurationaspect.h"
@@ -12,37 +10,37 @@
 #  include "tests/perfresourcecounter_test.h"
 #endif // WITH_TESTS
 
+#include <extensionsystem/iplugin.h>
 
 using namespace ProjectExplorer;
 
 namespace PerfProfiler::Internal {
 
-class PerfProfilerPluginPrivate
+class PerfProfilerPlugin final : public ExtensionSystem::IPlugin
 {
-public:
-    PerfProfilerPluginPrivate()
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "PerfProfiler.json")
+
+    void initialize() final
     {
+        setupPerfProfilerTool();
+        setupPerfProfilerRunWorker();
         RunConfiguration::registerAspect<PerfRunConfigurationAspect>();
-    }
-
-    PerfProfilerTool profilerTool;
-};
-
-PerfProfilerPlugin::~PerfProfilerPlugin()
-{
-    delete d;
-}
-
-void PerfProfilerPlugin::initialize()
-{
-    setupPerfProfilerRunWorker();
-
-    d = new PerfProfilerPluginPrivate;
 
 #if WITH_TESTS
-//   addTest<PerfProfilerTraceFileTest>();  // FIXME these tests have to get rewritten
-    addTest<PerfResourceCounterTest>();
+        //   addTest<PerfProfilerTraceFileTest>();  // FIXME these tests have to get rewritten
+        addTest<PerfResourceCounterTest>();
 #endif // WITH_TESTS
-}
+    }
+
+    ShutdownFlag aboutToShutdown() final
+    {
+        destroyPerfProfilerTool();
+
+        return SynchronousShutdown;
+    }
+};
 
 } // PerfProfiler::Internal
+
+#include "perfprofilerplugin.moc"

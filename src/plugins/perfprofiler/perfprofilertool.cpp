@@ -46,8 +46,7 @@ using namespace PerfProfiler::Constants;
 using namespace Utils;
 using namespace std::placeholders;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 static PerfProfilerTool *s_instance;
 
@@ -690,5 +689,14 @@ void PerfProfilerTool::clearUi()
     updateRunActions();
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+void setupPerfProfilerTool()
+{
+    (void) new PerfProfilerTool;
+}
+
+void destroyPerfProfilerTool()
+{
+    delete s_instance;
+}
+
+} // PerfProfiler::Internal
