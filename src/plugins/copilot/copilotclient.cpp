@@ -170,11 +170,11 @@ void CopilotClient::requestCompletions(TextEditorWidget *editor)
     if (!isEnabled(project))
         return;
 
-    Utils::MultiTextCursor cursor = editor->multiTextCursor();
+    MultiTextCursor cursor = editor->multiTextCursor();
     if (cursor.hasMultipleCursors() || cursor.hasSelection() || editor->suggestionVisible())
         return;
 
-    const Utils::FilePath filePath = editor->textDocument()->filePath();
+    const FilePath filePath = editor->textDocument()->filePath();
     GetCompletionRequest request{
         {TextDocumentIdentifier(hostPathToServerUri(filePath)),
          documentVersion(filePath),
@@ -198,7 +198,7 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
     if (const auto requestParams = m_runningRequests.take(editor).params())
         requestPosition = requestParams->position().toPositionInDocument(editor->document());
 
-    const Utils::MultiTextCursor cursors = editor->multiTextCursor();
+    const MultiTextCursor cursors = editor->multiTextCursor();
     if (cursors.hasMultipleCursors())
         return;
 
@@ -331,7 +331,7 @@ void CopilotClient::proxyAuthenticationFailed()
 
     m_isAskingForPassword = true;
 
-    auto answer = Utils::PasswordDialog::getUserAndPassword(
+    auto answer = PasswordDialog::getUserAndPassword(
         Tr::tr("Copilot"),
         Tr::tr("Proxy username and password required:"),
         Tr::tr("Do not ask again. This will disable Copilot for now."),

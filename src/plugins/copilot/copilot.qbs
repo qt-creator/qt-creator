@@ -19,7 +19,6 @@ QtcPlugin {
         "copilothoverhandler.cpp",
         "copilothoverhandler.h",
         "copilotplugin.cpp",
-        "copilotplugin.h",
         "copilotprojectpanel.cpp",
         "copilotprojectpanel.h",
         "copilotsettings.cpp",
