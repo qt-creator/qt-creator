@@ -3,7 +3,6 @@
 
 #include "perfprofilerstatisticsmodel.h"
 #include "perfprofilerstatisticsview.h"
-#include "perfprofilertool.h"
 
 #include <coreplugin/minisplitter.h>
 

@@ -100,7 +100,7 @@ PerfProfilerTool::PerfProfilerTool()
     command = Core::ActionManager::registerAction(m_showFullRange,
                                                   Constants::PerfProfilerTaskFullRange,
                                                   globalContext);
-    connect(m_showFullRange, &QAction::triggered, this, [this]() {
+    connect(m_showFullRange, &QAction::triggered, this, [] {
         traceManager().restrictByFilter(traceManager().rangeAndThreadFilter(-1, -1));
     });
     options->addAction(command);
@@ -179,7 +179,7 @@ void PerfProfilerTool::createViews()
     m_statisticsView = new PerfProfilerStatisticsView;
     m_statisticsView->setWindowTitle(Tr::tr("Statistics"));
 
-    m_flameGraphView = new PerfProfilerFlameGraphView(nullptr, this);
+    m_flameGraphView = new PerfProfilerFlameGraphView(nullptr);
     m_flameGraphView->setWindowTitle(Tr::tr("Flame Graph"));
 
     connect(m_statisticsView, &PerfProfilerStatisticsView::gotoSourceLocation,
@@ -500,7 +500,7 @@ void PerfProfilerTool::updateFilterMenu()
         if (thread.tid == 0) {
             action->setEnabled(false);
         } else {
-            connect(action, &QAction::toggled, this, [this, action](bool checked) {
+            connect(action, &QAction::toggled, this, [action](bool checked) {
                 traceManager().setThreadEnabled(action->data().toUInt(), checked);
             });
             connect(enableAll, &QAction::triggered,

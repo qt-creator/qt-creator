@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "perftimelinemodel.h"
-
 #include <QWidget>
 
 namespace PerfProfiler {
