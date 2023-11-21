@@ -316,7 +316,7 @@ private:
 /*!
     \fn Group::Group(std::initializer_list<GroupItem> children)
 
-    Constructs a group from std::initializer_list given by \a children.
+    Constructs a group from \c std::initializer_list given by \a children.
 
     This constructor is useful when all child items of the group are known at compile time:
 
@@ -347,6 +347,69 @@ private:
     the returned item finishes immediately with the group's result.
     Otherwise, the \a handler is invoked (if provided), the group is stopped,
     and the returned item finishes with an error.
+*/
+
+/*!
+    \class Tasking::List
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief List is a helper element that wraps a list of GroupItem elements into a single
+           GroupItem element.
+    \reentrant
+
+    \c List is useful when constructing a \l {Tasking::Group} {Group} element with lists of
+    GroupItem elements. If you define a helper function that returns a list of GroupItem elements,
+    it's not easy to place them directly into a group together with other items. Instead, you may
+    wrap the returned list with the \c List element and place it like a single GroupItem element
+    inside a \l {Tasking::Group} {Group}:
+
+    \code
+        static QList<GroupItems> getItems();
+
+        ...
+
+        const Group root {
+            parallel,
+            finishAllAndSuccess,
+            // getItems(),    // Wrong, compile error, as we can't mix QList<GroupItem> with
+                              // GroupItems within the initializer list of root Group.
+            List(getItems()), // OK, getItems() list is wrapped into a single GroupItem element
+                              // via the List element.
+            onGroupSetup(...),
+            onGroupDone(...)
+        };
+    \endcode
+
+    \c List may contain nested \c List elements. \c List doesn't do anything on its own.
+    When parsed by the task tree, the \c List element is simply replaced with its contents.
+
+    \note Don't confuse \c List with the \l {Tasking::Group} {Group} element, as
+          \l {Tasking::Group} {Group} keeps its children nested
+          after being parsed by the task tree, while \c List does not.
+*/
+
+/*!
+    \fn List::List(const QList<GroupItem> &children)
+
+    Constructs a \c List element with a given list of \a children.
+
+    When the \c List element is parsed by the task tree, it is simply replaced with its children.
+
+    If you want to create a subtree, use \l {Tasking::Group} {Group} instead.
+
+    \sa {Tasking::Group} {Group}
+*/
+
+/*!
+    \fn List::List(std::initializer_list<GroupItem> children)
+
+    Constructs a \c List element from \c std::initializer_list given by \a children.
+
+    When the \c List element is parsed by the task tree, it is simply replaced with its children.
+
+    If you want to create a subtree, use \l {Tasking::Group} {Group} instead.
+
+    \sa {Tasking::Group} {Group}
 */
 
 /*!
