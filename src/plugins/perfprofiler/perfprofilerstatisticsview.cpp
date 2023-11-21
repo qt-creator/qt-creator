@@ -7,6 +7,8 @@
 
 #include <coreplugin/minisplitter.h>
 
+#include <utils/basetreeview.h>
+
 #include <QApplication>
 #include <QClipboard>
 #include <QStyledItemDelegate>
@@ -40,8 +42,7 @@ public:
     }
 };
 
-PerfProfilerStatisticsView::PerfProfilerStatisticsView(QWidget *parent, PerfProfilerTool *tool) :
-    QWidget(parent)
+PerfProfilerStatisticsView::PerfProfilerStatisticsView()
 {
     setObjectName(QLatin1String("PerfProfilerStatisticsView"));
 
@@ -67,8 +68,7 @@ PerfProfilerStatisticsView::PerfProfilerStatisticsView(QWidget *parent, PerfProf
     groupLayout->addWidget(splitterVertical);
     setLayout(groupLayout);
 
-    PerfProfilerTraceManager *manager = &traceManager();
-    PerfProfilerStatisticsMainModel *mainModel = new PerfProfilerStatisticsMainModel(manager);
+    auto mainModel = new PerfProfilerStatisticsMainModel(this);
 
     PerfProfilerStatisticsRelativesModel *children = mainModel->children();
     PerfProfilerStatisticsRelativesModel *parents = mainModel->parents();
@@ -77,11 +77,11 @@ PerfProfilerStatisticsView::PerfProfilerStatisticsView(QWidget *parent, PerfProf
     m_childrenView->setModel(children);
     m_parentsView->setModel(parents);
 
-    auto propagateSelection = [this, manager, children, parents](int locationId){
+    auto propagateSelection = [this, children, parents](int locationId) {
         children->selectByTypeId(locationId);
         parents->selectByTypeId(locationId);
-        const PerfEventType::Location &location = manager->location(locationId);
-        const QByteArray &file = manager->string(location.file);
+        const PerfEventType::Location &location = traceManager().location(locationId);
+        const QByteArray &file = traceManager().string(location.file);
         if (!file.isEmpty())
             emit gotoSourceLocation(QString::fromUtf8(file), location.line, location.column);
         emit typeSelected(locationId);

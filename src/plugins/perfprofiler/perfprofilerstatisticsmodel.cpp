@@ -150,7 +150,7 @@ QByteArray PerfProfilerStatisticsMainModel::metaInfo(
         int typeId, PerfProfilerStatisticsModel::Column column) const
 {
     // Need to look up stuff from tracemanager
-    PerfProfilerTraceManager *manager = static_cast<PerfProfilerTraceManager *>(QObject::parent());
+    PerfProfilerTraceManager *manager = &traceManager();
     switch (column) {
     case BinaryLocation:
     case Function: {
@@ -174,9 +174,7 @@ QByteArray PerfProfilerStatisticsMainModel::metaInfo(
 
 quint64 PerfProfilerStatisticsMainModel::address(int typeId) const
 {
-    PerfProfilerTraceManager *manager =
-            static_cast<PerfProfilerTraceManager *>(QObject::parent());
-    return manager->location(typeId).address;
+    return traceManager().location(typeId).address;
 }
 
 void PerfProfilerStatisticsMainModel::initialize()
@@ -318,14 +316,14 @@ int PerfProfilerStatisticsMainModel::rowForTypeId(int typeId) const
     return m_backwardIndex[static_cast<int>(it - m_data.begin())];
 }
 
-PerfProfilerStatisticsMainModel::PerfProfilerStatisticsMainModel(PerfProfilerTraceManager *parent) :
+PerfProfilerStatisticsMainModel::PerfProfilerStatisticsMainModel(QObject *parent) :
     PerfProfilerStatisticsModel(Main, parent), m_startTime(std::numeric_limits<qint64>::min()),
     m_endTime(std::numeric_limits<qint64>::max()), m_totalSamples(0)
 {
     m_children = new PerfProfilerStatisticsRelativesModel(Children, this);
     m_parents = new PerfProfilerStatisticsRelativesModel(Parents, this);
     PerfProfilerStatisticsData *data = new PerfProfilerStatisticsData;
-    parent->registerFeatures(PerfEventType::attributeFeatures(),
+    traceManager().registerFeatures(PerfEventType::attributeFeatures(),
                              std::bind(&PerfProfilerStatisticsData::loadEvent, data,
                                        std::placeholders::_1, std::placeholders::_2),
                              std::bind(&PerfProfilerStatisticsMainModel::initialize, this),

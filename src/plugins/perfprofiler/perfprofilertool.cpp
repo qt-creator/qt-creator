@@ -176,7 +176,7 @@ void PerfProfilerTool::createViews()
     connect(m_traceView, &PerfProfilerTraceView::gotoSourceLocation,
             this, &PerfProfilerTool::gotoSourceLocation);
 
-    m_statisticsView = new PerfProfilerStatisticsView(nullptr, this);
+    m_statisticsView = new PerfProfilerStatisticsView;
     m_statisticsView->setWindowTitle(Tr::tr("Statistics"));
 
     m_flameGraphView = new PerfProfilerFlameGraphView(nullptr, this);
