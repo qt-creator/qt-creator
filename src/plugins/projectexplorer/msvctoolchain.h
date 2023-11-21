@@ -14,16 +14,7 @@
 
 #include <optional>
 
-QT_FORWARD_DECLARE_CLASS(QLabel)
-QT_FORWARD_DECLARE_CLASS(QComboBox)
-QT_FORWARD_DECLARE_CLASS(QVersionNumber)
-
-namespace Utils {
-class PathChooser;
-}
-
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 // --------------------------------------------------------------------------
 // MsvcToolChain
@@ -170,113 +161,7 @@ private:
     Utils::FilePath m_clangPath;
 };
 
-// --------------------------------------------------------------------------
-// MsvcToolChainFactory
-// --------------------------------------------------------------------------
+void setupMsvcToolchain();
+void setupClangClToolchain();
 
-class MsvcToolChainFactory : public ToolChainFactory
-{
-public:
-    MsvcToolChainFactory();
-
-    Toolchains autoDetect(const ToolchainDetector &detector) const final;
-
-    bool canCreate() const final;
-
-    static QString vcVarsBatFor(const QString &basePath,
-                                MsvcToolChain::Platform platform,
-                                const QVersionNumber &v);
-};
-
-class ClangClToolChainFactory : public ToolChainFactory
-{
-public:
-    ClangClToolChainFactory();
-
-    Toolchains autoDetect(const ToolchainDetector &detector) const final;
-
-    bool canCreate() const final;
-};
-
-// --------------------------------------------------------------------------
-// MsvcBasedToolChainConfigWidget
-// --------------------------------------------------------------------------
-
-class MsvcBasedToolChainConfigWidget : public ToolChainConfigWidget
-{
-    Q_OBJECT
-
-public:
-    explicit MsvcBasedToolChainConfigWidget(ToolChain *);
-
-protected:
-    void applyImpl() override {}
-    void discardImpl() override { setFromMsvcToolChain(); }
-    bool isDirtyImpl() const override { return false; }
-    void makeReadOnlyImpl() override {}
-
-    void setFromMsvcToolChain();
-
-protected:
-    QLabel *m_nameDisplayLabel;
-    QLabel *m_varsBatDisplayLabel;
-};
-
-// --------------------------------------------------------------------------
-// MsvcToolChainConfigWidget
-// --------------------------------------------------------------------------
-
-class MsvcToolChainConfigWidget : public MsvcBasedToolChainConfigWidget
-{
-    Q_OBJECT
-
-public:
-    explicit MsvcToolChainConfigWidget(ToolChain *);
-
-private:
-    void applyImpl() override;
-    void discardImpl() override;
-    bool isDirtyImpl() const override;
-    void makeReadOnlyImpl() override;
-
-    void setFromMsvcToolChain();
-
-    void updateAbis();
-    void handleVcVarsChange(const QString &vcVars);
-    void handleVcVarsArchChange(const QString &arch);
-
-    QString vcVarsArguments() const;
-
-    QComboBox *m_varsBatPathCombo;
-    QComboBox *m_varsBatArchCombo;
-    QLineEdit *m_varsBatArgumentsEdit;
-    AbiWidget *m_abiWidget;
-};
-
-// --------------------------------------------------------------------------
-// ClangClToolChainConfigWidget
-// --------------------------------------------------------------------------
-
-class ClangClToolChainConfigWidget : public MsvcBasedToolChainConfigWidget
-{
-    Q_OBJECT
-
-public:
-    explicit ClangClToolChainConfigWidget(ToolChain *);
-
-protected:
-    void applyImpl() override;
-    void discardImpl() override;
-    bool isDirtyImpl() const override { return false; }
-    void makeReadOnlyImpl() override;
-
-private:
-    void setFromClangClToolChain();
-
-    QLabel *m_llvmDirLabel = nullptr;
-    QComboBox *m_varsBatDisplayCombo = nullptr;
-    Utils::PathChooser *m_compilerCommand = nullptr;
-};
-
-} // namespace Internal
-} // namespace ProjectExplorer
+} // namespace ProjectExplorer::Internal

@@ -80,8 +80,9 @@
 
 #ifdef Q_OS_WIN
 #include "windebuginterface.h"
-#include "msvctoolchain.h"
 #endif
+
+#include "msvctoolchain.h"
 
 #include "customparser.h"
 #include "projecttree.h"
@@ -643,8 +644,6 @@ public:
 
 #ifdef Q_OS_WIN
     WinDebugInterface m_winDebugInterface;
-    MsvcToolChainFactory m_mscvToolChainFactory;
-    ClangClToolChainFactory m_clangClToolChainFactory;
 #endif
 
     CustomToolChainFactory m_customToolChainFactory;
@@ -815,6 +814,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     Q_UNUSED(error)
 
     setupGccToolchains();
+    setupMsvcToolchain();
+    setupClangClToolchain();
 
     dd = new ProjectExplorerPluginPrivate;
 
