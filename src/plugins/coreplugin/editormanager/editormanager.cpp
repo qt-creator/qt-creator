@@ -429,7 +429,7 @@ void EditorManagerPrivate::init()
     ActionBuilder save(this, Constants::SAVE);
     save.setContext(editManagerContext);
     save.bindContextAction(&m_saveAction);
-    save.setOnTriggered(this, [this] { EditorManager::saveDocument(); });
+    save.setOnTriggered(this, [] { EditorManager::saveDocument(); });
 
     // Save As Action
     ActionBuilder saveAs(this, Constants::SAVEAS);

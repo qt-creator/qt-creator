@@ -100,7 +100,7 @@ bool FormEditorPlugin::initialize([[maybe_unused]] const QStringList &arguments,
         wizard->setDescription(Tr::tr("Creates a Qt Designer form along with a matching class (C++ header and source file) "
         "for implementation purposes. You can add the form and class to an existing Qt Widget Project."));
 
-        return {wizard};
+        return wizard;
     });
 #endif
 
