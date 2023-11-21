@@ -2671,6 +2671,7 @@ struct TimerThreadData
 {
     Q_DISABLE_COPY_MOVE(TimerThreadData)
 
+    TimerThreadData() = default; // defult constructor is required for initializing with {} since C++20 by Mingw 11.20
     QHash<int, TimerData> m_timerIdToTimerData = {};
     QMultiMap<system_clock::time_point, int> m_deadlineToTimerId = {};
     int m_timerIdCounter = 0;
