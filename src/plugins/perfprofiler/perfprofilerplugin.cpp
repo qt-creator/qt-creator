@@ -25,7 +25,6 @@ public:
         RunConfiguration::registerAspect<PerfRunConfigurationAspect>();
     }
 
-    PerfProfilerRunWorkerFactory profilerWorkerFactory;
     PerfProfilerTool profilerTool;
 };
 
@@ -36,6 +35,8 @@ PerfProfilerPlugin::~PerfProfilerPlugin()
 
 void PerfProfilerPlugin::initialize()
 {
+    setupPerfProfilerRunWorker();
+
     d = new PerfProfilerPluginPrivate;
 
 #if WITH_TESTS

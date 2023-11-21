@@ -205,10 +205,19 @@ void PerfProfilerRunner::start()
 
 // PerfProfilerRunWorkerFactory
 
-PerfProfilerRunWorkerFactory::PerfProfilerRunWorkerFactory()
+class PerfProfilerRunWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<PerfProfilerRunner>();
-    addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+public:
+    PerfProfilerRunWorkerFactory()
+    {
+        setProduct<PerfProfilerRunner>();
+        addSupportedRunMode(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+    }
+};
+
+void setupPerfProfilerRunWorker()
+{
+    static PerfProfilerRunWorkerFactory thePerfProfilerRunWorkerFactory;
 }
 
 } // PerfProfiler::Internal

@@ -23,10 +23,6 @@ private:
     ProjectExplorer::RunWorker *m_perfRecordWorker = nullptr;
 };
 
-class PerfProfilerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    PerfProfilerRunWorkerFactory();
-};
+void setupPerfProfilerRunWorker();
 
 } // PerfProfiler::Internal
