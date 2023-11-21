@@ -64,29 +64,29 @@ void HelloWorldPlugin::initialize()
     // menu entry later.
     Core::Context context("HelloWorld.MainView");
 
-    // Create an action to be triggered by a menu entry
-    auto helloWorldAction = new QAction(Tr::tr("Say \"&Hello World!\""), this);
-    connect(helloWorldAction, &QAction::triggered, this, &HelloWorldPlugin::sayHelloWorld);
-
-    // Register the action with the action manager
-    Core::Command *command =
-            Core::ActionManager::registerAction(
-                    helloWorldAction, "HelloWorld.HelloWorldAction", context);
-
     // Create our own menu to place in the Tools menu
-    Core::ActionContainer *helloWorldMenu =
-            Core::ActionManager::createMenu("HelloWorld.HelloWorldMenu");
+    Utils::Id menuId = "HelloWorld.HelloWorldMenu";
+
+    Core::ActionContainer *helloWorldMenu = Core::ActionManager::createMenu(menuId);
     QMenu *menu = helloWorldMenu->menu();
     menu->setTitle(Tr::tr("&Hello World"));
     menu->setEnabled(true);
-
-    // Add the Hello World action command to the menu
-    helloWorldMenu->addAction(command);
 
     // Request the Tools menu and add the Hello World menu to it
     Core::ActionContainer *toolsMenu =
             Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsMenu->addMenu(helloWorldMenu);
+
+    // Create an action to be triggered by a menu entry.
+    // The Action builder registers the action with the action manager
+    // on its destruction.
+    Core::ActionBuilder hello(this, "HelloWorld.HelloWorldAction");
+    hello.setText(Tr::tr("Say \"&Hello World!\""));
+    hello.setContext(context);
+    hello.setOnTriggered(this, [this] { sayHelloWorld(); });
+
+    // Add the Hello World action command to the menu
+    hello.setContainer(menuId);
 
     // Add a mode with a push button based on BaseMode.
     m_helloMode = new HelloMode;
