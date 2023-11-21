@@ -299,7 +299,8 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
                                            targetCMakeFile.fileName().toStdString(),
                                            errorString)) {
                 qCCritical(cmakeBuildSystemLog).noquote()
-                    << targetCMakeFile.path() << "failed to parse! Error:" << errorString;
+                    << targetCMakeFile.path() << "failed to parse! Error:"
+                    << QString::fromStdString(errorString);
                 return false;
             }
         }

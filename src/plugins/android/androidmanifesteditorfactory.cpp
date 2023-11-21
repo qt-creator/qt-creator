@@ -15,7 +15,7 @@ using namespace Android::Internal;
 AndroidManifestEditorFactory::AndroidManifestEditorFactory()
     : m_actionHandler(Constants::ANDROID_MANIFEST_EDITOR_ID,
                       Constants::ANDROID_MANIFEST_EDITOR_CONTEXT,
-                      TextEditor::TextEditorActionHandler::None,
+                      TextEditor::TextEditorActionHandler::UnCommentSelection,
                       [](Core::IEditor *editor) { return static_cast<AndroidManifestEditor *>(editor)->textEditor(); })
 {
     setId(Constants::ANDROID_MANIFEST_EDITOR_ID);

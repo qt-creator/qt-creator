@@ -84,11 +84,10 @@ private:
     void stop() override;
 
     QmlPreviewConnectionManager m_connectionManager;
-    RefreshTranslationWorker m_refreshTranslationWorker;
 };
 
 QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunnerSetting &settings)
-    : RunWorker(runControl), m_refreshTranslationWorker(runControl, settings)
+    : RunWorker(runControl)
 {
     setId("QmlPreviewRunner");
     m_connectionManager.setFileLoader(settings.fileLoader);
@@ -134,7 +133,7 @@ QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunne
         runControl->initiateStop();
     });
 
-    addStartDependency(&m_refreshTranslationWorker);
+    addStartDependency(new RefreshTranslationWorker(runControl, settings));
 }
 
 void QmlPreviewRunner::start()

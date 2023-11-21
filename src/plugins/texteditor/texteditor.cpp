@@ -1929,6 +1929,7 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
         if (TextDocumentLayout::canFold(block) && block.next().isVisible()) {
             const QString trimmedText = text.trimmed();
             QStringList commentMarker;
+            QStringList docMarker;
             if (auto highlighter = qobject_cast<Highlighter *>(
                     q->textDocument()->syntaxHighlighter())) {
                 const HighlighterHelper::Definition def = highlighter->definition();
@@ -1939,11 +1940,19 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
                 }
             } else {
                 commentMarker = QStringList({"/*", "#"});
+                docMarker = QStringList({"/*!", "/**"});
             }
 
             if (Utils::anyOf(commentMarker, [&](const QString &marker) {
                     return trimmedText.startsWith(marker);
                 })) {
+                if (Utils::anyOf(docMarker, [&](const QString &marker) {
+                        return trimmedText.startsWith(marker)
+                               && (trimmedText.size() == marker.size()
+                                   || trimmedText.at(marker.size()).isSpace());
+                    })) {
+                    break;
+                }
                 TextDocumentLayout::doFoldOrUnfold(block, false);
                 moveCursorVisible();
                 documentLayout->requestUpdate();
