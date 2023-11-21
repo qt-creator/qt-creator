@@ -87,7 +87,7 @@ public:
     static const QByteArray s_resourceObtainedIdName;
     static const QByteArray s_resourceMovedIdName;
 
-    explicit PerfProfilerTraceManager(QObject *parent = nullptr);
+    PerfProfilerTraceManager();
     ~PerfProfilerTraceManager() override;
 
     void registerFeatures(quint64 features, PerfEventLoader eventLoader,
@@ -228,6 +228,7 @@ inline QDataStream &operator<<(QDataStream &stream, const PerfProfilerTraceManag
     return stream << thread.pid << thread.tid << thread.start << thread.cpu << thread.name;
 }
 
+PerfProfilerTraceManager &traceManager();
 
 } // namespace Internal
 } // namespace PerfProfiler

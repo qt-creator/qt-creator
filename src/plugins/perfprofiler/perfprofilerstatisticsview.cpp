@@ -67,7 +67,7 @@ PerfProfilerStatisticsView::PerfProfilerStatisticsView(QWidget *parent, PerfProf
     groupLayout->addWidget(splitterVertical);
     setLayout(groupLayout);
 
-    PerfProfilerTraceManager *manager = tool->traceManager();
+    PerfProfilerTraceManager *manager = &traceManager();
     PerfProfilerStatisticsMainModel *mainModel = new PerfProfilerStatisticsMainModel(manager);
 
     PerfProfilerStatisticsRelativesModel *children = mainModel->children();

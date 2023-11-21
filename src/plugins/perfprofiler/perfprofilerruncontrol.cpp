@@ -38,7 +38,7 @@ public:
         setId("PerfParser");
 
         auto tool = PerfProfilerTool::instance();
-        m_reader.setTraceManager(tool->traceManager());
+        m_reader.setTraceManager(&traceManager());
         m_reader.triggerRecordingStateChange(tool->isRecording());
 
         connect(tool, &PerfProfilerTool::recordingChanged,

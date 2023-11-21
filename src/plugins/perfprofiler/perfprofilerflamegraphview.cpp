@@ -21,7 +21,7 @@ PerfProfilerFlameGraphView::PerfProfilerFlameGraphView(QWidget *parent, PerfProf
 {
     setObjectName(QLatin1String("PerfProfilerFlameGraphView"));
 
-    PerfProfilerTraceManager *manager = tool->traceManager();
+    PerfProfilerTraceManager *manager = &traceManager();
     m_model = new PerfProfilerFlameGraphModel(manager);
 
     engine()->addImportPath(":/qt/qml/");
