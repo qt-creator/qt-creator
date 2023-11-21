@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildconfiguration.h>
-
 namespace GenericProjectManager::Internal {
 
-class GenericBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
-{
-public:
-    GenericBuildConfigurationFactory();
-};
+void setupGenericBuildConfiguration();
 
 } // GenericProjectManager::Internal

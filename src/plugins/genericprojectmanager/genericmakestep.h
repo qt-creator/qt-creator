@@ -3,16 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/makestep.h>
+namespace GenericProjectManager::Internal {
 
-namespace GenericProjectManager {
-namespace Internal {
+void setupGenericMakeStep();
 
-class GenericMakeStepFactory final : public ProjectExplorer::BuildStepFactory
-{
-public:
-    GenericMakeStepFactory();
-};
-
-} // namespace Internal
-} // namespace GenericProjectManager
+} // GenericProjectManager::Internal
