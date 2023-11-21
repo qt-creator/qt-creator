@@ -392,7 +392,9 @@ FileNode::FileNode(const Utils::FilePath &filePath, const FileType fileType) :
     m_fileType(fileType)
 {
     setFilePath(filePath);
-    setUseUnavailableMarker(!filePath.needsDevice() && !filePath.exists());
+    const bool ignored = (fileType == FileType::Project || fileType == FileType::App
+                          || fileType == FileType::Lib);
+    setUseUnavailableMarker(!ignored && !filePath.needsDevice() && !filePath.exists());
     setListInProject(true);
     if (fileType == FileType::Project)
         setPriority(DefaultProjectFilePriority);
