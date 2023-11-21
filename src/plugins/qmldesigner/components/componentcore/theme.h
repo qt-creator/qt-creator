@@ -87,6 +87,8 @@ public:
         centerHorizontal,
         centerVertical,
         cleanLogs_medium,
+        clearList_large,
+        clearList_medium,
         closeCross,
         closeFile_large,
         closeLink,
