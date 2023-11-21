@@ -9,10 +9,10 @@
 namespace PerfProfiler {
 namespace Internal {
 
-PerfTimelineModelManager::PerfTimelineModelManager(PerfProfilerTraceManager *traceManager) :
-    Timeline::TimelineModelAggregator(traceManager), m_traceManager(traceManager)
+PerfTimelineModelManager::PerfTimelineModelManager()
+   : Timeline::TimelineModelAggregator(&traceManager())
 {
-    traceManager->registerFeatures(PerfEventType::allFeatures(),
+    traceManager().registerFeatures(PerfEventType::allFeatures(),
                                    std::bind(&PerfTimelineModelManager::loadEvent, this,
                                              std::placeholders::_1, std::placeholders::_2),
                                    std::bind(&PerfTimelineModelManager::initialize, this),
@@ -25,17 +25,16 @@ PerfTimelineModelManager::~PerfTimelineModelManager()
     clear();
 }
 
-static QString displayNameForThread(const PerfProfilerTraceManager::Thread &thread,
-                                    PerfProfilerTraceManager *manager)
+static QString displayNameForThread(const PerfProfilerTraceManager::Thread &thread)
 {
     return QString::fromLatin1("%1 (%2)")
-            .arg(QString::fromUtf8(manager->string(thread.name)))
+            .arg(QString::fromUtf8(traceManager().string(thread.name)))
             .arg(thread.tid);
 }
 
 void PerfTimelineModelManager::initialize()
 {
-    for (const PerfProfilerTraceManager::Thread &thread : m_traceManager->threads()) {
+    for (const PerfProfilerTraceManager::Thread &thread : traceManager().threads()) {
         if (thread.enabled) {
             m_unfinished.insert(thread.tid, new PerfTimelineModel(
                                     thread.pid, thread.tid, thread.firstEvent, thread.lastEvent,
@@ -47,13 +46,13 @@ void PerfTimelineModelManager::initialize()
 void PerfTimelineModelManager::finalize()
 {
     QVector<PerfTimelineModel *> finished;
-    QHash<quint32, PerfProfilerTraceManager::Thread> threads = m_traceManager->threads();
+    QHash<quint32, PerfProfilerTraceManager::Thread> threads = traceManager().threads();
     for (auto it = m_unfinished.begin(), end = m_unfinished.end(); it != end; ++it) {
         PerfTimelineModel *model = *it;
 
-        const PerfProfilerTraceManager::Thread &thread = m_traceManager->thread(model->tid());
+        const PerfProfilerTraceManager::Thread &thread = traceManager().thread(model->tid());
         if (thread.enabled) {
-            model->setDisplayName(displayNameForThread(thread, m_traceManager));
+            model->setDisplayName(displayNameForThread(thread));
             model->finalize();
             finished.append(model);
         } else {
@@ -62,7 +61,7 @@ void PerfTimelineModelManager::finalize()
     }
     m_unfinished.clear();
 
-    const qint64 frequency = m_traceManager->samplingFrequency();
+    const qint64 frequency = traceManager().samplingFrequency();
     for (PerfTimelineModel *model : std::as_const(finished)) {
         model->setSamplingFrequency(frequency);
         threads.remove(model->tid());
@@ -73,7 +72,7 @@ void PerfTimelineModelManager::finalize()
             continue;
         PerfTimelineModel *model = new PerfTimelineModel(
                     remaining.pid, remaining.tid, remaining.firstEvent, remaining.lastEvent, this);
-        model->setDisplayName(displayNameForThread(remaining, m_traceManager));
+        model->setDisplayName(displayNameForThread(remaining));
         model->finalize();
         model->setSamplingFrequency(frequency);
         finished.append(model);
@@ -92,7 +91,7 @@ void PerfTimelineModelManager::finalize()
 void PerfTimelineModelManager::loadEvent(const PerfEvent &event, const PerfEventType &type)
 {
     Q_UNUSED(type)
-    const int parallel = m_traceManager->threads().size();
+    const int parallel = traceManager().threads().size();
     auto i = m_unfinished.find(event.tid());
     if (i == m_unfinished.end()) {
         i = m_unfinished.insert(event.tid(), new PerfTimelineModel(
@@ -111,6 +110,12 @@ void PerfTimelineModelManager::clear()
     qDeleteAll(m_unfinished);
     m_unfinished.clear();
     m_resourceContainers.clear();
+}
+
+PerfTimelineModelManager &modelManager()
+{
+    static PerfTimelineModelManager thePerfTimelineModelManager;
+    return thePerfTimelineModelManager;
 }
 
 } // namespace Internal

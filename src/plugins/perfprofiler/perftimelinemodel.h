@@ -132,7 +132,6 @@ private:
     QHash<int, QVector<QPair<qint32, quint64>>> m_attributeValues;
 
     void computeExpandedLevels();
-    const PerfProfilerTraceManager *traceManager() const;
 
     const LocationStats &locationStats(int selectionId) const;
 

@@ -60,7 +60,6 @@ PerfProfilerTool::PerfProfilerTool()
                                      std::bind(&PerfProfilerTool::finalize, this),
                                      std::bind(&PerfProfilerTool::clearUi, this));
 
-    m_modelManager = new PerfTimelineModelManager(&traceManager());
     m_zoomControl = new Timeline::TimelineZoomControl(this);
     ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
     ActionContainer *options = ActionManager::createMenu(Constants::PerfOptionsMenuId);
@@ -461,11 +460,6 @@ void PerfProfilerTool::setToolActionsEnabled(bool on)
         m_statisticsView->setEnabled(on);
     if (m_flameGraphView)
         m_flameGraphView->setEnabled(on);
-}
-
-PerfTimelineModelManager *PerfProfilerTool::modelManager() const
-{
-    return m_modelManager;
 }
 
 Timeline::TimelineZoomControl *PerfProfilerTool::zoomControl() const
