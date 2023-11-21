@@ -78,10 +78,6 @@ void TextEditorWidget::setTextEditor(
         });
 
         m_textEditor->editorWidget()->installEventFilter(this);
-        // do not call the eventfilter when the m_textEditor is gone
-        connect(m_textEditor->editorWidget(), &QObject::destroyed, this, [this](QObject *) {
-            m_textEditor->editorWidget()->removeEventFilter(this);
-        });
     }
 }
 
@@ -206,6 +202,10 @@ void TextEditorWidget::setBlockCursorSelectionSynchronisation(bool b)
 
 bool TextEditorWidget::eventFilter(QObject *, QEvent *event)
 {
+    //do not call the eventfilter when the m_textEditor is gone
+    if (!TextEditor::TextEditorWidget::fromEditor(m_textEditor.get()))
+        return false;
+
     static std::vector<int> overrideKeys = { Qt::Key_Delete, Qt::Key_Backspace, Qt::Key_Insert,
                                              Qt::Key_Escape };
 
