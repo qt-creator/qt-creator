@@ -63,6 +63,7 @@ public:
 
     Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
+    Q_INVOKABLE void removeAllNodes();
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);

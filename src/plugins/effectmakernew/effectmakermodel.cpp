@@ -129,8 +129,7 @@ void EffectMakerModel::moveNode(int fromIdx, int toIdx)
 void EffectMakerModel::removeNode(int idx)
 {
     beginRemoveRows({}, idx, idx);
-    CompositionNode *node = m_nodes.at(idx);
-    m_nodes.removeAt(idx);
+    CompositionNode *node = m_nodes.takeAt(idx);
     delete node;
     endRemoveRows();
 
@@ -138,6 +137,16 @@ void EffectMakerModel::removeNode(int idx)
         setIsEmpty(true);
     else
         bakeShaders();
+}
+
+void EffectMakerModel::removeAllNodes()
+{
+    beginResetModel();
+    qDeleteAll(m_nodes);
+    m_nodes.clear();
+    endResetModel();
+
+    setIsEmpty(true);
 }
 
 QString EffectMakerModel::fragmentShader() const

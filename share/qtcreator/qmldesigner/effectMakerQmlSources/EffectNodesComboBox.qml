@@ -12,8 +12,6 @@ StudioControls.ComboBox {
     id: root
 
     actionIndicatorVisible: false
-    x: 5
-    width: parent.width - 50
 
     model: [qsTr("+ Add Effect")]
 

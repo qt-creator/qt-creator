@@ -55,6 +55,21 @@ Item {
                 mainRoot: root
 
                 anchors.verticalCenter: parent.verticalCenter
+                x: 5
+                width: parent.width - 50
+            }
+
+            HelperWidgets.AbstractButton {
+                anchors.right: parent.right
+                anchors.rightMargin: 5
+                anchors.verticalCenter: parent.verticalCenter
+
+                style: StudioTheme.Values.viewBarButtonStyle
+                buttonIcon: StudioTheme.Constants.clearList_medium
+                tooltip: qsTr("Remove all effect nodes.")
+                enabled: !EffectMakerBackend.effectMakerModel.isEmpty
+
+                onClicked: EffectMakerBackend.effectMakerModel.removeAllNodes()
             }
 
             HelperWidgets.AbstractButton {
@@ -64,7 +79,7 @@ Item {
 
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.code
-                tooltip: qsTr("Open Shader in Code Editor")
+                tooltip: qsTr("Open Shader in Code Editor.")
                 visible: false // TODO: to be implemented
 
                 onClicked: {} // TODO
