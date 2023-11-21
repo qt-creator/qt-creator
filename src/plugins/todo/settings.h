@@ -8,8 +8,7 @@
 
 namespace Utils { class QtcSettings; }
 
-namespace Todo {
-namespace Internal {
+namespace Todo::Internal {
 
 enum ScanningScope {
     ScanningScopeCurrentFile,
@@ -34,7 +33,8 @@ public:
 bool operator ==(const Settings &s1, const Settings &s2);
 bool operator !=(const Settings &s1, const Settings &s2);
 
-} // namespace Internal
-} // namespace Todo
+void setupTodoSettingsPage(Settings *settings, const std::function<void()> &onApply);
+
+} // Todo::Internal
 
 Q_DECLARE_METATYPE(Todo::Internal::ScanningScope)

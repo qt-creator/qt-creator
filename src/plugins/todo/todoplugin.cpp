@@ -2,7 +2,6 @@
 // Copyright (C) 2016 Vasiliy Sorokin
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "optionsdialog.h"
 #include "todooutputpane.h"
 #include "todoitemsprovider.h"
 #include "todoprojectsettingswidget.h"
@@ -31,7 +30,6 @@ public:
 
     Settings m_settings;
     TodoOutputPane *m_todoOutputPane = nullptr;
-    TodoOptionsPage m_optionsPage{&m_settings, [this] { settingsChanged(m_settings); }};
     TodoItemsProvider *m_todoItemsProvider = nullptr;
 };
 
@@ -41,6 +39,8 @@ TodoPluginPrivate::TodoPluginPrivate()
 
     createItemsProvider();
     createTodoOutputPane();
+
+    setupTodoSettingsPage(&m_settings, [this] { settingsChanged(m_settings); });
 
     setupTodoSettingsProjectPanel(m_todoItemsProvider);
 

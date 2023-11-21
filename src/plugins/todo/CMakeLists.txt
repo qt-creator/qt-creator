@@ -7,7 +7,6 @@ add_qtc_plugin(Todo
     keyword.cpp keyword.h
     keyworddialog.cpp keyworddialog.h
     lineparser.cpp lineparser.h
-    optionsdialog.cpp optionsdialog.h
     qmljstodoitemsscanner.cpp qmljstodoitemsscanner.h
     settings.cpp settings.h
     todoicons.cpp todoicons.h
