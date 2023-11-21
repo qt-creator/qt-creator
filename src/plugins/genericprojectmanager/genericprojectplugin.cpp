@@ -30,65 +30,45 @@ namespace PEC = ProjectExplorer::Constants;
 
 namespace GenericProjectManager::Internal {
 
-class GenericProjectPluginPrivate : public QObject
-{
-public:
-    GenericProjectPluginPrivate();
-};
-
-GenericProjectPluginPrivate::GenericProjectPluginPrivate()
-{
-    ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
-
-    setupGenericProjectWizard();
-    setupGenericProjectFiles();
-    setupGenericMakeStep();
-    setupGenericBuildConfiguration();
-
-    ActionBuilder editAction(this, "GenericProjectManager.EditFiles");
-    editAction.setContext(Constants::GENERICPROJECT_ID);
-    editAction.setText(Tr::tr("Edit Files..."));
-    editAction.setCommandAttribute(Command::CA_Hide);
-    editAction.setContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_FILES);
-    editAction.setOnTriggered([] {
-        if (auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject()))
-            genericProject->editFilesTriggered();
-    });
-
-    ActionBuilder removeDirAction(this, "GenericProject.RemoveDir");
-    removeDirAction.setContext(PEC::C_PROJECT_TREE);
-    removeDirAction.setText(Tr::tr("Remove Directory"));
-    removeDirAction.setContainer(PEC::M_FOLDERCONTEXT, PEC::G_FOLDER_OTHER);
-    removeDirAction.setOnTriggered([] {
-        const auto folderNode = ProjectTree::currentNode()->asFolderNode();
-        QTC_ASSERT(folderNode, return);
-        const auto project = qobject_cast<GenericProject *>(folderNode->getProject());
-        QTC_ASSERT(project, return);
-        const FilePaths filesToRemove = transform(
-                    folderNode->findNodes([](const Node *node) { return node->asFileNode(); }),
-                    [](const Node *node) { return node->filePath();});
-        project->removeFilesTriggered(filesToRemove);
-    });
-}
-
 class GenericProjectPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "GenericProjectManager.json")
 
-public:
-    ~GenericProjectPlugin() final
-    {
-        delete d;
-    }
-
-private:
     void initialize() final
     {
-        d = new GenericProjectPluginPrivate;
-    }
+        ProjectManager::registerProjectType<GenericProject>(Constants::GENERICMIMETYPE);
 
-    GenericProjectPluginPrivate *d = nullptr;
+        setupGenericProjectWizard();
+        setupGenericProjectFiles();
+        setupGenericMakeStep();
+        setupGenericBuildConfiguration();
+
+        ActionBuilder editAction(this, "GenericProjectManager.EditFiles");
+        editAction.setContext(Constants::GENERICPROJECT_ID);
+        editAction.setText(Tr::tr("Edit Files..."));
+        editAction.setCommandAttribute(Command::CA_Hide);
+        editAction.setContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_FILES);
+        editAction.setOnTriggered([] {
+            if (auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject()))
+                genericProject->editFilesTriggered();
+        });
+
+        ActionBuilder removeDirAction(this, "GenericProject.RemoveDir");
+        removeDirAction.setContext(PEC::C_PROJECT_TREE);
+        removeDirAction.setText(Tr::tr("Remove Directory"));
+        removeDirAction.setContainer(PEC::M_FOLDERCONTEXT, PEC::G_FOLDER_OTHER);
+        removeDirAction.setOnTriggered([] {
+            const auto folderNode = ProjectTree::currentNode()->asFolderNode();
+            QTC_ASSERT(folderNode, return);
+            const auto project = qobject_cast<GenericProject *>(folderNode->getProject());
+            QTC_ASSERT(project, return);
+            const FilePaths filesToRemove = transform(
+                        folderNode->findNodes([](const Node *node) { return node->asFileNode(); }),
+                        [](const Node *node) { return node->filePath();});
+            project->removeFilesTriggered(filesToRemove);
+        });
+    }
 };
 
 } // GenericProjectManager::Internal
