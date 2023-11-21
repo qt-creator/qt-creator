@@ -290,7 +290,7 @@ public:
     void checkState(RunControlState expectedState);
     void setState(RunControlState state);
 
-    void debugMessage(const QString &msg);
+    void debugMessage(const QString &msg) const;
 
     void initiateStart();
     void initiateReStart();
@@ -1039,6 +1039,10 @@ bool RunControl::supportsReRunning() const
 bool RunControlPrivate::supportsReRunning() const
 {
     for (RunWorker *worker : m_workers) {
+        if (!worker) {
+            debugMessage("Found unknown deleted worker when checking for re-run support");
+            return false;
+        }
         if (!worker->d->supportsReRunning)
             return false;
         if (worker->d->state != RunWorkerState::Done)
@@ -1181,7 +1185,7 @@ void RunControlPrivate::setState(RunControlState newState)
     }
 }
 
-void RunControlPrivate::debugMessage(const QString &msg)
+void RunControlPrivate::debugMessage(const QString &msg) const
 {
     qCDebug(statesLog()) << msg;
 }
