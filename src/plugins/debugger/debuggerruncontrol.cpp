@@ -481,7 +481,8 @@ void DebuggerRunTool::start()
 
     runControl()->setDisplayName(m_runParameters.displayName);
 
-    m_engine = createDapEngine(runControl()->runMode());
+    if (!m_engine)
+        m_engine = createDapEngine(runControl()->runMode());
 
     if (!m_engine) {
         if (m_runParameters.isCppDebugging()) {
