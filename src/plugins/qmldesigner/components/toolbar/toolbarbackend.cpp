@@ -353,8 +353,9 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             [this](ProjectExplorer::Project *project) {
                 disconnect(m_kitConnection);
                 emit isQt6Changed();
-                emit isMCUsChanged();
                 emit projectOpenedChanged();
+                emit stylesChanged();
+                emit isMCUsChanged();
                 if (project) {
                     m_kitConnection = connect(project,
                                               &ProjectExplorer::Project::activeTargetChanged,
