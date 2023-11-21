@@ -30,6 +30,7 @@
 
 #include <utils/algorithm.h>
 
+#include <QCoreApplication>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -430,11 +431,17 @@ bool kitIsUpToDate(const Kit *kit,
 QList<Kit *> existingKits(const McuTarget *mcuTarget)
 {
     using namespace Constants;
+    // some models have compatible name changes that refere to the same supported board across versions.
+    // name changes are tracked here to recognize the corresponding kits as upgradable.
+    static QMap<QString, QStringList> upgradable_to = {
+        {"MIMXRT1170-EVK-FREERTOS", {"MIMXRT1170-EVKB-FREERTOS"}}};
     return Utils::filtered(KitManager::kits(), [mcuTarget](Kit *kit) {
         return kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION
                && (!mcuTarget
                    || (kit->value(KIT_MCUTARGET_VENDOR_KEY) == mcuTarget->platform().vendor
-                       && kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->platform().name
+                       && (kit->value(KIT_MCUTARGET_MODEL_KEY) == mcuTarget->platform().name
+                           || upgradable_to[kit->value(KIT_MCUTARGET_MODEL_KEY).toString()].contains(
+                               mcuTarget->platform().name))
                        && kit->value(KIT_MCUTARGET_COLORDEPTH_KEY) == mcuTarget->colorDepth()
                        && kit->value(KIT_MCUTARGET_OS_KEY).toInt()
                               == static_cast<int>(mcuTarget->os())
@@ -590,6 +597,9 @@ void upgradeKitsByCreatingNewPackage(const SettingsHandler::Ptr &settingsHandler
             if (upgradeOption == UpgradeOption::Replace) {
                 for (auto existingKit : kits)
                     KitManager::deregisterKit(existingKit);
+                // Reset cached values that are not valid after an update
+                // Exp: a board sdk version that was dropped in newer releases
+                target->resetInvalidPathsToDefault();
             }
 
             if (target->isValid())

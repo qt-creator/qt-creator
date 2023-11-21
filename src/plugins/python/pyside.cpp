@@ -89,8 +89,8 @@ void PySideInstaller::installPyside(const FilePath &python,
     const Utils::QtcSettings *settings = Core::ICore::settings(QSettings::SystemScope);
 
     const FilePaths requirementsList
-        = Utils::transform(settings->value("Python/PySideWheelsRequirements").toList(),
-                           &FilePath::fromSettings);
+        = Utils::transform(settings->value("Python/PySideWheelsRequirements").toStringList(),
+                           &FilePath::fromString);
     for (const FilePath &requirements : requirementsList) {
         if (requirements.exists()) {
             auto version = QVersionNumber::fromString(requirements.parentDir().fileName());

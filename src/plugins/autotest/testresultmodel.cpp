@@ -140,6 +140,7 @@ void TestResultItem::updateResult(bool &changed, ResultType addedChildType,
         break;
     case ResultType::ExpectedFail:
     case ResultType::MessageWarn:
+    case ResultType::MessageError:
     case ResultType::MessageSystem:
     case ResultType::Skip:
     case ResultType::BlacklistedFail:

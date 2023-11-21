@@ -11,6 +11,7 @@
 #include "../projectexplorertr.h"
 #include "../projecttree.h"
 
+#include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/messagemanager.h>
@@ -350,6 +351,14 @@ void JsonWizard::accept()
             QMessageBox::warning(this, Tr::tr("Failed to Format Files"), errorMessage);
         return;
     }
+
+    const QList<Core::IDocument *> documentsToClose
+        = transform(m_files, [](const GeneratorFile &file) -> Core::IDocument * {
+              if ((file.file.attributes() & Core::GeneratedFile::OpenEditorAttribute) == 0)
+                  return nullptr;
+              return Core::DocumentModel::documentForFilePath(file.file.filePath());
+          });
+    Core::EditorManager::closeDocuments(documentsToClose, /*askAboutModifiedEditors=*/false);
 
     emit preWriteFiles(m_files);
     if (!JsonWizardGenerator::writeFiles(this, &m_files, &errorMessage)) {
