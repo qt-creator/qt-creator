@@ -310,9 +310,10 @@ void ClangdFollowSymbol::VirtualFunctionAssistProcessor::resetData(bool resetFol
     if (!m_followSymbol)
         return;
     m_followSymbol->d->virtualFuncAssistProcessor = nullptr;
-    if (resetFollowSymbolData)
-        m_followSymbol->emitDone();
+    ClangdFollowSymbol * const followSymbol = m_followSymbol;
     m_followSymbol = nullptr;
+    if (resetFollowSymbolData)
+        followSymbol->emitDone();
 }
 
 IAssistProposal *ClangdFollowSymbol::VirtualFunctionAssistProcessor::createProposal(bool final)
