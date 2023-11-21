@@ -63,7 +63,7 @@ public:
 
     Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
-    Q_INVOKABLE void removeAllNodes();
+    Q_INVOKABLE void clear();
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);
@@ -75,8 +75,6 @@ public:
     void setVertexShader(const QString &newVertexShader);
 
     const QString &qmlComponentString() const;
-
-    void clear();
 
     Q_INVOKABLE void updateQmlComponent();
 

@@ -139,7 +139,7 @@ void EffectMakerModel::removeNode(int idx)
         bakeShaders();
 }
 
-void EffectMakerModel::removeAllNodes()
+void EffectMakerModel::clear()
 {
     beginResetModel();
     qDeleteAll(m_nodes);
@@ -178,24 +178,6 @@ void EffectMakerModel::setVertexShader(const QString &newVertexShader)
 const QString &EffectMakerModel::qmlComponentString() const
 {
     return m_qmlComponentString;
-}
-
-void EffectMakerModel::clear()
-{
-    if (m_nodes.isEmpty())
-        return;
-
-    beginRemoveRows({}, 0, m_nodes.count());
-
-    for (CompositionNode *node : std::as_const(m_nodes))
-        delete node;
-
-    m_nodes.clear();
-
-    endRemoveRows();
-
-    setIsEmpty(true);
-    bakeShaders();
 }
 
 const QList<Uniform *> EffectMakerModel::allUniforms()

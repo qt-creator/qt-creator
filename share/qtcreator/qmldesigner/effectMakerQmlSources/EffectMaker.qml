@@ -69,7 +69,7 @@ Item {
                 tooltip: qsTr("Remove all effect nodes.")
                 enabled: !EffectMakerBackend.effectMakerModel.isEmpty
 
-                onClicked: EffectMakerBackend.effectMakerModel.removeAllNodes()
+                onClicked: EffectMakerBackend.effectMakerModel.clear()
             }
 
             HelperWidgets.AbstractButton {
