@@ -1183,6 +1183,21 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
                 cmakeConfig.append(ci);
         }
     }
+
+    const bool hasAndroidTargetBuildDirSupport
+        = CMakeConfigItem::toBool(
+              cmakeConfig.stringValueOf("QT_INTERNAL_ANDROID_TARGET_BUILD_DIR_SUPPORT"))
+              .value_or(false);
+
+    const bool useAndroidTargetBuildDir
+        = CMakeConfigItem::toBool(cmakeConfig.stringValueOf("QT_USE_TARGET_ANDROID_BUILD_DIR"))
+              .value_or(false);
+
+    project()->setExtraData(Android::Constants::AndroidBuildTargetDirSupport,
+                            QVariant::fromValue(hasAndroidTargetBuildDirSupport));
+    project()->setExtraData(Android::Constants::UseAndroidBuildTargetDir,
+                            QVariant::fromValue(useAndroidTargetBuildDir));
+
     setConfigurationFromCMake(cmakeConfig);
 }
 

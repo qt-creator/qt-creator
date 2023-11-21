@@ -57,6 +57,9 @@ const char AndroidTargets[] = "AndroidTargets"; // QStringList
 const char AndroidApplicationArgs[] = "AndroidApplicationArgs"; // QString
 const char AndroidClassPaths[] = "AndroidClassPath"; // QStringList
 
+const char AndroidBuildTargetDirSupport[] = "AndroidBuildTargetDirSupport"; // bool
+const char UseAndroidBuildTargetDir[] = "UseAndroidBuildTargetDir"; // bool
+
 // For qbs support
 const char AndroidApk[] = "Android.APK"; // QStringList
 const char AndroidManifest[] = "Android.Manifest"; // QStringList
