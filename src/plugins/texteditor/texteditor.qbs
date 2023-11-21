@@ -84,6 +84,8 @@ QtcPlugin {
         "formattexteditor.h",
         "highlighter.cpp",
         "highlighter.h",
+        "highlighterhelper.cpp",
+        "highlighterhelper.h",
         "highlightersettings.cpp",
         "highlightersettings.h",
         "highlightersettingspage.cpp",
