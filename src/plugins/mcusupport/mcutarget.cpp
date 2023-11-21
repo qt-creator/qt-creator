@@ -113,6 +113,19 @@ void McuTarget::handlePackageProblems(MessagesList &messages) const
     }
 }
 
+void McuTarget::resetInvalidPathsToDefault()
+{
+
+    for (McuPackagePtr package : std::as_const(m_packages)) {
+        if (!package)
+            continue;
+        if (package->isValidStatus())
+            continue;
+        package->setPath(package->defaultPath());
+        package->writeToSettings();
+    }
+}
+
 QVersionNumber McuTarget::qulVersion() const
 {
     return m_qulVersion;

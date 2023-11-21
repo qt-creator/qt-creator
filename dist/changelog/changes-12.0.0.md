@@ -37,14 +37,14 @@ Every language, compiler, and library that is supported at <https://godbolt.org>
 is also supported in Qt Creator. You can save your Compiler Explorer session as
 a `.qtce` file (JSON-based).
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-explore-compiler-code.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-how-to-explore-compiler-code.html))
 
 ### CMake Debugging and the Debug Adapter Protocol
 
 Set breakpoints in a CMake file and select
 `Debug > Start Debugging > Start CMake Debugging` to start debugging.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-debug-cmake-files.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-how-to-debug-cmake-files.html))
 
 
 ### Screen Recording
@@ -56,7 +56,7 @@ To enable the ScreenRecorder plugin, select
 `Help > About Plugins > Utilities > ScreenRecorder`. Then select
 `Restart Now` to restart Qt Creator and load the plugin.
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-record-screens.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-how-to-record-screens.html))
 
 General
 -------
@@ -66,14 +66,14 @@ General
   `Edit > Preferences > Environment > Locator` to keep the sorting from the tool
   used for the file system index locator filter
   ([QTCREATORBUG-27789](https://bugreports.qt.io/browse/QTCREATORBUG-27789))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-editor-locator.html#locating-files-from-global-file-system-index))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-editor-locator.html#locating-files-from-global-file-system-index))
 * Added the `View > Show Menu Bar` option to hide the menu bar on platforms
   without a unified menu bar
   ([QTCREATORBUG-29498](https://bugreports.qt.io/browse/QTCREATORBUG-29498))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-show-and-hide-main-menu.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-show-and-hide-main-menu.html))
 * Changed the `Enable high DPI scaling` setting to a `DPI rounding policy`
   setting, which fits Qt's settings better
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-set-high-dpi-scaling.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-set-high-dpi-scaling.html))
 * Fixed an issue with growing session files
 * Fixed that the shortcuts for the navigation views could be stuck to opening a
   view in the right side bar
@@ -87,7 +87,7 @@ Help
 * Added the `Edit > Preferences > Help > General > Antialias` check box for
   setting the anti-aliasing of text
   ([QTCREATORBUG-12177](https://bugreports.qt.io/browse/QTCREATORBUG-12177))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-get-help.html#change-the-font))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-get-help.html#change-the-font))
 
 Editing
 -------
@@ -95,9 +95,9 @@ Editing
 * Added the count of selected characters to line and column information
   on the `Edit` mode toolbar
   ([QTCREATORBUG-29381](https://bugreports.qt.io/browse/QTCREATORBUG-29381))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-coding-navigating.html#navigating-between-open-files-and-symbols))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-coding-navigating.html#navigating-between-open-files-and-symbols))
 * Added an indenter, auto-brace and auto-quote for JSON
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-enclose-code-in-characters.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-enclose-code-in-characters.html))
 * Improved the performance of searching in big documents
 * Fixed that the historical order of open documents was not restored
 * Fixed that suggestions were rendered with the wrong tab size
@@ -108,12 +108,12 @@ Editing
 * Updated to LLVM 17.0.1
 * Added `Tools > C++ > Fold All Comment Blocks` and `Unfold All Comment Blocks`
   ([QTCREATORBUG-2449](https://bugreports.qt.io/browse/QTCREATORBUG-2449))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-highlighting.html#folding-blocks))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-highlighting.html#folding-blocks))
 * Added the `Convert Comment to C Style` and `Convert Comment to C++ Style`
   refactoring actions for converting comments between C++-style and
   C-style
   ([QTCREATORBUG-27501](https://bugreports.qt.io/browse/QTCREATORBUG-27501))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-editor-quick-fixes.html#refactoring-c-code))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-editor-quick-fixes.html#refactoring-c-code))
 * Added the `Move Function Documentation to Declaration` and
   `Move Function Documentation to Definition` refactoring actions for moving
   documentation between function declaration and definition
@@ -177,7 +177,7 @@ Editing
 
 * Added support for proxies
   ([QTCREATORBUG-29485](https://bugreports.qt.io/browse/QTCREATORBUG-29485))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-copilot.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-copilot.html))
 * Fixed the auto-detection of `agent.js`
   ([QTCREATORBUG-29750](https://bugreports.qt.io/browse/QTCREATORBUG-29750))
 
@@ -188,7 +188,7 @@ Editing
 ### Markdown
 
 * Added buttons and configurable shortcuts for text styles
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-markdown-editor.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-markdown-editor.html))
 
 ### Images
 
@@ -203,9 +203,9 @@ Projects
 * Project specific settings
     * Added C++ file naming settings
       ([QTCREATORBUG-22033](https://bugreports.qt.io/browse/QTCREATORBUG-22033))
-      ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-set-cpp-file-naming.html))
+      ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-set-cpp-file-naming.html))
     * Added documentation comment settings
-      ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-document-code.html))
+      ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-document-code.html))
 * Added an option for the Doxygen command prefix
   ([QTCREATORBUG-8096](https://bugreports.qt.io/browse/QTCREATORBUG-8096))
 * Improved performance of filtering the target setup page
@@ -250,15 +250,15 @@ Projects
       ([QTCREATORBUG-29643](https://bugreports.qt.io/browse/QTCREATORBUG-29643))
     * Fixed unnecessary restrictions on the preset name
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-project-cmake.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-project-cmake.html))
 
 ### Python
 
 * Added auto-detection of PySide from the installer
   ([PYSIDE-2153](https://bugreports.qt.io/browse/PYSIDE-2153))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-python-development.html#set-up-pyside6))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-python-development.html#set-up-pyside6))
 * Added the option to forward the display for remote Linux
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-run-settings.html#specifying-run-settings-for-linux-based-devices))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-run-settings.html#specifying-run-settings-for-linux-based-devices))
 * Fixed PySide wheels installation on macOS
 
 ### qmake
@@ -277,7 +277,7 @@ Projects
 * Added parsing the dependencies from `vcpkg.json` manifest files
 * Improved the addition of dependencies to `vcpkg.json`
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-how-to-edit-vcpkg-manifest-files.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-how-to-edit-vcpkg-manifest-files.html))
 
 ### Qt Safe Renderer
 
@@ -321,7 +321,7 @@ Terminal
 * Added support for Windows Terminal schemes
 * Fixed `Ctrl+C/V` on Windows
 
-([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-reference-terminal-view.html))
+([Documentation](https://doc.qt.io/qtcreator/creator-reference-terminal-view.html))
 
 Version Control Systems
 -----------------------
@@ -331,7 +331,7 @@ Version Control Systems
 * Added the `Ignore whitespace changes` and `Ignore line moves` options to
   `Preferences >  Version Control > Git > Instant Blame`
   ([QTCREATORBUG-29378](https://bugreports.qt.io/browse/QTCREATORBUG-29378))
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-12.0/creator-vcs-git.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-vcs-git.html))
 
 ### CVS
 
