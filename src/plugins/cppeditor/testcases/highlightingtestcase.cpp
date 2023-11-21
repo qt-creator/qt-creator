@@ -44,3 +44,6 @@ static void parenTest()
         /* comment */ \
     } while (false);
 }
+
+const char* s7 = R"(
+))";
