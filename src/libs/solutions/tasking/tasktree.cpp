@@ -3085,4 +3085,33 @@ void TimeoutTaskAdapter::start()
     });
 }
 
+/*!
+    \typealias TaskTreeTask
+
+    Type alias for the CustomTask, to be used inside recipes, associated with the TaskTree task.
+*/
+
+/*!
+    \typealias TimeoutTask
+
+    Type alias for the CustomTask, to be used inside recipes, associated with the
+    \c std::chrono::milliseconds type. \c std::chrono::milliseconds is used to set up the
+    timeout duration. The default timeout is \c std::chrono::milliseconds::zero(), that is,
+    the TimeoutTask finishes as soon as the control returns to the running event loop.
+
+    Example usage:
+
+    \code
+        using namespace std::chrono;
+        using namespace std::chrono_literals;
+
+        const auto onSetup = [](milliseconds &timeout) { timeout = 1000ms; }
+        const auto onDone = [] { qDebug() << "Timed out."; }
+
+        const Group root {
+            Timeout(onSetup, onDone)
+        };
+    \endcode
+*/
+
 } // namespace Tasking
