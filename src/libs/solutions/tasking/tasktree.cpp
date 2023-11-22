@@ -180,7 +180,8 @@ private:
     Storage object was placed, also within the nested groups.
     When a copy of the Storage object is passed to the handler via the lambda capture,
     the handler may access the instance activated by the running task tree via the
-    Storage::operator->(), Storage::operator*(), or Storage::activeStorage() method.
+    \l {Tasking::Storage::operator->()} {operator->()},
+    \l {Tasking::Storage::operator*()} {operator*()}, or activeStorage() method.
     If two handlers capture the same Storage object, one of them may store a custom data there,
     and the other may read it afterwards.
     When the group is finished, the previously created instance of the \c StorageStruct
@@ -353,6 +354,26 @@ private:
             \l {Tasking::onGroupDone()} {onGroupDone()} define custom handlers called when
             the group starts or ends execution.
     \endtable
+*/
+
+/*!
+    \fn template <typename StorageStruct> GroupItem::GroupItem(const Storage<StorageStruct> &storage)
+
+    Constructs a \c GroupItem element holding the \a storage object.
+
+    When the \l {Tasking::Group} {Group} element containing \e this GroupItem is entered
+    by the running task tree, an instance of the \c StorageStruct is created dynamically.
+
+    When that group is about to be left after its execution, the previously instantiated
+    \c StorageStruct is deleted.
+
+    The dynamically created instance of \c StorageStruct is accessible from inside any
+    handler body of the parent \l {Tasking::Group} {Group} element,
+    including nested groups and its tasks, via the
+    \l {Tasking::Storage::operator->()} {Storage::operator->()},
+    \l {Tasking::Storage::operator*()} {Storage::operator*()}, or Storage::activeStorage() method.
+
+    \sa {Tasking::Storage} {Storage}
 */
 
 /*!
@@ -2339,8 +2360,8 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
 
     \section2 Storage
 
-    Use the Storage element to exchange information between tasks. Especially,
-    in the sequential execution mode, when a task needs data from another,
+    Use the \l {Tasking::Storage} {Storage} element to exchange information between tasks.
+    Especially, in the sequential execution mode, when a task needs data from another,
     already finished task, before it can start. For example, a task tree that copies data by reading
     it from a source and writing it to a destination might look as follows:
 
@@ -2400,37 +2421,39 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     variable [5]. The saver then uses the variable to configure the saving task [6].
 
     To enable a task tree to manage the \c CopyStorage struct, an instance of
-    Storage<\c CopyStorage> is created [3]. If a copy of this object is
+    \l {Tasking::Storage} {Storage}<\c CopyStorage> is created [3]. If a copy of this object is
     inserted as the group's child item [7], an instance of the \c CopyStorage struct is
     created dynamically when the task tree enters this group. When the task
     tree leaves this group, the existing instance of the \c CopyStorage struct is
     destructed as it's no longer needed.
 
-    If several task trees holding a copy of the common Storage<\c CopyStorage> instance
-    run simultaneously (including also a case when the task trees are run in different threads),
+    If several task trees holding a copy of the common
+    \l {Tasking::Storage} {Storage}<\c CopyStorage> instance run simultaneously
+    (including the case when the task trees are run in different threads),
     each task tree contains its own copy of the \c CopyStorage struct.
 
     You can access \c CopyStorage from any handler in the group with a storage object.
     This includes all handlers of all descendant tasks of the group with
     a storage object. To access the custom struct in a handler, pass the
-    copy of the Storage<\c CopyStorage> object to the handler (for example, in
-    a lambda capture) [4].
+    copy of the \l {Tasking::Storage} {Storage}<\c CopyStorage> object to the handler
+    (for example, in a lambda capture) [4].
 
     When the task tree invokes a handler in a subtree containing the storage [7],
     the task tree activates its own \c CopyStorage instance inside the
-    Storage<\c CopyStorage> object. Therefore, the \c CopyStorage struct may be
-    accessed only from within the handler body. To access the currently active
-    \c CopyStorage from within Storage<\c CopyStorage>, use the Storage::operator->(),
-    Storage::operator*(), or Storage::activeStorage() method.
+    \l {Tasking::Storage} {Storage}<\c CopyStorage> object. Therefore, the \c CopyStorage struct
+    may be accessed only from within the handler body. To access the currently active
+    \c CopyStorage from within \l {Tasking::Storage} {Storage}<\c CopyStorage>, use the
+    \l {Tasking::Storage::operator->()} {Storage::operator->()},
+    \l {Tasking::Storage::operator*()} {Storage::operator*()}, or Storage::activeStorage() method.
 
     The following list summarizes how to employ a Storage object into the task
     tree:
     \list 1
         \li Define the custom structure \c MyStorage with custom data [1], [2]
-        \li Create an instance of the Storage<\c MyStorage> storage [3]
-        \li Pass the Storage<\c MyStorage> instance to handlers [4]
+        \li Create an instance of the \l {Tasking::Storage} {Storage}<\c MyStorage> storage [3]
+        \li Pass the \l {Tasking::Storage} {Storage}<\c MyStorage> instance to handlers [4]
         \li Access the \c MyStorage instance in handlers [5], [6]
-        \li Insert the Storage<\c MyStorage> instance into a group [7]
+        \li Insert the \l {Tasking::Storage} {Storage}<\c MyStorage> instance into a group [7]
     \endlist
 
     \section1 TaskTree class
