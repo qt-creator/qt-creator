@@ -8,6 +8,7 @@
 #include "assetslibrarymodel.h"
 #include "assetslibraryview.h"
 #include "designeractionmanager.h"
+#include "designmodewidget.h"
 #include "modelnodeoperations.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
@@ -192,12 +193,12 @@ QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, co
     return path;
 }
 
-bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openEffectMaker)
+bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectMaker)
 {
     bool created = QFile(effectPath).open(QIODevice::WriteOnly);
 
-    if (created && openEffectMaker) {
-        ModelNodeOperations::openEffectMaker(effectPath);
+    if (created && openInEffectMaker) {
+        openEffectMaker(effectPath);
         emit directoryCreated(QFileInfo(effectPath).absolutePath());
     }
 
@@ -379,10 +380,12 @@ bool isEffectMakerActivated()
 
 void AssetsLibraryWidget::openEffectMaker(const QString &filePath)
 {
-    if (isEffectMakerActivated())
+    if (isEffectMakerActivated()) { // new effect maker
         m_assetsView->emitCustomNotification("open_effectmaker_composition", {}, {filePath});
-    else
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Effect Maker", true);
+    } else { // old effect maker
         ModelNodeOperations::openEffectMaker(filePath);
+    }
 }
 
 QString AssetsLibraryWidget::qmlSourcesPath()

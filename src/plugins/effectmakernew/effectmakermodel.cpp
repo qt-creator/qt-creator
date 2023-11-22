@@ -558,6 +558,9 @@ void EffectMakerModel::openComposition(const QString &path)
 {
     clear();
 
+    const QString effectName = QFileInfo(path).baseName();
+    setCurrentComposition(effectName);
+
     QFile compFile(path);
     if (!compFile.open(QIODevice::ReadOnly)) {
         QString error = QString("Couldn't open composition file: '%1'").arg(path);
@@ -567,6 +570,10 @@ void EffectMakerModel::openComposition(const QString &path)
     }
 
     QByteArray data = compFile.readAll();
+
+    if (data.isEmpty())
+        return;
+
     QJsonParseError parseError;
     QJsonDocument jsonDoc(QJsonDocument::fromJson(data, &parseError));
     if (parseError.error != QJsonParseError::NoError) {
@@ -597,7 +604,6 @@ void EffectMakerModel::openComposition(const QString &path)
     }
 
     // Get effects dir
-    const QString effectName = QFileInfo(path).baseName();
     const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
     const QString effectsResPath = effectsResDir.pathAppended(effectName).toString();
 
@@ -613,8 +619,6 @@ void EffectMakerModel::openComposition(const QString &path)
         setIsEmpty(m_nodes.isEmpty());
         bakeShaders();
     }
-
-    setCurrentComposition(effectName);
 }
 
 void EffectMakerModel::exportResources(const QString &name)
