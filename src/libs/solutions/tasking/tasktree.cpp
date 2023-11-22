@@ -583,6 +583,36 @@ private:
 */
 
 /*!
+    \class Tasking::Sync
+    \inheaderfile solutions/tasking/tasktree.h
+    \inmodule TaskingSolution
+    \brief Synchronously executes a custom handler between other tasks.
+    \reentrant
+
+    \c Sync is useful when you want to execute an additional handler between other tasks.
+    \c Sync is seen by its parent \l {Tasking::Group} {Group} as any other task.
+    Avoid long-running execution of the \c Sync's handler body, since it is executed
+    synchronously from the caller thread. If that is unavoidable, consider using
+    \c ConcurrentCallTask instead.
+*/
+
+/*!
+    \fn template <typename Handler> Sync::Sync(Handler &&handler)
+
+    Constructs an element that executes a passed \a handler synchronously.
+    The \c Handler is of the \c std::function<DoneResult()> type.
+    The DoneResult value, returned by the \a handler, is considered during parent group's workflow
+    policy resolution. Optionally, the shortened form of \c std::function<void()> is also accepted.
+    In this case, it's assumed that the return value is DoneResult::Success.
+
+    The passed \a handler executes synchronously from the caller thread, so avoid a long-running
+    execution of the handler body. Otherwise, consider using \c ConcurrentCallTask.
+
+    \note The \c Sync element is not counted as a task when reporting task tree progress,
+          and is not included in TaskTree::taskCount() or TaskTree::progressMaximum().
+*/
+
+/*!
     \class Tasking::CustomTask
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
@@ -2469,10 +2499,11 @@ bool TaskTreePrivate::invokeDoneHandler(TaskRuntimeNode *node, DoneWith doneWith
     is increased when a task finishes or is skipped or stopped.
     When TaskTree is finished and the TaskTree::done() signal is emitted,
     the current value of the progress equals the maximum progress value.
-    Maximum progress equals the total number of tasks in a tree.
+    Maximum progress equals the total number of asynchronous tasks in a tree.
     A nested TaskTree is counted as a single task, and its child tasks are not
     counted in the top level tree. Groups themselves are not counted as tasks,
-    but their tasks are counted.
+    but their tasks are counted. \l {Tasking::Sync} {Sync} tasks are not asynchronous,
+    so they are not counted as tasks.
 
     To set additional initial data for the running tree, modify the storage
     instances in a tree when it creates them by installing a storage setup
@@ -2834,7 +2865,7 @@ DoneWith TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future,
 /*!
     Returns the number of asynchronous tasks contained in the stored recipe.
 
-    \note The returned number doesn't include Sync tasks.
+    \note The returned number doesn't include \l {Tasking::Sync} {Sync} tasks.
     \note Any task or group that was set up using withTimeout() increases the total number of
           tasks by \c 1.
 
