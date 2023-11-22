@@ -50,14 +50,15 @@ SquishPluginPrivate::SquishPluginPrivate()
 {
     qRegisterMetaType<SquishResultItem*>("SquishResultItem*");
 
-    ActionContainer *menu = ActionManager::createMenu("Squish.Menu");
+    const Id menuId = "Squish.Menu";
+    ActionContainer *menu = ActionManager::createMenu(menuId);
     menu->menu()->setTitle(Tr::tr("&Squish"));
     menu->setOnAllDisabledBehavior(ActionContainer::Show);
 
-    QAction *action = new QAction(Tr::tr("&Server Settings..."), this);
-    Command *command = ActionManager::registerAction(action, "Squish.ServerSettings");
-    menu->addAction(command);
-    connect(action, &QAction::triggered, this, [] {
+    ActionBuilder serverSettings(this, "Squish.ServerSettings");
+    serverSettings.setText(Tr::tr("&Server Settings..."));
+    serverSettings.setContainer(menuId);
+    serverSettings.setOnTriggered(this, [] {
         if (!settings().squishPath().exists()) {
             SquishMessages::criticalMessage(Tr::tr("Invalid Squish settings. Configure Squish "
                                                    "installation path inside "
