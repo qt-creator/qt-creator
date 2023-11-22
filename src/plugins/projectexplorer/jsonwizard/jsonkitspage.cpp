@@ -44,7 +44,7 @@ void JsonKitsPage::initializePage()
     setTasksGenerator([required, preferred, platform](const Kit *k) -> Tasks {
         if (!k->hasFeatures(required))
             return {CompileTask(Task::Error, Tr::tr("At least one required feature is not present."))};
-        if (!k->supportedPlatforms().contains(platform))
+        if (platform.isValid() && !k->supportedPlatforms().contains(platform))
             return {CompileTask(Task::Unknown, Tr::tr("Platform is not supported."))};
         if (!k->hasFeatures(preferred))
             return {
