@@ -188,10 +188,10 @@ void FixitsRefactoringFile::shiftAffectedReplacements(const FilePath &filePath,
             continue;
 
         for (const auto &op : replacements) {
-            QTC_ASSERT(op.type == ChangeSet::EditOp::Replace, continue);
+            QTC_ASSERT(op.type() == ChangeSet::EditOp::Replace, continue);
             if (op.pos1 > current.pos)
                 break;
-            current.pos += op.text.size() - op.length1;
+            current.pos += op.text().size() - op.length1;
         }
     }
 }

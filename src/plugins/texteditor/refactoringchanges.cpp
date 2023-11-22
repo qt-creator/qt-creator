@@ -288,17 +288,14 @@ bool RefactoringFile::apply()
 
 void RefactoringFile::setupFormattingRanges(const QList<ChangeSet::EditOp> &replaceList)
 {
-    if (!m_formattingEnabled)
-        return;
-
     QTextDocument * const doc = m_editor ? m_editor->document() : m_document;
     QTC_ASSERT(doc, return);
 
     for (const ChangeSet::EditOp &op : replaceList) {
+        if (!op.format1())
+            continue;
         QTextCursor cursor(doc);
-        switch (op.type) {
-        case ChangeSet::EditOp::Unset:
-            break;
+        switch (op.type()) {
         case ChangeSet::EditOp::Replace:
         case ChangeSet::EditOp::Insert:
         case ChangeSet::EditOp::Remove:

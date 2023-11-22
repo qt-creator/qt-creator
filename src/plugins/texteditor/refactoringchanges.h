@@ -60,9 +60,6 @@ public:
     bool apply();
     bool create(const QString &contents, bool reindent, bool openInEditor);
 
-    // TODO: Per EditOp?
-    void skipFormatting() { m_formattingEnabled = false; }
-
 protected:
     // users may only get const access to RefactoringFiles created through
     // this constructor, because it can't be used to apply changes
@@ -93,7 +90,6 @@ private:
     bool m_activateEditor = false;
     int m_editorCursorPosition = -1;
     bool m_appliedOnce = false;
-    bool m_formattingEnabled = true;
 };
 
 class TEXTEDITOR_EXPORT RefactoringFileFactory

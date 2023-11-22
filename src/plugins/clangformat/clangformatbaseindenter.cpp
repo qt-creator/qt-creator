@@ -436,15 +436,15 @@ int indentationForBlock(const Utils::ChangeSet &toReplace,
 
     auto replacementIt
         = std::find_if(ops.begin(), ops.end(), [utf8Offset](const Utils::ChangeSet::EditOp &op) {
-              QTC_ASSERT(op.type == Utils::ChangeSet::EditOp::Replace, return false);
+              QTC_ASSERT(op.type() == Utils::ChangeSet::EditOp::Replace, return false);
               return op.pos1 == utf8Offset - 1;
           });
     if (replacementIt == ops.end())
         return -1;
 
-    int afterLineBreak = replacementIt->text.lastIndexOf('\n');
+    int afterLineBreak = replacementIt->text().lastIndexOf('\n');
     afterLineBreak = (afterLineBreak < 0) ? 0 : afterLineBreak + 1;
-    return static_cast<int>(replacementIt->text.size() - afterLineBreak);
+    return static_cast<int>(replacementIt->text().size() - afterLineBreak);
 }
 
 bool doNotIndentInContext(QTextDocument *doc, int pos)

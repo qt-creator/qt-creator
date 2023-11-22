@@ -2230,7 +2230,7 @@ public:
         QString description;
         if (m_change.operationList().size() == 1) {
             description = Tr::tr(
-                "Reformat to \"%1\"").arg(m_change.operationList().constFirst().text);
+                        "Reformat to \"%1\"").arg(m_change.operationList().constFirst().text());
         } else { // > 1
             description = Tr::tr("Reformat Pointers or References");
         }
@@ -2732,7 +2732,6 @@ public:
             ChangeSet localChangeSet;
             ChangeSet * const target = changeSet ? changeSet : &localChangeSet;
             target->replace(targetPos - 1, targetPos, QLatin1String("\n {\n\n}")); // replace ';'
-            const ChangeSet::Range indentRange(targetPos, targetPos + 4);
 
             if (!changeSet) {
                 targetFile->setChangeSet(*target);
@@ -2805,13 +2804,10 @@ public:
             defText.insert(index, inlinePref);
             defText += QLatin1String("\n{\n\n}");
 
-            const int targetPos = targetFile->position(loc.line(), loc.column());
-            const int targetPos2 = qMax(0, targetFile->position(loc.line(), 1) - 1);
-
             ChangeSet localChangeSet;
             ChangeSet * const target = changeSet ? changeSet : &localChangeSet;
+            const int targetPos = targetFile->position(loc.line(), loc.column());
             target->insert(targetPos,  loc.prefix() + defText + loc.suffix());
-            const ChangeSet::Range indentRange(targetPos2, targetPos);
 
             if (!changeSet) {
                 targetFile->setChangeSet(*target);
@@ -6583,7 +6579,6 @@ public:
         }
         if (!m_fromFileChangeSet.isEmpty()) {
             m_fromFile->setChangeSet(m_fromFileChangeSet);
-            m_fromFile->skipFormatting();
             m_fromFile->apply();
         }
     }
@@ -7627,13 +7622,6 @@ private:
         CppRefactoringChanges refactoring(snapshot());
         CppRefactoringFilePtr currentFile = refactoring.cppFile(filePath());
         currentFile->setChangeSet(m_changes);
-
-        // It would probably be unexpected to users if we were to re-format here, though
-        // an argument could also be made for doing it, especially if "format instead of indent"
-        // is enabled, as a difference in line length might trigger a different ClangFormat
-        // re-flowing.
-        currentFile->skipFormatting();
-
         currentFile->apply();
     }
 
@@ -8242,6 +8230,7 @@ private:
             m_changeSet.insert(m_file->startOf(destructorName->unqualified_name), m_missingNamespace);
         else
             m_changeSet.insert(m_file->startOf(ast->name), m_missingNamespace);
+        m_changeSet.operationList().last().setFormat1(false);
     }
 
     bool needMissingNamespaces(QList<const Name *> &&fullName, int currentNameCount)
@@ -8411,10 +8400,8 @@ private:
             processIncludes(refactoring, filePath());
         }
 
-        for (auto &file : std::as_const(m_changes)) {
-            file->skipFormatting();
+        for (auto &file : std::as_const(m_changes))
             file->apply();
-        }
     }
 
     /**
