@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 namespace Android::Internal {
 
-class AndroidDebugWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    AndroidDebugWorkerFactory();
-};
+void setupAndroidDebugWorker();
 
 } // Android::Internal

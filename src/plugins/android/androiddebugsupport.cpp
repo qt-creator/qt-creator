@@ -200,11 +200,20 @@ void AndroidDebugSupport::stop()
 
 // AndroidDebugWorkerFactory
 
-AndroidDebugWorkerFactory::AndroidDebugWorkerFactory()
+class AndroidDebugWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<AndroidDebugSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
-    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+public:
+    AndroidDebugWorkerFactory()
+    {
+        setProduct<AndroidDebugSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+        addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+    }
+};
+
+void setupAndroidDebugWorker()
+{
+    static AndroidDebugWorkerFactory theAndroidDebugWorkerFactory;
 }
 
 } // Android::Internal

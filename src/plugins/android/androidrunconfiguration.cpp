@@ -96,10 +96,19 @@ public:
     BaseStringListAspect postStartShellCmd{this};
 };
 
-AndroidRunConfigurationFactory::AndroidRunConfigurationFactory()
+class AndroidRunConfigurationFactory : public RunConfigurationFactory
 {
-    registerRunConfiguration<AndroidRunConfiguration>("Qt4ProjectManager.AndroidRunConfiguration:");
-    addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+public:
+    AndroidRunConfigurationFactory()
+    {
+        registerRunConfiguration<AndroidRunConfiguration>("Qt4ProjectManager.AndroidRunConfiguration:");
+        addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+    }
+};
+
+void setupAndroidRunConfiguration()
+{
+    static AndroidRunConfigurationFactory theAndroidRunConfigurationFactory;
 }
 
 } // namespace Android

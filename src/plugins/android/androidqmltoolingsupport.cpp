@@ -34,12 +34,20 @@ private:
     void stop() override { reportStopped(); }
 };
 
-
-AndroidQmlToolingSupportFactory::AndroidQmlToolingSupportFactory()
+class AndroidQmlToolingSupportFactory final : public RunWorkerFactory
 {
-    setProduct<AndroidQmlToolingSupport>();
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
-    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+public:
+    AndroidQmlToolingSupportFactory()
+    {
+        setProduct<AndroidQmlToolingSupport>();
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
+        addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+    }
+};
+
+void setupAndroidQmlToolingSupport()
+{
+    static AndroidQmlToolingSupportFactory theAndroidQmlToolingSupportFactory;
 }
 
 } // Android::Internal

@@ -19,6 +19,7 @@
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprojectmanager/qmlprojectconstants.h>
@@ -489,13 +490,22 @@ bool AndroidQmlPreviewWorker::stopPreviewApp()
 
 // AndroidQmlPreviewWorkerFactory
 
-AndroidQmlPreviewWorkerFactory::AndroidQmlPreviewWorkerFactory()
+class AndroidQmlPreviewWorkerFactory final : public RunWorkerFactory
 {
-    setProduct<AndroidQmlPreviewWorker>();
-    addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
-    addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration.Qml");
-    addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
-    addSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+public:
+    AndroidQmlPreviewWorkerFactory()
+    {
+        setProduct<AndroidQmlPreviewWorker>();
+        addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
+        addSupportedRunConfig("QmlProjectManager.QmlRunConfiguration.Qml");
+        addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+        addSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+    }
+};
+
+void setupAndroidQmlPreviewWorker()
+{
+    static AndroidQmlPreviewWorkerFactory theAndroidQmlPreviewWorkerFactory;
 }
 
 } // Android::Internal

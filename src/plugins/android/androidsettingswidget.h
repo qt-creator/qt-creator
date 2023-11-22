@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/dialogs/ioptionspage.h>
-
 namespace Android::Internal {
 
-class AndroidSettingsPage final : public Core::IOptionsPage
-{
-public:
-    AndroidSettingsPage();
-};
+void setupAndroidSettingsPage();
 
 } // Android::Internal

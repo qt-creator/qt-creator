@@ -4,14 +4,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace Android::Internal {
 
-class AndroidDeployQtStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    AndroidDeployQtStepFactory();
-};
+void setupAndroidDeployQtStep();
 
 } // Android::Internal

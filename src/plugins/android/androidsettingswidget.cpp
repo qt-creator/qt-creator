@@ -9,6 +9,8 @@
 #include "androidsettingswidget.h"
 #include "androidtr.h"
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>
@@ -765,12 +767,21 @@ void AndroidSettingsWidget::downloadSdk()
 
 // AndroidSettingsPage
 
-AndroidSettingsPage::AndroidSettingsPage()
+class AndroidSettingsPage final : public Core::IOptionsPage
 {
-    setId(Constants::ANDROID_SETTINGS_ID);
-    setDisplayName(Tr::tr("Android"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
-    setWidgetCreator([] { return new AndroidSettingsWidget; });
+public:
+    AndroidSettingsPage()
+    {
+        setId(Constants::ANDROID_SETTINGS_ID);
+        setDisplayName(Tr::tr("Android"));
+        setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+        setWidgetCreator([] { return new AndroidSettingsWidget; });
+    }
+};
+
+void setupAndroidSettingsPage()
+{
+    static AndroidSettingsPage theAndroidSettingsPage;
 }
 
 } // Android::Internal

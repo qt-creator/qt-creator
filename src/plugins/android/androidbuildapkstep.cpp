@@ -64,8 +64,7 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep", QtWarningMsg)
 
@@ -1072,14 +1071,22 @@ QString PasswordInputDialog::getPassword(Context context, std::function<bool (co
 
 // AndroidBuildApkStepFactory
 
-AndroidBuildApkStepFactory::AndroidBuildApkStepFactory()
+class AndroidBuildApkStepFactory final : public BuildStepFactory
 {
-    registerStep<AndroidBuildApkStep>(Constants::ANDROID_BUILD_APK_ID);
-    setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    setDisplayName(Tr::tr("Build Android APK"));
-    setRepeatable(false);
+public:
+    AndroidBuildApkStepFactory()
+    {
+        registerStep<AndroidBuildApkStep>(Constants::ANDROID_BUILD_APK_ID);
+        setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        setDisplayName(Tr::tr("Build Android APK"));
+        setRepeatable(false);
+    }
+};
+
+void setupAndroidBuildApkStep()
+{
+    static AndroidBuildApkStepFactory theAndroidBuildApkStepFactory;
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

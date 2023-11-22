@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/runcontrol.h>
-
 namespace Android::Internal {
 
-class AndroidQmlPreviewWorkerFactory final : public ProjectExplorer::RunWorkerFactory
-{
-public:
-    AndroidQmlPreviewWorkerFactory();
-};
+void setupAndroidQmlPreviewWorker();
 
 } // Android::Internal

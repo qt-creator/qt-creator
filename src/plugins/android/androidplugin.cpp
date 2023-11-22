@@ -61,7 +61,7 @@ const char kSetupAndroidSetting[] = "ConfigureAndroid";
 
 namespace Android::Internal {
 
-class AndroidDeployConfigurationFactory : public DeployConfigurationFactory
+class AndroidDeployConfigurationFactory final : public DeployConfigurationFactory
 {
 public:
     AndroidDeployConfigurationFactory()
@@ -73,26 +73,22 @@ public:
     }
 };
 
+void setupAndroidDeployConfiguration()
+{
+    static AndroidDeployConfigurationFactory theAndroidDeployConfigurationFactory;
+}
+
 class AndroidPluginPrivate : public QObject
 {
 public:
     AndroidConfigurations androidConfiguration;
-    AndroidSettingsPage settingsPage;
-    AndroidDeployQtStepFactory deployQtStepFactory;
     AndroidQtVersionFactory qtVersionFactory;
     AndroidToolChainFactory toolChainFactory;
-    AndroidDeployConfigurationFactory deployConfigurationFactory;
     AndroidDeviceFactory deviceFactory;
     AndroidPotentialKit potentialKit;
     JavaEditorFactory javaEditorFactory;
     AndroidPackageInstallationFactory packackeInstallationFactory;
     AndroidManifestEditorFactory manifestEditorFactory;
-    AndroidRunConfigurationFactory runConfigFactory;
-    AndroidRunWorkerFactory runWorkerFactory;
-    AndroidDebugWorkerFactory debugWorkerFactory;
-    AndroidQmlToolingSupportFactory profilerWorkerFactory;
-    AndroidQmlPreviewWorkerFactory qmlPreviewWorkerFactory;
-    AndroidBuildApkStepFactory buildApkStepFactory;
     AndroidDeviceManager deviceManager;
 };
 
@@ -104,6 +100,19 @@ AndroidPlugin::~AndroidPlugin()
 void AndroidPlugin::initialize()
 {
     d = new AndroidPluginPrivate;
+
+    setupAndroidSettingsPage();
+
+    setupAndroidBuildApkStep();
+
+    setupAndroidDeployConfiguration();
+    setupAndroidDeployQtStep();
+
+    setupAndroidRunConfiguration();
+    setupAndroidRunWorker();
+    setupAndroidDebugWorker();
+    setupAndroidQmlToolingSupport();
+    setupAndroidQmlPreviewWorker();
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);

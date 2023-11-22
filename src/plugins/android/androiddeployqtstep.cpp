@@ -660,13 +660,22 @@ void AndroidDeployQtStep::reportWarningOrError(const QString &message, Task::Tas
 
 // AndroidDeployQtStepFactory
 
-AndroidDeployQtStepFactory::AndroidDeployQtStepFactory()
+class AndroidDeployQtStepFactory final : public BuildStepFactory
 {
-    registerStep<AndroidDeployQtStep>(Constants::ANDROID_DEPLOY_QT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-    setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
-    setRepeatable(false);
-    setDisplayName(Tr::tr("Deploy to Android device"));
+public:
+    AndroidDeployQtStepFactory()
+    {
+        registerStep<AndroidDeployQtStep>(Constants::ANDROID_DEPLOY_QT_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(Constants::ANDROID_DEVICE_TYPE);
+        setRepeatable(false);
+        setDisplayName(Tr::tr("Deploy to Android device"));
+    }
+};
+
+void setupAndroidDeployQtStep()
+{
+    static AndroidDeployQtStepFactory theAndroidDeployQtStepFactory;
 }
 
 } // Android::Internal
