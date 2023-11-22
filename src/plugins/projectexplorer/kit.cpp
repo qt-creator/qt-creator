@@ -586,6 +586,8 @@ QString Kit::toHtml(const Tasks &additional, const QString &extraText) const
 
     str << "<dl style=\"white-space:pre\">";
     for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        if (!isAspectRelevant(factory->id()))
+            continue;
         const KitAspectFactory::ItemList list = factory->toUserOutput(this);
         for (const KitAspectFactory::Item &j : list) {
             QString contents = j.second;
