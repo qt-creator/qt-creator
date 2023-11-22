@@ -61,9 +61,9 @@ QString AndroidQtVersion::invalidReason() const
 {
     QString tmp = QtVersion::invalidReason();
     if (tmp.isEmpty()) {
-        if (AndroidConfigurations::currentConfig().ndkLocation(this).isEmpty())
+        if (androidConfig().ndkLocation(this).isEmpty())
             return Tr::tr("NDK is not configured in Devices > Android.");
-        if (AndroidConfigurations::currentConfig().sdkLocation().isEmpty())
+        if (androidConfig().sdkLocation().isEmpty())
             return Tr::tr("SDK is not configured in Devices > Android.");
         if (qtAbis().isEmpty())
             return Tr::tr("Failed to detect the ABIs used by the Qt version. Check the settings in "
@@ -79,7 +79,7 @@ bool AndroidQtVersion::supportsMultipleQtAbis() const
 
 Abis AndroidQtVersion::detectQtAbis() const
 {
-    const bool conf = AndroidConfigurations::currentConfig().sdkFullyConfigured();
+    const bool conf = androidConfig().sdkFullyConfigured();
     return conf ? Utils::transform<Abis>(androidAbis(), &AndroidManager::androidAbi2Abi) : Abis();
 }
 
@@ -87,7 +87,7 @@ void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) c
 {
     QtVersion::addToEnvironment(k, env);
 
-    const AndroidConfig &config = AndroidConfigurations::currentConfig();
+    const AndroidConfig &config = androidConfig();
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
     env.set(QLatin1String("ANDROID_NDK_HOST"), config.toolchainHost(this));
     env.set(QLatin1String("ANDROID_NDK_ROOT"), config.ndkLocation(this).toUserOutput());
@@ -98,7 +98,7 @@ void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) c
 void AndroidQtVersion::setupQmakeRunEnvironment(Utils::Environment &env) const
 {
     env.set(QLatin1String("ANDROID_NDK_ROOT"),
-            AndroidConfigurations::currentConfig().ndkLocation(this).toUserOutput());
+            androidConfig().ndkLocation(this).toUserOutput());
 }
 
 QString AndroidQtVersion::description() const

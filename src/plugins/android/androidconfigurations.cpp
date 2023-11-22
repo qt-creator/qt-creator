@@ -661,8 +661,7 @@ bool AndroidConfig::isConnected(const QString &serialNumber) const
 QString AndroidConfig::getDeviceProperty(const QString &device, const QString &property)
 {
     // workaround for '????????????' serial numbers
-    CommandLine cmd(AndroidConfigurations::currentConfig().adbToolPath(),
-                    AndroidDeviceInfo::adbSelector(device));
+    CommandLine cmd(androidConfig().adbToolPath(), AndroidDeviceInfo::adbSelector(device));
     cmd.addArgs({"shell", "getprop", property});
 
     Process adbProc;
@@ -736,7 +735,7 @@ QString AndroidConfig::getProductModel(const QString &device) const
 
 QStringList AndroidConfig::getAbis(const QString &device)
 {
-    const FilePath adbTool = AndroidConfigurations::currentConfig().adbToolPath();
+    const FilePath adbTool = androidConfig().adbToolPath();
     QStringList result;
     // First try via ro.product.cpu.abilist
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
@@ -1103,7 +1102,7 @@ FilePath AndroidConfig::defaultSdkPath()
 AndroidConfigurations *m_instance = nullptr;
 
 AndroidConfigurations::AndroidConfigurations()
-    : m_sdkManager(new AndroidSdkManager(m_config))
+    : m_sdkManager(new AndroidSdkManager)
 {
     load();
     connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
@@ -1115,7 +1114,7 @@ AndroidConfigurations::AndroidConfigurations()
 void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
 {
     emit m_instance->aboutToUpdate();
-    m_instance->m_config = devConfigs;
+    androidConfig() = devConfigs;
 
     m_instance->save();
     updateAndroidDevice();
@@ -1170,12 +1169,12 @@ void AndroidConfigurations::removeUnusedDebuggers()
 
     QVector<FilePath> uniqueNdks;
     for (const QtVersion *qt : qtVersions) {
-        FilePath ndkLocation = currentConfig().ndkLocation(qt);
+        FilePath ndkLocation = androidConfig().ndkLocation(qt);
         if (!uniqueNdks.contains(ndkLocation))
             uniqueNdks.append(ndkLocation);
     }
 
-    uniqueNdks.append(FileUtils::toFilePathList(currentConfig().getCustomNdkList()));
+    uniqueNdks.append(FileUtils::toFilePathList(androidConfig().getCustomNdkList()));
 
     const QList<Debugger::DebuggerItem> allDebuggers = Debugger::DebuggerItemManager::debuggers();
     for (const Debugger::DebuggerItem &debugger : allDebuggers) {
@@ -1239,16 +1238,15 @@ static QVariant findOrRegisterDebugger(Toolchain *tc,
                                        const QStringList &abisList,
                                        bool customDebugger = false)
 {
-    const auto &currentConfig = AndroidConfigurations::currentConfig();
     const FilePath ndk = static_cast<AndroidToolchain *>(tc)->ndkLocation();
-    const FilePath lldbCommand = currentConfig.lldbPathFromNdk(ndk);
+    const FilePath lldbCommand = androidConfig().lldbPathFromNdk(ndk);
     const Debugger::DebuggerItem *existingLldb = existingDebugger(lldbCommand,
                                                                   Debugger::LldbEngineType);
     // Return existing debugger with same command - prefer lldb (limit to sdk/ndk min version?)
     if (existingLldb)
         return existingLldb->id();
 
-    const FilePath gdbCommand = currentConfig.gdbPathFromNdk(tc->targetAbi(), ndk);
+    const FilePath gdbCommand = androidConfig().gdbPathFromNdk(tc->targetAbi(), ndk);
 
     // check if the debugger is already registered, but ignoring the display name
     const Debugger::DebuggerItem *existingGdb = existingDebugger(gdbCommand,
@@ -1268,7 +1266,7 @@ static QVariant findOrRegisterDebugger(Toolchain *tc,
         debugger.setEngineType(Debugger::LldbEngineType);
         debugger.setUnexpandedDisplayName(custom + mainName
                 .arg(getMultiOrSingleAbiString(allSupportedAbis()))
-                .arg(AndroidConfigurations::currentConfig().ndkVersion(ndk).toString())
+                .arg(androidConfig().ndkVersion(ndk).toString())
                                           + ' ' + debugger.engineTypeName());
         debugger.setAutoDetected(true);
         debugger.reinitializeFromFile();
@@ -1287,10 +1285,10 @@ static QVariant findOrRegisterDebugger(Toolchain *tc,
     debugger.setEngineType(Debugger::GdbEngineType);
 
     // NDK 10 and older have multiple gdb versions per ABI, so check for that.
-    const bool oldNdkVersion = currentConfig.ndkVersion(ndk) <= QVersionNumber{11};
+    const bool oldNdkVersion = androidConfig().ndkVersion(ndk) <= QVersionNumber{11};
     debugger.setUnexpandedDisplayName(custom + mainName
             .arg(getMultiOrSingleAbiString(oldNdkVersion ? abisList : allSupportedAbis()))
-            .arg(AndroidConfigurations::currentConfig().ndkVersion(ndk).toString())
+            .arg(androidConfig().ndkVersion(ndk).toString())
                                       + ' ' + debugger.engineTypeName());
     debugger.setAutoDetected(true);
     debugger.reinitializeFromFile();
@@ -1303,7 +1301,7 @@ void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
     const Toolchains existingAndroidToolchains = ToolchainManager::toolchains(
         Utils::equal(&Toolchain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
-    const FilePaths customNdks = FileUtils::toFilePathList(currentConfig().getCustomNdkList());
+    const FilePaths customNdks = FileUtils::toFilePathList(androidConfig().getCustomNdkList());
     const Toolchains customToolchains
         = autodetectToolchainsFromNdks(existingAndroidToolchains, customNdks, true);
 
@@ -1322,8 +1320,8 @@ void AndroidConfigurations::updateAutomaticKitList()
         if (DeviceTypeKitAspect::deviceTypeId(k) == Constants::ANDROID_DEVICE_TYPE) {
             if (k->value(Constants::ANDROID_KIT_NDK).isNull() || k->value(Constants::ANDROID_KIT_SDK).isNull()) {
                 if (QtVersion *qt = QtKitAspect::qtVersion(k)) {
-                    k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation(qt).toString());
-                    k->setValue(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
+                    k->setValueSilently(Constants::ANDROID_KIT_NDK, androidConfig().ndkLocation(qt).toString());
+                    k->setValue(Constants::ANDROID_KIT_SDK, androidConfig().sdkLocation().toString());
                 }
             }
         }
@@ -1363,7 +1361,7 @@ void AndroidConfigurations::updateAutomaticKitList()
 
         for (const QtVersion *qt : qtVersionsForArch.value(tc->targetAbi())) {
             FilePath tcNdk = static_cast<const AndroidToolchain *>(tc)->ndkLocation();
-            if (tcNdk != currentConfig().ndkLocation(qt))
+            if (tcNdk != androidConfig().ndkLocation(qt))
                 continue;
 
             const Toolchains allLanguages
@@ -1405,8 +1403,8 @@ void AndroidConfigurations::updateAutomaticKitList()
                 k->setUnexpandedDisplayName(Tr::tr("Android %1 Clang %2")
                                                 .arg(versionStr)
                                                 .arg(getMultiOrSingleAbiString(abis)));
-                k->setValueSilently(Constants::ANDROID_KIT_NDK, currentConfig().ndkLocation(qt).toString());
-                k->setValueSilently(Constants::ANDROID_KIT_SDK, currentConfig().sdkLocation().toString());
+                k->setValueSilently(Constants::ANDROID_KIT_NDK, androidConfig().ndkLocation(qt).toString());
+                k->setValueSilently(Constants::ANDROID_KIT_SDK, androidConfig().sdkLocation().toString());
             };
 
             if (existingKit) {
@@ -1434,9 +1432,10 @@ Environment AndroidConfig::toolsEnvironment() const
     return env;
 }
 
-AndroidConfig &AndroidConfigurations::currentConfig()
+AndroidConfig &androidConfig()
 {
-    return m_instance->m_config; // ensure that m_instance is initialized
+    static AndroidConfig theCurrentConfig;
+    return theCurrentConfig;
 }
 
 AndroidSdkManager *AndroidConfigurations::sdkManager()
@@ -1453,7 +1452,7 @@ void AndroidConfigurations::save()
 {
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
-    m_config.save(*settings);
+    androidConfig().save(*settings);
     settings->endGroup();
 }
 
@@ -1540,7 +1539,7 @@ void AndroidConfigurations::load()
 {
     QtcSettings *settings = Core::ICore::settings();
     settings->beginGroup(SettingsGroup);
-    m_config.load(*settings);
+    androidConfig().load(*settings);
     settings->endGroup();
 }
 

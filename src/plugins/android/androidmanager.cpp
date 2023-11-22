@@ -190,17 +190,17 @@ QJsonObject deploymentSettings(const Target *target)
     QJsonObject settings;
     settings["_description"] = qtcSignature;
     settings["qt"] = qt->prefix().toString();
-    settings["ndk"] = AndroidConfigurations::currentConfig().ndkLocation(qt).toString();
-    settings["sdk"] = AndroidConfigurations::currentConfig().sdkLocation().toString();
+    settings["ndk"] = androidConfig().ndkLocation(qt).toString();
+    settings["sdk"] = androidConfig().sdkLocation().toString();
     if (!qt->supportsMultipleQtAbis()) {
         const QStringList abis = applicationAbis(target);
         QTC_ASSERT(abis.size() == 1, return {});
-        settings["stdcpp-path"] = (AndroidConfigurations::currentConfig().toolchainPath(qt)
+        settings["stdcpp-path"] = (androidConfig().toolchainPath(qt)
                                       / "sysroot/usr/lib"
                                       / archTriplet(abis.first())
                                       / "libc++_shared.so").toString();
     } else {
-        settings["stdcpp-path"] = AndroidConfigurations::currentConfig()
+        settings["stdcpp-path"] = androidConfig()
                                       .toolchainPath(qt)
                                       .pathAppended("sysroot/usr/lib")
                                       .toString();
@@ -208,7 +208,7 @@ QJsonObject deploymentSettings(const Target *target)
     settings["toolchain-prefix"] =  "llvm";
     settings["tool-prefix"] = "llvm";
     settings["useLLVM"] = true;
-    settings["ndk-host"] = AndroidConfigurations::currentConfig().toolchainHost(qt);
+    settings["ndk-host"] = androidConfig().toolchainHost(qt);
     return settings;
 }
 
@@ -609,7 +609,7 @@ bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystore
 {
     if (keystorePasswd.isEmpty())
         return false;
-    const CommandLine cmd(AndroidConfigurations::currentConfig().keytoolPath(),
+    const CommandLine cmd(androidConfig().keytoolPath(),
                           {"-list", "-keystore", keystorePath.toUserOutput(),
                            "--storepass", keystorePasswd});
     Process proc;
@@ -630,7 +630,7 @@ bool checkCertificatePassword(const FilePath &keystorePath, const QString &keyst
         arguments << certificatePasswd;
 
     Process proc;
-    proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
+    proc.setCommand({androidConfig().keytoolPath(), arguments});
     proc.runBlocking(10s, EventLoopMode::On);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
@@ -643,7 +643,7 @@ bool checkCertificateExists(const FilePath &keystorePath, const QString &keystor
                               "--storepass", keystorePasswd, "-alias", alias };
 
     Process proc;
-    proc.setCommand({AndroidConfigurations::currentConfig().keytoolPath(), arguments});
+    proc.setCommand({androidConfig().keytoolPath(), arguments});
     proc.runBlocking(10s, EventLoopMode::On);
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
@@ -651,7 +651,7 @@ bool checkCertificateExists(const FilePath &keystorePath, const QString &keystor
 Process *startAdbProcess(const QStringList &args, QString *err)
 {
     std::unique_ptr<Process> process(new Process);
-    const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
+    const FilePath adb = androidConfig().adbToolPath();
     const CommandLine command{adb, args};
     qCDebug(androidManagerLog).noquote() << "Running command (async):" << command.toUserOutput();
     process->setCommand(command);
@@ -689,8 +689,7 @@ static SdkToolResult runCommand(const CommandLine &command, const QByteArray &wr
 
 SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData, int timeoutS)
 {
-    return runCommand({AndroidConfigurations::currentConfig().adbToolPath(), args},
-                      writeData, timeoutS);
+    return runCommand({androidConfig().adbToolPath(), args}, writeData, timeoutS);
 }
 
 } // namespace Android::AndroidManager

@@ -94,7 +94,7 @@ static void findProcessPIDAndUser(QPromise<PidUserPair> &promise,
     static const QString pidScriptPreNougat = QStringLiteral("for p in /proc/[0-9]*; "
                                                     "do cat <$p/cmdline && echo :${p##*/}; done");
     QStringList args = {selector};
-    FilePath adbPath = AndroidConfigurations::currentConfig().adbToolPath();
+    FilePath adbPath = androidConfig().adbToolPath();
     args.append("shell");
     args.append(preNougat ? pidScriptPreNougat : pidScript.arg(packageName));
 
@@ -170,7 +170,7 @@ static FilePath debugServer(bool useLldb, const Target *target)
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
     QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
 
-    const AndroidConfig &config = AndroidConfigurations::currentConfig();
+    const AndroidConfig &config = androidConfig();
 
     if (useLldb) {
         // Search suitable lldb-server binary.
@@ -512,7 +512,7 @@ void Android::Internal::AndroidRunnerWorker::asyncStartLogcat()
     }
 
     const QStringList logcatArgs = selector() << "logcat" << timeArg;
-    const FilePath adb = AndroidConfigurations::currentConfig().adbToolPath();
+    const FilePath adb = androidConfig().adbToolPath();
     qCDebug(androidRunWorkerLog).noquote() << "Running logcat command (async):"
                                            << CommandLine(adb, logcatArgs).toUserOutput();
     m_adbLogcatProcess->setCommand({adb, logcatArgs});
@@ -742,7 +742,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
     }
     m_afterFinishAdbCommands.push_back(removeForward.join(' '));
 
-    const FilePath jdbPath = AndroidConfigurations::currentConfig().openJDKLocation()
+    const FilePath jdbPath = androidConfig().openJDKLocation()
             .pathAppended("bin/jdb").withExecutableSuffix();
 
     QStringList jdbArgs("-connect");

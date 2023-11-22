@@ -31,7 +31,6 @@ signals:
 private:
     void logError(const QString &error);
 
-    AndroidConfig &m_androidConfig;
     std::unique_ptr<QProgressDialog> m_progressDialog;
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };

@@ -13,7 +13,7 @@ namespace Android::Internal {
 class AndroidAvdManager
 {
 public:
-    AndroidAvdManager(const AndroidConfig& config = AndroidConfigurations::currentConfig());
+    AndroidAvdManager();
     ~AndroidAvdManager();
 
     QFuture<CreateAvdInfo> createAvd(CreateAvdInfo info) const;
@@ -24,16 +24,10 @@ public:
     QString findAvd(const QString &avdName) const;
     QString waitForAvd(const QString &avdName, const std::optional<QFuture<void>> &future = {}) const;
     bool isAvdBooted(const QString &device) const;
-    static bool avdManagerCommand(const AndroidConfig &config,
-                                  const QStringList &args,
-                                  QString *output);
-    const AndroidConfig &config() const { return m_config; }
+    static bool avdManagerCommand(const QStringList &args, QString *output);
 
 private:
     bool waitForBooted(const QString &serialNumber, const std::optional<QFuture<void>> &future = {}) const;
-
-private:
-    const AndroidConfig &m_config;
 };
 
 } // Android::Internal

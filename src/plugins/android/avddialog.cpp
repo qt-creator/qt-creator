@@ -34,12 +34,9 @@ namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(avdDialogLog, "qtc.android.avdDialog", QtWarningMsg)
 
-
-AvdDialog::AvdDialog(const AndroidConfig &config, QWidget *parent)
+AvdDialog::AvdDialog(QWidget *parent)
     : QDialog(parent),
-      m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*")),
-      m_androidConfig(config),
-      m_sdkManager(m_androidConfig)
+      m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
 {
     resize(800, 0);
     setWindowTitle(Tr::tr("Create new AVD"));
@@ -129,7 +126,7 @@ int AvdDialog::exec()
         result.sdcardSize = sdcardSize();
         result.overwrite = m_overwriteCheckBox->isChecked();
 
-        const AndroidAvdManager avdManager = AndroidAvdManager(m_androidConfig);
+        const AndroidAvdManager avdManager;
         QFutureWatcher<CreateAvdInfo> createAvdFutureWatcher;
 
         QEventLoop loop;
@@ -190,9 +187,9 @@ void AvdDialog::parseDeviceDefinitionsList()
 {
     QString output;
 
-    if (!AndroidAvdManager::avdManagerCommand(m_androidConfig, {"list", "device"}, &output)) {
+    if (!AndroidAvdManager::avdManagerCommand({"list", "device"}, &output)) {
         qCDebug(avdDialogLog) << "Avd list command failed" << output
-                              << m_androidConfig.sdkToolsVersion();
+                              << androidConfig().sdkToolsVersion();
         return;
     }
 

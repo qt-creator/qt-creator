@@ -175,12 +175,13 @@ private:
     mutable QHash<QString, QString> m_serialNumberToDeviceName;
 };
 
+AndroidConfig &androidConfig();
+
 class AndroidConfigurations : public QObject
 {
     Q_OBJECT
 
 public:
-    static AndroidConfig &currentConfig();
     static Internal::AndroidSdkManager *sdkManager();
     static void setConfig(const AndroidConfig &config);
     static AndroidConfigurations *instance();
@@ -204,7 +205,6 @@ private:
     void save();
 
     static void updateAndroidDevice();
-    AndroidConfig m_config;
     std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;
 };
 

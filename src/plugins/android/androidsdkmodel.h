@@ -27,8 +27,7 @@ public:
         PackageStateRole
     };
 
-    explicit AndroidSdkModel(const AndroidConfig &config, AndroidSdkManager *sdkManager,
-                             QObject *parent = nullptr);
+    explicit AndroidSdkModel(AndroidSdkManager *sdkManager, QObject *parent = nullptr);
 
     // QAbstractItemModel overrides.
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -52,7 +51,6 @@ private:
     void clearContainers();
     void refreshData();
 
-    const AndroidConfig &m_config;
     AndroidSdkManager *m_sdkManager;
     QList<const SdkPlatform *> m_sdkPlatforms;
     QList<const AndroidSdkPackage *> m_tools;

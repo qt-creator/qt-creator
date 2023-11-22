@@ -183,8 +183,7 @@ void AndroidRunner::launchAVD()
 
 void AndroidRunner::checkAVD()
 {
-    const AndroidConfig &config = AndroidConfigurations::currentConfig();
-    AndroidAvdManager avdManager(config);
+    AndroidAvdManager avdManager;
     QString serialNumber = avdManager.findAvd(m_launchedAVDName);
     if (!serialNumber.isEmpty())
         return; // try again on next timer hit
@@ -193,7 +192,7 @@ void AndroidRunner::checkAVD()
         m_checkAVDTimer.stop();
         AndroidManager::setDeviceSerialNumber(m_target, serialNumber);
         emit asyncStart();
-    } else if (!config.isConnected(serialNumber)) {
+    } else if (!androidConfig().isConnected(serialNumber)) {
         // device was disconnected
         m_checkAVDTimer.stop();
     }

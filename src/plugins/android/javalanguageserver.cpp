@@ -308,7 +308,7 @@ void JLSClient::updateProjectFiles()
 
             const QStringList classPaths = node->data(Constants::AndroidClassPaths).toStringList();
 
-            const FilePath &sdkLocation = AndroidConfigurations::currentConfig().sdkLocation();
+            const FilePath &sdkLocation = androidConfig().sdkLocation();
             const QString &targetSDK = AndroidManager::buildTargetSDK(m_currentTarget);
             const FilePath androidJar = sdkLocation / QString("platforms/%2/android.jar")
                                            .arg(targetSDK);

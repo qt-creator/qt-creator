@@ -22,10 +22,8 @@ namespace Internal {
 
 const int packageColCount = 3;
 
-AndroidSdkModel::AndroidSdkModel(const AndroidConfig &config, AndroidSdkManager *sdkManager,
-                                 QObject *parent)
+AndroidSdkModel::AndroidSdkModel(AndroidSdkManager *sdkManager, QObject *parent)
     : QAbstractItemModel(parent),
-      m_config(config),
       m_sdkManager(sdkManager)
 {
     QTC_CHECK(m_sdkManager);
@@ -263,7 +261,7 @@ bool AndroidSdkModel::setData(const QModelIndex &index, const QVariant &value, i
 void AndroidSdkModel::selectMissingEssentials()
 {
     resetSelection();
-    QStringList pendingPkgs(m_config.allEssentials());
+    QStringList pendingPkgs(androidConfig().allEssentials());
     auto addTool = [this](QList<const AndroidSdkPackage *>::const_iterator itr) {
         if ((*itr)->installedLocation().isEmpty()) {
             m_changeState << *itr;

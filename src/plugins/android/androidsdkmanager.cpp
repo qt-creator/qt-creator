@@ -158,7 +158,7 @@ static void sdkManagerCommand(const AndroidConfig &config, const QStringList &ar
 class AndroidSdkManagerPrivate
 {
 public:
-    AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager, const AndroidConfig &config);
+    AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager);
     ~AndroidSdkManagerPrivate();
 
     AndroidSdkPackageList filteredPackages(AndroidSdkPackage::PackageState state,
@@ -188,7 +188,6 @@ private:
                          AndroidSdkManager::OperationOutput &result, SdkCmdPromise &fi);
 
     AndroidSdkManager &m_sdkManager;
-    const AndroidConfig &m_config;
     AndroidSdkPackageList m_allPackages;
     FilePath lastSdkManagerPath;
     QString m_licenseTextCache;
@@ -199,8 +198,8 @@ public:
     bool m_packageListingSuccessful = false;
 };
 
-AndroidSdkManager::AndroidSdkManager(const AndroidConfig &config):
-    m_d(new AndroidSdkManagerPrivate(*this, config))
+AndroidSdkManager::AndroidSdkManager()
+    : m_d(new AndroidSdkManagerPrivate(*this))
 {
 }
 
@@ -359,13 +358,10 @@ void AndroidSdkManager::acceptSdkLicense(bool accept)
     m_d->setLicenseInput(accept);
 }
 
-AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager,
-                                                   const AndroidConfig &config):
+AndroidSdkManagerPrivate::AndroidSdkManagerPrivate(AndroidSdkManager &sdkManager):
     m_activeOperation(nullptr, watcherDeleter),
-    m_sdkManager(sdkManager),
-    m_config(config)
-{
-}
+    m_sdkManager(sdkManager)
+{}
 
 AndroidSdkManagerPrivate::~AndroidSdkManagerPrivate()
 {
@@ -393,10 +389,10 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
     emit m_sdkManager.packageReloadBegin();
     clearPackages();
 
-    lastSdkManagerPath = m_config.sdkManagerToolPath();
+    lastSdkManagerPath = androidConfig().sdkManagerToolPath();
     m_packageListingSuccessful = false;
 
-    if (m_config.sdkToolsVersion().isNull()) {
+    if (androidConfig().sdkToolsVersion().isNull()) {
         // Configuration has invalid sdk path or corrupt installation.
         emit m_sdkManager.packageReloadFinished();
         return;
@@ -404,8 +400,8 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
 
     QString packageListing;
     QStringList args({"--list", "--verbose"});
-    args << m_config.sdkManagerToolArgs();
-    m_packageListingSuccessful = sdkManagerCommand(m_config, args, &packageListing);
+    args << androidConfig().sdkManagerToolArgs();
+    m_packageListingSuccessful = sdkManagerCommand(androidConfig(), args, &packageListing);
     if (m_packageListingSuccessful) {
         SdkManagerOutputParser parser(m_allPackages);
         parser.parsePackageListing(packageListing);
@@ -417,7 +413,7 @@ void AndroidSdkManagerPrivate::refreshSdkPackages(bool forceReload)
 {
     // Sdk path changed. Updated packages.
     // QTC updates the package listing only
-    if (m_config.sdkManagerToolPath() != lastSdkManagerPath || forceReload)
+    if (androidConfig().sdkManagerToolPath() != lastSdkManagerPath || forceReload)
         reloadSdkPackages();
 }
 
@@ -430,9 +426,9 @@ void AndroidSdkManagerPrivate::updateInstalled(SdkCmdPromise &promise)
     result.stdOutput = Tr::tr("Updating installed packages.");
     promise.addResult(result);
     QStringList args("--update");
-    args << m_config.sdkManagerToolArgs();
+    args << androidConfig().sdkManagerToolArgs();
     if (!promise.isCanceled())
-        sdkManagerCommand(m_config, args, m_sdkManager, promise, result, 100);
+        sdkManagerCommand(androidConfig(), args, m_sdkManager, promise, result, 100);
     else
         qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
 
@@ -464,7 +460,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &inst
         if (fi.isCanceled())
             qCDebug(sdkManagerLog) << args << "Update: Operation cancelled before start";
         else
-            sdkManagerCommand(m_config, args, m_sdkManager, fi, result, progressQuota, isInstall);
+            sdkManagerCommand(androidConfig(), args, m_sdkManager, fi, result, progressQuota, isInstall);
         currentProgress += progressQuota;
         fi.setProgressValue(currentProgress);
         if (result.stdError.isEmpty() && !result.success)
@@ -479,7 +475,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &inst
     for (const QString &sdkStylePath : uninstall) {
         // Uninstall operations are not interptible. We don't want to leave half uninstalled.
         QStringList args;
-        args << "--uninstall" << sdkStylePath << m_config.sdkManagerToolArgs();
+        args << "--uninstall" << sdkStylePath << androidConfig().sdkManagerToolArgs();
         if (doOperation(sdkStylePath, args, false))
             break;
     }
@@ -487,7 +483,7 @@ void AndroidSdkManagerPrivate::update(SdkCmdPromise &fi, const QStringList &inst
     // Install packages
     for (const QString &sdkStylePath : install) {
         QStringList args(sdkStylePath);
-        args << m_config.sdkManagerToolArgs();
+        args << androidConfig().sdkManagerToolArgs();
         if (doOperation(sdkStylePath, args, true))
             break;
     }
@@ -500,10 +496,10 @@ void AndroidSdkManagerPrivate::checkPendingLicense(SdkCmdPromise &fi)
     fi.setProgressValue(0);
     AndroidSdkManager::OperationOutput result;
     result.type = AndroidSdkManager::LicenseCheck;
-    const QStringList args = {"--licenses", sdkRootArg(m_config)};
+    const QStringList args = {"--licenses", sdkRootArg(androidConfig())};
     if (!fi.isCanceled()) {
         const int timeOutS = 4; // Short timeout as workaround for QTCREATORBUG-25667
-        sdkManagerCommand(m_config, args, m_sdkManager, fi, result, 100.0, true, timeOutS);
+        sdkManagerCommand(androidConfig(), args, m_sdkManager, fi, result, 100.0, true, timeOutS);
     } else {
         qCDebug(sdkManagerLog) << "Update: Operation cancelled before start";
     }
@@ -522,9 +518,10 @@ void AndroidSdkManagerPrivate::getPendingLicense(SdkCmdPromise &fi)
 
     Process licenseCommand;
     licenseCommand.setProcessMode(ProcessMode::Writer);
-    licenseCommand.setEnvironment(m_config.toolsEnvironment());
+    licenseCommand.setEnvironment(androidConfig().toolsEnvironment());
     bool reviewingLicenses = false;
-    licenseCommand.setCommand(CommandLine(m_config.sdkManagerToolPath(), {"--licenses", sdkRootArg(m_config)}));
+    licenseCommand.setCommand(CommandLine(androidConfig().sdkManagerToolPath(),
+                                          {"--licenses", sdkRootArg(androidConfig())}));
     licenseCommand.setUseCtrlCStub(true);
     licenseCommand.start();
     QTextCodec *codec = QTextCodec::codecForLocale();
@@ -623,7 +620,7 @@ void AndroidSdkManagerPrivate::parseCommonArguments(QPromise<QString> &promise)
 {
     QString argumentDetails;
     QString output;
-    sdkManagerCommand(m_config, QStringList("--help"), &output);
+    sdkManagerCommand(androidConfig(), QStringList("--help"), &output);
     bool foundTag = false;
     const auto lines = output.split('\n');
     for (const QString& line : lines) {

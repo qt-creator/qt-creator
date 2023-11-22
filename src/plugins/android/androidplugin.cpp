@@ -135,7 +135,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
                    return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
                }).isEmpty();
 
-        if (!AndroidConfigurations::currentConfig().sdkFullyConfigured() && qtForAndroidInstalled)
+        if (!androidConfig().sdkFullyConfigured() && qtForAndroidInstalled)
             askUserAboutAndroidSetup();
 
         AndroidConfigurations::registerNewToolchains();

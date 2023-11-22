@@ -30,7 +30,7 @@ class AndroidSdkManager;
 class AvdDialog : public QDialog
 {
 public:
-    explicit AvdDialog(const AndroidConfig &config, QWidget *parent = nullptr);
+    explicit AvdDialog(QWidget *parent = nullptr);
     int exec() override;
 
     enum DeviceType { Phone, Tablet, Automotive, TV, Wear, PhoneOrTablet };
@@ -63,7 +63,6 @@ private:
     QTimer m_hideTipTimer;
     QRegularExpression m_allowedNameChars;
     QList<DeviceDefinitionStruct> m_deviceDefinitionsList;
-    const AndroidConfig &m_androidConfig;
     AndroidSdkManager m_sdkManager;
     QMap<AvdDialog::DeviceType, QString> m_deviceTypeToStringMap;
 

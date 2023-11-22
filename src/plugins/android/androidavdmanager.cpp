@@ -35,11 +35,11 @@ static Q_LOGGING_CATEGORY(avdManagerLog, "qtc.android.avdManager", QtWarningMsg)
     \c true if the command is successfully executed. Output is copied into \a output. The function
     blocks the calling thread.
  */
-bool AndroidAvdManager::avdManagerCommand(const AndroidConfig &config, const QStringList &args, QString *output)
+bool AndroidAvdManager::avdManagerCommand(const QStringList &args, QString *output)
 {
-    CommandLine cmd(config.avdManagerToolPath(), args);
+    CommandLine cmd(androidConfig().avdManagerToolPath(), args);
     Process proc;
-    proc.setEnvironment(config.toolsEnvironment());
+    proc.setEnvironment(androidConfig().toolsEnvironment());
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
     proc.setCommand(cmd);
     proc.runBlocking();
@@ -61,7 +61,7 @@ static bool checkForTimeout(const chrono::steady_clock::time_point &start,
     return timedOut;
 }
 
-static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateAvdInfo &info)
+static CreateAvdInfo createAvdCommand(const CreateAvdInfo &info)
 {
     CreateAvdInfo result = info;
 
@@ -72,7 +72,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
         return result;
     }
 
-    CommandLine avdManager(config.avdManagerToolPath(), {"create", "avd", "-n", result.name});
+    CommandLine avdManager(androidConfig().avdManagerToolPath(), {"create", "avd", "-n", result.name});
     avdManager.addArgs({"-k", result.systemImage->sdkStylePath()});
 
     if (result.sdcardSize > 0)
@@ -87,7 +87,7 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     qCDebug(avdManagerLog).noquote() << "Running AVD Manager command:" << avdManager.toUserOutput();
     Process proc;
     proc.setProcessMode(ProcessMode::Writer);
-    proc.setEnvironment(config.toolsEnvironment());
+    proc.setEnvironment(androidConfig().toolsEnvironment());
     proc.setCommand(avdManager);
     proc.start();
     if (!proc.waitForStarted()) {
@@ -129,17 +129,13 @@ static CreateAvdInfo createAvdCommand(const AndroidConfig &config, const CreateA
     return result;
 }
 
-AndroidAvdManager::AndroidAvdManager(const AndroidConfig &config)
-    : m_config(config)
-{
-
-}
+AndroidAvdManager::AndroidAvdManager() = default;
 
 AndroidAvdManager::~AndroidAvdManager() = default;
 
 QFuture<CreateAvdInfo> AndroidAvdManager::createAvd(CreateAvdInfo info) const
 {
-    return Utils::asyncRun(&createAvdCommand, m_config, info);
+    return Utils::asyncRun(&createAvdCommand, info);
 }
 
 static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMode = false)
@@ -168,7 +164,7 @@ static void avdConfigEditManufacturerTag(const FilePath &avdPath, bool recoverMo
     saver.finalize();
 }
 
-static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
+static AndroidDeviceInfoList listVirtualDevices()
 {
     QString output;
     AndroidDeviceInfoList avdList;
@@ -184,9 +180,9 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
     FilePaths avdErrorPaths;
 
     do {
-        if (!AndroidAvdManager::avdManagerCommand(config, {"list", "avd"}, &output)) {
+        if (!AndroidAvdManager::avdManagerCommand({"list", "avd"}, &output)) {
             qCDebug(avdManagerLog)
-                << "Avd list command failed" << output << config.sdkToolsVersion();
+                << "Avd list command failed" << output << androidConfig().sdkToolsVersion();
             return {};
         }
 
@@ -205,7 +201,7 @@ static AndroidDeviceInfoList listVirtualDevices(const AndroidConfig &config)
 
 QFuture<AndroidDeviceInfoList> AndroidAvdManager::avdList() const
 {
-    return Utils::asyncRun(listVirtualDevices, m_config);
+    return Utils::asyncRun(listVirtualDevices);
 }
 
 QString AndroidAvdManager::startAvd(const QString &name) const
@@ -233,7 +229,7 @@ static bool is32BitUserSpace()
 
 bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 {
-    const FilePath emulator = m_config.emulatorToolPath();
+    const FilePath emulator = androidConfig().emulatorToolPath();
     if (!emulator.exists()) {
         QMetaObject::invokeMethod(Core::ICore::mainWindow(), [emulator] {
             QMessageBox::critical(Core::ICore::dialogParent(),
@@ -263,11 +259,11 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
     });
 
     // start the emulator
-    CommandLine cmd(m_config.emulatorToolPath());
+    CommandLine cmd(androidConfig().emulatorToolPath());
     if (is32BitUserSpace())
         cmd.addArg("-force-32bit");
 
-    cmd.addArgs(m_config.emulatorArgs(), CommandLine::Raw);
+    cmd.addArgs(androidConfig().emulatorArgs(), CommandLine::Raw);
     cmd.addArgs({"-avd", avdName});
     qCDebug(avdManagerLog).noquote() << "Running command (startAvdAsync):" << cmd.toUserOutput();
     avdProcess->setCommand(cmd);
@@ -277,7 +273,7 @@ bool AndroidAvdManager::startAvdAsync(const QString &avdName) const
 
 QString AndroidAvdManager::findAvd(const QString &avdName) const
 {
-    const QVector<AndroidDeviceInfo> devices = m_config.connectedDevices();
+    const QVector<AndroidDeviceInfo> devices = androidConfig().connectedDevices();
     for (const AndroidDeviceInfo &device : devices) {
         if (device.type != ProjectExplorer::IDevice::Emulator)
             continue;
@@ -309,7 +305,7 @@ bool AndroidAvdManager::isAvdBooted(const QString &device) const
     QStringList arguments = AndroidDeviceInfo::adbSelector(device);
     arguments << "shell" << "getprop" << "init.svc.bootanim";
 
-    const CommandLine command({m_config.adbToolPath(), arguments});
+    const CommandLine command({androidConfig().adbToolPath(), arguments});
     qCDebug(avdManagerLog).noquote() << "Running command (isAvdBooted):" << command.toUserOutput();
     Process adbProc;
     adbProc.setCommand(command);
@@ -330,7 +326,7 @@ bool AndroidAvdManager::waitForBooted(const QString &serialNumber,
         if (isAvdBooted(serialNumber))
             return true;
         QThread::sleep(2);
-        if (!m_config.isConnected(serialNumber)) // device was disconnected
+        if (!androidConfig().isConnected(serialNumber)) // device was disconnected
             return false;
     }
     return false;

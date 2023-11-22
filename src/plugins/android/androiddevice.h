@@ -99,7 +99,6 @@ private:
     std::unique_ptr<Utils::Process> m_removeAvdProcess;
     QFileSystemWatcher m_avdFileSystemWatcher;
     std::unique_ptr<Utils::Process> m_adbDeviceWatcherProcess;
-    AndroidConfig &m_androidConfig;
     AndroidAvdManager m_avdManager;
 
     friend void setupAndroidDeviceManager(QObject *guard);

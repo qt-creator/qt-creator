@@ -29,7 +29,6 @@ namespace Android::Internal {
  * @brief Download Android SDK tools package from within Qt Creator.
  */
 AndroidSdkDownloader::AndroidSdkDownloader()
-    : m_androidConfig(AndroidConfigurations::currentConfig())
 {
     connect(&m_taskTreeRunner, &TaskTreeRunner::done, this, [this] { m_progressDialog.reset(); });
 }
@@ -89,7 +88,7 @@ static bool verifyFileIntegrity(const FilePath fileName, const QByteArray &sha25
 
 void AndroidSdkDownloader::downloadAndExtractSdk()
 {
-    if (m_androidConfig.sdkToolsUrl().isEmpty()) {
+    if (androidConfig().sdkToolsUrl().isEmpty()) {
         logError(Tr::tr("The SDK Tools download URL is empty."));
         return;
     }
@@ -108,7 +107,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
     Storage<std::optional<FilePath>> storage;
 
     const auto onQuerySetup = [this](NetworkQuery &query) {
-        query.setRequest(QNetworkRequest(m_androidConfig.sdkToolsUrl()));
+        query.setRequest(QNetworkRequest(androidConfig().sdkToolsUrl()));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         NetworkQuery *queryPtr = &query;
         connect(queryPtr, &NetworkQuery::started, this, [this, queryPtr] {
@@ -159,7 +158,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
         if (!*storage)
             return SetupResult::StopWithError;
         const FilePath sdkFileName = **storage;
-        if (!verifyFileIntegrity(sdkFileName, m_androidConfig.getSdkToolsSha256())) {
+        if (!verifyFileIntegrity(sdkFileName, androidConfig().getSdkToolsSha256())) {
             logError(Tr::tr("Verifying the integrity of the downloaded file has failed."));
             return SetupResult::StopWithError;
         }
@@ -177,7 +176,7 @@ void AndroidSdkDownloader::downloadAndExtractSdk()
             logError(Tr::tr("Unarchiving error."));
             return;
         }
-        m_androidConfig.setTemporarySdkToolsPath(
+        androidConfig().setTemporarySdkToolsPath(
             (*storage)->parentDir().pathAppended(Constants::cmdlineToolsName));
         QMetaObject::invokeMethod(this, [this] { emit sdkExtracted(); }, Qt::QueuedConnection);
     };
