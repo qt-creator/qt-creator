@@ -10,8 +10,12 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/jsonwizard/jsonwizardgeneratorfactory.h>
+#include <projectexplorer/jsonwizard/jsonwizardpagefactory.h>
+
 #include <utils/infolabel.h>
 #include <utils/qtcassert.h>
+#include <utils/wizardpage.h>
 
 #include <QApplication>
 #include <QButtonGroup>
@@ -22,28 +26,30 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-namespace Squish {
-namespace Internal {
+using namespace ProjectExplorer;
+using namespace Utils;
+
+namespace Squish::Internal {
 
 /************************************ ToolkitsPage ***********************************************/
 
-SquishToolkitsPageFactory::SquishToolkitsPageFactory()
+class SquishToolkitsPage final : public WizardPage
 {
-    setTypeIdsSuffix("SquishToolkits");
-}
+public:
+    SquishToolkitsPage();
 
-Utils::WizardPage *SquishToolkitsPageFactory::create(ProjectExplorer::JsonWizard *,
-                                                     Utils::Id typeId, const QVariant &)
-{
-    QTC_ASSERT(canCreate(typeId), return nullptr);
-    return new SquishToolkitsPage;
-}
+    void initializePage() final;
+    bool isComplete() const final;
+    bool handleReject() final;
 
-bool SquishToolkitsPageFactory::validateData(Utils::Id typeId, const QVariant &, QString *)
-{
-    QTC_ASSERT(canCreate(typeId), return false);
-    return true;
-}
+private:
+    void delayedInitialize();
+    void fetchServerSettings();
+
+    QButtonGroup *m_buttonGroup = nullptr;
+    QLineEdit *m_hiddenLineEdit = nullptr;
+    InfoLabel *m_errorLabel = nullptr;
+};
 
 SquishToolkitsPage::SquishToolkitsPage()
 {
@@ -66,11 +72,11 @@ SquishToolkitsPage::SquishToolkitsPage()
     groupBox->setLayout(buttonLayout);
     layout->addWidget(groupBox);
 
-    m_errorLabel = new Utils::InfoLabel(Tr::tr("Invalid Squish settings. Configure Squish "
-                                               "installation path inside "
-                                               "Preferences... > Squish > General to use "
-                                               "this wizard."),
-                                        Utils::InfoLabel::Error, this);
+    m_errorLabel = new InfoLabel(Tr::tr("Invalid Squish settings. Configure Squish "
+                                        "installation path inside "
+                                        "Preferences... > Squish > General to use "
+                                        "this wizard."),
+                                        InfoLabel::Error, this);
     m_errorLabel->setVisible(false);
     layout->addWidget(m_errorLabel);
 
@@ -110,8 +116,8 @@ bool SquishToolkitsPage::handleReject()
 
 void SquishToolkitsPage::delayedInitialize()
 {
-    const Utils::FilePath server = settings().squishPath().pathAppended(
-                Utils::HostOsInfo::withExecutableSuffix("bin/squishserver"));
+    const FilePath server = settings().squishPath().pathAppended(
+                HostOsInfo::withExecutableSuffix("bin/squishserver"));
     if (server.isExecutableFile())
         fetchServerSettings();
     else
@@ -148,88 +154,113 @@ void SquishToolkitsPage::fetchServerSettings()
     });
 }
 
+class SquishToolkitsPageFactory final : public JsonWizardPageFactory
+{
+public:
+    SquishToolkitsPageFactory()
+    {
+        setTypeIdsSuffix("SquishToolkits");
+    }
+
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final
+    {
+        Q_UNUSED(wizard)
+        Q_UNUSED(data)
+        QTC_ASSERT(canCreate(typeId), return nullptr);
+        return new SquishToolkitsPage;
+    }
+
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final
+    {
+        Q_UNUSED(data)
+        Q_UNUSED(errorMessage)
+        QTC_ASSERT(canCreate(typeId), return false);
+        return true;
+    }
+};
+
 /********************************* ScriptLanguagePage ********************************************/
 
-SquishScriptLanguagePageFactory::SquishScriptLanguagePageFactory()
+class SquishScriptLanguagePage final : public WizardPage
 {
-    setTypeIdsSuffix("SquishScriptLanguage");
-}
+public:
+    SquishScriptLanguagePage()
+    {
+        setTitle(Tr::tr("Create New Squish Test Suite"));
 
-Utils::WizardPage *SquishScriptLanguagePageFactory::create(ProjectExplorer::JsonWizard *,
-                                                           Utils::Id typeId, const QVariant &)
-{
-    QTC_ASSERT(canCreate(typeId), return nullptr);
-    return new SquishScriptLanguagePage;
-}
+        auto layout = new QHBoxLayout(this);
+        auto groupBox = new QGroupBox(Tr::tr("Available languages:"), this);
+        auto buttonLayout = new QVBoxLayout(groupBox);
 
-bool SquishScriptLanguagePageFactory::validateData(Utils::Id typeId, const QVariant &, QString *)
-{
-    QTC_ASSERT(canCreate(typeId), return false);
-    return true;
-}
-
-SquishScriptLanguagePage::SquishScriptLanguagePage()
-{
-    setTitle(Tr::tr("Create New Squish Test Suite"));
-
-    auto layout = new QHBoxLayout(this);
-    auto groupBox = new QGroupBox(Tr::tr("Available languages:"), this);
-    auto buttonLayout = new QVBoxLayout(groupBox);
-
-    auto buttonGroup = new QButtonGroup(this);
-    buttonGroup->setExclusive(true);
-    const QStringList languages = { "JavaScript", "Perl", "Python", "Ruby", "Tcl" };
-    for (const QString &language : languages) {
-        auto button = new QRadioButton(language, this);
-        button->setChecked(language.startsWith('J'));
-        buttonGroup->addButton(button);
-        buttonLayout->addWidget(button);
-    }
-    groupBox->setLayout(buttonLayout);
-
-    layout->addWidget(groupBox);
-    auto hiddenLineEdit = new QLineEdit(this);
-    hiddenLineEdit->setVisible(false);
-    layout->addWidget(hiddenLineEdit);
-
-    connect(buttonGroup, &QButtonGroup::buttonToggled,
-            this, [this, hiddenLineEdit](QAbstractButton *button, bool checked) {
-        if (checked) {
-            hiddenLineEdit->setText(button->text());
-            emit completeChanged();
+        auto buttonGroup = new QButtonGroup(this);
+        buttonGroup->setExclusive(true);
+        const QStringList languages = { "JavaScript", "Perl", "Python", "Ruby", "Tcl" };
+        for (const QString &language : languages) {
+            auto button = new QRadioButton(language, this);
+            button->setChecked(language.startsWith('J'));
+            buttonGroup->addButton(button);
+            buttonLayout->addWidget(button);
         }
-    });
-    registerFieldWithName("ChosenLanguage", hiddenLineEdit);
-    hiddenLineEdit->setText(buttonGroup->checkedButton()->text());
-}
+        groupBox->setLayout(buttonLayout);
+
+        layout->addWidget(groupBox);
+        auto hiddenLineEdit = new QLineEdit(this);
+        hiddenLineEdit->setVisible(false);
+        layout->addWidget(hiddenLineEdit);
+
+        connect(buttonGroup, &QButtonGroup::buttonToggled,
+                this, [this, hiddenLineEdit](QAbstractButton *button, bool checked) {
+                    if (checked) {
+                        hiddenLineEdit->setText(button->text());
+                        emit completeChanged();
+                    }
+                });
+        registerFieldWithName("ChosenLanguage", hiddenLineEdit);
+        hiddenLineEdit->setText(buttonGroup->checkedButton()->text());
+    }
+};
+
+class SquishScriptLanguagePageFactory final : public JsonWizardPageFactory
+{
+public:
+    SquishScriptLanguagePageFactory()
+    {
+        setTypeIdsSuffix("SquishScriptLanguage");
+    }
+
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final
+    {
+        Q_UNUSED(wizard)
+        Q_UNUSED(data)
+        QTC_ASSERT(canCreate(typeId), return nullptr);
+        return new SquishScriptLanguagePage;
+    }
+    bool validateData(Id typeId, const QVariant &, QString *) final
+    {
+        QTC_ASSERT(canCreate(typeId), return false);
+        return true;
+    }
+};
+
 
 /************************************* AUTPage ***************************************************/
 
-SquishAUTPageFactory::SquishAUTPageFactory()
+class SquishAUTPage final : public WizardPage
 {
-    setTypeIdsSuffix("SquishAUT");
-}
+public:
+    SquishAUTPage()
+    {
+        auto layout = new QVBoxLayout(this);
+        m_autCombo = new QComboBox(this);
+        layout->addWidget(m_autCombo);
+        registerFieldWithName("ChosenAUT", m_autCombo, "currentText");
+    }
 
-Utils::WizardPage *SquishAUTPageFactory::create(ProjectExplorer::JsonWizard *, Utils::Id typeId,
-                                                const QVariant &)
-{
-    QTC_ASSERT(canCreate(typeId), return nullptr);
-    return new SquishAUTPage;
-}
+    void initializePage() final;
 
-bool SquishAUTPageFactory::validateData(Utils::Id typeId, const QVariant &, QString *)
-{
-    QTC_ASSERT(canCreate(typeId), return false);
-    return true;
-}
-
-SquishAUTPage::SquishAUTPage()
-{
-    auto layout = new QVBoxLayout(this);
-    m_autCombo = new QComboBox(this);
-    layout->addWidget(m_autCombo);
-    registerFieldWithName("ChosenAUT", m_autCombo, "currentText");
-}
+private:
+    QComboBox *m_autCombo = nullptr;
+};
 
 void SquishAUTPage::initializePage()
 {
@@ -239,41 +270,49 @@ void SquishAUTPage::initializePage()
     m_autCombo->setCurrentIndex(0);
 }
 
+class SquishAUTPageFactory final : public JsonWizardPageFactory
+{
+public:
+    SquishAUTPageFactory()
+    {
+        setTypeIdsSuffix("SquishAUT");
+    }
+
+    WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) final
+    {
+        Q_UNUSED(wizard)
+        Q_UNUSED(data);
+        QTC_ASSERT(canCreate(typeId), return nullptr);
+        return new SquishAUTPage;
+    }
+
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final
+    {
+        Q_UNUSED(data)
+        Q_UNUSED(errorMessage)
+        QTC_ASSERT(canCreate(typeId), return false);
+        return true;
+    }
+};
+
 /********************************* SquishSuiteGenerator ******************************************/
 
-SquishGeneratorFactory::SquishGeneratorFactory()
+class SquishFileGenerator final : public JsonWizardGenerator
 {
-    setTypeIdsSuffix("SquishSuiteGenerator");
-}
+public:
+    bool setup(const QVariant &data, QString *errorMessage);
+    Core::GeneratedFiles fileList(MacroExpander *expander,
+                                  const FilePath &wizardDir,
+                                  const FilePath &projectDir,
+                                  QString *errorMessage) final;
+    bool writeFile(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file,
+                   QString *errorMessage) final;
+    bool allDone(const ProjectExplorer::JsonWizard *wizard, Core::GeneratedFile *file,
+                 QString *errorMessage) final;
 
-ProjectExplorer::JsonWizardGenerator *SquishGeneratorFactory::create(Utils::Id typeId,
-                                                                     const QVariant &data,
-                                                                     const QString &,
-                                                                     Utils::Id,
-                                                                     const QVariantMap &)
-{
-    QTC_ASSERT(canCreate(typeId), return nullptr);
-
-    auto generator = new SquishFileGenerator;
-    QString errorMessage;
-    generator->setup(data, &errorMessage);
-
-    if (!errorMessage.isEmpty()) {
-        qWarning() << "SquishSuiteGenerator setup error:" << errorMessage;
-        delete generator;
-        return nullptr;
-    }
-    return generator;
-}
-
-bool SquishGeneratorFactory::validateData(Utils::Id typeId, const QVariant &data,
-                                          QString *errorMessage)
-{
-    QTC_ASSERT(canCreate(typeId), return false);
-
-    QScopedPointer<SquishFileGenerator> generator(new SquishFileGenerator);
-    return generator->setup(data, errorMessage);
-}
+private:
+    QString m_mode;
+};
 
 bool SquishFileGenerator::setup(const QVariant &data, QString *errorMessage)
 {
@@ -316,9 +355,9 @@ static QString generateSuiteConf(const QString &aut, const QString &language,
     return content;
 }
 
-Core::GeneratedFiles SquishFileGenerator::fileList(Utils::MacroExpander *expander,
-                                                   const Utils::FilePath &wizardDir,
-                                                   const Utils::FilePath &projectDir,
+Core::GeneratedFiles SquishFileGenerator::fileList(MacroExpander *expander,
+                                                   const FilePath &wizardDir,
+                                                   const FilePath &projectDir,
                                                    QString *errorMessage)
 {
     Q_UNUSED(wizardDir)
@@ -332,12 +371,12 @@ Core::GeneratedFiles SquishFileGenerator::fileList(Utils::MacroExpander *expande
         aut = QString('"' + aut + '"');
     const QString lang = expander->expand(QString{"%{Language}"});
     const QString toolkit = expander->expand(QString{"%{Toolkit}"});;
-    const Utils::FilePath suiteConf = projectDir.pathAppended("suite.conf");
+    const FilePath suiteConf = projectDir.pathAppended("suite.conf");
 
     Core::GeneratedFiles result;
     if (expander->expand(QString{"%{VersionControl}"}) == "G.Git") {
         Core::GeneratedFile gitignore(projectDir.pathAppended(".gitignore"));
-        const Utils::FilePath orig = Core::ICore::resourcePath()
+        const FilePath orig = Core::ICore::resourcePath()
                 .pathAppended("templates/wizards/projects/git.ignore");
 
         if (QTC_GUARD(orig.exists())) {
@@ -353,7 +392,7 @@ Core::GeneratedFiles SquishFileGenerator::fileList(Utils::MacroExpander *expande
     return result;
 }
 
-bool SquishFileGenerator::writeFile(const ProjectExplorer::JsonWizard *,
+bool SquishFileGenerator::writeFile(const JsonWizard *,
                                     Core::GeneratedFile *file,
                                     QString *errorMessage)
 {
@@ -364,7 +403,7 @@ bool SquishFileGenerator::writeFile(const ProjectExplorer::JsonWizard *,
     return true;
 }
 
-bool SquishFileGenerator::allDone(const ProjectExplorer::JsonWizard *wizard,
+bool SquishFileGenerator::allDone(const JsonWizard *wizard,
                                   Core::GeneratedFile *file, QString *errorMessage)
 {
     Q_UNUSED(wizard)
@@ -378,6 +417,50 @@ bool SquishFileGenerator::allDone(const ProjectExplorer::JsonWizard *wizard,
     return true;
 }
 
+class SquishGeneratorFactory final : public JsonWizardGeneratorFactory
+{
+public:
+    SquishGeneratorFactory()
+    {
+        setTypeIdsSuffix("SquishSuiteGenerator");
+    }
 
-} // namespace Internal
-} // namespace Squish
+    JsonWizardGenerator *create(Id typeId, const QVariant &data,
+                                const QString &path, Id platform,
+                                const QVariantMap &variables) final
+    {
+        Q_UNUSED(path)
+        Q_UNUSED(platform)
+        Q_UNUSED(variables)
+        QTC_ASSERT(canCreate(typeId), return nullptr);
+
+        auto generator = new SquishFileGenerator;
+        QString errorMessage;
+        generator->setup(data, &errorMessage);
+
+        if (!errorMessage.isEmpty()) {
+            qWarning() << "SquishSuiteGenerator setup error:" << errorMessage;
+            delete generator;
+            return nullptr;
+        }
+        return generator;
+    }
+
+    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final
+    {
+        QTC_ASSERT(canCreate(typeId), return false);
+
+        QScopedPointer<SquishFileGenerator> generator(new SquishFileGenerator);
+        return generator->setup(data, errorMessage);
+    }
+};
+
+void setupSquishWizardPages()
+{
+    static SquishToolkitsPageFactory theSquishToolkitsPageFactory;
+    static SquishScriptLanguagePageFactory theSquishScriptLanguagePageFactory;
+    static SquishAUTPageFactory theSquishAUTPageFactory;
+    static SquishGeneratorFactory theSquishGeneratorFactory;
+}
+
+} // Squish::Internal

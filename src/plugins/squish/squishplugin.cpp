@@ -44,11 +44,6 @@ public:
     ObjectsMapEditorFactory m_objectsMapEditorFactory;
     SquishOutputPane m_outputPane;
     SquishTools m_squishTools;
-
-    SquishToolkitsPageFactory m_squishToolkitsPageFactory;
-    SquishScriptLanguagePageFactory m_squishScriptLanguagePageFactory;
-    SquishAUTPageFactory m_squishAUTPageFactory;
-    SquishGeneratorFactory m_squishGeneratorFactory;
 };
 
 SquishPluginPrivate::SquishPluginPrivate()
@@ -109,6 +104,9 @@ private:
     void initialize() final
     {
         d.reset(new SquishPluginPrivate);
+
+        setupSquishWizardPages();
+
         ProjectExplorer::JsonWizardFactory::addWizardPath(":/squish/wizard/");
     }
 
