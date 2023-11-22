@@ -24,7 +24,7 @@ public:
     Utils::FilePath makeCommand(const Utils::Environment &env) const final;
     QString compilerVersion() const;
     QList<Utils::OutputLineParser *> createOutputParsers() const final;
-    std::unique_ptr<ProjectExplorer::ToolChainConfigWidget> createConfigurationWidget() final;
+    std::unique_ptr<ProjectExplorer::ToolchainConfigWidget> createConfigurationWidget() final;
 
     void fromMap(const Utils::Store &data) final;
 

@@ -395,7 +395,7 @@ static void addDefaultCpuArgs(const FilePath &compiler, QStringList &extraArgs)
 
 class KeilToolChain;
 
-class KeilToolChainConfigWidget final : public ToolChainConfigWidget
+class KeilToolChainConfigWidget final : public ToolchainConfigWidget
 {
 public:
     explicit KeilToolChainConfigWidget(KeilToolChain *tc);
@@ -443,7 +443,7 @@ public:
 
     QList<OutputLineParser *> createOutputParsers() const final { return {new KeilParser}; }
 
-    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() final;
 
     bool operator==(const ToolChain &other) const final;
 
@@ -515,7 +515,7 @@ void KeilToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-std::unique_ptr<ToolChainConfigWidget> KeilToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> KeilToolChain::createConfigurationWidget()
 {
     return std::make_unique<KeilToolChainConfigWidget>(this);
 }
@@ -725,7 +725,7 @@ Toolchains KeilToolChainFactory::autoDetectToolchain(const Candidate &candidate,
 // KeilToolchainConfigWidget
 
 KeilToolChainConfigWidget::KeilToolChainConfigWidget(KeilToolChain *tc) :
-    ToolChainConfigWidget(tc),
+    ToolchainConfigWidget(tc),
     m_compilerCommand(new PathChooser),
     m_abiWidget(new AbiWidget)
 {
@@ -747,7 +747,7 @@ KeilToolChainConfigWidget::KeilToolChainConfigWidget(KeilToolChain *tc) :
     connect(m_platformCodeGenFlagsLineEdit, &QLineEdit::editingFinished,
             this, &KeilToolChainConfigWidget::handlePlatformCodeGenFlagsChange);
     connect(m_abiWidget, &AbiWidget::abiChanged,
-            this, &ToolChainConfigWidget::dirty);
+            this, &ToolchainConfigWidget::dirty);
 }
 
 void KeilToolChainConfigWidget::applyImpl()

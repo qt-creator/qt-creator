@@ -80,7 +80,7 @@ public:
     void toMap(Store &data) const override;
     void fromMap(const Store &data) override;
 
-    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override;
 
     bool operator ==(const ToolChain &) const override;
 
@@ -381,7 +381,7 @@ public:
 // CustomToolChainConfigWidget
 // --------------------------------------------------------------------------
 
-class CustomToolChainConfigWidget final : public ToolChainConfigWidget
+class CustomToolChainConfigWidget final : public ToolchainConfigWidget
 {
 public:
     explicit CustomToolChainConfigWidget(CustomToolChain *);
@@ -410,7 +410,7 @@ private:
 };
 
 CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
-    ToolChainConfigWidget(tc),
+    ToolchainConfigWidget(tc),
     m_compilerCommand(new PathChooser),
     m_makeCommand(new PathChooser),
     m_abiWidget(new AbiWidget),
@@ -459,15 +459,15 @@ CustomToolChainConfigWidget::CustomToolChainConfigWidget(CustomToolChain *tc) :
     m_predefinedDetails->updateSummaryText();
     m_headerDetails->updateSummaryText();
 
-    connect(m_compilerCommand, &PathChooser::rawPathChanged, this, &ToolChainConfigWidget::dirty);
-    connect(m_makeCommand, &PathChooser::rawPathChanged, this, &ToolChainConfigWidget::dirty);
-    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_compilerCommand, &PathChooser::rawPathChanged, this, &ToolchainConfigWidget::dirty);
+    connect(m_makeCommand, &PathChooser::rawPathChanged, this, &ToolchainConfigWidget::dirty);
+    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolchainConfigWidget::dirty);
     connect(m_predefinedMacros, &QPlainTextEdit::textChanged,
             this, [this] { updateSummaries(m_predefinedDetails); });
     connect(m_headerPaths, &QPlainTextEdit::textChanged,
             this, [this] { updateSummaries(m_headerDetails); });
-    connect(m_cxx11Flags, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
-    connect(m_mkspecs, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_cxx11Flags, &QLineEdit::textChanged, this, &ToolchainConfigWidget::dirty);
+    connect(m_mkspecs, &QLineEdit::textChanged, this, &ToolchainConfigWidget::dirty);
     connect(m_errorParserComboBox, &QComboBox::currentIndexChanged,
             this, &CustomToolChainConfigWidget::errorParserChanged);
     errorParserChanged();
@@ -549,7 +549,7 @@ void CustomToolChainConfigWidget::makeReadOnlyImpl()
     m_mainLayout->setEnabled(false);
 }
 
-std::unique_ptr<ToolChainConfigWidget> CustomToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> CustomToolChain::createConfigurationWidget()
 {
     return std::make_unique<CustomToolChainConfigWidget>(this);
 }

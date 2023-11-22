@@ -1263,11 +1263,11 @@ static QString msvcVarsToDisplay(const MsvcToolChain &tc)
     return varsBatDisplay;
 }
 
-class MsvcBasedToolChainConfigWidget : public ToolChainConfigWidget
+class MsvcBasedToolChainConfigWidget : public ToolchainConfigWidget
 {
 public:
     explicit MsvcBasedToolChainConfigWidget(ToolChain *tc)
-        : ToolChainConfigWidget(tc)
+        : ToolchainConfigWidget(tc)
         , m_nameDisplayLabel(new QLabel(this))
         , m_varsBatDisplayLabel(new QLabel(this))
     {
@@ -1356,8 +1356,8 @@ public:
         connect(m_varsBatArchCombo, &QComboBox::currentTextChanged,
                 this, &MsvcToolChainConfigWidget::handleVcVarsArchChange);
         connect(m_varsBatArgumentsEdit, &QLineEdit::textChanged,
-                this, &ToolChainConfigWidget::dirty);
-        connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
+                this, &ToolchainConfigWidget::dirty);
+        connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolchainConfigWidget::dirty);
     }
 
 private:
@@ -1503,7 +1503,7 @@ QString MsvcToolChainConfigWidget::vcVarsArguments() const
     return varsBatArg;
 }
 
-std::unique_ptr<ToolChainConfigWidget> MsvcToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> MsvcToolChain::createConfigurationWidget()
 {
     return std::make_unique<MsvcToolChainConfigWidget>(this);
 }
@@ -1800,7 +1800,7 @@ void ClangClToolChain::fromMap(const Store &data)
     m_clangPath = FilePath::fromString(clangPath);
 }
 
-std::unique_ptr<ToolChainConfigWidget> ClangClToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> ClangClToolChain::createConfigurationWidget()
 {
     return std::make_unique<ClangClToolChainConfigWidget>(this);
 }

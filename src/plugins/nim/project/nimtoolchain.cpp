@@ -120,11 +120,11 @@ bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> 
 
 // NimToolChainConfigWidget
 
-class NimToolChainConfigWidget : public ToolChainConfigWidget
+class NimToolChainConfigWidget : public ToolchainConfigWidget
 {
 public:
     explicit NimToolChainConfigWidget(NimToolChain *tc)
-        : ToolChainConfigWidget(tc)
+        : ToolchainConfigWidget(tc)
         , m_compilerCommand(new PathChooser)
         , m_compilerVersion(new QLineEdit)
     {
@@ -196,7 +196,7 @@ void NimToolChainConfigWidget::fillUI()
     m_compilerVersion->setText(tc->compilerVersion());
 }
 
-std::unique_ptr<ToolChainConfigWidget> NimToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> NimToolChain::createConfigurationWidget()
 {
     return std::make_unique<NimToolChainConfigWidget>(this);
 }

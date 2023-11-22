@@ -21,12 +21,12 @@ class ToolChain;
 // ToolChainConfigWidget
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ToolChainConfigWidget : public QScrollArea
+class PROJECTEXPLORER_EXPORT ToolchainConfigWidget : public QScrollArea
 {
     Q_OBJECT
 
 public:
-    explicit ToolChainConfigWidget(ToolChain *tc);
+    explicit ToolchainConfigWidget(ToolChain *tc);
 
     ToolChain *toolChain() const;
 

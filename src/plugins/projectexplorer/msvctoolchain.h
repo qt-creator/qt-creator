@@ -40,7 +40,7 @@ public:
     void toMap(Utils::Store &data) const override;
     void fromMap(const Utils::Store &data) override;
 
-    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override;
     bool hostPrefersToolchain() const override;
 
     MacroInspectionRunner createMacroInspectionRunner() const override;
@@ -139,7 +139,7 @@ public:
     QList<Utils::OutputLineParser *> createOutputParsers() const override;
     void toMap(Utils::Store &data) const override;
     void fromMap(const Utils::Store &data) override;
-    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override;
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override;
     BuiltInHeaderPathsRunner createBuiltInHeaderPathsRunner(
             const Utils::Environment &env) const override;
 

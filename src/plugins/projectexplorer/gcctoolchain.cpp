@@ -104,7 +104,7 @@ const QStringList gccPredefinedMacrosOptions(Id languageId)
 }
 
 class TargetTripleWidget;
-class GccToolChainConfigWidget : public ToolChainConfigWidget
+class GccToolChainConfigWidget : public ToolchainConfigWidget
 {
 public:
     explicit GccToolChainConfigWidget(GccToolChain *tc);
@@ -1062,7 +1062,7 @@ bool GccToolChain::operator ==(const ToolChain &other) const
             && m_platformLinkerFlags == gccTc->m_platformLinkerFlags;
 }
 
-std::unique_ptr<ToolChainConfigWidget> GccToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> GccToolChain::createConfigurationWidget()
 {
     return std::make_unique<GccToolChainConfigWidget>(this);
 }
@@ -1708,7 +1708,7 @@ private:
 }
 
 GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
-    ToolChainConfigWidget(tc),
+    ToolchainConfigWidget(tc),
     m_abiWidget(new AbiWidget),
     m_subType(tc->m_subType),
     m_compilerCommand(new PathChooser),
@@ -1740,9 +1740,9 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
             this, &GccToolChainConfigWidget::handlePlatformCodeGenFlagsChange);
     connect(m_platformLinkerFlagsLineEdit, &QLineEdit::editingFinished,
             this, &GccToolChainConfigWidget::handlePlatformLinkerFlagsChange);
-    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolchainConfigWidget::dirty);
     connect(m_targetTripleWidget, &TargetTripleWidget::valueChanged,
-            this, &ToolChainConfigWidget::dirty);
+            this, &ToolchainConfigWidget::dirty);
 
     if (m_subType == GccToolChain::Clang) {
         if (!HostOsInfo::isWindowsHost() || tc->typeId() != Constants::CLANG_TOOLCHAIN_TYPEID)

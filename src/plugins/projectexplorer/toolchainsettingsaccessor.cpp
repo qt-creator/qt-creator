@@ -319,7 +319,7 @@ public:
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env) }
     FilePath makeCommand(const Environment &) const override { return "make"; }
     QList<OutputLineParser *> createOutputParsers() const override { return {}; }
-    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override { return nullptr; }
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override { return nullptr; }
     bool operator ==(const ToolChain &other) const override {
         if (!ToolChain::operator==(other))
             return false;

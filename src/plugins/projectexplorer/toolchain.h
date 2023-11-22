@@ -41,7 +41,7 @@ QString languageId(Language l);
 } // namespace Deprecated
 
 class GccToolChain;
-class ToolChainConfigWidget;
+class ToolchainConfigWidget;
 class ToolChainFactory;
 class Kit;
 
@@ -138,7 +138,7 @@ public:
 
     virtual bool operator ==(const ToolChain &) const;
 
-    virtual std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() = 0;
+    virtual std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() = 0;
     ToolChain *clone() const;
 
     // Used by the toolchainmanager to save user-generated tool chains.

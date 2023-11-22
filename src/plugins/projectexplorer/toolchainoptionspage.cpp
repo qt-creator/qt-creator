@@ -82,7 +82,7 @@ public:
         return {};
     }
 
-    ToolChainConfigWidget *widget()
+    ToolchainConfigWidget *widget()
     {
         if (!m_widget) {
            m_widget = toolChain->createConfigurationWidget().release();
@@ -90,7 +90,7 @@ public:
                 m_parentWidget->addWidget(m_widget);
                 if (toolChain->isAutoDetected())
                     m_widget->makeReadOnly();
-                QObject::connect(m_widget, &ToolChainConfigWidget::dirty,
+                QObject::connect(m_widget, &ToolchainConfigWidget::dirty,
                                  [this] {
                     changed = true;
                     update();
@@ -104,7 +104,7 @@ public:
     bool changed;
 
 private:
-    ToolChainConfigWidget *m_widget = nullptr;
+    ToolchainConfigWidget *m_widget = nullptr;
     QStackedWidget *m_parentWidget = nullptr;
 };
 

@@ -257,7 +257,7 @@ static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
 
 class IarToolChain;
 
-class IarToolChainConfigWidget final : public ToolChainConfigWidget
+class IarToolChainConfigWidget final : public ToolchainConfigWidget
 {
 public:
     explicit IarToolChainConfigWidget(IarToolChain *tc);
@@ -303,7 +303,7 @@ public:
     void addToEnvironment(Environment &env) const final;
     QList<OutputLineParser *> createOutputParsers() const final { return {new IarParser()}; }
 
-    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() final;
 
     bool operator==(const ToolChain &other) const final;
 
@@ -389,7 +389,7 @@ void IarToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-std::unique_ptr<ToolChainConfigWidget> IarToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> IarToolChain::createConfigurationWidget()
 {
     return std::make_unique<IarToolChainConfigWidget>(this);
 }
@@ -566,7 +566,7 @@ Toolchains IarToolChainFactory::autoDetectToolchain(const Candidate &candidate, 
 // IarToolChainConfigWidget
 
 IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
-    ToolChainConfigWidget(tc),
+    ToolchainConfigWidget(tc),
     m_compilerCommand(new PathChooser),
     m_abiWidget(new AbiWidget)
 {
@@ -588,7 +588,7 @@ IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
     connect(m_platformCodeGenFlagsLineEdit, &QLineEdit::editingFinished,
             this, &IarToolChainConfigWidget::handlePlatformCodeGenFlagsChange);
     connect(m_abiWidget, &AbiWidget::abiChanged,
-            this, &ToolChainConfigWidget::dirty);
+            this, &ToolchainConfigWidget::dirty);
 }
 
 void IarToolChainConfigWidget::applyImpl()

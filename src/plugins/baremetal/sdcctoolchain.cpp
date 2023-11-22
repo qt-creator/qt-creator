@@ -178,7 +178,7 @@ static FilePath compilerPathFromEnvironment(const QString &compilerName)
 
 class SdccToolChain;
 
-class SdccToolChainConfigWidget final : public ToolChainConfigWidget
+class SdccToolChainConfigWidget final : public ToolchainConfigWidget
 {
 public:
     explicit SdccToolChainConfigWidget(SdccToolChain *tc);
@@ -218,7 +218,7 @@ public:
     void addToEnvironment(Environment &env) const final;
     QList<OutputLineParser *> createOutputParsers() const final  { return {new SdccParser}; }
 
-    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() final;
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() final;
 
     bool operator==(const ToolChain &other) const final;
 
@@ -283,7 +283,7 @@ void SdccToolChain::addToEnvironment(Environment &env) const
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-std::unique_ptr<ToolChainConfigWidget> SdccToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> SdccToolChain::createConfigurationWidget()
 {
     return std::make_unique<SdccToolChainConfigWidget>(this);
 }
@@ -448,7 +448,7 @@ Toolchains SdccToolChainFactory::autoDetectToolchain(const Candidate &candidate,
 // SdccToolChainConfigWidget
 
 SdccToolChainConfigWidget::SdccToolChainConfigWidget(SdccToolChain *tc) :
-    ToolChainConfigWidget(tc),
+    ToolchainConfigWidget(tc),
     m_compilerCommand(new PathChooser),
     m_abiWidget(new AbiWidget)
 {
@@ -465,7 +465,7 @@ SdccToolChainConfigWidget::SdccToolChainConfigWidget(SdccToolChain *tc) :
     connect(m_compilerCommand, &PathChooser::rawPathChanged,
             this, &SdccToolChainConfigWidget::handleCompilerCommandChange);
     connect(m_abiWidget, &AbiWidget::abiChanged,
-            this, &ToolChainConfigWidget::dirty);
+            this, &ToolchainConfigWidget::dirty);
 }
 
 void SdccToolChainConfigWidget::applyImpl()

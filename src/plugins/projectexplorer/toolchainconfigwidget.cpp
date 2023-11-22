@@ -20,7 +20,7 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
+ToolchainConfigWidget::ToolchainConfigWidget(ToolChain *tc) :
     m_toolChain(tc)
 {
     Q_ASSERT(tc);
@@ -46,38 +46,38 @@ ToolChainConfigWidget::ToolChainConfigWidget(ToolChain *tc) :
 
     m_mainLayout->addRow(Tr::tr("Name:"), m_nameLineEdit);
 
-    connect(m_nameLineEdit, &QLineEdit::textChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_nameLineEdit, &QLineEdit::textChanged, this, &ToolchainConfigWidget::dirty);
 }
 
-void ToolChainConfigWidget::apply()
+void ToolchainConfigWidget::apply()
 {
     m_toolChain->setDisplayName(m_nameLineEdit->text());
     applyImpl();
 }
 
-void ToolChainConfigWidget::discard()
+void ToolchainConfigWidget::discard()
 {
     m_nameLineEdit->setText(m_toolChain->displayName());
     discardImpl();
 }
 
-bool ToolChainConfigWidget::isDirty() const
+bool ToolchainConfigWidget::isDirty() const
 {
     return m_nameLineEdit->text() != m_toolChain->displayName() || isDirtyImpl();
 }
 
-ToolChain *ToolChainConfigWidget::toolChain() const
+ToolChain *ToolchainConfigWidget::toolChain() const
 {
     return m_toolChain;
 }
 
-void ToolChainConfigWidget::makeReadOnly()
+void ToolchainConfigWidget::makeReadOnly()
 {
     m_nameLineEdit->setEnabled(false);
     makeReadOnlyImpl();
 }
 
-void ToolChainConfigWidget::addErrorLabel()
+void ToolchainConfigWidget::addErrorLabel()
 {
     if (!m_errorLabel) {
         m_errorLabel = new QLabel;
@@ -86,7 +86,7 @@ void ToolChainConfigWidget::addErrorLabel()
     m_mainLayout->addRow(m_errorLabel);
 }
 
-void ToolChainConfigWidget::setErrorMessage(const QString &m)
+void ToolchainConfigWidget::setErrorMessage(const QString &m)
 {
     QTC_ASSERT(m_errorLabel, return);
     if (m.isEmpty()) {
@@ -98,7 +98,7 @@ void ToolChainConfigWidget::setErrorMessage(const QString &m)
     }
 }
 
-void ToolChainConfigWidget::clearErrorMessage()
+void ToolchainConfigWidget::clearErrorMessage()
 {
     QTC_ASSERT(m_errorLabel, return);
     m_errorLabel->clear();
@@ -106,7 +106,7 @@ void ToolChainConfigWidget::clearErrorMessage()
     m_errorLabel->setVisible(false);
 }
 
-QStringList ToolChainConfigWidget::splitString(const QString &s)
+QStringList ToolchainConfigWidget::splitString(const QString &s)
 {
     ProcessArgs::SplitError splitError;
     const OsType osType = HostOsInfo::hostOs();

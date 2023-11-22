@@ -24,7 +24,7 @@ namespace Qnx::Internal {
 
 // QnxToolChainConfigWidget
 
-class QnxToolChainConfigWidget : public ToolChainConfigWidget
+class QnxToolChainConfigWidget : public ToolchainConfigWidget
 {
 public:
     QnxToolChainConfigWidget(QnxToolChain *tc);
@@ -116,7 +116,7 @@ QnxToolChain::QnxToolChain()
     });
 }
 
-std::unique_ptr<ToolChainConfigWidget> QnxToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> QnxToolChain::createConfigurationWidget()
 {
     return std::make_unique<QnxToolChainConfigWidget>(this);
 }
@@ -167,7 +167,7 @@ bool QnxToolChain::operator ==(const ToolChain &other) const
 //---------------------------------------------------------------------------------
 
 QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
-    : ToolChainConfigWidget(tc)
+    : ToolchainConfigWidget(tc)
     , m_compilerCommand(new PathChooser)
     , m_sdpPath(new PathChooser)
     , m_abiWidget(new AbiWidget)
@@ -191,10 +191,10 @@ QnxToolChainConfigWidget::QnxToolChainConfigWidget(QnxToolChain *tc)
     m_mainLayout->addRow(Tr::tr("SDP path:"), m_sdpPath);
     m_mainLayout->addRow(Tr::tr("&ABI:"), m_abiWidget);
 
-    connect(m_compilerCommand, &PathChooser::rawPathChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_compilerCommand, &PathChooser::rawPathChanged, this, &ToolchainConfigWidget::dirty);
     connect(m_sdpPath, &PathChooser::rawPathChanged,
             this, &QnxToolChainConfigWidget::handleSdpPathChange);
-    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolChainConfigWidget::dirty);
+    connect(m_abiWidget, &AbiWidget::abiChanged, this, &ToolchainConfigWidget::dirty);
 }
 
 void QnxToolChainConfigWidget::applyImpl()

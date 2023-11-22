@@ -344,7 +344,7 @@ private:
     void addToEnvironment(Utils::Environment &) const override {}
     Utils::FilePath makeCommand(const Utils::Environment &) const override { return {}; }
     QList<Utils::OutputLineParser *> createOutputParsers() const override { return {}; }
-    std::unique_ptr<ToolChainConfigWidget> createConfigurationWidget() override
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override
     {
         return {};
     };
