@@ -68,22 +68,6 @@ static void addWeakVerticalSpacerToLayout(QVBoxLayout *layout, int maximumSize)
     layout->setStretchFactor(weakSpacer, 1);
 }
 
-class ResizeSignallingWidget : public QWidget
-{
-    Q_OBJECT
-
-public:
-    void resizeEvent(QResizeEvent *event) override;
-
-signals:
-    void resized(const QSize &size, const QSize &oldSize);
-};
-
-void ResizeSignallingWidget::resizeEvent(QResizeEvent *event)
-{
-    emit resized(event->size(), event->oldSize());
-}
-
 class WelcomeMode : public IMode
 {
     Q_OBJECT

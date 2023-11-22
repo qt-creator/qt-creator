@@ -868,4 +868,14 @@ Section::Section(const QString &name, int priority, std::optional<int> maxRows)
     , maxRows(maxRows)
 {}
 
+ResizeSignallingWidget::ResizeSignallingWidget(QWidget *parent)
+    : QWidget(parent)
+{
+}
+
+void ResizeSignallingWidget::resizeEvent(QResizeEvent *event)
+{
+    emit resized(event->size(), event->oldSize());
+}
+
 } // namespace Core

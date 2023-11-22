@@ -229,6 +229,18 @@ private:
     QString m_delayedSearchString;
 };
 
+class CORE_EXPORT ResizeSignallingWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit ResizeSignallingWidget(QWidget *parent = nullptr);
+    void resizeEvent(QResizeEvent *event) override;
+
+signals:
+    void resized(const QSize &size, const QSize &oldSize);
+};
+
 } // namespace Core
 
 Q_DECLARE_METATYPE(Core::ListItem *)
