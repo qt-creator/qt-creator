@@ -152,7 +152,8 @@ public:
     // Called when group done, before group's storages are deleted
     using GroupDoneHandler = std::function<DoneResult(DoneWith)>;
 
-    GroupItem(const StorageBase &storage)
+    template <typename StorageStruct>
+    GroupItem(const Storage<StorageStruct> &storage)
         : m_type(Type::Storage)
         , m_storageList{storage} {}
 
@@ -528,6 +529,8 @@ class TASKING_EXPORT TaskTreeTaskAdapter : public TaskAdapter<TaskTree>
 {
 public:
     TaskTreeTaskAdapter();
+
+private:
     void start() final;
 };
 
@@ -536,9 +539,9 @@ class TASKING_EXPORT TimeoutTaskAdapter : public TaskAdapter<std::chrono::millis
 public:
     TimeoutTaskAdapter();
     ~TimeoutTaskAdapter();
-    void start() final;
 
 private:
+    void start() final;
     std::optional<int> m_timerId;
 };
 
