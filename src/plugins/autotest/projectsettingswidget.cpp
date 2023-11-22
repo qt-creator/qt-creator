@@ -39,7 +39,6 @@ private:
                             const QHash<Autotest::ITestTool *, bool> &testTools);
     void onActiveFrameworkChanged(QTreeWidgetItem *item, int column);
     TestProjectSettings *m_projectSettings;
-    QComboBox *m_useGlobalSettings = nullptr;
     QTreeWidget *m_activeFrameworks = nullptr;
     QComboBox *m_runAfterBuild = nullptr;
     QTimer m_syncTimer;

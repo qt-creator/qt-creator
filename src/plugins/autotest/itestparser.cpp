@@ -124,7 +124,6 @@ std::optional<QSet<FilePath>> CppParser::filesContainingMacro(const QByteArray &
         if (!pp->selectedForBuilding)
             continue;
 
-        const ProjectExplorer::Macros macros = pp->projectMacros;
         if (Utils::anyOf(pp->projectMacros, Utils::equal(&ProjectExplorer::Macro::key, macroName)))
             result.unite(Utils::transform<QSet>(pp->files, &CppEditor::ProjectFile::path));
     }
