@@ -39,7 +39,6 @@ public:
 
     bool initializeGlobalScripts();
 
-    SquishTestTreeModel m_treeModel;
     SquishNavigationWidgetFactory m_navigationWidgetFactory;
     ObjectsMapEditorFactory m_objectsMapEditorFactory;
     SquishOutputPane m_outputPane;
@@ -77,6 +76,9 @@ SquishPluginPrivate::SquishPluginPrivate()
 
 bool SquishPluginPrivate::initializeGlobalScripts()
 {
+    // The code expects squishTestTreeModel to exist, so force creation now.
+    (void) SquishTestTreeModel::instance();
+
     SquishFileHandler::instance()->setSharedFolders({});
 
     const FilePath squishserver = settings().squishPath().pathAppended("bin/squishserver")

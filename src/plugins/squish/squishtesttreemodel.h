@@ -62,7 +62,7 @@ private:
 class SquishTestTreeModel : public Utils::TreeModel<SquishTestTreeItem>
 {
 public:
-    SquishTestTreeModel(QObject *parent = nullptr);
+    SquishTestTreeModel();
     ~SquishTestTreeModel() override;
 
     static SquishTestTreeModel *instance();

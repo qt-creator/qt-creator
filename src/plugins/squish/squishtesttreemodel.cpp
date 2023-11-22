@@ -162,11 +162,8 @@ void SquishTestTreeItem::revalidateCheckState()
 
 /**************************** SquishTestTreeModel **************************************/
 
-static SquishTestTreeModel *m_instance = nullptr;
-
-SquishTestTreeModel::SquishTestTreeModel(QObject *parent)
-    : TreeModel<SquishTestTreeItem>(new SquishTestTreeItem(QString(), SquishTestTreeItem::Root),
-                                    parent)
+SquishTestTreeModel::SquishTestTreeModel()
+    : TreeModel<SquishTestTreeItem>(new SquishTestTreeItem(QString(), SquishTestTreeItem::Root))
     , m_squishSharedFolders(new SquishTestTreeItem(Tr::tr("Shared Folders"), SquishTestTreeItem::Root))
     , m_squishSuitesRoot(new SquishTestTreeItem(Tr::tr("Test Suites"), SquishTestTreeItem::Root))
     , m_squishFileHandler(new SquishFileHandler(this))
@@ -184,17 +181,14 @@ SquishTestTreeModel::SquishTestTreeModel(QObject *parent)
             this, &SquishTestTreeModel::onTestCaseRemoved);
     connect(m_squishFileHandler, &SquishFileHandler::clearedSharedFolders,
             this, [this] { m_squishSharedFolders->removeChildren(); });
-
-    m_instance = this;
 }
 
 SquishTestTreeModel::~SquishTestTreeModel() {}
 
 SquishTestTreeModel *SquishTestTreeModel::instance()
 {
-    if (!m_instance)
-        m_instance = new SquishTestTreeModel;
-    return m_instance;
+    static SquishTestTreeModel theSquishTestTreeModel;
+    return &theSquishTestTreeModel;
 }
 
 static QPixmap scaledPixmap(const Utils::Icon &icon)
