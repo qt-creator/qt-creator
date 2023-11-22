@@ -128,7 +128,6 @@ protected:
     bool visit(UsingNamespaceDirective *) override { return false; }
     bool visit(UsingDeclaration *) override { return false; }
     bool visit(NamespaceAlias *) override { return false; }
-    bool visit(Declaration *) override { return false; }
     bool visit(Argument *) override { return false; }
     bool visit(TypenameArgument *) override { return false; }
     bool visit(BaseClass *) override { return false; }
@@ -156,6 +155,13 @@ protected:
                 return process(symbol);
         }
         return true;
+    }
+
+    bool visit(Declaration *decl) override
+    {
+        if (const auto func = decl->type().type()->asFunctionType())
+            return process(func);
+        return false;
     }
 
     // Objective-C

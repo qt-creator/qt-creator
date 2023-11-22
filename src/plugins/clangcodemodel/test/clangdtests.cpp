@@ -537,8 +537,10 @@ void ClangdTestLocalReferences::test_data()
     QTest::newRow("overloaded operators arguments from outside") << 171 << 7
             << QList<Range>{{171, 6, 1}, {172, 6, 1}, {172, 11, 1},
                      {173, 6, 1}, {173, 9, 1}};
-    QTest::newRow("documented function parameter") << 181 << 32
+    QTest::newRow("documented function parameter (impl)") << 181 << 32
             << QList<Range>{{177, 10, 6}, {179, 9, 6}, {181, 31, 6}, {183, 6, 6}, {184, 17, 6}};
+    QTest::newRow("documented function parameter (decl)") << 192 << 33
+            << QList<Range>{{188, 10, 6}, {190, 9, 6}, {192, 32, 6}};
 }
 
 void ClangdTestLocalReferences::test()
