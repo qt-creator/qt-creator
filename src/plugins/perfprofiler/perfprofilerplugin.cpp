@@ -12,6 +12,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+using namespace ProjectExplorer;
+
 namespace PerfProfiler::Internal {
 
 class PerfProfilerPlugin final : public ExtensionSystem::IPlugin
@@ -23,7 +25,7 @@ class PerfProfilerPlugin final : public ExtensionSystem::IPlugin
     {
         setupPerfProfilerTool();
         setupPerfProfilerRunWorker();
-        setupPerfRunConfigurationAspect();
+        RunConfiguration::registerAspect<PerfRunConfigurationAspect>();
 
 #if WITH_TESTS
         //   addTest<PerfProfilerTraceFileTest>();  // FIXME these tests have to get rewritten

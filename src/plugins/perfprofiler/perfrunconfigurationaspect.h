@@ -3,8 +3,20 @@
 
 #pragma once
 
+#include "perfprofiler_global.h"
+
+#include <projectexplorer/runconfiguration.h>
+
+#include <QObject>
+
 namespace PerfProfiler {
 
-void setupPerfRunConfigurationAspect();
+class PERFPROFILER_EXPORT PerfRunConfigurationAspect :
+        public ProjectExplorer::GlobalOrProjectAspect
+{
+    Q_OBJECT
+public:
+    PerfRunConfigurationAspect(ProjectExplorer::Target *target);
+};
 
-} // PerfProfiler
+} // namespace PerfProfiler
