@@ -4,7 +4,6 @@
 #include "qmlprofileranimationsmodel.h"
 #include "qmlprofilermodelmanager.h"
 #include "qmlprofilernotesmodel.h"
-#include "qmlprofilerplugin.h"
 #include "qmlprofilerrangemodel.h"
 #include "qmlprofilerstatemanager.h"
 #include "qmlprofilertool.h"

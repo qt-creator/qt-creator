@@ -7,7 +7,6 @@
 #include "qmlprofilerclientmanager.h"
 #include "qmlprofilerconstants.h"
 #include "qmlprofilermodelmanager.h"
-#include "qmlprofilerplugin.h"
 #include "qmlprofilerrunconfigurationaspect.h"
 #include "qmlprofilerruncontrol.h"
 #include "qmlprofilersettings.h"
@@ -75,8 +74,7 @@ using namespace QmlProfiler::Constants;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace QmlProfiler {
-namespace Internal {
+namespace QmlProfiler::Internal {
 
 static QmlProfilerTool *m_instance = nullptr;
 
@@ -919,8 +917,17 @@ void QmlProfilerTool::toggleVisibleFeature(QAction *action)
                     d->m_profilerModelManager->visibleFeatures() | (1ULL << feature));
     else
         d->m_profilerModelManager->setVisibleFeatures(
-                    d->m_profilerModelManager->visibleFeatures() & (~(1ULL << feature)));
+            d->m_profilerModelManager->visibleFeatures() & (~(1ULL << feature)));
 }
 
-} // namespace Internal
-} // namespace QmlProfiler
+void setupQmlProfilerTool()
+{
+    (void) new QmlProfilerTool;
+}
+
+void destroyQmlProfilerTool()
+{
+    delete m_instance;
+}
+
+} // QmlProfiler::Internal

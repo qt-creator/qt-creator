@@ -49,7 +49,7 @@ set(QMLPROFILER_CPP_SOURCES
   qmlprofilereventtypes.h
   qmlprofilermodelmanager.cpp qmlprofilermodelmanager.h
   qmlprofilernotesmodel.cpp qmlprofilernotesmodel.h
-  qmlprofilerplugin.cpp qmlprofilerplugin.h
+  qmlprofilerplugin.cpp
   qmlprofilerrangemodel.cpp qmlprofilerrangemodel.h
   qmlprofilerrunconfigurationaspect.cpp qmlprofilerrunconfigurationaspect.h
   qmlprofilerruncontrol.cpp qmlprofilerruncontrol.h
