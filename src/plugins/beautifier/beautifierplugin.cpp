@@ -65,7 +65,6 @@ public:
 
     void autoFormatOnSave(IDocument *document);
 
-    ArtisticStyle artisticStyleBeautifier;
     ClangFormat clangFormatBeautifier;
     Uncrustify uncrustifyBeautifier;
 };
@@ -141,6 +140,8 @@ class BeautifierPlugin final : public ExtensionSystem::IPlugin
         menu->menu()->setTitle(Tr::tr("Bea&utifier"));
         menu->setOnAllDisabledBehavior(ActionContainer::Show);
         ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
+
+        setupArtisticStyle();
     }
 
     void extensionsInitialized() final
