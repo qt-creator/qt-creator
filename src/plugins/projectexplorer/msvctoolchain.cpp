@@ -1866,7 +1866,7 @@ ClangClToolChain::BuiltInHeaderPathsRunner ClangClToolChain::createBuiltInHeader
 // MsvcToolchainFactory
 // --------------------------------------------------------------------------
 
-class MsvcToolchainFactory : public ToolChainFactory
+class MsvcToolchainFactory : public ToolchainFactory
 {
 public:
     MsvcToolchainFactory()
@@ -2237,7 +2237,7 @@ bool MsvcToolChain::WarningFlagAdder::triggered() const
 // ClangClToolchainFactory
 // --------------------------------------------------------------------------
 
-class ClangClToolchainFactory : public ToolChainFactory
+class ClangClToolchainFactory : public ToolchainFactory
 {
 public:
     ClangClToolchainFactory()

@@ -69,10 +69,10 @@ private:
 using DevelopmentTeamPtr = std::shared_ptr<DevelopmentTeam>;
 using DevelopmentTeams = QList<DevelopmentTeamPtr>;
 
-class IosToolChainFactory : public ProjectExplorer::ToolChainFactory
+class IosToolchainFactory : public ProjectExplorer::ToolchainFactory
 {
 public:
-    IosToolChainFactory();
+    IosToolchainFactory();
 
     ProjectExplorer::Toolchains autoDetect(
             const ProjectExplorer::ToolchainDetector &detector) const final;

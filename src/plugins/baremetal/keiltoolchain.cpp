@@ -454,7 +454,7 @@ public:
 private:
     StringListAspect m_extraCodeModelFlags{this};
 
-    friend class KeilToolChainFactory;
+    friend class KeilToolchainFactory;
     friend class KeilToolChainConfigWidget;
 };
 
@@ -538,10 +538,10 @@ QStringList KeilToolChain::extraCodeModelFlags() const
 
 // KeilToolchainFactory
 
-class KeilToolChainFactory final : public ToolChainFactory
+class KeilToolchainFactory final : public ToolchainFactory
 {
 public:
-    KeilToolChainFactory()
+    KeilToolchainFactory()
     {
         setDisplayName(Tr::tr("KEIL"));
         setSupportedToolChainType(Constants::KEIL_TOOLCHAIN_TYPEID);
@@ -562,7 +562,7 @@ private:
 
 void setupKeilToolChain()
 {
-    static KeilToolChainFactory theKeilToolChainFactory;
+    static KeilToolchainFactory theKeilToolChainFactory;
 }
 
 // Parse the 'tools.ini' file to fetch a toolchain version.
@@ -609,7 +609,7 @@ static QString extractVersion(const QString &toolsFile, const QString &section)
     return {};
 }
 
-Toolchains KeilToolChainFactory::autoDetect(const ToolchainDetector &detector) const
+Toolchains KeilToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
 #ifdef Q_OS_WIN64
     static const char kRegistryNode[] = "HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\" \
@@ -660,7 +660,7 @@ Toolchains KeilToolChainFactory::autoDetect(const ToolchainDetector &detector) c
     return autoDetectToolchains(candidates, detector.alreadyKnown);
 }
 
-Toolchains KeilToolChainFactory::autoDetectToolchains(
+Toolchains KeilToolchainFactory::autoDetectToolchains(
         const Candidates &candidates, const Toolchains &alreadyKnown) const
 {
     Toolchains result;
@@ -687,7 +687,7 @@ Toolchains KeilToolChainFactory::autoDetectToolchains(
     return result;
 }
 
-Toolchains KeilToolChainFactory::autoDetectToolchain(const Candidate &candidate, Id language) const
+Toolchains KeilToolchainFactory::autoDetectToolchain(const Candidate &candidate, Id language) const
 {
     if (ToolChainManager::isBadToolchain(candidate.compilerPath))
         return {};

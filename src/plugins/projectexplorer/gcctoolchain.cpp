@@ -1276,7 +1276,7 @@ static ToolChain *constructLinuxIccToolchain()
 
 namespace Internal {
 
-class GccToolchainFactory final : public ToolChainFactory
+class GccToolchainFactory final : public ToolchainFactory
 {
 public:
     explicit GccToolchainFactory(GccToolChain::SubType subType)

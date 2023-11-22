@@ -155,8 +155,8 @@ public:
     ToolChainOptionsWidget()
     {
         m_detectionSettings = ToolChainManager::detectionSettings();
-        m_factories = Utils::filtered(ToolChainFactory::allToolChainFactories(),
-                    [](ToolChainFactory *factory) { return factory->canCreate();});
+        m_factories = Utils::filtered(ToolchainFactory::allToolchainFactories(),
+                    [](ToolchainFactory *factory) { return factory->canCreate();});
 
         m_model.setHeader({Tr::tr("Name"), Tr::tr("Type")});
         auto autoRoot = new StaticTreeItem({ProjectExplorer::Constants::msgAutoDetected()},
@@ -194,7 +194,7 @@ public:
 
         m_addButton = new QPushButton(Tr::tr("Add"), this);
         auto addMenu = new QMenu;
-        for (ToolChainFactory *factory : std::as_const(m_factories)) {
+        for (ToolchainFactory *factory : std::as_const(m_factories)) {
             QList<Utils::Id> languages = factory->supportedLanguages();
             if (languages.isEmpty())
                 continue;
@@ -295,7 +295,7 @@ public:
 
     void toolChainSelectionChanged();
     void updateState();
-    void createToolChain(ToolChainFactory *factory, const Utils::Id &language);
+    void createToolChain(ToolchainFactory *factory, const Utils::Id &language);
     void cloneToolChain();
     ToolChainTreeItem *currentTreeItem();
 
@@ -305,7 +305,7 @@ public:
     void removeToolChain(ProjectExplorer::ToolChain *);
 
     StaticTreeItem *parentForToolChain(ToolChain *tc);
-    QAction *createAction(const QString &name, ToolChainFactory *factory, Utils::Id language)
+    QAction *createAction(const QString &name, ToolchainFactory *factory, Utils::Id language)
     {
         auto action = new QAction(name, nullptr);
         connect(action, &QAction::triggered, this,
@@ -320,7 +320,7 @@ public:
  private:
     TreeModel<TreeItem, ToolChainTreeItem> m_model;
     KitSettingsSortModel m_sortModel;
-    QList<ToolChainFactory *> m_factories;
+    QList<ToolchainFactory *> m_factories;
     QTreeView *m_toolChainView;
     DetailsWidget *m_container;
     QStackedWidget *m_widgetStack;
@@ -414,7 +414,7 @@ void ToolChainOptionsWidget::redetectToolchains()
     Toolchains toAdd;
     QSet<ToolChain *> toDelete;
     ToolChainManager::resetBadToolchains();
-    for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories()) {
+    for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
         const ToolchainDetector detector(knownTcs, DeviceManager::defaultDesktopDevice(), {});  // FIXME: Pass search paths
         for (ToolChain * const tc : f->autoDetect(detector)) {
             if (knownTcs.contains(tc) || toDelete.contains(tc))
@@ -508,7 +508,7 @@ void ToolChainOptionsWidget::apply()
     ToolChainManager::setDetectionSettings(m_detectionSettings);
 }
 
-void ToolChainOptionsWidget::createToolChain(ToolChainFactory *factory, const Utils::Id &language)
+void ToolChainOptionsWidget::createToolChain(ToolchainFactory *factory, const Utils::Id &language)
 {
     QTC_ASSERT(factory, return);
     QTC_ASSERT(factory->canCreate(), return);

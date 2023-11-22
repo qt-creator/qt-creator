@@ -558,7 +558,7 @@ std::unique_ptr<ToolchainConfigWidget> CustomToolChain::createConfigurationWidge
 // CustomToolChainFactory
 // --------------------------------------------------------------------------
 
-CustomToolChainFactory::CustomToolChainFactory()
+CustomToolchainFactory::CustomToolchainFactory()
 {
     setDisplayName(Tr::tr("Custom"));
     setSupportedToolChainType(Constants::CUSTOM_TOOLCHAIN_TYPEID);

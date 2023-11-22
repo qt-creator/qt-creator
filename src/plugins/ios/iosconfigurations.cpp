@@ -570,13 +570,13 @@ ProvisioningProfilePtr IosConfigurations::provisioningProfile(const QString &pro
                                 equal(&ProvisioningProfile::identifier, profileID));
 }
 
-IosToolChainFactory::IosToolChainFactory()
+IosToolchainFactory::IosToolchainFactory()
 {
     setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                            ProjectExplorer::Constants::CXX_LANGUAGE_ID});
 }
 
-Toolchains IosToolChainFactory::autoDetect(const ToolchainDetector &detector) const
+Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
     if (detector.device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         return {};

@@ -118,7 +118,7 @@ bool NimToolChain::parseVersion(const FilePath &path, std::tuple<int, int, int> 
     return true;
 }
 
-// NimToolChainConfigWidget
+// NimToolchainConfigWidget
 
 class NimToolChainConfigWidget : public ToolchainConfigWidget
 {
@@ -201,9 +201,9 @@ std::unique_ptr<ToolchainConfigWidget> NimToolChain::createConfigurationWidget()
     return std::make_unique<NimToolChainConfigWidget>(this);
 }
 
-// NimToolChainFactory
+// NimToolchainFactory
 
-NimToolChainFactory::NimToolChainFactory()
+NimToolchainFactory::NimToolchainFactory()
 {
     setDisplayName(Tr::tr("Nim"));
     setSupportedToolChainType(Constants::C_NIMTOOLCHAIN_TYPEID);
@@ -212,7 +212,7 @@ NimToolChainFactory::NimToolChainFactory()
     setUserCreatable(true);
 }
 
-Toolchains NimToolChainFactory::autoDetect(const ToolchainDetector &detector) const
+Toolchains NimToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
     Toolchains result;
 
@@ -235,7 +235,7 @@ Toolchains NimToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     return result;
 }
 
-Toolchains NimToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
+Toolchains NimToolchainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
     Toolchains result;
     if (tcd.language == Constants::C_NIMLANGUAGE_ID) {

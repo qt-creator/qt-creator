@@ -7,10 +7,10 @@
 
 namespace ProjectExplorer::Internal {
 
-class CustomToolChainFactory : public ToolChainFactory
+class CustomToolchainFactory : public ToolchainFactory
 {
 public:
-    CustomToolChainFactory();
+    CustomToolchainFactory();
 };
 
 } // ProjectExplorer::Interna;

@@ -42,7 +42,6 @@ QString languageId(Language l);
 
 class GccToolChain;
 class ToolchainConfigWidget;
-class ToolChainFactory;
 class Kit;
 
 namespace Internal { class ToolChainSettingsAccessor; }
@@ -198,7 +197,7 @@ private:
     const std::unique_ptr<Internal::ToolChainPrivate> d;
 
     friend class Internal::ToolChainSettingsAccessor;
-    friend class ToolChainFactory;
+    friend class ToolchainFactory;
 };
 
 using Toolchains = QList<ToolChain *>;
@@ -242,16 +241,16 @@ public:
     const Utils::FilePaths searchPaths; // If empty use device path and/or magic.
 };
 
-class PROJECTEXPLORER_EXPORT ToolChainFactory
+class PROJECTEXPLORER_EXPORT ToolchainFactory
 {
-    ToolChainFactory(const ToolChainFactory &) = delete;
-    ToolChainFactory &operator=(const ToolChainFactory &) = delete;
+    ToolchainFactory(const ToolchainFactory &) = delete;
+    ToolchainFactory &operator=(const ToolchainFactory &) = delete;
 
 public:
-    ToolChainFactory();
-    virtual ~ToolChainFactory();
+    ToolchainFactory();
+    virtual ~ToolchainFactory();
 
-    static const QList<ToolChainFactory *> allToolChainFactories();
+    static const QList<ToolchainFactory *> allToolchainFactories();
 
     QString displayName() const { return m_displayName; }
     Utils::Id supportedToolChainType() const;
@@ -288,7 +287,7 @@ protected:
         Utils::FilePath compilerPath;
         QString compilerVersion;
 
-        bool operator==(const ToolChainFactory::Candidate &other) const {
+        bool operator==(const ToolchainFactory::Candidate &other) const {
             return compilerPath == other.compilerPath
                     && compilerVersion == other.compilerVersion;
         }

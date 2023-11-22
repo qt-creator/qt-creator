@@ -225,7 +225,7 @@ public:
     FilePath makeCommand(const Environment &) const final { return {}; }
 
 private:
-    friend class SdccToolChainFactory;
+    friend class SdccToolchainFactory;
     friend class SdccToolChainConfigWidget;
 };
 
@@ -298,12 +298,12 @@ bool SdccToolChain::operator==(const ToolChain &other) const
             && targetAbi() == customTc->targetAbi();
 }
 
-// SdccToolChainFactory
+// SdccToolchainFactory
 
-class SdccToolChainFactory final : public ToolChainFactory
+class SdccToolchainFactory final : public ToolchainFactory
 {
 public:
-    SdccToolChainFactory()
+    SdccToolchainFactory()
     {
         setDisplayName(Tr::tr("SDCC"));
         setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
@@ -322,10 +322,10 @@ private:
 
 void setupSdccToolChain()
 {
-    static SdccToolChainFactory theSdccToolChainFactory;
+    static SdccToolchainFactory theSdccToolChainFactory;
 }
 
-Toolchains SdccToolChainFactory::autoDetect(const ToolchainDetector &detector) const
+Toolchains SdccToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
     Candidates candidates;
 
@@ -382,7 +382,7 @@ Toolchains SdccToolChainFactory::autoDetect(const ToolchainDetector &detector) c
     return autoDetectToolchains(candidates, detector.alreadyKnown);
 }
 
-Toolchains SdccToolChainFactory::autoDetectToolchains(
+Toolchains SdccToolchainFactory::autoDetectToolchains(
         const Candidates &candidates, const Toolchains &alreadyKnown) const
 {
     Toolchains result;
@@ -406,7 +406,7 @@ Toolchains SdccToolChainFactory::autoDetectToolchains(
     return result;
 }
 
-Toolchains SdccToolChainFactory::autoDetectToolchain(const Candidate &candidate, Id language) const
+Toolchains SdccToolchainFactory::autoDetectToolchain(const Candidate &candidate, Id language) const
 {
     const auto env = Environment::systemEnvironment();
 

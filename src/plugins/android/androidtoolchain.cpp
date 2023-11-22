@@ -137,7 +137,7 @@ GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 // ToolChainFactory
 // --------------------------------------------------------------------------
 
-AndroidToolChainFactory::AndroidToolChainFactory()
+AndroidToolchainFactory::AndroidToolchainFactory()
 {
     setDisplayName(Tr::tr("Android Clang"));
     setSupportedToolChainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
@@ -169,13 +169,13 @@ static FilePaths uniqueNdksForCurrentQtVersions()
     return uniqueNdks;
 }
 
-ToolChainList AndroidToolChainFactory::autodetectToolChains(const ToolChainList &alreadyKnown)
+ToolChainList AndroidToolchainFactory::autodetectToolChains(const ToolChainList &alreadyKnown)
 {
     const QList<FilePath> uniqueNdks = uniqueNdksForCurrentQtVersions();
     return autodetectToolChainsFromNdks(alreadyKnown, uniqueNdks);
 }
 
-ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
+ToolChainList AndroidToolchainFactory::autodetectToolChainsFromNdks(
     const ToolChainList &alreadyKnown,
     const QList<FilePath> &ndkLocations,
     const bool isCustom)
@@ -253,7 +253,7 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
 
 void setupAndroidToolchain()
 {
-    static AndroidToolChainFactory theAndroidToolchainFactory;
+    static AndroidToolchainFactory theAndroidToolchainFactory;
 }
 
 } // Android::Internal

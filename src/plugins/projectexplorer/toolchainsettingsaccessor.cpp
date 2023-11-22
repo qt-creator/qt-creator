@@ -57,7 +57,7 @@ struct ToolChainOperations
 static Toolchains autoDetectToolChains(const ToolchainDetector &detector)
 {
     Toolchains result;
-    for (ToolChainFactory *f : ToolChainFactory::allToolChainFactories()) {
+    for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
         NANOTRACE_SCOPE_ARGS("ProjectExplorer",
                              "ToolChainSettingsAccessor::autoDetectToolChains",
                              {"factory", f->displayName().toStdString()});
@@ -243,7 +243,7 @@ void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWi
 Toolchains ToolChainSettingsAccessor::toolChains(const Store &data) const
 {
     Toolchains result;
-    const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
+    const QList<ToolchainFactory *> factories = ToolchainFactory::allToolchainFactories();
 
     const int count = data.value(TOOLCHAIN_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
@@ -254,9 +254,9 @@ Toolchains ToolChainSettingsAccessor::toolChains(const Store &data) const
         const Store tcMap = storeFromVariant(data.value(key));
 
         bool restored = false;
-        const Utils::Id tcType = ToolChainFactory::typeIdFromMap(tcMap);
+        const Utils::Id tcType = ToolchainFactory::typeIdFromMap(tcMap);
         if (tcType.isValid()) {
-            for (ToolChainFactory *f : factories) {
+            for (ToolchainFactory *f : factories) {
                 if (f->supportedToolChainType() == tcType) {
                     if (ToolChain *tc = f->restore(tcMap)) {
                         result.append(tc);
@@ -269,7 +269,7 @@ Toolchains ToolChainSettingsAccessor::toolChains(const Store &data) const
         if (!restored)
             qWarning("Warning: Unable to restore compiler type '%s' for tool chain %s.",
                      qPrintable(tcType.toString()),
-                     qPrintable(QString::fromUtf8(ToolChainFactory::idFromMap(tcMap))));
+                     qPrintable(QString::fromUtf8(ToolchainFactory::idFromMap(tcMap))));
     }
 
     return result;
@@ -356,16 +356,16 @@ namespace ProjectExplorer {
 
 void ProjectExplorerPlugin::testToolChainMerging_data()
 {
-    class TestToolChainFactory : ToolChainFactory
+    class TestToolchainFactory : ToolchainFactory
     {
     public:
-        TestToolChainFactory() {
+        TestToolchainFactory() {
             setSupportedToolChainType(TestToolChainType);
             setToolchainConstructor([] { return new TTC; });
         }
     };
 
-    TestToolChainFactory factory;
+    TestToolchainFactory factory;
 
     QTest::addColumn<Toolchains>("system");
     QTest::addColumn<Toolchains>("user");

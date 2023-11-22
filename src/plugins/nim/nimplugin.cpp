@@ -54,7 +54,7 @@ public:
     NimCompilerCleanStepFactory cleanStepFactory;
     NimCodeStyleSettingsPage codeStyleSettingsPage;
     NimCodeStylePreferencesFactory codeStylePreferencesPage;
-    NimToolChainFactory toolChainFactory;
+    NimToolchainFactory toolChainFactory;
 
     NimProjectFactory nimProjectFactory;
     NimbleProjectFactory nimbleProjectFactory;

@@ -251,12 +251,12 @@ void QnxToolChainConfigWidget::handleSdpPathChange()
     emit dirty();
 }
 
-// QnxToolChainFactory
+// QnxToolchainFactory
 
-class QnxToolChainFactory : public ToolChainFactory
+class QnxToolchainFactory : public ToolchainFactory
 {
 public:
-    QnxToolChainFactory()
+    QnxToolchainFactory()
     {
         setDisplayName(Tr::tr("QCC"));
         setSupportedToolChainType(Constants::QNX_TOOLCHAIN_ID);
@@ -279,7 +279,7 @@ public:
 
 void setupQnxToolChain()
 {
-    static QnxToolChainFactory theQnxToolChainFactory;
+    static QnxToolchainFactory theQnxToolChainFactory;
 }
 
 } // Qnx::Internal

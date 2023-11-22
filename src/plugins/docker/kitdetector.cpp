@@ -249,13 +249,13 @@ QtVersions KitDetectorPrivate::autoDetectQtVersions() const
 
 Toolchains KitDetectorPrivate::autoDetectToolChains()
 {
-    const QList<ToolChainFactory *> factories = ToolChainFactory::allToolChainFactories();
+    const QList<ToolchainFactory *> factories = ToolchainFactory::allToolchainFactories();
 
     Toolchains alreadyKnown = ToolChainManager::toolchains();
     Toolchains allNewToolChains;
     QApplication::processEvents();
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Searching toolchains..."));
-    for (ToolChainFactory *factory : factories) {
+    for (ToolchainFactory *factory : factories) {
         emit q->logOutput(ProjectExplorer::Tr::tr("Searching toolchains of type %1").arg(factory->displayName()));
         const ToolchainDetector detector(alreadyKnown, m_device, m_searchPaths);
         const Toolchains newToolChains = factory->autoDetect(detector);

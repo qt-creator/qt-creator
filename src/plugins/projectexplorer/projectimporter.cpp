@@ -370,7 +370,7 @@ static ProjectImporter::ToolChainData createToolChains(const ToolChainDescriptio
 {
     ProjectImporter::ToolChainData data;
 
-    for (ToolChainFactory *factory : ToolChainFactory::allToolChainFactories()) {
+    for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
         data.tcs = factory->detectForImport(tcd);
         if (data.tcs.isEmpty())
             continue;

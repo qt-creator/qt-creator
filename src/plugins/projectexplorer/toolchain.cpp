@@ -28,9 +28,9 @@ const char LANGUAGE_KEY_V1[] = "ProjectExplorer.ToolChain.Language"; // For QtCr
 const char LANGUAGE_KEY_V2[] = "ProjectExplorer.ToolChain.LanguageV2"; // For QtCreator > 4.2
 const char CODE_MODEL_TRIPLE_KEY[] = "ExplicitCodeModelTargetTriple";
 
-QList<ToolChainFactory *> &toolChainFactories()
+QList<ToolchainFactory *> &toolchainFactories()
 {
-    static QList<ToolChainFactory *> theToolChainFactories;
+    static QList<ToolchainFactory *> theToolChainFactories;
     return theToolChainFactories;
 }
 
@@ -219,7 +219,7 @@ bool ToolChain::operator == (const ToolChain &tc) const
 
 ToolChain *ToolChain::clone() const
 {
-    for (ToolChainFactory *f : std::as_const(toolChainFactories())) {
+    for (ToolchainFactory *f : std::as_const(toolchainFactories())) {
         if (f->supportedToolChainType() == d->m_typeId) {
             ToolChain *tc = f->create();
             QTC_ASSERT(tc, return nullptr);
@@ -557,44 +557,44 @@ void ToolChain::setExplicitCodeModelTargetTriple(const QString &triple)
     Used by the tool chain manager to restore user-generated tool chains.
 */
 
-ToolChainFactory::ToolChainFactory()
+ToolchainFactory::ToolchainFactory()
 {
-    toolChainFactories().append(this);
+    toolchainFactories().append(this);
 }
 
-ToolChainFactory::~ToolChainFactory()
+ToolchainFactory::~ToolchainFactory()
 {
-    toolChainFactories().removeOne(this);
+    toolchainFactories().removeOne(this);
 }
 
-const QList<ToolChainFactory *> ToolChainFactory::allToolChainFactories()
+const QList<ToolchainFactory *> ToolchainFactory::allToolchainFactories()
 {
-    return toolChainFactories();
+    return toolchainFactories();
 }
 
-Toolchains ToolChainFactory::autoDetect(const ToolchainDetector &detector) const
+Toolchains ToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
     Q_UNUSED(detector)
     return {};
 }
 
-Toolchains ToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
+Toolchains ToolchainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
     Q_UNUSED(tcd)
     return {};
 }
 
-bool ToolChainFactory::canCreate() const
+bool ToolchainFactory::canCreate() const
 {
     return m_userCreatable;
 }
 
-ToolChain *ToolChainFactory::create() const
+ToolChain *ToolchainFactory::create() const
 {
     return m_toolchainConstructor ? m_toolchainConstructor() : nullptr;
 }
 
-ToolChain *ToolChainFactory::restore(const Store &data)
+ToolChain *ToolchainFactory::restore(const Store &data)
 {
     if (!m_toolchainConstructor)
         return nullptr;
@@ -618,24 +618,24 @@ static QPair<QString, QString> rawIdData(const Store &data)
     return {raw.mid(0, pos), raw.mid(pos + 1)};
 }
 
-QByteArray ToolChainFactory::idFromMap(const Store &data)
+QByteArray ToolchainFactory::idFromMap(const Store &data)
 {
     return rawIdData(data).second.toUtf8();
 }
 
-Id ToolChainFactory::typeIdFromMap(const Store &data)
+Id ToolchainFactory::typeIdFromMap(const Store &data)
 {
     return Id::fromString(rawIdData(data).first);
 }
 
-void ToolChainFactory::autoDetectionToMap(Store &data, bool detected)
+void ToolchainFactory::autoDetectionToMap(Store &data, bool detected)
 {
     data.insert(AUTODETECT_KEY, detected);
 }
 
-ToolChain *ToolChainFactory::createToolChain(Id toolChainType)
+ToolChain *ToolchainFactory::createToolChain(Id toolChainType)
 {
-    for (ToolChainFactory *factory : std::as_const(toolChainFactories())) {
+    for (ToolchainFactory *factory : std::as_const(toolchainFactories())) {
         if (factory->m_supportedToolChainType == toolChainType) {
             if (ToolChain *tc = factory->create()) {
                 tc->d->m_typeId = toolChainType;
@@ -646,42 +646,42 @@ ToolChain *ToolChainFactory::createToolChain(Id toolChainType)
     return nullptr;
 }
 
-QList<Id> ToolChainFactory::supportedLanguages() const
+QList<Id> ToolchainFactory::supportedLanguages() const
 {
     return m_supportsAllLanguages ? ToolChainManager::allLanguages() : m_supportedLanguages;
 }
 
-Id ToolChainFactory::supportedToolChainType() const
+Id ToolchainFactory::supportedToolChainType() const
 {
     return m_supportedToolChainType;
 }
 
-void ToolChainFactory::setSupportedToolChainType(const Id &supportedToolChain)
+void ToolchainFactory::setSupportedToolChainType(const Id &supportedToolChain)
 {
     m_supportedToolChainType = supportedToolChain;
 }
 
-void ToolChainFactory::setSupportedLanguages(const QList<Id> &supportedLanguages)
+void ToolchainFactory::setSupportedLanguages(const QList<Id> &supportedLanguages)
 {
     m_supportedLanguages = supportedLanguages;
 }
 
-void ToolChainFactory::setSupportsAllLanguages(bool supportsAllLanguages)
+void ToolchainFactory::setSupportsAllLanguages(bool supportsAllLanguages)
 {
     m_supportsAllLanguages = supportsAllLanguages;
 }
 
-void ToolChainFactory::setToolchainConstructor(const ToolChainConstructor &toolchainContructor)
+void ToolchainFactory::setToolchainConstructor(const ToolChainConstructor &toolchainContructor)
 {
     m_toolchainConstructor = toolchainContructor;
 }
 
-ToolChainFactory::ToolChainConstructor ToolChainFactory::toolchainConstructor() const
+ToolchainFactory::ToolChainConstructor ToolchainFactory::toolchainConstructor() const
 {
     return m_toolchainConstructor;
 }
 
-void ToolChainFactory::setUserCreatable(bool userCreatable)
+void ToolchainFactory::setUserCreatable(bool userCreatable)
 {
     m_userCreatable = userCreatable;
 }

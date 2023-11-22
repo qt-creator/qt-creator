@@ -150,7 +150,7 @@ private:
 
     friend class Internal::GccToolChainConfigWidget;
     friend class Internal::GccToolchainFactory;
-    friend class ToolChainFactory;
+    friend class ToolchainFactory;
 
     // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
     // which is used for comparison with matchesCompilerCommand

@@ -168,7 +168,7 @@ bool WebAssemblyToolChain::areToolChainsRegistered()
     return !ToolChainManager::findToolChains(toolChainAbi()).isEmpty();
 }
 
-WebAssemblyToolChainFactory::WebAssemblyToolChainFactory()
+WebAssemblyToolchainFactory::WebAssemblyToolchainFactory()
 {
     setDisplayName(Tr::tr("Emscripten"));
     setSupportedToolChainType(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID);
@@ -178,7 +178,7 @@ WebAssemblyToolChainFactory::WebAssemblyToolChainFactory()
     setUserCreatable(true);
 }
 
-Toolchains WebAssemblyToolChainFactory::autoDetect(const ToolchainDetector &detector) const
+Toolchains WebAssemblyToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
     return doAutoDetect(detector);
 }

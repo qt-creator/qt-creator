@@ -314,7 +314,7 @@ public:
 private:
     StringListAspect m_extraCodeModelFlags{this};
 
-    friend class IarToolChainFactory;
+    friend class IarToolchainFactory;
     friend class IarToolChainConfigWidget;
 };
 
@@ -405,12 +405,12 @@ bool IarToolChain::operator==(const ToolChain &other) const
 }
 
 
-// IarToolChainFactory
+// IarToolchainFactory
 
-class IarToolChainFactory final : public ToolChainFactory
+class IarToolchainFactory final : public ToolchainFactory
 {
 public:
-    IarToolChainFactory()
+    IarToolchainFactory()
     {
         setDisplayName(Tr::tr("IAREW"));
         setSupportedToolChainType(Constants::IAREW_TOOLCHAIN_TYPEID);
@@ -431,10 +431,10 @@ private:
 
 void setupIarToolChain()
 {
-    static IarToolChainFactory theIarToolChainFactory;
+    static IarToolchainFactory theIarToolChainFactory;
 }
 
-Toolchains IarToolChainFactory::autoDetect(const ToolchainDetector &detector) const
+Toolchains IarToolchainFactory::autoDetect(const ToolchainDetector &detector) const
 {
     Candidates candidates;
 
@@ -507,12 +507,12 @@ Toolchains IarToolChainFactory::autoDetect(const ToolchainDetector &detector) co
     return autoDetectToolchains(candidates, detector.alreadyKnown);
 }
 
-Toolchains IarToolChainFactory::detectForImport(const ToolChainDescription &tcd) const
+Toolchains IarToolchainFactory::detectForImport(const ToolChainDescription &tcd) const
 {
     return { autoDetectToolchain({tcd.compilerPath, {}}, tcd.language) };
 }
 
-Toolchains IarToolChainFactory::autoDetectToolchains(
+Toolchains IarToolchainFactory::autoDetectToolchains(
         const Candidates &candidates, const Toolchains &alreadyKnown) const
 {
     Toolchains result;
@@ -538,7 +538,7 @@ Toolchains IarToolChainFactory::autoDetectToolchains(
     return result;
 }
 
-Toolchains IarToolChainFactory::autoDetectToolchain(const Candidate &candidate, Id languageId) const
+Toolchains IarToolchainFactory::autoDetectToolchain(const Candidate &candidate, Id languageId) const
 {
     if (ToolChainManager::isBadToolchain(candidate.compilerPath))
         return {};

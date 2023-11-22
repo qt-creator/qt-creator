@@ -34,7 +34,7 @@ namespace WebAssembly::Internal {
 class WebAssemblyPluginPrivate
 {
 public:
-    WebAssemblyToolChainFactory toolChainFactory;
+    WebAssemblyToolchainFactory toolChainFactory;
     WebAssemblyDeviceFactory deviceFactory;
     WebAssemblyQtVersionFactory qtVersionFactory;
     EmrunRunConfigurationFactory emrunRunConfigurationFactory;

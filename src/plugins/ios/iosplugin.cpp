@@ -47,7 +47,7 @@ class IosPluginPrivate
 public:
     IosQmakeBuildConfigurationFactory qmakeBuildConfigurationFactory;
     IosCMakeBuildConfigurationFactory cmakeBuildConfigurationFactory;
-    IosToolChainFactory toolChainFactory;
+    IosToolchainFactory toolChainFactory;
     IosRunConfigurationFactory runConfigurationFactory;
     IosSettingsPage settingsPage;
     IosQtVersionFactory qtVersionFactory;

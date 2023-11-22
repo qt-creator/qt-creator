@@ -414,9 +414,9 @@ static ToolChain *armGccToolChain(const FilePath &path, Id language)
         return t->compilerCommand() == path && t->language() == language;
     });
     if (!toolChain) {
-        ToolChainFactory *gccFactory
-            = Utils::findOrDefault(ToolChainFactory::allToolChainFactories(),
-                                   [](ToolChainFactory *f) {
+        ToolchainFactory *gccFactory
+            = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
+                                   [](ToolchainFactory *f) {
                                        return f->supportedToolChainType()
                                               == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
                                    });
@@ -441,9 +441,9 @@ static ToolChain *iarToolChain(const FilePath &path, Id language)
                && t->language() == language;
     });
     if (!toolChain) {
-        ToolChainFactory *iarFactory
-            = Utils::findOrDefault(ToolChainFactory::allToolChainFactories(),
-                                   [](ToolChainFactory *f) {
+        ToolchainFactory *iarFactory
+            = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
+                                   [](ToolchainFactory *f) {
                                        return f->supportedToolChainType()
                                               == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
                                    });

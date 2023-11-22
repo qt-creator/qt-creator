@@ -32,15 +32,15 @@ protected:
 private:
     explicit AndroidToolChain();
 
-    friend class AndroidToolChainFactory;
+    friend class AndroidToolchainFactory;
 
     mutable Utils::FilePath m_ndkLocation;
 };
 
-class AndroidToolChainFactory : public ProjectExplorer::ToolChainFactory
+class AndroidToolchainFactory : public ProjectExplorer::ToolchainFactory
 {
 public:
-    AndroidToolChainFactory();
+    AndroidToolchainFactory();
 
     class AndroidToolChainInformation
     {

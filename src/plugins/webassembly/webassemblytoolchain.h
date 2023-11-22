@@ -25,10 +25,10 @@ public:
     static bool areToolChainsRegistered();
 };
 
-class WebAssemblyToolChainFactory : public ProjectExplorer::ToolChainFactory
+class WebAssemblyToolchainFactory : public ProjectExplorer::ToolchainFactory
 {
 public:
-    WebAssemblyToolChainFactory();
+    WebAssemblyToolchainFactory();
 
     ProjectExplorer::Toolchains autoDetect(
         const ProjectExplorer::ToolchainDetector &detector) const final;

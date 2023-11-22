@@ -645,7 +645,7 @@ public:
     WinDebugInterface m_winDebugInterface;
 #endif
 
-    CustomToolChainFactory m_customToolChainFactory;
+    CustomToolchainFactory m_customToolChainFactory;
 
     DesktopDeviceFactory m_desktopDeviceFactory;
 
