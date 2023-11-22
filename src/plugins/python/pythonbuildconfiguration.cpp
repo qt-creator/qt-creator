@@ -391,7 +391,7 @@ PythonBuildConfigurationFactory::PythonBuildConfigurationFactory()
             base.typeName = Tr::tr("Global Python");
             base.showBuildDirConfigWidget = false;
 
-            if (isVenvPython(python->command))
+            if (isVenvPython(python->command) || !venvIsUsable(python->command))
                 return QList<BuildInfo>{base};
 
             base.enabledByDefault = false;

@@ -192,4 +192,20 @@ bool isVenvPython(const Utils::FilePath &python)
     return python.parentDir().parentDir().contains("pyvenv.cfg");
 }
 
+bool venvIsUsable(const Utils::FilePath &python)
+{
+    Process process;
+    process.setCommand({python, QStringList{"-m", "venv", "-h"}});
+    process.runBlocking();
+    return process.result() == ProcessResult::FinishedWithSuccess;
+}
+
+bool pipIsUsable(const Utils::FilePath &python)
+{
+    Process process;
+    process.setCommand({python, QStringList{"-m", "pip", "-V"}});
+    process.runBlocking();
+    return process.result() == ProcessResult::FinishedWithSuccess;
+}
+
 } // Python::Internal

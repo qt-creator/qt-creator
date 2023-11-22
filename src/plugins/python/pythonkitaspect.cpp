@@ -6,11 +6,13 @@
 #include "pythonconstants.h"
 #include "pythonsettings.h"
 #include "pythontr.h"
+#include "pythonutils.h"
 
 #include <projectexplorer/kitmanager.h>
 
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
+#include <utils/process.h>
 
 #include <QComboBox>
 
@@ -90,23 +92,41 @@ public:
 
     Tasks validate(const Kit *k) const override
     {
+        Tasks result;
         const std::optional<Interpreter> python = PythonKitAspect::python(k);
         if (!python)
-            return {};
+            return result;
         const FilePath path = python->command;
         if (path.needsDevice())
-            return {};
-        if (path.isEmpty())
-            return {BuildSystemTask(Task::Error, Tr::tr("No Python setup."))};
-        if (!path.exists()) {
-            return {BuildSystemTask(Task::Error,
-                                    Tr::tr("Python %1 not found.").arg(path.toUserOutput()))};
+            return result;
+        if (path.isEmpty()) {
+            result << BuildSystemTask(Task::Error, Tr::tr("No Python setup."));
+        } else if (!path.exists()) {
+            result << BuildSystemTask(Task::Error,
+                                    Tr::tr("Python %1 not found.").arg(path.toUserOutput()));
+        } else if (!path.isExecutableFile()) {
+            result << BuildSystemTask(Task::Error,
+                                      Tr::tr("Python %1 not executable.").arg(path.toUserOutput()));
+        } else {
+            if (!pipIsUsable(path)) {
+                result << BuildSystemTask(
+                    Task::Warning,
+                    Tr::tr("Python %1 does not contain a usable pip. Pip is used to install python "
+                           "packages from the Python Package Index, like PySide and the python "
+                           "language server. If you want to use any of that functionality "
+                           "ensure pip is installed for that python.")
+                        .arg(path.toUserOutput()));
+            }
+            if (!venvIsUsable(path)) {
+                result << BuildSystemTask(
+                    Task::Warning,
+                    Tr::tr("Python %1 does not contain a usable venv. venv is the recommended way "
+                           "to isolate a development environment for a project from the globally "
+                           "installed python.")
+                        .arg(path.toUserOutput()));
+            }
         }
-        if (!path.isExecutableFile()) {
-            return {BuildSystemTask{Task::Error,
-                                    Tr::tr("Python %1 not executable.").arg(path.toUserOutput())}};
-        }
-        return {};
+        return result;
     }
 
     ItemList toUserOutput(const Kit *k) const override
