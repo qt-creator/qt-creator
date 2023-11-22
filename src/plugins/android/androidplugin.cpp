@@ -78,17 +78,6 @@ void setupAndroidDeployConfiguration()
     static AndroidDeployConfigurationFactory theAndroidDeployConfigurationFactory;
 }
 
-class AndroidPluginPrivate : public QObject
-{
-public:
-    AndroidDeviceManager deviceManager;
-};
-
-AndroidPlugin::~AndroidPlugin()
-{
-    delete d;
-}
-
 void AndroidPlugin::initialize()
 {
     setupAndroidConfigurations();
@@ -98,7 +87,7 @@ void AndroidPlugin::initialize()
     setupAndroidQtVersion();
     setupAndroidToolchain();
 
-    d = new AndroidPluginPrivate;
+    setupAndroidDeviceManager(this);
 
     setupAndroidSettingsPage();
 

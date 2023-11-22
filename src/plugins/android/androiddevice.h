@@ -87,8 +87,9 @@ public:
     QString getRunningAvdsSerialNumber(const QString &name) const;
 
 private:
-    AndroidDeviceManager(QObject *parent = nullptr);
+    explicit AndroidDeviceManager(QObject *parent);
     ~AndroidDeviceManager();
+
     void HandleDevicesListChange(const QString &serialNumber);
     void HandleAvdsListChange();
 
@@ -101,9 +102,10 @@ private:
     AndroidConfig &m_androidConfig;
     AndroidAvdManager m_avdManager;
 
-    friend class AndroidPluginPrivate;
+    friend void setupAndroidDeviceManager(QObject *guard);
 };
 
 void setupAndroidDevice();
+void setupAndroidDeviceManager(QObject *guard);
 
 } // Android::Internal

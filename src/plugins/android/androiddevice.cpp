@@ -870,4 +870,9 @@ void setupAndroidDevice()
     static AndroidDeviceFactory theAndroidDeviceFactory;
 }
 
+void setupAndroidDeviceManager(QObject *guard)
+{
+    (void) new AndroidDeviceManager(guard);
+}
+
 } // Android::Internal

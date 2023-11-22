@@ -12,14 +12,10 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Android.json")
 
-    ~AndroidPlugin() final;
-
     void initialize() final;
 
     void kitsRestored();
     void askUserAboutAndroidSetup();
-
-    class AndroidPluginPrivate *d = nullptr;
 
 #ifdef WITH_TESTS
 private slots:
