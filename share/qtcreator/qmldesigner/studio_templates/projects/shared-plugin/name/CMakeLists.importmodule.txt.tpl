@@ -13,6 +13,7 @@ qt6_add_qml_module(%{ImportModuleName}
     RESOURCE_PREFIX "/qt/qml"
     QML_FILES
         Constants.qml
+        DataStore.qml
         DirectoryFontLoader.qml
         EventListModel.qml
         EventListSimulator.qml

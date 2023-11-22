@@ -243,6 +243,16 @@
                     "condition": "%{QdsProjectStyle}"
                 },
                 {
+                    "source": "%{QdsWizardPath}/shared-plugin/name/DataStore.json.tpl",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DataStore.json",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/shared-plugin/name/DataStore.qml.tpl",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DataStore.qml",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
                     "source": "%{QdsWizardPath}/shared-plugin/name/DirectoryFontLoader.qml.tpl",
                     "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DirectoryFontLoader.qml",
                     "condition": "%{QdsProjectStyle}"
