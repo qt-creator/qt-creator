@@ -195,6 +195,8 @@ public:
     mutable QVector<const Node *> m_sortedNodeList;
 
     Store m_extraData;
+
+    QList<Store> m_vanishedTargets;
 };
 
 ProjectPrivate::~ProjectPrivate()
@@ -442,6 +444,54 @@ void Project::setActiveTarget(Target *target, SetActive cascade)
     }
 }
 
+QList<Store> Project::vanishedTargets() const
+{
+    return d->m_vanishedTargets;
+}
+
+void Project::removeVanishedTarget(int index)
+{
+    QTC_ASSERT(index >= 0 && index < d->m_vanishedTargets.size(), return);
+    d->m_vanishedTargets.removeAt(index);
+    emit vanishedTargetsChanged();
+}
+
+void Project::removeAllVanishedTargets()
+{
+    d->m_vanishedTargets.clear();
+    emit vanishedTargetsChanged();
+}
+
+Target *Project::createKitAndTargetFromStore(const Utils::Store &store)
+{
+    const Id id = idFromMap(store);
+    Id deviceTypeId = Id::fromSetting(store.value(Target::deviceTypeKey()));
+    if (!deviceTypeId.isValid())
+        deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
+    const QString formerKitName = store.value(Target::displayNameKey()).toString();
+    Kit *k = KitManager::registerKit(
+        [deviceTypeId, &formerKitName](Kit *kit) {
+            const QString kitName = makeUniquelyNumbered(formerKitName,
+                                                         transform(KitManager::kits(),
+                                                                   &Kit::unexpandedDisplayName));
+            kit->setUnexpandedDisplayName(kitName);
+            DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
+            kit->setup();
+        },
+        id);
+    QTC_ASSERT(k, return nullptr);
+    auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});
+    if (!t->fromMap(store))
+        return nullptr;
+
+    if (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty())
+        return nullptr;
+
+    auto pointer = t.get();
+    addTarget(std::move(t));
+    return pointer;
+}
+
 Tasks Project::projectIssues(const Kit *k) const
 {
     Tasks result;
@@ -564,6 +614,23 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     }
 
     return !fatalError;
+}
+
+bool Project::copySteps(const Utils::Store &store, Kit *targetKit)
+{
+    Target *t = target(targetKit->id());
+    if (!t) {
+        auto t = std::make_unique<Target>(this, targetKit, Target::_constructor_tag{});
+        if (!t->fromMap(store))
+            return false;
+
+        if (t->runConfigurations().isEmpty() && t->buildConfigurations().isEmpty())
+            return false;
+
+        addTarget(std::move(t));
+        return true;
+    }
+    return t->addConfigurationsFromMap(store, /*setActiveConfigurations=*/false);
 }
 
 bool Project::setupTarget(Target *t)
@@ -700,11 +767,19 @@ FilePaths Project::files(const NodeMatcher &filter) const
 void Project::toMap(Store &map) const
 {
     const QList<Target *> ts = targets();
+    const QList<Store> vts = vanishedTargets();
 
     map.insert(ACTIVE_TARGET_KEY, ts.indexOf(d->m_activeTarget));
-    map.insert(TARGET_COUNT_KEY, ts.size());
-    for (int i = 0; i < ts.size(); ++i)
-        map.insert(numberedKey(TARGET_KEY_PREFIX, i), variantFromStore(ts.at(i)->toMap()));
+    map.insert(TARGET_COUNT_KEY, ts.size() + vts.size());
+    int index = 0;
+    for (Target *t : ts) {
+        map.insert(numberedKey(TARGET_KEY_PREFIX, index), variantFromStore(t->toMap()));
+        ++index;
+    }
+    for (const Store &store : vts) {
+        map.insert(numberedKey(TARGET_KEY_PREFIX, index), variantFromStore(store));
+        ++index;
+    }
 
     map.insert(EDITOR_SETTINGS_KEY, variantFromStore(d->m_editorConfiguration.toMap()));
     if (!d->m_pluginSettings.isEmpty())
@@ -826,32 +901,16 @@ void Project::createTargetFromMap(const Store &map, int index)
         if (ICore::isQtDesignStudio())
             return;
 
-        Id deviceTypeId = Id::fromSetting(targetMap.value(Target::deviceTypeKey()));
-        if (!deviceTypeId.isValid())
-            deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
+        d->m_vanishedTargets.append(targetMap);
         const QString formerKitName = targetMap.value(Target::displayNameKey()).toString();
-        k = KitManager::registerKit(
-            [deviceTypeId, &formerKitName](Kit *kit) {
-                const QString kitNameSuggestion
-                    = formerKitName.contains(::PE::Tr::tr("Replacement for"))
-                          ? formerKitName
-                          : ::PE::Tr::tr("Replacement for \"%1\"").arg(formerKitName);
-                const QString tempKitName = makeUniquelyNumbered(kitNameSuggestion,
-                        transform(KitManager::kits(), &Kit::unexpandedDisplayName));
-                kit->setUnexpandedDisplayName(tempKitName);
-                DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
-                kit->makeReplacementKit();
-                kit->setup();
-            },
-            id);
-        QTC_ASSERT(k, return);
         TaskHub::addTask(BuildSystemTask(
             Task::Warning,
             ::PE::Tr::tr(
                 "Project \"%1\" was configured for "
-                "kit \"%2\" with id %3, which does not exist anymore. The new kit \"%4\" was "
-                "created in its place, in an attempt not to lose custom project settings.")
-                .arg(displayName(), formerKitName, id.toString(), k->displayName())));
+                "kit \"%2\" with id %3, which does not exist anymore. You can create a new kit "
+                "or copy the steps of the vanished kit to another kit in %4 mode.")
+                .arg(displayName(), formerKitName, id.toString(), Tr::tr("Projects"))));
+        return;
     }
 
     auto t = std::make_unique<Target>(this, k, Target::_constructor_tag{});

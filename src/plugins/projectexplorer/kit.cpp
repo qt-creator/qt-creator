@@ -768,11 +768,6 @@ void Kit::kitUpdated()
 
 static Id replacementKey() { return "IsReplacementKit"; }
 
-void ProjectExplorer::Kit::makeReplacementKit()
-{
-    setValueSilently(replacementKey(), true);
-}
-
 bool Kit::isReplacementKit() const
 {
     return value(replacementKey()).toBool();

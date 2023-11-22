@@ -889,15 +889,26 @@ bool Target::fromMap(const Store &map)
 {
     QTC_ASSERT(d->m_kit == KitManager::kit(id()), return false);
 
+    if (!addConfigurationsFromMap(map, /*setActiveConfigurations=*/true))
+        return false;
+
+    if (map.contains(PLUGIN_SETTINGS_KEY))
+        d->m_pluginSettings = storeFromVariant(map.value(PLUGIN_SETTINGS_KEY));
+
+    return true;
+}
+
+bool Target::addConfigurationsFromMap(const Utils::Store &map, bool setActiveConfigurations)
+{
     bool ok;
     int bcCount = map.value(BC_COUNT_KEY, 0).toInt(&ok);
     if (!ok || bcCount < 0)
         bcCount = 0;
     int activeConfiguration = map.value(ACTIVE_BC_KEY, 0).toInt(&ok);
-    if (!ok || activeConfiguration < 0)
+    if (!ok || 0 > activeConfiguration || bcCount < activeConfiguration)
         activeConfiguration = 0;
-    if (0 > activeConfiguration || bcCount < activeConfiguration)
-        activeConfiguration = 0;
+    if (!setActiveConfigurations)
+        activeConfiguration = -1;
 
     for (int i = 0; i < bcCount; ++i) {
         const Key key = numberedKey(BC_KEY_PREFIX, i);
@@ -921,10 +932,10 @@ bool Target::fromMap(const Store &map)
     if (!ok || dcCount < 0)
         dcCount = 0;
     activeConfiguration = map.value(ACTIVE_DC_KEY, 0).toInt(&ok);
-    if (!ok || activeConfiguration < 0)
+    if (!ok || 0 > activeConfiguration || dcCount < activeConfiguration)
         activeConfiguration = 0;
-    if (0 > activeConfiguration || dcCount < activeConfiguration)
-        activeConfiguration = 0;
+    if (!setActiveConfigurations)
+        activeConfiguration = -1;
 
     for (int i = 0; i < dcCount; ++i) {
         const Key key = numberedKey(DC_KEY_PREFIX, i);
@@ -948,10 +959,10 @@ bool Target::fromMap(const Store &map)
     if (!ok || rcCount < 0)
         rcCount = 0;
     activeConfiguration = map.value(ACTIVE_RC_KEY, 0).toInt(&ok);
-    if (!ok || activeConfiguration < 0)
+    if (!ok || 0 > activeConfiguration || rcCount < activeConfiguration)
         activeConfiguration = 0;
-    if (0 > activeConfiguration || rcCount < activeConfiguration)
-        activeConfiguration = 0;
+    if (!setActiveConfigurations)
+        activeConfiguration = -1;
 
     for (int i = 0; i < rcCount; ++i) {
         const Key key = numberedKey(RC_KEY_PREFIX, i);
@@ -971,9 +982,6 @@ bool Target::fromMap(const Store &map)
         if (i == activeConfiguration)
             setActiveRunConfiguration(rc);
     }
-
-    if (map.contains(PLUGIN_SETTINGS_KEY))
-        d->m_pluginSettings = storeFromVariant(map.value(PLUGIN_SETTINGS_KEY));
 
     return true;
 }

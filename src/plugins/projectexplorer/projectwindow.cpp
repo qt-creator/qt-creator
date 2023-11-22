@@ -4,6 +4,8 @@
 #include "projectwindow.h"
 
 #include "buildinfo.h"
+#include "devicesupport/idevicefactory.h"
+
 #include "kit.h"
 #include "kitmanager.h"
 #include "kitoptionspage.h"
@@ -204,6 +206,154 @@ void BuildSystemOutputWindow::updateFilter()
                            m_invertFilterAction.isChecked());
 }
 
+class VanishedTargetPanelItem : public TreeItem
+{
+public:
+    VanishedTargetPanelItem(const Store &store, Project *project)
+        : m_store(store)
+        , m_project(project)
+    {}
+
+    QVariant data(int column, int role) const override;
+    bool setData(int column, const QVariant &data, int role) override;
+    Qt::ItemFlags flags(int column) const override;
+
+protected:
+    Store m_store;
+    QPointer<Project> m_project;
+};
+
+static QString deviceTypeDisplayName(const Store &store)
+{
+    Id deviceTypeId = Id::fromSetting(store.value(Target::deviceTypeKey()));
+    if (!deviceTypeId.isValid())
+        deviceTypeId = Constants::DESKTOP_DEVICE_TYPE;
+
+    QString typeDisplayName = Tr::tr("Unknown device type");
+    if (deviceTypeId.isValid()) {
+        if (IDeviceFactory *factory = IDeviceFactory::find(deviceTypeId))
+            typeDisplayName = factory->displayName();
+    }
+    return typeDisplayName;
+}
+static QString msgOptionsForRestoringSettings()
+{
+    return "<html>"
+           + Tr::tr("The project was configured for kits that no longer exist. Select one of the "
+                    "following options in the context menu to restore the project's settings:")
+           + "<ul><li>"
+           + Tr::tr("Create a new kit with the same name for the same device type, with the "
+                    "original build, deploy, and run steps. Other kit settings are not restored.")
+           + "</li><li>" + Tr::tr("Copy the build, deploy, and run steps to another kit.")
+           + "</li></ul></html>";
+}
+
+QVariant VanishedTargetPanelItem::data(int column, int role) const
+{
+    Q_UNUSED(column)
+    switch (role) {
+    case Qt::DisplayRole:
+        //: vanished target display role: vanished target name (device type name)
+        return Tr::tr("%1 (%2)").arg(m_store.value(Target::displayNameKey()).toString(),
+                                     deviceTypeDisplayName(m_store));
+    case Qt::ToolTipRole:
+        return msgOptionsForRestoringSettings();
+    }
+
+    return {};
+}
+
+bool VanishedTargetPanelItem::setData(int column, const QVariant &data, int role)
+{
+    Q_UNUSED(column)
+
+    const auto addToMenu = [this](QMenu *menu) {
+        const int index = indexInParent();
+        menu->addAction(Tr::tr("Create a New Kit"),
+                        m_project.data(),
+                        [index, store = m_store, project = m_project] {
+                            Target *t = project->createKitAndTargetFromStore(store);
+                            if (t) {
+                                project->setActiveTarget(t, SetActive::Cascade);
+                                project->removeVanishedTarget(index);
+                            }
+                        });
+        QMenu *copyMenu = menu->addMenu(Tr::tr("Copy Steps to Another Kit"));
+        const QList<Kit *> kits = KitManager::kits();
+        for (Kit *kit : kits) {
+            QAction *copyAction = copyMenu->addAction(kit->displayName());
+            QObject::connect(copyAction,
+                             &QAction::triggered,
+                             [index, store = m_store, project = m_project, kit] {
+                                 if (project->copySteps(store, kit))
+                                     project->removeVanishedTarget(index);
+                             });
+        }
+        menu->addSeparator();
+        menu->addAction(Tr::tr("Remove Vanished Target \"%1\"")
+                            .arg(m_store.value(Target::displayNameKey()).toString()),
+                        m_project.data(),
+                        [index, project = m_project] { project->removeVanishedTarget(index); });
+        menu->addAction(Tr::tr("Remove All Vanished Targets"),
+                        m_project.data(),
+                        [project = m_project] { project->removeAllVanishedTargets(); });
+    };
+
+    if (role == ContextMenuItemAdderRole) {
+        auto *menu = data.value<QMenu *>();
+        addToMenu(menu);
+        return true;
+    }
+    if (role == ItemActivatedDirectlyRole) {
+        QMenu menu;
+        addToMenu(&menu);
+        menu.exec(QCursor::pos());
+    }
+    return false;
+}
+
+Qt::ItemFlags VanishedTargetPanelItem::flags(int column) const
+{
+    Q_UNUSED(column)
+    return Qt::ItemIsEnabled;
+}
+
+// The middle part of the second tree level, i.e. the list of vanished configured kits/targets.
+class VanishedTargetsGroupItem : public TreeItem
+{
+public:
+    explicit VanishedTargetsGroupItem(Project *project)
+        : m_project(project)
+    {
+        QTC_ASSERT(m_project, return);
+        rebuild();
+    }
+
+    void rebuild()
+    {
+        removeChildren();
+        for (const Store &store : m_project->vanishedTargets())
+            appendChild(new VanishedTargetPanelItem(store, m_project));
+    }
+
+    Qt::ItemFlags flags(int) const override { return Qt::NoItemFlags; }
+
+    QVariant data(int column, int role) const override
+    {
+        Q_UNUSED(column)
+        switch (role) {
+        case Qt::DisplayRole:
+            return Tr::tr("Vanished Targets");
+        case Qt::ToolTipRole:
+            return msgOptionsForRestoringSettings();
+        }
+        return {};
+    }
+
+private:
+    QPointer<Project> m_project;
+};
+
 // Standard third level for the generic case: i.e. all except for the Build/Run page
 class MiscSettingsPanelItem : public TreeItem // TypedTreeItem<TreeItem, MiscSettingsGroupItem>
 {
@@ -338,9 +488,26 @@ public:
         : m_project(project), m_changeListener(changeListener)
     {
         QTC_ASSERT(m_project, return);
-        QString display = Tr::tr("Build & Run");
-        appendChild(m_targetsItem = new TargetGroupItem(display, project));
-        appendChild(m_miscItem = new MiscSettingsGroupItem(project));
+        appendChild(m_targetsItem = new TargetGroupItem(Tr::tr("Build & Run"), m_project));
+        if (!m_project->vanishedTargets().isEmpty())
+            appendChild(m_vanishedTargetsItem = new VanishedTargetsGroupItem(m_project));
+        appendChild(m_miscItem = new MiscSettingsGroupItem(m_project));
+        QObject::connect(
+            m_project,
+            &Project::vanishedTargetsChanged,
+            &m_guard,
+            [this] { rebuildVanishedTargets(); },
+            Qt::QueuedConnection /* this is triggered by a child item, so queue */);
+    }
+
+    void rebuildVanishedTargets()
+    {
+        if (m_vanishedTargetsItem) {
+            if (m_project->vanishedTargets().isEmpty())
+                removeChildAt(indexOf(m_vanishedTargetsItem));
+            else
+                m_vanishedTargetsItem->rebuild();
+        }
     }
 
     QVariant data(int column, int role) const override
@@ -423,9 +590,11 @@ public:
     }
 
 private:
+    QObject m_guard;
     int m_currentChildIndex = 0; // Start with Build & Run.
     Project *m_project = nullptr;
     TargetGroupItem *m_targetsItem = nullptr;
+    VanishedTargetsGroupItem *m_vanishedTargetsItem;
     MiscSettingsGroupItem *m_miscItem = nullptr;
     const std::function<void ()> m_changeListener;
 };

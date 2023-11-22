@@ -97,6 +97,7 @@ public:
     virtual Tasks projectIssues(const Kit *k) const;
 
     static bool copySteps(Target *sourceTarget, Target *newTarget);
+    bool copySteps(const Utils::Store &store, Kit *targetKit);
 
     void saveSettings();
     enum class RestoreResult { Ok, Error, UserAbort };
@@ -179,6 +180,11 @@ public:
                                             Utils::MacroExpander *expander,
                                             const std::function<Project *()> &projectGetter);
 
+    QList<Utils::Store> vanishedTargets() const;
+    void removeVanishedTarget(int index);
+    void removeAllVanishedTargets();
+    Target *createKitAndTargetFromStore(const Utils::Store &store);
+
 signals:
     void projectFileIsDirty(const Utils::FilePath &path);
 
@@ -192,6 +198,8 @@ signals:
     void aboutToRemoveTarget(ProjectExplorer::Target *target);
     void removedTarget(ProjectExplorer::Target *target);
     void addedTarget(ProjectExplorer::Target *target);
+
+    void vanishedTargetsChanged();
 
     void settingsLoaded();
     void aboutToSaveSettings();
