@@ -843,7 +843,7 @@ bool Lexer::scanUntilRawStringLiteralEndPrecise()
     while (_yychar) {
         slidingWindow.append(_yychar);
         if (slidingWindow.size() > _expectedRawStringSuffix.size())
-            slidingWindow.removeFirst();
+            slidingWindow.remove(0, 1);
         if (slidingWindow == _expectedRawStringSuffix) {
             _expectedRawStringSuffix.clear();
             yyinp();
