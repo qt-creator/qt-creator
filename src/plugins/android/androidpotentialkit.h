@@ -3,17 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/ipotentialkit.h>
-
 namespace Android::Internal {
 
-class AndroidPotentialKit : public ProjectExplorer::IPotentialKit
-{
-public:
-    QString displayName() const override;
-    void executeFromMenu() override;
-    QWidget *createWidget(QWidget *parent) const override;
-    bool isEnabled() const override;
-};
+void setupAndroidPotentialKit();
 
 } // Android::Internal

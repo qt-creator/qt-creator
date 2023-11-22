@@ -23,10 +23,7 @@ namespace ProjectExplorer { class Abi; }
 
 namespace Android {
 
-namespace Internal {
-class AndroidSdkManager;
-class AndroidPluginPrivate;
-}
+namespace Internal { class AndroidSdkManager; }
 
 class CreateAvdInfo
 {
@@ -200,17 +197,18 @@ signals:
     void updated();
 
 private:
-    friend class Android::Internal::AndroidPluginPrivate;
+    friend void setupAndroidConfigurations();
     AndroidConfigurations();
-    ~AndroidConfigurations() override;
+
     void load();
     void save();
 
     static void updateAndroidDevice();
-    static AndroidConfigurations *m_instance;
     AndroidConfig m_config;
     std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;
 };
+
+void setupAndroidConfigurations();
 
 } // namespace Android
 

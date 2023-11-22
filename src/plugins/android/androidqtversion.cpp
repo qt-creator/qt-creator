@@ -38,12 +38,10 @@
 
 using namespace ProjectExplorer;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 AndroidQtVersion::AndroidQtVersion()
-    : QtSupport::QtVersion()
-    , m_guard(std::make_unique<QObject>())
+    : m_guard(std::make_unique<QObject>())
 {
     QObject::connect(AndroidConfigurations::instance(),
                      &AndroidConfigurations::aboutToUpdate,
@@ -265,17 +263,26 @@ QSet<Utils::Id> AndroidQtVersion::targetDeviceTypes() const
 
 // Factory
 
-AndroidQtVersionFactory::AndroidQtVersionFactory()
+class AndroidQtVersionFactory : public QtSupport::QtVersionFactory
 {
-    setQtVersionCreator([] { return new AndroidQtVersion; });
-    setSupportedType(Constants::ANDROID_QT_TYPE);
-    setPriority(90);
+public:
+    AndroidQtVersionFactory()
+    {
+        setQtVersionCreator([] { return new AndroidQtVersion; });
+        setSupportedType(Constants::ANDROID_QT_TYPE);
+        setPriority(90);
 
-    setRestrictionChecker([](const SetupData &setup) {
-        return !setup.config.contains("android-no-sdk")
-                && (setup.config.contains("android")
-                    || setup.platforms.contains("android"));
-    });
+        setRestrictionChecker([](const SetupData &setup) {
+            return !setup.config.contains("android-no-sdk")
+                   && (setup.config.contains("android")
+                       || setup.platforms.contains("android"));
+        });
+    }
+};
+
+void setupAndroidQtVersion()
+{
+    static AndroidQtVersionFactory theAndroidQtVersionFactory;
 }
 
 #ifdef WITH_TESTS
@@ -341,5 +348,4 @@ void AndroidPlugin::testAndroidQtVersionParseBuiltWith()
 }
 #endif // WITH_TESTS
 
-} // Internal
-} // Android
+} // Android::Internal

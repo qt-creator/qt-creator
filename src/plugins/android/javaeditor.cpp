@@ -14,7 +14,6 @@
 #include <texteditor/texteditorconstants.h>
 #include <texteditor/texteditor.h>
 
-#include <utils/filepath.h>
 #include <utils/mimeconstants.h>
 #include <utils/uncommentselection.h>
 
@@ -29,29 +28,34 @@ static TextEditor::TextDocument *createJavaDocument()
     return doc;
 }
 
-//
-// JavaEditorFactory
-//
-
-JavaEditorFactory::JavaEditorFactory()
+class JavaEditorFactory : public TextEditor::TextEditorFactory
 {
-    static QStringList keywords = {
-        "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const",
-        "continue", "default", "do", "double", "else", "enum", "extends", "final", "finally",
-        "float", "for", "goto", "if", "implements", "import", "instanceof", "int", "interface",
-        "long", "native", "new", "package", "private", "protected", "public", "return", "short",
-        "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
-        "transient", "try", "void", "volatile", "while"
-    };
-    setId(Constants::JAVA_EDITOR_ID);
-    setDisplayName(::Core::Tr::tr("Java Editor"));
-    addMimeType(Utils::Constants::JAVA_MIMETYPE);
+public:
+    JavaEditorFactory()
+    {
+        static QStringList keywords = {
+            "abstract", "assert", "boolean", "break", "byte", "case", "catch", "char", "class", "const",
+            "continue", "default", "do", "double", "else", "enum", "extends", "final", "finally",
+            "float", "for", "goto", "if", "implements", "import", "instanceof", "int", "interface",
+            "long", "native", "new", "package", "private", "protected", "public", "return", "short",
+            "static", "strictfp", "super", "switch", "synchronized", "this", "throw", "throws",
+            "transient", "try", "void", "volatile", "while"
+        };
+        setId(Constants::JAVA_EDITOR_ID);
+        setDisplayName(::Core::Tr::tr("Java Editor"));
+        addMimeType(Utils::Constants::JAVA_MIMETYPE);
 
-    setDocumentCreator(createJavaDocument);
-    setUseGenericHighlighter(true);
-    setCommentDefinition(Utils::CommentDefinition::CppStyle);
-    setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);
-    setCompletionAssistProvider(new TextEditor::KeywordsCompletionAssistProvider(keywords));
+        setDocumentCreator(createJavaDocument);
+        setUseGenericHighlighter(true);
+        setCommentDefinition(Utils::CommentDefinition::CppStyle);
+        setEditorActionHandlers(TextEditor::TextEditorActionHandler::UnCommentSelection);
+        setCompletionAssistProvider(new TextEditor::KeywordsCompletionAssistProvider(keywords));
+    }
+};
+
+void setupJavaEditor()
+{
+    static JavaEditorFactory theJavaEditorFactory;
 }
 
 } // Android::Internal

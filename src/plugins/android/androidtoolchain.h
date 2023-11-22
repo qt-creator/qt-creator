@@ -7,8 +7,7 @@
 
 #include <projectexplorer/gcctoolchain.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 using ToolChainList = QList<ProjectExplorer::ToolChain *>;
 
@@ -58,5 +57,6 @@ public:
                                                       const bool isCustom = false);
 };
 
-} // namespace Internal
-} // namespace Android
+void setupAndroidToolchain();
+
+} // Android

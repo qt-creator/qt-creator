@@ -6,10 +6,7 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionfactory.h>
 
-#include <QCoreApplication>
-
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidQtVersion : public QtSupport::QtVersion
 {
@@ -45,17 +42,13 @@ public:
 
 protected:
     void parseMkSpec(ProFileEvaluator *) const override;
+
 private:
     std::unique_ptr<QObject> m_guard;
     mutable QStringList m_androidAbis;
     mutable int m_minNdk = -1;
 };
 
-class AndroidQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    AndroidQtVersionFactory();
-};
+void setupAndroidQtVersion();
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

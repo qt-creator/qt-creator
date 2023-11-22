@@ -3,16 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
+namespace Android::Internal {
 
-namespace Android {
-namespace Internal {
+void setupAndroidPackageInstallationStep();
 
-class AndroidPackageInstallationFactory final : public ProjectExplorer::BuildStepFactory
-{
-public:
-    AndroidPackageInstallationFactory();
-};
-
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

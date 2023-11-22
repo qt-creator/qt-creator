@@ -34,8 +34,7 @@ namespace {
 static Q_LOGGING_CATEGORY(packageInstallationStepLog, "qtc.android.packageinstallationstep", QtWarningMsg)
 }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidPackageInstallationStep final : public AbstractProcessStep
 {
@@ -182,18 +181,24 @@ void AndroidPackageInstallationStep::reportWarningOrError(const QString &message
     TaskHub::addTask(BuildSystemTask(type, message));
 }
 
-//
 // AndroidPackageInstallationStepFactory
-//
 
-AndroidPackageInstallationFactory::AndroidPackageInstallationFactory()
+class AndroidPackageInstallationStepFactory final : public ProjectExplorer::BuildStepFactory
 {
-    registerStep<AndroidPackageInstallationStep>(Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    setSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
-    setRepeatable(false);
-    setDisplayName(Tr::tr("Deploy to device"));
+public:
+    AndroidPackageInstallationStepFactory()
+    {
+        registerStep<AndroidPackageInstallationStep>(Constants::ANDROID_PACKAGE_INSTALL_STEP_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        setSupportedDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
+        setRepeatable(false);
+        setDisplayName(Tr::tr("Deploy to device"));
+    }
+};
+
+void setupAndroidPackageInstallationStep()
+{
+    static AndroidPackageInstallationStepFactory theAndroidPackageInstallationStepFactory;
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

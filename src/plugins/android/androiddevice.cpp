@@ -41,8 +41,7 @@ namespace {
 static Q_LOGGING_CATEGORY(androidDeviceLog, "qtc.android.androiddevice", QtWarningMsg)
 }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 static constexpr char ipRegexStr[] = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3})";
 static const QRegularExpression ipRegex = QRegularExpression(ipRegexStr);
@@ -831,33 +830,44 @@ AndroidDeviceManager::~AndroidDeviceManager()
 
 // Factory
 
-AndroidDeviceFactory::AndroidDeviceFactory()
-    : IDeviceFactory(Constants::ANDROID_DEVICE_TYPE),
-      m_androidConfig(AndroidConfigurations::currentConfig())
+class AndroidDeviceFactory final : public ProjectExplorer::IDeviceFactory
 {
-    setDisplayName(Tr::tr("Android Device"));
-    setCombinedIcon(":/android/images/androiddevicesmall.png",
-                    ":/android/images/androiddevice.png");
-    setConstructionFunction(&AndroidDevice::create);
-    if (m_androidConfig.sdkToolsOk()) {
-        setCreator([this] {
-            AvdDialog dialog = AvdDialog(m_androidConfig, Core::ICore::dialogParent());
-            if (dialog.exec() != QDialog::Accepted)
-                return IDevice::Ptr();
+public:
+    AndroidDeviceFactory()
+        : IDeviceFactory(Constants::ANDROID_DEVICE_TYPE),
+        m_androidConfig(AndroidConfigurations::currentConfig())
+    {
+        setDisplayName(Tr::tr("Android Device"));
+        setCombinedIcon(":/android/images/androiddevicesmall.png",
+                        ":/android/images/androiddevice.png");
+        setConstructionFunction(&AndroidDevice::create);
+        if (m_androidConfig.sdkToolsOk()) {
+            setCreator([this] {
+                AvdDialog dialog = AvdDialog(m_androidConfig, Core::ICore::dialogParent());
+                if (dialog.exec() != QDialog::Accepted)
+                    return IDevice::Ptr();
 
-            const IDevice::Ptr dev = dialog.device();
-            if (const auto androidDev = static_cast<AndroidDevice *>(dev.data())) {
-                qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
-                        qPrintable(androidDev->avdName()));
-            } else {
-                AndroidDeviceWidget::criticalDialog(
+                const IDevice::Ptr dev = dialog.device();
+                if (const auto androidDev = static_cast<AndroidDevice *>(dev.data())) {
+                    qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
+                            qPrintable(androidDev->avdName()));
+                } else {
+                    AndroidDeviceWidget::criticalDialog(
                         Tr::tr("The device info returned from AvdDialog is invalid."));
-            }
+                }
 
-            return IDevice::Ptr(dev);
-        });
+                return IDevice::Ptr(dev);
+            });
+        }
     }
+
+private:
+    const AndroidConfig &m_androidConfig;
+};
+
+void setupAndroidDevice()
+{
+    static AndroidDeviceFactory theAndroidDeviceFactory;
 }
 
-} // namespace Internal
-} // namespace Android
+} // Android::Internal

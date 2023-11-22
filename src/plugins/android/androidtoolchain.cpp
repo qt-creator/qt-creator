@@ -18,8 +18,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(androidTCLog, "qtc.android.toolchainmanagement", QtWarningMsg);
 
@@ -252,5 +251,9 @@ ToolChainList AndroidToolChainFactory::autodetectToolChainsFromNdks(
     return result;
 }
 
-} // namespace Internal
-} // namespace Android
+void setupAndroidToolchain()
+{
+    static AndroidToolChainFactory theAndroidToolchainFactory;
+}
+
+} // Android::Internal

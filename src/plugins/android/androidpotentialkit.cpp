@@ -9,6 +9,7 @@
 #include <coreplugin/coreicons.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/ipotentialkit.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
@@ -24,6 +25,8 @@
 #include <QLabel>
 #include <QPushButton>
 
+using namespace ProjectExplorer;
+
 namespace Android::Internal {
 
 class AndroidPotentialKitWidget : public Utils::DetailsWidget
@@ -35,37 +38,6 @@ private:
     void openOptions();
     void recheck();
 };
-
-QString AndroidPotentialKit::displayName() const
-{
-    return Tr::tr("Configure Android...");
-}
-
-void AndroidPotentialKit::executeFromMenu()
-{
-    Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_ID);
-}
-
-QWidget *AndroidPotentialKit::createWidget(QWidget *parent) const
-{
-    if (!isEnabled())
-        return nullptr;
-    return new AndroidPotentialKitWidget(parent);
-}
-
-bool AndroidPotentialKit::isEnabled() const
-{
-    const QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
-    for (const ProjectExplorer::Kit *kit : kits) {
-        if (kit->isAutoDetected() && !kit->isSdkProvided()) {
-            return false;
-        }
-    }
-
-    return QtSupport::QtVersionManager::version([](const QtSupport::QtVersion *v) {
-        return v->type() == QString::fromLatin1(Constants::ANDROID_QT_TYPE);
-    });
-}
 
 AndroidPotentialKitWidget::AndroidPotentialKitWidget(QWidget *parent)
     : Utils::DetailsWidget(parent)
@@ -104,13 +76,53 @@ void AndroidPotentialKitWidget::openOptions()
 
 void AndroidPotentialKitWidget::recheck()
 {
-    const QList<ProjectExplorer::Kit *> kits = ProjectExplorer::KitManager::kits();
-    for (const ProjectExplorer::Kit *kit : kits) {
+    const QList<Kit *> kits = KitManager::kits();
+    for (const Kit *kit : kits) {
         if (kit->isAutoDetected() && !kit->isSdkProvided()) {
             setVisible(false);
             return;
         }
     }
+}
+
+class AndroidPotentialKit final : public IPotentialKit
+{
+public:
+    QString displayName() const final
+    {
+        return Tr::tr("Configure Android...");
+    }
+
+    void executeFromMenu() final
+    {
+        Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_ID);
+    }
+
+    QWidget *createWidget(QWidget *parent) const final
+    {
+        if (!isEnabled())
+            return nullptr;
+        return new AndroidPotentialKitWidget(parent);
+    }
+
+    bool isEnabled() const final
+    {
+        const QList<Kit *> kits = KitManager::kits();
+        for (const Kit *kit : kits) {
+            if (kit->isAutoDetected() && !kit->isSdkProvided()) {
+                return false;
+            }
+        }
+
+        return QtSupport::QtVersionManager::version([](const QtSupport::QtVersion *v) {
+            return v->type() == QString::fromLatin1(Constants::ANDROID_QT_TYPE);
+        });
+    }
+};
+
+void setupAndroidPotentialKit()
+{
+    static AndroidPotentialKit theAndroidPotentialKit;
 }
 
 } // Android::Internal

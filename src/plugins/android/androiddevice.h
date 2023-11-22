@@ -17,8 +17,7 @@
 
 namespace Utils { class Process; }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidDevice final : public ProjectExplorer::IDevice
 {
@@ -70,15 +69,6 @@ private:
     std::unique_ptr<QSettings> m_avdSettings;
 };
 
-class AndroidDeviceFactory final : public ProjectExplorer::IDeviceFactory
-{
-public:
-    AndroidDeviceFactory();
-
-private:
-    const AndroidConfig &m_androidConfig;
-};
-
 class AndroidDeviceManager : public QObject
 {
 public:
@@ -114,5 +104,6 @@ private:
     friend class AndroidPluginPrivate;
 };
 
-} // namespace Internal
-} // namespace Android
+void setupAndroidDevice();
+
+} // Android::Internal

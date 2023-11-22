@@ -1104,6 +1104,19 @@ FilePath AndroidConfig::defaultSdkPath()
 ///////////////////////////////////
 // AndroidConfigurations
 ///////////////////////////////////
+
+AndroidConfigurations *m_instance = nullptr;
+
+AndroidConfigurations::AndroidConfigurations()
+    : m_sdkManager(new AndroidSdkManager(m_config))
+{
+    load();
+    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
+            this, &AndroidConfigurations::updateAndroidDevice);
+
+    m_instance = this;
+}
+
 void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
 {
     emit m_instance->aboutToUpdate();
@@ -1452,18 +1465,6 @@ void AndroidConfigurations::save()
     settings->endGroup();
 }
 
-AndroidConfigurations::AndroidConfigurations()
-    : m_sdkManager(new AndroidSdkManager(m_config))
-{
-    load();
-    connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
-            this, &AndroidConfigurations::updateAndroidDevice);
-
-    m_instance = this;
-}
-
-AndroidConfigurations::~AndroidConfigurations() = default;
-
 static FilePath androidStudioPath()
 {
 #if defined(Q_OS_WIN)
@@ -1562,8 +1563,6 @@ void AndroidConfigurations::updateAndroidDevice()
     AndroidDeviceManager::instance()->setupDevicesWatcher();
 }
 
-AndroidConfigurations *AndroidConfigurations::m_instance = nullptr;
-
 #ifdef WITH_TESTS
 void AndroidPlugin::testAndroidConfigAvailableNdkPlatforms_data()
 {
@@ -1620,6 +1619,12 @@ void AndroidPlugin::testAndroidConfigAvailableNdkPlatforms()
     const QList<int> foundPlatforms = availableNdkPlatformsImpl(ndkPath, abis, hostOs);
     QCOMPARE(foundPlatforms, expectedPlatforms);
 }
+
 #endif // WITH_TESTS
+
+void setupAndroidConfigurations()
+{
+    static AndroidConfigurations theAndroidConfigurations;
+}
 
 } // namespace Android

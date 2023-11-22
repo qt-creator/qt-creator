@@ -81,14 +81,6 @@ void setupAndroidDeployConfiguration()
 class AndroidPluginPrivate : public QObject
 {
 public:
-    AndroidConfigurations androidConfiguration;
-    AndroidQtVersionFactory qtVersionFactory;
-    AndroidToolChainFactory toolChainFactory;
-    AndroidDeviceFactory deviceFactory;
-    AndroidPotentialKit potentialKit;
-    JavaEditorFactory javaEditorFactory;
-    AndroidPackageInstallationFactory packackeInstallationFactory;
-    AndroidManifestEditorFactory manifestEditorFactory;
     AndroidDeviceManager deviceManager;
 };
 
@@ -99,10 +91,18 @@ AndroidPlugin::~AndroidPlugin()
 
 void AndroidPlugin::initialize()
 {
+    setupAndroidConfigurations();
+
+    setupAndroidPotentialKit();
+    setupAndroidDevice();
+    setupAndroidQtVersion();
+    setupAndroidToolchain();
+
     d = new AndroidPluginPrivate;
 
     setupAndroidSettingsPage();
 
+    setupAndroidPackageInstallationStep();
     setupAndroidBuildApkStep();
 
     setupAndroidDeployConfiguration();
@@ -113,6 +113,9 @@ void AndroidPlugin::initialize()
     setupAndroidDebugWorker();
     setupAndroidQmlToolingSupport();
     setupAndroidQmlPreviewWorker();
+
+    setupJavaEditor();
+    setupAndroidManifestEditor();
 
     connect(KitManager::instance(), &KitManager::kitsLoaded,
             this, &AndroidPlugin::kitsRestored);
@@ -166,7 +169,9 @@ void AndroidPlugin::askUserAboutAndroidSetup()
     info.addCustomButton(Tr::tr("Configure Android"), [this] {
         Core::ICore::infoBar()->removeInfo(kSetupAndroidSetting);
         Core::ICore::infoBar()->globallySuppressInfo(kSetupAndroidSetting);
-        QTimer::singleShot(0, this, [this] { d->potentialKit.executeFromMenu(); });
+        QTimer::singleShot(0, this, [] {
+            Core::ICore::showOptionsDialog(Constants::ANDROID_SETTINGS_ID);
+        });
     });
     Core::ICore::infoBar()->addInfo(info);
 }
