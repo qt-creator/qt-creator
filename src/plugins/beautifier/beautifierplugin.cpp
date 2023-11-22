@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "beautifierconstants.h"
+#include "beautifiertool.h"
 #include "beautifiertr.h"
 #include "generalsettings.h"
 
@@ -64,9 +65,6 @@ public:
     void updateActions(IEditor *editor = nullptr);
 
     void autoFormatOnSave(IDocument *document);
-
-    ClangFormat clangFormatBeautifier;
-    Uncrustify uncrustifyBeautifier;
 };
 
 BeautifierPluginPrivate::BeautifierPluginPrivate()
@@ -142,6 +140,8 @@ class BeautifierPlugin final : public ExtensionSystem::IPlugin
         ActionManager::actionContainer(Core::Constants::M_TOOLS)->addMenu(menu);
 
         setupArtisticStyle();
+        setupClangFormat();
+        setupUncrustify();
     }
 
     void extensionsInitialized() final

@@ -92,19 +92,19 @@ public:
         read();
     }
 
-    void createDocumentationFile() const override;
+    void createDocumentationFile() const final;
 
-    QStringList completerWords() override;
+    QStringList completerWords() final;
 
     BoolAspect usePredefinedStyle{this};
     SelectionAspect predefinedStyle{this};
     SelectionAspect fallbackStyle{this};
     StringAspect customStyle{this};
 
-    Utils::FilePath styleFileName(const QString &key) const override;
+    Utils::FilePath styleFileName(const QString &key) const final;
 
 private:
-    void readStyles() override;
+    void readStyles() final;
 };
 
 void ClangFormatSettings::createDocumentationFile() const
@@ -310,53 +310,77 @@ public:
 
 // ClangFormat
 
-ClangFormat::ClangFormat()
+class ClangFormat final : public BeautifierTool
 {
-    const Id menuId = "ClangFormat.Menu";
-    Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
-    menu->menu()->setTitle(Tr::tr("&ClangFormat"));
+public:
+    ClangFormat()
+    {
+        const Id menuId = "ClangFormat.Menu";
+        Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
+        menu->menu()->setTitle(Tr::tr("&ClangFormat"));
 
-    Core::ActionBuilder formatFile(this, "ClangFormat.FormatFile");
-    formatFile.setText(msgFormatCurrentFile());
-    formatFile.bindContextAction(&m_formatFile);
-    formatFile.setContainer(menuId);
-    formatFile.setOnTriggered(this, [this] { this->formatFile(); });
+        Core::ActionBuilder formatFile(this, "ClangFormat.FormatFile");
+        formatFile.setText(msgFormatCurrentFile());
+        formatFile.bindContextAction(&m_formatFile);
+        formatFile.setContainer(menuId);
+        formatFile.setOnTriggered(this, [this] { this->formatFile(); });
 
-    Core::ActionBuilder formatLines(this, "ClangFormat.FormatLines");
-    formatLines.setText(msgFormatLines());
-    formatLines.bindContextAction(&m_formatLines);
-    formatLines.setContainer(menuId);
-    formatLines.setOnTriggered(this, [this] { this->formatLines(); });
+        Core::ActionBuilder formatLines(this, "ClangFormat.FormatLines");
+        formatLines.setText(msgFormatLines());
+        formatLines.bindContextAction(&m_formatLines);
+        formatLines.setContainer(menuId);
+        formatLines.setOnTriggered(this, [this] { this->formatLines(); });
 
-    Core::ActionBuilder formatAtCursor(this, "ClangFormat.FormatAtCursor");
-    formatAtCursor.setText(msgFormatAtCursor());
-    formatAtCursor.bindContextAction(&m_formatRange);
-    formatAtCursor.setContainer(menuId);
-    formatAtCursor.setOnTriggered(this, [this] { this->formatAtCursor(); });
+        Core::ActionBuilder formatAtCursor(this, "ClangFormat.FormatAtCursor");
+        formatAtCursor.setText(msgFormatAtCursor());
+        formatAtCursor.bindContextAction(&m_formatRange);
+        formatAtCursor.setContainer(menuId);
+        formatAtCursor.setOnTriggered(this, [this] { this->formatAtCursor(); });
 
-    Core::ActionBuilder formatDisable(this, "ClangFormat.DisableFormattingSelectedText");
-    formatDisable.setText(msgDisableFormattingSelectedText());
-    formatDisable.bindContextAction(&m_disableFormattingSelectedText);
-    formatDisable.setContainer(menuId);
-    formatDisable.setOnTriggered(this, [this] { disableFormattingSelectedText(); });
+        Core::ActionBuilder formatDisable(this, "ClangFormat.DisableFormattingSelectedText");
+        formatDisable.setText(msgDisableFormattingSelectedText());
+        formatDisable.bindContextAction(&m_disableFormattingSelectedText);
+        formatDisable.setContainer(menuId);
+        formatDisable.setOnTriggered(this, [this] { disableFormattingSelectedText(); });
 
-    Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
+        Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
-    connect(&settings().supportedMimeTypes, &BaseAspect::changed,
-            this, [this] { updateActions(Core::EditorManager::currentEditor()); });
-}
+        connect(&settings().supportedMimeTypes, &BaseAspect::changed,
+                this, [this] { updateActions(Core::EditorManager::currentEditor()); });
+    }
 
-QString ClangFormat::id() const
-{
-    return "ClangFormat";
-}
+    QString id() const final
+    {
+        return "ClangFormat";
+    }
 
-void ClangFormat::updateActions(Core::IEditor *editor)
-{
-    const bool enabled = editor && settings().isApplicable(editor->document());
-    m_formatFile->setEnabled(enabled);
-    m_formatRange->setEnabled(enabled);
-}
+    void updateActions(Core::IEditor *editor) final
+    {
+        const bool enabled = editor && settings().isApplicable(editor->document());
+        m_formatFile->setEnabled(enabled);
+        m_formatRange->setEnabled(enabled);
+    }
+
+    TextEditor::Command textCommand() const final;
+
+    bool isApplicable(const Core::IDocument *document) const final
+    {
+        return settings().isApplicable(document);
+    }
+
+private:
+    void formatFile();
+    void formatAtPosition(const int pos, const int length);
+    void formatAtCursor();
+    void formatLines();
+    void disableFormattingSelectedText();
+    TextEditor::Command textCommand(int offset, int length) const;
+
+    QAction *m_formatFile = nullptr;
+    QAction *m_formatLines = nullptr;
+    QAction *m_formatRange = nullptr;
+    QAction *m_disableFormattingSelectedText = nullptr;
+};
 
 void ClangFormat::formatFile()
 {
@@ -488,11 +512,6 @@ Command ClangFormat::textCommand() const
     return cmd;
 }
 
-bool ClangFormat::isApplicable(const Core::IDocument *document) const
-{
-    return settings().isApplicable(document);
-}
-
 Command ClangFormat::textCommand(int offset, int length) const
 {
     Command cmd = textCommand();
@@ -500,7 +519,6 @@ Command ClangFormat::textCommand(int offset, int length) const
     cmd.addOption("-length=" + QString::number(length));
     return cmd;
 }
-
 
 // ClangFormatSettingsPage
 
@@ -517,5 +535,10 @@ public:
 };
 
 const ClangFormatSettingsPage settingsPage;
+
+void setupClangFormat()
+{
+    static ClangFormat theClangFormat;
+}
 
 } // Beautifier::Internal

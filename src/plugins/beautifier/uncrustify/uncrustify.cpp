@@ -97,7 +97,7 @@ public:
         read();
     }
 
-    void createDocumentationFile() const override
+    void createDocumentationFile() const final
     {
         Process process;
         process.setTimeoutS(2);
@@ -228,44 +228,67 @@ public:
     }
 };
 
-
 // Uncrustify
 
-Uncrustify::Uncrustify()
+class Uncrustify final : public BeautifierTool
 {
-    const Id menuId = "Uncrustify.Menu";
-    Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
-    menu->menu()->setTitle(Tr::tr("&Uncrustify"));
+public:
+    Uncrustify()
+    {
+        const Id menuId = "Uncrustify.Menu";
+        Core::ActionContainer *menu = Core::ActionManager::createMenu(menuId);
+        menu->menu()->setTitle(Tr::tr("&Uncrustify"));
 
-    Core::ActionBuilder formatFile(this, "Uncrustify.FormatFile");
-    formatFile.setText(msgFormatCurrentFile());
-    formatFile.bindContextAction(&m_formatFile);
-    formatFile.setContainer(menuId);
-    formatFile.setOnTriggered(this, [this] { this->formatFile(); });
+        Core::ActionBuilder formatFile(this, "Uncrustify.FormatFile");
+        formatFile.setText(msgFormatCurrentFile());
+        formatFile.bindContextAction(&m_formatFile);
+        formatFile.setContainer(menuId);
+        formatFile.setOnTriggered(this, [this] { this->formatFile(); });
 
-    Core::ActionBuilder formatRange(this, "Uncrustify.FormatSelectedText");
-    formatRange.setText(msgFormatSelectedText());
-    formatRange.bindContextAction(&m_formatRange);
-    formatRange.setContainer(menuId);
-    formatRange.setOnTriggered(this, [this] { this->formatSelectedText(); });
+        Core::ActionBuilder formatRange(this, "Uncrustify.FormatSelectedText");
+        formatRange.setText(msgFormatSelectedText());
+        formatRange.bindContextAction(&m_formatRange);
+        formatRange.setContainer(menuId);
+        formatRange.setOnTriggered(this, [this] { this->formatSelectedText(); });
 
-    Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
+        Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 
-    connect(&settings().supportedMimeTypes, &Utils::BaseAspect::changed,
-            this, [this] { updateActions(Core::EditorManager::currentEditor()); });
-}
+        connect(&settings().supportedMimeTypes, &Utils::BaseAspect::changed,
+                this, [this] { updateActions(Core::EditorManager::currentEditor()); });
+    }
 
-QString Uncrustify::id() const
-{
-    return "Uncrustify";
-}
+    QString id() const final
+    {
+        return "Uncrustify";
+    }
 
-void Uncrustify::updateActions(Core::IEditor *editor)
-{
-    const bool enabled = editor && settings().isApplicable(editor->document());
-    m_formatFile->setEnabled(enabled);
-    m_formatRange->setEnabled(enabled);
-}
+    void updateActions(Core::IEditor *editor) final
+    {
+        const bool enabled = editor && settings().isApplicable(editor->document());
+        m_formatFile->setEnabled(enabled);
+        m_formatRange->setEnabled(enabled);
+    }
+
+    TextEditor::Command textCommand() const final
+    {
+        const FilePath cfgFile = configurationFile();
+        return cfgFile.isEmpty() ? Command() : textCommand(cfgFile, false);
+    }
+
+    bool isApplicable(const Core::IDocument *document) const final
+    {
+        return settings().isApplicable(document);
+    }
+
+private:
+    void formatFile();
+    void formatSelectedText();
+    Utils::FilePath configurationFile() const;
+    TextEditor::Command textCommand(const Utils::FilePath &cfgFile, bool fragment = false) const;
+
+    QAction *m_formatFile = nullptr;
+    QAction *m_formatRange = nullptr;
+};
 
 void Uncrustify::formatFile()
 {
@@ -338,17 +361,6 @@ FilePath Uncrustify::configurationFile() const
     return {};
 }
 
-Command Uncrustify::textCommand() const
-{
-    const FilePath cfgFile = configurationFile();
-    return cfgFile.isEmpty() ? Command() : textCommand(cfgFile, false);
-}
-
-bool Uncrustify::isApplicable(const Core::IDocument *document) const
-{
-    return settings().isApplicable(document);
-}
-
 Command Uncrustify::textCommand(const FilePath &cfgFile, bool fragment) const
 {
     Command cmd;
@@ -386,5 +398,10 @@ public:
 };
 
 const UncrustifySettingsPage settingsPage;
+
+void setupUncrustify()
+{
+    static Uncrustify theUncrustify;
+}
 
 } // Beautifier::Internal
