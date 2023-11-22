@@ -1040,13 +1040,17 @@ static void setupTest(QString *title, FakeVimHandler **handler, QWidget **edit)
     (*handler)->handleCommand("set iskeyword=@,48-57,_,192-255,a-z,A-Z");
 }
 
+#ifdef WITH_TESTS
 QObject *createFakeVimTester( void (*setupTest)(QString *, FakeVimHandler **, QWidget **) ); // in fakevim_test.cpp
+#endif
 
 FakeVimPlugin::FakeVimPlugin()
 {
     dd = this;
 
+#ifdef WITH_TESTS
     addTestCreator([] { return createFakeVimTester(&setupTest); });
+#endif
 
     m_defaultExCommandMap[CppEditor::Constants::SWITCH_HEADER_SOURCE] =
         QRegularExpression("^A$");
