@@ -546,7 +546,6 @@ public:
     QMenu *m_openWithMenu;
     QMenu *m_openTerminalMenu;
 
-    QMultiMap<int, QObject*> m_actionMap;
     QAction *m_newAction;
     QAction *m_loadAction;
     ParameterAction *m_unloadAction;
