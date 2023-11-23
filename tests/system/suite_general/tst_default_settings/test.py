@@ -156,6 +156,9 @@ def __qtFunc__(it, foundQt, qmakePath):
 
 def __kitFunc__(it, foundQt, foundCompNames):
     global currentSelectedTreeItem, warningOrError
+    if 'Python' in it: # skip Python kits
+        return
+
     qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
     # The following may fail if Creator doesn't find a Qt version in PATH. It will then create one
     # Qt-less kit for each available toolchain instead of just one default Desktop kit.

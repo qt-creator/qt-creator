@@ -334,7 +334,10 @@ def __checkParentAccess__(filePath):
 def getConfiguredKits():
     def __setQtVersionForKit__(kit, kitName, kitsQtVersionName):
         mouseClick(waitForObjectItem(":BuildAndRun_QTreeView", kit))
-        qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
+        if "Python" in kitName:
+            qtVersionStr = __PYKIT__
+        else:
+            qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
         invalid = qtVersionStr.endswith(" (invalid)")
         if invalid:
             qtVersionStr = qtVersionStr[:-10]
@@ -351,7 +354,7 @@ def getConfiguredKits():
     for kit, qtVersion in kitsWithQtVersionName.items():
         if qtVersion in qtVersionNames:
             result.append(kit)
-        else:
+        elif qtVersion != __PYKIT__: # ignore e.g. Python kits
             test.fail("Qt version '%s' for kit '%s' can't be found in qtVersionNames."
                       % (qtVersion, kit))
     clickButton(waitForObject(":Options.Cancel_QPushButton"))
