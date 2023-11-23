@@ -368,6 +368,54 @@
     \inlineimage icons/particles-seek.png
     to manually seek forward or backward in the particle animation.
 
+    \section1 Using Viewport Shading
+
+    Use \uicontrol {Viewport Shading} to change the rendering of the materials to only
+    reflect a particular aspect of the overall rendering process. Use shading also as a
+    debugging tool to understand why a material looks the way it does. In split view,
+    view the scene using different shading properties in each split.
+
+    To use the \uicontrol {Viewport Shading}, right-click the \uicontrol 3D view to open the
+    context menu, select \uicontrol {Viewport Shading} and then select \uicontrol Wireframe,
+    one of the material properties, or \uicontrol{Reset All Viewports}.
+
+    Select \uicontrol Wireframe to only show the edges of the objects in the scene.
+
+    Select one of the material properties available for shading:
+    \table
+        \header
+            \li Property
+            \li Description
+        \row
+            \li Base Color
+            \li Shows only the base color of a material passed through without any lighting.
+        \row
+            \li Roughness
+            \li Shows only the roughness of a material passed through as an unlit greyscale
+                value.
+        \row
+            \li Metalness
+            \li Shows only the metalness of a material passed through as an unlit greyscale
+                value.
+        \row
+            \li Normals
+            \li Shows only the interpolated world space normal value of the material mapped
+                to an RGB color.
+        \row
+            \li Ambient Occlusion
+            \li Shows only the ambient occlusion of the material.
+        \row
+            \li Diffuse
+            \li Shows only the diffuse contribution of the material after all lighting.
+        \row
+            \li Specular
+            \li Shows only the specular contribution of the material after all
+                lighting.
+    \endtable
+
+    Select \uicontrol{Reset All Viewports} to reset the shading of the scene in all of the
+    splits.
+
     \section1 Summary of the 3D View Toolbar Buttons
 
     The \uicontrol{3D} view toolbar contains the following buttons:
