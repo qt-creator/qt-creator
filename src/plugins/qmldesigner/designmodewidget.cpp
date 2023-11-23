@@ -463,6 +463,7 @@ void DesignModeWidget::setup()
             this,
             [this](Utils::Id mode, Utils::Id previousMode) {
                 if (mode == Core::Constants::MODE_DESIGN) {
+                    m_dockManager->aboutToShow();
                     m_dockManager->reloadActiveWorkspace();
                     m_dockManager->setModeChangeState(false);
                 }

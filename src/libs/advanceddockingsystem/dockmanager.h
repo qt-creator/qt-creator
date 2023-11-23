@@ -733,6 +733,13 @@ public:
     static QString readDisplayName(const Utils::FilePath &filePath);
     static bool writeDisplayName(const Utils::FilePath &filePath, const QString &displayName);
 
+    /**
+     * This is used to limit saving of workspaces to only when they were actually presented ones,
+     * otherwise it could lead to distorted workspace due to the correct windows sizes not being
+     * set when never presented/rendered.
+     */
+    void aboutToShow();
+
 signals:
     void aboutToUnloadWorkspace(QString fileName);
     void aboutToLoadWorkspace(QString fileName);

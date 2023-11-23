@@ -94,6 +94,7 @@ public:
 
     QtcSettings *m_settings = nullptr;
     bool m_modeChangeState = false;
+    bool m_wasShown = false;
     bool m_workspaceOrderDirty = false;
 
     /**
@@ -364,8 +365,10 @@ DockManager::DockManager(QWidget *parent)
 
 DockManager::~DockManager()
 {
-    emit aboutToUnloadWorkspace(d->m_workspace.fileName());
-    save();
+    if (d->m_wasShown) {
+        emit aboutToUnloadWorkspace(d->m_workspace.fileName());
+        save();
+    }
     saveStartupWorkspace();
     saveLockWorkspace();
 
@@ -1322,6 +1325,11 @@ void DockManager::setModeChangeState(bool value)
 bool DockManager::isModeChangeState() const
 {
     return d->m_modeChangeState;
+}
+
+void DockManager::aboutToShow()
+{
+    d->m_wasShown = true;
 }
 
 expected_str<QString> DockManager::importWorkspace(const QString &filePath)
