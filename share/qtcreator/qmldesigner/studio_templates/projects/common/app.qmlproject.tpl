@@ -64,6 +64,10 @@ Project {
     }
 
     Files {
+        filter: "*.json"
+    }
+
+    Files {
         filter: "*.mesh"
         directory: "asset_imports"
     }

@@ -368,14 +368,6 @@
                     "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/Constants.qml"
                 },
                 {
-                    "source": "../shared-plugin/name/DataStore.json.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DataStore.json"
-                },
-                {
-                    "source": "../shared-plugin/name/DataStore.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DataStore.qml"
-                },
-                {
                     "source": "../shared-plugin/name/DirectoryFontLoader.qml.tpl",
                     "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DirectoryFontLoader.qml"
                 },
@@ -390,6 +382,22 @@
                 {
                     "source": "../shared-plugin/name/designer/plugin.metainfo",
                     "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/designer/plugin.metainfo"
+                },
+                {
+                    "source": "../shared-plugin/name/JsonData.qml",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/JsonData.qml"
+                },
+                {
+                    "source": "../shared-plugin/name/DataStore.qml",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/DataStore.qml"
+                },
+                {
+                    "source": "../shared-plugin/name/models.json",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/models.json"
+                },
+                {
+                    "source": "../shared-plugin/name/data.json",
+                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/data.json"
                 }
             ]
         }
