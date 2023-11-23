@@ -151,6 +151,7 @@ private:
                    QVector<ExtensionSystem::PluginSpec *> &circularityCheckQueue);
     void stopAll();
     void deleteAll();
+    void checkForDuplicatePlugins();
 
 #ifdef WITH_TESTS
     void startTests();

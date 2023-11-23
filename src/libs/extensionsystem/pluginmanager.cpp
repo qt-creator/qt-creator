@@ -1058,6 +1058,27 @@ void PluginManagerPrivate::deleteAll()
     });
 }
 
+void PluginManagerPrivate::checkForDuplicatePlugins()
+{
+    QHash<QString, PluginSpec *> seen;
+    for (PluginSpec *spec : pluginSpecs) {
+        if (PluginSpec *other = seen.value(spec->name())) {
+            // Plugin with same name already there. We do not know, which version is the right one,
+            // keep it simple and fail both (if enabled).
+            if (spec->isEffectivelyEnabled() && other->isEffectivelyEnabled()) {
+                const QString error = Tr::tr(
+                    "Multiple versions of the same plugin have been found.");
+                spec->d->hasError = true;
+                spec->d->errorString = error;
+                other->d->hasError = true;
+                other->d->errorString = error;
+            }
+        } else {
+            seen.insert(spec->name(), spec);
+        }
+    }
+}
+
 #ifdef WITH_TESTS
 
 using TestPlan = QMap<QObject *, QStringList>; // Object -> selected test functions
@@ -1766,6 +1787,7 @@ void PluginManagerPrivate::readPluginPaths()
     }
     resolveDependencies();
     enableDependenciesIndirectly();
+    checkForDuplicatePlugins();
     // ensure deterministic plugin load order by sorting
     Utils::sort(pluginSpecs, &PluginSpec::name);
     emit q->pluginsChanged();
