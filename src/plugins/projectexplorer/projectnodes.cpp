@@ -677,28 +677,31 @@ void FolderNode::addNestedNodes(std::vector<std::unique_ptr<FileNode> > &&files,
 // files.
 void FolderNode::compress()
 {
-    if (auto subFolder = m_nodes.size() == 1 ? m_nodes.at(0)->asFolderNode() : nullptr) {
-        const bool sameType = (isFolderNodeType() && subFolder->isFolderNodeType())
-                || (isProjectNodeType() && subFolder->isProjectNodeType())
-                || (isVirtualFolderType() && subFolder->isVirtualFolderType());
-        if (!sameType)
-            return;
+    // Child nodes need to be compressed first.
+    forEachFolderNode([&](FolderNode *fn) { fn->compress(); });
 
-        // Only one subfolder: Compress!
-        setDisplayName(QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName()));
-        for (Node *n : subFolder->nodes()) {
-            std::unique_ptr<Node> toMove = subFolder->takeNode(n);
-            toMove->setParentFolderNode(nullptr);
-            addNode(std::move(toMove));
-        }
-        setAbsoluteFilePathAndLine(subFolder->filePath(), -1);
+    // There must be exactly one child node, which has to be of the same type as this node.
+    if (m_nodes.size() != 1)
+        return;
+    const auto subFolder = m_nodes.front()->asFolderNode();
+    if (!subFolder)
+        return;
+    const bool sameType = (isFolderNodeType() && subFolder->isFolderNodeType())
+                          || (isProjectNodeType() && subFolder->isProjectNodeType())
+                          || (isVirtualFolderType() && subFolder->isVirtualFolderType());
+    if (!sameType)
+        return;
 
-        takeNode(subFolder);
-
-        compress();
-    } else {
-        forEachFolderNode([&](FolderNode *fn) { fn->compress(); });
+    // Now do the compression by moving the child node's children into this node
+    // and removing the child node.
+    for (Node *n : subFolder->nodes()) {
+        std::unique_ptr<Node> toMove = subFolder->takeNode(n);
+        toMove->setParentFolderNode(nullptr);
+        addNode(std::move(toMove));
     }
+    setDisplayName(QDir::toNativeSeparators(displayName() + "/" + subFolder->displayName()));
+    setAbsoluteFilePathAndLine(subFolder->filePath(), -1);
+    takeNode(subFolder);
 }
 
 bool FolderNode::replaceSubtree(Node *oldNode, std::unique_ptr<Node> &&newNode)
