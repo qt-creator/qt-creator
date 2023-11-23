@@ -122,22 +122,7 @@ void PluginDialog::openDetails(ExtensionSystem::PluginSpec *spec)
 {
     if (!spec)
         return;
-    QDialog dialog(this);
-    dialog.setWindowTitle(Tr::tr("Plugin Details of %1").arg(spec->name()));
-    auto details = new ExtensionSystem::PluginDetailsView(&dialog);
-    details->update(spec);
-    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close, Qt::Horizontal, &dialog);
-
-    using namespace Layouting;
-    Column {
-        details,
-        buttons,
-    }.attachTo(&dialog);
-
-    connect(buttons, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
-    connect(buttons, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
-    dialog.resize(400, 500);
-    dialog.exec();
+    PluginDetailsView::showModal(this, spec);
 }
 
 void PluginDialog::openErrorDetails()

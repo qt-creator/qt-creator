@@ -11,6 +11,8 @@
 #include <utils/layoutbuilder.h>
 
 #include <QCoreApplication>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QLabel>
 #include <QListWidget>
@@ -155,4 +157,30 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->license->setText(spec->license());
     d->dependencies->addItems(Utils::transform<QList>(spec->dependencies(),
                                                       &PluginDependency::toString));
+}
+
+void PluginDetailsView::showModal(QWidget *parent, PluginSpec *spec)
+{
+    auto dialog = new QDialog(parent);
+    dialog->setModal(true);
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle(Tr::tr("Plugin Details of %1").arg(spec->name()));
+    auto details = new ExtensionSystem::PluginDetailsView(dialog);
+    details->update(spec);
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close,
+                                                     Qt::Horizontal,
+                                                     dialog);
+
+    // clang-format off
+    using namespace Layouting;
+    Column {
+        details,
+        buttons,
+    }.attachTo(dialog);
+    // clang-format on
+
+    connect(buttons, &QDialogButtonBox::accepted, dialog, &QDialog::accept);
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    dialog->resize(400, 500);
+    dialog->show();
 }

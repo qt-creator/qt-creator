@@ -4,6 +4,7 @@
 #include "pluginerroroverview.h"
 
 #include "extensionsystemtr.h"
+#include "plugindetailsview.h"
 #include "pluginmanager.h"
 #include "pluginspec.h"
 
@@ -13,6 +14,7 @@
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QListWidget>
+#include <QPushButton>
 #include <QTextEdit>
 
 Q_DECLARE_METATYPE(ExtensionSystem::PluginSpec *)
@@ -24,6 +26,13 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent)
 {
     QListWidget *pluginList = new QListWidget(this);
 
+    const auto showPluginDetails = [this, pluginList](QListWidgetItem *item) {
+        QTC_ASSERT(item, return);
+        auto spec = item->data(Qt::UserRole).value<PluginSpec *>();
+        QTC_ASSERT(spec, return);
+        PluginDetailsView::showModal(this, spec);
+    };
+
     QTextEdit *pluginError = new QTextEdit(this);
     pluginError->setReadOnly(true);
 
@@ -32,8 +41,17 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent)
     buttonBox->setStandardButtons(QDialogButtonBox::NoButton);
     buttonBox->addButton(Tr::tr("Continue"), QDialogButtonBox::AcceptRole);
 
-    connect(pluginList, &QListWidget::currentItemChanged,
-            this, [pluginError](QListWidgetItem *item) {
+    QPushButton *detailsButton = buttonBox->addButton(Tr::tr("Details"), QDialogButtonBox::HelpRole);
+    connect(detailsButton, &QPushButton::clicked, this, [pluginList, showPluginDetails] {
+        QListWidgetItem *item = pluginList->currentItem();
+        showPluginDetails(item);
+    });
+    connect(pluginList,
+            &QListWidget::itemDoubleClicked,
+            this,
+            [showPluginDetails](QListWidgetItem *item) { showPluginDetails(item); });
+
+    connect(pluginList, &QListWidget::currentItemChanged, this, [pluginError](QListWidgetItem *item) {
         if (item)
             pluginError->setText(item->data(Qt::UserRole).value<PluginSpec *>()->errorString());
         else
