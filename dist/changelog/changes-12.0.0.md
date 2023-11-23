@@ -371,6 +371,7 @@ Credits for these changes go to:
 --------------------------------
 Aleksei German  
 Alessandro Portale  
+Alexandre Laurent  
 Ali Kianian  
 Amr Essam  
 Andre Hartmann  
@@ -393,6 +394,7 @@ Johanna Vanhatapio
 Johnny Jazeix  
 Jonas Karlsson  
 Jussi Witick  
+Karim Abdelrahman  
 Knud Dollereder  
 Leena Miettinen  
 Ludovic Le Brun  
@@ -402,6 +404,7 @@ Marcus Tillmanns
 Mats Honkamaa  
 Mehdi Salem  
 Miikka Heikkinen  
+Mike Chen  
 Olivier De Cannière  
 Olivier Delaune  
 Orgad Shaneh  
