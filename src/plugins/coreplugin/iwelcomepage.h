@@ -57,7 +57,7 @@ public:
         SizeLarge,
     };
 
-    WelcomePageButton(QWidget *parent);
+    explicit WelcomePageButton(QWidget *parent = nullptr);
     ~WelcomePageButton() override;
 
     void mousePressEvent(QMouseEvent *) override;

@@ -42,7 +42,7 @@ CORE_EXPORT QWidget *panelBar(QWidget *parent = nullptr);
 class CORE_EXPORT SearchBox : public WelcomePageFrame
 {
 public:
-    explicit SearchBox(QWidget *parent);
+    explicit SearchBox(QWidget *parent = nullptr);
 
     Utils::FancyLineEdit *m_lineEdit = nullptr;
 };
