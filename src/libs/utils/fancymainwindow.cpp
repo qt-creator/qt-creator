@@ -54,6 +54,7 @@ public:
     FancyMainWindow *q;
 
     QWidget *m_hiddenInnerWidget = nullptr;
+    int m_hiddenInnerWidgetHeight = 0;
 
 private:
     QPoint m_startPos;
@@ -135,19 +136,10 @@ public:
 
         m_collapseButton = new DockWidgetTitleButton(this);
         updateCollapse();
-        connect(m_collapseButton, &DockWidgetTitleButton::clicked, this, [this] {
-            if (supportsCollapse()) {
-                if (!q->m_hiddenInnerWidget) {
-                    q->m_hiddenInnerWidget = q->widget();
-                    auto w = new QWidget;
-                    w->setMaximumHeight(0);
-                    q->setWidget(w);
-                } else {
-                    ensureWidgetShown();
-                }
-            }
-            updateCollapse();
-        });
+        connect(m_collapseButton,
+                &DockWidgetTitleButton::clicked,
+                this,
+                &TitleBarWidget::toggleCollapse);
         connect(q->q, &FancyMainWindow::dockWidgetsChanged, this, &TitleBarWidget::updateCollapse);
 
         m_floatButton = new DockWidgetTitleButton(this);
@@ -225,6 +217,13 @@ public:
                         : QSize(titleMinWidth, titleInactiveHeight);
     }
 
+    QList<QDockWidget *> docksInArea() const
+    {
+        return filtered(q->q->dockWidgets(), [this, area = q->q->dockWidgetArea(q)](QDockWidget *w) {
+            return w->isVisible() && q->q->dockWidgetArea(w) == area;
+        });
+    }
+
     bool supportsCollapse() const
     {
         // not if floating
@@ -235,17 +234,37 @@ public:
                  return w->isVisible();
              }).isEmpty())
             return false;
-        const QList<QDockWidget *> docksInArea
-            = filtered(q->q->dockWidgets(), [this, area = q->q->dockWidgetArea(q)](QDockWidget *w) {
-                  return w != q && w->isVisible() && q->q->dockWidgetArea(w) == area;
-              });
+        const QList<QDockWidget *> inArea = docksInArea();
         // not if only dock in area
-        if (docksInArea.isEmpty())
+        if (inArea.size() <= 1)
             return false;
         // not if in horizontal layout
-        if (anyOf(docksInArea, [y = q->y()](QDockWidget *w) { return w->y() == y; }))
+        // - This is just a workaround. There could be two columns and a dock widget in the other
+        //   column at the same height as this one. In that case we wrongly return false here.
+        if (anyOf(inArea, [this, y = q->y()](QDockWidget *w) { return w->y() == y && w != q; }))
             return false;
         return true;
+    }
+
+    struct DocksAndSizes
+    {
+        QList<QDockWidget *> docks;
+        QList<int> sizes;
+    };
+
+    DocksAndSizes verticallyArrangedDocks() const
+    {
+        DocksAndSizes result;
+        const QList<QDockWidget *> inArea = docksInArea();
+        // This is just a workaround. There could be two rows and a dock widget in the other row
+        // exactly below this one. In that case we include widgets here that are not in a
+        // vertical layout together.
+        result.docks = filtered(inArea, [this](QDockWidget *w) {
+            return w->x() == q->x() && w->width() == q->width();
+        });
+        Utils::sort(result.docks, [](QDockWidget *a, QDockWidget *b) { return a->y() < b->y(); });
+        result.sizes = transform(result.docks, [](QDockWidget *w) { return w->height(); });
+        return result;
     }
 
     void ensureWidgetShown()
@@ -255,6 +274,60 @@ public:
             q->setWidget(q->m_hiddenInnerWidget);
             q->m_hiddenInnerWidget = nullptr;
         }
+    }
+
+    void toggleCollapse()
+    {
+        if (supportsCollapse()) {
+            // save dock widget sizes before the change
+            DocksAndSizes verticalDocks = verticallyArrangedDocks();
+            if (!q->m_hiddenInnerWidget) {
+                q->m_hiddenInnerWidgetHeight = q->height() - sizeHint().height();
+                q->m_hiddenInnerWidget = q->widget();
+                auto w = new QWidget;
+                w->setMaximumHeight(0);
+                q->setWidget(w);
+
+                if (verticalDocks.docks.size() > 1) { // not only this dock
+                    // fixup dock sizes, so the dock below this one gets the space if possible
+                    const int selfIndex = indexOf(verticalDocks.docks,
+                                                  [this](QDockWidget *w) { return w == q; });
+                    if (QTC_GUARD(0 <= selfIndex && selfIndex < verticalDocks.docks.size())) {
+                        verticalDocks.sizes[selfIndex] = sizeHint().height();
+                        if (selfIndex + 1 < verticalDocks.sizes.size())
+                            verticalDocks.sizes[selfIndex + 1] += q->m_hiddenInnerWidgetHeight;
+                        else
+                            verticalDocks.sizes[selfIndex - 1] += q->m_hiddenInnerWidgetHeight;
+                        q->q->resizeDocks(verticalDocks.docks, verticalDocks.sizes, Qt::Vertical);
+                    }
+                }
+            } else {
+                ensureWidgetShown();
+
+                if (verticalDocks.docks.size() > 1) { // not only this dock
+                    // steal space from dock below if possible
+                    const int selfIndex = indexOf(verticalDocks.docks,
+                                                  [this](QDockWidget *w) { return w == q; });
+                    if (QTC_GUARD(0 <= selfIndex && selfIndex < verticalDocks.docks.size())) {
+                        verticalDocks.sizes[selfIndex] = sizeHint().height()
+                                                         + q->m_hiddenInnerWidgetHeight;
+                        if (selfIndex + 1 < verticalDocks.sizes.size()) {
+                            verticalDocks.sizes[selfIndex + 1]
+                                = std::max(1,
+                                           verticalDocks.sizes[selfIndex + 1]
+                                               - q->m_hiddenInnerWidgetHeight);
+                        } else {
+                            verticalDocks.sizes[selfIndex - 1]
+                                = std::max(1,
+                                           verticalDocks.sizes[selfIndex - 1]
+                                               - q->m_hiddenInnerWidgetHeight);
+                        }
+                        q->q->resizeDocks(verticalDocks.docks, verticalDocks.sizes, Qt::Vertical);
+                    }
+                }
+            }
+        }
+        updateCollapse();
     }
 
     void updateCollapse()
