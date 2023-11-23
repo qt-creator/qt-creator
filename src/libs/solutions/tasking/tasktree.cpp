@@ -2992,7 +2992,7 @@ struct TimerThreadData
 
     TimerThreadData() = default; // defult constructor is required for initializing with {} since C++20 by Mingw 11.20
     QHash<int, TimerData> m_timerIdToTimerData = {};
-    QMultiMap<system_clock::time_point, int> m_deadlineToTimerId = {};
+    QMap<system_clock::time_point, QList<int>> m_deadlineToTimerId = {};
     int m_timerIdCounter = 0;
 };
 
@@ -3008,8 +3008,11 @@ static void removeTimerId(int timerId)
     const system_clock::time_point deadline = it->m_deadline;
     s_threadTimerData.m_timerIdToTimerData.erase(it);
 
-    const int removedCount = s_threadTimerData.m_deadlineToTimerId.remove(deadline, timerId);
+    QList<int> &ids = s_threadTimerData.m_deadlineToTimerId[deadline];
+    const int removedCount = ids.removeAll(timerId);
     QT_ASSERT(removedCount == 1, qWarning("Removing active timerId failed."); return);
+    if (ids.isEmpty())
+        s_threadTimerData.m_deadlineToTimerId.remove(deadline);
 }
 
 static void handleTimeout(int timerId)
@@ -3020,26 +3023,34 @@ static void handleTimeout(int timerId)
 
     const auto deadline = itData->m_deadline;
     while (true) {
-        const auto itMap = s_threadTimerData.m_deadlineToTimerId.cbegin();
-        if (itMap == s_threadTimerData.m_deadlineToTimerId.cend())
+        auto itMap = s_threadTimerData.m_deadlineToTimerId.begin();
+        if (itMap == s_threadTimerData.m_deadlineToTimerId.end())
             return;
 
         if (itMap.key() > deadline)
             return;
 
-        const auto it = s_threadTimerData.m_timerIdToTimerData.constFind(itMap.value());
-        if (it == s_threadTimerData.m_timerIdToTimerData.cend()) {
-            s_threadTimerData.m_deadlineToTimerId.erase(itMap);
+        std::optional<TimerData> timerData;
+        QList<int> &idList = *itMap;
+        if (!idList.isEmpty()) {
+            const int first = idList.first();
+            idList.removeFirst();
+
+            const auto it = s_threadTimerData.m_timerIdToTimerData.constFind(first);
+            if (it != s_threadTimerData.m_timerIdToTimerData.cend()) {
+                timerData = it.value();
+                s_threadTimerData.m_timerIdToTimerData.erase(it);
+            } else {
+                QT_CHECK(false);
+            }
+        } else {
             QT_CHECK(false);
-            return;
         }
 
-        const TimerData timerData = it.value();
-        s_threadTimerData.m_timerIdToTimerData.erase(it);
-        s_threadTimerData.m_deadlineToTimerId.erase(itMap);
-
-        if (timerData.m_context)
-            timerData.m_callback();
+        if (idList.isEmpty())
+            s_threadTimerData.m_deadlineToTimerId.erase(itMap);
+        if (timerData && timerData->m_context)
+            timerData->m_callback();
     }
 }
 
@@ -3049,7 +3060,7 @@ static int scheduleTimeout(milliseconds timeout, QObject *context, const Timeout
     const system_clock::time_point deadline = system_clock::now() + timeout;
     QTimer::singleShot(timeout, context, [timerId] { handleTimeout(timerId); });
     s_threadTimerData.m_timerIdToTimerData.emplace(timerId, TimerData{deadline, context, callback});
-    s_threadTimerData.m_deadlineToTimerId.insert(deadline, timerId);
+    s_threadTimerData.m_deadlineToTimerId[deadline].append(timerId);
     return timerId;
 }
 
