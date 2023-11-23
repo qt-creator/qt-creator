@@ -8,11 +8,16 @@
 #include "collectioneditorutils.h"
 #include "collectionsourcemodel.h"
 #include "collectionwidget.h"
+#include "datastoremodelnode.h"
 #include "designmodecontext.h"
 #include "nodeabstractproperty.h"
 #include "nodemetainfo.h"
 #include "qmldesignerplugin.h"
 #include "variantproperty.h"
+
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -37,7 +42,15 @@ namespace QmlDesigner {
 
 CollectionView::CollectionView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
-{}
+    , m_dataStore(std::make_unique<DataStoreModelNode>())
+
+{
+    connect(ProjectExplorer::ProjectManager::instance(),
+            &ProjectExplorer::ProjectManager::startupProjectChanged,
+            this,
+            &CollectionView::resetDataStoreNode);
+    resetDataStoreNode();
+}
 
 bool CollectionView::hasWidget() const
 {
@@ -59,6 +72,19 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
                 [this](const ModelNode &sourceNode, const QString &collection) {
                     m_widget->collectionDetailsModel()->loadCollection(sourceNode, collection);
                 });
+
+        connect(sourceModel, &CollectionSourceModel::isEmptyChanged, this, [this](bool isEmpty) {
+            if (isEmpty)
+                m_widget->collectionDetailsModel()->loadCollection({}, {});
+        });
+
+        connect(sourceModel,
+                &CollectionSourceModel::collectionNamesChanged,
+                this,
+                [this](const ModelNode &sourceNode, const QStringList &collectionNames) {
+                    if (sourceNode == m_dataStore->modelNode())
+                        m_dataStore->setCollectionNames(collectionNames);
+                });
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -72,7 +98,7 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
 void CollectionView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
-    refreshModel();
+    resetDataStoreNode();
 }
 
 void CollectionView::nodeReparented(const ModelNode &node,
@@ -179,16 +205,23 @@ void CollectionView::registerDeclarativeType()
     CollectionJsonSourceFilterModel::registerDeclarativeType();
 }
 
+void CollectionView::resetDataStoreNode()
+{
+    m_dataStore->reloadModel();
+    refreshModel();
+}
+
 void CollectionView::refreshModel()
 {
     if (!model())
         return;
 
     // Load Model Groups
-    const ModelNodes collectionSourceNodes = rootModelNode().subModelNodesOfType(
-                                                 jsonCollectionMetaInfo())
-                                             + rootModelNode().subModelNodesOfType(
-                                                 csvCollectionMetaInfo());
+    ModelNodes collectionSourceNodes;
+
+    if (ModelNode dataStore = m_dataStore->modelNode())
+        collectionSourceNodes << dataStore;
+
     m_widget->sourceModel()->setSources(collectionSourceNodes);
 }
 

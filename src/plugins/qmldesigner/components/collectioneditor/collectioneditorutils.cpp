@@ -14,6 +14,10 @@
 
 #include <utils/qtcassert.h>
 
+#include <projectexplorer/project.h>
+#include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
+
 #include <QColor>
 #include <QJsonArray>
 #include <QJsonObject>
@@ -127,16 +131,21 @@ bool canAcceptCollectionAsModel(const ModelNode &node)
            && modelProperty.propertyType().isVariant();
 }
 
-QString getSourceCollectionPath(const ModelNode &node)
+QString getSourceCollectionPath(const ModelNode &dataStoreNode)
 {
-    QUrl nodeSource = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toUrl();
-    QString sourcePath = nodeSource.isLocalFile() ? nodeSource.toLocalFile() : nodeSource.toString();
-    return QmlDesignerPlugin::instance()
-        ->currentDesignDocument()
-        ->fileName()
-        .parentDir()
-        .resolvePath(sourcePath)
-        .toFSPathString();
+    using Utils::FilePath;
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::startupProject();
+
+    if (!currentProject || !dataStoreNode.isValid())
+        return {};
+
+    const FilePath expectedFile = currentProject->projectDirectory().pathAppended(
+        "/imports/" + currentProject->displayName() + "/DataStore.json");
+
+    if (expectedFile.exists())
+        return expectedFile.toFSPathString();
+
+    return {};
 }
 
 QJsonArray defaultCollectionArray()

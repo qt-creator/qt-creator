@@ -83,8 +83,8 @@ QVariant CollectionSourceModel::data(const QModelIndex &index, int role) const
     const ModelNode *collectionSource = &m_collectionSources.at(index.row());
 
     switch (role) {
-    case NameRole:
-        return collectionSource->variantProperty("objectName").value();
+    case NameRole: // Not used, to be removed
+        return collectionSource->variantProperty("objectName").value().toString();
     case NodeRole:
         return QVariant::fromValue(*collectionSource);
     case CollectionTypeRole:
@@ -634,7 +634,8 @@ void CollectionSourceModel::updateCollectionList(QModelIndex index)
     QSharedPointer<CollectionListModel> newList = loadCollection(sourceNode, currentList);
     if (currentList != newList) {
         m_collectionList.replace(index.row(), newList);
-        emit this->dataChanged(index, index, {CollectionsRole});
+        emit dataChanged(index, index, {CollectionsRole});
+        emit collectionNamesChanged(sourceNode, newList->stringList());
     }
 }
 
@@ -657,6 +658,9 @@ void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionLi
             this,
             &CollectionSourceModel::onCollectionsRemoved,
             Qt::UniqueConnection);
+
+    if (collection.data() && collection->sourceNode())
+        emit collectionNamesChanged(collection->sourceNode(), collection->stringList());
 }
 
 QModelIndex CollectionSourceModel::indexOfNode(const ModelNode &node) const

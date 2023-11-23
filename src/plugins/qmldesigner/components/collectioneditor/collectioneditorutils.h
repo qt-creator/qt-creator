@@ -18,7 +18,7 @@ SourceFormat getSourceCollectionFormat(const QmlDesigner::ModelNode &node);
 
 QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
 
-QString getSourceCollectionPath(const QmlDesigner::ModelNode &node);
+QString getSourceCollectionPath(const QmlDesigner::ModelNode &dataStoreNode);
 
 void assignCollectionSourceToNode(AbstractView *view,
                                   const ModelNode &modelNode,
