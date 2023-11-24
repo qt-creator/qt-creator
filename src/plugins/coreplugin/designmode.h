@@ -44,6 +44,8 @@ private:
     void currentEditorChanged(IEditor *editor);
     void updateContext(Utils::Id newMode, Utils::Id oldMode);
     void setActiveContext(const Context &context);
+
+    Utils::FancyMainWindow *mainWindow() override;
 };
 
 } // namespace Core

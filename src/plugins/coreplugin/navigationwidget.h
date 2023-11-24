@@ -86,7 +86,7 @@ public:
     int storedWidth();
 
     // Called from the place holders
-    void placeHolderChanged(NavigationWidgetPlaceHolder *holder);
+    void placeHolderChanged();
 
     QHash<Utils::Id, Command *> commandMap() const;
     QAbstractItemModel *factoryModel() const;
@@ -96,7 +96,11 @@ protected:
 
 private:
     void closeSubWidget(Internal::NavigationSubWidget *subWidget);
-    void updateToggleText();
+    bool toggleActionVisible() const;
+    bool toggleActionEnabled() const;
+    bool toggleActionChecked() const;
+    void updateMode();
+    void updateToggleAction();
     Internal::NavigationSubWidget *insertSubItem(int position,
                                                  int factoryIndex,
                                                  bool updateActivationsMap = true);

@@ -26,6 +26,7 @@ public:
      * which will then be used as key for QSettings. */
     QDockWidget *addDockForWidget(QWidget *widget, bool immutable = false);
     const QList<QDockWidget *> dockWidgets() const;
+    QList<QDockWidget *> docksInArea(Qt::DockWidgetArea area) const;
 
     void setTrackingEnabled(bool enabled);
 
@@ -43,6 +44,10 @@ public:
 
     bool isCentralWidgetShown() const;
     void showCentralWidget(bool on);
+
+    void setDockAreaVisible(Qt::DockWidgetArea area, bool visible);
+    bool isDockAreaVisible(Qt::DockWidgetArea area) const;
+    bool isDockAreaAvailable(Qt::DockWidgetArea area) const;
 
 signals:
     // Emitted by resetLayoutAction(). Connect to a slot

@@ -1343,8 +1343,7 @@ NavigationWidget *ICorePrivate::navigationWidget(Side side) const
 
 void ICorePrivate::setSidebarVisible(bool visible, Side side)
 {
-    if (NavigationWidgetPlaceHolder::current(side))
-        navigationWidget(side)->setShown(visible);
+    navigationWidget(side)->setShown(visible);
 }
 
 ICorePrivate::~ICorePrivate()

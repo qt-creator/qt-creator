@@ -33,6 +33,8 @@
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
 
+#include <aggregation/aggregate.h>
+
 #include <QDesignerFormEditorPluginInterface>
 #include <QDesignerFormEditorInterface>
 #include <QDesignerComponents>
@@ -405,6 +407,10 @@ void FormEditorData::fullInit()
 
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName("DesignerModeWidget");
+    // make the editor widget (the dockable widget) accessible via the mode widget
+    auto agg = new Aggregation::Aggregate;
+    agg->add(m_modeWidget);
+    agg->add(m_editorWidget);
     auto layout = new QVBoxLayout(m_modeWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);

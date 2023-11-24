@@ -10,6 +10,10 @@
 #include <QIcon>
 #include <QMenu>
 
+namespace Utils {
+class FancyMainWindow;
+}
+
 namespace Core {
 
 class CORE_EXPORT IMode : public IContext
@@ -38,6 +42,8 @@ public:
     void setPriority(int priority) { m_priority = priority; }
     void setId(Utils::Id id) { m_id = id; }
     void setMenu(QMenu *menu) { m_menu = menu; }
+
+    virtual Utils::FancyMainWindow *mainWindow();
 
 signals:
     void enabledStateChanged(bool enabled);

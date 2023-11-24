@@ -14,6 +14,10 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/fancymainwindow.h>
+
+#include <aggregation/aggregate.h>
+
 #include <QDebug>
 #include <QPointer>
 #include <QStackedWidget>
@@ -196,6 +200,11 @@ void DesignMode::setActiveContext(const Context &context)
         ICore::updateAdditionalContexts(d->m_activeContext, context);
 
     d->m_activeContext = context;
+}
+
+Utils::FancyMainWindow *DesignMode::mainWindow()
+{
+    return Aggregation::query<Utils::FancyMainWindow>(d->m_stackWidget->currentWidget());
 }
 
 void DesignMode::createModeIfRequired()

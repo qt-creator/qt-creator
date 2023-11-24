@@ -5,6 +5,10 @@
 
 #include "modemanager.h"
 
+#include <utils/fancymainwindow.h>
+
+#include <aggregation/aggregate.h>
+
 namespace Core {
 
 /*!
@@ -109,6 +113,11 @@ void IMode::setEnabled(bool enabled)
         return;
     m_isEnabled = enabled;
     emit enabledStateChanged(m_isEnabled);
+}
+
+Utils::FancyMainWindow *IMode::mainWindow()
+{
+    return Aggregation::query<Utils::FancyMainWindow>(widget());
 }
 
 bool IMode::isEnabled() const
