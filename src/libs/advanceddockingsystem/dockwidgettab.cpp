@@ -372,12 +372,11 @@ void DockWidgetTab::mouseReleaseEvent(QMouseEvent *event)
             event->accept();
             d->m_floatingWidget->finishDragging();
             break;
-
-        default:
-            if (DockManager::testConfigFlag(DockManager::FocusHighlighting))
-                d->focusController()->setDockWidgetTabPressed(false);
-            break;
         }
+
+        if (DockManager::testConfigFlag(DockManager::FocusHighlighting))
+            d->focusController()->setDockWidgetTabPressed(false);
+
     } else if (event->button() == Qt::MiddleButton) {
         if (DockManager::testConfigFlag(DockManager::MiddleMouseButtonClosesTab)
             && d->m_dockWidget->features().testFlag(DockWidget::DockWidgetClosable)) {
