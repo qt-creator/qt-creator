@@ -83,8 +83,10 @@ StudioControls.Dialog {
                 text: qsTr("Save")
                 enabled: nameText.text !== ""
                 onClicked: {
-                    root.compositionName = nameText.text
-                    root.accept() //TODO: Check if name is unique
+                    if (btnSave.enabled) {
+                        root.compositionName = nameText.text
+                        root.accept() //TODO: Check if name is unique
+                    }
                 }
             }
 
