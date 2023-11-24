@@ -24,7 +24,6 @@ Item {
 
     signal selectItem(int itemIndex)
     signal deleteItem()
-    signal assignToSelected()
     signal addCollection(string collectionName)
 
     function toggleExpanded() {
@@ -161,6 +160,7 @@ Item {
             delegate: CollectionItem {
                 width: collectionListView.width
                 sourceType: collectionListView.model.sourceType
+                hasSelectedTarget: root.hasSelectedTarget
                 onDeleteItem: collectionListView.model.removeRow(index)
             }
         }
@@ -187,12 +187,6 @@ Item {
             text: qsTr("Rename")
             shortcut: StandardKey.Replace
             onTriggered: renameDialog.open()
-        }
-
-        StudioControls.MenuItem {
-            text: qsTr("Assign to the selected node")
-            enabled: root.hasSelectedTarget
-            onTriggered: root.assignToSelected()
         }
     }
 

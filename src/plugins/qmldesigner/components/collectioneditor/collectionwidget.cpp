@@ -334,20 +334,19 @@ bool CollectionWidget::addCollectionToDataStore(const QString &collectionName)
     return added;
 }
 
-void CollectionWidget::assignSourceNodeToSelectedItem(const QVariant &sourceNode)
+void CollectionWidget::assignCollectionToSelectedNode(const QString collectionName)
 {
-    ModelNode sourceModel = sourceNode.value<ModelNode>();
+    ModelNode dsNode = dataStoreNode();
     ModelNode targetNode = m_view->singleSelectedModelNode();
 
-    QTC_ASSERT(sourceModel.isValid() && targetNode.isValid(), return);
+    QTC_ASSERT(dsNode.isValid() && targetNode.isValid(), return);
 
-    if (sourceModel.id().isEmpty()) {
-        warn(tr("Assigning the model group"),
-             tr("The model group must have a valid id to be assigned."));
+    if (dsNode.id().isEmpty()) {
+        warn(tr("Assigning the model"), tr("The model must have a valid id to be assigned."));
         return;
     }
 
-    CollectionEditor::assignCollectionSourceToNode(m_view, targetNode, sourceModel);
+    CollectionEditor::assignCollectionToNode(m_view, targetNode, dsNode, collectionName);
 }
 
 ModelNode CollectionWidget::dataStoreNode() const
