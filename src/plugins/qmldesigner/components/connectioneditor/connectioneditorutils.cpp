@@ -75,7 +75,7 @@ NodeMetaInfo dynamicTypeNameToNodeMetaInfo(const TypeName &typeName, Model *mode
         return model->metaInfo("QML.string");
     else if (typeName == "url")
         return model->metaInfo("QML.url");
-    else if (typeName == "variant")
+    else if (typeName == "var" || typeName == "variant")
         return model->metaInfo("QML.variant");
     else
         qWarning() << __FUNCTION__ << " type " << typeName << "not found";
@@ -212,7 +212,7 @@ bool isDynamicVariantPropertyType(const TypeName &type)
 {
     // "variant" is considered value type as it is initialized as one.
     // This may need to change if we provide any kind of proper editor for it.
-    static const QSet<TypeName> valueTypes{"int", "real", "color", "string", "bool", "url", "variant"};
+    static const QSet<TypeName> valueTypes{"int", "real", "color", "string", "bool", "url", "var", "variant"};
     return valueTypes.contains(type);
 }
 
@@ -231,7 +231,7 @@ QVariant defaultValueForType(const TypeName &type)
         value = false;
     else if (type == "url")
         value = "";
-    else if (type == "variant")
+    else if (type == "var" || type == "variant")
         value = "";
 
     return value;

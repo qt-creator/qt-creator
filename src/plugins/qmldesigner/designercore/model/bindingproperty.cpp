@@ -311,7 +311,7 @@ QVariant BindingProperty::convertToLiteral(const TypeName &typeName, const QStri
         qreal realValue = testExpression.toDouble(&ok);
         if (ok)
             return realValue;
-    } else if ("QVariant" == typeName || "variant" == typeName) {
+    } else if ("QVariant" == typeName || "variant" == typeName || "var" == typeName) {
         bool ok;
         qreal realValue = testExpression.toDouble(&ok);
         if (ok) {
