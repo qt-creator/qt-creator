@@ -4946,8 +4946,8 @@ bool Parser::parsePrimaryExpression(ExpressionAST *&node)
             CompoundExpressionAST *ast = new (_pool) CompoundExpressionAST;
             ast->lparen_token = consumeToken();
             StatementAST *statement = nullptr;
-            parseCompoundStatement(statement);
-            ast->statement = statement->asCompoundStatement();
+            if (parseCompoundStatement(statement))
+                ast->statement = statement->asCompoundStatement();
             match(T_RPAREN, &ast->rparen_token);
             node = ast;
             return true;
