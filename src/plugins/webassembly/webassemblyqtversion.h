@@ -3,34 +3,27 @@
 
 #pragma once
 
-#include <qtsupport/qtversionfactory.h>
 #include <qtsupport/baseqtversion.h>
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
-class WebAssemblyQtVersion : public QtSupport::QtVersion
+class WebAssemblyQtVersion final : public QtSupport::QtVersion
 {
 public:
     WebAssemblyQtVersion();
 
-    QString description() const override;
+    QString description() const final;
 
-    QSet<Utils::Id> targetDeviceTypes() const override;
+    QSet<Utils::Id> targetDeviceTypes() const final;
 
-    bool isValid() const override;
-    QString invalidReason() const override;
+    bool isValid() const final;
+    QString invalidReason() const final;
 
     static const QVersionNumber &minimumSupportedQtVersion();
     static bool isQtVersionInstalled();
     static bool isUnsupportedQtVersionInstalled();
 };
 
-class WebAssemblyQtVersionFactory : public QtSupport::QtVersionFactory
-{
-public:
-    WebAssemblyQtVersionFactory();
-};
+void setupWebAssemblyQtVersion();
 
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Internal

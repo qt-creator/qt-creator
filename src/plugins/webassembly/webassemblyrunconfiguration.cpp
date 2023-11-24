@@ -13,6 +13,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 
@@ -221,17 +222,31 @@ public:
 
 // Factories
 
-EmrunRunConfigurationFactory::EmrunRunConfigurationFactory()
+class EmrunRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
 {
-    registerRunConfiguration<EmrunRunConfiguration>(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
-    addSupportedTargetDeviceType(Constants::WEBASSEMBLY_DEVICE_TYPE);
-}
+public:
+    EmrunRunConfigurationFactory()
+    {
+        registerRunConfiguration<EmrunRunConfiguration>(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
+        addSupportedTargetDeviceType(Constants::WEBASSEMBLY_DEVICE_TYPE);
+    }
+};
 
-EmrunRunWorkerFactory::EmrunRunWorkerFactory()
+class EmrunRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 {
-    setProduct<EmrunRunWorker>();
-    addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
-    addSupportedRunConfig(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
+public:
+    EmrunRunWorkerFactory()
+    {
+        setProduct<EmrunRunWorker>();
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
+    }
+};
+
+void setupEmrunRunSupport()
+{
+    static EmrunRunConfigurationFactory theEmrunRunConfigurationFactory;
+    static EmrunRunWorkerFactory theEmrunRunWorkerFactory;
 }
 
 } // Webassembly::Internal

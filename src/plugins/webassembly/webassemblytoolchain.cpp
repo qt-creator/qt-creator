@@ -26,8 +26,7 @@ using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 static const Abi &toolChainAbi()
 {
@@ -168,20 +167,28 @@ bool WebAssemblyToolChain::areToolChainsRegistered()
     return !ToolchainManager::findToolchains(toolChainAbi()).isEmpty();
 }
 
-WebAssemblyToolchainFactory::WebAssemblyToolchainFactory()
+class WebAssemblyToolchainFactory final : public ToolchainFactory
 {
-    setDisplayName(Tr::tr("Emscripten"));
-    setSupportedToolChainType(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID);
-    setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
-                           ProjectExplorer::Constants::CXX_LANGUAGE_ID});
-    setToolchainConstructor([] { return new WebAssemblyToolChain; });
-    setUserCreatable(true);
+public:
+    WebAssemblyToolchainFactory()
+    {
+        setDisplayName(Tr::tr("Emscripten"));
+        setSupportedToolChainType(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID);
+        setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
+                               ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+        setToolchainConstructor([] { return new WebAssemblyToolChain; });
+        setUserCreatable(true);
+    }
+
+    Toolchains autoDetect(const ToolchainDetector &detector) const
+    {
+        return doAutoDetect(detector);
+    }
+};
+
+void setupWebAssemblyToolchain()
+{
+    static WebAssemblyToolchainFactory theWebAssemblyToolchainFactory;
 }
 
-Toolchains WebAssemblyToolchainFactory::autoDetect(const ToolchainDetector &detector) const
-{
-    return doAutoDetect(detector);
-}
-
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Internal

@@ -7,8 +7,7 @@
 
 #include <QVersionNumber>
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 class WebAssemblyToolChain final : public ProjectExplorer::GccToolChain
 {
@@ -25,14 +24,6 @@ public:
     static bool areToolChainsRegistered();
 };
 
-class WebAssemblyToolchainFactory : public ProjectExplorer::ToolchainFactory
-{
-public:
-    WebAssemblyToolchainFactory();
+void setupWebAssemblyToolchain();
 
-    ProjectExplorer::Toolchains autoDetect(
-        const ProjectExplorer::ToolchainDetector &detector) const final;
-};
-
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Internal

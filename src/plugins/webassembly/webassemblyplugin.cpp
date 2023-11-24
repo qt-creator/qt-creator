@@ -10,13 +10,14 @@
 #include "webassemblydevice.h"
 #include "webassemblyqtversion.h"
 #include "webassemblyrunconfiguration.h"
-#include "webassemblysettings.h"
 #include "webassemblytoolchain.h"
 #include "webassemblytr.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitmanager.h>
@@ -31,47 +32,7 @@ using namespace Utils;
 
 namespace WebAssembly::Internal {
 
-class WebAssemblyPluginPrivate
-{
-public:
-    WebAssemblyToolchainFactory toolChainFactory;
-    WebAssemblyDeviceFactory deviceFactory;
-    WebAssemblyQtVersionFactory qtVersionFactory;
-    EmrunRunConfigurationFactory emrunRunConfigurationFactory;
-    EmrunRunWorkerFactory emrunRunWorkerFactory;
-};
-
-static WebAssemblyPluginPrivate *dd = nullptr;
-
-WebAssemblyPlugin::WebAssemblyPlugin()
-{
-    setObjectName("WebAssemblyPlugin");
-}
-
-WebAssemblyPlugin::~WebAssemblyPlugin()
-{
-    delete dd;
-    dd = nullptr;
-}
-
-void WebAssemblyPlugin::initialize()
-{
-    dd = new WebAssemblyPluginPrivate;
-
-#ifdef WITH_TESTS
-    addTest<WebAssemblyTest>();
-#endif // WITH_TESTS
-}
-
-void WebAssemblyPlugin::extensionsInitialized()
-{
-    connect(KitManager::instance(), &KitManager::kitsLoaded, this, [] {
-        DeviceManager::instance()->addDevice(WebAssemblyDevice::create());
-        askUserAboutEmSdkSetup();
-    });
-}
-
-void WebAssemblyPlugin::askUserAboutEmSdkSetup()
+static void askUserAboutEmSdkSetup()
 {
     const char setupWebAssemblyEmSdk[] = "SetupWebAssemblyEmSdk";
 
@@ -91,4 +52,32 @@ void WebAssemblyPlugin::askUserAboutEmSdkSetup()
     ICore::infoBar()->addInfo(info);
 }
 
+class WebAssemblyPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "WebAssembly.json")
+
+public:
+    void initialize() final
+    {
+        setupWebAssemblyToolchain();
+        setupWebAssemblyDevice();
+        setupWebAssemblyQtVersion();
+        setupEmrunRunSupport();
+
+#ifdef WITH_TESTS
+        addTest<WebAssemblyTest>();
+#endif // WITH_TESTS
+    }
+    void extensionsInitialized() final
+    {
+        connect(KitManager::instance(), &KitManager::kitsLoaded, this, [] {
+            DeviceManager::instance()->addDevice(createWebAssemblyDevice());
+            askUserAboutEmSdkSetup();
+        });
+    }
+};
+
 } // WebAssembly::Internal
+
+#include "webassemblyplugin.moc"

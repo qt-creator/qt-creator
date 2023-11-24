@@ -5,39 +5,53 @@
 #include "webassemblydevice.h"
 #include "webassemblytr.h"
 
+#include <projectexplorer/devicesupport/desktopdevice.h>
+#include <projectexplorer/devicesupport/idevicefactory.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
-WebAssemblyDevice::WebAssemblyDevice()
+class WebAssemblyDevice final : public DesktopDevice
 {
-    setupId(IDevice::AutoDetected, Constants::WEBASSEMBLY_DEVICE_DEVICE_ID);
-    setType(Constants::WEBASSEMBLY_DEVICE_TYPE);
-    const QString displayNameAndType = Tr::tr("Web Browser");
-    settings()->displayName.setDefaultValue(displayNameAndType);
-    setDisplayType(displayNameAndType);
-    setDeviceState(IDevice::DeviceStateUnknown);
-    setMachineType(IDevice::Hardware);
-    setOsType(OsTypeOther);
-    setFileAccess(nullptr);
-}
+public:
+    WebAssemblyDevice()
+    {
+        setupId(IDevice::AutoDetected, Constants::WEBASSEMBLY_DEVICE_DEVICE_ID);
+        setType(Constants::WEBASSEMBLY_DEVICE_TYPE);
+        const QString displayNameAndType = Tr::tr("Web Browser");
+        settings()->displayName.setDefaultValue(displayNameAndType);
+        setDisplayType(displayNameAndType);
+        setDeviceState(IDevice::DeviceStateUnknown);
+        setMachineType(IDevice::Hardware);
+        setOsType(OsTypeOther);
+        setFileAccess(nullptr);
+    }
+};
 
-IDevice::Ptr WebAssemblyDevice::create()
+IDevicePtr createWebAssemblyDevice()
 {
     return IDevicePtr(new WebAssemblyDevice);
 }
 
-WebAssemblyDeviceFactory::WebAssemblyDeviceFactory()
-    : ProjectExplorer::IDeviceFactory(Constants::WEBASSEMBLY_DEVICE_TYPE)
+class WebAssemblyDeviceFactory final : public IDeviceFactory
 {
-    setDisplayName(Tr::tr("WebAssembly Runtime"));
-    setCombinedIcon(":/webassembly/images/webassemblydevicesmall.png",
-                    ":/webassembly/images/webassemblydevice.png");
-    setConstructionFunction(&WebAssemblyDevice::create);
-    setCreator(&WebAssemblyDevice::create);
+public:
+    WebAssemblyDeviceFactory()
+        : IDeviceFactory(Constants::WEBASSEMBLY_DEVICE_TYPE)
+    {
+        setDisplayName(Tr::tr("WebAssembly Runtime"));
+        setCombinedIcon(":/webassembly/images/webassemblydevicesmall.png",
+                        ":/webassembly/images/webassemblydevice.png");
+        setConstructionFunction(&createWebAssemblyDevice);
+        setCreator(&createWebAssemblyDevice);
+    }
+};
+
+void setupWebAssemblyDevice()
+{
+    static WebAssemblyDeviceFactory theWebAssemblyDeviceFactory;
 }
 
-} // namespace Internal
-} // namespace WebAssembly
+} // WebAssembly::Internal

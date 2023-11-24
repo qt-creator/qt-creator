@@ -1,16 +1,21 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "webassemblyconstants.h"
 #include "webassemblyqtversion.h"
+
+#include "webassemblyconstants.h"
 #include "webassemblytr.h"
+
+#include <coreplugin/featureprovider.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/abi.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <remotelinux/remotelinux_constants.h>
-#include <coreplugin/featureprovider.h>
-#include <coreplugin/icore.h>
+
+#include <qtsupport/qtversionfactory.h>
 #include <qtsupport/qtversionmanager.h>
+
+#include <remotelinux/remotelinux_constants.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -22,8 +27,7 @@
 using namespace QtSupport;
 using namespace Utils;
 
-namespace WebAssembly {
-namespace Internal {
+namespace WebAssembly::Internal {
 
 WebAssemblyQtVersion::WebAssemblyQtVersion() = default;
 
@@ -35,16 +39,6 @@ QString WebAssemblyQtVersion::description() const
 QSet<Id> WebAssemblyQtVersion::targetDeviceTypes() const
 {
     return {Constants::WEBASSEMBLY_DEVICE_TYPE};
-}
-
-WebAssemblyQtVersionFactory::WebAssemblyQtVersionFactory()
-{
-    setQtVersionCreator([] { return new WebAssemblyQtVersion; });
-    setSupportedType(Constants::WEBASSEMBLY_QT_VERSION);
-    setPriority(1);
-    setRestrictionChecker([](const SetupData &setup) {
-        return setup.platforms.contains("wasm");
-    });
 }
 
 bool WebAssemblyQtVersion::isValid() const
@@ -84,5 +78,23 @@ bool WebAssemblyQtVersion::isUnsupportedQtVersionInstalled()
     });
 }
 
-} // namespace Internal
-} // namespace WebAssembly
+class WebAssemblyQtVersionFactory final : public QtVersionFactory
+{
+public:
+    WebAssemblyQtVersionFactory()
+    {
+        setQtVersionCreator([] { return new WebAssemblyQtVersion; });
+        setSupportedType(Constants::WEBASSEMBLY_QT_VERSION);
+        setPriority(1);
+        setRestrictionChecker([](const SetupData &setup) {
+            return setup.platforms.contains("wasm");
+        });
+    }
+};
+
+void setupWebAssemblyQtVersion()
+{
+    static WebAssemblyQtVersionFactory theWebAssemblyQtVersionFactory;
+}
+
+} // WebAssembly::Internal
