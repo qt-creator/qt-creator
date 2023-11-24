@@ -397,6 +397,7 @@ void FormEditorData::fullInit()
 
     // Nest toolbar and editor widget
     m_editorWidget = new EditorWidget(toolBar);
+    m_editorWidget->showCentralWidgetAction()->setVisible(false);
     QtcSettings *settings = ICore::settings();
     settings->beginGroup(settingsGroupC);
     m_editorWidget->restoreSettings(settings);
