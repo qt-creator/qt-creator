@@ -3,15 +3,10 @@
 
 #pragma once
 
+#include <QObject>
+
 namespace Valgrind::Internal {
 
-class MemcheckToolRunner;
-
-class MemcheckTool final
-{
-public:
-    MemcheckTool();
-    ~MemcheckTool();
-};
+void setupMemcheckTool(QObject *guard);
 
 } // Valgrind::Internal

@@ -41,25 +41,16 @@ public:
     }
 };
 
-class ValgrindPluginPrivate
-{
-public:
-    MemcheckTool memcheckTool;
-    CallgrindTool callgrindTool;
-};
-
 class ValgrindPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Valgrind.json")
 
 public:
-    ValgrindPlugin() = default;
-    ~ValgrindPlugin() final { delete d; }
-
     void initialize() final
     {
-        d = new ValgrindPluginPrivate;
+        setupMemcheckTool(this);
+        setupCallgrindTool(this);
 
         RunConfiguration::registerAspect<ValgrindRunConfigurationAspect>();
 #ifdef WITH_TESTS
@@ -67,9 +58,6 @@ public:
         addTest<Test::ValgrindTestRunnerTest>();
 #endif
     }
-
-private:
-    class ValgrindPluginPrivate *d = nullptr;
 };
 
 } // Valgrind::Internal
