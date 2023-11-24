@@ -151,8 +151,8 @@ void KitManager::destroy()
 
 static bool kitMatchesAbiList(const Kit *kit, const Abis &abis)
 {
-    const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
-    for (const ToolChain * const tc : toolchains) {
+    const QList<Toolchain *> toolchains = ToolChainKitAspect::toolChains(kit);
+    for (const Toolchain * const tc : toolchains) {
         const Abi tcAbi = tc->targetAbi();
         for (const Abi &abi : abis) {
             if (tcAbi.os() == abi.os() && tcAbi.architecture() == abi.architecture()
@@ -183,8 +183,8 @@ static Id deviceTypeForKit(const Kit *kit)
 {
     if (isHostKit(kit))
         return Constants::DESKTOP_DEVICE_TYPE;
-    const QList<ToolChain *> toolchains = ToolChainKitAspect::toolChains(kit);
-    for (const ToolChain * const tc : toolchains) {
+    const QList<Toolchain *> toolchains = ToolChainKitAspect::toolChains(kit);
+    for (const Toolchain * const tc : toolchains) {
         const Abi tcAbi = tc->targetAbi();
         switch (tcAbi.os()) {
         case Abi::BareMetalOS:
@@ -298,7 +298,7 @@ void KitManager::restoreKits()
 
     if (resultList.empty() || !haveKitForBinary) {
         // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
-        QHash<Abi, QHash<Utils::Id, ToolChain *>> uniqueToolchains;
+        QHash<Abi, QHash<Utils::Id, Toolchain *>> uniqueToolchains;
 
         // On Linux systems, we usually detect a plethora of same-ish toolchains. The following
         // algorithm gives precedence to icecc and ccache and otherwise simply chooses the one with
@@ -306,8 +306,8 @@ void KitManager::restoreKits()
         // TODO: This should not need to be done here. Instead, it should be a convenience
         // operation on some lower level, e.g. in the toolchain class(es).
         // Also, we shouldn't detect so many doublets in the first place.
-        for (ToolChain * const tc : ToolChainManager::toolchains()) {
-            ToolChain *&bestTc = uniqueToolchains[tc->targetAbi()][tc->language()];
+        for (Toolchain * const tc : ToolChainManager::toolchains()) {
+            Toolchain *&bestTc = uniqueToolchains[tc->targetAbi()][tc->language()];
             if (!bestTc) {
                 bestTc = tc;
                 continue;
@@ -346,7 +346,7 @@ void KitManager::restoreKits()
             auto kit = std::make_unique<Kit>();
             kit->setSdkProvided(false);
             kit->setAutoDetected(false); // TODO: Why false? What does autodetected mean here?
-            for (ToolChain * const tc : it.value())
+            for (Toolchain * const tc : it.value())
                 ToolChainKitAspect::setToolChain(kit.get(), tc);
             if (contains(resultList, [&kit](const std::unique_ptr<Kit> &existingKit) {
                 return ToolChainKitAspect::toolChains(kit.get())

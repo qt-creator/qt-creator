@@ -127,10 +127,10 @@ QString MakeStep::defaultDisplayName()
     return Tr::tr("Make");
 }
 
-static const QList<ToolChain *> preferredToolChains(const Kit *kit)
+static const QList<Toolchain *> preferredToolChains(const Kit *kit)
 {
     // prefer CXX, then C, then others
-    return Utils::sorted(ToolChainKitAspect::toolChains(kit), [](ToolChain *tcA, ToolChain *tcB) {
+    return Utils::sorted(ToolChainKitAspect::toolChains(kit), [](Toolchain *tcA, Toolchain *tcB) {
         if (tcA->language() == tcB->language())
             return false;
         if (tcA->language() == Constants::CXX_LANGUAGE_ID)
@@ -146,7 +146,7 @@ static const QList<ToolChain *> preferredToolChains(const Kit *kit)
 FilePath MakeStep::defaultMakeCommand() const
 {
     const Environment env = makeEnvironment();
-    for (const ToolChain *tc : preferredToolChains(kit())) {
+    for (const Toolchain *tc : preferredToolChains(kit())) {
         FilePath make = tc->makeCommand(env);
         if (!make.isEmpty()) {
             IDevice::ConstPtr dev = BuildDeviceKitAspect::device(kit());
@@ -169,8 +169,8 @@ Task MakeStep::makeCommandMissingTask()
 
 bool MakeStep::isJobCountSupported() const
 {
-    const QList<ToolChain *> tcs = preferredToolChains(kit());
-    const ToolChain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
+    const QList<Toolchain *> tcs = preferredToolChains(kit());
+    const Toolchain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
     return tc && tc->isJobCountSupported();
 }
 
@@ -236,8 +236,8 @@ Environment MakeStep::makeEnvironment() const
     env.setupEnglishOutput();
     if (makeCommand().isEmpty()) {
         // We also prepend "L" to the MAKEFLAGS, so that nmake / jom are less verbose
-        const QList<ToolChain *> tcs = preferredToolChains(target()->kit());
-        const ToolChain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
+        const QList<Toolchain *> tcs = preferredToolChains(target()->kit());
+        const Toolchain *tc = tcs.isEmpty() ? nullptr : tcs.constFirst();
         if (tc && tc->targetAbi().os() == Abi::WindowsOS
                 && tc->targetAbi().osFlavor() != Abi::WindowsMSysFlavor) {
             env.set(MAKEFLAGS, 'L' + env.expandedValueForKey(MAKEFLAGS));

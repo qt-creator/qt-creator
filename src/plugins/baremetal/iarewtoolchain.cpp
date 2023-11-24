@@ -280,10 +280,10 @@ private:
 
 // IarToolChain
 
-class IarToolChain final : public ToolChain
+class IarToolChain final : public Toolchain
 {
 public:
-    IarToolChain() : ToolChain(Constants::IAREW_TOOLCHAIN_TYPEID)
+    IarToolChain() : Toolchain(Constants::IAREW_TOOLCHAIN_TYPEID)
     {
         setTypeDisplayName(Tr::tr("IAREW"));
         setTargetAbiKey("TargetAbi");
@@ -305,7 +305,7 @@ public:
 
     std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() final;
 
-    bool operator==(const ToolChain &other) const final;
+    bool operator==(const Toolchain &other) const final;
 
     QStringList extraCodeModelFlags() const final { return m_extraCodeModelFlags(); }
 
@@ -318,7 +318,7 @@ private:
     friend class IarToolChainConfigWidget;
 };
 
-ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() const
+Toolchain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
@@ -340,7 +340,7 @@ ToolChain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
         macros.append({"__spec_string", "", MacroType::Define});
         macros.append({"__constrange(__a,__b)", "", MacroType::Define});
 
-        const auto languageVersion = ToolChain::languageVersion(languageId, macros);
+        const auto languageVersion = Toolchain::languageVersion(languageId, macros);
         const auto report = MacroInspectionReport{macros, languageVersion};
         macrosCache->insert({}, report);
 
@@ -359,7 +359,7 @@ WarningFlags IarToolChain::warningFlags(const QStringList &cxxflags) const
     return WarningFlags::Default;
 }
 
-ToolChain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner(
+Toolchain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner(
         const Environment &) const
 {
     Environment env = Environment::systemEnvironment();
@@ -394,9 +394,9 @@ std::unique_ptr<ToolchainConfigWidget> IarToolChain::createConfigurationWidget()
     return std::make_unique<IarToolChainConfigWidget>(this);
 }
 
-bool IarToolChain::operator==(const ToolChain &other) const
+bool IarToolChain::operator==(const Toolchain &other) const
 {
-    if (!ToolChain::operator==(other))
+    if (!Toolchain::operator==(other))
         return false;
 
     const auto customTc = static_cast<const IarToolChain *>(&other);
@@ -518,7 +518,7 @@ Toolchains IarToolchainFactory::autoDetectToolchains(
     Toolchains result;
 
     for (const Candidate &candidate : std::as_const(candidates)) {
-        const Toolchains filtered = Utils::filtered(alreadyKnown, [candidate](ToolChain *tc) {
+        const Toolchains filtered = Utils::filtered(alreadyKnown, [candidate](Toolchain *tc) {
             return tc->typeId() == Constants::IAREW_TOOLCHAIN_TYPEID
                 && tc->compilerCommand() == candidate.compilerPath
                 && (tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID
@@ -551,14 +551,14 @@ Toolchains IarToolchainFactory::autoDetectToolchain(const Candidate &candidate, 
     const Abi abi = guessAbi(macros);
 
     const auto tc = new IarToolChain;
-    tc->setDetection(ToolChain::AutoDetection);
+    tc->setDetection(Toolchain::AutoDetection);
     tc->setLanguage(languageId);
     tc->setCompilerCommand(candidate.compilerPath);
     tc->setTargetAbi(abi);
     tc->setDisplayName(buildDisplayName(abi.architecture(), languageId,
                                         candidate.compilerVersion));
 
-    const auto languageVersion = ToolChain::languageVersion(languageId, macros);
+    const auto languageVersion = Toolchain::languageVersion(languageId, macros);
     tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});
     return {tc};
 }
@@ -608,7 +608,7 @@ void IarToolChainConfigWidget::applyImpl()
     if (m_macros.isEmpty())
         return;
 
-    const auto languageVersion = ToolChain::languageVersion(tc->language(), m_macros);
+    const auto languageVersion = Toolchain::languageVersion(tc->language(), m_macros);
     tc->predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
 
     setFromToolchain();

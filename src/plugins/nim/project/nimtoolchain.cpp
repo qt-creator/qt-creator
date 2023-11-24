@@ -32,7 +32,7 @@ NimToolChain::NimToolChain()
 {}
 
 NimToolChain::NimToolChain(Utils::Id typeId)
-    : ToolChain(typeId)
+    : Toolchain(typeId)
     , m_version(std::make_tuple(-1,-1,-1))
 {
     setLanguage(Constants::C_NIMLANGUAGE_ID);
@@ -41,9 +41,9 @@ NimToolChain::NimToolChain(Utils::Id typeId)
     setCompilerCommandKey("Nim.NimToolChain.CompilerCommand");
 }
 
-ToolChain::MacroInspectionRunner NimToolChain::createMacroInspectionRunner() const
+Toolchain::MacroInspectionRunner NimToolChain::createMacroInspectionRunner() const
 {
-    return ToolChain::MacroInspectionRunner();
+    return Toolchain::MacroInspectionRunner();
 }
 
 LanguageExtensions NimToolChain::languageExtensions(const QStringList &) const
@@ -56,10 +56,10 @@ WarningFlags NimToolChain::warningFlags(const QStringList &) const
     return WarningFlags::NoWarnings;
 }
 
-ToolChain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner(
+Toolchain::BuiltInHeaderPathsRunner NimToolChain::createBuiltInHeaderPathsRunner(
         const Environment &) const
 {
-    return ToolChain::BuiltInHeaderPathsRunner();
+    return Toolchain::BuiltInHeaderPathsRunner();
 }
 
 void NimToolChain::addToEnvironment(Environment &env) const
@@ -91,7 +91,7 @@ QString NimToolChain::compilerVersion() const
 
 void NimToolChain::fromMap(const Store &data)
 {
-    ToolChain::fromMap(data);
+    Toolchain::fromMap(data);
     if (hasError())
         return;
     parseVersion(compilerCommand(), m_version);
@@ -220,7 +220,7 @@ Toolchains NimToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     if (compilerPath.isEmpty())
         return result;
 
-    result = Utils::filtered(detector.alreadyKnown, [compilerPath](ToolChain *tc) {
+    result = Utils::filtered(detector.alreadyKnown, [compilerPath](Toolchain *tc) {
         return tc->typeId() == Constants::C_NIMTOOLCHAIN_TYPEID
                 && tc->compilerCommand() == compilerPath;
     });
@@ -229,7 +229,7 @@ Toolchains NimToolchainFactory::autoDetect(const ToolchainDetector &detector) co
         return result;
 
     auto tc = new NimToolChain;
-    tc->setDetection(ToolChain::AutoDetection);
+    tc->setDetection(Toolchain::AutoDetection);
     tc->setCompilerCommand(compilerPath);
     result.append(tc);
     return result;
@@ -240,7 +240,7 @@ Toolchains NimToolchainFactory::detectForImport(const ToolChainDescription &tcd)
     Toolchains result;
     if (tcd.language == Constants::C_NIMLANGUAGE_ID) {
         auto tc = new NimToolChain;
-        tc->setDetection(ToolChain::ManualDetection); // FIXME: sure?
+        tc->setDetection(Toolchain::ManualDetection); // FIXME: sure?
         tc->setCompilerCommand(tcd.compilerPath);
         result.append(tc);
     }

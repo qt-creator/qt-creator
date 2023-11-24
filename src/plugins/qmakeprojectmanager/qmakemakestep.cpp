@@ -179,7 +179,7 @@ bool QmakeMakeStep::init()
 void QmakeMakeStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     formatter->addLineParser(new GnuMakeParser());
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
+    Toolchain *tc = ToolChainKitAspect::cxxToolChain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
     if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
         xcodeBuildParser = new XcodebuildParser;

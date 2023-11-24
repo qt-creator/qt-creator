@@ -70,7 +70,7 @@ using Legacy::Constants::TOOLCHAIN_FILE_CMAKE_VARIABLE;
 using CMakeProjectManager::CMakeConfigurationKitAspect;
 using ProjectExplorer::Kit;
 using ProjectExplorer::KitManager;
-using ProjectExplorer::ToolChain;
+using ProjectExplorer::Toolchain;
 using ProjectExplorer::ToolChainManager;
 
 using testing::_;
@@ -214,7 +214,7 @@ void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
 {
     ProjectExplorer::ToolchainFactory toolchainFactory;
     Id iarId{BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID};
-    ToolChain *iarToolchain{ProjectExplorer::ToolchainFactory::createToolChain(iarId)};
+    Toolchain *iarToolchain{ProjectExplorer::ToolchainFactory::createToolChain(iarId)};
     iarToolchain->setLanguage(cxxLanguageId);
     ToolChainManager::registerToolChain(iarToolchain);
 
@@ -229,7 +229,7 @@ void verifyIarToolchain(const McuToolChainPackagePtr &iarToolchainPackage)
     iarToolchain = iarToolchainPackage->toolChain(cxxLanguageId);
     QVERIFY(iarToolchain != nullptr);
     QCOMPARE(iarToolchain->displayName(), "IAREW");
-    QCOMPARE(iarToolchain->detection(), ToolChain::UninitializedDetection);
+    QCOMPARE(iarToolchain->detection(), Toolchain::UninitializedDetection);
 }
 
 void verifyArmGccToolchain(const McuToolChainPackagePtr &armGccPackage, const QStringList &versions)
@@ -238,7 +238,7 @@ void verifyArmGccToolchain(const McuToolChainPackagePtr &armGccPackage, const QS
     ProjectExplorer::ToolchainFactory toolchainFactory;
     Id armGccId{ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID};
 
-    ToolChain *armToolchain{ProjectExplorer::ToolchainFactory::createToolChain(armGccId)};
+    Toolchain *armToolchain{ProjectExplorer::ToolchainFactory::createToolChain(armGccId)};
     armToolchain->setLanguage(cxxLanguageId);
     ToolChainManager::registerToolChain(armToolchain);
 

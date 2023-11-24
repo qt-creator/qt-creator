@@ -50,7 +50,7 @@ void ClangToolsUnitTests::initTestCase()
     if (!m_kit)
         QSKIP("This test requires at least one valid kit with a valid Qt");
 
-    const ToolChain *const toolchain = ToolChainKitAspect::cxxToolChain(m_kit);
+    const Toolchain * const toolchain = ToolChainKitAspect::cxxToolChain(m_kit);
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 

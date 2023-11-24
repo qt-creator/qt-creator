@@ -542,7 +542,7 @@ Tasks QtVersion::validateKit(const Kit *k)
             result << BuildSystemTask(Task::Warning, Tr::tr("Device type is not supported by Qt version."));
     }
 
-    if (ToolChain *tc = ToolChainKitAspect::cxxToolChain(k)) {
+    if (Toolchain *tc = ToolChainKitAspect::cxxToolChain(k)) {
         Abi targetAbi = tc->targetAbi();
         Abis supportedAbis = tc->supportedAbis();
         bool fuzzyMatch = false;
@@ -1291,7 +1291,7 @@ QString QtVersion::mkspec() const
     return d->m_mkspec.toFSPathString();
 }
 
-QString QtVersion::mkspecFor(ToolChain *tc) const
+QString QtVersion::mkspecFor(Toolchain *tc) const
 {
     QString versionSpec = mkspec();
     if (!tc)
@@ -1866,10 +1866,10 @@ bool QtVersionPrivate::queryQMakeVariables(const FilePath &binary, const Environ
         // This is required to make non-static qmakes work on windows where every tool chain
         // tries to be incompatible with any other.
         const Abis abiList = Abi::abisOfBinary(binary);
-        const Toolchains tcList = ToolChainManager::toolchains([&abiList](const ToolChain *t) {
+        const Toolchains tcList = ToolChainManager::toolchains([&abiList](const Toolchain *t) {
             return abiList.contains(t->targetAbi());
         });
-        for (ToolChain *tc : tcList) {
+        for (Toolchain *tc : tcList) {
             Environment realEnv = env;
             tc->addToEnvironment(realEnv);
             output = runQmakeQuery(binary, realEnv, error);

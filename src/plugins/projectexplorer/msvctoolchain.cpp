@@ -709,7 +709,7 @@ Utils::LanguageVersion MsvcToolChain::msvcLanguageVersion(const QStringList & /*
 
     if (language == Constants::CXX_LANGUAGE_ID) {
         if (!msvcLang.isEmpty()) // >= Visual Studio 2015 Update 3
-            return ToolChain::cxxLanguageVersion(msvcLang);
+            return Toolchain::cxxLanguageVersion(msvcLang);
         if (mscVer >= 1800) // >= Visual Studio 2013 (12.0)
             return LanguageVersion::CXX14;
         if (mscVer >= 1600) // >= Visual Studio 2010 (10.0)
@@ -854,7 +854,7 @@ static void addToAvailableMsvcToolchains(const MsvcToolChain *toolchain)
 }
 
 MsvcToolChain::MsvcToolChain(Utils::Id typeId)
-    : ToolChain(typeId)
+    : Toolchain(typeId)
 {
     setDisplayName("Microsoft Visual C++ Compiler");
     setTypeDisplayName(Tr::tr("MSVC"));
@@ -979,7 +979,7 @@ Abis MsvcToolChain::supportedAbis() const
 
 void MsvcToolChain::toMap(Store &data) const
 {
-    ToolChain::toMap(data);
+    Toolchain::toMap(data);
     data.insert(varsBatKeyC, m_vcvarsBat);
     if (!m_varsBatArg.isEmpty())
         data.insert(varsBatArgKeyC, m_varsBatArg);
@@ -989,7 +989,7 @@ void MsvcToolChain::toMap(Store &data) const
 
 void MsvcToolChain::fromMap(const Store &data)
 {
-    ToolChain::fromMap(data);
+    Toolchain::fromMap(data);
     if (hasError()) {
         g_availableMsvcToolchains.removeOne(this);
         return;
@@ -1029,7 +1029,7 @@ bool static hasFlagEffectOnMacros(const QString &flag)
     return true;
 }
 
-ToolChain::MacroInspectionRunner MsvcToolChain::createMacroInspectionRunner() const
+Toolchain::MacroInspectionRunner MsvcToolChain::createMacroInspectionRunner() const
 {
     Utils::Environment env(m_lastEnvironment);
     addToEnvironment(env);
@@ -1120,10 +1120,10 @@ WarningFlags MsvcToolChain::warningFlags(const QStringList &cflags) const
 FilePaths MsvcToolChain::includedFiles(const QStringList &flags,
                                        const FilePath &directoryPath) const
 {
-    return ToolChain::includedFiles("/FI", flags, directoryPath, PossiblyConcatenatedFlag::Yes);
+    return Toolchain::includedFiles("/FI", flags, directoryPath, PossiblyConcatenatedFlag::Yes);
 }
 
-ToolChain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunner(
+Toolchain::BuiltInHeaderPathsRunner MsvcToolChain::createBuiltInHeaderPathsRunner(
         const Environment &env) const
 {
     Utils::Environment fullEnv = env;
@@ -1266,7 +1266,7 @@ static QString msvcVarsToDisplay(const MsvcToolChain &tc)
 class MsvcBasedToolChainConfigWidget : public ToolchainConfigWidget
 {
 public:
-    explicit MsvcBasedToolChainConfigWidget(ToolChain *tc)
+    explicit MsvcBasedToolChainConfigWidget(Toolchain *tc)
         : ToolchainConfigWidget(tc)
         , m_nameDisplayLabel(new QLabel(this))
         , m_varsBatDisplayLabel(new QLabel(this))
@@ -1303,7 +1303,7 @@ protected:
 class MsvcToolChainConfigWidget final : public MsvcBasedToolChainConfigWidget
 {
 public:
-    explicit MsvcToolChainConfigWidget(ToolChain *tc)
+    explicit MsvcToolChainConfigWidget(Toolchain *tc)
         : MsvcBasedToolChainConfigWidget(tc)
         , m_varsBatPathCombo(new QComboBox(this))
         , m_varsBatArchCombo(new QComboBox(this))
@@ -1515,7 +1515,7 @@ std::unique_ptr<ToolchainConfigWidget> MsvcToolChain::createConfigurationWidget(
 class ClangClToolChainConfigWidget final : public MsvcBasedToolChainConfigWidget
 {
 public:
-    explicit ClangClToolChainConfigWidget(ToolChain *tc)
+    explicit ClangClToolChainConfigWidget(Toolchain *tc)
         : MsvcBasedToolChainConfigWidget(tc)
         , m_varsBatDisplayCombo(new QComboBox(this))
     {
@@ -1669,7 +1669,7 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
                              .arg(Abi::toString(targetAbi.osFlavor()).toUpper());
     for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
         ClangClToolChain *tc = static_cast<ClangClToolChain *>(
-            Utils::findOrDefault(alreadyKnown, [&](ToolChain *tc) -> bool {
+            Utils::findOrDefault(alreadyKnown, [&](Toolchain *tc) -> bool {
                 if (tc->typeId() != Constants::CLANG_CL_TOOLCHAIN_TYPEID)
                     return false;
                 if (tc->targetAbi() != targetAbi)
@@ -1684,7 +1684,7 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
             auto cltc = new ClangClToolChain;
             cltc->setClangPath(clangClPath);
             cltc->setDisplayName(name);
-            cltc->setDetection(ToolChain::AutoDetection);
+            cltc->setDetection(Toolchain::AutoDetection);
             cltc->setLanguage(language);
             cltc->setupVarsBat(toolChain->targetAbi(), toolChain->varsBat(), toolChain->varsBatArg());
             res << cltc;
@@ -1711,7 +1711,7 @@ void ClangClToolChainConfigWidget::applyImpl()
     if (results.isEmpty()) {
         clangClToolChain->resetVarsBat();
     } else {
-        for (const ToolChain *toolchain : results) {
+        for (const Toolchain *toolchain : results) {
             if (toolchain->language() == clangClToolChain->language()) {
                 auto mstc = static_cast<const MsvcToolChain *>(toolchain);
                 clangClToolChain->setupVarsBat(mstc->targetAbi(), mstc->varsBat(), mstc->varsBatArg());
@@ -1805,7 +1805,7 @@ std::unique_ptr<ToolchainConfigWidget> ClangClToolChain::createConfigurationWidg
     return std::make_unique<ClangClToolChainConfigWidget>(this);
 }
 
-bool ClangClToolChain::operator==(const ToolChain &other) const
+bool ClangClToolChain::operator==(const Toolchain &other) const
 {
     if (!MsvcToolChain::operator==(other))
         return false;
@@ -1847,7 +1847,7 @@ LanguageVersion ClangClToolChain::msvcLanguageVersion(const QStringList &cxxflag
                                                       const Macros &macros) const
 {
     if (cxxflags.contains("--driver-mode=g++"))
-        return ToolChain::languageVersion(language, macros);
+        return Toolchain::languageVersion(language, macros);
     return MsvcToolChain::msvcLanguageVersion(cxxflags, language, macros);
 }
 
@@ -1910,7 +1910,7 @@ static Toolchains findOrCreateToolchains(const ToolchainDetector &detector,
 {
     Toolchains res;
     for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
-        ToolChain *tc = Utils::findOrDefault(detector.alreadyKnown, [&](ToolChain *tc) -> bool {
+        Toolchain *tc = Utils::findOrDefault(detector.alreadyKnown, [&](Toolchain *tc) -> bool {
             if (tc->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
                 return false;
             if (tc->targetAbi() != abi)
@@ -1966,7 +1966,7 @@ static void detectCppBuildTools2015(Toolchains *list)
             auto tc = new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID);
             tc->setupVarsBat(abi, vcVarsBat, QLatin1String(e.varsBatArg));
             tc->setDisplayName(name + QLatin1String(e.postFix));
-            tc->setDetection(ToolChain::AutoDetection);
+            tc->setDetection(Toolchain::AutoDetection);
             tc->setLanguage(language);
             list->append(tc);
         }
@@ -2005,7 +2005,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
             if (!fi.exists())
                 continue;
 
-            QList<ToolChain *> tmp;
+            QList<Toolchain *> tmp;
             const QVector<QPair<MsvcToolChain::Platform, QString>> platforms = {
                 {MsvcToolChain::x86, "x86"},
                 {MsvcToolChain::amd64, "x64"},
@@ -2069,15 +2069,15 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
 
     detectCppBuildTools2015(&results);
 
-    for (ToolChain *tc : std::as_const(results))
-        tc->setDetection(ToolChain::AutoDetection);
+    for (Toolchain *tc : std::as_const(results))
+        tc->setDetection(Toolchain::AutoDetection);
 
     return results;
 }
 
-bool MsvcToolChain::operator==(const ToolChain &other) const
+bool MsvcToolChain::operator==(const Toolchain &other) const
 {
-    if (!ToolChain::operator==(other))
+    if (!Toolchain::operator==(other))
         return false;
 
     const auto *msvcTc = dynamic_cast<const MsvcToolChain *>(&other);

@@ -781,7 +781,7 @@ QmakeBuildConfiguration::LastKitState::LastKitState(Kit *k)
       m_sysroot(SysRootKitAspect::sysRoot(k).toString()),
       m_mkspec(QmakeKitAspect::mkspec(k))
 {
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(k);
+    Toolchain *tc = ToolChainKitAspect::cxxToolChain(k);
     m_toolchain = tc ? tc->id() : QByteArray();
 }
 

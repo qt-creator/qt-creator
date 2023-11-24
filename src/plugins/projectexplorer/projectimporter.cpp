@@ -310,7 +310,7 @@ bool ProjectImporter::findTemporaryHandler(Utils::Id id) const
     return Utils::contains(m_temporaryHandlers, [id](const TemporaryInformationHandler &ch) { return ch.id == id; });
 }
 
-static ToolChain *toolChainFromVariant(const QVariant &v)
+static Toolchain *toolChainFromVariant(const QVariant &v)
 {
     const QByteArray tcId = v.toByteArray();
     return ToolChainManager::findToolChain(tcId);
@@ -319,7 +319,7 @@ static ToolChain *toolChainFromVariant(const QVariant &v)
 void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
 {
     for (const QVariant &v : vl) {
-        ToolChain *tc = toolChainFromVariant(v);
+        Toolchain *tc = toolChainFromVariant(v);
         QTC_ASSERT(tc, continue);
         ToolChainManager::deregisterToolChain(tc);
         ToolChainKitAspect::setToolChain(k, nullptr);
@@ -329,9 +329,9 @@ void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
 void ProjectImporter::persistTemporaryToolChains(Kit *k, const QVariantList &vl)
 {
     for (const QVariant &v : vl) {
-        ToolChain *tmpTc = toolChainFromVariant(v);
+        Toolchain *tmpTc = toolChainFromVariant(v);
         QTC_ASSERT(tmpTc, continue);
-        ToolChain *actualTc = ToolChainKitAspect::toolChain(k, tmpTc->language());
+        Toolchain *actualTc = ToolChainKitAspect::toolChain(k, tmpTc->language());
         if (tmpTc && actualTc != tmpTc)
             ToolChainManager::deregisterToolChain(tmpTc);
     }
@@ -375,7 +375,7 @@ static ProjectImporter::ToolChainData createToolChains(const ToolChainDescriptio
         if (data.tcs.isEmpty())
             continue;
 
-        for (ToolChain *tc : std::as_const(data.tcs))
+        for (Toolchain *tc : std::as_const(data.tcs))
             ToolChainManager::registerToolChain(tc);
 
         data.areTemporary = true;
@@ -389,10 +389,10 @@ ProjectImporter::ToolChainData
 ProjectImporter::findOrCreateToolChains(const ToolChainDescription &tcd) const
 {
     ToolChainData result;
-    result.tcs = ToolChainManager::toolchains([&tcd](const ToolChain *tc) {
+    result.tcs = ToolChainManager::toolchains([&tcd](const Toolchain *tc) {
         return tc->language() == tcd.language && tc->matchesCompilerCommand(tcd.compilerPath);
     });
-    for (const ToolChain *tc : std::as_const(result.tcs)) {
+    for (const Toolchain *tc : std::as_const(result.tcs)) {
         const QByteArray tcId = tc->id();
         result.areTemporary = result.areTemporary ? true : hasKitWithTemporaryData(ToolChainKitAspect::id(), tcId);
     }

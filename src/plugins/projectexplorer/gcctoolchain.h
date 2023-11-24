@@ -26,7 +26,7 @@ const QStringList gccPredefinedMacrosOptions(Utils::Id languageId);
 // GccToolChain
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT GccToolChain : public ToolChain
+class PROJECTEXPLORER_EXPORT GccToolChain : public Toolchain
 {
 public:
     enum SubType { RealGcc, Clang, MinGW, LinuxIcc };
@@ -57,7 +57,7 @@ public:
 
     std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override;
 
-    bool operator ==(const ToolChain &) const override;
+    bool operator ==(const Toolchain &) const override;
 
     void resetToolChain(const Utils::FilePath &);
     void setPlatformCodeGenFlags(const QStringList &);

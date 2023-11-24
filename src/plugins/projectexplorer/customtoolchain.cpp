@@ -44,11 +44,11 @@ const char outputParserKeyC[] = "ProjectExplorer.CustomToolChain.OutputParser";
 // CustomToolChain
 // --------------------------------------------------------------------------
 
-class CustomToolChain : public ToolChain
+class CustomToolChain : public Toolchain
 {
 public:
     CustomToolChain()
-        : ToolChain(Constants::CUSTOM_TOOLCHAIN_TYPEID)
+        : Toolchain(Constants::CUSTOM_TOOLCHAIN_TYPEID)
         , m_outputParserId(GccParser::id())
     {
         setTypeDisplayName(Tr::tr("Custom"));
@@ -82,7 +82,7 @@ public:
 
     std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override;
 
-    bool operator ==(const ToolChain &) const override;
+    bool operator ==(const Toolchain &) const override;
 
     void setMakeCommand(const FilePath &);
     FilePath makeCommand(const Environment &environment) const override;
@@ -123,7 +123,7 @@ bool CustomToolChain::isValid() const
     return true;
 }
 
-ToolChain::MacroInspectionRunner CustomToolChain::createMacroInspectionRunner() const
+Toolchain::MacroInspectionRunner CustomToolChain::createMacroInspectionRunner() const
 {
     const Macros theMacros = m_predefinedMacros;
     const Id lang = language();
@@ -138,7 +138,7 @@ ToolChain::MacroInspectionRunner CustomToolChain::createMacroInspectionRunner() 
                 macros.append({cxxFlag.mid(2).trimmed().toUtf8(), MacroType::Undefine});
 
         }
-        return MacroInspectionReport{macros, ToolChain::languageVersion(lang, macros)};
+        return MacroInspectionReport{macros, Toolchain::languageVersion(lang, macros)};
     };
 }
 
@@ -166,7 +166,7 @@ void CustomToolChain::setPredefinedMacros(const Macros &macros)
     toolChainUpdated();
 }
 
-ToolChain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRunner(
+Toolchain::BuiltInHeaderPathsRunner CustomToolChain::createBuiltInHeaderPathsRunner(
         const Environment &) const
 {
     const HeaderPaths builtInHeaderPaths = m_builtInHeaderPaths;
@@ -273,7 +273,7 @@ QString CustomToolChain::mkspecs() const
 
 void CustomToolChain::toMap(Store &data) const
 {
-    ToolChain::toMap(data);
+    Toolchain::toMap(data);
     data.insert(makeCommandKeyC, m_makeCommand.toString());
     QStringList macros = Utils::transform<QList>(m_predefinedMacros, [](const Macro &m) { return QString::fromUtf8(m.toByteArray()); });
     data.insert(predefinedMacrosKeyC, macros);
@@ -285,7 +285,7 @@ void CustomToolChain::toMap(Store &data) const
 
 void CustomToolChain::fromMap(const Store &data)
 {
-    ToolChain::fromMap(data);
+    Toolchain::fromMap(data);
     if (hasError())
         return;
 
@@ -298,9 +298,9 @@ void CustomToolChain::fromMap(const Store &data)
     setOutputParserId(Id::fromSetting(data.value(outputParserKeyC)));
 }
 
-bool CustomToolChain::operator ==(const ToolChain &other) const
+bool CustomToolChain::operator ==(const Toolchain &other) const
 {
-    if (!ToolChain::operator ==(other))
+    if (!Toolchain::operator ==(other))
         return false;
 
     auto customTc = static_cast<const CustomToolChain *>(&other);

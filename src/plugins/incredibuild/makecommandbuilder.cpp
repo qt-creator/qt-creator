@@ -37,7 +37,7 @@ FilePath MakeCommandBuilder::defaultCommand() const
 {
     if (BuildConfiguration *buildConfig = buildStep()->buildConfiguration()) {
         if (Target *target = buildStep()->target()) {
-            if (ToolChain *toolChain = ToolChainKitAspect::cxxToolChain(target->kit()))
+            if (Toolchain *toolChain = ToolChainKitAspect::cxxToolChain(target->kit()))
                 return toolChain->makeCommand(buildConfig->environment());
         }
     }

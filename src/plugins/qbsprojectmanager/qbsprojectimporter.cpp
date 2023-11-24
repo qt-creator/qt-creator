@@ -145,8 +145,8 @@ bool QbsProjectImporter::matchKit(void *directoryData, const Kit *k) const
             && bgData->cxxCompilerPath.isEmpty()) {
         return true;
     }
-    const ToolChain * const cToolchain = ToolChainKitAspect::cToolChain(k);
-    const ToolChain * const cxxToolchain = ToolChainKitAspect::cxxToolChain(k);
+    const Toolchain * const cToolchain = ToolChainKitAspect::cToolChain(k);
+    const Toolchain * const cxxToolchain = ToolChainKitAspect::cxxToolChain(k);
     if (!bgData->cCompilerPath.isEmpty()) {
         if (!cToolchain)
             return false;

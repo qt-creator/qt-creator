@@ -46,7 +46,7 @@ public:
         tcInfo.isMsvc2015ToolChain = isMsvc2015;
         tcInfo.extraCodeModelFlags = extraFlags;
         tcInfo.macroInspectionRunner = [this](const QStringList &) {
-            return ToolChain::MacroInspectionReport{toolchainMacros, languageVersion};
+            return Toolchain::MacroInspectionReport{toolchainMacros, languageVersion};
         };
         RawProjectPartFlags rppFlags;
         rppFlags.commandLineFlags = flags;

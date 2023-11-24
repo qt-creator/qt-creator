@@ -56,7 +56,7 @@ bool LoadProjectScenario::init()
         return false;
     }
 
-    const ToolChain * const toolchain = ToolChainKitAspect::cxxToolChain(m_kit);
+    const Toolchain * const toolchain = ToolChainKitAspect::cxxToolChain(m_kit);
     if (!toolchain) {
         qWarning() << "This test requires that there is a kit with a toolchain.";
         return false;

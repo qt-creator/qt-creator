@@ -115,7 +115,7 @@ public:
     void startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay);
 
     void warnOnToolChainMismatch(const QmakeProFile *pro) const;
-    void testToolChain(ProjectExplorer::ToolChain *tc, const Utils::FilePath &path) const;
+    void testToolChain(ProjectExplorer::Toolchain *tc, const Utils::FilePath &path) const;
 
     QString deviceRoot() const;
 

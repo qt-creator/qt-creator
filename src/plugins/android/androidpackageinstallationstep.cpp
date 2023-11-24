@@ -73,7 +73,7 @@ bool AndroidPackageInstallationStep::init()
         return false;
     }
 
-    ToolChain *tc = ToolChainKitAspect::cxxToolChain(kit());
+    Toolchain *tc = ToolChainKitAspect::cxxToolChain(kit());
     QTC_ASSERT(tc, reportWarningOrError(Tr::tr("\"%1\" step has an invalid C++ toolchain.")
                                         .arg(displayName()), Task::TaskType::Error);
             return false);

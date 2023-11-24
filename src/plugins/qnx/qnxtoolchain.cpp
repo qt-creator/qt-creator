@@ -152,7 +152,7 @@ GccToolChain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
     return GccToolChain::DetectedAbisResult{detectTargetAbis(sdpPath()), "unknown-qnx-gnu"};
 }
 
-bool QnxToolChain::operator ==(const ToolChain &other) const
+bool QnxToolChain::operator ==(const Toolchain &other) const
 {
     if (!GccToolChain::operator ==(other))
         return false;

@@ -46,7 +46,7 @@ public:
 
 private:
     QtVersions autoDetectQtVersions() const;
-    QList<ToolChain *> autoDetectToolChains();
+    QList<Toolchain *> autoDetectToolChains();
     void autoDetectPython();
     QList<Id> autoDetectCMake();
     void autoDetectDebugger();
@@ -107,7 +107,7 @@ void KitDetectorPrivate::undoAutoDetect() const
 
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Removing toolchain entries..."));
     const Toolchains toolchains = ToolChainManager::toolchains();
-    for (ToolChain *toolChain : toolchains) {
+    for (Toolchain *toolChain : toolchains) {
         if (toolChain && toolChain->detectionSource() == m_sharedId) {
             emit q->logOutput(ProjectExplorer::Tr::tr("Removed \"%1\"").arg(toolChain->displayName()));
             ToolChainManager::deregisterToolChain(toolChain);
@@ -164,7 +164,7 @@ void KitDetectorPrivate::listAutoDetected() const
     }
 
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Toolchains:"));
-    for (ToolChain *toolChain : ToolChainManager::toolchains()) {
+    for (Toolchain *toolChain : ToolChainManager::toolchains()) {
         if (toolChain->detectionSource() == m_sharedId)
             emit q->logOutput(toolChain->displayName());
     }
@@ -259,7 +259,7 @@ Toolchains KitDetectorPrivate::autoDetectToolChains()
         emit q->logOutput(ProjectExplorer::Tr::tr("Searching toolchains of type %1").arg(factory->displayName()));
         const ToolchainDetector detector(alreadyKnown, m_device, m_searchPaths);
         const Toolchains newToolChains = factory->autoDetect(detector);
-        for (ToolChain *toolChain : newToolChains) {
+        for (Toolchain *toolChain : newToolChains) {
             emit q->logOutput(ProjectExplorer::Tr::tr("Found \"%1\"").arg(toolChain->compilerCommand().toUserOutput()));
             toolChain->setDetectionSource(m_sharedId);
             ToolChainManager::registerToolChain(toolChain);
@@ -359,11 +359,11 @@ void KitDetectorPrivate::autoDetect()
             QtSupport::QtKitAspect::setQtVersion(k, qt);
         }
         Toolchains toolchainsToSet;
-        toolchainsToSet = ToolChainManager::toolchains([qt, this](const ToolChain *tc) {
+        toolchainsToSet = ToolChainManager::toolchains([qt, this](const Toolchain *tc) {
             return tc->detectionSource() == m_sharedId
                    && (!qt || qt->qtAbis().contains(tc->targetAbi()));
         });
-        for (ToolChain *toolChain : toolchainsToSet)
+        for (Toolchain *toolChain : toolchainsToSet)
             ToolChainKitAspect::setToolChain(k, toolChain);
 
         if (cmakeId.isValid())

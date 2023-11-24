@@ -409,7 +409,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
         return;
     }
 
-    const ToolChain * tc = nullptr;
+    const Toolchain * tc = nullptr;
     const ProjectFile classifier(filePath, ProjectFile::classify(filePath.toString()));
     if (classifier.isC()) {
         tc = ToolChainKitAspect::cToolChain(project->activeTarget()->kit());
@@ -1964,7 +1964,7 @@ void CppModelManager::setupFallbackProjectPart()
 
     // TODO: Use different fallback toolchain for different kinds of files?
     const Kit * const defaultKit = KitManager::isLoaded() ? KitManager::defaultKit() : nullptr;
-    const ToolChain * const defaultTc = defaultKit
+    const Toolchain * const defaultTc = defaultKit
             ? ToolChainKitAspect::cxxToolChain(defaultKit) : nullptr;
     if (defaultKit && defaultTc) {
         FilePath sysroot = SysRootKitAspect::sysRoot(defaultKit);
@@ -1974,7 +1974,7 @@ void CppModelManager::setupFallbackProjectPart()
         tcInfo = ToolChainInfo(defaultTc, sysroot, env);
         const auto macroInspectionWrapper = [runner = tcInfo.macroInspectionRunner](
                 const QStringList &flags) {
-            ToolChain::MacroInspectionReport report = runner(flags);
+            Toolchain::MacroInspectionReport report = runner(flags);
             report.languageVersion = LanguageVersion::LatestCxx;
             return report;
         };

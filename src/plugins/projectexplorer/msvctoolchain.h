@@ -20,7 +20,7 @@ namespace ProjectExplorer::Internal {
 // MsvcToolChain
 // --------------------------------------------------------------------------
 
-class MsvcToolChain : public ToolChain
+class MsvcToolChain : public Toolchain
 {
 public:
     enum Type { WindowsSDK, VS };
@@ -61,7 +61,7 @@ public:
     void resetVarsBat();
     Platform platform() const;
 
-    bool operator==(const ToolChain &) const override;
+    bool operator==(const Toolchain &) const override;
 
     bool isJobCountSupported() const override { return false; }
 
@@ -153,7 +153,7 @@ public:
                                                const Utils::Id &language,
                                                const Macros &macros) const override;
 
-    bool operator==(const ToolChain &) const override;
+    bool operator==(const Toolchain &) const override;
 
     int priority() const override;
 

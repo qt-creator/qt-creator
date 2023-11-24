@@ -28,7 +28,7 @@ class FileInProjectFinder;
 
 namespace ProjectExplorer {
 class Kit;
-class ToolChain;
+class Toolchain;
 class Target;
 } // ProjectExplorer
 
@@ -114,7 +114,7 @@ public:
 
     /// @returns the name of the mkspec
     QString mkspec() const;
-    QString mkspecFor(ProjectExplorer::ToolChain *tc) const;
+    QString mkspecFor(ProjectExplorer::Toolchain *tc) const;
     /// @returns the full path to the default directory
     /// specifally not the directory the symlink/ORIGINAL_QMAKESPEC points to
     Utils::FilePath mkspecPath() const;

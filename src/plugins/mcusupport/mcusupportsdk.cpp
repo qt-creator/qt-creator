@@ -184,7 +184,7 @@ McuToolChainPackagePtr createUnsupportedToolChainPackage(const SettingsHandler::
 McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                   const QStringList &versions)
 {
-    ToolChain *toolChain = McuToolChainPackage::msvcToolChain(
+    Toolchain *toolChain = McuToolChainPackage::msvcToolChain(
         ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     const FilePath detectionPath = FilePath("cl").withExecutableSuffix();
@@ -209,7 +209,7 @@ McuToolChainPackagePtr createMsvcToolChainPackage(const SettingsHandler::Ptr &se
 McuToolChainPackagePtr createGccToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                                                  const QStringList &versions)
 {
-    ToolChain *toolChain = McuToolChainPackage::gccToolChain(
+    Toolchain *toolChain = McuToolChainPackage::gccToolChain(
         ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     const FilePath detectionPath = FilePath("bin/g++").withExecutableSuffix();
@@ -328,8 +328,8 @@ McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &set
     if (qtcEnvironmentVariableIsSet(envVar))
         defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(envVar));
     else {
-        const ProjectExplorer::ToolChain *tc = ProjectExplorer::ToolChainManager::toolChain(
-            [](const ProjectExplorer::ToolChain *t) {
+        const ProjectExplorer::Toolchain *tc = ProjectExplorer::ToolChainManager::toolChain(
+            [](const ProjectExplorer::Toolchain *t) {
                 return t->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
             });
         if (tc) {

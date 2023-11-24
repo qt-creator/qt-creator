@@ -36,7 +36,7 @@ class PROJECTEXPLORER_EXPORT RawProjectPartFlags
 {
 public:
     RawProjectPartFlags() = default;
-    RawProjectPartFlags(const ToolChain *toolChain, const QStringList &commandLineFlags,
+    RawProjectPartFlags(const Toolchain *toolChain, const QStringList &commandLineFlags,
                         const Utils::FilePath &includeFileBaseDir);
 
 public:
@@ -119,8 +119,8 @@ public:
     bool isValid() const;
 
     Kit *kit = nullptr;
-    ToolChain *cToolChain = nullptr;
-    ToolChain *cxxToolChain = nullptr;
+    Toolchain *cToolChain = nullptr;
+    Toolchain *cxxToolChain = nullptr;
 
     Utils::QtMajorVersion projectPartQtVersion = Utils::QtMajorVersion::None;
 
@@ -131,7 +131,7 @@ class PROJECTEXPLORER_EXPORT ToolChainInfo
 {
 public:
     ToolChainInfo() = default;
-    ToolChainInfo(const ProjectExplorer::ToolChain *toolChain,
+    ToolChainInfo(const ProjectExplorer::Toolchain *toolChain,
                   const Utils::FilePath &sysRootPath,
                   const Utils::Environment &env);
 
@@ -148,8 +148,8 @@ public:
     QStringList extraCodeModelFlags;
 
     Utils::FilePath sysRootPath; // For headerPathsRunner.
-    ProjectExplorer::ToolChain::BuiltInHeaderPathsRunner headerPathsRunner;
-    ProjectExplorer::ToolChain::MacroInspectionRunner macroInspectionRunner;
+    ProjectExplorer::Toolchain::BuiltInHeaderPathsRunner headerPathsRunner;
+    ProjectExplorer::Toolchain::MacroInspectionRunner macroInspectionRunner;
 };
 
 class PROJECTEXPLORER_EXPORT ProjectUpdateInfo

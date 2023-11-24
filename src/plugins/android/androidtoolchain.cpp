@@ -34,10 +34,10 @@ Q_GLOBAL_STATIC_WITH_ARGS(ClangTargetsType, ClangTargets, ({
          Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)}}
 ));
 
-static ToolChain *findToolChain(FilePath &compilerPath, Id lang, const QString &target,
+static Toolchain *findToolChain(FilePath &compilerPath, Id lang, const QString &target,
                                 const ToolChainList &alreadyKnown)
 {
-    ToolChain *tc = Utils::findOrDefault(alreadyKnown, [target, compilerPath, lang](ToolChain *tc) {
+    Toolchain *tc = Utils::findOrDefault(alreadyKnown, [target, compilerPath, lang](Toolchain *tc) {
         return tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
                 && tc->language() == lang
                 && tc->targetAbi() == ClangTargets->value(target)
@@ -180,7 +180,7 @@ ToolChainList AndroidToolchainFactory::autodetectToolChainsFromNdks(
     const QList<FilePath> &ndkLocations,
     const bool isCustom)
 {
-    QList<ToolChain *> result;
+    QList<Toolchain *> result;
     const AndroidConfig config = AndroidConfigurations::currentConfig();
 
     const Id LanguageIds[] {
@@ -211,7 +211,7 @@ ToolChainList AndroidToolchainFactory::autodetectToolChainsFromNdks(
             while (targetItr != ClangTargets->constEnd()) {
                 const Abi &abi = targetItr.value();
                 const QString target = targetItr.key();
-                ToolChain *tc = findToolChain(compilerCommand, lang, target, alreadyKnown);
+                Toolchain *tc = findToolChain(compilerCommand, lang, target, alreadyKnown);
 
                 QLatin1String customStr = isCustom ? QLatin1String("Custom ") : QLatin1String();
                 const QString displayName(customStr + QString("Android Clang (%1, %2, NDK %3)")
@@ -241,7 +241,7 @@ ToolChainList AndroidToolchainFactory::autodetectToolChainsFromNdks(
                 if (auto gccTc = dynamic_cast<GccToolChain*>(tc))
                     gccTc->resetToolChain(compilerCommand);
 
-                tc->setDetection(ToolChain::AutoDetection);
+                tc->setDetection(Toolchain::AutoDetection);
                 result << tc;
                 ++targetItr;
             }

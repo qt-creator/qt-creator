@@ -9,7 +9,7 @@
 #include <QVersionNumber>
 
 namespace ProjectExplorer {
-class ToolChain;
+class Toolchain;
 }
 
 namespace Utils {

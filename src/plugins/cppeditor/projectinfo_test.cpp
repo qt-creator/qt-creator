@@ -69,7 +69,7 @@ public:
 
         // Create project part for C
         tcInfo.macroInspectionRunner = [](const QStringList &) {
-            return ToolChain::MacroInspectionReport{{}, Utils::LanguageVersion::C11};
+            return Toolchain::MacroInspectionReport{{}, Utils::LanguageVersion::C11};
         };
         const ProjectPart::ConstPtr cprojectpart = ProjectPart::create({}, {}, {}, {}, {}, {}, {},
                                                                   tcInfo);
@@ -77,7 +77,7 @@ public:
 
         // Create project part for CXX
         tcInfo.macroInspectionRunner = [](const QStringList &) {
-            return ToolChain::MacroInspectionReport{{}, Utils::LanguageVersion::CXX98};
+            return Toolchain::MacroInspectionReport{{}, Utils::LanguageVersion::CXX98};
         };
         const ProjectPart::ConstPtr cxxprojectpart = ProjectPart::create({}, {}, {}, {}, {}, {}, {},
                                                                     tcInfo);
@@ -330,10 +330,10 @@ void ProjectPartChooserTest::testDoNotIndicateFromDependencies()
 }
 
 namespace {
-class TestToolchain : public ToolChain
+class TestToolchain : public Toolchain
 {
 public:
-    TestToolchain() : ToolChain("dummy") {}
+    TestToolchain() : Toolchain("dummy") {}
 
 private:
     MacroInspectionRunner createMacroInspectionRunner() const override { return {}; }

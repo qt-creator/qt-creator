@@ -16,7 +16,7 @@
 
 namespace ProjectExplorer {
 
-RawProjectPartFlags::RawProjectPartFlags(const ToolChain *toolChain,
+RawProjectPartFlags::RawProjectPartFlags(const Toolchain *toolChain,
                                          const QStringList &commandLineFlags,
                                          const Utils::FilePath &includeFileBaseDir)
 {
@@ -155,7 +155,7 @@ bool KitInfo::isValid() const
     return kit;
 }
 
-ToolChainInfo::ToolChainInfo(const ToolChain *toolChain,
+ToolChainInfo::ToolChainInfo(const Toolchain *toolChain,
                              const Utils::FilePath &sysRootPath,
                              const Utils::Environment &env)
 {

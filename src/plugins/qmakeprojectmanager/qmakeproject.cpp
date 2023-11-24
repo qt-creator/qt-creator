@@ -237,7 +237,7 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
             this, &QmakeBuildSystem::scheduleUpdateAllNowOrLater);
 
     connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
-            this, [this](ToolChain *tc) {
+            this, [this](Toolchain *tc) {
         if (ToolChainKitAspect::cxxToolChain(kit()) == tc)
             scheduleUpdateAllNowOrLater();
     });
@@ -1308,7 +1308,7 @@ static FilePath destDirFor(const TargetInformation &ti)
 
 FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
 {
-    const ToolChain *const toolchain = ToolChainKitAspect::cxxToolChain(kit());
+    const Toolchain *const toolchain = ToolChainKitAspect::cxxToolChain(kit());
     if (!toolchain)
         return {};
 
@@ -1423,7 +1423,7 @@ static FilePath getFullPathOf(const QmakeProFile *pro, Variable variable,
     return bc->environment().searchInPath(exe);
 }
 
-void QmakeBuildSystem::testToolChain(ToolChain *tc, const FilePath &path) const
+void QmakeBuildSystem::testToolChain(Toolchain *tc, const FilePath &path) const
 {
     if (!tc || path.isEmpty())
         return;
@@ -1474,7 +1474,7 @@ void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const
 
 FilePath QmakeBuildSystem::executableFor(const QmakeProFile *file)
 {
-    const ToolChain *const tc = ToolChainKitAspect::cxxToolChain(kit());
+    const Toolchain *const tc = ToolChainKitAspect::cxxToolChain(kit());
     if (!tc)
         return {};
 

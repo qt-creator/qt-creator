@@ -48,7 +48,7 @@ static void addRegisteredMinGWToEnvironment(Environment &env)
         return;
     }
 
-    const ToolChain *toolChain = ToolChainManager::toolChain([](const ToolChain *t){
+    const Toolchain *toolChain = ToolChainManager::toolChain([](const Toolchain *t){
         return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
     });
     if (toolChain)
@@ -121,7 +121,7 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
                             ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
         auto toolChain = new WebAssemblyToolChain;
         toolChain->setLanguage(languageId);
-        toolChain->setDetection(ToolChain::AutoDetection);
+        toolChain->setDetection(Toolchain::AutoDetection);
         const bool cLanguage = languageId == ProjectExplorer::Constants::C_LANGUAGE_ID;
         const QString script = QLatin1String(cLanguage ? "emcc" : "em++")
                 + QLatin1String(sdk.osType() == OsTypeWindows ? ".bat" : "");
@@ -140,8 +140,8 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
 void WebAssemblyToolChain::registerToolChains()
 {
     // Remove old toolchains
-    for (ToolChain *tc : ToolChainManager::findToolChains(toolChainAbi())) {
-         if (tc->detection() != ToolChain::AutoDetection)
+    for (Toolchain *tc : ToolChainManager::findToolChains(toolChainAbi())) {
+         if (tc->detection() != Toolchain::AutoDetection)
              continue;
          ToolChainManager::deregisterToolChain(tc);
     };

@@ -827,8 +827,8 @@ static void getExpandedCompilerFlags(QStringList &cFlags, QStringList &cxxFlags,
 static RawProjectPart generateProjectPart(
         const QJsonObject &product,
         const QJsonObject &group,
-        const std::shared_ptr<const ToolChain> &cToolChain,
-        const std::shared_ptr<const ToolChain> &cxxToolChain,
+        const std::shared_ptr<const Toolchain> &cToolChain,
+        const std::shared_ptr<const Toolchain> &cxxToolChain,
         QtMajorVersion qtVersion,
         QString cPch,
         QString cxxPch,
@@ -952,8 +952,8 @@ static RawProjectPart generateProjectPart(
 
 static RawProjectParts generateProjectParts(
         const QJsonObject &projectData,
-        const std::shared_ptr<const ToolChain> &cToolChain,
-        const std::shared_ptr<const ToolChain> &cxxToolChain,
+        const std::shared_ptr<const Toolchain> &cToolChain,
+        const std::shared_ptr<const Toolchain> &cxxToolChain,
         QtMajorVersion qtVersion
         )
 {
@@ -1005,9 +1005,9 @@ void QbsBuildSystem::updateCppCodeModel()
 
     const QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
-    const auto cToolchain = std::shared_ptr<ToolChain>(kitInfo.cToolChain
+    const auto cToolchain = std::shared_ptr<Toolchain>(kitInfo.cToolChain
             ? kitInfo.cToolChain->clone() : nullptr);
-    const auto cxxToolchain = std::shared_ptr<ToolChain>(kitInfo.cxxToolChain
+    const auto cxxToolchain = std::shared_ptr<Toolchain>(kitInfo.cxxToolChain
             ? kitInfo.cxxToolChain->clone() : nullptr);
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {},

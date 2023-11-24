@@ -13,7 +13,7 @@
 #include <QObject>
 
 namespace ProjectExplorer {
-class ToolChain;
+class Toolchain;
 }
 
 namespace Utils {
@@ -116,12 +116,12 @@ public:
 
     ToolChainType toolchainType() const;
     bool isDesktopToolchain() const;
-    ProjectExplorer::ToolChain *toolChain(Utils::Id language) const;
+    ProjectExplorer::Toolchain *toolChain(Utils::Id language) const;
     QString toolChainName() const;
     QVariant debuggerId() const;
 
-    static ProjectExplorer::ToolChain *msvcToolChain(Utils::Id language);
-    static ProjectExplorer::ToolChain *gccToolChain(Utils::Id language);
+    static ProjectExplorer::Toolchain *msvcToolChain(Utils::Id language);
+    static ProjectExplorer::Toolchain *gccToolChain(Utils::Id language);
 
 private:
     const ToolChainType m_type;

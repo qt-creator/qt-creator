@@ -9,7 +9,7 @@
 
 namespace Android::Internal {
 
-using ToolChainList = QList<ProjectExplorer::ToolChain *>;
+using ToolChainList = QList<ProjectExplorer::Toolchain *>;
 
 class AndroidToolChain : public ProjectExplorer::GccToolChain
 {

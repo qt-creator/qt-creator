@@ -41,13 +41,13 @@ QList<ToolchainFactory *> &toolchainFactories()
 class ToolChainPrivate
 {
 public:
-    using Detection = ToolChain::Detection;
+    using Detection = Toolchain::Detection;
 
     explicit ToolChainPrivate(Id typeId) :
         m_id(QUuid::createUuid().toByteArray()),
         m_typeId(typeId),
-        m_predefinedMacrosCache(new ToolChain::MacrosCache::element_type()),
-        m_headerPathsCache(new ToolChain::HeaderPathsCache::element_type())
+        m_predefinedMacrosCache(new Toolchain::MacrosCache::element_type()),
+        m_headerPathsCache(new Toolchain::HeaderPathsCache::element_type())
     {
         QTC_ASSERT(m_typeId.isValid(), return);
         QTC_ASSERT(!m_typeId.name().contains(':'), return);
@@ -63,12 +63,12 @@ public:
     QString m_typeDisplayName;
     Id m_typeId;
     Id m_language;
-    Detection m_detection = ToolChain::UninitializedDetection;
+    Detection m_detection = Toolchain::UninitializedDetection;
     QString m_detectionSource;
     QString m_explicitCodeModelTargetTriple;
 
-    ToolChain::MacrosCache m_predefinedMacrosCache;
-    ToolChain::HeaderPathsCache m_headerPathsCache;
+    Toolchain::MacrosCache m_predefinedMacrosCache;
+    Toolchain::HeaderPathsCache m_headerPathsCache;
     std::optional<bool> m_isValid;
     bool m_hasError = false;
 };
@@ -119,12 +119,12 @@ using namespace Internal;
 
 // --------------------------------------------------------------------------
 
-ToolChain::ToolChain(Id typeId) :
+Toolchain::Toolchain(Id typeId) :
     d(std::make_unique<ToolChainPrivate>(typeId))
 {
 }
 
-void ToolChain::setLanguage(Id language)
+void Toolchain::setLanguage(Id language)
 {
     QTC_ASSERT(!d->m_language.isValid() || isAutoDetected(), return);
     QTC_ASSERT(language.isValid(), return);
@@ -133,16 +133,16 @@ void ToolChain::setLanguage(Id language)
     d->m_language = language;
 }
 
-ToolChain::~ToolChain() = default;
+Toolchain::~Toolchain() = default;
 
-QString ToolChain::displayName() const
+QString Toolchain::displayName() const
 {
     if (d->m_displayName.isEmpty())
         return typeDisplayName();
     return d->m_displayName;
 }
 
-void ToolChain::setDisplayName(const QString &name)
+void Toolchain::setDisplayName(const QString &name)
 {
     if (d->m_displayName == name)
         return;
@@ -151,42 +151,42 @@ void ToolChain::setDisplayName(const QString &name)
     toolChainUpdated();
 }
 
-bool ToolChain::isAutoDetected() const
+bool Toolchain::isAutoDetected() const
 {
     return detection() == AutoDetection || detection() == AutoDetectionFromSdk;
 }
 
-ToolChain::Detection ToolChain::detection() const
+Toolchain::Detection Toolchain::detection() const
 {
     return d->m_detection;
 }
 
-QString ToolChain::detectionSource() const
+QString Toolchain::detectionSource() const
 {
     return d->m_detectionSource;
 }
 
-QByteArray ToolChain::id() const
+QByteArray Toolchain::id() const
 {
     return d->m_id;
 }
 
-QStringList ToolChain::suggestedMkspecList() const
+QStringList Toolchain::suggestedMkspecList() const
 {
     return {};
 }
 
-Id ToolChain::typeId() const
+Id Toolchain::typeId() const
 {
     return d->m_typeId;
 }
 
-Abis ToolChain::supportedAbis() const
+Abis Toolchain::supportedAbis() const
 {
     return {targetAbi()};
 }
 
-bool ToolChain::isValid() const
+bool Toolchain::isValid() const
 {
     if (!d->m_isValid.has_value())
         d->m_isValid = !compilerCommand().isEmpty() && compilerCommand().isExecutableFile();
@@ -194,19 +194,19 @@ bool ToolChain::isValid() const
     return d->m_isValid.value_or(false);
 }
 
-FilePaths ToolChain::includedFiles(const QStringList &flags, const FilePath &directory) const
+FilePaths Toolchain::includedFiles(const QStringList &flags, const FilePath &directory) const
 {
     Q_UNUSED(flags)
     Q_UNUSED(directory)
     return {};
 }
 
-Id ToolChain::language() const
+Id Toolchain::language() const
 {
     return d->m_language;
 }
 
-bool ToolChain::operator == (const ToolChain &tc) const
+bool Toolchain::operator == (const Toolchain &tc) const
 {
     if (this == &tc)
         return true;
@@ -217,11 +217,11 @@ bool ToolChain::operator == (const ToolChain &tc) const
             && language() == tc.language();
 }
 
-ToolChain *ToolChain::clone() const
+Toolchain *Toolchain::clone() const
 {
     for (ToolchainFactory *f : std::as_const(toolchainFactories())) {
         if (f->supportedToolChainType() == d->m_typeId) {
-            ToolChain *tc = f->create();
+            Toolchain *tc = f->create();
             QTC_ASSERT(tc, return nullptr);
             Store data;
             toMap(data);
@@ -241,7 +241,7 @@ ToolChain *ToolChain::clone() const
     Make sure to call this function when deriving.
 */
 
-void ToolChain::toMap(Store &result) const
+void Toolchain::toMap(Store &result) const
 {
     AspectContainer::toMap(result);
 
@@ -267,7 +267,7 @@ void ToolChain::toMap(Store &result) const
         result.insert(d->m_compilerCommandKey, d->m_compilerCommand.toSettings());
 }
 
-void ToolChain::toolChainUpdated()
+void Toolchain::toolChainUpdated()
 {
     d->m_predefinedMacrosCache->invalidate();
     d->m_headerPathsCache->invalidate();
@@ -275,27 +275,27 @@ void ToolChain::toolChainUpdated()
     ToolChainManager::notifyAboutUpdate(this);
 }
 
-void ToolChain::setDetection(ToolChain::Detection de)
+void Toolchain::setDetection(Toolchain::Detection de)
 {
     d->m_detection = de;
 }
 
-void ToolChain::setDetectionSource(const QString &source)
+void Toolchain::setDetectionSource(const QString &source)
 {
     d->m_detectionSource = source;
 }
 
-QString ToolChain::typeDisplayName() const
+QString Toolchain::typeDisplayName() const
 {
     return d->m_typeDisplayName;
 }
 
-Abi ToolChain::targetAbi() const
+Abi Toolchain::targetAbi() const
 {
     return d->m_targetAbi;
 }
 
-void ToolChain::setTargetAbi(const Abi &abi)
+void Toolchain::setTargetAbi(const Abi &abi)
 {
     if (abi == d->m_targetAbi)
         return;
@@ -304,22 +304,22 @@ void ToolChain::setTargetAbi(const Abi &abi)
     toolChainUpdated();
 }
 
-void ToolChain::setTargetAbiNoSignal(const Abi &abi)
+void Toolchain::setTargetAbiNoSignal(const Abi &abi)
 {
     d->m_targetAbi = abi;
 }
 
-void ToolChain::setTargetAbiKey(const Key &abiKey)
+void Toolchain::setTargetAbiKey(const Key &abiKey)
 {
     d->m_targetAbiKey = abiKey;
 }
 
-FilePath ToolChain::compilerCommand() const
+FilePath Toolchain::compilerCommand() const
 {
     return d->m_compilerCommand;
 }
 
-void ToolChain::setCompilerCommand(const FilePath &command)
+void Toolchain::setCompilerCommand(const FilePath &command)
 {
     d->m_isValid.reset();
 
@@ -329,17 +329,17 @@ void ToolChain::setCompilerCommand(const FilePath &command)
     toolChainUpdated();
 }
 
-bool ToolChain::matchesCompilerCommand(const FilePath &command) const
+bool Toolchain::matchesCompilerCommand(const FilePath &command) const
 {
     return compilerCommand().isSameExecutable(command);
 }
 
-void ToolChain::setCompilerCommandKey(const Key &commandKey)
+void Toolchain::setCompilerCommandKey(const Key &commandKey)
 {
     d->m_compilerCommandKey = commandKey;
 }
 
-void ToolChain::setTypeDisplayName(const QString &typeName)
+void Toolchain::setTypeDisplayName(const QString &typeName)
 {
     d->m_typeDisplayName = typeName;
 }
@@ -350,7 +350,7 @@ void ToolChain::setTypeDisplayName(const QString &typeName)
     Make sure to call this function when deriving.
 */
 
-void ToolChain::fromMap(const Store &data)
+void Toolchain::fromMap(const Store &data)
 {
     AspectContainer::fromMap(data);
 
@@ -392,22 +392,22 @@ void ToolChain::fromMap(const Store &data)
     d->m_isValid.reset();
 }
 
-void ToolChain::reportError()
+void Toolchain::reportError()
 {
     d->m_hasError = true;
 }
 
-bool ToolChain::hasError() const
+bool Toolchain::hasError() const
 {
     return d->m_hasError;
 }
 
-const ToolChain::HeaderPathsCache &ToolChain::headerPathsCache() const
+const Toolchain::HeaderPathsCache &Toolchain::headerPathsCache() const
 {
     return d->m_headerPathsCache;
 }
 
-const ToolChain::MacrosCache &ToolChain::predefinedMacrosCache() const
+const Toolchain::MacrosCache &Toolchain::predefinedMacrosCache() const
 {
     return d->m_predefinedMacrosCache;
 }
@@ -424,7 +424,7 @@ static long toLanguageVersionAsLong(QByteArray dateAsByteArray)
     return result;
 }
 
-LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplusplusMacroValue)
+LanguageVersion Toolchain::cxxLanguageVersion(const QByteArray &cplusplusMacroValue)
 {
     const long version = toLanguageVersionAsLong(cplusplusMacroValue);
 
@@ -440,7 +440,7 @@ LanguageVersion ToolChain::cxxLanguageVersion(const QByteArray &cplusplusMacroVa
     return LanguageVersion::CXX03;
 }
 
-LanguageVersion ToolChain::languageVersion(const Id &language, const Macros &macros)
+LanguageVersion Toolchain::languageVersion(const Id &language, const Macros &macros)
 {
     if (language == Constants::CXX_LANGUAGE_ID) {
         for (const ProjectExplorer::Macro &macro : macros) {
@@ -477,7 +477,7 @@ LanguageVersion ToolChain::languageVersion(const Id &language, const Macros &mac
     }
 }
 
-FilePaths ToolChain::includedFiles(const QString &option,
+FilePaths Toolchain::includedFiles(const QString &option,
                                    const QStringList &flags,
                                    const FilePath &directoryPath,
                                    PossiblyConcatenatedFlag possiblyConcatenated)
@@ -506,22 +506,22 @@ FilePaths ToolChain::includedFiles(const QString &option,
     Used by the tool chain kit information to validate the kit.
 */
 
-Tasks ToolChain::validateKit(const Kit *) const
+Tasks Toolchain::validateKit(const Kit *) const
 {
     return {};
 }
 
-QString ToolChain::sysRoot() const
+QString Toolchain::sysRoot() const
 {
     return {};
 }
 
-QString ToolChain::explicitCodeModelTargetTriple() const
+QString Toolchain::explicitCodeModelTargetTriple() const
 {
     return d->m_explicitCodeModelTargetTriple;
 }
 
-QString ToolChain::effectiveCodeModelTargetTriple() const
+QString Toolchain::effectiveCodeModelTargetTriple() const
 {
     const QString overridden = explicitCodeModelTargetTriple();
     if (!overridden.isEmpty())
@@ -529,7 +529,7 @@ QString ToolChain::effectiveCodeModelTargetTriple() const
     return originalTargetTriple();
 }
 
-void ToolChain::setExplicitCodeModelTargetTriple(const QString &triple)
+void Toolchain::setExplicitCodeModelTargetTriple(const QString &triple)
 {
     d->m_explicitCodeModelTargetTriple = triple;
 }
@@ -589,17 +589,17 @@ bool ToolchainFactory::canCreate() const
     return m_userCreatable;
 }
 
-ToolChain *ToolchainFactory::create() const
+Toolchain *ToolchainFactory::create() const
 {
     return m_toolchainConstructor ? m_toolchainConstructor() : nullptr;
 }
 
-ToolChain *ToolchainFactory::restore(const Store &data)
+Toolchain *ToolchainFactory::restore(const Store &data)
 {
     if (!m_toolchainConstructor)
         return nullptr;
 
-    ToolChain *tc = m_toolchainConstructor();
+    Toolchain *tc = m_toolchainConstructor();
     QTC_ASSERT(tc, return nullptr);
 
     tc->fromMap(data);
@@ -633,11 +633,11 @@ void ToolchainFactory::autoDetectionToMap(Store &data, bool detected)
     data.insert(AUTODETECT_KEY, detected);
 }
 
-ToolChain *ToolchainFactory::createToolChain(Id toolChainType)
+Toolchain *ToolchainFactory::createToolChain(Id toolChainType)
 {
     for (ToolchainFactory *factory : std::as_const(toolchainFactories())) {
         if (factory->m_supportedToolChainType == toolChainType) {
-            if (ToolChain *tc = factory->create()) {
+            if (Toolchain *tc = factory->create()) {
                 tc->d->m_typeId = toolChainType;
                 return tc;
             }

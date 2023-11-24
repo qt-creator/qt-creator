@@ -75,9 +75,9 @@ Utils::Id getCompilerId(QString compilerName)
     return ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID;
 }
 
-ToolChain *toolchainFromCompilerId(const Utils::Id &compilerId, const Utils::Id &language)
+Toolchain *toolchainFromCompilerId(const Utils::Id &compilerId, const Utils::Id &language)
 {
-    return ToolChainManager::toolChain([&compilerId, &language](const ToolChain *tc) {
+    return ToolChainManager::toolChain([&compilerId, &language](const Toolchain *tc) {
         if (!tc->isValid() || tc->language() != language)
             return false;
         return tc->typeId() == compilerId;
@@ -105,14 +105,14 @@ QString compilerPath(QString pathFlag)
     return QDir::fromNativeSeparators(pathFlag);
 }
 
-ToolChain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Utils::Id &language)
+Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Utils::Id &language)
 {
     if (flags.empty())
         return ToolChainKitAspect::toolChain(kit, language);
 
     // Try exact compiler match.
     const Utils::FilePath compiler = Utils::FilePath::fromUserInput(compilerPath(flags.front()));
-    ToolChain *toolchain = ToolChainManager::toolChain([&compiler, &language](const ToolChain *tc) {
+    Toolchain *toolchain = ToolChainManager::toolChain([&compiler, &language](const Toolchain *tc) {
         return tc->isValid() && tc->language() == language && tc->compilerCommand() == compiler;
     });
     if (toolchain)
@@ -136,7 +136,7 @@ ToolChain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Ut
     return toolchain;
 }
 
-void addDriverModeFlagIfNeeded(const ToolChain *toolchain,
+void addDriverModeFlagIfNeeded(const Toolchain *toolchain,
                                QStringList &flags,
                                const QStringList &originalFlags)
 {

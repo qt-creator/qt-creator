@@ -418,11 +418,11 @@ private:
 
 // KeilToolChain
 
-class KeilToolChain final : public ToolChain
+class KeilToolChain final : public Toolchain
 {
 public:
     KeilToolChain() :
-        ToolChain(Constants::KEIL_TOOLCHAIN_TYPEID)
+        Toolchain(Constants::KEIL_TOOLCHAIN_TYPEID)
     {
         setTypeDisplayName(Tr::tr("KEIL"));
         setTargetAbiKey("TargetAbi");
@@ -445,7 +445,7 @@ public:
 
     std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() final;
 
-    bool operator==(const ToolChain &other) const final;
+    bool operator==(const Toolchain &other) const final;
 
     QStringList extraCodeModelFlags() const final;
 
@@ -458,7 +458,7 @@ private:
     friend class KeilToolChainConfigWidget;
 };
 
-ToolChain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() const
+Toolchain::MacroInspectionRunner KeilToolChain::createMacroInspectionRunner() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
@@ -491,7 +491,7 @@ WarningFlags KeilToolChain::warningFlags(const QStringList &cxxflags) const
     return WarningFlags::Default;
 }
 
-ToolChain::BuiltInHeaderPathsRunner KeilToolChain::createBuiltInHeaderPathsRunner(
+Toolchain::BuiltInHeaderPathsRunner KeilToolChain::createBuiltInHeaderPathsRunner(
         const Environment &) const
 {
     const FilePath compiler = compilerCommand();
@@ -520,9 +520,9 @@ std::unique_ptr<ToolchainConfigWidget> KeilToolChain::createConfigurationWidget(
     return std::make_unique<KeilToolChainConfigWidget>(this);
 }
 
-bool KeilToolChain::operator ==(const ToolChain &other) const
+bool KeilToolChain::operator ==(const Toolchain &other) const
 {
-    if (!ToolChain::operator ==(other))
+    if (!Toolchain::operator ==(other))
         return false;
 
     const auto customTc = static_cast<const KeilToolChain *>(&other);
@@ -667,7 +667,7 @@ Toolchains KeilToolchainFactory::autoDetectToolchains(
 
     for (const Candidate &candidate : std::as_const(candidates)) {
         const Toolchains filtered = Utils::filtered(
-                    alreadyKnown, [candidate](ToolChain *tc) {
+                    alreadyKnown, [candidate](Toolchain *tc) {
             return tc->typeId() == Constants::IAREW_TOOLCHAIN_TYPEID
                 && tc->compilerCommand() == candidate.compilerPath
                 && (tc->language() == ProjectExplorer::Constants::C_LANGUAGE_ID
@@ -710,14 +710,14 @@ Toolchains KeilToolchainFactory::autoDetectToolchain(const Candidate &candidate,
     }
 
     const auto tc = new KeilToolChain;
-    tc->setDetection(ToolChain::AutoDetection);
+    tc->setDetection(Toolchain::AutoDetection);
     tc->setLanguage(language);
     tc->setCompilerCommand(candidate.compilerPath);
     tc->m_extraCodeModelFlags.setValue(extraArgs);
     tc->setTargetAbi(abi);
     tc->setDisplayName(buildDisplayName(abi.architecture(), language, candidate.compilerVersion));
 
-    const auto languageVersion = ToolChain::languageVersion(language, macros);
+    const auto languageVersion = Toolchain::languageVersion(language, macros);
     tc->predefinedMacrosCache()->insert({}, {macros, languageVersion});
     return {tc};
 }
@@ -765,7 +765,7 @@ void KeilToolChainConfigWidget::applyImpl()
     if (m_macros.isEmpty())
         return;
 
-    const auto languageVersion = ToolChain::languageVersion(tc->language(), m_macros);
+    const auto languageVersion = Toolchain::languageVersion(tc->language(), m_macros);
     tc->predefinedMacrosCache()->insert({}, {m_macros, languageVersion});
 
     setFromToolChain();

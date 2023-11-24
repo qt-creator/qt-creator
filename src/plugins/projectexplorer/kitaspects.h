@@ -12,7 +12,7 @@
 
 namespace ProjectExplorer {
 
-class ToolChain;
+class Toolchain;
 
 // SysRootKitAspect
 
@@ -31,12 +31,12 @@ class PROJECTEXPLORER_EXPORT ToolChainKitAspect
 public:
     static Utils::Id id();
     static QByteArray toolChainId(const Kit *k, Utils::Id language);
-    static ToolChain *toolChain(const Kit *k, Utils::Id language);
-    static ToolChain *cToolChain(const Kit *k);
-    static ToolChain *cxxToolChain(const Kit *k);
-    static QList<ToolChain *> toolChains(const Kit *k);
-    static void setToolChain(Kit *k, ToolChain *tc);
-    static void setAllToolChainsToMatch(Kit *k, ToolChain *tc);
+    static Toolchain *toolChain(const Kit *k, Utils::Id language);
+    static Toolchain *cToolChain(const Kit *k);
+    static Toolchain *cxxToolChain(const Kit *k);
+    static QList<Toolchain *> toolChains(const Kit *k);
+    static void setToolChain(Kit *k, Toolchain *tc);
+    static void setAllToolChainsToMatch(Kit *k, Toolchain *tc);
     static void clearToolChain(Kit *k, Utils::Id language);
     static Abi targetAbi(const Kit *k);
 

@@ -20,7 +20,7 @@ using namespace Utils;
 
 namespace ProjectExplorer {
 
-ToolchainConfigWidget::ToolchainConfigWidget(ToolChain *tc) :
+ToolchainConfigWidget::ToolchainConfigWidget(Toolchain *tc) :
     m_toolChain(tc)
 {
     Q_ASSERT(tc);
@@ -66,7 +66,7 @@ bool ToolchainConfigWidget::isDirty() const
     return m_nameLineEdit->text() != m_toolChain->displayName() || isDirtyImpl();
 }
 
-ToolChain *ToolchainConfigWidget::toolChain() const
+Toolchain *ToolchainConfigWidget::toolChain() const
 {
     return m_toolChain;
 }

@@ -106,7 +106,7 @@ void ToolChainManager::restoreToolChains()
     QTC_ASSERT(!d->m_accessor, return);
     d->m_accessor = std::make_unique<Internal::ToolChainSettingsAccessor>();
 
-    for (ToolChain *tc : d->m_accessor->restoreToolChains(Core::ICore::dialogParent()))
+    for (Toolchain *tc : d->m_accessor->restoreToolChains(Core::ICore::dialogParent()))
         registerToolChain(tc);
 
     d->m_loaded = true;
@@ -131,13 +131,13 @@ const Toolchains &ToolChainManager::toolchains()
     return d->m_toolChains;
 }
 
-Toolchains ToolChainManager::toolchains(const ToolChain::Predicate &predicate)
+Toolchains ToolChainManager::toolchains(const Toolchain::Predicate &predicate)
 {
     QTC_ASSERT(predicate, return {});
     return Utils::filtered(d->m_toolChains, predicate);
 }
 
-ToolChain *ToolChainManager::toolChain(const ToolChain::Predicate &predicate)
+Toolchain *ToolChainManager::toolChain(const Toolchain::Predicate &predicate)
 {
     QTC_CHECK(d->m_loaded);
     return Utils::findOrDefault(d->m_toolChains, predicate);
@@ -147,7 +147,7 @@ Toolchains ToolChainManager::findToolChains(const Abi &abi)
 {
     QTC_CHECK(d->m_loaded);
     Toolchains result;
-    for (ToolChain *tc : std::as_const(d->m_toolChains)) {
+    for (Toolchain *tc : std::as_const(d->m_toolChains)) {
         bool isCompatible = Utils::anyOf(tc->supportedAbis(), [abi](const Abi &supportedAbi) {
             return supportedAbi.isCompatibleWith(abi);
         });
@@ -158,13 +158,13 @@ Toolchains ToolChainManager::findToolChains(const Abi &abi)
     return result;
 }
 
-ToolChain *ToolChainManager::findToolChain(const QByteArray &id)
+Toolchain *ToolChainManager::findToolChain(const QByteArray &id)
 {
     QTC_CHECK(d->m_loaded);
     if (id.isEmpty())
         return nullptr;
 
-    ToolChain *tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&ToolChain::id, id));
+    Toolchain *tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, id));
 
     // Compatibility with versions 3.5 and earlier:
     if (!tc) {
@@ -174,7 +174,7 @@ ToolChain *ToolChainManager::findToolChain(const QByteArray &id)
 
         const QByteArray shortId = id.mid(pos + 1);
 
-        tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&ToolChain::id, shortId));
+        tc = Utils::findOrDefault(d->m_toolChains, Utils::equal(&Toolchain::id, shortId));
     }
     return tc;
 }
@@ -184,14 +184,14 @@ bool ToolChainManager::isLoaded()
     return d->m_loaded;
 }
 
-void ToolChainManager::notifyAboutUpdate(ToolChain *tc)
+void ToolChainManager::notifyAboutUpdate(Toolchain *tc)
 {
     if (!tc || !d->m_toolChains.contains(tc))
         return;
     emit m_instance->toolChainUpdated(tc);
 }
 
-bool ToolChainManager::registerToolChain(ToolChain *tc)
+bool ToolChainManager::registerToolChain(Toolchain *tc)
 {
     QTC_ASSERT(tc, return false);
     QTC_ASSERT(isLanguageSupported(tc->language()),
@@ -203,7 +203,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
 
     if (d->m_toolChains.contains(tc))
         return true;
-    for (const ToolChain *current : std::as_const(d->m_toolChains)) {
+    for (const Toolchain *current : std::as_const(d->m_toolChains)) {
         if (*tc == *current && !tc->isAutoDetected())
             return false;
         QTC_ASSERT(current->id() != tc->id(), return false);
@@ -214,7 +214,7 @@ bool ToolChainManager::registerToolChain(ToolChain *tc)
     return true;
 }
 
-void ToolChainManager::deregisterToolChain(ToolChain *tc)
+void ToolChainManager::deregisterToolChain(Toolchain *tc)
 {
     QTC_CHECK(d->m_loaded);
     if (!tc || !d->m_toolChains.contains(tc))

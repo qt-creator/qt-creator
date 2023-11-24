@@ -190,7 +190,7 @@ private:
         QIcon icon;
     };
     ValidityInfo validInformation(const QtVersion *version);
-    QList<ProjectExplorer::ToolChain*> toolChains(const QtVersion *version);
+    QList<ProjectExplorer::Toolchain*> toolChains(const QtVersion *version);
     QByteArray defaultToolChainId(const QtVersion *version);
 
     bool isNameUnique(const QtVersion *version);
@@ -487,7 +487,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Qt
     const Abis qtAbis = version->qtAbis();
 
     for (const Abi &abi : qtAbis) {
-        const auto abiCompatePred = [&abi] (const ToolChain *tc)
+        const auto abiCompatePred = [&abi] (const Toolchain *tc)
         {
             return Utils::contains(tc->supportedAbis(),
                                    [&abi](const Abi &sabi) { return sabi.isCompatibleWith(abi); });
@@ -530,9 +530,9 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Qt
     return info;
 }
 
-QList<ToolChain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
+QList<Toolchain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
 {
-    QList<ToolChain*> toolChains;
+    QList<Toolchain*> toolChains;
     if (!version)
         return toolChains;
 
@@ -540,7 +540,7 @@ QList<ToolChain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
     const Abis abis = version->qtAbis();
     for (const Abi &a : abis) {
         const Toolchains tcList = ToolChainManager::findToolChains(a);
-        for (ToolChain *tc : tcList) {
+        for (Toolchain *tc : tcList) {
             if (Utils::insert(ids, tc->id()))
                 toolChains.append(tc);
         }
@@ -551,7 +551,7 @@ QList<ToolChain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
 
 QByteArray QtOptionsPageWidget::defaultToolChainId(const QtVersion *version)
 {
-    QList<ToolChain*> possibleToolChains = toolChains(version);
+    QList<Toolchain*> possibleToolChains = toolChains(version);
     if (!possibleToolChains.isEmpty())
         return possibleToolChains.first()->id();
     return QByteArray();

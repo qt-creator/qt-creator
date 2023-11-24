@@ -101,7 +101,7 @@ static bool isSimulatorDeviceId(const Id &id)
 static QList<GccToolChain *> clangToolChains(const Toolchains &toolChains)
 {
     QList<GccToolChain *> clangToolChains;
-    for (ToolChain *toolChain : toolChains)
+    for (Toolchain *toolChain : toolChains)
         if (toolChain->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID)
             clangToolChains.append(static_cast<GccToolChain *>(toolChain));
     return clangToolChains;
@@ -593,8 +593,8 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                 if (!toolChain) {
                     toolChain = new GccToolChain(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID,
                                                  GccToolChain::Clang);
-                    toolChain->setPriority(ToolChain::PriorityHigh);
-                    toolChain->setDetection(ToolChain::AutoDetection);
+                    toolChain->setPriority(Toolchain::PriorityHigh);
+                    toolChain->setDetection(Toolchain::AutoDetection);
                     toolChain->setLanguage(l);
                     toolChain->setDisplayName(target.name);
                     toolChain->setPlatformCodeGenFlags(target.backendFlags);

@@ -254,8 +254,8 @@ void MesonProjectParser::update(const QFuture<MesonProjectParser::ParserData *> 
 RawProjectPart MesonProjectParser::buildRawPart(
     const Target &target,
     const Target::SourceGroup &sources,
-    const ToolChain *cxxToolChain,
-    const ToolChain *cToolChain)
+    const Toolchain *cxxToolChain,
+    const Toolchain *cToolChain)
 {
     RawProjectPart part;
     part.setDisplayName(target.name);
@@ -274,7 +274,7 @@ RawProjectPart MesonProjectParser::buildRawPart(
 }
 
 RawProjectParts MesonProjectParser::buildProjectParts(
-    const ToolChain *cxxToolChain, const ToolChain *cToolChain)
+    const Toolchain *cxxToolChain, const Toolchain *cToolChain)
 {
     RawProjectParts parts;
     for_each_source_group(m_parserResult.targets,

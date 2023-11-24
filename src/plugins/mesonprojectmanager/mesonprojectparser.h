@@ -57,8 +57,8 @@ public:
     QList<ProjectExplorer::BuildTargetInfo> appsTargets() const;
 
     ProjectExplorer::RawProjectParts buildProjectParts(
-        const ProjectExplorer::ToolChain *cxxToolChain,
-        const ProjectExplorer::ToolChain *cToolChain);
+        const ProjectExplorer::Toolchain *cxxToolChain,
+        const ProjectExplorer::Toolchain *cToolChain);
 
     void setEnvironment(const Utils::Environment &environment) { m_env = environment; }
 
@@ -78,8 +78,8 @@ private:
     void update(const QFuture<ParserData *> &data);
     ProjectExplorer::RawProjectPart buildRawPart(const Target &target,
                                                  const Target::SourceGroup &sources,
-                                                 const ProjectExplorer::ToolChain *cxxToolChain,
-                                                 const ProjectExplorer::ToolChain *cToolChain);
+                                                 const ProjectExplorer::Toolchain *cxxToolChain,
+                                                 const ProjectExplorer::Toolchain *cToolChain);
 
     MesonOutputParser m_outputParser;
     Utils::Environment m_env;

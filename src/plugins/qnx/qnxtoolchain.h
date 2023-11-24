@@ -20,7 +20,7 @@ public:
     Utils::FilePathAspect sdpPath{this};
     Utils::StringAspect cpuDir{this};
 
-    bool operator ==(const ToolChain &) const override;
+    bool operator ==(const Toolchain &) const override;
 
 protected:
     DetectedAbisResult detectSupportedAbis() const override;

@@ -585,7 +585,7 @@ void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<Di
                                   data->qt.qt->qmakeFilePath().toString().toUtf8());
 }
 
-ToolChain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
+Toolchain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
 {
     // A compiler path example. Note that the compiler version is not the same version from MsvcToolChain
     // ... \MSVC\14.29.30133\bin\Hostx64\x64\cl.exe
@@ -601,16 +601,16 @@ ToolChain *findExternalToolchain(const QString &presetArchitecture, const QStrin
     //      "strategy": "external"
     //  }
 
-    auto msvcToolchains = ToolChainManager::toolchains([](const ToolChain *tc) {
+    auto msvcToolchains = ToolChainManager::toolchains([](const Toolchain *tc) {
         return  tc->typeId() ==  ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
     });
 
-    const QSet<Abi::OSFlavor> msvcFlavors = Utils::toSet(Utils::transform(msvcToolchains, [](const ToolChain *tc) {
+    const QSet<Abi::OSFlavor> msvcFlavors = Utils::toSet(Utils::transform(msvcToolchains, [](const Toolchain *tc) {
         return tc->targetAbi().osFlavor();
     }));
 
     return ToolChainManager::toolChain(
-        [presetArchitecture, presetToolset, msvcFlavors](const ToolChain *tc) -> bool {
+        [presetArchitecture, presetToolset, msvcFlavors](const Toolchain *tc) -> bool {
             if (tc->typeId() != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
                 return false;
 
@@ -732,7 +732,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             data->toolset = configurePreset.toolset.value().value.value();
 
         if (architectureExternalStrategy && toolsetExternalStrategy) {
-            const ToolChain *tc
+            const Toolchain *tc
                 = findExternalToolchain(configurePreset.architecture->value.value_or(QString()),
                                         configurePreset.toolset->value.value_or(QString()));
             if (tc)
@@ -937,7 +937,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
-            ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
+            Toolchain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
             if ((!tc || !tc->matchesCompilerCommand(tcd.compilerPath))) {
                 return false;
             }
@@ -950,7 +950,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
-            ToolChain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
+            Toolchain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
             if (tc && tc->matchesCompilerCommand(tcd.compilerPath)) {
                 return false;
             }
@@ -1000,7 +1000,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 
             if (tcd.areTemporary) {
-                for (ToolChain *tc : tcd.tcs)
+                for (Toolchain *tc : tcd.tcs)
                     addTemporaryData(ToolChainKitAspect::id(), tc->id(), k);
             }
 

@@ -110,7 +110,7 @@ private:
 
     CPlusPlus::LanguageFeatures deriveLanguageFeatures() const;
 
-    const ProjectExplorer::ToolChain::MacroInspectionReport m_macroReport;
+    const ProjectExplorer::Toolchain::MacroInspectionReport m_macroReport;
 
 public:
     // Must come last due to initialization order.

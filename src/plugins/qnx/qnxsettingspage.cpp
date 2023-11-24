@@ -99,7 +99,7 @@ public:
 
     bool isActive() const
     {
-        const bool hasToolChain = ToolChainManager::toolChain(Utils::equal(&ToolChain::compilerCommand,
+        const bool hasToolChain = ToolChainManager::toolChain(Utils::equal(&Toolchain::compilerCommand,
                                                                            m_qccCompiler));
         const bool hasDebugger = Utils::contains(DebuggerItemManager::debuggers(), [this](const DebuggerItem &di) {
             return findTargetByDebuggerPath(di.command());
@@ -169,7 +169,7 @@ void QnxConfiguration::deactivate()
     QTC_ASSERT(isActive(), return);
 
     const Toolchains toolChainsToRemove =
-        ToolChainManager::toolchains(Utils::equal(&ToolChain::compilerCommand, m_qccCompiler));
+        ToolChainManager::toolchains(Utils::equal(&Toolchain::compilerCommand, m_qccCompiler));
 
     QList<DebuggerItem> debuggersToRemove;
     const QList<DebuggerItem> debuggerItems = DebuggerItemManager::debuggers();
@@ -187,7 +187,7 @@ void QnxConfiguration::deactivate()
         }
     }
 
-    for (ToolChain *tc : toolChainsToRemove)
+    for (Toolchain *tc : toolChainsToRemove)
         ToolChainManager::deregisterToolChain(tc);
 
     for (const DebuggerItem &debuggerItem : std::as_const(debuggersToRemove))
@@ -232,7 +232,7 @@ Toolchains QnxConfiguration::createToolChains(const QnxTarget &target)
     for (const Id language : {ProjectExplorer::Constants::C_LANGUAGE_ID,
                               ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
         auto toolChain = new QnxToolChain;
-        toolChain->setDetection(ToolChain::ManualDetection);
+        toolChain->setDetection(Toolchain::ManualDetection);
         toolChain->setLanguage(language);
         toolChain->setTargetAbi(target.m_abi);
         toolChain->setDisplayName(Tr::tr("QCC for %1 (%2)")
@@ -755,13 +755,13 @@ QnxSettingsPage::QnxSettingsPage(QObject *guard)
             this, &QnxSettingsPage::restoreConfigurations);
 }
 
-QList<ToolChain *> autoDetectHelper(const QList<ToolChain *> &alreadyKnown)
+QList<Toolchain *> autoDetectHelper(const QList<Toolchain *> &alreadyKnown)
 {
-    QList<ToolChain *> result;
+    QList<Toolchain *> result;
     for (const QnxConfiguration &config : std::as_const(m_configurations)) {
         config.ensureContents();
         for (const QnxTarget &target : std::as_const(config.m_targets)) {
-            result +=  Utils::filtered(alreadyKnown, [config, target](ToolChain *tc) {
+            result +=  Utils::filtered(alreadyKnown, [config, target](Toolchain *tc) {
                 return tc->typeId() == Constants::QNX_TOOLCHAIN_ID
                        && tc->targetAbi() == target.m_abi
                        && tc->compilerCommand() == config.m_qccCompiler;

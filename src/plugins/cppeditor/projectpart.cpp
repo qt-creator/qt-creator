@@ -96,10 +96,10 @@ static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
     return headerPaths;
 }
 
-static ToolChain::MacroInspectionReport getToolchainMacros(
+static Toolchain::MacroInspectionReport getToolchainMacros(
         const RawProjectPartFlags &flags, const ToolChainInfo &tcInfo, Utils::Language language)
 {
-    ToolChain::MacroInspectionReport report;
+    Toolchain::MacroInspectionReport report;
     if (tcInfo.macroInspectionRunner) {
         report = tcInfo.macroInspectionRunner(flags.commandLineFlags);
     } else if (language == Utils::Language::C) { // No compiler set in kit.

@@ -15,7 +15,7 @@ class BuildInfo;
 class Kit;
 class Project;
 class Target;
-class ToolChain;
+class Toolchain;
 
 // Documentation inside.
 class PROJECTEXPLORER_EXPORT ProjectImporter : public QObject
@@ -23,7 +23,7 @@ class PROJECTEXPLORER_EXPORT ProjectImporter : public QObject
     Q_OBJECT
 public:
     struct ToolChainData {
-        QList<ToolChain *> tcs;
+        QList<Toolchain *> tcs;
         bool areTemporary = false;
     };
 

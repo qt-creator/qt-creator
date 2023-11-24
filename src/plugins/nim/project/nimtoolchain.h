@@ -8,7 +8,7 @@
 
 namespace Nim {
 
-class NimToolChain : public ProjectExplorer::ToolChain
+class NimToolChain : public ProjectExplorer::Toolchain
 {
 public:
     NimToolChain();

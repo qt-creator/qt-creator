@@ -40,16 +40,16 @@ public:
     ~ToolChainManager() override;
 
     static const Toolchains &toolchains();
-    static Toolchains toolchains(const ToolChain::Predicate &predicate);
+    static Toolchains toolchains(const Toolchain::Predicate &predicate);
 
-    static ToolChain *toolChain(const ToolChain::Predicate &predicate);
-    static QList<ToolChain *> findToolChains(const Abi &abi);
-    static ToolChain *findToolChain(const QByteArray &id);
+    static Toolchain *toolChain(const Toolchain::Predicate &predicate);
+    static QList<Toolchain *> findToolChains(const Abi &abi);
+    static Toolchain *findToolChain(const QByteArray &id);
 
     static bool isLoaded();
 
-    static bool registerToolChain(ToolChain *tc);
-    static void deregisterToolChain(ToolChain *tc);
+    static bool registerToolChain(Toolchain *tc);
+    static void deregisterToolChain(Toolchain *tc);
 
     static QList<Utils::Id> allLanguages();
     static bool registerLanguage(const Utils::Id &language, const QString &displayName);
@@ -68,11 +68,11 @@ public:
     void saveToolChains();
 
 signals:
-    void toolChainAdded(ProjectExplorer::ToolChain *);
+    void toolChainAdded(ProjectExplorer::Toolchain *);
     // Tool chain is still valid when this call happens!
-    void toolChainRemoved(ProjectExplorer::ToolChain *);
+    void toolChainRemoved(ProjectExplorer::Toolchain *);
     // Tool chain was updated.
-    void toolChainUpdated(ProjectExplorer::ToolChain *);
+    void toolChainUpdated(ProjectExplorer::Toolchain *);
     // Something changed.
     void toolChainsChanged();
     //
@@ -84,10 +84,10 @@ private:
     // Make sure the this is only called after all toolchain factories are registered!
     static void restoreToolChains();
 
-    static void notifyAboutUpdate(ToolChain *);
+    static void notifyAboutUpdate(Toolchain *);
 
     friend class ProjectExplorerPlugin; // for constructor
-    friend class ToolChain;
+    friend class Toolchain;
 };
 
 } // namespace ProjectExplorer
