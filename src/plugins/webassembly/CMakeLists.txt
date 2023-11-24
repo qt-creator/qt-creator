@@ -7,7 +7,7 @@ add_qtc_plugin(WebAssembly
     webassemblyconstants.h
     webassemblydevice.cpp webassemblydevice.h
     webassemblyemsdk.cpp webassemblyemsdk.h
-    webassemblyplugin.cpp webassemblyplugin.h
+    webassemblyplugin.cpp
     webassemblyqtversion.cpp webassemblyqtversion.h
     webassemblyrunconfiguration.cpp webassemblyrunconfiguration.h
     webassemblysettings.cpp webassemblysettings.h
