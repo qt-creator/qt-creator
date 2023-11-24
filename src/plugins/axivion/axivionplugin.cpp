@@ -210,14 +210,25 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 
     const QUrl url = urlForProject(projectName);
 
-    const Storage<QByteArray> storage;
+    struct StorageData
+    {
+        QByteArray credential;
+        QByteArray projectInfoData;
+    };
 
-    const auto onQuerySetup = [this, url](NetworkQuery &query) {
+    const Storage<StorageData> storage;
+
+    const auto onCredentialSetup = [storage] {
+        storage->credential = QByteArrayLiteral("AxToken ")
+                              + settings().server.token.toUtf8();
+    };
+
+    const auto onQuerySetup = [this, storage, url](NetworkQuery &query) {
         QNetworkRequest request(url);
         request.setRawHeader(QByteArrayLiteral("Accept"),
                              QByteArray(jsonContentType.data(), jsonContentType.size()));
         request.setRawHeader(QByteArrayLiteral("Authorization"),
-                             QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8());
+                             storage->credential);
         const QByteArray ua = QByteArrayLiteral("Axivion")
                               + QCoreApplication::applicationName().toUtf8()
                               + QByteArrayLiteral("Plugin/")
@@ -239,7 +250,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
                                         .toLower();
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
             && contentType == jsonContentType) {
-            *storage = reply->readAll();
+            storage->projectInfoData = reply->readAll();
             return DoneResult::Success;
         }
 
@@ -268,7 +279,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 
     const auto onDeserializeSetup = [storage](Async<Dto::ProjectInfoDto> &task) {
         task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
-        task.setConcurrentCallData(deserialize, *storage);
+        task.setConcurrentCallData(deserialize, storage->projectInfoData);
     };
 
     const auto onDeserializeDone = [this, url](const Async<Dto::ProjectInfoDto> &task,
@@ -290,6 +301,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 
     const Group recipe {
         storage,
+        Sync(onCredentialSetup),
         NetworkQueryTask(onQuerySetup, onQueryDone),
         AsyncTask<Dto::ProjectInfoDto>(onDeserializeSetup, onDeserializeDone)
     };
@@ -343,6 +355,8 @@ void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
         return;
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    // TODO: Sometimes the isKnownFile() returns false after opening a session.
+    //       This happens randomly on linux.
     if (!doc || !project->isKnownFile(doc->filePath()))
         return;
 
