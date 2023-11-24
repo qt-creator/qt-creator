@@ -711,7 +711,7 @@ public:
                 m_errorString = data.m_internalError;
         });
         QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, q, [this] {
-            emit q->done(toDoneResult(!m_errorString), *m_errorString);
+            emit q->done(toDoneResult(!m_errorString), m_errorString.value_or(QString()));
             m_watcher.release()->deleteLater();
             m_thread.reset();
             m_socket.reset();
