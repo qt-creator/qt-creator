@@ -87,6 +87,11 @@ public:
     DockWidget *m_centralWidget = nullptr;
     bool m_isLeavingMinimized = false;
 
+    Qt::ToolButtonStyle m_toolBarStyleDocked = Qt::ToolButtonIconOnly;
+    Qt::ToolButtonStyle m_toolBarStyleFloating = Qt::ToolButtonTextUnderIcon;
+    QSize m_toolBarIconSizeDocked = QSize(16, 16);
+    QSize m_toolBarIconSizeFloating = QSize(24, 24);
+
     QString m_workspacePresetsPath;
     QList<Workspace> m_workspaces;
     Workspace m_workspace;
@@ -767,6 +772,38 @@ QString DockManager::floatingContainersTitle()
         return qApp->applicationDisplayName();
 
     return g_floatingContainersTitle;
+}
+
+void DockManager::setDockWidgetToolBarStyle(Qt::ToolButtonStyle style, DockWidget::eState state)
+{
+    if (DockWidget::StateFloating == state)
+        d->m_toolBarStyleFloating = style;
+    else
+        d->m_toolBarStyleDocked = style;
+}
+
+Qt::ToolButtonStyle DockManager::dockWidgetToolBarStyle(DockWidget::eState state) const
+{
+    if (DockWidget::StateFloating == state)
+        return d->m_toolBarStyleFloating;
+    else
+        return d->m_toolBarStyleDocked;
+}
+
+void DockManager::setDockWidgetToolBarIconSize(const QSize &iconSize, DockWidget::eState state)
+{
+    if (DockWidget::StateFloating == state)
+        d->m_toolBarIconSizeFloating = iconSize;
+    else
+        d->m_toolBarIconSizeDocked = iconSize;
+}
+
+QSize DockManager::dockWidgetToolBarIconSize(DockWidget::eState state) const
+{
+    if (DockWidget::StateFloating == state)
+        return d->m_toolBarIconSizeFloating;
+    else
+        return d->m_toolBarIconSizeDocked;
 }
 
 DockWidget *DockManager::centralWidget() const

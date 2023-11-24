@@ -66,7 +66,8 @@ enum eTitleBarButton {
     TitleBarButtonTabsMenu,
     TitleBarButtonUndock,
     TitleBarButtonClose,
-    TitleBarButtonAutoHide
+    TitleBarButtonAutoHide,
+    TitleBarButtonMinimize
 };
 
 /**
@@ -83,16 +84,17 @@ enum eDragState {
  * The different icons used in the UI
  */
 enum eIcon {
-    TabCloseIcon,               //!< TabCloseIcon
-    AutoHideIcon,               //!< AutoHideIcon
-    DockAreaMenuIcon,           //!< DockAreaMenuIcon
-    DockAreaUndockIcon,         //!< DockAreaUndockIcon
-    DockAreaCloseIcon,          //!< DockAreaCloseIcon
+    TabCloseIcon,       //!< TabCloseIcon
+    AutoHideIcon,       //!< AutoHideIcon
+    DockAreaMenuIcon,   //!< DockAreaMenuIcon
+    DockAreaUndockIcon, //!< DockAreaUndockIcon
+    DockAreaCloseIcon,  //!< DockAreaCloseIcon
+    DockAreaMinimizeIcon,
     FloatingWidgetCloseIcon,    //!< FloatingWidgetCloseIcon
     FloatingWidgetNormalIcon,   //!< FloatingWidgetNormalIcon
     FloatingWidgetMaximizeIcon, //!< FloatingWidgetMaximizeIcon
 
-    IconCount,                  //!< just a delimiter for range checks
+    IconCount, //!< just a delimiter for range checks
 };
 
 /**

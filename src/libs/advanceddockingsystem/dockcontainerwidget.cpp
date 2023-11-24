@@ -484,9 +484,10 @@ void DockContainerWidgetPrivate::dropIntoSection(FloatingDockContainer *floating
 
     if (!targetAreaSplitter) {
         auto splitter = createSplitter(insertParam.orientation());
-        m_layout->replaceWidget(targetArea, splitter);
+        QLayoutItem *layoutItem = m_layout->replaceWidget(targetArea, splitter);
         splitter->addWidget(targetArea);
         targetAreaSplitter = splitter;
+        delete layoutItem;
     }
     int areaIndex = targetAreaSplitter->indexOf(targetArea);
     auto floatingSplitter = floatingContainer->rootSplitter();
@@ -1532,10 +1533,11 @@ bool DockContainerWidget::restoreState(DockingStateReader &stateReader, bool tes
     if (!newRootSplitter)
         newRootSplitter = d->createSplitter(Qt::Horizontal);
 
-    d->m_layout->replaceWidget(d->m_rootSplitter, newRootSplitter);
+    QLayoutItem *layoutItem = d->m_layout->replaceWidget(d->m_rootSplitter, newRootSplitter);
     auto oldRoot = d->m_rootSplitter;
     d->m_rootSplitter = qobject_cast<DockSplitter *>(newRootSplitter);
     oldRoot->deleteLater();
+    delete layoutItem;
 
     return true;
 }

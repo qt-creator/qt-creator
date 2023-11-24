@@ -186,10 +186,13 @@ public:
         = 0x20, ///< show the auto hide window on mouse over tab and hide it if mouse leaves auto hide container
         AutoHideCloseButtonCollapsesDock
         = 0x40, ///< Close button of an auto hide container collapses the dock instead of hiding it completely
+        AutoHideHasCloseButton
+        = 0x80, //< If the flag is set an auto hide title bar has a close button
+        AutoHideHasMinimizeButton
+        = 0x100, ///< if this flag is set, the auto hide title bar has a minimize button to collapse the dock widget
 
-        DefaultAutoHideConfig
-        = AutoHideFeatureEnabled | DockAreaHasAutoHideButton
-          | AutoHideCloseButtonCollapsesDock ///< the default configuration for left and right side bars
+        DefaultAutoHideConfig = AutoHideFeatureEnabled | DockAreaHasAutoHideButton
+                                | AutoHideCloseButtonCollapsesDock | AutoHideHasCloseButton
     };
     Q_DECLARE_FLAGS(AutoHideFlags, eAutoHideFlag)
 
@@ -451,6 +454,31 @@ public:
      * QGuiApplication::applicationDisplayName().
      */
     static QString floatingContainersTitle();
+
+    /**
+     * This function sets the tool button style for the given dock widget state. It is possible to
+     * switch the tool button style depending on the state. If a dock widget is floating, then here 
+     * are more space and it is possible to select a style that requires more space like
+     * Qt::ToolButtonTextUnderIcon. For the docked state Qt::ToolButtonIconOnly might be better.
+     */
+    void setDockWidgetToolBarStyle(Qt::ToolButtonStyle style, DockWidget::eState state);
+
+    /**
+     * Returns the tool button style for the given docking state. \see setToolBarStyle()
+     */
+    Qt::ToolButtonStyle dockWidgetToolBarStyle(DockWidget::eState state) const;
+
+    /**
+     * This function sets the tool button icon size for the given state. If a dock widget is
+     * floating, there is more space and increasing the icon size is possible. For docked widgets,
+     * small icon sizes, eg. 16 x 16 might be better.
+     */
+    void setDockWidgetToolBarIconSize(const QSize &iconSize, DockWidget::eState state);
+
+    /**
+     * Returns the icon size for a given docking state. \see setToolBarIconSize()
+     */
+    QSize dockWidgetToolBarIconSize(DockWidget::eState state) const;
 
     /**
      * This function returns managers central widget or nullptr if no central widget is set.
