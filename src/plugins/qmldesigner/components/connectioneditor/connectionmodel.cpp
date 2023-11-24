@@ -388,8 +388,7 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
                             || QmlVisualNode(selectedNode).isFlowTransition())
                             source = selectedNode.validId() + ".trigger()";
 
-                        if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
-                            newNode.bindingProperty("target").setExpression(selectedNode.validId());
+                        newNode.bindingProperty("target").setExpression(selectedNode.validId());
                     } else {
                         rootModelNode
                             .nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName())
