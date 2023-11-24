@@ -3,11 +3,7 @@
 
 #pragma once
 
-#include <projectexplorer/devicesupport/idevicefwd.h>
-
 namespace WebAssembly::Internal {
-
-ProjectExplorer::IDevicePtr createWebAssemblyDevice();
 
 void setupWebAssemblyDevice();
 
