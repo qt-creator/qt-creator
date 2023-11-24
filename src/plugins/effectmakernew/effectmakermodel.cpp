@@ -21,6 +21,7 @@
 #include <modelnodeoperations.h>
 
 #include <QByteArrayView>
+#include <QLibraryInfo>
 #include <QVector2D>
 
 namespace EffectMaker {
@@ -1086,18 +1087,25 @@ QString EffectMakerModel::generateFragmentShader(bool includeUniforms)
     return s;
 }
 
-void EffectMakerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader)
+void EffectMakerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader, bool preview)
 {
     --m_remainingQsbTargets;
 
     const QString errStr = qsbProcess->errorString();
     const QByteArray errStd = qsbProcess->readAllRawStandardError();
-    if (!errStr.isEmpty())
-        qWarning() << QString("Failed to generate QSB file for: %1 %2").arg(shader, errStr);
+    QString previewStr;
+    if (preview)
+        previewStr = QStringLiteral("preview");
 
-    if (!errStd.isEmpty())
-        qWarning() << QString("Failed to generate QSB file for: %1 %2")
-                          .arg(shader, QString::fromUtf8(errStd));
+    if (!errStr.isEmpty()) {
+        qWarning() << QString("Failed to generate %3 QSB file for: %1 %2")
+                          .arg(shader, errStr, previewStr);
+    }
+
+    if (!errStd.isEmpty()) {
+        qWarning() << QString("Failed to generate %3 QSB file for: %1 %2")
+                          .arg(shader, QString::fromUtf8(errStd), previewStr);
+    }
 
     if (m_remainingQsbTargets <= 0) {
         Q_EMIT shadersBaked();
@@ -1183,21 +1191,30 @@ void EffectMakerModel::createFiles()
         QFile(m_vertexShaderFilename).remove();
     if (QFileInfo(m_fragmentShaderFilename).exists())
         QFile(m_fragmentShaderFilename).remove();
+    if (QFileInfo(m_vertexShaderPreviewFilename).exists())
+        QFile(m_vertexShaderPreviewFilename).remove();
+    if (QFileInfo(m_fragmentShaderPreviewFilename).exists())
+        QFile(m_fragmentShaderPreviewFilename).remove();
 
     auto vertexShaderFile = QTemporaryFile(QDir::tempPath() + "/dsem_XXXXXX.vert.qsb");
     auto fragmentShaderFile = QTemporaryFile(QDir::tempPath() + "/dsem_XXXXXX.frag.qsb");
+    auto vertexShaderPreviewFile = QTemporaryFile(QDir::tempPath() + "/dsem_prev_XXXXXX.vert.qsb");
+    auto fragmentShaderPreviewFile = QTemporaryFile(QDir::tempPath() + "/dsem_prev_XXXXXX.frag.qsb");
 
     m_vertexSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.vert");
     m_fragmentSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.frag");
 
     if (!m_vertexSourceFile.open() || !m_fragmentSourceFile.open()
-        || !vertexShaderFile.open() || !fragmentShaderFile.open()) {
+        || !vertexShaderFile.open() || !fragmentShaderFile.open()
+        || !vertexShaderPreviewFile.open() || !fragmentShaderPreviewFile.open()) {
         qWarning() << "Unable to open temporary files";
     } else {
         m_vertexSourceFilename = m_vertexSourceFile.fileName();
         m_fragmentSourceFilename = m_fragmentSourceFile.fileName();
         m_vertexShaderFilename = vertexShaderFile.fileName();
         m_fragmentShaderFilename = fragmentShaderFile.fileName();
+        m_vertexShaderPreviewFilename = vertexShaderPreviewFile.fileName();
+        m_fragmentShaderPreviewFilename = fragmentShaderPreviewFile.fileName();
     }
 }
 
@@ -1244,27 +1261,43 @@ void EffectMakerModel::bakeShaders()
 
     Utils::FilePath qsbPath = qtVer->binPath().pathAppended("qsb").withExecutableSuffix();
     if (!qsbPath.exists()) {
-        qWarning() << failMessage << "QSB tool not found";
+        qWarning() << failMessage << "QSB tool for target kit not found";
+        return;
+    }
+
+    Utils::FilePath binPath = Utils::FilePath::fromString(
+        QLibraryInfo::path(QLibraryInfo::BinariesPath));
+    Utils::FilePath qsbPrevPath = binPath.pathAppended("qsb").withExecutableSuffix();
+    if (!qsbPrevPath.exists()) {
+        qWarning() << failMessage << "QSB tool for preview shaders not found";
         return;
     }
 
     m_remainingQsbTargets = 2; // We only have 2 shaders
     const QStringList srcPaths = {m_vertexSourceFilename, m_fragmentSourceFilename};
     const QStringList outPaths = {m_vertexShaderFilename, m_fragmentShaderFilename};
-    for (int i = 0; i < 2; ++i) {
-        const auto workDir = Utils::FilePath::fromString(outPaths[i]);
-        // TODO: Optional legacy glsl support like standalone effect maker needs to add "100es,120"
-        QStringList args = {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50", "--msl", "12"};
-        args << "-o" << outPaths[i] << srcPaths[i];
+    const QStringList outPrevPaths = {m_vertexShaderPreviewFilename, m_fragmentShaderPreviewFilename};
 
-        auto qsbProcess = new Utils::Process(this);
-        connect(qsbProcess, &Utils::Process::done, this, [=] {
-            handleQsbProcessExit(qsbProcess, srcPaths[i]);
-        });
-        qsbProcess->setWorkingDirectory(workDir.absolutePath());
-        qsbProcess->setCommand({qsbPath, args});
-        qsbProcess->start();
-    }
+    auto runQsb = [this, srcPaths](const Utils::FilePath &qsbPath, const QStringList &outPaths, bool preview) {
+        for (int i = 0; i < 2; ++i) {
+            const auto workDir = Utils::FilePath::fromString(outPaths[i]);
+            // TODO: Optional legacy glsl support like standalone effect maker needs to add "100es,120"
+            QStringList args = {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50", "--msl", "12"};
+            args << "-o" << outPaths[i] << srcPaths[i];
+
+            auto qsbProcess = new Utils::Process(this);
+            connect(qsbProcess, &Utils::Process::done, this, [=] {
+                handleQsbProcessExit(qsbProcess, srcPaths[i], preview);
+            });
+            qsbProcess->setWorkingDirectory(workDir.absolutePath());
+            qsbProcess->setCommand({qsbPath, args});
+            qsbProcess->start();
+        }
+    };
+
+    runQsb(qsbPath, outPaths, false);
+    runQsb(qsbPrevPath, outPrevPaths, true);
+
 }
 
 bool EffectMakerModel::shadersUpToDate() const
@@ -1376,8 +1409,10 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
         s += '\n' + customImagesString;
 
     s += '\n';
-    s += l2 + "vertexShader: 'file:///" + m_vertexShaderFilename + "'\n";
-    s += l2 + "fragmentShader: 'file:///" + m_fragmentShaderFilename + "'\n";
+    const QString vertFile = localFiles ? m_vertexShaderFilename : m_vertexShaderPreviewFilename;
+    const QString fragFile = localFiles ? m_fragmentShaderFilename : m_fragmentShaderPreviewFilename;
+    s += l2 + "vertexShader: 'file:///" + vertFile + "'\n";
+    s += l2 + "fragmentShader: 'file:///" + fragFile + "'\n";
     s += l2 + "anchors.fill: parent\n";
     if (m_shaderFeatures.enabled(ShaderFeatures::GridMesh)) {
         QString gridSize = QString("%1, %2").arg(m_shaderFeatures.gridMeshWidth())

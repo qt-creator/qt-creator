@@ -141,7 +141,7 @@ private:
     QString getCustomShaderVaryings(bool outState);
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
-    void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader);
+    void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader, bool preview);
     QString stripFileFromURL(const QString &urlString) const;
     QString getQmlEffectString();
 
@@ -174,6 +174,8 @@ private:
     QString m_vertexSourceFilename;
     QString m_fragmentShaderFilename;
     QString m_vertexShaderFilename;
+    QString m_fragmentShaderPreviewFilename;
+    QString m_vertexShaderPreviewFilename;
     // Used in exported QML, at root of the file
     QString m_exportedRootPropertiesString;
     // Used in exported QML, at ShaderEffect component of the file
