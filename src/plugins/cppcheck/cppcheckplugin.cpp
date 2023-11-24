@@ -135,7 +135,7 @@ void CppcheckPluginPrivate::updateManualRunAction()
     const Target *target = ProjectManager::startupTarget();
     const Utils::Id cxx = ProjectExplorer::Constants::CXX_LANGUAGE_ID;
     const bool canRun = target && project->projectLanguages().contains(cxx)
-                  && ToolChainKitAspect::cxxToolChain(target->kit());
+                  && ToolchainKitAspect::cxxToolChain(target->kit());
     manualRunAction->setEnabled(canRun);
 }
 

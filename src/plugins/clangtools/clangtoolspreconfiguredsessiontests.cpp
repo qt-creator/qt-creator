@@ -148,7 +148,7 @@ static QList<Target *> validTargets(Project *project)
             return false;
         }
 
-        const Toolchain * const toolchain = ToolChainKitAspect::cxxToolChain(kit);
+        const Toolchain * const toolchain = ToolchainKitAspect::cxxToolChain(kit);
         QTC_ASSERT(toolchain, return false);
 
         if (Core::ICore::clangExecutable(CLANG_BINDIR).isEmpty()) {

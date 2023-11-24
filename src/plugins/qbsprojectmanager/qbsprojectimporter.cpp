@@ -141,12 +141,12 @@ bool QbsProjectImporter::matchKit(void *directoryData, const Kit *k) const
     const auto * const bgData = static_cast<BuildGraphData *>(directoryData);
     qCDebug(qbsPmLog) << "matching kit" << k->displayName() << "against imported build"
                       << bgData->bgFilePath.toUserOutput();
-    if (ToolChainKitAspect::toolChains(k).isEmpty() && bgData->cCompilerPath.isEmpty()
+    if (ToolchainKitAspect::toolChains(k).isEmpty() && bgData->cCompilerPath.isEmpty()
             && bgData->cxxCompilerPath.isEmpty()) {
         return true;
     }
-    const Toolchain * const cToolchain = ToolChainKitAspect::cToolChain(k);
-    const Toolchain * const cxxToolchain = ToolChainKitAspect::cxxToolChain(k);
+    const Toolchain * const cToolchain = ToolchainKitAspect::cToolChain(k);
+    const Toolchain * const cxxToolchain = ToolchainKitAspect::cxxToolChain(k);
     if (!bgData->cCompilerPath.isEmpty()) {
         if (!cToolchain)
             return false;
@@ -190,7 +190,7 @@ Kit *QbsProjectImporter::createKit(void *directoryData) const
             tcData << findOrCreateToolChains({bgData->cCompilerPath, PEConstants::C_LANGUAGE_ID});
         for (const ToolChainData &tc : std::as_const(tcData)) {
             if (!tc.tcs.isEmpty())
-                ToolChainKitAspect::setToolChain(k, tc.tcs.first());
+                ToolchainKitAspect::setToolChain(k, tc.tcs.first());
         }
         SysRootKitAspect::setSysRoot(k, bgData->sysroot);
     });

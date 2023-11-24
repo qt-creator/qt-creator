@@ -937,7 +937,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
-            Toolchain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
+            Toolchain *tc = ToolchainKitAspect::toolChain(k, tcd.language);
             if ((!tc || !tc->matchesCompilerCommand(tcd.compilerPath))) {
                 return false;
             }
@@ -950,7 +950,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
-            Toolchain *tc = ToolChainKitAspect::toolChain(k, tcd.language);
+            Toolchain *tc = ToolchainKitAspect::toolChain(k, tcd.language);
             if (tc && tc->matchesCompilerCommand(tcd.compilerPath)) {
                 return false;
             }
@@ -1001,10 +1001,10 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
             if (tcd.areTemporary) {
                 for (Toolchain *tc : tcd.tcs)
-                    addTemporaryData(ToolChainKitAspect::id(), tc->id(), k);
+                    addTemporaryData(ToolchainKitAspect::id(), tc->id(), k);
             }
 
-            ToolChainKitAspect::setToolChain(k, tcd.tcs.at(0));
+            ToolchainKitAspect::setToolChain(k, tcd.tcs.at(0));
         }
 
         if (!data->cmakePresetDisplayname.isEmpty()) {

@@ -1387,9 +1387,9 @@ void AndroidConfigurations::updateAutomaticKitList()
                 if (qt != QtKitAspect::qtVersion(b))
                     return false;
                 return matchToolChain(toolChainForLanguage[ProjectExplorer::Constants::CXX_LANGUAGE_ID],
-                                      ToolChainKitAspect::cxxToolChain(b))
+                                      ToolchainKitAspect::cxxToolChain(b))
                         && matchToolChain(toolChainForLanguage[ProjectExplorer::Constants::C_LANGUAGE_ID],
-                                          ToolChainKitAspect::cToolChain(b));
+                                          ToolchainKitAspect::cToolChain(b));
             });
 
             const auto initializeKit = [allLanguages, tc, qt](Kit *k) {
@@ -1397,7 +1397,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                 k->setAutoDetectionSource("AndroidConfiguration");
                 DeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
                 for (Toolchain *tc : allLanguages)
-                    ToolChainKitAspect::setToolChain(k, tc);
+                    ToolchainKitAspect::setToolChain(k, tc);
                 QtKitAspect::setQtVersion(k, qt);
                 QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
                 Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, abis));

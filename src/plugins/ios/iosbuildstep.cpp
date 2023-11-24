@@ -148,7 +148,7 @@ bool IosBuildStep::init()
     if (!AbstractProcessStep::init())
         return false;
 
-    Toolchain *tc = ToolChainKitAspect::cxxToolChain(kit());
+    Toolchain *tc = ToolchainKitAspect::cxxToolChain(kit());
     if (!tc) {
         emit addTask(Task::compilerMissingTask());
         emitFaultyConfigurationMessage();
@@ -195,7 +195,7 @@ QStringList IosBuildStep::defaultArguments() const
 {
     QStringList res;
     Kit *kit = target()->kit();
-    Toolchain *tc = ToolChainKitAspect::cxxToolChain(kit);
+    Toolchain *tc = ToolchainKitAspect::cxxToolChain(kit);
     switch (buildConfiguration()->buildType()) {
     case BuildConfiguration::Debug :
         res << "-configuration" << "Debug";

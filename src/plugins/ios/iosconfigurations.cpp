@@ -171,13 +171,13 @@ static void setupKit(Kit *kit, Id pDeviceType, const ToolChainPair& toolChains,
 {
     DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
     if (toolChains.first)
-        ToolChainKitAspect::setToolChain(kit, toolChains.first);
+        ToolchainKitAspect::setToolChain(kit, toolChains.first);
     else
-        ToolChainKitAspect::clearToolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID);
+        ToolchainKitAspect::clearToolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID);
     if (toolChains.second)
-        ToolChainKitAspect::setToolChain(kit, toolChains.second);
+        ToolchainKitAspect::setToolChain(kit, toolChains.second);
     else
-        ToolChainKitAspect::clearToolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        ToolchainKitAspect::clearToolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     QtKitAspect::setQtVersion(kit, qtVersion);
     // only replace debugger with the default one if we find an unusable one here
@@ -190,7 +190,7 @@ static void setupKit(Kit *kit, Id pDeviceType, const ToolChainPair& toolChains,
 
     kit->setMutable(DeviceKitAspect::id(), true);
     kit->setSticky(QtKitAspect::id(), true);
-    kit->setSticky(ToolChainKitAspect::id(), true);
+    kit->setSticky(ToolchainKitAspect::id(), true);
     kit->setSticky(DeviceTypeKitAspect::id(), true);
     kit->setSticky(SysRootKitAspect::id(), true);
     kit->setSticky(DebuggerKitAspect::id(), false);
@@ -274,8 +274,8 @@ void IosConfigurations::updateAutomaticKitList()
                     // we do not compare the sdk (thus automatically upgrading it in place if a
                     // new Xcode is used). Change?
                     return DeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
-                            && ToolChainKitAspect::cxxToolChain(kit) == platformToolchains.second
-                            && ToolChainKitAspect::cToolChain(kit) == platformToolchains.first
+                            && ToolchainKitAspect::cxxToolChain(kit) == platformToolchains.second
+                            && ToolchainKitAspect::cToolChain(kit) == platformToolchains.first
                             && QtKitAspect::qtVersion(kit) == qtVersion;
                 });
                 QTC_ASSERT(!resultingKits.contains(kit), continue);

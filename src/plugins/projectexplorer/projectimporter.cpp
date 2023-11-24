@@ -53,7 +53,7 @@ static bool hasOtherUsers(Utils::Id id, const QVariant &v, Kit *k)
 
 ProjectImporter::ProjectImporter(const Utils::FilePath &path) : m_projectPath(path)
 {
-    useTemporaryKitAspect(ToolChainKitAspect::id(),
+    useTemporaryKitAspect(ToolchainKitAspect::id(),
                                [this](Kit *k, const QVariantList &vl) { cleanupTemporaryToolChains(k, vl); },
                                [this](Kit *k, const QVariantList &vl) { persistTemporaryToolChains(k, vl); });
 }
@@ -322,7 +322,7 @@ void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
         Toolchain *tc = toolChainFromVariant(v);
         QTC_ASSERT(tc, continue);
         ToolChainManager::deregisterToolChain(tc);
-        ToolChainKitAspect::setToolChain(k, nullptr);
+        ToolchainKitAspect::setToolChain(k, nullptr);
     }
 }
 
@@ -331,7 +331,7 @@ void ProjectImporter::persistTemporaryToolChains(Kit *k, const QVariantList &vl)
     for (const QVariant &v : vl) {
         Toolchain *tmpTc = toolChainFromVariant(v);
         QTC_ASSERT(tmpTc, continue);
-        Toolchain *actualTc = ToolChainKitAspect::toolChain(k, tmpTc->language());
+        Toolchain *actualTc = ToolchainKitAspect::toolChain(k, tmpTc->language());
         if (tmpTc && actualTc != tmpTc)
             ToolChainManager::deregisterToolChain(tmpTc);
     }
@@ -394,7 +394,7 @@ ProjectImporter::findOrCreateToolChains(const ToolChainDescription &tcd) const
     });
     for (const Toolchain *tc : std::as_const(result.tcs)) {
         const QByteArray tcId = tc->id();
-        result.areTemporary = result.areTemporary ? true : hasKitWithTemporaryData(ToolChainKitAspect::id(), tcId);
+        result.areTemporary = result.areTemporary ? true : hasKitWithTemporaryData(ToolchainKitAspect::id(), tcId);
     }
     if (!result.tcs.isEmpty())
         return result;

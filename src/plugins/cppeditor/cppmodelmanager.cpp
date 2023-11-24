@@ -412,9 +412,9 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
     const Toolchain * tc = nullptr;
     const ProjectFile classifier(filePath, ProjectFile::classify(filePath.toString()));
     if (classifier.isC()) {
-        tc = ToolChainKitAspect::cToolChain(project->activeTarget()->kit());
+        tc = ToolchainKitAspect::cToolChain(project->activeTarget()->kit());
     } else if (classifier.isCxx() || classifier.isHeader()) {
-        tc = ToolChainKitAspect::cxxToolChain(project->activeTarget()->kit());
+        tc = ToolchainKitAspect::cxxToolChain(project->activeTarget()->kit());
     } else {
         showFallbackWarning(Tr::tr("Could not determine which compiler to invoke."));
         useBuiltinPreprocessor();
@@ -1965,7 +1965,7 @@ void CppModelManager::setupFallbackProjectPart()
     // TODO: Use different fallback toolchain for different kinds of files?
     const Kit * const defaultKit = KitManager::isLoaded() ? KitManager::defaultKit() : nullptr;
     const Toolchain * const defaultTc = defaultKit
-            ? ToolChainKitAspect::cxxToolChain(defaultKit) : nullptr;
+            ? ToolchainKitAspect::cxxToolChain(defaultKit) : nullptr;
     if (defaultKit && defaultTc) {
         FilePath sysroot = SysRootKitAspect::sysRoot(defaultKit);
         if (sysroot.isEmpty())

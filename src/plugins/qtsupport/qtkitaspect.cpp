@@ -175,7 +175,7 @@ void QtKitAspectFactory::setup(Kit *k)
 {
     if (!k || k->hasValue(id()))
         return;
-    const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+    const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
     const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
 
     const QtVersions matches
@@ -226,7 +226,7 @@ void QtKitAspectFactory::fix(Kit *k)
     }
 
     // Set a matching toolchain if we don't have one.
-    if (ToolChainKitAspect::cxxToolChain(k))
+    if (ToolchainKitAspect::cxxToolChain(k))
         return;
 
     const QString spec = version->mkspec();
@@ -283,7 +283,7 @@ void QtKitAspectFactory::fix(Kit *k)
         });
 
         if (Toolchain * const bestTc = goodTcs.isEmpty() ? possibleTcs.first() : goodTcs.first())
-            ToolChainKitAspect::setAllToolChainsToMatch(k, bestTc);
+            ToolchainKitAspect::setAllToolChainsToMatch(k, bestTc);
     }
 }
 
@@ -405,7 +405,7 @@ void QtKitAspect::setQtVersion(Kit *k, const QtVersion *v)
 
 void QtKitAspect::addHostBinariesToPath(const Kit *k, Environment &env)
 {
-    if (const Toolchain *tc = ToolChainKitAspect::cxxToolChain(k))
+    if (const Toolchain *tc = ToolchainKitAspect::cxxToolChain(k))
         env.prependOrSetPath(tc->compilerCommand().parentDir());
 
     if (const QtVersion *qt = qtVersion(k))
@@ -479,7 +479,7 @@ int QtKitAspectFactory::weight(const Kit *k) const
         return 0;
     if (!qt->targetDeviceTypes().contains(DeviceTypeKitAspect::deviceTypeId(k)))
         return 0;
-    const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+    const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
     if (qt->qtAbis().contains(tcAbi))
         return 2;
     return Utils::contains(qt->qtAbis(), [&tcAbi](const Abi &qtAbi) {

@@ -1091,7 +1091,7 @@ static bool isQnx(const Kit *k)
 
 static bool isWindowsARM64(const Kit *k)
 {
-    Toolchain *toolchain = ToolChainKitAspect::cxxToolChain(k);
+    Toolchain *toolchain = ToolchainKitAspect::cxxToolChain(k);
     if (!toolchain)
         return false;
     const Abi targetAbi = toolchain->targetAbi();
@@ -1124,7 +1124,7 @@ static CommandLine defaultInitialCMakeCommand(const Kit *k, const QString &build
         const QString sysRoot = SysRootKitAspect::sysRoot(k).path();
         if (!sysRoot.isEmpty()) {
             cmd.addArg("-DCMAKE_SYSROOT:PATH=" + sysRoot);
-            if (Toolchain *tc = ToolChainKitAspect::cxxToolChain(k)) {
+            if (Toolchain *tc = ToolchainKitAspect::cxxToolChain(k)) {
                 const QString targetTriple = tc->originalTargetTriple();
                 cmd.addArg("-DCMAKE_C_COMPILER_TARGET:STRING=" + targetTriple);
                 cmd.addArg("-DCMAKE_CXX_COMPILER_TARGET:STRING=" + targetTriple);

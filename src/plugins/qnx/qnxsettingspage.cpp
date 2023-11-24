@@ -182,7 +182,7 @@ void QnxConfiguration::deactivate()
     for (Kit *kit : kits) {
         if (kit->isAutoDetected()
                 && DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
-                && toolChainsToRemove.contains(ToolChainKitAspect::cxxToolChain(kit))) {
+                && toolChainsToRemove.contains(ToolchainKitAspect::cxxToolChain(kit))) {
             KitManager::deregisterKit(kit);
         }
     }
@@ -258,8 +258,8 @@ void QnxConfiguration::createKit(const QnxTarget &target)
 
     const auto init = [&](Kit *k) {
         QtKitAspect::setQtVersion(k, qnxQt);
-        ToolChainKitAspect::setToolChain(k, toolChains[0]);
-        ToolChainKitAspect::setToolChain(k, toolChains[1]);
+        ToolchainKitAspect::setToolChain(k, toolChains[0]);
+        ToolchainKitAspect::setToolChain(k, toolChains[1]);
 
         if (debugger.isValid())
             DebuggerKitAspect::setDebugger(k, debugger);
@@ -275,7 +275,7 @@ void QnxConfiguration::createKit(const QnxTarget &target)
         k->setAutoDetectionSource(m_envFile.toString());
         k->setMutable(DeviceKitAspect::id(), true);
 
-        k->setSticky(ToolChainKitAspect::id(), true);
+        k->setSticky(ToolchainKitAspect::id(), true);
         k->setSticky(DeviceTypeKitAspect::id(), true);
         k->setSticky(SysRootKitAspect::id(), true);
         k->setSticky(DebuggerKitAspect::id(), true);

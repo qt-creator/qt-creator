@@ -900,7 +900,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         m_runParameters.projectSourceFiles.clear();
     }
 
-    m_runParameters.toolChainAbi = ToolChainKitAspect::targetAbi(kit);
+    m_runParameters.toolChainAbi = ToolchainKitAspect::targetAbi(kit);
 
     bool ok = false;
     const int nativeMixedOverride = qtcEnvironmentVariableIntValue("QTC_DEBUGGER_NATIVE_MIXED", &ok);

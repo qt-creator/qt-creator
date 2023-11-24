@@ -169,7 +169,7 @@ void NimBuildSystem::triggerParsing()
 
 FilePath nimPathFromKit(Kit *kit)
 {
-    auto tc = ToolChainKitAspect::toolChain(kit, Constants::C_NIMLANGUAGE_ID);
+    auto tc = ToolchainKitAspect::toolChain(kit, Constants::C_NIMLANGUAGE_ID);
     QTC_ASSERT(tc, return {});
     const FilePath command = tc->compilerCommand();
     return command.isEmpty() ? FilePath() : command.absolutePath();

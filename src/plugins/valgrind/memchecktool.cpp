@@ -714,7 +714,7 @@ void MemcheckToolPrivate::heobAction()
         if (RunConfiguration *rc = target->activeRunConfiguration()) {
             kit = target->kit();
             if (kit) {
-                abi = ToolChainKitAspect::targetAbi(kit);
+                abi = ToolchainKitAspect::targetAbi(kit);
                 sr = rc->runnable();
                 const IDevice::ConstPtr device
                         = DeviceManager::deviceForPath(sr.command.executable());

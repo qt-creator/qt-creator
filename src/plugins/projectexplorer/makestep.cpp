@@ -130,7 +130,7 @@ QString MakeStep::defaultDisplayName()
 static const QList<Toolchain *> preferredToolChains(const Kit *kit)
 {
     // prefer CXX, then C, then others
-    return Utils::sorted(ToolChainKitAspect::toolChains(kit), [](Toolchain *tcA, Toolchain *tcB) {
+    return Utils::sorted(ToolchainKitAspect::toolChains(kit), [](Toolchain *tcA, Toolchain *tcB) {
         if (tcA->language() == tcB->language())
             return false;
         if (tcA->language() == Constants::CXX_LANGUAGE_ID)

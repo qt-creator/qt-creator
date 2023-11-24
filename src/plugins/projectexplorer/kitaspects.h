@@ -26,7 +26,7 @@ public:
 
 // ToolChainKitAspect
 
-class PROJECTEXPLORER_EXPORT ToolChainKitAspect
+class PROJECTEXPLORER_EXPORT ToolchainKitAspect
 {
 public:
     static Utils::Id id();

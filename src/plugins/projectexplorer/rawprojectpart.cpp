@@ -142,8 +142,8 @@ KitInfo::KitInfo(Kit *kit)
 {
     // Toolchains
     if (kit) {
-        cToolChain = ToolChainKitAspect::cToolChain(kit);
-        cxxToolChain = ToolChainKitAspect::cxxToolChain(kit);
+        cToolChain = ToolchainKitAspect::cToolChain(kit);
+        cxxToolChain = ToolchainKitAspect::cxxToolChain(kit);
     }
 
     // Sysroot

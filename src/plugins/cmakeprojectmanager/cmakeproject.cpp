@@ -58,7 +58,7 @@ Tasks CMakeProject::projectIssues(const Kit *k) const
 
     if (!CMakeKitAspect::cmakeTool(k))
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No cmake tool set.")));
-    if (ToolChainKitAspect::toolChains(k).isEmpty())
+    if (ToolchainKitAspect::toolChains(k).isEmpty())
         result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No compilers set in kit.")));
 
     result.append(m_issues);

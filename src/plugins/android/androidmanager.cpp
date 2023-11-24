@@ -183,7 +183,7 @@ QJsonObject deploymentSettings(const Target *target)
     if (!qt)
         return {};
 
-    auto tc = ToolChainKitAspect::cxxToolChain(target->kit());
+    auto tc = ToolchainKitAspect::cxxToolChain(target->kit());
     if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID)
         return {};
     QJsonObject settings;

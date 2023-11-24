@@ -542,7 +542,7 @@ Tasks QtVersion::validateKit(const Kit *k)
             result << BuildSystemTask(Task::Warning, Tr::tr("Device type is not supported by Qt version."));
     }
 
-    if (Toolchain *tc = ToolChainKitAspect::cxxToolChain(k)) {
+    if (Toolchain *tc = ToolchainKitAspect::cxxToolChain(k)) {
         Abi targetAbi = tc->targetAbi();
         Abis supportedAbis = tc->supportedAbis();
         bool fuzzyMatch = false;
@@ -576,7 +576,7 @@ Tasks QtVersion::validateKit(const Kit *k)
                                   version->displayName(), qtAbiString);
             result << BuildSystemTask(fuzzyMatch ? Task::Warning : Task::Error, message);
         }
-    } else if (ToolChainKitAspect::cToolChain(k)) {
+    } else if (ToolchainKitAspect::cToolChain(k)) {
         const QString message = Tr::tr("The kit has a Qt version, but no C++ compiler.");
         result << BuildSystemTask(Task::Warning, message);
     }

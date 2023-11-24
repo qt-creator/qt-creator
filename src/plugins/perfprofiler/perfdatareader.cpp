@@ -288,7 +288,7 @@ void PerfDataReader::collectArguments(CommandLine *cmd, const QString &exe, cons
                      .arg(cmd->executable().osType() == OsTypeWindows ? u';' : u':'));
     }
 
-    if (auto toolChain = ToolChainKitAspect::cxxToolChain(kit)) {
+    if (auto toolChain = ToolchainKitAspect::cxxToolChain(kit)) {
         Abi::Architecture architecture = toolChain->targetAbi().architecture();
         if (architecture == Abi::ArmArchitecture && toolChain->targetAbi().wordWidth() == 64) {
             cmd->addArg("--arch");

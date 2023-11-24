@@ -108,7 +108,7 @@ QString compilerPath(QString pathFlag)
 Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Utils::Id &language)
 {
     if (flags.empty())
-        return ToolChainKitAspect::toolChain(kit, language);
+        return ToolchainKitAspect::toolChain(kit, language);
 
     // Try exact compiler match.
     const Utils::FilePath compiler = Utils::FilePath::fromUserInput(compilerPath(flags.front()));
@@ -131,7 +131,7 @@ Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Ut
             return toolchain;
     }
 
-    toolchain = ToolChainKitAspect::toolChain(kit, language);
+    toolchain = ToolchainKitAspect::toolChain(kit, language);
     qWarning() << "No matching toolchain found, use the default.";
     return toolchain;
 }

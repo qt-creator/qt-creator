@@ -407,8 +407,8 @@ void CMakeManager::buildFile(Node *node)
             return extension;
 
         const auto toolchain = ProjectFile::isCxx(sourceKind)
-                                   ? ToolChainKitAspect::cxxToolChain(target->kit())
-                                   : ToolChainKitAspect::cToolChain(target->kit());
+                                   ? ToolchainKitAspect::cxxToolChain(target->kit())
+                                   : ToolchainKitAspect::cToolChain(target->kit());
         using namespace ProjectExplorer::Constants;
         static QSet<Id> objIds{
             CLANG_CL_TOOLCHAIN_TYPEID,

@@ -149,7 +149,7 @@ QMakeStepConfig QMakeStep::deducedArguments() const
     Kit *kit = target()->kit();
     QMakeStepConfig config;
     Abi targetAbi;
-    if (Toolchain *tc = ToolChainKitAspect::cxxToolChain(kit)) {
+    if (Toolchain *tc = ToolchainKitAspect::cxxToolChain(kit)) {
         targetAbi = tc->targetAbi();
         if (HostOsInfo::isWindowsHost()
             && tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {

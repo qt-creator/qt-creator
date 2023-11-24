@@ -148,7 +148,7 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
     if (!debugger.isExecutableFile())
         result |= DebuggerNotExecutable;
 
-    const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+    const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
     if (item->matchTarget(tcAbi) == DebuggerItem::DoesNotMatch) {
         // currently restricting the check to desktop devices, may be extended to all device types
         const IDevice::ConstPtr device = DeviceKitAspect::device(k);
@@ -303,7 +303,7 @@ public:
         //  </valuemap>
         const QVariant rawId = k->value(DebuggerKitAspectFactory::id());
 
-        const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+        const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
 
         // Get the best of the available debugger matching the kit's toolchain.
         // The general idea is to find an item that exactly matches what

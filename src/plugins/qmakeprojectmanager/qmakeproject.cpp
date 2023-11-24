@@ -238,7 +238,7 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
 
     connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
             this, [this](Toolchain *tc) {
-        if (ToolChainKitAspect::cxxToolChain(kit()) == tc)
+        if (ToolchainKitAspect::cxxToolChain(kit()) == tc)
             scheduleUpdateAllNowOrLater();
     });
 
@@ -757,7 +757,7 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Qt version set in kit.")));
     else if (!qtFromKit->isValid())
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is invalid.")));
-    if (!ToolChainKitAspect::cxxToolChain(k))
+    if (!ToolchainKitAspect::cxxToolChain(k))
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No C++ compiler set in kit.")));
 
     // A project can be considered part of more than one Qt version, for instance if it is an
@@ -1308,7 +1308,7 @@ static FilePath destDirFor(const TargetInformation &ti)
 
 FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
 {
-    const Toolchain *const toolchain = ToolChainKitAspect::cxxToolChain(kit());
+    const Toolchain *const toolchain = ToolchainKitAspect::cxxToolChain(kit());
     if (!toolchain)
         return {};
 
@@ -1467,14 +1467,14 @@ QString QmakeBuildSystem::deviceRoot() const
 void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const
 {
     const BuildConfiguration *bc = buildConfiguration();
-    testToolChain(ToolChainKitAspect::cToolChain(kit()), getFullPathOf(pro, Variable::QmakeCc, bc));
-    testToolChain(ToolChainKitAspect::cxxToolChain(kit()),
+    testToolChain(ToolchainKitAspect::cToolChain(kit()), getFullPathOf(pro, Variable::QmakeCc, bc));
+    testToolChain(ToolchainKitAspect::cxxToolChain(kit()),
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
 FilePath QmakeBuildSystem::executableFor(const QmakeProFile *file)
 {
-    const Toolchain *const tc = ToolChainKitAspect::cxxToolChain(kit());
+    const Toolchain *const tc = ToolchainKitAspect::cxxToolChain(kit());
     if (!tc)
         return {};
 

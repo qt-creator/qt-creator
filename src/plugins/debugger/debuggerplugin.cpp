@@ -533,7 +533,7 @@ static Kit::Predicate cdbPredicate(char wordWidth = 0)
             return false;
         }
         if (wordWidth)
-            return ToolChainKitAspect::targetAbi(k).wordWidth() == wordWidth;
+            return ToolchainKitAspect::targetAbi(k).wordWidth() == wordWidth;
         return true;
     };
 }
@@ -1308,13 +1308,13 @@ static Kit *guessKitFromAbis(const Abis &abis)
     if (!abis.isEmpty()) {
         // Try exact abis.
         kit = KitManager::kit([abis](const Kit *k) {
-            const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+            const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
             return abis.contains(tcAbi) && !DebuggerKitAspect::configurationErrors(k);
         });
         if (!kit) {
             // Or something compatible.
             kit = KitManager::kit([abis](const Kit *k) {
-                const Abi tcAbi = ToolChainKitAspect::targetAbi(k);
+                const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
                 return !DebuggerKitAspect::configurationErrors(k)
                         && Utils::contains(abis, [tcAbi](const Abi &a) { return a.isCompatibleWith(tcAbi); });
             });
@@ -1764,7 +1764,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
         return nullptr;
     }
 
-    const Abi tcAbi = ToolChainKitAspect::targetAbi(kit);
+    const Abi tcAbi = ToolchainKitAspect::targetAbi(kit);
     const bool isWindows = (tcAbi.os() == Abi::WindowsOS);
     if (isWindows && isWinProcessBeingDebugged(processInfo.processId)) {
         AsynchronousMessageBox::warning(

@@ -52,7 +52,7 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
 Tasks NimProject::projectIssues(const Kit *k) const
 {
     Tasks result = Project::projectIssues(k);
-    auto tc = ToolChainKitAspect::toolChain(k, Constants::C_NIMLANGUAGE_ID);
+    auto tc = ToolchainKitAspect::toolChain(k, Constants::C_NIMLANGUAGE_ID);
     if (!tc) {
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Nim compiler set.")));
         return result;

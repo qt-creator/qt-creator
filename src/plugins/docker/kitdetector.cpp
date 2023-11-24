@@ -364,12 +364,12 @@ void KitDetectorPrivate::autoDetect()
                    && (!qt || qt->qtAbis().contains(tc->targetAbi()));
         });
         for (Toolchain *toolChain : toolchainsToSet)
-            ToolChainKitAspect::setToolChain(k, toolChain);
+            ToolchainKitAspect::setToolChain(k, toolChain);
 
         if (cmakeId.isValid())
             k->setSticky(CMakeProjectManager::Constants::TOOL_ID, true);
 
-        k->setSticky(ToolChainKitAspect::id(), true);
+        k->setSticky(ToolchainKitAspect::id(), true);
         k->setSticky(QtSupport::QtKitAspect::id(), true);
         k->setSticky(DeviceKitAspect::id(), true);
         k->setSticky(DeviceTypeKitAspect::id(), true);

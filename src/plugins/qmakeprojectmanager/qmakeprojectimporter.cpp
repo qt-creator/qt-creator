@@ -160,7 +160,7 @@ bool QmakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
     QtVersion *kitVersion = QtKitAspect::qtVersion(k);
     QString kitSpec = QmakeKitAspect::mkspec(k);
-    Toolchain *tc = ToolChainKitAspect::cxxToolChain(k);
+    Toolchain *tc = ToolchainKitAspect::cxxToolChain(k);
     if (kitSpec.isEmpty() && kitVersion)
         kitSpec = kitVersion->mkspecFor(tc);
     QMakeStepConfig::OsType kitOsType = QMakeStepConfig::NoOsType;
@@ -241,7 +241,7 @@ Kit *QmakeProjectImporter::createTemporaryKit(const QtProjectImporter::QtVersion
     Q_UNUSED(osType) // TODO use this to select the right toolchain?
     return QtProjectImporter::createTemporaryKit(data, [&data, parsedSpec](Kit *k) -> void {
         for (Toolchain *const tc : preferredToolChains(data.qt, parsedSpec))
-            ToolChainKitAspect::setToolChain(k, tc);
+            ToolchainKitAspect::setToolChain(k, tc);
         if (parsedSpec != data.qt->mkspec())
             QmakeKitAspect::setMkspec(k, parsedSpec, QmakeKitAspect::MkspecSource::Code);
     });
