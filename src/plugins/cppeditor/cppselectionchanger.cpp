@@ -546,7 +546,7 @@ void CppSelectionChanger::fineTuneASTNodePositions(ASTNodePositions &positions) 
 
             // Start position will be the end position minus the size of the actual contents of the
             // literal.
-            int newPosStart = newPosEnd - firstToken.string->size();
+            int newPosStart = newPosEnd - QString::fromUtf8(firstToken.string->chars()).size();
 
             // Skip raw literal parentheses.
             if (isRawLiteral)
