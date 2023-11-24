@@ -372,6 +372,9 @@ void DockWidgetTab::mouseReleaseEvent(QMouseEvent *event)
             event->accept();
             d->m_floatingWidget->finishDragging();
             break;
+
+        default:
+            break;
         }
 
         if (DockManager::testConfigFlag(DockManager::FocusHighlighting))
