@@ -94,10 +94,10 @@ void DashboardWidget::updateUi()
         delete child->widget();
         delete child;
     }
-    std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo = Internal::projectInfo();
+    std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
     if (!projectInfo)
         return;
-    const Dto::ProjectInfoDto &info = projectInfo->data;
+    const Dto::ProjectInfoDto &info = *projectInfo;
     m_project->setText(info.name);
     if (info.versions.empty())
         return;
@@ -154,11 +154,11 @@ void DashboardWidget::updateUi()
         for (const Dto::Any::MapEntry &issueCount : last.issueCounts.getMap()) {
             if (issueCount.second.isMap()) {
                 const Dto::Any::Map &counts = issueCount.second.getMap();
-                qint64 total = extract_value(counts, QStringLiteral(u"Total"));
+                qint64 total = extract_value(counts, QStringLiteral("Total"));
                 allTotal += total;
-                qint64 added = extract_value(counts, QStringLiteral(u"Added"));
+                qint64 added = extract_value(counts, QStringLiteral("Added"));
                 allAdded += added;
-                qint64 removed = extract_value(counts, QStringLiteral(u"Removed"));
+                qint64 removed = extract_value(counts, QStringLiteral("Removed"));
                 allRemoved += removed;
                 addValuesWidgets(issueCount.first, total, added, removed, row);
                 ++row;

@@ -39,8 +39,6 @@ QtcPlugin {
             "concat.h",
             "dto.cpp",
             "dto.h",
-            "dashboardclient.cpp",
-            "dashboardclient.h",
             "error.cpp",
             "error.h",
         ]

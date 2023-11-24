@@ -9,8 +9,8 @@
 #include "axivionresultparser.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
-#include "dashboard/dashboardclient.h"
 #include "dashboard/dto.h"
+#include "dashboard/error.h"
 
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
@@ -24,11 +24,15 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <solutions/tasking/networkquery.h>
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/expected.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/qtcassert.h>
@@ -46,6 +50,9 @@
 
 constexpr char AxivionTextMarkId[] = "AxivionTextMark";
 
+using namespace Tasking;
+using namespace Utils;
+
 namespace Axivion::Internal {
 
 class AxivionPluginPrivate : public QObject
@@ -55,7 +62,6 @@ public:
     void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
     void onStartupProjectChanged();
     void fetchProjectInfo(const QString &projectName);
-    void handleProjectInfo(DashboardClient::RawProjectInfo rawInfo);
     void handleOpenedDocs(ProjectExplorer::Project *project);
     void onDocumentOpened(Core::IDocument *doc);
     void onDocumentClosed(Core::IDocument * doc);
@@ -63,10 +69,11 @@ public:
     void handleIssuesForFile(const IssuesList &issues);
     void fetchRuleInfo(const QString &id);
 
-    Utils::NetworkAccessManager m_networkAccessManager;
+    NetworkAccessManager m_networkAccessManager;
     AxivionOutputPane m_axivionOutputPane;
-    std::shared_ptr<const DashboardClient::ProjectInfo> m_currentProjectInfo;
+    std::optional<Dto::ProjectInfoDto> m_currentProjectInfo;
     bool m_runningQuery = false;
+    TaskTreeRunner m_taskTreeRunner;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
@@ -74,13 +81,13 @@ static AxivionPluginPrivate *dd = nullptr;
 class AxivionTextMark : public TextEditor::TextMark
 {
 public:
-    AxivionTextMark(const Utils::FilePath &filePath, const ShortIssue &issue);
+    AxivionTextMark(const FilePath &filePath, const ShortIssue &issue);
 
 private:
     QString m_id;
 };
 
-AxivionTextMark::AxivionTextMark(const Utils::FilePath &filePath, const ShortIssue &issue)
+AxivionTextMark::AxivionTextMark(const FilePath &filePath, const ShortIssue &issue)
     : TextEditor::TextMark(filePath, issue.lineNumber, {Tr::tr("Axivion"), AxivionTextMarkId})
     , m_id(issue.id)
 {
@@ -105,7 +112,7 @@ void fetchProjectInfo(const QString &projectName)
     dd->fetchProjectInfo(projectName);
 }
 
-std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo()
+std::optional<Dto::ProjectInfoDto> projectInfo()
 {
     QTC_ASSERT(dd, return {});
     return dd->m_currentProjectInfo;
@@ -172,9 +179,25 @@ void AxivionPluginPrivate::onStartupProjectChanged()
     fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
+static QUrl urlForProject(const QString &projectName)
+{
+    QString dashboard = settings().server.dashboard;
+    if (!dashboard.endsWith(QLatin1Char('/')))
+        dashboard += QLatin1Char('/');
+    return QUrl(dashboard).resolved(QStringLiteral("api/projects/")).resolved(projectName);
+}
+
+static constexpr int httpStatusCodeOk = 200;
+static const QLatin1String jsonContentType{ "application/json" };
+
+static void deserialize(QPromise<Dto::ProjectInfoDto> &promise, const QByteArray &input)
+{
+    promise.addResult(Dto::ProjectInfoDto::deserialize(input));
+}
+
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
-    if (m_runningQuery) { // re-schedule
+    if (m_taskTreeRunner.isRunning()) { // TODO: cache in queue and run when task tree finished
         QTimer::singleShot(3000, this, [this, projectName] { fetchProjectInfo(projectName); });
         return;
     }
@@ -184,17 +207,94 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
         m_axivionOutputPane.updateDashboard();
         return;
     }
-    m_runningQuery = true;
-    DashboardClient client { this->m_networkAccessManager };
-    QFuture<DashboardClient::RawProjectInfo> response = client.fetchProjectInfo(projectName);
-    auto responseWatcher = std::make_shared<QFutureWatcher<DashboardClient::RawProjectInfo>>();
-    connect(responseWatcher.get(),
-            &QFutureWatcher<DashboardClient::RawProjectInfo>::finished,
-            this,
-            [this, responseWatcher]() {
-                handleProjectInfo(responseWatcher->result());
-            });
-    responseWatcher->setFuture(response);
+
+    const QUrl url = urlForProject(projectName);
+
+    const Storage<QByteArray> storage;
+
+    const auto onQuerySetup = [this, url](NetworkQuery &query) {
+        QNetworkRequest request(url);
+        request.setRawHeader(QByteArrayLiteral("Accept"),
+                             QByteArray(jsonContentType.data(), jsonContentType.size()));
+        request.setRawHeader(QByteArrayLiteral("Authorization"),
+                             QByteArrayLiteral("AxToken ") + settings().server.token.toUtf8());
+        const QByteArray ua = QByteArrayLiteral("Axivion")
+                              + QCoreApplication::applicationName().toUtf8()
+                              + QByteArrayLiteral("Plugin/")
+                              + QCoreApplication::applicationVersion().toUtf8();
+        request.setRawHeader(QByteArrayLiteral("X-Axivion-User-Agent"), ua);
+        query.setRequest(request);
+        query.setNetworkAccessManager(&m_networkAccessManager);
+    };
+
+    const auto onQueryDone = [storage, url](const NetworkQuery &query, DoneWith doneWith) {
+        QNetworkReply *reply = query.reply();
+        const QNetworkReply::NetworkError error = reply->error();
+        const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+        const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
+                                        .toString()
+                                        .split(';')
+                                        .constFirst()
+                                        .trimmed()
+                                        .toLower();
+        if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
+            && contentType == jsonContentType) {
+            *storage = reply->readAll();
+            return DoneResult::Success;
+        }
+
+        const auto getError = [&]() -> Error {
+            if (contentType == jsonContentType) {
+                try {
+                    return DashboardError(reply->url(), statusCode,
+                        reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+                        Dto::ErrorDto::deserialize(reply->readAll()));
+                } catch (const Dto::invalid_dto_exception &) {
+                    // ignore
+                }
+            }
+            if (statusCode != 0) {
+                return HttpError(reply->url(), statusCode,
+                    reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
+                    QString::fromUtf8(reply->readAll())); // encoding?
+            }
+            return NetworkError(reply->url(), error, reply->errorString());
+        };
+
+        Core::MessageManager::writeFlashing(
+            QStringLiteral("Axivion: %1").arg(getError().message()));
+        return DoneResult::Error;
+    };
+
+    const auto onDeserializeSetup = [storage](Async<Dto::ProjectInfoDto> &task) {
+        task.setFutureSynchronizer(ExtensionSystem::PluginManager::futureSynchronizer());
+        task.setConcurrentCallData(deserialize, *storage);
+    };
+
+    const auto onDeserializeDone = [this, url](const Async<Dto::ProjectInfoDto> &task,
+                                               DoneWith doneWith) {
+        if (doneWith == DoneWith::Success) {
+            m_currentProjectInfo = task.future().result();
+            m_axivionOutputPane.updateDashboard();
+            // handle already opened documents
+            if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
+                !buildSystem || !buildSystem->isParsing()) {
+                handleOpenedDocs(nullptr);
+            } else {
+                connect(ProjectExplorer::ProjectManager::instance(),
+                        &ProjectExplorer::ProjectManager::projectFinishedParsing,
+                        this, &AxivionPluginPrivate::handleOpenedDocs);
+            }
+        }
+    };
+
+    const Group recipe {
+        storage,
+        NetworkQueryTask(onQuerySetup, onQueryDone),
+        AsyncTask<Dto::ProjectInfoDto>(onDeserializeSetup, onDeserializeDone)
+    };
+
+    m_taskTreeRunner.start(recipe);
 }
 
 void AxivionPluginPrivate::fetchRuleInfo(const QString &id)
@@ -237,27 +337,6 @@ void AxivionPluginPrivate::clearAllMarks()
         onDocumentClosed(doc);
 }
 
-void AxivionPluginPrivate::handleProjectInfo(DashboardClient::RawProjectInfo rawInfo)
-{
-    m_runningQuery = false;
-    if (!rawInfo) {
-        Core::MessageManager::writeFlashing(
-            QStringLiteral(u"Axivion: %1").arg(rawInfo.error().message()));
-        return;
-    }
-    m_currentProjectInfo = std::make_shared<const DashboardClient::ProjectInfo>(std::move(rawInfo.value()));
-    m_axivionOutputPane.updateDashboard();
-    // handle already opened documents
-    if (auto buildSystem = ProjectExplorer::ProjectManager::startupBuildSystem();
-            !buildSystem || !buildSystem->isParsing()) {
-        handleOpenedDocs(nullptr);
-    } else {
-        connect(ProjectExplorer::ProjectManager::instance(),
-                &ProjectExplorer::ProjectManager::projectFinishedParsing,
-                this, &AxivionPluginPrivate::handleOpenedDocs);
-    }
-}
-
 void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
 {
     if (!m_currentProjectInfo) // we do not have a project info (yet)
@@ -267,10 +346,10 @@ void AxivionPluginPrivate::onDocumentOpened(Core::IDocument *doc)
     if (!doc || !project->isKnownFile(doc->filePath()))
         return;
 
-    Utils::FilePath relative = doc->filePath().relativeChildPath(project->projectDirectory());
+    const FilePath relative = doc->filePath().relativeChildPath(project->projectDirectory());
     // for now only style violations
-    AxivionQuery query(AxivionQuery::IssuesForFileList, {m_currentProjectInfo->data.name, "SV",
-                                                         relative.path() } );
+    const AxivionQuery query(AxivionQuery::IssuesForFileList, {m_currentProjectInfo->name, "SV",
+                                                               relative.path()});
     AxivionQueryRunner *runner = new AxivionQueryRunner(query, this);
     connect(runner, &AxivionQueryRunner::resultRetrieved, this, [this](const QByteArray &result){
         handleIssuesForFile(ResultParser::parseIssuesList(result));
@@ -301,10 +380,10 @@ void AxivionPluginPrivate::handleIssuesForFile(const IssuesList &issues)
     if (!project)
         return;
 
-    const Utils::FilePath filePath = project->projectDirectory()
+    const FilePath filePath = project->projectDirectory()
             .pathAppended(issues.issues.first().filePath);
 
-    const Utils::Id axivionId(AxivionTextMarkId);
+    const Id axivionId(AxivionTextMarkId);
     for (const ShortIssue &issue : std::as_const(issues.issues)) {
         // FIXME the line location can be wrong (even the whole issue could be wrong)
         // depending on whether this line has been changed since the last axivion run and the

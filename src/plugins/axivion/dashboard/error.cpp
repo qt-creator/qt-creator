@@ -76,25 +76,25 @@ QString Error::message() const
     return std::visit(
         overloaded{
             [](const GeneralError &error) {
-                return QStringLiteral(u"GeneralError (%1) %2")
+                return QStringLiteral("GeneralError (%1) %2")
                     .arg(error.replyUrl.toString(),
                          error.message);
             },
             [](const NetworkError &error) {
-                return QStringLiteral(u"NetworkError (%1) %2: %3")
+                return QStringLiteral("NetworkError (%1) %2: %3")
                     .arg(error.replyUrl.toString(),
                          QString::number(error.networkError),
                          error.networkErrorString);
             },
             [](const HttpError &error) {
-                return QStringLiteral(u"HttpError (%1) %2: %3\n%4")
+                return QStringLiteral("HttpError (%1) %2: %3\n%4")
                     .arg(error.replyUrl.toString(),
                          QString::number(error.httpStatusCode),
                          error.httpReasonPhrase,
                          error.body);
             },
             [](const DashboardError &error) {
-                return QStringLiteral(u"DashboardError (%1) [%2 %3] %4: %5")
+                return QStringLiteral("DashboardError (%1) [%2 %3] %4: %5")
                     .arg(error.replyUrl.toString(),
                          QString::number(error.httpStatusCode),
                          error.httpReasonPhrase,

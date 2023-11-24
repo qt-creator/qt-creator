@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "dashboard/dashboardclient.h"
+#include "dashboard/dto.h"
 
 #include <memory>
 
@@ -12,7 +12,7 @@ namespace ProjectExplorer { class Project; }
 namespace Axivion::Internal {
 
 void fetchProjectInfo(const QString &projectName);
-std::shared_ptr<const DashboardClient::ProjectInfo> projectInfo();
+std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();
 
 } // Axivion::Internal
