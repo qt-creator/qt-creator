@@ -25,6 +25,7 @@
 #include <utils/qtcassert.h>
 
 #include <QMessageBox>
+#include <QRegularExpression>
 #include <QStandardItemModel>
 #include <QTableView>
 #include <QTextCursor>
@@ -859,6 +860,11 @@ QString removeOnFromSignalName(const QString &signal)
 {
     if (signal.isEmpty())
         return {};
+
+    static const QRegularExpression rx("^on[A-Z]");
+    if (!rx.match(signal).hasMatch())
+        return signal;
+
     QString ret = signal;
     ret.remove(0, 2);
     ret[0] = ret.at(0).toLower();
