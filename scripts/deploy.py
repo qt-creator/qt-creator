@@ -147,20 +147,20 @@ def copy_qt_libs(target_qt_prefix_path, qt_bin_dir, qt_libs_dir):
             shutil.copy(library, lib_dest)
 
 
-def deploy_qtdiag(qtc_binary_path, qt_install):
-    print("Copying qtdiag")
-    qtdiag_src = os.path.join(qt_install.bin, with_exe_ext('qtdiag'))
+def deploy_binary(binary_name, qtc_binary_path, qt_install):
+    print(f"Copying {binary_name}")
+    binary_src = os.path.join(qt_install.bin, with_exe_ext(binary_name))
     destdir = (qtc_binary_path if common.is_windows_platform()
               else os.path.join(qtc_binary_path, 'Contents', 'MacOS') if common.is_mac_platform()
               else os.path.join(qtc_binary_path, '..', 'lib', 'Qt', 'bin'))
     if not os.path.exists(destdir):
         os.makedirs(destdir)
-    shutil.copy(qtdiag_src, destdir)
+    shutil.copy(binary_src, destdir)
     if common.is_mac_platform():
         # fix RPATHs
-        qtdiag_dest = os.path.join(destdir, 'qtdiag')
-        subprocess.check_call(['xcrun', 'install_name_tool', '-add_rpath', '@loader_path/../Frameworks', qtdiag_dest])
-        subprocess.check_call(['xcrun', 'install_name_tool', '-delete_rpath', '@loader_path/../lib', qtdiag_dest])
+        binary_dest = os.path.join(destdir, binary_name)
+        subprocess.check_call(['xcrun', 'install_name_tool', '-add_rpath', '@loader_path/../Frameworks', binary_dest])
+        subprocess.check_call(['xcrun', 'install_name_tool', '-delete_rpath', '@loader_path/../lib', binary_dest])
 
 
 def deploy_plugins(qtc_binary_path, qt_install):
@@ -469,7 +469,8 @@ def main():
     qtcreator_binary_path = (args.qtcreator_binary if common.is_mac_platform()
                              else os.path.dirname(args.qtcreator_binary))
 
-    deploy_qtdiag(qtcreator_binary_path, qt_install)
+    deploy_binary('qtdiag', qt_install)
+    deploy_binary('qsb', qt_install)
     deploy_plugins(qtcreator_binary_path, qt_install)
     deploy_imports(qtcreator_binary_path, qt_install)
     deploy_translations(qtcreator_binary_path, qt_install)
