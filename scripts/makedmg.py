@@ -40,7 +40,7 @@ def main():
             license_file = arguments.license_replacement
         shutil.copy(license_file, tempdir)
         dmg_cmd = ['hdiutil', 'create', '-srcfolder', tempdir, '-volname', arguments.dmg_volumename,
-                   '-format', 'UDBZ', arguments.target_diskimage, '-ov', '-scrub', '-size', arguments.dmg_size, '-verbose']
+                   '-format', 'ULMO', arguments.target_diskimage, '-ov', '-scrub', '-size', arguments.dmg_size, '-verbose']
         subprocess.check_call(dmg_cmd)
         # sleep a few seconds to make sure disk image is fully unmounted etc
         time.sleep(5)
