@@ -7,7 +7,6 @@
 #include "bindingproperty.h"
 #include "nodemetainfo.h"
 #include "propertymetainfo.h"
-#include "qmldesignerplugin.h"
 #include "variantproperty.h"
 
 #include <variant>
@@ -100,20 +99,30 @@ QString getSourceCollectionType(const ModelNode &node)
     return {};
 }
 
-void assignCollectionSourceToNode(AbstractView *view,
-                                  const ModelNode &modelNode,
-                                  const ModelNode &collectionSourceNode)
+void assignCollectionToNode(AbstractView *view,
+                            const ModelNode &modelNode,
+                            const ModelNode &collectionSourceNode,
+                            const QString &collectionName)
 {
     QTC_ASSERT(modelNode.isValid() && collectionSourceNode.isValid(), return);
 
-    if (collectionSourceNode.id().isEmpty() || !canAcceptCollectionAsModel(modelNode))
+    QString sourceId = isDataStoreNode(collectionSourceNode) ? "DataStore"
+                                                             : collectionSourceNode.id();
+
+    if (sourceId.isEmpty() || !canAcceptCollectionAsModel(modelNode))
+        return;
+
+    VariantProperty sourceProperty = collectionSourceNode.variantProperty(collectionName.toLatin1());
+    if (!sourceProperty.exists())
         return;
 
     BindingProperty modelProperty = modelNode.bindingProperty("model");
 
-    view->executeInTransaction("CollectionEditor::assignCollectionSourceToNode",
-                               [&modelProperty, &collectionSourceNode]() {
-                                   modelProperty.setExpression(collectionSourceNode.id());
+    QString identifier = QString("%1.%2").arg(sourceId, QString::fromLatin1(sourceProperty.name()));
+
+    view->executeInTransaction("CollectionEditor::assignCollectionToNode",
+                               [&modelProperty, &identifier]() {
+                                   modelProperty.setExpression(identifier);
                                });
 }
 
@@ -146,6 +155,22 @@ QString getSourceCollectionPath(const ModelNode &dataStoreNode)
         return expectedFile.toFSPathString();
 
     return {};
+}
+
+bool isDataStoreNode(const ModelNode &dataStoreNode)
+{
+    using Utils::FilePath;
+    ProjectExplorer::Project *currentProject = ProjectExplorer::ProjectManager::startupProject();
+
+    if (!currentProject || !dataStoreNode.isValid())
+        return false;
+
+    const FilePath expectedFile = currentProject->projectDirectory().pathAppended(
+        "/imports/" + currentProject->displayName() + "/DataStore.qml");
+
+    FilePath modelPath = FilePath::fromUserInput(dataStoreNode.model()->fileUrl().toLocalFile());
+
+    return modelPath.isSameFile(expectedFile);
 }
 
 QJsonArray defaultCollectionArray()

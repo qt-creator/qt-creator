@@ -20,9 +20,12 @@ QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
 
 QString getSourceCollectionPath(const QmlDesigner::ModelNode &dataStoreNode);
 
-void assignCollectionSourceToNode(AbstractView *view,
-                                  const ModelNode &modelNode,
-                                  const ModelNode &collectionSourceNode = {});
+void assignCollectionToNode(AbstractView *view,
+                            const ModelNode &modelNode,
+                            const ModelNode &collectionSourceNode,
+                            const QString &collectionName);
+
+bool isDataStoreNode(const ModelNode &dataStoreNode);
 
 bool canAcceptCollectionAsModel(const ModelNode &node);
 

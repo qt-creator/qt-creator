@@ -16,6 +16,7 @@ Item {
 
     property color textColor
     property string sourceType
+    property bool hasSelectedTarget
 
     signal selectItem(int itemIndex)
     signal deleteItem()
@@ -124,6 +125,12 @@ Item {
             text: qsTr("Rename")
             shortcut: StandardKey.Replace
             onTriggered: renameDialog.open()
+        }
+
+        StudioControls.MenuItem {
+            text: qsTr("Assign to the selected node")
+            enabled: root.hasSelectedTarget
+            onTriggered: rootView.assignCollectionToSelectedNode(collectionName)
         }
     }
 

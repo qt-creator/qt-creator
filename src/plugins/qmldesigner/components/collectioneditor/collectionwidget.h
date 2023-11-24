@@ -52,7 +52,7 @@ public:
 
     Q_INVOKABLE bool addCollectionToDataStore(const QString &collectionName);
 
-    Q_INVOKABLE void assignSourceNodeToSelectedItem(const QVariant &sourceNode);
+    Q_INVOKABLE void assignCollectionToSelectedNode(const QString collectionName);
 
     Q_INVOKABLE ModelNode dataStoreNode() const;
 
