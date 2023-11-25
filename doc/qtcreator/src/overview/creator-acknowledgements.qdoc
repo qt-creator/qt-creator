@@ -686,9 +686,12 @@
         \QC ships with the following fonts licensed under OFL-1.1:
 
         \list
-            \li SourceCodePro-Regular.ttf
-            \li SourceCodePro-It.ttf
             \li SourceCodePro-Bold.ttf
+            \li SourceCodePro-BoldIt.ttf
+            \li SourceCodePro-It.ttf
+            \li SourceCodePro-Medium.ttf
+            \li SourceCodePro-MediumIt.ttf
+            \li SourceCodePro-Regular.ttf
         \endlist
 
         \badcode

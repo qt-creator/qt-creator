@@ -647,9 +647,12 @@ SQLite (https://www.sqlite.org) is in the Public Domain.
 
   Qt Creator ships with the following fonts licensed under OFL-1.1:
 
-   * SourceCodePro-Regular.ttf
-   * SourceCodePro-It.ttf
    * SourceCodePro-Bold.ttf
+   * SourceCodePro-BoldIt.ttf
+   * SourceCodePro-It.ttf
+   * SourceCodePro-Medium.ttf
+   * SourceCodePro-MediumIt.ttf
+   * SourceCodePro-Regular.ttf
 
   SIL OPEN FONT LICENSE
 

@@ -32,6 +32,8 @@ const char schemeFileNamesKey[] = "ColorSchemes";
 
 const bool DEFAULT_ANTIALIAS = true;
 
+const char g_sourceCodePro[] = "Source Code Pro";
+
 namespace TextEditor {
 
 // -- FontSettings
@@ -172,7 +174,7 @@ QTextCharFormat FontSettings::toTextCharFormat(TextStyle category) const
         tf.setBackground(QColor());
     }
 
-    tf.setFontWeight(f.bold() ? QFont::Bold : QFont::Normal);
+    tf.setFontWeight(f.bold() ? QFont::Bold : fontNormalWeight());
     tf.setFontItalic(f.italic());
 
     tf.setUnderlineColor(f.underlineColor());
@@ -218,6 +220,7 @@ QBrush mixBrush(const QBrush &original, double relativeSaturation, double relati
 void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
                                  const MixinTextStyles &mixinStyles) const
 {
+    const int normalWeight = fontNormalWeight();
     for (TextStyle mixinStyle : mixinStyles) {
         const Format &format = m_scheme.formatFor(mixinStyle);
 
@@ -242,8 +245,8 @@ void FontSettings::addMixinStyle(QTextCharFormat &textCharFormat,
         if (!textCharFormat.fontItalic())
             textCharFormat.setFontItalic(format.italic());
 
-        if (textCharFormat.fontWeight() == QFont::Normal)
-            textCharFormat.setFontWeight(format.bold() ? QFont::Bold : QFont::Normal);
+        if (textCharFormat.fontWeight() == normalWeight)
+            textCharFormat.setFontWeight(format.bold() ? QFont::Bold : normalWeight);
 
         if (textCharFormat.underlineStyle() == QTextCharFormat::NoUnderline) {
             textCharFormat.setUnderlineStyle(format.underlineStyle());
@@ -354,6 +357,15 @@ QFont FontSettings::font() const
     QFont f(family(), fontSize());
     f.setStyleStrategy(m_antialias ? QFont::PreferAntialias : QFont::NoAntialias);
     return f;
+}
+
+int FontSettings::fontNormalWeight() const
+{
+    // TODO: Fix this when we upgrade "Source Code Pro" to a version greater than 2.0.30
+    int weight = QFont::Normal;
+    if (Utils::HostOsInfo::isMacHost() && m_family == g_sourceCodePro)
+        weight = QFont::Medium;
+    return weight;
 }
 
 /**
@@ -477,7 +489,7 @@ static QString defaultFontFamily()
     if (Utils::HostOsInfo::isMacHost())
         return QLatin1String("Monaco");
 
-    const QString sourceCodePro("Source Code Pro");
+    const QString sourceCodePro(g_sourceCodePro);
     const QFontDatabase dataBase;
     if (dataBase.hasFamily(sourceCodePro))
         return sourceCodePro;
