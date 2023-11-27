@@ -10,6 +10,10 @@ QT_BEGIN_NAMESPACE
 class QJsonArray;
 QT_END_NAMESPACE
 
+namespace Utils {
+class FilePath;
+}
+
 namespace QmlDesigner::CollectionEditor {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type);
@@ -25,7 +29,13 @@ void assignCollectionToNode(AbstractView *view,
                             const ModelNode &collectionSourceNode,
                             const QString &collectionName);
 
+Utils::FilePath dataStoreJsonFilePath();
+
+Utils::FilePath dataStoreQmlFilePath();
+
 bool isDataStoreNode(const ModelNode &dataStoreNode);
+
+bool ensureDataStoreExists(bool &justCreated);
 
 bool canAcceptCollectionAsModel(const ModelNode &node);
 
