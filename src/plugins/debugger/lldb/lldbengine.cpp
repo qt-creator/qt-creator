@@ -266,7 +266,13 @@ void LldbEngine::handleLldbStarted()
     cmd2.arg("startmode", rp.startMode);
     cmd2.arg("nativemixed", isNativeMixedActive());
     cmd2.arg("workingdirectory", rp.inferior.workingDirectory.path());
-    cmd2.arg("environment", rp.inferior.environment.toStringList());
+    QStringList environment = rp.inferior.environment.toStringList();
+    // Prevent lldb from automatically setting OS_ACTIVITY_DT_MODE to mirror
+    // NSLog to stderr, as that will also mirror os_log, which we pick up in
+    // AppleUnifiedLogger::preventsStderrLogging(), and end up disabling Qt's
+    // default stderr logger. We prefer Qt's own stderr logging if we can.
+    environment << "IDE_DISABLED_OS_ACTIVITY_DT_MODE=1";
+    cmd2.arg("environment", environment);
     cmd2.arg("processargs", toHex(ProcessArgs::splitArgs(rp.inferior.command.arguments(),
                                                          HostOsInfo::hostOs()).join(QChar(0))));
     cmd2.arg("platform", rp.platform);
