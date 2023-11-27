@@ -4,10 +4,10 @@ import qbs.FileInfo
 import qbs.Utilities
 
 Module {
-    property string qtcreator_display_version: '12.0.0'
+    property string qtcreator_display_version: '12.0.1'
     property string ide_version_major: '12'
     property string ide_version_minor: '0'
-    property string ide_version_release: '0'
+    property string ide_version_release: '1'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
