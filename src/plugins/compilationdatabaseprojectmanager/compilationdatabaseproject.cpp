@@ -77,7 +77,7 @@ Utils::Id getCompilerId(QString compilerName)
 
 Toolchain *toolchainFromCompilerId(const Utils::Id &compilerId, const Utils::Id &language)
 {
-    return ToolChainManager::toolChain([&compilerId, &language](const Toolchain *tc) {
+    return ToolchainManager::toolChain([&compilerId, &language](const Toolchain *tc) {
         if (!tc->isValid() || tc->language() != language)
             return false;
         return tc->typeId() == compilerId;
@@ -112,7 +112,7 @@ Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Ut
 
     // Try exact compiler match.
     const Utils::FilePath compiler = Utils::FilePath::fromUserInput(compilerPath(flags.front()));
-    Toolchain *toolchain = ToolChainManager::toolChain([&compiler, &language](const Toolchain *tc) {
+    Toolchain *toolchain = ToolchainManager::toolChain([&compiler, &language](const Toolchain *tc) {
         return tc->isValid() && tc->language() == language && tc->compilerCommand() == compiler;
     });
     if (toolchain)

@@ -1560,8 +1560,8 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
     QVERIFY(toolchain);
     if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolChain *>(toolchain)) {
         while (!msvcToolchain->environmentInitialized()) {
-            QSignalSpy parsingFinishedSpy(ToolChainManager::instance(),
-                                          &ToolChainManager::toolChainUpdated);
+            QSignalSpy parsingFinishedSpy(ToolchainManager::instance(),
+                                          &ToolchainManager::toolChainUpdated);
             QVERIFY(parsingFinishedSpy.wait(10000));
         }
     }

@@ -112,9 +112,9 @@ QString languageId(Language l)
 using namespace Internal;
 
 /*!
-    \class ProjectExplorer::ToolChain
-    \brief The ToolChain class represents a tool chain.
-    \sa ProjectExplorer::ToolChainManager
+    \class ProjectExplorer::Toolchain
+    \brief The Toolchain class represents a tool chain.
+    \sa ProjectExplorer::ToolchainManager
 */
 
 // --------------------------------------------------------------------------
@@ -128,7 +128,7 @@ void Toolchain::setLanguage(Id language)
 {
     QTC_ASSERT(!d->m_language.isValid() || isAutoDetected(), return);
     QTC_ASSERT(language.isValid(), return);
-    QTC_ASSERT(ToolChainManager::isLanguageSupported(language), return);
+    QTC_ASSERT(ToolchainManager::isLanguageSupported(language), return);
 
     d->m_language = language;
 }
@@ -272,7 +272,7 @@ void Toolchain::toolChainUpdated()
     d->m_predefinedMacrosCache->invalidate();
     d->m_headerPathsCache->invalidate();
 
-    ToolChainManager::notifyAboutUpdate(this);
+    ToolchainManager::notifyAboutUpdate(this);
 }
 
 void Toolchain::setDetection(Toolchain::Detection de)
@@ -648,7 +648,7 @@ Toolchain *ToolchainFactory::createToolChain(Id toolChainType)
 
 QList<Id> ToolchainFactory::supportedLanguages() const
 {
-    return m_supportsAllLanguages ? ToolChainManager::allLanguages() : m_supportedLanguages;
+    return m_supportsAllLanguages ? ToolchainManager::allLanguages() : m_supportedLanguages;
 }
 
 Id ToolchainFactory::supportedToolChainType() const

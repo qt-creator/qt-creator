@@ -24,7 +24,7 @@ namespace ProjectExplorer {
 namespace Internal {
 
 // --------------------------------------------------------------------------
-// ToolChainManagerPrivate
+// ToolchainManagerPrivate
 // --------------------------------------------------------------------------
 
 struct LanguageDisplayPair
@@ -33,10 +33,10 @@ struct LanguageDisplayPair
     QString displayName;
 };
 
-class ToolChainManagerPrivate
+class ToolchainManagerPrivate
 {
 public:
-    ~ToolChainManagerPrivate();
+    ~ToolchainManagerPrivate();
 
     std::unique_ptr<ToolChainSettingsAccessor> m_accessor;
 
@@ -47,14 +47,14 @@ public:
     bool m_loaded = false;
 };
 
-ToolChainManagerPrivate::~ToolChainManagerPrivate()
+ToolchainManagerPrivate::~ToolchainManagerPrivate()
 {
     qDeleteAll(m_toolChains);
     m_toolChains.clear();
 }
 
-static ToolChainManager *m_instance = nullptr;
-static ToolChainManagerPrivate *d = nullptr;
+static ToolchainManager *m_instance = nullptr;
+static ToolchainManagerPrivate *d = nullptr;
 
 } // namespace Internal
 
@@ -65,22 +65,22 @@ const char DETECT_X64_AS_X32_KEY[] = "ProjectExplorer/Toolchains/DetectX64AsX32"
 static Key badToolchainsKey() { return "BadToolChains"; }
 
 // --------------------------------------------------------------------------
-// ToolChainManager
+// ToolchainManager
 // --------------------------------------------------------------------------
 
-ToolChainManager::ToolChainManager(QObject *parent) :
+ToolchainManager::ToolchainManager(QObject *parent) :
     QObject(parent)
 {
     Q_ASSERT(!m_instance);
     m_instance = this;
 
-    d = new ToolChainManagerPrivate;
+    d = new ToolchainManagerPrivate;
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-            this, &ToolChainManager::saveToolChains);
-    connect(this, &ToolChainManager::toolChainAdded, this, &ToolChainManager::toolChainsChanged);
-    connect(this, &ToolChainManager::toolChainRemoved, this, &ToolChainManager::toolChainsChanged);
-    connect(this, &ToolChainManager::toolChainUpdated, this, &ToolChainManager::toolChainsChanged);
+            this, &ToolchainManager::saveToolChains);
+    connect(this, &ToolchainManager::toolChainAdded, this, &ToolchainManager::toolChainsChanged);
+    connect(this, &ToolchainManager::toolChainRemoved, this, &ToolchainManager::toolChainsChanged);
+    connect(this, &ToolchainManager::toolChainUpdated, this, &ToolchainManager::toolChainsChanged);
 
     QtcSettings * const s = Core::ICore::settings();
     d->m_detectionSettings.detectX64AsX32
@@ -88,21 +88,21 @@ ToolChainManager::ToolChainManager(QObject *parent) :
     d->m_badToolchains = BadToolchains::fromVariant(s->value(badToolchainsKey()));
 }
 
-ToolChainManager::~ToolChainManager()
+ToolchainManager::~ToolchainManager()
 {
     m_instance = nullptr;
     delete d;
     d = nullptr;
 }
 
-ToolChainManager *ToolChainManager::instance()
+ToolchainManager *ToolchainManager::instance()
 {
     return m_instance;
 }
 
-void ToolChainManager::restoreToolChains()
+void ToolchainManager::restoreToolChains()
 {
-    NANOTRACE_SCOPE("ProjectExplorer", "ToolChainManager::restoreToolChains");
+    NANOTRACE_SCOPE("ProjectExplorer", "ToolchainManager::restoreToolChains");
     QTC_ASSERT(!d->m_accessor, return);
     d->m_accessor = std::make_unique<Internal::ToolChainSettingsAccessor>();
 
@@ -113,7 +113,7 @@ void ToolChainManager::restoreToolChains()
     emit m_instance->toolChainsLoaded();
 }
 
-void ToolChainManager::saveToolChains()
+void ToolchainManager::saveToolChains()
 {
     QTC_ASSERT(d->m_accessor, return);
 
@@ -125,25 +125,25 @@ void ToolChainManager::saveToolChains()
     s->setValue(badToolchainsKey(), d->m_badToolchains.toVariant());
 }
 
-const Toolchains &ToolChainManager::toolchains()
+const Toolchains &ToolchainManager::toolchains()
 {
     QTC_CHECK(d->m_loaded);
     return d->m_toolChains;
 }
 
-Toolchains ToolChainManager::toolchains(const Toolchain::Predicate &predicate)
+Toolchains ToolchainManager::toolchains(const Toolchain::Predicate &predicate)
 {
     QTC_ASSERT(predicate, return {});
     return Utils::filtered(d->m_toolChains, predicate);
 }
 
-Toolchain *ToolChainManager::toolChain(const Toolchain::Predicate &predicate)
+Toolchain *ToolchainManager::toolChain(const Toolchain::Predicate &predicate)
 {
     QTC_CHECK(d->m_loaded);
     return Utils::findOrDefault(d->m_toolChains, predicate);
 }
 
-Toolchains ToolChainManager::findToolChains(const Abi &abi)
+Toolchains ToolchainManager::findToolChains(const Abi &abi)
 {
     QTC_CHECK(d->m_loaded);
     Toolchains result;
@@ -158,7 +158,7 @@ Toolchains ToolChainManager::findToolChains(const Abi &abi)
     return result;
 }
 
-Toolchain *ToolChainManager::findToolChain(const QByteArray &id)
+Toolchain *ToolchainManager::findToolChain(const QByteArray &id)
 {
     QTC_CHECK(d->m_loaded);
     if (id.isEmpty())
@@ -179,19 +179,19 @@ Toolchain *ToolChainManager::findToolChain(const QByteArray &id)
     return tc;
 }
 
-bool ToolChainManager::isLoaded()
+bool ToolchainManager::isLoaded()
 {
     return d->m_loaded;
 }
 
-void ToolChainManager::notifyAboutUpdate(Toolchain *tc)
+void ToolchainManager::notifyAboutUpdate(Toolchain *tc)
 {
     if (!tc || !d->m_toolChains.contains(tc))
         return;
     emit m_instance->toolChainUpdated(tc);
 }
 
-bool ToolChainManager::registerToolChain(Toolchain *tc)
+bool ToolchainManager::registerToolChain(Toolchain *tc)
 {
     QTC_ASSERT(tc, return false);
     QTC_ASSERT(isLanguageSupported(tc->language()),
@@ -214,7 +214,7 @@ bool ToolChainManager::registerToolChain(Toolchain *tc)
     return true;
 }
 
-void ToolChainManager::deregisterToolChain(Toolchain *tc)
+void ToolchainManager::deregisterToolChain(Toolchain *tc)
 {
     QTC_CHECK(d->m_loaded);
     if (!tc || !d->m_toolChains.contains(tc))
@@ -224,12 +224,12 @@ void ToolChainManager::deregisterToolChain(Toolchain *tc)
     delete tc;
 }
 
-QList<Id> ToolChainManager::allLanguages()
+QList<Id> ToolchainManager::allLanguages()
 {
     return Utils::transform<QList>(d->m_languages, &LanguageDisplayPair::id);
 }
 
-bool ToolChainManager::registerLanguage(const Utils::Id &language, const QString &displayName)
+bool ToolchainManager::registerLanguage(const Utils::Id &language, const QString &displayName)
 {
     QTC_ASSERT(language.isValid(), return false);
     QTC_ASSERT(!isLanguageSupported(language), return false);
@@ -238,7 +238,7 @@ bool ToolChainManager::registerLanguage(const Utils::Id &language, const QString
     return true;
 }
 
-QString ToolChainManager::displayNameOfLanguageId(const Utils::Id &id)
+QString ToolchainManager::displayNameOfLanguageId(const Utils::Id &id)
 {
     QTC_ASSERT(id.isValid(), return Tr::tr("None"));
     auto entry = Utils::findOrDefault(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
@@ -246,38 +246,38 @@ QString ToolChainManager::displayNameOfLanguageId(const Utils::Id &id)
     return entry.displayName;
 }
 
-bool ToolChainManager::isLanguageSupported(const Utils::Id &id)
+bool ToolchainManager::isLanguageSupported(const Utils::Id &id)
 {
     return Utils::contains(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
 }
 
-void ToolChainManager::aboutToShutdown()
+void ToolchainManager::aboutToShutdown()
 {
     if (HostOsInfo::isWindowsHost())
         MsvcToolChain::cancelMsvcToolChainDetection();
 }
 
-ToolchainDetectionSettings ToolChainManager::detectionSettings()
+ToolchainDetectionSettings ToolchainManager::detectionSettings()
 {
     return d->m_detectionSettings;
 }
 
-void ToolChainManager::setDetectionSettings(const ToolchainDetectionSettings &settings)
+void ToolchainManager::setDetectionSettings(const ToolchainDetectionSettings &settings)
 {
     d->m_detectionSettings = settings;
 }
 
-void ToolChainManager::resetBadToolchains()
+void ToolchainManager::resetBadToolchains()
 {
     d->m_badToolchains.toolchains.clear();
 }
 
-bool ToolChainManager::isBadToolchain(const Utils::FilePath &toolchain)
+bool ToolchainManager::isBadToolchain(const Utils::FilePath &toolchain)
 {
     return d->m_badToolchains.isBadToolchain(toolchain);
 }
 
-void ToolChainManager::addBadToolchain(const Utils::FilePath &toolchain)
+void ToolchainManager::addBadToolchain(const Utils::FilePath &toolchain)
 {
     d->m_badToolchains.toolchains << toolchain;
 }

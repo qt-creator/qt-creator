@@ -328,7 +328,7 @@ McuToolChainPackagePtr createIarToolChainPackage(const SettingsHandler::Ptr &set
     if (qtcEnvironmentVariableIsSet(envVar))
         defaultPath = FilePath::fromUserInput(qtcEnvironmentVariable(envVar));
     else {
-        const ProjectExplorer::Toolchain *tc = ProjectExplorer::ToolChainManager::toolChain(
+        const ProjectExplorer::Toolchain *tc = ProjectExplorer::ToolchainManager::toolChain(
             [](const ProjectExplorer::Toolchain *t) {
                 return t->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
             });

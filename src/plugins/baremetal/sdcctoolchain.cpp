@@ -164,7 +164,7 @@ static Abi guessAbi(const Macros &macros)
 static QString buildDisplayName(Abi::Architecture arch, Id language, const QString &version)
 {
     const QString archName = Abi::toString(arch);
-    const QString langName = ToolChainManager::displayNameOfLanguageId(language);
+    const QString langName = ToolchainManager::displayNameOfLanguageId(language);
     return Tr::tr("SDCC %1 (%2, %3)").arg(version, langName, archName);
 }
 

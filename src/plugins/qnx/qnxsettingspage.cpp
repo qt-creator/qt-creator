@@ -99,7 +99,7 @@ public:
 
     bool isActive() const
     {
-        const bool hasToolChain = ToolChainManager::toolChain(Utils::equal(&Toolchain::compilerCommand,
+        const bool hasToolChain = ToolchainManager::toolChain(Utils::equal(&Toolchain::compilerCommand,
                                                                            m_qccCompiler));
         const bool hasDebugger = Utils::contains(DebuggerItemManager::debuggers(), [this](const DebuggerItem &di) {
             return findTargetByDebuggerPath(di.command());
@@ -169,7 +169,7 @@ void QnxConfiguration::deactivate()
     QTC_ASSERT(isActive(), return);
 
     const Toolchains toolChainsToRemove =
-        ToolChainManager::toolchains(Utils::equal(&Toolchain::compilerCommand, m_qccCompiler));
+        ToolchainManager::toolchains(Utils::equal(&Toolchain::compilerCommand, m_qccCompiler));
 
     QList<DebuggerItem> debuggersToRemove;
     const QList<DebuggerItem> debuggerItems = DebuggerItemManager::debuggers();
@@ -188,7 +188,7 @@ void QnxConfiguration::deactivate()
     }
 
     for (Toolchain *tc : toolChainsToRemove)
-        ToolChainManager::deregisterToolChain(tc);
+        ToolchainManager::deregisterToolChain(tc);
 
     for (const DebuggerItem &debuggerItem : std::as_const(debuggersToRemove))
         DebuggerItemManager::deregisterDebugger(debuggerItem.id());
@@ -241,7 +241,7 @@ Toolchains QnxConfiguration::createToolChains(const QnxTarget &target)
         toolChain->sdpPath.setValue(m_envFile.parentDir());
         toolChain->cpuDir.setValue(target.cpuDir());
         toolChain->resetToolChain(m_qccCompiler);
-        ToolChainManager::registerToolChain(toolChain);
+        ToolchainManager::registerToolChain(toolChain);
 
         toolChains.append(toolChain);
     }

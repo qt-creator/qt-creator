@@ -369,7 +369,7 @@ QtOptionsPageWidget::QtOptionsPageWidget()
     connect(QtVersionManager::instance(), &QtVersionManager::qtVersionsChanged,
             this, &QtOptionsPageWidget::updateQtVersions);
 
-    connect(ProjectExplorer::ToolChainManager::instance(), &ToolChainManager::toolChainsChanged,
+    connect(ProjectExplorer::ToolchainManager::instance(), &ToolchainManager::toolChainsChanged,
             this, &QtOptionsPageWidget::toolChainsUpdated);
 
     auto chooser = new VariableChooser(this);
@@ -493,7 +493,7 @@ QtOptionsPageWidget::ValidityInfo QtOptionsPageWidget::validInformation(const Qt
                                    [&abi](const Abi &sabi) { return sabi.isCompatibleWith(abi); });
         };
 
-        if (!ToolChainManager::toolChain(abiCompatePred))
+        if (!ToolchainManager::toolChain(abiCompatePred))
             missingToolChains.append(abi);
     }
 
@@ -539,7 +539,7 @@ QList<Toolchain*> QtOptionsPageWidget::toolChains(const QtVersion *version)
     QSet<QByteArray> ids;
     const Abis abis = version->qtAbis();
     for (const Abi &a : abis) {
-        const Toolchains tcList = ToolChainManager::findToolChains(a);
+        const Toolchains tcList = ToolchainManager::findToolChains(a);
         for (Toolchain *tc : tcList) {
             if (Utils::insert(ids, tc->id()))
                 toolChains.append(tc);

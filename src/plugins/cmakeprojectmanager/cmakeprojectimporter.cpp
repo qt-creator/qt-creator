@@ -601,7 +601,7 @@ Toolchain *findExternalToolchain(const QString &presetArchitecture, const QStrin
     //      "strategy": "external"
     //  }
 
-    auto msvcToolchains = ToolChainManager::toolchains([](const Toolchain *tc) {
+    auto msvcToolchains = ToolchainManager::toolchains([](const Toolchain *tc) {
         return  tc->typeId() ==  ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID;
     });
 
@@ -609,7 +609,7 @@ Toolchain *findExternalToolchain(const QString &presetArchitecture, const QStrin
         return tc->targetAbi().osFlavor();
     }));
 
-    return ToolChainManager::toolChain(
+    return ToolchainManager::toolChain(
         [presetArchitecture, presetToolset, msvcFlavors](const Toolchain *tc) -> bool {
             if (tc->typeId() != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
                 return false;
@@ -932,7 +932,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         return false;
 
     const bool compilersMatch = [k, data] {
-        const QList<Id> allLanguages = ToolChainManager::allLanguages();
+        const QList<Id> allLanguages = ToolchainManager::allLanguages();
         for (const ToolChainDescription &tcd : data->toolChains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
@@ -945,7 +945,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
         return true;
     }();
     const bool noCompilers = [k, data] {
-        const QList<Id> allLanguages = ToolChainManager::allLanguages();
+        const QList<Id> allLanguages = ToolchainManager::allLanguages();
         for (const ToolChainDescription &tcd : data->toolChains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))

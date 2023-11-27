@@ -632,7 +632,7 @@ public:
     bool m_shouldHaveRunConfiguration = false;
     Id m_runMode = Constants::NO_RUN_MODE;
 
-    ToolChainManager *m_toolChainManager = nullptr;
+    ToolchainManager *m_toolChainManager = nullptr;
 
 #ifdef WITH_JOURNALD
     JournaldWatcher m_journalWatcher;
@@ -826,11 +826,11 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
 
     handleCommandLineArguments(arguments);
 
-    dd->m_toolChainManager = new ToolChainManager;
+    dd->m_toolChainManager = new ToolchainManager;
 
     // Register languages
-    ToolChainManager::registerLanguage(Constants::C_LANGUAGE_ID, Tr::tr("C"));
-    ToolChainManager::registerLanguage(Constants::CXX_LANGUAGE_ID, Tr::tr("C++"));
+    ToolchainManager::registerLanguage(Constants::C_LANGUAGE_ID, Tr::tr("C"));
+    ToolchainManager::registerLanguage(Constants::CXX_LANGUAGE_ID, Tr::tr("C++"));
 
     IWizardFactory::registerFeatureProvider(new KitFeatureProvider);
     IWizardFactory::registerFactoryCreator([] { return new SimpleProjectWizard; });
@@ -2118,7 +2118,7 @@ bool ProjectExplorerPlugin::delayedInitialize()
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ProjectExplorerPlugin::restoreKits");
     ExtraAbi::load(); // Load this before Toolchains!
-    ToolChainManager::restoreToolChains();
+    ToolchainManager::restoreToolChains();
     KitManager::restoreKits();
     return true;
 }
@@ -2133,7 +2133,7 @@ IPlugin::ShutdownFlag ProjectExplorerPlugin::aboutToShutdown()
     disconnect(ModeManager::instance(), &ModeManager::currentModeChanged,
                dd, &ProjectExplorerPluginPrivate::currentModeChanged);
     ProjectTree::aboutToShutDown();
-    ToolChainManager::aboutToShutdown();
+    ToolchainManager::aboutToShutdown();
     ProjectManager::closeAllProjects();
 
     // Attempt to synchronously shutdown all run controls.

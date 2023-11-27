@@ -230,7 +230,7 @@ void QtKitAspectFactory::fix(Kit *k)
         return;
 
     const QString spec = version->mkspec();
-    Toolchains possibleTcs = ToolChainManager::toolchains([version](const Toolchain *t) {
+    Toolchains possibleTcs = ToolchainManager::toolchains([version](const Toolchain *t) {
         if (!t->isValid() || t->language() != ProjectExplorer::Constants::CXX_LANGUAGE_ID)
             return false;
         return Utils::anyOf(version->qtAbis(), [t](const Abi &qtAbi) {

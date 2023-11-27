@@ -106,11 +106,11 @@ void KitDetectorPrivate::undoAutoDetect() const
     };
 
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Removing toolchain entries..."));
-    const Toolchains toolchains = ToolChainManager::toolchains();
+    const Toolchains toolchains = ToolchainManager::toolchains();
     for (Toolchain *toolChain : toolchains) {
         if (toolChain && toolChain->detectionSource() == m_sharedId) {
             emit q->logOutput(ProjectExplorer::Tr::tr("Removed \"%1\"").arg(toolChain->displayName()));
-            ToolChainManager::deregisterToolChain(toolChain);
+            ToolchainManager::deregisterToolChain(toolChain);
         }
     };
 
@@ -164,7 +164,7 @@ void KitDetectorPrivate::listAutoDetected() const
     }
 
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Toolchains:"));
-    for (Toolchain *toolChain : ToolChainManager::toolchains()) {
+    for (Toolchain *toolChain : ToolchainManager::toolchains()) {
         if (toolChain->detectionSource() == m_sharedId)
             emit q->logOutput(toolChain->displayName());
     }
@@ -251,7 +251,7 @@ Toolchains KitDetectorPrivate::autoDetectToolChains()
 {
     const QList<ToolchainFactory *> factories = ToolchainFactory::allToolchainFactories();
 
-    Toolchains alreadyKnown = ToolChainManager::toolchains();
+    Toolchains alreadyKnown = ToolchainManager::toolchains();
     Toolchains allNewToolChains;
     QApplication::processEvents();
     emit q->logOutput('\n' + ProjectExplorer::Tr::tr("Searching toolchains..."));
@@ -262,7 +262,7 @@ Toolchains KitDetectorPrivate::autoDetectToolChains()
         for (Toolchain *toolChain : newToolChains) {
             emit q->logOutput(ProjectExplorer::Tr::tr("Found \"%1\"").arg(toolChain->compilerCommand().toUserOutput()));
             toolChain->setDetectionSource(m_sharedId);
-            ToolChainManager::registerToolChain(toolChain);
+            ToolchainManager::registerToolChain(toolChain);
             alreadyKnown.append(toolChain);
         }
         allNewToolChains.append(newToolChains);
@@ -359,7 +359,7 @@ void KitDetectorPrivate::autoDetect()
             QtSupport::QtKitAspect::setQtVersion(k, qt);
         }
         Toolchains toolchainsToSet;
-        toolchainsToSet = ToolChainManager::toolchains([qt, this](const Toolchain *tc) {
+        toolchainsToSet = ToolchainManager::toolchains([qt, this](const Toolchain *tc) {
             return tc->detectionSource() == m_sharedId
                    && (!qt || qt->qtAbis().contains(tc->targetAbi()));
         });

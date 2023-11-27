@@ -28,16 +28,16 @@ public:
 };
 
 // --------------------------------------------------------------------------
-// ToolChainManager
+// ToolchainManager
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT ToolChainManager : public QObject
+class PROJECTEXPLORER_EXPORT ToolchainManager : public QObject
 {
     Q_OBJECT
 
 public:
-    static ToolChainManager *instance();
-    ~ToolChainManager() override;
+    static ToolchainManager *instance();
+    ~ToolchainManager() override;
 
     static const Toolchains &toolchains();
     static Toolchains toolchains(const Toolchain::Predicate &predicate);
@@ -79,7 +79,7 @@ signals:
     void toolChainsLoaded();
 
 private:
-    explicit ToolChainManager(QObject *parent = nullptr);
+    explicit ToolchainManager(QObject *parent = nullptr);
 
     // Make sure the this is only called after all toolchain factories are registered!
     static void restoreToolChains();

@@ -215,7 +215,7 @@ ToolChainList AndroidToolchainFactory::autodetectToolChainsFromNdks(
 
                 QLatin1String customStr = isCustom ? QLatin1String("Custom ") : QLatin1String();
                 const QString displayName(customStr + QString("Android Clang (%1, %2, NDK %3)")
-                                              .arg(ToolChainManager::displayNameOfLanguageId(lang),
+                                              .arg(ToolchainManager::displayNameOfLanguageId(lang),
                                                    AndroidConfig::displayName(abi),
                                                    config.ndkVersion(ndkLocation).toString()));
                 if (tc) {

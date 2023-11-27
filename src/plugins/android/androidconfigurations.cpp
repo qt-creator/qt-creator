@@ -1147,24 +1147,24 @@ static bool matchToolChain(const Toolchain *atc, const Toolchain *btc)
 void AndroidConfigurations::registerNewToolChains()
 {
     const Toolchains existingAndroidToolChains
-            = ToolChainManager::toolchains(Utils::equal(&Toolchain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
+            = ToolchainManager::toolchains(Utils::equal(&Toolchain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
     const Toolchains newToolchains = AndroidToolchainFactory::autodetectToolChains(
         existingAndroidToolChains);
 
     for (Toolchain *tc : newToolchains)
-        ToolChainManager::registerToolChain(tc);
+        ToolchainManager::registerToolChain(tc);
 
     registerCustomToolChainsAndDebuggers();
 }
 
 void AndroidConfigurations::removeOldToolChains()
 {
-    const auto tcs = ToolChainManager::toolchains(Utils::equal(&Toolchain::typeId,
+    const auto tcs = ToolchainManager::toolchains(Utils::equal(&Toolchain::typeId,
                                                                Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
     for (Toolchain *tc : tcs) {
         if (!tc->isValid())
-            ToolChainManager::deregisterToolChain(tc);
+            ToolchainManager::deregisterToolChain(tc);
     }
 }
 
@@ -1306,7 +1306,7 @@ static QVariant findOrRegisterDebugger(Toolchain *tc,
 
 void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
 {
-    const Toolchains existingAndroidToolChains = ToolChainManager::toolchains(
+    const Toolchains existingAndroidToolChains = ToolchainManager::toolchains(
         Utils::equal(&Toolchain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
     const FilePaths customNdks = FileUtils::toFilePathList(currentConfig().getCustomNdkList());
@@ -1315,7 +1315,7 @@ void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
                                                                 customNdks,
                                                                 true);
     for (Toolchain *tc : customToolchains) {
-        ToolChainManager::registerToolChain(tc);
+        ToolchainManager::registerToolChain(tc);
         const auto androidToolChain = static_cast<AndroidToolChain *>(tc);
         QString abiStr;
         if (androidToolChain)
@@ -1359,7 +1359,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     // register new kits
-    const Toolchains toolchains = ToolChainManager::toolchains([](const Toolchain *tc) {
+    const Toolchains toolchains = ToolchainManager::toolchains([](const Toolchain *tc) {
         return tc->isAutoDetected() && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
                && tc->isValid();
     });

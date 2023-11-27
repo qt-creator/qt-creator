@@ -236,7 +236,7 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     connect(bc, &BuildConfiguration::environmentChanged,
             this, &QmakeBuildSystem::scheduleUpdateAllNowOrLater);
 
-    connect(ToolChainManager::instance(), &ToolChainManager::toolChainUpdated,
+    connect(ToolchainManager::instance(), &ToolchainManager::toolChainUpdated,
             this, [this](Toolchain *tc) {
         if (ToolchainKitAspect::cxxToolChain(kit()) == tc)
             scheduleUpdateAllNowOrLater();

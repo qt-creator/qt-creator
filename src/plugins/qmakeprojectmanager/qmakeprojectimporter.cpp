@@ -215,7 +215,7 @@ static const Toolchains preferredToolChains(QtVersion *qtVersion, const QString 
 {
     const QString spec = ms.isEmpty() ? qtVersion->mkspec() : ms;
 
-    const Toolchains toolchains = ToolChainManager::toolchains();
+    const Toolchains toolchains = ToolchainManager::toolchains();
     const Abis qtAbis = qtVersion->qtAbis();
     const auto matcher = [&](const Toolchain *tc) {
         return qtAbis.contains(tc->targetAbi()) && tc->suggestedMkspecList().contains(spec);

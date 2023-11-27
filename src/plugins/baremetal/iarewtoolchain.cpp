@@ -249,7 +249,7 @@ static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
                                 const QString &version)
 {
     const auto archName = Abi::toString(arch);
-    const auto langName = ToolChainManager::displayNameOfLanguageId(language);
+    const auto langName = ToolchainManager::displayNameOfLanguageId(language);
     return Tr::tr("IAREW %1 (%2, %3)").arg(version, langName, archName);
 }
 
@@ -540,12 +540,12 @@ Toolchains IarToolchainFactory::autoDetectToolchains(
 
 Toolchains IarToolchainFactory::autoDetectToolchain(const Candidate &candidate, Id languageId) const
 {
-    if (ToolChainManager::isBadToolchain(candidate.compilerPath))
+    if (ToolchainManager::isBadToolchain(candidate.compilerPath))
         return {};
     const auto env = Environment::systemEnvironment();
     const Macros macros = dumpPredefinedMacros(candidate.compilerPath, {}, languageId, env);
     if (macros.isEmpty()) {
-        ToolChainManager::addBadToolchain(candidate.compilerPath);
+        ToolchainManager::addBadToolchain(candidate.compilerPath);
         return {};
     }
     const Abi abi = guessAbi(macros);

@@ -69,7 +69,7 @@ void NimPlugin::initialize()
 {
     d = new NimPluginPrivate;
 
-    ToolChainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
+    ToolchainManager::registerLanguage(Constants::C_NIMLANGUAGE_ID, Constants::C_NIMLANGUAGE_NAME);
 
     TextEditor::SnippetProvider::registerGroup(Constants::C_NIMSNIPPETSGROUP_ID,
                                                Tr::tr("Nim", "SnippetProvider"),

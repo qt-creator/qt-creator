@@ -154,7 +154,7 @@ class ToolChainOptionsWidget final : public Core::IOptionsPageWidget
 public:
     ToolChainOptionsWidget()
     {
-        m_detectionSettings = ToolChainManager::detectionSettings();
+        m_detectionSettings = ToolchainManager::detectionSettings();
         m_factories = Utils::filtered(ToolchainFactory::allToolchainFactories(),
                     [](ToolchainFactory *factory) { return factory->canCreate();});
 
@@ -163,9 +163,9 @@ public:
                                            {ProjectExplorer::Constants::msgAutoDetectedToolTip()});
         auto manualRoot = new StaticTreeItem(ProjectExplorer::Constants::msgManual());
 
-        const QList<Utils::Id> languages = ToolChainManager::allLanguages();
+        const QList<Utils::Id> languages = ToolchainManager::allLanguages();
         for (const Utils::Id &l : languages) {
-            const QString dn = ToolChainManager::displayNameOfLanguageId(l);
+            const QString dn = ToolchainManager::displayNameOfLanguageId(l);
             auto autoNode = new StaticTreeItem(dn);
             auto manualNode = new StaticTreeItem(dn);
 
@@ -203,11 +203,11 @@ public:
                 addMenu->addAction(createAction(factory->displayName(), factory, languages.at(0)));
             } else {
                 Utils::sort(languages, [](const Utils::Id &l1, const Utils::Id &l2) {
-                                return ToolChainManager::displayNameOfLanguageId(l1) < ToolChainManager::displayNameOfLanguageId(l2);
+                                return ToolchainManager::displayNameOfLanguageId(l1) < ToolchainManager::displayNameOfLanguageId(l2);
                             });
                 auto subMenu = addMenu->addMenu(factory->displayName());
                 for (const Utils::Id &l : std::as_const(languages))
-                    subMenu->addAction(createAction(ToolChainManager::displayNameOfLanguageId(l), factory, l));
+                    subMenu->addAction(createAction(ToolchainManager::displayNameOfLanguageId(l), factory, l));
             }
         }
         m_addButton->setMenu(addMenu);
@@ -253,7 +253,7 @@ public:
         m_widgetStack = new QStackedWidget;
         m_container->setWidget(m_widgetStack);
 
-        for (Toolchain *tc : ToolChainManager::toolchains())
+        for (Toolchain *tc : ToolchainManager::toolchains())
             insertToolChain(tc);
 
         auto buttonLayout = new QVBoxLayout;
@@ -275,14 +275,14 @@ public:
         horizontalLayout->addLayout(verticalLayout);
         horizontalLayout->addLayout(buttonLayout);
 
-        connect(ToolChainManager::instance(), &ToolChainManager::toolChainAdded,
+        connect(ToolchainManager::instance(), &ToolchainManager::toolChainAdded,
                 this, &ToolChainOptionsWidget::addToolChain);
-        connect(ToolChainManager::instance(), &ToolChainManager::toolChainRemoved,
+        connect(ToolchainManager::instance(), &ToolchainManager::toolChainRemoved,
                 this, &ToolChainOptionsWidget::removeToolChain);
 
         connect(m_toolChainView->selectionModel(), &QItemSelectionModel::currentChanged,
                 this, &ToolChainOptionsWidget::toolChainSelectionChanged);
-        connect(ToolChainManager::instance(), &ToolChainManager::toolChainsChanged,
+        connect(ToolchainManager::instance(), &ToolchainManager::toolChainsChanged,
                 this, &ToolChainOptionsWidget::toolChainSelectionChanged);
 
         connect(m_delButton, &QAbstractButton::clicked, this, [this] {
@@ -413,7 +413,7 @@ void ToolChainOptionsWidget::redetectToolchains()
     });
     Toolchains toAdd;
     QSet<Toolchain *> toDelete;
-    ToolChainManager::resetBadToolchains();
+    ToolchainManager::resetBadToolchains();
     for (ToolchainFactory *f : ToolchainFactory::allToolchainFactories()) {
         const ToolchainDetector detector(knownTcs, DeviceManager::defaultDesktopDevice(), {});  // FIXME: Pass search paths
         for (Toolchain * const tc : f->autoDetect(detector)) {
@@ -455,7 +455,7 @@ void ToolChainOptionsWidget::apply()
     // Remove unused tool chains:
     QList<ToolChainTreeItem *> nodes = m_toRemoveList;
     for (const ToolChainTreeItem *n : std::as_const(nodes))
-        ToolChainManager::deregisterToolChain(n->toolChain);
+        ToolchainManager::deregisterToolChain(n->toolChain);
 
     Q_ASSERT(m_toRemoveList.isEmpty());
 
@@ -479,7 +479,7 @@ void ToolChainOptionsWidget::apply()
     QStringList removedTcs;
     nodes = m_toAddList;
     for (const ToolChainTreeItem *n : std::as_const(nodes)) {
-        if (!ToolChainManager::registerToolChain(n->toolChain))
+        if (!ToolchainManager::registerToolChain(n->toolChain))
             removedTcs << n->toolChain->displayName();
     }
     //
@@ -505,7 +505,7 @@ void ToolChainOptionsWidget::apply()
                                     "They were not configured again.")
                                  .arg(removedTcs.join(QLatin1String(",<br>&nbsp;"))));
     }
-    ToolChainManager::setDetectionSettings(m_detectionSettings);
+    ToolchainManager::setDetectionSettings(m_detectionSettings);
 }
 
 void ToolChainOptionsWidget::createToolChain(ToolchainFactory *factory, const Utils::Id &language)

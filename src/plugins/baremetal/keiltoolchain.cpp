@@ -373,7 +373,7 @@ static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
                                 const QString &version)
 {
     const QString archName = Abi::toString(arch);
-    const QString langName = ToolChainManager::displayNameOfLanguageId(language);
+    const QString langName = ToolchainManager::displayNameOfLanguageId(language);
     return Tr::tr("KEIL %1 (%2, %3)").arg(version, langName, archName);
 }
 
@@ -689,7 +689,7 @@ Toolchains KeilToolchainFactory::autoDetectToolchains(
 
 Toolchains KeilToolchainFactory::autoDetectToolchain(const Candidate &candidate, Id language) const
 {
-    if (ToolChainManager::isBadToolchain(candidate.compilerPath))
+    if (ToolchainManager::isBadToolchain(candidate.compilerPath))
         return {};
     const auto env = Environment::systemEnvironment();
 
@@ -697,7 +697,7 @@ Toolchains KeilToolchainFactory::autoDetectToolchain(const Candidate &candidate,
     addDefaultCpuArgs(candidate.compilerPath, extraArgs);
     const Macros macros = dumpPredefinedMacros(candidate.compilerPath, extraArgs, env);
     if (macros.isEmpty()) {
-        ToolChainManager::addBadToolchain(candidate.compilerPath);
+        ToolchainManager::addBadToolchain(candidate.compilerPath);
         return {};
     }
 

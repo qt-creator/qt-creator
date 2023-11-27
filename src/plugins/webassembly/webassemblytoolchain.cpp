@@ -42,13 +42,13 @@ static const Abi &toolChainAbi()
 
 static void addRegisteredMinGWToEnvironment(Environment &env)
 {
-    if (!ToolChainManager::isLoaded()) {
-        // Avoid querying the ToolChainManager before it is loaded, which is the case during
+    if (!ToolchainManager::isLoaded()) {
+        // Avoid querying the ToolchainManager before it is loaded, which is the case during
         // toolchain restoration. The compiler version can be determined without MinGW in path.
         return;
     }
 
-    const Toolchain *toolChain = ToolChainManager::toolChain([](const Toolchain *t){
+    const Toolchain *toolChain = ToolchainManager::toolChain([](const Toolchain *t){
         return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
     });
     if (toolChain)
@@ -140,17 +140,17 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
 void WebAssemblyToolChain::registerToolChains()
 {
     // Remove old toolchains
-    for (Toolchain *tc : ToolChainManager::findToolChains(toolChainAbi())) {
+    for (Toolchain *tc : ToolchainManager::findToolChains(toolChainAbi())) {
          if (tc->detection() != Toolchain::AutoDetection)
              continue;
-         ToolChainManager::deregisterToolChain(tc);
+         ToolchainManager::deregisterToolChain(tc);
     };
 
     // Create new toolchains and register them
     ToolchainDetector detector({}, {}, {});
     const Toolchains toolchains = doAutoDetect(detector);
     for (auto toolChain : toolchains)
-        ToolChainManager::registerToolChain(toolChain);
+        ToolchainManager::registerToolChain(toolChain);
 
     // Let kits pick up the new toolchains
     for (Kit *kit : KitManager::kits()) {
@@ -165,7 +165,7 @@ void WebAssemblyToolChain::registerToolChains()
 
 bool WebAssemblyToolChain::areToolChainsRegistered()
 {
-    return !ToolChainManager::findToolChains(toolChainAbi()).isEmpty();
+    return !ToolchainManager::findToolChains(toolChainAbi()).isEmpty();
 }
 
 WebAssemblyToolchainFactory::WebAssemblyToolchainFactory()

@@ -283,7 +283,7 @@ static Abis guessGccAbi(const QString &m, const ProjectExplorer::Macros &macros)
     } else if (arch == Abi::X86Architecture && (width == 0 || width == 64)) {
         abiList << Abi(arch, os, flavor, format, 64);
         if (width != 64 || (!m.contains("mingw")
-                            && ToolChainManager::detectionSettings().detectX64AsX32)) {
+                            && ToolchainManager::detectionSettings().detectX64AsX32)) {
             abiList << Abi(arch, os, flavor, format, 32);
         }
     } else {
@@ -424,7 +424,7 @@ QString GccToolChain::defaultDisplayName() const
     if (abi.architecture() == Abi::UnknownArchitecture || abi.wordWidth() == 0)
         return type;
     return Tr::tr("%1 (%2, %3 %4 at %5)").arg(type,
-                                          ToolChainManager::displayNameOfLanguageId(language()),
+                                          ToolchainManager::displayNameOfLanguageId(language()),
                                           Abi::toString(abi.architecture()),
                                           Abi::toString(abi.wordWidth()),
                                           compilerCommand().toUserOutput());
@@ -437,7 +437,7 @@ LanguageExtensions GccToolChain::defaultLanguageExtensions() const
 
 static const Toolchains mingwToolChains()
 {
-    return ToolChainManager::toolchains([](const Toolchain *tc) -> bool {
+    return ToolchainManager::toolchains([](const Toolchain *tc) -> bool {
         return tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID;
     });
 }
@@ -866,7 +866,7 @@ QStringList GccToolChain::suggestedMkspecList() const
     }
 
     if (m_subType == Clang) {
-        if (const Toolchain * const parentTc = ToolChainManager::findToolChain(m_parentToolChainId))
+        if (const Toolchain * const parentTc = ToolchainManager::findToolChain(m_parentToolChainId))
             return parentTc->suggestedMkspecList();
         const Abi abi = targetAbi();
         if (abi.os() == Abi::DarwinOS)
@@ -1624,13 +1624,13 @@ Toolchains GccToolchainFactory::autoDetectToolChain(const ToolChainDescription &
     Environment systemEnvironment = tcd.compilerPath.deviceEnvironment();
     GccToolChain::addCommandPathToEnvironment(tcd.compilerPath, systemEnvironment);
     const FilePath localCompilerPath = findLocalCompiler(tcd.compilerPath, systemEnvironment);
-    if (ToolChainManager::isBadToolchain(localCompilerPath))
+    if (ToolchainManager::isBadToolchain(localCompilerPath))
         return result;
     Macros macros
             = gccPredefinedMacros(localCompilerPath, gccPredefinedMacrosOptions(tcd.language),
                                   systemEnvironment);
     if (macros.isEmpty()) {
-        ToolChainManager::addBadToolchain(localCompilerPath);
+        ToolchainManager::addBadToolchain(localCompilerPath);
         return result;
     }
     const GccToolChain::DetectedAbisResult detectedAbis = guessGccAbi(localCompilerPath,
@@ -1757,19 +1757,19 @@ GccToolChainConfigWidget::GccToolChainConfigWidget(GccToolChain *tc) :
                                 Tr::tr("Parent toolchain:"),
                                 m_parentToolchainCombo);
 
-        ToolChainManager *tcManager = ToolChainManager::instance();
+        ToolchainManager *tcManager = ToolchainManager::instance();
         m_parentToolChainConnections.append(
-            connect(tcManager, &ToolChainManager::toolChainUpdated, this, [this](Toolchain *tc) {
+            connect(tcManager, &ToolchainManager::toolChainUpdated, this, [this](Toolchain *tc) {
                 if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
                     updateParentToolChainComboBox();
             }));
         m_parentToolChainConnections.append(
-            connect(tcManager, &ToolChainManager::toolChainAdded, this, [this](Toolchain *tc) {
+            connect(tcManager, &ToolchainManager::toolChainAdded, this, [this](Toolchain *tc) {
                 if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
                     updateParentToolChainComboBox();
             }));
         m_parentToolChainConnections.append(
-            connect(tcManager, &ToolChainManager::toolChainRemoved, this, [this](Toolchain *tc) {
+            connect(tcManager, &ToolchainManager::toolChainRemoved, this, [this](Toolchain *tc) {
                 if (tc->id() == toolChain()->id()) {
                     for (QMetaObject::Connection &connection : m_parentToolChainConnections)
                         QObject::disconnect(connection);
@@ -1956,10 +1956,10 @@ void GccToolChain::syncAutodetectedWithParentToolchains()
     QObject::disconnect(m_thisToolchainRemovedConnection);
     QObject::disconnect(m_mingwToolchainAddedConnection);
 
-    if (!ToolChainManager::isLoaded()) {
-        connect(ToolChainManager::instance(), &ToolChainManager::toolChainsLoaded, this,
+    if (!ToolchainManager::isLoaded()) {
+        connect(ToolchainManager::instance(), &ToolchainManager::toolChainsLoaded, this,
                 [id = id()] {
-            if (Toolchain * const tc = ToolChainManager::findToolChain(id)) {
+            if (Toolchain * const tc = ToolchainManager::findToolChain(id)) {
                 if (tc->typeId() == Constants::CLANG_TOOLCHAIN_TYPEID)
                     static_cast<GccToolChain *>(tc)->syncAutodetectedWithParentToolchains();
             }
@@ -1973,16 +1973,16 @@ void GccToolChain::syncAutodetectedWithParentToolchains()
     }
 
     // Subscribe only autodetected toolchains.
-    ToolChainManager *tcManager = ToolChainManager::instance();
+    ToolchainManager *tcManager = ToolchainManager::instance();
     m_mingwToolchainAddedConnection
-        = connect(tcManager, &ToolChainManager::toolChainAdded, this, [this](Toolchain *tc) {
+        = connect(tcManager, &ToolchainManager::toolChainAdded, this, [this](Toolchain *tc) {
               if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID
                   && !mingwToolChainFromId(m_parentToolChainId)) {
                   m_parentToolChainId = tc->id();
               }
           });
     m_thisToolchainRemovedConnection
-        = connect(tcManager, &ToolChainManager::toolChainRemoved, this, [this](Toolchain *tc) {
+        = connect(tcManager, &ToolchainManager::toolChainRemoved, this, [this](Toolchain *tc) {
               if (tc == this) {
                   QObject::disconnect(m_thisToolchainRemovedConnection);
                   QObject::disconnect(m_mingwToolchainAddedConnection);

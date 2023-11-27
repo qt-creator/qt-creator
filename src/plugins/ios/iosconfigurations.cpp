@@ -109,7 +109,7 @@ static QList<GccToolChain *> clangToolChains(const Toolchains &toolChains)
 
 static QList<GccToolChain *> autoDetectedIosToolChains()
 {
-    const QList<GccToolChain *> toolChains = clangToolChains(ToolChainManager::toolchains());
+    const QList<GccToolChain *> toolChains = clangToolChains(ToolchainManager::toolchains());
     return filtered(toolChains, [](GccToolChain *toolChain) {
         return toolChain->isAutoDetected()
                && (toolChain->displayName().startsWith("iphone")
