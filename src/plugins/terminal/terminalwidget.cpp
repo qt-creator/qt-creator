@@ -278,11 +278,13 @@ void TerminalWidget::setupActions()
     m_clearSelection = registerAction(Constants::CLEARSELECTION, m_context);
     m_moveCursorWordLeft = registerAction(Constants::MOVECURSORWORDLEFT, m_context);
     m_moveCursorWordRight = registerAction(Constants::MOVECURSORWORDRIGHT, m_context);
+    m_selectAll = registerAction(Constants::SELECTALL, m_context);
 
     connect(m_copy.get(), &QAction::triggered, this, &TerminalWidget::copyToClipboard);
     connect(m_paste.get(), &QAction::triggered, this, &TerminalWidget::pasteFromClipboard);
     connect(m_close.get(), &QAction::triggered, this, &TerminalWidget::closeTerminal);
     connect(m_clearTerminal.get(), &QAction::triggered, this, &TerminalWidget::clearContents);
+    connect(m_selectAll.get(), &QAction::triggered, this, &TerminalWidget::selectAll);
     connect(m_clearSelection.get(), &QAction::triggered, this, &TerminalWidget::clearSelection);
     connect(m_moveCursorWordLeft.get(),
             &QAction::triggered,
@@ -503,6 +505,7 @@ void TerminalWidget::contextMenuRequested(const QPoint &pos)
 
     contextMenu->addAction(ActionManager::command(Constants::COPY)->action());
     contextMenu->addAction(ActionManager::command(Constants::PASTE)->action());
+    contextMenu->addAction(ActionManager::command(Constants::SELECTALL)->action());
     contextMenu->addSeparator();
     contextMenu->addAction(ActionManager::command(Constants::CLEAR_TERMINAL)->action());
     contextMenu->addSeparator();
@@ -612,6 +615,7 @@ void TerminalWidget::initActions()
     static QAction paste;
     static QAction clearSelection;
     static QAction clearTerminal;
+    static QAction selectAll;
     static QAction moveCursorWordLeft;
     static QAction moveCursorWordRight;
     static QAction close;
@@ -620,24 +624,29 @@ void TerminalWidget::initActions()
     paste.setText(Tr::tr("Paste"));
     clearSelection.setText(Tr::tr("Clear Selection"));
     clearTerminal.setText(Tr::tr("Clear Terminal"));
+    selectAll.setText(Tr::tr("Select All"));
     moveCursorWordLeft.setText(Tr::tr("Move Cursor Word Left"));
     moveCursorWordRight.setText(Tr::tr("Move Cursor Word Right"));
     close.setText(Tr::tr("Close Terminal"));
 
     auto copyCmd = ActionManager::registerAction(&copy, Constants::COPY, context);
     auto pasteCmd = ActionManager::registerAction(&paste, Constants::PASTE, context);
+    auto selectAllCmd = ActionManager::registerAction(&selectAll, Constants::SELECTALL, context);
 
     if (HostOsInfo::isMacHost()) {
         copyCmd->setDefaultKeySequence(QKeySequence(QLatin1String("Ctrl+C")));
         pasteCmd->setDefaultKeySequence(QKeySequence(QLatin1String("Ctrl+V")));
+        selectAllCmd->setDefaultKeySequence(QKeySequence(QLatin1String("Ctrl+A")));
     } else if (HostOsInfo::isLinuxHost()) {
         copyCmd->setDefaultKeySequence(QKeySequence(QLatin1String("Ctrl+Shift+C")));
         pasteCmd->setDefaultKeySequence(QKeySequence(QLatin1String("Ctrl+Shift+V")));
+        selectAllCmd->setDefaultKeySequence(QKeySequence(QLatin1String("Ctrl+Shift+A")));
     } else if (HostOsInfo::isWindowsHost()) {
         copyCmd->setDefaultKeySequences(
             {QKeySequence(QLatin1String("Ctrl+C")), QKeySequence(QLatin1String("Ctrl+Shift+C"))});
         pasteCmd->setDefaultKeySequences(
             {QKeySequence(QLatin1String("Ctrl+V")), QKeySequence(QLatin1String("Ctrl+Shift+V"))});
+        selectAllCmd->setDefaultKeySequence(QKeySequence(QLatin1String("Ctrl+Shift+A")));
     }
 
     ActionManager::registerAction(&clearSelection, Constants::CLEARSELECTION, context);

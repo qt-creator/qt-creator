@@ -324,6 +324,11 @@ void TerminalView::clearSelection()
     //d->m_surface->sendKey(Qt::Key_Escape);
 }
 
+void TerminalView::selectAll()
+{
+    setSelection(Selection{0, d->m_surface->fullSize().width() * d->m_surface->fullSize().height()});
+}
+
 void TerminalView::zoomIn()
 {
     QFont f = font();

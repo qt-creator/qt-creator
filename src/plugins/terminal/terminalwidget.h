@@ -105,6 +105,7 @@ private:
     RegisteredAction m_paste;
     RegisteredAction m_clearSelection;
     RegisteredAction m_clearTerminal;
+    RegisteredAction m_selectAll;
     RegisteredAction m_moveCursorWordLeft;
     RegisteredAction m_moveCursorWordRight;
     RegisteredAction m_close;
