@@ -64,7 +64,8 @@ private:
                          TextEditor::TextDocument *document);
     void resetEditorInfoBar(TextEditor::TextDocument *document);
     void installPythonLanguageServer(const Utils::FilePath &python,
-                                     QPointer<TextEditor::TextDocument> document);
+                                     QPointer<TextEditor::TextDocument> document,
+                                     const Utils::FilePath &pylsPath);
 
     QHash<Utils::FilePath, QList<TextEditor::TextDocument *>> m_infoBarEntries;
     QHash<TextEditor::TextDocument *, QPointer<QFutureWatcher<PythonLanguageServerState>>>

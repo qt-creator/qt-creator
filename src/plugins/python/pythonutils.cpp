@@ -21,6 +21,8 @@
 #include <utils/mimeutils.h>
 #include <utils/process.h>
 
+#include <QReadLocker>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -206,6 +208,30 @@ bool pipIsUsable(const Utils::FilePath &python)
     process.setCommand({python, QStringList{"-m", "pip", "-V"}});
     process.runBlocking();
     return process.result() == ProcessResult::FinishedWithSuccess;
+}
+
+QString pythonVersion(const FilePath &python)
+{
+    static QReadWriteLock lock;
+    static QMap<FilePath, QString> versionCache;
+
+    {
+        QReadLocker locker(&lock);
+        auto it = versionCache.constFind(python);
+        if (it != versionCache.constEnd())
+            return *it;
+    }
+
+    Process p;
+    p.setCommand({python, {"--version"}});
+    p.runBlocking();
+    if (p.result() == Utils::ProcessResult::FinishedWithSuccess) {
+        const QString version = p.readAllStandardOutput().trimmed();
+        QWriteLocker locker(&lock);
+        versionCache.insert(python, version);
+        return version;
+    }
+    return QString();
 }
 
 } // Python::Internal

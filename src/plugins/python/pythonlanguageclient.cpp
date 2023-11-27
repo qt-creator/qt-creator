@@ -72,64 +72,33 @@ static QHash<FilePath, PyLSClient*> &pythonClients()
     return clients;
 }
 
-FilePath getPylsModulePath(CommandLine pylsCommand)
+static FilePath pyLspPath(const FilePath &python)
 {
-    static QMutex mutex; // protect the access to the cache
-    QMutexLocker locker(&mutex);
-    static QMap<FilePath, FilePath> cache;
-    const FilePath &modulePath = cache.value(pylsCommand.executable());
-    if (!modulePath.isEmpty())
-        return modulePath;
-
-    pylsCommand.addArg("-h");
-
-    Process pythonProcess;
-    Environment env = pythonProcess.environment();
-    env.set("PYTHONVERBOSE", "x");
-    pythonProcess.setEnvironment(env);
-    pythonProcess.setCommand(pylsCommand);
-    pythonProcess.runBlocking();
-
-    static const QString pylsInitPattern = "(.*)"
-                                           + QRegularExpression::escape(
-                                               QDir::toNativeSeparators("/pylsp/__init__.py"))
-                                           + '$';
-    static const QRegularExpression regexCached(" matches " + pylsInitPattern,
-                                                QRegularExpression::MultilineOption);
-    static const QRegularExpression regexNotCached(" code object from " + pylsInitPattern,
-                                                   QRegularExpression::MultilineOption);
-
-    const QString output = pythonProcess.allOutput();
-    for (const auto &regex : {regexCached, regexNotCached}) {
-        const QRegularExpressionMatch result = regex.match(output);
-        if (result.hasMatch()) {
-            const FilePath &modulePath = FilePath::fromUserInput(result.captured(1));
-            cache[pylsCommand.executable()] = modulePath;
-            return modulePath;
-        }
-    }
-    return {};
+    if (python.needsDevice())
+        return {};
+    const QString version = pythonVersion(python);
+    if (version.isEmpty())
+        return {};
+    return Core::ICore::userResourcePath("pylsp") / FileUtils::fileSystemFriendlyName(version);
 }
 
 static PythonLanguageServerState checkPythonLanguageServer(const FilePath &python)
 {
     using namespace LanguageClient;
-    const CommandLine pythonLShelpCommand(python, {"-m", "pylsp", "-h"});
-    const FilePath &modulePath = getPylsModulePath(pythonLShelpCommand);
+    auto lspPath = pyLspPath(python);
+    if (lspPath.isEmpty())
+        return {PythonLanguageServerState::CanNotBeInstalled, FilePath()};
+
+    if (lspPath.pathAppended("bin").pathAppended("pylsp").withExecutableSuffix().exists())
+        return {PythonLanguageServerState::AlreadyInstalled, lspPath};
 
     Process pythonProcess;
     pythonProcess.setTimeoutS(2);
-    pythonProcess.setCommand(pythonLShelpCommand);
-    pythonProcess.runBlocking();
-    if (pythonProcess.allOutput().contains("Python Language Server"))
-        return {PythonLanguageServerState::AlreadyInstalled, modulePath};
-
     pythonProcess.setCommand({python, {"-m", "pip", "-V"}});
     pythonProcess.runBlocking();
     if (pythonProcess.allOutput().startsWith("pip "))
-        return {PythonLanguageServerState::CanBeInstalled, FilePath()};
-    else
-        return {PythonLanguageServerState::CanNotBeInstalled, FilePath()};
+        return {PythonLanguageServerState::CanBeInstalled, lspPath};
+    return {PythonLanguageServerState::CanNotBeInstalled, FilePath()};
 }
 
 
@@ -150,6 +119,12 @@ protected:
             env.appendOrSet("PYTHONPATH",
                             m_extraPythonPath.path().toString(),
                             OsSpecificAspects::pathListSeparator(env.osType()));
+            const FilePath lspPath = pyLspPath(m_cmd.executable());
+            if (!lspPath.isEmpty() && lspPath.exists()) {
+                env.appendOrSet("PYTHONPATH",
+                                pyLspPath(m_cmd.executable()).toString(),
+                                OsSpecificAspects::pathListSeparator(env.osType()));
+            }
             setEnvironment(env);
         }
         StdIOClientInterface::startImpl();
@@ -293,7 +268,8 @@ PyLSConfigureAssistant *PyLSConfigureAssistant::instance()
 }
 
 void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
-                                                         QPointer<TextEditor::TextDocument> document)
+                                                         QPointer<TextEditor::TextDocument> document,
+                                                         const FilePath &pylsPath)
 {
     document->infoBar()->removeInfo(installPylsInfoBarId);
 
@@ -317,6 +293,7 @@ void PyLSConfigureAssistant::installPythonLanguageServer(const FilePath &python,
         install->deleteLater();
     });
 
+    install->setTargetPath(pylsPath);
     install->setPackages({PipPackage{"python-lsp-server[all]", "Python Language Server"}});
     install->run();
 }
@@ -376,8 +353,9 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
         Utils::InfoBarEntry info(installPylsInfoBarId,
                                  message,
                                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
-        info.addCustomButton(Tr::tr("Install"),
-                             [=]() { installPythonLanguageServer(python, document); });
+        info.addCustomButton(Tr::tr("Install"), [=]() {
+            installPythonLanguageServer(python, document, state.pylsModulePath);
+        });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;
     } else if (state.state == PythonLanguageServerState::AlreadyInstalled) {

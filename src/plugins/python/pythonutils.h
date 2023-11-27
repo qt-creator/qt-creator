@@ -24,4 +24,6 @@ bool isVenvPython(const Utils::FilePath &python);
 bool venvIsUsable(const Utils::FilePath &python);
 bool pipIsUsable(const Utils::FilePath &python);
 
+QString pythonVersion(const Utils::FilePath &python);
+
 } // Python::Internal
