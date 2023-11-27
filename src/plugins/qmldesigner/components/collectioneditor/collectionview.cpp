@@ -211,6 +211,11 @@ void CollectionView::resetDataStoreNode()
     refreshModel();
 }
 
+ModelNode CollectionView::dataStoreNode() const
+{
+    return m_dataStore->modelNode();
+}
+
 void CollectionView::refreshModel()
 {
     if (!model())

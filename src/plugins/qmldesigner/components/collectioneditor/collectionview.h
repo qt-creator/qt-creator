@@ -46,6 +46,7 @@ public:
     static void registerDeclarativeType();
 
     void resetDataStoreNode();
+    ModelNode dataStoreNode() const;
 
 private:
     void refreshModel();

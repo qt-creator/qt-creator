@@ -316,6 +316,7 @@ bool CollectionWidget::importCollectionToDataStore(const QString &collectionName
 
 bool CollectionWidget::addCollectionToDataStore(const QString &collectionName)
 {
+    ensureDataStoreExists();
     const ModelNode node = dataStoreNode();
     if (!node.isValid()) {
         warn(tr("Can not import to the main model"), tr("The default model node is not available."));
@@ -349,14 +350,17 @@ void CollectionWidget::assignCollectionToSelectedNode(const QString collectionNa
     CollectionEditor::assignCollectionToNode(m_view, targetNode, dsNode, collectionName);
 }
 
+void CollectionWidget::ensureDataStoreExists()
+{
+    bool filesJustCreated = false;
+    bool filesExist = CollectionEditor::ensureDataStoreExists(filesJustCreated);
+    if (filesExist && filesJustCreated)
+        m_view->resetDataStoreNode();
+}
+
 ModelNode CollectionWidget::dataStoreNode() const
 {
-    for (int i = 0; i < m_sourceModel->rowCount(); ++i) {
-        const ModelNode node = m_sourceModel->sourceNodeAt(i);
-        if (CollectionEditor::getSourceCollectionFormat(node) == CollectionEditor::SourceFormat::Json)
-            return node;
-    }
-    return {};
+    return m_view->dataStoreNode();
 }
 
 void CollectionWidget::warn(const QString &title, const QString &body)

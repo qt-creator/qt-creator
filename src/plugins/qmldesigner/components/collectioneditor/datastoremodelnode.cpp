@@ -4,6 +4,7 @@
 #include "datastoremodelnode.h"
 
 #include "collectioneditorconstants.h"
+#include "collectioneditorutils.h"
 #include "model/qmltextgenerator.h"
 
 #include <model.h>
@@ -22,21 +23,6 @@
 #include <utils/qtcassert.h>
 
 namespace {
-
-Utils::FilePath findFile(const Utils::FilePath &path, const QString &fileName)
-{
-    QDirIterator it(path.toString(), QDirIterator::Subdirectories);
-
-    while (it.hasNext()) {
-        QFileInfo file(it.next());
-        if (file.isDir())
-            continue;
-
-        if (file.fileName() == fileName)
-            return Utils::FilePath::fromFileInfo(file);
-    }
-    return {};
-}
 
 QmlDesigner::PropertyNameList createNameList(const QmlDesigner::ModelNode &node)
 {
@@ -74,10 +60,8 @@ void DataStoreModelNode::reloadModel()
     }
     bool forceUpdate = false;
 
-    const FilePath projectFilePath = ProjectExplorer::ProjectManager::startupProject()->projectDirectory();
-    const FilePath importsPath = FilePath::fromString(projectFilePath.path() + "/imports");
-    FilePath dataStoreQmlPath = findFile(importsPath, "DataStore.qml");
-    FilePath dataStoreJsonPath = findFile(importsPath, "DataStore.json");
+    const FilePath dataStoreQmlPath = CollectionEditor::dataStoreQmlFilePath();
+    const FilePath dataStoreJsonPath = CollectionEditor::dataStoreJsonFilePath();
     QUrl dataStoreQmlUrl = dataStoreQmlPath.toUrl();
 
     if (dataStoreQmlPath.exists() && dataStoreJsonPath.exists()) {
