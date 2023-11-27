@@ -1139,14 +1139,15 @@ void ClangdClient::gatherHelpItemForTooltip(const HoverRequest::Response &hoverR
                 for (const QString &line : lines) {
                     const QString possibleFilePath = line.simplified();
                     const auto looksLikeFilePath = [&] {
-                        if (possibleFilePath.length() < 3)
+                        if (possibleFilePath.length() < 4)
                             return false;
                         if (osType() == OsTypeWindows) {
-                            if (possibleFilePath.startsWith(R"(\\)"))
+                            if (possibleFilePath.startsWith(R"(\\\\)"))
                                 return true;
                             return possibleFilePath.front().isLetter()
                                     && possibleFilePath.at(1) == ':'
-                                    && possibleFilePath.at(2) == '\\';
+                                    && possibleFilePath.at(2) == '\\'
+                                    && possibleFilePath.at(3) == '\\';
                         }
                         return possibleFilePath.front() == '/'
                                 && possibleFilePath.at(1).isLetterOrNumber();
