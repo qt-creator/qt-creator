@@ -275,14 +275,14 @@ public:
         horizontalLayout->addLayout(verticalLayout);
         horizontalLayout->addLayout(buttonLayout);
 
-        connect(ToolchainManager::instance(), &ToolchainManager::toolChainAdded,
+        connect(ToolchainManager::instance(), &ToolchainManager::toolhainAdded,
                 this, &ToolChainOptionsWidget::addToolChain);
-        connect(ToolchainManager::instance(), &ToolchainManager::toolChainRemoved,
+        connect(ToolchainManager::instance(), &ToolchainManager::toolchainRemoved,
                 this, &ToolChainOptionsWidget::removeToolChain);
 
         connect(m_toolChainView->selectionModel(), &QItemSelectionModel::currentChanged,
                 this, &ToolChainOptionsWidget::toolChainSelectionChanged);
-        connect(ToolchainManager::instance(), &ToolchainManager::toolChainsChanged,
+        connect(ToolchainManager::instance(), &ToolchainManager::toolchainsChanged,
                 this, &ToolChainOptionsWidget::toolChainSelectionChanged);
 
         connect(m_delButton, &QAbstractButton::clicked, this, [this] {
@@ -455,7 +455,7 @@ void ToolChainOptionsWidget::apply()
     // Remove unused tool chains:
     QList<ToolChainTreeItem *> nodes = m_toRemoveList;
     for (const ToolChainTreeItem *n : std::as_const(nodes))
-        ToolchainManager::deregisterToolChain(n->toolChain);
+        ToolchainManager::deregisterToolchain(n->toolChain);
 
     Q_ASSERT(m_toRemoveList.isEmpty());
 
@@ -479,7 +479,7 @@ void ToolChainOptionsWidget::apply()
     QStringList removedTcs;
     nodes = m_toAddList;
     for (const ToolChainTreeItem *n : std::as_const(nodes)) {
-        if (!ToolchainManager::registerToolChain(n->toolChain))
+        if (!ToolchainManager::registerToolchain(n->toolChain))
             removedTcs << n->toolChain->displayName();
     }
     //

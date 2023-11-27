@@ -1153,7 +1153,7 @@ void AndroidConfigurations::registerNewToolChains()
         existingAndroidToolChains);
 
     for (Toolchain *tc : newToolchains)
-        ToolchainManager::registerToolChain(tc);
+        ToolchainManager::registerToolchain(tc);
 
     registerCustomToolChainsAndDebuggers();
 }
@@ -1164,7 +1164,7 @@ void AndroidConfigurations::removeOldToolChains()
                                                                Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
     for (Toolchain *tc : tcs) {
         if (!tc->isValid())
-            ToolchainManager::deregisterToolChain(tc);
+            ToolchainManager::deregisterToolchain(tc);
     }
 }
 
@@ -1315,7 +1315,7 @@ void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
                                                                 customNdks,
                                                                 true);
     for (Toolchain *tc : customToolchains) {
-        ToolchainManager::registerToolChain(tc);
+        ToolchainManager::registerToolchain(tc);
         const auto androidToolChain = static_cast<AndroidToolChain *>(tc);
         QString abiStr;
         if (androidToolChain)

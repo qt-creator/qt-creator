@@ -292,7 +292,7 @@ private:
             return;
 
         const QByteArray id = m_languageComboboxMap.value(language)->itemData(idx).toByteArray();
-        Toolchain *tc = ToolchainManager::findToolChain(id);
+        Toolchain *tc = ToolchainManager::findToolchain(id);
         QTC_ASSERT(!tc || tc->language() == language, return);
         if (tc)
             ToolchainKitAspect::setToolChain(m_kit, tc);
@@ -408,7 +408,7 @@ void ToolchainKitAspectFactory::fix(Kit *k)
     const QList<Id> languages = ToolchainManager::allLanguages();
     for (const Id l : languages) {
         const QByteArray tcId = ToolchainKitAspect::toolChainId(k, l);
-        if (!tcId.isEmpty() && !ToolchainManager::findToolChain(tcId)) {
+        if (!tcId.isEmpty() && !ToolchainManager::findToolchain(tcId)) {
             qWarning("Tool chain set up in kit \"%s\" for \"%s\" not found.",
                      qPrintable(k->displayName()),
                      qPrintable(ToolchainManager::displayNameOfLanguageId(l)));
@@ -443,7 +443,7 @@ void ToolchainKitAspectFactory::setup(Kit *k)
         }
 
         const QByteArray id = i.value().toByteArray();
-        Toolchain *tc = ToolchainManager::findToolChain(id);
+        Toolchain *tc = ToolchainManager::findToolchain(id);
         if (tc)
             continue;
 
@@ -557,17 +557,17 @@ QByteArray ToolchainKitAspect::toolChainId(const Kit *k, Id language)
 
 Toolchain *ToolchainKitAspect::toolChain(const Kit *k, Id language)
 {
-    return ToolchainManager::findToolChain(toolChainId(k, language));
+    return ToolchainManager::findToolchain(toolChainId(k, language));
 }
 
 Toolchain *ToolchainKitAspect::cToolChain(const Kit *k)
 {
-    return ToolchainManager::findToolChain(toolChainId(k, ProjectExplorer::Constants::C_LANGUAGE_ID));
+    return ToolchainManager::findToolchain(toolChainId(k, ProjectExplorer::Constants::C_LANGUAGE_ID));
 }
 
 Toolchain *ToolchainKitAspect::cxxToolChain(const Kit *k)
 {
-    return ToolchainManager::findToolChain(toolChainId(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID));
+    return ToolchainManager::findToolchain(toolChainId(k, ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 }
 
 
@@ -578,7 +578,7 @@ QList<Toolchain *> ToolchainKitAspect::toolChains(const Kit *k)
     const Store value = storeFromVariant(k->value(ToolchainKitAspect::id()));
     const QList<Toolchain *> tcList
             = transform<QList>(ToolchainManager::allLanguages(), [&value](Id l) {
-                return ToolchainManager::findToolChain(value.value(l.toKey()).toByteArray());
+                return ToolchainManager::findToolchain(value.value(l.toKey()).toByteArray());
             });
     return filtered(tcList, [](Toolchain *tc) { return tc; });
 }
@@ -695,9 +695,9 @@ void ToolchainKitAspectFactory::onKitsLoaded()
     for (Kit *k : KitManager::kits())
         fix(k);
 
-    connect(ToolchainManager::instance(), &ToolchainManager::toolChainRemoved,
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainRemoved,
             this, &ToolchainKitAspectFactory::toolChainRemoved);
-    connect(ToolchainManager::instance(), &ToolchainManager::toolChainUpdated,
+    connect(ToolchainManager::instance(), &ToolchainManager::toolchainUpdated,
             this, &ToolchainKitAspectFactory::toolChainUpdated);
 }
 

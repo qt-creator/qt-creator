@@ -366,7 +366,7 @@ bool McuToolChainPackage::isDesktopToolchain() const
 
 Toolchain *McuToolChainPackage::msvcToolChain(Id language)
 {
-    Toolchain *toolChain = ToolchainManager::toolChain([language](const Toolchain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
         const Abi abi = t->targetAbi();
         return abi.osFlavor() == Abi::WindowsMsvc2019Flavor
                && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
@@ -378,7 +378,7 @@ Toolchain *McuToolChainPackage::msvcToolChain(Id language)
 
 Toolchain *McuToolChainPackage::gccToolChain(Id language)
 {
-    Toolchain *toolChain = ToolchainManager::toolChain([language](const Toolchain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
         const Abi abi = t->targetAbi();
         return abi.os() != Abi::WindowsOS && abi.architecture() == Abi::X86Architecture
                && abi.wordWidth() == 64 && t->language() == language;
@@ -388,7 +388,7 @@ Toolchain *McuToolChainPackage::gccToolChain(Id language)
 
 static Toolchain *mingwToolChain(const FilePath &path, Id language)
 {
-    Toolchain *toolChain = ToolchainManager::toolChain([&path, language](const Toolchain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([&path, language](const Toolchain *t) {
         // find a MinGW toolchain having the same path from registered toolchains
         const Abi abi = t->targetAbi();
         return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
@@ -398,7 +398,7 @@ static Toolchain *mingwToolChain(const FilePath &path, Id language)
     if (!toolChain) {
         // if there's no MinGW toolchain having the same path,
         // a proper MinGW would be selected from the registered toolchains.
-        toolChain = ToolchainManager::toolChain([language](const Toolchain *t) {
+        toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
             const Abi abi = t->targetAbi();
             return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID
                    && abi.architecture() == Abi::X86Architecture && abi.wordWidth() == 64
@@ -410,7 +410,7 @@ static Toolchain *mingwToolChain(const FilePath &path, Id language)
 
 static Toolchain *armGccToolChain(const FilePath &path, Id language)
 {
-    Toolchain *toolChain = ToolchainManager::toolChain([&path, language](const Toolchain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([&path, language](const Toolchain *t) {
         return t->compilerCommand() == path && t->language() == language;
     });
     if (!toolChain) {
@@ -426,7 +426,7 @@ static Toolchain *armGccToolChain(const FilePath &path, Id language)
                 toolChain = detected.first();
                 toolChain->setDetection(Toolchain::ManualDetection);
                 toolChain->setDisplayName("Arm GCC");
-                ToolchainManager::registerToolChain(toolChain);
+                ToolchainManager::registerToolchain(toolChain);
             }
         }
     }
@@ -436,7 +436,7 @@ static Toolchain *armGccToolChain(const FilePath &path, Id language)
 
 static Toolchain *iarToolChain(const FilePath &path, Id language)
 {
-    Toolchain *toolChain = ToolchainManager::toolChain([language](const Toolchain *t) {
+    Toolchain *toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
         return t->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID
                && t->language() == language;
     });
@@ -457,7 +457,7 @@ static Toolchain *iarToolChain(const FilePath &path, Id language)
                     toolChain = tc;
                     toolChain->setDetection(Toolchain::ManualDetection);
                     toolChain->setDisplayName("IAREW");
-                    ToolchainManager::registerToolChain(toolChain);
+                    ToolchainManager::registerToolchain(toolChain);
                 }
             }
         }

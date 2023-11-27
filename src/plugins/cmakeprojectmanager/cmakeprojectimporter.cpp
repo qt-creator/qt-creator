@@ -609,7 +609,7 @@ Toolchain *findExternalToolchain(const QString &presetArchitecture, const QStrin
         return tc->targetAbi().osFlavor();
     }));
 
-    return ToolchainManager::toolChain(
+    return ToolchainManager::toolchain(
         [presetArchitecture, presetToolset, msvcFlavors](const Toolchain *tc) -> bool {
             if (tc->typeId() != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID)
                 return false;

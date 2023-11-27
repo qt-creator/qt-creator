@@ -2118,7 +2118,7 @@ bool ProjectExplorerPlugin::delayedInitialize()
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ProjectExplorerPlugin::restoreKits");
     ExtraAbi::load(); // Load this before Toolchains!
-    ToolchainManager::restoreToolChains();
+    ToolchainManager::restoreToolchains();
     KitManager::restoreKits();
     return true;
 }

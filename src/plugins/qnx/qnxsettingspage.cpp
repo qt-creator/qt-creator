@@ -99,7 +99,7 @@ public:
 
     bool isActive() const
     {
-        const bool hasToolChain = ToolchainManager::toolChain(Utils::equal(&Toolchain::compilerCommand,
+        const bool hasToolChain = ToolchainManager::toolchain(Utils::equal(&Toolchain::compilerCommand,
                                                                            m_qccCompiler));
         const bool hasDebugger = Utils::contains(DebuggerItemManager::debuggers(), [this](const DebuggerItem &di) {
             return findTargetByDebuggerPath(di.command());
@@ -188,7 +188,7 @@ void QnxConfiguration::deactivate()
     }
 
     for (Toolchain *tc : toolChainsToRemove)
-        ToolchainManager::deregisterToolChain(tc);
+        ToolchainManager::deregisterToolchain(tc);
 
     for (const DebuggerItem &debuggerItem : std::as_const(debuggersToRemove))
         DebuggerItemManager::deregisterDebugger(debuggerItem.id());
@@ -241,7 +241,7 @@ Toolchains QnxConfiguration::createToolChains(const QnxTarget &target)
         toolChain->sdpPath.setValue(m_envFile.parentDir());
         toolChain->cpuDir.setValue(target.cpuDir());
         toolChain->resetToolChain(m_qccCompiler);
-        ToolchainManager::registerToolChain(toolChain);
+        ToolchainManager::registerToolchain(toolChain);
 
         toolChains.append(toolChain);
     }

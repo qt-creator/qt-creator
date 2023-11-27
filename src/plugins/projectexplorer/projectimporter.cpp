@@ -313,7 +313,7 @@ bool ProjectImporter::findTemporaryHandler(Utils::Id id) const
 static Toolchain *toolChainFromVariant(const QVariant &v)
 {
     const QByteArray tcId = v.toByteArray();
-    return ToolchainManager::findToolChain(tcId);
+    return ToolchainManager::findToolchain(tcId);
 }
 
 void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
@@ -321,7 +321,7 @@ void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
     for (const QVariant &v : vl) {
         Toolchain *tc = toolChainFromVariant(v);
         QTC_ASSERT(tc, continue);
-        ToolchainManager::deregisterToolChain(tc);
+        ToolchainManager::deregisterToolchain(tc);
         ToolchainKitAspect::setToolChain(k, nullptr);
     }
 }
@@ -333,7 +333,7 @@ void ProjectImporter::persistTemporaryToolChains(Kit *k, const QVariantList &vl)
         QTC_ASSERT(tmpTc, continue);
         Toolchain *actualTc = ToolchainKitAspect::toolChain(k, tmpTc->language());
         if (tmpTc && actualTc != tmpTc)
-            ToolchainManager::deregisterToolChain(tmpTc);
+            ToolchainManager::deregisterToolchain(tmpTc);
     }
 }
 
@@ -376,7 +376,7 @@ static ProjectImporter::ToolChainData createToolChains(const ToolChainDescriptio
             continue;
 
         for (Toolchain *tc : std::as_const(data.tcs))
-            ToolchainManager::registerToolChain(tc);
+            ToolchainManager::registerToolchain(tc);
 
         data.areTemporary = true;
         break;

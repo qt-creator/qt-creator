@@ -42,14 +42,14 @@ public:
     static const Toolchains &toolchains();
     static Toolchains toolchains(const Toolchain::Predicate &predicate);
 
-    static Toolchain *toolChain(const Toolchain::Predicate &predicate);
-    static QList<Toolchain *> findToolChains(const Abi &abi);
-    static Toolchain *findToolChain(const QByteArray &id);
+    static Toolchain *toolchain(const Toolchain::Predicate &predicate);
+    static QList<Toolchain *> findToolchains(const Abi &abi);
+    static Toolchain *findToolchain(const QByteArray &id);
 
     static bool isLoaded();
 
-    static bool registerToolChain(Toolchain *tc);
-    static void deregisterToolChain(Toolchain *tc);
+    static bool registerToolchain(Toolchain *tc);
+    static void deregisterToolchain(Toolchain *tc);
 
     static QList<Utils::Id> allLanguages();
     static bool registerLanguage(const Utils::Id &language, const QString &displayName);
@@ -65,24 +65,24 @@ public:
     static bool isBadToolchain(const Utils::FilePath &toolchain);
     static void addBadToolchain(const Utils::FilePath &toolchain);
 
-    void saveToolChains();
+    void saveToolchains();
 
 signals:
-    void toolChainAdded(ProjectExplorer::Toolchain *);
-    // Tool chain is still valid when this call happens!
-    void toolChainRemoved(ProjectExplorer::Toolchain *);
-    // Tool chain was updated.
-    void toolChainUpdated(ProjectExplorer::Toolchain *);
+    void toolhainAdded(ProjectExplorer::Toolchain *);
+    // Toolchain is still valid when this call happens!
+    void toolchainRemoved(ProjectExplorer::Toolchain *);
+    // Toolchain was updated.
+    void toolchainUpdated(ProjectExplorer::Toolchain *);
     // Something changed.
-    void toolChainsChanged();
+    void toolchainsChanged();
     //
-    void toolChainsLoaded();
+    void toolchainsLoaded();
 
 private:
     explicit ToolchainManager(QObject *parent = nullptr);
 
     // Make sure the this is only called after all toolchain factories are registered!
-    static void restoreToolChains();
+    static void restoreToolchains();
 
     static void notifyAboutUpdate(Toolchain *);
 

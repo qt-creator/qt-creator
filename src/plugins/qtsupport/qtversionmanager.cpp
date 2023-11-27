@@ -97,7 +97,7 @@ public:
         m_fileWatcherTimer.setInterval(2000);
         connect(&m_fileWatcherTimer, &QTimer::timeout, this, [this] { updateFromInstaller(); });
 
-        connect(ToolchainManager::instance(), &ToolchainManager::toolChainsLoaded,
+        connect(ToolchainManager::instance(), &ToolchainManager::toolchainsLoaded,
                 this, &QtVersionManagerImpl::triggerQtVersionRestore);
     }
 
@@ -144,7 +144,7 @@ void QtVersionManagerImpl::triggerQtVersionRestore()
 {
     NANOTRACE_SCOPE("QtSupport", "QtVersionManagerImpl::triggerQtVersionRestore");
     disconnect(ToolchainManager::instance(),
-               &ToolchainManager::toolChainsLoaded,
+               &ToolchainManager::toolchainsLoaded,
                this,
                &QtVersionManagerImpl::triggerQtVersionRestore);
 

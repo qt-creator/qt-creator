@@ -39,7 +39,7 @@ void CompilationDatabaseTests::initTestCase()
     if (allKits.empty())
         QSKIP("This test requires at least one kit to be present.");
 
-    Toolchain *toolchain = ToolchainManager::toolChain([](const Toolchain *tc) {
+    Toolchain *toolchain = ToolchainManager::toolchain([](const Toolchain *tc) {
         return tc->isValid() && tc->language() == ProjectExplorer::Constants::CXX_LANGUAGE_ID;
     });
     if (!toolchain)

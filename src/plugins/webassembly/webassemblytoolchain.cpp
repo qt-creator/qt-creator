@@ -48,7 +48,7 @@ static void addRegisteredMinGWToEnvironment(Environment &env)
         return;
     }
 
-    const Toolchain *toolChain = ToolchainManager::toolChain([](const Toolchain *t){
+    const Toolchain *toolChain = ToolchainManager::toolchain([](const Toolchain *t){
         return t->typeId() == ProjectExplorer::Constants::MINGW_TOOLCHAIN_TYPEID;
     });
     if (toolChain)
@@ -140,17 +140,17 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
 void WebAssemblyToolChain::registerToolChains()
 {
     // Remove old toolchains
-    for (Toolchain *tc : ToolchainManager::findToolChains(toolChainAbi())) {
+    for (Toolchain *tc : ToolchainManager::findToolchains(toolChainAbi())) {
          if (tc->detection() != Toolchain::AutoDetection)
              continue;
-         ToolchainManager::deregisterToolChain(tc);
+         ToolchainManager::deregisterToolchain(tc);
     };
 
     // Create new toolchains and register them
     ToolchainDetector detector({}, {}, {});
     const Toolchains toolchains = doAutoDetect(detector);
     for (auto toolChain : toolchains)
-        ToolchainManager::registerToolChain(toolChain);
+        ToolchainManager::registerToolchain(toolChain);
 
     // Let kits pick up the new toolchains
     for (Kit *kit : KitManager::kits()) {
@@ -165,7 +165,7 @@ void WebAssemblyToolChain::registerToolChains()
 
 bool WebAssemblyToolChain::areToolChainsRegistered()
 {
-    return !ToolchainManager::findToolChains(toolChainAbi()).isEmpty();
+    return !ToolchainManager::findToolchains(toolChainAbi()).isEmpty();
 }
 
 WebAssemblyToolchainFactory::WebAssemblyToolchainFactory()

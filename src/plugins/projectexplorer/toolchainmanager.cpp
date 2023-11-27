@@ -77,10 +77,10 @@ ToolchainManager::ToolchainManager(QObject *parent) :
     d = new ToolchainManagerPrivate;
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
-            this, &ToolchainManager::saveToolChains);
-    connect(this, &ToolchainManager::toolChainAdded, this, &ToolchainManager::toolChainsChanged);
-    connect(this, &ToolchainManager::toolChainRemoved, this, &ToolchainManager::toolChainsChanged);
-    connect(this, &ToolchainManager::toolChainUpdated, this, &ToolchainManager::toolChainsChanged);
+            this, &ToolchainManager::saveToolchains);
+    connect(this, &ToolchainManager::toolhainAdded, this, &ToolchainManager::toolchainsChanged);
+    connect(this, &ToolchainManager::toolchainRemoved, this, &ToolchainManager::toolchainsChanged);
+    connect(this, &ToolchainManager::toolchainUpdated, this, &ToolchainManager::toolchainsChanged);
 
     QtcSettings * const s = Core::ICore::settings();
     d->m_detectionSettings.detectX64AsX32
@@ -100,20 +100,20 @@ ToolchainManager *ToolchainManager::instance()
     return m_instance;
 }
 
-void ToolchainManager::restoreToolChains()
+void ToolchainManager::restoreToolchains()
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ToolchainManager::restoreToolChains");
     QTC_ASSERT(!d->m_accessor, return);
     d->m_accessor = std::make_unique<Internal::ToolChainSettingsAccessor>();
 
     for (Toolchain *tc : d->m_accessor->restoreToolChains(Core::ICore::dialogParent()))
-        registerToolChain(tc);
+        registerToolchain(tc);
 
     d->m_loaded = true;
-    emit m_instance->toolChainsLoaded();
+    emit m_instance->toolchainsLoaded();
 }
 
-void ToolchainManager::saveToolChains()
+void ToolchainManager::saveToolchains()
 {
     QTC_ASSERT(d->m_accessor, return);
 
@@ -137,13 +137,13 @@ Toolchains ToolchainManager::toolchains(const Toolchain::Predicate &predicate)
     return Utils::filtered(d->m_toolChains, predicate);
 }
 
-Toolchain *ToolchainManager::toolChain(const Toolchain::Predicate &predicate)
+Toolchain *ToolchainManager::toolchain(const Toolchain::Predicate &predicate)
 {
     QTC_CHECK(d->m_loaded);
     return Utils::findOrDefault(d->m_toolChains, predicate);
 }
 
-Toolchains ToolchainManager::findToolChains(const Abi &abi)
+Toolchains ToolchainManager::findToolchains(const Abi &abi)
 {
     QTC_CHECK(d->m_loaded);
     Toolchains result;
@@ -158,7 +158,7 @@ Toolchains ToolchainManager::findToolChains(const Abi &abi)
     return result;
 }
 
-Toolchain *ToolchainManager::findToolChain(const QByteArray &id)
+Toolchain *ToolchainManager::findToolchain(const QByteArray &id)
 {
     QTC_CHECK(d->m_loaded);
     if (id.isEmpty())
@@ -188,10 +188,10 @@ void ToolchainManager::notifyAboutUpdate(Toolchain *tc)
 {
     if (!tc || !d->m_toolChains.contains(tc))
         return;
-    emit m_instance->toolChainUpdated(tc);
+    emit m_instance->toolchainUpdated(tc);
 }
 
-bool ToolchainManager::registerToolChain(Toolchain *tc)
+bool ToolchainManager::registerToolchain(Toolchain *tc)
 {
     QTC_ASSERT(tc, return false);
     QTC_ASSERT(isLanguageSupported(tc->language()),
@@ -210,17 +210,17 @@ bool ToolchainManager::registerToolChain(Toolchain *tc)
     }
 
     d->m_toolChains.append(tc);
-    emit m_instance->toolChainAdded(tc);
+    emit m_instance->toolhainAdded(tc);
     return true;
 }
 
-void ToolchainManager::deregisterToolChain(Toolchain *tc)
+void ToolchainManager::deregisterToolchain(Toolchain *tc)
 {
     QTC_CHECK(d->m_loaded);
     if (!tc || !d->m_toolChains.contains(tc))
         return;
     d->m_toolChains.removeOne(tc);
-    emit m_instance->toolChainRemoved(tc);
+    emit m_instance->toolchainRemoved(tc);
     delete tc;
 }
 
