@@ -306,7 +306,7 @@ public:
     SdccToolchainFactory()
     {
         setDisplayName(Tr::tr("SDCC"));
-        setSupportedToolChainType(Constants::SDCC_TOOLCHAIN_TYPEID);
+        setSupportedToolchainType(Constants::SDCC_TOOLCHAIN_TYPEID);
         setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID});
         setToolchainConstructor([] { return new SdccToolChain; });
         setUserCreatable(true);

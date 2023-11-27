@@ -1872,7 +1872,7 @@ public:
     MsvcToolchainFactory()
     {
         setDisplayName(Tr::tr("MSVC"));
-        setSupportedToolChainType(Constants::MSVC_TOOLCHAIN_TYPEID);
+        setSupportedToolchainType(Constants::MSVC_TOOLCHAIN_TYPEID);
         setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new MsvcToolChain(Constants::MSVC_TOOLCHAIN_TYPEID); });
     }
@@ -2244,7 +2244,7 @@ public:
     {
         setDisplayName(Tr::tr("clang-cl"));
         setSupportedLanguages({Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID});
-        setSupportedToolChainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
+        setSupportedToolchainType(Constants::CLANG_CL_TOOLCHAIN_TYPEID);
         setToolchainConstructor([] { return new ClangClToolChain; });
     }
 

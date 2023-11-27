@@ -413,7 +413,7 @@ public:
     IarToolchainFactory()
     {
         setDisplayName(Tr::tr("IAREW"));
-        setSupportedToolChainType(Constants::IAREW_TOOLCHAIN_TYPEID);
+        setSupportedToolchainType(Constants::IAREW_TOOLCHAIN_TYPEID);
         setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                                ProjectExplorer::Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new IarToolChain; });
@@ -421,7 +421,7 @@ public:
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
-    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
+    Toolchains detectForImport(const ToolchainDescription &tcd) const final;
 
 private:
     Toolchains autoDetectToolchains(const Candidates &candidates,
@@ -507,7 +507,7 @@ Toolchains IarToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     return autoDetectToolchains(candidates, detector.alreadyKnown);
 }
 
-Toolchains IarToolchainFactory::detectForImport(const ToolChainDescription &tcd) const
+Toolchains IarToolchainFactory::detectForImport(const ToolchainDescription &tcd) const
 {
     return { autoDetectToolchain({tcd.compilerPath, {}}, tcd.language) };
 }

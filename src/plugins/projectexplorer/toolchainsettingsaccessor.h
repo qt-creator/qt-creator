@@ -13,10 +13,10 @@ class Toolchain;
 
 namespace Internal {
 
-class ToolChainSettingsAccessor : public Utils::UpgradingSettingsAccessor
+class ToolchainSettingsAccessor : public Utils::UpgradingSettingsAccessor
 {
 public:
-    ToolChainSettingsAccessor();
+    ToolchainSettingsAccessor();
 
     QList<Toolchain *> restoreToolChains(QWidget *parent) const;
 

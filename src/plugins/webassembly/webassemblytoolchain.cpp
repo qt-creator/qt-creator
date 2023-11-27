@@ -173,7 +173,7 @@ public:
     WebAssemblyToolchainFactory()
     {
         setDisplayName(Tr::tr("Emscripten"));
-        setSupportedToolChainType(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID);
+        setSupportedToolchainType(Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID);
         setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                                ProjectExplorer::Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new WebAssemblyToolChain; });

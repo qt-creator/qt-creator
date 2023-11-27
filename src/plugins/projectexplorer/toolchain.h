@@ -26,7 +26,7 @@ namespace Utils { class OutputLineParser; }
 
 namespace ProjectExplorer {
 
-namespace Internal { class ToolChainPrivate; }
+namespace Internal { class ToolchainPrivate; }
 
 namespace Deprecated {
 // Deprecated in 4.3:
@@ -44,9 +44,9 @@ class GccToolChain;
 class ToolchainConfigWidget;
 class Kit;
 
-namespace Internal { class ToolChainSettingsAccessor; }
+namespace Internal { class ToolchainSettingsAccessor; }
 
-class PROJECTEXPLORER_EXPORT ToolChainDescription
+class PROJECTEXPLORER_EXPORT ToolchainDescription
 {
 public:
     Utils::FilePath compilerPath;
@@ -54,7 +54,7 @@ public:
 };
 
 // --------------------------------------------------------------------------
-// ToolChain (documentation inside)
+// Toolchain (documentation inside)
 // --------------------------------------------------------------------------
 
 class PROJECTEXPLORER_EXPORT Toolchain : public Utils::AspectContainer
@@ -194,9 +194,9 @@ private:
     Toolchain(const Toolchain &) = delete;
     Toolchain &operator=(const Toolchain &) = delete;
 
-    const std::unique_ptr<Internal::ToolChainPrivate> d;
+    const std::unique_ptr<Internal::ToolchainPrivate> d;
 
-    friend class Internal::ToolChainSettingsAccessor;
+    friend class Internal::ToolchainSettingsAccessor;
     friend class ToolchainFactory;
 };
 
@@ -253,10 +253,10 @@ public:
     static const QList<ToolchainFactory *> allToolchainFactories();
 
     QString displayName() const { return m_displayName; }
-    Utils::Id supportedToolChainType() const;
+    Utils::Id supportedToolchainType() const;
 
     virtual Toolchains autoDetect(const ToolchainDetector &detector) const;
-    virtual Toolchains detectForImport(const ToolChainDescription &tcd) const;
+    virtual Toolchains detectForImport(const ToolchainDescription &tcd) const;
 
     virtual bool canCreate() const;
     Toolchain *create() const;
@@ -267,7 +267,7 @@ public:
     static Utils::Id typeIdFromMap(const Utils::Store &data);
     static void autoDetectionToMap(Utils::Store &data, bool detected);
 
-    static Toolchain *createToolChain(Utils::Id toolChainType);
+    static Toolchain *createToolchain(Utils::Id toolchainType);
 
     QList<Utils::Id> supportedLanguages() const;
 
@@ -275,12 +275,12 @@ public:
 
 protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
-    void setSupportedToolChainType(const Utils::Id &supportedToolChainType);
+    void setSupportedToolchainType(const Utils::Id &supportedToolchainType);
     void setSupportedLanguages(const QList<Utils::Id> &supportedLanguages);
     void setSupportsAllLanguages(bool supportsAllLanguages);
-    using ToolChainConstructor = std::function<Toolchain *()>;
-    void setToolchainConstructor(const ToolChainConstructor &constructor);
-    ToolChainConstructor toolchainConstructor() const;
+    using ToolchainConstructor = std::function<Toolchain *()>;
+    void setToolchainConstructor(const ToolchainConstructor &constructor);
+    ToolchainConstructor toolchainConstructor() const;
 
     class Candidate {
     public:
@@ -297,11 +297,11 @@ protected:
 
 private:
     QString m_displayName;
-    Utils::Id m_supportedToolChainType;
+    Utils::Id m_supportedToolchainType;
     QList<Utils::Id> m_supportedLanguages;
     bool m_supportsAllLanguages = false;
     bool m_userCreatable = false;
-    ToolChainConstructor m_toolchainConstructor;
+    ToolchainConstructor m_toolchainConstructor;
 };
 
 } // namespace ProjectExplorer

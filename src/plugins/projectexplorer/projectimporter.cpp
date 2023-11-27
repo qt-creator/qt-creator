@@ -366,7 +366,7 @@ bool ProjectImporter::hasKitWithTemporaryData(Utils::Id id, const QVariant &data
     });
 }
 
-static ProjectImporter::ToolChainData createToolChains(const ToolChainDescription &tcd)
+static ProjectImporter::ToolChainData createToolChains(const ToolchainDescription &tcd)
 {
     ProjectImporter::ToolChainData data;
 
@@ -386,7 +386,7 @@ static ProjectImporter::ToolChainData createToolChains(const ToolChainDescriptio
 }
 
 ProjectImporter::ToolChainData
-ProjectImporter::findOrCreateToolChains(const ToolChainDescription &tcd) const
+ProjectImporter::findOrCreateToolChains(const ToolchainDescription &tcd) const
 {
     ToolChainData result;
     result.tcs = ToolchainManager::toolchains([&tcd](const Toolchain *tc) {

@@ -30,20 +30,20 @@ const char CODE_MODEL_TRIPLE_KEY[] = "ExplicitCodeModelTargetTriple";
 
 QList<ToolchainFactory *> &toolchainFactories()
 {
-    static QList<ToolchainFactory *> theToolChainFactories;
-    return theToolChainFactories;
+    static QList<ToolchainFactory *> theToolchainFactories;
+    return theToolchainFactories;
 }
 
 // --------------------------------------------------------------------------
-// ToolChainPrivate
+// ToolchainPrivate
 // --------------------------------------------------------------------------
 
-class ToolChainPrivate
+class ToolchainPrivate
 {
 public:
     using Detection = Toolchain::Detection;
 
-    explicit ToolChainPrivate(Id typeId) :
+    explicit ToolchainPrivate(Id typeId) :
         m_id(QUuid::createUuid().toByteArray()),
         m_typeId(typeId),
         m_predefinedMacrosCache(new Toolchain::MacrosCache::element_type()),
@@ -107,7 +107,7 @@ QString languageId(Language l)
     return {};
 }
 
-} // namespace Deprecated::ToolChain
+} // namespace Deprecated::Toolchain
 
 using namespace Internal;
 
@@ -120,7 +120,7 @@ using namespace Internal;
 // --------------------------------------------------------------------------
 
 Toolchain::Toolchain(Id typeId) :
-    d(std::make_unique<ToolChainPrivate>(typeId))
+    d(std::make_unique<ToolchainPrivate>(typeId))
 {
 }
 
@@ -220,7 +220,7 @@ bool Toolchain::operator == (const Toolchain &tc) const
 Toolchain *Toolchain::clone() const
 {
     for (ToolchainFactory *f : std::as_const(toolchainFactories())) {
-        if (f->supportedToolChainType() == d->m_typeId) {
+        if (f->supportedToolchainType() == d->m_typeId) {
             Toolchain *tc = f->create();
             QTC_ASSERT(tc, return nullptr);
             Store data;
@@ -535,25 +535,25 @@ void Toolchain::setExplicitCodeModelTargetTriple(const QString &triple)
 }
 
 /*!
-    \class ProjectExplorer::ToolChainFactory
-    \brief The ToolChainFactory class creates tool chains from settings or
+    \class ProjectExplorer::ToolchainFactory
+    \brief The ToolchainFactory class creates tool chains from settings or
     autodetects them.
 */
 
 /*!
-    \fn QString ProjectExplorer::ToolChainFactory::displayName() const = 0
+    \fn QString ProjectExplorer::ToolchainFactory::displayName() const = 0
     Contains the name used to display the name of the tool chain that will be
     created.
 */
 
 /*!
-    \fn QStringList ProjectExplorer::ToolChain::clangParserFlags(const QStringList &cxxflags) const = 0
+    \fn QStringList ProjectExplorer::Toolchain::clangParserFlags(const QStringList &cxxflags) const = 0
     Converts tool chain specific flags to list flags that tune the libclang
     parser.
 */
 
 /*!
-    \fn bool ProjectExplorer::ToolChainFactory::canRestore(const Store &data)
+    \fn bool ProjectExplorer::ToolchainFactory::canRestore(const Store &data)
     Used by the tool chain manager to restore user-generated tool chains.
 */
 
@@ -578,7 +578,7 @@ Toolchains ToolchainFactory::autoDetect(const ToolchainDetector &detector) const
     return {};
 }
 
-Toolchains ToolchainFactory::detectForImport(const ToolChainDescription &tcd) const
+Toolchains ToolchainFactory::detectForImport(const ToolchainDescription &tcd) const
 {
     Q_UNUSED(tcd)
     return {};
@@ -633,12 +633,12 @@ void ToolchainFactory::autoDetectionToMap(Store &data, bool detected)
     data.insert(AUTODETECT_KEY, detected);
 }
 
-Toolchain *ToolchainFactory::createToolChain(Id toolChainType)
+Toolchain *ToolchainFactory::createToolchain(Id toolchainType)
 {
     for (ToolchainFactory *factory : std::as_const(toolchainFactories())) {
-        if (factory->m_supportedToolChainType == toolChainType) {
+        if (factory->m_supportedToolchainType == toolchainType) {
             if (Toolchain *tc = factory->create()) {
-                tc->d->m_typeId = toolChainType;
+                tc->d->m_typeId = toolchainType;
                 return tc;
             }
         }
@@ -651,14 +651,14 @@ QList<Id> ToolchainFactory::supportedLanguages() const
     return m_supportsAllLanguages ? ToolchainManager::allLanguages() : m_supportedLanguages;
 }
 
-Id ToolchainFactory::supportedToolChainType() const
+Id ToolchainFactory::supportedToolchainType() const
 {
-    return m_supportedToolChainType;
+    return m_supportedToolchainType;
 }
 
-void ToolchainFactory::setSupportedToolChainType(const Id &supportedToolChain)
+void ToolchainFactory::setSupportedToolchainType(const Id &supportedToolchainType)
 {
-    m_supportedToolChainType = supportedToolChain;
+    m_supportedToolchainType = supportedToolchainType;
 }
 
 void ToolchainFactory::setSupportedLanguages(const QList<Id> &supportedLanguages)
@@ -671,12 +671,12 @@ void ToolchainFactory::setSupportsAllLanguages(bool supportsAllLanguages)
     m_supportsAllLanguages = supportsAllLanguages;
 }
 
-void ToolchainFactory::setToolchainConstructor(const ToolChainConstructor &toolchainContructor)
+void ToolchainFactory::setToolchainConstructor(const ToolchainConstructor &toolchainContructor)
 {
     m_toolchainConstructor = toolchainContructor;
 }
 
-ToolchainFactory::ToolChainConstructor ToolchainFactory::toolchainConstructor() const
+ToolchainFactory::ToolchainConstructor ToolchainFactory::toolchainConstructor() const
 {
     return m_toolchainConstructor;
 }

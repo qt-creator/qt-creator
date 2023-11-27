@@ -1285,22 +1285,22 @@ public:
         switch (subType) {
         case GccToolChain::RealGcc:
             setDisplayName(Tr::tr("GCC"));
-            setSupportedToolChainType(Constants::GCC_TOOLCHAIN_TYPEID);
+            setSupportedToolchainType(Constants::GCC_TOOLCHAIN_TYPEID);
             setToolchainConstructor(&constructRealGccToolchain);
             break;
         case GccToolChain::Clang:
             setDisplayName(Tr::tr("Clang"));
-            setSupportedToolChainType(Constants::CLANG_TOOLCHAIN_TYPEID);
+            setSupportedToolchainType(Constants::CLANG_TOOLCHAIN_TYPEID);
             setToolchainConstructor(&constructClangToolchain);
             break;
         case GccToolChain::MinGW:
             setDisplayName(Tr::tr("MinGW"));
-            setSupportedToolChainType(Constants::MINGW_TOOLCHAIN_TYPEID);
+            setSupportedToolchainType(Constants::MINGW_TOOLCHAIN_TYPEID);
             setToolchainConstructor(&constructMinGWToolchain);
             break;
         case GccToolChain::LinuxIcc:
             setDisplayName(Tr::tr("ICC"));
-            setSupportedToolChainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
+            setSupportedToolchainType(Constants::LINUXICC_TOOLCHAIN_TYPEID);
             setToolchainConstructor(&constructLinuxIccToolchain);
             break;
         }
@@ -1309,7 +1309,7 @@ public:
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
-    Toolchains detectForImport(const ToolChainDescription &tcd) const final;
+    Toolchains detectForImport(const ToolchainDescription &tcd) const final;
 
 private:
     static Toolchains autoDetectToolchains(const FilePaths &compilerPaths,
@@ -1317,7 +1317,7 @@ private:
                                            const Id requiredTypeId,
                                            const Toolchains &known,
                                            const GccToolChain::SubType subType);
-    static Toolchains autoDetectToolChain(const ToolChainDescription &tcd,
+    static Toolchains autoDetectToolChain(const ToolchainDescription &tcd,
                                           const GccToolChain::SubType subType);
     static Toolchains autoDetectSdkClangToolchain(const Toolchains &known);
 
@@ -1504,7 +1504,7 @@ Toolchains GccToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     return result;
 }
 
-Toolchains GccToolchainFactory::detectForImport(const ToolChainDescription &tcd) const
+Toolchains GccToolchainFactory::detectForImport(const ToolchainDescription &tcd) const
 {
     Toolchains result;
 
@@ -1616,7 +1616,7 @@ Toolchains GccToolchainFactory::autoDetectToolchains(const FilePaths &compilerPa
     return result;
 }
 
-Toolchains GccToolchainFactory::autoDetectToolChain(const ToolChainDescription &tcd,
+Toolchains GccToolchainFactory::autoDetectToolChain(const ToolchainDescription &tcd,
                                                     GccToolChain::SubType subType)
 {
     Toolchains result;

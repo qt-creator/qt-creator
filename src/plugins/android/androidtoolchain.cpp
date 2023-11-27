@@ -140,7 +140,7 @@ GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 AndroidToolchainFactory::AndroidToolchainFactory()
 {
     setDisplayName(Tr::tr("Android Clang"));
-    setSupportedToolChainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
+    setSupportedToolchainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
     setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
     setToolchainConstructor([] { return new AndroidToolChain; });
 }

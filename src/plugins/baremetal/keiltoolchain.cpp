@@ -544,7 +544,7 @@ public:
     KeilToolchainFactory()
     {
         setDisplayName(Tr::tr("KEIL"));
-        setSupportedToolChainType(Constants::KEIL_TOOLCHAIN_TYPEID);
+        setSupportedToolchainType(Constants::KEIL_TOOLCHAIN_TYPEID);
         setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                                ProjectExplorer::Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new KeilToolChain; });

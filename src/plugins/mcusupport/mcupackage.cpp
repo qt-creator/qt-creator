@@ -417,7 +417,7 @@ static Toolchain *armGccToolChain(const FilePath &path, Id language)
         ToolchainFactory *gccFactory
             = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
                                    [](ToolchainFactory *f) {
-                                       return f->supportedToolChainType()
+                                       return f->supportedToolchainType()
                                               == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
                                    });
         if (gccFactory) {
@@ -444,7 +444,7 @@ static Toolchain *iarToolChain(const FilePath &path, Id language)
         ToolchainFactory *iarFactory
             = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
                                    [](ToolchainFactory *f) {
-                                       return f->supportedToolChainType()
+                                       return f->supportedToolchainType()
                                               == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
                                    });
         if (iarFactory) {

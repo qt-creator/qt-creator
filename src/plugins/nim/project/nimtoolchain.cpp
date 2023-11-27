@@ -206,7 +206,7 @@ std::unique_ptr<ToolchainConfigWidget> NimToolChain::createConfigurationWidget()
 NimToolchainFactory::NimToolchainFactory()
 {
     setDisplayName(Tr::tr("Nim"));
-    setSupportedToolChainType(Constants::C_NIMTOOLCHAIN_TYPEID);
+    setSupportedToolchainType(Constants::C_NIMTOOLCHAIN_TYPEID);
     setSupportedLanguages({Constants::C_NIMLANGUAGE_ID});
     setToolchainConstructor([] { return new NimToolChain; });
     setUserCreatable(true);
@@ -235,7 +235,7 @@ Toolchains NimToolchainFactory::autoDetect(const ToolchainDetector &detector) co
     return result;
 }
 
-Toolchains NimToolchainFactory::detectForImport(const ToolChainDescription &tcd) const
+Toolchains NimToolchainFactory::detectForImport(const ToolchainDescription &tcd) const
 {
     Toolchains result;
     if (tcd.language == Constants::C_NIMLANGUAGE_ID) {

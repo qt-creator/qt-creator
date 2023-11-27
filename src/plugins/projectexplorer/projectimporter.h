@@ -87,7 +87,7 @@ protected:
     // Does *any* kit feature the requested data yet?
     bool hasKitWithTemporaryData(Utils::Id id, const QVariant &data) const;
 
-    ToolChainData findOrCreateToolChains(const ToolChainDescription &tcd) const;
+    ToolChainData findOrCreateToolChains(const ToolchainDescription &tcd) const;
 
 private:
     void markKitAsTemporary(Kit *k) const;

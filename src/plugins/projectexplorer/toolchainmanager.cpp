@@ -38,7 +38,7 @@ class ToolchainManagerPrivate
 public:
     ~ToolchainManagerPrivate();
 
-    std::unique_ptr<ToolChainSettingsAccessor> m_accessor;
+    std::unique_ptr<ToolchainSettingsAccessor> m_accessor;
 
     Toolchains m_toolChains; // prioritized List
     BadToolchains m_badToolchains;   // to be skipped when auto-detecting
@@ -104,7 +104,7 @@ void ToolchainManager::restoreToolchains()
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ToolchainManager::restoreToolChains");
     QTC_ASSERT(!d->m_accessor, return);
-    d->m_accessor = std::make_unique<Internal::ToolChainSettingsAccessor>();
+    d->m_accessor = std::make_unique<Internal::ToolchainSettingsAccessor>();
 
     for (Toolchain *tc : d->m_accessor->restoreToolChains(Core::ICore::dialogParent()))
         registerToolchain(tc);

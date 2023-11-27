@@ -173,7 +173,7 @@ static ToolChainOperations mergeToolChainLists(const Toolchains &systemFileTcs,
 // ToolChainSettingsAccessor:
 // --------------------------------------------------------------------
 
-ToolChainSettingsAccessor::ToolChainSettingsAccessor()
+ToolchainSettingsAccessor::ToolchainSettingsAccessor()
 {
     setDocType("QtCreatorToolChains");
     setApplicationDisplayName(QGuiApplication::applicationDisplayName());
@@ -182,7 +182,7 @@ ToolChainSettingsAccessor::ToolChainSettingsAccessor()
     addVersionUpgrader(std::make_unique<ToolChainSettingsUpgraderV0>());
 }
 
-Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
+Toolchains ToolchainSettingsAccessor::restoreToolChains(QWidget *parent) const
 {
     NANOTRACE_SCOPE("ProjectExplorer", "ToolChainSettingsAccessor::restoreToolChains");
     // read all tool chains from SDK
@@ -218,7 +218,7 @@ Toolchains ToolChainSettingsAccessor::restoreToolChains(QWidget *parent) const
     return ops.toRegister;
 }
 
-void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWidget *parent)
+void ToolchainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWidget *parent)
 {
     Store data;
 
@@ -240,7 +240,7 @@ void ToolChainSettingsAccessor::saveToolChains(const Toolchains &toolchains, QWi
     saveSettings(data, parent);
 }
 
-Toolchains ToolChainSettingsAccessor::toolChains(const Store &data) const
+Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const
 {
     Toolchains result;
     const QList<ToolchainFactory *> factories = ToolchainFactory::allToolchainFactories();
@@ -257,7 +257,7 @@ Toolchains ToolChainSettingsAccessor::toolChains(const Store &data) const
         const Utils::Id tcType = ToolchainFactory::typeIdFromMap(tcMap);
         if (tcType.isValid()) {
             for (ToolchainFactory *f : factories) {
-                if (f->supportedToolChainType() == tcType) {
+                if (f->supportedToolchainType() == tcType) {
                     if (Toolchain *tc = f->restore(tcMap)) {
                         result.append(tc);
                         restored = true;
@@ -360,7 +360,7 @@ void ProjectExplorerPlugin::testToolChainMerging_data()
     {
     public:
         TestToolchainFactory() {
-            setSupportedToolChainType(TestToolChainType);
+            setSupportedToolchainType(TestToolChainType);
             setToolchainConstructor([] { return new TTC; });
         }
     };

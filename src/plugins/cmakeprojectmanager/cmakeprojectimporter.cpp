@@ -56,7 +56,7 @@ struct DirectoryData
     QString toolset;
     FilePath sysroot;
     QtProjectImporter::QtVersionData qt;
-    QVector<ToolChainDescription> toolChains;
+    QVector<ToolchainDescription> toolChains;
 };
 
 static FilePaths scanDirectory(const FilePath &path, const QString &prefix)
@@ -464,9 +464,9 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     return {qmakeLocation, resultedPrefixPath};
 }
 
-static QVector<ToolChainDescription> extractToolChainsFromCache(const CMakeConfig &config)
+static QVector<ToolchainDescription> extractToolChainsFromCache(const CMakeConfig &config)
 {
-    QVector<ToolChainDescription> result;
+    QVector<ToolchainDescription> result;
     bool haveCCxxCompiler = false;
     for (const CMakeConfigItem &i : config) {
         if (!i.key.startsWith("CMAKE_") || !i.key.endsWith("_COMPILER"))
@@ -564,7 +564,7 @@ void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<Di
         });
 
         auto tcd = Utils::findOrDefault(data->toolChains,
-                                        [&language](const ToolChainDescription &t) {
+                                        [&language](const ToolchainDescription &t) {
                                             return t.language == language;
                                         });
 
@@ -933,7 +933,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
     const bool compilersMatch = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolChainDescription &tcd : data->toolChains) {
+        for (const ToolchainDescription &tcd : data->toolChains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
@@ -946,7 +946,7 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     }();
     const bool noCompilers = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolChainDescription &tcd : data->toolChains) {
+        for (const ToolchainDescription &tcd : data->toolChains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
@@ -995,7 +995,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
         SysRootKitAspect::setSysRoot(k, data->sysroot);
 
-        for (const ToolChainDescription &cmtcd : data->toolChains) {
+        for (const ToolchainDescription &cmtcd : data->toolChains) {
             const ToolChainData tcd = findOrCreateToolChains(cmtcd);
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 
@@ -1197,7 +1197,7 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain()
         config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
-    const QVector<ToolChainDescription> tcs = extractToolChainsFromCache(config);
+    const QVector<ToolchainDescription> tcs = extractToolChainsFromCache(config);
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));
