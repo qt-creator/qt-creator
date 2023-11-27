@@ -487,7 +487,7 @@ void FontSettings::setColorScheme(const ColorScheme &scheme)
 static QString defaultFontFamily()
 {
     if (Utils::HostOsInfo::isMacHost())
-        return QLatin1String("Monaco");
+        return QLatin1String("Menlo");
 
     const QString sourceCodePro(g_sourceCodePro);
     const QFontDatabase dataBase;
