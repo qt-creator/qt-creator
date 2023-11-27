@@ -469,8 +469,8 @@ def main():
     qtcreator_binary_path = (args.qtcreator_binary if common.is_mac_platform()
                              else os.path.dirname(args.qtcreator_binary))
 
-    deploy_binary('qtdiag', qt_install)
-    deploy_binary('qsb', qt_install)
+    deploy_binary('qtdiag', qtcreator_binary_path, qt_install)
+    deploy_binary('qsb', qtcreator_binary_path, qt_install)
     deploy_plugins(qtcreator_binary_path, qt_install)
     deploy_imports(qtcreator_binary_path, qt_install)
     deploy_translations(qtcreator_binary_path, qt_install)
