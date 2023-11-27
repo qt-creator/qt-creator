@@ -45,6 +45,7 @@ public:
         ignoreMissingFiles.setLabelText(Tr::tr("Ignore missing files:"));
         ignoreMissingFiles.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
 
+        method.setSettingsKey("RemoteLinux.RsyncDeployStep.TransferMethod");
         method.setDisplayStyle(SelectionAspect::DisplayStyle::ComboBox);
         method.setDisplayName(Tr::tr("Transfer method:"));
         method.addOption(Tr::tr("Use rsync if available. Otherwise use default transfer."));
