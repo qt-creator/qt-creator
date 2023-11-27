@@ -114,7 +114,6 @@ Item {
         }
     }
 
-
     PlatformWidgets.FileDialog {
         id: fileDialog
 

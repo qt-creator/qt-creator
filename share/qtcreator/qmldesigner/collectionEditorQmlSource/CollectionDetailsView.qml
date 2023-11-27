@@ -217,8 +217,10 @@ Rectangle {
 
                 delegate: Rectangle {
                     id: itemCell
+
+                    clip: true
                     implicitWidth: 100
-                    implicitHeight: itemText.height
+                    implicitHeight: StudioTheme.Values.baseHeight
                     border.color: dataTypeWarning !== CollectionDetails.Warning.None ?
                                   StudioTheme.Values.themeWarning : StudioTheme.Values.themeControlBackgroundInteraction
                     border.width: 1
@@ -231,25 +233,50 @@ Rectangle {
                         acceptedButtons: Qt.NoButton
                     }
 
-                    Text {
-                        id: itemText
+                    Loader {
+                        id: cellContentLoader
 
-                        text: display
-                        color: StudioTheme.Values.themePlaceholderTextColorInteraction
-                        width: parent.width
-                        leftPadding: 5
-                        topPadding: 3
-                        bottomPadding: 3
-                        font.pixelSize: StudioTheme.Values.baseFontSize
-                        horizontalAlignment: Text.AlignLeft
-                        verticalAlignment: Text.AlignVCenter
-                        elide: Text.ElideRight
+                        property int cellColumnType: columnType ? columnType : 0
+
+                        Component {
+                            id: cellText
+
+                            Text {
+                                text: display
+                                color: itemSelected
+                                       ? StudioTheme.Values.themeInteraction
+                                       : StudioTheme.Values.themePlaceholderTextColorInteraction
+                                leftPadding: 5
+                                topPadding: 3
+                                bottomPadding: 3
+                                font.pixelSize: StudioTheme.Values.baseFontSize
+                                horizontalAlignment: Text.AlignLeft
+                                verticalAlignment: Text.AlignVCenter
+                                elide: Text.ElideRight
+                            }
+                        }
+
+                        Component {
+                            id: colorEditorComponent
+
+                            ColorViewDelegate {}
+                        }
+
+                        function resetSource() {
+                            if (columnType == CollectionDetails.DataType.Color)
+                                cellContentLoader.sourceComponent = colorEditorComponent
+                            else
+                                cellContentLoader.sourceComponent = cellText
+                        }
+
+                        Component.onCompleted: resetSource()
+                        onCellColumnTypeChanged: resetSource()
                     }
 
                     TableView.editDelegate: CollectionDetailsEditDelegate {
                         anchors {
-                            top: itemText.top
-                            left: itemText.left
+                            top: itemCell.top
+                            left: itemCell.left
                         }
                     }
 
@@ -262,11 +289,6 @@ Rectangle {
                                 target: itemCell
                                 color: StudioTheme.Values.themeControlBackground
                             }
-
-                            PropertyChanges {
-                                target: itemText
-                                color: StudioTheme.Values.themePlaceholderTextColorInteraction
-                            }
                         },
                         State {
                             name: "selected"
@@ -276,11 +298,6 @@ Rectangle {
                                 target: itemCell
                                 color: StudioTheme.Values.themeControlBackgroundInteraction
                                 border.color: StudioTheme.Values.themeControlBackground
-                            }
-
-                            PropertyChanges {
-                                target: itemText
-                                color: StudioTheme.Values.themeInteraction
                             }
                         }
                     ]

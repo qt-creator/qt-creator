@@ -3,7 +3,6 @@
 
 import QtQuick
 import CollectionDetails 1.0 as CollectionDetails
-import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioHelpers as StudioHelpers
 import StudioTheme 1.0 as StudioTheme
@@ -11,119 +10,105 @@ import QtQuick.Templates as T
 
 Item {
     id: root
+
     required property var columnType
 
-    property var __modifier : textEditor
-    property bool __changesAccepted: true
-
     TableView.onCommit: {
-        if (root.__changesAccepted)
-            edit = __modifier.editor.editValue
-    }
-
-    Component.onCompleted: {
-        __changesAccepted = true
-        if (edit && edit !== "")
-            root.__modifier.editor.editValue = edit
+        if (editorLoader.changesAccepted && edit !== editorLoader.acceptedValue)
+            edit = editorLoader.acceptedValue
     }
 
     onActiveFocusChanged: {
-        if (root.activeFocus)
-            root.__modifier.editor.forceActiveFocus()
-    }
-
-    Connections {
-        id: modifierFocusConnection
-
-        target: root.__modifier.editor
-
-        function onActiveFocusChanged() {
-            if (!modifierFocusConnection.target.activeFocus)
-                root.TableView.commit()
-        }
-    }
-
-    EditorPopup {
-        id: textEditor
-
-        editor: textField
-
-        StudioControls.TextField {
-            id: textField
-
-            property alias editValue: textField.text
-
-            actionIndicator.visible: false
-            translationIndicatorVisible: false
-
-            onRejected: root.__changesAccepted = false
-        }
-    }
-
-    EditorPopup {
-        id: numberEditor
-
-        editor: numberField
-
-        StudioControls.RealSpinBox {
-            id: numberField
-
-            property alias editValue: numberField.realValue
-
-            actionIndicator.visible: false
-            realFrom: -9e9
-            realTo: 9e9
-            realStepSize: 1.0
-            decimals: 6
-        }
-    }
-
-    EditorPopup {
-        id: boolEditor
-
-        editor: boolField
-
-        StudioControls.CheckBox {
-            id: boolField
-
-            property alias editValue: boolField.checked
-
-            actionIndicatorVisible: false
-        }
-    }
-
-    EditorPopup {
-        id: colorEditor
-
-        editor: colorPicker
-
-        implicitHeight: colorPicker.height + topPadding + bottomPadding
-        implicitWidth: colorPicker.width + leftPadding + rightPadding
-        padding: 8
-
-        StudioHelpers.ColorBackend {
-            id: colorBackend
+        if (root.activeFocus && !editorLoader.triggered && editorLoader.item) {
+            editorLoader.triggered = true
+            editorLoader.item.open()
         }
 
-        StudioControls.ColorEditorPopup {
-            id: colorPicker
+        // active focus should be checked again, because it might be affected by editorLoader.item
+        if (root.activeFocus && editorLoader.editor)
+            editorLoader.editor.forceActiveFocus()
+    }
 
-            property alias editValue: colorBackend.color
-            color: colorBackend.color
+    Loader {
+        id: editorLoader
 
-            width: 200
+        active: true
 
-            Keys.onEnterPressed: colorPicker.focus = false
+        property var editor: editorLoader.item ? editorLoader.item.editor : null
+        property var editValue: editorLoader.editor ? editorLoader.editor.editValue : null
+        property var acceptedValue: null
+        property bool changesAccepted: true
+        property bool triggered: false
 
-            onActivateColor: function(color) {
-                colorBackend.activateColor(color)
+        Connections {
+            id: modifierFocusConnection
+
+            target: editorLoader.editor
+            enabled: editorLoader.item !== undefined
+
+            function onActiveFocusChanged() {
+                if (!modifierFocusConnection.target.activeFocus) {
+                    editorLoader.acceptedValue = editorLoader.editValue
+                    root.TableView.commit()
+                }
             }
         }
 
-        background: Rectangle {
-            color: StudioTheme.Values.themeControlBackgroundInteraction
-            border.color: StudioTheme.Values.themeInteraction
-            border.width: StudioTheme.Values.border
+        Component {
+            id: textEditor
+
+            EditorPopup {
+                editor: textField
+
+                StudioControls.TextField {
+                    id: textField
+
+                    property alias editValue: textField.text
+
+                    actionIndicator.visible: false
+                    translationIndicatorVisible: false
+
+                    onRejected: editorLoader.changesAccepted = false
+                }
+            }
+        }
+
+        Component {
+            id: numberEditor
+
+            EditorPopup {
+
+                editor: numberField
+
+                StudioControls.RealSpinBox {
+                    id: numberField
+
+                    property alias editValue: numberField.realValue
+
+                    actionIndicator.visible: false
+                    realFrom: -9e9
+                    realTo: 9e9
+                    realStepSize: 1.0
+                    decimals: 6
+                }
+            }
+        }
+
+        Component {
+            id: boolEditor
+
+            EditorPopup {
+
+                editor: boolField
+
+                StudioControls.CheckBox {
+                    id: boolField
+
+                    property alias editValue: boolField.checked
+
+                    actionIndicatorVisible: false
+                }
+            }
         }
     }
 
@@ -135,7 +120,7 @@ Item {
         implicitHeight: contentHeight
         implicitWidth: contentWidth
 
-        enabled: visible
+        focus: true
         visible: false
 
         Connections {
@@ -144,6 +129,8 @@ Item {
             function onActiveFocusChanged() {
                 if (!editorPopup.editor.activeFocus)
                     editorPopup.close()
+                else if (edit)
+                    editorPopup.editor.editValue = edit
             }
         }
 
@@ -151,7 +138,7 @@ Item {
             target: editorPopup.editor.Keys
 
             function onEscapePressed() {
-                root.__changesAccepted = false
+                editorLoader.changesAccepted = false
                 editorPopup.close()
             }
         }
@@ -165,14 +152,8 @@ Item {
                   && columnType !== CollectionDetails.DataType.Number
 
             PropertyChanges {
-                target: root
-                __modifier: textEditor
-            }
-
-            PropertyChanges {
-                target: textEditor
-                visible: true
-                focus: true
+                target: editorLoader
+                sourceComponent: textEditor
             }
         },
         State {
@@ -180,14 +161,8 @@ Item {
             when: columnType === CollectionDetails.DataType.Number
 
             PropertyChanges {
-                target: root
-                __modifier: numberEditor
-            }
-
-            PropertyChanges {
-                target: numberEditor
-                visible: true
-                focus: true
+                target: editorLoader
+                sourceComponent: numberEditor
             }
         },
         State {
@@ -195,14 +170,8 @@ Item {
             when: columnType === CollectionDetails.DataType.Boolean
 
             PropertyChanges {
-                target: root
-                __modifier: boolEditor
-            }
-
-            PropertyChanges {
-                target: boolEditor
-                visible: true
-                focus: true
+                target: editorLoader
+                sourceComponent: boolEditor
             }
         },
         State {
@@ -210,14 +179,8 @@ Item {
             when: columnType === CollectionDetails.DataType.Color
 
             PropertyChanges {
-                target: root
-                __modifier: colorEditor
-            }
-
-            PropertyChanges {
-                target: colorEditor
-                visible: true
-                focus: true
+                target: editorLoader
+                sourceComponent: null
             }
         }
     ]

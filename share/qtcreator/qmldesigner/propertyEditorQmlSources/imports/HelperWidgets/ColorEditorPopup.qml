@@ -393,10 +393,7 @@ Column {
                         }
                     }
                 }
-            }
 
-            Connections {
-                target: modelNodeBackend
                 function onSelectionChanged() {
                     root.initEditor()
                 }

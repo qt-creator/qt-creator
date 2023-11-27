@@ -85,6 +85,24 @@ static QVariant valueToVariant(const QJsonValue &value, CollectionDetails::DataT
     }
 }
 
+static QJsonValue variantToJsonValue(const QVariant &variant)
+{
+    using VariantType = QVariant::Type;
+
+    switch (variant.type()) {
+    case VariantType::Bool:
+        return variant.toBool();
+    case VariantType::Double:
+    case VariantType::Int:
+        return variant.toDouble();
+    case VariantType::String:
+    case VariantType::Color:
+    case VariantType::Url:
+    default:
+        return variant.toString();
+    }
+}
+
 CollectionDetails::CollectionDetails()
     : d(new Private())
 {}
@@ -278,8 +296,10 @@ bool CollectionDetails::setPropertyType(int column, DataType type)
 
     for (QJsonObject &element : d->elements) {
         if (element.contains(property.name)) {
-            QJsonValue value = element.value(property.name);
-            element.insert(property.name, valueToVariant(value, type).toJsonValue());
+            const QJsonValue value = element.value(property.name);
+            const QVariant properTypedValue = valueToVariant(value, type);
+            const QJsonValue properTypedJsonValue = variantToJsonValue(properTypedValue);
+            element.insert(property.name, properTypedJsonValue);
             changed = true;
         }
     }
