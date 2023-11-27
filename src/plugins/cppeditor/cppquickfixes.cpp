@@ -9514,6 +9514,7 @@ private:
                     changeSet.remove(block.position() + firstColumn, block.position() + endColumn);
                 };
                 const int contentIndex = indexOfActualContent();
+                int removed = 0;
                 if (contentIndex == -1) {
                     if (blockIsRemovable) {
                         removeBlock();
@@ -9531,6 +9532,7 @@ private:
                 } else {
                     changeSet.remove(block.position() + firstColumn,
                                      block.position() + firstColumn + contentIndex);
+                    removed = contentIndex;
                 }
 
                 if (block == firstBlock) {
@@ -9540,7 +9542,7 @@ private:
                     // If the line starts with enough whitespace, replace it with the
                     // comment start characters, so we don't move the content to the right
                     // unnecessarily. Otherwise, insert the comment start characters.
-                    if (blockText.startsWith(QString(newCommentStart.size() + 1, ' '))) {
+                    if (blockText.startsWith(QString(newCommentStart.size() + removed + 1, ' '))) {
                         changeSet.replace(block.position(),
                                           block.position() + newCommentStart.length(),
                                           newCommentStart);

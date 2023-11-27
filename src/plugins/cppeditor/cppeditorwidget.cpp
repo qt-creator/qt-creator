@@ -623,9 +623,14 @@ void CppEditorWidget::renameUsages(const QString &replacement, QTextCursor curso
         QPointer<CppEditorWidget> cppEditorWidget = this;
         CppModelManager::globalRename(cursorInEditor, replacement);
     };
-    CppModelManager::followSymbol(
-                CursorInEditor{cursor, textDocument()->filePath(), this, textDocument()},
-        continuation, true, false, FollowSymbolMode::Exact);
+    CppModelManager::followSymbol(CursorInEditor{cursor,
+                                                 textDocument()->filePath(),
+                                                 this,
+                                                 textDocument()},
+                                  continuation,
+                                  false,
+                                  false,
+                                  FollowSymbolMode::Exact);
 }
 
 void CppEditorWidget::renameUsages(const Utils::FilePath &filePath, const QString &replacement,
