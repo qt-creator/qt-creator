@@ -62,11 +62,9 @@ private:
     QToolButton *m_escSettingButton{nullptr};
     QToolButton *m_lockKeyboardButton{nullptr};
 
-    QAction newTerminal;
-    QAction nextTerminal;
-    QAction prevTerminal;
-    QAction closeTerminal;
-    QAction toggleKeyboardLock;
+    QAction *m_newTerminalAction{nullptr};
+    QAction *m_closeTerminalAction{nullptr};
+    QAction *m_toggleKeyboardLockAction{nullptr};
 
     QMenu m_shellMenu;
 

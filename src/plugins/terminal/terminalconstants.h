@@ -5,6 +5,7 @@
 
 namespace Terminal::Constants {
 constexpr char NEWTERMINAL[] = "Terminal.NewTerminal";
+constexpr char CLOSETERMINAL[] = "Terminal.CloseTerminal";
 constexpr char NEXTTERMINAL[] = "Terminal.NextTerminal";
 constexpr char PREVTERMINAL[] = "Terminal.PrevTerminal";
 constexpr char MINMAX[] = "Terminal.MinMax";

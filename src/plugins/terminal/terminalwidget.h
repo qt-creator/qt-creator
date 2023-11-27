@@ -44,7 +44,7 @@ public:
 
     void restart(const Utils::Terminal::OpenTerminalParameters &openParameters);
 
-    static void initActions();
+    static void initActions(QObject *parent);
 
     void unlockGlobalAction(const Utils::Id &commandId);
 
@@ -81,7 +81,6 @@ protected:
     void setClipboard(const QString &text) override;
     std::optional<TerminalView::Link> toLink(const QString &text) override;
 
-    RegisteredAction registerAction(Utils::Id commandId, const Core::Context &context);
     void registerShortcut(Core::Command *command);
 
     void updateCopyState();
