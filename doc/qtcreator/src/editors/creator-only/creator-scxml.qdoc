@@ -1,4 +1,4 @@
-// Copyright (C) 2020 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,11 +8,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-modeling.html
     \page creator-scxml.html
-    \nextpage creator-building-running.html
+    \previouspage creator-reference.html
 
-    \title Editing State Charts
+    \ingroup creator-reference
+
+    \title SCXML Editor
+
+    \brief State chart (.scxml) editor.
 
     State charts are a graphical way of modeling how a system reacts to
     stimuli. They define the \e states that the system can
@@ -22,121 +25,126 @@
     \e event, but also on earlier events. With state charts, you
     can easily share this information.
 
-    With the \QC project wizard you can add \l{https://www.w3.org/TR/scxml/}
+    With the \QC file wizard, you can add \l{https://www.w3.org/TR/scxml/}
     {State Chart XML (SCXML)} files with boilerplate code to projects. Edit
-    the state charts with the SCXML editor to add \e states and \e transitions
+    the state charts with the SCXML editor to add states and transitions
     to the files. Then, use the classes in the Qt SCXML module to embed the
     state machines created from the files in Qt applications.
 
-    \image qtcreator-scxml-editor.png SXCML Editor
+    When you open an .scxml file, it opens in the SCXML editor:
 
-    You can drag and drop states from the \uicontrol {Common States} view (1) to
+    \image qtcreator-scxml-editor.webp {SCXML editor}
+
+    Drag states from the \uicontrol {Common States} view (1) to
     the state editor (2). Select a state in the state editor and use the tool
     buttons (3) to create a transition (4) and its \e {target state}.
 
-    You can view the state chart structure in the \uicontrol Structure view (5)
+    View the state chart structure in the \uicontrol Structure view (5)
     and specify attributes for the selected state or transition in the
     \uicontrol Attributes view (6).
 
-    You can use the toolbar buttons (7) to execute functions such as editing,
+    \section1 Navigating State Charts
+
+    Use the toolbar buttons to execute functions such as editing,
     zooming, magnifying, navigating, and panning state charts, as well as
     taking screenshots and viewing statistics.
 
-    To zoom into and out of the whole state chart in the state editor, select
-    \uicontrol {Zoom In} or \uicontrol {Zoom Out} or press \key Ctrl and use the
-    mouse wheel. To make
-    the whole state chart visible in the state editor at a time, select
-    \inlineimage icons/fittoview.png
-    (\uicontrol {Fit to View}).
+    \table
+    \header
+        \li Button
+        \li Name
+        \li Description
+    \row
+        \li \inlineimage icons/snapshot.png
+        \li \uicontrol {Save Screenshot}
+        \li Saves the currently visible part of the state chart as an image.
+    \row
+        \li \inlineimage icons/icon-export-canvas.png
+        \li \uicontrol {Export Canvas to Image}
+        \li Saves the whole state chart as an image.
+    \row
+        \li \inlineimage icons/zoom-in.png
 
-    To view a particular part of a large state chart in the state editor, select
-    \inlineimage icons/navigator.png
-    (\uicontrol {Navigator}) and move the navigator frame on the part you want
-    to view.
+            \inlineimage icons/zoom-out.png
+        \li \uicontrol {Zoom In}
 
-    To use the magnifier to zoom into a part of the state chart, select
-    \inlineimage icons/zoom.png
-    (\uicontrol {Magnifier Tool}). To move the magnifier tool faster, press down
-    the \key Alt key.
+            \uicontrol {Zoom Out}
+        \li Zooms into or out of the whole state chart in the state editor.
 
-    To pan the state chart, select \inlineimage icons/pan.png
-    (\uicontrol Panning). To increase the pace of panning, press down the
-    \key Shift key.
+            You can also press \key Ctrl and use the mouse wheel.
+    \row
+        \li \inlineimage icons/pan.png
+        \li \uicontrol Panning
+        \li Pans the state chart. To increase the pace of panning, press down the
+            \key Shift key.
+    \row
+        \li \inlineimage icons/fittoview.png
+        \li \uicontrol {Fit to View}
+        \li Makes the whole state chart visible in the state editor at a time.
+    \row
+        \li \inlineimage icons/zoom.png
+        \li \uicontrol {Magnifier Tool}
+        \li Zooms into a part of the state chart. To move the magnifier tool
+            faster, press down the \key Alt key.
+    \row
+        \li \inlineimage icons/navigator.png
+        \li \uicontrol {Navigator}
+        \li Shows a particular part of a large state chart in the state editor.
+            Move the navigator frame on the part you want to view.
+    \row
+        \li \inlineimage icons/statistics.png
+        \li \uicontrol {View Statistics}
+        \li Shows statistics about the numbers of states and transitions in the
+            state chart.
+    \endtable
 
-    To view statistics about the numbers of states and transitions in the state
-    chart, select \inlineimage icons/statistics.png
-    (\uicontrol {View Statistics}).
+    To search from the state chart, select \uicontrol {Search} and start typing
+    in the \uicontrol Filter field. The search checks the whole SCXML tree for
+    attributes that match the search criteria.
 
-    To search from the state chart, use \l {Search Results}. The search
-    checks the whole SCXML tree for attributes that match the search criteria.
-
-    To save the currently visible part of the state chart as an image, select
-    \inlineimage icons/snapshot.png
-    (\uicontrol {Save Screenshot}). To save the whole state chart as an image,
-    select \inlineimage icons/icon-export-canvas.png
-    (\uicontrol {Export Canvas to Image}).
-
-    \section1 Creating State Charts
-
-    To create a state chart:
-
-    \list 1
-
-        \li Select \uicontrol File > \uicontrol {New File} >
-            \uicontrol {Files and Classes} > \uicontrol Modeling >
-            \uicontrol {State Chart} > \uicontrol Choose to create an empty
-            state chart and to open it in the SCXML editor.
-
-        \li Drag and drop a state from the \uicontrol {Common States} view to
-            the state editor.
-
-        \li Drag and drop child states to the initial state to create a
-            \e {compound state} or use the tool buttons to create a transition
-            from the selected state and its target state.
-
-        \li Select a state to edit its attributes in the \uicontrol Attributes
-            view.
-
-        \li Select the transition line to add edge points to it.
-
-        \li To raise or send events, for example, use the context menu commands
-            to add executable content to the \c <onentry> and \c <onexit>
-            elements of states or to transitions.
-
-    \endlist
-
-    The following sections describe how to manage states, transitions, and
-    executable content.
-
-    \section1 Managing States
+    \section1 States
 
     When the state machine enters a state in response to an event, the state
     that it entered becomes the \e {active state}.
 
-    State charts are hierarchical, and therefore states can be nested inside
-    other states, to create compound states.
+    State charts are hierarchical, and therefore you can nest states inside
+    other states to create compound states.
 
-    In addition to basic states, you can create the following types of states:
+    You can create the following types of states:
 
-    \list
-
-        \li \e Initial state is the state the state machine enters when it
-            starts.
-
-        \li \e {Parallel state} has child states that execute in parallel
-            and are all active simultaneously. Events are processed
-            independently by each child state and may trigger different
-            transitions for each child.
-
-        \li \e {Final state} enables a state machine to finish. When the state
+    \table
+    \header
+        \li Button
+        \li Name
+        \li Description
+    \row
+        \li \inlineimage icons/recordfill.png
+        \li \uicontrol Initial
+        \li The state that the state machine enters when it starts.
+    \row
+        \li \inlineimage icons/state.png
+        \li \uicontrol State
+        \li The basic state.
+    \row
+        \li \inlineimage icons/parallel.png
+        \li \uicontrol Parallel
+        \li Has child states that execute in parallel and are all active
+            simultaneously. Each child state processes events independently,
+            and the events may trigger different transitions for each child.
+    \row
+        \li \inlineimage icons/final.png
+        \li \uicontrol Final
+        \li Lets a state machine finish. When the state
             machine enters a top-level final state, it emits the finished signal
             and halts. You can create final states in compound states to hide
             the internal details of a compound state. The outside world can only
             enter the state and get a notification when the state has finished.
             A parallel state finishes when all its child states reach final
             states.
-
-        \li \e {History state} is a pseudo-state that represents the child state
+    \row
+        \li \inlineimage icons/history.png
+        \li \uicontrol History
+        \li A pseudo-state that represents the child state
             the parent state was in the last time the parent state was exited.
 
             Create a history state as a child of the state for which you want to
@@ -147,13 +155,18 @@
             state that the state machine previously saved. The state machine
             automatically forwards the transition to the real child state.
 
-    \endlist
+    \endtable
+
+    To create transitions between states, select
+    \inlineimage icons/transition.png.
+
+    \section1 Adding States
 
     You can add new states to the state chart in the following ways:
 
     \list
 
-        \li Drag and drop states from the \uicontrol {Common States} view to the
+        \li Drag states from the \uicontrol {Common States} view to the
             state editor.
 
         \li Select a state in the state editor, and then select the
@@ -165,13 +178,20 @@
 
     \endlist
 
-    You can drag states on top of other states to create compound states, or
-    you can drag child states out of their parent state. To move child states
-    within their parent, press down the \key Ctrl key while moving them.
+    Drag states on top of other states to create compound states. You can also
+    drag child states out of their parent state. To move child states
+    within their parent, press down the \key Ctrl key while dragging them.
 
-    You can use toolbar buttons to align states in the state editor, to adjust
-    their size, and to change the default color scheme. Overlapping states are
-    marked in red color.
+    \section1 Aligning and Editing States
+
+    Use the toolbar buttons to align states in the state editor, to adjust
+    their size, color, and fonts, and to change the default color scheme.
+
+    \image qtcreator-scxml-editor-state-toolbar.webp {Buttons for editing states}
+
+    Overlapping states are marked in red color.
+
+    \section1 Viewing State Tree Structure
 
     To expand or collapse the state tree structure in the \uicontrol Structure
     view, double-click a state.
@@ -199,9 +219,9 @@
 
     \section1 Managing Transitions
 
-    Transitions define how a state reacts to \e events that are generated either
-    by the state machine or external entities. When events occur, the state
-    machine checks for a matching transition defined in the active state and
+    Transitions define how a state reacts to \e events that either the state
+    machine or external entities generate. When events occur, the state
+    machine checks for a matching transition in the active state and
     moves to its target state.
 
     To create a transition from the selected state to a new state, drag and
@@ -210,24 +230,24 @@
     center of the state, but you can also draw a transition to the edge of the
     state.
 
-    To add edge points to transitions, select a transition line. Only two edge
-    points are permitted for each line, and unnecessary edge points are removed
-    automatically. To remove the selected edge point, select
+    The editor center-aligns transition labels, but you can drag them to
+    other positions.
+
+    To add edge points to transitions, select a transition line. You can add
+    only two edge points for each line. The editor automatically removes
+    unnecessary edge points. To remove the selected edge point, select
     \uicontrol {Remove Point} in the context menu.
 
-    To add new edge points with a mouse click, select the \uicontrol Transition
-    tool button.
-
-    A transition label is automatically center-aligned, but you can drag it to
-    another position.
+    To add new edge points with a mouse click, select
+    \inlineimage icons/transition.png.
 
     To remove the selected transition, select \uicontrol Remove in the context
     menu.
 
     \section1 Adding Executable Content
 
-    You can add \e {executable content} to a state chart to enable the state
-    machine to modify its data model and to interact with external entities.
+    Add \e {executable content} to a state chart to enable the state
+    machine to change its data model and to interact with external entities.
 
     Use the context menu commands to add executable content to the \c <onentry>
     and \c <onexit> elements or to transitions:
@@ -236,7 +256,7 @@
         \li \c <raise> to raise events
         \li \c <send> to communicate with external entities
         \li \c <script> to run scripts
-        \li \c <assign> to modify the data model
+        \li \c <assign> to change the data model
         \li \c <cancel> to cancel action execution
         \li \c <log> to record information in a log
         \li \c <if> to execute actions conditionally
@@ -251,4 +271,53 @@
 
     You can add attributes for the selected executable content in the
     \uicontrol Attributes view.
+
+    \sa {Create state charts}
+*/
+
+/*!
+    \page creator-how-to-create-state-charts.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-files
+
+    \title Create state charts
+
+    You can use \QC to create applications that embed state machines. A file
+    wizard creates \l{https://www.w3.org/TR/scxml/}{State Chart XML (SCXML)}
+    files with boilerplate code that you can edit using an SCXML editor. You can
+    use the classes in the \l {Qt SCXML} module to embed state machines created
+    from the files in Qt applications.
+
+    \image qtcreator-scxml-editor.webp {SCXML editor}
+
+    To create a state chart:
+
+    \list 1
+
+        \li Select \uicontrol File > \uicontrol {New File} >
+            \uicontrol {Files and Classes} > \uicontrol Modeling >
+            \uicontrol {State Chart} > \uicontrol Choose to create an empty
+            state chart and to open it in the SCXML editor.
+
+        \li Drag a state from the \uicontrol {Common States} view (1) to
+            the state editor (2).
+
+        \li Drag child states to the initial state to create a
+            \e {compound state} or use the tool buttons (3) to create a transition
+            from the selected state and its target state.
+
+        \li Select a state in the editor or in the \uicontrol Structure view (5)
+            to edit its attributes in the \uicontrol Attributes
+            view (6).
+
+        \li Select the transition line (4) to add edge points to it.
+
+        \li To raise or send events, for example, use the context menu commands
+            to add executable content to the \c <onentry> and \c <onexit>
+            elements of states or to transitions.
+
+    \endlist
+
+    \sa {SCXML Editor}
 */
