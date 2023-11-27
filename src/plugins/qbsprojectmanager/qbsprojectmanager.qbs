@@ -18,6 +18,7 @@ QtcPlugin {
     Depends { name: "QmlJSEditor" }
     Depends { name: "QmlJSTools" }
     Depends { name: "QtSupport" }
+    Depends { name: "TextEditor" }
 
     files: [
         "customqbspropertiesdialog.h",
