@@ -7,7 +7,7 @@
 
 namespace Qnx::Internal {
 
-class QnxToolChain : public ProjectExplorer::GccToolChain
+class QnxToolChain : public ProjectExplorer::GccToolchain
 {
 public:
     QnxToolChain();

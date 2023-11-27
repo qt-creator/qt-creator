@@ -98,7 +98,7 @@ static QStringList reinterpretOptions(const QStringList &args)
 }
 
 QnxToolChain::QnxToolChain()
-    : GccToolChain(Constants::QNX_TOOLCHAIN_ID)
+    : GccToolchain(Constants::QNX_TOOLCHAIN_ID)
 {
     setOptionsReinterpreter(&reinterpretOptions);
     setTypeDisplayName(Tr::tr("QCC"));
@@ -128,7 +128,7 @@ void QnxToolChain::addToEnvironment(Environment &env) const
         env.expandedValueForKey("QNX_CONFIGURATION_EXCLUSIVE").isEmpty())
         setQnxEnvironment(env, QnxUtils::qnxEnvironment(sdpPath()));
 
-    GccToolChain::addToEnvironment(env);
+    GccToolchain::addToEnvironment(env);
 }
 
 QStringList QnxToolChain::suggestedMkspecList() const
@@ -141,7 +141,7 @@ QStringList QnxToolChain::suggestedMkspecList() const
     };
 }
 
-GccToolChain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
+GccToolchain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
 {
     // "unknown-qnx-gnu"is needed to get the "--target=xxx" parameter sent code model,
     // which gets translated as "x86_64-qnx-gnu", which gets Clang to happily parse
@@ -149,12 +149,12 @@ GccToolChain::DetectedAbisResult QnxToolChain::detectSupportedAbis() const
     //
     // Without it on Windows Clang defaults to a MSVC mode, which breaks with
     // the QNX code, which is mostly GNU based.
-    return GccToolChain::DetectedAbisResult{detectTargetAbis(sdpPath()), "unknown-qnx-gnu"};
+    return GccToolchain::DetectedAbisResult{detectTargetAbis(sdpPath()), "unknown-qnx-gnu"};
 }
 
 bool QnxToolChain::operator ==(const Toolchain &other) const
 {
-    if (!GccToolChain::operator ==(other))
+    if (!GccToolchain::operator ==(other))
         return false;
 
     auto qnxTc = static_cast<const QnxToolChain *>(&other);

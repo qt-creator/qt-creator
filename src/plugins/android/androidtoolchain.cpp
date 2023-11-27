@@ -47,7 +47,7 @@ static Toolchain *findToolChain(FilePath &compilerPath, Id lang, const QString &
 }
 
 AndroidToolChain::AndroidToolChain()
-    : GccToolChain(Constants::ANDROID_TOOLCHAIN_TYPEID, Clang)
+    : GccToolchain(Constants::ANDROID_TOOLCHAIN_TYPEID, Clang)
 {
     setTypeDisplayName(Tr::tr("Android Clang"));
 }
@@ -80,7 +80,7 @@ bool AndroidToolChain::isValid() const
     const bool isChildofSdk = compilerCommand().isChildOf(
         AndroidConfigurations::currentConfig().sdkLocation());
 
-    return GccToolChain::isValid() && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
+    return GccToolchain::isValid() && typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
            && targetAbi().isValid() && (isChildofNdk || isChildofSdk)
            && !originalTargetTriple().isEmpty();
 }
@@ -104,7 +104,7 @@ void AndroidToolChain::addToEnvironment(Environment &env) const
 
 void AndroidToolChain::fromMap(const Store &data)
 {
-    GccToolChain::fromMap(data);
+    GccToolchain::fromMap(data);
     if (hasError())
         return;
     if (!isValid())
@@ -123,13 +123,13 @@ FilePath AndroidToolChain::makeCommand(const Environment &env) const
     return makePath.exists() ? makePath : FilePath("make");
 }
 
-GccToolChain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
+GccToolchain::DetectedAbisResult AndroidToolChain::detectSupportedAbis() const
 {
     for (auto itr = ClangTargets->constBegin(); itr != ClangTargets->constEnd(); ++itr) {
         if (itr.value() == targetAbi())
-            return GccToolChain::DetectedAbisResult({targetAbi()}, itr.key());
+            return GccToolchain::DetectedAbisResult({targetAbi()}, itr.key());
     }
-    return GccToolChain::DetectedAbisResult({targetAbi()}, "");
+    return GccToolchain::DetectedAbisResult({targetAbi()}, "");
 }
 
 
@@ -238,7 +238,7 @@ ToolChainList AndroidToolchainFactory::autodetectToolChainsFromNdks(
 
                 // Do not only reset newly created toolchains. This triggers call to
                 // addToEnvironment, so that e.g. JAVA_HOME gets updated.
-                if (auto gccTc = dynamic_cast<GccToolChain*>(tc))
+                if (auto gccTc = dynamic_cast<GccToolchain*>(tc))
                     gccTc->resetToolChain(compilerCommand);
 
                 tc->setDetection(Toolchain::AutoDetection);

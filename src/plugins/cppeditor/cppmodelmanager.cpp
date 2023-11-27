@@ -421,7 +421,7 @@ void CppModelManager::showPreprocessedFile(bool inNextSplit)
         return;
     }
 
-    const bool isGcc = dynamic_cast<const GccToolChain *>(tc);
+    const bool isGcc = dynamic_cast<const GccToolchain *>(tc);
     const bool isMsvc = !isGcc
             && (tc->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
                 || tc->typeId() == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID);

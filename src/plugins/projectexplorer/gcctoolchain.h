@@ -16,23 +16,23 @@
 namespace ProjectExplorer {
 
 namespace Internal {
-class GccToolChainConfigWidget;
+class GccToolchainConfigWidget;
 class GccToolchainFactory;
 
 const QStringList gccPredefinedMacrosOptions(Utils::Id languageId);
 }
 
 // --------------------------------------------------------------------------
-// GccToolChain
+// GccToolchain
 // --------------------------------------------------------------------------
 
-class PROJECTEXPLORER_EXPORT GccToolChain : public Toolchain
+class PROJECTEXPLORER_EXPORT GccToolchain : public Toolchain
 {
 public:
     enum SubType { RealGcc, Clang, MinGW, LinuxIcc };
 
-    GccToolChain(Utils::Id typeId, SubType subType = RealGcc);
-    ~GccToolChain() override;
+    GccToolchain(Utils::Id typeId, SubType subType = RealGcc);
+    ~GccToolchain() override;
 
     QString originalTargetTriple() const override;
     Utils::FilePath installDir() const override;
@@ -79,7 +79,7 @@ public:
         Abis supportedAbis;
         QString originalTargetTriple;
     };
-    GccToolChain *asGccToolChain() final { return this; }
+    GccToolchain *asGccToolchain() final { return this; }
 
     bool matchesCompilerCommand(const Utils::FilePath &command) const override;
 
@@ -102,7 +102,7 @@ protected:
     virtual QString detectVersion() const;
     virtual Utils::FilePath detectInstallDir() const;
 
-    // Reinterpret options for compiler drivers inheriting from GccToolChain (e.g qcc) to apply -Wp option
+    // Reinterpret options for compiler drivers inheriting from GccToolchain (e.g qcc) to apply -Wp option
     // that passes the initial options directly down to the gcc compiler
     using OptionsReinterpreter = std::function<QStringList(const QStringList &options)>;
     void setOptionsReinterpreter(const OptionsReinterpreter &optionsReinterpreter);
@@ -148,7 +148,7 @@ private:
     mutable QString m_version;
     mutable Utils::FilePath m_installDir;
 
-    friend class Internal::GccToolChainConfigWidget;
+    friend class Internal::GccToolchainConfigWidget;
     friend class Internal::GccToolchainFactory;
     friend class ToolchainFactory;
 

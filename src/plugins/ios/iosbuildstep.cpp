@@ -211,7 +211,7 @@ QStringList IosBuildStep::defaultArguments() const
     }
     if (tc->typeId() == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID
             || tc->typeId() == ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID) {
-        auto gtc = static_cast<GccToolChain *>(tc);
+        auto gtc = static_cast<GccToolchain *>(tc);
         res << gtc->platformCodeGenFlags();
     }
     if (!SysRootKitAspect::sysRoot(kit).isEmpty())
