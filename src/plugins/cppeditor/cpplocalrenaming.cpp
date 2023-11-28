@@ -62,6 +62,7 @@ bool CppLocalRenaming::start()
         updateRenamingSelectionFormat(textCharFormat(TextEditor::C_OCCURRENCES_RENAME));
         m_firstRenameChangeExpected = true;
         updateEditorWidgetWithSelections();
+        emit started();
         return true;
     }
 

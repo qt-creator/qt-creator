@@ -108,6 +108,8 @@ QtcPlugin {
         "cppfollowsymbolundercursor.h",
         "cppfunctiondecldeflink.cpp",
         "cppfunctiondecldeflink.h",
+        "cppfunctionparamrenaminghandler.cpp",
+        "cppfunctionparamrenaminghandler.h",
         "cpphighlighter.cpp",
         "cpphighlighter.h",
         "cppincludehierarchy.cpp",
@@ -226,7 +228,7 @@ QtcPlugin {
         "symbolsfindfilter.h",
         "typehierarchybuilder.cpp",
         "typehierarchybuilder.h",
-        "wrappablelineedit.cpp", // FIXME: Is this used?
+        "wrappablelineedit.cpp",
         "wrappablelineedit.h",
     ]
 

@@ -48,6 +48,7 @@ add_qtc_plugin(CppEditor
     cppfindreferences.cpp cppfindreferences.h
     cppfollowsymbolundercursor.cpp cppfollowsymbolundercursor.h
     cppfunctiondecldeflink.cpp cppfunctiondecldeflink.h
+    cppfunctionparamrenaminghandler.cpp cppfunctionparamrenaminghandler.h
     cpphighlighter.cpp cpphighlighter.h
     cppincludehierarchy.cpp cppincludehierarchy.h
     cppincludesfilter.cpp cppincludesfilter.h

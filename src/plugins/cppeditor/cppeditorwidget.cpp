@@ -11,13 +11,13 @@
 #include "cppeditorplugin.h"
 #include "cppeditortr.h"
 #include "cppfunctiondecldeflink.h"
+#include "cppfunctionparamrenaminghandler.h"
 #include "cpplocalrenaming.h"
 #include "cppmodelmanager.h"
 #include "cpppreprocessordialog.h"
 #include "cppquickfixassistant.h"
 #include "cppselectionchanger.h"
 #include "cppsemanticinfo.h"
-#include "cpptoolssettings.h"
 #include "cppuseselectionsupdater.h"
 #include "doxygengenerator.h"
 
@@ -396,6 +396,7 @@ public:
     QToolButton *m_preprocessorButton = nullptr;
 
     CppLocalRenaming m_localRenaming;
+    CppFunctionParamRenamingHandler m_paramRenamingHandler;
     CppUseSelectionsUpdater m_useSelectionsUpdater;
     CppSelectionChanger m_cppSelectionChanger;
     bool inTestMode = false;
@@ -405,6 +406,7 @@ CppEditorWidgetPrivate::CppEditorWidgetPrivate(CppEditorWidget *q)
     : m_cppEditorDocument(qobject_cast<CppEditorDocument *>(q->textDocument()))
     , m_declDefLinkFinder(new FunctionDeclDefLinkFinder(q))
     , m_localRenaming(q)
+    , m_paramRenamingHandler(*q, m_localRenaming)
     , m_useSelectionsUpdater(q)
     , m_cppSelectionChanger()
 {}
