@@ -5,6 +5,10 @@
 
 #include "imode.h"
 
+namespace Utils {
+class FancyMainWindow;
+}
+
 namespace Core {
 class IEditor;
 
@@ -26,7 +30,8 @@ public:
 
     static void registerDesignWidget(QWidget *widget,
                                      const QStringList &mimeTypes,
-                                     const Context &context);
+                                     const Context &context,
+                                     Utils::FancyMainWindow *mainWindow = nullptr);
     static void unregisterDesignWidget(QWidget *widget);
 
     static void createModeIfRequired();
@@ -44,8 +49,6 @@ private:
     void currentEditorChanged(IEditor *editor);
     void updateContext(Utils::Id newMode, Utils::Id oldMode);
     void setActiveContext(const Context &context);
-
-    Utils::FancyMainWindow *mainWindow() override;
 };
 
 } // namespace Core

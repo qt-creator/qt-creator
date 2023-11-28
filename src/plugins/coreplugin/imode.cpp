@@ -19,6 +19,7 @@ public:
     QString m_displayName;
     QIcon m_icon;
     QMenu *m_menu = nullptr;
+    Utils::FancyMainWindow *m_mainWindow = nullptr;
     int m_priority = -1;
     Utils::Id m_id;
     bool m_isEnabled = true;
@@ -181,7 +182,14 @@ void IMode::setMenu(QMenu *menu)
 
 Utils::FancyMainWindow *IMode::mainWindow()
 {
-    return Aggregation::query<Utils::FancyMainWindow>(widget());
+    if (m_d->m_mainWindow)
+        return m_d->m_mainWindow;
+    return qobject_cast<Utils::FancyMainWindow *>(widget());
+}
+
+void IMode::setMainWindow(Utils::FancyMainWindow *mw)
+{
+    m_d->m_mainWindow = mw;
 }
 
 bool IMode::isEnabled() const

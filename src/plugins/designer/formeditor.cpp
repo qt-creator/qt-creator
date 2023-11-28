@@ -407,10 +407,6 @@ void FormEditorData::fullInit()
 
     m_modeWidget = new QWidget;
     m_modeWidget->setObjectName("DesignerModeWidget");
-    // make the editor widget (the dockable widget) accessible via the mode widget
-    auto agg = new Aggregation::Aggregate;
-    agg->add(m_modeWidget);
-    agg->add(m_editorWidget);
     auto layout = new QVBoxLayout(m_modeWidget);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
@@ -427,7 +423,10 @@ void FormEditorData::fullInit()
     designerContexts.add(Core::Constants::C_EDITORMANAGER);
     ICore::addContextObject(new DesignerContext(designerContexts, m_modeWidget, this));
 
-    DesignMode::registerDesignWidget(m_modeWidget, QStringList(Utils::Constants::FORM_MIMETYPE), m_contexts);
+    DesignMode::registerDesignWidget(m_modeWidget,
+                                     QStringList(Utils::Constants::FORM_MIMETYPE),
+                                     m_contexts,
+                                     m_editorWidget);
 
     setupViewActions();
 

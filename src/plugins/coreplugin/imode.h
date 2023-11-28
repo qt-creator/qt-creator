@@ -50,7 +50,8 @@ public:
     void setId(Utils::Id id);
     void setMenu(QMenu *menu);
 
-    virtual Utils::FancyMainWindow *mainWindow();
+    Utils::FancyMainWindow *mainWindow();
+    void setMainWindow(Utils::FancyMainWindow *mw);
 
 signals:
     void enabledStateChanged(bool enabled);
