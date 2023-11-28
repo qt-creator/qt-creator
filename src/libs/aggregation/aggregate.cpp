@@ -193,6 +193,9 @@ void Aggregate::deleteSelf(QObject *obj)
         QWriteLocker locker(&lock());
         aggregateMap().remove(obj);
         m_components.removeAll(obj);
+        // Avoid issues if obj was child of another component of the aggregate.
+        // The parent is deleted in ~Aggregate and might still have a reference on obj
+        obj->setParent({});
     }
     delete this;
 }
