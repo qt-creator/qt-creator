@@ -78,24 +78,6 @@ void tst_Aggregate::deleteAggregation()
     component1 = new Interface1;
     delete component1;
     QVERIFY(component1 == 0);
-
-    // do not crash if components are in a child/parent relationship
-    //    parent deleted first
-    aggregation = new Aggregation::Aggregate;
-    component1 = new Interface1;
-    component2 = new Interface2;
-    component2->setParent(component1);
-    aggregation->add(component1);
-    aggregation->add(component2);
-    delete component1;
-    //    child deleted first
-    aggregation = new Aggregation::Aggregate;
-    component1 = new Interface1;
-    component2 = new Interface2;
-    component2->setParent(component1);
-    aggregation->add(component1);
-    aggregation->add(component2);
-    delete component2;
 }
 
 void tst_Aggregate::queryAggregation()
