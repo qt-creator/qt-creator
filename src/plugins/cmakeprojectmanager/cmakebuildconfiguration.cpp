@@ -1480,8 +1480,12 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
 
             if (qt && qt->qtVersion() >= QVersionNumber(6, 0, 0)) {
                 // Don't build apk under ALL target because Qt Creator will handle it
-                if (qt->qtVersion() >= QVersionNumber(6, 1, 0))
+                if (qt->qtVersion() >= QVersionNumber(6, 1, 0)) {
                     cmd.addArg("-DQT_NO_GLOBAL_APK_TARGET_PART_OF_ALL:BOOL=ON");
+                    if (qt->qtVersion() >= QVersionNumber(6, 8, 0))
+                        cmd.addArg("-DQT_USE_TARGET_ANDROID_BUILD_DIR:BOOL=ON");
+                }
+
                 cmd.addArg("-DQT_HOST_PATH:PATH=%{Qt:QT_HOST_PREFIX}");
                 cmd.addArg("-DANDROID_SDK_ROOT:PATH=" + sdkLocation.path());
             } else {
