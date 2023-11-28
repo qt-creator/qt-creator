@@ -109,14 +109,7 @@ Item {
 
                     delegate: ModelSourceItem {
                         implicitWidth: sourceListView.width
-                        onDeleteItem: root.model.removeRow(index)
                         hasSelectedTarget: root.rootView.targetNodeSelected
-                        onAddCollection: (collectionName) => {
-                            root.rootView.addCollection(collectionName,
-                                                        sourceCollectionType,
-                                                        "",
-                                                        sourceNode)
-                        }
                     }
                 }
             }
