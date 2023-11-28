@@ -194,7 +194,7 @@ NavigationWidget::NavigationWidget(QAction *toggleSideBarAction, Side side) :
         NavigationWidgetPrivate::s_instanceRight = this;
 
     connect(ModeManager::instance(),
-            &ModeManager::currentModeChanged,
+            &ModeManager::currentMainWindowChanged,
             this,
             &NavigationWidget::updateMode);
 }

@@ -322,6 +322,7 @@ void ModeManager::currentTabChanged(int index)
         oldMode = d->m_modes.at(d->m_oldCurrent);
     d->m_oldCurrent = index;
     emit currentModeChanged(mode->id(), oldMode ? oldMode->id() : Id());
+    emit currentMainWindowChanged();
 }
 
 /*!

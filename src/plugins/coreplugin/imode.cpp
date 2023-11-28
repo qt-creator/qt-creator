@@ -190,6 +190,7 @@ Utils::FancyMainWindow *IMode::mainWindow()
 void IMode::setMainWindow(Utils::FancyMainWindow *mw)
 {
     m_d->m_mainWindow = mw;
+    emit ModeManager::instance()->currentMainWindowChanged();
 }
 
 bool IMode::isEnabled() const
