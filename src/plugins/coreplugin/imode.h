@@ -10,11 +10,17 @@
 #include <QIcon>
 #include <QMenu>
 
+#include <memory.h>
+
 namespace Utils {
 class FancyMainWindow;
 }
 
 namespace Core {
+
+namespace Internal {
+class IModePrivate;
+}
 
 class CORE_EXPORT IMode : public IContext
 {
@@ -28,20 +34,21 @@ class CORE_EXPORT IMode : public IContext
 
 public:
     IMode(QObject *parent = nullptr);
+    ~IMode();
 
-    QString displayName() const { return m_displayName; }
-    QIcon icon() const { return m_icon; }
-    int priority() const { return m_priority; }
-    Utils::Id id() const { return m_id; }
+    QString displayName() const;
+    QIcon icon() const;
+    int priority() const;
+    Utils::Id id() const;
     bool isEnabled() const;
-    QMenu *menu() const { return m_menu; }
+    QMenu *menu() const;
 
     void setEnabled(bool enabled);
-    void setDisplayName(const QString &displayName) { m_displayName = displayName; }
-    void setIcon(const QIcon &icon) { m_icon = icon; }
-    void setPriority(int priority) { m_priority = priority; }
-    void setId(Utils::Id id) { m_id = id; }
-    void setMenu(QMenu *menu) { m_menu = menu; }
+    void setDisplayName(const QString &displayName);
+    void setIcon(const QIcon &icon);
+    void setPriority(int priority);
+    void setId(Utils::Id id);
+    void setMenu(QMenu *menu);
 
     virtual Utils::FancyMainWindow *mainWindow();
 
@@ -49,12 +56,7 @@ signals:
     void enabledStateChanged(bool enabled);
 
 private:
-    QString m_displayName;
-    QIcon m_icon;
-    QMenu *m_menu = nullptr;
-    int m_priority = -1;
-    Utils::Id m_id;
-    bool m_isEnabled = true;
+    std::unique_ptr<Internal::IModePrivate> m_d;
 };
 
 } // namespace Core
