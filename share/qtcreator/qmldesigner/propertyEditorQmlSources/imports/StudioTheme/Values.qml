@@ -242,6 +242,11 @@ QtObject {
     property real dialogButtonSpacing: 10
     property real dialogButtonPadding: 4
 
+    // Collection Editor
+    property real collectionItemTextSideMargin: 10
+    property real collectionItemTextMargin: 5
+    property real collectionItemTextPadding: 5
+
     // NEW NEW NEW
     readonly property int flowMargin: 7
     readonly property int flowSpacing: 7 // Odd so cursor has a center location
