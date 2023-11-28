@@ -52,6 +52,7 @@
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/dropsupport.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
@@ -1264,12 +1265,11 @@ void ICorePrivate::init()
 
     m_modeStack->statusBar()->setProperty("p_styled", true);
 
-    /*auto dropSupport = new DropSupport(this, [](QDropEvent *event, DropSupport *) {
+    auto dropSupport = new DropSupport(m_mainwindow, [](QDropEvent *event, DropSupport *) {
         return event->source() == nullptr; // only accept drops from the "outside" (e.g. file manager)
     });
-    connect(dropSupport, &DropSupport::filesDropped,
-            this, &MainWindow::openDroppedFiles);
-*/
+    connect(dropSupport, &DropSupport::filesDropped, this, &ICorePrivate::openDroppedFiles);
+
     if (HostOsInfo::isLinuxHost()) {
         m_trimTimer.setSingleShot(true);
         m_trimTimer.setInterval(60000);
