@@ -156,9 +156,9 @@ void GenerigHighlighterTests::testHighlight()
     QTextBlock block = m_editor->textDocument()->document()->findBlockByNumber(blockNumber);
     QVERIFY(block.isValid());
 
+    QTRY_COMPARE(block.layout()->formats().size(), formatRanges.size());
     const QList<QTextLayout::FormatRange> actualFormats = block.layout()->formats();
     // full hash calculation for QTextCharFormat fails so just check the important entries of format
-    QCOMPARE(actualFormats.size(), formatRanges.size());
     for (int i = 0; i < formatRanges.size(); ++i)
         compareFormats(actualFormats.at(i), formatRanges.at(i));
 }
@@ -178,9 +178,9 @@ void GenerigHighlighterTests::testChange()
 
     const FormatRanges formatRanges = {{0, 4, toFormat(C_VISUAL_WHITESPACE)},
                                        {4, 1, toFormat(C_TEXT)}};
+    QTRY_COMPARE(block.layout()->formats().size(), formatRanges.size());
     const QList<QTextLayout::FormatRange> actualFormats = block.layout()->formats();
     // full hash calculation for QTextCharFormat fails so just check the important entries of format
-    QCOMPARE(actualFormats.size(), formatRanges.size());
     for (int i = 0; i < formatRanges.size(); ++i)
         compareFormats(actualFormats.at(i), formatRanges.at(i));
 }
@@ -204,9 +204,9 @@ void GenerigHighlighterTests::testPreeditText()
                                        {14, 1, toFormat(C_VISUAL_WHITESPACE)},
                                        {15, 6, toFormat(C_STRING)},
                                        {21, 1, toFormat(C_FUNCTION)}};
+    QTRY_COMPARE(block.layout()->formats().size(), formatRanges.size());
     const QList<QTextLayout::FormatRange> actualFormats = block.layout()->formats();
     // full hash calculation for QTextCharFormat fails so just check the important entries of format
-    QCOMPARE(actualFormats.size(), formatRanges.size());
     for (int i = 0; i < formatRanges.size(); ++i)
         compareFormats(actualFormats.at(i), formatRanges.at(i));
 }

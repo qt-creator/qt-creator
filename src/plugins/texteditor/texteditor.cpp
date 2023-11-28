@@ -1933,7 +1933,7 @@ void TextEditorWidgetPrivate::foldLicenseHeader()
             QStringList docMarker;
             HighlighterHelper::Definition def;
             if (BaseSyntaxHighlighterRunner *highlighter = q->textDocument()->syntaxHighlighterRunner())
-                def = highlighter->getDefinition();
+                def = HighlighterHelper::definitionForName(highlighter->definitionName());
 
             if (def.isValid()) {
                 for (const QString &marker :
@@ -3709,12 +3709,12 @@ void TextEditorWidgetPrivate::configureGenericHighlighter(
         q->setCodeFoldingSupported(false);
     }
 
-    m_document->resetSyntaxHighlighter([definition] {
-        auto highlighter = new Highlighter();
-        if (definition.isValid())
-            highlighter->setDefinition(definition);
-        return highlighter;
-    }, false);
+    const QString definitionFilesPath
+        = TextEditorSettings::highlighterSettings().definitionFilesPath().toString();
+    m_document->resetSyntaxHighlighter([definitionFilesPath] {
+        return new Highlighter(definitionFilesPath);
+    });
+    m_document->syntaxHighlighterRunner()->setDefinitionName(definition.name());
 
     m_document->setFontSettings(TextEditorSettings::fontSettings());
 }
@@ -3740,7 +3740,7 @@ void TextEditorWidgetPrivate::setupFromDefinition(const KSyntaxHighlighting::Def
 KSyntaxHighlighting::Definition TextEditorWidgetPrivate::currentDefinition()
 {
     if (BaseSyntaxHighlighterRunner *highlighter = m_document->syntaxHighlighterRunner())
-        return highlighter->getDefinition();
+        return HighlighterHelper::definitionForName(highlighter->definitionName());
     return {};
 }
 

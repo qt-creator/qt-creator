@@ -3,8 +3,8 @@
 
 #include "syntaxhighlighterrunner.h"
 
-#include <texteditor/fontsettings.h>
-#include <texteditor/textdocumentlayout.h>
+#include "fontsettings.h"
+#include "textdocumentlayout.h"
 
 #include <utils/textutils.h>
 
@@ -81,7 +81,10 @@ public:
         m_highlighter->rehighlight();
     }
 
-    KSyntaxHighlighting::Definition getDefinition() { return m_highlighter->getDefinition(); }
+    void setDefinitionName(const QString &name)
+    {
+        return m_highlighter->setDefinitionName(name);
+    }
 
     void setLanguageFeaturesFlags(unsigned int flags)
     {
@@ -195,9 +198,18 @@ void BaseSyntaxHighlighterRunner::rehighlight()
     QMetaObject::invokeMethod(d.get(), [this] { d->rehighlight(); });
 }
 
-KSyntaxHighlighting::Definition BaseSyntaxHighlighterRunner::getDefinition()
+QString BaseSyntaxHighlighterRunner::definitionName()
 {
-    return d->getDefinition();
+    return m_definitionName;
+}
+
+void BaseSyntaxHighlighterRunner::setDefinitionName(const QString &name)
+{
+    if (name.isEmpty())
+        return;
+
+    m_definitionName = name;
+    QMetaObject::invokeMethod(d.get(), [this, name] { d->setDefinitionName(name); });
 }
 
 // --------------------------- ThreadedSyntaxHighlighterRunner ------------------------------------
@@ -238,16 +250,6 @@ ThreadedSyntaxHighlighterRunner::~ThreadedSyntaxHighlighterRunner()
 {
     m_thread.quit();
     m_thread.wait();
-}
-
-KSyntaxHighlighting::Definition ThreadedSyntaxHighlighterRunner::getDefinition()
-{
-    KSyntaxHighlighting::Definition definition;
-    QMetaObject::invokeMethod(
-        d.get(),
-        [this, &definition] { definition = d->getDefinition(); },
-        Qt::BlockingQueuedConnection);
-    return definition;
 }
 
 } // namespace TextEditor

@@ -112,7 +112,7 @@ public:
     void setExtraFormats(const QTextBlock &block, const QList<QTextLayout::FormatRange> &formats);
     virtual void setLanguageFeaturesFlags(unsigned int /*flags*/) {}; // needed for CppHighlighting
     virtual void setEnabled(bool /*enabled*/) {}; // needed for DiffAndLogHighlighter
-    virtual KSyntaxHighlighting::Definition getDefinition() { return {}; }
+    virtual void setDefinitionName(const QString & /*definitionName*/) {} // needed for Highlighter
 
 public slots:
     virtual void rehighlight();

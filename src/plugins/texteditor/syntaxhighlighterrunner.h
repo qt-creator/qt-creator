@@ -39,7 +39,8 @@ public:
     void setEnabled(bool enabled);
     void rehighlight();
 
-    virtual KSyntaxHighlighting::Definition getDefinition();
+    QString definitionName();
+    void setDefinitionName(const QString &name);
 
     QTextDocument *document() const { return m_document; }
     SyntaxHighLighterCreator creator() const { return m_creator; }
@@ -56,6 +57,7 @@ protected:
 
 private:
     SyntaxHighLighterCreator m_creator;
+    QString m_definitionName;
 };
 
 class TEXTEDITOR_EXPORT ThreadedSyntaxHighlighterRunner : public BaseSyntaxHighlighterRunner
@@ -64,8 +66,6 @@ public:
     ThreadedSyntaxHighlighterRunner(SyntaxHighLighterCreator SyntaxHighLighterCreator,
                                     QTextDocument *document);
     ~ThreadedSyntaxHighlighterRunner();
-
-    KSyntaxHighlighting::Definition getDefinition() override;
 
 private:
     QThread m_thread;
