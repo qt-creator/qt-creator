@@ -7,6 +7,7 @@
 #include <qqml.h>
 
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QUrl>
 #include <QVariant>
@@ -436,16 +437,19 @@ void CollectionDetails::resetPropertyTypes()
         resetPropertyType(property);
 }
 
-QJsonArray CollectionDetails::getJsonCollection() const
+QString CollectionDetails::getCollectionAsJsonString() const
 {
     QJsonArray collectionArray;
+
     for (const QJsonObject &element : std::as_const(d->elements))
         collectionArray.push_back(element);
 
-    return collectionArray;
+    QString collectionString = QString::fromUtf8(QJsonDocument(collectionArray).toJson());
+
+    return collectionString;
 }
 
-QString CollectionDetails::getCsvCollection() const
+QString CollectionDetails::getCollectionAsCsvString() const
 {
     QString content;
     if (d->properties.count() <= 0)

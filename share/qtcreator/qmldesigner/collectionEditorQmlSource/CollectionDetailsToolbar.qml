@@ -128,8 +128,7 @@ Item {
 
         onAccepted: {
             let filePath = fileDialog.file.toString()
-            let exportType = fileDialog.selectedNameFilter.index === 0 ? "JSON" : "CSV"
-            root.model.exportCollection(filePath, root.model.collectionName, exportType)
+            root.model.exportCollection(filePath)
         }
     }
 

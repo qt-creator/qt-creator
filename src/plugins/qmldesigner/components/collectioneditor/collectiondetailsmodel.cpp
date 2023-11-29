@@ -396,34 +396,14 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
     }
 }
 
-bool CollectionDetailsModel::exportCollection(const QUrl &url,
-                                              const QString &collectionName,
-                                              const QString &exportType)
-{
-    QString filePath;
-    if (url.isLocalFile()) {
-        QFileInfo fileInfo(url.toLocalFile());
-        if (fileInfo.suffix().toLower() != exportType.toLower())
-            fileInfo.setFile(QString("%1.%2").arg(url.toLocalFile(), exportType.toLower()));
-        filePath = fileInfo.absoluteFilePath();
-    } else {
-        filePath = url.toString();
-    }
-
-    if (exportType == "JSON") {
-        QJsonArray content = m_currentCollection.getJsonCollection();
-        return saveCollectionAsJson(filePath, content, collectionName);
-    } else if (exportType == "CSV") {
-        QString content = m_currentCollection.getCsvCollection();
-        return saveCollectionAsCsv(filePath, content);
-    }
-
-    return false;
-}
-
 bool CollectionDetailsModel::saveCurrentCollection()
 {
-    return saveCollection(m_currentCollection);
+    return saveCollection({}, &m_currentCollection);
+}
+
+bool CollectionDetailsModel::exportCollection(const QString &filePath)
+{
+    return saveCollection(filePath, &m_currentCollection);
 }
 
 void CollectionDetailsModel::updateEmpty()
@@ -600,58 +580,40 @@ void CollectionDetailsModel::setCollectionName(const QString &newCollectionName)
     }
 }
 
-bool CollectionDetailsModel::saveCollection(CollectionDetails &collection)
+bool CollectionDetailsModel::saveCollection(const QString &filePath, CollectionDetails *collection)
 {
-    if (!collection.isValid() || !m_openedCollections.contains(collection.reference()))
-        return false;
-
-    const ModelNode node = collection.reference().node;
     bool saved = false;
 
-    if (CollectionEditor::getSourceCollectionType(node) == "json") {
-        saved = saveCollectionAsJson(CollectionEditor::getSourceCollectionPath(node),
-                                     collection.getJsonCollection(),
-                                     collection.reference().name);
-    } else if (CollectionEditor::getSourceCollectionType(node) == "csv") {
-        saved = saveCollectionAsCsv(CollectionEditor::getSourceCollectionPath(node),
-                                    collection.getCsvCollection());
+    auto saveSingleCollection = [&](CollectionDetails &singleCollection) {
+
+        const ModelNode node = singleCollection.reference().node;
+        QString path = CollectionEditor::getSourceCollectionPath(node);
+        QString saveFormat = CollectionEditor::getSourceCollectionType(node);
+
+        if (!filePath.isEmpty()) {
+            QUrl url(filePath);
+            path = url.isLocalFile() ? QFileInfo(url.toLocalFile()).absoluteFilePath() : url.toString();
+            saveFormat = url.isLocalFile() ? QFileInfo(url.toLocalFile()).suffix().toLower() : saveFormat;
+        }
+
+        saved = saveCollectionFromString(path, (saveFormat == "json") ? singleCollection.getCollectionAsJsonString() :
+                                                   (saveFormat == "csv")  ? singleCollection.getCollectionAsCsvString() : QString());
+
+        if (saved && filePath.isEmpty())
+            singleCollection.markSaved();
+    };
+
+    if (!collection) {
+        for (CollectionDetails &openedCollection : m_openedCollections)
+            saveSingleCollection(openedCollection);
+    } else {
+        saveSingleCollection(*collection);
     }
-    if (saved)
-        collection.markSaved();
 
     return saved;
 }
 
-bool CollectionDetailsModel::saveCollectionAsJson(const QString &path, const QJsonArray &content, const QString &collectionName)
-{
-    QFile sourceFile(path);
-    QJsonDocument document;
-
-    if (sourceFile.exists() && sourceFile.open(QFile::ReadWrite)) {
-        QJsonParseError jpe;
-        document = QJsonDocument::fromJson(sourceFile.readAll(), &jpe);
-
-        if (jpe.error == QJsonParseError::NoError) {
-            QJsonObject collectionMap = document.object();
-            collectionMap[collectionName] = content;
-            document.setObject(collectionMap);
-        }
-
-        sourceFile.resize(0);
-
-    } else if (sourceFile.open(QFile::WriteOnly)) {
-        QJsonObject collection;
-        collection[collectionName] = content;
-        document.setObject(collection);
-    }
-
-    if (sourceFile.write(document.toJson()))
-        return true;
-
-    return false;
-}
-
-bool CollectionDetailsModel::saveCollectionAsCsv(const QString &path, const QString &content)
+bool CollectionDetailsModel::saveCollectionFromString(const QString &path, const QString &content)
 {
     QFile file(path);
 

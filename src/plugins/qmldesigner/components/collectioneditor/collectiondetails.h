@@ -82,8 +82,8 @@ public:
     bool markSaved();
 
     void swap(CollectionDetails &other);
-    QJsonArray getJsonCollection() const;
-    QString getCsvCollection() const;
+    QString getCollectionAsJsonString() const;
+    QString getCollectionAsCsvString() const;
 
     static void registerDeclarativeType();
 
