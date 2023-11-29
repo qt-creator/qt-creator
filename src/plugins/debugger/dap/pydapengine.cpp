@@ -38,20 +38,18 @@ namespace Debugger::Internal {
 
 const char installDebugPyInfoBarId[] = "Python::InstallDebugPy";
 
-static bool missingPySideInstallation(const FilePath &pythonPath, const QString &packageName)
+static FilePath packageDir(const FilePath &python, const QString &packageName)
+{
+    expected_str<FilePath> baseDir = python.needsDevice() ? python.tmpDir()
+                                                          : Core::ICore::userResourcePath();
+    return baseDir ? baseDir->pathAppended("debugpy") : FilePath();
+}
+
+static bool missingModuleInstallation(const FilePath &python, const QString &packageName)
 {
     QTC_ASSERT(!packageName.isEmpty(), return false);
-    static QMap<FilePath, QSet<QString>> pythonWithPyside;
-    if (pythonWithPyside[pythonPath].contains(packageName))
-        return false;
-
-    Process pythonProcess;
-    pythonProcess.setCommand({pythonPath, {"-c", "import " + packageName}});
-    pythonProcess.runBlocking();
-    const bool missing = pythonProcess.result() != ProcessResult::FinishedWithSuccess;
-    if (!missing)
-        pythonWithPyside[pythonPath].insert(packageName);
-    return missing;
+    const FilePath dir = packageDir(python, packageName);
+    return !dir.isEmpty() && !dir.exists();
 }
 
 class TcpSocketDataProvider : public IDataProvider
@@ -82,7 +80,15 @@ public:
 
     void start() override
     {
-        m_proc.setEnvironment(m_runParameters.debugger.environment);
+        Environment env = m_runParameters.debugger.environment;
+        const FilePath debugPyDir = packageDir(m_cmd.executable(), "debugpy");
+        if (QTC_GUARD(debugPyDir.isSameDevice(m_cmd.executable()))) {
+            env.appendOrSet("PYTHONPATH",
+                            debugPyDir.needsDevice() ? debugPyDir.path() : debugPyDir.toUserOutput(),
+                            OsSpecificAspects::pathListSeparator(debugPyDir.osType()));
+        }
+
+        m_proc.setEnvironment(env);
         m_proc.setCommand(m_cmd);
         // Workaround to have output for Python
         m_proc.setTerminalMode(TerminalMode::Run);
@@ -221,7 +227,7 @@ void PyDapEngine::setupEngine()
         return;
     }
 
-    if (missingPySideInstallation(interpreter, "debugpy")) {
+    if (missingModuleInstallation(interpreter, "debugpy")) {
         Utils::InfoBarEntry
             info(installDebugPyInfoBarId,
                  Tr::tr(
@@ -230,9 +236,17 @@ void PyDapEngine::setupEngine()
         info.addCustomButton(Tr::tr("Install debugpy"), [this] {
             Core::ICore::infoBar()->removeInfo(installDebugPyInfoBarId);
             Core::ICore::infoBar()->globallySuppressInfo(installDebugPyInfoBarId);
+            const FilePath target = packageDir(runParameters().interpreter, "dubugpy");
+            QTC_ASSERT(target.isSameDevice(runParameters().interpreter), return);
             m_installProcess.reset(new Process);
-            m_installProcess->setCommand({runParameters().interpreter,
-                                          {"-m", "pip", "install", "debugpy"}});
+            m_installProcess->setCommand(
+                {runParameters().interpreter,
+                 {"-m",
+                  "pip",
+                  "install",
+                  "-t",
+                  target.needsDevice() ? target.path() : target.toUserOutput(),
+                  "debugpy"}});
             m_installProcess->setTerminalMode(TerminalMode::Run);
             m_installProcess->start();
         });
