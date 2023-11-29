@@ -99,15 +99,15 @@ Item {
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
             IconButton {
-                icon: StudioTheme.Constants.updateContent_medium
-                tooltip: qsTr("Update existing file with changes")
+                icon: StudioTheme.Constants.save_medium
+                tooltip: qsTr("Save changes")
                 enabled: root.model.collectionName !== ""
                 onClicked: root.model.saveCurrentCollection()
             }
 
             IconButton {
                 icon: StudioTheme.Constants.export_medium
-                tooltip: qsTr("Export the model to a new file")
+                tooltip: qsTr("Export model")
                 enabled: root.model.collectionName !== ""
                 onClicked: fileDialog.open()
             }

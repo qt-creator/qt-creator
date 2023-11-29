@@ -61,6 +61,7 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
 {
     if (m_widget.isNull()) {
         m_widget = new CollectionWidget(this);
+        m_widget->setMinimumSize(m_widget->minimumSizeHint());
 
         auto collectionEditorContext = new Internal::CollectionEditorContext(m_widget.data());
         Core::ICore::addContextObject(collectionEditorContext);
