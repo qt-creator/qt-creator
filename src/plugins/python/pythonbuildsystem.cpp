@@ -13,6 +13,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/target.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -186,9 +187,13 @@ void PythonBuildSystem::triggerParsing()
     newRoot->addNestedNode(
         std::make_unique<PythonFileNode>(projectFile, displayName, FileType::Project));
 
+    bool hasQmlFiles = false;
+
     for (const FileEntry &entry : std::as_const(m_files)) {
         const QString displayName = entry.filePath.relativePathFrom(projectDirectory()).toUserOutput();
         const FileType fileType = getFileType(entry.filePath);
+
+        hasQmlFiles |= fileType == FileType::QML;
 
         newRoot->addNestedNode(std::make_unique<PythonFileNode>(entry.filePath, displayName, fileType));
         const MimeType mt = mimeTypeForFile(entry.filePath, MimeMatchMode::MatchExtension);
@@ -204,6 +209,8 @@ void PythonBuildSystem::triggerParsing()
             appTargets.append(bti);
         }
     }
+    project()->setProjectLanguage(ProjectExplorer::Constants::QMLJS_LANGUAGE_ID, hasQmlFiles);
+
     setRootProjectNode(std::move(newRoot));
 
     setApplicationTargets(appTargets);

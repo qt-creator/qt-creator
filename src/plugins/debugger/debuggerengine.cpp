@@ -267,8 +267,8 @@ public:
 
         connect(&settings().enableReverseDebugging, &BaseAspect::changed, this, [this] {
             updateState();
-            if (m_companionEngine)
-                m_companionEngine->d->updateState();
+            for (const QPointer<DebuggerEngine> &companion : std::as_const(m_companionEngines))
+                companion->d->updateState();
         });
         static int contextCount = 0;
         m_context = Context(Id("Debugger.Engine.").withSuffix(++contextCount));
@@ -445,7 +445,7 @@ public:
     DebuggerRunParameters m_runParameters;
     IDevice::ConstPtr m_device;
 
-    QPointer<DebuggerEngine> m_companionEngine;
+    QList<QPointer<DebuggerEngine>> m_companionEngines;
     bool m_isPrimaryEngine = true;
 
     // The current state.
@@ -1134,9 +1134,9 @@ IDevice::ConstPtr DebuggerEngine::device() const
     return d->m_device;
 }
 
-DebuggerEngine *DebuggerEngine::companionEngine() const
+QList<DebuggerEngine *> DebuggerEngine::companionEngines() const
 {
-    return d->m_companionEngine;
+    return Utils::transform(d->m_companionEngines, &QPointer<DebuggerEngine>::get);
 }
 
 DebuggerState DebuggerEngine::state() const
@@ -1849,8 +1849,8 @@ void DebuggerEngine::setState(DebuggerState state, bool forced)
     showMessage(msg, LogDebug);
 
     d->updateState();
-    if (d->m_companionEngine)
-        d->m_companionEngine->d->updateState();
+    for (const QPointer<DebuggerEngine> &companion : std::as_const(d->m_companionEngines))
+        companion->d->updateState();
 
     if (oldState != d->m_state)
         emit EngineManager::instance()->engineStateChanged(this);
@@ -2037,9 +2037,9 @@ void DebuggerEngine::progressPing()
     d->m_progress.setProgressValue(progress);
 }
 
-void DebuggerEngine::setCompanionEngine(DebuggerEngine *engine)
+void DebuggerEngine::addCompanionEngine(DebuggerEngine *engine)
 {
-    d->m_companionEngine = engine;
+    d->m_companionEngines << engine;
 }
 
 void DebuggerEngine::setSecondaryEngine()

@@ -115,8 +115,7 @@ private:
     void handleEngineFinished(Internal::DebuggerEngine *engine);
 
     Internal::DebuggerRunToolPrivate *d;
-    QPointer<Internal::DebuggerEngine> m_engine;
-    QPointer<Internal::DebuggerEngine> m_engine2;
+    QList<QPointer<Internal::DebuggerEngine>> m_engines;
     Internal::DebuggerRunParameters m_runParameters;
 };
 

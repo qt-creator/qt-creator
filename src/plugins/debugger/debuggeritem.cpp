@@ -243,10 +243,6 @@ void DebuggerItem::reinitializeFromFile(QString *error, Utils::Environment *cust
         m_version = output.section(' ', 2);
         return;
     }
-    if (output.startsWith("Python")) {
-        m_engineType = PdbEngineType;
-        return;
-    }
     if (error)
         *error = output;
     m_engineType = NoEngineType;

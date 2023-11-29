@@ -405,7 +405,9 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
 {
     QString error = Tr::tr("Could not connect to the in-process QML debugger. %1").arg(errorMessage);
 
-    if (companionEngine()) {
+    if (companionEngines().isEmpty()) {
+        debuggerConsole()->printItem(ConsoleItem::WarningType, error);
+    } else {
         auto infoBox = new QMessageBox(ICore::dialogParent());
         infoBox->setIcon(QMessageBox::Critical);
         infoBox->setWindowTitle(QGuiApplication::applicationDisplayName());
@@ -415,8 +417,6 @@ void QmlEngine::appStartupFailed(const QString &errorMessage)
         connect(infoBox, &QDialog::finished,
                 this, &QmlEngine::errorMessageBoxFinished);
         infoBox->show();
-    } else {
-        debuggerConsole()->printItem(ConsoleItem::WarningType, error);
     }
 
     notifyEngineRunFailed();
@@ -1029,7 +1029,7 @@ bool QmlEngine::companionPreventsActions() const
 {
     // We need a C++ Engine in a Running state to do anything sensible
     // as otherwise the debugger services in the debuggee are unresponsive.
-    if (DebuggerEngine *companion = companionEngine())
+    if (DebuggerEngine *companion = companionEngines().value(0))
         return companion->state() != InferiorRunOk;
 
     return false;
