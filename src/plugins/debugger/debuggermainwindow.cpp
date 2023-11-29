@@ -50,8 +50,7 @@ namespace Utils {
 const char LAST_PERSPECTIVE_KEY[]   = "LastPerspective";
 const char MAINWINDOW_KEY[]         = "Debugger.MainWindow";
 const char SHOW_CENTRALWIDGET_KEY[] = "ShowCentralWidget";
-const char STATE_KEY[]              = "State";  // Up to 4.10
-const char STATE_KEY2[]             = "State2"; // From 4.11 on
+const char STATE_KEY2[]             = "State2";
 const char CHANGED_DOCK_KEY[]       = "ChangedDocks";
 
 static DebuggerMainWindow *theMainWindow = nullptr;
@@ -435,16 +434,11 @@ void DebuggerMainWindow::restorePersistentSettings()
     QtcSettings *settings = ICore::settings();
     settings->beginGroup(MAINWINDOW_KEY);
 
-    // state2 is current, state is kept for upgradeing from <=4.10
     const QHash<QString, QVariant> states2 = settings->value(STATE_KEY2).toHash();
-    const QHash<QString, QVariant> states = settings->value(STATE_KEY).toHash();
     d->m_lastTypePerspectiveStates.clear();
     QSet<QString> keys = Utils::toSet(states2.keys());
-    keys.unite(Utils::toSet(states.keys()));
     for (const QString &type : keys) {
         PerspectiveState state = states2.value(type).value<PerspectiveState>();
-        if (state.mainWindowState.isEmpty())
-            state.mainWindowState = states.value(type).toByteArray();
         QTC_ASSERT(!state.mainWindowState.isEmpty(), continue);
         d->m_lastTypePerspectiveStates.insert(type, state);
     }
