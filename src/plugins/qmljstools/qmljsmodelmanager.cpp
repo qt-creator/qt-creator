@@ -169,7 +169,8 @@ ModelManagerInterface::ProjectInfo ModelManager::defaultProjectInfoForProject(
         // For an IDE things are a bit more complicated because source files might be edited,
         // and the directory of the executable might be outdated.
         // Here we try to get the directory of the executable, adding all targets
-        const auto appTargets = activeTarget->buildSystem()->applicationTargets();
+        auto *bs = activeTarget->buildSystem();
+        const auto appTargets = bs ? bs->applicationTargets() : QList<BuildTargetInfo>{};
         for (const auto &target : appTargets) {
             if (target.targetFilePath.isEmpty())
                 continue;

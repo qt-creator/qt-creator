@@ -501,7 +501,8 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
 QList<RunConfigurationCreationInfo>
 RunConfigurationFactory::availableCreators(Target *target) const
 {
-    const QList<BuildTargetInfo> buildTargets = target->buildSystem()->applicationTargets();
+    auto *bs = target->buildSystem();
+    const auto buildTargets = bs ? bs->applicationTargets() : QList<BuildTargetInfo>{};
     const bool hasAnyQtcRunnable = Utils::anyOf(buildTargets,
                                             Utils::equal(&BuildTargetInfo::isQtcRunnable, true));
     return Utils::transform(buildTargets, [&](const BuildTargetInfo &ti) {
