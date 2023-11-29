@@ -291,6 +291,7 @@ public:
         s_timeline,
         s_visibility,
         saveLogs_medium,
+        save_medium,
         scale_medium,
         search,
         search_small,
