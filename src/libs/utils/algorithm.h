@@ -82,6 +82,10 @@ template<typename T, typename R, typename S>
 Q_REQUIRED_RESULT typename T::value_type findOr(const T &container,
                                                 typename T::value_type other,
                                                 R S::*member);
+template<typename T, typename F>
+Q_REQUIRED_RESULT std::optional<typename T::value_type> findOr(const T &container,
+                                                               std::nullopt_t,
+                                                               F function);
 
 /////////////////////////
 // findOrDefault
@@ -471,6 +475,21 @@ Q_REQUIRED_RESULT
 typename T::value_type findOr(const T &container, typename T::value_type other, R S::*member)
 {
     return findOr(container, other, std::mem_fn(member));
+}
+
+template<typename C, typename F>
+Q_REQUIRED_RESULT typename std::optional<typename C::value_type> findOr(const C &container,
+                                                                        std::nullopt_t,
+                                                                        F function)
+{
+    typename C::const_iterator begin = std::begin(container);
+    typename C::const_iterator end = std::end(container);
+
+    typename C::const_iterator it = std::find_if(begin, end, function);
+    if (it == end)
+        return std::nullopt;
+
+    return *it;
 }
 
 //////////////////
