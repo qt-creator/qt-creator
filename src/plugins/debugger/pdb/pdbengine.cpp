@@ -114,6 +114,13 @@ void PdbEngine::setupEngine()
 
     CommandLine cmd{m_interpreter, {bridge, scriptFile.path()}};
     cmd.addArg(runParameters().inferior.workingDirectory.path());
+    cmd.addArg("--");
+    QStringList arguments = runParameters().inferior.command.splitArguments();
+    if (!arguments.isEmpty() && arguments.constFirst() == "-u")
+        arguments.removeFirst(); // unbuffered added by run config
+    if (!arguments.isEmpty())
+        arguments.removeFirst(); // file added by run config
+    cmd.addArgs(arguments);
     showMessage("STARTING " + cmd.toUserOutput());
     m_proc.setEnvironment(runParameters().debugger.environment);
     m_proc.setCommand(cmd);
