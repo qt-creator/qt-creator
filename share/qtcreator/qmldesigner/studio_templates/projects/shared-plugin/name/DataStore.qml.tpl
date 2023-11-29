@@ -2,11 +2,16 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
 pragma Singleton
-import QtQuick.Studio.Utils
+import QtQuick 6.5
+import QtQuick.Studio.Utils 1.0
 
 JsonListModel {
-    property alias allModels: models
     id: models
+    source: Qt.resolvedUrl("models.json")
 
-    source: Qt.resolvedUrl("DataStore.json")
+    property ChildListModel book: ChildListModel {
+        modelName: "book"
+    }
+
+    property JsonData backend: JsonData {}
 }
