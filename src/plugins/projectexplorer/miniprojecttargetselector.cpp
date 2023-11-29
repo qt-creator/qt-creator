@@ -565,35 +565,34 @@ public:
         : QWidget(parent)
     {
         connect(KitManager::instance(), &KitManager::kitUpdated, this, &KitAreaWidget::updateKit);
+        auto layout = new QVBoxLayout;
+        layout->setContentsMargins({});
+        setLayout(layout);
     }
 
     ~KitAreaWidget() override { setKit(nullptr); }
 
     void setKit(Kit *k)
     {
-        qDeleteAll(m_labels);
-        m_labels.clear();
         qDeleteAll(m_kitAspects);
         m_kitAspects.clear();
+        delete m_gridWidget;
+        m_gridWidget = nullptr;
 
         if (!k)
             return;
-
-        delete layout();
 
         Layouting::Grid grid;
         for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
             if (k && k->isMutable(factory->id())) {
                 KitAspect *aspect = factory->createKitAspect(k);
                 m_kitAspects << aspect;
-                auto label = new QLabel(aspect->displayName());
-                m_labels << label;
-                grid.addItems({label, aspect, Layouting::br});
+                grid.addItems({aspect, Layouting::br});
             }
         }
-        grid.attachTo(this);
-        layout()->setContentsMargins(3, 3, 3, 3);
-
+        m_gridWidget = grid.emerge();
+        m_gridWidget->layout()->setContentsMargins(3, 3, 3, 3);
+        layout()->addWidget(m_gridWidget);
         m_kit = k;
 
         setHidden(m_kitAspects.isEmpty());
@@ -629,7 +628,7 @@ private:
     }
 
     Kit *m_kit = nullptr;
-    QList<QWidget *> m_labels;
+    QWidget *m_gridWidget = nullptr;
     QList<KitAspect *> m_kitAspects;
 };
 
