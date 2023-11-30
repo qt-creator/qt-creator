@@ -3,13 +3,14 @@
 
 #include "colorpalettebackend.h"
 
-#include <QDebug>
-#include <QColorDialog>
-#include <QTimer>
+#include <coreplugin/icore.h>
 
 #include <QApplication>
-#include <QScreen>
+#include <QColorDialog>
+#include <QDebug>
 #include <QPainter>
+#include <QScreen>
+#include <QTimer>
 
 namespace QmlDesigner {
 
@@ -205,17 +206,22 @@ void ColorPaletteBackend::showDialog(QColor color)
 
 void ColorPaletteBackend::eyeDropper()
 {
-    QWindow *window = QGuiApplication::focusWindow();
-    if (!window)
+    QWidget *widget = Core::ICore::mainWindow();
+    if (!widget)
         return;
+
+    m_eyeDropperActive = true;
+    emit eyeDropperActiveChanged();
 
     if (!m_colorPickingEventFilter)
         m_colorPickingEventFilter = new QColorPickingEventFilter(this);
 
-    window->installEventFilter(m_colorPickingEventFilter);
-    window->setMouseGrabEnabled(true);
-    window->setKeyboardGrabEnabled(true);
-
+    widget->installEventFilter(m_colorPickingEventFilter);
+#ifndef QT_NO_CURSOR
+    widget->grabMouse(/*Qt::CrossCursor*/);
+#else
+    widget->grabMouse();
+#endif
 #ifdef Q_OS_WIN32 // excludes WinRT
     // On Windows mouse tracking doesn't work over other processes's windows
     updateTimer->start(30);
@@ -224,6 +230,14 @@ void ColorPaletteBackend::eyeDropper()
     // and loose focus.
     dummyTransparentWindow.show();
 #endif
+    widget->grabKeyboard();
+    /* With setMouseTracking(true) the desired color can be more precisely picked up,
+     * and continuously pushing the mouse button is not necessary.
+     */
+    widget->setMouseTracking(true);
+
+    QGuiApplication::setOverrideCursor(QCursor());
+
     updateEyeDropperPosition(QCursor::pos());
 }
 
@@ -245,7 +259,12 @@ QImage ColorPaletteBackend::grabScreenRect(const QPoint &p)
     if (!screen)
         screen = QGuiApplication::primaryScreen();
 
-    const QPixmap pixmap = screen->grabWindow(0, p.x(), p.y(), g_screenGrabWidth, g_screenGrabHeight);
+    const QRect screenRect = screen->geometry();
+    const QPixmap pixmap = screen->grabWindow(0,
+                                              p.x() - screenRect.x(),
+                                              p.y() - screenRect.y(),
+                                              g_screenGrabWidth,
+                                              g_screenGrabHeight);
     return pixmap.toImage();
 }
 
@@ -273,8 +292,8 @@ void ColorPaletteBackend::updateEyeDropperPosition(const QPoint &globalPos)
 
 void ColorPaletteBackend::updateCursor(const QImage &image)
 {
-    QWindow *window = QGuiApplication::focusWindow();
-    if (!window)
+    QWidget *widget = Core::ICore::mainWindow();
+    if (!widget)
         return;
 
     QPixmap pixmap(QSize(g_cursorWidth, g_cursorHeight));
@@ -307,24 +326,28 @@ void ColorPaletteBackend::updateCursor(const QImage &image)
     painter.drawRect(centerRect);
 
     painter.end();
-    QCursor cursor(pixmap);
-    window->setCursor(cursor);
+    QGuiApplication::changeOverrideCursor(QCursor(pixmap));
 }
 
 void ColorPaletteBackend::releaseEyeDropper()
 {
-    QWindow *window = QGuiApplication::focusWindow();
-    if (!window)
+    QWidget *widget = Core::ICore::mainWindow();
+    if (!widget)
         return;
 
-    window->removeEventFilter(m_colorPickingEventFilter);
-    window->setMouseGrabEnabled(false);
+    m_eyeDropperActive = false;
+    emit eyeDropperActiveChanged();
+
+    widget->removeEventFilter(m_colorPickingEventFilter);
+    widget->releaseMouse();
 #ifdef Q_OS_WIN32
     updateTimer->stop();
     dummyTransparentWindow.setVisible(false);
 #endif
-    window->setKeyboardGrabEnabled(false);
-    window->unsetCursor();
+    widget->releaseKeyboard();
+    widget->setMouseTracking(false);
+
+    QGuiApplication::restoreOverrideCursor();
 }
 
 bool ColorPaletteBackend::handleEyeDropperMouseMove(QMouseEvent *e)
@@ -358,6 +381,11 @@ bool ColorPaletteBackend::handleEyeDropperKeyPress(QKeyEvent *e)
     //}
     e->accept();
     return true;
+}
+
+bool ColorPaletteBackend::eyeDropperActive() const
+{
+    return m_eyeDropperActive;
 }
 
 } // namespace QmlDesigner

@@ -13,6 +13,8 @@ import QtQuickDesignerColorPalette
 Column {
     id: root
 
+    property bool eyeDropperActive: ColorPaletteBackend.eyeDropperActive
+
     property bool supportGradient: false
     property bool shapeGradients: false
     property alias gradientLine: gradientLine
