@@ -183,6 +183,8 @@ SecondColumnLayout {
             property QtObject loaderItem: loader.item
             property string gradientPropertyName
 
+            keepOpen: loader.item?.eyeDropperActive ?? false
+
             width: 260
 
             function commitToGradient() {

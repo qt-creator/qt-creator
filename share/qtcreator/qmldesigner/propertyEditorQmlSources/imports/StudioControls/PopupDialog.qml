@@ -32,6 +32,8 @@ QtObject {
 
     property rect __itemGlobal: Qt.rect(0, 0, 100, 100)
 
+    property bool keepOpen: false
+
     signal closing(close: var)
 
     function showGlobal() {
@@ -285,6 +287,9 @@ QtObject {
 
             function onFocusWindowChanged(focusWindow) {
                 if (!focusWindow)
+                    return
+
+                if (root.keepOpen)
                     return
 
                 if (focusWindow !== window && focusWindow.transientParent !== window)
