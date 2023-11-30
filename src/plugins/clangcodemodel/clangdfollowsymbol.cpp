@@ -39,11 +39,11 @@ public:
     VirtualFunctionAssistProcessor(ClangdFollowSymbol *followSymbol)
         : m_followSymbol(followSymbol) {}
 
-    void cancel() override { resetData(true); }
+    void cancel() override { resetData(); }
     bool running() override { return m_followSymbol && m_running; }
     void update();
     void finalize();
-    void resetData(bool resetFollowSymbolData);
+    void resetData();
 
 private:
     IAssistProposal *perform() override
@@ -228,7 +228,7 @@ void ClangdFollowSymbol::Private::cancel()
 {
     closeTempDocuments();
     if (virtualFuncAssistProcessor)
-        virtualFuncAssistProcessor->resetData(false);
+        virtualFuncAssistProcessor->resetData();
     for (const MessageId &id : std::as_const(pendingSymbolInfoRequests))
         client->cancelRequest(id);
     for (const MessageId &id : std::as_const(pendingGotoImplRequests))
@@ -301,16 +301,14 @@ void ClangdFollowSymbol::VirtualFunctionAssistProcessor::finalize()
     } else {
         setAsyncProposalAvailable(proposal);
     }
-    resetData(true);
+    resetData();
 }
 
-void ClangdFollowSymbol::VirtualFunctionAssistProcessor::resetData(bool resetFollowSymbolData)
+void ClangdFollowSymbol::VirtualFunctionAssistProcessor::resetData()
 {
     if (!m_followSymbol)
         return;
     m_followSymbol->d->virtualFuncAssistProcessor = nullptr;
-    if (resetFollowSymbolData)
-        m_followSymbol->emitDone();
     m_followSymbol = nullptr;
 }
 
