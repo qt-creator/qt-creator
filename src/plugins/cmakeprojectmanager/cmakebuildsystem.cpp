@@ -393,13 +393,115 @@ static expected_str<bool> insertSnippetSilently(const FilePath &cmakeFile,
     return true;
 }
 
+static void findLastRelevantArgument(const cmListFileFunction &function,
+                                     std::size_t minimumArgPos,
+                                     const QSet<QString> &lowerCaseStopParams,
+                                     QString *lastRelevantArg,
+                                     int *lastRelevantPos)
+{
+    const std::vector<cmListFileArgument> args = function.Arguments();
+    *lastRelevantPos = args.size() - 1;
+    for (int i = minimumArgPos, end = args.size(); i < end; ++i) {
+        const QString lowerArg = QString::fromStdString(args.at(i).Value).toLower();
+        if (lowerCaseStopParams.contains(lowerArg)) {
+            *lastRelevantPos = i - 1;
+            break;
+        }
+        *lastRelevantArg = lowerArg;
+    }
+}
+
+static std::optional<cmListFileFunction> findSetFunctionFor(const cmListFile &cmakeListFile,
+                                                            const QString &lowerVariableName)
+{
+    auto findSetFunc = [lowerVariableName](const auto &func) {
+        if (func.LowerCaseName() != "set")
+            return false;
+        std::vector<cmListFileArgument> args = func.Arguments();
+        return args.size()
+                && QString::fromStdString(args.front().Value).toLower() == lowerVariableName;
+    };
+    return findFunction(cmakeListFile, findSetFunc);
+}
+
+static std::optional<cmListFileFunction> handleTSAddVariant(const cmListFile &cmakeListFile,
+                                                            const QSet<QString> &lowerFunctionNames,
+                                                            std::optional<QString> targetName,
+                                                            const QSet<QString> &stopParams,
+                                                            int *lastArgumentPos)
+{
+    std::optional<cmListFileFunction> function;
+    auto currentFunc = findFunction(cmakeListFile, [lowerFunctionNames, targetName](const auto &func) {
+        auto lower = QString::fromStdString(func.LowerCaseName());
+        if (lowerFunctionNames.contains(lower)) {
+            if (!targetName)
+                return true;
+            const std::vector<cmListFileArgument> args = func.Arguments();
+            if (args.size())
+                return *targetName == QString::fromStdString(args.front().Value);
+        }
+        return false;
+    });
+    if (currentFunc) {
+        QString lastRelevant;
+        const int argsMinimumPos = targetName.has_value() ? 2 : 1;
+
+        findLastRelevantArgument(*currentFunc, argsMinimumPos, stopParams,
+                                 &lastRelevant, lastArgumentPos);
+        // handle argument
+        if (!lastRelevant.isEmpty() && lastRelevant.startsWith('$')) {
+            QString var = lastRelevant.mid(1);
+            if (var.startsWith('{') && var.endsWith('}'))
+                var = var.mid(1, var.size() - 2);
+            if (!var.isEmpty()) {
+                std::optional<cmListFileFunction> setFunc = findSetFunctionFor(cmakeListFile, var);
+                if (setFunc) {
+                    function = *setFunc;
+                    *lastArgumentPos = function->Arguments().size() - 1;
+                }
+            }
+        }
+        if (!function.has_value()) // no variable used or we failed to find respective SET()
+            function = currentFunc;
+    }
+    return function;
+}
+
+static std::optional<cmListFileFunction> handleQtAddTranslations(const cmListFile &cmakeListFile,
+                                                                 std::optional<QString> targetName,
+                                                                 int *lastArgumentPos)
+{
+    const QSet<QString> stopParams{"resource_prefix", "output_targets",
+                                   "qm_files_output_variable", "sources", "include_directories",
+                                   "lupdate_options", "lrelease_options"};
+    return handleTSAddVariant(cmakeListFile, {"qt6_add_translations", "qt_add_translations"},
+                              targetName, stopParams, lastArgumentPos);
+}
+
+static std::optional<cmListFileFunction> handleQtAddLupdate(const cmListFile &cmakeListFile,
+                                                            std::optional<QString> targetName,
+                                                            int *lastArgumentPos)
+{
+    const QSet<QString> stopParams{"sources", "include_directories", "no_global_target", "options"};
+    return handleTSAddVariant(cmakeListFile, {"qt6_add_lupdate", "qt_add_lupdate"},
+                              targetName, stopParams, lastArgumentPos);
+}
+
+static std::optional<cmListFileFunction> handleQtCreateTranslation(const cmListFile &cmakeListFile,
+                                                                   int *lastArgumentPos)
+{
+    return handleTSAddVariant(cmakeListFile, {"qt_create_translation", "qt5_create_translation"},
+                              std::nullopt, {"options"}, lastArgumentPos);
+}
+
 bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
     if (notAdded)
         notAdded->append(filePaths);
 
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
-        const std::optional<Link> cmakeFile = cmakeFileForBuildKey(n->buildKey(), buildTargets());
+        const QString targetName = n->buildKey();
+        const std::optional<Link> cmakeFile = cmakeFileForBuildKey(targetName, buildTargets());
         if (!cmakeFile.has_value())
             return false;
 
@@ -408,18 +510,19 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
         if (!cmakeListFile.has_value())
             return false;
 
-        auto findTs = [](const auto &func) {
-            if (func.LowerCaseName() != "set")
-                return false;
-            std::vector<cmListFileArgument> args = func.Arguments();
-            return args.size() && args.front().Value == "TS_FILES";
-        };
-        std::optional<cmListFileFunction> function = findFunction(*cmakeListFile, findTs);
+        int lastArgumentPos = -1;
+        std::optional<cmListFileFunction> function
+                = handleQtAddTranslations(*cmakeListFile, targetName, &lastArgumentPos);
         if (!function.has_value())
+            function = handleQtAddLupdate(*cmakeListFile, targetName, &lastArgumentPos);
+        if (!function.has_value())
+            function = handleQtCreateTranslation(*cmakeListFile, &lastArgumentPos);
+
+        if (!function.has_value()) // we failed to find any pre-existing, TODO add one ourself
             return false;
 
         const QString filesToAdd = relativeFilePaths(filePaths, n->filePath().canonicalPath());
-        auto lastArgument = function->Arguments().back();
+        auto lastArgument = function->Arguments().at(lastArgumentPos);
         const int lastArgLength = static_cast<int>(lastArgument.Value.size()) - 1;
         SnippetAndLocation snippetLocation{QString("\n%1").arg(filesToAdd),
                                            lastArgument.Line, lastArgument.Column + lastArgLength};
