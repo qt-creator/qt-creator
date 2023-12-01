@@ -70,8 +70,11 @@ public:
 
 signals:
     void selectedIndexChanged(int idx);
-    void collectionSelected(const ModelNode &sourceNode, const QString &collectionName);
-    void collectionNamesChanged(const ModelNode &sourceNode, QStringList collections);
+    void collectionSelected(const QString &collectionName);
+    void collectionNamesInitialized(const QStringList &initialList);
+    void collectionRenamed(const QString &oldname, const QString &newName);
+    void collectionRemoved(const QString &collectionName);
+
     void isEmptyChanged(bool);
     void warning(const QString &title, const QString &body);
 

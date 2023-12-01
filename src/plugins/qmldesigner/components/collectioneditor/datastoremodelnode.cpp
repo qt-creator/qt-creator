@@ -3,6 +3,7 @@
 
 #include "datastoremodelnode.h"
 
+#include "abstractview.h"
 #include "collectioneditorconstants.h"
 #include "collectioneditorutils.h"
 #include "model/qmltextgenerator.h"
@@ -40,6 +41,19 @@ QmlDesigner::PropertyNameList createNameList(const QmlDesigner::ModelNode &node)
     Utils::sort(dynamicPropertyNames);
 
     return defaultsNodeProps + dynamicPropertyNames;
+}
+
+bool isValidCollectionPropertyName(const QString &collectionId)
+{
+    static const QmlDesigner::PropertyNameList reservedKeywords = {
+        QmlDesigner::CollectionEditor::SOURCEFILE_PROPERTY,
+        QmlDesigner::CollectionEditor::JSONBACKEND_TYPENAME,
+        "backend",
+        "models",
+    };
+
+    return QmlDesigner::ModelNode::isValidId(collectionId)
+           && !reservedKeywords.contains(collectionId.toLatin1());
 }
 
 } // namespace
@@ -85,15 +99,13 @@ void DataStoreModelNode::reloadModel()
 
     m_dataRelativePath = dataStoreJsonPath.relativePathFrom(dataStoreQmlPath).toFSPathString();
 
-    if (forceUpdate) {
-        updateDataStoreProperties();
-        updateSingletonFile();
-    }
+    if (forceUpdate)
+        update();
 }
 
 QStringList DataStoreModelNode::collectionNames() const
 {
-    return m_collectionNames;
+    return m_collectionPropertyNames.keys();
 }
 
 Model *DataStoreModelNode::model() const
@@ -137,23 +149,60 @@ void DataStoreModelNode::updateDataStoreProperties()
 
     static TypeName childNodeTypename = "ChildListModel";
 
+    QSet<QString> collectionNamesToBeAdded;
+    const QStringList allCollectionNames = m_collectionPropertyNames.keys();
+    for (const QString &collectionName : allCollectionNames)
+        collectionNamesToBeAdded << collectionName;
+
     const QList<AbstractProperty> formerPropertyNames = rootNode.dynamicProperties();
-    for (const AbstractProperty &property : formerPropertyNames)
-        rootNode.removeProperty(property.name());
+
+    // Remove invalid collection names from the properties
+    for (const AbstractProperty &property : formerPropertyNames) {
+        if (!property.isNodeProperty())
+            continue;
+
+        NodeProperty nodeProprty = property.toNodeProperty();
+        if (!nodeProprty.hasDynamicTypeName(childNodeTypename))
+            continue;
+
+        ModelNode childNode = nodeProprty.modelNode();
+        if (childNode.hasProperty(CollectionEditor::JSONCHILDMODELNAME_PROPERTY)) {
+            QString modelName = childNode.property(CollectionEditor::JSONCHILDMODELNAME_PROPERTY)
+                                    .toVariantProperty()
+                                    .value()
+                                    .toString();
+            if (collectionNamesToBeAdded.contains(modelName)) {
+                m_collectionPropertyNames.insert(modelName, property.name());
+                collectionNamesToBeAdded.remove(modelName);
+            } else {
+                rootNode.removeProperty(property.name());
+            }
+        } else {
+            rootNode.removeProperty(property.name());
+        }
+    }
 
     rootNode.setIdWithoutRefactoring("models");
 
-    for (const QString &collectionName : std::as_const(m_collectionNames)) {
-        PropertyName newName = collectionName.toLatin1();
+    QStringList collectionNamesLeft = collectionNamesToBeAdded.values();
+    Utils::sort(collectionNamesLeft);
+    for (const QString &collectionName : std::as_const(collectionNamesLeft)) {
+        PropertyName newPropertyName = getUniquePropertyName(collectionName);
+        if (newPropertyName.isEmpty()) {
+            qWarning() << __FUNCTION__ << __LINE__
+                       << QString("The property name cannot be generated from \"%1\"").arg(collectionName);
+            continue;
+        }
 
         ModelNode collectionNode = model()->createModelNode(childNodeTypename);
-
         VariantProperty modelNameProperty = collectionNode.variantProperty(
             CollectionEditor::JSONCHILDMODELNAME_PROPERTY);
-        modelNameProperty.setValue(newName);
+        modelNameProperty.setValue(collectionName);
 
-        NodeProperty nodeProp = rootNode.nodeProperty(newName);
+        NodeProperty nodeProp = rootNode.nodeProperty(newPropertyName);
         nodeProp.setDynamicTypeNameAndsetModelNode(childNodeTypename, collectionNode);
+
+        m_collectionPropertyNames.insert(collectionName, newPropertyName);
     }
 
     // Backend Property
@@ -186,13 +235,127 @@ void DataStoreModelNode::updateSingletonFile()
     file.finalize();
 }
 
+void DataStoreModelNode::update()
+{
+    updateDataStoreProperties();
+    updateSingletonFile();
+}
+
+PropertyName DataStoreModelNode::getUniquePropertyName(const QString &collectionName)
+{
+    ModelNode dataStoreNode = modelNode();
+    QTC_ASSERT(!collectionName.isEmpty() && dataStoreNode.isValid(), return {});
+
+    QString newProperty;
+
+    // convert to camel case
+    QStringList nameWords = collectionName.split(' ');
+    nameWords[0] = nameWords[0].at(0).toLower() + nameWords[0].mid(1);
+    for (int i = 1; i < nameWords.size(); ++i)
+        nameWords[i] = nameWords[i].at(0).toUpper() + nameWords[i].mid(1);
+    newProperty = nameWords.join("");
+
+    // if id starts with a number prepend an underscore
+    if (newProperty.at(0).isDigit())
+        newProperty.prepend('_');
+
+    // If the new id is not valid (e.g. qml keyword match), prepend an underscore
+    if (!isValidCollectionPropertyName(newProperty))
+        newProperty.prepend('_');
+
+    static const QRegularExpression rgx("\\d+$"); // matches a number at the end of a string
+    while (dataStoreNode.hasProperty(newProperty.toLatin1())) { // id exists
+        QRegularExpressionMatch match = rgx.match(newProperty);
+        if (match.hasMatch()) {                                 // ends with a number, increment it
+            QString numStr = match.captured();
+            int num = numStr.toInt() + 1;
+            newProperty = newProperty.mid(0, match.capturedStart()) + QString::number(num);
+        } else {
+            newProperty.append('1');
+        }
+    }
+
+    return newProperty.toLatin1();
+}
+
 void DataStoreModelNode::setCollectionNames(const QStringList &newCollectionNames)
 {
-    if (m_collectionNames != newCollectionNames) {
-        m_collectionNames = newCollectionNames;
-        updateDataStoreProperties();
-        updateSingletonFile();
+    m_collectionPropertyNames.clear();
+    for (const QString &collectionName : newCollectionNames)
+        m_collectionPropertyNames.insert(collectionName, {});
+    update();
+}
+
+void DataStoreModelNode::renameCollection(const QString &oldName, const QString &newName)
+{
+    ModelNode dataStoreNode = modelNode();
+    QTC_ASSERT(dataStoreNode.isValid(), return);
+
+    if (m_collectionPropertyNames.contains(oldName)) {
+        const PropertyName oldPropertyName = m_collectionPropertyNames.value(oldName);
+        if (!oldPropertyName.isEmpty() && dataStoreNode.hasProperty(oldPropertyName)) {
+            NodeProperty collectionNode = dataStoreNode.property(oldPropertyName).toNodeProperty();
+            if (collectionNode.isValid()) {
+                VariantProperty modelNameProperty = collectionNode.modelNode().variantProperty(
+                    CollectionEditor::JSONCHILDMODELNAME_PROPERTY);
+                modelNameProperty.setValue(newName);
+                m_collectionPropertyNames.remove(oldName);
+                m_collectionPropertyNames.insert(newName, collectionNode.name());
+                update();
+                return;
+            }
+            qWarning() << __FUNCTION__ << __LINE__
+                       << "There is no valid node for the old collection name";
+            return;
+        }
+        qWarning() << __FUNCTION__ << __LINE__ << QString("Invalid old property name")
+                   << oldPropertyName;
+        return;
     }
+    qWarning() << __FUNCTION__ << __LINE__
+               << QString("There is no old collection name registered with this name \"%1\"").arg(oldName);
+}
+
+void DataStoreModelNode::removeCollection(const QString &collectionName)
+{
+    if (m_collectionPropertyNames.contains(collectionName)) {
+        m_collectionPropertyNames.remove(collectionName);
+        update();
+    }
+}
+
+void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
+                                                const ModelNode &targetNode,
+                                                const QString &collectionName)
+{
+    QTC_ASSERT(targetNode.isValid(), return);
+
+    if (!CollectionEditor::canAcceptCollectionAsModel(targetNode))
+        return;
+
+    if (!m_collectionPropertyNames.contains(collectionName)) {
+        qWarning() << __FUNCTION__ << __LINE__ << "Collection doesn't exist in the DataStore"
+                   << collectionName;
+        return;
+    }
+
+    PropertyName propertyName = m_collectionPropertyNames.value(collectionName);
+
+    const ModelNode dataStore = modelNode();
+    VariantProperty sourceProperty = dataStore.variantProperty(propertyName);
+    if (!sourceProperty.exists()) {
+        qWarning() << __FUNCTION__ << __LINE__
+                   << "The source property doesn't exist in the DataStore.";
+        return;
+    }
+
+    BindingProperty modelProperty = targetNode.bindingProperty("model");
+
+    QString identifier = QString("DataStore.%1").arg(QString::fromLatin1(sourceProperty.name()));
+
+    view->executeInTransaction("assignCollectionToNode", [&modelProperty, &identifier]() {
+        modelProperty.setExpression(identifier);
+    });
 }
 
 } // namespace QmlDesigner

@@ -87,7 +87,7 @@ StudioControls.Dialog {
             actionIndicator.visible: false
             translationIndicator.visible: false
             validator: RegularExpressionValidator {
-                regularExpression: /^\w+$/
+                regularExpression: /^[\w ]+$/
             }
 
             Keys.onEnterPressed: btnCreate.onClicked()

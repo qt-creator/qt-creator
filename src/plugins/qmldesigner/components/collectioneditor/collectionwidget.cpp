@@ -337,17 +337,7 @@ bool CollectionWidget::addCollectionToDataStore(const QString &collectionName)
 
 void CollectionWidget::assignCollectionToSelectedNode(const QString collectionName)
 {
-    ModelNode dsNode = dataStoreNode();
-    ModelNode targetNode = m_view->singleSelectedModelNode();
-
-    QTC_ASSERT(dsNode.isValid() && targetNode.isValid(), return);
-
-    if (dsNode.id().isEmpty()) {
-        warn(tr("Assigning the model"), tr("The model must have a valid id to be assigned."));
-        return;
-    }
-
-    CollectionEditor::assignCollectionToNode(m_view, targetNode, dsNode, collectionName);
+    m_view->assignCollectionToSelectedNode(collectionName);
 }
 
 void CollectionWidget::ensureDataStoreExists()

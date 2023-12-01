@@ -5,6 +5,8 @@
 
 #include <modelnode.h>
 
+#include <QMap>
+
 namespace QmlDesigner {
 
 class Model;
@@ -21,6 +23,12 @@ public:
     ModelNode modelNode() const;
 
     void setCollectionNames(const QStringList &newCollectionNames);
+    void renameCollection(const QString &oldName, const QString &newName);
+    void removeCollection(const QString &collectionName);
+
+    void assignCollectionToNode(AbstractView *view,
+                                const ModelNode &targetNode,
+                                const QString &collectionName);
 
 private:
     QString getModelQmlText();
@@ -28,9 +36,11 @@ private:
     void reset();
     void updateDataStoreProperties();
     void updateSingletonFile();
+    void update();
+    PropertyName getUniquePropertyName(const QString &collectionName);
 
     ModelPointer m_model;
-    QStringList m_collectionNames;
+    QMap<QString, PropertyName> m_collectionPropertyNames;
     QString m_dataRelativePath;
 };
 

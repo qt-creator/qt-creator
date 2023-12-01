@@ -70,8 +70,8 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
         connect(sourceModel,
                 &CollectionSourceModel::collectionSelected,
                 this,
-                [this](const ModelNode &sourceNode, const QString &collection) {
-                    m_widget->collectionDetailsModel()->loadCollection(sourceNode, collection);
+                [this](const QString &collection) {
+                    m_widget->collectionDetailsModel()->loadCollection(dataStoreNode(), collection);
                 });
 
         connect(sourceModel, &CollectionSourceModel::isEmptyChanged, this, [this](bool isEmpty) {
@@ -80,11 +80,24 @@ QmlDesigner::WidgetInfo CollectionView::widgetInfo()
         });
 
         connect(sourceModel,
-                &CollectionSourceModel::collectionNamesChanged,
+                &CollectionSourceModel::collectionNamesInitialized,
                 this,
-                [this](const ModelNode &sourceNode, const QStringList &collectionNames) {
-                    if (sourceNode == m_dataStore->modelNode())
-                        m_dataStore->setCollectionNames(collectionNames);
+                [this](const QStringList &collectionNames) {
+                    m_dataStore->setCollectionNames(collectionNames);
+                });
+
+        connect(sourceModel,
+                &CollectionSourceModel::collectionRenamed,
+                this,
+                [this](const QString &oldName, const QString &newName) {
+                    m_dataStore->renameCollection(oldName, newName);
+                });
+
+        connect(sourceModel,
+                &CollectionSourceModel::collectionRemoved,
+                this,
+                [this](const QString &collectionName) {
+                    m_dataStore->removeCollection(collectionName);
                 });
     }
 
@@ -198,6 +211,12 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
         resourceNode.setIdWithoutRefactoring(model()->generateIdFromName(name, "model"));
         rootModelNode().defaultNodeAbstractProperty().reparentHere(resourceNode);
     });
+}
+
+void CollectionView::assignCollectionToSelectedNode(const QString &collectionName)
+{
+    QTC_ASSERT(dataStoreNode() && hasSingleSelectedModelNode(), return);
+    m_dataStore->assignCollectionToNode(this, singleSelectedModelNode(), collectionName);
 }
 
 void CollectionView::registerDeclarativeType()

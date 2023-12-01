@@ -403,8 +403,7 @@ void CollectionSourceModel::onSelectedCollectionChanged(CollectionListModel *col
 
         m_previousSelectedList = collectionList;
 
-        emit collectionSelected(collectionList->sourceNode(),
-                                collectionList->collectionNameAt(collectionIndex));
+        emit collectionSelected(collectionList->collectionNameAt(collectionIndex));
 
         selectSourceIndex(sourceIndex(collectionList->sourceNode()));
     }
@@ -494,6 +493,7 @@ void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collect
             return;
         }
 
+        emit collectionRenamed(oldName, newName);
         updateCollectionList(nodeIndex);
     }
 }
@@ -547,10 +547,12 @@ void CollectionSourceModel::onCollectionsRemoved(CollectionListModel *collection
     if (document.isObject()) {
         QJsonObject rootObject = document.object();
 
+        QStringList collectionsRemovedFromDocument;
         for (const QString &collectionName : removedCollections) {
             bool sourceContainsCollection = rootObject.contains(collectionName);
             if (sourceContainsCollection) {
                 rootObject.remove(collectionName);
+                collectionsRemovedFromDocument << collectionName;
             } else {
                 emitDeleteWarning(tr("The model group doesn't contain the model name (%1).")
                                       .arg(sourceContainsCollection));
@@ -571,6 +573,9 @@ void CollectionSourceModel::onCollectionsRemoved(CollectionListModel *collection
             emitDeleteWarning(tr("Can't write to \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
             return;
         }
+
+        for (const QString &collectionName : std::as_const(collectionsRemovedFromDocument))
+            emit this->collectionRemoved(collectionName);
 
         updateCollectionList(nodeIndex);
     }
@@ -602,7 +607,7 @@ void CollectionSourceModel::setSelectedIndex(int idx)
             } else if (m_previousSelectedList) {
                 m_previousSelectedList->selectCollectionIndex(-1);
                 m_previousSelectedList = {};
-                emit this->collectionSelected(sourceNodeAt(idx), {});
+                emit this->collectionSelected({});
             }
         }
     }
@@ -626,12 +631,12 @@ void CollectionSourceModel::updateCollectionList(QModelIndex index)
         return;
 
     ModelNode sourceNode = sourceNodeAt(index.row());
-    QSharedPointer<CollectionListModel> currentList = m_collectionList.at(index.row());
-    QSharedPointer<CollectionListModel> newList = loadCollection(sourceNode, currentList);
-    if (currentList != newList) {
+    QSharedPointer<CollectionListModel> oldList = m_collectionList.at(index.row());
+    QSharedPointer<CollectionListModel> newList = loadCollection(sourceNode, oldList);
+    if (oldList != newList) {
         m_collectionList.replace(index.row(), newList);
         emit dataChanged(index, index, {CollectionsRole});
-        emit collectionNamesChanged(sourceNode, newList->stringList());
+        registerCollection(newList);
     }
 }
 
@@ -656,8 +661,8 @@ void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionLi
             onCollectionsRemoved(collectionList, removedCollections);
         }, Qt::UniqueConnection);
 
-    if (collection->sourceNode())
-        emit collectionNamesChanged(collection->sourceNode(), collection->stringList());
+    if (collectionList->sourceNode().isValid())
+        emit collectionNamesInitialized(collection->stringList());
 }
 
 QModelIndex CollectionSourceModel::indexOfNode(const ModelNode &node) const

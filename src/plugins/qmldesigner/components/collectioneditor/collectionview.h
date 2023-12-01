@@ -43,6 +43,8 @@ public:
 
     void addResource(const QUrl &url, const QString &name, const QString &type);
 
+    void assignCollectionToSelectedNode(const QString &collectionName);
+
     static void registerDeclarativeType();
 
     void resetDataStoreNode();
