@@ -23,6 +23,8 @@ PythonProject::PythonProject(const FilePath &fileName)
     setId(PythonProjectId);
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
+
+    setBuildSystemCreator([](Target *t) { return new PythonBuildSystem(t); });
 }
 
 Project::RestoreResult PythonProject::fromMap(const Store &map, QString *errorMessage)

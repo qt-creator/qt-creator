@@ -129,6 +129,16 @@ PythonBuildSystem::PythonBuildSystem(PythonBuildConfiguration *buildConfig)
     requestParse();
 }
 
+PythonBuildSystem::PythonBuildSystem(ProjectExplorer::Target *target)
+    : BuildSystem(target)
+{
+    connect(project(),
+            &Project::projectFileIsDirty,
+            this,
+            &PythonBuildSystem::requestDelayedParse);
+    requestParse();
+}
+
 bool PythonBuildSystem::supportsAction(Node *context, ProjectAction action, const Node *node) const
 {
     if (node->asFileNode())  {

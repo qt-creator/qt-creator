@@ -13,6 +13,7 @@ class PythonBuildSystem : public ProjectExplorer::BuildSystem
 {
 public:
     explicit PythonBuildSystem(PythonBuildConfiguration *buildConfig);
+    explicit PythonBuildSystem(ProjectExplorer::Target *target);
 
     bool supportsAction(ProjectExplorer::Node *context,
                         ProjectExplorer::ProjectAction action,
