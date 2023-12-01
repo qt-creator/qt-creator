@@ -37,10 +37,7 @@ class PythonProject : public ProjectExplorer::Project
 public:
     explicit PythonProject(const Utils::FilePath &filename);
 
-    bool needsConfiguration() const final { return false; }
-
-private:
-    RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) override;
+    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const override;
 };
 
 } // Python::Internal

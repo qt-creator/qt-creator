@@ -5,6 +5,8 @@
 
 #include "pythonbuildsystem.h"
 #include "pythonconstants.h"
+#include "pythonkitaspect.h"
+#include "pythontr.h"
 
 #include <coreplugin/icontext.h>
 
@@ -27,15 +29,12 @@ PythonProject::PythonProject(const FilePath &fileName)
     setBuildSystemCreator([](Target *t) { return new PythonBuildSystem(t); });
 }
 
-Project::RestoreResult PythonProject::fromMap(const Store &map, QString *errorMessage)
+Tasks PythonProject::projectIssues(const Kit *k) const
 {
-    Project::RestoreResult res = Project::fromMap(map, errorMessage);
-    if (res == RestoreResult::Ok) {
-        if (!activeTarget())
-            addTargetForDefaultKit();
-    }
-
-    return res;
+    if (PythonKitAspect::python(k))
+        return {};
+    return {BuildSystemTask{Task::Error,
+                            Tr::tr("No python interpreter set for kit %1").arg(k->displayName())}};
 }
 
 PythonProjectNode::PythonProjectNode(const FilePath &path)
