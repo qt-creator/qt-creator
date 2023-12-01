@@ -306,10 +306,18 @@ static std::optional<cmListFile> getUncachedCMakeListFile(const FilePath &target
 }
 
 static std::optional<cmListFileFunction> findFunction(
-        const cmListFile &cmakeListFile, std::function<bool(const cmListFileFunction &)> pred)
+        const cmListFile &cmakeListFile, std::function<bool(const cmListFileFunction &)> pred,
+        bool reverse = false)
 {
-    auto function = std::find_if(cmakeListFile.Functions.begin(), cmakeListFile.Functions.end(),
-                                 pred);
+    if (reverse) {
+        auto function = std::find_if(cmakeListFile.Functions.rbegin(),
+                                     cmakeListFile.Functions.rend(), pred);
+        if (function == cmakeListFile.Functions.rend())
+            return std::nullopt;
+        return std::make_optional(*function);
+    }
+    auto function
+            = std::find_if(cmakeListFile.Functions.begin(), cmakeListFile.Functions.end(), pred);
     if (function == cmakeListFile.Functions.end())
         return std::nullopt;
     return std::make_optional(*function);
@@ -494,6 +502,54 @@ static std::optional<cmListFileFunction> handleQtCreateTranslation(const cmListF
                               std::nullopt, {"options"}, lastArgumentPos);
 }
 
+
+static expected_str<bool> insertQtAddTranslations(const cmListFile &cmakeListFile,
+                                                  const FilePath &targetCmakeFile,
+                                                  const QString &targetName,
+                                                  int targetDefinitionLine,
+                                                  const QString &filesToAdd,
+                                                  int qtMajorVersion,
+                                                  bool addLinguist)
+{
+    std::optional<cmListFileFunction> function
+        = findFunction(cmakeListFile, [targetDefinitionLine](const auto &func) {
+              return func.Line() == targetDefinitionLine;
+          });
+    if (!function.has_value())
+        return false;
+
+    // FIXME: room for improvement
+    // * this just updates "the current cmake path" for e.g. conditional setups like
+    //   differentiating between desktop and device build config we do not update all
+    QString snippet;
+    if (qtMajorVersion == 5)
+        snippet = QString("\nqt_create_translation(QM_FILES %1)\n").arg(filesToAdd);
+    else
+        snippet = QString("\nqt_add_translations(%1 TS_FILES %2)\n").arg(targetName, filesToAdd);
+
+    const int insertionLine = function->LineEnd() + 1;
+    expected_str<bool> inserted = insertSnippetSilently(targetCmakeFile,
+                                                        {snippet, insertionLine, 0});
+    if (!inserted || !addLinguist)
+        return inserted;
+
+    function = findFunction(cmakeListFile, [](const auto &func) {
+        return func.LowerCaseName() == "find_package";
+    }, /* reverse = */ true);
+    if (!function.has_value()) {
+        qCCritical(cmakeBuildSystemLog) << "Failed to find a find_package().";
+        return inserted; // we just fail to insert LinguistTool, but otherwise succeeded
+    }
+    if (insertionLine < function->LineEnd() + 1) {
+        qCCritical(cmakeBuildSystemLog) << "find_package() calls after old insertion. "
+                                           "Refusing to process.";
+        return inserted; // we just fail to insert LinguistTool, but otherwise succeeded
+    }
+
+    snippet = QString("find_package(Qt%1 REQUIRED COMPONENTS LinguistTools)\n").arg(qtMajorVersion);
+    return insertSnippetSilently(targetCmakeFile, {snippet, function->LineEnd() + 1, 0});
+}
+
 bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded)
 {
     if (notAdded)
@@ -518,10 +574,37 @@ bool CMakeBuildSystem::addTsFiles(Node *context, const FilePaths &filePaths, Fil
         if (!function.has_value())
             function = handleQtCreateTranslation(*cmakeListFile, &lastArgumentPos);
 
-        if (!function.has_value()) // we failed to find any pre-existing, TODO add one ourself
-            return false;
-
         const QString filesToAdd = relativeFilePaths(filePaths, n->filePath().canonicalPath());
+        bool linguistToolsMissing = false;
+        int qtMajorVersion = -1;
+        if (!function.has_value()) {
+            if (auto qt = m_findPackagesFilesHash.value("Qt6Core"); qt.hasValidTarget())
+                qtMajorVersion = 6;
+            else if (auto qt = m_findPackagesFilesHash.value("Qt5Core"); qt.hasValidTarget())
+                qtMajorVersion = 5;
+
+            if (qtMajorVersion != -1) {
+                const QString linguistTools = QString("Qt%1LinguistTools").arg(qtMajorVersion);
+                auto linguist = m_findPackagesFilesHash.value(linguistTools);
+                linguistToolsMissing = !linguist.hasValidTarget();
+            }
+
+            // we failed to find any pre-existing, add one ourself
+            expected_str<bool> inserted = insertQtAddTranslations(*cmakeListFile,
+                                                                  targetCMakeFile,
+                                                                  targetName,
+                                                                  cmakeFile->targetLine,
+                                                                  filesToAdd,
+                                                                  qtMajorVersion,
+                                                                  linguistToolsMissing);
+            if (!inserted)
+                qCCritical(cmakeBuildSystemLog) << inserted.error();
+            else if (notAdded)
+                notAdded->removeIf([filePaths](const FilePath &p) { return filePaths.contains(p); });
+
+            return inserted.value_or(false);
+        }
+
         auto lastArgument = function->Arguments().at(lastArgumentPos);
         const int lastArgLength = static_cast<int>(lastArgument.Value.size()) - 1;
         SnippetAndLocation snippetLocation{QString("\n%1").arg(filesToAdd),
