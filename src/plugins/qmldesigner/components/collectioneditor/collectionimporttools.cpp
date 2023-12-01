@@ -33,8 +33,16 @@ QJsonArray loadAsSingleJsonCollection(const QUrl &url)
     auto refineJsonArray = [](const QJsonArray &array) -> QJsonArray {
         QJsonArray resultArray;
         for (const QJsonValue &collectionData : array) {
-            if (!collectionData.isObject())
-                resultArray.push_back(collectionData);
+            if (collectionData.isObject()) {
+                QJsonObject rowObject = collectionData.toObject();
+                const QStringList rowKeys = rowObject.keys();
+                for (const QString &key : rowKeys) {
+                    QJsonValue cellValue = rowObject.value(key);
+                    if (cellValue.isArray())
+                        rowObject.remove(key);
+                }
+                resultArray.push_back(rowObject);
+            }
         }
         return resultArray;
     };
