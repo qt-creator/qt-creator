@@ -15,6 +15,8 @@ Item {
 
     height: layout.implicitHeight
 
+    visible: !uniformUseCustomValue
+
     Component.onCompleted: {
         if (uniformType === "int")
             valueLoader.source = "ValueInt.qml"
