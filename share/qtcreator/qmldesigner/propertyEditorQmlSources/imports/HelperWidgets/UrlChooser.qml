@@ -1,13 +1,13 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-import QtQuick 2.15
-import QtQuick.Layouts 1.15
-import QtQuick.Controls 2.15
-import HelperWidgets 2.0
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
-import QtQuickDesignerTheme 1.0
+import QtQuick
+import QtQuick.Layouts
+import QtQuick.Controls
+import HelperWidgets
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
+import QtQuickDesignerTheme
 
 Row {
     id: root
@@ -42,6 +42,96 @@ Row {
     ColorLogic {
         id: colorLogic
         backendValue: root.backendValue
+    }
+
+    component ThumbnailToolTip: ToolTip {
+        id: toolTip
+
+        property alias checkerVisible: checker.visible
+        property alias thumbnailSource: thumbnail.source
+
+        property alias titleText: title.text
+        property alias descriptionText: description.text
+
+        property int maximumWidth: 420
+
+        delay: StudioTheme.Values.toolTipDelay
+
+        background: Rectangle {
+            color: StudioTheme.Values.themeToolTipBackground
+            border.color: StudioTheme.Values.themeToolTipOutline
+            border.width: StudioTheme.Values.border
+        }
+
+        contentItem: Row {
+            id: row
+
+            readonly property real __epsilon: 2
+
+            height: Math.max(wrapper.visible ? wrapper.height : 0, column.height)
+            spacing: 10
+
+            Item {
+                id: wrapper
+                visible: thumbnail.status === Image.Ready
+                width: 96
+                height: 96
+
+                Image {
+                    id: checker
+                    anchors.fill: parent
+                    fillMode: Image.Tile
+                    source: "images/checkers.png"
+                }
+
+                Image {
+                    id: thumbnail
+                    anchors.fill: parent
+                    sourceSize.width: wrapper.width
+                    sourceSize.height: wrapper.height
+                    asynchronous: true
+                    fillMode: Image.PreserveAspectFit
+                }
+            }
+
+            Column {
+                id: column
+
+                property int thumbnailSize: wrapper.visible ? wrapper.width + row.spacing : 0
+
+                spacing: 10
+                anchors.verticalCenter: parent.verticalCenter
+                width: Math.min(toolTip.maximumWidth - column.thumbnailSize,
+                                Math.max(titleTextMetrics.width + row.__epsilon,
+                                         descriptionTextMetrics.width + row.__epsilon))
+
+                Text {
+                    id: title
+                    font: toolTip.font
+                    color: StudioTheme.Values.themeToolTipText
+
+                    TextMetrics {
+                        id: titleTextMetrics
+                        text: title.text
+                        font: title.font
+                    }
+                }
+
+                Text {
+                    id: description
+                    width: column.width
+                    font: toolTip.font
+                    color: StudioTheme.Values.themeToolTipText
+                    wrapMode: Text.Wrap
+
+                    TextMetrics {
+                        id: descriptionTextMetrics
+                        text: description.text
+                        font: description.font
+                    }
+                }
+            }
+        }
     }
 
     StudioControls.FilterComboBox {
@@ -90,71 +180,28 @@ Row {
             }
         }
 
-        ToolTip {
-            id: toolTip
-            visible: comboBox.hover && toolTip.text !== ""
+        ThumbnailToolTip {
+            id: rootToolTip
+
+            visible: comboBox.hover && rootToolTip.text !== ""
             text: root.backendValue?.valueToString ?? ""
-            delay: StudioTheme.Values.toolTipDelay
 
-            background: Rectangle {
-                color: StudioTheme.Values.themeToolTipBackground
-                border.color: StudioTheme.Values.themeToolTipOutline
-                border.width: StudioTheme.Values.border
+            checkerVisible: !root.isMesh(root.absoluteFilePath)
+            thumbnailSource: {
+                if (root.isBuiltInPrimitive(root.absoluteFilePath))
+                    return "image://qmldesigner_thumbnails/"
+                        + root.absoluteFilePath.substring(1, root.absoluteFilePath.length)
+                        + ".builtin"
+
+                if (fileModel.isLocal(root.absoluteFilePath))
+                    return "image://qmldesigner_thumbnails/" + root.absoluteFilePath
+
+                return root.absoluteFilePath
             }
-
-            contentItem: RowLayout {
-                spacing: 10
-
-                Item {
-                    visible: thumbnail.status === Image.Ready
-                    Layout.preferredWidth: 96
-                    Layout.preferredHeight: 96
-
-                    Image {
-                        id: checker
-                        visible: !root.isMesh(root.absoluteFilePath)
-                        anchors.fill: parent
-                        fillMode: Image.Tile
-                        source: "images/checkers.png"
-                    }
-
-                    Image {
-                        id: thumbnail
-                        asynchronous: true
-                        height: 96
-                        width: 96
-                        fillMode: Image.PreserveAspectFit
-                        source: {
-                            if (root.isBuiltInPrimitive(root.absoluteFilePath))
-                                return "image://qmldesigner_thumbnails/"
-                                    + root.absoluteFilePath.substring(1, root.absoluteFilePath.length)
-                                    + ".builtin"
-
-                            if (fileModel.isLocal(root.absoluteFilePath))
-                                return "image://qmldesigner_thumbnails/" + root.absoluteFilePath
-
-                            return root.absoluteFilePath
-                        }
-                    }
-                }
-
-                ColumnLayout {
-                    Text {
-                        text: root.fileName(toolTip.text)
-                        color: StudioTheme.Values.themeToolTipText
-                        font: toolTip.font
-                    }
-
-                    Text {
-                        Layout.fillWidth: true
-                        text: root.isBuiltInPrimitive(toolTip.text) ? qsTr("Built-in primitive")
-                                                                    : toolTip.text
-                        font: toolTip.font
-                        color: StudioTheme.Values.themeToolTipText
-                        wrapMode: Text.WordWrap
-                    }
-                }
-            }
+            titleText: root.fileName(rootToolTip.text)
+            descriptionText: root.isBuiltInPrimitive(rootToolTip.text)
+                                ? qsTr("Built-in primitive")
+                                : rootToolTip.text
         }
 
         delegate: ItemDelegate {
@@ -217,71 +264,25 @@ Row {
                 }
             }
 
-            ToolTip {
+            ThumbnailToolTip {
                 id: delegateToolTip
+
                 visible: delegateRoot.hovered
                 text: delegateRoot.relativeFilePath
-                delay: StudioTheme.Values.toolTipDelay
 
-                background: Rectangle {
-                    color: StudioTheme.Values.themeToolTipBackground
-                    border.color: StudioTheme.Values.themeToolTipOutline
-                    border.width: StudioTheme.Values.border
+                checkerVisible: !root.isMesh(delegateRoot.absoluteFilePath)
+                thumbnailSource: {
+                    if (root.isBuiltInPrimitive(delegateRoot.name))
+                        return "image://qmldesigner_thumbnails/"
+                            + delegateRoot.name.substring(1, delegateRoot.name.length)
+                            + ".builtin"
+
+                    return "image://qmldesigner_thumbnails/" + delegateRoot.absoluteFilePath
                 }
-
-                contentItem: RowLayout {
-                    spacing: 10
-
-                    Item {
-                        visible: delegateThumbnail.status === Image.Ready
-                        Layout.preferredWidth: 96
-                        Layout.preferredHeight: 96
-
-                        Image {
-                            id: delegateChecker
-                            visible: !root.isMesh(delegateRoot.absoluteFilePath)
-                            anchors.fill: parent
-                            fillMode: Image.Tile
-                            source: "images/checkers.png"
-                        }
-
-                        Image {
-                            id: delegateThumbnail
-                            asynchronous: true
-                            sourceSize.height: 96
-                            sourceSize.width: 96
-                            height: 96
-                            width: 96
-                            fillMode: Image.PreserveAspectFit
-                            source: {
-                                if (root.isBuiltInPrimitive(delegateRoot.name))
-                                    return "image://qmldesigner_thumbnails/"
-                                        + delegateRoot.name.substring(1, delegateRoot.name.length)
-                                        + ".builtin"
-
-                                return "image://qmldesigner_thumbnails/" + delegateRoot.absoluteFilePath
-                            }
-                        }
-                    }
-
-                    ColumnLayout {
-                        Text {
-                            text: delegateRoot.name
-                            color: StudioTheme.Values.themeToolTipText
-                            font: delegateToolTip.font
-                        }
-
-                        Text {
-                            Layout.fillWidth: true
-                            text: root.isBuiltInPrimitive(delegateToolTip.text)
-                                  ? qsTr("Built-in primitive")
-                                  : delegateToolTip.text
-                            font: delegateToolTip.font
-                            color: StudioTheme.Values.themeToolTipText
-                            wrapMode: Text.WordWrap
-                        }
-                    }
-                }
+                titleText: delegateRoot.name
+                descriptionText: root.isBuiltInPrimitive(delegateToolTip.text)
+                                    ? qsTr("Built-in primitive")
+                                    : delegateToolTip.text
             }
         }
 
