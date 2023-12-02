@@ -206,7 +206,7 @@ void CMakeParser::flush()
         m_lastTask.summary = m_lastTask.details.takeFirst();
     m_lines += m_lastTask.details.count();
 
-    if (m_callStack) {
+    if (m_callStack.has_value() && !m_callStack.value().isEmpty()) {
         m_lastTask.file = m_callStack.value().last().file;
         m_lastTask.line = m_callStack.value().last().line;
 
