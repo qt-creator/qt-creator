@@ -202,22 +202,25 @@ void CMakeParser::flush()
     if (m_lastTask.isNull())
         return;
 
-    if (m_lastTask.summary.isEmpty() && !m_lastTask.details.isEmpty())
-        m_lastTask.summary = m_lastTask.details.takeFirst();
-    m_lines += m_lastTask.details.count();
+    Task t = m_lastTask;
+    m_lastTask.clear();
+
+    if (t.summary.isEmpty() && !t.details.isEmpty())
+        t.summary = t.details.takeFirst();
+    m_lines += t.details.count();
 
     if (m_callStack.has_value() && !m_callStack.value().isEmpty()) {
-        m_lastTask.file = m_callStack.value().last().file;
-        m_lastTask.line = m_callStack.value().last().line;
+        t.file = m_callStack.value().last().file;
+        t.line = m_callStack.value().last().line;
 
         LinkSpecs specs;
-        m_lastTask.details << QString();
-        m_lastTask.details << Tr::tr("Call stack:");
+        t.details << QString();
+        t.details << Tr::tr("Call stack:");
         m_lines += 2;
 
         m_callStack->push_front(m_errorOrWarningLine);
 
-        int offset = m_lastTask.details.join('\n').size();
+        int offset = t.details.join('\n').size();
         Utils::reverseForeach(m_callStack.value(), [&](const auto &line) {
             const QString fileAndLine = QString("%1:%2").arg(line.file.path()).arg(line.line);
             const QString completeLine = QString("  %1%2").arg(fileAndLine).arg(line.function);
@@ -228,16 +231,14 @@ void CMakeParser::flush()
                                   int(fileAndLine.length()),
                                   createLinkTarget(line.file, line.line, -1)});
 
-            m_lastTask.details << completeLine;
+            t.details << completeLine;
             offset += completeLine.length() - 2;
             ++m_lines;
         });
 
-        setDetailsFormat(m_lastTask, specs);
+        setDetailsFormat(t, specs);
     }
 
-    Task t = m_lastTask;
-    m_lastTask.clear();
     scheduleTask(t, m_lines, 1);
     m_lines = 0;
 
