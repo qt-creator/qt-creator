@@ -2921,7 +2921,7 @@ int TaskTree::progressValue() const
 
         const Group root {
             storage,
-            ConcurrentCallTask(onLoaderDone, onLoaderDone, CallDoneIf::Success)
+            ConcurrentCallTask(onLoaderSetup, onLoaderDone, CallDoneIf::Success)
         };
 
         TaskTree taskTree(root);
