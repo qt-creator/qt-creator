@@ -4,7 +4,7 @@
     {
       "name": "cmake-plugin-minimal",
       "displayName": "CMake, C++, Git, Debug minimal Build",
-      "generator": "Ninja Multi-Config",
+      "generator": "Ninja",
       "hidden" : true,
       "cacheVariables": {
         "BUILD_PLUGINS": "Core;Designer;DiffEditor;TextEditor;ProjectExplorer;CppEditor;CodePaster;Docker;Git;Help;QmakeProjectManager;CMakeProjectManager;ClangCodeModel;ClangTools;ClangFormat;Debugger;QtSupport;ResourceEditor;VcsBase;Welcome;LanguageClient;RemoteLinux",
