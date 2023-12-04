@@ -504,7 +504,7 @@ void ToolBarBackend::setCurrentStyle(int index)
     const QList<StyleWidgetEntry> items = ChangeStyleWidgetAction::getAllStyleItems();
 
     QTC_ASSERT(items.size() > index, return);
-    QTC_ASSERT(index > 0, return );
+    QTC_ASSERT(index >= 0, return );
 
     QTC_ASSERT(currentDesignDocument(), return );
 
