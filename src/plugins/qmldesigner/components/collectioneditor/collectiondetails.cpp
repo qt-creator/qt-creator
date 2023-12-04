@@ -258,7 +258,7 @@ bool CollectionDetails::setPropertyName(int column, const QString &value)
     return true;
 }
 
-bool CollectionDetails::forcePropertyType(int column, DataType type, bool force)
+bool CollectionDetails::setPropertyType(int column, DataType type)
 {
     if (!isValid() || !d->isValidColumnId(column))
         return false;
@@ -270,13 +270,11 @@ bool CollectionDetails::forcePropertyType(int column, DataType type, bool force)
 
     property.type = type;
 
-    if (force) {
-        for (QJsonObject &element : d->elements) {
-            if (element.contains(property.name)) {
-                QJsonValue value = element.value(property.name);
-                element.insert(property.name, valueToVariant(value, type).toJsonValue());
-                changed = true;
-            }
+    for (QJsonObject &element : d->elements) {
+        if (element.contains(property.name)) {
+            QJsonValue value = element.value(property.name);
+            element.insert(property.name, valueToVariant(value, type).toJsonValue());
+            changed = true;
         }
     }
 

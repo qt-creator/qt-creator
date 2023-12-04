@@ -109,14 +109,8 @@ Rectangle {
                 clip: true
 
                 delegate: HeaderDelegate {
-                    id: horizontalHeaderItem
-
                     selectedItem: tableView.model.selectedColumn
                     color: StudioTheme.Values.themeControlBackgroundInteraction
-
-                    function getGlobalBottomLeft() {
-                        return mapToGlobal(0, horizontalHeaderItem.height)
-                    }
 
                     MouseArea {
                         anchors.fill: parent
@@ -125,8 +119,13 @@ Rectangle {
                         onClicked: (mouse) => {
                             tableView.model.selectColumn(index)
 
-                            if (mouse.button === Qt.RightButton)
-                                headerMenu.popIndex(index, horizontalHeaderItem.getGlobalBottomLeft())
+                            if (mouse.button === Qt.RightButton) {
+                                let posX = index === root.model.columnCount() - 1 ? parent.width - editProperyDialog.width : 0
+
+                                headerMenu.clickedHeaderIndex = index
+                                headerMenu.dialogPos = parent.mapToGlobal(posX, parent.height)
+                                headerMenu.popup()
+                            }
                         }
                     }
                 }
@@ -134,38 +133,32 @@ Rectangle {
                 StudioControls.Menu {
                     id: headerMenu
 
-                    property int clickedHeader: -1
-                    property point initialPosition
-
-                    function popIndex(clickedIndex, clickedRect)
-                    {
-                        headerMenu.clickedHeader = clickedIndex
-                        headerMenu.initialPosition = clickedRect
-                        headerMenu.popup()
-                    }
+                    property int clickedHeaderIndex: -1
+                    property point dialogPos
 
                     onClosed: {
-                        headerMenu.clickedHeader = -1
+                        headerMenu.clickedHeaderIndex = -1
                     }
 
                     StudioControls.MenuItem {
                         text: qsTr("Edit")
-                        onTriggered: editProperyDialog.editProperty(headerMenu.clickedHeader, headerMenu.initialPosition)
+                        onTriggered: editProperyDialog.openDialog(headerMenu.clickedHeaderIndex,
+                                                                  headerMenu.dialogPos)
                     }
 
                     StudioControls.MenuItem {
                         text: qsTr("Delete")
-                        onTriggered: deleteColumnDialog.popUp(headerMenu.clickedHeader)
+                        onTriggered: deleteColumnDialog.popUp(headerMenu.clickedHeaderIndex)
                     }
 
                     StudioControls.MenuItem {
                         text: qsTr("Sort Ascending")
-                        onTriggered: sortedModel.sort(headerMenu.clickedHeader, Qt.AscendingOrder)
+                        onTriggered: sortedModel.sort(headerMenu.clickedHeaderIndex, Qt.AscendingOrder)
                     }
 
                     StudioControls.MenuItem {
                         text: qsTr("Sort Descending")
-                        onTriggered: sortedModel.sort(headerMenu.clickedHeader, Qt.DescendingOrder)
+                        onTriggered: sortedModel.sort(headerMenu.clickedHeaderIndex, Qt.DescendingOrder)
                     }
                 }
             }

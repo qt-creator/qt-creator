@@ -12,26 +12,22 @@ StudioControls.Dialog {
 
     required property var model
     property int __propertyIndex: -1
-    property string __oldName
+    property string __currentName
 
-    title: qsTr("Edit Property")
-    clip: true
+    title: qsTr("Edit Column")
 
-    function editProperty(index, initialPosition) {
+    function openDialog(index, initialPosition) {
         root.__propertyIndex = index
 
         if (root.__propertyIndex < 0)
             return
 
-        let previousName = root.model.propertyName(root.__propertyIndex)
-        let previousType = root.model.propertyType(root.__propertyIndex)
+        root.__currentName = root.model.propertyName(root.__propertyIndex)
+        nameTextField.text = root.__currentName
+        nameTextField.selectAll()
+        nameTextField.forceActiveFocus()
 
-        root.__oldName = previousName
-        newNameField.text = previousName
-
-        propertyType.initialType = previousType
-
-        forceChangeType.checked = false
+        typeComboBox.initialType = root.model.propertyType(root.__propertyIndex)
 
         let newPoint = mapFromGlobal(initialPosition.x, initialPosition.y)
         x = newPoint.x
@@ -41,144 +37,116 @@ StudioControls.Dialog {
     }
 
     onAccepted: {
-        if (newNameField.text !== "" && newNameField.text !== root.__oldName)
-            root.model.renameColumn(root.__propertyIndex, newNameField.text)
+        if (nameTextField.text !== "" && nameTextField.text !== root.__currentName)
+            root.model.renameColumn(root.__propertyIndex, nameTextField.text)
 
-        if (propertyType.changed || forceChangeType.checked)
-            root.model.setPropertyType(root.__propertyIndex, propertyType.currentText, forceChangeType.checked)
+        if (typeComboBox.initialType !== typeComboBox.currentText)
+            root.model.setPropertyType(root.__propertyIndex, typeComboBox.currentText)
     }
 
-    onRejected: {
-        let currentDatatype = propertyType.initialType
-        propertyType.currentIndex = propertyType.find(currentDatatype)
-    }
+    contentItem: Column {
+        spacing: 5
 
-    component Spacer: Item {
-        implicitWidth: 1
-        implicitHeight: StudioTheme.Values.columnGap
-    }
+        Grid {
+            columns: 2
+            rows: 2
+            spacing: 2
+            verticalItemAlignment: Grid.AlignVCenter
 
-    contentItem: ColumnLayout {
-        spacing: 2
-
-        Text {
-            text: qsTr("Name")
-            color: StudioTheme.Values.themeTextColor
-        }
-
-        StudioControls.TextField {
-            id: newNameField
-
-            Layout.fillWidth: true
-
-            actionIndicator.visible: false
-            translationIndicator.visible: false
-
-            Keys.onEnterPressed: root.accept()
-            Keys.onReturnPressed: root.accept()
-            Keys.onEscapePressed: root.reject()
-
-            validator: RegularExpressionValidator {
-                regularExpression: /^\w+$/
+            Text {
+                text: qsTr("Name")
+                color: StudioTheme.Values.themeTextColor
+                width: 50
+                verticalAlignment: Text.AlignVCenter
             }
 
-            onTextChanged: {
-                editButton.enabled = newNameField.text !== ""
-            }
-        }
+            StudioControls.TextField {
+                id: nameTextField
 
-        Spacer {}
+                actionIndicator.visible: false
+                translationIndicator.visible: false
 
-        Text {
-            text: qsTr("Type")
-            color: StudioTheme.Values.themeTextColor
-        }
+                Keys.onEnterPressed: root.accept()
+                Keys.onReturnPressed: root.accept()
+                Keys.onEscapePressed: root.reject()
 
-        StudioControls.ComboBox {
-            id: propertyType
-
-            Layout.fillWidth: true
-
-            property string initialType
-            readonly property bool changed: propertyType.initialType !== propertyType.currentText
-
-            model: root.model.typesList()
-            actionIndicatorVisible: false
-
-            onInitialTypeChanged: propertyType.currentIndex = propertyType.find(initialType)
-        }
-
-        Spacer {}
-
-        RowLayout {
-            spacing: StudioTheme.Values.sectionRowSpacing
-
-            StudioControls.CheckBox {
-                id: forceChangeType
-                actionIndicatorVisible: false
+                validator: RegularExpressionValidator {
+                    regularExpression: /^\w+$/
+                }
             }
 
             Text {
-                text: qsTr("Force update values")
+                text: qsTr("Type")
                 color: StudioTheme.Values.themeTextColor
-                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
             }
-        }
 
-        Spacer {
-            visible: warningBox.visible
-            implicitHeight: StudioTheme.Values.controlLabelGap
+            StudioControls.ComboBox {
+                id: typeComboBox
+
+                property string initialType
+
+                model: root.model.typesList()
+                actionIndicatorVisible: false
+
+                onInitialTypeChanged: typeComboBox.currentIndex = typeComboBox.find(initialType)
+            }
         }
 
         Rectangle {
             id: warningBox
 
-            Layout.fillWidth: true
-            Layout.preferredHeight: warning.height
-
-            visible: propertyType.initialType !== propertyType.currentText
+            visible: typeComboBox.initialType !== typeComboBox.currentText
             color: "transparent"
             clip: true
             border.color: StudioTheme.Values.themeWarning
+            width: parent.width
+            height: warning.height
 
-            RowLayout {
+            Row {
                 id: warning
 
-                width: parent.width
+                padding: 5
+                spacing: 5
 
                 HelperWidgets.IconLabel {
                     icon: StudioTheme.Constants.warning_medium
-                    Layout.leftMargin: 10
+                    anchors.verticalCenter: parent.verticalCenter
                 }
 
                 Text {
-                    text: qsTr("Conversion from %1 to %2 may lead to irreversible data loss")
-                        .arg(propertyType.initialType)
-                        .arg(propertyType.currentText)
+                    text: qsTr("Conversion from %1 to %2 may lead to data loss")
+                        .arg(typeComboBox.initialType)
+                        .arg(typeComboBox.currentText)
+
+                    width: warningBox.width - 20
 
                     color: StudioTheme.Values.themeTextColor
                     wrapMode: Text.WordWrap
-                    Layout.fillWidth: true
-                    Layout.margins: 8
                 }
             }
         }
 
-        Spacer {}
-
-        RowLayout {
-            Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-            spacing: StudioTheme.Values.sectionRowSpacing
+        Row {
+            height: 40
+            spacing: 5
+            anchors.right: parent.right
 
             HelperWidgets.Button {
                 id: editButton
 
-                text: qsTr("Edit")
+                text: qsTr("Apply")
+                enabled: nameTextField.text !== ""
+                width: 70
+                anchors.bottom: parent.bottom
+
                 onClicked: root.accept()
             }
 
             HelperWidgets.Button {
                 text: qsTr("Cancel")
+                anchors.bottom: parent.bottom
+                width: 70
+
                 onClicked: root.reject()
             }
         }

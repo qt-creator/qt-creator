@@ -6,7 +6,6 @@
 #include "collectioneditorconstants.h"
 #include "collectioneditorutils.h"
 #include "modelnode.h"
-#include "variantproperty.h"
 
 #include <utils/qtcassert.h>
 
@@ -325,20 +324,14 @@ bool CollectionDetailsModel::renameColumn(int section, const QString &newValue)
     return setHeaderData(section, Qt::Horizontal, newValue);
 }
 
-bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue, bool force)
+bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue)
 {
-    bool changed = m_currentCollection.forcePropertyType(column,
-                                                         CollectionDataTypeHelper::typeFromString(
-                                                             newValue),
-                                                         force);
+    bool changed = m_currentCollection.setPropertyType(column,
+                                                       CollectionDataTypeHelper::typeFromString(
+                                                           newValue));
     if (changed) {
         emit headerDataChanged(Qt::Horizontal, column, column);
-
-        if (force) {
-            emit dataChanged(index(0, column),
-                             index(rowCount() - 1, column),
-                             {Qt::DisplayRole, DataTypeRole});
-        }
+        emit dataChanged(index(0, column), index(rowCount() - 1, column), {Qt::DisplayRole, DataTypeRole});
     }
 
     return changed;

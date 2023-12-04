@@ -55,7 +55,7 @@ public:
     Q_INVOKABLE bool addColumn(int column, const QString &name, const QString &propertyType = {});
     Q_INVOKABLE bool selectColumn(int section);
     Q_INVOKABLE bool renameColumn(int section, const QString &newValue);
-    Q_INVOKABLE bool setPropertyType(int column, const QString &newValue, bool force = false);
+    Q_INVOKABLE bool setPropertyType(int column, const QString &newValue);
     Q_INVOKABLE bool selectRow(int row);
     Q_INVOKABLE void deselectAll();
 

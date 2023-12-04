@@ -63,7 +63,7 @@ public:
     bool setPropertyValue(int row, int column, const QVariant &value);
 
     bool setPropertyName(int column, const QString &value);
-    bool forcePropertyType(int column, DataType type, bool force = false);
+    bool setPropertyType(int column, DataType type);
 
     CollectionReference reference() const;
     CollectionEditor::SourceFormat sourceFormat() const;
