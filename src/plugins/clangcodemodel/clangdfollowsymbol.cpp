@@ -464,7 +464,7 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
     //         Also get the AST for the base declaration, so we can find out whether it's
     //         pure virtual and mark it accordingly.
     //         In addition, we need to follow all override links, because for these, clangd
-    //         gives us the declaration instead of the definition.
+    //         gives us the declaration instead of the definition (until clangd 16).
     for (const Link &link : std::as_const(allLinks)) {
         if (!client->documentForFilePath(link.targetFilePath) && addOpenFile(link.targetFilePath))
             client->openExtraFile(link.targetFilePath);
@@ -490,6 +490,9 @@ void ClangdFollowSymbol::Private::handleGotoImplementationResult(
         qCDebug(clangdLog) << "sending symbol info request";
 
         if (link == defLink)
+            continue;
+
+        if (client->versionNumber().majorVersion() >= 17)
             continue;
 
         const TextDocumentIdentifier doc(client->hostPathToServerUri(link.targetFilePath));
