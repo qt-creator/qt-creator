@@ -236,12 +236,16 @@ FilePath ModelManagerInterface::qmllsForBinPath(const Utils::FilePath &binPath, 
 
 void ModelManagerInterface::activateScan()
 {
-    m_syncedData.write([this](SyncedData &ld) {
-        if (!ld.m_shouldScanImports) {
-            ld.m_shouldScanImports = true;
-            updateImportPaths();
+    const bool shouldScan = m_syncedData.update<bool>([](SyncedData &sd) {
+        if (!sd.m_shouldScanImports) {
+            sd.m_shouldScanImports = true;
+            return true;
         }
+        return false;
     });
+
+    if (shouldScan)
+        updateImportPaths();
 }
 
 QHash<QString, Dialect> ModelManagerInterface::languageForSuffix() const
