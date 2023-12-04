@@ -45,6 +45,10 @@
 
     \section2 Use package managers
 
+    The \QC packages that package managers offer are not
+    officially supported. For links to official releases, see
+    \l {Download installation packages}.
+
     On Windows you can use \c chocolatey, and on \macos you can use \c brew.
     These package managers install the latest \QC releases available online.
     That is, they pick up the 7zip archives and extract them on your system.
@@ -61,7 +65,7 @@
     brew install --cask qt-creator
     \endcode
 
-    Linux distributions might have old \QC versions, so you might want to
+    \note Linux distributions might have old \QC versions, so you might want to
     download and install the latest version.
 
     \section2 Download installation packages
@@ -70,9 +74,10 @@
 
     \list
         \li \l{https://download.qt.io/official_releases/qtcreator/}
-            {official releases}
+            {Official releases}
+        \li Your \l{Qt Account} (open source and commercial)
         \li \l{https://download.qt.io/snapshots/qtcreator/}
-            {snapshots of the current and upcoming release}
+            {Snapshots of the current and upcoming release}
         \li \l{https://github.com/qt-creator/qt-creator/releases}{GitHub}
     \endlist
 
