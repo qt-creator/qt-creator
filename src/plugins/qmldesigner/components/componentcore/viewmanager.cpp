@@ -15,6 +15,7 @@
 #include <debugview.h>
 #include <designeractionmanagerview.h>
 #include <designmodewidget.h>
+#include <dynamiclicensecheck.h>
 #include <edit3dview.h>
 #include <formeditorview.h>
 #include <itemlibraryview.h>
@@ -224,12 +225,8 @@ QList<AbstractView *> ViewManager::standardViews() const
             .toBool())
         list.append(&d->debugView);
 
-#ifdef CHECK_LICENSE
-    if (checkLicense() == FoundLicense::enterprise)
+    if (checkEnterpriseLicense())
         list.append(&d->contentLibraryView);
-#else
-    list.append(&d->contentLibraryView);
-#endif
 
     return list;
 }
@@ -401,12 +398,8 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     if (enableModelEditor())
         widgetInfoList.append(d->collectionView.widgetInfo());
 
-#ifdef CHECK_LICENSE
-    if (checkLicense() == FoundLicense::enterprise)
+    if (checkEnterpriseLicense())
         widgetInfoList.append(d->contentLibraryView.widgetInfo());
-#else
-    widgetInfoList.append(d->contentLibraryView.widgetInfo());
-#endif
 
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
