@@ -8,6 +8,7 @@
 
 #include <QDir>
 #include <QFileOpenEvent>
+#include <QPointer>
 #include <QSharedMemory>
 #include <QWidget>
 
