@@ -128,6 +128,11 @@ Rectangle {
                             }
                         }
                     }
+
+                    HelperWidgets.ToolTipArea {
+                        anchors.fill: parent
+                        text: root.model.propertyType(index)
+                    }
                 }
 
                 StudioControls.Menu {

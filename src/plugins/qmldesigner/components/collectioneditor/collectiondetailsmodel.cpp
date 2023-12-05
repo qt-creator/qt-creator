@@ -223,15 +223,10 @@ Qt::ItemFlags CollectionDetailsModel::flags(const QModelIndex &index) const
 QVariant CollectionDetailsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
-        if (role == DataTypeRole) {
+        if (role == DataTypeRole)
             return CollectionDataTypeHelper::typeToString(m_currentCollection.typeAt(section));
-        } else if (role == Qt::DisplayRole) {
-            return QString("%1 <%2>").arg(m_currentCollection.propertyAt(section),
-                                          CollectionDataTypeHelper::typeToString(
-                                              m_currentCollection.typeAt(section)));
-        } else {
+        else
             return m_currentCollection.propertyAt(section);
-        }
     }
 
     if (orientation == Qt::Vertical)
