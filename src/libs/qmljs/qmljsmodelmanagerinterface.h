@@ -297,7 +297,7 @@ private:
                                       Utils::FilePaths *importedFiles,
                                       QSet<Utils::FilePath> *scannedPaths,
                                       QSet<Utils::FilePath> *newLibraries,
-                                      SyncedData *lockedData);
+                                      Utils::SynchronizedValue<SyncedData>::unique_lock *lock);
 
     static bool findNewQmlLibraryInPath(const Utils::FilePath &path,
                                         const Snapshot &snapshot,
@@ -306,7 +306,7 @@ private:
                                         QSet<Utils::FilePath> *scannedPaths,
                                         QSet<Utils::FilePath> *newLibraries,
                                         bool ignoreMissing,
-                                        SyncedData *lockedData);
+                                        Utils::SynchronizedValue<SyncedData>::unique_lock *lock);
 
     void updateLibraryInfo(const Utils::FilePath &path,
                            const QmlJS::LibraryInfo &info,
