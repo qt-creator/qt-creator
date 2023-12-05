@@ -1737,12 +1737,12 @@ void QuickfixTest::testGeneric_data()
     QTest::newRow("AddLocalDeclaration_QTCREATORBUG-26004")
         << CppQuickFixFactoryPtr(new AddDeclarationForUndeclaredIdentifier)
         << _("void func() {\n"
-             "  QStringList list;\n"
-             "  @it = list.cbegin();\n"
+             "    QStringList list;\n"
+             "    @it = list.cbegin();\n"
              "}\n")
         << _("void func() {\n"
-             "  QStringList list;\n"
-             "  auto it = list.cbegin();\n"
+             "    QStringList list;\n"
+             "    auto it = list.cbegin();\n"
              "}\n");
 }
 
