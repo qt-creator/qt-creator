@@ -112,6 +112,8 @@ void EffectMakerModel::addNode(const QString &nodeQenPath)
     setIsEmpty(false);
 
     bakeShaders();
+
+    emit nodesChanged();
 }
 
 void EffectMakerModel::moveNode(int fromIdx, int toIdx)
@@ -138,6 +140,8 @@ void EffectMakerModel::removeNode(int idx)
         setIsEmpty(true);
     else
         bakeShaders();
+
+    emit nodesChanged();
 }
 
 void EffectMakerModel::clear()
@@ -148,6 +152,7 @@ void EffectMakerModel::clear()
     endResetModel();
 
     setIsEmpty(true);
+    emit nodesChanged();
 }
 
 QString EffectMakerModel::fragmentShader() const
@@ -181,7 +186,7 @@ const QString &EffectMakerModel::qmlComponentString() const
     return m_qmlComponentString;
 }
 
-const QList<Uniform *> EffectMakerModel::allUniforms()
+const QList<Uniform *> EffectMakerModel::allUniforms() const
 {
     QList<Uniform *> uniforms = {};
     for (const auto &node : std::as_const(m_nodes))
@@ -604,10 +609,6 @@ void EffectMakerModel::openComposition(const QString &path)
         return;
     }
 
-    // Get effects dir
-    const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
-    const QString effectsResPath = effectsResDir.pathAppended(effectName).toString();
-
     if (json.contains("nodes") && json["nodes"].isArray()) {
         const QJsonArray nodesArray = json["nodes"].toArray();
         for (const auto &nodeElement : nodesArray) {
@@ -620,6 +621,8 @@ void EffectMakerModel::openComposition(const QString &path)
         setIsEmpty(m_nodes.isEmpty());
         bakeShaders();
     }
+
+    emit nodesChanged();
 }
 
 void EffectMakerModel::exportResources(const QString &name)
@@ -1436,6 +1439,15 @@ void EffectMakerModel::setCurrentComposition(const QString &newCurrentCompositio
         return;
     m_currentComposition = newCurrentComposition;
     emit currentCompositionChanged();
+}
+
+QStringList EffectMakerModel::uniformNames() const
+{
+    QStringList usedList;
+    const QList<Uniform *> uniforms = allUniforms();
+    for (const auto uniform : uniforms)
+        usedList.append(uniform->name());
+    return usedList;
 }
 
 void EffectMakerModel::updateQmlComponent()

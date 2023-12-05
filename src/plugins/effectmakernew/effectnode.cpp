@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "effectnode.h"
+#include "compositionnode.h"
+#include "uniform.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -22,6 +24,12 @@ EffectNode::EffectNode(const QString &qenPath)
         iconPath = QStringLiteral("%1/%2").arg(parentDir.path(), "placeholder.svg");
     }
     m_iconPath = QUrl::fromLocalFile(iconPath);
+
+    CompositionNode node({}, qenPath);
+    const QList<Uniform *> uniforms = node.uniforms();
+
+    for (const Uniform *uniform : uniforms)
+        m_uniformNames.insert(uniform->name());
 }
 
 QString EffectNode::name() const
@@ -37,6 +45,19 @@ QString EffectNode::description() const
 QString EffectNode::qenPath() const
 {
     return m_qenPath;
+}
+
+void EffectNode::setCanBeAdded(bool enabled)
+{
+    if (enabled != m_canBeAdded) {
+        m_canBeAdded = enabled;
+        emit canBeAddedChanged();
+    }
+}
+
+bool EffectNode::hasUniform(const QString &name)
+{
+    return m_uniformNames.contains(name);
 }
 
 } // namespace EffectMaker

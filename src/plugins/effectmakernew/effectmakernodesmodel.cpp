@@ -52,6 +52,9 @@ QString EffectMakerNodesModel::nodesSourcesPath() const
 
 void EffectMakerNodesModel::loadModel()
 {
+    if (m_modelLoaded)
+        return;
+
     auto nodesPath = Utils::FilePath::fromString(nodesSourcesPath());
 
     if (!nodesPath.exists()) {
@@ -88,6 +91,8 @@ void EffectMakerNodesModel::loadModel()
         return a->name() < b->name();
     });
 
+    m_modelLoaded = true;
+
     resetModel();
 }
 
@@ -95,6 +100,22 @@ void EffectMakerNodesModel::resetModel()
 {
     beginResetModel();
     endResetModel();
+}
+
+void EffectMakerNodesModel::updateCanBeAdded(const QStringList &uniforms)
+{
+    for (const EffectNodesCategory *cat : std::as_const(m_categories)) {
+        const QList<EffectNode *> nodes = cat->nodes();
+        for (EffectNode *node : nodes) {
+            bool match = false;
+            for (const QString &uniform : uniforms) {
+                match = node->hasUniform(uniform);
+                if (match)
+                    break;
+            }
+            node->setCanBeAdded(!match);
+        }
+    }
 }
 
 } // namespace EffectMaker

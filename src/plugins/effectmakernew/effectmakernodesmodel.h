@@ -30,11 +30,14 @@ public:
 
     QList<EffectNodesCategory *> categories() const { return  m_categories; }
 
+    void updateCanBeAdded(const QStringList &uniforms);
+
 private:
     QString nodesSourcesPath() const;
 
     QList<EffectNodesCategory *> m_categories;
     bool m_probeNodesDir = false;
+    bool m_modelLoaded = false;
 };
 
 } // namespace EffectMaker

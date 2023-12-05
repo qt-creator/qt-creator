@@ -76,6 +76,10 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
                         {"rootView", QVariant::fromValue(this)}});
     QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(
         this, QmlDesigner::Constants::EVENT_NEWEFFECTMAKER_TIME);
+
+    connect(m_effectMakerModel.data(), &EffectMakerModel::nodesChanged, [this]() {
+        m_effectMakerNodesModel->updateCanBeAdded(m_effectMakerModel->uniformNames());
+    });
 }
 
 

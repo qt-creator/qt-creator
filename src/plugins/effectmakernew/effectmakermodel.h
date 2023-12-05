@@ -89,6 +89,8 @@ public:
     QString currentComposition() const;
     void setCurrentComposition(const QString &newCurrentComposition);
 
+    QStringList uniformNames() const;
+
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
@@ -97,6 +99,7 @@ signals:
     void shadersBaked();
 
     void currentCompositionChanged();
+    void nodesChanged();
 
 private:
     enum Roles {
@@ -116,7 +119,7 @@ private:
 
     bool isValidIndex(int idx) const;
 
-    const QList<Uniform *> allUniforms();
+    const QList<Uniform *> allUniforms() const;
 
     const QString getBufUniform();
     const QString getVSUniforms();
