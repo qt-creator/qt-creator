@@ -1725,9 +1725,11 @@ bool TaskRuntimeContainer::updateSuccessBit(bool success)
 
 void TaskRuntimeContainer::deleteChild(TaskRuntimeNode *node)
 {
-    std::remove_if(m_children.begin(), m_children.end(), [node](const auto &ptr) {
+    const auto it = std::find_if(m_children.cbegin(), m_children.cend(), [node](const auto &ptr) {
         return ptr.get() == node;
     });
+    if (it != m_children.cend())
+        m_children.erase(it);
 }
 
 SetupResult TaskTreePrivate::start(TaskRuntimeContainer *container)
