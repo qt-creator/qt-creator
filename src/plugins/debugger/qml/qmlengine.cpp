@@ -208,6 +208,7 @@ public:
     bool unpausedEvaluate = false;
     bool contextEvaluate = false;
     bool supportChangeBreakpoint = false;
+    bool hasQuit = false;
 
     QTimer connectionTimer;
     QmlDebug::QDebugMessageClient *msgClient = nullptr;
@@ -379,6 +380,9 @@ void QmlEngine::beginConnection()
 
 void QmlEngine::connectionStartupFailed()
 {
+    if (d->hasQuit)
+        return;
+
     if (d->retryOnConnectFail) {
         // retry after 3 seconds ...
         QTimer::singleShot(3000, this, [this] { beginConnection(); });
@@ -937,6 +941,7 @@ void QmlEngine::quitDebugger()
 {
     d->automaticConnect = false;
     d->retryOnConnectFail = false;
+    d->hasQuit = true;
     stopProcess();
     closeConnection();
 }
