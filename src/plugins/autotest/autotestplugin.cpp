@@ -21,6 +21,7 @@
 #include "catch/catchtestframework.h"
 #include "ctest/ctesttool.h"
 #include "gtest/gtestframework.h"
+#include "qtest/datataglocatorfilter.h"
 #include "qtest/qttestframework.h"
 #include "quick/quicktestframework.h"
 
@@ -99,6 +100,7 @@ public:
     TestCodeParser m_testCodeParser;
     TestTreeModel m_testTreeModel{&m_testCodeParser};
     TestRunner m_testRunner;
+    DataTagLocatorFilter m_dataTagLocatorFilter;
 #ifdef WITH_TESTS
     LoadProjectScenario m_loadProjectScenario{&m_testTreeModel};
 #endif
