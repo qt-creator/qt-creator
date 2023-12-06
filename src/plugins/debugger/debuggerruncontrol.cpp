@@ -536,8 +536,6 @@ void DebuggerRunTool::start()
             if (!interpreter.isEmpty() && mainScript.endsWith(".py")) {
                 m_runParameters.mainScript = mainScript;
                 m_runParameters.interpreter = interpreter;
-                if (auto args = runControl()->aspect<ArgumentsAspect>())
-                    m_runParameters.inferior.command.addArgs(args->arguments, CommandLine::Raw);
             }
         }
     }
