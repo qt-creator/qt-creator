@@ -1577,6 +1577,7 @@ void GitPluginPrivate::instantBlame()
 
     if (line >= lines) {
         m_blameMark.reset();
+        m_lastVisitedEditorLine = -1;
         return;
     }
 
