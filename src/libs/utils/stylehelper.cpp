@@ -942,7 +942,7 @@ static QStringList brandFontFamilies()
     return families;
 }
 
-QFont StyleHelper::UiFont(UiElement element)
+QFont StyleHelper::uiFont(UiElement element)
 {
     QFont font;
 

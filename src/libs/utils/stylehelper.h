@@ -81,7 +81,7 @@ QTCREATOR_UTILS_EXPORT QColor sidebarShadow();
 QTCREATOR_UTILS_EXPORT QColor toolBarDropShadowColor();
 QTCREATOR_UTILS_EXPORT QColor notTooBrightHighlightColor();
 
-QTCREATOR_UTILS_EXPORT QFont UiFont(UiElement element);
+QTCREATOR_UTILS_EXPORT QFont uiFont(UiElement element);
 
 // Sets the base color and makes sure all top level widgets are updated
 QTCREATOR_UTILS_EXPORT void setBaseColor(const QColor &color);

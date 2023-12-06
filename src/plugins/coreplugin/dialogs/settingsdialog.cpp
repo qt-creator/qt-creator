@@ -570,7 +570,7 @@ void SettingsDialog::showPage(const Id pageId)
 
 void SettingsDialog::createGui()
 {
-    m_headerLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH4));
+    m_headerLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
     auto headerHLayout = new QHBoxLayout;
     const int leftMargin = QApplication::style()->pixelMetric(QStyle::PM_LayoutLeftMargin);

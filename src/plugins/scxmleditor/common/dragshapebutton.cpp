@@ -20,7 +20,7 @@ DragShapeButton::DragShapeButton(QWidget *parent)
     setMinimumSize(75, 75);
     setMaximumSize(75, 75);
     setIconSize(QSize(45, 45));
-    setFont(Utils::StyleHelper::UiFont(Utils::StyleHelper::UiElementCaption));
+    setFont(Utils::StyleHelper::uiFont(Utils::StyleHelper::UiElementCaption));
 }
 
 void DragShapeButton::setShapeInfo(int groupIndex, int shapeIndex)

@@ -181,9 +181,9 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
     const bool isTitledAction = defaultAction() && defaultAction()->property("titledAction").toBool();
     // draw popup texts
     if (isTitledAction && !m_iconsOnly) {
-        const QFont normalFont = StyleHelper::UiFont(StyleHelper::UiElementCaption);
+        const QFont normalFont = StyleHelper::uiFont(StyleHelper::UiElementCaption);
         QRect centerRect = rect();
-        const QFont boldFont = StyleHelper::UiFont(StyleHelper::UiElementCaptionStrong);
+        const QFont boldFont = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
         const QFontMetrics fm(normalFont);
         const QFontMetrics boldFm(boldFont);
         const int lineHeight = boldFm.height();
@@ -284,7 +284,7 @@ QSize FancyToolButton::sizeHint() const
 
     QSizeF buttonSize = iconSize().expandedTo(QSize(64, 38));
     if (defaultAction() && defaultAction()->property("titledAction").toBool()) {
-        const QFont boldFont = StyleHelper::UiFont(StyleHelper::UiElementCaptionStrong);
+        const QFont boldFont = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
         const QFontMetrics fm(boldFont);
         const qreal lineHeight = fm.height();
         const int extraHeight = 10             // Spacing between top and projectName

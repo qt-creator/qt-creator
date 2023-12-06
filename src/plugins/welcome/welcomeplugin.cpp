@@ -160,7 +160,7 @@ public:
 
             hbox->addSpacing(16);
 
-            const QFont welcomeFont = StyleHelper::UiFont(StyleHelper::UiElementH1);
+            const QFont welcomeFont = StyleHelper::uiFont(StyleHelper::UiElementH1);
 
             auto welcomeLabel = new QLabel("Welcome to");
             welcomeLabel->setFont(welcomeFont);
@@ -245,7 +245,7 @@ public:
             vbox->addItem(newVBox);
 
             auto newLabel = new QLabel(Tr::tr("New to Qt?"), mainWidget);
-            newLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH2));
+            newLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH2));
             newLabel->setAlignment(Qt::AlignHCenter);
             newVBox->addWidget(newLabel);
 

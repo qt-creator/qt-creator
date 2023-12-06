@@ -78,7 +78,7 @@ IntroductionWidget::IntroductionWidget(QWidget *parent)
     m_continueLabel->setAlignment(Qt::AlignCenter);
     m_continueLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     m_continueLabel->setWordWrap(true);
-    m_continueLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH3));
+    m_continueLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH3));
     m_continueLabel->setPalette(palette());
     layout->addWidget(m_continueLabel);
     m_bodyCss = "font-size: 16px;";

@@ -570,7 +570,7 @@ public:
         selectorView->setAutoFillBackground(true);
 
         auto activeLabel = new QLabel(Tr::tr("Active Project"));
-        activeLabel->setFont(StyleHelper::UiFont(StyleHelper::UiElementH4));
+        activeLabel->setFont(StyleHelper::uiFont(StyleHelper::UiElementH4));
 
         auto innerLayout = new QVBoxLayout;
         innerLayout->setSpacing(10);
@@ -903,7 +903,7 @@ void SelectorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
         case 2: {
             QColor col = creatorTheme()->color(Theme::TextColorNormal);
             opt.palette.setColor(QPalette::Text, col);
-            opt.font = StyleHelper::UiFont(StyleHelper::UiElementH4);
+            opt.font = StyleHelper::uiFont(StyleHelper::UiElementH4);
             break;
             }
         }

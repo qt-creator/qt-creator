@@ -661,7 +661,7 @@ void ProgressManagerPrivate::updateStatusDetailsWidget()
         } else if (progress->isSubtitleVisibleInStatusBar() && !progress->subtitle().isEmpty()) {
             if (!m_statusDetailsLabel) {
                 m_statusDetailsLabel = new QLabel(m_summaryProgressWidget);
-                const QFont font = StyleHelper::UiFont(StyleHelper::UiElementCaptionStrong);
+                const QFont font = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
                 m_statusDetailsLabel->setFont(font);
             }
             m_statusDetailsLabel->setText(progress->subtitle());
