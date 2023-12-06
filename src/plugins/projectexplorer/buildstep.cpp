@@ -212,7 +212,7 @@ void BuildStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     if (auto bc = qobject_cast<BuildConfiguration *>(projectConfiguration())) {
         for (const Id id : bc->customParsers()) {
-            if (Internal::CustomParser * const parser = Internal::CustomParser::createFromId(id))
+            if (auto parser = createCustomParserFromId(id))
                 formatter->addLineParser(parser);
         }
 

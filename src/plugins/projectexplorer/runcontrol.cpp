@@ -822,7 +822,7 @@ void RunControl::setupFormatter(OutputFormatter *formatter) const
     QList<Utils::OutputLineParser *> parsers = OutputFormatterFactory::createFormatters(target());
     if (const auto customParsersAspect = aspect<CustomParsersAspect>()) {
         for (const Id id : std::as_const(customParsersAspect->parsers)) {
-            if (CustomParser * const parser = CustomParser::createFromId(id))
+            if (auto parser = createCustomParserFromId(id))
                 parsers << parser;
         }
     }
