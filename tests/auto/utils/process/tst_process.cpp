@@ -120,6 +120,7 @@ private slots:
         QCOMPARE(output.size() > 0, qoutput.size() > 0);
     }
 
+    void multiRead_data();
     void multiRead();
     void splitArgs_data();
     void splitArgs();
@@ -182,7 +183,7 @@ private:
 void tst_Process::initTestCase()
 {
     msgHandler = new MessageHandler;
-    Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
+    TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
                                                 + Core::Constants::IDE_CASED_ID + "-XXXXXX");
     const QString libExecPath(qApp->applicationDirPath() + '/'
                               + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
@@ -232,7 +233,7 @@ void tst_Process::initTestCase()
 
 void tst_Process::cleanupTestCase()
 {
-    Utils::Singleton::deleteAll();
+    Singleton::deleteAll();
     const int destroyCount = msgHandler->destroyCount();
     delete msgHandler;
     if (destroyCount)
@@ -241,32 +242,51 @@ void tst_Process::cleanupTestCase()
 }
 
 Q_DECLARE_METATYPE(ProcessArgs::SplitError)
-Q_DECLARE_METATYPE(Utils::OsType)
-Q_DECLARE_METATYPE(Utils::ProcessResult)
+Q_DECLARE_METATYPE(OsType)
+Q_DECLARE_METATYPE(ProcessResult)
+
+void tst_Process::multiRead_data()
+{
+    QTest::addColumn<QProcess::ProcessChannel>("processChannel");
+
+    QTest::newRow("StandardOutput") << QProcess::StandardOutput;
+    QTest::newRow("StandardError") << QProcess::StandardError;
+}
+
+static QByteArray readData(Process *process, QProcess::ProcessChannel processChannel)
+{
+    QByteArray buffer = processChannel == QProcess::StandardOutput
+        ? process->readAllRawStandardOutput() : process->readAllRawStandardError();
+    buffer.replace("\r\n", "\n"); // Needed for Windows only
+    return buffer;
+}
 
 void tst_Process::multiRead()
 {
-    SubProcessConfig subConfig(ProcessTestApp::ChannelEchoer::envVar(), {});
+    QFETCH(QProcess::ProcessChannel, processChannel);
+
+    SubProcessConfig subConfig(ProcessTestApp::ChannelEchoer::envVar(),
+                               QString::number(int(processChannel)));
 
     QByteArray buffer;
     Process process;
     subConfig.setupSubProcess(&process);
 
-    process.setProcessMode(Utils::ProcessMode::Writer);
+    // TODO: Fix ProcessImpl::QProcess
+    process.setProcessImpl(ProcessImpl::ProcessLauncher);
+    process.setProcessMode(ProcessMode::Writer);
     process.start();
 
     QVERIFY(process.waitForStarted());
 
     process.writeRaw("hi\n");
     QVERIFY(process.waitForReadyRead(1000));
-    buffer = process.readAllRawStandardOutput();
-    buffer.replace("\r\n", "\n"); // Needed for Windows only
+    buffer = readData(&process, processChannel);
     QCOMPARE(buffer, QByteArray("hi\n"));
 
     process.writeRaw("you\n");
     QVERIFY(process.waitForReadyRead(1000));
-    buffer = process.readAllRawStandardOutput();
-    buffer.replace("\r\n", "\n"); // Needed for Windows only
+    buffer = readData(&process, processChannel);
     QCOMPARE(buffer, QByteArray("you\n"));
 
     process.writeRaw("exit\n");
@@ -278,7 +298,7 @@ void tst_Process::splitArgs_data()
     QTest::addColumn<QString>("in");
     QTest::addColumn<QString>("out");
     QTest::addColumn<ProcessArgs::SplitError>("err");
-    QTest::addColumn<Utils::OsType>("os");
+    QTest::addColumn<OsType>("os");
 
     static const struct {
         const char * const in;
@@ -335,7 +355,7 @@ void tst_Process::splitArgs()
     QFETCH(QString, in);
     QFETCH(QString, out);
     QFETCH(ProcessArgs::SplitError, err);
-    QFETCH(Utils::OsType, os);
+    QFETCH(OsType, os);
 
     ProcessArgs::SplitError outerr;
     QString outstr = ProcessArgs::joinArgs(ProcessArgs::splitArgs(in, os, false, &outerr), os);
