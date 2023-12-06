@@ -8,7 +8,12 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 
-namespace Utils { class MacroExpander; }
+#include <functional>
+
+namespace Utils {
+class MacroExpander;
+class OutputLineParser;
+} // namespace Utils
 
 namespace CMakeProjectManager::Internal {
 
@@ -38,6 +43,12 @@ public:
     QStringList additionalCMakeArguments;
 
     Utils::MacroExpander* expander = nullptr;
+
+    QList<Utils::OutputLineParser*> outputParsers() const;
+
+private:
+    using OutputParserGenerator = std::function<QList<Utils::OutputLineParser*>()>;
+    OutputParserGenerator outputParserGenerator;
 };
 
 } // CMakeProjectManager::Internal
