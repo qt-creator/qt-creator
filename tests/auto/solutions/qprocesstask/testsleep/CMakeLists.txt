@@ -4,6 +4,6 @@ add_qtc_executable(testsleep
   INTERNAL_ONLY
 )
 
-set_target_properties(testsleep PROPERTIES
-  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
+extend_qtc_executable(testsleep
+  PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
 )
