@@ -272,8 +272,6 @@ void tst_Process::multiRead()
     Process process;
     subConfig.setupSubProcess(&process);
 
-    // TODO: Fix ProcessImpl::QProcess
-    process.setProcessImpl(ProcessImpl::ProcessLauncher);
     process.setProcessMode(ProcessMode::Writer);
     process.start();
 

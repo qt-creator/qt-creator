@@ -292,27 +292,37 @@ bool DefaultImpl::ensureProgramExists(const QString &program)
     return false;
 }
 
-class QProcessBlockingImpl : public ProcessBlockingInterface
-{
-public:
-    QProcessBlockingImpl(QProcess *process) : m_process(process) {}
+// TODO: Remove QProcessBlockingImpl later, after Creator 13.0 is released at least.
 
-private:
-    bool waitForSignal(ProcessSignalType signalType, int msecs) final
-    {
-        switch (signalType) {
-        case ProcessSignalType::Started:
-            return m_process->waitForStarted(msecs);
-        case ProcessSignalType::ReadyRead:
-            return m_process->waitForReadyRead(msecs);
-        case ProcessSignalType::Done:
-            return m_process->waitForFinished(msecs);
-        }
-        return false;
-    }
+// Rationale: QProcess::waitForReadyRead() waits only for one channel, either stdOut or stdErr.
+// Since we can't predict where the data will come first,
+// setting the QProcess::setReadChannel() in advance is a mis-design of the QProcess API.
+// This issue does not affect GeneralProcessBlockingImpl, but it might be not as optimal
+// as QProcessBlockingImpl. However, since we are blocking the caller thread anyway,
+// the small overhead in speed doesn't play the most significant role, thus the proper
+// behavior of Process::waitForReadyRead(), which listens to both channels, wins.
 
-    QProcess *m_process = nullptr;
-};
+// class QProcessBlockingImpl : public ProcessBlockingInterface
+// {
+// public:
+//     QProcessBlockingImpl(QProcess *process) : m_process(process) {}
+
+// private:
+//     bool waitForSignal(ProcessSignalType signalType, int msecs) final
+//     {
+//         switch (signalType) {
+//         case ProcessSignalType::Started:
+//             return m_process->waitForStarted(msecs);
+//         case ProcessSignalType::ReadyRead:
+//             return m_process->waitForReadyRead(msecs);
+//         case ProcessSignalType::Done:
+//             return m_process->waitForFinished(msecs);
+//         }
+//         return false;
+//     }
+
+//     QProcess *m_process = nullptr;
+// };
 
 class PtyProcessImpl final : public DefaultImpl
 {
@@ -445,7 +455,7 @@ class QProcessImpl final : public DefaultImpl
 public:
     QProcessImpl()
         : m_process(new ProcessHelper(this))
-        , m_blockingImpl(new QProcessBlockingImpl(m_process))
+        // , m_blockingImpl(new QProcessBlockingImpl(m_process))
     {
         connect(m_process, &QProcess::started, this, &QProcessImpl::handleStarted);
         connect(m_process, &QProcess::finished, this, &QProcessImpl::handleFinished);
@@ -481,7 +491,7 @@ private:
         }
     }
 
-    ProcessBlockingInterface *processBlockingInterface() const override { return m_blockingImpl; }
+    // ProcessBlockingInterface *processBlockingInterface() const override { return m_blockingImpl; }
 
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
@@ -533,7 +543,7 @@ private:
     }
 
     ProcessHelper *m_process = nullptr;
-    QProcessBlockingImpl *m_blockingImpl = nullptr;
+    // QProcessBlockingImpl *m_blockingImpl = nullptr;
 };
 
 static uint uniqueToken()

@@ -163,8 +163,6 @@ CommandLine DeviceShell::createFallbackCommand(const CommandLine &cmd)
 expected_str<void> DeviceShell::start()
 {
     m_shellProcess = std::make_unique<Process>();
-    // FIXME: This shouldn't be needed, it's a temporary workaround.
-    m_shellProcess->setProcessImpl(ProcessImpl::ProcessLauncher);
     connect(m_shellProcess.get(), &Process::done, m_shellProcess.get(),
             [this] { emit done(m_shellProcess->resultData()); });
     connect(&m_thread, &QThread::finished, m_shellProcess.get(), [this] { closeShellProcess(); }, Qt::DirectConnection);
