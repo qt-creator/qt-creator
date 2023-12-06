@@ -1126,6 +1126,19 @@ QMenu *CppEditorWidget::createRefactorMenu(QWidget *parent) const
         case CppUseSelectionsUpdater::RunnerInfo::Invalid:
             QTC_CHECK(false && "Unexpected CppUseSelectionsUpdater runner result");
         }
+        QMetaObject::invokeMethod(menu, [menu](){
+            if (auto mainWin = ICore::mainWindow()) {
+                menu->adjustSize();
+                if (QTC_GUARD(menu->parentWidget())) {
+                    QPoint p = menu->pos();
+                    const int w = menu->width();
+                    if (p.x() + w > mainWin->screen()->geometry().width()) {
+                        p.setX(menu->parentWidget()->x() - w);
+                        menu->move(p);
+                    }
+                }
+            }
+        }, Qt::QueuedConnection);
     });
 
     return menu;
