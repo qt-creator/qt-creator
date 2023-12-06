@@ -115,6 +115,23 @@ int ProcessTestApp::SimpleTest::main()
     return 0;
 }
 
+int ProcessTestApp::ChannelEchoer::main()
+{
+    const QProcess::ProcessChannel processChannel
+        = QProcess::ProcessChannel(envVarIntWithDefault(envVar(), 0));
+    while (true) {
+        std::string input;
+        std::cin >> input;
+        if (input == "exit")
+            return 0;
+        if (processChannel == QProcess::StandardOutput)
+            std::cout << input << std::endl;
+        else
+            std::cerr << input << std::endl;
+    }
+    return 0;
+}
+
 int ProcessTestApp::ExitCode::main()
 {
     const int exitCode = qEnvironmentVariableIntValue(envVar());

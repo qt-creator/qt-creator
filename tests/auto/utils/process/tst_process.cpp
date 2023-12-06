@@ -121,7 +121,6 @@ private slots:
     }
 
     void multiRead();
-
     void splitArgs_data();
     void splitArgs();
     void prepareArgs_data();
@@ -247,30 +246,31 @@ Q_DECLARE_METATYPE(Utils::ProcessResult)
 
 void tst_Process::multiRead()
 {
-    if (HostOsInfo::isWindowsHost())
-        QSKIP("This test uses /bin/sh.");
+    SubProcessConfig subConfig(ProcessTestApp::ChannelEchoer::envVar(), {});
 
     QByteArray buffer;
     Process process;
+    subConfig.setupSubProcess(&process);
 
-    process.setCommand({"/bin/sh", {}});
-    process.setProcessChannelMode(QProcess::SeparateChannels);
     process.setProcessMode(Utils::ProcessMode::Writer);
-
     process.start();
+
     QVERIFY(process.waitForStarted());
 
-    process.writeRaw("echo hi\n");
-
+    process.writeRaw("hi\n");
     QVERIFY(process.waitForReadyRead(1000));
     buffer = process.readAllRawStandardOutput();
+    buffer.replace("\r\n", "\n"); // Needed for Windows only
     QCOMPARE(buffer, QByteArray("hi\n"));
 
-    process.writeRaw("echo you\n");
-
+    process.writeRaw("you\n");
     QVERIFY(process.waitForReadyRead(1000));
     buffer = process.readAllRawStandardOutput();
+    buffer.replace("\r\n", "\n"); // Needed for Windows only
     QCOMPARE(buffer, QByteArray("you\n"));
+
+    process.writeRaw("exit\n");
+    QVERIFY(process.waitForFinished(1000));
 }
 
 void tst_Process::splitArgs_data()

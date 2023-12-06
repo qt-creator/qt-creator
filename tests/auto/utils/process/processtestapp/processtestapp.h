@@ -44,6 +44,7 @@ public:
     // of the subprocess. The following subprocess classes are defined:
 
     SUB_PROCESS(SimpleTest);
+    SUB_PROCESS(ChannelEchoer);
     SUB_PROCESS(ExitCode);
     SUB_PROCESS(RunBlockingStdOut);
     SUB_PROCESS(LineCallback);
