@@ -97,9 +97,21 @@ static void doCrash()
     qFatal("The application has crashed purposefully!");
 }
 
+static int envVarIntWithDefault(const char *varName, int defaultValue)
+{
+    bool ok = false;
+    const int result = qEnvironmentVariableIntValue(varName, &ok);
+    return ok ? result : defaultValue;
+}
+
 int ProcessTestApp::SimpleTest::main()
 {
-    std::cout << s_simpleTestData << std::endl;
+    const QProcess::ProcessChannel processChannel
+        = QProcess::ProcessChannel(envVarIntWithDefault(envVar(), 0));
+    if (processChannel == QProcess::StandardOutput)
+        std::cout << s_outputData << std::endl;
+    else
+        std::cerr << s_errorData << std::endl;
     return 0;
 }
 

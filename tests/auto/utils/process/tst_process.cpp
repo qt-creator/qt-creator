@@ -153,6 +153,7 @@ private slots:
     void mergedChannels();
     void destroyBlockingProcess_data();
     void destroyBlockingProcess();
+    void flushFinishedWhileWaitingForReadyRead_data();
     void flushFinishedWhileWaitingForReadyRead();
     void crash();
     void crashAfterOneSecond();
@@ -1269,9 +1270,22 @@ void tst_Process::destroyBlockingProcess()
     QVERIFY(!process.waitForFinished(1000));
 }
 
+void tst_Process::flushFinishedWhileWaitingForReadyRead_data()
+{
+    QTest::addColumn<QProcess::ProcessChannel>("processChannel");
+    QTest::addColumn<QByteArray>("expectedData");
+
+    QTest::newRow("StandardOutput") << QProcess::StandardOutput << QByteArray(s_outputData);
+    QTest::newRow("StandardError") << QProcess::StandardError << QByteArray(s_errorData);
+}
+
 void tst_Process::flushFinishedWhileWaitingForReadyRead()
 {
-    SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
+    QFETCH(QProcess::ProcessChannel, processChannel);
+    QFETCH(QByteArray, expectedData);
+
+    SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(),
+                               QString::number(int(processChannel)));
     Process process;
     subConfig.setupSubProcess(&process);
 
@@ -1284,14 +1298,17 @@ void tst_Process::flushFinishedWhileWaitingForReadyRead()
     QByteArray reply;
     while (process.state() == QProcess::Running) {
         process.waitForReadyRead(500);
-        reply += process.readAllRawStandardOutput();
+        if (processChannel == QProcess::StandardOutput)
+            reply += process.readAllRawStandardOutput();
+        else
+            reply += process.readAllRawStandardError();
         if (timer.hasExpired())
             break;
     }
 
     QCOMPARE(process.state(), QProcess::NotRunning);
     QVERIFY(!timer.hasExpired());
-    QVERIFY(reply.contains(s_simpleTestData));
+    QVERIFY(reply.contains(expectedData));
 }
 
 void tst_Process::crash()
