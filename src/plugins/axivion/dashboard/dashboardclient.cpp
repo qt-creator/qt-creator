@@ -23,7 +23,7 @@ namespace Axivion::Internal
 {
 
 Credential::Credential(const QString &apiToken)
-    : m_authorizationValue(QByteArrayLiteral(u8"AxToken ") + apiToken.toUtf8())
+    : m_authorizationValue(QByteArrayLiteral("AxToken ") + apiToken.toUtf8())
 {
 }
 
@@ -167,15 +167,15 @@ static void fetch(QPromise<ResponseData> promise,
                   Credential credential)
 {
     QNetworkRequest request{ url };
-    request.setRawHeader(QByteArrayLiteral(u8"Accept"),
+    request.setRawHeader(QByteArrayLiteral("Accept"),
                          QByteArray(jsonContentType.data(), jsonContentType.size()));
-    request.setRawHeader(QByteArrayLiteral(u8"Authorization"),
+    request.setRawHeader(QByteArrayLiteral("Authorization"),
                          credential.authorizationValue());
-    QByteArray ua = QByteArrayLiteral(u8"Axivion")
+    QByteArray ua = QByteArrayLiteral("Axivion")
                     + QCoreApplication::applicationName().toUtf8()
-                    + QByteArrayLiteral(u8"Plugin/")
+                    + QByteArrayLiteral("Plugin/")
                     + QCoreApplication::applicationVersion().toUtf8();
-    request.setRawHeader(QByteArrayLiteral(u8"X-Axivion-User-Agent"), ua);
+    request.setRawHeader(QByteArrayLiteral("X-Axivion-User-Agent"), ua);
     QNetworkReply *reply = clientData->networkAccessManager.get(request);
     QObject::connect(reply,
                      &QNetworkReply::finished,
