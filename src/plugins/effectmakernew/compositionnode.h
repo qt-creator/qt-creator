@@ -15,7 +15,8 @@ class CompositionNode : public QObject
     Q_OBJECT
 
     Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
-    Q_PROPERTY(bool nodeEnabled  READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
+    Q_PROPERTY(bool nodeEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
+    Q_PROPERTY(bool isDependency READ isDependency NOTIFY isDepencyChanged)
     Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel NOTIFY uniformsModelChanged)
 
 public:
@@ -30,6 +31,7 @@ public:
     QString fragmentCode() const;
     QString vertexCode() const;
     QString description() const;
+    QString id() const;
 
     QObject *uniformsModel();
 
@@ -40,13 +42,20 @@ public:
     bool isEnabled() const;
     void setIsEnabled(bool newIsEnabled);
 
+    bool isDependency() const;
+
     QString name() const;
 
     QList<Uniform *> uniforms() const;
 
+    int incRefCount();
+    int decRefCount();
+    void setRefCount(int count);
+
 signals:
     void uniformsModelChanged();
     void isEnabledChanged();
+    void isDepencyChanged();
 
 private:
     void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);
@@ -57,7 +66,9 @@ private:
     QString m_vertexCode;
     QString m_description;
     QStringList m_requiredNodes;
+    QString m_id;
     bool m_isEnabled = true;
+    int m_refCount = 0;
 
     QList<Uniform*> m_uniforms;
 

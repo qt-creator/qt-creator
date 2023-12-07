@@ -3,6 +3,8 @@
 
 #include "effectutils.h"
 
+#include <coreplugin/icore.h>
+
 #include <QJsonArray>
 
 namespace EffectMaker {
@@ -18,6 +20,15 @@ QString EffectUtils::codeFromJsonArray(const QJsonArray &codeArray)
 
     codeString.chop(1); // Remove last '\n'
     return codeString;
+}
+
+QString EffectUtils::nodesSourcesPath()
+{
+#ifdef SHARE_QML_PATH
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/effectMakerNodes";
+#endif
+    return Core::ICore::resourcePath("qmldesigner/effectMakerNodes").toString();
 }
 
 } // namespace EffectMaker

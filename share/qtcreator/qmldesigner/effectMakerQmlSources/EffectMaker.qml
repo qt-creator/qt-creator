@@ -213,7 +213,8 @@ Item {
                                     currItem.y = root.secsY[i]
                                 }
                             } else if (i < root.moveFromIdx) {
-                                if (root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
+                                if (!repeater.model.isDependencyNode(i)
+                                        && root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
                                     currItem.y = root.secsY[i] + root.draggedSec.height
                                     root.moveToIdx = Math.min(root.moveToIdx, i)
                                 } else {

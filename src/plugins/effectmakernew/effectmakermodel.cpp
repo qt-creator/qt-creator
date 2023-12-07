@@ -4,6 +4,8 @@
 #include "effectmakermodel.h"
 
 #include "compositionnode.h"
+#include "effectutils.h"
+#include "propertyhandler.h"
 #include "syntaxhighlighterdata.h"
 #include "uniform.h"
 
@@ -58,6 +60,7 @@ QHash<int, QByteArray> EffectMakerModel::roleNames() const
     roles[NameRole] = "nodeName";
     roles[EnabledRole] = "nodeEnabled";
     roles[UniformsRole] = "nodeUniformsModel";
+    roles[Dependency] = "isDependency";
     return roles;
 }
 
@@ -104,14 +107,29 @@ void EffectMakerModel::setIsEmpty(bool val)
 
 void EffectMakerModel::addNode(const QString &nodeQenPath)
 {
-    beginInsertRows({}, m_nodes.size(), m_nodes.size());
-    auto *node = new CompositionNode("", nodeQenPath);
+    beginResetModel();
+    auto *node = new CompositionNode({}, nodeQenPath);
     connect(qobject_cast<EffectMakerUniformsModel *>(node->uniformsModel()),
             &EffectMakerUniformsModel::dataChanged, this, [this] {
-        setHasUnsavedChanges(true);
-    });
+                setHasUnsavedChanges(true);
+            });
+
+    const QList<QString> requiredNodes = node->requiredNodes();
+    if (requiredNodes.size() > 0) {
+        for (const QString &requiredId : requiredNodes) {
+            if (auto reqNode = findNodeById(requiredId)) {
+                reqNode->incRefCount();
+                continue;
+            }
+
+            const QString path = EffectUtils::nodesSourcesPath() + "/common/" + requiredId + ".qen";
+            auto requiredNode = new CompositionNode({}, path);
+            requiredNode->setRefCount(1);
+            m_nodes.prepend(requiredNode);
+        }
+    }
     m_nodes.append(node);
-    endInsertRows();
+    endResetModel();
 
     setIsEmpty(false);
 
@@ -119,6 +137,15 @@ void EffectMakerModel::addNode(const QString &nodeQenPath)
     setHasUnsavedChanges(true);
 
     emit nodesChanged();
+}
+
+CompositionNode *EffectMakerModel::findNodeById(const QString &id) const
+{
+    for (CompositionNode *node : std::as_const(m_nodes)) {
+        if (node->id() == id)
+            return node;
+    }
+    return {};
 }
 
 void EffectMakerModel::moveNode(int fromIdx, int toIdx)
@@ -137,10 +164,20 @@ void EffectMakerModel::moveNode(int fromIdx, int toIdx)
 
 void EffectMakerModel::removeNode(int idx)
 {
-    beginRemoveRows({}, idx, idx);
+    beginResetModel();
     CompositionNode *node = m_nodes.takeAt(idx);
+
+    const QStringList reqNodes = node->requiredNodes();
+    for (const QString &reqId : reqNodes) {
+        CompositionNode *depNode = findNodeById(reqId);
+        if (depNode && depNode->decRefCount() <= 0) {
+            m_nodes.removeOne(depNode);
+            delete depNode;
+        }
+    }
+
     delete node;
-    endRemoveRows();
+    endResetModel();
 
     if (m_nodes.isEmpty())
         setIsEmpty(true);
@@ -442,6 +479,8 @@ QJsonObject nodeToJson(const CompositionNode &node)
         nodeObject.insert("description", node.description());
     nodeObject.insert("enabled", node.isEnabled());
     nodeObject.insert("version", 1);
+    nodeObject.insert("id", node.id());
+
     // Add properties
     QJsonArray propertiesArray;
     const QList<Uniform *> uniforms = node.uniforms();
@@ -549,7 +588,17 @@ QString EffectMakerModel::getQmlEffectString()
         s += '\n';
     }
 
-    //TODO: Blue stuff goes here
+    if (m_shaderFeatures.enabled(ShaderFeatures::BlurSources)) {
+        s += "    BlurHelper {\n";
+        s += "        id: blurHelper\n";
+        s += "        anchors.fill: parent\n";
+        int blurMax = 32;
+        if (g_propertyData.contains("BLUR_HELPER_MAX_LEVEL"))
+            blurMax = g_propertyData["BLUR_HELPER_MAX_LEVEL"].toInt();
+        s += QString("        property int blurMax: %1\n").arg(blurMax);
+        s += "        property real blurMultiplier: rootItem.blurMultiplier\n";
+        s += "    }\n";
+    }
 
     s += getQmlComponentString(true);
     s += "}\n";
@@ -643,17 +692,29 @@ void EffectMakerModel::openComposition(const QString &path)
     }
 
     if (json.contains("nodes") && json["nodes"].isArray()) {
+        beginResetModel();
+        QHash<QString, int> refCounts;
         const QJsonArray nodesArray = json["nodes"].toArray();
+
         for (const auto &nodeElement : nodesArray) {
-            beginInsertRows({}, m_nodes.size(), m_nodes.size());
-            auto *node = new CompositionNode(effectName, "", nodeElement.toObject());
+            auto *node = new CompositionNode(effectName, {}, nodeElement.toObject());
             connect(qobject_cast<EffectMakerUniformsModel *>(node->uniformsModel()),
                     &EffectMakerUniformsModel::dataChanged, this, [this] {
                 setHasUnsavedChanges(true);
             });
             m_nodes.append(node);
-            endInsertRows();
+            const QStringList reqIds = node->requiredNodes();
+            for (const QString &reqId : reqIds)
+                ++refCounts[reqId];
         }
+
+        for (auto it = refCounts.cbegin(), end = refCounts.cend(); it != end; ++it) {
+            CompositionNode *depNode = findNodeById(it.key());
+            if (depNode)
+                depNode->setRefCount(it.value());
+        }
+
+        endResetModel();
 
         setIsEmpty(m_nodes.isEmpty());
         bakeShaders();
@@ -746,6 +807,19 @@ void EffectMakerModel::saveResources(const QString &name)
             sources.append(imagePath);
             dests.append(imageFilename);
         }
+    }
+
+    if (m_shaderFeatures.enabled(ShaderFeatures::BlurSources)) {
+        QString blurHelperFilename("BlurHelper.qml");
+        QString blurFsFilename("bluritems.frag.qsb");
+        QString blurVsFilename("bluritems.vert.qsb");
+        QString blurHelperPath(EffectUtils::nodesSourcesPath() + "/common/");
+        sources.append(blurHelperPath + blurHelperFilename);
+        sources.append(blurHelperPath + blurFsFilename);
+        sources.append(blurHelperPath + blurVsFilename);
+        dests.append(blurHelperFilename);
+        dests.append(blurFsFilename);
+        dests.append(blurVsFilename);
     }
 
     for (int i = 0; i < sources.count(); ++i) {
@@ -1503,6 +1577,13 @@ QStringList EffectMakerModel::uniformNames() const
     for (const auto uniform : uniforms)
         usedList.append(uniform->name());
     return usedList;
+}
+
+bool EffectMakerModel::isDependencyNode(int index) const
+{
+    if (m_nodes.size() > index)
+        return m_nodes[index]->isDependency();
+    return false;
 }
 
 void EffectMakerModel::updateQmlComponent()

@@ -7,10 +7,10 @@
 
 #include <utils/filepath.h>
 
+#include <QAbstractListModel>
 #include <QFileSystemWatcher>
 #include <QMap>
 #include <QRegularExpression>
-#include <QStandardItemModel>
 #include <QTemporaryFile>
 
 namespace ProjectExplorer {
@@ -62,6 +62,8 @@ public:
 
     void addNode(const QString &nodeQenPath);
 
+    CompositionNode *findNodeById(const QString &id) const;
+
     Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
     Q_INVOKABLE void clear();
@@ -96,6 +98,8 @@ public:
 
     QStringList uniformNames() const;
 
+    Q_INVOKABLE bool isDependencyNode(int index) const;
+
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
@@ -112,7 +116,8 @@ private:
     enum Roles {
         NameRole = Qt::UserRole + 1,
         EnabledRole,
-        UniformsRole
+        UniformsRole,
+        Dependency
     };
 
     enum ErrorTypes {

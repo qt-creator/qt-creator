@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "effectmakernodesmodel.h"
-
-#include <coreplugin/icore.h>
+#include "effectutils.h"
 
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
@@ -41,21 +40,12 @@ QVariant EffectMakerNodesModel::data(const QModelIndex &index, int role) const
     return m_categories.at(index.row())->property(roleNames().value(role));
 }
 
-QString EffectMakerNodesModel::nodesSourcesPath() const
-{
-#ifdef SHARE_QML_PATH
-    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
-        return QLatin1String(SHARE_QML_PATH) + "/effectMakerNodes";
-#endif
-    return Core::ICore::resourcePath("qmldesigner/effectMakerNodes").toString();
-}
-
 void EffectMakerNodesModel::loadModel()
 {
     if (m_modelLoaded)
         return;
 
-    auto nodesPath = Utils::FilePath::fromString(nodesSourcesPath());
+    auto nodesPath = Utils::FilePath::fromString(EffectUtils::nodesSourcesPath());
 
     if (!nodesPath.exists()) {
         qWarning() << __FUNCTION__ << "Effects not found.";

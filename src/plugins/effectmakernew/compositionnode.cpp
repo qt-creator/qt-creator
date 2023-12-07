@@ -14,7 +14,8 @@
 
 namespace EffectMaker {
 
-CompositionNode::CompositionNode(const QString &effectName, const QString &qenPath, const QJsonObject &jsonObject)
+CompositionNode::CompositionNode(const QString &effectName, const QString &qenPath,
+                                 const QJsonObject &jsonObject)
 {
     QJsonObject json;
     if (jsonObject.isEmpty()) {
@@ -58,6 +59,11 @@ QString CompositionNode::description() const
     return m_description;
 }
 
+QString CompositionNode::id() const
+{
+    return m_id;
+}
+
 QObject *CompositionNode::uniformsModel()
 {
     return &m_unifomrsModel;
@@ -81,6 +87,11 @@ void CompositionNode::setIsEnabled(bool newIsEnabled)
     }
 }
 
+bool CompositionNode::isDependency() const
+{
+    return m_refCount > 0;
+}
+
 CompositionNode::NodeType CompositionNode::type() const
 {
     return m_type;
@@ -102,6 +113,13 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     m_fragmentCode = EffectUtils::codeFromJsonArray(json.value("fragmentCode").toArray());
     m_vertexCode = EffectUtils::codeFromJsonArray(json.value("vertexCode").toArray());
 
+    m_id = json.value("id").toString();
+    if (m_id.isEmpty() && !qenPath.isEmpty()) {
+        QString fileName = qenPath.split('/').last();
+        fileName.chop(4); // remove ".qen"
+        m_id = fileName;
+    }
+
     // parse properties
     QJsonArray jsonProps = json.value("properties").toArray();
     for (const auto /*QJsonValueRef*/ &prop : jsonProps) {
@@ -118,8 +136,7 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     for (const QString &codeLine : std::as_const(shaderCodeLines)) {
         QString trimmedLine = codeLine.trimmed();
         if (trimmedLine.startsWith("@requires")) {
-            // Get the required node, remove "@requires"
-            QString l = trimmedLine.sliced(9).trimmed();
+            // Get the required node, remove "@requires "
             QString nodeName = trimmedLine.sliced(10);
             if (!nodeName.isEmpty() && !m_requiredNodes.contains(nodeName))
                 m_requiredNodes << nodeName;
@@ -130,6 +147,36 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
 QList<Uniform *> CompositionNode::uniforms() const
 {
     return m_uniforms;
+}
+
+int CompositionNode::incRefCount()
+{
+    ++m_refCount;
+
+    if (m_refCount == 1)
+        emit isDepencyChanged();
+
+    return m_refCount;
+}
+
+int CompositionNode::decRefCount()
+{
+    --m_refCount;
+
+    if (m_refCount == 0)
+        emit isDepencyChanged();
+
+    return m_refCount;
+}
+
+void CompositionNode::setRefCount(int count)
+{
+    bool notifyChange = (m_refCount > 0 && count == 0) || (m_refCount <= 0 && count > 0);
+
+    m_refCount = count;
+
+    if (notifyChange)
+        emit isDepencyChanged();
 }
 
 QString CompositionNode::name() const

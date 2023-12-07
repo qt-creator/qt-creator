@@ -7,6 +7,7 @@
 #include "effectmakermodel.h"
 #include "effectmakernodesmodel.h"
 #include "effectmakerview.h"
+#include "effectutils.h"
 #include "propertyhandler.h"
 
 //#include "qmldesigner/designercore/imagecache/midsizeimagecacheprovider.h"
@@ -61,6 +62,7 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     QmlDesigner::Theme::setupTheme(m_quickWidget->engine());
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_quickWidget->engine()->addImportPath(EffectUtils::nodesSourcesPath() + "/common");
     m_quickWidget->setClearColor(QmlDesigner::Theme::getColor(
         QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
 
@@ -75,6 +77,10 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(this, QmlDesigner::Constants::EVENT_EFFECTMAKER_TIME);
 
     m_quickWidget->rootContext()->setContextProperty("g_propertyData", &g_propertyData);
+
+    QString blurPath = "file:" + EffectUtils::nodesSourcesPath() + "/common/";
+    g_propertyData.insert(QString("blur_vs_path"), QString(blurPath + "bluritems.vert.qsb"));
+    g_propertyData.insert(QString("blur_fs_path"), QString(blurPath + "bluritems.frag.qsb"));
 
     auto map = m_quickWidget->registerPropertyMap("EffectMakerBackend");
     map->setProperties({{"effectMakerNodesModel", QVariant::fromValue(m_effectMakerNodesModel.data())},
