@@ -29,7 +29,7 @@ VTermModifier qtModifierToVTerm(Qt::KeyboardModifiers mod)
 VTermKey qtKeyToVTerm(Qt::Key key, bool keypad)
 {
     if (key >= Qt::Key_F1 && key <= Qt::Key_F35)
-        return static_cast<VTermKey>(VTERM_KEY_FUNCTION_0 + key - Qt::Key_F1 + 1);
+        return static_cast<VTermKey>(int(VTERM_KEY_FUNCTION_0) + key - Qt::Key_F1 + 1);
 
     switch (key) {
     case Qt::Key_Return:

@@ -26,7 +26,7 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent)
 {
     QListWidget *pluginList = new QListWidget(this);
 
-    const auto showPluginDetails = [this, pluginList](QListWidgetItem *item) {
+    const auto showPluginDetails = [this](QListWidgetItem *item) {
         QTC_ASSERT(item, return);
         auto spec = item->data(Qt::UserRole).value<PluginSpec *>();
         QTC_ASSERT(spec, return);

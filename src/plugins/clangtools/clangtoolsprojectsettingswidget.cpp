@@ -64,7 +64,6 @@ private:
     void updateButtonStateRemoveAll();
     void removeSelected();
 
-    QComboBox *m_globalCustomComboBox;
     QPushButton *m_restoreGlobal;
     RunSettingsWidget *m_runSettingsWidget;
     QTreeView *m_diagnosticsView;

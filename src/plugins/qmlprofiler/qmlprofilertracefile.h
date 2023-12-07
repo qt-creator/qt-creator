@@ -3,11 +3,6 @@
 
 #pragma once
 
-#include "qmleventlocation.h"
-#include "qmlprofilereventtypes.h"
-#include "qmlnote.h"
-#include "qmleventtype.h"
-#include "qmlevent.h"
 #include "qmlprofilermodelmanager.h"
 
 #include <tracing/timelinetracefile.h>

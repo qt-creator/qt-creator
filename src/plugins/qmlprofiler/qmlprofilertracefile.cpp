@@ -274,7 +274,7 @@ void QmlProfilerTraceFile::loadQzt(QIODevice *device)
 void QmlProfilerTraceFile::addEventsProgress(qint64 timestamp)
 {
     addProgressValue(static_cast<float>(timestamp) / static_cast<float>(traceEnd() - traceStart())
-                     * ProgressEvents);
+                     * int(ProgressEvents));
 }
 
 void QmlProfilerTraceFile::addStageProgress(QmlProfilerTraceFile::ProgressValues stage)
