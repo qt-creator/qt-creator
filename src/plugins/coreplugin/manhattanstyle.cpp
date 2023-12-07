@@ -436,12 +436,6 @@ int ManhattanStyle::styleHint(StyleHint hint, const QStyleOption *option, const 
         if (widget && widget->inherits("QTreeView"))
             ret = 0;
         break;
-    case QStyle::SH_ComboBox_AllowWheelScrolling:
-        // Turn this on only when simultaneously pressing Ctrl, to prevent accidental current
-        // index change, e.g. on a scroll view
-        ret = QGuiApplication::keyboardModifiers()
-              == (HostOsInfo::isMacHost() ? Qt::MetaModifier : Qt::ControlModifier);
-        break;
     case QStyle::SH_Slider_AbsoluteSetButtons:
         // Make QSlider jump on left mouse click
         ret = Qt::LeftButton | Qt::MiddleButton | Qt::RightButton;
