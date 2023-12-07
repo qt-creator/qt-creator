@@ -26,6 +26,14 @@ Rectangle {
         onClicked: root.saveClicked()
     }
 
+    Text {
+        readonly property string compName: EffectMakerBackend.effectMakerModel.currentComposition
+
+        text: compName !== "" ? compName : qsTr("Untitled")
+        anchors.centerIn: parent
+        color: StudioTheme.Values.themeTextColor
+    }
+
     HelperWidgets.AbstractButton {
         anchors.verticalCenter: parent.verticalCenter
         anchors.rightMargin: 5

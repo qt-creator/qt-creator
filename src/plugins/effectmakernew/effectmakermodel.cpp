@@ -150,6 +150,7 @@ void EffectMakerModel::clear()
     qDeleteAll(m_nodes);
     m_nodes.clear();
     endResetModel();
+    setCurrentComposition("");
 
     setIsEmpty(true);
     emit nodesChanged();
