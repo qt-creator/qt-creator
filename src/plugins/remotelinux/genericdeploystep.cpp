@@ -186,9 +186,13 @@ GroupItem GenericDeployStep::deployRecipe()
     const auto onSetup = [this, storage] {
         const QList<DeployableFile> deployableFiles = target()->deploymentData().allFiles();
         FilesToTransfer &files = *storage;
-        for (const DeployableFile &f : deployableFiles) {
-            if (!ignoreMissingFiles() || f.localFilePath().exists())
-                files.append({f.localFilePath(), deviceConfiguration()->filePath(f.remoteFilePath())});
+        for (const DeployableFile &file : deployableFiles) {
+            if (!ignoreMissingFiles() || file.localFilePath().exists()) {
+                const FilePermissions permissions = file.isExecutable()
+                    ? FilePermissions::ForceExecutable : FilePermissions::Default;
+                files.append({file.localFilePath(),
+                              deviceConfiguration()->filePath(file.remoteFilePath()), permissions});
+            }
         }
         if (files.isEmpty()) {
             addSkipDeploymentMessage();

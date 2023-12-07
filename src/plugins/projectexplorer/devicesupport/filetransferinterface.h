@@ -18,11 +18,17 @@ enum class FileTransferMethod {
     Default = Sftp
 };
 
+enum class FilePermissions {
+    Default,
+    ForceExecutable
+};
+
 class PROJECTEXPLORER_EXPORT FileToTransfer
 {
 public:
     Utils::FilePath m_source;
     Utils::FilePath m_target;
+    FilePermissions m_targetPermissions = FilePermissions::Default;
 };
 
 using FilesToTransfer = QList<FileToTransfer>;

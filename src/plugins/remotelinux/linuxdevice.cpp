@@ -1327,9 +1327,13 @@ private:
                     sourceFileOrLinkTarget.withNewPath(fi.dir().relativeFilePath(fi.symLinkTarget()));
             }
 
-            batchData += transferCommand(link) + ' '
-                         + ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget.path()).toLocal8Bit() + ' '
-                         + ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit() + '\n';
+            const QByteArray source = ProcessArgs::quoteArgUnix(sourceFileOrLinkTarget.path())
+                                          .toLocal8Bit();
+            const QByteArray target = ProcessArgs::quoteArgUnix(file.m_target.path()).toLocal8Bit();
+
+            batchData += transferCommand(link) + ' ' + source + ' ' + target + '\n';
+            if (file.m_targetPermissions == FilePermissions::ForceExecutable)
+                batchData += "chmod 1775 " + target + '\n';
         }
         process().setCommand({sftpBinary, fullConnectionOptions() << "-b" << "-" << host()});
         process().setWriteData(batchData);

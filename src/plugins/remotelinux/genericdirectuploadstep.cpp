@@ -67,8 +67,6 @@ public:
     GroupItem statTree(const Storage<UploadStorage> &storage, FilesToStat filesToStat,
                        StatEndHandler statEndHandler);
     GroupItem uploadTask(const Storage<UploadStorage> &storage);
-    GroupItem chmodTask(const DeployableFile &file);
-    GroupItem chmodTree(const Storage<UploadStorage> &storage);
 
     BoolAspect incremental{this};
     BoolAspect ignoreMissingFiles{this};
@@ -185,8 +183,10 @@ GroupItem GenericDirectUploadStep::uploadTask(const Storage<UploadStorage> &stor
                 addErrorMessage(message);
                 return SetupResult::StopWithError;
             }
+            const FilePermissions permissions = file.isExecutable()
+                ? FilePermissions::ForceExecutable : FilePermissions::Default;
             files.append({file.localFilePath(),
-                          deviceConfiguration()->filePath(file.remoteFilePath())});
+                          deviceConfiguration()->filePath(file.remoteFilePath()), permissions});
         }
         if (files.isEmpty()) {
             addProgressMessage(Tr::tr("No files need to be uploaded."));
@@ -202,43 +202,6 @@ GroupItem GenericDirectUploadStep::uploadTask(const Storage<UploadStorage> &stor
     };
 
     return FileTransferTask(onSetup, onError, CallDoneIf::Error);
-}
-
-GroupItem GenericDirectUploadStep::chmodTask(const DeployableFile &file)
-{
-    const auto onSetup = [=](Process &process) {
-        process.setCommand({deviceConfiguration()->filePath("chmod"),
-                {"a+x", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
-    };
-    const auto onError = [=](const Process &process) {
-        const QString error = process.errorString();
-        if (!error.isEmpty()) {
-            addWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
-                                  .arg(file.remoteFilePath(), error));
-        } else if (process.exitCode() != 0) {
-            addWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
-                                  .arg(file.remoteFilePath(), process.cleanedStdErr()));
-        }
-    };
-    return ProcessTask(onSetup, onError, CallDoneIf::Error);
-}
-
-GroupItem GenericDirectUploadStep::chmodTree(const Storage<UploadStorage> &storage)
-{
-    const auto onSetup = [this, storage](TaskTree &tree) {
-        QList<DeployableFile> filesToChmod;
-        for (const DeployableFile &file : std::as_const(storage->filesToUpload)) {
-            if (file.isExecutable())
-                filesToChmod << file;
-        }
-        QList<GroupItem> chmodList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
-        for (const DeployableFile &file : std::as_const(filesToChmod)) {
-            QTC_ASSERT(file.isValid(), continue);
-            chmodList.append(chmodTask(file));
-        }
-        tree.setRecipe({chmodList});
-    };
-    return TaskTreeTask(onSetup);
 }
 
 GroupItem GenericDirectUploadStep::deployRecipe()
@@ -295,7 +258,6 @@ GroupItem GenericDirectUploadStep::deployRecipe()
         onGroupSetup(setupHandler),
         statTree(storage, preFilesToStat, preStatEndHandler),
         uploadTask(storage),
-        chmodTree(storage),
         statTree(storage, postFilesToStat, postStatEndHandler),
         onGroupDone(doneHandler, CallDoneIf::Success)
     };
