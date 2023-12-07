@@ -7,7 +7,9 @@
 
 #include <coreplugin/icore.h>
 
+#include <cppeditor/cppcodestylepreferences.h>
 #include <cppeditor/cppcodestylepreferencesfactory.h>
+#include <cppeditor/cpptoolssettings.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
@@ -61,6 +63,10 @@ ClangFormatIndenter::ClangFormatIndenter(QTextDocument *doc)
 
 bool ClangFormatIndenter::formatCodeInsteadOfIndent() const
 {
+#ifdef WITH_TESTS
+    if (CppEditor::CppToolsSettings::cppCodeStyle()->codeStyleSettings().forceFormatting)
+        return true;
+#endif
     return getCurrentIndentationOrFormattingSettings(m_fileName)
            == ClangFormatSettings::Mode::Formatting;
 }
