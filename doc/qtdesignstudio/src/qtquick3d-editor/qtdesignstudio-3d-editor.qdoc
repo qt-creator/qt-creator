@@ -153,6 +153,13 @@
     For more information about the available scene light types and their
     properties, see \l{Lights}.
 
+    \section1 Baking Lights
+
+    Bake lights to light static elements in your scene. To bake lights,
+    select \inlineimage icons/bakelights.png to open the
+    \uicontrol {Lights Baking Setup} dialog. For more information, see
+    \l {Baking Lightmaps}.
+
     \section1 Selecting Components
 
     To move, rotate, or scale components in the scene, you need to select them
