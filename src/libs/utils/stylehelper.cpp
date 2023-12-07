@@ -979,4 +979,24 @@ QFont StyleHelper::uiFont(UiElement element)
     return font;
 }
 
+QString StyleHelper::fontToCssProperties(const QFont &font)
+{
+    const QString fontSize = font.pixelSize() != -1 ? QString::number(font.pixelSize()) + "px"
+                                                    : QString::number(font.pointSizeF()) + "pt";
+    const QString fontStyle = QLatin1String(font.style() == QFont::StyleNormal
+                                                ? "normal" : font.style() == QFont::StyleItalic
+                                                      ? "italic" : "oblique");
+    const QString fontShorthand = fontStyle + " " + QString::number(font.weight()) + " "
+                                  + fontSize + " " + font.family();
+    const QString textDecoration = QLatin1String(font.underline() ? "underline" : "none");
+    const QString propertyTemplate = "%1: %2";
+    const QStringList cssProperties = {
+        propertyTemplate.arg("font").arg(fontShorthand),
+        propertyTemplate.arg("text-decoration").arg(textDecoration),
+        propertyTemplate.arg("word-spacing").arg(font.wordSpacing()),
+    };
+    const QString fontCssStyle = cssProperties.join("; ");
+    return fontCssStyle;
+}
+
 } // namespace Utils

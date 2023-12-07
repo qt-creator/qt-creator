@@ -28,15 +28,30 @@ int main(int argc, char *argv[])
     static const QString textSample("AaBbCcXxYyZz123");
 
     using namespace Layouting;
-    Grid fontLabels {};
+    Grid fontLabels;
     for (auto uiElement : uiElements) {
         const QFont font = StyleHelper::uiFont(uiElement.uiElement);
         auto *uiElementLabel = new QLabel(uiElement.name);
         uiElementLabel->setFont(font);
+        uiElementLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         auto *sampleLabel = new QLabel(textSample);
         sampleLabel->setFont(font);
-        fontLabels.addItems({uiElementLabel, sampleLabel, font.toString(), br});
+        sampleLabel->setSizePolicy(uiElementLabel->sizePolicy());
+        fontLabels.addItems({uiElementLabel, sampleLabel, st, font.toString(), br});
     }
+
+    QString html("<html><body><table>");
+    for (auto uiElement : uiElements) {
+        const QFont font = StyleHelper::uiFont(uiElement.uiElement);
+        html.append(QString(R"(
+            <tr>
+                <td style="%1">%2</td>
+                <td style="%1">%3</td>
+                <td>%1</td>
+            </tr>
+        )").arg(StyleHelper::fontToCssProperties(font)).arg(uiElement.name).arg(textSample));
+    }
+    html.append("</table></body></html>");
 
     Column {
         windowTitle("Utils::StyleHelper::uiFont"),
@@ -44,6 +59,11 @@ int main(int argc, char *argv[])
             title("As QFont in QLabel"),
             fontLabels,
         },
+        Group {
+            title("As inline CSS in HTML elements"),
+            Row { html },
+        },
+        st,
     }.emerge()->show();
 
     return app.exec();
