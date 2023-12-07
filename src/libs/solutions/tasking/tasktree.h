@@ -271,7 +271,7 @@ private:
         static_assert(isS || isV,
             "Group setup handler needs to take no arguments and has to return void or SetupResult. "
             "The passed handler doesn't fulfill these requirements.");
-        return [=] {
+        return [handler] {
             if constexpr (isS)
                 return std::invoke(handler);
             std::invoke(handler);
@@ -289,7 +289,7 @@ private:
         static_assert(isDW || isD || isVW || isV,
             "Group done handler needs to take (DoneWith) or (void) as an argument and has to "
             "return void or DoneResult. The passed handler doesn't fulfill these requirements.");
-        return [=](DoneWith result) {
+        return [handler](DoneWith result) {
             if constexpr (isDW)
                 return std::invoke(handler, result);
             if constexpr (isD)
@@ -347,7 +347,7 @@ private:
         static_assert(isB || isV,
             "Sync handler needs to take no arguments and has to return void or DoneResult. "
             "The passed handler doesn't fulfill these requirements.");
-        return [=] {
+        return [handler] {
             if constexpr (isB) {
                 return std::invoke(handler) == DoneResult::Success ? SetupResult::StopWithSuccess
                                                                    : SetupResult::StopWithError;
@@ -410,7 +410,7 @@ private:
         static_assert(isS || isV,
             "Task setup handler needs to take (Task &) as an argument and has to return void or "
             "SetupResult. The passed handler doesn't fulfill these requirements.");
-        return [=](TaskInterface &taskInterface) {
+        return [handler](TaskInterface &taskInterface) {
             Adapter &adapter = static_cast<Adapter &>(taskInterface);
             if constexpr (isS)
                 return std::invoke(handler, *adapter.task());
@@ -436,7 +436,7 @@ private:
             "Task done handler needs to take (const Task &, DoneWith), (const Task &), "
             "(DoneWith) or (void) as arguments and has to return void or DoneResult. "
             "The passed handler doesn't fulfill these requirements.");
-        return [=](const TaskInterface &taskInterface, DoneWith result) {
+        return [handler](const TaskInterface &taskInterface, DoneWith result) {
             const Adapter &adapter = static_cast<const Adapter &>(taskInterface);
             if constexpr (isDTW)
                 return std::invoke(handler, *adapter.task(), result);
@@ -516,7 +516,7 @@ private:
                              StorageBase::StorageHandler doneHandler);
     template <typename StorageStruct, typename Handler>
     StorageBase::StorageHandler wrapHandler(Handler &&handler) {
-        return [=](void *voidStruct) {
+        return [handler](void *voidStruct) {
             auto *storageStruct = static_cast<StorageStruct *>(voidStruct);
             std::invoke(handler, *storageStruct);
         };
