@@ -98,7 +98,7 @@ private:
         const auto setup = [this](Async<QByteArray> &async) {
             async.setConcurrentCallData(localRead, m_filePath);
             Async<QByteArray> *asyncPtr = &async;
-            connect(asyncPtr, &AsyncBase::resultReadyAt, this, [=](int index) {
+            connect(asyncPtr, &AsyncBase::resultReadyAt, this, [this, asyncPtr](int index) {
                 emit readyRead(asyncPtr->resultAt(index));
             });
         };

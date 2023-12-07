@@ -354,7 +354,7 @@ void PyLSConfigureAssistant::handlePyLSState(const FilePath &python,
                                  message,
                                  Utils::InfoBarEntry::GlobalSuppression::Enabled);
         info.addCustomButton(Tr::tr("Install"), [=]() {
-            installPythonLanguageServer(python, document, state.pylsModulePath);
+            this->installPythonLanguageServer(python, document, state.pylsModulePath);
         });
         infoBar->addInfo(info);
         m_infoBarEntries[python] << document;

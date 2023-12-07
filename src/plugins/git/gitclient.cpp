@@ -238,7 +238,7 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
 {
     const Storage<QString> diffInputStorage;
 
-    const auto onDiffSetup = [=](Process &process) {
+    const auto onDiffSetup = [this, leftCommit, rightCommit, extraArgs](Process &process) {
         process.setCodec(VcsBaseEditor::getCodec(workingDirectory(), {}));
         setupCommand(process, {addConfigurationArguments(diffArgs(leftCommit, rightCommit, extraArgs))});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
@@ -3148,7 +3148,7 @@ static PushFailure handleError(const QString &text, QString *pushFallbackCommand
 
 void GitClient::push(const FilePath &workingDirectory, const QStringList &pushArgs)
 {
-    const auto commandHandler = [=](const CommandResult &result) {
+    const auto commandHandler = [this, workingDirectory, pushArgs](const CommandResult &result) {
         QString pushFallbackCommand;
         const PushFailure pushFailure = handleError(result.cleanedStdErr(),
                                                     &pushFallbackCommand);

@@ -254,18 +254,18 @@ RecordWidget::RecordWidget(const FilePath &recordFile, QWidget *parent)
         recordButton->setEnabled(false);
         stopButton->setEnabled(true);
         settingsButton->setEnabled(false);
-        m_openClipAction->setEnabled(false);
+        this->m_openClipAction->setEnabled(false);
         emit started();
     });
     connect(m_process, &Process::done, this, [=] {
         recordButton->setEnabled(true);
         stopButton->setEnabled(false);
         settingsButton->setEnabled(true);
-        m_openClipAction->setEnabled(true);
-        if (m_process->exitCode() == 0)
-            emit finished(FFmpegUtils::clipInfo(m_clipInfo.file));
+        this->m_openClipAction->setEnabled(true);
+        if (this->m_process->exitCode() == 0)
+            emit finished(FFmpegUtils::clipInfo(this->m_clipInfo.file));
         else
-            FFmpegUtils::reportError(m_process->commandLine(), m_lastOutputChunk);
+            FFmpegUtils::reportError(this->m_process->commandLine(), this->m_lastOutputChunk);
     });
     connect(m_process, &Process::readyReadStandardError, this, [this, progressLabel] {
         m_lastOutputChunk = m_process->readAllRawStandardError();

@@ -1134,7 +1134,7 @@ public:
         connect(editor->editorWidget()->textDocument(),
                 &TextEditor::TextDocument::contentsChanged,
                 this,
-                [=]() { m_settings.setJson(editor->document()->contents()); });
+                [=] { m_settings.setJson(editor->document()->contents()); });
     }
 
 private:

@@ -112,7 +112,7 @@ void PySideBuildStep::checkForPySide(const FilePath &python, const QString &pySi
     QObject::disconnect(m_watcherConnection);
     m_watcher.reset(new QFutureWatcher<PipPackageInfo>());
     m_watcherConnection = QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, this, [=] {
-        handlePySidePackageInfo(m_watcher->result(), python, pySidePackageName);
+        this->handlePySidePackageInfo(m_watcher->result(), python, pySidePackageName);
     });
     const auto future = Pip::instance(python)->info(package);
     m_watcher->setFuture(future);
@@ -258,7 +258,7 @@ PythonBuildConfiguration::PythonBuildConfiguration(Target *target, const Id &id)
             this,
             &PythonBuildConfiguration::handlePythonUpdated);
 
-    auto update = [this]() {
+    auto update = [this] {
         if (isActive()) {
             m_buildSystem->emitBuildSystemUpdated();
             const FilePaths files = project()->files(Project::AllFiles);

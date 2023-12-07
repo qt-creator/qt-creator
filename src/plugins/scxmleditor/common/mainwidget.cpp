@@ -347,7 +347,7 @@ void MainWidget::init()
     // Connect alignment change
     alignToolButton->setProperty("currentAlignment", ActionAlignLeft);
     connect(alignToolButton, &QToolButton::clicked, this, [=] {
-        StateView *view = m_views.last();
+        StateView *view = this->m_views.last();
         if (view)
             view->scene()->alignStates(alignToolButton->property("currentAlignment").toInt());
     });
@@ -355,7 +355,7 @@ void MainWidget::init()
     // Connect alignment change
     adjustToolButton->setProperty("currentAdjustment", ActionAdjustWidth);
     connect(adjustToolButton, &QToolButton::clicked, this, [=] {
-        StateView *view = m_views.last();
+        StateView *view = this->m_views.last();
         if (view)
             view->scene()->adjustStates(adjustToolButton->property("currentAdjustment").toInt());
     });

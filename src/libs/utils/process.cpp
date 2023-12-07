@@ -2122,7 +2122,7 @@ void ProcessPrivate::setupDebugLog()
         return duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
     };
 
-    connect(q, &Process::starting, this, [=] {
+    connect(q, &Process::starting, this, [this, now] {
         const quint64 msNow = now();
         setProperty(QTC_PROCESS_STARTTIME, msNow);
 
@@ -2135,7 +2135,7 @@ void ProcessPrivate::setupDebugLog()
         setProperty(QTC_PROCESS_NUMBER, currentNumber);
     });
 
-    connect(q, &Process::done, this, [=] {
+    connect(q, &Process::done, this, [this, now] {
         if (!m_process.get())
             return;
         const QVariant n = property(QTC_PROCESS_NUMBER);

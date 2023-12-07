@@ -425,9 +425,11 @@ bool BranchView::checkout()
                 return false;
         }
 
-        const bool moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch();
-        const bool popStash = branchCheckoutDialog.popStashOfNextBranch();
-        const auto commandHandler = [=](const CommandResult &) {
+        const auto commandHandler = [this,
+                                     moveChanges = branchCheckoutDialog.moveLocalChangesToNextBranch(),
+                                     popStash = branchCheckoutDialog.popStashOfNextBranch(),
+                                     popMessageStart
+                                    ](const CommandResult &) {
             if (moveChanges) {
                 gitClient().endStashScope(m_repository);
             } else if (popStash) {

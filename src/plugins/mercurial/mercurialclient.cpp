@@ -55,7 +55,7 @@ MercurialDiffEditorController::MercurialDiffEditorController(IDocument *document
 
     const Storage<QString> diffInputStorage;
 
-    const auto onDiffSetup = [=](Process &process) {
+    const auto onDiffSetup = [this, args](Process &process) {
         setupCommand(process, {addConfigurationArguments(args)});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };

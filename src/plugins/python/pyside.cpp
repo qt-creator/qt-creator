@@ -125,7 +125,7 @@ void PySideInstaller::installPyside(const FilePath &python,
     connect(install, &PipInstallTask::finished, install, &QObject::deleteLater);
     connect(install, &PipInstallTask::finished, this, [=](bool success){
         if (success)
-            emit pySideInstalled(python, pySide);
+            emit this->pySideInstalled(python, pySide);
     });
     if (availablePySides.isEmpty()) {
         install->setPackages({PipPackage(pySide)});
@@ -193,7 +193,7 @@ void PySideInstaller::handlePySideMissing(const FilePath &python,
     const QString message = Tr::tr("%1 installation missing for %2 (%3)")
                                 .arg(pySide, pythonName(python), python.toUserOutput());
     InfoBarEntry info(installPySideInfoBarId, message, InfoBarEntry::GlobalSuppression::Enabled);
-    auto installCallback = [=]() { installPyside(python, pySide, document); };
+    auto installCallback = [=] { this->installPyside(python, pySide, document); };
     const QString installTooltip = Tr::tr("Install %1 for %2 using pip package installer.")
                                        .arg(pySide, python.toUserOutput());
     info.addCustomButton(Tr::tr("Install"), installCallback, installTooltip);

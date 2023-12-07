@@ -43,11 +43,11 @@ PaneTitleButton::PaneTitleButton(OutputPane *pane, QWidget *parent)
     });
 
     connect(pane, &OutputPane::titleChanged, this, [=] {
-        setText(pane->title());
+        this->setText(pane->title());
     });
 
     connect(pane, &OutputPane::iconChanged, this, [=] {
-        setIcon(pane->icon());
+        this->setIcon(pane->icon());
     });
 }
 
