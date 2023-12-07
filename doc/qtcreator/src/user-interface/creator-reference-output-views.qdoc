@@ -63,7 +63,7 @@
 
     \sa {View output}
     \if defined(qtcreator)
-    \sa {Show task list files in Issues}
+    \sa {Add custom output parsers}, {Show task list files in Issues}
     \endif
 */
 
@@ -224,5 +224,5 @@
         \li Select \uicontrol OK to start parsing.
     \endlist
 
-    \sa {View output}
+    \sa {View output}, {Add custom output parsers}
 */

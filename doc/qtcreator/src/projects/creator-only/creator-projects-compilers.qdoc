@@ -319,9 +319,10 @@
             to the Qt mkspecs directory.
 
         \li In the \uicontrol {Error parser} field, select the error parser to use.
-            You can add custom output parsers to the list.
+            You can add custom output parsers to the list. Select
+            \uicontrol {Custom Parser Settings} to view and edit their preferences.
     \endlist
 
     \sa {Add compilers}, {Add Nim compilers}, {Compilers},
-    {Using Custom Output Parsers}
+    {Add custom output parsers}
 */

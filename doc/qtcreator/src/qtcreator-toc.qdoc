@@ -26,7 +26,6 @@
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
             \list
-                \li \l{Using Custom Output Parsers}
                 \li \l{Sharing Project Settings}
             \endlist
         \endlist

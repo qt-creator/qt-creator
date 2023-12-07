@@ -83,7 +83,6 @@
                 \li \l{Using Clang Tools}{Clang Tools}
                 \li \l{Specify code style}{C++ Code Style}
                 \li \l{Set C++ file naming preferences}{C++ File Naming}
-                \li \l{Using Custom Output Parsers}{Custom Output Parsers}
                 \li \l{Specify dependencies}{Dependencies}
                 \li \l{Document code}{Documentation Comments}
                 \li \l{Specify editor settings}{Editor}
@@ -96,7 +95,8 @@
     in \uicontrol {Active Project}.
 
     \sa {Activate kits for a project}, {Configure projects for building},
-    {Configure projects for running}, {Open projects}
+    {Configure projects for running}, {Open projects},
+    {Activate custom output parsers}
 */
 
 /*!
