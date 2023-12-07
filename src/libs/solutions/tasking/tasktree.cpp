@@ -601,8 +601,9 @@ private:
 
     Constructs an element that executes a passed \a handler synchronously.
     The \c Handler is of the \c std::function<DoneResult()> type.
-    The DoneResult value, returned by the \a handler, is considered during parent group's workflow
-    policy resolution. Optionally, the shortened form of \c std::function<void()> is also accepted.
+    The DoneResult value, returned by the \a handler, is considered during parent group's
+    \l {workflowPolicy} {workflow policy} resolution.
+    Optionally, the shortened form of \c std::function<void()> is also accepted.
     In this case, it's assumed that the return value is DoneResult::Success.
 
     The passed \a handler executes synchronously from the caller thread, so avoid a long-running
@@ -1190,7 +1191,7 @@ GroupItem parallelLimit(int limit)
 }
 
 /*!
-    Constructs a group's workflow policy element for a given \a policy.
+    Constructs a group's \l {Workflow Policy} {workflow policy} element for a given \a policy.
 
     For convenience, global elements may be used instead.
 
