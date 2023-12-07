@@ -309,8 +309,11 @@ void DockWidget::setWidget(QWidget *widget, eInsertMode insertMode)
     auto scrollAreaWidget = qobject_cast<QAbstractScrollArea *>(widget);
     if (scrollAreaWidget || ForceNoScrollArea == insertMode) {
         d->m_layout->addWidget(widget);
-        if (scrollAreaWidget && scrollAreaWidget->viewport())
-            scrollAreaWidget->viewport()->setProperty("dockWidgetContent", true);
+        if (scrollAreaWidget) {
+            if (scrollAreaWidget->viewport())
+                scrollAreaWidget->viewport()->setProperty("dockWidgetContent", true);
+            scrollAreaWidget->setProperty("focused", isFocused());
+        }
     } else {
         d->setupScrollArea();
         d->m_scrollArea->setWidget(widget);
@@ -481,6 +484,11 @@ void DockWidget::setFocused(bool focused)
 
     if (d->m_scrollArea)
         d->m_scrollArea->setProperty("focused", focused);
+
+    QList<QAbstractScrollArea *> scrollAreas = d->m_widget->findChildren<QAbstractScrollArea *>(
+        Qt::FindDirectChildrenOnly);
+    for (QAbstractScrollArea *scrollArea : scrollAreas)
+        scrollArea->setProperty("focused", focused);
 
     const QString customObjectName = QString("__mainSrollView");
 
