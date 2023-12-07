@@ -25,9 +25,6 @@
         \list
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
-            \list
-                \li \l{Sharing Project Settings}
-            \endlist
         \endlist
         \li \l{Designing User Interfaces}
         \list
