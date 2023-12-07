@@ -7,6 +7,7 @@
 #include "mcusupport_global.h"
 #include "mcusupportplugin.h"
 #include "mcusupporttr.h"
+#include "mcusupportconstants.h"
 
 #include <utils/algorithm.h>
 
@@ -115,11 +116,12 @@ void McuTarget::handlePackageProblems(MessagesList &messages) const
 
 void McuTarget::resetInvalidPathsToDefault()
 {
-
     for (McuPackagePtr package : std::as_const(m_packages)) {
         if (!package)
             continue;
         if (package->isValidStatus())
+            continue;
+        if (package->settingsKey() == Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK)
             continue;
         package->setPath(package->defaultPath());
         package->writeToSettings();

@@ -30,7 +30,6 @@
 
 #include <utils/algorithm.h>
 
-#include <QCoreApplication>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QRegularExpression>
@@ -433,7 +432,7 @@ QList<Kit *> existingKits(const McuTarget *mcuTarget)
     using namespace Constants;
     // some models have compatible name changes that refere to the same supported board across versions.
     // name changes are tracked here to recognize the corresponding kits as upgradable.
-    static QMap<QString, QStringList> upgradable_to = {
+    static const QMap<QString, QStringList> upgradable_to = {
         {"MIMXRT1170-EVK-FREERTOS", {"MIMXRT1170-EVKB-FREERTOS"}}};
     return Utils::filtered(KitManager::kits(), [mcuTarget](Kit *kit) {
         return kit->value(KIT_MCUTARGET_KITVERSION_KEY) == KIT_VERSION

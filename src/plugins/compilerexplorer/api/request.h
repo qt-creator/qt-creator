@@ -14,6 +14,8 @@
 #include <QPromise>
 #include <QString>
 
+#include <utils/appinfo.h>
+
 static Q_LOGGING_CATEGORY(apiLog, "qtc.compilerexplorer.api", QtWarningMsg);
 
 namespace CompilerExplorer::Api {
@@ -45,11 +47,18 @@ static int debugRequestId = 0;
 template<typename Result>
 QFuture<Result> request(
     QNetworkAccessManager *networkManager,
-    const QNetworkRequest &req,
+    QNetworkRequest &req,
     std::function<void(const QByteArray &, QSharedPointer<QPromise<Result>>)> callback,
     QNetworkAccessManager::Operation op = QNetworkAccessManager::GetOperation,
-    const QByteArray &outData = {})
+    const QByteArray &payload = {})
 {
+    static const QByteArray userAgent = QString("%1/%2 (%3)")
+                                            .arg(QCoreApplication::applicationName())
+                                            .arg(QCoreApplication::applicationVersion())
+                                            .arg(Utils::appInfo().author)
+                                            .toUtf8();
+    req.setRawHeader("User-Agent", userAgent);
+
     QSharedPointer<QPromise<Result>> p(new QPromise<Result>);
     p->start();
 
@@ -58,12 +67,12 @@ QFuture<Result> request(
 
     const auto reqId = [r = debugRequestId] { return QString("[%1]").arg(r); };
 
-    if (outData.isEmpty())
+    if (payload.isEmpty())
         qCDebug(apiLog).noquote() << reqId() << "Requesting" << toString(op)
                                   << req.url().toString();
     else
         qCDebug(apiLog).noquote() << reqId() << "Requesting" << toString(op) << req.url().toString()
-                                  << "with payload:" << QString::fromUtf8(outData);
+                                  << "with payload:" << QString::fromUtf8(payload);
 
     QNetworkReply *reply = nullptr;
 
@@ -72,10 +81,10 @@ QFuture<Result> request(
         reply = networkManager->get(req);
         break;
     case QNetworkAccessManager::PostOperation:
-        reply = networkManager->post(req, outData);
+        reply = networkManager->post(req, payload);
         break;
     case QNetworkAccessManager::PutOperation:
-        reply = networkManager->put(req, outData);
+        reply = networkManager->put(req, payload);
         break;
     case QNetworkAccessManager::DeleteOperation:
         reply = networkManager->deleteResource(req);
@@ -115,12 +124,16 @@ QFuture<Result> request(
 
 template<typename Result>
 QFuture<Result> jsonRequest(QNetworkAccessManager *networkManager,
-                            const QNetworkRequest &req,
+                            const QUrl &url,
                             std::function<Result(QJsonDocument)> callback,
                             QNetworkAccessManager::Operation op
                             = QNetworkAccessManager::GetOperation,
-                            const QByteArray &outData = {})
+                            const QByteArray &payload = {})
 {
+    QNetworkRequest req(url);
+    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+    req.setRawHeader("Accept", "application/json");
+
     return request<Result>(
         networkManager,
         req,
@@ -135,7 +148,7 @@ QFuture<Result> jsonRequest(QNetworkAccessManager *networkManager,
             promise->addResult(callback(doc));
         },
         op,
-        outData);
+        payload);
 }
 
 } // namespace CompilerExplorer::Api

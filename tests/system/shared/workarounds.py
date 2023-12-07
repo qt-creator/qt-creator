@@ -99,8 +99,7 @@ class JIRA:
                 test.fatal("No resolution info for %s" % bug)
                 self._resolution = 'Done'
             else:
-                if isinstance(data, (bytes)):
-                    data = str(data)
+                data = stringify(data)
                 data = data.replace("\r", "").replace("\n", "")
                 resPattern = re.compile('<span\s+id="resolution-val".*?>(?P<resolution>.*?)</span>')
                 resolution = resPattern.search(data)

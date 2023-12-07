@@ -1979,6 +1979,8 @@ QAction *BoolAspect::action()
     connect(act, &QAction::triggered, this, [this](bool newValue) {
         setValue(newValue);
     });
+    connect(this, &BoolAspect::changed, act, [act, this] { act->setChecked(m_internal); });
+
     return act;
 }
 

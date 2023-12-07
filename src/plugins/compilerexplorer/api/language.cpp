@@ -13,10 +13,8 @@ QFuture<Languages> languages(const Config &config)
 {
     QUrl url = config.url({"api/languages"});
     url.setQuery(QUrlQuery{{"fields", "id,name,extensions,logoUrl"}});
-    QNetworkRequest req(url);
-    req.setRawHeader("Accept", "application/json");
 
-    return jsonRequest<Languages>(config.networkManager, req, [](const QJsonDocument &doc) {
+    return jsonRequest<Languages>(config.networkManager, url, [](const QJsonDocument &doc) {
         QJsonArray languages = doc.array();
         Languages result;
         for (const auto &language : languages) {

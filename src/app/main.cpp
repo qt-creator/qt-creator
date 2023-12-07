@@ -478,6 +478,53 @@ bool startCrashpad(const QString &libexecPath, bool crashReportingEnabled)
 }
 #endif
 
+class ShowInGuiHandler
+{
+public:
+    ShowInGuiHandler()
+    {
+        instance = this;
+        oldHandler = qInstallMessageHandler(log);
+    }
+    ~ShowInGuiHandler() { qInstallMessageHandler(oldHandler); };
+
+private:
+    static void log(QtMsgType type, const QMessageLogContext &context, const QString &msg)
+    {
+        instance->messages += msg;
+        if (type == QtFatalMsg) {
+            // Show some kind of GUI with collected messages before exiting.
+            // For Windows, Qt already uses a dialog.
+            if (Utils::HostOsInfo::isLinuxHost()) {
+#if (QT_VERSION >= QT_VERSION_CHECK(6, 5, 0) && QT_VERSION < QT_VERSION_CHECK(6, 5, 3)) \
+    || (QT_VERSION >= QT_VERSION_CHECK(6, 6, 0) && QT_VERSION < QT_VERSION_CHECK(6, 6, 1))
+                // Information about potentially missing libxcb-cursor0 is printed by Qt since Qt 6.5.3 and Qt 6.6.1
+                // Add it manually for other versions >= 6.5.0
+                instance->messages.prepend("From 6.5.0, xcb-cursor0 or libxcb-cursor0 is needed to "
+                                           "load the Qt xcb platform plugin.");
+#endif
+                if (QFile::exists("/usr/bin/xmessage"))
+                    QProcess::startDetached("/usr/bin/xmessage", {instance->messages.join("\n")});
+            } else if (Utils::HostOsInfo::isMacHost()) {
+                QProcess::startDetached("/usr/bin/osascript",
+                                        {"-e",
+                                         "display dialog \""
+                                             + instance->messages.join("\n").replace("\"", "\\\"")
+                                             + "\" buttons \"OK\" with title \""
+                                             + Core::Constants::IDE_DISPLAY_NAME
+                                             + " Failed to Start\""});
+            }
+        }
+        instance->oldHandler(type, context, msg);
+    };
+
+    static ShowInGuiHandler *instance;
+    QStringList messages;
+    QtMessageHandler oldHandler = nullptr;
+};
+
+ShowInGuiHandler *ShowInGuiHandler::instance = nullptr;
+
 int main(int argc, char **argv)
 {
     Restarter restarter(argc, argv);
@@ -600,9 +647,13 @@ int main(int argc, char **argv)
 
     int numberOfArguments = static_cast<int>(options.appArguments.size());
 
+    // create a custom Qt message handler that shows messages in a bare bones UI
+    // if creation of the QGuiApplication fails.
+    auto handler = std::make_unique<ShowInGuiHandler>();
     std::unique_ptr<SharedTools::QtSingleApplication>
         appPtr(SharedTools::createApplication(QLatin1String(Core::Constants::IDE_DISPLAY_NAME),
                                               numberOfArguments, options.appArguments.data()));
+    handler.reset();
     SharedTools::QtSingleApplication &app = *appPtr;
     QCoreApplication::setApplicationName(Core::Constants::IDE_CASED_ID);
     QCoreApplication::setApplicationVersion(QLatin1String(Core::Constants::IDE_VERSION_LONG));

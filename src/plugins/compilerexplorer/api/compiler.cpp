@@ -32,9 +32,6 @@ QFuture<Compilers> compilers(const Config &config,
     if (!fieldParam.isEmpty())
         url.setQuery(QUrlQuery{{"fields", fieldParam}});
 
-    QNetworkRequest req(url);
-    req.setRawHeader("Accept", "application/json");
-
     auto fromJson = [extraFields](const QJsonDocument &doc) {
         QJsonArray compilers = doc.array();
         Compilers result;
@@ -59,7 +56,7 @@ QFuture<Compilers> compilers(const Config &config,
         return result;
     };
 
-    return jsonRequest<Compilers>(config.networkManager, req, fromJson);
+    return jsonRequest<Compilers>(config.networkManager, url, fromJson);
 }
 
 } // namespace CompilerExplorer::Api

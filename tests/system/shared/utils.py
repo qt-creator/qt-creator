@@ -171,11 +171,13 @@ def invokeMenuItem(menu, item, *subItems):
     numberedPrefix = "%d | "
     for subItem in subItems:
         # we might have numbered sub items (e.g. "Recent Files") - these have this special prefix
-        # but on macOS we don't add these prefixes
-        if platform.system() == 'Darwin' and subItem.startswith(numberedPrefix):
-            subItem = subItem[5:]
+        hasNumPrefix = subItem.startswith(numberedPrefix)
+        if hasNumPrefix and platform.system() == 'Darwin':
+            # on macOS we don't add these prefixes
+            subItem = subItem[len(numberedPrefix):]
+            hasNumPrefix = False
 
-        if subItem.startswith(numberedPrefix):
+        if hasNumPrefix:
             triggered = False
             for i in range(1, 10):
                 try:
