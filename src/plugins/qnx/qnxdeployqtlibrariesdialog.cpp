@@ -36,8 +36,6 @@ using namespace Utils;
 
 namespace Qnx::Internal {
 
-const int MaxConcurrentStatCalls = 10;
-
 class QnxDeployQtLibrariesDialogPrivate : public QObject
 {
 public:
@@ -93,8 +91,6 @@ private:
     GroupItem checkDirTask();
     GroupItem removeDirTask();
     GroupItem uploadTask();
-    GroupItem chmodTask(const DeployableFile &file);
-    GroupItem chmodTree();
 
     enum class CheckResult { RemoveDir, SkipRemoveDir, Abort };
     CheckResult m_checkResult = CheckResult::Abort;
@@ -179,7 +175,10 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
                 emitErrorMessage(message);
                 return SetupResult::StopWithError;
             }
-            files.append({file.localFilePath(), m_device->filePath(file.remoteFilePath())});
+            const FilePermissions permissions = file.isExecutable()
+                ? FilePermissions::ForceExecutable : FilePermissions::Default;
+            files.append({file.localFilePath(), m_device->filePath(file.remoteFilePath()),
+                          permissions});
         }
         if (files.isEmpty()) {
             emitProgressMessage(Tr::tr("No files need to be uploaded."));
@@ -194,43 +193,6 @@ GroupItem QnxDeployQtLibrariesDialogPrivate::uploadTask()
         emitErrorMessage(transfer.resultData().m_errorString);
     };
     return FileTransferTask(onSetup, onError, CallDoneIf::Error);
-}
-
-GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTask(const DeployableFile &file)
-{
-    const auto onSetup = [this, file](Process &process) {
-        process.setCommand({m_device->filePath("chmod"),
-                {"a+x", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
-    };
-    const auto onError = [this, file](const Process &process) {
-        const QString error = process.errorString();
-        if (!error.isEmpty()) {
-            emitWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
-                                   .arg(file.remoteFilePath(), error));
-        } else if (process.exitCode() != 0) {
-            emitWarningMessage(Tr::tr("Remote chmod failed for file \"%1\": %2")
-                                   .arg(file.remoteFilePath(), process.cleanedStdErr()));
-        }
-    };
-    return ProcessTask(onSetup, onError, CallDoneIf::Error);
-}
-
-GroupItem QnxDeployQtLibrariesDialogPrivate::chmodTree()
-{
-    const auto onSetup = [this](TaskTree &tree) {
-        QList<DeployableFile> filesToChmod;
-        for (const DeployableFile &file : std::as_const(m_deployableFiles)) {
-            if (file.isExecutable())
-                filesToChmod << file;
-        }
-        QList<GroupItem> chmodList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
-        for (const DeployableFile &file : std::as_const(filesToChmod)) {
-            QTC_ASSERT(file.isValid(), continue);
-            chmodList.append(chmodTask(file));
-        }
-        tree.setRecipe(chmodList);
-    };
-    return TaskTreeTask(onSetup);
 }
 
 Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
@@ -269,8 +231,7 @@ Group QnxDeployQtLibrariesDialogPrivate::deployRecipe()
         Group {
             onGroupSetup(subGroupSetupHandler),
             removeDirTask(),
-            uploadTask(),
-            chmodTree()
+            uploadTask()
         },
         onGroupDone(doneHandler, CallDoneIf::Success)
     };
