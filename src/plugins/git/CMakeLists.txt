@@ -31,6 +31,7 @@ add_qtc_plugin(Git
     gitsubmiteditor.cpp gitsubmiteditor.h
     gitsubmiteditorwidget.cpp gitsubmiteditorwidget.h
     gitutils.cpp gitutils.h
+    instantblame.cpp instantblame.h
     logchangedialog.cpp logchangedialog.h
     mergetool.cpp mergetool.h
     remotedialog.cpp remotedialog.h
