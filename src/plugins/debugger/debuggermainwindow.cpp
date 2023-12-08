@@ -112,7 +112,6 @@ public:
     DebuggerMainWindowPrivate(DebuggerMainWindow *parent);
     ~DebuggerMainWindowPrivate();
 
-    void selectPerspective(Perspective *perspective);
     void depopulateCurrentPerspective();
     void populateCurrentPerspective();
     void destroyPerspective(Perspective *perspective);
