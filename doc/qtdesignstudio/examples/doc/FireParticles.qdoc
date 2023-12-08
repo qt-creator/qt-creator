@@ -31,7 +31,7 @@
       \li \e fire-color-table.png
     \endlist
 
-    You can download the assets from
+    Download the assets
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/fire-particles/FireParticles/content/images}
     {here}.
 
@@ -48,14 +48,14 @@
       \li In the \uicontrol Presets section, select \uicontrol General >
       \uicontrol {3D}.
       \li In the \uicontrol Details section, set the name to \e FireParticles
-      and select the folder where you want to save the project.
+      , and select the folder where you want to save the project.
       \li Select \uicontrol {Create}.
     \endlist
 
-    Next, remove unwanted default components from the project:
+    Next, remove any unwanted default components from the project:
 
     \list 1
-      \li In \uicontrol {Navigator}, select \e Text and select the \key Delete
+      \li In the \uicontrol {Navigator} view, select \e Text and then select the \key Delete
       key.
       \li In the same way, delete \e {cubeModel}.
     \endlist
@@ -63,10 +63,9 @@
     For a better visual effect, set the background color to black:
 
     \list
-      \li In \uicontrol {Navigator}, select \e Rectangle and in
+      \li In the \uicontrol {Navigator} view, select \e Rectangle and in
       \uicontrol {Properties}, set \uicontrol {Fill Color} to #000000.
     \endlist
-
 
     \section2 Adding a Particle System to Your Scene
 
@@ -79,15 +78,18 @@
       \li Find QtQuick3D.Particles3D, and select it to add it to your project.
     \endlist
 
+    \image fire-particles-components.png
+
     In this project, you use an animated sprite to simulate a fire. For
-    this, use the Animated Sprite particle system template:
+    this, use the \uicontrol {Animated Sprite} particle system template:
 
     \list
       \li From \uicontrol Components >
       \uicontrol{Qt Quick 3D Particle System Templates} drag an
-      \uicontrol {Animated Sprite} component to the \uicontrol{3D} view. You can
-      also drag it to \e scene in \uicontrol {Navigator}.
+      \uicontrol {Animated Sprite} component [1] to \e scene in \uicontrol {Navigator}.
     \endlist
+
+    \image fire-particles-animated-sprite-comp.png
 
     \image fire-particles-navigator.png
 
@@ -97,26 +99,33 @@
 
     \section2 Adding Sprites and Sprite Animations
 
-    First, import the sprite to use for the fire:
+    In this project, you use a spritesheet with 3 sprites.
+    A spritesheet is a single image file that contains multiple sprites arranged
+    in a grid. You use these sprites to create a looping animation to add variation
+    to the movement of the flames.
+
+    First, import the spritesheet you downloaded in the beginning of this tutorial
+    (\e{fire-sprites.png}) to use for the fire:
 
     \list 1
-      \li In \uicontrol {Assets}, select \inlineimage icons/plus.png
+      \li In the \uicontrol {Assets} view, select \inlineimage icons/plus.png
       .
-      \li Select \e {fire-sprites.png}.
+      \li In the \uicontrol {Add Assets} dialog, find and select \e {fire-sprites.png}.
     \endlist
 
     \image fire-particles-assets.png
 
-    Next, add the sprite to the particle system and create the animation:
+    Next, add the spritesheet to the particle system, and create the animation:
 
     \list 1
-      \li From \uicontrol{Assets}, drag \e {fire-sprites.png} to
-      \e animatedTexture in \uicontrol {Navigator}.
-      \li In \uicontrol{Navigator}, select \e{animatedSequence} and in
-      \uicontrol {Properties}, set:
+      \li From the \uicontrol{Assets} view, drag \e {fire-sprites.png} to
+      \e animatedTexture in the \uicontrol {Navigator} view.
+      \image fire-particles-drag-sprites.png
+      \li In the \uicontrol{Navigator} view, select \e{animatedSequence} and in
+      the \uicontrol {Properties} view, set:
         \list
           \li \uicontrol{Frame Count} to 3.
-          There are 3 sprites in \e {fire-sprites.png} so you want to
+          There are three sprites in \e {fire-sprites.png} so you want to
           divide the image into 3 different sprites for this animation.
           \li \uicontrol Interpolate to true. This makes the animation between
           the sprites smooth.
@@ -132,21 +141,25 @@
     change the color of a single sprite during its life span. In this
     project, you use a gradient color table ranging from yellow to dark orange.
     This results in the sprites being yellow when they are emitted and dark
-    orange at the end of the life span.
+    orange at the end of their life span.
 
     To set the color table:
+
     \list 1
-      \li Import \e{fire-color-table.png} to your project.
-      \li From \uicontrol{Components}, drag a \uicontrol Texture to
+      \li Go to the \uicontrol {Asstes} view and import \e{fire-color-table.png} to your project.
+      \li From the \uicontrol{Components} view, drag a \uicontrol Texture [1] to
       \e animatedSpriteParticle in \uicontrol{Navigator}.
+      \image fire-particles-drag-texture.png
       \li Rename the texture to \e {fireColorTable}.
-      \li In \uicontrol {Navigator}, select \e {fireColorTable} and  in
-      \uicontrol {Properties}, set \uicontrol Source to
+      \li In the \uicontrol {Navigator} view, select \e {fireColorTable} and in
+      the \uicontrol {Properties} view, set \uicontrol Source to
       \e{fire-color-table.png}.
-      \li In \uicontrol {Navigator}, select \e {animatedSpriteParticle} and:
+      \li In the \uicontrol {Navigator} view, select \e {animatedSpriteParticle} and in the
+      \uicontrol Properties view:
         \list
-          \li Ensure that \uicontrol Sprite is set to \e {animatedTexture}.
-          \li Set \uicontrol {Particle Scale} to 5.
+          \li Ensure that \uicontrol Sprite is set to \e {animatedTexture}. This sets which image
+          to emit from the particle emitter, which in this case is the spritesheet added earlier.
+          \li Set \uicontrol {Particle Scale} to 5 to adjust the size of the flames.
           \li Set \uicontrol {Color Table} to \e{fireColorTable}.
         \endlist
     \endlist
@@ -158,48 +171,71 @@
     The next step is to adjust the particle emitter properties:
 
     \list 1
-      \li In \uicontrol{Navigator}, select \e animatedSpriteEmitter and in
-      \uicontrol {Properties}, set:
+      \li First, in the \uicontrol{Navigator} view, select \e animatedSpriteEmitter and then, in
+      the \uicontrol {Properties} view, set:
       \list
-        \li \uicontrol {Emit Rate} to 300.
-        \li \uicontrol {Life Span} to 2500.
-        \li \uicontrol {Life Span Variation} to 100.
-        \li \uicontrol {Particle End Scale} to 1,50.
+        \li \uicontrol {Emit Rate} to 300 to emit 300 particles per second.
+        \li \uicontrol {Life Span} to 2500 to set the life span of each particle to
+        2500 milliseconds (2.5 seconds).
+        \li \uicontrol {Life Span Variation} to 100 to set variation to the particle
+        life spans. The life span of each particle is now between 2.4 and 2.6 seconds to make
+        the fire look more realistic.
+        \li \uicontrol {Particle End Scale} to 1.50. When a particle is emitted, its
+        scale is 1.00 by default. By the end of its life span, it will grow to a scale of 1.50.
       \endlist
-      This sets the emitter to emit 300 particles per second. The life span of
-      each particle is ranging from 2.4 to 2.6 seconds. The size of each
-      particle is increasing slightly throughout its life span.
-      \li In \uicontrol{Navigator}, select \e animatedSpriteParticle and in
-      \uicontrol {Properties}, set:
+
+      \image fire-particles-particle-emitter.png
+
+      \li First, in the \uicontrol{Navigator} view, select \e animatedSpriteParticle and then, in
+      the \uicontrol {Properties} view, set:
       \list
-        \li \uicontrol {Blend Mode} to Screen.
-        \li \uicontrol {Max Amount} to 1000.
-        \li \uicontrol {Color Variation} > \uicontrol W to 0,50. This adds
+        \li \uicontrol {Blend Mode} to Screen to blend the fire nicely with the background.
+        \li \uicontrol {Max Amount} to 1000 to define the maximum amount of particles visible at the
+        same time. Setting a higher number allocates more memory.
+        \li \uicontrol {Color Variation} > \uicontrol W to 0.50. This adds
         randomness to the opacity of the sprites.
       \endlist
-      \li In \uicontrol{Navigator}, select \e animatedSpriteDirection and in
-      \uicontrol {Properties}, set:
+
+      \image fire-particle-sprite-particle.png
+
+      \li The \e animatedSpriteDirection component defines the direction and the velocity of
+      the particles emitted from the particle emitter. In this tutorial, you want the particles to
+      go straight up with a small variation.
+
+      In the \uicontrol{Navigator} view, select \e animatedSpriteDirection and in the
+      \uicontrol {Properties} view, set:
       \list
-        \li \uicontrol Direction > \uicontrol Y to 20.
-        \li \uicontrol {Direction Variation} > \uicontrol X to 3.
-        \li \uicontrol {Direction Variation} > \uicontrol Y to 10.
+        \li \uicontrol Direction  > \uicontrol X to 0 and \uicontrol Direction > \uicontrol Y
+        to 20. This makes the particles go straight up (along the Y axis) at the velocity of 20.
+        \li \uicontrol {Direction Variation} > \uicontrol X to 3. This adds small variation along
+        the X axis, making the flames a little bit wider.
+        \li \uicontrol {Direction Variation} > \uicontrol Y to 10. This adds variation to the
+        velocity of the particles along the Y axis. Because this makes some particles slower,
+        the flames appears thicker in the lower part.
       \endlist
-      This makes the particles go straight up with a small amount of randomness
-      to the direction.
+
+      \image fire-particles-direction.png
+
     \endlist
 
-    \section1 Previewing
+    \section1 Running the Project
 
-    Now, the fire effect is done. Before you preview it, adjust the camera:
+    Now, the fire effect is ready. Before you run it, position the camera to show the effect
+    from a suitable perspective:
     \list 1
-      \li In \uicontrol {Navigator}, select \e sceneCamera and in
-      \uicontrol {Properties}, set:
+      \li In the \uicontrol {Navigator} view, select \e sceneCamera and in the
+      \uicontrol {Properties} view, set:
       \list
         \li \uicontrol {Field of View} to 20.
         \li \uicontrol {Translation} > \uicontrol Y to 35.
+        \li \uicontrol {Translation} > \uicontrol Z to 350.
       \endlist
     \endlist
 
-    Now, preview the fire effect by selecting \key Alt + \key{P}.
+    \image fire-particles-camera.png
+
+    Now, run the project by selecting \key Ctrl + \key{R} or the
+    \inlineimage icons/run_project.png
+    button in the top toolbar.
 
 */
