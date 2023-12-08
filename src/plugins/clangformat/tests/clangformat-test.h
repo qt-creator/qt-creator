@@ -91,6 +91,7 @@ private slots:
     void testIndentInitializeVector();
     void testIndentFunctionArgumentOnNewLine();
     void testIndentCommentOnNewLine();
+    void testUtf8SymbolLine();
 
 private:
     void insertLines(const std::vector<QString> &lines);
