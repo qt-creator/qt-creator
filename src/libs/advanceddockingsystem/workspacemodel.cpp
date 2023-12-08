@@ -22,7 +22,7 @@ WorkspaceModel::WorkspaceModel(DockManager *manager, QObject *parent)
     connect(m_manager, &DockManager::workspaceLoaded, this, &WorkspaceModel::resetWorkspaces);
 }
 
-int WorkspaceModel::indexOfWorkspace(const QString &fileName)
+int WorkspaceModel::indexOfWorkspace(const QString &fileName) const
 {
     return m_manager->workspaceIndex(fileName);
 }
@@ -133,6 +133,10 @@ Qt::DropActions WorkspaceModel::supportedDropActions() const
 Qt::ItemFlags WorkspaceModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags defaultFlags = QAbstractTableModel::flags(index);
+
+    Workspace *workspace = m_manager->workspace(workspaceAt(index.row()));
+    if (m_manager->mcusProject() && !workspace->isMcusEnabled())
+        defaultFlags &= ~Qt::ItemIsEnabled;
 
     if (index.isValid())
         return Qt::ItemIsDragEnabled | defaultFlags;

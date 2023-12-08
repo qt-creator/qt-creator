@@ -57,6 +57,7 @@ inline constexpr QStringView workspaceFolderName{u"workspaces"};
 inline constexpr QStringView workspaceFileExtension{u"wrk"};
 inline constexpr QStringView workspaceOrderFileName{u"order.json"};
 inline constexpr QStringView workspaceDisplayNameAttribute{u"displayName"};
+inline constexpr QStringView workspaceMcusEnabledAttribute{u"mcusEnabled"};
 inline const int workspaceXmlFormattingIndent = 2;
 
 /**
@@ -760,6 +761,8 @@ public:
     static QByteArray loadFile(const Utils::FilePath &filePath);
     static QString readDisplayName(const Utils::FilePath &filePath);
     static bool writeDisplayName(const Utils::FilePath &filePath, const QString &displayName);
+    static QString readMcusEnabled(const Utils::FilePath &filePath);
+    static bool writeMcusEnabled(const Utils::FilePath &filePath, const QString &mcusEnabled);
 
     /**
      * This is used to limit saving of workspaces to only when they were actually presented ones,
@@ -767,6 +770,9 @@ public:
      * set when never presented/rendered.
      */
     void aboutToShow();
+
+    void setMcusProject(bool value);
+    bool mcusProject() const;
 
 signals:
     void aboutToUnloadWorkspace(QString fileName);
@@ -789,6 +795,8 @@ private:
 
     void saveStartupWorkspace();
     void saveLockWorkspace();
+
+    bool m_mcusProject = false;
 }; // class DockManager
 
 } // namespace ADS

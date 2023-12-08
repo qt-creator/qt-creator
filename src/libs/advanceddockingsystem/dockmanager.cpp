@@ -1578,6 +1578,55 @@ bool DockManager::writeDisplayName(const FilePath &filePath, const QString &disp
     return true;
 }
 
+QString DockManager::readMcusEnabled(const FilePath &filePath)
+{
+    auto data = loadFile(filePath);
+
+    if (data.isEmpty())
+        return {};
+
+    auto tmp = data.startsWith("<?xml") ? data : qUncompress(data);
+
+    DockingStateReader reader(tmp);
+    if (!reader.readNextStartElement())
+        return {};
+
+    if (reader.name() != QLatin1String("QtAdvancedDockingSystem"))
+        return {};
+
+    return reader.attributes().value(workspaceMcusEnabledAttribute.toString()).toString();
+}
+
+bool DockManager::writeMcusEnabled(const FilePath &filePath, const QString &mcusEnabled)
+{
+    const expected_str<QByteArray> content = filePath.fileContents();
+
+    QTC_ASSERT_EXPECTED(content, return false);
+
+    QDomDocument doc;
+    QString error_msg;
+    int error_line, error_col;
+    if (!doc.setContent(*content, &error_msg, &error_line, &error_col)) {
+        qWarning() << QString("XML error on line %1, col %2: %3")
+                          .arg(error_line)
+                          .arg(error_col)
+                          .arg(error_msg);
+        return false;
+    }
+
+    QDomElement docElem = doc.documentElement();
+    docElem.setAttribute(workspaceMcusEnabledAttribute.toString(), mcusEnabled);
+
+    const expected_str<void> result = write(filePath, doc.toByteArray(workspaceXmlFormattingIndent));
+    if (!result) {
+        qWarning() << "Could not write mcusEnabled" << mcusEnabled << "to" << filePath << ":"
+                   << result.error();
+        return false;
+    }
+
+    return true;
+}
+
 expected_str<void> DockManager::write(const FilePath &filePath, const QByteArray &data)
 {
     qCInfo(adsLog) << "Write" << filePath;
@@ -1638,6 +1687,11 @@ void DockManager::syncWorkspacePresets()
                 const QString name = readDisplayName(userFile);
                 if (name.isEmpty())
                     writeDisplayName(userFile, name);
+
+                const QString presetMcusEnabled = readMcusEnabled(filePath);
+                const QString mcusEnabled = readMcusEnabled(userFile);
+                if (mcusEnabled.isEmpty() || mcusEnabled != presetMcusEnabled)
+                    writeMcusEnabled(userFile, presetMcusEnabled);
             }
 
             continue;
@@ -1692,6 +1746,14 @@ void DockManager::saveLockWorkspace()
 {
     QTC_ASSERT(d->m_settings, return);
     d->m_settings->setValue(Constants::LOCK_WORKSPACE_SETTINGS_KEY, d->m_workspaceLocked);
+}
+
+void DockManager::setMcusProject(bool value) {
+    m_mcusProject = value;
+}
+
+bool DockManager::mcusProject() const {
+   return m_mcusProject;
 }
 
 } // namespace ADS

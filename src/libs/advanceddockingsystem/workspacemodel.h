@@ -21,7 +21,7 @@ public:
 
     explicit WorkspaceModel(DockManager *manager, QObject *parent = nullptr);
 
-    int indexOfWorkspace(const QString &fileName);
+    int indexOfWorkspace(const QString &fileName) const;
     QString workspaceAt(int row) const;
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;

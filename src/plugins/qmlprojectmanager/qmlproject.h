@@ -24,6 +24,8 @@ public:
 
     ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
 
+    static bool isMCUs();
+
 protected:
     RestoreResult fromMap(const Utils::Store &map, QString *errorMessage) override;
 

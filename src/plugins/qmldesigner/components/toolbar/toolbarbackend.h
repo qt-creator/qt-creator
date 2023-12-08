@@ -29,7 +29,8 @@ public:
 class WorkspaceModel : public QAbstractListModel
 {
     Q_OBJECT
-    enum { DisplayNameRole = Qt::DisplayRole, FileNameRole = Qt::UserRole };
+
+    enum { DisplayNameRole = Qt::DisplayRole, FileNameRole = Qt::UserRole, Enabled };
 
 public:
     explicit WorkspaceModel(QObject *parent = nullptr);
