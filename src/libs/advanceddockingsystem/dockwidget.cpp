@@ -485,7 +485,7 @@ void DockWidget::setFocused(bool focused)
     if (d->m_scrollArea)
         d->m_scrollArea->setProperty("focused", focused);
 
-    QList<QAbstractScrollArea *> scrollAreas = d->m_widget->findChildren<QAbstractScrollArea *>(
+    QList<QAbstractScrollArea *> scrollAreas = d->m_widget->findChildren<QAbstractScrollArea *>(QString(),
         Qt::FindDirectChildrenOnly);
     for (QAbstractScrollArea *scrollArea : scrollAreas)
         scrollArea->setProperty("focused", focused);
