@@ -100,6 +100,7 @@ signals:
 
     void currentCompositionChanged();
     void nodesChanged();
+    void resourcesExported(const QByteArray &type, const Utils::FilePath &path);
 
 private:
     enum Roles {

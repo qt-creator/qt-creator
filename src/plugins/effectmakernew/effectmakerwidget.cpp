@@ -17,16 +17,21 @@
 
 #include <coreplugin/icore.h>
 
+#include <qmldesigner/documentmanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
 #include <studioquickwidget.h>
 
+#include <qmljs/qmljsmodelmanagerinterface.h>
+
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
 #include <QQmlEngine>
+#include <QTimer>
 
 namespace EffectMaker {
 
@@ -77,8 +82,26 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
     QmlDesigner::QmlDesignerPlugin::trackWidgetFocusTime(
         this, QmlDesigner::Constants::EVENT_NEWEFFECTMAKER_TIME);
 
-    connect(m_effectMakerModel.data(), &EffectMakerModel::nodesChanged, [this]() {
+    connect(m_effectMakerModel.data(), &EffectMakerModel::nodesChanged, this, [this]() {
         m_effectMakerNodesModel->updateCanBeAdded(m_effectMakerModel->uniformNames());
+    });
+
+    connect(m_effectMakerModel.data(), &EffectMakerModel::resourcesExported,
+            this, [this](const QmlDesigner::TypeName &type, const Utils::FilePath &path) {
+        if (!m_importScan.timer) {
+            m_importScan.timer = new QTimer(this);
+            connect(m_importScan.timer, &QTimer::timeout,
+                    this, &EffectMakerWidget::handleImportScanTimer);
+        }
+
+        if (m_importScan.timer->isActive() && !m_importScan.future.isFinished())
+            m_importScan.future.cancel();
+
+        m_importScan.counter = 0;
+        m_importScan.type = type;
+        m_importScan.path = path;
+
+        m_importScan.timer->start(100);
     });
 }
 
@@ -175,6 +198,66 @@ void EffectMakerWidget::reloadQmlSource()
     const QString effectMakerQmlPath = qmlSourcesPath() + "/EffectMaker.qml";
     QTC_ASSERT(QFileInfo::exists(effectMakerQmlPath), return);
     m_quickWidget->setSource(QUrl::fromLocalFile(effectMakerQmlPath));
+}
+
+void EffectMakerWidget::handleImportScanTimer()
+{
+    ++m_importScan.counter;
+
+    if (m_importScan.counter == 1) {
+        // Rescan the effect import to update code model
+        auto modelManager = QmlJS::ModelManagerInterface::instance();
+        if (modelManager) {
+            QmlJS::PathsAndLanguages pathToScan;
+            pathToScan.maybeInsert(m_importScan.path);
+            m_importScan.future = ::Utils::asyncRun(&QmlJS::ModelManagerInterface::importScan,
+                                                    modelManager->workingCopy(),
+                                                    pathToScan, modelManager, true, true, true);
+        }
+    } else if (m_importScan.counter < 100) {
+        // We have to wait a while to ensure qmljs detects new files and updates its
+        // internal model. Then we force amend on rewriter to trigger qmljs snapshot update.
+        if (m_importScan.future.isCanceled() || m_importScan.future.isFinished())
+            m_importScan.counter = 100; // skip the timeout step
+    } else if (m_importScan.counter == 100) {
+        // Scanning is taking too long, abort
+        m_importScan.future.cancel();
+        m_importScan.timer->stop();
+        m_importScan.counter = 0;
+    } else if (m_importScan.counter == 101) {
+        if (m_effectMakerView->model() && m_effectMakerView->model()->rewriterView()) {
+            QmlDesigner::QmlDesignerPlugin::instance()->documentManager().resetPossibleImports();
+            m_effectMakerView->model()->rewriterView()->forceAmend();
+        }
+    } else if (m_importScan.counter == 102) {
+        if (m_effectMakerView->model()) {
+            // If type is in use, we have to reset puppet to update 2D view
+            if (!m_effectMakerView->allModelNodesOfType(
+                    m_effectMakerView->model()->metaInfo(m_importScan.type)).isEmpty()) {
+                m_effectMakerView->resetPuppet();
+            }
+        }
+    } else if (m_importScan.counter >= 103) {
+        // Refresh property view by resetting selection if any selected node is of updated type
+        if (m_effectMakerView->model() && m_effectMakerView->hasSelectedModelNodes()) {
+            const auto nodes = m_effectMakerView->selectedModelNodes();
+            QmlDesigner::MetaInfoType metaType
+                = m_effectMakerView->model()->metaInfo(m_importScan.type).type();
+            bool match = false;
+            for (const QmlDesigner::ModelNode &node : nodes) {
+                if (node.metaInfo().type() == metaType) {
+                    match = true;
+                    break;
+                }
+            }
+            if (match) {
+                m_effectMakerView->clearSelectedModelNodes();
+                m_effectMakerView->setSelectedModelNodes(nodes);
+            }
+        }
+        m_importScan.timer->stop();
+        m_importScan.counter = 0;
+    }
 }
 
 } // namespace EffectMaker

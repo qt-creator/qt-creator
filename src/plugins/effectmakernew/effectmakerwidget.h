@@ -9,8 +9,13 @@
 #include <coreplugin/icontext.h>
 
 #include <QFrame>
+#include <QFuture>
 
 class StudioQuickWidget;
+
+QT_BEGIN_NAMESPACE
+class QTimer;
+QT_END_NAMESPACE
 
 namespace EffectMaker {
 
@@ -51,6 +56,7 @@ protected:
 
 private:
     void reloadQmlSource();
+    void handleImportScanTimer();
 
     QPointer<EffectMakerModel> m_effectMakerModel;
     QPointer<EffectMakerNodesModel> m_effectMakerNodesModel;
@@ -58,6 +64,16 @@ private:
     QPointer<StudioQuickWidget> m_quickWidget;
     QmlDesigner::QmlModelNodeProxy m_backendModelNode;
     QmlDesigner::QmlAnchorBindingProxy m_backendAnchorBinding;
+
+    struct ImportScanData {
+        QFuture<void> future;
+        int counter = 0;
+        QTimer *timer = nullptr;
+        QmlDesigner::TypeName type;
+        Utils::FilePath path;
+    };
+
+    ImportScanData m_importScan;
 };
 
 } // namespace EffectMaker

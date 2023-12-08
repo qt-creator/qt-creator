@@ -720,6 +720,8 @@ void EffectMakerModel::exportResources(const QString &name)
         if (!source.copyFile(target))
             qWarning() << __FUNCTION__ << " Failed to copy file: " << source;
     }
+
+    emit resourcesExported(QString("Effects.%1.%1").arg(name).toUtf8(), effectPath);
 }
 
 void EffectMakerModel::resetEffectError(int type)
