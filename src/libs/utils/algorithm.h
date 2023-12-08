@@ -905,7 +905,7 @@ template<template<typename...> class C, // container type
          typename F, // function type
          typename... CArgs> // Arguments to SC
 Q_REQUIRED_RESULT
-decltype(auto) transform(C<CArgs...> &container, F function)
+auto transform(C<CArgs...> &container, F function) -> decltype(auto)
 {
     return transform<C, C<CArgs...> &>(container, function);
 }
@@ -937,7 +937,7 @@ decltype(auto) transform(C<CArgs...> &container, R S::*p)
 template<template<typename...> class C = QList, // result container
          typename F> // Arguments to C
 Q_REQUIRED_RESULT
-decltype(auto) transform(const QStringList &container, F function)
+auto transform(const QStringList &container, F function)
 {
     return transform<C, const QList<QString> &>(static_cast<QList<QString>>(container), function);
 }
