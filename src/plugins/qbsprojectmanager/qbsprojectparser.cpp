@@ -34,8 +34,10 @@ QbsProjectParser::QbsProjectParser(QbsBuildSystem *buildSystem, QFutureInterface
 
 QbsProjectParser::~QbsProjectParser()
 {
-    if (m_session && m_parsing)
-        m_session->cancelCurrentJob();
+    if (m_parsing) {
+        m_session->disconnect(this);
+        cancel();
+    }
     m_fi = nullptr; // we do not own m_fi, do not delete
 }
 
@@ -81,9 +83,9 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
     connect(m_session, &QbsSession::projectResolved, this, [this](const ErrorInfo &error) {
         m_error = error;
         m_projectData = m_session->projectData();
-        emit done(!m_error.hasError());
+        finish(!m_error.hasError());
     });
-    connect(m_session, &QbsSession::errorOccurred, this, [this] { emit done(false); });
+    connect(m_session, &QbsSession::errorOccurred, this, [this] { finish(false); });
     connect(m_session, &QbsSession::taskStarted, this,
             [this](const QString &description, int maxProgress) {
         Q_UNUSED(description)
@@ -98,6 +100,7 @@ void QbsProjectParser::parse(const QVariantMap &config, const Environment &env,
         if (m_fi)
             m_fi->setProgressValue(progress);
     });
+    m_parsing = true;
     m_session->sendRequest(request);
 }
 
@@ -105,6 +108,13 @@ void QbsProjectParser::cancel()
 {
     if (m_session)
         m_session->cancelCurrentJob();
+}
+
+void QbsProjectParser::finish(bool success)
+{
+    m_parsing = false;
+    m_session->disconnect(this);
+    emit done(success);
 }
 
 } // QbsProjectManager::Internal

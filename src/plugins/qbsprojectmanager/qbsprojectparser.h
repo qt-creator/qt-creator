@@ -41,6 +41,8 @@ signals:
     void done(bool success);
 
 private:
+    void finish(bool success);
+
     Utils::Environment m_environment;
     const Utils::FilePath m_projectFilePath;
     QbsSession * const m_session;
