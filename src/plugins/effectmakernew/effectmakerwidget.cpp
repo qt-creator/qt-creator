@@ -86,7 +86,7 @@ EffectMakerWidget::EffectMakerWidget(EffectMakerView *view)
         m_effectMakerNodesModel->updateCanBeAdded(m_effectMakerModel->uniformNames());
     });
 
-    connect(m_effectMakerModel.data(), &EffectMakerModel::resourcesExported,
+    connect(m_effectMakerModel.data(), &EffectMakerModel::resourcesSaved,
             this, [this](const QmlDesigner::TypeName &type, const Utils::FilePath &path) {
         if (!m_importScan.timer) {
             m_importScan.timer = new QTimer(this);

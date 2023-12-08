@@ -6,7 +6,7 @@ import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
-import AssetsLibraryBackend
+import EffectMakerBackend
 
 StudioControls.Dialog {
     id: root
@@ -21,7 +21,7 @@ StudioControls.Dialog {
     property string compositionName: ""
 
     onOpened: {
-        nameText.text = compositionName //TODO: Generate unique name
+        nameText.text = EffectMakerBackend.effectMakerModel.currentComposition
         emptyText.text = ""
         nameText.forceActiveFocus()
     }

@@ -106,12 +106,17 @@ void EffectMakerModel::addNode(const QString &nodeQenPath)
 {
     beginInsertRows({}, m_nodes.size(), m_nodes.size());
     auto *node = new CompositionNode("", nodeQenPath);
+    connect(qobject_cast<EffectMakerUniformsModel *>(node->uniformsModel()),
+            &EffectMakerUniformsModel::dataChanged, this, [this] {
+        setHasUnsavedChanges(true);
+    });
     m_nodes.append(node);
     endInsertRows();
 
     setIsEmpty(false);
 
     bakeShaders();
+    setHasUnsavedChanges(true);
 
     emit nodesChanged();
 }
@@ -126,6 +131,7 @@ void EffectMakerModel::moveNode(int fromIdx, int toIdx)
     m_nodes.move(fromIdx, toIdx);
     endMoveRows();
 
+    setHasUnsavedChanges(true);
     bakeShaders();
 }
 
@@ -141,6 +147,7 @@ void EffectMakerModel::removeNode(int idx)
     else
         bakeShaders();
 
+    setHasUnsavedChanges(true);
     emit nodesChanged();
 }
 
@@ -150,6 +157,7 @@ void EffectMakerModel::clear()
     qDeleteAll(m_nodes);
     m_nodes.clear();
     endResetModel();
+    setHasUnsavedChanges(!m_currentComposition.isEmpty());
     setCurrentComposition("");
 
     setIsEmpty(true);
@@ -528,7 +536,7 @@ QString EffectMakerModel::getQmlEffectString()
     return s;
 }
 
-void EffectMakerModel::exportComposition(const QString &name)
+void EffectMakerModel::saveComposition(const QString &name)
 {
     const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
     const QString path = effectsAssetsDir + QDir::separator() + name + ".qep";
@@ -559,6 +567,10 @@ void EffectMakerModel::exportComposition(const QString &name)
 
     saveFile.write(jsonDoc.toJson());
     saveFile.close();
+    setCurrentComposition(name);
+    setHasUnsavedChanges(false);
+
+    saveResources(name);
 }
 
 void EffectMakerModel::openComposition(const QString &path)
@@ -615,6 +627,10 @@ void EffectMakerModel::openComposition(const QString &path)
         for (const auto &nodeElement : nodesArray) {
             beginInsertRows({}, m_nodes.size(), m_nodes.size());
             auto *node = new CompositionNode(effectName, "", nodeElement.toObject());
+            connect(qobject_cast<EffectMakerUniformsModel *>(node->uniformsModel()),
+                    &EffectMakerUniformsModel::dataChanged, this, [this] {
+                setHasUnsavedChanges(true);
+            });
             m_nodes.append(node);
             endInsertRows();
         }
@@ -623,10 +639,11 @@ void EffectMakerModel::openComposition(const QString &path)
         bakeShaders();
     }
 
+    setHasUnsavedChanges(false);
     emit nodesChanged();
 }
 
-void EffectMakerModel::exportResources(const QString &name)
+void EffectMakerModel::saveResources(const QString &name)
 {
     // Make sure that uniforms are up-to-date
     updateCustomUniforms();
@@ -692,7 +709,7 @@ void EffectMakerModel::exportResources(const QString &name)
     QString qmlFilePath = effectsResPath + qmlFilename;
     writeToFile(qmlString.toUtf8(), qmlFilePath, FileType::Text);
 
-    // Export shaders and images
+    // Save shaders and images
     QStringList sources = {m_vertexShaderFilename, m_fragmentShaderFilename};
     QStringList dests = {vsFilename, fsFilename};
 
@@ -721,7 +738,7 @@ void EffectMakerModel::exportResources(const QString &name)
             qWarning() << __FUNCTION__ << " Failed to copy file: " << source;
     }
 
-    emit resourcesExported(QString("Effects.%1.%1").arg(name).toUtf8(), effectPath);
+    emit resourcesSaved(QString("Effects.%1.%1").arg(name).toUtf8(), effectPath);
 }
 
 void EffectMakerModel::resetEffectError(int type)
@@ -1440,8 +1457,23 @@ void EffectMakerModel::setCurrentComposition(const QString &newCurrentCompositio
 {
     if (m_currentComposition == newCurrentComposition)
         return;
+
     m_currentComposition = newCurrentComposition;
     emit currentCompositionChanged();
+}
+
+bool EffectMakerModel::hasUnsavedChanges() const
+{
+    return m_hasUnsavedChanges;
+}
+
+void EffectMakerModel::setHasUnsavedChanges(bool val)
+{
+    if (m_hasUnsavedChanges == val)
+        return;
+
+    m_hasUnsavedChanges = val;
+    emit hasUnsavedChangesChanged();
 }
 
 QStringList EffectMakerModel::uniformNames() const

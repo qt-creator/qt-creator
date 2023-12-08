@@ -15,13 +15,29 @@ Rectangle {
     height: StudioTheme.Values.toolbarHeight
     color: StudioTheme.Values.themeToolbarBackground
 
+    signal addClicked
     signal saveClicked
 
-    HelperWidgets.Button {
+    HelperWidgets.AbstractButton {
+        id: addButton
+
         anchors.verticalCenter: parent.verticalCenter
         x: 5
+        style: StudioTheme.Values.viewBarButtonStyle
+        buttonIcon: StudioTheme.Constants.add_medium
+        tooltip: qsTr("Add new composition")
 
-        text: qsTr("Save in Library")
+        onClicked: root.addClicked()
+    }
+
+    HelperWidgets.AbstractButton {
+        anchors.verticalCenter: parent.verticalCenter
+        x: addButton.x + addButton.width + 5
+        style: StudioTheme.Values.viewBarButtonStyle
+        buttonIcon: StudioTheme.Constants.save_medium
+        tooltip: qsTr("Save current composition")
+        enabled: EffectMakerBackend.effectMakerModel.hasUnsavedChanges
+              || EffectMakerBackend.effectMakerModel.currentComposition === ""
 
         onClicked: root.saveClicked()
     }

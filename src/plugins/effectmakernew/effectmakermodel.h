@@ -44,6 +44,7 @@ class EffectMakerModel : public QAbstractListModel
 
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
+    Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(QString qmlComponentString READ qmlComponentString)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
@@ -81,13 +82,15 @@ public:
     Q_INVOKABLE void resetEffectError(int type);
     Q_INVOKABLE void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
 
-    Q_INVOKABLE void exportComposition(const QString &name);
-    Q_INVOKABLE void exportResources(const QString &name);
+    Q_INVOKABLE void saveComposition(const QString &name);
 
     void openComposition(const QString &path);
 
     QString currentComposition() const;
     void setCurrentComposition(const QString &newCurrentComposition);
+
+    bool hasUnsavedChanges() const;
+    void setHasUnsavedChanges(bool val);
 
     QStringList uniformNames() const;
 
@@ -97,10 +100,10 @@ signals:
     void effectErrorChanged();
     void shadersUpToDateChanged();
     void shadersBaked();
-
     void currentCompositionChanged();
     void nodesChanged();
-    void resourcesExported(const QByteArray &type, const Utils::FilePath &path);
+    void resourcesSaved(const QByteArray &type, const Utils::FilePath &path);
+    void hasUnsavedChangesChanged();
 
 private:
     enum Roles {
@@ -152,6 +155,7 @@ private:
     void updateCustomUniforms();
     void createFiles();
     void bakeShaders();
+    void saveResources(const QString &name);
 
     QString mipmapPropertyName(const QString &name) const;
     QString getQmlImagesString(bool localFiles);
@@ -161,6 +165,7 @@ private:
 
     int m_selectedIndex = -1;
     bool m_isEmpty = true;
+    bool m_hasUnsavedChanges = false;
     // True when shaders haven't changed since last baking
     bool m_shadersUpToDate = true;
     int m_remainingQsbTargets = 0;

@@ -16,15 +16,22 @@ Item {
     property int moveToIdx: 0
     property bool previewAnimationRunning: false
 
-    SaveDialog {
+    SaveAsDialog {
         id: saveDialog
         compositionName: EffectMakerBackend.effectMakerModel.currentComposition
         anchors.centerIn: parent
+
         onAccepted: {
             let name = saveDialog.compositionName
-            EffectMakerBackend.effectMakerModel.exportComposition(name)
-            EffectMakerBackend.effectMakerModel.exportResources(name)
+            EffectMakerBackend.effectMakerModel.saveComposition(name)
         }
+    }
+
+    SaveChangesDialog {
+        id: saveChangesDialog
+        anchors.centerIn: parent
+
+        onAccepted: EffectMakerBackend.effectMakerModel.clear()
     }
 
     Column {
@@ -33,7 +40,21 @@ Item {
         spacing: 1
 
         EffectMakerTopBar {
-            onSaveClicked: saveDialog.open()
+            onAddClicked: {
+                if (EffectMakerBackend.effectMakerModel.hasUnsavedChanges)
+                    saveChangesDialog.open()
+                else
+                    EffectMakerBackend.effectMakerModel.clear()
+            }
+
+            onSaveClicked: {
+                let name = EffectMakerBackend.effectMakerModel.currentComposition
+
+                if (name === "")
+                    saveDialog.open()
+                else
+                    EffectMakerBackend.effectMakerModel.saveComposition(name)
+            }
         }
 
         EffectMakerPreview {
