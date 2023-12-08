@@ -437,8 +437,14 @@ void DebuggerMainWindow::restorePersistentSettings()
     d->m_lastTypePerspectiveStates.clear();
     QSet<QString> keys = Utils::toSet(states2.keys());
     for (const QString &type : keys) {
-        PerspectiveState state = states2.value(type).value<PerspectiveState>();
-        QTC_ASSERT(!state.mainWindowState.isEmpty(), continue);
+        PerspectiveState state;
+        if (states2.value(type).canConvert<QVariantMap>()) {
+            state = PerspectiveState::fromSettings(storeFromMap(states2.value(type).toMap()));
+        } else {
+            // legacy for up to QtC 12
+            state = states2.value(type).value<PerspectiveState>();
+        }
+        QTC_ASSERT(state.hasWindowState(), continue);
         d->m_lastTypePerspectiveStates.insert(type, state);
     }
 
@@ -469,7 +475,7 @@ void DebuggerMainWindow::savePersistentSettings() const
         qCDebug(perspectivesLog) << "PERSPECTIVE TYPE " << type
                                  << " HAS STATE: " << !state.mainWindowState.isEmpty();
         QTC_ASSERT(!state.mainWindowState.isEmpty(), continue);
-        states.insert(type, QVariant::fromValue(state));
+        states.insert(type, mapFromStore(state.toSettings()));
     }
 
     QtcSettings *settings = ICore::settings();
@@ -965,10 +971,10 @@ void PerspectivePrivate::restoreLayout()
 {
     qCDebug(perspectivesLog) << "RESTORE LAYOUT FOR " << m_id << settingsId();
     PerspectiveState state = theMainWindow->d->m_lastPerspectiveStates.value(m_id);
-    if (state.mainWindowState.isEmpty()) {
+    if (!state.hasWindowState()) {
         qCDebug(perspectivesLog) << "PERSPECTIVE STATE NOT AVAILABLE BY FULL ID.";
         state = theMainWindow->d->m_lastTypePerspectiveStates.value(settingsId());
-        if (state.mainWindowState.isEmpty()) {
+        if (state.hasWindowState()) {
             qCDebug(perspectivesLog) << "PERSPECTIVE STATE NOT AVAILABLE BY PERSPECTIVE TYPE";
         } else {
             qCDebug(perspectivesLog) << "PERSPECTIVE STATE AVAILABLE BY PERSPECTIVE TYPE.";
@@ -994,10 +1000,10 @@ void PerspectivePrivate::restoreLayout()
         }
     }
 
-    if (state.mainWindowState.isEmpty()) {
+    if (!state.hasWindowState()) {
         qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORE NOT POSSIBLE, NO STORED STATE";
     } else {
-        bool result = theMainWindow->restoreFancyState(state.mainWindowState);
+        const bool result = state.restoreWindowState(theMainWindow);
         qCDebug(perspectivesLog) << "PERSPECTIVE " << m_id << "RESTORED, SUCCESS: " << result;
     }
 
@@ -1019,7 +1025,7 @@ void PerspectivePrivate::saveLayout()
 {
     qCDebug(perspectivesLog) << "PERSPECTIVE" << m_id << "SAVE LAYOUT TO " << settingsId();
     PerspectiveState state;
-    state.mainWindowState = theMainWindow->saveState();
+    state.mainWindowState = theMainWindow->saveSettings();
     for (DockOperation &op : m_dockOperations) {
         if (op.operationType != Perspective::Raise) {
             QTC_ASSERT(op.dock, continue);
@@ -1068,6 +1074,38 @@ void OptionalAction::setToolButtonStyle(Qt::ToolButtonStyle style)
 const char *PerspectiveState::savesHeaderKey()
 {
     return "SavesHeader";
+}
+
+bool PerspectiveState::hasWindowState() const
+{
+    return !mainWindowState.isEmpty() || !mainWindowStateLegacy.isEmpty();
+}
+
+bool PerspectiveState::restoreWindowState(FancyMainWindow * mainWindow)
+{
+    if (!mainWindowState.isEmpty())
+        return mainWindow->restoreSettings(mainWindowState);
+    if (!mainWindowStateLegacy.isEmpty())
+        return mainWindow->restoreFancyState(mainWindowStateLegacy);
+    return false;
+}
+
+const char kMainWindowStateKey[] = "MainWindow";
+const char kHeaderViewStatesKey[] = "HeaderViewStates";
+
+Store PerspectiveState::toSettings() const
+{
+    Store result;
+    result.insert(kMainWindowStateKey, QVariant::fromValue(mainWindowState));
+    result.insert(kHeaderViewStatesKey, QVariant::fromValue(headerViewStates));
+    return result;
+}
+PerspectiveState PerspectiveState::fromSettings(const Store &settings)
+{
+    PerspectiveState state;
+    state.mainWindowState = settings.value(kMainWindowStateKey).value<Store>();
+    state.headerViewStates = settings.value(kHeaderViewStatesKey).value<QVariantHash>();
+    return state;
 }
 
 } // Utils

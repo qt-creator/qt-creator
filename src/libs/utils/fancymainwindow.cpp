@@ -590,11 +590,13 @@ Store FancyMainWindow::saveSettings() const
     return settings;
 }
 
-void FancyMainWindow::restoreSettings(const Store &settings)
+bool FancyMainWindow::restoreSettings(const Store &settings)
 {
+    bool success = true;
     QByteArray ba = settings.value(StateKey, QByteArray()).toByteArray();
     if (!ba.isEmpty()) {
-        if (!restoreFancyState(ba, settingsVersion))
+        success = restoreFancyState(ba, settingsVersion);
+        if (!success)
             qWarning() << "Restoring the state of dock widgets failed.";
     }
     d->m_showCentralWidget.setChecked(settings.value(ShowCentralWidgetKey, true).toBool());
@@ -603,6 +605,8 @@ void FancyMainWindow::restoreSettings(const Store &settings)
                             settings.value(keyFromString(widget->objectName()), false));
     }
     d->restoreHiddenDockAreasFromHash(settings.value(HiddenDockAreasKey).toHash());
+    emit dockWidgetsChanged();
+    return success;
 }
 
 bool FancyMainWindow::restoreFancyState(const QByteArray &state, int version)

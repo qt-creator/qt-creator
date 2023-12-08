@@ -512,6 +512,7 @@ public:
         mainWindow->addSubPerspectiveSwitcher(EngineManager::dapEngineChooser());
 
         setWidget(splitter);
+        setMainWindow(mainWindow);
 
         setMenu(DebuggerMainWindow::perspectiveMenu());
     }

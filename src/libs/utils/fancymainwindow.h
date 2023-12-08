@@ -33,7 +33,7 @@ public:
     void saveSettings(QtcSettings *settings) const;
     void restoreSettings(const QtcSettings *settings);
     Store saveSettings() const;
-    void restoreSettings(const Store &settings);
+    bool restoreSettings(const Store &settings);
     bool restoreFancyState(const QByteArray &state, int version = 0);
 
     // Additional context menu actions
