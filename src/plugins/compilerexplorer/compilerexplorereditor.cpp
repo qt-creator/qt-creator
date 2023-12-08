@@ -672,7 +672,7 @@ void EditorWidget::recreateEditors()
     Store windowState = m_document->settings()->windowState.value();
 
     if (!windowState.isEmpty()) {
-        QHash<Key, QVariant> hashMap;
+        Store hashMap;
         for (const auto &key : windowState.keys()) {
             if (key.view() != "State")
                 hashMap.insert(key, windowState.value(key));

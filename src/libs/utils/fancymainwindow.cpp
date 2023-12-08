@@ -563,23 +563,23 @@ void FancyMainWindow::handleVisibilityChanged(bool visible)
 
 void FancyMainWindow::saveSettings(QtcSettings *settings) const
 {
-    const QHash<Key, QVariant> hash = saveSettings();
+    const Store hash = saveSettings();
     for (auto it = hash.cbegin(), end = hash.cend(); it != end; ++it)
         settings->setValue(it.key(), it.value());
 }
 
 void FancyMainWindow::restoreSettings(const QtcSettings *settings)
 {
-    QHash<Key, QVariant> hash;
+    Store hash;
     const KeyList childKeys = settings->childKeys();
     for (const Key &key : childKeys)
         hash.insert(key, settings->value(key));
     restoreSettings(hash);
 }
 
-QHash<Key, QVariant> FancyMainWindow::saveSettings() const
+Store FancyMainWindow::saveSettings() const
 {
-    QHash<Key, QVariant> settings;
+    Store settings;
     settings.insert(StateKey, saveState(settingsVersion));
     settings.insert(ShowCentralWidgetKey, d->m_showCentralWidget.isChecked());
     for (QDockWidget *dockWidget : dockWidgets()) {
@@ -590,7 +590,7 @@ QHash<Key, QVariant> FancyMainWindow::saveSettings() const
     return settings;
 }
 
-void FancyMainWindow::restoreSettings(const QHash<Key, QVariant> &settings)
+void FancyMainWindow::restoreSettings(const Store &settings)
 {
     QByteArray ba = settings.value(StateKey, QByteArray()).toByteArray();
     if (!ba.isEmpty()) {
