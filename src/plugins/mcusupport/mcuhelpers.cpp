@@ -26,4 +26,23 @@ QString removeRtosSuffix(const QString &environmentVariable)
     return result.replace(freeRtosSuffix, QString{});
 }
 
+// Get all the paths matching a path with regular expression or only the given path
+// if it exists
+std::optional<Utils::FilePath> firstMatchingPath(const Utils::FilePath &path)
+{
+    if (path.exists())
+        return path;
+
+    if (!path.contains("*"))
+        return std::nullopt;
+
+    // fallback to wildcards
+    Utils::FilePath parentDir = path.parentDir();
+    auto entries = parentDir.dirEntries(
+        Utils::FileFilter({path.fileName()}, QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot));
+    if (entries.empty())
+        return std::nullopt;
+    return entries.first();
+}
+
 } // namespace McuSupport::Internal

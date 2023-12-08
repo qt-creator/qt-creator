@@ -20,13 +20,13 @@ public:
 class McuPackageExecutableVersionDetector : public McuPackageVersionDetector
 {
 public:
-    McuPackageExecutableVersionDetector(const Utils::FilePath &detectionPath,
+    McuPackageExecutableVersionDetector(const Utils::FilePaths &detectionPaths,
                                         const QStringList &detectionArgs,
                                         const QString &detectionRegExp);
     QString parseVersion(const Utils::FilePath &packagePath) const final;
 
 private:
-    const Utils::FilePath m_detectionPath;
+    const Utils::FilePaths m_detectionPaths;
     const QStringList m_detectionArgs;
     const QString m_detectionRegExp;
 };

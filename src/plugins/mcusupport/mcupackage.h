@@ -29,17 +29,18 @@ class McuPackage : public McuAbstractPackage
 
 public:
     McuPackage(const SettingsHandler::Ptr &settingsHandler,
-        const QString &label,
-        const Utils::FilePath &defaultPath,
-        const Utils::FilePath &detectionPath,
-        const Utils::Key &settingsKey,
-        const QString &cmakeVarName,
-        const QString &envVarName,
-        const QStringList &versions = {},
-        const QString &downloadUrl = {},
-        const McuPackageVersionDetector *versionDetector = nullptr,
-        const bool addToPath = false,
-        const Utils::PathChooser::Kind &valueType = Utils::PathChooser::Kind::ExistingDirectory);
+               const QString &label,
+               const Utils::FilePath &defaultPath,
+               const Utils::FilePaths &detectionPaths,
+               const Utils::Key &settingsKey,
+               const QString &cmakeVarName,
+               const QString &envVarName,
+               const QStringList &versions = {},
+               const QString &downloadUrl = {},
+               const McuPackageVersionDetector *versionDetector = nullptr,
+               const bool addToPath = false,
+               const Utils::PathChooser::Kind &valueType
+               = Utils::PathChooser::Kind::ExistingDirectory);
 
     ~McuPackage() override = default;
 
@@ -54,7 +55,8 @@ public:
     Utils::FilePath basePath() const override;
     Utils::FilePath path() const override;
     Utils::FilePath defaultPath() const override;
-    Utils::FilePath detectionPath() const override;
+    Utils::FilePaths detectionPaths() const override;
+    QString detectionPathsToString() const override;
     Utils::Key settingsKey() const final;
 
     void updateStatus() override;
@@ -81,7 +83,8 @@ private:
 
     const QString m_label;
     Utils::FilePath m_defaultPath;
-    const Utils::FilePath m_detectionPath;
+    const Utils::FilePaths m_detectionPaths;
+    Utils::FilePath m_usedDetectionPath;
     const Utils::Key m_settingsKey;
     QScopedPointer<const McuPackageVersionDetector> m_versionDetector;
 
@@ -106,7 +109,7 @@ public:
     McuToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                         const QString &label,
                         const Utils::FilePath &defaultPath,
-                        const Utils::FilePath &detectionPath,
+                        const Utils::FilePaths &detectionPaths,
                         const Utils::Key &settingsKey,
                         ToolChainType toolchainType,
                         const QStringList &versions,

@@ -5,6 +5,8 @@
 
 #include "mcutarget.h"
 
+#include <utils/filepath.h>
+
 #include <QRegularExpression>
 
 namespace McuSupport::Internal {
@@ -13,6 +15,7 @@ struct McuTargetDescription;
 
 McuTarget::OS deduceOperatingSystem(const McuTargetDescription &);
 QString removeRtosSuffix(const QString &environmentVariable);
+std::optional<Utils::FilePath> firstMatchingPath(const Utils::FilePath &path);
 
 template<typename T>
 class asKeyValueRange

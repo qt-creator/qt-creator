@@ -178,8 +178,10 @@ public:
 
         auto processPackage = [&dependencies](const McuPackagePtr &package) {
             const auto cmakeVariableName = package->cmakeVariableName();
-            if (!cmakeVariableName.isEmpty())
-                dependencies.append({cmakeVariableName, package->detectionPath().toUserOutput()});
+            if (!cmakeVariableName.isEmpty() && !package->detectionPaths().empty())
+                // Relying only on the first detection paths as a dependency as dependencies is not a multi-map
+                dependencies.append(
+                    {cmakeVariableName, package->detectionPaths().constFirst().toUserOutput()});
         };
         for (const auto &package : mcuTarget->packages())
             processPackage(package);
@@ -502,10 +504,9 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
             if (!qtForMCUsPackage->isValidStatus()) {
                 switch (qtForMCUsPackage->status()) {
                 case McuAbstractPackage::Status::ValidPathInvalidPackage: {
-                    const QString message
-                        = Tr::tr("Path %1 exists, but does not contain %2.")
-                              .arg(qtForMCUsPackage->path().toUserOutput(),
-                                   qtForMCUsPackage->detectionPath().toUserOutput());
+                    const QString message = Tr::tr("Path %1 exists, but does not contain %2.")
+                                                .arg(qtForMCUsPackage->path().toUserOutput(),
+                                                     qtForMCUsPackage->detectionPathsToString());
                     autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
                     printMessage(message, true);
                     break;
@@ -520,8 +521,9 @@ void createAutomaticKits(const SettingsHandler::Ptr &settingsHandler)
                     break;
                 }
                 case McuAbstractPackage::Status::EmptyPath: {
-                    const QString message = Tr::tr("Missing %1. Add the path in Edit > Preferences > Devices > MCU.")
-                            .arg(qtForMCUsPackage->detectionPath().toUserOutput());
+                    const QString message
+                        = Tr::tr("Missing %1. Add the path in Edit > Preferences > Devices > MCU.")
+                              .arg(qtForMCUsPackage->detectionPathsToString());
                     autoGenerationMessages.push_back({qtForMCUsPackage->label(), "", message});
                     printMessage(message, true);
                     return;

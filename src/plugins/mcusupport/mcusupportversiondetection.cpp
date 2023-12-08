@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcusupportversiondetection.h"
+#include "mcuhelpers.h"
 
 #include <utils/process.h>
 
@@ -24,21 +25,29 @@ QString matchRegExp(const QString &text, const QString &regExp)
 }
 
 McuPackageExecutableVersionDetector::McuPackageExecutableVersionDetector(
-    const FilePath &detectionPath, const QStringList &detectionArgs, const QString &detectionRegExp)
+    const QList<FilePath> &detectionPaths,
+    const QStringList &detectionArgs,
+    const QString &detectionRegExp)
     : McuPackageVersionDetector()
-    , m_detectionPath(detectionPath)
+    , m_detectionPaths(detectionPaths)
     , m_detectionArgs(detectionArgs)
     , m_detectionRegExp(detectionRegExp)
 {}
 
 QString McuPackageExecutableVersionDetector::parseVersion(const FilePath &packagePath) const
 {
-    if (m_detectionPath.isEmpty() || m_detectionRegExp.isEmpty())
+    if (m_detectionPaths.isEmpty() || m_detectionRegExp.isEmpty())
         return {};
 
-    const FilePath binaryPath = packagePath / m_detectionPath.path();
-    if (!binaryPath.exists())
-        return {};
+    FilePath binaryPath;
+
+    for (const FilePath &detectionPath : m_detectionPaths) {
+        std::optional<FilePath> path = firstMatchingPath(packagePath / detectionPath.path());
+        if (!path)
+            continue;
+        binaryPath = *path;
+        break;
+    }
 
     const int timeout = 3000; // usually runs below 1s, but we want to be on the safe side
     Process process;

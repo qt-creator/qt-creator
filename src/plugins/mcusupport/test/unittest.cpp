@@ -190,7 +190,7 @@ const PackageDescription
                             {},
                             Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK,
                             qtForMcuSdkPath,
-                            Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH,
+                            {Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH},
                             {},
                             VersionDetection{},
                             false,
@@ -323,7 +323,7 @@ void verifyBoardSdk(const McuPackagePtr &boardSdk,
     QCOMPARE(boardSdk->cmakeVariableName(), cmakeVariable);
     QCOMPARE(boardSdk->environmentVariableName(), environmentVariable);
     QCOMPARE(boardSdk->settingsKey(), keyFromString(environmentVariable));
-    QCOMPARE(boardSdk->detectionPath().toString(), empty);
+    QVERIFY(boardSdk->detectionPaths().empty());
     QCOMPARE(boardSdk->versions(), versions);
 }
 
@@ -339,7 +339,7 @@ void verifyFreeRtosPackage(const McuPackagePtr &freeRtos,
     QCOMPARE(freeRtos->cmakeVariableName(), freeRtosCMakeVar);
     QCOMPARE(freeRtos->settingsKey(), expectedSettingsKey);
     QCOMPARE(freeRtos->path().cleanPath().toString(), freeRtosPath);
-    QCOMPARE(freeRtos->detectionPath().cleanPath().toString(), freeRtosDetectionPath);
+    QCOMPARE(freeRtos->detectionPaths().first().cleanPath().toString(), freeRtosDetectionPath);
     QVERIFY(freeRtos->path().toUserOutput().startsWith(boardSdkDir.cleanPath().toUserOutput()));
 }
 
@@ -359,7 +359,10 @@ void verifyPackage(const McuPackagePtr &package,
     QCOMPARE(package->cmakeVariableName(), cmakeVar);
     QCOMPARE(package->environmentVariableName(), envVar);
     QCOMPARE(package->label(), label);
-    QCOMPARE(package->detectionPath().toString(), detectionPath);
+    if (!detectionPath.isEmpty()) {
+        QVERIFY(!package->detectionPaths().empty());
+        QCOMPARE(package->detectionPaths().first().toString(), detectionPath);
+    }
     QCOMPARE(package->settingsKey(), setting);
     QCOMPARE(package->versions(), versions);
 }
@@ -464,7 +467,7 @@ void McuSupportTest::initTestCase()
     EXPECT_CALL(*freeRtosPackage, path())
         .WillRepeatedly(Return(FilePath::fromUserInput(freeRtosPath)));
     EXPECT_CALL(*freeRtosPackage, isAddToSystemPath()).WillRepeatedly(Return(true));
-    EXPECT_CALL(*freeRtosPackage, detectionPath()).WillRepeatedly(Return(FilePath{}));
+    EXPECT_CALL(*freeRtosPackage, detectionPaths()).WillRepeatedly(Return(QList<FilePath>{}));
 
     ON_CALL(*sdkPackage, label()).WillByDefault(Return(QString{QUL_LABEL}));
     ON_CALL(*sdkPackage, settingsKey())
@@ -474,7 +477,7 @@ void McuSupportTest::initTestCase()
     ON_CALL(*sdkPackage, isValidStatus()).WillByDefault(Return(true));
     ON_CALL(*sdkPackage, path()).WillByDefault(Return(FilePath::fromUserInput(qtForMcuSdkPath)));
     ON_CALL(*sdkPackage, isAddToSystemPath()).WillByDefault(Return(true));
-    ON_CALL(*sdkPackage, detectionPath()).WillByDefault(Return(FilePath{}));
+    ON_CALL(*sdkPackage, detectionPaths()).WillByDefault(Return(QList<FilePath>{}));
 
     EXPECT_CALL(*armGccToolchainFilePackage, environmentVariableName())
         .WillRepeatedly(Return(QString{QString{}}));
@@ -484,7 +487,8 @@ void McuSupportTest::initTestCase()
     EXPECT_CALL(*armGccToolchainFilePackage, path())
         .WillRepeatedly(Return(FilePath::fromUserInput(armGccToolchainFilePath)));
     EXPECT_CALL(*armGccToolchainFilePackage, isAddToSystemPath()).WillRepeatedly(Return(false));
-    EXPECT_CALL(*armGccToolchainFilePackage, detectionPath()).WillRepeatedly(Return(FilePath{}));
+    EXPECT_CALL(*armGccToolchainFilePackage, detectionPaths())
+        .WillRepeatedly(Return(QList<FilePath>{}));
 
     ON_CALL(*settingsMockPtr, getPath)
         .WillByDefault([](const Key &, QSettings::Scope, const FilePath &m_defaultPath) {
@@ -743,7 +747,7 @@ void McuSupportTest::test_createTargets()
                                           freeRtosSetting,
                                           freeRtosLabel,
                                           freeRtosPath,
-                                          freeRtosDetectionPath,
+                                          {freeRtosDetectionPath},
                                           {},
                                           VersionDetection{},
                                           true,
@@ -796,7 +800,7 @@ void McuSupportTest::test_createPackages()
                                           freeRtosLabel,
                                           freeRtosSetting,
                                           freeRtosPath,
-                                          freeRtosDetectionPath,
+                                          {freeRtosDetectionPath},
                                           {},
                                           VersionDetection{},
                                           true,
@@ -1259,9 +1263,9 @@ void McuSupportTest::test_legacy_createQtMCUsPackage()
 
     QVERIFY(qtForMCUsSDK);
     QCOMPARE(qtForMCUsSDK->settingsKey(), Constants::SETTINGS_KEY_PACKAGE_QT_FOR_MCUS_SDK);
-    QCOMPARE(qtForMCUsSDK->detectionPath(),
-             FilePath::fromUserInput(Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
-                 .withExecutableSuffix());
+    QCOMPARE(qtForMCUsSDK->detectionPaths(),
+             {FilePath::fromUserInput(Legacy::Constants::QT_FOR_MCUS_SDK_PACKAGE_VALIDATION_PATH)
+                  .withExecutableSuffix()});
     QCOMPARE(qtForMCUsSDK->path().toString(), qtForMcuSdkPath);
 }
 
@@ -1713,7 +1717,9 @@ void McuSupportTest::test_differentValueForEachOperationSystem()
 {
     const auto packageDescription = parseDescriptionJson(armgcc_mimxrt1050_evk_freertos_json);
     auto default_path_entry = packageDescription.platform.entries[0].defaultPath.toString();
-    auto validation_path_entry = packageDescription.platform.entries[0].detectionPath.toString();
+    QCOMPARE(packageDescription.platform.entries[0].detectionPaths.size(), 1);
+    auto validation_path_entry
+        = packageDescription.platform.entries[0].detectionPaths.first().toString();
 
     //TODO: Revisit whether this test is required and not currently covered by the third party packages
     if (HostOsInfo::isWindowsHost()) {

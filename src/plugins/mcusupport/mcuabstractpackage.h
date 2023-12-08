@@ -7,7 +7,10 @@
 
 #include <QObject>
 
-namespace Utils { class FilePath; }
+namespace Utils {
+class FilePath;
+using FilePaths = QList<class FilePath>;
+} // namespace Utils
 
 namespace McuSupport::Internal {
 
@@ -38,7 +41,8 @@ public:
     virtual Utils::FilePath path() const = 0;
     virtual void setPath(const Utils::FilePath &) = 0;
     virtual Utils::FilePath defaultPath() const = 0;
-    virtual Utils::FilePath detectionPath() const = 0;
+    virtual Utils::FilePaths detectionPaths() const = 0;
+    virtual QString detectionPathsToString() const { return {}; };
     virtual Utils::Key settingsKey() const = 0;
 
     virtual void updateStatus() = 0;

@@ -33,8 +33,8 @@ McuPackageVersionDetector *createVersionDetection(const VersionDetection &versio
                                                 versionDetection.xmlAttribute,
                                                 versionDetection.regex};
     else if (!versionDetection.executableArgs.isEmpty())
-        return new McuPackageExecutableVersionDetector{Utils::FilePath::fromUserInput(
-                                                           versionDetection.filePattern),
+        return new McuPackageExecutableVersionDetector{{Utils::FilePath::fromUserInput(
+                                                           versionDetection.filePattern)},
                                                        QStringList{versionDetection.executableArgs},
                                                        versionDetection.regex};
     else if (!versionDetection.filePattern.isEmpty() && !versionDetection.regex.isEmpty())
@@ -130,7 +130,7 @@ McuPackagePtr McuTargetFactory::createPackage(const PackageDescription &pkgDesc)
     return McuPackagePtr{new McuPackage{settingsHandler,
                                         pkgDesc.label,
                                         pkgDesc.defaultPath,
-                                        pkgDesc.detectionPath,
+                                        pkgDesc.detectionPaths,
                                         pkgDesc.setting,
                                         pkgDesc.cmakeVar,
                                         pkgDesc.envVar,
@@ -166,7 +166,7 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
         return new McuToolChainPackage{settingsHandler,
                                        compilerDescription.label,
                                        compilerDescription.defaultPath,
-                                       compilerDescription.detectionPath,
+                                       compilerDescription.detectionPaths,
                                        {},
                                        toolchainType,
                                        toolchain.versions,
@@ -206,7 +206,7 @@ McuToolChainPackage *McuTargetFactory::createToolchain(
     return new McuToolChainPackage{settingsHandler,
                                    compilerDescription.label,
                                    compilerDescription.defaultPath,
-                                   compilerDescription.detectionPath,
+                                   compilerDescription.detectionPaths,
                                    compilerDescription.setting,
                                    toolchainType,
                                    toolchain.versions,

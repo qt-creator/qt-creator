@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "mcupackage.h"
+#include "mcuhelpers.h"
+#include "mcusupporttr.h"
 #include "mcusupportversiondetection.h"
 #include "settingshandler.h"
-#include "mcusupporttr.h"
 
 #include <baremetal/baremetalconstants.h>
 #include <coreplugin/icore.h>
@@ -18,6 +19,7 @@
 #include <utils/environment.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
+#include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 
 #include <QDesktopServices>
@@ -32,7 +34,7 @@ namespace McuSupport::Internal {
 McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
                        const QString &label,
                        const FilePath &defaultPath,
-                       const FilePath &detectionPath,
+                       const Utils::FilePaths &detectionPaths,
                        const Key &settingsKey,
                        const QString &cmakeVarName,
                        const QString &envVarName,
@@ -44,7 +46,7 @@ McuPackage::McuPackage(const SettingsHandler::Ptr &settingsHandler,
     : settingsHandler(settingsHandler)
     , m_label(label)
     , m_defaultPath(settingsHandler->getPath(settingsKey, QSettings::SystemScope, defaultPath))
-    , m_detectionPath(detectionPath)
+    , m_detectionPaths(detectionPaths)
     , m_settingsKey(settingsKey)
     , m_versionDetector(versionDetector)
     , m_versions(versions)
@@ -110,9 +112,16 @@ FilePath McuPackage::defaultPath() const
     return m_defaultPath.cleanPath();
 }
 
-FilePath McuPackage::detectionPath() const
+QList<FilePath> McuPackage::detectionPaths() const
 {
-    return m_detectionPath;
+    return m_detectionPaths;
+}
+
+QString McuPackage::detectionPathsToString() const
+{
+    return joinStrings(transform(m_detectionPaths,
+                                 [](const FilePath &filePath) { return filePath.toUserOutput(); }),
+                       '|');
 }
 
 void McuPackage::setPath(const FilePath &newPath)
@@ -128,8 +137,20 @@ void McuPackage::setPath(const FilePath &newPath)
 void McuPackage::updateStatus()
 {
     bool validPath = !m_path.isEmpty() && m_path.exists();
-    const FilePath detectionPath = basePath() / m_detectionPath.path();
-    const bool validPackage = m_detectionPath.isEmpty() || detectionPath.exists();
+    bool validPackage = false;
+    if (m_detectionPaths.empty()) {
+        validPackage = true;
+    } else {
+        for (const FilePath &detectionPath : m_detectionPaths) {
+            std::optional<FilePath> alternativeDetectionPath = firstMatchingPath(
+                basePath() / detectionPath.path());
+            if (!alternativeDetectionPath)
+                continue;
+            validPackage = true;
+            m_usedDetectionPath = detectionPath;
+            break;
+        }
+    }
     m_detectedVersion = validPath && validPackage && m_versionDetector
                             ? m_versionDetector->parseVersion(basePath())
                             : QString();
@@ -185,19 +206,20 @@ QString McuPackage::statusText() const
 {
     const QString displayPackagePath = m_path.toUserOutput();
     const QString displayVersions = m_versions.join(Tr::tr(" or "));
-    const QString outDetectionPath = m_detectionPath.toUserOutput();
+    const QStringList detectionPathsAsString = Utils::transform(m_detectionPaths, &FilePath::toUserOutput);
+    const QString outDetectionPath = joinStrings(detectionPathsAsString, '|');
     const QString displayRequiredPath = m_versions.empty() ? outDetectionPath
                                                            : QString("%1 %2").arg(outDetectionPath,
                                                                                   displayVersions);
     const QString displayDetectedPath = m_versions.empty()
-                                            ? outDetectionPath
-                                            : QString("%1 %2").arg(outDetectionPath,
+                                            ? m_usedDetectionPath.toString()
+                                            : QString("%1 %2").arg(m_usedDetectionPath.toString(),
                                                                    m_detectedVersion);
 
     QString response;
     switch (m_status) {
     case Status::ValidPackage:
-        response = m_detectionPath.isEmpty()
+        response = m_detectionPaths.isEmpty()
                        ? (m_detectedVersion.isEmpty()
                               ? Tr::tr("Path %1 exists.").arg(displayPackagePath)
                               : Tr::tr("Path %1 exists. Version %2 was found.")
@@ -222,7 +244,7 @@ QString McuPackage::statusText() const
         response = Tr::tr("Path %1 does not exist.").arg(displayPackagePath);
         break;
     case Status::EmptyPath:
-        response = m_detectionPath.isEmpty()
+        response = m_detectionPaths.isEmpty()
                        ? Tr::tr("Path is empty.")
                        : Tr::tr("Path is empty, %1 not found.").arg(displayRequiredPath);
         break;
@@ -333,7 +355,7 @@ const QMap<QString, QString> McuPackage::packageLabelTranslations {
 McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHandler,
                                          const QString &label,
                                          const FilePath &defaultPath,
-                                         const FilePath &detectionPath,
+                                         const QList<FilePath> &detectionPaths,
                                          const Key &settingsKey,
                                          McuToolChainPackage::ToolChainType type,
                                          const QStringList &versions,
@@ -343,7 +365,7 @@ McuToolChainPackage::McuToolChainPackage(const SettingsHandler::Ptr &settingsHan
     : McuPackage(settingsHandler,
                  label,
                  defaultPath,
-                 detectionPath,
+                 detectionPaths,
                  settingsKey,
                  cmakeVarName,
                  envVarName,
