@@ -334,18 +334,18 @@ private:
         \li \l CustomTask
         \li Defines asynchronous task type and task's start, done, and error handlers.
             Aliased with a unique task name, such as, \c ConcurrentCallTask<ResultType>
-            or NetworkQueryTask. Asynchronous tasks are the main reason for using a task tree.
+            or \c NetworkQueryTask. Asynchronous tasks are the main reason for using a task tree.
     \row
         \li \l {Tasking::Group} {Group}
         \li A container for other group items. Since the group is of the GroupItem type,
             it's possible to nest it inside another group. The group is seen by its parent
             as a single asynchronous task.
     \row
-        \li Storage
-        \li Enables the child tasks of a group to exchange data.
-            When Storage is placed inside a group, the task tree instantiates
-            the storage object just before the group is entered,
-            and destroys it just after the group is finished.
+        \li GroupItem containing \l {Tasking::Storage} {Storage}
+        \li Enables the child tasks of a group to exchange data. When GroupItem containing
+            \l {Tasking::Storage} {Storage} is placed inside a group, the task tree instantiates
+            the storage's data object just before the group is entered,
+            and destroys it just after the group is left.
     \row
         \li Other group control items
         \li The items returned by \l {Tasking::parallelLimit()} {parallelLimit()} or
