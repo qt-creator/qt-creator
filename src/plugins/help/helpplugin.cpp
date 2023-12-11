@@ -212,42 +212,40 @@ HelpPluginPrivate::HelpPluginPrivate()
         ICore::removeAdditionalContext(Context(kToolTipHelpContext));
     });
 
-    Command *cmd;
-    QAction *action;
-
     // Add Contents, Index, and Context menu items
-    action = new QAction(QIcon::fromTheme("help-contents"), Tr::tr(Constants::SB_CONTENTS), this);
-    cmd = ActionManager::registerAction(action, "Help.ContentsMenu");
-    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    connect(action, &QAction::triggered, this, &HelpPluginPrivate::activateContents);
+    ActionBuilder helpContents(this, "Help.ContentsMenu");
+    helpContents.setText(Tr::tr(Constants::SB_CONTENTS));
+    helpContents.setIcon(QIcon::fromTheme("help-contents"));
+    helpContents.setContainer(Core::Constants::M_HELP,  Core::Constants::G_HELP_HELP);
+    helpContents.setOnTriggered(this, &HelpPluginPrivate::activateContents);
 
-    action = new QAction(Tr::tr(Constants::SB_INDEX), this);
-    cmd = ActionManager::registerAction(action, "Help.IndexMenu");
-    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    connect(action, &QAction::triggered, this, &HelpPluginPrivate::activateIndex);
+    ActionBuilder helpIndex(this, "Help.IndexMenu");
+    helpIndex.setText(Tr::tr(Constants::SB_INDEX));
+    helpIndex.setContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_HELP);
+    helpIndex.setOnTriggered(this, &HelpPluginPrivate::activateIndex);
 
-    action = new QAction(Tr::tr("Context Help"), this);
-    cmd = ActionManager::registerAction(action, Help::Constants::CONTEXT_HELP,
-                                        Context(kToolTipHelpContext, Core::Constants::C_GLOBAL));
-    cmd->setTouchBarIcon(Icons::MACOS_TOUCHBAR_HELP.icon());
-    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_HELP);
-    ActionManager::actionContainer(Core::Constants::TOUCH_BAR)
-        ->addAction(cmd, Core::Constants::G_TOUCHBAR_HELP);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F1));
-    connect(action, &QAction::triggered, this, &HelpPluginPrivate::requestContextHelp);
+    ActionBuilder helpContext(this, Help::Constants::CONTEXT_HELP);
+    helpContext.setText(Tr::tr("Context Help"));
+    helpContext.setContext(Context(kToolTipHelpContext, Core::Constants::C_GLOBAL));
+    helpContext.setTouchBarIcon(Icons::MACOS_TOUCHBAR_HELP.icon());
+    helpContext.setContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_HELP);
+    helpContext.setContainer(Core::Constants::TOUCH_BAR, Core::Constants::G_TOUCHBAR_HELP);
+    helpContext.setDefaultKeySequence(Qt::Key_F1);
+    helpContext.setOnTriggered(this, &HelpPluginPrivate::requestContextHelp);
+
     ActionContainer *textEditorContextMenu = ActionManager::actionContainer(
         TextEditor::Constants::M_STANDARDCONTEXTMENU);
     if (textEditorContextMenu) {
         textEditorContextMenu->insertGroup(TextEditor::Constants::G_BOM,
                                            Core::Constants::G_HELP);
         textEditorContextMenu->addSeparator(Core::Constants::G_HELP);
-        textEditorContextMenu->addAction(cmd, Core::Constants::G_HELP);
+        helpContext.setContainer(TextEditor::Constants::M_STANDARDCONTEXTMENU, Core::Constants::G_HELP);
     }
 
-    action = new QAction(Tr::tr("Technical Support..."), this);
-    cmd = ActionManager::registerAction(action, "Help.TechSupport");
-    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
-    connect(action, &QAction::triggered, this, [this] {
+    ActionBuilder techSupport(this, "Help.TechSupport");
+    techSupport.setText(Tr::tr("Technical Support..."));
+    techSupport.setContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_SUPPORT);
+    techSupport.setOnTriggered(this, [this] {
         showHelpUrl(QUrl("qthelp://org.qt-project.qtcreator/doc/technical-support.html"),
                     Core::HelpManager::HelpModeAlways);
     });
@@ -255,19 +253,19 @@ HelpPluginPrivate::HelpPluginPrivate()
     const Key qdsStandaloneEntry = "QML/Designer/StandAloneMode"; //entry from designer settings
     const bool isDesigner = Core::ICore::settings()->value(qdsStandaloneEntry, false).toBool();
 
-    action = new QAction(Tr::tr("Report Bug..."), this);
-    cmd = ActionManager::registerAction(action, "Help.ReportBug");
-    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
-    connect(action, &QAction::triggered, this, [isDesigner] {
+    ActionBuilder reportBug(this, "Help.ReportBug");
+    reportBug.setText(Tr::tr("Report Bug..."));
+    reportBug.setContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_SUPPORT);
+    reportBug.setOnTriggered(this, [isDesigner] {
         const QUrl bugreportUrl = isDesigner ? QString("https://bugreports.qt.io/secure/CreateIssue.jspa?pid=11740") //QDS
                                              : QString("https://bugreports.qt.io/secure/CreateIssue.jspa?pid=10512"); //QtC
         QDesktopServices::openUrl(bugreportUrl);
     });
 
-    action = new QAction(Tr::tr("System Information..."), this);
-    cmd = ActionManager::registerAction(action, "Help.SystemInformation");
-    ActionManager::actionContainer(Core::Constants::M_HELP)->addAction(cmd, Core::Constants::G_HELP_SUPPORT);
-    connect(action, &QAction::triggered, this, &HelpPluginPrivate::slotSystemInformation);
+    ActionBuilder systemInformation(this, "Help.SystemInformation");
+    systemInformation.setText(Tr::tr("System Information..."));
+    systemInformation.setContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_SUPPORT);
+    systemInformation.setOnTriggered(this, &HelpPluginPrivate::slotSystemInformation);
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &HelpPluginPrivate::modeChanged);
