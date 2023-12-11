@@ -44,7 +44,6 @@ public:
     void setCommandDescription(const QString &desc);
     void setContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
     void setOnTriggered(const std::function<void()> &func);
-    void setOnToggled(QObject *guard, const std::function<void(bool)> &func);
 
     template<class T, typename F>
     void setOnTriggered(T *guard,
@@ -53,6 +52,18 @@ public:
     {
         QObject::connect(contextAction(),
                          &QAction::triggered,
+                         guard,
+                         std::forward<F>(function),
+                         connectionType);
+    }
+
+    template<class T, typename F>
+    void setOnToggled(T *guard,
+                        F &&function,
+                        Qt::ConnectionType connectionType = Qt::AutoConnection)
+    {
+        QObject::connect(contextAction(),
+                         &QAction::toggled,
                          guard,
                          std::forward<F>(function),
                          connectionType);

@@ -9,15 +9,6 @@
 #include <utils/fancylineedit.h>
 #include <utils/id.h>
 
-#include <QObject>
-#include <QList>
-#include <QString>
-
-QT_BEGIN_NAMESPACE
-class QAction;
-class QWidget;
-QT_END_NAMESPACE
-
 namespace Core {
 class CommandButton;
 class IContext;
@@ -114,9 +105,6 @@ private:
     int m_priority = -1;
     Core::CommandButton * const m_zoomInButton;
     Core::CommandButton * const m_zoomOutButton;
-    QAction *m_filterActionRegexp = nullptr;
-    QAction *m_filterActionCaseSensitive = nullptr;
-    QAction *m_invertFilterAction = nullptr;
     Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
     bool m_filterRegexp = false;
     bool m_invertFilter = false;

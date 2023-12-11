@@ -146,11 +146,6 @@ void ActionBuilder::setOnTriggered(const std::function<void ()> &func)
     QObject::connect(d->contextAction, &QAction::triggered, d->contextAction, func);
 }
 
-void ActionBuilder::setOnToggled(QObject *guard, const std::function<void (bool)> &func)
-{
-    QObject::connect(d->contextAction, &QAction::toggled, guard, func);
-}
-
 void ActionBuilder::setDefaultKeySequence(const QKeySequence &seq)
 {
     d->command->setDefaultKeySequence(seq);

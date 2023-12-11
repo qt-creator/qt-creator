@@ -176,29 +176,25 @@ void IOutputPane::setWheelZoomEnabled(bool enabled)
 
 void IOutputPane::setupFilterUi(const Key &historyKey)
 {
-    m_filterOutputLineEdit = new FancyLineEdit;
-    m_filterActionRegexp = new QAction(this);
-    m_filterActionRegexp->setCheckable(true);
-    m_filterActionRegexp->setText(Tr::tr("Use Regular Expressions"));
-    connect(m_filterActionRegexp, &QAction::toggled, this, &IOutputPane::setRegularExpressions);
-    Core::ActionManager::registerAction(m_filterActionRegexp, filterRegexpActionId());
+    ActionBuilder filterRegexpAction(this, filterRegexpActionId());
+    filterRegexpAction.setText(Tr::tr("Use Regular Expressions"));
+    filterRegexpAction.setCheckable(true);
+    filterRegexpAction.setOnToggled(this, &IOutputPane::setRegularExpressions);
 
-    m_filterActionCaseSensitive = new QAction(this);
-    m_filterActionCaseSensitive->setCheckable(true);
-    m_filterActionCaseSensitive->setText(Tr::tr("Case Sensitive"));
-    connect(m_filterActionCaseSensitive, &QAction::toggled, this, &IOutputPane::setCaseSensitive);
-    Core::ActionManager::registerAction(m_filterActionCaseSensitive,
-                                        filterCaseSensitivityActionId());
+    ActionBuilder filterCaseSensitiveAction(this, filterCaseSensitivityActionId());
+    filterCaseSensitiveAction.setText(Tr::tr("Case Sensitive"));
+    filterCaseSensitiveAction.setCheckable(true);
+    filterCaseSensitiveAction.setOnToggled(this, &IOutputPane::setCaseSensitive);
 
-    m_invertFilterAction = new QAction(this);
-    m_invertFilterAction->setCheckable(true);
-    m_invertFilterAction->setText(Tr::tr("Show Non-matching Lines"));
-    connect(m_invertFilterAction, &QAction::toggled, this, [this] {
-        m_invertFilter = m_invertFilterAction->isChecked();
+    ActionBuilder invertFilterAction(this, filterInvertedActionId());
+    invertFilterAction.setText(Tr::tr("Show Non-matching Lines"));
+    invertFilterAction.setCheckable(true);
+    invertFilterAction.setOnToggled(this, [this, action=invertFilterAction.contextAction()] {
+        m_invertFilter = action->isChecked();
         updateFilter();
     });
-    Core::ActionManager::registerAction(m_invertFilterAction, filterInvertedActionId());
 
+    m_filterOutputLineEdit = new FancyLineEdit;
     m_filterOutputLineEdit->setPlaceholderText(Tr::tr("Filter output..."));
     m_filterOutputLineEdit->setButtonVisible(FancyLineEdit::Left, true);
     m_filterOutputLineEdit->setButtonIcon(FancyLineEdit::Left, Icons::MAGNIFIER.icon());
