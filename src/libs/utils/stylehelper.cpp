@@ -967,6 +967,17 @@ QFont StyleHelper::uiFont(UiElement element)
         font.setPointSizeF(font.pointSizeF() * 1.2);
         font.setBold(true);
         break;
+    case UiElementH5:
+        font.setPointSizeF(font.pointSizeF() * 1.2);
+        font.setWeight(QFont::DemiBold);
+        break;
+    case UiElementH6:
+        font.setWeight(QFont::DemiBold);
+        break;
+    case UiElementH6Capital:
+        font.setWeight(QFont::DemiBold);
+        font.setCapitalization(QFont::AllUppercase);
+        break;
     case UiElementCaptionStrong:
         font.setPointSizeF(panelTitleSize);
         font.setWeight(QFont::DemiBold);
@@ -989,10 +1000,15 @@ QString StyleHelper::fontToCssProperties(const QFont &font)
     const QString fontShorthand = fontStyle + " " + QString::number(font.weight()) + " "
                                   + fontSize + " " + font.family();
     const QString textDecoration = QLatin1String(font.underline() ? "underline" : "none");
+    const QString textTransform = QLatin1String(font.capitalization() == QFont::AllUppercase
+                                                    ? "uppercase"
+                                                    : font.capitalization() == QFont::AllLowercase
+                                                          ? "lowercase" : "none");
     const QString propertyTemplate = "%1: %2";
     const QStringList cssProperties = {
         propertyTemplate.arg("font").arg(fontShorthand),
         propertyTemplate.arg("text-decoration").arg(textDecoration),
+        propertyTemplate.arg("text-transform").arg(textTransform),
         propertyTemplate.arg("word-spacing").arg(font.wordSpacing()),
     };
     const QString fontCssStyle = cssProperties.join("; ");

@@ -52,6 +52,9 @@ enum UiElement {
     UiElementH2,
     UiElementH3,
     UiElementH4,
+    UiElementH5,
+    UiElementH6,
+    UiElementH6Capital,
     UiElementCaptionStrong,
     UiElementCaption,
 };
