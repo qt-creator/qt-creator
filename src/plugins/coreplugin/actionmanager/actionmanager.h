@@ -51,7 +51,7 @@ public:
                         F &&function,
                         Qt::ConnectionType connectionType = Qt::AutoConnection)
     {
-        QObject::connect(commandAction(),
+        QObject::connect(contextAction(),
                          &QAction::triggered,
                          guard,
                          std::forward<F>(function),
