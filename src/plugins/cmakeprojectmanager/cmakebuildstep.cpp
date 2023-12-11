@@ -336,7 +336,7 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     formatter->addLineParser(progressParser);
     cmakeParser->setSourceDirectory(project()->projectDirectory());
     formatter->addLineParsers({cmakeParser, new GnuMakeParser});
-    Toolchain *tc = ToolchainKitAspect::cxxToolChain(kit());
+    Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
     if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
         xcodeBuildParser = new XcodebuildParser;

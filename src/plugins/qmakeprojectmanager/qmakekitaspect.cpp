@@ -98,7 +98,7 @@ QString QmakeKitAspect::defaultMkspec(const Kit *k)
     if (!version) // No version, so no qmake
         return {};
 
-    return version->mkspecFor(ToolchainKitAspect::cxxToolChain(k));
+    return version->mkspecFor(ToolchainKitAspect::cxxToolchain(k));
 }
 
 // QmakeKitAspectFactory

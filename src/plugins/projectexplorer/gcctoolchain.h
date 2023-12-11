@@ -59,7 +59,7 @@ public:
 
     bool operator ==(const Toolchain &) const override;
 
-    void resetToolChain(const Utils::FilePath &);
+    void resetToolchain(const Utils::FilePath &);
     void setPlatformCodeGenFlags(const QStringList &);
     QStringList extraCodeModelFlags() const override;
     QStringList platformCodeGenFlags() const;
@@ -155,7 +155,7 @@ private:
     // "resolved" on macOS from /usr/bin/clang(++) etc to <DeveloperDir>/usr/bin/clang(++)
     // which is used for comparison with matchesCompilerCommand
     mutable std::optional<Utils::FilePath> m_resolvedCompilerCommand;
-    QByteArray m_parentToolChainId;
+    QByteArray m_parentToolchainId;
     int m_priority = PriorityNormal;
     QMetaObject::Connection m_mingwToolchainAddedConnection;
     QMetaObject::Connection m_thisToolchainRemovedConnection;

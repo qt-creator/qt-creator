@@ -185,10 +185,10 @@ public:
     static void setConfig(const AndroidConfig &config);
     static AndroidConfigurations *instance();
 
-    static void registerNewToolChains();
-    static void registerCustomToolChainsAndDebuggers();
+    static void registerNewToolchains();
+    static void registerCustomToolchainsAndDebuggers();
     static void removeUnusedDebuggers();
-    static void removeOldToolChains();
+    static void removeOldToolchains();
     static void updateAutomaticKitList();
     static bool force32bitEmulator();
 

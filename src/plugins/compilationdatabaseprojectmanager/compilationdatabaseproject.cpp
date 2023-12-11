@@ -108,7 +108,7 @@ QString compilerPath(QString pathFlag)
 Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Utils::Id &language)
 {
     if (flags.empty())
-        return ToolchainKitAspect::toolChain(kit, language);
+        return ToolchainKitAspect::toolchain(kit, language);
 
     // Try exact compiler match.
     const Utils::FilePath compiler = Utils::FilePath::fromUserInput(compilerPath(flags.front()));
@@ -131,7 +131,7 @@ Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Ut
             return toolchain;
     }
 
-    toolchain = ToolchainKitAspect::toolChain(kit, language);
+    toolchain = ToolchainKitAspect::toolchain(kit, language);
     qWarning() << "No matching toolchain found, use the default.";
     return toolchain;
 }
@@ -179,21 +179,21 @@ RawProjectPart makeRawProjectPart(const Utils::FilePath &projectFile,
 
     if (fileKind == CppEditor::ProjectFile::Kind::CHeader
             || fileKind == CppEditor::ProjectFile::Kind::CSource) {
-        if (!kitInfo.cToolChain) {
-            kitInfo.cToolChain = toolchainFromFlags(kit,
+        if (!kitInfo.cToolchain) {
+            kitInfo.cToolchain = toolchainFromFlags(kit,
                                                     originalFlags,
                                                     ProjectExplorer::Constants::C_LANGUAGE_ID);
         }
-        addDriverModeFlagIfNeeded(kitInfo.cToolChain, flags, originalFlags);
-        rpp.setFlagsForC({kitInfo.cToolChain, flags, workingDir});
+        addDriverModeFlagIfNeeded(kitInfo.cToolchain, flags, originalFlags);
+        rpp.setFlagsForC({kitInfo.cToolchain, flags, workingDir});
     } else {
-        if (!kitInfo.cxxToolChain) {
-            kitInfo.cxxToolChain = toolchainFromFlags(kit,
+        if (!kitInfo.cxxToolchain) {
+            kitInfo.cxxToolchain = toolchainFromFlags(kit,
                                                       originalFlags,
                                                       ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         }
-        addDriverModeFlagIfNeeded(kitInfo.cxxToolChain, flags, originalFlags);
-        rpp.setFlagsForCxx({kitInfo.cxxToolChain, flags, workingDir});
+        addDriverModeFlagIfNeeded(kitInfo.cxxToolchain, flags, originalFlags);
+        rpp.setFlagsForCxx({kitInfo.cxxToolchain, flags, workingDir});
     }
 
     return rpp;
@@ -350,8 +350,8 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
     ProjectExplorer::KitInfo kitInfo(k);
     QTC_ASSERT(kitInfo.isValid(), return);
     // Reset toolchains to pick them based on the database entries.
-    kitInfo.cToolChain = nullptr;
-    kitInfo.cxxToolChain = nullptr;
+    kitInfo.cToolchain = nullptr;
+    kitInfo.cxxToolchain = nullptr;
     RawProjectParts rpps;
 
     QTC_ASSERT(m_parser, return);

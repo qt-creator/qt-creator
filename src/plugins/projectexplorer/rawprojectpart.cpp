@@ -142,8 +142,8 @@ KitInfo::KitInfo(Kit *kit)
 {
     // Toolchains
     if (kit) {
-        cToolChain = ToolchainKitAspect::cToolChain(kit);
-        cxxToolChain = ToolchainKitAspect::cxxToolChain(kit);
+        cToolchain = ToolchainKitAspect::cToolchain(kit);
+        cxxToolchain = ToolchainKitAspect::cxxToolchain(kit);
     }
 
     // Sysroot
@@ -185,8 +185,8 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
                                      const RppGenerator &rppGenerator)
     : rawProjectParts(rawProjectParts)
     , rppGenerator(rppGenerator)
-    , cToolChainInfo(ToolChainInfo(kitInfo.cToolChain, kitInfo.sysRootPath, env))
-    , cxxToolChainInfo(ToolChainInfo(kitInfo.cxxToolChain, kitInfo.sysRootPath, env))
+    , cToolchainInfo(ToolChainInfo(kitInfo.cToolchain, kitInfo.sysRootPath, env))
+    , cxxToolchainInfo(ToolChainInfo(kitInfo.cxxToolchain, kitInfo.sysRootPath, env))
 {
     if (project) {
         projectName = project->displayName();

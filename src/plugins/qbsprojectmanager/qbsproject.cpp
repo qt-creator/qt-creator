@@ -1005,10 +1005,10 @@ void QbsBuildSystem::updateCppCodeModel()
 
     const QtSupport::CppKitInfo kitInfo(kit());
     QTC_ASSERT(kitInfo.isValid(), return);
-    const auto cToolchain = std::shared_ptr<Toolchain>(kitInfo.cToolChain
-            ? kitInfo.cToolChain->clone() : nullptr);
-    const auto cxxToolchain = std::shared_ptr<Toolchain>(kitInfo.cxxToolChain
-            ? kitInfo.cxxToolChain->clone() : nullptr);
+    const auto cToolchain = std::shared_ptr<Toolchain>(kitInfo.cToolchain
+            ? kitInfo.cToolchain->clone() : nullptr);
+    const auto cxxToolchain = std::shared_ptr<Toolchain>(kitInfo.cxxToolchain
+            ? kitInfo.cxxToolchain->clone() : nullptr);
 
     m_cppCodeModelUpdater->update({project(), kitInfo, activeParseEnvironment(), {},
             [projectData, kitInfo, cToolchain, cxxToolchain] {

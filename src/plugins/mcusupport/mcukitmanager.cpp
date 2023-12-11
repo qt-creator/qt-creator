@@ -85,10 +85,10 @@ public:
         case McuToolChainPackage::ToolChainType::GCC:
         case McuToolChainPackage::ToolChainType::MinGW:
         case McuToolChainPackage::ToolChainType::ArmGcc:
-            ToolchainKitAspect::setToolChain(k,
+            ToolchainKitAspect::setToolchain(k,
                                              tcPackage->toolChain(
                                                  ProjectExplorer::Constants::C_LANGUAGE_ID));
-            ToolchainKitAspect::setToolChain(k,
+            ToolchainKitAspect::setToolchain(k,
                                              tcPackage->toolChain(
                                                  ProjectExplorer::Constants::CXX_LANGUAGE_ID));
             return;

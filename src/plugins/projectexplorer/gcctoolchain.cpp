@@ -458,7 +458,7 @@ static const GccToolchain *mingwToolChainFromId(const QByteArray &id)
 QString GccToolchain::originalTargetTriple() const
 {
     if (m_subType == Clang) {
-        if (const GccToolchain *parentTC = mingwToolChainFromId(m_parentToolChainId))
+        if (const GccToolchain *parentTC = mingwToolChainFromId(m_parentToolchainId))
             return parentTC->originalTargetTriple();
     }
 
@@ -866,7 +866,7 @@ QStringList GccToolchain::suggestedMkspecList() const
     }
 
     if (m_subType == Clang) {
-        if (const Toolchain * const parentTc = ToolchainManager::findToolchain(m_parentToolChainId))
+        if (const Toolchain * const parentTc = ToolchainManager::findToolchain(m_parentToolchainId))
             return parentTc->suggestedMkspecList();
         const Abi abi = targetAbi();
         if (abi.os() == Abi::DarwinOS)
@@ -950,7 +950,7 @@ QList<OutputLineParser *> GccToolchain::createOutputParsers() const
     return GccParser::gccParserSuite();
 }
 
-void GccToolchain::resetToolChain(const FilePath &path)
+void GccToolchain::resetToolchain(const FilePath &path)
 {
     bool resetDisplayName = (displayName() == defaultDisplayName());
 
@@ -1021,7 +1021,7 @@ void GccToolchain::toMap(Store &data) const
     data.insert(supportedAbisKeyC, Utils::transform<QStringList>(m_supportedAbis, &Abi::toString));
 
     if (m_subType == Clang) {
-        data.insert(parentToolChainIdKeyC, m_parentToolChainId);
+        data.insert(parentToolChainIdKeyC, m_parentToolchainId);
         data.insert(priorityKeyC, m_priority);
     }
 }
@@ -1042,10 +1042,10 @@ void GccToolchain::fromMap(const Store &data)
 
     const QString targetAbiString = data.value(targetAbiKeyC).toString();
     if (targetAbiString.isEmpty())
-        resetToolChain(compilerCommand());
+        resetToolchain(compilerCommand());
 
     if (m_subType == Clang) {
-        m_parentToolChainId = data.value(parentToolChainIdKeyC).toByteArray();
+        m_parentToolchainId = data.value(parentToolChainIdKeyC).toByteArray();
         m_priority = data.value(priorityKeyC, PriorityNormal).toInt();
         syncAutodetectedWithParentToolchains();
     }
@@ -1814,13 +1814,13 @@ void GccToolchainConfigWidget::applyImpl()
 
     if (m_subType == GccToolchain::Clang && m_parentToolchainCombo) {
 
-        tc->m_parentToolChainId.clear();
+        tc->m_parentToolchainId.clear();
 
         const QByteArray parentId = m_parentToolchainCombo->currentData().toByteArray();
         if (!parentId.isEmpty()) {
             for (const Toolchain *mingwTC : mingwToolChains()) {
                 if (parentId == mingwTC->id()) {
-                    tc->m_parentToolChainId = mingwTC->id();
+                    tc->m_parentToolchainId = mingwTC->id();
                     tc->setTargetAbi(mingwTC->targetAbi());
                     tc->setSupportedAbis(mingwTC->supportedAbis());
                     break;
@@ -1868,7 +1868,7 @@ bool GccToolchainConfigWidget::isDirtyImpl() const
     if (!m_parentToolchainCombo)
         return false;
 
-    const GccToolchain *parentTC = mingwToolChainFromId(tc->m_parentToolChainId);
+    const GccToolchain *parentTC = mingwToolChainFromId(tc->m_parentToolchainId);
     const QByteArray parentId = parentTC ? parentTC->id() : QByteArray();
     return parentId != m_parentToolchainCombo->currentData();
 }
@@ -1967,9 +1967,9 @@ void GccToolchain::syncAutodetectedWithParentToolchains()
         return;
     }
 
-    if (!mingwToolChainFromId(m_parentToolChainId)) {
+    if (!mingwToolChainFromId(m_parentToolchainId)) {
         const Toolchains mingwTCs = mingwToolChains();
-        m_parentToolChainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
+        m_parentToolchainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
     }
 
     // Subscribe only autodetected toolchains.
@@ -1977,8 +1977,8 @@ void GccToolchain::syncAutodetectedWithParentToolchains()
     m_mingwToolchainAddedConnection
         = connect(tcManager, &ToolchainManager::toolhainAdded, this, [this](Toolchain *tc) {
               if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID
-                  && !mingwToolChainFromId(m_parentToolChainId)) {
-                  m_parentToolChainId = tc->id();
+                  && !mingwToolChainFromId(m_parentToolchainId)) {
+                  m_parentToolchainId = tc->id();
               }
           });
     m_thisToolchainRemovedConnection
@@ -1986,9 +1986,9 @@ void GccToolchain::syncAutodetectedWithParentToolchains()
               if (tc == this) {
                   QObject::disconnect(m_thisToolchainRemovedConnection);
                   QObject::disconnect(m_mingwToolchainAddedConnection);
-              } else if (m_parentToolChainId == tc->id()) {
+              } else if (m_parentToolchainId == tc->id()) {
                   const Toolchains mingwTCs = mingwToolChains();
-                  m_parentToolChainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
+                  m_parentToolchainId = mingwTCs.isEmpty() ? QByteArray() : mingwTCs.front()->id();
               }
           });
 }
@@ -2018,7 +2018,7 @@ bool GccToolchain::matchesCompilerCommand(const FilePath &command) const
 QString GccToolchain::sysRoot() const
 {
     if (m_subType == Clang) {
-        if (const GccToolchain *parentTC = mingwToolChainFromId(m_parentToolChainId)) {
+        if (const GccToolchain *parentTC = mingwToolChainFromId(m_parentToolchainId)) {
             const FilePath mingwCompiler = parentTC->compilerCommand();
             return mingwCompiler.parentDir().parentDir().toString();
         }
@@ -2033,7 +2033,7 @@ void GccToolchainConfigWidget::updateParentToolChainComboBox()
     auto *tc = static_cast<GccToolchain *>(toolChain());
     QByteArray parentId = m_parentToolchainCombo->currentData().toByteArray();
     if (tc->isAutoDetected() || m_parentToolchainCombo->count() == 0)
-        parentId = tc->m_parentToolChainId;
+        parentId = tc->m_parentToolchainId;
 
     const GccToolchain *parentTC = mingwToolChainFromId(parentId);
 

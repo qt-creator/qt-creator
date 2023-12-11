@@ -238,7 +238,7 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
 
     connect(ToolchainManager::instance(), &ToolchainManager::toolchainUpdated,
             this, [this](Toolchain *tc) {
-        if (ToolchainKitAspect::cxxToolChain(kit()) == tc)
+        if (ToolchainKitAspect::cxxToolchain(kit()) == tc)
             scheduleUpdateAllNowOrLater();
     });
 
@@ -362,8 +362,8 @@ void QmakeBuildSystem::updateCppCodeModel()
             return pro->variableValue(Variable::IosDeploymentTarget).join(QString());
         });
 
-        rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxArgs, includeFileBaseDir});
-        rpp.setFlagsForC({kitInfo.cToolChain, cArgs, includeFileBaseDir});
+        rpp.setFlagsForCxx({kitInfo.cxxToolchain, cxxArgs, includeFileBaseDir});
+        rpp.setFlagsForC({kitInfo.cToolchain, cArgs, includeFileBaseDir});
         rpp.setMacros(ProjectExplorer::Macro::toMacros(pro->cxxDefines()));
         rpp.setPreCompiledHeaders(pro->variableValue(Variable::PrecompiledHeader));
         rpp.setSelectedForBuilding(pro->includedInExactParse());
@@ -757,7 +757,7 @@ Tasks QmakeProject::projectIssues(const Kit *k) const
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No Qt version set in kit.")));
     else if (!qtFromKit->isValid())
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Qt version is invalid.")));
-    if (!ToolchainKitAspect::cxxToolChain(k))
+    if (!ToolchainKitAspect::cxxToolchain(k))
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("No C++ compiler set in kit.")));
 
     // A project can be considered part of more than one Qt version, for instance if it is an
@@ -1308,7 +1308,7 @@ static FilePath destDirFor(const TargetInformation &ti)
 
 FilePaths QmakeBuildSystem::allLibraryTargetFiles(const QmakeProFile *file) const
 {
-    const Toolchain *const toolchain = ToolchainKitAspect::cxxToolChain(kit());
+    const Toolchain *const toolchain = ToolchainKitAspect::cxxToolchain(kit());
     if (!toolchain)
         return {};
 
@@ -1467,14 +1467,14 @@ QString QmakeBuildSystem::deviceRoot() const
 void QmakeBuildSystem::warnOnToolChainMismatch(const QmakeProFile *pro) const
 {
     const BuildConfiguration *bc = buildConfiguration();
-    testToolChain(ToolchainKitAspect::cToolChain(kit()), getFullPathOf(pro, Variable::QmakeCc, bc));
-    testToolChain(ToolchainKitAspect::cxxToolChain(kit()),
+    testToolChain(ToolchainKitAspect::cToolchain(kit()), getFullPathOf(pro, Variable::QmakeCc, bc));
+    testToolChain(ToolchainKitAspect::cxxToolchain(kit()),
                   getFullPathOf(pro, Variable::QmakeCxx, bc));
 }
 
 FilePath QmakeBuildSystem::executableFor(const QmakeProFile *file)
 {
-    const Toolchain *const tc = ToolchainKitAspect::cxxToolChain(kit());
+    const Toolchain *const tc = ToolchainKitAspect::cxxToolchain(kit());
     if (!tc)
         return {};
 

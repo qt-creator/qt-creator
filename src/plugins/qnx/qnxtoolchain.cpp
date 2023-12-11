@@ -208,7 +208,7 @@ void QnxToolChainConfigWidget::applyImpl()
     tc->setDisplayName(displayName); // reset display name
     tc->sdpPath.setValue(m_sdpPath->filePath());
     tc->setTargetAbi(m_abiWidget->currentAbi());
-    tc->resetToolChain(m_compilerCommand->filePath());
+    tc->resetToolchain(m_compilerCommand->filePath());
 }
 
 void QnxToolChainConfigWidget::discardImpl()

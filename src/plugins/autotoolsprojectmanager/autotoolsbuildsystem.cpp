@@ -144,8 +144,8 @@ void AutotoolsBuildSystem::updateCppCodeModel()
         cxxflags = cflags;
 
     const FilePath includeFileBaseDir = projectDirectory();
-    rpp.setFlagsForC({kitInfo.cToolChain, cflags, includeFileBaseDir});
-    rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxflags, includeFileBaseDir});
+    rpp.setFlagsForC({kitInfo.cToolchain, cflags, includeFileBaseDir});
+    rpp.setFlagsForCxx({kitInfo.cxxToolchain, cxxflags, includeFileBaseDir});
 
     const QString absSrc = project()->projectDirectory().toString();
     BuildConfiguration *bc = target()->activeBuildConfiguration();

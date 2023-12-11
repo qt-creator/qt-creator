@@ -322,7 +322,7 @@ void ProjectImporter::cleanupTemporaryToolChains(Kit *k, const QVariantList &vl)
         Toolchain *tc = toolChainFromVariant(v);
         QTC_ASSERT(tc, continue);
         ToolchainManager::deregisterToolchain(tc);
-        ToolchainKitAspect::setToolChain(k, nullptr);
+        ToolchainKitAspect::setToolchain(k, nullptr);
     }
 }
 
@@ -331,7 +331,7 @@ void ProjectImporter::persistTemporaryToolChains(Kit *k, const QVariantList &vl)
     for (const QVariant &v : vl) {
         Toolchain *tmpTc = toolChainFromVariant(v);
         QTC_ASSERT(tmpTc, continue);
-        Toolchain *actualTc = ToolchainKitAspect::toolChain(k, tmpTc->language());
+        Toolchain *actualTc = ToolchainKitAspect::toolchain(k, tmpTc->language());
         if (tmpTc && actualTc != tmpTc)
             ToolchainManager::deregisterToolchain(tmpTc);
     }

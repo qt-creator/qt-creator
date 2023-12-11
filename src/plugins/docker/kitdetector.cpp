@@ -364,7 +364,7 @@ void KitDetectorPrivate::autoDetect()
                    && (!qt || qt->qtAbis().contains(tc->targetAbi()));
         });
         for (Toolchain *toolChain : toolchainsToSet)
-            ToolchainKitAspect::setToolChain(k, toolChain);
+            ToolchainKitAspect::setToolchain(k, toolChain);
 
         if (cmakeId.isValid())
             k->setSticky(CMakeProjectManager::Constants::TOOL_ID, true);

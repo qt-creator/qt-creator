@@ -159,7 +159,7 @@ CommandLine NimCompilerBuildStep::commandLine()
     auto bc = qobject_cast<NimBuildConfiguration *>(buildConfiguration());
     QTC_ASSERT(bc, return {});
 
-    auto tc = ToolchainKitAspect::toolChain(kit(), Constants::C_NIMLANGUAGE_ID);
+    auto tc = ToolchainKitAspect::toolchain(kit(), Constants::C_NIMLANGUAGE_ID);
     QTC_ASSERT(tc, return {});
 
     CommandLine cmd{tc->compilerCommand()};

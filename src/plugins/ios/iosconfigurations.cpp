@@ -171,13 +171,13 @@ static void setupKit(Kit *kit, Id pDeviceType, const ToolChainPair& toolChains,
 {
     DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
     if (toolChains.first)
-        ToolchainKitAspect::setToolChain(kit, toolChains.first);
+        ToolchainKitAspect::setToolchain(kit, toolChains.first);
     else
-        ToolchainKitAspect::clearToolChain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID);
+        ToolchainKitAspect::clearToolchain(kit, ProjectExplorer::Constants::C_LANGUAGE_ID);
     if (toolChains.second)
-        ToolchainKitAspect::setToolChain(kit, toolChains.second);
+        ToolchainKitAspect::setToolchain(kit, toolChains.second);
     else
-        ToolchainKitAspect::clearToolChain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+        ToolchainKitAspect::clearToolchain(kit, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     QtKitAspect::setQtVersion(kit, qtVersion);
     // only replace debugger with the default one if we find an unusable one here
@@ -274,8 +274,8 @@ void IosConfigurations::updateAutomaticKitList()
                     // we do not compare the sdk (thus automatically upgrading it in place if a
                     // new Xcode is used). Change?
                     return DeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
-                            && ToolchainKitAspect::cxxToolChain(kit) == platformToolchains.second
-                            && ToolchainKitAspect::cToolChain(kit) == platformToolchains.first
+                            && ToolchainKitAspect::cxxToolchain(kit) == platformToolchains.second
+                            && ToolchainKitAspect::cToolchain(kit) == platformToolchains.first
                             && QtKitAspect::qtVersion(kit) == qtVersion;
                 });
                 QTC_ASSERT(!resultingKits.contains(kit), continue);
@@ -599,7 +599,7 @@ Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) co
                     toolChain->setDisplayName(target.name);
                     toolChain->setPlatformCodeGenFlags(target.backendFlags);
                     toolChain->setPlatformLinkerFlags(target.backendFlags);
-                    toolChain->resetToolChain(l == ProjectExplorer::Constants::CXX_LANGUAGE_ID ?
+                    toolChain->resetToolchain(l == ProjectExplorer::Constants::CXX_LANGUAGE_ID ?
                                                   platform.cxxCompilerPath : platform.cCompilerPath);
                     existingClangToolChains.append(toolChain);
                 }

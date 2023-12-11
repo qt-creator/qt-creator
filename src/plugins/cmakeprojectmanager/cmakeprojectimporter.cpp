@@ -56,7 +56,7 @@ struct DirectoryData
     QString toolset;
     FilePath sysroot;
     QtProjectImporter::QtVersionData qt;
-    QVector<ToolchainDescription> toolChains;
+    QVector<ToolchainDescription> toolchains;
 };
 
 static FilePaths scanDirectory(const FilePath &path, const QString &prefix)
@@ -464,7 +464,7 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     return {qmakeLocation, resultedPrefixPath};
 }
 
-static QVector<ToolchainDescription> extractToolChainsFromCache(const CMakeConfig &config)
+static QVector<ToolchainDescription> extractToolchainsFromCache(const CMakeConfig &config)
 {
     QVector<ToolchainDescription> result;
     bool haveCCxxCompiler = false;
@@ -563,7 +563,7 @@ void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<Di
             return ci.key == key;
         });
 
-        auto tcd = Utils::findOrDefault(data->toolChains,
+        auto tcd = Utils::findOrDefault(data->toolchains,
                                         [&language](const ToolchainDescription &t) {
                                             return t.language == language;
                                         });
@@ -790,8 +790,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
                                       CMakeConfigItem::PATH,
                                       cmakePrefixPath.toUtf8());
 
-        // ToolChains:
-        data->toolChains = extractToolChainsFromCache(config);
+        // Toolchains:
+        data->toolchains = extractToolchainsFromCache(config);
 
         // Update QT_QMAKE_EXECUTABLE and CMAKE_C|XX_COMPILER config values
         updateConfigWithDirectoryData(config, data);
@@ -888,8 +888,8 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         if (!qmake.isEmpty())
             data->qt = findOrCreateQtVersion(qmake);
 
-        // ToolChains:
-        data->toolChains = extractToolChainsFromCache(config);
+        // Toolchains:
+        data->toolchains = extractToolchainsFromCache(config);
 
         qCInfo(cmInputLog) << "Offering to import" << importPath.toUserOutput();
         result.push_back(static_cast<void *>(data.release()));
@@ -933,11 +933,11 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
 
     const bool compilersMatch = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolchainDescription &tcd : data->toolChains) {
+        for (const ToolchainDescription &tcd : data->toolchains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
-            Toolchain *tc = ToolchainKitAspect::toolChain(k, tcd.language);
+            Toolchain *tc = ToolchainKitAspect::toolchain(k, tcd.language);
             if ((!tc || !tc->matchesCompilerCommand(tcd.compilerPath))) {
                 return false;
             }
@@ -946,11 +946,11 @@ bool CMakeProjectImporter::matchKit(void *directoryData, const Kit *k) const
     }();
     const bool noCompilers = [k, data] {
         const QList<Id> allLanguages = ToolchainManager::allLanguages();
-        for (const ToolchainDescription &tcd : data->toolChains) {
+        for (const ToolchainDescription &tcd : data->toolchains) {
             if (!Utils::contains(allLanguages,
                                  [&tcd](const Id &language) { return language == tcd.language; }))
                 continue;
-            Toolchain *tc = ToolchainKitAspect::toolChain(k, tcd.language);
+            Toolchain *tc = ToolchainKitAspect::toolchain(k, tcd.language);
             if (tc && tc->matchesCompilerCommand(tcd.compilerPath)) {
                 return false;
             }
@@ -995,7 +995,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
 
         SysRootKitAspect::setSysRoot(k, data->sysroot);
 
-        for (const ToolchainDescription &cmtcd : data->toolChains) {
+        for (const ToolchainDescription &cmtcd : data->toolchains) {
             const ToolChainData tcd = findOrCreateToolChains(cmtcd);
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 
@@ -1004,7 +1004,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
                     addTemporaryData(ToolchainKitAspect::id(), tc->id(), k);
             }
 
-            ToolchainKitAspect::setToolChain(k, tcd.tcs.at(0));
+            ToolchainKitAspect::setToolchain(k, tcd.tcs.at(0));
         }
 
         if (!data->cmakePresetDisplayname.isEmpty()) {
@@ -1143,11 +1143,11 @@ void CMakeProjectPlugin::testCMakeProjectImporterQt()
                                                              Environment::systemEnvironment());
     QCOMPARE(realQmake.path(), expectedQmake);
 }
-void CMakeProjectPlugin::testCMakeProjectImporterToolChain_data()
+void CMakeProjectPlugin::testCMakeProjectImporterToolchain_data()
 {
     QTest::addColumn<QStringList>("cache");
     QTest::addColumn<QByteArrayList>("expectedLanguages");
-    QTest::addColumn<QStringList>("expectedToolChains");
+    QTest::addColumn<QStringList>("expectedToolchains");
 
     QTest::newRow("Empty input")
             << QStringList() << QByteArrayList() << QStringList();
@@ -1180,13 +1180,13 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain_data()
             << QStringList({"/usr/bin/g++", "/usr/bin/clang", "/tmp/strange/compiler"});
 }
 
-void CMakeProjectPlugin::testCMakeProjectImporterToolChain()
+void CMakeProjectPlugin::testCMakeProjectImporterToolchain()
 {
     QFETCH(QStringList, cache);
     QFETCH(QByteArrayList, expectedLanguages);
-    QFETCH(QStringList, expectedToolChains);
+    QFETCH(QStringList, expectedToolchains);
 
-    QCOMPARE(expectedLanguages.count(), expectedToolChains.count());
+    QCOMPARE(expectedLanguages.count(), expectedToolchains.count());
 
     CMakeConfig config;
     for (const QString &c : std::as_const(cache)) {
@@ -1197,11 +1197,11 @@ void CMakeProjectPlugin::testCMakeProjectImporterToolChain()
         config.append(CMakeConfigItem(key.toUtf8(), value.toUtf8()));
     }
 
-    const QVector<ToolchainDescription> tcs = extractToolChainsFromCache(config);
+    const QVector<ToolchainDescription> tcs = extractToolchainsFromCache(config);
     QCOMPARE(tcs.count(), expectedLanguages.count());
     for (int i = 0; i < tcs.count(); ++i) {
         QCOMPARE(tcs.at(i).language, expectedLanguages.at(i));
-        QCOMPARE(tcs.at(i).compilerPath.toString(), expectedToolChains.at(i));
+        QCOMPARE(tcs.at(i).compilerPath.toString(), expectedToolchains.at(i));
     }
 }
 

@@ -132,11 +132,11 @@ void AndroidPlugin::kitsRestored()
                 &AndroidPlugin::askUserAboutAndroidSetup, Qt::QueuedConnection);
     }
 
-    AndroidConfigurations::registerNewToolChains();
+    AndroidConfigurations::registerNewToolchains();
     AndroidConfigurations::updateAutomaticKitList();
     connect(QtSupport::QtVersionManager::instance(), &QtSupport::QtVersionManager::qtVersionsChanged,
             AndroidConfigurations::instance(), [] {
-        AndroidConfigurations::registerNewToolChains();
+        AndroidConfigurations::registerNewToolchains();
         AndroidConfigurations::updateAutomaticKitList();
     });
     disconnect(KitManager::instance(), &KitManager::kitsLoaded,

@@ -145,8 +145,8 @@ bool QbsProjectImporter::matchKit(void *directoryData, const Kit *k) const
             && bgData->cxxCompilerPath.isEmpty()) {
         return true;
     }
-    const Toolchain * const cToolchain = ToolchainKitAspect::cToolChain(k);
-    const Toolchain * const cxxToolchain = ToolchainKitAspect::cxxToolChain(k);
+    const Toolchain * const cToolchain = ToolchainKitAspect::cToolchain(k);
+    const Toolchain * const cxxToolchain = ToolchainKitAspect::cxxToolchain(k);
     if (!bgData->cCompilerPath.isEmpty()) {
         if (!cToolchain)
             return false;
@@ -190,7 +190,7 @@ Kit *QbsProjectImporter::createKit(void *directoryData) const
             tcData << findOrCreateToolChains({bgData->cCompilerPath, PEConstants::C_LANGUAGE_ID});
         for (const ToolChainData &tc : std::as_const(tcData)) {
             if (!tc.tcs.isEmpty())
-                ToolchainKitAspect::setToolChain(k, tc.tcs.first());
+                ToolchainKitAspect::setToolchain(k, tc.tcs.first());
         }
         SysRootKitAspect::setSysRoot(k, bgData->sysroot);
     });

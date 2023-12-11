@@ -9,12 +9,12 @@
 
 namespace Android::Internal {
 
-using ToolChainList = QList<ProjectExplorer::Toolchain *>;
+using ToolchainList = QList<ProjectExplorer::Toolchain *>;
 
-class AndroidToolChain : public ProjectExplorer::GccToolchain
+class AndroidToolchain : public ProjectExplorer::GccToolchain
 {
 public:
-    ~AndroidToolChain() override;
+    ~AndroidToolchain() override;
 
     bool isValid() const override;
     void addToEnvironment(Utils::Environment &env) const override;
@@ -30,7 +30,7 @@ protected:
     DetectedAbisResult detectSupportedAbis() const override;
 
 private:
-    explicit AndroidToolChain();
+    explicit AndroidToolchain();
 
     friend class AndroidToolchainFactory;
 
@@ -42,7 +42,7 @@ class AndroidToolchainFactory : public ProjectExplorer::ToolchainFactory
 public:
     AndroidToolchainFactory();
 
-    class AndroidToolChainInformation
+    class AndroidToolchainInformation
     {
     public:
         Utils::Id language;
@@ -51,8 +51,8 @@ public:
         QString version;
     };
 
-    static ToolChainList autodetectToolChains(const ToolChainList &alreadyKnown);
-    static ToolChainList autodetectToolChainsFromNdks(const ToolChainList &alreadyKnown,
+    static ToolchainList autodetectToolchains(const ToolchainList &alreadyKnown);
+    static ToolchainList autodetectToolchainsFromNdks(const ToolchainList &alreadyKnown,
                                                       const QList<Utils::FilePath> &ndkLocations,
                                                       const bool isCustom = false);
 };

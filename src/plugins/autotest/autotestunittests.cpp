@@ -59,7 +59,7 @@ void AutoTestUnitTests::initTestCase()
         m_isQt4 = qtVersion->qtVersionString().startsWith('4');
     else
         QSKIP("Could not figure out which Qt version is used for default kit.");
-    const Toolchain * const toolchain = ToolchainKitAspect::cxxToolChain(m_kit);
+    const Toolchain * const toolchain = ToolchainKitAspect::cxxToolchain(m_kit);
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 

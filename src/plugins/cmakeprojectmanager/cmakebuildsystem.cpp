@@ -1351,10 +1351,10 @@ void CMakeBuildSystem::updateProjectData()
         addTargetFlagForIos(cFlags, cxxFlags, this, [this] {
             return m_configurationFromCMake.stringValueOf("CMAKE_OSX_DEPLOYMENT_TARGET");
         });
-        if (kitInfo.cxxToolChain)
-            rpp.setFlagsForCxx({kitInfo.cxxToolChain, cxxFlags, includeFileBaseDir});
-        if (kitInfo.cToolChain)
-            rpp.setFlagsForC({kitInfo.cToolChain, cFlags, includeFileBaseDir});
+        if (kitInfo.cxxToolchain)
+            rpp.setFlagsForCxx({kitInfo.cxxToolchain, cxxFlags, includeFileBaseDir});
+        if (kitInfo.cToolchain)
+            rpp.setFlagsForC({kitInfo.cToolchain, cFlags, includeFileBaseDir});
     }
 
     m_cppCodeModelUpdater->update({p, kitInfo, buildConfiguration()->environment(), rpps},

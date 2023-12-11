@@ -356,8 +356,8 @@ public:
     ProjectInfoGeneratorTestHelper()
     {
         TestToolchain aToolChain;
-        projectUpdateInfo.cxxToolChainInfo = {&aToolChain, {}, {}};
-        projectUpdateInfo.cToolChainInfo = {&aToolChain, {}, {}};
+        projectUpdateInfo.cxxToolchainInfo = {&aToolChain, {}, {}};
+        projectUpdateInfo.cToolchainInfo = {&aToolChain, {}, {}};
     }
 
     ProjectInfo::ConstPtr generate()
@@ -426,7 +426,7 @@ void ProjectInfoGeneratorTest::testProjectPartHasLatestLanguageVersionByDefault(
 void ProjectInfoGeneratorTest::testUseMacroInspectionReportForLanguageVersion()
 {
     ProjectInfoGeneratorTestHelper t;
-    t.projectUpdateInfo.cxxToolChainInfo.macroInspectionRunner = [](const QStringList &) {
+    t.projectUpdateInfo.cxxToolchainInfo.macroInspectionRunner = [](const QStringList &) {
         return TestToolchain::MacroInspectionReport{Macros(), Utils::LanguageVersion::CXX17};
     };
     t.rawProjectPart.files = QStringList{ "foo.cpp" };

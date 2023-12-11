@@ -1124,13 +1124,13 @@ void AndroidConfigurations::setConfig(const AndroidConfig &devConfigs)
 
     m_instance->save();
     updateAndroidDevice();
-    registerNewToolChains();
+    registerNewToolchains();
     updateAutomaticKitList();
-    removeOldToolChains();
+    removeOldToolchains();
     emit m_instance->updated();
 }
 
-static bool matchToolChain(const Toolchain *atc, const Toolchain *btc)
+static bool matchToolchain(const Toolchain *atc, const Toolchain *btc)
 {
     if (atc == btc)
         return true;
@@ -1144,21 +1144,21 @@ static bool matchToolChain(const Toolchain *atc, const Toolchain *btc)
     return atc->targetAbi() == btc->targetAbi();
 }
 
-void AndroidConfigurations::registerNewToolChains()
+void AndroidConfigurations::registerNewToolchains()
 {
-    const Toolchains existingAndroidToolChains
+    const Toolchains existingAndroidToolchains
             = ToolchainManager::toolchains(Utils::equal(&Toolchain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
-    const Toolchains newToolchains = AndroidToolchainFactory::autodetectToolChains(
-        existingAndroidToolChains);
+    const Toolchains newToolchains = AndroidToolchainFactory::autodetectToolchains(
+        existingAndroidToolchains);
 
     for (Toolchain *tc : newToolchains)
         ToolchainManager::registerToolchain(tc);
 
-    registerCustomToolChainsAndDebuggers();
+    registerCustomToolchainsAndDebuggers();
 }
 
-void AndroidConfigurations::removeOldToolChains()
+void AndroidConfigurations::removeOldToolchains()
 {
     const auto tcs = ToolchainManager::toolchains(Utils::equal(&Toolchain::typeId,
                                                                Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
@@ -1246,7 +1246,7 @@ static QVariant findOrRegisterDebugger(Toolchain *tc,
                                        bool customDebugger = false)
 {
     const auto &currentConfig = AndroidConfigurations::currentConfig();
-    const FilePath ndk = static_cast<AndroidToolChain *>(tc)->ndkLocation();
+    const FilePath ndk = static_cast<AndroidToolchain *>(tc)->ndkLocation();
     const FilePath lldbCommand = currentConfig.lldbPathFromNdk(ndk);
     const Debugger::DebuggerItem *existingLldb = existingDebugger(lldbCommand,
                                                                   Debugger::LldbEngineType);
@@ -1304,22 +1304,22 @@ static QVariant findOrRegisterDebugger(Toolchain *tc,
     return registeredLldb.isNull() ? registeredGdb : registeredLldb;
 }
 
-void AndroidConfigurations::registerCustomToolChainsAndDebuggers()
+void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
 {
-    const Toolchains existingAndroidToolChains = ToolchainManager::toolchains(
+    const Toolchains existingAndroidToolchains = ToolchainManager::toolchains(
         Utils::equal(&Toolchain::typeId, Utils::Id(Constants::ANDROID_TOOLCHAIN_TYPEID)));
 
     const FilePaths customNdks = FileUtils::toFilePathList(currentConfig().getCustomNdkList());
     const Toolchains customToolchains
-        = AndroidToolchainFactory::autodetectToolChainsFromNdks(existingAndroidToolChains,
+        = AndroidToolchainFactory::autodetectToolchainsFromNdks(existingAndroidToolchains,
                                                                 customNdks,
                                                                 true);
     for (Toolchain *tc : customToolchains) {
         ToolchainManager::registerToolchain(tc);
-        const auto androidToolChain = static_cast<AndroidToolChain *>(tc);
+        const auto androidToolchain = static_cast<AndroidToolchain *>(tc);
         QString abiStr;
-        if (androidToolChain)
-            abiStr = androidToolChain->platformLinkerFlags().at(1).split('-').first();
+        if (androidToolchain)
+            abiStr = androidToolchain->platformLinkerFlags().at(1).split('-').first();
         findOrRegisterDebugger(tc, {abiStr}, true);
     }
 }
@@ -1369,27 +1369,27 @@ void AndroidConfigurations::updateAutomaticKitList()
             continue;
 
         for (const QtVersion *qt : qtVersionsForArch.value(tc->targetAbi())) {
-            FilePath tcNdk = static_cast<const AndroidToolChain *>(tc)->ndkLocation();
+            FilePath tcNdk = static_cast<const AndroidToolchain *>(tc)->ndkLocation();
             if (tcNdk != currentConfig().ndkLocation(qt))
                 continue;
 
             const Toolchains allLanguages
                 = Utils::filtered(toolchains, [tc, tcNdk](Toolchain *otherTc) {
-                      FilePath otherNdk = static_cast<const AndroidToolChain *>(otherTc)->ndkLocation();
+                      FilePath otherNdk = static_cast<const AndroidToolchain *>(otherTc)->ndkLocation();
                       return tc->targetAbi() == otherTc->targetAbi() && tcNdk == otherNdk;
                   });
 
-            QHash<Id, Toolchain *> toolChainForLanguage;
+            QHash<Id, Toolchain *> toolchainForLanguage;
             for (Toolchain *tc : allLanguages)
-                toolChainForLanguage[tc->language()] = tc;
+                toolchainForLanguage[tc->language()] = tc;
 
             Kit *existingKit = Utils::findOrDefault(existingKits, [&](const Kit *b) {
                 if (qt != QtKitAspect::qtVersion(b))
                     return false;
-                return matchToolChain(toolChainForLanguage[ProjectExplorer::Constants::CXX_LANGUAGE_ID],
-                                      ToolchainKitAspect::cxxToolChain(b))
-                        && matchToolChain(toolChainForLanguage[ProjectExplorer::Constants::C_LANGUAGE_ID],
-                                          ToolchainKitAspect::cToolChain(b));
+                return matchToolchain(toolchainForLanguage[ProjectExplorer::Constants::CXX_LANGUAGE_ID],
+                                      ToolchainKitAspect::cxxToolchain(b))
+                        && matchToolchain(toolchainForLanguage[ProjectExplorer::Constants::C_LANGUAGE_ID],
+                                          ToolchainKitAspect::cToolchain(b));
             });
 
             const auto initializeKit = [allLanguages, tc, qt](Kit *k) {
@@ -1397,7 +1397,7 @@ void AndroidConfigurations::updateAutomaticKitList()
                 k->setAutoDetectionSource("AndroidConfiguration");
                 DeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
                 for (Toolchain *tc : allLanguages)
-                    ToolchainKitAspect::setToolChain(k, tc);
+                    ToolchainKitAspect::setToolchain(k, tc);
                 QtKitAspect::setQtVersion(k, qt);
                 QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
                 Debugger::DebuggerKitAspect::setDebugger(k, findOrRegisterDebugger(tc, abis));

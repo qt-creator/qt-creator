@@ -226,7 +226,7 @@ void QtKitAspectFactory::fix(Kit *k)
     }
 
     // Set a matching toolchain if we don't have one.
-    if (ToolchainKitAspect::cxxToolChain(k))
+    if (ToolchainKitAspect::cxxToolchain(k))
         return;
 
     const QString spec = version->mkspec();
@@ -283,7 +283,7 @@ void QtKitAspectFactory::fix(Kit *k)
         });
 
         if (Toolchain * const bestTc = goodTcs.isEmpty() ? possibleTcs.first() : goodTcs.first())
-            ToolchainKitAspect::setAllToolChainsToMatch(k, bestTc);
+            ToolchainKitAspect::setAllToolchainsToMatch(k, bestTc);
     }
 }
 
@@ -405,7 +405,7 @@ void QtKitAspect::setQtVersion(Kit *k, const QtVersion *v)
 
 void QtKitAspect::addHostBinariesToPath(const Kit *k, Environment &env)
 {
-    if (const Toolchain *tc = ToolchainKitAspect::cxxToolChain(k))
+    if (const Toolchain *tc = ToolchainKitAspect::cxxToolchain(k))
         env.prependOrSetPath(tc->compilerCommand().parentDir());
 
     if (const QtVersion *qt = qtVersion(k))

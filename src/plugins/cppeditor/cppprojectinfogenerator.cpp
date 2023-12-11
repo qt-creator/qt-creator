@@ -66,7 +66,7 @@ const QVector<ProjectPart::ConstPtr> ProjectInfoGenerator::createProjectParts(
     if (!cat.hasParts())
         return result;
 
-    if (m_projectUpdateInfo.cxxToolChainInfo.isValid()) {
+    if (m_projectUpdateInfo.cxxToolchainInfo.isValid()) {
         if (cat.hasCxxSources()) {
             result << createProjectPart(projectFilePath,
                                         rawProjectPart,
@@ -87,7 +87,7 @@ const QVector<ProjectPart::ConstPtr> ProjectInfoGenerator::createProjectParts(
         m_cxxToolchainMissing = true;
     }
 
-    if (m_projectUpdateInfo.cToolChainInfo.isValid()) {
+    if (m_projectUpdateInfo.cToolchainInfo.isValid()) {
         if (cat.hasCSources()) {
             result << createProjectPart(projectFilePath,
                                         rawProjectPart,
@@ -124,12 +124,12 @@ ProjectPart::ConstPtr ProjectInfoGenerator::createProjectPart(
     ToolChainInfo tcInfo;
     if (language == Language::C) {
         flags = rawProjectPart.flagsForC;
-        tcInfo = m_projectUpdateInfo.cToolChainInfo;
+        tcInfo = m_projectUpdateInfo.cToolchainInfo;
     }
     // Use Cxx toolchain for C projects without C compiler in kit and for C++ code
     if (!tcInfo.isValid()) {
         flags = rawProjectPart.flagsForCxx;
-        tcInfo = m_projectUpdateInfo.cxxToolChainInfo;
+        tcInfo = m_projectUpdateInfo.cxxToolchainInfo;
     }
 
     QString explicitTarget;

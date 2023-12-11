@@ -119,8 +119,8 @@ public:
     bool isValid() const;
 
     Kit *kit = nullptr;
-    Toolchain *cToolChain = nullptr;
-    Toolchain *cxxToolChain = nullptr;
+    Toolchain *cToolchain = nullptr;
+    Toolchain *cxxToolchain = nullptr;
 
     Utils::QtMajorVersion projectPartQtVersion = Utils::QtMajorVersion::None;
 
@@ -171,8 +171,8 @@ public:
     RawProjectParts rawProjectParts;
     RppGenerator rppGenerator;
 
-    ToolChainInfo cToolChainInfo;
-    ToolChainInfo cxxToolChainInfo;
+    ToolChainInfo cToolchainInfo;
+    ToolChainInfo cxxToolchainInfo;
 };
 
 } // namespace ProjectExplorer

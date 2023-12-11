@@ -182,7 +182,7 @@ void QnxConfiguration::deactivate()
     for (Kit *kit : kits) {
         if (kit->isAutoDetected()
                 && DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
-                && toolChainsToRemove.contains(ToolchainKitAspect::cxxToolChain(kit))) {
+                && toolChainsToRemove.contains(ToolchainKitAspect::cxxToolchain(kit))) {
             KitManager::deregisterKit(kit);
         }
     }
@@ -240,7 +240,7 @@ Toolchains QnxConfiguration::createToolChains(const QnxTarget &target)
                     .arg(target.shortDescription()));
         toolChain->sdpPath.setValue(m_envFile.parentDir());
         toolChain->cpuDir.setValue(target.cpuDir());
-        toolChain->resetToolChain(m_qccCompiler);
+        toolChain->resetToolchain(m_qccCompiler);
         ToolchainManager::registerToolchain(toolChain);
 
         toolChains.append(toolChain);
@@ -258,8 +258,8 @@ void QnxConfiguration::createKit(const QnxTarget &target)
 
     const auto init = [&](Kit *k) {
         QtKitAspect::setQtVersion(k, qnxQt);
-        ToolchainKitAspect::setToolChain(k, toolChains[0]);
-        ToolchainKitAspect::setToolChain(k, toolChains[1]);
+        ToolchainKitAspect::setToolchain(k, toolChains[0]);
+        ToolchainKitAspect::setToolchain(k, toolChains[1]);
 
         if (debugger.isValid())
             DebuggerKitAspect::setDebugger(k, debugger);

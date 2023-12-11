@@ -347,7 +347,7 @@ void KitManager::restoreKits()
             kit->setSdkProvided(false);
             kit->setAutoDetected(false); // TODO: Why false? What does autodetected mean here?
             for (Toolchain * const tc : it.value())
-                ToolchainKitAspect::setToolChain(kit.get(), tc);
+                ToolchainKitAspect::setToolchain(kit.get(), tc);
             if (contains(resultList, [&kit](const std::unique_ptr<Kit> &existingKit) {
                 return ToolchainKitAspect::toolChains(kit.get())
                          == ToolchainKitAspect::toolChains(existingKit.get());

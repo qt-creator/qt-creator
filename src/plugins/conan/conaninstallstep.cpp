@@ -106,7 +106,7 @@ ConanInstallStep::ConanInstallStep(BuildStepList *bsl, Id id)
     setSummaryUpdater([this]() -> QString {
         QList<Toolchain *> tcList = ToolchainKitAspect::toolChains(target()->kit());
         if (tcList.isEmpty())
-            return "<b>" + ToolchainKitAspect::msgNoToolChainInTarget() + "</b>";
+            return "<b>" + ToolchainKitAspect::msgNoToolchainInTarget() + "</b>";
         ProcessParameters param;
         setupProcessParameters(&param);
         return param.summary(displayName());

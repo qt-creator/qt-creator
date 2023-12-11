@@ -245,7 +245,7 @@ void MesonBuildSystem::parsingCompleted(bool success)
                 {project(),
                  QtSupport::CppKitInfo(kit()),
                  buildConfiguration()->environment(),
-                 m_parser.buildProjectParts(kitInfo.cxxToolChain, kitInfo.cToolChain)});
+                 m_parser.buildProjectParts(kitInfo.cxxToolchain, kitInfo.cToolchain)});
         }
         setApplicationTargets(m_parser.appsTargets());
         UNLOCK(true);

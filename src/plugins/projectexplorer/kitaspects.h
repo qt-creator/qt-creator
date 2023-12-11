@@ -24,23 +24,23 @@ public:
     static void setSysRoot(Kit *k, const Utils::FilePath &v);
 };
 
-// ToolChainKitAspect
+// ToolchainKitAspect
 
 class PROJECTEXPLORER_EXPORT ToolchainKitAspect
 {
 public:
     static Utils::Id id();
-    static QByteArray toolChainId(const Kit *k, Utils::Id language);
-    static Toolchain *toolChain(const Kit *k, Utils::Id language);
-    static Toolchain *cToolChain(const Kit *k);
-    static Toolchain *cxxToolChain(const Kit *k);
+    static QByteArray toolchainId(const Kit *k, Utils::Id language);
+    static Toolchain *toolchain(const Kit *k, Utils::Id language);
+    static Toolchain *cToolchain(const Kit *k);
+    static Toolchain *cxxToolchain(const Kit *k);
     static QList<Toolchain *> toolChains(const Kit *k);
-    static void setToolChain(Kit *k, Toolchain *tc);
-    static void setAllToolChainsToMatch(Kit *k, Toolchain *tc);
-    static void clearToolChain(Kit *k, Utils::Id language);
+    static void setToolchain(Kit *k, Toolchain *tc);
+    static void setAllToolchainsToMatch(Kit *k, Toolchain *tc);
+    static void clearToolchain(Kit *k, Utils::Id language);
     static Abi targetAbi(const Kit *k);
 
-    static QString msgNoToolChainInTarget();
+    static QString msgNoToolchainInTarget();
 };
 
 // DeviceTypeKitAspect

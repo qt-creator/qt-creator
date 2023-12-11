@@ -1551,12 +1551,12 @@ void ProjectExplorerPlugin::testSourceToBinaryMapping()
 {
     // Find suitable kit.
     Kit * const kit = findOr(KitManager::kits(), nullptr, [](const Kit *k) {
-        return k->isValid() && ToolchainKitAspect::cxxToolChain(k);
+        return k->isValid() && ToolchainKitAspect::cxxToolchain(k);
     });
     if (!kit)
         QSKIP("The test requires at least one kit with a toolchain.");
 
-    const auto toolchain = ToolchainKitAspect::cxxToolChain(kit);
+    const auto toolchain = ToolchainKitAspect::cxxToolchain(kit);
     QVERIFY(toolchain);
     if (const auto msvcToolchain = dynamic_cast<Internal::MsvcToolChain *>(toolchain)) {
         while (!msvcToolchain->environmentInitialized()) {
