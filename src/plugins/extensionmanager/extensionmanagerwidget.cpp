@@ -106,8 +106,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 
     connect(m_leftColumn, &ExtensionsBrowser::itemSelected,
             this, &ExtensionManagerWidget::updateView);
-    connect(this, &ResizeSignallingWidget::resized, this,
-            [this] (const QSize &size, const QSize &oldSize) {
+    connect(this, &ResizeSignallingWidget::resized, this, [this](const QSize &size) {
         const int intendedLeftColumnWidth = size.width() - 580;
         m_leftColumn->adjustToWidth(intendedLeftColumnWidth);
         const bool secondaryDescriptionVisible = size.width() > 970;
