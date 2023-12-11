@@ -21,7 +21,8 @@ StudioControls.Dialog {
     property string compositionName: ""
 
     onOpened: {
-        nameText.text = EffectMakerBackend.effectMakerModel.currentComposition
+        let model = EffectMakerBackend.effectMakerModel
+        nameText.text = model.currentComposition === "" ? model.getUniqueEffectName() : model.currentComposition
         emptyText.text = ""
         nameText.forceActiveFocus()
     }
@@ -83,10 +84,8 @@ StudioControls.Dialog {
                 text: qsTr("Save")
                 enabled: nameText.text !== ""
                 onClicked: {
-                    if (btnSave.enabled) {
-                        root.compositionName = nameText.text
-                        root.accept() //TODO: Check if name is unique
-                    }
+                    root.compositionName = nameText.text
+                    root.accept() // TODO: confirm before overriding effect with same name
                 }
             }
 

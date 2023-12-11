@@ -164,6 +164,19 @@ void EffectMakerModel::clear()
     emit nodesChanged();
 }
 
+QString EffectMakerModel::getUniqueEffectName() const
+{
+    const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
+    const QString path = effectsDir + QDir::separator() + "Effect%1.qep";
+
+    int num = 0;
+
+    while (QFile::exists(path.arg(++num, 2, 10, QChar('0'))))
+        ; // empty body
+
+    return QString("Effect%1").arg(num, 2, 10, QChar('0'));
+}
+
 QString EffectMakerModel::fragmentShader() const
 {
     return m_fragmentShader;
