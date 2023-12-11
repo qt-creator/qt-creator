@@ -18,6 +18,9 @@ StudioControls.Dialog {
     implicitWidth: 300
     implicitHeight: 130
 
+    signal save()
+    signal discard()
+
     contentItem: Item {
         Text {
             text: qsTr("Current composition has unsaved changes.")
@@ -41,7 +44,10 @@ StudioControls.Dialog {
                 text: qsTr("Save")
                 onClicked: {
                     let name = EffectMakerBackend.effectMakerModel.currentComposition
-                    EffectMakerBackend.effectMakerModel.saveComposition(name)
+                    if (name !== "")
+                        EffectMakerBackend.effectMakerModel.saveComposition(name)
+
+                    root.save()
                     root.accept()
                 }
             }
@@ -49,7 +55,10 @@ StudioControls.Dialog {
             HelperWidgets.Button {
                 width: 110
                 text: qsTr("Discard Changes")
-                onClicked: root.accept()
+                onClicked: {
+                    root.discard()
+                    root.accept()
+                }
             }
         }
     }

@@ -18,7 +18,7 @@ StudioControls.Dialog {
     implicitWidth: 250
     implicitHeight: 160
 
-    property string compositionName: ""
+    property bool clearOnClose: false // clear the effect maker after saving
 
     onOpened: {
         let model = EffectMakerBackend.effectMakerModel
@@ -84,14 +84,28 @@ StudioControls.Dialog {
                 text: qsTr("Save")
                 enabled: nameText.text !== ""
                 onClicked: {
-                    root.compositionName = nameText.text
+                    EffectMakerBackend.effectMakerModel.saveComposition(nameText.text)
+
+                    if (root.clearOnClose) {
+                        EffectMakerBackend.effectMakerModel.clear()
+                        root.clearOnClose = false
+                    }
+
                     root.accept() // TODO: confirm before overriding effect with same name
                 }
             }
 
             HelperWidgets.Button {
                 text: qsTr("Cancel")
-                onClicked: root.reject()
+
+                onClicked: {
+                    if (root.clearOnClose) {
+                        EffectMakerBackend.effectMakerModel.clear()
+                        root.clearOnClose = false
+                    }
+
+                    root.reject()
+                }
             }
         }
     }

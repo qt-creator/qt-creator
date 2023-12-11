@@ -19,15 +19,25 @@ Item {
     SaveAsDialog {
         id: saveDialog
         anchors.centerIn: parent
-
-        onAccepted: EffectMakerBackend.effectMakerModel.saveComposition(saveDialog.compositionName)
     }
 
     SaveChangesDialog {
         id: saveChangesDialog
         anchors.centerIn: parent
 
-        onAccepted: EffectMakerBackend.effectMakerModel.clear()
+        onSave: {
+            if (EffectMakerBackend.effectMakerModel.currentComposition === "") {
+                // if current composition is unsaved, show save as dialog and clear afterwards
+                saveDialog.clearOnClose = true
+                saveDialog.open()
+            } else {
+                EffectMakerBackend.effectMakerModel.clear()
+            }
+        }
+
+        onDiscard: {
+            EffectMakerBackend.effectMakerModel.clear()
+        }
     }
 
     Column {
