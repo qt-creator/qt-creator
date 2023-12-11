@@ -75,7 +75,7 @@ class ActionBuilderPrivate
 {
 public:
     ActionBuilderPrivate(QObject *contextActionParent, const Id actionId)
-        : action(new ParameterAction({}, {}, ParameterAction::AlwaysEnabled, contextActionParent))
+        : contextAction(new ParameterAction({}, {}, ParameterAction::AlwaysEnabled, contextActionParent))
         , actionId(actionId)
     {
         command = ActionManager::createCommand(actionId);
@@ -84,10 +84,10 @@ public:
     void registerAction()
     {
         QTC_ASSERT(actionId.isValid(), return);
-        ActionManager::registerAction(action, actionId, context, scriptable);
+        ActionManager::registerAction(contextAction, actionId, context, scriptable);
     }
 
-    ParameterAction *action = nullptr;
+    ParameterAction *contextAction = nullptr;
     Command *command = nullptr;
 
     Id actionId;
@@ -108,17 +108,17 @@ ActionBuilder::~ActionBuilder()
 
 void ActionBuilder::setText(const QString &text)
 {
-    d->action->setText(text);
+    d->contextAction->setText(text);
 }
 
 void ActionBuilder::setIconText(const QString &text)
 {
-    d->action->setIconText(text);
+    d->contextAction->setIconText(text);
 }
 
 void ActionBuilder::setToolTip(const QString &toolTip)
 {
-    d->action->setToolTip(toolTip);
+    d->contextAction->setToolTip(toolTip);
 }
 
 void ActionBuilder::setCommandAttribute(Command::CommandAttribute attr)
@@ -143,12 +143,12 @@ void ActionBuilder::setContainer(Id containerId, Id groupId, bool needsToExist)
 
 void ActionBuilder::setOnTriggered(const std::function<void ()> &func)
 {
-    QObject::connect(d->action, &QAction::triggered, d->action, func);
+    QObject::connect(d->contextAction, &QAction::triggered, d->contextAction, func);
 }
 
 void ActionBuilder::setOnToggled(QObject *guard, const std::function<void (bool)> &func)
 {
-    QObject::connect(d->action, &QAction::toggled, guard, func);
+    QObject::connect(d->contextAction, &QAction::toggled, guard, func);
 }
 
 void ActionBuilder::setDefaultKeySequence(const QKeySequence &seq)
@@ -168,12 +168,12 @@ void ActionBuilder::setDefaultKeySequence(const QString &mac, const QString &non
 
 void ActionBuilder::setIcon(const QIcon &icon)
 {
-    d->action->setIcon(icon);
+    d->contextAction->setIcon(icon);
 }
 
 void ActionBuilder::setIconVisibleInMenu(bool on)
 {
-    d->action->setIconVisibleInMenu(on);
+    d->contextAction->setIconVisibleInMenu(on);
 }
 
 void ActionBuilder::setTouchBarIcon(const QIcon &icon)
@@ -183,22 +183,22 @@ void ActionBuilder::setTouchBarIcon(const QIcon &icon)
 
 void ActionBuilder::setEnabled(bool on)
 {
-    d->action->setEnabled(on);
+    d->contextAction->setEnabled(on);
 }
 
 void ActionBuilder::setChecked(bool on)
 {
-    d->action->setChecked(on);
+    d->contextAction->setChecked(on);
 }
 
 void ActionBuilder::setVisible(bool on)
 {
-    d->action->setVisible(on);
+    d->contextAction->setVisible(on);
 }
 
 void ActionBuilder::setCheckable(bool on)
 {
-    d->action->setCheckable(on);
+    d->contextAction->setCheckable(on);
 }
 
 void ActionBuilder::setScriptable(bool on)
@@ -208,7 +208,7 @@ void ActionBuilder::setScriptable(bool on)
 
 void ActionBuilder::setMenuRole(QAction::MenuRole role)
 {
-    d->action->setMenuRole(role);
+    d->contextAction->setMenuRole(role);
 }
 
 void ActionBuilder::setParameterText(const QString &parameterText,
@@ -218,12 +218,12 @@ void ActionBuilder::setParameterText(const QString &parameterText,
     QTC_CHECK(parameterText.contains("%1"));
     QTC_CHECK(!emptyText.contains("%1"));
 
-    d->action->setEmptyText(emptyText);
-    d->action->setParameterText(parameterText);
-    d->action->setEnablingMode(mode == AlwaysEnabled
+    d->contextAction->setEmptyText(emptyText);
+    d->contextAction->setParameterText(parameterText);
+    d->contextAction->setEnablingMode(mode == AlwaysEnabled
                                    ? ParameterAction::AlwaysEnabled
                                    : ParameterAction::EnabledWithParameter);
-    d->action->setText(emptyText);
+    d->contextAction->setText(emptyText);
 }
 
 Command *ActionBuilder::command() const
@@ -238,29 +238,29 @@ QAction *ActionBuilder::commandAction() const
 
 QAction *ActionBuilder::contextAction() const
 {
-    return d->action;
+    return d->contextAction;
 }
 
 ParameterAction *ActionBuilder::contextParameterAction() const
 {
-    return d->action;
+    return d->contextAction;
 }
 
 void ActionBuilder::bindContextAction(QAction **dest)
 {
     QTC_ASSERT(dest, return);
-    *dest = d->action;
+    *dest = d->contextAction;
 }
 
 void ActionBuilder::bindContextAction(Utils::ParameterAction **dest)
 {
     QTC_ASSERT(dest, return);
-    *dest = d->action;
+    *dest = d->contextAction;
 }
 
 void ActionBuilder::augmentActionWithShortcutToolTip()
 {
-    d->command->augmentActionWithShortcutToolTip(d->action);
+    d->command->augmentActionWithShortcutToolTip(d->contextAction);
 }
 
 void ActionBuilder::setId(Id id)
