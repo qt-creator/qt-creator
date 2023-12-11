@@ -1653,7 +1653,10 @@ QList<ProjectPart::ConstPtr> CppModelManager::projectPart(const FilePath &fileNa
     }
     const FilePath canonicalPath = fileName.canonicalPath();
     QWriteLocker locker(&d->m_projectLock);
-    auto it = d->m_fileToProjectParts.insert(fileName, d->m_fileToProjectParts.value(canonicalPath));
+    const auto it = d->m_fileToProjectParts.constFind(canonicalPath);
+    if (it == d->m_fileToProjectParts.constEnd())
+        return {};
+    d->m_fileToProjectParts.insert(fileName, it.value());
     return it.value();
 }
 

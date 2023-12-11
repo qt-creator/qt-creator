@@ -314,7 +314,9 @@ static void updateCMakeConfigurationWithLocalData(CMakeConfig &cmakeCache,
         return var == "CMAKE_PREFIX_PATH" || var == "CMAKE_MODULE_PATH";
     };
 
-    const FilePath projectDir = ProjectTree::currentBuildSystem()->projectDirectory();
+    const FilePath projectDir = ProjectTree::currentBuildSystem()
+                                    ? ProjectTree::currentBuildSystem()->projectDirectory()
+                                    : currentDir;
     auto updateDirVariables = [currentDir, projectDir, cmakeCache](QByteArray &value) {
         value.replace("${CMAKE_CURRENT_SOURCE_DIR}", currentDir.path().toUtf8());
         value.replace("${CMAKE_CURRENT_LIST_DIR}", currentDir.path().toUtf8());
