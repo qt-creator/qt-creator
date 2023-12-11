@@ -49,6 +49,8 @@ QtcPlugin {
         "gitsubmiteditorwidget.h",
         "gitutils.cpp",
         "gitutils.h",
+        "instantblame.cpp",
+        "instantblame.h",
         "logchangedialog.cpp",
         "logchangedialog.h",
         "mergetool.cpp",
