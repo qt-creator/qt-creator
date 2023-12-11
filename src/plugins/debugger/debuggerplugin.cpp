@@ -1243,13 +1243,15 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
     {
         QString name;
         char const *runMode;
+        bool forceSkipDeploy = false;
     };
 
     const QList<DapPerspective> perspectiveList = {
-        DapPerspective{Tr::tr("CMake Preset"), ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE},
+        DapPerspective{Tr::tr("CMake Preset"),
+                       ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE,
+                       /*forceSkipDeploy=*/true},
         DapPerspective{Tr::tr("GDB Preset"), ProjectExplorer::Constants::DAP_GDB_DEBUG_RUN_MODE},
-        DapPerspective{Tr::tr("Python Preset"),
-                       ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE},
+        DapPerspective{Tr::tr("Python Preset"), ProjectExplorer::Constants::DAP_PY_DEBUG_RUN_MODE},
     };
 
     for (const DapPerspective &dp : perspectiveList)
@@ -1257,10 +1259,11 @@ void DebuggerPluginPrivate::createDapDebuggerPerspective(QWidget *globalLogWindo
 
     connect(&m_startDapAction, &QAction::triggered, this, [perspectiveList] {
         QComboBox *combo = qobject_cast<QComboBox *>(EngineManager::dapEngineChooser());
-        if (perspectiveList.size() > combo->currentIndex())
-            ProjectExplorerPlugin::runStartupProject(perspectiveList.at(combo->currentIndex())
-                                                         .runMode,
-                                                     false);
+        if (perspectiveList.size() > combo->currentIndex()) {
+            const DapPerspective dapPerspective = perspectiveList.at(combo->currentIndex());
+            ProjectExplorerPlugin::runStartupProject(dapPerspective.runMode,
+                                                     dapPerspective.forceSkipDeploy);
+        }
     });
 
     auto breakpointManagerView = createBreakpointManagerView("DAPDebugger.BreakWindow");

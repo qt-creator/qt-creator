@@ -171,7 +171,7 @@ CMakeManager::CMakeManager()
     mdebugger->addAction(command, Constants::CMAKE_DEBUGGING_GROUP);
     connect(m_cmakeDebuggerAction, &QAction::triggered, this, [] {
         ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::DAP_CMAKE_DEBUG_RUN_MODE,
-                                                 false);
+                                                 true);
     });
 
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
