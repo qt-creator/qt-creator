@@ -26,6 +26,7 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppprojectupdater.h>
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
@@ -1299,7 +1300,8 @@ void CMakeBuildSystem::wireUpConnections()
     });
 
     connect(project(), &Project::projectFileIsDirty, this, [this] {
-        if (buildConfiguration()->isActive() && !isParsing()) {
+        const bool isBuilding = BuildManager::isBuilding(project());
+        if (buildConfiguration()->isActive() && !isParsing() && !isBuilding) {
             if (settings().autorunCMake()) {
                 qCDebug(cmakeBuildSystemLog) << "Requesting parse due to dirty project file";
                 reparse(CMakeBuildSystem::REPARSE_FORCE_CMAKE_RUN);
