@@ -15,47 +15,41 @@ StudioControls.Dialog {
 
     closePolicy: Popup.CloseOnEscape
     modal: true
-    implicitWidth: 250
-    implicitHeight: 140
+    implicitWidth: 300
+    implicitHeight: 130
 
-    contentItem: Column {
-        spacing: 35
-
+    contentItem: Item {
         Text {
             text: qsTr("Current composition has unsaved changes.")
             color: StudioTheme.Values.themeTextColor
         }
 
+        HelperWidgets.Button {
+            width: 60
+            anchors.bottom: parent.bottom
+            text: qsTr("Cancel")
+            onClicked: root.reject()
+        }
+
         Row {
             anchors.right: parent.right
+            anchors.bottom: parent.bottom
             spacing: 2
 
             HelperWidgets.Button {
-                id: btnSave
-
-                width: 70
+                width: 50
                 text: qsTr("Save")
                 onClicked: {
-                    if (btnSave.enabled) {
-                        let name = EffectMakerBackend.effectMakerModel.currentComposition
-                        EffectMakerBackend.effectMakerModel.saveComposition(name)
-                        root.accept()
-                    }
+                    let name = EffectMakerBackend.effectMakerModel.currentComposition
+                    EffectMakerBackend.effectMakerModel.saveComposition(name)
+                    root.accept()
                 }
             }
 
             HelperWidgets.Button {
-                id: btnDontSave
-
-                width: 70
-                text: qsTr("Don't Save")
+                width: 110
+                text: qsTr("Discard Changes")
                 onClicked: root.accept()
-            }
-
-            HelperWidgets.Button {
-                width: 70
-                text: qsTr("Cancel")
-                onClicked: root.reject()
             }
         }
     }
