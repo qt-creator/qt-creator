@@ -84,7 +84,7 @@ void registerFlashAction(QObject *parentForAction)
 
     ActionBuilder flashAction(parentForAction, flashActionId);
     flashAction.setText(Tr::tr("Flash Boot to Qt Device"));
-    flashAction.setContainer(Core::Constants::G_TOOLS_DEBUG, flashActionId);
+    flashAction.setContainer(Core::Constants::M_TOOLS, flashActionId);
     flashAction.setOnTriggered(&startFlashingWizard);
 }
 
