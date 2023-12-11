@@ -35,14 +35,15 @@
 
 #include <aggregation/aggregate.h>
 
-#include <QDesignerFormEditorPluginInterface>
-#include <QDesignerFormEditorInterface>
-#include <QDesignerComponents>
-#include <QDesignerFormWindowManagerInterface>
-#include <QDesignerWidgetBoxInterface>
 #include <abstractobjectinspector.h>
-#include <QDesignerPropertyEditorInterface>
 #include <QDesignerActionEditorInterface>
+#include <QDesignerComponents>
+#include <QDesignerFormEditorInterface>
+#include <QDesignerFormEditorPluginInterface>
+#include <QDesignerFormWindowManagerInterface>
+#include <QDesignerFormWindowToolInterface>
+#include <QDesignerPropertyEditorInterface>
+#include <QDesignerWidgetBoxInterface>
 
 #include <QAction>
 #include <QActionGroup>
@@ -131,6 +132,13 @@ public:
     }
 };
 
+class ToolData
+{
+public:
+    int index;
+    QByteArray className;
+};
+
 // FormEditorData
 
 class FormEditorData : public QObject
@@ -139,8 +147,8 @@ public:
     FormEditorData();
     ~FormEditorData();
 
-    void activateEditMode(int id);
-    void toolChanged(int);
+    void activateEditMode(const ToolData &toolData);
+    void toolChanged(QDesignerFormWindowInterface *form, int);
     void print();
     void setPreviewMenuEnabled(bool e);
     void updateShortcut(Command *command);
@@ -168,6 +176,7 @@ public:
                                   const QString &actionName,
                                   Id id,
                                   int toolNumber,
+                                  const QByteArray &toolClassName,
                                   const QString &iconName = QString(),
                                   const QString &keySequence = QString());
     Command *addToolAction(QAction *a,
@@ -528,30 +537,53 @@ void FormEditorData::setupActions()
 
     m_actionGroupEditMode = new QActionGroup(this);
     m_actionGroupEditMode->setExclusive(true);
-    QObject::connect(m_actionGroupEditMode, &QActionGroup::triggered, this,
-            [this](QAction *a) { activateEditMode(a->data().toInt()); });
+    QObject::connect(m_actionGroupEditMode, &QActionGroup::triggered, this, [this](QAction *a) {
+        activateEditMode(a->data().value<ToolData>());
+    });
 
     medit->addSeparator(m_contexts, Core::Constants::G_EDIT_OTHER);
 
     m_toolActionIds.push_back("FormEditor.WidgetEditor");
-    createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
-                         Tr::tr("Edit Widgets"), m_toolActionIds.back(),
-                         EditModeWidgetEditor, "widgettool.png", Tr::tr("F3"));
+    createEditModeAction(m_actionGroupEditMode,
+                         m_contexts,
+                         medit,
+                         Tr::tr("Edit Widgets"),
+                         m_toolActionIds.back(),
+                         EditModeWidgetEditor,
+                         "qdesigner_internal::WidgetEditorTool",
+                         "widgettool.png",
+                         Tr::tr("F3"));
 
     m_toolActionIds.push_back("FormEditor.SignalsSlotsEditor");
-    createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
-                         Tr::tr("Edit Signals/Slots"), m_toolActionIds.back(),
-                         EditModeSignalsSlotEditor, "signalslottool.png", Tr::tr("F4"));
+    createEditModeAction(m_actionGroupEditMode,
+                         m_contexts,
+                         medit,
+                         Tr::tr("Edit Signals/Slots"),
+                         m_toolActionIds.back(),
+                         EditModeSignalsSlotEditor,
+                         "qdesigner_internal::SignalSlotEditorTool",
+                         "signalslottool.png",
+                         Tr::tr("F4"));
 
     m_toolActionIds.push_back("FormEditor.BuddyEditor");
-    createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
-                         Tr::tr("Edit Buddies"), m_toolActionIds.back(),
-                         EditModeBuddyEditor, "buddytool.png");
+    createEditModeAction(m_actionGroupEditMode,
+                         m_contexts,
+                         medit,
+                         Tr::tr("Edit Buddies"),
+                         m_toolActionIds.back(),
+                         EditModeBuddyEditor,
+                         "qdesigner_internal::BuddyEditorTool",
+                         "buddytool.png");
 
     m_toolActionIds.push_back("FormEditor.TabOrderEditor");
-    createEditModeAction(m_actionGroupEditMode, m_contexts, medit,
-                         Tr::tr("Edit Tab Order"),  m_toolActionIds.back(),
-                         EditModeTabOrderEditor, "tabordertool.png");
+    createEditModeAction(m_actionGroupEditMode,
+                         m_contexts,
+                         medit,
+                         Tr::tr("Edit Tab Order"),
+                         m_toolActionIds.back(),
+                         EditModeTabOrderEditor,
+                         "qdesigner_internal::TabOrderEditorTool",
+                         "tabordertool.png");
 
     //tool actions
     m_toolActionIds.push_back("FormEditor.LayoutHorizontally");
@@ -721,13 +753,14 @@ void FormEditorData::bindShortcut(Command *command, QAction *action)
 
 // Create an action to activate a designer tool
 QAction *FormEditorData::createEditModeAction(QActionGroup *ag,
-                                     const Context &context,
-                                     ActionContainer *medit,
-                                     const QString &actionName,
-                                     Id id,
-                                     int toolNumber,
-                                     const QString &iconName,
-                                     const QString &keySequence)
+                                              const Context &context,
+                                              ActionContainer *medit,
+                                              const QString &actionName,
+                                              Id id,
+                                              int toolNumber,
+                                              const QByteArray &toolClassName,
+                                              const QString &iconName,
+                                              const QString &keySequence)
 {
     auto rc = new QAction(actionName, ag);
     rc->setCheckable(true);
@@ -739,7 +772,7 @@ QAction *FormEditorData::createEditModeAction(QActionGroup *ag,
         command->setDefaultKeySequence(QKeySequence(keySequence));
     bindShortcut(command, rc);
     medit->addAction(command, Core::Constants::G_EDIT_OTHER);
-    rc->setData(toolNumber);
+    rc->setData(QVariant::fromValue(ToolData{toolNumber, toolClassName}));
     ag->addAction(rc);
     return rc;
 }
@@ -767,8 +800,9 @@ IEditor *FormEditorData::createEditor()
     QDesignerFormWindowInterface *form = m_fwm->createFormWindow(nullptr);
     QTC_ASSERT(form, return nullptr);
     form->setPalette(Theme::initialPalette());
-    connect(form, &QDesignerFormWindowInterface::toolChanged,
-            this, &FormEditorData::toolChanged);
+    connect(form, &QDesignerFormWindowInterface::toolChanged, this, [this, form](int index) {
+        toolChanged(form, index);
+    });
 
     auto widgetHost = new SharedTools::WidgetHost( /* parent */ nullptr, form);
     FormWindowEditor *formWindowEditor = m_xmlEditorFactory->create(form);
@@ -820,26 +854,48 @@ void FormEditorData::updateShortcut(Command *command)
         a->setShortcut(command->action()->shortcut());
 }
 
-void FormEditorData::activateEditMode(int id)
+static void setTool(QDesignerFormWindowInterface *formWindow, const ToolData &toolData)
 {
-    if (const int count = m_fwm->formWindowCount())
-        for (int i = 0; i <  count; i++)
-             m_fwm->formWindow(i)->setCurrentTool(id);
+    // check for tool action with correct object name,
+    // otherwise fall back to index
+    if (!toolData.className.isEmpty()) {
+        const int toolCount = formWindow->toolCount();
+        for (int tool = 0; tool < toolCount; ++tool) {
+            if (formWindow->tool(tool)->metaObject()->className() == toolData.className) {
+                formWindow->setCurrentTool(tool);
+                return;
+            }
+        }
+    }
+    formWindow->setCurrentTool(toolData.index);
 }
 
-void FormEditorData::toolChanged(int t)
+void FormEditorData::activateEditMode(const ToolData &toolData)
 {
-    typedef QList<QAction *> ActionList;
-    if (const QAction *currentAction = m_actionGroupEditMode->checkedAction())
-        if (currentAction->data().toInt() == t)
+    if (const int count = m_fwm->formWindowCount()) {
+        for (int i = 0; i < count; i++)
+            setTool(m_fwm->formWindow(i), toolData);
+    }
+}
+
+void FormEditorData::toolChanged(QDesignerFormWindowInterface *form, int t)
+{
+    // check for action with correct object name,
+    // otherwise fall back to index
+    QDesignerFormWindowToolInterface *tool = form->tool(t);
+    const QList<QAction *> actions = m_actionGroupEditMode->actions();
+    QAction *candidateByIndex = nullptr;
+    for (QAction *action : actions) {
+        const auto toolData = action->data().value<ToolData>();
+        if (!toolData.className.isEmpty() && toolData.className == tool->metaObject()->className()) {
+            action->setChecked(true);
             return;
-    const ActionList actions = m_actionGroupEditMode->actions();
-    const ActionList::const_iterator cend = actions.constEnd();
-    for (ActionList::const_iterator it = actions.constBegin(); it != cend; ++it)
-        if ( (*it)->data().toInt() == t) {
-            (*it)->setChecked(true);
-            break;
         }
+        if (toolData.index == t)
+            candidateByIndex = action;
+    }
+    if (candidateByIndex)
+        candidateByIndex->setChecked(true);
 }
 
 void FormEditorData::print()
@@ -929,3 +985,5 @@ void addPluginPath(const QString &pluginPath)
 
 } // namespace Internal
 } // namespace Designer
+
+Q_DECLARE_METATYPE(Designer::Internal::ToolData)

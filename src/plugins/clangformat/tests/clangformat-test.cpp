@@ -730,4 +730,20 @@ void ClangFormatTest::testIndentCommentOnNewLine()
              }));
 }
 
+void ClangFormatTest::testUtf8SymbolLine()
+{
+    insertLines({"int main()",
+                 "{",
+                 "    cout << \"ä\" << endl;",
+                 "    return 0;",
+                 "}"});
+    m_indenter->indent(*m_cursor, QChar::Null, TextEditor::TabSettings());
+    QCOMPARE(documentLines(),
+             (std::vector<QString>{"int main()",
+                                   "{",
+                                   "    cout << \"ä\" << endl;",
+                                   "    return 0;",
+                                   "}"}));
+}
+
 } // namespace ClangFormat::Internal

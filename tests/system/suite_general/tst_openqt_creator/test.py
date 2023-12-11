@@ -45,7 +45,7 @@ def main():
         # Verify that qmljs.g is in the project even when we don't know where (QTCREATORBUG-17609)
         selectFromLocator("p qmljs.g", "qmljs.g")
         # Now check some basic lookups in the search box
-        selectFromLocator(": qlist::qlist", "QList::QList")
+        selectFromLocator(": qlist", "QList")
         test.compare(wordUnderCursor(waitForObject(":Qt Creator_CppEditor::Internal::CPPEditorWidget")), "QList")
 
         invokeMenuItem("File", "Exit")
