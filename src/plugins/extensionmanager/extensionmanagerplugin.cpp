@@ -13,7 +13,6 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
-#include <coreplugin/modemanager.h> // TODO: Remove!
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginspec.h>
@@ -74,12 +73,6 @@ public:
     void initialize() final
     {
         m_mode = new ExtensionManagerMode;
-    }
-
-    bool delayedInitialize() final
-    {
-        ModeManager::activateMode(m_mode->id()); // TODO: Remove!
-        return true;
     }
 
 private:
