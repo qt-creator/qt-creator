@@ -127,9 +127,11 @@ void updateImported3DAsset(const SelectionContext &selectionContext);
 QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getEffectsImportDirectory();
 QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir = {});
 void openEffectMaker(const QString &filePath);
+void openOldEffectMaker(const QString &filePath);
 QString getEffectIcon(const QString &effectPath);
 bool useLayerEffect();
 bool validateEffect(const QString &effectPath);
+bool isNewEffectMakerActivated();
 
 Utils::FilePath getImagesDefaultDirectory();
 

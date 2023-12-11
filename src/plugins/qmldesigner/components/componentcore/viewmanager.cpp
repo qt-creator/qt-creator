@@ -458,6 +458,12 @@ const AbstractView *ViewManager::view() const
     return &d->nodeInstanceView;
 }
 
+void ViewManager::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,
+                                         const QList<QVariant> &data)
+{
+    d->nodeInstanceView.emitCustomNotification(identifier, nodeList, data);
+}
+
 QWidgetAction *ViewManager::componentViewAction() const
 {
     return d->componentView.action();

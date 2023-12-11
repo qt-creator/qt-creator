@@ -43,6 +43,9 @@
 #include <coreplugin/modemanager.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
+
 #include <qmljseditor/qmljsfindreferences.h>
 
 #include <annotationeditor/annotationeditor.h>
@@ -1620,7 +1623,28 @@ void updateImported3DAsset(const SelectionContext &selectionContext)
     }
 }
 
+bool isNewEffectMakerActivated()
+{
+    const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
+    return std::find_if(specs.begin(), specs.end(),
+                        [](ExtensionSystem::PluginSpec *spec) {
+                            return spec->name() == "EffectMakerNew" && spec->isEffectivelyEnabled();
+                        })
+           != specs.end();
+}
+
 void openEffectMaker(const QString &filePath)
+{
+    if (ModelNodeOperations::isNewEffectMakerActivated()) {
+        QmlDesignerPlugin::instance()->viewManager()
+            .emitCustomNotification("open_effectmaker_composition", {}, {filePath});
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Effect Maker", true);
+    } else {
+        ModelNodeOperations::openOldEffectMaker(filePath);
+    }
+}
+
+void openOldEffectMaker(const QString &filePath)
 {
     const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
     if (!target) {
