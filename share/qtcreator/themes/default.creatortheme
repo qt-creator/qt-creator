@@ -398,6 +398,27 @@ Debugger_WatchItem_ValueChanged=ffc80000
 
 Debugger_Breakpoint_TextMarkColor=ffff4040
 
+; Qt Creator Color Tokens - light mode
+Token_Basic_Black=ff131313
+Token_Basic_White=fff2f2f2
+Token_Accent_Default=ff28c878
+Token_Accent_Muted=ff23b26a
+Token_Accent_Subtle=ff1f9b5d
+Token_Background_Default=fff4f4f4
+Token_Background_Muted=ffe7e7e7
+Token_Background_Hover=ffdddddd
+Token_Background_Subtle=ffcfcfcf
+Token_Text_Default=ff393939
+Token_Text_Muted=ff787878
+Token_Text_Subtle=ffb2b2b2
+Token_Stroke_Strong=ff464646
+Token_Stroke_Muted=ff838383
+Token_Stroke_Subtle=ffd7d7d7
+Token_Notification_Alert=ffeb991f
+Token_Notification_Success=ff23b26a
+Token_Notification_Neutral=ff0e7887
+Token_Notification_Danger=ffdc1343
+
 Welcome_TextColor=ff000000
 Welcome_ForegroundPrimaryColor=shadowBackground
 Welcome_ForegroundSecondaryColor=ff939393

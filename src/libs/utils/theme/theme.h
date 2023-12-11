@@ -223,6 +223,28 @@ public:
         Debugger_WatchItem_ValueInvalid,
         Debugger_WatchItem_ValueChanged,
 
+        /* Qt Creator Color Tokens */
+
+        Token_Basic_Black,
+        Token_Basic_White,
+        Token_Accent_Default,
+        Token_Accent_Muted,
+        Token_Accent_Subtle,
+        Token_Background_Default,
+        Token_Background_Muted,
+        Token_Background_Hover,
+        Token_Background_Subtle,
+        Token_Text_Default,
+        Token_Text_Muted,
+        Token_Text_Subtle,
+        Token_Stroke_Strong,
+        Token_Stroke_Muted,
+        Token_Stroke_Subtle,
+        Token_Notification_Alert,
+        Token_Notification_Success,
+        Token_Notification_Neutral,
+        Token_Notification_Danger,
+
         /* Welcome Plugin */
 
         Welcome_TextColor,
