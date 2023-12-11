@@ -969,7 +969,7 @@ QFont StyleHelper::uiFont(UiElement element)
         break;
     case UiElementCaptionStrong:
         font.setPointSizeF(panelTitleSize);
-        font.setBold(true);
+        font.setWeight(QFont::DemiBold);
         break;
     case UiElementCaption:
         font.setPointSizeF(panelTitleSize);
