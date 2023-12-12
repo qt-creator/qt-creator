@@ -8,8 +8,13 @@ def main():
     if not startedWithoutPluginError():
         return
     projectName = "DesignerTestApp"
-    createProject_Qt_GUI(tempDir(), projectName,
-                         buildSystem="qmake" if JIRA.isBugStillOpen(28787) else "CMake")
+    # explicitly chose new kit to avoid compiler issues on Windows
+    targets = createProject_Qt_GUI(tempDir(), projectName, buildSystem="CMake",
+                                   targets=[Targets.DESKTOP_6_2_4])
+    if len(targets) != 1:
+        earlyExit()
+        return
+
     invokeMenuItem('Build', 'Build Project "%s"' % projectName)
     selectFromLocator("mainwindow.ui")
     dragAndDrop(waitForObject("{container=':qdesigner_internal::WidgetBoxCategoryListView'"

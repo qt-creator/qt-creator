@@ -149,7 +149,8 @@ CMakeManager::CMakeManager()
     cmakeDebuggerAction.setCommandDescription(m_cmakeDebuggerAction->text());
     cmakeDebuggerAction.setContainer(PEC::M_DEBUG_STARTDEBUGGING, Constants::CMAKE_DEBUGGING_GROUP);
     cmakeDebuggerAction.setOnTriggered(this, [] {
-        ProjectExplorerPlugin::runStartupProject(PEC::DAP_CMAKE_DEBUG_RUN_MODE, false);
+        ProjectExplorerPlugin::runStartupProject(PEC::DAP_CMAKE_DEBUG_RUN_MODE,
+                                                 /*forceSkipDeploy=*/true);
     });
 
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, this, [this] {
