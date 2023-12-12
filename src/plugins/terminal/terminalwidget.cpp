@@ -635,6 +635,7 @@ void TerminalWidget::initActions(QObject *parent)
             return {QKeySequence(QLatin1String("Ctrl+") + key),
                     QKeySequence(QLatin1String("Ctrl+Shift+") + key)};
         }
+        return {};
     };
 
     ActionBuilder copyAction(parent, Constants::COPY);
