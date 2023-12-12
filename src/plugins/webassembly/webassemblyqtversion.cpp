@@ -87,6 +87,10 @@ public:
 void setupWebAssemblyQtVersion()
 {
     static WebAssemblyQtVersionFactory theWebAssemblyQtVersionFactory;
+
+    // When the plugin is soft-loaded at runtime, the Qt versions were restored without our
+    // factory, so the WebAssembly ones were skipped back then.
+    QtVersionManager::restoreVersionsWithUnknownType();
 }
 
 } // WebAssembly::Internal

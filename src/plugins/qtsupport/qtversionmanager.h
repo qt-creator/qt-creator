@@ -36,6 +36,10 @@ public:
     static void addVersion(QtVersion *version);
     static void removeVersion(QtVersion *version);
 
+    // Restores the Qt versions that were skipped while loading because no factory claimed their
+    // type. Call this after registering a QtVersionFactory from a soft-loaded plugin.
+    static void restoreVersionsWithUnknownType();
+
     // Call latest in extensionsInitialized of plugin depending on QtSupport
     static void registerExampleSet(const QString &displayName,
                                    const QString &manifestPath,

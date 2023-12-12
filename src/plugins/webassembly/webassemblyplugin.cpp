@@ -25,9 +25,11 @@ class WebAssemblyPlugin final : public ExtensionSystem::IPlugin
 public:
     void initialize() final
     {
+        // The Qt versions and the toolchains have to be in place before the device setup fixes
+        // the kits when the plugin is soft-loaded at runtime.
+        setupWebAssemblyQtVersion();
         setupWebAssemblyToolchain();
         setupWebAssemblyDevice();
-        setupWebAssemblyQtVersion();
         setupEmrunRunSupport();
 
 #ifdef WITH_TESTS

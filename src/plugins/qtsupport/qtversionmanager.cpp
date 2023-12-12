@@ -121,6 +121,7 @@ public:
     void triggerQtVersionRestore();
 
     bool restoreQtVersions();
+    void restoreVersionsWithUnknownType();
     void findSystemQt(const IDeviceConstPtr &device);
     void addQtVersionsFromFilePaths(const FilePaths &filePaths);
     void handleDeviceToolDetectionRequest(
@@ -141,6 +142,7 @@ public:
     FilePaths gatherQmakePathsFromQtChooser();
 
     int m_idcount = 1;
+    QList<Store> m_versionsWithUnknownType;
     // managed by QtProjectManagerPlugin
     FileSystemWatcher *m_configFileWatcher = nullptr;
     QTimer m_fileWatcherTimer;
@@ -269,14 +271,55 @@ bool QtVersionManagerImpl::restoreQtVersions()
                 }
             }
         }
-        if (!restored)
+        if (!restored) {
+            // A plugin that is soft-loaded later may provide a factory for the type.
+            m_versionsWithUnknownType.append(qtversionMap);
             qWarning("Warning: Unable to restore Qt version '%s' stored in %s.",
                      qPrintable(type),
                      qPrintable(filename.toUserOutput()));
+        }
     }
     ++m_idcount;
 
     return true;
+}
+
+void QtVersionManagerImpl::restoreVersionsWithUnknownType()
+{
+    const QList<QtVersionFactory *> factories = QtVersionFactory::allQtVersionFactories();
+    const FilePath filename = settingsFileName(QTVERSION_FILENAME);
+    QList<int> added;
+
+    for (auto it = m_versionsWithUnknownType.begin(); it != m_versionsWithUnknownType.end(); ) {
+        const QString type = it->value(QTVERSION_TYPE_KEY).toString();
+        QtVersion *version = nullptr;
+        for (QtVersionFactory *factory : factories) {
+            if (factory->canRestore(type)) {
+                version = factory->restore(type, *it, filename);
+                if (version)
+                    break;
+            }
+        }
+        if (!version) {
+            ++it;
+            continue;
+        }
+        if (m_versions.contains(version->uniqueId())) {
+            delete version;
+        } else {
+            m_versions.insert(version->uniqueId(), version);
+            m_idcount = std::max(m_idcount, version->uniqueId() + 1);
+            added << version->uniqueId();
+        }
+        it = m_versionsWithUnknownType.erase(it);
+    }
+
+    // The versions provided by the installer were skipped for the same reason.
+    if (globalSettingsFileName().exists())
+        updateFromInstaller();
+
+    if (!added.isEmpty())
+        emit QtVersionManager::instance()->qtVersionsChanged(added);
 }
 
 void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
@@ -568,6 +611,12 @@ void QtVersionManager::addVersion(QtVersion *version)
 
     emit QtVersionManager::instance()->qtVersionsChanged({uniqueId});
     qtVersionManagerImpl().saveQtVersions();
+}
+
+void QtVersionManager::restoreVersionsWithUnknownType()
+{
+    if (isLoaded())
+        qtVersionManagerImpl().restoreVersionsWithUnknownType();
 }
 
 void QtVersionManager::removeVersion(QtVersion *version)
