@@ -3458,12 +3458,13 @@ QFuture<unsigned> GitClient::gitVersion() const
     const bool needToRunGit = m_gitVersionForBinary != newGitBinary && !newGitBinary.isEmpty();
     if (needToRunGit) {
         auto proc = new Process(const_cast<GitClient *>(this));
-        connect(proc, &Process::done, this, [this, proc, fi, newGitBinary]() mutable {
+        connect(proc, &Process::done, this, [this, proc, fi, newGitBinary] {
+            auto fiCopy = fi; // In order to avoid mutable lambda.
             if (proc->result() == ProcessResult::FinishedWithSuccess) {
                 m_cachedGitVersion = parseGitVersion(proc->cleanedStdOut());
                 m_gitVersionForBinary = newGitBinary;
-                fi.reportResult(m_cachedGitVersion);
-                fi.reportFinished();
+                fiCopy.reportResult(m_cachedGitVersion);
+                fiCopy.reportFinished();
             }
             proc->deleteLater();
         });
