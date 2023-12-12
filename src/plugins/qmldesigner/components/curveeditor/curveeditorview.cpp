@@ -304,7 +304,7 @@ void CurveEditorView::commitKeyframes(TreeItem *item)
             ModelNode groupNode = group.modelNode();
             commitAuxiliaryData(groupNode, item);
 
-            auto replaceKeyframes = [&group, pitem, this]() mutable {
+            auto replaceKeyframes = [&group, pitem, this] {
                 m_block = true;
 
                 for (auto& frame : group.keyframes())
