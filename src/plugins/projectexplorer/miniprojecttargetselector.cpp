@@ -942,7 +942,7 @@ void MiniProjectTargetSelector::doLayout(bool keepSize)
             minWidth = qMax(minWidth, oldTotalListWidgetWidth);
         }
 
-        QVector<int> widths = listWidgetWidths(minWidth, 1000);
+        QVector<int> widths = listWidgetWidths(minWidth, Core::ICore::mainWindow()->width() * 0.9);
 
         const int runColumnWidth = widths[RUN] == -1 ? 0 : RunColumnWidth;
         int x = 0;
