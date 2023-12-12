@@ -10,6 +10,8 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/texteditor.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/syntaxhighlighterrunner.h>
 
 #include <QtTest>
 #include <QTextEdit>
@@ -346,7 +348,10 @@ struct FakeVimTester::TestData
 
     void doCommand(const QString &cmd) { handler->handleCommand(cmd); }
     void doCommand(const char *cmd) { doCommand(_(cmd)); }
-    void doKeys(const QString &keys) { handler->handleInput(keys); }
+    void doKeys(const QString &keys) {
+        handler->handleInput(keys);
+        QTRY_VERIFY(editor()->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+    }
     void doKeys(const char *keys) { doKeys(_(keys)); }
 
     void setText(const char *text)
@@ -359,6 +364,7 @@ struct FakeVimTester::TestData
         else
             i = 0;
         editor()->document()->setPlainText(_(str));
+        QTRY_VERIFY(editor()->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
         setPosition(i);
         QCOMPARE(position(), i);
     }
@@ -369,6 +375,7 @@ struct FakeVimTester::TestData
         QTextCursor tc = editor()->textCursor();
         tc.insertText(_(text));
         editor()->setTextCursor(tc);
+        QTRY_VERIFY(editor()->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
     }
 
     // Simulate external position change.
@@ -2988,6 +2995,7 @@ void FakeVimTester::test_vim_code_folding()
 
     // delete folded lined if deleting to the end of the first folding line
     data.doKeys("zMgg");
+    //QTRY_COMPARE(data.lines(), lines - 8);
     QCOMPARE(data.lines(), lines - 8);
     KEYS("wwd$", "int main" N "");
 
@@ -5052,3 +5060,4 @@ void FakeVimTester::test_vim_qtcreator()
 } // FakeVim::Internal
 
 #include "fakevim_test.moc"
+
