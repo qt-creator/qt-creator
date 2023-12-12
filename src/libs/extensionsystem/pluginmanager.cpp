@@ -864,7 +864,7 @@ bool PluginManager::finishScenario()
     if (d->m_isScenarioFinished.exchange(true))
         return false; // Finish was already called before. We return false, as we didn't finish it right now.
 
-    QMetaObject::invokeMethod(d, []() { emit m_instance->scenarioFinished(0); });
+    QMetaObject::invokeMethod(d, [] { emit m_instance->scenarioFinished(0); });
     return true; // Finished successfully.
 }
 
@@ -975,7 +975,7 @@ void PluginManagerPrivate::startDelayedInitialize()
                 const QString info = QString("Successfully started scenario \"%1\"...").arg(d->m_requestedScenario);
                 qInfo("%s", qPrintable(info));
             } else {
-                QMetaObject::invokeMethod(this, []() { emit m_instance->scenarioFinished(1); });
+                QMetaObject::invokeMethod(this, [] { emit m_instance->scenarioFinished(1); });
             }
         }
 #endif
@@ -1304,7 +1304,7 @@ void PluginManagerPrivate::startTests()
         failedTests += executeTestPlan(testPlan);
     }
 
-    QTimer::singleShot(0, this, [failedTests]() { emit m_instance->testsFinished(failedTests); });
+    QTimer::singleShot(0, this, [failedTests] { emit m_instance->testsFinished(failedTests); });
 }
 #endif
 

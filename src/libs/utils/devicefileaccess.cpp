@@ -232,7 +232,7 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
     QObject::connect(&srcProcess,
                      &Process::readyReadStandardOutput,
                      &targetProcess,
-                     [&srcProcess, &targetProcess]() {
+                     [&srcProcess, &targetProcess] {
                          targetProcess.writeRaw(srcProcess.readAllRawStandardOutput());
                      });
 

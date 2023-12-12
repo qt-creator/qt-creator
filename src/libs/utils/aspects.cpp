@@ -1158,7 +1158,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
             connect(d->m_checkerImpl.m_checked.get(),
                     &BoolAspect::volatileValueChanged,
                     lineEditDisplay,
-                    [this, lineEditDisplay]() {
+                    [this, lineEditDisplay] {
                         d->m_checkerImpl.updateWidgetFromCheckStatus(this, lineEditDisplay);
                     });
         }
@@ -1185,12 +1185,12 @@ void StringAspect::addToLayout(LayoutItem &parent)
             connect(lineEditDisplay,
                     &FancyLineEdit::editingFinished,
                     this,
-                    [this, lineEditDisplay]() {
+                    [this, lineEditDisplay] {
                         d->undoable.set(undoStack(), lineEditDisplay->text());
                         handleGuiChanged();
                     });
         } else {
-            connect(lineEditDisplay, &QLineEdit::textChanged, this, [this, lineEditDisplay]() {
+            connect(lineEditDisplay, &QLineEdit::textChanged, this, [this, lineEditDisplay] {
                 d->undoable.set(undoStack(), lineEditDisplay->text());
                 handleGuiChanged();
             });
@@ -1235,7 +1235,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
             connect(d->m_checkerImpl.m_checked.get(),
                     &BoolAspect::volatileValueChanged,
                     textEditDisplay,
-                    [this, textEditDisplay]() {
+                    [this, textEditDisplay] {
                         d->m_checkerImpl.updateWidgetFromCheckStatus(this, textEditDisplay);
                     });
         }
@@ -1252,7 +1252,7 @@ void StringAspect::addToLayout(LayoutItem &parent)
                 textEditDisplay,
                 &QTextEdit::setPlaceholderText);
 
-        connect(textEditDisplay, &QTextEdit::textChanged, this, [this, textEditDisplay]() {
+        connect(textEditDisplay, &QTextEdit::textChanged, this, [this, textEditDisplay] {
             if (textEditDisplay->toPlainText() != d->undoable.get()) {
                 d->undoable.set(undoStack(), textEditDisplay->toPlainText());
                 handleGuiChanged();
@@ -3549,7 +3549,7 @@ void StringSelectionAspect::addToLayout(Layouting::LayoutItem &parent)
         bufferToGui();
     });
 
-    connect(&m_undoable.m_signal, &UndoSignaller::changed, comboBox, [this, comboBox]() {
+    connect(&m_undoable.m_signal, &UndoSignaller::changed, comboBox, [this, comboBox] {
         auto item = itemById(m_undoable.get());
         if (item)
             m_selectionModel->setCurrentIndex(item->index(), QItemSelectionModel::ClearAndSelect);

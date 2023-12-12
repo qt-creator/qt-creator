@@ -571,7 +571,7 @@ void FancyLineEdit::validate()
         connect(d->m_validatorWatcher.get(),
                 &QFutureWatcher<AsyncValidationResult>::finished,
                 this,
-                [this, oldText]() {
+                [this, oldText] {
                     FancyLineEdit::AsyncValidationResult result = d->m_validatorWatcher->result();
 
                     handleValidationResult(result, oldText);

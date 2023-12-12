@@ -99,7 +99,7 @@ void TimelineAbstractRenderer::setModel(TimelineModel *model)
                 this, &TimelineAbstractRenderer::setRowHeightsDirty);
         connect(d->model, &TimelineModel::contentChanged,
                 this, &TimelineAbstractRenderer::setModelDirty);
-        connect(d->model, &QObject::destroyed, this, [this, d]() {
+        connect(d->model, &QObject::destroyed, this, [this, d] {
             // Weak pointers are supposed to be notified before the destroyed() signal is sent.
             Q_ASSERT(d->model.isNull());
             d->renderPasses.clear();
@@ -135,7 +135,7 @@ void TimelineAbstractRenderer::setNotes(TimelineNotesModel *notes)
     if (d->notes) {
         connect(d->notes, &TimelineNotesModel::changed,
                 this, &TimelineAbstractRenderer::setNotesDirty);
-        connect(d->notes, &QObject::destroyed, this, [this, d]() {
+        connect(d->notes, &QObject::destroyed, this, [this, d] {
             // Weak pointers are supposed to be notified before the destroyed() signal is sent.
             Q_ASSERT(d->notes.isNull());
             setNotesDirty();
@@ -164,7 +164,7 @@ void TimelineAbstractRenderer::setZoomer(TimelineZoomControl *zoomer)
         d->zoomer = zoomer;
         if (d->zoomer) {
             connect(d->zoomer, &TimelineZoomControl::windowChanged, this, &QQuickItem::update);
-            connect(d->zoomer, &QObject::destroyed, this, [this, d]() {
+            connect(d->zoomer, &QObject::destroyed, this, [this, d] {
                 // Weak pointers are supposed to be notified before the destroyed() signal is sent.
                 Q_ASSERT(d->zoomer.isNull());
                 emit zoomerChanged(d->zoomer);
