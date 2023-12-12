@@ -3817,7 +3817,7 @@ protected:
                                 &context,
                                 &isTypeValueType](const Name *name,
                                                   Scope *scope,
-                                                  auto &isValueType) mutable -> bool {
+                                                  auto &isValueType) {
                 // maybe the type is a custom value type by name
                 if (const Identifier *id = name->identifier()) {
                     if (settings->isValueType(QString::fromUtf8(id->chars(), id->size()))) {
