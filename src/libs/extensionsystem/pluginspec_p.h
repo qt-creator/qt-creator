@@ -56,6 +56,7 @@ public:
     bool required = false;
     bool experimental = false;
     bool enabledByDefault = true;
+    bool deprecated = false;
     QString vendor;
     QString copyright;
     QString license;

@@ -96,9 +96,15 @@ public:
     {
         switch (column) {
         case NameColumn:
-            if (role == Qt::DisplayRole)
+            if (role == Qt::DisplayRole) {
+                if (m_spec->isDeprecated()) {
+                    //: %1 is a plugin name
+                    return Tr::tr("%1 (deprecated)").arg(m_spec->name());
+                }
+                //: %1 is a plugin name
                 return m_spec->isExperimental() ? Tr::tr("%1 (experimental)").arg(m_spec->name())
                                                 : m_spec->name();
+            }
             if (role == SortRole)
                 return m_spec->name();
             if (role == Qt::ToolTipRole) {

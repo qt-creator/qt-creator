@@ -321,8 +321,16 @@ bool PluginSpec::isExperimental() const
 }
 
 /*!
+    Returns whether the plugin has its deprecated flag set.
+*/
+bool PluginSpec::isDeprecated() const
+{
+    return d->deprecated;
+}
+
+/*!
     Returns whether the plugin is enabled by default.
-    A plugin might be disabled because the plugin is experimental, or because
+    A plugin might be disabled because the plugin is experimental or deprecated, or because
     the installation settings define it as disabled by default.
 */
 bool PluginSpec::isEnabledByDefault() const
@@ -575,6 +583,7 @@ namespace {
     const char PLUGIN_REQUIRED[] = "Required";
     const char PLUGIN_EXPERIMENTAL[] = "Experimental";
     const char PLUGIN_DISABLED_BY_DEFAULT[] = "DisabledByDefault";
+    const char PLUGIN_DEPRECATED[] = "Deprecated";
     const char PLUGIN_SOFTLOADABLE[] = "SoftLoadable";
     const char VENDOR[] = "Vendor";
     const char COPYRIGHT[] = "Copyright";
@@ -797,13 +806,19 @@ bool PluginSpecPrivate::readMetaData(const QJsonObject &pluginMetaData)
     experimental = value.toBool(false);
     qCDebug(pluginLog) << "experimental =" << experimental;
 
+    value = metaData.value(QLatin1String(PLUGIN_DEPRECATED));
+    if (!value.isUndefined() && !value.isBool())
+        return reportError(msgValueIsNotABool(PLUGIN_DEPRECATED));
+    deprecated = value.toBool(false);
+    qCDebug(pluginLog) << "deprecated =" << deprecated;
+
     value = metaData.value(QLatin1String(PLUGIN_DISABLED_BY_DEFAULT));
     if (!value.isUndefined() && !value.isBool())
         return reportError(msgValueIsNotABool(PLUGIN_DISABLED_BY_DEFAULT));
     enabledByDefault = !value.toBool(false);
     qCDebug(pluginLog) << "enabledByDefault =" << enabledByDefault;
 
-    if (experimental)
+    if (experimental || deprecated)
         enabledByDefault = false;
     enabledBySettings = enabledByDefault;
 

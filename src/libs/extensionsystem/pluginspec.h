@@ -94,6 +94,7 @@ public:
     bool isAvailableForHostPlatform() const;
     bool isRequired() const;
     bool isExperimental() const;
+    bool isDeprecated() const;
     bool isEnabledByDefault() const;
     bool isEnabledBySettings() const;
     bool isEffectivelyEnabled() const;
