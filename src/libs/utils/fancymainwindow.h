@@ -49,6 +49,7 @@ public:
     bool isDockAreaVisible(Qt::DockWidgetArea area) const;
     bool isDockAreaAvailable(Qt::DockWidgetArea area) const;
 
+    bool isBlockingAutomaticUncollapse() const;
 signals:
     // Emitted by resetLayoutAction(). Connect to a slot
     // restoring the default layout.

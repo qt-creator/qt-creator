@@ -48,6 +48,11 @@ struct FancyMainWindowPrivate
     QAction m_menuSeparator1;
     QAction m_resetLayoutAction;
     QHash<int, QList<QDockWidget *>> m_hiddenAreas; // Qt::DockWidgetArea -> dock widgets
+
+    // Usually dock widgets automatically uncollapse when e.g. other docks are hidden
+    // and they are the only one left. We need to block that when hiding a complete
+    // dock area to not change the collapse state
+    bool m_blockAutoUncollapse = false;
 };
 
 class DockWidget : public QDockWidget
@@ -303,7 +308,7 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
             origCloseButton, &QAbstractButton::clicked);
 
     connect(q, &FancyMainWindow::dockWidgetsChanged, this, [this] {
-        if (!supportsCollapse())
+        if (!q->isBlockingAutomaticUncollapse() && isVisible() && !supportsCollapse())
             ensureWidgetShown();
     });
 }
@@ -679,6 +684,7 @@ void FancyMainWindow::showCentralWidget(bool on)
 
 void FancyMainWindow::setDockAreaVisible(Qt::DockWidgetArea area, bool visible)
 {
+    d->m_blockAutoUncollapse = true;
     if (visible) {
         const QList<QDockWidget *> docks = d->m_hiddenAreas.value(area);
         for (QDockWidget *w : docks)
@@ -692,6 +698,7 @@ void FancyMainWindow::setDockAreaVisible(Qt::DockWidgetArea area, bool visible)
                 w->setVisible(false);
         }
     }
+    d->m_blockAutoUncollapse = false;
 }
 
 bool FancyMainWindow::isDockAreaVisible(Qt::DockWidgetArea area) const
@@ -706,6 +713,11 @@ bool FancyMainWindow::isDockAreaAvailable(Qt::DockWidgetArea area) const
     if (d->m_hiddenAreas.contains(area))
         return true;
     return !docksInArea(area).isEmpty();
+}
+
+bool FancyMainWindow::isBlockingAutomaticUncollapse() const
+{
+    return d->m_blockAutoUncollapse;
 }
 
 void FancyMainWindow::addDockActionsToMenu(QMenu *menu)
