@@ -559,7 +559,7 @@ void TransitionEditorBarItem::commitPosition(const QPointF & /*point*/)
         if (m_handle != Location::Undefined) {
             sectionItem()
                 ->view()
-                ->executeInTransaction("TransitionEditorBarItem::commitPosition", [this]() {
+                ->executeInTransaction("TransitionEditorBarItem::commitPosition", [this] {
                     qreal scaleFactor = rect().width() / m_oldRect.width();
 
                     qreal moved = (rect().topLeft().x() - m_oldRect.topLeft().x()) / rulerScaling();
@@ -574,7 +574,7 @@ void TransitionEditorBarItem::commitPosition(const QPointF & /*point*/)
         if (m_handle != Location::Undefined) {
             propertyItem()
                 ->view()
-                ->executeInTransaction("TransitionEditorBarItem::commitPosition", [this]() {
+                ->executeInTransaction("TransitionEditorBarItem::commitPosition", [this] {
                     qreal scaleFactor = rect().width() / m_oldRect.width();
                     qreal moved = (rect().topLeft().x() - m_oldRect.topLeft().x()) / rulerScaling();
                     qreal supposedFirstFrame = qRound(moved);

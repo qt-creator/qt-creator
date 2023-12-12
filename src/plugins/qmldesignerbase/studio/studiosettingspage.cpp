@@ -122,7 +122,7 @@ StudioSettingsPage::StudioSettingsPage()
     m_pathChooserExamples->setFilePath(Utils::FilePath::fromString(Paths::examplesPathSetting()));
     auto examplesResetButton = new QPushButton(tr("Reset Path"));
 
-    connect(examplesResetButton, &QPushButton::clicked, this, [this]() {
+    connect(examplesResetButton, &QPushButton::clicked, this, [this] {
         m_pathChooserExamples->setFilePath(Paths::defaultExamplesPath());
     });
 
@@ -141,7 +141,7 @@ StudioSettingsPage::StudioSettingsPage()
     m_pathChooserBundles->setFilePath(Utils::FilePath::fromString(Paths::bundlesPathSetting()));
     QPushButton *bundlesResetButton = new QPushButton(tr("Reset Path"));
 
-    connect(bundlesResetButton, &QPushButton::clicked, this, [this]() {
+    connect(bundlesResetButton, &QPushButton::clicked, this, [this] {
         m_pathChooserBundles->setFilePath(Paths::defaultBundlesPath());
     });
 

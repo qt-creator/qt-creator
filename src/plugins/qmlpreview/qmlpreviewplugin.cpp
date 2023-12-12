@@ -160,7 +160,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     action->setEnabled(ProjectManager::startupProject() != nullptr);
     connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, action,
             &QAction::setEnabled);
-    connect(action, &QAction::triggered, this, [this]() {
+    connect(action, &QAction::triggered, this, [this] {
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
             m_localeIsoCode = multiLanguageAspect->currentLocale();
         bool skipDeploy = false;

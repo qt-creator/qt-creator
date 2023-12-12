@@ -321,7 +321,7 @@ DockContainerWidgetPrivate::DockContainerWidgetPrivate(DockContainerWidget *pare
     std::fill(std::begin(m_lastAddedAreaCache), std::end(m_lastAddedAreaCache), nullptr);
     m_delayedAutoHideTimer.setSingleShot(true);
     m_delayedAutoHideTimer.setInterval(500);
-    QObject::connect(&m_delayedAutoHideTimer, &QTimer::timeout, q, [this]() {
+    QObject::connect(&m_delayedAutoHideTimer, &QTimer::timeout, q, [this] {
         auto globalPos = m_delayedAutoHideTab->mapToGlobal(QPoint(0, 0));
         qApp->sendEvent(m_delayedAutoHideTab,
                         new QMouseEvent(QEvent::MouseButtonPress,

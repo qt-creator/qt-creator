@@ -509,7 +509,7 @@ void ProjectModel::resetProjects()
 
 void ProjectModel::delayedResetProjects()
 {
-    QTimer::singleShot(2000, this, [this]() {
+    QTimer::singleShot(2000, this, [this] {
         beginResetModel();
         endResetModel();
         m_blockOpenRecent = false;
@@ -768,7 +768,7 @@ WelcomeMode::WelcomeMode()
         m_modeWidget->layout()->addWidget(m_quickWidget);
     });
 
-    connect(m_dataModelDownloader, &DataModelDownloader::downloadFailed, this, [this]() {
+    connect(m_dataModelDownloader, &DataModelDownloader::downloadFailed, this, [this] {
         m_quickWidget->setEnabled(true);
     });
 

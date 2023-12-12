@@ -87,7 +87,7 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
         refresh(RefreshOptions::NoFileRefresh);
         updateMcuBuildStep(target, qtForMCUs());
     });
-    connect(target->project(), &Project::projectFileIsDirty, this, [this]() {
+    connect(target->project(), &Project::projectFileIsDirty, this, [this] {
         refresh(RefreshOptions::Project);
         updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
     });

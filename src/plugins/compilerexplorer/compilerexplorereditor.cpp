@@ -560,7 +560,7 @@ void EditorWidget::addCompiler(const std::shared_ptr<SourceSettings> &sourceSett
                 sourceSettings->compilers.removeItem(compilerSettings->shared_from_this());
             });
 
-    connect(compiler, &CompilerWidget::gotFocus, this, [this]() {
+    connect(compiler, &CompilerWidget::gotFocus, this, [this] {
         m_actionHandler.updateCurrentEditor();
     });
 }
@@ -600,7 +600,7 @@ void EditorWidget::addSourceEditor(const std::shared_ptr<SourceSettings> &source
         setupHelpWidget();
     });
 
-    connect(sourceEditor, &SourceEditorWidget::gotFocus, this, [this]() {
+    connect(sourceEditor, &SourceEditorWidget::gotFocus, this, [this] {
         m_actionHandler.updateCurrentEditor();
     });
 

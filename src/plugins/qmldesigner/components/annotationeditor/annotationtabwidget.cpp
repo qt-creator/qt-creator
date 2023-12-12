@@ -24,9 +24,9 @@ AnnotationTabWidget::AnnotationTabWidget(QWidget *parent)
                                          tr("Add Comment")); //timeline icons?
     auto *commentRemoveAction = new QAction(TimelineIcons::REMOVE_TIMELINE.icon(),
                                             tr("Remove Comment")); //timeline icons?
-    connect(commentAddAction, &QAction::triggered, this, [this]() { addCommentTab(); });
+    connect(commentAddAction, &QAction::triggered, this, [this] { addCommentTab(); });
 
-    connect(commentRemoveAction, &QAction::triggered, this, [this]() {
+    connect(commentRemoveAction, &QAction::triggered, this, [this] {
         int currentIndex = this->currentIndex();
         QString currentTitle = tabText(currentIndex);
         if (QMessageBox::question(this,

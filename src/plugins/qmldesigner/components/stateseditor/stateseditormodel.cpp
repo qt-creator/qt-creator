@@ -34,7 +34,7 @@ StatesEditorModel::StatesEditorModel(StatesEditorView *view)
     , m_hasExtend(false)
     , m_extendedStates()
 {
-    QObject::connect(this, &StatesEditorModel::dataChanged, [this]() { emit baseStateChanged(); });
+    QObject::connect(this, &StatesEditorModel::dataChanged, [this] { emit baseStateChanged(); });
 }
 
 int StatesEditorModel::count() const
@@ -363,7 +363,7 @@ void StatesEditorModel::removeStateGroup()
     if (m_statesEditorView->activeStatesGroupNode().isRootNode())
         return;
 
-    m_statesEditorView->executeInTransaction("removeStateGroup", [this]() {
+    m_statesEditorView->executeInTransaction("removeStateGroup", [this] {
         m_statesEditorView->activeStatesGroupNode().destroy();
     });
 }

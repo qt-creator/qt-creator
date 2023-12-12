@@ -63,7 +63,7 @@ CanvasStyleDialog::CanvasStyleDialog(const CanvasStyle &style, QWidget *parent)
 
     setLayout(layout);
 
-    auto emitValueChanged = [this]() {
+    auto emitValueChanged = [this] {
         CanvasStyle out;
         out.aspect = m_aspect->value();
         out.thinLineWidth = m_thinLineWidth->value();

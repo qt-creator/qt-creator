@@ -182,11 +182,11 @@ void FormEditorAnnotationIcon::mouseReleaseEvent(QGraphicsSceneMouseEvent * even
 void FormEditorAnnotationIcon::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
 {
     QMenu menu;
-    menu.addAction(tr("Edit Annotation"), [this]() {
+    menu.addAction(tr("Edit Annotation"), [this] {
         createAnnotationEditor();
     });
 
-    menu.addAction(tr("Remove Annotation"), [this]() {
+    menu.addAction(tr("Remove Annotation"), [this] {
         removeAnnotationDialog();
     });
 

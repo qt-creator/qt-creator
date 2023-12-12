@@ -667,7 +667,7 @@ void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
         if (!found) {
             m_multiSelDataMap.insert(selNode, {});
             m_multiSelNodes.append(QVariant::fromValue(selNode));
-            m_multiSelectConnections.append(connect(selNode, &QObject::destroyed, [this]() {
+            m_multiSelectConnections.append(connect(selNode, &QObject::destroyed, [this] {
                 // If any multiselected node is destroyed, assume the entire selection is invalid.
                 // The new selection should be notified by creator immediately after anyway.
                 m_multiSelDataMap.clear();
@@ -677,7 +677,7 @@ void GeneralHelper::setMultiSelectionTargets(QQuick3DNode *multiSelectRootNode,
                 m_multiSelectConnections.clear();
             }));
             m_multiSelectConnections.append(connect(selNode, &QQuick3DNode::sceneTransformChanged,
-                                                    [this]() {
+                                                    [this] {
                 // Reposition the multiselection root node if scene transform of any multiselected
                 // node changes outside of drag (i.e. changes originating from creator side)
                 if (!m_blockMultiSelectionNodePositioning)

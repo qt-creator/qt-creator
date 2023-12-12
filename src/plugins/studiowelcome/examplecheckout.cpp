@@ -115,7 +115,7 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
                          &DataModelDownloader::targetPathMustChange);
     }
 
-    connect(&m_fileDownloader, &QmlDesigner::FileDownloader::finishedChanged, this, [this]() {
+    connect(&m_fileDownloader, &QmlDesigner::FileDownloader::finishedChanged, this, [this] {
         m_started = false;
 
         if (m_fileDownloader.finished()) {

@@ -541,7 +541,7 @@ TrimWidget::TrimWidget(const ClipInfo &clip, QWidget *parent)
         noMargin(),
     }.attachTo(this);
 
-    connect(m_frameSlider, &QSlider::valueChanged, this, [this]() {
+    connect(m_frameSlider, &QSlider::valueChanged, this, [this] {
         m_currentTime->setFrame(currentFrame());
         updateTrimWidgets();
         emit positionChanged();

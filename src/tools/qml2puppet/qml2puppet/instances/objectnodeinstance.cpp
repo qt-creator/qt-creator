@@ -46,7 +46,7 @@ ObjectNodeInstance::ObjectNodeInstance(QObject *object)
       m_isInLayoutable(false)
 {
     if (object)
-        QObject::connect(m_object.data(), &QObject::destroyed, [=] {
+        QObject::connect(m_object.data(), &QObject::destroyed, [this, object] {
             handleObjectDeletion(object);
         });
 }

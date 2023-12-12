@@ -388,9 +388,9 @@ DynamicPropertiesModelBackendDelegate::DynamicPropertiesModelBackendDelegate(Dyn
     , m_internalNodeId(std::nullopt)
 {
     m_type.setModel({"int", "bool", "var", "real", "string", "url", "color"});
-    connect(&m_type, &StudioQmlComboBoxBackend::activated, this, [this]() { handleTypeChanged(); });
-    connect(&m_name, &StudioQmlTextBackend::activated, this, [this]() { handleNameChanged(); });
-    connect(&m_value, &StudioQmlTextBackend::activated, this, [this]() { handleValueChanged(); });
+    connect(&m_type, &StudioQmlComboBoxBackend::activated, this, [this] { handleTypeChanged(); });
+    connect(&m_name, &StudioQmlTextBackend::activated, this, [this] { handleNameChanged(); });
+    connect(&m_value, &StudioQmlTextBackend::activated, this, [this] { handleValueChanged(); });
 }
 
 void DynamicPropertiesModelBackendDelegate::update(const AbstractProperty &property)

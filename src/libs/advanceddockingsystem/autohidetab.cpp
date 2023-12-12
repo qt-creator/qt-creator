@@ -103,7 +103,7 @@ struct AutoHideTabPrivate
     AbstractFloatingWidget *createFloatingWidget(T *widget)
     {
         auto w = new FloatingDragPreview(widget);
-        q->connect(w, &FloatingDragPreview::draggingCanceled, [=]() {
+        q->connect(w, &FloatingDragPreview::draggingCanceled, [this] {
             m_dragState = DraggingInactive;
         });
         return w;

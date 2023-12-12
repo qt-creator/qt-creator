@@ -34,8 +34,8 @@ RichTextEditorProxy::RichTextEditorProxy(QObject *parent)
 
     m_dialog->setLayout(layout);
 
-    connect(m_dialog, &QDialog::accepted, [this]() { emit accepted(); });
-    connect(m_dialog, &QDialog::rejected, [this]() { emit rejected(); });
+    connect(m_dialog, &QDialog::accepted, [this] { emit accepted(); });
+    connect(m_dialog, &QDialog::rejected, [this] { emit rejected(); });
 }
 
 RichTextEditorProxy::~RichTextEditorProxy()

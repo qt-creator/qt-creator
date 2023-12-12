@@ -281,7 +281,7 @@ void Manager::initialize()
         d->m_timer.start(400); // Accumulate multiple requests into one, restarts the timer
     });
 
-    connect(&d->m_timer, &QTimer::timeout, this, [this]() {
+    connect(&d->m_timer, &QTimer::timeout, this, [this] {
         const QSet<FilePath> docsToBeUpdated = d->m_awaitingDocuments;
         d->cancelScheduledUpdate();
         if (!state() || d->disableCodeParser) // enabling any of them will trigger the total update

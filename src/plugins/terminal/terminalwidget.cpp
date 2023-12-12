@@ -145,7 +145,7 @@ void TerminalWidget::setupPty()
     if (m_shellIntegration)
         m_shellIntegration->prepareProcess(*m_process.get());
 
-    connect(m_process.get(), &Process::readyReadStandardOutput, this, [this]() {
+    connect(m_process.get(), &Process::readyReadStandardOutput, this, [this] {
         onReadyRead(false);
     });
 

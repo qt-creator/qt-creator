@@ -88,7 +88,7 @@ PerfProfilerTool::PerfProfilerTool()
     m_limitToRange = new QAction(Tr::tr("Limit to Range Selected in Timeline"), options);
     command = Core::ActionManager::registerAction(m_limitToRange, Constants::PerfProfilerTaskLimit,
                                                                  globalContext);
-    connect(m_limitToRange, &QAction::triggered, this, [this]() {
+    connect(m_limitToRange, &QAction::triggered, this, [this] {
         traceManager().restrictByFilter(traceManager().rangeAndThreadFilter(
                                              m_zoomControl->selectionStart(),
                                              m_zoomControl->selectionEnd()));
@@ -271,12 +271,12 @@ void PerfProfilerTool::createViews()
         errorDialog->show();
     });
 
-    connect(&traceManager(), &PerfProfilerTraceManager::loadFinished, this, [this]() {
+    connect(&traceManager(), &PerfProfilerTraceManager::loadFinished, this, [this] {
         m_readerRunning = false;
         updateRunActions();
     });
 
-    connect(&traceManager(), &PerfProfilerTraceManager::saveFinished, this, [this]() {
+    connect(&traceManager(), &PerfProfilerTraceManager::saveFinished, this, [this] {
         setToolActionsEnabled(true);
     });
 

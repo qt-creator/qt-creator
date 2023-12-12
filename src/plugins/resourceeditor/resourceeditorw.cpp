@@ -80,7 +80,7 @@ ResourceEditorW::ResourceEditorW(const Core::Context &context,
     connect(m_resourceEditor, &QrcEditor::itemActivated,
             this, &ResourceEditorW::openFile);
     connect(m_resourceEditor->commandHistory(), &QUndoStack::indexChanged,
-            m_resourceDocument, [this]() { m_resourceDocument->setShouldAutoSave(true); });
+            m_resourceDocument, [this] { m_resourceDocument->setShouldAutoSave(true); });
     if (debugResourceEditorW)
         qDebug() <<  "ResourceEditorW::ResourceEditorW()";
 }

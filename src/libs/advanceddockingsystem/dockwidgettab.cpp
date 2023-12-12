@@ -105,7 +105,7 @@ public:
             return new FloatingDockContainer(widget);
         } else {
             auto w = new FloatingDragPreview(widget);
-            QObject::connect(w, &FloatingDragPreview::draggingCanceled, q, [=]() {
+            QObject::connect(w, &FloatingDragPreview::draggingCanceled, q, [this] {
                 m_dragState = DraggingInactive;
             });
             return w;

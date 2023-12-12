@@ -64,7 +64,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     });
 
     connect(&m_input, &QIODevice::bytesWritten, this, &PerfDataReader::writeChunk);
-    connect(&m_input, &QProcess::started, this, [this]() {
+    connect(&m_input, &QProcess::started, this, [this] {
         emit processStarted();
         if (m_input.isWritable()) {
             writeChunk();
@@ -109,7 +109,7 @@ PerfDataReader::PerfDataReader(QObject *parent) :
     });
 
     connect(&m_input, &QProcess::readyReadStandardOutput, this, &PerfDataReader::readFromDevice);
-    connect(&m_input, &QProcess::readyReadStandardError, this, [this]() {
+    connect(&m_input, &QProcess::readyReadStandardError, this, [this] {
         Core::MessageManager::writeSilently(QString::fromLocal8Bit(m_input.readAllStandardError()));
     });
 

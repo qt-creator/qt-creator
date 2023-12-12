@@ -1878,7 +1878,7 @@ void Qt5InformationNodeInstanceServer::setup3DEditView(
                      this, &Qt5InformationNodeInstanceServer::handleInputEvents);
     QObject::connect(&m_dynamicAddObjectTimer, &QTimer::timeout,
                      this, &Qt5InformationNodeInstanceServer::handleDynamicAddObjectTimeout);
-    QObject::connect(&m_activeSceneIdUpdateTimer, &QTimer::timeout, this, [this]() {
+    QObject::connect(&m_activeSceneIdUpdateTimer, &QTimer::timeout, this, [this] {
         Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D(true);
     });
 

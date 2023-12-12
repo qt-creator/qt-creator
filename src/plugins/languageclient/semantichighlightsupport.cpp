@@ -31,7 +31,7 @@ SemanticTokenSupport::SemanticTokenSupport(Client *client)
     QObject::connect(TextEditorSettings::instance(),
                      &TextEditorSettings::fontSettingsChanged,
                      client,
-                     [this]() { updateFormatHash(); });
+                     [this] { updateFormatHash(); });
     QObject::connect(Core::EditorManager::instance(),
                      &Core::EditorManager::currentEditorChanged,
                      this,

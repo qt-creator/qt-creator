@@ -71,11 +71,11 @@ TransitionEditorSettingsDialog::TransitionEditorSettingsDialog(QWidget *parent,
     auto *transitionRemoveAction = new QAction(TimelineIcons::REMOVE_TIMELINE.icon(),
                                                tr("Remove Transition"));
 
-    connect(transitionAddAction, &QAction::triggered, this, [this]() {
+    connect(transitionAddAction, &QAction::triggered, this, [this] {
         setupTransitions(m_transitionEditorView->addNewTransition());
     });
 
-    connect(transitionRemoveAction, &QAction::triggered, this, [this]() {
+    connect(transitionRemoveAction, &QAction::triggered, this, [this] {
         if (ModelNode transition = getTransitionFromTabWidget(ui->timelineTab)) {
             transition.destroy();
             setupTransitions({});
@@ -89,7 +89,7 @@ TransitionEditorSettingsDialog::TransitionEditorSettingsDialog(QWidget *parent,
 
     setupTransitions({});
 
-    connect(ui->timelineTab, &QTabWidget::currentChanged, this, [this]() {
+    connect(ui->timelineTab, &QTabWidget::currentChanged, this, [this] {
         m_currentTransition = getTransitionFromTabWidget(ui->timelineTab);
     });
 }

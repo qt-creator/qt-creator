@@ -675,21 +675,21 @@ ConnectionModelBackendDelegate::ConnectionModelBackendDelegate(ConnectionModel *
       m_propertyTreeModel(parent->connectionView()), m_propertyListProxyModel(&m_propertyTreeModel)
 
 {
-    connect(&m_signalDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
+    connect(&m_signalDelegate, &PropertyTreeModelDelegate::commitData, this, [this] {
         handleTargetChanged();
     });
 
     connect(&m_okStatementDelegate,
             &ConnectionModelStatementDelegate::statementChanged,
             this,
-            [this]() { handleOkStatementChanged(); });
+            [this] { handleOkStatementChanged(); });
 
     connect(&m_koStatementDelegate,
             &ConnectionModelStatementDelegate::statementChanged,
             this,
-            [this]() { handleKOStatementChanged(); });
+            [this] { handleKOStatementChanged(); });
 
-    connect(&m_conditionListModel, &ConditionListModel::conditionChanged, this, [this]() {
+    connect(&m_conditionListModel, &ConditionListModel::conditionChanged, this, [this] {
         handleConditionChanged();
     });
 
@@ -1209,27 +1209,27 @@ ConnectionModelStatementDelegate::ConnectionModelStatementDelegate(ConnectionMod
 {
     m_functionDelegate.setPropertyType(PropertyTreeModel::SlotType);
 
-    connect(&m_functionDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
+    connect(&m_functionDelegate, &PropertyTreeModelDelegate::commitData, this, [this] {
         handleFunctionChanged();
     });
 
-    connect(&m_rhsAssignmentDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
+    connect(&m_rhsAssignmentDelegate, &PropertyTreeModelDelegate::commitData, this, [this] {
         handleRhsAssignmentChanged();
     });
 
-    connect(&m_lhsDelegate, &PropertyTreeModelDelegate::commitData, this, [this]() {
+    connect(&m_lhsDelegate, &PropertyTreeModelDelegate::commitData, this, [this] {
         handleLhsChanged();
     });
 
-    connect(&m_stringArgument, &StudioQmlTextBackend::activated, this, [this]() {
+    connect(&m_stringArgument, &StudioQmlTextBackend::activated, this, [this] {
         handleStringArgumentChanged();
     });
 
-    connect(&m_states, &StudioQmlComboBoxBackend::activated, this, [this]() {
+    connect(&m_states, &StudioQmlComboBoxBackend::activated, this, [this] {
         handleStateChanged();
     });
 
-    connect(&m_stateTargets, &StudioQmlComboBoxBackend::activated, this, [this]() {
+    connect(&m_stateTargets, &StudioQmlComboBoxBackend::activated, this, [this] {
         handleStateTargetsChanged();
     });
 }

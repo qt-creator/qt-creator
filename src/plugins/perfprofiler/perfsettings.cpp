@@ -93,7 +93,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
             this, &PerfConfigWidget::readTracePoints);
 
     auto addEventButton = new QPushButton(Tr::tr("Add Event"), this);
-    connect(addEventButton, &QPushButton::pressed, this, [this]() {
+    connect(addEventButton, &QPushButton::pressed, this, [this] {
         auto model = eventsView->model();
         model->insertRow(model->rowCount());
     });

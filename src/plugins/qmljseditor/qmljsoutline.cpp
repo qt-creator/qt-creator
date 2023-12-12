@@ -131,11 +131,11 @@ void QmlJSOutlineWidget::setEditor(QmlJSEditorWidget *editor)
 
     m_filterModel->setSourceModel(m_editor->qmlJsEditorDocument()->outlineModel());
     m_treeView->expandAll();
-    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QAbstractItemModel::modelAboutToBeReset, m_treeView, [this]() {
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QAbstractItemModel::modelAboutToBeReset, m_treeView, [this] {
         if (m_treeView->selectionModel())
             m_treeView->selectionModel()->blockSignals(true);
     });
-    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QAbstractItemModel::modelReset, m_treeView, [this]() {
+    connect(m_editor->qmlJsEditorDocument()->outlineModel(), &QAbstractItemModel::modelReset, m_treeView, [this] {
         if (m_treeView->selectionModel())
             m_treeView->selectionModel()->blockSignals(false);
     });

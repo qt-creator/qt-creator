@@ -63,7 +63,7 @@ TransitionEditorGraphicsScene::TransitionEditorGraphicsScene(TransitionEditorWid
 
     setSceneRect(m_layout->geometry());
 
-    connect(m_layout, &QGraphicsWidget::geometryChanged, this, [this]() {
+    connect(m_layout, &QGraphicsWidget::geometryChanged, this, [this] {
         auto rect = m_layout->geometry();
 
         setSceneRect(rect);

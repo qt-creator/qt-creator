@@ -1191,7 +1191,7 @@ void QmakeProFile::setupFutureWatcher()
     QTC_ASSERT(!m_parseFutureWatcher, return);
 
     m_parseFutureWatcher = new QFutureWatcher<Internal::QmakeEvalResultPtr>;
-    QObject::connect(m_parseFutureWatcher, &QFutureWatcherBase::finished, [this]() {
+    QObject::connect(m_parseFutureWatcher, &QFutureWatcherBase::finished, [this] {
         applyEvaluate(m_parseFutureWatcher->result());
         cleanupFutureWatcher();
     });

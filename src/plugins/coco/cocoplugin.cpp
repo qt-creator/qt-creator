@@ -96,7 +96,7 @@ void CocoPlugin::initialize()
         Command *cmd = ActionManager::registerAction(startCoco, "Coco.startCoco");
         menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
 
-        connect(startCoco, &QAction::triggered, this, [this]() { d->startCoco(); });
+        connect(startCoco, &QAction::triggered, this, [this] { d->startCoco(); });
     }
 }
 

@@ -113,7 +113,7 @@ void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 AssetsLibraryView::ImageCacheData *AssetsLibraryView::imageCacheData()
 {
     std::call_once(imageCacheFlag,
-                   [this]() { m_imageCacheData = std::make_unique<ImageCacheData>(); });
+                   [this] { m_imageCacheData = std::make_unique<ImageCacheData>(); });
     return m_imageCacheData.get();
 }
 

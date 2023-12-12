@@ -255,15 +255,15 @@ BindingModelBackendDelegate::BindingModelBackendDelegate(BindingModel *parent)
     , m_sourceNode()
     , m_sourceNodeProperty()
 {
-    connect(&m_sourceNode, &StudioQmlComboBoxBackend::activated, this, [this]() {
+    connect(&m_sourceNode, &StudioQmlComboBoxBackend::activated, this, [this] {
         sourceNodeChanged();
     });
 
-    connect(&m_sourceNodeProperty, &StudioQmlComboBoxBackend::activated, this, [this]() {
+    connect(&m_sourceNodeProperty, &StudioQmlComboBoxBackend::activated, this, [this] {
         sourcePropertyNameChanged();
     });
 
-    connect(&m_property, &StudioQmlComboBoxBackend::activated, this, [this]() {
+    connect(&m_property, &StudioQmlComboBoxBackend::activated, this, [this] {
         targetPropertyNameChanged();
     });
 }
@@ -373,7 +373,7 @@ void BindingModelBackendDelegate::sourcePropertyNameChanged() const
 
 void BindingModelBackendDelegate::targetPropertyNameChanged() const
 {
-    auto commit = [this]() {
+    auto commit = [this] {
         BindingModel *model = qobject_cast<BindingModel *>(parent());
         QTC_ASSERT(model, return);
         const PropertyName propertyName = m_property.currentText().toUtf8();

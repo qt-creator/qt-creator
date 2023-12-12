@@ -208,7 +208,7 @@ void FormEditorView::createFormEditorWidget()
     auto formEditorContext = new Internal::FormEditorContext(m_formEditorWidget.data());
     Core::ICore::addContextObject(formEditorContext);
 
-    connect(m_formEditorWidget->zoomAction(), &ZoomAction::zoomLevelChanged, [this]() {
+    connect(m_formEditorWidget->zoomAction(), &ZoomAction::zoomLevelChanged, [this] {
         m_currentTool->formEditorItemsChanged(scene()->allFormEditorItems());
     });
 
@@ -223,7 +223,7 @@ void FormEditorView::temporaryBlockView(int duration)
     timer->setSingleShot(true);
     timer->start(duration);
 
-    connect(timer, &QTimer::timeout, this, [this]() {
+    connect(timer, &QTimer::timeout, this, [this] {
         if (m_formEditorWidget && m_formEditorWidget->graphicsView())
             m_formEditorWidget->graphicsView()->setUpdatesEnabled(true);
     });

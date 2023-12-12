@@ -188,7 +188,7 @@ QmlProfilerTool::QmlProfilerTool()
     d->m_searchButton->setEnabled(false);
 
     connect(d->m_searchButton, &QToolButton::clicked, this, &QmlProfilerTool::showTimeLineSearch);
-    connect(d->m_viewContainer, &QmlProfilerViewManager::viewsCreated, this, [this]() {
+    connect(d->m_viewContainer, &QmlProfilerViewManager::viewsCreated, this, [this] {
         d->m_searchButton->setEnabled(d->m_viewContainer->traceView()->isUsable());
     });
 
@@ -241,7 +241,7 @@ QmlProfilerTool::QmlProfilerTool()
         });
     }
 
-    auto updateRecordButton = [this]() {
+    auto updateRecordButton = [this] {
         const bool recording =
                 d->m_profilerState->currentState() != QmlProfilerStateManager::AppRunning
                 ? d->m_profilerState->clientRecording() : d->m_profilerState->serverRecording();
@@ -738,7 +738,7 @@ void QmlProfilerTool::clientsDisconnected()
 
     // ... and return to the "base" state
     if (d->m_profilerState->currentState() == QmlProfilerStateManager::AppDying) {
-        QTimer::singleShot(0, d->m_profilerState, [this]() {
+        QTimer::singleShot(0, d->m_profilerState, [this] {
             d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
         });
     }
@@ -855,7 +855,7 @@ void QmlProfilerTool::profilerStateChanged()
             d->m_profilerConnections->stopRecording();
         } else {
             // Directly transition to idle
-            QTimer::singleShot(0, d->m_profilerState, [this]() {
+            QTimer::singleShot(0, d->m_profilerState, [this] {
                 d->m_profilerState->setCurrentState(QmlProfilerStateManager::Idle);
             });
         }

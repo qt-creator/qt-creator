@@ -235,7 +235,7 @@ void MaterialBrowserView::modelAttached(Model *model)
 
     // Project load is already very busy and may even trigger puppet reset, so let's wait a moment
     // before refreshing the model
-    QTimer::singleShot(1000, model, [this]() {
+    QTimer::singleShot(1000, model, [this] {
         refreshModel(true);
         loadPropertyGroups(); // Needs the delay because it uses metaInfo
     });
@@ -523,7 +523,7 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
                 m_widget->focusMaterialSection(false);
         }
     } else if (identifier == "refresh_material_browser") {
-        QTimer::singleShot(0, model(), [this]() {
+        QTimer::singleShot(0, model(), [this] {
             refreshModel(true);
         });
     } else if (identifier == "delete_selected_material") {
@@ -557,7 +557,7 @@ void MaterialBrowserView::instancesCompleted(const QVector<ModelNode> &completed
         // We use root node completion as indication of puppet reset
         if (node.isRootNode()) {
             m_puppetResetPending  = false;
-            QTimer::singleShot(1000, this, [this]() {
+            QTimer::singleShot(1000, this, [this] {
                 if (!model() || !model()->nodeInstanceView())
                     return;
                 const QList<ModelNode> materials = m_widget->materialBrowserModel()->materials();

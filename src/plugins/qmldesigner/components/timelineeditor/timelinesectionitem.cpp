@@ -361,25 +361,25 @@ void TimelineSectionItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event
 
         QAction *removeAction = mainMenu.addAction(
             TimelineConstants::timelineDeleteKeyframesDisplayName);
-        QObject::connect(removeAction, &QAction::triggered, [this]() {
+        QObject::connect(removeAction, &QAction::triggered, [this] {
             timelineScene()->deleteAllKeyframesForTarget(m_targetNode);
         });
 
         QAction *addKeyframesAction = mainMenu.addAction(
             TimelineConstants::timelineInsertKeyframesDisplayName);
-        QObject::connect(addKeyframesAction, &QAction::triggered, [this]() {
+        QObject::connect(addKeyframesAction, &QAction::triggered, [this] {
             timelineScene()->insertAllKeyframesForTarget(m_targetNode);
         });
 
         QAction *copyAction = mainMenu.addAction(
             TimelineConstants::timelineCopyKeyframesDisplayName);
-        QObject::connect(copyAction, &QAction::triggered, [this]() {
+        QObject::connect(copyAction, &QAction::triggered, [this] {
             timelineScene()->copyAllKeyframesForTarget(m_targetNode);
         });
 
         QAction *pasteAction = mainMenu.addAction(
             TimelineConstants::timelinePasteKeyframesDisplayName);
-        QObject::connect(pasteAction, &QAction::triggered, [this]() {
+        QObject::connect(pasteAction, &QAction::triggered, [this] {
             timelineScene()->pasteKeyframesToTarget(m_targetNode);
         });
 
@@ -1074,7 +1074,7 @@ void TimelineBarItem::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
     QObject::connect(overrideColor, &QAction::triggered, setColor);
 
     QAction* resetColor = menu.addAction(tr("Reset Color"));
-    auto reset = [this]() {
+    auto reset = [this] {
         ModelNode target = sectionItem()->targetNode();
         target.removeAuxiliaryData(timelineOverrideColorProperty);
     };

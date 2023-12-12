@@ -212,7 +212,7 @@ void McuSupportPlugin::extensionsInitialized()
 {
     ProjectExplorer::DeviceManager::instance()->addDevice(McuSupportDevice::create());
 
-    connect(KitManager::instance(), &KitManager::kitsLoaded, [this]() {
+    connect(KitManager::instance(), &KitManager::kitsLoaded, [this] {
         McuKitManager::removeOutdatedKits();
         McuKitManager::createAutomaticKits(dd->m_settingsHandler);
         McuKitManager::fixExistingKits(dd->m_settingsHandler);

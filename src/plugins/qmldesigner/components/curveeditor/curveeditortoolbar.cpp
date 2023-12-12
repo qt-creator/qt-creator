@@ -75,16 +75,16 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
     m_splineAction = addAction(Theme::iconFromName(Theme::bezier_medium), tr(m_splineLabel));
     m_unifyAction = addAction(Theme::iconFromName(Theme::unify_medium), tr(m_unifyLabel));
 
-    auto setLinearInterpolation = [this]() {
+    auto setLinearInterpolation = [this] {
         emit interpolationClicked(Keyframe::Interpolation::Linear);
     };
-    auto setStepInterpolation = [this]() {
+    auto setStepInterpolation = [this] {
         emit interpolationClicked(Keyframe::Interpolation::Step);
     };
-    auto setSplineInterpolation = [this]() {
+    auto setSplineInterpolation = [this] {
         emit interpolationClicked(Keyframe::Interpolation::Bezier);
     };
-    auto toggleUnifyKeyframe = [this]() {
+    auto toggleUnifyKeyframe = [this] {
         emit unifyClicked();
     };
 
@@ -170,7 +170,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
                                  tr("Zoom Out"),
                                  QKeySequence(QKeySequence::ZoomOut));
 
-    connect(zoomOut, &QAction::triggered, [this]() {
+    connect(zoomOut, &QAction::triggered, [this] {
         m_zoomSlider->setValue(m_zoomSlider->value() - m_zoomSlider->pageStep());
     });
 
@@ -179,7 +179,7 @@ CurveEditorToolBar::CurveEditorToolBar(CurveEditorModel *model, QWidget* parent)
                                 tr("Zoom In"),
                                 QKeySequence(QKeySequence::ZoomIn));
 
-    connect(zoomIn, &QAction::triggered, [this]() {
+    connect(zoomIn, &QAction::triggered, [this] {
         m_zoomSlider->setValue(m_zoomSlider->value() + m_zoomSlider->pageStep());
     });
 

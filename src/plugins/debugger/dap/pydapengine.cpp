@@ -91,7 +91,7 @@ public:
         m_timer = new QTimer(this);
         m_timer->setInterval(100);
 
-        connect(m_timer, &QTimer::timeout, this, [this]() {
+        connect(m_timer, &QTimer::timeout, this, [this] {
             m_socket.connectToHost(m_hostName, m_port);
             m_socket.waitForConnected();
 

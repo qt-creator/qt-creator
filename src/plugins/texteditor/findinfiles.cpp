@@ -154,7 +154,7 @@ QWidget *FindInFiles::createConfigWidget()
             for (const QString &dir: legacyHistory)
                 completer->addEntry(dir);
         }
-        m_directory->addButton("Current", this, [this]() {
+        m_directory->addButton("Current", this, [this] {
             const IDocument *document = EditorManager::instance()->currentDocument();
             if (!document)
                 return;

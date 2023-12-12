@@ -211,7 +211,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
         if (!qmlRuntime.isEmpty())
             return qmlRuntime;
     }
-    auto hasDeployStep = [this]() {
+    auto hasDeployStep = [this] {
         return target()->activeDeployConfiguration() &&
             !target()->activeDeployConfiguration()->stepList()->isEmpty();
     };

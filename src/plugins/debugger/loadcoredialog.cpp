@@ -253,12 +253,12 @@ void AttachCoreDialog::accepted()
         AsyncTask<ResultType>{[this, copyFileAsync](auto &task) {
                                   task.setConcurrentCallData(copyFileAsync, coreFile());
                               },
-                              [=](const Async<ResultType> &task) { d->coreFileResult = task.result(); },
+                              [this](const Async<ResultType> &task) { d->coreFileResult = task.result(); },
                               CallDoneIf::Success},
         AsyncTask<ResultType>{[this, copyFileAsync](auto &task) {
                                   task.setConcurrentCallData(copyFileAsync, symbolFile());
                               },
-                              [=](const Async<ResultType> &task) { d->symbolFileResult = task.result(); },
+                              [this](const Async<ResultType> &task) { d->symbolFileResult = task.result(); },
                               CallDoneIf::Success}
     };
 

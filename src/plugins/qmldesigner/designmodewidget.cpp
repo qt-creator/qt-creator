@@ -491,7 +491,7 @@ void DesignModeWidget::aboutToShowWorkspaces()
     });
 
     QAction *resetWorkspace = menu->addAction(tr("Reset Active"));
-    connect(resetWorkspace, &QAction::triggered, this, [this]() {
+    connect(resetWorkspace, &QAction::triggered, this, [this] {
         if (m_dockManager->resetWorkspacePreset(m_dockManager->activeWorkspace()->fileName()))
             m_dockManager->reloadActiveWorkspace();
     });

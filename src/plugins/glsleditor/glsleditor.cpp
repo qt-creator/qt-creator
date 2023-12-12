@@ -167,8 +167,7 @@ GlslEditorWidget::GlslEditorWidget()
     connect(&m_updateDocumentTimer, &QTimer::timeout,
             this, &GlslEditorWidget::updateDocumentNow);
 
-    connect(this, &QPlainTextEdit::textChanged,
-            [this]() { m_updateDocumentTimer.start(); });
+    connect(this, &QPlainTextEdit::textChanged, [this] { m_updateDocumentTimer.start(); });
 
     m_outlineCombo = new QComboBox;
     m_outlineCombo->setMinimumContentsLength(22);

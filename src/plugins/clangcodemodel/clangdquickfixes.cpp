@@ -60,7 +60,7 @@ private:
     TextEditor::GenericProposal *handleCodeActionResult(const CodeActionResult &result) override
     {
         auto toOperation =
-            [=](const std::variant<Command, CodeAction> &item) -> QuickFixOperation * {
+            [this](const std::variant<Command, CodeAction> &item) -> QuickFixOperation * {
             if (auto action = std::get_if<CodeAction>(&item)) {
                 const std::optional<QList<Diagnostic>> diagnostics = action->diagnostics();
                 if (!diagnostics.has_value() || diagnostics->isEmpty())

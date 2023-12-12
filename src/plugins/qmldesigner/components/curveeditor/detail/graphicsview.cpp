@@ -410,7 +410,7 @@ void GraphicsView::contextMenuEvent(QContextMenuEvent *event)
     if (event->modifiers() != Qt::NoModifier)
         return;
 
-    auto openStyleEditor = [this]() { m_dialog.show(); };
+    auto openStyleEditor = [this] { m_dialog.show(); };
 
     QMenu menu;
 

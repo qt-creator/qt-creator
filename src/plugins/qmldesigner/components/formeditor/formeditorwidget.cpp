@@ -162,7 +162,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     const QIcon zoomOutIcon = Theme::iconFromName(Theme::Icon::zoomOut_medium);
     const QIcon reloadIcon = Theme::iconFromName(Theme::Icon::reload_medium);
 
-    auto writeZoomLevel = [this]() {
+    auto writeZoomLevel = [this] {
         double level = m_graphicsView->transform().m11();
         if (level == 1.0) {
             m_formEditorView->rootModelNode().removeAuxiliaryData(formeditorZoomProperty);

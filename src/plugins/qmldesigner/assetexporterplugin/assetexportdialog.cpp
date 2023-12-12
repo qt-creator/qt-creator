@@ -91,7 +91,7 @@ AssetExportDialog::AssetExportDialog(const FilePath &exportPath,
     m_exportPath->setPromptDialogTitle(tr("Choose Export File"));
     m_exportPath->setPromptDialogFilter(tr("Metadata file (*.metadata)"));
     m_exportPath->lineEdit()->setReadOnly(true);
-    m_exportPath->addButton(tr("Open"), this, [this]() {
+    m_exportPath->addButton(tr("Open"), this, [this] {
         Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), m_exportPath->filePath());
     });
 
@@ -111,7 +111,7 @@ AssetExportDialog::AssetExportDialog(const FilePath &exportPath,
     m_stackedWidget->addWidget(m_exportLogs);
     switchView(false);
 
-    connect(m_buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, [this]() {
+    connect(m_buttonBox->button(QDialogButtonBox::Cancel), &QPushButton::clicked, [this] {
         m_buttonBox->button(QDialogButtonBox::Cancel)->setEnabled(false);
         m_assetExporter.cancel();
     });
@@ -119,13 +119,13 @@ AssetExportDialog::AssetExportDialog(const FilePath &exportPath,
     m_exportBtn = m_buttonBox->addButton(tr("Export"), QDialogButtonBox::AcceptRole);
     m_exportBtn->setEnabled(false);
     connect(m_exportBtn, &QPushButton::clicked, this, &AssetExportDialog::onExport);
-    connect(&m_filePathModel, &FilePathModel::modelReset, this, [this]() {
+    connect(&m_filePathModel, &FilePathModel::modelReset, this, [this] {
         m_exportProgress->setRange(0, 1000);
         m_exportProgress->setValue(0);
         m_exportBtn->setEnabled(true);
     });
 
-    connect(m_buttonBox->button(QDialogButtonBox::Close), &QPushButton::clicked, [this]() {
+    connect(m_buttonBox->button(QDialogButtonBox::Close), &QPushButton::clicked, [this] {
         close();
     });
     m_buttonBox->button(QDialogButtonBox::Close)->setVisible(false);

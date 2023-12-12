@@ -193,7 +193,7 @@ void KeyframeItem::setKeyframe(const Keyframe &keyframe)
     m_frame = keyframe;
 
     if (needsConnection) {
-        auto updatePosition = [this]() { this->updatePosition(true); };
+        auto updatePosition = [this] { this->updatePosition(true); };
         connect(this, &QGraphicsObject::xChanged, updatePosition);
         connect(this, &QGraphicsObject::yChanged, updatePosition);
     }
@@ -201,7 +201,7 @@ void KeyframeItem::setKeyframe(const Keyframe &keyframe)
     if (m_frame.hasLeftHandle()) {
         if (!m_left) {
             m_left = new HandleItem(this, HandleItem::Slot::Left);
-            auto updateLeftHandle = [this]() { updateHandle(m_left); };
+            auto updateLeftHandle = [this] { updateHandle(m_left); };
             connect(m_left, &QGraphicsObject::xChanged, updateLeftHandle);
             connect(m_left, &QGraphicsObject::yChanged, updateLeftHandle);
         }
@@ -214,7 +214,7 @@ void KeyframeItem::setKeyframe(const Keyframe &keyframe)
     if (m_frame.hasRightHandle()) {
         if (!m_right) {
             m_right = new HandleItem(this, HandleItem::Slot::Right);
-            auto updateRightHandle = [this]() { updateHandle(m_right); };
+            auto updateRightHandle = [this] { updateHandle(m_right); };
             connect(m_right, &QGraphicsObject::xChanged, updateRightHandle);
             connect(m_right, &QGraphicsObject::yChanged, updateRightHandle);
         }

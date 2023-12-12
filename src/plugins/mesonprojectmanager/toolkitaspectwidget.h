@@ -44,7 +44,7 @@ private:
 
     void refresh() override
     {
-        const auto id = [this]() {
+        const auto id = [this] {
             if (m_type == ToolType::Meson)
                 return MesonToolKitAspect::mesonToolId(m_kit);
             return NinjaToolKitAspect::ninjaToolId(m_kit);

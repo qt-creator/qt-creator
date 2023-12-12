@@ -119,7 +119,7 @@ PerfProfilerTraceManager::PerfProfilerTraceManager()
             &m_reparseTimer, QOverload<>::of(&QTimer::start));
 
     connect(&m_reparseTimer, &QTimer::timeout,
-            this, [this]() { restrictByFilter(rangeAndThreadFilter(traceStart(), traceEnd())); });
+            this, [this] { restrictByFilter(rangeAndThreadFilter(traceStart(), traceEnd())); });
 
     resetAttributes();
 }

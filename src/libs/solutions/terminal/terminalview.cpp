@@ -119,7 +119,7 @@ TerminalView::TerminalView(QWidget *parent)
     setupSurface();
     setFont(QFont(defaultFontFamily(), defaultFontSize()));
 
-    connect(&d->m_cursorBlinkTimer, &QTimer::timeout, this, [this]() {
+    connect(&d->m_cursorBlinkTimer, &QTimer::timeout, this, [this] {
         if (hasFocus())
             d->m_cursorBlinkState = !d->m_cursorBlinkState;
         else
@@ -140,7 +140,7 @@ TerminalView::TerminalView(QWidget *parent)
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-    connect(&d->m_flushDelayTimer, &QTimer::timeout, this, [this]() { flushVTerm(true); });
+    connect(&d->m_flushDelayTimer, &QTimer::timeout, this, [this] { flushVTerm(true); });
 
     connect(&d->m_scrollTimer, &QTimer::timeout, this, [this] {
         if (d->m_scrollDirection < 0)

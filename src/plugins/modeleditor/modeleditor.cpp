@@ -307,25 +307,25 @@ void ModelEditor::init()
     toolbarLayout->addStretch(1);
 
     toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_RESET,
-                                                        [this]() { resetZoom(); },
+                                                        [this] { resetZoom(); },
                                                         d->toolbar));
     toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_IN,
-                                                        [this]() { zoomIn(); },
+                                                        [this] { zoomIn(); },
                                                         d->toolbar));
     toolbarLayout->addWidget(createToolbarCommandButton(Core::Constants::ZOOM_OUT,
-                                                        [this]() { zoomOut(); },
+                                                        [this] { zoomOut(); },
                                                         d->toolbar));
     toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_PACKAGE,
-                                                        [this]() { onAddPackage(); },
+                                                        [this] { onAddPackage(); },
                                                         d->toolbar));
     toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_COMPONENT,
-                                                        [this]() { onAddComponent(); },
+                                                        [this] { onAddComponent(); },
                                                         d->toolbar));
     toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_CLASS,
-                                                        [this]() { onAddClass(); },
+                                                        [this] { onAddClass(); },
                                                         d->toolbar));
     toolbarLayout->addWidget(createToolbarCommandButton(Constants::ACTION_ADD_CANVAS_DIAGRAM,
-                                                        [this]() { onAddCanvasDiagram(); },
+                                                        [this] { onAddCanvasDiagram(); },
                                                         d->toolbar));
     toolbarLayout->addSpacing(20);
 
@@ -871,7 +871,7 @@ void ModelEditor::onAddPackage()
 
     qmt::MPackage *package = documentController->createNewPackage(d->modelTreeViewServant->selectedPackage());
     d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->indexOf(package));
-    QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
+    QTimer::singleShot(0, this, [this] { onEditSelectedElement(); });
 }
 
 void ModelEditor::onAddComponent()
@@ -880,7 +880,7 @@ void ModelEditor::onAddComponent()
 
     qmt::MComponent *component = documentController->createNewComponent(d->modelTreeViewServant->selectedPackage());
     d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->indexOf(component));
-    QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
+    QTimer::singleShot(0, this, [this] { onEditSelectedElement(); });
 }
 
 void ModelEditor::onAddClass()
@@ -889,7 +889,7 @@ void ModelEditor::onAddClass()
 
     qmt::MClass *klass = documentController->createNewClass(d->modelTreeViewServant->selectedPackage());
     d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->indexOf(klass));
-    QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
+    QTimer::singleShot(0, this, [this] { onEditSelectedElement(); });
 }
 
 void ModelEditor::onAddCanvasDiagram()
@@ -898,7 +898,7 @@ void ModelEditor::onAddCanvasDiagram()
 
     qmt::MDiagram *diagram = documentController->createNewCanvasDiagram(d->modelTreeViewServant->selectedPackage());
     d->modelTreeView->selectFromSourceModelIndex(documentController->treeModel()->indexOf(diagram));
-    QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
+    QTimer::singleShot(0, this, [this] { onEditSelectedElement(); });
 }
 
 void ModelEditor::onCurrentEditorChanged(Core::IEditor *editor)
@@ -987,7 +987,7 @@ void ModelEditor::onNewElementCreated(qmt::DElement *element, qmt::MDiagram *dia
         documentController->diagramsManager()->diagramSceneModel(diagram)->selectElement(element);
         qmt::MElement *melement = documentController->modelController()->findElement(element->modelUid());
         if (!(melement && melement->flags().testFlag(qmt::MElement::ReverseEngineered)))
-            QTimer::singleShot(0, this, [this]() { onEditSelectedElement(); });
+            QTimer::singleShot(0, this, [this] { onEditSelectedElement(); });
     }
 }
 

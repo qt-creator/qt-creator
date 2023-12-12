@@ -96,7 +96,7 @@ void ToolKitAspectWidget::loadTools()
 
 void ToolKitAspectWidget::setToDefault()
 {
-    const MesonTools::Tool_t autoDetected = [this]() {
+    const MesonTools::Tool_t autoDetected = [this] {
         if (m_type == ToolType::Meson)
             return std::dynamic_pointer_cast<ToolWrapper>(MesonTools::mesonWrapper());
         return std::dynamic_pointer_cast<ToolWrapper>(MesonTools::ninjaWrapper());

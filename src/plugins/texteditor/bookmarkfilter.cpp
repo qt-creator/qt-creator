@@ -31,7 +31,7 @@ LocatorMatcherTasks BookmarkFilter::matchers()
 
     Storage<LocatorStorage> storage;
 
-    const auto onSetup = [=] { storage->reportOutput(match(storage->input())); };
+    const auto onSetup = [this, storage] { storage->reportOutput(match(storage->input())); };
     return {{Sync(onSetup), storage}};
 }
 

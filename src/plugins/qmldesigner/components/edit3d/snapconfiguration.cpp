@@ -235,7 +235,7 @@ void SnapConfiguration::setScaleInt(double value)
 
 void SnapConfiguration::asyncClose()
 {
-    QTimer::singleShot(0, this, [this]() {
+    QTimer::singleShot(0, this, [this] {
         if (!m_configDialog.isNull() && m_configDialog->isVisible())
             m_configDialog->close();
     });

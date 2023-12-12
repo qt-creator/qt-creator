@@ -78,7 +78,7 @@ IndexWindow::IndexWindow()
     connect(m_indexWidget, &Utils::NavigationTreeView::activated,
             this, [this](const QModelIndex &index) { open(index); });
     connect(m_searchLineEdit, &QLineEdit::returnPressed,
-            m_indexWidget, [this]() { open(m_indexWidget->currentIndex()); });
+            m_indexWidget, [this] { open(m_indexWidget->currentIndex()); });
     layout->addWidget(m_indexWidget);
 
     m_indexWidget->viewport()->installEventFilter(this);

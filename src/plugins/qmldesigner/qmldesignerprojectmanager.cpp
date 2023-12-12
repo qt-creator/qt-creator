@@ -499,7 +499,7 @@ void QmlDesignerProjectManager::generatePreview()
 
 QmlDesignerProjectManager::ImageCacheData *QmlDesignerProjectManager::imageCacheData()
 {
-    std::call_once(imageCacheFlag, [this]() {
+    std::call_once(imageCacheFlag, [this] {
         m_imageCacheData = std::make_unique<ImageCacheData>(m_externalDependencies);
         auto setTargetInImageCache =
             [imageCacheData = m_imageCacheData.get()](ProjectExplorer::Target *target) {

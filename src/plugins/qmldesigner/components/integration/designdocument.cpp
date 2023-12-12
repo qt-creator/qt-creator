@@ -574,7 +574,7 @@ void DesignDocument::deleteSelected()
             return;
     }
 
-    rewriterView()->executeInTransaction("DesignDocument::deleteSelected", [this]() {
+    rewriterView()->executeInTransaction("DesignDocument::deleteSelected", [this] {
         const QList<ModelNode> toDelete = view()->selectedModelNodes();
         for (ModelNode node : toDelete) {
             if (node.isValid() && !node.isRootNode() && QmlObjectNode::isValidQmlObjectNode(node))

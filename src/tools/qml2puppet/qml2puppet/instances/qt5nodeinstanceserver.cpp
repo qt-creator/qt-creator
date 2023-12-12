@@ -216,7 +216,7 @@ void Qt5NodeInstanceServer::savePipelineCacheData()
     if (needWrite) {
         m_pipelineCacheData = pipelineData;
 
-        QTimer::singleShot(0, this, [this]() {
+        QTimer::singleShot(0, this, [this] {
             QFile cacheFile(m_pipelineCacheFile);
 
             // Cache file can grow indefinitely, so let's just purge it every so often.

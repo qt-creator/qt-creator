@@ -16,30 +16,30 @@ void MultiFileDownloader::setDownloader(FileDownloader *downloader)
 {
     m_downloader = downloader;
 
-    QObject::connect(this, &MultiFileDownloader::downloadStarting, [this]() {
+    QObject::connect(this, &MultiFileDownloader::downloadStarting, [this] {
         m_nextFile = 0;
         if (m_files.length() > 0)
             m_downloader->start();
     });
 
-    QObject::connect(m_downloader, &FileDownloader::progressChanged, this, [this]() {
+    QObject::connect(m_downloader, &FileDownloader::progressChanged, this, [this] {
         double curProgress = m_downloader->progress() / 100.0;
         double totalProgress = (m_nextFile + curProgress) / m_files.size();
         m_progress = totalProgress * 100;
         emit progressChanged();
     });
 
-    QObject::connect(m_downloader, &FileDownloader::downloadFailed, this, [this]() {
+    QObject::connect(m_downloader, &FileDownloader::downloadFailed, this, [this] {
         m_failed = true;
         emit downloadFailed();
     });
 
-    QObject::connect(m_downloader, &FileDownloader::downloadCanceled, this, [this]() {
+    QObject::connect(m_downloader, &FileDownloader::downloadCanceled, this, [this] {
         m_canceled = true;
         emit downloadCanceled();
     });
 
-    QObject::connect(m_downloader, &FileDownloader::finishedChanged, this, [this]() {
+    QObject::connect(m_downloader, &FileDownloader::finishedChanged, this, [this] {
         switchToNextFile();
     });
 }

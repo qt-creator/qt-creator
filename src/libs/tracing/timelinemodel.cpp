@@ -178,7 +178,7 @@ TimelineModel::TimelineModel(TimelineModelAggregator *parent) :
     connect(this, &TimelineModel::expandedChanged, this, &TimelineModel::rowCountChanged);
     connect(this, &TimelineModel::contentChanged, this, &TimelineModel::rowCountChanged);
     connect(this, &TimelineModel::contentChanged,
-            this, [this]() { emit expandedRowHeightChanged(-1, -1); });
+            this, [this] { emit expandedRowHeightChanged(-1, -1); });
 }
 
 TimelineModel::~TimelineModel()

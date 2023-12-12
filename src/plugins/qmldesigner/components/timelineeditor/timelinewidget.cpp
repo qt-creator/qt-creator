@@ -238,7 +238,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
 
     connectToolbar();
 
-    auto setScrollOffset = [this]() { graphicsScene()->setScrollOffset(m_scrollbar->value()); };
+    auto setScrollOffset = [this] { graphicsScene()->setScrollOffset(m_scrollbar->value()); };
     connect(m_scrollbar, &QSlider::valueChanged, this, setScrollOffset);
 
     connect(graphicsScene(),
@@ -246,7 +246,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
             this,
             [this](const QString &message) { m_statusBar->setText(message); });
 
-    connect(m_addButton, &QPushButton::clicked, this, [this]() {
+    connect(m_addButton, &QPushButton::clicked, this, [this] {
         m_timelineView->addNewTimelineDialog();
     });
 
@@ -268,9 +268,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     auto playAnimation = [this](QVariant frame) { graphicsScene()->setCurrentFrame(qRound(frame.toDouble())); };
     connect(m_playbackAnimation, &QVariantAnimation::valueChanged, playAnimation);
 
-    auto updatePlaybackLoopValues = [this]() {
-        updatePlaybackValues();
-    };
+    auto updatePlaybackLoopValues = [this] { updatePlaybackValues(); };
     connect(graphicsScene()->layoutRuler(), &TimelineRulerSectionItem::playbackLoopValuesChanged, updatePlaybackLoopValues);
 
     auto setPlaybackState = [this](QAbstractAnimation::State newState,
@@ -279,7 +277,7 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     };
     connect(m_playbackAnimation, &QVariantAnimation::stateChanged, setPlaybackState);
 
-    auto onFinish = [this]() { graphicsScene()->setCurrentFrame(m_playbackAnimation->startValue().toInt()); };
+    auto onFinish = [this] { graphicsScene()->setCurrentFrame(m_playbackAnimation->startValue().toInt()); };
     connect(m_playbackAnimation, &QVariantAnimation::finished, onFinish);
 
     TimeLineNS::TimelineScrollAreaSupport::support(m_graphicsView, m_scrollbar);
@@ -297,22 +295,22 @@ void TimelineWidget::connectToolbar()
     auto setZoomFactor = [this](int val) { m_graphicsScene->setZoom(val); };
     connect(m_toolbar, &TimelineToolBar::scaleFactorChanged, setZoomFactor);
 
-    auto setToFirstFrame = [this]() {
+    auto setToFirstFrame = [this] {
         graphicsScene()->setCurrentFrame(graphicsScene()->startFrame());
     };
     connect(m_toolbar, &TimelineToolBar::toFirstFrameTriggered, setToFirstFrame);
 
-    auto setToLastFrame = [this]() {
+    auto setToLastFrame = [this] {
         graphicsScene()->setCurrentFrame(graphicsScene()->endFrame());
     };
     connect(m_toolbar, &TimelineToolBar::toLastFrameTriggered, setToLastFrame);
 
-    auto setToPreviousFrame = [this]() {
+    auto setToPreviousFrame = [this] {
         graphicsScene()->setCurrentFrame(adjacentFrame(&previous));
     };
     connect(m_toolbar, &TimelineToolBar::previousFrameTriggered, setToPreviousFrame);
 
-    auto setToNextFrame = [this]() { graphicsScene()->setCurrentFrame(adjacentFrame(&next)); };
+    auto setToNextFrame = [this] { graphicsScene()->setCurrentFrame(adjacentFrame(&next)); };
     connect(m_toolbar, &TimelineToolBar::nextFrameTriggered, setToNextFrame);
 
     auto setCurrentFrame = [this](int frame) { graphicsScene()->setCurrentFrame(frame); };

@@ -54,7 +54,7 @@ BindingEditorWidget::BindingEditorWidget()
                                        ? tr("Meta+Space")
                                        : tr("Ctrl+Space")));
 
-    connect(m_completionAction, &QAction::triggered, this, [this]() {
+    connect(m_completionAction, &QAction::triggered, this, [this] {
         invokeAssist(TextEditor::Completion);
     });
 }

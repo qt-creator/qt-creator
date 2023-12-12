@@ -139,7 +139,7 @@ WorkspaceModel::WorkspaceModel(QObject *)
         if (!dockManager)
             return false;
 
-        connect(dockManager, &ADS::DockManager::workspaceListChanged, this, [this]() {
+        connect(dockManager, &ADS::DockManager::workspaceListChanged, this, [this] {
             beginResetModel();
             endResetModel();
         });
@@ -323,7 +323,7 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
 
     auto editorManager = Core::EditorManager::instance();
 
-    connect(editorManager, &Core::EditorManager::documentClosed, this, [this]() {
+    connect(editorManager, &Core::EditorManager::documentClosed, this, [this] {
         if (isInDesignMode() && Core::DocumentModel::entryCount() == 0) {
             QTimer::singleShot(0,
                                Core::ModeManager::instance(),
@@ -340,7 +340,7 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
         });
     });
 
-    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this]() {
+    connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeChanged, this, [this] {
         emit isInDesignModeChanged();
         emit isInEditModeChanged();
         emit isInSessionModeChanged();
@@ -381,7 +381,7 @@ void ToolBarBackend::registerDeclarativeType()
 void ToolBarBackend::triggerModeChange()
 {
     QmlDesignerPlugin::emitUsageStatistics(Constants::EVENT_TOOLBAR_MODE_CHANGE);
-    QTimer::singleShot(0, this, [this]() { //Do not trigger mode change directly from QML
+    QTimer::singleShot(0, this, [this] { //Do not trigger mode change directly from QML
         bool qmlFileOpen = false;
 
         if (!projectOpened()) {

@@ -885,7 +885,7 @@ void GraphicsScene::addChild(BaseItem *item)
 {
     if (!m_baseItems.contains(item)) {
         connect(item, &BaseItem::selectedStateChanged, this, &GraphicsScene::selectionChanged);
-        connect(item, &BaseItem::openToDifferentView, this, [=](BaseItem *item){
+        connect(item, &BaseItem::openToDifferentView, this, [this](BaseItem *item) {
             emit openStateView(item);
         }, Qt::QueuedConnection);
         m_baseItems << item;

@@ -143,7 +143,7 @@ RichTextEditor::RichTextEditor(QWidget *parent)
             this, &RichTextEditor::cursorPositionChanged);
     connect(m_textEdit, &QTextEdit::textChanged,
             this, &RichTextEditor::onTextChanged);
-    connect(m_linkDialog, &QDialog::accepted, [this]() {
+    connect(m_linkDialog, &QDialog::accepted, [this] {
         QTextCharFormat oldFormat = m_textEdit->textCursor().charFormat();
 
         QTextCursor tcursor = m_textEdit->textCursor();
@@ -392,7 +392,7 @@ void RichTextEditor::setupTextActions()
 
 void RichTextEditor::setupImageActions()
 {
-    auto insertImage = [this]() {
+    auto insertImage = [this] {
         QFileDialog dialog(this);
         dialog.setFileMode(QFileDialog::ExistingFile);
         dialog.setWindowTitle(tr("Select Image"));
@@ -417,7 +417,7 @@ void RichTextEditor::setupImageActions()
 void RichTextEditor::setupHyperlinkActions()
 {
     const QIcon bulletIcon(getIcon(Theme::Icon::actionIconBinding));
-    m_actionHyperlink = m_toolBar->addAction(bulletIcon, tr("Hyperlink Settings"), [this]() {
+    m_actionHyperlink = m_toolBar->addAction(bulletIcon, tr("Hyperlink Settings"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         QTextCharFormat linkFormat = cursor.charFormat();
         if (linkFormat.isAnchor()) {
@@ -440,25 +440,25 @@ void RichTextEditor::setupHyperlinkActions()
 void RichTextEditor::setupAlignActions()
 {
     const QIcon leftIcon(getIcon(Theme::Icon::textAlignLeft));
-    m_actionAlignLeft = m_toolBar->addAction(leftIcon, tr("&Left"), [this]() { m_textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute); });
+    m_actionAlignLeft = m_toolBar->addAction(leftIcon, tr("&Left"), [this] { m_textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute); });
     m_actionAlignLeft->setShortcut(Qt::CTRL | Qt::Key_L);
     m_actionAlignLeft->setCheckable(true);
     m_actionAlignLeft->setPriority(QAction::LowPriority);
 
     const QIcon centerIcon(getIcon(Theme::Icon::textAlignCenter));
-    m_actionAlignCenter = m_toolBar->addAction(centerIcon, tr("C&enter"), [this]() { m_textEdit->setAlignment(Qt::AlignHCenter); });
+    m_actionAlignCenter = m_toolBar->addAction(centerIcon, tr("C&enter"), [this] { m_textEdit->setAlignment(Qt::AlignHCenter); });
     m_actionAlignCenter->setShortcut(Qt::CTRL | Qt::Key_E);
     m_actionAlignCenter->setCheckable(true);
     m_actionAlignCenter->setPriority(QAction::LowPriority);
 
     const QIcon rightIcon(getIcon(Theme::Icon::textAlignRight));
-    m_actionAlignRight = m_toolBar->addAction(rightIcon, tr("&Right"), [this]() { m_textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute); });
+    m_actionAlignRight = m_toolBar->addAction(rightIcon, tr("&Right"), [this] { m_textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute); });
     m_actionAlignRight->setShortcut(Qt::CTRL | Qt::Key_R);
     m_actionAlignRight->setCheckable(true);
     m_actionAlignRight->setPriority(QAction::LowPriority);
 
     const QIcon fillIcon(getIcon(Theme::Icon::textFullJustification));
-    m_actionAlignJustify = m_toolBar->addAction(fillIcon, tr("&Justify"), [this]() { m_textEdit->setAlignment(Qt::AlignJustify); });
+    m_actionAlignJustify = m_toolBar->addAction(fillIcon, tr("&Justify"), [this] { m_textEdit->setAlignment(Qt::AlignJustify); });
     m_actionAlignJustify->setShortcut(Qt::CTRL | Qt::Key_J);
     m_actionAlignJustify->setCheckable(true);
     m_actionAlignJustify->setPriority(QAction::LowPriority);
@@ -515,7 +515,7 @@ void RichTextEditor::setupFontActions()
 {
     QPixmap colorBox(drawColorBox(m_textEdit->textColor(), m_tableBar->iconSize()));
 
-    m_actionTextColor = m_toolBar->addAction(colorBox, tr("&Color..."), [this]() {
+    m_actionTextColor = m_toolBar->addAction(colorBox, tr("&Color..."), [this] {
         QColor col = QColorDialog::getColor(m_textEdit->textColor(), this);
         if (!col.isValid())
             return;
@@ -580,7 +580,7 @@ void RichTextEditor::setupTableActions()
 //table bar:
 
     const QIcon createTableIcon(getIcon(Theme::Icon::addTable));
-    m_actionCreateTable = m_tableBar->addAction(createTableIcon, tr("Create Table"), [this]() {
+    m_actionCreateTable = m_tableBar->addAction(createTableIcon, tr("Create Table"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         cursorEditBlock(cursor, [&] () {
             //format table cells to look a bit better:
@@ -598,7 +598,7 @@ void RichTextEditor::setupTableActions()
     m_actionCreateTable->setCheckable(false);
 
     const QIcon removeTableIcon(getIcon(Theme::Icon::deleteTable));
-    m_actionRemoveTable = m_tableBar->addAction(removeTableIcon, tr("Remove Table"), [this]() {
+    m_actionRemoveTable = m_tableBar->addAction(removeTableIcon, tr("Remove Table"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         if (QTextTable *currentTable = m_textEdit->textCursor().currentTable()) {
             cursorEditBlock(cursor, [&] () {
@@ -611,7 +611,7 @@ void RichTextEditor::setupTableActions()
     m_tableBar->addSeparator();
 
     const QIcon addRowIcon(getIcon(Theme::Icon::addRowAfter)); //addRowAfter
-    m_actionAddRow = m_tableBar->addAction(addRowIcon, tr("Add Row"), [this]() {
+    m_actionAddRow = m_tableBar->addAction(addRowIcon, tr("Add Row"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         if (QTextTable *currentTable = m_textEdit->textCursor().currentTable()) {
             cursorEditBlock(cursor, [&] () {
@@ -622,7 +622,7 @@ void RichTextEditor::setupTableActions()
     m_actionAddRow->setCheckable(false);
 
     const QIcon addColumnIcon(getIcon(Theme::Icon::addColumnAfter)); //addColumnAfter
-    m_actionAddColumn = m_tableBar->addAction(addColumnIcon, tr("Add Column"), [this]() {
+    m_actionAddColumn = m_tableBar->addAction(addColumnIcon, tr("Add Column"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         if (QTextTable *currentTable = m_textEdit->textCursor().currentTable()) {
             cursorEditBlock(cursor, [&] () {
@@ -633,7 +633,7 @@ void RichTextEditor::setupTableActions()
     m_actionAddColumn->setCheckable(false);
 
     const QIcon removeRowIcon(getIcon(Theme::Icon::deleteRow));
-    m_actionRemoveRow = m_tableBar->addAction(removeRowIcon, tr("Remove Row"), [this]() {
+    m_actionRemoveRow = m_tableBar->addAction(removeRowIcon, tr("Remove Row"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
             cursorEditBlock(cursor, [&] () {
@@ -657,7 +657,7 @@ void RichTextEditor::setupTableActions()
     m_actionRemoveRow->setCheckable(false);
 
     const QIcon removeColumnIcon(getIcon(Theme::Icon::deleteColumn));
-    m_actionRemoveColumn = m_tableBar->addAction(removeColumnIcon, tr("Remove Column"), [this]() {
+    m_actionRemoveColumn = m_tableBar->addAction(removeColumnIcon, tr("Remove Column"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
             cursorEditBlock(cursor, [&] () {
@@ -681,7 +681,7 @@ void RichTextEditor::setupTableActions()
     m_tableBar->addSeparator();
 
     const QIcon mergeCellsIcon(getIcon(Theme::Icon::mergeCells));
-    m_actionMergeCells = m_tableBar->addAction(mergeCellsIcon, tr("Merge Cells"), [this]() {
+    m_actionMergeCells = m_tableBar->addAction(mergeCellsIcon, tr("Merge Cells"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
             if (cursor.hasSelection()) {
@@ -694,7 +694,7 @@ void RichTextEditor::setupTableActions()
     m_actionMergeCells->setCheckable(false);
 
     const QIcon splitRowIcon(getIcon(Theme::Icon::splitRows));
-    m_actionSplitRow = m_tableBar->addAction(splitRowIcon, tr("Split Row"), [this]() {
+    m_actionSplitRow = m_tableBar->addAction(splitRowIcon, tr("Split Row"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
             cursorEditBlock(cursor, [&] () {
@@ -707,7 +707,7 @@ void RichTextEditor::setupTableActions()
     m_actionSplitRow->setCheckable(false);
 
     const QIcon splitColumnIcon(getIcon(Theme::Icon::splitColumns));
-    m_actionSplitColumn = m_tableBar->addAction(splitColumnIcon, tr("Split Column"), [this]() {
+    m_actionSplitColumn = m_tableBar->addAction(splitColumnIcon, tr("Split Column"), [this] {
         QTextCursor cursor = m_textEdit->textCursor();
         if (QTextTable *currentTable = cursor.currentTable()) {
             cursorEditBlock(cursor, [&] () {

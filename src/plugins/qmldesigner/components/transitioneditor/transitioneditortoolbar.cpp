@@ -182,7 +182,7 @@ void TransitionEditorToolBar::createLeftControls()
     m_transitionComboBox = new QComboBox(this);
     addWidgetToGroup(m_transitionComboBox);
 
-    connect(m_transitionComboBox, &QComboBox::currentTextChanged, this, [this]() {
+    connect(m_transitionComboBox, &QComboBox::currentTextChanged, this, [this] {
         emit currentTransitionChanged(m_transitionComboBox->currentText());
     });
 }
@@ -242,7 +242,7 @@ void TransitionEditorToolBar::createRightControls()
                                  tr("Zoom Out"),
                                  QKeySequence(QKeySequence::ZoomOut));
 
-    connect(zoomOut, &QAction::triggered, [this]() {
+    connect(zoomOut, &QAction::triggered, [this] {
         m_scale->setValue(m_scale->value() - m_scale->pageStep());
     });
     addAction(zoomOut);
@@ -269,7 +269,7 @@ void TransitionEditorToolBar::createRightControls()
                                 tr("Zoom In"),
                                 QKeySequence(QKeySequence::ZoomIn));
 
-    connect(zoomIn, &QAction::triggered, [this]() {
+    connect(zoomIn, &QAction::triggered, [this] {
         m_scale->setValue(m_scale->value() + m_scale->pageStep());
     });
     addAction(zoomIn);
@@ -281,7 +281,7 @@ void TransitionEditorToolBar::createRightControls()
     m_duration = createToolBarLineEdit(this);
     addWidget(m_duration);
 
-    auto emitEndChanged = [this]() { emit durationChanged(m_duration->text().toInt()); };
+    auto emitEndChanged = [this] { emit durationChanged(m_duration->text().toInt()); };
     connect(m_duration, &QLineEdit::editingFinished, emitEndChanged);
 
     addSpacing(5);

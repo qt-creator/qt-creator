@@ -74,7 +74,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     setObjectName("QmlProfiler.Timeline.Dock");
 
     d->m_zoomControl = new Timeline::TimelineZoomControl(this);
-    modelManager->registerFeatures(0, QmlProfilerModelManager::QmlEventLoader(), [this]() {
+    modelManager->registerFeatures(0, QmlProfilerModelManager::QmlEventLoader(), [this] {
         if (d->m_suspendedModels.isEmpty()) {
             // Temporarily remove the models, while we're changing them
             d->m_suspendedModels = d->m_modelProxy->models();
@@ -90,7 +90,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
         d->m_zoomControl->setRange(start, start + (end - start) / 10);
         d->m_modelProxy->setModels(d->m_suspendedModels);
         d->m_suspendedModels.clear();
-    }, [this]() {
+    }, [this] {
         d->m_zoomControl->clear();
         if (!d->m_suspendedModels.isEmpty()) {
             d->m_modelProxy->setModels(d->m_suspendedModels);

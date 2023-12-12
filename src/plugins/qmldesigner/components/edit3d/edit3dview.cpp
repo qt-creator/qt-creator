@@ -1054,7 +1054,7 @@ void Edit3DView::createEdit3DActions()
         if (!m_snapConfiguration) {
             m_snapConfiguration = new SnapConfiguration(this);
             connect(m_snapConfiguration.data(), &SnapConfiguration::posIntChanged,
-                    this, [this]() {
+                    this, [this] {
                 // Notify every change of position interval as that causes visible changes in grid
                 rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty,
                                                  m_snapConfiguration->posInt());

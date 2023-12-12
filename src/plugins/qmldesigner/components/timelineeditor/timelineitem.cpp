@@ -46,7 +46,7 @@ TimelineFrameHandle::TimelineFrameHandle(TimelineItem *parent)
 
     m_timer.setSingleShot(true);
     m_timer.setInterval(15);
-    QObject::connect(&m_timer, &QTimer::timeout, [this]() {
+    QObject::connect(&m_timer, &QTimer::timeout, [this] {
         if (QApplication::mouseButtons() == Qt::LeftButton)
             scrollOutOfBounds();
     });

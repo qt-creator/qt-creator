@@ -166,7 +166,7 @@ public:
         connect(m_clientInterface, &InterfaceController::messageReceived, q, &Client::handleMessage);
         connect(m_clientInterface, &InterfaceController::error, q, &Client::setError);
         connect(m_clientInterface, &InterfaceController::finished, q, &Client::finished);
-        connect(m_clientInterface, &InterfaceController::started, this, [this]() {
+        connect(m_clientInterface, &InterfaceController::started, this, [this] {
             LanguageClientManager::clientStarted(q);
         });
         connect(Core::EditorManager::instance(),
@@ -1479,7 +1479,7 @@ void Client::setCurrentProject(ProjectExplorer::Project *project)
         d->m_project->disconnect(this);
     d->m_project = project;
     if (d->m_project) {
-        connect(d->m_project, &ProjectExplorer::Project::destroyed, this, [this]() {
+        connect(d->m_project, &ProjectExplorer::Project::destroyed, this, [this] {
             // the project of the client should already be null since we expect the session and
             // the language client manager to reset it before it gets deleted.
             QTC_ASSERT(d->m_project == nullptr, projectClosed(d->m_project));

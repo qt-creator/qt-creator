@@ -198,7 +198,7 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
 
     connectToolbar();
 
-    auto setScrollOffset = [this]() { graphicsScene()->setScrollOffset(m_scrollbar->value()); };
+    auto setScrollOffset = [this] { graphicsScene()->setScrollOffset(m_scrollbar->value()); };
     connect(m_scrollbar, &QSlider::valueChanged, this, setScrollOffset);
 
     connect(graphicsScene(),
@@ -206,7 +206,7 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
             this,
             [this](const QString &message) { m_statusBar->setText(message); });
 
-    connect(m_addButton, &QPushButton::clicked, this, [this]() {
+    connect(m_addButton, &QPushButton::clicked, this, [this] {
         m_transitionEditorView->addNewTransition();
     });
 

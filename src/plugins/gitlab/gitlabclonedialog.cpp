@@ -103,7 +103,7 @@ GitLabCloneDialog::GitLabCloneDialog(const Project &project, QWidget *parent)
     connect(m_cloneButton, &QPushButton::clicked, this, &GitLabCloneDialog::cloneProject);
     connect(m_cancelButton, &QPushButton::clicked,
             this, &GitLabCloneDialog::cancel);
-    connect(this, &QDialog::rejected, this, [this]() {
+    connect(this, &QDialog::rejected, this, [this] {
         if (m_commandRunning) {
             cancel();
             QApplication::restoreOverrideCursor();
