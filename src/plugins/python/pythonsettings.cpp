@@ -819,7 +819,7 @@ void PythonSettings::addKitsForInterpreter(const Interpreter &interpreter)
             [interpreter](Kit *k) {
                 k->setAutoDetected(true);
                 k->setAutoDetectionSource("Python");
-                k->setUnexpandedDisplayName(interpreter.name);
+                k->setUnexpandedDisplayName("%{Python:Name}");
                 setRelevantAspectsToKit(k);
                 PythonKitAspect::setPython(k, interpreter.id);
                 k->setSticky(PythonKitAspect::id(), true);

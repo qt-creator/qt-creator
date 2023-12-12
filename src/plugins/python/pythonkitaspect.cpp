@@ -42,6 +42,10 @@ public:
 
             PythonKitAspect::setPython(m_kit, m_comboBox->currentData().toString());
         });
+        connect(PythonSettings::instance(),
+                &PythonSettings::interpretersChanged,
+                this,
+                &PythonKitAspectImpl::refresh);
     }
 
     void makeReadOnly() override
@@ -59,6 +63,7 @@ public:
             m_comboBox->addItem(interpreter.name, interpreter.id);
 
         updateComboBox(PythonKitAspect::python(m_kit));
+        emit changed(); // we need to emit changed here to update changes in the macro expander
     }
 
     void updateComboBox(const std::optional<Interpreter> &python)
@@ -145,6 +150,25 @@ public:
         if (k->isAspectRelevant(PythonKitAspect::id()) && PythonKitAspect::python(k))
             return {PythonKitAspect::id()};
         return {};
+    }
+
+    void addToMacroExpander(Kit *kit, MacroExpander *expander) const override
+    {
+        QTC_ASSERT(kit, return);
+        expander->registerVariable("Python:Name",
+                                   Tr::tr("Name of Python Interpreter"),
+                                   [kit]() -> QString {
+                                       if (auto python = PythonKitAspect::python(kit))
+                                           return python->name;
+                                       return {};
+                                   });
+        expander->registerVariable("Python:Path",
+                                   Tr::tr("Path to Python Interpreter"),
+                                   [kit]() -> QString {
+                                       if (auto python = PythonKitAspect::python(kit))
+                                           return python->command.toUserOutput();
+                                       return {};
+                                   });
     }
 };
 
