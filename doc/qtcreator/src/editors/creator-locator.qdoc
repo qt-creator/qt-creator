@@ -28,10 +28,10 @@
         \li Select \uicontrol Tools > \uicontrol Locate.
 
         \li Select \uicontrol Edit > \uicontrol {Go to Line}.
-
+        \if defined(qtcreator)
         \li Click the line and column indicator on the
             \l{Using the Editor Toolbar}{editor toolbar}.
-
+        \endif
     \endlist
 
     \section1 Using Locator Filters

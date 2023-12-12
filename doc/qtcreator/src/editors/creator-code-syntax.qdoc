@@ -712,7 +712,9 @@
     \uicontrol {Disable messages for non Qt Quick UI}. You cannot
     enable messages just for non-Qt Quick UI files.
 
+    \if defined(qtcreator)
     \sa {QML Language Server}
+    \endif
 
     \section1 Resetting the Code Model
 

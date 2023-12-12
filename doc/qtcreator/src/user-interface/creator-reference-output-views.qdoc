@@ -224,5 +224,8 @@
         \li Select \uicontrol OK to start parsing.
     \endlist
 
-    \sa {View output}, {Add custom output parsers}
+    \sa {View output}
+    \if defined(qtcreator)
+    \sa {Add custom output parsers}
+    \endif
 */
