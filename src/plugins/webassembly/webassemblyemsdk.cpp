@@ -51,7 +51,9 @@ static QString emSdkEnvOutput(const FilePath &sdkRoot)
         emSdkEnv.setCommand(CommandLine(scriptFile));
     } else {
         // File needs to be source'd, not executed.
-        emSdkEnv.setCommand({sdkRoot.withNewPath("bash"), {"-c", ". " + scriptFile.path()}});
+        CommandLine cmd{sdkRoot.withNewPath("bash"), {"-c"}};
+        cmd.addCommandLineAsSingleArg({".", {scriptFile.path()}});
+        emSdkEnv.setCommand(cmd);
     }
     emSdkEnv.runBlocking();
     const QString result = emSdkEnv.allOutput();
