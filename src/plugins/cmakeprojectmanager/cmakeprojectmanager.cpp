@@ -215,25 +215,18 @@ void CMakeManager::runCMakeWithProfiling(BuildSystem *buildSystem)
     if (ProjectExplorerPlugin::saveModifiedFiles()) {
         // cmakeBuildSystem->runCMakeWithProfiling() below will trigger Target::buildSystemUpdated
         // which will ensure that the "cmake-profile.json" has been created and we can load the viewer
-        std::unique_ptr<QObject> context{new QObject};
-        QObject *pcontext = context.get();
-        QObject::connect(cmakeBuildSystem->target(),
-                         &Target::buildSystemUpdated,
-                         pcontext,
-                         [context = std::move(context)]() mutable {
-                             context.reset();
-                             Core::Command *ctfVisualiserLoadTrace = Core::ActionManager::command(
-                                 "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadTrace");
+        QObject::connect(cmakeBuildSystem->target(), &Target::buildSystemUpdated, this, [] {
+            Core::Command *ctfVisualiserLoadTrace = Core::ActionManager::command(
+                "Analyzer.Menu.StartAnalyzer.CtfVisualizer.LoadTrace");
 
-                             if (ctfVisualiserLoadTrace) {
-                                 auto *action = ctfVisualiserLoadTrace->actionForContext(
-                                     Core::Constants::C_GLOBAL);
-                                 const FilePath file = TemporaryDirectory::masterDirectoryFilePath()
-                                                       / "cmake-profile.json";
-                                 action->setData(file.nativePath());
-                                 emit ctfVisualiserLoadTrace->action()->triggered();
-                             }
-                         });
+            if (ctfVisualiserLoadTrace) {
+                auto *action = ctfVisualiserLoadTrace->actionForContext(Core::Constants::C_GLOBAL);
+                const FilePath file = TemporaryDirectory::masterDirectoryFilePath()
+                                      / "cmake-profile.json";
+                action->setData(file.nativePath());
+                emit ctfVisualiserLoadTrace->action()->triggered();
+            }
+        });
 
         cmakeBuildSystem->runCMakeWithProfiling();
     }
