@@ -46,8 +46,8 @@ public:
         return components;
     }
 
-    static constexpr char totalKey[] = "_total";
-    static constexpr char selfKey[] =  "_self";
+    static constexpr Key totalKey{"_total"};
+    static constexpr Key selfKey{"_self"};
 };
 
 

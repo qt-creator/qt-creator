@@ -166,7 +166,7 @@ public:
     QString query() const { return typedValue<QString>(queryKey); }
     void setQuery(const QString &query) { insert(queryKey, query); }
 
-    void setLimit(int limit) { insert("limit", limit); } // clangd extension
+    void setLimit(int limit) { insert(Key("limit"), limit); } // clangd extension
 
     bool isValid() const override { return contains(queryKey); }
 };

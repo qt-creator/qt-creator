@@ -12,7 +12,7 @@ namespace Copilot {
 
 class SignInConfirmParams : public LanguageServerProtocol::JsonObject
 {
-    static constexpr char userCodeKey[] = "userCode";
+    static constexpr LanguageServerProtocol::Key userCodeKey{"userCode"};
 
 public:
     using JsonObject::JsonObject;
@@ -30,7 +30,7 @@ public:
         : Request(methodName, {userCode})
     {}
     using Request::Request;
-    constexpr static const char methodName[] = "signInConfirm";
+    constexpr static const LanguageServerProtocol::Key methodName{"signInConfirm"};
 };
 
 } // namespace Copilot

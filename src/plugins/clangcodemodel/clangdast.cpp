@@ -18,8 +18,8 @@ using namespace Utils;
 
 namespace ClangCodeModel::Internal {
 
-static constexpr char roleKey[] = "role";
-static constexpr char arcanaKey[] = "arcana";
+static constexpr LanguageServerProtocol::Key roleKey{"role"};
+static constexpr LanguageServerProtocol::Key arcanaKey{"arcana"};
 
 QString ClangdAstNode::role() const { return typedValue<QString>(roleKey); }
 QString ClangdAstNode::kind() const { return typedValue<QString>(kindKey); }

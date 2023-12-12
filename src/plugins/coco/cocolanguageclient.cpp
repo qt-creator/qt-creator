@@ -239,7 +239,7 @@ public:
     void enableCodecoverageSupport()
     {
         JsonObject coverageSupport(QJsonObject{{"codeCoverageSupport", true}});
-        insert("publishDiagnostics", coverageSupport);
+        insert(Key("publishDiagnostics"), coverageSupport);
     }
 };
 
