@@ -273,11 +273,15 @@ void TerminalPane::initActions()
     cmd->setAttribute(Command::CA_UpdateIcon);
 }
 
+static Internal::ShellModel *shellModel()
+{
+    static Internal::ShellModel model;
+    return &model;
+}
+
 void TerminalPane::createShellMenu()
 {
-    const Internal::ShellModel *shellModel = new Internal::ShellModel(&m_shellMenu);
-
-    connect(&m_shellMenu, &QMenu::aboutToShow, &m_shellMenu, [shellModel, this] {
+    connect(&m_shellMenu, &QMenu::aboutToShow, &m_shellMenu, [this] {
         m_shellMenu.clear();
 
         const auto addItems = [this](const QList<Internal::ShellModelItem> &items) {
@@ -292,9 +296,9 @@ void TerminalPane::createShellMenu()
             }
         };
 
-        addItems(shellModel->local());
+        addItems(shellModel()->local());
         m_shellMenu.addSection(Tr::tr("Devices"));
-        addItems(shellModel->remote());
+        addItems(shellModel()->remote());
     });
 }
 
