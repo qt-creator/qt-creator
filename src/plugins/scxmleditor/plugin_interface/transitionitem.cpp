@@ -3,10 +3,7 @@
 
 #include "connectableitem.h"
 #include "cornergrabberitem.h"
-#include "finalstateitem.h"
 #include "graphicsitemprovider.h"
-#include "graphicsscene.h"
-#include "parallelitem.h"
 #include "sceneutils.h"
 #include "scxmldocument.h"
 #include "scxmleditorconstants.h"
