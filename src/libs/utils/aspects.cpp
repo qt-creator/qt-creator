@@ -3393,7 +3393,7 @@ void AspectList::addToLayout(Layouting::LayoutItem &parent)
     scrollArea->setMinimumHeight(100);
     scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-    auto fill = [this, scrollArea]() mutable {
+    auto fill = [this, scrollArea] {
         if (scrollArea->widget())
             delete scrollArea->takeWidget();
 
