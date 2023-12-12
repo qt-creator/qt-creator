@@ -12,7 +12,6 @@
 //#include "qmldesigner/designercore/imagecache/midsizeimagecacheprovider.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
-#include "qqmlcontext.h"
 #include "theme.h"
 
 #include <coreplugin/icore.h>
@@ -30,7 +29,9 @@
 #include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
+#include <QQmlContext>
 #include <QQmlEngine>
+#include <QQuickItem>
 #include <QTimer>
 
 namespace EffectMaker {
@@ -191,6 +192,21 @@ void EffectMakerWidget::initView()
 
     // init the first load of the QML UI elements
     reloadQmlSource();
+}
+
+void EffectMakerWidget::openComposition(const QString &path)
+{
+    m_compositionPath = path;
+
+    if (effectMakerModel()->hasUnsavedChanges())
+        QMetaObject::invokeMethod(quickWidget()->rootObject(), "promptToSaveBeforeOpen");
+    else
+        doOpenComposition();
+}
+
+void EffectMakerWidget::doOpenComposition()
+{
+    effectMakerModel()->openComposition(m_compositionPath);
 }
 
 void EffectMakerWidget::reloadQmlSource()

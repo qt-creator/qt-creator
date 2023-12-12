@@ -39,6 +39,7 @@ public:
     void delayedUpdateModel();
     void updateModel();
     void initView();
+    void openComposition(const QString &path);
 
     StudioQuickWidget *quickWidget() const;
     QPointer<EffectMakerModel> effectMakerModel() const;
@@ -46,6 +47,7 @@ public:
 
     Q_INVOKABLE void addEffectNode(const QString &nodeQenPath);
     Q_INVOKABLE void focusSection(int section);
+    Q_INVOKABLE void doOpenComposition();
     Q_INVOKABLE QRect screenRect() const;
     Q_INVOKABLE QPoint globalPos(const QPoint &point) const;
 
@@ -74,6 +76,7 @@ private:
     };
 
     ImportScanData m_importScan;
+    QString m_compositionPath;
 };
 
 } // namespace EffectMaker

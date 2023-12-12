@@ -7,16 +7,9 @@
 #include "effectmakernodesmodel.h"
 #include "effectmakerwidget.h"
 
-#include "nodeinstanceview.h"
 #include "qmldesignerconstants.h"
 
 #include <coreplugin/icore.h>
-
-#include <QQmlContext>
-#include <QQmlEngine>
-#include <QQuickItem>
-#include <QQuickView>
-#include <QTimer>
 
 namespace EffectMaker {
 
@@ -66,7 +59,7 @@ void EffectMakerView::customNotification([[maybe_unused]] const AbstractView *vi
 {
     if (identifier == "open_effectmaker_composition" && data.count() > 0) {
         const QString compositionPath = data[0].toString();
-        m_widget->effectMakerModel()->openComposition(compositionPath);
+        m_widget->openComposition(compositionPath);
     }
 }
 

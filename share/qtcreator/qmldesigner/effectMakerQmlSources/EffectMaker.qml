@@ -16,6 +16,16 @@ Item {
     property int moveToIdx: 0
     property bool previewAnimationRunning: false
 
+    // Invoked after save changes is done
+    property var onSaveChangesCallback: () => {}
+
+    // Invoked from C++ side when open composition is requested and there are unsaved changes
+    function promptToSaveBeforeOpen() {
+        root.onSaveChangesCallback = () => { EffectMakerBackend.rootView.doOpenComposition() }
+
+        saveChangesDialog.open()
+    }
+
     SaveAsDialog {
         id: saveDialog
         anchors.centerIn: parent
@@ -31,12 +41,12 @@ Item {
                 saveDialog.clearOnClose = true
                 saveDialog.open()
             } else {
-                EffectMakerBackend.effectMakerModel.clear()
+                root.onSaveChangesCallback()
             }
         }
 
         onDiscard: {
-            EffectMakerBackend.effectMakerModel.clear()
+            root.onSaveChangesCallback()
         }
     }
 
@@ -47,6 +57,8 @@ Item {
 
         EffectMakerTopBar {
             onAddClicked: {
+                root.onSaveChangesCallback = () => { EffectMakerBackend.effectMakerModel.clear() }
+
                 if (EffectMakerBackend.effectMakerModel.hasUnsavedChanges)
                     saveChangesDialog.open()
                 else
