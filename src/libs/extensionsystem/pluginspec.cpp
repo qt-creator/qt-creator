@@ -394,6 +394,10 @@ bool PluginSpec::isForceDisabled() const
     return d->forceDisabled;
 }
 
+/*!
+    Returns whether the plugin is allowed to be loaded during runtime
+    without a restart.
+*/
 bool PluginSpec::isSoftLoadable() const
 {
     return d->softLoadable;

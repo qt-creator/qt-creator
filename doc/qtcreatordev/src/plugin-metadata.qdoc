@@ -67,6 +67,13 @@
                 enabled by the user. This attribute is a hint that the plugin is no longer
                 supported and might negatively affect the user experience.
         \row
+            \li SoftLoadable
+            \li Boolean
+            \li Optional. Defaults to \c false.
+                Soft loadable plugins can be loaded during runtime without a restart.
+                This is possible for plugins that only hook into functionality that supports
+                updating during runtime.
+        \row
             \li Required
             \li Boolean
             \li Optional. Defaults to \c false.
