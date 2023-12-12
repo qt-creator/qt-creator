@@ -107,6 +107,20 @@ def removeOldBreakpoints():
 #       This can be the return value of setBreakpointsForCurrentProject() if you
 #       passed the breakpoints into that function in the right order
 def doSimpleDebugging(currentKit, currentConfigName, expectedBPOrder=[], enableQml=True):
+
+    # this function verifies if the text matches the given
+    # regex inside expectedTexts
+    # param text must be a single str
+    # param expectedTexts can be str/list/tuple
+    def regexVerify(text, expectedTexts):
+        if isString(expectedTexts):
+            expectedTexts = [expectedTexts]
+        for curr in expectedTexts:
+            pattern = re.compile(curr)
+            if pattern.match(text):
+                return True
+        return False
+
     expectedLabelTexts = ['Stopped\.', 'Stopped at breakpoint \d+ in thread \d+\.']
     if len(expectedBPOrder) == 0:
         expectedLabelTexts.append("Running\.")
