@@ -16,7 +16,6 @@
 #include <QtQuick3D/private/qquick3dviewport_p.h>
 #include <QtQuick3D/private/qquick3ddefaultmaterial_p.h>
 #include <QtQuick3D/private/qquick3dscenemanager_p.h>
-#include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
 #include <QtQuick3DUtils/private/qssgbounds3_p.h>
@@ -24,6 +23,12 @@
 #include <QtQuick/qquickwindow.h>
 #include <QtQuick/qquickitem.h>
 #include <QtCore/qmath.h>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
+#include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
+#else
+#include <QtQuick3DRuntimeRender/ssg/qssgrendercontextcore.h>
+#endif
 
 #ifdef QUICK3D_PARTICLES_MODULE
 #include <QtQuick3DParticles/private/qquick3dparticlemodelshape_p.h>
