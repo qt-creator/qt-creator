@@ -3,8 +3,6 @@
 
 #pragma once
 
-#include "dashboard/dto.h"
-
 #include <utils/expected.h>
 
 #include <QList>
@@ -53,7 +51,6 @@ public:
 namespace ResultParser {
 
 DashboardInfo parseDashboardInfo(const QByteArray &input);
-Utils::expected_str<Dto::ProjectInfoDto> parseProjectInfo(const QByteArray &input);
 IssuesList parseIssuesList(const QByteArray &input);
 QString parseRuleInfo(const QByteArray &input);
 
