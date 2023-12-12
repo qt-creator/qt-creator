@@ -61,6 +61,14 @@ GeneralSettings::GeneralSettings()
         Tr::tr("Show keyboard shortcuts in context menus (default: %1)")
             .arg(defaultShowShortcutsInContextMenu() ? Tr::tr("on") : Tr::tr("off")));
 
+    provideSplitterCursors.setSettingsKey("General/OverrideSplitterCursors");
+    provideSplitterCursors.setDefaultValue(false);
+    provideSplitterCursors.setLabelText(Tr::tr("Override cursors for views"));
+    provideSplitterCursors.setToolTip(
+        Tr::tr("Provide cursors for resizing views.\nIf the system cursors for resizing views are "
+               "not displayed properly, you can use the cursors provided by %1.")
+            .arg(QGuiApplication::applicationDisplayName()));
+
     connect(&showShortcutsInContextMenus, &BaseAspect::changed, this, [this] {
         QCoreApplication::setAttribute(Qt::AA_DontShowShortcutsInContextMenus,
                                        !showShortcutsInContextMenus());
@@ -179,6 +187,7 @@ GeneralSettingsWidget::GeneralSettingsWidget()
     }
 
     form.addRow({empty, generalSettings().showShortcutsInContextMenus});
+    form.addRow({empty, generalSettings().provideSplitterCursors});
     form.addRow({Row{m_resetWarningsButton, st}});
     form.addRow({Tr::tr("Text codec for tools:"), m_codecBox, st});
     Column{Group{title(Tr::tr("User Interface")), form}}.attachTo(this);
@@ -241,8 +250,12 @@ void GeneralSettingsWidget::fillLanguageBox() const
 
 void GeneralSettingsWidget::apply()
 {
+    bool showRestart = generalSettings().provideSplitterCursors.volatileValue()
+            != generalSettings().provideSplitterCursors.value();
     generalSettings().apply();
     generalSettings().writeSettings();
+    if (showRestart)
+        ICore::askForRestart(Tr::tr("The cursors for resizing views will change after restart."));
 
     int currentIndex = m_languageBox->currentIndex();
     setLanguage(m_languageBox->itemData(currentIndex, Qt::UserRole).toString());
