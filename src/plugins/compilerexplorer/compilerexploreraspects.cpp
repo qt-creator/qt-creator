@@ -78,6 +78,11 @@ QVariant LibrarySelectionAspect::volatileVariantValue() const
     return toVariantMap(m_buffer);
 }
 
+QVariant LibrarySelectionAspect::defaultVariantValue() const
+{
+    return toVariantMap(defaultValue());
+}
+
 void LibrarySelectionAspect::setVariantValue(const QVariant &value, Announcement howToAnnounce)
 {
     QMap<QString, QString> map;
