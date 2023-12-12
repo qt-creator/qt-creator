@@ -190,6 +190,7 @@ int CppRefactoringFile::startOf(unsigned index) const
 
 int CppRefactoringFile::startOf(const AST *ast) const
 {
+    QTC_ASSERT(ast, return 0);
     int firstToken = ast->firstToken();
     const int lastToken = ast->lastToken();
     while (tokenAt(firstToken).generated() && firstToken < lastToken)
@@ -206,6 +207,7 @@ int CppRefactoringFile::endOf(unsigned index) const
 
 int CppRefactoringFile::endOf(const AST *ast) const
 {
+    QTC_ASSERT(ast, return 0);
     int lastToken = ast->lastToken() - 1;
     QTC_ASSERT(lastToken >= 0, return -1);
     const int firstToken = ast->firstToken();

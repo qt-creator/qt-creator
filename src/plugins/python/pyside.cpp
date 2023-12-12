@@ -132,20 +132,40 @@ void PySideInstaller::installPyside(const FilePath &python,
     } else {
         QDialog dialog;
         dialog.setWindowTitle(Tr::tr("Select PySide Version"));
-        dialog.setLayout(new QVBoxLayout());
-        dialog.layout()->addWidget(new QLabel(Tr::tr("Select which PySide version to install:")));
+
+        // Logo for the corner in the QDialog
+        QPixmap logo(":/python/images/qtforpython_neon.png");
+        QLabel *logoLabel = new QLabel();
+        logoLabel->setPixmap(logo);
+
+        QVBoxLayout *dialogLayout = new QVBoxLayout();
+        QHBoxLayout *hlayout = new QHBoxLayout();
+        hlayout->addWidget(logoLabel);
+        hlayout->addWidget(new QLabel("<b>" + Tr::tr("Installing PySide") + "</b>"));
+        dialogLayout->addLayout(hlayout);
+
+        QLabel *installDescription = new QLabel(Tr::tr("You can install PySide "
+                                                       "from PyPi (Community OSS version) or from your Qt "
+                                                       "installation location, if you are using the Qt "
+                                                       "Installer and have a commercial license."));
+        installDescription->setWordWrap(true);
+        dialogLayout->addWidget(installDescription);
+
+        dialogLayout->addWidget(new QLabel(Tr::tr("Select which version to install:")));
         QComboBox *pySideSelector = new QComboBox();
-        pySideSelector->addItem(Tr::tr("Latest PySide from the Python Package Index"));
+        pySideSelector->addItem(Tr::tr("Latest PySide from the PyPI"));
         for (const Utils::FilePath &version : std::as_const(availablePySides)) {
             const FilePath dir = version.parentDir();
             const QString text
                 = Tr::tr("PySide %1 Wheel (%2)").arg(dir.fileName(), dir.toUserOutput());
             pySideSelector->addItem(text, version.toVariant());
         }
-        dialog.layout()->addWidget(pySideSelector);
+        dialogLayout->addWidget(pySideSelector);
         QDialogButtonBox box;
         box.setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-        dialog.layout()->addWidget(&box);
+        dialogLayout->addWidget(&box);
+
+        dialog.setLayout(dialogLayout);
         connect(&box, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
         connect(&box, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 

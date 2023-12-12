@@ -2088,7 +2088,7 @@ void ProjectExplorerPlugin::extensionsInitialized()
             const QStringList rawGitSearchPaths = ICore::settings()->value("Git/Path")
                     .toString().split(':', Qt::SkipEmptyParts);
             const FilePaths gitSearchPaths = Utils::transform(rawGitSearchPaths,
-                    [](const QString &rawPath) { return FilePath::fromString(rawPath); });
+                    [](const QString &rawPath) { return FilePath::fromUserInput(rawPath); });
             const FilePath fullGitPath = Environment::systemEnvironment()
                     .searchInPath(gitBinary, gitSearchPaths);
             if (!fullGitPath.isEmpty()) {
