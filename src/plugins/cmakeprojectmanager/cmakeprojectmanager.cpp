@@ -39,8 +39,6 @@
 #include <utils/utilsicons.h>
 #include <utils/parameteraction.h>
 
-#include <QAction>
-#include <QFileDialog>
 #include <QMessageBox>
 
 using namespace Core;
@@ -109,18 +107,16 @@ CMakeManager::CMakeManager()
     reloadCMakePresetsAction.addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
     reloadCMakePresetsAction.addOnTriggered(this, [this] { reloadCMakePresets(); });
 
-    m_buildFileAction = new Utils::ParameterAction(Tr::tr("Build File"),
-                                                   Tr::tr("Build File \"%1\""),
-                                                   Utils::ParameterAction::AlwaysEnabled,
-                                                   this);
-    Command *command = ActionManager::registerAction(m_buildFileAction, Constants::BUILD_FILE);
-    command->setAttribute(Command::CA_Hide);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDescription(m_buildFileAction->text());
-    command->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+B")));
-    ActionContainer *mbuild = ActionManager::actionContainer(PEC::M_BUILDPROJECT);
-    mbuild->addAction(command, PEC::G_BUILD_BUILD);
-    connect(m_buildFileAction, &QAction::triggered, this, [this] { buildFile(); });
+    ActionBuilder buildFileAction(this, Constants::BUILD_FILE);
+    buildFileAction.setParameterText(Tr::tr("Build File \"%1\""), Tr::tr("Build File"),
+                                     ActionBuilder::AlwaysEnabled);
+    buildFileAction.bindContextAction(&m_buildFileAction);
+    buildFileAction.setCommandAttribute(Command::CA_Hide);
+    buildFileAction.setCommandAttribute(Command::CA_UpdateText);
+    buildFileAction.setCommandDescription(m_buildFileAction->text());
+    buildFileAction.setDefaultKeySequence(Tr::tr("Ctrl+Alt+B"));
+    buildFileAction.addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
+    buildFileAction.addOnTriggered(this, [this] { buildFile(); });
 
     // CMake Profiler
     ActionBuilder cmakeProfilerAction(this, Constants::RUN_CMAKE_PROFILER);
