@@ -280,7 +280,7 @@ void FindPrivate::setupMenu()
     openFindDialog.bindContextAction(&m_openFindDialog);
     openFindDialog.setDefaultKeySequence(Tr::tr("Ctrl+Shift+F"));
     openFindDialog.addToContainer(Constants::M_FIND_ADVANCED);
-    openFindDialog.setOnTriggered(this, [] { Find::openFindDialog(nullptr); });
+    openFindDialog.addOnTriggered(this, [] { Find::openFindDialog(nullptr); });
 }
 
 static QString filterActionName(const IFindFilter *filter)
@@ -304,7 +304,7 @@ void FindPrivate::setupFilterMenuItems()
         findScope.setDefaultKeySequence(filter->defaultShortcut());
         findScope.setCommandAttribute(Command::CA_UpdateText);
         findScope.addToContainer(Constants::M_FIND_ADVANCED);
-        findScope.setOnTriggered(this, [filter] { Find::openFindDialog(filter); });
+        findScope.addOnTriggered(this, [filter] { Find::openFindDialog(filter); });
 
         QAction *findScopeAction = findScope.contextAction();
         connect(filter, &IFindFilter::enabledChanged, this, [filter, findScopeAction] {

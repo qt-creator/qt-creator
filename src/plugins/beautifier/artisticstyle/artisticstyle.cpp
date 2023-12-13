@@ -247,7 +247,7 @@ public:
         formatFile.setText(msgFormatCurrentFile());
         formatFile.bindContextAction(&m_formatFile);
         formatFile.addToContainer(menuId);
-        formatFile.setOnTriggered(this, [this] { this->formatFile(); });
+        formatFile.addOnTriggered(this, [this] { this->formatFile(); });
 
         Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 

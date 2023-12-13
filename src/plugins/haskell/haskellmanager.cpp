@@ -58,7 +58,7 @@ void setupHaskellActions(QObject *guard)
 {
     ActionBuilder runGhci(guard, Haskell::Constants::A_RUN_GHCI);
     runGhci.setText(Tr::tr("Run GHCi"));
-    runGhci.setOnTriggered(guard, [] {
+    runGhci.addOnTriggered(guard, [] {
         if (IDocument *doc = EditorManager::currentDocument())
             openGhci(doc->filePath());
     });

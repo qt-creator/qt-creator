@@ -141,7 +141,7 @@ void ActionBuilder::addToContainer(Id containerId, Id groupId, bool needsToExist
     QTC_CHECK(!needsToExist);
 }
 
-void ActionBuilder::setOnTriggered(const std::function<void ()> &func)
+void ActionBuilder::addOnTriggered(const std::function<void ()> &func)
 {
     QObject::connect(d->contextAction, &QAction::triggered, d->contextAction, func);
 }

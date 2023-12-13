@@ -57,7 +57,7 @@ SquishPluginPrivate::SquishPluginPrivate()
     ActionBuilder serverSettings(this, "Squish.ServerSettings");
     serverSettings.setText(Tr::tr("&Server Settings..."));
     serverSettings.addToContainer(menuId);
-    serverSettings.setOnTriggered(this, [] {
+    serverSettings.addOnTriggered(this, [] {
         if (!settings().squishPath().exists()) {
             SquishMessages::criticalMessage(Tr::tr("Invalid Squish settings. Configure Squish "
                                                    "installation path inside "

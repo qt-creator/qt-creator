@@ -83,7 +83,7 @@ void HelloWorldPlugin::initialize()
     Core::ActionBuilder hello(this, "HelloWorld.HelloWorldAction");
     hello.setText(Tr::tr("Say \"&Hello World!\""));
     hello.setContext(context);
-    hello.setOnTriggered(this, [this] { sayHelloWorld(); });
+    hello.addOnTriggered(this, [this] { sayHelloWorld(); });
 
     // Add the Hello World action command to the menu
     hello.addToContainer(menuId);

@@ -76,7 +76,7 @@ void ClangFormatPlugin::initialize()
         ActionBuilder openConfig(this,  Constants::OPEN_CURRENT_CONFIG_ID);
         openConfig.setText(Tr::tr("Open Used .clang-format Configuration File"));
         openConfig.addToContainer(CppEditor::Constants::M_CONTEXT);
-        openConfig.setOnTriggered([action=openConfig.contextAction()] {
+        openConfig.addOnTriggered([action=openConfig.contextAction()] {
                     const FilePath fileName = FilePath::fromVariant(action->data());
                     if (!fileName.isEmpty())
                         EditorManager::openEditor(configForFile(fileName));

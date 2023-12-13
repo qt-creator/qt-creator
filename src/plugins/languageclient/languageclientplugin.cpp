@@ -48,7 +48,7 @@ void LanguageClientPlugin::initialize()
     ActionBuilder inspectAction(this, "LanguageClient.InspectLanguageClients");
     inspectAction.setText(Tr::tr("Inspect Language Clients..."));
     inspectAction.addToContainer(Core::Constants::M_TOOLS_DEBUG);
-    inspectAction.setOnTriggered(this, &LanguageClientManager::showInspector);
+    inspectAction.addOnTriggered(this, &LanguageClientManager::showInspector);
 }
 
 void LanguageClientPlugin::extensionsInitialized()

@@ -217,12 +217,12 @@ HelpPluginPrivate::HelpPluginPrivate()
     helpContents.setText(Tr::tr(Constants::SB_CONTENTS));
     helpContents.setIcon(QIcon::fromTheme("help-contents"));
     helpContents.addToContainer(Core::Constants::M_HELP,  Core::Constants::G_HELP_HELP);
-    helpContents.setOnTriggered(this, &HelpPluginPrivate::activateContents);
+    helpContents.addOnTriggered(this, &HelpPluginPrivate::activateContents);
 
     ActionBuilder helpIndex(this, "Help.IndexMenu");
     helpIndex.setText(Tr::tr(Constants::SB_INDEX));
     helpIndex.addToContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_HELP);
-    helpIndex.setOnTriggered(this, &HelpPluginPrivate::activateIndex);
+    helpIndex.addOnTriggered(this, &HelpPluginPrivate::activateIndex);
 
     ActionBuilder helpContext(this, Help::Constants::CONTEXT_HELP);
     helpContext.setText(Tr::tr("Context Help"));
@@ -231,7 +231,7 @@ HelpPluginPrivate::HelpPluginPrivate()
     helpContext.addToContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_HELP);
     helpContext.addToContainer(Core::Constants::TOUCH_BAR, Core::Constants::G_TOUCHBAR_HELP);
     helpContext.setDefaultKeySequence(Qt::Key_F1);
-    helpContext.setOnTriggered(this, &HelpPluginPrivate::requestContextHelp);
+    helpContext.addOnTriggered(this, &HelpPluginPrivate::requestContextHelp);
 
     ActionContainer *textEditorContextMenu = ActionManager::actionContainer(
         TextEditor::Constants::M_STANDARDCONTEXTMENU);
@@ -245,7 +245,7 @@ HelpPluginPrivate::HelpPluginPrivate()
     ActionBuilder techSupport(this, "Help.TechSupport");
     techSupport.setText(Tr::tr("Technical Support..."));
     techSupport.addToContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_SUPPORT);
-    techSupport.setOnTriggered(this, [this] {
+    techSupport.addOnTriggered(this, [this] {
         showHelpUrl(QUrl("qthelp://org.qt-project.qtcreator/doc/technical-support.html"),
                     Core::HelpManager::HelpModeAlways);
     });
@@ -256,7 +256,7 @@ HelpPluginPrivate::HelpPluginPrivate()
     ActionBuilder reportBug(this, "Help.ReportBug");
     reportBug.setText(Tr::tr("Report Bug..."));
     reportBug.addToContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_SUPPORT);
-    reportBug.setOnTriggered(this, [isDesigner] {
+    reportBug.addOnTriggered(this, [isDesigner] {
         const QUrl bugreportUrl = isDesigner ? QString("https://bugreports.qt.io/secure/CreateIssue.jspa?pid=11740") //QDS
                                              : QString("https://bugreports.qt.io/secure/CreateIssue.jspa?pid=10512"); //QtC
         QDesktopServices::openUrl(bugreportUrl);
@@ -265,7 +265,7 @@ HelpPluginPrivate::HelpPluginPrivate()
     ActionBuilder systemInformation(this, "Help.SystemInformation");
     systemInformation.setText(Tr::tr("System Information..."));
     systemInformation.addToContainer(Core::Constants::M_HELP, Core::Constants::G_HELP_SUPPORT);
-    systemInformation.setOnTriggered(this, &HelpPluginPrivate::slotSystemInformation);
+    systemInformation.addOnTriggered(this, &HelpPluginPrivate::slotSystemInformation);
 
     connect(ModeManager::instance(), &ModeManager::currentModeChanged,
             this, &HelpPluginPrivate::modeChanged);

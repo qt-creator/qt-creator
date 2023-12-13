@@ -712,7 +712,7 @@ void setupGenericProject(QObject *guard)
     editAction.setText(Tr::tr("Edit Files..."));
     editAction.setCommandAttribute(Command::CA_Hide);
     editAction.addToContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_FILES);
-    editAction.setOnTriggered([] {
+    editAction.addOnTriggered([] {
         if (auto genericProject = qobject_cast<GenericProject *>(ProjectTree::currentProject()))
             genericProject->editFilesTriggered();
     });
@@ -721,7 +721,7 @@ void setupGenericProject(QObject *guard)
     removeDirAction.setContext(PEC::C_PROJECT_TREE);
     removeDirAction.setText(Tr::tr("Remove Directory"));
     removeDirAction.addToContainer(PEC::M_FOLDERCONTEXT, PEC::G_FOLDER_OTHER);
-    removeDirAction.setOnTriggered([] {
+    removeDirAction.addOnTriggered([] {
         const auto folderNode = ProjectTree::currentNode()->asFolderNode();
         QTC_ASSERT(folderNode, return);
         const auto project = qobject_cast<GenericProject *>(folderNode->getProject());

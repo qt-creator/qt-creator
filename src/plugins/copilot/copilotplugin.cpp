@@ -65,7 +65,7 @@ public:
         requestAction.setText(Tr::tr("Request Copilot Suggestion"));
         requestAction.setToolTip(Tr::tr(
             "Request Copilot suggestion at the current editor's cursor position."));
-        requestAction.setOnTriggered(this, [this] {
+        requestAction.addOnTriggered(this, [this] {
             if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget()) {
                 if (m_client && m_client->reachable())
                     m_client->requestCompletions(editor);
@@ -76,7 +76,7 @@ public:
         nextSuggestionAction.setText(Tr::tr("Show Next Copilot Suggestion"));
         nextSuggestionAction.setToolTip(Tr::tr(
             "Cycles through the received Copilot Suggestions showing the next available Suggestion."));
-        nextSuggestionAction.setOnTriggered(this, [] {
+        nextSuggestionAction.addOnTriggered(this, [] {
             if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
                 cycleSuggestion(editor, Next);
         });
@@ -85,7 +85,7 @@ public:
         previousSuggestionAction.setText(Tr::tr("Show Previous Copilot Suggestion"));
         previousSuggestionAction.setToolTip(Tr::tr("Cycles through the received Copilot Suggestions "
                                                    "showing the previous available Suggestion."));
-        previousSuggestionAction.setOnTriggered(this, [] {
+        previousSuggestionAction.addOnTriggered(this, [] {
             if (auto editor = TextEditor::TextEditorWidget::currentTextEditorWidget())
                 cycleSuggestion(editor, Previous);
         });
@@ -93,7 +93,7 @@ public:
         ActionBuilder disableAction(this, Constants::COPILOT_DISABLE);
         disableAction.setText(Tr::tr("Disable Copilot"));
         disableAction.setToolTip(Tr::tr("Disable Copilot."));
-        disableAction.setOnTriggered(this, [] {
+        disableAction.addOnTriggered(this, [] {
             settings().enableCopilot.setValue(true);
             settings().apply();
         });
@@ -101,7 +101,7 @@ public:
         ActionBuilder enableAction(this, Constants::COPILOT_ENABLE);
         enableAction.setText(Tr::tr("Enable Copilot"));
         enableAction.setToolTip(Tr::tr("Enable Copilot."));
-        enableAction.setOnTriggered(this, [] {
+        enableAction.addOnTriggered(this, [] {
             settings().enableCopilot.setValue(false);
             settings().apply();
         });
@@ -111,7 +111,7 @@ public:
         toggleAction.setCheckable(true);
         toggleAction.setChecked(settings().enableCopilot());
         toggleAction.setIcon(COPILOT_ICON.icon());
-        toggleAction.setOnTriggered(this, [](bool checked) {
+        toggleAction.addOnTriggered(this, [](bool checked) {
             settings().enableCopilot.setValue(checked);
             settings().apply();
         });

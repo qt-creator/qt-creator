@@ -191,7 +191,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runAll.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+A"), Tr::tr("Alt+Shift+T,Alt+A"));
     runAll.addToContainer(Constants::MENU_ID);
     runAll.setEnabled(false);
-    runAll.setOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::Run); });
+    runAll.addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::Run); });
 
     ActionBuilder runAllNoDeploy(this, Constants::ACTION_RUN_ALL_NODEPLOY_ID);
     runAllNoDeploy.setText(Tr::tr("Run All Tests Without Deployment"));
@@ -200,7 +200,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runAllNoDeploy.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+E"), Tr::tr("Alt+Shift+T,Alt+E"));
     runAllNoDeploy.addToContainer(Constants::MENU_ID);
     runAllNoDeploy.setEnabled(false);
-    runAllNoDeploy.setOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::RunWithoutDeploy); });
+    runAllNoDeploy.addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::RunWithoutDeploy); });
 
     ActionBuilder runSelected(this, Constants::ACTION_RUN_SELECTED_ID);
     runSelected.setText(Tr::tr("&Run Selected Tests"));
@@ -209,7 +209,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runSelected.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+R"), Tr::tr("Alt+Shift+T,Alt+R"));
     runSelected.addToContainer(Constants::MENU_ID);
     runSelected.setEnabled(false);
-    runSelected.setOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::Run); });
+    runSelected.addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::Run); });
 
     ActionBuilder runSelectedNoDeploy(this, Constants::ACTION_RUN_SELECTED_NODEPLOY_ID);
     runSelectedNoDeploy.setText(Tr::tr("&Run Selected Tests Without Deployment"));
@@ -218,7 +218,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runSelectedNoDeploy.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+W"), Tr::tr("Alt+Shift+T,Alt+W"));
     runSelectedNoDeploy.addToContainer(Constants::MENU_ID);
     runSelectedNoDeploy.setEnabled(false);
-    runSelectedNoDeploy.setOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::RunWithoutDeploy); });
+    runSelectedNoDeploy.addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::RunWithoutDeploy); });
 
     ActionBuilder runFailed(this, Constants::ACTION_RUN_FAILED_ID);
     runFailed.setText(Tr::tr("Run &Failed Tests"));
@@ -227,7 +227,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runFailed.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+F"), Tr::tr("Alt+Shift+T,Alt+F"));
     runFailed.addToContainer(Constants::MENU_ID);
     runFailed.setEnabled(false);
-    runFailed.setOnTriggered(this, [this] { onRunFailedTriggered(); });
+    runFailed.addOnTriggered(this, [this] { onRunFailedTriggered(); });
 
     ActionBuilder runCurrent(this, Constants::ACTION_RUN_FILE_ID);
     runCurrent.setText(Tr::tr("Run Tests for &Current File"));
@@ -236,7 +236,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runCurrent.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+C"), Tr::tr("Alt+Shift+T,Alt+C"));
     runCurrent.addToContainer(Constants::MENU_ID);
     runCurrent.setEnabled(false);
-    runCurrent.setOnTriggered(this, [this] { onRunFileTriggered(); });
+    runCurrent.addOnTriggered(this, [this] { onRunFileTriggered(); });
 
     ActionBuilder disableTemp(this, Constants::ACTION_DISABLE_TMP);
     disableTemp.setText(Tr::tr("Disable Temporarily"));
@@ -244,13 +244,13 @@ void AutotestPluginPrivate::initializeMenuEntries()
                                   "re-enabling, or restarting Qt Creator."));
     disableTemp.setCheckable(true);
     disableTemp.addToContainer(Constants::MENU_ID);
-    disableTemp.setOnTriggered(this, [this](bool on) { onDisableTemporarily(on); });
+    disableTemp.addOnTriggered(this, [this](bool on) { onDisableTemporarily(on); });
 
     ActionBuilder rescan(this, Constants::ACTION_SCAN_ID);
     rescan.setText(Tr::tr("Re&scan Tests"));
     rescan.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+S"), Tr::tr("Alt+Shift+T,Alt+S"));
     rescan.addToContainer(Constants::MENU_ID);
-    rescan.setOnTriggered(this, [] {
+    rescan.addOnTriggered(this, [] {
         if (dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily)
             dd->onDisableTemporarily(false);  // Rescan Test should explicitly re-enable
         else
@@ -299,14 +299,14 @@ void AutotestPlugin::extensionsInitialized()
     runTest.setEnabled(false);
     runTest.setIcon(Utils::Icons::RUN_SMALL.icon());
     runTest.addToContainer(menuId);
-    runTest.setOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Run); });
+    runTest.addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Run); });
 
     ActionBuilder runTestNoDeploy(this, Constants::ACTION_RUN_UCURSOR_NODEPLOY);
     runTestNoDeploy.setText(Tr::tr("Run Test Without Deployment"));
     runTestNoDeploy.setIcon(Utils::Icons::RUN_SMALL.icon());
     runTestNoDeploy.setEnabled(false);
     runTestNoDeploy.addToContainer(menuId);
-    runTestNoDeploy.setOnTriggered(
+    runTestNoDeploy.addOnTriggered(
         [] { dd->onRunUnderCursorTriggered(TestRunMode::RunWithoutDeploy); });
 
     ActionBuilder debugTest(this, Constants::ACTION_RUN_DBG_UCURSOR);
@@ -314,14 +314,14 @@ void AutotestPlugin::extensionsInitialized()
     debugTest.setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
     debugTest.setEnabled(false);
     debugTest.addToContainer(menuId);
-    debugTest.setOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Debug); });
+    debugTest.addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Debug); });
 
     ActionBuilder debugTestNoDeploy(this, Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY);
     debugTestNoDeploy.setText(Tr::tr("Debug Test Without Deployment"));
     debugTestNoDeploy.setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
     debugTestNoDeploy.setEnabled(false);
     debugTestNoDeploy.addToContainer(menuId);
-    debugTestNoDeploy.setOnTriggered(
+    debugTestNoDeploy.addOnTriggered(
         [] { dd->onRunUnderCursorTriggered(TestRunMode::DebugWithoutDeploy); });
 }
 

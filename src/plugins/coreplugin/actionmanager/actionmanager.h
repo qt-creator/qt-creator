@@ -43,10 +43,10 @@ public:
     void setCommandAttribute(Core::Command::CommandAttribute attr);
     void setCommandDescription(const QString &desc);
     void addToContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
-    void setOnTriggered(const std::function<void()> &func);
+    void addOnTriggered(const std::function<void()> &func);
 
     template<class T, typename F>
-    void setOnTriggered(T *guard,
+    void addOnTriggered(T *guard,
                         F &&function,
                         Qt::ConnectionType connectionType = Qt::AutoConnection)
     {
@@ -58,7 +58,7 @@ public:
     }
 
     template<class T, typename F>
-    void setOnToggled(T *guard,
+    void addOnToggled(T *guard,
                         F &&function,
                         Qt::ConnectionType connectionType = Qt::AutoConnection)
     {

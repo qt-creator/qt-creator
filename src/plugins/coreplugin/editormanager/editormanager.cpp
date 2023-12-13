@@ -423,19 +423,19 @@ void EditorManagerPrivate::init()
     revertToSaved.setCommandAttribute(Command::CA_UpdateText);
     revertToSaved.setCommandDescription(::Core::Tr::tr("Revert File to Saved"));
     revertToSaved.addToContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
-    revertToSaved.setOnTriggered(this, &EditorManager::revertToSaved);
+    revertToSaved.addOnTriggered(this, &EditorManager::revertToSaved);
 
     // Save Action
     ActionBuilder save(this, Constants::SAVE);
     save.setContext(editManagerContext);
     save.bindContextAction(&m_saveAction);
-    save.setOnTriggered(this, [] { EditorManager::saveDocument(); });
+    save.addOnTriggered(this, [] { EditorManager::saveDocument(); });
 
     // Save As Action
     ActionBuilder saveAs(this, Constants::SAVEAS);
     saveAs.setContext(editManagerContext);
     saveAs.bindContextAction(&m_saveAsAction);
-    saveAs.setOnTriggered(this, &EditorManager::saveDocumentAs);
+    saveAs.addOnTriggered(this, &EditorManager::saveDocumentAs);
 
     // Window Menu
     ActionContainer *mwindow = ActionManager::actionContainer(Constants::M_WINDOW);
@@ -453,7 +453,7 @@ void EditorManagerPrivate::init()
     closeCurrentEditor.setCommandAttribute(Command::CA_UpdateText);
     closeCurrentEditor.setCommandDescription(m_closeCurrentEditorAction->text());
     closeCurrentEditor.addToContainer(Constants::M_FILE, Constants::G_FILE_CLOSE);
-    closeCurrentEditor.setOnTriggered(this,  &EditorManager::slotCloseCurrentEditorOrDocument);
+    closeCurrentEditor.addOnTriggered(this,  &EditorManager::slotCloseCurrentEditorOrDocument);
 
     if (HostOsInfo::isWindowsHost()) {
         // workaround for QTCREATORBUG-72
@@ -461,7 +461,7 @@ void EditorManagerPrivate::init()
         workaround.setContext(editManagerContext);
         workaround.setDefaultKeySequence(::Core::Tr::tr("Ctrl+F4"));
         workaround.setCommandDescription(::Core::Tr::tr("Close"));
-        workaround.setOnTriggered(this, &EditorManager::slotCloseCurrentEditorOrDocument);
+        workaround.addOnTriggered(this, &EditorManager::slotCloseCurrentEditorOrDocument);
     }
 
     // Close All Action
@@ -472,7 +472,7 @@ void EditorManagerPrivate::init()
     closeAll.bindContextAction(&m_closeAllEditorsAction);
     closeAll.setDefaultKeySequence(::Core::Tr::tr("Ctrl+Shift+W"));
     closeAll.addToContainer(Constants::M_FILE, Constants::G_FILE_CLOSE);
-    closeAll.setOnTriggered(this, &EditorManager::closeAllDocuments);
+    closeAll.addOnTriggered(this, &EditorManager::closeAllDocuments);
 
     // Close All Others Action
     ActionBuilder closeOthers(this, Constants::CLOSEOTHERS);
@@ -482,7 +482,7 @@ void EditorManagerPrivate::init()
     closeOthers.setScriptable(true);
     closeOthers.addToContainer(Constants::M_FILE, Constants::G_FILE_CLOSE);
     closeOthers.setCommandAttribute(Command::CA_UpdateText);
-    closeOthers.setOnTriggered(this, [] { EditorManager::closeOtherDocuments(); });
+    closeOthers.addOnTriggered(this, [] { EditorManager::closeOtherDocuments(); });
 
     // Close All Others Except Visible Action
     ActionBuilder closeAllExceptVisible(this, Constants::CLOSEALLEXCEPTVISIBLE);
@@ -491,13 +491,13 @@ void EditorManagerPrivate::init()
     closeAllExceptVisible.setContext(editManagerContext);
     closeAllExceptVisible.setScriptable(true);
     closeAllExceptVisible.addToContainer(Constants::M_FILE, Constants::G_FILE_CLOSE);
-    closeAllExceptVisible.setOnTriggered(this, &EditorManagerPrivate::closeAllEditorsExceptVisible);
+    closeAllExceptVisible.addOnTriggered(this, &EditorManagerPrivate::closeAllEditorsExceptVisible);
 
     ActionBuilder openGraphicalShell(this, Constants::SHOWINGRAPHICALSHELL);
     openGraphicalShell.setText(FileUtils::msgGraphicalShellAction());
     openGraphicalShell.bindContextAction(&m_openGraphicalShellAction);
     openGraphicalShell.setContext(editManagerContext);
-    openGraphicalShell.setOnTriggered(this, [] {
+    openGraphicalShell.addOnTriggered(this, [] {
         if (!EditorManager::currentDocument())
             return;
         const FilePath fp = EditorManager::currentDocument()->filePath();
@@ -509,7 +509,7 @@ void EditorManagerPrivate::init()
     showInFileSystem.setText(FileUtils::msgFileSystemAction());
     showInFileSystem.setContext(editManagerContext);
     showInFileSystem.bindContextAction(&m_showInFileSystemViewAction);
-    showInFileSystem.setOnTriggered(this, [] {
+    showInFileSystem.addOnTriggered(this, [] {
         if (!EditorManager::currentDocument())
             return;
         const FilePath fp = EditorManager::currentDocument()->filePath();
@@ -568,7 +568,7 @@ void EditorManagerPrivate::init()
     gotoPrevInHistory.setContext(editDesignContext);
     gotoPrevInHistory.setDefaultKeySequence(::Core::Tr::tr("Alt+Tab"), ::Core::Tr::tr("Ctrl+Tab"));
     gotoPrevInHistory.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
-    gotoPrevInHistory.setOnTriggered(this, &EditorManagerPrivate::gotoPreviousDocHistory);
+    gotoPrevInHistory.addOnTriggered(this, &EditorManagerPrivate::gotoPreviousDocHistory);
 
     // Goto Next In History Action
     ActionBuilder gotoNextInHistory(this, Constants::GOTONEXTINHISTORY);
@@ -577,7 +577,7 @@ void EditorManagerPrivate::init()
     gotoNextInHistory.setContext(editDesignContext);
     gotoNextInHistory.setDefaultKeySequence(::Core::Tr::tr("Alt+Shift+Tab"), ::Core::Tr::tr("Ctrl+Shift+Tab"));
     gotoNextInHistory.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
-    gotoNextInHistory.setOnTriggered(this, &EditorManagerPrivate::gotoNextDocHistory);
+    gotoNextInHistory.addOnTriggered(this, &EditorManagerPrivate::gotoNextDocHistory);
 
     // Go back in navigation history
     ActionBuilder goBack(this, Constants::GO_BACK);
@@ -587,7 +587,7 @@ void EditorManagerPrivate::init()
     goBack.setContext(editDesignContext);
     goBack.setDefaultKeySequence(::Core::Tr::tr("Ctrl+Alt+Left"), ::Core::Tr::tr("Alt+Left"));
     goBack.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
-    goBack.setOnTriggered(this, &EditorManager::goBackInNavigationHistory);
+    goBack.addOnTriggered(this, &EditorManager::goBackInNavigationHistory);
 
     // Go forward in navigation history
     ActionBuilder goForward(this, Constants::GO_FORWARD);
@@ -597,7 +597,7 @@ void EditorManagerPrivate::init()
     goForward.setContext(editDesignContext);
     goForward.setDefaultKeySequence(::Core::Tr::tr("Ctrl+Alt+Right"), ::Core::Tr::tr("Alt+Right"));
     goForward.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
-    goForward.setOnTriggered(this, &EditorManager::goForwardInNavigationHistory);
+    goForward.addOnTriggered(this, &EditorManager::goForwardInNavigationHistory);
 
     // Go to last edit
     ActionBuilder gotoLastEdit(this, Constants::GOTOLASTEDIT);
@@ -605,7 +605,7 @@ void EditorManagerPrivate::init()
     gotoLastEdit.bindContextAction(&m_gotoLastEditAction);
     gotoLastEdit.setContext(editDesignContext);
     gotoLastEdit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_NAVIGATE);
-    gotoLastEdit.setOnTriggered(this, &EditorManagerPrivate::gotoLastEditLocation);
+    gotoLastEdit.addOnTriggered(this, &EditorManagerPrivate::gotoLastEditLocation);
 
     ActionBuilder split(this, Constants::SPLIT);
     split.setText(::Core::Tr::tr("Split"));
@@ -614,7 +614,7 @@ void EditorManagerPrivate::init()
     split.setContext(editManagerContext);
     split.setDefaultKeySequence(::Core::Tr::tr("Meta+E,2"), ::Core::Tr::tr("Ctrl+E,2"));
     split.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
-    split.setOnTriggered(this, [this] { this->split(Qt::Vertical); });
+    split.addOnTriggered(this, [this] { this->split(Qt::Vertical); });
 
     ActionBuilder splitSideBySide(this, Constants::SPLIT_SIDE_BY_SIDE);
     splitSideBySide.setIcon(Utils::Icons::SPLIT_VERTICAL.icon());
@@ -623,7 +623,7 @@ void EditorManagerPrivate::init()
     splitSideBySide.setContext(editManagerContext);
     splitSideBySide.setDefaultKeySequence(::Core::Tr::tr("Meta+E,3"), Core::Tr::tr("Ctrl+E,3"));
     splitSideBySide.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
-    splitSideBySide.setOnTriggered(this, &EditorManager::splitSideBySide);
+    splitSideBySide.addOnTriggered(this, &EditorManager::splitSideBySide);
 
     ActionBuilder splitNewWindow(this, Constants::SPLIT_NEW_WINDOW);
     splitNewWindow.setText(::Core::Tr::tr("Open in New Window"));
@@ -631,7 +631,7 @@ void EditorManagerPrivate::init()
     splitNewWindow.setContext(editManagerContext);
     splitNewWindow.setDefaultKeySequence(::Core::Tr::tr("Meta+E,4"), ::Core::Tr::tr("Ctrl+E,4"));
     splitNewWindow.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
-    splitNewWindow.setOnTriggered(this, [this] { this->splitNewWindow(currentEditorView()); });
+    splitNewWindow.addOnTriggered(this, [this] { this->splitNewWindow(currentEditorView()); });
 
     ActionBuilder removeCurrentSplit(this, Constants::REMOVE_CURRENT_SPLIT);
     removeCurrentSplit.setText(::Core::Tr::tr("Remove Current Split"));
@@ -639,7 +639,7 @@ void EditorManagerPrivate::init()
     removeCurrentSplit.setContext(editManagerContext);
     removeCurrentSplit.setDefaultKeySequence(::Core::Tr::tr("Meta+E,0"), ::Core::Tr::tr("Ctrl+E,0"));
     removeCurrentSplit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
-    removeCurrentSplit.setOnTriggered(this, &EditorManagerPrivate::removeCurrentSplit);
+    removeCurrentSplit.addOnTriggered(this, &EditorManagerPrivate::removeCurrentSplit);
 
     ActionBuilder removeAllSplits(this, Constants::REMOVE_ALL_SPLITS);
     removeAllSplits.setText(::Core::Tr::tr("Remove All Splits"));
@@ -647,7 +647,7 @@ void EditorManagerPrivate::init()
     removeAllSplits.setContext(editManagerContext);
     removeAllSplits.setDefaultKeySequence(::Core::Tr::tr("Meta+E,1"), ::Core::Tr::tr("Ctrl+E,1"));
     removeAllSplits.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
-    removeAllSplits.setOnTriggered(this, &EditorManagerPrivate::removeAllSplits);
+    removeAllSplits.addOnTriggered(this, &EditorManagerPrivate::removeAllSplits);
 
     ActionBuilder gotoPreviousSplit(this, Constants::GOTO_PREV_SPLIT);
     gotoPreviousSplit.setText(::Core::Tr::tr("Go to Previous Split or Window"));
@@ -655,7 +655,7 @@ void EditorManagerPrivate::init()
     gotoPreviousSplit.setContext(editManagerContext);
     gotoPreviousSplit.setDefaultKeySequence(::Core::Tr::tr("Meta+E,i"), ::Core::Tr::tr("Ctrl+E,i"));
     gotoPreviousSplit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
-    gotoPreviousSplit.setOnTriggered(this, &EditorManagerPrivate::gotoPreviousSplit);
+    gotoPreviousSplit.addOnTriggered(this, &EditorManagerPrivate::gotoPreviousSplit);
 
     ActionBuilder gotoNextSplit(this, Constants::GOTO_NEXT_SPLIT);
     gotoNextSplit.setText(::Core::Tr::tr("Go to Next Split or Window"));
@@ -663,7 +663,7 @@ void EditorManagerPrivate::init()
     gotoNextSplit.setContext(editManagerContext);
     gotoNextSplit.setDefaultKeySequence(QKeySequence(useMacShortcuts ? ::Core::Tr::tr("Meta+E,o") : ::Core::Tr::tr("Ctrl+E,o")));
     gotoNextSplit.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SPLIT);
-    gotoNextSplit.setOnTriggered(this, &EditorManagerPrivate::gotoNextSplit);
+    gotoNextSplit.addOnTriggered(this, &EditorManagerPrivate::gotoNextSplit);
 
     ActionContainer *medit = ActionManager::actionContainer(Constants::M_EDIT);
     ActionContainer *advancedMenu = ActionManager::createMenu(Constants::M_EDIT_ADVANCED);

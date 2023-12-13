@@ -179,17 +179,17 @@ void IOutputPane::setupFilterUi(const Key &historyKey)
     ActionBuilder filterRegexpAction(this, filterRegexpActionId());
     filterRegexpAction.setText(Tr::tr("Use Regular Expressions"));
     filterRegexpAction.setCheckable(true);
-    filterRegexpAction.setOnToggled(this, &IOutputPane::setRegularExpressions);
+    filterRegexpAction.addOnToggled(this, &IOutputPane::setRegularExpressions);
 
     ActionBuilder filterCaseSensitiveAction(this, filterCaseSensitivityActionId());
     filterCaseSensitiveAction.setText(Tr::tr("Case Sensitive"));
     filterCaseSensitiveAction.setCheckable(true);
-    filterCaseSensitiveAction.setOnToggled(this, &IOutputPane::setCaseSensitive);
+    filterCaseSensitiveAction.addOnToggled(this, &IOutputPane::setCaseSensitive);
 
     ActionBuilder invertFilterAction(this, filterInvertedActionId());
     invertFilterAction.setText(Tr::tr("Show Non-matching Lines"));
     invertFilterAction.setCheckable(true);
-    invertFilterAction.setOnToggled(this, [this, action=invertFilterAction.contextAction()] {
+    invertFilterAction.addOnToggled(this, [this, action=invertFilterAction.contextAction()] {
         m_invertFilter = action->isChecked();
         updateFilter();
     });

@@ -323,25 +323,25 @@ public:
         formatFile.setText(msgFormatCurrentFile());
         formatFile.bindContextAction(&m_formatFile);
         formatFile.addToContainer(menuId);
-        formatFile.setOnTriggered(this, [this] { this->formatFile(); });
+        formatFile.addOnTriggered(this, [this] { this->formatFile(); });
 
         Core::ActionBuilder formatLines(this, "ClangFormat.FormatLines");
         formatLines.setText(msgFormatLines());
         formatLines.bindContextAction(&m_formatLines);
         formatLines.addToContainer(menuId);
-        formatLines.setOnTriggered(this, [this] { this->formatLines(); });
+        formatLines.addOnTriggered(this, [this] { this->formatLines(); });
 
         Core::ActionBuilder formatAtCursor(this, "ClangFormat.FormatAtCursor");
         formatAtCursor.setText(msgFormatAtCursor());
         formatAtCursor.bindContextAction(&m_formatRange);
         formatAtCursor.addToContainer(menuId);
-        formatAtCursor.setOnTriggered(this, [this] { this->formatAtCursor(); });
+        formatAtCursor.addOnTriggered(this, [this] { this->formatAtCursor(); });
 
         Core::ActionBuilder formatDisable(this, "ClangFormat.DisableFormattingSelectedText");
         formatDisable.setText(msgDisableFormattingSelectedText());
         formatDisable.bindContextAction(&m_disableFormattingSelectedText);
         formatDisable.addToContainer(menuId);
-        formatDisable.setOnTriggered(this, [this] { disableFormattingSelectedText(); });
+        formatDisable.addOnTriggered(this, [this] { disableFormattingSelectedText(); });
 
         Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
 

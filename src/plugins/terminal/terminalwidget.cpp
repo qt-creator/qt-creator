@@ -271,42 +271,42 @@ void TerminalWidget::setupActions()
 
     ActionBuilder copyAction(this, Constants::COPY);
     copyAction.setContext(m_context);
-    copyAction.setOnTriggered(this, &TerminalWidget::copyToClipboard);
+    copyAction.addOnTriggered(this, &TerminalWidget::copyToClipboard);
     m_copy = make_registered(copyAction);
 
     ActionBuilder pasteAction(this, Constants::PASTE);
     pasteAction.setContext(m_context);
-    pasteAction.setOnTriggered(this, &TerminalWidget::pasteFromClipboard);
+    pasteAction.addOnTriggered(this, &TerminalWidget::pasteFromClipboard);
     m_paste = make_registered(pasteAction);
 
     ActionBuilder closeAction(this, Core::Constants::CLOSE);
     closeAction.setContext(m_context);
-    closeAction.setOnTriggered(this, &TerminalWidget::closeTerminal);
+    closeAction.addOnTriggered(this, &TerminalWidget::closeTerminal);
     m_close = make_registered(closeAction);
 
     ActionBuilder clearTerminalAction(this, Constants::CLEAR_TERMINAL);
     clearTerminalAction.setContext(m_context);
-    clearTerminalAction.setOnTriggered(this, &TerminalWidget::clearContents);
+    clearTerminalAction.addOnTriggered(this, &TerminalWidget::clearContents);
     m_clearTerminal = make_registered(clearTerminalAction);
 
     ActionBuilder clearSelectionAction(this, Constants::CLEARSELECTION);
     clearSelectionAction.setContext(m_context);
-    clearSelectionAction.setOnTriggered(this, &TerminalWidget::clearSelection);
+    clearSelectionAction.addOnTriggered(this, &TerminalWidget::clearSelection);
     m_clearSelection = make_registered(clearSelectionAction);
 
     ActionBuilder moveCursorWordLeftAction(this, Constants::MOVECURSORWORDLEFT);
     moveCursorWordLeftAction.setContext(m_context);
-    moveCursorWordLeftAction.setOnTriggered(this, &TerminalWidget::moveCursorWordLeft);
+    moveCursorWordLeftAction.addOnTriggered(this, &TerminalWidget::moveCursorWordLeft);
     m_moveCursorWordLeft = make_registered(moveCursorWordLeftAction);
 
     ActionBuilder moveCursorWordRightAction(this, Constants::MOVECURSORWORDRIGHT);
     moveCursorWordRightAction.setContext(m_context);
-    moveCursorWordRightAction.setOnTriggered(this, &TerminalWidget::moveCursorWordRight);
+    moveCursorWordRightAction.addOnTriggered(this, &TerminalWidget::moveCursorWordRight);
     m_moveCursorWordRight = make_registered(moveCursorWordRightAction);
 
     ActionBuilder selectAllAction(this, Constants::SELECTALL);
     selectAllAction.setContext(m_context);
-    selectAllAction.setOnTriggered(this, &TerminalWidget::selectAll);
+    selectAllAction.addOnTriggered(this, &TerminalWidget::selectAll);
     m_selectAll = make_registered(selectAllAction);
 
     // Ctrl+Q, the default "Quit" shortcut, is a useful key combination in a shell.

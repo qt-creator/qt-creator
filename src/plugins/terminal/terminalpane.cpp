@@ -235,7 +235,7 @@ void TerminalPane::initActions()
     newTerminalAction.setContext(m_selfContext);
     newTerminalAction.setDefaultKeySequences({QKeySequence(
         HostOsInfo::isMacHost() ? QLatin1String("Ctrl+T") : QLatin1String("Ctrl+Shift+T"))});
-    newTerminalAction.setOnTriggered(this, [this] { openTerminal({}); });
+    newTerminalAction.addOnTriggered(this, [this] { openTerminal({}); });
     m_newTerminalAction = newTerminalAction.commandAction();
 
     ActionBuilder closeTerminalAction(this, CLOSETERMINAL);
@@ -243,7 +243,7 @@ void TerminalPane::initActions()
     closeTerminalAction.setIcon(CLOSE_TERMINAL_ICON.icon());
     closeTerminalAction.setToolTip(Tr::tr("Close the current Terminal."));
     closeTerminalAction.setContext(m_selfContext);
-    closeTerminalAction.setOnTriggered(this, [this] { removeTab(m_tabWidget.currentIndex()); });
+    closeTerminalAction.addOnTriggered(this, [this] { removeTab(m_tabWidget.currentIndex()); });
     m_closeTerminalAction = closeTerminalAction.commandAction();
 
     ActionBuilder nextTerminalAction(this, NEXTTERMINAL);
@@ -253,7 +253,7 @@ void TerminalPane::initActions()
         {QKeySequence("Alt+Tab"),
          QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+[")
                                               : QLatin1String("Ctrl+PgUp"))});
-    nextTerminalAction.setOnTriggered(this, [this] {
+    nextTerminalAction.addOnTriggered(this, [this] {
         if (canNavigate())
             goToNext();
     });
@@ -265,7 +265,7 @@ void TerminalPane::initActions()
         {QKeySequence("Alt+Shift+Tab"),
          QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+]")
                                               : QLatin1String("Ctrl+PgDown"))});
-    prevTerminalAction.setOnTriggered(this, [this] {
+    prevTerminalAction.addOnTriggered(this, [this] {
         if (canPrevious())
             goToPrev();
     });

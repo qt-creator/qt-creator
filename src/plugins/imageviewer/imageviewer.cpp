@@ -444,7 +444,7 @@ void setupImageViewer(QObject *guard)
         if (!key.isEmpty())
             builder.setDefaultKeySequence(key);
 
-        builder.setOnTriggered(guard, [onTriggered] {
+        builder.addOnTriggered(guard, [onTriggered] {
             if (auto iv = qobject_cast<ImageViewer *>(EditorManager::currentEditor()))
                 onTriggered(iv);
         });
