@@ -41,8 +41,6 @@ private:
     void duplicateSelected();
     void paste();
     void selectAll();
-    void undoAvailable(bool isAvailable);
-    void redoAvailable(bool isAvailable);
     void goIntoComponent();
 
 private:
