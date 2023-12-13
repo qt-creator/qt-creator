@@ -10,13 +10,9 @@ QFuture<CompileResult> compile(const Config &config, const CompileParameters &pa
 {
     const QUrl url = config.url({"api/compiler", parameters.compilerId, "compile"});
 
-    QNetworkRequest req(url);
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    req.setRawHeader("Accept", "application/json");
-
     return jsonRequest<CompileResult>(
         config.networkManager,
-        req,
+        url,
         [](const QJsonDocument &response) {
             CompileResult result;
 

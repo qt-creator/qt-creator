@@ -79,12 +79,12 @@ static int skipChars(QTextCursor *tc,
     return count;
 }
 
-static int skipCharsForward(QTextCursor *tc, std::function<bool(const QChar &)> skip)
+static int skipCharsForward(QTextCursor *tc, const std::function<bool(const QChar &)> &skip)
 {
     return skipChars(tc, QTextCursor::NextCharacter, 0, skip);
 }
 
-static int skipCharsBackward(QTextCursor *tc, std::function<bool(const QChar &)> skip)
+static int skipCharsBackward(QTextCursor *tc, const std::function<bool(const QChar &)> &skip)
 {
     return skipChars(tc, QTextCursor::PreviousCharacter, -1, skip);
 }

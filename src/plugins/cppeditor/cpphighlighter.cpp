@@ -590,6 +590,12 @@ void CppHighlighterTest::test_data()
         << 38 << 18 << 39 << 3 << C_STRING;
     QTest::newRow("multi-line user-defined UTF-16 string literal (suffix)")
         << 39 << 4 << 39 << 5 << C_OPERATOR;
+    QTest::newRow("multi-line raw string literal with consecutive closing parens (prefix)")
+        << 48 << 18 << 48 << 20 << C_KEYWORD;
+    QTest::newRow("multi-line raw string literal with consecutive closing parens (content)")
+        << 49 << 1 << 49 << 1 << C_STRING;
+    QTest::newRow("multi-line raw string literal with consecutive closing parens (suffix)")
+        << 49 << 2 << 49 << 3 << C_KEYWORD;
 }
 
 void CppHighlighterTest::test()

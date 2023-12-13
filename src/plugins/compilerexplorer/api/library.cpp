@@ -17,10 +17,7 @@ QFuture<Libraries> libraries(const Config &config, const QString &languageId)
 
     const QUrl url = config.url({"api/libraries", languageId});
 
-    QNetworkRequest req(url);
-    req.setRawHeader("Accept", "application/json");
-
-    return jsonRequest<Libraries>(config.networkManager, req, [](const QJsonDocument &doc) {
+    return jsonRequest<Libraries>(config.networkManager, url, [](const QJsonDocument &doc) {
         QJsonArray libraries = doc.array();
         Libraries result;
 

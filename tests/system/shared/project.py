@@ -139,8 +139,13 @@ def __createProjectHandleQtQuickSelection__(minimumQtVersion):
 # param buildSystem is a string holding the build system selected for the project
 # param checks turns tests in the function on if set to True
 # param available a list holding the available targets
-def __selectQtVersionDesktop__(buildSystem, checks, available=None):
-    wanted = Targets.desktopTargetClasses()
+# param targets a list holding the wanted targets - defaults to all desktop targets if empty
+# returns checked targets
+def __selectQtVersionDesktop__(buildSystem, checks, available=None, targets=[]):
+    if len(targets):
+        wanted = targets
+    else:
+        wanted = Targets.desktopTargetClasses()
     checkedTargets = __chooseTargets__(wanted, available)
     if checks:
         for target in checkedTargets:
@@ -162,6 +167,7 @@ def __selectQtVersionDesktop__(buildSystem, checks, available=None):
                     verifyChecked(cbObject % ("Profile", objectMap.realName(detailsWidget)))
                 clickButton(detailsButton)
     clickButton(waitForObject(":Next_QPushButton"))
+    return checkedTargets
 
 def __createProjectHandleLastPage__(expectedFiles=[], addToVersionControl="<None>", addToProject=None):
     if len(expectedFiles):
@@ -205,8 +211,10 @@ def __getProjectFileName__(projectName, buildSystem):
 # param checks turns tests in the function on if set to True
 # param addToVersionControl selects the specified VCS from Creator's wizard
 # param buildSystem selects the specified build system from Creator's wizard
+# param targets specifies targets that should be checked
+# returns the checked targets
 def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<None>",
-                         buildSystem=None):
+                         buildSystem=None, targets=[]):
     template = "Qt Widgets Application"
     available = __createProjectOrFileSelectType__("  Application (Qt)", template)
     __createProjectSetNameAndPath__(path, projectName, checks)
@@ -229,7 +237,7 @@ def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<N
 
     clickButton(waitForObject(":Next_QPushButton"))
     __createProjectHandleTranslationSelection__()
-    __selectQtVersionDesktop__(buildSystem, checks, available)
+    checkedTargets = __selectQtVersionDesktop__(buildSystem, checks, available, targets)
 
     expectedFiles = []
     if checks:
@@ -243,6 +251,7 @@ def createProject_Qt_GUI(path, projectName, checks=True, addToVersionControl="<N
     waitForProjectParsing()
     if checks:
         __verifyFileCreation__(path, expectedFiles)
+    return checkedTargets
 
 # Creates a Qt Console project
 # param path specifies where to create the project

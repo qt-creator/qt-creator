@@ -121,6 +121,10 @@ public:
         m_tooltip += "<br>" + Tr::tr("Detection source: \"%1\"").arg(m_detectionSource);
 
         m_versionDisplay = cmake.versionDisplay();
+
+        // Make sure to always have the right version in the name for Qt SDK CMake installations
+        if (m_name.startsWith("CMake") && m_name.endsWith("(Qt)"))
+            m_name = QString("CMake %1 (Qt)").arg(m_versionDisplay);
     }
 
     CMakeToolTreeItem() = default;

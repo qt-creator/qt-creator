@@ -316,8 +316,10 @@ int forceIndentWithExtraText(QByteArray &buffer,
     // A comment at the end of the line appears to prevent clang-format from removing line breaks.
     if (dummyText == "/*//*/" || dummyText.isEmpty()) {
         if (block.previous().isValid()) {
-            const int prevEndOffset = Utils::Text::utf8NthLineOffset(block.document(), buffer,
-                    block.blockNumber()) + block.previous().text().length();
+            const int prevEndOffset = Utils::Text::utf8NthLineOffset(block.document(),
+                                                                     buffer,
+                                                                     block.blockNumber())
+                                      + block.previous().text().toUtf8().length();
             buffer.insert(prevEndOffset, " //");
             extraLength += 3;
         }

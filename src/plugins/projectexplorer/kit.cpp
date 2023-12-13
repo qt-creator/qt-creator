@@ -149,8 +149,10 @@ Kit::Kit(const Store &data)
     Store extra = storeFromVariant(data.value(DATA_KEY));
     d->m_data.clear(); // remove default values
     const Store::ConstIterator cend = extra.constEnd();
-    for (Store::ConstIterator it = extra.constBegin(); it != cend; ++it)
-        d->m_data.insert(Id::fromString(stringFromKey(it.key())), it.value());
+    for (Store::ConstIterator it = extra.constBegin(); it != cend; ++it) {
+        d->m_data.insert(Id::fromString(stringFromKey(it.key())),
+                         mapEntryFromStoreEntry(it.value()));
+    }
 
     const QStringList mutableInfoList = data.value(MUTABLE_INFO_KEY).toStringList();
     for (const QString &mutableInfo : mutableInfoList)

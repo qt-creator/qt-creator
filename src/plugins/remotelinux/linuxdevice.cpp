@@ -185,6 +185,7 @@ void SshSharedConnection::connectToHost()
     });
 
     QStringList args = QStringList{"-M", "-N", "-o", "ControlPersist=no",
+            "-o", "ServerAliveInterval=10", // TODO: Make configurable?
             "-o", "PermitLocalCommand=yes", // Enable local command
             "-o", "LocalCommand=echo"}      // Local command is executed after successfully
                                             // connecting to the server. "echo" will print "\n"

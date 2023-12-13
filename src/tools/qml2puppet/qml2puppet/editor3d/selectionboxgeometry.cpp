@@ -6,13 +6,18 @@
 #include "selectionboxgeometry.h"
 
 #include <QtQuick3DRuntimeRender/private/qssgrendermodel_p.h>
-#include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrenderbuffermanager_p.h>
 #include <QtQuick3D/private/qquick3dmodel_p.h>
 #include <QtQuick3D/private/qquick3dscenemanager_p.h>
 #include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick/qquickwindow.h>
 #include <QtCore/qvector.h>
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
+#include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
+#else
+#include <QtQuick3DRuntimeRender/ssg/qssgrendercontextcore.h>
+#endif
 
 #include <limits>
 

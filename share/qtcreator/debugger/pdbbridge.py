@@ -704,13 +704,20 @@ class QtcInternalDumper():
 
     def runit(self):
         print('DIR: %s' % dir())
+        print('ARGV: %s' % sys.argv)
         if sys.argv[0] == '-c':
             sys.argv = sys.argv[2:]
         else:
             sys.argv = sys.argv[1:]
-        print('ARGV: %s' % sys.argv)
         mainpyfile = sys.argv[0]     # Get script filename
         sys.path.append(os.path.dirname(mainpyfile))
+        # Delete arguments superfluous to the inferior
+        try:
+            args_pos = sys.argv.index("--")
+            sys.argv = [sys.argv[0]] + sys.argv[args_pos + 1:]
+        except ValueError:
+            pass
+        print('INFERIOR ARGV: %s' % sys.argv)
         print('MAIN: %s' % mainpyfile)
 
         while True:

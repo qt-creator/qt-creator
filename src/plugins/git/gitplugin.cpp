@@ -1577,6 +1577,7 @@ void GitPluginPrivate::instantBlame()
 
     if (line >= lines) {
         m_blameMark.reset();
+        m_lastVisitedEditorLine = -1;
         return;
     }
 
@@ -1592,10 +1593,14 @@ void GitPluginPrivate::instantBlame()
     const auto commandHandler = [this, filePath, line](const CommandResult &result) {
         if (result.result() == ProcessResult::FinishedWithError &&
                 result.cleanedStdErr().contains("no such path")) {
-            disconnect(m_blameCursorPosConn);
+            stopInstantBlame();
             return;
         }
         const QString output = result.cleanedStdOut();
+        if (output.isEmpty()) {
+            stopInstantBlame();
+            return;
+        }
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
     };

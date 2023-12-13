@@ -124,7 +124,11 @@ public:
                    && prj->hasMakeInstallEquivalent();
         });
         addInitialStep(Qdb::Constants::QdbStopApplicationStepId);
+#ifdef Q_OS_WIN
+        addInitialStep(RemoteLinux::Constants::DirectUploadStepId);
+#else
         addInitialStep(RemoteLinux::Constants::GenericDeployStepId);
+#endif
     }
 };
 

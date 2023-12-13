@@ -9115,6 +9115,23 @@ int var2;)";
 // A third affected comment
 /* An unaffected comment */)";
 
+    // FIXME: Remove adjacent newline along with last block
+    // FIXME: Use CppRefactoringFile to auto-indent continuation lines?
+    QTest::newRow("C -> C++, indented") << R"(
+struct S {
+    /*
+     * @This is an
+     * indented comment.
+     */
+    void func();
+)" << R"(
+struct S {
+    // This is an
+// indented comment.
+
+    void func();
+)";
+
     QTest::newRow("C++ -> C / no selection / single line") << R"(
 // Other comment, unaffected
 // Our @comment

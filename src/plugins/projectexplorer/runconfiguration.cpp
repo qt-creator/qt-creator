@@ -689,7 +689,7 @@ bool FixedRunConfigurationFactory::supportsBuildKey(Target *target, const QStrin
 {
     Q_UNUSED(target)
     Q_UNUSED(key)
-    return false;
+    return true;
 }
 
 } // namespace ProjectExplorer
