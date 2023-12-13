@@ -3,6 +3,12 @@
 
 #pragma once
 
+#include <QtGlobal>
+
+QT_BEGIN_NAMESPACE
+class QWidget;
+QT_END_NAMESPACE
+
 namespace CppEditor { class CppCodeStyleWidget; }
 namespace TextEditor { class ICodeStylePreferences; }
 namespace ProjectExplorer { class Project; }
