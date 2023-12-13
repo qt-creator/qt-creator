@@ -268,19 +268,12 @@ void Qt5NodeInstanceServer::setPipelineCacheConfig([[maybe_unused]] QQuickWindow
 #ifdef USE_SHADER_CACHE
     QtQuick3DEditorHelpers::ShaderCache::setAutomaticDiskCache(false);
     auto wa = QQuick3DSceneManager::getOrSetWindowAttachment(*w);
-    connect(wa, &QQuick3DWindowAttachment::renderContextInterfaceChanged,
-            this, &Qt5NodeInstanceServer::handleRciSet);
+    connect(wa, &QQuick3DWindowAttachment::renderContextInterfaceChanged, this, [this, wa] {
+        auto context = wa->rci().get();
+        if (context && context->shaderCache())
+            context->shaderCache()->persistentShaderBakingCache().load(m_shaderCacheFile);
+    });
 #endif
-#endif
-}
-
-void Qt5NodeInstanceServer::handleRciSet()
-{
-#ifdef USE_SHADER_CACHE
-    auto wa = qobject_cast<QQuick3DWindowAttachment *>(sender());
-    auto context = wa ? wa->rci().get() : nullptr;
-    if (context && context->shaderCache())
-        context->shaderCache()->persistentShaderBakingCache().load(m_shaderCacheFile);
 #endif
 }
 
