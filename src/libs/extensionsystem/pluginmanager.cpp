@@ -1938,7 +1938,7 @@ bool PluginManager::isInitializationDone()
 
 bool PluginManager::isShuttingDown()
 {
-    return d->m_isShuttingDown;
+    return !d || d->m_isShuttingDown;
 }
 
 /*!
