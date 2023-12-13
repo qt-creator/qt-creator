@@ -74,12 +74,12 @@ static QHash<FilePath, PyLSClient*> &pythonClients()
 
 static FilePath pyLspPath(const FilePath &python)
 {
-    if (python.needsDevice())
-        return {};
     const QString version = pythonVersion(python);
-    if (version.isEmpty())
-        return {};
-    return Core::ICore::userResourcePath("pylsp") / FileUtils::fileSystemFriendlyName(version);
+    if (!python.needsDevice())
+        return Core::ICore::userResourcePath() / "pylsp" / version;
+    if (const expected_str<FilePath> tmpDir = python.tmpDir())
+        return *tmpDir / "qc-pylsp" / version;
+    return {};
 }
 
 static PythonLanguageServerState checkPythonLanguageServer(const FilePath &python)
@@ -113,20 +113,22 @@ public:
 protected:
     void startImpl() override
     {
-        if (!m_cmd.executable().needsDevice()) {
+        const FilePath python = m_cmd.executable();
+        Environment env = python.deviceEnvironment();
+        const FilePath lspPath = pyLspPath(python);
+        if (!lspPath.isEmpty() && lspPath.exists() && QTC_GUARD(lspPath.isSameDevice(python))) {
+            env.appendOrSet("PYTHONPATH",
+                            lspPath.path(),
+                            OsSpecificAspects::pathListSeparator(env.osType()));
+        }
+        if (!python.needsDevice()) {
             // todo check where to put this tempdir in remote setups
-            Environment env = Environment::systemEnvironment();
             env.appendOrSet("PYTHONPATH",
                             m_extraPythonPath.path().toString(),
                             OsSpecificAspects::pathListSeparator(env.osType()));
-            const FilePath lspPath = pyLspPath(m_cmd.executable());
-            if (!lspPath.isEmpty() && lspPath.exists()) {
-                env.appendOrSet("PYTHONPATH",
-                                pyLspPath(m_cmd.executable()).toString(),
-                                OsSpecificAspects::pathListSeparator(env.osType()));
-            }
-            setEnvironment(env);
         }
+        if (env.hasChanges())
+            setEnvironment(env);
         StdIOClientInterface::startImpl();
     }
 };
