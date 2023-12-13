@@ -30,8 +30,6 @@ public:
     void connectUndoActions(DesignDocument *designDocument);
     void disconnectUndoActions(DesignDocument *designDocument);
     void updateUndoActions(DesignDocument *designDocument);
-    DesignDocument *currentDesignDocument() const;
-
     void updateActions(Core::IEditor* editor);
 
 private:

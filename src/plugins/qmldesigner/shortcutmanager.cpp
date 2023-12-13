@@ -45,6 +45,11 @@
 
 namespace QmlDesigner {
 
+static DesignDocument *currentDesignDocument()
+{
+    return QmlDesignerPlugin::instance()->currentDesignDocument();
+}
+
 ShortCutManager::ShortCutManager()
     : QObject()
     , m_exportAsImageAction(tr("Export as &Image..."))
@@ -58,9 +63,7 @@ ShortCutManager::ShortCutManager()
     , m_duplicateAction(tr("&Duplicate"))
     , m_selectAllAction(tr("Select &All"))
     , m_escapeAction(this)
-{
-
-}
+{}
 
 void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContext,
                                       const Core::Context &qmlDesignerFormEditorContext,
@@ -349,11 +352,6 @@ void ShortCutManager::updateUndoActions(DesignDocument *designDocument)
         m_undoAction.setEnabled(false);
         m_redoAction.setEnabled(false);
     }
-}
-
-DesignDocument *ShortCutManager::currentDesignDocument() const
-{
-    return QmlDesignerPlugin::instance()->currentDesignDocument();
 }
 
 void ShortCutManager::undoAvailable(bool isAvailable)
