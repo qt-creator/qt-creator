@@ -394,10 +394,10 @@ void CollectionSourceModel::updateNodeSource(const ModelNode &node)
     updateCollectionList(index);
 }
 
-void CollectionSourceModel::onSelectedCollectionChanged(int collectionIndex)
+void CollectionSourceModel::onSelectedCollectionChanged(CollectionListModel *collectionList,
+                                                        int collectionIndex)
 {
-    CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
-    if (collectionIndex > -1 && collectionList) {
+    if (collectionIndex > -1) {
         if (m_previousSelectedList && m_previousSelectedList != collectionList)
             m_previousSelectedList->selectCollectionIndex(-1);
 
@@ -410,11 +410,9 @@ void CollectionSourceModel::onSelectedCollectionChanged(int collectionIndex)
     }
 }
 
-void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, const QString &newName)
+void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collectionList,
+                                                    const QString &oldName, const QString &newName)
 {
-    CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
-    QTC_ASSERT(collectionList, return);
-
     auto emitRenameWarning = [this](const QString &msg) -> void {
         emit this->warning(tr("Rename Model"), msg);
     };
@@ -500,11 +498,9 @@ void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, cons
     }
 }
 
-void CollectionSourceModel::onCollectionsRemoved(const QStringList &removedCollections)
+void CollectionSourceModel::onCollectionsRemoved(CollectionListModel *collectionList,
+                                                 const QStringList &removedCollections)
 {
-    CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
-    QTC_ASSERT(collectionList, return);
-
     auto emitDeleteWarning = [this](const QString &msg) -> void {
         emit warning(tr("Delete Model"), msg);
     };
@@ -641,25 +637,26 @@ void CollectionSourceModel::updateCollectionList(QModelIndex index)
 
 void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionListModel> &collection)
 {
-    connect(collection.data(),
-            &CollectionListModel::selectedIndexChanged,
-            this,
-            &CollectionSourceModel::onSelectedCollectionChanged,
-            Qt::UniqueConnection);
+    CollectionListModel *collectionList = collection.data();
+    if (collectionList == nullptr)
+        return;
 
-    connect(collection.data(),
-            &CollectionListModel::collectionNameChanged,
-            this,
-            &CollectionSourceModel::onCollectionNameChanged,
-            Qt::UniqueConnection);
+    connect(collectionList, &CollectionListModel::selectedIndexChanged, this,
+        [this, collectionList](int idx) {
+            onSelectedCollectionChanged(collectionList, idx);
+        }, Qt::UniqueConnection);
 
-    connect(collection.data(),
-            &CollectionListModel::collectionsRemoved,
-            this,
-            &CollectionSourceModel::onCollectionsRemoved,
-            Qt::UniqueConnection);
+    connect(collectionList, &CollectionListModel::collectionNameChanged, this,
+        [this, collectionList](const QString &oldName, const QString &newName) {
+            onCollectionNameChanged(collectionList, oldName, newName);
+        }, Qt::UniqueConnection);
 
-    if (collection.data() && collection->sourceNode())
+    connect(collectionList, &CollectionListModel::collectionsRemoved, this,
+        [this, collectionList](const QStringList &removedCollections) {
+            onCollectionsRemoved(collectionList, removedCollections);
+        }, Qt::UniqueConnection);
+
+    if (collection->sourceNode())
         emit collectionNamesChanged(collection->sourceNode(), collection->stringList());
 }
 
