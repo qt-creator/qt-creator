@@ -164,6 +164,13 @@ void EffectMakerModel::clear()
     emit nodesChanged();
 }
 
+void EffectMakerModel::assignToSelected()
+{
+    const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
+    const QString path = effectsAssetsDir + QDir::separator() + m_currentComposition + ".qep";
+    emit assignToSelectedTriggered(path);
+}
+
 QString EffectMakerModel::getUniqueEffectName() const
 {
     const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();

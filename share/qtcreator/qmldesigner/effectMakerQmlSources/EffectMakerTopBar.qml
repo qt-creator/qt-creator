@@ -18,6 +18,7 @@ Rectangle {
     signal addClicked
     signal saveClicked
     signal saveAsClicked
+    signal assignToSelectedClicked
 
     Row {
         spacing: 5
@@ -48,6 +49,15 @@ Rectangle {
             enabled: !EffectMakerBackend.effectMakerModel.isEmpty
 
             onClicked: root.saveAsClicked()
+        }
+
+        HelperWidgets.AbstractButton {
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.assignTo_medium
+            tooltip: qsTr("Assign current composition to selected item")
+            enabled: EffectMakerBackend.effectMakerModel.currentComposition !== ""
+
+            onClicked: root.assignToSelectedClicked()
         }
     }
 

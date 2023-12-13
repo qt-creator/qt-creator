@@ -83,6 +83,10 @@ Item {
             }
 
             onSaveAsClicked: saveAsDialog.open()
+
+            onAssignToSelectedClicked: {
+                EffectMakerBackend.effectMakerModel.assignToSelected()
+            }
         }
 
         EffectMakerPreview {

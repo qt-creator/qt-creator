@@ -65,6 +65,7 @@ public:
     Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
     Q_INVOKABLE void clear();
+    Q_INVOKABLE void assignToSelected();
     Q_INVOKABLE QString getUniqueEffectName() const;
 
     bool shadersUpToDate() const;
@@ -105,6 +106,7 @@ signals:
     void nodesChanged();
     void resourcesSaved(const QByteArray &type, const Utils::FilePath &path);
     void hasUnsavedChangesChanged();
+    void assignToSelectedTriggered(const QString &effectPath);
 
 private:
     enum Roles {

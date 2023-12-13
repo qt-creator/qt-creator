@@ -9,6 +9,8 @@
 
 #include "qmldesignerconstants.h"
 
+#include <modelnodeoperations.h>
+
 #include <coreplugin/icore.h>
 
 namespace EffectMaker {
@@ -44,6 +46,15 @@ QmlDesigner::WidgetInfo EffectMakerView::widgetInfo()
     if (m_widget.isNull()) {
         m_widget = new EffectMakerWidget{this};
 
+        connect(m_widget->effectMakerModel(), &EffectMakerModel::assignToSelectedTriggered, this,
+                [&] (const QString &effectPath) {
+            executeInTransaction("EffectMakerView::widgetInfo", [&] {
+                const QList<QmlDesigner::ModelNode> selectedNodes = selectedModelNodes();
+                for (const QmlDesigner::ModelNode &node : selectedNodes)
+                    QmlDesigner::ModelNodeOperations::handleItemLibraryEffectDrop(effectPath, node);
+            });
+        });
+
         auto context = new EffectMakerContext(m_widget.data());
         Core::ICore::addContextObject(context);
     }
@@ -78,4 +89,3 @@ void EffectMakerView::modelAboutToBeDetached(QmlDesigner::Model *model)
 }
 
 } // namespace EffectMaker
-
