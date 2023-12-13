@@ -148,11 +148,16 @@
     \uicontrol {Qt Quick} > \uicontrol {QML/JS Editing} >
     \uicontrol {Enable QML Language Server}.
 
-    To use advanced features, such as renaming and finding usages, select the
+    By default, enabling the QML language server will only enable warning messages
+    and code completion, while advanced features such as renaming and finding usages
+    will be handled by the embedded code model.
+    To disable the embedded code model and use the QML language server for everything,
+    select the
     \uicontrol {Use QML Language Server advanced features} check box.
 
-    To use the latest version of the language server installed on your
-    system, select the
+    Also, Qt Creator will try to use the QML language server shipped with
+    the Qt version in your current kit. To override that behavior and always use the
+    QML language server of the highest registered Qt version, select the
     \uicontrol {Use QML Language Server from latest Qt version} check box.
 
     \image qtcreator-qml-js-editing.webp {QML/JS Editing preferences}
