@@ -22,6 +22,7 @@
 #include <vcsbase/vcsbaseeditor.h>
 #include <vcsbase/vcscommand.h>
 
+#include <QAction>
 #include <QDateTime>
 #include <QTextCodec>
 #include <QLabel>
