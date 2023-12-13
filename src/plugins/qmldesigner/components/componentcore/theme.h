@@ -290,6 +290,7 @@ public:
         s_snapping,
         s_timeline,
         s_visibility,
+        saveAs_medium,
         saveLogs_medium,
         save_medium,
         scale_medium,
