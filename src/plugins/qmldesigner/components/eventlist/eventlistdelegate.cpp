@@ -27,8 +27,15 @@ QWidget *EventListDelegate::createEditor(QWidget *parent,
 {
     if (index.column() == EventListModel::shortcutColumn) {
         auto *editor = new ShortcutWidget(parent);
-        connect(editor, &ShortcutWidget::done, this, &EventListDelegate::commitAndClose);
-        connect(editor, &ShortcutWidget::cancel, this, &EventListDelegate::close);
+        connect(editor, &ShortcutWidget::done, this, [this, editor] {
+            auto that = const_cast<EventListDelegate *>(this);
+            emit that->commitData(editor);
+            emit that->closeEditor(editor);
+        });
+        connect(editor, &ShortcutWidget::cancel, this, [this, editor] {
+            auto that = const_cast<EventListDelegate *>(this);
+            emit that->closeEditor(editor);
+        });
         return editor;
     } else if (index.column() == EventListModel::connectColumn) {
         return nullptr;
@@ -168,20 +175,6 @@ QSize EventListDelegate::sizeHint(const QStyleOptionViewItem &option, const QMod
         return size;
     }
     return QStyledItemDelegate::sizeHint(option, index);
-}
-
-void EventListDelegate::commitAndClose()
-{
-    if (auto *editor = qobject_cast<ShortcutWidget *>(sender())) {
-        emit commitData(editor);
-        emit closeEditor(editor);
-    }
-}
-
-void EventListDelegate::close()
-{
-    if (auto *editor = qobject_cast<ShortcutWidget *>(sender()))
-        emit closeEditor(editor);
 }
 
 } // namespace QmlDesigner.
