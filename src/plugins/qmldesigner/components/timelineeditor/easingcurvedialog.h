@@ -9,9 +9,10 @@
 #include <modelnode.h>
 
 QT_BEGIN_NAMESPACE
+class QHBoxLayout;
 class QLabel;
 class QPlainTextEdit;
-class QHBoxLayout;
+class QTabWidget;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
@@ -33,32 +34,21 @@ public:
 
 private:
     bool apply();
-
     void textChanged();
-
     void tabClicked(int id);
-
     void presetTabClicked(int id);
-
     void buttonsClicked(QDialogButtonBox::StandardButton button);
-
     void updateEasingCurve(const EasingCurve &curve);
 
 private:
+    QTabWidget *m_tabWidget = nullptr;
     SplineEditor *m_splineEditor = nullptr;
-
     QPlainTextEdit *m_text = nullptr;
-
     PresetEditor *m_presets = nullptr;
-
     QHBoxLayout *m_durationLayout = nullptr;
-
     QDialogButtonBox *m_buttons = nullptr;
-
     QLabel *m_label = nullptr;
-
     QList<ModelNode> m_frames;
-
     PropertyName m_easingCurveProperty;
 };
 

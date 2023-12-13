@@ -41,12 +41,12 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
 {
     setWindowFlag(Qt::Tool, true);
 
-    auto tw = new QTabWidget;
-    tw->setTabPosition(QTabWidget::East);
-    tw->addTab(m_splineEditor, "Curve");
-    tw->addTab(m_text, "Text");
+    m_tabWidget = new QTabWidget;
+    m_tabWidget->setTabPosition(QTabWidget::East);
+    m_tabWidget->addTab(m_splineEditor, "Curve");
+    m_tabWidget->addTab(m_text, "Text");
 
-    connect(tw, &QTabWidget::currentChanged, this, &EasingCurveDialog::tabClicked);
+    connect(m_tabWidget, &QTabWidget::currentChanged, this, &EasingCurveDialog::tabClicked);
     connect(m_text, &QPlainTextEdit::textChanged, this, &EasingCurveDialog::textChanged);
 
     auto labelFont = m_label->font();
@@ -105,7 +105,7 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
     grid->addLayout(vbox, 0, 0);
     grid->addWidget(presetBar, 0, 1, Qt::AlignBottom);
 
-    grid->addWidget(tw);
+    grid->addWidget(m_tabWidget);
     grid->addWidget(m_presets, 1, 1);
     grid->addLayout(m_durationLayout, 2, 0);
     grid->addLayout(buttonLayout, 2, 1);
@@ -125,7 +125,6 @@ EasingCurveDialog::EasingCurveDialog(const QList<ModelNode> &frames, QWidget *pa
     connect(m_presets, &PresetEditor::presetChanged, m_splineEditor, &SplineEditor::setEasingCurve);
     connect(durationEdit, &QSpinBox::valueChanged, m_splineEditor, &SplineEditor::setDuration);
     connect(animateButton, &QPushButton::clicked, m_splineEditor, &SplineEditor::animate);
-
 
     resize(QSize(1421, 918));
 }
@@ -185,7 +184,7 @@ bool EasingCurveDialog::apply()
     }
     AbstractView *view = m_frames.first().view();
 
-    return view->executeInTransaction("EasingCurveDialog::apply", [this](){
+    return view->executeInTransaction("EasingCurveDialog::apply", [this] {
         auto expression = m_splineEditor->easingCurve().toString();
         for (const auto &frame : std::as_const(m_frames))
             frame.bindingProperty(m_easingCurveProperty).setExpression(expression);
@@ -201,29 +200,22 @@ void EasingCurveDialog::textChanged()
 
 void EasingCurveDialog::tabClicked(int id)
 {
-    if (auto tw = qobject_cast<const QTabWidget *>(sender())) {
-        int seid = tw->indexOf(m_splineEditor);
-        if (seid == id) {
-            for (int i = 0; i < m_durationLayout->count(); ++i) {
-                auto *item = m_durationLayout->itemAt(i);
-                if (auto *widget = item->widget())
-                    widget->show();
-            }
-
-            auto curve = m_splineEditor->easingCurve();
-            curve.fromString(m_text->toPlainText());
-            m_splineEditor->setEasingCurve(curve);
-
-        } else {
-            for (int i = 0; i < m_durationLayout->count(); ++i) {
-                auto *item = m_durationLayout->itemAt(i);
-                if (auto *widget = item->widget())
-                    widget->hide();
-            }
-
-            auto curve = m_splineEditor->easingCurve();
-            m_text->setPlainText(curve.toString());
+    const int seid = m_tabWidget->indexOf(m_splineEditor);
+    if (seid == id) {
+        for (int i = 0; i < m_durationLayout->count(); ++i) {
+            if (auto *widget = m_durationLayout->itemAt(i)->widget())
+                widget->show();
         }
+        auto curve = m_splineEditor->easingCurve();
+        curve.fromString(m_text->toPlainText());
+        m_splineEditor->setEasingCurve(curve);
+    } else {
+        for (int i = 0; i < m_durationLayout->count(); ++i) {
+            if (auto *widget = m_durationLayout->itemAt(i)->widget())
+                widget->hide();
+        }
+        auto curve = m_splineEditor->easingCurve();
+        m_text->setPlainText(curve.toString());
     }
 }
 
