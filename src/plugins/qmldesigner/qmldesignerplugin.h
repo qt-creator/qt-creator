@@ -66,17 +66,13 @@ public:
     void switchToTextModeDeferred();
     void emitCurrentTextEditorChanged(Core::IEditor *editor);
 
-    void emitAssetChanged(const QString &assetPath);
-
     static double formEditorDevicePixelRatio();
 
     static void contextHelp(const Core::IContext::HelpCallback &callback, const QString &id);
 
     static void emitUsageStatistics(const QString &identifier);
     static void emitUsageStatisticsContextAction(const QString &identifier);
-    static void emitUsageStatisticsHelpRequested(const QString &identifier);
     static void emitUsageStatisticsTime(const QString &identifier, int elapsed);
-    static void emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed);
 
     static AsynchronousImageCache &imageCache();
 

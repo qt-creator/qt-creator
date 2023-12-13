@@ -665,18 +665,12 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
 
 DesignDocument *QmlDesignerPlugin::currentDesignDocument() const
 {
-    if (d)
-        return d->documentManager.currentDesignDocument();
-
-    return nullptr;
+    return d ? d->documentManager.currentDesignDocument() : nullptr;
 }
 
 Internal::DesignModeWidget *QmlDesignerPlugin::mainWidget() const
 {
-    if (d)
-        return &d->mainWidget;
-
-    return nullptr;
+    return d ? &d->mainWidget : nullptr;
 }
 
 QWidget *QmlDesignerPlugin::createProjectExplorerWidget(QWidget *parent) const
@@ -686,7 +680,7 @@ QWidget *QmlDesignerPlugin::createProjectExplorerWidget(QWidget *parent) const
 
 void QmlDesignerPlugin::switchToTextModeDeferred()
 {
-    QTimer::singleShot(0, this, [] () {
+    QTimer::singleShot(0, this, [] {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
 }
@@ -696,11 +690,6 @@ void QmlDesignerPlugin::emitCurrentTextEditorChanged(Core::IEditor *editor)
     d->blockEditorChange = true;
     emit Core::EditorManager::instance()->currentEditorChanged(editor);
     d->blockEditorChange = false;
-}
-
-void QmlDesignerPlugin::emitAssetChanged(const QString &assetPath)
-{
-    emit assetChanged(assetPath);
 }
 
 double QmlDesignerPlugin::formEditorDevicePixelRatio()
@@ -716,7 +705,7 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
 
 void QmlDesignerPlugin::contextHelp(const Core::IContext::HelpCallback &callback, const QString &id)
 {
-    emitUsageStatisticsHelpRequested(id);
+    emitUsageStatistics(Constants::EVENT_HELP_REQUESTED + id);
     QmlDesignerPlugin::instance()->viewManager().qmlJSEditorContextHelp(callback);
 }
 
@@ -732,7 +721,7 @@ void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
         const int currentTime = privateInstance()->timer.elapsed();
         const int currentDuration = (currentTime - activeData.time);
         if (currentDuration < activeData.maxDuration)
-            instance()->emitUsageStatisticsUsageDuration(activeData.newIdentifer, currentDuration);
+            emit instance()->usageStatisticsUsageDuration(activeData.newIdentifer, currentDuration);
 
         privateInstance()->m_activeTraceIdentifierDataHash.remove(identifier);
     }
@@ -760,11 +749,6 @@ void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifi
     emitUsageStatistics(Constants::EVENT_ACTION_EXECUTED + identifier);
 }
 
-void QmlDesignerPlugin::emitUsageStatisticsHelpRequested(const QString &identifier)
-{
-    emitUsageStatistics(Constants::EVENT_HELP_REQUESTED + identifier);
-}
-
 AsynchronousImageCache &QmlDesignerPlugin::imageCache()
 {
     return m_instance->d->projectManager.asynchronousImageCache();
@@ -774,7 +758,6 @@ void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)
 {
     m_instance->d->projectManager.registerPreviewImageProvider(engine);
 }
-
 
 bool isParent(QWidget *parent, QWidget *widget)
 {
@@ -879,15 +862,8 @@ void QmlDesignerPlugin::closeFeedbackPopup()
 
 void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
 {
-
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
-}
-
-void QmlDesignerPlugin::emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed)
-{
-    QTC_ASSERT(instance(), return );
-    emit instance()->usageStatisticsUsageDuration(identifier, elapsed);
 }
 
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
