@@ -366,9 +366,9 @@ bool ProjectImporter::hasKitWithTemporaryData(Utils::Id id, const QVariant &data
     });
 }
 
-static ProjectImporter::ToolChainData createToolChains(const ToolchainDescription &tcd)
+static ProjectImporter::ToolchainData createToolChains(const ToolchainDescription &tcd)
 {
-    ProjectImporter::ToolChainData data;
+    ProjectImporter::ToolchainData data;
 
     for (ToolchainFactory *factory : ToolchainFactory::allToolchainFactories()) {
         data.tcs = factory->detectForImport(tcd);
@@ -385,10 +385,10 @@ static ProjectImporter::ToolChainData createToolChains(const ToolchainDescriptio
     return data;
 }
 
-ProjectImporter::ToolChainData
+ProjectImporter::ToolchainData
 ProjectImporter::findOrCreateToolChains(const ToolchainDescription &tcd) const
 {
-    ToolChainData result;
+    ToolchainData result;
     result.tcs = ToolchainManager::toolchains([&tcd](const Toolchain *tc) {
         return tc->language() == tcd.language && tc->matchesCompilerCommand(tcd.compilerPath);
     });

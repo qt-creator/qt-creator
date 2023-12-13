@@ -5,6 +5,6 @@
 
 namespace BareMetal::Internal {
 
-void setupIarToolChain();
+void setupIarToolchain();
 
 } // BareMetal::Internal

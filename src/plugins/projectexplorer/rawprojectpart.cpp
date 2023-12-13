@@ -155,7 +155,7 @@ bool KitInfo::isValid() const
     return kit;
 }
 
-ToolChainInfo::ToolChainInfo(const Toolchain *toolChain,
+ToolchainInfo::ToolchainInfo(const Toolchain *toolChain,
                              const Utils::FilePath &sysRootPath,
                              const Utils::Environment &env)
 {
@@ -185,8 +185,8 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
                                      const RppGenerator &rppGenerator)
     : rawProjectParts(rawProjectParts)
     , rppGenerator(rppGenerator)
-    , cToolchainInfo(ToolChainInfo(kitInfo.cToolchain, kitInfo.sysRootPath, env))
-    , cxxToolchainInfo(ToolChainInfo(kitInfo.cxxToolchain, kitInfo.sysRootPath, env))
+    , cToolchainInfo(ToolchainInfo(kitInfo.cToolchain, kitInfo.sysRootPath, env))
+    , cxxToolchainInfo(ToolchainInfo(kitInfo.cxxToolchain, kitInfo.sysRootPath, env))
 {
     if (project) {
         projectName = project->displayName();

@@ -253,14 +253,14 @@ static QString buildDisplayName(Abi::Architecture arch, Utils::Id language,
     return Tr::tr("IAREW %1 (%2, %3)").arg(version, langName, archName);
 }
 
-// IarToolChainConfigWidget
+// IarToolchainConfigWidget
 
-class IarToolChain;
+class IarToolchain;
 
-class IarToolChainConfigWidget final : public ToolchainConfigWidget
+class IarToolchainConfigWidget final : public ToolchainConfigWidget
 {
 public:
-    explicit IarToolChainConfigWidget(IarToolChain *tc);
+    explicit IarToolchainConfigWidget(IarToolchain *tc);
 
 private:
     void applyImpl() final;
@@ -280,10 +280,10 @@ private:
 
 // IarToolChain
 
-class IarToolChain final : public Toolchain
+class IarToolchain final : public Toolchain
 {
 public:
-    IarToolChain() : Toolchain(Constants::IAREW_TOOLCHAIN_TYPEID)
+    IarToolchain() : Toolchain(Constants::IAREW_TOOLCHAIN_TYPEID)
     {
         setTypeDisplayName(Tr::tr("IAREW"));
         setTargetAbiKey("TargetAbi");
@@ -291,7 +291,7 @@ public:
 
         m_extraCodeModelFlags.setSettingsKey("PlatformCodeGenFlags");
         connect(&m_extraCodeModelFlags, &BaseAspect::changed,
-                this, &IarToolChain::toolChainUpdated);
+                this, &IarToolchain::toolChainUpdated);
     }
 
     MacroInspectionRunner createMacroInspectionRunner() const final;
@@ -315,10 +315,10 @@ private:
     StringListAspect m_extraCodeModelFlags{this};
 
     friend class IarToolchainFactory;
-    friend class IarToolChainConfigWidget;
+    friend class IarToolchainConfigWidget;
 };
 
-Toolchain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() const
+Toolchain::MacroInspectionRunner IarToolchain::createMacroInspectionRunner() const
 {
     Environment env = Environment::systemEnvironment();
     addToEnvironment(env);
@@ -348,18 +348,18 @@ Toolchain::MacroInspectionRunner IarToolChain::createMacroInspectionRunner() con
     };
 }
 
-Utils::LanguageExtensions IarToolChain::languageExtensions(const QStringList &) const
+Utils::LanguageExtensions IarToolchain::languageExtensions(const QStringList &) const
 {
     return LanguageExtension::None;
 }
 
-WarningFlags IarToolChain::warningFlags(const QStringList &cxxflags) const
+WarningFlags IarToolchain::warningFlags(const QStringList &cxxflags) const
 {
     Q_UNUSED(cxxflags)
     return WarningFlags::Default;
 }
 
-Toolchain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner(
+Toolchain::BuiltInHeaderPathsRunner IarToolchain::createBuiltInHeaderPathsRunner(
         const Environment &) const
 {
     Environment env = Environment::systemEnvironment();
@@ -383,23 +383,23 @@ Toolchain::BuiltInHeaderPathsRunner IarToolChain::createBuiltInHeaderPathsRunner
     };
 }
 
-void IarToolChain::addToEnvironment(Environment &env) const
+void IarToolchain::addToEnvironment(Environment &env) const
 {
     if (!compilerCommand().isEmpty())
         env.prependOrSetPath(compilerCommand().parentDir());
 }
 
-std::unique_ptr<ToolchainConfigWidget> IarToolChain::createConfigurationWidget()
+std::unique_ptr<ToolchainConfigWidget> IarToolchain::createConfigurationWidget()
 {
-    return std::make_unique<IarToolChainConfigWidget>(this);
+    return std::make_unique<IarToolchainConfigWidget>(this);
 }
 
-bool IarToolChain::operator==(const Toolchain &other) const
+bool IarToolchain::operator==(const Toolchain &other) const
 {
     if (!Toolchain::operator==(other))
         return false;
 
-    const auto customTc = static_cast<const IarToolChain *>(&other);
+    const auto customTc = static_cast<const IarToolchain *>(&other);
     return compilerCommand() == customTc->compilerCommand()
             && m_extraCodeModelFlags() == customTc->m_extraCodeModelFlags();
 }
@@ -416,7 +416,7 @@ public:
         setSupportedToolchainType(Constants::IAREW_TOOLCHAIN_TYPEID);
         setSupportedLanguages({ProjectExplorer::Constants::C_LANGUAGE_ID,
                                ProjectExplorer::Constants::CXX_LANGUAGE_ID});
-        setToolchainConstructor([] { return new IarToolChain; });
+        setToolchainConstructor([] { return new IarToolchain; });
         setUserCreatable(true);
     }
 
@@ -429,9 +429,9 @@ private:
     Toolchains autoDetectToolchain(const Candidate &candidate, Id languageId) const;
 };
 
-void setupIarToolChain()
+void setupIarToolchain()
 {
-    static IarToolchainFactory theIarToolChainFactory;
+    static IarToolchainFactory theIarToolchainFactory;
 }
 
 Toolchains IarToolchainFactory::autoDetect(const ToolchainDetector &detector) const
@@ -550,7 +550,7 @@ Toolchains IarToolchainFactory::autoDetectToolchain(const Candidate &candidate, 
     }
     const Abi abi = guessAbi(macros);
 
-    const auto tc = new IarToolChain;
+    const auto tc = new IarToolchain;
     tc->setDetection(Toolchain::AutoDetection);
     tc->setLanguage(languageId);
     tc->setCompilerCommand(candidate.compilerPath);
@@ -563,9 +563,9 @@ Toolchains IarToolchainFactory::autoDetectToolchain(const Candidate &candidate, 
     return {tc};
 }
 
-// IarToolChainConfigWidget
+// IarToolchainConfigWidget
 
-IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
+IarToolchainConfigWidget::IarToolchainConfigWidget(IarToolchain *tc) :
     ToolchainConfigWidget(tc),
     m_compilerCommand(new PathChooser),
     m_abiWidget(new AbiWidget)
@@ -584,19 +584,19 @@ IarToolChainConfigWidget::IarToolChainConfigWidget(IarToolChain *tc) :
     setFromToolchain();
 
     connect(m_compilerCommand, &PathChooser::rawPathChanged,
-            this, &IarToolChainConfigWidget::handleCompilerCommandChange);
+            this, &IarToolchainConfigWidget::handleCompilerCommandChange);
     connect(m_platformCodeGenFlagsLineEdit, &QLineEdit::editingFinished,
-            this, &IarToolChainConfigWidget::handlePlatformCodeGenFlagsChange);
+            this, &IarToolchainConfigWidget::handlePlatformCodeGenFlagsChange);
     connect(m_abiWidget, &AbiWidget::abiChanged,
             this, &ToolchainConfigWidget::dirty);
 }
 
-void IarToolChainConfigWidget::applyImpl()
+void IarToolchainConfigWidget::applyImpl()
 {
     if (toolChain()->isAutoDetected())
         return;
 
-    const auto tc = static_cast<IarToolChain *>(toolChain());
+    const auto tc = static_cast<IarToolchain *>(toolChain());
     const QString displayName = tc->displayName();
     tc->setCompilerCommand(m_compilerCommand->filePath());
 
@@ -614,26 +614,26 @@ void IarToolChainConfigWidget::applyImpl()
     setFromToolchain();
 }
 
-bool IarToolChainConfigWidget::isDirtyImpl() const
+bool IarToolchainConfigWidget::isDirtyImpl() const
 {
-    const auto tc = static_cast<IarToolChain *>(toolChain());
+    const auto tc = static_cast<IarToolchain *>(toolChain());
     return m_compilerCommand->filePath() != tc->compilerCommand()
             || m_platformCodeGenFlagsLineEdit->text() != ProcessArgs::joinArgs(tc->extraCodeModelFlags())
             || m_abiWidget->currentAbi() != tc->targetAbi()
             ;
 }
 
-void IarToolChainConfigWidget::makeReadOnlyImpl()
+void IarToolchainConfigWidget::makeReadOnlyImpl()
 {
     m_compilerCommand->setReadOnly(true);
     m_platformCodeGenFlagsLineEdit->setEnabled(false);
     m_abiWidget->setEnabled(false);
 }
 
-void IarToolChainConfigWidget::setFromToolchain()
+void IarToolchainConfigWidget::setFromToolchain()
 {
     const QSignalBlocker blocker(this);
-    const auto tc = static_cast<IarToolChain *>(toolChain());
+    const auto tc = static_cast<IarToolchain *>(toolChain());
     m_compilerCommand->setFilePath(tc->compilerCommand());
     m_platformCodeGenFlagsLineEdit->setText(ProcessArgs::joinArgs(tc->extraCodeModelFlags()));
     m_abiWidget->setAbis({}, tc->targetAbi());
@@ -641,7 +641,7 @@ void IarToolChainConfigWidget::setFromToolchain()
     m_abiWidget->setEnabled(haveCompiler && !tc->isAutoDetected());
 }
 
-void IarToolChainConfigWidget::handleCompilerCommandChange()
+void IarToolchainConfigWidget::handleCompilerCommandChange()
 {
     const FilePath compilerPath = m_compilerCommand->filePath();
     const bool haveCompiler = compilerPath.isExecutableFile();
@@ -658,7 +658,7 @@ void IarToolChainConfigWidget::handleCompilerCommandChange()
     emit dirty();
 }
 
-void IarToolChainConfigWidget::handlePlatformCodeGenFlagsChange()
+void IarToolchainConfigWidget::handlePlatformCodeGenFlagsChange()
 {
     const QString str1 = m_platformCodeGenFlagsLineEdit->text();
     const QString str2 = ProcessArgs::joinArgs(splitString(str1));

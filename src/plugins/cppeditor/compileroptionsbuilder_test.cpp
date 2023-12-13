@@ -35,7 +35,7 @@ public:
         rpp.setQtVersion(Utils::QtMajorVersion::Qt5);
         rpp.setHeaderPaths(headerPaths);
         rpp.setConfigFileName(projectConfigFile);
-        ToolChainInfo tcInfo;
+        ToolchainInfo tcInfo;
         tcInfo.type = toolchainType;
         tcInfo.targetTriple = targetTriple;
         tcInfo.abi = Abi::fromString(targetTriple);

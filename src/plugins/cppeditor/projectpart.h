@@ -38,7 +38,7 @@ public:
                       Utils::Language language = Utils::Language::Cxx,
                       Utils::LanguageExtensions languageExtensions = {},
                       const ProjectExplorer::RawProjectPartFlags &flags = {},
-                      const ProjectExplorer::ToolChainInfo &tcInfo = {})
+                      const ProjectExplorer::ToolchainInfo &tcInfo = {})
     {
         return ConstPtr(new ProjectPart(topLevelProject, rpp, displayName, files, language,
                                    languageExtensions, flags, tcInfo));
@@ -106,7 +106,7 @@ private:
                 Utils::Language language,
                 Utils::LanguageExtensions languageExtensions,
                 const ProjectExplorer::RawProjectPartFlags &flags,
-                const ProjectExplorer::ToolChainInfo &tcInfo);
+                const ProjectExplorer::ToolchainInfo &tcInfo);
 
     CPlusPlus::LanguageFeatures deriveLanguageFeatures() const;
 

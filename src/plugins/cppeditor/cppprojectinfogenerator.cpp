@@ -121,7 +121,7 @@ ProjectPart::ConstPtr ProjectInfoGenerator::createProjectPart(
         LanguageExtensions languageExtensions)
 {
     RawProjectPartFlags flags;
-    ToolChainInfo tcInfo;
+    ToolchainInfo tcInfo;
     if (language == Language::C) {
         flags = rawProjectPart.flagsForC;
         tcInfo = m_projectUpdateInfo.cToolchainInfo;

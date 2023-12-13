@@ -65,7 +65,7 @@ public:
     static QList<ProjectPart::ConstPtr> createCAndCxxProjectParts()
     {
         QList<ProjectPart::ConstPtr> projectParts;
-        ToolChainInfo tcInfo;
+        ToolchainInfo tcInfo;
 
         // Create project part for C
         tcInfo.macroInspectionRunner = [](const QStringList &) {
@@ -484,7 +484,7 @@ public:
     {
         RawProjectPart rpp;
         rpp.setHeaderPaths(headerPaths);
-        ToolChainInfo tcInfo;
+        ToolchainInfo tcInfo;
         tcInfo.type = toolchainType;
         tcInfo.targetTriple = targetTriple;
         tcInfo.installDir = toolchainInstallDir;

@@ -28,9 +28,9 @@ class BareMetalPlugin final : public ExtensionSystem::IPlugin
     {
         setupBareMetalDevice();
 
-        setupIarToolChain();
-        setupKeilToolChain();
-        setupSdccToolChain();
+        setupIarToolchain();
+        setupKeilToolchain();
+        setupSdccToolchain();
 
         setupBareMetalDeployAndRunConfigurations();
         setupBareMetalDebugSupport();

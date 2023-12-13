@@ -127,11 +127,11 @@ public:
     Utils::FilePath sysRootPath;
 };
 
-class PROJECTEXPLORER_EXPORT ToolChainInfo
+class PROJECTEXPLORER_EXPORT ToolchainInfo
 {
 public:
-    ToolChainInfo() = default;
-    ToolChainInfo(const ProjectExplorer::Toolchain *toolChain,
+    ToolchainInfo() = default;
+    ToolchainInfo(const ProjectExplorer::Toolchain *toolChain,
                   const Utils::FilePath &sysRootPath,
                   const Utils::Environment &env);
 
@@ -171,8 +171,8 @@ public:
     RawProjectParts rawProjectParts;
     RppGenerator rppGenerator;
 
-    ToolChainInfo cToolchainInfo;
-    ToolChainInfo cxxToolchainInfo;
+    ToolchainInfo cToolchainInfo;
+    ToolchainInfo cxxToolchainInfo;
 };
 
 } // namespace ProjectExplorer

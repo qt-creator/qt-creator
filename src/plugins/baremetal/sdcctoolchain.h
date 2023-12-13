@@ -5,6 +5,6 @@
 
 namespace BareMetal::Internal {
 
-void setupSdccToolChain();
+void setupSdccToolchain();
 
 } // BareMetal::Internal

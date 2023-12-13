@@ -996,7 +996,7 @@ Kit *CMakeProjectImporter::createKit(void *directoryData) const
         SysRootKitAspect::setSysRoot(k, data->sysroot);
 
         for (const ToolchainDescription &cmtcd : data->toolchains) {
-            const ToolChainData tcd = findOrCreateToolChains(cmtcd);
+            const ToolchainData tcd = findOrCreateToolChains(cmtcd);
             QTC_ASSERT(!tcd.tcs.isEmpty(), continue);
 
             if (tcd.areTemporary) {

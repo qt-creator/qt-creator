@@ -69,7 +69,7 @@ static Macros getProjectMacros(const RawProjectPart &rpp)
 
 static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
                                   const RawProjectPartFlags &flags,
-                                  const ProjectExplorer::ToolChainInfo &tcInfo)
+                                  const ProjectExplorer::ToolchainInfo &tcInfo)
 {
     HeaderPaths headerPaths;
 
@@ -97,7 +97,7 @@ static HeaderPaths getHeaderPaths(const RawProjectPart &rpp,
 }
 
 static Toolchain::MacroInspectionReport getToolchainMacros(
-        const RawProjectPartFlags &flags, const ToolChainInfo &tcInfo, Utils::Language language)
+        const RawProjectPartFlags &flags, const ToolchainInfo &tcInfo, Utils::Language language)
 {
     Toolchain::MacroInspectionReport report;
     if (tcInfo.macroInspectionRunner) {
@@ -122,7 +122,7 @@ ProjectPart::ProjectPart(const Utils::FilePath &topLevelProject,
                          Utils::Language language,
                          Utils::LanguageExtensions languageExtensions,
                          const RawProjectPartFlags &flags,
-                         const ToolChainInfo &tcInfo)
+                         const ToolchainInfo &tcInfo)
     : topLevelProject(topLevelProject),
       displayName(displayName),
       projectFile(rpp.projectFile),

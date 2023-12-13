@@ -5,6 +5,6 @@
 
 namespace BareMetal::Internal {
 
-void setupKeilToolChain();
+void setupKeilToolchain();
 
 } // BareMetal::Internal

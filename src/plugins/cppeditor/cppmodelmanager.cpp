@@ -1981,7 +1981,7 @@ void CppModelManager::onCoreAboutToClose()
 
 void CppModelManager::setupFallbackProjectPart()
 {
-    ToolChainInfo tcInfo;
+    ToolchainInfo tcInfo;
     RawProjectPart rpp;
     rpp.setMacros(definedMacros());
     rpp.setHeaderPaths(headerPaths());
@@ -2001,7 +2001,7 @@ void CppModelManager::setupFallbackProjectPart()
         if (sysroot.isEmpty())
             sysroot = FilePath::fromString(defaultTc->sysRoot());
         Utils::Environment env = defaultKit->buildEnvironment();
-        tcInfo = ToolChainInfo(defaultTc, sysroot, env);
+        tcInfo = ToolchainInfo(defaultTc, sysroot, env);
         const auto macroInspectionWrapper = [runner = tcInfo.macroInspectionRunner](
                 const QStringList &flags) {
             Toolchain::MacroInspectionReport report = runner(flags);
