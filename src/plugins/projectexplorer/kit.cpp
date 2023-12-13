@@ -674,6 +674,8 @@ void Kit::setMutable(Id id, bool b)
 
 bool Kit::isMutable(Id id) const
 {
+    if (id == DeviceKitAspect::id())
+        return DeviceTypeKitAspect::deviceTypeId(this) != Constants::DESKTOP_DEVICE_TYPE;
     return d->m_mutable.contains(id);
 }
 

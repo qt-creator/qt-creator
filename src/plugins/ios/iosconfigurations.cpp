@@ -188,7 +188,6 @@ static void setupKit(Kit *kit, Id pDeviceType, const ToolChainPair& toolChains,
             && debuggerId.isValid())
         DebuggerKitAspect::setDebugger(kit, debuggerId);
 
-    kit->setMutable(DeviceKitAspect::id(), true);
     kit->setSticky(QtKitAspect::id(), true);
     kit->setSticky(ToolchainKitAspect::id(), true);
     kit->setSticky(DeviceTypeKitAspect::id(), true);

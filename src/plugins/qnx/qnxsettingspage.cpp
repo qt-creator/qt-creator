@@ -273,7 +273,6 @@ void QnxConfiguration::createKit(const QnxTarget &target)
 
         k->setAutoDetected(false);
         k->setAutoDetectionSource(m_envFile.toString());
-        k->setMutable(DeviceKitAspect::id(), true);
 
         k->setSticky(ToolchainKitAspect::id(), true);
         k->setSticky(DeviceTypeKitAspect::id(), true);
