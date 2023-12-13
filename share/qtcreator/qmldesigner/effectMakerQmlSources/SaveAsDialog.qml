@@ -21,10 +21,10 @@ StudioControls.Dialog {
     property bool clearOnClose: false // clear the effect maker after saving
 
     onOpened: {
-        let model = EffectMakerBackend.effectMakerModel
-        nameText.text = model.currentComposition === "" ? model.getUniqueEffectName() : model.currentComposition
-        emptyText.text = ""
+        nameText.text = EffectMakerBackend.effectMakerModel.getUniqueEffectName()
+        nameText.selectAll()
         nameText.forceActiveFocus()
+        emptyText.text = ""
     }
 
     contentItem: Item {

@@ -17,30 +17,40 @@ Rectangle {
 
     signal addClicked
     signal saveClicked
+    signal saveAsClicked
 
-    HelperWidgets.AbstractButton {
-        id: addButton
-
+    Row {
+        spacing: 5
         anchors.verticalCenter: parent.verticalCenter
-        x: 5
-        style: StudioTheme.Values.viewBarButtonStyle
-        buttonIcon: StudioTheme.Constants.add_medium
-        tooltip: qsTr("Add new composition")
 
-        onClicked: root.addClicked()
+        HelperWidgets.AbstractButton {
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.add_medium
+            tooltip: qsTr("Add new composition")
+
+            onClicked: root.addClicked()
+        }
+
+        HelperWidgets.AbstractButton {
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.save_medium
+            tooltip: qsTr("Save current composition")
+            enabled: EffectMakerBackend.effectMakerModel.hasUnsavedChanges
+                  || EffectMakerBackend.effectMakerModel.currentComposition === ""
+
+            onClicked: root.saveClicked()
+        }
+
+        HelperWidgets.AbstractButton {
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.saveAs_medium
+            tooltip: qsTr("Save current composition with a new name")
+            enabled: !EffectMakerBackend.effectMakerModel.isEmpty
+
+            onClicked: root.saveAsClicked()
+        }
     }
 
-    HelperWidgets.AbstractButton {
-        anchors.verticalCenter: parent.verticalCenter
-        x: addButton.x + addButton.width + 5
-        style: StudioTheme.Values.viewBarButtonStyle
-        buttonIcon: StudioTheme.Constants.save_medium
-        tooltip: qsTr("Save current composition")
-        enabled: EffectMakerBackend.effectMakerModel.hasUnsavedChanges
-              || EffectMakerBackend.effectMakerModel.currentComposition === ""
-
-        onClicked: root.saveClicked()
-    }
 
     Text {
         readonly property string compName: EffectMakerBackend.effectMakerModel.currentComposition

@@ -26,8 +26,16 @@ Item {
         saveChangesDialog.open()
     }
 
+    Connections {
+        target: EffectMakerBackend.effectMakerModel
+        function onIsEmptyChanged() {
+            if (EffectMakerBackend.effectMakerModel.isEmpty)
+                saveAsDialog.close()
+        }
+    }
+
     SaveAsDialog {
-        id: saveDialog
+        id: saveAsDialog
         anchors.centerIn: parent
     }
 
@@ -38,8 +46,8 @@ Item {
         onSave: {
             if (EffectMakerBackend.effectMakerModel.currentComposition === "") {
                 // if current composition is unsaved, show save as dialog and clear afterwards
-                saveDialog.clearOnClose = true
-                saveDialog.open()
+                saveAsDialog.clearOnClose = true
+                saveAsDialog.open()
             } else {
                 root.onSaveChangesCallback()
             }
@@ -69,10 +77,12 @@ Item {
                 let name = EffectMakerBackend.effectMakerModel.currentComposition
 
                 if (name === "")
-                    saveDialog.open()
+                    saveAsDialog.open()
                 else
                     EffectMakerBackend.effectMakerModel.saveComposition(name)
             }
+
+            onSaveAsClicked: saveAsDialog.open()
         }
 
         EffectMakerPreview {
