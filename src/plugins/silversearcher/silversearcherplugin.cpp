@@ -15,7 +15,7 @@ class SilverSearcherPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-        new FindInFilesSilverSearcher(this);
+        setupFindInFilesSilverSearcher();
 
 #ifdef WITH_TESTS
         addTest<OutputParserTest>();
