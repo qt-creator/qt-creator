@@ -47,7 +47,7 @@ public:
     std::pair<CppCodeStyleWidget *, QString> additionalTab(
         ICodeStylePreferences *codeStyle, Project *project, QWidget *parent) const override
     {
-        return {new ClangFormatConfigWidget(codeStyle, project, parent), Tr::tr("ClangFormat")};
+        return {createClangFormatConfigWidget(codeStyle, project, parent), Tr::tr("ClangFormat")};
     }
 
     CodeStyleEditorWidget *createAdditionalGlobalSettings(

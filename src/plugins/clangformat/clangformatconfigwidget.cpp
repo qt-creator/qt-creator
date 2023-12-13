@@ -15,6 +15,7 @@
 
 #include <cppeditor/cppcodestylepreferences.h>
 #include <cppeditor/cppcodestylesettings.h>
+#include <cppeditor/cppcodestylesettingspage.h>
 #include <cppeditor/cppcodestylesnippets.h>
 #include <cppeditor/cpphighlighter.h>
 #include <cppeditor/cpptoolssettings.h>
@@ -38,15 +39,12 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QScrollArea>
-#include <QSharedPointer>
 #include <QVBoxLayout>
-#include <QVersionNumber>
-#include <QWeakPointer>
-#include <QWidget>
 
 #include <clang/Basic/Version.h>
 #include <clang/Format/Format.h>
 
+#include <memory>
 #include <sstream>
 
 using namespace ProjectExplorer;
@@ -54,20 +52,46 @@ using namespace Utils;
 
 namespace ClangFormat {
 
-class ClangFormatConfigWidget::Private
+class ClangFormatConfigWidget final : public CppEditor::CppCodeStyleWidget
 {
 public:
-    ProjectExplorer::Project *project = nullptr;
-    QWidget *checksWidget = nullptr;
-    QScrollArea *checksScrollArea = nullptr;
-    TextEditor::SnippetEditorWidget *preview = nullptr;
-    std::unique_ptr<ClangFormatFile> config;
-    clang::format::FormatStyle style;
-    Utils::Guard ignoreChanges;
-    QLabel *fallbackConfig;
-    QLabel *clangVersion;
-    QLabel *clangWarningText;
-    QLabel *clangWarningIcon;
+    ClangFormatConfigWidget(TextEditor::ICodeStylePreferences *codeStyle,
+                            Project *project,
+                            QWidget *parent);
+    void apply() final;
+    void finish() final;
+    void setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings) final;
+    void setTabSettings(const TextEditor::TabSettings &settings) final;
+    void synchronize() final;
+
+private:
+    bool eventFilter(QObject *object, QEvent *event) final;
+
+    FilePath globalPath();
+    FilePath projectPath();
+    void createStyleFileIfNeeded(bool isGlobal);
+    void showOrHideWidgets();
+    void initChecksAndPreview();
+    void connectChecks();
+
+    void fillTable();
+    std::string readFile(const QString &path);
+    void saveChanges(QObject *sender);
+
+    void updatePreview();
+    void slotCodeStyleChanged(TextEditor::ICodeStylePreferences *currentPreferences);
+
+    ProjectExplorer::Project *m_project = nullptr;
+    QWidget *m_checksWidget = nullptr;
+    QScrollArea *m_checksScrollArea = nullptr;
+    TextEditor::SnippetEditorWidget *m_preview = nullptr;
+    std::unique_ptr<ClangFormatFile> m_config;
+    clang::format::FormatStyle m_style;
+    Guard m_ignoreChanges;
+    QLabel *m_fallbackConfig;
+    QLabel *m_clangVersion;
+    QLabel *m_clangWarningText;
+    QLabel *m_clangWarningIcon;
 };
 
 bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
@@ -80,68 +104,68 @@ bool ClangFormatConfigWidget::eventFilter(QObject *object, QEvent *event)
 }
 
 ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferences *codeStyle,
-                                                 ProjectExplorer::Project *project,
+                                                 Project *project,
                                                  QWidget *parent)
-    : CppCodeStyleWidget(parent), d(new Private)
+    : CppCodeStyleWidget(parent)
 {
-    d->project = project;
-    d->config = std::make_unique<ClangFormatFile>(codeStyle->currentPreferences());
+    m_project = project;
+    m_config = std::make_unique<ClangFormatFile>(codeStyle->currentPreferences());
 
-    d->fallbackConfig = new QLabel(Tr::tr("Clang-Format Style"));
-    d->checksScrollArea = new QScrollArea();
-    d->checksWidget = new ClangFormatChecks();
+    m_fallbackConfig = new QLabel(Tr::tr("Clang-Format Style"));
+    m_checksScrollArea = new QScrollArea();
+    m_checksWidget = new ClangFormatChecks();
 
-    d->checksScrollArea->setWidget(d->checksWidget);
-    d->checksScrollArea->setWidgetResizable(true);
-    d->checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
+    m_checksScrollArea->setWidget(m_checksWidget);
+    m_checksScrollArea->setWidgetResizable(true);
+    m_checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
                                 && !codeStyle->isAdditionalTabDisabled());
 
 
     static const int expectedMajorVersion = 17;
-    d->clangVersion = new QLabel(Tr::tr("Current ClangFormat version: %1.").arg(LLVM_VERSION_STRING),
+    m_clangVersion = new QLabel(Tr::tr("Current ClangFormat version: %1.").arg(LLVM_VERSION_STRING),
                                  this);
-    d->clangWarningText
+    m_clangWarningText
         = new QLabel(Tr::tr("The widget was generated for ClangFormat %1. "
                             "If you use a different version, the widget may work incorrectly.")
                          .arg(expectedMajorVersion),
                      this);
 
-    QPalette palette = d->clangWarningText->palette();
+    QPalette palette = m_clangWarningText->palette();
     palette.setColor(QPalette::WindowText, Qt::red);
-    d->clangWarningText->setPalette(palette);
+    m_clangWarningText->setPalette(palette);
 
-    d->clangWarningIcon = new QLabel(this);
-    d->clangWarningIcon->setPixmap(Utils::Icons::WARNING.icon().pixmap(16, 16));
+    m_clangWarningIcon = new QLabel(this);
+    m_clangWarningIcon->setPixmap(Icons::WARNING.icon().pixmap(16, 16));
 
     if (LLVM_VERSION_MAJOR == expectedMajorVersion) {
-        d->clangWarningText->hide();
-        d->clangWarningIcon->hide();
+        m_clangWarningText->hide();
+        m_clangWarningIcon->hide();
     }
 
     FilePath fileName;
-    if (d->project)
-        fileName = d->project->projectFilePath().pathAppended("snippet.cpp");
+    if (m_project)
+        fileName = m_project->projectFilePath().pathAppended("snippet.cpp");
     else
         fileName = Core::ICore::userResourcePath("snippet.cpp");
 
-    d->preview = new TextEditor::SnippetEditorWidget(this);
-    TextEditor::DisplaySettings displaySettings = d->preview->displaySettings();
+    m_preview = new TextEditor::SnippetEditorWidget(this);
+    TextEditor::DisplaySettings displaySettings = m_preview->displaySettings();
     displaySettings.m_visualizeWhitespace = true;
-    d->preview->setDisplaySettings(displaySettings);
-    d->preview->setPlainText(QLatin1String(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
-    d->preview->textDocument()->setIndenter(new ClangFormatIndenter(d->preview->document()));
-    d->preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
-    d->preview->textDocument()->resetSyntaxHighlighter(
+    m_preview->setDisplaySettings(displaySettings);
+    m_preview->setPlainText(QLatin1String(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
+    m_preview->textDocument()->setIndenter(new ClangFormatIndenter(m_preview->document()));
+    m_preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
+    m_preview->textDocument()->resetSyntaxHighlighter(
         [] { return new CppEditor::CppHighlighter(); });
-    d->preview->textDocument()->indenter()->setFileName(fileName);
+    m_preview->textDocument()->indenter()->setFileName(fileName);
 
     using namespace Layouting;
 
     Column {
-        d->fallbackConfig,
-        Row {d->clangWarningIcon, d->clangWarningText, st},
-        d->clangVersion,
-        Row { d->checksScrollArea, d->preview },
+        m_fallbackConfig,
+        Row {m_clangWarningIcon, m_clangWarningText, st},
+        m_clangVersion,
+        Row { m_checksScrollArea, m_preview },
     }.attachTo(this);
 
     connect(codeStyle, &TextEditor::ICodeStylePreferences::currentPreferencesChanged,
@@ -156,21 +180,16 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     connectChecks();
 }
 
-ClangFormatConfigWidget::~ClangFormatConfigWidget()
-{
-    delete d;
-}
-
 void ClangFormatConfigWidget::slotCodeStyleChanged(
     TextEditor::ICodeStylePreferences *codeStyle)
 {
     if (!codeStyle)
         return;
-    d->config.reset(new ClangFormatFile(codeStyle));
-    d->config->setIsReadOnly(codeStyle->isReadOnly());
-    d->style = d->config->style();
+    m_config.reset(new ClangFormatFile(codeStyle));
+    m_config->setIsReadOnly(codeStyle->isReadOnly());
+    m_style = m_config->style();
 
-    d->checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
+    m_checksWidget->setEnabled(!codeStyle->isReadOnly() && !codeStyle->isTemporarilyReadOnly()
                                 && !codeStyle->isAdditionalTabDisabled());
 
     fillTable();
@@ -180,11 +199,11 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(
 void ClangFormatConfigWidget::connectChecks()
 {
     auto doSaveChanges = [this](QObject *sender) {
-        if (!d->ignoreChanges.isLocked())
+        if (!m_ignoreChanges.isLocked())
             saveChanges(sender);
     };
 
-    for (QObject *child : d->checksWidget->children()) {
+    for (QObject *child : m_checksWidget->children()) {
         auto comboBox = qobject_cast<QComboBox *>(child);
         if (comboBox != nullptr) {
             connect(comboBox, &QComboBox::currentIndexChanged,
@@ -216,15 +235,15 @@ static clang::format::FormatStyle constructStyle(const QByteArray &baseStyle = Q
     return qtcStyle();
 }
 
-Utils::FilePath ClangFormatConfigWidget::globalPath()
+FilePath ClangFormatConfigWidget::globalPath()
 {
     return Core::ICore::userResourcePath();
 }
 
-Utils::FilePath ClangFormatConfigWidget::projectPath()
+FilePath ClangFormatConfigWidget::projectPath()
 {
-    if (d->project)
-        return globalPath().pathAppended("clang-format/" + projectUniqueId(d->project));
+    if (m_project)
+        return globalPath().pathAppended("clang-format/" + projectUniqueId(m_project));
 
     return {};
 }
@@ -239,7 +258,7 @@ void ClangFormatConfigWidget::createStyleFileIfNeeded(bool isGlobal)
 
     path.ensureWritableDir();
     if (!isGlobal) {
-        FilePath possibleProjectConfig = d->project->rootProjectDirectory()
+        FilePath possibleProjectConfig = m_project->rootProjectDirectory()
                                          / Constants::SETTINGS_FILE_NAME;
         if (possibleProjectConfig.exists()) {
             // Just copy th .clang-format if current project has one.
@@ -261,18 +280,18 @@ void ClangFormatConfigWidget::showOrHideWidgets()
     if (lastItem->spacerItem())
         verticalLayout->removeItem(lastItem);
 
-    createStyleFileIfNeeded(!d->project);
-    d->fallbackConfig->show();
-    d->checksScrollArea->show();
-    d->preview->show();
+    createStyleFileIfNeeded(!m_project);
+    m_fallbackConfig->show();
+    m_checksScrollArea->show();
+    m_preview->show();
 }
 
 void ClangFormatConfigWidget::updatePreview()
 {
-    QTextCursor cursor(d->preview->document());
+    QTextCursor cursor(m_preview->document());
     cursor.setPosition(0);
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    d->preview->textDocument()->autoIndent(cursor);
+    m_preview->textDocument()->autoIndent(cursor);
 }
 
 std::string ClangFormatConfigWidget::readFile(const QString &path)
@@ -352,12 +371,12 @@ static std::map<QString, QString> getMapFromString(const QString &text)
 
 void ClangFormatConfigWidget::fillTable()
 {
-    Utils::GuardLocker locker(d->ignoreChanges);
+    GuardLocker locker(m_ignoreChanges);
 
-    const QString configText = QString::fromStdString(readFile(d->config->filePath().path()));
+    const QString configText = QString::fromStdString(readFile(m_config->filePath().path()));
     std::map<QString, QString> objectNameMap = getMapFromString(configText);
 
-    for (QObject *child : d->checksWidget->children()) {
+    for (QObject *child : m_checksWidget->children()) {
         if (!qobject_cast<QComboBox *>(child) && !qobject_cast<QLineEdit *>(child)
             && !qobject_cast<QPlainTextEdit *>(child)) {
             continue;
@@ -390,13 +409,13 @@ void ClangFormatConfigWidget::fillTable()
 void ClangFormatConfigWidget::saveChanges(QObject *sender)
 {
     if (sender->objectName() == "BasedOnStyle") {
-        const auto *basedOnStyle = d->checksWidget->findChild<QComboBox *>("BasedOnStyle");
-        d->config->setBasedOnStyle(basedOnStyle->currentText());
+        const auto *basedOnStyle = m_checksWidget->findChild<QComboBox *>("BasedOnStyle");
+        m_config->setBasedOnStyle(basedOnStyle->currentText());
     } else {
         QList<ClangFormatFile::Field> fields;
         QString parentName;
 
-        for (QObject *child : d->checksWidget->children()) {
+        for (QObject *child : m_checksWidget->children()) {
             if (child->objectName() == "BasedOnStyle")
                 continue;
             auto *label = qobject_cast<QLabel *>(child);
@@ -407,7 +426,7 @@ void ClangFormatConfigWidget::saveChanges(QObject *sender)
             if (!label->text().startsWith("  "))
                 parentName = "";
 
-            QList<QWidget *> valueWidgets = d->checksWidget->findChildren<QWidget *>(
+            QList<QWidget *> valueWidgets = m_checksWidget->findChildren<QWidget *>(
                 parentName + label->text().trimmed());
 
             if (valueWidgets.empty()) {
@@ -458,7 +477,7 @@ void ClangFormatConfigWidget::saveChanges(QObject *sender)
                     fields.append({label->text(), text});
             }
         }
-        d->config->changeFields(fields);
+        m_config->changeFields(fields);
     }
 
     fillTable();
@@ -468,7 +487,7 @@ void ClangFormatConfigWidget::saveChanges(QObject *sender)
 
 void ClangFormatConfigWidget::setCodeStyleSettings(const CppEditor::CppCodeStyleSettings &settings)
 {
-    d->config->fromCppCodeStyleSettings(settings);
+    m_config->fromCppCodeStyleSettings(settings);
 
     fillTable();
     updatePreview();
@@ -476,7 +495,7 @@ void ClangFormatConfigWidget::setCodeStyleSettings(const CppEditor::CppCodeStyle
 
 void ClangFormatConfigWidget::setTabSettings(const TextEditor::TabSettings &settings)
 {
-    d->config->fromTabSettings(settings);
+    m_config->fromTabSettings(settings);
 
     fillTable();
     updatePreview();
@@ -484,24 +503,32 @@ void ClangFormatConfigWidget::setTabSettings(const TextEditor::TabSettings &sett
 
 void ClangFormatConfigWidget::synchronize()
 {
-    emit codeStyleSettingsChanged(d->config->toCppCodeStyleSettings(d->project));
-    emit tabSettingsChanged(d->config->toTabSettings(d->project));
+    emit codeStyleSettingsChanged(m_config->toCppCodeStyleSettings(m_project));
+    emit tabSettingsChanged(m_config->toTabSettings(m_project));
 }
 
 void ClangFormatConfigWidget::apply()
 {
-    if (!d->checksWidget->isVisible() && !d->checksWidget->isEnabled())
+    if (!m_checksWidget->isVisible() && !m_checksWidget->isEnabled())
         return;
 
-    d->style = d->config->style();
+    m_style = m_config->style();
 }
 
 void ClangFormatConfigWidget::finish()
 {
-    if (!d->checksWidget->isVisible() && !d->checksWidget->isEnabled())
+    if (!m_checksWidget->isVisible() && !m_checksWidget->isEnabled())
         return;
 
-    d->config->setStyle(d->style);
+    m_config->setStyle(m_style);
+}
+
+CppEditor::CppCodeStyleWidget *createClangFormatConfigWidget(
+    TextEditor::ICodeStylePreferences *codeStyle,
+    Project *project,
+    QWidget *parent)
+{
+    return new ClangFormatConfigWidget(codeStyle, project, parent);
 }
 
 } // namespace ClangFormat
