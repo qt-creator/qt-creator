@@ -759,35 +759,22 @@ void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)
     m_instance->d->projectManager.registerPreviewImageProvider(engine);
 }
 
-bool isParent(QWidget *parent, QWidget *widget)
-{
-    if (!widget)
-        return false;
-
-    if (widget == parent)
-        return true;
-
-    return isParent(parent, widget->parentWidget());
-}
-
 void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &identifier)
 {
-    connect(qApp,
-            &QApplication::focusChanged,
-            widget,
-            [widget, identifier](QWidget *from, QWidget *to) {
-                static QElapsedTimer widgetUsageTimer;
-                static QString lastIdentifier;
-                if (isParent(widget, to)) {
-                    if (!lastIdentifier.isEmpty())
-                        emitUsageStatisticsTime(lastIdentifier, widgetUsageTimer.elapsed());
-                    widgetUsageTimer.restart();
-                    lastIdentifier = identifier;
-                } else if (isParent(widget, from) && lastIdentifier == identifier) {
-                    emitUsageStatisticsTime(identifier, widgetUsageTimer.elapsed());
-                    lastIdentifier.clear();
-                }
-            });
+    connect(qApp, &QApplication::focusChanged,
+            widget, [widget, identifier](QWidget *from, QWidget *to) {
+        static QElapsedTimer widgetUsageTimer;
+        static QString lastIdentifier;
+        if (widget->isAncestorOf(to)) {
+            if (!lastIdentifier.isEmpty())
+                emitUsageStatisticsTime(lastIdentifier, widgetUsageTimer.elapsed());
+            widgetUsageTimer.restart();
+            lastIdentifier = identifier;
+        } else if (widget->isAncestorOf(from) && lastIdentifier == identifier) {
+            emitUsageStatisticsTime(identifier, widgetUsageTimer.elapsed());
+            lastIdentifier.clear();
+        }
+    });
 }
 
 void QmlDesignerPlugin::registerCombinedTracedPoints(const QString &identifierFirst,
