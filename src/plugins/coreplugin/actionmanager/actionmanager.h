@@ -42,7 +42,7 @@ public:
     void setToolTip(const QString &toolTip);
     void setCommandAttribute(Core::Command::CommandAttribute attr);
     void setCommandDescription(const QString &desc);
-    void setContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
+    void addToContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
     void setOnTriggered(const std::function<void()> &func);
 
     template<class T, typename F>

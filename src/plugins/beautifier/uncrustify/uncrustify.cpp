@@ -242,13 +242,13 @@ public:
         Core::ActionBuilder formatFile(this, "Uncrustify.FormatFile");
         formatFile.setText(msgFormatCurrentFile());
         formatFile.bindContextAction(&m_formatFile);
-        formatFile.setContainer(menuId);
+        formatFile.addToContainer(menuId);
         formatFile.setOnTriggered(this, [this] { this->formatFile(); });
 
         Core::ActionBuilder formatRange(this, "Uncrustify.FormatSelectedText");
         formatRange.setText(msgFormatSelectedText());
         formatRange.bindContextAction(&m_formatRange);
-        formatRange.setContainer(menuId);
+        formatRange.addToContainer(menuId);
         formatRange.setOnTriggered(this, [this] { this->formatSelectedText(); });
 
         Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);

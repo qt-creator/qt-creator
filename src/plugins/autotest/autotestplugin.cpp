@@ -189,7 +189,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runAll.setIcon(Utils::Icons::RUN_SMALL.icon());
     runAll.setToolTip(Tr::tr("Run All Tests"));
     runAll.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+A"), Tr::tr("Alt+Shift+T,Alt+A"));
-    runAll.setContainer(Constants::MENU_ID);
+    runAll.addToContainer(Constants::MENU_ID);
     runAll.setEnabled(false);
     runAll.setOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::Run); });
 
@@ -198,7 +198,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runAllNoDeploy.setIcon(Utils::Icons::RUN_SMALL.icon());
     runAllNoDeploy.setToolTip(Tr::tr("Run All Tests Without Deployment"));
     runAllNoDeploy.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+E"), Tr::tr("Alt+Shift+T,Alt+E"));
-    runAllNoDeploy.setContainer(Constants::MENU_ID);
+    runAllNoDeploy.addToContainer(Constants::MENU_ID);
     runAllNoDeploy.setEnabled(false);
     runAllNoDeploy.setOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::RunWithoutDeploy); });
 
@@ -207,7 +207,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runSelected.setIcon(Utils::Icons::RUN_SELECTED.icon());
     runSelected.setToolTip(Tr::tr("Run Selected Tests"));
     runSelected.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+R"), Tr::tr("Alt+Shift+T,Alt+R"));
-    runSelected.setContainer(Constants::MENU_ID);
+    runSelected.addToContainer(Constants::MENU_ID);
     runSelected.setEnabled(false);
     runSelected.setOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::Run); });
 
@@ -216,7 +216,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runSelectedNoDeploy.setIcon(Utils::Icons::RUN_SELECTED.icon());
     runSelectedNoDeploy.setToolTip(Tr::tr("Run Selected Tests Without Deployment"));
     runSelectedNoDeploy.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+W"), Tr::tr("Alt+Shift+T,Alt+W"));
-    runSelectedNoDeploy.setContainer(Constants::MENU_ID);
+    runSelectedNoDeploy.addToContainer(Constants::MENU_ID);
     runSelectedNoDeploy.setEnabled(false);
     runSelectedNoDeploy.setOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::RunWithoutDeploy); });
 
@@ -225,7 +225,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runFailed.setIcon(Icons::RUN_FAILED.icon());
     runFailed.setToolTip(Tr::tr("Run Failed Tests"));
     runFailed.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+F"), Tr::tr("Alt+Shift+T,Alt+F"));
-    runFailed.setContainer(Constants::MENU_ID);
+    runFailed.addToContainer(Constants::MENU_ID);
     runFailed.setEnabled(false);
     runFailed.setOnTriggered(this, [this] { onRunFailedTriggered(); });
 
@@ -234,7 +234,7 @@ void AutotestPluginPrivate::initializeMenuEntries()
     runCurrent.setIcon(Utils::Icons::RUN_FILE.icon());
     runCurrent.setToolTip(Tr::tr("Run Tests for Current File"));
     runCurrent.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+C"), Tr::tr("Alt+Shift+T,Alt+C"));
-    runCurrent.setContainer(Constants::MENU_ID);
+    runCurrent.addToContainer(Constants::MENU_ID);
     runCurrent.setEnabled(false);
     runCurrent.setOnTriggered(this, [this] { onRunFileTriggered(); });
 
@@ -243,13 +243,13 @@ void AutotestPluginPrivate::initializeMenuEntries()
     disableTemp.setToolTip(Tr::tr("Disable scanning and other actions until explicitly rescanning, "
                                   "re-enabling, or restarting Qt Creator."));
     disableTemp.setCheckable(true);
-    disableTemp.setContainer(Constants::MENU_ID);
+    disableTemp.addToContainer(Constants::MENU_ID);
     disableTemp.setOnTriggered(this, [this](bool on) { onDisableTemporarily(on); });
 
     ActionBuilder rescan(this, Constants::ACTION_SCAN_ID);
     rescan.setText(Tr::tr("Re&scan Tests"));
     rescan.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+S"), Tr::tr("Alt+Shift+T,Alt+S"));
-    rescan.setContainer(Constants::MENU_ID);
+    rescan.addToContainer(Constants::MENU_ID);
     rescan.setOnTriggered(this, [] {
         if (dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily)
             dd->onDisableTemporarily(false);  // Rescan Test should explicitly re-enable
@@ -298,14 +298,14 @@ void AutotestPlugin::extensionsInitialized()
     runTest.setText(Tr::tr("&Run Test"));
     runTest.setEnabled(false);
     runTest.setIcon(Utils::Icons::RUN_SMALL.icon());
-    runTest.setContainer(menuId);
+    runTest.addToContainer(menuId);
     runTest.setOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Run); });
 
     ActionBuilder runTestNoDeploy(this, Constants::ACTION_RUN_UCURSOR_NODEPLOY);
     runTestNoDeploy.setText(Tr::tr("Run Test Without Deployment"));
     runTestNoDeploy.setIcon(Utils::Icons::RUN_SMALL.icon());
     runTestNoDeploy.setEnabled(false);
-    runTestNoDeploy.setContainer(menuId);
+    runTestNoDeploy.addToContainer(menuId);
     runTestNoDeploy.setOnTriggered(
         [] { dd->onRunUnderCursorTriggered(TestRunMode::RunWithoutDeploy); });
 
@@ -313,14 +313,14 @@ void AutotestPlugin::extensionsInitialized()
     debugTest.setText(Tr::tr("&Debug Test"));
     debugTest.setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
     debugTest.setEnabled(false);
-    debugTest.setContainer(menuId);
+    debugTest.addToContainer(menuId);
     debugTest.setOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Debug); });
 
     ActionBuilder debugTestNoDeploy(this, Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY);
     debugTestNoDeploy.setText(Tr::tr("Debug Test Without Deployment"));
     debugTestNoDeploy.setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
     debugTestNoDeploy.setEnabled(false);
-    debugTestNoDeploy.setContainer(menuId);
+    debugTestNoDeploy.addToContainer(menuId);
     debugTestNoDeploy.setOnTriggered(
         [] { dd->onRunUnderCursorTriggered(TestRunMode::DebugWithoutDeploy); });
 }

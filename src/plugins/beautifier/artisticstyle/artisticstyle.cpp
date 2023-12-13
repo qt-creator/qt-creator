@@ -246,7 +246,7 @@ public:
         Core::ActionBuilder formatFile(this, "ArtisticStyle.FormatFile");
         formatFile.setText(msgFormatCurrentFile());
         formatFile.bindContextAction(&m_formatFile);
-        formatFile.setContainer(menuId);
+        formatFile.addToContainer(menuId);
         formatFile.setOnTriggered(this, [this] { this->formatFile(); });
 
         Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);

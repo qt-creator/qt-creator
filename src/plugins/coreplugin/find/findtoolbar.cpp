@@ -257,7 +257,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     findInDocumentAction.setIcon(Icon::fromTheme("edit-find-replace"));
     findInDocumentAction.bindContextAction(&m_findInDocumentAction);
     findInDocumentAction.setDefaultKeySequence(QKeySequence::Find);
-    findInDocumentAction.setContainer(Constants::M_FIND, Constants::G_FIND_CURRENTDOCUMENT);
+    findInDocumentAction.addToContainer(Constants::M_FIND, Constants::G_FIND_CURRENTDOCUMENT);
     findInDocumentAction.setOnTriggered(this, [this] { openFind(); });
 
     // Pressing the find shortcut while focus is in the tool bar should not change the search text,
@@ -273,7 +273,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
         ActionBuilder enterFindStringAction(this, "Find.EnterFindString");
         enterFindStringAction.setText(Tr::tr("Enter Find String"));
         enterFindStringAction.setDefaultKeySequence(Tr::tr("Ctrl+E"));
-        enterFindStringAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+        enterFindStringAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
         enterFindStringAction.bindContextAction(&m_enterFindStringAction);
         enterFindStringAction.setOnTriggered(this, [this] { putSelectionToFindClipboard(); });
         connect(QApplication::clipboard(), &QClipboard::findBufferChanged, this, &FindToolBar::updateFromFindClipboard);
@@ -283,7 +283,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     findNextAction.setText(Tr::tr("Find Next"));
     findNextAction.bindContextAction(&m_findNextAction);
     findNextAction.setDefaultKeySequence(QKeySequence::FindNext);
-    findNextAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+    findNextAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
     findNextAction.setOnTriggered(this, [this] { invokeGlobalFindNext(); });
 
     ActionBuilder localFindNextAction(this, Constants::FIND_NEXT);
@@ -298,7 +298,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     findPreviousAction.setText(Tr::tr("Find Previous"));
     findPreviousAction.bindContextAction(&m_findPreviousAction);
     findPreviousAction.setDefaultKeySequence(QKeySequence::FindPrevious);
-    findPreviousAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+    findPreviousAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
     findPreviousAction.setOnTriggered(this, [this] { invokeGlobalFindPrevious(); });
 
     ActionBuilder localFindPreviousAction(this, Constants::FIND_PREVIOUS);
@@ -313,21 +313,21 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     findNextSelectedAction.setText(Tr::tr("Find Next (Selected)"));
     findNextSelectedAction.bindContextAction(&m_findNextSelectedAction);
     findNextSelectedAction.setDefaultKeySequence(Tr::tr("Ctrl+F3"));
-    findNextSelectedAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+    findNextSelectedAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
     findNextSelectedAction.setOnTriggered(this, [this] { findNextSelected(); });
 
     ActionBuilder findPreviousSelectedAction(this, Constants::FIND_PREV_SELECTED);
     findPreviousSelectedAction.setText(Tr::tr("Find Previous (Selected)"));
     findPreviousSelectedAction.bindContextAction(&m_findPreviousSelectedAction);
     findPreviousSelectedAction.setDefaultKeySequence(Tr::tr("Ctrl+Shift+F3"));
-    findPreviousSelectedAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+    findPreviousSelectedAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
     findPreviousSelectedAction.setOnTriggered(this, [this] { findPreviousSelected(); });
 
     ActionBuilder selectAllAction(this, Constants::FIND_SELECT_ALL);
     selectAllAction.setText(Tr::tr("Select All"));
     selectAllAction.bindContextAction(&m_selectAllAction);
     selectAllAction.setDefaultKeySequence(Tr::tr("Ctrl+Alt+Return"));
-    selectAllAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+    selectAllAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
     selectAllAction.setOnTriggered(this, [this] { selectAll(); });
 
     ActionBuilder localSelectAllAction(this, Constants::FIND_SELECT_ALL);
@@ -342,7 +342,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     replaceAction.setText(Tr::tr("Replace"));
     replaceAction.bindContextAction(&m_replaceAction);
     replaceAction.setDefaultKeySequence({});
-    replaceAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+    replaceAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
     replaceAction.setOnTriggered(this, [this] { invokeGlobalReplace(); });
 
     ActionBuilder localReplaceAction(this, Constants::REPLACE);
@@ -357,7 +357,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     replaceNextAction.setText(Tr::tr("Replace && Find"));
     replaceNextAction.bindContextAction(&m_replaceNextAction);
     replaceNextAction.setDefaultKeySequence(Tr::tr("Ctrl+="));
-    replaceNextAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+    replaceNextAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
     replaceNextAction.setOnTriggered(this, [this] { invokeGlobalReplaceNext(); });
 
     ActionBuilder localReplaceNextAction(this, Constants::REPLACE_NEXT);
@@ -372,7 +372,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     ActionBuilder replacePreviousAction(this, Constants::REPLACE_PREVIOUS);
     replacePreviousAction.setText(Tr::tr("Replace && Find Previous"));
     replacePreviousAction.bindContextAction(&m_replacePreviousAction);
-    replacePreviousAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+    replacePreviousAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
     replacePreviousAction.setOnTriggered(this, [this] { invokeGlobalReplacePrevious(); });
 
     ActionBuilder localReplacePreviousAction(this, Constants::REPLACE_PREVIOUS);
@@ -386,7 +386,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     replaceAllAction.setText(Tr::tr("Replace All"));
     replaceAllAction.bindContextAction(&m_replaceAllAction);
     replaceAllAction.setDefaultKeySequence(Tr::tr("Ctrl+Alt+Return"));
-    replaceAllAction.setContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
+    replaceAllAction.addToContainer(Constants::M_FIND, Constants::G_FIND_ACTIONS);
     replaceAllAction.setOnTriggered(this, [this] { invokeGlobalReplaceAll(); });
 
     ActionBuilder localReplaceAllAction(this, Constants::REPLACE_ALL);
@@ -403,7 +403,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     caseSensitiveAction.setIcon(Icons::FIND_CASE_INSENSITIVELY.icon());
     caseSensitiveAction.setCheckable(true);
     caseSensitiveAction.setChecked(false);
-    caseSensitiveAction.setContainer(Constants::M_FIND, Constants::G_FIND_FLAGS);
+    caseSensitiveAction.addToContainer(Constants::M_FIND, Constants::G_FIND_FLAGS);
     caseSensitiveAction.setOnToggled(this, [this](bool on) { setCaseSensitive(on); });
 
     ActionBuilder wholeWordAction(this, Constants::WHOLE_WORDS);
@@ -412,7 +412,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     wholeWordAction.setIcon(Icons::FIND_WHOLE_WORD.icon());
     wholeWordAction.setCheckable(true);
     wholeWordAction.setChecked(false);
-    wholeWordAction.setContainer(Constants::M_FIND, Constants::G_FIND_FLAGS);
+    wholeWordAction.addToContainer(Constants::M_FIND, Constants::G_FIND_FLAGS);
     wholeWordAction.setOnToggled(this, [this](bool on) { setWholeWord(on); });
 
     ActionBuilder regularExpressionAction(this, Constants::REGULAR_EXPRESSIONS);
@@ -421,7 +421,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     regularExpressionAction.setIcon(Icons::FIND_REGEXP.icon());
     regularExpressionAction.setCheckable(true);
     regularExpressionAction.setChecked(false);
-    regularExpressionAction.setContainer(Constants::M_FIND, Constants::G_FIND_FLAGS);
+    regularExpressionAction.addToContainer(Constants::M_FIND, Constants::G_FIND_FLAGS);
     regularExpressionAction.setOnToggled(this, [this](bool on) { setRegularExpressions(on); });
 
     ActionBuilder preserveCaseAction(this, Constants::PRESERVE_CASE);
@@ -430,7 +430,7 @@ FindToolBar::FindToolBar(CurrentDocumentFind *currentDocumentFind)
     preserveCaseAction.setIcon(Icons::FIND_PRESERVE_CASE.icon());
     preserveCaseAction.setCheckable(true);
     preserveCaseAction.setChecked(false);
-    preserveCaseAction.setContainer(Constants::M_FIND, Constants::G_FIND_FLAGS);
+    preserveCaseAction.addToContainer(Constants::M_FIND, Constants::G_FIND_FLAGS);
     preserveCaseAction.setOnToggled(this, [this](bool on) { setPreserveCase(on); });
 
     connect(m_currentDocumentFind, &CurrentDocumentFind::candidateChanged,

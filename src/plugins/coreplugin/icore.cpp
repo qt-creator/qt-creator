@@ -1628,7 +1628,7 @@ void ICorePrivate::registerDefaultActions()
     newProjectAction.setText(Tr::tr("&New Project..."));
     newProjectAction.setIcon(Icon::fromTheme("document-new"));
     newProjectAction.setDefaultKeySequence(QKeySequence("Ctrl+Shift+N"));
-    newProjectAction.setContainer(Constants::M_FILE, Constants::G_FILE_NEW);
+    newProjectAction.addToContainer(Constants::M_FILE, Constants::G_FILE_NEW);
     newProjectAction.setOnTriggered(this, [] {
         if (!ICore::isNewItemDialogRunning()) {
             ICore::showNewItemDialog(
@@ -1647,7 +1647,7 @@ void ICorePrivate::registerDefaultActions()
     newFileAction.setText(Tr::tr("New File..."));
     newFileAction.setIcon(Icon::fromTheme("document-new"));
     newFileAction.setDefaultKeySequence(QKeySequence::New);
-    newFileAction.setContainer(Constants::M_FILE, Constants::G_FILE_NEW);
+    newFileAction.addToContainer(Constants::M_FILE, Constants::G_FILE_NEW);
     newFileAction.setOnTriggered(this, [] {
         if (!ICore::isNewItemDialogRunning()) {
             ICore::showNewItemDialog(
@@ -1666,20 +1666,20 @@ void ICorePrivate::registerDefaultActions()
     openAction.setText(Tr::tr("&Open File or Project..."));
     openAction.setIcon(Icon::fromTheme("document-open"));
     openAction.setDefaultKeySequence(QKeySequence::Open);
-    openAction.setContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
+    openAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
     openAction.setOnTriggered(this, [] { openFile(); });
 
     // Open With Action
     ActionBuilder openWithAction(this, Constants::OPEN_WITH);
     openWithAction.setText(Tr::tr("Open File &With..."));
-    openWithAction.setContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
+    openWithAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
     openWithAction.setOnTriggered(this, &ICore::openFileWith);
 
     if (FSEngine::isAvailable()) {
         // Open From Device Action
         ActionBuilder openFromDeviceAction(this, Constants::OPEN_FROM_DEVICE);
         openFromDeviceAction.setText(Tr::tr("Open From Device..."));
-        openFromDeviceAction.setContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
+        openFromDeviceAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OPEN);
         openFromDeviceAction.setOnTriggered(this, [this] { openFileFromDevice(); });
     }
 
@@ -1697,7 +1697,7 @@ void ICorePrivate::registerDefaultActions()
     saveAction.setDefaultKeySequence(QKeySequence::Save);
     saveAction.setCommandAttribute(Command::CA_UpdateText);
     saveAction.setCommandDescription(Tr::tr("Save"));
-    saveAction.setContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
+    saveAction.addToContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
 
     // Save As Action
     ActionBuilder saveAsAction(this, Constants::SAVEAS);
@@ -1707,7 +1707,7 @@ void ICorePrivate::registerDefaultActions()
     saveAsAction.setDefaultKeySequence(Tr::tr("Ctrl+Shift+S"), QString());
     saveAsAction.setCommandAttribute(Command::CA_UpdateText);
     saveAsAction.setCommandDescription(Tr::tr("Save As..."));
-    saveAsAction.setContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
+    saveAsAction.addToContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
 
     // SaveAll Action
     DocumentManager::registerSaveAllAction();
@@ -1718,7 +1718,7 @@ void ICorePrivate::registerDefaultActions()
     printAction.setIcon(Icon::fromTheme("document-print"));
     printAction.setEnabled(false);
     printAction.setDefaultKeySequence(QKeySequence::Print);
-    printAction.setContainer(Constants::M_FILE, Constants::G_FILE_PRINT);
+    printAction.addToContainer(Constants::M_FILE, Constants::G_FILE_PRINT);
 
     // Exit Action
     ActionBuilder exitAction(this, Constants::EXIT);
@@ -1726,7 +1726,7 @@ void ICorePrivate::registerDefaultActions()
     exitAction.setIcon(Icon::fromTheme("application-exit"));
     exitAction.setMenuRole(QAction::QuitRole);
     exitAction.setDefaultKeySequence(Tr::tr("Ctrl+Q"));
-    exitAction.setContainer(Constants::M_FILE, Constants::G_FILE_OTHER);
+    exitAction.addToContainer(Constants::M_FILE, Constants::G_FILE_OTHER);
     exitAction.setOnTriggered(this, &ICore::exit);
 
     // Undo Action
@@ -1736,7 +1736,7 @@ void ICorePrivate::registerDefaultActions()
     undoAction.setDefaultKeySequence(QKeySequence::Undo);
     undoAction.setCommandAttribute(Command::CA_UpdateText);
     undoAction.setCommandDescription(Tr::tr("Undo"));
-    undoAction.setContainer(Constants::M_EDIT, Constants::G_EDIT_UNDOREDO);
+    undoAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_UNDOREDO);
     undoAction.setEnabled(false);
 
     // Redo Action
@@ -1746,7 +1746,7 @@ void ICorePrivate::registerDefaultActions()
     redoAction.setDefaultKeySequence(QKeySequence::Redo);
     redoAction.setCommandAttribute(Command::CA_UpdateText);
     redoAction.setCommandDescription(Tr::tr("Redo"));
-    redoAction.setContainer(Constants::M_EDIT, Constants::G_EDIT_UNDOREDO);
+    redoAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_UNDOREDO);
     redoAction.setEnabled(false);
 
     // Cut Action
@@ -1754,7 +1754,7 @@ void ICorePrivate::registerDefaultActions()
     cutAction.setText(Tr::tr("Cu&t"));
     cutAction.setIcon(Icon::fromTheme("edit-cut"));
     cutAction.setDefaultKeySequence(QKeySequence::Cut);
-    cutAction.setContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
+    cutAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
     cutAction.setEnabled(false);
 
     // Copy Action
@@ -1762,7 +1762,7 @@ void ICorePrivate::registerDefaultActions()
     copyAction.setText(Tr::tr("&Copy"));
     copyAction.setIcon(Icon::fromTheme("edit-copy"));
     copyAction.setDefaultKeySequence(QKeySequence::Copy);
-    copyAction.setContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
+    copyAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
     copyAction.setEnabled(false);
 
     // Paste Action
@@ -1770,7 +1770,7 @@ void ICorePrivate::registerDefaultActions()
     pasteAction.setText(Tr::tr("&Paste"));
     pasteAction.setIcon(Icon::fromTheme("edit-paste"));
     pasteAction.setDefaultKeySequence(QKeySequence::Paste);
-    pasteAction.setContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
+    pasteAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_COPYPASTE);
     pasteAction.setEnabled(false);
 
     // Select All
@@ -1778,7 +1778,7 @@ void ICorePrivate::registerDefaultActions()
     selectAllAction.setText(Tr::tr("Select &All"));
     selectAllAction.setIcon(Icon::fromTheme("edit-select-all"));
     selectAllAction.setDefaultKeySequence(QKeySequence::SelectAll);
-    selectAllAction.setContainer(Constants::M_EDIT, Constants::G_EDIT_SELECTALL);
+    selectAllAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_SELECTALL);
     selectAllAction.setEnabled(false);
 
     // Goto Action
@@ -1786,7 +1786,7 @@ void ICorePrivate::registerDefaultActions()
     gotoLineAction.setText(Tr::tr("&Go to Line..."));
     gotoLineAction.setIcon(Icon::fromTheme("go-jump"));
     gotoLineAction.setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+L")));
-    gotoLineAction.setContainer(Constants::M_EDIT, Constants::G_EDIT_OTHER);
+    gotoLineAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_OTHER);
     gotoLineAction.setEnabled(false);
 
     // Zoom In Action
@@ -1821,7 +1821,7 @@ void ICorePrivate::registerDefaultActions()
 
     ActionBuilder loggerAction(this, Constants::LOGGER);
     loggerAction.setText(Tr::tr("Show Logs..."));
-    loggerAction.setContainer(Constants::M_TOOLS_DEBUG);
+    loggerAction.addToContainer(Constants::M_TOOLS_DEBUG);
     loggerAction.setOnTriggered(this, &LoggingViewer::showLoggingView);
 
     // Options Action
@@ -1832,7 +1832,7 @@ void ICorePrivate::registerDefaultActions()
     optionsAction.setText(Tr::tr("Pr&eferences..."));
     optionsAction.setMenuRole(QAction::PreferencesRole);
     optionsAction.setDefaultKeySequence(QKeySequence::Preferences);
-    optionsAction.setContainer(Constants::M_EDIT, Constants::G_EDIT_PREFERENCES);
+    optionsAction.addToContainer(Constants::M_EDIT, Constants::G_EDIT_PREFERENCES);
     optionsAction.setOnTriggered(this, [] { ICore::showOptionsDialog(Id()); });
 
     mwindow->addSeparator(Constants::G_WINDOW_LIST);
@@ -1881,7 +1881,7 @@ void ICorePrivate::registerDefaultActions()
     toggleLeftSideBarAction.setCheckable(true);
     toggleLeftSideBarAction.setCommandAttribute(Command::CA_UpdateText);
     toggleLeftSideBarAction.setDefaultKeySequence(Tr::tr("Ctrl+0"), Tr::tr("Alt+0"));
-    toggleLeftSideBarAction.setContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
+    toggleLeftSideBarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
     toggleLeftSideBarAction.setOnTriggered(this,
         [this](bool visible) { setSidebarVisible(visible, Side::Left); });
 
@@ -1897,7 +1897,7 @@ void ICorePrivate::registerDefaultActions()
     toggleRightSideBarAction.setCheckable(true);
     toggleRightSideBarAction.setCommandAttribute(Command::CA_UpdateText);
     toggleRightSideBarAction.setDefaultKeySequence(Tr::tr("Ctrl+Shift+0"), Tr::tr("Alt+Shift+0"));
-    toggleRightSideBarAction.setContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
+    toggleRightSideBarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
     toggleRightSideBarAction.setEnabled(false);
     toggleRightSideBarAction.setOnTriggered(this,
         [this](bool visible) { setSidebarVisible(visible, Side::Right); });
@@ -1946,7 +1946,7 @@ void ICorePrivate::registerDefaultActions()
       (HostOsInfo::isMacHost() ? Tr::tr("About &%1") : Tr::tr("About &%1..."))
           .arg(QGuiApplication::applicationDisplayName()));
     aboutIdeAction.setMenuRole(QAction::AboutRole);
-    aboutIdeAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    aboutIdeAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
     aboutIdeAction.setEnabled(true);
     aboutIdeAction.setOnTriggered(this, [this] { aboutQtCreator(); });
 
@@ -1954,7 +1954,7 @@ void ICorePrivate::registerDefaultActions()
     ActionBuilder aboutPluginsAction(this, Constants::ABOUT_PLUGINS);
     aboutPluginsAction.setText(Tr::tr("About &Plugins..."));
     aboutPluginsAction.setMenuRole(QAction::ApplicationSpecificRole);
-    aboutPluginsAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    aboutPluginsAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
     aboutPluginsAction.setEnabled(true);
     aboutPluginsAction.setOnTriggered(this, [this] { aboutPlugins(); });
 
@@ -1962,14 +1962,14 @@ void ICorePrivate::registerDefaultActions()
     ActionBuilder changeLogAction(this, Constants::CHANGE_LOG);
     changeLogAction.setText(Tr::tr("Change Log..."));
     changeLogAction.setMenuRole(QAction::ApplicationSpecificRole);
-    changeLogAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    changeLogAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
     changeLogAction.setEnabled(true);
     changeLogAction.setOnTriggered(this, [this] { changeLog(); });
 
     // Contact
     ActionBuilder contactAction(this, "QtCreator.Contact");
     contactAction.setText(Tr::tr("Contact..."));
-    contactAction.setContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
+    contactAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
     contactAction.setEnabled(true);
     contactAction.setOnTriggered(this, [this] { contact(); });
 

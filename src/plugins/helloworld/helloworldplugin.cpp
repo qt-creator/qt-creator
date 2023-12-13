@@ -86,7 +86,7 @@ void HelloWorldPlugin::initialize()
     hello.setOnTriggered(this, [this] { sayHelloWorld(); });
 
     // Add the Hello World action command to the menu
-    hello.setContainer(menuId);
+    hello.addToContainer(menuId);
 
     // Add a mode with a push button based on BaseMode.
     m_helloMode = new HelloMode;

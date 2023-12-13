@@ -361,7 +361,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     annotateFile.setContext(context);
     annotateFile.bindContextAction(&m_annotateFile);
     annotateFile.setCommandAttribute(Command::CA_UpdateText);
-    annotateFile.setContainer(bazaarMenuId);
+    annotateFile.addToContainer(bazaarMenuId);
     annotateFile.setOnTriggered(this, [this] { annotateCurrentFile(); });
     m_commandLocator->appendCommand(annotateFile.command());
 
@@ -371,7 +371,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     diffFile.bindContextAction(&m_diffFile);
     diffFile.setCommandAttribute(Command::CA_UpdateText);
     diffFile.setDefaultKeySequence(Tr::tr("Meta+Z,Meta+D"), Tr::tr("Alt+Z,Alt+D"));
-    diffFile.setContainer(bazaarMenuId);
+    diffFile.addToContainer(bazaarMenuId);
     diffFile.setOnTriggered(this, [this] { diffCurrentFile(); });
     m_commandLocator->appendCommand(diffFile.command());
 
@@ -381,7 +381,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     logFile.bindContextAction(&m_logFile);
     logFile.setCommandAttribute(Command::CA_UpdateText);
     logFile.setDefaultKeySequence(Tr::tr("Meta+Z,Meta+L"), Tr::tr("Alt+Z,Alt+L"));
-    logFile.setContainer(bazaarMenuId);
+    logFile.addToContainer(bazaarMenuId);
     logFile.setOnTriggered(this, [this] { logCurrentFile(); });
     m_commandLocator->appendCommand(logFile.command());
 
@@ -391,7 +391,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     statusFile.bindContextAction(&m_statusFile);
     statusFile.setCommandAttribute(Command::CA_UpdateText);
     statusFile.setDefaultKeySequence(Tr::tr("Meta+Z,Meta+S"), Tr::tr("Alt+Z,Alt+S"));
-    statusFile.setContainer(bazaarMenuId);
+    statusFile.addToContainer(bazaarMenuId);
     statusFile.setOnTriggered(this, [this] { statusCurrentFile(); });
     m_commandLocator->appendCommand(statusFile.command());
 
@@ -402,7 +402,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     addAction.setParameterText(Tr::tr("Add \"%1\""), Tr::tr("Add"));
     addAction.setContext(context);
     addAction.setCommandAttribute(Command::CA_UpdateText);
-    addAction.setContainer(bazaarMenuId);
+    addAction.addToContainer(bazaarMenuId);
     addAction.setOnTriggered(this, [this] { addCurrentFile(); });
     m_commandLocator->appendCommand(addAction.command());
 
@@ -411,7 +411,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     deleteAction.setContext(context);
     deleteAction.bindContextAction(&m_deleteAction);
     deleteAction.setCommandAttribute(Command::CA_UpdateText);
-    deleteAction.setContainer(bazaarMenuId);
+    deleteAction.addToContainer(bazaarMenuId);
     deleteAction.setOnTriggered(this, [this] { promptToDeleteCurrentFile(); });
     m_commandLocator->appendCommand(deleteAction.command());
 
@@ -420,7 +420,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     revertFile.setContext(context);
     revertFile.bindContextAction(&m_revertFile);
     revertFile.setCommandAttribute(Command::CA_UpdateText);
-    revertFile.setContainer(bazaarMenuId);
+    revertFile.addToContainer(bazaarMenuId);
     revertFile.setOnTriggered(this, [this] { revertCurrentFile(); });
     m_commandLocator->appendCommand(revertFile.command());
 
@@ -431,7 +431,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionBuilder diffMulti(this, DIFFMULTI);
     diffMulti.setText(Tr::tr("Diff"));
     diffMulti.setContext(context);
-    diffMulti.setContainer(bazaarMenuId);
+    diffMulti.addToContainer(bazaarMenuId);
     diffMulti.setOnTriggered(this, [this] { diffRepository(); });
     m_repositoryActionList.append(diffMulti.contextAction());
     m_commandLocator->appendCommand(diffMulti.command());
@@ -439,7 +439,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionBuilder logMulti(this, LOGMULTI);
     logMulti.setText(Tr::tr("Log"));
     logMulti.setContext(context);
-    logMulti.setContainer(bazaarMenuId);
+    logMulti.addToContainer(bazaarMenuId);
     logMulti.setOnTriggered(this, [this] { logRepository(); });
     m_repositoryActionList.append(logMulti.contextAction());
     m_commandLocator->appendCommand(logMulti.command());
@@ -447,7 +447,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionBuilder revertMulti(this, REVERTMULTI);
     revertMulti.setText(Tr::tr("Revert..."));
     revertMulti.setContext(context);
-    revertMulti.setContainer(bazaarMenuId);
+    revertMulti.addToContainer(bazaarMenuId);
     revertMulti.setOnTriggered(this, [this] { revertAll(); });
     m_repositoryActionList.append(revertMulti.contextAction());
     m_commandLocator->appendCommand(revertMulti.command());
@@ -455,7 +455,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionBuilder statusMulti(this, STATUSMULTI);
     statusMulti.setText(Tr::tr("Status"));
     statusMulti.setContext(context);
-    statusMulti.setContainer(bazaarMenuId);
+    statusMulti.addToContainer(bazaarMenuId);
     statusMulti.setOnTriggered(this, [this] { this->statusMulti(); });
     m_repositoryActionList.append(statusMulti.contextAction());
     m_commandLocator->appendCommand(statusMulti.command());
@@ -467,7 +467,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionBuilder pull(this, PULL);
     pull.setText(Tr::tr("Pull..."));
     pull.setContext(context);
-    pull.setContainer(bazaarMenuId);
+    pull.addToContainer(bazaarMenuId);
     pull.setOnTriggered(this, [this] { this->pull(); });
     m_repositoryActionList.append(pull.contextAction());
     m_commandLocator->appendCommand(pull.command());
@@ -475,7 +475,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionBuilder push(this, PUSH);
     push.setText(Tr::tr("Push..."));
     push.setContext(context);
-    push.setContainer(bazaarMenuId);
+    push.addToContainer(bazaarMenuId);
     push.setOnTriggered(this, [this] { this->push(); });
     m_repositoryActionList.append(push.contextAction());
     m_commandLocator->appendCommand(push.command());
@@ -483,7 +483,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionBuilder update(this, UPDATE);
     update.setText(Tr::tr("Update..."));
     update.setContext(context);
-    update.setContainer(bazaarMenuId);
+    update.addToContainer(bazaarMenuId);
     update.setOnTriggered(this, [this] { this->update(); });
     m_repositoryActionList.append(update.contextAction());
     m_commandLocator->appendCommand(update.command());
@@ -491,7 +491,7 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionBuilder commit(this, COMMIT);
     commit.setText(Tr::tr("Commit..."));
     commit.setContext(context);
-    commit.setContainer(bazaarMenuId);
+    commit.addToContainer(bazaarMenuId);
     commit.setDefaultKeySequence(Tr::tr("Meta+Z,Meta+C"), Tr::tr("Alt+Z,Alt+C"));
     commit.setOnTriggered(this, [this] { this->commit(); });
     m_repositoryActionList.append(commit.contextAction());
@@ -500,14 +500,14 @@ BazaarPluginPrivate::BazaarPluginPrivate()
     ActionBuilder uncommit(this, UNCOMMIT);
     uncommit.setText(Tr::tr("Uncommit..."));
     uncommit.setContext(context);
-    uncommit.setContainer(bazaarMenuId);
+    uncommit.addToContainer(bazaarMenuId);
     uncommit.setOnTriggered(this, [this] { this->uncommit(); });
     m_repositoryActionList.append(uncommit.contextAction());
     m_commandLocator->appendCommand(uncommit.command());
 
     ActionBuilder createRepository(this, CREATE_REPOSITORY);
     createRepository.setText(Tr::tr("Create Repository..."));
-    createRepository.setContainer(bazaarMenuId);
+    createRepository.addToContainer(bazaarMenuId);
     createRepository.setOnTriggered(this, [this] { this->createRepository(); });
 
     bazaarMenu->addSeparator(context);

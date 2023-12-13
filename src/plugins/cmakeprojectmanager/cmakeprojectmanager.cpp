@@ -61,14 +61,14 @@ CMakeManager::CMakeManager()
     runCMakeAction.setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon());
     runCMakeAction.bindContextAction(&m_runCMakeAction);
     runCMakeAction.setCommandAttribute(Command::CA_Hide);
-    runCMakeAction.setContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
+    runCMakeAction.addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
     runCMakeAction.setOnTriggered(this, [this] { runCMake(ProjectManager::startupBuildSystem()); });
 
     ActionBuilder clearCMakeCacheAction(this, Constants::CLEAR_CMAKE_CACHE);
     clearCMakeCacheAction.setText(Tr::tr("Clear CMake Configuration"));
     clearCMakeCacheAction.bindContextAction(&m_clearCMakeCacheAction);
     clearCMakeCacheAction.setCommandAttribute(Command::CA_Hide);
-    clearCMakeCacheAction.setContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
+    clearCMakeCacheAction.addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
     clearCMakeCacheAction.setOnTriggered(this, [this] {
         clearCMakeCache(ProjectManager::startupBuildSystem());
     });
@@ -79,7 +79,7 @@ CMakeManager::CMakeManager()
     runCMakeActionContextMenu.setContext(projectContext);
     runCMakeActionContextMenu.bindContextAction(&m_runCMakeActionContextMenu);
     runCMakeActionContextMenu.setCommandAttribute(Command::CA_Hide);
-    runCMakeActionContextMenu.setContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_BUILD);
+    runCMakeActionContextMenu.addToContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_BUILD);
     runCMakeActionContextMenu.setOnTriggered(this, [this] {
         runCMake(ProjectTree::currentBuildSystem());
     });
@@ -89,14 +89,14 @@ CMakeManager::CMakeManager()
     buildFileContextAction.bindContextAction(&m_buildFileContextMenu);
     buildFileContextAction.setContext(projectContext);
     buildFileContextAction.setCommandAttribute(Command::CA_Hide);
-    buildFileContextAction.setContainer(PEC::M_FILECONTEXT, PEC::G_FILE_OTHER);
+    buildFileContextAction.addToContainer(PEC::M_FILECONTEXT, PEC::G_FILE_OTHER);
     buildFileContextAction.setOnTriggered(this, [this] { buildFileContextMenu(); });
 
     ActionBuilder rescanProjectAction(this, Constants::RESCAN_PROJECT);
     rescanProjectAction.setText(Tr::tr("Rescan Project"));
     rescanProjectAction.bindContextAction(&m_rescanProjectAction);
     rescanProjectAction.setCommandAttribute(Command::CA_Hide);
-    rescanProjectAction.setContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
+    rescanProjectAction.addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
     rescanProjectAction.setOnTriggered(this, [this] {
         rescanProject(ProjectTree::currentBuildSystem());
     });
@@ -106,7 +106,7 @@ CMakeManager::CMakeManager()
     reloadCMakePresetsAction.setIcon(Utils::Icons::RELOAD.icon());
     reloadCMakePresetsAction.bindContextAction(&m_reloadCMakePresetsAction);
     reloadCMakePresetsAction.setCommandAttribute(Command::CA_Hide);
-    reloadCMakePresetsAction.setContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
+    reloadCMakePresetsAction.addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD);
     reloadCMakePresetsAction.setOnTriggered(this, [this] { reloadCMakePresets(); });
 
     m_buildFileAction = new Utils::ParameterAction(Tr::tr("Build File"),
@@ -128,7 +128,7 @@ CMakeManager::CMakeManager()
     cmakeProfilerAction.setText(Tr::tr("CMake Profiler"));
     cmakeProfilerAction.bindContextAction(&m_cmakeProfilerAction);
     cmakeProfilerAction.setCommandDescription(m_cmakeProfilerAction->text());
-    cmakeProfilerAction.setContainer(Debugger::Constants::M_DEBUG_ANALYZER,
+    cmakeProfilerAction.addToContainer(Debugger::Constants::M_DEBUG_ANALYZER,
                                      Debugger::Constants::G_ANALYZER_TOOLS,
                                      false);
     cmakeProfilerAction.setOnTriggered(this, [this] {
@@ -147,7 +147,7 @@ CMakeManager::CMakeManager()
     cmakeDebuggerAction.setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon());
     cmakeDebuggerAction.bindContextAction(&m_cmakeDebuggerAction);
     cmakeDebuggerAction.setCommandDescription(m_cmakeDebuggerAction->text());
-    cmakeDebuggerAction.setContainer(PEC::M_DEBUG_STARTDEBUGGING, Constants::CMAKE_DEBUGGING_GROUP);
+    cmakeDebuggerAction.addToContainer(PEC::M_DEBUG_STARTDEBUGGING, Constants::CMAKE_DEBUGGING_GROUP);
     cmakeDebuggerAction.setOnTriggered(this, [] {
         ProjectExplorerPlugin::runStartupProject(PEC::DAP_CMAKE_DEBUG_RUN_MODE,
                                                  /*forceSkipDeploy=*/true);

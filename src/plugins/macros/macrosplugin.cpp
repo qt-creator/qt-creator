@@ -60,7 +60,7 @@ public:
         startMacro.setText(Tr::tr("Record Macro"));
         startMacro.setContext(textContext);
         startMacro.setDefaultKeySequence(Tr::tr("Ctrl+["), Tr::tr("Alt+["));
-        startMacro.setContainer(Constants::M_TOOLS_MACRO);
+        startMacro.addToContainer(Constants::M_TOOLS_MACRO);
         startMacro.setOnTriggered(this, [this] { d->macroManager.startMacro(); });
 
         ActionBuilder endMacro(this, Constants::END_MACRO);
@@ -68,21 +68,21 @@ public:
         endMacro.setContext(textContext);
         endMacro.setEnabled(false);
         endMacro.setDefaultKeySequence(Tr::tr("Ctrl+]"), Tr::tr("Alt+]"));
-        endMacro.setContainer(Constants::M_TOOLS_MACRO);
+        endMacro.addToContainer(Constants::M_TOOLS_MACRO);
         endMacro.setOnTriggered(this, [this] { d->macroManager.endMacro(); });
 
         ActionBuilder executeLastMacro(this, Constants::EXECUTE_LAST_MACRO);
         executeLastMacro.setText(Tr::tr("Play Last Macro"));
         executeLastMacro.setContext(textContext);
         executeLastMacro.setDefaultKeySequence(Tr::tr("Meta+R"), Tr::tr("Alt+R"));
-        executeLastMacro.setContainer(Constants::M_TOOLS_MACRO);
+        executeLastMacro.addToContainer(Constants::M_TOOLS_MACRO);
         executeLastMacro.setOnTriggered(this, [this] { d->macroManager.executeLastMacro(); });
 
         ActionBuilder saveLastMacro(this, Constants::SAVE_LAST_MACRO);
         saveLastMacro.setContext(textContext);
         saveLastMacro.setText(Tr::tr("Save Last Macro"));
         saveLastMacro.setEnabled(false);
-        saveLastMacro.setContainer(Constants::M_TOOLS_MACRO);
+        saveLastMacro.addToContainer(Constants::M_TOOLS_MACRO);
         saveLastMacro.setOnTriggered(this, [this] { d->macroManager.saveLastMacro(); });
     }
 

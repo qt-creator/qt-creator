@@ -131,7 +131,7 @@ void ActionBuilder::setCommandDescription(const QString &desc)
     d->command->setDescription(desc);
 }
 
-void ActionBuilder::setContainer(Id containerId, Id groupId, bool needsToExist)
+void ActionBuilder::addToContainer(Id containerId, Id groupId, bool needsToExist)
 {
     QTC_ASSERT(containerId.isValid(), return);
     if (ActionContainer *container = ActionManager::actionContainer(containerId)) {

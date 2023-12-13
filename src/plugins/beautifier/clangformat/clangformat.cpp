@@ -322,25 +322,25 @@ public:
         Core::ActionBuilder formatFile(this, "ClangFormat.FormatFile");
         formatFile.setText(msgFormatCurrentFile());
         formatFile.bindContextAction(&m_formatFile);
-        formatFile.setContainer(menuId);
+        formatFile.addToContainer(menuId);
         formatFile.setOnTriggered(this, [this] { this->formatFile(); });
 
         Core::ActionBuilder formatLines(this, "ClangFormat.FormatLines");
         formatLines.setText(msgFormatLines());
         formatLines.bindContextAction(&m_formatLines);
-        formatLines.setContainer(menuId);
+        formatLines.addToContainer(menuId);
         formatLines.setOnTriggered(this, [this] { this->formatLines(); });
 
         Core::ActionBuilder formatAtCursor(this, "ClangFormat.FormatAtCursor");
         formatAtCursor.setText(msgFormatAtCursor());
         formatAtCursor.bindContextAction(&m_formatRange);
-        formatAtCursor.setContainer(menuId);
+        formatAtCursor.addToContainer(menuId);
         formatAtCursor.setOnTriggered(this, [this] { this->formatAtCursor(); });
 
         Core::ActionBuilder formatDisable(this, "ClangFormat.DisableFormattingSelectedText");
         formatDisable.setText(msgDisableFormattingSelectedText());
         formatDisable.bindContextAction(&m_disableFormattingSelectedText);
-        formatDisable.setContainer(menuId);
+        formatDisable.addToContainer(menuId);
         formatDisable.setOnTriggered(this, [this] { disableFormattingSelectedText(); });
 
         Core::ActionManager::actionContainer(Constants::MENU_ID)->addMenu(menu);
