@@ -1,8 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "clangcodemodelplugin.h"
-
 #include "clangcodemodeltr.h"
 #include "clangconstants.h"
 #include "clangmodelmanagersupport.h"
@@ -23,6 +21,8 @@
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppmodelmanager.h>
 
+#include <extensionsystem/iplugin.h>
+
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectpanelfactory.h>
@@ -37,8 +37,11 @@
 
 #include <utils/async.h>
 #include <utils/environment.h>
+#include <utils/parameteraction.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
+
+#include <QFutureWatcher>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -46,30 +49,22 @@ using namespace Utils;
 
 namespace ClangCodeModel::Internal {
 
-void ClangCodeModelPlugin::generateCompilationDB()
+class ClangCodeModelPlugin final: public ExtensionSystem::IPlugin
 {
-    using namespace CppEditor;
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "ClangCodeModel.json")
 
-    Target *target = ProjectManager::startupTarget();
-    if (!target)
-        return;
+public:
+    ~ClangCodeModelPlugin() final;
+    void initialize() final;
 
-    const auto projectInfo = CppModelManager::projectInfo(target->project());
-    if (!projectInfo)
-        return;
-    FilePath baseDir = projectInfo->buildRoot();
-    if (baseDir == target->project()->projectDirectory())
-        baseDir = TemporaryDirectory::masterDirectoryFilePath();
+private:
+    void generateCompilationDB();
+    void createCompilationDBAction();
 
-    QFuture<GenerateCompilationDbResult> task
-            = Utils::asyncRun(&Internal::generateCompilationDB, ProjectInfoList{projectInfo},
-                              baseDir, CompilationDbPurpose::Project,
-                              warningsConfigForProject(target->project()),
-                              globalClangOptions(),
-                              FilePath());
-    ProgressManager::addTask(task, Tr::tr("Generating Compilation DB"), "generate compilation db");
-    m_generatorWatcher.setFuture(task);
-}
+    Utils::ParameterAction *m_generateCompilationDBAction = nullptr;
+    QFutureWatcher<GenerateCompilationDbResult> m_generatorWatcher;
+};
 
 ClangCodeModelPlugin::~ClangCodeModelPlugin()
 {
@@ -102,6 +97,31 @@ void ClangCodeModelPlugin::initialize()
     addTest<Tests::ClangdTestTooltips>();
     addTest<Tests::ClangFixItTest>();
 #endif
+}
+
+void ClangCodeModelPlugin::generateCompilationDB()
+{
+    using namespace CppEditor;
+
+    Target *target = ProjectManager::startupTarget();
+    if (!target)
+        return;
+
+    const auto projectInfo = CppModelManager::projectInfo(target->project());
+    if (!projectInfo)
+        return;
+    FilePath baseDir = projectInfo->buildRoot();
+    if (baseDir == target->project()->projectDirectory())
+        baseDir = TemporaryDirectory::masterDirectoryFilePath();
+
+    QFuture<GenerateCompilationDbResult> task
+            = Utils::asyncRun(&Internal::generateCompilationDB, ProjectInfoList{projectInfo},
+                              baseDir, CompilationDbPurpose::Project,
+                              warningsConfigForProject(target->project()),
+                              globalClangOptions(),
+                              FilePath());
+    ProgressManager::addTask(task, Tr::tr("Generating Compilation DB"), "generate compilation db");
+    m_generatorWatcher.setFuture(task);
 }
 
 void ClangCodeModelPlugin::createCompilationDBAction()
@@ -179,3 +199,5 @@ void ClangCodeModelPlugin::createCompilationDBAction()
 }
 
 } // namespace ClangCodeModel::Internal
+
+#include "clangcodemodelplugin.moc"
