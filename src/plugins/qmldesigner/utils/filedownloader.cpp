@@ -74,7 +74,7 @@ void FileDownloader::start()
     QNetworkReply *reply = Utils::NetworkAccessManager::instance()->get(request);
     m_reply = reply;
 
-    QNetworkReply::connect(reply, &QNetworkReply::readyRead, this, [this, reply]() {
+    QNetworkReply::connect(reply, &QNetworkReply::readyRead, this, [this, reply] {
         bool isDownloadingFile = false;
         QString contentType;
         if (!reply->hasRawHeader("Content-Type")) {
@@ -115,7 +115,7 @@ void FileDownloader::start()
         emit reply->redirectAllowed();
     });
 
-    QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+    QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply] {
         if (reply->error()) {
             if (reply->error() != QNetworkReply::OperationCanceledError) {
                 qWarning() << Q_FUNC_INFO << m_url << reply->errorString();
@@ -282,7 +282,7 @@ void FileDownloader::doProbeUrl()
         emit reply->redirectAllowed();
     });
 
-    QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+    QNetworkReply::connect(reply, &QNetworkReply::finished, this, [this, reply] {
         if (reply->error())
             return;
 
@@ -295,22 +295,18 @@ void FileDownloader::doProbeUrl()
         reply->deleteLater();
     });
 
-    QNetworkReply::connect(reply,
-                           &QNetworkReply::errorOccurred,
-                           this,
-                           [this](QNetworkReply::NetworkError code) {
+    QNetworkReply::connect(reply, &QNetworkReply::errorOccurred,
+                           this, [this, reply](QNetworkReply::NetworkError code) {
+        if (QQmlData::wasDeleted(this)) {
+            qDebug() << Q_FUNC_INFO << "FileDownloader was deleted.";
+            return;
+        }
 
-                               if (QQmlData::wasDeleted(this)) {
-                                   qDebug() << Q_FUNC_INFO << "FileDownloader was deleted.";
-                                   return;
-                               }
+        qDebug() << Q_FUNC_INFO << "Network error:" << code << reply->errorString();
 
-                               qDebug() << Q_FUNC_INFO << "Network error:" << code
-                                        << qobject_cast<QNetworkReply *>(sender())->errorString();
-
-                               m_available = false;
-                               emit availableChanged();
-                           });
+        m_available = false;
+        emit availableChanged();
+    });
 }
 
 void FileDownloader::setTargetFilePath(const QString &path)
