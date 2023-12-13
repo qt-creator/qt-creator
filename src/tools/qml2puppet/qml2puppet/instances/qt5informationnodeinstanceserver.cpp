@@ -10,13 +10,10 @@
 #include <QMatrix4x4>
 
 #include "servernodeinstance.h"
-#include "childrenchangeeventfilter.h"
 #include "propertyabstractcontainer.h"
 #include "propertybindingcontainer.h"
 #include "propertyvaluecontainer.h"
 #include "instancecontainer.h"
-#include "createinstancescommand.h"
-#include "changefileurlcommand.h"
 #include "clearscenecommand.h"
 #include "reparentinstancescommand.h"
 #include "update3dviewstatecommand.h"
@@ -28,8 +25,7 @@
 #include "removepropertiescommand.h"
 #include "valueschangedcommand.h"
 #include "informationchangedcommand.h"
-#include "pixmapchangedcommand.h"
-#include "commondefines.h"
+#include "imagecontainer.h"
 #include "changestatecommand.h"
 #include "childrenchangedcommand.h"
 #include "completecomponentcommand.h"
@@ -44,7 +40,6 @@
 #include "requestmodelnodepreviewimagecommand.h"
 #include "changeauxiliarycommand.h"
 
-#include "dummycontextobject.h"
 #include "../editor3d/generalhelper.h"
 #include "../editor3d/mousearea3d.h"
 #include "../editor3d/camerageometry.h"
@@ -2775,15 +2770,21 @@ void Qt5InformationNodeInstanceServer::handlePickTarget(
                         if (checkNode->property("_pickTarget").isNull()) {
                             if (checkRepeater) {
                                 QObject::connect(checkRepeater, &QQuick3DRepeater::objectAdded,
-                                                 this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+                                                 this, [this, checkNode] {
+                                    handleDynamicAddObject(checkNode);
+                                });
 #if defined(QUICK3D_ASSET_UTILS_MODULE)
                             } else if (checkRunLoader) {
                                 QObject::connect(checkRunLoader, &QQuick3DRuntimeLoader::statusChanged,
-                                                 this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+                                                 this, [this, checkNode] {
+                                    handleDynamicAddObject(checkNode);
+                                });
 #endif
                             } else {
                                 QObject::connect(checkLoader, &QQuick3DLoader::loaded,
-                                                 this, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+                                                 this, [this, checkNode] {
+                                    handleDynamicAddObject(checkNode);
+                                });
                             }
                         }
                         checkNode->setProperty("_pickTarget", QVariant::fromValue(obj));
@@ -2804,9 +2805,9 @@ bool Qt5InformationNodeInstanceServer::isInformationServer() const
 
 // This method should be connected to signals indicating a new object has been constructed outside
 // normal scene creation. E.g. QQuick3DRepeater::objectAdded.
-void Qt5InformationNodeInstanceServer::handleDynamicAddObject()
+void Qt5InformationNodeInstanceServer::handleDynamicAddObject(QObject *object)
 {
-    m_dynamicObjectConstructors.insert(sender());
+    m_dynamicObjectConstructors.insert(object);
     m_dynamicAddObjectTimer.start();
 }
 
