@@ -5,6 +5,7 @@
 
 #include "fontsettings.h"
 #include "textdocumentlayout.h"
+#include "texteditorsettings.h"
 
 #include <utils/textutils.h>
 
@@ -19,13 +20,20 @@ class SyntaxHighlighterRunnerPrivate : public QObject
 {
     Q_OBJECT
 public:
+    void createHighlighter()
+    {
+        m_highlighter.reset(m_creator());
+        m_highlighter->setFontSettings(m_fontSettings);
+        m_highlighter->setDocument(m_document);
+    }
+
     SyntaxHighlighterRunnerPrivate(BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator creator,
                                    QTextDocument *document)
         : m_creator(creator)
+        , m_document(document)
     {
         m_highlighter.reset(m_creator());
-        m_highlighter->setDocument(document);
-        m_document = document;
+        createHighlighter();
     }
 
     void create()
@@ -36,8 +44,7 @@ public:
         m_document = new QTextDocument(this);
         m_document->setDocumentLayout(new TextDocumentLayout(m_document));
 
-        m_highlighter.reset(m_creator());
-        m_highlighter->setDocument(m_document);
+        createHighlighter();
 
         connect(m_highlighter.get(),
                 &SyntaxHighlighter::resultsReady,
@@ -102,6 +109,7 @@ private:
     BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator m_creator;
     std::unique_ptr<SyntaxHighlighter> m_highlighter;
     QTextDocument *m_document = nullptr;
+    const FontSettings m_fontSettings = TextEditorSettings::fontSettings();
 };
 
 // ----------------------------- BaseSyntaxHighlighterRunner --------------------------------------

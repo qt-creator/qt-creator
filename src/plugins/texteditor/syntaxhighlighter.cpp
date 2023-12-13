@@ -27,9 +27,7 @@ class SyntaxHighlighterPrivate
     SyntaxHighlighter *q_ptr = nullptr;
     Q_DECLARE_PUBLIC(SyntaxHighlighter)
 public:
-    SyntaxHighlighterPrivate()
-        : SyntaxHighlighterPrivate(TextEditorSettings::fontSettings())
-    { }
+    SyntaxHighlighterPrivate() = default;
 
     SyntaxHighlighterPrivate(const FontSettings &fontSettings)
     {
@@ -881,7 +879,7 @@ void SyntaxHighlighter::setTextFormatCategories(const QList<std::pair<int, TextS
     d->formatCategories = categories;
     const int maxCategory = Utils::maxElementOr(categories, {-1, C_TEXT}).first;
     d->formats = QList<QTextCharFormat>(maxCategory + 1);
-    d->updateFormats(TextEditorSettings::fontSettings());
+    d->updateFormats(d->fontSettings);
 }
 
 QTextCharFormat SyntaxHighlighter::formatForCategory(int category) const
@@ -925,4 +923,3 @@ void SyntaxHighlighterPrivate::updateFormats(const FontSettings &fontSettings)
 }
 
 } // namespace TextEditor
-

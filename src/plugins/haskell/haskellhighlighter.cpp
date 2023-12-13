@@ -26,7 +26,6 @@ namespace Internal {
 HaskellHighlighter::HaskellHighlighter()
 {
     setDefaultTextFormatCategories();
-    updateFormats(TextEditorSettings::fontSettings());
 }
 
 void HaskellHighlighter::highlightBlock(const QString &text)
