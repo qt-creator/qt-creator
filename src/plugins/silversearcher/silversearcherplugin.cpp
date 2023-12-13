@@ -3,17 +3,26 @@
 
 #include "findinfilessilversearcher.h"
 #include "silversearcherparser_test.h"
-#include "silversearcherplugin.h"
+
+#include <extensionsystem/iplugin.h>
 
 namespace SilverSearcher::Internal {
 
-void SilverSearcherPlugin::initialize()
+class SilverSearcherPlugin final : public ExtensionSystem::IPlugin
 {
-    new FindInFilesSilverSearcher(this);
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "SilverSearcher.json")
+
+    void initialize() final
+    {
+        new FindInFilesSilverSearcher(this);
 
 #ifdef WITH_TESTS
-    addTest<OutputParserTest>();
+        addTest<OutputParserTest>();
 #endif
-}
+    }
+};
 
 } // SilverSearcher::Internal
+
+#include "silversearcherplugin.moc"
