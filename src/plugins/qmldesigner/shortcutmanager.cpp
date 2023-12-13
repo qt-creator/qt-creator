@@ -334,7 +334,7 @@ void ShortCutManager::connectUndoActions(DesignDocument *designDocument)
 
 void ShortCutManager::disconnectUndoActions(DesignDocument *designDocument)
 {
-    if (currentDesignDocument()) {
+    if (designDocument) {
         disconnect(designDocument, &DesignDocument::undoAvailable, this, &ShortCutManager::undoAvailable);
         disconnect(designDocument, &DesignDocument::redoAvailable, this, &ShortCutManager::redoAvailable);
     }
