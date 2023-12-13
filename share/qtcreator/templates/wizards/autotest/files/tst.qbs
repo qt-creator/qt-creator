@@ -1,4 +1,3 @@
-import qbs
 @if "%{TestFrameWork}" == "GTest" || "%{TestFrameWork}" == "GTest_dyn"
 import qbs.Environment
 import "googlecommon.js" as googleCommon

@@ -1,5 +1,3 @@
-import qbs
-
 QtApplication {
     cpp.defines: [
         // You can make your code fail to compile if it uses deprecated APIs.
