@@ -562,6 +562,7 @@ Utils::ChangeSet ClangFormatBaseIndenter::replacements(QByteArray buffer,
 Utils::EditOperations ClangFormatBaseIndenter::format(const TextEditor::RangesInLines &rangesInLines,
                                                       FormattingMode mode)
 {
+    Q_UNUSED(mode)
     QTC_ASSERT(!m_fileName.isEmpty(), return {});
     if (rangesInLines.empty())
         return {};
