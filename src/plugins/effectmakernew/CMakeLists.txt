@@ -6,7 +6,7 @@ add_qtc_plugin(EffectMakerNew
     Qt::Core Qt::CorePrivate Qt::Widgets Qt::Qml Qt::QmlPrivate Qt::Quick
     QtCreator::Utils
   SOURCES
-    effectmakerplugin.cpp effectmakerplugin.h
+    effectmakerplugin.cpp
     effectmakerwidget.cpp effectmakerwidget.h
     effectmakerview.cpp effectmakerview.h
     effectmakermodel.cpp effectmakermodel.h
