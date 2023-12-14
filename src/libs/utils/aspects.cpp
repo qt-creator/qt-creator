@@ -1125,7 +1125,8 @@ void StringAspect::addToLayout(LayoutItem &parent)
         chooser->addMacroExpanderProvider(d->m_expanderProvider);
     };
 
-    const QString displayedString = d->m_displayFilter ? d->m_displayFilter(value()) : value();
+    const QString displayedString = d->m_displayFilter ? d->m_displayFilter(volatileValue())
+                                                       : volatileValue();
 
     switch (d->m_displayStyle) {
     case PasswordLineEditDisplay:
