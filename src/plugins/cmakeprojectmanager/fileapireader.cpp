@@ -263,6 +263,7 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                             auto result = std::make_shared<FileApiQtcData>();
                             FileApiData data = FileApiParser::parseData(promise,
                                                                         replyFilePath,
+                                                                        buildDirectory,
                                                                         cmakeBuildType,
                                                                         result->errorMessage);
                             if (result->errorMessage.isEmpty()) {
@@ -270,6 +271,7 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                                                       sourceDirectory, buildDirectory);
                             } else {
                                 qWarning() << result->errorMessage;
+                                result->cache = std::move(data.cache);
                             }
 
                             promise.addResult(result);

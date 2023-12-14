@@ -838,6 +838,7 @@ static QStringList uniqueTargetFiles(const Configuration &config)
 
 FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &promise,
                                      const FilePath &replyFilePath,
+                                     const Utils::FilePath &buildDir,
                                      const QString &cmakeBuildType,
                                      QString &errorMessage)
 {
@@ -857,7 +858,11 @@ FileApiData FileApiParser::parseData(QPromise<std::shared_ptr<FileApiQtcData>> &
     result.replyFile = readReplyFile(replyFilePath, errorMessage);
     if (cancelCheck())
         return {};
-    result.cache = readCacheFile(result.replyFile.jsonFile("cache", replyDir), errorMessage);
+    const FilePath cachePathFromReply = result.replyFile.jsonFile("cache", replyDir);
+    if (cachePathFromReply.isEmpty())
+        result.cache = CMakeConfig::fromFile(buildDir / "CMakeCache.txt", &errorMessage);
+    else
+        result.cache = readCacheFile(cachePathFromReply, errorMessage);
     if (cancelCheck())
         return {};
     result.cmakeFiles = readCMakeFilesFile(result.replyFile.jsonFile("cmakeFiles", replyDir),
