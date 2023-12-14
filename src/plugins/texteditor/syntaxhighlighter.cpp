@@ -221,6 +221,9 @@ void SyntaxHighlighterPrivate::reformatBlocks(int from, int charsRemoved, int ch
     formatChanges.clear();
 
     foldValidator.finalize();
+    SyntaxHighlighter::Result res;
+    res.m_state = SyntaxHighlighter::State::Done;
+    vecRes << res;
     emit q->resultsReady(vecRes);
 }
 

@@ -52,6 +52,11 @@ public:
 
     void setNoAutomaticHighlighting(bool noAutomatic);
 
+    enum State  {
+        InProgress,
+        Done
+    };
+
     struct Result
     {
         void fillByBlock(const QTextBlock &block)
@@ -107,6 +112,8 @@ public:
         QByteArray m_expectedRawStringSuffix;
         int m_userState = -1;
         QList<QTextLayout::FormatRange> m_formatRanges;
+
+        State m_state = InProgress;
     };
 
     void setExtraFormats(const QTextBlock &block, const QList<QTextLayout::FormatRange> &formats);

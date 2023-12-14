@@ -50,6 +50,10 @@ public:
     QTextDocument *document() const { return m_document; }
     SyntaxHighLighterCreator creator() const { return m_creator; }
 
+    bool syntaxInfoUpdated() const { return m_syntaxInfoUpdated == SyntaxHighlighter::State::Done; }
+signals:
+    void highlightingFinished();
+
 protected:
     std::unique_ptr<SyntaxHighlighterRunnerPrivate> d;
     QPointer<QTextDocument> m_document = nullptr;
@@ -59,6 +63,8 @@ protected:
                        int charsRemoved,
                        const QString textAdded,
                        const QMap<int, BlockPreeditData> &blocksPreedit);
+
+    SyntaxHighlighter::State m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;
 
 private:
     SyntaxHighLighterCreator m_creator;

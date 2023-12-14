@@ -25,6 +25,11 @@ public:
         m_highlighter.reset(m_creator());
         m_highlighter->setFontSettings(m_fontSettings);
         m_highlighter->setDocument(m_document);
+
+        connect(m_highlighter.get(),
+                &SyntaxHighlighter::resultsReady,
+                this,
+                &SyntaxHighlighterRunnerPrivate::resultsReady);
     }
 
     SyntaxHighlighterRunnerPrivate(BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator creator,
@@ -46,11 +51,6 @@ public:
         m_document->setDocumentLayout(new TextDocumentLayout(m_document));
 
         createHighlighter();
-
-        connect(m_highlighter.get(),
-                &SyntaxHighlighter::resultsReady,
-                this,
-                &SyntaxHighlighterRunnerPrivate::resultsReady);
     }
 
     void cloneDocument(int from,
@@ -86,7 +86,7 @@ public:
     void setFontSettings(const TextEditor::FontSettings &fontSettings)
     {
         m_highlighter->setFontSettings(fontSettings);
-        m_highlighter->rehighlight();
+        rehighlight();
     }
 
     void setDefinitionName(const QString &name)
@@ -120,14 +120,39 @@ BaseSyntaxHighlighterRunner::BaseSyntaxHighlighterRunner(
     QTextDocument *document,
     const TextEditor::FontSettings &fontSettings)
     : d(new SyntaxHighlighterRunnerPrivate(creator, document, fontSettings))
+    , m_document(document)
 {
-    m_document = document;
+    if (document == nullptr)
+        return;
+
+    connect(d.get(),
+            &SyntaxHighlighterRunnerPrivate::resultsReady,
+            this,
+            [this](const QList<SyntaxHighlighter::Result> &result) {
+                auto done = std::find_if(result.cbegin(),
+                                         result.cend(),
+                                         [](const SyntaxHighlighter::Result &res) {
+                                             return res.m_state == SyntaxHighlighter::State::Done;
+                                         });
+                if (done != result.cend()) {
+                    m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;
+                    emit highlightingFinished();
+                    return;
+                }
+                m_syntaxInfoUpdated = SyntaxHighlighter::State::InProgress;
+            });
 }
 
 BaseSyntaxHighlighterRunner::~BaseSyntaxHighlighterRunner() = default;
 
 void BaseSyntaxHighlighterRunner::applyFormatRanges(const SyntaxHighlighter::Result &result)
 {
+    m_syntaxInfoUpdated = result.m_state;
+    if (m_syntaxInfoUpdated == SyntaxHighlighter::State::Done) {
+        emit highlightingFinished();
+        return;
+    }
+
     QTextBlock docBlock = m_document->findBlock(result.m_blockNumber);
     if (!docBlock.isValid())
         return;
@@ -145,6 +170,7 @@ void BaseSyntaxHighlighterRunner::applyFormatRanges(const SyntaxHighlighter::Res
 
 void BaseSyntaxHighlighterRunner::cloneDocumentData(int from, int charsRemoved, int charsAdded)
 {
+    m_syntaxInfoUpdated = SyntaxHighlighter::State::InProgress;
     QMap<int, BaseSyntaxHighlighterRunner::BlockPreeditData> blocksPreedit;
     QTextBlock firstBlock = m_document->findBlock(from);
     QTextBlock endBlock = m_document->findBlock(from + charsAdded);
@@ -245,6 +271,7 @@ ThreadedSyntaxHighlighterRunner::ThreadedSyntaxHighlighterRunner(SyntaxHighLight
                 for (const SyntaxHighlighter::Result &res : result)
                     applyFormatRanges(res);
             });
+
     cloneDocumentData(0, 0, document->characterCount());
     connect(document,
             &QTextDocument::contentsChange,
