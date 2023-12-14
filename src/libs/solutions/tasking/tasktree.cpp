@@ -1549,7 +1549,7 @@ public:
     bool invokeDoneHandler(TaskRuntimeContainer *container, DoneWith doneWith);
 
     template <typename Handler, typename ...Args,
-              typename ReturnType = typename std::invoke_result_t<Handler, Args...>>
+              typename ReturnType = std::invoke_result_t<Handler, Args...>>
     ReturnType invokeHandler(TaskRuntimeContainer *container, Handler &&handler, Args &&...args)
     {
         ExecutionContextActivator activator(container);
