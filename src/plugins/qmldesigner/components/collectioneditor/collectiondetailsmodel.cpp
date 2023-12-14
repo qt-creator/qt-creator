@@ -179,15 +179,16 @@ bool CollectionDetailsModel::setHeaderData(int section,
     return headerChanged;
 }
 
-bool CollectionDetailsModel::insertRows(int row, int count, const QModelIndex &parent)
+bool CollectionDetailsModel::insertRows(int row, int count, [[maybe_unused]] const QModelIndex &parent)
 {
     if (count < 1)
         return false;
 
     row = qBound(0, row, rowCount());
-    beginInsertRows(parent, row, row + count);
+
+    beginResetModel();
     m_currentCollection.insertEmptyElements(row, count);
-    endInsertRows();
+    endResetModel();
 
     selectRow(row);
     return true;
