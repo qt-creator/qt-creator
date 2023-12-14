@@ -5,6 +5,7 @@
 #include "searchresulttreeitems.h"
 #include "searchresulttreeitemroles.h"
 
+#include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/searchresultitem.h>
 
@@ -27,6 +28,7 @@ public:
     ~SearchResultTreeModel() override;
 
     void setShowReplaceUI(bool show);
+    void setRelativePaths(bool relative);
     void setTextEditorFont(const QFont &font, const SearchResultColors &colors);
 
     Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -69,6 +71,7 @@ private:
     QStringList m_currentPath; // the path that belongs to the current parent
     QFont m_textEditorFont;
     bool m_showReplaceUI;
+    bool m_relativePaths;
     bool m_editorFontIsUsed;
 };
 
@@ -76,6 +79,7 @@ SearchResultTreeModel::SearchResultTreeModel(QObject *parent)
     : QAbstractItemModel(parent)
     , m_currentParent(nullptr)
     , m_showReplaceUI(false)
+    , m_relativePaths(false)
     , m_editorFontIsUsed(false)
 {
     m_rootItem = new SearchResultTreeItem;
@@ -104,6 +108,12 @@ void SearchResultTreeModel::setShowReplaceUI(bool show)
                 changeQueue.append(index(r, 0, current));
         }
     }
+}
+
+void SearchResultTreeModel::setRelativePaths(bool relative)
+{
+    m_relativePaths = relative;
+    emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
 }
 
 void SearchResultTreeModel::setTextEditorFont(const QFont &font, const SearchResultColors &colors)
@@ -295,8 +305,14 @@ QVariant SearchResultTreeModel::data(const SearchResultTreeItem *row, int role) 
         result = m_colors.value(row->item.style()).textBackground;
         break;
     case ItemDataRoles::ResultLineRole:
-    case Qt::DisplayRole:
         result = row->item.lineText();
+        break;
+    case Qt::DisplayRole:
+        if (m_relativePaths && row->isGenerated()) {
+            result = ICore::pathRelativeToActiveProject(FilePath::fromUserInput(row->item.lineText())).toUserOutput();
+        } else {
+            result = row->item.lineText();
+        }
         break;
     case ItemDataRoles::ResultItemRole:
         result = QVariant::fromValue(row->item);
@@ -578,6 +594,11 @@ void SearchResultFilterModel::setFilter(SearchResultFilter *filter)
 void SearchResultFilterModel::setShowReplaceUI(bool show)
 {
     sourceModel()->setShowReplaceUI(show);
+}
+
+void SearchResultFilterModel::setRelativePaths(bool relative)
+{
+    sourceModel()->setRelativePaths(relative);
 }
 
 void SearchResultFilterModel::setTextEditorFont(const QFont &font, const SearchResultColors &colors)

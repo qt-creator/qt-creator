@@ -58,6 +58,11 @@ void SearchResultTreeView::setAutoExpandResults(bool expand)
     m_autoExpandResults = expand;
 }
 
+void SearchResultTreeView::setRelativePaths(bool relative)
+{
+    m_model->setRelativePaths(relative);
+}
+
 void SearchResultTreeView::setTextEditorFont(const QFont &font, const SearchResultColors &colors)
 {
     m_model->setTextEditorFont(font, colors);

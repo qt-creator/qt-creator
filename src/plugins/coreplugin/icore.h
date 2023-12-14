@@ -134,6 +134,8 @@ signals:
 
 public:
     /* internal use */
+    static void setRelativePathToProjectFunction(const std::function<Utils::FilePath(const Utils::FilePath &)> &func);
+    static Utils::FilePath pathRelativeToActiveProject(const Utils::FilePath &path);
     static QStringList additionalAboutInformation();
     static void clearAboutInformation();
     static void appendAboutInformation(const QString &line);
@@ -166,6 +168,9 @@ public:
     static IDocument *openFiles(const Utils::FilePaths &filePaths,
                                 OpenFilesFlags flags = None,
                                 const Utils::FilePath &workingDirectory = {});
+
+private:
+    std::function<Utils::FilePath(const Utils::FilePath &)> m_relativePathToProject = nullptr;
 };
 
 } // namespace Core

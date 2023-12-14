@@ -348,6 +348,11 @@ void SearchResultWidget::setAutoExpandResults(bool expand)
     m_searchResultTreeView->setAutoExpandResults(expand);
 }
 
+void SearchResultWidget::setRelativePaths(bool relative)
+{
+    m_searchResultTreeView->setRelativePaths(relative);
+}
+
 void SearchResultWidget::expandAll()
 {
     m_searchResultTreeView->expandAll();

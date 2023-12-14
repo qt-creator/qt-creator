@@ -58,6 +58,7 @@ public:
     void setTabWidth(int tabWidth);
 
     void setAutoExpandResults(bool expand);
+    void setRelativePaths(bool relative);
     void expandAll();
     void collapseAll();
 

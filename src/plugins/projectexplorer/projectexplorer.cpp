@@ -2119,6 +2119,17 @@ void ProjectExplorerPlugin::extensionsInitialized()
 
     // Load devices immediately, as other plugins might want to use them
     DeviceManager::instance()->load();
+
+    Core::ICore::instance()->setRelativePathToProjectFunction([=](const FilePath& path) -> FilePath
+    {
+        ProjectExplorer::Project* p = ProjectExplorer::ProjectTree::currentProject();
+        if (p) {
+            FilePath relPath = path.relativeChildPath(p->projectFilePath().absolutePath());
+            return !relPath.isEmpty() ? relPath : path;
+        } else {
+            return path;
+        }
+    });
 }
 
 bool ProjectExplorerPlugin::delayedInitialize()

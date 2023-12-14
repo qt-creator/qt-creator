@@ -1096,6 +1096,25 @@ void ICore::restart()
 /*!
     \internal
 */
+void ICore::setRelativePathToProjectFunction(const std::function<FilePath(const FilePath &)> &func)
+{
+    m_core->m_relativePathToProject = func;
+}
+
+/*!
+    \internal
+*/
+FilePath ICore::pathRelativeToActiveProject(const FilePath &path)
+{
+    if (m_core->m_relativePathToProject)
+        return m_core->m_relativePathToProject(path);
+
+    return path;
+}
+
+/*!
+    \internal
+*/
 void ICore::saveSettings(SaveSettingsReason reason)
 {
     emit m_core->saveSettingsRequested(reason);
