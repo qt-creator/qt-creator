@@ -7,35 +7,19 @@
 
 #include <QStringList>
 
-QT_BEGIN_NAMESPACE
-class QTextStream;
-QT_END_NAMESPACE
-
-namespace QmakeProjectManager {
-namespace Internal {
-
-// Create a macro name by taking a file name, upper casing it and
-// appending a suffix.
-QString createMacro(const QString &name, const QString &suffix);
+namespace QmakeProjectManager::Internal {
 
 // Base parameters for application project generation with functionality to
 // write a .pro-file section.
-
 struct QtProjectParameters
 {
     enum Type { ConsoleApp, GuiApp, StaticLibrary, SharedLibrary, QtPlugin, EmptyProject };
     enum QtVersionSupport { SupportQt4And5, SupportQt4Only, SupportQt5Only };
-    enum Flags { WidgetsRequiredFlag = 0x1 };
 
-    QtProjectParameters();
     // Return project path as "path/name"
-    Utils::FilePath projectPath() const;
-
-    // Shared library: name of #define indicating compilation within library
-    static QString libraryMacro(const QString &projectName);
+    Utils::FilePath projectPath() const { return path / fileName; }
 
     Type type = ConsoleApp;
-    unsigned flags = 0;
     QtVersionSupport qtVersionSupport = SupportQt4And5;
     QString fileName;
     QString target;
@@ -45,5 +29,4 @@ struct QtProjectParameters
     QString targetDirectory;
 };
 
-} // namespace Internal
-} // namespace QmakeProjectManager
+} // namespace QmakeProjectManager::Internal
