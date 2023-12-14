@@ -601,7 +601,7 @@ RunConfiguration *RunConfigurationFactory::create(Target *target) const
 
     // Add the universal aspects.
     for (const RunConfiguration::AspectFactory &factory : theAspectFactories)
-        rc->registerAspect(factory(target));
+        rc->registerAspect(factory(target), true);
 
     return rc;
 }
