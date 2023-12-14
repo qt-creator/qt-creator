@@ -306,8 +306,7 @@ CompilerExplorerSettings::CompilerExplorerSettings()
 {
     setAutoApply(false);
     setSettingsKey("CompilerExplorer");
-    static QNetworkAccessManager networkManager;
-    m_networkAccessManager = &networkManager;
+    m_networkAccessManager = std::make_unique<QNetworkAccessManager>();
 
     compilerExplorerUrl.setSettingsKey("CompilerExplorerUrl");
     compilerExplorerUrl.setLabelText(Tr::tr("Compiler Explorer URL:"));

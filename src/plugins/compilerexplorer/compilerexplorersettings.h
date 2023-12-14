@@ -40,13 +40,11 @@ public:
 
     Api::Config apiConfig() const
     {
-        return Api::Config(m_networkAccessManager, compilerExplorerUrl());
+        return Api::Config(m_networkAccessManager.get(), compilerExplorerUrl());
     }
 
-    QNetworkAccessManager *networkAccessManager() const { return m_networkAccessManager; }
-
 private:
-    QNetworkAccessManager *m_networkAccessManager{nullptr};
+    std::unique_ptr<QNetworkAccessManager> m_networkAccessManager;
 };
 
 class SourceSettings : public Utils::AspectContainer,
