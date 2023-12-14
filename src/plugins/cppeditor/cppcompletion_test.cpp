@@ -8,10 +8,11 @@
 #include "cppmodelmanager.h"
 #include "cpptoolstestcase.h"
 
-#include <texteditor/codeassist/iassistproposal.h>
-#include <texteditor/texteditor.h>
-#include <texteditor/textdocument.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/codeassist/iassistproposal.h>
+#include <texteditor/syntaxhighlighterrunner.h>
+#include <texteditor/textdocument.h>
+#include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
 #include <utils/changeset.h>
@@ -61,6 +62,11 @@ public:
         // Open in editor
         m_editor = EditorManager::openEditor(filePath);
         QVERIFY(m_editor);
+
+        TextEditor::BaseTextEditor *cppEditor = qobject_cast<TextEditor::BaseTextEditor *>(m_editor);
+        QVERIFY(cppEditor);
+        QTRY_VERIFY(cppEditor->textDocument()->syntaxHighlighterRunner()->syntaxInfoUpdated());
+
         closeEditorAtEndOfTestCase(m_editor);
         m_editorWidget = TextEditorWidget::fromEditor(m_editor);
         QVERIFY(m_editorWidget);
