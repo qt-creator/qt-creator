@@ -317,7 +317,7 @@ public:
         });
 
         setProposal(m_processor->start(std::move(interface)), prefix);
-        if (!m_processor->running()) {
+        if (m_processor && !m_processor->running()) {
             delete m_processor;
             m_processor = nullptr;
         }

@@ -46,7 +46,12 @@
 #define USE_PIPELINE_CACHE 1
 
 #if defined(QUICK3D_MODULE) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 2)
+#if QT_VERSION < QT_VERSION_CHECK(6, 7, 0)
 #include <QtQuick3DRuntimeRender/private/qssgrendercontextcore_p.h>
+#else
+#include <QtQuick3DRuntimeRender/private/qssgrendershadercache_p.h>
+#include <QtQuick3DRuntimeRender/ssg/qssgrendercontextcore.h>
+#endif
 #include <QtQuick3D/private/qquick3dscenemanager_p.h>
 #define USE_SHADER_CACHE 1
 #endif

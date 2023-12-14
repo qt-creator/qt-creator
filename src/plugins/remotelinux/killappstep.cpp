@@ -59,6 +59,7 @@ GroupItem KillAppStep::deployRecipe()
         const QString message = result == DoneWith::Success ? Tr::tr("Remote application killed.")
             : Tr::tr("Failed to kill remote application. Assuming it was not running.");
         addProgressMessage(message);
+        return DoneResult::Success;
     };
     return DeviceProcessKillerTask(onSetup, onDone);
 }

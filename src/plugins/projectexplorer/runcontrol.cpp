@@ -1303,16 +1303,18 @@ void SimpleTargetRunnerPrivate::stop()
         m_stopRequested = true;
         q->appendMessage(Tr::tr("User requested stop. Shutting down..."), NormalMessageFormat);
         switch (m_state) {
-            case Run:
-                m_process.stop();
-                if (!m_process.waitForFinished(2000)) { // TODO: it may freeze on some devices
-                    QTC_CHECK(false); // Shouldn't happen, just emergency handling
-                    m_process.close();
-                    forwardDone();
-                }
-                break;
-            case Inactive:
-                break;
+        case Run:
+            m_process.stop();
+            if (!m_process.waitForFinished(2000)) { // TODO: it may freeze on some devices
+                q->appendMessage(Tr::tr("Remote process did not finish in time. "
+                                        "Connectivity lost?"), ErrorMessageFormat);
+                m_process.close();
+                m_state = Inactive;
+                forwardDone();
+            }
+            break;
+        case Inactive:
+            break;
         }
     }
 }
