@@ -131,8 +131,8 @@
                 code snippets.
         \row
             \li Non-Qt project
-            \li Create plain C or C++ applications or \l {Setting Up Nimble}
-                {Nim or Nimble} applications (experimental)
+            \li Create plain C or C++ applications or \l {Create Nimble projects}
+                {Nim or Nimble} applications (experimental).
         \row
             \li Imported project
             \li Import projects from a supported \l{Version Control Systems}
@@ -170,7 +170,8 @@
     \uicontrol Impl there.
 
     \sa {Assign keyboard shortcuts}, {Activate kits for a project},
-    {Create files}, {Creating Projects}
+    {Create files}, {Create Projects}{How To: Create Projects},
+    {Creating Projects}
 */
 
 /*!

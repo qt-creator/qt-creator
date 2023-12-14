@@ -109,7 +109,7 @@
 
     \title Specify a custom executable to run
 
-    If you use \l{Setting Up Meson}{Meson} or the
+    If you use \l{Meson} or the
     \l{Setting Up a Generic Project}{generic project type}, or want
     to run a custom desktop executable, create a \uicontrol {Custom Executable}
     run configuration for your project. For example, when working on a library,

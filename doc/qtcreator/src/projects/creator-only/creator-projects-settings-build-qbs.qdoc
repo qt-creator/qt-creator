@@ -36,7 +36,8 @@
     For more information about the QML debugging options, see
     \l{Setting Up QML Debugging}.
 
-    For more information about configuring Qbs, see \l{Setting Up Qbs}.
+    For more information about configuring Qbs, see \l{qbs-preferences}
+    {Preferences: Qbs}.
 
     \section1 Qbs Build Steps
 
@@ -136,4 +137,7 @@
 
     The \uicontrol {Equivalent command line} field displays the clean command
     that is constructed based on the selected options.
+
+    \sa {qbs-build-system}{Build Systems: Qbs},
+    {qbs-preferences}{Preferences: Qbs}
 */

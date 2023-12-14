@@ -7,7 +7,7 @@
 
     \ingroup creator-reference-build-systems
 
-    \title Setting Up Meson
+    \title Meson
 
     \brief Use Meson to build native desktop applications.
 

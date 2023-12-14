@@ -33,8 +33,6 @@
     cross file instead, specify the file name in \uicontrol Parameters.
     For example, \c {--cross-file cross_file.txt}.
 
-    For more information about using Meson, see \l{Setting Up Meson}.
-
     \section1 Meson Build Steps
 
     \QC builds Meson projects by running \c {ninja -v target}.
@@ -56,5 +54,6 @@
     The build errors and warnings are parsed and displayed in \uicontrol Issues.
 
     \sa {Activate kits for a project}, {Configure projects for building},
-    {Configure projects for running}, {Open projects}, {Configuring projects}
+    {Configure projects for running}, {Open projects}, {Configuring projects},
+    {Meson}
 */

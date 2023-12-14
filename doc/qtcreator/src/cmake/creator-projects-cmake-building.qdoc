@@ -240,8 +240,8 @@
 
     \section1 Using CMake with Conan
 
-    \QC can automatically set up the \l {Setting Up Conan}
-    {Conan package manager} for use with CMake.
+    \QC can automatically set up the \l {Conan Package Manager} for use with
+    CMake.
 
     Select \preferences > \uicontrol CMake
     \uicontrol General > \uicontrol {Package manager auto setup} to set the

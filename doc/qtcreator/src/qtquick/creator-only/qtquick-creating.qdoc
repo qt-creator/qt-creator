@@ -68,7 +68,7 @@
 
         \li In the \uicontrol {Build system} field, select the build system to
             use for building and running the project: \l {CMake}
-            {CMake} or \l {Setting Up Qbs}{Qbs}.
+            {CMake} or \l {qbs-build-system}{Qbs}.
 
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.

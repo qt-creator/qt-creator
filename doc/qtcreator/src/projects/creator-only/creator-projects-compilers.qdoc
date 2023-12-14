@@ -94,7 +94,7 @@
         \li A C++ compiler that is installed with Microsoft Visual Studio.
     \row
         \li Nim
-        \li The Nim Compiler for Windows, Linux, and \macos.
+        \li The Nim compiler for Windows, Linux, and \macos.
     \row
         \li QCC
         \li The interface for compiling C++ applications for QNX.
@@ -253,21 +253,6 @@
 
     \sa {Add compilers}, {Add custom compilers}, {Add Nim compilers},
     {Supported Platforms}
-*/
-
-/*!
-    \page creator-how-to-add-nim-compilers.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-manage-kits
-
-    \title Add Nim compilers
-
-    To build an application using the Nim Compiler, select \preferences >
-    \uicontrol Kits > \uicontrol Compilers > \uicontrol Add > \uicontrol Nim,
-    and specify the path to the directory where the compiler is located.
-
-    \sa {Add compilers}, {Compilers}
 */
 
 /*!

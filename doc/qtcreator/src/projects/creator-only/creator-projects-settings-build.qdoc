@@ -107,7 +107,7 @@
         \li \l{qmake Build Steps}{qmake}
         \li \l{Qbs Build Steps}{Qbs}
         \li \l{Meson Build Steps}{Meson}
-        \li \l{Conan Build Steps}{Conan}
+        \li \l{Conan Build Configuration}{Conan}
     \endlist
 
     You can use \l{IncrediBuild Build Steps}{IncrediBuild} to accelerate the

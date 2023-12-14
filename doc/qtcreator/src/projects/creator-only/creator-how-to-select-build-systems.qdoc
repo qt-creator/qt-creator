@@ -24,11 +24,11 @@
         \li \l {https://mesonbuild.com/}{Meson} is a fast and user-friendly
             open-source build system that aims to minimize the time developers spend
             writing or debugging build definitions and waiting for the build system
-            to start compiling code. For more information, see \l {Setting Up Meson}.
+            to start compiling code. For more information, see \l {Meson}.
         \li \l{Qbs Manual}{Qbs} is an all-in-one build tool that generates a build graph
             from a high-level project description (like qmake or CMake do) and executes
             the commands in the low-level build graph (like make does). For more
-            information, see \l{Setting Up Qbs}.
+            information, see \l{qbs-build-system}{Build Systems: Qbs}.
     \endlist
 
     Typically, you select the build system when you create a project.
@@ -57,5 +57,5 @@
     \uicontrol Projects mode.
 
     \sa {Configure projects for building}, {Configure projects for running},
-    {Build Systems}, {Use project wizards}
+    {Build Systems}{Reference: Build Systems}, {Use project wizards}
 */
