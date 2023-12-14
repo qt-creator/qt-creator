@@ -317,7 +317,6 @@ void TerminalWidget::setupActions()
     unlockGlobalAction(Core::Constants::OPTIONS);
     unlockGlobalAction("Preferences.Terminal.General");
     unlockGlobalAction(Core::Constants::FIND_IN_DOCUMENT);
-    unlockGlobalAction(Core::Constants::LOCATE);
 }
 
 void TerminalWidget::closeTerminal()
