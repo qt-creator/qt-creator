@@ -22,6 +22,10 @@ struct CollectionProperty
     DataType type;
 };
 
+const QMap<DataTypeWarning::Warning, QString> DataTypeWarning::dataTypeWarnings = {
+    {DataTypeWarning::CellDataTypeMismatch, "Cell and column data types do not match."}
+};
+
 class CollectionDetails::Private
 {
     using SourceFormat = CollectionEditor::SourceFormat;
@@ -345,6 +349,13 @@ CollectionDetails::DataType CollectionDetails::typeAt(int row, int column) const
     return {};
 }
 
+DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column) const
+{
+    if (typeAt(column) != typeAt(row, column) && !d->elements.at(row).isEmpty())
+        return DataTypeWarning::Warning::CellDataTypeMismatch;
+    return DataTypeWarning::Warning::None;
+}
+
 bool CollectionDetails::containsPropertyName(const QString &propertyName)
 {
     if (!isValid())
@@ -394,6 +405,9 @@ void CollectionDetails::registerDeclarativeType()
     typedef CollectionDetails::DataType DataType;
     qRegisterMetaType<DataType>("DataType");
     qmlRegisterUncreatableType<CollectionDetails>("CollectionDetails", 1, 0, "DataType", "Enum type");
+
+    qRegisterMetaType<DataTypeWarning::Warning>("Warning");
+    qmlRegisterUncreatableType<DataTypeWarning>("CollectionDetails", 1, 0, "Warning", "Enum type");
 }
 
 CollectionDetails &CollectionDetails::operator=(const CollectionDetails &other)

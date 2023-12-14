@@ -22,8 +22,7 @@ class CollectionDetailsModel : public QAbstractTableModel
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
 
 public:
-    enum DataRoles { SelectedRole = Qt::UserRole + 1, DataTypeRole, ColumnDataTypeRole };
-
+    enum DataRoles { SelectedRole = Qt::UserRole + 1, DataTypeRole, ColumnDataTypeRole, DataTypeWarningRole };
     explicit CollectionDetailsModel(QObject *parent = nullptr);
 
     QHash<int, QByteArray> roleNames() const override;
@@ -58,7 +57,7 @@ public:
     Q_INVOKABLE bool setPropertyType(int column, const QString &newValue);
     Q_INVOKABLE bool selectRow(int row);
     Q_INVOKABLE void deselectAll();
-
+    Q_INVOKABLE QString warningToString(DataTypeWarning::Warning warning) const;
     static Q_INVOKABLE QStringList typesList();
 
     void loadCollection(const ModelNode &sourceNode, const QString &collection);

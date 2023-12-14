@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import CollectionDetails 1.0 as CollectionDetails
 import HelperWidgets 2.0 as HelperWidgets
 import StudioTheme 1.0 as StudioTheme
 import StudioControls 1.0 as StudioControls
@@ -207,13 +208,23 @@ Rectangle {
                     id: itemCell
                     implicitWidth: 100
                     implicitHeight: itemText.height
+                    border.color: dataTypeWarning !== CollectionDetails.Warning.None ?
+                                  StudioTheme.Values.themeWarning : StudioTheme.Values.themeControlBackgroundInteraction
                     border.width: 1
+
+                    HelperWidgets.ToolTipArea {
+                        anchors.fill: parent
+                        text: root.model.warningToString(dataTypeWarning)
+                        enabled: dataTypeWarning !== CollectionDetails.Warning.None && text !== ""
+                        hoverEnabled: true
+                        acceptedButtons: Qt.NoButton
+                    }
 
                     Text {
                         id: itemText
 
-                        text: display ? display : ""
-
+                        text: display
+                        color: StudioTheme.Values.themePlaceholderTextColorInteraction
                         width: parent.width
                         leftPadding: 5
                         topPadding: 3
@@ -239,7 +250,6 @@ Rectangle {
                             PropertyChanges {
                                 target: itemCell
                                 color: StudioTheme.Values.themeControlBackground
-                                border.color: StudioTheme.Values.themeControlBackgroundInteraction
                             }
 
                             PropertyChanges {

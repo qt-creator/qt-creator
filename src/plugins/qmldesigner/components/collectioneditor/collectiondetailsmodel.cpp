@@ -102,6 +102,7 @@ QHash<int, QByteArray> CollectionDetailsModel::roleNames() const
         roles.insert(SelectedRole, "itemSelected");
         roles.insert(DataTypeRole, "dataType");
         roles.insert(ColumnDataTypeRole, "columnType");
+        roles.insert(DataTypeWarningRole, "dataTypeWarning");
     }
     return roles;
 }
@@ -133,6 +134,9 @@ QVariant CollectionDetailsModel::data(const QModelIndex &index, int role) const
     if (role == Qt::EditRole)
         return m_currentCollection.data(index.row(), index.column());
 
+    if (role == DataTypeWarningRole )
+        return QVariant::fromValue(m_currentCollection.cellWarningCheck(index.row(), index.column()));
+
     return m_currentCollection.data(index.row(), index.column()).toString();
 }
 
@@ -142,11 +146,19 @@ bool CollectionDetailsModel::setData(const QModelIndex &index, const QVariant &v
         return {};
 
     if (role == Qt::EditRole) {
+        DataTypeWarning::Warning prevWarning = m_currentCollection.cellWarningCheck(index.row(), index.column());
         bool changed = m_currentCollection.setPropertyValue(index.row(), index.column(), value);
+
         if (changed) {
-            emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
-            return true;
+            QList<int> roles = {Qt::DisplayRole, Qt::EditRole};
+
+            if (prevWarning != m_currentCollection.cellWarningCheck(index.row(), index.column()))
+                roles << DataTypeWarningRole;
+
+            emit dataChanged(index, index, roles);
         }
+
+        return true;
     }
 
     return false;
@@ -326,7 +338,8 @@ bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue
                                                            newValue));
     if (changed) {
         emit headerDataChanged(Qt::Horizontal, column, column);
-        emit dataChanged(index(0, column), index(rowCount() - 1, column), {Qt::DisplayRole, DataTypeRole});
+        emit dataChanged(index(0, column), index(rowCount() - 1, column),
+                         {Qt::DisplayRole, DataTypeRole, DataTypeWarningRole});
     }
 
     return changed;
@@ -622,5 +635,11 @@ bool CollectionDetailsModel::saveCollectionFromString(const QString &path, const
 
     return false;
 }
+
+QString CollectionDetailsModel::warningToString(DataTypeWarning::Warning warning) const
+{
+    return DataTypeWarning::getDataTypeWarningString(warning);
+}
+
 
 } // namespace QmlDesigner
