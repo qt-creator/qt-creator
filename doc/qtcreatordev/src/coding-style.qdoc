@@ -1003,6 +1003,32 @@
             signal and slot lookup a few cycles faster. You can use
             $QTDIR/util/normalize to normalize existing code. For more
             information, see QMetaObject::normalizedSignature.
+        \li Avoid using \c{QObject::sender()}. Pass the sender explicitly instead.
+            \code
+                connect(action, &QAction::triggered, this, [this, action] {
+                    onActionTriggered(action);
+                });
+                ...
+                void MyClass::onActionTriggered(QAction *action)
+                {
+                    ... use action ...
+                }
+
+                -NOT-
+
+                connect(action, &QAction::triggered, this, &MyClass::onActionTriggered);
+                ...
+                void MyClass::onActionTriggered()
+                {
+                    QAction *action = qobject_cast<QAction *>(sender());
+                    if (action == nullptr)
+                        return;
+
+                    ... use action ...
+                }
+            \endcode
+        \li Avoid \c{QSignalMapper}. Use a lambda instead and pass the mapped value
+            via the lambda capture.
     \endlist
 
     \section2 File Headers
