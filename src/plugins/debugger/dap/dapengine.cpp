@@ -309,6 +309,14 @@ bool DapEngine::acceptsBreakpoint(const BreakpointParameters &) const
     return true;
 }
 
+static void setBreakpointParameters(QJsonObject &bp, const QString &condition, int ignoreCount)
+{
+    if (!condition.isEmpty())
+        bp["condition"] = condition;
+    if (ignoreCount > 0)
+        bp["hitCondition"] = QString::number(ignoreCount);
+}
+
 static QJsonObject createBreakpoint(const BreakpointParameters &params)
 {
     if (params.fileName.isEmpty())
@@ -316,8 +324,7 @@ static QJsonObject createBreakpoint(const BreakpointParameters &params)
 
     QJsonObject bp;
     bp["line"] = params.textPosition.line;
-    bp["condition"] = params.condition;
-    bp["hitCondition"] = QString::number(params.ignoreCount);
+    setBreakpointParameters(bp, params.condition, params.ignoreCount);
     return bp;
 }
 
@@ -328,8 +335,7 @@ static QJsonObject createFunctionBreakpoint(const BreakpointParameters &params)
 
     QJsonObject bp;
     bp["name"] = params.functionName;
-    bp["condition"] = params.condition;
-    bp["hitCondition"] = QString::number(params.ignoreCount);
+    setBreakpointParameters(bp, params.condition, params.ignoreCount);
     return bp;
 }
 
