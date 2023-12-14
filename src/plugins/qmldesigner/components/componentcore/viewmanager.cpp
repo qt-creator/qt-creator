@@ -15,6 +15,7 @@
 #include <debugview.h>
 #include <designeractionmanagerview.h>
 #include <designmodewidget.h>
+#include <dynamiclicensecheck.h>
 #include <edit3dview.h>
 #include <formeditorview.h>
 #include <itemlibraryview.h>
@@ -29,6 +30,8 @@
 #include <textureeditorview.h>
 #include <qmldesignerplugin.h>
 
+#include <coreplugin/icore.h>
+
 #include <utils/algorithm.h>
 
 #include <advanceddockingsystem/dockwidget.h>
@@ -38,6 +41,14 @@
 #include <QTabWidget>
 
 namespace QmlDesigner {
+
+static bool enableModelEditor()
+{
+    Utils::QtcSettings *settings = Core::ICore::settings();
+    const Utils::Key enableModelManagerKey = "QML/Designer/UseExperimentalFeatures44";
+
+    return settings->value(enableModelManagerKey, false).toBool();
+}
 
 static Q_LOGGING_CATEGORY(viewBenchmark, "qtc.viewmanager.attach", QtWarningMsg)
 
@@ -203,8 +214,10 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->materialBrowserView,
                                   &d->textureEditorView,
                                   &d->statesEditorView,
-                                  &d->designerActionManagerView,
-                                  &d->collectionView};
+                                  &d->designerActionManagerView};
+
+    if (enableModelEditor())
+        list.append(&d->collectionView);
 
     if (QmlDesignerPlugin::instance()
             ->settings()
@@ -212,12 +225,8 @@ QList<AbstractView *> ViewManager::standardViews() const
             .toBool())
         list.append(&d->debugView);
 
-#ifdef CHECK_LICENSE
-    if (checkLicense() == FoundLicense::enterprise)
+    if (checkEnterpriseLicense())
         list.append(&d->contentLibraryView);
-#else
-    list.append(&d->contentLibraryView);
-#endif
 
     return list;
 }
@@ -386,14 +395,11 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
     widgetInfoList.append(d->textureEditorView.widgetInfo());
     widgetInfoList.append(d->statesEditorView.widgetInfo());
-    widgetInfoList.append(d->collectionView.widgetInfo());
+    if (enableModelEditor())
+        widgetInfoList.append(d->collectionView.widgetInfo());
 
-#ifdef CHECK_LICENSE
-    if (checkLicense() == FoundLicense::enterprise)
+    if (checkEnterpriseLicense())
         widgetInfoList.append(d->contentLibraryView.widgetInfo());
-#else
-    widgetInfoList.append(d->contentLibraryView.widgetInfo());
-#endif
 
     if (d->debugView.hasWidget())
         widgetInfoList.append(d->debugView.widgetInfo());
@@ -450,6 +456,12 @@ void ViewManager::nextFileIsCalledInternally()
 const AbstractView *ViewManager::view() const
 {
     return &d->nodeInstanceView;
+}
+
+void ViewManager::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,
+                                         const QList<QVariant> &data)
+{
+    d->nodeInstanceView.emitCustomNotification(identifier, nodeList, data);
 }
 
 QWidgetAction *ViewManager::componentViewAction() const

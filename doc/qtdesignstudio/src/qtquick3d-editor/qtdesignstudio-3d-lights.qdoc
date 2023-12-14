@@ -213,10 +213,11 @@
 
     \note Lightmaps baking is released as technical preview in \QDS 4.1.
 
-    Baked lightmaps allow pre-generating the direct lighting from lights such as DirectionalLight,
-    PointLight, and SpotLight, including the shadows cast by the lights. At run time, instead of
-    performing the appropriate calculations in the fragment shader, and, in case of shadows,
-    generating the potentially costly shadow maps in real time, the pre-generated light map is
+    Baked lightmaps allow pre-generating the direct lighting from lights,
+    such as DirectionalLight, PointLight, and SpotLight, including the shadows
+    cast by the lights. At run time, instead of performing the appropriate
+    calculations in the fragment shader, and, in case of shadows, generating
+    the potentially costly shadow maps in real time, the pre-generated light map is
     sampled instead.
 
     \section2 Baking Lightmaps
@@ -224,47 +225,56 @@
     To bake lightmaps for models in your 3D scene:
 
     \list 1
-      \li Right-click anywhere in the \uicontrol 3D view and select \uicontrol {Bake Lights}.
-      \li In the \uicontrol {Lights Baking Setup} dialog:
+      \li Select \inlineimage icons/bakelights.png in the \uicontrol 3D view
+          toolbar or right-click anywhere in the \uicontrol 3D view and select
+          \uicontrol {Bake Lights} to open the \uicontrol {Lights Baking Setup}
+          dialog to define settings for baking lights.
+       \li Set \uicontrol {Bake Mode} for each light source:
         \list
-          \li For every light you want to use to bake lightmaps, set \uicontrol {Bake Mode} to BakeModeAll.
-          \li For every 3D model you want to bake lightmaps, select \uicontrol {In Use} and
-          \uicontrol {Enabled}, and set the desired \uicontrol {Resolution}.
+          \li To bake both direct (diffuse and shadow) and indirect lighting,
+              select \uicontrol {Bake All}.
+          \li To bake only indirect lighting, select \uicontrol {Bake Indirect}.
+          \li To not include a light source in the baking of lights, select
+              \uicontrol {Baking Disabled}.
         \endlist
-      \li Optional. If you have components with unexposed models or lights (for example, imported
-      3D models created in other software), select \uicontrol {Expose models and lights} to add the
-      models and light of that component to the \uicontrol Models and \uicontrol Lights sections of
-      the dialog.
+      \li For every 3D model you want to bake into a lightmap, select
+          \uicontrol {In Use} and \uicontrol {Enabled}, and set the desired
+          \uicontrol {Resolution}.
+      \li Optional. If you have components with unexposed models or lights
+          (for example, imported 3D models created in other software), select
+          \uicontrol {Expose models and lights} to add the models and light of
+          that component to the \uicontrol Models and \uicontrol Lights sections
+          of the dialog.
       \li Select \uicontrol Bake.
     \endlist
 
     \image bake-lights-dialog.png
 
     \section2 Manually Baking Lightmaps for a 3D Model
-    Baked lightmap components are not visible in the \uicontrol Navigator view by default. To make
-    them visible, select \inlineimage icons/visibilityon.png
+    \note Baked lightmap components are not visible in the \uicontrol Navigator view by
+    default. To make them visible, select \inlineimage icons/visibilityon.png
     in the \uicontrol Navigator view.
 
     To bake lightmaps for a 3D model:
     \list 1
-      \li From \uicontrol Components, drag a \uicontrol {Baked Lightmap} component to
-      the 3D model in the \uicontrol Navigator view.
+      \li From \uicontrol Components, drag a \uicontrol {Baked Lightmap} component
+          to the 3D model in the \uicontrol Navigator view.
       \image baked-lightmaps-navigator.png
-      \li In the \uicontrol Navigator view, select \e bakedLightmap and in the \uicontrol Properties
-      view:
+      \li In the \uicontrol Navigator view, select \e bakedLightmap, and in the
+          \uicontrol Properties view:
         \list
           \li Select \uicontrol Enabled.
-          \li In \uicontrol Key, set the filename base for the generated light maps. This must be
-          a unique name.
-          \li In \uicontrol {Load Prefix}, set the relative path to the folder where the generated
-          light map files are saved.
+          \li In \uicontrol Key, set the filename base for the generated light maps.
+              This must be a unique name.
+          \li In \uicontrol {Load Prefix}, set the relative path to the folder where
+              the generated light map files are saved.
         \endlist
       \li In the \uicontrol Navigator view, select the 3D model and in the \uicontrol Properties
-      view, select \uicontrol {Used in Baked Lighting}.
+          view, select \uicontrol {Used in Baked Lighting}.
       \li Optional. Adjust \uicontrol Resolution to set the light map resoution. This effects how
-      accurate and time-consuming the lightmap baking is.
+          accurate and time-consuming the lightmap baking is.
       \li In the \uicontrol Navigator view, select the light component that you want to bake
-      lightmaps for, and in the \uicontrol Properties view, set \uicontrol {Bake Mode} to BakeModeAll.
+          lightmaps for, and in the \uicontrol Properties view, set \uicontrol {Bake Mode} to BakeModeAll.
       \li Right-click anywhere in the \uicontrol 3D view and select \uicontrol {Bake Lights}.
       \li Select \uicontrol {Setup baking manually}, and then select \uicontrol Bake.
     \endlist

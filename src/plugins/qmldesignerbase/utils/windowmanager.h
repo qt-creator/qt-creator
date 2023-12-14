@@ -25,6 +25,7 @@ public:
     static void registerDeclarativeType();
 
     Q_INVOKABLE QPoint globalCursorPosition();
+    Q_INVOKABLE QRect getScreenGeometry(QPoint point);
 
 signals:
     void focusWindowChanged(QWindow *window);

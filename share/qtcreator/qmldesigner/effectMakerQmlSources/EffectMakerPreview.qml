@@ -85,17 +85,6 @@ Column {
             anchors.verticalCenter: parent.verticalCenter
 
             HelperWidgets.AbstractButton {
-                enabled: sourceImage.scale > .4
-                style: StudioTheme.Values.viewBarButtonStyle
-                buttonIcon: StudioTheme.Constants.zoomOut_medium
-                tooltip: qsTr("Zoom out")
-
-                onClicked: {
-                    sourceImage.scale -= .2
-                }
-            }
-
-            HelperWidgets.AbstractButton {
                 enabled: sourceImage.scale < 2
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomIn_medium
@@ -103,6 +92,17 @@ Column {
 
                 onClicked: {
                     sourceImage.scale += .2
+                }
+            }
+
+            HelperWidgets.AbstractButton {
+                enabled: sourceImage.scale > .4
+                style: StudioTheme.Values.viewBarButtonStyle
+                buttonIcon: StudioTheme.Constants.zoomOut_medium
+                tooltip: qsTr("Zoom out")
+
+                onClicked: {
+                    sourceImage.scale -= .2
                 }
             }
 
@@ -192,6 +192,13 @@ Column {
                     }
                 }
             }
+        }
+
+        BlurHelper {
+            id: blurHelper
+            anchors.fill: parent
+            property int blurMax: g_propertyData.blur_helper_max_level ? g_propertyData.blur_helper_max_level : 64
+            property real blurMultiplier: g_propertyData.blurMultiplier ? g_propertyData.blurMultiplier : 0
         }
 
         Item {

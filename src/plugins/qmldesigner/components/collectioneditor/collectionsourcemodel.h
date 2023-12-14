@@ -54,6 +54,7 @@ public:
     bool collectionExists(const ModelNode &node, const QString &collectionName) const;
     bool addCollectionToSource(const ModelNode &node,
                                const QString &collectionName,
+                               const QJsonArray &newCollectionData,
                                QString *errorString = nullptr);
 
     ModelNode sourceNodeAt(int idx);
@@ -67,11 +68,10 @@ public:
     void updateNodeName(const ModelNode &node);
     void updateNodeSource(const ModelNode &node);
 
-    Q_INVOKABLE QString selectedSourceAddress() const;
-
 signals:
     void selectedIndexChanged(int idx);
     void collectionSelected(const ModelNode &sourceNode, const QString &collectionName);
+    void collectionNamesChanged(const ModelNode &sourceNode, QStringList collections);
     void isEmptyChanged(bool);
     void warning(const QString &title, const QString &body);
 

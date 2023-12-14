@@ -92,7 +92,7 @@ public:
     Q_INVOKABLE void updateContextMenuActionsEnableState();
 
     Q_INVOKABLE QString getUniqueEffectPath(const QString &parentFolder, const QString &effectName);
-    Q_INVOKABLE bool createNewEffect(const QString &effectPath, bool openEffectMaker = true);
+    Q_INVOKABLE bool createNewEffect(const QString &effectPath, bool openInEffectMaker = true);
 
     Q_INVOKABLE bool canCreateEffects() const;
 

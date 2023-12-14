@@ -12,10 +12,11 @@ Item {
     id: root
 
     implicitWidth: 300
-    implicitHeight: innerRect.height + 3
+    implicitHeight: boundingRect.height + 3
 
     property color textColor
     property string sourceType
+    property bool hasSelectedTarget
 
     signal selectItem(int itemIndex)
     signal deleteItem()
@@ -23,9 +24,8 @@ Item {
     Item {
         id: boundingRect
 
-        anchors.centerIn: root
         width: parent.width
-        height: nameHolder.height
+        height: itemLayout.height
         clip: true
 
         MouseArea {
@@ -49,39 +49,24 @@ Item {
         }
 
         RowLayout {
+            id: itemLayout
+
             width: parent.width
-
-            Text {
-                id: moveTool
-
-                property StudioTheme.ControlStyle style: StudioTheme.Values.viewBarButtonStyle
-
-                Layout.preferredWidth: moveTool.style.squareControlSize.width
-                Layout.preferredHeight: nameHolder.height
-                Layout.leftMargin: 12
-                Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
-
-                text: StudioTheme.Constants.dragmarks
-                font.family: StudioTheme.Constants.iconFont.family
-                font.pixelSize: moveTool.style.baseIconFontSize
-                color: root.textColor
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
 
             Text {
                 id: nameHolder
 
                 Layout.fillWidth: true
                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+                Layout.leftMargin: StudioTheme.Values.collectionItemTextSideMargin
+                Layout.topMargin: StudioTheme.Values.collectionItemTextMargin
+                Layout.bottomMargin: StudioTheme.Values.collectionItemTextMargin
 
                 text: collectionName
                 font.pixelSize: StudioTheme.Values.baseFontSize
                 color: root.textColor
-                leftPadding: 5
-                topPadding: 8
-                rightPadding: 8
-                bottomPadding: 8
+                topPadding: StudioTheme.Values.collectionItemTextPadding
+                bottomPadding: StudioTheme.Values.collectionItemTextPadding
                 elide: Text.ElideMiddle
                 verticalAlignment: Text.AlignVCenter
             }
@@ -90,13 +75,16 @@ Item {
                 id: threeDots
 
                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
+                Layout.topMargin: StudioTheme.Values.collectionItemTextMargin
+                Layout.bottomMargin: StudioTheme.Values.collectionItemTextMargin
+                Layout.rightMargin: StudioTheme.Values.collectionItemTextSideMargin
+
                 text: StudioTheme.Constants.more_medium
                 font.family: StudioTheme.Constants.iconFont.family
                 font.pixelSize: StudioTheme.Values.baseIconFontSize
                 color: root.textColor
-                rightPadding: 12
-                topPadding: nameHolder.topPadding
-                bottomPadding: nameHolder.bottomPadding
+                padding: StudioTheme.Values.collectionItemTextPadding
+
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
 
@@ -125,6 +113,12 @@ Item {
             shortcut: StandardKey.Replace
             onTriggered: renameDialog.open()
         }
+
+        StudioControls.MenuItem {
+            text: qsTr("Assign to the selected node")
+            enabled: root.hasSelectedTarget
+            onTriggered: rootView.assignCollectionToSelectedNode(collectionName)
+        }
     }
 
     component Spacer: Item {
@@ -137,6 +131,7 @@ Item {
 
         title: qsTr("Deleting the model")
         clip: true
+        implicitWidth: 300
 
         contentItem: ColumnLayout {
             spacing: 2

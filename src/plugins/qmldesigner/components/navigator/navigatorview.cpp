@@ -128,10 +128,22 @@ void NavigatorView::modelAttached(Model *model)
 
     QTreeView *treeView = treeWidget();
 
-    treeView->header()->setSectionResizeMode(NavigatorTreeModel::ColumnType::Name, QHeaderView::Stretch);
-    treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Alias, 26);
-    treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Visibility, 26);
-    treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Lock, 26);
+    treeView->header()->setSectionResizeMode(NavigatorTreeModel::ColumnType::Name,
+                                             QHeaderView::Stretch);
+    treeView->header()->setSectionResizeMode(NavigatorTreeModel::ColumnType::Alias,
+                                             QHeaderView::Fixed);
+    treeView->header()->setSectionResizeMode(NavigatorTreeModel::ColumnType::Visibility,
+                                             QHeaderView::Fixed);
+    treeView->header()->setSectionResizeMode(NavigatorTreeModel::ColumnType::Lock, QHeaderView::Fixed);
+
+    treeView->header()->setStretchLastSection(false);
+    treeView->header()->setMinimumSectionSize(24);
+    treeView->header()->setDefaultSectionSize(24);
+
+    treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Alias, 24);
+    treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Visibility, 24);
+    // Make last column a bit wider to compensate the shift to the left due to vertical scrollbar
+    treeView->header()->resizeSection(NavigatorTreeModel::ColumnType::Lock, 32);
     treeView->setIndentation(20);
 
     m_currentModelInterface->setFilter(false);
@@ -760,7 +772,7 @@ void NavigatorView::setupWidget()
     connect(m_widget.data(), &NavigatorWidget::textFilterChanged, this, &NavigatorView::textFilterChanged);
 
     const QString fontName = "qtds_propertyIconFont.ttf";
-    const QSize size = QSize(28, 28);
+    const QSize size = QSize(32, 32);
 
     const QString visibilityOnUnicode = Theme::getIconUnicode(Theme::Icon::visibilityOn);
     const QString visibilityOffUnicode = Theme::getIconUnicode(Theme::Icon::visibilityOff);

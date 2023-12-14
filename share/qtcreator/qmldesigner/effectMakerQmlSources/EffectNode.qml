@@ -15,20 +15,22 @@ Rectangle {
     width: 140
     height: 32
 
-    color: mouseArea.containsMouse ? StudioTheme.Values.themeControlBackgroundInteraction
-                                   : "transparent"
+    color: mouseArea.containsMouse && modelData.canBeAdded
+           ? StudioTheme.Values.themeControlBackgroundInteraction : "transparent"
 
     signal addEffectNode(var nodeQenPath)
 
-    MouseArea {
+    ToolTipArea {
         id: mouseArea
 
         anchors.fill: parent
-        hoverEnabled: true
         acceptedButtons: Qt.LeftButton
 
+        tooltip: modelData.canBeAdded ? "" : qsTr("Existing effect has conflicting properties, this effect cannot be added.")
+
         onClicked: {
-            root.addEffectNode(modelData.nodeQenPath)
+            if (modelData.canBeAdded)
+                root.addEffectNode(modelData.nodeQenPath)
         }
     }
 
@@ -41,13 +43,15 @@ Rectangle {
             width: 32
             height: 32
 
-            color: StudioTheme.Values.themeTextColor
+            color: modelData.canBeAdded ? StudioTheme.Values.themeTextColor
+                                        : StudioTheme.Values.themeTextColorDisabled
             source: modelData.nodeIcon
         }
 
         Text {
             text: modelData.nodeName
-            color: StudioTheme.Values.themeTextColor
+            color: modelData.canBeAdded ? StudioTheme.Values.themeTextColor
+                                        : StudioTheme.Values.themeTextColorDisabled
             font.pointSize: StudioTheme.Values.smallFontSize
             anchors.verticalCenter: nodeIcon.verticalCenter
         }

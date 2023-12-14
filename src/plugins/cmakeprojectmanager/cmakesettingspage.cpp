@@ -9,6 +9,7 @@
 #include "cmaketoolmanager.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>
@@ -457,6 +458,9 @@ void CMakeToolItemConfigWidget::onBinaryPathEditingFinished()
 
 void CMakeToolItemConfigWidget::updateQchFilePath()
 {
+    // QDS does not want automatic detection of cmake help file
+    if (Core::ICore::isQtDesignStudio())
+        return;
     if (m_qchFileChooser->filePath().isEmpty())
         m_qchFileChooser->setFilePath(CMakeTool::searchQchFile(m_binaryChooser->filePath()));
 }

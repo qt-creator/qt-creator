@@ -70,6 +70,27 @@ static void hideToolButtons(QList<QToolButton*> &buttons)
         button->hide();
 }
 
+static void ensureMinimumSize(QWidget *widget)
+{
+    if (widget->minimumSize().isEmpty())
+        widget->setMinimumSize(widget->minimumSize().expandedTo(QSize(60, 60)));
+}
+
+static ADS::DockWidget *createDockWidget(QWidget *widget,
+                                         const QString &uniqueId,
+                                         const QString &title,
+                                         ADS::DockWidget::eMinimumSizeHintMode minimumSizeHintMode)
+{
+    ADS::DockWidget *dockWidget = new ADS::DockWidget(uniqueId);
+    dockWidget->setWidget(widget, ADS::DockWidget::ForceNoScrollArea);
+    dockWidget->setWindowTitle(title);
+    dockWidget->setMinimumSizeHintMode(minimumSizeHintMode);
+
+    widget->setObjectName(uniqueId); // Set unique id as object name
+
+    return dockWidget;
+}
+
 namespace QmlDesigner {
 namespace Internal {
 
@@ -308,15 +329,10 @@ void DesignModeWidget::setup()
         sheet += "QLabel { background-color: creatorTheme.DSsectionHeadBackground; }";
         navigationView.widget->setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
-        // Create DockWidget
-        ADS::DockWidget *dockWidget = new ADS::DockWidget(uniqueId);
-        dockWidget->setWidget(navigationView.widget, ADS::DockWidget::ForceNoScrollArea);
-        dockWidget->setWindowTitle(title);
-        dockWidget->setMinimumSizeHintMode(m_minimumSizeHintMode);
-        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
+        ensureMinimumSize(navigationView.widget);
 
-        // Set unique id as object name
-        navigationView.widget->setObjectName(uniqueId);
+        auto dockWidget = createDockWidget(navigationView.widget, uniqueId, title, m_minimumSizeHintMode);
+        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
 
         // Create menu action
         auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
@@ -328,18 +344,16 @@ void DesignModeWidget::setup()
 
     // Afterwards get all the other widgets
     for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
-        // Create DockWidget
-        ADS::DockWidget *dockWidget = new ADS::DockWidget(widgetInfo.uniqueId);
-        dockWidget->setWidget(widgetInfo.widget, ADS::DockWidget::ForceNoScrollArea);
-        dockWidget->setWindowTitle(widgetInfo.tabName);
-        dockWidget->setMinimumSizeHintMode(m_minimumSizeHintMode);
+        ensureMinimumSize(widgetInfo.widget);
+
+        auto dockWidget = createDockWidget(widgetInfo.widget,
+                                           widgetInfo.uniqueId,
+                                           widgetInfo.tabName,
+                                           m_minimumSizeHintMode);
         m_dockManager->addDockWidget(ADS::NoDockWidgetArea, dockWidget);
 
         // Add to view widgets
         m_viewWidgets.append(widgetInfo.widget);
-
-        // Set unique id as object name
-        widgetInfo.widget->setObjectName(widgetInfo.uniqueId);
 
         // Create menu action
         auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
@@ -354,14 +368,14 @@ void DesignModeWidget::setup()
     {
         const QString uniqueId = "OutputPane";
         auto outputPanePlaceholder = new Core::OutputPanePlaceHolder(Core::Constants::MODE_DESIGN);
-        m_outputPaneDockWidget = new ADS::DockWidget(uniqueId);
-        m_outputPaneDockWidget->setWidget(outputPanePlaceholder, ADS::DockWidget::ForceNoScrollArea);
-        m_outputPaneDockWidget->setWindowTitle(tr("Output"));
-        m_outputPaneDockWidget->setMinimumSizeHintMode(m_minimumSizeHintMode);
-        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, m_outputPaneDockWidget);
 
-        // Set unique id as object name
-        outputPanePlaceholder->setObjectName(uniqueId);
+        ensureMinimumSize(outputPanePlaceholder);
+
+        m_outputPaneDockWidget = createDockWidget(outputPanePlaceholder,
+                                                  uniqueId,
+                                                  tr("Output"),
+                                                  m_minimumSizeHintMode);
+        m_dockManager->addDockWidget(ADS::NoDockWidgetArea, m_outputPaneDockWidget);
 
         // Create menu action
         auto command = Core::ActionManager::registerAction(m_outputPaneDockWidget->toggleViewAction(),
@@ -449,6 +463,7 @@ void DesignModeWidget::setup()
             this,
             [this](Utils::Id mode, Utils::Id previousMode) {
                 if (mode == Core::Constants::MODE_DESIGN) {
+                    m_dockManager->aboutToShow();
                     m_dockManager->reloadActiveWorkspace();
                     m_dockManager->setModeChangeState(false);
                 }

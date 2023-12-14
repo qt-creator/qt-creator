@@ -4,7 +4,6 @@
 #include "settingspage.h"
 
 #include "designersettings.h"
-#include "designmodewidget.h"
 #include "qmldesignerexternaldependencies.h"
 #include "qmldesignerplugin.h"
 
@@ -293,13 +292,6 @@ SettingsPageWidget::SettingsPageWidget(ExternalDependencies &externalDependencie
         m_styleLineEdit->setText(m_controls2StyleComboBox->currentText());
     });
 
-    connect(m_featureDockWidgetContentMinSize, &QCheckBox::toggled, this, [=](bool checked) {
-        if (checked && !m_featureDockWidgetContentMinSize->isChecked())
-            m_featureDockWidgetContentMinSize->setChecked(true);
-
-        QmlDesignerPlugin::instance()->mainWidget()->setMinimumSizeHintFromContentMinimumSize(checked);
-    });
-
     m_forwardPuppetOutputComboBox->addItems(puppetModes());
     m_debugPuppetComboBox->addItems(puppetModes());
 
@@ -491,7 +483,8 @@ void SettingsPageWidget::apply()
                                        DesignerSettingsKey::FORWARD_PUPPET_OUTPUT,
                                        DesignerSettingsKey::DEBUG_PUPPET,
                                        DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT,
-                                       DesignerSettingsKey::ENABLE_TIMELINEVIEW};
+                                       DesignerSettingsKey::ENABLE_TIMELINEVIEW,
+                                       DesignerSettingsKey::ENABLE_DOCKWIDGET_CONTENT_MIN_SIZE};
 
     for (const char * const key : restartNecessaryKeys) {
         if (QmlDesignerPlugin::settings().value(key) != settings.value(key)) {

@@ -9,12 +9,12 @@
     \title Creating UIs for MCUs
 
     As a technical artist or a designer, you can use specialized UI design tools,
-    such as Adobe Photoshop, Sketch, Figma, Blender, or Maya, to create the
-    original UI design files for your MCU application. After the initial design
-    work, export your design from the design tools, and import your 2D and 3D UI
-    design assets into \QDS, which can convert them into code for developers.
-    For more information on managing the original assets created with
-    specialized UI design tools, see \l {Asset Creation with Other Tools}.
+    such as Adobe Photoshop, Sketch, or Figma, to create the original UI design
+    files for your MCU application. After the initial design work, export your
+    design from the design tools, and import your 2D UI design assets into \QDS,
+    which can convert them into code for developers. For more information on
+    managing the original assets created with specialized UI design tools, see
+    \l {Asset Creation with Other Tools}.
 
     Once your UI design assets are in \QDS, use it to \l {Wireframing} {wireframe}
     your MCU application, to visualize its structure. To modify the look and feel

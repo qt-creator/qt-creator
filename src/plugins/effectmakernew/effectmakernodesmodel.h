@@ -5,8 +5,6 @@
 
 #include "effectnodescategory.h"
 
-#include <utils/filepath.h>
-
 #include <QStandardItemModel>
 
 namespace EffectMaker {
@@ -32,12 +30,14 @@ public:
 
     QList<EffectNodesCategory *> categories() const { return  m_categories; }
 
+    void updateCanBeAdded(const QStringList &uniforms);
+
 private:
-    void findNodesPath();
+    QString nodesSourcesPath() const;
 
     QList<EffectNodesCategory *> m_categories;
-    Utils::FilePath m_nodesPath;
     bool m_probeNodesDir = false;
+    bool m_modelLoaded = false;
 };
 
 } // namespace EffectMaker

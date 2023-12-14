@@ -4,13 +4,13 @@
 #pragma once
 
 #include "abstractview.h"
+#include "datastoremodelnode.h"
 #include "modelnode.h"
-
-#include <QDateTime>
 
 namespace QmlDesigner {
 
 class CollectionWidget;
+class DataStoreModelNode;
 
 class CollectionView : public AbstractView
 {
@@ -45,6 +45,9 @@ public:
 
     static void registerDeclarativeType();
 
+    void resetDataStoreNode();
+    ModelNode dataStoreNode() const;
+
 private:
     void refreshModel();
     NodeMetaInfo jsonCollectionMetaInfo() const;
@@ -52,5 +55,6 @@ private:
     void ensureStudioModelImport();
 
     QPointer<CollectionWidget> m_widget;
+    std::unique_ptr<DataStoreModelNode> m_dataStore;
 };
 } // namespace QmlDesigner

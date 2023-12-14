@@ -8,8 +8,6 @@
 #include "valueschangedcommand.h"
 #include "changeselectioncommand.h"
 #include "requestmodelnodepreviewimagecommand.h"
-#include "propertybindingcontainer.h"
-#include "propertyabstractcontainer.h"
 #include "animationdriver.h"
 
 #ifdef QUICK3D_PARTICLES_MODULE
@@ -61,7 +59,7 @@ public:
     void handlePickTarget(const ServerNodeInstance &instance) override;
 
     bool isInformationServer() const override;
-    void handleDynamicAddObject();
+    void handleDynamicAddObject(QObject *object);
 
 private slots:
     void handleSelectionChanged(const QVariant &objs);

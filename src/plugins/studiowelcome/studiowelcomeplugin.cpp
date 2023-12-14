@@ -296,7 +296,8 @@ public:
 
     Q_INVOKABLE void showHelp()
     {
-        QDesktopServices::openUrl(QUrl("qthelp://org.qt-project.qtdesignstudio/doc/index.html"));
+        QDesktopServices::openUrl(
+            QUrl("qthelp://org.qt-project.qtdesignstudio/doc/studio-getting-started.html"));
     }
 
     Q_INVOKABLE void openExample(const QString &examplePath,

@@ -23,6 +23,7 @@ Section {
     }
 
     SectionLayout {
+/*
         PropertyLabel { text: qsTr("Category") }
 
         SecondColumnLayout {
@@ -84,7 +85,7 @@ Section {
 
             ExpandingSpacer {}
         }
-
+*/
         PropertyLabel {
             text: qsTr("Object name")
             tooltip: qsTr("Sets the object name of the component.")

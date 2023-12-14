@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "effectmakernodesmodel.h"
+#include "effectutils.h"
 
+#include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 
 #include <QCoreApplication>
@@ -38,44 +40,21 @@ QVariant EffectMakerNodesModel::data(const QModelIndex &index, int role) const
     return m_categories.at(index.row())->property(roleNames().value(role));
 }
 
-void EffectMakerNodesModel::findNodesPath()
-{
-    if (m_nodesPath.exists() || m_probeNodesDir)
-        return;
-
-    QDir nodesDir;
-
-    if (!qEnvironmentVariable("EFFECT_MAKER_NODES_PATH").isEmpty())
-        nodesDir.setPath(qEnvironmentVariable("EFFECT_MAKER_NODES_PATH"));
-    else if (Utils::HostOsInfo::isMacHost())
-        nodesDir.setPath(QCoreApplication::applicationDirPath() + "/../Resources/effect_maker_nodes");
-
-    // search for nodesDir from exec dir and up
-    if (nodesDir.dirName() == ".") {
-        m_probeNodesDir = true; // probe only once
-        nodesDir.setPath(QCoreApplication::applicationDirPath());
-        while (!nodesDir.cd("effect_maker_nodes") && nodesDir.cdUp())
-            ; // do nothing
-
-        if (nodesDir.dirName() != "effect_maker_nodes") // bundlePathDir not found
-            return;
-    }
-
-    m_nodesPath = Utils::FilePath::fromString(nodesDir.path());
-}
-
 void EffectMakerNodesModel::loadModel()
 {
-    findNodesPath();
+    if (m_modelLoaded)
+        return;
 
-    if (!m_nodesPath.exists()) {
+    auto nodesPath = Utils::FilePath::fromString(EffectUtils::nodesSourcesPath());
+
+    if (!nodesPath.exists()) {
         qWarning() << __FUNCTION__ << "Effects not found.";
         return;
     }
 
     m_categories = {};
 
-    QDirIterator itCategories(m_nodesPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
+    QDirIterator itCategories(nodesPath.toString(), QDir::Dirs | QDir::NoDotAndDotDot);
     while (itCategories.hasNext()) {
         itCategories.next();
 
@@ -85,7 +64,7 @@ void EffectMakerNodesModel::loadModel()
         QString catName = itCategories.fileName();
 
         QList<EffectNode *> effects = {};
-        Utils::FilePath categoryPath = m_nodesPath.resolvePath(itCategories.fileName());
+        Utils::FilePath categoryPath = nodesPath.resolvePath(itCategories.fileName());
         QDirIterator itEffects(categoryPath.toString(), {"*.qen"}, QDir::Files);
         while (itEffects.hasNext()) {
             itEffects.next();
@@ -102,6 +81,8 @@ void EffectMakerNodesModel::loadModel()
         return a->name() < b->name();
     });
 
+    m_modelLoaded = true;
+
     resetModel();
 }
 
@@ -111,5 +92,20 @@ void EffectMakerNodesModel::resetModel()
     endResetModel();
 }
 
-} // namespace EffectMaker
+void EffectMakerNodesModel::updateCanBeAdded(const QStringList &uniforms)
+{
+    for (const EffectNodesCategory *cat : std::as_const(m_categories)) {
+        const QList<EffectNode *> nodes = cat->nodes();
+        for (EffectNode *node : nodes) {
+            bool match = false;
+            for (const QString &uniform : uniforms) {
+                match = node->hasUniform(uniform);
+                if (match)
+                    break;
+            }
+            node->setCanBeAdded(!match);
+        }
+    }
+}
 
+} // namespace EffectMaker

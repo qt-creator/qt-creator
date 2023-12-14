@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "changestyleaction.h"
-#include "designermcumanager.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -47,6 +46,17 @@ static QString styleConfigFileName(const QString &qmlFileName)
     return QString();
 }
 
+static bool isQtForMCUs()
+{
+    if (ProjectExplorer::ProjectManager::startupTarget()) {
+        const QmlProjectManager::QmlBuildSystem *buildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+            ProjectExplorer::ProjectManager::startupTarget()->buildSystem());
+        if (buildSystem)
+            return buildSystem->qtForMCUs();
+    }
+    return false;
+}
+
 ChangeStyleWidgetAction::ChangeStyleWidgetAction(QObject *parent) : QWidgetAction(parent)
 {
     items = getAllStyleItems();
@@ -78,7 +88,7 @@ QList<StyleWidgetEntry> ChangeStyleWidgetAction::getAllStyleItems()
     if (Utils::HostOsInfo::isWindowsHost())
         items.append({"Windows", "Windows", {}});
 
-    if (DesignerMcuManager::instance().isMCUProject())
+    if (isQtForMCUs())
         items.append({"MCUDefaultStyle", "MCUDefaultStyle", {}});
 
     //what if we have a custom style set in .conf?
@@ -178,7 +188,7 @@ QWidget *ChangeStyleWidgetAction::createWidget(QWidget *parent)
             comboBox->setDisabled(true);
             comboBox->setToolTip(tr(disbledTooltip));
             comboBox->setCurrentIndex(0);
-        } else if (DesignerMcuManager::instance().isMCUProject()) {
+        } else if (isQtForMCUs()) {
             comboBox->setDisabled(true);
             comboBox->setEditText(style);
         } else {

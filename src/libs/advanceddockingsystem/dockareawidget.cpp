@@ -295,13 +295,20 @@ void DockAreaWidgetPrivate::updateTitleBarButtonVisibility(bool isTopLevel)
     if (!container)
         return;
 
-    if (isTopLevel) {
+    bool isAutoHide = q->isAutoHide();
+    if (isAutoHide) {
+        bool showCloseButton = DockManager::autoHideConfigFlags().testFlag(
+            DockManager::AutoHideHasCloseButton);
+        m_titleBar->button(TitleBarButtonClose)->setVisible(showCloseButton);
+        m_titleBar->button(TitleBarButtonAutoHide)->setVisible(true);
+        m_titleBar->button(TitleBarButtonUndock)->setVisible(false);
+        m_titleBar->button(TitleBarButtonTabsMenu)->setVisible(false);
+    } else if (isTopLevel) {
         m_titleBar->button(TitleBarButtonClose)->setVisible(!container->isFloating());
         m_titleBar->button(TitleBarButtonAutoHide)->setVisible(!container->isFloating());
         // Undock and tabs should never show when auto hidden
-        m_titleBar->button(TitleBarButtonUndock)
-            ->setVisible(!container->isFloating() && !q->isAutoHide());
-        m_titleBar->button(TitleBarButtonTabsMenu)->setVisible(!q->isAutoHide());
+        m_titleBar->button(TitleBarButtonUndock)->setVisible(!container->isFloating());
+        m_titleBar->button(TitleBarButtonTabsMenu)->setVisible(true);
     } else {
         m_titleBar->button(TitleBarButtonClose)->setVisible(true);
         m_titleBar->button(TitleBarButtonAutoHide)->setVisible(true);
@@ -650,10 +657,7 @@ void DockAreaWidget::updateTitleBarVisibility()
     }
 
     if (isAutoHideFeatureEnabled()) {
-        auto tabBar = d->m_titleBar->tabBar();
-        tabBar->setVisible(!autoHide); // Never show tab bar when auto hidden
-        // Always show when auto hidden, never otherwise
-        d->m_titleBar->autoHideTitleLabel()->setVisible(autoHide);
+        d->m_titleBar->showAutoHideControls(autoHide);
         updateTitleBarButtonVisibility(container->topLevelDockArea() == this);
     }
 }

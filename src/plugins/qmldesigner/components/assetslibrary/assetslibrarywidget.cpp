@@ -13,18 +13,11 @@
 #include "qmldesignerplugin.h"
 #include "theme.h"
 
-#include <extensionsystem/pluginmanager.h>
-#include <extensionsystem/pluginspec.h>
-
 #include <studioquickwidget.h>
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
-
-#include <projectexplorer/projecttree.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/project.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -192,12 +185,12 @@ QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, co
     return path;
 }
 
-bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openEffectMaker)
+bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openInEffectMaker)
 {
     bool created = QFile(effectPath).open(QIODevice::WriteOnly);
 
-    if (created && openEffectMaker) {
-        ModelNodeOperations::openEffectMaker(effectPath);
+    if (created && openInEffectMaker) {
+        openEffectMaker(effectPath);
         emit directoryCreated(QFileInfo(effectPath).absolutePath());
     }
 
@@ -367,22 +360,9 @@ QSet<QString> AssetsLibraryWidget::supportedAssetSuffixes(bool complex)
     return suffixes;
 }
 
-bool isEffectMakerActivated()
-{
-    const QVector<ExtensionSystem::PluginSpec *> specs = ExtensionSystem::PluginManager::plugins();
-    return std::find_if(specs.begin(), specs.end(),
-                        [](ExtensionSystem::PluginSpec *spec) {
-                            return spec->name() == "EffectMakerNew" && spec->isEffectivelyEnabled();
-                        })
-           != specs.end();
-}
-
 void AssetsLibraryWidget::openEffectMaker(const QString &filePath)
 {
-    if (isEffectMakerActivated())
-        m_assetsView->emitCustomNotification("open_effectmaker_composition", {}, {filePath});
-    else
-        ModelNodeOperations::openEffectMaker(filePath);
+    ModelNodeOperations::openEffectMaker(filePath);
 }
 
 QString AssetsLibraryWidget::qmlSourcesPath()

@@ -84,7 +84,7 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(int documentIndex READ documentIndex NOTIFY documentIndexChanged)
     Q_PROPERTY(QString currentWorkspace READ currentWorkspace NOTIFY currentWorkspaceChanged)
     Q_PROPERTY(bool lockWorkspace READ lockWorkspace WRITE setLockWorkspace NOTIFY lockWorkspaceChanged)
-    Q_PROPERTY(QStringList styles READ styles CONSTANT)
+    Q_PROPERTY(QStringList styles READ styles NOTIFY stylesChanged)
     Q_PROPERTY(bool isInDesignMode READ isInDesignMode NOTIFY isInDesignModeChanged)
     Q_PROPERTY(bool isInEditMode READ isInEditMode NOTIFY isInEditModeChanged)
     Q_PROPERTY(bool isInSessionMode READ isInSessionMode NOTIFY isInSessionModeChanged)
@@ -151,6 +151,7 @@ signals:
     void documentIndexChanged();
     void currentWorkspaceChanged();
     void lockWorkspaceChanged();
+    void stylesChanged();
     void isInDesignModeChanged();
     void isInEditModeChanged();
     void isInSessionModeChanged();

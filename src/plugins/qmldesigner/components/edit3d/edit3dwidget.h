@@ -53,8 +53,8 @@ public:
     void updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesList);
 
 private slots:
-    void onCreateAction();
-    void onMatOverrideAction();
+    void onCreateAction(QAction *action);
+    void onMatOverrideAction(QAction *action);
     void onWireframeAction();
     void onResetAllOverridesAction();
 

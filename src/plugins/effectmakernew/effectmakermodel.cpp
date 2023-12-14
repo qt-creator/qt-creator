@@ -4,6 +4,8 @@
 #include "effectmakermodel.h"
 
 #include "compositionnode.h"
+#include "effectutils.h"
+#include "propertyhandler.h"
 #include "syntaxhighlighterdata.h"
 #include "uniform.h"
 
@@ -21,6 +23,7 @@
 #include <modelnodeoperations.h>
 
 #include <QByteArrayView>
+#include <QLibraryInfo>
 #include <QVector2D>
 
 namespace EffectMaker {
@@ -57,6 +60,7 @@ QHash<int, QByteArray> EffectMakerModel::roleNames() const
     roles[NameRole] = "nodeName";
     roles[EnabledRole] = "nodeEnabled";
     roles[UniformsRole] = "nodeUniformsModel";
+    roles[Dependency] = "isDependency";
     return roles;
 }
 
@@ -103,14 +107,45 @@ void EffectMakerModel::setIsEmpty(bool val)
 
 void EffectMakerModel::addNode(const QString &nodeQenPath)
 {
-    beginInsertRows({}, m_nodes.size(), m_nodes.size());
-    auto *node = new CompositionNode("", nodeQenPath);
+    beginResetModel();
+    auto *node = new CompositionNode({}, nodeQenPath);
+    connect(qobject_cast<EffectMakerUniformsModel *>(node->uniformsModel()),
+            &EffectMakerUniformsModel::dataChanged, this, [this] {
+                setHasUnsavedChanges(true);
+            });
+
+    const QList<QString> requiredNodes = node->requiredNodes();
+    if (requiredNodes.size() > 0) {
+        for (const QString &requiredId : requiredNodes) {
+            if (auto reqNode = findNodeById(requiredId)) {
+                reqNode->incRefCount();
+                continue;
+            }
+
+            const QString path = EffectUtils::nodesSourcesPath() + "/common/" + requiredId + ".qen";
+            auto requiredNode = new CompositionNode({}, path);
+            requiredNode->setRefCount(1);
+            m_nodes.prepend(requiredNode);
+        }
+    }
     m_nodes.append(node);
-    endInsertRows();
+    endResetModel();
 
     setIsEmpty(false);
 
     bakeShaders();
+    setHasUnsavedChanges(true);
+
+    emit nodesChanged();
+}
+
+CompositionNode *EffectMakerModel::findNodeById(const QString &id) const
+{
+    for (CompositionNode *node : std::as_const(m_nodes)) {
+        if (node->id() == id)
+            return node;
+    }
+    return {};
 }
 
 void EffectMakerModel::moveNode(int fromIdx, int toIdx)
@@ -123,21 +158,67 @@ void EffectMakerModel::moveNode(int fromIdx, int toIdx)
     m_nodes.move(fromIdx, toIdx);
     endMoveRows();
 
+    setHasUnsavedChanges(true);
     bakeShaders();
 }
 
 void EffectMakerModel::removeNode(int idx)
 {
-    beginRemoveRows({}, idx, idx);
-    CompositionNode *node = m_nodes.at(idx);
-    m_nodes.removeAt(idx);
+    beginResetModel();
+    CompositionNode *node = m_nodes.takeAt(idx);
+
+    const QStringList reqNodes = node->requiredNodes();
+    for (const QString &reqId : reqNodes) {
+        CompositionNode *depNode = findNodeById(reqId);
+        if (depNode && depNode->decRefCount() <= 0) {
+            m_nodes.removeOne(depNode);
+            delete depNode;
+        }
+    }
+
     delete node;
-    endRemoveRows();
+    endResetModel();
 
     if (m_nodes.isEmpty())
         setIsEmpty(true);
     else
         bakeShaders();
+
+    setHasUnsavedChanges(true);
+    emit nodesChanged();
+}
+
+void EffectMakerModel::clear()
+{
+    beginResetModel();
+    qDeleteAll(m_nodes);
+    m_nodes.clear();
+    endResetModel();
+    setHasUnsavedChanges(!m_currentComposition.isEmpty());
+    setCurrentComposition("");
+
+    setIsEmpty(true);
+    emit nodesChanged();
+}
+
+void EffectMakerModel::assignToSelected()
+{
+    const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
+    const QString path = effectsAssetsDir + QDir::separator() + m_currentComposition + ".qep";
+    emit assignToSelectedTriggered(path);
+}
+
+QString EffectMakerModel::getUniqueEffectName() const
+{
+    const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
+    const QString path = effectsDir + QDir::separator() + "Effect%1.qep";
+
+    int num = 0;
+
+    while (QFile::exists(path.arg(++num, 2, 10, QChar('0'))))
+        ; // empty body
+
+    return QString("Effect%1").arg(num, 2, 10, QChar('0'));
 }
 
 QString EffectMakerModel::fragmentShader() const
@@ -171,25 +252,7 @@ const QString &EffectMakerModel::qmlComponentString() const
     return m_qmlComponentString;
 }
 
-void EffectMakerModel::clear()
-{
-    if (m_nodes.isEmpty())
-        return;
-
-    beginRemoveRows({}, 0, m_nodes.count());
-
-    for (CompositionNode *node : std::as_const(m_nodes))
-        delete node;
-
-    m_nodes.clear();
-
-    endRemoveRows();
-
-    setIsEmpty(true);
-    bakeShaders();
-}
-
-const QList<Uniform *> EffectMakerModel::allUniforms()
+const QList<Uniform *> EffectMakerModel::allUniforms() const
 {
     QList<Uniform *> uniforms = {};
     for (const auto &node : std::as_const(m_nodes))
@@ -416,6 +479,8 @@ QJsonObject nodeToJson(const CompositionNode &node)
         nodeObject.insert("description", node.description());
     nodeObject.insert("enabled", node.isEnabled());
     nodeObject.insert("version", 1);
+    nodeObject.insert("id", node.id());
+
     // Add properties
     QJsonArray propertiesArray;
     const QList<Uniform *> uniforms = node.uniforms();
@@ -523,14 +588,24 @@ QString EffectMakerModel::getQmlEffectString()
         s += '\n';
     }
 
-    //TODO: Blue stuff goes here
+    if (m_shaderFeatures.enabled(ShaderFeatures::BlurSources)) {
+        s += "    BlurHelper {\n";
+        s += "        id: blurHelper\n";
+        s += "        anchors.fill: parent\n";
+        int blurMax = 32;
+        if (g_propertyData.contains("BLUR_HELPER_MAX_LEVEL"))
+            blurMax = g_propertyData["BLUR_HELPER_MAX_LEVEL"].toInt();
+        s += QString("        property int blurMax: %1\n").arg(blurMax);
+        s += "        property real blurMultiplier: rootItem.blurMultiplier\n";
+        s += "    }\n";
+    }
 
     s += getQmlComponentString(true);
     s += "}\n";
     return s;
 }
 
-void EffectMakerModel::exportComposition(const QString &name)
+void EffectMakerModel::saveComposition(const QString &name)
 {
     const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
     const QString path = effectsAssetsDir + QDir::separator() + name + ".qep";
@@ -561,11 +636,18 @@ void EffectMakerModel::exportComposition(const QString &name)
 
     saveFile.write(jsonDoc.toJson());
     saveFile.close();
+    setCurrentComposition(name);
+    setHasUnsavedChanges(false);
+
+    saveResources(name);
 }
 
 void EffectMakerModel::openComposition(const QString &path)
 {
     clear();
+
+    const QString effectName = QFileInfo(path).baseName();
+    setCurrentComposition(effectName);
 
     QFile compFile(path);
     if (!compFile.open(QIODevice::ReadOnly)) {
@@ -576,6 +658,10 @@ void EffectMakerModel::openComposition(const QString &path)
     }
 
     QByteArray data = compFile.readAll();
+
+    if (data.isEmpty())
+        return;
+
     QJsonParseError parseError;
     QJsonDocument jsonDoc(QJsonDocument::fromJson(data, &parseError));
     if (parseError.error != QJsonParseError::NoError) {
@@ -605,28 +691,40 @@ void EffectMakerModel::openComposition(const QString &path)
         return;
     }
 
-    // Get effects dir
-    const QString effectName = QFileInfo(path).baseName();
-    const Utils::FilePath effectsResDir = QmlDesigner::ModelNodeOperations::getEffectsImportDirectory();
-    const QString effectsResPath = effectsResDir.pathAppended(effectName).toString();
-
     if (json.contains("nodes") && json["nodes"].isArray()) {
+        beginResetModel();
+        QHash<QString, int> refCounts;
         const QJsonArray nodesArray = json["nodes"].toArray();
+
         for (const auto &nodeElement : nodesArray) {
-            beginInsertRows({}, m_nodes.size(), m_nodes.size());
-            auto *node = new CompositionNode(effectName, "", nodeElement.toObject());
+            auto *node = new CompositionNode(effectName, {}, nodeElement.toObject());
+            connect(qobject_cast<EffectMakerUniformsModel *>(node->uniformsModel()),
+                    &EffectMakerUniformsModel::dataChanged, this, [this] {
+                setHasUnsavedChanges(true);
+            });
             m_nodes.append(node);
-            endInsertRows();
+            const QStringList reqIds = node->requiredNodes();
+            for (const QString &reqId : reqIds)
+                ++refCounts[reqId];
         }
+
+        for (auto it = refCounts.cbegin(), end = refCounts.cend(); it != end; ++it) {
+            CompositionNode *depNode = findNodeById(it.key());
+            if (depNode)
+                depNode->setRefCount(it.value());
+        }
+
+        endResetModel();
 
         setIsEmpty(m_nodes.isEmpty());
         bakeShaders();
     }
 
-    setCurrentComposition(effectName);
+    setHasUnsavedChanges(false);
+    emit nodesChanged();
 }
 
-void EffectMakerModel::exportResources(const QString &name)
+void EffectMakerModel::saveResources(const QString &name)
 {
     // Make sure that uniforms are up-to-date
     updateCustomUniforms();
@@ -682,7 +780,7 @@ void EffectMakerModel::exportResources(const QString &name)
         if (line.startsWith("vertexShader")) {
             QString vsLine = "        vertexShader: '" + vsFilename + "'";
             qmlStringList[i] = vsLine;
-        } else  if (line.startsWith("fragmentShader")) {
+        } else if (line.startsWith("fragmentShader")) {
             QString fsLine = "        fragmentShader: '" + fsFilename + "'";
             qmlStringList[i] = fsLine;
         }
@@ -692,7 +790,7 @@ void EffectMakerModel::exportResources(const QString &name)
     QString qmlFilePath = effectsResPath + qmlFilename;
     writeToFile(qmlString.toUtf8(), qmlFilePath, FileType::Text);
 
-    // Export shaders and images
+    // Save shaders and images
     QStringList sources = {m_vertexShaderFilename, m_fragmentShaderFilename};
     QStringList dests = {vsFilename, fsFilename};
 
@@ -702,9 +800,26 @@ void EffectMakerModel::exportResources(const QString &name)
             QString imagePath = uniform->value().toString();
             QFileInfo fi(imagePath);
             QString imageFilename = fi.fileName();
-            sources.append(imagePath.remove(0, 7)); // Removes "file://"
+            if (imagePath.startsWith("file:")) {
+                QUrl url(imagePath);
+                imagePath = url.toLocalFile();
+            }
+            sources.append(imagePath);
             dests.append(imageFilename);
         }
+    }
+
+    if (m_shaderFeatures.enabled(ShaderFeatures::BlurSources)) {
+        QString blurHelperFilename("BlurHelper.qml");
+        QString blurFsFilename("bluritems.frag.qsb");
+        QString blurVsFilename("bluritems.vert.qsb");
+        QString blurHelperPath(EffectUtils::nodesSourcesPath() + "/common/");
+        sources.append(blurHelperPath + blurHelperFilename);
+        sources.append(blurHelperPath + blurFsFilename);
+        sources.append(blurHelperPath + blurVsFilename);
+        dests.append(blurHelperFilename);
+        dests.append(blurFsFilename);
+        dests.append(blurVsFilename);
     }
 
     for (int i = 0; i < sources.count(); ++i) {
@@ -716,6 +831,8 @@ void EffectMakerModel::exportResources(const QString &name)
         if (!source.copyFile(target))
             qWarning() << __FUNCTION__ << " Failed to copy file: " << source;
     }
+
+    emit resourcesSaved(QString("Effects.%1.%1").arg(name).toUtf8(), effectPath);
 }
 
 void EffectMakerModel::resetEffectError(int type)
@@ -737,16 +854,18 @@ QString EffectMakerModel::valueAsString(const Uniform &uniform)
         return QString::number(uniform.value().toDouble());
     } else if (uniform.type() == Uniform::Type::Vec2) {
         QVector2D v2 = uniform.value().value<QVector2D>();
-        return QString("Qt.point(%1, %2)").arg(v2.x(), v2.y());
+        return QString("Qt.point(%1, %2)").arg(v2.x()).arg(v2.y());
     } else if (uniform.type() == Uniform::Type::Vec3) {
         QVector3D v3 = uniform.value().value<QVector3D>();
-        return QString("Qt.vector3d(%1, %2, %3)").arg(v3.x(), v3.y(), v3.z());
+        return QString("Qt.vector3d(%1, %2, %3)").arg(v3.x()).arg(v3.y()).arg(v3.z());
     } else if (uniform.type() == Uniform::Type::Vec4) {
         QVector4D v4 = uniform.value().value<QVector4D>();
-        return QString("Qt.vector4d(%1, %2, %3, %4)").arg(v4.x(), v4.y(), v4.z(), v4.w());
+        return QString("Qt.vector4d(%1, %2, %3, %4)").arg(v4.x()).arg(v4.y()).arg(v4.z()).arg(v4.w());
     } else if (uniform.type() == Uniform::Type::Sampler) {
         return getImageElementName(uniform);
-    } else if (uniform.type() == Uniform::Type::Define || uniform.type() == Uniform::Type::Color) {
+    } else if (uniform.type() == Uniform::Type::Color) {
+        return QString("\"%1\"").arg(uniform.value().toString());
+    } else if (uniform.type() == Uniform::Type::Define) {
         return uniform.value().toString();
     } else {
         qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
@@ -1085,18 +1204,25 @@ QString EffectMakerModel::generateFragmentShader(bool includeUniforms)
     return s;
 }
 
-void EffectMakerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader)
+void EffectMakerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader, bool preview)
 {
     --m_remainingQsbTargets;
 
     const QString errStr = qsbProcess->errorString();
     const QByteArray errStd = qsbProcess->readAllRawStandardError();
-    if (!errStr.isEmpty())
-        qWarning() << QString("Failed to generate QSB file for: %1 %2").arg(shader, errStr);
+    QString previewStr;
+    if (preview)
+        previewStr = QStringLiteral("preview");
 
-    if (!errStd.isEmpty())
-        qWarning() << QString("Failed to generate QSB file for: %1 %2")
-                          .arg(shader, QString::fromUtf8(errStd));
+    if (!errStr.isEmpty()) {
+        qWarning() << QString("Failed to generate %3 QSB file for: %1 %2")
+                          .arg(shader, errStr, previewStr);
+    }
+
+    if (!errStd.isEmpty()) {
+        qWarning() << QString("Failed to generate %3 QSB file for: %1 %2")
+                          .arg(shader, QString::fromUtf8(errStd), previewStr);
+    }
 
     if (m_remainingQsbTargets <= 0) {
         Q_EMIT shadersBaked();
@@ -1182,21 +1308,30 @@ void EffectMakerModel::createFiles()
         QFile(m_vertexShaderFilename).remove();
     if (QFileInfo(m_fragmentShaderFilename).exists())
         QFile(m_fragmentShaderFilename).remove();
+    if (QFileInfo(m_vertexShaderPreviewFilename).exists())
+        QFile(m_vertexShaderPreviewFilename).remove();
+    if (QFileInfo(m_fragmentShaderPreviewFilename).exists())
+        QFile(m_fragmentShaderPreviewFilename).remove();
 
     auto vertexShaderFile = QTemporaryFile(QDir::tempPath() + "/dsem_XXXXXX.vert.qsb");
     auto fragmentShaderFile = QTemporaryFile(QDir::tempPath() + "/dsem_XXXXXX.frag.qsb");
+    auto vertexShaderPreviewFile = QTemporaryFile(QDir::tempPath() + "/dsem_prev_XXXXXX.vert.qsb");
+    auto fragmentShaderPreviewFile = QTemporaryFile(QDir::tempPath() + "/dsem_prev_XXXXXX.frag.qsb");
 
     m_vertexSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.vert");
     m_fragmentSourceFile.setFileTemplate(QDir::tempPath() + "/dsem_XXXXXX.frag");
 
     if (!m_vertexSourceFile.open() || !m_fragmentSourceFile.open()
-        || !vertexShaderFile.open() || !fragmentShaderFile.open()) {
+        || !vertexShaderFile.open() || !fragmentShaderFile.open()
+        || !vertexShaderPreviewFile.open() || !fragmentShaderPreviewFile.open()) {
         qWarning() << "Unable to open temporary files";
     } else {
         m_vertexSourceFilename = m_vertexSourceFile.fileName();
         m_fragmentSourceFilename = m_fragmentSourceFile.fileName();
         m_vertexShaderFilename = vertexShaderFile.fileName();
         m_fragmentShaderFilename = fragmentShaderFile.fileName();
+        m_vertexShaderPreviewFilename = vertexShaderPreviewFile.fileName();
+        m_fragmentShaderPreviewFilename = fragmentShaderPreviewFile.fileName();
     }
 }
 
@@ -1243,27 +1378,43 @@ void EffectMakerModel::bakeShaders()
 
     Utils::FilePath qsbPath = qtVer->binPath().pathAppended("qsb").withExecutableSuffix();
     if (!qsbPath.exists()) {
-        qWarning() << failMessage << "QSB tool not found";
+        qWarning() << failMessage << "QSB tool for target kit not found";
+        return;
+    }
+
+    Utils::FilePath binPath = Utils::FilePath::fromString(
+        QLibraryInfo::path(QLibraryInfo::BinariesPath));
+    Utils::FilePath qsbPrevPath = binPath.pathAppended("qsb").withExecutableSuffix();
+    if (!qsbPrevPath.exists()) {
+        qWarning() << failMessage << "QSB tool for preview shaders not found";
         return;
     }
 
     m_remainingQsbTargets = 2; // We only have 2 shaders
     const QStringList srcPaths = {m_vertexSourceFilename, m_fragmentSourceFilename};
     const QStringList outPaths = {m_vertexShaderFilename, m_fragmentShaderFilename};
-    for (int i = 0; i < 2; ++i) {
-        const auto workDir = Utils::FilePath::fromString(outPaths[i]);
-        // TODO: Optional legacy glsl support like standalone effect maker needs to add "100es,120"
-        QStringList args = {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50", "--msl", "12"};
-        args << "-o" << outPaths[i] << srcPaths[i];
+    const QStringList outPrevPaths = {m_vertexShaderPreviewFilename, m_fragmentShaderPreviewFilename};
 
-        auto qsbProcess = new Utils::Process(this);
-        connect(qsbProcess, &Utils::Process::done, this, [=] {
-            handleQsbProcessExit(qsbProcess, srcPaths[i]);
-        });
-        qsbProcess->setWorkingDirectory(workDir.absolutePath());
-        qsbProcess->setCommand({qsbPath, args});
-        qsbProcess->start();
-    }
+    auto runQsb = [this, srcPaths](const Utils::FilePath &qsbPath, const QStringList &outPaths, bool preview) {
+        for (int i = 0; i < 2; ++i) {
+            const auto workDir = Utils::FilePath::fromString(outPaths[i]);
+            // TODO: Optional legacy glsl support like standalone effect maker needs to add "100es,120"
+            QStringList args = {"-s", "--glsl", "300es,140,330,410", "--hlsl", "50", "--msl", "12"};
+            args << "-o" << outPaths[i] << srcPaths[i];
+
+            auto qsbProcess = new Utils::Process(this);
+            connect(qsbProcess, &Utils::Process::done, this, [=] {
+                handleQsbProcessExit(qsbProcess, srcPaths[i], preview);
+            });
+            qsbProcess->setWorkingDirectory(workDir.absolutePath());
+            qsbProcess->setCommand({qsbPath, args});
+            qsbProcess->start();
+        }
+    };
+
+    runQsb(qsbPath, outPaths, false);
+    runQsb(qsbPrevPath, outPrevPaths, true);
+
 }
 
 bool EffectMakerModel::shadersUpToDate() const
@@ -1375,8 +1526,10 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
         s += '\n' + customImagesString;
 
     s += '\n';
-    s += l2 + "vertexShader: 'file:///" + m_vertexShaderFilename + "'\n";
-    s += l2 + "fragmentShader: 'file:///" + m_fragmentShaderFilename + "'\n";
+    const QString vertFile = localFiles ? m_vertexShaderFilename : m_vertexShaderPreviewFilename;
+    const QString fragFile = localFiles ? m_fragmentShaderFilename : m_fragmentShaderPreviewFilename;
+    s += l2 + "vertexShader: 'file:///" + vertFile + "'\n";
+    s += l2 + "fragmentShader: 'file:///" + fragFile + "'\n";
     s += l2 + "anchors.fill: parent\n";
     if (m_shaderFeatures.enabled(ShaderFeatures::GridMesh)) {
         QString gridSize = QString("%1, %2").arg(m_shaderFeatures.gridMeshWidth())
@@ -1398,8 +1551,39 @@ void EffectMakerModel::setCurrentComposition(const QString &newCurrentCompositio
 {
     if (m_currentComposition == newCurrentComposition)
         return;
+
     m_currentComposition = newCurrentComposition;
     emit currentCompositionChanged();
+}
+
+bool EffectMakerModel::hasUnsavedChanges() const
+{
+    return m_hasUnsavedChanges;
+}
+
+void EffectMakerModel::setHasUnsavedChanges(bool val)
+{
+    if (m_hasUnsavedChanges == val)
+        return;
+
+    m_hasUnsavedChanges = val;
+    emit hasUnsavedChangesChanged();
+}
+
+QStringList EffectMakerModel::uniformNames() const
+{
+    QStringList usedList;
+    const QList<Uniform *> uniforms = allUniforms();
+    for (const auto uniform : uniforms)
+        usedList.append(uniform->name());
+    return usedList;
+}
+
+bool EffectMakerModel::isDependencyNode(int index) const
+{
+    if (m_nodes.size() > index)
+        return m_nodes[index]->isDependency();
+    return false;
 }
 
 void EffectMakerModel::updateQmlComponent()

@@ -353,8 +353,9 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             [this](ProjectExplorer::Project *project) {
                 disconnect(m_kitConnection);
                 emit isQt6Changed();
-                emit isMCUsChanged();
                 emit projectOpenedChanged();
+                emit stylesChanged();
+                emit isMCUsChanged();
                 if (project) {
                     m_kitConnection = connect(project,
                                               &ProjectExplorer::Project::activeTargetChanged,
@@ -503,7 +504,7 @@ void ToolBarBackend::setCurrentStyle(int index)
     const QList<StyleWidgetEntry> items = ChangeStyleWidgetAction::getAllStyleItems();
 
     QTC_ASSERT(items.size() > index, return);
-    QTC_ASSERT(index > 0, return );
+    QTC_ASSERT(index >= 0, return );
 
     QTC_ASSERT(currentDesignDocument(), return );
 
@@ -513,7 +514,7 @@ void ToolBarBackend::setCurrentStyle(int index)
 
     const QString qmlFile = view->model()->fileUrl().toLocalFile();
 
-    ChangeStyleWidgetAction::changeCurrentStyle(item.styleName, qmlFile);
+    ChangeStyleWidgetAction::changeCurrentStyle(item.displayName, qmlFile);
 
     view->resetPuppet();
 }

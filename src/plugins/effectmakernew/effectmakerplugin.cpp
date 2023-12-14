@@ -3,12 +3,21 @@
 
 #include "effectmakerview.h"
 
+#include <coreplugin/icore.h>
 #include <extensionsystem/iplugin.h>
 
 #include <viewmanager.h>
 #include <qmldesignerplugin.h>
 
 namespace EffectMaker {
+
+static bool enableEffectMaker()
+{
+    Utils::QtcSettings *settings = Core::ICore::settings();
+    const Utils::Key enableModelManagerKey = "QML/Designer/UseExperimentalFeatures44";
+
+    return settings->value(enableModelManagerKey, false).toBool();
+}
 
 class EffectMakerPlugin final : public ExtensionSystem::IPlugin
 {
@@ -17,11 +26,13 @@ class EffectMakerPlugin final : public ExtensionSystem::IPlugin
 
     bool delayedInitialize() final
     {
-        auto designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
-        auto &viewManager = designerPlugin->viewManager();
-        viewManager.registerView(std::make_unique<EffectMakerView>(
-            QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
+        if (enableEffectMaker()) {
+            auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
+            auto &viewManager = designerPlugin->viewManager();
 
+            viewManager.registerView(std::make_unique<EffectMakerView>(
+                QmlDesigner::QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
+        }
         return true;
     }
 };

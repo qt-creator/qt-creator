@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "quick3dnodeinstance.h"
-#include "qt5nodeinstanceserver.h"
 #include "qt5informationnodeinstanceserver.h"
 
 #ifdef QUICK3D_MODULE
@@ -50,16 +49,16 @@ void Quick3DNodeInstance::initialize(
 #endif
         if (auto infoServer = qobject_cast<Qt5InformationNodeInstanceServer *>(nodeInstanceServer())) {
             if (repObj) {
-                QObject::connect(repObj, &QQuick3DRepeater::objectAdded,
-                                 infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+                QObject::connect(repObj, &QQuick3DRepeater::objectAdded, infoServer,
+                                 [infoServer, obj] { infoServer->handleDynamicAddObject(obj); });
 #if defined(QUICK3D_ASSET_UTILS_MODULE)
             } else if (runLoadObj) {
-                QObject::connect(runLoadObj, &QQuick3DRuntimeLoader::statusChanged,
-                                 infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+                QObject::connect(runLoadObj, &QQuick3DRuntimeLoader::statusChanged, infoServer,
+                                 [infoServer, obj] { infoServer->handleDynamicAddObject(obj); });
 #endif
             } else {
-                QObject::connect(loadObj, &QQuick3DLoader::loaded,
-                                 infoServer, &Qt5InformationNodeInstanceServer::handleDynamicAddObject);
+                QObject::connect(loadObj, &QQuick3DLoader::loaded, infoServer,
+                                 [infoServer, obj] { infoServer->handleDynamicAddObject(obj); });
             }
         }
     }

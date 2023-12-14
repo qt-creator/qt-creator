@@ -127,14 +127,17 @@ void updateImported3DAsset(const SelectionContext &selectionContext);
 QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getEffectsImportDirectory();
 QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir = {});
 void openEffectMaker(const QString &filePath);
+void openOldEffectMaker(const QString &filePath);
 QString getEffectIcon(const QString &effectPath);
 bool useLayerEffect();
 bool validateEffect(const QString &effectPath);
+bool isNewEffectMakerActivated();
 
 Utils::FilePath getImagesDefaultDirectory();
 
 //Item Library and Assets related drop operations
-ModelNode handleItemLibraryEffectDrop(const QString &effectPath, const ModelNode &targetNode);
+QMLDESIGNERCOMPONENTS_EXPORT ModelNode handleItemLibraryEffectDrop(const QString &effectPath,
+                                                                   const ModelNode &targetNode);
 void handleTextureDrop(const QMimeData *mimeData, const ModelNode &targetModelNode);
 void handleMaterialDrop(const QMimeData *mimeData, const ModelNode &targetNode);
 ModelNode handleItemLibraryImageDrop(const QString &imagePath,

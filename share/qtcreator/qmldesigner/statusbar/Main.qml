@@ -63,7 +63,8 @@ Item {
                 model: backend.kits
                 onActivated: backend.setCurrentKit(kits.currentIndex)
                 openUpwards: true
-                enabled: (backend.isInDesignMode || (backend.isInEditMode && backend.projectOpened)) && backend.isQt6
+                enabled: (backend.isInDesignMode || (backend.isInEditMode && backend.projectOpened))
+                         && backend.isQt6 && !backend.isMCUs
                 property int kitIndex: backend.currentKit
                 onKitIndexChanged: kits.currentIndex = backend.currentKit
             }

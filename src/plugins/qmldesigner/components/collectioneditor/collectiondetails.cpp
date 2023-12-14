@@ -7,6 +7,7 @@
 #include <qqml.h>
 
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QUrl>
 #include <QVariant>
@@ -19,6 +20,10 @@ struct CollectionProperty
 
     QString name;
     DataType type;
+};
+
+const QMap<DataTypeWarning::Warning, QString> DataTypeWarning::dataTypeWarnings = {
+    {DataTypeWarning::CellDataTypeMismatch, "Cell and column data types do not match."}
 };
 
 class CollectionDetails::Private
@@ -258,7 +263,7 @@ bool CollectionDetails::setPropertyName(int column, const QString &value)
     return true;
 }
 
-bool CollectionDetails::forcePropertyType(int column, DataType type, bool force)
+bool CollectionDetails::setPropertyType(int column, DataType type)
 {
     if (!isValid() || !d->isValidColumnId(column))
         return false;
@@ -270,13 +275,11 @@ bool CollectionDetails::forcePropertyType(int column, DataType type, bool force)
 
     property.type = type;
 
-    if (force) {
-        for (QJsonObject &element : d->elements) {
-            if (element.contains(property.name)) {
-                QJsonValue value = element.value(property.name);
-                element.insert(property.name, valueToVariant(value, type).toJsonValue());
-                changed = true;
-            }
+    for (QJsonObject &element : d->elements) {
+        if (element.contains(property.name)) {
+            QJsonValue value = element.value(property.name);
+            element.insert(property.name, valueToVariant(value, type).toJsonValue());
+            changed = true;
         }
     }
 
@@ -346,6 +349,13 @@ CollectionDetails::DataType CollectionDetails::typeAt(int row, int column) const
     return {};
 }
 
+DataTypeWarning::Warning CollectionDetails::cellWarningCheck(int row, int column) const
+{
+    if (typeAt(column) != typeAt(row, column) && !d->elements.at(row).isEmpty())
+        return DataTypeWarning::Warning::CellDataTypeMismatch;
+    return DataTypeWarning::Warning::None;
+}
+
 bool CollectionDetails::containsPropertyName(const QString &propertyName)
 {
     if (!isValid())
@@ -395,6 +405,9 @@ void CollectionDetails::registerDeclarativeType()
     typedef CollectionDetails::DataType DataType;
     qRegisterMetaType<DataType>("DataType");
     qmlRegisterUncreatableType<CollectionDetails>("CollectionDetails", 1, 0, "DataType", "Enum type");
+
+    qRegisterMetaType<DataTypeWarning::Warning>("Warning");
+    qmlRegisterUncreatableType<DataTypeWarning>("CollectionDetails", 1, 0, "Warning", "Enum type");
 }
 
 CollectionDetails &CollectionDetails::operator=(const CollectionDetails &other)
@@ -438,16 +451,19 @@ void CollectionDetails::resetPropertyTypes()
         resetPropertyType(property);
 }
 
-QJsonArray CollectionDetails::getJsonCollection() const
+QString CollectionDetails::getCollectionAsJsonString() const
 {
     QJsonArray collectionArray;
+
     for (const QJsonObject &element : std::as_const(d->elements))
         collectionArray.push_back(element);
 
-    return collectionArray;
+    QString collectionString = QString::fromUtf8(QJsonDocument(collectionArray).toJson());
+
+    return collectionString;
 }
 
-QString CollectionDetails::getCsvCollection() const
+QString CollectionDetails::getCollectionAsCsvString() const
 {
     QString content;
     if (d->properties.count() <= 0)

@@ -99,45 +99,17 @@ Item {
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
             IconButton {
-                icon: StudioTheme.Constants.updateContent_medium
-                tooltip: qsTr("Update existing file with changes")
+                icon: StudioTheme.Constants.save_medium
+                tooltip: qsTr("Save changes")
                 enabled: root.model.collectionName !== ""
-                onClicked:
-                {
-                    if (root.backend.selectedSourceAddress().indexOf("json") !== -1)
-                        root.model.exportCollection(root.backend.selectedSourceAddress(), root.model.collectionName, "JSON")
-                    else
-                        root.model.exportCollection(root.backend.selectedSourceAddress(), root.model.collectionName, "CSV")
-                }
+                onClicked: root.model.saveCurrentCollection()
             }
 
             IconButton {
                 icon: StudioTheme.Constants.export_medium
-                tooltip: qsTr("Export the model to a new file")
+                tooltip: qsTr("Export model")
                 enabled: root.model.collectionName !== ""
-                onClicked: exportMenu.popup()
-            }
-
-            StudioControls.Menu {
-                id: exportMenu
-
-                StudioControls.MenuItem {
-                    text: qsTr("Export as JSON")
-                    onTriggered:
-                    {
-                        fileDialog.defaultSuffix = "json"
-                        fileDialog.open()
-                    }
-                }
-
-                StudioControls.MenuItem {
-                    text: qsTr("Export as CSV")
-                    onTriggered:
-                    {
-                        fileDialog.defaultSuffix = "csv"
-                        fileDialog.open()
-                    }
-                }
+                onClicked: fileDialog.open()
             }
         }
     }
@@ -145,17 +117,18 @@ Item {
 
     PlatformWidgets.FileDialog {
         id: fileDialog
+
         fileMode: PlatformWidgets.FileDialog.SaveFile
-        onAccepted:
-        {
-            var fileAddress = file.toString()
 
-            if (fileAddress.indexOf("json") !== -1)
-                root.model.exportCollection(fileAddress, root.model.collectionName, "JSON")
-            else if (fileAddress.indexOf("csv") !== -1)
-                root.model.exportCollection(fileAddress, root.model.collectionName, "CSV")
+        nameFilters: ["JSON Files (*.json)",
+            "Comma-Separated Values (*.csv)"
+        ]
 
-            fileDialog.reject()
+        selectedNameFilter.index: 0
+
+        onAccepted: {
+            let filePath = fileDialog.file.toString()
+            root.model.exportCollection(filePath)
         }
     }
 

@@ -307,10 +307,20 @@ void CurveEditorView::commitKeyframes(TreeItem *item)
             auto replaceKeyframes = [&group, pitem, this] {
                 m_block = true;
 
-                for (auto& frame : group.keyframes())
-                    frame.destroy();
-
                 AnimationCurve curve = pitem->curve();
+
+                unsigned int i = 0;
+                const size_t numberOfKeyFrames = curve.keyframes().size();
+                for (auto &frame : group.keyframes()) {
+                    if (i < numberOfKeyFrames) {
+                        QPointF pos = curve.keyframes().at(i).position();
+                        frame.variantProperty("frame").setValue(pos.x());
+                    } else {
+                        frame.destroy();
+                    }
+                    i++;
+                }
+
                 if (curve.valueType() == AnimationCurve::ValueType::Bool) {
                     for (const auto& frame : curve.keyframes()) {
                         QPointF pos = frame.position();

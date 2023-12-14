@@ -158,6 +158,13 @@ QString FileResourcesModel::resolve(const QString &relative) const
     if (!QUrl::fromUserInput(relative, m_docPath.path()).isLocalFile())
         return relative;
 
+    const QUrl relUrl(relative);
+    if (relUrl.isLocalFile()) {
+        QString localFile = relUrl.toLocalFile();
+        if (QDir::isAbsolutePath(localFile))
+            return localFile;
+    }
+
     return QFileInfo(m_docPath, relative).absoluteFilePath();
 }
 

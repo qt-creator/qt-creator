@@ -19,5 +19,19 @@ Row {
         actionIndicatorVisible: false
 
         onAbsoluteFilePathChanged: uniformValue = absoluteFilePath
+
+        function defaultAsString() {
+            let urlStr = uniformDefaultValue.toString()
+            urlStr = urlStr.replace(/^(file:\/{3})/, "")
+
+            // Prepend slash if there is no drive letter
+            if (urlStr.length > 1 && urlStr[1] !== ':')
+                urlStr = '/' + urlStr;
+
+            return urlStr
+        }
+
+        defaultItems: [uniformDefaultValue.split('/').pop()]
+        defaultPaths: [defaultAsString(uniformDefaultValue)]
     }
 }

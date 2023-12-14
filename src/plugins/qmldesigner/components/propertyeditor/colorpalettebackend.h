@@ -71,6 +71,7 @@ class ColorPaletteBackend : public QObject
     Q_PROPERTY(QStringList palettes
                READ palettes
                NOTIFY palettesChanged)
+    Q_PROPERTY(bool eyeDropperActive READ eyeDropperActive NOTIFY eyeDropperActiveChanged)
 
 public:
     ~ColorPaletteBackend();
@@ -82,7 +83,6 @@ public:
     void removeColor(int id, const QString &palette);
 
     Q_INVOKABLE void addRecentColor(const QString &color);
-
     Q_INVOKABLE void addFavoriteColor(const QString &color);
     Q_INVOKABLE void removeFavoriteColor(int id);
 
@@ -100,7 +100,6 @@ public:
 
     Q_INVOKABLE void showDialog(QColor color);
 
-
     Q_INVOKABLE void eyeDropper();
 
     QColor grabScreenColor(const QPoint &p);
@@ -116,6 +115,7 @@ public:
     bool handleEyeDropperMouseButtonRelease(QMouseEvent *e);
     bool handleEyeDropperKeyPress(QKeyEvent *e);
 
+    bool eyeDropperActive() const;
 
     ColorPaletteBackend(const ColorPaletteBackend &) = delete;
     void operator=(const ColorPaletteBackend &) = delete;
@@ -129,6 +129,7 @@ signals:
     void currentColorChanged(const QColor &color);
 
     void eyeDropperRejected();
+    void eyeDropperActiveChanged();
 
 private:
     ColorPaletteBackend();
@@ -140,6 +141,7 @@ private:
     QHash<QString, Palette> m_data;
 
     QColorPickingEventFilter *m_colorPickingEventFilter;
+    bool m_eyeDropperActive = false;
 #ifdef Q_OS_WIN32
     QTimer *updateTimer;
     QWindow dummyTransparentWindow;
