@@ -282,7 +282,7 @@ void TerminalWidget::setupActions()
     ActionBuilder closeAction(this, Core::Constants::CLOSE);
     closeAction.setContext(m_context);
     closeAction.addOnTriggered(this, &TerminalWidget::closeTerminal);
-    m_close = make_registered(closeAction);
+    // We do not register the close action, as we want it to be blocked if the keyboard is locked.
 
     ActionBuilder clearTerminalAction(this, Constants::CLEAR_TERMINAL);
     clearTerminalAction.setContext(m_context);

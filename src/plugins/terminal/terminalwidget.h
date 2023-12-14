@@ -107,7 +107,6 @@ private:
     RegisteredAction m_selectAll;
     RegisteredAction m_moveCursorWordLeft;
     RegisteredAction m_moveCursorWordRight;
-    RegisteredAction m_close;
 
     Internal::ShortcutMap m_shortcutMap;
 
