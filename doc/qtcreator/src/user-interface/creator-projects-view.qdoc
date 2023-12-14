@@ -81,7 +81,7 @@
             \QC also changes corresponding include statements accordingly.
         \li Remove existing files.
         \if defined(qtcreator)
-        \li Remove existing directories from \l{Setting Up a Generic Project}
+        \li Remove existing directories from \l{Import an existing project}
             {generic projects}.
         \li Add existing files and directories.
         \li Add libraries. For more information, see

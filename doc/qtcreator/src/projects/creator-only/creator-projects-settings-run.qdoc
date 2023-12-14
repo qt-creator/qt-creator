@@ -109,11 +109,11 @@
 
     \title Specify a custom executable to run
 
-    If you use \l{Meson} or the
-    \l{Setting Up a Generic Project}{generic project type}, or want
-    to run a custom desktop executable, create a \uicontrol {Custom Executable}
-    run configuration for your project. For example, when working on a library,
-    you can run a test application that links against the library.
+    If you use \l{Meson} or the \l{Import an existing project}
+    {generic project type}, or want to run a custom desktop executable,
+    create a \uicontrol {Custom Executable} run configuration for your
+    project. For example, when working on a library, you can run a test
+    application that links against the library.
 
     To specify a custom executable to run:
 
@@ -125,5 +125,5 @@
             file to run.
     \endlist
 
-    \sa {Configure projects for running}
+    \sa {Configure projects for running}, {Import an existing project}
 */

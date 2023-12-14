@@ -42,7 +42,7 @@
             \c{qmake -project} and \l{Open projects}{open} that in \QC.
             Typically, you cannot compile such projects without manual changes.
         \li Manually create an ad-hoc project file for a
-            \l{Setting Up a Generic Project}{generic project} and
+            \l{Import an existing project}{generic project} and
             open that in \QC.
             Typically, you cannot compile such projects without manual changes.
     \endlist
