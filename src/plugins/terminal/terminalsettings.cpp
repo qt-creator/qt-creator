@@ -505,7 +505,7 @@ TerminalSettings::TerminalSettings()
     lockKeyboard.setLabelText(Tr::tr("Block shortcuts in terminal"));
     lockKeyboard.setToolTip(
         Tr::tr("Keeps Qt Creator shortcuts from interfering with the terminal."));
-    lockKeyboard.setDefaultValue(true);
+    lockKeyboard.setDefaultValue(false);
 
     lockKeyboard.setIcon(LOCK_KEYBOARD_ICON.icon());
     lockKeyboard.setOffIcon(UNLOCK_KEYBOARD_ICON.icon());
