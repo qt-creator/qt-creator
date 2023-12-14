@@ -1,4 +1,4 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,11 +8,14 @@
 // **********************************************************************
 
 /*!
-    \previouspage adding-plugins.html
     \page creator-usability.html
     \nextpage creator-coding.html
 
+    \ingroup creator-reference
+
     \title Optimizing Applications for Mobile Devices
+
+    \brief Guidelines for developing usable applications for mobile devices.
 
     Before starting application development, analyze and define the
     requirements, scope, and functionality of the application to ensure

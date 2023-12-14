@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -13,11 +13,14 @@
     \previouspage studio-advanced.html
     \nextpage creator-telemetry.html
     \else
-    \previouspage quick-converting-ui-projects.html
-    \nextpage creator-qml-modules-with-plugins.html
+    \previouspage creator-reference.html
     \endif
 
+    \ingroup creator-reference-ui-design
+
     \title UI Files
+
+    \brief Limitations of \QDS UI files (.ui.qml).
 
     \if defined(qtdesignstudio)
     You can use \QDS wizards to create UI files that have the filename
@@ -152,7 +155,7 @@
     \section1 Using UI Files
 
     You can edit the UI files in the \l {2D} and
-    \uicontrol {Text Editor} views. Components that are
+    \uicontrol {Code} views. Components that are
     supposed to be used in code have to be exported as properties:
 
     \code
@@ -194,5 +197,7 @@
     implementation of a component in the .qml file, right-click the
     component and select \uicontrol {Go to Implementation} in the
     context menu.
+    \else
+    \sa {\QMLD}
     \endif
 */

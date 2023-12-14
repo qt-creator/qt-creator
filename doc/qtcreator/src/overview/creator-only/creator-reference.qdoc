@@ -39,6 +39,15 @@
 
     \annotatedlist creator-reference-preferences-text-editor
 
+    \section1 UI Design
+
+    Design UIs with either \l{User Interfaces}{Qt Quick or Qt Widgets}.
+    \QC integrates a visual editor, \QD, for designing widget-based UIs
+    in the \uicontrol Design mode. For Qt Quick UIs, use a separate visual
+    editor, \l{\QDS Manual}{\QDS}, or the \uicontrol Edit mode.
+
+    \annotatedlist creator-reference-ui-design
+
     \section1 Views
 
     \section2 Output Views

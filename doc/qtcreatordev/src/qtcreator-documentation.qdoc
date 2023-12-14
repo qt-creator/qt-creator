@@ -164,10 +164,9 @@
     \badcode
     For more information, see
     \if defined(qtcreator)
-    \l{Creating Qt Quick Projects}.
-    \else
-    \l{Creating UI Prototype Projects}.
+    \l{Create Qt Quick Projects} and
     \endif
+    \l{Create Qt Quick UI Prototypes}.
     \endcode
 
     \note Section titles in the two manuals can be identical only if the page is

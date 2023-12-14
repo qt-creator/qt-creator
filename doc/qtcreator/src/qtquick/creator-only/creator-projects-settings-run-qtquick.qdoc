@@ -41,6 +41,6 @@
         \li Shows a remotely running X11 client on a local display.
     \endtable
 
-    \sa {Qt Quick UI Projects}, {Activate kits for a project},
+    \sa {Create Qt Quick UI Prototypes}, {Activate kits for a project},
     {Configure projects for running}, {Kits}
 */

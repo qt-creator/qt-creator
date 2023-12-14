@@ -122,9 +122,8 @@
                 application extensions, or a \QC plugin.
         \row
             \li Other project
-            \li Create custom \l{Developing Widget Based Applications}{\QD}
-                 widgets or widget collections,
-                \l{Qt Quick UI Projects}{Qt Quick UI projects},
+            \li Create custom \l{\QD} widgets or widget collections,
+                \l{Create Qt Quick UI Prototypes}{Qt Quick UI projects},
                 \l {Creating Tests}{auto-test projects},
                 \l{Add subprojects to projects}{subprojects},
                 empty qmake projects, or qmake projects for testing
@@ -154,9 +153,6 @@
 
     For examples of creating different types of projects, see
     \l{Tutorials}.
-
-    For more information about creating Qt Quick projects, see
-    \l {Creating Qt Quick Projects}.
 
     \section1 Bind keyboard shortcuts to wizards
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -8,26 +8,27 @@
 // **********************************************************************
 
 /*!
-    \previouspage creator-using-qt-designer.html
     \page adding-plugins.html
-    \nextpage creator-usability.html
+    \previouspage creator-reference.html
 
-    \title Adding Qt Designer Plugins
+    \ingroup creator-reference-ui-design
 
-    You can use Qt APIs to create plugins that extend Qt applications.
-    This enables you to add your own widgets to \QD.
-    The most flexible way to include a plugin with an application is to compile
-    it into a dynamic library that is shipped separately, and detected and
-    loaded at runtime.
+    \title Adding \QD Plugins
 
-    The applications can detect plugins that are stored in the standard plugin
+    \brief Adding widgets to \QD by creating plugins that extend Qt applications.
+
+    You can create plugins to add your own widgets to \QD. To include a plugin
+    with an application, compile it into a dynamic library that you ship
+    separately, and that the application detects and loads at runtime.
+
+    The applications can detect plugins in the standard plugin
     subdirectories. For more information on how to create and locate plugins
     and to change the default plugin path, see \l{How to Create Qt Plugins}.
 
     For more information about how to create plugins for \QD, see
     \l{Using Custom Widgets with Qt Designer}.
 
-    \section1 Locating Qt Designer Plugins
+    \section1 Locating \QD Plugins
 
     \QD fetches plugins from the standard locations and loads the plugins
     that match its build key. \QD is delivered both as a standalone application
@@ -54,10 +55,11 @@
 
     The \QC that is included in pre-built Qt packages on Windows is built with
     the Microsoft Visual Studio compiler. If you install a Qt version that was built
-    with the \MinGW/g++ compiler, plugins built with this version of Qt cannot be
-    loaded by \QC because the build-keys do not match.
+    with the \MinGW/g++ compiler, \QC cannot load plugins built with the Windows
+    version because the build-keys do not match.
+
     The same is true if you use a Qt version that is newer than the Qt version that
-    Qt Creator was built with, or that is otherwise incompatible.
+    \QC was built with, or that is otherwise incompatible.
     The plugins can then only be used in the standalone
     version of \QD. Choose \uicontrol Help > \uicontrol {About \QC} to check the
     Qt version and compiler that \QC was built with.
@@ -67,4 +69,5 @@
     \MinGW or installing a Qt version that was built with Microsoft Visual Studio,
     depending on which configuration you want to use for your applications.
 
+    \sa {Creating a Qt Widget Based Application}, {\QD}
 */

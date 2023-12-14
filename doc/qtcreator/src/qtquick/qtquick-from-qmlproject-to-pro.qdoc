@@ -7,13 +7,17 @@
     \previouspage studio-porting-projects.html
     \nextpage creator-editor-external.html
     \else
-    \previouspage creator-qtquickdesigner-plugin.html
-    \nextpage creator-quick-ui-forms.html
+    \previouspage creator-reference.html
     \endif
+
+    \ingroup creator-reference-ui-design
 
     \title Converting UI Projects to Applications
 
-    Qt Quick UI projects are useful for creating user interfaces. To
+    \brief Converting a project that has a .qmlproject file to one that has a
+    .pro file.
+
+    Qt Quick UI Prototype projects are useful for creating user interfaces. To
     use them for application development in Qt Creator you have to add:
 
     \list
@@ -183,4 +187,8 @@
         \e <path_to_qt_install_directory> can be something like \e /Qt/6.3.0/msvc2019_64
         and \e <path_to_qtquickdesigner-components> like this \e ../qtquickdesigner-components/
     \endlist
+
+    \if defined(qtcreator)
+    \sa {Create Qt Quick UI Prototypes}
+    \endif
 */

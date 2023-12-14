@@ -16,31 +16,14 @@
         \li \l{Getting Started}
         \list
             \li \l{IDE Overview}
-            \li \l{User Interface}
-            \li \l{Configuring Qt Creator}
-            \li \l{Building and Running an Example}
-            \li \l{Tutorials}
-        \endlist
-        \li \l{Managing Projects}
         \list
             \li \l{Creating Projects}
             \li \l{Configuring Projects}
         \endlist
-        \li \l{Designing User Interfaces}
-        \list
-            \li \l{Developing Qt Quick Applications}
-            \list
-                \li \l {Creating Qt Quick Projects}
-                \li \l {Using \QMLD}
-                \li \l {Converting UI Projects to Applications}
-                \li \l {UI Files}
-                \li \l {Using QML Modules with Plugins}
-            \endlist
-            \li \l{Developing Widget Based Applications}
-            \list
-                \li  \l{Adding Qt Designer Plugins}
-            \endlist
-            \li \l{Optimizing Applications for Mobile Devices}
+            \li \l{User Interface}
+            \li \l{Configuring Qt Creator}
+            \li \l{Building and Running an Example}
+            \li \l{Tutorials}
         \endlist
         \li \l{Coding}
         \list
@@ -212,6 +195,8 @@
                             \li Text editor
                                 \generatelist creator-reference-preferences-text-editor
                         \endlist
+                    \li UI Design
+                        \generatelist creator-reference-ui-design
                     \li Version Control Systems
                         \generatelist creator-reference-vcs
                     \li Views

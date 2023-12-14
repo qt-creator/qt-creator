@@ -28,6 +28,10 @@
     You can connect mobile devices to the development PC and select the
     appropriate kit to build, run, debug, and analyze applications from \QC.
 
+    Before starting application development, analyze and define the requirements,
+    scope, and functionality of the application to ensure efficient functionality
+    and a smooth user experience on mobile devices.
+
     \section1 Android
 
     Starting from Qt 5.14.0, the Qt for Android package has all the
@@ -65,5 +69,5 @@
         \li \l{Qt for iOS}
     \endlist
 
-    \sa {Supported Platforms}
+    \sa {Optimizing Applications for Mobile Devices}, {Supported Platforms}
 */
