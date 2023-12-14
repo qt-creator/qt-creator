@@ -40,7 +40,7 @@ public:
         scrollBar()->parentWidget()->installEventFilter(this);
         doResize();
         doMove();
-        show();
+        setVisible(scrollBar()->isVisible());
     }
 
     void doResize()
