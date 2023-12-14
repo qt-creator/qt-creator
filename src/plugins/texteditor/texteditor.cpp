@@ -7825,10 +7825,13 @@ void TextEditorWidgetPrivate::setExtraSelections(Id kind, const QList<QTextEdit:
         }
         m_overlay->setVisible(!m_overlay->isEmpty());
     } else {
-        QList<QTextEdit::ExtraSelection> all;
+        QList<QTextEdit::ExtraSelection> all = m_extraSelections.value(
+            TextEditorWidget::OtherSelection);
+
         for (auto i = m_extraSelections.constBegin(); i != m_extraSelections.constEnd(); ++i) {
             if (i.key() == TextEditorWidget::CodeSemanticsSelection
-                || i.key() == TextEditorWidget::SnippetPlaceholderSelection)
+                || i.key() == TextEditorWidget::SnippetPlaceholderSelection
+                || i.key() == TextEditorWidget::OtherSelection)
                 continue;
             all += i.value();
         }
