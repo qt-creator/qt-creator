@@ -30,6 +30,7 @@ namespace CompilerExplorer {
 
 class JsonSettingsDocument;
 class SourceEditorWidget;
+class AsmDocument;
 
 class CodeEditorWidget : public TextEditor::TextEditorWidget
 {
@@ -56,6 +57,19 @@ private:
     QUndoStack *m_undoStack;
 };
 
+class AsmDocument : public TextEditor::TextDocument
+{
+public:
+    using TextEditor::TextDocument::TextDocument;
+
+    QList<QTextEdit::ExtraSelection> setCompileResult(const Api::CompileResult &compileResult);
+    QList<Api::CompileResult::AssemblyLine> &asmLines() { return m_assemblyLines; }
+
+private:
+    QList<Api::CompileResult::AssemblyLine> m_assemblyLines;
+    QList<TextEditor::TextMark *> m_marks;
+};
+
 class AsmEditorWidget : public TextEditor::TextEditorWidget
 {
     Q_OBJECT
@@ -69,14 +83,25 @@ public:
         emit gotFocus();
     }
 
+    void findLinkAt(const QTextCursor &,
+                    const Utils::LinkHandler &processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
+
     void undo() override { m_undoStack->undo(); }
     void redo() override { m_undoStack->redo(); }
 
+protected:
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+
 signals:
     void gotFocus();
+    void hoveredLineChanged(const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine);
 
 private:
     QUndoStack *m_undoStack;
+    std::optional<Api::CompileResult::AssemblyLine> m_currentlyHoveredLine;
 };
 
 class JsonSettingsDocument : public Core::IDocument
@@ -128,6 +153,9 @@ public:
 
     TextEditor::TextEditorWidget *textEditor() { return m_codeEditor; }
 
+public slots:
+    void markSourceLocation(const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine);
+
 signals:
     void sourceCodeChanged();
     void remove();
@@ -163,19 +191,19 @@ private:
 signals:
     void remove();
     void gotFocus();
+    void hoveredLineChanged(const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine);
 
 private:
     AsmEditorWidget *m_asmEditor{nullptr};
     Core::SearchableTerminal *m_resultTerminal{nullptr};
 
     SpinnerSolution::Spinner *m_spinner{nullptr};
-    QSharedPointer<TextEditor::TextDocument> m_asmDocument;
+    QSharedPointer<AsmDocument> m_asmDocument;
 
     std::unique_ptr<QFutureWatcher<Api::CompileResult>> m_compileWatcher;
 
     QString m_source;
     QTimer *m_delayTimer{nullptr};
-    QList<TextEditor::TextMark *> m_marks;
 };
 
 class HelperWidget : public QWidget
@@ -213,9 +241,9 @@ protected:
     void setupHelpWidget();
     QWidget *createHelpWidget() const;
 
-    void addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
-                     const std::shared_ptr<CompilerSettings> &compilerSettings,
-                     int idx);
+    CompilerWidget *addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
+                                const std::shared_ptr<CompilerSettings> &compilerSettings,
+                                int idx);
 
     void addSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);
     void removeSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);

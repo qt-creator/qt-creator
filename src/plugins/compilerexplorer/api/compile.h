@@ -226,7 +226,7 @@ struct CompilerResult
 
 struct CompileResult : CompilerResult
 {
-    struct Asm
+    struct AssemblyLine
     {
         // A part of the asm that is a (hyper)link to a label (the name references labelDefinitions)
         struct Label
@@ -246,34 +246,68 @@ struct CompileResult : CompilerResult
                 label.range.endCol = object["range"]["endCol"].toInt();
                 return label;
             }
+
+            bool operator==(const Label &other) const
+            {
+                return name == other.name && range.startCol == other.range.startCol
+                       && range.endCol == other.range.endCol;
+            }
+            bool operator!=(const Label &other) const { return !(*this == other); }
         };
         QList<Label> labels;
         // The part of the source that generated this asm
-        struct
+        struct Source
         {
-            int column;
+            std::optional<int> column;
             QString file;
             int line;
-        } source;
+            bool operator==(const Source &other) const
+            {
+                return column == other.column && file == other.file && line == other.line;
+            }
+            bool operator!=(const Source &other) const { return !(*this == other); }
+        };
+
+        std::optional<Source> source;
 
         QString text;
         QStringList opcodes;
 
-        static Asm fromJson(const QJsonObject &object)
+        static AssemblyLine fromJson(const QJsonObject &object)
         {
-            Asm asm_;
-            asm_.text = object["text"].toString();
+            AssemblyLine line;
+            line.text = object["text"].toString();
             auto opcodes = object["opcodes"].toArray();
             for (const auto &opcode : opcodes)
-                asm_.opcodes.append(opcode.toString());
-            asm_.source.column = object["source"]["column"].toInt();
-            asm_.source.file = object["source"]["file"].toString();
-            asm_.source.line = object["source"]["line"].toInt();
-            for (const auto &label : object["labels"].toArray()) {
-                asm_.labels.append(Label::fromJson(label.toObject()));
+                line.opcodes.append(opcode.toString());
+
+            auto itSource = object.find("source");
+            if (itSource != object.end() && !itSource->isNull()) {
+                std::optional<int> columnOpt;
+                auto source = itSource->toObject();
+
+                auto itColumn = source.find("column");
+                if (itColumn != source.end() && !itColumn->isNull())
+                    columnOpt = itColumn->toInt();
+
+                line.source = Source{
+                    columnOpt,
+                    source["file"].toString(),
+                    source["line"].toInt(),
+                };
             }
-            return asm_;
+
+            for (const auto &label : object["labels"].toArray()) {
+                line.labels.append(Label::fromJson(label.toObject()));
+            }
+            return line;
         }
+
+        bool operator==(const AssemblyLine &other) const
+        {
+            return source == other.source && text == other.text && opcodes == other.opcodes;
+        }
+        bool operator!=(const AssemblyLine &other) const { return !(*this == other); }
     };
 
     struct ExecResult
@@ -304,7 +338,7 @@ struct CompileResult : CompilerResult
     };
 
     QMap<QString, int> labelDefinitions;
-    QList<Asm> assemblyLines;
+    QList<AssemblyLine> assemblyLines;
 
     std::optional<ExecResult> execResult;
 
@@ -327,7 +361,7 @@ struct CompileResult : CompilerResult
 
         if (object.contains("asm")) {
             for (const auto &asmLine : object["asm"].toArray())
-                result.assemblyLines.append(Asm::fromJson(asmLine.toObject()));
+                result.assemblyLines.append(AssemblyLine::fromJson(asmLine.toObject()));
         }
 
         if (object.contains("execResult"))
