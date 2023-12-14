@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <texteditor/fontsettings.h>
 #include <texteditor/syntaxhighlighter.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <KSyntaxHighlighting/Definition>
 
@@ -28,7 +30,10 @@ public:
         QString text;
     };
 
-    BaseSyntaxHighlighterRunner(SyntaxHighLighterCreator creator, QTextDocument *document);
+    BaseSyntaxHighlighterRunner(SyntaxHighLighterCreator creator,
+                                QTextDocument *document,
+                                const TextEditor::FontSettings &fontSettings
+                                = TextEditorSettings::fontSettings());
     virtual ~BaseSyntaxHighlighterRunner();
 
     void setExtraFormats(const QMap<int, QList<QTextLayout::FormatRange>> &formats);

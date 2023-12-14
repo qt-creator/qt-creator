@@ -28,9 +28,10 @@ public:
     }
 
     SyntaxHighlighterRunnerPrivate(BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator creator,
-                                   QTextDocument *document)
+                                   QTextDocument *document, FontSettings fontSettings)
         : m_creator(creator)
         , m_document(document)
+        , m_fontSettings(fontSettings)
     {
         m_highlighter.reset(m_creator());
         createHighlighter();
@@ -109,14 +110,16 @@ private:
     BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator m_creator;
     std::unique_ptr<SyntaxHighlighter> m_highlighter;
     QTextDocument *m_document = nullptr;
-    const FontSettings m_fontSettings = TextEditorSettings::fontSettings();
+    FontSettings m_fontSettings;
 };
 
 // ----------------------------- BaseSyntaxHighlighterRunner --------------------------------------
 
 BaseSyntaxHighlighterRunner::BaseSyntaxHighlighterRunner(
-    BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator creator, QTextDocument *document)
-    : d(new SyntaxHighlighterRunnerPrivate(creator, document))
+    BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator creator,
+    QTextDocument *document,
+    const TextEditor::FontSettings &fontSettings)
+    : d(new SyntaxHighlighterRunnerPrivate(creator, document, fontSettings))
 {
     m_document = document;
 }

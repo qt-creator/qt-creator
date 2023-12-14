@@ -56,13 +56,11 @@ Second with spaces
 
 Last)";
 
-
     doc = new QTextDocument();
     doc->setPlainText(text);
 
-    highlighterRunner
-        = new BaseSyntaxHighlighterRunner([this] { return new SyntaxHighlighter(doc, fontsettings); },
-                                          doc);
+    highlighterRunner = new BaseSyntaxHighlighterRunner(
+        [this] { return new SyntaxHighlighter(doc, fontsettings); }, doc, fontsettings);
 }
 
 static const HighlightingResults &highlightingResults()
