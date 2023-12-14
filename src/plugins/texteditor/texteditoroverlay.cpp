@@ -86,7 +86,7 @@ void TextEditorOverlay::addOverlaySelection(int begin, int end,
     const auto it = std::find_if(m_selections.cbegin(),
                                  m_selections.cend(),
                                  [&](const OverlaySelection &selection) {
-                                     return begin > selection.m_cursor_begin.position();
+                                     return selection.m_cursor_begin.position() > begin;
                                  });
     m_selections.insert(it, selection);
     update();
