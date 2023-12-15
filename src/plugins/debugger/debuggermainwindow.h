@@ -45,19 +45,25 @@ public:
     Store mainWindowState;
     QVariantHash headerViewStates;
 
-    QByteArray mainWindowStateLegacy; // legacy for up to QtC 12
-
     Store toSettings() const;
     static PerspectiveState fromSettings(const Store &settings);
 
     // legacy for up to QtC 12, operators for direct QVariant conversion
     friend QDataStream &operator>>(QDataStream &ds, PerspectiveState &state)
     {
-        return ds >> state.mainWindowStateLegacy >> state.headerViewStates;
+        QByteArray mainWindowStateLegacy;
+        ds >> mainWindowStateLegacy >> state.headerViewStates;
+        // the "legacy" state is just the QMainWindow::saveState(), which is
+        // saved under "State" in the FancyMainWindow state
+        state.mainWindowState.clear();
+        state.mainWindowState.insert("State", mainWindowStateLegacy);
+        return ds;
     }
     friend QDataStream &operator<<(QDataStream &ds, const PerspectiveState &state)
     {
-        return ds << state.mainWindowStateLegacy << state.headerViewStates;
+        // the "legacy" state is just the QMainWindow::saveState(), which is
+        // saved under "State" in the FancyMainWindow state
+        return ds << state.mainWindowState.value("State") << state.headerViewStates;
     }
 };
 

@@ -1078,15 +1078,13 @@ const char *PerspectiveState::savesHeaderKey()
 
 bool PerspectiveState::hasWindowState() const
 {
-    return !mainWindowState.isEmpty() || !mainWindowStateLegacy.isEmpty();
+    return !mainWindowState.isEmpty();
 }
 
 bool PerspectiveState::restoreWindowState(FancyMainWindow * mainWindow)
 {
     if (!mainWindowState.isEmpty())
         return mainWindow->restoreSettings(mainWindowState);
-    if (!mainWindowStateLegacy.isEmpty())
-        return mainWindow->restoreFancyState(mainWindowStateLegacy);
     return false;
 }
 
