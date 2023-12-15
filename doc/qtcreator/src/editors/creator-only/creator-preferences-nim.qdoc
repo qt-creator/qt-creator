@@ -9,26 +9,38 @@
 
     \title Nim
 
-    \brief Set Nim code style.
+    \brief Set Nim code style and paths to tools.
 
-    To specify settings for the Nim editor (experimental):
+    \section1 Code Style
+
+    To specify preferences for the Nim editor (experimental):
 
     \list 1
         \li Select \preferences > \uicontrol Nim.
         \li In the \uicontrol {Current settings} field, select the settings to
             modify and click \uicontrol Copy.
-            \image qtcreator-options-code-style-nim.png {Nim Code Style preferences}
+            \image qtcreator-preferences-nim-code-style.webp {Nim Code Style preferences}
         \li Give a name to the settings and click \uicontrol OK.
-        \li Click \uicontrol Edit to specify code style settings for the project.
-            \image qtcreator-code-style-settings-edit-nim.png {Edit Code Style dialog}
+        \li Specify how to interpret the \key Tab key presses and how to align
+            continuation lines.
+        \li Select \uicontrol OK to save the settings.
     \endlist
-
-    You can specify how to interpret the \key Tab key presses and how to align
-    continuation lines.
 
     To specify different settings for a particular project, select
     \uicontrol Projects > \uicontrol {Code Style}.
 
-    \sa {Find preferences}, {Indent text or code},
-    {Specify code style}, {Nimble}
+    \section1 Tools
+
+    You can use the \l{https://nim-lang.org/docs/nimsuggest.html}{Nimsuggest}
+    tool to query \c {.nim} source files and obtain suggestions for code
+    completion.
+
+    To use Nimsuggest, you must install it on the development PC and enter the
+    path to the tool executable in the \uicontrol Path field.
+
+    \image qtcreator-preferences-nim-tools.webp
+
+    \sa {Add code snippets to the auto-complete menu}, {Complete code},
+    {Find preferences}, {Indent text or code}, {Specify code style},
+    {Completion}, {Nimble}, {Snippets}
 */

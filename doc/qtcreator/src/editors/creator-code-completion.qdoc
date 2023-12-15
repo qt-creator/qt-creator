@@ -1,63 +1,35 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-checking-code-syntax.html
     \page creator-completing-code.html
-    \nextpage creator-indenting-code.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-editor-functions.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
 
-    \title Completing Code
+    \ingroup creator-how-to-edit
+
+    \title Complete code
 
     As you write code, \QC suggests properties, IDs, and code snippets to
     complete the code. It shows a list of suggestions to
-    the statement currently under your cursor. Press \key Tab
-    or \key Enter to accept the selected suggestion and complete the code.
+    the statement currently under your cursor.
+
+    Press \key Tab or \key Enter to accept the selected suggestion and complete
+    the code.
 
     \if defined(qtcreator)
-    The following image displays suggestions for completing C++ code:
-
     \image qtcreator-codecompletion.png
+    \caption Suggestions for completing C++ code.
     \endif
 
-    The following image displays suggestions for completing QML code:
-
     \image qml-code-completion.png
+    \caption Suggestions for completing QML code.
 
     To open the list of suggestions at any time, press \key {Ctrl+Space}.
     If only one option is available, \QC inserts it automatically.
-
-    \section1 Specifying Completion Settings
-
-    To specify settings for code completion, select \preferences >
-    \uicontrol {Text Editor} > \uicontrol Completion.
-
-    \image qtcreator-preferences-texteditor-completion.webp "Text Editor Completion preferences"
-
-    By default, code completion does not consider case. To apply full or
-    first-letter case-sensitivity, select \uicontrol Full or
-    \uicontrol {First Letter} in the \uicontrol {Case-sensitivity} field.
-
-    By default, code completion is always invoked, but you can change this
-    behavior in the \uicontrol {Activate completion} field to invoke
-    it \uicontrol Manually or \uicontrol {When Triggered}.
-
-    You can set a timeout in milliseconds for code completion in the
-    \uicontrol {Timeout in ms} field.
-
-    In the \uicontrol {Character threshold} field, specify the number of
-    characters you need to enter before code completion is triggered.
-
-    When completion is invoked manually, \QC completes the common prefix of the
-    list of suggestions. This is especially useful for classes with several
-    similarly named members. To disable this functionality, deselect the
-    \uicontrol {Autocomplete common prefix} check box.
-
-    Select the \uicontrol {Automatically split strings} check box to split
-    a string to two lines by adding an end quote at the cursor position when
-    you press \key Enter and a start quote at the beginning of the next line,
-    before the rest of the string. In addition, pressing \key {Shift+Enter}
-    inserts an escape character at the cursor position and moves the rest of
-    the string to the next line.
 
     \section1 Summary of Available Types
 
@@ -131,7 +103,7 @@
         \endif
     \endtable
 
-    \section1 Completing Code Snippets
+    \section1 Complete code snippets
 
     Code snippets can consist of multiple variables that you specify values for.
     Select an item in the list and press \key Tab or \key Enter to complete the
@@ -140,70 +112,128 @@
     within the snippet are renamed.
 
     \if defined(qtcreator)
-    The following image shows a C++ code snippet:
-
     \image qmldesigner-code-completion.png "Completing C++ code"
+    \caption C++ code snippet.
     \endif
-
-    The following image shows a QML code snippet:
 
     \image qml-code-snippet.png
-
-    \section2 Editing Code Snippets
-
-    Code snippets specify code constructs. You can add, modify,
-    and remove snippets in the snippet editor. To open the editor, select
-    \preferences > \uicontrol {Text Editor} >
-    \uicontrol Snippets.
+    \caption QML code snippet.
 
     \if defined(qtcreator)
-    The following image shows built-in C++ code snippets:
-
-    \image qtcreator-edit-code-snippets.png "C++ snippet preferences"
+    \sa {Complete CMake code}, {Nim}
     \endif
 
-    The following image shows built-in QML code snippets:
+    \sa {Add code snippets to the auto-complete menu}, {Completion}, {Snippets}
+*/
 
-    \image qml-snippet-editor.png
+/*!
+    \page creator-preferences-text-editor-completion.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-completing-code.html
+    \else
+    \previouspage creator-reference.html
+    \endif
+
+    \ingroup creator-reference-preferences-text-editor
+
+    \title Completion
+
+    \brief Set preferences for code completion and inserting matching characters
+    in the text editor.
+
+    To set preferences for code completion, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol Completion.
+
+    \image qtcreator-preferences-texteditor-completion.webp {Text Editor Completion preferences}
+
+    \section1 Code Completion Behavior
+
+    By default, code completion does not consider case. To apply full or
+    first-letter case-sensitivity, select \uicontrol Full or
+    \uicontrol {First Letter} in the \uicontrol {Case-sensitivity} field.
+
+    By default, code completion is always invoked, but you can change this
+    behavior in the \uicontrol {Activate completion} field to invoke
+    it \uicontrol Manually or \uicontrol {When Triggered}.
+
+    You can set a timeout in milliseconds for code completion in the
+    \uicontrol {Timeout in ms} field.
+
+    In the \uicontrol {Character threshold} field, specify the number of
+    characters you need to enter before code completion is triggered.
+
+    When completion is invoked manually, \QC completes the common prefix of the
+    list of suggestions. This is especially useful for classes with several
+    similarly named members. To disable this functionality, deselect the
+    \uicontrol {Autocomplete common prefix} check box.
+
+    Select the \uicontrol {Automatically split strings} check box to split
+    a string to two lines by adding an end quote at the cursor position when
+    you press \key Enter and a start quote at the beginning of the next line,
+    before the rest of the string. In addition, pressing \key {Shift+Enter}
+    inserts an escape character at the cursor position and moves the rest of
+    the string to the next line.
+
+    \section1 Automatically Inserting Matching Characters
+
+    When you have selected code and enter brackets or quotes, the matching
+    closing character is added automatically at the end of the selection.
+
+    By default, the automatically inserted text is highlighted and animated,
+    skipped when you type, and removed when you press \key Backspace.
+
+    \if defined(qtcreator)
+    \sa {Complete CMake code},
+    {Enclose selected code in curly braces, parentheses, or double quotes}, {Nim}
+    \endif
+
+    \sa {Complete code}, {Snippets}
+*/
+
+/*!
+    \page creator-preferences-text-editor-shippets.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-completing-code.html
+    \else
+    \previouspage creator-reference.html
+    \endif
+
+    \ingroup creator-reference-preferences-text-editor
+
+    \title Snippets
+
+    \brief Add, change, and remove snippets in the snippet editor.
+
+    To add, change, and remove snippets in the snippet editor, select
+    \preferences > \uicontrol {Text Editor} > \uicontrol Snippets.
 
     \QC has built-in snippets in the following categories:
 
     \list
-
         \li Text snippets, which can have any text string. For example, code
             comments
-
         \if defined(qtcreator)
         \li C++ code snippets, which specify C++ code constructs
-
         \li CMake code snippets that you can use when editing \c CMakeLists.txt
             files in the CMake editor
         \endif
-
         \li QML code snippets, which specify QML code constructs
-
         \if defined(qtcreator)
         \li Nim code snippets, which specify Nim code constructs
         \endif
-
     \endlist
 
-    \section2 Adding and Editing Snippets
-
-    Select a snippet in the list to edit it in the snippet editor. To add a new
-    snippet, select \uicontrol Add. Specify a trigger and, if the trigger is
-    already in use, an optional variant, which appear in the list of suggestions
-    when you write code.
     \if defined(qtcreator)
-    Also specify a text string or C++ or QML code construct
-    in the snippet editor, depending on the snippet category.
-
-    You can use \l{Use Qt Creator variables}{predefined variables} in
-    snippets.
-    \else
-    Also specify a text string or QML code in the snippet editor, depending on
-    the snippet category.
+    \image qtcreator-edit-code-snippets.png {C++ snippet preferences}
+    \caption Built-in C++ code snippets.
     \endif
+
+    \image qml-snippet-editor.png
+    \caption Built-in QML code snippets.
+
+    \section1 Editing Snippets
+
+    Select a snippet in the list to edit it in the snippet editor.
 
     The snippet editor offers:
 
@@ -270,7 +300,7 @@
     To discard the changes you made to a built-in snippet, select
     \uicontrol {Revert Built-in}.
 
-    \section2 Removing Snippets
+    \section1 Removing Snippets
 
     The list of suggestions might show several similar built-in snippets for
     different use cases. To make it shorter when you write code, remove the
@@ -281,7 +311,7 @@
     \uicontrol Remove. To restore the removed snippets, select
     \uicontrol {Restore Removed Built-ins}.
 
-    \section2 Resetting Snippets
+    \section1 Resetting Snippets
 
     To remove all added snippets and to restore all removed snippets, select
     \uicontrol {Reset All}.
@@ -290,16 +320,50 @@
     lose all your own snippets.
 
     \if defined(qtcreator)
-    \section1 Completing Nim Code
-
-    You can use the \l{https://nim-lang.org/docs/nimsuggest.html}{Nimsuggest}
-    tool to query \c {.nim} source files and obtain suggestions for code
-    completion.
-
-    To use Nimsuggest, you must install it on the development PC. Then select
-    \preferences > \uicontrol Nim > \uicontrol Tools,
-    and enter the path to the tool executable in the \uicontrol Path field.
-
-    \sa {Document code}, {Use Qt Creator variables}
+    \sa {Complete CMake code}, {Document code}, {Use Qt Creator variables},
+    {Nim}
     \endif
+
+    \sa {Add code snippets to the auto-complete menu}, {Complete code},
+    {Completion}
+*/
+
+/*!
+    \page creator-how-to-add-code-snippets.html
+    \if defined(qtdesignstudio)
+    \previouspage creator-completing-code.html
+    \else
+    \previouspage creator-how-tos.html
+    \endif
+
+    \ingroup creator-how-to-edit
+
+    \title Add code snippets to the auto-complete menu
+
+    To add code or text snippets in the snippet editor:
+
+    \list 1
+        \li Select \preferences > \uicontrol {Text Editor} > \uicontrol Snippets.
+            \image qtcreator-snippet-modifiers.png {Snippets preferences}
+        \li In \uicontrol Group, select the type of snippet to add.
+        \li Select \uicontrol Add.
+        \li Specify a trigger. If the trigger is already in use, add an optional
+            variant. They appear in the list of suggestions when you write code.
+            \if defined(qtcreator)
+            Also specify a text string or C++ or QML code construct
+            in the snippet editor, depending on the snippet category.
+
+            You can use \l{Use Qt Creator variables}{predefined variables} in
+            snippets.
+            \else
+            Also specify a text string or QML code in the snippet editor, depending on
+            the snippet category.
+            \endif
+    \endlist
+
+    \if defined(qtcreator)
+    \sa {Complete CMake code}, {Complete code}, {Use Qt Creator variables},
+    {Nim}
+    \endif
+    \sa {Completion}, {Snippets}
 */

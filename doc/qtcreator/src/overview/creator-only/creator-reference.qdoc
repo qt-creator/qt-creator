@@ -33,6 +33,8 @@
 
     \section1 Preferences
 
+    Set prefecerences that apply globally to all projects.
+
     \annotatedlist creator-reference-preferences
 
     \section2 Analyzer
@@ -44,6 +46,8 @@
     \annotatedlist creator-reference-preferences-cpp
 
     \section2 Text Editor
+
+    Configure the text editor to suit your needs.
 
     \annotatedlist creator-reference-preferences-text-editor
 

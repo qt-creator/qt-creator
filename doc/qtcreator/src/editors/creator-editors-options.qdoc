@@ -46,7 +46,7 @@
             {highlighting} or \l{Folding Blocks}{folding} blocks or text
             wrapping in \uicontrol Display.
 
-        \li Add, modify, and remove \l{Editing Code Snippets}{code snippets} in
+        \li Add, modify, and remove \l{Snippets}{code snippets} in
             \uicontrol Snippets.
 
         \if defined(qtcreator)
@@ -54,12 +54,12 @@
             in \uicontrol Macros.
         \endif
 
-        \li Configure \l{Completing Code}{code completion} in \uicontrol Completion.
+        \li Configure \l{Completion}{code completion} in \uicontrol Completion.
 
     \endlist
 
     \if defined(qtcreator)
-    \sa {Specify editor settings}, {Using FakeVim Mode}
+    \sa {Specify editor settings}, {Using FakeVim Mode}, {Completion}, {Snippets}
     \endif
 
 */

@@ -82,7 +82,7 @@
     \image qtquick-states-binding-editor.png "Binding Editor in States view"
 
     When you compose the expressions in \uicontrol {Binding Editor}, the
-    \l{Completing Code}{code completion} feature lists the components and
+    \l{Complete code}{code completion} feature lists the components and
     their properties you can use in the expressions.
 
     \include creator-logical-operators.qdocinc logical operators

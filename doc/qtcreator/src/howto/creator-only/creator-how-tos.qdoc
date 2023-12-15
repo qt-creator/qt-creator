@@ -343,7 +343,7 @@
 
     \image qtcreator-preferences-texteditor-completion.webp "Completion preferences"
 
-    \sa {Completing Code}
+    \sa {Completion}
 */
 
 /*!
@@ -355,23 +355,6 @@
     \title Select the enclosing block in C++
 
     Press \key {Ctrl+U}.
-*/
-
-/*!
-    \page creator-how-to-add-code-snippets.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-edit
-
-    \title Add code snippets to the auto-complete menu
-
-    Add, modify, and remove snippets in the snippet editor.
-    To open the editor, select \preferences > \uicontrol {Text Editor} >
-    \uicontrol Snippets.
-
-    \image qtcreator-snippet-modifiers.png "Snippets preferences"
-
-    For more information, see \l {Adding and Editing Snippets}.
 */
 
 /*!

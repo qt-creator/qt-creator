@@ -46,7 +46,7 @@
             static checks on the QML and JavaScript code in your project to find
             common problems.
 
-        \li \l{Completing Code}
+        \li \l{Complete code}
 
             \QC anticipates what you are going to write and completes code
             and code snippets for elements, properties, and IDs.

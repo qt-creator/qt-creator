@@ -235,7 +235,7 @@
     Warnings and errors are displayed in \l {Issues}.
 
     \sa {CMake}, {Add libraries to CMake projects}, {Complete CMake code},
-    {Completing Code Snippets}, {Format CMake files}
+    {Format CMake files}, {Completion}, {Snippets}
 */
 
 /*!
@@ -260,8 +260,10 @@
         \li \c{$ENV} for environment variables
     \endlist
 
-    \sa {CMake}, {Completing Code}, {Completing Code Snippets},
-    {Edit CMake configuration files}
+    Press \key Tab or \key Enter to accept the selected suggestion and complete
+    the code.
+
+    \sa {CMake}, {Edit CMake configuration files}, {Completion}, {Snippets}
 */
 
 /*!
@@ -364,7 +366,7 @@
     For CMake projects that have external dependencies, use
     \l{CMake: Find Modules}{Find<package>.cmake} modules that
     expose imported targets. You can use the pre-defined \c sample_find_module
-    \l{Completing Code Snippets}{code snippet} to add sample commands
+    \l{Snippets}{code snippet} to add sample commands
     to a \c .cmake file. You can then change the commands as necessary.
 
     Place Find modules in the \c ${CMAKE_CURRENT_SOURCE_DIR}/cmake directory, and
@@ -376,5 +378,5 @@
     \endcode
 
     \sa {CMake}, {Edit CMake configuration files}, {Complete CMake code},
-    {Completing Code Snippets}
+    {Completion}, {Snippets}
 */

@@ -76,7 +76,7 @@
     \printuntil color
 
     When you start typing the QML type name, \QC suggests available types
-    and properties to \l{Completing Code}{complete the code}.
+    and properties to \l{Complete code}{complete the code}.
 
     Select the light bulb icon \inlineimage icons/refactormarker.png
     next to the type name to open the \l{Editing Rectangles}

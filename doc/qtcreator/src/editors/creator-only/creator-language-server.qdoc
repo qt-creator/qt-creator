@@ -15,7 +15,7 @@
     IDE to offer the following services:
 
     \list
-        \li \l{Completing Code}{Code completion}
+        \li {Complete code}{Code completion}
         \li Sending document formatting requests to the language server to
             automatically format documents using the settings specified in
             \preferences > \uicontrol {Text Editor} > \uicontrol Behavior
