@@ -853,6 +853,12 @@ void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int e
     emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
 }
 
+void QmlDesignerPlugin::emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed)
+{
+    QTC_ASSERT(instance(), return);
+    emit instance()->usageStatisticsUsageDuration(identifier, elapsed);
+}
+
 QmlDesignerPlugin *QmlDesignerPlugin::instance()
 {
     return m_instance;
