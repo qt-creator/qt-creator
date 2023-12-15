@@ -137,9 +137,9 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
         QString trimmedLine = codeLine.trimmed();
         if (trimmedLine.startsWith("@requires")) {
             // Get the required node, remove "@requires "
-            QString nodeName = trimmedLine.sliced(10);
-            if (!nodeName.isEmpty() && !m_requiredNodes.contains(nodeName))
-                m_requiredNodes << nodeName;
+            QString nodeId = trimmedLine.sliced(10).toLower();
+            if (!nodeId.isEmpty() && !m_requiredNodes.contains(nodeId))
+                m_requiredNodes << nodeId;
         }
     }
 }
