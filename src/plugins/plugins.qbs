@@ -92,5 +92,6 @@ Project {
         "vcsbase/vcsbase.qbs",
         "webassembly/webassembly.qbs",
         "welcome/welcome.qbs",
+        "qtapplicationmanager/qtapplicationmanager.qbs",
     ].concat(project.additionalPlugins)
 }

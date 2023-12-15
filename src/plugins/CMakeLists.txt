@@ -115,3 +115,5 @@ if (WITH_QMLDESIGNER)
 endif()
 add_subdirectory(qnx)
 add_subdirectory(mcusupport)
+add_subdirectory(qtapplicationmanager)
+
