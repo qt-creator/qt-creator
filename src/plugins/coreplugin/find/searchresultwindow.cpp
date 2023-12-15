@@ -79,10 +79,10 @@ namespace Internal {
 
         SearchResultWindow *q;
         QList<Internal::SearchResultWidget *> m_searchResultWidgets;
-        QToolButton *m_expandCollapseButton;
+        QToolButton *m_expandCollapseButton = nullptr;
         QToolButton *m_filterButton;
         QToolButton *m_newSearchButton;
-        QAction *m_expandCollapseAction;
+        QAction *m_expandCollapseAction = nullptr;
         static const bool m_initiallyExpand;
         QWidget *m_spacer;
         QLabel *m_historyLabel = nullptr;
@@ -90,24 +90,19 @@ namespace Internal {
         QComboBox *m_recentSearchesBox = nullptr;
         QStackedWidget *m_widget;
         QList<SearchResult *> m_searchResults;
-        int m_currentIndex;
         QFont m_font;
         Utils::SearchResultColors m_colors;
-        int m_tabWidth;
-
+        int m_currentIndex{0};
+        int m_tabWidth{8};
     };
 
     const bool SearchResultWindowPrivate::m_initiallyExpand = false;
 
     SearchResultWindowPrivate::SearchResultWindowPrivate(SearchResultWindow *window, QWidget *nsp) :
         q(window),
-        m_expandCollapseButton(nullptr),
-        m_expandCollapseAction(new QAction(Tr::tr("Expand All"), window)),
         m_spacer(new QWidget),
         m_spacer2(new QWidget),
-        m_widget(new QStackedWidget),
-        m_currentIndex(0),
-        m_tabWidth(8)
+        m_widget(new QStackedWidget)
     {
         m_spacer->setMinimumWidth(30);
         m_spacer2->setMinimumWidth(5);
@@ -119,14 +114,16 @@ namespace Internal {
         newSearchArea->setFocusProxy(nsp);
         m_widget->addWidget(newSearchArea);
 
-        m_expandCollapseButton = new QToolButton(m_widget);
+        ActionBuilder expandCollapse(window, "Find.ExpandAll");
+        expandCollapse.setText(Tr::tr("Expand All"));
+        expandCollapse.setCheckable(true);
+        expandCollapse.setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
+        expandCollapse.setEnabled(false);
+        expandCollapse.bindContextAction(&m_expandCollapseAction);
+        expandCollapse.setCommandAttribute(Command::CA_UpdateText);
 
-        m_expandCollapseAction->setCheckable(true);
-        m_expandCollapseAction->setIcon(Utils::Icons::EXPAND_ALL_TOOLBAR.icon());
-        m_expandCollapseAction->setEnabled(false);
-        Command *cmd = ActionManager::registerAction(m_expandCollapseAction, "Find.ExpandAll");
-        cmd->setAttribute(Command::CA_UpdateText);
-        m_expandCollapseButton->setDefaultAction(cmd->action());
+        m_expandCollapseButton = new QToolButton(m_widget);
+        m_expandCollapseButton->setDefaultAction(m_expandCollapseAction);
 
         m_filterButton = new QToolButton(m_widget);
         m_filterButton->setText(Tr::tr("Filter Results"));
@@ -135,7 +132,7 @@ namespace Internal {
 
         QAction *newSearchAction = new QAction(Tr::tr("New Search"), this);
         newSearchAction->setIcon(Utils::Icons::NEWSEARCH_TOOLBAR.icon());
-        cmd = ActionManager::command(Constants::ADVANCED_FIND);
+        Command *cmd = ActionManager::command(Constants::ADVANCED_FIND);
         m_newSearchButton = Command::toolButtonWithAppendedShortcut(newSearchAction, cmd);
         if (QTC_GUARD(cmd && cmd->action()))
             connect(m_newSearchButton, &QToolButton::triggered, cmd->action(), &QAction::trigger);
