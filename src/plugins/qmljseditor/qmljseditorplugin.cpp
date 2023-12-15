@@ -42,6 +42,7 @@
 
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 
 #include <QTextDocument>
@@ -205,7 +206,7 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 void QmlJSEditorPlugin::extensionsInitialized()
 {
     FileIconProvider::registerIconOverlayForMimeType(ProjectExplorer::Constants::FILEOVERLAY_UI,
-                                                     "application/x-qt.ui+qml");
+                                                     Utils::Constants::QMLUI_MIMETYPE);
 
     TaskHub::addCategory({Constants::TASK_CATEGORY_QML,
                           Tr::tr("QML"),

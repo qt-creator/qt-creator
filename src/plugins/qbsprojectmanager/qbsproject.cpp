@@ -98,7 +98,7 @@ private:
 // --------------------------------------------------------------------
 
 QbsProject::QbsProject(const FilePath &fileName)
-    : Project(Constants::MIME_TYPE, fileName)
+    : Project(Utils::Constants::QBS_MIMETYPE, fileName)
 {
     setId(Constants::PROJECT_ID);
     setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));

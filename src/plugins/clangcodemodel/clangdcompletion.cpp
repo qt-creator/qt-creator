@@ -28,6 +28,7 @@
 #include <texteditor/codeassist/genericproposalmodel.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/mimeconstants.h>
 #include <utils/utilsicons.h>
 
 using namespace CppEditor;
@@ -485,7 +486,7 @@ QList<AssistProposalItemInterface *> CustomAssistProcessor::completeInclude(
     if (!allHeaderPaths.contains(currentFilePath))
         allHeaderPaths.append(currentFilePath);
 
-    const MimeType mimeType = mimeTypeForName("text/x-c++hdr");
+    const MimeType mimeType = mimeTypeForName(Utils::Constants::CPP_HEADER_MIMETYPE);
     const QStringList suffixes = mimeType.suffixes();
 
     QList<AssistProposalItemInterface *> completions;

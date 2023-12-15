@@ -1219,7 +1219,8 @@ bool InternalCppCompletionAssistProcessor::completeInclude(const QTextCursor &cu
     if (!headerPaths.contains(currentFilePath))
         headerPaths.append(currentFilePath);
 
-    const QStringList suffixes = Utils::mimeTypeForName(QLatin1String("text/x-c++hdr")).suffixes();
+    const QStringList suffixes =
+        Utils::mimeTypeForName(Utils::Constants::CPP_HEADER_MIMETYPE).suffixes();
 
     for (const ProjectExplorer::HeaderPath &headerPath : std::as_const(headerPaths)) {
         QString realPath = headerPath.path;

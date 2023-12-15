@@ -317,19 +317,19 @@ int languageVariant(const QString &type)
         isVertex = true;
         isFragment = true;
     } else if (type == QLatin1String("text/x-glsl") ||
-               type == QLatin1String("application/x-glsl")) {
+               type == QLatin1String(Utils::Constants::GLSL_MIMETYPE)) {
         isVertex = true;
         isFragment = true;
         isDesktop = true;
-    } else if (type == QLatin1String("text/x-glsl-vert")) {
+    } else if (type == QLatin1String(Utils::Constants::GLSL_VERT_MIMETYPE)) {
         isVertex = true;
         isDesktop = true;
-    } else if (type == QLatin1String("text/x-glsl-frag")) {
+    } else if (type == QLatin1String(Utils::Constants::GLSL_FRAG_MIMETYPE)) {
         isFragment = true;
         isDesktop = true;
-    } else if (type == QLatin1String("text/x-glsl-es-vert")) {
+    } else if (type == QLatin1String(Utils::Constants::GLSL_ES_VERT_MIMETYPE)) {
         isVertex = true;
-    } else if (type == QLatin1String("text/x-glsl-es-frag")) {
+    } else if (type == QLatin1String(Utils::Constants::GLSL_ES_FRAG_MIMETYPE)) {
         isFragment = true;
     }
     if (isDesktop)

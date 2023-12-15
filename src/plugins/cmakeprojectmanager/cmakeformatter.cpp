@@ -28,6 +28,7 @@
 #include <utils/algorithm.h>
 #include <utils/genericconstants.h>
 #include <utils/layoutbuilder.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 
 #include <QMenu>
@@ -60,7 +61,7 @@ public:
         autoFormatOnlyCurrentProject.setLabelPlacement(BoolAspect::LabelPlacement::AtCheckBox);
 
         autoFormatMime.setSettingsKey("autoFormatMime");
-        autoFormatMime.setDefaultValue("text/x-cmake");
+        autoFormatMime.setDefaultValue(Utils::Constants::CMAKE_MIMETYPE);
         autoFormatMime.setLabelText(Tr::tr("Restrict to MIME types:"));
         autoFormatMime.setDisplayStyle(StringAspect::LineEditDisplay);
 

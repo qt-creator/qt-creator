@@ -27,6 +27,7 @@
 #include <utils/appinfo.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
 
@@ -492,7 +493,7 @@ LocalHelpManager::HelpData LocalHelpManager::helpData(const QUrl &url)
         data.data = engine.fileData(data.resolvedUrl);
         data.mimeType = HelpViewer::mimeFromUrl(data.resolvedUrl);
         if (data.mimeType.isEmpty())
-            data.mimeType = "application/octet-stream";
+            data.mimeType = Utils::Constants::OCTET_STREAM_MIMETYPE;
     } else {
         data.data = loadErrorMessage(url, Tr::tr("The page could not be found"));
         data.mimeType = "text/html";

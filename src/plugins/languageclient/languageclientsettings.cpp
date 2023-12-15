@@ -26,6 +26,7 @@
 #include <utils/fancylineedit.h>
 #include <utils/jsontreeitem.h>
 #include <utils/macroexpander.h>
+#include <utils/mimeconstants.h>
 #include <utils/stringutils.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
@@ -1043,7 +1044,7 @@ TextEditor::BaseTextEditor *jsonEditor()
     QTC_ASSERT(textEditor, textEditor = PlainTextEditorFactory::createPlainTextEditor());
     TextDocument *document = textEditor->textDocument();
     TextEditorWidget *widget = textEditor->editorWidget();
-    widget->configureGenericHighlighter(Utils::mimeTypeForName("application/json"));
+    widget->configureGenericHighlighter(mimeTypeForName(Utils::Constants::JSON_MIMETYPE));
     widget->setLineNumbersVisible(false);
     widget->setRevisionsVisible(false);
     widget->setCodeFoldingSupported(false);

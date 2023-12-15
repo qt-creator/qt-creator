@@ -19,6 +19,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/filewizardpage.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/wizard.h>
 
@@ -183,7 +184,7 @@ GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
     const FilePath proFileName = Utils::FilePath::fromString(QFileInfo(dir, projectName + ".pro").absoluteFilePath());
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toString);
 
-    MimeType headerType = Utils::mimeTypeForName("text/x-chdr");
+    MimeType headerType = Utils::mimeTypeForName(Utils::Constants::C_HEADER_MIMETYPE);
 
     QStringList nameFilters = headerType.globPatterns();
 
@@ -204,7 +205,8 @@ GeneratedFiles generateQmakeFiles(const SimpleProjectWizardDialog *wizard,
     for (const FilePath &fileName : wizard->selectedFiles()) {
         QString source = dir.relativeFilePath(fileName.toString());
         MimeType mimeType = Utils::mimeTypeForFile(fileName);
-        if (mimeType.matchesName("text/x-chdr") || mimeType.matchesName("text/x-c++hdr"))
+        if (mimeType.matchesName(Utils::Constants::C_HEADER_MIMETYPE)
+            || mimeType.matchesName(Utils::Constants::CPP_HEADER_MIMETYPE))
             proHeaders += "   $$PWD/" + source + " \\\n";
         else
             proSources += "   $$PWD/" + source + " \\\n";
@@ -240,7 +242,7 @@ GeneratedFiles generateCmakeFiles(const SimpleProjectWizardDialog *wizard,
     const FilePath projectFileName = Utils::FilePath::fromString(QFileInfo(dir, "CMakeLists.txt").absoluteFilePath());
     const QStringList paths = Utils::transform(wizard->selectedPaths(), &FilePath::toString);
 
-    MimeType headerType = Utils::mimeTypeForName("text/x-chdr");
+    MimeType headerType = Utils::mimeTypeForName(Utils::Constants::C_HEADER_MIMETYPE);
 
     QStringList nameFilters = headerType.globPatterns();
 

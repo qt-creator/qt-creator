@@ -25,6 +25,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <utils/mimeconstants.h>
 #include <utils/process.h>
 #include <utils/qtcassert.h>
 
@@ -290,7 +291,7 @@ QbsBuildConfigurationFactory::QbsBuildConfigurationFactory()
 {
     registerBuildConfiguration<QbsBuildConfiguration>(Constants::QBS_BC_ID);
     setSupportedProjectType(Constants::PROJECT_ID);
-    setSupportedProjectMimeTypeName(Constants::MIME_TYPE);
+    setSupportedProjectMimeTypeName(Utils::Constants::QBS_MIMETYPE);
     setIssueReporter([](Kit *k, const FilePath &projectPath, const FilePath &buildDir) -> Tasks {
         const QtSupport::QtVersion * const version = QtSupport::QtKitAspect::qtVersion(k);
         return version ? version->reportIssues(projectPath, buildDir) : Tasks();

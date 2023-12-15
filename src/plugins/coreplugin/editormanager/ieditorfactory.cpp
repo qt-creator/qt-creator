@@ -6,6 +6,7 @@
 #include "editormanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
@@ -197,7 +198,7 @@ const EditorFactories IEditorFactory::preferredEditorTypes(const FilePath &fileP
     }
     // make binary editor first internal editor for text files > 48 MB
     if (filePath.fileSize() > EditorManager::maxTextFileSize() && mimeType.inherits("text/plain")) {
-        const Utils::MimeType binary = Utils::mimeTypeForName("application/octet-stream");
+        const MimeType binary = mimeTypeForName(Utils::Constants::OCTET_STREAM_MIMETYPE);
         const EditorFactories binaryEditors = defaultEditorFactories(binary);
         if (!binaryEditors.isEmpty()) {
             IEditorFactory *binaryEditor = binaryEditors.first();
@@ -244,7 +245,7 @@ const EditorFactories IEditorFactory::preferredEditorFactories(const FilePath &f
     // open text files > 48 MB in binary editor
     if (filePath.fileSize() > EditorManager::maxTextFileSize()
             && mimeType.inherits("text/plain")) {
-        const Utils::MimeType binary = Utils::mimeTypeForName("application/octet-stream");
+        const MimeType binary = mimeTypeForName(Utils::Constants::OCTET_STREAM_MIMETYPE);
         const EditorFactories binaryEditors = defaultEditorFactories(binary);
         if (!binaryEditors.isEmpty())
             factories_moveToFront(binaryEditors.first());

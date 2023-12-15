@@ -12,6 +12,8 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 
 #include <QtTest/QtTest>
@@ -40,7 +42,8 @@ void GenerigHighlighterTests::initTestCase()
         Core::Constants::K_DEFAULT_TEXT_EDITOR_ID, &title, json);
     QVERIFY(editor);
     m_editor = qobject_cast<BaseTextEditor *>(editor);
-    m_editor->editorWidget()->configureGenericHighlighter(Utils::mimeTypeForName("application/json"));
+    m_editor->editorWidget()->configureGenericHighlighter(
+        Utils::mimeTypeForName(Utils::Constants::JSON_MIMETYPE));
     QVERIFY(m_editor);
     m_editor->textDocument()->syntaxHighlighterRunner()->rehighlight();
 }

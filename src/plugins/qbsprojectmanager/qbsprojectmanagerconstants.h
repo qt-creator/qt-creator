@@ -11,9 +11,6 @@ namespace Constants {
 // Contexts
 const char PROJECT_ID[] = "Qbs.QbsProject";
 
-// MIME types:
-const char MIME_TYPE[] = "application/x-qt.qbs+qml";
-
 // Actions:
 const char ACTION_REPARSE_QBS[] = "Qbs.Reparse";
 const char ACTION_REPARSE_QBS_CONTEXT[] = "Qbs.ReparseCtx";

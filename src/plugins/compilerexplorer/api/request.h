@@ -15,6 +15,7 @@
 #include <QString>
 
 #include <utils/appinfo.h>
+#include <utils/mimeconstants.h>
 
 static Q_LOGGING_CATEGORY(apiLog, "qtc.compilerexplorer.api", QtWarningMsg);
 
@@ -131,8 +132,8 @@ QFuture<Result> jsonRequest(QNetworkAccessManager *networkManager,
                             const QByteArray &payload = {})
 {
     QNetworkRequest req(url);
-    req.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
-    req.setRawHeader("Accept", "application/json");
+    req.setHeader(QNetworkRequest::ContentTypeHeader, Utils::Constants::JSON_MIMETYPE);
+    req.setRawHeader("Accept", Utils::Constants::JSON_MIMETYPE);
 
     return request<Result>(
         networkManager,

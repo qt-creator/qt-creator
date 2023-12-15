@@ -5,6 +5,7 @@
 
 #include "../coreplugintr.h"
 
+#include <utils/mimeconstants.h>
 #include <utils/filepath.h>
 
 #include <QUrl>
@@ -18,7 +19,7 @@ SystemEditor::SystemEditor()
 {
     setId("CorePlugin.OpenWithSystemEditor");
     setDisplayName(Tr::tr("System Editor"));
-    setMimeTypes({"application/octet-stream"});
+    setMimeTypes({Utils::Constants::OCTET_STREAM_MIMETYPE});
 
     setEditorStarter([](const FilePath &filePath, QString *errorMessage) {
         Q_UNUSED(errorMessage)
