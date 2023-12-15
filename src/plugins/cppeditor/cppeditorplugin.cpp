@@ -270,9 +270,12 @@ static void insertIntoMenus(const QList<ActionContainer *> &menus,
         func(menu);
 }
 
-static void addActionToMenus(const QList<ActionContainer *> &menus, Command *cmd, Id id)
+static void addActionToMenus(const QList<Id> &menuIds, Id actionId, Id groupId)
 {
-    insertIntoMenus(menus, [cmd, id](ActionContainer *menu) { menu->addAction(cmd, id); });
+    for (const Id menuId : menuIds) {
+        ActionContainer * const menu = ActionManager::actionContainer(menuId);
+        menu->addAction(ActionManager::command(actionId), groupId);
+    }
 }
 
 void CppEditorPlugin::setupMenus()
@@ -298,220 +301,181 @@ void CppEditorPlugin::setupMenus()
     addPerFileActions();
     addGlobalActions();
 
-    ActionContainer * const toolsDebug
-        = ActionManager::actionContainer(Core::Constants::M_TOOLS_DEBUG);
-    QAction * const inspectCppCodeModel = new QAction(Tr::tr("Inspect C++ Code Model..."), this);
-    Command * const cmd = ActionManager::registerAction(inspectCppCodeModel,
-                                                       Constants::INSPECT_CPP_CODEMODEL);
-    cmd->setDefaultKeySequence({useMacShortcuts ? Tr::tr("Meta+Shift+F12")
-                                                : Tr::tr("Ctrl+Shift+F12")});
-    connect(inspectCppCodeModel, &QAction::triggered,
-            d, &CppEditorPluginPrivate::inspectCppCodeModel);
-    toolsDebug->addAction(cmd);
+    ActionBuilder inspectCppCodeModel(this, Constants::INSPECT_CPP_CODEMODEL);
+    inspectCppCodeModel.setText(Tr::tr("Inspect C++ Code Model..."));
+    inspectCppCodeModel.setDefaultKeySequence(Tr::tr("Meta+Shift+F12"), Tr::tr("Ctrl+Shift+F12"));
+    inspectCppCodeModel.addToContainer(Core::Constants::M_TOOLS_DEBUG);
+    inspectCppCodeModel.addOnTriggered(d, &CppEditorPluginPrivate::inspectCppCodeModel);
 }
 
 void CppEditorPlugin::addPerSymbolActions()
 {
-    const QList<ActionContainer *> menus{ActionManager::actionContainer(Constants::M_TOOLS_CPP),
-                                         ActionManager::actionContainer(Constants::M_CONTEXT)};
-    ActionContainer * const touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
-    const Context context(Constants::CPPEDITOR_ID);
-    const auto addSymbolActionToMenus = [&menus](Command *cmd) {
-        addActionToMenus(menus, cmd, Constants::G_SYMBOL);
+    const QList<Id> menus{Constants::M_TOOLS_CPP, Constants::M_CONTEXT};
+    const auto addSymbolActionToMenus = [&menus](Id id) {
+        addActionToMenus(menus, id, Constants::G_SYMBOL);
     };
+    const Context context(Constants::CPPEDITOR_ID);
 
+    addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     Command *cmd = ActionManager::command(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
     cmd->setTouchBarText(Tr::tr("Follow", "text on macOS touch bar"));
-    addSymbolActionToMenus(cmd);
-    touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
-    addSymbolActionToMenus(ActionManager::command(
-        TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT));
-    addSymbolActionToMenus(ActionManager::command(
-        TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE));
-    addSymbolActionToMenus(ActionManager::command(
-        TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT));
-
-    QAction * const switchDeclarationDefinition
-        = new QAction(Tr::tr("Switch Between Function Declaration/Definition"), this);
-    cmd = ActionManager::registerAction(switchDeclarationDefinition,
-                                        Constants::SWITCH_DECLARATION_DEFINITION, context, true);
-    cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Shift+F2")));
-    cmd->setTouchBarText(Tr::tr("Decl/Def", "text on macOS touch bar"));
-    connect(switchDeclarationDefinition, &QAction::triggered,
-            this, &CppEditorPlugin::switchDeclarationDefinition);
-    addSymbolActionToMenus(cmd);
+    ActionContainer * const touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
     touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
 
-    QAction * const openDeclarationDefinitionInNextSplit =
-        new QAction(Tr::tr("Open Function Declaration/Definition in Next Split"), this);
-    cmd = ActionManager::registerAction(openDeclarationDefinitionInNextSplit,
-                                        Constants::OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT,
-                                        context, true);
-    cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
-                                                ? Tr::tr("Meta+E, Shift+F2")
-                                                : Tr::tr("Ctrl+E, Shift+F2")));
-    connect(openDeclarationDefinitionInNextSplit, &QAction::triggered,
-            this, &CppEditorPlugin::openDeclarationDefinitionInNextSplit);
-    addSymbolActionToMenus(cmd);
+    addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT);
+    addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE);
+    addSymbolActionToMenus(TextEditor::Constants::FOLLOW_SYMBOL_TO_TYPE_IN_NEXT_SPLIT);
 
-    addSymbolActionToMenus(ActionManager::command(TextEditor::Constants::FIND_USAGES));
+    ActionBuilder switchDeclDef(this, Constants::SWITCH_DECLARATION_DEFINITION);
+    switchDeclDef.setText(Tr::tr("Switch Between Function Declaration/Definition"));
+    switchDeclDef.setContext(context);
+    switchDeclDef.setScriptable(true);
+    switchDeclDef.setDefaultKeySequence(Tr::tr("Shift+F2"));
+    switchDeclDef.setTouchBarText(Tr::tr("Decl/Def", "text on macOS touch bar"));
+    switchDeclDef.addToContainers(menus, Constants::G_SYMBOL);
+    switchDeclDef.addToContainer(Core::Constants::TOUCH_BAR, Core::Constants::G_TOUCHBAR_NAVIGATION);
 
-    d->m_findRefsCategorizedAction = new QAction(Tr::tr("Find References With Access Type"), this);
-    cmd = ActionManager::registerAction(d->m_findRefsCategorizedAction,
-                                        "CppEditor.FindRefsCategorized", context);
-    connect(d->m_findRefsCategorizedAction, &QAction::triggered, this, [this] {
+    ActionBuilder openDeclDefSplit(this, Constants::OPEN_DECLARATION_DEFINITION_IN_NEXT_SPLIT);
+    openDeclDefSplit.setText(Tr::tr("Open Function Declaration/Definition in Next Split"));
+    openDeclDefSplit.setContext(context);
+    openDeclDefSplit.setScriptable(true);
+    openDeclDefSplit.setDefaultKeySequence(Tr::tr("Meta+E, Shift+F2"), Tr::tr("Ctrl+E, Shift+F2"));
+    openDeclDefSplit.addToContainers(menus, Constants::G_SYMBOL);
+    openDeclDefSplit.addOnTriggered(this, &CppEditorPlugin::openDeclarationDefinitionInNextSplit);
+
+    addSymbolActionToMenus(TextEditor::Constants::FIND_USAGES);
+
+    ActionBuilder findRefsCategorized(this,  "CppEditor.FindRefsCategorized");
+    findRefsCategorized.setText(Tr::tr("Find References With Access Type"));
+    findRefsCategorized.setContext(context);
+    findRefsCategorized.bindContextAction(&d->m_findRefsCategorizedAction);
+    findRefsCategorized.addToContainers(menus, Constants::G_SYMBOL);
+    findRefsCategorized.addOnTriggered(this, [this] {
         if (const auto w = currentCppEditorWidget()) {
             codeModelSettings()->setCategorizeFindReferences(true);
             w->findUsages();
             codeModelSettings()->setCategorizeFindReferences(false);
         }
     });
-    addSymbolActionToMenus(cmd);
 
-    addSymbolActionToMenus(ActionManager::command(TextEditor::Constants::RENAME_SYMBOL));
+    addSymbolActionToMenus(TextEditor::Constants::RENAME_SYMBOL);
 
-    d->m_openTypeHierarchyAction = new QAction(Tr::tr("Open Type Hierarchy"), this);
-    cmd = ActionManager::registerAction(d->m_openTypeHierarchyAction,
-                                        Constants::OPEN_TYPE_HIERARCHY, context);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts
-                                                ? Tr::tr("Meta+Shift+T") : Tr::tr("Ctrl+Shift+T")));
-    connect(d->m_openTypeHierarchyAction, &QAction::triggered,
-            this, &CppEditorPlugin::openTypeHierarchy);
-    addSymbolActionToMenus(cmd);
+    ActionBuilder openTypeHierarchy(this, Constants::OPEN_TYPE_HIERARCHY);
+    openTypeHierarchy.setText(Tr::tr("Open Type Hierarchy"));
+    openTypeHierarchy.setContext(context);
+    openTypeHierarchy.bindContextAction(&d->m_openTypeHierarchyAction);
+    openTypeHierarchy.setDefaultKeySequence(Tr::tr("Meta+Shift+T"), Tr::tr("Ctrl+Shift+T"));
+    openTypeHierarchy.addToContainers(menus, Constants::G_SYMBOL);
+    openTypeHierarchy.addOnTriggered(this, &CppEditorPlugin::openTypeHierarchy);
 
-    addSymbolActionToMenus(ActionManager::command(TextEditor::Constants::OPEN_CALL_HIERARCHY));
+    addSymbolActionToMenus(TextEditor::Constants::OPEN_CALL_HIERARCHY);
 
     // Refactoring sub-menu
-    Command *sep = menus.last()->addSeparator(Constants::G_SYMBOL);
+    Command *sep = ActionManager::actionContainer(Constants::M_CONTEXT)
+        ->addSeparator(Constants::G_SYMBOL);
     sep->action()->setObjectName(QLatin1String(Constants::M_REFACTORING_MENU_INSERTION_POINT));
 }
 
 void CppEditorPlugin::addActionsForSelections()
 {
-    const QList<ActionContainer *> menus{ActionManager::actionContainer(Constants::M_TOOLS_CPP),
-                                         ActionManager::actionContainer(Constants::M_CONTEXT)};
-    const auto addSelectionActionToMenus = [&menus](Command *cmd) {
-        addActionToMenus(menus, cmd, Constants::G_SELECTION);
-    };
-    addSelectionActionToMenus(ActionManager::command(TextEditor::Constants::AUTO_INDENT_SELECTION));
-    addSelectionActionToMenus(ActionManager::command(TextEditor::Constants::UN_COMMENT_SELECTION));
+    const QList<Id> menus{Constants::M_TOOLS_CPP,  Constants::M_CONTEXT};
+
+    addActionToMenus(menus, TextEditor::Constants::AUTO_INDENT_SELECTION, Constants::G_SELECTION);
+    addActionToMenus(menus, TextEditor::Constants::UN_COMMENT_SELECTION, Constants::G_SELECTION);
 }
 
 void CppEditorPlugin::addPerFileActions()
 {
-    const QList<ActionContainer *> menus{ActionManager::actionContainer(Constants::M_TOOLS_CPP),
-                                         ActionManager::actionContainer(Constants::M_CONTEXT)};
-    ActionContainer * const touchBar = ActionManager::actionContainer(Core::Constants::TOUCH_BAR);
-    const auto addFileActionToMenus = [&menus](Command *cmd) {
-        addActionToMenus(menus, cmd, Constants::G_FILE);
-    };
+    const QList<Id> menus{Constants::M_TOOLS_CPP, Constants::M_CONTEXT};
     const Context context(Constants::CPPEDITOR_ID);
 
-    QAction * const switchAction = new QAction(Tr::tr("Switch Header/Source"), this);
-    Command *cmd = ActionManager::registerAction(switchAction, Constants::SWITCH_HEADER_SOURCE,
-                                                 context, true);
-    cmd->setTouchBarText(Tr::tr("Header/Source", "text on macOS touch bar"));
-    addFileActionToMenus(cmd);
-    touchBar->addAction(cmd, Core::Constants::G_TOUCHBAR_NAVIGATION);
-    cmd->setDefaultKeySequence(QKeySequence(Qt::Key_F4));
-    connect(switchAction, &QAction::triggered,
-            this, [] { CppModelManager::switchHeaderSource(false); });
+    ActionBuilder switchAction(this, Constants::SWITCH_HEADER_SOURCE);
+    switchAction.setText(Tr::tr("Switch Header/Source"));
+    switchAction.setContext(context);
+    switchAction.setScriptable(true);
+    switchAction.setTouchBarText(Tr::tr("Header/Source", "text on macOS touch bar"));
+    switchAction.addToContainers(menus, Constants::G_FILE);
+    switchAction.addToContainer(Core::Constants::TOUCH_BAR, Core::Constants::G_TOUCHBAR_NAVIGATION);
+    switchAction.setDefaultKeySequence(Qt::Key_F4);
+    switchAction.addOnTriggered([] { CppModelManager::switchHeaderSource(false); });
 
-    QAction * const switchInNextSplitAction
-        = new QAction(Tr::tr("Open Corresponding Header/Source in Next Split"), this);
-    cmd = ActionManager::registerAction(
-        switchInNextSplitAction, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT, context, true);
-    cmd->setDefaultKeySequence(QKeySequence(HostOsInfo::isMacHost()
-                                                ? Tr::tr("Meta+E, F4")
-                                                : Tr::tr("Ctrl+E, F4")));
-    addFileActionToMenus(cmd);
-    connect(switchInNextSplitAction, &QAction::triggered,
-            this, [] { CppModelManager::switchHeaderSource(true); });
+    ActionBuilder switchInNextSplit(this, Constants::OPEN_HEADER_SOURCE_IN_NEXT_SPLIT);
+    switchInNextSplit.setText(Tr::tr("Open Corresponding Header/Source in Next Split"));
+    switchInNextSplit.setContext(context);
+    switchInNextSplit.setScriptable(true);
+    switchInNextSplit.setDefaultKeySequence(Tr::tr("Meta+E, F4"), Tr::tr("Ctrl+E, F4"));
+    switchInNextSplit.addToContainers(menus, Constants::G_FILE);
+    switchInNextSplit.addOnTriggered([] { CppModelManager::switchHeaderSource(true); });
 
-    QAction * const openPreprocessorDialog
-        = new QAction(Tr::tr("Additional Preprocessor Directives..."), this);
-    cmd = ActionManager::registerAction(openPreprocessorDialog,
-                                        Constants::OPEN_PREPROCESSOR_DIALOG, context);
-    cmd->setDefaultKeySequence(QKeySequence());
-    connect(openPreprocessorDialog, &QAction::triggered,
-            this, &CppEditorPlugin::showPreProcessorDialog);
-    addFileActionToMenus(cmd);
+    ActionBuilder openPreprocessor(this, Constants::OPEN_PREPROCESSOR_DIALOG);
+    openPreprocessor.setText(Tr::tr("Additional Preprocessor Directives..."));
+    openPreprocessor.setContext(context);
+    openPreprocessor.setDefaultKeySequence({});
+    openPreprocessor.addToContainers(menus, Constants::G_FILE);
+    openPreprocessor.addOnTriggered(this, &CppEditorPlugin::showPreProcessorDialog);
 
-    QAction * const showPreprocessedAction = new QAction(Tr::tr("Show Preprocessed Source"), this);
-    cmd = ActionManager::registerAction(showPreprocessedAction,
-                                        Constants::SHOW_PREPROCESSED_FILE, context);
-    addFileActionToMenus(cmd);
-    connect(showPreprocessedAction, &QAction::triggered,
-            this, [] { CppModelManager::showPreprocessedFile(false); });
+    ActionBuilder showPreprocessed(this, Constants::SHOW_PREPROCESSED_FILE);
+    showPreprocessed.setText(Tr::tr("Show Preprocessed Source"));
+    showPreprocessed.setContext(context);
+    showPreprocessed.addToContainers(menus, Constants::G_FILE);
+    showPreprocessed.addOnTriggered(this, [] { CppModelManager::showPreprocessedFile(false); });
 
-    QAction * const showPreprocessedInSplitAction = new QAction
-        (Tr::tr("Show Preprocessed Source in Next Split"), this);
-    cmd = ActionManager::registerAction(showPreprocessedInSplitAction,
-                                        Constants::SHOW_PREPROCESSED_FILE_SPLIT, context);
-    addFileActionToMenus(cmd);
-    connect(showPreprocessedInSplitAction, &QAction::triggered,
-            this, [] { CppModelManager::showPreprocessedFile(true); });
+    ActionBuilder showPreprocessedInSplit(this, Constants::SHOW_PREPROCESSED_FILE_SPLIT);
+    showPreprocessedInSplit.setText(Tr::tr("Show Preprocessed Source in Next Split"));
+    showPreprocessedInSplit.setContext(context);
+    showPreprocessedInSplit.addToContainers(menus, Constants::G_FILE);
+    showPreprocessedInSplit.addOnTriggered([] { CppModelManager::showPreprocessedFile(true); });
 
-    QAction * const foldCommentsAction = new QAction(Tr::tr("Fold All Comment Blocks"), this);
-    cmd = ActionManager::registerAction(foldCommentsAction,
-                                        "CppTools.FoldCommentBlocks", context);
-    addFileActionToMenus(cmd);
-    connect(foldCommentsAction, &QAction::triggered, this, [] { CppModelManager::foldComments(); });
-    QAction * const unfoldCommentsAction = new QAction(Tr::tr("Unfold All Comment Blocks"), this);
-    cmd = ActionManager::registerAction(unfoldCommentsAction,
-                                        "CppTools.UnfoldCommentBlocks", context);
-    addFileActionToMenus(cmd);
-    connect(unfoldCommentsAction, &QAction::triggered,
-            this, [] { CppModelManager::unfoldComments(); });
+    ActionBuilder foldComments(this, "CppTools.FoldCommentBlocks");
+    foldComments.setText(Tr::tr("Fold All Comment Blocks"));
+    foldComments.setContext(context);
+    foldComments.addToContainers(menus, Constants::G_FILE);
+    foldComments.addOnTriggered(this, [] { CppModelManager::foldComments(); });
 
-    d->m_openIncludeHierarchyAction = new QAction(Tr::tr("Open Include Hierarchy"), this);
-    cmd = ActionManager::registerAction(d->m_openIncludeHierarchyAction,
-                                        Constants::OPEN_INCLUDE_HIERARCHY, context);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts
-                                                ? Tr::tr("Meta+Shift+I") : Tr::tr("Ctrl+Shift+I")));
-    connect(d->m_openIncludeHierarchyAction, &QAction::triggered,
-            this, &CppEditorPlugin::openIncludeHierarchy);
-    addFileActionToMenus(cmd);
+    ActionBuilder unfoldComments(this, "CppTools.UnfoldCommentBlocks");
+    unfoldComments.setText(Tr::tr("Unfold All Comment Blocks"));
+    unfoldComments.setContext(context);
+    unfoldComments.addToContainers(menus, Constants::G_FILE);
+    unfoldComments.addOnTriggered(this, [] { CppModelManager::unfoldComments(); });
+
+    ActionBuilder openIncludeHierarchy(this, Constants::OPEN_INCLUDE_HIERARCHY);
+    openIncludeHierarchy.setText(Tr::tr("Open Include Hierarchy"));
+    openIncludeHierarchy.bindContextAction(&d->m_openIncludeHierarchyAction);
+    openIncludeHierarchy.setContext(context);
+    openIncludeHierarchy.setDefaultKeySequence(Tr::tr("Meta+Shift+I"), Tr::tr("Ctrl+Shift+I"));
+    openIncludeHierarchy.addToContainers(menus, Constants::G_FILE);
+    openIncludeHierarchy.addOnTriggered(this, &CppEditorPlugin::openIncludeHierarchy);
 }
 
 void CppEditorPlugin::addGlobalActions()
 {
-    const QList<ActionContainer *> menus{ActionManager::actionContainer(Constants::M_TOOLS_CPP),
-                                         ActionManager::actionContainer(Constants::M_CONTEXT)};
-    const auto addGlobalActionToMenus = [&menus](Command *cmd) {
-        addActionToMenus(menus, cmd, Constants::G_GLOBAL);
-    };
+    const QList<Id> menus{Constants::M_TOOLS_CPP, Constants::M_CONTEXT};
 
-    QAction * const findUnusedFunctionsAction = new QAction(Tr::tr("Find Unused Functions"), this);
-    Command *cmd = ActionManager::registerAction(findUnusedFunctionsAction,
-                                                 "CppTools.FindUnusedFunctions");
-    addGlobalActionToMenus(cmd);
-    connect(findUnusedFunctionsAction, &QAction::triggered, this, [] {
-        CppModelManager::findUnusedFunctions({});
-    });
+    ActionBuilder findUnusedFunctions(this, "CppTools.FindUnusedFunctions");
+    findUnusedFunctions.setText(Tr::tr("Find Unused Functions"));
+    findUnusedFunctions.addToContainers(menus, Constants::G_GLOBAL);
+    findUnusedFunctions.addOnTriggered(this, [] { CppModelManager::findUnusedFunctions({}); });
 
-    QAction * const findUnusedFunctionsInSubProjectAction
-        = new QAction(Tr::tr("Find Unused C/C++ Functions"), this);
-    cmd = ActionManager::registerAction(findUnusedFunctionsInSubProjectAction,
-                                        "CppTools.FindUnusedFunctionsInSubProject");
+    ActionBuilder findUnusedFunctionsSubProject(this, "CppTools.FindUnusedFunctionsInSubProject");
+    findUnusedFunctionsSubProject.setText(Tr::tr("Find Unused C/C++ Functions"));
     for (ActionContainer *const projectContextMenu :
          {ActionManager::actionContainer(ProjectExplorer::Constants::M_SUBPROJECTCONTEXT),
           ActionManager::actionContainer(ProjectExplorer::Constants::M_PROJECTCONTEXT)}) {
         projectContextMenu->addSeparator(ProjectExplorer::Constants::G_PROJECT_TREE);
-        projectContextMenu->addAction(cmd, ProjectExplorer::Constants::G_PROJECT_TREE);
+        projectContextMenu->addAction(findUnusedFunctionsSubProject.command(),
+                                      ProjectExplorer::Constants::G_PROJECT_TREE);
     }
-    connect(findUnusedFunctionsInSubProjectAction, &QAction::triggered, this, [] {
+    findUnusedFunctionsSubProject.addOnTriggered(this, [] {
         if (const Node *const node = ProjectTree::currentNode(); node && node->asFolderNode())
             CppModelManager::findUnusedFunctions(node->directory());
     });
 
-    d->m_reparseExternallyChangedFiles = new QAction(Tr::tr("Reparse Externally Changed Files"),
-                                                     this);
-    cmd = ActionManager::registerAction(d->m_reparseExternallyChangedFiles,
-                                        Constants::UPDATE_CODEMODEL);
-    connect(d->m_reparseExternallyChangedFiles, &QAction::triggered,
-            CppModelManager::instance(), &CppModelManager::updateModifiedSourceFiles);
-    addGlobalActionToMenus(cmd);
+    ActionBuilder reparseChangedFiles(this,  Constants::UPDATE_CODEMODEL);
+    reparseChangedFiles.setText(Tr::tr("Reparse Externally Changed Files"));
+    reparseChangedFiles.bindContextAction(&d->m_reparseExternallyChangedFiles);
+    reparseChangedFiles.addToContainers(menus, Constants::G_GLOBAL);
+    reparseChangedFiles.addOnTriggered(CppModelManager::instance(),
+                                       &CppModelManager::updateModifiedSourceFiles);
 }
 
 void CppEditorPlugin::setupProjectPanels()
