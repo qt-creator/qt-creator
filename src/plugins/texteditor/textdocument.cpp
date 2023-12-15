@@ -25,6 +25,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <utils/environment.h>
 #include <utils/guard.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
@@ -908,7 +909,9 @@ void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter 
     if (d->m_highlighterRunner)
         delete d->m_highlighterRunner;
 
-    if (threaded) {
+    static const QString value
+        = qtcEnvironmentVariable("QTC_USE_THREADED_HIGHLIGHTER", "TRUE").toUpper();
+    if (threaded && value == QLatin1String("TRUE")) {
         d->m_highlighterRunner = new ThreadedSyntaxHighlighterRunner(creator, document());
         return;
     }
