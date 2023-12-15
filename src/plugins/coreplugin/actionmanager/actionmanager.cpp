@@ -141,6 +141,12 @@ void ActionBuilder::addToContainer(Id containerId, Id groupId, bool needsToExist
     QTC_CHECK(!needsToExist);
 }
 
+void ActionBuilder::addToContainers(QList<Id> containerIds, Id groupId, bool needsToExist)
+{
+    for (const Id &containerId : containerIds)
+        addToContainer(containerId, groupId, needsToExist);
+}
+
 void ActionBuilder::addOnTriggered(const std::function<void ()> &func)
 {
     QObject::connect(d->contextAction, &QAction::triggered, d->contextAction, func);
@@ -174,6 +180,11 @@ void ActionBuilder::setIconVisibleInMenu(bool on)
 void ActionBuilder::setTouchBarIcon(const QIcon &icon)
 {
     d->command->setTouchBarIcon(icon);
+}
+
+void ActionBuilder::setTouchBarText(const QString &text)
+{
+    d->command->setTouchBarText(text);
 }
 
 void ActionBuilder::setEnabled(bool on)
@@ -221,6 +232,11 @@ void ActionBuilder::setParameterText(const QString &parameterText,
     d->contextAction->setText(emptyText);
 }
 
+Id ActionBuilder::id() const
+{
+    return d->actionId;
+}
+
 Command *ActionBuilder::command() const
 {
     return d->command;
@@ -256,11 +272,6 @@ void ActionBuilder::bindContextAction(Utils::ParameterAction **dest)
 void ActionBuilder::augmentActionWithShortcutToolTip()
 {
     d->command->augmentActionWithShortcutToolTip(d->contextAction);
-}
-
-void ActionBuilder::setId(Id id)
-{
-    d->actionId = id;
 }
 
 void ActionBuilder::setContext(Id id)

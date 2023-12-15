@@ -9,7 +9,6 @@
 #include "command.h"
 
 #include <QAction>
-#include <QList>
 
 #include <functional>
 
@@ -18,8 +17,6 @@ namespace Utils { class ParameterAction; }
 namespace Core {
 
 class ActionContainer;
-class Command;
-class Context;
 class ICore;
 
 namespace Internal {
@@ -31,10 +28,9 @@ class MainWindow;
 class CORE_EXPORT ActionBuilder
 {
 public:
-    ActionBuilder(QObject *contextActionParent, const Utils::Id actionId = {});
+    ActionBuilder(QObject *contextActionParent, const Utils::Id actionId);
     ~ActionBuilder();
 
-    void setId(Utils::Id id);
     void setContext(const Utils::Id id);
     void setContext(const Core::Context &context);
     void setText(const QString &text);
@@ -43,6 +39,8 @@ public:
     void setCommandAttribute(Core::Command::CommandAttribute attr);
     void setCommandDescription(const QString &desc);
     void addToContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
+    void addToContainers(QList<Utils::Id> containerIds, Utils::Id groupId = {},
+                         bool needsToExist = true);
     void addOnTriggered(const std::function<void()> &func);
 
     template<class T, typename F>
@@ -75,6 +73,7 @@ public:
     void setIcon(const QIcon &icon);
     void setIconVisibleInMenu(bool on);
     void setTouchBarIcon(const QIcon &icon);
+    void setTouchBarText(const QString &text);
     void setEnabled(bool on);
     void setChecked(bool on);
     void setVisible(bool on);
@@ -88,6 +87,7 @@ public:
                           EnablingMode mode = EnabledWithParameter);
 
 
+    Utils::Id id() const;
     Command *command() const;
     QAction *commandAction() const;
     QAction *contextAction() const;
