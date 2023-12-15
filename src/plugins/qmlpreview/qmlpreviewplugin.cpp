@@ -40,14 +40,19 @@
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/baseqtversion.h>
 
+#include <texteditor/texteditor.h>
+
 #include <android/androidconstants.h>
 
+#include <utils/icon.h>
 #include <utils/mimeconstants.h>
+#include <utils/proxyaction.h>
 
 #include <QAction>
 #include <QMessageBox>
 #include <QPointer>
 #include <QTimer>
+#include <QToolBar>
 
 using namespace ProjectExplorer;
 
@@ -155,12 +160,12 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);
-    QAction *action = new QAction(Tr::tr("QML Preview"), this);
-    action->setToolTip(Tr::tr("Preview changes to QML code live in your application."));
-    action->setEnabled(ProjectManager::startupProject() != nullptr);
-    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, action,
+    QAction *runPreviewAction = new QAction(Tr::tr("QML Preview"), this);
+    runPreviewAction->setToolTip(Tr::tr("Preview changes to QML code live in your application."));
+    runPreviewAction->setEnabled(ProjectManager::startupProject() != nullptr);
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged, runPreviewAction,
             &QAction::setEnabled);
-    connect(action, &QAction::triggered, this, [this] {
+    connect(runPreviewAction, &QAction::triggered, this, [this] {
         if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current())
             m_localeIsoCode = multiLanguageAspect->currentLocale();
         bool skipDeploy = false;
@@ -171,19 +176,52 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
     });
     menu->addAction(
-        Core::ActionManager::registerAction(action, "QmlPreview.RunPreview"),
+        Core::ActionManager::registerAction(runPreviewAction, "QmlPreview.RunPreview"),
         Constants::G_BUILD_RUN);
 
     menu = Core::ActionManager::actionContainer(Constants::M_FILECONTEXT);
-    action = new QAction(Tr::tr("Preview File"), this);
-    connect(action, &QAction::triggered, q, &QmlPreviewPlugin::previewCurrentFile);
+    QAction *previewFileAction = new QAction(Tr::tr("Preview File"), this);
+    connect(previewFileAction, &QAction::triggered, q, &QmlPreviewPlugin::previewCurrentFile);
     menu->addAction(
-        Core::ActionManager::registerAction(action, "QmlPreview.PreviewFile",  Core::Context(Constants::C_PROJECT_TREE)),
+        Core::ActionManager::registerAction(previewFileAction, "QmlPreview.PreviewFile",
+                                            Core::Context(Constants::C_PROJECT_TREE)),
         Constants::G_FILE_OTHER);
-    action->setVisible(false);
-    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, action, [action](Node *node) {
-        const FileNode *fileNode = node ? node->asFileNode() : nullptr;
-        action->setVisible(fileNode ? fileNode->fileType() == FileType::QML : false);
+    previewFileAction->setVisible(false);
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, previewFileAction,
+            [previewFileAction] (Node *node) {
+                const FileNode *fileNode = node ? node->asFileNode() : nullptr;
+                previewFileAction->setVisible(fileNode && fileNode->fileType() == FileType::QML);
+            });
+    connect(Core::EditorManager::instance(), &Core::EditorManager::editorOpened, this,
+            [runPreviewAction] (Core::IEditor *editor) {
+        if (!editor)
+            return;
+        if (!editor->document())
+            return;
+
+        if (const QString mimeType = editor->document()->mimeType();
+            mimeType != Utils::Constants::QML_MIMETYPE
+            && mimeType != Utils::Constants::QMLUI_MIMETYPE) {
+            return;
+        }
+
+        auto *textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+        if (!textEditor)
+            return;
+        TextEditor::TextEditorWidget *widget = textEditor->editorWidget();
+        if (!widget)
+            return;
+        QToolBar *toolBar = widget->toolBar();
+        if (!toolBar)
+            return;
+
+        const QIcon icon = Utils::Icon({
+            {":/utils/images/run_small.png", Utils::Theme::IconsRunToolBarColor},
+            {":/utils/images/eyeoverlay.png", Utils::Theme::IconsDebugColor}
+        }).icon();
+        Utils::ProxyAction *action =
+            Utils::ProxyAction::proxyActionWithIcon(runPreviewAction, icon);
+        toolBar->insertAction(nullptr, action);
     });
 
     m_parseThread.start();
