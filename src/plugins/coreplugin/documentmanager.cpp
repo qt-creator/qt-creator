@@ -139,19 +139,16 @@ struct FileState
     FileStateItem expected;
 };
 
-
-class DocumentManagerPrivate : public QObject
+class DocumentManagerPrivate final : public QObject
 {
-    Q_OBJECT
 public:
     DocumentManagerPrivate();
+
     QFileSystemWatcher *fileWatcher();
     QFileSystemWatcher *linkWatcher();
 
     void checkOnNextFocusChange();
     void onApplicationFocusChange();
-
-    void registerSaveAllAction();
 
     QMap<FilePath, FileState> m_states; // filePathKey -> FileState
     QSet<FilePath> m_changedFiles; // watched file paths collected from file watcher notifications
@@ -177,7 +174,7 @@ public:
     // That makes the code easier
     IDocument *m_blockedIDocument = nullptr;
 
-    QAction *m_saveAllAction;
+    QAction *m_saveAllAction = nullptr;
     QString fileDialogFilterOverride;
 };
 
@@ -222,20 +219,7 @@ void DocumentManagerPrivate::onApplicationFocusChange()
     m_instance->checkForReload();
 }
 
-void DocumentManagerPrivate::registerSaveAllAction()
-{
-    ActionContainer *mfile = ActionManager::actionContainer(Constants::M_FILE);
-    Command *cmd = ActionManager::registerAction(m_saveAllAction, Constants::SAVEALL);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? QString() : Tr::tr("Ctrl+Shift+S")));
-    mfile->addAction(cmd, Constants::G_FILE_SAVE);
-    m_saveAllAction->setEnabled(false);
-    connect(m_saveAllAction, &QAction::triggered, [] {
-        DocumentManager::saveAllModifiedDocumentsSilently();
-    });
-}
-
-DocumentManagerPrivate::DocumentManagerPrivate() :
-    m_saveAllAction(new QAction(Tr::tr("Save A&ll"), this))
+DocumentManagerPrivate::DocumentManagerPrivate()
 {
     // we do not want to do too much directly in the focus change event, so queue the connection
     connect(qApp,
@@ -487,6 +471,7 @@ void DocumentManager::renamedFile(const Utils::FilePath &from, const Utils::File
 
 void DocumentManager::updateSaveAll()
 {
+    QTC_ASSERT(d->m_saveAllAction, return);
     d->m_saveAllAction->setEnabled(!modifiedDocuments().empty());
 }
 
@@ -1548,7 +1533,13 @@ void DocumentManager::setFileDialogFilter(const QString &filter)
 
 void DocumentManager::registerSaveAllAction()
 {
-    d->registerSaveAllAction();
+    ActionBuilder saveAll(d, Constants::SAVEALL);
+    saveAll.setText(Tr::tr("Save A&ll"));
+    saveAll.bindContextAction(&d->m_saveAllAction);
+    saveAll.addToContainer(Constants::M_FILE, Constants::G_FILE_SAVE);
+    saveAll.setDefaultKeySequence(QString(), Tr::tr("Ctrl+Shift+S"));
+    saveAll.setEnabled(false);
+    saveAll.addOnTriggered([] { DocumentManager::saveAllModifiedDocumentsSilently(); });
 }
 
 // -------------- FileChangeBlocker
@@ -1577,5 +1568,3 @@ FileChangeBlocker::~FileChangeBlocker()
 }
 
 } // namespace Core
-
-#include "documentmanager.moc"
