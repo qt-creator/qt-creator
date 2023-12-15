@@ -1749,7 +1749,7 @@ QList<int> TaskRuntimeContainer::createStorages(const TaskContainer &container)
 int TaskRuntimeContainer::currentLimit() const
 {
     // TODO: Handle children well
-    const int childCount = m_taskContainer.m_children.size();
+    const int childCount = int(m_taskContainer.m_children.size());
     return m_taskContainer.m_parallelLimit
                ? qMin(m_doneCount + m_taskContainer.m_parallelLimit, childCount) : childCount;
 }
