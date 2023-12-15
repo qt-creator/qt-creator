@@ -34,7 +34,7 @@ public:
     ActionBuilder &setContext(const Utils::Id id);
     ActionBuilder &setContext(const Core::Context &context);
     ActionBuilder &setText(const QString &text);
-    ActionBuilder &setIconText(const QString &text);
+    ActionBuilder &setIconText(const QString &iconText);
     ActionBuilder &setToolTip(const QString &toolTip);
     ActionBuilder &setCommandAttribute(Core::Command::CommandAttribute attr);
     ActionBuilder &setCommandDescription(const QString &desc);

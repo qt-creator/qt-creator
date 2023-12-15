@@ -95,10 +95,43 @@ public:
     bool scriptable = false;
 };
 
+/*!
+    \class Core::ActionBuilder
+    \inheaderfile coreplugin/actionmanager/actionmanager.h
+    \inmodule QtCreator
+    \ingroup mainclasses
+
+    \brief The ActionBuilder class is convienience class to set up
+    \l{Core::Command}s.
+
+    An action builder specifies properties of a \c{Core::Command} and
+    a context action and uses \l{ActionManager::registerAction()} in its
+    destructor to actually register the action for a set \l{Core::Context}
+    for the Command.
+*/
+
+/*!
+    \fn ActionBuilder::ActionBuilder(QObject *contextActionParent, const Id actionId)
+
+    Constructs an action builder for an action with the Id \a actionId.
+
+    The \a contextActionParent is used to provide a QObject parent for the
+    internally constructed QAction object to control its life time.
+
+    This is typically the \c this pointer of the entity using \c ActionBuilder.
+ */
 ActionBuilder::ActionBuilder(QObject *contextActionParent, const Id actionId)
     : d(new ActionBuilderPrivate(contextActionParent, actionId))
 {
 }
+
+/*!
+    \fn ActionBuilder::~ActionBuilder
+
+    Registers the created action with the set properties.
+
+    \sa ActionManager::registerAction()
+*/
 
 ActionBuilder::~ActionBuilder()
 {
@@ -106,15 +139,25 @@ ActionBuilder::~ActionBuilder()
     delete d;
 }
 
+/*!
+    Sets the \c text property of the action under construction to \a text.
+
+    \sa QAction::setText()
+*/
 ActionBuilder &ActionBuilder::setText(const QString &text)
 {
     d->contextAction->setText(text);
     return *this;
 }
 
-ActionBuilder &ActionBuilder::setIconText(const QString &text)
+/*!
+    Sets the \c iconText property of the action under construction to \a iconText.
+
+    \sa QAction::setIconText()
+*/
+ActionBuilder &ActionBuilder::setIconText(const QString &iconText)
 {
-    d->contextAction->setIconText(text);
+    d->contextAction->setIconText(iconText);
     return *this;
 }
 
