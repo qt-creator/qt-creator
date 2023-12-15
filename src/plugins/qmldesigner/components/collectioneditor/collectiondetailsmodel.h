@@ -22,8 +22,7 @@ class CollectionDetailsModel : public QAbstractTableModel
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
 
 public:
-    enum DataRoles { SelectedRole = Qt::UserRole + 1, DataTypeRole, ColumnDataTypeRole };
-
+    enum DataRoles { SelectedRole = Qt::UserRole + 1, DataTypeRole, ColumnDataTypeRole, DataTypeWarningRole };
     explicit CollectionDetailsModel(QObject *parent = nullptr);
 
     QHash<int, QByteArray> roleNames() const override;
@@ -55,15 +54,16 @@ public:
     Q_INVOKABLE bool addColumn(int column, const QString &name, const QString &propertyType = {});
     Q_INVOKABLE bool selectColumn(int section);
     Q_INVOKABLE bool renameColumn(int section, const QString &newValue);
-    Q_INVOKABLE bool setPropertyType(int column, const QString &newValue, bool force = false);
+    Q_INVOKABLE bool setPropertyType(int column, const QString &newValue);
     Q_INVOKABLE bool selectRow(int row);
     Q_INVOKABLE void deselectAll();
-
+    Q_INVOKABLE QString warningToString(DataTypeWarning::Warning warning) const;
     static Q_INVOKABLE QStringList typesList();
 
     void loadCollection(const ModelNode &sourceNode, const QString &collection);
 
-    Q_INVOKABLE bool exportCollection(const QString &path, const QString &collectionName, const QString &exportType);
+    Q_INVOKABLE bool saveCurrentCollection();
+    Q_INVOKABLE bool exportCollection(const QString &filePath);
 
 signals:
     void collectionNameChanged(const QString &collectionName);
@@ -81,8 +81,8 @@ private:
     void setCollectionName(const QString &newCollectionName);
     void loadJsonCollection(const QString &source, const QString &collection);
     void loadCsvCollection(const QString &source, const QString &collectionName);
-    bool saveCollectionAsJson(const QString &path, const QJsonArray &content, const QString &collectionName);
-    bool saveCollectionAsCsv(const QString &path, const QString &content);
+    bool saveCollection(const QString &filePath = {}, CollectionDetails *collection = nullptr);
+    bool saveCollectionFromString(const QString &path, const QString &content);
     QVariant variantFromString(const QString &value);
 
     QHash<CollectionReference, CollectionDetails> m_openedCollections;

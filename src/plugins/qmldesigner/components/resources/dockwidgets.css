@@ -286,12 +286,18 @@ ADS--AutoHideDockContainer ADS--DockAreaWidget[focused="true"] ADS--DockAreaTitl
 
 /* AutoHideDockContainer titlebar buttons */
 #dockAreaAutoHideButton {
-    /*qproperty-icon: url(:/ads/images/vs-pin-button.svg);*/
+    /*qproperty-icon: url(:/ads/images/vs-pin-button.svg),
+                      url(:/ads/images/vs-pin-button-disabled.svg) disabled;*/
     qproperty-iconSize: 16px;
 }
 
 ADS--AutoHideDockContainer #dockAreaAutoHideButton {
     /*qproperty-icon: url(:/ads/images/vs-pin-button-pinned-focused.svg);*/
+    qproperty-iconSize: 16px;
+}
+
+ADS--AutoHideDockContainer #dockAreaMinimizeButton {
+    /*qproperty-icon: url(:/ads/images/minimize-button-focused.svg);*/
     qproperty-iconSize: 16px;
 }
 

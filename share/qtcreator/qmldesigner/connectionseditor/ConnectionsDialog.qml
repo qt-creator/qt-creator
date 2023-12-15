@@ -49,7 +49,7 @@ StudioControls.PopupDialog {
                 root.close()
             }
             function onPopupShouldOpen() {
-                root.showGlobal()
+                Qt.callLater(root.showGlobal)
             }
         }
     }

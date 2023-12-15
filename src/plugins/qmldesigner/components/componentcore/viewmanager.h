@@ -72,6 +72,8 @@ public:
     void nextFileIsCalledInternally();
 
     const AbstractView *view() const;
+    void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,
+                                const QList<QVariant> &data);
 
     void exportAsImage();
     QImage takeFormEditorScreenshot();

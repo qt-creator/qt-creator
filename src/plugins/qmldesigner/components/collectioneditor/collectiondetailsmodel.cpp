@@ -4,12 +4,13 @@
 #include "collectiondetailsmodel.h"
 
 #include "collectioneditorconstants.h"
+#include "collectioneditorutils.h"
 #include "modelnode.h"
-#include "variantproperty.h"
 
 #include <utils/qtcassert.h>
 
 #include <QFile>
+#include <QFileInfo>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QJsonParseError>
@@ -101,6 +102,7 @@ QHash<int, QByteArray> CollectionDetailsModel::roleNames() const
         roles.insert(SelectedRole, "itemSelected");
         roles.insert(DataTypeRole, "dataType");
         roles.insert(ColumnDataTypeRole, "columnType");
+        roles.insert(DataTypeWarningRole, "dataTypeWarning");
     }
     return roles;
 }
@@ -132,6 +134,9 @@ QVariant CollectionDetailsModel::data(const QModelIndex &index, int role) const
     if (role == Qt::EditRole)
         return m_currentCollection.data(index.row(), index.column());
 
+    if (role == DataTypeWarningRole )
+        return QVariant::fromValue(m_currentCollection.cellWarningCheck(index.row(), index.column()));
+
     return m_currentCollection.data(index.row(), index.column()).toString();
 }
 
@@ -141,11 +146,19 @@ bool CollectionDetailsModel::setData(const QModelIndex &index, const QVariant &v
         return {};
 
     if (role == Qt::EditRole) {
+        DataTypeWarning::Warning prevWarning = m_currentCollection.cellWarningCheck(index.row(), index.column());
         bool changed = m_currentCollection.setPropertyValue(index.row(), index.column(), value);
+
         if (changed) {
-            emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
-            return true;
+            QList<int> roles = {Qt::DisplayRole, Qt::EditRole};
+
+            if (prevWarning != m_currentCollection.cellWarningCheck(index.row(), index.column()))
+                roles << DataTypeWarningRole;
+
+            emit dataChanged(index, index, roles);
         }
+
+        return true;
     }
 
     return false;
@@ -222,15 +235,10 @@ Qt::ItemFlags CollectionDetailsModel::flags(const QModelIndex &index) const
 QVariant CollectionDetailsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal) {
-        if (role == DataTypeRole) {
+        if (role == DataTypeRole)
             return CollectionDataTypeHelper::typeToString(m_currentCollection.typeAt(section));
-        } else if (role == Qt::DisplayRole) {
-            return QString("%1 <%2>").arg(m_currentCollection.propertyAt(section),
-                                          CollectionDataTypeHelper::typeToString(
-                                              m_currentCollection.typeAt(section)));
-        } else {
+        else
             return m_currentCollection.propertyAt(section);
-        }
     }
 
     if (orientation == Qt::Vertical)
@@ -323,20 +331,15 @@ bool CollectionDetailsModel::renameColumn(int section, const QString &newValue)
     return setHeaderData(section, Qt::Horizontal, newValue);
 }
 
-bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue, bool force)
+bool CollectionDetailsModel::setPropertyType(int column, const QString &newValue)
 {
-    bool changed = m_currentCollection.forcePropertyType(column,
-                                                         CollectionDataTypeHelper::typeFromString(
-                                                             newValue),
-                                                         force);
+    bool changed = m_currentCollection.setPropertyType(column,
+                                                       CollectionDataTypeHelper::typeFromString(
+                                                           newValue));
     if (changed) {
         emit headerDataChanged(Qt::Horizontal, column, column);
-
-        if (force) {
-            emit dataChanged(index(0, column),
-                             index(rowCount() - 1, column),
-                             {Qt::DisplayRole, DataTypeRole});
-        }
+        emit dataChanged(index(0, column), index(rowCount() - 1, column),
+                         {Qt::DisplayRole, DataTypeRole, DataTypeWarningRole});
     }
 
     return changed;
@@ -384,7 +387,7 @@ QStringList CollectionDetailsModel::typesList()
 
 void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const QString &collection)
 {
-    QString fileName = sourceNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toString();
+    QString fileName = CollectionEditor::getSourceCollectionPath(sourceNode);
 
     CollectionReference newReference{sourceNode, collection};
     bool alreadyOpen = m_openedCollections.contains(newReference);
@@ -406,20 +409,14 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
     }
 }
 
-bool CollectionDetailsModel::exportCollection(const QString &path, const QString &collectionName, const QString &exportType)
+bool CollectionDetailsModel::saveCurrentCollection()
 {
-    QUrl url(path);
-    QString fileAddress = url.isLocalFile() ? url.toLocalFile() : path;
+    return saveCollection({}, &m_currentCollection);
+}
 
-    if (exportType == "JSON") {
-        QJsonArray content = m_currentCollection.getJsonCollection();
-        return saveCollectionAsJson(fileAddress, content, collectionName);
-    } else if (exportType == "CSV") {
-        QString content = m_currentCollection.getCsvCollection();
-        return saveCollectionAsCsv(fileAddress, content);
-    }
-
-    return false;
+bool CollectionDetailsModel::exportCollection(const QString &filePath)
+{
+    return saveCollection(filePath, &m_currentCollection);
 }
 
 void CollectionDetailsModel::updateEmpty()
@@ -596,36 +593,40 @@ void CollectionDetailsModel::setCollectionName(const QString &newCollectionName)
     }
 }
 
-bool CollectionDetailsModel::saveCollectionAsJson(const QString &path, const QJsonArray &content, const QString &collectionName)
+bool CollectionDetailsModel::saveCollection(const QString &filePath, CollectionDetails *collection)
 {
-    QFile sourceFile(path);
-    QJsonDocument document;
+    bool saved = false;
 
-    if (sourceFile.exists() && sourceFile.open(QFile::ReadWrite)) {
-        QJsonParseError jpe;
-        document = QJsonDocument::fromJson(sourceFile.readAll(), &jpe);
+    auto saveSingleCollection = [&](CollectionDetails &singleCollection) {
 
-        if (jpe.error == QJsonParseError::NoError) {
-            QJsonObject collectionMap = document.object();
-            collectionMap[collectionName] = content;
-            document.setObject(collectionMap);
+        const ModelNode node = singleCollection.reference().node;
+        QString path = CollectionEditor::getSourceCollectionPath(node);
+        QString saveFormat = CollectionEditor::getSourceCollectionType(node);
+
+        if (!filePath.isEmpty()) {
+            QUrl url(filePath);
+            path = url.isLocalFile() ? QFileInfo(url.toLocalFile()).absoluteFilePath() : url.toString();
+            saveFormat = url.isLocalFile() ? QFileInfo(url.toLocalFile()).suffix().toLower() : saveFormat;
         }
 
-        sourceFile.resize(0);
+        saved = saveCollectionFromString(path, (saveFormat == "json") ? singleCollection.getCollectionAsJsonString() :
+                                                   (saveFormat == "csv")  ? singleCollection.getCollectionAsCsvString() : QString());
 
-    } else if (sourceFile.open(QFile::WriteOnly)) {
-        QJsonObject collection;
-        collection[collectionName] = content;
-        document.setObject(collection);
+        if (saved && filePath.isEmpty())
+            singleCollection.markSaved();
+    };
+
+    if (!collection) {
+        for (CollectionDetails &openedCollection : m_openedCollections)
+            saveSingleCollection(openedCollection);
+    } else {
+        saveSingleCollection(*collection);
     }
 
-    if (sourceFile.write(document.toJson()))
-        return true;
-
-    return false;
+    return saved;
 }
 
-bool CollectionDetailsModel::saveCollectionAsCsv(const QString &path, const QString &content)
+bool CollectionDetailsModel::saveCollectionFromString(const QString &path, const QString &content)
 {
     QFile file(path);
 
@@ -634,5 +635,11 @@ bool CollectionDetailsModel::saveCollectionAsCsv(const QString &path, const QStr
 
     return false;
 }
+
+QString CollectionDetailsModel::warningToString(DataTypeWarning::Warning warning) const
+{
+    return DataTypeWarning::getDataTypeWarningString(warning);
+}
+
 
 } // namespace QmlDesigner

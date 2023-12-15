@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QObject>
+#include <QSet>
 #include <QUrl>
 
 namespace EffectMaker {
@@ -16,6 +17,7 @@ class EffectNode : public QObject
     Q_PROPERTY(QString nodeDescription MEMBER m_description CONSTANT)
     Q_PROPERTY(QUrl nodeIcon MEMBER m_iconPath CONSTANT)
     Q_PROPERTY(QString nodeQenPath MEMBER m_qenPath CONSTANT)
+    Q_PROPERTY(bool canBeAdded MEMBER m_canBeAdded NOTIFY canBeAddedChanged)
 
 public:
     EffectNode(const QString &qenPath);
@@ -24,11 +26,20 @@ public:
     QString description() const;
     QString qenPath() const;
 
+    void setCanBeAdded(bool enabled);
+
+    bool hasUniform(const QString &name);
+
+signals:
+    void canBeAddedChanged();
+
 private:
     QString m_name;
     QString m_description;
     QString m_qenPath;
     QUrl m_iconPath;
+    bool m_canBeAdded = true;
+    QSet<QString> m_uniformNames;
 };
 
 } // namespace EffectMaker

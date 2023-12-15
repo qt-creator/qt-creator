@@ -16,14 +16,45 @@ Item {
     property int moveToIdx: 0
     property bool previewAnimationRunning: false
 
-    SaveDialog {
-        id: saveDialog
-        compositionName: EffectMakerBackend.effectMakerModel.currentComposition
+    // Invoked after save changes is done
+    property var onSaveChangesCallback: () => {}
+
+    // Invoked from C++ side when open composition is requested and there are unsaved changes
+    function promptToSaveBeforeOpen() {
+        root.onSaveChangesCallback = () => { EffectMakerBackend.rootView.doOpenComposition() }
+
+        saveChangesDialog.open()
+    }
+
+    Connections {
+        target: EffectMakerBackend.effectMakerModel
+        function onIsEmptyChanged() {
+            if (EffectMakerBackend.effectMakerModel.isEmpty)
+                saveAsDialog.close()
+        }
+    }
+
+    SaveAsDialog {
+        id: saveAsDialog
         anchors.centerIn: parent
-        onAccepted: {
-            let name = saveDialog.compositionName
-            EffectMakerBackend.effectMakerModel.exportComposition(name)
-            EffectMakerBackend.effectMakerModel.exportResources(name)
+    }
+
+    SaveChangesDialog {
+        id: saveChangesDialog
+        anchors.centerIn: parent
+
+        onSave: {
+            if (EffectMakerBackend.effectMakerModel.currentComposition === "") {
+                // if current composition is unsaved, show save as dialog and clear afterwards
+                saveAsDialog.clearOnClose = true
+                saveAsDialog.open()
+            } else {
+                root.onSaveChangesCallback()
+            }
+        }
+
+        onDiscard: {
+            root.onSaveChangesCallback()
         }
     }
 
@@ -33,7 +64,29 @@ Item {
         spacing: 1
 
         EffectMakerTopBar {
-            onSaveClicked: saveDialog.open()
+            onAddClicked: {
+                root.onSaveChangesCallback = () => { EffectMakerBackend.effectMakerModel.clear() }
+
+                if (EffectMakerBackend.effectMakerModel.hasUnsavedChanges)
+                    saveChangesDialog.open()
+                else
+                    EffectMakerBackend.effectMakerModel.clear()
+            }
+
+            onSaveClicked: {
+                let name = EffectMakerBackend.effectMakerModel.currentComposition
+
+                if (name === "")
+                    saveAsDialog.open()
+                else
+                    EffectMakerBackend.effectMakerModel.saveComposition(name)
+            }
+
+            onSaveAsClicked: saveAsDialog.open()
+
+            onAssignToSelectedClicked: {
+                EffectMakerBackend.effectMakerModel.assignToSelected()
+            }
         }
 
         EffectMakerPreview {
@@ -55,6 +108,21 @@ Item {
                 mainRoot: root
 
                 anchors.verticalCenter: parent.verticalCenter
+                x: 5
+                width: parent.width - 50
+            }
+
+            HelperWidgets.AbstractButton {
+                anchors.right: parent.right
+                anchors.rightMargin: 5
+                anchors.verticalCenter: parent.verticalCenter
+
+                style: StudioTheme.Values.viewBarButtonStyle
+                buttonIcon: StudioTheme.Constants.clearList_medium
+                tooltip: qsTr("Remove all effect nodes.")
+                enabled: !EffectMakerBackend.effectMakerModel.isEmpty
+
+                onClicked: EffectMakerBackend.effectMakerModel.clear()
             }
 
             HelperWidgets.AbstractButton {
@@ -64,7 +132,7 @@ Item {
 
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.code
-                tooltip: qsTr("Open Shader in Code Editor")
+                tooltip: qsTr("Open Shader in Code Editor.")
                 visible: false // TODO: to be implemented
 
                 onClicked: {} // TODO
@@ -96,6 +164,7 @@ Item {
 
                     delegate: EffectCompositionNode {
                         width: root.width
+                        modelIndex: index
 
                         Behavior on y {
                             PropertyAnimation {
@@ -144,7 +213,8 @@ Item {
                                     currItem.y = root.secsY[i]
                                 }
                             } else if (i < root.moveFromIdx) {
-                                if (root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
+                                if (!repeater.model.isDependencyNode(i)
+                                        && root.draggedSec.y < currItem.y + (currItem.height - root.draggedSec.height) * .5) {
                                     currItem.y = root.secsY[i] + root.draggedSec.height
                                     root.moveToIdx = Math.min(root.moveToIdx, i)
                                 } else {

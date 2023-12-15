@@ -37,6 +37,7 @@ private:
         MaxValueRole,
         MinValueRole,
         TypeRole,
+        UseCustomValueRole
     };
 
     QList<Uniform *> m_uniforms;

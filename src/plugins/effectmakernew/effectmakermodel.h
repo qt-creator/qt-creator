@@ -7,10 +7,10 @@
 
 #include <utils/filepath.h>
 
+#include <QAbstractListModel>
 #include <QFileSystemWatcher>
 #include <QMap>
 #include <QRegularExpression>
-#include <QStandardItemModel>
 #include <QTemporaryFile>
 
 namespace ProjectExplorer {
@@ -44,6 +44,7 @@ class EffectMakerModel : public QAbstractListModel
 
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
+    Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(QString qmlComponentString READ qmlComponentString)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
@@ -61,8 +62,13 @@ public:
 
     void addNode(const QString &nodeQenPath);
 
+    CompositionNode *findNodeById(const QString &id) const;
+
     Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
+    Q_INVOKABLE void clear();
+    Q_INVOKABLE void assignToSelected();
+    Q_INVOKABLE QString getUniqueEffectName() const;
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);
@@ -75,20 +81,24 @@ public:
 
     const QString &qmlComponentString() const;
 
-    void clear();
-
     Q_INVOKABLE void updateQmlComponent();
 
     Q_INVOKABLE void resetEffectError(int type);
     Q_INVOKABLE void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
 
-    Q_INVOKABLE void exportComposition(const QString &name);
-    Q_INVOKABLE void exportResources(const QString &name);
+    Q_INVOKABLE void saveComposition(const QString &name);
 
     void openComposition(const QString &path);
 
     QString currentComposition() const;
     void setCurrentComposition(const QString &newCurrentComposition);
+
+    bool hasUnsavedChanges() const;
+    void setHasUnsavedChanges(bool val);
+
+    QStringList uniformNames() const;
+
+    Q_INVOKABLE bool isDependencyNode(int index) const;
 
 signals:
     void isEmptyChanged();
@@ -96,14 +106,18 @@ signals:
     void effectErrorChanged();
     void shadersUpToDateChanged();
     void shadersBaked();
-
     void currentCompositionChanged();
+    void nodesChanged();
+    void resourcesSaved(const QByteArray &type, const Utils::FilePath &path);
+    void hasUnsavedChangesChanged();
+    void assignToSelectedTriggered(const QString &effectPath);
 
 private:
     enum Roles {
         NameRole = Qt::UserRole + 1,
         EnabledRole,
-        UniformsRole
+        UniformsRole,
+        Dependency
     };
 
     enum ErrorTypes {
@@ -117,7 +131,7 @@ private:
 
     bool isValidIndex(int idx) const;
 
-    const QList<Uniform *> allUniforms();
+    const QList<Uniform *> allUniforms() const;
 
     const QString getBufUniform();
     const QString getVSUniforms();
@@ -142,13 +156,14 @@ private:
     QString getCustomShaderVaryings(bool outState);
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
-    void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader);
+    void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader, bool preview);
     QString stripFileFromURL(const QString &urlString) const;
     QString getQmlEffectString();
 
     void updateCustomUniforms();
     void createFiles();
     void bakeShaders();
+    void saveResources(const QString &name);
 
     QString mipmapPropertyName(const QString &name) const;
     QString getQmlImagesString(bool localFiles);
@@ -158,6 +173,7 @@ private:
 
     int m_selectedIndex = -1;
     bool m_isEmpty = true;
+    bool m_hasUnsavedChanges = false;
     // True when shaders haven't changed since last baking
     bool m_shadersUpToDate = true;
     int m_remainingQsbTargets = 0;
@@ -175,6 +191,8 @@ private:
     QString m_vertexSourceFilename;
     QString m_fragmentShaderFilename;
     QString m_vertexShaderFilename;
+    QString m_fragmentShaderPreviewFilename;
+    QString m_vertexShaderPreviewFilename;
     // Used in exported QML, at root of the file
     QString m_exportedRootPropertiesString;
     // Used in exported QML, at ShaderEffect component of the file

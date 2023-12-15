@@ -35,6 +35,26 @@ struct CollectionReference
 
 struct CollectionProperty;
 
+struct DataTypeWarning {
+    Q_GADGET
+
+public:
+    enum Warning { None, CellDataTypeMismatch };
+    Q_ENUM(Warning)
+
+    Warning warning = None;
+    DataTypeWarning(Warning warning)
+        : warning(warning)
+    {}
+
+    static QString getDataTypeWarningString(Warning warning) {
+        return dataTypeWarnings.value(warning);
+    }
+
+private:
+    static const QMap<Warning, QString> dataTypeWarnings;
+};
+
 class CollectionDetails
 {
     Q_GADGET
@@ -63,7 +83,7 @@ public:
     bool setPropertyValue(int row, int column, const QVariant &value);
 
     bool setPropertyName(int column, const QString &value);
-    bool forcePropertyType(int column, DataType type, bool force = false);
+    bool setPropertyType(int column, DataType type);
 
     CollectionReference reference() const;
     CollectionEditor::SourceFormat sourceFormat() const;
@@ -71,6 +91,7 @@ public:
     QString propertyAt(int column) const;
     DataType typeAt(int column) const;
     DataType typeAt(int row, int column) const;
+    DataTypeWarning::Warning cellWarningCheck(int row, int column) const;
     bool containsPropertyName(const QString &propertyName);
 
     bool isValid() const;
@@ -82,8 +103,8 @@ public:
     bool markSaved();
 
     void swap(CollectionDetails &other);
-    QJsonArray getJsonCollection() const;
-    QString getCsvCollection() const;
+    QString getCollectionAsJsonString() const;
+    QString getCollectionAsCsvString() const;
 
     static void registerDeclarativeType();
 

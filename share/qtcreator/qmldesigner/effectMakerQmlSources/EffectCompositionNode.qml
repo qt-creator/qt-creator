@@ -12,19 +12,22 @@ import EffectMakerBackend
 HelperWidgets.Section {
     id: root
 
+    property int modelIndex: 0
+
     caption: nodeName
     category: "EffectMaker"
 
-    draggable: true
+    draggable: !isDependency
     fillBackground: true
-    showCloseButton: true
+    showCloseButton: !isDependency
     closeButtonToolTip: qsTr("Remove")
+    visible: repeater.count > 0 || !isDependency
 
     onCloseButtonClicked: {
-        EffectMakerBackend.effectMakerModel.removeNode(root.index)
+        EffectMakerBackend.effectMakerModel.removeNode(root.modelIndex)
     }
 
-    showEyeButton: true
+    showEyeButton: !isDependency
     eyeEnabled: nodeEnabled
     eyeButtonToolTip: qsTr("Enable/Disable Node")
 
@@ -36,6 +39,7 @@ HelperWidgets.Section {
         spacing: 10
 
         Repeater {
+            id: repeater
             model: nodeUniformsModel
 
             EffectCompositionNodeUniform {

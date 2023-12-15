@@ -5,9 +5,10 @@
 
 #include <utils/set_algorithm.h>
 
+#include <QDebug>
+#include <QMetaType>
 #include <QString>
 #include <QStringList>
-#include <QMetaType>
 
 #include "qmldesignercorelib_global.h"
 
@@ -89,6 +90,12 @@ public:
     friend bool operator<(const Import &first, const Import &second)
     {
         return std::tie(first.m_url, first.m_type) < std::tie(second.m_url, second.m_type);
+    }
+
+    friend QDebug operator<<(QDebug debug, const Import &import)
+    {
+        debug << import.toString();
+        return debug;
     }
 
 private:

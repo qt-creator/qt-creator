@@ -22,6 +22,9 @@ function(setup_dependencies_component)
       set(_elfutils_arg "--elfutils \"${_elfutils_path}\"")
     endif()
     install(CODE "
+        if (CMAKE_VERSION GREATER_EQUAL 3.19)
+          set(QTC_COMMAND_ERROR_IS_FATAL COMMAND_ERROR_IS_FATAL ANY)
+        endif()
         # DESTDIR is set for e.g. the cpack DEB generator, but is empty in other situations
         if(DEFINED ENV{DESTDIR})
           set(DESTDIR_WITH_SEP \"\$ENV{DESTDIR}/\")
@@ -48,7 +51,7 @@ function(setup_dependencies_component)
           \"\${_ide_app_target}\"
           \"${_qmake_binary}\"
           COMMAND_ECHO STDOUT
-          \${QTC_COMMAND_ERROR_IS_FATAL}
+          ${QTC_COMMAND_ERROR_IS_FATAL}
           )
       "
       COMPONENT Dependencies

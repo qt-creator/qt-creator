@@ -8,7 +8,6 @@
 #include "edit3dcanvas.h"
 #include "edit3dtoolbarmenu.h"
 #include "edit3dview.h"
-#include "edit3dviewconfig.h"
 #include "externaldependenciesinterface.h"
 #include "materialutils.h"
 #include "metainfo.h"
@@ -312,8 +311,8 @@ void Edit3DWidget::createContextMenu()
 
     auto addOverrideMenuAction = [&](const QString &label, const QString &toolTip,
                                      MaterialOverrideType type) {
-        QAction *action = overridesSubMenu->addAction(
-            label, this, &Edit3DWidget::onMatOverrideAction);
+        QAction *action = overridesSubMenu->addAction(label);
+        connect(action, &QAction::triggered, this, [this, action] { onMatOverrideAction(action); });
         action->setData(int(type));
         action->setCheckable(true);
         action->setToolTip(toolTip);
@@ -457,11 +456,8 @@ void Edit3DWidget::updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesL
                 m_createSubMenu->addMenu(catMenu);
             }
 
-            QAction *action = catMenu->addAction(
-                        getEntryIcon(entry),
-                        entry.name(),
-                        this,
-                        &Edit3DWidget::onCreateAction);
+            QAction *action = catMenu->addAction(getEntryIcon(entry), entry.name());
+            connect(action, &QAction::triggered, this, [this, action] { onCreateAction(action); });
             action->setData(entry.name());
             m_nameToEntry.insert(entry.name(), entry);
         }
@@ -469,10 +465,9 @@ void Edit3DWidget::updateCreateSubMenu(const QList<ItemLibraryDetails> &entriesL
 }
 
 // Action triggered from the "create" sub-menu
-void Edit3DWidget::onCreateAction()
+void Edit3DWidget::onCreateAction(QAction *action)
 {
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (!action || !m_view || !m_view->model() || isSceneLocked())
+    if (!m_view || !m_view->model() || isSceneLocked())
         return;
 
     m_view->executeInTransaction(__FUNCTION__, [&] {
@@ -499,10 +494,9 @@ void Edit3DWidget::onCreateAction()
     });
 }
 
-void Edit3DWidget::onMatOverrideAction()
+void Edit3DWidget::onMatOverrideAction(QAction *action)
 {
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (!action || !m_view || !m_view->model())
+    if (!m_view || !m_view->model())
         return;
 
     QVariantList list;
@@ -522,17 +516,16 @@ void Edit3DWidget::onMatOverrideAction()
 
 void Edit3DWidget::onWireframeAction()
 {
-    QAction *action = qobject_cast<QAction *>(sender());
-    if (!action || !m_view || !m_view->model())
+    if (!m_view || !m_view->model())
         return;
 
     QVariantList list;
     for (int i = 0; i < m_view->splitToolStates().size(); ++i) {
         Edit3DView::SplitToolState state = m_view->splitToolStates()[i];
         if (i == m_view->activeSplit()) {
-            state.showWireframe = action->isChecked();
+            state.showWireframe = m_wireFrameAction->isChecked();
             m_view->setSplitToolState(i, state);
-            list.append(action->isChecked());
+            list.append(m_wireFrameAction->isChecked());
         } else {
             list.append(state.showWireframe);
         }

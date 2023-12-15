@@ -30,18 +30,48 @@ StudioControls.ComboBox {
                           "images/preview4.png"]
     property string selectedImage: images[0]
 
+    readonly property int popupHeight: Math.min(800, col.height + 2)
+
+    function calculateWindowGeometry() {
+        var globalPos = EffectMakerBackend.rootView.globalPos(mainRoot.mapFromItem(root, 0, 0))
+        var screenRect = EffectMakerBackend.rootView.screenRect();
+
+        window.width = col.width + 2 // 2: scrollView left and right 1px margins
+
+        var newX = globalPos.x + root.width - window.width
+        if (newX < screenRect.x)
+            newX = globalPos.x
+
+        var newY = Math.min(screenRect.y + screenRect.height,
+                            Math.max(screenRect.y, globalPos.y + root.height - 1))
+
+        // Check if we have more space above or below the control, and put control on that side,
+        // unless we have enough room for maximum size popup under the control
+        var newHeight
+        var screenY = newY - screenRect.y
+        if (screenRect.height - screenY > screenY || screenRect.height - screenY > root.popupHeight) {
+            newHeight = Math.min(root.popupHeight, screenRect.height - screenY)
+        } else {
+            newHeight = Math.min(root.popupHeight, screenY - root.height)
+            newY = newY - newHeight - root.height + 1
+        }
+
+        window.height = newHeight
+        window.x = newX
+        window.y = newY
+    }
+
     Connections {
         target: root.popup
 
         function onAboutToShow() {
-            var a = mainRoot.mapToGlobal(0, 0)
-            var b = root.mapToItem(mainRoot, 0, 0)
-
-            window.x = a.x + b.x + root.width - window.width
-            window.y = a.y + b.y + root.height - 1
+            root.calculateWindowGeometry()
 
             window.show()
             window.requestActivate()
+
+            // Geometry can get corrupted by first show after screen change, so recalc it
+            root.calculateWindowGeometry()
         }
 
         function onAboutToHide() {
@@ -60,17 +90,29 @@ StudioControls.ComboBox {
             anchors.fill: parent
             anchors.margins: 1
         }
+
+        MouseArea {
+            anchors.fill: parent
+            enabled: true
+            acceptedButtons: Qt.LeftButton
+            cursorShape: Qt.PointingHandCursor
+            onPressed: (mouse) => {
+                if (root.popup.opened)
+                    root.popup.close()
+                else
+                    root.popup.open()
+                mouse.accepted = true
+            }
+        }
     }
 
     Window {
         id: window
 
-        width: col.width + 2 // 2: scrollView left and right 1px margins
-        height: Math.min(800, Math.min(col.height + 2, Screen.height - y - 40)) // 40: some bottom margin to cover OS bottom toolbar
         flags: Qt.Dialog | Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
 
         onActiveFocusItemChanged: {
-            if (!window.activeFocusItem && !root.indicator.hover && root.popup.opened)
+            if (!window.activeFocusItem && !root.hovered && root.popup.opened)
                 root.popup.close()
         }
 
@@ -79,6 +121,7 @@ StudioControls.ComboBox {
             color: StudioTheme.Values.themePanelBackground
             border.color: StudioTheme.Values.themeInteraction
             border.width: 1
+            focus: true
 
             HelperWidgets.ScrollView {
                 anchors.fill: parent
@@ -87,16 +130,6 @@ StudioControls.ComboBox {
 
                 Column {
                     id: col
-
-                    onWidthChanged: {
-                        // Needed to update on first window showing, as row.width only gets
-                        // correct value after the window is shown, so first showing is off
-
-                        var a = mainRoot.mapToGlobal(0, 0)
-                        var b = root.mapToItem(mainRoot, 0, 0)
-
-                        window.x = a.x + b.x + root.width - col.width
-                    }
 
                     padding: 10
                     spacing: 10
@@ -134,6 +167,11 @@ StudioControls.ComboBox {
                         }
                     }
                 }
+            }
+
+            Keys.onPressed: function(event) {
+                if (event.key === Qt.Key_Escape && root.popup.opened)
+                    root.popup.close()
             }
         }
     }

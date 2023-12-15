@@ -26,7 +26,7 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
     QSharedPointer<QmlDesigner::CollectionListModel> initialCollection = {})
 {
     using namespace QmlDesigner::CollectionEditor;
-    QString sourceFileAddress = sourceNode.variantProperty(SOURCEFILE_PROPERTY).value().toString();
+    QString sourceFileAddress = getSourceCollectionPath(sourceNode);
 
     QSharedPointer<QmlDesigner::CollectionListModel> collectionsList;
     auto setupCollectionList = [&sourceNode, &initialCollection, &collectionsList]() {
@@ -83,8 +83,8 @@ QVariant CollectionSourceModel::data(const QModelIndex &index, int role) const
     const ModelNode *collectionSource = &m_collectionSources.at(index.row());
 
     switch (role) {
-    case NameRole:
-        return collectionSource->variantProperty("objectName").value();
+    case NameRole: // Not used, to be removed
+        return collectionSource->variantProperty("objectName").value().toString();
     case NodeRole:
         return QVariant::fromValue(*collectionSource);
     case CollectionTypeRole:
@@ -268,6 +268,7 @@ bool CollectionSourceModel::collectionExists(const ModelNode &node, const QStrin
 
 bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
                                                   const QString &collectionName,
+                                                  const QJsonArray &newCollectionData,
                                                   QString *errorString)
 {
     auto returnError = [errorString](const QString &msg) -> bool {
@@ -284,11 +285,9 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
         return returnError(tr("Node should be a JSON model."));
 
     if (collectionExists(node, collectionName))
-        return returnError(tr("Model does not exist."));
+        return returnError(tr("A model with the identical name already exists."));
 
-    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
-                                    .value()
-                                    .toString();
+    QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile())
@@ -307,7 +306,7 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
 
     if (document.isObject()) {
         QJsonObject sourceObject = document.object();
-        sourceObject.insert(collectionName, QJsonArray{});
+        sourceObject.insert(collectionName, newCollectionData);
         document.setObject(sourceObject);
         if (!jsonFile.resize(0))
             return returnError(tr("Can't clean \"%1\".").arg(sourceFileInfo.absoluteFilePath()));
@@ -395,11 +394,6 @@ void CollectionSourceModel::updateNodeSource(const ModelNode &node)
     updateCollectionList(index);
 }
 
-QString CollectionSourceModel::selectedSourceAddress() const
-{
-    return index(m_selectedIndex).data(SourceRole).toString();
-}
-
 void CollectionSourceModel::onSelectedCollectionChanged(int collectionIndex)
 {
     CollectionListModel *collectionList = qobject_cast<CollectionListModel *>(sender());
@@ -442,9 +436,7 @@ void CollectionSourceModel::onCollectionNameChanged(const QString &oldName, cons
         return;
     }
 
-    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
-                                    .value()
-                                    .toString();
+    QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile()) {
@@ -533,9 +525,7 @@ void CollectionSourceModel::onCollectionsRemoved(const QStringList &removedColle
         return;
     }
 
-    QString sourceFileAddress = node.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY)
-                                    .value()
-                                    .toString();
+    QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile()) {
@@ -644,7 +634,8 @@ void CollectionSourceModel::updateCollectionList(QModelIndex index)
     QSharedPointer<CollectionListModel> newList = loadCollection(sourceNode, currentList);
     if (currentList != newList) {
         m_collectionList.replace(index.row(), newList);
-        emit this->dataChanged(index, index, {CollectionsRole});
+        emit dataChanged(index, index, {CollectionsRole});
+        emit collectionNamesChanged(sourceNode, newList->stringList());
     }
 }
 
@@ -667,6 +658,9 @@ void CollectionSourceModel::registerCollection(const QSharedPointer<CollectionLi
             this,
             &CollectionSourceModel::onCollectionsRemoved,
             Qt::UniqueConnection);
+
+    if (collection.data() && collection->sourceNode())
+        emit collectionNamesChanged(collection->sourceNode(), collection->stringList());
 }
 
 QModelIndex CollectionSourceModel::indexOfNode(const ModelNode &node) const

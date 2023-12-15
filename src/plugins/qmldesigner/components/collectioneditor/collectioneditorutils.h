@@ -4,17 +4,41 @@
 #pragma once
 
 #include "collectiondetails.h"
+#include "collectioneditorconstants.h"
+
+QT_BEGIN_NAMESPACE
+class QJsonArray;
+QT_END_NAMESPACE
+
+namespace Utils {
+class FilePath;
+}
 
 namespace QmlDesigner::CollectionEditor {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type);
 
+SourceFormat getSourceCollectionFormat(const QmlDesigner::ModelNode &node);
+
 QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
 
-void assignCollectionSourceToNode(AbstractView *view,
-                                  const ModelNode &modelNode,
-                                  const ModelNode &collectionSourceNode = {});
+QString getSourceCollectionPath(const QmlDesigner::ModelNode &dataStoreNode);
+
+void assignCollectionToNode(AbstractView *view,
+                            const ModelNode &modelNode,
+                            const ModelNode &collectionSourceNode,
+                            const QString &collectionName);
+
+Utils::FilePath dataStoreJsonFilePath();
+
+Utils::FilePath dataStoreQmlFilePath();
+
+bool isDataStoreNode(const ModelNode &dataStoreNode);
+
+bool ensureDataStoreExists(bool &justCreated);
 
 bool canAcceptCollectionAsModel(const ModelNode &node);
+
+QJsonArray defaultCollectionArray();
 
 } // namespace QmlDesigner::CollectionEditor

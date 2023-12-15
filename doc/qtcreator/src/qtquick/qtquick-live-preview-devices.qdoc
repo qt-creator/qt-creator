@@ -23,17 +23,24 @@
     necessary files to a location in a device where you want to run the
     executable at.
 
+    \note To preview on a wirelessly connected device, select \preferences > \uicontrol Devices
+    and connect the device.
+
     To preview a UI on a device:
 
     \list 1
+        \if defined(qtcreator)
         \li In \uicontrol Projects > \uicontrol {Build & Run}, enable the kit
             predefined for the device type (1).
         \li Select the kit for the device in the kit selector (2).
-            \if defined(qtcreator)
             \image qtcreator-live-preview-kit.png
-            \else
-            \image studio-kit-selector.png "Kit selector"
-            \endif
+        \else
+        \li In the bottom toolbar, select \inlineimage icons/settings.png
+            and enable the kit predefined for the device type.
+            \image design-studio-kit-selection.webp.
+        \li Select the kit for the device in the bottom toolbar.
+            \image design-studio-select-kit.webp
+        \endif
         \li Select \uicontrol Build > \uicontrol {QML Preview} or
             press \key {Alt+P}.
     \endlist

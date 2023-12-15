@@ -121,7 +121,7 @@ ModelNode CollectionListModel::sourceNode() const
 
 QString CollectionListModel::sourceAddress() const
 {
-    return m_sourceNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value().toString();
+    return CollectionEditor::getSourceCollectionPath(m_sourceNode);
 }
 
 bool CollectionListModel::contains(const QString &collectionName) const

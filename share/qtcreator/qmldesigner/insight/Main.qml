@@ -166,7 +166,7 @@ Rectangle {
                     }
                 }
             }
-
+/*
             HelperWidgets.Section {
                 id: predefinedSection
                 caption: qsTr("Predefined Categories")
@@ -412,6 +412,7 @@ Rectangle {
                     }
                 }
             }
+*/
         }
     }
 }

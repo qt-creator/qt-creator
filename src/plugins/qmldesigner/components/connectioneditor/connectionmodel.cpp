@@ -25,6 +25,7 @@
 #include <utils/qtcassert.h>
 
 #include <QMessageBox>
+#include <QRegularExpression>
 #include <QStandardItemModel>
 #include <QTableView>
 #include <QTextCursor>
@@ -387,8 +388,7 @@ void ConnectionModel::addConnection(const PropertyName &signalName)
                             || QmlVisualNode(selectedNode).isFlowTransition())
                             source = selectedNode.validId() + ".trigger()";
 
-                        if (!connectionView()->selectedModelNodes().constFirst().id().isEmpty())
-                            newNode.bindingProperty("target").setExpression(selectedNode.validId());
+                        newNode.bindingProperty("target").setExpression(selectedNode.validId());
                     } else {
                         rootModelNode
                             .nodeAbstractProperty(rootModelNode.metaInfo().defaultPropertyName())
@@ -859,6 +859,11 @@ QString removeOnFromSignalName(const QString &signal)
 {
     if (signal.isEmpty())
         return {};
+
+    static const QRegularExpression rx("^on[A-Z]");
+    if (!rx.match(signal).hasMatch())
+        return signal;
+
     QString ret = signal;
     ret.remove(0, 2);
     ret[0] = ret.at(0).toLower();

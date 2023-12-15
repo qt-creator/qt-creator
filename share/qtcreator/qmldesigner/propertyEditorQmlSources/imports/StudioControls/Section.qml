@@ -34,7 +34,7 @@ Item {
 
         SectionLabel {
             id: arrow
-            style: control.style
+            controlStyle: control.style
             width: control.style.smallIconSize.width
             height: control.style.smallIconSize.height
             text: StudioTheme.Constants.sectionToggle
@@ -56,7 +56,7 @@ Item {
 
         SectionLabel {
             id: label
-            style: control.style
+            controlStyle: control.style
             anchors.verticalCenter: parent.verticalCenter
             color: control.style.text.idle
             x: 22

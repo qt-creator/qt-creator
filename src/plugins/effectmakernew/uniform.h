@@ -25,6 +25,8 @@ class Uniform : public QObject
     Q_PROPERTY(QVariant uniformBackendValue READ backendValue NOTIFY uniformBackendValueChanged)
     Q_PROPERTY(QVariant uniformMinValue MEMBER m_minValue CONSTANT)
     Q_PROPERTY(QVariant uniformMaxValue MEMBER m_maxValue CONSTANT)
+    Q_PROPERTY(QVariant uniformDefaultValue MEMBER m_defaultValue CONSTANT)
+    Q_PROPERTY(QVariant uniformUseCustomValue MEMBER m_useCustomValue CONSTANT)
 
 public:
     enum class Type

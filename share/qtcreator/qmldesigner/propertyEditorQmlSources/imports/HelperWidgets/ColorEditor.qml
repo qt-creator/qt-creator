@@ -183,8 +183,9 @@ SecondColumnLayout {
             property QtObject loaderItem: loader.item
             property string gradientPropertyName
 
+            keepOpen: loader.item?.eyeDropperActive ?? false
+
             width: 260
-            maximumHeight: Screen.desktopAvailableHeight * 0.7
 
             function commitToGradient() {
                 if (!loader.active)

@@ -4,8 +4,8 @@
     "id": "Z.QtStudio.JavaScript.2",
     "category": "R.StudioJSFiles",
     "trDescription": "Creates a JavaScript file.",
-    "trDisplayName": "Java Script File",
-    "trDisplayCategory": "Java Script",
+    "trDisplayName": "JavaScript File",
+    "trDisplayCategory": "JavaScript",
     "icon": "file_javascript.png",
     "platformIndependent": true,
 

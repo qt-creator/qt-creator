@@ -83,11 +83,15 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     QTC_ASSERT(window, return);
 
     const QSize iconSize(16, 16);
-    const QPoint iconPosition(styleOption.rect.left() + (styleOption.rect.width() - iconSize.width()) / 2,
-                              styleOption.rect.top() + 2 + delegateMargin);
+    QPoint iconPosition(styleOption.rect.left() + (styleOption.rect.width() - iconSize.width()) / 2,
+                        styleOption.rect.top() + 2 + delegateMargin);
 
     const QIcon::State state = isChecked(modelIndex) ? QIcon::State::On : QIcon::State::Off;
     const QPixmap iconPixmap = m_icon.pixmap(window, iconSize, mode, state);
+
+    // Shift the lock icon (last column) slightly to the left due to vertical scrollbar width
+    if (modelIndex.column() == NavigatorTreeModel::ColumnType::Lock)
+        iconPosition.rx() -= 4;
 
     painter->save();
 

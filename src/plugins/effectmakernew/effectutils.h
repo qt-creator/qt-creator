@@ -15,6 +15,8 @@ public:
     EffectUtils() = delete;
 
     static QString codeFromJsonArray(const QJsonArray &codeArray);
+
+    static QString nodesSourcesPath();
 };
 
 } // namespace EffectMaker

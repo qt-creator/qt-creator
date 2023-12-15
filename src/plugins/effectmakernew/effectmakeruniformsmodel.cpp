@@ -26,6 +26,7 @@ QHash<int, QByteArray> EffectMakerUniformsModel::roleNames() const
     roles[MinValueRole] = "uniformMinValue";
     roles[MaxValueRole] = "uniformMaxValue";
     roles[TypeRole] = "uniformType";
+    roles[UseCustomValueRole] = "uniformUseCustomValue";
     return roles;
 }
 

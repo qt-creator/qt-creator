@@ -6,7 +6,7 @@ import QtQuick.Controls
 import HelperWidgets as HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
-import AssetsLibraryBackend
+import EffectMakerBackend
 
 StudioControls.Dialog {
     id: root
@@ -18,12 +18,13 @@ StudioControls.Dialog {
     implicitWidth: 250
     implicitHeight: 160
 
-    property string compositionName: ""
+    property bool clearOnClose: false // clear the effect maker after saving
 
     onOpened: {
-        nameText.text = compositionName //TODO: Generate unique name
-        emptyText.text = ""
+        nameText.text = EffectMakerBackend.effectMakerModel.getUniqueEffectName()
+        nameText.selectAll()
         nameText.forceActiveFocus()
+        emptyText.text = ""
     }
 
     contentItem: Item {
@@ -83,14 +84,28 @@ StudioControls.Dialog {
                 text: qsTr("Save")
                 enabled: nameText.text !== ""
                 onClicked: {
-                    root.compositionName = nameText.text
-                    root.accept() //TODO: Check if name is unique
+                    EffectMakerBackend.effectMakerModel.saveComposition(nameText.text)
+
+                    if (root.clearOnClose) {
+                        EffectMakerBackend.effectMakerModel.clear()
+                        root.clearOnClose = false
+                    }
+
+                    root.accept() // TODO: confirm before overriding effect with same name
                 }
             }
 
             HelperWidgets.Button {
                 text: qsTr("Cancel")
-                onClicked: root.reject()
+
+                onClicked: {
+                    if (root.clearOnClose) {
+                        EffectMakerBackend.effectMakerModel.clear()
+                        root.clearOnClose = false
+                    }
+
+                    root.reject()
+                }
             }
         }
     }

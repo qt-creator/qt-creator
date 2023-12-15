@@ -15,15 +15,59 @@ Rectangle {
     height: StudioTheme.Values.toolbarHeight
     color: StudioTheme.Values.themeToolbarBackground
 
+    signal addClicked
     signal saveClicked
+    signal saveAsClicked
+    signal assignToSelectedClicked
 
-    HelperWidgets.Button {
+    Row {
+        spacing: 5
         anchors.verticalCenter: parent.verticalCenter
-        x: 5
 
-        text: qsTr("Save in Library")
+        HelperWidgets.AbstractButton {
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.add_medium
+            tooltip: qsTr("Add new composition")
 
-        onClicked: root.saveClicked()
+            onClicked: root.addClicked()
+        }
+
+        HelperWidgets.AbstractButton {
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.save_medium
+            tooltip: qsTr("Save current composition")
+            enabled: EffectMakerBackend.effectMakerModel.hasUnsavedChanges
+                  || EffectMakerBackend.effectMakerModel.currentComposition === ""
+
+            onClicked: root.saveClicked()
+        }
+
+        HelperWidgets.AbstractButton {
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.saveAs_medium
+            tooltip: qsTr("Save current composition with a new name")
+            enabled: !EffectMakerBackend.effectMakerModel.isEmpty
+
+            onClicked: root.saveAsClicked()
+        }
+
+        HelperWidgets.AbstractButton {
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.assignTo_medium
+            tooltip: qsTr("Assign current composition to selected item")
+            enabled: EffectMakerBackend.effectMakerModel.currentComposition !== ""
+
+            onClicked: root.assignToSelectedClicked()
+        }
+    }
+
+
+    Text {
+        readonly property string compName: EffectMakerBackend.effectMakerModel.currentComposition
+
+        text: compName !== "" ? compName : qsTr("Untitled")
+        anchors.centerIn: parent
+        color: StudioTheme.Values.themeTextColor
     }
 
     HelperWidgets.AbstractButton {
