@@ -21,6 +21,7 @@
 #include <utils/treemodel.h>
 
 #include <QAbstractTextDocumentLayout>
+#include <QCheckBox>
 #include <QHash>
 #include <QHeaderView>
 #include <QLabel>
@@ -273,6 +274,12 @@ public:
         m_refreshInterval->setSingleStep(5);
         m_refreshInterval->setValue(60);
 
+        auto relativePathsLabel = new QLabel(Tr::tr("Show Paths in Relation to Active Project:"));
+        relativePathsLabel->setToolTip(Tr::tr("Locator filters show relative paths to the active project when possible."));
+
+        m_relativePaths = new QCheckBox;
+        m_relativePaths->setToolTip(relativePathsLabel->toolTip());
+
         auto filterEdit = new FancyLineEdit;
         filterEdit->setFiltering(true);
 
@@ -320,7 +327,9 @@ public:
              m_filterList,
              buttons,
              br,
-             Span(2, Row{refreshIntervalLabel, m_refreshInterval, st})}
+             Span(2, Row{refreshIntervalLabel, m_refreshInterval, st}),
+             br,
+             Span(2, Row{relativePathsLabel, m_relativePaths, st})}
             .attachTo(this);
 
         connect(filterEdit, &FancyLineEdit::filterChanged, this, &LocatorSettingsWidget::setFilter);
@@ -355,6 +364,7 @@ public:
         addButton->setMenu(addMenu);
 
         m_refreshInterval->setValue(m_plugin->refreshInterval());
+        m_relativePaths->setChecked(m_plugin->relativePaths());
         saveFilterStates();
     }
 
@@ -376,6 +386,7 @@ private:
     QPushButton *m_removeButton;
     QPushButton *m_editButton;
     QSpinBox *m_refreshInterval;
+    QCheckBox *m_relativePaths;
     Locator *m_plugin = nullptr;
     Utils::TreeModel<> *m_model = nullptr;
     QSortFilterProxyModel *m_proxyModel = nullptr;
@@ -399,6 +410,7 @@ void LocatorSettingsWidget::apply()
     m_plugin->setFilters(m_filters);
     m_plugin->setCustomFilters(m_customFilters);
     m_plugin->setRefreshInterval(m_refreshInterval->value());
+    m_plugin->setRelativePaths(m_relativePaths->isChecked());
     requestRefresh();
     m_plugin->saveSettings();
     saveFilterStates();

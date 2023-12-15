@@ -40,6 +40,8 @@ public:
     void setCustomFilters(QList<ILocatorFilter *> f);
     int refreshInterval() const;
     void setRefreshInterval(int interval);
+    bool relativePaths() const;
+    void setRelativePaths(bool use);
 
     static bool useCenteredPopupForShortcut();
     static void setUseCenteredPopupForShortcut(bool center);
@@ -73,6 +75,7 @@ private:
     QTimer m_refreshTimer;
     Tasking::TaskTreeRunner m_taskTreeRunner;
     QList<ILocatorFilter *> m_refreshingFilters;
+    bool m_relativePaths = false;
 };
 
 } // namespace Internal
