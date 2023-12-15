@@ -403,14 +403,14 @@ static expected_str<bool> insertSnippetSilently(const FilePath &cmakeFile,
 }
 
 static void findLastRelevantArgument(const cmListFileFunction &function,
-                                     std::size_t minimumArgPos,
+                                     int minimumArgPos,
                                      const QSet<QString> &lowerCaseStopParams,
                                      QString *lastRelevantArg,
                                      int *lastRelevantPos)
 {
     const std::vector<cmListFileArgument> args = function.Arguments();
-    *lastRelevantPos = args.size() - 1;
-    for (int i = minimumArgPos, end = args.size(); i < end; ++i) {
+    *lastRelevantPos = int(args.size()) - 1;
+    for (int i = minimumArgPos, end = int(args.size()); i < end; ++i) {
         const QString lowerArg = QString::fromStdString(args.at(i).Value).toLower();
         if (lowerCaseStopParams.contains(lowerArg)) {
             *lastRelevantPos = i - 1;
@@ -466,7 +466,7 @@ static std::optional<cmListFileFunction> handleTSAddVariant(const cmListFile &cm
                 std::optional<cmListFileFunction> setFunc = findSetFunctionFor(cmakeListFile, var);
                 if (setFunc) {
                     function = *setFunc;
-                    *lastArgumentPos = function->Arguments().size() - 1;
+                    *lastArgumentPos = int(function->Arguments().size()) - 1;
                 }
             }
         }
