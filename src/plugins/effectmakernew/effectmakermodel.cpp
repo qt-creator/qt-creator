@@ -124,6 +124,10 @@ void EffectMakerModel::addNode(const QString &nodeQenPath)
 
             const QString path = EffectUtils::nodesSourcesPath() + "/common/" + requiredId + ".qen";
             auto requiredNode = new CompositionNode({}, path);
+            connect(qobject_cast<EffectMakerUniformsModel *>(requiredNode->uniformsModel()),
+                    &EffectMakerUniformsModel::dataChanged, this, [this] {
+                        setHasUnsavedChanges(true);
+                    });
             requiredNode->setRefCount(1);
             m_nodes.prepend(requiredNode);
         }
