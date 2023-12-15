@@ -207,6 +207,11 @@ void ActionBuilder::setCheckable(bool on)
     d->contextAction->setCheckable(on);
 }
 
+void ActionBuilder::setSeperator(bool on)
+{
+    d->contextAction->setSeparator(on);
+}
+
 void ActionBuilder::setScriptable(bool on)
 {
     d->scriptable = on;

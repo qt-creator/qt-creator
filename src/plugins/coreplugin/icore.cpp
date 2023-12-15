@@ -1839,37 +1839,37 @@ void ICorePrivate::registerDefaultActions()
 
     if (useMacShortcuts) {
         // Minimize Action
-        QAction *minimizeAction = new QAction(Tr::tr("Minimize"), this);
-        minimizeAction->setEnabled(false); // actual implementation in WindowSupport
-        Command *cmd = ActionManager::registerAction(minimizeAction, Constants::MINIMIZE_WINDOW);
-        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+M")));
-        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        ActionBuilder minimizeAction(this, Constants::MINIMIZE_WINDOW);
+        minimizeAction.setText(Tr::tr("Minimize"));
+        minimizeAction.setEnabled(false); // actual implementation in WindowSupport
+        minimizeAction.setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+M")));
+        minimizeAction.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SIZE);
 
         // Zoom Action
-        QAction *zoomAction = new QAction(Tr::tr("Zoom"), this);
-        zoomAction->setEnabled(false); // actual implementation in WindowSupport
-        cmd = ActionManager::registerAction(zoomAction, Constants::ZOOM_WINDOW);
-        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        ActionBuilder zoomAction(this, Constants::ZOOM_WINDOW);
+        zoomAction.setText(Tr::tr("Zoom"));
+        zoomAction.setEnabled(false); // actual implementation in WindowSupport
+        zoomAction.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SIZE);
     }
 
     // Full Screen Action
-    QAction *toggleFullScreenAction = new QAction(Tr::tr("Full Screen"), this);
-    toggleFullScreenAction->setCheckable(!HostOsInfo::isMacHost());
-    toggleFullScreenAction->setEnabled(false); // actual implementation in WindowSupport
-    Command *cmd = ActionManager::registerAction(toggleFullScreenAction, Constants::TOGGLE_FULLSCREEN);
-    cmd->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Ctrl+Meta+F") : Tr::tr("Ctrl+Shift+F11")));
+    ActionBuilder toggleFullScreenAction(this, Constants::TOGGLE_FULLSCREEN);
+    toggleFullScreenAction.setText(Tr::tr("Full Screen"));
+    toggleFullScreenAction.setCheckable(!HostOsInfo::isMacHost());
+    toggleFullScreenAction.setEnabled(false); // actual implementation in WindowSupport
+    toggleFullScreenAction.setDefaultKeySequence(Tr::tr("Ctrl+Meta+F"), Tr::tr("Ctrl+Shift+F11"));
     if (HostOsInfo::isMacHost())
-        cmd->setAttribute(Command::CA_UpdateText);
-    mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        toggleFullScreenAction.setCommandAttribute(Command::CA_UpdateText);
+    toggleFullScreenAction.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SIZE);
 
     if (useMacShortcuts) {
         mwindow->addSeparator(Constants::G_WINDOW_SIZE);
 
-        QAction *closeAction = new QAction(Tr::tr("Close Window"), this);
-        closeAction->setEnabled(false);
-        cmd = ActionManager::registerAction(closeAction, Constants::CLOSE_WINDOW);
-        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Meta+W")));
-        mwindow->addAction(cmd, Constants::G_WINDOW_SIZE);
+        ActionBuilder closeAction(this, Constants::CLOSE_WINDOW);
+        closeAction.setText(Tr::tr("Close Window"));
+        closeAction.setEnabled(false);
+        closeAction.setDefaultKeySequence(Tr::tr("Ctrl+Meta+W"));
+        closeAction.addToContainer(Constants::M_WINDOW, Constants::G_WINDOW_SIZE);
 
         mwindow->addSeparator(Constants::G_WINDOW_SIZE);
     }
@@ -1908,23 +1908,25 @@ void ICorePrivate::registerDefaultActions()
 
     // Show Menubar Action
     if (globalMenuBar() && !globalMenuBar()->isNativeMenuBar()) {
-        m_toggleMenubarAction = new QAction(Tr::tr("Show Menu Bar"), this);
-        m_toggleMenubarAction->setCheckable(true);
-        cmd = ActionManager::registerAction(m_toggleMenubarAction, Constants::TOGGLE_MENUBAR);
-        cmd->setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+Alt+M")));
-        connect(m_toggleMenubarAction, &QAction::toggled, this, [cmd](bool visible) {
+        ActionBuilder toggleMenubarAction(this, Constants::TOGGLE_MENUBAR);
+        toggleMenubarAction.setText(Tr::tr("Show Menu Bar"));
+        toggleMenubarAction.bindContextAction(&m_toggleMenubarAction);
+        toggleMenubarAction.setCheckable(true);
+        toggleMenubarAction.setDefaultKeySequence(Tr::tr("Ctrl+Alt+M"));
+        toggleMenubarAction.addToContainer(Constants::M_VIEW, Constants::G_VIEW_VIEWS);
+        toggleMenubarAction.addOnToggled(this, [](bool visible) {
             if (!visible) {
+                const QString keys = ActionManager::command(Constants::TOGGLE_MENUBAR)
+                                         ->keySequence().toString(QKeySequence::NativeText);
                 CheckableMessageBox::information(Core::ICore::dialogParent(),
                                                  Tr::tr("Hide Menu Bar"),
                                                  Tr::tr("This will hide the menu bar completely. "
                                                         "You can show it again by typing %1.")
-                                                     .arg(cmd->keySequence().toString(
-                                                         QKeySequence::NativeText)),
+                                                     .arg(keys),
                                                  Key("ToogleMenuBarHint"));
             }
             globalMenuBar()->setVisible(visible);
         });
-        mview->addAction(cmd, Constants::G_VIEW_VIEWS);
     }
 
     registerModeSelectorStyleActions();
@@ -1975,10 +1977,9 @@ void ICorePrivate::registerDefaultActions()
 
     // About sep
     if (!HostOsInfo::isMacHost()) { // doesn't have the "About" actions in the Help menu
-        auto tmpaction = new QAction(this);
-        tmpaction->setSeparator(true);
-        cmd = ActionManager::registerAction(tmpaction, "QtCreator.Help.Sep.About");
-        mhelp->addAction(cmd, Constants::G_HELP_ABOUT);
+        ActionBuilder tmpAction(this, "QtCreator.Help.Sep.About");
+        tmpAction.setSeperator(true);
+        tmpAction.addToContainer(Constants::M_HELP, Constants::G_HELP_ABOUT);
     }
 }
 

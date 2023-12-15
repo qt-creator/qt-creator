@@ -78,6 +78,7 @@ public:
     void setChecked(bool on);
     void setVisible(bool on);
     void setCheckable(bool on);
+    void setSeperator(bool on);
     void setScriptable(bool on);
     void setMenuRole(QAction::MenuRole role);
 
