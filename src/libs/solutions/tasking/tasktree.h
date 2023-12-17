@@ -157,6 +157,10 @@ public:
         : m_type(Type::Storage)
         , m_storageList{storage} {}
 
+    // TODO: Add tests.
+    GroupItem(const QList<GroupItem> &children) : m_type(Type::List) { addChildren(children); }
+    GroupItem(std::initializer_list<GroupItem> children) : m_type(Type::List) { addChildren(children); }
+
 protected:
     // Internal, provided by CustomTask
     using InterfaceCreateHandler = std::function<TaskInterface *(void)>;
@@ -228,14 +232,6 @@ private:
     GroupData m_groupData;
     QList<StorageBase> m_storageList;
     TaskHandler m_taskHandler;
-};
-
-// TODO: Add tests.
-class TASKING_EXPORT List final : public GroupItem
-{
-public:
-    List(const QList<GroupItem> &children) : GroupItem(Type::List) { addChildren(children); }
-    List(std::initializer_list<GroupItem> children) : GroupItem(Type::List) { addChildren(children); }
 };
 
 class TASKING_EXPORT Group final : public GroupItem

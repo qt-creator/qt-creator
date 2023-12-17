@@ -183,8 +183,8 @@ int main(int argc, char *argv[])
 
     std::unique_ptr<TaskTree> taskTree;
 
-    const auto createGroup = [](GroupWidget *widget) {
-        return List {
+    const auto setupGroup = [](GroupWidget *widget) {
+        return GroupItem {
             widget->executeMode(),
             widget->workflowPolicy(),
             onGroupSetup([widget] { widget->setState(State::Running); }),
@@ -192,7 +192,7 @@ int main(int argc, char *argv[])
         };
     };
 
-    const auto createTask = [](TaskWidget *widget) {
+    const auto setupTask = [](TaskWidget *widget) {
         const milliseconds timeout(widget->busyTime() * 1000);
         const auto onSetup = [widget, timeout](milliseconds &taskObject) {
             taskObject = timeout;
@@ -211,30 +211,30 @@ int main(int argc, char *argv[])
 
     const auto recipe = [&] {
         const Group root {
-            createGroup(rootGroup),
+            setupGroup(rootGroup),
             Group {
-                createGroup(groupTask_1),
-                createTask(task_1_1),
-                createTask(task_1_2),
-                createTask(task_1_3)
+                setupGroup(groupTask_1),
+                setupTask(task_1_1),
+                setupTask(task_1_2),
+                setupTask(task_1_3)
             },
-            createTask(task_2),
-            createTask(task_3),
+            setupTask(task_2),
+            setupTask(task_3),
             Group {
-                createGroup(groupTask_4),
-                createTask(task_4_1),
-                createTask(task_4_2),
+                setupGroup(groupTask_4),
+                setupTask(task_4_1),
+                setupTask(task_4_2),
                 Group {
-                    createGroup(groupTask_4_3),
-                    createTask(task_4_3_1),
-                    createTask(task_4_3_2),
-                    createTask(task_4_3_3),
-                    createTask(task_4_3_4)
+                    setupGroup(groupTask_4_3),
+                    setupTask(task_4_3_1),
+                    setupTask(task_4_3_2),
+                    setupTask(task_4_3_3),
+                    setupTask(task_4_3_4)
                 },
-                createTask(task_4_4),
-                createTask(task_4_5)
+                setupTask(task_4_4),
+                setupTask(task_4_5)
             },
-            createTask(task_5)
+            setupTask(task_5)
         };
         return root;
     };
