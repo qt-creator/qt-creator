@@ -18,7 +18,7 @@ The standalone binary packages support the following platforms:
 
 * Windows 10 (64-bit) or later
 * (K)Ubuntu Linux 20.04 (64-bit) or later
-* macOS 10.15 or later
+* macOS 11 or later
 
 ## Contributing
 
