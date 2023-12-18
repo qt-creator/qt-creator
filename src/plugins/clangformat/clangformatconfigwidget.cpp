@@ -129,7 +129,9 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(TextEditor::ICodeStylePreferenc
     displaySettings.m_visualizeWhitespace = true;
     d->preview->setDisplaySettings(displaySettings);
     d->preview->setPlainText(QLatin1String(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]));
-    d->preview->textDocument()->setIndenter(new ClangFormatIndenter(d->preview->document()));
+    auto *indenter = new ClangFormatIndenter(d->preview->document());
+    indenter->setOverriddenPreferences(codeStyle);
+    d->preview->textDocument()->setIndenter(indenter);
     d->preview->textDocument()->setFontSettings(TextEditor::TextEditorSettings::fontSettings());
     d->preview->textDocument()->setSyntaxHighlighter(new CppEditor::CppHighlighter);
     d->preview->textDocument()->indenter()->setFileName(fileName);
@@ -271,7 +273,7 @@ void ClangFormatConfigWidget::updatePreview()
     QTextCursor cursor(d->preview->document());
     cursor.setPosition(0);
     cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    d->preview->textDocument()->autoIndent(cursor);
+    d->preview->textDocument()->autoFormatOrIndent(cursor);
 }
 
 std::string ClangFormatConfigWidget::readFile(const QString &path)

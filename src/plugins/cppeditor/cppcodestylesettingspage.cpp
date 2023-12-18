@@ -605,6 +605,11 @@ public:
         m_codeStyleEditor->apply();
     }
 
+    void finish() final
+    {
+        m_codeStyleEditor->finish();
+    }
+
     CppCodeStylePreferences *m_pageCppCodeStylePreferences = nullptr;
     CodeStyleEditorWidget *m_codeStyleEditor;
 };
