@@ -15,6 +15,11 @@ namespace Timeline {
 class TraceEventType : public SafeCastable<TraceEventType>
 {
 public:
+    TraceEventType(const TraceEventType &) = default;
+    TraceEventType(TraceEventType &&) = default;
+    TraceEventType &operator=(const TraceEventType &) = default;
+    TraceEventType &operator=(TraceEventType &&) = default;
+
     const QString &displayName() const { return m_displayName; }
     void setDisplayName(const QString &displayName) { m_displayName = displayName; }
 
@@ -27,11 +32,6 @@ protected:
     TraceEventType(qint32 classId, quint8 feature = 255, const QString &displayName = QString())
         : m_displayName(displayName), m_classId(classId), m_feature(feature)
     {}
-
-    TraceEventType(const TraceEventType &) = default;
-    TraceEventType(TraceEventType &&) = default;
-    TraceEventType &operator=(const TraceEventType &) = default;
-    TraceEventType &operator=(TraceEventType &&) = default;
 
 private:
     QString m_displayName;
