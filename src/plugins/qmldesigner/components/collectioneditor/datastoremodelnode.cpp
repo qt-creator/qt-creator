@@ -23,6 +23,9 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
+
 namespace {
 
 QmlDesigner::PropertyNameList createNameList(const QmlDesigner::ModelNode &node)
