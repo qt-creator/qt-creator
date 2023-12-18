@@ -366,10 +366,10 @@ GlslEditorFactory::GlslEditorFactory()
     setId(Constants::C_GLSLEDITOR_ID);
     setDisplayName(::Core::Tr::tr(Constants::C_GLSLEDITOR_DISPLAY_NAME));
     addMimeType(Utils::Constants::GLSL_MIMETYPE);
-    addMimeType(Utils::Constants::GLSL_MIMETYPE_VERT);
-    addMimeType(Utils::Constants::GLSL_MIMETYPE_FRAG);
-    addMimeType(Utils::Constants::GLSL_MIMETYPE_VERT_ES);
-    addMimeType(Utils::Constants::GLSL_MIMETYPE_FRAG_ES);
+    addMimeType(Utils::Constants::GLSL_VERT_MIMETYPE);
+    addMimeType(Utils::Constants::GLSL_FRAG_MIMETYPE);
+    addMimeType(Utils::Constants::GLSL_ES_VERT_MIMETYPE);
+    addMimeType(Utils::Constants::GLSL_ES_FRAG_MIMETYPE);
 
     setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
     setEditorWidgetCreator([]() { return new GlslEditorWidget; });

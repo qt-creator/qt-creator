@@ -119,11 +119,16 @@ void GlslEditorPlugin::initialize()
 void GlslEditorPlugin::extensionsInitialized()
 {
     using namespace Utils::Constants;
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE_VERT);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE_FRAG);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE_VERT_ES);
-    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png", GLSL_MIMETYPE_FRAG_ES);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                     GLSL_MIMETYPE);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                     GLSL_VERT_MIMETYPE);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                     GLSL_FRAG_MIMETYPE);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                     GLSL_ES_VERT_MIMETYPE);
+    FileIconProvider::registerIconOverlayForMimeType(":/glsleditor/images/glslfile.png",
+                                                     GLSL_ES_FRAG_MIMETYPE);
 }
 
 const GlslEditorPlugin::InitFile *GlslEditorPlugin::fragmentShaderInit(int variant)
