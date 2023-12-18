@@ -174,7 +174,7 @@ void DefinitionDownloader::start()
     auto req = QNetworkRequest(QUrl(url));
     req.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::NoLessSafeRedirectPolicy);
     auto reply = d->nam->get(req);
-    QObject::connect(reply, &QNetworkReply::finished, this, [=]() {
+    QObject::connect(reply, &QNetworkReply::finished, this, [this, reply]() {
         d->definitionListDownloadFinished(reply);
     });
 }

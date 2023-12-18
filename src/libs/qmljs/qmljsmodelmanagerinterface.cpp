@@ -1420,7 +1420,7 @@ void ModelManagerInterface::maybeQueueCppQmlTypeUpdate(const CPlusPlus::Document
 
     QMutexLocker locker(&g_instanceMutex);
     if (g_instance) // delegate actual queuing to the gui thread
-        QMetaObject::invokeMethod(g_instance, [=] { queueCppQmlTypeUpdate(doc, scan); });
+        QMetaObject::invokeMethod(g_instance, [this, doc, scan] { queueCppQmlTypeUpdate(doc, scan); });
 }
 
 void ModelManagerInterface::queueCppQmlTypeUpdate(const CPlusPlus::Document::Ptr &doc, bool scan)
