@@ -30,10 +30,9 @@
 #include <QPointer>
 #include <QTimer>
 
+using namespace Core;
+
 namespace GitLab {
-namespace Constants {
-const char GITLAB_OPEN_VIEW[] = "GitLab.OpenView";
-} // namespace Constants
 
 class GitLabPluginPrivate : public QObject
 {
@@ -78,12 +77,11 @@ void GitLabPlugin::initialize()
 
     setupGitlabProjectPanel();
 
-    QAction *openViewAction = new QAction(Tr::tr("GitLab..."), this);
-    auto gitlabCommand = Core::ActionManager::registerAction(openViewAction,
-                                                             Constants::GITLAB_OPEN_VIEW);
-    connect(openViewAction, &QAction::triggered, this, &GitLabPlugin::openView);
-    Core::ActionContainer *ac = Core::ActionManager::actionContainer(Core::Constants::M_TOOLS);
-    ac->addAction(gitlabCommand);
+    ActionBuilder(this, "GitLab.OpenView")
+        .setText(Tr::tr("GitLab..."))
+        .addOnTriggered(this, &GitLabPlugin::openView)
+        .addToContainer(Core::Constants::M_TOOLS);
+
     connect(ProjectExplorer::ProjectManager::instance(),
             &ProjectExplorer::ProjectManager::startupProjectChanged,
             this, &GitLabPlugin::onStartupProjectChanged);
