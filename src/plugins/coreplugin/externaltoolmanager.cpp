@@ -202,16 +202,16 @@ void ExternalToolManager::setToolsByCategory(const QMap<QString, QList<ExternalT
                 action = d->m_actions.value(toolId);
                 command = ActionManager::command(externalToolsPrefix.withSuffix(toolId));
             } else {
-                action = new QAction(tool->displayName(), m_instance);
-                d->m_actions.insert(toolId, action);
-                connect(action, &QAction::triggered, tool, [tool] {
+                ActionBuilder external(m_instance, externalToolsPrefix.withSuffix(toolId));
+                external.setCommandAttribute(Command::CA_UpdateText);
+                external.addOnTriggered(tool, [tool] {
                     auto runner = new ExternalToolRunner(tool);
                     if (runner->hasError())
                         MessageManager::writeFlashing(runner->errorString());
                 });
-
-                command = ActionManager::registerAction(action, externalToolsPrefix.withSuffix(toolId));
-                command->setAttribute(Command::CA_UpdateText);
+                action = external.contextAction();
+                d->m_actions.insert(toolId, action);
+                command = external.command();
             }
             action->setText(tool->displayName());
             action->setToolTip(tool->description());
