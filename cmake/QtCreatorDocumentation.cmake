@@ -272,6 +272,11 @@ function(add_qtc_documentation qdocconf_file)
 endfunction()
 
 function(add_qtc_doc_attribution target attribution_file output_file qdocconf_file)
+  set(html_target "html_docs_${doc_target}")
+  if (NOT TARGET ${html_target})
+      # probably qdoc is missing, so other documentation targets are not there
+      return()
+  endif()
   get_filename_component(doc_target "${qdocconf_file}" NAME_WE)
   add_custom_target(${target}
       Qt6::qtattributionsscanner -o "${output_file}" ${attribution_file}
@@ -281,5 +286,5 @@ function(add_qtc_doc_attribution target attribution_file output_file qdocconf_fi
     WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     VERBATIM
   )
-  add_dependencies("html_docs_${doc_target}" ${target})
+  add_dependencies(${html_target} ${target})
 endfunction()
