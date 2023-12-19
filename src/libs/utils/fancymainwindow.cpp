@@ -26,6 +26,7 @@
 static const char ShowCentralWidgetKey[] = "ShowCentralWidget";
 static const char StateKey[] = "State";
 static const char HiddenDockAreasKey[] = "HiddenDockAreas";
+static const char DockWidgetStatesKey[] = "CollapseState";
 
 static const int settingsVersion = 2;
 static const char dockWidgetActiveState[] = "DockWidgetActiveState";
@@ -107,6 +108,9 @@ public:
     bool isCollapsed() const;
     void setCollapsed(bool collapse);
 
+    QVariant saveState() const;
+    void restoreState(const QVariant &data);
+
     FancyMainWindow *q;
 
 signals:
@@ -114,7 +118,7 @@ signals:
 
 private:
     QList<QDockWidget *> docksInArea();
-    void ensureWidgetShown();
+    void setInnerWidgetShown(bool visible);
     DocksAndSizes verticallyArrangedDocks();
 
     QWidget *m_hiddenInnerWidget = nullptr;
@@ -342,8 +346,10 @@ DockWidget::DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable)
             origCloseButton, &QAbstractButton::clicked);
 
     connect(q, &FancyMainWindow::dockWidgetsChanged, this, [this] {
-        if (!q->isBlockingAutomaticUncollapse() && isVisible() && !supportsCollapse())
-            ensureWidgetShown();
+        if (!q->isBlockingAutomaticUncollapse() && q->isVisible() && isVisible()
+            && !supportsCollapse()) {
+            setInnerWidgetShown(true);
+        }
     });
 }
 
@@ -357,12 +363,18 @@ QList<QDockWidget *> DockWidget::docksInArea()
     return q->docksInArea(q->dockWidgetArea(this));
 }
 
-void DockWidget::ensureWidgetShown()
+void DockWidget::setInnerWidgetShown(bool visible)
 {
-    if (m_hiddenInnerWidget) {
+    if (visible && m_hiddenInnerWidget) {
         delete widget();
         setWidget(m_hiddenInnerWidget);
         m_hiddenInnerWidget = nullptr;
+    } else if (!visible && !m_hiddenInnerWidget) {
+        m_hiddenInnerWidgetHeight = height() - m_titleBar->sizeHint().height();
+        m_hiddenInnerWidget = widget();
+        auto w = new QWidget;
+        w->setMaximumHeight(0);
+        setWidget(w);
     }
 }
 
@@ -401,11 +413,7 @@ void DockWidget::setCollapsed(bool collapse)
     DocksAndSizes verticalDocks = verticallyArrangedDocks();
     const auto titleBarHeight = [this] { return m_titleBar->sizeHint().height(); };
     if (collapse) {
-        m_hiddenInnerWidgetHeight = height() - titleBarHeight();
-        m_hiddenInnerWidget = widget();
-        auto w = new QWidget;
-        w->setMaximumHeight(0);
-        setWidget(w);
+        setInnerWidgetShown(false);
 
         if (verticalDocks.docks.size() > 1) { // not only this dock
             // fixup dock sizes, so the dock below this one gets the space if possible
@@ -421,7 +429,7 @@ void DockWidget::setCollapsed(bool collapse)
             }
         }
     } else {
-        ensureWidgetShown();
+        setInnerWidgetShown(true);
 
         if (verticalDocks.docks.size() > 1) { // not only this dock
             // steal space from dock below if possible
@@ -443,6 +451,31 @@ void DockWidget::setCollapsed(bool collapse)
         }
     }
     emit collapseChanged();
+}
+
+const char kDockWidgetInnerWidgetHeight[] = "InnerWidgetHeight";
+
+QVariant DockWidget::saveState() const
+{
+    QVariantMap state;
+    if (m_hiddenInnerWidget)
+        state.insert(kDockWidgetInnerWidgetHeight, m_hiddenInnerWidgetHeight);
+    return state;
+}
+
+void DockWidget::restoreState(const QVariant &data)
+{
+    const auto state = data.toMap();
+    bool ok;
+    const int hiddenInnerWidgetHeight
+        = state.value(kDockWidgetInnerWidgetHeight).toString().toInt(&ok);
+    if (!ok) {
+        // dock was not collapsed, make sure to uncollapse
+        setInnerWidgetShown(true);
+        return;
+    }
+    setInnerWidgetShown(false);
+    m_hiddenInnerWidgetHeight = hiddenInnerWidgetHeight;
 }
 
 DocksAndSizes DockWidget::verticallyArrangedDocks()
@@ -635,10 +668,14 @@ Store FancyMainWindow::saveSettings() const
     Store settings;
     settings.insert(StateKey, saveState(settingsVersion));
     settings.insert(ShowCentralWidgetKey, d->m_showCentralWidget.isChecked());
+    QVariantHash dockWidgetStates;
     for (QDockWidget *dockWidget : dockWidgets()) {
         settings.insert(keyFromString(dockWidget->objectName()),
                 dockWidget->property(dockWidgetActiveState));
+        if (DockWidget *dock = qobject_cast<DockWidget *>(dockWidget))
+            dockWidgetStates.insert(dockWidget->objectName(), dock->saveState());
     }
+    settings.insert(DockWidgetStatesKey, dockWidgetStates);
     settings.insert(HiddenDockAreasKey, d->hiddenDockAreasToHash());
     return settings;
 }
@@ -653,9 +690,12 @@ bool FancyMainWindow::restoreSettings(const Store &settings)
             qWarning() << "Restoring the state of dock widgets failed.";
     }
     d->m_showCentralWidget.setChecked(settings.value(ShowCentralWidgetKey, true).toBool());
+    const QVariantHash dockWidgetStates = settings.value(DockWidgetStatesKey).toHash();
     for (QDockWidget *widget : dockWidgets()) {
         widget->setProperty(dockWidgetActiveState,
                             settings.value(keyFromString(widget->objectName()), false));
+        if (DockWidget *dock = qobject_cast<DockWidget *>(widget))
+            dock->restoreState(dockWidgetStates.value(widget->objectName()));
     }
     d->restoreHiddenDockAreasFromHash(settings.value(HiddenDockAreasKey).toHash());
     emit dockWidgetsChanged();
