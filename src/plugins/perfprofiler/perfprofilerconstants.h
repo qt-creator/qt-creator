@@ -6,7 +6,6 @@
 namespace PerfProfiler {
 namespace Constants {
 
-const char PerfOptionsMenuId[]          = "Analyzer.Menu.PerfOptions";
 const char PerfProfilerTaskLoadPerf[]   =
         "Analyzer.Menu.StartAnalyzer.PerfProfilerOptions.LoadPerf";
 const char PerfProfilerTaskLoadTrace[]  =

@@ -59,75 +59,76 @@ PerfProfilerTool::PerfProfilerTool()
                                      std::bind(&PerfProfilerTool::finalize, this),
                                      std::bind(&PerfProfilerTool::clearUi, this));
 
-    m_zoomControl = new Timeline::TimelineZoomControl(this);
-    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
-    ActionContainer *options = ActionManager::createMenu(Constants::PerfOptionsMenuId);
+    m_zoomControl = new Timeline::TimelineZoomControl(this) ;
+    const Id subMenu = "Analyzer.Menu.PerfOptions";
+    ActionContainer *options = ActionManager::createMenu(subMenu);
     options->menu()->setTitle(Tr::tr("Performance Analyzer Options"));
-    menu->addMenu(options, Debugger::Constants::G_ANALYZER_OPTIONS);
     options->menu()->setEnabled(true);
 
-    const Core::Context globalContext(Core::Constants::C_GLOBAL);
-    m_loadPerfData = new QAction(Tr::tr("Load perf.data File"), options);
-    Core::Command *command = Core::ActionManager::registerAction(
-                m_loadPerfData, Constants::PerfProfilerTaskLoadPerf, globalContext);
-    connect(m_loadPerfData, &QAction::triggered, this, &PerfProfilerTool::showLoadPerfDialog);
-    options->addAction(command);
+    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+    menu->addMenu(options, Debugger::Constants::G_ANALYZER_OPTIONS);
 
-    m_loadTrace = new QAction(Tr::tr("Load Trace File"), options);
-    command = Core::ActionManager::registerAction(m_loadTrace, Constants::PerfProfilerTaskLoadTrace,
-                                                  globalContext);
-    connect(m_loadTrace, &QAction::triggered, this, &PerfProfilerTool::showLoadTraceDialog);
-    options->addAction(command);
+    ActionBuilder(options, Constants::PerfProfilerTaskLoadPerf)
+        .setText(Tr::tr("Load perf.data File"))
+        .bindContextAction(&m_loadPerfData)
+        .addToContainer(subMenu)
+        .addOnTriggered(this, &PerfProfilerTool::showLoadPerfDialog);
 
-    m_saveTrace = new QAction(Tr::tr("Save Trace File"), options);
-    command = Core::ActionManager::registerAction(m_saveTrace, Constants::PerfProfilerTaskSaveTrace,
-                                                  globalContext);
-    connect(m_saveTrace, &QAction::triggered, this, &PerfProfilerTool::showSaveTraceDialog);
-    options->addAction(command);
+    ActionBuilder(options, Constants::PerfProfilerTaskLoadTrace)
+        .setText(Tr::tr("Load Trace File"))
+        .bindContextAction(&m_loadTrace)
+        .addToContainer(subMenu)
+        .addOnTriggered(this, &PerfProfilerTool::showLoadTraceDialog);
 
-    m_limitToRange = new QAction(Tr::tr("Limit to Range Selected in Timeline"), options);
-    command = Core::ActionManager::registerAction(m_limitToRange, Constants::PerfProfilerTaskLimit,
-                                                                 globalContext);
-    connect(m_limitToRange, &QAction::triggered, this, [this] {
-        traceManager().restrictByFilter(traceManager().rangeAndThreadFilter(
-                                             m_zoomControl->selectionStart(),
-                                             m_zoomControl->selectionEnd()));
-    });
-    options->addAction(command);
+    ActionBuilder(options, Constants::PerfProfilerTaskSaveTrace)
+        .bindContextAction(&m_saveTrace)
+        .setText(Tr::tr("Save Trace File"))
+        .addToContainer(subMenu)
+        .addOnTriggered(this, &PerfProfilerTool::showSaveTraceDialog);
 
-    m_showFullRange = new QAction(Tr::tr("Show Full Range"), options);
-    command = Core::ActionManager::registerAction(m_showFullRange,
-                                                  Constants::PerfProfilerTaskFullRange,
-                                                  globalContext);
-    connect(m_showFullRange, &QAction::triggered, this, [] {
-        traceManager().restrictByFilter(traceManager().rangeAndThreadFilter(-1, -1));
-    });
-    options->addAction(command);
+    ActionBuilder(options, Constants::PerfProfilerTaskLimit)
+        .bindContextAction(&m_limitToRange)
+        .setText(Tr::tr("Limit to Range Selected in Timeline"))
+        .addToContainer(subMenu)
+        .addOnTriggered(this, [this] {
+            traceManager().restrictByFilter(traceManager().rangeAndThreadFilter(
+                m_zoomControl->selectionStart(),
+                m_zoomControl->selectionEnd()));
+        });
 
-    QAction *tracePointsAction = new QAction(Tr::tr("Create Memory Trace Points"), options);
-    tracePointsAction->setIcon(Debugger::Icons::TRACEPOINT_TOOLBAR.icon());
-    tracePointsAction->setIconVisibleInMenu(false);
-    tracePointsAction->setToolTip(Tr::tr("Create trace points for memory profiling on the target "
-                                         "device."));
-    command = Core::ActionManager::registerAction(tracePointsAction,
-                                                  Constants::PerfProfilerTaskTracePoints,
-                                                  globalContext);
-    connect(tracePointsAction, &QAction::triggered, this, &PerfProfilerTool::createTracePoints);
-    options->addAction(command);
+    ActionBuilder(options, Constants::PerfProfilerTaskFullRange)
+        .bindContextAction(&m_showFullRange)
+        .setText(Tr::tr("Show Full Range"))
+        .addToContainer(subMenu)
+        .addOnTriggered(this, [] {
+            traceManager().restrictByFilter(traceManager().rangeAndThreadFilter(-1, -1));
+        });
+
+    QAction *tracePointsAction = nullptr;
+    ActionBuilder(options, Constants::PerfProfilerTaskTracePoints)
+        .setText(Tr::tr("Create Memory Trace Points"))
+        .bindContextAction(&tracePointsAction)
+        .setIcon(Debugger::Icons::TRACEPOINT_TOOLBAR.icon())
+        .setIconVisibleInMenu(false)
+        .setToolTip(Tr::tr("Create trace points for memory profiling on the target device."))
+        .addToContainer(subMenu)
+        .addOnTriggered(this, &PerfProfilerTool::createTracePoints);
 
     m_tracePointsButton = new QToolButton;
     StyleHelper::setPanelWidget(m_tracePointsButton);
     m_tracePointsButton->setDefaultAction(tracePointsAction);
     m_objectsToDelete << m_tracePointsButton;
 
-    auto action = new QAction(Tr::tr("Performance Analyzer"), this);
-    action->setToolTip(Tr::tr("Finds performance bottlenecks."));
-    menu->addAction(ActionManager::registerAction(action, Constants::PerfProfilerLocalActionId),
-                    Debugger::Constants::G_ANALYZER_TOOLS);
-    QObject::connect(action, &QAction::triggered, this, [this] {
-        m_perspective.select();
-        ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
-    });
+    QAction *action = nullptr;
+    ActionBuilder(this, Constants::PerfProfilerLocalActionId)
+        .setText(Tr::tr("Performance Analyzer"))
+        .bindContextAction(&action)
+        .setToolTip(Tr::tr("Finds performance bottlenecks."))
+        .addToContainer(Debugger::Constants::M_DEBUG_ANALYZER, Debugger::Constants::G_ANALYZER_TOOLS)
+        .addOnTriggered(this, [this] {
+            m_perspective.select();
+            ProjectExplorerPlugin::runStartupProject(ProjectExplorer::Constants::PERFPROFILER_RUN_MODE);
+        });
 
     m_startAction = Debugger::createStartAction();
     m_stopAction = Debugger::createStopAction();
