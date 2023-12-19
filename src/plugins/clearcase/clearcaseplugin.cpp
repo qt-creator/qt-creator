@@ -614,123 +614,154 @@ ClearCasePluginPrivate::ClearCasePluginPrivate()
     clearcaseMenu->menu()->setTitle(Tr::tr("C&learCase"));
     toolsContainer->addMenu(clearcaseMenu);
     m_menuAction = clearcaseMenu->menu()->menuAction();
-    Command *command;
 
-    m_checkOutAction = new ParameterAction(Tr::tr("Check Out..."), Tr::tr("Check &Out \"%1\"..."), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_checkOutAction, CMD_ID_CHECKOUT,
-        context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+O") : Tr::tr("Alt+L,Alt+O")));
-    connect(m_checkOutAction, &QAction::triggered, this, &ClearCasePluginPrivate::checkOutCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder checkOut(this, CMD_ID_CHECKOUT);
+    checkOut.setParameterText(Tr::tr("Check &Out \"%1\"..."), Tr::tr("Check Out..."),
+                              ActionBuilder::AlwaysEnabled);
+    checkOut.bindContextAction(&m_checkOutAction);
+    checkOut.setContext(context);
+    checkOut.setCommandAttribute(Command::CA_UpdateText);
+    checkOut.setDefaultKeySequence(Tr::tr("Meta+L,Meta+O"), Tr::tr("Alt+L,Alt+O"));
+    checkOut.addOnTriggered(this, &ClearCasePluginPrivate::checkOutCurrentFile);
+    checkOut.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(checkOut.command());
 
-    m_checkInCurrentAction = new ParameterAction(Tr::tr("Check &In..."), Tr::tr("Check &In \"%1\"..."), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_checkInCurrentAction, CMD_ID_CHECKIN, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+I") : Tr::tr("Alt+L,Alt+I")));
-    connect(m_checkInCurrentAction, &QAction::triggered, this, &ClearCasePluginPrivate::startCheckInCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder checkInCurrent(this, CMD_ID_CHECKIN);
+    checkInCurrent.setParameterText(Tr::tr("Check &In \"%1\"..."), Tr::tr("Check &In..."),
+                                    ActionBuilder::AlwaysEnabled);
+    checkInCurrent.bindContextAction(&m_checkInCurrentAction);
+    checkInCurrent.setContext(context);
+    checkInCurrent.setCommandAttribute(Command::CA_UpdateText);
+    checkInCurrent.setDefaultKeySequence(Tr::tr("Meta+L,Meta+I"), Tr::tr("Alt+L,Alt+I"));
+    checkInCurrent.addOnTriggered(this, &ClearCasePluginPrivate::startCheckInCurrentFile);
+    checkInCurrent.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(checkInCurrent.command());
 
-    m_undoCheckOutAction = new ParameterAction(Tr::tr("Undo Check Out"), Tr::tr("&Undo Check Out \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_undoCheckOutAction, CMD_ID_UNDOCHECKOUT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+U") : Tr::tr("Alt+L,Alt+U")));
-    connect(m_undoCheckOutAction, &QAction::triggered, this, &ClearCasePluginPrivate::undoCheckOutCurrent);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder undoCheckOut(this, CMD_ID_UNDOCHECKOUT);
+    undoCheckOut.setParameterText("&Undo Check Out \"%1\"", Tr::tr("Undo Check Out"),
+                                  ActionBuilder::AlwaysEnabled);
+    undoCheckOut.bindContextAction(&m_undoCheckOutAction);
+    undoCheckOut.setContext(context);
+    undoCheckOut.setCommandAttribute(Command::CA_UpdateText);
+    undoCheckOut.setDefaultKeySequence(Tr::tr("Meta+L,Meta+U"), Tr::tr("Alt+L,Alt+U"));
+    undoCheckOut.addOnTriggered(this, &ClearCasePluginPrivate::undoCheckOutCurrent);
+    undoCheckOut.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(undoCheckOut.command());
 
-    m_undoHijackAction = new ParameterAction(Tr::tr("Undo Hijack"), Tr::tr("Undo Hi&jack \"%1\""), ParameterAction::AlwaysEnabled, this);
-    command = ActionManager::registerAction(m_undoHijackAction, CMD_ID_UNDOHIJACK, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+R") : Tr::tr("Alt+L,Alt+R")));
-    connect(m_undoHijackAction, &QAction::triggered, this, &ClearCasePluginPrivate::undoHijackCurrent);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    clearcaseMenu->addSeparator(context);
-
-    m_diffCurrentAction = new ParameterAction(Tr::tr("Diff Current File"), Tr::tr("&Diff \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffCurrentAction,
-        CMD_ID_DIFF_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+D") : Tr::tr("Alt+L,Alt+D")));
-    connect(m_diffCurrentAction, &QAction::triggered, this, &ClearCasePluginPrivate::diffCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_historyCurrentAction = new ParameterAction(Tr::tr("History Current File"), Tr::tr("&History \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_historyCurrentAction,
-        CMD_ID_HISTORY_CURRENT, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+H") : Tr::tr("Alt+L,Alt+H")));
-    connect(m_historyCurrentAction, &QAction::triggered, this,
-        &ClearCasePluginPrivate::historyCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_annotateCurrentAction = new ParameterAction(Tr::tr("Annotate Current File"), Tr::tr("&Annotate \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_annotateCurrentAction,
-        CMD_ID_ANNOTATE, context);
-    command->setAttribute(Command::CA_UpdateText);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+A") : Tr::tr("Alt+L,Alt+A")));
-    connect(m_annotateCurrentAction, &QAction::triggered, this,
-        &ClearCasePluginPrivate::annotateCurrentFile);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
-
-    m_addFileAction = new ParameterAction(Tr::tr("Add File..."), Tr::tr("Add File \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_addFileAction, CMD_ID_ADD_FILE, context);
-    command->setAttribute(Command::CA_UpdateText);
-    connect(m_addFileAction, &QAction::triggered, this, &ClearCasePluginPrivate::addCurrentFile);
-    clearcaseMenu->addAction(command);
+    ActionBuilder undoHijack(this, CMD_ID_UNDOHIJACK);
+    undoHijack.setParameterText(Tr::tr("Undo Hi&jack \"%1\""), Tr::tr("Undo Hijack"),
+                                ActionBuilder::AlwaysEnabled);
+    undoHijack.bindContextAction(&m_undoHijackAction);
+    undoHijack.setContext(context);
+    undoHijack.setCommandAttribute(Command::CA_UpdateText);
+    undoHijack.setDefaultKeySequence(Tr::tr("Meta+L,Meta+R"), Tr::tr("Alt+L,Alt+R"));
+    undoHijack.addOnTriggered(this, &ClearCasePluginPrivate::undoHijackCurrent);
+    undoHijack.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(undoHijack.command());
 
     clearcaseMenu->addSeparator(context);
 
-    m_diffActivityAction = new QAction(Tr::tr("Diff A&ctivity..."), this);
-    m_diffActivityAction->setEnabled(false);
-    command = ActionManager::registerAction(m_diffActivityAction, CMD_ID_DIFF_ACTIVITY, context);
-    connect(m_diffActivityAction, &QAction::triggered, this, &ClearCasePluginPrivate::diffActivity);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder diffCurrent(this, CMD_ID_DIFF_CURRENT);
+    diffCurrent.setParameterText(Tr::tr("&Diff \"%1\""), Tr::tr("Diff Current File"),
+                                 ActionBuilder::EnabledWithParameter);
+    diffCurrent.bindContextAction(&m_diffCurrentAction);
+    diffCurrent.setContext(context);
+    diffCurrent.setCommandAttribute(Command::CA_UpdateText);
+    diffCurrent.setDefaultKeySequence(Tr::tr("Meta+L,Meta+D"), Tr::tr("Alt+L,Alt+D"));
+    diffCurrent.addOnTriggered(this, &ClearCasePluginPrivate::diffCurrentFile);
+    diffCurrent.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(diffCurrent.command());
 
-    m_checkInActivityAction = new ParameterAction(Tr::tr("Ch&eck In Activity"), Tr::tr("Chec&k In Activity \"%1\"..."), ParameterAction::EnabledWithParameter, this);
-    m_checkInActivityAction->setEnabled(false);
-    command = ActionManager::registerAction(m_checkInActivityAction, CMD_ID_CHECKIN_ACTIVITY, context);
-    connect(m_checkInActivityAction, &QAction::triggered, this, &ClearCasePluginPrivate::startCheckInActivity);
-    command->setAttribute(Command::CA_UpdateText);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder historyCurrent(this, CMD_ID_HISTORY_CURRENT);
+    historyCurrent.setParameterText(Tr::tr("&History \"%1\""), Tr::tr("History Current File"),
+                                    ActionBuilder::EnabledWithParameter);
+    historyCurrent.bindContextAction(&m_historyCurrentAction);
+    historyCurrent.setContext(context);
+    historyCurrent.setCommandAttribute(Command::CA_UpdateText);
+    historyCurrent.setDefaultKeySequence(Tr::tr("Meta+L,Meta+H"), Tr::tr("Alt+L,Alt+H"));
+    historyCurrent.addOnTriggered(this, &ClearCasePluginPrivate::historyCurrentFile);
+    historyCurrent.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(historyCurrent.command());
+
+    ActionBuilder annotateCurrent(this, CMD_ID_ANNOTATE);
+    annotateCurrent.setParameterText(Tr::tr("&Annotate \"%1\""),Tr::tr("Annotate Current File"),
+                                     ActionBuilder::EnabledWithParameter);
+    annotateCurrent.bindContextAction(&m_annotateCurrentAction);
+    annotateCurrent.setContext(context);
+    annotateCurrent.setCommandAttribute(Command::CA_UpdateText);
+    annotateCurrent.setDefaultKeySequence(Tr::tr("Meta+L,Meta+A"), Tr::tr("Alt+L,Alt+A"));
+    annotateCurrent.addOnTriggered(this, &ClearCasePluginPrivate::annotateCurrentFile);
+    annotateCurrent.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(annotateCurrent.command());
+
+    ActionBuilder addFile(this, CMD_ID_ADD_FILE);
+    addFile.setParameterText(Tr::tr("Add File \"%1\""), Tr::tr("Add File..."),
+                             ActionBuilder::EnabledWithParameter);
+    addFile.bindContextAction(&m_addFileAction);
+    addFile.setContext(context);
+    addFile.setCommandAttribute(Command::CA_UpdateText);
+    addFile.addOnTriggered(this, &ClearCasePluginPrivate::addCurrentFile);
+    addFile.addToContainer(CMD_ID_CLEARCASE_MENU);
 
     clearcaseMenu->addSeparator(context);
 
-    m_updateIndexAction = new QAction(Tr::tr("Update Index"), this);
-    command = ActionManager::registerAction(m_updateIndexAction, CMD_ID_UPDATEINDEX, context);
-    connect(m_updateIndexAction, &QAction::triggered, this, &ClearCasePluginPrivate::updateIndex);
-    clearcaseMenu->addAction(command);
+    ActionBuilder diffActivity(this, CMD_ID_DIFF_ACTIVITY);
+    diffActivity.setText(Tr::tr("Diff A&ctivity..."));
+    diffActivity.bindContextAction(&m_diffActivityAction);
+    diffActivity.setContext(context);
+    diffActivity.setEnabled(false);
+    diffActivity.addOnTriggered(this, &ClearCasePluginPrivate::diffActivity);
+    diffActivity.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(diffActivity.command());
 
-    m_updateViewAction = new ParameterAction(Tr::tr("Update View"), Tr::tr("U&pdate View \"%1\""), ParameterAction::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_updateViewAction, CMD_ID_UPDATE_VIEW, context);
-    connect(m_updateViewAction, &QAction::triggered, this, &ClearCasePluginPrivate::updateView);
-    command->setAttribute(Command::CA_UpdateText);
-    clearcaseMenu->addAction(command);
+    ActionBuilder checkInActivity(this, CMD_ID_CHECKIN_ACTIVITY);
+    checkInActivity.setParameterText(Tr::tr("Chec&k In Activity \"%1\"..."), Tr::tr("Ch&eck In Activity"),
+                                     ActionBuilder::EnabledWithParameter);
+    checkInActivity.bindContextAction(&m_checkInActivityAction);
+    checkInActivity.setContext(context);
+    checkInActivity.setEnabled(false);
+    checkInActivity.addOnTriggered(this, &ClearCasePluginPrivate::startCheckInActivity);
+    checkInActivity.setCommandAttribute(Command::CA_UpdateText);
+    checkInActivity.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(checkInActivity.command());
 
     clearcaseMenu->addSeparator(context);
 
-    m_checkInAllAction = new QAction(Tr::tr("Check In All &Files..."), this);
-    command = ActionManager::registerAction(m_checkInAllAction, CMD_ID_CHECKIN_ALL, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+F") : Tr::tr("Alt+L,Alt+F")));
-    connect(m_checkInAllAction, &QAction::triggered, this, &ClearCasePluginPrivate::startCheckInAll);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder updateIndex(this, CMD_ID_UPDATEINDEX);
+    updateIndex.setText(Tr::tr("Update Index"));
+    updateIndex.bindContextAction(&m_updateIndexAction);
+    updateIndex.setContext(context);
+    updateIndex.addOnTriggered(this, &ClearCasePluginPrivate::updateIndex);
+    updateIndex.addToContainer(CMD_ID_CLEARCASE_MENU);
 
-    m_statusAction = new QAction(Tr::tr("View &Status"), this);
-    command = ActionManager::registerAction(m_statusAction, CMD_ID_STATUS, context);
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+L,Meta+S") : Tr::tr("Alt+L,Alt+S")));
-    connect(m_statusAction, &QAction::triggered, this, &ClearCasePluginPrivate::viewStatus);
-    clearcaseMenu->addAction(command);
-    m_commandLocator->appendCommand(command);
+    ActionBuilder updateView(this, CMD_ID_UPDATE_VIEW);
+    updateView.setParameterText(Tr::tr("U&pdate View \"%1\""), Tr::tr("Update View"),
+                                ActionBuilder::EnabledWithParameter);
+    updateView.bindContextAction(&m_updateViewAction);
+    updateView.setContext(context);
+    updateView.setCommandAttribute(Command::CA_UpdateText);
+    updateView.addOnTriggered(this, &ClearCasePluginPrivate::updateView);
+    updateView.addToContainer(CMD_ID_CLEARCASE_MENU);
+
+    clearcaseMenu->addSeparator(context);
+
+    ActionBuilder checkInAll(this, CMD_ID_CHECKIN_ALL);
+    checkInAll.setText(Tr::tr("Check In All &Files..."));
+    checkInAll.bindContextAction(&m_checkInAllAction);
+    checkInAll.setContext(context);
+    checkInAll.setDefaultKeySequence(Tr::tr("Meta+L,Meta+F"), Tr::tr("Alt+L,Alt+F"));
+    checkInAll.addOnTriggered(this, &ClearCasePluginPrivate::startCheckInAll);
+    checkInAll.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(checkInAll.command());
+
+    ActionBuilder status(this, CMD_ID_STATUS);
+    status.setText(Tr::tr("View &Status"));
+    status.bindContextAction(&m_statusAction);
+    status.setContext(context);
+    status.setDefaultKeySequence(Tr::tr("Meta+L,Meta+S"), Tr::tr("Alt+L,Alt+S"));
+    status.addOnTriggered(this, &ClearCasePluginPrivate::viewStatus);
+    status.addToContainer(CMD_ID_CLEARCASE_MENU);
+    m_commandLocator->appendCommand(status.command());
 }
 
 // called before closing the submit editor
