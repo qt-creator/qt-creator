@@ -19,6 +19,7 @@
 #include <QDialogButtonBox>
 #include <QFormLayout>
 
+using namespace Core;
 using namespace Utils;
 
 namespace Coco {
@@ -36,15 +37,10 @@ public:
 
     void initialize() final
     {
-        using namespace Core;
-        ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
-        if (menu) {
-            auto startCoco = new QAction("Squish Coco ...", this);
-            Command *cmd = ActionManager::registerAction(startCoco, "Coco.startCoco");
-            menu->addAction(cmd, Debugger::Constants::G_ANALYZER_TOOLS);
-
-            connect(startCoco, &QAction::triggered, this, [this] { this->startCoco(); });
-        }
+        ActionBuilder(this, "Coco.startCoco")
+            .setText("Squish Coco ...")
+            .addToContainer(Debugger::Constants::M_DEBUG_ANALYZER,  Debugger::Constants::G_ANALYZER_TOOLS)
+            .addOnTriggered(this, &CocoPlugin::startCoco);
     }
 
     void startCoco()
@@ -53,7 +49,7 @@ public:
             m_client->shutdown();
         m_client = nullptr;
 
-        QDialog dialog(Core::ICore::dialogParent());
+        QDialog dialog(ICore::dialogParent());
         dialog.setModal(true);
         auto layout = new QFormLayout();
 
