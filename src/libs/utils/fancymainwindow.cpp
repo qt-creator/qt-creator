@@ -34,6 +34,47 @@ namespace Utils {
 
 class TitleBarWidget;
 
+struct DocksAndSizes
+{
+    QList<QDockWidget *> docks;
+    QList<int> sizes;
+
+    QVariantMap toMap() const;
+    static DocksAndSizes fromMap(const QVariantMap &store, const QList<QDockWidget *> &allDocks);
+};
+
+const char kDocksAndSizesDocks[] = "Docks";
+const char kDocksAndSizesSizes[] = "Sizes";
+
+QVariantMap DocksAndSizes::toMap() const
+{
+    return {{kDocksAndSizesDocks,
+             QVariant::fromValue(transform(docks, [](QDockWidget *w) { return w->objectName(); }))},
+            {kDocksAndSizesSizes, QVariant::fromValue(sizes)}};
+}
+
+DocksAndSizes DocksAndSizes::fromMap(const QVariantMap &store, const QList<QDockWidget *> &docks)
+{
+    DocksAndSizes info;
+    info.docks = transform(store.value(kDocksAndSizesDocks).toStringList(),
+                           [docks](const QString &objectName) {
+                               return findOrDefault(docks, [objectName](QDockWidget *w) {
+                                   return w->objectName() == objectName;
+                               });
+                           });
+    info.sizes = store.value(kDocksAndSizesSizes).value<QList<int>>();
+
+    // clean up for docks that could not be found
+    for (int i = 0; i < info.docks.size(); ++i) {
+        if (!info.docks.at(i)) {
+            info.docks.removeAt(i);
+            if (i < info.sizes.size())
+                info.sizes.removeAt(i);
+        }
+    }
+    return info;
+}
+
 struct FancyMainWindowPrivate
 {
     FancyMainWindowPrivate(FancyMainWindow *parent);
@@ -47,7 +88,7 @@ struct FancyMainWindowPrivate
     QAction m_showCentralWidget;
     QAction m_menuSeparator1;
     QAction m_resetLayoutAction;
-    QHash<int, QList<QDockWidget *>> m_hiddenAreas; // Qt::DockWidgetArea -> dock widgets
+    QHash<int, DocksAndSizes> m_hiddenAreas; // Qt::DockWidgetArea -> dock widgets
 
     // Usually dock widgets automatically uncollapse when e.g. other docks are hidden
     // and they are the only one left. We need to block that when hiding a complete
@@ -59,12 +100,6 @@ class DockWidget : public QDockWidget
 {
     Q_OBJECT
 public:
-    struct DocksAndSizes
-    {
-        QList<QDockWidget *> docks;
-        QList<int> sizes;
-    };
-
     DockWidget(QWidget *inner, FancyMainWindow *parent, bool immutable = false);
     ~DockWidget();
 
@@ -411,7 +446,7 @@ void DockWidget::setCollapsed(bool collapse)
     emit collapseChanged();
 }
 
-DockWidget::DocksAndSizes DockWidget::verticallyArrangedDocks()
+DocksAndSizes DockWidget::verticallyArrangedDocks()
 {
     DocksAndSizes result;
     const QList<QDockWidget *> inArea = docksInArea();
@@ -458,11 +493,10 @@ FancyMainWindowPrivate::FancyMainWindowPrivate(FancyMainWindow *parent)
 
 QVariantHash FancyMainWindowPrivate::hiddenDockAreasToHash() const
 {
-    QHash<QString, QVariant> hash;
+    QVariantHash hash;
     for (auto it = m_hiddenAreas.constKeyValueBegin(); it != m_hiddenAreas.constKeyValueEnd();
          ++it) {
-        hash.insert(QString::number(it->first),
-                    transform(it->second, [](QDockWidget *w) { return w->objectName(); }));
+        hash.insert(QString::number(it->first), it->second.toMap());
     }
     return hash;
 }
@@ -479,17 +513,9 @@ void FancyMainWindowPrivate::restoreHiddenDockAreasFromHash(const QVariantHash &
                 && area != Qt::RightDockWidgetArea && area != Qt::BottomDockWidgetArea)) {
             continue;
         }
-        QList<QDockWidget *> hiddenDocks;
-        const QStringList names = it->second.toStringList();
-        for (const QString &name : names) {
-            QDockWidget *dock = findOrDefault(docks, [name](QDockWidget *w) {
-                return w->objectName() == name;
-            });
-            if (dock)
-                hiddenDocks.append(dock);
-        }
-        if (!hiddenDocks.isEmpty())
-            m_hiddenAreas.insert(area, hiddenDocks);
+        const DocksAndSizes info = DocksAndSizes::fromMap(it->second.toMap(), docks);
+        if (!info.docks.isEmpty())
+            m_hiddenAreas.insert(area, info);
     }
 }
 
@@ -684,16 +710,23 @@ void FancyMainWindow::showCentralWidget(bool on)
 
 void FancyMainWindow::setDockAreaVisible(Qt::DockWidgetArea area, bool visible)
 {
+    const auto orientationForArea = [](Qt::DockWidgetArea area) {
+        if (area == Qt::LeftDockWidgetArea || area == Qt::RightDockWidgetArea)
+            return Qt::Vertical;
+        return Qt::Horizontal;
+    };
     d->m_blockAutoUncollapse = true;
     if (visible) {
-        const QList<QDockWidget *> docks = d->m_hiddenAreas.value(area);
-        for (QDockWidget *w : docks)
+        const DocksAndSizes dockInfo = d->m_hiddenAreas.value(area);
+        for (QDockWidget *w : std::as_const(dockInfo.docks))
             w->setVisible(true);
+        resizeDocks(dockInfo.docks, dockInfo.sizes, orientationForArea(area));
         d->m_hiddenAreas.remove(area);
     } else {
         const QList<QDockWidget *> docks = docksInArea(area);
         if (!docks.isEmpty()) {
-            d->m_hiddenAreas.insert(area, docks);
+            const QList<int> sizes = transform(docks, [](QDockWidget *w) { return w->height(); });
+            d->m_hiddenAreas.insert(area, DocksAndSizes{docks, sizes});
             for (QDockWidget *w : docks)
                 w->setVisible(false);
         }
