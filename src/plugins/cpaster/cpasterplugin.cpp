@@ -40,6 +40,7 @@
 
 using namespace Core;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CodePaster {
 
@@ -139,28 +140,30 @@ CodePasterPluginPrivate::CodePasterPluginPrivate()
 
     ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
 
-    ActionContainer *cpContainer = ActionManager::createMenu("CodePaster");
+    const Id menu = "CodePaster";
+    ActionContainer *cpContainer = ActionManager::createMenu(menu);
     cpContainer->menu()->setTitle(Tr::tr("&Code Pasting"));
     toolsContainer->addMenu(cpContainer);
 
-    Command *command;
+    ActionBuilder(this, "CodePaster.Post")
+        .setText(Tr::tr("Paste Snippet..."))
+        .bindContextAction(&m_postEditorAction)
+        .setDefaultKeySequence(Tr::tr("Meta+C,Meta+P"), Tr::tr("Alt+C,Alt+P"))
+        .addToContainer(menu)
+        .addOnTriggered(this, &CodePasterPluginPrivate::pasteSnippet);
 
-    m_postEditorAction = new QAction(Tr::tr("Paste Snippet..."), this);
-    command = ActionManager::registerAction(m_postEditorAction, "CodePaster.Post");
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+P") : Tr::tr("Alt+C,Alt+P")));
-    connect(m_postEditorAction, &QAction::triggered, this, &CodePasterPluginPrivate::pasteSnippet);
-    cpContainer->addAction(command);
+    ActionBuilder(this, "CodePaster.Fetch")
+        .setText(Tr::tr("Fetch Snippet..."))
+        .bindContextAction(&m_fetchAction)
+        .setDefaultKeySequence(Tr::tr("Meta+C,Meta+F"), Tr::tr("Alt+C,Alt+F"))
+        .addToContainer(menu)
+        .addOnTriggered(this, &CodePasterPluginPrivate::fetch);
 
-    m_fetchAction = new QAction(Tr::tr("Fetch Snippet..."), this);
-    command = ActionManager::registerAction(m_fetchAction, "CodePaster.Fetch");
-    command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+C,Meta+F") : Tr::tr("Alt+C,Alt+F")));
-    connect(m_fetchAction, &QAction::triggered, this, &CodePasterPluginPrivate::fetch);
-    cpContainer->addAction(command);
-
-    m_fetchUrlAction = new QAction(Tr::tr("Fetch from URL..."), this);
-    command = ActionManager::registerAction(m_fetchUrlAction, "CodePaster.FetchUrl");
-    connect(m_fetchUrlAction, &QAction::triggered, this, &CodePasterPluginPrivate::fetchUrl);
-    cpContainer->addAction(command);
+    ActionBuilder(this, "CodePaster.FetchUrl")
+        .setText(Tr::tr("Fetch from URL..."))
+        .bindContextAction(&m_fetchUrlAction)
+        .addToContainer(menu)
+        .addOnTriggered(this, &CodePasterPluginPrivate::fetchUrl);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag CodePasterPlugin::aboutToShutdown()
