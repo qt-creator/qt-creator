@@ -189,7 +189,8 @@ struct DockAreaWidgetPrivate
 {
     DockAreaWidget *q = nullptr;
     QBoxLayout *m_layout = nullptr;
-    DockAreaLayout *m_contentsLayout = nullptr;
+    // DockAreaLayout is not a QObject -> std::unique_ptr manages deletion
+    std::unique_ptr<DockAreaLayout> m_contentsLayout;
     DockAreaTitleBar *m_titleBar = nullptr;
     DockManager *m_dockManager = nullptr;
     AutoHideDockContainer *m_autoHideDockContainer = nullptr;
@@ -328,7 +329,7 @@ DockAreaWidget::DockAreaWidget(DockManager *dockManager, DockContainerWidget *pa
     setLayout(d->m_layout);
 
     d->createTitleBar();
-    d->m_contentsLayout = new DockAreaLayout(d->m_layout);
+    d->m_contentsLayout = std::make_unique<DockAreaLayout>(d->m_layout);
     if (d->m_dockManager)
         emit d->m_dockManager->dockAreaCreated(this);
 }
@@ -336,8 +337,6 @@ DockAreaWidget::DockAreaWidget(DockManager *dockManager, DockContainerWidget *pa
 DockAreaWidget::~DockAreaWidget()
 {
     qCInfo(adsLog) << Q_FUNC_INFO;
-    delete d->m_contentsLayout;
-    delete d;
 }
 
 DockManager *DockAreaWidget::dockManager() const
