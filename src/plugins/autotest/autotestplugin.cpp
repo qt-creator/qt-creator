@@ -294,35 +294,33 @@ void AutotestPlugin::extensionsInitialized()
     contextMenu->addMenu(runTestMenu);
     contextMenu->addSeparator();
 
-    ActionBuilder runTest(this, Constants::ACTION_RUN_UCURSOR);
-    runTest.setText(Tr::tr("&Run Test"));
-    runTest.setEnabled(false);
-    runTest.setIcon(Utils::Icons::RUN_SMALL.icon());
-    runTest.addToContainer(menuId);
-    runTest.addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Run); });
+    ActionBuilder(this, Constants::ACTION_RUN_UCURSOR)
+        .setText(Tr::tr("&Run Test"))
+        .setEnabled(false)
+        .setIcon(Utils::Icons::RUN_SMALL.icon())
+        .addToContainer(menuId)
+        .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Run); });
 
-    ActionBuilder runTestNoDeploy(this, Constants::ACTION_RUN_UCURSOR_NODEPLOY);
-    runTestNoDeploy.setText(Tr::tr("Run Test Without Deployment"));
-    runTestNoDeploy.setIcon(Utils::Icons::RUN_SMALL.icon());
-    runTestNoDeploy.setEnabled(false);
-    runTestNoDeploy.addToContainer(menuId);
-    runTestNoDeploy.addOnTriggered(
-        [] { dd->onRunUnderCursorTriggered(TestRunMode::RunWithoutDeploy); });
+    ActionBuilder(this, Constants::ACTION_RUN_UCURSOR_NODEPLOY)
+        .setText(Tr::tr("Run Test Without Deployment"))
+        .setIcon(Utils::Icons::RUN_SMALL.icon())
+        .setEnabled(false)
+        .addToContainer(menuId)
+        .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::RunWithoutDeploy); });
 
-    ActionBuilder debugTest(this, Constants::ACTION_RUN_DBG_UCURSOR);
-    debugTest.setText(Tr::tr("&Debug Test"));
-    debugTest.setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
-    debugTest.setEnabled(false);
-    debugTest.addToContainer(menuId);
-    debugTest.addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Debug); });
+    ActionBuilder(this, Constants::ACTION_RUN_DBG_UCURSOR)
+        .setText(Tr::tr("&Debug Test"))
+        .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
+        .setEnabled(false)
+        .addToContainer(menuId)
+        .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::Debug); });
 
-    ActionBuilder debugTestNoDeploy(this, Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY);
-    debugTestNoDeploy.setText(Tr::tr("Debug Test Without Deployment"));
-    debugTestNoDeploy.setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon());
-    debugTestNoDeploy.setEnabled(false);
-    debugTestNoDeploy.addToContainer(menuId);
-    debugTestNoDeploy.addOnTriggered(
-        [] { dd->onRunUnderCursorTriggered(TestRunMode::DebugWithoutDeploy); });
+    ActionBuilder(this, Constants::ACTION_RUN_DBG_UCURSOR_NODEPLOY)
+        .setText(Tr::tr("Debug Test Without Deployment"))
+        .setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL.icon())
+        .setEnabled(false)
+        .addToContainer(menuId)
+        .addOnTriggered([] { dd->onRunUnderCursorTriggered(TestRunMode::DebugWithoutDeploy); });
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag AutotestPlugin::aboutToShutdown()
