@@ -31,20 +31,20 @@ public:
     ActionBuilder(QObject *contextActionParent, const Utils::Id actionId);
     ~ActionBuilder();
 
-    void setContext(const Utils::Id id);
-    void setContext(const Core::Context &context);
-    void setText(const QString &text);
-    void setIconText(const QString &text);
-    void setToolTip(const QString &toolTip);
-    void setCommandAttribute(Core::Command::CommandAttribute attr);
-    void setCommandDescription(const QString &desc);
-    void addToContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
-    void addToContainers(QList<Utils::Id> containerIds, Utils::Id groupId = {},
+    ActionBuilder &setContext(const Utils::Id id);
+    ActionBuilder &setContext(const Core::Context &context);
+    ActionBuilder &setText(const QString &text);
+    ActionBuilder &setIconText(const QString &text);
+    ActionBuilder &setToolTip(const QString &toolTip);
+    ActionBuilder &setCommandAttribute(Core::Command::CommandAttribute attr);
+    ActionBuilder &setCommandDescription(const QString &desc);
+    ActionBuilder &addToContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
+    ActionBuilder &addToContainers(QList<Utils::Id> containerIds, Utils::Id groupId = {},
                          bool needsToExist = true);
-    void addOnTriggered(const std::function<void()> &func);
+    ActionBuilder &addOnTriggered(const std::function<void()> &func);
 
     template<class T, typename F>
-    void addOnTriggered(T *guard,
+    ActionBuilder &addOnTriggered(T *guard,
                         F &&function,
                         Qt::ConnectionType connectionType = Qt::AutoConnection)
     {
@@ -53,10 +53,11 @@ public:
                          guard,
                          std::forward<F>(function),
                          connectionType);
+        return *this;
     }
 
     template<class T, typename F>
-    void addOnToggled(T *guard,
+    ActionBuilder &addOnToggled(T *guard,
                         F &&function,
                         Qt::ConnectionType connectionType = Qt::AutoConnection)
     {
@@ -65,37 +66,38 @@ public:
                          guard,
                          std::forward<F>(function),
                          connectionType);
+        return *this;
     }
 
-    void setDefaultKeySequence(const QKeySequence &seq);
-    void setDefaultKeySequences(const QList<QKeySequence> &seqs);
-    void setDefaultKeySequence(const QString &mac, const QString &nonMac);
-    void setIcon(const QIcon &icon);
-    void setIconVisibleInMenu(bool on);
-    void setTouchBarIcon(const QIcon &icon);
-    void setTouchBarText(const QString &text);
-    void setEnabled(bool on);
-    void setChecked(bool on);
-    void setVisible(bool on);
-    void setCheckable(bool on);
-    void setSeperator(bool on);
-    void setScriptable(bool on);
-    void setMenuRole(QAction::MenuRole role);
+    ActionBuilder &setDefaultKeySequence(const QKeySequence &seq);
+    ActionBuilder &setDefaultKeySequences(const QList<QKeySequence> &seqs);
+    ActionBuilder &setDefaultKeySequence(const QString &mac, const QString &nonMac);
+    ActionBuilder &setIcon(const QIcon &icon);
+    ActionBuilder &setIconVisibleInMenu(bool on);
+    ActionBuilder &setTouchBarIcon(const QIcon &icon);
+    ActionBuilder &setTouchBarText(const QString &text);
+    ActionBuilder &setEnabled(bool on);
+    ActionBuilder &setChecked(bool on);
+    ActionBuilder &setVisible(bool on);
+    ActionBuilder &setCheckable(bool on);
+    ActionBuilder &setSeperator(bool on);
+    ActionBuilder &setScriptable(bool on);
+    ActionBuilder &setMenuRole(QAction::MenuRole role);
 
     enum EnablingMode { AlwaysEnabled, EnabledWithParameter };
-    void setParameterText(const QString &parametrizedText,
+    ActionBuilder &setParameterText(const QString &parametrizedText,
                           const QString &emptyText,
                           EnablingMode mode = EnabledWithParameter);
 
+    ActionBuilder &bindContextAction(QAction **dest);
+    ActionBuilder &bindContextAction(Utils::ParameterAction **dest);
+    ActionBuilder &augmentActionWithShortcutToolTip();
 
     Utils::Id id() const;
     Command *command() const;
     QAction *commandAction() const;
     QAction *contextAction() const;
     Utils::ParameterAction *contextParameterAction() const;
-    void bindContextAction(QAction **dest);
-    void bindContextAction(Utils::ParameterAction **dest);
-    void augmentActionWithShortcutToolTip();
 
 private:
     class ActionBuilderPrivate *d = nullptr;

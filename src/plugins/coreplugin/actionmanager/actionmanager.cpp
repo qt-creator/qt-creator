@@ -106,123 +106,145 @@ ActionBuilder::~ActionBuilder()
     delete d;
 }
 
-void ActionBuilder::setText(const QString &text)
+ActionBuilder &ActionBuilder::setText(const QString &text)
 {
     d->contextAction->setText(text);
+    return *this;
 }
 
-void ActionBuilder::setIconText(const QString &text)
+ActionBuilder &ActionBuilder::setIconText(const QString &text)
 {
     d->contextAction->setIconText(text);
+    return *this;
 }
 
-void ActionBuilder::setToolTip(const QString &toolTip)
+ActionBuilder &ActionBuilder::setToolTip(const QString &toolTip)
 {
     d->contextAction->setToolTip(toolTip);
+    return *this;
 }
 
-void ActionBuilder::setCommandAttribute(Command::CommandAttribute attr)
+ActionBuilder &ActionBuilder::setCommandAttribute(Command::CommandAttribute attr)
 {
     d->command->setAttribute(attr);
+    return *this;
 }
 
-void ActionBuilder::setCommandDescription(const QString &desc)
+ActionBuilder &ActionBuilder::setCommandDescription(const QString &desc)
 {
     d->command->setDescription(desc);
+    return *this;
 }
 
-void ActionBuilder::addToContainer(Id containerId, Id groupId, bool needsToExist)
+ActionBuilder &ActionBuilder::addToContainer(Id containerId, Id groupId, bool needsToExist)
 {
-    QTC_ASSERT(containerId.isValid(), return);
+    QTC_ASSERT(containerId.isValid(), return *this);
     if (ActionContainer *container = ActionManager::actionContainer(containerId)) {
         container->addAction(d->command, groupId);
-        return;
+        return *this;
     }
     QTC_CHECK(!needsToExist);
+    return *this;
 }
 
-void ActionBuilder::addToContainers(QList<Id> containerIds, Id groupId, bool needsToExist)
+ActionBuilder &ActionBuilder::addToContainers(QList<Id> containerIds, Id groupId, bool needsToExist)
 {
     for (const Id &containerId : containerIds)
         addToContainer(containerId, groupId, needsToExist);
+    return *this;
 }
 
-void ActionBuilder::addOnTriggered(const std::function<void ()> &func)
+ActionBuilder &ActionBuilder::addOnTriggered(const std::function<void()> &func)
 {
     QObject::connect(d->contextAction, &QAction::triggered, d->contextAction, func);
+    return *this;
 }
 
-void ActionBuilder::setDefaultKeySequence(const QKeySequence &seq)
+ActionBuilder &ActionBuilder::setDefaultKeySequence(const QKeySequence &seq)
 {
     d->command->setDefaultKeySequence(seq);
+    return *this;
 }
 
-void ActionBuilder::setDefaultKeySequences(const QList<QKeySequence> &seqs)
+ActionBuilder &ActionBuilder::setDefaultKeySequences(const QList<QKeySequence> &seqs)
 {
     d->command->setDefaultKeySequences(seqs);
+    return *this;
 }
 
-void ActionBuilder::setDefaultKeySequence(const QString &mac, const QString &nonMac)
+ActionBuilder &ActionBuilder::setDefaultKeySequence(const QString &mac, const QString &nonMac)
 {
     d->command->setDefaultKeySequence(QKeySequence(useMacShortcuts ? mac : nonMac));
+    return *this;
 }
 
-void ActionBuilder::setIcon(const QIcon &icon)
+ActionBuilder &ActionBuilder::setIcon(const QIcon &icon)
 {
     d->contextAction->setIcon(icon);
+    return *this;
 }
 
-void ActionBuilder::setIconVisibleInMenu(bool on)
+ActionBuilder &ActionBuilder::setIconVisibleInMenu(bool on)
 {
     d->contextAction->setIconVisibleInMenu(on);
+    return *this;
 }
 
-void ActionBuilder::setTouchBarIcon(const QIcon &icon)
+ActionBuilder &ActionBuilder::setTouchBarIcon(const QIcon &icon)
 {
     d->command->setTouchBarIcon(icon);
+    return *this;
 }
 
-void ActionBuilder::setTouchBarText(const QString &text)
+ActionBuilder &ActionBuilder::setTouchBarText(const QString &text)
 {
     d->command->setTouchBarText(text);
+    return *this;
 }
 
-void ActionBuilder::setEnabled(bool on)
+ActionBuilder &ActionBuilder::setEnabled(bool on)
 {
     d->contextAction->setEnabled(on);
+    return *this;
 }
 
-void ActionBuilder::setChecked(bool on)
+ActionBuilder &ActionBuilder::setChecked(bool on)
 {
     d->contextAction->setChecked(on);
+    return *this;
 }
 
-void ActionBuilder::setVisible(bool on)
+ActionBuilder &ActionBuilder::setVisible(bool on)
 {
     d->contextAction->setVisible(on);
+    return *this;
 }
 
-void ActionBuilder::setCheckable(bool on)
+ActionBuilder &ActionBuilder::setCheckable(bool on)
 {
     d->contextAction->setCheckable(on);
+    return *this;
 }
 
-void ActionBuilder::setSeperator(bool on)
+ActionBuilder &ActionBuilder::setSeperator(bool on)
 {
     d->contextAction->setSeparator(on);
+    return *this;
 }
 
-void ActionBuilder::setScriptable(bool on)
+ActionBuilder &ActionBuilder::setScriptable(bool on)
 {
     d->scriptable = on;
+    return *this;
 }
 
-void ActionBuilder::setMenuRole(QAction::MenuRole role)
+ActionBuilder &ActionBuilder::setMenuRole(QAction::MenuRole role)
 {
     d->contextAction->setMenuRole(role);
+    return *this;
 }
 
-void ActionBuilder::setParameterText(const QString &parameterText,
+ActionBuilder &ActionBuilder::setParameterText(const QString &parameterText,
                                      const QString &emptyText,
                                      EnablingMode mode)
 {
@@ -235,6 +257,7 @@ void ActionBuilder::setParameterText(const QString &parameterText,
                                    ? ParameterAction::AlwaysEnabled
                                    : ParameterAction::EnabledWithParameter);
     d->contextAction->setText(emptyText);
+    return *this;
 }
 
 Id ActionBuilder::id() const
@@ -262,32 +285,37 @@ ParameterAction *ActionBuilder::contextParameterAction() const
     return d->contextAction;
 }
 
-void ActionBuilder::bindContextAction(QAction **dest)
+ActionBuilder &ActionBuilder::bindContextAction(QAction **dest)
 {
-    QTC_ASSERT(dest, return);
+    QTC_ASSERT(dest, return *this);
     *dest = d->contextAction;
+    return *this;
 }
 
-void ActionBuilder::bindContextAction(Utils::ParameterAction **dest)
+ActionBuilder &ActionBuilder::bindContextAction(Utils::ParameterAction **dest)
 {
-    QTC_ASSERT(dest, return);
+    QTC_ASSERT(dest, return *this);
     *dest = d->contextAction;
+    return *this;
 }
 
-void ActionBuilder::augmentActionWithShortcutToolTip()
+ActionBuilder &ActionBuilder::augmentActionWithShortcutToolTip()
 {
     d->command->augmentActionWithShortcutToolTip(d->contextAction);
+    return *this;
 }
 
-void ActionBuilder::setContext(Id id)
+ActionBuilder &ActionBuilder::setContext(Id id)
 {
     d->context = Context(id);
+    return *this;
 }
 
-void ActionBuilder::setContext(const Context &context)
+ActionBuilder &ActionBuilder::setContext(const Context &context)
 {
-    QTC_ASSERT(!context.isEmpty(), return);
+    QTC_ASSERT(!context.isEmpty(), return *this);
     d->context = context;
+    return *this;
 }
 
 // Separator
