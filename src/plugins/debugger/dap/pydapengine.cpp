@@ -42,7 +42,7 @@ static FilePath packageDir(const FilePath &python, const QString &packageName)
 {
     expected_str<FilePath> baseDir = python.needsDevice() ? python.tmpDir()
                                                           : Core::ICore::userResourcePath();
-    return baseDir ? baseDir->pathAppended("debugpy") : FilePath();
+    return baseDir ? baseDir->pathAppended(packageName) : FilePath();
 }
 
 static bool missingModuleInstallation(const FilePath &python, const QString &packageName)
