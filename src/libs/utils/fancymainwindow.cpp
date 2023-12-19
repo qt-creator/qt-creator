@@ -119,7 +119,6 @@ private:
 
     QWidget *m_hiddenInnerWidget = nullptr;
     int m_hiddenInnerWidgetHeight = 0;
-    QPoint m_startPos;
     TitleBarWidget *m_titleBar;
 };
 
