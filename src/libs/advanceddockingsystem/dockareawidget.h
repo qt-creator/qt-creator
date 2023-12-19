@@ -9,6 +9,8 @@
 
 #include <QFrame>
 
+#include <memory>
+
 QT_BEGIN_NAMESPACE
 class QAbstractButton;
 class QXmlStreamWriter;
@@ -33,7 +35,7 @@ class ADS_EXPORT DockAreaWidget : public QFrame
 {
     Q_OBJECT
 private:
-    DockAreaWidgetPrivate *d; ///< private data (pimpl)
+    std::unique_ptr<DockAreaWidgetPrivate> d; ///< private data (pimpl)
     friend struct DockAreaWidgetPrivate;
     friend class DockContainerWidget;
     friend class DockContainerWidgetPrivate;

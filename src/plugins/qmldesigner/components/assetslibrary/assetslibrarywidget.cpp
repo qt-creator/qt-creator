@@ -115,9 +115,8 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     m_assetsWidget->setClearColor(Theme::getColor(Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
     m_assetsWidget->engine()->addImageProvider("qmldesigner_assets", m_assetsIconProvider);
 
-    connect(m_assetsModel, &AssetsLibraryModel::fileChanged, [](const QString &changeFilePath) {
-        QmlDesignerPlugin::instance()->emitAssetChanged(changeFilePath);
-    });
+    connect(m_assetsModel, &AssetsLibraryModel::fileChanged,
+            QmlDesignerPlugin::instance(), &QmlDesignerPlugin::assetChanged);
 
     auto layout = new QVBoxLayout(this);
     layout->setContentsMargins({});

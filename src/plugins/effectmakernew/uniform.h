@@ -59,6 +59,7 @@ public:
 
     QString name() const;
     QString description() const;
+    QString displayName() const;
 
     QString customValue() const;
     void setCustomValue(const QString &newCustomValue);

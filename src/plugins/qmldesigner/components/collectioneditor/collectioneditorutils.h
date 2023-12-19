@@ -24,11 +24,6 @@ QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
 
 QString getSourceCollectionPath(const QmlDesigner::ModelNode &dataStoreNode);
 
-void assignCollectionToNode(AbstractView *view,
-                            const ModelNode &modelNode,
-                            const ModelNode &collectionSourceNode,
-                            const QString &collectionName);
-
 Utils::FilePath dataStoreJsonFilePath();
 
 Utils::FilePath dataStoreQmlFilePath();

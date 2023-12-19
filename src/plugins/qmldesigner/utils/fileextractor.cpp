@@ -216,14 +216,16 @@ void FileExtractor::extract()
     m_targetFolder = m_targetPath.toString() + "/" + m_archiveName;
 
     // If the target directory already exists, remove it and its content
-    QDir targetDir(m_targetFolder);
-    if (targetDir.exists() && m_clearTargetPathContents)
-        targetDir.removeRecursively();
 
-    if (m_alwaysCreateDir) {
-        // Create a new directory to generate a proper creation date
-        targetDir.mkdir(m_targetFolder);
-    }
+    QTC_ASSERT(!m_targetPath.isEmpty(), return );
+
+    FilePath targetFilePath = FilePath::fromUserInput(m_targetFolder);
+    if (targetFilePath.exists() && m_clearTargetPathContents)
+        targetFilePath.removeRecursively();
+
+    // Create a new directory to generate a proper creation date
+    if (m_alwaysCreateDir)
+        targetFilePath.createDir();
 
     const auto sourceAndCommand = Unarchiver::sourceAndCommand(m_sourceFile);
     QTC_ASSERT(sourceAndCommand, return);
@@ -261,6 +263,8 @@ void FileExtractor::extract()
 void QmlDesigner::FileExtractor::removeTempTargetPath()
 {
     if (m_isTempTargetPath && m_targetPath.exists()) {
+        QTC_ASSERT(m_targetPath.toString().startsWith(QDir::tempPath()), qDebug() << m_targetPath;
+                   return );
         m_targetPath.removeRecursively();
         m_isTempTargetPath = false;
     }

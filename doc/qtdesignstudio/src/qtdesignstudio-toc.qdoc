@@ -214,6 +214,7 @@
                             \list
                                 \li \l{Finding and Replacing}
                                 \li \l{Searching with the Locator}
+                                \li \l{Jump to the Code}
                             \endlist
                         \li \l{Refactoring}
                         \li \l{Applying Refactoring Actions}

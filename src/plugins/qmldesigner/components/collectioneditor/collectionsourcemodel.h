@@ -70,15 +70,20 @@ public:
 
 signals:
     void selectedIndexChanged(int idx);
-    void collectionSelected(const ModelNode &sourceNode, const QString &collectionName);
-    void collectionNamesChanged(const ModelNode &sourceNode, QStringList collections);
+    void collectionSelected(const QString &collectionName);
+    void collectionNamesInitialized(const QStringList &initialList);
+    void collectionRenamed(const QString &oldname, const QString &newName);
+    void collectionRemoved(const QString &collectionName);
+
     void isEmptyChanged(bool);
     void warning(const QString &title, const QString &body);
 
 private slots:
-    void onSelectedCollectionChanged(int collectionIndex);
-    void onCollectionNameChanged(const QString &oldName, const QString &newName);
-    void onCollectionsRemoved(const QStringList &removedCollections);
+    void onSelectedCollectionChanged(CollectionListModel *collectionList, int collectionIndex);
+    void onCollectionNameChanged(CollectionListModel *collectionList, const QString &oldName,
+                                 const QString &newName);
+    void onCollectionsRemoved(CollectionListModel *collectionList,
+                              const QStringList &removedCollections);
 
 private:
     void setSelectedIndex(int idx);

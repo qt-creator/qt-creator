@@ -16,10 +16,6 @@ public:
 
 protected:
     bool eventFilter(QObject *editor, QEvent *event) override;
-
-private:
-    void close();
-    void commitAndClose();
 };
 
 } // namespace QmlDesigner.

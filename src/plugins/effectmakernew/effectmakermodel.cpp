@@ -124,6 +124,10 @@ void EffectMakerModel::addNode(const QString &nodeQenPath)
 
             const QString path = EffectUtils::nodesSourcesPath() + "/common/" + requiredId + ".qen";
             auto requiredNode = new CompositionNode({}, path);
+            connect(qobject_cast<EffectMakerUniformsModel *>(requiredNode->uniformsModel()),
+                    &EffectMakerUniformsModel::dataChanged, this, [this] {
+                        setHasUnsavedChanges(true);
+                    });
             requiredNode->setRefCount(1);
             m_nodes.prepend(requiredNode);
         }
@@ -489,6 +493,9 @@ QJsonObject nodeToJson(const CompositionNode &node)
         uniformObject.insert("name", QString(uniform->name()));
         QString type = Uniform::stringFromType(uniform->type());
         uniformObject.insert("type", type);
+
+        if (!uniform->displayName().isEmpty())
+            uniformObject.insert("displayName", QString(uniform->displayName()));
 
         QString value = variantAsDataString(uniform->type(), uniform->value());
         if (uniform->type() == Uniform::Type::Sampler)

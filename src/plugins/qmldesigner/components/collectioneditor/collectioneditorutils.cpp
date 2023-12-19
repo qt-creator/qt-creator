@@ -3,11 +3,9 @@
 
 #include "collectioneditorutils.h"
 
-#include "abstractview.h"
-#include "bindingproperty.h"
+#include "model.h"
 #include "nodemetainfo.h"
 #include "propertymetainfo.h"
-#include "variantproperty.h"
 
 #include <variant>
 
@@ -135,33 +133,6 @@ QString getSourceCollectionType(const ModelNode &node)
         return "csv";
 
     return {};
-}
-
-void assignCollectionToNode(AbstractView *view,
-                            const ModelNode &modelNode,
-                            const ModelNode &collectionSourceNode,
-                            const QString &collectionName)
-{
-    QTC_ASSERT(modelNode.isValid() && collectionSourceNode.isValid(), return);
-
-    QString sourceId = isDataStoreNode(collectionSourceNode) ? "DataStore"
-                                                             : collectionSourceNode.id();
-
-    if (sourceId.isEmpty() || !canAcceptCollectionAsModel(modelNode))
-        return;
-
-    VariantProperty sourceProperty = collectionSourceNode.variantProperty(collectionName.toLatin1());
-    if (!sourceProperty.exists())
-        return;
-
-    BindingProperty modelProperty = modelNode.bindingProperty("model");
-
-    QString identifier = QString("%1.%2").arg(sourceId, QString::fromLatin1(sourceProperty.name()));
-
-    view->executeInTransaction("CollectionEditor::assignCollectionToNode",
-                               [&modelProperty, &identifier]() {
-                                   modelProperty.setExpression(identifier);
-                               });
 }
 
 Utils::FilePath dataStoreJsonFilePath()

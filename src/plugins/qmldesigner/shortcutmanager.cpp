@@ -45,6 +45,11 @@
 
 namespace QmlDesigner {
 
+static DesignDocument *currentDesignDocument()
+{
+    return QmlDesignerPlugin::instance()->currentDesignDocument();
+}
+
 ShortCutManager::ShortCutManager()
     : QObject()
     , m_exportAsImageAction(tr("Export as &Image..."))
@@ -58,9 +63,7 @@ ShortCutManager::ShortCutManager()
     , m_duplicateAction(tr("&Duplicate"))
     , m_selectAllAction(tr("Select &All"))
     , m_escapeAction(this)
-{
-
-}
+{}
 
 void ShortCutManager::registerActions(const Core::Context &qmlDesignerMainContext,
                                       const Core::Context &qmlDesignerFormEditorContext,
@@ -327,16 +330,24 @@ void ShortCutManager::selectAll()
 void ShortCutManager::connectUndoActions(DesignDocument *designDocument)
 {
     if (designDocument) {
-        connect(designDocument, &DesignDocument::undoAvailable, this, &ShortCutManager::undoAvailable);
-        connect(designDocument, &DesignDocument::redoAvailable, this, &ShortCutManager::redoAvailable);
+        connect(designDocument, &DesignDocument::undoAvailable, this,
+                [this, designDocument](bool isAvailable) {
+            if (currentDesignDocument() == designDocument)
+                m_undoAction.setEnabled(isAvailable);
+        });
+        connect(designDocument, &DesignDocument::redoAvailable, this,
+                [this, designDocument](bool isAvailable) {
+            if (currentDesignDocument() == designDocument)
+                m_redoAction.setEnabled(isAvailable);
+        });
     }
 }
 
 void ShortCutManager::disconnectUndoActions(DesignDocument *designDocument)
 {
-    if (currentDesignDocument()) {
-        disconnect(designDocument, &DesignDocument::undoAvailable, this, &ShortCutManager::undoAvailable);
-        disconnect(designDocument, &DesignDocument::redoAvailable, this, &ShortCutManager::redoAvailable);
+    if (designDocument) {
+        disconnect(designDocument, &DesignDocument::undoAvailable, this, nullptr);
+        disconnect(designDocument, &DesignDocument::redoAvailable, this, nullptr);
     }
 }
 
@@ -348,29 +359,6 @@ void ShortCutManager::updateUndoActions(DesignDocument *designDocument)
     } else {
         m_undoAction.setEnabled(false);
         m_redoAction.setEnabled(false);
-    }
-}
-
-DesignDocument *ShortCutManager::currentDesignDocument() const
-{
-    return QmlDesignerPlugin::instance()->currentDesignDocument();
-}
-
-void ShortCutManager::undoAvailable(bool isAvailable)
-{
-    auto documentController = qobject_cast<DesignDocument*>(sender());
-    if (currentDesignDocument() &&
-        currentDesignDocument() == documentController) {
-        m_undoAction.setEnabled(isAvailable);
-    }
-}
-
-void ShortCutManager::redoAvailable(bool isAvailable)
-{
-    auto documentController = qobject_cast<DesignDocument*>(sender());
-    if (currentDesignDocument() &&
-        currentDesignDocument() == documentController) {
-        m_redoAction.setEnabled(isAvailable);
     }
 }
 

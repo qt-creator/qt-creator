@@ -1,0 +1,66 @@
+// Copyright (C) 2023 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage creator-editor-locator.html
+    \page creator-jump-to-the-code.html
+    \nextpage creator-editor-refactoring.html
+
+    \title Jump to the Code
+
+    Jump to the code is a feature that gives you instant access to a particular
+    part of the code. It takes you to the \uicontrol {Code} view location of a particular
+    component, \uicontrol {State}, or \uicontrol {Connection}.
+
+    You can jump to the code from:
+    \list
+        \li \uicontrol {Navigator} view
+        \li \uicontrol {2D} view
+        \li \uicontrol {States} view
+        \li \uicontrol {Connections} view
+    \endlist
+
+    \section1 Jump to the Code from the Navigator View
+
+    \list 1
+        \li Right-click on a component in the \uicontrol {Navigator} view.
+        \li Select \uicontrol {Jump to the Code}.
+    \endlist
+
+    \image jump-to-the-code-from-navigator-view.webp
+
+    \section1 Jump to the Code from the 2D View
+
+    \list 1
+        \li Right-click on a component in the \uicontrol {2D} view.
+        \li Select \uicontrol {Jump to the Code}.
+    \endlist
+
+    \image jump-to-the-code-from-2D-view.webp
+
+    \note Alternatively, you can select the component in the \uicontrol {Navigator} view
+    or in the \uicontrol {2D} view and press \key {F4}. That takes you to the code
+    location in the \uicontrol {Code} view.
+
+    \section1 Jump to the Code from the States View
+
+    \list 1
+        \li Locate the state you want to check in the \uicontrol {States} view.
+        \li Select \inlineimage icons/browse-button.png
+            to open additional options.
+        \li Select \uicontrol {Jump to the Code}.
+    \endlist
+
+    \image jump-to-the-code-from-state-view.webp
+
+    \section1 Jump to the Code from the Connections View
+
+    \list 1
+        \li Select a connection in the \uicontrol {Connections} view.
+        \li Select \inlineimage icons/jump-to-code-16px.png
+            to jump to the code segment related to the connection.
+    \endlist
+
+    \image jump-to-the-code-from-connections-view.webp
+
+*/

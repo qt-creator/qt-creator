@@ -39,9 +39,6 @@ protected:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
 
 private:
-    void close();
-    void commitAndClose();
-
     static bool hasConnectionColumn(QObject *parent);
     static QRect connectButtonRect(const QStyleOptionViewItem &option);
 };

@@ -62,11 +62,12 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
-#include <sqlitelibraryinitializer.h>
 #include <qmldesignerbase/qmldesignerbaseplugin.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <sqlite/sqlitelibraryinitializer.h>
 
 #include <utils/algorithm.h>
+#include <utils/guard.h>
 #include <utils/hostosinfo.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
@@ -82,8 +83,9 @@
 #include <QTimer>
 #include <QWindow>
 
-#include "nanotrace/nanotrace.h"
 #include <modelnodecontextmenu_helper.h>
+
+#include <mutex>
 
 static Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner", QtWarningMsg)
 
@@ -162,7 +164,7 @@ public:
     SettingsPage settingsPage{externalDependencies};
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
-    bool blockEditorChange = false;
+    Utils::Guard m_ignoreChanges;
     Utils::UniqueObjectPtr<QToolBar> toolBar;
     Utils::UniqueObjectPtr<QWidget> statusBar;
     QHash<QString, TraceIdentifierData> m_traceIdentifierDataHash;
@@ -497,7 +499,7 @@ void QmlDesignerPlugin::hideDesigner()
 
 void QmlDesignerPlugin::changeEditor()
 {
-    if (d->blockEditorChange)
+    if (d->m_ignoreChanges.isLocked())
         return;
 
     clearDesigner();
@@ -666,18 +668,12 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
 
 DesignDocument *QmlDesignerPlugin::currentDesignDocument() const
 {
-    if (d)
-        return d->documentManager.currentDesignDocument();
-
-    return nullptr;
+    return d ? d->documentManager.currentDesignDocument() : nullptr;
 }
 
 Internal::DesignModeWidget *QmlDesignerPlugin::mainWidget() const
 {
-    if (d)
-        return &d->mainWidget;
-
-    return nullptr;
+    return d ? &d->mainWidget : nullptr;
 }
 
 QWidget *QmlDesignerPlugin::createProjectExplorerWidget(QWidget *parent) const
@@ -687,21 +683,15 @@ QWidget *QmlDesignerPlugin::createProjectExplorerWidget(QWidget *parent) const
 
 void QmlDesignerPlugin::switchToTextModeDeferred()
 {
-    QTimer::singleShot(0, this, [] () {
+    QTimer::singleShot(0, this, [] {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
 }
 
 void QmlDesignerPlugin::emitCurrentTextEditorChanged(Core::IEditor *editor)
 {
-    d->blockEditorChange = true;
+    const std::lock_guard locker(d->m_ignoreChanges);
     emit Core::EditorManager::instance()->currentEditorChanged(editor);
-    d->blockEditorChange = false;
-}
-
-void QmlDesignerPlugin::emitAssetChanged(const QString &assetPath)
-{
-    emit assetChanged(assetPath);
 }
 
 double QmlDesignerPlugin::formEditorDevicePixelRatio()
@@ -717,7 +707,7 @@ double QmlDesignerPlugin::formEditorDevicePixelRatio()
 
 void QmlDesignerPlugin::contextHelp(const Core::IContext::HelpCallback &callback, const QString &id)
 {
-    emitUsageStatisticsHelpRequested(id);
+    emitUsageStatistics(Constants::EVENT_HELP_REQUESTED + id);
     QmlDesignerPlugin::instance()->viewManager().qmlJSEditorContextHelp(callback);
 }
 
@@ -733,7 +723,7 @@ void QmlDesignerPlugin::emitUsageStatistics(const QString &identifier)
         const int currentTime = privateInstance()->timer.elapsed();
         const int currentDuration = (currentTime - activeData.time);
         if (currentDuration < activeData.maxDuration)
-            instance()->emitUsageStatisticsUsageDuration(activeData.newIdentifer, currentDuration);
+            emit instance()->usageStatisticsUsageDuration(activeData.newIdentifer, currentDuration);
 
         privateInstance()->m_activeTraceIdentifierDataHash.remove(identifier);
     }
@@ -761,11 +751,6 @@ void QmlDesignerPlugin::emitUsageStatisticsContextAction(const QString &identifi
     emitUsageStatistics(Constants::EVENT_ACTION_EXECUTED + identifier);
 }
 
-void QmlDesignerPlugin::emitUsageStatisticsHelpRequested(const QString &identifier)
-{
-    emitUsageStatistics(Constants::EVENT_HELP_REQUESTED + identifier);
-}
-
 AsynchronousImageCache &QmlDesignerPlugin::imageCache()
 {
     return m_instance->d->projectManager.asynchronousImageCache();
@@ -776,36 +761,22 @@ void QmlDesignerPlugin::registerPreviewImageProvider(QQmlEngine *engine)
     m_instance->d->projectManager.registerPreviewImageProvider(engine);
 }
 
-
-bool isParent(QWidget *parent, QWidget *widget)
-{
-    if (!widget)
-        return false;
-
-    if (widget == parent)
-        return true;
-
-    return isParent(parent, widget->parentWidget());
-}
-
 void QmlDesignerPlugin::trackWidgetFocusTime(QWidget *widget, const QString &identifier)
 {
-    connect(qApp,
-            &QApplication::focusChanged,
-            widget,
-            [widget, identifier](QWidget *from, QWidget *to) {
-                static QElapsedTimer widgetUsageTimer;
-                static QString lastIdentifier;
-                if (isParent(widget, to)) {
-                    if (!lastIdentifier.isEmpty())
-                        emitUsageStatisticsTime(lastIdentifier, widgetUsageTimer.elapsed());
-                    widgetUsageTimer.restart();
-                    lastIdentifier = identifier;
-                } else if (isParent(widget, from) && lastIdentifier == identifier) {
-                    emitUsageStatisticsTime(identifier, widgetUsageTimer.elapsed());
-                    lastIdentifier.clear();
-                }
-            });
+    connect(qApp, &QApplication::focusChanged,
+            widget, [widget, identifier](QWidget *from, QWidget *to) {
+        static QElapsedTimer widgetUsageTimer;
+        static QString lastIdentifier;
+        if (widget->isAncestorOf(to)) {
+            if (!lastIdentifier.isEmpty())
+                emitUsageStatisticsTime(lastIdentifier, widgetUsageTimer.elapsed());
+            widgetUsageTimer.restart();
+            lastIdentifier = identifier;
+        } else if (widget->isAncestorOf(from) && lastIdentifier == identifier) {
+            emitUsageStatisticsTime(identifier, widgetUsageTimer.elapsed());
+            lastIdentifier.clear();
+        }
+    });
 }
 
 void QmlDesignerPlugin::registerCombinedTracedPoints(const QString &identifierFirst,
@@ -880,14 +851,13 @@ void QmlDesignerPlugin::closeFeedbackPopup()
 
 void QmlDesignerPlugin::emitUsageStatisticsTime(const QString &identifier, int elapsed)
 {
-
     QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsUsageTimer(normalizeIdentifier(identifier), elapsed);
 }
 
 void QmlDesignerPlugin::emitUsageStatisticsUsageDuration(const QString &identifier, int elapsed)
 {
-    QTC_ASSERT(instance(), return );
+    QTC_ASSERT(instance(), return);
     emit instance()->usageStatisticsUsageDuration(identifier, elapsed);
 }
 

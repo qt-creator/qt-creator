@@ -25,7 +25,6 @@ Item {
 
     QtObject {
         id: priv
-        property bool useBlurItem1: true
         property bool useBlurItem2: rootItem.blurMax > 2
         property bool useBlurItem3: rootItem.blurMax > 8
         property bool useBlurItem4: rootItem.blurMax > 16
@@ -34,12 +33,12 @@ Item {
 
     BlurItem {
         id: blurredItemSource1
-        property Item src: priv.useBlurItem1 ? source : null
+        property Item src: source
         // Size of the first blurred item is by default half of the source.
         // Increase for quality and decrease for performance & more blur.
         readonly property int blurItemSize: 8
-        width: src ? Math.ceil(src.width / 16) * blurItemSize : 0
-        height: src ? Math.ceil(src.height / 16) * blurItemSize : 0
+        width: Math.ceil(rootItem.width / 16) * blurItemSize
+        height: Math.ceil(rootItem.height / 16) * blurItemSize
     }
     BlurItem {
         id: blurredItemSource2

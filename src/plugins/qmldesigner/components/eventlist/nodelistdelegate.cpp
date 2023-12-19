@@ -51,18 +51,4 @@ bool NodeListDelegate::eventFilter(QObject *editor, QEvent *event)
     return QStyledItemDelegate::eventFilter(editor, event);
 }
 
-void NodeListDelegate::commitAndClose()
-{
-    if (auto *editor = qobject_cast<ShortcutWidget *>(sender())) {
-        emit commitData(editor);
-        emit closeEditor(editor);
-    }
-}
-
-void NodeListDelegate::close()
-{
-    if (auto *editor = qobject_cast<ShortcutWidget *>(sender()))
-        emit closeEditor(editor);
-}
-
 } // namespace QmlDesigner.

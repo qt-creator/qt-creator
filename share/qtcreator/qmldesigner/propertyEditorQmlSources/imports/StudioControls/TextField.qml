@@ -86,6 +86,9 @@ T.TextField {
         // was closed due to an menu item click.
         if (control.activeFocus && control.focusReason !== Qt.OtherFocusReason)
             control.preFocusText = control.text
+
+        if (!control.activeFocus)
+            control.deselect()
     }
 
     onEditChanged: {

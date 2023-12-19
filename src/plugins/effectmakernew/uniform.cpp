@@ -114,6 +114,11 @@ QString Uniform::description() const
     return m_description;
 }
 
+QString Uniform::displayName() const
+{
+    return m_displayName;
+}
+
 QString Uniform::customValue() const
 {
     return m_customValue;
