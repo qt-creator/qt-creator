@@ -184,78 +184,78 @@ void AutotestPluginPrivate::initializeMenuEntries()
     menu->menu()->setTitle(Tr::tr("&Tests"));
     menu->setOnAllDisabledBehavior(ActionContainer::Show);
 
-    ActionBuilder runAll(this, Constants::ACTION_RUN_ALL_ID);
-    runAll.setText(Tr::tr("Run &All Tests"));
-    runAll.setIcon(Utils::Icons::RUN_SMALL.icon());
-    runAll.setToolTip(Tr::tr("Run All Tests"));
-    runAll.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+A"), Tr::tr("Alt+Shift+T,Alt+A"));
-    runAll.addToContainer(Constants::MENU_ID);
-    runAll.setEnabled(false);
-    runAll.addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::Run); });
+    ActionBuilder(this, Constants::ACTION_RUN_ALL_ID)
+        .setText(Tr::tr("Run &All Tests"))
+        .setIcon(Utils::Icons::RUN_SMALL.icon())
+        .setToolTip(Tr::tr("Run All Tests"))
+        .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+A"), Tr::tr("Alt+Shift+T,Alt+A"))
+        .addToContainer(Constants::MENU_ID)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::Run); });
 
-    ActionBuilder runAllNoDeploy(this, Constants::ACTION_RUN_ALL_NODEPLOY_ID);
-    runAllNoDeploy.setText(Tr::tr("Run All Tests Without Deployment"));
-    runAllNoDeploy.setIcon(Utils::Icons::RUN_SMALL.icon());
-    runAllNoDeploy.setToolTip(Tr::tr("Run All Tests Without Deployment"));
-    runAllNoDeploy.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+E"), Tr::tr("Alt+Shift+T,Alt+E"));
-    runAllNoDeploy.addToContainer(Constants::MENU_ID);
-    runAllNoDeploy.setEnabled(false);
-    runAllNoDeploy.addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::RunWithoutDeploy); });
+    ActionBuilder(this, Constants::ACTION_RUN_ALL_NODEPLOY_ID)
+        .setText(Tr::tr("Run All Tests Without Deployment"))
+        .setIcon(Utils::Icons::RUN_SMALL.icon())
+        .setToolTip(Tr::tr("Run All Tests Without Deployment"))
+        .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+E"), Tr::tr("Alt+Shift+T,Alt+E"))
+        .addToContainer(Constants::MENU_ID)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunAllTriggered(TestRunMode::RunWithoutDeploy); });
 
-    ActionBuilder runSelected(this, Constants::ACTION_RUN_SELECTED_ID);
-    runSelected.setText(Tr::tr("&Run Selected Tests"));
-    runSelected.setIcon(Utils::Icons::RUN_SELECTED.icon());
-    runSelected.setToolTip(Tr::tr("Run Selected Tests"));
-    runSelected.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+R"), Tr::tr("Alt+Shift+T,Alt+R"));
-    runSelected.addToContainer(Constants::MENU_ID);
-    runSelected.setEnabled(false);
-    runSelected.addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::Run); });
+    ActionBuilder(this, Constants::ACTION_RUN_SELECTED_ID)
+        .setText(Tr::tr("&Run Selected Tests"))
+        .setIcon(Utils::Icons::RUN_SELECTED.icon())
+        .setToolTip(Tr::tr("Run Selected Tests"))
+        .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+R"), Tr::tr("Alt+Shift+T,Alt+R"))
+        .addToContainer(Constants::MENU_ID)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::Run); });
 
-    ActionBuilder runSelectedNoDeploy(this, Constants::ACTION_RUN_SELECTED_NODEPLOY_ID);
-    runSelectedNoDeploy.setText(Tr::tr("&Run Selected Tests Without Deployment"));
-    runSelectedNoDeploy.setIcon(Utils::Icons::RUN_SELECTED.icon());
-    runSelectedNoDeploy.setToolTip(Tr::tr("Run Selected Tests Without Deployment"));
-    runSelectedNoDeploy.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+W"), Tr::tr("Alt+Shift+T,Alt+W"));
-    runSelectedNoDeploy.addToContainer(Constants::MENU_ID);
-    runSelectedNoDeploy.setEnabled(false);
-    runSelectedNoDeploy.addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::RunWithoutDeploy); });
+    ActionBuilder(this, Constants::ACTION_RUN_SELECTED_NODEPLOY_ID)
+        .setText(Tr::tr("&Run Selected Tests Without Deployment"))
+        .setIcon(Utils::Icons::RUN_SELECTED.icon())
+        .setToolTip(Tr::tr("Run Selected Tests Without Deployment"))
+        .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+W"), Tr::tr("Alt+Shift+T,Alt+W"))
+        .addToContainer(Constants::MENU_ID)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunSelectedTriggered(TestRunMode::RunWithoutDeploy); });
 
-    ActionBuilder runFailed(this, Constants::ACTION_RUN_FAILED_ID);
-    runFailed.setText(Tr::tr("Run &Failed Tests"));
-    runFailed.setIcon(Icons::RUN_FAILED.icon());
-    runFailed.setToolTip(Tr::tr("Run Failed Tests"));
-    runFailed.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+F"), Tr::tr("Alt+Shift+T,Alt+F"));
-    runFailed.addToContainer(Constants::MENU_ID);
-    runFailed.setEnabled(false);
-    runFailed.addOnTriggered(this, [this] { onRunFailedTriggered(); });
+    ActionBuilder(this, Constants::ACTION_RUN_FAILED_ID)
+        .setText(Tr::tr("Run &Failed Tests"))
+        .setIcon(Icons::RUN_FAILED.icon())
+        .setToolTip(Tr::tr("Run Failed Tests"))
+        .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+F"), Tr::tr("Alt+Shift+T,Alt+F"))
+        .addToContainer(Constants::MENU_ID)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunFailedTriggered(); });
 
-    ActionBuilder runCurrent(this, Constants::ACTION_RUN_FILE_ID);
-    runCurrent.setText(Tr::tr("Run Tests for &Current File"));
-    runCurrent.setIcon(Utils::Icons::RUN_FILE.icon());
-    runCurrent.setToolTip(Tr::tr("Run Tests for Current File"));
-    runCurrent.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+C"), Tr::tr("Alt+Shift+T,Alt+C"));
-    runCurrent.addToContainer(Constants::MENU_ID);
-    runCurrent.setEnabled(false);
-    runCurrent.addOnTriggered(this, [this] { onRunFileTriggered(); });
+    ActionBuilder(this, Constants::ACTION_RUN_FILE_ID)
+        .setText(Tr::tr("Run Tests for &Current File"))
+        .setIcon(Utils::Icons::RUN_FILE.icon())
+        .setToolTip(Tr::tr("Run Tests for Current File"))
+        .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+C"), Tr::tr("Alt+Shift+T,Alt+C"))
+        .addToContainer(Constants::MENU_ID)
+        .setEnabled(false)
+        .addOnTriggered(this, [this] { onRunFileTriggered(); });
 
-    ActionBuilder disableTemp(this, Constants::ACTION_DISABLE_TMP);
-    disableTemp.setText(Tr::tr("Disable Temporarily"));
-    disableTemp.setToolTip(Tr::tr("Disable scanning and other actions until explicitly rescanning, "
-                                  "re-enabling, or restarting Qt Creator."));
-    disableTemp.setCheckable(true);
-    disableTemp.addToContainer(Constants::MENU_ID);
-    disableTemp.addOnTriggered(this, [this](bool on) { onDisableTemporarily(on); });
+    ActionBuilder(this, Constants::ACTION_DISABLE_TMP)
+        .setText(Tr::tr("Disable Temporarily"))
+        .setToolTip(Tr::tr("Disable scanning and other actions until explicitly rescanning, "
+                           "re-enabling, or restarting Qt Creator."))
+        .setCheckable(true)
+        .addToContainer(Constants::MENU_ID)
+        .addOnTriggered(this, [this](bool on) { onDisableTemporarily(on); });
 
-    ActionBuilder rescan(this, Constants::ACTION_SCAN_ID);
-    rescan.setText(Tr::tr("Re&scan Tests"));
-    rescan.setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+S"), Tr::tr("Alt+Shift+T,Alt+S"));
-    rescan.addToContainer(Constants::MENU_ID);
-    rescan.addOnTriggered(this, [] {
-        if (dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily)
-            dd->onDisableTemporarily(false);  // Rescan Test should explicitly re-enable
-        else
-            dd->m_testCodeParser.updateTestTree();
-    });
+    ActionBuilder(this, Constants::ACTION_SCAN_ID)
+        .setText(Tr::tr("Re&scan Tests"))
+        .setDefaultKeySequence(Tr::tr("Ctrl+Meta+T, Ctrl+Meta+S"), Tr::tr("Alt+Shift+T,Alt+S"))
+        .addToContainer(Constants::MENU_ID)
+        .addOnTriggered(this, [] {
+            if (dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily)
+                dd->onDisableTemporarily(false);  // Rescan Test should explicitly re-enable
+            else
+                dd->m_testCodeParser.updateTestTree();
+        });
 
     ActionContainer *toolsMenu = ActionManager::actionContainer(Core::Constants::M_TOOLS);
     toolsMenu->addMenu(menu);
