@@ -494,6 +494,9 @@ QJsonObject nodeToJson(const CompositionNode &node)
         QString type = Uniform::stringFromType(uniform->type());
         uniformObject.insert("type", type);
 
+        if (!uniform->displayName().isEmpty())
+            uniformObject.insert("displayName", QString(uniform->displayName()));
+
         QString value = variantAsDataString(uniform->type(), uniform->value());
         if (uniform->type() == Uniform::Type::Sampler)
             value = QFileInfo(value).fileName();
