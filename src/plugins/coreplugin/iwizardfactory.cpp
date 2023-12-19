@@ -202,15 +202,15 @@ QList<IWizardFactory*> IWizardFactory::allWizardFactories()
                 }
 
                 QTC_ASSERT(!newFactory->m_action, continue);
-                newFactory->m_action = new QAction(newFactory->displayName(), newFactory);
-                ActionManager::registerAction(newFactory->m_action, actionId(newFactory));
-
-                connect(newFactory->m_action, &QAction::triggered, newFactory, [newFactory] {
-                    if (!ICore::isNewItemDialogRunning()) {
-                        FilePath path = newFactory->runPath({});
-                        newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
-                    }
-                });
+                ActionBuilder(newFactory, actionId(newFactory))
+                    .setText(newFactory->displayName())
+                    .bindContextAction(&newFactory->m_action)
+                    .addOnTriggered(newFactory, [newFactory] {
+                        if (!ICore::isNewItemDialogRunning()) {
+                            FilePath path = newFactory->runPath({});
+                            newFactory->runWizard(path, ICore::dialogParent(), Id(), QVariantMap());
+                        }
+                    });
 
                 sanityCheck.insert(newFactory->id(), newFactory);
                 s_allFactories << newFactory;
@@ -425,18 +425,22 @@ void IWizardFactory::initialize()
 {
     connect(ICore::instance(), &ICore::coreAboutToClose, &IWizardFactory::clearWizardFactories);
 
-    auto resetAction = new QAction(Tr::tr("Reload All Wizards"), ActionManager::instance());
-    ActionManager::registerAction(resetAction, "Wizard.Factory.Reset");
+    QAction *resetAction = nullptr;
+    ActionBuilder(ActionManager::instance(), "Wizard.Factory.Reset")
+        .setText(Tr::tr("Reload All Wizards"))
+        .bindContextAction(&resetAction)
+        .addOnTriggered(&IWizardFactory::clearWizardFactories);
 
-    connect(resetAction, &QAction::triggered, &IWizardFactory::clearWizardFactories);
     connect(ICore::instance(), &ICore::newItemDialogStateChanged, resetAction,
             [resetAction] { resetAction->setEnabled(!ICore::isNewItemDialogRunning()); });
+
     connect(ExtensionSystem::PluginManager::instance(),
             &ExtensionSystem::PluginManager::pluginsChanged,
             &IWizardFactory::clearWizardFactories);
 
-    s_inspectWizardAction = new QAction(Tr::tr("Inspect Wizard State"), ActionManager::instance());
-    ActionManager::registerAction(s_inspectWizardAction, "Wizard.Inspect");
+    ActionBuilder(ActionManager::instance(), "Wizard.Inspect")
+        .setText(Tr::tr("Inspect Wizard State"))
+        .bindContextAction(&s_inspectWizardAction);
 }
 
 static QIcon iconWithText(const QIcon &icon, const QString &text)
