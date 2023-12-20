@@ -13,7 +13,7 @@ instructions:
         variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.6/6.6.0-released/Qt"
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
-        variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquickcontrols2 qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"
+        variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"
       - type: EnvironmentVariable
         variableName: MACOSX_DEPLOYMENT_TARGET
         variableValue: 10.15

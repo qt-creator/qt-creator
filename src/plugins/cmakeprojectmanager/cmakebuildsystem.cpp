@@ -1909,7 +1909,9 @@ CMakeBuildConfiguration *CMakeBuildSystem::cmakeBuildConfiguration() const
 static FilePaths librarySearchPaths(const CMakeBuildSystem *bs, const QString &buildKey)
 {
     const CMakeBuildTarget cmakeBuildTarget
-        = Utils::findOrDefault(bs->buildTargets(), Utils::equal(&CMakeBuildTarget::title, buildKey));
+        = Utils::findOrDefault(bs->buildTargets(), [buildKey](const auto &target) {
+              return target.title == buildKey && target.targetType != UtilityType;
+          });
 
     return cmakeBuildTarget.libraryDirectories;
 }

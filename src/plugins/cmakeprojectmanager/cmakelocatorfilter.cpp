@@ -48,10 +48,6 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
                     continue;
                 const int index = target.title.indexOf(input, 0, Qt::CaseInsensitive);
                 if (index >= 0) {
-                    const FilePath path = target.backtrace.isEmpty()
-                                              ? cmakeProject->projectFilePath()
-                                              : target.backtrace.last().path;
-                    const int line = target.backtrace.isEmpty() ? 0 : target.backtrace.last().line;
                     const FilePath projectPath = cmakeProject->projectFilePath();
                     const QString displayName = target.title;
                     LocatorFilterEntry entry;
@@ -62,11 +58,20 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
                             return AcceptResult();
                         };
                     }
-                    entry.linkForEditor = {path, line};
-                    entry.extraInfo = path.shortNativePath();
+                    bool realTarget = false;
+                    if (!target.backtrace.isEmpty() && target.targetType != UtilityType) {
+                        const FilePath path = target.backtrace.last().path;
+                        const int line = target.backtrace.last().line;
+                        entry.linkForEditor = {path, line};
+                        entry.extraInfo = path.shortNativePath();
+                        realTarget = true;
+                    } else {
+                        entry.extraInfo = projectPath.shortNativePath();
+                    }
                     entry.highlightInfo = {index, int(input.length())};
                     entry.filePath = cmakeProject->projectFilePath();
-                    entries.append(entry);
+                    if (acceptor || realTarget)
+                        entries.append(entry);
                 }
             }
         }
