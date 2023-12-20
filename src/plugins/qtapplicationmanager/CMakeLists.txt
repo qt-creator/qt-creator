@@ -4,7 +4,7 @@ add_qtc_plugin(QtApplicationManagerIntegration
   PLUGIN_DEPENDS
     Core Debugger ProjectExplorer QmakeProjectManager
     QtSupport RemoteLinux
-  DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils
+  DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils yaml-cpp
   SOURCES
     appmanagerconstants.h
     appmanagercreatepackagestep.cpp appmanagercreatepackagestep.h
@@ -12,7 +12,9 @@ add_qtc_plugin(QtApplicationManagerIntegration
     appmanagerdeployconfigurationfactory.cpp appmanagerdeployconfigurationfactory.h
     appmanagerdeploypackagestep.cpp appmanagerdeploypackagestep.h
     appmanagerinstallpackagestep.cpp appmanagerinstallpackagestep.h
+    appmanagerremoteinstallpackagestep.cpp appmanagerremoteinstallpackagestep.h
     appmanagermakeinstallstep.cpp appmanagermakeinstallstep.h
+    appmanagercmakepackagestep.cpp appmanagercmakepackagestep.h
     appmanagerplugin.cpp appmanagerplugin.h
     appmanagerrunconfiguration.cpp appmanagerrunconfiguration.h
     appmanagerruncontrol.cpp appmanagerruncontrol.h

@@ -82,11 +82,14 @@ AppManagerCreatePackageStep::AppManagerCreatePackageStep(BuildStepList *bsl, Id 
         sourceDirectory.setPlaceHolderPath(targetInformation.packageSourcesDirectory.absolutePath());
         buildDirectory.setPlaceHolderPath(targetInformation.buildDirectory.absolutePath());
         packageFileName.setPlaceHolderText(targetInformation.packageFile.fileName());
+
+        setEnabled(!targetInformation.isBuiltin);
     };
 
     connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);
     connect(target(), &Target::activeDeployConfigurationChanged, this, updateAspects);
     connect(target(), &Target::parsingFinished, this, updateAspects);
+    connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
     connect(project(), &Project::displayNameChanged, this, updateAspects);
     updateAspects();
 }
@@ -119,7 +122,7 @@ bool AppManagerCreatePackageStep::init()
 
 AppManagerCreatePackageStepFactory::AppManagerCreatePackageStepFactory()
 {
-    registerStep<AppManagerCreatePackageStep>(Constants::DEPLOY_PACKAGE_STEP_ID);
+    registerStep<AppManagerCreatePackageStep>(Constants::CREATE_PACKAGE_STEP_ID);
     setDisplayName(AppManagerCreatePackageStep::tr("Create Application Manager package"));
     setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
 }

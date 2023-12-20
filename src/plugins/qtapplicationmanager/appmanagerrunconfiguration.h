@@ -7,6 +7,8 @@
 
 #include <projectexplorer/runconfigurationaspects.h>
 
+using namespace ProjectExplorer;
+
 namespace AppManager {
 namespace Internal {
 

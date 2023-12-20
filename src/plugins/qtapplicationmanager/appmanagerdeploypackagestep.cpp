@@ -54,11 +54,14 @@ public:
 
             packageFilePath.setPlaceHolderPath(targetInformation.packageFile.absoluteFilePath());
             targetDirectory.setPlaceHolderPath(targetInformation.runDirectory.absolutePath());
+
+            setEnabled(!targetInformation.isBuiltin);
         };
 
         connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);
         connect(target(), &Target::activeDeployConfigurationChanged, this, updateAspects);
         connect(target(), &Target::parsingFinished, this, updateAspects);
+        connect(target(), &Target::runConfigurationsUpdated, this, updateAspects);
         connect(project(), &Project::displayNameChanged, this, updateAspects);
 
         updateAspects();

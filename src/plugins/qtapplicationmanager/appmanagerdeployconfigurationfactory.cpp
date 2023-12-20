@@ -6,6 +6,7 @@
 #include "appmanagerdeployconfigurationfactory.h"
 
 #include "appmanagerconstants.h"
+#include "appmanagertargetinformation.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kitaspects.h>
@@ -28,13 +29,16 @@ static bool isNecessaryToDeploy(const Target *target)
 AppManagerDeployConfigurationFactory::AppManagerDeployConfigurationFactory()
 {
     setConfigBaseId(Constants::DEPLOYCONFIGURATION_ID);
-    setDefaultDisplayName(QCoreApplication::translate("AppManager", "Deploy to AM Device"));
+    setDefaultDisplayName(QCoreApplication::translate("AppManager", "Deploy Application Manager Package"));
     addSupportedTargetDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
     addSupportedTargetDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
-    addInitialStep(Constants::MAKE_INSTALL_STEP_ID);
-    addInitialStep(Constants::CREATE_PACKAGE_STEP_ID);
+
+    addInitialStep(Constants::CMAKE_PACKAGE_STEP_ID);
+    addInitialStep(Constants::INSTALL_PACKAGE_STEP_ID, [](Target *target) {
+        return !isNecessaryToDeploy(target);
+    });
     addInitialStep(Constants::DEPLOY_PACKAGE_STEP_ID, isNecessaryToDeploy);
-    addInitialStep(Constants::INSTALL_PACKAGE_STEP_ID);
+    addInitialStep(Constants::REMOTE_INSTALL_PACKAGE_STEP_ID, isNecessaryToDeploy);
 }
 
 } // namespace Internal

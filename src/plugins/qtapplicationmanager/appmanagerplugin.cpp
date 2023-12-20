@@ -11,7 +11,9 @@
 #include "appmanagerdeployconfigurationfactory.h"
 #include "appmanagerdeploypackagestep.h"
 #include "appmanagerinstallpackagestep.h"
+#include "appmanagerremoteinstallpackagestep.h"
 #include "appmanagermakeinstallstep.h"
+#include "appmanagercmakepackagestep.h"
 #include "appmanagerrunconfiguration.h"
 #include "appmanagerruncontrol.h"
 #include "appmanagerutilities.h"
@@ -73,17 +75,19 @@ void cloneAutodetectedBoot2QtKits()
 class AppManagerPluginPrivate
 {
 public:
+    AppManagerCMakePackageStepFactory cmakePackageStepFactory;
     AppManagerMakeInstallStepFactory makeInstallStepFactory;
     AppManagerCreatePackageStepFactory createPackageStepFactory;
     AppManagerDeployPackageStepFactory deployPackageStepFactory;
     AppManagerInstallPackageStepFactory installPackageStepFactory;
+    AppManagerRemoteInstallPackageStepFactory remoteInstallPackageStepFactory;
 
     AppManagerDeployConfigurationAutoSwitcher deployConfigurationAutoSwitcher;
     AppManagerDeployConfigurationFactory deployConfigFactory;
 
     AppManagerRunConfigurationFactory runConfigFactory;
-    AppManagerDebugWorkerFactory debugWorkerFactory;
     AppManagerRunWorkerFactory runWorkerFactory;
+    AppManagerDebugWorkerFactory debugWorkerFactory;
 };
 
 AppManagerPlugin::~AppManagerPlugin()

@@ -9,6 +9,7 @@
 #include <projectexplorer/runcontrol.h>
 
 #include <qmakeprojectmanager/qmakeparsernodes.h>
+#include <cmakeprojectmanager/cmakebuildsystem.h>
 
 namespace AppManager {
 namespace Internal {
@@ -49,6 +50,8 @@ public:
     QString buildKey;
     QString displayName;
     QString displayNameUniquifier;
+    QString cmakeBuildTarget;
+    bool isBuiltin = false;
     bool remote = false;
 
     bool isValid() const;

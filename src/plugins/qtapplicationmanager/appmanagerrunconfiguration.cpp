@@ -18,6 +18,9 @@
 #include <utils/algorithm.h>
 #include <utils/filesystemwatcher.h>
 
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitaspect.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -59,7 +62,13 @@ QList<RunConfigurationCreationInfo> AppManagerRunConfigurationFactory::available
     QObject::connect(&d->fileSystemWatcher, &FileSystemWatcher::fileChanged, target->project(), &Project::displayNameChanged, Qt::UniqueConnection);
 
     const auto buildTargets = TargetInformation::readFromProject(target);
-    const auto result = Utils::transform(buildTargets, [this](const TargetInformation &ti) {
+    auto result = Utils::transform(buildTargets, [this, target](const TargetInformation &ti) {
+
+        QVariantMap settings;
+        // ti.buildKey is currently our app id
+        settings.insert("id", ti.buildKey);
+        target->setNamedSettings("runConfigurationSettings", settings);
+
         RunConfigurationCreationInfo rci;
         rci.factory = this;
         rci.buildKey = ti.buildKey;
@@ -72,6 +81,7 @@ QList<RunConfigurationCreationInfo> AppManagerRunConfigurationFactory::available
         }
         return rci;
     });
+
     return result;
 }
 

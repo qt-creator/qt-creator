@@ -145,7 +145,7 @@ public:
                                return ti.buildKey == targetInformation.manifest.code || ti.projectFilePath.toString() == targetInformation.manifest.code;
                            }).targetFilePath.toString();
         } else {
-            reportFailure(tr("Cannot debug: Could not determine appman runtime."));
+            reportFailure(tr("Cannot debug: Only QML and native applications are supported."));
         }
     }
 
@@ -187,7 +187,11 @@ void AppManagerDebugSupport::start()
             addSearchDirectory(version->qmlPath());
         }
 
-        setSysRoot(SysRootKitAspect().sysRoot(runControl()->kit()));
+        auto sysroot = SysRootKitAspect().sysRoot(runControl()->kit());
+        if (sysroot.isEmpty())
+            setSysRoot("/");
+        else
+            setSysRoot(sysroot);
     }
     setInferior(inferior);
 
