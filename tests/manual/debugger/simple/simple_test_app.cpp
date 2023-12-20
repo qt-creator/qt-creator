@@ -3984,7 +3984,7 @@ namespace qstring  {
         // Check string "HiDu" QString.
         // Continue.
         delete pstring;
-        dummyStatement(&str, &string, pstring);
+        dummyStatement(&str, &string, &pstring);
     }
 
     void testQString4()
