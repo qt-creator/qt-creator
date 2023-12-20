@@ -225,6 +225,12 @@
         \li
         \li \l{Managing Workspaces}
     \row
+        \li \inlineimage icons/lockoff.png
+        / \inlineimage icons/lockon.png
+        \li Toggles the views to locked or movable in \QDS.
+        \li
+        \li \l{Managing Workspaces}
+    \row
         \li \uicontrol Share
         \li Shares the application online using Qt Design Viewer.
         \li
