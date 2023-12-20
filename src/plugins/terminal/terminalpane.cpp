@@ -228,47 +228,46 @@ void TerminalPane::initActions()
 {
     using namespace Constants;
 
-    ActionBuilder newTerminalAction(this, NEWTERMINAL);
-    newTerminalAction.setText(Tr::tr("New Terminal"));
-    newTerminalAction.setIcon(NEW_TERMINAL_ICON.icon());
-    newTerminalAction.setToolTip(Tr::tr("Create a new Terminal."));
-    newTerminalAction.setContext(m_selfContext);
-    newTerminalAction.setDefaultKeySequences({QKeySequence(
-        HostOsInfo::isMacHost() ? QLatin1String("Ctrl+T") : QLatin1String("Ctrl+Shift+T"))});
-    newTerminalAction.addOnTriggered(this, [this] { openTerminal({}); });
-    m_newTerminalAction = newTerminalAction.commandAction();
+    ActionBuilder(this, NEWTERMINAL)
+        .setText(Tr::tr("New Terminal"))
+        .bindContextAction(&m_newTerminalAction)
+        .setIcon(NEW_TERMINAL_ICON.icon())
+        .setToolTip(Tr::tr("Create a new Terminal."))
+        .setContext(m_selfContext)
+        .setDefaultKeySequence("Ctrl+T", "Ctrl+Shift+T")
+        .addOnTriggered(this, [this] { openTerminal({}); });
 
-    ActionBuilder closeTerminalAction(this, CLOSETERMINAL);
-    closeTerminalAction.setText(Tr::tr("Close Terminal"));
-    closeTerminalAction.setIcon(CLOSE_TERMINAL_ICON.icon());
-    closeTerminalAction.setToolTip(Tr::tr("Close the current Terminal."));
-    closeTerminalAction.setContext(m_selfContext);
-    closeTerminalAction.addOnTriggered(this, [this] { removeTab(m_tabWidget.currentIndex()); });
-    m_closeTerminalAction = closeTerminalAction.commandAction();
+    ActionBuilder(this, CLOSETERMINAL)
+        .setText(Tr::tr("Close Terminal"))
+        .bindContextAction(&m_closeTerminalAction)
+        .setIcon(CLOSE_TERMINAL_ICON.icon())
+        .setToolTip(Tr::tr("Close the current Terminal."))
+        .setContext(m_selfContext)
+        .addOnTriggered(this, [this] { removeTab(m_tabWidget.currentIndex()); });
 
-    ActionBuilder nextTerminalAction(this, NEXTTERMINAL);
-    nextTerminalAction.setText(Tr::tr("Next Terminal"));
-    nextTerminalAction.setContext(m_selfContext);
-    nextTerminalAction.setDefaultKeySequences(
-        {QKeySequence("Alt+Tab"),
-         QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+[")
-                                              : QLatin1String("Ctrl+PgUp"))});
-    nextTerminalAction.addOnTriggered(this, [this] {
-        if (canNavigate())
-            goToNext();
-    });
+    ActionBuilder(this, NEXTTERMINAL)
+        .setText(Tr::tr("Next Terminal"))
+        .setContext(m_selfContext)
+        .setDefaultKeySequences(
+            {QKeySequence("Alt+Tab"),
+             QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+[")
+                                                  : QLatin1String("Ctrl+PgUp"))})
+        .addOnTriggered(this, [this] {
+            if (canNavigate())
+                goToNext();
+        });
 
-    ActionBuilder prevTerminalAction(this, PREVTERMINAL);
-    prevTerminalAction.setText(Tr::tr("Previous Terminal"));
-    prevTerminalAction.setContext(m_selfContext);
-    prevTerminalAction.setDefaultKeySequences(
-        {QKeySequence("Alt+Shift+Tab"),
-         QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+]")
-                                              : QLatin1String("Ctrl+PgDown"))});
-    prevTerminalAction.addOnTriggered(this, [this] {
-        if (canPrevious())
-            goToPrev();
-    });
+    ActionBuilder(this, PREVTERMINAL)
+        .setText(Tr::tr("Previous Terminal"))
+        .setContext(m_selfContext)
+        .setDefaultKeySequences(
+            {QKeySequence("Alt+Shift+Tab"),
+             QKeySequence(HostOsInfo::isMacHost() ? QLatin1String("Ctrl+Shift+]")
+                                                  : QLatin1String("Ctrl+PgDown"))})
+        .addOnTriggered(this, [this] {
+            if (canPrevious())
+                goToPrev();
+        });
 
     Command *cmd = ActionManager::registerAction(settings().lockKeyboard.action(),
                                                  TOGGLE_KEYBOARD_LOCK);
