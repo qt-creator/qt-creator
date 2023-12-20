@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <qglobal.h>
+
 #include "cmakeabstractprocessstep.h"
 #include <utils/treemodel.h>
 
@@ -39,7 +41,7 @@ public:
     CMakeBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id);
 
     QStringList buildTargets() const;
-    void setBuildTargets(const QStringList &target);
+    void setBuildTargets(const QStringList &target) override;
 
     bool buildsBuildTarget(const QString &target) const;
     void setBuildsBuildTarget(const QString &target, bool on);

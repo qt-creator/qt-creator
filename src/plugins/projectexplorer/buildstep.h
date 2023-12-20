@@ -76,6 +76,8 @@ public:
     QString summaryText() const;
     QWidget *doCreateConfigWidget();
 
+    virtual void setBuildTargets(const QStringList &) {}
+
 signals:
     void updateSummary();
 
@@ -143,15 +145,22 @@ public:
 
     QString displayName() const;
 
-protected:
-    using BuildStepCreator = std::function<BuildStep *(BuildStepList *)>;
+    virtual void setBuildTargets(const QStringList &) const {}
 
-    template <class BuildStepType>
+protected:
+    using BuildStepCreator = std::function<BuildStep *(BuildStepFactory *bsf, BuildStepList *)>;
+
+    template <typename BuildStepType>
     void registerStep(Utils::Id id)
     {
         QTC_CHECK(!m_creator);
         m_stepId = id;
-        m_creator = [id](BuildStepList *bsl) { return new BuildStepType(bsl, id); };
+        m_creator = [id, this](BuildStepFactory *bsf, BuildStepList *bsl) {
+            auto bs = new BuildStepType(bsl, id);
+            if (bsf->m_extraInit)
+                bsf->m_extraInit(bs);
+            return bs;
+        };
     }
     void cloneStepCreator(Utils::Id exitstingStepId, Utils::Id overrideNewStepId = {});
 
@@ -164,6 +173,7 @@ protected:
     void setRepeatable(bool on) { m_isRepeatable = on; }
     void setDisplayName(const QString &displayName);
     void setFlags(BuildStep::Flags flags);
+    void setExtraInit(const std::function<void(BuildStep *)> &extraInit);
 
 private:
     Utils::Id m_stepId;
@@ -176,6 +186,7 @@ private:
     QList<Utils::Id> m_supportedStepLists;
     Utils::Id m_supportedConfiguration;
     bool m_isRepeatable = true;
+    std::function<void(BuildStep *)> m_extraInit;
 };
 
 } // namespace ProjectExplorer
