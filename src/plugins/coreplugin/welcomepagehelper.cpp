@@ -811,10 +811,24 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     vbox->insertWidget(position, sectionLabel);
     vbox->insertWidget(position + 1, gridView);
 
+    struct ItemHash
+    {
+        std::size_t operator()(ListItem *item) const { return std::hash<QString>{}(item->name); }
+    };
+    struct ItemEqual
+    {
+        bool operator()(ListItem *lhs, ListItem *rhs) const
+        {
+            return lhs->name == rhs->name && lhs->description == rhs->description;
+        }
+    };
+
     // add the items also to the all products model to be able to search correctly
-    const QSet<ListItem *> allItems = toSet(m_allItemsModel->items());
-    const QList<ListItem *> newItems = filtered(items, [&allItems](ListItem *item) {
-        return !allItems.contains(item);
+    const QList<ListItem *> allItems = m_allItemsModel->items();
+    const std::unordered_set<ListItem *, ItemHash, ItemEqual> uniqueItems{allItems.constBegin(),
+                                                                          allItems.constEnd()};
+    const QList<ListItem *> newItems = filtered(items, [&uniqueItems](ListItem *item) {
+        return uniqueItems.find(item) == uniqueItems.end();
     });
     m_allItemsModel->appendItems(newItems);
 
