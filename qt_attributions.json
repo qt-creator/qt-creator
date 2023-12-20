@@ -185,25 +185,6 @@
         "Copyright": "Author: Sebastian Pipping (sebastian@pipping.org)."
     },
     {
-        "Id": "ksyntaxhighlighting-makefile",
-        "Name": "KSyntaxHighlighting: makefile.xml",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
-        "Description": "Syntax highlighting definition makefile.xml",
-        "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
-        "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/syntax-highlighting/COPYING",
-        "Copyright": [
-            "Author: v0.9 by Per Wigren (wigren@home.se).",
-            "Changes: Joseph Wenninger (jowenn@kde.org),",
-            "Rui Santana (santana.rui@gmail.com),",
-            "v2.0 by Andreas Nordal (andreas.nordal@gmail.com),",
-            "v2.1 by Alex Turbov (i.zaufi@gmail.com),",
-            "v4 by Alex Richardson (arichardson.kde@gmail.com)."]
-    },
-    {
         "Id": "ksyntaxhighlighting-markdown",
         "Name": "KSyntaxHighlighting: markdown.xml",
         "QDocModule": "qtcreator",
@@ -273,25 +254,6 @@
         "Copyright": [
             "Authors: Motoki Kashihara (motoki8791@gmail.com),",
             "Michael Lombardi (Michael.T.Lombardi@outlook.com)."]
-    },
-    {
-        "Id": "ksyntaxhighlighting-python",
-        "Name": "KSyntaxHighlighting: python.xml",
-        "QDocModule": "qtcreator",
-        "QtParts": ["tools"],
-        "QtUsage": "Used for the generic highlighter for text files.",
-        "Path": "src/libs/3rdparty/syntax-highlighting/data/syntax",
-        "Description": "Syntax highlighting definition python.xml",
-        "Homepage": "https://invent.kde.org/frameworks/syntax-highlighting/-/tree/master/data/syntax",
-        "License": "MIT License",
-        "LicenseFile": "src/libs/3rdparty/syntax-highlighting/COPYING",
-        "Copyright": [
-            "Author: Michael Bueker",
-            "Changes: v0.9 by Per Wigren,",
-            "v1.9 by Michael Bueker,",
-            "v1.97 by Paul Giannaros,",
-            "v1.99 by Primoz Anzur,",
-            "v2.01 by Paul Giannaros."]
     },
     {
         "Id": "ksyntaxhighlighting-qdocconf",
