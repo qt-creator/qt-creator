@@ -37,6 +37,8 @@
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <qtapplicationmanager/appmanagerconstants.h>
+
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtsupportconstants.h>
 
@@ -1472,6 +1474,37 @@ void CMakeBuildSystem::updateCMakeConfiguration(QString &errorMessage)
                             QVariant::fromValue(hasAndroidTargetBuildDirSupport));
     project()->setExtraData(Android::Constants::UseAndroidBuildTargetDir,
                             QVariant::fromValue(useAndroidTargetBuildDir));
+
+    QVariantList packageTargets;
+    for (const CMakeBuildTarget &buildTarget : buildTargets()) {
+        bool isBuiltinPackage = false;
+        bool isInstallablePackage = false;
+        for (const ProjectExplorer::FolderNode::LocationInfo &bs : buildTarget.backtrace) {
+            if (bs.displayName == "qt6_am_create_builtin_package")
+                isBuiltinPackage = true;
+            else if (bs.displayName == "qt6_am_create_installable_package")
+                isInstallablePackage = true;
+        }
+
+        if (!isBuiltinPackage && !isInstallablePackage)
+            continue;
+
+        QVariantMap packageTarget;
+        for (const FilePath &sourceFile : buildTarget.sourceFiles) {
+            if (sourceFile.fileName() == "info.yaml") {
+                packageTarget.insert("manifestFilePath", QVariant::fromValue(sourceFile.absoluteFilePath()));
+                packageTarget.insert("cmakeTarget", buildTarget.title);
+                packageTarget.insert("isBuiltinPackage", isBuiltinPackage);
+                for (const FilePath &osf : buildTarget.sourceFiles) {
+                    if (osf.fileName().endsWith(".ampkg.rule")) {
+                        packageTarget.insert("packageFilePath", QVariant::fromValue(osf.absoluteFilePath().chopped(5)));
+                    }
+                }
+            }
+        }
+        packageTargets.append(packageTarget);
+    }
+    project()->setExtraData(AppManager::Constants::APPMAN_PACKAGE_TARGETS, packageTargets);
 
     setConfigurationFromCMake(cmakeConfig);
 }

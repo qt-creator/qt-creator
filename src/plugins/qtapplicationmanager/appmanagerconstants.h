@@ -21,6 +21,8 @@ const char DEPLOY_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.DeployPac
 const char INSTALL_PACKAGE_STEP_ID[] = "ApplicationManagerPlugin.Deploy.InstallPackageStep";
 const char RUNCONFIGURATION_ID[] = "ApplicationManagerPlugin.Run.Configuration";
 
+const char APPMAN_PACKAGE_TARGETS[] = "ApplicationmanagerPackageTargets";
+
 const char QMAKE_AM_MANIFEST_VARIABLE[] = "AM_MANIFEST";
 const char QMAKE_AM_PACKAGE_DIR_VARIABLE[] = "AM_PACKAGE_DIR";
 
