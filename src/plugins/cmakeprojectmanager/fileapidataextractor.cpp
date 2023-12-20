@@ -260,6 +260,10 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
             extractBacktraceInformation(t.backtraceGraph, sourceDirectory, id.backtrace, 500));
     }
 
+    for (const SourceInfo &si : t.sources) {
+        ct.sourceFiles.append(sourceDirectory.resolvePath(si.path));
+    }
+
     if (ct.targetType == ExecutableType) {
         FilePaths librarySeachPaths;
         // Is this a GUI application?
