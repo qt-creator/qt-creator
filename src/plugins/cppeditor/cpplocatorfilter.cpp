@@ -19,6 +19,7 @@
 
 using namespace Core;
 using namespace CPlusPlus;
+using namespace Tasking;
 using namespace Utils;
 
 namespace CppEditor {
@@ -101,14 +102,10 @@ void matchesFor(QPromise<void> &promise, const LocatorStorage &storage,
 
 LocatorMatcherTask locatorMatcher(IndexItem::ItemType type, const EntryFromIndex &converter)
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [=](Async<void> &async) {
-        async.setConcurrentCallData(matchesFor, *storage, type, converter);
+    const auto onSetup = [type, converter](Async<void> &async) {
+        async.setConcurrentCallData(matchesFor, *LocatorStorage::storage(), type, converter);
     };
-    return {AsyncTask<void>(onSetup), storage};
+    return AsyncTask<void>(onSetup);
 }
 
 LocatorMatcherTask allSymbolsMatcher()
@@ -298,14 +295,10 @@ FilePath currentFileName()
 
 LocatorMatcherTask currentDocumentMatcher()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [=](Async<void> &async) {
-        async.setConcurrentCallData(matchesForCurrentDocument, *storage, currentFileName());
+    const auto onSetup = [](Async<void> &async) {
+        async.setConcurrentCallData(matchesForCurrentDocument, *LocatorStorage::storage(), currentFileName());
     };
-    return {AsyncTask<void>(onSetup), storage};
+    return AsyncTask<void>(onSetup);
 }
 
 using MatcherCreator = std::function<Core::LocatorMatcherTask()>;

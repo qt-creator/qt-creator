@@ -18,6 +18,7 @@
 #include <QJsonObject>
 #include <QMessageBox>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace Core::Internal {
@@ -40,12 +41,9 @@ ExecuteFilter::~ExecuteFilter()
 
 LocatorMatcherTasks ExecuteFilter::matchers()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [this, storage] {
-        const QString input = storage->input();
+    const auto onSetup = [this] {
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        const QString input = storage.input();
         LocatorFilterEntries entries;
         if (!input.isEmpty()) { // avoid empty entry
             LocatorFilterEntry entry;
@@ -69,9 +67,9 @@ LocatorMatcherTasks ExecuteFilter::matchers()
                 others.append(entry);
             }
         }
-        storage->reportOutput(entries + others);
+        storage.reportOutput(entries + others);
     };
-    return {{Sync(onSetup), storage}};
+    return {Sync(onSetup)};
 }
 
 void ExecuteFilter::acceptCommand(const QString &cmd)

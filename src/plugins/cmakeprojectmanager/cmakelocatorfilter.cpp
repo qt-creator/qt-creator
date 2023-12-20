@@ -19,6 +19,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
@@ -29,12 +30,9 @@ using BuildAcceptor = std::function<void(const BuildSystem *, const QString &)>;
 
 static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [storage, acceptor] {
-        const QString input = storage->input();
+    const auto onSetup = [acceptor] {
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        const QString input = storage.input();
         const QRegularExpression regexp
             = ILocatorFilter::createRegExp(input, ILocatorFilter::caseSensitivity(input));
         if (!regexp.isValid())
@@ -90,10 +88,10 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
                 }
             }
         }
-        storage->reportOutput(
+        storage.reportOutput(
             std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries()));
     };
-    return {{Sync(onSetup), storage}};
+    return {Sync(onSetup)};
 }
 
 static void setupFilter(ILocatorFilter *filter)

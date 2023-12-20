@@ -12,6 +12,7 @@
 #include <utils/algorithm.h>
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace TextEditor::Internal {
@@ -36,12 +37,11 @@ private:
 
 LocatorMatcherTasks BookmarkFilter::matchers()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [this, storage] { storage->reportOutput(match(storage->input())); };
-    return {{Sync(onSetup), storage}};
+    const auto onSetup = [this] {
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        storage.reportOutput(match(storage.input()));
+    };
+    return {Sync(onSetup)};
 }
 
 LocatorFilterEntries BookmarkFilter::match(const QString &input) const

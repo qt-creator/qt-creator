@@ -126,6 +126,8 @@ public:
     LocatorStorage() = default;
     QString input() const;
     void reportOutput(const LocatorFilterEntries &outputData) const;
+    // Only use it from inside the bodies of Task handlers.
+    static Tasking::Storage<LocatorStorage> &storage();
 
 private:
     friend class LocatorMatcher;
@@ -134,17 +136,7 @@ private:
     std::shared_ptr<LocatorStoragePrivate> d;
 };
 
-class CORE_EXPORT LocatorMatcherTask final
-{
-public:
-    // The main task. Initial data (searchTerm) should be taken from storage.input().
-    // Results reporting is done via the storage.reportOutput().
-    Tasking::GroupItem task = Tasking::Group{};
-
-    // When constructing the task, don't place the storage inside the task above.
-    Tasking::Storage<LocatorStorage> storage;
-};
-
+using LocatorMatcherTask = Tasking::GroupItem;
 using LocatorMatcherTasks = QList<LocatorMatcherTask>;
 using LocatorMatcherTaskCreator = std::function<LocatorMatcherTasks()>;
 class LocatorMatcherPrivate;

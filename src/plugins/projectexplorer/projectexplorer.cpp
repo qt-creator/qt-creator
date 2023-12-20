@@ -4253,14 +4253,13 @@ static RunConfiguration *runConfigurationForDisplayName(const QString &displayNa
     });
 }
 
+using namespace Tasking;
+
 static LocatorMatcherTasks runConfigurationMatchers(const RunAcceptor &acceptor)
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [storage, acceptor] {
-        const QString input = storage->input();
+    const auto onSetup = [acceptor] {
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        const QString input = storage.input();
         const Target *target = ProjectManager::startupTarget();
         if (!target)
             return;
@@ -4280,9 +4279,9 @@ static LocatorMatcherTasks runConfigurationMatchers(const RunAcceptor &acceptor)
                 entries.append(entry);
             }
         }
-        storage->reportOutput(entries);
+        storage.reportOutput(entries);
     };
-    return {{Sync(onSetup), storage}};
+    return {Sync(onSetup)};
 }
 
 static void runAcceptor(RunConfiguration *config)

@@ -24,6 +24,7 @@ using namespace Core;
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -173,29 +174,23 @@ static void filterCurrentResults(QPromise<void> &promise, const LocatorStorage &
 
 static LocatorMatcherTask currentDocumentMatcher()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
     Storage<CurrentDocumentSymbolsData> resultStorage;
 
-    const auto onQuerySetup = [=](CurrentDocumentSymbolsRequest &request) {
-        Q_UNUSED(request)
-    };
     const auto onQueryDone = [resultStorage](const CurrentDocumentSymbolsRequest &request) {
         *resultStorage = request.currentDocumentSymbolsData();
     };
 
-    const auto onFilterSetup = [=](Async<void> &async) {
-        async.setConcurrentCallData(filterCurrentResults, *storage, *resultStorage,
+    const auto onFilterSetup = [resultStorage](Async<void> &async) {
+        async.setConcurrentCallData(filterCurrentResults, *LocatorStorage::storage(), *resultStorage,
                                     TextDocument::currentTextDocument()->plainText());
     };
 
     const Group root {
         resultStorage,
-        CurrentDocumentSymbolsRequestTask(onQuerySetup, onQueryDone, CallDoneIf::Success),
+        CurrentDocumentSymbolsRequestTask({}, onQueryDone, CallDoneIf::Success),
         AsyncTask<void>(onFilterSetup)
     };
-    return {root, storage};
+    return root;
 }
 
 LocatorMatcherTasks ClangdCurrentDocumentFilter::matchers()
