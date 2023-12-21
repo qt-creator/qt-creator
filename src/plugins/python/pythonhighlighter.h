@@ -5,24 +5,8 @@
 
 #include <texteditor/syntaxhighlighter.h>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
-class Scanner;
+TextEditor::SyntaxHighlighter *createPythonHighlighter();
 
-class PythonHighlighter : public TextEditor::SyntaxHighlighter
-{
-public:
-    PythonHighlighter();
-
-private:
-    void highlightBlock(const QString &text) override;
-    int highlightLine(const QString &text, int initialState);
-    void highlightImport(Internal::Scanner &scanner);
-
-    int m_lastIndent = 0;
-    bool withinLicenseHeader = false;
-};
-
-} // namespace Internal
-} // namespace Python
+} // namespace Python::Internal

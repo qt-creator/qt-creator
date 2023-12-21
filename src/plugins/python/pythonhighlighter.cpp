@@ -17,10 +17,10 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditorconstants.h>
+
 #include <utils/qtcassert.h>
 
-namespace Python {
-namespace Internal {
+namespace Python::Internal {
 
 /**
  * @class PythonEditor::Internal::PythonHighlighter
@@ -67,10 +67,22 @@ static TextEditor::TextStyle styleForFormat(int format)
     return C_TEXT;
 }
 
-PythonHighlighter::PythonHighlighter()
+class PythonHighlighter : public TextEditor::SyntaxHighlighter
 {
-    setTextFormatCategories(Format_FormatsAmount, styleForFormat);
-}
+public:
+    PythonHighlighter()
+    {
+        setTextFormatCategories(Format_FormatsAmount, styleForFormat);
+    }
+
+private:
+    void highlightBlock(const QString &text) override;
+    int highlightLine(const QString &text, int initialState);
+    void highlightImport(Internal::Scanner &scanner);
+
+    int m_lastIndent = 0;
+    bool withinLicenseHeader = false;
+};
 
 /**
  * @brief PythonHighlighter::highlightBlock highlights single line of Python code
@@ -187,5 +199,9 @@ void PythonHighlighter::highlightImport(Scanner &scanner)
     }
 }
 
-} // namespace Internal
-} // namespace Python
+TextEditor::SyntaxHighlighter *createPythonHighlighter()
+{
+    return new PythonHighlighter;
+}
+
+} // namespace Python::Internal

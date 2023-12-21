@@ -293,8 +293,8 @@ PythonEditorFactory::PythonEditorFactory()
 
     setDocumentCreator([]() { return new PythonDocument; });
     setEditorWidgetCreator([]() { return new PythonEditorWidget; });
-    setIndenterCreator([](QTextDocument *doc) { return new PythonIndenter(doc); });
-    setSyntaxHighlighterCreator([] { return new PythonHighlighter; });
+    setIndenterCreator(&createPythonIndenter);
+    setSyntaxHighlighterCreator(&createPythonHighlighter);
     setCommentDefinition(CommentDefinition::HashStyle);
     setParenthesesMatchingEnabled(true);
     setCodeFoldingSupported(true);
