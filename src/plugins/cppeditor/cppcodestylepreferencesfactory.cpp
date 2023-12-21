@@ -97,7 +97,7 @@ TextEditor::CodeStyleEditorWidget *CppCodeStylePreferencesFactory::createEditor(
 
 TextEditor::Indenter *CppCodeStylePreferencesFactory::createIndenter(QTextDocument *doc) const
 {
-    return new Internal::CppQtStyleIndenter(doc);
+    return createCppQtStyleIndenter(doc);
 }
 
 QString CppCodeStylePreferencesFactory::snippetProviderGroupId() const

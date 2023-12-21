@@ -855,8 +855,7 @@ namespace Internal {
 void decorateCppEditor(TextEditor::TextEditorWidget *editor)
 {
     editor->textDocument()->resetSyntaxHighlighter([] { return new CppHighlighter(); });
-    editor->textDocument()->setIndenter(
-                new CppQtStyleIndenter(editor->textDocument()->document()));
+    editor->textDocument()->setIndenter(createCppQtStyleIndenter(editor->textDocument()->document()));
     editor->setAutoCompleter(new CppAutoCompleter);
 }
 

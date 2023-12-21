@@ -8,6 +8,7 @@
 #include <texteditor/icodestylepreferencesfactory.h>
 
 namespace CppEditor {
+
 class CppCodeStyleWidget;
 
 class CPPEDITOR_EXPORT CppCodeStylePreferencesFactory : public TextEditor::ICodeStylePreferencesFactory

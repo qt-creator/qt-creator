@@ -9,6 +9,7 @@
 
 #include <cppeditor/cppcodestylepreferences.h>
 #include <cppeditor/cppcodestylepreferencesfactory.h>
+#include <cppeditor/cppqtstyleindenter.h>
 #include <cppeditor/cpptoolssettings.h>
 
 #include <extensionsystem/pluginmanager.h>
@@ -122,7 +123,7 @@ bool ClangFormatIndenter::formatWhileTyping() const
 ClangFormatForwardingIndenter::ClangFormatForwardingIndenter(QTextDocument *doc)
     : TextEditor::Indenter(doc)
     , m_clangFormatIndenter(std::make_unique<ClangFormatIndenter>(doc))
-    , m_cppIndenter(CppEditor::CppCodeStylePreferencesFactory().createIndenter(doc))
+    , m_cppIndenter(CppEditor::createCppQtStyleIndenter(doc))
 {}
 
 ClangFormatForwardingIndenter::~ClangFormatForwardingIndenter() = default;
