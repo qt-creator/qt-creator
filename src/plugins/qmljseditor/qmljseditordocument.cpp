@@ -822,7 +822,7 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
             d, &Internal::QmlJSEditorDocumentPrivate::settingsChanged);
     resetSyntaxHighlighter([] { return new QmlJSHighlighter(); });
     setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
-    setIndenter(new Internal::Indenter(document()));
+    setIndenter(createQmlJsIndenter(document()));
 }
 
 bool QmlJSEditorDocument::supportsCodec(const QTextCodec *codec) const

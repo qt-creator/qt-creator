@@ -396,17 +396,8 @@ void QuickToolBar::onEnabledChanged(bool b)
 
 void QuickToolBar::indentLines(int startLine, int endLine)
 {
-    if (startLine > 0) {
-        TextEditor::TabSettings tabSettings = m_editorWidget->textDocument()->tabSettings();
-        for (int i = startLine; i <= endLine; i++) {
-            QTextBlock start = m_editorWidget->document()->findBlockByNumber(i);
-
-            if (start.isValid()) {
-                QmlJSEditor::Internal::Indenter indenterMy(m_editorWidget->document());
-                indenterMy.indentBlock(start, QChar::Null, tabSettings);
-            }
-        }
-    }
+    QmlJSEditor::indentQmlJs(m_editorWidget->document(), startLine, endLine,
+                             m_editorWidget->textDocument()->tabSettings());
 }
 
 ContextPaneWidget *QuickToolBar::contextWidget()

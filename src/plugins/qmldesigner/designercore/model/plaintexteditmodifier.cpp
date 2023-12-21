@@ -186,20 +186,6 @@ void IndentingTextEditModifier::indent(int offset, int length)
 
 void IndentingTextEditModifier::indentLines(int startLine, int endLine)
 {
-    if (startLine < 0)
-        return;
-
-    QTextCursor tc(textDocument());
-
-    tc.beginEditBlock();
-    for (int i = startLine; i <= endLine; i++) {
-        QTextBlock start = textDocument()->findBlockByNumber(i);
-
-        if (start.isValid()) {
-            QmlJSEditor::Internal::Indenter indenter(textDocument());
-            indenter.indentBlock(start, QChar::Null, m_tabSettings);
-        }
-    }
-    tc.endEditBlock();
+    QmlJSEditor::indentQmlJs(textDocument(), startLine, endLine, m_tabSettings);
 }
 

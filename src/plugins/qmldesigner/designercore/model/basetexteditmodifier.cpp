@@ -33,20 +33,8 @@ void BaseTextEditModifier::indentLines(int startLine, int endLine)
     if (!m_textEdit)
         return;
 
-    TextEditor::TextDocument *baseTextEditorDocument = m_textEdit->textDocument();
-    TextEditor::TabSettings tabSettings = baseTextEditorDocument->tabSettings();
-    QTextCursor tc(textDocument());
-
-    tc.beginEditBlock();
-    for (int i = startLine; i <= endLine; i++) {
-        QTextBlock start = textDocument()->findBlockByNumber(i);
-
-        if (start.isValid()) {
-            QmlJSEditor::Internal::Indenter indenter(textDocument());
-            indenter.indentBlock(start, QChar::Null, tabSettings);
-        }
-    }
-    tc.endEditBlock();
+    QmlJSEditor::indentQmlJs(textDocument(), startLine, endLine,
+                             m_textEdit->textDocument()->tabSettings());
 }
 
 void BaseTextEditModifier::indent(int offset, int length)
