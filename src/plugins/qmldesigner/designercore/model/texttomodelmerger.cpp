@@ -388,6 +388,7 @@ bool smartVeryFuzzyCompare(const QVariant &value1, const QVariant &value2)
 
     void removeModelNode(const QmlDesigner::ModelNode &modelNode)
     {
+        QTC_ASSERT(modelNode.isValid(), return );
         modelNode.model()->removeModelNodes({modelNode},
                                             QmlDesigner::BypassModelResourceManagement::Yes);
     }
@@ -400,6 +401,7 @@ bool smartColorCompare(const QVariant &value1, const QVariant &value2)
 
     void removeProperty(const QmlDesigner::AbstractProperty &modelProperty)
     {
+        QTC_ASSERT(modelProperty.isValid(), return );
         modelProperty.model()->removeProperties({modelProperty},
                                                 QmlDesigner::BypassModelResourceManagement::Yes);
     }
