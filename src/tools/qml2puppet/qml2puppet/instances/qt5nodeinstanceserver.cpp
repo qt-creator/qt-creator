@@ -419,7 +419,7 @@ QImage Qt5NodeInstanceServer::grabWindow()
     return  {};
 }
 
-static bool hasEffect(QQuickItem *item)
+bool Qt5NodeInstanceServer::hasEffect(QQuickItem *item)
 {
     QQuickItemPrivate *pItem = QQuickItemPrivate::get(item);
     return pItem && pItem->layer() && pItem->layer()->enabled() && pItem->layer()->effect();
