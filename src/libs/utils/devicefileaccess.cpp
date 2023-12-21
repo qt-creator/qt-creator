@@ -33,6 +33,7 @@
 #include <qplatformdefs.h>
 #endif
 
+#include <QStandardPaths>
 #include <algorithm>
 #include <array>
 
@@ -561,6 +562,44 @@ bool DesktopDeviceFileAccess::removeFile(const FilePath &filePath) const
     return QFile::remove(filePath.path());
 }
 
+static bool checkToRefuseRemoveStandardLocationDirectory(const QString &dirPath,
+                                                         QStandardPaths::StandardLocation location,
+                                                         QString *error)
+{
+    if (QStandardPaths::standardLocations(location).contains(dirPath)) {
+        if (error) {
+            *error = Tr::tr("Refusing to remove your %1 directory.").arg(
+                QStandardPaths::displayName(location));
+        }
+        return false;
+    }
+    return true;
+}
+
+static bool checkToRefuseRemoveDirectory(const QDir &dir, QString *error)
+{
+    if (dir.isRoot()) {
+        if (error)
+            *error = Tr::tr("Refusing to remove root directory.");
+        return false;
+    }
+    const QString dirPath = dir.path();
+    if (dirPath == QDir::home().canonicalPath()) {
+        if (error)
+            *error = Tr::tr("Refusing to remove your home directory.");
+        return false;
+    }
+    if (checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::DocumentsLocation, error))
+        return false;
+    if (checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::DownloadLocation, error))
+        return false;
+    if (checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::AppDataLocation, error))
+        return false;
+    if (checkToRefuseRemoveStandardLocationDirectory(dirPath, QStandardPaths::AppLocalDataLocation, error))
+        return false;
+    return true;
+}
+
 bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
 {
     QTC_ASSERT(!filePath.needsDevice(), return false);
@@ -573,16 +612,8 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
     if (fileInfo.isDir()) {
         QDir dir(fileInfo.absoluteFilePath());
         dir.setPath(dir.canonicalPath());
-        if (dir.isRoot()) {
-            if (error)
-                *error = Tr::tr("Refusing to remove root directory.");
+        if (checkToRefuseRemoveDirectory(dir, error))
             return false;
-        }
-        if (dir.path() == QDir::home().canonicalPath()) {
-            if (error)
-                *error = Tr::tr("Refusing to remove your home directory.");
-            return false;
-        }
 
         const QStringList fileNames = dir.entryList(QDir::Files | QDir::Hidden | QDir::System
                                                     | QDir::Dirs | QDir::NoDotAndDotDot);
