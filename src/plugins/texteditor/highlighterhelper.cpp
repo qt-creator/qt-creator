@@ -210,9 +210,10 @@ void reload()
     highlightRepository()->reload();
     for (auto editor : Core::DocumentModel::editorsForOpenedDocuments()) {
         if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
-            auto highlighterCreator = textEditor->textDocument()->syntaxHighlighterRunner()->creator();
-            if (highlighterCreator && qobject_cast<Highlighter *>(highlighterCreator()))
+            if (auto highlighterRunner = textEditor->textDocument()->syntaxHighlighterRunner();
+                highlighterRunner && highlighterRunner->useGenericHighlighter()) {
                 textEditor->editorWidget()->configureGenericHighlighter();
+            }
         }
     }
 }

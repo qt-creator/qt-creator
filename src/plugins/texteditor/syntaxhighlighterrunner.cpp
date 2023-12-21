@@ -6,6 +6,7 @@
 #include "fontsettings.h"
 #include "textdocumentlayout.h"
 #include "texteditorsettings.h"
+#include "highlighter.h"
 
 #include <utils/textutils.h>
 
@@ -92,13 +93,13 @@ public:
 
     void rehighlight() { m_highlighter->rehighlight(); }
 
-signals:
-    void resultsReady(const QList<SyntaxHighlighter::Result> &result);
-
-private:
     std::unique_ptr<SyntaxHighlighter> m_highlighter;
     QTextDocument *m_document = nullptr;
     FontSettings m_fontSettings;
+
+signals:
+    void resultsReady(const QList<SyntaxHighlighter::Result> &result);
+
 };
 
 // ----------------------------- BaseSyntaxHighlighterRunner --------------------------------------
@@ -110,6 +111,8 @@ BaseSyntaxHighlighterRunner::BaseSyntaxHighlighterRunner(
     : d(new SyntaxHighlighterRunnerPrivate(creator, document, fontSettings))
     , m_document(document)
 {
+    m_useGenericHighlighter = qobject_cast<Highlighter *>(d->m_highlighter.get());
+
     if (document == nullptr)
         return;
 
@@ -174,6 +177,11 @@ void BaseSyntaxHighlighterRunner::changeDocument(int from, int charsRemoved, int
     QMetaObject::invokeMethod(d.get(), [this, from, charsRemoved, text, blocksPreedit] {
         d->changeDocument(from, charsRemoved, text, blocksPreedit);
     });
+}
+
+bool BaseSyntaxHighlighterRunner::useGenericHighlighter() const
+{
+    return m_useGenericHighlighter;
 }
 
 void BaseSyntaxHighlighterRunner::setExtraFormats(

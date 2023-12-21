@@ -48,9 +48,10 @@ public:
     void setDefinitionName(const QString &name);
 
     QTextDocument *document() const { return m_document; }
-    SyntaxHighLighterCreator creator() const { return m_creator; }
+    bool useGenericHighlighter() const;
 
     bool syntaxInfoUpdated() const { return m_syntaxInfoUpdated == SyntaxHighlighter::State::Done; }
+
 signals:
     void highlightingFinished();
 
@@ -63,7 +64,7 @@ protected:
     SyntaxHighlighter::State m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;
 
 private:
-    SyntaxHighLighterCreator m_creator;
+    bool m_useGenericHighlighter = false;
     QString m_definitionName;
 };
 
