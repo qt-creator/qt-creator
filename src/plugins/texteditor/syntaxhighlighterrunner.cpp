@@ -20,36 +20,26 @@ class SyntaxHighlighterRunnerPrivate : public QObject
 {
     Q_OBJECT
 public:
-    void createHighlighter()
+    SyntaxHighlighterRunnerPrivate(BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator creator,
+                                   QTextDocument *document,
+                                   FontSettings fontSettings)
+        : m_document(document)
+        , m_fontSettings(fontSettings)
     {
-        m_highlighter.reset(m_creator());
+        if (!m_document) {
+            m_document = new QTextDocument(this);
+            m_document->setDocumentLayout(new TextDocumentLayout(m_document));
+        }
+
+        m_highlighter.reset(creator());
         m_highlighter->setFontSettings(m_fontSettings);
         m_highlighter->setDocument(m_document);
+        m_highlighter->setParent(m_document);
 
         connect(m_highlighter.get(),
                 &SyntaxHighlighter::resultsReady,
                 this,
                 &SyntaxHighlighterRunnerPrivate::resultsReady);
-    }
-
-    SyntaxHighlighterRunnerPrivate(BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator creator,
-                                   QTextDocument *document, FontSettings fontSettings)
-        : m_creator(creator)
-        , m_document(document)
-        , m_fontSettings(fontSettings)
-    {
-        createHighlighter();
-    }
-
-    void create()
-    {
-        if (m_document != nullptr)
-            return;
-
-        m_document = new QTextDocument(this);
-        m_document->setDocumentLayout(new TextDocumentLayout(m_document));
-
-        createHighlighter();
     }
 
     void cloneDocument(int from,
@@ -106,7 +96,6 @@ signals:
     void resultsReady(const QList<SyntaxHighlighter::Result> &result);
 
 private:
-    BaseSyntaxHighlighterRunner::SyntaxHighLighterCreator m_creator;
     std::unique_ptr<SyntaxHighlighter> m_highlighter;
     QTextDocument *m_document = nullptr;
     FontSettings m_fontSettings;
@@ -259,8 +248,6 @@ ThreadedSyntaxHighlighterRunner::ThreadedSyntaxHighlighterRunner(SyntaxHighLight
     d->moveToThread(&m_thread);
     connect(&m_thread, &QThread::finished, d.get(), [this] { d.release()->deleteLater(); });
     m_thread.start();
-
-    QMetaObject::invokeMethod(d.get(), &SyntaxHighlighterRunnerPrivate::create);
 
     m_document = document;
     connect(d.get(),
