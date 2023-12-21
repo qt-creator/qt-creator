@@ -434,7 +434,7 @@ void ItemLibraryAssetImporter::copyImportedFiles()
         int counter = 0;
         auto it = m_overwrittenImports.constBegin();
         while (it != m_overwrittenImports.constEnd()) {
-            QDir dir(it.key());
+            Utils::FilePath dir = Utils::FilePath::fromUserInput(it.key());
             if (dir.exists()) {
                 const auto &overwrittenFiles = it.value();
                 if (overwrittenFiles.isEmpty()) {
