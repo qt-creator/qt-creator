@@ -652,60 +652,6 @@ public:
         return value;
     }
 
-    QVariant convertToVariant(const QString &astValue, const QString &propertyPrefix, AST::UiQualifiedId *propertyId)
-    {
-        const bool hasQuotes = astValue.trimmed().left(1) == u"\""
-                               && astValue.trimmed().right(1) == u"\"";
-        const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
-        const Value *property = nullptr;
-        const ObjectValue *containingObject = nullptr;
-        QString name;
-        if (!lookupProperty(propertyPrefix, propertyId, &property, &containingObject, &name)) {
-            qCInfo(texttomodelMergerDebug) << Q_FUNC_INFO << "Unknown property"
-                                      << propertyPrefix + QLatin1Char('.') + toString(propertyId)
-                                      << "on line" << propertyId->identifierToken.startLine
-                                      << "column" << propertyId->identifierToken.startColumn;
-            return hasQuotes ? QVariant(cleanedValue) : cleverConvert(cleanedValue);
-        }
-
-        if (containingObject)
-            containingObject->lookupMember(name, m_context, &containingObject);
-
-        if (const CppComponentValue * qmlObject = value_cast<CppComponentValue>(containingObject)) {
-            const QString typeName = qmlObject->propertyType(name);
-            if (qmlObject->getEnum(typeName).isValid()) {
-                return QVariant(cleanedValue);
-            } else {
-                int type = QMetaType::type(typeName.toUtf8().constData());
-                QVariant result;
-                if (type)
-                    result = PropertyParser::read(type, cleanedValue);
-                if (result.isValid())
-                    return result;
-            }
-        }
-
-        if (property->asColorValue())
-            return PropertyParser::read(QVariant::Color, cleanedValue);
-        else if (property->asUrlValue())
-            return PropertyParser::read(QVariant::Url, cleanedValue);
-
-        QVariant value(cleanedValue);
-        if (property->asBooleanValue()) {
-            value.convert(QVariant::Bool);
-            return value;
-        } else if (property->asNumberValue()) {
-            value.convert(QVariant::Double);
-            return value;
-        } else if (property->asStringValue()) {
-            // nothing to do
-        } else { //property alias et al
-            if (!hasQuotes)
-                return cleverConvert(cleanedValue);
-        }
-        return value;
-    }
-
     QVariant convertToEnum(AST::Statement *rhs,
                            const NodeMetaInfo &metaInfo,
                            const QString &propertyPrefix,
