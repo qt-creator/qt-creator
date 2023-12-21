@@ -1218,39 +1218,22 @@ class StorageThreadData
     Q_DISABLE_COPY_MOVE(StorageThreadData)
 
 public:
-    StorageThreadData(StorageData *storageData);
-    ~StorageThreadData();
-
-    StoragePtr createStorage();
-    bool deleteStorage(StoragePtr storagePtr); // Returns true if it was the last storage.
-
+    StorageThreadData() = default;
     void activateStorage(StoragePtr storagePtr);
 
     StoragePtr activeStoragePtr() const;
     bool hasActiveStorage() const { return m_activeStorage; }
 
 private:
-    StorageData *m_storageData = nullptr;
-    QSet<StoragePtr> m_storages;
     StoragePtr m_activeStorage = nullptr;
 };
 
 class StorageData
 {
 public:
-    ~StorageData();
     StorageThreadData &threadData() {
         QMutexLocker lock(&m_threadDataMutex);
-        return m_threadDataMap.emplace(QThread::currentThread(), this).first->second;
-    }
-
-    void deleteStorage(StoragePtr storagePtr)
-    {
-        if (!threadData().deleteStorage(storagePtr))
-            return;
-
-        QMutexLocker lock(&m_threadDataMutex);
-        m_threadDataMap.erase(m_threadDataMap.find(QThread::currentThread()));
+        return m_threadDataMap.try_emplace(QThread::currentThread()).first->second;
     }
 
     const StorageBase::StorageConstructor m_constructor = {};
@@ -1260,39 +1243,6 @@ public:
     // Don't optimize it by using std::unordered_map.
     std::map<QThread *, StorageThreadData> m_threadDataMap = {};
 };
-
-StorageThreadData::StorageThreadData(StorageData *storageData)
-    : m_storageData(storageData)
-{
-    QT_CHECK(m_storageData->m_constructor);
-    QT_CHECK(m_storageData->m_destructor);
-}
-
-StorageThreadData::~StorageThreadData()
-{
-    QT_CHECK(m_storages.isEmpty());
-    // TODO: Issue a warning about the leak instead?
-    for (void *ptr : std::as_const(m_storages))
-        m_storageData->m_destructor(ptr);
-}
-
-StoragePtr StorageThreadData::createStorage()
-{
-    QT_ASSERT(m_activeStorage == 0, return 0); // TODO: should be allowed?
-    StoragePtr ptr = m_storageData->m_constructor();
-    m_storages.insert(ptr);
-    return ptr;
-}
-
-bool StorageThreadData::deleteStorage(StoragePtr storagePtr)
-{
-    QT_ASSERT(m_activeStorage == 0, return false); // TODO: should be allowed?
-    const auto it = m_storages.constFind(storagePtr);
-    QT_ASSERT(it != m_storages.constEnd(), return false);
-    m_storageData->m_destructor(*it);
-    m_storages.erase(it);
-    return m_storages.isEmpty();
-}
 
 // passing 0 deactivates currently active storage
 void StorageThreadData::activateStorage(StoragePtr storagePtr)
@@ -1314,12 +1264,6 @@ StoragePtr StorageThreadData::activeStoragePtr() const
         "It is possible that no storage was added to the tree, "
         "or the storage is not reachable from where it is referenced."); return nullptr);
     return m_activeStorage;
-}
-
-StorageData::~StorageData()
-{
-    QMutexLocker lock(&m_threadDataMutex);
-    QT_CHECK(m_threadDataMap.empty());
 }
 
 StorageBase::StorageBase(StorageConstructor ctor, StorageDestructor dtor)
@@ -1574,7 +1518,7 @@ public:
             StoragePtr storagePtr = m_storages.value(i);
             if (m_callStorageDoneHandlersOnDestruction)
                 m_taskContainer.m_taskTreePrivate->callDoneHandler(storage, storagePtr);
-            storage.m_storageData->deleteStorage(storagePtr);
+            storage.m_storageData->m_destructor(storagePtr);
         }
     }
 
@@ -1711,7 +1655,7 @@ QList<StoragePtr> TaskRuntimeContainer::createStorages(const TaskContainer &cont
 {
     QList<StoragePtr> storages;
     for (const StorageBase &storage : container.m_storageList) {
-        StoragePtr storagePtr = storage.m_storageData->threadData().createStorage();
+        StoragePtr storagePtr = storage.m_storageData->m_constructor();
         storages.append(storagePtr);
         container.m_taskTreePrivate->callSetupHandler(storage, storagePtr);
     }
