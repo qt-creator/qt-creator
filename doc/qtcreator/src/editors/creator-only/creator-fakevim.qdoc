@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
-    \previouspage creator-editor-options-text.html
+    \previouspage creator-editor-options.html
     \page creator-editor-fakevim.html
     \nextpage creator-markdown-editor.html
 
@@ -305,7 +305,7 @@
     preselected settings.
 
     To use a Vim-style color scheme, select \preferences >
-    \uicontrol {Text Editor} > \uicontrol {Fonts & Color}.
+    \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
     In the \uicontrol {Color Scheme} list, select \uicontrol {Vim (dark)}.
 
     \section1 Quitting FakeVim Mode

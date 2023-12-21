@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -14,7 +14,7 @@
     \else
     \previouspage creator-beautifier.html
     \endif
-    \nextpage creator-editor-options-text.html
+    \nextpage creator-preferences-text-editor-font-colors.html
 
     \title Configuring the Editor
 
@@ -32,15 +32,9 @@
     You can perform the following configuration actions:
 
     \list
-        \if defined(qtdesignstudio)
-        \li Set the \l{Specifying Code View Settings}{font preferences and
+        \li Set the \l{Font & Colors}{font preferences and
             apply color schemes} for syntax highlighting in
             \uicontrol {Font & Colors}.
-        \else
-        \li Set the \l{Specifying Text Editor Settings}{font preferences and
-            apply color schemes} for syntax highlighting in
-            \uicontrol {Font & Colors}.
-        \endif
         \li Specify \l{Generic Highlighting}
             {definition files for syntax highlighting} for other types of files
              than C++ or QML in \uicontrol {Generic Highlighter}.

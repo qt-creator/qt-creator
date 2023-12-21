@@ -48,7 +48,6 @@
             \li \l{Beautifying Source Code}
             \li \l{Configuring the Editor}
             \list
-                \li \l{Specifying Text Editor Settings}
                 \li \l{Using FakeVim Mode}
             \endlist
             \li \l{Editing Markdown Files}
