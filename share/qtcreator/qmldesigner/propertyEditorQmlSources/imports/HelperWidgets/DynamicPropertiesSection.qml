@@ -708,7 +708,7 @@ Section {
                     StudioControls.ComboBox {
                         id: comboBox
                         actionIndicator.visible: false
-                        model: ["int", "real", "color", "string", "bool", "url", "alias",
+                        model: ["int", "real", "color", "string", "bool", "url", "alias", "signal",
                                 "TextureInput", "vector2d", "vector3d", "vector4d"]
                         width: cePopup.itemWidth
                     }

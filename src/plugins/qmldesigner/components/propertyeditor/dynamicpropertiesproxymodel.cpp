@@ -167,6 +167,10 @@ void DynamicPropertiesProxyModel::createProperty(const QString &name, const QStr
                     QVariant value = defaultValueForType(typeName);
                     VariantProperty variantProp = modelNode.variantProperty(name.toUtf8());
                     variantProp.setDynamicTypeNameAndValue(typeName, value);
+                } else if (type == "signal") {
+                    SignalDeclarationProperty signalDeclarationProperty
+                        = modelNode.signalDeclarationProperty(name.toUtf8());
+                    signalDeclarationProperty.setSignature("()");
                 } else {
                     QString expression = defaultExpressionForType(typeName);
 
