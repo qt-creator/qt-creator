@@ -53,7 +53,7 @@ public:
         cursor.insertText(textAdded);
 
         for (auto it = blocksPreedit.cbegin(); it != blocksPreedit.cend(); ++it) {
-            const QTextBlock block = m_document->findBlock(it.key());
+            const QTextBlock block = m_document->findBlockByNumber(it.key());
             block.layout()->setPreeditArea(it.value().position, it.value().text);
         }
     }
@@ -160,19 +160,15 @@ void BaseSyntaxHighlighterRunner::cloneDocumentData(int from, int charsRemoved, 
 {
     m_syntaxInfoUpdated = SyntaxHighlighter::State::InProgress;
     QMap<int, BaseSyntaxHighlighterRunner::BlockPreeditData> blocksPreedit;
-    QTextBlock firstBlock = m_document->findBlock(from);
-    QTextBlock endBlock = m_document->findBlock(from + charsAdded);
-    while (firstBlock.isValid() && firstBlock.position() < endBlock.position()) {
-        const int position = firstBlock.position();
-        if (firstBlock.layout()) {
-            const int preeditAreaPosition = firstBlock.layout()->preeditAreaPosition();
-            const QString preeditAreaText = firstBlock.layout()->preeditAreaText();
-            if (preeditAreaPosition != -1)
-                blocksPreedit[position] = {preeditAreaPosition, preeditAreaText};
+    QTextBlock block = m_document->findBlock(from);
+    const QTextBlock endBlock = m_document->findBlock(from + charsAdded);
+    while (block.isValid() && block != endBlock) {
+        if (QTextLayout *layout = block.layout()) {
+            if (const int pos = layout->preeditAreaPosition(); pos != -1)
+                blocksPreedit[block.blockNumber()] = {pos, layout->preeditAreaText()};
         }
-        firstBlock = firstBlock.next();
+        block = block.next();
     }
-
     const QString text = Utils::Text::textAt(QTextCursor(m_document), from, charsAdded);
     cloneDocument(from, charsRemoved, text, blocksPreedit);
 }
