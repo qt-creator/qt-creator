@@ -42,10 +42,10 @@ public:
                 &SyntaxHighlighterRunnerPrivate::resultsReady);
     }
 
-    void cloneDocument(int from,
-                       int charsRemoved,
-                       const QString textAdded,
-                       const QMap<int, BaseSyntaxHighlighterRunner::BlockPreeditData> &blocksPreedit)
+    void changeDocument(int from,
+                        int charsRemoved,
+                        const QString textAdded,
+                        const QMap<int, BaseSyntaxHighlighterRunner::BlockPreeditData> &blocksPreedit)
     {
         QTextCursor cursor(m_document);
         cursor.setPosition(qMin(m_document->characterCount() - 1, from + charsRemoved));
@@ -156,8 +156,9 @@ void BaseSyntaxHighlighterRunner::applyFormatRanges(const SyntaxHighlighter::Res
     }
 }
 
-void BaseSyntaxHighlighterRunner::cloneDocumentData(int from, int charsRemoved, int charsAdded)
+void BaseSyntaxHighlighterRunner::changeDocument(int from, int charsRemoved, int charsAdded)
 {
+    QTC_ASSERT(m_document, return);
     m_syntaxInfoUpdated = SyntaxHighlighter::State::InProgress;
     QMap<int, BaseSyntaxHighlighterRunner::BlockPreeditData> blocksPreedit;
     QTextBlock block = m_document->findBlock(from);
@@ -170,16 +171,8 @@ void BaseSyntaxHighlighterRunner::cloneDocumentData(int from, int charsRemoved, 
         block = block.next();
     }
     const QString text = Utils::Text::textAt(QTextCursor(m_document), from, charsAdded);
-    cloneDocument(from, charsRemoved, text, blocksPreedit);
-}
-
-void BaseSyntaxHighlighterRunner::cloneDocument(int from,
-                                                int charsRemoved,
-                                                const QString textAdded,
-                                                const QMap<int, BlockPreeditData> &blocksPreedit)
-{
-    QMetaObject::invokeMethod(d.get(), [this, from, charsRemoved, textAdded, blocksPreedit] {
-        d->cloneDocument(from, charsRemoved, textAdded, blocksPreedit);
+    QMetaObject::invokeMethod(d.get(), [this, from, charsRemoved, text, blocksPreedit] {
+        d->changeDocument(from, charsRemoved, text, blocksPreedit);
     });
 }
 
@@ -254,16 +247,11 @@ ThreadedSyntaxHighlighterRunner::ThreadedSyntaxHighlighterRunner(SyntaxHighLight
                     applyFormatRanges(res);
             });
 
-    cloneDocumentData(0, 0, document->characterCount());
+    changeDocument(0, 0, document->characterCount());
     connect(document,
             &QTextDocument::contentsChange,
             this,
-            [this](int from, int charsRemoved, int charsAdded) {
-                if (!this->document())
-                    return;
-
-                cloneDocumentData(from, charsRemoved, charsAdded);
-            });
+            &ThreadedSyntaxHighlighterRunner::changeDocument);
 }
 
 ThreadedSyntaxHighlighterRunner::~ThreadedSyntaxHighlighterRunner()

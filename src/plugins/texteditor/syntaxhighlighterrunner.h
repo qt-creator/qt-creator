@@ -58,11 +58,7 @@ protected:
     std::unique_ptr<SyntaxHighlighterRunnerPrivate> d;
     QPointer<QTextDocument> m_document = nullptr;
     void applyFormatRanges(const SyntaxHighlighter::Result &result);
-    void cloneDocumentData(int from, int charsRemoved, int charsAdded);
-    void cloneDocument(int from,
-                       int charsRemoved,
-                       const QString textAdded,
-                       const QMap<int, BlockPreeditData> &blocksPreedit);
+    void changeDocument(int from, int charsRemoved, int charsAdded);
 
     SyntaxHighlighter::State m_syntaxInfoUpdated = SyntaxHighlighter::State::Done;
 
