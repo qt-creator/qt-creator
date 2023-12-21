@@ -7,19 +7,31 @@
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditorconstants.h>
+
 #include <utils/qtcassert.h>
 
 namespace Nim {
 
-NimHighlighter::NimHighlighter()
+class NimHighlighter final : public TextEditor::SyntaxHighlighter
 {
-    setDefaultTextFormatCategories();
-}
+public:
+    NimHighlighter()
+    {
+        setDefaultTextFormatCategories();
+    }
 
-void NimHighlighter::highlightBlock(const QString &text)
-{
-    setCurrentBlockState(highlightLine(text, previousBlockState()));
-}
+    void highlightBlock(const QString &text) final
+    {
+        setCurrentBlockState(highlightLine(text, previousBlockState()));
+    }
+
+private:
+    TextEditor::TextStyle styleForToken(const NimLexer::Token &token, const QString &tokenValue);
+    TextEditor::TextStyle styleForIdentifier(const NimLexer::Token &token, const QString &tokenValue);
+
+    int highlightLine(const QString &text, int initialState);
+};
+
 
 TextEditor::TextStyle NimHighlighter::styleForToken(const NimLexer::Token &token,
                                                     const QString &tokenValue)
@@ -90,6 +102,11 @@ int NimHighlighter::highlightLine(const QString &text, int initialState)
     }
 
     return lexer.state();
+}
+
+TextEditor::SyntaxHighlighter *createNimHighlighter()
+{
+    return new NimHighlighter;
 }
 
 } // Nim
