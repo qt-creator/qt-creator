@@ -24,7 +24,7 @@ static TextEditor::TextDocument *createJavaDocument()
     auto doc = new TextEditor::TextDocument;
     doc->setId(Constants::JAVA_EDITOR_ID);
     doc->setMimeType(Utils::Constants::JAVA_MIMETYPE);
-    doc->setIndenter(new JavaIndenter(doc->document()));
+    doc->setIndenter(createJavaIndenter(doc->document()));
     return doc;
 }
 
