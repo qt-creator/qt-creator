@@ -606,8 +606,9 @@ public:
                                && astValue.trimmed().right(1) == u"\"";
         const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
         if (!propertyMetaInfo.isValid()) {
+            const bool isAttached = !propertyName.isEmpty() && propertyName[0].isUpper();
             // Only list elements might have unknown properties.
-            if (!node.metaInfo().isQtQuickListElement()) {
+            if (!node.metaInfo().isQtQuickListElement() && !isAttached) {
                 qCInfo(texttomodelMergerDebug)
                     << Q_FUNC_INFO << "Unknown property"
                     << propertyPrefix + QLatin1Char('.') + toString(propertyId) << "on line"
