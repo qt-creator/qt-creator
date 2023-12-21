@@ -38,7 +38,6 @@ public:
         , m_document(document)
         , m_fontSettings(fontSettings)
     {
-        m_highlighter.reset(m_creator());
         createHighlighter();
     }
 
