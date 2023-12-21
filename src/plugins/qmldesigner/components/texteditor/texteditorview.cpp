@@ -299,6 +299,7 @@ void TextEditorView::jumpToModelNode(const ModelNode &modelNode)
 
     m_widget->window()->windowHandle()->requestActivate();
     m_widget->textEditor()->widget()->setFocus();
+    m_widget->textEditor()->editorWidget()->updateFoldingHighlight(QTextCursor());
 }
 
 void TextEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &/*propertyList*/)
