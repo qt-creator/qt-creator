@@ -15,13 +15,21 @@ using namespace TextEditor;
 
 const TextStyle GLSLReservedKeyword = C_REMOVED_LINE;
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
-GlslHighlighter::GlslHighlighter()
+class GlslHighlighter final : public TextEditor::SyntaxHighlighter
 {
-    setDefaultTextFormatCategories();
-}
+public:
+    GlslHighlighter()
+    {
+        setDefaultTextFormatCategories();
+    }
+
+private:
+    void highlightBlock(const QString &text) final;
+    void highlightLine(const QString &text, int position, int length, const QTextCharFormat &format);
+    bool isPPKeyword(QStringView text) const;
+};
 
 void GlslHighlighter::highlightBlock(const QString &text)
 {
@@ -293,5 +301,10 @@ bool GlslHighlighter::isPPKeyword(QStringView text) const
     return false;
 }
 
-} // namespace Internal
-} // namespace GlslEditor
+
+TextEditor::SyntaxHighlighter *createGlslHighlighter()
+{
+    return new GlslHighlighter;
+}
+
+} // GlslEditor::Internal

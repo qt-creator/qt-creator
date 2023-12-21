@@ -5,8 +5,7 @@
 
 #include <texteditor/texteditor.h>
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
 int languageVariant(const QString &mimeType);
 
@@ -16,5 +15,4 @@ public:
     GlslEditorFactory();
 };
 
-} // namespace Internal
-} // namespace GlslEditor
+} // GlslEditor::Internal

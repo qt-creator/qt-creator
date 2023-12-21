@@ -53,8 +53,7 @@
 using namespace TextEditor;
 using namespace GLSL;
 
-namespace GlslEditor {
-namespace Internal {
+namespace GlslEditor::Internal {
 
 static int versionFor(const QString &source)
 {
@@ -356,10 +355,7 @@ std::unique_ptr<AssistInterface> GlslEditorWidget::createAssistInterface(
                                                            m_glslDocument);
 }
 
-
-//
 //  GlslEditorFactory
-//
 
 GlslEditorFactory::GlslEditorFactory()
 {
@@ -373,8 +369,8 @@ GlslEditorFactory::GlslEditorFactory()
 
     setDocumentCreator([]() { return new TextDocument(Constants::C_GLSLEDITOR_ID); });
     setEditorWidgetCreator([]() { return new GlslEditorWidget; });
-    setIndenterCreator([](QTextDocument *doc) { return new GlslIndenter(doc); });
-    setSyntaxHighlighterCreator([]() { return new GlslHighlighter; });
+    setIndenterCreator(&createGlslIndenter);
+    setSyntaxHighlighterCreator(&createGlslHighlighter);
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
     setCompletionAssistProvider(new GlslCompletionAssistProvider);
     setParenthesesMatchingEnabled(true);
@@ -385,5 +381,4 @@ GlslEditorFactory::GlslEditorFactory()
                           | TextEditorActionHandler::UnCollapseAll);
 }
 
-} // namespace Internal
-} // namespace GlslEditor
+} // GlslEditor::Internal
