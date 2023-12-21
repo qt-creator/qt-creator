@@ -1436,15 +1436,11 @@ public:
         const auto it = m_storageHandlers.constFind(storage);
         if (it == m_storageHandlers.constEnd())
             return;
-        GuardLocker locker(m_guard);
         const StorageHandler storageHandler = *it;
-        // TODO: we don't necessarily need to activate the storage here, it's enough to
-        // get a pointer to the relevant storage instance.
-        auto &threadData = storage.m_storageData->threadData();
-        threadData.activateStorage(storagePtr);
-        if (storageHandler.*ptr)
-            (storageHandler.*ptr)(threadData.activeStoragePtr());
-        threadData.activateStorage(nullptr);
+        if (storageHandler.*ptr) {
+            GuardLocker locker(m_guard);
+            (storageHandler.*ptr)(storagePtr);
+        }
     }
 
     // Node related methods
