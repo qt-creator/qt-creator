@@ -73,9 +73,9 @@
 
     \list
 
-        \li \l{Editing Markdown Files}
+        \li \l{Edit Markdown files}
 
-            Edit and preview markdown (.md) files.
+            Edit and preview Markdown (.md) files.
 
         \li \l{Using Language Servers}
 
