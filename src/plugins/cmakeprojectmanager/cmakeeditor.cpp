@@ -515,7 +515,7 @@ CMakeEditorFactory::CMakeEditorFactory()
     setEditorCreator([] { return new CMakeEditor; });
     setEditorWidgetCreator([] { return new CMakeEditorWidget; });
     setDocumentCreator(createCMakeDocument);
-    setIndenterCreator([](QTextDocument *doc) { return new CMakeIndenter(doc); });
+    setIndenterCreator(createCMakeIndenter);
     setUseGenericHighlighter(true);
     setCommentDefinition(Utils::CommentDefinition::HashStyle);
     setCodeFoldingSupported(true);
