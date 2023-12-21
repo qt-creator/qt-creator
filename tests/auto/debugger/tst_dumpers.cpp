@@ -1300,8 +1300,20 @@ void tst_Dumpers::initTestCase()
         qCDebug(lcDumpers) << "Lldb version       :" << output << ba << m_debuggerVersion;
         QVERIFY(m_debuggerVersion);
 
-        m_env = QProcessEnvironment::systemEnvironment();
-        m_makeBinary = "make";
+        QByteArray envBat = qgetenv("QTC_MSVC_ENV_BAT");
+        if (!envBat.isEmpty()) {
+            QMap <QString, QString> envPairs;
+            Utils::Environment env = Utils::Environment::systemEnvironment();
+            QVERIFY(generateEnvironmentSettings(env, QString::fromLatin1(envBat), QString(), envPairs));
+
+            env.prependOrSetPath(Utils::FilePath::fromString(m_qmakeBinary).parentDir());
+
+            m_env = env.toProcessEnvironment();
+            m_makeBinary = env.searchInPath("nmake.exe").toString();
+        } else {
+            m_env = QProcessEnvironment::systemEnvironment();
+            m_makeBinary = "make";
+        }
     }
 }
 
@@ -1548,7 +1560,7 @@ void tst_Dumpers::dumper()
                 "\n#define NOMINMAX\n#include <windows.h>") +
             "\n#endif"
             "\n#if defined(_MSC_VER)"
-                "\nvoid qtcDebugBreakFunction() { return; }"
+                "\nvoid qtcDebugBreakFunction() { DebugBreak(); }"
                 "\n#define BREAK qtcDebugBreakFunction();"
                 "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n#else"
@@ -1802,11 +1814,16 @@ void tst_Dumpers::dumper()
         fullLldb.open(QIODevice::WriteOnly);
         fullLldb.write((exe + ' ' + args.join(' ') + '\n').toUtf8());
 
+#ifdef Q_OS_WIN
+        const QString exeSuffix(".exe");
+#else
+        const QString exeSuffix;
+#endif
         cmds = "sc import sys\n"
                "sc sys.path.insert(1, '" + dumperDir + "')\n"
                "sc from lldbbridge import *\n"
               // "sc print(dir())\n"
-               "sc Tester('" + t->buildPath.toLatin1() + "/doit', {" + dumperOptions +
+               "sc Tester('" + t->buildPath.toLatin1() + "/doit" + exeSuffix + "', {" + dumperOptions +
                     "'fancy':1,'forcens':1,"
                     "'autoderef':1,'dyntype':1,'passexceptions':1,"
                     "'testing':1,'qobjectnames':1,"

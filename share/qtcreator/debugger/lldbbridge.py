@@ -707,6 +707,8 @@ class Dumper(DumperBase):
     def fetchQtVersionAndNamespace(self):
         for func in self.target.FindFunctions('qVersion'):
             name = func.GetSymbol().GetName()
+            if name == None:
+                continue
             if name.endswith('()'):
                 name = name[:-2]
             if name.count(':') > 2:
