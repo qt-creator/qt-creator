@@ -1370,6 +1370,8 @@ void QtVersionPrivate::updateVersionInfo()
         m_qmakeIsExecutable = false;
         qWarning("Cannot update Qt version information from %s: %s.",
                  qPrintable(m_qmakeCommand.displayName()), qPrintable(error));
+        qWarning("If this appears when running Qt Creator in Qt Creator make "
+                 "sure to disable \"Add build library search path to LD_LIBRARY_PATH\"");
         return;
     }
     m_qmakeIsExecutable = true;
