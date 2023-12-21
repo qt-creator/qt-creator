@@ -41,9 +41,6 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 
-#include <clang/Basic/Version.h>
-#include <clang/Format/Format.h>
-
 #include <memory>
 #include <sstream>
 
