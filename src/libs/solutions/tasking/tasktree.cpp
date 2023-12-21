@@ -1211,6 +1211,8 @@ static DoneWith toDoneWith(DoneResult result)
     return result == DoneResult::Success ? DoneWith::Success : DoneWith::Error;
 }
 
+using StoragePtr = void *;
+
 class StorageThreadData
 {
     Q_DISABLE_COPY_MOVE(StorageThreadData)
@@ -1219,18 +1221,18 @@ public:
     StorageThreadData(StorageData *storageData);
     ~StorageThreadData();
 
-    int createStorage();
-    bool deleteStorage(int id); // Returns true if it was the last storage.
+    StoragePtr createStorage();
+    bool deleteStorage(StoragePtr storagePtr); // Returns true if it was the last storage.
 
-    void activateStorage(int id);
+    void activateStorage(StoragePtr storagePtr);
 
-    void *activeStorageVoid() const;
-    int activeStorageId() const { return m_activeStorage; }
+    StoragePtr activeStoragePtr() const;
+    bool hasActiveStorage() const { return m_activeStorage; }
 
 private:
     StorageData *m_storageData = nullptr;
-    QHash<int, void *> m_storageHash;
-    int m_activeStorage = 0; // 0 means no active storage.
+    QSet<StoragePtr> m_storages;
+    StoragePtr m_activeStorage = nullptr;
 };
 
 class StorageData
@@ -1242,14 +1244,13 @@ public:
         return m_threadDataMap.emplace(QThread::currentThread(), this).first->second;
     }
 
-    void deleteStorage(int id)
+    void deleteStorage(StoragePtr storagePtr)
     {
-        if (!threadData().deleteStorage(id))
+        if (!threadData().deleteStorage(storagePtr))
             return;
 
         QMutexLocker lock(&m_threadDataMutex);
-        m_threadDataMap.erase(
-            m_threadDataMap.find(QThread::currentThread()));
+        m_threadDataMap.erase(m_threadDataMap.find(QThread::currentThread()));
     }
 
     const StorageBase::StorageConstructor m_constructor = {};
@@ -1258,7 +1259,6 @@ public:
     // Use std::map on purpose, so that it doesn't invalidate references on modifications.
     // Don't optimize it by using std::unordered_map.
     std::map<QThread *, StorageThreadData> m_threadDataMap = {};
-    std::atomic_int m_storageInstanceCounter = 0; // Bumped on each creation.
 };
 
 StorageThreadData::StorageThreadData(StorageData *storageData)
@@ -1270,55 +1270,50 @@ StorageThreadData::StorageThreadData(StorageData *storageData)
 
 StorageThreadData::~StorageThreadData()
 {
-    QT_CHECK(m_storageHash.isEmpty());
+    QT_CHECK(m_storages.isEmpty());
     // TODO: Issue a warning about the leak instead?
-    for (void *ptr : std::as_const(m_storageHash))
+    for (void *ptr : std::as_const(m_storages))
         m_storageData->m_destructor(ptr);
 }
 
-int StorageThreadData::createStorage()
+StoragePtr StorageThreadData::createStorage()
 {
     QT_ASSERT(m_activeStorage == 0, return 0); // TODO: should be allowed?
-    const int newId = m_storageData->m_storageInstanceCounter.fetch_add(1) + 1;
-    m_storageHash.insert(newId, m_storageData->m_constructor());
-    return newId;
+    StoragePtr ptr = m_storageData->m_constructor();
+    m_storages.insert(ptr);
+    return ptr;
 }
 
-bool StorageThreadData::deleteStorage(int id)
+bool StorageThreadData::deleteStorage(StoragePtr storagePtr)
 {
     QT_ASSERT(m_activeStorage == 0, return false); // TODO: should be allowed?
-    const auto it = m_storageHash.constFind(id);
-    QT_ASSERT(it != m_storageHash.constEnd(), return false);
-    m_storageData->m_destructor(it.value());
-    m_storageHash.erase(it);
-    return m_storageHash.empty();
+    const auto it = m_storages.constFind(storagePtr);
+    QT_ASSERT(it != m_storages.constEnd(), return false);
+    m_storageData->m_destructor(*it);
+    m_storages.erase(it);
+    return m_storages.isEmpty();
 }
 
 // passing 0 deactivates currently active storage
-void StorageThreadData::activateStorage(int id)
+void StorageThreadData::activateStorage(StoragePtr storagePtr)
 {
-    if (id == 0) {
+    if (storagePtr == nullptr) {
         QT_ASSERT(m_activeStorage, return);
-        m_activeStorage = 0;
+        m_activeStorage = nullptr;
         return;
     }
-    QT_ASSERT(m_activeStorage == 0, return);
-    // TODO: Unneeded check? OTOH, it's quite important...
-    const auto it = m_storageHash.find(id);
-    QT_ASSERT(it != m_storageHash.end(), return);
-    m_activeStorage = id;
+    QT_ASSERT(m_activeStorage == nullptr, return);
+    m_activeStorage = storagePtr;
 }
 
-void *StorageThreadData::activeStorageVoid() const
+StoragePtr StorageThreadData::activeStoragePtr() const
 {
     QT_ASSERT(m_activeStorage, qWarning(
         "The referenced storage is not reachable in the running tree. "
         "A nullptr will be returned which might lead to a crash in the calling code. "
         "It is possible that no storage was added to the tree, "
         "or the storage is not reachable from where it is referenced."); return nullptr);
-    const auto it = m_storageHash.constFind(m_activeStorage);
-    QT_ASSERT(it != m_storageHash.constEnd(), return nullptr);
-    return it.value();
+    return m_activeStorage;
 }
 
 StorageData::~StorageData()
@@ -1333,7 +1328,7 @@ StorageBase::StorageBase(StorageConstructor ctor, StorageDestructor dtor)
 
 void *StorageBase::activeStorageVoid() const
 {
-    return m_storageData->threadData().activeStorageVoid();
+    return m_storageData->threadData().activeStoragePtr();
 }
 
 void GroupItem::addChildren(const QList<GroupItem> &children)
@@ -1423,7 +1418,7 @@ public:
     ExecutionContextActivator(TaskRuntimeContainer *container) { activateContext(container); }
     ~ExecutionContextActivator() {
         for (int i = m_activeStorages.size() - 1; i >= 0; --i) // iterate in reverse order
-            m_activeStorages[i].m_storageData->threadData().activateStorage(0);
+            m_activeStorages[i].m_storageData->threadData().activateStorage(nullptr);
     }
 
 private:
@@ -1481,18 +1476,18 @@ public:
     void emitStartedAndProgress();
     void emitProgress();
     void emitDone(DoneWith result);
-    void callSetupHandler(StorageBase storage, int storageId) {
-        callStorageHandler(storage, storageId, &StorageHandler::m_setupHandler);
+    void callSetupHandler(StorageBase storage, StoragePtr storagePtr) {
+        callStorageHandler(storage, storagePtr, &StorageHandler::m_setupHandler);
     }
-    void callDoneHandler(StorageBase storage, int storageId) {
-        callStorageHandler(storage, storageId, &StorageHandler::m_doneHandler);
+    void callDoneHandler(StorageBase storage, StoragePtr storagePtr) {
+        callStorageHandler(storage, storagePtr, &StorageHandler::m_doneHandler);
     }
     struct StorageHandler {
         StorageBase::StorageHandler m_setupHandler = {};
         StorageBase::StorageHandler m_doneHandler = {};
     };
     typedef StorageBase::StorageHandler StorageHandler::*HandlerPtr; // ptr to class member
-    void callStorageHandler(StorageBase storage, int storageId, HandlerPtr ptr)
+    void callStorageHandler(StorageBase storage, StoragePtr storagePtr, HandlerPtr ptr)
     {
         const auto it = m_storageHandlers.constFind(storage);
         if (it == m_storageHandlers.constEnd())
@@ -1502,10 +1497,10 @@ public:
         // TODO: we don't necessarily need to activate the storage here, it's enough to
         // get a pointer to the relevant storage instance.
         auto &threadData = storage.m_storageData->threadData();
-        threadData.activateStorage(storageId);
+        threadData.activateStorage(storagePtr);
         if (storageHandler.*ptr)
-            (storageHandler.*ptr)(threadData.activeStorageVoid());
-        threadData.activateStorage(0);
+            (storageHandler.*ptr)(threadData.activeStoragePtr());
+        threadData.activateStorage(nullptr);
     }
 
     // Node related methods
@@ -1568,7 +1563,7 @@ public:
     TaskRuntimeContainer(const TaskContainer &taskContainer, TaskRuntimeNode *parentNode)
         : m_taskContainer(taskContainer)
         , m_parentNode(parentNode)
-        , m_storageIdList(createStorages(taskContainer))
+        , m_storages(createStorages(taskContainer))
         , m_successBit(initialSuccessBit(taskContainer.m_workflowPolicy))
     {}
 
@@ -1576,14 +1571,14 @@ public:
     {
         for (int i = m_taskContainer.m_storageList.size() - 1; i >= 0; --i) { // iterate in reverse order
             const StorageBase storage = m_taskContainer.m_storageList[i];
-            const int storageId = m_storageIdList.value(i);
+            StoragePtr storagePtr = m_storages.value(i);
             if (m_callStorageDoneHandlersOnDestruction)
-                m_taskContainer.m_taskTreePrivate->callDoneHandler(storage, storageId);
-            storage.m_storageData->deleteStorage(storageId);
+                m_taskContainer.m_taskTreePrivate->callDoneHandler(storage, storagePtr);
+            storage.m_storageData->deleteStorage(storagePtr);
         }
     }
 
-    static QList<int> createStorages(const TaskContainer &container);
+    static QList<StoragePtr> createStorages(const TaskContainer &container);
     bool isStarting() const { return m_startGuard.isLocked(); }
     int currentLimit() const;
     TaskRuntimeContainer *parentContainer() const;
@@ -1592,7 +1587,7 @@ public:
 
     const TaskContainer &m_taskContainer; // Not owning.
     TaskRuntimeNode *m_parentNode = nullptr; // Not owning.
-    const QList<int> m_storageIdList;
+    const QList<StoragePtr> m_storages;
 
     std::vector<std::unique_ptr<TaskRuntimeNode>> m_children; // Owning.
     bool m_successBit = true;
@@ -1623,10 +1618,10 @@ void ExecutionContextActivator::activateContext(TaskRuntimeContainer *container)
     for (int i = 0; i < taskContainer.m_storageList.size(); ++i) {
         const StorageBase &storage = taskContainer.m_storageList[i];
         auto &threadData = storage.m_storageData->threadData();
-        if (threadData.activeStorageId())
+        if (threadData.hasActiveStorage())
             continue; // Storage shadowing: The storage is already active, skipping it...
         m_activeStorages.append(storage);
-        threadData.activateStorage(container->m_storageIdList.value(i));
+        threadData.activateStorage(container->m_storages.value(i));
     }
     // Go to the parent after activating this storages so that storage shadowing works
     // in the direction from child to parent root.
@@ -1712,15 +1707,15 @@ TaskContainer::TaskContainer(TaskTreePrivate *taskTreePrivate, const GroupItem &
         m_taskTreePrivate->m_storages << storage;
 }
 
-QList<int> TaskRuntimeContainer::createStorages(const TaskContainer &container)
+QList<StoragePtr> TaskRuntimeContainer::createStorages(const TaskContainer &container)
 {
-    QList<int> storageIdList;
+    QList<StoragePtr> storages;
     for (const StorageBase &storage : container.m_storageList) {
-        const int storageId = storage.m_storageData->threadData().createStorage();
-        storageIdList.append(storageId);
-        container.m_taskTreePrivate->callSetupHandler(storage, storageId);
+        StoragePtr storagePtr = storage.m_storageData->threadData().createStorage();
+        storages.append(storagePtr);
+        container.m_taskTreePrivate->callSetupHandler(storage, storagePtr);
     }
-    return storageIdList;
+    return storages;
 }
 
 int TaskRuntimeContainer::currentLimit() const
