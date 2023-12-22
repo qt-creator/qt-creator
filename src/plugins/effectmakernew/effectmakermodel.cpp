@@ -413,6 +413,7 @@ void EffectMakerModel::setEffectError(const QString &errorMessage, int type, int
     QString additionalErrorInfo = detectErrorMessage(errorMessage);
     error.m_message = additionalErrorInfo + errorMessage;
     m_effectErrors.insert(type, error);
+    qWarning() << QString("Effect error (line: %2): %1").arg(error.m_message, error.m_line);
     Q_EMIT effectErrorChanged();
 }
 
@@ -556,13 +557,23 @@ QString EffectMakerModel::getQmlEffectString()
 {
     QString s;
 
-    s += QString("// Created with Qt Design Studio (version %1), %2\n\n")
-             .arg(qApp->applicationVersion(), QDateTime::currentDateTime().toString());
-    s += "import QtQuick\n";
-    s += '\n';
-    s += "Item {\n";
-    s += "    id: rootItem\n";
-    s += '\n';
+    // _isEffectItem is type var to hide it from property view
+    QString header{
+R"(
+// Created with Qt Design Studio (version %1), %2
+
+import QtQuick
+
+Item {
+    id: rootItem
+
+    property var _isEffectItem
+    property Item _oldParent: null
+)"
+    };
+
+    s += header.arg(qApp->applicationVersion(), QDateTime::currentDateTime().toString());
+
     if (m_shaderFeatures.enabled(ShaderFeatures::Source)) {
         s += "    // This is the main source for the effect\n";
         s += "    property Item source: null\n";
@@ -580,7 +591,33 @@ QString EffectMakerModel::getQmlEffectString()
         s += "    // When timeRunning is false, this can be used to control iFrame manually\n";
         s += "    property int animatedFrame: frameAnimation.currentFrame\n";
     }
-    s += '\n';
+
+    QString parentChanged{
+R"(
+    onParentChanged: {
+        if (_oldParent && _oldParent !== parent) {
+            _oldParent.layer.enabled = false
+            _oldParent.layer.effect = null
+            %2
+            _oldParent.update()
+            _oldParent = null
+        }
+        if (parent) {
+            _oldParent = parent
+            parent.layer.enabled = true
+            parent.layer.effect = effectComponent
+            %1
+        }
+    }
+)"
+    };
+
+    parentChanged = parentChanged.arg(m_shaderFeatures.enabled(ShaderFeatures::Source)
+                                          ? QString("source = parent") : QString(),
+                                      m_shaderFeatures.enabled(ShaderFeatures::Source)
+                                          ? QString("source = null") : QString());
+    s += parentChanged;
+
     // Custom properties
     if (!m_exportedRootPropertiesString.isEmpty()) {
         s += m_exportedRootPropertiesString;
@@ -595,19 +632,14 @@ QString EffectMakerModel::getQmlEffectString()
         s += '\n';
     }
 
-    if (m_shaderFeatures.enabled(ShaderFeatures::BlurSources)) {
-        s += "    BlurHelper {\n";
-        s += "        id: blurHelper\n";
-        s += "        anchors.fill: parent\n";
-        int blurMax = 32;
-        if (g_propertyData.contains("BLUR_HELPER_MAX_LEVEL"))
-            blurMax = g_propertyData["BLUR_HELPER_MAX_LEVEL"].toInt();
-        s += QString("        property int blurMax: %1\n").arg(blurMax);
-        s += "        property real blurMultiplier: rootItem.blurMultiplier\n";
-        s += "    }\n";
-    }
+    QString customImagesString = getQmlImagesString(true);
+    if (!customImagesString.isEmpty())
+        s += customImagesString;
 
+    s += "    Component {\n";
+    s += "        id: effectComponent\n";
     s += getQmlComponentString(true);
+    s += "    }\n";
     s += "}\n";
     return s;
 }
@@ -785,10 +817,10 @@ void EffectMakerModel::saveResources(const QString &name)
     for (int i = 1; i < qmlStringList.size(); i++) {
         QString line = qmlStringList.at(i).trimmed();
         if (line.startsWith("vertexShader")) {
-            QString vsLine = "        vertexShader: '" + vsFilename + "'";
+            QString vsLine = "            vertexShader: '" + vsFilename + "'";
             qmlStringList[i] = vsLine;
         } else if (line.startsWith("fragmentShader")) {
-            QString fsLine = "        fragmentShader: '" + fsFilename + "'";
+            QString fsLine = "            fragmentShader: '" + fsFilename + "'";
             qmlStringList[i] = fsLine;
         }
     }
@@ -1287,17 +1319,17 @@ void EffectMakerModel::updateCustomUniforms()
                 if (!uniform->description().isEmpty()) {
                     const QStringList descriptionLines = uniform->description().split('\n');
                     for (const QString &line : descriptionLines)
-                        exportedEffectPropertiesString += QStringLiteral("        // ") + line + '\n';
+                        exportedEffectPropertiesString += QStringLiteral("            // ") + line + '\n';
                 }
-                exportedEffectPropertiesString += QStringLiteral("        ") + readOnly
+                exportedEffectPropertiesString += QStringLiteral("            ") + readOnly
                                                   + "property " + propertyType + " " + propertyName
                                                   + boundValueString + '\n';
             } else {
                 // Custom values are not added into root
                 exportedRootPropertiesString += "    property " + propertyType + " " + propertyName
                                                 + valueString + '\n';
-                exportedEffectPropertiesString += QStringLiteral("        ")
-                                                  + readOnly + "property alias " + propertyName
+                exportedEffectPropertiesString += QStringLiteral("            ")
+                                                  + readOnly + "property " + propertyType + " " + propertyName
                                                   + ": rootItem." + uniform->name() + '\n';
             }
         }
@@ -1488,22 +1520,26 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
     {
         if (localFiles) {
             const QString parent = blurHelper ? QString("blurHelper.") : QString("rootItem.");
-            return QString("readonly property alias %1: %2%3\n").arg(name, parent, var);
+            return QString("readonly property %1 %2: %3%4\n").arg(type, name, parent, var);
         } else {
             const QString parent = blurHelper ? "blurHelper." : QString();
             return QString("readonly property %1 %2: %3%4\n").arg(type, name, parent, var);
         }
     };
 
-    QString customImagesString = getQmlImagesString(localFiles);
     QString s;
-    QString l1 = localFiles ? QStringLiteral("    ") : QStringLiteral("");
-    QString l2 = localFiles ? QStringLiteral("        ") : QStringLiteral("    ");
-    QString l3 = localFiles ? QStringLiteral("            ") : QStringLiteral("        ");
+    QString l1 = localFiles ? QStringLiteral("        ") : QStringLiteral("");
+    QString l2 = localFiles ? QStringLiteral("            ") : QStringLiteral("    ");
+    QString l3 = localFiles ? QStringLiteral("                ") : QStringLiteral("        ");
 
     if (!localFiles)
         s += "import QtQuick\n";
     s += l1 + "ShaderEffect {\n";
+
+    if (localFiles) {
+        // Explicit "source" property is required for render puppet to detect effect correctly
+        s += l2 + "property Item source: null\n";
+    }
     if (m_shaderFeatures.enabled(ShaderFeatures::Source))
         s += l2 + addProperty("iSource", "source", "Item");
     if (m_shaderFeatures.enabled(ShaderFeatures::Time))
@@ -1529,15 +1565,18 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
     // and when in exported component, property with binding to root value.
     s += localFiles ? m_exportedEffectPropertiesString : m_previewEffectPropertiesString;
 
-    if (!customImagesString.isEmpty())
-        s += '\n' + customImagesString;
+    if (!localFiles) {
+        QString customImagesString = getQmlImagesString(false);
+        if (!customImagesString.isEmpty())
+            s += '\n' + customImagesString;
+    }
 
     s += '\n';
     const QString vertFile = localFiles ? m_vertexShaderFilename : m_vertexShaderPreviewFilename;
     const QString fragFile = localFiles ? m_fragmentShaderFilename : m_fragmentShaderPreviewFilename;
     s += l2 + "vertexShader: 'file:///" + vertFile + "'\n";
     s += l2 + "fragmentShader: 'file:///" + fragFile + "'\n";
-    s += l2 + "anchors.fill: parent\n";
+    s += l2 + "anchors.fill: " + (localFiles ? "rootItem.source" : "parent") + "\n";
     if (m_shaderFeatures.enabled(ShaderFeatures::GridMesh)) {
         QString gridSize = QString("%1, %2").arg(m_shaderFeatures.gridMeshWidth())
                                             .arg(m_shaderFeatures.gridMeshHeight());
@@ -1545,6 +1584,18 @@ QString EffectMakerModel::getQmlComponentString(bool localFiles)
         s += l3 + QString("resolution: Qt.size(%1)\n").arg(gridSize);
         s += l2 + "}\n";
     }
+    if (localFiles && m_shaderFeatures.enabled(ShaderFeatures::BlurSources)) {
+        s += l2 + "BlurHelper {\n";
+        s += l3 + "id: blurHelper\n";
+        s += l3 + "source: rootItem.source\n";
+        int blurMax = 32;
+        if (g_propertyData.contains("BLUR_HELPER_MAX_LEVEL"))
+            blurMax = g_propertyData["BLUR_HELPER_MAX_LEVEL"].toInt();
+        s += l3 + QString("property int blurMax: %1\n").arg(blurMax);
+        s += l3 + "property real blurMultiplier: rootItem.blurMultiplier\n";
+        s += l2 + "}\n";
+    }
+
     s += l1 + "}\n";
     return s;
 }

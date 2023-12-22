@@ -1731,7 +1731,7 @@ bool useLayerEffect()
     QtcSettings *settings = Core::ICore::settings();
     const Key layerEffectEntry = "QML/Designer/UseLayerEffect";
 
-    return settings->value(layerEffectEntry, true).toBool();
+    return settings->value(layerEffectEntry, false).toBool();
 }
 
 bool validateEffect(const QString &effectPath)

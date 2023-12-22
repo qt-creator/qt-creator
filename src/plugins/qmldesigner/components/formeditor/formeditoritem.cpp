@@ -262,6 +262,27 @@ void FormEditorItem::setFrameColor(const QColor &color)
     update();
 }
 
+void FormEditorItem::setHasEffect(bool hasEffect)
+{
+    m_hasEffect = hasEffect;
+}
+
+bool FormEditorItem::hasEffect() const
+{
+    return m_hasEffect;
+}
+
+bool FormEditorItem::parentHasEffect() const
+{
+    FormEditorItem *pi = parentItem();
+    while (pi) {
+        if (pi->hasEffect())
+            return true;
+        pi = pi->parentItem();
+    }
+    return false;
+}
+
 FormEditorItem::~FormEditorItem()
 {
     scene()->removeItemFromHash(this);
@@ -421,7 +442,7 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
         painter->setClipRegion(boundingRect().toRect());
     painter->setClipping(true);
 
-    if (!hideCompletely) {
+    if (!hideCompletely && !parentHasEffect()) {
         if (showPlaceHolder) {
             if (scene()->showBoundingRects() && m_boundingRect.width() > 15 && m_boundingRect.height() > 15)
                 paintPlaceHolderForInvisbleItem(painter);
