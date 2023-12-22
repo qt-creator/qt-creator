@@ -185,7 +185,8 @@
                             \li Run Configurations
                                 \generatelist creator-reference-run-configurations
                         \endlist
-                \endlist
+                    \li Platforms
+                        \generatelist creator-reference-platforms
                     \li Preferences
                         \generatelist creator-reference-preferences
                         \list
@@ -205,5 +206,6 @@
                         \li Sidebar Views
                             \generatelist creator-reference-sidebar-views
                     \endlist
+                \endlist
     \endlist
 */
