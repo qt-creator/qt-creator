@@ -1560,8 +1560,7 @@ void tst_Dumpers::dumper()
                 "\n#define NOMINMAX\n#include <windows.h>") +
             "\n#endif"
             "\n#if defined(_MSC_VER)"
-                "\nvoid qtcDebugBreakFunction() { DebugBreak(); }"
-                "\n#define BREAK qtcDebugBreakFunction();"
+                "\n#define BREAK DebugBreak();"
                 "\n\nvoid unused(const void *first,...) { (void) first; }"
             "\n#else"
                 "\n#include <stdint.h>";
@@ -1792,8 +1791,7 @@ void tst_Dumpers::dumper()
              << "-G"
              << "-xn"
              << "0x4000001f"
-             << "-c"
-             << "bm doit!qtcDebugBreakFunction;g"
+             << "-g"
              << "doit.exe";
         cmds += ".symopt+0x8000\n"
                 "!qtcreatorcdbext.script sys.path.insert(1, '" + dumperDir + "')\n"
