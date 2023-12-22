@@ -1576,6 +1576,23 @@ FilePath FilePath::withNewMappedPath(const FilePath &newPath) const
 }
 
 /*!
+    Returns a path with the \a n characters of the local path removed.
+    Example usage:
+    \code
+        backup = FilePath("/tmp/example.txt.backup");
+        real = backup.chopped(7);
+        assert(real == FilePath("/tmp/example.txt"))
+    \endcode
+*/
+
+FilePath FilePath::chopped(int n) const
+{
+    FilePath res;
+    res.setParts(scheme(), host(), path().chopped(n));
+    return res;
+}
+
+/*!
     Returns a FilePath with local path \a newPath on the same device
     as the current object.
 
