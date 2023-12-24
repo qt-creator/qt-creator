@@ -386,7 +386,7 @@ void VcsOutputWindow::setData(const QByteArray &data)
 
 void VcsOutputWindow::appendSilently(const QString &text)
 {
-    append(text, None, true);
+    append((text.endsWith('\n') || text.endsWith('\r')) ? text : text + '\n', None, true);
 }
 
 void VcsOutputWindow::append(const QString &text, MessageStyle style, bool silently)
