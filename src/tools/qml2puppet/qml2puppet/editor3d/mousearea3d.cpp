@@ -10,7 +10,6 @@
 #include <QtQuick3D/private/qquick3dcamera_p.h>
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3DRuntimeRender/private/qssgrendercamera_p.h>
-#include <QtQuick3DUtils/private/qssgutils_p.h>
 #include <QtCore/qmath.h>
 
 namespace QmlDesigner {
@@ -735,9 +734,8 @@ QVector3D MouseArea3D::pivotScenePosition(QQuick3DNode *node) const
     QMatrix4x4 localTransform;
     localTransform.translate(node->position());
 
-    const QMatrix4x4 sceneTransform = parent->sceneTransform() * localTransform;
-
-    return mat44::getPosition(sceneTransform);
+    const QMatrix4x4 m = parent->sceneTransform() * localTransform;
+    return QVector3D(m(0, 3), m(1, 3), m(2, 3));
 }
 
 double MouseArea3D::getRelativeScale(QQuick3DNode *node) const
