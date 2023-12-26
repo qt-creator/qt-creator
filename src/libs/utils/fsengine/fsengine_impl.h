@@ -8,6 +8,7 @@
 #include <QtCore/private/qabstractfileengine_p.h>
 
 #include <QTemporaryFile>
+#include <QtVersionChecks>
 
 namespace Utils {
 namespace Internal {
@@ -46,13 +47,25 @@ public:
     QString fileName(FileName file) const override;
     uint ownerId(FileOwner) const override;
     QString owner(FileOwner) const override;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    using FileTime = QFile::FileTime;
+#endif
     bool setFileTime(const QDateTime &newDate, FileTime time) override;
     QDateTime fileTime(FileTime time) const override;
     void setFileName(const QString &file) override;
     int handle() const override;
     bool cloneTo(QAbstractFileEngine *target) override;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    IteratorUniquePtr beginEntryList(const QString &path, QDir::Filters filters,
+                                     const QStringList &filterNames) override;
+    IteratorUniquePtr endEntryList() override { return {}; }
+#else
     Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames) override;
-    Iterator *endEntryList() override;
+    Iterator *endEntryList() override { return nullptr; }
+#endif
+
     qint64 read(char *data, qint64 maxlen) override;
     qint64 readLine(char *data, qint64 maxlen) override;
     qint64 write(const char *data, qint64 len) override;

@@ -46,10 +46,15 @@ static bool isRootPath(const QString &fileName)
      return fileName.size() == 1 && fileName[0] == '/';
 }
 
-QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+std::unique_ptr<QAbstractFileEngine>
+#else
+QAbstractFileEngine *
+#endif
+FSEngineHandler::create(const QString &fileName) const
 {
     if (fileName.startsWith(':'))
-        return nullptr;
+        return {};
 
     static const QString rootPath = FilePath::specialRootPath();
     static const FilePath rootFilePath = FilePath::fromString(rootPath);
@@ -62,7 +67,11 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
                   return rootFilePath.pathAppended(scheme);
               });
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+        return std::make_unique<FixedListFSEngine>(removeDoubleSlash(fileName), paths);
+#else
         return new FixedListFSEngine(removeDoubleSlash(fileName), paths);
+#endif
     }
 
     if (fixedFileName.startsWith(rootPath)) {
@@ -74,20 +83,35 @@ QAbstractFileEngine *FSEngineHandler::create(const QString &fileName) const
                                                                     return root.scheme() == scheme;
                                                                 });
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+                return std::make_unique<FixedListFSEngine>(removeDoubleSlash(fileName),
+                                                           filteredRoots);
+#else
                 return new FixedListFSEngine(removeDoubleSlash(fileName), filteredRoots);
+#endif
             }
         }
 
         FilePath fixedPath = FilePath::fromString(fixedFileName);
 
-        if (fixedPath.needsDevice())
+        if (fixedPath.needsDevice()) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+            return std::make_unique<FSEngineImpl>(removeDoubleSlash(fileName));
+#else
             return new FSEngineImpl(removeDoubleSlash(fileName));
+#endif
+        }
     }
 
-    if (isRootPath(fixedFileName))
+    if (isRootPath(fixedFileName)) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+        return std::make_unique<RootInjectFSEngine>(fileName);
+#else
         return new RootInjectFSEngine(fileName);
+#endif
+    }
 
-    return nullptr;
+    return {};
 }
 
 } // Utils::Internal

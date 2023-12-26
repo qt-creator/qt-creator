@@ -295,8 +295,14 @@ bool FSEngineImpl::cloneTo(QAbstractFileEngine *target)
     return QAbstractFileEngine::cloneTo(target);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+QAbstractFileEngine::IteratorUniquePtr FSEngineImpl::beginEntryList(const QString &path,
+                                                                    QDir::Filters filters,
+                                                                    const QStringList &filterNames)
+#else
 QAbstractFileEngine::Iterator *FSEngineImpl::beginEntryList(QDir::Filters filters,
                                                             const QStringList &filterNames)
+#endif
 {
     FilePaths paths{m_filePath.pathAppended(".")};
     m_filePath.iterateDirectory(
@@ -310,12 +316,11 @@ QAbstractFileEngine::Iterator *FSEngineImpl::beginEntryList(QDir::Filters filter
         },
         {filterNames, filters});
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    return std::make_unique<DirIterator>(std::move(paths), path, filters, filterNames);
+#else
     return new DirIterator(std::move(paths));
-}
-
-QAbstractFileEngine::Iterator *FSEngineImpl::endEntryList()
-{
-    return nullptr;
+#endif
 }
 
 qint64 FSEngineImpl::read(char *data, qint64 maxlen)

@@ -6,11 +6,13 @@
 #include "../filepath.h"
 #include "../hostosinfo.h"
 
+#include <QtVersionChecks>
 #include <QtCore/private/qabstractfileengine_p.h>
 
 namespace Utils {
 namespace Internal {
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
 // Based on http://bloglitb.blogspot.com/2011/12/access-to-private-members-safer.htm
 template<typename Tag, typename Tag::type M>
 struct PrivateAccess
@@ -25,6 +27,7 @@ struct QAFEITag
 };
 
 template struct PrivateAccess<QAFEITag, &QAbstractFileEngineIterator::setPath>;
+#endif
 
 class FileIteratorWrapper : public QAbstractFileEngineIterator
 {
@@ -37,11 +40,38 @@ class FileIteratorWrapper : public QAbstractFileEngineIterator
 
 public:
     FileIteratorWrapper(std::unique_ptr<QAbstractFileEngineIterator> &&baseIterator)
-        : QAbstractFileEngineIterator(baseIterator->filters(), baseIterator->nameFilters())
+        : QAbstractFileEngineIterator(
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+            baseIterator->path(),
+#endif
+            baseIterator->filters(), baseIterator->nameFilters())
         , m_baseIterator(std::move(baseIterator))
-    {}
+    {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+        // Can be called in the constructor since the iterator path
+        // has already been set
+        setStatus();
+#endif
+    }
 
 public:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    bool advance() override
+    {
+        if (m_status == State::Ended)
+            return false;
+
+        const bool res = m_baseIterator->advance();
+        if (m_status == State::IteratingRoot && !res) {
+            // m_baseIterator finished, but we need to advance one last time, so that
+            // currentFileName() returns FilePath::specialRootPath().
+            m_status = State::Ended;
+            return true;
+        }
+
+        return res;
+    }
+#else
     QString next() override
     {
         if (m_status == State::Ended)
@@ -71,6 +101,7 @@ public:
 
         return res;
     }
+#endif
     QString currentFileName() const override
     {
         return m_status == State::Ended ? FilePath::specialRootPath()
@@ -94,6 +125,7 @@ private:
         return p;
     }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     void setPath() const
     {
         if (!m_hasSetPath) {
@@ -102,10 +134,15 @@ private:
             m_hasSetPath = true;
         }
     }
+#endif
 
 private:
     std::unique_ptr<QAbstractFileEngineIterator> m_baseIterator;
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 8, 0)
     mutable bool m_hasSetPath{false};
+#endif
+
     mutable State m_status{State::NotIteratingRoot};
 };
 
