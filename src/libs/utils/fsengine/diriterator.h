@@ -8,6 +8,7 @@
 
 #include <QFileInfo>
 #include <QString>
+#include <QtVersionChecks>
 
 #include <QtCore/private/qabstractfileengine_p.h>
 
@@ -17,14 +18,32 @@ namespace Internal {
 class DirIterator : public QAbstractFileEngineIterator
 {
 public:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    DirIterator(FilePaths paths,
+                const QString &path,
+                QDir::Filters filters,
+                const QStringList &filterNames)
+        : QAbstractFileEngineIterator(path, filters, filterNames)
+#else
     DirIterator(FilePaths paths)
         : QAbstractFileEngineIterator({}, {})
+#endif
         , m_filePaths(std::move(paths))
         , it(m_filePaths.begin())
     {}
 
     // QAbstractFileEngineIterator interface
 public:
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    bool advance() override
+    {
+        if (!m_filePaths.empty() && m_filePaths.end() != it + 1) {
+            ++it;
+            return true;
+        }
+        return false;
+    }
+#else
     QString next() override
     {
         if (it == m_filePaths.end())
@@ -35,6 +54,7 @@ public:
     }
 
     bool hasNext() const override { return !m_filePaths.empty() && m_filePaths.end() != it + 1; }
+#endif // QT_VERSION_CHECK(6, 8, 0)
 
     QString currentFileName() const override
     {
