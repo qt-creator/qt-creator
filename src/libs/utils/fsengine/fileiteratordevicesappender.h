@@ -36,10 +36,8 @@ class FileIteratorWrapper : public QAbstractFileEngineIterator
     };
 
 public:
-    FileIteratorWrapper(std::unique_ptr<QAbstractFileEngineIterator> &&baseIterator,
-                        QDir::Filters filters,
-                        const QStringList &filterNames)
-        : QAbstractFileEngineIterator(filters, filterNames)
+    FileIteratorWrapper(std::unique_ptr<QAbstractFileEngineIterator> &&baseIterator)
+        : QAbstractFileEngineIterator(baseIterator->filters(), baseIterator->nameFilters())
         , m_baseIterator(std::move(baseIterator))
     {}
 
