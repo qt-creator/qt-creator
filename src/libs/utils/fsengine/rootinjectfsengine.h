@@ -20,7 +20,7 @@ public:
     {
         std::unique_ptr<QAbstractFileEngineIterator> baseIterator(
             QFSFileEngine::beginEntryList(filters, filterNames));
-        return new FileIteratorWrapper(std::move(baseIterator), filters, filterNames);
+        return new FileIteratorWrapper(std::move(baseIterator));
     }
 };
 
