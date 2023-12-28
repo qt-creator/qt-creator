@@ -41,10 +41,11 @@ QmlDesigner::PropertyNameList createNameList(const QmlDesigner::ModelNode &node)
     using QmlDesigner::AbstractProperty;
     using QmlDesigner::PropertyName;
     using QmlDesigner::PropertyNameList;
-    static PropertyNameList defaultsNodeProps = {"id",
-                                                 QmlDesigner::CollectionEditor::SOURCEFILE_PROPERTY,
-                                                 QmlDesigner::CollectionEditor::JSONCHILDMODELNAME_PROPERTY,
-                                                 "backend"};
+    static PropertyNameList defaultsNodeProps = {
+        "id",
+        QmlDesigner::CollectionEditorConstants::SOURCEFILE_PROPERTY,
+        QmlDesigner::CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY,
+        "backend"};
     PropertyNameList dynamicPropertyNames = Utils::transform(
         node.dynamicProperties(),
         [](const AbstractProperty &property) -> PropertyName { return property.name(); });
@@ -57,8 +58,8 @@ QmlDesigner::PropertyNameList createNameList(const QmlDesigner::ModelNode &node)
 bool isValidCollectionPropertyName(const QString &collectionId)
 {
     static const QmlDesigner::PropertyNameList reservedKeywords = {
-        QmlDesigner::CollectionEditor::SOURCEFILE_PROPERTY,
-        QmlDesigner::CollectionEditor::JSONBACKEND_TYPENAME,
+        QmlDesigner::CollectionEditorConstants::SOURCEFILE_PROPERTY,
+        QmlDesigner::CollectionEditorConstants::JSONBACKEND_TYPENAME,
         "backend",
         "models",
     };
@@ -83,8 +84,9 @@ QMap<QString, QmlDesigner::PropertyName> getModelIdMap(const QmlDesigner::ModelN
             continue;
 
         ModelNode childNode = nodeProperty.modelNode();
-        if (childNode.hasProperty(CollectionEditor::JSONCHILDMODELNAME_PROPERTY)) {
-            QString modelName = childNode.property(CollectionEditor::JSONCHILDMODELNAME_PROPERTY)
+        if (childNode.hasProperty(CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY)) {
+            QString modelName = childNode
+                                    .property(CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY)
                                     .toVariantProperty()
                                     .value()
                                     .toString();
@@ -136,15 +138,16 @@ void DataStoreModelNode::reloadModel()
     }
     bool forceUpdate = false;
 
-    const FilePath dataStoreQmlPath = CollectionEditor::dataStoreQmlFilePath();
-    const FilePath dataStoreJsonPath = CollectionEditor::dataStoreJsonFilePath();
+    const FilePath dataStoreQmlPath = CollectionEditorUtils::dataStoreQmlFilePath();
+    const FilePath dataStoreJsonPath = CollectionEditorUtils::dataStoreJsonFilePath();
     QUrl dataStoreQmlUrl = dataStoreQmlPath.toUrl();
 
     if (dataStoreQmlPath.exists() && dataStoreJsonPath.exists()) {
         if (!m_model.get() || m_model->fileUrl() != dataStoreQmlUrl) {
-            m_model = Model::create(CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME, 1, 1);
+            m_model = Model::create(CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME, 1, 1);
             forceUpdate = true;
-            Import import = Import::createLibraryImport(CollectionEditor::COLLECTIONMODEL_IMPORT);
+            Import import = Import::createLibraryImport(
+                CollectionEditorConstants::COLLECTIONMODEL_IMPORT);
             try {
                 if (!m_model->hasImport(import, true, true))
                     m_model->changeImports({import}, {});
@@ -247,8 +250,9 @@ void DataStoreModelNode::updateDataStoreProperties()
             continue;
 
         ModelNode childNode = nodeProprty.modelNode();
-        if (childNode.hasProperty(CollectionEditor::JSONCHILDMODELNAME_PROPERTY)) {
-            QString modelName = childNode.property(CollectionEditor::JSONCHILDMODELNAME_PROPERTY)
+        if (childNode.hasProperty(CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY)) {
+            QString modelName = childNode
+                                    .property(CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY)
                                     .toVariantProperty()
                                     .value()
                                     .toString();
@@ -271,12 +275,13 @@ void DataStoreModelNode::updateDataStoreProperties()
         addCollectionNameToTheModel(collectionName, getUniquePropertyName(collectionName));
 
     // Backend Property
-    ModelNode backendNode = model()->createModelNode(CollectionEditor::JSONBACKEND_TYPENAME);
+    ModelNode backendNode = model()->createModelNode(CollectionEditorConstants::JSONBACKEND_TYPENAME);
     NodeProperty backendProperty = rootNode.nodeProperty("backend");
-    backendProperty.setDynamicTypeNameAndsetModelNode(CollectionEditor::JSONBACKEND_TYPENAME,
+    backendProperty.setDynamicTypeNameAndsetModelNode(CollectionEditorConstants::JSONBACKEND_TYPENAME,
                                                       backendNode);
     // Source Property
-    VariantProperty sourceProp = rootNode.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY);
+    VariantProperty sourceProp = rootNode.variantProperty(
+        CollectionEditorConstants::SOURCEFILE_PROPERTY);
     sourceProp.setValue(m_dataRelativePath);
 }
 
@@ -321,7 +326,7 @@ void DataStoreModelNode::addCollectionNameToTheModel(const QString &collectionNa
 
     ModelNode collectionNode = model()->createModelNode(CHILDLISTMODEL_TYPENAME);
     VariantProperty modelNameProperty = collectionNode.variantProperty(
-        CollectionEditor::JSONCHILDMODELNAME_PROPERTY);
+        CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY);
     modelNameProperty.setValue(collectionName);
 
     NodeProperty nodeProp = rootNode.nodeProperty(dataStorePropertyName);
@@ -393,7 +398,7 @@ void DataStoreModelNode::renameCollection(const QString &oldName, const QString 
             NodeProperty collectionNode = dataStoreNode.property(oldPropertyName).toNodeProperty();
             if (collectionNode.isValid()) {
                 VariantProperty modelNameProperty = collectionNode.modelNode().variantProperty(
-                    CollectionEditor::JSONCHILDMODELNAME_PROPERTY);
+                    CollectionEditorConstants::JSONCHILDMODELNAME_PROPERTY);
                 modelNameProperty.setValue(newName);
                 m_collectionPropertyNames.remove(oldName);
                 m_collectionPropertyNames.insert(newName, collectionNode.name());
@@ -426,7 +431,7 @@ void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
 {
     QTC_ASSERT(targetNode.isValid(), return);
 
-    if (!CollectionEditor::canAcceptCollectionAsModel(targetNode))
+    if (!CollectionEditorUtils::canAcceptCollectionAsModel(targetNode))
         return;
 
     if (!m_collectionPropertyNames.contains(collectionName)) {

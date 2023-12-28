@@ -14,11 +14,11 @@ namespace Utils {
 class FilePath;
 }
 
-namespace QmlDesigner::CollectionEditor {
+namespace QmlDesigner::CollectionEditorUtils {
 
 bool variantIslessThan(const QVariant &a, const QVariant &b, CollectionDetails::DataType type);
 
-SourceFormat getSourceCollectionFormat(const QmlDesigner::ModelNode &node);
+CollectionEditorConstants::SourceFormat getSourceCollectionFormat(const QmlDesigner::ModelNode &node);
 
 QString getSourceCollectionType(const QmlDesigner::ModelNode &node);
 
@@ -36,4 +36,8 @@ bool canAcceptCollectionAsModel(const ModelNode &node);
 
 QJsonArray defaultCollectionArray();
 
-} // namespace QmlDesigner::CollectionEditor
+QJsonArray loadAsSingleJsonCollection(const QUrl &url);
+
+QJsonArray loadAsCsvCollection(const QUrl &url);
+
+} // namespace QmlDesigner::CollectionEditorUtils

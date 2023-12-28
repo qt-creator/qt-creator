@@ -31,7 +31,7 @@ namespace {
 
 inline bool isStudioCollectionModel(const QmlDesigner::ModelNode &node)
 {
-    using namespace QmlDesigner::CollectionEditor;
+    using namespace QmlDesigner::CollectionEditorConstants;
     return node.metaInfo().typeName() == JSONCOLLECTIONMODEL_TYPENAME
            || node.metaInfo().typeName() == CSVCOLLECTIONMODEL_TYPENAME;
 }
@@ -151,7 +151,7 @@ void CollectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
         if (isStudioCollectionModel(node)) {
             if (property.name() == "objectName")
                 m_widget->sourceModel()->updateNodeName(node);
-            else if (property.name() == CollectionEditor::SOURCEFILE_PROPERTY)
+            else if (property.name() == CollectionEditorConstants::SOURCEFILE_PROPERTY)
                 m_widget->sourceModel()->updateNodeSource(node);
         }
     }
@@ -169,7 +169,8 @@ void CollectionView::selectedNodesChanged(const QList<ModelNode> &selectedNodeLi
     bool singleSelectedHasModelProperty = false;
     if (singleNonCollectionNodeSelected) {
         const ModelNode selectedNode = selectedNodeList.first();
-        singleSelectedHasModelProperty = CollectionEditor::canAcceptCollectionAsModel(selectedNode);
+        singleSelectedHasModelProperty = CollectionEditorUtils::canAcceptCollectionAsModel(
+            selectedNode);
     }
 
     m_widget->setTargetNodeSelected(singleSelectedHasModelProperty);
@@ -204,7 +205,7 @@ void CollectionView::addResource(const QUrl &url, const QString &name, const QSt
                                                  resourceMetaInfo.majorVersion(),
                                                  resourceMetaInfo.minorVersion());
         VariantProperty sourceProperty = resourceNode.variantProperty(
-            CollectionEditor::SOURCEFILE_PROPERTY);
+            CollectionEditorConstants::SOURCEFILE_PROPERTY);
         VariantProperty nameProperty = resourceNode.variantProperty("objectName");
         sourceProperty.setValue(sourceAddress);
         nameProperty.setValue(name);
@@ -252,18 +253,18 @@ void CollectionView::refreshModel()
 
 NodeMetaInfo CollectionView::jsonCollectionMetaInfo() const
 {
-    return model()->metaInfo(CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME);
+    return model()->metaInfo(CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME);
 }
 
 NodeMetaInfo CollectionView::csvCollectionMetaInfo() const
 {
-    return model()->metaInfo(CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME);
+    return model()->metaInfo(CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME);
 }
 
 void CollectionView::ensureStudioModelImport()
 {
     executeInTransaction(__FUNCTION__, [&] {
-        Import import = Import::createLibraryImport(CollectionEditor::COLLECTIONMODEL_IMPORT);
+        Import import = Import::createLibraryImport(CollectionEditorConstants::COLLECTIONMODEL_IMPORT);
         try {
             if (!model()->hasImport(import, true, true))
                 model()->changeImports({import}, {});

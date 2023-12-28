@@ -29,7 +29,7 @@ namespace QmlDesigner {
 CollectionListModel::CollectionListModel(const ModelNode &sourceModel)
     : QStringListModel()
     , m_sourceNode(sourceModel)
-    , m_sourceType(CollectionEditor::getSourceCollectionType(sourceModel))
+    , m_sourceType(CollectionEditorUtils::getSourceCollectionType(sourceModel))
 {
     connect(this, &CollectionListModel::modelReset, this, &CollectionListModel::updateEmpty);
     connect(this, &CollectionListModel::rowsRemoved, this, &CollectionListModel::updateEmpty);
@@ -121,7 +121,7 @@ ModelNode CollectionListModel::sourceNode() const
 
 QString CollectionListModel::sourceAddress() const
 {
-    return CollectionEditor::getSourceCollectionPath(m_sourceNode);
+    return CollectionEditorUtils::getSourceCollectionPath(m_sourceNode);
 }
 
 bool CollectionListModel::contains(const QString &collectionName) const

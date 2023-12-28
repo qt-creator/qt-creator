@@ -70,7 +70,7 @@ public:
 
     void resetDetails(const QStringList &propertyNames,
                       const QList<QJsonObject> &elements,
-                      CollectionEditor::SourceFormat format);
+                      CollectionEditorConstants::SourceFormat format);
     void insertColumn(const QString &propertyName,
                       int colIdx = -1,
                       const QVariant &defaultValue = {},
@@ -86,7 +86,7 @@ public:
     bool setPropertyType(int column, DataType type);
 
     CollectionReference reference() const;
-    CollectionEditor::SourceFormat sourceFormat() const;
+    CollectionEditorConstants::SourceFormat sourceFormat() const;
     QVariant data(int row, int column) const;
     QString propertyAt(int column) const;
     DataType typeAt(int column) const;

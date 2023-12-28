@@ -25,7 +25,8 @@ QSharedPointer<QmlDesigner::CollectionListModel> loadCollection(
     const QmlDesigner::ModelNode &sourceNode,
     QSharedPointer<QmlDesigner::CollectionListModel> initialCollection = {})
 {
-    using namespace QmlDesigner::CollectionEditor;
+    using namespace QmlDesigner::CollectionEditorConstants;
+    using namespace QmlDesigner::CollectionEditorUtils;
     QString sourceFileAddress = getSourceCollectionPath(sourceNode);
 
     QSharedPointer<QmlDesigner::CollectionListModel> collectionsList;
@@ -88,9 +89,9 @@ QVariant CollectionSourceModel::data(const QModelIndex &index, int role) const
     case NodeRole:
         return QVariant::fromValue(*collectionSource);
     case CollectionTypeRole:
-        return CollectionEditor::getSourceCollectionType(*collectionSource);
+        return CollectionEditorUtils::getSourceCollectionType(*collectionSource);
     case SourceRole:
-        return collectionSource->variantProperty(CollectionEditor::SOURCEFILE_PROPERTY).value();
+        return collectionSource->variantProperty(CollectionEditorConstants::SOURCEFILE_PROPERTY).value();
     case SelectedRole:
         return index.row() == m_selectedIndex;
     case CollectionsRole:
@@ -116,7 +117,8 @@ bool CollectionSourceModel::setData(const QModelIndex &index, const QVariant &va
         collectionName.setValue(value.toString());
     } break;
     case SourceRole: {
-        auto sourceAddress = collectionSource.variantProperty(CollectionEditor::SOURCEFILE_PROPERTY);
+        auto sourceAddress = collectionSource.variantProperty(
+            CollectionEditorConstants::SOURCEFILE_PROPERTY);
         if (sourceAddress.value() == value)
             return false;
 
@@ -281,13 +283,13 @@ bool CollectionSourceModel::addCollectionToSource(const ModelNode &node,
     if (idx < 0)
         return returnError(tr("Node is not indexed in the models."));
 
-    if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
+    if (node.type() != CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
         return returnError(tr("Node should be a JSON model."));
 
     if (collectionExists(node, collectionName))
         return returnError(tr("A model with the identical name already exists."));
 
-    QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
+    QString sourceFileAddress = CollectionEditorUtils::getSourceCollectionPath(node);
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile())
@@ -424,16 +426,16 @@ void CollectionSourceModel::onCollectionNameChanged(CollectionListModel *collect
         return;
     }
 
-    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME) {
+    if (node.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME) {
         if (!setData(nodeIndex, newName, NameRole))
             emitRenameWarning(tr("Can't rename the node"));
         return;
-    } else if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME) {
+    } else if (node.type() != CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME) {
         emitRenameWarning(tr("Invalid node type"));
         return;
     }
 
-    QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
+    QString sourceFileAddress = CollectionEditorUtils::getSourceCollectionPath(node);
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile()) {
@@ -513,15 +515,15 @@ void CollectionSourceModel::onCollectionsRemoved(CollectionListModel *collection
         return;
     }
 
-    if (node.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME) {
+    if (node.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME) {
         removeSource(node);
         return;
-    } else if (node.type() != CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME) {
+    } else if (node.type() != CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME) {
         emitDeleteWarning(tr("Invalid node type"));
         return;
     }
 
-    QString sourceFileAddress = CollectionEditor::getSourceCollectionPath(node);
+    QString sourceFileAddress = CollectionEditorUtils::getSourceCollectionPath(node);
 
     QFileInfo sourceFileInfo(sourceFileAddress);
     if (!sourceFileInfo.isFile()) {

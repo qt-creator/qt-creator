@@ -390,7 +390,7 @@ QStringList CollectionDetailsModel::typesList()
 
 void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const QString &collection)
 {
-    QString fileName = CollectionEditor::getSourceCollectionPath(sourceNode);
+    QString fileName = CollectionEditorUtils::getSourceCollectionPath(sourceNode);
 
     CollectionReference newReference{sourceNode, collection};
     bool alreadyOpen = m_openedCollections.contains(newReference);
@@ -405,9 +405,9 @@ void CollectionDetailsModel::loadCollection(const ModelNode &sourceNode, const Q
     } else {
         deselectAll();
         switchToCollection(newReference);
-        if (sourceNode.type() == CollectionEditor::JSONCOLLECTIONMODEL_TYPENAME)
+        if (sourceNode.type() == CollectionEditorConstants::JSONCOLLECTIONMODEL_TYPENAME)
             loadJsonCollection(fileName, collection);
-        else if (sourceNode.type() == CollectionEditor::CSVCOLLECTIONMODEL_TYPENAME)
+        else if (sourceNode.type() == CollectionEditorConstants::CSVCOLLECTIONMODEL_TYPENAME)
             loadCsvCollection(fileName, collection);
     }
 }
@@ -467,7 +467,7 @@ void CollectionDetailsModel::closeCurrentCollectionIfSaved()
 
 void CollectionDetailsModel::loadJsonCollection(const QString &source, const QString &collection)
 {
-    using CollectionEditor::SourceFormat;
+    using CollectionEditorConstants::SourceFormat;
 
     QFile sourceFile(source);
     QJsonArray collectionNodes;
@@ -512,7 +512,7 @@ void CollectionDetailsModel::loadJsonCollection(const QString &source, const QSt
 void CollectionDetailsModel::loadCsvCollection(const QString &source,
                                               [[maybe_unused]] const QString &collectionName)
 {
-    using CollectionEditor::SourceFormat;
+    using CollectionEditorConstants::SourceFormat;
 
     QFile sourceFile(source);
     QStringList headers;
@@ -601,8 +601,8 @@ bool CollectionDetailsModel::saveCollection(const QString &filePath, CollectionD
     bool saved = false;
 
     const ModelNode node = m_currentCollection.reference().node;
-    QString path = CollectionEditor::getSourceCollectionPath(node);
-    QString saveFormat = CollectionEditor::getSourceCollectionType(node);
+    QString path = CollectionEditorUtils::getSourceCollectionPath(node);
+    QString saveFormat = CollectionEditorUtils::getSourceCollectionType(node);
 
     QFile sourceFile(path);
 

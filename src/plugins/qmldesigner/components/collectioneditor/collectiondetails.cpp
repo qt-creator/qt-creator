@@ -28,7 +28,7 @@ const QMap<DataTypeWarning::Warning, QString> DataTypeWarning::dataTypeWarnings 
 
 class CollectionDetails::Private
 {
-    using SourceFormat = CollectionEditor::SourceFormat;
+    using SourceFormat = CollectionEditorConstants::SourceFormat;
 
 public:
     QList<CollectionProperty> properties;
@@ -101,7 +101,7 @@ CollectionDetails::~CollectionDetails() = default;
 
 void CollectionDetails::resetDetails(const QStringList &propertyNames,
                                      const QList<QJsonObject> &elements,
-                                     CollectionEditor::SourceFormat format)
+                                     CollectionEditorConstants::SourceFormat format)
 {
     if (!isValid())
         return;
@@ -295,7 +295,7 @@ CollectionReference CollectionDetails::reference() const
     return d->reference;
 }
 
-CollectionEditor::SourceFormat CollectionDetails::sourceFormat() const
+CollectionEditorConstants::SourceFormat CollectionDetails::sourceFormat() const
 {
     return d->sourceFormat;
 }
