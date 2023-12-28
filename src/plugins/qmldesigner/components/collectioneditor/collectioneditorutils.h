@@ -34,10 +34,16 @@ bool ensureDataStoreExists(bool &justCreated);
 
 bool canAcceptCollectionAsModel(const ModelNode &node);
 
+bool hasTextRoleProperty(const ModelNode &node);
+
 QJsonArray defaultCollectionArray();
 
 QJsonArray loadAsSingleJsonCollection(const QUrl &url);
 
 QJsonArray loadAsCsvCollection(const QUrl &url);
+
+QString getFirstColumnName(const QString &collectionName);
+
+bool collectionHasColumn(const QString &collectionName, const QString &columnName);
 
 } // namespace QmlDesigner::CollectionEditorUtils

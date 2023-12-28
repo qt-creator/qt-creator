@@ -450,12 +450,27 @@ void DataStoreModelNode::assignCollectionToNode(AbstractView *view,
         return;
     }
 
-    BindingProperty modelProperty = targetNode.bindingProperty("model");
-
-    QString identifier = QString("DataStore.%1").arg(QString::fromLatin1(sourceProperty.name()));
-
-    view->executeInTransaction("assignCollectionToNode", [&modelProperty, &identifier]() {
+    view->executeInTransaction("assignCollectionToNode", [&]() {
+        QString identifier = QString("DataStore.%1").arg(QString::fromLatin1(sourceProperty.name()));
+        BindingProperty modelProperty = targetNode.bindingProperty("model");
         modelProperty.setExpression(identifier);
+        if (CollectionEditorUtils::hasTextRoleProperty(targetNode)) {
+            VariantProperty textRoleProperty = targetNode.variantProperty("textRole");
+            const QVariant currentTextRoleValue = textRoleProperty.value();
+
+            if (currentTextRoleValue.isValid() && !currentTextRoleValue.isNull()) {
+                if (currentTextRoleValue.type() == QVariant::String) {
+                    const QString currentTextRole = currentTextRoleValue.toString();
+                    if (CollectionEditorUtils::collectionHasColumn(collectionName, currentTextRole))
+                        return;
+                } else {
+                    return;
+                }
+            }
+
+            QString textRoleValue = CollectionEditorUtils::getFirstColumnName(collectionName);
+            textRoleProperty.setValue(textRoleValue);
+        }
     });
 }
 
